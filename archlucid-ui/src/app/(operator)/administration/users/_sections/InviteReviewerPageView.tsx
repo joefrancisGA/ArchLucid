@@ -18,7 +18,6 @@ import {
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-import { InviteReviewerEvidenceOrientationStrip } from "./InviteReviewerEvidenceOrientationStrip";
 import { SettingsRolesInvitePanel } from "./SettingsRolesInvitePanel";
 import { InviteReviewerReaderCapabilitiesSummary } from "./InviteReviewerReaderCapabilitiesSummary";
 import type { SettingsRolesPageViewModel } from "./settings-roles-page-view-model";
@@ -75,10 +74,7 @@ export function InviteReviewerPageView(props: Props) {
   return (
     <div className="w-full max-w-[720px] space-y-6" data-testid="invite-reviewer-page">
       <InviteReviewerPageHeader />
-
-      <InviteReviewerEvidenceOrientationStrip />
-
-      <Card>
+<Card>
         <CardHeader>
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Reviewer invitation</CardTitle>
         </CardHeader>

@@ -8,7 +8,6 @@ import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmpty
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Badge } from "@/components/ui/badge";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { PatternLibraryEvidenceOrientationStrip } from "./PatternLibraryEvidenceOrientationStrip";
 import { PatternLibraryFiltersPanel } from "./PatternLibraryFiltersPanel";
 import { PatternLibraryPatternCard } from "./PatternLibraryPatternCard";
 import { PatternLibrarySummaryRow } from "./PatternLibrarySummaryRow";
@@ -82,10 +81,7 @@ export function PatternLibraryPageClient(): React.JSX.Element {
           <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.micro)}>{provenance.privacyNote}</p>
         </div>
       </OperatorPageHeader>
-
-      <PatternLibraryEvidenceOrientationStrip />
-
-      <PatternLibrarySummaryRow summary={summary} />
+<PatternLibrarySummaryRow summary={summary} />
 
       <PatternLibraryFiltersPanel filters={filters} onChange={setFilters} />
 

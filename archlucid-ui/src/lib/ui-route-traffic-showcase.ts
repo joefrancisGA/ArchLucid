@@ -15,4 +15,4 @@ export const SHOWCASE_TRAFFIC_SECTION = "Marketing";
  * ASCII-only for Windows console note scripts.
  */
 export const SHOWCASE_TRAFFIC_NOTE =
-  "Showcase run (Marketing) - ShowcaseEvidenceOrientationStrip (evaluation Sources + claim-discipline: sample showcase only) on showcase run surface. Not an operator PageContextualHelp surface. Does not imply CPA SOC 2 or third-party pen-test publication. Score 40/100 (2026-08-08) - marketing showcase page hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
+  "Showcase run (Marketing) - ShowcaseEvidenceOrientationStrip (evaluation Sources + claim-discipline: sample showcase only) on showcase run surface. Not an operator PageContextualHelp surface. Score 40/100 (2026-08-08) - marketing showcase page hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";

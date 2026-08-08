@@ -40,7 +40,6 @@ import { STANDARDS_RULES_PAGE_SUBTITLE, STANDARDS_RULES_PAGE_TITLE } from "@/lib
 
 import type { GovernanceResolutionPageViewModel } from "./governance-resolution-page-view-model";
 import { StandardsRulesEmptyState } from "./StandardsRulesEmptyState";
-import { StandardsRulesEvidenceOrientationStrip } from "./StandardsRulesEvidenceOrientationStrip";
 import { StandardsRulesFilters } from "./StandardsRulesFilters";
 import { StandardsRulesSummaryStrip } from "./StandardsRulesSummaryStrip";
 import { StandardsRulesTable } from "./StandardsRulesTable";
@@ -218,8 +217,7 @@ export function GovernanceResolutionPageView(props: Props) {
           subtitle={STANDARDS_RULES_PAGE_SUBTITLE}
           actions={<PageContextualHelpButton />}
         />
-        <StandardsRulesEvidenceOrientationStrip />
-        {m.failure !== null ? (
+{m.failure !== null ? (
           <div role="alert">
             <OperatorApiProblem
               problem={m.failure.problem}
@@ -260,8 +258,7 @@ export function GovernanceResolutionPageView(props: Props) {
         subtitle={m.canMutateEnterprisePolicySurfaces ? governanceResolutionPageLeadOperator : governanceResolutionPageLeadReader}
         actions={<PageContextualHelpButton />}
       />
-      <StandardsRulesEvidenceOrientationStrip />
-      <GovernanceResolutionRankCue className="mb-3" />
+<GovernanceResolutionRankCue className="mb-3" />
       {m.failure !== null ? (
         <div role="alert">
           <OperatorApiProblem

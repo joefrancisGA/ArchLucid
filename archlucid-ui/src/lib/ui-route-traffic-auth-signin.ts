@@ -15,4 +15,4 @@ export const AUTH_SIGNIN_TRAFFIC_SECTION = "Auth";
  * ASCII-only for Windows console note scripts.
  */
 export const AUTH_SIGNIN_TRAFFIC_NOTE =
-  "Sign in (Auth) - SignInClient/SignInFlowClient with SignInEvidenceOrientationStrip (public Sources + claim-discipline: authentication gate only), AuthFlowShell email/SSO/code steps. Not an operator PageContextualHelp surface. Sibling ACB = callback; AUB = bootstrap; ASU = session-expired. Score 54/100 (2026-08-08) - auth gate hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
+ "Sign in (Auth) - SignInClient/SignInFlowClient with, AuthFlowShell email/SSO/code steps. Not an operator PageContextualHelp surface. Sibling ACB = callback; AUB = bootstrap; ASU = session-expired. Score 54/100 (2026-08-08) - auth gate hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";

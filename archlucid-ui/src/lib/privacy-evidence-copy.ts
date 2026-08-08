@@ -3,7 +3,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const PRIVACY_CANONICAL_PATH = "/privacy" as const;
 
 export const PRIVACY_CLAIM_DISCIPLINE =
-  "This Privacy Policy is a public legal notice for website visitors and product users — it is not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Assurance status or Trust Center when you need evaluation assurance materials.";
+  "This Privacy Policy is a public legal notice for website visitors and product users — it is not a signed-review diligence Sources package. Open Assurance status or Trust Center when you need evaluation assurance materials.";
 
 export const PRIVACY_SOURCES_INTRO =
   "Use these evaluation links when privacy questions turn into assurance, data-handling, or trust follow-ups.";

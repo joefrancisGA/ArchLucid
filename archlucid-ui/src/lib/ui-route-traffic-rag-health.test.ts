@@ -64,7 +64,7 @@ describe("ui-route-traffic-rag-health (ARX)", () => {
     expect(row?.path).toBe(RAG_HEALTH_TRAFFIC_PATH);
     expect(row?.section).toBe(RAG_HEALTH_TRAFFIC_SECTION);
     expect(row?.notes).toBe(RAG_HEALTH_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("RagHealthEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

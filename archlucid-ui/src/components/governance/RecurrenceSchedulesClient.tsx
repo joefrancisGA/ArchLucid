@@ -12,7 +12,6 @@ import { RecurrenceScheduleActivationActions } from "@/components/governance/Rec
 import { RecurrenceScheduleCreatePanel } from "@/components/governance/RecurrenceScheduleCreatePanel";
 import { RecurrenceScheduleExamplesSection } from "@/components/governance/RecurrenceScheduleExamplesSection";
 import { RecurrenceScheduleFormFields } from "@/components/governance/RecurrenceScheduleFormFields";
-import { RecurrenceSchedulesEvidenceOrientationStrip } from "@/components/governance/RecurrenceSchedulesEvidenceOrientationStrip";
 import { RecurrenceSchedulesWorkflowHelperCard } from "@/components/governance/RecurrenceSchedulesWorkflowHelperCard";
 import { Button } from "@/components/ui/button";
 import {
@@ -315,10 +314,7 @@ export default function RecurrenceSchedulesClient() {
               </div>
             }
           />
-
-          <RecurrenceSchedulesEvidenceOrientationStrip />
-
-          <CollapsibleSection
+<CollapsibleSection
             title={RECURRENCE_SCHEDULES_HOW_IT_WORKS_TITLE}
             sectionTestId="recurrence-schedules-how-it-works"
           >

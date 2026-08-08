@@ -1,7 +1,5 @@
 "use client";
 
-
-
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -10,19 +8,13 @@ import { cn } from "@/lib/utils";
 
 import type { LearningPlanDetailResponse } from "@/types/learning";
 
-
-
 type PlanningPlanDetailSectionsProps = {
 
   plan: LearningPlanDetailResponse;
 
 };
 
-
-
 const detailGridClass = cn("mb-2 grid grid-cols-[160px_1fr] items-baseline gap-x-4 gap-y-2", OPERATOR_TYPOGRAPHY.body);
-
-
 
 export function PlanningPlanDetailSections({ plan }: PlanningPlanDetailSectionsProps) {
 
@@ -39,8 +31,6 @@ export function PlanningPlanDetailSections({ plan }: PlanningPlanDetailSectionsP
         </h3>
 
         <p className={cn("mt-0 leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{plan.summary}</p>
-
-
 
         <div className="mt-4">
 
@@ -92,8 +82,6 @@ export function PlanningPlanDetailSections({ plan }: PlanningPlanDetailSectionsP
 
       </section>
 
-
-
       <section className="mb-6" aria-labelledby="plan-evidence-heading">
 
         <h4 id="plan-evidence-heading" className={cn("mb-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
@@ -113,8 +101,6 @@ export function PlanningPlanDetailSections({ plan }: PlanningPlanDetailSectionsP
         </ul>
 
       </section>
-
-
 
       {plan.theme ? (
 
@@ -141,8 +127,6 @@ export function PlanningPlanDetailSections({ plan }: PlanningPlanDetailSectionsP
         </section>
 
       ) : null}
-
-
 
       <section className="mb-6" aria-labelledby="plan-steps-heading">
 

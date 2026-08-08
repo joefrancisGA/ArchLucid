@@ -64,8 +64,7 @@ describe("HelpDataHandlingTenantIsolationGuideView", () => {
       }),
     ).toHaveAttribute("href", DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_ACTIONS.securityTrust.href);
 
-    const sources = screen.getByTestId("help-data-handling-tenant-isolation-sources");
-
+    expect(screen.queryByTestId("help-data-handling-tenant-isolation-sources")).toBeNull(); // TB-2092
     for (const link of DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES) {
       expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
     }

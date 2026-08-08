@@ -7,8 +7,6 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-import { PreferencesSettingsEvidenceOrientationStrip } from "./PreferencesSettingsEvidenceOrientationStrip";
-
 export function PreferencesSettingsPageView() {
   return (
     <div className="w-full max-w-[62rem] space-y-6" data-testid="preferences-settings-page">
@@ -18,10 +16,7 @@ export function PreferencesSettingsPageView() {
         titleTestId="preferences-settings-page-title"
         actions={<PageContextualHelpButton />}
       />
-
-      <PreferencesSettingsEvidenceOrientationStrip />
-
-      <Card data-testid="preferences-appearance-card">
+<Card data-testid="preferences-appearance-card">
         <CardHeader>
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Appearance</CardTitle>
         </CardHeader>

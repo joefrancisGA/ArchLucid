@@ -15,4 +15,4 @@ export const LEGACY_SETTINGS_ALERTS_TRAFFIC_SECTION = "Settings";
  * ASCII-only for Windows console note scripts.
  */
 export const LEGACY_SETTINGS_ALERTS_TRAFFIC_NOTE =
-  "Retired Settings alerts bookmark (Settings) - no App Router page or next.config redirect (TB-1886/TB-1887). Live Alert rules hub is SAX `/governance/alert-rules`. Traffic-tracked retired bookmark only - not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 28/100 (2026-08-08) - retired-path / shim hard-caps higher Evidence. Owner pass: no UI to improve; cannot improve further toward 80 without reintroducing a live Settings alerts surface (forbidden by TB-1890 anti-reintro).";
+ "Retired Settings alerts bookmark (Settings) - no App Router page or next.config redirect (TB-1886/TB-1887). Live Alert rules hub is SAX `/governance/alert-rules`. Traffic-tracked retired bookmark only - not a signed-record Sources trail. Score 28/100 (2026-08-08) - retired-path / shim hard-caps higher Evidence. Owner pass: no UI to improve; cannot improve further toward 80 without reintroducing a live Settings alerts surface (forbidden by TB-1890 anti-reintro).";

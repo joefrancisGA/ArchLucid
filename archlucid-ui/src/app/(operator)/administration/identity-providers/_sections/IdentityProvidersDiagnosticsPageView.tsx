@@ -18,7 +18,6 @@ import { AuthTokenTestMappingCard } from "./AuthTokenTestMappingCard";
 import { IdentityProviderHealthStrip } from "./IdentityProviderHealthStrip";
 import { IdentityProviderSetupChecklist } from "./IdentityProviderSetupChecklist";
 import { IdentityProvidersCatalogTable } from "./IdentityProvidersCatalogTable";
-import { IdentityProvidersDiagnosticsEvidenceOrientationStrip } from "./IdentityProvidersDiagnosticsEvidenceOrientationStrip";
 import { IdentityProvidersSettingsShell } from "./IdentityProvidersSettingsShell";
 import { OidcDiagnosticsStrip } from "./OidcDiagnosticsStrip";
 import { SamlOperationalHealthStrip } from "./SamlOperationalHealthStrip";
@@ -41,9 +40,7 @@ export function IdentityProvidersDiagnosticsPageView(
       lastRefreshedAt={props.model.lastRefreshedAt}
       onRefresh={() => void props.model.refresh()}
     >
-      <IdentityProvidersDiagnosticsEvidenceOrientationStrip />
-
-      <Card data-testid="identity-providers-diagnostics-intro">
+<Card data-testid="identity-providers-diagnostics-intro">
         <CardContent className={cn("py-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           <p className="m-0">
             Use diagnostics to validate identity configuration, review health probes, and run support tooling before

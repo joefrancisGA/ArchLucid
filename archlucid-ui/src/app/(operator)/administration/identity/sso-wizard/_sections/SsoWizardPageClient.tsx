@@ -37,7 +37,6 @@ import {
 import { showError, showSuccess } from "@/lib/toast";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { SsoWizardEvidenceOrientationStrip } from "./SsoWizardEvidenceOrientationStrip";
 import { SsoWizardFooter } from "./SsoWizardFooter";
 import { SsoWizardProtocolHelpDisclosure } from "./SsoWizardProtocolHelpDisclosure";
 import { SsoWizardProtocolSelector } from "./SsoWizardProtocolSelector";
@@ -321,10 +320,7 @@ export function SsoWizardPageClient() {
           {SSO_WIZARD_STATUS_NOT_ACTIVE}
         </p>
       </header>
-
-      <SsoWizardEvidenceOrientationStrip />
-
-      <SsoWizardStepper currentStep={step} completedSteps={completedSteps} />
+<SsoWizardStepper currentStep={step} completedSteps={completedSteps} />
 
       {error ? <OperatorApiProblem problem={null} fallbackMessage={error} /> : null}
 

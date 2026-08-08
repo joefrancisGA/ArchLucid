@@ -7,7 +7,6 @@ import { HelpTourTrigger } from "./HelpTourTrigger";
 import { HelpDocumentationGuide } from "./HelpDocumentationGuide";
 import { HelpProductGuide } from "./HelpProductGuide";
 import { HelpTabsShell } from "./HelpTabsShell";
-import { HelpHubEvidenceOrientationStrip } from "./_sections/HelpHubEvidenceOrientationStrip";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export const metadata: Metadata = {
@@ -45,10 +44,7 @@ export default function HelpPage() {
           <HelpTourTrigger />
         </div>
       </div>
-
-      <HelpHubEvidenceOrientationStrip />
-
-      <HelpTabsShell guide={<HelpProductGuide />} docs={<HelpDocumentationGuide />} />
+<HelpTabsShell guide={<HelpProductGuide />} docs={<HelpDocumentationGuide />} />
     </OperatorPageContainer>
   );
 }

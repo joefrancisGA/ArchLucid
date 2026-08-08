@@ -30,8 +30,6 @@ import {
   type AdminTenantTier,
 } from "@/lib/admin-tenants-ops";
 
-import { AdminTenantsEvidenceOrientationStrip } from "./AdminTenantsEvidenceOrientationStrip";
-
 function formatUtc(iso: string | null | undefined): string {
   if (iso == null || iso.trim().length === 0) {
     return "—";
@@ -233,10 +231,7 @@ export function AdminTenantsPageClient() {
           {loading ? "Refreshing…" : "Refresh"}
         </Button>
       </div>
-
-      <AdminTenantsEvidenceOrientationStrip />
-
-      <section
+<section
         className="space-y-3 rounded-md border border-neutral-300 p-4 dark:border-neutral-700"
         aria-labelledby="admin-tenants-create-heading"
         data-testid="admin-tenants-create"

@@ -61,8 +61,7 @@ describe("HelpFirstReviewEvidenceChecklistGuideView", () => {
     expect(screen.getByTestId("help-first-review-evidence-checklist-guide")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-first-review-evidence-arc")).toBeInTheDocument();
-    expect(screen.getByTestId("help-first-review-claim-discipline")).toBeInTheDocument();
-
+    expect(screen.queryByTestId("help-first-review-claim-discipline")).toBeNull(); // TB-2092
     const actionPanel = screen.getByTestId("help-first-review-action-panel");
 
     expect(
@@ -77,8 +76,7 @@ describe("HelpFirstReviewEvidenceChecklistGuideView", () => {
       }),
     ).toHaveAttribute("href", FIRST_REVIEW_HELP_PRIMARY_ACTIONS.startArchitectureReview.href);
 
-    const sources = screen.getByTestId("help-first-review-sources");
-
+    expect(screen.queryByTestId("help-first-review-sources")).toBeNull(); // TB-2092
     for (const link of FIRST_REVIEW_HELP_SOURCES) {
       expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
     }

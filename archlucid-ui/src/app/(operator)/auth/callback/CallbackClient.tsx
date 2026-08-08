@@ -16,7 +16,6 @@ import {
 import { loadDiscoveryDocument } from "@/lib/oidc/discovery";
 import { exchangeAuthorizationCode } from "@/lib/oidc/token-client";
 import { decodeJwtPayload, readNonceFromPayload } from "@/lib/oidc/jwt-payload";
-import { AuthCallbackEvidenceOrientationStrip } from "@/app/(operator)/auth/callback/AuthCallbackEvidenceOrientationStrip";
 import { AuthFlowShell } from "@/components/auth/AuthFlowShell";
 import { AUTH_CALLBACK_LOADING_DETAIL } from "@/lib/auth/auth-callback-page-copy";
 import {
@@ -196,14 +195,14 @@ export function CallbackClient() {
 
   if (failed) {
     return (
-      <AuthFlowShell afterPanel={<AuthCallbackEvidenceOrientationStrip />}>
+      <AuthFlowShell>
         <AuthCallbackAccessPanel technicalDetail={toBuyerSafeAuthFailureMessage(message)} />
       </AuthFlowShell>
     );
   }
 
   return (
-    <AuthFlowShell afterPanel={<AuthCallbackEvidenceOrientationStrip />}>
+    <AuthFlowShell>
       <AuthCallbackLoadingView message={message} showSlowHint={showSlowHint} />
     </AuthFlowShell>
   );

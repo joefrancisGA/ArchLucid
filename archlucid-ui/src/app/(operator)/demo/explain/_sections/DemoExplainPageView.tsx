@@ -7,7 +7,6 @@ import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { DemoExplainEvidenceOrientationStrip } from "./DemoExplainEvidenceOrientationStrip";
 import { DemoExplainExplanationPanel } from "./DemoExplainExplanationPanel";
 import { DemoExplainNotAvailableNotice } from "./DemoExplainNotAvailableNotice";
 import { DemoExplainProvenanceGraphPanel } from "./DemoExplainProvenanceGraphPanel";
@@ -42,10 +41,7 @@ export function DemoExplainPageView(props: Props) {
         </div>
         {state.payload ? <DemoExplainStatusBanner payload={state.payload} /> : null}
       </header>
-
-      <DemoExplainEvidenceOrientationStrip />
-
-      {state.error ? (
+{state.error ? (
         <OperatorApiProblem
           problem={state.error.problem}
           fallbackMessage={state.error.message}

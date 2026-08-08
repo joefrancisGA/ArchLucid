@@ -19,28 +19,6 @@ import { HelpReviewPackagesGuideView } from "../_sections/HelpReviewPackagesGuid
 import { HelpReviewGuideView } from "../_sections/HelpReviewGuideView";
 import { HelpPilotGuideView } from "../_sections/HelpPilotGuideView";
 import { HelpConfigurationReferenceGuideView } from "../_sections/HelpConfigurationReferenceGuideView";
-import { SecurityTrustHelpEvidenceOrientationStrip } from "../_sections/SecurityTrustHelpEvidenceOrientationStrip";
-import { AcceleratorChooserHelpEvidenceOrientationStrip } from "../_sections/AcceleratorChooserHelpEvidenceOrientationStrip";
-import { AdminDiagnosticsHelpEvidenceOrientationStrip } from "../_sections/AdminDiagnosticsHelpEvidenceOrientationStrip";
-import { AuthenticationSignInHelpEvidenceOrientationStrip } from "../_sections/AuthenticationSignInHelpEvidenceOrientationStrip";
-import { AzureBoardsHelpEvidenceOrientationStrip } from "../_sections/AzureBoardsHelpEvidenceOrientationStrip";
-import { PolicyPacksHelpEvidenceOrientationStrip } from "../_sections/PolicyPacksHelpEvidenceOrientationStrip";
-import { PriorManifestRetrievalHelpEvidenceOrientationStrip } from "../_sections/PriorManifestRetrievalHelpEvidenceOrientationStrip";
-import { ReportAProblemHelpEvidenceOrientationStrip } from "../_sections/ReportAProblemHelpEvidenceOrientationStrip";
-import { SubprocessorsHelpEvidenceOrientationStrip } from "../_sections/SubprocessorsHelpEvidenceOrientationStrip";
-import { IntegrationReadinessHelpEvidenceOrientationStrip } from "../_sections/IntegrationReadinessHelpEvidenceOrientationStrip";
-import { PilotFeedbackHelpEvidenceOrientationStrip } from "../_sections/PilotFeedbackHelpEvidenceOrientationStrip";
-import { PilotNavProfileHelpEvidenceOrientationStrip } from "../_sections/PilotNavProfileHelpEvidenceOrientationStrip";
-import { CaiqSigResponseHelpEvidenceOrientationStrip } from "../_sections/CaiqSigResponseHelpEvidenceOrientationStrip";
-import { ComparisonReplayHelpEvidenceOrientationStrip } from "../_sections/ComparisonReplayHelpEvidenceOrientationStrip";
-import { ConnectAwsSecurelyHelpEvidenceOrientationStrip } from "../_sections/ConnectAwsSecurelyHelpEvidenceOrientationStrip";
-import { ConnectGcpSecurelyHelpEvidenceOrientationStrip } from "../_sections/ConnectGcpSecurelyHelpEvidenceOrientationStrip";
-import { ScopeHelpEvidenceOrientationStrip } from "../_sections/ScopeHelpEvidenceOrientationStrip";
-import { ProcurementHelpEvidenceOrientationStrip } from "../_sections/ProcurementHelpEvidenceOrientationStrip";
-import { EvidenceTrailHelpEvidenceOrientationStrip } from "../_sections/EvidenceTrailHelpEvidenceOrientationStrip";
-import { EvidenceIntakeHelpEvidenceOrientationStrip } from "../_sections/EvidenceIntakeHelpEvidenceOrientationStrip";
-import { EnterpriseOnboardingHelpEvidenceOrientationStrip } from "../_sections/EnterpriseOnboardingHelpEvidenceOrientationStrip";
-import { PilotRoiModelHelpEvidenceOrientationStrip } from "../_sections/PilotRoiModelHelpEvidenceOrientationStrip";
 import { HelpDataHandlingTenantIsolationGuideView } from "../_sections/HelpDataHandlingTenantIsolationGuideView";
 import { HelpDpaTemplateGuideView } from "../_sections/HelpDpaTemplateGuideView";
 import { HelpSoc2SelfAssessmentGuideView } from "../_sections/HelpSoc2SelfAssessmentGuideView";
@@ -55,7 +33,6 @@ import { HelpSpecialtyWalkthroughTemplatesView } from "../_sections/HelpSpecialt
 import { HelpGettingStartedGuideView } from "../_sections/HelpGettingStartedGuideView";
 import { HelpCloudConnectionsGuideView } from "../_sections/HelpCloudConnectionsGuideView";
 import { HelpTopicAuthorityGate } from "../_sections/HelpTopicAuthorityGate";
-import { HelpTopicCatchAllEvidenceOrientationStrip } from "../_sections/HelpTopicCatchAllEvidenceOrientationStrip";
 import { HelpTopicMarkdownClient } from "../_sections/HelpTopicMarkdownClient";
 import { HelpTopicNotFoundView } from "../_sections/HelpTopicNotFoundView";
 import { HelpTroubleshootingGuideView } from "../_sections/HelpTroubleshootingGuideView";
@@ -201,7 +178,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={<ConnectAwsSecurelyHelpEvidenceOrientationStrip />}
       />
     );
   }
@@ -212,7 +188,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={<ConnectGcpSecurelyHelpEvidenceOrientationStrip />}
       />
     );
   }
@@ -293,7 +268,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={<SecurityTrustHelpEvidenceOrientationStrip />}
       />
     );
   }
@@ -304,7 +278,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={<AcceleratorChooserHelpEvidenceOrientationStrip />}
       />
     );
   }
@@ -315,7 +288,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={<AdminDiagnosticsHelpEvidenceOrientationStrip />}
       />
     );
   }
@@ -326,7 +298,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={<AuthenticationSignInHelpEvidenceOrientationStrip />}
       />
     );
   }
@@ -337,7 +308,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={<AzureBoardsHelpEvidenceOrientationStrip />}
       />
     );
   }
@@ -348,7 +318,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={<PolicyPacksHelpEvidenceOrientationStrip />}
       />
     );
   }
@@ -359,7 +328,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={<PriorManifestRetrievalHelpEvidenceOrientationStrip />}
       />
     );
   }
@@ -370,7 +338,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={<ReportAProblemHelpEvidenceOrientationStrip />}
       />
     );
   }
@@ -381,7 +348,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={<SubprocessorsHelpEvidenceOrientationStrip />}
       />
     );
   }
@@ -392,7 +358,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={<IntegrationReadinessHelpEvidenceOrientationStrip />}
       />
     );
   }
@@ -403,7 +368,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={<PilotFeedbackHelpEvidenceOrientationStrip />}
       />
     );
   }
@@ -414,7 +378,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={<PilotNavProfileHelpEvidenceOrientationStrip />}
       />
     );
   }
@@ -425,7 +388,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={<CaiqSigResponseHelpEvidenceOrientationStrip />}
       />
     );
   }
@@ -436,7 +398,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={<ComparisonReplayHelpEvidenceOrientationStrip />}
       />
     );
   }
@@ -447,7 +408,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={<ScopeHelpEvidenceOrientationStrip />}
       />
     );
   }
@@ -458,7 +418,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={<ProcurementHelpEvidenceOrientationStrip />}
       />
     );
   }
@@ -469,7 +428,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={<EvidenceTrailHelpEvidenceOrientationStrip />}
       />
     );
   }
@@ -480,7 +438,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={<EvidenceIntakeHelpEvidenceOrientationStrip />}
       />
     );
   }
@@ -491,7 +448,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={<EnterpriseOnboardingHelpEvidenceOrientationStrip />}
       />
     );
   }
@@ -502,7 +458,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={<PilotRoiModelHelpEvidenceOrientationStrip />}
       />
     );
   }
@@ -512,7 +467,6 @@ function renderHelpTopicView(
       entry={loaded.entry}
       markdown={loaded.markdown}
       showContextualHelp
-      evidenceOrientation={<HelpTopicCatchAllEvidenceOrientationStrip />}
     />
   );
 }

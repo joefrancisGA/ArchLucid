@@ -65,7 +65,7 @@ describe("ui-route-traffic-compare-two-reviews (CXX)", () => {
     expect(row?.section).toBe(COMPARE_TWO_REVIEWS_TRAFFIC_SECTION);
     expect(row?.notes).toBe(COMPARE_TWO_REVIEWS_TRAFFIC_NOTE);
     expect(row?.notes).toContain("CompareForm");
-    expect(row?.notes).toContain("CompareEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("Score 52");
     expect(row?.notes).toContain("cannot improve further toward 80");
   });

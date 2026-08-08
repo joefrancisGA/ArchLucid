@@ -4,7 +4,7 @@ import { RECOMMENDATION_LEARNING_CANONICAL_PATH } from "@/types/recommendation-l
 export { RECOMMENDATION_LEARNING_CANONICAL_PATH };
 
 export const RECOMMENDATION_LEARNING_CLAIM_DISCIPLINE =
-  "Recommendation learning rebuilds ranking weights from historical advisory outcomes for operators — preview and rebuild are operational profile controls, not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Advisory scans or Pilot feedback when you need live recommendation or feedback trails.";
+  "Recommendation learning rebuilds ranking weights from historical advisory outcomes for operators — preview and rebuild are operational profile controls, not a signed-review diligence Sources package. Open Advisory scans or Pilot feedback when you need live recommendation or feedback trails.";
 
 export const RECOMMENDATION_LEARNING_SOURCES_INTRO =
   "Use these follow-ups when profile eligibility, rebuild impact, or operator feedback needs a live workflow trail.";

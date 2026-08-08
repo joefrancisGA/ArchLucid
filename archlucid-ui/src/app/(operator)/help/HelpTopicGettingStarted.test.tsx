@@ -54,13 +54,12 @@ describe("HelpGettingStartedGuideView", () => {
     expect(screen.getByRole("heading", { level: 1, name: "Getting started" })).toBeInTheDocument();
     expect(screen.getByText(GETTING_STARTED_HELP_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByTestId("help-getting-started-sources")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-getting-started-sources")).toBeNull(); // TB-2092
     expect(screen.getByTestId("help-getting-started-claim-discipline")).toHaveTextContent(
       /Orientation only|CPA SOC 2|third-party pen/i,
     );
 
-    const sources = screen.getByTestId("help-getting-started-sources");
-
+    expect(screen.queryByTestId("help-getting-started-sources")).toBeNull(); // TB-2092
     for (const link of GETTING_STARTED_HELP_SOURCES) {
       expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
     }

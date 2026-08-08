@@ -34,7 +34,6 @@ import {
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
-import { EvidenceTraceEvidenceOrientationStrip } from "./EvidenceTraceEvidenceOrientationStrip";
 import { FindingInspectFindingBody } from "./FindingInspectFindingBody";
 import { FindingInspectGovernanceStickinessPanel } from "./FindingInspectGovernanceStickinessPanel";
 import { FindingInspectItsmWorkflowPanel } from "./FindingInspectItsmWorkflowPanel";
@@ -192,10 +191,7 @@ export function FindingInspectView({
             </Link>
           </p>
         </header>
-
-        <EvidenceTraceEvidenceOrientationStrip runId={runId} findingId={decodedFindingId} />
-
-        {policyCitationModel.pack !== null || policyCitationModel.policy !== null ? (
+{policyCitationModel.pack !== null || policyCitationModel.policy !== null ? (
           <FindingPolicyCitationHero model={policyCitationModel} traceExcerpt={policyTraceExcerpt} />
         ) : null}
 

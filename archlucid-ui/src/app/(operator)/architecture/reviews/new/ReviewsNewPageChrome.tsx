@@ -5,8 +5,6 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 import { REVIEWS_NEW_PAGE_LEAD } from "@/lib/buyer-polish-copy";
 
-import { ReviewsNewSourcesStrip } from "./ReviewsNewSourcesStrip";
-
 /** Hero + Evidence chrome for `/architecture/reviews/new` (RNX). */
 export function ReviewsNewPageChrome(): React.JSX.Element {
   return (
@@ -19,7 +17,6 @@ export function ReviewsNewPageChrome(): React.JSX.Element {
         headingLevel="h1"
         actions={<PageContextualHelpButton />}
       />
-      <ReviewsNewSourcesStrip />
-    </>
+</>
   );
 }

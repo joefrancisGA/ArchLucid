@@ -64,7 +64,7 @@ describe("ui-route-traffic-admin-configuration (ACX)", () => {
     expect(row?.path).toBe(ADMIN_CONFIGURATION_TRAFFIC_PATH);
     expect(row?.section).toBe(ADMIN_CONFIGURATION_TRAFFIC_SECTION);
     expect(row?.notes).toBe(ADMIN_CONFIGURATION_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("AdminConfigurationEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

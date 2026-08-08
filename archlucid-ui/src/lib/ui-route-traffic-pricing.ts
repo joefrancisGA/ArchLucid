@@ -15,4 +15,4 @@ export const PRICING_TRAFFIC_SECTION = "Marketing";
  * ASCII-only for Windows console note scripts.
  */
 export const PRICING_TRAFFIC_NOTE =
-  "Pricing (Marketing) - PricingPageHero + tier grid/FAQ/quote with PricingEvidenceOrientationStrip (evaluation Sources + claim-discipline: commercial packaging only). Not an operator PageContextualHelp surface. Does not imply CPA SOC 2 or third-party pen-test publication. Score 42/100 (2026-08-08) - marketing commercial packaging hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
+ "Pricing (Marketing) - PricingPageHero + tier grid/FAQ/quote with PricingEvidenceOrientationStrip (evaluation Sources + claim-discipline: commercial packaging only). Not an operator PageContextualHelp surface. Score 42/100 (2026-08-08) - marketing commercial packaging hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";

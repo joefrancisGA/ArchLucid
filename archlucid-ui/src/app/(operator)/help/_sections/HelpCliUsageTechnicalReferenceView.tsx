@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { CliUsageHelpEvidenceOrientationStrip } from "@/app/(operator)/help/_sections/CliUsageHelpEvidenceOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
@@ -63,10 +62,7 @@ export function HelpCliUsageTechnicalReferenceView(
           .
         </p>
       </header>
-
-      <CliUsageHelpEvidenceOrientationStrip />
-
-      <section
+<section
         aria-labelledby="cli-usage-reference-landing-heading"
         className="space-y-4 rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"
         data-testid="help-cli-usage-reference-landing"

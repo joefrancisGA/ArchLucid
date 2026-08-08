@@ -11,8 +11,6 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
 
-import { ReviewWorkspaceEvidenceOrientationStrip } from "./ReviewWorkspaceEvidenceOrientationStrip";
-
 export type RunDetailWorkspaceHeaderProps = {
   readonly runId: string;
   readonly reviewTitle: string;
@@ -76,9 +74,7 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
           </div>
         ) : null}
       </dl>
-
-      <ReviewWorkspaceEvidenceOrientationStrip runId={props.runId} />
-    </header>
+</header>
   );
 }
 

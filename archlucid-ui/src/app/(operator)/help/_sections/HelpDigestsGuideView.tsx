@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { DigestsHelpEvidenceOrientationStrip } from "@/app/(operator)/help/_sections/DigestsHelpEvidenceOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
@@ -93,10 +92,7 @@ export function HelpDigestsGuideView(props: HelpDigestsGuideViewProps): React.Re
           <PageContextualHelpButton />
         </div>
       </header>
-
-      <DigestsHelpEvidenceOrientationStrip />
-
-      <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
+<div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
         <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.body)}>{DIGESTS_HELP_OVERVIEW}</p>
         <Card
           className="border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20"

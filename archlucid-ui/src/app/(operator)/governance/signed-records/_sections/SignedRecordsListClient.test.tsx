@@ -56,9 +56,8 @@ describe("SignedRecordsListClient", () => {
     render(<SignedRecordsListClient />);
 
     expect(screen.getByTestId("signed-records-list-page-title")).toHaveTextContent("Signed review records");
-    expect(screen.getByTestId("signed-records-list-orientation")).toBeInTheDocument();
-    expect(screen.getByTestId("signed-records-list-sources")).toBeInTheDocument();
-
+    expect(screen.queryByTestId("signed-records-list-orientation")).toBeNull(); // TB-2092
+    expect(screen.queryByTestId("signed-records-list-sources")).toBeNull(); // TB-2092
     await waitFor(() => {
       expect(screen.getByRole("link", { name: "Claims modernization" })).toBeInTheDocument();
     });

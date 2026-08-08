@@ -3,7 +3,6 @@
 import Link from "next/link";
 
 import { PatternLibraryDomainPlatformBadges, PatternLibrarySignalBadges } from "./PatternLibraryFiltersPanel";
-import { PatternLibraryDetailEvidenceOrientationStrip } from "./PatternLibraryDetailEvidenceOrientationStrip";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -64,10 +63,7 @@ export function PatternLibraryDetailClient(props: PatternLibraryDetailClientProp
           </p>
         </div>
       </OperatorPageHeader>
-
-      <PatternLibraryDetailEvidenceOrientationStrip />
-
-      <div className="flex flex-wrap gap-2">
+<div className="flex flex-wrap gap-2">
         <Button asChild size="sm" variant="primary">
           <Link href={`/architecture/reviews/new?pattern=${encodeURIComponent(record.patternKey)}`}>Use in review</Link>
         </Button>

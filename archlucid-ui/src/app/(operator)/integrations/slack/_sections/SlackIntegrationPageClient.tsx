@@ -46,8 +46,6 @@ import type { AlertRoutingSubscription } from "@/types/alert-routing";
 import { SlackDestinationForm } from "./SlackDestinationForm";
 import { SlackDestinationsPanel } from "./SlackDestinationsPanel";
 import { SlackIntegrationAside } from "./SlackIntegrationAside";
-import { SlackIntegrationEvidenceOrientationStrip } from "./SlackIntegrationEvidenceOrientationStrip";
-
 const SLACK_CHANNEL_TYPE = "SlackWebhook";
 
 const SAVE_FAILURE_MESSAGE = "We could not save this destination. Check the fields and try again.";
@@ -235,10 +233,7 @@ export function SlackIntegrationPageClient(): React.ReactElement {
           </>
         }
       />
-
-      <SlackIntegrationEvidenceOrientationStrip />
-
-      {failure !== null ? (
+{failure !== null ? (
         <div role="alert">
           <OperatorApiProblem
             problem={failure.problem}

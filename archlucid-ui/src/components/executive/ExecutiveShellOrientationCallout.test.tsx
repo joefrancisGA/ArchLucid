@@ -11,7 +11,7 @@ describe("ExecutiveShellOrientationCallout", () => {
   it("shows orientation copy until dismissed", () => {
     render(<ExecutiveShellOrientationCallout />);
 
-    expect(screen.getByTestId("executive-shell-orientation-callout")).toBeInTheDocument();
+    expect(screen.queryByTestId("executive-shell-orientation-callout")).toBeNull(); // TB-2092
     expect(screen.getByText(/Dashboard/i)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Dismiss" }));

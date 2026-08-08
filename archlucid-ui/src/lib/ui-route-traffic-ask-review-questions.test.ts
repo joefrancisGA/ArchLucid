@@ -64,7 +64,7 @@ describe("ui-route-traffic-ask-review-questions (ASK)", () => {
     expect(row?.path).toBe(ASK_REVIEW_QUESTIONS_TRAFFIC_PATH);
     expect(row?.section).toBe(ASK_REVIEW_QUESTIONS_TRAFFIC_SECTION);
     expect(row?.notes).toBe(ASK_REVIEW_QUESTIONS_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("AskReviewQuestionsEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

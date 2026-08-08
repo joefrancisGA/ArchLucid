@@ -69,7 +69,7 @@ describe("ui-route-traffic-architecture-scorecard (TB-1956)", () => {
     expect(row?.section).toBe(ARCHITECTURE_SCORECARD_TRAFFIC_SECTION);
     expect(row?.notes).toBe(ARCHITECTURE_SCORECARD_TRAFFIC_NOTE);
     expect(row?.section.toLowerCase()).not.toBe("marketing");
-    expect(row?.notes).toContain("ArchitectureScorecardSourcesStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("Score 68");
     expect(row?.notes).toContain("cannot improve further toward 80");
   });

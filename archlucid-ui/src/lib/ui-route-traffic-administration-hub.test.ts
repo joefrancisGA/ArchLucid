@@ -64,7 +64,7 @@ describe("ui-route-traffic-administration-hub (SET)", () => {
     expect(row?.path).toBe(ADMINISTRATION_HUB_TRAFFIC_PATH);
     expect(row?.section).toBe(ADMINISTRATION_HUB_TRAFFIC_SECTION);
     expect(row?.notes).toBe(ADMINISTRATION_HUB_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("AdministrationHubEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

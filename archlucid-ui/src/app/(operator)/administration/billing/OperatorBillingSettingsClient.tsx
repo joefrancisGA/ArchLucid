@@ -3,7 +3,6 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { OperatorBillingSettingsEvidenceOrientationStrip } from "@/app/(operator)/administration/billing/_sections/OperatorBillingSettingsEvidenceOrientationStrip";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -30,10 +29,7 @@ export function OperatorBillingSettingsClient(props: { readonly initialPlanId?: 
           <PageContextualHelpButton />
         </div>
       </header>
-
-      <OperatorBillingSettingsEvidenceOrientationStrip />
-
-      <OperatorBillingPaymentPastDueBanner canMutate={canMutate} />
+<OperatorBillingPaymentPastDueBanner canMutate={canMutate} />
 
       <OperatorBillingCurrentPlanSummary />
 

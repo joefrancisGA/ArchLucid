@@ -64,7 +64,7 @@ describe("ui-route-traffic-standards-rules (GRS)", () => {
     expect(row?.path).toBe(STANDARDS_RULES_TRAFFIC_PATH);
     expect(row?.section).toBe(STANDARDS_RULES_TRAFFIC_SECTION);
     expect(row?.notes).toBe(STANDARDS_RULES_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("StandardsRulesEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("Score 48");
     expect(row?.notes).toContain("cannot improve further toward 80");
   });

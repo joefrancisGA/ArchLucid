@@ -62,7 +62,7 @@ describe("SignedRecordArtifactPageView buyer-polished shell", () => {
     expect(screen.getByText(BUYER_SIGNED_RECORD_ARTIFACT_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.queryByText(SIGNED_RECORD_ARTIFACT_PAGE_SUBTITLE)).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByTestId("signed-record-orientation")).toBeInTheDocument();
+    expect(screen.queryByTestId("signed-record-orientation")).toBeNull(); // TB-2092
     expect(screen.getByTestId("signed-record-artifact-refresh-button")).toBeInTheDocument();
     expect(screen.getByTestId("signed-record-artifact-scope-details")).toBeInTheDocument();
     expect(screen.getByTestId("signed-record-artifact-scope-overview")).toHaveTextContent(

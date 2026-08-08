@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import type { HelpArticleResponse } from "@/app/api/help/[slug]/route";
 import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownView";
 import { HelpEngineeringTroubleshootingGuideView } from "@/app/(operator)/help/_sections/HelpEngineeringTroubleshootingGuideView";
-import { HelpTopicCatchAllEvidenceOrientationStrip } from "@/app/(operator)/help/_sections/HelpTopicCatchAllEvidenceOrientationStrip";
 import { HelpTopicNotFoundView } from "@/app/(operator)/help/_sections/HelpTopicNotFoundView";
 import { ensureAccessTokenFresh, getAccessTokenForApi } from "@/lib/oidc/session";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -86,7 +85,6 @@ export function HelpTopicMarkdownClient(props: HelpTopicMarkdownClientProps): Re
       entry={props.entry}
       markdown={state.markdown}
       showContextualHelp
-      evidenceOrientation={<HelpTopicCatchAllEvidenceOrientationStrip />}
     />
   );
 }

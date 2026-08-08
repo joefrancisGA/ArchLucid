@@ -14,4 +14,4 @@ export const EXECUTIVE_SCORECARD_TRAFFIC_SECTION = "Executive";
  * Owner workbook Notes for ESX — documents Evidence chrome on Sponsor scorecard.
  */
 export const EXECUTIVE_SCORECARD_TRAFFIC_NOTE =
-  "Retired — sponsor scorecard bookmark `/executive/scorecard` merged onto ARE (`/architecture/executive-dashboard`). Legacy path hard-retired (host-gate 404); hit share absorbed by ARE.";
+ "Retired — sponsor scorecard bookmark `/executive/scorecard` merged onto ARE (`/architecture/executive-dashboard`). Legacy path hard-retired (host-gate 404); hit share absorbed by ARE.";

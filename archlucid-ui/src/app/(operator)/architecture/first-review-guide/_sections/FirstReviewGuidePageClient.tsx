@@ -16,7 +16,6 @@ import {
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { FirstReviewGuideEvidenceOrientationStrip } from "./FirstReviewGuideEvidenceOrientationStrip";
 import { FirstReviewGuideProgressSummary } from "./FirstReviewGuideProgressSummary";
 import { FirstReviewGuideRequiredSetupPanel } from "./FirstReviewGuideRequiredSetupPanel";
 import { FirstReviewGuideSupportPanel } from "./FirstReviewGuideSupportPanel";
@@ -60,8 +59,7 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
           <PageContextualHelpButton />
         </div>
         <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.helper)}>{BUYER_ONBOARDING_PAGE_LEAD}</p>
-        <FirstReviewGuideEvidenceOrientationStrip />
-        <div
+<div
           className="space-y-2"
           data-testid="first-review-guide-readiness"
           aria-live="polite"

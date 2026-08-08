@@ -2,8 +2,6 @@ import type { FirstPilotOperatingRailSignals } from "@/lib/first-pilot-operating
 import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 
-
-
 export type FirstPilotCommandCenterPhase =
 
   | "platform-ready"
@@ -19,8 +17,6 @@ export type FirstPilotCommandCenterPhase =
   | "sponsor-packet-hold"
 
   | "deferred-buyer-requirement";
-
-
 
 export type FirstPilotSponsorDisposition = "send" | "hold" | "readiness-only" | "deferred";
 
@@ -53,27 +49,19 @@ export type FirstPilotCommandCenterPhaseSummary = {
 
 };
 
-
-
 function committedReviewHref(signals: FirstPilotOperatingRailSignals): string {
 
   if (signals.firstCommittedRunId)
 
     return `/architecture/reviews/${encodeURIComponent(signals.firstCommittedRunId)}`;
 
-
-
   if (signals.latestRunId)
 
     return `/architecture/reviews/${encodeURIComponent(signals.latestRunId)}`;
 
-
-
   return "/architecture/reviews";
 
 }
-
-
 
 /** Maps live cockpit signals to the single next first-pilot phase operators should act on. */
 
@@ -94,8 +82,6 @@ export function resolveFirstPilotCommandCenterPhase(input: {
   const { signals, baselinesEntered, canExecute, hasBlockingRow } = input;
 
   const deferredBuyerRequirements = input.deferredBuyerRequirements ?? [];
-
-
 
   if (!signals.setupReady || signals.setupUnhealthy) {
 
@@ -119,8 +105,6 @@ export function resolveFirstPilotCommandCenterPhase(input: {
 
   }
 
-
-
   if (!signals.evidenceReady && !signals.hasAnyRun && !signals.hasCommittedManifest) {
 
     return {
@@ -141,8 +125,6 @@ export function resolveFirstPilotCommandCenterPhase(input: {
     };
 
   }
-
-
 
   if (signals.setupReady && signals.evidenceReady && !signals.hasAnyRun) {
 
@@ -168,8 +150,6 @@ export function resolveFirstPilotCommandCenterPhase(input: {
 
   }
 
-
-
   if (signals.hasAnyRun && !signals.hasCommittedManifest && !signals.readyToFinalize) {
 
     return {
@@ -192,8 +172,6 @@ export function resolveFirstPilotCommandCenterPhase(input: {
 
   }
 
-
-
   if (signals.hasAnyRun && !signals.hasCommittedManifest) {
 
     return {
@@ -215,8 +193,6 @@ export function resolveFirstPilotCommandCenterPhase(input: {
     };
 
   }
-
-
 
   if (signals.hasCommittedManifest && (!baselinesEntered || hasBlockingRow || !canExecute)) {
 
@@ -246,8 +222,6 @@ export function resolveFirstPilotCommandCenterPhase(input: {
 
   }
 
-
-
   if (signals.hasCommittedManifest && deferredBuyerRequirements.length > 0) {
 
     return {
@@ -269,8 +243,6 @@ export function resolveFirstPilotCommandCenterPhase(input: {
     };
 
   }
-
-
 
   return {
 

@@ -15,4 +15,4 @@ export const CORE_PILOT_HELP_ALIAS_TRAFFIC_SECTION = "Help alias";
  * ASCII-only for Windows console note scripts.
  */
 export const CORE_PILOT_HELP_ALIAS_TRAFFIC_NOTE =
-  "Deprecated core-pilot help alias (Help alias) - slug alias core-pilot -> first-architecture-review; renders HelpCorePilotGuideView Evidence chrome (Sources strip + claim-discipline + PageContextualHelp + Category-1 on alias path). Canon COR = /help/first-architecture-review. Body lives in CORE_PILOT.md. Sibling HFE/FIR = other COR aliases. Score 52/100 (2026-08-07) - help-topic orientation hard-caps higher Evidence (alias inherits COR).";
+ "Deprecated core-pilot help alias (Help alias) - slug alias core-pilot -> first-architecture-review; renders HelpCorePilotGuideView Evidence chrome (Sources strip + claim-discipline + PageContextualHelp + Category-1 on alias path). Canon COR = /help/first-architecture-review. Body lives in CORE_PILOT.md. Sibling HFE/FIR = other COR aliases. Score 52/100 (2026-08-07) - help-topic orientation hard-caps higher Evidence (alias inherits COR).";

@@ -64,7 +64,7 @@ describe("ui-route-traffic-evidence-proposals (AEX)", () => {
     expect(row?.path).toBe(EVIDENCE_PROPOSALS_TRAFFIC_PATH);
     expect(row?.section).toBe(EVIDENCE_PROPOSALS_TRAFFIC_SECTION);
     expect(row?.notes).toBe(EVIDENCE_PROPOSALS_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("EvidenceProposalsEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

@@ -79,7 +79,7 @@ describe("FindingInspectView ERU Evidence pass (TB-1826–TB-1829)", () => {
       "href",
       "/architecture/reviews/run-1/findings/finding-1",
     );
-    expect(screen.getByTestId("evidence-trace-orientation")).toBeInTheDocument();
+    expect(screen.queryByTestId("evidence-trace-orientation")).toBeNull(); // TB-2092
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
 
     const footer = screen.getByTestId("operator-evidence-limits-footer");

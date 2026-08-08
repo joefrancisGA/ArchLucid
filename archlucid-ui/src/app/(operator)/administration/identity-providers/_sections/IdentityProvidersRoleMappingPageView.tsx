@@ -15,7 +15,6 @@ import {
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { IdentityProvidersSettingsShell } from "./IdentityProvidersSettingsShell";
-import { RoleMappingSettingsEvidenceOrientationStrip } from "./RoleMappingSettingsEvidenceOrientationStrip";
 import type { UseIdentityProvidersSettingsPageModel } from "./use-identity-providers-settings-page";
 
 type IdentityProvidersRoleMappingPageViewProps = {
@@ -47,10 +46,7 @@ export function IdentityProvidersRoleMappingPageView(
       <div className="flex justify-end">
         <PageContextualHelpButton />
       </div>
-
-      <RoleMappingSettingsEvidenceOrientationStrip />
-
-      <Card data-testid="identity-providers-role-mapping-status">
+<Card data-testid="identity-providers-role-mapping-status">
         <CardHeader>
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Role mapping status</CardTitle>
         </CardHeader>

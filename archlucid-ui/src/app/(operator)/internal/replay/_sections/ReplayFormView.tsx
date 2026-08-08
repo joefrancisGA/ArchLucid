@@ -23,7 +23,6 @@ import {
 } from "@/lib/replay-validation-copy";
 import { replayValidationActionLabel, replayValidationModeDefinition } from "@/lib/replay-validation-workflow";
 
-import { ReplayEvidenceOrientationStrip } from "./ReplayEvidenceOrientationStrip";
 import type { ReplayFormViewModel } from "./replay-form-view-model";
 
 type Props = {
@@ -45,10 +44,7 @@ export function ReplayFormView(props: Props) {
           {REPLAY_COMPARE_LINK_LABEL}
         </Link>
       </p>
-
-      <ReplayEvidenceOrientationStrip />
-
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
+<div className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
         <div className="space-y-5">
           <ReviewPackageValidationPicker
             value={m.runId}

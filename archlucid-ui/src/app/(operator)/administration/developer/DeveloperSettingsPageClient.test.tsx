@@ -20,7 +20,7 @@ describe("DeveloperSettingsPageClient", () => {
     expect(screen.getByText(INTERNAL_DEVELOPER_TOOLS_SHIPPED_INVENTORY[0])).toBeInTheDocument();
     expect(screen.getByTestId("authority-theme-dev-selector")).toBeInTheDocument();
     expect(screen.getByTestId("try-cli-demo-card")).toBeInTheDocument();
-    expect(screen.getByTestId("developer-settings-sources")).toBeInTheDocument();
+    expect(screen.queryByTestId("developer-settings-sources")).toBeNull(); // TB-2092
     // No unshipped Diagnostics product widget — Sources may still link admin-diagnostics help.
     expect(screen.queryByRole("heading", { name: /^Diagnostics$/i })).not.toBeInTheDocument();
   });

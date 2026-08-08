@@ -21,7 +21,6 @@ export type RunExplanationSectionProps = {
   displayFindingCount?: number | null;
 };
 
-
 /** Tailwind mapping for faithfulness support ratio (0–100). */
 export function faithfulnessBadgeClass(pct: number): string {
   if (pct >= 80 - 1e-9) {

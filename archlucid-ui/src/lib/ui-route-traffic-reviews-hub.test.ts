@@ -64,7 +64,7 @@ describe("ui-route-traffic-reviews-hub (RE)", () => {
     expect(row?.path).toBe(REVIEWS_HUB_TRAFFIC_PATH);
     expect(row?.section).toBe(REVIEWS_HUB_TRAFFIC_SECTION);
     expect(row?.notes).toBe(REVIEWS_HUB_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("ReviewsHubEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

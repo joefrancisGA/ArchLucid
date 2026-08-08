@@ -5,7 +5,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
-import { AuthBootstrapEvidenceOrientationStrip } from "@/app/(operator)/auth/bootstrap/AuthBootstrapEvidenceOrientationStrip";
 import { CreateWorkspaceForm } from "@/app/(operator)/auth/bootstrap/CreateWorkspaceForm";
 import { CREATE_WORKSPACE_COPY } from "@/lib/auth/create-workspace-schema";
 import type { CreateWorkspaceFormValues } from "@/lib/auth/create-workspace-schema";
@@ -213,8 +212,7 @@ export function PostAuthBootstrapClient() {
             </p>
           ) : null}
         </div>
-        <AuthBootstrapEvidenceOrientationStrip />
-      </>
+</>
     );
   }
 
@@ -246,8 +244,7 @@ export function PostAuthBootstrapClient() {
             </p>
           ) : null}
         </div>
-        <AuthBootstrapEvidenceOrientationStrip />
-      </>
+</>
     );
   }
 
@@ -265,8 +262,7 @@ export function PostAuthBootstrapClient() {
             void handleAccessRequest();
           }}
         />
-        <AuthBootstrapEvidenceOrientationStrip />
-      </>
+</>
     );
   }
 
@@ -287,7 +283,6 @@ export function PostAuthBootstrapClient() {
           </Button>
         )}
       </div>
-      <AuthBootstrapEvidenceOrientationStrip />
-    </>
+</>
   );
 }

@@ -32,7 +32,6 @@ import {
   roiSummaryZeroStateHeadline,
 } from "@/lib/roi-summary-sponsor-presentation";
 
-import { RoiSummaryEvidenceOrientationStrip } from "./RoiSummaryEvidenceOrientationStrip";
 import { RoiSummaryHeroStrip } from "./RoiSummaryHeroStrip";
 import { RoiSummaryLoadedHourlyCostField } from "./RoiSummaryLoadedHourlyCostField";
 import type { RoiSummaryPageViewModel } from "./roi-summary-page-view-model";

@@ -28,7 +28,6 @@ import {
   REVIEWS_HUB_PAGE_SUBTITLE,
   REVIEWS_HUB_PAGE_TITLE,
 } from "./reviews-hub-copy";
-import { ReviewsHubEvidenceOrientationStrip } from "./ReviewsHubEvidenceOrientationStrip";
 import { ReviewsHubExploreSamples } from "./ReviewsHubExploreSamples";
 import { ReviewsHubHeaderActions } from "./ReviewsHubHeaderActions";
 import { ReviewsHubPackageIncludes } from "./ReviewsHubPackageIncludes";
@@ -78,10 +77,7 @@ export function RunsPageView(props: Props) {
         docsPageKey={REVIEWS_LIST_PATH}
         actions={<ReviewsHubHeaderActions />}
       />
-
-      <ReviewsHubEvidenceOrientationStrip />
-
-      {hubLoadOk ? (
+{hubLoadOk ? (
         <>
           <ReviewsHubSummaryRow summary={workspaceSummary} />
           <ReviewsHubReviewInventory runs={m.runs} />

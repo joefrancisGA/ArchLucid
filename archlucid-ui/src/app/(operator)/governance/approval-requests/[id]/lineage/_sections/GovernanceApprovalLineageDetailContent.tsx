@@ -25,7 +25,6 @@ import {
 import type { GovernanceLineageResult } from "@/types/governance-dashboard";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { ApprovalLineageEvidenceOrientationStrip } from "./ApprovalLineageEvidenceOrientationStrip";
 import { governanceLineageApprovalDisplayTitle } from "./governance-lineage-approval-display-title";
 
 type GovernanceApprovalLineageDetailContentProps = {
@@ -51,10 +50,7 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
           </Button>
         </div>
       </div>
-
-      <ApprovalLineageEvidenceOrientationStrip />
-
-      <Card>
+<Card>
         <CardHeader>
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Approval</CardTitle>
           <CardDescription>Status and reviewer context</CardDescription>

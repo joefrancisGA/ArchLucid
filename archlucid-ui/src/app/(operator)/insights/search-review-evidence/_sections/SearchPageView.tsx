@@ -26,8 +26,6 @@ import {
 } from "./search-page-copy";
 import { SearchRetrievalHitCard } from "./SearchRetrievalHitCard";
 import { SearchReviewEvidenceCiteStrip } from "./SearchReviewEvidenceCiteStrip";
-import { SearchReviewEvidenceOrientationStrip } from "./SearchReviewEvidenceOrientationStrip";
-
 type SearchPageViewProps = {
   model: SearchPageViewModel;
 };
@@ -73,10 +71,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
           navHref={SEARCH_REVIEW_EVIDENCE_PATH}
           actions={<PageContextualHelpButton />}
         />
-
-        <SearchReviewEvidenceOrientationStrip />
-
-        <DemoWorkspaceCapabilityUnavailablePanel
+<DemoWorkspaceCapabilityUnavailablePanel
           layout="embedded"
           capability="Search review evidence"
           description="In a connected tenant, operators search findings, decisions, and signed review records across the workspace evidence index."
@@ -94,10 +89,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
         navHref={SEARCH_REVIEW_EVIDENCE_PATH}
         actions={<PageContextualHelpButton />}
       />
-
-      <SearchReviewEvidenceOrientationStrip />
-
-      {scopedRunId.length > 0 ? <SearchReviewEvidenceCiteStrip runId={scopedRunId} /> : null}
+{scopedRunId.length > 0 ? <SearchReviewEvidenceCiteStrip runId={scopedRunId} /> : null}
 
       <Card className="mb-6 max-w-xl border-neutral-200 dark:border-neutral-700">
         <CardContent className="grid gap-4 p-4">

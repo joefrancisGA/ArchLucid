@@ -14,4 +14,4 @@ export const LEGACY_LOGIN_TRAFFIC_PATH = LEGACY_LOGIN_PATH;
  * and routes idle-timeout bookmarks to `/auth/session-expired`.
  */
 export const LEGACY_LOGIN_TRAFFIC_NOTE =
-  "Legacy sign-in bookmark — App Router shim redirects to /auth/signin (query preserved); reason=idle-timeout → /auth/session-expired (TB-1791). Canonical UX on ASI.";
+ "Legacy sign-in bookmark — App Router shim redirects to /auth/signin (query preserved); reason=idle-timeout → /auth/session-expired (TB-1791). Canonical UX on ASI.";

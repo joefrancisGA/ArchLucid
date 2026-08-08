@@ -28,7 +28,6 @@ import {
   executeRecommendationLearningRollback,
   reloadRecommendationLearningOpsBundle,
 } from "./load-recommendation-learning-ops-page-data";
-import { RecommendationLearningEvidenceOrientationStrip } from "./RecommendationLearningEvidenceOrientationStrip";
 import {
   copyOperationalIdentifier,
   formatOperationalTimestamp,
@@ -318,8 +317,7 @@ export function RecommendationLearningOpsPageClient(props: Props) {
             <p className={cn("m-0 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{status.scopeLabel}</p>
           </div>
         </div>
-        <RecommendationLearningEvidenceOrientationStrip />
-        <div className="flex flex-wrap gap-3">
+<div className="flex flex-wrap gap-3">
           <Button type="button" variant="outline" disabled={isRefreshing} onClick={() => void refresh()}>
             {isRefreshing ? "Refreshing…" : "Refresh counts"}
           </Button>

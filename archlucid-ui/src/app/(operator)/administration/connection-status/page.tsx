@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { ConnectionStatusEvidenceOrientationStrip } from "@/app/(operator)/administration/connection-status/_sections/ConnectionStatusEvidenceOrientationStrip";
 import { ConnectorOperationsDashboard } from "@/components/integrations/ConnectorOperationsDashboard";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -16,8 +15,7 @@ export default function AdministrationConnectionStatusPage() {
         subtitle="See which integrations are ready, recommended, or optional for this workspace — and what to configure first."
         actions={<PageContextualHelpButton />}
       />
-      <ConnectionStatusEvidenceOrientationStrip />
-      <p className={cn("m-0 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+<p className={cn("m-0 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         Connection status shows which notification, ticketing, publishing, and delivery integrations are configured
         for this workspace.{" "}
         <Link

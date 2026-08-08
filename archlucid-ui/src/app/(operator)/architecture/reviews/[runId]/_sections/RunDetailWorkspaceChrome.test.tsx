@@ -51,7 +51,7 @@ describe("RunDetailWorkspaceHeader", () => {
     expect(screen.getByRole("heading", { level: 1, name: "Claims platform review" })).toBeInTheDocument();
     expect(screen.getByText("Claims API")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByTestId("review-workspace-orientation")).toBeInTheDocument();
+    expect(screen.queryByTestId("review-workspace-orientation")).toBeNull(); // TB-2092
   });
 });
 

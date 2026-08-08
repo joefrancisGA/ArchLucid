@@ -49,8 +49,7 @@ describe("HelpPathChooserGuideView", () => {
     expect(visible).toContain("choose your next step");
     expect(screen.getByTestId("help-path-chooser-guide")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByTestId("help-path-chooser-claim-discipline")).toBeInTheDocument();
-
+    expect(screen.queryByTestId("help-path-chooser-claim-discipline")).toBeNull(); // TB-2092
     const actionPanel = screen.getByTestId("help-path-chooser-action-panel");
 
     expect(
@@ -64,8 +63,7 @@ describe("HelpPathChooserGuideView", () => {
       expect(screen.getByTestId(`help-path-chooser-branch-${branch.id}`)).toBeInTheDocument();
     }
 
-    const sources = screen.getByTestId("help-path-chooser-sources");
-
+    expect(screen.queryByTestId("help-path-chooser-sources")).toBeNull(); // TB-2092
     for (const link of PATH_CHOOSER_HELP_SOURCES) {
       expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
     }

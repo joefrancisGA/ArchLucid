@@ -8,8 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { EvidenceProposalsEvidenceOrientationStrip } from "./EvidenceProposalsEvidenceOrientationStrip";
-
 type EvidenceProposalRow = {
   resultId: string;
   runId: string;
@@ -87,10 +85,7 @@ export function AdminEvidenceProposalsPageClient() {
           <PageContextualHelpButton />
         </div>
       </div>
-
-      <EvidenceProposalsEvidenceOrientationStrip />
-
-      {error !== null ? (
+{error !== null ? (
         <p
           role="alert"
           className={cn(

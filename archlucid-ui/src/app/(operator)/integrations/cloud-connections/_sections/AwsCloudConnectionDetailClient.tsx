@@ -8,7 +8,6 @@ import { cloudSecurityPreflightTopics } from "@/lib/cloud-security-preflight-top
 
 import { AwsConnectionSection } from "./AwsConnectionSection";
 import { CloudConnectionsProviderHeader } from "./CloudConnectionsProviderHeader";
-import { CloudProviderConnectionEvidenceOrientationStrip } from "./CloudProviderConnectionEvidenceOrientationStrip";
 import { CloudProviderDetailLayout } from "./CloudProviderDetailLayout";
 import {
   CloudSecurityPreflightPanel,
@@ -22,10 +21,7 @@ export function AwsCloudConnectionDetailClient() {
         providerLabel="AWS"
         overview="Read-only Resource Explorer inventory through a federated IAM role."
       />
-
-      <CloudProviderConnectionEvidenceOrientationStrip provider="aws" />
-
-      <CloudProviderDetailLayout
+<CloudProviderDetailLayout
         providerLabel="AWS"
         overview={
           <p className={OPERATOR_TYPOGRAPHY.body}>

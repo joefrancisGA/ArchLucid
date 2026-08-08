@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useMemo } from "react";
 
-import { ArchitectureCreatedClarificationsEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedClarificationsEvidenceOrientationStrip";
 import { ArchitectureStructuredSectionView } from "@/components/architecture/ArchitectureStructuredSectionView";
 import { parseArchitectureGeneratedContent } from "@/lib/architecture-generated-content-parser";
 import {
@@ -70,9 +69,7 @@ export function ArchitectureCreatedClarificationsPanel(
 
   return (
     <div className="space-y-5" data-testid="architecture-workspace-clarifications-panel">
-      <ArchitectureCreatedClarificationsEvidenceOrientationStrip />
-
-      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+<p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         Unresolved clarifications reduce assessment confidence. Answer open questions or add evidence before sharing
         with sponsors or creating work items.
       </p>

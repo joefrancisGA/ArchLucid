@@ -64,7 +64,7 @@ describe("ui-route-traffic-finding-detail (RRF)", () => {
     expect(row?.path).toBe(FINDING_DETAIL_TRAFFIC_PATH);
     expect(row?.section).toBe(FINDING_DETAIL_TRAFFIC_SECTION);
     expect(row?.notes).toBe(FINDING_DETAIL_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("FindingDetailEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

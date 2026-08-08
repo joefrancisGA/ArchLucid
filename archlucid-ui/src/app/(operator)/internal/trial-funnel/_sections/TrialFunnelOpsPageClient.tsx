@@ -35,8 +35,6 @@ import {
   type TrialFunnelStageMetric,
 } from "@/lib/trial-funnel-ops";
 
-import { TrialFunnelEvidenceOrientationStrip } from "./TrialFunnelEvidenceOrientationStrip";
-
 type LoadState = "loading" | "ready" | "error";
 
 type CohortSortKey =
@@ -339,10 +337,7 @@ export function TrialFunnelOpsPageClient(): ReactElement {
           </div>
         }
       />
-
-      <TrialFunnelEvidenceOrientationStrip />
-
-      <div className="sr-only" role="status" aria-live="polite">
+<div className="sr-only" role="status" aria-live="polite">
         {refreshAnnouncement}
       </div>
 

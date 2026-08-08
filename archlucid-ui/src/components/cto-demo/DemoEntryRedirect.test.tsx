@@ -26,8 +26,7 @@ describe("DemoEntryRedirect", () => {
 
     expect(screen.getByTestId("demo-entry-redirect")).toBeInTheDocument();
     expect(screen.getByTestId("demo-entry-redirecting")).toHaveTextContent(DEMO_ENTRY_REDIRECTING_LABEL);
-    expect(screen.getByTestId("demo-entry-orientation")).toBeInTheDocument();
-
+    expect(screen.queryByTestId("demo-entry-orientation")).toBeNull(); // TB-2092
     await waitFor(() => {
       expect(replace).toHaveBeenCalledWith("/demo-target");
     });

@@ -2,7 +2,6 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
 
-
 const MILESTONE_SHORT: readonly string[] = ["Request", "Review process", "Finalize", "Package"];
 
 /** Compact Core Pilot milestones aligned with docs/CORE_PILOT §3 four steps — server + checklist signals only. */

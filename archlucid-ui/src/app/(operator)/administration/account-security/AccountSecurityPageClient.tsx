@@ -40,8 +40,6 @@ import {
   ACCOUNT_SECURITY_REMOVE_WARNING,
   AccountSecurityRemoveDialog,
 } from "./AccountSecurityRemoveDialog";
-import { AccountSecuritySettingsEvidenceOrientationStrip } from "./AccountSecuritySettingsEvidenceOrientationStrip";
-
 type FeedbackTone = "success" | "blocked" | "warn" | "info";
 
 type CardFeedback = {
@@ -336,10 +334,7 @@ export function AccountSecurityPageClient() {
         titleTestId="account-security-page-title"
         actions={<PageContextualHelpButton />}
       />
-
-      <AccountSecuritySettingsEvidenceOrientationStrip />
-
-      {gateProblem ? (
+{gateProblem ? (
         <FeedbackCallout
           feedback={problemToFeedback(gateProblem)}
           testId="account-security-auth-gate"

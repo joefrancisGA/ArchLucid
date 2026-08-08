@@ -20,8 +20,6 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { fetchAdminRagHealth, type AdminRagCorpusHealthItem } from "@/lib/rag-health-admin";
 
-import { RagHealthEvidenceOrientationStrip } from "./RagHealthEvidenceOrientationStrip";
-
 function formatUtc(iso: string | null): string {
   if (!iso) {
     return "—";
@@ -96,10 +94,7 @@ export function RagHealthAdminPageClient() {
           {loading ? "Refreshing…" : "Refresh"}
         </Button>
       </div>
-
-      <RagHealthEvidenceOrientationStrip />
-
-      {error ? (
+{error ? (
         <p className={cn("text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.body)} role="alert">
           {error}
         </p>

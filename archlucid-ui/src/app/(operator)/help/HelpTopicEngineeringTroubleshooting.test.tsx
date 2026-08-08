@@ -45,8 +45,7 @@ describe("HelpEngineeringTroubleshootingGuideView", () => {
 
     expect(screen.getByTestId("help-engineering-troubleshooting-guide")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByTestId("help-engineering-troubleshooting-claim-discipline")).toBeInTheDocument();
-
+    expect(screen.queryByTestId("help-engineering-troubleshooting-claim-discipline")).toBeNull(); // TB-2092
     const actionPanel = screen.getByTestId("help-engineering-troubleshooting-action-panel");
 
     expect(
@@ -58,8 +57,7 @@ describe("HelpEngineeringTroubleshootingGuideView", () => {
       ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openCustomerTroubleshooting.href,
     );
 
-    const sources = screen.getByTestId("help-engineering-troubleshooting-sources");
-
+    expect(screen.queryByTestId("help-engineering-troubleshooting-sources")).toBeNull(); // TB-2092
     for (const link of ENGINEERING_TROUBLESHOOTING_HELP_SOURCES) {
       expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
     }

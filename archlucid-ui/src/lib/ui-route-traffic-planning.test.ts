@@ -65,7 +65,7 @@ describe("ui-route-traffic-planning (PLA)", () => {
     expect(row?.section).toBe(PLANNING_TRAFFIC_SECTION);
     expect(row?.notes).toBe(PLANNING_TRAFFIC_NOTE);
     expect(row?.notes).toContain("PlanningPageView");
-    expect(row?.notes).toContain("PlanningSourcesStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("Score 54");
     expect(row?.notes).toContain("cannot improve further toward 80");
   });

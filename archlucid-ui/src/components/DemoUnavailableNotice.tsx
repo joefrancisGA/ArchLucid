@@ -3,7 +3,6 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-
 export type DemoUnavailableNoticeProps = {
   title: string;
   description?: string;

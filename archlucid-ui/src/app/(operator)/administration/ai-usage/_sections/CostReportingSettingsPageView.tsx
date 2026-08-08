@@ -2,7 +2,6 @@
 
 import { cn } from "@/lib/utils";
 
-import { AiUsageSettingsEvidenceOrientationStrip } from "@/app/(operator)/administration/ai-usage/_sections/AiUsageSettingsEvidenceOrientationStrip";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { OperatorOutboxDiagnosticsCard } from "@/components/OperatorOutboxDiagnosticsCard";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -83,10 +82,7 @@ export function CostReportingSettingsPageView(props: Props) {
         </div>
         <PageContextualHelpButton />
       </div>
-
-      <AiUsageSettingsEvidenceOrientationStrip />
-
-      {data?.isMocked === true ? (
+{data?.isMocked === true ? (
         <p
           className={cn(
             "m-0 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50",

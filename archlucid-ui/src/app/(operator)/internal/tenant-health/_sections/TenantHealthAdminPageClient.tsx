@@ -24,8 +24,6 @@ import {
 } from "@/lib/tenant-health-admin";
 import { engagementScoreSeverityKind } from "@/lib/tenant-health-engagement-severity";
 
-import { TenantHealthEvidenceOrientationStrip } from "./TenantHealthEvidenceOrientationStrip";
-
 function formatUtc(iso: string | null): string {
   if (!iso) {
     return "—";
@@ -102,10 +100,7 @@ export function TenantHealthAdminPageClient() {
           {loading ? "Refreshing…" : "Refresh"}
         </Button>
       </div>
-
-      <TenantHealthEvidenceOrientationStrip />
-
-      {error ? (
+{error ? (
         <p className={cn("text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.body)} role="alert">
           {error}
         </p>

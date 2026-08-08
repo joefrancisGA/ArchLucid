@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { ConnectAzureSecurelyEvidenceOrientationStrip } from "@/app/(operator)/help/_sections/ConnectAzureSecurelyEvidenceOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
@@ -154,10 +153,7 @@ export function HelpConnectAzureSecurelyGuideView(props: HelpConnectAzureSecurel
           </div>
         </div>
       </header>
-
-      <ConnectAzureSecurelyEvidenceOrientationStrip />
-
-      <div className={HELP_PAGE_LAYOUT.contentGrid}>
+<div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className="min-w-0 space-y-8" data-testid="help-connect-azure-securely-primary">
           <section aria-labelledby="security-model" className="space-y-3">
             <HelpSectionHeading id="security-model">{CONNECT_AZURE_SECURELY_SECURITY_HEADING}</HelpSectionHeading>

@@ -64,7 +64,7 @@ describe("ui-route-traffic-risk-exceptions (GRO)", () => {
     expect(row?.path).toBe(RISK_EXCEPTIONS_TRAFFIC_PATH);
     expect(row?.section).toBe(RISK_EXCEPTIONS_TRAFFIC_SECTION);
     expect(row?.notes).toBe(RISK_EXCEPTIONS_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("RiskExceptionsEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

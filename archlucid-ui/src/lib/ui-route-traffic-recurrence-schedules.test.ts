@@ -64,7 +64,7 @@ describe("ui-route-traffic-recurrence-schedules (GRX)", () => {
     expect(row?.path).toBe(RECURRENCE_SCHEDULES_TRAFFIC_PATH);
     expect(row?.section).toBe(RECURRENCE_SCHEDULES_TRAFFIC_SECTION);
     expect(row?.notes).toBe(RECURRENCE_SCHEDULES_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("RecurrenceSchedulesEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

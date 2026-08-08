@@ -1,7 +1,6 @@
 import { cn } from "@/lib/utils";
 import * as React from "react";
 
-
 export type CheckedState = boolean | "indeterminate";
 
 export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "checked" | "onChange" | "type"> {

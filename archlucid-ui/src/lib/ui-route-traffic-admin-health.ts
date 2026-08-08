@@ -15,4 +15,4 @@ export const ADMIN_HEALTH_TRAFFIC_SECTION = "Admin";
  * ASCII-only for Windows console note scripts.
  */
 export const ADMIN_HEALTH_TRAFFIC_NOTE =
-  "Diagnostics dashboard (Admin) - AdminHealthPageView with PageContextualHelpButton (topic map troubleshooting; Category-1 registry), AdminHealthEvidenceOrientationStrip (workspace Sources + claim-discipline: ops readiness only), readiness/config lint tiles. Sibling ADY = system-health; ACX = configuration. Not a signed-record Sources trail. Score 62/100 (2026-08-08) - admin diagnostics hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
+ "Diagnostics dashboard (Admin) - AdminHealthPageView with PageContextualHelpButton (topic map troubleshooting; Category-1 registry), readiness/config lint tiles. Sibling ADY = system-health; ACX = configuration. Not a signed-record Sources trail. Score 62/100 (2026-08-08) - admin diagnostics hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";

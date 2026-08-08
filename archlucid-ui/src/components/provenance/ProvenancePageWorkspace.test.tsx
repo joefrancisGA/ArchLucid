@@ -74,8 +74,8 @@ describe("ProvenancePageWorkspace", () => {
     render(<ProvenancePageWorkspace runId="demo-run" graph={graph} provenanceTraceId={null} />);
 
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByTestId("provenance-sources")).toBeInTheDocument();
-    expect(screen.getByTestId("provenance-claim-discipline")).toBeInTheDocument();
+    expect(screen.queryByTestId("provenance-sources")).toBeNull(); // TB-2092
+    expect(screen.queryByTestId("provenance-claim-discipline")).toBeNull(); // TB-2092
     expect(screen.getAllByRole("link", { name: "Provenance graph" }).length).toBeGreaterThan(0);
     expect(screen.getAllByRole("link", { name: "Trace timeline" }).length).toBeGreaterThan(0);
     expect(screen.getAllByRole("link", { name: "Nodes" }).length).toBeGreaterThan(0);

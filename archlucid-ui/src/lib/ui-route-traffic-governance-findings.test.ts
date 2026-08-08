@@ -64,7 +64,7 @@ describe("ui-route-traffic-governance-findings (GFN)", () => {
     expect(row?.path).toBe(GOVERNANCE_FINDINGS_TRAFFIC_PATH);
     expect(row?.section).toBe(GOVERNANCE_FINDINGS_TRAFFIC_SECTION);
     expect(row?.notes).toBe(GOVERNANCE_FINDINGS_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("GovernanceFindingsEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

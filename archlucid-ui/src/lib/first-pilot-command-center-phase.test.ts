@@ -1,12 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-
-
 import { resolveFirstPilotCommandCenterPhase, FIRST_PILOT_COMMAND_CENTER_OPERATOR_PATH_PHASE } from "@/lib/first-pilot-command-center-phase";
 
 import type { FirstPilotOperatingRailSignals } from "@/lib/first-pilot-operating-rail-status";
-
-
 
 function signals(overrides: Partial<FirstPilotOperatingRailSignals> = {}): FirstPilotOperatingRailSignals {
 
@@ -34,8 +30,6 @@ function signals(overrides: Partial<FirstPilotOperatingRailSignals> = {}): First
 
 }
 
-
-
 describe("resolveFirstPilotCommandCenterPhase", () => {
 
   it("returns platform-ready when setup is unhealthy", () => {
@@ -52,8 +46,6 @@ describe("resolveFirstPilotCommandCenterPhase", () => {
 
     });
 
-
-
     expect(phase.phase).toBe("platform-ready");
 
     expect(phase.sponsorDisposition).toBe("readiness-only");
@@ -61,8 +53,6 @@ describe("resolveFirstPilotCommandCenterPhase", () => {
     expect(phase.href).toBe("/administration/system-health");
 
   });
-
-
 
   it("returns evidence-needed when setup is ready but evidence is missing", () => {
 
@@ -78,15 +68,11 @@ describe("resolveFirstPilotCommandCenterPhase", () => {
 
     });
 
-
-
     expect(phase.phase).toBe("evidence-needed");
 
     expect(phase.href).toBe("/administration/extract-upload");
 
   });
-
-
 
   it("returns platform-ready when evidence is ready but no review exists", () => {
 
@@ -102,8 +88,6 @@ describe("resolveFirstPilotCommandCenterPhase", () => {
 
     });
 
-
-
     expect(phase.phase).toBe("platform-ready");
 
     expect(phase.headline).toBe("Platform ready");
@@ -111,8 +95,6 @@ describe("resolveFirstPilotCommandCenterPhase", () => {
     expect(phase.href).toBe("/architecture/reviews/new");
 
   });
-
-
 
   it("returns review-in-progress for in-flight reviews that are not ready to finalize", () => {
 
@@ -128,15 +110,11 @@ describe("resolveFirstPilotCommandCenterPhase", () => {
 
     });
 
-
-
     expect(phase.phase).toBe("review-in-progress");
 
     expect(phase.href).toBe("/architecture/reviews/review-1");
 
   });
-
-
 
   it("returns ready-to-commit when the pipeline is ready to finalize", () => {
 
@@ -152,15 +130,11 @@ describe("resolveFirstPilotCommandCenterPhase", () => {
 
     });
 
-
-
     expect(phase.phase).toBe("ready-to-commit");
 
     expect(phase.href).toBe("/architecture/reviews/review-1");
 
   });
-
-
 
   it("returns sponsor-packet-hold when baselines are missing after commit", () => {
 
@@ -186,8 +160,6 @@ describe("resolveFirstPilotCommandCenterPhase", () => {
 
     });
 
-
-
     expect(phase.phase).toBe("sponsor-packet-hold");
 
     expect(phase.sponsorDisposition).toBe("hold");
@@ -195,8 +167,6 @@ describe("resolveFirstPilotCommandCenterPhase", () => {
     expect(phase.href).toBe("/insights/architecture-scorecard");
 
   });
-
-
 
   it("returns deferred-buyer-requirement when deferred scope is recorded", () => {
 
@@ -224,15 +194,11 @@ describe("resolveFirstPilotCommandCenterPhase", () => {
 
     });
 
-
-
     expect(phase.phase).toBe("deferred-buyer-requirement");
 
     expect(phase.sponsorDisposition).toBe("deferred");
 
   });
-
-
 
     it("returns sponsor-packet-send when commit and baselines are ready", () => {
 
@@ -257,8 +223,6 @@ describe("resolveFirstPilotCommandCenterPhase", () => {
       hasBlockingRow: false,
 
     });
-
-
 
     expect(phase.phase).toBe("sponsor-packet-send");
 

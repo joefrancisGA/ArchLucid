@@ -26,8 +26,6 @@ import { SYSTEM_HEALTH_CLAIM_DISCIPLINE } from "@/lib/system-health-evidence-cop
 import { SYSTEM_HEALTH_DEMO_SCOPE_SUMMARY, systemHealthPageSubtitle } from "@/lib/system-health-page-copy";
 
 import { SystemHealthPageHeader } from "./SystemHealthPageHeader";
-import { SystemHealthSourcesStrip } from "./SystemHealthSourcesStrip";
-
 type SystemHealthDemoPageViewProps = {
   readonly loading: boolean;
   readonly lastRefreshedAt: Date | null;
@@ -108,10 +106,7 @@ export function SystemHealthDemoPageView(props: SystemHealthDemoPageViewProps) {
           ))}
         </ul>
       </details>
-
-      <SystemHealthSourcesStrip />
-
-      {props.showTechnicalDetails ? (
+{props.showTechnicalDetails ? (
         <CollapsibleSection title="Technical details" defaultOpen={false} sectionTestId="system-health-technical-details">
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             {SYSTEM_HEALTH_CLAIM_DISCIPLINE} Internal diagnostics, dependency probes, and deployment identity are available on the{" "}

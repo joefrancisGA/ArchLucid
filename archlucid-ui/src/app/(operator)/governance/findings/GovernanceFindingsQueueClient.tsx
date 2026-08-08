@@ -13,7 +13,6 @@ import { GovernanceFindingsList } from "@/components/governance/findings/Governa
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { useGovernanceFindingsFilter } from "@/components/governance/findings/use-governance-findings-filter";
 import { useGovernanceFindingsQuery } from "@/components/governance/findings/use-governance-findings-query";
-import { GovernanceFindingsEvidenceOrientationStrip } from "./GovernanceFindingsEvidenceOrientationStrip";
 import {
   ARCHITECTURE_RISK_REGISTER_EMPTY_BODY,
   ARCHITECTURE_RISK_REGISTER_EMPTY_TITLE,
@@ -103,10 +102,7 @@ export default function GovernanceFindingsQueueClient() {
         }
         actions={<PageContextualHelpButton />}
       />
-
-      <GovernanceFindingsEvidenceOrientationStrip />
-
-      <div className={cn("mt-4", OPERATOR_LAYOUT.sectionStack)}>
+<div className={cn("mt-4", OPERATOR_LAYOUT.sectionStack)}>
         {scopedRunId ? (
           <p
             className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}

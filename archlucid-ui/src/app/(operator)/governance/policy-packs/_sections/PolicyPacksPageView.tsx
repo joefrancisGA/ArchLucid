@@ -22,7 +22,6 @@ import { PolicyPacksActivePackSummaryCard } from "./PolicyPacksActivePackSummary
 import { PolicyPacksCatalogSection } from "./PolicyPacksCatalogSection";
 import { PolicyPacksEnforcedRulesTable } from "./PolicyPacksEnforcedRulesTable";
 import { PolicyPacksInspectSection } from "./PolicyPacksInspectSection";
-import { PolicyPacksEvidenceOrientationStrip } from "./PolicyPacksEvidenceOrientationStrip";
 import { PolicyPacksLifecycleSection } from "./PolicyPacksLifecycleSection";
 import { PolicyPacksMarketingIntro } from "./PolicyPacksMarketingIntro";
 import { PolicyPacksMetricStrip } from "./PolicyPacksMetricStrip";
@@ -92,10 +91,7 @@ export function PolicyPacksPageView(props: Props) {
         lastRefreshedAt={m.lastRefreshedAt}
         onRefresh={m.load}
       />
-
-      <PolicyPacksEvidenceOrientationStrip />
-
-      {m.buyerPolishedShell ? (
+{m.buyerPolishedShell ? (
         <CollapsibleSection
           title={POLICY_PACKS_SCOPE_DETAILS_TRIGGER}
           defaultOpen={false}

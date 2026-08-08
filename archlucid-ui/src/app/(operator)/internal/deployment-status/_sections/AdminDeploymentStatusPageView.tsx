@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 
-import { DeploymentStatusEvidenceOrientationStrip } from "@/app/(operator)/internal/deployment-status/_sections/DeploymentStatusEvidenceOrientationStrip";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { StatusPill } from "@/components/StatusPill";
 import { Button } from "@/components/ui/button";
@@ -90,10 +89,7 @@ export function AdminDeploymentStatusPageView(props: Props) {
           </Link>
         </div>
       </header>
-
-      <DeploymentStatusEvidenceOrientationStrip />
-
-      {m.error !== null ? (
+{m.error !== null ? (
         <p className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)} role="alert">
           {m.error}
         </p>

@@ -2,15 +2,11 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPE_SCALE, OPERATOR_TYPOGRAPHY, operatorSemanticBadge } from "@/lib/design-tokens";
 
-
-
 import Link from "next/link";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-
-
 
 import { CtoDemoHowItWorksTrigger } from "@/components/cto-demo/CtoDemoHowItWorksTrigger";
 import { CtoDemoCustomerPreflightGate } from "@/components/cto-demo/CtoDemoCustomerPreflightGate";
@@ -126,10 +122,6 @@ import {
   writeOperatorDemoPanicOffline,
 } from "@/lib/operator-static-demo";
 
-
-
-
-
 /**
 
  * Persistent presenter rail for the five-step buyer golden journey — Back/Next without hunting the layer strip.
@@ -180,8 +172,6 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
   const telemetryStepIndexRef = useRef<number | null>(null);
   const telemetryElapsedRef = useRef(0);
 
-
-
   const activateTour = useCallback(() => {
 
     writeBuyerCtoDemoTourActive(true);
@@ -193,8 +183,6 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
     writeBuyerCtoDemoTourCollapsed(false);
 
   }, []);
-
-
 
   const endTour = useCallback(() => {
     emitDemoJourneyTelemetry({
@@ -213,8 +201,6 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
     writeBuyerCtoDemoTourCollapsed(false);
   }, []);
-
-
 
   useEffect(() => {
 
@@ -269,11 +255,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
     onPresenterLayerToggle: togglePresenterLayer,
   });
 
-
-
   const navigation = useMemo(() => resolveBuyerCtoDemoTourNavigation(pathname), [pathname]);
-
-
 
   useEffect(() => {
 
@@ -283,15 +265,11 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
     }
 
-
-
     if (navigation.stepIndex === null) {
 
       return;
 
     }
-
-
 
     const previousStepIndex = telemetryStepIndexRef.current;
 
@@ -322,8 +300,6 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
   }, [active, mounted, navigation.stepIndex]);
 
-
-
   useEffect(() => {
 
     setElapsedSecondsOnStep(0);
@@ -331,8 +307,6 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
     advancedForStepRef.current = null;
 
   }, [navigation.stepIndex]);
-
-
 
   useEffect(() => {
 
@@ -352,11 +326,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
     }
 
-
-
     window.addEventListener(ARCHLUCID_CTO_DEMO_STORY_CHANGED_EVENT, onStoryChanged);
-
-
 
     return () => {
 
@@ -366,8 +336,6 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
   }, []);
 
-
-
   useEffect(() => {
 
     if (!mounted || !active || !autoplay || navigation.stepIndex === null) {
@@ -376,11 +344,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
     }
 
-
-
     const budgetSeconds = buyerCtoDemoStepBudgetSeconds(navigation.stepIndex);
-
-
 
     if (elapsedSecondsOnStep < budgetSeconds) {
 
@@ -388,19 +352,13 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
     }
 
-
-
     if (advancedForStepRef.current === navigation.stepIndex) {
 
       return;
 
     }
 
-
-
     advancedForStepRef.current = navigation.stepIndex;
-
-
 
     if (navigation.next !== null) {
 
@@ -410,21 +368,15 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
     }
 
-
-
     setAutoplay(false);
 
     writeBuyerCtoDemoAutoplay(false);
 
   }, [active, autoplay, elapsedSecondsOnStep, mounted, navigation.next, navigation.stepIndex, router]);
 
-
-
   const runSmokeCheck = useCallback(async () => {
 
     setSmokeBusy(true);
-
-
 
     try {
 
@@ -440,11 +392,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
   }, []);
 
-
-
   const selectedStory = useMemo(() => findCtoDemoStory(storyId), [storyId]);
-
-
 
   useEffect(() => {
 
@@ -453,8 +401,6 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
       return;
 
     }
-
-
 
     const intervalId = window.setInterval(() => {
 
@@ -467,8 +413,6 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
     }, 1000);
 
-
-
     return () => {
 
       window.clearInterval(intervalId);
@@ -476,8 +420,6 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
     };
 
   }, [active, mounted, navigation.stepIndex]);
-
-
 
   useEffect(() => {
 
@@ -487,17 +429,11 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
     }
 
-
-
     const tourQuery = searchParams.get(BUYER_CTO_DEMO_TOUR_QUERY_PARAM);
-
-
 
     if (tourQuery === "1" || tourQuery === "true") {
 
       activateTour();
-
-
 
       const params = new URLSearchParams(searchParams.toString());
 
@@ -507,15 +443,11 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
       const nextUrl = query.length > 0 ? `${pathname}?${query}` : pathname;
 
-
-
       router.replace(nextUrl, { scroll: false });
 
     }
 
   }, [activateTour, mounted, pathname, router, searchParams]);
-
-
 
   useEffect(() => {
 
@@ -525,11 +457,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
     }
 
-
-
     window.addEventListener(ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT, onStartTour);
-
-
 
     return () => {
 
@@ -584,8 +512,6 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
     navigation.stepIndex !== null ? buyerCtoDemoRemainingBudgetMinutes(navigation.stepIndex) : null;
 
-
-
   const stepBudgetSeconds =
 
     navigation.stepIndex !== null ? buyerCtoDemoStepBudgetSeconds(navigation.stepIndex) : null;
@@ -598,11 +524,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
       : null;
 
-
-
   const presenterNotesText = presenterNotesFullScript ? navigation.presenterScript : navigation.presenterLine;
-
-
 
   if (collapsed) {
 
@@ -851,8 +773,6 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
           </div>
         ) : null}
 
-
-
         {showPresenterLayer && navigation.stepIndex === 0 ? (
 
           <>
@@ -952,8 +872,6 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
           </>
 
         ) : null}
-
-
 
         {showPresenterLayer ? (
           <p className={cn("m-0 mt-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{BUYER_CTO_DEMO_TOUR_KEYBOARD_HINT}</p>
@@ -1115,8 +1033,6 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
         ) : null}
 
-
-
         {navigation.stepIndex !== null ? (
 
           <ol
@@ -1135,8 +1051,6 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
               const done = visitedSteps.has(idx) && !current;
 
-
-
               const chipClass = done
 
                 ? operatorSemanticBadge("ready")
@@ -1146,8 +1060,6 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
                   ? cn(operatorSemanticBadge("current"), "font-semibold ring-2 ring-[var(--al-accent-border-focus)]/40")
 
                   : "border border-neutral-200 bg-white text-al-text-secondary dark:border-neutral-700 dark:bg-neutral-900";
-
-
 
               return (
 
@@ -1211,11 +1123,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
         ) : null}
 
-
-
         {navigation.stepIndex === 4 ? <CtoDemoRecapCard /> : null}
-
-
 
         <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
 
@@ -1284,5 +1192,4 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
   );
 
 }
-
 

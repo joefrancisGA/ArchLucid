@@ -17,7 +17,6 @@ import {
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 
-import { AdminConfigurationEvidenceOrientationStrip } from "./AdminConfigurationEvidenceOrientationStrip";
 import { AdminConfigurationLintFindingList } from "./AdminConfigurationLintFindingList";
 import { formatSources, normalizePath, sectionToTestIdSegment } from "./admin-configuration-helpers";
 import type { AdminConfigurationPageViewModel } from "./admin-configuration-view-model";
@@ -51,8 +50,7 @@ export function AdminConfigurationPageView(props: Props) {
           </div>
           <PageContextualHelpButton />
         </div>
-        <AdminConfigurationEvidenceOrientationStrip />
-        <div className="mt-3 flex flex-wrap items-end gap-4">
+<div className="mt-3 flex flex-wrap items-end gap-4">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="admin-config-search">Search by key path</Label>
             <Input

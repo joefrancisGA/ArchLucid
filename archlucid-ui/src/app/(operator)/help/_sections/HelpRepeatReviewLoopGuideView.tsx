@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { HelpRepeatReviewLoopPageHeader } from "@/app/(operator)/help/_sections/HelpRepeatReviewLoopPageHeader";
-import { RepeatReviewLoopHelpEvidenceOrientationStrip } from "@/app/(operator)/help/_sections/RepeatReviewLoopHelpEvidenceOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -80,10 +79,7 @@ export function HelpRepeatReviewLoopGuideView(props: HelpRepeatReviewLoopGuideVi
           void onRefresh();
         }}
       />
-
-      <RepeatReviewLoopHelpEvidenceOrientationStrip />
-
-      <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
+<div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
         <Card
           className="border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20"
           data-testid="help-repeat-review-loop-action-panel"

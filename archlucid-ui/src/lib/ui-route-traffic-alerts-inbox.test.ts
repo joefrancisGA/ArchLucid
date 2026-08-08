@@ -64,7 +64,7 @@ describe("ui-route-traffic-alerts-inbox (AL)", () => {
     expect(row?.path).toBe(ALERTS_INBOX_TRAFFIC_PATH);
     expect(row?.section).toBe(ALERTS_INBOX_TRAFFIC_SECTION);
     expect(row?.notes).toBe(ALERTS_INBOX_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("AlertsInboxEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

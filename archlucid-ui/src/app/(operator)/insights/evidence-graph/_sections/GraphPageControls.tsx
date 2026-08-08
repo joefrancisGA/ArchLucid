@@ -2,8 +2,6 @@ import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 
-
-
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 
 import { GRAPH_MODE_NATIVE_TITLES } from "@/components/GraphIdleLegend";
@@ -40,8 +38,6 @@ import type { GraphReviewPickerState } from "@/lib/graph-page-state";
 import type { AskRunListAvailability } from "@/lib/graph-page-state";
 
 import type { GraphMode } from "@/app/(operator)/insights/evidence-graph/_sections/graph-page-helpers";
-
-
 
 export type GraphPageControlsProps = {
 
@@ -80,8 +76,6 @@ export type GraphPageControlsProps = {
   /** When true, demote the review picker below the empty-state card (no completed packages). */
   compactEmptyWorkspace?: boolean;
 };
-
-
 
 export function GraphPageControls(props: GraphPageControlsProps) {
 
@@ -122,8 +116,6 @@ export function GraphPageControls(props: GraphPageControlsProps) {
     compactEmptyWorkspace = false,
   } = props;
 
-
-
   const runTrim = runId.trim();
 
   const loadDisabled =
@@ -145,8 +137,6 @@ export function GraphPageControls(props: GraphPageControlsProps) {
   const reviewPackageHref =
 
     runTrim.length > 0 ? `/architecture/reviews/${encodeURIComponent(runTrim)}` : "/architecture/reviews";
-
-
 
   if (buyerPolishedShell) {
 
@@ -222,8 +212,6 @@ export function GraphPageControls(props: GraphPageControlsProps) {
 
         </div>
 
-
-
         {showPresentationTabs ? (
           <div className="space-y-1">
             <div className="flex flex-wrap items-center gap-2">
@@ -250,8 +238,6 @@ export function GraphPageControls(props: GraphPageControlsProps) {
     );
 
   }
-
-
 
   return (
 
@@ -290,8 +276,6 @@ export function GraphPageControls(props: GraphPageControlsProps) {
         />
 
       </div>
-
-
 
       {!(demoUi || buyerPolishedShell) && runTrim.length > 0 ? (
 
@@ -352,8 +336,6 @@ export function GraphPageControls(props: GraphPageControlsProps) {
         </div>
 
       ) : null}
-
-
 
       {showLoadButton ? (
 

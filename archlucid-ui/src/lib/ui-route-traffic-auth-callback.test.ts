@@ -64,7 +64,7 @@ describe("ui-route-traffic-auth-callback (ACB)", () => {
     expect(row?.path).toBe(AUTH_CALLBACK_TRAFFIC_PATH);
     expect(row?.section).toBe(AUTH_CALLBACK_TRAFFIC_SECTION);
     expect(row?.notes).toBe(AUTH_CALLBACK_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("AuthCallbackEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

@@ -29,7 +29,6 @@ import {
   resolveOverallHealthHeadline,
 } from "@/lib/health-readiness-presentation";
 
-import { AdminHealthEvidenceOrientationStrip } from "./AdminHealthEvidenceOrientationStrip";
 import type { AdminHealthPageViewModel } from "./admin-health-view-model";
 
 type Props = {
@@ -82,8 +81,7 @@ export function AdminHealthPageView(props: Props) {
           </div>
           <PageContextualHelpButton />
         </div>
-        <AdminHealthEvidenceOrientationStrip />
-        <HealthOverallStatusHeader
+<HealthOverallStatusHeader
           overallStatus={overall}
           title={headline.title}
           subtitle={headline.subtitle}

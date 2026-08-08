@@ -20,7 +20,6 @@ import { DIGESTS_SCHEDULE_TAB_PATH } from "@/lib/settings-admin-route-paths";
 
 import { TenantCostSettingsCard } from "./TenantCostSettingsCard";
 import { TenantQualityGatesCard } from "./TenantQualityGatesCard";
-import { TenantSettingsEvidenceOrientationStrip } from "./TenantSettingsEvidenceOrientationStrip";
 import type { TenantSettingsPageContentModel } from "./tenant-settings-page-view-model";
 
 type SectionHeadingProps = { readonly children: ReactNode };
@@ -49,10 +48,7 @@ export function TenantSettingsPageView(props: Props) {
         titleTestId="tenant-settings-page-title"
         actions={<PageContextualHelpButton />}
       />
-
-      <TenantSettingsEvidenceOrientationStrip />
-
-      <SectionHeading>General</SectionHeading>
+<SectionHeading>General</SectionHeading>
 
       <Card>
         <CardHeader>

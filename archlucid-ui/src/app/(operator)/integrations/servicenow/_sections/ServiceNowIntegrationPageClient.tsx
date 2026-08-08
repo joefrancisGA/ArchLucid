@@ -65,8 +65,6 @@ import { buildServiceNowPageLoadResult } from "@/lib/servicenow-page-load";
 import { ITSM_PRODUCT_SMOKE_VERIFICATION_HREF } from "@/lib/itsm-connectors-admin-scope";
 
 import { ServiceNowIntegrationAside } from "./ServiceNowIntegrationAside";
-import { ServiceNowIntegrationEvidenceOrientationStrip } from "./ServiceNowIntegrationEvidenceOrientationStrip";
-
 function statusTagKind(
   status: ReturnType<typeof resolveServiceNowConnectionStatus>["status"],
 ): "ready" | "needs-attention" | "neutral" | "in-progress" {
@@ -279,10 +277,7 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
           {" — status across ServiceNow, Jira, Teams, Slack, cloud connections, and webhooks."}
         </p>
       </header>
-
-      <ServiceNowIntegrationEvidenceOrientationStrip />
-
-      {isLoading && health === null && settings === null ? (
+{isLoading && health === null && settings === null ? (
         <OperatorLoadingNotice>{SERVICENOW_LOADING_MESSAGE}</OperatorLoadingNotice>
       ) : (
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_17.5rem] lg:items-start">

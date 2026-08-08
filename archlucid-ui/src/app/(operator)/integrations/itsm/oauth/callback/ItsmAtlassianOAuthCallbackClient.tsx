@@ -10,8 +10,6 @@ import { completeItsmAtlassianOAuthConsent } from "@/lib/api/itsm-outbound-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { INTEGRATIONS_JIRA_PATH } from "@/lib/integrations-nav-paths";
 
-import { ItsmOAuthCallbackEvidenceOrientationStrip } from "./ItsmOAuthCallbackEvidenceOrientationStrip";
-
 export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
   const searchParams = useSearchParams();
   const [message, setMessage] = useState("Completing Atlassian consent…");
@@ -82,10 +80,7 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
         <h2 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>Atlassian connector consent</h2>
         <PageContextualHelpButton />
       </div>
-
-      <ItsmOAuthCallbackEvidenceOrientationStrip />
-
-      <p
+<p
         role={failed ? "alert" : "status"}
         aria-live="polite"
         className={cn(

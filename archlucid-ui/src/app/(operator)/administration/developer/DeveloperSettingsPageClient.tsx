@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 
-import { DeveloperSettingsEvidenceOrientationStrip } from "@/app/(operator)/administration/developer/DeveloperSettingsEvidenceOrientationStrip";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { AuthorityThemeDevSelector } from "@/components/settings/AuthorityThemeDevSelector";
 import { TryCliDemoCard } from "@/components/TryCliDemoCard";
@@ -27,10 +26,7 @@ export function DeveloperSettingsPageClient() {
         titleTestId="developer-settings-page-title"
         actions={<PageContextualHelpButton />}
       />
-
-      <DeveloperSettingsEvidenceOrientationStrip />
-
-      <Card>
+<Card>
         <CardHeader>
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Branded theme evaluation</CardTitle>
         </CardHeader>

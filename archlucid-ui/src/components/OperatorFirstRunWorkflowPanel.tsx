@@ -247,7 +247,6 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
     setGraduated(true);
   }, [hydrated, allDone]);
 
-
   function minimize() {
     setMinimized(true);
 

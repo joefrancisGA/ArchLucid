@@ -5,10 +5,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { ArchitectureCreatedClarificationsPanel } from "@/components/architecture/ArchitectureCreatedClarificationsPanel";
 import { ArchitectureCreatedCompactFirstViewport } from "@/components/architecture/ArchitectureCreatedCompactFirstViewport";
-import { ArchitectureCreatedDiagramEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedDiagramEvidenceOrientationStrip";
-import { ArchitectureCreatedEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedEvidenceOrientationStrip";
-import { ArchitectureCreatedFindingsEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedFindingsEvidenceOrientationStrip";
-import { ArchitectureCreatedOverviewEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedOverviewEvidenceOrientationStrip";
 import { ArchitectureCreatedOverviewPanel } from "@/components/architecture/ArchitectureCreatedOverviewPanel";
 import { ArchitectureCreatedWorkspaceHeader } from "@/components/architecture/ArchitectureCreatedWorkspaceHeader";
 import { ArchitectureDiagramPanel } from "@/components/architecture/ArchitectureDiagramPanel";
@@ -171,8 +167,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
 
         <TabsContent value="overview" data-testid="architecture-workspace-panel-overview">
           <div className="space-y-4">
-            <ArchitectureCreatedOverviewEvidenceOrientationStrip />
-            <ArchitectureCreatedOverviewPanel
+<ArchitectureCreatedOverviewPanel
               model={model}
               sourceText={props.architectureSourceText}
               userAssertions={userAssertions}
@@ -185,8 +180,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
 
         <TabsContent value="diagram" data-testid="architecture-workspace-panel-diagram">
           <div className="space-y-4">
-            <ArchitectureCreatedDiagramEvidenceOrientationStrip />
-            <ArchitectureDiagramPanel
+<ArchitectureDiagramPanel
               runId={props.baseline.runId}
               architectureName={merged.architectureName}
               sourceText={props.architectureSourceText}
@@ -210,15 +204,13 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
 
         <TabsContent value="findings" data-testid="architecture-workspace-panel-findings">
           <div className="space-y-4">
-            <ArchitectureCreatedFindingsEvidenceOrientationStrip />
-            {props.panels.findings}
+{props.panels.findings}
           </div>
         </TabsContent>
 
         <TabsContent value="evidence" data-testid="architecture-workspace-panel-evidence">
           <div className="space-y-4">
-            <ArchitectureCreatedEvidenceOrientationStrip />
-            {props.panels.evidence}
+{props.panels.evidence}
           </div>
         </TabsContent>
 

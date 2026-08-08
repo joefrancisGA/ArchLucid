@@ -10,7 +10,6 @@ function toOptionalUnitRatio(value: unknown): number | null {
 
   const n = typeof value === "number" ? value : Number(value);
 
-
   if (!Number.isFinite(n) || n < 0 || n > 1)
     return null;
 
@@ -22,7 +21,6 @@ function toOptionalUnitRatio(value: unknown): number | null {
  */
 export function evidenceFaithfulnessTier(ratio: unknown): EvidenceFaithfulnessTier {
   const n = toOptionalUnitRatio(ratio);
-
 
   if (n === null)
     return "absent";

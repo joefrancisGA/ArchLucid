@@ -29,8 +29,8 @@ describe("AdministrationConnectionStatusPage (ADC)", () => {
       "/help/integration-readiness",
     );
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByTestId("connection-status-sources")).toBeInTheDocument();
-    expect(screen.getByTestId("connection-status-claim-discipline")).toBeInTheDocument();
+    expect(screen.queryByTestId("connection-status-sources")).toBeNull(); // TB-2092
+    expect(screen.queryByTestId("connection-status-claim-discipline")).toBeNull(); // TB-2092
     expect(screen.queryByText("About integration readiness")).not.toBeInTheDocument();
     expect(screen.getByTestId("connector-operations-dashboard")).toBeInTheDocument();
   });

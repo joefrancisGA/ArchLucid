@@ -96,8 +96,6 @@ import {
 } from "@/lib/scim-provisioning-verify-present";
 import { showError, showSuccess } from "@/lib/toast";
 
-import { ScimProvisioningEvidenceOrientationStrip } from "./ScimProvisioningEvidenceOrientationStrip";
-
 type ScimTokenSummary = {
   id: string;
   createdUtc: string;
@@ -347,10 +345,7 @@ export function ScimProvisioningSettingsPageClient() {
         titleTestId="scim-provisioning-page-title"
         actions={<PageContextualHelpButton />}
       />
-
-      <ScimProvisioningEvidenceOrientationStrip />
-
-      <p
+<p
         className={cn(
           "m-0 rounded-lg border border-neutral-200 bg-neutral-50/70 px-4 py-3 text-al-text-primary dark:border-neutral-800 dark:bg-neutral-900/40",
           OPERATOR_TYPOGRAPHY.body,

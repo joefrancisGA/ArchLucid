@@ -50,8 +50,7 @@ describe("HelpPolicyPackDeltaDemoGuideView", () => {
     expect(screen.getByTestId("help-policy-pack-delta-demo-guide")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-policy-pack-delta-demo-narrative-arc")).toBeInTheDocument();
-    expect(screen.getByTestId("help-policy-pack-delta-demo-claim-discipline")).toBeInTheDocument();
-
+    expect(screen.queryByTestId("help-policy-pack-delta-demo-claim-discipline")).toBeNull(); // TB-2092
     const actionPanel = screen.getByTestId("help-policy-pack-delta-demo-action-panel");
 
     expect(
@@ -60,8 +59,7 @@ describe("HelpPolicyPackDeltaDemoGuideView", () => {
       }),
     ).toHaveAttribute("href", POLICY_PACK_DELTA_DEMO_HELP_PRIMARY_ACTIONS.openPolicyPacks.href);
 
-    const sources = screen.getByTestId("help-policy-pack-delta-demo-sources");
-
+    expect(screen.queryByTestId("help-policy-pack-delta-demo-sources")).toBeNull(); // TB-2092
     for (const link of POLICY_PACK_DELTA_DEMO_HELP_SOURCES) {
       expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
     }

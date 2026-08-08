@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
-import { FindingsHelpEvidenceOrientationStrip } from "@/app/(operator)/help/_sections/FindingsHelpEvidenceOrientationStrip";
 import { HelpFindingsWorkspaceReadinessStrip } from "@/app/(operator)/help/_sections/HelpFindingsWorkspaceReadinessStrip";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
@@ -144,10 +143,7 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
         </div>
         <p className={cn("m-0 max-w-[42rem]", OPERATOR_TYPOGRAPHY.helper)}>{FINDINGS_HELP_PAGE_SUBTITLE}</p>
       </header>
-
-      <FindingsHelpEvidenceOrientationStrip />
-
-      <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
+<div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
         <Card
           className="border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20"
           data-testid="help-findings-action-panel"

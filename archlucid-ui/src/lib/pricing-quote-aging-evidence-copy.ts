@@ -4,7 +4,7 @@ import { INTERNAL_PRICING_QUOTE_AGING_PATH } from "@/lib/internal-ops-route-path
 export const PRICING_QUOTE_AGING_CANONICAL_PATH = INTERNAL_PRICING_QUOTE_AGING_PATH;
 
 export const PRICING_QUOTE_AGING_CLAIM_DISCIPLINE =
-  "Pricing quote follow-up rows are internal sales-operations SLA and owner tracking for open quote requests — they are not invoices, signed commercial commitments, a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Billing or Trial funnel when you need commercial or conversion context.";
+  "Pricing quote follow-up rows are internal sales-operations SLA and owner tracking for open quote requests — they are not invoices, signed commercial commitments, a signed-review diligence Sources package. Open Billing or Trial funnel when you need commercial or conversion context.";
 
 export const PRICING_QUOTE_AGING_SOURCES_INTRO =
   "Use these follow-ups when quote aging needs commercial packaging, trial conversion, or trust context.";

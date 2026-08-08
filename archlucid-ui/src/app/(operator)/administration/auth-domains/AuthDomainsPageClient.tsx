@@ -27,8 +27,6 @@ import {
 } from "@/lib/admin-auth-domains-api";
 import { cn } from "@/lib/utils";
 
-import { AuthDomainsSettingsEvidenceOrientationStrip } from "./AuthDomainsSettingsEvidenceOrientationStrip";
-
 const ENFORCEMENT_WARNING =
   "Requiring SSO may prevent users from signing in through other methods. Confirm that the configured identity provider and recovery access have been tested.";
 
@@ -313,10 +311,7 @@ export function AuthDomainsPageClient() {
         </div>
         <PageContextualHelpButton />
       </div>
-
-      <AuthDomainsSettingsEvidenceOrientationStrip />
-
-      {statusMessage !== null ? (
+{statusMessage !== null ? (
         <p className={cn("m-0 rounded-md border border-emerald-700/30 bg-emerald-50 px-3 py-2 text-emerald-900", OPERATOR_TYPOGRAPHY.body)} role="status">
           {statusMessage}
         </p>

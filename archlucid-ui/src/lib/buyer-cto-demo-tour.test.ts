@@ -1,7 +1,5 @@
 import { describe, expect, it } from "vitest";
 
-
-
 import {
 
   appendBuyerCtoDemoTourStartQuery,
@@ -47,8 +45,6 @@ import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journe
 
 import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
 
-
-
 describe("appendBuyerCtoDemoTourStartQuery", () => {
 
   it("appends the tour start query flag", () => {
@@ -67,8 +63,6 @@ describe("appendBuyerCtoDemoTourStartQuery", () => {
 
 });
 
-
-
 describe("getStartCtoDemoTourHref", () => {
 
   it("starts the tour on golden journey step 1", () => {
@@ -85,8 +79,6 @@ describe("getStartCtoDemoTourHref", () => {
 
 });
 
-
-
 describe("formatCtoDemoStepTimer", () => {
 
   it("formats remaining seconds as M:SS", () => {
@@ -97,8 +89,6 @@ describe("formatCtoDemoStepTimer", () => {
 
   });
 
-
-
   it("formats overtime as +M:SS over", () => {
 
     expect(formatCtoDemoStepTimer(-40)).toEqual({ display: "+0:40 over", isOvertime: true });
@@ -106,8 +96,6 @@ describe("formatCtoDemoStepTimer", () => {
   });
 
 });
-
-
 
 describe("formatCtoDemoStepBudgetLabel", () => {
   it("formats the per-step budget label", () => {
@@ -128,8 +116,6 @@ describe("buyerCtoDemoStepBudgetSeconds", () => {
 
 });
 
-
-
 describe("buyerCtoDemoTourPresenterScript", () => {
 
   it("returns full scripts with at least three sentences each", () => {
@@ -139,8 +125,6 @@ describe("buyerCtoDemoTourPresenterScript", () => {
       const script = buyerCtoDemoTourPresenterScript(index);
 
       const sentences = script.split(". ").filter((part) => part.trim().length > 0);
-
-
 
       expect(sentences.length).toBeGreaterThanOrEqual(3);
 
@@ -152,15 +136,11 @@ describe("buyerCtoDemoTourPresenterScript", () => {
 
 });
 
-
-
 describe("resolveBuyerCtoDemoTourNavigation", () => {
 
   it("maps executive summary to step 1 navigation", () => {
 
     const nav = resolveBuyerCtoDemoTourNavigation(getShowcaseExecutiveHref());
-
-
 
     expect(nav.stepIndex).toBe(0);
 
@@ -178,13 +158,9 @@ describe("resolveBuyerCtoDemoTourNavigation", () => {
 
   });
 
-
-
   it("returns off-path guidance for unrelated routes", () => {
 
     const nav = resolveBuyerCtoDemoTourNavigation("/administration");
-
-
 
     expect(nav.onSpine).toBe(false);
 
@@ -195,8 +171,6 @@ describe("resolveBuyerCtoDemoTourNavigation", () => {
   });
 
 });
-
-
 
 describe("buyerCtoDemoRemainingBudgetMinutes", () => {
 
@@ -210,8 +184,6 @@ describe("buyerCtoDemoRemainingBudgetMinutes", () => {
 
 });
 
-
-
 describe("visited step storage", () => {
 
   it("tracks visited golden-journey indices in sessionStorage", () => {
@@ -220,21 +192,13 @@ describe("visited step storage", () => {
 
     clearBuyerCtoDemoVisitedSteps();
 
-
-
     expect(readBuyerCtoDemoVisitedSteps().size).toBe(0);
-
-
 
     writeBuyerCtoDemoVisitedStep(2);
 
     writeBuyerCtoDemoVisitedStep(0);
 
-
-
     expect(readBuyerCtoDemoVisitedSteps()).toEqual(new Set<number>([0, 2]));
-
-
 
     clearBuyerCtoDemoVisitedSteps();
 
@@ -244,15 +208,11 @@ describe("visited step storage", () => {
 
 });
 
-
-
 describe("buildCtoDemoRunOfShowMarkdown", () => {
 
   it("includes all five journey steps and keyboard shortcuts", () => {
 
     const markdown = buildCtoDemoRunOfShowMarkdown();
-
-
 
     expect(markdown).toContain("Executive summary");
 

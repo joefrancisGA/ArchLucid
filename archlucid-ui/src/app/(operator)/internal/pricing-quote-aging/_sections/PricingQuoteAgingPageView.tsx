@@ -37,7 +37,6 @@ import { pricingQuoteAgingRowTone, type PricingQuoteAgingRow } from "@/lib/prici
 import { formatRelativeTime } from "@/lib/relative-time";
 import { acknowledgePricingQuoteRequest, closePricingQuoteRequest } from "@/lib/trial-funnel-ops";
 
-import { PricingQuoteAgingEvidenceOrientationStrip } from "./PricingQuoteAgingEvidenceOrientationStrip";
 import type { PricingQuoteAgingPageViewModel } from "./use-pricing-quote-aging-page";
 
 type Props = {
@@ -240,10 +239,7 @@ export function PricingQuoteAgingPageView(props: Props) {
           </div>
         }
       />
-
-      <PricingQuoteAgingEvidenceOrientationStrip />
-
-      {headline !== null ? (
+{headline !== null ? (
         <p
           className={cn(
             "m-0 rounded-lg border px-4 py-3 font-medium",
