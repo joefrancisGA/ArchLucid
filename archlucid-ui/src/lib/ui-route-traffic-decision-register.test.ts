@@ -66,7 +66,7 @@ describe("ui-route-traffic-decision-register (GDO)", () => {
     expect(row?.notes).toBe(DECISION_REGISTER_TRAFFIC_NOTE);
     expect(row?.notes).toContain("DecisionRegisterClient");
     expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
-    expect(row?.notes).toContain("Score 50");
+    expect(row?.notes).toContain("Score 68");
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

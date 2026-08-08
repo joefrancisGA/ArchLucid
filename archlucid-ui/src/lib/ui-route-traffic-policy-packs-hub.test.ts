@@ -65,7 +65,7 @@ describe("ui-route-traffic-policy-packs-hub (GPP)", () => {
     expect(row?.section).toBe(POLICY_PACKS_HUB_TRAFFIC_SECTION);
     expect(row?.notes).toBe(POLICY_PACKS_HUB_TRAFFIC_NOTE);
     expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
-    expect(row?.notes).toContain("Score 48");
+    expect(row?.notes).toContain("Score 68");
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
