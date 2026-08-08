@@ -74,5 +74,7 @@ describe("ui-route-traffic-signed-record-artifact-preview (TB-1946 / TB-1949 / G
     expect(row?.notes).toContain("RER");
     expect(row?.notes).toContain("SignedRecordArtifactPageView");
     expect(row?.notes).toContain("SignedRecordEvidenceOrientationStrip");
+    expect(row?.notes).toContain("Score 52");
+    expect(rows.find((candidate) => candidate.id === "SIM")).toBeUndefined();
   });
 });
