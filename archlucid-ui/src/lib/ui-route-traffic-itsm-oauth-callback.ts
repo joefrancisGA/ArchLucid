@@ -10,7 +10,7 @@ export const ITSM_OAUTH_CALLBACK_TRAFFIC_PATH = ITSM_ATLASSIAN_OAUTH_CALLBACK_PA
 export const ITSM_OAUTH_CALLBACK_TRAFFIC_SECTION = "Integrations";
 
 /**
- * Owner workbook Notes for IIO — documents Evidence chrome on the Atlassian OAuth callback.
+ * Owner workbook Notes for IIO â€” documents Evidence chrome on the Atlassian OAuth callback.
  */
 export const ITSM_OAUTH_CALLBACK_TRAFFIC_NOTE =
-  "Atlassian OAuth consent return (Integrations) - ItsmAtlassianOAuthCallbackClient with PageContextualHelpButton (topic map integration-readiness; Category-1 registry), workspace Sources + claim-discipline orientation strip, consent status + return to Jira settings. Live App Router page; not redirect-blocked (TB-1776 hub carve-out). Score 40/100 (2026-08-05) — OAuth handshake surface hard-caps higher Evidence.";
+ "Atlassian OAuth consent return (Integrations) - ItsmAtlassianOAuthCallbackClient with PageContextualHelpButton (topic map integration-readiness; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, consent status + return to Jira settings. Live App Router page; not redirect-blocked (TB-1776 hub carve-out). Does not imply CPA SOC 2 or third-party pen-test publication. Score 40/100 (2026-08-05) â€” OAuth handshake surface hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
