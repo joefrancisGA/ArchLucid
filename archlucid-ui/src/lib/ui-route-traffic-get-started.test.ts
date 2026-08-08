@@ -66,5 +66,6 @@ describe("ui-route-traffic-get-started (GXX)", () => {
     expect(row?.notes).toBe(GET_STARTED_TRAFFIC_NOTE);
     expect(row?.notes).toContain("GetStartedPageClient");
     expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
