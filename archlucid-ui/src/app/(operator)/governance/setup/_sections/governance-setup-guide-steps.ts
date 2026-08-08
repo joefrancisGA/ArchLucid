@@ -1,3 +1,4 @@
+import { ALERTS_CONFIGURE_RULES_LINK_LABEL } from "@/lib/alerts-page-copy";
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF, GOVERNANCE_POLICY_PACKS_PATH, governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 
@@ -29,7 +30,7 @@ export const GOVERNANCE_SETUP_GUIDE_STEPS: readonly GovernanceSetupStepDefinitio
     title: "Configure alert ownership",
     description: "Route important governance alerts to the teams responsible for responding.",
     outcome: "Critical signals reach owners instead of a silent inbox.",
-    primaryActionLabel: "Configure alerts",
+    primaryActionLabel: ALERTS_CONFIGURE_RULES_LINK_LABEL,
     primaryActionHref: governanceAlertRulesTabHref("routing"),
     secondaryActionLabel: "Check connector readiness",
     secondaryActionHref: INTEGRATIONS_READINESS_PATH,

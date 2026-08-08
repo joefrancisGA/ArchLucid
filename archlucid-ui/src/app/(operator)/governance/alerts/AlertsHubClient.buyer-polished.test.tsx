@@ -51,13 +51,13 @@ vi.mock("@/components/alerts/AlertsInboxContent", () => ({
 }));
 
 import { BUYER_ALERTS_PAGE_SUBTITLE } from "@/lib/alerts-page-copy";
+import { AlertsHubChrome } from "./AlertsHubChrome";
 import { AlertsHubClient } from "./AlertsHubClient";
 
 describe("AlertsHubClient buyer-polished chrome", () => {
-  it("uses collapsible layer guidance and header configure link without duplicate context panel", () => {
+  it("keeps the buyer subtitle, help control, and header configure link by default", () => {
     render(<AlertsHubClient />);
 
-    expect(screen.getByTestId("layer-header-collapsible-guidance")).toBeInTheDocument();
     expect(screen.getByText(BUYER_ALERTS_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Configure alert rules" })).toHaveAttribute(
@@ -65,5 +65,16 @@ describe("AlertsHubClient buyer-polished chrome", () => {
       "/governance/alert-rules",
     );
     expect(screen.queryByTestId("alerts-governance-context-panel")).toBeNull();
+  });
+
+  it("suppresses the header configure link when the inbox owns the no_rules primary CTA", () => {
+    render(
+      <AlertsHubChrome showHeaderConfigureLink={false}>
+        <div data-testid="stub-inbox" />
+      </AlertsHubChrome>,
+    );
+
+    expect(screen.queryByTestId("alerts-configure-rules-link")).toBeNull();
+    expect(screen.queryByRole("link", { name: "Configure alert rules" })).toBeNull();
   });
 });

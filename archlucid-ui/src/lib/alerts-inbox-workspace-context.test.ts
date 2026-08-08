@@ -2,16 +2,21 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildAlertsInboxEmptyStateProps,
+  countAlertsConfigureRulesAffordances,
   resolveAlertsInboxEmptyVariant,
+  shouldShowAlertsHeaderConfigureRulesLink,
+  type AlertsInboxEmptyVariant,
 } from "@/lib/alerts-inbox-workspace-context";
 import {
+  ALERTS_CONFIGURE_RULES_LINK_LABEL,
   ALERTS_EMPTY_HEALTHY_TITLE,
   ALERTS_EMPTY_NO_REVIEWS_TITLE,
   ALERTS_EMPTY_NO_RULES_TITLE,
-  ALERTS_ACTION_CONFIGURE_ALERT_RULES,
 } from "@/lib/alerts-page-copy";
+import { governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
 
 const ALL = "__all__";
+const RULES_HREF = governanceAlertRulesTabHref("rules");
 
 describe("resolveAlertsInboxEmptyVariant", () => {
   it("prefers no_rules when rules are absent", () => {
@@ -39,19 +44,66 @@ describe("resolveAlertsInboxEmptyVariant", () => {
   });
 });
 
+describe("shouldShowAlertsHeaderConfigureRulesLink", () => {
+  it("keeps the header link while workspace context is loading", () => {
+    expect(
+      shouldShowAlertsHeaderConfigureRulesLink(
+        { hasReviews: false, hasAlertRules: false, loading: true },
+        "Open",
+        ALL,
+      ),
+    ).toBe(true);
+  });
+
+  it("hides the header link only for no_rules", () => {
+    expect(
+      shouldShowAlertsHeaderConfigureRulesLink(
+        { hasReviews: true, hasAlertRules: false, loading: false },
+        "Open",
+        ALL,
+      ),
+    ).toBe(false);
+  });
+
+  it("shows the header link for healthy_clear, no_reviews, and filtered", () => {
+    expect(
+      shouldShowAlertsHeaderConfigureRulesLink(
+        { hasReviews: true, hasAlertRules: true, loading: false },
+        "Open",
+        ALL,
+      ),
+    ).toBe(true);
+    expect(
+      shouldShowAlertsHeaderConfigureRulesLink(
+        { hasReviews: false, hasAlertRules: true, loading: false },
+        "Open",
+        ALL,
+      ),
+    ).toBe(true);
+    expect(
+      shouldShowAlertsHeaderConfigureRulesLink(
+        { hasReviews: true, hasAlertRules: true, loading: false },
+        "Acknowledged",
+        ALL,
+      ),
+    ).toBe(true);
+  });
+});
+
 describe("buildAlertsInboxEmptyStateProps", () => {
-  it("maps healthy_clear to open reviews CTA", () => {
+  it("maps healthy_clear to open reviews CTA without a configure-rules duplicate", () => {
     const props = buildAlertsInboxEmptyStateProps("healthy_clear", true);
     expect(props.title).toBe(ALERTS_EMPTY_HEALTHY_TITLE);
     expect(props.actions?.[0]?.label).toBe("Open reviews");
     expect(props.actions?.[0]?.href).toBe("/architecture/reviews");
+    expect(props.actions?.some((action) => action.href === RULES_HREF)).toBe(false);
   });
 
   it("maps no_rules to configure alert rules CTA", () => {
     const props = buildAlertsInboxEmptyStateProps("no_rules", true);
     expect(props.title).toBe(ALERTS_EMPTY_NO_RULES_TITLE);
-    expect(props.actions?.[0]?.label).toBe(ALERTS_ACTION_CONFIGURE_ALERT_RULES);
-    expect(props.actions?.[0]?.href).toBe("/governance/alert-rules");
+    expect(props.actions?.[0]?.label).toBe(ALERTS_CONFIGURE_RULES_LINK_LABEL);
+    expect(props.actions?.[0]?.href).toBe(RULES_HREF);
     expect(props.actions?.[1]?.label).toBe("Open governance setup");
   });
 
@@ -60,4 +112,18 @@ describe("buildAlertsInboxEmptyStateProps", () => {
     expect(props.title).toBe(ALERTS_EMPTY_NO_REVIEWS_TITLE);
     expect(props.actions?.[0]?.label).toBe("Start architecture review");
   });
+});
+
+describe("countAlertsConfigureRulesAffordances (TB-2103)", () => {
+  const variants: AlertsInboxEmptyVariant[] = ["no_rules", "no_reviews", "filtered", "healthy_clear"];
+
+  it.each([true, false])(
+    "keeps exactly one configure-rules affordance per variant when capability=%s",
+    (canMutate) => {
+      for (const variant of variants) {
+        const showHeader = variant !== "no_rules";
+        expect(countAlertsConfigureRulesAffordances(variant, canMutate, showHeader)).toBe(1);
+      }
+    },
+  );
 });

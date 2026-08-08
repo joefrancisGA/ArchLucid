@@ -1,5 +1,4 @@
 import {
-  ALERTS_ACTION_CONFIGURE_ALERT_RULES,
   ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE,
   ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE_HREF,
   ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW,
@@ -8,6 +7,7 @@ import {
   ALERTS_ACTION_OPEN_REVIEW_PACKAGES_HREF,
   ALERTS_ACTION_START_ARCHITECTURE_REVIEW,
   ALERTS_ACTION_START_ARCHITECTURE_REVIEW_HREF,
+  ALERTS_CONFIGURE_RULES_LINK_LABEL,
   ALERTS_EMPTY_FILTERED_BODY,
   ALERTS_EMPTY_FILTERED_TITLE,
   ALERTS_EMPTY_HEALTHY_BODY,
@@ -50,9 +50,25 @@ export function resolveAlertsInboxEmptyVariant(
   return "healthy_clear";
 }
 
+/**
+ * Header configure link stays up while workspace context loads, then hides only for
+ * `no_rules` so the empty-state primary remains the single affordance (TB-2103).
+ */
+export function shouldShowAlertsHeaderConfigureRulesLink(
+  context: AlertsInboxWorkspaceContext,
+  statusFilter: string,
+  allStatusesValue: string,
+): boolean {
+  if (context.loading) {
+    return true;
+  }
+
+  return resolveAlertsInboxEmptyVariant(context, statusFilter, allStatusesValue) !== "no_rules";
+}
+
 export function buildAlertsInboxEmptyStateProps(
   variant: AlertsInboxEmptyVariant,
-  canMutateAlertInbox: boolean,
+  _canMutateAlertInbox: boolean,
 ): Pick<EnterpriseCompactEmptyStateProps, "title" | "description" | "actions"> {
   const governanceSetupSecondary = {
     label: ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE,
@@ -81,7 +97,7 @@ export function buildAlertsInboxEmptyStateProps(
       description: ALERTS_EMPTY_NO_RULES_BODY,
       actions: [
         {
-          label: ALERTS_ACTION_CONFIGURE_ALERT_RULES,
+          label: ALERTS_CONFIGURE_RULES_LINK_LABEL,
           href: governanceAlertRulesTabHref("rules"),
           variant: "primary",
         },
@@ -105,6 +121,7 @@ export function buildAlertsInboxEmptyStateProps(
     };
   }
 
+  // healthy_clear: header link owns configure-rules; do not push a third CTA (TB-2103).
   const actions: EnterpriseCompactEmptyStateAction[] = [
     { label: ALERTS_ACTION_OPEN_REVIEW_PACKAGES, href: ALERTS_ACTION_OPEN_REVIEW_PACKAGES_HREF, variant: "primary" },
     {
@@ -114,17 +131,23 @@ export function buildAlertsInboxEmptyStateProps(
     },
   ];
 
-  if (canMutateAlertInbox) {
-    actions.push({
-      label: ALERTS_ACTION_CONFIGURE_ALERT_RULES,
-      href: governanceAlertRulesTabHref("rules"),
-      variant: "outline",
-    });
-  }
-
   return {
     title: ALERTS_EMPTY_HEALTHY_TITLE,
     description: ALERTS_EMPTY_HEALTHY_BODY,
     actions,
   };
+}
+
+/** Empty-state + header configure-rules affordance count for a resolved variant (TB-2103). */
+export function countAlertsConfigureRulesAffordances(
+  variant: AlertsInboxEmptyVariant,
+  canMutateAlertInbox: boolean,
+  showHeaderConfigureLink: boolean,
+): number {
+  const emptyHrefCount =
+    buildAlertsInboxEmptyStateProps(variant, canMutateAlertInbox).actions?.filter(
+      (action) => action.href === governanceAlertRulesTabHref("rules"),
+    ).length ?? 0;
+
+  return emptyHrefCount + (showHeaderConfigureLink ? 1 : 0);
 }

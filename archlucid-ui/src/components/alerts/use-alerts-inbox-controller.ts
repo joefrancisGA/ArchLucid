@@ -20,6 +20,7 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { AlertsInboxSummaryCounts } from "@/lib/alerts-inbox-summary";
 import {
   ALERTS_INBOX_DEFAULT_PROJECT_ID,
+  shouldShowAlertsHeaderConfigureRulesLink,
   type AlertsInboxWorkspaceContext,
 } from "@/lib/alerts-inbox-workspace-context";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -32,6 +33,7 @@ import {
 } from "@/app/(operator)/governance/alerts/_sections/load-alerts-inbox-page-model";
 import type { AlertActionLoopDto } from "@/types/operate-rhythm";
 import type { AlertRecord } from "@/types/alerts";
+import { useSyncAlertsHubHeaderConfigureLink } from "@/components/alerts/AlertsHubHeaderConfigureLinkContext";
 
 type PendingActionState = {
   alertId: string;
@@ -236,6 +238,13 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
     workspaceContext,
     status,
   );
+
+  const showHeaderConfigureLink = shouldShowAlertsHeaderConfigureRulesLink(
+    workspaceContext,
+    status,
+    ALERTS_INBOX_ALL_STATUSES_VALUE,
+  );
+  useSyncAlertsHubHeaderConfigureLink(showHeaderConfigureLink);
 
   const act = useCallback(
     async (alertId: string, action: AlertActionKind, comment: string) => {

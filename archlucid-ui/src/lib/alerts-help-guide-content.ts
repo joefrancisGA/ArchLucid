@@ -1,7 +1,7 @@
 import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
 import {
-  ALERTS_ACTION_CONFIGURE_ALERT_RULES,
   ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE_HREF,
+  ALERTS_CONFIGURE_RULES_LINK_LABEL,
 } from "@/lib/alerts-page-copy";
 import {
   GOVERNANCE_ALERTS_PATH,
@@ -24,7 +24,7 @@ export const ALERTS_HELP_PRIMARY_ACTIONS = {
     href: GOVERNANCE_ALERTS_PATH,
   },
   configureRules: {
-    label: ALERTS_ACTION_CONFIGURE_ALERT_RULES,
+    label: ALERTS_CONFIGURE_RULES_LINK_LABEL,
     href: governanceAlertRulesTabHref("rules"),
   },
   governanceSetup: {
@@ -70,7 +70,7 @@ export const ALERTS_HELP_DESTINATION_CARDS = [
     id: "alert-rules",
     title: "Alert rules",
     description: "Create thresholds, routing, combined conditions, and simulations.",
-    actionLabel: ALERTS_ACTION_CONFIGURE_ALERT_RULES,
+    actionLabel: ALERTS_CONFIGURE_RULES_LINK_LABEL,
     href: governanceAlertRulesTabHref("rules"),
   },
 ] as const;

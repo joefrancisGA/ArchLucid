@@ -3,6 +3,10 @@
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { LayerHeader } from "@/components/LayerHeader";
 import { AlertsGovernanceContextPanel } from "@/components/alerts/AlertsGovernanceContextPanel";
+import {
+  AlertsHubHeaderConfigureLinkProvider,
+  useAlertsHubHeaderConfigureLinkVisibility,
+} from "@/components/alerts/AlertsHubHeaderConfigureLinkContext";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import {
@@ -21,18 +25,29 @@ import Link from "next/link";
 
 type AlertsHubChromeProps = {
   readonly children: React.ReactNode;
+  /**
+   * Optional force for tests. When omitted, visibility is driven by the inbox via
+   * {@link AlertsHubHeaderConfigureLinkProvider} (TB-2103).
+   */
+  readonly showHeaderConfigureLink?: boolean;
 };
 
-/** Alerts hub header/chrome — paints immediately while inbox streams under Suspense (TB-2026). */
-export function AlertsHubChrome({ children }: AlertsHubChromeProps): React.JSX.Element {
+function AlertsHubChromeInner({
+  children,
+  showHeaderConfigureLinkOverride,
+}: {
+  readonly children: React.ReactNode;
+  readonly showHeaderConfigureLinkOverride?: boolean;
+}): React.JSX.Element {
   const canMutateAlertInbox = useOperateCapability();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const showFromInbox = useAlertsHubHeaderConfigureLinkVisibility();
+  const showHeaderConfigureLink = showHeaderConfigureLinkOverride ?? showFromInbox;
 
   return (
     <div className="px-0">
       {buyerPolishedShell ? (
-        <LayerHeader pageKey="alerts" density="compact"
-/>
+        <LayerHeader pageKey="alerts" density="compact" />
       ) : null}
 
       <OperatorPageHeader
@@ -42,21 +57,37 @@ export function AlertsHubChrome({ children }: AlertsHubChromeProps): React.JSX.E
         actions={
           <div className="flex flex-wrap items-center gap-2" data-testid="alerts-hub-header-actions">
             <PageContextualHelpButton />
-            <Link
-              href={governanceAlertRulesTabHref("rules")}
-              className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.micro)}
-              data-testid="alerts-configure-rules-link"
-            >
-              {ALERTS_CONFIGURE_RULES_LINK_LABEL}
-            </Link>
+            {showHeaderConfigureLink ? (
+              <Link
+                href={governanceAlertRulesTabHref("rules")}
+                className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.micro)}
+                data-testid="alerts-configure-rules-link"
+              >
+                {ALERTS_CONFIGURE_RULES_LINK_LABEL}
+              </Link>
+            ) : null}
           </div>
         }
       >
         {!buyerPolishedShell ? <AlertsGovernanceContextPanel canMutateAlertInbox={canMutateAlertInbox} /> : null}
       </OperatorPageHeader>
-<div className="min-w-0" data-testid="alert-hub-panel" aria-label="Alert inbox">
+      <div className="min-w-0" data-testid="alert-hub-panel" aria-label="Alert inbox">
         {children}
       </div>
     </div>
+  );
+}
+
+/** Alerts hub header/chrome — paints immediately while inbox streams under Suspense (TB-2026). */
+export function AlertsHubChrome({
+  children,
+  showHeaderConfigureLink,
+}: AlertsHubChromeProps): React.JSX.Element {
+  return (
+    <AlertsHubHeaderConfigureLinkProvider>
+      <AlertsHubChromeInner showHeaderConfigureLinkOverride={showHeaderConfigureLink}>
+        {children}
+      </AlertsHubChromeInner>
+    </AlertsHubHeaderConfigureLinkProvider>
   );
 }
