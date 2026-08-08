@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+
 import { CtaButton } from "@/components/marketing/CtaButton";
 import { SelfDemoRequestCta } from "@/components/marketing/SelfDemoRequestCta";
 import { WelcomeMarketingHeroVisual } from "@/components/marketing/WelcomeMarketingHeroVisual";
@@ -58,7 +60,18 @@ export function WelcomeMarketingHeroSection(): React.JSX.Element {
                 className="flex w-full max-w-2xl flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-center lg:justify-start"
                 data-testid="welcome-hero-primary-secondary-row"
               >
-                <SelfDemoRequestCta />
+                <Suspense
+                  fallback={
+                    <div
+                      className="h-11 min-w-[12rem] animate-pulse rounded-md bg-neutral-200 dark:bg-neutral-700"
+                      role="status"
+                      aria-label="Loading self-demo request"
+                      data-testid="welcome-self-demo-cta-suspense"
+                    />
+                  }
+                >
+                  <SelfDemoRequestCta />
+                </Suspense>
                 <CtaButton
                   href={WELCOME_PROOF_LADDER_PRIMARY_HREF}
                   variant="outline"

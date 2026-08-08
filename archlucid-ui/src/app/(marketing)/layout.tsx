@@ -2,12 +2,14 @@ import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
-import { MarketingAnalyticsConsentBanner } from "@/components/MarketingAnalyticsConsentBanner";
-import { MarketingFirstTouchCapture } from "@/components/MarketingFirstTouchCapture";
 import { MarketingJsonLd } from "@/components/MarketingJsonLd";
-import { MarketingPublicFooter } from "@/components/marketing/MarketingPublicFooter";
 import { MarketingPublicHeader } from "@/components/marketing/MarketingPublicHeader";
-import { MicrosoftClarityLoader } from "@/components/MicrosoftClarityLoader";
+import {
+  MarketingAnalyticsConsentBannerDeferred,
+  MarketingFirstTouchCaptureDeferred,
+  MarketingPublicFooterDeferred,
+  MicrosoftClarityLoaderDeferred,
+} from "@/components/marketing/marketing-layout-deferred-chunks";
 import { ShellReadySurface } from "@/components/ShellReadySurface";
 import { MARKETING_LAYOUT } from "@/lib/design-tokens";
 import { getMarketingClarityProjectId } from "@/lib/marketing-analytics-consent";
@@ -29,15 +31,15 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
 
   return (
     <ShellReadySurface className={cn("min-h-screen", MARKETING_LAYOUT.page)}>
-      <MarketingFirstTouchCapture />
+      <MarketingFirstTouchCaptureDeferred />
       <MarketingJsonLd />
-      <MicrosoftClarityLoader projectId={clarityProjectId} />
+      <MicrosoftClarityLoaderDeferred projectId={clarityProjectId} />
       <MarketingPublicHeader liveDemoLinked={liveDemoLinked} />
       {children}
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
-        <MarketingPublicFooter />
+        <MarketingPublicFooterDeferred />
       </div>
-      <MarketingAnalyticsConsentBanner clarityProjectId={clarityProjectId} />
+      <MarketingAnalyticsConsentBannerDeferred clarityProjectId={clarityProjectId} />
     </ShellReadySurface>
   );
 }

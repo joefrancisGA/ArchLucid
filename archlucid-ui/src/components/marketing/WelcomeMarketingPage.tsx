@@ -1,15 +1,13 @@
-"use client";
-
 import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { WelcomeMarketingHeroSection } from "@/components/marketing/WelcomeMarketingHeroSection";
 import { WelcomeEvidenceOrientationStrip } from "@/components/marketing/WelcomeEvidenceOrientationStrip";
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
-import { MarketingTierPricingSection } from "@/components/marketing/MarketingTierPricingSection";
 import { WelcomeMarketingProblemSolutionSection } from "@/components/marketing/WelcomeMarketingProblemSolutionSection";
 import { WelcomeMarketingUseCasesSection } from "@/components/marketing/WelcomeMarketingUseCasesSection";
 import { WelcomeMarketingWorkflowSection } from "@/components/marketing/WelcomeMarketingWorkflowSection";
+import { MarketingTierPricingSectionDeferred } from "@/components/marketing/welcome-marketing-deferred-chunks";
 import { WELCOME_SEE_IT_CTA_LABEL, WELCOME_PROOF_LADDER_PRIMARY_HREF } from "@/components/marketing/welcome-marketing-copy";
 import { BUYER_MARKETING_PRICING_PAGE_INTRO } from "@/lib/buyer-polish-copy";
 import { MARKETING_LAYOUT, MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -110,7 +108,7 @@ export function WelcomeMarketingPage(props: {
           </p>
         </section>
 
-        <MarketingTierPricingSection
+        <MarketingTierPricingSectionDeferred
           sectionHeadingId="pricing-heading"
           sectionTitle="Packaging overview"
           sectionIntro={BUYER_MARKETING_PRICING_PAGE_INTRO}

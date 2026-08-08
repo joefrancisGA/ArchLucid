@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 
 import { HeroEarlyAccessCta } from "@/components/marketing/HeroEarlyAccessCta";
 import { WalkthroughRequestCta } from "@/components/marketing/WalkthroughRequestCta";
@@ -43,13 +44,24 @@ export function WelcomeMarketingEngagementPathsSection(): React.JSX.Element {
         {WELCOME_HERO_EVALUATION_REASSURANCE}
       </p>
 
-      <div
-        className="mt-6 flex w-full max-w-2xl flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-start"
-        data-testid="welcome-engagement-request-row"
+      <Suspense
+        fallback={
+          <div
+            className="mt-6 flex min-h-11 w-full max-w-2xl animate-pulse flex-col gap-3 sm:flex-row"
+            role="status"
+            aria-label="Loading engagement requests"
+            data-testid="welcome-engagement-cta-suspense"
+          />
+        }
       >
-        <WalkthroughRequestCta />
-        <HeroEarlyAccessCta className="max-w-md" source="welcome-engagement" />
-      </div>
+        <div
+          className="mt-6 flex w-full max-w-2xl flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-start"
+          data-testid="welcome-engagement-request-row"
+        >
+          <WalkthroughRequestCta />
+          <HeroEarlyAccessCta className="max-w-md" source="welcome-engagement" />
+        </div>
+      </Suspense>
 
       <p className={cn("mt-6 max-w-3xl text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
         <Link className={MARKETING_SURFACES.inlineLink} href="/signup">
