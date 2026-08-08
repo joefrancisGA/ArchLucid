@@ -186,30 +186,21 @@ export function FindingEvidenceGraph(props: FindingEvidenceGraphProps) {
     <section className="space-y-3" data-testid="finding-evidence-graph">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          Teal nodes match the evidence trail ({graphNodeIdsExamined.length} examined).
+          {viewMode === "reasoningPath"
+            ? "The path ArchLucid followed to reach this finding. Teal marks the evidence it examined."
+            : "The full architecture graph, with the evidence ArchLucid examined marked in teal."}
         </p>
-        <div className="flex flex-wrap gap-1">
-          <Button
-            type="button"
-            size="sm"
-            variant={viewMode === "context" ? "default" : "outline"}
-            onClick={() => {
-              setViewMode("context");
-            }}
-          >
-            Full context
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant={viewMode === "evidenceOnly" ? "default" : "outline"}
-            onClick={() => {
-              setViewMode("evidenceOnly");
-            }}
-          >
-            Evidence only
-          </Button>
-        </div>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          aria-pressed={viewMode === "context"}
+          onClick={() => {
+            setViewMode(viewMode === "context" ? "reasoningPath" : "context");
+          }}
+        >
+          {viewMode === "context" ? "Show reasoning path only" : "Show surrounding context"}
+        </Button>
       </div>
 
       {loadNote !== null ? (

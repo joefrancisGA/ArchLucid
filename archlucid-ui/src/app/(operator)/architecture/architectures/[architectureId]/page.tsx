@@ -14,7 +14,14 @@ type ArchitectureDraftPageProps = {
 };
 
 export default async function ArchitectureDraftPage(props: ArchitectureDraftPageProps): Promise<React.JSX.Element> {
-  const { architectureId } = await props.params;
+  const rawArchitectureId = (await props.params).architectureId;
+  let architectureId = rawArchitectureId.trim();
+
+  try {
+    architectureId = decodeURIComponent(architectureId);
+  } catch {
+    // Keep the raw segment when it is not URI-encoded.
+  }
 
   return (
     <OperatorPageContainer variant="workflow">

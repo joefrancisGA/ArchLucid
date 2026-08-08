@@ -201,7 +201,7 @@ export function buyerPolishedRouteOrientation(
   if (pathMatchesGovernanceApprovalQueue(path)) {
     const searchRunId = options?.searchRunId?.trim() ?? "";
 
-    // Governance overview carries its own OperatorPageHeader subtitle (TB-1434) — not strip + header twins.
+    // Approval queue owns OperatorPageHeader title/lead (always "Approval queue") — no strip twin (TB-1434).
     if (searchRunId.length === 0) {
       return null;
     }
@@ -213,10 +213,8 @@ export function buyerPolishedRouteOrientation(
       };
     }
 
-    return {
-      label: "Review governance",
-      line: GOVERNANCE_REVIEW_CONTEXT_PAGE_LEAD,
-    };
+    // Review-scoped deep links (`?runId=`) keep the Approval queue title; context bar names the review.
+    return null;
   }
 
   if (path.startsWith("/governance")) {

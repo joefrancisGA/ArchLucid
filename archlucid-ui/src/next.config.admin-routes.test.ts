@@ -3,10 +3,13 @@ import { describe, expect, it } from "vitest";
 import nextConfig from "../next.config";
 
 describe("next.config administration routes (TB-406 / TB-522 / TB-751)", () => {
-  it("does not ship permanent bookmark redirects", async () => {
+  it("ships architectures force-canonical redirects only (no broad bookmark redirect table)", async () => {
     const redirectRules = await nextConfig.redirects?.();
 
-    expect(redirectRules ?? []).toEqual([]);
+    expect(redirectRules ?? []).toEqual([
+      { source: "/architectures", destination: "/architecture/architectures", permanent: true },
+      { source: "/architectures/:path*", destination: "/architecture/architectures/:path*", permanent: true },
+    ]);
   });
 
   it("does not rewrite legacy bookmark paths (IA batch 7)", async () => {

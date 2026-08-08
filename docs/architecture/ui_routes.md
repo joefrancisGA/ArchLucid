@@ -111,9 +111,9 @@ Constants live in `archlucid-ui/src/lib/showcase-static-demo.ts` and `archlucid-
 
 ## Legacy URL handling (IA batch 4–8)
 
-`archlucid-ui/next.config.ts` ships **no redirects and no rewrites**. Use canonical on-disk paths below. Orientation helpers (`canonicalizeLegacyOperatorRoutePath`) still map retired prefixes for help, readiness, and buyer-polish lookups only.
+`archlucid-ui/next.config.ts` ships **architectures force-canonical redirects only** (`/architectures` → `/architecture/architectures`). Other retired bookmarks 404. Orientation helpers (`canonicalizeLegacyOperatorRoutePath`) still map retired prefixes for help, readiness, and buyer-polish lookups.
 
-**Retired bookmarks** (404 — use canonical paths):
+**Retired bookmarks** (404 unless noted — use canonical paths):
 
 | Path | Canonical |
 |------|-----------|
@@ -122,7 +122,7 @@ Constants live in `archlucid-ui/src/lib/showcase-static-demo.ts` and `archlucid-
 | `/governance/risk-exceptions`, `/governance/risk-exceptions/*` | `/governance/exceptions` |
 | `/settings/roles` | `/administration/users?tab=roles` |
 | `/reviews`, `/reviews/*`, `/runs`, `/runs/*` | `/architecture/reviews/*` |
-| `/architectures`, `/architectures/*` | `/architecture/architectures/*` |
+| `/architectures`, `/architectures/*` | `/architecture/architectures/*` (permanent redirect) |
 | `/dashboard`, `/executive/dashboard`, `/portfolio` | `/architecture/executive-dashboard` |
 | `/audit`, `/policy-packs/*`, `/alerts`, `/alert-rules/*` | `/governance/*` |
 | `/signed-records`, `/signed-records/*` | `/governance/signed-records/*` |

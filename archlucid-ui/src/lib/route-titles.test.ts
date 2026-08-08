@@ -15,6 +15,7 @@ describe("getRouteTitle — static routes", () => {
     expect(getRouteTitle(GOVERNANCE_AUDIT_PATH)).toBe(OPERATOR_NAV_LINK_LABELS.auditTrail);
     expect(getRouteTitle("/architecture/reviews/new")).toBe(START_REVIEW_LABEL);
     expect(getRouteTitle("/architectures/draft-1")).toBe(CREATE_ARCHITECTURE_LABEL);
+    expect(getRouteTitle("/architecture/architectures/draft-1")).toBe(CREATE_ARCHITECTURE_LABEL);
     expect(getRouteTitle("/governance/approval-queue")).toBe(GOVERNANCE_OVERVIEW_PAGE_TITLE);
     expect(getRouteTitle(SIGNED_RECORDS_LIST_PATH)).toBe(OPERATOR_NAV_LINK_LABELS.signedReviewRecords);
     expect(getRouteTitle(EXECUTIVE_DASHBOARD_HREF)).toBe(BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle);

@@ -13,7 +13,11 @@ export function governanceOverviewPageLead(buyerPolishedShell: boolean): string 
   return buyerPolishedShell ? BUYER_GOVERNANCE_OVERVIEW_PAGE_LEAD : GOVERNANCE_OVERVIEW_PAGE_LEAD;
 }
 
-export const GOVERNANCE_REVIEW_CONTEXT_PAGE_TITLE = "Review governance";
+/**
+ * Historical alternate heading when a review was deep-linked into the approval queue.
+ * The live page title stays {@link GOVERNANCE_OVERVIEW_PAGE_TITLE} so it matches the left-nav label.
+ */
+export const GOVERNANCE_REVIEW_CONTEXT_PAGE_TITLE = "Approval queue";
 
 export const GOVERNANCE_REVIEW_CONTEXT_PAGE_LEAD =
   "Approval requests, releases, and activation history for the selected review.";

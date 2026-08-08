@@ -23,6 +23,8 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type GovernanceReviewContextBarProps = {
   readonly activeRunId: string;
+  /** Resolved buyer-facing title; falls back to the run id when null/empty. */
+  readonly reviewDisplayTitle?: string | null;
   readonly buyerPolishedShell: boolean;
   readonly canMutateWorkflow: boolean;
   readonly listsLoading: boolean;
@@ -37,6 +39,7 @@ type GovernanceReviewContextBarProps = {
 export function GovernanceReviewContextBar(props: GovernanceReviewContextBarProps): React.JSX.Element {
   const {
     activeRunId,
+    reviewDisplayTitle,
     buyerPolishedShell,
     canMutateWorkflow,
     listsLoading,
@@ -47,6 +50,10 @@ export function GovernanceReviewContextBar(props: GovernanceReviewContextBarProp
     onRefresh,
   } = props;
 
+  const titleTrimmed = reviewDisplayTitle?.trim() ?? "";
+  const selectedReviewLabel =
+    titleTrimmed.length > 0 ? titleTrimmed : buyerFacingReviewLinkLabelFromRunId(activeRunId);
+
   return (
     <div
       className="mb-6 flex flex-col gap-3 rounded-md border border-neutral-200 bg-al-surface-raised px-4 py-3 dark:border-neutral-800"
@@ -54,8 +61,8 @@ export function GovernanceReviewContextBar(props: GovernanceReviewContextBarProp
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-          <span className="font-medium">Selected review:</span>{" "}
-          <strong>{buyerFacingReviewLinkLabelFromRunId(activeRunId)}</strong>
+          <span className="font-semibold">Selected review:</span>{" "}
+          <span data-testid="governance-review-context-title">{selectedReviewLabel}</span>
         </p>
         <div className="flex flex-wrap items-center gap-2">
           <Button type="button" variant="outline" size="sm" onClick={onBackToOverview}>

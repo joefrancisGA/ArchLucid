@@ -16,6 +16,16 @@ describe("canonicalizeLegacyOperatorRoutePath", () => {
     expect(canonicalizeLegacyOperatorRoutePath("/reviews/new")).toBe("/architecture/reviews/new");
   });
 
+  it("maps architectures namespace bookmarks without rewriting canonical paths", () => {
+    expect(canonicalizeLegacyOperatorRoutePath("/architectures")).toBe("/architecture/architectures");
+    expect(canonicalizeLegacyOperatorRoutePath("/architectures/draft-1")).toBe(
+      "/architecture/architectures/draft-1",
+    );
+    expect(canonicalizeLegacyOperatorRoutePath("/architecture/architectures/draft-1")).toBe(
+      "/architecture/architectures/draft-1",
+    );
+  });
+
   it("maps digests and exceptions legacy bookmarks to canonical paths", () => {
     expect(canonicalizeLegacyOperatorRoutePath("/digests")).toBe("/architecture/digests");
     expect(canonicalizeLegacyOperatorRoutePath("/digest-subscriptions")).toBe(
