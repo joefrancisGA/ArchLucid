@@ -68,5 +68,6 @@ describe("ui-route-traffic-planning-plan-detail (INL)", () => {
     expect(row?.notes).toBe(PLANNING_PLAN_DETAIL_TRAFFIC_NOTE);
     expect(row?.notes).toContain("PlanningPlanDetailPageView");
     expect(row?.notes).toContain("Score 52");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
