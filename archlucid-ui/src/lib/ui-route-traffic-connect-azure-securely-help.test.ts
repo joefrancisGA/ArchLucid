@@ -66,5 +66,6 @@ describe("ui-route-traffic-connect-azure-securely-help (HC)", () => {
     expect(row?.notes).toBe(CONNECT_AZURE_SECURELY_HELP_TRAFFIC_NOTE);
     expect(row?.notes).toContain("HelpConnectAzureSecurelyGuideView");
     expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
