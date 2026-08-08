@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-08 - UI: Pilot feedback help Evidence notes (HPE)
+
+- `/help/pilot-feedback` (HPE) Category-1 + topic map + `PilotFeedbackHelpEvidenceOrientationStrip`; traffic Notes score **52** (help specialty).
+
 ## 2026-08-08 - UI: Path chooser help Evidence notes (HPX)
 
 - `/help/path-chooser` (HPX) traffic Notes score **52** (help specialty) — documents existing `HelpPathChooserGuideView` Evidence chrome (Category-1, Sources, claim-discipline, TB-1712 strip).

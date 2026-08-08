@@ -100,6 +100,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/azure-boards",
       "/help/integrations/azure-boards",
       "/help/integration-readiness",
+      "/help/pilot-feedback",
       "/help/caiq-sig-response",
       "/help/comparison-replay",
       "/help/getting-started",

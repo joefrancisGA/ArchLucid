@@ -1,0 +1,23 @@
+import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
+
+export const PILOT_FEEDBACK_HELP_CANONICAL_PATH = "/help/pilot-feedback" as const;
+
+export const PILOT_FEEDBACK_HELP_CLAIM_DISCIPLINE =
+  "This pilot feedback guide orients operators on human judgment signals and product-learning triage — it is help orientation, not a CPA SOC 2 attestation, a published third-party pen-test report, or a signed-review diligence Sources package from your tenant. Open Pilot feedback or Improvement planning when you need live signal trails.";
+
+export const PILOT_FEEDBACK_HELP_SOURCES_INTRO =
+  "Use these follow-ups when pilot-feedback vocabulary turns into live triage dashboards, planning themes, or architecture reviews.";
+
+export type PilotFeedbackHelpSourceLink = {
+  readonly label: string;
+  readonly href: string;
+};
+
+/** Operator Sources — no self-href to `/help/pilot-feedback`. */
+export const PILOT_FEEDBACK_HELP_SOURCES: readonly PilotFeedbackHelpSourceLink[] = [
+  { label: "Pilot feedback", href: PRODUCT_LEARNING_PATH },
+  { label: "Improvement planning", href: "/insights/planning" },
+  { label: "Architecture reviews", href: "/architecture/reviews" },
+  { label: "Start a review", href: "/architecture/reviews/new" },
+  { label: "AI recommendation learning", href: "/internal/recommendation-learning" },
+] as const;

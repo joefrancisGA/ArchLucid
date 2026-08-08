@@ -323,6 +323,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "pilot-roi-model", label: "Pilot ROI model" },
   },
   {
+    prefix: "/help/pilot-feedback",
+    topic: { slug: "pilot-feedback", label: "Pilot feedback" },
+  },
+  {
     prefix: "/help/executive-summary",
     topic: { slug: "executive-summary", label: "Executive summary" },
   },

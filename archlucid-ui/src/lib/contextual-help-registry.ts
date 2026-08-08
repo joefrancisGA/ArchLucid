@@ -258,6 +258,26 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/pilot-feedback",
+    entry: {
+      whatIsThisPage:
+        "Pilot feedback help — human judgment signals, ranked improvement opportunities, and how triage differs from recommendation learning.",
+      whatToDoNext:
+        "Open Pilot feedback for live aggregates, then Improvement planning when opportunities become themes or draft plans.",
+      whyEmpty: "This guide is always available; live feedback rows appear after operators capture review outcomes.",
+      whereToConfigurePrerequisite:
+        "Pilot feedback is an Internal Ops surface — System Admin authority is typically required.",
+      whatToDoNextAction: {
+        label: "Open Pilot feedback",
+        href: PRODUCT_LEARNING_PATH,
+      },
+      whereToConfigureAction: {
+        label: "Open Improvement planning",
+        href: PLANNING_PATH,
+      },
+    },
+  },
+  {
     prefix: "/help/executive-summary",
     entry: {
       whatIsThisPage:
