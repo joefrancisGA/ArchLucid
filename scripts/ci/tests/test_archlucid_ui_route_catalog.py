@@ -33,6 +33,8 @@ def test_discover_tab_paths_includes_architecture_workspace_tabs() -> None:
     assert "/governance/advisory-scans?tab=scans" in tab_paths
     assert "/governance/advisory-scans?tab=schedules" in tab_paths
     assert "/advisory?tab=scans" not in tab_paths
+    # ?tab=inbox canonicalizes away to the alerts hub itself, so it is not a tracked tab surface.
+    assert "/governance/alerts?tab=inbox" not in tab_paths
 
 
 def test_build_catalog_classifies_architecture_intelligence_as_core_review() -> None:
@@ -57,6 +59,11 @@ def test_build_catalog_excludes_redirect_only_legacy_paths() -> None:
     assert "/governance/advisory-scans" in catalog
     assert "/alert-routing" not in catalog
     assert "/governance/alert-rules?tab=routing" in catalog
+    # Forward-only page.tsx stubs are scored on their destination row, not tracked separately.
+    assert "/demo" not in catalog
+    assert "/demo/preview" in catalog
+    assert "/architecture/reviews/[runId]/artifacts/[artifactId]" not in catalog
+    assert "/governance/signed-records/[manifestId]/artifacts/[artifactId]" in catalog
 
 
 def test_migrate_workbook_path_maps_retired_cloud_connection_help_slugs() -> None:
@@ -106,11 +113,10 @@ def test_migrate_workbook_path_maps_legacy_settings_alerts() -> None:
     assert migrate_workbook_path("/settings/alerts") == "/governance/alert-rules"
 
 
-def test_build_catalog_tracks_next_config_only_settings_alerts_bookmark() -> None:
+def test_build_catalog_does_not_track_retired_settings_alerts_bookmark() -> None:
     catalog = build_catalog()
-    assert "/settings/alerts" in catalog
-    assert catalog["/settings/alerts"].section == "Settings"
-    assert catalog["/settings/alerts"].source == "redirect_bookmark"
+    assert "/settings/alerts" not in catalog
+    assert "/governance/alert-rules" in catalog
 
 
 def test_build_catalog_does_not_track_retired_settings_exec_digest_bookmark() -> None:
