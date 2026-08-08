@@ -64,8 +64,9 @@ describe("ui-route-traffic-architecture-overview-tab (REO)", () => {
     expect(row?.path).toBe(ARCHITECTURE_OVERVIEW_TAB_TRAFFIC_PATH);
     expect(row?.section).toBe(ARCHITECTURE_OVERVIEW_TAB_TRAFFIC_SECTION);
     expect(row?.notes).toBe(ARCHITECTURE_OVERVIEW_TAB_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("ArchitectureCreatedOverviewEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("archTab=overview");
     expect(row?.notes).toContain("Score 48");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
