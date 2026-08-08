@@ -69,5 +69,6 @@ describe("ui-route-traffic-model-governance-settings (AMO)", () => {
     expect(row?.section).toBe(MODEL_GOVERNANCE_SETTINGS_TRAFFIC_SECTION);
     expect(row?.notes).toBe(MODEL_GOVERNANCE_SETTINGS_TRAFFIC_NOTE);
     expect(row?.notes).toContain("ModelGovernanceSettingsPage");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
