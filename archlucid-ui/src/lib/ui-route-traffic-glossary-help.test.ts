@@ -66,5 +66,6 @@ describe("ui-route-traffic-glossary-help (HGE)", () => {
     expect(row?.notes).toBe(GLOSSARY_HELP_TRAFFIC_NOTE);
     expect(row?.notes).toContain("HelpGlossaryPageView");
     expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
