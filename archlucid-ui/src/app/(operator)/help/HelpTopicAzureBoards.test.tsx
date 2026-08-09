@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { HelpAzureBoardsGuideView } from "@/app/(operator)/help/_sections/HelpAzureBoardsGuideView";
@@ -7,9 +7,31 @@ import {
   AZURE_BOARDS_HELP_PRIMARY_ACTIONS,
   AZURE_BOARDS_HELP_SOURCES,
 } from "@/lib/azure-boards-help-evidence-copy";
+import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpAzureBoardsGuideView (HEZ)", () => {
+  it("keeps setup steps as one ordered list with the PAT warning after the list", () => {
+    const loaded = tryLoadProductDocumentation("azure-boards");
+
+    expect(loaded).not.toBeNull();
+
+    if (loaded === null) {
+      throw new Error("Expected azure-boards documentation.");
+    }
+
+    render(<HelpAzureBoardsGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    const content = screen.getByTestId("help-azure-boards-content");
+    const setupLink = within(content).getByRole("link", { name: /Integrations → Azure Boards/i });
+    const setupList = setupLink.closest("ol");
+
+    expect(setupList).not.toBeNull();
+    expect(within(setupList!).getAllByRole("listitem")).toHaveLength(7);
+    expect(within(setupList!).getByText(/Create Azure Boards work item/i)).toBeInTheDocument();
+    expect(screen.getByText(/PAT value is never shown again/i).closest("blockquote")).not.toBeNull();
+  });
+
   it("renders orientation, continue-in-product links, breadcrumb, and export actions", () => {
     const entry = getProductDocumentationEntry("azure-boards");
 
