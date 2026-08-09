@@ -76,7 +76,6 @@ import {
   RunDetailReviewPackageShareRowDeferred,
   RunDetailRunActionsSectionDeferred,
   RunDetailSectionNavDeferred,
-  RunDetailTabbedSectionNavDeferred,
   BeforeAfterDeltaPanelDeferred,
   RecurrenceSchedulePostCommitCardDeferred,
   RunDetailSubmittedArchitectureSectionDeferred,
@@ -488,12 +487,6 @@ export function RunDetailPageView(props: {
       />
       <RunDetailArchitectureGraphIsland model={m} context={deferredContext} />
     </div>
-  );
-  const tabbedSectionNavEl = (
-    <RunDetailTabbedSectionNavDeferred
-      runId={m.resolvedDetail.run.runId}
-      sections={m.runDetailNavSections}
-    />
   );
   const tabbedWorkspaceEl = !showArchitectureCreatedHome ? (
     <Suspense fallback={<RunDetailExplanationSkeleton />}>
@@ -969,7 +962,6 @@ export function RunDetailPageView(props: {
 
               {!showArchitectureCreatedHome ? executiveBottomLineEl : null}
 
-              {tabbedSectionNavEl}
               {tabbedWorkspaceEl}
 
               {!m.manifestId ? (

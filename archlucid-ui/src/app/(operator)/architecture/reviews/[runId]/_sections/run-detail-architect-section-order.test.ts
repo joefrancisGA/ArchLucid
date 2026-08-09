@@ -61,7 +61,8 @@ describe("run-detail-architect-section-order (TB-620)", () => {
     expect(belowFoldSource).toContain("{!ownedByAnotherTab && !m.buyerPolishedArtifactTable && m.manifestId ? (");
     expect(belowFoldSource).toContain("{m.manifestId && !ownedByAnotherTab && !m.buyerPolishedArtifactTable ? (");
     expect(belowFoldSource).toContain("{m.manifestId && !ownedByAnotherTab ? (");
-    expect(pageViewSource).toContain("RunDetailTabbedSectionNavDeferred");
+    expect(pageViewSource).not.toContain("RunDetailTabbedSectionNavDeferred");
+    expect(pageViewSource).toContain("ReviewDetailWorkspaceDeferred");
   });
 
   it("places operator findings before pipeline timeline in below-fold", () => {
