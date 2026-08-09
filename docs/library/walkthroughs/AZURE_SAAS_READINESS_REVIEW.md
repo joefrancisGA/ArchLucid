@@ -20,7 +20,7 @@
 
 | Artifact | Id / route |
 |----------|------------|
-| Product Tour finalized review | `b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` — `/reviews/b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` |
+| Product Tour finalized review | `b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` — `/architecture/reviews/b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` |
 | Scope triplet (Development seed) | See [`DEMO_WORKSPACES.md`](../../go-to-market/DEMO_WORKSPACES.md) Workspace A headers |
 
 Use this path for evaluator demos; skip to **Step 5** (inspect package) when the review is already finalized.
@@ -39,7 +39,7 @@ Use this path for evaluator demos; skip to **Step 5** (inspect package) when the
 
 **UI**
 
-1. **Capture** → **New review** (`/reviews/new`; legacy `/runs/new`).
+1. **Capture** → **New review** (`/architecture/reviews/new`; retired bookmark).
 2. Set **cloud provider** to **Azure** and describe the SaaS workload (multi-tenant API, data plane, identity).
 3. Submit; note **run id** from success path or **Reviews** list.
 
@@ -155,8 +155,8 @@ Authorization: Bearer {token}
 **API**
 
 ```http
-GET /v1/docx/runs/{runId}/architecture-package
-GET /v1/artifacts/runs/{runId}/export
+GET /v1/docx/architecture/reviews/{runId}/architecture-package
+GET /v1/artifacts/architecture/reviews/{runId}/export
 Authorization: Bearer {token}
 ```
 
@@ -212,7 +212,7 @@ No Jira, ServiceNow, Teams, Slack, Confluence, MCP, or outbound webhooks are req
 
 ### Shipped product steps (V1 summary)
 
-1. **Capture** — New architecture review with Azure target (`/reviews/new` or `POST /v1/architecture/request`).
+1. **Capture** — New architecture review with Azure target (`/architecture/reviews/new` or `POST /v1/architecture/request`).
 2. **Ingest evidence** — Upload extractor ZIP on review detail (`POST /v1/azure-extractor/upload`).
 3. **Assign policy packs** — WAF analogue + SaaS security baseline packs to project scope.
 4. **Execute** — Run the review pipeline; inspect findings tied to `saas-ctrl-*` and cost/topology evidence.

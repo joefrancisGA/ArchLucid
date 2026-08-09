@@ -1,5 +1,6 @@
 import { tryResolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { capitalizeInlineGuidanceBody, parseLeadingInlineGuidanceLabel } from "@/lib/inline-guidance-labels";
+import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
 import { applyHelpTopicProductLanguage } from "@/lib/help-product-language";
 
 const MARKDOWN_FILE_PATTERN = /\.md(?:#[^\s)]*)?$/i;
@@ -132,6 +133,22 @@ export function resolveRelativeRepoDocPath(href: string, sourceDocPath: string):
 /**
  * Rewrites internal markdown links to in-app `/help/{slug}` routes or plain labels.
  */
+function canonicalizeInAppOperatorHref(href: string): string {
+  const hashIndex = href.indexOf("#");
+  const beforeHash = hashIndex >= 0 ? href.slice(0, hashIndex) : href;
+  const fragment = hashIndex >= 0 ? href.slice(hashIndex) : "";
+  const queryIndex = beforeHash.indexOf("?");
+  const pathPart = queryIndex >= 0 ? beforeHash.slice(0, queryIndex) : beforeHash;
+  const query = queryIndex >= 0 ? beforeHash.slice(queryIndex) : "";
+  const canonical = canonicalizeLegacyOperatorRoutePath(pathPart);
+
+  if (canonical.includes("?")) {
+    return `${canonical}${fragment}`;
+  }
+
+  return `${canonical}${query}${fragment}`;
+}
+
 export function rewriteHelpMarkdownDocLinks(markdown: string, sourceDocPath: string): string {
   return markdown.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (full, label: string, href: string) => {
     const trimmedHref = href.trim();
@@ -153,7 +170,9 @@ export function rewriteHelpMarkdownDocLinks(markdown: string, sourceDocPath: str
     }
 
     if (trimmedHref.startsWith("/") && !trimmedHref.startsWith("//")) {
-      return `[${humanizeMarkdownLinkLabel(label, trimmedHref)}](${trimmedHref})`;
+      const canonicalHref = canonicalizeInAppOperatorHref(trimmedHref);
+
+      return `[${humanizeMarkdownLinkLabel(label, trimmedHref)}](${canonicalHref})`;
     }
 
     const hashIndex = trimmedHref.indexOf("#");

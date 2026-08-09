@@ -1,4 +1,4 @@
-> **Scope:** Hosted SaaS deployment validation and promotion (Terraform + Container Apps + edge) for internal operators — staging verification through production promotion; does not replace root `README.md` files under `infra/terraform-*/` or org change control.
+﻿> **Scope:** Hosted SaaS deployment validation and promotion (Terraform + Container Apps + edge) for internal operators — staging verification through production promotion; does not replace root `README.md` files under `infra/terraform-*/` or org change control.
 
 # Hosted deployment runbook (staging + production)
 
@@ -276,7 +276,7 @@ PowerShell: `.\scripts\staging-smoke.ps1` with `$env:ARCHLUCID_BASE_URL` / `$env
 
 | # | Step | Expected | Pass |
 |---|------|----------|------|
-| 3.1 | Navigate to `/reviews/new` | New **review** wizard renders (legacy `/runs/new` redirects); contextual help info icon is present | [ ] |
+| 3.1 | Navigate to `/architecture/reviews/new` | New **review** wizard renders (retired bookmark); contextual help info icon is present | [ ] |
 | 3.2 | Submit an architecture request (use a template or free-text) | Review session is created (**`runId`** in API); pipeline status page shows agent tasks | [ ] |
 | 3.3 | Wait for agent execution (simulator: < 10s) | All agent tasks complete; green status indicators | [ ] |
 | 3.4 | Finalize the review | Commit succeeds; manifest version increments | [ ] |

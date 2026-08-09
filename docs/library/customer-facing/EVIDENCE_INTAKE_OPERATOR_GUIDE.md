@@ -1,4 +1,4 @@
-> **Scope:** Customer-facing — starting a review and uploading architecture evidence (in-app help). API and integration recipes live in engineering documentation, not on this page.
+﻿> **Scope:** Customer-facing — starting a review and uploading architecture evidence (in-app help). API and integration recipes live in engineering documentation, not on this page.
 
 # Start a review
 
@@ -17,7 +17,7 @@ You can attach multiple files. At least one piece of evidence is required before
 
 ## Choose a starting path {#choose-a-starting-path}
 
-On **New architecture review** (`/reviews/new`), pick the path that matches how much structure you already have:
+On **New architecture review** (`/architecture/reviews/new`), pick the path that matches how much structure you already have:
 
 | Path | Best when |
 | --- | --- |

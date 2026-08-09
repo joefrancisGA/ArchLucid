@@ -19,8 +19,8 @@
 |--------|----------------|-------------|-------------|------------------------|---------------|
 | Health / readiness | `dotnet run --project ArchLucid.Cli -- health` | `GET /health/live`, `GET /health/ready` | — | Anonymous | [BUILD.md](../engineering/BUILD.md) |
 | Version | `dotnet run --project ArchLucid.Cli -- doctor` | `GET /version` | — | Read (doctor) | [README.md](../REPOSITORY_README.md) |
-| Create architecture request | `dotnet run --project ArchLucid.Cli -- run` | `POST /v1/architecture/request` | `/reviews/new` (legacy `/runs/new`) | Execute (wizard submit) | [CORE_PILOT — walkthrough](../CORE_PILOT.md#step-by-step-walkthrough) |
-| Poll review / pipeline | `… status <runId>` | `GET /v1/architecture/review/{runId}` | `/runs/{runId}` | Read | [OPERATOR_QUICKSTART.md](customer-facing/OPERATOR_QUICKSTART.md) |
+| Create architecture request | `dotnet run --project ArchLucid.Cli -- run` | `POST /v1/architecture/request` | `/architecture/reviews/new` (retired bookmark) | Execute (wizard submit) | [CORE_PILOT — walkthrough](../CORE_PILOT.md#step-by-step-walkthrough) |
+| Poll review / pipeline | `… status <runId>` | `GET /v1/architecture/review/{runId}` | `/architecture/reviews/{runId}` | Read | [OPERATOR_QUICKSTART.md](customer-facing/OPERATOR_QUICKSTART.md) |
 | Finalize architecture package | `… commit <runId>` | `POST /v1/architecture/review/{runId}/finalize` | Run detail → **Finalize** | Execute | [CORE_PILOT — walkthrough](../CORE_PILOT.md#step-by-step-walkthrough) |
 | Package + artifacts | `… artifacts <runId> [--save]` | `GET /v1/architecture/manifest/{version}`, artifact routes | Run detail | Read | [CORE_PILOT — manifest & artifacts](../CORE_PILOT.md#review-manifest-and-artifacts) |
 | Home / pilot checklist | `… try`, `… pilot up` | tenant + health reads | `/` | Read | [V1_RELEASE_CHECKLIST.md](V1_RELEASE_CHECKLIST.md) |
@@ -28,7 +28,7 @@
 | Sponsor PDF (post-finalize) | `… sponsor-one-pager <runId> [--save]` | export endpoints on run | Run detail → exports | Read / Execute per op | [CORE_PILOT.md](../CORE_PILOT.md), [CLI_USAGE.md](CLI_USAGE.md) |
 | First-value Markdown | `… first-value-report <runId> [--save]` | value report API | Run detail | Read / Execute | [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) |
 | Workflow handoff | proof pipeline output | existing PR / issue / work item attachment | External GitHub / Azure DevOps | N/A (outside ArchLucid) | [V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md](../runbooks/V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md) |
-| Recent finalized-review delta panel | — | `GET /v1/pilots/runs/recent-deltas?count=N` | Top of `/runs`, sidebar "Recent activity" card, inline on `/runs/{runId}` | Read | [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) (`BeforeAfterDeltaPanel`) |
+| Recent finalized-review delta panel | — | `GET /v1/pilots/architecture/reviews/recent-deltas?count=N` | Top of `/architecture/reviews`, sidebar "Recent activity" card, inline on `/architecture/reviews/{runId}` | Read | [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) (`BeforeAfterDeltaPanel`) |
 
 ---
 

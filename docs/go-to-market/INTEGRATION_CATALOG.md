@@ -41,7 +41,7 @@ Use this table for **first-pilot and procurement “day one”** integrations. D
 
 | Need today | Use (V1) | Concrete entry point |
 |------------|----------|----------------------|
-| Create and finalize an architecture review | REST + architect workspace + CLI | `POST /v1/architecture/request` · `/reviews/new` (legacy `/runs/new`) · `archlucid run create` — [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) |
+| Create and finalize an architecture review | REST + architect workspace + CLI | `POST /v1/architecture/request` · `/architecture/reviews/new` (retired bookmark) · `archlucid run create` — [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) |
 | Azure subscription evidence (read-only, customer-run) | Azure extractor Tier 1 ZIP upload | [`AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md) · `POST /v1/azure-extractor/upload` |
 | CI/CD manifest delta on pull requests | GitHub Actions + Azure DevOps pipeline task | [`integrations/CICD_INTEGRATION.md`](../integrations/CICD_INTEGRATION.md) · ADO PR decoration (server-side) [`AZURE_DEVOPS_PR_DECORATION_SERVER_SIDE.md`](../integrations/AZURE_DEVOPS_PR_DECORATION_SERVER_SIDE.md) |
 | Identity provisioning | SCIM | [`integrations/SCIM_PROVISIONING.md`](../integrations/SCIM_PROVISIONING.md) |

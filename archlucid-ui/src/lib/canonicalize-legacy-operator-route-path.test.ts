@@ -16,6 +16,12 @@ describe("canonicalizeLegacyOperatorRoutePath", () => {
     expect(canonicalizeLegacyOperatorRoutePath("/reviews/new")).toBe("/architecture/reviews/new");
   });
 
+  it("maps retired /demo bookmark to the CTO demo tour entry", () => {
+    expect(canonicalizeLegacyOperatorRoutePath("/demo")).toBe(
+      "/architecture/reviews/claims-intake-modernization?ctoDemoTour=1",
+    );
+  });
+
   it("maps architectures namespace bookmarks without rewriting canonical paths", () => {
     expect(canonicalizeLegacyOperatorRoutePath("/architectures")).toBe("/architecture/architectures");
     expect(canonicalizeLegacyOperatorRoutePath("/architectures/draft-1")).toBe(

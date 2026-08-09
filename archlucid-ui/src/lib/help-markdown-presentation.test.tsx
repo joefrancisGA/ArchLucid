@@ -84,6 +84,7 @@ describe("help-markdown-presentation", () => {
       "- **[Configure SSO](#workforce-sso)**",
       "- **[Connect Azure securely](/help/cloud-connections/azure)**",
       "- [`/integrations/cloud-connections`](/integrations/cloud-connections)",
+      "- **[Start review](/reviews/new)**",
     ].join("\n");
     const rewritten = rewriteHelpMarkdownDocLinks(
       source,
@@ -93,6 +94,7 @@ describe("help-markdown-presentation", () => {
     expect(rewritten).toContain("[Configure SSO](#workforce-sso)");
     expect(rewritten).toContain("[Connect Azure securely](/help/cloud-connections/azure)");
     expect(rewritten).toContain("[Cloud Connections](/integrations/cloud-connections)");
+    expect(rewritten).toContain("[Start review](/architecture/reviews/new)");
   });
 
   it("drops unmapped markdown links to plain labels", () => {

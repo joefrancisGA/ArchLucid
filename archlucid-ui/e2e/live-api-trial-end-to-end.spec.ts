@@ -245,7 +245,7 @@ test.describe("live-api-trial-end-to-end", () => {
 
     const sampleHref = (await page.getByTestId("onboarding-open-sample-run").getAttribute("href")) ?? "";
 
-    // Canonical route is `/architecture/reviews/*` (`next.config.ts` permanently redirects legacy `/runs/*`).
+    // Canonical route is `/architecture/reviews/*` (legacy `/runs/*` bookmarks 404; use canonical paths in tests).
     expect(sampleHref).toMatch(/^\/reviews\//);
 
     const sampleRunIdFromHref = runIdFromReviewsHref(sampleHref);

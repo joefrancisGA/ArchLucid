@@ -1,6 +1,6 @@
-# Operator home guided review persistence
+﻿# Operator home guided review persistence
 
-Verified behavior for the homepage **Run guided review** example (`/reviews/new?template=claims-intake-modernization`).
+Verified behavior for the homepage **Run guided review** example (`/architecture/reviews/new?template=claims-intake-modernization`).
 
 ## Summary
 
@@ -8,7 +8,7 @@ The guided review example is **not persistent on click**. It opens review intake
 
 ## What happens on click
 
-1. The CTA navigates to `/reviews/new?template=claims-intake-modernization`.
+1. The CTA navigates to `/architecture/reviews/new?template=claims-intake-modernization`.
 2. The intake wizard resolves the template and prefills description and system name.
 3. A callout explains that sample values were applied.
 4. **No review record is created** until the user completes intake and submits (draft create → admit → run create), matching `SocraticIntakeWizard.test.tsx` ("without auto-submitting").

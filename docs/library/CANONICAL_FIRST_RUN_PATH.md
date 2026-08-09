@@ -11,8 +11,8 @@
 
 **Operational detail:** [`../runbooks/FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md)  
 **First-hour operator contract (four steps):** [`CORE_PILOT.md`](../CORE_PILOT.md) (`FIRST_HOUR_OPERATOR_PATH.md` alias)  
-**Architect UI walkthrough (`/reviews/new`):** [`#first-architecture-review-walkthrough`](#first-architecture-review-walkthrough) (`FIRST_RUN_WALKTHROUGH.md` alias)  
-**First-run wizard design (`/reviews/new`):** [`#first-run-wizard-architect-workspace`](#first-run-wizard-architect-workspace) (`FIRST_RUN_WIZARD.md` alias)  
+**Architect UI walkthrough (`/architecture/reviews/new`):** [`#first-architecture-review-walkthrough`](#first-architecture-review-walkthrough) (`FIRST_RUN_WALKTHROUGH.md` alias)  
+**First-run wizard design (`/architecture/reviews/new`):** [`#first-run-wizard-architect-workspace`](#first-run-wizard-architect-workspace) (`FIRST_RUN_WIZARD.md` alias)  
 **Expert principal-architect lane (15 min):** [`#expert-principal-architect-15-minute-lane`](#expert-principal-architect-15-minute-lane) (`FIRST_15_MINUTES_FOR_PRINCIPAL_ARCHITECTS.md` alias)  
 **Hosted / strict RC single path:** [`#hosted-pilot-single-path`](#hosted-pilot-single-path) (`HOSTED_PILOT_SINGLE_PATH.md` alias)  
 **Integration commitments (V1 vs V1.1):** [`../go-to-market/INTEGRATION_CATALOG.md`](../go-to-market/INTEGRATION_CATALOG.md) Â§ Commitment boundary  
@@ -27,7 +27,7 @@
 | **1** | Confirm platform prerequisites | `.\scripts\Test-ArchLucidPrerequisites.ps1 -Profile FirstPilotMinimum` | No **BLOCK** rows |
 | **2** | Run first-run preflight | `dotnet run --project ArchLucid.Cli -- --json pilot preflight` | No **BLOCK** rows |
 | **3** | Readiness-only proof (no finalized architecture package yet) | `.\scripts\collect-first-pilot-proof.ps1` | `first-pilot-command-center.md` shows phased status |
-| **4** | Sign in and start one architecture review | Architect workspace `/reviews/new` or `POST /v1/architecture/request` | `runId` captured |
+| **4** | Sign in and start one architecture review | Architect workspace `/architecture/reviews/new` or `POST /v1/architecture/request` | `runId` captured |
 | **5** | Finalize the architecture package | `POST /v1/architecture/review/{runId}/finalize` (or UI Finalize) | `goldenManifestId` present |
 | **6** | Collect committed-run proof | `.\scripts\collect-first-pilot-proof.ps1 -RunId <runId>` | `first-pilot-evidence/first-value-report.md` attached |
 | **7** | Sponsor handoff only when SEND-eligible | `.\scripts\collect-first-pilot-proof.ps1 -RunId <runId> -SponsorHandoff -FailOnHold` | `sponsorPacketDisposition` not **HOLD**; `sendEligible` true |
@@ -48,7 +48,7 @@ Stop at step 3 when the environment is not ready. Do not sponsor-send until step
 
 ## First architecture review walkthrough {#first-architecture-review-walkthrough}
 
-Former standalone body: `docs/library/FIRST_RUN_WALKTHROUGH.md` → this section (filename kept as a path-stable alias). Linear **UI** checklist for creating the first architecture review at **`/reviews/new`** — complements the [seven mandatory steps](#seven-mandatory-steps) (scripted proof path) without screenshots.
+Former standalone body: `docs/library/FIRST_RUN_WALKTHROUGH.md` → this section (filename kept as a path-stable alias). Linear **UI** checklist for creating the first architecture review at **`/architecture/reviews/new`** — complements the [seven mandatory steps](#seven-mandatory-steps) (scripted proof path) without screenshots.
 
 **Path-stable alias:** [`FIRST_RUN_WALKTHROUGH.md`](FIRST_RUN_WALKTHROUGH.md).
 
@@ -56,11 +56,11 @@ Former standalone body: `docs/library/FIRST_RUN_WALKTHROUGH.md` → this section
 
 ### Objective
 
-Give architects a **linear checklist** for creating the first **architecture review** using **New architecture review** at **`/reviews/new`** (legacy **`/runs/new`** may redirect), without relying on screenshots (which go stale quickly).
+Give architects a **linear checklist** for creating the first **architecture review** using **New architecture review** at **`/architecture/reviews/new`** (legacy **`/architecture/reviews/new`** may redirect), without relying on screenshots (which go stale quickly).
 
 ### Assumptions
 
-- The UI is available at **`/reviews/new`** (see [`#first-run-wizard-architect-workspace`](#first-run-wizard-architect-workspace) for design intent).
+- The UI is available at **`/architecture/reviews/new`** (see [`#first-run-wizard-architect-workspace`](#first-run-wizard-architect-workspace) for design intent).
 - Sign-in works for your tenant — see **[Authentication and sign-in](/help/authentication-sign-in)** and **[Pilot guide](/help/pilot-guide)**.
 
 ### Constraints
@@ -70,7 +70,7 @@ Give architects a **linear checklist** for creating the first **architecture rev
 ### Steps
 
 1. **Open the workspace** — Sign in with work/school account, email one-time code, or your organization's SSO.
-2. **Navigate to New architecture review** — Use **`/reviews/new`** or the primary nav entry **New architecture review**.
+2. **Navigate to New architecture review** — Use **`/architecture/reviews/new`** or the primary nav entry **New architecture review**.
 3. **Pick a preset or template** — Choose the closest sample if you are evaluating; customize fields only where you have real system facts.
 4. **Complete each wizard step** — Advance only when required fields validate; note inline errors reference a correlation id when the UI surfaces API failures — see **[Troubleshooting](/help/troubleshooting)**.
 5. **Submit** — Capture the returned review id from the success path or **Reviews** list.
@@ -99,13 +99,13 @@ Give architects a **linear checklist** for creating the first **architecture rev
 
 ## First-run wizard (architect workspace) {#first-run-wizard-architect-workspace}
 
-Former standalone body: `docs/library/FIRST_RUN_WIZARD.md` → this section (filename kept as a path-stable alias for help-center / wizard drawer callers). Field map, presets, and Step 7 pipeline badges for **`/reviews/new`** — complements the [UI walkthrough checklist](#first-architecture-review-walkthrough) and the [seven mandatory steps](#seven-mandatory-steps).
+Former standalone body: `docs/library/FIRST_RUN_WIZARD.md` → this section (filename kept as a path-stable alias for help-center / wizard drawer callers). Field map, presets, and Step 7 pipeline badges for **`/architecture/reviews/new`** — complements the [UI walkthrough checklist](#first-architecture-review-walkthrough) and the [seven mandatory steps](#seven-mandatory-steps).
 
 **Path-stable alias:** [`FIRST_RUN_WIZARD.md`](FIRST_RUN_WIZARD.md).
 
 **Audience:** New architects, pilot users, and first-time evaluators using **ArchLucid** through the web shell (`archlucid-ui`).
 
-**Route:** **`/reviews/new`** (canonical architect path; legacy **`/runs/new`** may redirect) — submits **`POST /v1/architecture/request`** with a full **`ArchitectureRequest`**-shaped body (camelCase JSON). The wizard replaces the older minimal “few fields only” flow.
+**Route:** **`/architecture/reviews/new`** (canonical architect path; legacy **`/architecture/reviews/new`** may redirect) — submits **`POST /v1/architecture/request`** with a full **`ArchitectureRequest`**-shaped body (camelCase JSON). The wizard replaces the older minimal “few fields only” flow.
 
 **Architect checklist (no screenshots):** [`#first-architecture-review-walkthrough`](#first-architecture-review-walkthrough) (`FIRST_RUN_WALKTHROUGH.md` alias)
 
@@ -117,10 +117,10 @@ Former standalone body: `docs/library/FIRST_RUN_WIZARD.md` → this section (fil
 
 | Design element | Status |
 |----------------|--------|
-| Seven-step wizard (`/reviews/new`) | **Shipped** — preset → identity → description → constraints → advanced → review → track (`WizardStep*` + `NewRunWizardClient`). Quick review default on buyer-polished shell. |
+| Seven-step wizard (`/architecture/reviews/new`) | **Shipped** — preset → identity → description → constraints → advanced → review → track (`WizardStep*` + `NewRunWizardClient`). Quick review default on buyer-polished shell. |
 | Starter presets (greenfield / modernize / blank) | **Shipped** — see `WizardStepPreset` and preset merge logic. |
 | Live pipeline tracking (step 7) | **Shipped** — `RunProgressTracker` + polling against run detail APIs. |
-| Playwright / Vitest coverage | **Partial** — Vitest: `archlucid-ui/src/app/(operator)/reviews/new/*.test.tsx`; E2E: **`first-run-wizard.spec.ts`**, **`core-pilot-path.spec.ts`** (Core Pilot four-step path). **`/onboarding`** adds **`OnboardingWizardClient`** (auth / connection / storage checklist with localStorage progress). |
+| Playwright / Vitest coverage | **Partial** — Vitest: `archlucid-ui/src/app/(operator)/architecture/reviews/new/*.test.tsx`; E2E: **`first-run-wizard.spec.ts`**, **`core-pilot-path.spec.ts`** (Core Pilot four-step path). **`/onboarding`** adds **`OnboardingWizardClient`** (auth / connection / storage checklist with localStorage progress). |
 
 ### Purpose
 
@@ -132,7 +132,7 @@ Use it when you want a **repeatable first review** in a new tenant, workspace, o
 
 ```mermaid
 flowchart LR
-  subgraph wizard [Wizard — /reviews/new]
+  subgraph wizard [Wizard — /architecture/reviews/new]
     S1[1 Preset]
     S2[2 Identity]
     S3[3 Description]
@@ -228,7 +228,7 @@ Omitted empty sections are not sent (or sent as empty arrays only where required
 
 #### Step 7 — Track pipeline
 
-- **What:** Polls **`GET /v1/authority/runs/{runId}/summary`** (via the UI proxy) for up to **~2 minutes**, every **~3 seconds**.
+- **What:** Polls **`GET /v1/authority/architecture/reviews/{runId}/summary`** (via the UI proxy) for up to **~2 minutes**, every **~3 seconds**.
 - **Why:** Surfaces **Context → Graph → Findings → Manifest** readiness without leaving the page.
 - **Not the full OTel story:** The server’s authority orchestration spans **context → graph → findings → decisioning → artifacts** (see **ARCHITECTURE_FLOWS.md**). The wizard’s fourth milestone is **architecture package available** (`hasGoldenManifest` in the API summary), which is what architects care about for review detail and exports.
 
@@ -245,11 +245,11 @@ The **progress bar** is a simple **count of ready stages / 4**, not a time estim
 
 ### After the wizard
 
-1. **Open review detail** — `/runs/{runId}`: architecture package summary, artifacts, authority context (when finalized and indexed per environment).
+1. **Open review detail** — `/architecture/reviews/{runId}`: architecture package summary, artifacts, authority context (when finalized and indexed per environment).
 2. **Finalize if required** — Until finalize (`commit` in API/CLI), some views stay empty; follow **[OPERATOR_QUICKSTART.md](customer-facing/OPERATOR_QUICKSTART.md)** for API/CLI finalize expectations and `409` handling.
 3. **Export** — From review detail (with package): bundle / export ZIP links when your deployment exposes them.
 4. **Compare** — `/compare?leftRunId={runId}` (wizard success panel links this for you).
-5. **Provenance** — `/runs/{runId}/provenance` for graph/trace orientation.
+5. **Provenance** — `/architecture/reviews/{runId}/provenance` for graph/trace orientation.
 
 Primary architect reference: **[OPERATOR_QUICKSTART.md](customer-facing/OPERATOR_QUICKSTART.md)**.
 
@@ -258,7 +258,7 @@ Primary architect reference: **[OPERATOR_QUICKSTART.md](customer-facing/OPERATOR
 | Symptom | What to check |
 |---------|----------------|
 | **Cannot create run / network error** | UI uses **`/api/proxy`** to reach the API. Verify API base URL, API key (server env), and JWT if enabled — see `archlucid-ui` docs and **`docs/runbooks/TROUBLESHOOTING.md`**. |
-| **Run id returned but Step 7 stays all Pending** | API may be down for authority workers, or scope headers point at the wrong project. Confirm **`GET .../runs/{id}/summary`** outside the UI. |
+| **Run id returned but Step 7 stays all Pending** | API may be down for authority workers, or scope headers point at the wrong project. Confirm **`GET .../architecture/reviews/{id}/summary`** outside the UI. |
 | **Stuck in “Created” / no snapshots** | Run lifecycle nuances: **CANONICAL_PIPELINE.md**. Check host logs for `AuthorityPipelineStagesExecutor` / stage failures. |
 | **Timeout (~2 min) with no architecture package** | Pipeline may still be running; open **review detail** and refresh later. If permanently stuck, inspect SQL run row, worker health, and **OPERATIONS** runbooks. |
 | **Empty package after “ready”** | “Ready” in the wizard means **summary flags**; **finalize** (`commit`) and **artifact** availability are separate steps — **OPERATOR_QUICKSTART.md**. |
@@ -309,7 +309,7 @@ Success is **decision signal**, not completing every UI surface.
 
 | # | Action | Time box | Success signal |
 | --- | --- | --- | --- |
-| **1** | Open **`/reviews/new`** with your architecture brief ready (paste text or upload evidence). Decline feature tours. | 0–2 min | Review request admitted |
+| **1** | Open **`/architecture/reviews/new`** with your architecture brief ready (paste text or upload evidence). Decline feature tours. | 0–2 min | Review request admitted |
 | **2** | Submit **minimal intake** — answer MUST questions only; skip optional governance and policy-pack fields. | 2–5 min | `runId` captured |
 | **3** | **Execute** the review. Stay on the run detail page — do not open Operate, Graph, Compare, or Governance routes. | 5–12 min | Findings list visible |
 | **4** | **STOP-IF-VALUE-NOT-SEEN checkpoint** — see below. | 12–13 min | Pass → step 5; Fail → stop |
@@ -386,7 +386,7 @@ Former standalone body: `docs/library/CONTROLLED_PILOT_FIRST_RUN_CHECKLIST.md` �
 | Step | Action | Success signal | Doc |
 | --- | --- | --- | --- |
 | 1 | Configure tenant auth and SQL (or use hosted staging). | `GET /health/ready` healthy. | [First architecture review walkthrough](#first-architecture-review-walkthrough) |
-| 2 | Sign in; open **New review** (`/reviews/new`). | Wizard loads without auth errors. | [DEMO_QUICKSTART.md](../go-to-market/DEMO_QUICKSTART.md) |
+| 2 | Sign in; open **New review** (`/architecture/reviews/new`). | Wizard loads without auth errors. | [DEMO_QUICKSTART.md](../go-to-market/DEMO_QUICKSTART.md) |
 | 3 | Create request; note **run id**. | Run appears in Reviews. | [operator-shell.md](operator-shell.md) |
 | 4 | Upload Azure extractor ZIP (Tier 1) or attach evidence. | Upload 200; evidence on run. | [AZURE_EXTRACTOR.md](AZURE_EXTRACTOR.md) |
 | 5 | **Execute** agents. | **Ready for commit** or actionable failure + correlation id. | [TROUBLESHOOTING.md](../runbooks/TROUBLESHOOTING.md) |
@@ -430,7 +430,7 @@ Former standalone body: `docs/library/HOSTED_PILOT_SINGLE_PATH.md` → this sect
 
 **Do not branch** until this path completes or emits an explicit **HOLD** with remediation.
 
-**Naive architect workspace path (before strict script):** use `/reviews/new` → **Guided intake (recommended)** → admit draft → answer/skip MUST questions → submit → execute → finalize (API `commit`). Live E2E coverage: `archlucid-ui/e2e/live-api-socratic-intake.spec.ts`.
+**Naive architect workspace path (before strict script):** use `/architecture/reviews/new` → **Guided intake (recommended)** → admit draft → answer/skip MUST questions → submit → execute → finalize (API `commit`). Live E2E coverage: `archlucid-ui/e2e/live-api-socratic-intake.spec.ts`.
 
 ### Prerequisites (one checklist)
 

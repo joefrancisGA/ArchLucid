@@ -1,4 +1,4 @@
-> **Scope:** Customer-facing — how the architect workspace sidebar and first-review path stay focused until your first architecture package is finalized.
+﻿> **Scope:** Customer-facing — how the architect workspace sidebar and first-review path stay focused until your first architecture package is finalized.
 
 # Workspace navigation profile
 
@@ -18,7 +18,7 @@ The **architect workspace** and **executive** reading surfaces are separate shel
 
 ### First review path
 
-1. **Start** — Open Home (`/`). Use the first-review checklist, or go to **New architecture review** (`/reviews/new`).
+1. **Start** — Open Home (`/`). Use the first-review checklist, or go to **New architecture review** (`/architecture/reviews/new`).
 2. **Reviews** — Open **Reviews**, pick your project, and open a row.
 3. **Review detail** — Watch assessment progress. After you **finalize**, the signed review record, findings, and exports appear.
 4. **Artifacts** — Download sponsor-ready outputs from the architecture package.

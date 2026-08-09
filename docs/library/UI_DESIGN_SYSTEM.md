@@ -120,7 +120,7 @@ Operator and buyer forms must make hard validation visible on the form and hones
 |------|-------------------|
 | Job match | Learn more targets `/help/{slug}` whose **primary job** matches the route (same job as the Category-1 answers), **or** Learn more is **omitted** when no honest job-matched guide exists. |
 | Ban (secondary hubs) | Do **not** map Learn more to `getting-started` or `how-it-works` solely because a `page-help-topic-map` row exists. Secondary hubs include Digests, Planning, Decision register, Advisory scans, Impact preview, and other non-first-run operator destinations. |
-| First-run allowlist | `getting-started` / `how-it-works` **are** allowed when the page’s primary job *is* first-run / onboarding / draft bootstrap — e.g. Overview empty/home onboarding, `/onboarding*`, `/reviews/new*`, Architectures list/create/draft workspace, Quick start / get-started marketing. Document the allowlist when adding map rows. |
+| First-run allowlist | `getting-started` / `how-it-works` **are** allowed when the page’s primary job *is* first-run / onboarding / draft bootstrap — e.g. Overview empty/home onboarding, `/onboarding*`, `/architecture/reviews/new*`, Architectures list/create/draft workspace, Quick start / get-started marketing. Document the allowlist when adding map rows. |
 | Prefer existing specialty | Prefer an existing specialty or curated product-help slug over inventing an orphan `/help` page. New specialty bodies coordinate **TB-1414** (do not invent bare markdown dumps). |
 | Mount vs target | *When* to mount `PageContextualHelpButton` remains **TB-1666**–**TB-1670**. This rule owns Learn more **targets** only. |
 

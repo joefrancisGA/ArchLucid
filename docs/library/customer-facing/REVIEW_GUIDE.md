@@ -1,4 +1,4 @@
-> **Scope:** Customer-facing field reference — what each step of the New architecture review wizard (`/reviews/new`) asks for and why.
+﻿> **Scope:** Customer-facing field reference — what each step of the New architecture review wizard (`/architecture/reviews/new`) asks for and why.
 
 # Review guide
 

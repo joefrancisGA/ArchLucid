@@ -20,8 +20,8 @@ The product calls these steps an **architecture review** that you **finalize** i
 | Execute | `POST /v1/architecture/review/{runId}/execute` | `archlucid architecture execute <runId>` |
 | Poll | `GET /v1/architecture/review/{runId}` | `archlucid status <runId>` |
 | Finalize architecture package | `POST /v1/architecture/review/{runId}/finalize` | `archlucid commit <runId>` |
-| Export | `GET /v1/artifacts/runs/{runId}/export` | `archlucid artifacts export <runId>` |
-| Sponsor report | `GET /v1/pilots/runs/{runId}/first-value-report` | `archlucid first-value-report <runId>` |
+| Export | `GET /v1/artifacts/architecture/reviews/{runId}/export` | `archlucid artifacts export <runId>` |
+| Sponsor report | `GET /v1/pilots/architecture/reviews/{runId}/first-value-report` | `archlucid first-value-report <runId>` |
 
 Send **`Idempotency-Key`** on `POST /v1/architecture/request` so safe replays return **`X-Idempotency-Replayed: true`** instead of creating duplicate reviews.
 
@@ -131,7 +131,7 @@ jobs:
       - name: Fetch first-value report (artifact)
         if: success()
         run: |
-          curl -sS "${ARCHLUCID_API_URL}/v1/pilots/runs/${{ steps.create.outputs.run_id }}/first-value-report" \
+          curl -sS "${ARCHLUCID_API_URL}/v1/pilots/architecture/reviews/${{ steps.create.outputs.run_id }}/first-value-report" \
             -H "X-ArchLucid-Api-Key: ${ARCHLUCID_API_KEY}" \
             -H "Accept: text/markdown" \
             -o first-value-report.md

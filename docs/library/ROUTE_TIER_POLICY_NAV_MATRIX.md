@@ -20,7 +20,7 @@ Reviewer shorthand: the appendix below is generated from the executable registry
 
 | HTTP route family | Commercial tier gate (`RequiresCommercialTenantTier`) | Primary policy (`[Authorize(Policy=…)]`) | Nav (`href` Â· tier Â· `requiredAuthority`) | Notes |
 | --- | --- | --- | --- | --- |
-| `GET/POST /v1/pilots/*` (excluding Standard-only actions) | None on controller base (`PilotsController` uses `ReadAuthority`) | Mix: base **ReadAuthority**; `PUT scorecard/baselines`, `POST closeout` **ExecuteAuthority** | Pilot: `/`, `/reviews/new`, `/reviews?projectId=default` Â· essential Â· (unset) | `POST …/sponsor-one-pager` **Standard** per PRODUCT_PACKAGING Â§4 |
+| `GET/POST /v1/pilots/*` (excluding Standard-only actions) | None on controller base (`PilotsController` uses `ReadAuthority`) | Mix: base **ReadAuthority**; `PUT scorecard/baselines`, `POST closeout` **ExecuteAuthority** | Pilot: `/`, `/architecture/reviews/new`, `/architecture/reviews?projectId=default` Â· essential Â· (unset) | `POST …/sponsor-one-pager` **Standard** per PRODUCT_PACKAGING Â§4 |
 | `GET/POST /v1/runs/*`, run detail APIs | None on typical read paths (verify per action) | **ReadAuthority** / **ExecuteAuthority** per action | Pilot essential + extended **`/governance/findings`** | Compare PRODUCT_PACKAGING Layer A/B inventories |
 | `GET /v1/tenant/trial-status` | None | **ReadAuthority** (`TenantTrialController.GetTrialStatusAsync`) | (indirect — Home / trial widgets) | Class `[Authorize]` + action policy |
 | `POST /v1/diagnostics/core-pilot-rail-step` | None | **`[AllowAnonymous]`** on action (overrides controller **ReadAuthority**); **fixed** rate limit | N/A | Core Pilot checklist counter only (`ClientErrorTelemetryController`) |
