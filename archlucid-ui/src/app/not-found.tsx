@@ -5,7 +5,7 @@ import { OperatorBrandedNotFound } from "@/components/OperatorBrandedNotFound";
  */
 export default function GlobalNotFound() {
   return (
-    <main className="mx-auto min-h-[50vh] max-w-4xl px-4 py-12">
+    <main id="main-content" className="mx-auto min-h-[50vh] max-w-4xl px-4 py-12">
       <OperatorBrandedNotFound showProcessingHint />
     </main>
   );

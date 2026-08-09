@@ -71,7 +71,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
   });
 
   test("showcase-aligned manifest UUID loads manifest chrome (not indefinite skeleton)", async ({ page }) => {
-    await page.goto(`/signed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`);
+    await page.goto(`/governance/signed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`);
     await expect(page.getByRole("heading", { name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN, level: 1 })).toBeVisible();
     const primaryMain = getAppMain(page);
     await expect(primaryMain).toHaveCount(1);
@@ -221,12 +221,14 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
   }) => {
     await page.goto("/governance/policy-packs/e2e-policy-pack-001");
     // Pack detail body uses buyer-polished empty-state copy; breadcrumb uses demo fixture titles — not `getRouteTitle`'s "Policy pack detail".
-    await expect(page.getByRole("main").getByRole("link", { name: /^Policy packs$/ })).toBeVisible();
+    await expect(
+      page.getByRole("main").getByRole("link", { name: /Open policy pack library|Policy packs|registry catalog/i }),
+    ).toBeVisible();
     await expect(page.getByRole("heading", { level: 1, name: /^Governance workflow$/i })).toHaveCount(0);
   });
 
   test("invalid manifest and run route tokens surface branded not-found @demo-readiness", async ({ page }) => {
-    await page.goto("/signed-records/undefined");
+    await page.goto("/governance/signed-records/undefined");
     await expectBrandedNotFoundSurface(page);
 
     await page.goto("/architecture/reviews/undefined");

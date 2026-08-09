@@ -166,7 +166,7 @@ describe("ExecutiveWorkspaceHealthDashboard", () => {
       screen.getByRole("heading", { level: 2, name: executiveWorkspaceHealthKpiTitle("preCommitOutcomes", true) }),
     ).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: /^1\./ })).toBeNull();
-    expect(screen.getByTestId("layer-header-collapsible-guidance")).toBeInTheDocument();
+    expect(screen.queryByTestId("layer-header-collapsible-guidance")).toBeNull();
     expect(screen.getByTestId("executive-workspace-health-session-scope")).toBeInTheDocument();
   });
 });
