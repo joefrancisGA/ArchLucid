@@ -24,17 +24,26 @@ import type { SubmitReportProblemIntakeResult } from "@/lib/api/report-problem-i
 import {
   formatReportProblemAcknowledgement,
   REPORT_PROBLEM_ACK_HEADING,
+  REPORT_PROBLEM_API_UI_MISMATCH_HINT,
   REPORT_PROBLEM_ATTACH_BUNDLE_HELP_HREF,
   REPORT_PROBLEM_ATTACH_BUNDLE_HELP_LINK_LABEL,
   REPORT_PROBLEM_ATTACH_BUNDLE_HINT,
   REPORT_PROBLEM_ATTACH_BUNDLE_LABEL,
   REPORT_PROBLEM_CANCEL_LABEL,
   REPORT_PROBLEM_CONSENT_LABEL,
+  REPORT_PROBLEM_DETAILS_SUMMARY_LABEL,
   REPORT_PROBLEM_DIALOG_DESCRIPTION,
   REPORT_PROBLEM_DIALOG_TITLE,
+  REPORT_PROBLEM_FIELD_LABEL_API_COMMIT,
+  REPORT_PROBLEM_FIELD_LABEL_BROWSER,
+  REPORT_PROBLEM_FIELD_LABEL_DEPLOY_STAMP,
+  REPORT_PROBLEM_FIELD_LABEL_ENVIRONMENT,
+  REPORT_PROBLEM_FIELD_LABEL_ERROR,
   REPORT_PROBLEM_FIELD_LABEL_PRODUCT_VERSION,
   REPORT_PROBLEM_FIELD_LABEL_REFERENCE_ID,
   REPORT_PROBLEM_FIELD_LABEL_REVIEW_ID,
+  REPORT_PROBLEM_FIELD_LABEL_ROUTE,
+  REPORT_PROBLEM_FIELD_LABEL_UI_COMMIT,
   REPORT_PROBLEM_FIELD_LABEL_WORKSPACE,
   REPORT_PROBLEM_MISSING_VALUE,
   REPORT_PROBLEM_NOTE_LABEL,
@@ -43,6 +52,7 @@ import {
   REPORT_PROBLEM_SUBMIT_LABEL,
   REPORT_PROBLEM_SUMMARY_TITLE,
 } from "@/lib/report-problem-copy";
+import { formatShortCommitSha } from "@/lib/deployment-fingerprint";
 import { showError } from "@/lib/toast";
 
 export type ReportProblemSubmitPayload = {
@@ -83,20 +93,43 @@ export function resolveReportProblemReferenceId(context: ReportProblemContext): 
 }
 
 export function formatReportProblemProductVersionDisplay(context: ReportProblemContext): string {
-  const parts: string[] = [];
+  const structuredParts: string[] = [];
+  const deployStamp = context.deployStamp?.trim() ?? "";
+
+  if (deployStamp.length > 0) {
+    structuredParts.push(`Build ${deployStamp}`);
+  }
+
+  const apiCommitSha = context.apiCommitSha?.trim() ?? "";
+
+  if (apiCommitSha.length > 0) {
+    structuredParts.push(`API ${formatShortCommitSha(apiCommitSha)}`);
+  }
+
+  const uiCommitSha = context.uiCommitSha?.trim() ?? "";
+
+  if (uiCommitSha.length > 0) {
+    structuredParts.push(`UI ${formatShortCommitSha(uiCommitSha)}`);
+  }
+
+  if (structuredParts.length > 0) {
+    return structuredParts.join(" · ");
+  }
+
+  const legacyParts: string[] = [];
   const productVersion = context.productVersion?.trim() ?? "";
 
   if (productVersion.length > 0) {
-    parts.push(productVersion);
+    legacyParts.push(productVersion);
   }
 
   const uiVersion = context.uiVersion?.trim() ?? "";
 
   if (uiVersion.length > 0) {
-    parts.push(`UI ${uiVersion}`);
+    legacyParts.push(`UI ${uiVersion}`);
   }
 
-  return parts.length > 0 ? parts.join(" · ") : REPORT_PROBLEM_MISSING_VALUE;
+  return legacyParts.length > 0 ? legacyParts.join(" · ") : REPORT_PROBLEM_MISSING_VALUE;
 }
 
 function formatOptionalField(value: string | null | undefined): string {
@@ -105,9 +138,40 @@ function formatOptionalField(value: string | null | undefined): string {
   return trimmed.length > 0 ? trimmed : REPORT_PROBLEM_MISSING_VALUE;
 }
 
+function formatReportProblemErrorDisplay(context: ReportProblemContext): string {
+  const title = context.errorTitle?.trim() ?? "";
+  const code = context.errorCode?.trim() ?? "";
+
+  if (title.length > 0 && code.length > 0) {
+    return `${title} (${code})`;
+  }
+
+  if (title.length > 0) {
+    return title;
+  }
+
+  if (code.length > 0) {
+    return code;
+  }
+
+  return REPORT_PROBLEM_MISSING_VALUE;
+}
+
+function hasApiUiCommitMismatch(context: ReportProblemContext): boolean {
+  const apiCommitSha = context.apiCommitSha?.trim() ?? "";
+  const uiCommitSha = context.uiCommitSha?.trim() ?? "";
+
+  if (apiCommitSha.length === 0 || uiCommitSha.length === 0) {
+    return false;
+  }
+
+  return apiCommitSha.toLowerCase() !== uiCommitSha.toLowerCase();
+}
+
 function ReportProblemContextSummary(props: { readonly context: ReportProblemContext }): React.JSX.Element {
   const { context } = props;
   const referenceId = resolveReportProblemReferenceId(context);
+  const showMismatchHint = hasApiUiCommitMismatch(context);
 
   return (
     <div
@@ -146,11 +210,89 @@ function ReportProblemContextSummary(props: { readonly context: ReportProblemCon
           <dt className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             {REPORT_PROBLEM_FIELD_LABEL_PRODUCT_VERSION}
           </dt>
-          <dd className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+          <dd
+            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="report-problem-product-version"
+          >
             {formatReportProblemProductVersionDisplay(context)}
           </dd>
         </div>
       </dl>
+      {showMismatchHint ? (
+        <p
+          className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="report-problem-api-ui-mismatch"
+          role="status"
+        >
+          {REPORT_PROBLEM_API_UI_MISMATCH_HINT}
+        </p>
+      ) : null}
+      <details className="rounded-md border border-neutral-200 bg-white p-2 dark:border-neutral-800 dark:bg-neutral-950">
+        <summary
+          className={cn("cursor-pointer font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="report-problem-details-summary"
+        >
+          {REPORT_PROBLEM_DETAILS_SUMMARY_LABEL}
+        </summary>
+        <dl className="m-0 mt-2 space-y-2">
+          <div>
+            <dt className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {REPORT_PROBLEM_FIELD_LABEL_ROUTE}
+            </dt>
+            <dd className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+              {formatOptionalField(context.routePath)}
+            </dd>
+          </div>
+          <div>
+            <dt className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {REPORT_PROBLEM_FIELD_LABEL_ERROR}
+            </dt>
+            <dd className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+              {formatReportProblemErrorDisplay(context)}
+            </dd>
+          </div>
+          <div>
+            <dt className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {REPORT_PROBLEM_FIELD_LABEL_BROWSER}
+            </dt>
+            <dd className={cn("m-0 break-all text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+              {formatOptionalField(context.browserClient)}
+            </dd>
+          </div>
+          <div>
+            <dt className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {REPORT_PROBLEM_FIELD_LABEL_DEPLOY_STAMP}
+            </dt>
+            <dd className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+              {formatOptionalField(context.deployStamp)}
+            </dd>
+          </div>
+          <div>
+            <dt className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {REPORT_PROBLEM_FIELD_LABEL_API_COMMIT}
+            </dt>
+            <dd className={cn("m-0 break-all text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+              {formatOptionalField(context.apiCommitSha)}
+            </dd>
+          </div>
+          <div>
+            <dt className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {REPORT_PROBLEM_FIELD_LABEL_UI_COMMIT}
+            </dt>
+            <dd className={cn("m-0 break-all text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+              {formatOptionalField(context.uiCommitSha)}
+            </dd>
+          </div>
+          <div>
+            <dt className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {REPORT_PROBLEM_FIELD_LABEL_ENVIRONMENT}
+            </dt>
+            <dd className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+              {formatOptionalField(context.environment)}
+            </dd>
+          </div>
+        </dl>
+      </details>
     </div>
   );
 }

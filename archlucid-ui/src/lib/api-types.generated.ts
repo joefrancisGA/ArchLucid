@@ -91320,6 +91320,7 @@ export interface components {
             assemblyVersion?: string;
             buildTimestamp?: string;
             commitSha?: null | string;
+            deployStamp?: string;
             environment?: string;
             fileVersion?: null | string;
             informationalVersion?: string;
@@ -96200,9 +96201,12 @@ export interface components {
             tracePresent?: boolean;
         };
         ReportProblemContextDto: {
+            apiCommitSha?: null | string;
             browserClient?: null | string;
             clientRequestId?: null | string;
             correlationId?: null | string;
+            deployStamp?: null | string;
+            environment?: null | string;
             errorCode?: null | string;
             errorTitle?: null | string;
             /** Format: int32 */
@@ -96212,6 +96216,7 @@ export interface components {
             routePath?: null | string;
             submittedAtUtc?: null | string;
             tenantId?: null | string;
+            uiCommitSha?: null | string;
             uiVersion?: null | string;
             workspaceId?: null | string;
         };

@@ -27,6 +27,10 @@ const sampleContext: ReportProblemContext = {
   workspaceId: "workspace-9",
   productVersion: "ArchLucid.Api 1.0.0",
   uiVersion: "abc1234@2026-07-16",
+  apiCommitSha: "abcdef1234567890abcdef1234567890abcdef12",
+  uiCommitSha: "abcdef1234567890abcdef1234567890abcdef12",
+  deployStamp: "1842212345-1",
+  environment: "Staging",
   browserClient: "vitest",
   correlationId: "corr-001",
   clientRequestId: null,
@@ -74,7 +78,22 @@ describe("ReportProblemDialog (TB-784)", () => {
     expect(screen.getByText("run-42")).toBeInTheDocument();
     expect(screen.getByText("workspace-9")).toBeInTheDocument();
     expect(screen.getByText("corr-001")).toBeInTheDocument();
-    expect(screen.getByText(/ArchLucid\.Api 1\.0\.0/u)).toBeInTheDocument();
+    expect(screen.getByTestId("report-problem-product-version")).toHaveTextContent(
+      "Build 1842212345-1 · API abcdef123456 · UI abcdef123456",
+    );
+    expect(screen.getByTestId("report-problem-details-summary")).toBeInTheDocument();
+  });
+
+  it("formats structured product version display and detects API/UI mismatch", () => {
+    expect(formatReportProblemProductVersionDisplay(sampleContext)).toBe(
+      "Build 1842212345-1 · API abcdef123456 · UI abcdef123456",
+    );
+    expect(
+      formatReportProblemProductVersionDisplay({
+        ...sampleContext,
+        uiCommitSha: "ffffffffffffffffffffffffffffffffffffffff",
+      }),
+    ).toBe("Build 1842212345-1 · API abcdef123456 · UI ffffffffffff");
   });
 
   it("keeps submit disabled until consent is checked", () => {
@@ -171,8 +190,17 @@ describe("ReportProblemDialog (TB-784)", () => {
   });
 
   it("formats product and UI version for summary display", () => {
-    expect(formatReportProblemProductVersionDisplay(sampleContext)).toContain("ArchLucid.Api 1.0.0");
-    expect(formatReportProblemProductVersionDisplay(sampleContext)).toContain("UI abc1234");
+    expect(formatReportProblemProductVersionDisplay(sampleContext)).toBe(
+      "Build 1842212345-1 · API abcdef123456 · UI abcdef123456",
+    );
+    expect(
+      formatReportProblemProductVersionDisplay({
+        ...sampleContext,
+        apiCommitSha: null,
+        uiCommitSha: null,
+        deployStamp: null,
+      }),
+    ).toContain("ArchLucid.Api 1.0.0");
   });
 
   it("has no serious axe violations in form state", async () => {

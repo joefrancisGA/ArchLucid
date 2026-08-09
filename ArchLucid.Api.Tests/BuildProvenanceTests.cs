@@ -71,5 +71,6 @@ public sealed class BuildProvenanceTests
         response.FileVersion.Should().BeNull();
         response.CommitSha.Should().Be("unknown");
         response.BuildTimestamp.Should().Be("unknown");
+        response.DeployStamp.Should().Be("unknown");
     }
 }

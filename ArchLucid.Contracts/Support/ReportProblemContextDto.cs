@@ -32,6 +32,34 @@ public sealed class ReportProblemContextDto
         set;
     }
 
+    /// <summary>API commit SHA from <c>GET /version</c> (support search / bisect).</summary>
+    public string? ApiCommitSha
+    {
+        get;
+        set;
+    }
+
+    /// <summary>UI image commit SHA from the client deployment fingerprint.</summary>
+    public string? UiCommitSha
+    {
+        get;
+        set;
+    }
+
+    /// <summary>CI/deploy stamp (<c>GITHUB_RUN_ID</c>-attempt) shared by API and UI when CD stamps both.</summary>
+    public string? DeployStamp
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Hosting environment name when known (API preferred over UI fingerprint).</summary>
+    public string? Environment
+    {
+        get;
+        set;
+    }
+
     public string? BrowserClient
     {
         get;

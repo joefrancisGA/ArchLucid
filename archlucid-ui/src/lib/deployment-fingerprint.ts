@@ -2,6 +2,8 @@
 export type ClientDeploymentFingerprint = {
   readonly frontendCommitSha: string;
   readonly buildTimestamp: string;
+  /** CI/deploy stamp (`GITHUB_RUN_ID`-attempt) when CD bakes `NEXT_PUBLIC_DEPLOY_STAMP`. */
+  readonly deployStamp: string;
   readonly environment: string;
   readonly apiUpstreamHost: string;
 };
@@ -10,6 +12,7 @@ export function readClientDeploymentFingerprint(): ClientDeploymentFingerprint {
   return {
     frontendCommitSha: normalizeFingerprintValue(process.env.NEXT_PUBLIC_BUILD_COMMIT_SHA),
     buildTimestamp: normalizeFingerprintValue(process.env.NEXT_PUBLIC_BUILD_TIMESTAMP),
+    deployStamp: normalizeFingerprintValue(process.env.NEXT_PUBLIC_DEPLOY_STAMP),
     environment: normalizeFingerprintValue(
       process.env.NEXT_PUBLIC_DEPLOY_ENV?.trim()
         ? process.env.NEXT_PUBLIC_DEPLOY_ENV

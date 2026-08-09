@@ -51,4 +51,23 @@ public sealed class DeploymentBuildMetadataTests
         DeploymentBuildMetadata.ResolveCommitSha(withSha).Should().Be("abc123");
         DeploymentBuildMetadata.ResolveCommitSha(withoutSha).Should().Be("unknown");
     }
+
+    [Fact]
+    public void ResolveDeployStamp_prefers_configuration_then_cd_deploy_run()
+    {
+        Dictionary<string, string?> values = new()
+        {
+            [DeploymentBuildMetadata.DeployStampVariable] = "from-config-stamp",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(values).Build();
+
+        DeploymentBuildMetadata.ResolveDeployStamp(configuration).Should().Be("from-config-stamp");
+    }
+
+    [Fact]
+    public void ResolveDeployStamp_returns_unknown_when_not_configured()
+    {
+        DeploymentBuildMetadata.ResolveDeployStamp().Should().Be("unknown");
+    }
 }

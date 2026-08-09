@@ -83,11 +83,34 @@ describe("report-problem-context (TB-783)", () => {
   it("surfaces ui build fingerprint when env is set", () => {
     vi.stubEnv("NEXT_PUBLIC_BUILD_COMMIT_SHA", "abcdef1234567890abcdef1234567890abcdef12");
     vi.stubEnv("NEXT_PUBLIC_BUILD_TIMESTAMP", "2026-07-16T04:00:00Z");
+    vi.stubEnv("NEXT_PUBLIC_DEPLOY_STAMP", "1842212345-1");
 
     const context = buildReportProblemContext({
       submittedAtUtc: "2026-07-16T00:00:00.000Z",
     });
 
     expect(context.uiVersion).toBe("abcdef123456@2026-07-16T04:00:00Z");
+    expect(context.uiCommitSha).toBe("abcdef1234567890abcdef1234567890abcdef12");
+    expect(context.deployStamp).toBe("1842212345-1");
+  });
+
+  it("prefers API deploy stamp and commit sha from GET /version", () => {
+    vi.stubEnv("NEXT_PUBLIC_DEPLOY_STAMP", "ui-only-stamp");
+    vi.stubEnv("NEXT_PUBLIC_BUILD_COMMIT_SHA", "ffffffffffffffffffffffffffffffffffffffff");
+
+    const context = buildReportProblemContext({
+      productVersion: {
+        application: "ArchLucid.Api",
+        informationalVersion: "1.2.3",
+        commitSha: "abcdef1234567890abcdef1234567890abcdef12",
+        deployStamp: "1842212345-2",
+        environment: "Staging",
+      },
+      submittedAtUtc: "2026-07-16T00:00:00.000Z",
+    });
+
+    expect(context.deployStamp).toBe("1842212345-2");
+    expect(context.apiCommitSha).toBe("abcdef1234567890abcdef1234567890abcdef12");
+    expect(context.environment).toBe("Staging");
   });
 });

@@ -11,6 +11,12 @@ public static class DeploymentBuildMetadata
 
     public const string BuildCommitShaVariable = "ARCHLUCID_BUILD_COMMIT_SHA";
 
+    /// <summary>First-class deploy/CI stamp (preferred over legacy <see cref="CdDeployRunVariable"/>).</summary>
+    public const string DeployStampVariable = "ARCHLUCID_DEPLOY_STAMP";
+
+    /// <summary>Legacy Container Apps env already set by CD (<c>GITHUB_RUN_ID</c>-<c>GITHUB_RUN_ATTEMPT</c>).</summary>
+    public const string CdDeployRunVariable = "CD_DEPLOY_RUN";
+
     public static string ResolveBuildTimestamp(IConfiguration? configuration = null)
     {
         string? fromConfiguration = configuration?[BuildTimestampVariable];
@@ -42,6 +48,30 @@ public static class DeploymentBuildMetadata
 
         if (!string.IsNullOrWhiteSpace(provenance.CommitSha))
             return provenance.CommitSha;
+
+        return "unknown";
+    }
+
+    /// <summary>
+    ///     Resolves the human-searchable deploy stamp used by Report Problem and <c>GET /version</c>.
+    ///     Prefers <see cref="DeployStampVariable"/>, then <see cref="CdDeployRunVariable"/>.
+    /// </summary>
+    public static string ResolveDeployStamp(IConfiguration? configuration = null)
+    {
+        string? fromConfiguration = configuration?[DeployStampVariable];
+
+        if (!string.IsNullOrWhiteSpace(fromConfiguration))
+            return fromConfiguration.Trim();
+
+        string? fromEnvironment = Environment.GetEnvironmentVariable(DeployStampVariable);
+
+        if (!string.IsNullOrWhiteSpace(fromEnvironment))
+            return fromEnvironment.Trim();
+
+        string? fromCdDeployRun = Environment.GetEnvironmentVariable(CdDeployRunVariable);
+
+        if (!string.IsNullOrWhiteSpace(fromCdDeployRun))
+            return fromCdDeployRun.Trim();
 
         return "unknown";
     }

@@ -5748,6 +5748,9 @@
               "string"
             ]
           },
+          "deployStamp": {
+            "type": "string"
+          },
           "environment": {
             "type": "string"
           },
@@ -22331,6 +22334,12 @@
       },
       "ReportProblemContextDto": {
         "properties": {
+          "apiCommitSha": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "browserClient": {
             "type": [
               "null",
@@ -22344,6 +22353,18 @@
             ]
           },
           "correlationId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "deployStamp": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "environment": {
             "type": [
               "null",
               "string"
@@ -22393,6 +22414,12 @@
             ]
           },
           "tenantId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "uiCommitSha": {
             "type": [
               "null",
               "string"

@@ -170,6 +170,7 @@ jobs:
             BUILD_SHA=${{ env.BUILD_ID }}
             BUILD_TIMESTAMP=${{ env.BUILD_TIMESTAMP }}
             DEPLOY_ENV=${{ env.DEPLOY_ENV }}
+            DEPLOY_STAMP=${{ github.run_id }}-${{ github.run_attempt }}
           push: true
           pull: true
           provenance: false
@@ -199,6 +200,7 @@ jobs:
             DEPLOY_ENV=${{ env.DEPLOY_ENV }}
             NEXT_PUBLIC_BUILD_COMMIT_SHA=${{ env.BUILD_ID }}
             NEXT_PUBLIC_BUILD_TIMESTAMP=${{ env.BUILD_TIMESTAMP }}
+            NEXT_PUBLIC_DEPLOY_STAMP=${{ github.run_id }}-${{ github.run_attempt }}
             NEXT_PUBLIC_DEPLOY_ENV=${{ env.DEPLOY_ENV }}
             NEXT_PUBLIC_API_UPSTREAM_HOST=${{ vars.API_UPSTREAM_HOST }}
           push: true
@@ -412,11 +414,13 @@ jobs:
           echo "Deploy API tag (lineage): ${ACR_LOGIN_SERVER}/archlucid-api:${IMAGE_TAG}"
           A_LATEST=$(az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --image "$API_IMAGE" \
             --revision-suffix "$REV_SFX" --set-env-vars "CD_DEPLOY_RUN=$DEPLOY_STAMP" \
+              "ARCHLUCID_DEPLOY_STAMP=$DEPLOY_STAMP" \
               "ARCHLUCID_BUILD_TIMESTAMP=$BUILD_TIMESTAMP" "ARCHLUCID_BUILD_COMMIT_SHA=$BUILD_ID" \
             --query "properties.latestRevisionName" -o tsv)
           if [ -n "${CONTAINER_APP_WORKER_NAME:-}" ]; then
             W_LATEST=$(az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_WORKER_NAME" --image "$API_IMAGE" \
               --revision-suffix "$REV_SFX" --set-env-vars "CD_DEPLOY_RUN=$DEPLOY_STAMP" \
+                "ARCHLUCID_DEPLOY_STAMP=$DEPLOY_STAMP" \
                 "ARCHLUCID_BUILD_TIMESTAMP=$BUILD_TIMESTAMP" "ARCHLUCID_BUILD_COMMIT_SHA=$BUILD_ID" \
               --query "properties.latestRevisionName" -o tsv)
           fi

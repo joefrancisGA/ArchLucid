@@ -16,6 +16,10 @@ export type ReportProblemContext = {
   readonly workspaceId: string | null;
   readonly productVersion: string | null;
   readonly uiVersion: string | null;
+  readonly apiCommitSha: string | null;
+  readonly uiCommitSha: string | null;
+  readonly deployStamp: string | null;
+  readonly environment: string | null;
   readonly browserClient: string | null;
   readonly correlationId: string | null;
   readonly clientRequestId: string | null;
@@ -144,13 +148,27 @@ export function buildReportProblemContext(input: BuildReportProblemContextInput 
   const scope = resolveReportProblemScope(input.scope);
   const correlation = resolveReportProblemCorrelationFields(input);
   const problem = input.problem ?? null;
+  const fingerprint = readClientDeploymentFingerprint();
+  const version = input.productVersion ?? null;
+  const apiCommitSha = normalizeOptionalString(version?.commitSha);
+  const uiCommitSha =
+    fingerprint.frontendCommitSha !== "unknown" ? fingerprint.frontendCommitSha : null;
+  const apiDeployStamp = normalizeOptionalString(version?.deployStamp);
+  const uiDeployStamp = fingerprint.deployStamp !== "unknown" ? fingerprint.deployStamp : null;
+  const apiEnvironment = normalizeOptionalString(version?.environment);
+  const uiEnvironment = fingerprint.environment !== "unknown" ? fingerprint.environment : null;
 
   return {
     reviewId,
     tenantId: scope.tenantId,
     workspaceId: scope.workspaceId,
-    productVersion: formatReportProblemProductVersion(input.productVersion),
+    productVersion: formatReportProblemProductVersion(version),
     uiVersion: formatReportProblemUiVersion(),
+    apiCommitSha,
+    uiCommitSha,
+    // Prefer API stamp so support can match Container Apps revision env when both are present.
+    deployStamp: apiDeployStamp ?? uiDeployStamp,
+    environment: apiEnvironment ?? uiEnvironment,
     browserClient: buildBrowserClientSummary(),
     correlationId: correlation.correlationId,
     clientRequestId: correlation.clientRequestId,

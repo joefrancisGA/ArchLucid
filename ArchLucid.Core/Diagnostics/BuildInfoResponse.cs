@@ -45,6 +45,16 @@ public sealed class BuildInfoResponse
         init;
     } = "unknown";
 
+    /// <summary>
+    ///     CI/deploy stamp (<c>GITHUB_RUN_ID</c>-<c>GITHUB_RUN_ATTEMPT</c>) for support search —
+    ///     from <see cref="DeploymentBuildMetadata.ResolveDeployStamp"/>.
+    /// </summary>
+    public string DeployStamp
+    {
+        get;
+        init;
+    } = "unknown";
+
     public string RuntimeFramework
     {
         get;
@@ -85,6 +95,7 @@ public sealed class BuildInfoResponse
             FileVersion = provenance.FileVersion,
             CommitSha = DeploymentBuildMetadata.ResolveCommitSha(provenance, configuration),
             BuildTimestamp = DeploymentBuildMetadata.ResolveBuildTimestamp(configuration),
+            DeployStamp = DeploymentBuildMetadata.ResolveDeployStamp(configuration),
             RuntimeFramework = provenance.RuntimeFrameworkDescription,
             Environment = environmentName,
             ProcessUptimeSeconds = processUptimeSeconds

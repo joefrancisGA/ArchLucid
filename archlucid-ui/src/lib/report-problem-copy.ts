@@ -46,6 +46,25 @@ export const REPORT_PROBLEM_FIELD_LABEL_REFERENCE_ID = "Reference ID";
 
 export const REPORT_PROBLEM_FIELD_LABEL_PRODUCT_VERSION = "Product version";
 
+export const REPORT_PROBLEM_DETAILS_SUMMARY_LABEL = "What we'll send";
+
+export const REPORT_PROBLEM_FIELD_LABEL_ROUTE = "Route";
+
+export const REPORT_PROBLEM_FIELD_LABEL_ERROR = "Error";
+
+export const REPORT_PROBLEM_FIELD_LABEL_BROWSER = "Browser";
+
+export const REPORT_PROBLEM_FIELD_LABEL_API_COMMIT = "API commit";
+
+export const REPORT_PROBLEM_FIELD_LABEL_UI_COMMIT = "UI commit";
+
+export const REPORT_PROBLEM_FIELD_LABEL_DEPLOY_STAMP = "Build / CI stamp";
+
+export const REPORT_PROBLEM_FIELD_LABEL_ENVIRONMENT = "Environment";
+
+export const REPORT_PROBLEM_API_UI_MISMATCH_HINT =
+  "API and UI commit SHAs differ — this session may be mid-deploy or split across revisions.";
+
 export const REPORT_PROBLEM_NOTE_LABEL = "What happened?";
 
 export const REPORT_PROBLEM_NOTE_PLACEHOLDER =
@@ -79,7 +98,10 @@ export const REPORT_PROBLEM_FIELD_GLOSSARY = {
   reviewId: "Architecture review id when you were on a review route.",
   workspaceId: "Active workspace scope for the session.",
   tenantId: "Organization tenant scope (never shared across tenants).",
-  productVersion: "ArchLucid API and UI build identifiers.",
+  productVersion: "ArchLucid API and UI build identifiers (deploy stamp + commit SHAs).",
+  deployStamp: "CI/deploy stamp (GitHub Actions run id + attempt) shared by the deployed images.",
+  apiCommitSha: "API image commit SHA from GET /version.",
+  uiCommitSha: "UI image commit SHA baked at container build time.",
   browserSummary: "Short browser and client summary — not a full log export.",
   correlationId: "Server correlation id tying your attempt to API logs.",
   clientRequestId: "Client request id when distinct from correlation id.",
