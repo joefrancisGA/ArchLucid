@@ -1,16 +1,11 @@
-/** First-run review start — job → pack chooser chrome (TB-2136). */
-export const ACCELERATOR_JOB_CHOOSER_HEADING = "What are you evaluating?";
+/** Accelerator pack chooser chrome — offered after the primary create-review form (TB-2136). */
+export const ACCELERATOR_JOB_CHOOSER_HEADING = "Start faster with an accelerator pack";
 
 export const ACCELERATOR_JOB_CHOOSER_LEAD =
-  "Pick the buyer job that best matches this review. Each row maps to a starter proof pack and the architecture package, findings, and sponsor-ready export you should expect.";
+  "Optional. Pick the job that matches this review to preload a starter architecture request and matching policy packs — the architecture package, findings, and sponsor-ready export stay the same.";
 
 export const ACCELERATOR_JOB_CHOOSER_EXPECTED_OUTPUTS_LABEL = "Expected outputs";
 
 export const ACCELERATOR_JOB_CHOOSER_REQUIRED_INPUTS_LABEL = "Required inputs";
-
-export const REVIEWS_NEW_OWN_EVIDENCE_TITLE = "Start with your own architecture evidence";
-
-export const REVIEWS_NEW_OWN_EVIDENCE_SUMMARY =
-  "Quick start without a starter pack — review title, evidence upload, and one-screen review creation.";
 
 export const ACCELERATOR_JOB_CHOOSER_START_CTA = "Start with this pack";

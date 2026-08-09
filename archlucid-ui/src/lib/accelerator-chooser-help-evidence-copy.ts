@@ -3,10 +3,10 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const ACCELERATOR_CHOOSER_HELP_CANONICAL_PATH = "/help/accelerator-chooser" as const;
 
 export const ACCELERATOR_CHOOSER_HELP_CLAIM_DISCIPLINE =
-  "This guide maps buyer jobs to starter proof packs after a first finalized architecture review — architect orientation only, not a signed-review diligence Sources package from your tenant. Open Path chooser, Your first architecture review, or a live review when you need the next action.";
+  "This guide maps buyer jobs to accelerator packs after a first finalized architecture review — architect orientation only, not a signed-review diligence Sources package from your tenant. Open Path chooser, Your first architecture review, or a live review when you need the next action.";
 
 export const ACCELERATOR_CHOOSER_HELP_SOURCES_INTRO =
-  "Use these follow-ups when accelerator vocabulary turns into path selection, a first review, or home starter packs.";
+  "Use these follow-ups when accelerator packs turn into path selection, a first review, or home starting points.";
 
 export type AcceleratorChooserHelpSourceLink = {
   readonly label: string;

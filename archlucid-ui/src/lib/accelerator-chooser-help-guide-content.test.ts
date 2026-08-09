@@ -7,7 +7,7 @@ import {
 
 describe("accelerator-chooser-help-guide-content", () => {
   it("uses buyer-facing page title", () => {
-    expect(ACCELERATOR_CHOOSER_HELP_PAGE_TITLE).toBe("Pick a starter proof pack");
+    expect(ACCELERATOR_CHOOSER_HELP_PAGE_TITLE).toBe("Pick an accelerator pack");
   });
 
   it("defines workflow steps with prerequisite first", () => {

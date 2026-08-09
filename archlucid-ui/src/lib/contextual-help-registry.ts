@@ -913,12 +913,13 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     prefix: "/help/accelerator-chooser",
     entry: {
       whatIsThisPage:
-        "Pick a starter proof pack — map buyer jobs to starter proof packs after your first finalized architecture review.",
+        "Pick an accelerator pack — map buyer jobs to accelerator packs after your first finalized architecture review.",
       whatToDoNext:
-        "Pick a pack that matches the buyer job, then start the review intake with the matching starter proof pack.",
-      whyEmpty: "This guide is always available; live accelerators appear on Home after you finalize a first review.",
+        "Pick a pack that matches the buyer job, then start the review with the matching accelerator pack.",
+      whyEmpty:
+        "This guide is always available; accelerator packs appear on Home after you finalize a first review.",
       whereToConfigurePrerequisite:
-        "Starter packs assume a workspace with at least one finalized architecture review.",
+        "Accelerator packs assume a workspace with at least one finalized architecture review.",
       whatToDoNextAction: {
         label: "Open Path chooser",
         href: "/help/path-chooser",

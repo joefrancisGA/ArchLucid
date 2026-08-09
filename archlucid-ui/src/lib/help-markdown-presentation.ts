@@ -2,6 +2,7 @@ import { tryResolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { capitalizeInlineGuidanceBody, parseLeadingInlineGuidanceLabel } from "@/lib/inline-guidance-labels";
 import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
 import { applyHelpTopicProductLanguage } from "@/lib/help-product-language";
+import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 const MARKDOWN_FILE_PATTERN = /\.md(?:#[^\s)]*)?$/i;
 
@@ -234,10 +235,19 @@ export function stripInternalEngineeringBatchLabels(markdown: string): string {
     .join("\n");
 }
 
+export type StripDuplicateMarkdownTitleOptions = {
+  /** Section headings (`## Title {#anchor}`) matching these titles are removed after H1 dedupe. */
+  readonly duplicateSectionTitles?: readonly string[];
+};
+
 /**
  * Drops the first markdown H1 — the help shell already renders `entry.title` in the page header.
+ * When `duplicateSectionTitles` is set, also drops a leading anchored `##` whose title matches.
  */
-export function stripDuplicateMarkdownTitle(markdown: string): string {
+export function stripDuplicateMarkdownTitle(
+  markdown: string,
+  options?: StripDuplicateMarkdownTitleOptions,
+): string {
   const lines = markdown.split("\n");
   let index = 0;
 
@@ -249,10 +259,33 @@ export function stripDuplicateMarkdownTitle(markdown: string): string {
 
   if (first.startsWith("# ") && !first.startsWith("## ")) {
     index++;
+
+    while (index < lines.length && (lines[index] ?? "").trim().length === 0) {
+      index++;
+    }
   }
 
-  while (index < lines.length && (lines[index] ?? "").trim().length === 0) {
-    index++;
+  const duplicateTitles = new Set(
+    (options?.duplicateSectionTitles ?? [])
+      .map((title) => title.trim().toLowerCase())
+      .filter((title) => title.length > 0),
+  );
+
+  if (duplicateTitles.size > 0) {
+    const sectionHeading = lines[index] ?? "";
+    const anchoredHeadingMatch = sectionHeading.match(/^##\s+(.+?)\s*\{#([^}]+)\}\s*$/);
+
+    if (anchoredHeadingMatch !== null) {
+      const headingTitle = anchoredHeadingMatch[1]?.trim().toLowerCase() ?? "";
+
+      if (duplicateTitles.has(headingTitle)) {
+        index++;
+
+        while (index < lines.length && (lines[index] ?? "").trim().length === 0) {
+          index++;
+        }
+      }
+    }
   }
 
   return lines.slice(index).join("\n").trimStart();
@@ -1313,20 +1346,20 @@ export function stripAcceleratorChooserContributorLeakage(markdown: string): str
   return withoutSensitiveRows
     .replace(/\s*\(TB-\d+\)/gi, "")
     .replace(/\bTB-\d+\b/gi, "")
-    .replace(/`?templates\/starter-proof-packs\/?`?/gi, "in-product starter proof packs")
-    .replace(/templates\/starter-proof-packs\/?/gi, "in-product starter proof packs")
+    .replace(/`?templates\/starter-proof-packs\/?`?/gi, "in-product accelerator packs")
+    .replace(/templates\/starter-proof-packs\/?/gi, "in-product accelerator packs")
     .replace(/`?POLICY_PACK_[A-Z0-9_]+\.md`?/gi, "policy pack documentation")
     .replace(/POLICY_PACK_[A-Z0-9_]+\.md/gi, "policy pack documentation")
     .replace(/`?DEFAULT_POLICY_PACKS_V1\.md`?/gi, "default policy packs")
     .replace(/DEFAULT_POLICY_PACKS_V1\.md/gi, "default policy packs")
-    .replace(/`?STARTER_PROOF_PACK_CHOOSER\.md`?/gi, "starter proof pack chooser")
-    .replace(/STARTER_PROOF_PACK_CHOOSER\.md/gi, "starter proof pack chooser")
+    .replace(/`?STARTER_PROOF_PACK_CHOOSER\.md`?/gi, "accelerator pack chooser")
+    .replace(/STARTER_PROOF_PACK_CHOOSER\.md/gi, "accelerator pack chooser")
     .replace(/`?walkthroughs\/[^`\s)]+`?/gi, "product walkthrough")
     .replace(/walkthroughs\/[^\s)]+/gi, "product walkthrough")
     .replace(/`?starter-pack\.json`?/gi, "pack manifest")
     .replace(/starter-pack\.json/gi, "pack manifest")
-    .replace(/`?ACCELERATOR_CHOOSER\.md`?/gi, "starter proof pack chooser")
-    .replace(/ACCELERATOR_CHOOSER\.md/gi, "starter proof pack chooser")
+    .replace(/`?ACCELERATOR_CHOOSER\.md`?/gi, "accelerator pack chooser")
+    .replace(/ACCELERATOR_CHOOSER\.md/gi, "accelerator pack chooser")
     .replace(/from the pack folder/gi, "when starting the review")
     .replace(/in the pack folder/gi, "with the review")
     .replace(/\n{3,}/g, "\n\n");
@@ -3151,7 +3184,17 @@ export function prepareHelpMarkdownForPresentation(
 ): string {
   const withoutPreamble = stripLeadingContributorScopeBlockquote(markdown);
   const withoutInternalPreamble = stripInternalBuyerHelpPreamble(withoutPreamble);
-  const normalized = stripDuplicateMarkdownTitle(stripInternalEngineeringBatchLabels(withoutInternalPreamble));
+  const registryEntry =
+    options?.helpTopicSlug !== undefined ? getProductDocumentationEntry(options.helpTopicSlug) : null;
+  const duplicateSectionTitles =
+    registryEntry !== null &&
+    registryEntry.sectionAnchors !== undefined &&
+    registryEntry.sectionAnchors.length > 0
+      ? [registryEntry.title]
+      : undefined;
+  const normalized = stripDuplicateMarkdownTitle(stripInternalEngineeringBatchLabels(withoutInternalPreamble), {
+    duplicateSectionTitles,
+  });
   const withoutHtmlComments = stripHtmlComments(normalized);
   const withoutInternalSections = stripInternalBuyerHelpSections(withoutHtmlComments);
   const withoutInlineReferences = stripInternalBuyerHelpInlineReferences(withoutInternalSections);

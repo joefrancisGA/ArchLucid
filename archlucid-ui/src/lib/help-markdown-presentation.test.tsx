@@ -458,7 +458,7 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toContain("POLICY_PACK_");
     expect(prepared).not.toContain("walkthroughs/");
     expect(prepared).not.toContain("starter-pack.json");
-    expect(prepared).toContain("in-product starter proof packs");
+    expect(prepared).toContain("in-product accelerator packs");
     expect(prepared).toContain("pack manifest");
   });
 
@@ -469,7 +469,7 @@ describe("help-markdown-presentation", () => {
       "| Regulated SaaS | [`regulated-saas-soc-procurement`](../../templates/starter-proof-packs/regulated-saas-soc-procurement/) |",
     ].join("\n");
 
-    const prepared = prepareHelpMarkdownForPresentation(source, "docs/library/ACCELERATOR_CHOOSER.md");
+    const prepared = stripAcceleratorChooserContributorLeakage(source);
 
     expect(prepared).toContain("Regulated SaaS");
     expect(prepared).toContain("regulated-saas-soc-procurement");
@@ -700,7 +700,7 @@ describe("help-markdown-presentation", () => {
     const loaded = tryLoadProductDocumentation("data-handling");
 
     expect(loaded).not.toBeNull();
-    expect(tryLoadProductDocumentation("data-handling-tenant-isolation")).toBeNull();
+    expect(tryLoadProductDocumentation("data-handling-tenant-isolation")?.entry.slug).toBe("data-handling");
 
     const sourcePath = loaded!.entry.sourcePaths[0] ?? "";
     const prepared = prepareHelpMarkdownForPresentation(loaded!.markdown, sourcePath, {

@@ -6,7 +6,7 @@ import {
 } from "@/lib/accelerator-chooser-help-guide-content";
 
 /**
- * Starter proof pack chooser — operator help, not a marketing landing page.
+ * Accelerator pack chooser — operator help, not a marketing landing page.
  */
 export const ACCELERATOR_CHOOSER_HELP_ROUTE_METADATA: Metadata = {
   title: ACCELERATOR_CHOOSER_HELP_PAGE_TITLE,

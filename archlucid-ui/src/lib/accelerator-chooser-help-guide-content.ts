@@ -5,13 +5,13 @@ import {
 } from "@/lib/accelerator-chooser-help-evidence-copy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
-export const ACCELERATOR_CHOOSER_HELP_PAGE_TITLE = "Pick a starter proof pack";
+export const ACCELERATOR_CHOOSER_HELP_PAGE_TITLE = "Pick an accelerator pack";
 
 export const ACCELERATOR_CHOOSER_HELP_PAGE_SUBTITLE =
-  "Map buyer jobs to existing starter proof packs after your first finalized architecture review — inputs, outputs, and V1 scope labels.";
+  "Map buyer jobs to existing accelerator packs after your first finalized architecture review — inputs, outputs, and when not to use each pack.";
 
 export const ACCELERATOR_CHOOSER_HELP_OVERVIEW =
-  "Each row maps a buyer job to an in-product starter proof pack. Pick one primary pack, start the review intake, attach evidence, finalize, and export the proof checklist.";
+  "Each row maps a buyer job to an in-product accelerator pack. Pick one primary pack, start the review, attach evidence, finalize, and export the proof checklist.";
 
 export const ACCELERATOR_CHOOSER_HELP_PREREQUISITE =
   "Confirm a Core Pilot finalize exists — a signed review record on an architecture package — before starting a specialty pack.";
@@ -60,7 +60,7 @@ export const ACCELERATOR_CHOOSER_HELP_WORKFLOW_STEPS: readonly AcceleratorChoose
   {
     stepNumber: 2,
     title: "Pick a pack",
-    description: "Choose the buyer job that matches your stakeholder conversation from the starter packs below.",
+    description: "Choose the buyer job that matches your stakeholder conversation from the accelerator packs below.",
   },
   {
     stepNumber: 3,
@@ -74,11 +74,11 @@ export const ACCELERATOR_CHOOSER_HELP_WORKFLOW_STEPS: readonly AcceleratorChoose
     stepNumber: 4,
     title: "Run and export",
     description:
-      "Attach pack evidence, run the assessment, finalize the architecture review, and export the proof checklist with the review.",
+      "Attach pack evidence, start the review, then finalize and export the proof checklist with the architecture package.",
   },
 ] as const;
 
 export const ACCELERATOR_CHOOSER_HELP_OUT_OF_SCOPE =
-  "Out of scope for all V1-ready packs: live Stripe or Marketplace checkout, CPA SOC 2 attestation, public reference customers, MCP, and first-party Jira, ServiceNow, Teams, or Slack connectors (V1.1 unless separately promoted).";
+  "Out of scope for all accelerator packs: live Stripe or Marketplace checkout, CPA SOC 2 attestation, public reference customers, MCP, and first-party Jira, ServiceNow, Teams, or Slack connectors (V1.1 unless separately promoted).";
 
 export const ACCELERATOR_CHOOSER_HELP_CANONICAL_PATH_EXPORT = ACCELERATOR_CHOOSER_HELP_CANONICAL_PATH;

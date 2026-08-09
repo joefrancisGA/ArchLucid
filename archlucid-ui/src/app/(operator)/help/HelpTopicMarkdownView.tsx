@@ -124,7 +124,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
             sourceDocPath={entry.sourcePaths[0]}
             helpTopicSlug={entry.slug}
             preserveMaintenanceMetadata={preserveMaintenanceMetadata}
-            preparedMarkdownOverride={isCaiqSigResponse ? preparedMarkdown : undefined}
+            preparedMarkdownOverride={preparedMarkdown}
           />
         </div>
         <HelpTopicTableOfContents headings={headings} groups={resolvedTocGroups} />

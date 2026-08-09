@@ -432,9 +432,9 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "accelerator-chooser",
-    title: "Pick a starter proof pack",
+    title: "Pick an accelerator pack",
     summary:
-      "Map buyer jobs to existing starter proof packs after your first finalized architecture review — inputs, outputs, and V1 scope labels.",
+      "Map buyer jobs to existing accelerator packs after your first finalized architecture review — inputs, outputs, and when not to use each pack.",
     audience: "operator",
     sourcePaths: ["docs/go-to-market/DEMO_QUICKSTART.md"],
     sectionAnchors: ["accelerator-chooser"],

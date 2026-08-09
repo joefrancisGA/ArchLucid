@@ -1,6 +1,6 @@
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
-/** Starter proof pack ids surfaced by the operator-home accelerator chooser (TB-114). */
+/** Accelerator pack ids surfaced by the operator-home accelerator pack chooser (TB-114). */
 export const ACCELERATOR_PACK_IDS = [
   "regulated-saas-soc-procurement",
   "ai-llm-workload",

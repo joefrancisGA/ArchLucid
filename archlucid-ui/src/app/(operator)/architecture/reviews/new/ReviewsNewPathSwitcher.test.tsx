@@ -54,7 +54,7 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
     });
   });
 
-  it("leads with the job → pack chooser before template paths (TB-2136)", async () => {
+  it("leads with the create-review form and offers accelerator packs below it (TB-2136)", async () => {
     render(<ReviewsNewPathSwitcher />);
 
     await waitFor(() => {
@@ -63,11 +63,14 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
 
     expect(screen.getByTestId("reviews-new-primary-path-layout")).toBeInTheDocument();
     expect(screen.getAllByText(/Expected outputs:/i).length).toBeGreaterThan(0);
-    expect(screen.getByTestId("reviews-new-own-evidence-start")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-more-intake-options")).toBeInTheDocument();
     expect(screen.queryByTestId("reviews-new-path-toggle")).toBeNull();
-    expect(screen.queryByTestId("first-pilot-intake-wizard-stub")).toBeNull();
     expect(screen.queryByTestId("reviews-new-path-hint")).toBeNull();
+
+    const ownEvidence = screen.getByTestId("reviews-new-own-evidence-start");
+    const packs = screen.getByTestId("reviews-new-job-chooser-section");
+
+    expect(ownEvidence.compareDocumentPosition(packs) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("ignores persisted guided-intake when the URL has no path query", async () => {

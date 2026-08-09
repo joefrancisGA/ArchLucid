@@ -7,12 +7,11 @@ export type AcceleratorChooserEntry = {
   readonly summary: string;
   readonly requiredInputs: string;
   readonly expectedOutputs: string;
-  readonly scopeLabel: "V1-ready" | "V1.1-deferred";
   readonly doNotUseWhen: string;
   readonly startHref: string;
 };
 
-/** Top buyer-job → starter proof pack rows surfaced on operator home (TB-170). */
+/** Top buyer-job → accelerator pack rows surfaced on operator home (TB-170). */
 export const ACCELERATOR_CHOOSER_ENTRIES: readonly AcceleratorChooserEntry[] = [
   {
     id: "regulated-saas-soc-procurement",
@@ -21,7 +20,6 @@ export const ACCELERATOR_CHOOSER_ENTRIES: readonly AcceleratorChooserEntry[] = [
     summary: "Policy-pack findings and sponsor-safe caveats for procurement conversations — not certification evidence.",
     requiredInputs: "second-run.json, policy-context.json",
     expectedOutputs: "Findings, architecture package, and sponsor-ready export checklist",
-    scopeLabel: "V1-ready",
     doNotUseWhen: "Before any finalize; buyer demands CPA attestation",
     startHref: buildAcceleratorReviewStartHref("regulated-saas-soc-procurement"),
   },
@@ -32,7 +30,6 @@ export const ACCELERATOR_CHOOSER_ENTRIES: readonly AcceleratorChooserEntry[] = [
     summary: "Responsible-AI and LLM architecture review with faithfulness-friendly citations.",
     requiredInputs: "second-run.json, policy-context.json",
     expectedOutputs: "Findings, evidence trail, and sponsor-ready export",
-    scopeLabel: "V1-ready",
     doNotUseWhen: "Generic chat comparison only; no LLM in scope",
     startHref: buildAcceleratorReviewStartHref("ai-llm-workload"),
   },
@@ -43,7 +40,6 @@ export const ACCELERATOR_CHOOSER_ENTRIES: readonly AcceleratorChooserEntry[] = [
     summary: "Cost/orphan-oriented findings with ROI source labels for FinOps stakeholders.",
     requiredInputs: "second-run.json (optional extractor ZIP)",
     expectedOutputs: "Findings with ROI labels and sponsor-ready export",
-    scopeLabel: "V1-ready",
     doNotUseWhen: "Non-Azure-only architecture with no Azure evidence",
     startHref: buildAcceleratorReviewStartHref("azure-cost-governance"),
   },
@@ -54,7 +50,6 @@ export const ACCELERATOR_CHOOSER_ENTRIES: readonly AcceleratorChooserEntry[] = [
     summary: "PHI-minimization storyline for clinical platform reviews — not HIPAA certification.",
     requiredInputs: "second-run.json, policy-context.json",
     expectedOutputs: "Findings, architecture package, and sponsor export checklist",
-    scopeLabel: "V1-ready",
     doNotUseWhen: "Real PHI in inputs; HIPAA certification claims",
     startHref: buildAcceleratorReviewStartHref("healthcare-data-workflow"),
   },
@@ -65,8 +60,7 @@ export const ACCELERATOR_CHOOSER_ENTRIES: readonly AcceleratorChooserEntry[] = [
     summary: "Topology and compliance findings on your architecture inputs via the new-review wizard.",
     requiredInputs: "Architecture request via new-review wizard",
     expectedOutputs: "Architecture package and findings on your inputs",
-    scopeLabel: "V1-ready",
-    doNotUseWhen: "Buyer needs a specialty starter proof pack instead",
+    doNotUseWhen: "Buyer needs a specialty accelerator pack instead",
     startHref: "/architecture/reviews/new?preset=greenfield",
   },
 ] as const;

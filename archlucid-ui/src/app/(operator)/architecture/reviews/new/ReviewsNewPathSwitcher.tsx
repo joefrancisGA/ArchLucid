@@ -130,7 +130,7 @@ export function ReviewsNewPathSwitcher() {
       presetGreenfield ||
       hasExampleTemplateIntent ||
       isAcceleratorPackId(acceleratorPackId));
-  const showFirstRunJobChooser =
+  const showFirstRunStartOptions =
     usePrimaryPathLayout && activePath === "quick-review" && !hasAcceleratorStartIntent;
 
   useEffect(() => {
@@ -175,10 +175,10 @@ export function ReviewsNewPathSwitcher() {
       {shellReady ? (
         usePrimaryPathLayout ? (
           <div className="space-y-4" data-testid="reviews-new-primary-path-layout">
-            {showFirstRunJobChooser ? (
+            {showFirstRunStartOptions ? (
               <>
-                <ReviewsNewJobChooserSection />
                 <ReviewsNewOwnEvidenceStart />
+                <ReviewsNewJobChooserSection />
                 <ReviewsNewMoreWaysToStart onSelectPath={selectPath} />
               </>
             ) : (

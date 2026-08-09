@@ -7,7 +7,6 @@ import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfCont
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { StatusTag } from "@/components/StatusTag";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ACCELERATOR_CHOOSER_ENTRIES } from "@/lib/accelerator-chooser";
@@ -39,13 +38,13 @@ type HelpAcceleratorChooserGuideViewProps = {
 };
 
 const ACCELERATOR_CHOOSER_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
-  { level: 2, id: "starter-proof-packs", title: "Starter proof packs" },
+  { level: 2, id: "accelerator-packs", title: "Accelerator packs" },
   { level: 2, id: "how-to-start", title: "How to start" },
   { level: 2, id: "claim-discipline", title: "Claim discipline" },
   { level: 2, id: "out-of-scope", title: "Out of scope" },
 ];
 
-/** Buyer-safe starter proof pack chooser for `/help/accelerator-chooser` (TB-1604). */
+/** Buyer-safe accelerator pack chooser for `/help/accelerator-chooser` (TB-1604). */
 export function HelpAcceleratorChooserGuideView(
   props: HelpAcceleratorChooserGuideViewProps,
 ): React.ReactElement {
@@ -112,13 +111,13 @@ export function HelpAcceleratorChooserGuideView(
         <section
           aria-labelledby="help-accelerator-chooser-packs-heading"
           data-testid="help-accelerator-chooser-packs"
-          id="starter-proof-packs"
+          id="accelerator-packs"
         >
           <h2
             id="help-accelerator-chooser-packs-heading"
             className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
           >
-            Starter proof packs
+            Accelerator packs
           </h2>
           <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             {ACCELERATOR_CHOOSER_HELP_OVERVIEW}
@@ -134,7 +133,6 @@ export function HelpAcceleratorChooserGuideView(
                   <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
                     {packEntry.buyerJob}
                   </h3>
-                  <StatusTag kind="ready" label={packEntry.scopeLabel} />
                 </div>
                 <p className={cn("m-0 mt-1 font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   {packEntry.packLabel}

@@ -14,12 +14,15 @@ export type AcceleratorJobChooserListProps = {
   readonly rowTestIdPrefix?: string;
   readonly startTestIdPrefix?: string;
   readonly className?: string;
+  /** Omits the technical required-inputs line where the list is a secondary offer. */
+  readonly compact?: boolean;
 };
 
 /** Buyer-job rows with pack label and expected outputs — shared by home and first-run review start (TB-2136). */
 export function AcceleratorJobChooserList(props: AcceleratorJobChooserListProps): React.JSX.Element {
   const rowPrefix = props.rowTestIdPrefix ?? "accelerator-chooser-row";
   const startPrefix = props.startTestIdPrefix ?? "accelerator-chooser-start";
+  const compact = props.compact ?? false;
 
   return (
     <ul
@@ -36,14 +39,6 @@ export function AcceleratorJobChooserList(props: AcceleratorJobChooserListProps)
             <h3 className={cn("m-0 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {entry.buyerJob}
             </h3>
-            <span
-              className={cn(
-                "rounded bg-neutral-100 px-1.5 py-0.5 uppercase tracking-wide text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300",
-                OPERATOR_TYPOGRAPHY.badge,
-              )}
-            >
-              {entry.scopeLabel}
-            </span>
           </div>
           <p className={cn("m-0 mt-1 font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
             {entry.packLabel}
@@ -51,13 +46,15 @@ export function AcceleratorJobChooserList(props: AcceleratorJobChooserListProps)
           <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             {entry.summary}
           </p>
+          {compact ? null : (
+            <p className={cn("m-0 mt-2 text-neutral-500 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
+              <span className="font-medium text-neutral-600 dark:text-neutral-400">
+                {ACCELERATOR_JOB_CHOOSER_REQUIRED_INPUTS_LABEL}:{" "}
+              </span>
+              {entry.requiredInputs}
+            </p>
+          )}
           <p className={cn("m-0 mt-2 text-neutral-500 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
-            <span className="font-medium text-neutral-600 dark:text-neutral-400">
-              {ACCELERATOR_JOB_CHOOSER_REQUIRED_INPUTS_LABEL}:{" "}
-            </span>
-            {entry.requiredInputs}
-          </p>
-          <p className={cn("m-0 mt-1 text-neutral-500 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
             <span className="font-medium text-neutral-600 dark:text-neutral-400">
               {ACCELERATOR_JOB_CHOOSER_EXPECTED_OUTPUTS_LABEL}:{" "}
             </span>
