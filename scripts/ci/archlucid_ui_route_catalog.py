@@ -14,6 +14,11 @@ HELP_REGISTRY = UI_LIB_DIR / "product-documentation-registry.ts"
 # Default Hit% for catalog paths newly inserted by sync-archlucid-ui-route-traffic-workbook.py.
 DEFAULT_NEW_HIT_PCT = "0.02%"
 
+# Owner overrides pinning a specific 3-letter workbook ID to a route path. Empty by default: the sync
+# falls back to suggest_row_id(). Add an entry only to keep an ID stable across a path rename, and keep
+# values unique 3-letter uppercase IDs.
+PREFERRED_NEW_ROW_IDS: dict[str, str] = {}
+
 # Legacy workbook paths → canonical catalog paths (scores and Hit% merge on collision).
 WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/alerts": "/governance/alerts",
@@ -41,6 +46,12 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/help/cloud-connections-azure": "/help/cloud-connections/azure",
     "/help/cloud-connections-aws": "/help/cloud-connections/aws",
     "/help/cloud-connections-gcp": "/help/cloud-connections/gcp",
+    # TB-2050 retired help aliases (removed from HELP_TOPIC_SLUG_ALIASES) — fold Hit% into canons.
+    # Do not re-add these to the catalog; FIR `/help/first-pilot-path` stays via TRAFFIC_TRACKED only.
+    "/help/api-contracts": "/help/governance-api-contracts",
+    "/help/evaluator-workbook": "/help/path-chooser",
+    "/help/first-hour-operator-path": "/help/first-architecture-review",
+    "/help/operator-auth-roles": "/help/users-and-roles",
     "/manifests": "/governance/signed-records",
     "/manifests/[manifestId]": "/governance/signed-records/[manifestId]",
     "/manifests/[manifestId]/artifacts/[artifactId]": (
@@ -67,6 +78,7 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     # TB-1902 / TB-1901: /settings/exec-digest is next.config-only → Digests Schedule tab.
     "/settings/exec-digest": "/architecture/digests?tab=schedule",
     "/health": "/administration/system-health",
+    # Folded alias still present in HELP_TOPIC_SLUG_ALIASES; migrate out of workbook/catalog.
     "/help/core-pilot": "/help/first-architecture-review",
     "/dashboard": "/architecture/executive-dashboard",
     "/executive/dashboard": "/architecture/executive-dashboard",

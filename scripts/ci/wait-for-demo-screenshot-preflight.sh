@@ -78,8 +78,8 @@ trusted_baseline_preflight_ready() {
     return 1
   fi
 
-  probe_http "trusted baseline manifest summary" \
-    "${API_URL}/v1/authority/manifests/${golden_manifest_id}/summary"
+  probe_http "trusted baseline signed-review-record summary" \
+    "${API_URL}/v1/authority/signed-review-records/${golden_manifest_id}/summary"
   if [ "${last_status}" != "200" ]; then
     return 1
   fi

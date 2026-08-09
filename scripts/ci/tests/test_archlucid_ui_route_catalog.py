@@ -45,6 +45,28 @@ def test_migrate_workbook_path_maps_legacy_core_pilot_help_slug() -> None:
     assert migrate_workbook_path("/help/core-pilot") == "/help/first-architecture-review"
 
 
+def test_migrate_workbook_path_maps_tb2050_retired_help_aliases() -> None:
+    assert migrate_workbook_path("/help/api-contracts") == "/help/governance-api-contracts"
+    assert migrate_workbook_path("/help/evaluator-workbook") == "/help/path-chooser"
+    assert migrate_workbook_path("/help/first-hour-operator-path") == "/help/first-architecture-review"
+    assert migrate_workbook_path("/help/operator-auth-roles") == "/help/users-and-roles"
+
+
+def test_build_catalog_keeps_tb2050_retired_aliases_out_except_fir_bookmark() -> None:
+    catalog = build_catalog()
+    assert "/help/api-contracts" not in catalog
+    assert "/help/evaluator-workbook" not in catalog
+    assert "/help/first-hour-operator-path" not in catalog
+    assert "/help/operator-auth-roles" not in catalog
+    assert "/help/core-pilot" not in catalog
+    # FIR stays as an explicit traffic-tracked redirect bookmark (alias retired TB-2050).
+    assert "/help/first-pilot-path" in catalog
+    assert "/help/first-architecture-review" in catalog
+    assert "/help/governance-api-contracts" in catalog
+    assert "/help/path-chooser" in catalog
+    assert "/help/users-and-roles" in catalog
+
+
 def test_build_catalog_excludes_redirect_only_legacy_paths() -> None:
     catalog = build_catalog()
     assert "/alerts" not in catalog

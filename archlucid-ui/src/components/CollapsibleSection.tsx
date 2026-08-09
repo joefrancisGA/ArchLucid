@@ -37,7 +37,7 @@ export function CollapsibleSection({
       className="mb-6 rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
       data-testid={sectionTestId}
       data-workspace-disclosure
-      open={defaultOpen}
+      defaultOpen={defaultOpen}
       onToggle={(event) => {
         if (onToggle !== undefined) {
           onToggle((event.currentTarget as HTMLDetailsElement).open);
