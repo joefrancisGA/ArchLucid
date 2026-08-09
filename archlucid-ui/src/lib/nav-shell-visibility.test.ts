@@ -621,8 +621,8 @@ describe("listNavGroupsVisibleInOperatorShell — system-admin surface", () => {
 });
 
 describe("committed architecture review gate — operator shell composition", () => {
-  it("keeps Operate groups before first committed review (gate retired — authority-only)", () => {
-    const rows = listNavGroupsVisibleInOperatorShell(
+  it("TB-2133: hides Operate groups before first committed review and restores them after", () => {
+    const preCommit = listNavGroupsVisibleInOperatorShell(
       NAV_GROUPS,
       true,
       true,
@@ -631,12 +631,27 @@ describe("committed architecture review gate — operator shell composition", ()
       "all",
       false,
     );
-    const ids = rows.map((r) => r.group.id);
+    const preCommitIds = preCommit.map((r) => r.group.id);
 
-    expect(ids).toContain("pilot");
-    expect(ids).toContain("operate-analysis");
-    expect(ids).toContain("operate-governance");
-    expect(ids).toContain("operator-admin");
+    expect(preCommitIds).toContain("pilot");
+    expect(preCommitIds).not.toContain("operate-governance");
+    expect(preCommitIds).not.toContain("operate-integrations");
+
+    const postCommit = listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      true,
+      true,
+      AUTHORITY_RANK.AdminAuthority,
+      false,
+      "all",
+      true,
+    );
+    const postCommitIds = postCommit.map((r) => r.group.id);
+
+    expect(postCommitIds).toContain("pilot");
+    expect(postCommitIds).toContain("operate-governance");
+    expect(postCommitIds).toContain("operate-analysis");
+    expect(postCommitIds).toContain("operator-admin");
   });
 });
 

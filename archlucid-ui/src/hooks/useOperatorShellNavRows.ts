@@ -55,7 +55,7 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
     ctoDemoNavExpandedEnv: isCtoDemoNavExpandedEnv(),
     runtimeCtoDemoTourActive: false,
   });
-  const effectiveHasCommittedArchitectureReview = hasCommittedArchitectureReview || buyerPolishedShell;
+  const effectiveHasCommittedArchitectureReview = hasCommittedArchitectureReview;
   const omitAdminClusters = demoUi && !buyerPolishedShell;
   const patternLibraryNavVisible = usePatternLibraryNavVisible();
 
@@ -67,7 +67,7 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
       callerAuthorityRank,
       false,
       "review-workflow",
-      true,
+      hasCommittedArchitectureReview,
     );
 
     const adminNavRows: NavGroupWithVisibleLinks[] =
@@ -80,7 +80,7 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
             callerAuthorityRank,
             false,
             "platform-admin",
-            true,
+            hasCommittedArchitectureReview,
           );
 
     // Internal Operations is already behind the `isShowSystemAdministrationNavEnabled()` feature
@@ -98,7 +98,7 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
             callerAuthorityRank,
             false,
             "system-admin",
-            true,
+            hasCommittedArchitectureReview,
           );
 
     return {
@@ -127,6 +127,7 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
     callerAuthorityRank,
     demoUi,
     effectiveHasCommittedArchitectureReview,
+    hasCommittedArchitectureReview,
     effectiveOperateUnlockPhase,
     navAdvanced,
     navExpanded,
