@@ -10,20 +10,48 @@ const COMMITTED_ARCHITECTURE_REVIEW_PROMOTED_HREFS = new Set<string>([
   "/insights/pilot-outcomes",
 ]);
 
-/** Pilot essentials demoted to extended tier after the first committed review (TB-524). */
+/** Pilot essentials demoted to extended tier and moved last within their group after the first committed review (TB-524). */
 const COMMITTED_ARCHITECTURE_REVIEW_DEMOTED_HREFS = new Set<string>([FIRST_REVIEW_GUIDE_PATH]);
-
-/** Pilot-group essentials that stay visible before Architecture nav disclosure expands. */
-const COMMITTED_ARCHITECTURE_REVIEW_COLLAPSED_SIDEBAR_HREFS = new Set<string>([EVIDENCE_GRAPH_PATH]);
 
 function navPathWithoutQuery(href: string): string {
   return href.split("?")[0] ?? "";
 }
 
+function isDemotedAfterFirstCommit(link: NavLinkItem): boolean {
+  return COMMITTED_ARCHITECTURE_REVIEW_DEMOTED_HREFS.has(navPathWithoutQuery(link.href));
+}
+
+function isPromotedAfterFirstCommit(link: NavLinkItem): boolean {
+  return COMMITTED_ARCHITECTURE_REVIEW_PROMOTED_HREFS.has(navPathWithoutQuery(link.href));
+}
+
+function applyTierAfterFirstCommit(link: NavLinkItem): NavLinkItem {
+  if (isDemotedAfterFirstCommit(link)) {
+    return { ...link, tier: "extended" };
+  }
+
+  if (isPromotedAfterFirstCommit(link)) {
+    return { ...link, tier: "essential" };
+  }
+
+  return link;
+}
+
 /**
- * When the tenant has a committed architecture review, treat Compare, Graph, and Export as essential
- * without requiring extended disclosure toggles. Only pilot-group destinations (Graph today) also
- * stay visible in the collapsed sidebar — Analysis/Governance clusters remain hidden until disclosure.
+ * Demoted links keep their sidebar row (role is the only visibility gate since 2026-08-03) but give up
+ * prime position, so a finished first-review guide stops leading the group it no longer belongs at the top of.
+ */
+function moveDemotedLinksLast(links: ReadonlyArray<NavLinkItem>): NavLinkItem[] {
+  return [
+    ...links.filter((link) => !isDemotedAfterFirstCommit(link)),
+    ...links.filter(isDemotedAfterFirstCommit),
+  ];
+}
+
+/**
+ * When the tenant has a committed architecture review, treat Compare, Graph, and pilot outcomes as essential,
+ * and demote first-run guidance to extended tier at the end of its group. Ordering and tier are presentation
+ * and telemetry metadata only — no link is added or removed here.
  */
 export function applyCommittedArchitectureReviewNavPromotions(
   links: ReadonlyArray<NavLinkItem>,
@@ -33,27 +61,5 @@ export function applyCommittedArchitectureReviewNavPromotions(
     return [...links];
   }
 
-  return links.map((link) => {
-    const path = navPathWithoutQuery(link.href);
-
-    if (COMMITTED_ARCHITECTURE_REVIEW_DEMOTED_HREFS.has(path)) {
-      return {
-        ...link,
-        tier: "extended",
-        defaultVisibleInCollapsedSidebar: undefined,
-      };
-    }
-
-    if (!COMMITTED_ARCHITECTURE_REVIEW_PROMOTED_HREFS.has(path)) {
-      return link;
-    }
-
-    return {
-      ...link,
-      tier: "essential",
-      ...(COMMITTED_ARCHITECTURE_REVIEW_COLLAPSED_SIDEBAR_HREFS.has(path)
-        ? { defaultVisibleInCollapsedSidebar: true }
-        : {}),
-    };
-  });
+  return moveDemotedLinksLast(links.map(applyTierAfterFirstCommit));
 }

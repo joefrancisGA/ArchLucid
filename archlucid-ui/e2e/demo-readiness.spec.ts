@@ -27,7 +27,7 @@ const claimsShowcasePath = "/showcase/claims-intake-modernization";
 async function expectBrandedNotFoundSurface(page: Page): Promise<void> {
   const main = getAppMain(page);
 
-  await expect(main.getByText(/We could not find that ArchLucid artifact/i)).toBeVisible();
+  await expect(main.getByText(/Not found in this workspace/i)).toBeVisible();
   await expect(main.getByTestId("branded-not-found")).toBeAttached();
   await expect(main.getByTestId("not-found-review-packages")).toBeVisible();
 }

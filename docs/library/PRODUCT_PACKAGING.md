@@ -76,7 +76,7 @@ Some capabilities are better suited to architect/Admin roles, especially in **Op
 
 That means some surfaces are shaped not just by navigation tier but also by who should reasonably use them in a real environment.
 
-**Implemented in the architect workspace (first wave):** `archlucid-ui` composes **tier** (`nav-tier` / progressive disclosure) with per-link **`requiredAuthority`** on **Operate** nav groups in `nav-config.ts`, resolved from **`GET /api/auth/me`** via `current-principal.ts` and `nav-shell-visibility.ts` (see `archlucid-ui/README.md` Â§ *Role-aware shaping*). **Pilot** essentials omit `requiredAuthority` so the default path stays visible; extended Pilot links (graph, compare, replay) set Read or Execute to match API policies. Short rank-aware copy appears on key Operate pages (`OperateCapabilityHints.tsx`). This is **operational accountability** in the shell—**not** the entitlement or pricing model in Â§4.
+**Implemented in the architect workspace (first wave):** `archlucid-ui` shapes the sidebar with per-link **`requiredAuthority`** on **Operate** nav groups in `nav-config.ts`, resolved from **`GET /api/auth/me`** via `current-principal.ts` and `nav-shell-visibility.ts` (see `archlucid-ui/README.md` Â§ *Role-aware shaping*). **Progressive disclosure tier is retired as a visibility gate (owner 2026-08-03)** — `NavTier` (`nav-tier.ts`) survives as packaging and navigation-telemetry metadata only, so a link's `tier` never hides it. **Pilot** essentials omit `requiredAuthority` so the default path stays visible; extended Pilot links (graph, compare, replay) set Read or Execute to match API policies. Short rank-aware copy appears on key Operate pages (`OperateCapabilityHints.tsx`). This is **operational accountability** in the shell—**not** the entitlement or pricing model in Â§4.
 
 **Cognitive framing (V1):** **Operate** routes pair **LayerHeader** (`layer-guidance.ts`) with **short page leads**—often **inspect vs configure** language and first-pilot deferral—so read-heavy summaries are not visually equal to mutation forms. See `archlucid-ui/README.md` (*In-product guidance*).
 
@@ -86,7 +86,7 @@ Keep **docs**, **`nav-config.ts`**, and **controller policies** aligned when rou
 
 | Buyer layer | `NAV_GROUPS[].id` (`archlucid-ui/src/lib/nav-config.ts`) | Primary modules |
 |-------------|----------------------------------------------------------|-----------------|
-| **Pilot** | `pilot` | `nav-tier.ts`; `requiredAuthority` **omitted** only on essentials; extended links set Read/Execute to match API |
+| **Pilot** | `pilot` | `requiredAuthority` **omitted** only on essentials; extended links set Read/Execute to match API; `nav-committed-architecture-review-promotion.ts` re-tiers and reorders rows after the first committed review |
 | **Operate Â· analysis** | `operate-analysis` | Every link sets `requiredAuthority`; composed by `filterNavLinksForOperatorShell` (`nav-shell-visibility.ts`) |
 | **Operate Â· governance** | `operate-governance` | Every link sets `requiredAuthority`; rank from `current-principal.ts`; **Execute-tier** in-page mutations use `operate-capability.ts` / `useOperateCapability()` |
 

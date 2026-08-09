@@ -23,7 +23,6 @@ import {
   maxAuthorityRankFromMeClaims,
   navLinkVisibleForCallerRank,
 } from "@/lib/nav-authority";
-import { filterNavLinksByTier } from "@/lib/nav-tier";
 import { filterNavLinksForOperatorShell, listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 
 describe("authority seam regression", () => {
@@ -243,19 +242,25 @@ describe("authority seam regression", () => {
   });
 
   /**
-   * Advanced Analysis keeps **Evidence graph**, **Ask**, and **Search** on `essential` tier (`nav-tier.ts`) so the
-   * group is never empty and core day-to-day tools (including full-text search — not an advanced/power-user-only
-   * feature) stay visible before "Show more", while deeper links (Compare, Impact preview, Advisory) stay behind
-   * extended/advanced. Regression: moving these off essential or mis-tiering would change first-pilot noise.
+   * Tier disclosure is retired (owner 2026-08-03): the Analysis group must expose its whole link set at Admin rank
+   * regardless of the legacy `showExtended` / `showAdvanced` arguments. Regression: reintroducing tier-based hiding
+   * would silently shrink the sidebar for pilots.
    */
   it("keeps full Operate analysis link set when disclosure flags are off (tiering retired)", () => {
     const analysis = NAV_GROUPS.find((g) => g.id === "operate-analysis");
 
     expect(analysis, "Operate analysis group should remain configured").toBeDefined();
 
-    const tierVisible = filterNavLinksByTier(analysis!.links, false, false);
+    const visible = filterNavLinksForOperatorShell(
+      analysis!.links,
+      false,
+      false,
+      AUTHORITY_RANK.AdminAuthority,
+      false,
+      true,
+    );
 
-    expect(tierVisible.map((l) => l.href)).toEqual(analysis!.links.map((l) => l.href));
+    expect(visible.map((l) => l.href)).toEqual(analysis!.links.map((l) => l.href));
   });
 
   it("surfaces governance workflow for Execute rank without advanced disclosure", () => {
@@ -313,8 +318,8 @@ describe("authority seam regression", () => {
   });
 
   /**
-   * Default Operate governance strip: Alerts hub aligns with Audit and governance workflow under **`advanced`** tier in
-   * **`nav-tier.ts`** (before authority in **`nav-shell-visibility.ts`**).
+   * Default Operate governance strip: Alerts hub aligns with Audit and governance workflow under **`advanced`** tier.
+   * Tier no longer gates visibility, but it still feeds packaging docs and navigation telemetry.
    */
   it("keeps Operate governance Alerts inbox on advanced tier in nav-config", () => {
     const alerts = enterpriseLinks?.find((l) => l.href === "/governance/alerts");

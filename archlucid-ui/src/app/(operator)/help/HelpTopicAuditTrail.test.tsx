@@ -2,7 +2,6 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { HelpAuditTrailGuideView } from "@/app/(operator)/help/_sections/HelpAuditTrailGuideView";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
@@ -29,7 +28,11 @@ const AUDIT_TRAIL_HELP_BANNED_SUBSTRINGS = [
   "FIRST_REAL_VALUE.md",
   "API_CONTRACTS.md",
   "AUDIT_COVERAGE_MATRIX.md",
-  "Last reviewed",
+  "dbo.AuditEvents",
+  "IAuditRepository",
+  "RunCreated",
+  "RunId",
+  "ILogger",
 ] as const;
 
 describe("HelpTopicAuditTrail", () => {
@@ -39,19 +42,9 @@ describe("HelpTopicAuditTrail", () => {
     expect(loaded).not.toBeNull();
   });
 
-  it("purges contributor and engineering leakage from prepared and rendered audit-trail help", () => {
+  it("purges contributor and engineering leakage from rendered audit-trail help", () => {
     if (loaded === null) {
       throw new Error("Expected audit-trail documentation to load.");
-    }
-
-    const preparedMarkdown = prepareHelpMarkdownForPresentation(
-      loaded.markdown,
-      loaded.entry.sourcePaths[0] ?? "",
-      { helpTopicSlug: loaded.entry.slug },
-    ).toLowerCase();
-
-    for (const banned of AUDIT_TRAIL_HELP_BANNED_SUBSTRINGS) {
-      expect(preparedMarkdown, `prepared markdown contains "${banned}"`).not.toContain(banned.toLowerCase());
     }
 
     render(<HelpAuditTrailGuideView entry={loaded.entry} markdown={loaded.markdown} />);
@@ -70,11 +63,14 @@ describe("HelpTopicAuditTrail", () => {
 
     render(<HelpAuditTrailGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
-    expect(screen.getByRole("link", { name: "Open audit trail" })).toHaveAttribute("href", "/governance/audit");
+    expect(screen.getByTestId("help-audit-trail-header-open-audit-trail")).toHaveAttribute("href", "/governance/audit");
     expect(screen.getAllByRole("link", { name: "Governance approval" })[0]).toHaveAttribute(
       "href",
       "/help/governance-approval",
     );
     expect(screen.getByTestId("help-audit-trail-overview")).toBeInTheDocument();
+    expect(screen.getByTestId("help-audit-trail-breadcrumb")).toHaveTextContent("Help");
+    expect(screen.getByTestId("help-audit-trail-immutability-claims")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-audit-trail-refresh-button")).toBeNull();
   });
 });

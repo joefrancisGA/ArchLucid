@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { auditTrailHelpPageSubtitle } from "@/lib/audit-trail-help-guide-content";
@@ -25,34 +25,26 @@ import { HelpAuditTrailPageHeader } from "@/app/(operator)/help/_sections/HelpAu
 describe("HelpAuditTrailPageHeader", () => {
   const entry = getProductDocumentationEntry("audit-trail");
 
-  it("renders h1, help, refresh, export actions, and last-refreshed metadata", () => {
+  it("renders breadcrumb, provenance, live audit trail CTA, and export actions", () => {
     if (entry === null) {
       throw new Error("Expected audit-trail documentation entry.");
     }
 
-    const onRefresh = vi.fn();
+    render(<HelpAuditTrailPageHeader entry={entry} subtitle={auditTrailHelpPageSubtitle(false)} />);
 
-    render(
-      <HelpAuditTrailPageHeader
-        entry={entry}
-        subtitle={auditTrailHelpPageSubtitle(false)}
-        refreshing={false}
-        lastRefreshedAt={new Date("2026-07-09T12:00:00.000Z")}
-        onRefresh={onRefresh}
-      />,
-    );
-
-    expect(screen.getByRole("heading", { level: 2, name: "Audit trail" })).toBeInTheDocument();
+    expect(screen.getByTestId("help-audit-trail-breadcrumb")).toHaveTextContent("Help");
+    expect(screen.getByTestId("help-audit-trail-page-title")).toBeInTheDocument();
     expect(screen.getByText(auditTrailHelpPageSubtitle(false))).toBeInTheDocument();
+    expect(screen.getByTestId("help-audit-trail-provenance")).toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-09");
+    expect(screen.getByTestId("help-audit-trail-document-status")).toHaveTextContent("Current");
+    expect(screen.getByTestId("help-audit-trail-source-of-record")).toHaveTextContent("Audit event model");
+    expect(screen.getByTestId("help-audit-trail-header-open-audit-trail")).toHaveAttribute("href", "/governance/audit");
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-audit-trail-header-actions")).toBeInTheDocument();
-    expect(screen.getByTestId("help-audit-trail-refresh-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-pdf-download-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-print-button")).toBeInTheDocument();
-    expect(screen.getByTestId("help-audit-trail-last-refreshed")).toHaveTextContent(/Last refreshed:/i);
-
-    fireEvent.click(screen.getByTestId("help-audit-trail-refresh-button"));
-
-    expect(onRefresh).toHaveBeenCalledTimes(1);
+    expect(screen.queryByTestId("help-audit-trail-refresh-button")).toBeNull();
+    expect(screen.queryByTestId("help-audit-trail-last-refreshed")).toBeNull();
   });
 });
