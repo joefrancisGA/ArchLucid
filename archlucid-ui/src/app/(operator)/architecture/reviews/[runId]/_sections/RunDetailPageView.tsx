@@ -9,7 +9,6 @@ import { DemoDataBadge } from "@/components/usability/DemoDataBadge";
 import { detectStalledReview } from "@/lib/usability/stalled-review-detection";
 import { PersistentSponsorEmailStrip } from "@/components/usability/PersistentSponsorEmailStrip";
 import { ShareableReviewLinkButton } from "@/components/usability/ShareableReviewLinkButton";
-import { RunDetailSectionNav } from "@/components/RunDetailSectionNav";
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import { shouldShowOperatorDemoMarketingChrome } from "@/lib/buyer-demo-content-gating";
 import { isBuyerGoldenReviewPackagePageReady } from "@/lib/buyer-golden-spine-run-id";
@@ -48,28 +47,29 @@ import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import { resolvePartialRunCommitBlockedReason } from "@/lib/run-detail-partial-run-commit-block";
 
 import { resolveReviewPackagePrimaryAction } from "./resolve-review-package-primary-action";
-import { ReviewPackagePrimaryAction } from "./ReviewPackagePrimaryAction";
-import { RunDetailGovernanceDecisionSection } from "./RunDetailGovernanceDecisionSection";
-import { RunDetailReviewPackageSection } from "./RunDetailReviewPackageSection";
-import { RunDetailSubmittedArchitectureSection } from "./RunDetailSubmittedArchitectureSection";
 import {
-  RunDetailWorkspaceBlockingBanner,
   RunDetailWorkspaceDisclosureProvider,
-  RunDetailWorkspaceHeader,
   RunDetailWorkspaceLayout,
-  RunDetailWorkspaceSummaryStrip,
-} from "./RunDetailWorkspaceChrome";
-import { RunDetailWorkspaceStickyActions } from "./RunDetailWorkspaceStickyActions";
-import { RunDetailManifestSummarySection } from "./RunDetailManifestSummarySection";
+} from "./RunDetailWorkspaceShell";
 import { RunDetailDeferredScopeNoticeClient } from "@/components/reviews/RunDetailDeferredScopeNoticeClient";
 import { RunDetailFirstScreenProofStatusClient } from "@/components/reviews/RunDetailFirstScreenProofStatusClient";
-import { RunDetailCaptureEvidenceSection } from "./RunDetailCaptureEvidenceSection";
-import { RunDetailBuyerModeFallbackBanner } from "./RunDetailBuyerModeFallbackBanner";
-import { RunDetailBuyerPilotConversionSection } from "./RunDetailBuyerPilotConversionSection";
-import { RunDetailExecutiveSummaryCtaCard } from "./RunDetailExecutiveSummaryCtaCard";
-import { RunDetailGovernanceCta } from "./RunDetailGovernanceCta";
-import { RunDetailExecutiveBottomLine } from "./RunDetailExecutiveBottomLine";
 import {
+  RunDetailBuyerModeFallbackBannerDeferred,
+  RunDetailBuyerPilotConversionSectionDeferred,
+  RunDetailCaptureEvidenceSectionDeferred,
+  RunDetailExecutiveBottomLineDeferred,
+  RunDetailExecutiveSummaryCtaCardDeferred,
+  RunDetailGovernanceCtaDeferred,
+  RunDetailGovernanceDecisionSectionDeferred,
+  RunDetailManifestSummarySectionDeferred,
+  RunDetailReviewPackageSectionDeferred,
+  RunDetailSectionNavDeferred,
+  RunDetailSubmittedArchitectureSectionDeferred,
+  RunDetailWorkspaceBlockingBannerDeferred,
+  RunDetailWorkspaceHeaderDeferred,
+  RunDetailWorkspaceStickyActionsDeferred,
+  RunDetailWorkspaceSummaryStripDeferred,
+  ReviewPackagePrimaryActionDeferred,
   RunDetailArchitectureCreateWorkItemSectionDeferred,
   RunDetailArchitectureCreatedWorkspaceDeferred,
   RunDetailArchitectureSponsorSharingPanelDeferred,
@@ -222,7 +222,7 @@ export function RunDetailPageView(props: {
       />
     ) : null;
 
-  const sectionNavEl = <RunDetailSectionNav sections={m.runDetailNavSections} />;
+  const sectionNavEl = <RunDetailSectionNavDeferred sections={m.runDetailNavSections} />;
 
   const showDemoMarketingChrome = shouldShowOperatorDemoMarketingChrome(
     m.buyerPolishedArtifactTable === true,
@@ -243,7 +243,7 @@ export function RunDetailPageView(props: {
     operatorGovernanceDecision: m.resolvedDetail.run.operatorGovernanceDecision,
     manifestStatus: m.manifestSummary?.status ?? null,
   }) ? (
-    <RunDetailGovernanceCta runId={m.resolvedDetail.run.runId} demoted />
+    <RunDetailGovernanceCtaDeferred runId={m.resolvedDetail.run.runId} demoted />
   ) : null;
 
   const reviewPackagePrimaryAction = resolveReviewPackagePrimaryAction({
@@ -337,7 +337,7 @@ export function RunDetailPageView(props: {
     highestSeverity,
     themeSummaries: m.explanationSummary?.themeSummaries ?? null,
   });
-  const executiveBottomLineEl = <RunDetailExecutiveBottomLine content={executiveBottomLineContent} />;
+  const executiveBottomLineEl = <RunDetailExecutiveBottomLineDeferred content={executiveBottomLineContent} />;
 
   const showArchitectureCreatedHome =
     props.fromArchitectureCreation === true && (m.manifestId ?? "").trim().length === 0;
@@ -366,7 +366,7 @@ export function RunDetailPageView(props: {
     />
   );
   const governanceDecisionSectionEl = (
-    <RunDetailGovernanceDecisionSection
+    <RunDetailGovernanceDecisionSectionDeferred
       runId={m.resolvedDetail.run.runId}
       manifestId={m.manifestId}
       buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
@@ -381,7 +381,7 @@ export function RunDetailPageView(props: {
     />
   );
   const submittedArchitectureTabEl = (
-    <RunDetailSubmittedArchitectureSection
+    <RunDetailSubmittedArchitectureSectionDeferred
       architectureText={submittedArchitectureText}
       canEditSource={!m.manifestId}
       editHref={architectureEditHref}
@@ -428,7 +428,7 @@ export function RunDetailPageView(props: {
           evidence: (
             <div className="space-y-4">
               {!m.manifestId ? (
-                <RunDetailCaptureEvidenceSection
+                <RunDetailCaptureEvidenceSectionDeferred
                   runId={m.resolvedDetail.run.runId}
                   buyerPolished={m.buyerPolishedArtifactTable ?? false}
                 />
@@ -453,7 +453,7 @@ export function RunDetailPageView(props: {
                 />
               ) : null}
               {m.manifestId && m.manifestSummaryForUi ? (
-                <RunDetailManifestSummarySection
+                <RunDetailManifestSummarySectionDeferred
                   manifestSummary={m.manifestSummaryForUi}
                   buyerPolishedShell={m.buyerPolishedArtifactTable}
                   runExecution={{
@@ -482,7 +482,7 @@ export function RunDetailPageView(props: {
           ),
           reviewPackage: (
             <div className="space-y-4">
-              <RunDetailReviewPackageSection
+              <RunDetailReviewPackageSectionDeferred
                 manifestId={m.manifestId}
                 runId={m.resolvedDetail.run.runId}
                 artifactCount={m.artifacts.length}
@@ -561,7 +561,7 @@ export function RunDetailPageView(props: {
                 }
               />
               {buyerFinalizedPackage ? null : (
-                <RunDetailExecutiveSummaryCtaCard runId={m.resolvedDetail.run.runId} demoted />
+                <RunDetailExecutiveSummaryCtaCardDeferred runId={m.resolvedDetail.run.runId} demoted />
               )}
               {!m.buyerPolishedArtifactTable ? (
                 <div className={cn("flex flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)}>
@@ -634,7 +634,7 @@ export function RunDetailPageView(props: {
         <RunDetailWorkspaceLayout
           stickyActions={
             showArchitectureCreatedHome ? null : (
-              <RunDetailWorkspaceStickyActions
+              <RunDetailWorkspaceStickyActionsDeferred
                 runId={m.resolvedDetail.run.runId}
                 primaryAction={reviewPackagePrimaryAction}
                 commitBlockedReason={commitBlockedReason}
@@ -684,14 +684,14 @@ export function RunDetailPageView(props: {
                         />
                       ),
                       evidence: (
-                        <RunDetailCaptureEvidenceSection
+                        <RunDetailCaptureEvidenceSectionDeferred
                           runId={m.resolvedDetail.run.runId}
                           buyerPolished={m.buyerPolishedArtifactTable ?? false}
                         />
                       ),
                       governance: (
                         <>
-                          <RunDetailGovernanceDecisionSection
+                          <RunDetailGovernanceDecisionSectionDeferred
                             runId={m.resolvedDetail.run.runId}
                             manifestId={m.manifestId}
                             buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
@@ -752,7 +752,7 @@ export function RunDetailPageView(props: {
                         </div>
                       ),
                       submittedArchitecture: (
-                        <RunDetailSubmittedArchitectureSection
+                        <RunDetailSubmittedArchitectureSectionDeferred
                           architectureText={submittedArchitectureText}
                           canEditSource={!m.manifestId}
                           editHref={
@@ -770,7 +770,7 @@ export function RunDetailPageView(props: {
                 </Suspense>
               ) : (
                 <>
-                  <RunDetailWorkspaceHeader
+                  <RunDetailWorkspaceHeaderDeferred
                     runId={m.resolvedDetail.run.runId}
                     reviewTitle={reviewDisplayTitle}
                     systemName={systemName}
@@ -779,7 +779,7 @@ export function RunDetailPageView(props: {
                     templateLabel={deriveReviewTemplateLabel(m.manifestSummaryForUi)}
                   />
 
-                  <RunDetailWorkspaceSummaryStrip
+                  <RunDetailWorkspaceSummaryStripDeferred
                     reviewOutcome={reviewStatusSummary.reviewOutcome}
                     highestUnresolvedSeverity={reviewStatusSummary.highestUnresolvedSeverity}
                     openFindingsCount={reviewStatusSummary.openFindingsCount}
@@ -791,7 +791,7 @@ export function RunDetailPageView(props: {
               )}
 
               {!showArchitectureCreatedHome ? (
-                <RunDetailWorkspaceBlockingBanner
+                <RunDetailWorkspaceBlockingBannerDeferred
                   blockingCount={blockingApprovalCount}
                   findingsTabHref={buildReviewDetailTabHref(m.resolvedDetail.run.runId, "findings")}
                 />
@@ -799,7 +799,7 @@ export function RunDetailPageView(props: {
 
               {!showArchitectureCreatedHome ? (
                 <div className="lg:hidden">
-                  <ReviewPackagePrimaryAction
+                  <ReviewPackagePrimaryActionDeferred
                     action={reviewPackagePrimaryAction}
                     runId={m.resolvedDetail.run.runId}
                     hasGoldenManifest={Boolean(m.manifestId)}
@@ -879,7 +879,7 @@ export function RunDetailPageView(props: {
           />
 
           {!m.manifestId ? (
-            <RunDetailCaptureEvidenceSection
+            <RunDetailCaptureEvidenceSectionDeferred
               runId={m.resolvedDetail.run.runId}
               buyerPolished={m.buyerPolishedArtifactTable ?? false}
             />
@@ -904,7 +904,7 @@ export function RunDetailPageView(props: {
           ) : null}
 
           {m.manifestId && m.manifestSummaryForUi ? (
-            <RunDetailManifestSummarySection
+            <RunDetailManifestSummarySectionDeferred
               manifestSummary={m.manifestSummaryForUi}
               buyerPolishedShell={m.buyerPolishedArtifactTable}
               runExecution={{
@@ -967,7 +967,7 @@ export function RunDetailPageView(props: {
           />
 
           {buyerFinalizedPackage ? null : (
-            <RunDetailExecutiveSummaryCtaCard runId={m.resolvedDetail.run.runId} demoted />
+            <RunDetailExecutiveSummaryCtaCardDeferred runId={m.resolvedDetail.run.runId} demoted />
           )}
 
           {!m.buyerPolishedArtifactTable ? (
@@ -1010,12 +1010,12 @@ export function RunDetailPageView(props: {
       {governanceAlertsEl}
 
       {m.buyerPolishedArtifactTable ? (
-        <RunDetailBuyerModeFallbackBanner
+        <RunDetailBuyerModeFallbackBannerDeferred
           realModeFellBackToSimulator={m.resolvedDetail.run.realModeFellBackToSimulator === true}
         />
       ) : null}
 
-      <RunDetailBuyerPilotConversionSection buyerPolishedArtifactTable={m.buyerPolishedArtifactTable} />
+      <RunDetailBuyerPilotConversionSectionDeferred buyerPolishedArtifactTable={m.buyerPolishedArtifactTable} />
     </div>
   );
 

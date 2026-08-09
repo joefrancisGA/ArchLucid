@@ -263,3 +263,133 @@ export const RunDetailOverviewPanelClientDeferred = dynamic(
     ),
   { ssr: false, loading: () => overviewPanelLoading },
 );
+
+const workspaceHeaderLoading = (
+  <header className="space-y-3 border-b border-neutral-200 pb-5 dark:border-neutral-800">
+    <div
+      className="h-24 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
+      role="status"
+      aria-label="Loading review header"
+    />
+  </header>
+);
+
+const workspaceSummaryLoading = (
+  <div
+    className="h-48 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
+    role="status"
+    aria-label="Loading decision snapshot"
+  />
+);
+
+const workspaceStickyActionsLoading = (
+  <div
+    className="hidden h-14 animate-pulse rounded-lg border border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900/40 lg:block"
+    role="status"
+    aria-label="Loading review actions"
+  />
+);
+
+const sectionNavLoading = (
+  <div
+    className="h-10 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
+    role="status"
+    aria-label="Loading section navigation"
+  />
+);
+
+const executiveBottomLineLoading = (
+  <div
+    className="h-40 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
+    role="status"
+    aria-label="Loading executive summary"
+  />
+);
+
+/** TB-2117 — workspace identity chrome off sync First Load JS. */
+export const RunDetailWorkspaceHeaderDeferred = dynamic(
+  () => import("./RunDetailWorkspaceChrome").then((module) => module.RunDetailWorkspaceHeader),
+  { ssr: false, loading: () => workspaceHeaderLoading },
+);
+
+export const RunDetailWorkspaceSummaryStripDeferred = dynamic(
+  () => import("./RunDetailWorkspaceChrome").then((module) => module.RunDetailWorkspaceSummaryStrip),
+  { ssr: false, loading: () => workspaceSummaryLoading },
+);
+
+export const RunDetailWorkspaceBlockingBannerDeferred = dynamic(
+  () => import("./RunDetailWorkspaceChrome").then((module) => module.RunDetailWorkspaceBlockingBanner),
+  { ssr: false, loading: () => null },
+);
+
+export const RunDetailWorkspaceStickyActionsDeferred = dynamic(
+  () => import("./RunDetailWorkspaceStickyActions").then((module) => module.RunDetailWorkspaceStickyActions),
+  { ssr: false, loading: () => workspaceStickyActionsLoading },
+);
+
+export const RunDetailSectionNavDeferred = dynamic(
+  () => import("@/components/RunDetailSectionNav").then((module) => module.RunDetailSectionNav),
+  { ssr: false, loading: () => sectionNavLoading },
+);
+
+export const RunDetailExecutiveBottomLineDeferred = dynamic(
+  () => import("./RunDetailExecutiveBottomLine").then((module) => module.RunDetailExecutiveBottomLine),
+  { ssr: false, loading: () => executiveBottomLineLoading },
+);
+
+export const RunDetailExecutiveSummaryCtaCardDeferred = dynamic(
+  () => import("./RunDetailExecutiveSummaryCtaCard").then((module) => module.RunDetailExecutiveSummaryCtaCard),
+  { ssr: false, loading: () => null },
+);
+
+export const ReviewPackagePrimaryActionDeferred = dynamic(
+  () => import("./ReviewPackagePrimaryAction").then((module) => module.ReviewPackagePrimaryAction),
+  { ssr: false, loading: () => null },
+);
+
+export const RunDetailGovernanceDecisionSectionDeferred = dynamic(
+  () =>
+    import("./RunDetailGovernanceDecisionSection").then((module) => module.RunDetailGovernanceDecisionSection),
+  { ssr: false, loading: () => null },
+);
+
+export const RunDetailReviewPackageSectionDeferred = dynamic(
+  () => import("./RunDetailReviewPackageSection").then((module) => module.RunDetailReviewPackageSection),
+  { ssr: false, loading: () => null },
+);
+
+export const RunDetailSubmittedArchitectureSectionDeferred = dynamic(
+  () =>
+    import("./RunDetailSubmittedArchitectureSection").then(
+      (module) => module.RunDetailSubmittedArchitectureSection,
+    ),
+  { ssr: false, loading: () => null },
+);
+
+export const RunDetailGovernanceCtaDeferred = dynamic(
+  () => import("./RunDetailGovernanceCta").then((module) => module.RunDetailGovernanceCta),
+  { ssr: false, loading: () => null },
+);
+
+export const RunDetailCaptureEvidenceSectionDeferred = dynamic(
+  () => import("./RunDetailCaptureEvidenceSection").then((module) => module.RunDetailCaptureEvidenceSection),
+  { ssr: false, loading: () => null },
+);
+
+export const RunDetailManifestSummarySectionDeferred = dynamic(
+  () => import("./RunDetailManifestSummarySection").then((module) => module.RunDetailManifestSummarySection),
+  { ssr: false, loading: () => null },
+);
+
+export const RunDetailBuyerPilotConversionSectionDeferred = dynamic(
+  () =>
+    import("./RunDetailBuyerPilotConversionSection").then(
+      (module) => module.RunDetailBuyerPilotConversionSection,
+    ),
+  { ssr: false, loading: () => null },
+);
+
+export const RunDetailBuyerModeFallbackBannerDeferred = dynamic(
+  () => import("./RunDetailBuyerModeFallbackBanner").then((module) => module.RunDetailBuyerModeFallbackBanner),
+  { ssr: false, loading: () => null },
+);
