@@ -5,10 +5,8 @@ import {
   isPhiMinimizationSampleFinding,
 } from "@/lib/finding-display-from-inspect";
 import { findingLinkedManifestDetailHrefForRun } from "@/lib/finding-linked-manifest-href";
-import {
-  loadFindingInspectForRoute,
-  shouldTreatFindingInspectFailureAsNotFound,
-} from "@/lib/load-finding-inspect-for-route";
+import { shouldTreatFindingInspectFailureAsNotFound } from "@/lib/load-finding-inspect-for-route";
+import { loadFindingInspectForRouteCached } from "@/lib/load-finding-inspect-for-route-cached";
 import { tryLoadRunExecutionFootnote } from "@/lib/try-load-run-execution-footnote";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
@@ -29,8 +27,9 @@ export async function loadFindingDetailPageModel(
   findingIdRouteParam: string,
 ): Promise<LoadFindingDetailPageModelResult> {
   // Detail first paint: omit PayloadJson LOB; title/rationale still projected for narrative (TB-931).
+  // Cached so generateMetadata on the same request reuses this inspect (no second API call).
   const [inspectResult, runExecutionFootnote] = await Promise.all([
-    loadFindingInspectForRoute(runId, decodedFindingId, { includeTypedPayload: false }),
+    loadFindingInspectForRouteCached(runId, decodedFindingId, false),
     tryLoadRunExecutionFootnote(runId),
   ]);
 

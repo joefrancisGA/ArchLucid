@@ -2,10 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { metadataForFindingEvidenceTraceRoute } from "@/lib/finding-route-metadata";
-import {
-  loadFindingInspectForRoute,
-  shouldTreatFindingInspectFailureAsNotFound,
-} from "@/lib/load-finding-inspect-for-route";
+import { shouldTreatFindingInspectFailureAsNotFound } from "@/lib/load-finding-inspect-for-route";
+import { loadFindingInspectForRouteCached } from "@/lib/load-finding-inspect-for-route-cached";
 import { isInvalidDynamicRouteToken, isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 import { tryLoadRunExecutionFootnote } from "@/lib/try-load-run-execution-footnote";
 
@@ -42,9 +40,11 @@ export default async function FindingEvidenceTracePage({
 
   const decodedFindingId = decodeURIComponent(findingId);
 
-  const { payload, failure, invalidRouteAlignment } = await loadFindingInspectForRoute(runId, decodedFindingId, {
-    includeTypedPayload: false,
-  });
+  const { payload, failure, invalidRouteAlignment } = await loadFindingInspectForRouteCached(
+    runId,
+    decodedFindingId,
+    false,
+  );
 
   if (invalidRouteAlignment || shouldTreatFindingInspectFailureAsNotFound(failure)) {
     notFound();

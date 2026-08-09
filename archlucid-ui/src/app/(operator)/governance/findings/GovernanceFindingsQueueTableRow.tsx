@@ -81,7 +81,11 @@ function GovernanceFindingsQueueOperationalRowCells(props: {
   return (
     <>
       <EnterpriseTableCell className="font-medium text-al-text-primary">
-        <Link className={OPERATOR_LINK.inline} href={governanceFindingInspectHref(row.runId, row.findingId)}>
+        <Link
+          className={OPERATOR_LINK.inline}
+          href={governanceFindingInspectHref(row.runId, row.findingId)}
+          prefetch={false}
+        >
           {row.title}
         </Link>
         {row.recordKind === "finding" && row.policyRuleId ? (
@@ -215,7 +219,11 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
             {formatGovernanceQueueRecordKind(row.recordKind, buyerPolishedShell)}
           </EnterpriseTableCell>
           <EnterpriseTableCell className="font-medium text-al-text-primary">
-            <Link className={OPERATOR_LINK.inline} href={governanceFindingInspectHref(row.runId, row.findingId)}>
+            <Link
+              className={OPERATOR_LINK.inline}
+              href={governanceFindingInspectHref(row.runId, row.findingId)}
+              prefetch={false}
+            >
               {row.title}
             </Link>
             {row.recordKind === "finding" && row.policyRuleId ? (
@@ -272,7 +280,7 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
         {buyerPolishedShell ? (
           <div className="flex flex-col gap-2">
             <Button asChild variant="primary" size="sm" className="h-8">
-              <Link href={governanceFindingInspectHref(row.runId, row.findingId)}>
+              <Link href={governanceFindingInspectHref(row.runId, row.findingId)} prefetch={false}>
                 {row.recordKind === "decision" ? "View decision" : BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA}
               </Link>
             </Button>

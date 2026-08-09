@@ -256,6 +256,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
           {!workspaceCardMode ? (
             <Link
               href={href}
+              prefetch={false}
               className={cn(OPERATOR_LINK.nav, "min-w-0 flex-1")}
             >
               <span className="sr-only">Finding {f.findingId}: </span>
@@ -622,7 +623,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
         </dl>
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <Button type="button" size="sm" variant="default" className="h-8" asChild>
-            <Link href={href}>Open finding</Link>
+            <Link href={href} prefetch={false}>Open finding</Link>
           </Button>
           {viewEvidenceHref !== null ? (
             <FindingEvidenceLinkChip
@@ -727,7 +728,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
           <div className="mt-3 space-y-3 border-t border-neutral-100 pt-3 dark:border-neutral-800">
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{snippet}</p>
             <Button type="button" size="sm" variant="outline" className="h-8" asChild>
-              <Link href={href}>Open finding</Link>
+              <Link href={href} prefetch={false}>Open finding</Link>
             </Button>
             {renderWorkspaceSupportingDetails(f)}
           </div>

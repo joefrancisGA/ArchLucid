@@ -116,6 +116,8 @@ describe("QuickDecisionSummary", () => {
       "/architecture/reviews/run-abc/findings/f-high",
       "/architecture/reviews/run-abc/findings/f-extra",
     ]);
+    // List links must not prefetch finding detail RSC (each prefetch would call GET …/inspect).
+    expect(findingDetailLinks.every((el) => el.getAttribute("data-prefetch") !== "true")).toBe(true);
 
     expect(screen.getByText("Fix immediately.")).toBeInTheDocument();
     expect(screen.getAllByTestId("itsm-sync-jira")).toHaveLength(3);

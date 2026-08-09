@@ -117,6 +117,7 @@ export function EvidenceTrailBuyerTraceTable(props: EvidenceTrailBuyerTraceTable
               <Link
                 className="underline"
                 href={`/architecture/reviews/${encodeURIComponent(runTrim)}/findings/${encodeURIComponent(row.findingId)}`}
+                prefetch={false}
               >
                 Finding record
               </Link>

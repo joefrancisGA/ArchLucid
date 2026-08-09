@@ -292,12 +292,16 @@ export function RunFindingExplainabilityTable({
                     <Button type="button" size="sm" variant="ghost" className={cn("h-7 px-2", OPERATOR_TYPOGRAPHY.button)} asChild>
                       <Link
                         href={getFindingEvidenceTraceHref(runId, row.findingId)}
+                        prefetch={false}
                       >
                         Why?
                       </Link>
                     </Button>
                     <Button type="button" size="sm" variant="ghost" className={cn("h-7 px-2", OPERATOR_TYPOGRAPHY.button)} asChild>
-                      <Link href={`/architecture/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(row.findingId)}`}>
+                      <Link
+                        href={`/architecture/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(row.findingId)}`}
+                        prefetch={false}
+                      >
                         Explain
                       </Link>
                     </Button>
