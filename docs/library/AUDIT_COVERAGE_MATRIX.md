@@ -731,6 +731,8 @@ When adding a Core constant, add a row here and bump `audit-core-const-count`.
 - `POST /v1/architecture/review/exports/{exportRecordId}/replay/metadata`
 - `POST /v1/architecture/review/{runId}/evidence/bulk`
 - `POST /v1/architecture/review/{runId}/execute/selective`
+- `POST /v1/architecture/review/{runId}/execute/async`
+- `POST /v1/architecture/review/{runId}/replay/async`
 - `POST /v1/architecture/review/{runId}/finalize`
 - `POST /v1/architecture/review/{runId}/replay`
 - `POST /v1/architecture/review/{runId}/result`

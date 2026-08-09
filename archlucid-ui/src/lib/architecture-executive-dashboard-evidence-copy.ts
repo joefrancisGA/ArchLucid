@@ -7,7 +7,7 @@ export const ARCHITECTURE_EXECUTIVE_DASHBOARD_CLAIM_DISCIPLINE =
   "Executive dashboard KPIs, trends, and sponsor exports summarize portfolio ROI and workspace health for the selected window — they are not a signed-review diligence Sources package. Open Architecture reviews, Evidence trail, or Trust Center when you need sponsor-safe trails.";
 
 export const ARCHITECTURE_EXECUTIVE_DASHBOARD_SOURCES_INTRO =
-  "Use these follow-ups when portfolio KPIs need review packages, grounded Q&A, ROI methodology, or assurance cites.";
+  "Use these follow-ups when portfolio KPIs need architecture reviews, grounded Q&A, ROI methodology, or assurance cites.";
 
 export type ArchitectureExecutiveDashboardSourceLink = {
   readonly label: string;

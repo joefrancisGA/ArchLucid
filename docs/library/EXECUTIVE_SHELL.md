@@ -2,7 +2,7 @@
 
 # Executive shell (architect workspace)
 
-**What:** A minimal Next.js route group under [`archlucid-ui/src/app/(executive)/`](../../archlucid-ui/src/app/(executive)/) with no sidebar — optimized for sponsor and CTO-style reading of portfolio scorecard surfaces.
+**What:** Sponsor-facing reading surfaces under [`archlucid-ui/src/app/(operator)/insights/executive-summary/`](../../archlucid-ui/src/app/(operator)/insights/executive-summary/) and related executive dashboard routes — minimal chrome, optimized for sponsor and CTO-style portfolio reading.
 
 **Entry points:**
 
