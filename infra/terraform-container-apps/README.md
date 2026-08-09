@@ -43,6 +43,29 @@ Container Apps can add API replicas when **HTTP concurrency** rises (**TB-915** 
 
 **Cross-refs:** scale-rule mix **TB-915**; micro-drills **TB-946** ([`LAUNCH_LOAD_DRILL.md`](../../docs/architecture/LAUNCH_LOAD_DRILL.md)); noisy-neighbor fairness **TB-1577** (`SHARED_AOAI_TPM_NOISY_NEIGHBOR_FAIRNESS_CLAIM_MAP.md`); future TPM assertions **TB-916** (V2).
 
+## Scale-rule mix: HTTP + CPU (**TB-915**)
+
+Container Apps evaluates **all** scale rules with **OR** semantics — scaling starts when **any** rule’s threshold is met ([Microsoft scale-app](https://learn.microsoft.com/en-us/azure/container-apps/scale-app)). ArchLucid targets:
+
+| App | Rules (Terraform) | Notes |
+|-----|-------------------|-------|
+| **API** | `http_scale_rule` + optional KEDA **`cpu`** (default **on**, 70% utilization) + optional **`memory`** (default **off**) | CPU catches graph merge / findings / export prep when HTTP concurrency stays low during LLM-wait |
+| **Operator UI** | `http_scale_rule` + optional KEDA **`cpu`** (default **off**) | SSR bursts; less critical than API |
+| **Worker** | `azure-queue` and/or `prometheus` custom rules only — **not** HTTP | Do not add HTTP scale rules to the worker |
+
+**Variables (primary region + secondary stack):**
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `api_enable_cpu_scale_rule` | `true` | TB-915 API CPU utilization rule |
+| `api_cpu_scale_utilization_percent` | `70` | Average CPU % target |
+| `api_enable_memory_scale_rule` | `false` | Enable only with RSS evidence |
+| `api_memory_scale_utilization_percent` | `75` | Memory % target when enabled |
+| `ui_enable_cpu_scale_rule` | `false` | Optional operator UI CPU rule |
+| `ui_cpu_scale_utilization_percent` | `75` | UI CPU % target when enabled |
+
+**AOAI ceiling:** HTTP or CPU scale-out does **not** raise TPM. Cap `api_max_replicas` with the [**TB-947** checklist](#api-max-replicas-sizing-vs-bulkhead-and-aoai-tpm-tb-947) before drills (**TB-946** / **TB-905**).
+
 ## When to use this stack
 
 Use this root when you want **per-app replica scaling** and a **container-native** Azure host instead of App Service. It complements:
