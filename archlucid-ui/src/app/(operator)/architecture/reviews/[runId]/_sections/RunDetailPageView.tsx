@@ -31,6 +31,8 @@ import {
   deriveEvidenceCoverageSummary,
   deriveExecutiveBottomLineContent,
   deriveHighestFindingSeverityLabel,
+  derivePrimaryConcernFinding,
+  derivePrimaryConcernLabel,
   deriveFinalizedAtUtc,
   deriveLastEvaluatedLabel,
   deriveOverallPostureLabel,
@@ -240,6 +242,7 @@ export function RunDetailPageView(props: {
           m.resolvedDetail.run.architectureRequestId ??
           (m.resolvedDetail.run as { requestId?: string }).requestId
         }
+        deliverablesDefaultOpen={false}
       />
     ) : null;
 
@@ -378,20 +381,16 @@ export function RunDetailPageView(props: {
   const evidenceInventoryCount = countRunDetailEvidenceInventoryItems(evidenceInventoryItems);
   const evidenceReviewDateLabel =
     formatInstantForLocale(m.resolvedDetail.run.completedUtc ?? m.resolvedDetail.run.createdUtc) || m.createdLabel;
-  const evidenceReadinessHeadline =
-    evidenceInventoryCount > 0
-      ? "Evidence is available for review."
-      : "Add evidence before finalizing this review.";
-  const evidenceReadinessVerdict = evidenceInventoryCount > 0 ? "complete" : "gaps";
+  const primaryConcernFinding = derivePrimaryConcernFinding(quickDecisionFindings);
   const evidenceTabPanelEl = (
     <RunDetailEvidenceTabPanelDeferred
       packageName={reviewDisplayTitle}
       reviewDateLabel={evidenceReviewDateLabel}
       evidenceItemCount={evidenceInventoryCount}
       deliverableCount={m.artifacts.length}
-      readinessHeadline={evidenceReadinessHeadline}
-      readinessVerdict={evidenceReadinessVerdict}
-      evidenceCoverageLine={evidenceCoverageSummary.summaryLine}
+      evidenceCoverageSummaryLine={evidenceCoverageSummary.summaryLine}
+      linkedFindingCount={evidenceCoverageSummary.linkedCount}
+      openFindingCount={evidenceCoverageSummary.totalCount}
       items={evidenceInventoryItems}
       runId={m.resolvedDetail.run.runId}
       manifestId={m.manifestId}
@@ -400,6 +399,9 @@ export function RunDetailPageView(props: {
       trustEvidenceCard={m.resolvedDetail.trustEvidenceCard}
       faithfulnessWarning={m.explanationSummary?.faithfulnessWarning ?? null}
       artifactsExportsSection={artifactsExportsSectionEl}
+      blockingFindingId={primaryConcernFinding?.findingId ?? null}
+      blockingFindingTitle={derivePrimaryConcernLabel(quickDecisionFindings)}
+      approvalBlocked={blockingApprovalCount > 0}
     />
   );
   const architectureSummaryTitle =

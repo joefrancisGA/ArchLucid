@@ -68,6 +68,19 @@ describe("run-detail-evidence-inventory", () => {
     expect(line).not.toContain("linked evidence");
   });
 
+  it("pluralizes empty-inventory coverage copy from linked finding count", () => {
+    const line = deriveEvidenceScopeCoverageLine({
+      inventoryCount: 0,
+      findingsCoverageSummaryLine: "2 of 3 open findings have linked evidence",
+      linkedFindingCount: 2,
+      openFindingCount: 3,
+    });
+
+    expect(line).toBe(
+      "2 open findings cite internal finding pointers — no submitted source documents are listed.",
+    );
+  });
+
   it("forces gaps readiness when inventory is empty", () => {
     const readiness = deriveEvidenceScopeReadiness({
       inventoryCount: 0,

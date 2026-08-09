@@ -287,8 +287,9 @@ export function RunTrustEvidenceCardSection(props: {
   readonly runId: string;
   readonly blockingFindingId?: string | null;
   readonly blockingFindingTitle?: string | null;
+  readonly approvalBlocked?: boolean;
 }): ReactElement {
-  const { card, evidenceAskRunId, runId, blockingFindingId, blockingFindingTitle } = props;
+  const { card, evidenceAskRunId, runId, blockingFindingId, blockingFindingTitle, approvalBlocked } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   const trimmedAskRun =
@@ -303,7 +304,7 @@ export function RunTrustEvidenceCardSection(props: {
   const trimmedBlockingFindingTitle =
     typeof blockingFindingTitle === "string" ? blockingFindingTitle.trim() : "";
   const showApprovalBlockerLink =
-    readiness.exceptions.length > 0
+    approvalBlocked === true
     && trimmedBlockingFindingId.length > 0
     && trimmedBlockingFindingTitle.length > 0;
   const findingsTabHref = buildReviewDetailTabHref(runId, "findings", {

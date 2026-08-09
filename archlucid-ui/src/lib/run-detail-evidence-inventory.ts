@@ -138,9 +138,10 @@ export function deriveEvidenceScopeCoverageLine(input: EvidenceScopeCoverageInpu
   }
 
   if (input.openFindingCount > 0 && input.linkedFindingCount > 0) {
-    const findingNoun = input.openFindingCount === 1 ? "finding cites" : "findings cite";
+    const linkedCount = input.linkedFindingCount;
+    const findingNoun = linkedCount === 1 ? "finding cites" : "findings cite";
 
-    return `${input.linkedFindingCount} open ${findingNoun} internal finding pointers — no submitted source documents are listed.`;
+    return `${linkedCount} open ${findingNoun} internal finding pointers — no submitted source documents are listed.`;
   }
 
   return "No submitted source documents are listed for this review.";

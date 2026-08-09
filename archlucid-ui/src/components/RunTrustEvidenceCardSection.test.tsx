@@ -120,6 +120,7 @@ describe("RunTrustEvidenceCardSection", () => {
         runId={RUN_ID}
         blockingFindingId="finding-1"
         blockingFindingTitle="Encrypt PHI stores"
+        approvalBlocked
       />,
     );
 
@@ -134,6 +135,20 @@ describe("RunTrustEvidenceCardSection", () => {
       "href",
       "/architecture/reviews/run-1/findings/finding-1/evidence-trace",
     );
+  });
+
+  it("does not claim approval is blocked when governance is not blocked", () => {
+    render(
+      <RunTrustEvidenceCardSection
+        card={card({ aiExplainability: field("AI explainability rollup", "Low confidence") })}
+        runId={RUN_ID}
+        blockingFindingId="finding-1"
+        blockingFindingTitle="Encrypt PHI stores"
+        approvalBlocked={false}
+      />,
+    );
+
+    expect(screen.queryByTestId("trust-evidence-approval-blocker-link")).not.toBeInTheDocument();
   });
 
   it("gives Proof confidence its own copy rather than repeating the execution mode detail", () => {
