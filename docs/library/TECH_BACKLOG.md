@@ -4,7 +4,7 @@
 
 <!-- tech-backlog-open-by-category:start -->
 
-**Open counts by architectural quality** (auto-maintained; last refreshed **2026-08-08** — approximate after wave 5 open; regenerate with script).
+**Open counts by architectural quality** (auto-maintained; last refreshed **2026-08-09**).
 
 Regenerate after opening or closing summary-table rows:
 `python scripts/ci/refresh_tech_backlog_category_counts.py --write`
@@ -17,7 +17,7 @@ Regenerate after opening or closing summary-table rows:
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
 | Architectural integrity | 11 |
-| Adoption friction | 366 |
+| Adoption friction | 371 |
 | Commercial / marketability | 9 |
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
@@ -28,7 +28,7 @@ Regenerate after opening or closing summary-table rows:
 | Traceability | 4 |
 | Interoperability | 4 |
 | Compliance readiness | 1 |
-| Performance | 14 |
+| Performance | 13 |
 | Scalability | 4 |
 | Cost-effectiveness | 9 |
 | Supportability | 2 |
@@ -38,9 +38,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **799** |
+| **Total (unique open)** | **803** |
 
-**By priority band:** P0 **20** | P1 **650** | P2 **115** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **19** | P1 **652** | P2 **115** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 

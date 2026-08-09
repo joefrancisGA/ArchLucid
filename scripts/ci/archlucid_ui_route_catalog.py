@@ -133,7 +133,8 @@ REDIRECT_ONLY_APP_PATHS = frozenset(
 # /settings/exec-digest retired from the workbook (EEX removed); migration still maps to DIS.
 # /help/core-pilot retired from the workbook (ECO removed, TB-2050) — no App Router page or
 # redirect remains; do not re-add via this set.
-TRAFFIC_TRACKED_REDIRECT_BOOKMARKS = frozenset()
+# FIR `/help/first-pilot-path` stays as a scored redirect bookmark (alias retired TB-2050; COR canonical).
+TRAFFIC_TRACKED_REDIRECT_BOOKMARKS = frozenset({"/help/first-pilot-path"})
 
 
 @dataclass(frozen=True)
