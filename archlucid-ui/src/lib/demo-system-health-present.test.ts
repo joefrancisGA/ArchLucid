@@ -12,8 +12,8 @@ describe("demo-system-health-present", () => {
     const tiles = buildDemoHealthSummaryTiles();
     const checks = buildDemoOperationalChecks();
 
+    // No "Overall status" tile — the overall-status hero renders directly above the grid.
     expect(tiles.map((tile) => tile.label)).toEqual([
-      "Overall status",
       "Application services",
       "Evidence search",
       "AI services",

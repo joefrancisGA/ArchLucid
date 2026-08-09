@@ -4,7 +4,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { StatusPill } from "@/components/StatusPill";
+import { HealthStatusChip } from "@/components/health-dashboard/HealthStatusChip";
 import {
   HEALTH_DASHBOARD_PAGE_CLASS,
   HealthDashboardSection,
@@ -48,12 +48,7 @@ function DemoOperationalCheckRow(props: { readonly check: DemoOperationalCheck }
             <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{check.explanation}</p>
           ) : null}
         </div>
-        <StatusPill
-          status={check.status}
-          domain="health"
-          uppercase={false}
-          className={cn("shrink-0 rounded-md px-2 py-0.5", OPERATOR_TYPOGRAPHY.badge)}
-        />
+        <HealthStatusChip status={check.status} />
       </div>
     </div>
   );

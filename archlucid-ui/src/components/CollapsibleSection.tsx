@@ -12,6 +12,11 @@ type CollapsibleSectionProps = {
   summaryLine?: string;
   /** Optional id for the `<summary>` (pairs with parent `aria-labelledby`). */
   summaryId?: string;
+  /**
+   * Distinguishing accessible name when several disclosures on one page share the same
+   * visible title (for example a per-row "Technical details").
+   */
+  summaryAriaLabel?: string;
   /** Optional stable hook for E2E (placed on the root `<details>`). */
   sectionTestId?: string;
   /** Called when the native `<details>` open state changes. */
@@ -28,6 +33,7 @@ export function CollapsibleSection({
   defaultOpen = false,
   summaryLine,
   summaryId,
+  summaryAriaLabel,
   sectionTestId,
   onToggle,
   children,
@@ -46,6 +52,7 @@ export function CollapsibleSection({
     >
       <summary
         id={summaryId}
+        aria-label={summaryAriaLabel}
         className={cn("cursor-pointer select-none text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
       >
         <span className="font-semibold">{title}</span>

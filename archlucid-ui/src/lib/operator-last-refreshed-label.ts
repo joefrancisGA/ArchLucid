@@ -25,3 +25,22 @@ export function operatorLastRefreshedExactLabel(
 
   return lastRefreshedAt.toLocaleString();
 }
+
+/**
+ * Clock time with timezone for health surfaces. A relative age alone goes stale silently,
+ * and operators correlating health with an incident timeline need an absolute reading.
+ */
+export function operatorLastRefreshedClockLabel(
+  lastRefreshedAt: Date | null | undefined,
+): string | null {
+  if (lastRefreshedAt === null || lastRefreshedAt === undefined) {
+    return null;
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    timeZoneName: "short",
+  }).format(lastRefreshedAt);
+}

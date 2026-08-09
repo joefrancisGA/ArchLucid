@@ -64,13 +64,8 @@ export function demoSystemHealthStatusSeverity(status: DemoSystemHealthStatus): 
 }
 
 export function buildDemoHealthSummaryTiles(): DemoHealthSummaryTile[] {
+  // No overall tile: the overall-status hero renders directly above this grid.
   return [
-    {
-      id: "overall",
-      label: "Overall status",
-      value: DEMO_SYSTEM_HEALTH_OVERALL_STATUS,
-      severity: demoSystemHealthStatusSeverity(DEMO_SYSTEM_HEALTH_OVERALL_STATUS),
-    },
     {
       id: "application-services",
       label: "Application services",
