@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ChevronDown } from "lucide-react";
 import {
   useCallback,
   useEffect,
@@ -67,11 +68,15 @@ function BillingFaqItemCard(props: { readonly item: BillingHelpFaqItem }): React
     >
       <summary
         className={cn(
-          "cursor-pointer list-none marker:content-none [&::-webkit-details-marker]:hidden",
+          "flex cursor-pointer list-none items-start justify-between gap-3 marker:content-none [&::-webkit-details-marker]:hidden",
           OPERATOR_TYPOGRAPHY.cardTitle,
         )}
       >
         <span className="font-medium text-al-text-primary">{item.question}</span>
+        <ChevronDown
+          className="mt-0.5 h-4 w-4 shrink-0 text-neutral-500 transition-transform group-open:rotate-180 dark:text-neutral-400"
+          aria-hidden
+        />
       </summary>
       <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{item.answer}</p>
     </details>
@@ -130,13 +135,10 @@ export function HelpBillingAndPlansGuideView(props: HelpBillingAndPlansGuideView
           </p>
 
         <section
-          aria-labelledby="how-billing-works-heading"
+          aria-labelledby="how-billing-works"
           className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
         >
           <HelpSectionHeading id="how-billing-works">How billing works</HelpSectionHeading>
-          <p id="how-billing-works-heading" className="sr-only">
-            How billing works
-          </p>
           <ul className={cn("m-0 list-none space-y-3 p-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-billing-how-it-works">
             {BILLING_HELP_HOW_BILLING_WORKS_ITEMS.map((item) => (
               <li
@@ -151,11 +153,11 @@ export function HelpBillingAndPlansGuideView(props: HelpBillingAndPlansGuideView
         </section>
 
         <section
-          aria-labelledby="common-questions-heading"
+          aria-labelledby="common-questions"
           className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
         >
           <HelpSectionHeading id="common-questions">Common questions</HelpSectionHeading>
-          <p id="common-questions-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
             Expand a question for a short answer and where to go next in the product.
           </p>
           <div className="space-y-3" data-testid="help-billing-faq-list">
@@ -166,13 +168,10 @@ export function HelpBillingAndPlansGuideView(props: HelpBillingAndPlansGuideView
         </section>
 
         <section
-          aria-labelledby="billing-support-heading"
+          aria-labelledby="support"
           className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
         >
           <HelpSectionHeading id="support">Support</HelpSectionHeading>
-          <p id="billing-support-heading" className="sr-only">
-            Support
-          </p>
           <Card className="border-neutral-200 dark:border-neutral-800" data-testid="help-billing-support-card">
             <CardHeader className={OPERATOR_CARD.header}>
               <CardTitle className={cn("text-base", OPERATOR_TYPOGRAPHY.cardTitle)}>Billing support</CardTitle>

@@ -4,6 +4,7 @@ export type OperatorBillingPlanKind =
   | "demo-workspace"
   | "frictionless-trial"
   | "tenant-trial"
+  | "paid-plan"
   | "no-paid-plan";
 
 export type OperatorBillingCurrentPlanView = {
@@ -22,6 +23,9 @@ type ResolveOperatorBillingCurrentPlanInput = {
   trialDaysRemaining: number | null | undefined;
   workspaceLabel: string | null;
   aiBudgetRemainingPercent: number | null;
+  /** From `GET /v1/tenant/usage-status` — when false with a commercial tier, treat as paid. */
+  isTrialUsage?: boolean | null;
+  commercialTier?: string | null;
 };
 
 function isActiveTenantTrialStatus(status: TenantTrialStatusPayload["status"] | null | undefined): boolean {
@@ -77,13 +81,30 @@ export function resolveOperatorBillingCurrentPlan(
     };
   }
 
+  const commercialTier =
+    typeof input.commercialTier === "string" ? input.commercialTier.trim() : "";
+
+  if (input.isTrialUsage === false && commercialTier.length > 0) {
+    return {
+      planKind: "paid-plan",
+      headline: commercialTier,
+      supportingLine:
+        workspaceSuffix !== null
+          ? `${workspaceSuffix} is on the ${commercialTier} plan. Manage seats, invoices, and payment from Billing and plans.`
+          : `This workspace is on the ${commercialTier} plan. Manage seats, invoices, and payment from Billing and plans.`,
+      workspaceLabel: workspaceSuffix,
+      aiBudgetRemainingPercent: input.aiBudgetRemainingPercent,
+      hasPaidPlan: true,
+    };
+  }
+
   return {
     planKind: "no-paid-plan",
     headline: "No paid plan",
     supportingLine:
       workspaceSuffix !== null
-        ? `${workspaceSuffix} does not have an active paid plan. Choose a plan below.`
-        : "No paid plan is active. Choose a plan below.",
+        ? `${workspaceSuffix} does not have an active paid plan. Compare plans on public pricing or open Billing and plans to subscribe.`
+        : "No paid plan is active. Compare plans on public pricing or open Billing and plans to subscribe.",
     workspaceLabel: workspaceSuffix,
     aiBudgetRemainingPercent: input.aiBudgetRemainingPercent,
     hasPaidPlan: false,

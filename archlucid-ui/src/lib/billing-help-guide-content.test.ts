@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  BILLING_HELP_PAGE_DISPLAY_TITLE,
   BILLING_HELP_PAGE_SUBTITLE,
   BILLING_HELP_PAGE_SUBTITLE_BUYER,
   BILLING_HELP_PAGE_TITLE,
@@ -10,6 +11,7 @@ import {
 describe("billing-help-guide-content", () => {
   it("uses product-safe billing help page naming", () => {
     expect(BILLING_HELP_PAGE_TITLE).toBe("Billing and plans");
+    expect(BILLING_HELP_PAGE_DISPLAY_TITLE).toContain("help topic");
     expect(BILLING_HELP_PAGE_SUBTITLE).toContain("Billing and plans");
   });
 

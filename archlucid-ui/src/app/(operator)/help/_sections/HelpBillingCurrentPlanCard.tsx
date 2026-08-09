@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
-import { OperatorBillingManageBillingAction } from "@/app/(operator)/administration/billing/OperatorBillingManageBillingAction";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatusTag } from "@/components/ui/status-tag";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import {
@@ -17,11 +17,15 @@ import { OPERATOR_CARD, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { readFrictionlessTrialSessionEnabled } from "@/lib/frictionless-trial-session";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { resolveOperatorBillingCurrentPlan } from "@/lib/operator-billing-current-plan";
+import {
+  resolveOperatorBillingCurrentPlan,
+  type OperatorBillingPlanKind,
+} from "@/lib/operator-billing-current-plan";
 import {
   ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT,
   readOperatorScopeFromStorage,
 } from "@/lib/operator-scope-storage";
+import type { TeamExpansionNudgeStatusPayload } from "@/lib/team-expansion-nudge-trigger";
 import { fetchTenantUsageStatusCached } from "@/lib/tenant-usage-status-client";
 import { cn } from "@/lib/utils";
 
@@ -37,14 +41,49 @@ function readWorkspaceLabelFromStorage(): string | null {
   return label.length > 0 ? label : null;
 }
 
-function formatSeatSummary(seatsUsed: number | undefined, seatsLimit: number | null | undefined): string | null {
+type SeatRow = {
+  readonly label: string;
+  readonly value: string;
+};
+
+function resolveSeatRow(
+  planKind: OperatorBillingPlanKind,
+  hasPaidPlan: boolean,
+  seatsUsed: number | undefined,
+  seatsLimit: number | null | undefined,
+): SeatRow | null {
   if (typeof seatsLimit !== "number" || seatsLimit <= 0) {
     return null;
   }
 
-  const used = seatsUsed ?? 0;
+  if (!hasPaidPlan && planKind !== "tenant-trial") {
+    return null;
+  }
 
-  return `${used} of ${seatsLimit} seats in use`;
+  const used = seatsUsed ?? 0;
+  const label = planKind === "tenant-trial" ? "Trial seats" : "Seats";
+
+  return {
+    label,
+    value: `${used} of ${seatsLimit} in use`,
+  };
+}
+
+function PublicPricingLink(props: {
+  readonly variant: "primary" | "outline";
+}): React.ReactElement {
+  const { viewPricing } = BILLING_HELP_PRIMARY_ACTIONS;
+
+  return (
+    <Button asChild size="sm" variant={props.variant}>
+      <Link href={viewPricing.href} data-testid="help-billing-view-public-pricing">
+        {viewPricing.label}
+        <span className={cn("ml-1 font-normal text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.micro)}>
+          ({viewPricing.publicPageHint})
+        </span>
+      </Link>
+    </Button>
+  );
 }
 
 /** Compact plan context and primary billing actions for `/help/billing-and-plans`. */
@@ -52,7 +91,8 @@ export function HelpBillingCurrentPlanCard(props: { readonly refreshToken?: numb
   const canMutate = useNavCallerAuthorityRank() >= AUTHORITY_RANK.AdminAuthority;
   const { data: trialPayload } = useTenantTrialStatusQuery();
   const [workspaceLabel, setWorkspaceLabel] = useState<string | null>(null);
-  const [seatSummary, setSeatSummary] = useState<string | null>(null);
+  const [usagePayload, setUsagePayload] = useState<TeamExpansionNudgeStatusPayload | null>(null);
+  const [seatRow, setSeatRow] = useState<SeatRow | null>(null);
 
   useEffect(() => {
     const syncScopeLabel = () => {
@@ -77,11 +117,11 @@ export function HelpBillingCurrentPlanCard(props: { readonly refreshToken?: numb
         });
 
         if (!cancelled) {
-          setSeatSummary(formatSeatSummary(usage?.seatsUsed, usage?.seatsLimit));
+          setUsagePayload(usage);
         }
       } catch {
         if (!cancelled) {
-          setSeatSummary(null);
+          setUsagePayload(null);
         }
       }
     })();
@@ -101,15 +141,35 @@ export function HelpBillingCurrentPlanCard(props: { readonly refreshToken?: numb
         trialDaysRemaining: trialPayload?.daysRemaining,
         workspaceLabel,
         aiBudgetRemainingPercent: null,
+        isTrialUsage: usagePayload?.isTrial,
+        commercialTier: usagePayload?.commercialTier,
       }),
-    [trialPayload?.daysRemaining, trialPayload?.status, workspaceLabel],
+    [
+      trialPayload?.daysRemaining,
+      trialPayload?.status,
+      usagePayload?.commercialTier,
+      usagePayload?.isTrial,
+      workspaceLabel,
+    ],
   );
 
-  const statusLine = view.hasPaidPlan ? "Active subscription" : "No active subscription";
+  useEffect(() => {
+    setSeatRow(
+      resolveSeatRow(
+        view.planKind,
+        view.hasPaidPlan,
+        usagePayload?.seatsUsed,
+        usagePayload?.seatsLimit,
+      ),
+    );
+  }, [usagePayload?.seatsLimit, usagePayload?.seatsUsed, view.hasPaidPlan, view.planKind]);
+
+  const statusKind = view.hasPaidPlan ? "ready" : "needs-attention";
+  const statusLabel = view.hasPaidPlan ? "Active subscription" : "No active subscription";
 
   return (
     <Card
-      className="border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20"
+      className="border-neutral-200 dark:border-neutral-800"
       data-testid="help-billing-action-panel"
     >
       <CardHeader className={OPERATOR_CARD.header}>
@@ -127,46 +187,52 @@ export function HelpBillingCurrentPlanCard(props: { readonly refreshToken?: numb
           </div>
           <div>
             <dt className="text-neutral-500 dark:text-neutral-400">Status</dt>
-            <dd className="font-medium text-al-text-primary">{statusLine}</dd>
+            <dd className="m-0">
+              <StatusTag kind={statusKind} label={statusLabel} data-testid="help-billing-subscription-status" />
+            </dd>
           </div>
-          {seatSummary !== null ? (
+          {seatRow !== null ? (
             <div>
-              <dt className="text-neutral-500 dark:text-neutral-400">Seats</dt>
-              <dd className="font-medium text-al-text-primary">{seatSummary}</dd>
+              <dt className="text-neutral-500 dark:text-neutral-400">{seatRow.label}</dt>
+              <dd className="font-medium text-al-text-primary">{seatRow.value}</dd>
             </div>
           ) : null}
         </dl>
 
         <div className="flex flex-wrap items-center gap-2">
           {canMutate ? (
+            view.hasPaidPlan ? (
+              <>
+                <Button asChild size="sm" variant="primary">
+                  <Link href={BILLING_HELP_PRIMARY_ACTIONS.manageBilling.href}>
+                    {BILLING_HELP_PRIMARY_ACTIONS.manageBilling.label}
+                  </Link>
+                </Button>
+                <PublicPricingLink variant="outline" />
+              </>
+            ) : (
+              <>
+                <PublicPricingLink variant="primary" />
+                <Button asChild size="sm" variant="outline">
+                  <Link href={BILLING_HELP_PRIMARY_ACTIONS.manageBilling.href}>
+                    {BILLING_HELP_PRIMARY_ACTIONS.manageBilling.label}
+                  </Link>
+                </Button>
+              </>
+            )
+          ) : (
             <>
-              <Button asChild size="sm" variant="primary">
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="help-billing-no-permission-hint">
+                {BILLING_HELP_NO_PERMISSION_HINT}
+              </p>
+              <PublicPricingLink variant="outline" />
+              <Button asChild size="sm" variant="outline" title={enterpriseMutationControlDisabledTitle}>
                 <Link href={BILLING_HELP_PRIMARY_ACTIONS.manageBilling.href}>
                   {BILLING_HELP_PRIMARY_ACTIONS.manageBilling.label}
                 </Link>
               </Button>
-              <OperatorBillingManageBillingAction
-                canMutate={canMutate}
-                variant="outline"
-                size="sm"
-                testId="help-billing-manage-billing"
-              />
             </>
-          ) : (
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="help-billing-no-permission-hint">
-              {BILLING_HELP_NO_PERMISSION_HINT}
-            </p>
           )}
-          <Button asChild size="sm" variant="outline">
-            <Link href={BILLING_HELP_PRIMARY_ACTIONS.viewPricing.href}>
-              {BILLING_HELP_PRIMARY_ACTIONS.viewPricing.label}
-            </Link>
-          </Button>
-          {!canMutate ? (
-            <Button asChild size="sm" variant="outline" title={enterpriseMutationControlDisabledTitle}>
-              <Link href={BILLING_HELP_PRIMARY_ACTIONS.manageBilling.href}>Open Billing and plans</Link>
-            </Button>
-          ) : null}
         </div>
       </CardContent>
     </Card>

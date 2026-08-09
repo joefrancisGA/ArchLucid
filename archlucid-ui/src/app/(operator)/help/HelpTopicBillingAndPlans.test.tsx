@@ -4,7 +4,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
 const useNavCallerAuthorityRank = vi.hoisted(() => vi.fn(() => 3));
-const startBillingPortal = vi.hoisted(() => vi.fn().mockResolvedValue("redirected"));
 const fetchTenantUsageStatusCached = vi.hoisted(() =>
   vi.fn().mockResolvedValue({
     isTrial: true,
@@ -31,10 +30,6 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
 
 vi.mock("@/hooks/use-tenant-trial-status-query", () => ({
   useTenantTrialStatusQuery: () => useTenantTrialStatusQuery(),
-}));
-
-vi.mock("@/lib/billing-portal-client", () => ({
-  startBillingPortal,
 }));
 
 vi.mock("@/lib/tenant-usage-status-client", () => ({
@@ -70,6 +65,7 @@ import { HelpBillingAndPlansGuideView } from "@/app/(operator)/help/_sections/He
 import {
   BILLING_HELP_FAQ_ITEMS,
   BILLING_HELP_NO_PERMISSION_HINT,
+  BILLING_HELP_PAGE_DISPLAY_TITLE,
   BILLING_HELP_PAGE_SUBTITLE,
   BILLING_HELP_PAGE_TITLE,
   BILLING_HELP_PRIMARY_ACTIONS,
@@ -120,8 +116,6 @@ describe("HelpBillingAndPlansGuideView", () => {
       seatsUsed: 2,
       seatsLimit: 3,
     });
-    startBillingPortal.mockReset();
-    startBillingPortal.mockResolvedValue("redirected");
   });
 
   it("registers customer-facing billing help metadata", () => {
@@ -138,7 +132,9 @@ describe("HelpBillingAndPlansGuideView", () => {
 
     renderWithOperatorQuery(<HelpBillingAndPlansGuideView entry={entry} />);
 
-    expect(screen.getByRole("heading", { level: 2, name: BILLING_HELP_PAGE_TITLE })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: BILLING_HELP_PAGE_DISPLAY_TITLE })).toBeInTheDocument();
+    expect(screen.getByTestId("help-billing-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
     expect(screen.getByText(BILLING_HELP_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByTestId("help-billing-refresh-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-billing-last-refreshed")).toHaveTextContent(/Last refreshed:/i);
@@ -150,7 +146,7 @@ describe("HelpBillingAndPlansGuideView", () => {
     expect(screen.getByTestId("help-billing-faq-list").children).toHaveLength(BILLING_HELP_FAQ_ITEMS.length);
   });
 
-  it("links to marketing pricing and in-app billing for administrators", () => {
+  it("links to public pricing and in-app billing for administrators", () => {
     if (entry === undefined) {
       throw new Error("Expected billing-and-plans documentation entry.");
     }
@@ -159,14 +155,13 @@ describe("HelpBillingAndPlansGuideView", () => {
 
     const actionPanel = screen.getByTestId("help-billing-action-panel");
 
-    expect(
-      within(actionPanel).getByRole("link", { name: BILLING_HELP_PRIMARY_ACTIONS.viewPricing.label }),
-    ).toHaveAttribute("href", "/pricing");
+    expect(within(actionPanel).getByTestId("help-billing-view-public-pricing")).toHaveAttribute("href", "/pricing");
+    expect(within(actionPanel).getByTestId("help-billing-view-public-pricing")).toHaveTextContent(/Public page/i);
     expect(
       within(actionPanel).getByRole("link", { name: BILLING_HELP_PRIMARY_ACTIONS.manageBilling.label }),
     ).toHaveAttribute("href", "/administration/billing");
-    expect(within(actionPanel).getByRole("button", { name: "Manage billing" })).toBeEnabled();
     expect(screen.queryByTestId("help-billing-no-permission-hint")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Manage billing" })).not.toBeInTheDocument();
   });
 
   it("shows trial context and seat summary for trial users", async () => {
@@ -181,26 +176,41 @@ describe("HelpBillingAndPlansGuideView", () => {
 
     expect(within(context).getByText("Trial")).toBeInTheDocument();
     expect(within(actionPanel).getByText(/5 days remaining/i)).toBeInTheDocument();
-    expect(within(context).getByText("No active subscription")).toBeInTheDocument();
+    expect(within(context).getByTestId("help-billing-subscription-status")).toHaveTextContent(
+      "No active subscription",
+    );
 
     await waitFor(() => {
-      expect(within(context).getByText("2 of 3 seats in use")).toBeInTheDocument();
+      expect(within(context).getByText("Trial seats")).toBeInTheDocument();
+      expect(within(context).getByText("2 of 3 in use")).toBeInTheDocument();
     });
   });
 
-  it("shows no-paid-plan context when trial is not active", () => {
+  it("shows no-paid-plan context when trial is not active", async () => {
     if (entry === undefined) {
       throw new Error("Expected billing-and-plans documentation entry.");
     }
 
     useTenantTrialStatusQuery.mockReturnValue({ data: { status: "Expired", daysRemaining: 0 } });
+    fetchTenantUsageStatusCached.mockResolvedValue({
+      isTrial: false,
+      seatsUsed: 0,
+      seatsLimit: 5,
+    });
 
     renderWithOperatorQuery(<HelpBillingAndPlansGuideView entry={entry} />);
 
     const context = screen.getByTestId("help-billing-current-plan-context");
 
     expect(within(context).getByText("No paid plan")).toBeInTheDocument();
-    expect(within(context).getByText("No active subscription")).toBeInTheDocument();
+    expect(within(context).getByTestId("help-billing-subscription-status")).toHaveTextContent(
+      "No active subscription",
+    );
+    expect(within(context).queryByText(/seats/i)).not.toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(fetchTenantUsageStatusCached).toHaveBeenCalled();
+    });
   });
 
   it("shows a billing administrator hint for users without mutation permission", () => {
@@ -222,65 +232,10 @@ describe("HelpBillingAndPlansGuideView", () => {
       "/administration/billing",
     );
     expect(screen.queryByRole("button", { name: "Manage billing" })).not.toBeInTheDocument();
-    expect(
-      within(actionPanel).getByRole("link", { name: BILLING_HELP_PRIMARY_ACTIONS.viewPricing.label }),
-    ).toBeInTheDocument();
+    expect(within(actionPanel).getByTestId("help-billing-view-public-pricing")).toBeInTheDocument();
   });
 
-  it("opens secure billing with pending feedback and prevents duplicate requests", async () => {
-    if (entry === undefined) {
-      throw new Error("Expected billing-and-plans documentation entry.");
-    }
-
-    let resolvePortal: ((value: "redirected") => void) | undefined;
-    startBillingPortal.mockImplementation(
-      () =>
-        new Promise<"redirected">((resolve) => {
-          resolvePortal = resolve;
-        }),
-    );
-
-    renderWithOperatorQuery(<HelpBillingAndPlansGuideView entry={entry} />);
-
-    const manageBillingButton = screen.getByTestId("help-billing-manage-billing");
-
-    fireEvent.click(manageBillingButton);
-
-    await waitFor(() => {
-      expect(manageBillingButton).toHaveAttribute("aria-busy", "true");
-    });
-
-    fireEvent.click(manageBillingButton);
-    expect(startBillingPortal).toHaveBeenCalledTimes(1);
-
-    resolvePortal?.("redirected");
-
-    await waitFor(() => {
-      expect(manageBillingButton).toHaveAttribute("aria-busy", "false");
-    });
-  });
-
-  it("keeps manage billing enabled after a portal launch failure", async () => {
-    if (entry === undefined) {
-      throw new Error("Expected billing-and-plans documentation entry.");
-    }
-
-    startBillingPortal.mockResolvedValueOnce("failed");
-
-    renderWithOperatorQuery(<HelpBillingAndPlansGuideView entry={entry} />);
-
-    const manageBillingButton = screen.getByTestId("help-billing-manage-billing");
-
-    fireEvent.click(manageBillingButton);
-
-    await waitFor(() => {
-      expect(startBillingPortal).toHaveBeenCalledTimes(1);
-      expect(manageBillingButton).toHaveAttribute("aria-busy", "false");
-      expect(manageBillingButton).toBeEnabled();
-    });
-  });
-
-  it("uses keyboard-operable FAQ accordions", () => {
+  it("uses keyboard-operable FAQ accordions with expand affordance", () => {
     if (entry === undefined) {
       throw new Error("Expected billing-and-plans documentation entry.");
     }
@@ -293,6 +248,7 @@ describe("HelpBillingAndPlansGuideView", () => {
     expect(summary.tagName.toLowerCase()).toBe("span");
     expect(firstFaq.tagName.toLowerCase()).toBe("details");
     expect(within(firstFaq).getByText(/choose a paid plan/i)).not.toBeVisible();
+    expect(firstFaq.querySelector("svg")).toBeInTheDocument();
 
     fireEvent.click(summary);
 
