@@ -1,7 +1,8 @@
 import { Suspense } from "react";
 
+import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { OPERATOR_LAYOUT, OPERATOR_PAGE_CONTAINER } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_PAGE_CONTAINER, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { GovernanceModePresentationGate } from "@/components/GovernanceModePresentationGate";
 import { HelpPageSituationRegistrar } from "@/components/help/HelpPageSituationRegistrar";
@@ -21,6 +22,8 @@ import {
 } from "@/lib/showcase-static-demo";
 
 import { ReviewSealedIndicatorChip } from "@/components/reviews/ReviewSealedIndicatorChip";
+import { RunDetailEvidenceInventorySection } from "@/components/RunDetailEvidenceInventorySection";
+import { RunDetailEvidenceScopeHeader } from "@/components/RunDetailEvidenceScopeHeader";
 import { ReviewGenerationCreatedNotice } from "@/components/review-intake/ReviewGenerationCreatedNotice";
 import type { BuildArchitectureCreatedHomeModelInput } from "@/lib/architecture-created-home-model";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
@@ -32,12 +35,17 @@ import {
   countFindingsBySeverity,
   deriveArchitectureSystemName,
   deriveBlockingApprovalCount,
+  deriveBlockingFindingHref,
+  deriveEvidenceCoverageSummary,
   deriveExecutiveBottomLineContent,
   deriveHighestFindingSeverityLabel,
+  deriveFinalizedAtUtc,
   deriveLastEvaluatedLabel,
   deriveOverallPostureLabel,
+  derivePackageVersionLabel,
   deriveRecommendedWorkspaceActions,
   deriveReviewDisplayTitle,
+  deriveReviewHeaderPresentation,
   deriveReviewOwnerLabel,
   deriveReviewStatusSummary,
   deriveReviewTemplateLabel,
@@ -46,8 +54,11 @@ import {
   formatDecisionSnapshotFindingsLine,
   formatDecisionSnapshotGovernanceOutcome,
 } from "@/lib/run-detail-workspace-derive";
-import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import { resolvePartialRunCommitBlockedReason } from "@/lib/run-detail-partial-run-commit-block";
+import {
+  countRunDetailEvidenceInventoryItems,
+  deriveRunDetailEvidenceInventory,
+} from "@/lib/run-detail-evidence-inventory";
 
 import { resolveReviewPackagePrimaryAction } from "./resolve-review-package-primary-action";
 import {
@@ -70,6 +81,7 @@ import {
   RunDetailSectionNavDeferred,
   RunDetailSubmittedArchitectureSectionDeferred,
   RunDetailWorkspaceHeaderDeferred,
+  RunDetailWorkspaceBlockingBannerDeferred,
   RunDetailWorkspaceStickyActionsDeferred,
   RunDetailWorkspaceSummaryStripDeferred,
   ReviewPackagePrimaryActionDeferred,
@@ -250,22 +262,6 @@ export function RunDetailPageView(props: {
     <RunDetailGovernanceCtaDeferred runId={m.resolvedDetail.run.runId} demoted />
   ) : null;
 
-  const reviewPackagePrimaryAction = resolveReviewPackagePrimaryAction({
-    runId: m.resolvedDetail.run.runId,
-    manifestId: m.manifestId,
-    hasCommitBlockingFailures: findingCoverageSummary?.hasCommitBlockingFailures === true,
-    blockingFindingCount,
-    buyerPolishedArtifactTable: m.buyerPolishedArtifactTable,
-    operatorGovernanceDecision: m.resolvedDetail.run.operatorGovernanceDecision,
-    manifestStatus: m.manifestSummary?.status ?? null,
-    runCompleted: m.resolvedDetail.run.completedUtc != null,
-  });
-
-  const skipDuplicateFindingsActions = reviewPackagePrimaryAction.kind === "review-findings";
-
-  const showGovernanceCtaCard =
-    governanceCtaEl !== null && reviewPackagePrimaryAction.kind !== "open-governance-decision";
-
   const buyerGoldenPageReady = isBuyerGoldenReviewPackagePageReady({
     buyerPolishedArtifactTable: m.buyerPolishedArtifactTable,
     runId: m.resolvedDetail.run.runId,
@@ -304,6 +300,8 @@ export function RunDetailPageView(props: {
     manifestStatus: m.manifestSummary?.status ?? null,
     runCompleted: m.resolvedDetail.run.completedUtc != null,
   };
+  const skipDuplicateFindingsActions =
+    resolveReviewPackagePrimaryAction(reviewPackagePrimaryActionContext).kind === "review-findings";
   const workspaceStatus = deriveRunDetailWorkspaceStatus({
     run: m.resolvedDetail.run,
     manifestId: m.manifestId,
@@ -339,8 +337,72 @@ export function RunDetailPageView(props: {
     recommendedActions,
     blockingFindingCount: blockingApprovalCount,
   });
+  const reviewPackagePrimaryAction = resolveReviewPackagePrimaryAction({
+    ...reviewPackagePrimaryActionContext,
+    nextAction: reviewStatusSummary.nextAction,
+  });
+  const showGovernanceCtaCard =
+    governanceCtaEl !== null && reviewPackagePrimaryAction.kind !== "open-governance-decision";
+  const reviewHeaderPresentation = deriveReviewHeaderPresentation({
+    reviewTitle: reviewDisplayTitle,
+    systemName,
+    runId: m.resolvedDetail.run.runId,
+  });
+  const evidenceCoverageSummary = deriveEvidenceCoverageSummary(quickDecisionFindings);
+  const packageVersionLabel = derivePackageVersionLabel(m.manifestSummaryForUi ?? m.manifestSummary, m.manifestId);
+  const finalizedAtUtc = deriveFinalizedAtUtc(
+    m.resolvedDetail.run,
+    m.manifestSummary,
+    m.manifestId,
+  );
+  const finalizedAtLabel =
+    finalizedAtUtc !== null ? formatInstantForLocale(finalizedAtUtc) : null;
+  const blockingFindingsHref = deriveBlockingFindingHref(
+    m.resolvedDetail.run.runId,
+    quickDecisionFindings,
+  );
   const submittedArchitectureText = deriveSubmittedArchitectureText(runSummaryForBadge, reviewDisplayTitle);
   const hasSubmittedArchitecture = submittedArchitectureText !== null;
+  const evidenceInventoryItems = deriveRunDetailEvidenceInventory({
+    findings: quickDecisionFindings,
+    runCreatedUtc: m.resolvedDetail.run.createdUtc,
+    submittedArchitecturePresent: hasSubmittedArchitecture,
+  });
+  const evidenceInventoryCount = countRunDetailEvidenceInventoryItems(evidenceInventoryItems);
+  const evidenceReviewDateLabel =
+    formatInstantForLocale(m.resolvedDetail.run.completedUtc ?? m.resolvedDetail.run.createdUtc) || m.createdLabel;
+  const evidenceReadinessHeadline =
+    evidenceInventoryCount > 0
+      ? "Evidence is available for review."
+      : "Add evidence before finalizing this review.";
+  const evidenceReadinessVerdict = evidenceInventoryCount > 0 ? "complete" : "gaps";
+  const evidenceTabPanelEl = (
+    <div className="space-y-4">
+      <RunDetailEvidenceScopeHeader
+        packageName={reviewDisplayTitle}
+        reviewDateLabel={evidenceReviewDateLabel}
+        evidenceItemCount={evidenceInventoryCount}
+        deliverableCount={m.artifacts.length}
+        readinessHeadline={evidenceReadinessHeadline}
+        readinessVerdict={evidenceReadinessVerdict}
+      />
+      <RunDetailEvidenceInventorySection items={evidenceInventoryItems} />
+      {!m.manifestId ? (
+        <RunDetailCaptureEvidenceSectionDeferred
+          runId={m.resolvedDetail.run.runId}
+          buyerPolished={m.buyerPolishedArtifactTable ?? false}
+        />
+      ) : null}
+      {artifactsExportsSectionEl}
+      {m.manifestId && m.resolvedDetail.trustEvidenceCard ? (
+        <RunDetailTrustEvidenceCardSectionDeferred
+          card={m.resolvedDetail.trustEvidenceCard}
+          runId={m.resolvedDetail.run.runId}
+          evidenceAskRunId={m.buyerPolishedArtifactTable ? m.resolvedDetail.run.runId : null}
+        />
+      ) : null}
+    </div>
+  );
   const architectureSummaryTitle =
     systemName !== null && systemName !== reviewDisplayTitle ? systemName : null;
   const governanceDecisionLabel =
@@ -359,7 +421,6 @@ export function RunDetailPageView(props: {
     blockingApprovalCount === 0 ? (
       <RunDetailExecutiveBottomLineDeferred content={executiveBottomLineContent} />
     ) : null;
-  const findingsTabHref = buildReviewDetailTabHref(m.resolvedDetail.run.runId, "findings");
   const materialSeverityLine =
     severityCounts.critical + severityCounts.high > 0
       ? `${severityCounts.critical} critical · ${severityCounts.high} high`
@@ -421,7 +482,7 @@ export function RunDetailPageView(props: {
       <ReviewDetailWorkspaceDeferred
         tabCounts={{
           findings: (m.findingCountDisplay ?? 0) > 0 ? m.findingCountDisplay : null,
-          evidence: m.artifacts.length > 0 ? m.artifacts.length : null,
+          evidence: evidenceInventoryCount > 0 ? evidenceInventoryCount : null,
           decisionsRemediation: pendingDecisionCount > 0 ? pendingDecisionCount : null,
         }}
         panels={{
@@ -430,7 +491,7 @@ export function RunDetailPageView(props: {
               runId={m.resolvedDetail.run.runId}
               architectureTitle={architectureSummaryTitle}
               architectureText={submittedArchitectureText}
-              evidenceCount={m.artifacts.length}
+              evidenceCount={evidenceInventoryCount}
               hasSubmittedArchitecture={hasSubmittedArchitecture}
               userAssertions={null}
               recommendedActions={recommendedActions}
@@ -447,23 +508,7 @@ export function RunDetailPageView(props: {
               {explanationDeferredEl}
             </>
           ),
-          evidence: (
-            <div className="space-y-4">
-              {!m.manifestId ? (
-                <RunDetailCaptureEvidenceSectionDeferred
-                  runId={m.resolvedDetail.run.runId}
-                  buyerPolished={m.buyerPolishedArtifactTable ?? false}
-                />
-              ) : null}
-              {m.manifestId && m.resolvedDetail.trustEvidenceCard ? (
-                <RunDetailTrustEvidenceCardSectionDeferred
-                  card={m.resolvedDetail.trustEvidenceCard}
-                  evidenceAskRunId={m.buyerPolishedArtifactTable ? m.resolvedDetail.run.runId : null}
-                />
-              ) : null}
-              {artifactsExportsSectionEl}
-            </div>
-          ),
+          evidence: evidenceTabPanelEl,
           policies: (
             <div className="space-y-4">
               {reviewPolicyPackCallout !== null ? (
@@ -537,6 +582,15 @@ export function RunDetailPageView(props: {
               {m.showProgressTracker && m.manifestId ? (
                 <RunDetailProgressTrackerDeferred runId={m.routeRunId} initialSummary={m.progressForPipelineUi} />
               ) : null}
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+                <Link
+                  className={OPERATOR_LINK.nav}
+                  href={`/architecture/reviews/${encodeURIComponent(m.resolvedDetail.run.runId)}/provenance`}
+                  data-testid="run-detail-provenance-link"
+                >
+                  Full provenance view
+                </Link>
+              </p>
               <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" open={false}>
                 <summary className="cursor-pointer font-semibold">Technology baseline</summary>
                 <div className="mt-3">
@@ -748,6 +802,15 @@ export function RunDetailPageView(props: {
                               <RunDetailProgressTrackerDeferred runId={m.routeRunId} initialSummary={m.progressForPipelineUi} />
                             </div>
                           ) : null}
+                          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+                            <Link
+                              className={OPERATOR_LINK.nav}
+                              href={`/architecture/reviews/${encodeURIComponent(m.resolvedDetail.run.runId)}/provenance`}
+                              data-testid="run-detail-provenance-link"
+                            >
+                              Full provenance view
+                            </Link>
+                          </p>
                           <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" open={false}>
                             <summary className="cursor-pointer font-semibold">Technology baseline</summary>
                             <div className="mt-3">
@@ -791,12 +854,22 @@ export function RunDetailPageView(props: {
                 <>
                   <RunDetailWorkspaceHeaderDeferred
                     runId={m.resolvedDetail.run.runId}
-                    reviewTitle={reviewDisplayTitle}
-                    systemName={systemName}
+                    h1Title={reviewHeaderPresentation.h1Title}
+                    eyebrowLabel={reviewHeaderPresentation.eyebrowLabel}
+                    reviewIdentifierLabel={reviewHeaderPresentation.reviewIdentifierLabel}
                     workspaceStatus={workspaceStatus}
                     reviewOwner={deriveReviewOwnerLabel(m.resolvedDetail.run)}
                     templateLabel={deriveReviewTemplateLabel(m.manifestSummaryForUi)}
+                    finalizedAtLabel={finalizedAtLabel}
+                    packageVersionLabel={packageVersionLabel}
                   />
+
+                  {blockingApprovalCount > 0 ? (
+                    <RunDetailWorkspaceBlockingBannerDeferred
+                      blockingCount={blockingApprovalCount}
+                      findingsTabHref={blockingFindingsHref}
+                    />
+                  ) : null}
 
                   <RunDetailWorkspaceSummaryStripDeferred
                     outcomeHeading={m.manifestId ? "Governance decision" : "Review posture"}
@@ -814,10 +887,10 @@ export function RunDetailPageView(props: {
                       blockingApprovalCount,
                       reviewStatusSummary.findingsRequiringActionCount,
                     )}
+                    evidenceCoverageLine={evidenceCoverageSummary.summaryLine}
                     primaryConcern={reviewStatusSummary.primaryConcern}
                     nextAction={reviewStatusSummary.nextAction}
                     materialSeverityLine={materialSeverityLine}
-                    nextActionHref={blockingApprovalCount > 0 ? findingsTabHref : null}
                   />
 
                   <div className="hidden lg:block">
@@ -948,6 +1021,7 @@ export function RunDetailPageView(props: {
           {m.manifestId && m.resolvedDetail.trustEvidenceCard ? (
             <RunDetailTrustEvidenceCardSectionDeferred
               card={m.resolvedDetail.trustEvidenceCard}
+              runId={m.resolvedDetail.run.runId}
               evidenceAskRunId={m.buyerPolishedArtifactTable ? m.resolvedDetail.run.runId : null}
             />
           ) : null}

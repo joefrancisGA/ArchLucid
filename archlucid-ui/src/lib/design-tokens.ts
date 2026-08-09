@@ -464,32 +464,35 @@ export const INTERACTIVE_FILTER_CHIP_SHELL = DESIGN_TOKENS.interactive.chip;
 
 const STATUS_TAG_BASE = METADATA_STATUS_TAG_SHELL;
 
+const STATUS_TAG_SHAPE =
+  "border border-neutral-200/70 border-l-[3px] dark:border-neutral-700/70";
+
 export function enterpriseStatusTagClass(kind: EnterpriseStatusKind): string {
   switch (kind) {
     case "ready":
-      return `${STATUS_TAG_BASE} bg-[var(--al-status-ready-bg)] text-[var(--al-status-ready-fg)]`;
+      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-emerald-600 bg-[var(--al-status-ready-bg)] text-[var(--al-status-ready-fg)] dark:border-l-emerald-500`;
 
     case "needs-attention":
-      return `${STATUS_TAG_BASE} bg-[var(--al-status-warn-bg)] text-[var(--al-status-warn-fg)]`;
+      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-amber-600 bg-[var(--al-status-warn-bg)] text-[var(--al-status-warn-fg)] dark:border-l-amber-500`;
 
     case "blocked":
-      return `${STATUS_TAG_BASE} bg-[var(--al-status-blocked-bg)] text-[var(--al-status-blocked-fg)]`;
+      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-rose-600 bg-[var(--al-status-blocked-bg)] text-[var(--al-status-blocked-fg)] dark:border-l-rose-500`;
 
     case "approved":
-      return `${STATUS_TAG_BASE} bg-[var(--al-status-approved-bg)] text-[var(--al-status-approved-fg)]`;
+      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-emerald-700 bg-[var(--al-status-approved-bg)] text-[var(--al-status-approved-fg)] dark:border-l-emerald-500`;
 
     case "approved-with-monitoring":
-      return `${STATUS_TAG_BASE} bg-[var(--al-status-approved-monitoring-bg)] text-[var(--al-status-approved-monitoring-fg)]`;
+      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-teal-700 bg-[var(--al-status-approved-monitoring-bg)] text-[var(--al-status-approved-monitoring-fg)] dark:border-l-teal-500`;
 
     case "in-progress":
-      return `${STATUS_TAG_BASE} bg-blue-500/10 text-blue-900 dark:bg-blue-500/15 dark:text-blue-200`;
+      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-sky-700 bg-sky-100 text-sky-950 dark:border-l-sky-500 dark:bg-sky-950/60 dark:text-sky-100`;
 
     case "draft":
-      return `${STATUS_TAG_BASE} bg-neutral-500/10 text-al-text-secondary dark:bg-neutral-500/15`;
+      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-neutral-500 bg-neutral-100 text-al-text-secondary dark:border-l-neutral-400 dark:bg-neutral-800/80`;
 
     case "neutral":
     default:
-      return `${STATUS_TAG_BASE} bg-neutral-500/8 text-al-text-secondary dark:bg-neutral-500/12`;
+      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-neutral-400 bg-neutral-100 text-al-text-secondary dark:border-l-neutral-500 dark:bg-neutral-800/80`;
   }
 }
 

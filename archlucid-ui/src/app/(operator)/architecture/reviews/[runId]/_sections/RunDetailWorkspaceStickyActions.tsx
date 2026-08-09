@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
-import { Button } from "@/components/ui/button";
-import { OPERATOR_SHELL_STICKY_TOP_CLASS } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_SHELL_STICKY_TOP_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   REVIEW_DETAIL_TAB_PARAM,
   buildReviewDetailTabHref,
@@ -42,6 +41,16 @@ export function RunDetailWorkspaceStickyActions(
     activeTab,
     props.primaryActionContext,
   );
+  const approvalBlocked =
+    props.commitBlockedReason !== null || props.primaryActionContext.blockingFindingCount > 0;
+  const blockingHelperText =
+    props.commitBlockedReason ??
+    (props.primaryActionContext.blockingFindingCount > 0
+      ? `${props.primaryActionContext.blockingFindingCount} unresolved finding${
+          props.primaryActionContext.blockingFindingCount === 1 ? "" : "s"
+        } currently block approval.`
+      : null);
+  const findingsHref = buildReviewDetailTabHref(props.runId, "findings");
 
   return (
     <div
@@ -51,20 +60,24 @@ export function RunDetailWorkspaceStickyActions(
       )}
       data-testid="run-detail-sticky-actions"
     >
-      <div className="flex flex-wrap items-center gap-2">
-        {props.showProgressTracker ? (
-          <Button variant="outline" size="sm" asChild>
-            <Link href={buildReviewDetailTabHref(props.runId, "activity", { hash: "pipeline-timeline" })}>
-              Continue review
+      <div className="min-w-0 flex-1 space-y-1">
+        {approvalBlocked && blockingHelperText !== null ? (
+          <p className={cn("m-0 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)}>
+            {blockingHelperText}{" "}
+            <Link className={OPERATOR_LINK.nav} href={findingsHref}>
+              Resolve blocking finding first
             </Link>
-          </Button>
-        ) : null}
-        {props.manifestId && activeTab !== "decisions-remediation" ? (
-          <Button variant="outline" size="sm" asChild>
-            <Link href={`/governance/approval-queue?runId=${encodeURIComponent(props.runId)}#governance-approval-requests`}>
-              Record decision
+          </p>
+        ) : props.manifestId && activeTab !== "decisions-remediation" ? (
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            Ready to record a governance decision?{" "}
+            <Link
+              className={OPERATOR_LINK.nav}
+              href={`/governance/approval-queue?runId=${encodeURIComponent(props.runId)}#governance-approval-requests`}
+            >
+              Open approval queue
             </Link>
-          </Button>
+          </p>
         ) : null}
       </div>
       <ReviewPackagePrimaryAction

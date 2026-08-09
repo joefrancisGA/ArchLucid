@@ -31,7 +31,6 @@ export function SeverityTag({
   return (
     <MetadataStatusLabel
       className={cn(severityTagClass(resolved), className)}
-      statusAriaLabel={`Severity: ${display}`}
       {...rest}
     >
       {display}

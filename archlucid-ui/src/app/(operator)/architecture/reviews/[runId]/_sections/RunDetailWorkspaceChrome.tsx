@@ -3,19 +3,26 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { CopyIdButton } from "@/components/CopyIdButton";
 import { Button } from "@/components/ui/button";
+import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
+
+const NOT_RECORDED_LABEL = "Not recorded";
 
 export type RunDetailWorkspaceHeaderProps = {
   readonly runId: string;
-  readonly reviewTitle: string;
-  readonly systemName: string | null;
+  readonly h1Title: string;
+  readonly eyebrowLabel: string;
+  readonly reviewIdentifierLabel: string;
   readonly workspaceStatus: RunDetailWorkspaceStatus;
   readonly reviewOwner: string | null;
   readonly templateLabel: string | null;
+  readonly finalizedAtLabel: string | null;
+  readonly packageVersionLabel: string | null;
 };
 
 /** Customer-facing review header — title and review identity without repeating executive metrics. */
@@ -28,17 +35,23 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 space-y-1">
           <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            Architecture review
+            {props.eyebrowLabel}
           </p>
           <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>
-            {props.reviewTitle}
+            {props.h1Title}
           </h1>
-          {props.systemName !== null ? (
-            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-              <span className="font-medium text-neutral-700 dark:text-neutral-300">System: </span>
-              {props.systemName}
-            </p>
-          ) : null}
+          <div
+            className={cn(
+              "flex flex-wrap items-center gap-x-3 gap-y-1 text-neutral-600 dark:text-neutral-400",
+              OPERATOR_TYPOGRAPHY.helper,
+            )}
+          >
+            <span className="inline-flex min-w-0 items-center gap-1">
+              <span className="font-medium text-neutral-700 dark:text-neutral-300">Review ID</span>
+              <code className="max-w-[14rem] truncate font-mono select-all">{props.reviewIdentifierLabel}</code>
+              <CopyIdButton value={props.runId} aria-label="Copy review ID" />
+            </span>
+          </div>
         </div>
         <PageContextualHelpButton />
       </div>
@@ -55,20 +68,32 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
             <StatusTag kind={props.workspaceStatus.statusTagKind} label={props.workspaceStatus.label} />
           </dd>
         </div>
-        {props.reviewOwner !== null ? (
-          <div>
-            <dt className="font-medium text-neutral-500 dark:text-neutral-400">Review owner</dt>
-            <dd className="m-0 mt-1 text-neutral-800 dark:text-neutral-200">{props.reviewOwner}</dd>
-          </div>
-        ) : null}
-        {props.templateLabel !== null ? (
-          <div>
-            <dt className="font-medium text-neutral-500 dark:text-neutral-400">Review template</dt>
-            <dd className="m-0 mt-1 text-neutral-800 dark:text-neutral-200">{props.templateLabel}</dd>
-          </div>
-        ) : null}
+        <div>
+          <dt className="font-medium text-neutral-500 dark:text-neutral-400">Review owner</dt>
+          <dd className="m-0 mt-1 text-neutral-800 dark:text-neutral-200">
+            {props.reviewOwner ?? NOT_RECORDED_LABEL}
+          </dd>
+        </div>
+        <div>
+          <dt className="font-medium text-neutral-500 dark:text-neutral-400">Review template</dt>
+          <dd className="m-0 mt-1 text-neutral-800 dark:text-neutral-200">
+            {props.templateLabel ?? NOT_RECORDED_LABEL}
+          </dd>
+        </div>
+        <div>
+          <dt className="font-medium text-neutral-500 dark:text-neutral-400">Finalized at</dt>
+          <dd className="m-0 mt-1 text-neutral-800 dark:text-neutral-200">
+            {props.finalizedAtLabel ?? NOT_RECORDED_LABEL}
+          </dd>
+        </div>
+        <div>
+          <dt className="font-medium text-neutral-500 dark:text-neutral-400">Package version</dt>
+          <dd className="m-0 mt-1 text-neutral-800 dark:text-neutral-200">
+            {props.packageVersionLabel ?? NOT_RECORDED_LABEL}
+          </dd>
+        </div>
       </dl>
-</header>
+    </header>
   );
 }
 
@@ -77,11 +102,10 @@ export type RunDetailWorkspaceSummaryStripProps = {
   readonly reviewOutcome: string;
   readonly highestUnresolvedSeverity: string | null;
   readonly findingsSummaryLine: string;
+  readonly evidenceCoverageLine: string;
   readonly primaryConcern: string | null;
   readonly nextAction: string;
   readonly materialSeverityLine?: string | null;
-  readonly nextActionHref?: string | null;
-  readonly suppressFindingsDeepLink?: boolean;
 };
 
 /** Compact first-viewport review status summary near the title. */
@@ -105,8 +129,18 @@ export function RunDetailWorkspaceSummaryStrip(
         </div>
         <div>
           <dt className="text-neutral-500 dark:text-neutral-400">Highest unresolved severity</dt>
+          <dd className="m-0 mt-0.5">
+            {props.highestUnresolvedSeverity !== null ? (
+              <SeverityTag severity={props.highestUnresolvedSeverity} />
+            ) : (
+              <span className="font-semibold text-neutral-900 dark:text-neutral-100">None</span>
+            )}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-neutral-500 dark:text-neutral-400">Evidence coverage</dt>
           <dd className="m-0 mt-0.5 font-semibold text-neutral-900 dark:text-neutral-100">
-            {props.highestUnresolvedSeverity ?? "None"}
+            {props.evidenceCoverageLine}
           </dd>
         </div>
         <div className="sm:col-span-2">
@@ -124,14 +158,7 @@ export function RunDetailWorkspaceSummaryStrip(
         <div className="sm:col-span-2 lg:col-span-3">
           <dt className="text-neutral-500 dark:text-neutral-400">Next action</dt>
           <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">
-            <span>{props.nextAction}</span>
-            {props.nextActionHref !== null &&
-            props.nextActionHref !== undefined &&
-            props.suppressFindingsDeepLink !== true ? (
-              <Button variant="outline" size="sm" asChild className="ml-3 mt-2 sm:mt-0">
-                <Link href={props.nextActionHref}>Open findings</Link>
-              </Button>
-            ) : null}
+            {props.nextAction}
           </dd>
         </div>
         {props.materialSeverityLine !== null && props.materialSeverityLine !== undefined ? (
@@ -139,6 +166,9 @@ export function RunDetailWorkspaceSummaryStrip(
             <dt className="text-neutral-500 dark:text-neutral-400">Material severity (critical and high)</dt>
             <dd className="m-0 mt-0.5 font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
               {props.materialSeverityLine}
+              <span className="ml-1 font-normal text-neutral-500 dark:text-neutral-400">
+                (subset of open findings above)
+              </span>
             </dd>
           </div>
         ) : null}
@@ -164,16 +194,16 @@ export function RunDetailWorkspaceBlockingBanner(
 
   return (
     <div
-      className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 dark:border-amber-800 dark:bg-amber-950/40"
+      className={cn(DESIGN_TOKENS.callout.blocked, "px-4 py-3")}
       data-testid="run-detail-blocking-approval-banner"
       role="status"
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className={cn("m-0 font-medium text-amber-950 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}>
+        <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           {label}
         </p>
         <Button variant="outline" size="sm" asChild>
-          <Link href={props.findingsTabHref}>Review blocking findings</Link>
+          <Link href={props.findingsTabHref}>Review blocking finding</Link>
         </Button>
       </div>
     </div>
@@ -254,4 +284,3 @@ export function RunDetailWorkspaceSeverityRail(
     </div>
   );
 }
-

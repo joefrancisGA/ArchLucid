@@ -121,7 +121,7 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(deferredChunksSource).toContain("RunDetailBuyerModeFallbackBannerDeferred");
     expect(deferredChunksSource).toContain('import("./RunDetailWorkspaceChrome")');
     expect(deferredChunksSource).toContain('import("./RunDetailWorkspaceStickyActions")');
-    expect(deferredChunksSource).toContain('import("./ReviewPackagePrimaryAction")');
+    expect(deferredChunksSource).toContain('import("./ReviewPackagePrimaryActionTabAware")');
     expect(deferredChunksSource).toContain('import("./RunDetailExecutiveBottomLine")');
     expect(deferredChunksSource).toContain('import("@/components/RunDetailSectionNav")');
     expect(deferredChunksSource).toContain('import("./RunDetailManifestSummarySection")');

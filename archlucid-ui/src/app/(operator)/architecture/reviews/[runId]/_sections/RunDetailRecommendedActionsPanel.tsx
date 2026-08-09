@@ -1,8 +1,7 @@
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { RunDetailWorkspaceRecommendedAction } from "@/lib/run-detail-workspace-derive";
 
 export type RunDetailRecommendedActionsPanelProps = {
@@ -34,25 +33,25 @@ export function RunDetailRecommendedActionsPanel(
               key={action.id}
               className="rounded-md border border-neutral-100 bg-neutral-50/60 p-3 dark:border-neutral-800 dark:bg-neutral-900/30"
             >
-              <div className="flex flex-wrap items-start justify-between gap-2">
-                <div className="min-w-0 space-y-1">
-                  <p className="m-0 font-semibold text-neutral-900 dark:text-neutral-100">{action.title}</p>
-                  <p className="m-0 text-neutral-600 dark:text-neutral-400">{action.reason}</p>
-                  <p className="m-0 text-neutral-500 dark:text-neutral-500">
-                    {action.relatedFindingCount !== null
-                      ? `${action.relatedFindingCount} related finding${action.relatedFindingCount === 1 ? "" : "s"}`
-                      : null}
-                    {action.ownerOrRole !== null ? (
-                      <span>
-                        {action.relatedFindingCount !== null ? " · " : ""}
-                        {action.ownerOrRole}
-                      </span>
-                    ) : null}
-                  </p>
-                </div>
-                <Button variant="outline" size="sm" asChild className="shrink-0">
-                  <Link href={action.href}>{action.actionLabel}</Link>
-                </Button>
+              <div className="space-y-1">
+                <p className="m-0 font-semibold text-neutral-900 dark:text-neutral-100">{action.title}</p>
+                <p className="m-0 text-neutral-600 dark:text-neutral-400">{action.reason}</p>
+                <p className="m-0 text-neutral-500 dark:text-neutral-500">
+                  {action.relatedFindingCount !== null
+                    ? `${action.relatedFindingCount} related finding${action.relatedFindingCount === 1 ? "" : "s"}`
+                    : null}
+                  {action.ownerOrRole !== null ? (
+                    <span>
+                      {action.relatedFindingCount !== null ? " · " : ""}
+                      {action.ownerOrRole}
+                    </span>
+                  ) : null}
+                </p>
+                <p className="m-0 pt-1">
+                  <Link className={OPERATOR_LINK.nav} href={action.href}>
+                    {action.actionLabel}
+                  </Link>
+                </p>
               </div>
             </li>
           ))}

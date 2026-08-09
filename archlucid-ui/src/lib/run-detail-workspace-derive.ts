@@ -22,6 +22,20 @@ import {
 } from "@/lib/execution-vs-quality-outcome-copy";
 import type { ManifestSummary, RunDetail, RunSummary } from "@/types/authority";
 
+const PRODUCT_BRAND_NAME = "ArchLucid";
+
+export type ReviewHeaderPresentation = {
+  readonly h1Title: string;
+  readonly eyebrowLabel: string;
+  readonly reviewIdentifierLabel: string;
+};
+
+export type EvidenceCoverageSummary = {
+  readonly linkedCount: number;
+  readonly totalCount: number;
+  readonly summaryLine: string;
+};
+
 export type RunDetailWorkspaceStatusKind =
   | "draft"
   | "analysis-in-progress"
@@ -237,6 +251,31 @@ export function deriveLastEvaluatedLabel(
   }
 
   return run.createdUtc;
+}
+
+/**
+ * Timestamp for the header "Finalized at" slot.
+ * Never falls back to run.createdUtc — that would label in-progress reviews as finalized.
+ */
+export function deriveFinalizedAtUtc(
+  run: RunDetail["run"],
+  manifestSummary: ManifestSummary | null,
+  manifestId: string | null | undefined,
+): string | null {
+  const hasManifest = (manifestId ?? "").trim().length > 0;
+  const completedUtc = run.completedUtc?.trim() ?? "";
+
+  if (completedUtc.length > 0 && hasManifest) {
+    return completedUtc;
+  }
+
+  if (!hasManifest) {
+    return null;
+  }
+
+  const manifestUtc = manifestSummary?.createdUtc?.trim() ?? "";
+
+  return manifestUtc.length > 0 ? manifestUtc : null;
 }
 
 export function deriveRunDetailWorkspaceStatus(input: DeriveRunDetailWorkspaceStatusInput): RunDetailWorkspaceStatus {
@@ -725,6 +764,121 @@ export function deriveExecutiveBottomLineContent(input: {
   }
 
   return null;
+}
+
+export function isProductBrandReviewTitle(title: string): boolean {
+  const normalized = title.trim().toLowerCase();
+
+  return normalized === PRODUCT_BRAND_NAME.toLowerCase() || normalized === "architecture review";
+}
+
+export function deriveReviewHeaderPresentation(input: {
+  readonly reviewTitle: string;
+  readonly systemName: string | null;
+  readonly runId: string;
+}): ReviewHeaderPresentation {
+  const reviewTitle = input.reviewTitle.trim();
+  const systemName = input.systemName?.trim() ?? "";
+  const runId = input.runId.trim();
+  const shortReviewId =
+    runId.length > 12 ? `${runId.slice(0, 8)}…${runId.slice(-4)}` : runId;
+
+  if (systemName.length > 0) {
+    const eyebrow =
+      reviewTitle.length > 0 && !isProductBrandReviewTitle(reviewTitle)
+        ? reviewTitle
+        : "Architecture review";
+
+    return {
+      h1Title: systemName,
+      eyebrowLabel: eyebrow,
+      reviewIdentifierLabel: shortReviewId.length > 0 ? shortReviewId : runId,
+    };
+  }
+
+  if (reviewTitle.length > 0 && !isProductBrandReviewTitle(reviewTitle)) {
+    return {
+      h1Title: reviewTitle,
+      eyebrowLabel: "Architecture review",
+      reviewIdentifierLabel: shortReviewId.length > 0 ? shortReviewId : runId,
+    };
+  }
+
+  return {
+    h1Title: "Architecture under review",
+    eyebrowLabel: "Review package",
+    reviewIdentifierLabel: shortReviewId.length > 0 ? shortReviewId : runId,
+  };
+}
+
+export function derivePackageVersionLabel(
+  manifestSummary: ManifestSummary | null,
+  manifestId: string | null | undefined,
+): string | null {
+  const version = manifestSummary?.ruleSetVersion?.trim() ?? "";
+
+  if (version.length > 0) {
+    return version;
+  }
+
+  const manifest = (manifestId ?? "").trim();
+
+  if (manifest.length > 0) {
+    return manifest.length > 16 ? `${manifest.slice(0, 8)}…${manifest.slice(-4)}` : manifest;
+  }
+
+  return null;
+}
+
+export function deriveEvidenceCoverageSummary(
+  findings: readonly QuickDecisionFinding[],
+): EvidenceCoverageSummary {
+  const unresolved = filterUnresolvedFindings(findings);
+  const totalCount = unresolved.length;
+
+  if (totalCount === 0) {
+    return {
+      linkedCount: 0,
+      totalCount: 0,
+      summaryLine: "No open findings",
+    };
+  }
+
+  const linkedCount = unresolved.filter((finding) => (finding.evidenceRefCount ?? 0) > 0).length;
+  const noun = totalCount === 1 ? "finding has" : "findings have";
+
+  return {
+    linkedCount,
+    totalCount,
+    summaryLine: `${linkedCount} of ${totalCount} open ${noun} linked evidence`,
+  };
+}
+
+/** Short label for the sticky primary CTA — keeps button text aligned with Decision snapshot next action. */
+export function shortenNextActionForPrimaryCta(nextAction: string): string {
+  const trimmed = nextAction.trim();
+  const primarySegment = trimmed.split(" — ")[0]?.trim() ?? trimmed;
+
+  if (primarySegment.length <= 56) {
+    return primarySegment;
+  }
+
+  return `${primarySegment.slice(0, 53).trimEnd()}…`;
+}
+
+export function deriveBlockingFindingHref(
+  runId: string,
+  findings: readonly QuickDecisionFinding[],
+): string {
+  const primaryFinding = derivePrimaryConcernFinding(findings);
+
+  if (primaryFinding !== null) {
+    return buildReviewDetailTabHref(runId, "findings", {
+      hash: `finding-workspace-card-${primaryFinding.findingId}`,
+    });
+  }
+
+  return buildReviewDetailTabHref(runId, "findings");
 }
 
 export function deriveReviewDisplayTitle(run: RunSummary, headline: string): string {
