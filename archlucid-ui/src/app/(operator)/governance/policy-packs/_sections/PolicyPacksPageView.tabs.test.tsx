@@ -59,8 +59,6 @@ function buildModel(overrides: Partial<PolicyPacksPageViewModel> = {}): PolicyPa
     onCreate: vi.fn(async () => undefined),
     onPublish: vi.fn(async () => undefined),
     onAssign: vi.fn(async () => undefined),
-    publishSuccessMessage: null,
-    setPublishSuccessMessage: vi.fn(),
     compareLeftVersion: undefined,
     compareRightVersion: undefined,
     selectedPackSummary: undefined,
