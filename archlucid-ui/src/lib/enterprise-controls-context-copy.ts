@@ -49,11 +49,11 @@ export const layerHeaderEnterpriseOperatorRankLine =
   "Governance controls record who submitted, reviewed, and approved architecture reviews in this workspace.";
 
 /** Deep execute tooling: only when resolved rank is below Execute (e.g. Reader deep-linked) */
-export const enterpriseExecutePageHintReaderRank = "Writes need operator-level permission in this workspace.";
+export const enterpriseExecutePageHintReaderRank = "Writes need elevated permissions in this workspace.";
 
 /** Second line on policy resolution — readers vs operators (see `GovernanceResolutionRankCue`). */
 export const governanceResolutionRankReaderLine =
-  "Policy pack and workflow changes require operator permission.";
+  "Policy pack and workflow changes require architect permission.";
 
 export const governanceResolutionRankOperatorLine =
   "Change pack order on Policy packs or Governance workflow—not on this page.";
@@ -92,15 +92,15 @@ export const governanceResolutionChangeRelatedControlsLead =
  * false (writes live on Policy packs and Governance workflow).
  */
 export const governanceResolutionChangeRelatedControlsReaderSupplement =
-  "Changing policy packs or workflow settings requires operator-level permission.";
+  "Changing policy packs or workflow settings requires elevated permissions.";
 
 /** Governance dashboard: readers can consume signals; in-product actions still need execute on the API. */
-export const governanceDashboardReaderActionLine = "Read-only queue until an operator can act in this workspace.";
+export const governanceDashboardReaderActionLine = "Read-only queue until an architect can act in this workspace.";
 
 /** Governance dashboard — batch bar when rank cannot mutate (`governance/dashboard/page.tsx`). */
-export const governanceDashboardApproveSelectedButtonLabelReaderRank = "Approve selected (operator permission)";
+export const governanceDashboardApproveSelectedButtonLabelReaderRank = "Approve selected (architect permission)";
 
-export const governanceDashboardRejectSelectedButtonLabelReaderRank = "Reject selected (operator permission)";
+export const governanceDashboardRejectSelectedButtonLabelReaderRank = "Reject selected (architect permission)";
 
 /** Governance dashboard — pending queue heading (`governance/dashboard/page.tsx`). */
 export const governanceDashboardPendingApprovalsHeadingOperator = "Pending approvals";
@@ -129,7 +129,7 @@ export const governanceDashboardOpenWorkflowReviewTitleOperator =
   "Open governance workflow for this review to continue governance release steps.";
 
 export const governanceDashboardOpenWorkflowReviewTitleReader =
-  "Open workflow for inspection; approve or reject actions need operator-level permission in this workspace.";
+  "Open workflow for inspection; approve or reject actions need elevated permissions in this workspace.";
 
 /** Governance workflow — lead under page title when caller can mutate (Execute+ in shell). */
 export const governanceWorkflowPageLeadOperator =
@@ -166,7 +166,7 @@ export const governanceWorkflowRefreshRunDataTitle =
 export const governanceWorkflowRefreshRunDataButtonLabel = "Refresh data";
 
 /** Alerts triage dialog — primary control when **Confirm** is disabled at read rank (preview-only path). */
-export const alertsTriageDialogConfirmButtonLabelReaderRank = "Apply triage (operator permission)";
+export const alertsTriageDialogConfirmButtonLabelReaderRank = "Apply triage (architect permission)";
 
 /** Audit log — search section heading (`audit/page.tsx`); branch with **`callerAuthorityRank`**. */
 export const auditSearchEventsSectionHeadingOperator = "Search audit events";
@@ -210,7 +210,7 @@ export const alertRoutingDeliveryAttemptsButtonTitleOperator =
   "Load recent delivery attempts for this subscription (GET).";
 
 export const alertRoutingDeliveryAttemptsButtonTitleReader =
-  "Load delivery attempts (GET). Enabling or disabling a subscription needs operator permission.";
+  "Load delivery attempts (GET). Enabling or disabling a subscription needs architect permission.";
 
 /** Policy packs — compare action stays inspection-only at read rank (lifecycle writes below). */
 export const policyPacksShowDiffButtonLabelReaderRank = "Show diff (inspect)";
@@ -220,7 +220,7 @@ export const policyPacksShowDiffButtonLabelReaderRank = "Show diff (inspect)";
  * Approve/Reject entry points are normally disabled for Reader).
  */
 export const governanceWorkflowPendingReviewReaderNote =
-  "Review actions need operator-level access on the server — this form is preview only at your current role.";
+  "Review actions need elevated access on the server — this form is preview only at your current role.";
 
 /** Buyer shell: avoids “operator-level” jargon where possible. */
 export const governanceWorkflowPendingReviewReaderNoteBuyerPolished =
@@ -230,7 +230,7 @@ export const governanceWorkflowPendingReviewReaderNoteBuyerPolished =
  * Alert rules / routing / simulation / tuning / composite — rank-aware cue (`AlertOperatorToolingRankCue`) for tests
  * or routes that mount a second strip below **`LayerHeader`**.
  */
-export const alertOperatorToolingReaderRankLine = "Inspect above — configuration below needs operator permission.";
+export const alertOperatorToolingReaderRankLine = "Inspect above — configuration below needs architect permission.";
 
 export const alertOperatorToolingOperatorRankLine = "Writes below: API-enforced.";
 
@@ -241,7 +241,7 @@ export const alertOperatorToolingOperatorRankLine = "Writes below: API-enforced.
 export const alertToolingListRefreshButtonTitleOperator = "Reload the list from the API (GET).";
 
 export const alertToolingListRefreshButtonTitleReader =
-  "Reload list (GET). Creates, toggles, and edits below need operator-level permission.";
+  "Reload list (GET). Creates, toggles, and edits below need elevated permissions.";
 
 /**
  * Alert tuning — lead under page title (`alert-tuning/page.tsx`). **POST** recommendation is **read access** on the
@@ -292,14 +292,14 @@ export const semanticSearchPageDeploymentNoteDev =
 export const alertsInboxRefreshButtonTitleOperator = "Reload alerts for the current status filter (GET).";
 
 export const alertsInboxRefreshButtonTitleReader =
-  "Reload alerts (GET). Confirming triage needs operator-level permission.";
+  "Reload alerts (GET). Confirming triage needs elevated permissions.";
 
 /** Alerts inbox — pagination controls when triage writes are off (`alerts/page.tsx`). */
 export const alertsPaginationNavTitleReaderRank = "Page results (read-only in this shell; API authoritative).";
 
 /** Alerts inbox — readers vs operators (see `AlertsInboxRankCue`). */
 export const alertsInboxRankReaderLine =
-  "Preview only here — confirming alert triage needs operator-level permission.";
+  "Preview only here — confirming alert triage needs elevated permissions.";
 
 export const alertsInboxRankOperatorLine = "Triage writes: API-enforced.";
 
@@ -309,7 +309,7 @@ export const alertsTriageDialogReaderNote =
 
 /** Title on triage action buttons when rank can open the dialog but cannot Confirm (`alerts/page.tsx`). */
 export const alertsTriageOpenPreviewReaderTitle =
-  "Open triage preview — confirming changes needs operator-level permission.";
+  "Open triage preview — confirming changes needs elevated permissions.";
 
 /** Alerts inbox — triage button visible names when Confirm/write is off at this shell rank (preview-only path). */
 export const alertsTriageAcknowledgeButtonLabelReaderInbox = "Acknowledge (preview)";
@@ -327,7 +327,7 @@ export const auditLogRankOperatorLine =
 
 /** Extra line under the pending-approvals empty state when rank is below Execute (batch/review CTAs are disabled). */
 export const governanceDashboardPendingClearReaderSupplement =
-  "Batch and row actions stay disabled here until operator-level access applies (API).";
+  "Batch and row actions stay disabled here until elevated access applies (API).";
 
 /** Governance workflow — “Approval requests for a review” card description by rank. */
 export const governanceWorkflowQueryCardDescriptionReader =
@@ -342,7 +342,7 @@ export const governanceWorkflowQueryCardDescriptionOperator =
 
 /** No rows returned for the loaded review — reader copy references submit section position when inspect-first layout is used. */
 export const governanceWorkflowNoApprovalsReaderHint =
-  "No open approval rows for this review. Try another review, or ask an operator to submit a request.";
+  "No open approval rows for this review. Try another review, or ask an architect to submit a request.";
 
 export const governanceWorkflowNoApprovalsOperatorHint =
   "Submit a request above or choose a different review.";
@@ -419,26 +419,26 @@ export const policyPacksRefreshAssistReaderLineBuyerPolished =
 
 /** Policy packs — empty list under “Packs in scope”. */
 export const policyPacksEmptyScopeReaderLine =
-  "None in scope yet. Inspect when data exists; create and lifecycle need operator on the API.";
+  "None in scope yet. Inspect when data exists; create and lifecycle need elevated permissions on the API.";
 
 export const policyPacksEmptyScopeOperatorLine = "No packs yet.";
 
 /** Policy packs — “Published versions” empty when a pack is selected but no rows returned. */
 export const policyPacksPublishedVersionsEmptyReaderLine =
-  "No published versions yet. Inspect here; publish needs operator on the API.";
+  "No published versions yet. Inspect here; publish needs elevated permissions on the API.";
 
 export const policyPacksPublishedVersionsEmptyOperatorLine =
   "No published versions loaded for this pack yet.";
 
 /** Policy packs — one line under Lifecycle heading for read tier (forms below stay soft-disabled). */
-export const policyPacksLifecycleLeadReaderLine = "Lifecycle changes need operator-level permission.";
+export const policyPacksLifecycleLeadReaderLine = "Lifecycle changes need elevated permissions.";
 
 /** Policy packs — primary lifecycle buttons when mutation capability is false (shell soft-disable; API authoritative). */
-export const policyPacksCreatePackButtonLabelReaderRank = "Create pack (operator permission)";
+export const policyPacksCreatePackButtonLabelReaderRank = "Create pack (architect permission)";
 
-export const policyPacksPublishButtonLabelReaderRank = "Publish (operator permission)";
+export const policyPacksPublishButtonLabelReaderRank = "Publish (architect permission)";
 
-export const policyPacksAssignButtonLabelReaderRank = "Assign (operator permission)";
+export const policyPacksAssignButtonLabelReaderRank = "Assign (architect permission)";
 
 /** Governance workflow — Submit card description for read tier (operator copy stays inline on the page with API path). */
 export const governanceWorkflowSubmitCardDescriptionReader =
@@ -471,7 +471,7 @@ export const compositeRulesCreateButtonLabelReaderRank = "Create composite rule 
 
 /** Alert rules — empty “Defined rules” list. */
 export const alertRulesDefinedListEmptyReaderLine =
-  "No rules yet. Inspect thresholds; writes need operator on the API.";
+  "No rules yet. Inspect thresholds; writes need elevated permissions on the API.";
 
 export const alertRulesDefinedListEmptyOperatorLine = "None yet.";
 
@@ -497,20 +497,20 @@ export const alertRoutingCurrentRoutingHeadingReader = "Current routing (inspect
 
 /** Alert routing — empty “Current routing” list (mirrors alert rules empty pattern). */
 export const alertRoutingSubscriptionsEmptyReaderLine =
-  "No subscriptions yet. Inspect below; create, enable, and disable need operator on the API.";
+  "No subscriptions yet. Inspect below; create, enable, and disable need elevated permissions on the API.";
 
 export const alertRoutingSubscriptionsEmptyOperatorLine = "None yet.";
 
 /** Governance workflow — governance release timeline empty (after a run is loaded). */
 export const governanceWorkflowPromotionsEmptyReaderHint =
-  "None yet. Rows appear after an operator releases an approved request to the target environment.";
+  "None yet. Rows appear after an architect releases an approved request to the target environment.";
 
 export const governanceWorkflowPromotionsEmptyOperatorHint =
   "Release an approved request to the target environment to see rows here.";
 
 /** Governance workflow — activations list empty. */
 export const governanceWorkflowActivationsEmptyReaderHint =
-  "None yet. Appear after an operator activates a governance release; inspect-only at your rank.";
+  "None yet. Appear after an architect activates a governance release; inspect-only at your rank.";
 
 export const governanceWorkflowActivationsEmptyOperatorHint =
   "Use Activate on a governance release card after releases exist.";
@@ -587,7 +587,7 @@ export const digestsHistoryHeadingReader = "History (inspect)";
 export const digestsListRefreshButtonTitleOperator = "Reload digest list and health status.";
 
 export const digestsListRefreshButtonTitleReader =
-  "Reload digest list and health status. Changing email subscriptions needs operator permission.";
+  "Reload digest list and health status. Changing email subscriptions needs architect permission.";
 /** Digest subscriptions — subscription list **`h3`** (`components/digests/DigestSubscriptionsContent.tsx`). */
 /**
  * Follows the sibling `Current rules` / `Current routing` pattern above. The tab,
@@ -602,16 +602,16 @@ export const digestSubscriptionsYourSubscriptionsHeadingReader = "Current destin
 /**
  * Digest subscriptions — primary create when rank cannot mutate in the shell.
  *
- * Buyer-facing wording: "operator permission", matching
+ * Buyer-facing wording: "architect permission", matching
  * {@link policyPacksCreatePackButtonLabelReaderRank}. `Execute+` is the internal
  * authority-rank name and must not appear on a control a buyer reads.
  */
 export const digestSubscriptionsCreateSubscriptionButtonLabelReaderRank =
-  "Create subscription (operator permission)";
+  "Create subscription (architect permission)";
 
-export const digestSubscriptionsToggleToDisabledReaderRank = "Disable (operator permission)";
+export const digestSubscriptionsToggleToDisabledReaderRank = "Disable (architect permission)";
 
-export const digestSubscriptionsToggleToEnabledReaderRank = "Enable (operator permission)";
+export const digestSubscriptionsToggleToEnabledReaderRank = "Enable (architect permission)";
 
 /** Digest subscriptions — delivery attempts (read-only). */
 export const digestSubscriptionsDeliveryAttemptsButtonLabelReaderRank = "Delivery attempts (inspect)";
@@ -620,14 +620,14 @@ export const digestSubscriptionsDeliveryAttemptsButtonTitleOperator =
   "Load recent digest delivery attempts for this subscription.";
 
 export const digestSubscriptionsDeliveryAttemptsButtonTitleReader =
-  "Load delivery attempts. Creating or toggling a subscription needs operator permission.";
+  "Load delivery attempts. Creating or toggling a subscription needs architect permission.";
 
 /** Digest subscriptions — empty list. */
 export const digestSubscriptionsEmptyListOperatorLine =
   "Create a subscription to deliver scheduled architecture digests to an email address, group mailbox, or webhook.";
 
 export const digestSubscriptionsEmptyListReaderLine =
-  "No digest subscriptions yet. Inspect when rows exist; create and toggle need operator access.";
+  "No digest subscriptions yet. Inspect when rows exist; create and toggle need architect access.";
 
 /**
  * Advisory schedules — schedules list **`h3`** (`components/advisory/AdvisorySchedulesContent.tsx`).

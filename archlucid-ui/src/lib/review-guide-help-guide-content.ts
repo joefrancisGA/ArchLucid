@@ -10,7 +10,7 @@ export const REVIEW_GUIDE_HELP_PAGE_SUBTITLE =
   "Field reference for naming a review, uploading evidence, confirming scope, and finalizing the architecture review.";
 
 export const REVIEW_GUIDE_HELP_OVERVIEW =
-  "Use this guide while you create or finish an architecture review. It complements the First review guide walkthrough with the field-level steps operators follow in the wizard.";
+  "Use this guide while you create or finish an architecture review. It complements the First review guide walkthrough with the field-level steps architects follow in the wizard.";
 
 export const REVIEW_GUIDE_HELP_PRIMARY_ACTIONS = {
   startReview: {

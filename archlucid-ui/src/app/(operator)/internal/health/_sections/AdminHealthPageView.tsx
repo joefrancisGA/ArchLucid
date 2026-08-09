@@ -45,7 +45,7 @@ export function AdminHealthPageView(props: Props) {
     return (
       <DemoWorkspaceCapabilityUnavailablePanel
         capability="Workspace health diagnostics"
-        description="In a connected tenant, operators monitor platform health, readiness, and configuration advisories here."
+        description="In a connected tenant, architects monitor platform health, readiness, and configuration advisories here."
       />
     );
   }

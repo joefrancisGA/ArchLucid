@@ -12,7 +12,7 @@ describe("DemoWorkspaceCapabilityUnavailablePanel", () => {
     render(
       <DemoWorkspaceCapabilityUnavailablePanel
         capability="Digest delivery"
-        description="In a connected tenant, operators configure scheduled governance digests here."
+        description="In a connected tenant, architects configure scheduled governance digests here."
       />,
     );
 

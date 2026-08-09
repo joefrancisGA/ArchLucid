@@ -8,7 +8,7 @@ export const GOVERNANCE_API_CONTRACTS_HELP_PAGE_SUBTITLE =
   "Admin/developer HTTP contract reference — OpenAPI, auth, and versioned endpoint behavior. Not buyer governance-approval help.";
 
 export const GOVERNANCE_API_CONTRACTS_HELP_OVERVIEW =
-  "Use this runbook when you need the versioned HTTP contract of record for integrators and Admin support. Operators looking for approval workflows should open Governance approval instead. Prefer the published OpenAPI document over prose when the two disagree.";
+  "Use this runbook when you need the versioned HTTP contract of record for integrators and Admin support. Architects looking for approval workflows should open Governance approval instead. Prefer the published OpenAPI document over prose when the two disagree.";
 
 export const GOVERNANCE_API_CONTRACTS_HELP_CLAIM_DISCIPLINE =
   "This Admin API-contracts runbook is integrator technical reference — not buyer self-serve governance help and not certification.";

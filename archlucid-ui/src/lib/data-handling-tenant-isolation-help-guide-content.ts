@@ -45,5 +45,5 @@ export const DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES: readonly DataHandlingT
 
 /** Honesty note — isolation language is orientation, not a countersigned agreement. */
 export const DATA_HANDLING_TENANT_ISOLATION_HELP_CLAIM_DISCIPLINE =
-  "This page explains how ArchLucid handles review evidence and enforces tenant scope. It is operator orientation, and it is not a countersigned DPA.";
+  "This page explains how ArchLucid handles review evidence and enforces tenant scope. It is architect orientation, and it is not a countersigned DPA.";
 

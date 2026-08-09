@@ -3,7 +3,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const TROUBLESHOOTING_HELP_CANONICAL_PATH = "/help/troubleshooting" as const;
 
 export const TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE =
-  "This troubleshooting guide helps operators unblock reviews and connections — it is not a signed-review diligence Sources package. Open System health or Audit when you need operational or governed trails.";
+  "This troubleshooting guide helps architects unblock reviews and connections — it is not a signed-review diligence Sources package. Open System health or Audit when you need operational or governed trails.";
 
 export const TROUBLESHOOTING_HELP_SOURCES_INTRO =
   "Use these follow-ups when a symptom needs live health checks, audit context, engineering runbooks, or product orientation.";

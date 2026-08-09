@@ -397,7 +397,7 @@ export const SETTINGS_MASTER_SECTIONS: readonly SettingsMasterSection[] = [
     id: "developer-internal",
     navLabel: "Developer / internal",
     title: "Developer / internal",
-    description: "Internal operator tools for demos and support workflows.",
+    description: "Internal architect tools for demos and support workflows.",
     keywords: ["developer", "internal", "cli", "theme"],
     tier: "internal",
     destinations: [

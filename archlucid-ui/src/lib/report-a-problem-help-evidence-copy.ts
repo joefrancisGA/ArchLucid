@@ -4,7 +4,7 @@ import { SUPPORT_REPORT_PROBLEM_HELP_HREF } from "@/lib/support-workspace-presen
 export const REPORT_A_PROBLEM_HELP_CANONICAL_PATH = SUPPORT_REPORT_PROBLEM_HELP_HREF;
 
 export const REPORT_A_PROBLEM_HELP_CLAIM_DISCIPLINE =
-  "This Report a problem guide orients operators on structured support intake and correlation identifiers — it is help orientation, not a signed-review diligence Sources package from your tenant. Open Troubleshooting or Support when you need live triage or workspace support tools.";
+  "This Report a problem guide orients architects on structured support intake and correlation identifiers — it is help orientation, not a signed-review diligence Sources package from your tenant. Open Troubleshooting or Support when you need live triage or workspace support tools.";
 
 export const REPORT_A_PROBLEM_HELP_SOURCES_INTRO =
   "Use these follow-ups when support intake vocabulary turns into symptom triage, admin support tools, or engineering diagnostics.";

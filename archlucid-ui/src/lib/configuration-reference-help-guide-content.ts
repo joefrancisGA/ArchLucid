@@ -7,7 +7,7 @@ export const CONFIGURATION_REFERENCE_HELP_PAGE_SUBTITLE =
   "Admin task guide: map identity/SSO and production-like hosting posture — then open the matching settings surface. Not buyer self-serve product help.";
 
 export const CONFIGURATION_REFERENCE_HELP_OVERVIEW =
-  "Use this page when you need the next settings action for auth or hosted secrets — not when you need a raw engineering key dump. The full key catalog stays collapsed below as an Admin technical appendix. Non-Admin operators should use Authentication sign-in, Users and roles, or Enterprise onboarding instead.";
+  "Use this page when you need the next settings action for auth or hosted secrets — not when you need a raw engineering key dump. The full key catalog stays collapsed below as an Admin technical appendix. Non-Admin architects should use Authentication sign-in, Users and roles, or Enterprise onboarding instead.";
 
 export const CONFIGURATION_REFERENCE_HELP_CLAIM_DISCIPLINE =
   "This guide orients Admin configuration tasks inside the product. It is not a certification evidence pack";

@@ -98,7 +98,7 @@ export function AzureBoardsIntegrationAside(props: Props): React.ReactElement {
       </div>
 
       {props.showOperatorNotes ? (
-        <CollapsibleSection title="Platform operator notes" defaultOpen={false}>
+        <CollapsibleSection title="Platform administrator notes" defaultOpen={false}>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Native work item creation from findings is {props.nativeEnabled ? "enabled" : "disabled"} for this
             deployment.

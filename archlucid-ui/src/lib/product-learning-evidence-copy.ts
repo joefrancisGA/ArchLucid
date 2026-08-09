@@ -7,7 +7,7 @@ export const PRODUCT_LEARNING_CLAIM_DISCIPLINE =
   "Pilot feedback aggregates review signals for product improvement — ranked opportunities are candidates for human triage, not auto-filed work items, a signed-review diligence Sources package. Open Improvement planning or Architecture reviews when you need live workflow trails.";
 
 export const PRODUCT_LEARNING_SOURCES_INTRO =
-  "Use these follow-ups when feedback trends turn into planning themes, live reviews, or operator help.";
+  "Use these follow-ups when feedback trends turn into planning themes, live reviews, or architect help.";
 
 export type ProductLearningSourceLink = {
   readonly label: string;

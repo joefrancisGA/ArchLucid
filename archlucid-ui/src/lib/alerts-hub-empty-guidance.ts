@@ -16,7 +16,7 @@ export const alertsInboxGettingStartedReader: EmptyStateGettingStarted = {
   heading: "How alerts land here",
   steps: [
     "Alerts appear when automated checks evaluate findings from completed reviews.",
-    "Operators configure conditions and notification delivery on the Alerts workspace (`/governance/alert-rules`).",
+    "Architects configure conditions and notification delivery on the Alerts workspace (`/governance/alert-rules`).",
     "Try All statuses or another filter — triage actions stay API-gated at your rank.",
   ],
 };
@@ -35,7 +35,7 @@ export const alertRulesEmptyGettingStartedReader: EmptyStateGettingStarted = {
   steps: [
     "Rules watch findings from completed reviews and raise alerts when thresholds breach.",
     "Creating or editing rules requires Execute+ on the API — inspect definitions below.",
-    "Ask an operator to add a rule if this tenant should notify on architecture drift.",
+    "Ask an architect to add a rule if this tenant should notify on architecture drift.",
   ],
 };
 
@@ -71,8 +71,8 @@ export const compositeRulesEmptyGettingStartedReader: EmptyStateGettingStarted =
   heading: "What composite rules do",
   steps: [
     "They join several signals before firing — useful for nuanced governance thresholds.",
-    "Authoring requires Execute+ — inspect existing definitions until an operator adds one.",
-    "Simulation tab helps operators validate logic before traffic hits the inbox.",
+    "Authoring requires Execute+ — inspect existing definitions until an architect adds one.",
+    "Simulation tab helps architects validate logic before traffic hits the inbox.",
   ],
 };
 

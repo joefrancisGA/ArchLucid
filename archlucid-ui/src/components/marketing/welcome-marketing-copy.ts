@@ -125,7 +125,7 @@ export const WELCOME_WORKFLOW_STEPS: readonly WelcomeWorkflowStep[] = [
 ] as const;
 
 export const WELCOME_WORKFLOW_INTRO =
-  "One six-stage vocabulary shared by buyers, operators, and governance partners.";
+  "One six-stage vocabulary shared by buyers, architects, and governance partners.";
 
 export type WelcomeUseCaseCard = {
   readonly id: string;

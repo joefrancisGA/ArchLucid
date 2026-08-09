@@ -3,7 +3,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const PILOT_ROI_MODEL_HELP_CANONICAL_PATH = "/help/pilot-roi-model" as const;
 
 export const PILOT_ROI_MODEL_HELP_CLAIM_DISCIPLINE =
-  "This pilot ROI model guide is operator orientation for how sponsor ROI figures are labeled and sourced - it is not a signed-review diligence Sources package, financial reporting. Open Architecture scorecard, ROI summary, or Baseline when you need live packages or workspace numbers.";
+  "This pilot ROI model guide is architect orientation for how sponsor ROI figures are labeled and sourced - it is not a signed-review diligence Sources package, financial reporting. Open Architecture scorecard, ROI summary, or Baseline when you need live packages or workspace numbers.";
 
 export const PILOT_ROI_MODEL_HELP_SOURCES_INTRO =
   "Use these follow-ups when ROI methodology turns into scorecard numbers, baseline capture, or sponsor outcomes.";

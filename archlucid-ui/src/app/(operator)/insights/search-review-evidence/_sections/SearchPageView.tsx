@@ -74,7 +74,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
 <DemoWorkspaceCapabilityUnavailablePanel
           layout="embedded"
           capability="Search review evidence"
-          description="In a connected tenant, operators search findings, decisions, and signed review records across the workspace evidence index."
+          description="In a connected tenant, architects search findings, decisions, and signed review records across the workspace evidence index."
         />
       </div>
     );

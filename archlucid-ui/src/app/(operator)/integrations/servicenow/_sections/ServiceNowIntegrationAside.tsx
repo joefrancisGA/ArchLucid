@@ -112,7 +112,7 @@ export function ServiceNowIntegrationAside(props: Props): React.ReactElement {
       </div>
 
       {props.showOperatorNotes ? (
-        <CollapsibleSection title="Platform operator notes" sectionTestId="servicenow-operator-notes">
+        <CollapsibleSection title="Platform administrator notes" sectionTestId="servicenow-operator-notes">
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Outbound incident creation is {props.nativeEnabled ? "enabled" : "disabled"} for this deployment.
           </p>

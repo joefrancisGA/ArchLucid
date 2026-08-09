@@ -21,7 +21,7 @@ const WIZARD_DOC_LINKS: { title: string; docPath: string; blurb: string }[] = [
   {
     title: "First review wizard",
     docPath: "docs/library/FIRST_RUN_WIZARD.md",
-    blurb: "End-to-end walkthrough from request through review, artifacts, and operator flows.",
+    blurb: "End-to-end walkthrough from request through review, artifacts, and architect workflows.",
   },
   {
     title: "Architecture request templates",

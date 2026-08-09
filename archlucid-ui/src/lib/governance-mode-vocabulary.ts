@@ -12,7 +12,7 @@ export const GOVERNANCE_MODE_COPY = {
   toggleAssistiveOff:
     "Governance view off. Pilot-friendly review labels and a focused review detail layout.",
   toggleFootnote:
-    "Default for new operators — turn on when you need policy packs, audit trail, and authority-chain detail.",
+    "Default for new architects — turn on when you need policy packs, audit trail, and authority-chain detail.",
 } as const;
 
 export type GovernanceModeVocabulary = {

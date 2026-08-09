@@ -115,7 +115,7 @@ export function ReplayFormView(props: Props) {
         <>
           <OperatorApiProblem failure={m.failure} />
           <OperatorTryNext>
-            Confirm the review exists, you have operator permissions, and the API is healthy. Retry with a lighter validation depth
+            Confirm the review exists, you have architect permissions, and the API is healthy. Retry with a lighter validation depth
             before running a full regeneration. Copy the correlation ID for support logs.
           </OperatorTryNext>
         </>

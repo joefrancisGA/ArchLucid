@@ -45,7 +45,7 @@ const ARTIFACT_TYPE_COPY: Record<string, { label: string; description: string }>
   UnresolvedIssuesReport: {
     label: "Unresolved issues",
     description:
-      "JSON report listing unresolved issues or warnings that operators should triage before sign-off.",
+      "JSON report listing unresolved issues or warnings that architects should triage before sign-off.",
   },
   JsonBundle: {
     label: "Architecture decision record",
