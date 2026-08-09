@@ -10,6 +10,39 @@ Optional root that deploys:
 
 HTTP **KEDA-style** scale rules scale each app between **min/max replicas** using **concurrent request** targets. The **UI** app defaults to **`ui_max_replicas = 6`** and **`ui_scale_concurrent_requests = 10`** so traffic bursts on the shared Container App scale out before requests queue heavily on a single replica.
 
+## API max-replicas sizing vs bulkhead and AOAI TPM (**TB-947**)
+
+Container Apps can add API replicas when **HTTP concurrency** rises (**TB-915** will add CPU/memory rules with OR semantics). **Replica count does not increase Azure OpenAI TPM** — more replicas with the same deployment quota means more parallel handlers competing for the same tokens-per-minute ceiling.
+
+**Sizing checklist (run before raising `api_max_replicas` or running scale drills **TB-946** / launch load **TB-905**):**
+
+| Step | Question | Where to read |
+|------|----------|---------------|
+| 1 | What is the handler bulkhead per replica? | `AgentExecution:Resilience:MaxConcurrentHandlers` — default **8** ([`CONFIGURATION_REFERENCE.md`](../../docs/library/CONFIGURATION_REFERENCE.md)) |
+| 2 | What is the Terraform ceiling? | `api_max_replicas`, `api_min_replicas`, `api_scale_concurrent_requests` in this module |
+| 3 | What is the AOAI deployment TPM/RPM? | Azure portal / capacity plan; future **TB-916** Terraform assertions |
+| 4 | What is peak **concurrent Real executes** (not HTTP reads)? | Load model, staging pilot, or **TB-946** drill A observations |
+| 5 | Upper-bound parallel handlers if every replica is hot | `api_max_replicas × MaxConcurrentHandlers` |
+| 6 | Sustainable parallel LLM calls from TPM | `floor(deployment_tpm × headroom ÷ avg_tpm_per_active_handler)` — use **0.7** headroom until measured |
+| 7 | Cap replicas | `api_max_replicas ≤ max(1, ceil(sustainable_parallel_llm ÷ MaxConcurrentHandlers))` unless HTTP-only burst is the sole gate |
+
+**Worked staging example** (illustrative — replace TPM and execute rates with your deployment):
+
+| Input | Example value |
+|-------|----------------|
+| `api_scale_concurrent_requests` | **15** (`staging.tfvars.example`) |
+| `api_max_replicas` (candidate) | **6** |
+| `MaxConcurrentHandlers` | **8** (appsettings default) |
+| AOAI deployment TPM | **240K** TPM |
+| Avg TPM per active Real handler | **8K** TPM (measure in App Insights / cost telemetry) |
+| Headroom | **0.7** (30% for retries, Ask, Search) |
+| Sustainable parallel handlers | `240000 × 0.7 ÷ 8000 ≈ **21**` |
+| Bulkhead-capped replica ceiling | `ceil(21 ÷ 8) = **3**` |
+
+**Interpretation:** `api_max_replicas = 6` can be correct for **HTTP/read** bursts, but **Real execute** saturation may need a lower cap (example above → **3**) so autoscale does not add replicas that only increase 429 pressure. HTTP concurrency scale-out during an AOAI 429 storm is a **misleading success signal** — expect Polly retry → optional fallback → shared breaker → partial/failed runs ([`LLM_RETRY_AND_CIRCUIT_BREAKER.md`](../../docs/library/LLM_RETRY_AND_CIRCUIT_BREAKER.md)); drills should **fail closed on quota**, not chase infinite scale-out.
+
+**Cross-refs:** scale-rule mix **TB-915**; micro-drills **TB-946** ([`LAUNCH_LOAD_DRILL.md`](../../docs/architecture/LAUNCH_LOAD_DRILL.md)); noisy-neighbor fairness **TB-1577** (`SHARED_AOAI_TPM_NOISY_NEIGHBOR_FAIRNESS_CLAIM_MAP.md`); future TPM assertions **TB-916** (V2).
+
 ## When to use this stack
 
 Use this root when you want **per-app replica scaling** and a **container-native** Azure host instead of App Service. It complements:
