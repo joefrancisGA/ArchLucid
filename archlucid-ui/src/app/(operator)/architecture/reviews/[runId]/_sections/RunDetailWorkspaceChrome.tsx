@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -104,7 +104,6 @@ export type RunDetailWorkspaceSummaryStripProps = {
   readonly findingsSummaryLine: string;
   readonly evidenceCoverageLine: string;
   readonly primaryConcern: string | null;
-  readonly nextAction: string;
   readonly materialSeverityLine?: string | null;
 };
 
@@ -155,12 +154,6 @@ export function RunDetailWorkspaceSummaryStrip(
             {props.primaryConcern ?? "No unresolved findings"}
           </dd>
         </div>
-        <div className="sm:col-span-2 lg:col-span-3">
-          <dt className="text-neutral-500 dark:text-neutral-400">Next action</dt>
-          <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">
-            {props.nextAction}
-          </dd>
-        </div>
         {props.materialSeverityLine !== null && props.materialSeverityLine !== undefined ? (
           <div>
             <dt className="text-neutral-500 dark:text-neutral-400">Material severity (critical and high)</dt>
@@ -202,9 +195,12 @@ export function RunDetailWorkspaceBlockingBanner(
         <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           {label}
         </p>
-        <Button variant="outline" size="sm" asChild>
-          <Link href={props.findingsTabHref}>Review blocking finding</Link>
-        </Button>
+        <Link
+          className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
+          href={props.findingsTabHref}
+        >
+          Review blocking finding
+        </Link>
       </div>
     </div>
   );
@@ -233,13 +229,13 @@ export function RunDetailWorkspacePrimaryAction(
         </p>
       ) : null}
       {props.href !== null ? (
-        <Button asChild className="w-full">
-          <Link href={props.href}>{props.label}</Link>
-        </Button>
-      ) : (
-        <Button className="w-full" type="button">
+        <Link className={cn(buttonVariants({ variant: "default" }), "w-full")} href={props.href}>
           {props.label}
-        </Button>
+        </Link>
+      ) : (
+        <button className={cn(buttonVariants({ variant: "default" }), "w-full")} type="button">
+          {props.label}
+        </button>
       )}
     </div>
   );

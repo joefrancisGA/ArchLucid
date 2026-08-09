@@ -12,10 +12,14 @@ export type RunDetailEvidenceScopeHeaderProps = {
   readonly deliverableCount: number;
   readonly readinessHeadline: string;
   readonly readinessVerdict: TrustEvidenceReadinessVerdict;
+  readonly evidenceCoverageLine?: string | null;
 };
 
 export function RunDetailEvidenceScopeHeader(props: RunDetailEvidenceScopeHeaderProps): ReactElement {
   const readinessKind = props.readinessVerdict === "complete" ? "ready" : "needs-attention";
+  const coverageLine = props.evidenceCoverageLine?.trim() ?? "";
+  const showEvidenceItems = props.evidenceItemCount > 0;
+  const showDeliverables = props.deliverableCount > 0;
 
   return (
     <header
@@ -23,9 +27,12 @@ export function RunDetailEvidenceScopeHeader(props: RunDetailEvidenceScopeHeader
       data-testid="run-detail-evidence-scope-header"
     >
       <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-        Evidence scope — {props.readinessHeadline}
+        Evidence coverage
       </h2>
-      <dl className={cn("m-0 mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4", OPERATOR_TYPOGRAPHY.body)}>
+      <p className={cn("m-0 mt-2 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+        {coverageLine.length > 0 ? coverageLine : props.readinessHeadline}
+      </p>
+      <dl className={cn("m-0 mt-3 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
         <div>
           <dt className="text-al-text-secondary">Architecture package</dt>
           <dd className="m-0 mt-0.5 font-semibold text-al-text-primary">{props.packageName}</dd>
@@ -34,14 +41,22 @@ export function RunDetailEvidenceScopeHeader(props: RunDetailEvidenceScopeHeader
           <dt className="text-al-text-secondary">Review date</dt>
           <dd className="m-0 mt-0.5 font-semibold text-al-text-primary">{props.reviewDateLabel}</dd>
         </div>
-        <div>
-          <dt className="text-al-text-secondary">Evidence items</dt>
-          <dd className="m-0 mt-0.5 font-semibold tabular-nums text-al-text-primary">{props.evidenceItemCount}</dd>
-        </div>
-        <div>
-          <dt className="text-al-text-secondary">Deliverables</dt>
-          <dd className="m-0 mt-0.5 font-semibold tabular-nums text-al-text-primary">{props.deliverableCount}</dd>
-        </div>
+        {showEvidenceItems ? (
+          <div>
+            <dt className="text-al-text-secondary">Evidence items</dt>
+            <dd className="m-0 mt-0.5 font-semibold tabular-nums text-al-text-primary">
+              {props.evidenceItemCount}
+            </dd>
+          </div>
+        ) : null}
+        {showDeliverables ? (
+          <div>
+            <dt className="text-al-text-secondary">Deliverables</dt>
+            <dd className="m-0 mt-0.5 font-semibold tabular-nums text-al-text-primary">
+              {props.deliverableCount}
+            </dd>
+          </div>
+        ) : null}
       </dl>
       <div className="mt-3">
         <StatusTag kind={readinessKind} label={props.readinessHeadline} />

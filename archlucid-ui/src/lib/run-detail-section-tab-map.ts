@@ -1,4 +1,7 @@
-import type { ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
+import {
+  isReviewDetailTabId,
+  type ReviewDetailTabId,
+} from "@/lib/review-detail-workspace-tabs";
 
 /**
  * Maps in-page section anchor ids to the review workspace tab that owns them.
@@ -49,6 +52,10 @@ export function filterRunDetailNavSectionsForTab<T extends { readonly id: string
   return sections.filter((section) => {
     if (!section.available) {
       return false;
+    }
+
+    if (isReviewDetailTabId(section.id)) {
+      return true;
     }
 
     const ownerTab = RUN_DETAIL_SECTION_TAB[section.id];

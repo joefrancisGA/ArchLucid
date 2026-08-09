@@ -33,6 +33,30 @@ describe("RunDetailPipelineStagesSection", () => {
     expect(screen.getByText("5.0 s")).toBeInTheDocument();
   });
 
+  it("hides stage durations on buyer-polished surfaces until technical details are opened", () => {
+    render(
+      <RunDetailPipelineStagesSection
+        buyerPolished
+        stageTimeline={[
+          {
+            stageName: "findings",
+            startedUtc: "2026-06-01T12:00:05Z",
+            completedUtc: "2026-06-01T12:00:10Z",
+            outcomeStatus: "failed",
+            durationMs: 5000,
+          },
+        ]}
+        otelTraceId={null}
+      />,
+    );
+
+    const duration = screen.getByTestId("pipeline-stage-duration");
+
+    expect(duration).not.toBeVisible();
+    expect(screen.getByText("Failed")).toBeInTheDocument();
+    expect(screen.getByText("Technical details")).toBeInTheDocument();
+  });
+
   it("hides section when timeline is empty", () => {
     const { container } = render(
       <RunDetailPipelineStagesSection stageTimeline={[]} otelTraceId={null} />,

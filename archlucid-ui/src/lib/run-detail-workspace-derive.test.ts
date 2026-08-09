@@ -290,6 +290,19 @@ describe("run-detail-workspace-derive", () => {
     expect(actions.every((action) => action.actionLabel.length > 0)).toBe(true);
   });
 
+  it("uses template label for H1 when manifest exists without a system name", () => {
+    const presentation = deriveReviewHeaderPresentation({
+      reviewTitle: "ArchLucid",
+      systemName: null,
+      runId: "run-abc-123",
+      templateLabel: "Healthcare baseline pack",
+      manifestId: "manifest-1",
+    });
+
+    expect(presentation.h1Title).toBe("Healthcare baseline pack");
+    expect(presentation.h1Title).not.toBe("Architecture under review");
+  });
+
   it("disambiguates product-brand titles in the review header", () => {
     const presentation = deriveReviewHeaderPresentation({
       reviewTitle: "ArchLucid",

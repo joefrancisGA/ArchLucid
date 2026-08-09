@@ -18,21 +18,6 @@ describe("RunDetailSectionNav", () => {
 
   beforeEach(() => {
     buyerPolishedShellVitestOverride.value = null;
-    vi.stubGlobal(
-      "IntersectionObserver",
-      class {
-        observe = vi.fn();
-
-        disconnect = vi.fn();
-
-        takeRecords = vi.fn().mockReturnValue([]);
-
-        constructor(cb: IntersectionObserverCallback, opts?: IntersectionObserverInit) {
-          void cb;
-          void opts;
-        }
-      },
-    );
   });
 
   afterEach(() => {
@@ -41,28 +26,36 @@ describe("RunDetailSectionNav", () => {
     vi.unstubAllGlobals();
   });
 
-  it("renders section links when at least three sections are available", () => {
+  it("renders reviewTab links when at least three tabs are available", () => {
     render(
       <RunDetailSectionNav
+        runId="run-abc"
         sections={[
-          { id: "run-metadata", label: "Review", available: true },
-          { id: "pipeline-timeline", label: "Timeline", available: true },
-          { id: "run-actions", label: "Actions", available: true },
+          { id: "overview", label: "Overview", available: true },
+          { id: "findings", label: "Findings", available: true },
+          { id: "evidence", label: "Evidence", available: true },
         ]}
       />,
     );
 
-    expect(screen.getByRole("link", { name: "Review" })).toHaveAttribute("href", "#run-metadata");
-    expect(screen.getByRole("link", { name: "Timeline" })).toHaveAttribute("href", "#pipeline-timeline");
+    expect(screen.getByRole("link", { name: "Overview" })).toHaveAttribute(
+      "href",
+      "/architecture/reviews/run-abc?reviewTab=overview",
+    );
+    expect(screen.getByRole("link", { name: "Findings" })).toHaveAttribute(
+      "href",
+      "/architecture/reviews/run-abc?reviewTab=findings",
+    );
   });
 
   it("returns null when fewer than three sections are available", () => {
     const { container } = render(
       <RunDetailSectionNav
+        runId="run-abc"
         sections={[
-          { id: "a", label: "A", available: true },
-          { id: "b", label: "B", available: true },
-          { id: "c", label: "C", available: false },
+          { id: "overview", label: "Overview", available: true },
+          { id: "findings", label: "Findings", available: true },
+          { id: "evidence", label: "Evidence", available: false },
         ]}
       />,
     );
@@ -76,10 +69,11 @@ describe("RunDetailSectionNav", () => {
 
     const { getByRole } = render(
       <RunDetailSectionNav
+        runId="run-abc"
         sections={[
-          { id: "run-metadata", label: "Review", available: true },
-          { id: "pipeline-timeline", label: "Timeline", available: true },
-          { id: "run-actions", label: "Actions", available: true },
+          { id: "overview", label: "Overview", available: true },
+          { id: "findings", label: "Findings", available: true },
+          { id: "evidence", label: "Evidence", available: true },
         ]}
       />,
     );
@@ -96,10 +90,11 @@ describe("RunDetailSectionNav", () => {
 
     const { getByRole } = render(
       <RunDetailSectionNav
+        runId="run-abc"
         sections={[
-          { id: "run-metadata", label: "Review", available: true },
-          { id: "pipeline-timeline", label: "Timeline", available: true },
-          { id: "run-actions", label: "Actions", available: true },
+          { id: "overview", label: "Overview", available: true },
+          { id: "findings", label: "Findings", available: true },
+          { id: "evidence", label: "Evidence", available: true },
         ]}
       />,
     );

@@ -13,7 +13,6 @@ describe("RunDetailWorkspaceSummaryStrip", () => {
         findingsSummaryLine="1 open · 1 blocks approval"
         evidenceCoverageLine="1 of 1 open finding has linked evidence"
         primaryConcern="PHI Minimization Risk"
-        nextAction="Confirm evidence and remediation ownership for the open high-severity finding"
       />,
     );
 
@@ -23,7 +22,7 @@ describe("RunDetailWorkspaceSummaryStrip", () => {
     expect(screen.getByText("High")).toBeInTheDocument();
     expect(screen.getByText("1 of 1 open finding has linked evidence")).toBeInTheDocument();
     expect(screen.getByText("PHI Minimization Risk")).toBeInTheDocument();
-    expect(screen.getByText(/Confirm evidence and remediation ownership/)).toBeInTheDocument();
+    expect(screen.queryByText(/Confirm evidence and remediation ownership/)).toBeNull();
     expect(screen.queryByRole("link", { name: "Open findings" })).toBeNull();
   });
 });

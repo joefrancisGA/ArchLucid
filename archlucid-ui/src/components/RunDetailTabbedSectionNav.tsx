@@ -12,6 +12,7 @@ import {
 } from "@/lib/review-detail-workspace-tabs";
 
 type RunDetailTabbedSectionNavProps = {
+  readonly runId: string;
   readonly sections: RunDetailSection[];
 };
 
@@ -28,7 +29,7 @@ export function RunDetailTabbedSectionNav(props: RunDetailTabbedSectionNavProps)
     [props.sections, activeTab],
   );
 
-  return <RunDetailSectionNav sections={sectionsForTab} />;
+  return <RunDetailSectionNav runId={props.runId} sections={sectionsForTab} />;
 }
 
 export function runDetailTabbedSectionNavVisible(

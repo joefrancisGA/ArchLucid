@@ -776,9 +776,13 @@ export function deriveReviewHeaderPresentation(input: {
   readonly reviewTitle: string;
   readonly systemName: string | null;
   readonly runId: string;
+  readonly templateLabel?: string | null;
+  readonly manifestId?: string | null;
 }): ReviewHeaderPresentation {
   const reviewTitle = input.reviewTitle.trim();
   const systemName = input.systemName?.trim() ?? "";
+  const templateLabel = input.templateLabel?.trim() ?? "";
+  const hasManifest = (input.manifestId ?? "").trim().length > 0;
   const runId = input.runId.trim();
   const shortReviewId =
     runId.length > 12 ? `${runId.slice(0, 8)}…${runId.slice(-4)}` : runId;
@@ -799,6 +803,14 @@ export function deriveReviewHeaderPresentation(input: {
   if (reviewTitle.length > 0 && !isProductBrandReviewTitle(reviewTitle)) {
     return {
       h1Title: reviewTitle,
+      eyebrowLabel: "Architecture review",
+      reviewIdentifierLabel: shortReviewId.length > 0 ? shortReviewId : runId,
+    };
+  }
+
+  if (hasManifest && templateLabel.length > 0) {
+    return {
+      h1Title: templateLabel,
       eyebrowLabel: "Architecture review",
       reviewIdentifierLabel: shortReviewId.length > 0 ? shortReviewId : runId,
     };
@@ -854,16 +866,16 @@ export function deriveEvidenceCoverageSummary(
   };
 }
 
-/** Short label for the sticky primary CTA — keeps button text aligned with Decision snapshot next action. */
+/** Short label for the sticky primary CTA — imperative, ≤24 chars for first-viewport scanability. */
 export function shortenNextActionForPrimaryCta(nextAction: string): string {
   const trimmed = nextAction.trim();
   const primarySegment = trimmed.split(" — ")[0]?.trim() ?? trimmed;
 
-  if (primarySegment.length <= 56) {
+  if (primarySegment.length <= 24) {
     return primarySegment;
   }
 
-  return `${primarySegment.slice(0, 53).trimEnd()}…`;
+  return `${primarySegment.slice(0, 21).trimEnd()}…`;
 }
 
 export function deriveBlockingFindingHref(

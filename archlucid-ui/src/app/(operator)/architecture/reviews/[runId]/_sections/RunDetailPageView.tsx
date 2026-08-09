@@ -250,7 +250,9 @@ export function RunDetailPageView(props: {
       />
     ) : null;
 
-  const sectionNavEl = <RunDetailSectionNavDeferred sections={m.runDetailNavSections} />;
+  const sectionNavEl = (
+    <RunDetailSectionNavDeferred runId={m.resolvedDetail.run.runId} sections={m.runDetailNavSections} />
+  );
 
   const showDemoMarketingChrome = shouldShowOperatorDemoMarketingChrome(
     m.buyerPolishedArtifactTable === true,
@@ -397,6 +399,7 @@ export function RunDetailPageView(props: {
         deliverableCount={m.artifacts.length}
         readinessHeadline={evidenceReadinessHeadline}
         readinessVerdict={evidenceReadinessVerdict}
+        evidenceCoverageLine={evidenceCoverageSummary.summaryLine}
       />
       <RunDetailEvidenceInventorySection items={evidenceInventoryItems} />
       {!m.manifestId ? (
@@ -518,7 +521,10 @@ export function RunDetailPageView(props: {
     </div>
   );
   const tabbedSectionNavEl = (
-    <RunDetailTabbedSectionNavDeferred sections={m.runDetailNavSections} />
+    <RunDetailTabbedSectionNavDeferred
+      runId={m.resolvedDetail.run.runId}
+      sections={m.runDetailNavSections}
+    />
   );
   const tabbedWorkspaceEl = !showArchitectureCreatedHome ? (
     <Suspense fallback={<RunDetailExplanationSkeleton />}>
@@ -946,7 +952,6 @@ export function RunDetailPageView(props: {
                     )}
                     evidenceCoverageLine={evidenceCoverageSummary.summaryLine}
                     primaryConcern={reviewStatusSummary.primaryConcern}
-                    nextAction={reviewStatusSummary.nextAction}
                     materialSeverityLine={materialSeverityLine}
                   />
 

@@ -1,12 +1,15 @@
 import { describe, expect, it } from "vitest";
 
-import { REVIEW_DETAIL_TAB_LABELS } from "@/lib/review-detail-workspace-tabs";
+import {
+  REVIEW_DETAIL_TAB_IDS,
+  REVIEW_DETAIL_TAB_LABELS,
+} from "@/lib/review-detail-workspace-tabs";
 import type { ManifestSummary } from "@/types/authority";
 
 import { buildRunDetailNavSections } from "./build-run-detail-nav-sections";
 
 describe("buildRunDetailNavSections", () => {
-  it("buyer-polished uses outcome/deliverables labels and gates graph on graphSnapshotId", () => {
+  it("maps buyer-polished destinations to the eight-tab workspace contract", () => {
     const sections = buildRunDetailNavSections({
       buyerPolishedSections: true,
       manifestSummary: null,
@@ -15,16 +18,30 @@ describe("buildRunDetailNavSections", () => {
       graphSnapshotId: null,
     });
 
-    expect(sections.find((s) => s.id === "architecture-graph")?.available).toBe(false);
-    expect(sections.find((s) => s.id === "artifacts-exports")?.label).toBe("Deliverables");
-    expect(sections.find((s) => s.id === "review-summary")?.label).toBe("Summary");
-    expect(sections.find((s) => s.id === "manifest-summary")?.label).toBe("Policies and standards");
-    expect(sections.find((s) => s.id === "manifest-summary")?.available).toBe(true);
-    expect(sections.find((s) => s.id === "review-package")?.label).toBe(REVIEW_DETAIL_TAB_LABELS["review-package"]);
-    expect(sections.find((s) => s.id === "submitted-architecture")?.label).toBe("Submitted architecture");
+    expect(sections.map((section) => section.id)).toEqual([...REVIEW_DETAIL_TAB_IDS]);
+    expect(sections.find((section) => section.id === "policies")?.available).toBe(true);
+    expect(sections.find((section) => section.id === "review-package")?.label).toBe(
+      REVIEW_DETAIL_TAB_LABELS["review-package"],
+    );
+    expect(sections.find((section) => section.id === "architecture")?.label).toBe(
+      REVIEW_DETAIL_TAB_LABELS.architecture,
+    );
   });
 
-  it("full operator includes review trail and diagnostics sections", () => {
+  it("gates evidence tab when no manifest and no trust card", () => {
+    const sections = buildRunDetailNavSections({
+      buyerPolishedSections: false,
+      manifestSummary: null,
+      trustEvidenceCard: null,
+      manifestId: null,
+      graphSnapshotId: null,
+    });
+
+    expect(sections.find((section) => section.id === "evidence")?.available).toBe(true);
+    expect(sections.find((section) => section.id === "policies")?.available).toBe(false);
+  });
+
+  it("enables policies when manifest summary exists", () => {
     const manifestSummary: ManifestSummary = {
       manifestId: "man-1",
       runId: "run-1",
@@ -46,9 +63,9 @@ describe("buildRunDetailNavSections", () => {
       graphSnapshotId: "g-1",
     });
 
-    expect(sections.some((s) => s.id === "authority-chain")).toBe(true);
-    expect(sections.some((s) => s.id === "agent-forensics")).toBe(true);
-    expect(sections.find((s) => s.id === "architecture-graph")?.label).toBe("Architecture graph");
-    expect(sections.find((s) => s.id === "technology-baseline")?.label).toBe("Technology baseline");
+    expect(sections.find((section) => section.id === "policies")?.available).toBe(true);
+    expect(sections.find((section) => section.id === "activity")?.label).toBe(
+      REVIEW_DETAIL_TAB_LABELS.activity,
+    );
   });
 });

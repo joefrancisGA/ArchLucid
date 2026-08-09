@@ -1,11 +1,16 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { useGovernanceMode } from "@/hooks/use-governance-mode";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  buildReviewDetailTabHref,
+  isReviewDetailTabId,
+  type ReviewDetailTabId,
+} from "@/lib/review-detail-workspace-tabs";
 
 export type RunDetailSection = {
   id: string;
@@ -14,13 +19,14 @@ export type RunDetailSection = {
 };
 
 type RunDetailSectionNavProps = {
+  readonly runId: string;
   sections: RunDetailSection[];
 };
 
 /**
- * Sticky anchor navigation for long run detail pages; highlights the section in view via IntersectionObserver.
+ * Sticky tab navigation for long run detail pages when the tab row is not already visible.
  */
-export function RunDetailSectionNav({ sections }: RunDetailSectionNavProps) {
+export function RunDetailSectionNav({ runId, sections }: RunDetailSectionNavProps) {
   const { isGovernanceModeEnabled, vocabulary } = useGovernanceMode();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
@@ -49,53 +55,7 @@ export function RunDetailSectionNav({ sections }: RunDetailSectionNavProps) {
   const visible = normalizedSections;
   const [activeId, setActiveId] = useState<string | null>(visible[0]?.id ?? null);
 
-  useEffect(() => {
-    if (visible.length < 3)
-    {
-      return;
-    }
-
-    const elements = visible
-      .map((s) => document.getElementById(s.id))
-      .filter((el): el is HTMLElement => el !== null);
-
-    if (elements.length === 0)
-    {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visibleEntries = entries.filter((e) => e.isIntersecting);
-
-        if (visibleEntries.length === 0)
-        {
-          return;
-        }
-
-        visibleEntries.sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-        const id = visibleEntries[0].target.id;
-
-        if (id.length > 0)
-        {
-          setActiveId(id);
-        }
-      },
-      { rootMargin: "-40% 0px -45% 0px", threshold: [0, 0.1, 0.25, 0.5, 0.75, 1] },
-    );
-
-    for (const el of elements)
-    {
-      observer.observe(el);
-    }
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [visible]);
-
-  if (visible.length < 3)
-  {
+  if (visible.length < 3) {
     return null;
   }
 
@@ -110,28 +70,30 @@ export function RunDetailSectionNav({ sections }: RunDetailSectionNavProps) {
       )}
     >
       <p className={cn("mb-1.5 text-neutral-500 dark:text-neutral-400", OPERATOR_NAV_GROUP_LABEL)}>
-        On this page
+        Review workspace tabs
       </p>
       <ul className={cn("m-0 flex list-none flex-wrap gap-1 p-0", OPERATOR_TYPOGRAPHY.body)}>
-        {visible.map((s) => {
-          const active = activeId === s.id;
+        {visible.map((section) => {
+          const active = activeId === section.id;
+          const href = isReviewDetailTabId(section.id)
+            ? buildReviewDetailTabHref(runId, section.id as ReviewDetailTabId)
+            : `#${section.id}`;
 
           return (
-            <li key={s.id}>
+            <li key={section.id}>
               <a
-                href={`#${s.id}`}
+                href={href}
                 className={
                   active
                     ? "rounded-md bg-[var(--al-layer-hover)] px-2 py-1 font-semibold text-al-text-primary underline decoration-[var(--al-accent-interactive)] decoration-2 underline-offset-2 dark:bg-neutral-800/80"
                     : "rounded-md px-2 py-1 text-neutral-800 underline decoration-neutral-400 decoration-1 underline-offset-2 hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-800"
                 }
                 aria-current={active ? "page" : undefined}
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.getElementById(s.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                onClick={() => {
+                  setActiveId(section.id);
                 }}
               >
-                {s.label}
+                {section.label}
               </a>
             </li>
           );

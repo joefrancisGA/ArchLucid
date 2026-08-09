@@ -1,5 +1,9 @@
 import type { RunDetailSection } from "@/components/RunDetailSectionNav";
-import { REVIEW_DETAIL_TAB_LABELS } from "@/lib/review-detail-workspace-tabs";
+import {
+  REVIEW_DETAIL_TAB_IDS,
+  REVIEW_DETAIL_TAB_LABELS,
+  type ReviewDetailTabId,
+} from "@/lib/review-detail-workspace-tabs";
 import type { ManifestSummary, RunDetail } from "@/types/authority";
 
 export type BuildRunDetailNavSectionsArgs = {
@@ -10,53 +14,37 @@ export type BuildRunDetailNavSectionsArgs = {
   readonly graphSnapshotId: string | null | undefined;
 };
 
-/** Section strip anchors for buyer-polished vs full-operator run detail layouts. */
+function tabAvailable(tabId: ReviewDetailTabId, args: BuildRunDetailNavSectionsArgs): boolean {
+  const manifestId = (args.manifestId ?? "").trim();
+
+  switch (tabId) {
+    case "overview":
+    case "findings":
+    case "decisions-remediation":
+    case "review-package":
+    case "activity":
+      return true;
+    case "evidence":
+      return Boolean(args.trustEvidenceCard) || manifestId.length === 0;
+    case "policies":
+      return manifestId.length > 0 || args.manifestSummary !== null;
+    case "architecture":
+      return true;
+    default: {
+      const unreachable: never = tabId;
+
+      return Boolean(unreachable);
+    }
+  }
+}
+
+/** Tab-aligned section strip — maps each destination to the eight-tab review workspace contract. */
 export function buildRunDetailNavSections(
   args: BuildRunDetailNavSectionsArgs,
 ): RunDetailSection[] {
-  const { buyerPolishedSections, manifestSummary, trustEvidenceCard, manifestId, graphSnapshotId } =
-    args;
-
-    if (buyerPolishedSections) {
-      return [
-        { id: "review-summary", label: "Summary", available: true },
-        { id: "run-explanation", label: "Findings", available: true },
-        { id: "trust-evidence", label: "Evidence", available: Boolean(trustEvidenceCard) },
-        { id: "manifest-summary", label: "Policies and standards", available: Boolean(manifestId) },
-        { id: "governance-decision", label: "Decisions", available: true },
-        { id: "recommended-actions", label: "Remediation", available: true },
-        { id: "review-package", label: REVIEW_DETAIL_TAB_LABELS["review-package"], available: true },
-        { id: "pipeline-timeline", label: "Activity and audit", available: true },
-        {
-          id: "architecture-graph",
-          label: "Evidence trail",
-          available: Boolean(graphSnapshotId),
-        },
-        { id: "artifacts-exports", label: "Deliverables", available: Boolean(manifestId) },
-        { id: "submitted-architecture", label: "Submitted architecture", available: true },
-      ];
-    }
-  
-    return [
-      { id: "review-summary", label: "Summary", available: true },
-      { id: "run-explanation", label: "Findings", available: true },
-      { id: "trust-evidence", label: "Evidence", available: Boolean(trustEvidenceCard) },
-      { id: "manifest-summary", label: "Policies and standards", available: Boolean(manifestSummary) },
-      { id: "governance-decision", label: "Decisions", available: true },
-      { id: "recommended-actions", label: "Remediation", available: true },
-      { id: "review-package", label: REVIEW_DETAIL_TAB_LABELS["review-package"], available: true },
-      { id: "capture-evidence", label: "Add evidence", available: !Boolean(manifestId) },
-      { id: "technology-baseline", label: "Technology baseline", available: true },
-      { id: "pipeline-timeline", label: "Activity and audit", available: true },
-      {
-        id: "architecture-graph",
-        label: "Architecture graph",
-        available: Boolean(graphSnapshotId),
-      },
-      { id: "authority-chain", label: "Review trail", available: true },
-      { id: "artifacts-exports", label: "Artifacts", available: Boolean(manifestId) },
-      { id: "submitted-architecture", label: "Submitted architecture", available: true },
-      { id: "agent-forensics", label: "Diagnostics", available: true },
-      { id: "run-actions", label: "Actions", available: true },
-    ];
+  return REVIEW_DETAIL_TAB_IDS.map((tabId) => ({
+    id: tabId,
+    label: REVIEW_DETAIL_TAB_LABELS[tabId],
+    available: tabAvailable(tabId, args),
+  }));
 }
