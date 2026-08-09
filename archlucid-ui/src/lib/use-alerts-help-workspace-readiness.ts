@@ -13,24 +13,38 @@ import {
   ALERTS_SUMMARY_LAST_EVALUATED_RULES_NOT_CONFIGURED,
 } from "@/lib/alerts-page-copy";
 import { resolveLastEvaluatedUtc } from "@/lib/alerts-inbox-summary";
+import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import { formatRelativeTime } from "@/lib/relative-time";
 
 export type AlertsHelpWorkspaceReadinessSnapshot = {
   readonly loading: boolean;
   readonly loadFailed: boolean;
+  readonly enabledRulesCount: number;
   readonly enabledRulesLabel: string;
+  readonly enabledRulesStatusKind: EnterpriseStatusKind;
   readonly openAlertsLabel: string;
+  readonly openAlertsStatusKind: EnterpriseStatusKind;
   readonly routingDestinationsLabel: string;
+  readonly routingDestinationsStatusKind: EnterpriseStatusKind;
   readonly lastEvaluationLabel: string;
+  readonly lastEvaluationStatusKind: EnterpriseStatusKind;
+  readonly loadedAtUtc: string | null;
+  readonly reload: () => void;
 };
 
-const INITIAL_SNAPSHOT: AlertsHelpWorkspaceReadinessSnapshot = {
+const INITIAL_SNAPSHOT: Omit<AlertsHelpWorkspaceReadinessSnapshot, "reload"> = {
   loading: true,
   loadFailed: false,
+  enabledRulesCount: 0,
   enabledRulesLabel: "…",
+  enabledRulesStatusKind: "neutral",
   openAlertsLabel: "…",
+  openAlertsStatusKind: "neutral",
   routingDestinationsLabel: "…",
+  routingDestinationsStatusKind: "neutral",
   lastEvaluationLabel: "…",
+  lastEvaluationStatusKind: "neutral",
+  loadedAtUtc: null,
 };
 
 function formatEnabledRulesLabel(enabledCount: number): string {
@@ -80,8 +94,49 @@ function formatLastEvaluationLabel(
   return formatRelativeTime(lastEvaluatedUtc);
 }
 
+function resolveEnabledRulesStatusKind(enabledCount: number): EnterpriseStatusKind {
+  if (enabledCount === 0) {
+    return "needs-attention";
+  }
+
+  return "ready";
+}
+
+function resolveOpenAlertsStatusKind(openCount: number): EnterpriseStatusKind {
+  if (openCount === 0) {
+    return "neutral";
+  }
+
+  return "needs-attention";
+}
+
+function resolveRoutingDestinationsStatusKind(enabledDestinationCount: number): EnterpriseStatusKind {
+  if (enabledDestinationCount === 0) {
+    return "needs-attention";
+  }
+
+  return "ready";
+}
+
+function resolveLastEvaluationStatusKind(
+  hasEnabledRules: boolean,
+  lastEvaluatedUtc: string | null,
+): EnterpriseStatusKind {
+  if (!hasEnabledRules) {
+    return "needs-attention";
+  }
+
+  if (lastEvaluatedUtc === null) {
+    return "neutral";
+  }
+
+  return "ready";
+}
+
 export function useAlertsHelpWorkspaceReadiness(): AlertsHelpWorkspaceReadinessSnapshot {
-  const [snapshot, setSnapshot] = useState<AlertsHelpWorkspaceReadinessSnapshot>(INITIAL_SNAPSHOT);
+  const [snapshot, setSnapshot] = useState<Omit<AlertsHelpWorkspaceReadinessSnapshot, "reload">>(
+    INITIAL_SNAPSHOT,
+  );
 
   const load = useCallback(async (): Promise<void> => {
     setSnapshot((prev) => ({ ...prev, loading: true, loadFailed: false }));
@@ -101,23 +156,36 @@ export function useAlertsHelpWorkspaceReadiness(): AlertsHelpWorkspaceReadinessS
         + compositeRules.filter((rule) => rule.isEnabled).length;
       const enabledRoutingCount = routingSubscriptions.filter((row) => row.isEnabled).length;
       const lastEvaluatedUtc = resolveLastEvaluatedUtc(recentAlertsPage.items);
+      const hasEnabledRules = enabledRulesCount > 0;
 
       setSnapshot({
         loading: false,
         loadFailed: false,
+        enabledRulesCount,
         enabledRulesLabel: formatEnabledRulesLabel(enabledRulesCount),
+        enabledRulesStatusKind: resolveEnabledRulesStatusKind(enabledRulesCount),
         openAlertsLabel: formatOpenAlertsLabel(openAlertsPage.totalCount),
+        openAlertsStatusKind: resolveOpenAlertsStatusKind(openAlertsPage.totalCount),
         routingDestinationsLabel: formatRoutingDestinationsLabel(enabledRoutingCount),
-        lastEvaluationLabel: formatLastEvaluationLabel(enabledRulesCount > 0, lastEvaluatedUtc),
+        routingDestinationsStatusKind: resolveRoutingDestinationsStatusKind(enabledRoutingCount),
+        lastEvaluationLabel: formatLastEvaluationLabel(hasEnabledRules, lastEvaluatedUtc),
+        lastEvaluationStatusKind: resolveLastEvaluationStatusKind(hasEnabledRules, lastEvaluatedUtc),
+        loadedAtUtc: new Date().toISOString(),
       });
     } catch {
       setSnapshot({
         loading: false,
         loadFailed: true,
+        enabledRulesCount: 0,
         enabledRulesLabel: "Unavailable",
+        enabledRulesStatusKind: "blocked",
         openAlertsLabel: "Unavailable",
+        openAlertsStatusKind: "blocked",
         routingDestinationsLabel: "Unavailable",
-        lastEvaluationLabel: "Not yet evaluated",
+        routingDestinationsStatusKind: "blocked",
+        lastEvaluationLabel: "Unavailable",
+        lastEvaluationStatusKind: "blocked",
+        loadedAtUtc: new Date().toISOString(),
       });
     }
   }, []);
@@ -126,5 +194,8 @@ export function useAlertsHelpWorkspaceReadiness(): AlertsHelpWorkspaceReadinessS
     void load();
   }, [load]);
 
-  return snapshot;
+  return {
+    ...snapshot,
+    reload: load,
+  };
 }

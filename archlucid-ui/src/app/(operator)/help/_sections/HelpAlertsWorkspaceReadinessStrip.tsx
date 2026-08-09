@@ -1,51 +1,124 @@
 "use client";
 
+import { useMemo } from "react";
+
+import { Button } from "@/components/ui/button";
+import { StatusTag } from "@/components/ui/status-tag";
 import { cn } from "@/lib/utils";
 
-import { ALERTS_HELP_READINESS_LABELS } from "@/lib/alerts-help-guide-content";
+import { readActiveWorkspaceScopeLabel } from "@/lib/active-workspace-scope-label";
+import {
+  ALERTS_HELP_READINESS_LABELS,
+  ALERTS_HELP_READINESS_SECTION_TITLE,
+} from "@/lib/alerts-help-guide-content";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { useAlertsHelpWorkspaceReadiness } from "@/lib/use-alerts-help-workspace-readiness";
+import type { EnterpriseStatusKind } from "@/lib/design-tokens";
+import { formatRelativeTime } from "@/lib/relative-time";
+import type { AlertsHelpWorkspaceReadinessSnapshot } from "@/lib/use-alerts-help-workspace-readiness";
+
+export const HELP_ALERTS_WORKSPACE_READINESS_HEADING_ID = "help-alerts-workspace-readiness-heading";
 
 type ReadinessMetricProps = {
   readonly label: string;
   readonly value: string;
+  readonly statusKind: EnterpriseStatusKind;
 };
 
 function ReadinessMetric(props: ReadinessMetricProps): React.ReactElement {
   return (
     <div className="rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-800">
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{props.label}</p>
-      <p className={cn("m-0 mt-1 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-        {props.value}
-      </p>
+      <div className="mt-1">
+        <StatusTag kind={props.statusKind} label={props.value} />
+      </div>
     </div>
   );
 }
 
+type HelpAlertsWorkspaceReadinessStripProps = {
+  readonly readiness: AlertsHelpWorkspaceReadinessSnapshot;
+};
+
 /** Compact workspace alert readiness for `/help/alerts` — live API data only. */
-export function HelpAlertsWorkspaceReadinessStrip(): React.ReactElement {
-  const readiness = useAlertsHelpWorkspaceReadiness();
+export function HelpAlertsWorkspaceReadinessStrip(
+  props: HelpAlertsWorkspaceReadinessStripProps,
+): React.ReactElement {
+  const { readiness } = props;
+  const workspaceScope = readActiveWorkspaceScopeLabel();
+
+  const asOfLabel = useMemo((): string | null => {
+    if (readiness.loading) {
+      return "Loading…";
+    }
+
+    if (readiness.loadedAtUtc === null) {
+      return null;
+    }
+
+    return `As of ${formatRelativeTime(readiness.loadedAtUtc)}`;
+  }, [readiness.loadedAtUtc, readiness.loading]);
 
   return (
     <section
-      aria-label="Workspace alert readiness"
-      className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
+      aria-busy={readiness.loading ? true : undefined}
+      aria-labelledby={HELP_ALERTS_WORKSPACE_READINESS_HEADING_ID}
+      aria-live="polite"
+      className="space-y-3"
       data-testid="help-alerts-workspace-readiness"
     >
-      <ReadinessMetric label={ALERTS_HELP_READINESS_LABELS.enabledRules} value={readiness.enabledRulesLabel} />
-      <ReadinessMetric label={ALERTS_HELP_READINESS_LABELS.openAlerts} value={readiness.openAlertsLabel} />
-      <ReadinessMetric
-        label={ALERTS_HELP_READINESS_LABELS.routingDestinations}
-        value={readiness.routingDestinationsLabel}
-      />
-      <ReadinessMetric
-        label={ALERTS_HELP_READINESS_LABELS.lastEvaluation}
-        value={readiness.lastEvaluationLabel}
-      />
-      {readiness.loadFailed ? (
-        <p className={cn("m-0 sm:col-span-2 xl:col-span-4", OPERATOR_TYPOGRAPHY.helper)}>
-          Workspace alert status could not be loaded. Open the alerts inbox to refresh live data.
+      <header className="space-y-1">
+        <h2
+          id={HELP_ALERTS_WORKSPACE_READINESS_HEADING_ID}
+          className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}
+        >
+          {ALERTS_HELP_READINESS_SECTION_TITLE}
+        </h2>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {workspaceScope}
+          {asOfLabel !== null ? ` · ${asOfLabel}` : null}
         </p>
+      </header>
+
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <ReadinessMetric
+          label={ALERTS_HELP_READINESS_LABELS.enabledRules}
+          statusKind={readiness.enabledRulesStatusKind}
+          value={readiness.enabledRulesLabel}
+        />
+        <ReadinessMetric
+          label={ALERTS_HELP_READINESS_LABELS.openAlerts}
+          statusKind={readiness.openAlertsStatusKind}
+          value={readiness.openAlertsLabel}
+        />
+        <ReadinessMetric
+          label={ALERTS_HELP_READINESS_LABELS.routingDestinations}
+          statusKind={readiness.routingDestinationsStatusKind}
+          value={readiness.routingDestinationsLabel}
+        />
+        <ReadinessMetric
+          label={ALERTS_HELP_READINESS_LABELS.lastEvaluation}
+          statusKind={readiness.lastEvaluationStatusKind}
+          value={readiness.lastEvaluationLabel}
+        />
+      </div>
+
+      {readiness.loadFailed ? (
+        <div className="flex flex-wrap items-center gap-2">
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+            Workspace alert status could not be loaded.
+          </p>
+          <Button
+            data-testid="help-alerts-workspace-readiness-retry"
+            onClick={() => {
+              void readiness.reload();
+            }}
+            size="sm"
+            type="button"
+            variant="outline"
+          >
+            Retry
+          </Button>
+        </div>
       ) : null}
     </section>
   );
