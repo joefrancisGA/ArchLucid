@@ -1,11 +1,15 @@
 import { type NextRequest, NextResponse } from "next/server";
 
+import { readNextPublicAuthMode } from "@/lib/legacy-arch-env";
 import { canDownloadHelpTopicPdf } from "@/lib/product-documentation-pdf-access";
 import { resolvePublicHelpTopicPdfHref } from "@/lib/product-documentation-pdf-href";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { readCustomerHelpTopicPdf } from "@/lib/read-customer-help-topic-pdf";
 import { getServerResolvedScopeHeaders } from "@/lib/server-operator-scope";
-import { fetchPrincipalWithHeadersForHelpRoute } from "@/lib/server-current-principal";
+import {
+  fetchPrincipalWithHeadersForHelpRoute,
+  getServerCurrentPrincipal,
+} from "@/lib/server-current-principal";
 
 export async function GET(
   request: NextRequest,
@@ -23,19 +27,28 @@ export async function GET(
   }
 
   const inboundAuthorization = request.headers.get("authorization")?.trim() ?? "";
+  const hasInboundAuthorization = inboundAuthorization.length > 0;
 
-  if (inboundAuthorization.length === 0) {
+  let principal: Awaited<ReturnType<typeof getServerCurrentPrincipal>>;
+  let authorizationBasis: boolean;
+
+  if (hasInboundAuthorization) {
+    const scopeHeaders = await getServerResolvedScopeHeaders();
+    principal = await fetchPrincipalWithHeadersForHelpRoute({
+      Accept: "application/json",
+      Authorization: inboundAuthorization,
+      ...scopeHeaders,
+    });
+    authorizationBasis = true;
+  } else if (readNextPublicAuthMode() === "development-bypass") {
+    // development-bypass: browser calls have no JWT; match RSC/proxy server-side API key auth.
+    principal = await getServerCurrentPrincipal();
+    authorizationBasis = principal.hasRecognizedArchLucidRole;
+  } else {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const scopeHeaders = await getServerResolvedScopeHeaders();
-  const principal = await fetchPrincipalWithHeadersForHelpRoute({
-    Accept: "application/json",
-    Authorization: inboundAuthorization,
-    ...scopeHeaders,
-  });
-
-  if (!canDownloadHelpTopicPdf(entry, principal, true)) {
+  if (!canDownloadHelpTopicPdf(entry, principal, authorizationBasis)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
