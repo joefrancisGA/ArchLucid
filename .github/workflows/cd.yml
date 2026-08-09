@@ -6,10 +6,15 @@
 #   ACR_LOGIN_SERVER (optional; skips image push when unset)
 #   ACR_NAME — optional explicit registry name for `az acr login --name`
 #   TF_WORKING_DIRECTORY — optional, e.g. infra/terraform-container-apps (copy .example tfvars to dev.tfvars / terraform.tfvars / production.tfvars)
+#   TF_BACKEND_TF — multiline secret: full contents of the gitignored backend.tf (terraform{} block with this
+#     environment's azurerm backend + state key). Without it Terraform inits EMPTY LOCAL state on the runner,
+#     so the plan proposes re-creating live infrastructure; CD warns on plan-only runs and refuses to apply.
 #   DEV_TFVARS — optional multiline secret (GitHub Environment `dev` only): full contents of dev.tfvars written before `terraform plan` so CD works without committing gitignored tfvars
 #   NUGET_API_KEY — optional; pushes ArchLucid.Api.Client when set (production path)
 #   AZURE_RESOURCE_GROUP, CONTAINER_APP_API_NAME — optional; `az containerapp update` after image push (TB-657: CD owns runtime image tags; Terraform `lifecycle.ignore_changes` on container image)
 #   CONTAINER_APP_WORKER_NAME — optional; worker uses the same image as the API (ArchLucid.Api Dockerfile publishes Worker.dll; CA command is already set in Terraform)
+#     Pre-deploy, CD mirrors the API app's SQL settings onto the worker and fails closed when they are missing
+#     (scripts/ci/cd_heal_worker_sql_config.py) — Terraform does not declare ConnectionStrings for any app.
 #   CONTAINER_APP_UI_NAME — optional operator UI Container App (same archlucid-ui image)
 #   CONTAINER_APP_MARKETING_UI_NAME — optional marketing UI Container App (same image; TB-2016 dual-CA split)
 #   SMOKE_TEST_BASE_URL — required for staging/production post-deploy smoke; optional skip for dev only
@@ -356,6 +361,24 @@ jobs:
             printf '%s\n' "$DEV_TFVARS_EXTRA" >> "${TF_DIR}/dev.tfvars"
           fi
 
+      # backend.tf is gitignored (infra/terraform-container-apps/.gitignore), so a CI checkout carries no
+      # backend block and plain `terraform init` silently selects the implicit local backend — empty state
+      # on the runner disk. Materialize it from a secret, the same way dev.tfvars is materialized above.
+      # Scoping the secret per GitHub Environment keeps each target on its own state key.
+      - name: Materialize backend.tf from secret (optional)
+        env:
+          TF_BACKEND_TF: ${{ secrets.TF_BACKEND_TF }}
+        run: |
+          if [ -z "${TF_DIR:-}" ]; then
+            exit 0
+          fi
+          if [ -z "${TF_BACKEND_TF:-}" ]; then
+            echo "TF_BACKEND_TF not set — Terraform would use local state; the remote-state check reports this."
+            exit 0
+          fi
+          printf '%s\n' "$TF_BACKEND_TF" > "${TF_DIR}/backend.tf"
+          echo "Wrote ${TF_DIR}/backend.tf from the TF_BACKEND_TF secret."
+
       - name: Azure login (OIDC)
         uses: azure/login@v2
         with:
@@ -414,9 +437,19 @@ jobs:
         if: steps.plan_gate.outputs.plan_created == 'true'
         env:
           TARGET: ${{ github.event.inputs.target || 'dev' }}
+          RUN_TERRAFORM_APPLY: ${{ github.event.inputs.run_terraform_apply }}
         run: |
           cd "$TF_DIR"
           terraform init -input=false
+          # Without remote state the plan below proposes creating infrastructure that already exists, so
+          # both the plan artifact and the guard assertions that read it are fiction. Warn on plan-only
+          # runs (this job is continue-on-error there) and refuse when this run will actually apply.
+          REQUIRE_REMOTE=""
+          if [ "${RUN_TERRAFORM_APPLY:-}" = "true" ]; then
+            REQUIRE_REMOTE="--require-remote"
+          fi
+          python3 "$GITHUB_WORKSPACE/scripts/ci/cd_assert_terraform_remote_state.py" \
+            --terraform-dir . $REQUIRE_REMOTE || exit 1
           VAR_FILE_ARGS=""
           if [ "$TARGET" = "production" ] && [ -f production.tfvars ]; then
             VAR_FILE_ARGS="-var-file=production.tfvars"
@@ -517,6 +550,18 @@ jobs:
         with:
           terraform_wrapper: false
 
+      # Same gitignored-backend.tf problem as the plan job: without this, apply would initialize empty
+      # local state and create a second copy of live infrastructure instead of converging it.
+      - name: Materialize backend.tf from secret (optional)
+        env:
+          TF_BACKEND_TF: ${{ secrets.TF_BACKEND_TF }}
+        run: |
+          if [ -z "${TF_DIR:-}" ] || [ -z "${TF_BACKEND_TF:-}" ]; then
+            exit 0
+          fi
+          printf '%s\n' "$TF_BACKEND_TF" > "${TF_DIR}/backend.tf"
+          echo "Wrote ${TF_DIR}/backend.tf from the TF_BACKEND_TF secret."
+
       - name: Download Terraform plan
         uses: actions/download-artifact@v7
         with:
@@ -527,6 +572,10 @@ jobs:
         run: |
           cd "$TF_DIR"
           terraform init -input=false
+          # Hard requirement here: applying against empty local state would create a second copy of live
+          # infrastructure rather than converging the existing one.
+          python3 "$GITHUB_WORKSPACE/scripts/ci/cd_assert_terraform_remote_state.py" \
+            --terraform-dir . --require-remote || exit 1
           PLAN_FILE=$(find "${{ runner.temp }}/tfplan-artifact" -name tfplan -type f | head -1)
           if [ -z "$PLAN_FILE" ] || [ ! -f "$PLAN_FILE" ]; then
             echo "Could not locate downloaded tfplan under ${{ runner.temp }}/tfplan-artifact"
@@ -1009,6 +1058,53 @@ jobs:
             exit 1
           fi
           echo "Configuration completeness check passed."
+
+      # Terraform declares no ConnectionStrings for any Container App (TB-657 `lifecycle ignore_changes` in
+      # infra/terraform-container-apps/main.tf), so SQL settings live out-of-band. The API app received that
+      # treatment; the worker never did, so ArchLucid.Worker crash-looped on "Missing connection string
+      # 'ArchLucid'." while CD still reported green — post-deploy smoke cannot probe the worker (no ingress).
+      # Mirror the API's values onto the worker and verify, before the image roll so the new worker revision
+      # inherits them. The planner skips names already in sync, so steady-state deploys add no extra revision.
+      - name: Worker configuration heal and completeness check (pre-deploy)
+        if: steps.lineage_gate.outputs.deploy_ran == 'true'
+        env:
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
+          CONTAINER_APP_WORKER_NAME: ${{ secrets.CONTAINER_APP_WORKER_NAME }}
+        run: |
+          if [ -z "${AZURE_RESOURCE_GROUP:-}" ] || [ -z "${CONTAINER_APP_API_NAME:-}" ] || [ -z "${CONTAINER_APP_WORKER_NAME:-}" ]; then
+            echo "Worker config check skipped (AZURE_RESOURCE_GROUP, CONTAINER_APP_API_NAME, or CONTAINER_APP_WORKER_NAME not set)."
+            exit 0
+          fi
+          set -euo pipefail
+
+          read_container_env() {
+            az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$1" \
+              --query "properties.template.containers[0].env" -o json 2>/dev/null || echo "[]"
+          }
+
+          # The planner masks connection strings and writes the args file; it exits non-zero when a required
+          # setting is available from neither app (fail closed rather than deploy a worker that cannot boot).
+          SET_ARGS_FILE="${RUNNER_TEMP}/worker-sql-env-args.txt"
+          python3 scripts/ci/cd_heal_worker_sql_config.py \
+            --api-env-json "$(read_container_env "$CONTAINER_APP_API_NAME")" \
+            --worker-env-json "$(read_container_env "$CONTAINER_APP_WORKER_NAME")" \
+            --set-env-args-out "$SET_ARGS_FILE"
+
+          # An empty file means the worker already matches the API — skip the update to avoid revision churn (TB-756).
+          if [ ! -s "$SET_ARGS_FILE" ]; then
+            exit 0
+          fi
+
+          # One NAME=VALUE per line; values are already registered with the Actions log masker.
+          mapfile -t WORKER_SQL_ENV_ARGS < "$SET_ARGS_FILE"
+          rm -f "$SET_ARGS_FILE"
+          az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_WORKER_NAME" \
+            --set-env-vars "${WORKER_SQL_ENV_ARGS[@]}" -o none
+
+          python3 scripts/ci/cd_heal_worker_sql_config.py \
+            --worker-env-json "$(read_container_env "$CONTAINER_APP_WORKER_NAME")" \
+            --verify-only
 
       - name: Update Azure Container Apps (optional)
         id: containerapp_update

@@ -219,7 +219,11 @@ If images are in **Azure Container Registry**, attach a **managed identity** to 
 
 ## Terraform state and brownfield imports (TB-912)
 
-This root's remote state (see **`backend.tf`** / **`backend.dev.hcl`**, key **`container-apps.tfstate`**) is the single owner for every resource declared in **`main.tf`**. Do not split Container Apps, Log Analytics, or managed identities across multiple state files.
+This root's remote state (key **`container-apps.tfstate`**) is the single owner for every resource declared in **`main.tf`**. Do not split Container Apps, Log Analytics, or managed identities across multiple state files.
+
+**`backend.tf` is gitignored, so CI has to be given it.** With no backend block present, `terraform init` silently selects the **implicit local backend** and starts from empty state — the plan then proposes creating every resource, including the resource group, against infrastructure that already exists. Set the GitHub **environment-scoped** secret **`TF_BACKEND_TF`** to the full contents of `backend.tf` (a `terraform {}` block with this environment's `azurerm` backend); `cd.yml` writes it before `init` in both the plan and apply jobs, and **`scripts/ci/cd_assert_terraform_remote_state.py`** warns on plan-only runs and **fails** the apply when state is still local. Because the secret is per environment, `dev` / `staging` / `production` each keep their own state key under one secret name.
+
+Locally, create `backend.tf` yourself (it will not be committed) or run `terraform init -backend-config=<your>.hcl`.
 
 **Brownfield adoption:** when Azure resources already exist but are missing from state, add temporary Terraform **`import`** blocks on a **short-lived branch** (or only on your machine)—**never merge** import-only files to **`main`**. After the first successful **`terraform apply`** that imports and converges configuration, **delete** the import file and re-run **`terraform plan`** to confirm an empty diff before merging the convergence fixes.
 
