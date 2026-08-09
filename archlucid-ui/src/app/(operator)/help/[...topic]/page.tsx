@@ -29,8 +29,8 @@ import { HelpEngineeringTroubleshootingGuideView } from "../_sections/HelpEngine
 import { HelpFirstReviewEvidenceChecklistGuideView } from "../_sections/HelpFirstReviewEvidenceChecklistGuideView";
 import { HelpFirstValue20GuideView } from "../_sections/HelpFirstValue20GuideView";
 import { HelpPolicyPackDeltaDemoGuideView } from "../_sections/HelpPolicyPackDeltaDemoGuideView";
-import { HelpConnectAwsSecurelyGuideView } from "../_sections/HelpConnectAwsSecurelyGuideView";
 import { HelpConnectAzureSecurelyGuideView } from "../_sections/HelpConnectAzureSecurelyGuideView";
+import { HelpConnectGcpSecurelyGuideView } from "../_sections/HelpConnectGcpSecurelyGuideView";
 import { HelpCorePilotGuideView } from "../_sections/HelpCorePilotGuideView";
 import { HelpRepeatReviewLoopGuideView } from "../_sections/HelpRepeatReviewLoopGuideView";
 import { HelpSpecialtyWalkthroughTemplatesView } from "../_sections/HelpSpecialtyWalkthroughTemplatesView";
@@ -180,19 +180,19 @@ function renderHelpTopicView(
 
   if (loaded.entry.slug === "cloud-connections-aws") {
     return (
-      <HelpConnectAwsSecurelyGuideView
+      <HelpTopicMarkdownView
         entry={loaded.entry}
-        returnHref={resolveAzurePermissionsReturnHref(readSearchParam(searchParams, "returnTo"))}
+        markdown={loaded.markdown}
+        showContextualHelp
       />
     );
   }
 
   if (loaded.entry.slug === "cloud-connections-gcp") {
     return (
-      <HelpTopicMarkdownView
+      <HelpConnectGcpSecurelyGuideView
         entry={loaded.entry}
         markdown={loaded.markdown}
-        showContextualHelp
       />
     );
   }
