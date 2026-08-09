@@ -97,7 +97,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
           label: "Users & roles",
 
-          title: "Users & roles — directory, role assignments, and API keys",
+          title: "Users & roles — directory and role assignments",
 
           icon: Users,
 

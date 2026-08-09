@@ -65,7 +65,7 @@ describe("ui-route-traffic-settings-users-users-tab (SSU)", () => {
     expect(row?.section).toBe(SETTINGS_USERS_USERS_TAB_TRAFFIC_SECTION);
     expect(row?.notes).toBe(SETTINGS_USERS_USERS_TAB_TRAFFIC_NOTE);
     expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
-    expect(row?.notes).toContain("Score 58");
+    expect(row?.notes).toContain("tab-surface ceiling");
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

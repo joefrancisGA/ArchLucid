@@ -86,7 +86,7 @@ describe("ApiKeysSettingsPageClient", () => {
     expect(screen.getByTestId("api-keys-settings-restricted")).toBeInTheDocument();
     expect(
       screen.getByText(
-        "API key management is not available in this workspace experience. Contact your ArchLucid representative for enterprise API access.",
+        "API key management is not offered in the product UI yet. Interactive access uses Users and roles. Host automation credentials stay in deployment configuration when needed.",
       ),
     ).toBeInTheDocument();
   });

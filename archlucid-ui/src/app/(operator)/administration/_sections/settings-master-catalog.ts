@@ -298,8 +298,8 @@ export const SETTINGS_MASTER_SECTIONS: readonly SettingsMasterSection[] = [
     id: "advanced",
     navLabel: "Advanced",
     title: "Advanced configuration",
-    description: "Identity, API keys, and rarely changed tenant controls.",
-    keywords: ["advanced", "sso", "scim", "api key", "identity", "recycle"],
+    description: "Identity and rarely changed tenant controls.",
+    keywords: ["advanced", "sso", "scim", "identity", "recycle"],
     tier: "advanced",
     destinations: [
       {
