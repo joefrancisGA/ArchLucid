@@ -1860,7 +1860,7 @@ Former standalone body: `docs/go-to-market/GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_
 | Mass SHA rewrite that silences drift without owning the change | **Rubber-stamp (forbid as proof)** | Not regression proof |
 | Healing production export verify via cohort re-lock | **Forbid** | Eval baselines â‰  prod ManifestHash |
 | Real captured as Simulator baseline | **Forbid** | Mode honesty (**M-128**) |
-| Touch never-re-lockable list (**TB-1172**) | **Forbid** without explicit contract change | Invariants stay pinned |
+| Touch never-re-lockable list (**TB-1172** **Done**) | **Forbid** without explicit contract change | Invariants stay pinned |
 
 ### Never-re-lockable (buyer-safe)
 
@@ -1882,7 +1882,7 @@ Former standalone body: `docs/go-to-market/GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_
 
 ### Claim boundary
 
-Do not treat unexplained mass SHA rewrites as regression proof; do not sell cohort re-lock as healing production `ManifestHash` / export verify; do not capture Real-mode as Simulator baseline. Say: intentional content re-lock OK with rationale; rubber-stamp when mass rewrite silences drift without owning the product change; never-re-lockable list per **TB-1172**.
+Do not treat unexplained mass SHA rewrites as regression proof; do not sell cohort re-lock as healing production `ManifestHash` / export verify; do not capture Real-mode as Simulator baseline. Say: intentional content re-lock OK with rationale; rubber-stamp when mass rewrite silences drift without owning the product change; never-re-lockable list per **TB-1172** **Done** contract.
 
 ### Safe pin
 
@@ -1897,7 +1897,7 @@ Do not treat unexplained mass SHA rewrites as regression proof; do not sell coho
 
 ### Residuals (honest)
 
-- **TB-1172** / **TB-1173** own the re-lock vs rubber-stamp contract and honesty CI.
+- **TB-1172** **Done** — [`GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_CONTRACT.md`](../library/GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_CONTRACT.md); **TB-1173** owns anti-rubber-stamp CI.
 - Cite `tests/golden-cohort/README.md` lock ritual + **TB-1156** **Done** dual-hasher contract.
 - Complements **M-154**, **M-198**/**M-199**, **M-274**; pairs claim-honesty **M-201**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
