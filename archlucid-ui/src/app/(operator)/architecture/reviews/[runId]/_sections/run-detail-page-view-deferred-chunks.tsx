@@ -312,7 +312,10 @@ export const RunDetailWorkspaceHeaderDeferred = dynamic(
 );
 
 export const RunDetailWorkspaceSummaryStripDeferred = dynamic(
-  () => import("./RunDetailWorkspaceChrome").then((module) => module.RunDetailWorkspaceSummaryStrip),
+  () =>
+    import("./RunDetailWorkspaceSummaryStripTabAware").then(
+      (module) => module.RunDetailWorkspaceSummaryStripTabAware,
+    ),
   { ssr: false, loading: () => workspaceSummaryLoading },
 );
 
@@ -342,7 +345,8 @@ export const RunDetailExecutiveSummaryCtaCardDeferred = dynamic(
 );
 
 export const ReviewPackagePrimaryActionDeferred = dynamic(
-  () => import("./ReviewPackagePrimaryAction").then((module) => module.ReviewPackagePrimaryAction),
+  () =>
+    import("./ReviewPackagePrimaryActionTabAware").then((module) => module.ReviewPackagePrimaryActionTabAware),
   { ssr: false, loading: () => null },
 );
 

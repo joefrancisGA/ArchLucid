@@ -70,7 +70,7 @@ describe("ui-route-traffic-review-workspace (RRE)", () => {
     expect(rre?.section).toBe(REVIEW_WORKSPACE_TRAFFIC_SECTION);
     expect(rre?.notes).toBe(REVIEW_WORKSPACE_TRAFFIC_NOTE);
     expect(rre?.notes).toContain("Absorbs former SRN");
-    expect(rre?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
-    expect(rre?.notes).toContain("cannot improve further toward 80");
+    expect(rre?.notes).toContain("findings-first reviewTab queue");
+    expect(rre?.notes).toContain("Score 76");
   });
 });

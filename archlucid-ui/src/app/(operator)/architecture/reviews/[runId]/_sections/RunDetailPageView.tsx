@@ -292,6 +292,16 @@ export function RunDetailPageView(props: {
     hasCommitBlockingFailures: findingCoverageSummary?.hasCommitBlockingFailures === true,
     findings: quickDecisionFindings,
   });
+  const reviewPackagePrimaryActionContext = {
+    runId: m.resolvedDetail.run.runId,
+    manifestId: m.manifestId,
+    hasCommitBlockingFailures: findingCoverageSummary?.hasCommitBlockingFailures === true,
+    blockingFindingCount: blockingApprovalCount,
+    buyerPolishedArtifactTable: m.buyerPolishedArtifactTable,
+    operatorGovernanceDecision: m.resolvedDetail.run.operatorGovernanceDecision,
+    manifestStatus: m.manifestSummary?.status ?? null,
+    runCompleted: m.resolvedDetail.run.completedUtc != null,
+  };
   const workspaceStatus = deriveRunDetailWorkspaceStatus({
     run: m.resolvedDetail.run,
     manifestId: m.manifestId,
@@ -801,6 +811,7 @@ export function RunDetailPageView(props: {
                     <RunDetailWorkspaceStickyActionsDeferred
                       runId={m.resolvedDetail.run.runId}
                       primaryAction={reviewPackagePrimaryAction}
+                      primaryActionContext={reviewPackagePrimaryActionContext}
                       commitBlockedReason={commitBlockedReason}
                       showProgressTracker={m.showProgressTracker}
                       manifestId={m.manifestId}
@@ -810,6 +821,7 @@ export function RunDetailPageView(props: {
                   <div className="lg:hidden">
                     <ReviewPackagePrimaryActionDeferred
                       action={reviewPackagePrimaryAction}
+                      primaryActionContext={reviewPackagePrimaryActionContext}
                       runId={m.resolvedDetail.run.runId}
                       hasGoldenManifest={Boolean(m.manifestId)}
                       commitBlockedReason={commitBlockedReason}

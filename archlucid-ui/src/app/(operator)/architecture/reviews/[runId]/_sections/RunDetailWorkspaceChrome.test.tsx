@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/architecture/reviews/run-1",
+  useSearchParams: () => new URLSearchParams("reviewTab=overview"),
 }));
 
 vi.mock("next/link", () => ({
@@ -61,7 +62,19 @@ describe("RunDetailWorkspaceStickyActions", () => {
       <RunDetailWorkspaceStickyActions
         runId="run-1"
         primaryAction={{ kind: "finalize-package", label: "Finalize review", href: null }}
+        primaryActionContext={{
+          runId: "run-1",
+          manifestId: null,
+          hasCommitBlockingFailures: false,
+          blockingFindingCount: 0,
+          buyerPolishedArtifactTable: false,
+          operatorGovernanceDecision: null,
+          manifestStatus: null,
+          runCompleted: false,
+        }}
         commitBlockedReason={null}
+        showProgressTracker={false}
+        manifestId={null}
       />,
     );
 

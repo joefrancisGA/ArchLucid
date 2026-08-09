@@ -2,18 +2,22 @@ import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { DESIGN_TOKENS, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  formatDecisionPipelineBuyerLabel,
+  normalizeDecisionConfidencePercent,
+  resolveRecordedDecisionConfidenceNote,
+} from "@/lib/decision-explainability-buyer-copy";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { RunDecisionExplainabilityModel } from "@/lib/run-decision-explainability-from-detail";
 
 function formatConfidence(confidence: number | null): string {
-  if (confidence === null || !Number.isFinite(confidence)) {
+  const normalized = normalizeDecisionConfidencePercent(confidence);
+
+  if (normalized === null) {
     return "Unknown";
   }
 
-  if (confidence <= 1) {
-    return `${Math.round(confidence * 100)}%`;
-  }
-
-  return `${Math.round(confidence)}%`;
+  return `${normalized}%`;
 }
 
 function SnapshotIdList(props: { readonly label: string; readonly value: string | null }): ReactElement | null {
@@ -34,6 +38,7 @@ export function RunDecisionExplainabilitySection(props: {
   readonly model: RunDecisionExplainabilityModel;
 }): ReactElement {
   const { model } = props;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   return (
     <section
@@ -108,7 +113,14 @@ export function RunDecisionExplainabilitySection(props: {
               </tr>
             </thead>
             <tbody>
-              {model.manifestDecisions.map((row) => (
+              {model.manifestDecisions.map((row) => {
+                const confidenceNote = resolveRecordedDecisionConfidenceNote({
+                  selectedOption: row.selectedOption,
+                  confidence: row.confidence,
+                  buyerConfidenceSource: row.buyerConfidenceSource,
+                });
+
+                return (
                 <tr key={row.decisionId} className="border-b border-neutral-100 dark:border-neutral-800">
                   <td className="px-2 py-2 align-top">
                     <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">{row.title}</p>
@@ -117,13 +129,20 @@ export function RunDecisionExplainabilitySection(props: {
                   <td className="px-2 py-2 align-top">{row.selectedOption}</td>
                   <td className="px-2 py-2 align-top">
                     {formatConfidence(row.confidence)}
-                    {row.buyerConfidenceSource ? (
+                    {confidenceNote !== null ? (
+                      <span className={cn("mt-1 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.micro)}>
+                        {confidenceNote}
+                      </span>
+                    ) : row.buyerConfidenceSource ? (
                       <span className={cn("block text-neutral-500", OPERATOR_TYPOGRAPHY.micro)}>{row.buyerConfidenceSource}</span>
                     ) : null}
                   </td>
-                  <td className={cn("px-2 py-2 align-top font-mono", OPERATOR_TYPOGRAPHY.micro)}>{row.pipeline}</td>
+                  <td className={cn("px-2 py-2 align-top", buyerPolishedShell ? OPERATOR_TYPOGRAPHY.helper : "font-mono", OPERATOR_TYPOGRAPHY.micro)}>
+                    {buyerPolishedShell ? formatDecisionPipelineBuyerLabel(row.pipeline) : row.pipeline}
+                  </td>
                 </tr>
-              ))}
+              );
+              })}
             </tbody>
           </table>
         </div>
@@ -147,7 +166,9 @@ export function RunDecisionExplainabilitySection(props: {
                     <p className={cn("m-0 mt-0.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}>{row.rationale}</p>
                   </td>
                   <td className="px-2 py-2 align-top">{formatConfidence(row.confidence)}</td>
-                  <td className={cn("px-2 py-2 align-top font-mono", OPERATOR_TYPOGRAPHY.micro)}>{row.pipeline}</td>
+                  <td className={cn("px-2 py-2 align-top", buyerPolishedShell ? OPERATOR_TYPOGRAPHY.helper : "font-mono", OPERATOR_TYPOGRAPHY.micro)}>
+                    {buyerPolishedShell ? formatDecisionPipelineBuyerLabel(row.pipeline) : row.pipeline}
+                  </td>
                 </tr>
               ))}
             </tbody>

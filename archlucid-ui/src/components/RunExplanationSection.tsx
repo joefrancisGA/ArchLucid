@@ -19,6 +19,8 @@ export type RunExplanationSectionProps = {
   runId: string;
   /** When set, overrides `summary.findingCount` in the headline stats line (spine-aligned demo counts). */
   displayFindingCount?: number | null;
+  /** Buyer-facing finding titles keyed by finding id for trace rows. */
+  findingTitlesById?: Readonly<Record<string, string>>;
 };
 
 /** Tailwind mapping for faithfulness support ratio (0–100). */
@@ -122,6 +124,7 @@ export function RunExplanationSection({
   error,
   runId,
   displayFindingCount,
+  findingTitlesById,
 }: RunExplanationSectionProps) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
@@ -305,11 +308,20 @@ export function RunExplanationSection({
           <ul className={cn("m-0 list-disc space-y-1 pl-5 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
             {summary.findingTraceConfidences.map((row) => {
               const tracePct = traceCompletenessPercent(row.traceCompletenessRatio);
+              const findingTitle = findingTitlesById?.[row.findingId]?.trim();
+              const findingLabel =
+                buyerPolishedShell && findingTitle !== undefined && findingTitle.length > 0
+                  ? findingTitle
+                  : row.findingId;
 
               return (
               <li key={row.findingId}>
-                <code className={cn("rounded bg-neutral-100 px-1 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.micro)}>{row.findingId}</code> —{" "}
-                {row.traceConfidenceLabel} ({tracePct ?? 0}% trace fields)
+                {buyerPolishedShell ? (
+                  <span className="font-medium text-neutral-800 dark:text-neutral-200">{findingLabel}</span>
+                ) : (
+                  <code className={cn("rounded bg-neutral-100 px-1 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.micro)}>{row.findingId}</code>
+                )}{" "}
+                — {row.traceConfidenceLabel} ({tracePct ?? 0}% trace fields)
                 {row.ruleId && row.ruleId.trim().length > 0 ? `; rule ${row.ruleId}` : ""}
                 {typeof row.evidenceRefCount === "number" && Number.isFinite(row.evidenceRefCount)
                   ? `; ${row.evidenceRefCount} evidence ref(s)`

@@ -900,21 +900,6 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
               ) : null}
             </div>
           ) : null}
-          {hasSourceFindings && policyPackSummary.length > 0 ? (
-            <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" data-workspace-disclosure>
-              <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.body)}>
-                Policy pack impact
-              </summary>
-              <div className="mt-3">
-                <ReviewDetailPolicyPackFindingsBreakdown
-                  groups={policyPackSummary}
-                  manifestRuleSetId={props.manifestRuleSetId}
-                  mappedFindingCount={policyPackImpact.mappedFindingCount}
-                  unmappedFindingCount={policyPackImpact.unmappedFindingCount}
-                />
-              </div>
-            </details>
-          ) : null}
           {props.usingExplanationFallback === true ? (
             <p
               className={cn(
@@ -977,6 +962,21 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
               ) : null}
             </div>
           )}
+          {hasSourceFindings && policyPackSummary.length > 0 ? (
+            <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" data-workspace-disclosure>
+              <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.body)}>
+                Policy pack impact
+              </summary>
+              <div className="mt-3">
+                <ReviewDetailPolicyPackFindingsBreakdown
+                  groups={policyPackSummary}
+                  manifestRuleSetId={props.manifestRuleSetId}
+                  mappedFindingCount={policyPackImpact.mappedFindingCount}
+                  unmappedFindingCount={policyPackImpact.unmappedFindingCount}
+                />
+              </div>
+            </details>
+          ) : null}
         </div>
         {renderWorkspaceDialogs()}
       </>

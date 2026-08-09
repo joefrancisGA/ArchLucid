@@ -27,7 +27,7 @@ describe("CitationChips", () => {
     demoUiEnvMock.buyerPolishedShell = false;
     render(<CitationChips citations={[base]} runId="run-a" />);
 
-    const link = screen.getByRole("link", { name: /Citation/i });
+    const link = screen.getByRole("link", { name: /Finding: Example finding/i });
     expect(link.getAttribute("href")).toBe("/architecture/reviews/run-a#finding-finding-123");
   });
 
@@ -35,7 +35,7 @@ describe("CitationChips", () => {
     demoUiEnvMock.buyerPolishedShell = true;
     render(<CitationChips citations={[base]} runId="run-a" />);
 
-    const link = screen.getByRole("link", { name: /Citation/i });
+    const link = screen.getByRole("link", { name: /Finding: Example finding/i });
     expect(link.getAttribute("href")).toBe("/architecture/reviews/run-a/findings/finding-123");
   });
 });

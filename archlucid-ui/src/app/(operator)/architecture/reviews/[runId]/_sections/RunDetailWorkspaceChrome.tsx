@@ -81,6 +81,7 @@ export type RunDetailWorkspaceSummaryStripProps = {
   readonly nextAction: string;
   readonly materialSeverityLine?: string | null;
   readonly nextActionHref?: string | null;
+  readonly suppressFindingsDeepLink?: boolean;
 };
 
 /** Compact first-viewport review status summary near the title. */
@@ -124,7 +125,9 @@ export function RunDetailWorkspaceSummaryStrip(
           <dt className="text-neutral-500 dark:text-neutral-400">Next action</dt>
           <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">
             <span>{props.nextAction}</span>
-            {props.nextActionHref !== null && props.nextActionHref !== undefined ? (
+            {props.nextActionHref !== null &&
+            props.nextActionHref !== undefined &&
+            props.suppressFindingsDeepLink !== true ? (
               <Button variant="outline" size="sm" asChild className="ml-3 mt-2 sm:mt-0">
                 <Link href={props.nextActionHref}>Open findings</Link>
               </Button>
