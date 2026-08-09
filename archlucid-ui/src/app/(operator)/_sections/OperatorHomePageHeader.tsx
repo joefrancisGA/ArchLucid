@@ -1,6 +1,5 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
@@ -11,7 +10,6 @@ import {
   OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_BODY,
   OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL,
 } from "@/lib/buyer-polish-copy";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   operatorLastRefreshedExactLabel,
   operatorLastRefreshedLabel,
@@ -72,10 +70,7 @@ export function OperatorHomePageHeader(props: OperatorHomePageHeaderProps): Reac
       }
       metadata={
         <span
-          className={cn(
-            "text-al-text-secondary [&_strong]:font-bold",
-            OPERATOR_TYPOGRAPHY.helper,
-          )}
+          className="text-al-text-secondary [&_strong]:font-bold"
           data-testid="operator-home-last-refreshed"
           title={operatorLastRefreshedExactLabel(lastRefreshedAt)}
         >

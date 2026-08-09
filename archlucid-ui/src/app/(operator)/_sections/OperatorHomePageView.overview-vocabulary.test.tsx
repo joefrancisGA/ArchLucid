@@ -6,7 +6,6 @@ import { OperatorHomePageView } from "@/app/(operator)/_sections/OperatorHomePag
 import type { OperatorHomePageViewModel } from "@/app/(operator)/_sections/operator-home-page-view-model";
 import {
   OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE,
-  OPERATOR_HOME_DO_THIS_NEXT_HEADING,
   OPERATOR_HOME_INTENT_CHOOSER_HEADING,
   OPERATOR_HOME_RECENT_REVIEWS_HEADING,
 } from "@/lib/buyer-polish-copy";
@@ -246,7 +245,8 @@ describe("OperatorHomePageView overview vocabulary guard", () => {
 
     expect(screen.getByRole("heading", { name: OPERATOR_HOME_RECENT_REVIEWS_HEADING })).toBeInTheDocument();
     expect(screen.getByTestId("pilot-command-center-card")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: OPERATOR_HOME_DO_THIS_NEXT_HEADING })).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-do-this-next")).toBeInTheDocument();
+    expect(screen.queryByText("Do this next")).toBeNull();
 
     await waitFor(() => {
       expect(screen.getByRole("heading", { name: OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE })).toBeInTheDocument();
@@ -264,7 +264,8 @@ describe("OperatorHomePageView overview vocabulary guard", () => {
 
     expect(screen.getByRole("heading", { name: OPERATOR_HOME_RECENT_REVIEWS_HEADING })).toBeInTheDocument();
     expect(screen.getByTestId("pilot-command-center-card")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: OPERATOR_HOME_DO_THIS_NEXT_HEADING })).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-do-this-next")).toBeInTheDocument();
+    expect(screen.queryByText("Do this next")).toBeNull();
     expect(screen.queryByTestId("operator-home-advanced-guidance")).toBeNull();
 
     assertNoBannedOverviewVocabulary(container);

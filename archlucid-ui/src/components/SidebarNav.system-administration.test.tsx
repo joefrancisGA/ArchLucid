@@ -84,7 +84,7 @@ vi.mock("next/link", () => ({
   ),
 }));
 
-describe("SidebarNav — Internal Operations section", () => {
+describe("SidebarNav — Internal section", () => {
   beforeEach(() => {
     mockPathname.mockReturnValue("/");
     buyerPolishedShellMock.value = false;
@@ -98,7 +98,7 @@ describe("SidebarNav — Internal Operations section", () => {
     vi.unstubAllEnvs();
   });
 
-  it("renders Internal Operations when the feature flag is enabled", async () => {
+  it("renders Internal when the feature flag is enabled", async () => {
     render(<SidebarNav />);
 
     await waitFor(() => {
@@ -106,11 +106,11 @@ describe("SidebarNav — Internal Operations section", () => {
     });
 
     expect(screen.getByTestId("sidebar-group-toggle-operator-system-admin")).toHaveTextContent(
-      "Internal Operations",
+      "Internal",
     );
   });
 
-  it("does not render Internal Operations when the feature flag is disabled", async () => {
+  it("does not render Internal when the feature flag is disabled", async () => {
     vi.stubEnv("NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV", "false");
 
     render(<SidebarNav />);
@@ -120,7 +120,7 @@ describe("SidebarNav — Internal Operations section", () => {
     });
   });
 
-  it("renders Internal Operations in buyer-polished shell when full-operator experience is enabled", async () => {
+  it("renders Internal in buyer-polished shell when full-operator experience is enabled", async () => {
     buyerPolishedShellMock.value = true;
     fullOperatorShellMock.value = true;
 
@@ -131,7 +131,7 @@ describe("SidebarNav — Internal Operations section", () => {
     });
   });
 
-  it("hides Internal Operations in buyer-polished shell without full-operator experience", async () => {
+  it("hides Internal in buyer-polished shell without full-operator experience", async () => {
     buyerPolishedShellMock.value = true;
     fullOperatorShellMock.value = false;
 
@@ -142,7 +142,7 @@ describe("SidebarNav — Internal Operations section", () => {
     });
   });
 
-  it("does not show Internal Operations for public sample users (buyer-polished, not full shell)", async () => {
+  it("does not show Internal for public sample users (buyer-polished, not full shell)", async () => {
     buyerPolishedShellMock.value = true;
     fullOperatorShellMock.value = false;
     vi.stubEnv("NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV", "true");
@@ -153,11 +153,11 @@ describe("SidebarNav — Internal Operations section", () => {
       expect(screen.queryByTestId("sidebar-group-toggle-operator-system-admin")).toBeNull();
     });
 
-    expect(screen.queryByRole("group", { name: "Internal Operations" })).toBeNull();
+    expect(screen.queryByRole("group", { name: "Internal" })).toBeNull();
     expect(screen.queryByRole("link", { name: OPERATOR_NAV_LINK_LABELS.knowledgeIndexHealth })).toBeNull();
   });
 
-  it("does not show Internal Operations for ordinary tenant users when the admin nav flag is off", async () => {
+  it("does not show Internal for ordinary tenant users when the admin nav flag is off", async () => {
     buyerPolishedShellMock.value = false;
     fullOperatorShellMock.value = false;
     vi.stubEnv("NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV", "false");
@@ -168,10 +168,10 @@ describe("SidebarNav — Internal Operations section", () => {
       expect(screen.queryByTestId("sidebar-group-toggle-operator-system-admin")).toBeNull();
     });
 
-    expect(screen.queryByText("Internal Operations")).toBeNull();
+    expect(screen.queryByText("Internal")).toBeNull();
   });
 
-  it("shows Internal Operations only for authorized internal operator shells", async () => {
+  it("shows Internal only for authorized internal operator shells", async () => {
     buyerPolishedShellMock.value = false;
     fullOperatorShellMock.value = true;
     vi.stubEnv("NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV", "true");
@@ -185,7 +185,7 @@ describe("SidebarNav — Internal Operations section", () => {
     fireEvent.click(screen.getByTestId("sidebar-group-toggle-operator-system-admin"));
 
     await waitFor(() => {
-      expect(screen.getByRole("group", { name: "Internal Operations" })).toBeInTheDocument();
+      expect(screen.getByRole("group", { name: "Internal" })).toBeInTheDocument();
     });
   });
 
@@ -204,7 +204,7 @@ describe("SidebarNav — Internal Operations section", () => {
     expect(screen.queryByRole("link", { name: OPERATOR_NAV_LINK_LABELS.knowledgeIndexHealth })).toBeNull();
   });
 
-  it("expands Internal Operations and highlights an active internal route", async () => {
+  it("expands Internal and highlights an active internal route", async () => {
     mockPathname.mockReturnValue("/internal/rag-health");
 
     render(<SidebarNav />);
@@ -213,7 +213,7 @@ describe("SidebarNav — Internal Operations section", () => {
       expect(screen.getByTestId("sidebar-group-toggle-operator-system-admin")).toHaveAttribute("aria-expanded", "true");
     });
 
-    const internalOpsNav = screen.getByRole("group", { name: "Internal Operations" });
+    const internalOpsNav = screen.getByRole("group", { name: "Internal" });
     const ragLink = within(internalOpsNav).getByRole("link", {
       name: OPERATOR_NAV_LINK_LABELS.knowledgeIndexHealth,
     });

@@ -13,6 +13,7 @@ import {
   fetchLlmMonthlyDollarBudgetStatusCached,
   llmBudgetRemainingPercent,
   resolveLlmBudgetUtilizationTone,
+  shouldShowShellLlmBudgetStatusPill,
   type LlmBudgetUtilizationTone,
   type LlmMonthlyDollarBudgetStatus,
 } from "@/lib/llm-monthly-budget-status";
@@ -109,6 +110,10 @@ export function LlmBudgetStatusPill() {
     return null;
   }
 
+  if (!shouldShowShellLlmBudgetStatusPill(status)) {
+    return null;
+  }
+
   const tone = resolveLlmBudgetUtilizationTone(status);
   const remainingPercent = llmBudgetRemainingPercent(status);
   const paused =
@@ -141,12 +146,12 @@ export function LlmBudgetStatusPill() {
         <PopoverContent data-testid="llm-budget-status-pill-popover">
           <LlmBudgetUtilizationMeter />
           <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}>
-            <Link href="/administration/billing#billing-usage" className={OPERATOR_LINK.nav}>
-              View usage on Billing &amp; plans
+            <Link href={AI_USAGE_SETTINGS_PATH} className={OPERATOR_LINK.nav}>
+              Open AI usage and budget
             </Link>
             {" · "}
-            <Link href={AI_USAGE_SETTINGS_PATH} className={OPERATOR_LINK.nav}>
-              AI usage
+            <Link href="/administration/billing#billing-usage" className={OPERATOR_LINK.nav}>
+              Billing &amp; plans
             </Link>
           </p>
         </PopoverContent>

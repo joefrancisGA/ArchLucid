@@ -35,10 +35,12 @@ describe("OperatorHomePageHeader", () => {
       operatorHomePageSubtitle(false),
     );
     expect(screen.getByTestId("operator-home-page-subtitle").className).toContain("max-w-none");
+    expect(screen.getByTestId("operator-home-page-subtitle").className).toContain("text-[13px]");
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-header-actions")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-refresh-button")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-last-refreshed")).toHaveTextContent(/Last refreshed:/i);
+    expect(screen.getByTestId("operator-home-last-refreshed").className).not.toContain("text-xs");
     expect(screen.getByText("Last refreshed:").tagName).toBe("STRONG");
     expect(screen.getByText("Last refreshed:").className).toContain("font-bold");
 

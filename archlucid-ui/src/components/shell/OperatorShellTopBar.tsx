@@ -38,7 +38,8 @@ type OperatorShellTopBarProps = {
 
 /**
  * Operator shell header: brand rail (sidebar width), content-aligned search, session controls.
- * Help and AI usage stay freestanding; eval-only theme toggle uses the overflow menu when enabled.
+ * Help stays freestanding; AI budget pill appears only when utilization is warn/critical.
+ * Eval-only theme toggle uses the overflow menu when enabled.
  */
 export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.Element {
   const showDevOperatorChrome = isOperatorExperienceFullShellEnv();

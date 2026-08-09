@@ -338,7 +338,7 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
 
       id: "operator-system-admin",
 
-      label: "Internal Operations",
+      label: "Internal",
 
       surface: "system-admin",
 
