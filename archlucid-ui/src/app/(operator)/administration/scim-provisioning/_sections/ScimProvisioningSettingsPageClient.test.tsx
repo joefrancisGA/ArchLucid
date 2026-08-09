@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ScimProvisioningSettingsPageClient } from "./ScimProvisioningSettingsPageClient";
 import { SCIM_TOKEN_CREATED_SUCCESS, SCIM_TOKEN_REVOKED_SUCCESS } from "@/lib/scim-provisioning-page-copy";
+import { showSuccess } from "@/lib/toast";
 
 vi.mock("@/lib/toast", () => ({
   showSuccess: vi.fn(),
@@ -121,6 +122,7 @@ describe("ScimProvisioningSettingsPageClient", () => {
     });
 
     expect(screen.getByTestId("scim-mutation-success-callout")).toHaveTextContent(SCIM_TOKEN_CREATED_SUCCESS);
+    expect(showSuccess).not.toHaveBeenCalled();
 
     expect(screen.queryByTestId("scim-verify-token-input")).not.toBeInTheDocument();
     expect(screen.getByTestId("scim-verify-session-hint")).toBeInTheDocument();
@@ -185,6 +187,7 @@ describe("ScimProvisioningSettingsPageClient", () => {
     });
 
     expect(screen.getByTestId("scim-mutation-success-callout")).toHaveTextContent(SCIM_TOKEN_REVOKED_SUCCESS);
+    expect(showSuccess).not.toHaveBeenCalled();
   });
 
   it("sanitizes verification failures without exposing response payloads", async () => {
