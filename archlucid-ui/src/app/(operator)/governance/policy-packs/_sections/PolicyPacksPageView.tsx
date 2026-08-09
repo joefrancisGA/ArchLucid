@@ -169,15 +169,6 @@ className="mb-3"
         </TabsContent>
 
         <TabsContent value="my-packs" className="pt-4" data-testid="policy-packs-panel-my-packs">
-          {m.publishSuccessMessage !== null ? (
-            <OperatorSuccessCallout
-              message={m.publishSuccessMessage}
-              testId="policy-pack-publish-success-callout"
-              className="mb-4"
-              onDismiss={() => m.setPublishSuccessMessage(null)}
-            />
-          ) : null}
-
           {m.failure !== null ? (
             <div role="alert">
               <OperatorApiProblem

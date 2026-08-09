@@ -304,6 +304,7 @@ export function GovernanceWorkflowPageContent() {
 
     setActiveRunId(id);
     setSubmitRunId(id);
+    setMutationErrorMessage(null);
     replaceApprovalQueueUrl(id);
     void loadLists(id);
   }, [queryRunId, loadLists, replaceApprovalQueueUrl]);
