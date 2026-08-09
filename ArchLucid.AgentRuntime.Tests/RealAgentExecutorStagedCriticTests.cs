@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Diagnostics.Metrics;
 
 using ArchLucid.Core.Evidence;
 using ArchLucid.AgentRuntime.Tests.Support;
@@ -205,6 +206,46 @@ public sealed class RealAgentExecutorStagedCriticTests
         object? claimsTag = phases[1].GetTagItem("archlucid.staged_critic.summarized_claims_count");
         claimsTag.Should().NotBeNull();
         Convert.ToInt32(claimsTag).Should().Be(2);
+        phases[0].GetTagItem("archlucid.staged_critic.phase_duration_ms").Should().NotBeNull();
+        phases[1].GetTagItem("archlucid.staged_critic.phase_duration_ms").Should().NotBeNull();
+        Convert.ToDouble(phases[0].GetTagItem("archlucid.staged_critic.phase_duration_ms")).Should().BeGreaterOrEqualTo(0);
+        Convert.ToDouble(phases[1].GetTagItem("archlucid.staged_critic.phase_duration_ms")).Should().BeGreaterOrEqualTo(0);
+    }
+
+    [SkippableFact]
+    public async Task StagedCriticEnabled_true_records_phase_duration_histogram()
+    {
+        using StagedCriticPhaseDurationCapture capture = StagedCriticPhaseDurationCapture.Start();
+        string runId = Guid.NewGuid().ToString("N");
+        IAgentHandler topo = new SimpleReturnHandler(AgentType.Topology, "topo-claim", "rid-t");
+        IAgentHandler critic = new SimpleReturnHandler(AgentType.Critic, "crit-claim", "rid-k");
+        RealAgentExecutor sut = CreateSut(
+            Options.Create(new StagedCriticAgentOptions { StagedCriticEnabled = true }),
+            topo,
+            critic);
+        ArchitectureRequest request = MinimalRequest();
+        AgentEvidencePackage evidence = new();
+        AgentTask tTopo = new()
+        {
+            TaskId = "tz",
+            RunId = runId,
+            AgentType = AgentType.Topology
+        };
+        AgentTask tCrit = new()
+        {
+            TaskId = "tk",
+            RunId = runId,
+            AgentType = AgentType.Critic
+        };
+
+        await sut.ExecuteAsync(runId, request, evidence, [tTopo, tCrit], CancellationToken.None);
+
+        IReadOnlyList<StagedCriticPhaseDurationCapture.Measurement> measurements =
+            capture.MeasurementsFor("archlucid_agent_execution_staged_critic_phase_duration_ms");
+
+        measurements.Should().HaveCount(2);
+        measurements.Select(static measurement => measurement.Phase).Should().BeEquivalentTo(["phase1", "phase2"]);
+        measurements.Should().OnlyContain(static measurement => measurement.ValueMilliseconds >= 0);
     }
 
     [SkippableFact]
@@ -504,5 +545,62 @@ public sealed class RealAgentExecutorStagedCriticTests
                     EvidenceRefs = []
                 });
         }
+    }
+
+    private sealed class StagedCriticPhaseDurationCapture : IDisposable
+    {
+        private readonly MeterListener _listener = new();
+        private readonly List<Measurement> _measurements = [];
+
+        private StagedCriticPhaseDurationCapture()
+        {
+            _listener.InstrumentPublished = OnInstrumentPublished;
+            _listener.SetMeasurementEventCallback<double>(OnMeasurementDouble);
+            _listener.Start();
+        }
+
+        public void Dispose()
+        {
+            _listener.Dispose();
+        }
+
+        public static StagedCriticPhaseDurationCapture Start()
+        {
+            return new StagedCriticPhaseDurationCapture();
+        }
+
+        public IReadOnlyList<Measurement> MeasurementsFor(string instrumentName)
+        {
+            return _measurements.Where(measurement => measurement.Name == instrumentName).ToList();
+        }
+
+        private void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
+        {
+            if (instrument.Meter.Name != ArchLucidMeterNames.Meter)
+                return;
+
+            if (instrument.Name == "archlucid_agent_execution_staged_critic_phase_duration_ms")
+                meterListener.EnableMeasurementEvents(instrument);
+        }
+
+        private void OnMeasurementDouble(
+            Instrument instrument,
+            double measurement,
+            ReadOnlySpan<KeyValuePair<string, object?>> tags,
+            object? state)
+        {
+            _ = state;
+            string? phase = null;
+
+            foreach (KeyValuePair<string, object?> tag in tags)
+            {
+                if (tag.Key == "phase")
+                    phase = tag.Value?.ToString();
+            }
+
+            _measurements.Add(new Measurement(instrument.Name, phase ?? string.Empty, measurement));
+        }
+
+        internal sealed record Measurement(string Name, string Phase, double ValueMilliseconds);
     }
 }

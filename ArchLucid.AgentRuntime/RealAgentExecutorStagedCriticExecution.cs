@@ -40,6 +40,7 @@ internal static class RealAgentExecutorStagedCriticExecution
         AgentTask[] phase2 = orderedTasks.Where(static t => t.AgentType == AgentType.Critic).ToArray();
 
         AgentResult[] phase1Results;
+        long phase1StartTicks = Stopwatch.GetTimestamp();
         using (Activity? phase1Activity = ArchLucidInstrumentation.AgentExecution.StartActivity("AgentExecution.Phase1"))
         {
             phase1Activity?.SetTag("archlucid.run_id", runId);
@@ -53,6 +54,11 @@ internal static class RealAgentExecutorStagedCriticExecution
                     persistedByTaskId,
                     linkedCancellation)
                 .ConfigureAwait(false);
+
+            StagedCriticPhaseTelemetry.RecordPhaseCompleted(
+                phase1Activity,
+                "phase1",
+                Stopwatch.GetElapsedTime(phase1StartTicks).TotalMilliseconds);
         }
 
         ReplaceStagedPriorSummaryNotes(evidence);
@@ -67,6 +73,7 @@ internal static class RealAgentExecutorStagedCriticExecution
         int summarizedClaimsCount = CountStagedPriorSummarizedClaimSlots(phase1Results, stagedOpts);
 
         AgentResult[] phase2Results;
+        long phase2StartTicks = Stopwatch.GetTimestamp();
         using (Activity? phase2Activity = ArchLucidInstrumentation.AgentExecution.StartActivity("AgentExecution.Phase2_Critic"))
         {
             phase2Activity?.SetTag("archlucid.run_id", runId);
@@ -82,6 +89,11 @@ internal static class RealAgentExecutorStagedCriticExecution
                     stagedOpts,
                     linkedCancellation)
                 .ConfigureAwait(false);
+
+            StagedCriticPhaseTelemetry.RecordPhaseCompleted(
+                phase2Activity,
+                "phase2",
+                Stopwatch.GetElapsedTime(phase2StartTicks).TotalMilliseconds);
         }
 
         Dictionary<string, AgentResult> byTaskId = new(StringComparer.Ordinal);

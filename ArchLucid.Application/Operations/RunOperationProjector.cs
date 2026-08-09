@@ -126,6 +126,9 @@ internal static class RunOperationProjector
     if (tasks.Count == 0)
       return ("Running agents", null, null);
 
+    if (StagedCriticOperationProgressResolver.TryResolveAgentExecutionStepLabel(tasks, out string stagedLabel))
+      return (stagedLabel, CountCompletedSteps(tasks), tasks.Count);
+
     AgentTask? inProgress = tasks.FirstOrDefault(t => t.Status == AgentTaskStatus.InProgress);
 
     if (inProgress is not null)

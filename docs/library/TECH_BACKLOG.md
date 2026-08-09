@@ -15,7 +15,7 @@ Regenerate after opening or closing summary-table rows:
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
 | Architectural integrity | 11 |
-| Adoption friction | 363 |
+| Adoption friction | 372 |
 | Commercial / marketability | 9 |
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
@@ -26,7 +26,7 @@ Regenerate after opening or closing summary-table rows:
 | Traceability | 3 |
 | Interoperability | 4 |
 | Compliance readiness | 1 |
-| Performance | 6 |
+| Performance | 5 |
 | Scalability | 2 |
 | Cost-effectiveness | 9 |
 | Supportability | 2 |
@@ -36,15 +36,15 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **762** |
+| **Total (unique open)** | **770** |
 
-**By priority band:** P0 **1** | P1 **629** | P2 **115** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **10** | P1 **628** | P2 **115** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
-**Updated:** 2026-08-09 (**TB-1323** **Done** — `/demo/explain` conversion CTA auth honesty: anonymous viewers get sign-in + `/see-it` ladder; signed-in keeps wizard preset; Vitest guards). Prior: 2026-08-09 (**TB-1320** **Done** — `/demo/explain` status banner uses `StatusTag` + human generated time; review id/manifest version/ISO behind Technical details; Vitest guards). Prior: 2026-08-09 (**TB-1316** **Done** — session-expired OIDC errors use **Sign-in could not start** + in-place Try again preserving `returnUrl`). Prior: 2026-08-09 (**TB-1315** **Done** — `/auth/session-expired` secondary exit to `/welcome`; Vitest forbids auth-bounce `/`). Prior: 2026-08-09 (**TB-1308** **Done** — `/why-archlucid` operator counter copy + in-app footer; Vitest forbids eng metric/repo path leakage).
+**Updated:** 2026-08-09 (**TB-2140**–**TB-2146** **opened** + **TB-946**/**TB-1484**/**TB-1517** promoted to **P0** — Performance wave 6: next-10 quantified opportunities after Done **TB-2117**–**TB-2124**). Prior: 2026-08-09 (**TB-2130**–**TB-2139** **opened** — owner ask: create P0s for ten easier-to-use / easier-to-understand levers; see cluster note below). Prior: 2026-08-09 (**TB-1323** **Done** — `/demo/explain` conversion CTA auth honesty: anonymous viewers get sign-in + `/see-it` ladder; signed-in keeps wizard preset; Vitest guards). Prior: 2026-08-09 (**TB-1320** **Done** — `/demo/explain` status banner uses `StatusTag` + human generated time; review id/manifest version/ISO behind Technical details; Vitest guards). Prior: 2026-08-09 (**TB-1316** **Done** — session-expired OIDC errors use **Sign-in could not start** + in-place Try again preserving `returnUrl`). Prior: 2026-08-09 (**TB-1315** **Done** — `/auth/session-expired` secondary exit to `/welcome`; Vitest forbids auth-bounce `/`). Prior: 2026-08-09 (**TB-1308** **Done** — `/why-archlucid` operator counter copy + in-app footer; Vitest forbids eng metric/repo path leakage).
 
 **BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **TB-386?397 Done** (2026-06-22 through 2026-06-27). **First-party connector V1.1?åÆV1 GA promotion (2026-07-03):** Jira/ServiceNow/Confluence/Slack/Microsoft Teams moved to **V1 GA** (`V1_DEFERRED.md` ?º6/?º6a); **TB-599?ÇôTB-602** track the resulting tightening work (native-create default posture, OAuth upgrade, live-validation parity, buyer-copy sweep). **Next recommended batch:** **TB-398** (full enterprise ITSM connector ?Çö **V2** ITSM cluster; out of V1/V1.1 unless owner promotes) remains separate and unaffected by the promotion. Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
@@ -192,6 +192,10 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 **TB-2021 ? TB-2032** were added 2026-07-31 from an **owner ask** for quantified UI speedups (top-10 + follow-up audit of alerts/home/alert-rules). Baseline still shows `/reviews/[runId]` **2,255 kB**, `/reviews` **1,695 kB**, `/governance` **1,417 kB**, `/welcome` **736 kB** First Load JS. Does **not** recreate open **TB-934** (hub First Load JS) or **TB-935** (list Query + virtualization) ? execute those as peers. Does **not** reopen Done **TB-933**/**TB-930**/**TB-560**?**TB-573**/**TB-691**?**TB-698**. **TB-2021** (P1) post-933 run-detail sync shell cut ? **Done** (2026-08-03; baseline remeasure pending). **TB-2022** (P1) operator slim first-paint ? **Done** (2026-08-03; always buyer-summary). **TB-2023** (P1) alerts inbox mount fan-out ? **Done** (2026-08-03; `GET /v1/alerts/inbox-summary`). **TB-2024** (P2) alert-rules tab code-split ? **Done** (2026-08-03). **TB-2025** (P2) home empty-SSR refetch skip ? **Done** (2026-08-03; authoritative empty SSR). **TB-2026** (P2) nested Suspense streaming ? **Done** (2026-08-03; alerts hub + run-detail below-fold). **TB-2027** (P2) loader/proxy parallelization ? **Done** (2026-08-03; five hot loaders + `DATA_FLOW_AND_STATE` §9). **TB-2028**?**TB-2029** (P2) `/welcome` shell cut, SSE/poll hygiene. **TB-2030** (P2) baseline expansion. **TB-2031** (P2) field CWV triage gate ? **Done** (2026-08-03; [`FIELD_WEB_VITALS_TRIAGE.md`](../runbooks/FIELD_WEB_VITALS_TRIAGE.md); pairs GTM **G-QA-06**/**G-QA-07**). **TB-2032** (P3) marketing `next/image` ? **Done** (2026-08-03, **waived**; [`tb2032_marketing_lcp_image_waiver.md`](../architecture/tb2032_marketing_lcp_image_waiver.md)). No new GTM IDs. Cross-ref [`reviews_run_detail_bundle_composition_tb697.md`](../architecture/reviews_run_detail_bundle_composition_tb697.md), [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) §1/§7, [`run_detail_summary_lazy_load_tb930.md`](../architecture/run_detail_summary_lazy_load_tb930.md).
 
 **TB-2125 — TB-2129** were added 2026-08-08 from the owner ask to **create P0s** for **Mermaid pipeline diagrams** on high-flow help topics (principal-architect mental models). Only **Getting started** ships Mermaid today; infrastructure (`help-mermaid.ts`, markdown fences) is ready but customer-facing help bodies have no diagrams elsewhere. **Owner refinement 2026-08-08:** diagrams must be **visible by default** in the primary help section — **not** behind collapsed **Technical details** (`<details>`); eng-only prose may stay in separate collapsed disclosures. **TB-2125** (P0) `/help/governance-approval` — approval state machine beside existing workflow stepper. **TB-2126** (P0) `/help/policy-packs` — hierarchical merge adapted from [`archlucid-governance-policy-packs.mmd`](architecture/architecture_diagrams/archlucid-governance-policy-packs.mmd). **TB-2127** (P0) `/help/evidence-trail` — provenance graph; complements **TB-1360**–**TB-1364**. **TB-2128** (P0) `/help/repeat-review-loop` — stickiness cycle; complements **TB-1394**–**TB-1398**. **TB-2129** (P0) `/help/comparison-replay` — compare vs replay decision tree; complements **TB-1636**–**TB-1640**. Pattern: buyer-safe intro + visible `<MermaidDiagram>` (parity **Getting started** after visible-default fix). Vitest per route. No new GTM IDs.
+
+**TB-2130 — TB-2139** were added 2026-08-09 from the owner ask to **create P0s** for ten **easier-to-use / easier-to-understand** levers (first-session cognitive load + adoption friction). All **P0** **V1** — residual product-led gaps after earlier Done waves; **do not reopen** Done **TB-169** / **TB-170** / **TB-174** / **TB-270** / **TB-353** / **TB-431**–**TB-455** / **TB-666** / **TB-2044** / **TB-2063**–**TB-2071**. **TB-2130** single primary review-creation path (beyond tabs/relabel). **TB-2131** buyer-noun enforcement on golden-path surfaces. **TB-2132** post-finalize sponsor export above the fold. **TB-2133** stricter pre-commit progressive disclosure. **TB-2134** first-encounter inline glossary for product nouns. **TB-2135** cross-surface trust-label parity (inspect / compare / export). **TB-2136** job → pack → expected-output chooser prominence. **TB-2137** empty/error states teach next step + support path. **TB-2138** one in-product golden walkthrough ending in sponsor-ready package. **TB-2139** role-shaped default nav density. Grounding: [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](../go-to-market/FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md) (H3/H5), [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md) product language. No new GTM IDs (cohort execution stays GTM **M-44** / **M-90**).
+
+**TB-2140 — TB-2146** were added 2026-08-09 from the owner ask to **file P0s** for the next quantified performance opportunities after Done **TB-2117**–**TB-2124** (wave 5). All **P0** **V1**: Critic phase overlap / tighter admission after measured phases (**TB-2140**; residual of Done **TB-2121** instrumentation); Production Redis L2 beyond DEV (**TB-2141**); further `/architecture/reviews/[runId]` First Load JS cut (**TB-2142**, baseline **2150.6 kB**); narrow remaining operator `force-dynamic` (~**29** layouts) (**TB-2143**); alerts inbox + billing banners → TanStack Query (**TB-2144**); shared shell / home First Load residual (**TB-2145**); cold-start staging Phase B + paid-lever reopen gate (**TB-2146**). Same pass **promotes** open peers to **P0**: scale micro-drill harness (**TB-946**), compliance-journey ISR (**TB-1484**), example ROI bulletin ISR (**TB-1517**). Does **not** reopen Done **TB-560**–**TB-593** / **TB-754**–**TB-759** / **TB-915**/**TB-947**/**TB-932** / **TB-929**–**TB-935** / **TB-2021**–**TB-2032** / **TB-2053**–**TB-2062** / **TB-2117**–**TB-2124**.
 
 **TB-2117 — TB-2124** were added 2026-08-08 from the owner ask to **create P0s** for the next quantified performance opportunities after Done **TB-2053**–**TB-2062**. All **P0** **V1**: further `/architecture/reviews/[runId]` First Load JS cut (**TB-2117**, baseline **2237.5 kB**); shared operator-shell First Load JS tax on hubs (**TB-2118**); slim operator `GetRunDetailAsync` off full `ResultJson` (**TB-2119**); Production Redis L2 + replica-count enablement (**TB-2120**); Real-mode Critic/bulkhead wall-time (**TB-2121**); outbox idle-poll floors (**TB-2122**); narrow `force-dynamic` + TanStack Query remainder (**TB-2123**); cold-start paid-lever decision pack (**TB-2124**). Same pass **promotes** open peers to **P0**: Container Apps HTTP+CPU scale mix (**TB-915**), API max-replicas vs TPM checklist (**TB-947**), measured JSON LOB → blob offload (**TB-932**, evidence-gated). Does **not** reopen Done **TB-560**–**TB-593** / **TB-929**–**TB-935** / **TB-2021**–**TB-2032** / **TB-2053**–**TB-2062**.
 
@@ -1192,7 +1196,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-2118 | **Done** (2026-08-09) — shared operator-shell deferred; hub First Load JS remeasured (reviews **−541 kB**, alerts **−154 kB**, alert-rules **−366 kB**); see ## TB-2118 below | Performance P0 — **V1**; owner perf wave 5 2026-08-08; residual after **TB-934**/**TB-2030** | L |
 | TB-2119 | **Done** (2026-08-09) — operator enrich off rollup projection (`GetRunDetailForOperatorEnrichAsync`); full `ResultJson` on architecture/forensics route only; see ## TB-2119 below | Performance P0 — **V1**; owner perf wave 5 2026-08-08; residual after **TB-930**/**TB-2053**/**TB-2059** | L |
 | TB-2120 | **Done** (2026-08-09, DEV) — Production Redis L2 + `ExpectedApiReplicaCount` enablement — wiring Done (**TB-580**); Azure Managed Redis on DEV + API/Worker secret env; see ## TB-2120 below | Performance P0 — **V1**; owner perf wave 5 2026-08-08; ops enablement | M |
-| TB-2121 | Real-mode Critic/bulkhead wall-time — staged Critic cost + concurrency ceilings vs **900s** handler / **~60s** edge; see ## TB-2121 below | Performance P0 — **V1**; owner perf wave 5 2026-08-08; peers **TB-2075**/**TB-915** | M |
+| TB-2121 | ~~Real-mode Critic/bulkhead wall-time — staged Critic cost + concurrency ceilings vs **900s** handler / **~60s** edge~~ **Done** 2026-08-09 — phase duration metrics + operations step labels + contract; see ## TB-2121 below | Performance P0 — **V1**; owner perf wave 5 2026-08-08; peers **TB-2075**/**TB-915** | M |
 | TB-2122 | **Done** (2026-08-09) — adaptive outbox idle poll (1 s base, 10 s max backoff) for authority/integration/Cosmos drains; see ## TB-2122 below | Performance P0 — **V1**; owner perf wave 5 2026-08-08; after **TB-586**/**TB-2056** | S |
 | TB-2123 | **Done** (2026-08-09) — client-driven operator layouts + TanStack Query for digests/advisory; see ## TB-2123 below | Performance P0 — **V1**; owner perf wave 5 2026-08-08; `UI_ARCHITECTURE_V1_1` §1/§4 | M |
 | TB-2124 | **Done** (2026-08-09) — cold-start paid-lever decision pack with cost×latency matrix + owner go/no-go; see ## TB-2124 below | Performance P0 — **V1**; owner perf wave 5 2026-08-08; after free levers **TB-754**–**TB-759** | S |
@@ -1201,6 +1205,23 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-2127 | **Done** (2026-08-09) — `/help/evidence-trail` Mermaid provenance lineage diagram; see `## TB-2127` below | Adoption friction P0 — **V1**; owner PA help-diagram ask 2026-08-08; traffic **EV**; complements **TB-1360**–**TB-1364** | S |
 | TB-2128 | **Done** (2026-08-09) — `/help/repeat-review-loop` Mermaid stickiness-cycle diagram; see `## TB-2128` below | Adoption friction P0 — **V1**; owner PA help-diagram ask 2026-08-08; traffic **HRX**; complements **TB-1394**–**TB-1398** | S |
 | TB-2129 | **Done** (2026-08-09) — `/help/comparison-replay` Mermaid compare vs replay decision tree; see `## TB-2129` below | Adoption friction P0 — **V1**; owner PA help-diagram ask 2026-08-08; traffic **CO**; complements **TB-1636**–**TB-1640** | S |
+| TB-2130 | Single primary review-creation path — one default CTA; advanced modes demoted; see ## TB-2130 below | Adoption friction P0 — **V1**; owner easier-to-use ask 2026-08-09; residual after **TB-270**/**TB-666** | M |
+| TB-2131 | Buyer-noun golden-path sweep — ban eng jargon on home / new review / review detail / list; see ## TB-2131 below | Adoption friction P0 — **V1**; owner easier-to-understand ask 2026-08-09; residual after **TB-431**–**TB-455** | M |
+| TB-2132 | Post-finalize sponsor export above the fold — “send to sponsor” + one-line handoff copy; see ## TB-2132 below | Adoption friction P0 — **V1**; owner easier-to-use ask 2026-08-09; first-session **H5** | M |
+| TB-2133 | Pre-commit progressive disclosure — hide Operate / diagnostics / CLI until first finalize; see ## TB-2133 below | Adoption friction P0 — **V1**; owner easier-to-use ask 2026-08-09; residual after **TB-169** | M |
+| TB-2134 | First-encounter inline glossary chips for product nouns; see ## TB-2134 below | Adoption friction P0 — **V1**; owner easier-to-understand ask 2026-08-09; first-session **H3** | M |
+| TB-2135 | Cross-surface trust-label parity (inspect / compare / export); see ## TB-2135 below | Trustworthiness P0 — **V1**; owner easier-to-understand ask 2026-08-09; residual after **TB-2044**/**TB-2063**–**TB-2071** | M |
+| TB-2136 | Job → pack → expected-output chooser as primary start path; see ## TB-2136 below | Adoption friction P0 — **V1**; owner easier-to-use ask 2026-08-09; residual after **TB-170** | M |
+| TB-2137 | Empty/error states teach next step + support path; see ## TB-2137 below | Adoption friction P0 — **V1**; owner easier-to-use ask 2026-08-09; peers **TB-1552**–**TB-1556** / **TB-782**–**TB-792** | M |
+| TB-2138 | One in-product golden walkthrough ending in sponsor-ready package; see ## TB-2138 below | Adoption friction P0 — **V1**; owner easier-to-understand ask 2026-08-09; residual after **TB-174**/**TB-353** | L |
+| TB-2139 | Role-shaped default nav density (architect / governance / admin); see ## TB-2139 below | Adoption friction P0 — **V1**; owner easier-to-use ask 2026-08-09; persona shell presets residual | L |
+| TB-2140 | Critic phase overlap / tighter admission — after **TB-2121** phase metrics; quality-gated; see ## TB-2140 below | Performance P0 — **V1**; owner perf wave 6 2026-08-09; residual of Done **TB-2121** | M |
+| TB-2141 | Production Redis L2 + `ExpectedApiReplicaCount` beyond DEV — staging/prod enablement; see ## TB-2141 below | Performance P0 — **V1**; owner perf wave 6 2026-08-09; residual of Done **TB-2120** (DEV-only) | M |
+| TB-2142 | Further `/architecture/reviews/[runId]` First Load JS cut — baseline **2150.6 kB**; see ## TB-2142 below | Performance P0 — **V1**; owner perf wave 6 2026-08-09; after **TB-2117** | M |
+| TB-2143 | Narrow remaining operator `force-dynamic` layouts (~**29**); see ## TB-2143 below | Performance P0 — **V1**; owner perf wave 6 2026-08-09; residual of Done **TB-2123** | M |
+| TB-2144 | Alerts inbox + billing banners → TanStack Query; see ## TB-2144 below | Performance P0 — **V1**; owner perf wave 6 2026-08-09; residual of Done **TB-2123** | S |
+| TB-2145 | Shared shell / home First Load residual — `/` **1619.5 kB** + fat hubs; see ## TB-2145 below | Performance P0 — **V1**; owner perf wave 6 2026-08-09; after **TB-2118**/**TB-2061** | L |
+| TB-2146 | Cold-start staging Phase B + paid-lever reopen gate; see ## TB-2146 below | Performance P0 — **V1**; owner perf wave 6 2026-08-09; residual of Done **TB-2124** | S |
 | TB-932 | **Done** (2026-08-09) — **Won't do** — Offload large JSON payloads to blob storage; DEV LOB evidence max ~30 KB / 0% ≥1 MB; see ## TB-932 below | Performance P0 — **V1** (promoted P0 + V1 2026-08-08 with perf wave 5; evidence-gated; was P3 V2); after **TB-929**–**TB-931**; peers **TB-2119** | L |
 | TB-2103 | Operator-maintained model catalog — DDL-backed `IAgentModelAliasRegistry` replacing `ConfigAgentModelAliasRegistry`; internal-only admin surface; lifecycle + audit on every mutation; see ## TB-2103 below | Maintainability P1 — **V1.1**; ADR 0065 D2′; today curation needs a code change + deploy | L |
 | TB-2104 | Structured-output capability ladder (`StrictJsonSchema` \| `JsonObject` \| `DegradedTextParse`) per catalog row + per-task minimum, fail-closed routing; see ## TB-2104 below | Correctness P1 — **V1.1**; ADR 0065 D4′; the **only** quality-adjacent fail-closed control — function, not quality judgment | M |
@@ -1230,7 +1251,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1317 | Container Apps Terraform drift escape classes + provably authoritative state contract; see `## TB-1317` below | Deployability P1 ? **V1**; PA 2026-07-26 CA/IaC drift; GTM **M-233**/**M-234** | S |
 | TB-1336 | 100× review-volume fail-first order + option-preserving capacity ledger contract; see `## TB-1336` below | Scalability P1 ? **V1**; PA Q20 100× reviews; GTM **M-237**/**M-238** | S |
 | TB-1577 | Shared-CA / shared-AOAI-TPM noisy-neighbor + per-tenant fairness claim map; see `## TB-1577` below | Scalability P1 ? **V1**; PA noisy-neighbor / TPM fairness Q; GTM **M-296**/**M-297**; see `SHARED_AOAI_TPM_NOISY_NEIGHBOR_FAIRNESS_CLAIM_MAP.md`; orchestrates **TB-1336**/**TB-1299**/**TB-947** | S |
-| TB-946 | Single-signal scale micro-drill harness ? drills A (HTTP/LLM-wait), B (CPU-bound), C (worker backlog); record time-to-scale + dominant rule; gate before launch load; see `## TB-946` below | Testability P1 ? **V1**; validates **TB-915**; owner **G-SCALE-01**; before **TB-905** launch-load half | M |
+| TB-946 | Single-signal scale micro-drill harness — drills A (HTTP/LLM-wait), B (CPU-bound), C (worker backlog); record time-to-scale + dominant rule; gate before launch load; see `## TB-946` below | Performance / testability P0 — **V1** (promoted P0 2026-08-09 with perf wave 6; was P1); validates **TB-915**; owner **G-SCALE-01**; before **TB-905** launch-load half | M |
 | TB-1032 | Launch-load hot-path failure order + graceful degradation matrix (HTTP / SQL / AOAI 429 / worker); see `## TB-1032` below | Reliability / scalability P1 ? **V1**; PA Q19 2026-07-25; GTM **M-182**/**M-183**; cites `LAUNCH_LOAD_DRILL` / `DEGRADED_MODE`; complements **TB-915**/**TB-905** / **G-SCALE-*** | S |
 | TB-182 | `Write-AiReadinessPosture.ps1` ? automate production of `ai-readiness-posture.json` from evidence artifacts | AI/Agent readiness P1 ? **V1**; every pilot delivery currently requires manual JSON fill; schema stable | M |
 | TB-1196 | Agent?decisioning Real-variance isolation contract (typed proposals only); see `## TB-1196` below | AI/Agent readiness P1 ? **V1**; PA Q3 agent/decisioning; GTM **M-203**/**M-204** | S |
@@ -1606,11 +1627,11 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1443 | Owner traffic workbook ? mark AL2 redirect-only (inherit alert-rules Routing tab); see ## TB-1443 below | Adoption friction P2 ? **V1**; with **TB-1441**; pairs **TB-1406**/**TB-748** | XS |
 | TB-1444 | CI drift ? `/alert-routing` must stay redirect-only (no product UI reintro); see ## TB-1444 below | Testability P2 ? **V1**; after **TB-1441**; pairs **TB-1407** | S |
 | TB-1482 | Shared empty form+rail whitespace contract + Vitest inventory; see ## TB-1482 below | Testability P2 ? **V1**; after **TB-1477**?**TB-1481**; orchestrates **TB-1133**/**TB-1177**/**TB-1194** | S |
-| TB-1484 | Compliance journey ? ISR `revalidate=300` + surface test id; see ## TB-1484 below | Performance / testability P2 ? **V1**; with **TB-1483**; pairs **TB-567** | XS |
+| TB-1484 | Compliance journey — ISR `revalidate=300` + surface test id; see ## TB-1484 below | Performance / testability P0 — **V1** (promoted P0 2026-08-09 with perf wave 6; was P2); with **TB-1483**; pairs **TB-567**/**TB-1517** | XS |
 | TB-1492 | `/digest-subscriptions` ? single redirect shim (drop dual config+page / dead layout); see ## TB-1492 below | Maintainability P2 ? **V1**; owner review ~50/100 2026-07-27; traffic **IXX**; pairs **TB-1441**/**TB-1404** | S |
 | TB-1493 | Owner traffic workbook ? mark IXX redirect-only (inherit Digests Subscriptions tab); see ## TB-1493 below | Adoption friction P2 ? **V1**; with **TB-1492**; pairs **TB-1443**/**TB-1406** | XS |
 | TB-1494 | CI drift ? `/digest-subscriptions` must stay redirect-only; see ## TB-1494 below | Testability P2 ? **V1**; after **TB-1492**; pairs **TB-1444**/**TB-1407** | S |
-| TB-1517 | Example ROI bulletin ? ISR `revalidate=300` + surface test id; see ## TB-1517 below | Performance / testability P2 ? **V1**; with **TB-1516**; pairs **TB-1484**/**TB-567** | XS |
+| TB-1517 | Example ROI bulletin — ISR `revalidate=300` + surface test id; see ## TB-1517 below | Performance / testability P0 — **V1** (promoted P0 2026-08-09 with perf wave 6; was P2); with **TB-1516**; pairs **TB-1484**/**TB-567** | XS |
 | TB-1520 | ~~Example ROI bulletin ? contributor-path / admin-proxy honesty (+ index policy)~~ **Done** 2026-07-30 ? noindex + operator-only admin CTA; pilot-roi help link; Vitest | Trustworthiness P0 ? **V1**; with **TB-1516**; pairs **TB-1389**/**TB-1463** | S |
 | TB-1527 | Owner traffic workbook ? mark EDA redirect-only or product (inherit `/dashboard`); see ## TB-1527 below | Adoption friction P2 ? **V1**; with **TB-1525**; pairs **TB-1493**/**TB-1443** | XS |
 | TB-1528 | CI ? forbid `/executive/dashboard` page + permanent next.config redirect coexistence; see ## TB-1528 below | Testability P2 ? **V1**; after **TB-1525**; pairs **TB-1494** | S |
@@ -17181,6 +17202,16 @@ Pass `hasCommittedArchitectureReview` to `PilotNavGroupBuilder` (or filter in `l
 - "Getting started" is in the extended/collapsed tier after the first review is committed.
 - "Getting started" is in the essential/visible tier for new workspaces.
 
+**Mechanism superseded (2026-08-09):** the original closure shipped a `tier: "extended"` demotion plus
+`defaultVisibleInCollapsedSidebar: undefined`, but both signals went **inert** when progressive-disclosure tiering was
+retired as a visibility gate (owner 2026-08-03) - `filterNavLinksByTier` returned every link and nothing read
+`defaultVisibleInCollapsedSidebar`. Net effect: **First review guide** (TB-674 rename) stayed pinned in the top five
+Architecture nav rows forever, which is what TB-524 set out to prevent. Replaced with **ordering**:
+`nav-committed-architecture-review-promotion.ts` now moves the row to the **end of its group** once
+`hasCommittedArchitectureReview` is true, keeping the tier re-tag for navigation telemetry only. Role/authority remains
+the sole visibility gate, so the row is never hidden. Dead metadata removed in the same pass
+(`defaultVisibleInCollapsedSidebar` field, `filterNavLinksByTier`, `filterNavLinksByCommittedArchitectureReviewGate`).
+
 **Affected files:**
 
 - `archlucid-ui/src/lib/pilot-nav-group-builder.ts`
@@ -25337,11 +25368,13 @@ Private-beta deploy P0 (**TB-928**): surface beta-blocking auth/email config in 
 
 ---
 
-## TB-946 ? Single-signal scale micro-drill harness (P1)
+## TB-946 — Single-signal scale micro-drill harness (P0)
 
-**Window:** V1 ? Testability. Validates **TB-915** before **TB-905** launch-load half.
+**Window:** V1 — Performance / testability. Validates **TB-915** before **TB-905** launch-load half.
 
 **Status:** Not started.
+
+**Priority:** P0 (promoted 2026-08-09 with perf wave 6; was P1).
 
 **Source:** Owner autoscale discussion 2026-07-22 (validate scale-rule mix before launch load drill).
 
@@ -49519,7 +49552,7 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Window:** V1 — Performance.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-09) — `archlucid_agent_execution_staged_critic_phase_duration_ms` histogram + OTEL phase duration tags; staged Critic `stepLabel` on `GET /v1/operations/run:{id}`; [`STAGED_CRITIC_WALL_TIME_CONTRACT.md`](STAGED_CRITIC_WALL_TIME_CONTRACT.md). Critic overlap / tighter admission remains future (**TB-1336**).
 
 **Priority:** P0.
 
@@ -49539,7 +49572,7 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Affected files:** `RealAgentExecutorStagedCriticExecution.cs`, resilience options, LRO contract, ops/docs.
 
-**Peers:** **TB-2075** Done; **TB-915**/**TB-947** P0; **TB-1336**.
+**Peers:** **TB-2075** Done; **TB-915**/**TB-947** Done; overlap residual **TB-2140**; **TB-1336**.
 
 **Size estimate:** M.
 
@@ -49795,5 +49828,315 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 **Out of scope:** Compare UI implementation changes.
 
 **Size estimate:** S.
+
+---
+
+## TB-2130 — Single primary review-creation path (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner easier-to-use / easier-to-understand ask 2026-08-09 (lever 1); residual after Done **TB-270** (relabel/route) and **TB-666** (start-mode Tabs).
+
+**Why:** First-session architects still face multiple near-synonymous creation modes (Quick start / Guided intake / Templates) as peer choices on the highest-stakes task. Tabs reduced ARIA debt but did not collapse decision load. Product-led completion needs **one obvious default** with advanced paths clearly secondary.
+
+**Approach:**
+
+1. Make **one** primary CTA the default enter path on `/architecture/reviews/new` (and home “Start review” deep-links) — prefer the fastest path that still yields a finalizeable review.
+2. Demote peer modes to a single “More ways to start” disclosure or secondary list — not equal Tabs peers for first-run shells.
+3. Align buyer-polished and full architect-workspace shells so the primary path label and destination match.
+4. Vitest/Playwright: first-run shell exposes exactly one primary create CTA; advanced modes reachable but not equal-weight in the first viewport.
+
+**Acceptance:** A new user on the first-run shell sees one primary “Start review” path without choosing among peer wizards; advanced modes remain available without competing in the first viewport.
+
+**Affected files:** `ReviewsNewPathSwitcher`, `NewRunWizardClient`, home/start-review CTAs, related Vitest/e2e.
+
+**Peers:** **TB-2131**–**TB-2139**; does **not** reopen Done **TB-270**/**TB-666**.
+
+**Out of scope:** Deleting wizard implementations; sales demo script changes (GTM).
+
+**Size estimate:** M.
+
+---
+
+## TB-2131 — Buyer-noun golden-path sweep (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner easier-to-understand ask 2026-08-09 (lever 2); residual after **TB-431**–**TB-455** first-hour copy cluster.
+
+**Why:** Product language standard bans customer-facing *run*, *manifest*, *commit*, *pilot*, *artifacts*, *intake*, *operator* where buyer nouns exist (`architecture package`, *finding*, *evidence trail*, *signed review record*, *decision*). Residual eng jargon on golden-path surfaces still triggers first-session **H3** (“what is X?”).
+
+**Approach:**
+
+1. Audit home, `/architecture/reviews`, `/architecture/reviews/new`, review detail (post-finalize hero), and invite flows for banned nouns in titles, CTAs, toasts, empty states, and StatusTag labels.
+2. Replace with `UI_DESIGN_SYSTEM.md` / `BUYER_SURFACE_VOCABULARY` terms; keep API/eng ids behind Technical details only.
+3. Extend Vitest banned-copy guards to the golden-path file set (parity help-topic guards).
+4. Do **not** rename backend types or OpenAPI field names — UI copy + presentation only unless a buyer-visible API error string is customer-facing.
+
+**Acceptance:** Golden-path primary chrome uses buyer nouns only; Vitest fails on reintroduced banned jargon in the audited file set.
+
+**Affected files:** reviews hub/detail/new copy modules, home first-run panel, `BUYER_SURFACE_VOCABULARY` / banned-copy tests.
+
+**Peers:** **TB-2134** (glossary); does **not** reopen Done **TB-431**–**TB-455** individually — this is residual enforcement.
+
+**Out of scope:** Full-repo copy rewrite of Operate/admin diagnostics.
+
+**Size estimate:** M.
+
+---
+
+## TB-2132 — Post-finalize sponsor export above the fold (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner easier-to-use ask 2026-08-09 (lever 3); first-session fail signal **H5** (cannot find export) in [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](../go-to-market/FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md).
+
+**Why:** Reaching finalize without locating sponsor PDF/Markdown export still fails the session. Export must be impossible to miss after finalize — above the fold, labeled as the sponsor handoff.
+
+**Approach:**
+
+1. On finalized review detail (buyer + architect shells), place a primary **Send to sponsor** (or equivalent) CTA in the default viewport with one-line copy: what the download is and when to use it.
+2. Prefer existing sponsor/export surfaces — promote, do not invent a parallel export pipeline.
+3. Ensure success toast / post-finalize banner deep-links the same CTA (no orphan “download artifacts” jargon).
+4. Vitest + optional Playwright: finalized fixture shows export CTA without scroll; banned “artifacts”/“manifest download” primary labels.
+
+**Acceptance:** Within the first viewport after finalize, a user can start sponsor PDF or Markdown export without opening help or hunting secondary menus.
+
+**Affected files:** review detail post-finalize chrome, export entry components, tests.
+
+**Peers:** **TB-2138** (golden walkthrough ends here).
+
+**Out of scope:** Changing export payload contents or GTM cohort facilitation.
+
+**Size estimate:** M.
+
+---
+
+## TB-2133 — Pre-commit progressive disclosure (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner easier-to-use ask 2026-08-09 (lever 4); residual after Done **TB-169** (committed-review nav gate).
+
+**Why:** Operate / diagnostics / CLI / admin depth still leaks into first-run attention before a committed review exists, diluting brief → review → package → export.
+
+**Approach:**
+
+1. Inventory nav, home rails, command palette entries, and contextual CTAs visible **before** first finalize; demote or gate Operate/diagnostics/CLI until committed-review gate is true (extend **TB-169** patterns).
+2. Keep safety/admin break-glass reachable for tenant admins without making it a first-run peer to Start review.
+3. Align buyer-polished shell and first-run architect shell.
+4. Vitest: pre-commit nav snapshot excludes Operate/diagnostics primary entries; post-commit restores them.
+
+**Acceptance:** Before first finalize, primary chrome offers first-review path only (plus unavoidable auth/settings); Operate/diagnostics are not peer destinations in the default nav.
+
+**Affected files:** `nav-*` builders, committed-review gate, home first-run panel, command palette filters, tests.
+
+**Peers:** **TB-2139** (role density after first value).
+
+**Out of scope:** Removing Operate product capability after commit.
+
+**Size estimate:** M.
+
+---
+
+## TB-2134 — First-encounter inline glossary chips (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner easier-to-understand ask 2026-08-09 (lever 5); first-session **H3**.
+
+**Why:** Help topics and design-system glossary exist, but first encounters of *architecture package*, *evidence trail*, *governance approval*, *signed review record* still require leaving the task or asking a facilitator.
+
+**Approach:**
+
+1. Ship a shared inline glossary chip/popover primitive fed by a single noun → one-sentence definition map (reuse help/glossary SoT — no divergent definitions).
+2. Place chips on first-encounter titles/leads for the four core nouns on golden-path surfaces (home empty, new review, review detail, post-finalize).
+3. Remember “seen” per noun (session or local) so chips do not spam return users.
+4. Vitest: definitions match SoT; chip dismiss/persist behavior; no banned eng jargon inside chip body.
+
+**Acceptance:** First time a user hits each core noun on the golden path, a one-sentence definition is available in place without navigating to `/help`.
+
+**Affected files:** new glossary chip component + SoT map, golden-path lead copy call sites, tests.
+
+**Peers:** **TB-2131**; help Mermaid cluster **TB-2125**–**TB-2129** (Done) remains complementary.
+
+**Out of scope:** Full glossary redesign or marketing site widgets.
+
+**Size estimate:** M.
+
+---
+
+## TB-2135 — Cross-surface trust-label parity (P0)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner easier-to-understand ask 2026-08-09 (lever 6); residual after Done **TB-2044** / **TB-2063**–**TB-2071**.
+
+**Why:** Finding inspect, compare, and export can still disagree on trust chips or over-claim correlation. Conflicting trust language destroys principal-architect confidence even when backend correlation is correct.
+
+**Approach:**
+
+1. Define a single **trust-label presentation contract** (label set + when each appears) shared by inspect, compare delta, and export footers.
+2. Audit remaining asymmetries (run-mode, DeterministicRule vs Fallback, missing enricher paths) and fix UI to consume the same enricher/DTO fields.
+3. Add Vitest fixtures that assert identical trust chip sets for the same finding across the three surfaces.
+4. Does **not** reopen Done correlation wiring — presentation parity and residual gaps only.
+
+**Acceptance:** For a fixture finding, inspect / compare / export show the same trust labels and never invent confidence or correlation the other surfaces deny.
+
+**Affected files:** finding inspect, compare UI, export trust footers, shared enricher consumers, tests.
+
+**Peers:** Done **TB-2044**/**TB-2063**–**TB-2071**.
+
+**Out of scope:** New correlation algorithms or ITSM ticket linkage redesign.
+
+**Size estimate:** M.
+
+---
+
+## TB-2136 — Job → pack → expected-output chooser as primary start (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner easier-to-use ask 2026-08-09 (lever 7); residual after Done **TB-170** (`AcceleratorChooserCard` / help).
+
+**Why:** Accelerator chooser exists but is not the dominant start path. Users still pick templates/modes without a job → pack → expected-output story, so packs feel like inventory instead of a decision aid.
+
+**Approach:**
+
+1. Promote job-mapped chooser into the primary first-run start viewport (coordinate **TB-2130** default path).
+2. Each job row shows pack name + **expected outputs** (architecture package / findings / sponsor export) in buyer nouns.
+3. Keep metadata honesty (**TB-171** Done) — no stale/unsafe pack claims.
+4. Vitest: first-run start surfaces chooser before peer template lists; expected-output copy present.
+
+**Acceptance:** First-run “Start review” leads with “I’m doing X” job picker that selects a pack; template browsing is secondary.
+
+**Affected files:** `AcceleratorChooserCard`, reviews/new first viewport, home start panel, tests.
+
+**Peers:** **TB-2130**; does **not** add new template volume.
+
+**Out of scope:** Building new accelerator packs.
+
+**Size estimate:** M.
+
+---
+
+## TB-2137 — Empty/error states teach next step + support path (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner easier-to-use ask 2026-08-09 (lever 8); peers empty-state convention **TB-1552**–**TB-1556** and Report Problem **TB-782**–**TB-792**.
+
+**Why:** Dead-end empties and raw Problem Details / internal toasts still strand first-hour users. Every empty and hard failure on the golden path should answer: what happened, what to do next, how to get help.
+
+**Approach:**
+
+1. Enumerate golden-path empties (reviews list, review missing, new-review blocked) and hard failures (`OperatorApiProblem`, fatal core pages).
+2. Apply compact empty kind + primary next CTA; wire Report Problem / sign-in / retry where appropriate — no raw API debug in primary chrome.
+3. Align with design-system empty contract (**TB-1552**+) and durable outcomes (**TB-2112** Done) — no dual toast+inline spam.
+4. Vitest: each golden-path empty/error fixture asserts next-step CTA + forbids raw Problem title in primary region.
+
+**Acceptance:** Golden-path empty and hard-error states always expose a clear next action and a support/recovery path without eng debug copy in the primary region.
+
+**Affected files:** reviews empty, branded not-found, `OperatorApiProblem` presentation, Report Problem entry points, tests.
+
+**Peers:** **TB-1552**–**TB-1556**, **TB-782**–**TB-792**, **TB-271** Done.
+
+**Out of scope:** Universal Report Problem on every toast.
+
+**Size estimate:** M.
+
+---
+
+## TB-2138 — One in-product golden walkthrough to sponsor-ready package (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner easier-to-understand ask 2026-08-09 (lever 9); residual after Done **TB-174** (golden walkthrough doc) and **TB-353** (show-me-value sample).
+
+**Why:** Founder-narration dependency remains when the only path to understanding is a human explaining product nouns. Need **one** in-product walkthrough: sample or guided review → architecture package → sponsor export — without facilitator navigation hints.
+
+**Approach:**
+
+1. Unify sample-review / show-me-value / demo explain entry into a single “Show me a sponsor-ready package” path with a visible 3–4 step checklist.
+2. End state must open or highlight sponsor export (**TB-2132**).
+3. Honesty: label sample/demo data clearly; never merge sample into live sponsor exports (BDA / demo-leakage discipline).
+4. Playwright or Vitest journey: entry → package surface → export CTA without requiring Operate nav.
+
+**Acceptance:** From home empty or help entry, a user can complete a labeled sample path to a sponsor export CTA in one guided flow without founder narration.
+
+**Affected files:** sample/show-me-value surfaces, home empty CTA, demo/explain handoff, tests.
+
+**Peers:** **TB-2132**; GTM cohorts (**M-44**/**M-90**) stay owner-facilitated — this is product-led path only.
+
+**Out of scope:** Running live architect cohorts.
+
+**Size estimate:** L.
+
+---
+
+## TB-2139 — Role-shaped default nav density (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner easier-to-use ask 2026-08-09 (lever 10); persona shell presets residual.
+
+**Why:** One mega-nav still shows architect, governance, and admin destinations as peers. Role-appropriate default density reduces irrelevant destinations before and after first value.
+
+**Approach:**
+
+1. Define default visible nav groups for architect / governance reviewer / tenant admin (capabilities-driven, not cosmetic hide).
+2. Reuse existing persona/shell presets and committed-review gate (**TB-2133**); ensure defaults match job, with “show more” for power users.
+3. Command palette respects the same density defaults.
+4. Vitest: capability fixtures assert default nav group sets; no capability bypass by CSS-only hide.
+
+**Acceptance:** Architect, governance, and admin fixtures each see a distinct default nav density matching their job; full nav remains reachable without elevating privileges.
+
+**Affected files:** nav builders, shell visibility, persona presets, command palette filters, tests.
+
+**Peers:** **TB-2133**; does **not** replace authorization — density only.
+
+**Out of scope:** New RBAC capabilities or custom-role editor UX.
+
+**Size estimate:** L.
 
 ---

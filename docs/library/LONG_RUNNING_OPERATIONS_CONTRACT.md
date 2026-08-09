@@ -63,6 +63,7 @@ Update this table when routes change. Tiers are **product contract**, not k6 tag
 | Export / DOCX / PDF jobs | Background job enqueue + `GET /v1/jobs/{jobId}` | D | `BackgroundJobInfo` state | Project into **TB-2074** operations |
 | Outbox drains (retrieval, export blob, projections) | Worker / hosted services | D | Metrics / admin health | Not user-facing HTTP |
 | Authority SSE / run events | Existing SSE where shipped | — | Event stream | Complements operations poll (**TB-2077**) |
+| Real-mode staged Critic execute | `POST .../execute` or `.../execute/async` when `StagedCriticEnabled` | C | Phase 1 then Critic serial wall clock; metrics + operation `stepLabel` (**TB-2121**) | Async required for edge; see [STAGED_CRITIC_WALL_TIME_CONTRACT.md](./STAGED_CRITIC_WALL_TIME_CONTRACT.md) |
 | **Missing** run progress | ~~`GET /v1/runs/{runId}/progress`~~ | — | **Does not exist** | Do **not** implement under that path; use `/v1/operations/{id}` |
 
 ### Unified operation DTO (TB-2074 — shipped)
