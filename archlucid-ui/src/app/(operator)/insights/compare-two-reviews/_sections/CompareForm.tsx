@@ -6,7 +6,6 @@ import { useSearchParams } from "next/navigation";
 
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { ShortcutHint } from "@/components/ShortcutHint";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { coerceComparisonExplanation, coerceGoldenManifestComparison, coerceRunComparison } from "@/lib/operator-response-guards";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -418,11 +417,6 @@ export function CompareForm() {
         titleTestId="compare-page-heading"
         subtitle={COMPARE_PAGE_SUBTITLE}
         actions={<PageContextualHelpButton />}
-        metadata={
-          isBuyerPolishedOperatorShellEnv() ? undefined : (
-            <ShortcutHint shortcut="Alt+C" className="text-[0.75rem] text-neutral-500" />
-          )
-        }
       />
 {showInsufficientFinalized ? (
         <CompareInsufficientFinalizedEmptyState

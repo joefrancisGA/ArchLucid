@@ -11,7 +11,7 @@ The shell exposes **fast navigation** and **page actions** via the keyboard. Des
 |-----------|-----------|
 | **Alt + letter / number** | Avoids most browser chrome conflicts (Ctrl/Cmd+N/T/W, copy/paste, etc.). |
 | **Input guard** | Shortcuts do not fire while focus is in `<input>`, `<textarea>`, `<select>`, or `contenteditable` (see [`useKeyboardShortcuts`](../src/hooks/useKeyboardShortcuts.ts)). |
-| **Progressive discoverability** | Help overlay, nav `title` + `aria-keyshortcuts`, visible `<ShortcutHint>` chips on key pages, and footer hint text—operators learn without reading this doc first. |
+| **Progressive discoverability** | Help overlay (**Shift+?**), nav `title` + `aria-keyshortcuts`, command palette (**Ctrl+K**), and footer hint text—operators learn without reading this doc first. |
 
 Global shortcuts apply from the main content region wrapped by [`KeyboardShortcutProvider`](../src/components/KeyboardShortcutProvider.tsx) in [`layout.tsx`](../src/app/layout.tsx). The header/nav sit outside that wrapper, so **focus the page body** (e.g. Tab to main or click content) before Alt shortcuts if the nav stole focus.
 
@@ -60,7 +60,7 @@ At Execute+, shortcuts call the same path as the triage buttons (then **Confirm*
 
 1. **Shift+?** — Full table in the Radix/shadcn dialog ([`KeyboardShortcutProvider`](../src/components/KeyboardShortcutProvider.tsx)).
 2. **Shell nav** — [`SidebarNav.tsx`](../src/components/SidebarNav.tsx): extended `title` text includes `(Alt+…)`; `aria-keyshortcuts` matches [`registryKeyToAriaKeyShortcuts`](../src/lib/shortcut-registry.ts). No inline `<kbd>` in the nav (compact layout).
-3. **`<ShortcutHint>`** — [`ShortcutHint.tsx`](../src/components/ShortcutHint.tsx): visible chips next to primary links on home, runs list, compare heading (uses global `kbd` CSS).
+3. **`<ShortcutHint>`** — [`ShortcutHint.tsx`](../src/components/ShortcutHint.tsx): optional visible `kbd` chip for glossary/reference surfaces; **not** used on primary page-header CTAs (nav tooltips + **Shift+?** carry discoverability).
 4. **Footer** — Shell hint: “Press Shift+? for keyboard shortcuts.” Alerts page: operator line lists Alt+1–3; read-tier line documents J/K only plus when Alt+1–3 register (`enterprise-controls-context-copy` / page).
 
 ## Technical architecture (developers)

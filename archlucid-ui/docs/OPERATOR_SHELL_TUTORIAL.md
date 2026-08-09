@@ -825,7 +825,7 @@ Key differences from HTML:
 
 ## 19. Keyboard shortcuts
 
-The architect workspace registers **Alt+letter** navigation (e.g. Alt+N → new run), a **Shift+?** help dialog, and **page-specific** shortcuts on Alerts. Shortcuts are **guarded** inside text fields and selects. For the full shortcut table, discoverability (nav `aria-keyshortcuts`, `<ShortcutHint>` badges), accessibility notes, and how to extend [`shortcut-registry.ts`](../src/lib/shortcut-registry.ts), read **[KEYBOARD_SHORTCUTS.md](./KEYBOARD_SHORTCUTS.md)**. Integration coverage: `src/integration/keyboard-shortcuts-*.test.tsx`.
+The architect workspace registers **Alt+letter** navigation (e.g. Alt+N → new run), a **Shift+?** help dialog, and **page-specific** shortcuts on Alerts. Shortcuts are **guarded** inside text fields and selects. For the full shortcut table, discoverability (nav `aria-keyshortcuts`, **Shift+?** help), accessibility notes, and how to extend [`shortcut-registry.ts`](../src/lib/shortcut-registry.ts), read **[KEYBOARD_SHORTCUTS.md](./KEYBOARD_SHORTCUTS.md)**. Integration coverage: `src/integration/keyboard-shortcuts-*.test.tsx`.
 
 ---
 
