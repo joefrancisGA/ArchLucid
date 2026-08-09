@@ -27,8 +27,8 @@ function findingToError(finding: ClientDiagnosticsFinding): Error {
 }
 
 /**
- * Pre-release shell diagnostics: reports client failures to API + App Insights and shows a prominent banner.
- * Opt out with `NEXT_PUBLIC_CLIENT_DIAGNOSTICS_BANNER=0`.
+ * Shell diagnostics: reports client failures to API + App Insights.
+ * On-page banner is off by default; opt in with `NEXT_PUBLIC_CLIENT_DIAGNOSTICS_BANNER=1`.
  */
 export function ClientRuntimeDiagnostics() {
   const pathname = usePathname();
@@ -132,8 +132,8 @@ export function ClientRuntimeDiagnostics() {
         </ul>
         <p className={cn("m-0 opacity-90", OPERATOR_TYPOGRAPHY.helper)}>
           Also posted to <code>POST /v1/diagnostics/client-error</code> and App Insights when configured.
-          Check DevTools Console / Network while reproducing. Hide banner:{" "}
-          <code>NEXT_PUBLIC_CLIENT_DIAGNOSTICS_BANNER=0</code>.
+          Check DevTools Console / Network while reproducing. Banner enabled via{" "}
+          <code>NEXT_PUBLIC_CLIENT_DIAGNOSTICS_BANNER=1</code>.
         </p>
       </div>
     </div>

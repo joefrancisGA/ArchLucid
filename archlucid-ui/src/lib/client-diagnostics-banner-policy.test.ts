@@ -6,16 +6,23 @@ describe("client-diagnostics-banner-policy", () => {
     vi.resetModules();
   });
 
-  it("defaults to enabled", async () => {
+  it("defaults to disabled", async () => {
+    const { isClientDiagnosticsBannerEnabled } = await import("@/lib/client-diagnostics-banner-policy");
+
+    expect(isClientDiagnosticsBannerEnabled()).toBe(false);
+  });
+
+  it("enables when NEXT_PUBLIC_CLIENT_DIAGNOSTICS_BANNER=1", async () => {
+    vi.stubEnv("NEXT_PUBLIC_CLIENT_DIAGNOSTICS_BANNER", "1");
     const { isClientDiagnosticsBannerEnabled } = await import("@/lib/client-diagnostics-banner-policy");
 
     expect(isClientDiagnosticsBannerEnabled()).toBe(true);
   });
 
-  it("disables when NEXT_PUBLIC_CLIENT_DIAGNOSTICS_BANNER=0", async () => {
-    vi.stubEnv("NEXT_PUBLIC_CLIENT_DIAGNOSTICS_BANNER", "0");
+  it("enables when NEXT_PUBLIC_CLIENT_DIAGNOSTICS_BANNER=true", async () => {
+    vi.stubEnv("NEXT_PUBLIC_CLIENT_DIAGNOSTICS_BANNER", "true");
     const { isClientDiagnosticsBannerEnabled } = await import("@/lib/client-diagnostics-banner-policy");
 
-    expect(isClientDiagnosticsBannerEnabled()).toBe(false);
+    expect(isClientDiagnosticsBannerEnabled()).toBe(true);
   });
 });
