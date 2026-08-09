@@ -6,8 +6,7 @@ export const ALERT_RULES_CONDITIONS_PAGE_LEAD =
 export const ALERT_RULES_CONDITIONS_FINDINGS_HELPER =
   "Conditions evaluate findings from completed reviews. Configuring a condition does not set up external notification delivery.";
 
-/** Distinct from the page title so the list is not a second "Alert rules" heading under it. */
-export const ALERT_RULES_LIST_HEADING = "Configured rules";
+export const ALERT_RULES_LIST_HEADING = "Alert rules";
 
 export const ALERT_RULES_LIST_EMPTY_TITLE = "No alert rules yet";
 
@@ -18,31 +17,16 @@ export const ALERT_RULES_CREATE_HEADING = "Create alert rule";
 
 export const ALERT_RULES_EDIT_HEADING = "Edit alert rule";
 
-/** Names what the field sets, so the help text no longer has to disclaim finding severity. */
-export const ALERT_RULES_ALERT_PRIORITY_LABEL = "Priority of the raised alert";
+export const ALERT_RULES_ALERT_PRIORITY_LABEL = "Alert priority";
 
 export const ALERT_RULES_ALERT_PRIORITY_HELP =
-  "Does not change the severity of the underlying findings.";
+  "This controls how the generated alert is prioritized. It does not change the severity of the underlying findings.";
 
 export const ALERT_RULES_RULE_TYPE_LABEL = "Condition type";
 
 export const ALERT_RULES_NAME_LABEL = "Rule name";
 
 export const ALERT_RULES_PREVIEW_HEADING = "Rule preview";
-
-/**
- * The preview restates the unsaved form, so it must not read as a configured rule
- * while the list beside it is empty.
- */
-export const ALERT_RULES_PREVIEW_DRAFT_STATUS_LABEL = "Draft — not saved";
-
-export const ALERT_RULES_PREVIEW_DRAFT_STATUS_TITLE =
-  "This preview describes the form below. No rule is saved until you select Create rule.";
-
-/** Named scope beside the create control; a rule saved to the wrong workspace cannot be undone in the UI. */
-export const ALERT_RULES_CREATE_SCOPE_PREFIX = "Applies to workspace";
-
-export const ALERT_RULES_CREATE_BLOCKED_HINT = "Add a rule name and threshold to continue.";
 
 export const ALERT_RULES_SCOPE_HEADING = "Review scope";
 

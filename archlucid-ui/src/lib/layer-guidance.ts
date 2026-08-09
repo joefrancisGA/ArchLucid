@@ -253,10 +253,10 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   "alert-rules": {
     layerBadge: "Governance",
-    headline: "Finding thresholds that raise alerts after completed reviews.",
-    useWhen: "Define thresholds here; triage raised alerts on Alerts.",
-    firstPilotNote: "Threshold tuning after Pilot proof when reviews drive production signals.",
-    enterpriseFootnote: "Thresholds on review findings.",
+    headline: "Metric thresholds that raise alerts after scans.",
+    useWhen: "Define thresholds here; triage fired alerts on Alerts.",
+    firstPilotNote: "Threshold tuning after Pilot proof when scans drive production signals.",
+    enterpriseFootnote: "Thresholds on scan outcomes.",
   },
   "alert-routing": {
     layerBadge: "Governance",

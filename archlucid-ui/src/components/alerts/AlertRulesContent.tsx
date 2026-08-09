@@ -31,11 +31,10 @@ import {
   ALERT_RULES_ALERT_PRIORITY_HELP,
   ALERT_RULES_ALERT_PRIORITY_LABEL,
   ALERT_RULES_CONDITIONS_FINDINGS_HELPER,
-  ALERT_RULES_CREATE_BLOCKED_HINT,
+  ALERT_RULES_CONDITIONS_PAGE_LEAD,
   ALERT_RULES_CREATE_BUTTON_LABEL,
   ALERT_RULES_CREATE_HEADING,
   ALERT_RULES_CREATE_PENDING_LABEL,
-  ALERT_RULES_CREATE_SCOPE_PREFIX,
   ALERT_RULES_CREATE_SUCCESS_MESSAGE,
   ALERT_RULES_FORM_SECTION_ARIA_LABEL,
   ALERT_RULES_LIST_EMPTY_BODY,
@@ -48,10 +47,6 @@ import {
   ALERT_RULES_SAMPLE_MODE_CTA_LABEL,
   ALERT_RULES_STATUS_LIVE_REGION_LABEL,
 } from "@/lib/alert-rule-conditions-copy";
-import {
-  readActiveWorkspaceScopeLabel,
-  resolveWorkspaceScopeLabelFromRecord,
-} from "@/lib/active-workspace-scope-label";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -86,11 +81,6 @@ export function AlertRulesContent() {
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [simulateForRule, setSimulateForRule] = useState<AlertRule | null>(null);
-
-  // Server render has no storage; the stored workspace label is adopted after mount to avoid a hydration mismatch.
-  const [workspaceScopeLabel, setWorkspaceScopeLabel] = useState<string>(() =>
-    resolveWorkspaceScopeLabelFromRecord(null),
-  );
 
   const [name, setName] = useState(DEFAULT_FORM.name);
   const [ruleType, setRuleType] = useState(DEFAULT_FORM.ruleType);
@@ -135,10 +125,6 @@ export function AlertRulesContent() {
     }
 
     setLoading(false);
-  }, []);
-
-  useEffect(() => {
-    setWorkspaceScopeLabel(readActiveWorkspaceScopeLabel());
   }, []);
 
   useEffect(() => {
@@ -193,11 +179,17 @@ export function AlertRulesContent() {
   );
 
   const draftReadinessRule = useMemo(() => ({ isEnabled: true }), []);
+  const showConditionsLead = !isBuyerPolishedOperatorShellEnv();
 
   return (
     <div className="min-w-0">
-      <h2 className={cn("mb-2 mt-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Alert conditions</h2>
-      <p className={cn("mb-4 max-w-prose leading-snug text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+      <h2 className="mt-0">Alert conditions</h2>
+      {showConditionsLead ? (
+        <p className={cn("mb-2 max-w-prose leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+          {ALERT_RULES_CONDITIONS_PAGE_LEAD}
+        </p>
+      ) : null}
+      <p className={cn("mb-2 max-w-prose leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         {ALERT_RULES_CONDITIONS_FINDINGS_HELPER}
       </p>
 
@@ -245,10 +237,10 @@ export function AlertRulesContent() {
             <div className="grid gap-3">
               {items.length === 0 ? (
                 <div className="rounded-lg border border-dashed border-neutral-300 p-4 dark:border-neutral-700">
-                  <p className={cn("mb-1 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                  <p className={cn("mb-1 font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
                     {ALERT_RULES_LIST_EMPTY_TITLE}
                   </p>
-                  <p className={cn("mb-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  <p className={cn("mb-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                     {ALERT_RULES_LIST_EMPTY_BODY}
                   </p>
                 </div>
@@ -323,7 +315,7 @@ export function AlertRulesContent() {
                     </option>
                   ))}
                 </select>
-                <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                <p className={cn("mt-1 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                   {ALERT_RULES_ALERT_PRIORITY_HELP}
                 </p>
               </div>
@@ -357,39 +349,18 @@ export function AlertRulesContent() {
                 </div>
               ) : null}
 
-              <div className="grid gap-2">
-                <p
-                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                  data-testid="alert-rules-create-scope"
-                >
-                  {ALERT_RULES_CREATE_SCOPE_PREFIX}: {workspaceScopeLabel}
-                </p>
-
-                <div className="flex flex-wrap items-center gap-3">
-                  <Button
-                    type="button"
-                    variant="primary"
-                    onClick={() => void onCreate()}
-                    disabled={loading || creating || !canEdit || !formValid}
-                    title={canEdit ? undefined : enterpriseMutationControlDisabledTitle}
-                  >
-                    {creating
-                      ? ALERT_RULES_CREATE_PENDING_LABEL
-                      : canEdit
-                        ? ALERT_RULES_CREATE_BUTTON_LABEL
-                        : alertRulesCreateButtonLabelReaderRank}
-                  </Button>
-
-                  {canEdit && !formValid ? (
-                    <p
-                      className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                      data-testid="alert-rules-create-readiness"
-                    >
-                      {ALERT_RULES_CREATE_BLOCKED_HINT}
-                    </p>
-                  ) : null}
-                </div>
-              </div>
+              <Button
+                type="button"
+                onClick={() => void onCreate()}
+                disabled={loading || creating || !canEdit || !formValid}
+                title={canEdit ? undefined : enterpriseMutationControlDisabledTitle}
+              >
+                {creating
+                  ? ALERT_RULES_CREATE_PENDING_LABEL
+                  : canEdit
+                    ? ALERT_RULES_CREATE_BUTTON_LABEL
+                    : alertRulesCreateButtonLabelReaderRank}
+              </Button>
             </div>
           </section>
         </div>

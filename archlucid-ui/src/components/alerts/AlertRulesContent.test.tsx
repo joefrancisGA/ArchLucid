@@ -3,12 +3,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AlertRulesContent } from "@/components/alerts/AlertRulesContent";
 import {
-  ALERT_RULES_CREATE_BLOCKED_HINT,
-  ALERT_RULES_CREATE_SCOPE_PREFIX,
   ALERT_RULES_CREATE_SUCCESS_MESSAGE,
   ALERT_RULES_LIST_EMPTY_TITLE,
-  ALERT_RULES_NAME_LABEL,
-  ALERT_RULES_PREVIEW_DRAFT_STATUS_LABEL,
 } from "@/lib/alert-rule-conditions-copy";
 import { alertRulesCreateButtonLabelReaderRank } from "@/lib/enterprise-controls-context-copy";
 
@@ -122,47 +118,6 @@ describe("AlertRulesContent", () => {
     await waitFor(() => {
       expect(screen.getByRole("button", { name: alertRulesCreateButtonLabelReaderRank })).toBeDisabled();
     });
-  });
-
-  it("names the target workspace beside the create control", async () => {
-    render(<AlertRulesContent />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId("alert-rules-create-scope")).toBeInTheDocument();
-    });
-
-    expect(screen.getByTestId("alert-rules-create-scope")).toHaveTextContent(
-      `${ALERT_RULES_CREATE_SCOPE_PREFIX}: Claims Intake`,
-    );
-  });
-
-  it("marks the rule preview as an unsaved draft so it cannot read as a configured rule", async () => {
-    render(<AlertRulesContent />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId("alert-rule-preview-draft-status")).toBeInTheDocument();
-    });
-
-    expect(screen.getByTestId("alert-rule-preview-draft-status")).toHaveTextContent(
-      ALERT_RULES_PREVIEW_DRAFT_STATUS_LABEL,
-    );
-  });
-
-  it("shows an inline readiness hint instead of a toast when the name is cleared", async () => {
-    render(<AlertRulesContent />);
-
-    await waitFor(() => {
-      expect(screen.getByRole("button", { name: "Create rule" })).not.toBeDisabled();
-    });
-
-    expect(screen.queryByTestId("alert-rules-create-readiness")).toBeNull();
-
-    fireEvent.change(screen.getByLabelText(ALERT_RULES_NAME_LABEL), { target: { value: "  " } });
-
-    expect(screen.getByRole("button", { name: "Create rule" })).toBeDisabled();
-    expect(screen.getByTestId("alert-rules-create-readiness")).toHaveTextContent(
-      ALERT_RULES_CREATE_BLOCKED_HINT,
-    );
   });
 
   it("renders persisted rule rows with plain-language summaries", async () => {

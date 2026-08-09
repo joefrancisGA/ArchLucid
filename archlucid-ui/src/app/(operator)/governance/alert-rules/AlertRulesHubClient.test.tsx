@@ -40,7 +40,6 @@ vi.mock(
 );
 
 import { ALERTS_CONFIGURATION_PAGE_SUBTITLE } from "@/lib/alerts-page-copy";
-import { OPERATOR_NOT_REFRESHED_LABEL } from "@/lib/operator-last-refreshed-label";
 
 import { AlertRulesHubClient } from "./AlertRulesHubClient";
 
@@ -50,17 +49,13 @@ describe("AlertRulesHubClient", () => {
     tabValue.current = null;
   });
 
-  it("defaults to conditions tab with Alert rules page title", () => {
+  it("defaults to conditions tab with Alert Rules page title", () => {
     render(<AlertRulesHubClient />);
     expect(screen.getByTestId("stub-rules")).toBeInTheDocument();
-    expect(screen.getByTestId("alert-rules-page-title")).toHaveTextContent("Alert rules");
+    expect(screen.getByTestId("alert-rules-page-title")).toHaveTextContent("Alert Rules");
     expect(screen.getByText(ALERTS_CONFIGURATION_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByTestId("alert-rules-refresh-button")).toBeInTheDocument();
-    // Before any refresh there is no timestamp to qualify, so the prefix is omitted.
-    expect(screen.getByTestId("alert-rules-last-refreshed")).toHaveTextContent(
-      OPERATOR_NOT_REFRESHED_LABEL,
-    );
-    expect(screen.getByTestId("alert-rules-last-refreshed")).not.toHaveTextContent(/Last refreshed:/i);
+    expect(screen.getByTestId("alert-rules-last-refreshed")).toHaveTextContent(/Last refreshed:/i);
     expect(screen.getByTestId("alert-rules-open-inbox-link")).toHaveAttribute("href", "/governance/alerts");
     expect(screen.getByTestId("alert-rules-hub-tab-rules")).toHaveTextContent("Conditions");
     expect(screen.getByRole("tab", { name: /Conditions/i })).toHaveAttribute("aria-selected", "true");
@@ -79,24 +74,5 @@ describe("AlertRulesHubClient", () => {
   it("hides routing Evidence strip on the Conditions tab", () => {
     render(<AlertRulesHubClient />);
     expect(screen.queryByTestId("alert-routing-sources")).not.toBeInTheDocument();
-  });
-
-  it("leads with the page title and no About disclosures above it (TB-2093)", () => {
-    render(<AlertRulesHubClient />);
-
-    expect(screen.queryByTestId("layer-header-collapsible-guidance")).toBeNull();
-    expect(screen.queryByTestId("alert-rules-scope-details")).toBeNull();
-    expect(screen.queryByTestId("layer-header-review-vocabulary")).toBeNull();
-  });
-
-  it("keeps tab labels to a single line and moves the description to a tooltip", () => {
-    render(<AlertRulesHubClient />);
-
-    const routingTab = screen.getByTestId("alert-rules-hub-tab-routing");
-
-    expect(routingTab).toHaveTextContent("Notifications");
-    expect(routingTab).not.toHaveTextContent("Where qualifying alerts are delivered");
-    expect(routingTab).toHaveAttribute("title", "Where qualifying alerts are delivered");
-    expect(screen.getByRole("tab", { name: "Notifications" })).toBe(routingTab);
   });
 });
