@@ -70,6 +70,20 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
     expect(screen.queryByTestId("reviews-new-path-hint")).toBeNull();
   });
 
+  it("ignores persisted guided-intake when the URL has no path query", async () => {
+    window.localStorage.setItem("archlucid_reviews_new_path_v2", "full-guided");
+    window.localStorage.setItem("archlucid_reviews_new_full_guided_sub_v1", "guided-intake");
+
+    render(<ReviewsNewPathSwitcher />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("reviews-new-job-chooser-section")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("socratic-intake-wizard-stub")).toBeNull();
+    expect(screen.queryByTestId("reviews-new-back-to-quick-start")).toBeNull();
+  });
+
   it("opens guided intake from the disclosure without showing peer tabs", async () => {
     render(<ReviewsNewPathSwitcher />);
 
@@ -197,6 +211,20 @@ describe("ReviewsNewPathSwitcher (returning tenant)", () => {
       "/architecture/reviews/new?path=guided-intake",
       expect.objectContaining({ scroll: false }),
     );
+  });
+
+  it("defaults to quick start when localStorage remembers guided-intake but the URL has no path query", async () => {
+    window.localStorage.setItem("archlucid_reviews_new_path_v2", "full-guided");
+    window.localStorage.setItem("archlucid_reviews_new_full_guided_sub_v1", "guided-intake");
+
+    render(<ReviewsNewPathSwitcher />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("first-pilot-intake-wizard-stub")).toBeTruthy();
+    });
+
+    expect(screen.getByRole("tab", { name: "Quick start" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.queryByTestId("socratic-intake-wizard-stub")).toBeNull();
   });
 
   it("moves selection with ArrowRight keyboard navigation on the tablist", async () => {

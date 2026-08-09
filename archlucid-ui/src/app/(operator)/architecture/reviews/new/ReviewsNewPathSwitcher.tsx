@@ -28,7 +28,7 @@ import { ReviewsNewJobChooserSection } from "./ReviewsNewJobChooserSection";
 import { ReviewsNewOwnEvidenceStart } from "./ReviewsNewOwnEvidenceStart";
 import {
   persistActivePath,
-  readStoredActivePath,
+  resolveInitialReviewsNewActivePath,
   type ReviewsNewActivePath,
 } from "./reviews-new-path-switcher-state";
 
@@ -135,30 +135,16 @@ export function ReviewsNewPathSwitcher() {
 
   useEffect(() => {
     const activeTour = readBuyerCtoDemoTourActive();
-    const pathQuery = searchParams?.get("path")?.trim().toLowerCase() ?? "";
+    const pathQuery = searchParams?.get("path")?.trim() ?? "";
+    const initialPath = resolveInitialReviewsNewActivePath({
+      pathQuery,
+      baselineFirst,
+      presetGreenfield,
+      activeTour,
+    });
 
-    if (pathQuery === "quick-review") {
-      setActivePath("quick-review");
-      persistActivePath("quick-review");
-    } else if (pathQuery === "guided-intake") {
-      setActivePath("guided-intake");
-      persistActivePath("guided-intake");
-    } else if (pathQuery === "detailed") {
-      setActivePath("detailed");
-      persistActivePath("detailed");
-    } else if (baselineFirst) {
-      setActivePath("detailed");
-      persistActivePath("detailed");
-    } else if (presetGreenfield) {
-      setActivePath("detailed");
-      persistActivePath("detailed");
-    } else if (activeTour) {
-      setActivePath("quick-review");
-      persistActivePath("quick-review");
-    } else {
-      setActivePath(readStoredActivePath());
-    }
-
+    setActivePath(initialPath);
+    persistActivePath(initialPath);
     setReady(true);
   }, [baselineFirst, presetGreenfield, searchParams]);
 
