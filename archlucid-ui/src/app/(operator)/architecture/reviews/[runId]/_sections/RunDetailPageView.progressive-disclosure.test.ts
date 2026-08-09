@@ -39,8 +39,8 @@ describe("RunDetailPageView progressive disclosure", () => {
   });
 
   it("prioritizes workspace header and summary before tabbed workspace render", () => {
-    const headerIndex = source.indexOf("<RunDetailWorkspaceHeader");
-    const summaryMatch = /<RunDetailWorkspaceSummaryStrip(?:\s|>)/.exec(source);
+    const headerIndex = source.indexOf("<RunDetailWorkspaceHeaderDeferred");
+    const summaryMatch = /<RunDetailWorkspaceSummaryStripDeferred(?:\s|>)/.exec(source);
     const summaryIndex = summaryMatch?.index ?? -1;
     const workspaceRenderIndex = source.indexOf("{tabbedWorkspaceEl}");
 
@@ -116,7 +116,7 @@ describe("RunDetailPageView progressive disclosure", () => {
   });
 
   it("places executive context immediately after the decision snapshot in standard review mode", () => {
-    const summaryIndex = source.indexOf("<RunDetailWorkspaceSummaryStrip");
+    const summaryIndex = source.indexOf("<RunDetailWorkspaceSummaryStripDeferred");
     const executiveAfterSummary = source.indexOf("executiveBottomLineEl", summaryIndex);
     const tabbedWorkspaceIndex = source.indexOf("{tabbedWorkspaceEl}");
 
