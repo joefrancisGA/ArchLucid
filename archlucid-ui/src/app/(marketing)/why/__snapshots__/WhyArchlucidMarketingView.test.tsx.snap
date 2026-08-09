@@ -15,7 +15,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     class="mt-4 max-w-3xl text-base leading-relaxed text-neutral-700 sm:text-lg dark:text-neutral-300"
     data-testid="why-brand-category-paragraph"
   >
-    ArchLucid is an Architecture Proof Engine: governed architecture reviews whose findings, signed decisions, approvals, and exports share one traceable evidence trail — durable evidence before emphasizing agent-assisted acceleration. Comparisons below summarize typical fit versus adjacent tooling. The downloadable evidence bundle carries the citation-backed drill-down for diligence teams who need paperwork parity.
+    ArchLucid is an Architecture Proof Engine: governed architecture reviews whose findings, signed decisions, approvals, and exports share one traceable evidence trail — durable evidence before emphasizing agent-assisted acceleration. Comparisons below summarize typical fit versus adjacent tooling. The downloadable differentiation overview carries the citation-backed drill-down for diligence teams who need paperwork parity.
   </p>
   <p
     class="mt-3 max-w-3xl text-xs font-normal leading-[18px] text-al-text-secondary"
@@ -100,7 +100,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       <p
         class="m-0 mt-2 text-[13px] font-normal leading-5 text-al-text-primary"
       >
-        This Why ArchLucid page compares product fit for evaluation — it is marketing differentiation orientation, not a signed-review diligence Sources package from your tenant, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Assurance status, Trust Center, or start an evaluation when you need live workspace evidence.
+        This Why ArchLucid page compares product fit for evaluation — it is marketing differentiation orientation, not a signed-review diligence Sources package from your tenant. Open Assurance status, Trust Center, or start an evaluation when you need live workspace evidence.
       </p>
     </aside>
   </div>
@@ -622,7 +622,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     <p
       class="mt-2 max-w-3xl text-xs leading-snug text-neutral-600 dark:text-neutral-400"
     >
-      Summarized wording only — citations and benchmark detail are included in the evidence bundle linked from this page.
+      Summarized wording only — citations and benchmark detail are included in the marketing overview PDF linked from this page.
     </p>
     <div
       class="mt-4 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800"
@@ -768,21 +768,19 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     <h2
       class="text-2xl font-semibold leading-tight tracking-tight text-al-text-primary"
     >
-      Side-by-side audit evidence bundle
+      Differentiation overview (PDF)
     </h2>
     <p
       class="mt-2 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary text-al-text-secondary"
     >
-      Download a single PDF that bundles the same read-only sample output as the
-       
+      Download a single PDF that bundles the same read-only sample output as the 
       <a
         class="font-medium font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
         href="/demo/preview"
       >
         public demo preview
       </a>
-       
-      (review excerpt, explanation, citations, timeline) plus the citation-backed differentiation narrative table (five detailed rows with citations — not the symbol-only front-door grid below). If the download is not available in your environment, use the contact path on the getting started page.
+       (review excerpt, explanation, citations, timeline) plus the citation-backed differentiation narrative table (five detailed rows with citations — not the symbol-only front-door grid below). If the download is not available in your environment, use the contact path on the getting started page.
     </p>
     <p
       class="mt-3"
@@ -793,7 +791,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
         download="why-archlucid-pack.pdf"
         href="/api/proxy/v1/marketing/why-archlucid-pack.pdf"
       >
-        Download the audit evidence bundle (PDF)
+        Download differentiation overview (PDF)
       </a>
     </p>
   </section>
@@ -1240,10 +1238,41 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     </div>
   </section>
   <section
+    aria-labelledby="why-closing-cta-heading"
     class="mt-10 border-t border-neutral-200 pt-8 dark:border-neutral-800"
+    data-testid="why-closing-cta"
   >
+    <h2
+      class="text-2xl font-semibold leading-tight tracking-tight text-al-text-primary"
+      id="why-closing-cta-heading"
+    >
+      Next step
+    </h2>
     <p
-      class="text-sm text-neutral-600 dark:text-neutral-400"
+      class="mt-2 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary text-al-text-secondary"
+    >
+      Inspect the public sample review, then start an evaluation when you are ready to bring your own architecture evidence.
+    </p>
+    <div
+      class="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center"
+    >
+      <a
+        class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-semibold bg-[var(--al-primary-action-bg)] text-[var(--al-primary-action-fg)] hover:bg-[var(--al-primary-action-bg-hover)] focus-visible:ring-[var(--al-primary-action-ring)] h-10 rounded-md px-6 text-[15px]"
+        data-testid="why-closing-primary-cta"
+        href="/see-it"
+      >
+        See a finalized sample review
+      </a>
+      <a
+        class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-semibold border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 h-10 rounded-md px-6 text-[15px]"
+        data-testid="why-closing-secondary-cta"
+        href="/signup"
+      >
+        Start your evaluation
+      </a>
+    </div>
+    <p
+      class="mt-4 text-sm text-neutral-600 dark:text-neutral-400"
     >
       For sponsor-ready language and procurement context, see the
        
@@ -1253,8 +1282,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       >
         getting started guide
       </a>
-       
-      or ask your account team for the executive overview pack.
+      .
     </p>
   </section>
 </main>
