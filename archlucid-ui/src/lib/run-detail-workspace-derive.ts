@@ -81,6 +81,8 @@ export type DeriveRunDetailWorkspaceStatusInput = {
   readonly showProgressTracker: boolean;
   readonly operatorGovernanceDecision: string | null | undefined;
   readonly buyerPolishedArtifactTable: boolean;
+  /** Open findings that block approval — used to avoid a bare "Finalized" tag when approval is still blocked. */
+  readonly blockingFindingCount?: number;
 };
 
 export function countFindingsBySeverity(findings: readonly QuickDecisionFinding[]): FindingSeverityCounts {
@@ -277,12 +279,53 @@ export function deriveRunDetailWorkspaceStatus(input: DeriveRunDetailWorkspaceSt
       return { label: "Awaiting decision", kind: "awaiting-decision", statusTagKind: "needs-attention" };
     }
 
-    if (/approv/i.test(governanceDecision) || gateLabel === "Passed") {
-      return { label: "Approved", kind: "approved", statusTagKind: "approved" };
+    const blockingCount = input.blockingFindingCount ?? 0;
+    const governancePending =
+      gateLabel === "Pending" ||
+      /pending/i.test(governanceDecision) ||
+      shouldShowRunDetailGovernanceCta({
+        manifestId,
+        buyerPolishedArtifactTable: input.buyerPolishedArtifactTable,
+        operatorGovernanceDecision: input.operatorGovernanceDecision,
+        manifestStatus: input.manifestStatus,
+      });
+    const isFinalized =
+      manifestStatus === "Finalized" || pipelineLabel === PIPELINE_STATUS_LABELS.finalized;
+
+    if (isFinalized) {
+      if (blockingCount > 0) {
+        return {
+          label: "Finalized · approval blocked",
+          kind: "finalized",
+          statusTagKind: "needs-attention",
+        };
+      }
+
+      if (governancePending) {
+        return {
+          label: "Finalized · decision pending",
+          kind: "finalized",
+          statusTagKind: "needs-attention",
+        };
+      }
+
+      if (/approv/i.test(governanceDecision) || gateLabel === "Passed") {
+        return { label: "Approved", kind: "approved", statusTagKind: "approved" };
+      }
+
+      return { label: "Finalized", kind: "finalized", statusTagKind: "ready" };
     }
 
-    if (manifestStatus === "Finalized" || pipelineLabel === PIPELINE_STATUS_LABELS.finalized) {
-      return { label: "Finalized", kind: "finalized", statusTagKind: "ready" };
+    if (blockingCount > 0) {
+      return {
+        label: "Review complete · approval blocked",
+        kind: "review-complete",
+        statusTagKind: "needs-attention",
+      };
+    }
+
+    if (/approv/i.test(governanceDecision) || gateLabel === "Passed") {
+      return { label: "Approved", kind: "approved", statusTagKind: "approved" };
     }
 
     return { label: "Review complete", kind: "review-complete", statusTagKind: "ready" };
@@ -343,6 +386,8 @@ export function deriveRecommendedWorkspaceActions(input: {
   readonly manifestStatus: string | null | undefined;
   readonly runCompleted: boolean;
   readonly evidenceCoverageComplete?: boolean;
+  /** When the header primary CTA already targets findings, omit duplicate findings rows here. */
+  readonly skipDuplicateFindingsActions?: boolean;
 }): RunDetailWorkspaceRecommendedAction[] {
   const actions: RunDetailWorkspaceRecommendedAction[] = [];
   const severityCounts = countFindingsBySeverity(input.findings);
@@ -374,27 +419,33 @@ export function deriveRecommendedWorkspaceActions(input: {
   if (input.hasCommitBlockingFailures || input.blockingFindingCount > 0) {
     const count = Math.max(input.blockingFindingCount, severityCounts.critical + severityCounts.high);
 
-    actions.push({
-      id: "review-blocking",
-      title: "Review blocking findings",
-      reason: `${count} unresolved finding${count === 1 ? "" : "s"} currently block approval or finalization.`,
-      relatedFindingCount: count,
-      ownerOrRole: null,
-      href: buildReviewDetailTabHref(input.runId, "findings"),
-      actionLabel: "Review findings",
-    });
+    if (!input.skipDuplicateFindingsActions) {
+      const verb = count === 1 ? "blocks" : "block";
+
+      actions.push({
+        id: "review-blocking",
+        title: "Review blocking findings",
+        reason: `${count} unresolved finding${count === 1 ? "" : "s"} currently ${verb} approval or finalization.`,
+        relatedFindingCount: count,
+        ownerOrRole: null,
+        href: buildReviewDetailTabHref(input.runId, "findings"),
+        actionLabel: "Review findings",
+      });
+    }
   } else if (severityCounts.critical > 0 || severityCounts.high > 0) {
     const count = severityCounts.critical + severityCounts.high;
 
-    actions.push({
-      id: "review-critical-high",
-      title: "Review critical findings",
-      reason: `${count} critical or high finding${count === 1 ? "" : "s"} need attention.`,
-      relatedFindingCount: count,
-      ownerOrRole: null,
-      href: buildReviewDetailTabHref(input.runId, "findings"),
-      actionLabel: "Review findings",
-    });
+    if (!input.skipDuplicateFindingsActions) {
+      actions.push({
+        id: "review-critical-high",
+        title: "Review critical findings",
+        reason: `${count} critical or high finding${count === 1 ? "" : "s"} need attention.`,
+        relatedFindingCount: count,
+        ownerOrRole: null,
+        href: buildReviewDetailTabHref(input.runId, "findings"),
+        actionLabel: "Review findings",
+      });
+    }
   }
 
   if (unassignedHigh > 0) {
@@ -639,14 +690,7 @@ export function deriveExecutiveBottomLineContent(input: {
     parts.push(rationale.endsWith(".") ? rationale : `${rationale}.`);
   }
 
-  if (input.blockingFindingCount > 0) {
-    const severityLabel = (input.highestSeverity ?? "material").toLowerCase();
-    const verb = input.blockingFindingCount === 1 ? "requires" : "require";
-
-    parts.push(
-      `${input.blockingFindingCount} unresolved ${severityLabel} finding${input.blockingFindingCount === 1 ? "" : "s"} still ${verb} an assigned owner and supporting evidence before unrestricted production use.`,
-    );
-  }
+  // Blocking-finding counts live in Decision snapshot — do not repeat in Additional context.
 
   if (parts.length > 0) {
     return { kind: "narrative", text: parts.join(" ") };

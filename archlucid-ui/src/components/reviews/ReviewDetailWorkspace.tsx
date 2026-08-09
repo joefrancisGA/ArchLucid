@@ -149,10 +149,18 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
 
   return (
     <ReviewDetailWorkspaceTabContext.Provider value={{ navigateTab }}>
-      <div className="space-y-4" data-testid="review-detail-workspace">
-        <Tabs value={activeTab} onValueChange={(value) => navigateTab(resolveReviewDetailTab(value))}>
-          <div className="-mx-1 overflow-x-auto px-1">
-            <TabsList aria-label="Review workspace sections" data-testid="review-detail-workspace-tabs">
+      <div className="min-w-0 space-y-4" data-testid="review-detail-workspace">
+        <Tabs
+          className="min-w-0"
+          variant="line"
+          value={activeTab}
+          onValueChange={(value) => navigateTab(resolveReviewDetailTab(value))}
+        >
+          <TabsList
+            aria-label="Review workspace sections"
+            data-testid="review-detail-workspace-tabs"
+            className="-mx-1 overflow-x-auto overflow-y-hidden px-1"
+          >
               {(Object.keys(REVIEW_DETAIL_TAB_LABELS) as ReviewDetailTabId[]).map((tabId) => {
                 const count =
                   tabId === "findings"
@@ -185,30 +193,61 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
                 );
               })}
             </TabsList>
-          </div>
 
-          <TabsContent value="overview" data-testid="review-detail-workspace-panel-overview">
+          <TabsContent
+            value="overview"
+            className="min-w-0 overflow-visible"
+            data-testid="review-detail-workspace-panel-overview"
+          >
             {props.panels.overview}
           </TabsContent>
-          <TabsContent value="findings" data-testid="review-detail-workspace-panel-findings">
+          <TabsContent
+            value="findings"
+            className="min-w-0 overflow-visible"
+            data-testid="review-detail-workspace-panel-findings"
+          >
             {props.panels.findings}
           </TabsContent>
-          <TabsContent value="evidence" data-testid="review-detail-workspace-panel-evidence">
+          <TabsContent
+            value="evidence"
+            className="min-w-0 overflow-visible"
+            data-testid="review-detail-workspace-panel-evidence"
+          >
             {props.panels.evidence}
           </TabsContent>
-          <TabsContent value="policies" data-testid="review-detail-workspace-panel-policies">
+          <TabsContent
+            value="policies"
+            className="min-w-0 overflow-visible"
+            data-testid="review-detail-workspace-panel-policies"
+          >
             {props.panels.policies}
           </TabsContent>
-          <TabsContent value="decisions-remediation" data-testid="review-detail-workspace-panel-decisions-remediation">
+          <TabsContent
+            value="decisions-remediation"
+            className="min-w-0 overflow-visible"
+            data-testid="review-detail-workspace-panel-decisions-remediation"
+          >
             {props.panels.decisionsRemediation}
           </TabsContent>
-          <TabsContent value="review-package" data-testid="review-detail-workspace-panel-review-package">
+          <TabsContent
+            value="review-package"
+            className="min-w-0 overflow-visible"
+            data-testid="review-detail-workspace-panel-review-package"
+          >
             {props.panels.reviewPackage}
           </TabsContent>
-          <TabsContent value="architecture" data-testid="review-detail-workspace-panel-architecture">
+          <TabsContent
+            value="architecture"
+            className="min-w-0 overflow-visible"
+            data-testid="review-detail-workspace-panel-architecture"
+          >
             {props.panels.architecture}
           </TabsContent>
-          <TabsContent value="activity" data-testid="review-detail-workspace-panel-activity">
+          <TabsContent
+            value="activity"
+            className="min-w-0 overflow-visible"
+            data-testid="review-detail-workspace-panel-activity"
+          >
             {props.panels.activity}
           </TabsContent>
         </Tabs>

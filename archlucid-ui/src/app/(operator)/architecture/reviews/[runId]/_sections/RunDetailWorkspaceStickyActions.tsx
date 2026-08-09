@@ -15,13 +15,13 @@ export type RunDetailWorkspaceStickyActionsProps = {
   readonly manifestId: string | null | undefined;
 };
 
-/** Compact sticky review actions for desktop workspace layout. */
+/** Compact review actions below the page title — not a sticky strip above the header. */
 export function RunDetailWorkspaceStickyActions(
   props: RunDetailWorkspaceStickyActionsProps,
 ): React.JSX.Element {
   return (
     <div
-      className="sticky top-28 z-20 hidden rounded-lg border border-neutral-200 bg-white/95 p-3 backdrop-blur lg:flex lg:items-center lg:justify-between dark:border-neutral-800 dark:bg-neutral-950/95"
+      className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
       data-testid="run-detail-sticky-actions"
     >
       <div className="flex flex-wrap items-center gap-2">

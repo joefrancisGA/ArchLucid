@@ -79,6 +79,8 @@ export type RunDetailWorkspaceSummaryStripProps = {
   readonly findingsSummaryLine: string;
   readonly primaryConcern: string | null;
   readonly nextAction: string;
+  readonly materialSeverityLine?: string | null;
+  readonly nextActionHref?: string | null;
 };
 
 /** Compact first-viewport review status summary near the title. */
@@ -120,8 +122,23 @@ export function RunDetailWorkspaceSummaryStrip(
         </div>
         <div className="sm:col-span-2 lg:col-span-3">
           <dt className="text-neutral-500 dark:text-neutral-400">Next action</dt>
-          <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">{props.nextAction}</dd>
+          <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">
+            <span>{props.nextAction}</span>
+            {props.nextActionHref !== null && props.nextActionHref !== undefined ? (
+              <Button variant="outline" size="sm" asChild className="ml-3 mt-2 sm:mt-0">
+                <Link href={props.nextActionHref}>Open findings</Link>
+              </Button>
+            ) : null}
+          </dd>
         </div>
+        {props.materialSeverityLine !== null && props.materialSeverityLine !== undefined ? (
+          <div>
+            <dt className="text-neutral-500 dark:text-neutral-400">Material severity (critical and high)</dt>
+            <dd className="m-0 mt-0.5 font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
+              {props.materialSeverityLine}
+            </dd>
+          </div>
+        ) : null}
       </dl>
     </section>
   );

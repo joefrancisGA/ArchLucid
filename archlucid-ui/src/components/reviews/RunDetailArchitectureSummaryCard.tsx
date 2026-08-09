@@ -81,6 +81,15 @@ export function RunDetailArchitectureSummaryCard(
 
   const architectureTitle = props.architectureTitle?.trim() ?? "";
 
+  if (
+    !props.hasSubmittedArchitecture &&
+    architectureTitle.length === 0 &&
+    props.evidenceCount > 0 &&
+    structured === null
+  ) {
+    return null;
+  }
+
   return (
     <section
       className="rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"

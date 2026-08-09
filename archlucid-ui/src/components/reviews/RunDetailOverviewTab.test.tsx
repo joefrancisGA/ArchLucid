@@ -36,6 +36,6 @@ describe("RunDetailOverviewTab", () => {
     expect(screen.getByRole("link", { name: "Review findings" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Findings" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Open" })).not.toBeInTheDocument();
-    expect(screen.getByText("1 critical · 0 high")).toBeInTheDocument();
+    expect(screen.queryByText("1 critical · 0 high")).not.toBeInTheDocument();
   });
 });

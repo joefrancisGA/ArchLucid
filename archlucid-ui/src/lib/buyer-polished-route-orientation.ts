@@ -217,8 +217,8 @@ export function buyerPolishedRouteOrientation(
 
   if (path !== "/architecture/reviews/new" && /^\/architecture\/reviews\/[^/]+$/.exec(path) !== null) {
     return {
-      label: "Review",
-      line: "Review record — outcomes, findings, artifacts, downloads, and deep links into evidence surfaces.",
+      label: "Review record",
+      line: "Outcomes, findings, signed review record, and evidence trail for this architecture package.",
     };
   }
 

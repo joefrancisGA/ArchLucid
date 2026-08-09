@@ -19,7 +19,12 @@ export function RunDetailWorkspaceLayout(props: RunDetailWorkspaceLayoutProps): 
       {props.stickyActions !== null && props.stickyActions !== undefined ? (
         <div className="hidden lg:block">{props.stickyActions}</div>
       ) : null}
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">
+      <div
+        className={cn(
+          "grid gap-6",
+          props.rail !== null ? "lg:grid-cols-[minmax(0,1fr)_280px]" : "lg:grid-cols-1",
+        )}
+      >
         <div className={cn("min-w-0 space-y-4", OPERATOR_LAYOUT.sectionStack)}>{props.main}</div>
         {props.rail !== null ? (
           <aside className="space-y-4">

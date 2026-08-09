@@ -129,7 +129,7 @@ describe("run-detail-workspace-derive", () => {
     expect(deriveSubmittedArchitectureText(run, "My review")).toBeNull();
   });
 
-  it("builds narrative bottom-line copy from governance rationale and blocking findings", () => {
+  it("builds narrative bottom-line copy from governance rationale only (blocking counts stay in Decision snapshot)", () => {
     const content = deriveExecutiveBottomLineContent({
       governanceDecisionLabel: "Approved with monitoring",
       governanceDecisionRationale: "Controls are acceptable for PHI handling.",
@@ -141,8 +141,42 @@ describe("run-detail-workspace-derive", () => {
 
     expect(content?.kind).toBe("narrative");
     expect(content?.kind === "narrative" ? content.text : "").toContain("Controls are acceptable");
-    expect(content?.kind === "narrative" ? content.text : "").toContain("still requires an assigned owner");
+    expect(content?.kind === "narrative" ? content.text : "").not.toContain("still requires an assigned owner");
     expect(content?.kind === "narrative" ? content.text : "").not.toContain("Approved with monitoring");
+  });
+
+  it("maps finalized manifest with blocking findings to composite workspace status", () => {
+    const status = deriveRunDetailWorkspaceStatus({
+      run: { runId: "r1", projectId: "p1", createdUtc: "2026-01-01T00:00:00Z" } as RunSummary,
+      manifestId: "manifest-1",
+      manifestStatus: "Finalized",
+      showProgressTracker: false,
+      operatorGovernanceDecision: null,
+      buyerPolishedArtifactTable: true,
+      blockingFindingCount: 1,
+    });
+
+    expect(status.label).toBe("Finalized · approval blocked");
+    expect(status.statusTagKind).toBe("needs-attention");
+  });
+
+  it("uses plural verb in blocking findings recommended action reason", () => {
+    const actions = deriveRecommendedWorkspaceActions({
+      runId: "run-abc",
+      findings: [finding(2)],
+      manifestId: "manifest-1",
+      showProgressTracker: false,
+      hasCommitBlockingFailures: false,
+      blockingFindingCount: 1,
+      buyerPolishedArtifactTable: true,
+      operatorGovernanceDecision: "Approved",
+      manifestStatus: "Finalized",
+      runCompleted: true,
+    });
+
+    const blocking = actions.find((action) => action.id === "review-blocking");
+
+    expect(blocking?.reason).toContain("currently blocks approval");
   });
 
   it("formats decision snapshot findings line with blocking and triage segments", () => {

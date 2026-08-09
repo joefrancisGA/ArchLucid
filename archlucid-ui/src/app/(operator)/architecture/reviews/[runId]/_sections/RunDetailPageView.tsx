@@ -67,7 +67,6 @@ import {
   RunDetailReviewPackageSectionDeferred,
   RunDetailSectionNavDeferred,
   RunDetailSubmittedArchitectureSectionDeferred,
-  RunDetailWorkspaceBlockingBannerDeferred,
   RunDetailWorkspaceHeaderDeferred,
   RunDetailWorkspaceStickyActionsDeferred,
   RunDetailWorkspaceSummaryStripDeferred,
@@ -259,6 +258,8 @@ export function RunDetailPageView(props: {
     runCompleted: m.resolvedDetail.run.completedUtc != null,
   });
 
+  const skipDuplicateFindingsActions = reviewPackagePrimaryAction.kind === "review-findings";
+
   const showGovernanceCtaCard =
     governanceCtaEl !== null && reviewPackagePrimaryAction.kind !== "open-governance-decision";
 
@@ -274,14 +275,6 @@ export function RunDetailPageView(props: {
     m.explanationSummary,
   );
   const severityCounts = countFindingsBySeverity(quickDecisionFindings);
-  const workspaceStatus = deriveRunDetailWorkspaceStatus({
-    run: m.resolvedDetail.run,
-    manifestId: m.manifestId,
-    manifestStatus: m.manifestSummary?.status ?? null,
-    showProgressTracker: m.showProgressTracker,
-    operatorGovernanceDecision: m.resolvedDetail.run.operatorGovernanceDecision,
-    buyerPolishedArtifactTable: m.buyerPolishedArtifactTable,
-  });
   const reviewDisplayTitle = deriveReviewDisplayTitle(runSummaryForBadge, m.headline);
   const systemName = deriveArchitectureSystemName(runSummaryForBadge, reviewDisplayTitle);
   const highestSeverity = deriveHighestFindingSeverityLabel(
@@ -297,6 +290,15 @@ export function RunDetailPageView(props: {
     unresolvedIssueCount: m.manifestSummary?.unresolvedIssueCount,
     hasCommitBlockingFailures: findingCoverageSummary?.hasCommitBlockingFailures === true,
     findings: quickDecisionFindings,
+  });
+  const workspaceStatus = deriveRunDetailWorkspaceStatus({
+    run: m.resolvedDetail.run,
+    manifestId: m.manifestId,
+    manifestStatus: m.manifestSummary?.status ?? null,
+    showProgressTracker: m.showProgressTracker,
+    operatorGovernanceDecision: m.resolvedDetail.run.operatorGovernanceDecision,
+    buyerPolishedArtifactTable: m.buyerPolishedArtifactTable,
+    blockingFindingCount: blockingApprovalCount,
   });
   const evidenceGapsCount = quickDecisionFindings.filter((finding) => (finding.evidenceRefCount ?? 0) === 0).length;
   const evidenceCoverageComplete =
@@ -316,6 +318,7 @@ export function RunDetailPageView(props: {
     manifestStatus: m.manifestSummary?.status ?? null,
     runCompleted: m.resolvedDetail.run.completedUtc != null,
     evidenceCoverageComplete,
+    skipDuplicateFindingsActions,
   });
   const reviewStatusSummary = deriveReviewStatusSummary({
     reviewOutcome: overallPosture,
@@ -339,7 +342,15 @@ export function RunDetailPageView(props: {
     highestSeverity,
     themeSummaries: m.explanationSummary?.themeSummaries ?? null,
   });
-  const executiveBottomLineEl = <RunDetailExecutiveBottomLineDeferred content={executiveBottomLineContent} />;
+  const executiveBottomLineEl =
+    blockingApprovalCount === 0 ? (
+      <RunDetailExecutiveBottomLineDeferred content={executiveBottomLineContent} />
+    ) : null;
+  const findingsTabHref = buildReviewDetailTabHref(m.resolvedDetail.run.runId, "findings");
+  const materialSeverityLine =
+    severityCounts.critical + severityCounts.high > 0
+      ? `${severityCounts.critical} critical · ${severityCounts.high} high`
+      : null;
 
   const showArchitectureCreatedHome =
     props.fromArchitectureCreation === true && (m.manifestId ?? "").trim().length === 0;
@@ -630,17 +641,7 @@ export function RunDetailPageView(props: {
 
       <RunDetailWorkspaceDisclosureProvider>
         <RunDetailWorkspaceLayout
-          stickyActions={
-            showArchitectureCreatedHome ? null : (
-              <RunDetailWorkspaceStickyActionsDeferred
-                runId={m.resolvedDetail.run.runId}
-                primaryAction={reviewPackagePrimaryAction}
-                commitBlockedReason={commitBlockedReason}
-                showProgressTracker={m.showProgressTracker}
-                manifestId={m.manifestId}
-              />
-            )
-          }
+          stickyActions={null}
           main={
             <>
               {showArchitectureCreatedHome ? (
@@ -791,27 +792,34 @@ export function RunDetailPageView(props: {
                     )}
                     primaryConcern={reviewStatusSummary.primaryConcern}
                     nextAction={reviewStatusSummary.nextAction}
+                    materialSeverityLine={materialSeverityLine}
+                    nextActionHref={blockingApprovalCount > 0 ? findingsTabHref : null}
                   />
+
+                  <div className="hidden lg:block">
+                    <RunDetailWorkspaceStickyActionsDeferred
+                      runId={m.resolvedDetail.run.runId}
+                      primaryAction={reviewPackagePrimaryAction}
+                      commitBlockedReason={commitBlockedReason}
+                      showProgressTracker={m.showProgressTracker}
+                      manifestId={m.manifestId}
+                    />
+                  </div>
+
+                  <div className="lg:hidden">
+                    <ReviewPackagePrimaryActionDeferred
+                      action={reviewPackagePrimaryAction}
+                      runId={m.resolvedDetail.run.runId}
+                      hasGoldenManifest={Boolean(m.manifestId)}
+                      commitBlockedReason={commitBlockedReason}
+                    />
+                  </div>
                 </>
               )}
 
-              {!showArchitectureCreatedHome ? (
-                <RunDetailWorkspaceBlockingBannerDeferred
-                  blockingCount={blockingApprovalCount}
-                  findingsTabHref={buildReviewDetailTabHref(m.resolvedDetail.run.runId, "findings")}
-                />
-              ) : null}
+              {!showArchitectureCreatedHome ? executiveBottomLineEl : null}
 
-              {!showArchitectureCreatedHome ? (
-                <div className="lg:hidden">
-                  <ReviewPackagePrimaryActionDeferred
-                    action={reviewPackagePrimaryAction}
-                    runId={m.resolvedDetail.run.runId}
-                    hasGoldenManifest={Boolean(m.manifestId)}
-                    commitBlockedReason={commitBlockedReason}
-                  />
-                </div>
-              ) : null}
+              {tabbedWorkspaceEl}
 
               {!m.manifestId ? (
                 (() => {
@@ -846,12 +854,6 @@ export function RunDetailPageView(props: {
                   ]}
                 />
               ) : null}
-
-              {!showArchitectureCreatedHome ? executiveBottomLineEl : null}
-
-              {!showArchitectureCreatedHome ? <RunDetailWorkspaceDisclosureControls /> : null}
-
-              {tabbedWorkspaceEl}
             </>
           }
           rail={null}
