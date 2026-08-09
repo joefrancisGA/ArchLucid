@@ -29,6 +29,7 @@ import { HelpEngineeringTroubleshootingGuideView } from "../_sections/HelpEngine
 import { HelpFirstReviewEvidenceChecklistGuideView } from "../_sections/HelpFirstReviewEvidenceChecklistGuideView";
 import { HelpFirstValue20GuideView } from "../_sections/HelpFirstValue20GuideView";
 import { HelpPolicyPackDeltaDemoGuideView } from "../_sections/HelpPolicyPackDeltaDemoGuideView";
+import { HelpConnectAwsSecurelyGuideView } from "../_sections/HelpConnectAwsSecurelyGuideView";
 import { HelpConnectAzureSecurelyGuideView } from "../_sections/HelpConnectAzureSecurelyGuideView";
 import { HelpCorePilotGuideView } from "../_sections/HelpCorePilotGuideView";
 import { HelpRepeatReviewLoopGuideView } from "../_sections/HelpRepeatReviewLoopGuideView";
@@ -179,10 +180,9 @@ function renderHelpTopicView(
 
   if (loaded.entry.slug === "cloud-connections-aws") {
     return (
-      <HelpTopicMarkdownView
+      <HelpConnectAwsSecurelyGuideView
         entry={loaded.entry}
-        markdown={loaded.markdown}
-        showContextualHelp
+        returnHref={resolveAzurePermissionsReturnHref(readSearchParam(searchParams, "returnTo"))}
       />
     );
   }
