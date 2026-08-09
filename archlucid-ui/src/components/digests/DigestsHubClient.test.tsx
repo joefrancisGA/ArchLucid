@@ -112,9 +112,9 @@ describe("DigestsHubClient", () => {
       ),
     ).toBeInTheDocument();
     expect(screen.getByTestId("digests-hub-tablist")).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Browse" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tab", { name: "Get started" })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByTestId("digests-refresh-button")).toBeEnabled();
-    expect(screen.getByTestId("digests-privacy-note")).toBeInTheDocument();
+    expect(screen.queryByTestId("digests-privacy-note")).not.toBeInTheDocument();
 
     await waitFor(() => {
       expect(screen.getByTestId("weekly-digest-health-banner")).toBeInTheDocument();
@@ -129,22 +129,28 @@ describe("DigestsHubClient", () => {
     expect(screen.queryByRole("heading", { name: "Sources for follow-up" })).toBeNull();
   });
 
-  it("exposes exactly one primary action and no fake send-test control", async () => {
+  it("lets the Browse checklist own setup actions during initial setup", async () => {
     render(<DigestsHubClient />);
 
-    const primary = await screen.findByTestId("digests-primary-action");
+    await waitFor(() => {
+      expect(screen.getByTestId("weekly-digest-health-banner")).toBeInTheDocument();
+    });
 
-    expect(primary).toHaveTextContent("Configure schedule");
-    expect(screen.queryByTestId("digests-send-test-action")).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Send test digest" })).not.toBeInTheDocument();
+    expect(screen.queryByTestId("digests-primary-action")).not.toBeInTheDocument();
+    expect(screen.getByTestId("digests-browse-checklist-action-schedule")).toBeInTheDocument();
+  });
 
-    // No disabled placeholder Preview button before any digest exists.
-    expect(screen.queryByTestId("digests-preview-action")).not.toBeInTheDocument();
+  it("shows setup guidance on Subscriptions without duplicating a Browse header primary", async () => {
+    searchParams = new URLSearchParams("tab=subscriptions");
 
-    const headerActions = screen.getByTestId("digests-header-actions");
-    const primaries = headerActions.querySelectorAll('[data-testid="digests-primary-action"]');
+    render(<DigestsHubClient />);
 
-    expect(primaries).toHaveLength(1);
+    await waitFor(() => {
+      expect(screen.getByTestId("weekly-digest-health-banner")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("digests-primary-action")).not.toBeInTheDocument();
+    expect(await screen.findByTestId("digest-subscriptions-readiness-panel")).toBeInTheDocument();
   });
 
   it("lets the Browse checklist own setup guidance so the banner does not repeat it", async () => {
@@ -157,7 +163,7 @@ describe("DigestsHubClient", () => {
     expect(screen.queryByTestId("digest-setup-gaps")).not.toBeInTheDocument();
     expect(screen.queryByTestId("digests-browse-next-best-action")).not.toBeInTheDocument();
     expect(screen.queryByTestId("digests-browse-setup-message")).not.toBeInTheDocument();
-    expect(screen.getByTestId("digest-status-compact-facts")).toBeInTheDocument();
+    expect(screen.queryByTestId("digest-status-compact-facts")).not.toBeInTheDocument();
     expect(await screen.findByTestId("digests-browse-setup-checklist")).toBeInTheDocument();
   });
 
@@ -203,7 +209,7 @@ describe("DigestsHubClient", () => {
         "Configure the weekly executive digest for direct recipients. Architecture digests for subscription destinations are managed separately.",
       ),
     ).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Schedule" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tab", { name: "Executive schedule" })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByTestId("digests-refresh-button")).toBeInTheDocument();
     expect(screen.queryByTestId("digests-primary-action")).not.toBeInTheDocument();
     expect(screen.queryByTestId("digests-preview-action")).not.toBeInTheDocument();

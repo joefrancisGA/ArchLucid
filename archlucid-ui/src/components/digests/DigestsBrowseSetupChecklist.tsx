@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
 
+import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { DigestSetupChecklistItem } from "@/lib/digest-setup-gap-actions";
@@ -20,6 +21,9 @@ type DigestsBrowseSetupChecklistProps = {
  */
 export function DigestsBrowseSetupChecklist(props: DigestsBrowseSetupChecklistProps): ReactElement {
   const completedCount: number = props.items.filter((item) => item.complete).length;
+  const firstIncompleteActionableId: string | undefined = props.items.find(
+    (item) => item.href !== null && !item.complete,
+  )?.id;
 
   return (
     <section
@@ -60,15 +64,14 @@ export function DigestsBrowseSetupChecklist(props: DigestsBrowseSetupChecklistPr
             {item.complete ? (
               <StatusTag kind="ready" label="Complete" />
             ) : item.href !== null ? (
-              <Link
-                href={item.href}
-                className={cn(
-                  "font-medium text-al-link underline-offset-2 hover:underline",
-                  OPERATOR_TYPOGRAPHY.helper,
-                )}
+              <Button
+                asChild
+                size="sm"
+                variant={item.id === firstIncompleteActionableId ? "primary" : "outline"}
+                data-testid={`digests-browse-checklist-action-${item.id}`}
               >
-                Continue
-              </Link>
+                <Link href={item.href}>{item.actionLabel}</Link>
+              </Button>
             ) : (
               <StatusTag kind="draft" label="Pending" />
             )}
