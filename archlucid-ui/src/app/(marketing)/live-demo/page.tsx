@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import {
   LIVE_DEMO_FABRICATED_DISCLOSURE,
+  LIVE_DEMO_PAGE_METADATA_TITLE,
   LIVE_DEMO_PAGE_SUBTITLE,
   LIVE_DEMO_PAGE_TITLE,
   LIVE_DEMO_SAMPLE_IDENTITY,
@@ -22,7 +23,7 @@ import { LiveDemoMarketingBody } from "./LiveDemoMarketingBody";
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "ArchLucid · Live demo",
+  title: LIVE_DEMO_PAGE_METADATA_TITLE,
   description: "Guided, read-only architecture review walkthrough using fabricated sample data.",
   robots: { index: false, follow: false },
 };

@@ -25,7 +25,7 @@ describe("MarketingResourcesMenu", () => {
     render(<MarketingResourcesMenu liveDemoLinked />);
 
     fireEvent.click(screen.getByRole("button", { name: /resources/i }));
-    fireEvent.click(screen.getByRole("menuitem", { name: /live demo/i }));
+    fireEvent.click(screen.getByRole("menuitem", { name: /guided sample walkthrough/i }));
 
     expect(screen.queryByRole("menu")).not.toBeInTheDocument();
   });

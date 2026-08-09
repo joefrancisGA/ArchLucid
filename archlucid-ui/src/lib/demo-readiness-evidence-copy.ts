@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { LIVE_DEMO_PAGE_TITLE } from "@/lib/live-demo-page-copy";
 
 export const DEMO_READINESS_CANONICAL_PATH = "/internal/demo-readiness" as const;
 
@@ -18,6 +19,6 @@ export const DEMO_READINESS_SOURCES: readonly DemoReadinessSourceLink[] = [
   { label: "System health", href: "/administration/system-health" },
   { label: "Trial funnel", href: "/internal/trial-funnel" },
   { label: "Tenant health", href: "/internal/tenant-health" },
-  { label: "Live demo", href: "/live-demo" },
+  { label: LIVE_DEMO_PAGE_TITLE, href: "/live-demo" },
   { label: "Choose your next step", href: inAppHelpHref("path-chooser") },
 ] as const;
