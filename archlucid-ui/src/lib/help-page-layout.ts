@@ -30,11 +30,13 @@ export const HELP_PAGE_LAYOUT = {
   ),
   proseRoot: "flex flex-col",
   sectionH2: cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, "mt-10 first:mt-0", OPERATOR_TYPOGRAPHY.sectionTitle),
+  compactSectionH2: cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, "mt-6 first:mt-0", OPERATOR_TYPOGRAPHY.sectionTitle),
   sectionH3: cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, "mt-7", OPERATOR_TYPOGRAPHY.cardTitle),
   paragraph: cn("my-3 leading-relaxed", OPERATOR_TYPOGRAPHY.body),
   bulletList: cn("my-4 list-disc space-y-1.5 pl-6", OPERATOR_TYPOGRAPHY.body),
   orderedList: cn("my-4 list-decimal space-y-1.5 pl-6", OPERATOR_TYPOGRAPHY.body),
   tableWrap: "my-5 mb-6 overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-800",
+  compactTableWrap: "my-3 mb-4 overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-800",
   table: cn("w-full min-w-[32rem] border-collapse text-left", OPERATOR_TYPOGRAPHY.body),
   tableHeadCell:
     "border-b border-neutral-200 bg-neutral-100 px-3 py-2.5 font-semibold text-al-text-primary dark:border-neutral-800 dark:bg-neutral-900",

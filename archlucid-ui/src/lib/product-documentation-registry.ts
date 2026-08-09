@@ -267,8 +267,9 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "caiq-sig-response",
-    title: "CAIQ / SIG questionnaire responses",
-    summary: "CAIQ Lite and SIG Core pre-fills mapped to in-repo evidence for procurement reviewers.",
+    title: "CAIQ Lite / SIG Core questionnaire responses",
+    summary:
+      "CAIQ Lite subset and SIG Core family summary index mapped to in-repo evidence — not a complete CAIQ or SIG submission.",
     audience: "buyer",
     sourcePaths: ["docs/security/CAIQ_LITE_2026.md", "docs/security/SIG_CORE_2026.md"],
     pdfStatus: "public",

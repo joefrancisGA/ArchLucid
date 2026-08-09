@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 
 import { HelpTopicMarkdownView } from "../HelpTopicMarkdownView";
+import { CaiqSigResponseHelpEvidenceOrientationStrip } from "@/components/help/CaiqSigResponseHelpEvidenceOrientationStrip";
 import { HelpAcceleratorChooserGuideView } from "../_sections/HelpAcceleratorChooserGuideView";
 import { HelpAlertsGuideView } from "../_sections/HelpAlertsGuideView";
 import { HelpDigestsGuideView } from "../_sections/HelpDigestsGuideView";
@@ -374,6 +375,9 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
+        evidenceOrientation={<CaiqSigResponseHelpEvidenceOrientationStrip />}
+        layoutVariant="technicalReference"
+        showExportClaimDiscipline
       />
     );
   }

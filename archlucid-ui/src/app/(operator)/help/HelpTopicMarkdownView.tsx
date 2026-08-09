@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { CaiqSigResponseHelpPostureSummary } from "@/components/help/CaiqSigResponseHelpPostureSummary";
+import { HelpTopicExportClaimDiscipline } from "@/components/help/HelpTopicExportClaimDiscipline";
 import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
@@ -9,12 +11,20 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import {
+  buildCaiqSigResponseTocGroups,
+  computeCaiqSigResponsePostureCounts,
+  isCaiqSigResponseHelpTopic,
+  prepareCaiqSigResponseHelpMarkdown,
+  type HelpTopicTocGroup,
+} from "@/lib/caiq-sig-response-help-presentation";
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
 import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { cn } from "@/lib/utils";
 
 type HelpTopicMarkdownViewProps = {
   entry: ProductDocumentationEntry;
@@ -23,23 +33,56 @@ type HelpTopicMarkdownViewProps = {
   readonly evidenceOrientation?: ReactNode;
   /** When true, show Category-1 PageContextualHelpButton in the header actions. */
   readonly showContextualHelp?: boolean;
+  /** Optional grouped TOC parents (for example CAIQ Lite vs SIG Core). */
+  readonly tocGroups?: readonly HelpTopicTocGroup[];
+  /** Wider technical-reference grid for dense questionnaire tables. */
+  readonly layoutVariant?: "default" | "technicalReference";
+  /** When true, render export claim discipline near PDF / print actions. */
+  readonly showExportClaimDiscipline?: boolean;
 };
 
 /** Renders curated repo markdown inside the operator help shell (no GitHub chrome). */
 export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.ReactElement {
-  const { entry, markdown, evidenceOrientation, showContextualHelp } = props;
+  const {
+    entry,
+    markdown,
+    evidenceOrientation,
+    showContextualHelp,
+    tocGroups,
+    layoutVariant = "default",
+    showExportClaimDiscipline = false,
+  } = props;
   const sourceDocPath = entry.sourcePaths[0] ?? "";
   const preserveMaintenanceMetadata = entry.audience === "developer";
-  const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
-    preserveMaintenanceMetadata,
-    helpTopicSlug: entry.slug,
-  });
+  const isCaiqSigResponse = isCaiqSigResponseHelpTopic(entry.slug);
+  const preparedMarkdown = isCaiqSigResponse
+    ? prepareCaiqSigResponseHelpMarkdown(markdown, sourceDocPath)
+    : prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
+        preserveMaintenanceMetadata,
+        helpTopicSlug: entry.slug,
+      });
   const headings = extractHelpMarkdownHeadings(preparedMarkdown);
+  const resolvedTocGroups =
+    tocGroups ?? (isCaiqSigResponse ? buildCaiqSigResponseTocGroups(headings) : undefined);
+  const postureCounts = isCaiqSigResponse ? computeCaiqSigResponsePostureCounts(preparedMarkdown) : null;
   const isAuthenticationSignInHelp = entry.slug === "authentication-sign-in";
   const exportButtonVariant = isAuthenticationSignInHelp ? "ghost" : "outline";
+  const isTechnicalReferenceLayout = layoutVariant === "technicalReference";
+  const contentGridClass = isTechnicalReferenceLayout
+    ? HELP_PAGE_LAYOUT.technicalReferenceGrid
+    : HELP_PAGE_LAYOUT.contentGrid;
+  const contentColumnClass = isTechnicalReferenceLayout
+    ? HELP_PAGE_LAYOUT.technicalReferenceColumn
+    : HELP_PAGE_LAYOUT.contentColumn;
 
   return (
-    <article className={OPERATOR_LAYOUT.majorSectionGap}>
+    <article
+      className={cn(
+        OPERATOR_LAYOUT.majorSectionGap,
+        isTechnicalReferenceLayout ? HELP_PAGE_LAYOUT.technicalReferenceArticle : undefined,
+      )}
+      data-testid={isCaiqSigResponse ? "help-caiq-sig-response-topic" : undefined}
+    >
       <HelpTopicHashScroll />
       <header className={HELP_PAGE_LAYOUT.articleHeader}>
         <div className="flex flex-wrap items-start justify-between gap-3">
@@ -48,6 +91,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
             <p className={`m-0 ${OPERATOR_TYPOGRAPHY.helper}`}>{entry.summary}</p>
             <HelpTopicRegistryProvenanceLine entry={entry} />
             {isAuthenticationSignInHelp ? <HelpTopicSignInFailureTriageLine /> : null}
+            {showExportClaimDiscipline ? <HelpTopicExportClaimDiscipline /> : null}
           </div>
           <div className="flex flex-wrap items-center gap-2" data-testid="help-topic-export-actions">
             {showContextualHelp ? <PageContextualHelpButton /> : null}
@@ -69,8 +113,10 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
       {evidenceOrientation}
 
-      <div className={HELP_PAGE_LAYOUT.contentGrid}>
-        <div className={HELP_PAGE_LAYOUT.contentColumn} data-testid="help-topic-content">
+      {postureCounts !== null ? <CaiqSigResponseHelpPostureSummary counts={postureCounts} /> : null}
+
+      <div className={contentGridClass}>
+        <div className={contentColumnClass} data-testid="help-topic-content">
           <MarketingAccessibilityMarkdownFragment
             markdownBody={markdown}
             tableCaption={`${entry.title} reference table`}
@@ -78,9 +124,10 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
             sourceDocPath={entry.sourcePaths[0]}
             helpTopicSlug={entry.slug}
             preserveMaintenanceMetadata={preserveMaintenanceMetadata}
+            preparedMarkdownOverride={isCaiqSigResponse ? preparedMarkdown : undefined}
           />
         </div>
-        <HelpTopicTableOfContents headings={headings} />
+        <HelpTopicTableOfContents headings={headings} groups={resolvedTocGroups} />
       </div>
     </article>
   );

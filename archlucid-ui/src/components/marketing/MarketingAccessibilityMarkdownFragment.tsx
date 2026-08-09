@@ -4,7 +4,15 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { HelpMarkdownCodeBlock } from "@/components/help/HelpMarkdownCodeBlock";
+import { CaiqSigResponseHelpEvidenceCell } from "@/components/help/CaiqSigResponseHelpEvidenceCell";
+import { CaiqSigResponseHelpStatusCell } from "@/components/help/CaiqSigResponseHelpStatusCell";
 import { MermaidDiagram } from "@/components/help/MermaidDiagram";
+import {
+  CAIQ_SIG_RESPONSE_LITE_PART_HEADING,
+  CAIQ_SIG_RESPONSE_SIG_PART_HEADING,
+  isCaiqSigResponseHelpTopic,
+  resolveCaiqSigHelpTableCaption,
+} from "@/lib/caiq-sig-response-help-presentation";
 import { createHelpHeadingSlugAllocator, resolveHelpHeadingId } from "@/lib/help-heading-slug";
 import { isMermaidDiagramSource } from "@/lib/help-mermaid";
 import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
@@ -217,6 +225,8 @@ type MarketingAccessibilityMarkdownFragmentProps = {
   helpTopicSlug?: string;
   /** Engineering runbooks may show documentation governance metadata (Last reviewed, etc.). */
   preserveMaintenanceMetadata?: boolean;
+  /** Optional pre-prepared markdown (for example CAIQ/SIG structured halves). */
+  preparedMarkdownOverride?: string;
 };
 
 /**
@@ -230,6 +240,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
 
   const isHelp = props.presentation === "help";
   const isPrivacy = props.presentation === "privacy";
+  const isCaiqSigResponse = isHelp && isCaiqSigResponseHelpTopic(props.helpTopicSlug);
   const bodyTextClass = isPrivacy
     ? PRIVACY_POLICY_PROSE.paragraph
     : isHelp
@@ -238,7 +249,9 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
   const h2Class = isPrivacy
     ? PRIVACY_POLICY_PROSE.sectionH2
     : isHelp
-      ? HELP_PAGE_LAYOUT.sectionH2
+      ? isCaiqSigResponse
+        ? HELP_PAGE_LAYOUT.compactSectionH2
+        : HELP_PAGE_LAYOUT.sectionH2
       : cn(
           OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
           "mt-8 font-semibold tracking-tight text-neutral-900 dark:text-neutral-50",
@@ -253,21 +266,26 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
   // Privacy needs in-app /help, /trust, and #section links (same allowance as help topics).
   const renderOptions: RenderInlineOptions = { linkMode: isHelp || isPrivacy ? "help" : "external-only" };
   const markdownBody =
-    isHelp
-      ? props.sourceDocPath !== undefined && props.sourceDocPath.trim().length > 0
-        ? prepareHelpMarkdownForPresentation(props.markdownBody, props.sourceDocPath, {
-            preserveMaintenanceMetadata: props.preserveMaintenanceMetadata === true,
-            helpTopicSlug: props.helpTopicSlug,
-          })
-        : sanitizeBareMarkdownFileReferences(props.markdownBody)
-      : isPrivacy
-        ? sanitizeBareMarkdownFileReferences(props.markdownBody)
-        : props.markdownBody;
+    props.preparedMarkdownOverride !== undefined && props.preparedMarkdownOverride.trim().length > 0
+      ? props.preparedMarkdownOverride
+      : isHelp
+        ? props.sourceDocPath !== undefined && props.sourceDocPath.trim().length > 0
+          ? prepareHelpMarkdownForPresentation(props.markdownBody, props.sourceDocPath, {
+              preserveMaintenanceMetadata: props.preserveMaintenanceMetadata === true,
+              helpTopicSlug: props.helpTopicSlug,
+            })
+          : sanitizeBareMarkdownFileReferences(props.markdownBody)
+        : isPrivacy
+          ? sanitizeBareMarkdownFileReferences(props.markdownBody)
+          : props.markdownBody;
 
   const lines = markdownBody.replace(/\r\n/g, "\n").split("\n");
   const blocks: ReactNode[] = [];
   let key = 0;
   let privacyTableOrdinal = 0;
+  let helpTableOrdinal = 0;
+  let currentPartLabel = "";
+  let currentSectionTitle = "";
   const allocateSectionSlug = createHelpHeadingSlugAllocator();
   let skippedDuplicateHelpTitle = !isHelp;
 
@@ -370,6 +388,17 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
     if (line.startsWith("## ") && !line.startsWith("###")) {
       const rawTitle = line.slice(3).trim();
       const { id: sectionId, title } = resolveHelpHeadingId(rawTitle, allocateSectionSlug);
+
+      if (title === CAIQ_SIG_RESPONSE_LITE_PART_HEADING) {
+        currentPartLabel = CAIQ_SIG_RESPONSE_LITE_PART_HEADING;
+        currentSectionTitle = title;
+      } else if (title === CAIQ_SIG_RESPONSE_SIG_PART_HEADING) {
+        currentPartLabel = CAIQ_SIG_RESPONSE_SIG_PART_HEADING;
+        currentSectionTitle = title;
+      } else {
+        currentSectionTitle = title;
+      }
+
       blocks.push(
         <h2
           key={`h2-${key}`}
@@ -405,6 +434,11 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
     if (line.startsWith("### ")) {
       const rawTitle = line.slice(4).trim();
       const { id: sectionId, title } = resolveHelpHeadingId(rawTitle, allocateSectionSlug);
+
+      if (isCaiqSigResponse) {
+        currentSectionTitle = title;
+      }
+
       blocks.push(
         <h3
           key={`h3-${key}`}
@@ -477,13 +511,35 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
         privacyTableOrdinal++;
       }
 
-      const privacyTableCaption =
-        isPrivacy ? `${props.tableCaption} ${privacyTableOrdinal}` : props.tableCaption;
+      if (isCaiqSigResponse) {
+        helpTableOrdinal++;
+      }
+
+      const tableCaption = isPrivacy
+        ? `${props.tableCaption} ${privacyTableOrdinal}`
+        : isCaiqSigResponse
+          ? resolveCaiqSigHelpTableCaption(
+              currentPartLabel.length > 0 ? currentPartLabel : "Questionnaire",
+              currentSectionTitle.length > 0 ? currentSectionTitle : `Section ${helpTableOrdinal}`,
+            ) + ` (${helpTableOrdinal})`
+          : props.tableCaption;
+
+      const statusColumnIndex = headerCells.findIndex((cell) => /^status$/i.test(cell));
+      const responseColumnIndex = headerCells.findIndex((cell) => /^response$/i.test(cell));
+      const evidenceColumnIndex = headerCells.findIndex((cell) => /^evidence$/i.test(cell));
 
       blocks.push(
         <div
           key={`tbl-${key}`}
-          className={isPrivacy ? PRIVACY_POLICY_PROSE.tableWrap : isHelp ? HELP_PAGE_LAYOUT.tableWrap : "my-4 overflow-x-auto"}
+          className={
+            isPrivacy
+              ? PRIVACY_POLICY_PROSE.tableWrap
+              : isHelp
+                ? isCaiqSigResponse
+                  ? HELP_PAGE_LAYOUT.compactTableWrap
+                  : HELP_PAGE_LAYOUT.tableWrap
+                : "my-4 overflow-x-auto"
+          }
           {...(isPrivacy
             ? {
                 tabIndex: 0 as const,
@@ -501,7 +557,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
                   : cn("w-full border-collapse border border-neutral-200 dark:border-neutral-800", tableTextClass)
             }
           >
-            <caption className="sr-only">{privacyTableCaption}</caption>
+            <caption className="sr-only">{tableCaption}</caption>
             <thead className={isPrivacy || isHelp ? undefined : "bg-neutral-100 dark:bg-neutral-900"}>
               <tr>
                 {headerCells.map((c, idx) => (
@@ -554,7 +610,21 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
                               : "border border-neutral-200 px-3 py-2 dark:border-neutral-800"
                         }
                       >
-                        {renderInline(c, `td-${key}-${rIdx}-${cIdx}`, renderOptions)}
+                        {isCaiqSigResponse && cIdx === statusColumnIndex && statusColumnIndex >= 0 ? (
+                          <CaiqSigResponseHelpStatusCell statusLabel={c} />
+                        ) : isCaiqSigResponse &&
+                          cIdx === responseColumnIndex &&
+                          responseColumnIndex >= 0 ? (
+                          <CaiqSigResponseHelpStatusCell statusLabel={c} />
+                        ) : isCaiqSigResponse && cIdx === evidenceColumnIndex && evidenceColumnIndex >= 0 ? (
+                          <CaiqSigResponseHelpEvidenceCell
+                            evidenceMarkdown={c}
+                            statusLabel={statusColumnIndex >= 0 ? (cells[statusColumnIndex] ?? "") : undefined}
+                            renderInline={(text, keyPrefix) => renderInline(text, keyPrefix, renderOptions)}
+                          />
+                        ) : (
+                          renderInline(c, `td-${key}-${rIdx}-${cIdx}`, renderOptions)
+                        )}
                       </td>
                     ))}
                   </tr>
