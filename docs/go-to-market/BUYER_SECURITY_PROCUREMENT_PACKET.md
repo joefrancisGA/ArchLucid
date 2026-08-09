@@ -1440,7 +1440,7 @@ Do not say Terraform state alone is authoritative while ignore_changes / portal 
 
 ## Azure workload privilege-escalation seam (M-216) {#azure-workload-privilege-escalation-seam-m-216}
 
-Former standalone body: `docs/go-to-market/AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-215** / **M-216** / **TB-1244**). Complements [Container Apps Terraform authority (M-234)](#container-apps-terraform-authority-m-234) and [Tenant DiD erosion (M-214)](#tenant-did-erosion-beyond-predicates-m-214). Does not reopen Done **TB-080** / **TB-091** / **TB-092**. Not an assurance attestation.
+Former standalone body: `docs/go-to-market/AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-215** / **M-216** / **TB-1244**). Contributor contract: [`AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md`](../library/AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md) (**TB-1244** **Done**). Complements [Container Apps Terraform authority (M-234)](#container-apps-terraform-authority-m-234) and [Tenant DiD erosion (M-214)](#tenant-did-erosion-beyond-predicates-m-214). Does not reopen Done **TB-080** / **TB-091** / **TB-092**. Not an assurance attestation.
 
 **Path-stable alias:** [`AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_PA_ONE_PAGER.md`](AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_PA_ONE_PAGER.md).
 
@@ -1501,7 +1501,8 @@ Do not claim production API SQL is least-privilege / non-`db_owner` while bootst
 
 ### Residuals (honest)
 
-- **TB-1244** / **TB-1245** own the seam contract and honesty CI.
+- **TB-1244** contract **Done** — [`AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md`](../library/AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md); runtime UAMI default-on + app wiring remains follow-on.
+- **TB-1245** honesty CI (open) hardens buyer/proof stubs.
 - Cite `enable_api_sql_runtime_identity`, [`../security/MANAGED_IDENTITY_SQL_BLOB.md`](../security/MANAGED_IDENTITY_SQL_BLOB.md), OpenAI User RBAC, ADR 0020.
 - Complements **M-213**/**M-214**, **TB-903**/**TB-906**; pairs claim-honesty **M-215**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
