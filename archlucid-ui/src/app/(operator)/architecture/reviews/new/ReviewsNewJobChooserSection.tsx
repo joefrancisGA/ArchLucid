@@ -1,0 +1,36 @@
+import { cn } from "@/lib/utils";
+
+import { AcceleratorJobChooserList } from "@/components/accelerator/AcceleratorJobChooserList";
+import {
+  ACCELERATOR_JOB_CHOOSER_HEADING,
+  ACCELERATOR_JOB_CHOOSER_LEAD,
+} from "@/lib/accelerator-chooser-start-copy";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+
+/** Primary first-run viewport — job → pack → expected outputs before template browsing (TB-2136). */
+export function ReviewsNewJobChooserSection(): React.JSX.Element {
+  return (
+    <section
+      aria-labelledby="reviews-new-job-chooser-heading"
+      className="space-y-3"
+      data-testid="reviews-new-job-chooser-section"
+    >
+      <div>
+        <h2
+          id="reviews-new-job-chooser-heading"
+          className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+        >
+          {ACCELERATOR_JOB_CHOOSER_HEADING}
+        </h2>
+        <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {ACCELERATOR_JOB_CHOOSER_LEAD}
+        </p>
+      </div>
+      <AcceleratorJobChooserList
+        listTestId="reviews-new-job-chooser-list"
+        rowTestIdPrefix="reviews-new-job-chooser-row"
+        startTestIdPrefix="reviews-new-job-chooser-start"
+      />
+    </section>
+  );
+}

@@ -15,13 +15,13 @@ Regenerate after opening or closing summary-table rows:
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
 | Architectural integrity | 11 |
-| Adoption friction | 368 |
+| Adoption friction | 367 |
 | Commercial / marketability | 9 |
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
 | Explainability | 1 |
 | Proof-of-ROI / executive value | 2 |
-| Trustworthiness | 155 |
+| Trustworthiness | 154 |
 | Maintainability | 9 |
 | Traceability | 3 |
 | Interoperability | 4 |
@@ -36,15 +36,15 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **773** |
+| **Total (unique open)** | **771** |
 
-**By priority band:** P0 **16** | P1 **627** | P2 **113** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **14** | P1 **627** | P2 **113** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
-**Updated:** 2026-08-09 (**TB-2135** **Done** — `finding-trust-presentation` contract shared by inspect, compare decision-delta chips, and export footers; inferred `DeterministicRule` parity when wire label absent; Vitest cross-surface fixtures). Prior: 2026-08-09 (**TB-2134** **Done** — `InlineGlossaryChip` + `golden-path-glossary-nouns` SoT from customer glossary; chips on home empty, new review, review detail, post-finalize sponsor strip; Vitest). Prior: 2026-08-09 (**TB-2133** **Done** — restored pre-commit progressive disclosure: `filterNavLinksByCommittedArchitectureReviewGate` + shell/palette wiring; Operate/diagnostics hidden until first finalize; Vitest pre/post-commit snapshots). Prior: 2026-08-09 (**TB-2130**–**TB-2139** **opened** — owner ask: create P0s for ten easier-to-use / easier-to-understand levers; see cluster note below). Prior: 2026-08-09 (**TB-1323** **Done** — `/demo/explain` conversion CTA auth honesty: anonymous viewers get sign-in + `/see-it` ladder; signed-in keeps wizard preset; Vitest guards). Prior: 2026-08-09 (**TB-1320** **Done** — `/demo/explain` status banner uses `StatusTag` + human generated time; review id/manifest version/ISO behind Technical details; Vitest guards). Prior: 2026-08-09 (**TB-1316** **Done** — session-expired OIDC errors use **Sign-in could not start** + in-place Try again preserving `returnUrl`). Prior: 2026-08-09 (**TB-1315** **Done** — `/auth/session-expired` secondary exit to `/welcome`; Vitest forbids auth-bounce `/`). Prior: 2026-08-09 (**TB-1308** **Done** — `/why-archlucid` operator counter copy + in-app footer; Vitest forbids eng metric/repo path leakage).
+**Updated:** 2026-08-09 (**TB-2136** **Done** — job → pack chooser primary on first-run `/architecture/reviews/new`; `AcceleratorJobChooserList` + expected-output buyer nouns; home `AcceleratorChooserCard` after first commit; Vitest). Prior: 2026-08-09 (**TB-2135** **Done** — `finding-trust-presentation` contract shared by inspect, compare decision-delta chips, and export footers; inferred `DeterministicRule` parity when wire label absent; Vitest cross-surface fixtures). Prior: 2026-08-09 (**TB-2134** **Done** — `InlineGlossaryChip` + `golden-path-glossary-nouns` SoT from customer glossary; chips on home empty, new review, review detail, post-finalize sponsor strip; Vitest). Prior: 2026-08-09 (**TB-2133** **Done** — restored pre-commit progressive disclosure: `filterNavLinksByCommittedArchitectureReviewGate` + shell/palette wiring; Operate/diagnostics hidden until first finalize; Vitest pre/post-commit snapshots). Prior: 2026-08-09 (**TB-2130**–**TB-2139** **opened** — owner ask: create P0s for ten easier-to-use / easier-to-understand levers; see cluster note below). Prior: 2026-08-09 (**TB-1323** **Done** — `/demo/explain` conversion CTA auth honesty: anonymous viewers get sign-in + `/see-it` ladder; signed-in keeps wizard preset; Vitest guards). Prior: 2026-08-09 (**TB-1320** **Done** — `/demo/explain` status banner uses `StatusTag` + human generated time; review id/manifest version/ISO behind Technical details; Vitest guards). Prior: 2026-08-09 (**TB-1316** **Done** — session-expired OIDC errors use **Sign-in could not start** + in-place Try again preserving `returnUrl`). Prior: 2026-08-09 (**TB-1315** **Done** — `/auth/session-expired` secondary exit to `/welcome`; Vitest forbids auth-bounce `/`). Prior: 2026-08-09 (**TB-1308** **Done** — `/why-archlucid` operator counter copy + in-app footer; Vitest forbids eng metric/repo path leakage).
 
 **BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **TB-386?397 Done** (2026-06-22 through 2026-06-27). **First-party connector V1.1?åÆV1 GA promotion (2026-07-03):** Jira/ServiceNow/Confluence/Slack/Microsoft Teams moved to **V1 GA** (`V1_DEFERRED.md` ?º6/?º6a); **TB-599?ÇôTB-602** track the resulting tightening work (native-create default posture, OAuth upgrade, live-validation parity, buyer-copy sweep). **Next recommended batch:** **TB-398** (full enterprise ITSM connector ?Çö **V2** ITSM cluster; out of V1/V1.1 unless owner promotes) remains separate and unaffected by the promotion. Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
@@ -1211,7 +1211,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-2133 | ~~Pre-commit progressive disclosure — hide Operate / diagnostics / CLI until first finalize~~ **Done** 2026-08-09 — `filterNavLinksByCommittedArchitectureReviewGate` + shell/palette wiring; Vitest; see ## TB-2133 below | Adoption friction P0 — **V1**; owner easier-to-use ask 2026-08-09; residual after **TB-169** | M |
 | TB-2134 | ~~First-encounter inline glossary chips for product nouns~~ **Done** 2026-08-09 — `InlineGlossaryChip` + customer-glossary SoT; golden-path placements; Vitest; see ## TB-2134 below | Adoption friction P0 — **V1**; owner easier-to-understand ask 2026-08-09; first-session **H3** | M |
 | TB-2135 | ~~Cross-surface trust-label parity (inspect / compare / export)~~ **Done** 2026-08-09 — `finding-trust-presentation` SoT; decision-delta chips + derived export labels; Vitest parity fixtures; see ## TB-2135 below | Trustworthiness P0 — **V1**; owner easier-to-understand ask 2026-08-09; residual after **TB-2044**/**TB-2063**–**TB-2071** | M |
-| TB-2136 | Job → pack → expected-output chooser as primary start path; see ## TB-2136 below | Adoption friction P0 — **V1**; owner easier-to-use ask 2026-08-09; residual after **TB-170** | M |
+| TB-2136 | ~~Job → pack → expected-output chooser as primary start path~~ **Done** 2026-08-09 — `ReviewsNewJobChooserSection` + shared `AcceleratorJobChooserList`; home card after commit; Vitest; see ## TB-2136 below | Adoption friction P0 — **V1**; owner easier-to-use ask 2026-08-09; residual after **TB-170** | M |
 | TB-2137 | Empty/error states teach next step + support path; see ## TB-2137 below | Adoption friction P0 — **V1**; owner easier-to-use ask 2026-08-09; peers **TB-1552**–**TB-1556** / **TB-782**–**TB-792** | M |
 | TB-2138 | One in-product golden walkthrough ending in sponsor-ready package; see ## TB-2138 below | Adoption friction P0 — **V1**; owner easier-to-understand ask 2026-08-09; residual after **TB-174**/**TB-353** | L |
 | TB-2139 | Role-shaped default nav density (architect / governance / admin); see ## TB-2139 below | Adoption friction P0 — **V1**; owner easier-to-use ask 2026-08-09; persona shell presets residual | L |
@@ -50021,7 +50021,7 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Window:** V1 — Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-09).
 
 **Priority:** P0.
 
@@ -50029,16 +50029,16 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Why:** Accelerator chooser exists but is not the dominant start path. Users still pick templates/modes without a job → pack → expected-output story, so packs feel like inventory instead of a decision aid.
 
-**Approach:**
+**Shipped:**
 
-1. Promote job-mapped chooser into the primary first-run start viewport (coordinate **TB-2130** default path).
-2. Each job row shows pack name + **expected outputs** (architecture package / findings / sponsor export) in buyer nouns.
-3. Keep metadata honesty (**TB-171** Done) — no stale/unsafe pack claims.
-4. Vitest: first-run start surfaces chooser before peer template lists; expected-output copy present.
+1. `AcceleratorJobChooserList` + `ReviewsNewJobChooserSection` — first-run `/architecture/reviews/new` leads with “What are you evaluating?” job rows (pack + expected outputs in buyer nouns).
+2. `ReviewsNewOwnEvidenceStart` — quick start without a pack stays secondary in collapsible disclosure; `ReviewsNewMoreWaysToStart` remains tertiary.
+3. `AcceleratorChooserCard` wired on home via `OperationalMetricsGate` after first committed review.
+4. Vitest: first-run start surfaces chooser before template paths; buyer-noun expected outputs on all pack rows.
 
 **Acceptance:** First-run “Start review” leads with “I’m doing X” job picker that selects a pack; template browsing is secondary.
 
-**Affected files:** `AcceleratorChooserCard`, reviews/new first viewport, home start panel, tests.
+**Affected files:** `AcceleratorJobChooserList.tsx`, `ReviewsNewJobChooserSection.tsx`, `ReviewsNewPathSwitcher.tsx`, `AcceleratorChooserCard.tsx`, `OperatorHomeCompactStartingActionsSection.tsx`, `accelerator-chooser.ts`, tests.
 
 **Peers:** **TB-2130**; does **not** add new template volume.
 

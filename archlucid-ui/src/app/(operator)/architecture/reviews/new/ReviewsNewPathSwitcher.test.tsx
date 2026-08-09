@@ -35,6 +35,10 @@ vi.mock("./NewRunWizardClient", () => ({
   NewRunWizardClient: () => <div data-testid="new-run-wizard-stub">Detailed wizard</div>,
 }));
 
+vi.mock("./ReviewsNewOwnEvidenceStart", () => ({
+  ReviewsNewOwnEvidenceStart: () => <div data-testid="reviews-new-own-evidence-start" />,
+}));
+
 import { REVIEWS_NEW_PATH_HINTS } from "@/lib/reviews-new-path-copy";
 
 import { ReviewsNewPathSwitcher } from "./ReviewsNewPathSwitcher";
@@ -50,28 +54,23 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
     });
   });
 
-  it("shows one primary quick-start path with secondary options in disclosure (TB-2130)", async () => {
+  it("leads with the job → pack chooser before template paths (TB-2136)", async () => {
     render(<ReviewsNewPathSwitcher />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("first-pilot-intake-wizard-stub")).toBeTruthy();
+      expect(screen.getByTestId("reviews-new-job-chooser-section")).toBeInTheDocument();
     });
 
     expect(screen.getByTestId("reviews-new-primary-path-layout")).toBeInTheDocument();
+    expect(screen.getAllByText(/Expected outputs:/i).length).toBeGreaterThan(0);
+    expect(screen.getByTestId("reviews-new-own-evidence-start")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-more-intake-options")).toBeInTheDocument();
     expect(screen.queryByTestId("reviews-new-path-toggle")).toBeNull();
-    expect(screen.getByText("Quick start:", { selector: "strong" })).toBeInTheDocument();
-
-    const visiblePaths = [
-      screen.queryByTestId("first-pilot-intake-wizard-stub"),
-      screen.queryByTestId("socratic-intake-wizard-stub"),
-      screen.queryByTestId("new-run-wizard-stub"),
-    ].filter((node) => node !== null);
-
-    expect(visiblePaths).toHaveLength(1);
+    expect(screen.queryByTestId("first-pilot-intake-wizard-stub")).toBeNull();
+    expect(screen.queryByTestId("reviews-new-path-hint")).toBeNull();
   });
 
-  it("switches to guided intake from the disclosure without showing peer tabs", async () => {
+  it("opens guided intake from the disclosure without showing peer tabs", async () => {
     render(<ReviewsNewPathSwitcher />);
 
     await waitFor(() => {
@@ -85,6 +84,7 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
     });
 
     expect(screen.queryByTestId("reviews-new-path-toggle")).toBeNull();
+    expect(screen.queryByTestId("reviews-new-job-chooser-section")).toBeNull();
     expect(screen.getByTestId("reviews-new-back-to-quick-start")).toBeInTheDocument();
     expect(replace).toHaveBeenCalledWith(
       "/architecture/reviews/new?path=guided-intake",
@@ -105,12 +105,62 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
     expect(screen.getByTestId("reviews-new-back-to-quick-start")).toBeInTheDocument();
   });
 
-  it("keeps default review path hints on the primary layout", async () => {
+  it("returns to the job chooser when back to quick start clears accelerator deep-link params", async () => {
+    useSearchParams.mockReturnValue(new URLSearchParams("baseline=1&accelerator=ai-llm-workload"));
+
     render(<ReviewsNewPathSwitcher />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("reviews-new-path-hint")).toHaveTextContent(REVIEWS_NEW_PATH_HINTS["quick-review"]);
+      expect(screen.getByTestId("new-run-wizard-stub")).toBeTruthy();
     });
+
+    fireEvent.click(screen.getByTestId("reviews-new-back-to-quick-start"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("reviews-new-job-chooser-section")).toBeInTheDocument();
+    });
+
+    expect(replace).toHaveBeenCalledWith(
+      "/architecture/reviews/new?path=quick-review",
+      expect.objectContaining({ scroll: false }),
+    );
+  });
+
+  it("keeps default review path hints when an accelerator pack deep link is used", async () => {
+    useSearchParams.mockReturnValue(new URLSearchParams("baseline=1&accelerator=ai-llm-workload"));
+
+    render(<ReviewsNewPathSwitcher />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("new-run-wizard-stub")).toBeTruthy();
+    });
+
+    expect(screen.queryByTestId("reviews-new-job-chooser-section")).toBeNull();
+    expect(screen.getByTestId("reviews-new-path-hint")).toHaveTextContent(REVIEWS_NEW_PATH_HINTS.detailed);
+  });
+
+  it("opens the templates wizard for greenfield preset without showing the job chooser", async () => {
+    useSearchParams.mockReturnValue(new URLSearchParams("preset=greenfield"));
+
+    render(<ReviewsNewPathSwitcher />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("new-run-wizard-stub")).toBeTruthy();
+    });
+
+    expect(screen.queryByTestId("reviews-new-job-chooser-section")).toBeNull();
+  });
+
+  it("skips the job chooser when a valid example template deep link is present", async () => {
+    useSearchParams.mockReturnValue(new URLSearchParams("template=claims-intake-modernization"));
+
+    render(<ReviewsNewPathSwitcher />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("first-pilot-intake-wizard-stub")).toBeTruthy();
+    });
+
+    expect(screen.queryByTestId("reviews-new-job-chooser-section")).toBeNull();
   });
 });
 

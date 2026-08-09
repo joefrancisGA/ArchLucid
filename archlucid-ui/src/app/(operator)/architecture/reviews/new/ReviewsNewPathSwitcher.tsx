@@ -9,6 +9,7 @@ import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { NewRunWizardSkeleton } from "@/components/skeletons/NewRunWizardSkeleton";
 import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import { Button } from "@/components/ui/button";
+import { isAcceleratorPackId } from "@/lib/accelerator-wizard-presets";
 import {
   REVIEWS_NEW_BACK_TO_QUICK_START_CTA,
   REVIEWS_NEW_GUIDED_QUESTIONS_LABEL,
@@ -23,6 +24,8 @@ import { ReviewsNewDeferredIntentCallout } from "./ReviewsNewDeferredIntentCallo
 import { ReviewIntakeInvalidTemplateCallout } from "@/components/review-intake/ReviewIntakeInvalidTemplateCallout";
 import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator-home-example-request";
 import { ReviewsNewMoreWaysToStart } from "./ReviewsNewMoreWaysToStart";
+import { ReviewsNewJobChooserSection } from "./ReviewsNewJobChooserSection";
+import { ReviewsNewOwnEvidenceStart } from "./ReviewsNewOwnEvidenceStart";
 import {
   persistActivePath,
   readStoredActivePath,
@@ -104,8 +107,14 @@ export function ReviewsNewPathSwitcher() {
       resolveReviewIntakeExampleTemplateFromSearchParams((key) => searchParams?.get(key) ?? null).invalidTemplateId,
     [searchParams],
   );
+  const hasExampleTemplateIntent = useMemo(() => {
+    const resolution = resolveReviewIntakeExampleTemplateFromSearchParams((key) => searchParams?.get(key) ?? null);
+
+    return resolution.template !== null;
+  }, [searchParams]);
   const [activePath, setActivePath] = useState<ReviewsNewActivePath>("quick-review");
   const [ready, setReady] = useState(false);
+  const [suppressAcceleratorStartIntent, setSuppressAcceleratorStartIntent] = useState(false);
   const pathTabLabels = Object.fromEntries(REVIEWS_NEW_PATH_TABS.map((tab) => [tab.id, tab.label])) as Record<
     ReviewsNewActivePath,
     string
@@ -114,6 +123,15 @@ export function ReviewsNewPathSwitcher() {
   const hasCommittedManifest = commitContextQuery.data?.hasCommittedManifest ?? false;
   const usePrimaryPathLayout = !hasCommittedManifest;
   const shellReady = ready && !commitContextQuery.isPending;
+  const acceleratorPackId = searchParams?.get("accelerator")?.trim() ?? "";
+  const hasAcceleratorStartIntent =
+    !suppressAcceleratorStartIntent &&
+    (baselineFirst ||
+      presetGreenfield ||
+      hasExampleTemplateIntent ||
+      isAcceleratorPackId(acceleratorPackId));
+  const showFirstRunJobChooser =
+    usePrimaryPathLayout && activePath === "quick-review" && !hasAcceleratorStartIntent;
 
   useEffect(() => {
     const activeTour = readBuyerCtoDemoTourActive();
@@ -132,8 +150,8 @@ export function ReviewsNewPathSwitcher() {
       setActivePath("detailed");
       persistActivePath("detailed");
     } else if (presetGreenfield) {
-      setActivePath("quick-review");
-      persistActivePath("quick-review");
+      setActivePath("detailed");
+      persistActivePath("detailed");
     } else if (activeTour) {
       setActivePath("quick-review");
       persistActivePath("quick-review");
@@ -148,6 +166,15 @@ export function ReviewsNewPathSwitcher() {
     setActivePath(path);
     persistActivePath(path);
     const params = new URLSearchParams(searchParams?.toString() ?? "");
+
+    if (path === "quick-review") {
+      setSuppressAcceleratorStartIntent(true);
+      params.delete("baseline");
+      params.delete("accelerator");
+      params.delete("preset");
+      params.delete("template");
+    }
+
     router.replace(reviewsNewPathHref(pathname, path, params), { scroll: false });
   };
 
@@ -162,29 +189,39 @@ export function ReviewsNewPathSwitcher() {
       {shellReady ? (
         usePrimaryPathLayout ? (
           <div className="space-y-4" data-testid="reviews-new-primary-path-layout">
-            <p
-              className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.helper)}
-              data-testid="reviews-new-path-hint"
-            >
-              <InlineGuidanceText text={pathHints[activePath]} />
-            </p>
-            <div className="pt-1" data-testid="reviews-new-path-panel">
-              <ReviewsNewActiveWizard activePath={activePath} />
-            </div>
-            {activePath === "quick-review" ? (
-              <ReviewsNewMoreWaysToStart onSelectPath={selectPath} />
+            {showFirstRunJobChooser ? (
+              <>
+                <ReviewsNewJobChooserSection />
+                <ReviewsNewOwnEvidenceStart />
+                <ReviewsNewMoreWaysToStart onSelectPath={selectPath} />
+              </>
             ) : (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                data-testid="reviews-new-back-to-quick-start"
-                onClick={() => {
-                  selectPath("quick-review");
-                }}
-              >
-                {REVIEWS_NEW_BACK_TO_QUICK_START_CTA}
-              </Button>
+              <>
+                <p
+                  className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="reviews-new-path-hint"
+                >
+                  <InlineGuidanceText text={pathHints[activePath]} />
+                </p>
+                <div className="pt-1" data-testid="reviews-new-path-panel">
+                  <ReviewsNewActiveWizard activePath={activePath} />
+                </div>
+                {activePath === "quick-review" ? (
+                  <ReviewsNewMoreWaysToStart onSelectPath={selectPath} />
+                ) : (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    data-testid="reviews-new-back-to-quick-start"
+                    onClick={() => {
+                      selectPath("quick-review");
+                    }}
+                  >
+                    {REVIEWS_NEW_BACK_TO_QUICK_START_CTA}
+                  </Button>
+                )}
+              </>
             )}
           </div>
         ) : (

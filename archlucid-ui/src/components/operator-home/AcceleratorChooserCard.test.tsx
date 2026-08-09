@@ -9,6 +9,7 @@ describe("AcceleratorChooserCard", () => {
 
     expect(screen.getByTestId("accelerator-chooser-card")).toBeInTheDocument();
     expect(screen.getByTestId("accelerator-chooser-row-ai-llm-workload")).toBeInTheDocument();
+    expect(screen.getAllByText(/Expected outputs:/i).length).toBeGreaterThan(0);
     expect(screen.getByTestId("accelerator-chooser-start-regulated-saas-soc-procurement")).toHaveAttribute(
       "href",
       "/architecture/reviews/new?baseline=1&accelerator=regulated-saas-soc-procurement",
