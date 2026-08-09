@@ -25,6 +25,8 @@ namespace ArchLucid.Core.Tests;
 ///     golden-cohort category aggregation, Azure ARM cost-platform inference, deployment-status options,
 ///     keyset pagination cursor codecs, and the tenant catalog migration record.
 /// </summary>
+[Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
 public sealed class CorePackageCoverageBatchRc26Tests
 {
     [Fact]
