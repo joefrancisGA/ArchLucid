@@ -3,6 +3,7 @@ import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 
 import buyerReviewTerminology from "./eslint-rules/buyer-review-terminology.mjs";
+import { TITLE_ATTRIBUTE_LEGACY_SURFACES } from "./eslint-rules/title-attribute-legacy-surfaces.mjs";
 
 export default defineConfig([
   ...nextVitals,
@@ -39,6 +40,33 @@ export default defineConfig([
     },
     rules: {
       "buyer-review-terminology/no-run-primary-copy": "error",
+      /**
+       * Help must never live in a `title` attribute: browsers only reveal it on mouse hover, so
+       * keyboard and touch users never see it, and screen-reader support is inconsistent. Use
+       * `FieldHelpTooltip` / `HelpPopover` / visible helper copy instead (UI_DESIGN_SYSTEM.md
+       * § Operator page contextual help). Scoped to native DOM elements so component props named
+       * `title` (`<SectionCard title=…>`) still work; `iframe` is exempt because `title` is its
+       * required accessible name.
+       */
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            'JSXOpeningElement[name.name=/^[a-z]/]:not([name.name="iframe"]) > JSXAttribute[name.name="title"]',
+          message:
+            "Do not put help text in a `title` attribute — it is hover-only and unreachable by keyboard and touch. Use FieldHelpTooltip, HelpPopover, or visible helper copy instead.",
+        },
+      ],
+    },
+  },
+  {
+    /**
+     * Pre-existing `title` attributes, baselined so the ban could land without a 135-site refactor.
+     * Shrink this list (TB-2147) — never extend it.
+     */
+    files: TITLE_ATTRIBUTE_LEGACY_SURFACES,
+    rules: {
+      "no-restricted-syntax": "off",
     },
   },
   globalIgnores([

@@ -112,6 +112,28 @@ Operator and buyer forms must make hard validation visible on the form and hones
 
 **Open apply / cleanup:** **TB-2006**–**TB-2011** in `TECH_BACKLOG.md`. Cursor enforcement: `.cursor/rules/UI-Form-Validation-Affordances.mdc`.
 
+### Operator page contextual help — mount + interaction contract (**TB-1666** — done 2026-08-09)
+
+Every navigable operator surface must teach its own job in place. The shell top-bar Help Center is a global escape hatch, **not** a substitute for page-scoped help: an operator who does not already know the vocabulary cannot search for it.
+
+| Rule | Required behavior |
+|------|-------------------|
+| Where required | Navigable operator hubs — every sidebar destination and every primary workflow page. Documented exceptions: auth / callback / error pages, pure redirects, and the Help Center itself. |
+| Affordance | `PageContextualHelpButton` in the page header actions (CircleHelp + short caption). It must resolve a non-null topic via `pageHelpTopicForPathname` — a mounted button that renders `null` because the map row is missing is a **defect**, not a soft gap. |
+| Content preference | Prefer Category-1 short answers from `contextualHelpForPathname` (what is this page / what to do next / why empty / where to configure). Fall back to a `/help/{slug}` link only when short answers are not written yet. |
+| Trigger semantics | Help panels are **press-triggered**, never hover-triggered. They contain links and deep-link CTAs, and hover-only reveal makes those unreachable by keyboard and touch, and unusable on mobile. |
+| Panel semantics | Use the shared `HelpPopover` primitive (`components/ui/help-popover.tsx`, layered on `components/ui/popover.tsx`). It supplies portaled collision-aware placement, `role="dialog"`, focus movement into the panel, Escape / outside-press dismissal, and focus return to the trigger. Do not hand-roll absolute positioning — it clips at the viewport edge and inside `overflow-hidden` ancestors. |
+| Tooltip vs popover | `FieldHelpTooltip` for a short, **non-interactive** hint on a single control. `HelpPopover` whenever the content contains a link, CTA, or more than one idea. Never put interactive content in a tooltip. |
+| Banned — `title` attribute | Never carry help text in a native `title` attribute. Browsers reveal it on mouse hover only, so keyboard and touch users never see it, and screen-reader support is inconsistent. This includes “why is this control disabled” copy, which must be visible near the control. Enforced by `no-restricted-syntax` in `eslint.config.mjs`; legacy surfaces are baselined in `eslint-rules/title-attribute-legacy-surfaces.mjs` and swept under **TB-2147**. |
+| Banned — dead `helpKey` | `OperatorPageHeader` `helpKey` is deprecated and renders **no** affordance. Do not add new `helpKey` props as a help mechanism. |
+| Supplements, not replacements | Field tooltips, `InAppHelpLink`, `InlineGlossaryChip`, and the `/reviews/new` wizard BookOpen drawer supplement page-scoped help. None of them satisfies this contract on their own. |
+
+**Truncation reveal is a separate problem.** `<td className="truncate" title={fullText}>` is overflow recovery, not help, and it is still mouse-only. Prefer widening the column, wrapping, or a press-triggered disclosure; where a hover reveal is genuinely the best option, it needs a real tooltip. Tracked in **TB-2147** alongside the `title` sweep — do not treat it as ratified.
+
+**Code touchpoints:** `PageContextualHelpButton` / `PageScopedContextualHelpPanel`, `page-help-topic-map.ts`, `contextual-help-registry.ts`, `components/ui/help-popover.tsx`, `components/ui/popover.tsx`.
+
+**Good exemplars:** `/architecture/reviews`, `/architecture/architectures`, findings / alerts / alert-rules / advisory-scans, `/architecture/digests`, improvement planning, executive summary, readiness. Remaining mount gaps are owned by **TB-1667**–**TB-1669**; the Vitest allowlist + non-null topic guard is **TB-1670**. **Learn more** destinations are governed by the next section (**TB-2048**) — this section owns mount, trigger, and panel semantics only.
+
 ### Operator page contextual help — Learn more job match (**TB-2048** — done 2026-08-05)
 
 `PageContextualHelpButton` / Category-1 popovers teach the **current page job**. The **Learn more** escape hatch must not send the operator to a generic Getting started / How it works guide when the page is a secondary hub.
@@ -313,4 +335,5 @@ Cursor enforcement: `.cursor/rules/UI-Enterprise-Design-Standard.mdc` (**TB-120*
 - Deferred UI architecture: `docs/library/UI_ARCHITECTURE_V1_1.md`
 - Cursor rules: `.cursor/rules/UI-React-Next-Conventions.mdc`, `.cursor/rules/UI-Accessibility-Baseline.mdc`, `.cursor/rules/UI-Form-Validation-Affordances.mdc` (**TB-2005**)
 - Agent guidance: `archlucid-ui/AGENTS.md`
-- Page-scoped **Learn more** job match: this file § *Operator page contextual help — Learn more job match* (**TB-2048** Done); mount waves **TB-1666**–**TB-1670**; Digests/secondary remaps **TB-2049**–**TB-2052**
+- Page-scoped help **mount + interaction** contract: this file § *Operator page contextual help — mount + interaction contract* (**TB-1666** Done) — press-only triggers, shared `HelpPopover`, `title`-as-help banned (sweep **TB-2147**); remaining mount waves **TB-1667**–**TB-1670**
+- Page-scoped **Learn more** job match: this file § *Operator page contextual help — Learn more job match* (**TB-2048** Done); Digests/secondary remaps **TB-2049**–**TB-2052**

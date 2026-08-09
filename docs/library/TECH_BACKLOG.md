@@ -1222,6 +1222,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-2144 | ~~Alerts inbox + billing banners → TanStack Query~~ **Done** 2026-08-09 — billing past-due banner + alerts nav badge on Query (inbox controller already Query); Vitest hydration/remount guards; see ## TB-2144 below | Performance P0 — **V1**; owner perf wave 6 2026-08-09; residual of Done **TB-2123** | S |
 | TB-2145 | ~~Shared shell / home First Load residual~~ **Done** 2026-08-09 — `/` **1646.1 → 1587.2 kB** (−58.9 kB); deferred command center, ROI strip, below-fold panels; Vitest + baseline; see ## TB-2145 below | Performance P0 — **V1**; owner perf wave 6 2026-08-09; after **TB-2118**/**TB-2061** | L |
 | TB-2146 | Cold-start staging Phase B + paid-lever reopen gate; see ## TB-2146 below | Performance P0 — **V1**; owner perf wave 6 2026-08-09; residual of Done **TB-2124** | S |
+| TB-2147 | Sweep baselined `title`-attribute help — 135 sites / 92 files (fake tooltips, disabled reasons, truncation reveal); see ## TB-2147 below | Accessibility P1 — **V1**; filed from **TB-1666** 2026-08-09; shrink `eslint-rules/title-attribute-legacy-surfaces.mjs` to empty | L |
 | TB-932 | **Done** (2026-08-09) — **Won't do** — Offload large JSON payloads to blob storage; DEV LOB evidence max ~30 KB / 0% ≥1 MB; see ## TB-932 below | Performance P0 — **V1** (promoted P0 + V1 2026-08-08 with perf wave 5; evidence-gated; was P3 V2); after **TB-929**–**TB-931**; peers **TB-2119** | L |
 | TB-2103 | Operator-maintained model catalog — DDL-backed `IAgentModelAliasRegistry` replacing `ConfigAgentModelAliasRegistry`; internal-only admin surface; lifecycle + audit on every mutation; see ## TB-2103 below | Maintainability P1 — **V1.1**; ADR 0065 D2′; today curation needs a code change + deploy | L |
 | TB-2104 | Structured-output capability ladder (`StrictJsonSchema` \| `JsonObject` \| `DegradedTextParse`) per catalog row + per-task minimum, fail-closed routing; see ## TB-2104 below | Correctness P1 — **V1.1**; ADR 0065 D4′; the **only** quality-adjacent fail-closed control — function, not quality judgment | M |
@@ -41596,7 +41597,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done 2026-08-09 — contract published in `docs/library/UI_DESIGN_SYSTEM.md` § *Operator page contextual help — mount + interaction contract*: where page-scoped help is required, non-null `pageHelpTopicForPathname` resolution as a defect bar, Category-1 preference, press-only trigger semantics on the shared `HelpPopover` primitive, tooltip-vs-popover split, and bans on `title`-attribute help and new `OperatorPageHeader helpKey`. `title`-as-help is now machine-enforced by `no-restricted-syntax` in `archlucid-ui/eslint.config.mjs` (native DOM elements only; `iframe` exempt); the 92 pre-existing files are baselined in `archlucid-ui/eslint-rules/title-attribute-legacy-surfaces.mjs` and swept under **TB-2147**. Mount waves **TB-1667**–**TB-1669** and the Vitest guard **TB-1670** remain open.
 
 **Priority:** P0.
 
@@ -50363,5 +50364,41 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 **Out of scope:** Implementing all paid levers without evidence.
 
 **Size estimate:** S.
+
+---
+
+## TB-2147 — Sweep baselined `title`-attribute help (135 sites / 92 files) (P1)
+
+**Window:** V1 — Accessibility.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Filed from **TB-1666** 2026-08-09 when the `title`-as-help ban landed. A full sweep could not ship in the same change, so `archlucid-ui/eslint-rules/title-attribute-legacy-surfaces.mjs` baselines the 92 files that already carried a native `title` attribute; `no-restricted-syntax` is an error everywhere else.
+
+**Why:** Browsers reveal `title` on mouse hover only. Keyboard users never see it, touch devices never fire it, and screen-reader support is inconsistent — so any explanation carried there is invisible to a large share of operators. Ratified in `UI_DESIGN_SYSTEM.md` § *Operator page contextual help — mount + interaction contract*.
+
+**Three patterns, three different fixes** (do not treat as one mechanical replace):
+
+1. **Fake tooltips** — `<span className="cursor-help underline decoration-dotted" title={…}>` and `<th title={columnExplanation}>`. Replace with `FieldHelpTooltip` for a short non-interactive hint, or `HelpPopover` when the content has a link or more than one idea. Highest concentration: `RunAgentForensicsSection.tsx` (7), `RunRetrievalGroundingPanel.tsx` (3).
+2. **Disabled-reason copy** — `title={disabled ? whyDisabled : undefined}`. A mouse-only explanation of why a control cannot be pressed is a dead end; the reason must be visible near the control (pairs with **TB-2005** form-validation affordances). Highest concentration: `alerts/AlertRoutingCriteriaFields.tsx` (4), `policy-packs/_sections/PolicyPacksLifecycleSection.tsx` (6).
+3. **Truncation reveal** — `<td className="truncate" title={fullText}>`. Overflow recovery rather than help, and **not yet ratified**: decide between widening the column, wrapping, a press-triggered disclosure, or a real tooltip before sweeping. Settle the ruling in `UI_DESIGN_SYSTEM.md` as part of this row.
+
+**Approach:**
+
+1. Settle the truncation-reveal ruling first — it determines how many of the 135 sites are in scope for replacement vs re-layout.
+2. Sweep by pattern, not by file, so each batch has one review shape. Remove each swept file from `TITLE_ATTRIBUTE_LEGACY_SURFACES` in the same commit as its fix.
+3. When the list is empty, delete `eslint-rules/title-attribute-legacy-surfaces.mjs` and the override block in `eslint.config.mjs`.
+
+**Acceptance:** `npx eslint src` reports zero `no-restricted-syntax` `title` violations with **no** baseline file present; swept surfaces expose their former `title` copy to keyboard and touch users.
+
+**Affected files:** 92 entries in `archlucid-ui/eslint-rules/title-attribute-legacy-surfaces.mjs`; `archlucid-ui/eslint.config.mjs`; `docs/library/UI_DESIGN_SYSTEM.md` (truncation ruling).
+
+**Peers:** Done **TB-1666** (contract + rule); **TB-2005** (form validation affordances); **TB-1670** (page-help Vitest guard).
+
+**Out of scope:** Mount waves **TB-1667**–**TB-1669**; **Learn more** targets (**TB-2048** Done); `iframe title`, which is a required accessible name and exempt by design.
+
+**Size estimate:** L.
 
 ---

@@ -585,7 +585,8 @@ This is intentional. The architect workspace is thin — it does not have busine
 
 ## Where to go next
 
-- **UI design system (normative):** `docs/library/UI_DESIGN_SYSTEM.md` — includes **Learn more job match** for page-scoped Category-1 help (**TB-2048**): Learn more must match the page job or be omitted; ban generic `getting-started` / `how-it-works` on secondary hubs. Mount contract remains **TB-1666**.
+- **UI design system (normative):** `docs/library/UI_DESIGN_SYSTEM.md` — includes **Learn more job match** for page-scoped Category-1 help (**TB-2048**): Learn more must match the page job or be omitted; ban generic `getting-started` / `how-it-works` on secondary hubs.
+- **Page-scoped help mount + interaction contract (normative):** `docs/library/UI_DESIGN_SYSTEM.md` § *Operator page contextual help — mount + interaction contract* (**TB-1666**). Every sidebar destination and primary workflow page mounts `PageContextualHelpButton`, and it must resolve a non-null `pageHelpTopicForPathname` topic — a button that renders `null` is a defect. Help panels are **press-triggered** and built on the shared `HelpPopover` primitive (`components/ui/help-popover.tsx`, layered on `components/ui/popover.tsx`), which supplies portaled collision-aware placement, `role="dialog"`, focus movement, and Escape dismissal. Never hand-roll absolute positioning, and never carry help in a native `title` attribute (hover-only; enforced by `no-restricted-syntax`, legacy baseline swept under **TB-2147**). Remaining mount waves: **TB-1667**–**TB-1670**.
 - **Operator workflow (55R, repo root):** `docs/operator-shell.md`
 - **Tutorial (for learning):** `archlucid-ui/docs/OPERATOR_SHELL_TUTORIAL.md`
 - **C# ↔ React translation:** `archlucid-ui/docs/CSHARP_TO_REACT_ROSETTA.md`
