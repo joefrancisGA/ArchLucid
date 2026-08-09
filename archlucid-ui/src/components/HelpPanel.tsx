@@ -305,22 +305,10 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
                 aria-label="Search help, docs, or shortcuts"
               />
             </div>
-            <TabsList aria-label="Help sections" className="flex-wrap gap-1.5 border-0" data-testid="help-panel-tablist">
-              <TabsTrigger value="guides" className="h-8 rounded-full border-0 px-3">
-                Guides
-              </TabsTrigger>
-              <TabsTrigger
-                value="shortcuts"
-                className="h-8 rounded-full border-0 px-3"
-              >
-                Keyboard shortcuts
-              </TabsTrigger>
-              <TabsTrigger
-                value="troubleshooting"
-                className="h-8 rounded-full border-0 px-3"
-              >
-                Troubleshooting
-              </TabsTrigger>
+            <TabsList aria-label="Help sections" data-testid="help-panel-tablist">
+              <TabsTrigger value="guides">Guides</TabsTrigger>
+              <TabsTrigger value="shortcuts">Keyboard shortcuts</TabsTrigger>
+              <TabsTrigger value="troubleshooting">Troubleshooting</TabsTrigger>
             </TabsList>
           </div>
 

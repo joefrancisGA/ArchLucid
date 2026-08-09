@@ -15,17 +15,9 @@ type HelpTabsShellProps = {
 export function HelpTabsShell({ guide, docs }: HelpTabsShellProps) {
   return (
     <Tabs defaultValue="guide" className="space-y-4">
-      <TabsList
-        aria-label="Help sections"
-        className="gap-2 rounded-lg border border-neutral-200 bg-white/80 p-1 dark:border-neutral-800 dark:bg-neutral-950/80"
-        data-testid="help-tabs-shell-tablist"
-      >
-        <TabsTrigger value="guide" className="rounded-md border-0 px-3 py-1.5">
-          Guides
-        </TabsTrigger>
-        <TabsTrigger value="docs" className="rounded-md border-0 px-3 py-1.5">
-          Documentation
-        </TabsTrigger>
+      <TabsList aria-label="Help sections" data-testid="help-tabs-shell-tablist">
+        <TabsTrigger value="guide">Guides</TabsTrigger>
+        <TabsTrigger value="docs">Documentation</TabsTrigger>
       </TabsList>
       <TabsContent value="guide" className="pt-0" data-testid="help-tabs-shell-panel-guide">
         {guide}

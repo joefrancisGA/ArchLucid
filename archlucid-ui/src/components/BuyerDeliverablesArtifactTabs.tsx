@@ -50,13 +50,9 @@ export function BuyerDeliverablesArtifactTabs(props: {
   return (
     <div className="w-full min-w-0 space-y-4" data-testid="buyer-deliverables-artifact-tabs">
       <Tabs defaultValue="executive" className="w-full">
-        <TabsList aria-label="Deliverable groups" className="h-auto w-full flex-wrap gap-2 border-0">
-          <TabsTrigger value="executive" className="rounded-md border px-3 py-1.5">
-            Executive and sponsor artifacts
-          </TabsTrigger>
-          <TabsTrigger value="arb" className="rounded-md border px-3 py-1.5">
-            Architecture review board artifacts
-          </TabsTrigger>
+        <TabsList aria-label="Deliverable groups" className="h-auto w-full">
+          <TabsTrigger value="executive">Executive and sponsor artifacts</TabsTrigger>
+          <TabsTrigger value="arb">Architecture review board artifacts</TabsTrigger>
         </TabsList>
 
         <TabsContent value="executive" className="w-full min-w-0 pt-4" data-testid="buyer-deliverables-panel-executive">

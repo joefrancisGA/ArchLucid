@@ -1,5 +1,5 @@
 /**
- * Carbon-styled line tabs — thin alias over {@link ./tabs} for operator and buyer shells (TB-665).
+ * Carbon-styled tabs — thin alias over {@link ./tabs} for operator and buyer shells (TB-665).
  */
 export {
   Tabs as EnterpriseTabs,
@@ -10,4 +10,5 @@ export {
   type TabsListProps as EnterpriseTabsListProps,
   type TabsProps as EnterpriseTabsProps,
   type TabsTriggerProps as EnterpriseTabsTriggerProps,
+  type TabsVariant as EnterpriseTabsVariant,
 } from "@/components/ui/tabs";
