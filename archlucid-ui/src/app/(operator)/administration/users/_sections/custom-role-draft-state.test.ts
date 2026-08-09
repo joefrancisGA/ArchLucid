@@ -5,13 +5,15 @@ import {
   clonedRoleName,
   type DraftRole,
   dirtyRoleDisplayNames,
-  hasUnsavedRoleEdits,
+  findSystemRoleByName,
   isRoleDirty,
+  matrixPermissionList,
   mergeUnsavedRoleEdits,
   newlyGrantedHighRiskPermissionIds,
   permissionChangesForRole,
   restoreRoleToBaseline,
   roleMatrixKey,
+  type RolePermissionBaseline,
   toggleRolePermission,
 } from "./custom-role-draft-state";
 
@@ -21,6 +23,10 @@ function builtinOperator(): DraftRole {
 
 function customRole(permissions: readonly string[]): DraftRole {
   return { id: "role-custom", name: "Reviewer plus", isSystem: false, permissions: new Set(permissions) };
+}
+
+function hasUnsavedRoleEdits(roles: readonly DraftRole[], baseline: RolePermissionBaseline): boolean {
+  return dirtyRoleDisplayNames(roles, baseline).length > 0;
 }
 
 describe("custom-role-draft-state", () => {
@@ -114,5 +120,19 @@ describe("custom-role-draft-state", () => {
       removed: [],
     });
     expect(newlyGrantedHighRiskPermissionIds(edited[0] as DraftRole, baseline)).toEqual(["Billing.Manage"]);
+  });
+
+  it("resolves a seed role only among loaded built-in roles", () => {
+    const roles = [builtinOperator(), customRole(["Runs.Read"])];
+
+    expect(findSystemRoleByName(roles, "Operator")?.id).toBe("role-operator");
+    expect(findSystemRoleByName(roles, "Reviewer plus")).toBeNull();
+    expect(findSystemRoleByName([], "Operator")).toBeNull();
+  });
+
+  it("lists matrix permissions in canonical order and ignores ids outside the matrix", () => {
+    const listed = matrixPermissionList(new Set(["Billing.Manage", "Runs.Read", "Not.A.Matrix.Permission"]));
+
+    expect(listed).toEqual(["Runs.Read", "Billing.Manage"]);
   });
 });

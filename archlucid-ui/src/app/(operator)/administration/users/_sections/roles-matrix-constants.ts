@@ -52,6 +52,27 @@ export const ROLES_MATRIX_CREATE_READINESS_COPY = "Enter a role name to continue
 export const ROLES_MATRIX_CLONE_VS_CREATE_COPY =
   "Create custom role seeds permissions from Start from role. Clone copies the full column into a new custom role.";
 
+export const ROLES_MATRIX_LEGEND_COPY =
+  "A check mark means the permission is allowed. A dash means it is not. Built-in columns are read-only; custom role cells are editable.";
+
+export type CreateCustomRoleReadiness = {
+  readonly hasName: boolean;
+  /** False when the chosen built-in role is missing from the loaded matrix, so seeding would grant nothing. */
+  readonly startFromResolvable: boolean;
+  readonly startFromLabel: string;
+};
+
+/** Why the create button is unavailable, or null when the form is ready to submit. */
+export function createCustomRoleBlockedReason(readiness: CreateCustomRoleReadiness): string | null {
+  if (!readiness.hasName)
+    return "Enter a role name to create a custom role.";
+
+  if (!readiness.startFromResolvable)
+    return `Permissions for ${readiness.startFromLabel} could not be loaded. Refresh the matrix, or start from an empty permission set.`;
+
+  return null;
+}
+
 /** Notice shown above the matrix while custom role columns hold permission edits that were never saved. */
 export function unsavedRoleEditsNotice(roleNames: readonly string[], changeCount: number): string {
   if (roleNames.length === 0)
