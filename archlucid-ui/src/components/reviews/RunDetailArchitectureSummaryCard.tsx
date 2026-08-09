@@ -63,7 +63,7 @@ export type RunDetailArchitectureSummaryCardProps = {
 /** Concise architecture summary for Overview — full source lives in the Architecture tab. */
 export function RunDetailArchitectureSummaryCard(
   props: RunDetailArchitectureSummaryCardProps,
-): React.JSX.Element {
+): React.JSX.Element | null {
   const text = props.architectureText?.trim() ?? "";
 
   const structured = useMemo(
