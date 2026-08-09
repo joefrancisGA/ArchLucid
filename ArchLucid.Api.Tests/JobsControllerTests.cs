@@ -32,6 +32,7 @@ public sealed class JobsControllerTests
         Mock<IBackgroundJobTenantAccessVerifier> access = tenantAccess ?? new Mock<IBackgroundJobTenantAccessVerifier>();
 
         // Only default to accessible when the caller did not supply a verifier with its own setups.
+
         if (tenantAccess is null)
         {
             access

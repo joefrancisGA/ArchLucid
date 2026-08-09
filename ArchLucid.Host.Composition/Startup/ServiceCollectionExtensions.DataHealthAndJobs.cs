@@ -181,6 +181,7 @@ public static partial class ServiceCollectionExtensions
         {
             // Queue-backed info/work-unit accessors are registered above for all roles; Worker must
             // still resolve IBackgroundJobQueue (in-memory or durable) so host composition validates.
+
             if (!durable)
             {
                 services.AddSingleton<IBackgroundJobQueue, InMemoryBackgroundJobQueue>();
