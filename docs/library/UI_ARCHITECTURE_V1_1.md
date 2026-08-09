@@ -31,7 +31,7 @@ The items below remain **out of scope for V1** and are intentionally deferred to
 
 ## 4. Operator route caching (`force-dynamic` nuance)
 
-**Status:** **Partially shipped** (2026-08-09, **TB-2123**). Digests, advisory-scans, integrations, and Ask layouts use `OperatorClientDrivenRouteLayout` (no blanket `force-dynamic`); live data still flows through client fetches and TanStack Query.
+**Status:** **Partially shipped** (2026-08-09, **TB-2123**; extended **TB-2143**). Digests, advisory-scans, integrations, Ask, and **insights** layouts (patterns, impact preview, evidence graph, compare, scorecard, search, improvement planning) use `OperatorClientDrivenRouteLayout` or drop blanket `force-dynamic` while keeping route-local validation; live data still flows through client fetches, TanStack Query, or page-level server loaders.
 
 **Why deferred (remainder):** Most other `(operator)` segment layouts still opt out of static prerender; narrowing further is incremental after security review.
 

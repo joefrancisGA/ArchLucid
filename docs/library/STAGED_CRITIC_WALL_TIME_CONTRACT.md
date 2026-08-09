@@ -3,7 +3,7 @@
 # Staged Critic wall-time contract
 
 **Status:** Active (V1)  
-**Backlog:** **TB-2121** · peers **TB-2075** (async execute) · **TB-915** / **TB-947** (scale vs TPM honesty)  
+**Backlog:** **TB-2121** (Done — metrics/docs) · overlap residual **TB-2140** · peers **TB-2075** (async execute) · **TB-915** / **TB-947** (scale vs TPM honesty)  
 **Audience:** Performance owners, SRE, agent-runtime engineers  
 **Related:** [LONG_RUNNING_OPERATIONS_CONTRACT.md](./LONG_RUNNING_OPERATIONS_CONTRACT.md) · [CONFIGURATION_REFERENCE.md](./CONFIGURATION_REFERENCE.md) · `infra/terraform-container-apps/README.md`
 
