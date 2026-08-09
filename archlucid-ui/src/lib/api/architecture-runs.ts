@@ -24,7 +24,12 @@ import type {
 import type { StageTimelineSummary } from "@/types/stage-timeline";
 
 export type RunToolInvocationForensicsPayload = components["schemas"]["RunToolInvocationForensicsResponse"];
-import { getOrCreateWizardIdempotencyKey } from "@/lib/wizard-idempotency-key";
+import {
+  clearWizardSubmissionSession,
+  getOrCreateWizardIdempotencyKey,
+  getOrCreateWizardRequestId,
+  rotateWizardSubmissionSession,
+} from "@/lib/wizard-idempotency-key";
 import {
   ARCHITECTURE_REQUEST_CREATE_TIMEOUT_MESSAGE,
   isArchitectureRequestCreateGatewayTimeout,
@@ -87,37 +92,95 @@ export type CreateArchitectureRunRequestPayload = {
 export type CreateArchitectureRunResponsePayload =
   components["schemas"]["CreateArchitectureRunResponse"];
 
+function isWizardManagedCreateRun(options?: { readonly idempotencyKey?: string }): boolean {
+  return (options?.idempotencyKey?.trim() ?? "").length === 0;
+}
+
+function resolveWizardCreateRunPayload(
+  body: CreateArchitectureRunRequestPayload,
+): CreateArchitectureRunRequestPayload {
+  return {
+    ...body,
+    requestId: getOrCreateWizardRequestId(),
+  };
+}
+
+function isCreateRunIdempotencyBodyConflict(error: unknown): boolean {
+  if (!isApiRequestError(error) || error.httpStatus !== 409) {
+    return false;
+  }
+
+  const detail = (error.problem?.detail ?? error.message).toLowerCase();
+
+  return detail.includes("idempotency-key") && detail.includes("different request");
+}
+
+async function postCreateArchitectureRun(
+  body: CreateArchitectureRunRequestPayload,
+  idempotencyKey: string,
+): Promise<CreateArchitectureRunResponsePayload> {
+  return apiPostJson<CreateArchitectureRunResponsePayload>("/v1/architecture/request", body, {
+    extraHeaders: { "Idempotency-Key": idempotencyKey },
+  });
+}
+
+function rethrowCreateRunGatewayTimeout(error: ApiRequestError): never {
+  const upstreamDetail = error.problem?.detail?.trim() ?? "";
+  const message =
+    upstreamDetail.length > 0
+      ? `${ARCHITECTURE_REQUEST_CREATE_TIMEOUT_MESSAGE} Details: ${upstreamDetail}`
+      : ARCHITECTURE_REQUEST_CREATE_TIMEOUT_MESSAGE;
+
+  throw new ApiRequestError(message, {
+    problem: error.problem,
+    correlationId: error.correlationId,
+    httpStatus: error.httpStatus,
+    retryAfterSeconds: error.retryAfterSeconds,
+  });
+}
+
 /** Submits a new architecture run (POST /v1/architecture/request). */
 export async function createArchitectureRun(
   body: CreateArchitectureRunRequestPayload,
   options?: { readonly idempotencyKey?: string },
 ): Promise<CreateArchitectureRunResponsePayload> {
-  const idempotencyKey = options?.idempotencyKey?.trim() || getOrCreateWizardIdempotencyKey();
+  const wizardManaged = isWizardManagedCreateRun(options);
+  let idempotencyKey = options?.idempotencyKey?.trim() || getOrCreateWizardIdempotencyKey();
+  let payload = wizardManaged ? resolveWizardCreateRunPayload(body) : body;
+  let retriedAfterIdempotencyConflict = false;
 
-  try {
-    return await apiPostJson<CreateArchitectureRunResponsePayload>("/v1/architecture/request", body, {
-      extraHeaders: { "Idempotency-Key": idempotencyKey },
-    });
-  } catch (error: unknown) {
-    if (
-      isApiRequestError(error) &&
-      isArchitectureRequestCreateGatewayTimeout(error.httpStatus, error.problem)
-    ) {
-      const upstreamDetail = error.problem?.detail?.trim() ?? "";
-      const message =
-        upstreamDetail.length > 0
-          ? `${ARCHITECTURE_REQUEST_CREATE_TIMEOUT_MESSAGE} Details: ${upstreamDetail}`
-          : ARCHITECTURE_REQUEST_CREATE_TIMEOUT_MESSAGE;
+  while (true) {
+    try {
+      const response = await postCreateArchitectureRun(payload, idempotencyKey);
 
-      throw new ApiRequestError(message, {
-        problem: error.problem,
-        correlationId: error.correlationId,
-        httpStatus: error.httpStatus,
-        retryAfterSeconds: error.retryAfterSeconds,
-      });
+      if (wizardManaged) {
+        clearWizardSubmissionSession();
+      }
+
+      return response;
+    } catch (error: unknown) {
+      if (
+        wizardManaged &&
+        !retriedAfterIdempotencyConflict &&
+        isCreateRunIdempotencyBodyConflict(error)
+      ) {
+        rotateWizardSubmissionSession();
+        idempotencyKey = getOrCreateWizardIdempotencyKey();
+        payload = resolveWizardCreateRunPayload(body);
+        retriedAfterIdempotencyConflict = true;
+
+        continue;
+      }
+
+      if (
+        isApiRequestError(error) &&
+        isArchitectureRequestCreateGatewayTimeout(error.httpStatus, error.problem)
+      ) {
+        rethrowCreateRunGatewayTimeout(error);
+      }
+
+      throw error;
     }
-
-    throw error;
   }
 }
 
