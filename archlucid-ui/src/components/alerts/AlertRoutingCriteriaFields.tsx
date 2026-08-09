@@ -10,7 +10,7 @@ import {
   ALERT_ROUTING_COMMON_FINDING_TYPES,
   descriptionForAlertRoutingFindingType,
 } from "@/lib/alert-routing-finding-type-labels";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { ReviewLabelTokenInput } from "@/components/alerts/ReviewLabelTokenInput";
 
 export type AlertRoutingCriteriaFieldsProps = {
@@ -140,7 +140,8 @@ export function AlertRoutingCriteriaFields({
         <button
           type="button"
           className={cn(
-            "text-left text-[var(--al-link)] underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-focus-ring)]",
+            OPERATOR_LINK.nav,
+            "text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-interactive)] focus-visible:ring-offset-2",
             OPERATOR_TYPOGRAPHY.body,
           )}
           disabled={disabled}
@@ -210,7 +211,8 @@ export function AlertRoutingCriteriaFields({
             <button
               type="button"
               className={cn(
-                "mt-3 text-left text-[var(--al-link)] underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-focus-ring)]",
+                OPERATOR_LINK.nav,
+                "mt-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-interactive)] focus-visible:ring-offset-2",
                 OPERATOR_TYPOGRAPHY.body,
               )}
               disabled={disabled}

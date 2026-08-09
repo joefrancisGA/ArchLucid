@@ -59,6 +59,11 @@ const DEFAULT_DESTINATION_NAME = "Primary notification destination";
 export function AlertRoutingContent() {
   const canMutateRouting = useOperateCapability();
   const refreshContext = useOptionalAlertRulesHubRefresh();
+  // Keep reportTabLoaded off the load() dependency list — stamping freshness recreates
+  // the context value and would otherwise retrigger the mount load in a loop.
+  const reportTabLoadedRef = useRef(refreshContext?.reportTabLoaded);
+  reportTabLoadedRef.current = refreshContext?.reportTabLoaded;
+  const registerTabLoader = refreshContext?.registerTabLoader;
   const formSectionRef = useRef<HTMLElement | null>(null);
   const statusRegionId = useId();
   const [items, setItems] = useState<AlertRoutingSubscription[]>([]);
@@ -100,25 +105,25 @@ export function AlertRoutingContent() {
     try {
       const data = await listAlertRoutingSubscriptions();
       setItems(data);
-      refreshContext?.reportTabLoaded("notifications");
+      reportTabLoadedRef.current?.("notifications");
     } catch (e) {
       setFailure(toApiLoadFailure(e));
     } finally {
       setLoading(false);
     }
-  }, [refreshContext]);
+  }, []);
 
   useEffect(() => {
     void load();
   }, [load]);
 
   useEffect(() => {
-    if (refreshContext === null) {
+    if (registerTabLoader === undefined) {
       return;
     }
 
-    return refreshContext.registerTabLoader("notifications", load);
-  }, [load, refreshContext]);
+    return registerTabLoader("notifications", load);
+  }, [load, registerTabLoader]);
 
   function scrollToForm() {
     formSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });

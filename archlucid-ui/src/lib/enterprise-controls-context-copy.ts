@@ -207,10 +207,10 @@ export const alertRoutingDeliveryAttemptsButtonLabelReaderRank = "Delivery attem
 
 /** Alert routing — **`title`** on **Show delivery attempts** (`alert-routing/page.tsx`). */
 export const alertRoutingDeliveryAttemptsButtonTitleOperator =
-  "Load recent delivery attempts for this subscription (GET).";
+  "Load recent delivery attempts for this destination (GET).";
 
 export const alertRoutingDeliveryAttemptsButtonTitleReader =
-  "Load delivery attempts (GET). Enabling or disabling a subscription needs architect permission.";
+  "Load delivery attempts (GET). Enabling or disabling a destination needs architect permission.";
 
 /** Policy packs — compare action stays inspection-only at read rank (lifecycle writes below). */
 export const policyPacksShowDiffButtonLabelReaderRank = "Show diff (inspect)";
@@ -481,11 +481,19 @@ export const alertRulesPageLeadOperator = "Scan current thresholds, then add or 
 export const alertRulesPageLeadReader =
   "Inspect thresholds above; the Change configuration block is Execute+ on the API at this rank.";
 
-/** Alert routing — lead under page title (`alert-routing/page.tsx`). */
-export const alertRoutingPageLeadOperator = "Review destinations and delivery health; subscriptions below.";
+/** Alert routing — lead under page title when at least one destination exists. */
+export const alertRoutingPageLeadOperator =
+  "Review notification destinations and delivery health; add or adjust destinations below.";
 
 export const alertRoutingPageLeadReader =
-  "Inspect subscriptions first; create, enable, and disable need Execute+ on the API at this rank.";
+  "Inspect notification destinations first; create, enable, and disable need Execute+ on the API at this rank.";
+
+/** Alert routing — lead when no destinations are configured yet. */
+export const alertRoutingPageLeadOperatorEmpty =
+  "Add a notification destination so qualifying alerts reach email or webhook channels.";
+
+export const alertRoutingPageLeadReaderEmpty =
+  "No notification destinations yet. Inspect the form below; creating destinations needs Execute+ on the API at this rank.";
 
 /** Alert rules — list block above **Change configuration** (read tier: inspect-first label). */
 export const alertRulesCurrentRulesHeadingOperator = "Current rules";
@@ -673,9 +681,9 @@ export const auditExportExecuteRankAuditorRoleNote =
 /** Alert rules — Create button label when mutation capability is false (same Execute+ floor as the hook). */
 export const alertRulesCreateButtonLabelReaderRank = "Create rule (Execute+)";
 
-/** Alert routing — Create subscription button label when mutation capability is false. */
+/** Alert routing — Create destination button label when mutation capability is false. */
 export const alertRoutingCreateSubscriptionButtonLabelReaderRank =
-  "Create alert routing subscription (Execute+)";
+  "Create notification destination (Execute+)";
 
 /** Alert routing — Enable toggle label at read rank (control disabled; API authoritative). */
 export const alertRoutingToggleToEnabledReaderRank = "Enable (Execute+)";
