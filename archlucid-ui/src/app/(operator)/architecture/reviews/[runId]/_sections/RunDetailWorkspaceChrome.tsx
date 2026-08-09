@@ -31,11 +31,7 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
           <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Architecture review
           </p>
-          <h1
-            className={cn(
-              "m-0 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 sm:text-3xl",
-            )}
-          >
+          <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>
             {props.reviewTitle}
           </h1>
           {props.systemName !== null ? (
@@ -78,10 +74,10 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
 }
 
 export type RunDetailWorkspaceSummaryStripProps = {
+  readonly outcomeHeading: string;
   readonly reviewOutcome: string;
   readonly highestUnresolvedSeverity: string | null;
-  readonly openFindingsCount: number;
-  readonly findingsRequiringActionCount: number;
+  readonly findingsSummaryLine: string;
   readonly primaryConcern: string | null;
   readonly nextAction: string;
 };
@@ -120,7 +116,7 @@ export function RunDetailWorkspaceSummaryStrip(
       </h2>
       <dl className={cn("m-0 grid gap-3 sm:grid-cols-2 lg:grid-cols-3", OPERATOR_TYPOGRAPHY.body)}>
         <div>
-          <dt className="text-neutral-500 dark:text-neutral-400">Review outcome</dt>
+          <dt className="text-neutral-500 dark:text-neutral-400">{props.outcomeHeading}</dt>
           <dd className="m-0 mt-0.5 font-semibold text-neutral-900 dark:text-neutral-100">{props.reviewOutcome}</dd>
         </div>
         <div>
@@ -137,16 +133,10 @@ export function RunDetailWorkspaceSummaryStrip(
             )}
           </dd>
         </div>
-        <div>
-          <dt className="text-neutral-500 dark:text-neutral-400">Open findings</dt>
-          <dd className="m-0 mt-0.5 font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
-            {props.openFindingsCount}
-          </dd>
-        </div>
-        <div>
-          <dt className="text-neutral-500 dark:text-neutral-400">Findings requiring action</dt>
-          <dd className="m-0 mt-0.5 font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
-            {props.findingsRequiringActionCount}
+        <div className="sm:col-span-2">
+          <dt className="text-neutral-500 dark:text-neutral-400">Findings</dt>
+          <dd className="m-0 mt-0.5 font-semibold text-neutral-900 dark:text-neutral-100">
+            {props.findingsSummaryLine}
           </dd>
         </div>
         <div className="sm:col-span-2">
@@ -176,7 +166,8 @@ export function RunDetailWorkspaceBlockingBanner(
     return null;
   }
 
-  const label = `${props.blockingCount} unresolved finding${props.blockingCount === 1 ? "" : "s"} currently block approval.`;
+  const verb = props.blockingCount === 1 ? "blocks" : "block";
+  const label = `${props.blockingCount} unresolved finding${props.blockingCount === 1 ? "" : "s"} currently ${verb} approval.`;
 
   return (
     <div

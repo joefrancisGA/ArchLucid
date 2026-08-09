@@ -205,6 +205,13 @@ export function deriveReviewTemplateLabel(
     return null;
   }
 
+  const ruleSetId = manifestSummary.ruleSetId?.trim() ?? "";
+
+  // Dev/in-memory rule sets are not buyer-facing template names.
+  if (ruleSetId.toLowerCase() === "in-memory" || ruleSetId.toLowerCase().includes("in-memory")) {
+    return null;
+  }
+
   const label = policyPackBuyerLabel(manifestSummary.ruleSetId, manifestSummary.ruleSetVersion).trim();
 
   return label.length > 0 ? label : null;
@@ -513,7 +520,42 @@ export function derivePrimaryConcernFinding(
 }
 
 export function derivePrimaryConcernLabel(findings: readonly QuickDecisionFinding[]): string | null {
-  return derivePrimaryConcernFinding(findings)?.title ?? null;
+  const title = derivePrimaryConcernFinding(findings)?.title ?? null;
+
+  if (title === null) {
+    return null;
+  }
+
+  if (/no topology resources were found/i.test(title)) {
+    return "Evidence did not surface topology resources";
+  }
+
+  return title;
+}
+
+/** One-line findings summary for the decision snapshot — reconciles open, blocking, and triage counts. */
+export function formatDecisionSnapshotFindingsLine(
+  openCount: number,
+  blockingCount: number,
+  awaitingActionCount: number,
+): string {
+  if (openCount <= 0) {
+    return "None open";
+  }
+
+  const segments: string[] = [`${openCount} open`];
+
+  if (blockingCount > 0) {
+    segments.push(`${blockingCount} block${blockingCount === 1 ? "s" : ""} approval`);
+  }
+
+  const triageOnly = Math.max(0, awaitingActionCount - blockingCount);
+
+  if (triageOnly > 0) {
+    segments.push(`${triageOnly} need${triageOnly === 1 ? "s" : ""} triage`);
+  }
+
+  return segments.join(" · ");
 }
 
 export function deriveReviewNextActionLabel(input: {
@@ -599,9 +641,10 @@ export function deriveExecutiveBottomLineContent(input: {
 
   if (input.blockingFindingCount > 0) {
     const severityLabel = (input.highestSeverity ?? "material").toLowerCase();
+    const verb = input.blockingFindingCount === 1 ? "requires" : "require";
 
     parts.push(
-      `${input.blockingFindingCount} unresolved ${severityLabel} finding${input.blockingFindingCount === 1 ? "" : "s"} still require an assigned owner and supporting evidence before unrestricted production use.`,
+      `${input.blockingFindingCount} unresolved ${severityLabel} finding${input.blockingFindingCount === 1 ? "" : "s"} still ${verb} an assigned owner and supporting evidence before unrestricted production use.`,
     );
   }
 

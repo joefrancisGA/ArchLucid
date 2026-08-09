@@ -7,10 +7,10 @@ describe("RunDetailWorkspaceSummaryStrip", () => {
   it("renders compact review status summary for the first viewport", () => {
     render(
       <RunDetailWorkspaceSummaryStrip
+        outcomeHeading="Governance decision"
         reviewOutcome="Approved with monitoring"
         highestUnresolvedSeverity="High"
-        openFindingsCount={1}
-        findingsRequiringActionCount={1}
+        findingsSummaryLine="1 open · 1 blocks approval"
         primaryConcern="PHI Minimization Risk"
         nextAction="Confirm evidence and remediation ownership for the open high-severity finding"
       />,

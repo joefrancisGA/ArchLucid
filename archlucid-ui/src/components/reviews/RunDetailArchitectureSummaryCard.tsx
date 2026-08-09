@@ -101,10 +101,15 @@ export function RunDetailArchitectureSummaryCard(
           </div>
         ) : null}
         <div>
-          <dt className="text-neutral-500 dark:text-neutral-400">Evidence attached</dt>
+          <dt className="text-neutral-500 dark:text-neutral-400">Evidence items</dt>
           <dd className="m-0 mt-0.5 font-medium tabular-nums text-neutral-900 dark:text-neutral-100">
             {props.evidenceCount}
           </dd>
+          {props.evidenceCount > 0 ? (
+            <dd className={cn("m-0 mt-0.5 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              Extracted from uploaded files
+            </dd>
+          ) : null}
         </div>
         {purposeSection !== undefined ? (
           <div className="sm:col-span-2">

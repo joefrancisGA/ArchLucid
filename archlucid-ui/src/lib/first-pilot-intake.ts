@@ -29,10 +29,10 @@ export function buildEvidenceBackedIntakeBrief(title: string, files: readonly Fi
   }
 
   const reviewTitle = normalizeFirstPilotReviewTitle(title);
-  const fileLines = files.map((file) => `- ${file.name} (${DEFAULT_ARCHITECTURE_EVIDENCE_CATEGORY})`).join("\n");
+  const fileLines = files.map((file) => `- ${file.name}`).join("\n");
   const attachmentSection =
     fileLines.length > 0
-      ? `\n\nAttached architecture evidence:\n${fileLines}`
+      ? `\n\nAttached files:\n${fileLines}`
       : "";
 
   const summary = [

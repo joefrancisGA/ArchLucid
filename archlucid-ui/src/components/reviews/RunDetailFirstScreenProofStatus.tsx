@@ -12,6 +12,8 @@ type RunDetailFirstScreenProofStatusProps = {
 /** First-screen READY/WARN/HOLD proof summary for run detail (Improvement #24). */
 export function RunDetailFirstScreenProofStatus(props: RunDetailFirstScreenProofStatusProps): React.JSX.Element {
   const { summary } = props;
+  const primaryBullet = summary.whySafeToSendBullets[0] ?? null;
+  const detailBullets = summary.whySafeToSendBullets.slice(1);
 
   return (
     <section
@@ -26,38 +28,9 @@ export function RunDetailFirstScreenProofStatus(props: RunDetailFirstScreenProof
         </span>
       </div>
 
-      <ul className={cn("m-0 mt-3 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
-        {summary.whySafeToSendBullets.map((bullet) => (
-          <li key={bullet}>{bullet}</li>
-        ))}
-      </ul>
-
-      <dl className={cn("m-0 mt-3 grid gap-2 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
-        <div>
-          <dt className="font-semibold">{PROOF_CONFIDENCE_FIELD_LABEL}</dt>
-          <dd className="m-0">{summary.proofConfidenceLabel}</dd>
-        </div>
-        <div>
-          <dt className="font-semibold">Execution mode</dt>
-          <dd className="m-0">{summary.executionModeLabel}</dd>
-        </div>
-        <div>
-          <dt className="font-semibold">PilotStrict</dt>
-          <dd className="m-0">{summary.pilotStrictLabel}</dd>
-        </div>
-        <div>
-          <dt className="font-semibold">ROI source basis</dt>
-          <dd className="m-0">{summary.roiBasisLabel}</dd>
-        </div>
-        <div>
-          <dt className="font-semibold">Proof disposition</dt>
-          <dd className="m-0">{summary.proofPacketLabel}</dd>
-        </div>
-        <div>
-          <dt className="font-semibold">Governed coverage</dt>
-          <dd className="m-0">{summary.governedCoverageLabel}</dd>
-        </div>
-      </dl>
+      {primaryBullet !== null ? (
+        <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.body)}>{primaryBullet}</p>
+      ) : null}
 
       <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.body)}>
         <InlineGuidance label="Next action:" labelTestId="inline-guidance-next-action">
@@ -65,9 +38,51 @@ export function RunDetailFirstScreenProofStatus(props: RunDetailFirstScreenProof
         </InlineGuidance>
       </p>
 
-      {summary.detail ? (
-        <p className={cn("m-0 mt-2 opacity-90", OPERATOR_TYPOGRAPHY.helper)}>{summary.detail}</p>
-      ) : null}
+      <details className="mt-3">
+        <summary className={cn("cursor-pointer font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
+          View proof details
+        </summary>
+        <div className="mt-3 space-y-3">
+          {detailBullets.length > 0 ? (
+            <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
+              {detailBullets.map((bullet) => (
+                <li key={bullet}>{bullet}</li>
+              ))}
+            </ul>
+          ) : null}
+
+          <dl className={cn("m-0 grid gap-2 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
+            <div>
+              <dt className="font-semibold">{PROOF_CONFIDENCE_FIELD_LABEL}</dt>
+              <dd className="m-0">{summary.proofConfidenceLabel}</dd>
+            </div>
+            <div>
+              <dt className="font-semibold">Execution mode</dt>
+              <dd className="m-0">{summary.executionModeLabel}</dd>
+            </div>
+            <div>
+              <dt className="font-semibold">PilotStrict</dt>
+              <dd className="m-0">{summary.pilotStrictLabel}</dd>
+            </div>
+            <div>
+              <dt className="font-semibold">ROI source basis</dt>
+              <dd className="m-0">{summary.roiBasisLabel}</dd>
+            </div>
+            <div>
+              <dt className="font-semibold">Proof disposition</dt>
+              <dd className="m-0">{summary.proofPacketLabel}</dd>
+            </div>
+            <div>
+              <dt className="font-semibold">Governed coverage</dt>
+              <dd className="m-0">{summary.governedCoverageLabel}</dd>
+            </div>
+          </dl>
+
+          {summary.detail ? (
+            <p className={cn("m-0 opacity-90", OPERATOR_TYPOGRAPHY.helper)}>{summary.detail}</p>
+          ) : null}
+        </div>
+      </details>
     </section>
   );
 }

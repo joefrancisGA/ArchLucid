@@ -4,10 +4,12 @@ import {
   countFindingsBySeverity,
   deriveBlockingApprovalCount,
   deriveExecutiveBottomLineContent,
+  derivePrimaryConcernLabel,
   deriveRecommendedWorkspaceActions,
   deriveReviewStatusSummary,
   deriveRunDetailWorkspaceStatus,
   deriveSubmittedArchitectureText,
+  formatDecisionSnapshotFindingsLine,
 } from "@/lib/run-detail-workspace-derive";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { RunSummary } from "@/types/authority";
@@ -139,7 +141,21 @@ describe("run-detail-workspace-derive", () => {
 
     expect(content?.kind).toBe("narrative");
     expect(content?.kind === "narrative" ? content.text : "").toContain("Controls are acceptable");
+    expect(content?.kind === "narrative" ? content.text : "").toContain("still requires an assigned owner");
     expect(content?.kind === "narrative" ? content.text : "").not.toContain("Approved with monitoring");
+  });
+
+  it("formats decision snapshot findings line with blocking and triage segments", () => {
+    expect(formatDecisionSnapshotFindingsLine(3, 1, 2)).toBe("3 open · 1 blocks approval · 1 needs triage");
+    expect(formatDecisionSnapshotFindingsLine(0, 0, 0)).toBe("None open");
+  });
+
+  it("maps topology extraction gaps to coverage language in primary concern", () => {
+    const label = derivePrimaryConcernLabel([
+      finding(1, { title: "No topology resources were found" }),
+    ]);
+
+    expect(label).toBe("Evidence did not surface topology resources");
   });
 
   it("omits redundant bottom-line narrative when only posture would repeat the summary strip", () => {

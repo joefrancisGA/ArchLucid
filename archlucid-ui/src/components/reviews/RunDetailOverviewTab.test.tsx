@@ -15,7 +15,7 @@ const action: RunDetailWorkspaceRecommendedAction = {
 };
 
 describe("RunDetailOverviewTab", () => {
-  it("renders recommended actions and overview link cards", () => {
+  it("renders recommended actions without redundant tab link cards", () => {
     render(
       <RunDetailOverviewTab
         runId="run-abc"
@@ -25,12 +25,8 @@ describe("RunDetailOverviewTab", () => {
         hasSubmittedArchitecture={false}
         userAssertions={null}
         recommendedActions={[action]}
-        blockingCount={0}
-        governanceDecisionLabel="Not started"
-        findingCount={3}
         criticalCount={1}
         highCount={0}
-        hasManifest={false}
         onNavigateTab={vi.fn()}
         proofStatusSlot={null}
       />,
@@ -38,7 +34,8 @@ describe("RunDetailOverviewTab", () => {
 
     expect(screen.getByTestId("run-detail-overview-tab")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Review findings" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Findings" })).toBeInTheDocument();
-    expect(screen.getAllByRole("link", { name: "Open" }).length).toBeGreaterThan(0);
+    expect(screen.queryByRole("heading", { name: "Findings" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Open" })).not.toBeInTheDocument();
+    expect(screen.getByText("1 critical · 0 high")).toBeInTheDocument();
   });
 });

@@ -16,7 +16,8 @@ describe("first-pilot-intake", () => {
 
     expect(brief).toContain("Claims intake modernization");
     expect(brief).toContain("network-topology.pdf");
-    expect(brief).toContain("Architecture evidence");
+    expect(brief).toContain("Attached files:");
+    expect(brief).not.toContain("Attached architecture evidence:");
     expect(brief.length).toBeGreaterThanOrEqual(100);
   });
 

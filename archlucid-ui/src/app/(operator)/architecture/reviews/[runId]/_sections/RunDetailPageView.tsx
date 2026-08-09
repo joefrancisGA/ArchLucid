@@ -42,6 +42,7 @@ import {
   deriveReviewTemplateLabel,
   deriveRunDetailWorkspaceStatus,
   deriveSubmittedArchitectureText,
+  formatDecisionSnapshotFindingsLine,
 } from "@/lib/run-detail-workspace-derive";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import { resolvePartialRunCommitBlockedReason } from "@/lib/run-detail-partial-run-commit-block";
@@ -408,12 +409,8 @@ export function RunDetailPageView(props: {
               hasSubmittedArchitecture={hasSubmittedArchitecture}
               userAssertions={null}
               recommendedActions={recommendedActions}
-              blockingCount={blockingApprovalCount}
-              governanceDecisionLabel={governanceDecisionLabel}
-              findingCount={m.findingCountDisplay ?? 0}
               criticalCount={severityCounts.critical}
               highCount={severityCounts.high}
-              hasManifest={Boolean(m.manifestId)}
               proofStatusSlot={<RunDetailFirstScreenProofStatusClient runId={m.resolvedDetail.run.runId} />}
             />
           ),
@@ -780,10 +777,14 @@ export function RunDetailPageView(props: {
                   />
 
                   <RunDetailWorkspaceSummaryStripDeferred
-                    reviewOutcome={reviewStatusSummary.reviewOutcome}
+                    outcomeHeading={m.manifestId ? "Governance decision" : "Review posture"}
+                    reviewOutcome={m.manifestId ? governanceDecisionLabel : reviewStatusSummary.reviewOutcome}
                     highestUnresolvedSeverity={reviewStatusSummary.highestUnresolvedSeverity}
-                    openFindingsCount={reviewStatusSummary.openFindingsCount}
-                    findingsRequiringActionCount={reviewStatusSummary.findingsRequiringActionCount}
+                    findingsSummaryLine={formatDecisionSnapshotFindingsLine(
+                      reviewStatusSummary.openFindingsCount,
+                      blockingApprovalCount,
+                      reviewStatusSummary.findingsRequiringActionCount,
+                    )}
                     primaryConcern={reviewStatusSummary.primaryConcern}
                     nextAction={reviewStatusSummary.nextAction}
                   />
@@ -864,9 +865,11 @@ export function RunDetailPageView(props: {
         </>
       ) : null}
 
-      <RunDetailFirstWeekRouteGuidanceDeferred
-        variant={Boolean(m.manifestId) ? "review-detail-committed" : "review-detail-in-progress"}
-      />
+      {blockingApprovalCount === 0 ? (
+        <RunDetailFirstWeekRouteGuidanceDeferred
+          variant={Boolean(m.manifestId) ? "review-detail-committed" : "review-detail-in-progress"}
+        />
+      ) : null}
 
       {showArchitectureCreatedHome ? (
         <>
