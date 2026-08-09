@@ -119,7 +119,8 @@ internal static class GoldenCohortLiveAoaiExecutorFactory
             new NoOpAgentExecutionTraceRecorder(),
             TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
             RealAgentExecutorTestHosting.DevelopmentEnvironment,
-            RealAgentExecutorTestHosting.EmptyConfiguration);
+            RealAgentExecutorTestHosting.EmptyConfiguration,
+            new FixedValueOptionsMonitor<AgentExecutionOptions>(new AgentExecutionOptions { Mode = "Real" }));
 
         return (executor, recorder);
     }

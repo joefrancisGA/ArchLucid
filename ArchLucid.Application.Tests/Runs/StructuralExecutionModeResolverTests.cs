@@ -66,7 +66,7 @@ public sealed class StructuralExecutionModeResolverTests
     {
         StructuralExecutionMode? mode = StructuralExecutionModeResolver.AggregateFromFinalTaskOutcomes(
         [
-            new TaskExecutionModeOutcome("task-a", StructuralExecutionMode.Real, cacheServed: true),
+            new TaskExecutionModeOutcome("task-a", StructuralExecutionMode.Real, CacheServed: true),
             new TaskExecutionModeOutcome("task-b", StructuralExecutionMode.Real),
         ]);
 

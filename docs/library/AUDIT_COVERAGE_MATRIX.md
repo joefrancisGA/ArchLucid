@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:367 -->
+<!-- audit-core-const-count:369 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -718,6 +718,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `TenantCatalogMigrationVerificationPassed` | `TenantCatalogMigrationVerificationPassed` | `TenantCatalogMigrationOrchestrator` (`POST /v1/admin/tenants/{tenantId}/catalog-migration/verify` when probe passes) |
 | `TenantCatalogMigrationVerificationFailed` | `TenantCatalogMigrationVerificationFailed` | `TenantCatalogMigrationOrchestrator` (`POST /v1/admin/tenants/{tenantId}/catalog-migration/verify` when probe fails) |
 | `TenantCatalogMigrationCompleted` | `TenantCatalogMigrationCompleted` | `TenantCatalogMigrationOrchestrator` (`POST /v1/admin/tenants/{tenantId}/catalog-migration/complete`) |
+| `TenantCatalogMigrationCatalogAttachAcknowledged` | `TenantCatalogMigrationCatalogAttachAcknowledged` | `TenantCatalogMigrationOrchestrator` (`POST /v1/admin/tenants/{tenantId}/catalog-migration/acknowledge-catalog-attach`) |
 | `PilotScorecardValueMetricsSubmitted` | `PilotScorecardValueMetricsSubmitted` | `PilotsController` |
 
 When adding a Core constant, add a row here and bump `audit-core-const-count`.
@@ -751,6 +752,7 @@ When adding a Core constant, add a row here and bump `audit-core-const-count`.
 | `Run.QualityGateRejected` | `Run.QualityGateRejected` | `BaselineMutationAuditService` / `BaselineMutationAuditArchitectureDurableWriter` (baseline `Architecture.RunQualityGateRejected`) |
 | `Run.RetryRequested` | `Run.RetryRequested` | `ArchitectureRunExecuteOrchestrator` (`ExecuteRunAsync` when load maps to `ArchitectureRunStatus.Failed`; scoped tenant/workspace/project + `RunId`) |
 | `Run.SelectiveExecuteRequested` | `Run.SelectiveExecuteRequested` | `RunsController` (`POST /v1/architecture/run/{runId}/execute/selective`) → `ArchitectureRunExecuteOrchestrator` (`ExecuteSelectiveRunAsync`; scoped tenant/workspace/project + `RunId`; payload `includeDependents`, `taskIds`, `agentTypes`) |
+| `Run.CancelRequested` | `Operation.CancelRequested` | `OperationsController` (`POST /v1/operations/{operationId}/cancel`; durable audit via `AuditEventTypes.Operation.CancelRequested`) |
 
 When adding a `Run` constant, add a row here and bump `audit-core-const-count`.
 

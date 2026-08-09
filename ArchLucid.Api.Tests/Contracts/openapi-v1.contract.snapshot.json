@@ -1702,6 +1702,24 @@
               "string"
             ]
           },
+          "qualityGateDefinitionContentHashSha256": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "qualityGateDefinitionMode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "qualityGateDefinitionVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "qualityRejected": {
             "type": "boolean"
           },
@@ -1716,6 +1734,16 @@
             "type": [
               "null",
               "integer"
+            ]
+          },
+          "recordedQualityGateOutcome": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AgentOutputQualityGateOutcome"
+              }
             ]
           },
           "runId": {
@@ -1866,93 +1894,6 @@
         },
         "type": "object"
       },
-      "AgentOutputEvaluationScore": {
-        "properties": {
-          "agentType": {
-            "$ref": "#/components/schemas/AgentType"
-          },
-          "blobUploadFailed": {
-            "type": [
-              "null",
-              "boolean"
-            ]
-          },
-          "isJsonParseFailure": {
-            "type": "boolean"
-          },
-          "missingKeys": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "qualityWarning": {
-            "type": "boolean"
-          },
-          "qualityGateOutcome": {
-            "anyOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/AgentOutputQualityGateOutcome"
-              }
-            ]
-          },
-          "qualityGateDefinitionContentHashSha256": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "semantic": {
-            "anyOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/AgentOutputSemanticScore"
-              }
-            ]
-          },
-          "structuralCompletenessRatio": {
-            "format": "double",
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
-            "type": [
-              "number",
-              "string"
-            ]
-          },
-          "traceId": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "QualityGateDefinitionSnapshotDto": {
-        "properties": {
-          "contentHashSha256": {
-            "type": "string"
-          },
-          "definitionVersion": {
-            "type": "string"
-          },
-          "deprecatedReason": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "effectiveFromUtc": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "mode": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
       "AgentOutputEvaluationPerspective": {
         "properties": {
           "aggregateQualityGateOutcome": {
@@ -2007,6 +1948,72 @@
             "type": "integer"
           }
         },
+        "required": [
+          "authority"
+        ],
+        "type": "object"
+      },
+      "AgentOutputEvaluationScore": {
+        "properties": {
+          "agentType": {
+            "$ref": "#/components/schemas/AgentType"
+          },
+          "blobUploadFailed": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "isJsonParseFailure": {
+            "type": "boolean"
+          },
+          "missingKeys": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "qualityGateDefinitionContentHashSha256": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "qualityGateOutcome": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AgentOutputQualityGateOutcome"
+              }
+            ]
+          },
+          "qualityWarning": {
+            "type": "boolean"
+          },
+          "semantic": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AgentOutputSemanticScore"
+              }
+            ]
+          },
+          "structuralCompletenessRatio": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "AgentOutputEvaluationSummary": {
@@ -2032,6 +2039,9 @@
             "type": "string"
           }
         },
+        "required": [
+          "advisoryCurrent"
+        ],
         "type": "object"
       },
       "AgentOutputQualityGateOutcome": {
@@ -20758,6 +20768,36 @@
       },
       "QualityDimension": {
         "type": "integer"
+      },
+      "QualityGateDefinitionSnapshotDto": {
+        "properties": {
+          "contentHashSha256": {
+            "type": "string"
+          },
+          "definitionVersion": {
+            "type": "string"
+          },
+          "deprecatedReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "effectiveFromUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "mode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "contentHashSha256",
+          "definitionVersion",
+          "effectiveFromUtc",
+          "mode"
+        ],
+        "type": "object"
       },
       "QuestionSelectionResult": {
         "properties": {

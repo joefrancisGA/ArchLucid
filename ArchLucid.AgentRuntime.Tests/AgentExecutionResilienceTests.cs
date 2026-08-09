@@ -61,7 +61,8 @@ public sealed class AgentExecutionResilienceTests
             new NoOpAgentExecutionTraceRecorder(),
             TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
             RealAgentExecutorTestHosting.DevelopmentEnvironment,
-            RealAgentExecutorTestHosting.EmptyConfiguration);
+            RealAgentExecutorTestHosting.EmptyConfiguration,
+            new FixedValueOptionsMonitor<AgentExecutionOptions>(new AgentExecutionOptions { Mode = "Real" }));
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
@@ -100,7 +101,8 @@ public sealed class AgentExecutionResilienceTests
             new NoOpAgentExecutionTraceRecorder(),
             TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
             RealAgentExecutorTestHosting.DevelopmentEnvironment,
-            RealAgentExecutorTestHosting.EmptyConfiguration);
+            RealAgentExecutorTestHosting.EmptyConfiguration,
+            new FixedValueOptionsMonitor<AgentExecutionOptions>(new AgentExecutionOptions { Mode = "Real" }));
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
@@ -144,7 +146,8 @@ public sealed class AgentExecutionResilienceTests
             traceRecorder,
             TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
             RealAgentExecutorTestHosting.DevelopmentEnvironment,
-            RealAgentExecutorTestHosting.EmptyConfiguration);
+            RealAgentExecutorTestHosting.EmptyConfiguration,
+            new FixedValueOptionsMonitor<AgentExecutionOptions>(new AgentExecutionOptions { Mode = "Real" }));
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
@@ -197,7 +200,8 @@ public sealed class AgentExecutionResilienceTests
             new NoOpAgentExecutionTraceRecorder(),
             TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
             RealAgentExecutorTestHosting.DevelopmentEnvironment,
-            RealAgentExecutorTestHosting.EmptyConfiguration);
+            RealAgentExecutorTestHosting.EmptyConfiguration,
+            new FixedValueOptionsMonitor<AgentExecutionOptions>(new AgentExecutionOptions { Mode = "Real" }));
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
@@ -243,7 +247,8 @@ public sealed class AgentExecutionResilienceTests
             new NoOpAgentExecutionTraceRecorder(),
             TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
             RealAgentExecutorTestHosting.DevelopmentEnvironment,
-            RealAgentExecutorTestHosting.EmptyConfiguration);
+            RealAgentExecutorTestHosting.EmptyConfiguration,
+            new FixedValueOptionsMonitor<AgentExecutionOptions>(new AgentExecutionOptions { Mode = "Real" }));
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
