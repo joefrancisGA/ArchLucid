@@ -14,6 +14,11 @@ HELP_REGISTRY = UI_LIB_DIR / "product-documentation-registry.ts"
 # Default Hit% for catalog paths newly inserted by sync-archlucid-ui-route-traffic-workbook.py.
 DEFAULT_NEW_HIT_PCT = "0.02%"
 
+# Owner overrides pinning a specific 3-letter workbook ID to a route path. Empty by default: the sync
+# falls back to suggest_row_id(). Add an entry only to keep an ID stable across a path rename, and keep
+# values unique 3-letter uppercase IDs (guarded by tests/test_archlucid_ui_route_catalog.py).
+PREFERRED_NEW_ROW_IDS: dict[str, str] = {}
+
 # Legacy workbook paths → canonical catalog paths (scores and Hit% merge on collision).
 WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/alerts": "/governance/alerts",

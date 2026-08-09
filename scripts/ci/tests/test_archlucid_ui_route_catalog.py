@@ -10,6 +10,7 @@ if str(_REPO_ROOT / "scripts" / "ci") not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT / "scripts" / "ci"))
 
 from archlucid_ui_route_catalog import (  # noqa: E402
+    PREFERRED_NEW_ROW_IDS,
     build_catalog,
     discover_app_router_paths,
     discover_tab_paths,
@@ -203,3 +204,24 @@ def test_suggest_row_id_is_unique_and_three_chars() -> None:
     row_id = suggest_row_id("/architectures/new", used)
     assert row_id not in used
     assert len(row_id) <= 3
+
+
+def test_preferred_new_row_ids_are_well_formed_and_unique() -> None:
+    """Guards the ID override map the workbook sync imports (empty is valid)."""
+    assert isinstance(PREFERRED_NEW_ROW_IDS, dict)
+
+    for path, row_id in PREFERRED_NEW_ROW_IDS.items():
+        assert path.startswith("/"), path
+        assert 1 <= len(row_id) <= 3, row_id
+        assert row_id.isupper(), row_id
+
+    row_ids = list(PREFERRED_NEW_ROW_IDS.values())
+    assert len(row_ids) == len(set(row_ids))
+
+
+def test_preferred_new_row_ids_only_pins_catalog_paths() -> None:
+    """A pinned ID for a path the catalog no longer serves would never be applied."""
+    catalog_paths = set(build_catalog())
+
+    for path in PREFERRED_NEW_ROW_IDS:
+        assert path in catalog_paths, path
