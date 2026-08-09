@@ -94,6 +94,19 @@ describe("FirstPilotIntakeWizard", () => {
       "Attach evidence or add architecture context to start.",
     );
     expect(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA })).toBeDisabled();
+    expect(showError).not.toHaveBeenCalled();
+  });
+
+  it("surfaces intake readiness inline without toast (TB-2113)", () => {
+    render(<FirstPilotIntakeWizard />);
+
+    fireEvent.change(screen.getByTestId("first-pilot-title"), {
+      target: { value: "Retail API review" },
+    });
+
+    expect(screen.getByTestId("first-pilot-readiness")).toBeInTheDocument();
+    expect(screen.queryByTestId("first-pilot-validation-error")).not.toBeInTheDocument();
+    expect(showError).not.toHaveBeenCalled();
   });
 
   it("does not accept a bare title as a substitute for evidence or context", () => {

@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const createRun = vi.fn();
 const push = vi.fn();
@@ -8,7 +8,7 @@ vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
     ...actual,
-  useRouter: () => ({ push }),
+  useRouter: () => ({ push, replace: vi.fn() }),
   useSearchParams: () => new URLSearchParams(),
   redirect: vi.fn(),
     permanentRedirect: vi.fn(),
@@ -58,6 +58,7 @@ vi.mock("@/lib/usability/quick-review-wizard-preferences", () => ({
 }));
 
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
+import { showError } from "@/lib/toast";
 
 import {
   CONTOSO_RETAIL_SAMPLE_BRIEF,
@@ -67,6 +68,10 @@ import { ReviewsNewPathSwitcher } from "./ReviewsNewPathSwitcher";
 import { REVIEWS_NEW_PATH_HINTS } from "@/lib/reviews-new-path-copy";
 
 describe("QuickReviewWizard", () => {
+  beforeEach(() => {
+    vi.mocked(showError).mockReset();
+  });
+
   it("completes three steps, sample brief meets minimum, and submits createArchitectureRun then navigates", async () => {
     createRun.mockResolvedValue({ run: { runId: "quick-review-run-1" } });
     push.mockReset();
@@ -110,8 +115,38 @@ describe("QuickReviewWizard", () => {
     fireEvent.change(screen.getByLabelText("Architecture brief"), {
       target: { value: "x".repeat(50) },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+
+    expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
     expect(screen.getByTestId("quick-review-progress")).toHaveTextContent(/step 1 of 3/i);
+    expect(screen.queryByTestId("quick-review-validation-error")).not.toBeInTheDocument();
+    expect(showError).not.toHaveBeenCalled();
+  });
+
+  it("surfaces create failure inline without toast (TB-2113)", async () => {
+    createRun.mockRejectedValue(new Error("Network down"));
+
+    render(<QuickReviewWizard />);
+
+    fireEvent.click(screen.getByTestId("quick-review-sample-brief"));
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    await waitFor(() => {
+      expect(screen.getByTestId("quick-review-progress")).toHaveTextContent(/step 2 of 3/i);
+    });
+
+    fireEvent.change(screen.getByLabelText(/Review title/i), { target: { value: "Contoso migration slice" } });
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    await waitFor(() => {
+      expect(screen.getByTestId("quick-review-progress")).toHaveTextContent(/step 3 of 3/i);
+    });
+
+    fireEvent.click(screen.getByTestId("quick-review-start"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("quick-review-submit-error")).toHaveTextContent(
+        /could not start the architecture review/i,
+      );
+    });
+    expect(showError).not.toHaveBeenCalled();
   });
 });
 
