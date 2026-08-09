@@ -165,13 +165,13 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/help/users-and-roles",
     topic: { slug: "users-and-roles", label: "Users and roles" },
   },
-  { prefix: ARCHITECTURES_LIST_PATH, topic: { slug: "getting-started", label: "Getting started" } },
+  { prefix: ARCHITECTURES_LIST_PATH, topic: { slug: "getting-started", label: "Architectures" } },
   { prefix: "/architecture/architectures/new", topic: { slug: "first-architecture-review", label: "Create architecture" } },
   {
     prefix: "/architecture/architecture-intelligence",
     topic: { slug: "evidence-trail", label: "Architecture intelligence" },
   },
-  { prefix: "/architectures", topic: { slug: "getting-started", label: "Getting started" } },
+  { prefix: "/architectures", topic: { slug: "getting-started", label: "Architectures" } },
   { prefix: "/architecture/reviews/new", topic: { slug: "evidence-intake", label: START_REVIEW_LABEL } },
   { prefix: "/architecture/reviews", topic: { slug: "review-packages", label: "Reviews" } },
   {
