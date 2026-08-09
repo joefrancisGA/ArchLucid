@@ -4,17 +4,31 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { getPilotScorecard } from "@/lib/api";
+import {
+  areArchitectureScorecardAssumptionsComplete,
+  architectureScorecardAssumptionFieldErrors,
+  buildArchitectureScorecardRoiPreview,
+  parseArchitectureScorecardRoiAssumptions,
+  type ArchitectureScorecardAssumptionFieldErrors,
+  type ArchitectureScorecardRoiPreview,
+} from "@/lib/architecture-scorecard-roi-preview";
 import { formatUsd } from "@/lib/roi-assumptions";
 import { buildExecutiveServerSavingsSummary, resolveRunSavingsUsd } from "@/lib/roi-resolution-priority";
+import { showError, showSuccess } from "@/lib/toast";
 import type { PilotScorecardJson } from "@/types/pilot-scorecard";
 
 import type { PilotScorecardPageServerLoad } from "./load-pilot-scorecard-page-data";
 
 export type UsePilotScorecardPageModel = {
+  assumptionsComplete: boolean;
+  assumptionsDirty: boolean;
   canExecute: boolean;
+  canSaveAssumptions: boolean;
   data: PilotScorecardJson | null;
   error: string | null;
+  fieldErrors: ArchitectureScorecardAssumptionFieldErrors;
   hours: string;
+  livePreview: ArchitectureScorecardRoiPreview | null;
   onSaveBaselines: () => Promise<void>;
   rate: string;
   reviews: string;
@@ -37,6 +51,17 @@ function baselineFieldsFromData(data: PilotScorecardJson | null): { hours: strin
     reviews: data.baselines.baselineReviewsPerQuarter?.toString() ?? "",
     rate: data.baselines.baselineArchitectHourlyCost?.toString() ?? "",
   };
+}
+
+function fieldsMatchBaselines(
+  hours: string,
+  reviews: string,
+  rate: string,
+  data: PilotScorecardJson | null,
+): boolean {
+  const saved = baselineFieldsFromData(data);
+
+  return hours.trim() === saved.hours.trim() && reviews.trim() === saved.reviews.trim() && rate.trim() === saved.rate.trim();
 }
 
 export function usePilotScorecardPage(loaded: PilotScorecardPageServerLoad): UsePilotScorecardPageModel {
@@ -101,8 +126,23 @@ export function usePilotScorecardPage(loaded: PilotScorecardPageServerLoad): Use
     };
   }, [data]);
 
+  const assumptionsComplete = areArchitectureScorecardAssumptionsComplete(hours, reviews, rate);
+  const assumptionsDirty = !fieldsMatchBaselines(hours, reviews, rate, data);
+  const fieldErrors = architectureScorecardAssumptionFieldErrors(hours, reviews, rate);
+  const canSaveAssumptions = canExecute && assumptionsComplete && assumptionsDirty && !saving;
+
+  const livePreview = useMemo(() => {
+    const assumptions = parseArchitectureScorecardRoiAssumptions(hours, reviews, rate);
+
+    if (assumptions === null) {
+      return null;
+    }
+
+    return buildArchitectureScorecardRoiPreview(assumptions);
+  }, [hours, rate, reviews]);
+
   const onSaveBaselines = useCallback(async () => {
-    if (!canExecute) {
+    if (!canSaveAssumptions) {
       return;
     }
 
@@ -126,12 +166,15 @@ export function usePilotScorecardPage(loaded: PilotScorecardPageServerLoad): Use
       }
 
       await load();
+      showSuccess("ROI assumptions saved.");
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Save failed.");
+      const message = e instanceof Error ? e.message : "Save failed.";
+      setError(message);
+      showError(message);
     } finally {
       setSaving(false);
     }
-  }, [canExecute, hours, load, rate, reviews]);
+  }, [canSaveAssumptions, hours, load, rate, reviews]);
 
   const resolvedQuarterlySavingsLabel = useMemo(() => {
     if (data?.roiEstimate === null || data?.roiEstimate === undefined) {
@@ -175,10 +218,15 @@ export function usePilotScorecardPage(loaded: PilotScorecardPageServerLoad): Use
   }, [data?.roiEstimate]);
 
   return {
+    assumptionsComplete,
+    assumptionsDirty,
     canExecute,
+    canSaveAssumptions,
     data,
     error,
+    fieldErrors,
     hours,
+    livePreview,
     onSaveBaselines,
     rate,
     reviews,

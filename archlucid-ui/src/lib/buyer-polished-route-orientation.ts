@@ -1,10 +1,4 @@
 import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
-import {
-  SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH,
-  SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
-  SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
-  SPONSOR_REPORT_ROI_SUMMARY_PATH,
-} from "@/lib/sponsor-report-navigation";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import {
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
@@ -40,21 +34,12 @@ import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
+import { isValueReportOutcomesSurface } from "@/lib/value-report-outcomes-nav-tabs";
 
 export type BuyerPolishedRouteOrientationOptions = {
   /** When `/insights/search-review-evidence` or `/governance` carries `runId`, header copy can reflect a scoped review. */
   readonly searchRunId?: string;
 };
-
-function pathMatchesValueReportSponsorHeroRoutes(pathname: string): boolean {
-  return (
-    pathname === SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH ||
-    pathname === SPONSOR_REPORT_PILOT_OUTCOMES_PATH ||
-    pathname.startsWith(`${SPONSOR_REPORT_PILOT_OUTCOMES_PATH}/`) ||
-    pathname === SPONSOR_REPORT_ROI_SUMMARY_PATH ||
-    pathname.startsWith(`${SPONSOR_REPORT_ROI_SUMMARY_PATH}/`)
-  );
-}
 
 /**
  * Stable header strip orientation for buyer-polished shell — replaces abstract layer questions where path is known.
@@ -278,12 +263,8 @@ export function buyerPolishedRouteOrientation(
     };
   }
 
-  if (pathMatchesValueReportSponsorHeroRoutes(path)) {
-    // Value-report pages carry their own page hero (TB-1437) — not strip + LayerHeader + subtitle twins.
-    return null;
-  }
-
-  if (path.startsWith("/insights/architecture-scorecard") || path.startsWith(SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH)) {
+  // Shared Insights strip for the Outcomes tab hub (scorecard, ROI summary, pilot outcomes, executive summary).
+  if (isValueReportOutcomesSurface(path)) {
     return {
       label: "Insights",
       line: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardLayerContextLine,

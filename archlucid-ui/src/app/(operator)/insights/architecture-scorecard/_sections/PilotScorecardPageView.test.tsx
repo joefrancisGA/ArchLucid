@@ -49,10 +49,15 @@ const scorecardData: PilotScorecardJson = {
 
 function buildModel(overrides: Partial<UsePilotScorecardPageModel> = {}): UsePilotScorecardPageModel {
   return {
+    assumptionsComplete: false,
+    assumptionsDirty: false,
     canExecute: true,
+    canSaveAssumptions: false,
     data: scorecardData,
     error: null,
+    fieldErrors: { hours: null, reviews: null, rate: null },
     hours: "",
+    livePreview: null,
     onSaveBaselines: vi.fn(async () => undefined),
     rate: "",
     reviews: "",
@@ -96,19 +101,55 @@ describe("PilotScorecardPageView", () => {
     expect(screen.queryByText(/SOURCE:/i)).not.toBeInTheDocument();
   });
 
-  it("renders savings hero, primary KPIs, and ROI calculator layout", () => {
+  it("renders savings hero CTA, linked primary KPIs, and ROI calculator layout", () => {
     render(<PilotScorecardPageView model={buildModel()} />);
 
     expect(screen.getByTestId("review-scorecard-summary-row")).toBeInTheDocument();
     expect(screen.getByTestId("scorecard-summary-estimated-review-time-savings")).toBeInTheDocument();
-    expect(screen.getByTestId("scorecard-summary-reviews-finalized")).toBeInTheDocument();
-    expect(screen.getByTestId("scorecard-summary-governance-approvals")).toBeInTheDocument();
+    expect(screen.getByTestId("scorecard-set-roi-assumptions-cta")).toHaveAttribute("href", "#roi-assumptions");
+    expect(screen.getByTestId("scorecard-summary-reviews-finalized")).toHaveAttribute("href", "/architecture/reviews");
+    expect(screen.getByTestId("scorecard-summary-governance-approvals")).toHaveAttribute(
+      "href",
+      "/governance/approval-queue",
+    );
     expect(screen.queryByTestId("scorecard-summary-findings-affirmed")).not.toBeInTheDocument();
     expect(screen.getByText("Operational metrics")).toBeInTheDocument();
+    expect(screen.getByTestId("scorecard-metric-committed-reviews")).toBeInTheDocument();
+    expect(screen.queryByTestId("scorecard-metric-finalized-packages")).not.toBeInTheDocument();
+    expect(screen.getByTestId("review-scorecard-scope-cue")).toHaveTextContent(/Workspace all-time/i);
+    expect(screen.getByRole("link", { name: "ROI summary" })).toHaveAttribute("href", "/insights/roi-summary");
     expect(screen.getByTestId("review-scorecard-roi-assumptions")).toHaveClass("grid");
     expect(screen.getByText("ROI assumptions")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Save ROI assumptions" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Save ROI assumptions" })).toBeDisabled();
     expect(screen.getByTestId("review-scorecard-roi-estimate-empty")).toBeInTheDocument();
+  });
+
+  it("shows live preview when assumptions are complete", () => {
+    render(
+      <PilotScorecardPageView
+        model={buildModel({
+          assumptionsComplete: true,
+          assumptionsDirty: true,
+          canSaveAssumptions: true,
+          hours: "40",
+          reviews: "12",
+          rate: "150",
+          livePreview: {
+            annualSavingsUsd: 144000,
+            quarterlySavingsUsd: 36000,
+            statusQuoAnnualUsd: 288000,
+            annualSavingsLabel: "$144,000",
+            quarterlySavingsLabel: "$36,000",
+            statusQuoCostLabel: "$288,000",
+          },
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("review-scorecard-roi-preview-badge")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Save ROI assumptions" })).toBeEnabled();
+    expect(screen.getAllByText("$144,000").length).toBeGreaterThanOrEqual(2);
+    expect(screen.queryByTestId("scorecard-set-roi-assumptions-cta")).not.toBeInTheDocument();
   });
 
   it("shows an executive-ready empty state when no reviews are committed", () => {

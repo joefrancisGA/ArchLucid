@@ -1,6 +1,12 @@
 import type { PilotScorecardJson } from "@/types/pilot-scorecard";
 
+import { REVIEWS_LIST_PATH, REVIEWS_NEW_PATH } from "@/lib/architecture-routes";
 import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
+import {
+  GOVERNANCE_APPROVAL_QUEUE_PATH,
+  GOVERNANCE_AUDIT_PATH,
+} from "@/lib/governance-route-paths";
+import { GOVERNANCE_FINDINGS_TRAFFIC_PATH } from "@/lib/ui-route-traffic-governance-findings";
 
 export const REVIEW_SCORECARD_PAGE_TITLE = BUYER_TERMINOLOGY.reviewScorecard;
 
@@ -8,6 +14,13 @@ export const REVIEW_SCORECARD_PAGE_SUBTITLE =
   "See review throughput, governance effectiveness, and estimated ROI at a glance.";
 
 export const REVIEW_SCORECARD_EMPTY_VALUE = "—";
+
+export const REVIEW_SCORECARD_FINALIZED_HREF = REVIEWS_LIST_PATH;
+export const REVIEW_SCORECARD_GOVERNANCE_HREF = GOVERNANCE_APPROVAL_QUEUE_PATH;
+export const REVIEW_SCORECARD_FINDINGS_HREF = GOVERNANCE_FINDINGS_TRAFFIC_PATH;
+export const REVIEW_SCORECARD_AUDIT_HREF = GOVERNANCE_AUDIT_PATH;
+export const REVIEW_SCORECARD_START_REVIEW_HREF = REVIEWS_NEW_PATH;
+export const REVIEW_SCORECARD_ROI_ASSUMPTIONS_HREF = "#roi-assumptions";
 
 export type ReviewScorecardSummaryRow = {
   readonly finalizedPackages: number;
@@ -24,6 +37,7 @@ export type ReviewScorecardOperationalMetric = {
   readonly value: string;
   readonly detail: string;
   readonly empty: boolean;
+  readonly href: string;
   readonly methodologyKey?: string;
 };
 
@@ -37,7 +51,7 @@ export function buildReviewScorecardSummaryRow(
 ): ReviewScorecardSummaryRow {
   let estimatedReviewTimeSavingsLabel = REVIEW_SCORECARD_EMPTY_VALUE;
   let estimatedReviewTimeSavingsDetail =
-    "Save ROI assumptions below to estimate annual review-time savings for sponsor discussions.";
+    "Set ROI assumptions below to preview annual review-time savings for sponsor discussions.";
   let estimatedReviewTimeSavingsReady = false;
 
   if (annualSavingsLabel !== null) {
@@ -47,7 +61,7 @@ export function buildReviewScorecardSummaryRow(
     estimatedReviewTimeSavingsReady = true;
   } else if (data.baselines !== null) {
     estimatedReviewTimeSavingsDetail =
-      "Complete all three ROI assumptions and save to calculate estimated savings.";
+      "Complete all three ROI assumptions below to preview and save estimated savings.";
   }
 
   return {
@@ -86,13 +100,10 @@ function zeroAwareCountMetric(
 }
 
 export function buildReviewScorecardOperationalMetrics(data: PilotScorecardJson): ReviewScorecardOperationalMetric[] {
+  // Primary row already covers finalized packages + governance approvals — keep ops metrics complementary.
   const committed = zeroAwareCountMetric(
     data.totalRunsCommitted,
     "Commit a review to begin tracking throughput.",
-  );
-  const finalized = zeroAwareCountMetric(
-    data.totalManifestsCreated,
-    "Finalize a package to begin tracking completed reviews.",
   );
   const affirmed = zeroAwareCountMetric(
     data.totalFindingsResolved,
@@ -103,6 +114,10 @@ export function buildReviewScorecardOperationalMetrics(data: PilotScorecardJson)
   const cycleTimeDetail = cycleTimeEmpty
     ? "Average review cycle time appears after a finalized package."
     : "Average elapsed time from commit to finalized package.";
+  const audit = zeroAwareCountMetric(
+    data.totalAuditEventsGenerated,
+    "Audit activity appears as architects work through reviews.",
+  );
 
   return [
     {
@@ -111,15 +126,8 @@ export function buildReviewScorecardOperationalMetrics(data: PilotScorecardJson)
       value: committed.value,
       detail: committed.detail,
       empty: committed.empty,
+      href: committed.empty ? REVIEW_SCORECARD_START_REVIEW_HREF : REVIEW_SCORECARD_FINALIZED_HREF,
       methodologyKey: "totalRunsCommitted",
-    },
-    {
-      key: "totalManifestsCreated",
-      title: "Finalized packages",
-      value: finalized.value,
-      detail: finalized.detail,
-      empty: finalized.empty,
-      methodologyKey: "totalManifestsCreated",
     },
     {
       key: "totalFindingsResolved",
@@ -127,6 +135,7 @@ export function buildReviewScorecardOperationalMetrics(data: PilotScorecardJson)
       value: affirmed.value,
       detail: affirmed.detail,
       empty: affirmed.empty,
+      href: REVIEW_SCORECARD_FINDINGS_HREF,
       methodologyKey: "totalFindingsResolved",
     },
     {
@@ -135,27 +144,33 @@ export function buildReviewScorecardOperationalMetrics(data: PilotScorecardJson)
       value: cycleTimeValue,
       detail: cycleTimeDetail,
       empty: cycleTimeEmpty,
+      href: cycleTimeEmpty ? REVIEW_SCORECARD_START_REVIEW_HREF : REVIEW_SCORECARD_FINALIZED_HREF,
       methodologyKey: "averageTimeToManifestMinutes",
-    },
-    {
-      key: "totalGovernanceApprovalsCompleted",
-      title: "Governance approvals completed",
-      ...zeroAwareCountMetric(
-        data.totalGovernanceApprovalsCompleted,
-        "Complete your first approval to begin tracking governance metrics.",
-      ),
-      methodologyKey: "totalGovernanceApprovalsCompleted",
     },
     {
       key: "totalAuditEventsGenerated",
       title: "Audit events recorded",
-      ...zeroAwareCountMetric(
-        data.totalAuditEventsGenerated,
-        "Audit activity appears as architects work through reviews.",
-      ),
+      value: audit.value,
+      detail: audit.detail,
+      empty: audit.empty,
+      href: REVIEW_SCORECARD_AUDIT_HREF,
       methodologyKey: "totalAuditEventsGenerated",
     },
   ];
+}
+
+export function buildReviewScorecardScopeCue(data: PilotScorecardJson): string {
+  if (data.firstCommitUtc !== null && data.firstCommitUtc !== undefined && data.firstCommitUtc.length > 0) {
+    const days = data.daysSinceFirstCommit;
+
+    if (typeof days === "number" && Number.isFinite(days) && days >= 0) {
+      return `Workspace all-time · ${days} day${days === 1 ? "" : "s"} since first commit`;
+    }
+
+    return "Workspace all-time · since first commit";
+  }
+
+  return "Workspace all-time · metrics appear after the first commit";
 }
 
 export function buildReviewScorecardMethodologyLines(

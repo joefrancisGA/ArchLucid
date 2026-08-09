@@ -228,6 +228,24 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/governance/alert-rules", topic: { slug: "alerts", label: "How alerts work" } },
   { prefix: "/governance/policy-packs", topic: { slug: "policy-packs", label: "Policy packs" } },
   {
+    prefix: "/insights/roi-summary",
+    topic: { slug: "pilot-roi-model", label: "View ROI methodology" },
+  },
+  {
+    prefix: "/insights/pilot-outcomes",
+    topic: { slug: "executive-summary", label: "Pilot outcomes" },
+  },
+  {
+    // Trigger names the page; Learn more still opens ROI methodology for assumption drill-down.
+    prefix: "/insights/architecture-scorecard",
+    topic: { slug: "pilot-roi-model", label: OPERATOR_NAV_LINK_LABELS.scorecard },
+  },
+  {
+    prefix: "/insights/executive-summary",
+    topic: { slug: "executive-summary", label: "Executive summary" },
+  },
+  // Legacy sponsor-report bookmarks canonicalize to /insights/* above; keep prefixes for direct lookups.
+  {
     prefix: "/sponsor-report/roi-summary",
     topic: { slug: "pilot-roi-model", label: "View ROI methodology" },
   },
@@ -235,11 +253,6 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/sponsor-report/pilot-outcomes",
     topic: { slug: "executive-summary", label: "Pilot outcomes" },
   },
-  {
-    prefix: "/insights/architecture-scorecard",
-    topic: { slug: "pilot-roi-model", label: "View ROI methodology" },
-  },
-  { prefix: "/sponsor-report", topic: { slug: "executive-summary", label: "Executive summary" } },
   { prefix: "/sponsor-report", topic: { slug: "executive-summary", label: "Executive summary" } },
   { prefix: "/architecture/digests", topic: { slug: "digests", label: "Architecture digests" } },
   { prefix: "/digests", topic: { slug: "digests", label: "Architecture digests" } },

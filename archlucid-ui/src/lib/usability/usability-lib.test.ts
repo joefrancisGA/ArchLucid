@@ -52,6 +52,8 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/insights/roi-summary")?.slug).toBe("pilot-roi-model");
     expect(pageHelpTopicForPathname("/insights/roi-summary")?.label).toBe("View ROI methodology");
     expect(pageHelpTopicForPathname("/insights/pilot-outcomes")?.slug).toBe("executive-summary");
+    expect(pageHelpTopicForPathname("/insights/architecture-scorecard")?.slug).toBe("pilot-roi-model");
+    expect(pageHelpTopicForPathname("/insights/architecture-scorecard")?.label).toBe("Architecture scorecard");
   });
 
   it("searchHelpTopics finds pilot guide", () => {

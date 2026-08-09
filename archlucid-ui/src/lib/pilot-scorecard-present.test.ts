@@ -39,10 +39,10 @@ describe("pilot-scorecard-present", () => {
     const summary = buildReviewScorecardSummaryRow(baseScorecard, null);
 
     expect(summary.estimatedReviewTimeSavingsReady).toBe(false);
-    expect(summary.estimatedReviewTimeSavingsDetail).toContain("Save ROI assumptions");
+    expect(summary.estimatedReviewTimeSavingsDetail).toContain("Set ROI assumptions");
   });
 
-  it("uses executive-friendly operational metric labels and empty-state dashes", () => {
+  it("uses complementary operational metrics with deep links and empty-state dashes", () => {
     const metrics = buildReviewScorecardOperationalMetrics({
       ...baseScorecard,
       totalRunsCommitted: 0,
@@ -51,15 +51,14 @@ describe("pilot-scorecard-present", () => {
 
     expect(metrics.map((metric) => metric.title)).toEqual([
       "Committed reviews",
-      "Finalized packages",
       "Affirmed findings",
       "Average review cycle time",
-      "Governance approvals completed",
       "Audit events recorded",
     ]);
     expect(metrics[0]?.value).toBe("—");
     expect(metrics[0]?.empty).toBe(true);
     expect(metrics[0]?.detail).toContain("Commit a review");
-    expect(metrics[1]?.detail).toContain("Finalize a package");
+    expect(metrics[0]?.href).toBe("/architecture/reviews/new");
+    expect(metrics[1]?.href).toBe("/governance/findings");
   });
 });

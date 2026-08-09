@@ -1,5 +1,4 @@
 import { SEARCH_PAGE_SUBTITLE } from "@/app/(operator)/insights/search-review-evidence/_sections/search-page-copy";
-import { BUYER_VALUE_REPORT_PAGE_SUBTITLE } from "@/lib/buyer-polish-copy";
 import { ADVISORY_SCANS_PAGE_LEAD } from "@/lib/advisory-copy";
 import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
 import { AUDIT_TRAIL_PAGE_SUBTITLE } from "@/lib/audit-trail-page-copy";
@@ -12,18 +11,13 @@ import {
 import { GOVERNANCE_SETUP_PAGE_SUBTITLE } from "@/lib/governance-setup-route";
 import { GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance-overview-copy";
 import { RECURRENCE_SCHEDULES_PAGE_SUBTITLE } from "@/lib/recurrence-schedules-copy";
-import {
-  PILOT_OUTCOMES_PAGE_SUBTITLE,
-  SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
-  SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
-  SPONSOR_REPORT_ROI_SUMMARY_PATH,
-} from "@/lib/sponsor-report-navigation";
 
 import type { BuyerPolishedRouteOrientationOptions } from "./buyer-polished-route-orientation";
 
 /**
  * Routes whose OperatorPageHeader (or page hero) already owns the intro copy.
  * Buyer-polished shell orientation must stay `null` here — never repeat these leads in LayerContextStrip.
+ * Outcomes tab hub routes share a common Insights strip (not listed here).
  */
 export type BuyerPolishedRoutePageLeadInventoryEntry = {
   readonly route: string;
@@ -50,7 +44,4 @@ export const BUYER_POLISHED_ROUTE_PAGE_LEAD_INVENTORY: readonly BuyerPolishedRou
   { route: "/governance/setup", operatorPageLead: GOVERNANCE_OVERVIEW_PAGE_LEAD },
   { route: "/governance/setup/", operatorPageLead: GOVERNANCE_SETUP_PAGE_SUBTITLE },
   { route: "/governance/first-30-days", operatorPageLead: GOVERNANCE_SETUP_PAGE_SUBTITLE },
-  { route: SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH, operatorPageLead: BUYER_VALUE_REPORT_PAGE_SUBTITLE },
-  { route: SPONSOR_REPORT_PILOT_OUTCOMES_PATH, operatorPageLead: PILOT_OUTCOMES_PAGE_SUBTITLE },
-  { route: SPONSOR_REPORT_ROI_SUMMARY_PATH, operatorPageLead: BUYER_VALUE_REPORT_PAGE_SUBTITLE },
 ];
