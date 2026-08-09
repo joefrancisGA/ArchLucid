@@ -35,7 +35,8 @@ public sealed class TrialSeatAccountantTests
 
         await twice.Should().NotThrowAsync();
         tenants.Verify(t => t.TryClaimTrialSeatAsync(tenantId, "user-1", It.IsAny<CancellationToken>()), Times.Exactly(2));
-        tenants.Verify(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()), Times.Exactly(2));
+        // GetById is request-cached via TenantGetByIdRequestCache; claim still runs twice.
+        tenants.Verify(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [SkippableFact]

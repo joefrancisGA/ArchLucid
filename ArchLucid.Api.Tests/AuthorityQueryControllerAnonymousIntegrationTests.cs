@@ -18,7 +18,7 @@ public sealed class AuthorityQueryControllerAnonymousIntegrationTests
         using HttpClient client = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
-        HttpResponseMessage response = await client.GetAsync("/v1/authority/projects/default/runs?take=5");
+        HttpResponseMessage response = await client.GetAsync("/v1/authority/projects/default/reviews?take=5");
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }

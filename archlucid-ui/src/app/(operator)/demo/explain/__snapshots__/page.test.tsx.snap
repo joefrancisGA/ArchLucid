@@ -164,7 +164,7 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
             class="text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] font-medium"
             href="/security-trust"
           >
-            Security & trust
+            Assurance status
           </a>
         </li>
       </ul>
@@ -181,7 +181,7 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
       <p
         class="m-0 mt-2 text-[13px] font-normal leading-5 text-al-text-primary"
       >
-        This page shows an example provenance graph and citations-bound explanation for a seeded demo review — it is not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open live Reviews, Provenance, or Security & trust when you need workspace packages or assurance claims.
+        This page shows an example provenance graph and citations-bound explanation for a seeded demo review — it is not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open live Reviews, Provenance, or Assurance status when you need workspace packages or assurance claims.
       </p>
     </aside>
   </div>

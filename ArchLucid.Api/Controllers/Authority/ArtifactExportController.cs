@@ -85,6 +85,7 @@ public sealed class ArtifactExportController(
 
     /// <summary>Product route: artifact descriptors for the run's golden manifest.</summary>
     [HttpGet("/v{version:apiVersion}/architecture/reviews/{runId:guid}/artifacts")]
+    [HttpGet("/v{version:apiVersion}/architecture/runs/{runId:guid}/artifacts")]
     [ProducesResponseType(typeof(IReadOnlyList<ArtifactDescriptorResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -107,6 +108,7 @@ public sealed class ArtifactExportController(
 
     /// <summary>Product route: bundle ZIP for the run's golden manifest.</summary>
     [HttpGet("/v{version:apiVersion}/architecture/reviews/{runId:guid}/artifacts/bundle")]
+    [HttpGet("/v{version:apiVersion}/architecture/runs/{runId:guid}/artifacts/bundle")]
     [Produces("application/zip")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
@@ -130,6 +132,7 @@ public sealed class ArtifactExportController(
 
     /// <summary>Product route: download one artifact file for the run's golden manifest.</summary>
     [HttpGet("/v{version:apiVersion}/architecture/reviews/{runId:guid}/artifacts/{artifactId:guid}")]
+    [HttpGet("/v{version:apiVersion}/architecture/runs/{runId:guid}/artifacts/{artifactId:guid}")]
     [Produces("application/octet-stream")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
@@ -301,6 +304,7 @@ public sealed class ArtifactExportController(
     ///     manifest bundle list.
     /// </summary>
     [HttpGet("reviews/{runId:guid}/export")]
+    [HttpGet("runs/{runId:guid}/export")]
     [Produces("application/zip")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
@@ -355,6 +359,7 @@ public sealed class ArtifactExportController(
     ///     Returns <c>200 OK</c> with status <c>Match</c>, <c>Mismatch</c>, or <c>NotAttested</c> (read-only; no repair).
     /// </summary>
     [HttpGet("reviews/{runId:guid}/export/verify")]
+    [HttpGet("runs/{runId:guid}/export/verify")]
     [ProducesResponseType(typeof(RunExportLineageVerificationResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -374,6 +379,7 @@ public sealed class ArtifactExportController(
     ///     Advisory Terraform ZIP for a run (placeholder README + stub file; CLI aztfexport wrapping is documented in README).
     /// </summary>
     [HttpGet("reviews/{runId:guid}/terraform-advisory-export")]
+    [HttpGet("runs/{runId:guid}/terraform-advisory-export")]
     [Produces("application/zip")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
@@ -406,6 +412,7 @@ public sealed class ArtifactExportController(
     /// </summary>
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost("reviews/{runId:guid}/export/push")]
+    [HttpPost("runs/{runId:guid}/export/push")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -466,6 +473,7 @@ public sealed class ArtifactExportController(
     /// </summary>
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost("reviews/{runId:guid}/terraform-pr")]
+    [HttpPost("runs/{runId:guid}/terraform-pr")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(TerraformPrCreatedResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]

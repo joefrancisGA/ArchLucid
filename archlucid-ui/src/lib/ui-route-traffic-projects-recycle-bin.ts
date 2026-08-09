@@ -9,7 +9,7 @@ export const PROJECTS_RECYCLE_BIN_TRAFFIC_ROW_ID = "STR";
 export const PROJECTS_RECYCLE_BIN_TRAFFIC_PATH = "/administration/tenant/recycle-bin";
 
 /** Workbook Section column value (template catalog). */
-export const PROJECTS_RECYCLE_BIN_TRAFFIC_SECTION = "Settings";
+export const PROJECTS_RECYCLE_BIN_TRAFFIC_SECTION = "Admin";
 
 /**
  * Owner workbook Notes for STR - documents Evidence chrome on Projects recycle bin.

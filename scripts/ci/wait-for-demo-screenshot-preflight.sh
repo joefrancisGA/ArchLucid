@@ -61,14 +61,14 @@ audit_has_events() {
 
 trusted_baseline_preflight_ready() {
   probe_http "trusted baseline architecture run" \
-    "${API_URL}/v1/architecture/run/${TRUSTED_BASELINE_RUN_ID_N}"
+    "${API_URL}/v1/architecture/review/${TRUSTED_BASELINE_RUN_ID_N}"
   if [ "${last_status}" != "200" ]; then
     return 1
   fi
 
   local golden_manifest_id
   golden_manifest_id="$(
-    curl -sS "${API_URL}/v1/architecture/run/${TRUSTED_BASELINE_RUN_ID_N}" \
+    curl -sS "${API_URL}/v1/architecture/review/${TRUSTED_BASELINE_RUN_ID_N}" \
       -H "Accept: application/json" | jq -r '.run.goldenManifestId // empty' 2>/dev/null || true
   )"
   if [ -z "${golden_manifest_id}" ]; then

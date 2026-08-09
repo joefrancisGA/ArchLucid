@@ -74,7 +74,7 @@ probe_authority_run_detail() {
   last_label="${label}"
   last_status="$(
     curl -sS -o "${body_file}" -w "%{http_code}" \
-      "${API_URL}/v1/authority/runs/${run_id}" \
+      "${API_URL}/v1/authority/reviews/${run_id}" \
       -H "Accept: application/json" \
       -H "x-tenant-id: ${TENANT_ID}" \
       -H "x-workspace-id: ${workspace_id}" \

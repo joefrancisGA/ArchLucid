@@ -630,6 +630,7 @@ public sealed class RunQueryController(
     ///     continuation.
     /// </summary>
     [HttpGet("reviews")]
+    [HttpGet("runs")]
     [ProducesResponseType(typeof(CursorPagedResponse<RunListItemResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ListRuns(
         [FromQuery] string? cursor = null,

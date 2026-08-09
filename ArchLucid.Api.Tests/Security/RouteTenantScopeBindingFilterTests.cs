@@ -34,7 +34,9 @@ public sealed class RouteTenantScopeBindingFilterTests
             .Returns(new ScopeContext { TenantId = TenantB, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
 
         RouteTenantScopeBindingFilter sut = new(scopeProvider.Object);
-        ActionExecutingContext executing = BuildExecutingContext(TenantA, "/v1/admin/tenants/" + TenantA + "/reference-evidence");
+        ActionExecutingContext executing = BuildExecutingContext(
+            TenantA,
+            "/v1/admin/tenants/" + TenantA + "/catalog-migration/default-scope");
         bool next = false;
 
         await sut.OnActionExecutionAsync(

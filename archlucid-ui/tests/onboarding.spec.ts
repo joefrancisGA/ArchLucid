@@ -26,8 +26,8 @@ test.describe("Fresh tenant onboarding — mocked API", () => {
     await expect(page.getByRole("heading", { name: /start your evaluation/i })).toBeVisible();
 
     await expect(page.getByText(/We use this information to create your evaluation workspace/i)).toBeVisible();
-    await expect(page.getByRole("link", { name: /privacy policy/i })).toBeVisible();
-    await expect(page.getByRole("link", { name: /security and trust/i })).toBeVisible();
+    await expect(page.locator("form").getByRole("link", { name: /privacy policy/i })).toBeVisible();
+    await expect(page.locator("form").getByRole("link", { name: /assurance status/i })).toBeVisible();
 
     await page.getByLabel(/Work email/i).fill("fresh-tenant@example.com");
     await page.getByLabel(/Full name/i).fill("Fresh Tenant Admin");

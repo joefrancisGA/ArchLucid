@@ -50,12 +50,12 @@ class V1IntegrationStarterContractsTests(unittest.TestCase):
         paths = {step["path"] for step in review_steps}
 
         self.assertIn("/v1/architecture/request", paths)
-        self.assertIn("/v1/architecture/run/{runId}/commit", paths)
+        self.assertIn("/v1/architecture/review/{runId}/finalize", paths)
 
         pre_commit_steps = next(row for row in workflows if row["id"] == "pre-commit-governance-gate")["steps"]
         pre_commit_paths = {step["path"] for step in pre_commit_steps}
 
-        self.assertIn("/v1/governance/pre-commit/simulate", pre_commit_paths)
+        self.assertIn("/v1/governance/pre-finalize/simulate", pre_commit_paths)
 
     def test_pre_commit_ci_gate_starter_assets_exist(self) -> None:
         root = ROOT

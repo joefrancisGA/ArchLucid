@@ -1,4 +1,4 @@
-﻿{
+{
   "schema": "archlucid.v1-integration-starter-contracts.v1",
   "effectiveUtc": "2026-06-07T00:00:00Z",
   "description": "Sanitized V1 REST/CLI integration starter contracts for buyer automation paths. Paths are validated against the OpenAPI snapshot; bodies are shape examples only (no secrets).",

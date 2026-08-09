@@ -21,6 +21,7 @@ class TestTenancyDefenseBatch(unittest.TestCase):
             / "src"
             / "app"
             / "(operator)"
+            / "architecture"
             / "reviews"
             / "[runId]"
             / "_sections"

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Negative-path API checks (live ArchLucid.Api + Sql). Run:
  *   npx playwright test
  */
@@ -163,7 +163,7 @@ test.describe("live-api-negative-paths", () => {
   test("POST commit for unknown run id returns 404", async ({ request }) => {
     test.setTimeout(60_000);
 
-    const res = await request.post(`${liveApiBase}/v1/architecture/review/${crypto.randomUUID()}/commit`, {
+    const res = await request.post(`${liveApiBase}/v1/architecture/review/${crypto.randomUUID()}/finalize`, {
       headers: liveAcceptHeaders(),
     });
 

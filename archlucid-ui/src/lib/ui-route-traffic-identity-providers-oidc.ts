@@ -8,7 +8,7 @@ export const IDENTITY_PROVIDERS_OIDC_TRAFFIC_ROW_ID = "AOI";
 export const IDENTITY_PROVIDERS_OIDC_TRAFFIC_PATH = "/administration/identity-providers/oidc";
 
 /** Workbook Section column value (template catalog). */
-export const IDENTITY_PROVIDERS_OIDC_TRAFFIC_SECTION = "Settings";
+export const IDENTITY_PROVIDERS_OIDC_TRAFFIC_SECTION = "Admin";
 
 /**
  * Owner workbook Notes for AOI - documents Evidence chrome on OIDC settings.

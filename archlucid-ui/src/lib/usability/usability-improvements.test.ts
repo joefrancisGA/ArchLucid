@@ -73,10 +73,9 @@ describe("usability improvements", () => {
     expect(routeViewExplanationForPathname("/insights/compare-two-reviews")).toBeNull();
   });
 
-  it("routeViewExplanationForPathname keeps audit orientation strips", () => {
-    const audit = routeViewExplanationForPathname("/audit");
-    expect(audit?.title).toBe("Audit trail");
-    expect(audit?.nextAction).toContain("Search");
+  it("routeViewExplanationForPathname returns null for governance audit — page owns orientation", () => {
+    expect(routeViewExplanationForPathname("/governance/audit")).toBeNull();
+    expect(routeViewExplanationForPathname("/audit")).toBeNull();
   });
 
   it("canonical product terms use audit trail and signed review record", () => {

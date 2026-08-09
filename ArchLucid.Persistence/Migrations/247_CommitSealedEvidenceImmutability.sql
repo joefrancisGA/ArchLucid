@@ -51,7 +51,7 @@ VALUES
     (N'dbo.AuditEvents'),
     (N'dbo.AgentResults'),
     (N'dbo.AgentEvidencePackages'),
-    (N'dbo.DecisionTraces'),
+    /* dbo.DecisionTraces dropped in migration 296; authority audits use dbo.DecisioningTraces. */
     (N'dbo.DecisionNodes'),
     (N'dbo.DecisioningTraces'),
     (N'dbo.ContextSnapshots'),

@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 
 using ArchLucid.Api.Models.Tenancy;
@@ -122,7 +121,11 @@ public sealed class AdminTenantCatalogMigrationController(
             return MapOutcome(outcome, null);
 
         if (outcome == TenantCatalogMigrationCommandOutcome.VerificationFailed)
-            return Conflict(probe);
+        {
+            return this.ConflictProblem(
+                probe.ErrorMessage ?? "Verification probe failed.",
+                ProblemTypes.Conflict);
+        }
 
         return Ok(probe);
     }
@@ -166,10 +169,18 @@ public sealed class AdminTenantCatalogMigrationController(
         {
             TenantCatalogMigrationCommandOutcome.Applied => Accepted(new { migrationId }),
             TenantCatalogMigrationCommandOutcome.NotFound => this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound),
-            TenantCatalogMigrationCommandOutcome.AlreadyActive => Conflict(new { migrationId, message = "Migration already active." }),
+            TenantCatalogMigrationCommandOutcome.AlreadyActive => this.ConflictProblem(
+                migrationId is null
+                    ? "Migration already active."
+                    : $"Migration already active (migrationId={migrationId:D}).",
+                ProblemTypes.Conflict),
             TenantCatalogMigrationCommandOutcome.NoActiveMigration => this.NotFoundProblem("No active catalog migration.", ProblemTypes.ResourceNotFound),
-            TenantCatalogMigrationCommandOutcome.VerificationRequired => Conflict(new { message = "Verification probe must pass before completion." }),
-            TenantCatalogMigrationCommandOutcome.VerificationFailed => Conflict(new { message = "Verification probe failed." }),
+            TenantCatalogMigrationCommandOutcome.VerificationRequired => this.ConflictProblem(
+                "Verification probe must pass before completion.",
+                ProblemTypes.Conflict),
+            TenantCatalogMigrationCommandOutcome.VerificationFailed => this.ConflictProblem(
+                "Verification probe failed.",
+                ProblemTypes.Conflict),
             TenantCatalogMigrationCommandOutcome.WrongStage => Conflict(new { message = "Catalog migration is not in the expected fan-out stage for this operation." }),
             TenantCatalogMigrationCommandOutcome.AlreadyInDesiredState => NoContent(),
             _ => throw new InvalidOperationException($"Unhandled migration outcome: {outcome}"),
@@ -181,30 +192,4 @@ public sealed class AdminTenantCatalogMigrationController(
 
     private string ResolveActorUserName() =>
         User.FindFirstValue(ClaimTypes.Name) ?? User.Identity?.Name ?? ResolveActorUserId();
-}
-
-[ExcludeFromCodeCoverage(Justification = "API request DTO.")]
-public sealed class StartTenantCatalogMigrationRequest
-{
-    public string CorrelationId
-    {
-        get;
-        set;
-    } = Guid.NewGuid().ToString("N");
-}
-
-[ExcludeFromCodeCoverage(Justification = "API request DTO.")]
-public sealed class TenantCatalogMigrationScopeRequest
-{
-    public Guid WorkspaceId
-    {
-        get;
-        set;
-    }
-
-    public Guid ProjectId
-    {
-        get;
-        set;
-    }
 }

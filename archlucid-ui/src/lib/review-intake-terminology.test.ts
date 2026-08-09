@@ -20,7 +20,15 @@ describe("review intake terminology", () => {
   });
 
   it("does not pair Create review section titles with Start review CTAs in intake wizards", () => {
-    const reviewsNewDir = join(dirname(fileURLToPath(import.meta.url)), "..", "app", "(operator)", "reviews", "new");
+    const reviewsNewDir = join(
+      dirname(fileURLToPath(import.meta.url)),
+      "..",
+      "app",
+      "(operator)",
+      "architecture",
+      "reviews",
+      "new",
+    );
     const firstPilotSource = readFileSync(join(reviewsNewDir, "FirstPilotIntakeWizard.tsx"), "utf8");
     const socraticSource = readFileSync(join(reviewsNewDir, "SocraticIntakeWizard.tsx"), "utf8");
 

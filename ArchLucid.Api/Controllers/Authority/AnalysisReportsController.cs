@@ -69,6 +69,7 @@ public sealed class AnalysisReportsController(
     /// </summary>
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost("run/{runId}/analysis-report")]
+    [HttpPost("review/{runId}/analysis-report")]
     [ProducesResponseType(typeof(ArchitectureAnalysisReportResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -130,6 +131,7 @@ public sealed class AnalysisReportsController(
     /// </summary>
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost("run/{runId}/analysis-report/export")]
+    [HttpPost("review/{runId}/analysis-report/export")]
     [ProducesResponseType(typeof(ArchitectureAnalysisExportResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -166,6 +168,7 @@ public sealed class AnalysisReportsController(
 
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost("run/{runId}/analysis-report/export/file")]
+    [HttpPost("review/{runId}/analysis-report/export/file")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -199,6 +202,7 @@ public sealed class AnalysisReportsController(
 
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost("run/{runId}/analysis-report/export/docx")]
+    [HttpPost("review/{runId}/analysis-report/export/docx")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -236,6 +240,7 @@ public sealed class AnalysisReportsController(
 
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost("run/{runId}/analysis-report/export/docx/async")]
+    [HttpPost("review/{runId}/analysis-report/export/docx/async")]
     [AsyncRequired]
     [ProducesResponseType(typeof(AsyncJobResponse), StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -293,6 +298,7 @@ public sealed class AnalysisReportsController(
 
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost("run/{runId}/analysis-report/export/docx/consulting")]
+    [HttpPost("review/{runId}/analysis-report/export/docx/consulting")]
     [Authorize(Policy = ArchLucidPolicies.CanExportConsultingDocx)]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -387,6 +393,7 @@ public sealed class AnalysisReportsController(
 
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost("run/{runId}/analysis-report/export/docx/consulting/async")]
+    [HttpPost("review/{runId}/analysis-report/export/docx/consulting/async")]
     [Authorize(Policy = ArchLucidPolicies.CanExportConsultingDocx)]
     [AsyncRequired]
     [ProducesResponseType(typeof(AsyncJobResponse), StatusCodes.Status202Accepted)]

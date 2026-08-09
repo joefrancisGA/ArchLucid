@@ -510,9 +510,13 @@ GO
 /* ---- Authority / Dapper persistence + Decisioning (GUID dbo.Runs) ---- */
 /*
   Authority rule-audit traces live in dbo.DecisioningTraces (coordinator dbo.DecisionTraces dropped in migration 296).
+  After ADR 0064 / DbUp 295, dbo.Runs may already exist as a synonym for dbo.Reviews — OBJECT_ID(...,'U') is NULL then,
+  so also skip CREATE when any object (table or synonym) or the renamed base table is present.
 */
 
-IF OBJECT_ID('dbo.Runs', 'U') IS NULL
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NULL
+   AND OBJECT_ID(N'dbo.Runs') IS NULL
+   AND OBJECT_ID(N'dbo.Reviews', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.Runs
     (
@@ -1682,7 +1686,9 @@ IF OBJECT_ID(N'dbo.DecisioningTraces', N'U') IS NOT NULL
     ALTER TABLE dbo.DecisioningTraces ADD ArchivedUtc DATETIME2 NULL;
 GO
 
-IF OBJECT_ID('dbo.GoldenManifests', 'U') IS NULL
+IF OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NULL
+   AND OBJECT_ID(N'dbo.GoldenManifests') IS NULL
+   AND OBJECT_ID(N'dbo.SignedReviewRecords', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.GoldenManifests
     (
@@ -3214,10 +3220,12 @@ BEGIN
 END
 GO
 
-IF NOT EXISTS (
+-- Require base user table (N'U'): after ADR 0064 / migration 295, dbo.Runs is a synonym for dbo.Reviews.
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+AND NOT EXISTS (
     SELECT 1 FROM sys.indexes
     WHERE name = N'IX_Runs_ArchiveRetention'
-      AND object_id = OBJECT_ID(N'dbo.Runs'))
+      AND object_id = OBJECT_ID(N'dbo.Runs', N'U'))
 BEGIN
     CREATE NONCLUSTERED INDEX IX_Runs_ArchiveRetention
         ON dbo.Runs (CreatedUtc ASC)
@@ -3542,6 +3550,8 @@ GO
 /* ---- DbUp 159 parity: commit idempotency + project RBAC overlays ---- */
 
 IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'CommitRunIdempotency' AND schema_id = SCHEMA_ID('dbo'))
+   AND OBJECT_ID(N'dbo.CommitRunIdempotency') IS NULL
+   AND OBJECT_ID(N'dbo.FinalizeReviewIdempotency', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.CommitRunIdempotency
     (
@@ -3596,10 +3606,12 @@ BEGIN
 END;
 GO
 
-IF NOT EXISTS (
+-- Require base user table (N'U'): after ADR 0064 / migration 295, dbo.Runs is a synonym for dbo.Reviews.
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+AND NOT EXISTS (
     SELECT 1 FROM sys.indexes
     WHERE name = N'IX_Runs_Scope_Project_CreatedUtc'
-      AND object_id = OBJECT_ID(N'dbo.Runs'))
+      AND object_id = OBJECT_ID(N'dbo.Runs', N'U'))
 BEGIN
     CREATE NONCLUSTERED INDEX IX_Runs_Scope_Project_CreatedUtc
         ON dbo.Runs (TenantId, WorkspaceId, ScopeProjectId, ProjectId, CreatedUtc DESC);
@@ -3635,11 +3647,13 @@ IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
     ALTER TABLE dbo.Runs ADD OtelTraceId NVARCHAR(64) NULL;
 
 /* DbUp 061 parity: covering list index for dbo.Runs scope + CreatedUtc DESC (avoids key lookups into clustered PK under concurrent writes). */
-IF NOT EXISTS (
+-- Require base user table (N'U'): after ADR 0064 / migration 295, dbo.Runs is a synonym for dbo.Reviews.
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+AND NOT EXISTS (
     SELECT 1
     FROM sys.indexes
     WHERE name = N'IX_Runs_Scope_CreatedUtc'
-      AND object_id = OBJECT_ID(N'dbo.Runs'))
+      AND object_id = OBJECT_ID(N'dbo.Runs', N'U'))
 BEGIN
     CREATE NONCLUSTERED INDEX IX_Runs_Scope_CreatedUtc
         ON dbo.Runs (TenantId, WorkspaceId, ScopeProjectId, CreatedUtc DESC)
@@ -8240,6 +8254,8 @@ GO
 /* ---- DbUp 159 parity: commit-run idempotency + project role assignments (see Migrations/159_CommitRunIdempotency_ProjectRoleAssignments.sql) ---- */
 
 IF OBJECT_ID(N'dbo.CommitRunIdempotency', N'U') IS NULL
+   AND OBJECT_ID(N'dbo.CommitRunIdempotency') IS NULL
+   AND OBJECT_ID(N'dbo.FinalizeReviewIdempotency', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.CommitRunIdempotency
     (
@@ -8599,7 +8615,8 @@ BEGIN
     DECLARE @cntAgentTrace INT = 0;
     DECLARE @cntComparison INT = 0;
 
-    IF COL_LENGTH(N'dbo.GoldenManifests', N'ArchivedUtc') IS NOT NULL
+    IF COL_LENGTH(N'dbo.SignedReviewRecords', N'ArchivedUtc') IS NOT NULL
+       OR COL_LENGTH(N'dbo.GoldenManifests', N'ArchivedUtc') IS NOT NULL
     BEGIN
         UPDATE gm
         SET ArchivedUtc = SYSUTCDATETIME()

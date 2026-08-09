@@ -21,8 +21,8 @@ _PRE_COMMIT_STARTER_DOC = Path("docs/runbooks/CI_GOVERNANCE_GATE.md")
 _PRE_COMMIT_GHA_STARTER = Path("scripts/ci/data/pre_commit_ci_gate_starter.github-actions.yml")
 _PRE_COMMIT_ADO_STARTER = Path("scripts/ci/data/pre_commit_ci_gate_starter.azure-pipelines-snippet.yml")
 _REQUIRED_STARTER_PATHS = (
-    "/v1/governance/pre-commit/simulate",
-    "/v1/architecture/run/{runId}/commit",
+    "/v1/governance/pre-finalize/simulate",
+    "/v1/architecture/review/{runId}/finalize",
 )
 _FORBIDDEN_SECRET_PATTERNS = (
     "sk_live_",

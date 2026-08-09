@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Workspace B (Meridian / Alpine regulated storyline) — SQL-backed Development seed (`docs/go-to-market/DEMO_WORKSPACES.md`).
  * Merge-blocking `@release-gate`: `ci.yml` `ui-e2e-live`, `release-smoke.ps1 -LivePlaywright`.
  *

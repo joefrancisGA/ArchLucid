@@ -131,7 +131,7 @@ public sealed class GenuinelyUntestedControllersIntegrationTests
         HttpClient client = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
-        HttpResponseMessage response = await client.GetAsync($"/v1/authority/runs/{Guid.NewGuid():D}/events");
+        HttpResponseMessage response = await client.GetAsync($"/v1/authority/reviews/{Guid.NewGuid():D}/events");
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }

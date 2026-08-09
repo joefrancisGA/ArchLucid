@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Typed helpers for Playwright live-API E2E against ArchLucid.Api
  * (`live-api-journey.spec.ts`, `live-api-conflict-journey.spec.ts`, `live-api-governance-rejection.spec.ts`, …).
  *
@@ -495,7 +495,7 @@ function isTransientCommitConflict(status: number, body: string): boolean {
 }
 
 function throwCommitHttpError(status: number, body: string, runId: string): never {
-  const message = `POST /v1/architecture/review/${runId}/commit failed ${status}: ${body.slice(0, 500)}`;
+  const message = `POST /v1/architecture/review/${runId}/finalize failed ${status}: ${body.slice(0, 500)}`;
 
   if (status >= 500 && status < 600) {
     throw new InfraTransientError(message);
@@ -517,7 +517,7 @@ async function tryFetchCommittedRunCommitShape(
       return { manifest: { metadata: { manifestVersion } } };
     }
   } catch {
-    // Best-effort idempotent reconcile when POST /commit raced or returned transient 409.
+    // Best-effort idempotent reconcile when POST /finalize raced or returned transient 409.
   }
 
   return null;
@@ -646,7 +646,7 @@ export async function commitRun(
       return alreadyCommitted;
     }
 
-    const res = await request.post(`${resolveLiveApiBase()}/v1/architecture/review/${runId}/commit`, {
+    const res = await request.post(`${resolveLiveApiBase()}/v1/architecture/review/${runId}/finalize`, {
       headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
       timeout: commitAttemptHttpTimeoutMs,
     });
@@ -672,7 +672,7 @@ export async function commitRun(
         body,
         infrastructureAttempt,
         maxCommitInfrastructureAttempts(),
-        `POST /v1/architecture/review/${runId}/commit`,
+        `POST /v1/architecture/review/${runId}/finalize`,
         { startedAtMs: retryStartedMs },
       )
     ) {
@@ -724,7 +724,7 @@ export async function commitRunRaw(
       );
     }
 
-    const res = await request.post(`${resolveLiveApiBase()}/v1/architecture/review/${runId}/commit`, {
+    const res = await request.post(`${resolveLiveApiBase()}/v1/architecture/review/${runId}/finalize`, {
       headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
       timeout: commitAttemptHttpTimeoutMs,
     });
@@ -745,7 +745,7 @@ export async function commitRunRaw(
           responseBody,
           infrastructureAttempt,
           maxCommitInfrastructureAttempts(),
-          `POST /v1/architecture/review/${runId}/commit`,
+          `POST /v1/architecture/review/${runId}/finalize`,
           { startedAtMs: retryStartedMs },
         )
       ) {

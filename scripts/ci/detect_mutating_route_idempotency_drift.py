@@ -20,7 +20,8 @@ def route_key(verb: str, path: str) -> str:
 
 
 def load_baseline(path: Path) -> dict[str, str]:
-    payload = json.loads(path.read_text(encoding="utf-8"))
+    # utf-8-sig tolerates Windows BOM-prefixed fixtures (Out-File / some editors).
+    payload = json.loads(path.read_text(encoding="utf-8-sig"))
     routes = payload.get("routes")
 
     if not isinstance(routes, dict):

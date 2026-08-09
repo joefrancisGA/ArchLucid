@@ -20,7 +20,7 @@ public sealed class DataConsistencyOrphanProbePositiveDetectionSqlIntegrationTes
     // Keep in sync with ArchLucid.Host.Core.DataConsistency.DataConsistencyOrphanProbeSql.GoldenManifestsRunId
     private const string GoldenManifestsRunIdProbe = """
                                                    SELECT COUNT_BIG(1)
-                                                   FROM dbo.GoldenManifests g
+                                                   FROM dbo.SignedReviewRecords g
                                                    WHERE NOT EXISTS (
                                                        SELECT 1
                                                        FROM dbo.Runs r
@@ -30,7 +30,7 @@ public sealed class DataConsistencyOrphanProbePositiveDetectionSqlIntegrationTes
     // Keep in sync with ArchLucid.Host.Core.DataConsistency.DataConsistencyOrphanRemediationSql.SelectOrphanGoldenManifestIds
     private const string SelectOrphanGoldenManifestIds = """
                                                          SELECT TOP (@MaxRows) g.ManifestId
-                                                         FROM dbo.GoldenManifests g
+                                                         FROM dbo.SignedReviewRecords g
                                                          WHERE NOT EXISTS (
                                                              SELECT 1
                                                              FROM dbo.Runs r
@@ -81,8 +81,8 @@ public sealed class DataConsistencyOrphanProbePositiveDetectionSqlIntegrationTes
                 CancellationToken.None);
 
             const string insertManifest = """
-                                          IF NOT EXISTS (SELECT 1 FROM dbo.GoldenManifests WHERE ManifestId = @ManifestId)
-                                          INSERT INTO dbo.GoldenManifests
+                                          IF NOT EXISTS (SELECT 1 FROM dbo.SignedReviewRecords WHERE ManifestId = @ManifestId)
+                                          INSERT INTO dbo.SignedReviewRecords
                                           (ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
                                            CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
                                            MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
@@ -118,7 +118,7 @@ public sealed class DataConsistencyOrphanProbePositiveDetectionSqlIntegrationTes
                     SELECT COUNT(1)
                     FROM sys.foreign_keys
                     WHERE name = N'FK_GoldenManifests_Runs_RunId'
-                      AND parent_object_id = OBJECT_ID(N'dbo.GoldenManifests');
+                      AND parent_object_id = OBJECT_ID(N'dbo.SignedReviewRecords');
                     """,
                     cancellationToken: CancellationToken.None));
 
@@ -128,7 +128,7 @@ public sealed class DataConsistencyOrphanProbePositiveDetectionSqlIntegrationTes
             {
                 await conn.ExecuteAsync(
                     new CommandDefinition(
-                        "ALTER TABLE dbo.GoldenManifests NOCHECK CONSTRAINT FK_GoldenManifests_Runs_RunId;",
+                        "ALTER TABLE dbo.SignedReviewRecords NOCHECK CONSTRAINT FK_GoldenManifests_Runs_RunId;",
                         cancellationToken: CancellationToken.None));
 
                 nchecked = true;
@@ -136,7 +136,7 @@ public sealed class DataConsistencyOrphanProbePositiveDetectionSqlIntegrationTes
 
             await conn.ExecuteAsync(
                 new CommandDefinition(
-                    "UPDATE dbo.GoldenManifests SET RunId = @BogusRunId WHERE ManifestId = @ManifestId;",
+                    "UPDATE dbo.SignedReviewRecords SET RunId = @BogusRunId WHERE ManifestId = @ManifestId;",
                     new
                     {
                         BogusRunId = bogusRunId,
@@ -148,7 +148,7 @@ public sealed class DataConsistencyOrphanProbePositiveDetectionSqlIntegrationTes
                 new CommandDefinition(
                     """
                     SELECT COUNT_BIG(1)
-                    FROM dbo.GoldenManifests g
+                    FROM dbo.SignedReviewRecords g
                     WHERE g.ManifestId = @ManifestId
                       AND NOT EXISTS (SELECT 1 FROM dbo.Runs r WHERE r.RunId = g.RunId);
                     """,
@@ -185,7 +185,7 @@ public sealed class DataConsistencyOrphanProbePositiveDetectionSqlIntegrationTes
 
             await conn.ExecuteAsync(
                 new CommandDefinition(
-                    "DELETE FROM dbo.GoldenManifests WHERE ManifestId = @ManifestId;",
+                    "DELETE FROM dbo.SignedReviewRecords WHERE ManifestId = @ManifestId;",
                     new
                     {
                         ManifestId = manifestId
@@ -194,7 +194,7 @@ public sealed class DataConsistencyOrphanProbePositiveDetectionSqlIntegrationTes
 
             int remaining = await conn.ExecuteScalarAsync<int>(
                 new CommandDefinition(
-                    "SELECT COUNT(1) FROM dbo.GoldenManifests WHERE ManifestId = @ManifestId;",
+                    "SELECT COUNT(1) FROM dbo.SignedReviewRecords WHERE ManifestId = @ManifestId;",
                     new
                     {
                         ManifestId = manifestId
@@ -207,7 +207,7 @@ public sealed class DataConsistencyOrphanProbePositiveDetectionSqlIntegrationTes
                 new CommandDefinition(
                     """
                     SELECT COUNT_BIG(1)
-                    FROM dbo.GoldenManifests g
+                    FROM dbo.SignedReviewRecords g
                     WHERE g.ManifestId = @ManifestId
                       AND NOT EXISTS (SELECT 1 FROM dbo.Runs r WHERE r.RunId = g.RunId);
                     """,
@@ -228,7 +228,7 @@ public sealed class DataConsistencyOrphanProbePositiveDetectionSqlIntegrationTes
                     await conn.ExecuteAsync(
                         new CommandDefinition(
                             """
-                            ALTER TABLE dbo.GoldenManifests WITH CHECK CHECK CONSTRAINT FK_GoldenManifests_Runs_RunId;
+                            ALTER TABLE dbo.SignedReviewRecords WITH CHECK CHECK CONSTRAINT FK_GoldenManifests_Runs_RunId;
                             """,
                             cancellationToken: CancellationToken.None));
                 }

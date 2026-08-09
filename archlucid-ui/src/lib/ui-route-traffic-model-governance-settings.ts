@@ -8,7 +8,7 @@ export const MODEL_GOVERNANCE_SETTINGS_TRAFFIC_ROW_ID = "AMO";
 export const MODEL_GOVERNANCE_SETTINGS_TRAFFIC_PATH = "/administration/model-governance";
 
 /** Workbook Section column value (template catalog). */
-export const MODEL_GOVERNANCE_SETTINGS_TRAFFIC_SECTION = "Settings";
+export const MODEL_GOVERNANCE_SETTINGS_TRAFFIC_SECTION = "Admin";
 
 /**
  * Owner workbook Notes for AMO - documents Evidence chrome on model governance.

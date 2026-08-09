@@ -79,8 +79,8 @@ public sealed class DataConsistencyOrphanProbeExecutorSqlIntegrationTests(SqlSer
                 CancellationToken.None);
 
             const string insertManifest = """
-                                          IF NOT EXISTS (SELECT 1 FROM dbo.GoldenManifests WHERE ManifestId = @ManifestId)
-                                          INSERT INTO dbo.GoldenManifests
+                                          IF NOT EXISTS (SELECT 1 FROM dbo.SignedReviewRecords WHERE ManifestId = @ManifestId)
+                                          INSERT INTO dbo.SignedReviewRecords
                                           (ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
                                            CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
                                            MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
@@ -120,7 +120,7 @@ public sealed class DataConsistencyOrphanProbeExecutorSqlIntegrationTests(SqlSer
                 if (fkHits == 0)
                     continue;
 
-                await conn.ExecuteAsync($"ALTER TABLE dbo.GoldenManifests NOCHECK CONSTRAINT [{fkName}];");
+                await conn.ExecuteAsync($"ALTER TABLE dbo.SignedReviewRecords NOCHECK CONSTRAINT [{fkName}];");
                 goldenManifestFksNoChecked.Add(fkName);
             }
 
@@ -194,17 +194,17 @@ public sealed class DataConsistencyOrphanProbeExecutorSqlIntegrationTests(SqlSer
             await sut.RunOnceAsync(CancellationToken.None);
 
             // Verify active was NOT touched and orphan WAS correctly counted (by observing it still exists, since it's a dry run)
-            int activeCount = await conn.ExecuteScalarAsync<int>("SELECT COUNT(1) FROM dbo.GoldenManifests WHERE ManifestId = @ManifestId", new { ManifestId = activeManifestId });
+            int activeCount = await conn.ExecuteScalarAsync<int>("SELECT COUNT(1) FROM dbo.SignedReviewRecords WHERE ManifestId = @ManifestId", new { ManifestId = activeManifestId });
             activeCount.Should().Be(1);
             
-            int orphanCount = await conn.ExecuteScalarAsync<int>("SELECT COUNT(1) FROM dbo.GoldenManifests WHERE ManifestId = @ManifestId", new { ManifestId = orphanManifestId });
+            int orphanCount = await conn.ExecuteScalarAsync<int>("SELECT COUNT(1) FROM dbo.SignedReviewRecords WHERE ManifestId = @ManifestId", new { ManifestId = orphanManifestId });
             orphanCount.Should().Be(1);
 
             // Cleanup
             await conn.ExecuteAsync("DELETE FROM dbo.ArtifactBundles WHERE ManifestId = @ManifestId;", new { ManifestId = orphanManifestId });
-            await conn.ExecuteAsync("DELETE FROM dbo.GoldenManifests WHERE ManifestId = @ManifestId;", new { ManifestId = orphanManifestId });
+            await conn.ExecuteAsync("DELETE FROM dbo.SignedReviewRecords WHERE ManifestId = @ManifestId;", new { ManifestId = orphanManifestId });
             await conn.ExecuteAsync("DELETE FROM dbo.ArtifactBundles WHERE ManifestId = @ManifestId;", new { ManifestId = activeManifestId });
-            await conn.ExecuteAsync("DELETE FROM dbo.GoldenManifests WHERE ManifestId = @ManifestId;", new { ManifestId = activeManifestId });
+            await conn.ExecuteAsync("DELETE FROM dbo.SignedReviewRecords WHERE ManifestId = @ManifestId;", new { ManifestId = activeManifestId });
         }
         finally
         {
@@ -212,7 +212,7 @@ public sealed class DataConsistencyOrphanProbeExecutorSqlIntegrationTests(SqlSer
             {
                 try
                 {
-                    await conn.ExecuteAsync($"ALTER TABLE dbo.GoldenManifests WITH CHECK CHECK CONSTRAINT [{goldenManifestFksNoChecked[i]}];");
+                    await conn.ExecuteAsync($"ALTER TABLE dbo.SignedReviewRecords WITH CHECK CHECK CONSTRAINT [{goldenManifestFksNoChecked[i]}];");
                 }
                 catch
                 {

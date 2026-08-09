@@ -37,7 +37,7 @@ export function trySandboxMockJsonForApiGet(apiPath: string): unknown | undefine
 
   const pathname = apiPathname(apiPath);
 
-  if (pathname === "/v1/architecture/runs") {
+  if (pathname === "/v1/architecture/reviews") {
     return sandboxFixture.architectureRuns;
   }
 

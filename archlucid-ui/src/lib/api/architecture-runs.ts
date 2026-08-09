@@ -538,9 +538,9 @@ export async function compareGoldenManifestRuns(
   );
 }
 
-/** Latest authority manifest document JSON for a run (`GET /v1/authority/reviews/{runId}/manifest`). */
+/** Latest authority manifest document JSON for a run (`GET /v1/authority/reviews/{runId}/signed-review-record`). */
 export async function getAuthorityRunManifest(runId: string): Promise<unknown> {
-  return apiGet<unknown>(`/v1/authority/reviews/${encodeURIComponent(runId)}/manifest`);
+  return apiGet<unknown>(`/v1/authority/reviews/${encodeURIComponent(runId)}/signed-review-record`);
 }
 
 /** Requests an AI-generated narrative explanation of the differences between two runs. */

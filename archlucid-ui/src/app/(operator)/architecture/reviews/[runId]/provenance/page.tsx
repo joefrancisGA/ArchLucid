@@ -43,7 +43,7 @@ export default async function RunProvenancePage({
   }
 
   if (provenanceResponse !== null) {
-    const nodes = provenanceResponse.data.nodes;
+    const nodes = provenanceResponse.data.nodes ?? [];
 
     if (nodes.length === 0) {
       const demoGraph = tryStaticDemoProvenanceGraph(runId);

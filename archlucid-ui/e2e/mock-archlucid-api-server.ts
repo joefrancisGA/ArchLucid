@@ -81,8 +81,8 @@ function sendJson(res: http.ServerResponse, status: number, body: unknown): void
 
 function tryParseManifestSummaryPath(pathname: string): string | null {
   const patterns = [
-    /^\/v1\/authority\/(?:manifests|signed-records)\/([^/]+)\/summary$/,
-    /^\/api\/authority\/(?:manifests|signed-records)\/([^/]+)\/summary$/,
+    /^\/v1\/authority\/(?:manifests|signed-records|signed-review-records)\/([^/]+)\/summary$/,
+    /^\/api\/authority\/(?:manifests|signed-records|signed-review-records)\/([^/]+)\/summary$/,
   ];
 
   for (const pattern of patterns) {
@@ -114,8 +114,8 @@ function jsonForManifestSummary(manifestId: string): { status: number; body: unk
 
 function tryParseArtifactListPath(pathname: string): string | null {
   const patterns = [
-    /^\/v1\/artifacts\/(?:manifests|signed-records)\/([^/]+)$/,
-    /^\/api\/artifacts\/(?:manifests|signed-records)\/([^/]+)$/,
+    /^\/v1\/artifacts\/(?:manifests|signed-records|signed-review-records)\/([^/]+)$/,
+    /^\/api\/artifacts\/(?:manifests|signed-records|signed-review-records)\/([^/]+)$/,
   ];
 
   for (const pattern of patterns) {
@@ -301,7 +301,7 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
         return;
       }
 
-      const runsPagedMatchV1 = /^\/v1\/authority\/projects\/([^/]+)\/runs$/.exec(pathname);
+      const runsPagedMatchV1 = /^\/v1\/authority\/projects\/([^/]+)\/(?:runs|reviews)$/.exec(pathname);
 
       if (req.method === "GET" && runsPagedMatchV1) {
         const pageNum = Math.max(1, Number.parseInt(u.searchParams.get("page") ?? "1", 10) || 1);
@@ -420,8 +420,10 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
       }
 
       // RSC server-side fetch uses `getServerApiBaseUrl()` → these paths (see `src/lib/api.ts`).
-      const buyerSummaryMatchV1 = /^\/v1\/authority\/runs\/([^/]+)\/buyer-summary$/.exec(pathname);
-      const buyerSummaryMatchLegacy = /^\/api\/authority\/runs\/([^/]+)\/buyer-summary$/.exec(pathname);
+      // ADR 0064 renamed the authority run routes to `/reviews`; both spellings stay matched so a
+      // caller left on the old path still gets fixture data instead of the generic fallback body.
+      const buyerSummaryMatchV1 = /^\/v1\/authority\/(?:runs|reviews)\/([^/]+)\/buyer-summary$/.exec(pathname);
+      const buyerSummaryMatchLegacy = /^\/api\/authority\/(?:runs|reviews)\/([^/]+)\/buyer-summary$/.exec(pathname);
       const buyerSummaryMatch = buyerSummaryMatchV1 ?? buyerSummaryMatchLegacy;
 
       if (buyerSummaryMatch) {
@@ -436,8 +438,8 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
         return;
       }
 
-      const runMatchV1 = /^\/v1\/authority\/runs\/([^/]+)$/.exec(pathname);
-      const runMatchLegacy = /^\/api\/authority\/runs\/([^/]+)$/.exec(pathname);
+      const runMatchV1 = /^\/v1\/authority\/(?:runs|reviews)\/([^/]+)$/.exec(pathname);
+      const runMatchLegacy = /^\/api\/authority\/(?:runs|reviews)\/([^/]+)$/.exec(pathname);
       const runMatch = runMatchV1 ?? runMatchLegacy;
 
       if (runMatch) {
@@ -452,8 +454,8 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
         return;
       }
 
-      const runSummaryMatchV1 = /^\/v1\/authority\/runs\/([^/]+)\/summary$/.exec(pathname);
-      const runSummaryMatchLegacy = /^\/api\/authority\/runs\/([^/]+)\/summary$/.exec(pathname);
+      const runSummaryMatchV1 = /^\/v1\/authority\/(?:runs|reviews)\/([^/]+)\/summary$/.exec(pathname);
+      const runSummaryMatchLegacy = /^\/api\/authority\/(?:runs|reviews)\/([^/]+)\/summary$/.exec(pathname);
       const runSummaryMatch = runSummaryMatchV1 ?? runSummaryMatchLegacy;
 
       if (runSummaryMatch) {

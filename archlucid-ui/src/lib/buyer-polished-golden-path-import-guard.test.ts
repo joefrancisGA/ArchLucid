@@ -13,7 +13,7 @@ const MOCK_KPI_IMPORT_PATTERN =
 const ILLUSTRATIVE_SPINE_USD_PATTERN = /SHOWCASE_STATIC_DEMO_ILLUSTRATIVE_ANNUALIZED_EXTRACTION_USD/;
 
 const GOLDEN_PATH_ROOTS = [
-  join(uiRoot, "src", "app", "(operator)", "reviews"),
+  join(uiRoot, "src", "app", "(operator)", "architecture", "reviews"),
   join(uiRoot, "src", "app", "(operator)", "manifests"),
   join(uiRoot, "src", "app", "(operator)", "governance"),
   join(uiRoot, "src", "app", "(operator)", "dashboard"),

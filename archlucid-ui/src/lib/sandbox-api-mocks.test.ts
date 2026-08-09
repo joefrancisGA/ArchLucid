@@ -1,4 +1,4 @@
-﻿import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { trySandboxMockJsonForApiGet } from "@/lib/sandbox-api-mocks";
 
 describe("sandbox-api-mocks", () => {
@@ -15,19 +15,19 @@ describe("sandbox-api-mocks", () => {
   it("returns undefined when VITE_USE_SANDBOX_MOCKS is unset", () => {
     delete process.env.VITE_USE_SANDBOX_MOCKS;
 
-    expect(trySandboxMockJsonForApiGet("/v1/architecture/runs")).toBeUndefined();
+    expect(trySandboxMockJsonForApiGet("/v1/architecture/reviews")).toBeUndefined();
     expect(trySandboxMockJsonForApiGet("/v1/audit/search")).toBeUndefined();
   });
 
   it("returns undefined when flag is not true", () => {
     process.env.VITE_USE_SANDBOX_MOCKS = "false";
 
-    expect(trySandboxMockJsonForApiGet("/v1/architecture/runs")).toBeUndefined();
+    expect(trySandboxMockJsonForApiGet("/v1/architecture/reviews")).toBeUndefined();
   });
 
-  it("returns coordinator runs page for GET /v1/architecture/runs when enabled", () => {
+  it("returns coordinator runs page for GET /v1/architecture/reviews when enabled", () => {
     process.env.VITE_USE_SANDBOX_MOCKS = "true";
-    const body = trySandboxMockJsonForApiGet("/v1/architecture/runs?take=50");
+    const body = trySandboxMockJsonForApiGet("/v1/architecture/reviews?take=50");
 
     expect(body).toMatchObject({
       hasMore: false,

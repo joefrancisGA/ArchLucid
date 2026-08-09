@@ -16,6 +16,7 @@ const runDetailPagePath = join(
   "..",
   "app",
   "(operator)",
+  "architecture",
   "reviews",
   "[runId]",
   "_sections",

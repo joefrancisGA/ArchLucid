@@ -54,7 +54,7 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
   return rows;
 }
 
-describe("ui-route-traffic-alert-rules-routing-tab (ALE)", () => {
+describe("ui-route-traffic-alert-rules-routing-tab (GOR)", () => {
   it("tracks Notifications/routing tab Notes on the template path row", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
     const row = rows.find((candidate) => candidate.path === ALERT_RULES_ROUTING_TAB_TRAFFIC_PATH);

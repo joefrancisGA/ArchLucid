@@ -32,7 +32,7 @@ export function matchesBuyerRunDetailSummaryGet(url: URL, runId: string): boolea
 export function matchesAuthorityRunManifestGet(url: URL, runId: string): boolean {
   return (
     url.search === "" &&
-    backendApiPath(url) === `/v1/authority/reviews/${encodeURIComponent(runId)}/manifest`
+    backendApiPath(url) === `/v1/authority/reviews/${encodeURIComponent(runId)}/signed-review-record`
   );
 }
 

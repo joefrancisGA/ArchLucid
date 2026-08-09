@@ -22,7 +22,7 @@ public sealed class AuthorityQueryControllerProblemDetailsIntegrationTests(ArchL
     public async Task ListRunsByProject_whitespace_project_id_returns_400_problem(string encodedWhitespaceProjectId)
     {
         HttpResponseMessage response =
-            await Client.GetAsync($"/v1/authority/projects/{encodedWhitespaceProjectId}/runs");
+            await Client.GetAsync($"/v1/authority/projects/{encodedWhitespaceProjectId}/reviews");
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
@@ -34,7 +34,7 @@ public sealed class AuthorityQueryControllerProblemDetailsIntegrationTests(ArchL
     public async Task GetRunSummary_unknown_run_returns_404_problem()
     {
         Guid missing = Guid.Parse("00000000-0000-0000-0000-00000000cc01");
-        HttpResponseMessage response = await Client.GetAsync($"/v1/authority/runs/{missing:D}/summary");
+        HttpResponseMessage response = await Client.GetAsync($"/v1/authority/reviews/{missing:D}/summary");
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 
@@ -49,7 +49,7 @@ public sealed class AuthorityQueryControllerProblemDetailsIntegrationTests(ArchL
         Guid runId =
             await AdvisoryIntegrationSeed.SeedDefaultScopeAuthorityRunAsync(Factory.Services, CancellationToken.None);
 
-        HttpResponseMessage response = await Client.GetAsync($"/v1/authority/runs/{runId:D}/provenance");
+        HttpResponseMessage response = await Client.GetAsync($"/v1/authority/reviews/{runId:D}/provenance");
 
         response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
 

@@ -8,7 +8,7 @@ export const TENANT_SETTINGS_TRAFFIC_ROW_ID = "ATE";
 export const TENANT_SETTINGS_TRAFFIC_PATH = "/administration/tenant";
 
 /** Workbook Section column value (template catalog). */
-export const TENANT_SETTINGS_TRAFFIC_SECTION = "Settings";
+export const TENANT_SETTINGS_TRAFFIC_SECTION = "Admin";
 
 /**
  * Owner workbook Notes for ATE - documents Evidence chrome on Tenant settings.

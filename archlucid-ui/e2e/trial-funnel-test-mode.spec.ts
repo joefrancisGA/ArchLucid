@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Staging end-to-end Playwright spec for the trial funnel — **Stripe TEST mode only**.
  *
  * **Path note (consultative).** The prompt nominated `archlucid-ui/tests/e2e/...`,
@@ -126,7 +126,7 @@ test.describe("trial-funnel-test-mode (staging, Stripe TEST mode)", () => {
       await expect(finalizeManifestCue).toBeVisible({ timeout: 60_000 });
 
       const commitResPromise = page.waitForResponse(
-        (res) => res.url().includes("/architecture/review/") && res.url().endsWith("/commit"),
+        (res) => res.url().includes("/architecture/review/") && res.url().endsWith("/finalize"),
       );
       await page.getByRole("button", { name: /finalize manifest/i }).click();
 

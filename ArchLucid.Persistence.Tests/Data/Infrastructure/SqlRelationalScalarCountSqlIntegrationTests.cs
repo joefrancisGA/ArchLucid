@@ -31,7 +31,7 @@ public sealed class SqlRelationalScalarCountSqlIntegrationTests(SqlServerPersist
         int count = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             null,
-            "SELECT COUNT(1) FROM sys.tables WHERE name = N'Runs';",
+            "SELECT COUNT(1) FROM sys.tables WHERE name = N'Reviews';",
             new { },
             CancellationToken.None);
 

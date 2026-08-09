@@ -33,7 +33,7 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
         await executeResponse.EnsureSuccessForTestAsync();
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
         await commitResponse.EnsureSuccessForTestAsync();
-        HttpResponseMessage response = await Client.GetAsync("/v1/authority/projects/EnterpriseRag/runs?take=20");
+        HttpResponseMessage response = await Client.GetAsync("/v1/authority/projects/EnterpriseRag/reviews?take=20");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         string body = await response.Content.ReadAsStringAsync();
@@ -63,7 +63,7 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
         await commitResponse.EnsureSuccessForTestAsync();
         HttpResponseMessage response =
-            await Client.GetAsync("/v1/authority/projects/EnterpriseRag/runs?page=1&pageSize=10");
+            await Client.GetAsync("/v1/authority/projects/EnterpriseRag/reviews?page=1&pageSize=10");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         string body = await response.Content.ReadAsStringAsync();
