@@ -81,6 +81,15 @@ paths = [
   '''(?:^|/)archlucid-ui/src/lib/report-problem-context\.test\.ts$''',
 ]
 
+# Regex-only table (no paths): gitleaks detect scans every ref, so a blob that exists only on
+# master/feature branches still fails this gate on release branches. Keeping the literal here
+# instead of path-allowlisting the file preserves rule coverage for those files.
+[[allowlists]]
+description = "Report Problem deploy-stamp fixtures: synthetic 40-hex placeholder commit SHA (apiCommitSha / uiCommitSha), not an API key; generic-api-key false positive"
+regexes = [
+  "abcdef1234567890abcdef1234567890abcdef12",
+]
+
 [[allowlists]]
 description = "Feasibility verdict Vitest fixture: transparency trail inferred keys are policy control ids, not API secrets"
 paths = [
