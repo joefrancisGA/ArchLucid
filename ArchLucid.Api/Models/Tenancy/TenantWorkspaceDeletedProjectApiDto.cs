@@ -32,4 +32,11 @@ public sealed class TenantWorkspaceDeletedProjectApiDto
         get;
         init;
     }
+
+    [JsonPropertyName("purgeAfterUtc")]
+    public DateTimeOffset PurgeAfterUtc
+    {
+        get;
+        init;
+    }
 }

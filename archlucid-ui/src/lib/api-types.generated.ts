@@ -101667,6 +101667,8 @@ export interface components {
             name?: string;
             /** Format: uuid */
             projectId?: string;
+            /** Format: date-time */
+            purgeAfterUtc?: string;
         };
         TenantWorkspaceProjectApiDto: {
             displayName?: null | string;
@@ -101685,6 +101687,8 @@ export interface components {
             workspaces?: components["schemas"]["TenantWorkspaceApiDto"][];
         };
         TenantWorkspacesRecycleBinResponse: {
+            /** Format: int32 */
+            retentionDays?: number;
             workspaces?: components["schemas"]["TenantWorkspaceRecycleBinApiDto"][];
         };
         TerraformPrCreatedResponse: {

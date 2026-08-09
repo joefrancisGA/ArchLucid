@@ -28109,6 +28109,10 @@
           "projectId": {
             "format": "uuid",
             "type": "string"
+          },
+          "purgeAfterUtc": {
+            "format": "date-time",
+            "type": "string"
           }
         },
         "type": "object"
@@ -28168,6 +28172,10 @@
       },
       "TenantWorkspacesRecycleBinResponse": {
         "properties": {
+          "retentionDays": {
+            "format": "int32",
+            "type": "integer"
+          },
           "workspaces": {
             "items": {
               "$ref": "#/components/schemas/TenantWorkspaceRecycleBinApiDto"

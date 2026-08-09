@@ -20,100 +20,19 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  coerceRecycleBinPayload,
+  DEFAULT_RECYCLE_BIN_RETENTION_DAYS,
+  recycleBinEmptyStateBody,
+  recycleBinPageDescription,
+  type WorkspaceBinRow,
+} from "@/lib/projects-recycle-bin-payload";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 const RECYCLE_BIN_PATH = `/api/proxy/${ApiV1Routes.tenantWorkspacesRecycleBin}`;
 
-const PAGE_DESCRIPTION =
-  "Deleted projects are kept here until the retention period expires. You can restore a project if its name is not already used by an active project.";
-
-const EMPTY_STATE_BODY =
-  "Deleted projects will appear here until the retention period expires.";
-
-type DeletedProjectRow = Readonly<{ projectId: string; name: string; deletedUtcIso: string }>;
-
-type WorkspaceBinRow = Readonly<{
-  workspaceId: string;
-  name: string;
-  deletedProjects: ReadonlyArray<DeletedProjectRow>;
-}>;
-
-type RecycleBinPayload = Readonly<{ workspaces?: ReadonlyArray<WorkspaceBinRow | null | undefined> }>;
-
-function coercePayload(json: unknown): WorkspaceBinRow[] {
-  if (json === null || typeof json !== "object") {
-    return [];
-  }
-  const workspaces = (json as RecycleBinPayload).workspaces;
-  if (!Array.isArray(workspaces)) {
-    return [];
-  }
-  const out: WorkspaceBinRow[] = [];
-
-  for (const w of workspaces) {
-    if (w === null || typeof w !== "object") {
-      continue;
-    }
-    const ws = w as {
-      workspaceId?: string;
-      id?: string;
-      name?: string;
-      displayName?: string;
-      deletedProjects?: ReadonlyArray<{
-        projectId?: string;
-        id?: string;
-        name?: string;
-        displayName?: string;
-        deletedUtc?: string;
-      }>;
-    };
-    const wid = typeof ws.workspaceId === "string" ? ws.workspaceId : typeof ws.id === "string" ? ws.id : "";
-    const wnameRaw =
-      typeof ws.displayName === "string" && ws.displayName.trim().length > 0
-        ? ws.displayName.trim()
-        : typeof ws.name === "string" && ws.name.trim().length > 0
-          ? ws.name.trim()
-          : "Workspace";
-    if (!wid.trim()) {
-      continue;
-    }
-    const dps = ws.deletedProjects;
-    if (!Array.isArray(dps)) {
-      continue;
-    }
-    const projects: DeletedProjectRow[] = [];
-    for (const p of dps) {
-      if (p === null || typeof p !== "object") {
-        continue;
-      }
-      const pid =
-        typeof p.projectId === "string" ? p.projectId : typeof p.id === "string" ? p.id : "";
-      const pnameRaw =
-        typeof p.displayName === "string" && p.displayName.trim().length > 0
-          ? p.displayName.trim()
-          : typeof p.name === "string" && p.name.trim().length > 0
-            ? p.name.trim()
-            : "Project";
-      const iso = typeof p.deletedUtc === "string" ? p.deletedUtc.trim() : "";
-      if (!pid.trim() || !iso) {
-        continue;
-      }
-      projects.push({
-        projectId: pid.trim(),
-        name: pnameRaw,
-        deletedUtcIso: iso,
-      });
-    }
-    if (projects.length > 0) {
-      out.push({ workspaceId: wid.trim(), name: wnameRaw, deletedProjects: projects });
-    }
-  }
-
-  return out;
-}
-
-function formatDeletedOn(deletedUtcIso: string): string {
-  return new Date(deletedUtcIso).toLocaleString();
+function formatTimestamp(iso: string): string {
+  return new Date(iso).toLocaleString();
 }
 
 type WorkspaceRecycleBinTableProps = Readonly<{
@@ -143,6 +62,7 @@ function WorkspaceRecycleBinTable(props: WorkspaceRecycleBinTableProps) {
           <EnterpriseTableHeadRow>
             <EnterpriseTableHeaderCell>Project name</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Deleted on</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Permanently removed on</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell className="w-[7.5rem] text-right">Restore</EnterpriseTableHeaderCell>
           </EnterpriseTableHeadRow>
         </EnterpriseTableHead>
@@ -159,7 +79,10 @@ function WorkspaceRecycleBinTable(props: WorkspaceRecycleBinTableProps) {
                   {project.name}
                 </EnterpriseTableCell>
                 <EnterpriseTableCell>
-                  <time dateTime={project.deletedUtcIso}>{formatDeletedOn(project.deletedUtcIso)}</time>
+                  <time dateTime={project.deletedUtcIso}>{formatTimestamp(project.deletedUtcIso)}</time>
+                </EnterpriseTableCell>
+                <EnterpriseTableCell>
+                  <time dateTime={project.purgeAfterUtcIso}>{formatTimestamp(project.purgeAfterUtcIso)}</time>
                 </EnterpriseTableCell>
                 <EnterpriseTableCell className="text-right">
                   <Button
@@ -196,6 +119,8 @@ export function ProjectsRecycleBinPage() {
 
   const [error, setError] = useState<string | null>(null);
 
+  const [retentionDays, setRetentionDays] = useState(DEFAULT_RECYCLE_BIN_RETENTION_DAYS);
+
   const [rows, setRows] = useState<WorkspaceBinRow[]>([]);
 
   const [restoreBusyRow, setRestoreBusyRow] = useState<string | null>(null);
@@ -221,7 +146,9 @@ export function ProjectsRecycleBinPage() {
       }
 
       const json: unknown = await res.json();
-      setRows(coercePayload(json));
+      const parsed = coerceRecycleBinPayload(json);
+      setRetentionDays(parsed.retentionDays);
+      setRows(parsed.workspaces);
     } catch (e) {
       setRows([]);
       setError(e instanceof Error ? e.message : "Recycle bin load failed.");
@@ -279,11 +206,14 @@ export function ProjectsRecycleBinPage() {
     }
   }
 
+  const pageDescription = recycleBinPageDescription(retentionDays);
+  const emptyStateBody = recycleBinEmptyStateBody(retentionDays);
+
   return (
     <div className="w-full max-w-3xl space-y-6" data-testid="projects-recycle-bin-page">
       <OperatorPageHeader
         title="Projects recycle bin"
-        subtitle={PAGE_DESCRIPTION}
+        subtitle={pageDescription}
         titleTestId="projects-recycle-bin-page-title"
         actions={
           <>
@@ -303,7 +233,7 @@ export function ProjectsRecycleBinPage() {
           </>
         }
       />
-{!isAuthorityLoading && !canRestoreExecute ? (
+      {!isAuthorityLoading && !canRestoreExecute ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Restore requires Execute authority — you can browse deleted projects below, but restoring is unavailable for this signed-in principal.
         </p>
@@ -333,7 +263,9 @@ export function ProjectsRecycleBinPage() {
             <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>No deleted projects</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{EMPTY_STATE_BODY}</p>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="projects-recycle-bin-empty">
+              {emptyStateBody}
+            </p>
           </CardContent>
         </Card>
       ) : null}
