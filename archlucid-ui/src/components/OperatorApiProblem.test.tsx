@@ -196,6 +196,24 @@ describe("OperatorApiProblem", () => {
     expect(within(screen.getByTestId("report-problem-context-summary")).getByText("corr-api-502")).toBeInTheDocument();
   });
 
+  it("maps RESOURCE_NOT_FOUND failure to buyer heading, not raw problem title (TB-2137)", () => {
+    render(
+      <OperatorApiProblem
+        failure={{
+          message: "Resource not found",
+          problem: { title: "Not Found", errorCode: "RESOURCE_NOT_FOUND", detail: "Missing workspace item." },
+          correlationId: "corr-nf",
+          httpStatus: 404,
+          retryAfterSeconds: null,
+        }}
+      />,
+    );
+
+    expect(screen.getByText("Not found in this workspace")).toBeInTheDocument();
+    expect(screen.queryByText(/^Not Found$/)).not.toBeInTheDocument();
+    expect(screen.getByText(/workspace selector/i)).toBeInTheDocument();
+  });
+
   it("hides Report problem on validation-only HTTP 400 (TB-785)", () => {
     render(
       <OperatorApiProblem

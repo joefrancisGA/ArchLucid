@@ -4,7 +4,15 @@ import Link from "next/link";
 
 import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import {
+  BRANDED_NOT_FOUND_RETRY_HINT,
+  BRANDED_NOT_FOUND_WORKSPACE_HINT,
+  type BrandedNotFoundVariant,
+  brandedNotFoundBody,
+  brandedNotFoundTitle,
+} from "@/lib/operator-branded-not-found-copy";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 const REVIEW_PACKAGES_HREF = "/architecture/reviews";
@@ -20,6 +28,8 @@ export type OperatorBrandedNotFoundProps = {
   readonly retryLabel?: string;
   /** When false, hides the curated showcase sample review deep link. Defaults to true. */
   readonly showSampleReviewLink?: boolean;
+  /** `review` softens copy for missing review deep links; default is workspace-generic. */
+  readonly variant?: BrandedNotFoundVariant;
 };
 
 /**
@@ -29,20 +39,22 @@ export type OperatorBrandedNotFoundProps = {
 export function OperatorBrandedNotFound({
   retryLabel = "Retry",
   showSampleReviewLink = true,
+  variant = "generic",
 }: OperatorBrandedNotFoundProps = {}) {
+  const title = brandedNotFoundTitle(variant);
+  const body = brandedNotFoundBody(variant);
+
   return (
     <div data-testid="branded-not-found">
-      <OperatorEmptyState title="We could not find that ArchLucid artifact">
+      <OperatorEmptyState title={title}>
       <p className={cn("m-0 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-        The link may be mistyped, expired, or pointed to a review, evidence item, finding, or workspace item
-        that is not available in the current workspace.
+        {body}
       </p>
       <p className={cn("m-0 mt-3 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-        If the review was just created, wait a moment and retry. If you pasted an ID, confirm the full value was
-        copied.
+        {BRANDED_NOT_FOUND_RETRY_HINT}
       </p>
       <p className={cn("m-0 mt-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-        If you expected a completed review, open Reviews and confirm the workspace selector is set correctly.
+        {BRANDED_NOT_FOUND_WORKSPACE_HINT}
       </p>
       <div className={cn("mt-4 flex flex-wrap items-center gap-4 font-medium", OPERATOR_TYPOGRAPHY.body)}>
         <OperatorSectionRetryButton label={retryLabel} />
@@ -58,7 +70,7 @@ export function OperatorBrandedNotFound({
           href={START_REVIEW_HREF}
           data-testid="not-found-start-review"
         >
-          {OPERATOR_NAV_LINK_LABELS.capture}
+          {BUYER_START_ARCHITECTURE_REVIEW_CTA}
         </Link>
         {showSampleReviewLink ? (
           <Link
@@ -70,11 +82,8 @@ export function OperatorBrandedNotFound({
           </Link>
         ) : null}
       </div>
-      <p className={cn("m-0 mt-6 uppercase tracking-wide text-neutral-800 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
-        ArchLucid · 404
-      </p>
       <span className="sr-only">Page not found</span>
-    </OperatorEmptyState>
+      </OperatorEmptyState>
     </div>
   );
 }

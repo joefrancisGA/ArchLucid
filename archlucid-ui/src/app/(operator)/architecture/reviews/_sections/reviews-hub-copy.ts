@@ -114,6 +114,13 @@ export const REVIEWS_HUB_FILTER_UPDATED_RECENTLY_LABEL = "Updated recently";
 
 export const REVIEWS_HUB_FILTER_FINALIZED_LABEL = "Finalized";
 
+/** Shown when the reviews list API returns 404 / RESOURCE_NOT_FOUND (not an empty inventory). */
+export const REVIEWS_HUB_LIST_NOT_FOUND_TRY_NEXT =
+  "Confirm the workspace selector, then reload. If this continues, contact support with the reference id.";
+
+export const REVIEWS_HUB_LIST_LOAD_FAILURE_TRY_NEXT =
+  "The reviews list could not be loaded. Check your connection and try reloading.";
+
 /** @deprecated Use {@link REVIEWS_HUB_INCLUDES_TITLE}. */
 export const REVIEWS_HUB_PACKAGE_INCLUDES_TITLE = REVIEWS_HUB_INCLUDES_TITLE;
 

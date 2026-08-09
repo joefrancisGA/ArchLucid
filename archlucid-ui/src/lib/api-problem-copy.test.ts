@@ -19,6 +19,20 @@ describe("operatorCopyForProblem", () => {
     expect(copy.body).toBe("Request failed.");
   });
 
+  it("maps RESOURCE_NOT_FOUND to workspace-scoped heading and remediation", () => {
+    const problem: ApiProblemDetails = {
+      errorCode: "RESOURCE_NOT_FOUND",
+      title: "Not Found",
+      detail: "The requested resource was not found.",
+    };
+
+    const copy = operatorCopyForProblem(problem, "fallback");
+
+    expect(copy.heading).toBe("Not found in this workspace");
+    expect(copy.body).toBe("The requested resource was not found.");
+    expect(copy.hint).toContain("workspace selector");
+  });
+
   it("maps known errorCode to heading", () => {
     const problem: ApiProblemDetails = {
       errorCode: "RUN_NOT_FOUND",

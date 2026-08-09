@@ -15,7 +15,14 @@ import {
   BUYER_RUNS_LIST_MALFORMED_BODY,
   BUYER_RUNS_LIST_MALFORMED_HEADING,
 } from "@/lib/buyer-polish-copy";
-import { REVIEWS_HUB_PAGE_SUBTITLE, REVIEWS_HUB_PAGE_TITLE, REVIEWS_HUB_PRIMARY_START_LABEL, REVIEWS_HUB_RECENT_EMPTY_TITLE } from "./reviews-hub-copy";
+import {
+  REVIEWS_HUB_LIST_LOAD_FAILURE_TRY_NEXT,
+  REVIEWS_HUB_LIST_NOT_FOUND_TRY_NEXT,
+  REVIEWS_HUB_PAGE_SUBTITLE,
+  REVIEWS_HUB_PAGE_TITLE,
+  REVIEWS_HUB_PRIMARY_START_LABEL,
+  REVIEWS_HUB_RECENT_EMPTY_TITLE,
+} from "./reviews-hub-copy";
 import { RunsPageView } from "./RunsPageView";
 import type { RunsPageModel } from "./runs-page-model";
 
@@ -193,6 +200,46 @@ describe("RunsPageView page chrome", () => {
     expect(screen.queryByTestId("reviews-hub-recent-empty")).toBeNull();
     expect(screen.getByTestId("reviews-hub-more-ways")).toBeInTheDocument();
     expect(screen.queryByTestId("runs-list-advanced")).toBeNull();
+  });
+});
+
+describe("RunsPageView load failure", () => {
+  it("avoids connection advice when the list API returns not found", () => {
+    render(
+      <RunsPageView
+        model={baseModel({
+          loadFailure: {
+            message: "Resource not found",
+            problem: { title: "Not Found", errorCode: "RESOURCE_NOT_FOUND", detail: "Missing" },
+            correlationId: "corr-404",
+            httpStatus: 404,
+            retryAfterSeconds: null,
+          },
+        })}
+      />,
+    );
+
+    expect(screen.getByText("Not found in this workspace")).toBeInTheDocument();
+    expect(screen.getByText(REVIEWS_HUB_LIST_NOT_FOUND_TRY_NEXT)).toBeInTheDocument();
+    expect(screen.queryByText(/Check your connection/i)).not.toBeInTheDocument();
+  });
+
+  it("keeps connection advice for non-404 list load failures", () => {
+    render(
+      <RunsPageView
+        model={baseModel({
+          loadFailure: {
+            message: "Upstream unreachable",
+            problem: null,
+            correlationId: "corr-502",
+            httpStatus: 502,
+            retryAfterSeconds: null,
+          },
+        })}
+      />,
+    );
+
+    expect(screen.getByText(REVIEWS_HUB_LIST_LOAD_FAILURE_TRY_NEXT)).toBeInTheDocument();
   });
 });
 

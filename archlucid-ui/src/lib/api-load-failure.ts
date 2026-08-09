@@ -14,7 +14,13 @@ export type ApiLoadFailureState = {
   retryAfterSeconds: number | null;
 };
 
-/** True when the API reported the target resource is missing (404). */
+const NOT_FOUND_ERROR_CODES = new Set([
+  "RESOURCE_NOT_FOUND",
+  "RUN_NOT_FOUND",
+  "MANIFEST_NOT_FOUND",
+]);
+
+/** True when the API reported the target resource is missing (404 or not-found error codes). */
 export function isApiNotFoundFailure(f: ApiLoadFailureState | null | undefined): boolean {
   if (f === null || f === undefined) {
     return false;
@@ -26,7 +32,13 @@ export function isApiNotFoundFailure(f: ApiLoadFailureState | null | undefined):
 
   const ps = f.problem?.status;
 
-  return ps === 404;
+  if (ps === 404) {
+    return true;
+  }
+
+  const errorCode = f.problem?.errorCode?.trim();
+
+  return errorCode !== undefined && NOT_FOUND_ERROR_CODES.has(errorCode);
 }
 
 const TRANSIENT_HTTP_STATUSES = new Set([408, 502, 503, 504]);
