@@ -10,7 +10,7 @@ Regenerate after opening or closing summary-table rows:
 | Architectural quality | Open |
 | --- | ---: |
 | Correctness | 3 |
-| Testability | 127 |
+| Testability | 126 |
 | Reliability | 15 |
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
@@ -26,7 +26,7 @@ Regenerate after opening or closing summary-table rows:
 | Traceability | 3 |
 | Interoperability | 4 |
 | Compliance readiness | 1 |
-| Performance | 5 |
+| Performance | 13 |
 | Scalability | 2 |
 | Cost-effectiveness | 9 |
 | Supportability | 2 |
@@ -36,15 +36,15 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **770** |
+| **Total (unique open)** | **777** |
 
-**By priority band:** P0 **10** | P1 **628** | P2 **115** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **20** | P1 **627** | P2 **113** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
-**Updated:** 2026-08-09 (**TB-2140**–**TB-2146** **opened** + **TB-946**/**TB-1484**/**TB-1517** promoted to **P0** — Performance wave 6: next-10 quantified opportunities after Done **TB-2117**–**TB-2124**). Prior: 2026-08-09 (**TB-2130**–**TB-2139** **opened** — owner ask: create P0s for ten easier-to-use / easier-to-understand levers; see cluster note below). Prior: 2026-08-09 (**TB-1323** **Done** — `/demo/explain` conversion CTA auth honesty: anonymous viewers get sign-in + `/see-it` ladder; signed-in keeps wizard preset; Vitest guards). Prior: 2026-08-09 (**TB-1320** **Done** — `/demo/explain` status banner uses `StatusTag` + human generated time; review id/manifest version/ISO behind Technical details; Vitest guards). Prior: 2026-08-09 (**TB-1316** **Done** — session-expired OIDC errors use **Sign-in could not start** + in-place Try again preserving `returnUrl`). Prior: 2026-08-09 (**TB-1315** **Done** — `/auth/session-expired` secondary exit to `/welcome`; Vitest forbids auth-bounce `/`). Prior: 2026-08-09 (**TB-1308** **Done** — `/why-archlucid` operator counter copy + in-app footer; Vitest forbids eng metric/repo path leakage).
+**Updated:** 2026-08-09 (**TB-2130** **Done** — first-run `/architecture/reviews/new` primary quick start + `More ways to start` disclosure; returning tenants keep tabs). Prior: 2026-08-09 (**TB-2121** **Done** — staged Critic phase duration histogram + operations step labels + `STAGED_CRITIC_WALL_TIME_CONTRACT.md`). Prior: 2026-08-09 (**TB-2140**–**TB-2146** **opened** + **TB-946**/**TB-1484**/**TB-1517** promoted to **P0** — Performance wave 6: next-10 quantified opportunities after Done **TB-2117**–**TB-2124**). Prior: 2026-08-09 (**TB-2130**–**TB-2139** **opened** — owner ask: create P0s for ten easier-to-use / easier-to-understand levers; see cluster note below). Prior: 2026-08-09 (**TB-1323** **Done** — `/demo/explain` conversion CTA auth honesty: anonymous viewers get sign-in + `/see-it` ladder; signed-in keeps wizard preset; Vitest guards). Prior: 2026-08-09 (**TB-1320** **Done** — `/demo/explain` status banner uses `StatusTag` + human generated time; review id/manifest version/ISO behind Technical details; Vitest guards). Prior: 2026-08-09 (**TB-1316** **Done** — session-expired OIDC errors use **Sign-in could not start** + in-place Try again preserving `returnUrl`). Prior: 2026-08-09 (**TB-1315** **Done** — `/auth/session-expired` secondary exit to `/welcome`; Vitest forbids auth-bounce `/`). Prior: 2026-08-09 (**TB-1308** **Done** — `/why-archlucid` operator counter copy + in-app footer; Vitest forbids eng metric/repo path leakage).
 
 **BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **TB-386?397 Done** (2026-06-22 through 2026-06-27). **First-party connector V1.1?åÆV1 GA promotion (2026-07-03):** Jira/ServiceNow/Confluence/Slack/Microsoft Teams moved to **V1 GA** (`V1_DEFERRED.md` ?º6/?º6a); **TB-599?ÇôTB-602** track the resulting tightening work (native-create default posture, OAuth upgrade, live-validation parity, buyer-copy sweep). **Next recommended batch:** **TB-398** (full enterprise ITSM connector ?Çö **V2** ITSM cluster; out of V1/V1.1 unless owner promotes) remains separate and unaffected by the promotion. Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
@@ -1205,7 +1205,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-2127 | **Done** (2026-08-09) — `/help/evidence-trail` Mermaid provenance lineage diagram; see `## TB-2127` below | Adoption friction P0 — **V1**; owner PA help-diagram ask 2026-08-08; traffic **EV**; complements **TB-1360**–**TB-1364** | S |
 | TB-2128 | **Done** (2026-08-09) — `/help/repeat-review-loop` Mermaid stickiness-cycle diagram; see `## TB-2128` below | Adoption friction P0 — **V1**; owner PA help-diagram ask 2026-08-08; traffic **HRX**; complements **TB-1394**–**TB-1398** | S |
 | TB-2129 | **Done** (2026-08-09) — `/help/comparison-replay` Mermaid compare vs replay decision tree; see `## TB-2129` below | Adoption friction P0 — **V1**; owner PA help-diagram ask 2026-08-08; traffic **CO**; complements **TB-1636**–**TB-1640** | S |
-| TB-2130 | Single primary review-creation path — one default CTA; advanced modes demoted; see ## TB-2130 below | Adoption friction P0 — **V1**; owner easier-to-use ask 2026-08-09; residual after **TB-270**/**TB-666** | M |
+| TB-2130 | ~~Single primary review-creation path — one default CTA; advanced modes demoted~~ **Done** 2026-08-09 — first-run primary quick start + disclosure; returning tabs retained; Vitest; see ## TB-2130 below | Adoption friction P0 — **V1**; owner easier-to-use ask 2026-08-09; residual after **TB-270**/**TB-666** | M |
 | TB-2131 | Buyer-noun golden-path sweep — ban eng jargon on home / new review / review detail / list; see ## TB-2131 below | Adoption friction P0 — **V1**; owner easier-to-understand ask 2026-08-09; residual after **TB-431**–**TB-455** | M |
 | TB-2132 | Post-finalize sponsor export above the fold — “send to sponsor” + one-line handoff copy; see ## TB-2132 below | Adoption friction P0 — **V1**; owner easier-to-use ask 2026-08-09; first-session **H5** | M |
 | TB-2133 | Pre-commit progressive disclosure — hide Operate / diagnostics / CLI until first finalize; see ## TB-2133 below | Adoption friction P0 — **V1**; owner easier-to-use ask 2026-08-09; residual after **TB-169** | M |
@@ -38006,7 +38006,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Priority:** P0.
 
-**Source:** Owner COM review 2026-07-27 ? `/trust`/`welcome`/`pricing` have `revalidate = 300` (**TB-567**); this page does not; no `data-testid`.
+**Source:** Owner COM review 2026-07-27 — `/trust`/`welcome`/`pricing` have `revalidate = 300` (**TB-567**); this page does not; no `data-testid`. **Promoted P0** 2026-08-09 with perf wave 6 (summary was P2).
 
 **Problem:** Cold hits may miss ISR parity; E2E/axe targeting is harder without a stable test id.
 
@@ -38783,7 +38783,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Priority:** P0.
 
-**Source:** Owner EXA review 2026-07-27 ? `/trust` and **TB-1484** pattern; this page has neither `revalidate` nor `data-testid`.
+**Source:** Owner EXA review 2026-07-27 — `/trust` and **TB-1484** pattern; this page has neither `revalidate` nor `data-testid`. **Promoted P0** 2026-08-09 with perf wave 6 (summary was P2).
 
 **Problem:** Misses static marketing ISR parity; harder E2E/axe targeting.
 
@@ -49835,7 +49835,7 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Window:** V1 — Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-09) — first-run `/architecture/reviews/new` uses primary quick-start wizard + `More ways to start` disclosure; returning tenants keep path tabs; Vitest guards.
 
 **Priority:** P0.
 
@@ -50138,5 +50138,230 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 **Out of scope:** New RBAC capabilities or custom-role editor UX.
 
 **Size estimate:** L.
+
+---
+
+## TB-2140 — Critic phase overlap / tighter admission (P0)
+
+**Window:** V1 — Performance.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner perf wave 6 2026-08-09; residual of Done **TB-2121** (phase metrics + operations labels + [`STAGED_CRITIC_WALL_TIME_CONTRACT.md`](STAGED_CRITIC_WALL_TIME_CONTRACT.md)).
+
+**Why:** **TB-2121** shipped observability only. Staged Critic still runs as a **serial** second phase (~**+1× longest non-Critic agent** wall clock when enabled). Overlap / tighter bulkhead admission was explicitly deferred; Real-mode user wait remains AOAI-dominated.
+
+**Quantified target:** After publishing staging Real cohort **p50/p95** phase-1 vs Critic phase-2 timings, evaluate overlap or admission changes aiming for up to **~50%** Critic-on Real wall-time reduction when safe (estimate; quality-gated). Do not claim more replicas mint TPM.
+
+**Approach:**
+
+1. Capture staging Real cohort p50/p95 from `archlucid_agent_execution_staged_critic_phase_duration_ms` / operations `stepLabel`.
+2. Evaluate Critic overlap vs PilotStrict honesty and evidence completeness; keep fail-closed quality floors.
+3. Optionally tighten bulkhead admission / Critic timeout posture with measured evidence.
+4. Update `STAGED_CRITIC_WALL_TIME_CONTRACT.md` § overlap decision (go/no-go + measured numbers).
+
+**Acceptance:** Documented go/no-go with measured phase timings; if go, overlap or admission change ships with regression tests and contract update; if no-go, contract records why and residual serial cost.
+
+**Affected files:** `RealAgentExecutorStagedCriticExecution.cs`, resilience options, `STAGED_CRITIC_WALL_TIME_CONTRACT.md`, ops/docs.
+
+**Peers:** Done **TB-2121**/**TB-2075**/**TB-915**/**TB-947**; capacity ledger **TB-1336**.
+
+**Out of scope:** Changing Simulator/CI sync execute defaults; claiming TPM scale-out.
+
+**Size estimate:** M.
+
+---
+
+## TB-2141 — Production Redis L2 beyond DEV (P0)
+
+**Window:** V1 — Performance / Operability.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner perf wave 6 2026-08-09; residual of Done **TB-2120** (DEV Managed Redis only).
+
+**Why:** `appsettings.Production.json` still has `RedisConnectionString: ""` and `ExpectedApiReplicaCount: 1`. Horizontal scale without L2 causes per-replica miss storms.
+
+**Quantified target:** **−20–50%** hot-path SQL on shared list/dashboard reads after scale-out; **−20–60%** p95 on warm cached reads (estimates from TB-2120 / cold-start pack). Cost band ~**+$55–75**/mo Standard/Managed Redis class (region-dependent).
+
+**Approach:**
+
+1. Apply Managed Redis (or terraform-redis Managed SKU) to staging, then Production-like env; wire `HotPathCache__*` + secret.
+2. Set `ExpectedApiReplicaCount` to match deployed max replicas whenever `api_max_replicas > 1`.
+3. Verify `/health/ready` + cache hit/miss metrics; document rollback in `SCALE_TIER_CACHE_GUIDE.md`.
+
+**Acceptance:** Staging (then prod) uses Redis L2 with replica count aligned to scale posture; hit-rate observed; Production appsettings/env no longer empty Redis when scaled.
+
+**Affected files:** `appsettings.Production.json` (or env/KV), `infra/terraform-redis`, `infra/terraform-container-apps`, cache guide.
+
+**Peers:** Done **TB-2120**/**TB-580**/**TB-094**; scale **TB-915**.
+
+**Out of scope:** Re-wiring HybridCache code (**TB-580** Done).
+
+**Size estimate:** M.
+
+---
+
+## TB-2142 — Further `/architecture/reviews/[runId]` First Load JS cut (P0)
+
+**Window:** V1 — Performance.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner perf wave 6 2026-08-09; after Done **TB-2117** (**2237.5 → 2150.6 kB**).
+
+**Why:** Run detail remains the largest tracked operator route at **2150.6 kB** First Load JS. Easy workspace/overview deferrals are taken; further cuts need `build:analyze` before deferring remaining sync chrome.
+
+**Quantified target:** **−50 to −150 kB** First Load JS (~2–7%) estimate without regressing buyer first-paint chrome.
+
+**Approach:**
+
+1. Refresh `npm run build:analyze` inventory vs `reviews_run_detail_bundle_composition_tb697.md`.
+2. Defer remaining sync-only chrome (demo banner / share / proof clients / dialogs) behind interaction or below-fold `dynamic()`.
+3. Vitest import guards; remeasure baseline via `npm run write:first-load-js-baseline`.
+
+**Acceptance:** Measured First Load JS reduction within target band; baseline JSON updated; no buyer first-paint regression on summary path.
+
+**Affected files:** `RunDetailPageView`, deferred-chunk modules, `first-load-js-baseline.v1.json`, Vitest guards.
+
+**Peers:** Done **TB-933**/**TB-2021**/**TB-2117**.
+
+**Out of scope:** Reopening API payload work (**TB-2119** Done).
+
+**Size estimate:** M.
+
+---
+
+## TB-2143 — Narrow remaining operator `force-dynamic` layouts (P0)
+
+**Window:** V1 — Performance.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner perf wave 6 2026-08-09; residual of Done **TB-2123** (digests/advisory/Ask/integrations only).
+
+**Why:** ~**29** `(operator)` layouts still `export const dynamic = "force-dynamic"`, forcing TTFB + RSC work on every navigation.
+
+**Quantified target:** **−50–200 ms** TTFB on selectively cacheable navigations (estimate from TB-2123).
+
+**Approach:**
+
+1. Inventory remaining `force-dynamic` layouts (governance hubs, reviews, admin, insights, home).
+2. Migrate safe groups to `OperatorClientDrivenRouteLayout` (or equivalent) after security review — live tenant loaders stay client-driven.
+3. Vitest/import guards; update `UI_ARCHITECTURE_V1_1.md` §4.
+
+**Acceptance:** Material reduction in force-dynamic layout count; at least one additional operator layout group no longer blanket force-dynamic; docs updated.
+
+**Affected files:** `archlucid-ui/src/app/(operator)/**/layout.tsx`, `OperatorClientDrivenRouteLayout`, `UI_ARCHITECTURE_V1_1.md`.
+
+**Peers:** Done **TB-2123**.
+
+**Out of scope:** Caching authenticated HTML across tenants.
+
+**Size estimate:** M.
+
+---
+
+## TB-2144 — Alerts inbox + billing banners → TanStack Query (P0)
+
+**Window:** V1 — Performance.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner perf wave 6 2026-08-09; residual of Done **TB-2123** (`UI_ARCHITECTURE_V1_1` §1 follow-on).
+
+**Why:** Alerts inbox controller and billing past-due banner still use imperative `useEffect`+`fetch` — duplicate RTTs and remount churn.
+
+**Quantified target:** **−1–3 RTTs / −100–400 ms** perceived on remount/filter churn (estimate from TB-2123).
+
+**Approach:**
+
+1. Add scoped TanStack Query hooks for alerts inbox summary/list and billing banner reads.
+2. Wire `operator-query-keys` with tenant scope; invalidate on known mutations.
+3. Vitest for key stability and no duplicate mount fetch when SSR `initialModel` is authoritative.
+
+**Acceptance:** Alerts inbox + billing banner use Query with scoped keys; remount does not blindly refetch when hydrated data is fresh.
+
+**Affected files:** `use-alerts-inbox-controller`, `OperatorBillingPaymentPastDueBanner`, `operator-query-keys.ts`, tests.
+
+**Peers:** Done **TB-2123**/**TB-2023**/**TB-935**.
+
+**Out of scope:** Rewriting alerts inbox SSR model.
+
+**Size estimate:** S.
+
+---
+
+## TB-2145 — Shared shell / home First Load residual (P0)
+
+**Window:** V1 — Performance.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner perf wave 6 2026-08-09; after Done **TB-2118**/**TB-2061**.
+
+**Why:** Home `/` still **1619.5 kB**; hubs remain **~1.1–1.4 MB** First Load JS after shared-shell deferrals.
+
+**Quantified target:** **−100 to −400 kB** on `/` and remaining fat hubs if further shell/chunk splits land (estimate); triage with field CWV (**G-QA-06**).
+
+**Approach:**
+
+1. Analyzer pass on shared operator + marketing graph for `/` and top hubs.
+2. Isolate route-group chrome; defer low-frequency panels.
+3. Remeasure baseline; do not regress LCP/INP without CWV triage.
+
+**Acceptance:** Measured First Load JS reduction on `/` and/or ≥2 hubs; baseline updated; CWV triage note if field LCP already fine.
+
+**Affected files:** app-shell deferred chunks, home page graph, `first-load-js-baseline.v1.json`.
+
+**Peers:** Done **TB-2118**/**TB-2030**/**TB-2061**; GTM **G-QA-06**.
+
+**Out of scope:** Marketing hero redesign.
+
+**Size estimate:** L.
+
+---
+
+## TB-2146 — Cold-start staging Phase B + paid-lever reopen gate (P0)
+
+**Window:** V1 — Performance / Cost-effectiveness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner perf wave 6 2026-08-09; residual of Done **TB-2124** (all paid levers **no-go** on DEV Phase A ~**66 s**).
+
+**Why:** Phase **B** (`/api/auth/me` after ready) is still uncaptured; staging baseline row missing. Paid levers (`min_replicas`, R2R, CPU/memory) stay evidence-gated.
+
+**Quantified target:** Capture Phase B median; if Phase A **>120 s** or Phase B median **≥2.0 s**, reopen matching lever(s): idle **−30–90 s** (`min_replicas` 0→1); R2R **−15–40%** Phase B; CPU **−10–25%** (from TB-2124 matrix).
+
+**Approach:**
+
+1. Append staging cold-start baseline row per `COLD_START_MEASUREMENT.md`.
+2. Capture Phase B median on that deploy.
+3. Owner go/no-go update in `PERFORMANCE_COLD_START_AND_TRIMMING.md`; implement only chosen levers as follow-on commits.
+
+**Acceptance:** Staging Phase A+B numbers recorded; decision pack updated; no silent `min_replicas` raise without cost note.
+
+**Affected files:** `docs/operations/cold-start-baselines/`, `PERFORMANCE_COLD_START_AND_TRIMMING.md`, `COLD_START_MEASUREMENT.md`.
+
+**Peers:** Done **TB-2124**/**TB-754**–**TB-759**.
+
+**Out of scope:** Implementing all paid levers without evidence.
+
+**Size estimate:** S.
 
 ---

@@ -8,14 +8,17 @@ import { Suspense, useEffect, useMemo, useState } from "react";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { NewRunWizardSkeleton } from "@/components/skeletons/NewRunWizardSkeleton";
 import { InlineGuidanceText } from "@/components/InlineGuidanceText";
-import { REVIEWS_NEW_PATH_HINTS } from "@/lib/reviews-new-path-copy";
+import { Button } from "@/components/ui/button";
+import { REVIEWS_NEW_BACK_TO_QUICK_START_CTA, REVIEWS_NEW_PATH_HINTS } from "@/lib/reviews-new-path-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
+import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { ReviewsNewDeferredIntentCallout } from "./ReviewsNewDeferredIntentCallout";
 import { ReviewIntakeInvalidTemplateCallout } from "@/components/review-intake/ReviewIntakeInvalidTemplateCallout";
 import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator-home-example-request";
+import { ReviewsNewMoreWaysToStart } from "./ReviewsNewMoreWaysToStart";
 import {
   persistActivePath,
   readStoredActivePath,
@@ -67,6 +70,20 @@ function reviewsNewPathHref(pathname: string, path: ReviewsNewActivePath, search
   return query.length > 0 ? `${pathname}?${query}` : pathname;
 }
 
+function ReviewsNewActiveWizard(props: { readonly activePath: ReviewsNewActivePath }): React.JSX.Element {
+  const { activePath } = props;
+
+  if (activePath === "guided-intake") {
+    return <SocraticIntakeWizard />;
+  }
+
+  if (activePath === "detailed") {
+    return <NewRunWizardClient />;
+  }
+
+  return <FirstPilotIntakeWizard />;
+}
+
 /**
  * Path switcher at the top of `/architecture/reviews/new`: quick start, guided intake, or templates wizard.
  * Wizards load on demand so the initial `/architecture/reviews/new` chunk stays smaller.
@@ -75,6 +92,7 @@ export function ReviewsNewPathSwitcher() {
   const router = useRouter();
   const pathname = usePathname() ?? "/architecture/reviews/new";
   const searchParams = useSearchParams();
+  const commitContextQuery = useCorePilotCommitContextQuery();
   const baselineFirst = searchParams?.get("baseline") === "1";
   const presetGreenfield = searchParams?.get("preset") === "greenfield";
   const invalidExampleTemplateId = useMemo(
@@ -89,6 +107,9 @@ export function ReviewsNewPathSwitcher() {
     string
   >;
   const pathHints = REVIEWS_NEW_PATH_HINTS;
+  const hasCommittedManifest = commitContextQuery.data?.hasCommittedManifest ?? false;
+  const usePrimaryPathLayout = !hasCommittedManifest;
+  const shellReady = ready && !commitContextQuery.isPending;
 
   useEffect(() => {
     const activeTour = readBuyerCtoDemoTourActive();
@@ -134,46 +155,75 @@ export function ReviewsNewPathSwitcher() {
       {invalidExampleTemplateId !== null ? (
         <ReviewIntakeInvalidTemplateCallout templateId={invalidExampleTemplateId} />
       ) : null}
-      {ready ? (
-        <Tabs
-          value={activePath}
-          onValueChange={(next) => {
-            selectPath(next as ReviewsNewActivePath);
-          }}
-          className="space-y-3"
-        >
-          <TabsList
-            aria-label="Review creation path"
-            data-testid="reviews-new-path-toggle"
-            className="overflow-x-auto overflow-y-hidden"
-          >
-            {REVIEWS_NEW_PATH_TABS.map((tab) => (
-              <TabsTrigger
-                key={tab.id}
-                value={tab.id}
-                data-testid={reviewsNewPathTabTestId(tab.id)}
-                className="shrink-0"
+      {shellReady ? (
+        usePrimaryPathLayout ? (
+          <div className="space-y-4" data-testid="reviews-new-primary-path-layout">
+            <p
+              className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="reviews-new-path-hint"
+            >
+              <InlineGuidanceText text={pathHints[activePath]} />
+            </p>
+            <div className="pt-1" data-testid="reviews-new-path-panel">
+              <ReviewsNewActiveWizard activePath={activePath} />
+            </div>
+            {activePath === "quick-review" ? (
+              <ReviewsNewMoreWaysToStart onSelectPath={selectPath} />
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                data-testid="reviews-new-back-to-quick-start"
+                onClick={() => {
+                  selectPath("quick-review");
+                }}
               >
-                {pathTabLabels[tab.id]}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-          <p
-            className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="reviews-new-path-hint"
+                {REVIEWS_NEW_BACK_TO_QUICK_START_CTA}
+              </Button>
+            )}
+          </div>
+        ) : (
+          <Tabs
+            value={activePath}
+            onValueChange={(next) => {
+              selectPath(next as ReviewsNewActivePath);
+            }}
+            className="space-y-3"
           >
-            <InlineGuidanceText text={pathHints[activePath]} />
-          </p>
-          <TabsContent value="quick-review" className="mt-0 pt-1" data-testid="reviews-new-path-panel">
-            <FirstPilotIntakeWizard />
-          </TabsContent>
-          <TabsContent value="guided-intake" className="mt-0 pt-1" data-testid="reviews-new-path-panel">
-            <SocraticIntakeWizard />
-          </TabsContent>
-          <TabsContent value="detailed" className="mt-0 pt-1" data-testid="reviews-new-path-panel">
-            <NewRunWizardClient />
-          </TabsContent>
-        </Tabs>
+            <TabsList
+              aria-label="Review creation path"
+              data-testid="reviews-new-path-toggle"
+              className="overflow-x-auto overflow-y-hidden"
+            >
+              {REVIEWS_NEW_PATH_TABS.map((tab) => (
+                <TabsTrigger
+                  key={tab.id}
+                  value={tab.id}
+                  data-testid={reviewsNewPathTabTestId(tab.id)}
+                  className="shrink-0"
+                >
+                  {pathTabLabels[tab.id]}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+            <p
+              className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="reviews-new-path-hint"
+            >
+              <InlineGuidanceText text={pathHints[activePath]} />
+            </p>
+            <TabsContent value="quick-review" className="mt-0 pt-1" data-testid="reviews-new-path-panel">
+              <FirstPilotIntakeWizard />
+            </TabsContent>
+            <TabsContent value="guided-intake" className="mt-0 pt-1" data-testid="reviews-new-path-panel">
+              <SocraticIntakeWizard />
+            </TabsContent>
+            <TabsContent value="detailed" className="mt-0 pt-1" data-testid="reviews-new-path-panel">
+              <NewRunWizardClient />
+            </TabsContent>
+          </Tabs>
+        )
       ) : (
         <p className={OPERATOR_TYPOGRAPHY.helper}>Loading…</p>
       )}

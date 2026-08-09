@@ -26,6 +26,14 @@ export const REVIEWS_NEW_PATH_HINTS: Record<ReviewsNewPathMode, string> = {
     "Use templates, imports, and evidence upload when you need an export-ready review with full configuration.",
 };
 
+/** First-run progressive disclosure — secondary creation paths (TB-2130). */
+export const REVIEWS_NEW_MORE_WAYS_TO_START_TITLE = "More ways to start";
+
+export const REVIEWS_NEW_MORE_WAYS_TO_START_SUMMARY =
+  "Guided intake or templates and imports when you need more control.";
+
+export const REVIEWS_NEW_BACK_TO_QUICK_START_CTA = "Back to quick start";
+
 /** Proof collection reminder after commit (operator copy). */
 export const REVIEWS_NEW_PROOF_COLLECTION_HINT =
   "After commit, collect buyer-safe proof: .\\scripts\\collect-first-pilot-proof.ps1 -RunId <review-id> -SponsorHandoff";
