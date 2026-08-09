@@ -1,7 +1,8 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
-
 import { describe, expect, it } from "vitest";
+
+import { ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE } from "@/lib/enterprise-onboarding-help-copy";
 
 import {
   isInternalRunbookSlug,
@@ -67,7 +68,9 @@ describe("product-documentation-registry", () => {
     expect(getProductDocumentationEntry("cloud-connections/azure")?.title).toBe("Connect Azure securely");
     expect(getProductDocumentationEntry("cloud-connections/aws")?.title).toBe("Connect AWS securely");
     expect(getProductDocumentationEntry("cloud-connections/gcp")?.title).toBe("Connect GCP securely");
-    expect(getProductDocumentationEntry("enterprise-onboarding")?.title).toBe("Enterprise onboarding checklist");
+    expect(getProductDocumentationEntry("enterprise-onboarding")?.title).toBe(
+      ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE,
+    );
     expect(inAppHelpHref("enterprise-onboarding")).toBe("/help/enterprise-onboarding");
     expect(inAppHelpHref("cloud-connections-azure")).toBe("/help/cloud-connections/azure");
     expect(inAppHelpHref("cloud-connections-aws")).toBe("/help/cloud-connections/aws");

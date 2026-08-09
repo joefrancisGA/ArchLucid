@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
+import { ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE } from "@/lib/enterprise-onboarding-help-copy";
 import {
+  getHelpCenterDisplay,
   getHelpCenterTier,
   HELP_CENTER_FEATURED_SLUGS,
   listHelpCenterDocumentationTopics,
@@ -123,6 +125,16 @@ describe("help topic slug aliases", () => {
 });
 
 describe("help center tiers", () => {
+  it("classifies enterprise onboarding as admin tier with operator audience title honesty (TB-1341)", () => {
+    const entry = getProductDocumentationEntry("enterprise-onboarding");
+
+    expect(entry).not.toBeNull();
+    expect(entry?.audience).toBe("operator");
+    expect(getHelpCenterTier(entry!)).toBe("admin");
+    expect(getHelpCenterDisplay(entry!).title).toBe(ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE);
+    expect(entry?.title).toBe(ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE);
+  });
+
   it("classifies engineering runbooks as internal", () => {
     const cli = getProductDocumentationEntry("cli-usage");
 

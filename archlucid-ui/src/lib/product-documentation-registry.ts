@@ -2,6 +2,7 @@
  * Customer-visible in-app documentation registry.
  * Source of truth: `docs/library/PRODUCT_DOCUMENTATION_PRESENTATION.md`.
  */
+import { ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE } from "@/lib/enterprise-onboarding-help-copy";
 import {
   resolveProductDocumentationContentKind,
   type ProductDocumentationContentKind,
@@ -344,10 +345,10 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "enterprise-onboarding",
-    title: "Enterprise onboarding checklist",
+    title: ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE,
     summary:
       "Checklist for configuring a hosted ArchLucid enterprise tenant: SSO, roles, governance, policy packs, audit export, and optional Azure cloud evidence.",
-    audience: "buyer",
+    audience: "operator",
     sourcePaths: ["docs/library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md"],
   },
   {

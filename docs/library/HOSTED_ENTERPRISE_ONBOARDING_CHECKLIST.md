@@ -1,4 +1,4 @@
-> **Scope:** Buyer — Hosted SaaS enterprise onboarding checklist for ArchLucid-operated multi-tenant SaaS.
+> **Scope:** Operator — Hosted SaaS enterprise onboarding checklist for ArchLucid-operated multi-tenant SaaS.
 
 # Hosted SaaS enterprise onboarding checklist
 

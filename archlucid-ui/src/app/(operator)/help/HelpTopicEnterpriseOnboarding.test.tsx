@@ -12,6 +12,8 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 }));
 
 import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownView";
+import { ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE } from "@/lib/enterprise-onboarding-help-copy";
+import { getHelpCenterDisplay, getHelpCenterTier } from "@/lib/help-center-catalog";
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
@@ -64,6 +66,35 @@ describe("HelpTopicMarkdownView enterprise onboarding checklist", () => {
 
   it("loads enterprise onboarding markdown from the monorepo", () => {
     expect(loaded).not.toBeNull();
+  });
+
+  it("keeps one title across registry, help center, and page chrome (TB-1341)", () => {
+    if (loaded === null) {
+      throw new Error("Expected enterprise onboarding documentation to load.");
+    }
+
+    expect(loaded.entry.title).toBe(ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE);
+    expect(getHelpCenterDisplay(loaded.entry).title).toBe(ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE);
+    expect(getHelpCenterTier(loaded.entry)).toBe("admin");
+    expect(loaded.entry.audience).toBe("operator");
+
+    render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    expect(
+      screen.getAllByRole("heading", { level: 1, name: ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE }),
+    ).toHaveLength(1);
+  });
+
+  it("strips duplicate markdown H1 so the article body does not repeat the page title (TB-1341)", () => {
+    if (loaded === null) {
+      throw new Error("Expected enterprise onboarding documentation to load.");
+    }
+
+    const preparedMarkdown = prepareHelpMarkdownForPresentation(loaded.markdown, ENTERPRISE_ONBOARDING_SOURCE, {
+      helpTopicSlug: "enterprise-onboarding",
+    });
+
+    expect(preparedMarkdown.trimStart().startsWith("# ")).toBe(false);
   });
 
   it("renders every onboarding hub item as a link with the expected destination", () => {

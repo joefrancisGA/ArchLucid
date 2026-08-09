@@ -1,3 +1,4 @@
+import { ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE } from "@/lib/enterprise-onboarding-help-copy";
 import { resolveProductDocumentationContentKind } from "@/lib/product-documentation-content-kinds";
 import {
   listProductDocumentationEntries,
@@ -87,7 +88,7 @@ const HELP_CENTER_DISPLAY_OVERRIDES: Readonly<Partial<Record<string, HelpCenterD
     summary: "Assign Admin, Architect, Reader, and Auditor roles; map IdP groups to ArchLucid authority.",
   },
   "enterprise-onboarding": {
-    title: "Hosted SaaS enterprise onboarding checklist",
+    title: ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE,
     summary:
       "Configure an enterprise tenant — SSO, roles, governance, policy packs, audit export, and optional cloud connector evidence.",
   },
