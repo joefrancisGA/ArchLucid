@@ -2280,7 +2280,7 @@ Do not sell `WHERE TenantId` / scope threading as the paying-client boundary, ci
 
 ## Tenant DiD erosion beyond predicates (M-214) {#tenant-did-erosion-beyond-predicates-m-214}
 
-Former standalone body: `docs/go-to-market/TENANT_DID_EROSION_BEYOND_PREDICATES_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-213** / **M-214** / **TB-1232**). Complements [DiD structural vs convention (M-256)](#tenant-isolation-structural-vs-convention-m-256), [Isolation claims (M-195)](#isolation-claims-vs-inv001-adr0037-m-195), [Empty-scope catalog routing (M-169)](#empty-scope-catalog-routing-m-169), and [Tenant identity (M-151)](#tenant-identity-single-derivation-m-151). Does not reopen Done **M-114** or reinstate SQL RLS. Not an assurance attestation.
+Former standalone body: `docs/go-to-market/TENANT_DID_EROSION_BEYOND_PREDICATES_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-213** / **M-214** / **TB-1232**). Contributor contract: [`TENANT_DID_EROSION_AND_ENFORCEMENT_BEYOND_PREDICATES_CONTRACT.md`](../library/TENANT_DID_EROSION_AND_ENFORCEMENT_BEYOND_PREDICATES_CONTRACT.md) (**TB-1232** **Done**). Complements [DiD structural vs convention (M-256)](#tenant-isolation-structural-vs-convention-m-256), [Isolation claims (M-195)](#isolation-claims-vs-inv001-adr0037-m-195), [Empty-scope catalog routing (M-169)](#empty-scope-catalog-routing-m-169), and [Tenant identity (M-151)](#tenant-identity-single-derivation-m-151). Does not reopen Done **M-114** or reinstate SQL RLS. Not an assurance attestation.
 
 **Path-stable alias:** [`TENANT_DID_EROSION_BEYOND_PREDICATES_PA_ONE_PAGER.md`](TENANT_DID_EROSION_BEYOND_PREDICATES_PA_ONE_PAGER.md).
 
@@ -2345,7 +2345,8 @@ Do not equate repository `WHERE TenantId = @scope` or scope-provider threading a
 
 ### Residuals (honest)
 
-- **TB-1232** / **TB-1233** own the erosion contract and honesty CI.
+- **TB-1232** contract **Done** — [`TENANT_DID_EROSION_AND_ENFORCEMENT_BEYOND_PREDICATES_CONTRACT.md`](../library/TENANT_DID_EROSION_AND_ENFORCEMENT_BEYOND_PREDICATES_CONTRACT.md); exemption budget / ambient job guards remain follow-on.
+- **TB-1233** honesty CI (open) hardens buyer/proof stubs.
 - Cite `IScopeContextProvider`, `AmbientScopeContext`, `ScopedRoutingSqlConnectionFactory`, ARCH001/ARCH006, `AzureSearchTenantScopeFilterBuilder`, ADR 0037.
 - Complements **M-150**/**M-152**/**M-156**/**M-194**/**M-256**; pairs claim-honesty **M-213**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
