@@ -1074,9 +1074,10 @@ Former standalone body: `docs/go-to-market/QUALITY_GATE_VERSIONING_PA_ONE_PAGER.
 
 ### Residuals (honest)
 
-- **TB-972**–**TB-974** remain open for versioning, durable version/hash persistence, and wrong-gate remediation.
+- **TB-972** **Done** — versioning + historical immutability contract: [`QUALITY_GATE_DEFINITION_VERSIONING_CONTRACT.md`](../library/QUALITY_GATE_DEFINITION_VERSIONING_CONTRACT.md).
+- **TB-973**–**TB-974** remain open for durable version/hash persistence and wrong-gate remediation.
 - **TB-964** separately owns durable quality-outcome completeness.
-- Do not claim perfect gate calibration or full historical immutability implementation before these items ship.
+- Do not claim perfect gate calibration or full historical immutability **implementation** before **TB-973** ships.
 
 **Related:** [Model-failed vs quality-rejected (M-124)](#model-failed-vs-quality-rejected-m-124) Â· [LLM budget reserve/settle (M-132)](#llm-budget-reserve-settle-m-132) Â· [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 

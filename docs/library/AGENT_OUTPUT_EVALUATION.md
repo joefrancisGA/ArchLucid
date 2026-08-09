@@ -5,7 +5,7 @@
 
 # Agent output structural evaluation
 
-**Execution vs quality taxonomy:** [LLM_EXECUTION_VS_QUALITY_OUTCOME.md](LLM_EXECUTION_VS_QUALITY_OUTCOME.md) (**TB-963**).
+**Execution vs quality taxonomy:** [LLM_EXECUTION_VS_QUALITY_OUTCOME.md](LLM_EXECUTION_VS_QUALITY_OUTCOME.md) (**TB-963**). **Gate definition versioning:** [QUALITY_GATE_DEFINITION_VERSIONING_CONTRACT.md](QUALITY_GATE_DEFINITION_VERSIONING_CONTRACT.md) (**TB-972**).
 
 ## 1. Objective
 
