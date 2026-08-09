@@ -178,8 +178,8 @@ export function SettingsRolesPageView(props: Props) {
                   {!m.loading && m.note !== null && m.note !== "api_unavailable" ? (
                     <div data-testid="settings-roles-api-note">
                       <OperatorEmptyState
-                        title={settingsRolesEmptyStateTitle(m.note)}
-                        description={settingsRolesEmptyStateDescription(m.note)}
+                        title={settingsRolesEmptyStateTitle(m.note, "users")}
+                        description={settingsRolesEmptyStateDescription(m.note, "users")}
                       />
                       <div className="mt-4 flex flex-wrap gap-2">
                         <Button type="button" variant="secondary" size="sm" onClick={() => void m.load()}>
@@ -257,8 +257,8 @@ export function SettingsRolesPageView(props: Props) {
                 {!m.loading && m.note !== null ? (
                   <div data-testid="settings-roles-api-keys-note">
                     <OperatorEmptyState
-                      title={settingsRolesEmptyStateTitle(m.note)}
-                      description={settingsRolesEmptyStateDescription(m.note)}
+                      title={settingsRolesEmptyStateTitle(m.note, "api_keys")}
+                      description={settingsRolesEmptyStateDescription(m.note, "api_keys")}
                     />
                     <div className="mt-4 flex flex-wrap gap-2">
                       <Button type="button" variant="secondary" size="sm" onClick={() => void m.load()}>

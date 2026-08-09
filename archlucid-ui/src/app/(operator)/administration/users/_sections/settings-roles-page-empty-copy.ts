@@ -1,23 +1,51 @@
 import type { SettingsRolesPageNote } from "./settings-roles-page-types";
 
-export function settingsRolesEmptyStateTitle(kind: SettingsRolesPageNote): string {
+export type SettingsRolesEmptySurface = "users" | "api_keys";
+
+export function settingsRolesEmptyStateTitle(
+  kind: SettingsRolesPageNote,
+  surface: SettingsRolesEmptySurface,
+): string {
   if (kind === "api_unavailable") {
+    if (surface === "api_keys") {
+      return "API key directory unavailable";
+    }
+
     return "Member directory unavailable";
   }
 
   if (kind === "empty_response") {
+    if (surface === "api_keys") {
+      return "No API keys yet";
+    }
+
     return "No members yet";
+  }
+
+  if (surface === "api_keys") {
+    return "Could not load API keys";
   }
 
   return "Could not load members";
 }
 
-export function settingsRolesEmptyStateDescription(kind: SettingsRolesPageNote): string {
+export function settingsRolesEmptyStateDescription(
+  kind: SettingsRolesPageNote,
+  surface: SettingsRolesEmptySurface,
+): string {
   if (kind === "api_unavailable") {
+    if (surface === "api_keys") {
+      return "The API key role list could not be loaded. You can still manage credentials under API keys; retry when you need to review automation roles.";
+    }
+
     return "The workspace member list could not be loaded. You can still send invitations; retry when you need to review existing members.";
   }
 
   if (kind === "empty_response") {
+    if (surface === "api_keys") {
+      return "API keys appear here after keys are created and assigned a role.";
+    }
+
     return "People appear here after they accept an invitation. Pending invitations are listed above.";
   }
 
