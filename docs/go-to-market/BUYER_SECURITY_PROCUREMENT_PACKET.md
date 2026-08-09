@@ -1968,7 +1968,7 @@ Do not equate golden-cohort content SHA with production `ManifestHash`; do not c
 
 ## Decision-grade finding provenance fail-closed (M-208) {#decision-grade-finding-provenance-m-208}
 
-Former standalone body: `docs/go-to-market/DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-207** / **M-208** / **TB-1221**). Complements [AgentTask→decisioning leak seams (M-248)](#agenttask-decisioning-ungated-leak-seams-m-248), [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155), and [Shared hallucination defense plane (M-212)](#shared-hallucination-defense-plane-m-212). Does not reopen Done **TB-033**–**TB-037**. Not an assurance attestation and not a semantic-faithfulness claim (**M-210**).
+Former standalone body: `docs/go-to-market/DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-207** / **M-208** / **TB-1221**). Contributor contract: [`DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_CONTRACT.md`](../library/DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_CONTRACT.md) (**TB-1221** **Done**). Complements [AgentTask→decisioning leak seams (M-248)](#agenttask-decisioning-ungated-leak-seams-m-248), [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155), and [Shared hallucination defense plane (M-212)](#shared-hallucination-defense-plane-m-212). Does not reopen Done **TB-033**–**TB-037**. Not an assurance attestation and not a semantic-faithfulness claim (**M-210**).
 
 **Path-stable alias:** [`DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_PA_ONE_PAGER.md`](DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_PA_ONE_PAGER.md).
 
@@ -1999,7 +1999,7 @@ Former standalone body: `docs/go-to-market/DECISION_GRADE_FINDING_PROVENANCE_FAI
 | Claim / pattern | Status |
 | --- | --- |
 | Decision-grade needs structural ProvenanceKind + emission/commit gates | **Allow** |
-| Disclose empty `EvidenceRefs` residual while **TB-1221** open | **Allow** |
+| Disclose empty `EvidenceRefs` residual until emission/commit gates ship | **Allow** |
 | All findings are citation-bound / evidence-grounded | **Forbid** (while empty refs persist) |
 | Critic Low or top-level agent refs = per-finding guarantee | **Forbid** |
 | Prompt instructions = fail-closed provenance | **Forbid** |
@@ -2011,18 +2011,19 @@ Do not claim all findings are citation-bound or evidence-grounded while empty `E
 
 ### Safe pin
 
-> Decision-grade findings are fail-closed only where emission and commit gates enforce structural provenance. Empty EvidenceRefs, prompt-only “cite your sources,” and Critic confidence are not that guarantee — treat “every finding is evidence-grounded” as a review finding while TB-1221 residuals remain.
+> Decision-grade findings are fail-closed only where emission and commit gates enforce structural provenance (**TB-1221** contract). Empty EvidenceRefs, prompt-only “cite your sources,” and Critic confidence are not that guarantee — treat “every finding is evidence-grounded” as a review finding until gates ship.
 
 ### PA review
 
 1. Ask whether the buyer means structural provenance or semantic faithfulness.
 2. Confirm empty `EvidenceRefs` is disclosed for decision-grade paths.
 3. Confirm prompt/Critic language is not sold as the gate.
-4. Treat “all findings are citation-bound” as a review finding while **TB-1221** is open.
+4. Treat “all findings are citation-bound” as a review finding until emission/commit gates ship.
 
 ### Residuals (honest)
 
-- **TB-1221** / **TB-1222** own the fail-closed provenance contract and honesty CI.
+- **TB-1221** contract **Done** — [`DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_CONTRACT.md`](../library/DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_CONTRACT.md); emission/commit validator wiring remains follow-on.
+- **TB-1222** honesty CI (open) hardens buyer/proof stubs.
 - Score-lane positioning is **M-209**/**M-210** / **TB-1228** — see [Faithfulness / support-ratio lanes (M-210)](#faithfulness-support-ratio-scoring-lanes-m-210); shared defense plane is **M-212** / **TB-1230**.
 - Cite `FindingFactory`, `AgentResultParser`, `FindingPayloadValidator`, `AgentOutputQualityGate`.
 - Complements **M-154**, **M-203**, **M-247**/**M-248**; pairs claim-honesty **M-207**.
