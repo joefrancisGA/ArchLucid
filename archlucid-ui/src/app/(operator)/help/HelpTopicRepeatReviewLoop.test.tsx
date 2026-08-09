@@ -1,9 +1,16 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/components/help/MermaidDiagram", () => ({
+  MermaidDiagram: ({ source }: { readonly source: string }) => (
+    <div data-testid="mermaid-diagram">{source}</div>
+  ),
+}));
 
 import { HelpRepeatReviewLoopGuideView } from "@/app/(operator)/help/_sections/HelpRepeatReviewLoopGuideView";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
+import { REPEAT_REVIEW_LOOP_HELP_DIAGRAM_SOURCE } from "@/lib/repeat-review-loop-help-guide-content";
 
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
@@ -77,5 +84,38 @@ describe("HelpTopicRepeatReviewLoop (TB-1396)", () => {
     );
     expect(screen.getByRole("heading", { name: /Recommended loop/i })).toBeInTheDocument();
     expect(screen.queryByText(/collect-first-pilot-proof/i)).toBeNull();
+  });
+
+  it("shows stickiness-cycle diagram in the default viewport without expanding disclosures", () => {
+    if (loaded === null) {
+      throw new Error("Expected repeat-review-loop documentation to load.");
+    }
+
+    render(<HelpRepeatReviewLoopGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    const diagramHost = screen.getByTestId("help-repeat-review-loop-stickiness-diagram");
+    const mermaid = within(diagramHost).getByTestId("mermaid-diagram");
+
+    expect(mermaid).toHaveTextContent("First finalize");
+    expect(mermaid).toHaveTextContent("Compare two reviews");
+    expect(mermaid).toHaveTextContent("Replay regressions");
+    expect(mermaid).toHaveTextContent("Governance dry-run");
+    expect(mermaid).toHaveTextContent("Second finalize");
+    expect(mermaid).toHaveTextContent("Collect sponsor-safe proof");
+    expect(mermaid).toHaveTextContent("Next cycle");
+
+    expect(within(diagramHost).getByRole("link", { name: /Compare and replay/i })).toHaveAttribute(
+      "href",
+      "/help/comparison-replay",
+    );
+    expect(
+      within(diagramHost).getByRole("link", { name: /Your first architecture review/i }),
+    ).toHaveAttribute("href", "/help/first-architecture-review");
+
+    const diagramText = mermaid.textContent ?? "";
+
+    expect(diagramText).not.toContain("collect-first-pilot-proof");
+    expect(diagramText).not.toContain("API_CONTRACTS");
+    expect(REPEAT_REVIEW_LOOP_HELP_DIAGRAM_SOURCE).toContain("flowchart LR");
   });
 });

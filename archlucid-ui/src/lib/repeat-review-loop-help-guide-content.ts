@@ -25,6 +25,18 @@ export const REPEAT_REVIEW_LOOP_HELP_SCOPE_DETAILS_TRIGGER = "About repeat revie
 export const REPEAT_REVIEW_LOOP_HELP_OVERVIEW =
   "After one committed architecture review, ArchLucid helps you show stickiness: compare packages, replay authority for regressions, run governance dry-runs, and collect sponsor-safe proof on follow-up reviews.";
 
+export const REPEAT_REVIEW_LOOP_HELP_DIAGRAM_SUMMARY =
+  "The stickiness loop after your first finalize: compare, replay, dry-run governance, finalize again, and collect proof. See [Compare and replay](/help/comparison-replay) and [Your first architecture review](/help/first-architecture-review) for step detail.";
+
+/** Buyer-safe repeat-review cycle — no CLI scripts or repo paths. */
+export const REPEAT_REVIEW_LOOP_HELP_DIAGRAM_SOURCE = `flowchart LR
+  FF[First finalize] --> CMP[Compare two reviews]
+  CMP --> RPL[Replay regressions]
+  RPL --> DD[Governance dry-run]
+  DD --> SF[Second finalize]
+  SF --> PRF[Collect sponsor-safe proof]
+  PRF -.->|Next cycle| CMP`;
+
 export const REPEAT_REVIEW_LOOP_HELP_PRIMARY_ACTIONS = {
   compareReviews: {
     label: "Compare two reviews",
