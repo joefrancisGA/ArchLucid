@@ -1,7 +1,7 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
 
-export const ALERT_ROUTING_TAB_PATH = "/governance/alert-rules?tab=routing" as const;
+export const ALERT_ROUTING_TAB_PATH = "/governance/alert-rules?tab=notifications" as const;
 
 export const ALERT_ROUTING_CLAIM_DISCIPLINE =
   "Notification destinations and delivery attempts configure where qualifying alerts go — they are not a signed-review diligence Sources package. Open the Alert inbox or Conditions tab before treating delivery setup as governance evidence.";

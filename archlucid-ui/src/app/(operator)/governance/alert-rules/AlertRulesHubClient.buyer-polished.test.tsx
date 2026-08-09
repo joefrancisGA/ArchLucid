@@ -9,9 +9,9 @@ vi.mock("next/navigation", async (importOriginal) => {
   return {
     ...actual,
     useRouter: () => ({ push }),
-  useSearchParams: () => ({
-    get: (k: string) => (k === "tab" ? tabValue.current : null),
-  }),
+    useSearchParams: () => ({
+      get: (k: string) => (k === "tab" ? tabValue.current : null),
+    }),
     usePathname: () => "/",
   };
 });

@@ -17,12 +17,16 @@ describe("governance-route-paths", () => {
 
   it("builds alert-rules tab hrefs on the dedicated configuration route", () => {
     expect(governanceAlertRulesTabHref("rules")).toBe("/governance/alert-rules");
-    expect(governanceAlertRulesTabHref("routing")).toBe("/governance/alert-rules?tab=routing");
+    expect(governanceAlertRulesTabHref("notifications")).toBe("/governance/alert-rules?tab=notifications");
+    expect(governanceAlertRulesTabHref("advanced-rules")).toBe("/governance/alert-rules?tab=advanced-rules");
+    expect(governanceAlertRulesTabHref("test-alerts")).toBe("/governance/alert-rules?tab=test-alerts");
   });
 
-  it("routes legacy alerts tab deep links to alert-rules configuration", () => {
+  it("routes alerts tab deep links to alert-rules configuration", () => {
     expect(governanceAlertsTabHref("inbox")).toBe("/governance/alerts");
     expect(governanceAlertsTabHref("rules")).toBe("/governance/alert-rules");
-    expect(governanceAlertsTabHref("routing")).toBe("/governance/alert-rules?tab=routing");
+    expect(governanceAlertsTabHref("notifications")).toBe("/governance/alert-rules?tab=notifications");
+    expect(governanceAlertsTabHref("advanced-rules")).toBe("/governance/alert-rules?tab=advanced-rules");
+    expect(governanceAlertsTabHref("test-alerts")).toBe("/governance/alert-rules?tab=test-alerts");
   });
 });

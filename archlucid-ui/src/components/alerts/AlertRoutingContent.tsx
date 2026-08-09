@@ -1,13 +1,14 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { AlertRoutingCriteriaFields } from "@/components/alerts/AlertRoutingCriteriaFields";
 import { AlertRoutingDestinationList } from "@/components/alerts/AlertRoutingDestinationList";
+import { Button } from "@/components/ui/button";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useOptionalAlertRulesHubRefresh } from "@/lib/alerts-hub-refresh-context";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -15,7 +16,9 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   alertRoutingCreateSubscriptionButtonLabelReaderRank,
   alertRoutingPageLeadOperator,
+  alertRoutingPageLeadOperatorEmpty,
   alertRoutingPageLeadReader,
+  alertRoutingPageLeadReaderEmpty,
   enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
 import {
@@ -30,7 +33,8 @@ import {
   destinationFieldHelper,
   destinationFieldLabel,
   destinationFieldPlaceholder,
-  formatMinimumSeverityPreview,
+  formatAlertRoutingThresholdPreview,
+  isAlertRoutingDestinationFormValid,
   isWebhookChannelType,
   type AlertRoutingFieldErrors,
   validateAlertRoutingDestination,
@@ -50,7 +54,7 @@ import {
 } from "@/lib/webhook-subscription-connection-test";
 import type { AlertRoutingDeliveryAttempt, AlertRoutingSubscription } from "@/types/alert-routing";
 
-const DEFAULT_SUBSCRIPTION_NAME = "Primary notification destination";
+const DEFAULT_DESTINATION_NAME = "Primary notification destination";
 
 export function AlertRoutingContent() {
   const canMutateRouting = useOperateCapability();
@@ -66,11 +70,29 @@ export function AlertRoutingContent() {
   const [fieldErrors, setFieldErrors] = useState<AlertRoutingFieldErrors>({});
   const [testingId, setTestingId] = useState<string | null>(null);
 
-  const [name, setName] = useState(DEFAULT_SUBSCRIPTION_NAME);
+  const [name, setName] = useState(DEFAULT_DESTINATION_NAME);
   const [channelType, setChannelType] = useState("Email");
   const [destination, setDestination] = useState("");
   const [minimumSeverity, setMinimumSeverity] = useState("High");
   const [routingCriteria, setRoutingCriteria] = useState<AlertRoutingCriteria>(EMPTY_ALERT_ROUTING_CRITERIA);
+
+  const formValid = useMemo(
+    () => isAlertRoutingDestinationFormValid(channelType, name, destination),
+    [channelType, destination, name],
+  );
+
+  const thresholdPreview = useMemo(
+    () => formatAlertRoutingThresholdPreview(minimumSeverity, routingCriteria.severities),
+    [minimumSeverity, routingCriteria.severities],
+  );
+
+  const pageLead = useMemo(() => {
+    if (items.length === 0) {
+      return canMutateRouting ? alertRoutingPageLeadOperatorEmpty : alertRoutingPageLeadReaderEmpty;
+    }
+
+    return canMutateRouting ? alertRoutingPageLeadOperator : alertRoutingPageLeadReader;
+  }, [canMutateRouting, items.length]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -78,12 +100,13 @@ export function AlertRoutingContent() {
     try {
       const data = await listAlertRoutingSubscriptions();
       setItems(data);
+      refreshContext?.reportTabLoaded("notifications");
     } catch (e) {
       setFailure(toApiLoadFailure(e));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [refreshContext]);
 
   useEffect(() => {
     void load();
@@ -94,7 +117,7 @@ export function AlertRoutingContent() {
       return;
     }
 
-    return refreshContext.registerTabLoader("routing", load);
+    return refreshContext.registerTabLoader("notifications", load);
   }, [load, refreshContext]);
 
   function scrollToForm() {
@@ -137,7 +160,7 @@ export function AlertRoutingContent() {
 
     try {
       const created = await createAlertRoutingSubscription({
-        name: name.trim() || DEFAULT_SUBSCRIPTION_NAME,
+        name: name.trim() || DEFAULT_DESTINATION_NAME,
         channelType,
         destination: destination.trim(),
         minimumSeverity,
@@ -156,7 +179,7 @@ export function AlertRoutingContent() {
 
       setRoutingCriteria({ ...EMPTY_ALERT_ROUTING_CRITERIA });
       setDestination("");
-      setName(DEFAULT_SUBSCRIPTION_NAME);
+      setName(DEFAULT_DESTINATION_NAME);
       setMinimumSeverity("High");
       setFieldErrors({});
       setStatusMessage("Notification destination created.");
@@ -216,7 +239,7 @@ export function AlertRoutingContent() {
           Choose where qualifying alerts are sent and verify that delivery is working.
         </p>
         <p className={cn("max-w-prose text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          {canMutateRouting ? alertRoutingPageLeadOperator : alertRoutingPageLeadReader}
+          {pageLead}
         </p>
         <AlertOperatorToolingRankCue />
       </header>
@@ -264,24 +287,16 @@ export function AlertRoutingContent() {
         aria-labelledby="alert-routing-form-heading"
         className={cn("space-y-6 rounded-lg border border-neutral-200 bg-white p-5 dark:border-neutral-700 dark:bg-neutral-950", !canMutateRouting && "opacity-90")}
       >
-        <div>
-          <h3 id="alert-routing-form-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            Set up alert delivery
-          </h3>
-          <ol className={cn("mt-3 list-decimal space-y-1 pl-5 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-            <li>Choose a notification channel and destination.</li>
-            <li>Select the minimum severity that should trigger a notification.</li>
-            <li>Optionally limit notifications by finding category or review label.</li>
-            <li>Save the destination and send a test notification.</li>
-          </ol>
-        </div>
+        <h3 id="alert-routing-form-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          {items.length === 0 ? "Destination details" : "Set up alert delivery"}
+        </h3>
 
         <fieldset className="space-y-4 border-0 p-0" disabled={!canMutateRouting}>
           <legend className={cn("mb-2 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
             Destination
           </legend>
           <label className={cn("block text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-            Subscription name
+            Destination name
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -367,8 +382,17 @@ export function AlertRoutingContent() {
             className={cn("rounded-md bg-neutral-50 px-3 py-2 text-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
             data-testid="alert-routing-threshold-preview"
           >
-            {formatMinimumSeverityPreview(minimumSeverity)}
+            {thresholdPreview.preview}
           </p>
+          {thresholdPreview.criticalExcludedWarning !== null ? (
+            <p
+              className={cn("rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-amber-950 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="alert-routing-threshold-critical-warning"
+              role="status"
+            >
+              {thresholdPreview.criticalExcludedWarning}
+            </p>
+          ) : null}
         </fieldset>
 
         <AlertRoutingCriteriaFields
@@ -379,31 +403,32 @@ export function AlertRoutingContent() {
         />
 
         <div className="flex flex-wrap items-center gap-3 border-t border-neutral-200 pt-4 dark:border-neutral-700">
-          <button
+          <Button
             type="button"
+            variant="primary"
             onClick={() => void onCreate(false)}
-            disabled={!canMutateRouting || creating}
+            disabled={!canMutateRouting || creating || !formValid}
             title={canMutateRouting ? undefined : enterpriseMutationControlDisabledTitle}
-            className="rounded-md bg-[var(--al-primary)] px-4 py-2 font-medium text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-focus-ring)] disabled:opacity-60"
             data-testid="alert-routing-create-destination"
           >
             {creating ? "Creating destination…" : canMutateRouting ? "Create notification destination" : alertRoutingCreateSubscriptionButtonLabelReaderRank}
-          </button>
+          </Button>
           {isWebhookChannelType(channelType) ? (
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={() => void onCreate(true)}
-              disabled={!canMutateRouting || creating}
+              disabled={!canMutateRouting || creating || !formValid}
               title={canMutateRouting ? undefined : enterpriseMutationControlDisabledTitle}
-              className="rounded-md border border-neutral-300 px-4 py-2 font-medium text-neutral-800 hover:bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-focus-ring)] disabled:opacity-60 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-900"
             >
               {creating ? "Working…" : "Send test notification"}
-            </button>
+            </Button>
           ) : null}
-          <button
+          <Button
             type="button"
+            variant="ghost"
             onClick={() => {
-              setName(DEFAULT_SUBSCRIPTION_NAME);
+              setName(DEFAULT_DESTINATION_NAME);
               setChannelType("Email");
               setDestination("");
               setMinimumSeverity("High");
@@ -412,10 +437,9 @@ export function AlertRoutingContent() {
               setStatusMessage("Form reset.");
             }}
             disabled={creating}
-            className="rounded-md px-3 py-2 text-neutral-600 underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-focus-ring)] dark:text-neutral-300"
           >
             Reset form
-          </button>
+          </Button>
         </div>
       </section>
     </div>

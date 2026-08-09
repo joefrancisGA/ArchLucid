@@ -109,7 +109,7 @@ export function CompositeAlertRulesContent() {
       return;
     }
 
-    return refreshContext.registerTabLoader("composite", load);
+    return refreshContext.registerTabLoader("advanced-rules", load);
   }, [load, refreshContext]);
 
   async function onCreate() {

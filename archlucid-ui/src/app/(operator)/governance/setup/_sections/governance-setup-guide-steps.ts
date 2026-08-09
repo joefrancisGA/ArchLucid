@@ -31,7 +31,7 @@ export const GOVERNANCE_SETUP_GUIDE_STEPS: readonly GovernanceSetupStepDefinitio
     description: "Route important governance alerts to the teams responsible for responding.",
     outcome: "Critical signals reach owners instead of a silent inbox.",
     primaryActionLabel: ALERTS_CONFIGURE_RULES_LINK_LABEL,
-    primaryActionHref: governanceAlertRulesTabHref("routing"),
+    primaryActionHref: governanceAlertRulesTabHref("notifications"),
     secondaryActionLabel: "Check connector readiness",
     secondaryActionHref: INTEGRATIONS_READINESS_PATH,
   },

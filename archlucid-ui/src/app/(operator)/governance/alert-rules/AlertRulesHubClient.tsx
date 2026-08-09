@@ -34,15 +34,15 @@ const TAB_CONFIG: Record<AlertRulesHubTabId, AlertRulesHubTabConfig> = {
     label: "Conditions",
     subtitle: "When completed reviews should raise an alert",
   },
-  routing: {
+  notifications: {
     label: "Notifications",
     subtitle: "Where qualifying alerts are delivered",
   },
-  composite: {
+  "advanced-rules": {
     label: "Advanced rules",
     subtitle: "Combine multiple signals before alerting",
   },
-  simulation: {
+  "test-alerts": {
     label: "Test alerts",
     subtitle: "Simulate and tune alert behavior",
   },
@@ -122,9 +122,9 @@ export function AlertRulesHubClient() {
           data-testid="alert-rules-hub-panel"
         >
           {activeTab === "rules" ? <AlertRulesContentDeferred /> : null}
-          {activeTab === "routing" ? <AlertRoutingContentDeferred /> : null}
-          {activeTab === "composite" ? <CompositeAlertRulesContentDeferred /> : null}
-          {activeTab === "simulation" ? <AlertSimulationTuningSectionDeferred /> : null}
+          {activeTab === "notifications" ? <AlertRoutingContentDeferred /> : null}
+          {activeTab === "advanced-rules" ? <CompositeAlertRulesContentDeferred /> : null}
+          {activeTab === "test-alerts" ? <AlertSimulationTuningSectionDeferred /> : null}
         </div>
       </div>
     </AlertRulesHubRefreshProvider>

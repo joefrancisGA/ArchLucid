@@ -9,9 +9,9 @@ vi.mock("next/navigation", async (importOriginal) => {
   return {
     ...actual,
     useRouter: () => ({ push }),
-  useSearchParams: () => ({
-    get: (k: string) => (k === "tab" ? tabValue.current : null),
-  }),
+    useSearchParams: () => ({
+      get: (k: string) => (k === "tab" ? tabValue.current : null),
+    }),
     usePathname: () => "/",
   };
 });
@@ -67,13 +67,34 @@ describe("AlertRulesHubClient", () => {
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
   });
 
-  it("shows notifications when ?tab=routing", () => {
-    tabValue.current = "routing";
+  it("shows notifications when ?tab=notifications", () => {
+    tabValue.current = "notifications";
     render(<AlertRulesHubClient />);
     expect(screen.getByTestId("stub-routing")).toBeInTheDocument();
     expect(screen.queryByTestId("alert-routing-sources")).toBeNull(); // TB-2092
     expect(screen.queryByTestId("alert-routing-claim-discipline")).toBeNull(); // TB-2092
     expect(screen.getByRole("tab", { name: /Notifications/i })).toHaveAttribute("aria-selected", "true");
+  });
+
+  it("shows advanced rules when ?tab=advanced-rules", () => {
+    tabValue.current = "advanced-rules";
+    render(<AlertRulesHubClient />);
+    expect(screen.getByTestId("stub-composite")).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /Advanced rules/i })).toHaveAttribute("aria-selected", "true");
+  });
+
+  it("shows test alerts when ?tab=test-alerts", () => {
+    tabValue.current = "test-alerts";
+    render(<AlertRulesHubClient />);
+    expect(screen.getByTestId("stub-simulation")).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /Test alerts/i })).toHaveAttribute("aria-selected", "true");
+  });
+
+  it("falls back to conditions for unknown tab ids", () => {
+    tabValue.current = "routing";
+    render(<AlertRulesHubClient />);
+    expect(screen.getByTestId("stub-rules")).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /Conditions/i })).toHaveAttribute("aria-selected", "true");
   });
 
   it("hides routing Evidence strip on the Conditions tab", () => {
@@ -92,11 +113,11 @@ describe("AlertRulesHubClient", () => {
   it("keeps tab labels to a single line and moves the description to a tooltip", () => {
     render(<AlertRulesHubClient />);
 
-    const routingTab = screen.getByTestId("alert-rules-hub-tab-routing");
+    const notificationsTab = screen.getByTestId("alert-rules-hub-tab-notifications");
 
-    expect(routingTab).toHaveTextContent("Notifications");
-    expect(routingTab).not.toHaveTextContent("Where qualifying alerts are delivered");
-    expect(routingTab).toHaveAttribute("title", "Where qualifying alerts are delivered");
-    expect(screen.getByRole("tab", { name: "Notifications" })).toBe(routingTab);
+    expect(notificationsTab).toHaveTextContent("Notifications");
+    expect(notificationsTab).not.toHaveTextContent("Where qualifying alerts are delivered");
+    expect(notificationsTab).toHaveAttribute("title", "Where qualifying alerts are delivered");
+    expect(screen.getByRole("tab", { name: "Notifications" })).toBe(notificationsTab);
   });
 });

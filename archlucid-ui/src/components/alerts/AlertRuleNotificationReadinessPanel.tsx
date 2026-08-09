@@ -59,7 +59,7 @@ export function AlertRuleNotificationReadinessPanel(
       {!readiness.externalNotificationsConfigured ? (
         <p className="mb-0 mt-3">
           <Link
-            href={governanceAlertRulesTabHref("routing")}
+            href={governanceAlertRulesTabHref("notifications")}
             className="text-al-link underline-offset-2 hover:underline"
           >
             {ALERT_RULES_NOTIFICATIONS_TAB_LINK_LABEL}
