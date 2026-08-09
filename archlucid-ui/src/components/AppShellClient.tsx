@@ -22,6 +22,7 @@ import {
   SyncActiveRunFromPathnameDeferred,
 } from "@/components/shell/app-shell-deferred-chunks";
 import { AppShellKeyboardShortcutBoundary } from "@/components/shell/AppShellKeyboardShortcutBoundary";
+import { OperatorShellAccessRedirectsHost } from "@/components/shell/OperatorShellAccessRedirectsHost";
 import { ColorModeToggle } from "@/components/ColorModeToggle";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
 import {
@@ -297,6 +298,7 @@ function AppShellInner({ children }: AppShellClientProps) {
     return (
       <OperatorShellProviders>
         <AppShellDeferChromeBoundary deferChrome={deferChrome} shellRootRef={shellRootRef}>
+          {!deferChrome ? <OperatorShellAccessRedirectsHost /> : null}
           <AppShellTelemetryBundleDeferred />
           <SessionIdleTimeoutGuardDeferred />
           <TooltipProvider delayDuration={200}>
@@ -394,6 +396,7 @@ function AppShellInner({ children }: AppShellClientProps) {
   return (
     <OperatorShellProviders>
       <AppShellDeferChromeBoundary deferChrome={deferChrome} shellRootRef={shellRootRef}>
+      {!deferChrome ? <OperatorShellAccessRedirectsHost /> : null}
       <AppShellTelemetryBundleDeferred />
       <DevTestingShellShortcutsDeferred />
       <SessionIdleTimeoutGuardDeferred />

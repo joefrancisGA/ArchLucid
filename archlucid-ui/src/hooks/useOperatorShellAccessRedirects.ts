@@ -12,7 +12,8 @@ import { isLikelySignedIn } from "@/lib/oidc/session";
 
 /**
  * Client-side operator access redirects (unsigned JWT → sign-in, missing role → `/403`).
- * Must run while deferred access-gate chrome is visible — `OperatorRoleGate` is not mounted then (TB-730 / TB-796).
+ * Must run while deferred access-gate chrome is visible — `OperatorRoleGate` is not mounted then (TB-730 / TB-796),
+ * and while full shell chrome is visible before `AppShellMainContentGateDeferred` hydrates (TB-2118).
  */
 export function useOperatorShellAccessRedirects(): void {
   const pathname = usePathname();
