@@ -130820,6 +130820,15 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("provenanceCorrelationId")]
         public string? ProvenanceCorrelationId { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("qualityGateDefinitionContentHashSha256")]
+        public string? QualityGateDefinitionContentHashSha256 { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("qualityGateDefinitionMode")]
+        public string? QualityGateDefinitionMode { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("qualityGateDefinitionVersion")]
+        public string? QualityGateDefinitionVersion { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("qualityRejected")]
         public bool? QualityRejected { get; set; } = default!;
 
@@ -130831,6 +130840,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("reasoningTokenCount")]
         public int? ReasoningTokenCount { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("recordedQualityGateOutcome")]
+        public RecordedQualityGateOutcome? RecordedQualityGateOutcome { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
         public string? RunId { get; set; } = default!;
@@ -130978,6 +130990,45 @@ namespace ArchLucid.Api.Client.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class AgentOutputEvaluationPerspective
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("aggregateQualityGateOutcome")]
+        public AggregateQualityGateOutcome? AggregateQualityGateOutcome { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("authority")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string Authority { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("averageSemanticScore")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
+        public double? AverageSemanticScore { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("averageStructuralCompletenessRatio")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
+        public double? AverageStructuralCompletenessRatio { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("gateDefinition")]
+        public GateDefinition? GateDefinition { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("scores")]
+        public System.Collections.Generic.ICollection<AgentOutputEvaluationScore>? Scores { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("tracesSkippedCount")]
+        public int? TracesSkippedCount { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class AgentOutputEvaluationScore
     {
 
@@ -130993,6 +131044,12 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("missingKeys")]
         public System.Collections.Generic.ICollection<string>? MissingKeys { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("qualityGateDefinitionContentHashSha256")]
+        public string? QualityGateDefinitionContentHashSha256 { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("qualityGateOutcome")]
+        public QualityGateOutcome? QualityGateOutcome { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("qualityWarning")]
         public bool? QualityWarning { get; set; } = default!;
@@ -131022,28 +131079,18 @@ namespace ArchLucid.Api.Client.Generated
     public partial class AgentOutputEvaluationSummary
     {
 
-        [System.Text.Json.Serialization.JsonPropertyName("aggregateQualityGateOutcome")]
-        public AggregateQualityGateOutcome? AggregateQualityGateOutcome { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("averageSemanticScore")]
-        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double? AverageSemanticScore { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("averageStructuralCompletenessRatio")]
-        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double? AverageStructuralCompletenessRatio { get; set; } = default!;
+        [System.Text.Json.Serialization.JsonPropertyName("advisoryCurrent")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public AgentOutputEvaluationPerspective AdvisoryCurrent { get; set; } = new AgentOutputEvaluationPerspective();
 
         [System.Text.Json.Serialization.JsonPropertyName("evaluatedAtUtc")]
         public System.DateTimeOffset? EvaluatedAtUtc { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("recorded")]
+        public Recorded? Recorded { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
         public string? RunId { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("scores")]
-        public System.Collections.Generic.ICollection<AgentOutputEvaluationScore>? Scores { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("tracesSkippedCount")]
-        public int? TracesSkippedCount { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
@@ -134715,6 +134762,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("commitSha")]
         public string? CommitSha { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("deployStamp")]
+        public string? DeployStamp { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("environment")]
         public string? Environment { get; set; } = default!;
@@ -150457,6 +150507,40 @@ namespace ArchLucid.Api.Client.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class QualityGateDefinitionSnapshotDto
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("contentHashSha256")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string ContentHashSha256 { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("definitionVersion")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string DefinitionVersion { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("deprecatedReason")]
+        public string? DeprecatedReason { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("effectiveFromUtc")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public System.DateTimeOffset EffectiveFromUtc { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("mode")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string Mode { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class QuestionSelectionResult
     {
 
@@ -152005,6 +152089,9 @@ namespace ArchLucid.Api.Client.Generated
     public partial class ReportProblemContextDto
     {
 
+        [System.Text.Json.Serialization.JsonPropertyName("apiCommitSha")]
+        public string? ApiCommitSha { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("browserClient")]
         public string? BrowserClient { get; set; } = default!;
 
@@ -152013,6 +152100,12 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("correlationId")]
         public string? CorrelationId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("deployStamp")]
+        public string? DeployStamp { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("environment")]
+        public string? Environment { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("errorCode")]
         public string? ErrorCode { get; set; } = default!;
@@ -152037,6 +152130,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
         public string? TenantId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("uiCommitSha")]
+        public string? UiCommitSha { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("uiVersion")]
         public string? UiVersion { get; set; } = default!;
@@ -161455,7 +161551,7 @@ namespace ArchLucid.Api.Client.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class Semantic
+    public partial class RecordedQualityGateOutcome
     {
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
@@ -161471,6 +161567,66 @@ namespace ArchLucid.Api.Client.Generated
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class AggregateQualityGateOutcome
+    {
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class GateDefinition
+    {
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class QualityGateOutcome
+    {
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class Semantic
+    {
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class Recorded
     {
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
