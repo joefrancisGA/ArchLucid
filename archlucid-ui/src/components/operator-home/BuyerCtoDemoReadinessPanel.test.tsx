@@ -96,7 +96,7 @@ describe("BuyerCtoDemoReadinessPanel", () => {
     });
   });
 
-  it("groups checks into sections on the internal admin layout", async () => {
+  it("groups checks into sections on the internal admin layout without a duplicate panel title", async () => {
     render(<BuyerCtoDemoReadinessPanel layout="internal-page" />);
 
     await waitFor(() => {
@@ -104,6 +104,7 @@ describe("BuyerCtoDemoReadinessPanel", () => {
       expect(screen.getByRole("heading", { name: "Platform services" })).toBeInTheDocument();
     });
 
+    expect(screen.queryByRole("heading", { name: "Demo readiness" })).toBeNull();
     expect(screen.getByTestId("demo-readiness-last-checked")).toBeInTheDocument();
   });
 });

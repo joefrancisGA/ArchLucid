@@ -5,14 +5,19 @@ import Link from "next/link";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { BuyerCtoDemoReadinessPanel } from "@/components/operator-home/BuyerCtoDemoReadinessPanel";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
+import { PageHeading } from "@/components/PageHeading";
 import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   INTERNAL_DEMO_READINESS_DIAGNOSTICS_LINK,
   INTERNAL_DEMO_READINESS_PAGE_LEAD,
-  BUYER_CTO_DEMO_READINESS_HEADING,
 } from "@/lib/buyer-polish-copy";
-import { OPERATOR_HOME_PRIMARY_SECTION_HEADING, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import {
+  INTERNAL_DEMO_READINESS_PAGE_TITLE,
+  INTERNAL_OPERATIONS_NAV_EYEBROW,
+} from "@/lib/demo-readiness-evidence-copy";
+import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { INTERNAL_DEMO_READINESS_PATH } from "@/lib/internal-ops-route-paths";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { cn } from "@/lib/utils";
 
@@ -41,21 +46,24 @@ export function DemoReadinessAdminPageClient(): React.JSX.Element {
 
   return (
     <OperatorPageContainer variant="dashboard" className="space-y-6" data-testid="demo-readiness-admin-page">
-      <header className="space-y-2">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="min-w-0 flex-1 space-y-2">
-            <h1 className={OPERATOR_HOME_PRIMARY_SECTION_HEADING}>{BUYER_CTO_DEMO_READINESS_HEADING}</h1>
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPE_SCALE.helper)}>
-              {INTERNAL_DEMO_READINESS_PAGE_LEAD}
-            </p>
-          </div>
-          <PageContextualHelpButton />
-        </div>
+      <PageHeading
+        navHref={INTERNAL_DEMO_READINESS_PATH}
+        title={INTERNAL_DEMO_READINESS_PAGE_TITLE}
+        titleTestId="demo-readiness-admin-page-title"
+        metadata={
+          <p className={cn("m-0", OPERATOR_TYPE_SCALE.eyebrow)} data-testid="demo-readiness-admin-ops-eyebrow">
+            {INTERNAL_OPERATIONS_NAV_EYEBROW}
+          </p>
+        }
+        description={INTERNAL_DEMO_READINESS_PAGE_LEAD}
+        actions={<PageContextualHelpButton />}
+        data-testid="demo-readiness-admin-page-heading"
+      >
         <Button asChild variant="outline" size="sm" className="h-8">
           <Link href="/internal/health">{INTERNAL_DEMO_READINESS_DIAGNOSTICS_LINK}</Link>
         </Button>
-      </header>
-<BuyerCtoDemoReadinessPanel layout="internal-page" />
+      </PageHeading>
+      <BuyerCtoDemoReadinessPanel layout="internal-page" />
     </OperatorPageContainer>
   );
 }

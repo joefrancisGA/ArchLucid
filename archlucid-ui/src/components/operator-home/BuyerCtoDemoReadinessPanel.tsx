@@ -115,6 +115,7 @@ export function BuyerCtoDemoReadinessPanel(props: BuyerCtoDemoReadinessPanelProp
 
   const statusKind = result === null ? "needs-attention" : buyerCtoDemoReadinessStatusKind(result.verdict);
   const embedded = layout === "embedded";
+  const showPanelHeading = layout !== "embedded" && layout !== "internal-page";
   const shellClassName = embedded ? "space-y-3" : cn(EXPLORE_ARCHLUCID_ROW_CLASS, "p-4");
   const showInternalDemoControls = isCtoDemoInternalOperatorControlsEnv();
   const groupedChecks = result === null ? [] : groupDemoReadinessChecksBySection(result.checks);
@@ -127,11 +128,11 @@ export function BuyerCtoDemoReadinessPanel(props: BuyerCtoDemoReadinessPanelProp
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 space-y-2">
-          {embedded ? null : (
+          {showPanelHeading ? (
             <h2 id="buyer-cto-demo-readiness-heading" className={cn("m-0", OPERATOR_TYPE_SCALE.cardTitle)}>
               {BUYER_CTO_DEMO_READINESS_HEADING}
             </h2>
-          )}
+          ) : null}
           <StatusTag
             kind={statusKind}
             label={readinessBadgeLabel(result)}

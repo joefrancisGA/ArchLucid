@@ -3,6 +3,12 @@ import { LIVE_DEMO_PAGE_TITLE } from "@/lib/live-demo-page-copy";
 
 export const DEMO_READINESS_CANONICAL_PATH = "/internal/demo-readiness" as const;
 
+/** Page H1 on the admin diagnostics surface — distinct from sidebar nav label (TB-1409). */
+export const INTERNAL_DEMO_READINESS_PAGE_TITLE = "Internal demo readiness" as const;
+
+/** PageHeading metadata — names the Internal Operations nav group for operators (TB-1409). */
+export const INTERNAL_OPERATIONS_NAV_EYEBROW = "Internal Operations" as const;
+
 /** Default run-of-show download name on Demo readiness admin — no `cto-demo` segment (TB-1410). */
 export const DEMO_READINESS_RUN_OF_SHOW_DOWNLOAD_FILENAME = "archlucid-internal-demo-runofshow.md" as const;
 

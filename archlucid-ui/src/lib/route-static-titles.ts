@@ -14,7 +14,9 @@ import {
 import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
 import { EXECUTIVE_DASHBOARD_HREF, EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/executive-dashboard-route";
-import { BUYER_CTO_DEMO_READINESS_HEADING } from "@/lib/buyer-polish-copy";
+import {
+  INTERNAL_DEMO_READINESS_PAGE_TITLE,
+} from "@/lib/demo-readiness-evidence-copy";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 import { PLANNING_PATH } from "@/lib/planning-route";
@@ -83,7 +85,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/insights/pilot-outcomes": PILOT_OUTCOMES_PAGE_TITLE,
   [SPONSOR_REPORT_ROI_SUMMARY_PATH]: OPERATOR_NAV_LINK_LABELS.roiReport,
   [ARCHITECTURE_SCORECARD_PATH]: OPERATOR_NAV_LINK_LABELS.scorecard,
-  "/internal/demo-readiness": BUYER_CTO_DEMO_READINESS_HEADING,
+  "/internal/demo-readiness": INTERNAL_DEMO_READINESS_PAGE_TITLE,
   [ITSM_CONNECTORS_ADMIN_PATH]: ITSM_CONNECTORS_ADMIN_LABEL,
   "/administration": OPERATOR_NAV_LINK_LABELS.settings,
   "/administration/users": "Users & roles",
