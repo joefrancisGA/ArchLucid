@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 
 import type { HelpArticleResponse } from "@/app/api/help/[slug]/route";
 import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownView";
+import { HelpApiContractsGuideView } from "@/app/(operator)/help/_sections/HelpApiContractsGuideView";
+import { HelpConfigurationReferenceGuideView } from "@/app/(operator)/help/_sections/HelpConfigurationReferenceGuideView";
 import { HelpEngineeringTroubleshootingGuideView } from "@/app/(operator)/help/_sections/HelpEngineeringTroubleshootingGuideView";
 import { HelpTopicNotFoundView } from "@/app/(operator)/help/_sections/HelpTopicNotFoundView";
 import { ensureAccessTokenFresh, getAccessTokenForApi } from "@/lib/oidc/session";
@@ -78,6 +80,14 @@ export function HelpTopicMarkdownClient(props: HelpTopicMarkdownClientProps): Re
 
   if (props.entry.slug === "developer-troubleshooting") {
     return <HelpEngineeringTroubleshootingGuideView entry={props.entry} markdown={state.markdown} />;
+  }
+
+  if (props.entry.slug === "configuration-reference") {
+    return <HelpConfigurationReferenceGuideView entry={props.entry} markdown={state.markdown} />;
+  }
+
+  if (props.entry.slug === "governance-api-contracts") {
+    return <HelpApiContractsGuideView entry={props.entry} markdown={state.markdown} />;
   }
 
   return (
