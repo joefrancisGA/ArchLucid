@@ -31,6 +31,7 @@ internal sealed class StubHttpMessageHandler(
             body));
 
         // Recorded before throwing so a failure test can still assert the attempt was made.
+
         if (throwOnSend is not null)
             throw throwOnSend;
 
