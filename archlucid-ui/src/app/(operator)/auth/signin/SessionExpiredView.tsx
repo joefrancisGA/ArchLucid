@@ -5,6 +5,11 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  SESSION_EXPIRED_SECONDARY_EXIT_LABEL,
+  SESSION_EXPIRED_SECONDARY_EXIT_PATH,
+} from "@/lib/auth/session-expired-page-copy";
+import { publicSiteHref } from "@/lib/site-urls";
 import { getSessionMessageCopy } from "@/app/(operator)/auth/signin/session-message-copy";
 
 export type SessionExpiredViewProps = {
@@ -13,7 +18,7 @@ export type SessionExpiredViewProps = {
   readonly onSignIn: () => void;
   /** Shows the "return to the last page" hint when a real (non-root) return destination is known. */
   readonly hasReturnDestination?: boolean;
-  /** Renders a subtle "Return to home" secondary link. Defaults to `true`. */
+  /** Renders a subtle public exit secondary link. Defaults to `true`. */
   readonly showReturnHome?: boolean;
 };
 
@@ -50,8 +55,12 @@ export function SessionExpiredView({
           Sign in
         </Button>
         {showReturnHome ? (
-          <Link className={OPERATOR_LINK.nav} href="/" data-testid="session-expired-return-home">
-            Return to home
+          <Link
+            className={OPERATOR_LINK.nav}
+            href={publicSiteHref(SESSION_EXPIRED_SECONDARY_EXIT_PATH)}
+            data-testid="session-expired-return-home"
+          >
+            {SESSION_EXPIRED_SECONDARY_EXIT_LABEL}
           </Link>
         ) : null}
       </div>
