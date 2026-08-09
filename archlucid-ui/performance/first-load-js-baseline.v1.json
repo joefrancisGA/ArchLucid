@@ -1,35 +1,35 @@
 {
   "schemaVersion": 1,
-  "updatedUtc": "2026-08-09T02:06:54.716Z",
+  "updatedUtc": "2026-08-09T20:54:40.590Z",
   "regressionToleranceKb": 25,
   "routes": {
     "/": {
-      "firstLoadJsKb": 1619.5
+      "firstLoadJsKb": 1646.1
     },
     "/welcome": {
-      "firstLoadJsKb": 607.2
+      "firstLoadJsKb": 609.6
     },
     "/governance/approval-queue": {
-      "firstLoadJsKb": 1381.4
+      "firstLoadJsKb": 1397.8
     },
     "/governance/alerts": {
-      "firstLoadJsKb": 1331.5
+      "firstLoadJsKb": 1344.3
     },
     "/governance/alert-rules": {
-      "firstLoadJsKb": 1103.9
+      "firstLoadJsKb": 1006.2
     },
     "/architecture/reviews": {
-      "firstLoadJsKb": 1169.5
+      "firstLoadJsKb": 1180.3
     },
     "/architecture/reviews/[runId]": {
-      "firstLoadJsKb": 2150.6
+      "firstLoadJsKb": 1879.1
     },
     "/architecture/executive-dashboard": {
-      "firstLoadJsKb": 1420.3
+      "firstLoadJsKb": 1428.4
     },
     "/governance/signed-records": {
-      "firstLoadJsKb": 1360.9
+      "firstLoadJsKb": 1368.9
     }
   },
-  "notes": "TB-2118: shared operator-shell deferrals remeasured hubs — `/architecture/reviews` **1710.6 → 1169.5 kB**, `/governance/alerts` **1485 → 1331.5 kB**, `/governance/alert-rules` **1470 → 1103.9 kB** (`app-shell-deferred-chunks.tsx`). TB-2117: `/architecture/reviews/[runId]` measured **2237.5 → 2150.6 kB** (−86.9 kB) after workspace/overview chrome deferrals. Prior `/` **1520 kB** was a TB-2030 estimate; committed baseline **1619.5 kB** is the remeasured value."
+  "notes": "TB-2142: `/architecture/reviews/[runId]` measured **2150.6 → 1879.1 kB** (−271.5 kB) after deferring evidence tab, share/export row, demo chrome, manifest alerts, run actions, and help registrar off sync First Load JS. TB-2118: shared operator-shell deferrals remeasured hubs — `/architecture/reviews` **1710.6 → 1169.5 kB**, `/governance/alerts` **1485 → 1331.5 kB**, `/governance/alert-rules` **1470 → 1103.9 kB** (`app-shell-deferred-chunks.tsx`). TB-2117: prior `/architecture/reviews/[runId]` cut **2237.5 → 2150.6 kB** (−86.9 kB) after workspace/overview chrome deferrals."
 }

@@ -434,3 +434,55 @@ export const RunDetailBuyerModeFallbackBannerDeferred = dynamic(
   () => import("./RunDetailBuyerModeFallbackBanner").then((module) => module.RunDetailBuyerModeFallbackBanner),
   { ssr: false, loading: () => null },
 );
+
+const evidenceTabLoading = (
+  <div
+    className="h-48 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
+    role="status"
+    aria-label="Loading evidence tab"
+  />
+);
+
+/** TB-2142 — evidence tab scope/inventory cluster off sync First Load JS. */
+export const RunDetailEvidenceTabPanelDeferred = dynamic(
+  () => import("./RunDetailEvidenceTabPanel").then((module) => module.RunDetailEvidenceTabPanel),
+  { ssr: false, loading: () => evidenceTabLoading },
+);
+
+/** TB-2142 — post-finalize share/export row off sync First Load JS. */
+export const RunDetailReviewPackageShareRowDeferred = dynamic(
+  () => import("./RunDetailReviewPackageShareRow").then((module) => module.RunDetailReviewPackageShareRow),
+  { ssr: false, loading: () => null },
+);
+
+/** TB-2142 — demo marketing chrome off sync First Load JS. */
+export const RunDetailDemoMarketingChromeDeferred = dynamic(
+  () => import("./RunDetailDemoMarketingChrome").then((module) => module.RunDetailDemoMarketingChrome),
+  { ssr: false, loading: () => null },
+);
+
+export const RunDetailManifestSummaryAlertsDeferred = dynamic(
+  () => import("./RunDetailManifestSummaryAlerts").then((module) => module.RunDetailManifestSummaryAlerts),
+  { ssr: false, loading: () => null },
+);
+
+export const RunDetailRunActionsSectionDeferred = dynamic(
+  () => import("./RunDetailRunActionsSection").then((module) => module.RunDetailRunActionsSection),
+  { ssr: false, loading: () => null },
+);
+
+export const HelpPageSituationRegistrarDeferred = dynamic(
+  () =>
+    import("@/components/help/HelpPageSituationRegistrar").then(
+      (module) => module.HelpPageSituationRegistrar,
+    ),
+  { ssr: false, loading: () => null },
+);
+
+export const ReviewGenerationCreatedNoticeDeferred = dynamic(
+  () =>
+    import("@/components/review-intake/ReviewGenerationCreatedNotice").then(
+      (module) => module.ReviewGenerationCreatedNotice,
+    ),
+  { ssr: false, loading: () => null },
+);

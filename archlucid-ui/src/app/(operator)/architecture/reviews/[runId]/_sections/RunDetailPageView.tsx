@@ -6,12 +6,7 @@ import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_PAGE_CONTAINER, OPERATOR_TYPOG
 
 import { GoldenSponsorPackageWalkthroughDestination } from "@/components/golden-walkthrough/GoldenSponsorPackageWalkthroughDestination";
 import { GovernanceModePresentationGate } from "@/components/GovernanceModePresentationGate";
-import { HelpPageSituationRegistrar } from "@/components/help/HelpPageSituationRegistrar";
-import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
-import { DemoDataBadge } from "@/components/usability/DemoDataBadge";
 import { detectStalledReview } from "@/lib/usability/stalled-review-detection";
-import { PersistentSponsorEmailStrip } from "@/components/usability/PersistentSponsorEmailStrip";
-import { ShareableReviewLinkButton } from "@/components/usability/ShareableReviewLinkButton";
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import { shouldShowOperatorDemoMarketingChrome } from "@/lib/buyer-demo-content-gating";
 import { isBuyerGoldenReviewPackagePageReady } from "@/lib/buyer-golden-spine-run-id";
@@ -22,10 +17,6 @@ import {
   SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
 } from "@/lib/showcase-static-demo";
 
-import { ReviewSealedIndicatorChip } from "@/components/reviews/ReviewSealedIndicatorChip";
-import { RunDetailEvidenceInventorySection } from "@/components/RunDetailEvidenceInventorySection";
-import { RunDetailEvidenceScopeHeader } from "@/components/RunDetailEvidenceScopeHeader";
-import { ReviewGenerationCreatedNotice } from "@/components/review-intake/ReviewGenerationCreatedNotice";
 import type { BuildArchitectureCreatedHomeModelInput } from "@/lib/architecture-created-home-model";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import {
@@ -73,18 +64,21 @@ import {
   RunDetailBuyerModeFallbackBannerDeferred,
   RunDetailBuyerPilotConversionSectionDeferred,
   RunDetailCaptureEvidenceSectionDeferred,
+  RunDetailDemoMarketingChromeDeferred,
+  RunDetailEvidenceTabPanelDeferred,
   RunDetailExecutiveBottomLineDeferred,
   RunDetailExecutiveSummaryCtaCardDeferred,
   RunDetailGovernanceCtaDeferred,
   RunDetailGovernanceDecisionSectionDeferred,
+  RunDetailManifestSummaryAlertsDeferred,
   RunDetailManifestSummarySectionDeferred,
   RunDetailReviewPackageSectionDeferred,
+  RunDetailReviewPackageShareRowDeferred,
+  RunDetailRunActionsSectionDeferred,
   RunDetailSectionNavDeferred,
   RunDetailTabbedSectionNavDeferred,
   BeforeAfterDeltaPanelDeferred,
   RecurrenceSchedulePostCommitCardDeferred,
-  RunDetailRetrievalGroundingSectionDeferred,
-  RunDetailAdvancedAnalysisSectionDeferred,
   RunDetailSubmittedArchitectureSectionDeferred,
   RunDetailWorkspaceHeaderDeferred,
   RunDetailWorkspaceBlockingBannerDeferred,
@@ -100,7 +94,6 @@ import {
   RunDetailCompareToBaselineCta,
   RunDetailCtoDemoReviewRouteGuardDeferred,
   RunDetailExplanationConfidenceBannerDeferred,
-  RunDetailExportDeliverableDialog,
   RunDetailFirstWeekRouteGuidanceDeferred,
   RunDetailGenerateAdrFromRunModal,
   RunDetailGovernanceAlertsDeferred,
@@ -117,10 +110,10 @@ import {
   RunDetailWhatIfBranchCompareBannerDeferred,
   ReviewDetailWorkspaceDeferred,
   RunDetailOverviewPanelClientDeferred,
+  HelpPageSituationRegistrarDeferred,
+  ReviewGenerationCreatedNoticeDeferred,
 } from "./run-detail-page-view-deferred-chunks";
 import { RunDetailBelowFoldSections } from "./RunDetailBelowFoldSections";
-import { RunDetailManifestSummaryAlerts } from "./RunDetailManifestSummaryAlerts";
-import { RunDetailRunActionsSection } from "./RunDetailRunActionsSection";
 import { resolveRunDetailSponsorBriefingSection } from "./RunDetailSponsorBriefingSection";
 import { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
 import {
@@ -391,47 +384,23 @@ export function RunDetailPageView(props: {
       : "Add evidence before finalizing this review.";
   const evidenceReadinessVerdict = evidenceInventoryCount > 0 ? "complete" : "gaps";
   const evidenceTabPanelEl = (
-    <div className="space-y-4">
-      <RunDetailEvidenceScopeHeader
-        packageName={reviewDisplayTitle}
-        reviewDateLabel={evidenceReviewDateLabel}
-        evidenceItemCount={evidenceInventoryCount}
-        deliverableCount={m.artifacts.length}
-        readinessHeadline={evidenceReadinessHeadline}
-        readinessVerdict={evidenceReadinessVerdict}
-        evidenceCoverageLine={evidenceCoverageSummary.summaryLine}
-      />
-      <RunDetailEvidenceInventorySection items={evidenceInventoryItems} />
-      {!m.manifestId ? (
-        <RunDetailCaptureEvidenceSectionDeferred
-          runId={m.resolvedDetail.run.runId}
-          buyerPolished={m.buyerPolishedArtifactTable ?? false}
-        />
-      ) : null}
-      {artifactsExportsSectionEl}
-      {m.manifestId && m.resolvedDetail.trustEvidenceCard ? (
-        <RunDetailTrustEvidenceCardSectionDeferred
-          card={m.resolvedDetail.trustEvidenceCard}
-          runId={m.resolvedDetail.run.runId}
-          evidenceAskRunId={m.buyerPolishedArtifactTable ? m.resolvedDetail.run.runId : null}
-        />
-      ) : null}
-      {!m.buyerPolishedArtifactTable && m.manifestId ? (
-        <RunDetailRetrievalGroundingSectionDeferred
-          runId={m.routeRunId}
-          showWhenFaithfulnessWarning={
-            typeof m.explanationSummary?.faithfulnessWarning === "string"
-            && m.explanationSummary.faithfulnessWarning.trim().length > 0
-          }
-        />
-      ) : null}
-      {m.manifestId ? (
-        <RunDetailAdvancedAnalysisSectionDeferred
-          runId={m.routeRunId}
-          buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
-        />
-      ) : null}
-    </div>
+    <RunDetailEvidenceTabPanelDeferred
+      packageName={reviewDisplayTitle}
+      reviewDateLabel={evidenceReviewDateLabel}
+      evidenceItemCount={evidenceInventoryCount}
+      deliverableCount={m.artifacts.length}
+      readinessHeadline={evidenceReadinessHeadline}
+      readinessVerdict={evidenceReadinessVerdict}
+      evidenceCoverageLine={evidenceCoverageSummary.summaryLine}
+      items={evidenceInventoryItems}
+      runId={m.resolvedDetail.run.runId}
+      manifestId={m.manifestId}
+      buyerPolished={m.buyerPolishedArtifactTable ?? false}
+      buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
+      trustEvidenceCard={m.resolvedDetail.trustEvidenceCard}
+      faithfulnessWarning={m.explanationSummary?.faithfulnessWarning ?? null}
+      artifactsExportsSection={artifactsExportsSectionEl}
+    />
   );
   const architectureSummaryTitle =
     systemName !== null && systemName !== reviewDisplayTitle ? systemName : null;
@@ -594,7 +563,7 @@ export function RunDetailPageView(props: {
                   }}
                 />
               ) : null}
-              <RunDetailManifestSummaryAlerts
+              <RunDetailManifestSummaryAlertsDeferred
                 manifestSummaryFailure={m.manifestSummaryFailure}
                 manifestSummaryMalformed={m.manifestSummaryMalformed}
               />
@@ -648,16 +617,11 @@ export function RunDetailPageView(props: {
                 showExportActions={Boolean(m.manifestId) && !m.usedStaticDemoRun}
               />
               {m.manifestId ? (
-                <PersistentSponsorEmailStrip runId={m.resolvedDetail.run.runId} isCommitted />
-              ) : null}
-              {m.manifestId ? (
-                <div className={cn("flex flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)}>
-                  <RunDetailExportDeliverableDialog runId={m.resolvedDetail.run.runId} manifestId={m.manifestId} />
-                  <ShareableReviewLinkButton runId={m.resolvedDetail.run.runId} isCommitted />
-                  {m.resolvedDetail.run.completedUtc ? (
-                    <ReviewSealedIndicatorChip sealedUtc={m.resolvedDetail.run.completedUtc} />
-                  ) : null}
-                </div>
+                <RunDetailReviewPackageShareRowDeferred
+                  runId={m.resolvedDetail.run.runId}
+                  manifestId={m.manifestId}
+                  completedUtc={m.resolvedDetail.run.completedUtc}
+                />
               ) : null}
               {showDemoMarketingChrome ? sampleReviewPackageSummaryEl : null}
               {!m.buyerPolishedArtifactTable ? (
@@ -676,7 +640,7 @@ export function RunDetailPageView(props: {
                 />
               ) : null}
               {!m.buyerPolishedArtifactTable ? (
-                <RunDetailRunActionsSection
+                <RunDetailRunActionsSectionDeferred
                   runId={m.resolvedDetail.run.runId}
                   systemName={m.resolvedDetail.run.description?.trim() || m.resolvedDetail.run.runId}
                   manifestId={m.manifestId}
@@ -760,18 +724,21 @@ export function RunDetailPageView(props: {
     >
       <RunDetailCtoDemoReviewRouteGuardDeferred runId={m.resolvedDetail.run.runId} />
 
-      <HelpPageSituationRegistrar
+      <HelpPageSituationRegistrarDeferred
         situation={blockingApprovalCount > 0 ? "review-approval-blocked" : null}
       />
 
       {!showArchitectureCreatedHome ? (
         <Suspense fallback={null}>
-          <ReviewGenerationCreatedNotice analysisInProgress={m.showProgressTracker} />
+          <ReviewGenerationCreatedNoticeDeferred analysisInProgress={m.showProgressTracker} />
         </Suspense>
       ) : null}
 
-      {showDemoMarketingChrome ? <OperatorDemoStaticBanner emphasizeSampleData={m.usedStaticDemoRun} /> : null}
-      {m.usedStaticDemoRun && !showDemoMarketingChrome ? <DemoDataBadge variant="banner" className="mb-2" /> : null}
+      <RunDetailDemoMarketingChromeDeferred
+        showMarketingBanner={showDemoMarketingChrome}
+        showSampleBadge={m.usedStaticDemoRun && !showDemoMarketingChrome}
+        emphasizeSampleData={m.usedStaticDemoRun}
+      />
 
       <RunDetailWorkspaceDisclosureProvider>
         <RunDetailWorkspaceLayout
@@ -1111,17 +1078,11 @@ export function RunDetailPageView(props: {
           ) : null}
 
           {m.manifestId ? (
-            <PersistentSponsorEmailStrip runId={m.resolvedDetail.run.runId} isCommitted />
-          ) : null}
-
-          {m.manifestId ? (
-            <div className={cn("flex flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)}>
-              <RunDetailExportDeliverableDialog runId={m.resolvedDetail.run.runId} manifestId={m.manifestId} />
-              <ShareableReviewLinkButton runId={m.resolvedDetail.run.runId} isCommitted />
-              {m.resolvedDetail.run.completedUtc ? (
-                <ReviewSealedIndicatorChip sealedUtc={m.resolvedDetail.run.completedUtc} />
-              ) : null}
-            </div>
+            <RunDetailReviewPackageShareRowDeferred
+              runId={m.resolvedDetail.run.runId}
+              manifestId={m.manifestId}
+              completedUtc={m.resolvedDetail.run.completedUtc}
+            />
           ) : null}
 
           {m.explanationSummary !== null ? (

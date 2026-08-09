@@ -59,9 +59,23 @@ const bannedStaticImports = [
   './RunDetailGovernanceDecisionSection"',
   './RunDetailReviewPackageSection"',
   './RunDetailGovernanceCta"',
+  '@/components/OperatorDemoStaticBanner"',
+  '@/components/usability/DemoDataBadge"',
+  '@/components/usability/PersistentSponsorEmailStrip"',
+  '@/components/usability/ShareableReviewLinkButton"',
+  '@/components/RunDetailEvidenceInventorySection"',
+  '@/components/RunDetailEvidenceScopeHeader"',
+  '@/components/help/HelpPageSituationRegistrar"',
+  '@/components/review-intake/ReviewGenerationCreatedNotice"',
+  '@/components/reviews/ReviewSealedIndicatorChip"',
+  './RunDetailManifestSummaryAlerts"',
+  './RunDetailRunActionsSection"',
+  './RunDetailEvidenceTabPanel"',
+  './RunDetailReviewPackageShareRow"',
+  './RunDetailDemoMarketingChrome"',
 ] as const;
 
-describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-2117)", () => {
+describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-2117 / TB-2142)", () => {
   it("keeps heavy review-detail modules off the page view static import graph", () => {
     for (const bannedImport of bannedStaticImports) {
       expect(pageViewSource).not.toContain(bannedImport);
@@ -84,6 +98,13 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(pageViewSource).toContain("RunDetailReviewPackageSectionDeferred");
     expect(pageViewSource).toContain("RunDetailBuyerModeFallbackBannerDeferred");
     expect(pageViewSource).toContain("RunDetailGovernanceCtaDeferred");
+    expect(pageViewSource).toContain("RunDetailEvidenceTabPanelDeferred");
+    expect(pageViewSource).toContain("RunDetailReviewPackageShareRowDeferred");
+    expect(pageViewSource).toContain("RunDetailDemoMarketingChromeDeferred");
+    expect(pageViewSource).toContain("RunDetailManifestSummaryAlertsDeferred");
+    expect(pageViewSource).toContain("RunDetailRunActionsSectionDeferred");
+    expect(pageViewSource).toContain("HelpPageSituationRegistrarDeferred");
+    expect(pageViewSource).toContain("ReviewGenerationCreatedNoticeDeferred");
     expect(pageViewSource).toContain("RunDetailWorkspaceShell");
     expect(pageViewSource).not.toContain("./RunDetailWorkspaceChrome");
     expect(pageViewSource).toContain("ReviewDetailWorkspaceDeferred");
@@ -134,6 +155,15 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(deferredChunksSource).toContain('import("./RunDetailGovernanceDecisionSection")');
     expect(deferredChunksSource).toContain('import("./RunDetailReviewPackageSection")');
     expect(deferredChunksSource).toContain('import("./RunDetailBuyerModeFallbackBanner")');
+    expect(deferredChunksSource).toContain('import("./RunDetailEvidenceTabPanel")');
+    expect(deferredChunksSource).toContain('import("./RunDetailReviewPackageShareRow")');
+    expect(deferredChunksSource).toContain('import("./RunDetailDemoMarketingChrome")');
+    expect(deferredChunksSource).toContain('import("./RunDetailManifestSummaryAlerts")');
+    expect(deferredChunksSource).toContain('import("./RunDetailRunActionsSection")');
+    expect(deferredChunksSource).toContain('import("@/components/help/HelpPageSituationRegistrar")');
+    expect(deferredChunksSource).toContain(
+      'import("@/components/review-intake/ReviewGenerationCreatedNotice")',
+    );
     expect(deferredChunksSource).toContain('import("@/components/RunEstimatedLlmCostCard")');
     expect(deferredChunksSource).toContain('import("@/components/RunDetailOutcomeCards")');
     expect(deferredChunksSource).toContain(
