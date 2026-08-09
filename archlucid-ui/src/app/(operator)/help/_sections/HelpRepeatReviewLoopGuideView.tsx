@@ -140,7 +140,10 @@ export function HelpRepeatReviewLoopGuideView(props: HelpRepeatReviewLoopGuideVi
               sourceDocPath={sourceDocPath}
               helpTopicSlug={entry.slug}
             />
-            <MermaidDiagram source={REPEAT_REVIEW_LOOP_HELP_DIAGRAM_SOURCE} />
+            <MermaidDiagram
+              source={REPEAT_REVIEW_LOOP_HELP_DIAGRAM_SOURCE}
+              accessibleName="Repeat-review stickiness loop"
+            />
           </div>
 
           <div

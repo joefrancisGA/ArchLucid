@@ -315,4 +315,24 @@ describe("product-documentation-registry", () => {
     expect(dataHandlingIsolation?.markdown).toContain("Three layers");
     expect(dataHandlingIsolation?.markdown).not.toContain("Verification pack");
   });
+
+  it("declares provenance metadata on comparison-replay operator guide (CO)", () => {
+    const entry = getProductDocumentationEntry("comparison-replay");
+
+    expect(entry?.lastReviewed).toBe("2026-08-09");
+    expect(entry?.releaseApplicability).toContain("V1 GA");
+  });
+
+  it("keeps operator and buyer topics with governance citations off the missing-provenance list (CO)", () => {
+    const missingProvenance = listProductDocumentationEntries()
+      .filter(
+        (entry) =>
+          (entry.audience === "operator" || entry.audience === "buyer") && entry.sourcePaths.length > 0,
+      )
+      .filter((entry) => entry.lastReviewed === undefined || entry.releaseApplicability === undefined)
+      .map((entry) => entry.slug)
+      .sort();
+
+    expect(missingProvenance).not.toContain("comparison-replay");
+  });
 });

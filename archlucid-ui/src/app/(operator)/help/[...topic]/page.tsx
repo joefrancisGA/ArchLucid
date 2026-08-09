@@ -32,6 +32,7 @@ import { HelpPolicyPackDeltaDemoGuideView } from "../_sections/HelpPolicyPackDel
 import { HelpConnectAzureSecurelyGuideView } from "../_sections/HelpConnectAzureSecurelyGuideView";
 import { HelpConnectGcpSecurelyGuideView } from "../_sections/HelpConnectGcpSecurelyGuideView";
 import { HelpCorePilotGuideView } from "../_sections/HelpCorePilotGuideView";
+import { HelpComparisonReplayGuideView } from "../_sections/HelpComparisonReplayGuideView";
 import { HelpRepeatReviewLoopGuideView } from "../_sections/HelpRepeatReviewLoopGuideView";
 import { HelpSpecialtyWalkthroughTemplatesView } from "../_sections/HelpSpecialtyWalkthroughTemplatesView";
 import { HelpGettingStartedGuideView } from "../_sections/HelpGettingStartedGuideView";
@@ -383,13 +384,7 @@ function renderHelpTopicView(
   }
 
   if (loaded.entry.slug === "comparison-replay") {
-    return (
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        showContextualHelp
-      />
-    );
+    return <HelpComparisonReplayGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
   if (loaded.entry.slug === "scope") {

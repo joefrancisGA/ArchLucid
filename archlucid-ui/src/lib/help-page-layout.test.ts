@@ -18,8 +18,9 @@ describe("help-page-layout", () => {
   it("constrains help content to the reading-width column", () => {
     expect(HELP_PAGE_LAYOUT.contentColumn).toContain("max-w-3xl");
     expect(HELP_PAGE_LAYOUT.contentGrid).toContain("gap-10");
-    expect(HELP_PAGE_LAYOUT.contentGrid).toContain("justify-start");
+    expect(HELP_PAGE_LAYOUT.contentGrid).toContain("max-w-[72rem]");
     expect(HELP_PAGE_LAYOUT.contentGrid).toContain("48rem");
+    expect(HELP_PAGE_LAYOUT.contentGrid).toContain("52rem");
   });
 
   it("styles the on-this-page heading with stronger hierarchy", () => {

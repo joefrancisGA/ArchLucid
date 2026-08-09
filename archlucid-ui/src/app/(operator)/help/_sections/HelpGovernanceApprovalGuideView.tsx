@@ -218,7 +218,10 @@ export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGui
               )}
               data-testid="help-governance-approval-state-diagram"
             >
-              <MermaidDiagram source={GOVERNANCE_APPROVAL_HELP_DIAGRAM_SOURCE} />
+              <MermaidDiagram
+                source={GOVERNANCE_APPROVAL_HELP_DIAGRAM_SOURCE}
+                accessibleName="Governance approval state diagram"
+              />
             </div>
           </section>
 

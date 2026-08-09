@@ -2,19 +2,7 @@
 
 # Compare and replay
 
-Use **Compare** when you need to see what changed between two architecture packages. Use **replay** when you want to regenerate or re-export a comparison you already saved — without re-running a full architecture review.
-
-```mermaid
-flowchart TD
-  START([What do you need?])
-  START --> Q1{Do you have a saved comparison record to regenerate or re-export?}
-  Q1 -->|Yes| Q2{Need drift verification against the stored record?}
-  Q1 -->|No| Q3{Need a delta narrative between two architecture packages?}
-  Q2 -->|Yes| VFY[Replay with verify]
-  Q2 -->|No| RPL[Replay saved comparison]
-  Q3 -->|Yes| CMP[Compare two reviews]
-  Q3 -->|No| NR[Start a new architecture review]
-```
+Use **Compare** when you need to see what changed between two architecture packages. Use **Replay** (**Validate review** in the workspace) when you want to regenerate or re-export a comparison you already saved — without re-running a full architecture review.
 
 ## When to compare
 
@@ -24,11 +12,11 @@ Compare two reviews when:
 - You are preparing a second review and need to show progress against a finalized baseline.
 - Governance asked what differs after a policy pack or scope change.
 
-Open **Compare** from the analysis tools in the architect workspace, pick two reviews in the same workspace, and generate the comparison summary.
+Open **Compare two reviews** from the analysis tools in the architect workspace, pick two reviews in the same workspace, and generate the comparison summary.
 
 ## When to replay
 
-Replay uses a **saved comparison record** — the product’s stored result of an earlier compare. Replay can:
+**Replay** (**Validate review** in the workspace) uses a **saved comparison record** — the product's stored result of an earlier compare. Replay can:
 
 - Regenerate the comparison summary from that stored result.
 - Export the comparison again (for example Markdown or HTML).
@@ -47,6 +35,8 @@ Replay does **not** replace starting a new architecture review when your evidenc
 
 ## Related guides
 
+- [Compare two reviews](/insights/compare-two-reviews) — open the live pair-diff workspace.
+- [Validate review](/internal/replay) — re-check or replay a saved comparison record.
 - [Architecture packages](/help/review-packages) — open and finalize packages before comparing.
 - [Repeat-review stickiness loop](/help/repeat-review-loop) — second-review value after the first finalize.
 - [Prior manifest retrieval](/help/prior-manifest-retrieval) — how finalized packages become searchable memory for Ask.

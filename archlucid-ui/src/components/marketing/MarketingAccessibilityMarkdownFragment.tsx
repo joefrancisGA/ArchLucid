@@ -373,7 +373,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
 
       if (code.length > 0) {
         if (isMermaidDiagramSource(code, language)) {
-          blocks.push(<MermaidDiagram key={`mermaid-${key}`} source={code} />);
+          blocks.push(<MermaidDiagram key={`mermaid-${key}`} source={code} accessibleName="Help topic diagram" />);
         }
         else {
           blocks.push(<HelpMarkdownCodeBlock key={`code-${key}`} code={code} language={language} />);

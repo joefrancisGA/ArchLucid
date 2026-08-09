@@ -497,6 +497,8 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     summary: "Diff two architecture reviews, replay a saved comparison, and verify drift without re-running a full review.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/COMPARISON_REPLAY_OPERATOR_GUIDE.md"],
+    lastReviewed: "2026-08-09",
+    releaseApplicability: "Applies to V1 GA — Compare two reviews and Validate review workspace tools",
   },
   {
     slug: "repeat-review-loop",

@@ -80,6 +80,12 @@ export const GLOSSARY_TERMS = {
     definition: "Re-running comparison logic on stored output without re-invoking agents, to see deltas under new rules.",
     docLink: "/docs/library/GLOSSARY.md#comparison-replay",
   },
+  validate_review: {
+    term: "Validate review",
+    definition:
+      "Workspace control to re-check stored review output for a finalized package. Help topics may say replay; the workspace nav label is Validate review.",
+    docLink: "/help/comparison-replay",
+  },
   hosting_role: {
     term: "Hosting role",
     definition: "Whether a process runs API, worker, or combined—controls which services and background jobs are active.",

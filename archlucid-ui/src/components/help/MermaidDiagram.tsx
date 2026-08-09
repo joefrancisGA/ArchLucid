@@ -13,6 +13,8 @@ import {
 
 export type MermaidDiagramProps = {
   readonly source: string;
+  readonly accessibleName: string;
+  readonly description?: string;
 };
 
 function useDocumentDarkMode(): boolean {
@@ -81,6 +83,7 @@ function useHasBeenVisible(targetRef: RefObject<HTMLElement | null>): boolean {
 
 /** Client-rendered Mermaid diagram for trusted in-app help markdown. */
 export function MermaidDiagram(props: MermaidDiagramProps): React.JSX.Element {
+  const { source, accessibleName, description } = props;
   const reactId = useId();
   const renderId = useMemo(() => sanitizeMermaidRenderId(`help-mermaid-${reactId}`), [reactId]);
   const frameRef = useRef<HTMLDivElement>(null);
@@ -112,7 +115,7 @@ export function MermaidDiagram(props: MermaidDiagramProps): React.JSX.Element {
           fontFamily: "ui-sans-serif, system-ui, sans-serif",
         });
 
-        const result = await mermaid.render(renderId, props.source.trim());
+        const result = await mermaid.render(renderId, source.trim());
 
         if (!cancelled) {
           setSvgMarkup(prepareMermaidSvgForResponsiveLayout(result.svg));
@@ -131,7 +134,7 @@ export function MermaidDiagram(props: MermaidDiagramProps): React.JSX.Element {
     return (): void => {
       cancelled = true;
     };
-  }, [props.source, dark, renderId, hasBeenVisible]);
+  }, [source, dark, renderId, hasBeenVisible]);
 
   useLayoutEffect(() => {
     if (svgMarkup === null) {
@@ -175,8 +178,10 @@ export function MermaidDiagram(props: MermaidDiagramProps): React.JSX.Element {
     };
   }, [svgMarkup]);
 
+  const descriptionId = description !== undefined ? `${renderId}-description` : undefined;
+
   return (
-    <figure className="relative my-4 w-full min-w-0">
+    <figure className="relative my-4 w-full min-w-0" role="img" aria-label={accessibleName} aria-describedby={descriptionId}>
       <div
         ref={frameRef}
         className={cn(
@@ -198,16 +203,21 @@ export function MermaidDiagram(props: MermaidDiagramProps): React.JSX.Element {
             className="w-full min-w-0 [&_svg]:block"
             // Mermaid SVG is generated from trusted repo markdown in help topics.
             dangerouslySetInnerHTML={{ __html: svgMarkup }}
-            aria-label="Architecture diagram"
+            aria-hidden="true"
             data-testid="mermaid-diagram-svg-host"
           />
         )}
       </div>
+      {description !== undefined ? (
+        <figcaption id={descriptionId} className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {description}
+        </figcaption>
+      ) : null}
       <details className="mt-2">
         <summary className={cn("cursor-pointer font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           View diagram source
         </summary>
-        <HelpMarkdownCodeBlock code={props.source} language="mermaid" />
+        <HelpMarkdownCodeBlock code={source} language="mermaid" />
       </details>
     </figure>
   );

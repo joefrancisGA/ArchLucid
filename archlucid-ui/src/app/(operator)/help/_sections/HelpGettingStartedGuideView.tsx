@@ -181,7 +181,7 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
               <p className="m-0">
                 Authority pipeline from architecture request through governance gate and committed outputs:
               </p>
-              <MermaidDiagram source={GETTING_STARTED_HELP_DIAGRAM_SOURCE} />
+              <MermaidDiagram source={GETTING_STARTED_HELP_DIAGRAM_SOURCE} accessibleName="Architecture review authority pipeline" />
             </div>
           </section>
 
