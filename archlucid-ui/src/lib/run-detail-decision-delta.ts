@@ -1,4 +1,9 @@
 import {
+  deriveFindingTrustPresentation,
+  formatFindingTrustCompareDeltaLabels,
+  type FindingTrustChipSet,
+} from "@/lib/finding-trust-presentation";
+import {
   severityBadgeLabel,
   sortQuickDecisionFindings,
   type QuickDecisionFinding,
@@ -17,6 +22,8 @@ export type RunDetailDecisionDeltaRow = {
   readonly policyRuleId: string | null;
   readonly evidenceRefCount: number | null;
   readonly evidenceAnchorHint: string | null;
+  readonly trustChipSet: FindingTrustChipSet;
+  readonly compareDeltaTrustLabels: { readonly origin: string; readonly grounding: string };
 };
 
 export type RunDetailDecisionDeltaView = {
@@ -70,6 +77,13 @@ export function buildRunDetailDecisionDeltaRow(
 ): RunDetailDecisionDeltaRow {
   const policyRuleIdRaw = finding.policyRuleId?.trim() ?? "";
   const policyRuleId = policyRuleIdRaw.length > 0 ? policyRuleIdRaw : null;
+  const trustPresentation = deriveFindingTrustPresentation({
+    trustLabel: finding.trustLabel,
+    trustLabelReason: finding.trustLabelReason,
+    policyRuleId: finding.policyRuleId,
+    evidenceRefCount: finding.evidenceRefCount,
+    confidenceLevel: finding.confidenceLevel,
+  });
 
   return {
     rank,
@@ -82,6 +96,8 @@ export function buildRunDetailDecisionDeltaRow(
         ? Math.trunc(finding.evidenceRefCount)
         : null,
     evidenceAnchorHint: resolveEvidenceAnchorHint(finding),
+    trustChipSet: trustPresentation.chipSet,
+    compareDeltaTrustLabels: formatFindingTrustCompareDeltaLabels(trustPresentation.chipSet),
   };
 }
 

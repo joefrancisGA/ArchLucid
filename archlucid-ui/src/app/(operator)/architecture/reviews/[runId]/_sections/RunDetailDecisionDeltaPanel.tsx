@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { FindingPolicyRuleBadge } from "@/components/FindingPolicyRuleBadge";
+import { FindingTrustChipFromSet } from "@/components/FindingTrustChip";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -70,6 +71,7 @@ export function RunDetailDecisionDeltaPanel(props: RunDetailDecisionDeltaPanelPr
               </div>
 
               <div className="mt-2 flex flex-wrap items-center gap-2">
+                <FindingTrustChipFromSet chipSet={row.trustChipSet} />
                 {row.policyRuleId !== null ? (
                   <FindingPolicyRuleBadge policyRuleId={row.policyRuleId} />
                 ) : (

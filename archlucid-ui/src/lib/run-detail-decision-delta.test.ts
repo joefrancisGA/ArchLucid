@@ -70,6 +70,8 @@ describe("run-detail-decision-delta", () => {
     expect(row.severityLabel).toBe("High");
     expect(row.policyRuleId).toBe("sec-base-010");
     expect(row.evidenceAnchorHint).toContain("storageAccount.bicep");
+    expect(row.trustChipSet.label).toBe("Deterministic rule");
+    expect(row.compareDeltaTrustLabels.origin).toBe("Deterministic rule");
   });
 
   it("truncates long decision delta messages", () => {

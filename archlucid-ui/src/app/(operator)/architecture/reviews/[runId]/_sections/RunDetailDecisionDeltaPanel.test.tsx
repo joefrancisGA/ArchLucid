@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { RunDetailDecisionDeltaPanel } from "@/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailDecisionDeltaPanel";
+import { deriveFindingTrustPresentation } from "@/lib/finding-trust-presentation";
 import {
   RUN_DETAIL_DECISION_DELTA_PANEL_TEST_ID,
   RUN_DETAIL_DECISION_DELTA_ROW_TEST_ID,
@@ -10,6 +11,10 @@ import type { RunDetailDecisionDeltaView } from "@/lib/run-detail-decision-delta
 
 describe("RunDetailDecisionDeltaPanel", () => {
   it("renders top material findings with rule badges", () => {
+    const trustPresentation = deriveFindingTrustPresentation({
+      policyRuleId: "net-base-001",
+      evidenceRefCount: 1,
+    });
     const view: RunDetailDecisionDeltaView = {
       isCommitted: true,
       emptyMessage: null,
@@ -22,6 +27,11 @@ describe("RunDetailDecisionDeltaPanel", () => {
           policyRuleId: "net-base-001",
           evidenceRefCount: 1,
           evidenceAnchorHint: "network.bicep:10 — public access enabled",
+          trustChipSet: trustPresentation.chipSet,
+          compareDeltaTrustLabels: {
+            origin: trustPresentation.chipSet.origin,
+            grounding: trustPresentation.chipSet.grounding,
+          },
         },
       ],
     };
@@ -35,6 +45,7 @@ describe("RunDetailDecisionDeltaPanel", () => {
       "/architecture/reviews/run-abc/findings/finding-1",
     );
     expect(screen.getByTestId("finding-policy-rule-badge")).toHaveTextContent("net-base-001");
+    expect(screen.getByTestId("finding-trust-chip-deterministic-rule")).toBeInTheDocument();
     expect(screen.getByText(/Evidence anchor:/i)).toBeInTheDocument();
   });
 
