@@ -4695,7 +4695,7 @@ A: Current sub-processors are listed in [`SUBPROCESSORS.md`](SUBPROCESSORS.md). 
 
 ### 4. Can we authenticate with **Okta / Ping / Auth0** instead of Microsoft Entra ID?
 
-**Answer:** **Yes — V1 GA.** ArchLucid supports **OIDC** against configurable issuers (including non-Microsoft IdPs) and **native SAML 2.0** workforce SSO (ArchLucid as SAML service provider). **Microsoft Entra ID** remains the reference path in hosted samples. Capture your issuer URLs, audience/metadata, and claim shapes in questionnaire follow-ups; for SAML cutovers use the IdP mapping guidance in [Enterprise onboarding](/help/enterprise-onboarding) and [Authentication and sign-in](/help/authentication-sign-in). Lead times depend on IdP-specific federation work on **your** side.
+**Answer:** **Yes — V1 GA.** ArchLucid supports **OIDC** (including Okta, Ping, and Auth0-class issuers) and **SAML 2.0** workforce SSO. Provide issuer, audience, and claim-mapping details with your IdP administrator during diligence. See [Enterprise onboarding](/help/enterprise-onboarding), [Users and roles](/help/users-and-roles), and [Authentication and sign-in](/help/authentication-sign-in).
 
 ### 5. What **SLA** do you publish?
 

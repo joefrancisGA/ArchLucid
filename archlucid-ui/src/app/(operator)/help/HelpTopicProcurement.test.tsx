@@ -48,6 +48,91 @@ const PROCUREMENT_HELP_BANNED_SUBSTRINGS = [
   "SECURITY.md",
 ] as const;
 
+/** TB-1257 — prepared FAQ links must stay on buyer-safe in-app routes. */
+const PROCUREMENT_FAQ_BANNED_HREF_FRAGMENTS = [
+  "contributor-reference/",
+  "architecture/adrs/",
+  "scripts/",
+  "../runbooks/",
+  "runbooks/",
+  "../library/",
+  "../security/",
+  ".md",
+] as const;
+
+const PROCUREMENT_FAQ_ALLOWED_HREF_PREFIXES = [
+  "/help/",
+  "/trust",
+  "/security-trust",
+  "/pricing",
+  "/administration/",
+  "mailto:",
+  "#",
+] as const;
+
+const SSO_QUESTION_HEADING =
+  "### 4. Can we authenticate with **Okta / Ping / Auth0** instead of Microsoft Entra ID?";
+
+const SSO_ANSWER_BANNED_SUBSTRINGS = [
+  "terraform",
+  "infra/",
+  "archlucid auth",
+  "validate-saml",
+  "appsettings",
+  "hosted samples",
+  "generic_oidc",
+] as const;
+
+const SSO_ANSWER_MAX_WORDS = 90;
+
+function extractProcurementFaqSection(preparedMarkdown: string): string {
+  const start = preparedMarkdown.indexOf("## Q & A");
+
+  if (start < 0) {
+    throw new Error("Expected procurement FAQ section.");
+  }
+
+  const end = preparedMarkdown.indexOf("\n## Trust progression timeline", start);
+
+  return end >= 0 ? preparedMarkdown.slice(start, end) : preparedMarkdown.slice(start);
+}
+
+function extractSsoAnswerSection(preparedMarkdown: string): string {
+  const faqSection = extractProcurementFaqSection(preparedMarkdown);
+  const start = faqSection.indexOf(SSO_QUESTION_HEADING);
+
+  if (start < 0) {
+    throw new Error("Expected SSO FAQ question.");
+  }
+
+  const nextHeading = faqSection.indexOf("\n### 5.", start);
+
+  return nextHeading >= 0 ? faqSection.slice(start, nextHeading) : faqSection.slice(start);
+}
+
+function extractMarkdownLinkHrefs(markdown: string): string[] {
+  const hrefs: string[] = [];
+  const pattern = /\[[^\]]+\]\(([^)]+)\)/g;
+
+  for (const match of markdown.matchAll(pattern)) {
+    const href = match[1]?.trim();
+
+    if (href !== undefined && href.length > 0) {
+      hrefs.push(href);
+    }
+  }
+
+  return hrefs;
+}
+
+function isBuyerSafeProcurementFaqHref(href: string): boolean {
+  if (href.startsWith("http://") || href.startsWith("https://")) {
+    return false;
+  }
+
+  return PROCUREMENT_FAQ_ALLOWED_HREF_PREFIXES.some((prefix) => href.startsWith(prefix));
+}
+
 describe("HelpTopicMarkdownView procurement FAQ", () => {
   const loaded = tryLoadProductDocumentation("procurement");
 
@@ -147,6 +232,60 @@ describe("HelpTopicMarkdownView procurement FAQ", () => {
     expect(screen.getByRole("heading", { name: "Q & A" })).toBeInTheDocument();
     expect(screen.getAllByText(/SOC 2/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/penetration/i).length).toBeGreaterThan(0);
+  });
+
+  it("keeps Q4 SSO answer questionnaire-length without infra or CLI leakage (TB-1257)", () => {
+    if (loaded === null) {
+      throw new Error("Expected procurement documentation to load.");
+    }
+
+    const preparedMarkdown = prepareHelpMarkdownForPresentation(loaded.markdown, PROCUREMENT_SOURCE);
+    const ssoSection = extractSsoAnswerSection(preparedMarkdown);
+    const answerBody = ssoSection.replace(SSO_QUESTION_HEADING, "").trim();
+    const wordCount = answerBody.split(/\s+/).filter((token) => token.length > 0).length;
+
+    expect(wordCount).toBeLessThanOrEqual(SSO_ANSWER_MAX_WORDS);
+
+    const lower = ssoSection.toLowerCase();
+
+    for (const banned of SSO_ANSWER_BANNED_SUBSTRINGS) {
+      expect(lower, `SSO answer contains "${banned}"`).not.toContain(banned);
+    }
+
+    expect(ssoSection).toMatch(/users-and-roles/i);
+    expect(ssoSection).toMatch(/enterprise-onboarding/i);
+    expect(ssoSection).toMatch(/authentication-sign-in/i);
+
+    render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    expect(screen.getByRole("link", { name: /Users and roles/i })).toHaveAttribute(
+      "href",
+      "/help/users-and-roles",
+    );
+  });
+
+  it("keeps prepared procurement FAQ links on buyer-safe in-app routes (TB-1257)", () => {
+    if (loaded === null) {
+      throw new Error("Expected procurement documentation to load.");
+    }
+
+    const preparedMarkdown = prepareHelpMarkdownForPresentation(loaded.markdown, PROCUREMENT_SOURCE);
+    const faqSection = extractProcurementFaqSection(preparedMarkdown);
+
+    for (const banned of PROCUREMENT_FAQ_BANNED_HREF_FRAGMENTS) {
+      expect(faqSection, `banned href fragment still present: ${banned}`).not.toContain(`](${banned}`);
+      expect(faqSection, `banned href fragment still present: ${banned}`).not.toMatch(
+        new RegExp(`\\]\\([^)]*${banned.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "i"),
+      );
+    }
+
+    const hrefs = extractMarkdownLinkHrefs(faqSection);
+
+    expect(hrefs.length).toBeGreaterThan(0);
+
+    for (const href of hrefs) {
+      expect(isBuyerSafeProcurementFaqHref(href), `unsafe FAQ href: ${href}`).toBe(true);
+    }
   });
 
   it("renders every right-side TOC item as an anchor to an existing section id", () => {

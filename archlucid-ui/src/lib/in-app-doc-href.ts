@@ -66,6 +66,8 @@ const DOC_PATH_TO_SLUG: Readonly<Record<string, string>> = {
   "docs/library/contributor-reference/authentication_configuration.md": "configuration-reference",
   "docs/runbooks/common_errors.md": "developer-troubleshooting",
   "docs/go-to-market/how_to_request_procurement_pack.md": "procurement",
+  "docs/go-to-market/soc2_status_procurement.md": "soc2-self-assessment",
+  "docs/go-to-market/transactable_procurement_path.md": "procurement",
   "docs/library/customer-facing/workflow_recipes_by_persona.md": "evidence-intake",
   "docs/runbooks/azure_extractor_ingest.md": "evidence-intake",
   "docs/go-to-market/tenant_isolation.md": "audit-trail",
