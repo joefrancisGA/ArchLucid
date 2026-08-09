@@ -1,4 +1,45 @@
 const WIZARD_IDEMPOTENCY_SESSION_KEY = "archlucid_wizard_idempotency_key_v1";
+const WIZARD_REQUEST_ID_SESSION_KEY = "archlucid_wizard_request_id_v1";
+
+function createWizardRequestId(): string {
+  return crypto.randomUUID().replace(/-/g, "");
+}
+
+function readSessionValue(key: string): string {
+  if (typeof window === "undefined") {
+    return "";
+  }
+
+  try {
+    return window.sessionStorage.getItem(key)?.trim() ?? "";
+  } catch {
+    return "";
+  }
+}
+
+function writeSessionValue(key: string, value: string): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.sessionStorage.setItem(key, value);
+  } catch {
+    /* ignore private mode */
+  }
+}
+
+function removeSessionValue(key: string): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.sessionStorage.removeItem(key);
+  } catch {
+    /* ignore private mode */
+  }
+}
 
 /** Returns a stable idempotency key for the open new-review wizard session. */
 export function getOrCreateWizardIdempotencyKey(): string {
@@ -6,31 +47,53 @@ export function getOrCreateWizardIdempotencyKey(): string {
     return crypto.randomUUID();
   }
 
-  try {
-    const existing = window.sessionStorage.getItem(WIZARD_IDEMPOTENCY_SESSION_KEY)?.trim() ?? "";
+  const existing = readSessionValue(WIZARD_IDEMPOTENCY_SESSION_KEY);
 
-    if (existing.length > 0) {
-      return existing;
-    }
-
-    const created = crypto.randomUUID();
-    window.sessionStorage.setItem(WIZARD_IDEMPOTENCY_SESSION_KEY, created);
-
-    return created;
-  } catch {
-    return crypto.randomUUID();
+  if (existing.length > 0) {
+    return existing;
   }
+
+  const created = crypto.randomUUID();
+  writeSessionValue(WIZARD_IDEMPOTENCY_SESSION_KEY, created);
+
+  return created;
 }
 
-/** Clears the wizard idempotency key after a successful submission. */
-export function clearWizardIdempotencyKey(): void {
+/**
+ * Returns a stable architecture request id for the open wizard session.
+ * Must stay paired with {@link getOrCreateWizardIdempotencyKey} so create-run retries fingerprint the same body.
+ */
+export function getOrCreateWizardRequestId(): string {
   if (typeof window === "undefined") {
-    return;
+    return createWizardRequestId();
   }
 
-  try {
-    window.sessionStorage.removeItem(WIZARD_IDEMPOTENCY_SESSION_KEY);
-  } catch {
-    /* ignore private mode */
+  const existing = readSessionValue(WIZARD_REQUEST_ID_SESSION_KEY);
+
+  if (existing.length > 0) {
+    return existing;
   }
+
+  const created = createWizardRequestId();
+  writeSessionValue(WIZARD_REQUEST_ID_SESSION_KEY, created);
+
+  return created;
+}
+
+/** Clears wizard idempotency + request id after a successful submission. */
+export function clearWizardSubmissionSession(): void {
+  removeSessionValue(WIZARD_IDEMPOTENCY_SESSION_KEY);
+  removeSessionValue(WIZARD_REQUEST_ID_SESSION_KEY);
+}
+
+/** @deprecated Use {@link clearWizardSubmissionSession}. */
+export function clearWizardIdempotencyKey(): void {
+  clearWizardSubmissionSession();
+}
+
+/** Issues fresh wizard idempotency + request ids after a body-mismatch conflict. */
+export function rotateWizardSubmissionSession(): void {
+  clearWizardSubmissionSession();
+  getOrCreateWizardIdempotencyKey();
+  getOrCreateWizardRequestId();
 }

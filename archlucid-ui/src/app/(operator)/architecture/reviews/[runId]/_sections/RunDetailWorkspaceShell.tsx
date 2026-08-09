@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { createContext, useCallback, useContext, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -31,25 +31,12 @@ export function RunDetailWorkspaceLayout(props: RunDetailWorkspaceLayoutProps): 
   );
 }
 
-export type RunDetailWorkspaceDisclosureControlsProps = {
-  readonly onExpandAll: () => void;
-  readonly onCollapseAll: () => void;
+type RunDetailWorkspaceDisclosureContextValue = {
+  readonly expandAll: () => void;
+  readonly collapseAll: () => void;
 };
 
-export function RunDetailWorkspaceDisclosureControls(
-  props: RunDetailWorkspaceDisclosureControlsProps,
-): React.JSX.Element {
-  return (
-    <div className="flex flex-wrap items-center gap-2" data-testid="run-detail-disclosure-controls">
-      <Button type="button" variant="ghost" size="sm" onClick={props.onExpandAll}>
-        Expand all
-      </Button>
-      <Button type="button" variant="ghost" size="sm" onClick={props.onCollapseAll}>
-        Collapse all
-      </Button>
-    </div>
-  );
-}
+const RunDetailWorkspaceDisclosureContext = createContext<RunDetailWorkspaceDisclosureContextValue | null>(null);
 
 /** Client wrapper that toggles all `[data-workspace-disclosure]` details elements. */
 export function RunDetailWorkspaceDisclosureProvider(props: {
@@ -77,10 +64,40 @@ export function RunDetailWorkspaceDisclosureProvider(props: {
     setRevision((value) => value + 1);
   }, []);
 
+  const contextValue = useMemo(
+    () => ({
+      expandAll,
+      collapseAll,
+    }),
+    [collapseAll, expandAll],
+  );
+
   return (
-    <div data-workspace-disclosure-revision={revision}>
-      <RunDetailWorkspaceDisclosureControls onExpandAll={expandAll} onCollapseAll={collapseAll} />
-      {props.children}
+    <RunDetailWorkspaceDisclosureContext.Provider value={contextValue}>
+      <div data-workspace-disclosure-revision={revision}>{props.children}</div>
+    </RunDetailWorkspaceDisclosureContext.Provider>
+  );
+}
+
+/** Expand/collapse affordance for workspace `<details>` heroes — place adjacent to tabbed sections. */
+export function RunDetailWorkspaceDisclosureControls(): React.JSX.Element | null {
+  const context = useContext(RunDetailWorkspaceDisclosureContext);
+
+  if (context === null) {
+    return null;
+  }
+
+  return (
+    <div
+      className="flex flex-wrap items-center justify-end gap-2"
+      data-testid="run-detail-disclosure-controls"
+    >
+      <Button type="button" variant="outline" size="sm" onClick={context.expandAll}>
+        Expand all
+      </Button>
+      <Button type="button" variant="outline" size="sm" onClick={context.collapseAll}>
+        Collapse all
+      </Button>
     </div>
   );
 }

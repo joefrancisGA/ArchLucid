@@ -49,6 +49,7 @@ import { resolvePartialRunCommitBlockedReason } from "@/lib/run-detail-partial-r
 
 import { resolveReviewPackagePrimaryAction } from "./resolve-review-package-primary-action";
 import {
+  RunDetailWorkspaceDisclosureControls,
   RunDetailWorkspaceDisclosureProvider,
   RunDetailWorkspaceLayout,
 } from "./RunDetailWorkspaceShell";
@@ -643,7 +644,9 @@ export function RunDetailPageView(props: {
           main={
             <>
               {showArchitectureCreatedHome ? (
-                <Suspense fallback={<RunDetailExplanationSkeleton />}>
+                <>
+                  <RunDetailWorkspaceDisclosureControls />
+                  <Suspense fallback={<RunDetailExplanationSkeleton />}>
                   <RunDetailArchitectureCreatedWorkspaceDeferred
                     baseline={architectureCreatedBaseline}
                     architectureSourceText={submittedArchitectureText ?? ""}
@@ -764,7 +767,8 @@ export function RunDetailPageView(props: {
                       ),
                     }}
                   />
-                </Suspense>
+                  </Suspense>
+                </>
               ) : (
                 <>
                   <RunDetailWorkspaceHeaderDeferred
@@ -844,6 +848,8 @@ export function RunDetailPageView(props: {
               ) : null}
 
               {!showArchitectureCreatedHome ? executiveBottomLineEl : null}
+
+              {!showArchitectureCreatedHome ? <RunDetailWorkspaceDisclosureControls /> : null}
 
               {tabbedWorkspaceEl}
             </>

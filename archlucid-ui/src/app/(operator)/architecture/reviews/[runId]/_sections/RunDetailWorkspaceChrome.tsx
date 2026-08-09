@@ -5,7 +5,6 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
-import { SeverityTag } from "@/components/ui/severity-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
@@ -82,24 +81,6 @@ export type RunDetailWorkspaceSummaryStripProps = {
   readonly nextAction: string;
 };
 
-function severityTagKind(
-  severity: string,
-): "critical" | "high" | "medium" | "low" {
-  if (severity === "Critical") {
-    return "critical";
-  }
-
-  if (severity === "High") {
-    return "high";
-  }
-
-  if (severity === "Medium") {
-    return "medium";
-  }
-
-  return "low";
-}
-
 /** Compact first-viewport review status summary near the title. */
 export function RunDetailWorkspaceSummaryStrip(
   props: RunDetailWorkspaceSummaryStripProps,
@@ -121,16 +102,8 @@ export function RunDetailWorkspaceSummaryStrip(
         </div>
         <div>
           <dt className="text-neutral-500 dark:text-neutral-400">Highest unresolved severity</dt>
-          <dd className="m-0 mt-0.5">
-            {props.highestUnresolvedSeverity !== null ? (
-              <SeverityTag
-                severity={props.highestUnresolvedSeverity}
-                kind={severityTagKind(props.highestUnresolvedSeverity)}
-                label={props.highestUnresolvedSeverity}
-              />
-            ) : (
-              <span className="font-semibold text-neutral-900 dark:text-neutral-100">None</span>
-            )}
+          <dd className="m-0 mt-0.5 font-semibold text-neutral-900 dark:text-neutral-100">
+            {props.highestUnresolvedSeverity ?? "None"}
           </dd>
         </div>
         <div className="sm:col-span-2">
