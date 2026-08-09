@@ -174,6 +174,57 @@ variable "ui_scale_concurrent_requests" {
   default     = 10
 }
 
+variable "api_enable_cpu_scale_rule" {
+  type        = bool
+  description = "When true, add a KEDA cpu utilization scale rule on the API alongside HTTP concurrency (TB-915)."
+  default     = true
+}
+
+variable "api_cpu_scale_utilization_percent" {
+  type        = number
+  description = "Target average CPU utilization percent for the API cpu scale rule (TB-915)."
+  default     = 70
+
+  validation {
+    condition     = var.api_cpu_scale_utilization_percent >= 1 && var.api_cpu_scale_utilization_percent <= 100
+    error_message = "api_cpu_scale_utilization_percent must be between 1 and 100."
+  }
+}
+
+variable "api_enable_memory_scale_rule" {
+  type        = bool
+  description = "When true, add a KEDA memory utilization scale rule on the API. Default false until RSS evidence (TB-915)."
+  default     = false
+}
+
+variable "api_memory_scale_utilization_percent" {
+  type        = number
+  description = "Target average memory utilization percent when api_enable_memory_scale_rule is true."
+  default     = 75
+
+  validation {
+    condition     = var.api_memory_scale_utilization_percent >= 1 && var.api_memory_scale_utilization_percent <= 100
+    error_message = "api_memory_scale_utilization_percent must be between 1 and 100."
+  }
+}
+
+variable "ui_enable_cpu_scale_rule" {
+  type        = bool
+  description = "When true, add a light CPU utilization scale rule on the operator UI (TB-915). Default false."
+  default     = false
+}
+
+variable "ui_cpu_scale_utilization_percent" {
+  type        = number
+  description = "Target average CPU utilization percent for the operator UI cpu scale rule."
+  default     = 75
+
+  validation {
+    condition     = var.ui_cpu_scale_utilization_percent >= 1 && var.ui_cpu_scale_utilization_percent <= 100
+    error_message = "ui_cpu_scale_utilization_percent must be between 1 and 100."
+  }
+}
+
 variable "api_cpu" {
   type        = number
   description = "API container vCPU (consumption: 0.25, 0.5, 0.75, 1.0, ...)."

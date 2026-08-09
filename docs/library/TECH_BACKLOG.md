@@ -2,7 +2,7 @@
 
 <!-- tech-backlog-open-by-category:start -->
 
-**Open counts by architectural quality** (auto-maintained; last refreshed **2026-08-08** — approximate after wave 5 open; regenerate with script).
+**Open counts by architectural quality** (auto-maintained; last refreshed **2026-08-08**).
 
 Regenerate after opening or closing summary-table rows:
 `python scripts/ci/refresh_tech_backlog_category_counts.py --write`
@@ -15,7 +15,7 @@ Regenerate after opening or closing summary-table rows:
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
 | Architectural integrity | 11 |
-| Adoption friction | 366 |
+| Adoption friction | 371 |
 | Commercial / marketability | 9 |
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
@@ -26,8 +26,8 @@ Regenerate after opening or closing summary-table rows:
 | Traceability | 4 |
 | Interoperability | 4 |
 | Compliance readiness | 1 |
-| Performance | 14 |
-| Scalability | 4 |
+| Performance | 13 |
+| Scalability | 2 |
 | Cost-effectiveness | 9 |
 | Supportability | 2 |
 | Code hygiene | 1 |
@@ -36,9 +36,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **799** |
+| **Total (unique open)** | **801** |
 
-**By priority band:** P0 **20** | P1 **650** | P2 **115** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **17** | P1 **652** | P2 **115** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -1510,8 +1510,8 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-908 | ~~DDoS posture assessment~~ **Done** (2026-07-21) ? ADR 0061 Accepted: Front Door platform DDoS; defer Network Protection (~$2,944/mo); `SYSTEM_THREAT_MODEL.md` §8.1; see `## TB-908` below | Compliance readiness P3 ? **V1**; WAF Security pillar 2026-07-20 | S |
 | TB-903 | Production posture-tier assertion ? required `posture_tier` variable per Terraform root; `check`/validation blocks fail `plan` when production tier has monitoring, budgets, Front Door WAF (Standard, custom rules only), full secondary-region stack + SQL failover group, or private endpoints (Cosmos/Redis in-root; SQL/Storage/Key Vault via `terraform-private` fix below) off; documented waiver allowed for staging SQL failover group only (drill-window model); see `## TB-903` below | Deployability P1 ? **V1**; owner-promoted from V2 2026-07-20; WAF review 2026-07-20 (cross-pillar root cause); scope finalized with owner 2026-07-20 | L |
 | TB-905 | Execute + record reliability drills ? run geo-failover drill (SQL failover group only, drill-window; secondary stack already standing per **TB-903**) and launch load drill against staging; record measured RTO/RPO and throughput in `FAILOVER_RESULTS.md` / `LAUNCH_LOAD_DRILL.md`; see `## TB-905` below | Reliability P1 ? **V1**; owner-promoted from V2 2026-07-20; WAF review 2026-07-20; runbooks + scripts already shipped, execution pending; gate launch-load half on **TB-946** / **G-SCALE-01** | M |
-| TB-915 | Container Apps scale-rule mix — HTTP concurrency + CPU (~70%) on API (optional memory; optional UI CPU); Worker stays queue/prom; document OR semantics + AOAI TPM ceiling; see `## TB-915` below | Scalability P0 — **V1** (promoted P0 2026-08-08 with perf wave 5; was P1); before **TB-905**; pairs **TB-946**/**TB-947**/**TB-2121** | M |
-| TB-947 | API max-replicas sizing vs handler bulkhead + AOAI TPM — capacity checklist so scale-out cannot silently hit model quota; pairs **TB-916**; see `## TB-947` below | Scalability P0 — **V1** (promoted P0 2026-08-08 with perf wave 5; was P2); pairs **TB-915**/**TB-2121** | S |
+| TB-915 | **Done** (2026-08-09) — API HTTP + CPU KEDA scale rules (optional memory/UI CPU); OR semantics documented; see `## TB-915` below | Scalability P0 — **V1** (promoted P0 2026-08-08 with perf wave 5; was P1); before **TB-905**; pairs **TB-946**/**TB-947**/**TB-2121** | M |
+| TB-947 | **Done** (2026-08-09) — API max-replicas sizing vs bulkhead + AOAI TPM checklist in terraform README; staging tfvars example; LAUNCH_LOAD_DRILL cross-link; see `## TB-947` below | Scalability P0 — **V1** (promoted P0 2026-08-08 with perf wave 5; was P2); pairs **TB-915**/**TB-2121** | S |
 | TB-952 | Agent side-effect surface inventory ? no arbitrary HTTP/shell/exfil from agent handlers; architecture test + threat-model note; see `## TB-952` below | Trustworthiness P2 ? **V1**; prompt-injection resistance 2026-07-22; pairs **TB-950** | M |
 | ~~TB-953~~ | ~~Transactional audit `LogOrThrow` ? fail-closed durable write for indefensible governance/finalize/identity/export events; migrate off `TryLogAsync`; see `## TB-953` below~~ **Done 2026-07-23** | Trustworthiness P0 ? **V1**; INV-003 mitigation 2026-07-22; hardens **TB-001** split; GTM **M-117** | L |
 | TB-956 | Same-TX or transactional outbox for hottest governance audit writes ? mutation + audit durability co-commit; see `## TB-956` below | Trustworthiness P2 ? **V1**; after **TB-953**; INV-003 mitigation 2026-07-22 | L |
@@ -24290,39 +24290,17 @@ Private-beta access-path P0: prove tenant scope cannot be steered by forged x-te
 
 **Window:** V1 — Scalability (promoted from V2 2026-07-22; **promoted P0** 2026-08-08 with perf wave 5).
 
-**Status:** Not started (scope expanded 2026-07-22).
+**Status:** **Done** (2026-08-09).
 
 **Priority:** P0.
 
 **Why:** API/UI scale today on **HTTP concurrency only**. That fits **LLM-bound** phases (high concurrent requests, low CPU while waiting on Azure OpenAI) and misses **CPU-bound** phases (graph merge, findings engines, large JSON/export prep) where concurrency may stay modest while latency dies. Conversely, CPU-only scaling misses LLM-wait saturation.
 
-**Scale-rule mix (target):**
+**Shipped (2026-08-09):** API `http_scale_rule` + KEDA `cpu` custom rule (default **70%** utilization, toggle `api_enable_cpu_scale_rule`); optional `memory` and operator UI `cpu` rules (default off). Worker unchanged (queue/prometheus only). OR semantics + AOAI ceiling cross-link in `infra/terraform-container-apps/README.md`; `test_container_app_scale_rules.py` drift guard; tfvars examples updated.
 
-| App | Rules | Notes |
-|-----|-------|-------|
-| **API** | Keep HTTP concurrency + add CPU (~65?75% utilization); optional memory (~75?80%) only with RSS evidence | OR-of-rules (Container Apps max of triggers). Floor `api_min_replicas ? 2` staging/prod. |
-| **UI** | Keep HTTP (**TB-729**); optional light CPU | Marketing/SSR bursts; less critical than API. |
-| **Worker** | Keep azure-queue and/or Prometheus outbox depth ? **not** HTTP | Optional CPU only if queue empty but CPU pegged. Respect leader-election / `worker_max_replicas` constraints. |
+**Validate:** **TB-946** micro-drill B (owner **G-SCALE-01**) — not executed in this engineering pass.
 
-**Hard constraint:** More API replicas ? more LLM throughput if AOAI TPM is the ceiling ? size max replicas with **TB-947** / **TB-916**.
-
-**Approach:**
-
-1. Add parameterized `cpu` custom scale rule on API alongside existing HTTP concurrency in `terraform-container-apps`.
-2. Optional `memory` rule behind a variable defaulting off until evidence.
-3. Optional UI CPU rule (default off or conservative).
-4. Document OR semantics, recommended starting thresholds, and ?do not scale Worker from HTTP? in `infra/terraform-container-apps/README.md`.
-5. Validate with **TB-946** micro-drills (not only the mixed launch load drill).
-
-**Acceptance:** Plan shows HTTP + CPU on API; thresholds documented; README states OR semantics + AOAI ceiling; micro-drill B (**TB-946**) can prove CPU-dominant scale-out.
-
-**Affected files:** `infra/terraform-container-apps/main.tf`, `variables.tf`, `*.tfvars.example`, README.
-
-**Depends on:** **TB-729** (UI HTTP Done). Validate via **TB-946**; owner **G-SCALE-01**.
-
-**Out of scope:** Changing Polly/LLM retries; Front Door origin split; production chaos (**TB-914**).
-
-**Refs:** **TB-905**, **TB-946**, **TB-947**, owner autoscale discussion 2026-07-22.
+**Peers:** **TB-947** (max-replica cap); **TB-946** (drills); **TB-905** (launch load).
 
 **Size estimate:** M (was S; mix + docs expanded).
 

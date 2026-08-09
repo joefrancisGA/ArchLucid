@@ -78,6 +78,10 @@ locals {
     length(trimspace(var.api_key_workspace_id)) > 0 &&
     length(trimspace(var.api_key_project_id)) > 0
   )
+
+  api_cpu_scale_enabled    = local.enabled && var.api_enable_cpu_scale_rule
+  api_memory_scale_enabled = local.enabled && var.api_enable_memory_scale_rule
+  ui_cpu_scale_enabled     = local.enabled && var.ui_enable_cpu_scale_rule
 }
 
 data "azurerm_resource_group" "target" {
@@ -404,6 +408,30 @@ resource "azurerm_container_app" "api" {
     http_scale_rule {
       name                = "http-concurrency"
       concurrent_requests = var.api_scale_concurrent_requests
+    }
+
+    dynamic "custom_scale_rule" {
+      for_each = local.api_cpu_scale_enabled ? [1] : []
+      content {
+        name             = "cpu-utilization"
+        custom_rule_type = "cpu"
+        metadata = {
+          type  = "Utilization"
+          value = tostring(var.api_cpu_scale_utilization_percent)
+        }
+      }
+    }
+
+    dynamic "custom_scale_rule" {
+      for_each = local.api_memory_scale_enabled ? [1] : []
+      content {
+        name             = "memory-utilization"
+        custom_rule_type = "memory"
+        metadata = {
+          type  = "Utilization"
+          value = tostring(var.api_memory_scale_utilization_percent)
+        }
+      }
     }
   }
 
@@ -808,6 +836,18 @@ resource "azurerm_container_app" "ui" {
     http_scale_rule {
       name                = "http-concurrency"
       concurrent_requests = var.ui_scale_concurrent_requests
+    }
+
+    dynamic "custom_scale_rule" {
+      for_each = local.ui_cpu_scale_enabled ? [1] : []
+      content {
+        name             = "cpu-utilization"
+        custom_rule_type = "cpu"
+        metadata = {
+          type  = "Utilization"
+          value = tostring(var.ui_cpu_scale_utilization_percent)
+        }
+      }
     }
   }
 
