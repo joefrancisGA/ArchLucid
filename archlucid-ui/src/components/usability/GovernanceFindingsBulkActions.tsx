@@ -23,7 +23,7 @@ type GovernanceFindingsBulkActionsProps = {
   readonly onApplied: () => void;
 };
 
-type BulkDisposition = FindingDispositionKind;
+type BulkDisposition = Extract<FindingDispositionKind, "Accepted" | "RejectedAsNotApplicable" | "Deferred">;
 
 /** Bulk accept / waive / defer for governance findings queue rows. */
 export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActionsProps) {
