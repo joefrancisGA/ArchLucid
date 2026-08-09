@@ -262,16 +262,33 @@ Product separator is a colon (`Label: value`), not a comma.
 | `StatusTag` | `archlucid-ui/src/components/ui/status-tag.tsx` | Run/governance badges |
 | `SeverityTag` | `archlucid-ui/src/components/ui/severity-tag.tsx` | Findings, governance queue |
 | `EnterpriseTable` | `archlucid-ui/src/components/ui/enterprise-table.tsx` | Reviews list, governance findings, operator audit |
-| `Tabs` / `EnterpriseTabs` | `archlucid-ui/src/components/ui/tabs.tsx` | Shared WAI-ARIA line tabs (**TB-665**); migrate call sites in **TB-666**–**TB-670** |
+| `Tabs` / `EnterpriseTabs` | `archlucid-ui/src/components/ui/tabs.tsx` | Shared WAI-ARIA tabs (**TB-665**); default **`variant="pill"`** (Reviews hub exemplar); `variant="line"` for legacy underline only |
+
+### Tabbed interfaces — Reviews hub exemplar (owner decision 2026-08-09)
+
+**Visual reference:** `/architecture/reviews` (`ReviewsHubReviewInventory` + `ReviewsHubSummaryRow`).
+
+| Pattern | Exemplar on Reviews hub | Component / API |
+| --- | --- | --- |
+| **Section tabs** (Browse / Overview / Findings — swap panels below) | Filter row silver pills (same visual as list filters) | `<Tabs variant="pill">` — default; styles in `tabs-pill-styles.ts` via `buyerFilterChipClass` |
+| **List filters** (All / Needs attention — narrow one table) | Filter row silver pills | `FilterChip` + `buyerFilterChipClass` (`aria-pressed`) |
+| **Read-only KPI strip** (Active / Finalized counts) | Summary row tiles | `rounded-md` metric cards — **not** tabs; do not use `Tabs` or `FilterChip` |
+
+**Rules:**
+
+- Operator section tabs use **`variant="pill"`** (default) — silver `rounded-full` chips with neutral border; selected state = light grey fill (`buyerFilterChipClass`).
+- Do **not** add one-off `rounded-md` segmented containers, underline line tabs, or per-call-site pill `className` overrides on `TabsTrigger`.
+- `variant="line"` (teal underline) is legacy-only; new surfaces must not introduce it.
+- List filters that narrow a single dataset stay on **`FilterChip`** even when they look like tabs — semantics differ (`aria-pressed` vs `role="tablist"`).
 
 ### Tabs vs buttons vs filter chips vs segmented controls (**TB-665**)
 
 | Control | Use when | ARIA / behavior | Do not use for |
 | --- | --- | --- | --- |
-| **`Tabs`** (`Tabs`, `TabsList`, `TabsTrigger`, `TabsContent`) | Fixed, peer views of one page (2–7 panels); selection swaps content below without navigation | `role="tablist"` / `tab` / `tabpanel`; `aria-selected`; Left/Right/Home/End keyboard; optional `?tab=` URL sync | One-time actions; unbounded lists; filters that narrow one list |
+| **`Tabs`** (`Tabs`, `TabsList`, `TabsTrigger`, `TabsContent`) | Fixed, peer views of one page (2–7 panels); selection swaps content below without navigation | `role="tablist"` / `tab` / `tabpanel`; `aria-selected`; Left/Right/Home/End keyboard; optional `?tab=` URL sync; default **`variant="pill"`** | One-time actions; unbounded lists; filters that narrow one list |
 | **Primary `Button`** | Single commit actions (Save, Finalize, Export) | `button` | View switchers that swap large panels |
 | **`FilterChip`** | Optional filters, drill-down links, compact toggles outside a tab strip | `button` or `link` | Mutually exclusive page sections with dedicated panels |
-| **Segmented control** (`aria-pressed` / radiogroup) | 2–4 compact modes on one dataset (Cards/Timeline, graph scope) | `aria-pressed` or `radiogroup` | Multi-panel layouts needing `tabpanel` linkage (**TB-671**) |
+| **Segmented control** (`aria-pressed` / radiogroup) | 2–4 compact modes on one dataset where tab panels are not used (graph scope pills) | `aria-pressed` or `radiogroup` | Multi-panel layouts needing `tabpanel` linkage — use **`Tabs variant="pill"`** instead |
 
 Cursor enforcement: `.cursor/rules/UI-Enterprise-Design-Standard.mdc` (**TB-120**).
 

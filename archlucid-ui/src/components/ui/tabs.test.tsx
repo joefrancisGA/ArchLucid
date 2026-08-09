@@ -95,4 +95,29 @@ describe("Tabs primitive (TB-665)", () => {
     const lastCall = replaceState.mock.calls.at(-1);
     expect(String(lastCall?.[2])).toContain("tab=b");
   });
+
+  it("renders pill variant triggers with rounded-full chip styling by default", () => {
+    renderThreeTabFixture();
+
+    const tabA = screen.getByRole("tab", { name: "Tab A" });
+
+    expect(tabA.className).toMatch(/rounded-full/);
+    expect(tabA.className).not.toMatch(/border-b-2/);
+  });
+
+  it("renders line variant triggers with underline styling when variant is line", () => {
+    render(
+      <Tabs defaultValue="a" variant="line">
+        <TabsList aria-label="Example sections">
+          <TabsTrigger value="a">Tab A</TabsTrigger>
+        </TabsList>
+        <TabsContent value="a">Panel A</TabsContent>
+      </Tabs>,
+    );
+
+    const tabA = screen.getByRole("tab", { name: "Tab A" });
+
+    expect(tabA.className).toMatch(/border-b-2/);
+    expect(tabA.className).not.toMatch(/rounded-full/);
+  });
 });

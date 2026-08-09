@@ -16,12 +16,16 @@ import {
 } from "react";
 
 import { isTabsKeyboardMove, resolveNextTabIndex, type TabsOrientation } from "@/components/ui/tabs-keyboard";
+import { TABS_PILL_LIST_CLASS, tabsPillTriggerClass } from "@/components/ui/tabs-pill-styles";
+
+export type TabsVariant = "line" | "pill";
 
 type TabsContextValue = {
   baseId: string;
   value: string;
   setValue: (next: string) => void;
   orientation: TabsOrientation;
+  variant: TabsVariant;
   registerTrigger: (tabValue: string, element: HTMLButtonElement) => void;
   unregisterTrigger: (tabValue: string) => void;
   focusTrigger: (tabValue: string) => void;
@@ -65,6 +69,8 @@ export type TabsProps = {
   readonly onValueChange?: (value: string) => void;
   readonly syncUrlParam?: string;
   readonly orientation?: TabsOrientation;
+  /** Default `pill` — silver pills per `/architecture/reviews` hub filters. Use `line` only when legacy underline is required. */
+  readonly variant?: TabsVariant;
   readonly className?: string;
   readonly "data-testid"?: string;
 };
@@ -72,6 +78,7 @@ export type TabsProps = {
 export function Tabs(props: TabsProps): ReactElement {
   const baseId = useId().replace(/:/g, "");
   const orientation = props.orientation ?? "horizontal";
+  const variant = props.variant ?? "pill";
   const onValueChange = props.onValueChange;
   const syncUrlParam = props.syncUrlParam;
   const isControlled = props.value !== undefined;
@@ -147,6 +154,7 @@ export function Tabs(props: TabsProps): ReactElement {
       value: activeValue,
       setValue,
       orientation,
+      variant,
       registerTrigger,
       unregisterTrigger,
       focusTrigger,
@@ -161,6 +169,7 @@ export function Tabs(props: TabsProps): ReactElement {
       setValue,
       triggerOrder,
       unregisterTrigger,
+      variant,
     ],
   );
 
@@ -185,7 +194,7 @@ export type TabsListProps = {
 };
 
 export function TabsList(props: TabsListProps): ReactElement {
-  const { orientation, value, setValue, focusTrigger, triggerOrder } = useTabsContext("TabsList");
+  const { orientation, value, setValue, focusTrigger, triggerOrder, variant } = useTabsContext("TabsList");
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
     if (!isTabsKeyboardMove(event.key)) {
@@ -222,8 +231,15 @@ export function TabsList(props: TabsListProps): ReactElement {
       aria-label={props["aria-label"]}
       aria-orientation={orientation}
       className={cn(
-        "flex gap-1 border-b border-neutral-200 pb-0 dark:border-neutral-800",
-        orientation === "vertical" ? "flex-col border-b-0 border-r pr-2" : "flex-row",
+        "flex",
+        variant === "pill"
+          ? TABS_PILL_LIST_CLASS
+          : "gap-1 border-b border-neutral-200 pb-0 dark:border-neutral-800",
+        orientation === "vertical"
+          ? variant === "pill"
+            ? "flex-col"
+            : "flex-col border-b-0 border-r pr-2"
+          : "flex-row",
         props.className,
       )}
       onKeyDown={handleKeyDown}
@@ -245,7 +261,7 @@ export type TabsTriggerProps = {
 };
 
 export function TabsTrigger(props: TabsTriggerProps): ReactElement {
-  const { registerTrigger, unregisterTrigger, value: activeValue, setValue, baseId } =
+  const { registerTrigger, unregisterTrigger, value: activeValue, setValue, baseId, variant } =
     useTabsContext("TabsTrigger");
   const selected = activeValue === props.value;
   const triggerId = `${baseId}-tab-${props.value}`;
@@ -282,13 +298,18 @@ export function TabsTrigger(props: TabsTriggerProps): ReactElement {
       data-state={selected ? "active" : "inactive"}
       data-testid={props["data-testid"]}
       className={cn(
-        "px-4 py-2 text-[13px] font-normal leading-5 outline-none transition-colors",
-        "font-medium leading-none",
-        "-mb-px border-b-2",
-        selected
-          ? "border-teal-600 text-al-text-primary dark:border-teal-400 dark:text-teal-300"
-          : "border-transparent text-neutral-700 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-neutral-100",
-        "focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2",
+        "outline-none transition-colors",
+        variant === "pill"
+          ? tabsPillTriggerClass(selected, props.disabled ?? false)
+          : [
+              "px-4 py-2 text-[13px] font-normal leading-5",
+              "font-medium leading-none",
+              "-mb-px border-b-2",
+              selected
+                ? "border-teal-600 text-al-text-primary dark:border-teal-400 dark:text-teal-300"
+                : "border-transparent text-neutral-700 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-neutral-100",
+              "focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2",
+            ],
         props.disabled && "cursor-not-allowed opacity-50",
         props.className,
       )}

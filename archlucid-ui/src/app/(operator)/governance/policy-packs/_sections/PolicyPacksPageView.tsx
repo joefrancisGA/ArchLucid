@@ -146,7 +146,7 @@ className="mb-3"
         }}
         className="mb-6"
       >
-        <TabsList aria-label="Policy packs sections" data-testid="policy-packs-surface-tabs" className="gap-1 border-0">
+        <TabsList aria-label="Policy packs sections" data-testid="policy-packs-surface-tabs">
           <TabsTrigger value="my-packs" data-testid="policy-packs-tab-my-packs" className="shrink-0">
             My packs
           </TabsTrigger>
