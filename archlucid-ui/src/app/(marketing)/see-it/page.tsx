@@ -3,7 +3,6 @@ import Link from "next/link";
 
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { SeeItEvidenceOrientationStrip } from "@/components/marketing/SeeItEvidenceOrientationStrip";
-import { WELCOME_SEE_IT_CTA_LABEL } from "@/components/marketing/welcome-marketing-copy";
 import { Button } from "@/components/ui/button";
 import {
   MARKETING_CAPTION_TEXT_CLASS,
@@ -15,6 +14,10 @@ import {
   MARKETING_SEE_IT_OG_DESCRIPTION,
   buildMarketingSocialMetadata,
 } from "@/lib/marketing-open-graph";
+import {
+  SEE_IT_PAGE_METADATA_TITLE,
+  SEE_IT_PAGE_TITLE,
+} from "@/lib/see-it-page-copy";
 import { CANONICAL_ANONYMOUS_PROOF_HREF } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 
@@ -30,9 +33,9 @@ const SEE_IT_HERO_LEAD =
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: `ArchLucid · ${WELCOME_SEE_IT_CTA_LABEL}`,
+  title: SEE_IT_PAGE_METADATA_TITLE,
   description: MARKETING_SEE_IT_OG_DESCRIPTION,
-  ...buildMarketingSocialMetadata(WELCOME_SEE_IT_CTA_LABEL, MARKETING_SEE_IT_OG_DESCRIPTION, "/see-it"),
+  ...buildMarketingSocialMetadata(SEE_IT_PAGE_TITLE, MARKETING_SEE_IT_OG_DESCRIPTION, "/see-it"),
   robots: { index: true, follow: true },
   other: {
     "data-demo": "true",
@@ -52,7 +55,7 @@ export default async function SeeItMarketingPage() {
       >
         <div>
           <h1 id="see-it-hero-heading" className={MARKETING_TYPOGRAPHY.heroTitle}>
-            See a finalized sample review
+            {SEE_IT_PAGE_TITLE}
           </h1>
           <p
             className={cn("mt-4 max-w-xl", MARKETING_TYPOGRAPHY.lead)}
