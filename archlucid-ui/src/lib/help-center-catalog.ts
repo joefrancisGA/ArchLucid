@@ -1,6 +1,6 @@
 import { ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE } from "@/lib/enterprise-onboarding-help-copy";
 import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
-import { resolveProductDocumentationContentKind } from "@/lib/product-documentation-content-kinds";
+import { isInternalRunbookSlug } from "@/lib/product-documentation-content-kinds";
 import {
   listProductDocumentationEntries,
   type ProductDocumentationEntry,
@@ -162,39 +162,22 @@ function isFeaturedSlug(slug: string): boolean {
   return HELP_CENTER_FEATURED_SLUGS.includes(slug);
 }
 
-function isProductHelpEntry(entry: ProductDocumentationEntry): boolean {
-  return resolveProductDocumentationContentKind(entry.slug) === "product-help";
+/**
+ * Guides list carries product help plus the remaining technical-documentation topics.
+ * Internal engineering runbooks stay out entirely; tier gating (`getHelpCenterTier`) still applies on top.
+ */
+function isHelpCenterGuideEntry(entry: ProductDocumentationEntry): boolean {
+  return !isInternalRunbookSlug(entry.slug);
 }
 
-function isTechnicalDocumentationEntry(entry: ProductDocumentationEntry): boolean {
-  return resolveProductDocumentationContentKind(entry.slug) === "technical-documentation";
-}
-
-/** Product-help topics for the Guides tab — featured by default; admin/internal when expanded and permitted. */
+/** Topics for the Guides list — featured by default; admin/internal when expanded and permitted. */
 export function listHelpCenterGuideTopics(filters: HelpCenterTopicFilters): ProductDocumentationEntry[] {
-  return listHelpCenterTopics(filters).filter(isProductHelpEntry);
+  return listHelpCenterTopics(filters).filter(isHelpCenterGuideEntry);
 }
 
 /** Non-featured guide topics revealed when advanced is expanded. */
 export function listHelpCenterAdvancedGuideTopics(filters: HelpCenterTopicFilters): ProductDocumentationEntry[] {
-  return listHelpCenterAdvancedTopics(filters).filter(isProductHelpEntry);
-}
-
-/** Technical-documentation topics for the Documentation tab; internal tier requires admin. */
-export function listHelpCenterDocumentationTopics(filters: Pick<HelpCenterTopicFilters, "isAdmin">): ProductDocumentationEntry[] {
-  return listProductDocumentationEntries().filter((entry) => {
-    if (!isTechnicalDocumentationEntry(entry)) {
-      return false;
-    }
-
-    const tier = getHelpCenterTier(entry);
-
-    if (tier === "internal") {
-      return filters.isAdmin;
-    }
-
-    return true;
-  });
+  return listHelpCenterAdvancedTopics(filters).filter(isHelpCenterGuideEntry);
 }
 
 /** Topics for the Help landing grid — featured by default; admin/internal when expanded and permitted. */

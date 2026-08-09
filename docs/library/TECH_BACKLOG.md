@@ -712,7 +712,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1330 | ~~Configuration reference ? in-app-only link map (no runbook/ADR dump)~~ **Done** 2026-08-02 ? presentation rewrite + Vitest banned hrefs; see ## TB-1330 below | Trustworthiness P1 ? **V1**; with **TB-1327**; parity **TB-1257** | S |
 | TB-1341 | ~~Enterprise onboarding — title + audience/tier honesty~~ **Done** 2026-08-09 — canonical `ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE`; registry `operator` + help-center `admin` tier; Vitest; see ## TB-1341 below | Trustworthiness P1 — **V1**; with **TB-1338** | XS |
 | TB-1380 | ~~Complete review workflow — slug/title + Pilot jargon honesty (page + inbound chrome)~~ **Done** 2026-08-09 — `FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE` aligns registry/help center/home banner; purge first-pilot Ctrl+K + commit/package jargon; Vitest; see ## TB-1380 below | Trustworthiness P1 — **V1**; with **TB-1379** | S |
-| TB-1408 | Legacy AI usage admin path ? audit remaining docs/template hrefs ? canonicalize; see ## TB-1408 below | Trustworthiness P1 ? **V1**; with **TB-1404** | S |
+| TB-1408 | ~~Legacy AI usage admin path — audit remaining docs/template hrefs → canonicalize~~ **Done** 2026-08-09 — IA doc + traffic template canonical `/administration/ai-usage`; legacy path redirect-only labels; Vitest doc guard; see ## TB-1408 below | Trustworthiness P1 — **V1**; with **TB-1404** | S |
 | TB-1410 | Demo readiness admin ? purge CTO-demo aria/download buyer-confusable chrome; see ## TB-1410 below | Trustworthiness P1 ? **V1**; with **TB-1409**; pairs Done **TB-471** | S |
 | TB-1413 | Demo readiness admin ? check-row StatusTag status vs label honesty; see ## TB-1413 below | Trustworthiness P1 ? **V1**; with **TB-1409**; pairs **TB-116** | S |
 | TB-1416 | INV-001 / decide-once / committed-manifest PA triad challenge matrix; see `## TB-1416` below | Trustworthiness P1 ? **V1**; PA decide triad; GTM **M-253**/**M-254**; orchestrates **TB-999**/**TB-1003**/? | S |
@@ -35942,11 +35942,11 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ---
 
-## TB-1408 ? Legacy AI usage admin path ? audit remaining docs/template hrefs ? canonicalize (P0)
+## TB-1408 — Legacy AI usage admin path — audit remaining docs/template hrefs → canonicalize (P0)
 
-**Window:** V1 ? Trustworthiness.
+**Window:** V1 — Trustworthiness.
 
-**Status:** Not started.
+**Status:** **Done** 2026-08-09 — contributor IA doc + traffic template label `/admin/ai-usage-cost` redirect-only; canonical `/administration/ai-usage`; `ai-usage-legacy-route-doc-guard.test.ts` regression.
 
 **Priority:** P0.
 
