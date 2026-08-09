@@ -82,6 +82,35 @@ public sealed class InMemoryItsmFindingCorrelationRepository : IItsmFindingCorre
     }
 
     /// <inheritdoc />
+    public Task<IReadOnlyList<ItsmFindingCorrelationRecord>> ListByFindingsAsync(
+        Guid tenantId,
+        IReadOnlyList<string> findingIds,
+        CancellationToken ct)
+    {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("tenantId is required.", nameof(tenantId));
+
+        if (findingIds is null)
+            throw new ArgumentNullException(nameof(findingIds));
+
+        HashSet<string> normalizedFindingIds = findingIds
+            .Where(static id => !string.IsNullOrWhiteSpace(id))
+            .Select(static id => id.Trim())
+            .ToHashSet(StringComparer.Ordinal);
+
+        if (normalizedFindingIds.Count == 0)
+            return Task.FromResult<IReadOnlyList<ItsmFindingCorrelationRecord>>(Array.Empty<ItsmFindingCorrelationRecord>());
+
+        List<ItsmFindingCorrelationRecord> rows = _byKey.Values
+            .Where(r => r.TenantId == tenantId && normalizedFindingIds.Contains(r.FindingId))
+            .OrderBy(r => r.FindingId, StringComparer.Ordinal)
+            .ThenBy(r => r.CreatedUtc)
+            .ToList();
+
+        return Task.FromResult<IReadOnlyList<ItsmFindingCorrelationRecord>>(rows);
+    }
+
+    /// <inheritdoc />
     public Task RegisterAsync(
         Guid tenantId,
         Guid workspaceId,

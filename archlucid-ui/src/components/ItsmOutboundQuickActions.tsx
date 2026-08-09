@@ -2,64 +2,51 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
   createItsmOutboundIssue,
-  listItsmFindingCorrelations,
   type ItsmFindingCorrelationListItem,
 } from "@/lib/api/itsm-outbound-api";
 import { BUYER_DEMO_ITSM_LINKAGE_UNAVAILABLE } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { invalidateItsmFindingCorrelations } from "@/lib/itsm-finding-correlations-store";
 import { useItsmNativeCreateEnabled } from "@/lib/use-itsm-native-create-enabled";
+import { useItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
 
 export type ItsmOutboundQuickActionsProps = {
   readonly findingId: string;
   readonly compact?: boolean;
+  /** When false, correlation lookup is deferred until integrations UI is opened. */
+  readonly loadWhen?: boolean;
 };
 
 /** TB-063: reusable Jira / ServiceNow outbound actions for finding surfaces. TB-387: create gated by native flag. */
-export function ItsmOutboundQuickActions({ findingId, compact = false }: ItsmOutboundQuickActionsProps) {
+export function ItsmOutboundQuickActions({
+  findingId,
+  compact = false,
+  loadWhen = true,
+}: ItsmOutboundQuickActionsProps) {
   const nativeCreateEnabled = useItsmNativeCreateEnabled();
-  const [correlations, setCorrelations] = useState<ItsmFindingCorrelationListItem[]>([]);
-  const [correlationsLoaded, setCorrelationsLoaded] = useState(false);
+  const { correlations, loaded: correlationsLoaded, error: correlationsError } = useItsmFindingCorrelations(
+    findingId,
+    { enabled: loadWhen },
+  );
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   const reload = useCallback(async (): Promise<void> => {
-    const body = await listItsmFindingCorrelations(findingId);
-    setCorrelations(body.correlations ?? []);
-    setCorrelationsLoaded(true);
+    invalidateItsmFindingCorrelations(findingId);
   }, [findingId]);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    void (async () => {
-      try {
-        await reload();
-      } catch {
-        if (!cancelled) {
-          setCorrelationsLoaded(true);
-          setErrorMessage(
-            isBuyerPolishedOperatorShellEnv()
-              ? BUYER_DEMO_ITSM_LINKAGE_UNAVAILABLE
-              : "ITSM linkage unavailable.",
-          );
-        }
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [reload]);
 
   const jiraLinked = correlations.some((c) => c.provider === "Jira");
   const azureBoardsLinked = correlations.some((c) => c.provider === "Azure Boards");
   const serviceNowLinked = correlations.some((c) => c.provider === "ServiceNow");
+  const linkageUnavailableMessage = isBuyerPolishedOperatorShellEnv()
+    ? BUYER_DEMO_ITSM_LINKAGE_UNAVAILABLE
+    : "ITSM linkage unavailable.";
 
   async function onCreate(provider: "Jira" | "ServiceNow" | "Azure Boards"): Promise<void> {
     setBusy(true);
@@ -133,7 +120,7 @@ export function ItsmOutboundQuickActions({ findingId, compact = false }: ItsmOut
 
       {!compact && correlations.length > 0 ? (
         <ul className={cn("space-y-1", OPERATOR_TYPOGRAPHY.helper)}>
-          {correlations.map((c) => (
+          {correlations.map((c: ItsmFindingCorrelationListItem) => (
             <li key={`${c.provider}-${c.externalKey}`}>
               <span className="font-medium">{c.provider}</span> · <code>{c.externalKey}</code>
               {c.externalUrl ? (
@@ -152,6 +139,9 @@ export function ItsmOutboundQuickActions({ findingId, compact = false }: ItsmOut
 
       {statusMessage ? <p className={cn("text-green-700 dark:text-green-400", OPERATOR_TYPOGRAPHY.helper)}>{statusMessage}</p> : null}
       {errorMessage ? <p className={cn("text-red-700 dark:text-red-400", OPERATOR_TYPOGRAPHY.helper)}>{errorMessage}</p> : null}
+      {correlationsLoaded && correlationsError && errorMessage === null ? (
+        <p className={cn("text-red-700 dark:text-red-400", OPERATOR_TYPOGRAPHY.helper)}>{linkageUnavailableMessage}</p>
+      ) : null}
     </div>
   );
 }

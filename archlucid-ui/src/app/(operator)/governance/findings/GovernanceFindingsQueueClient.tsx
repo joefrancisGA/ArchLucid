@@ -33,6 +33,7 @@ import {
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
+import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
 import { cn } from "@/lib/utils";
 
 export type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
@@ -65,6 +66,11 @@ export default function GovernanceFindingsQueueClient() {
     [rows, registerFilter, scopedRunId],
   );
   const registerSummary = useMemo(() => computeArchitectureRiskRegisterSummary(rows), [rows]);
+  const findingIds = useMemo(
+    () => displayedRows.filter((row) => row.recordKind === "finding").map((row) => row.findingId),
+    [displayedRows],
+  );
+  usePrefetchItsmFindingCorrelations(findingIds);
   const pageTitle = buyerPolishedShell ? BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE : ARCHITECTURE_RISK_REGISTER_PAGE_TITLE;
   const pageSubtitle = buyerPolishedShell
     ? BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD

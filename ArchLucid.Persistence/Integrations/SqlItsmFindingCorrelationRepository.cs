@@ -162,6 +162,15 @@ public sealed class SqlItsmFindingCorrelationRepository(
             cancellationToken => ListByFindingCoreAsync(tenantId, findingId, cancellationToken),
             ct);
 
+    /// <inheritdoc />
+    public Task<IReadOnlyList<ItsmFindingCorrelationRecord>> ListByFindingsAsync(
+        Guid tenantId,
+        IReadOnlyList<string> findingIds,
+        CancellationToken ct) =>
+        _sqlOperations.ExecuteAsync(
+            cancellationToken => ListByFindingsCoreAsync(tenantId, findingIds, cancellationToken),
+            ct);
+
     private async Task<ItsmFindingCorrelationRecord?> TryGetByExternalKeyCoreAsync(
         string provider,
         string externalKey,
@@ -620,6 +629,46 @@ public sealed class SqlItsmFindingCorrelationRepository(
         CommandDefinition cmd = new(
             sql,
             new { TenantId = tenantId, FindingId = findingId.Trim() },
+            cancellationToken: ct);
+
+        IEnumerable<ItsmFindingCorrelationRecord> rows =
+            await connection.QueryAsync<ItsmFindingCorrelationRecord>(cmd);
+
+        return rows.ToList();
+    }
+
+    private async Task<IReadOnlyList<ItsmFindingCorrelationRecord>> ListByFindingsCoreAsync(
+        Guid tenantId,
+        IReadOnlyList<string> findingIds,
+        CancellationToken ct)
+    {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("tenantId is required.", nameof(tenantId));
+
+        if (findingIds is null)
+            throw new ArgumentNullException(nameof(findingIds));
+
+        List<string> normalizedFindingIds = findingIds
+            .Where(static id => !string.IsNullOrWhiteSpace(id))
+            .Select(static id => id.Trim())
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+
+        if (normalizedFindingIds.Count == 0)
+            return Array.Empty<ItsmFindingCorrelationRecord>();
+
+        const string sql = $"""
+                           SELECT {CorrelationSelectColumns}
+                           FROM dbo.ItsmFindingCorrelations
+                           WHERE TenantId = @TenantId AND FindingId IN @FindingIds
+                           ORDER BY FindingId ASC, CreatedUtc ASC;
+                           """;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+
+        CommandDefinition cmd = new(
+            sql,
+            new { TenantId = tenantId, FindingIds = normalizedFindingIds },
             cancellationToken: ct);
 
         IEnumerable<ItsmFindingCorrelationRecord> rows =

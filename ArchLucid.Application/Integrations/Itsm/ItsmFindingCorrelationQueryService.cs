@@ -55,4 +55,68 @@ public sealed class ItsmFindingCorrelationQueryService(
             Correlations = items
         };
     }
+
+    public async Task<ItsmFindingCorrelationsBatchResponse> ListForFindingsAsync(
+        ScopeContext scope,
+        IReadOnlyList<string> findingIds,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        if (findingIds is null)
+            throw new ArgumentNullException(nameof(findingIds));
+
+        List<string> normalizedFindingIds = findingIds
+            .Where(static id => !string.IsNullOrWhiteSpace(id))
+            .Select(static id => id.Trim())
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+
+        if (normalizedFindingIds.Count == 0)
+        {
+            return new ItsmFindingCorrelationsBatchResponse
+            {
+                Findings = Array.Empty<ItsmFindingCorrelationsByFindingResponse>()
+            };
+        }
+
+        IReadOnlyList<ItsmFindingCorrelationRecord> rows =
+            await _correlations.ListByFindingsAsync(scope.TenantId, normalizedFindingIds, ct).ConfigureAwait(false);
+
+        Dictionary<string, List<ItsmFindingCorrelationListItem>> grouped = normalizedFindingIds
+            .ToDictionary(static id => id, static _ => new List<ItsmFindingCorrelationListItem>(), StringComparer.Ordinal);
+
+        foreach (ItsmFindingCorrelationRecord row in rows)
+        {
+            if (!grouped.TryGetValue(row.FindingId, out List<ItsmFindingCorrelationListItem>? items))
+                continue;
+
+            items.Add(new ItsmFindingCorrelationListItem
+            {
+                Provider = row.Provider,
+                ExternalKey = row.ExternalKey,
+                ExternalSysId = row.ExternalSysId,
+                CreatedUtc = row.CreatedUtc,
+                ExternalUrl = await _urlBuilder.TryBuildBrowseUrlAsync(
+                    scope.TenantId,
+                    row.Provider,
+                    row.ExternalKey,
+                    row.ExternalSysId,
+                    ct).ConfigureAwait(false)
+            });
+        }
+
+        List<ItsmFindingCorrelationsByFindingResponse> findings = normalizedFindingIds
+            .Select(findingId => new ItsmFindingCorrelationsByFindingResponse
+            {
+                FindingId = findingId,
+                Correlations = grouped[findingId]
+            })
+            .ToList();
+
+        return new ItsmFindingCorrelationsBatchResponse
+        {
+            Findings = findings
+        };
+    }
 }

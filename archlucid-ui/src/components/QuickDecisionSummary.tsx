@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import type { ReactElement } from "react";
 
 import { FindingAiReasoningDialog } from "@/components/FindingAiReasoningDialog";
@@ -73,6 +73,7 @@ import {
   partitionQuickDecisionFindingsByConfidence,
 } from "@/lib/finding-confidence-filter";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
 
 export type QuickDecisionSummaryProps = {
   readonly runId: string;
@@ -107,6 +108,9 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
   const [showMuted, setShowMuted] = useState(false);
   const [showLowConfidence, setShowLowConfidence] = useState(false);
   const [showAdvisory, setShowAdvisory] = useState(false);
+  const [openWorkspaceIntegrationsByFindingId, setOpenWorkspaceIntegrationsByFindingId] = useState<
+    Readonly<Record<string, boolean>>
+  >({});
   const afterMuteFilter = showMuted ? sorted : sorted.filter((f) => !f.isMuted);
   const { trustedFindings, lowConfidenceFindings } = partitionQuickDecisionFindingsByConfidence(afterMuteFilter);
   const hiddenLowConfidenceCount = showLowConfidence ? 0 : lowConfidenceFindings.length;
@@ -128,6 +132,14 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
   );
   const policyPackSummary = policyPackImpact.groups;
   const hasSourceFindings = props.findings.length > 0;
+  const itsmFindingIds = useMemo(
+    () => props.findings.map((finding) => finding.findingId),
+    [props.findings],
+  );
+  usePrefetchItsmFindingCorrelations(
+    itsmFindingIds,
+    props.packageCommitted !== false && props.workspaceCardMode !== true,
+  );
   const provenanceAggregateLine = formatFindingProvenanceAggregateLine(
     aggregateFindingProvenance(
       props.findings.map((finding) => ({
@@ -448,6 +460,13 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
       <details
         className="rounded-md border border-neutral-200 p-2 dark:border-neutral-800"
         data-workspace-disclosure
+        onToggle={(event) => {
+          const open = event.currentTarget.open;
+          setOpenWorkspaceIntegrationsByFindingId((current) => ({
+            ...current,
+            [f.findingId]: open,
+          }));
+        }}
       >
         <summary className={cn("cursor-pointer font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
           Create work item / Integrations
@@ -475,7 +494,11 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
                 statusLabel="Open"
                 compact
               />
-              <ItsmOutboundQuickActions findingId={f.findingId} compact />
+              <ItsmOutboundQuickActions
+                findingId={f.findingId}
+                compact
+                loadWhen={openWorkspaceIntegrationsByFindingId[f.findingId] === true}
+              />
             </div>
           )}
         </div>

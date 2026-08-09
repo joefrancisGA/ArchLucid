@@ -19,6 +19,11 @@ public interface IItsmFindingCorrelationRepository
         string findingId,
         CancellationToken ct);
 
+    Task<IReadOnlyList<ItsmFindingCorrelationRecord>> ListByFindingsAsync(
+        Guid tenantId,
+        IReadOnlyList<string> findingIds,
+        CancellationToken ct);
+
     Task RegisterAsync(
         Guid tenantId,
         Guid workspaceId,
