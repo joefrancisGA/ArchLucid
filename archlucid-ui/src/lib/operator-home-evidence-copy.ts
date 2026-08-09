@@ -6,7 +6,7 @@ export const OPERATOR_HOME_CLAIM_DISCIPLINE =
   "Overview is the operator command-center launcher for next actions, recent reviews, and directional ROI — it is not a signed-review diligence Sources package. Open Architecture reviews, Evidence trail, or Trust Center when you need sponsor-safe trails.";
 
 export const OPERATOR_HOME_SOURCES_INTRO =
-  "Use these follow-ups when Overview next-actions need review packages, findings triage, executive ROI, or first-run guidance.";
+  "Use these follow-ups when Overview next-actions need architecture reviews, findings triage, executive ROI, or first-run guidance.";
 
 export type OperatorHomeSourceLink = {
   readonly label: string;

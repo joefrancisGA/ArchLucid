@@ -3,9 +3,9 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 describe("artifact preview App Router existence (TB-1825 / GAR / RER)", () => {
-  it("has physical pages for manifest-scoped and run-scoped artifact preview entry points", () => {
+  it("has the manifest-scoped artifact preview page and no run-scoped bookmark redirect", () => {
     const appRoot = join(process.cwd(), "src", "app", "(operator)");
-    const mamPage = join(
+    const garPage = join(
       appRoot,
       "governance",
       "signed-records",
@@ -24,7 +24,7 @@ describe("artifact preview App Router existence (TB-1825 / GAR / RER)", () => {
       "page.tsx",
     );
 
-    expect(existsSync(mamPage)).toBe(true);
-    expect(existsSync(rerPage)).toBe(true);
+    expect(existsSync(garPage)).toBe(true);
+    expect(existsSync(rerPage)).toBe(false);
   });
 });

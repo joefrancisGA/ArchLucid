@@ -51,8 +51,7 @@ export const HELP_TOPIC_SLUG_ALIASES: Readonly<Record<string, string>> = {
   "evaluator-workbook": "path-chooser",
   /** First-hour / first-review guide folded into Core Pilot (2026-08-03; TB-1374). */
   "first-hour-operator-path": "first-architecture-review",
-  /** Complete review workflow folded into Core Pilot (2026-08-03; TB-1379). */
-  "first-pilot-path": "first-architecture-review",
+  /** Complete review workflow folded into Core Pilot (2026-08-03; TB-1379). Retired alias removed TB-2050. */
   /** Starting reviews / creating-runs twins folded into review-guide (2026-08-03; TB-1258 / TB-1643). */
   "starting-reviews": "review-guide",
   "creating-runs": "review-guide",

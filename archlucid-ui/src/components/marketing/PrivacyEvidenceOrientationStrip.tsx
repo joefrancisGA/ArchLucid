@@ -37,7 +37,7 @@ export function PrivacyEvidenceOrientationStrip(): React.JSX.Element {
         </ul>
       </section>
 
-      <aside
+      <div
         className="rounded-md border border-amber-200/80 bg-amber-50/50 p-3 dark:border-amber-900/40 dark:bg-amber-950/20"
         data-testid="privacy-claim-discipline"
       >
@@ -45,7 +45,7 @@ export function PrivacyEvidenceOrientationStrip(): React.JSX.Element {
           Legal notice only
         </h2>
         <p className={cn("m-0 mt-2", MARKETING_TYPOGRAPHY.body)}>{PRIVACY_CLAIM_DISCIPLINE}</p>
-      </aside>
+      </div>
     </div>
   );
 }

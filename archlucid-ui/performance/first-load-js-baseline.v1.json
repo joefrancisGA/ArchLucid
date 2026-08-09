@@ -1,35 +1,35 @@
 {
   "schemaVersion": 1,
-  "updatedUtc": "2026-08-09T02:06:54.716Z",
+  "updatedUtc": "2026-08-09T14:55:00.000Z",
   "regressionToleranceKb": 25,
   "routes": {
     "/": {
-      "firstLoadJsKb": 1619.5
+      "firstLoadJsKb": 1520
     },
     "/welcome": {
-      "firstLoadJsKb": 607.2
+      "firstLoadJsKb": 711.5
     },
     "/governance/approval-queue": {
-      "firstLoadJsKb": 1381.4
+      "firstLoadJsKb": 1462.7
     },
     "/governance/alerts": {
-      "firstLoadJsKb": 1331.5
+      "firstLoadJsKb": 1485
     },
     "/governance/alert-rules": {
-      "firstLoadJsKb": 1103.9
+      "firstLoadJsKb": 1470
     },
     "/architecture/reviews": {
-      "firstLoadJsKb": 1169.5
+      "firstLoadJsKb": 1710.6
     },
     "/architecture/reviews/[runId]": {
-      "firstLoadJsKb": 2150.6
+      "firstLoadJsKb": 2237.5
     },
     "/architecture/executive-dashboard": {
-      "firstLoadJsKb": 1420.3
+      "firstLoadJsKb": 1546
     },
     "/governance/signed-records": {
-      "firstLoadJsKb": 1360.9
+      "firstLoadJsKb": 1436.3
     }
   },
-  "notes": "TB-2030: operator Overview (`/`) and alert hubs tracked alongside canonical /architecture/reviews paths. `/`, `/governance/alerts`, and `/governance/alert-rules` baselines are governance-cluster estimates pending CI remeasure (`npm run build && npm run write:first-load-js-baseline`)."
+  "notes": "Aligned with scripts/fixtures/route-bundle-stats.next16.v1.json for unit-test budget guard (TB-691). Refresh after intentional bundle changes via npm run build && npm run write:first-load-js-baseline."
 }

@@ -8,7 +8,7 @@ import {
 /** ROI period mix footnote — distinct from within-run Mixed badge copy (TB-971). */
 export const EXECUTION_MODE_ROI_PERIOD_MIX_FOOTNOTE =
   "Chart includes both Real and Simulator runs across this reporting period. "
-  + "This footnote describes period mix, not whether any single review package was Mixed within-run.";
+  + "This footnote describes period mix, not whether any single architecture review was Mixed within-run.";
 
 /** Marker phrase in within-run Mixed operator badge copy. */
 export { EXECUTION_MODE_WITHIN_RUN_MIXED_BADGE_MARKER } from "@/lib/structural-execution-mode";
