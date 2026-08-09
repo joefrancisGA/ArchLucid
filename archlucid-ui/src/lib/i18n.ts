@@ -134,7 +134,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   /** Architecture scorecard (`/insights/architecture-scorecard`). */
   scorecard: BUYER_TERMINOLOGY.reviewScorecard,
   alerts: "Alerts",
-  alertRules: "Alert Rules",
+  alertRules: "Alert rules",
   policyPacks: "Policy packs",
   /** Standards & rules (`/governance/standards-and-rules`). */
   governanceResolution: "Standards & rules",

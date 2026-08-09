@@ -22,7 +22,8 @@ export const ALERTS_CONTEXT_NOTE =
 
 export const ALERTS_HOW_ALERTS_WORK_LABEL = "How alerts work";
 
-export const ALERTS_CONFIGURATION_PAGE_TITLE = "Alert Rules";
+/** Sentence case matches the sibling governance nav labels (Approval queue, Policy packs, Signed review records). */
+export const ALERTS_CONFIGURATION_PAGE_TITLE = "Alert rules";
 
 export const ALERTS_CONFIGURATION_PAGE_SUBTITLE =
   "Configure which review conditions generate alerts and where notifications are delivered.";
