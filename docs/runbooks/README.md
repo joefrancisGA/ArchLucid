@@ -64,5 +64,7 @@ Tags are **guidance for paging and training**; they do not replace your org’s 
 | **P3** | [LOGIC_APPS_STANDARD.md](./LOGIC_APPS_STANDARD.md) | Optional Logic App (Standard) hosts for Service Bus integration workflows (ADR 0019). |
 | **P3** | [COPILOT_CODE_REVIEW_SETUP.md](./COPILOT_CODE_REVIEW_SETUP.md) | One-time setup: enable GitHub Copilot auto-review on every PR; lives alongside `.github/copilot-instructions.md` + `CODEOWNERS`. |
 | **P3** | [PRINCIPAL_ARCHITECT_FRONTIER_AI_BAKEOFF.md](./PRINCIPAL_ARCHITECT_FRONTIER_AI_BAKEOFF.md) | **Market validation** — five-step bakeoff: manual frontier AI, ArchLucid, blind compare, decision-delta, sponsor-safe summary. |
+| **P3** | [DEV_VM_IDLE_DEALLOCATE.md](./DEV_VM_IDLE_DEALLOCATE.md) | Owner Windows **dev VM**: Azure Automation conditional idle deallocate (RDP/CPU/build/keepalive) instead of fixed Auto-shutdown. |
+| **P3** | [LOCAL_DEV_EMAIL.md](./LOCAL_DEV_EMAIL.md) | Local **smtp4dev** or real SMTP (Gmail) for workspace invite mail during `dotnet run` dev. |
 
 **Related:** `infra/README.md` (Terraform roots and feature flags), `docs/CONTAINERIZATION.md` (Dockerfile and compose profiles).

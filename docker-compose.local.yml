@@ -16,6 +16,14 @@
 # ────────────────────────────────────────────────────────────────────
 
 services:
+  smtp4dev:
+    image: rnwood/smtp4dev:v3
+    container_name: archlucid-smtp4dev
+    ports:
+      - "2525:25"
+      - "8025:80"
+    restart: unless-stopped
+
   azurite:
     profiles: ["local-with-sidecars"]
 
