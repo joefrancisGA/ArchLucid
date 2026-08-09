@@ -26,7 +26,7 @@ Regenerate after opening or closing summary-table rows:
 | Traceability | 3 |
 | Interoperability | 4 |
 | Compliance readiness | 1 |
-| Performance | 10 |
+| Performance | 6 |
 | Scalability | 2 |
 | Cost-effectiveness | 9 |
 | Supportability | 2 |
@@ -36,9 +36,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **764** |
+| **Total (unique open)** | **760** |
 
-**By priority band:** P0 **7** | P1 **627** | P2 **113** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **3** | P1 **627** | P2 **113** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -1631,7 +1631,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1492 | `/digest-subscriptions` ? single redirect shim (drop dual config+page / dead layout); see ## TB-1492 below | Maintainability P2 ? **V1**; owner review ~50/100 2026-07-27; traffic **IXX**; pairs **TB-1441**/**TB-1404** | S |
 | TB-1493 | Owner traffic workbook ? mark IXX redirect-only (inherit Digests Subscriptions tab); see ## TB-1493 below | Adoption friction P2 ? **V1**; with **TB-1492**; pairs **TB-1443**/**TB-1406** | XS |
 | TB-1494 | CI drift ? `/digest-subscriptions` must stay redirect-only; see ## TB-1494 below | Testability P2 ? **V1**; after **TB-1492**; pairs **TB-1444**/**TB-1407** | S |
-| TB-1517 | Example ROI bulletin — ISR `revalidate=300` + surface test id; see ## TB-1517 below | Performance / testability P0 — **V1** (promoted P0 2026-08-09 with perf wave 6; was P2); with **TB-1516**; pairs **TB-1484**/**TB-567** | XS |
+| TB-1517 | ~~Example ROI bulletin — ISR `revalidate=300` + surface test id~~ **Done** 2026-08-09 — `revalidate = 300` + `data-testid="example-roi-bulletin-page"`; Vitest ISR inventory; see ## TB-1517 below | Performance / testability P0 — **V1** (promoted P0 2026-08-09 with perf wave 6; was P2); with **TB-1516**; pairs **TB-1484**/**TB-567** | XS |
 | TB-1520 | ~~Example ROI bulletin ? contributor-path / admin-proxy honesty (+ index policy)~~ **Done** 2026-07-30 ? noindex + operator-only admin CTA; pilot-roi help link; Vitest | Trustworthiness P0 ? **V1**; with **TB-1516**; pairs **TB-1389**/**TB-1463** | S |
 | TB-1527 | Owner traffic workbook ? mark EDA redirect-only or product (inherit `/dashboard`); see ## TB-1527 below | Adoption friction P2 ? **V1**; with **TB-1525**; pairs **TB-1493**/**TB-1443** | XS |
 | TB-1528 | CI ? forbid `/executive/dashboard` page + permanent next.config redirect coexistence; see ## TB-1528 below | Testability P2 ? **V1**; after **TB-1525**; pairs **TB-1494** | S |
@@ -38779,7 +38779,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Performance / testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-09) — `export const revalidate = 300` + `data-testid="example-roi-bulletin-page"` on `/example-roi-bulletin`; Vitest `marketing-isr-route-policy.test.ts` (TB-1517 block).
 
 **Priority:** P0.
 
