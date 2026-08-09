@@ -71,6 +71,7 @@ import {
   RunDetailWorkspaceStickyActionsDeferred,
   RunDetailWorkspaceSummaryStripDeferred,
   ReviewPackagePrimaryActionDeferred,
+  ReviewPackageSponsorHandoffStripDeferred,
   RunDetailArchitectureCreateWorkItemSectionDeferred,
   RunDetailArchitectureCreatedWorkspaceDeferred,
   RunDetailArchitectureSponsorSharingPanelDeferred,
@@ -814,6 +815,18 @@ export function RunDetailPageView(props: {
                       commitBlockedReason={commitBlockedReason}
                     />
                   </div>
+
+                  {reviewPackagePrimaryAction.kind === "send-to-sponsor" && m.manifestId ? (
+                    <ReviewPackageSponsorHandoffStripDeferred
+                      runId={m.resolvedDetail.run.runId}
+                      manifestId={m.manifestId}
+                      goldenManifestJsonForExport={m.goldenManifestJsonForExport}
+                      manifestSummary={m.manifestSummaryForUi ?? m.manifestSummary}
+                      trustEvidenceCard={m.resolvedDetail.trustEvidenceCard}
+                      usedStaticDemoRun={m.usedStaticDemoRun}
+                      showExtendedSponsorBriefing={m.showPilotScorecardPackageCta}
+                    />
+                  ) : null}
                 </>
               )}
 

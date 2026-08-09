@@ -235,11 +235,10 @@ export const RunDetailArtifactsExportsSectionDeferred = dynamic(
 );
 
 const workspaceShellLoading = (
-  <div
-    className="min-h-[min(60vh,640px)] animate-pulse rounded-lg border border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900/40"
-    role="status"
-    aria-label="Loading review workspace"
-  />
+  <div className="space-y-3" role="status" aria-label="Loading review workspace">
+    <div className="h-10 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800" />
+    <div className="h-48 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800" />
+  </div>
 );
 
 /** TB-2021 remainder — tabbed workspace shell off sync First Load JS. */
@@ -344,6 +343,12 @@ export const RunDetailExecutiveSummaryCtaCardDeferred = dynamic(
 
 export const ReviewPackagePrimaryActionDeferred = dynamic(
   () => import("./ReviewPackagePrimaryAction").then((module) => module.ReviewPackagePrimaryAction),
+  { ssr: false, loading: () => null },
+);
+
+export const ReviewPackageSponsorHandoffStripDeferred = dynamic(
+  () =>
+    import("./ReviewPackageSponsorHandoffStrip").then((module) => module.ReviewPackageSponsorHandoffStrip),
   { ssr: false, loading: () => null },
 );
 

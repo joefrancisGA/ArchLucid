@@ -50,7 +50,7 @@ describe("resolveReviewPackagePrimaryAction", () => {
     expect(action.href).toBe("/governance/approval-queue?runId=run-abc");
   });
 
-  it("defaults finalized packages to export proof packet when no blockers remain", () => {
+  it("defaults finalized packages to send-to-sponsor when no blockers remain", () => {
     const action = resolveReviewPackagePrimaryAction({
       ...baseInput,
       manifestId: "manifest-1",
@@ -59,8 +59,9 @@ describe("resolveReviewPackagePrimaryAction", () => {
       operatorGovernanceDecision: "Approved",
     });
 
-    expect(action.kind).toBe("export-proof-packet");
-    expect(action.href).toBe("/architecture/reviews/run-abc?reviewTab=evidence#artifacts-exports");
+    expect(action.kind).toBe("send-to-sponsor");
+    expect(action.label).toBe("Send to sponsor");
+    expect(action.href).toBe("#sponsor-handoff");
   });
 
   it("guides in-progress reviews toward evidence capture before completion", () => {

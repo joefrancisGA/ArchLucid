@@ -32,7 +32,7 @@ export function ReviewPackagePrimaryAction(props: ReviewPackagePrimaryActionProp
       );
     case "review-findings":
     case "add-evidence":
-    case "export-proof-packet":
+    case "send-to-sponsor":
     case "open-governance-decision": {
       if (action.href === null) {
         throw new Error(`Primary action ${action.kind} requires an href.`);

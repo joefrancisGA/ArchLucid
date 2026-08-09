@@ -12,7 +12,7 @@ export type ReviewPackagePrimaryActionKind =
   | "review-findings"
   | "add-evidence"
   | "finalize-package"
-  | "export-proof-packet"
+  | "send-to-sponsor"
   | "open-governance-decision";
 
 export type ReviewPackagePrimaryAction = {
@@ -40,7 +40,7 @@ const REVIEW_PACKAGE_PRIMARY_ACTION_LABELS: Record<
   "review-findings": "Review findings",
   "add-evidence": "Add evidence",
   "finalize-package": "Finalize review",
-  "export-proof-packet": "Export proof packet",
+  "send-to-sponsor": "Send to sponsor",
 };
 
 function reviewFindingsHref(runId: string): string {
@@ -51,8 +51,8 @@ function addEvidenceHref(runId: string): string {
   return buildReviewDetailTabHref(runId, "evidence");
 }
 
-function exportProofPacketHref(runId: string): string {
-  return buildReviewDetailTabHref(runId, "evidence", { hash: "artifacts-exports" });
+function sendToSponsorHref(_runId: string): string {
+  return "#sponsor-handoff";
 }
 
 function buildLinkAction(
@@ -62,7 +62,7 @@ function buildLinkAction(
   const hrefByKind: Record<typeof kind, string> = {
     "review-findings": reviewFindingsHref(runId),
     "add-evidence": addEvidenceHref(runId),
-    "export-proof-packet": exportProofPacketHref(runId),
+    "send-to-sponsor": sendToSponsorHref(runId),
   };
 
   return {
@@ -114,7 +114,7 @@ export function resolveReviewPackagePrimaryAction(
       return buildGovernanceAction(input.runId);
     }
 
-    return buildLinkAction(input.runId, "export-proof-packet");
+    return buildLinkAction(input.runId, "send-to-sponsor");
   }
 
   if (!input.runCompleted) {
