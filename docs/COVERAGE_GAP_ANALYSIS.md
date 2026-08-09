@@ -44,7 +44,7 @@ To verify **CI parity**, run **`assert_merged_line_coverage_min.py`** on merged 
 The merge step in **`.github/workflows/ci.yml`** (`dotnet-coverage-merge`) enforces:
 
 - **Merged line ≥ 76%**
-- **Branch coverage ≥ 61%**
+- **Branch coverage ≥ 60%**
 - **Per-product-package line ≥ 86%** for every gated **`ArchLucid.*`** assembly with coverable lines (see **`scripts/ci/assert_merged_line_coverage_min.py`** invocation in the workflow)
 
 **Merged line ≥ 95%** (tighter than the **76%** CI floor) and the **ratchet** are deferred to **V1.1** (see **`docs/library/V1_DEFERRED.md`**).
