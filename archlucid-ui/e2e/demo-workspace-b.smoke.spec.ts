@@ -127,7 +127,7 @@ test.describe(
 
     expect(
       authorityProbe.ok(),
-      `GET /v1/authority/runs/{runId} expected 200 — ${await authorityProbe.text()}`,
+      `GET /v1/authority/reviews/{runId} expected 200 — ${await authorityProbe.text()}`,
     ).toBeTruthy();
 
     const authorityJson = await authorityProbe.json();
@@ -152,7 +152,7 @@ test.describe(
 
     expect(
       buyerSummaryProbe.ok(),
-      `GET /v1/authority/runs/{runId}/buyer-summary expected 200 — ${await buyerSummaryProbe.text()}`,
+      `GET /v1/authority/reviews/{runId}/buyer-summary expected 200 — ${await buyerSummaryProbe.text()}`,
     ).toBeTruthy();
 
     await openDemoWorkspaceReviewDetailShellReady(

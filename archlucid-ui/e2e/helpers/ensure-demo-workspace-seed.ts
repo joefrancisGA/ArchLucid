@@ -145,7 +145,7 @@ async function assertDemoWorkspaceSeedCheckReady(
 
   if (!probe.ok()) {
     throw new Error(
-      `${check.label}: GET /v1/authority/runs/{runId} expected 200 — ${probe.status()}: ${(await probe.text()).slice(0, 500)}`,
+      `${check.label}: GET /v1/authority/reviews/{runId} expected 200 — ${probe.status()}: ${(await probe.text()).slice(0, 500)}`,
     );
   }
 
@@ -153,7 +153,7 @@ async function assertDemoWorkspaceSeedCheckReady(
 
   if (!buyerSummary.ok()) {
     throw new Error(
-      `${check.label}: GET /v1/authority/runs/{runId}/buyer-summary expected 200 — ${buyerSummary.status()}: ${(await buyerSummary.text()).slice(0, 500)}`,
+      `${check.label}: GET /v1/authority/reviews/{runId}/buyer-summary expected 200 — ${buyerSummary.status()}: ${(await buyerSummary.text()).slice(0, 500)}`,
     );
   }
 

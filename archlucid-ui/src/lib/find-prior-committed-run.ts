@@ -9,7 +9,7 @@ export function runSummaryMatchesRunId(row: RunSummary, runId: string): boolean 
 }
 
 /**
- * Run list from GET /projects/{id}/runs is newest-first (`CreatedUtc DESC`).
+ * Run list from GET /projects/{id}/reviews is newest-first (`CreatedUtc DESC`).
  * Returns the first older row that already has a golden manifest (committed), if any.
  */
 export function findPriorCommittedRun(

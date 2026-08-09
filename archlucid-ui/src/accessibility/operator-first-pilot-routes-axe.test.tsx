@@ -84,7 +84,7 @@ describe("first-pilot operator routes — axe (Vitest)", () => {
         return new Response(JSON.stringify({ status: "Healthy", entries: [] }), { status: 200 });
       }
 
-      if (url.includes("/api/proxy/v1/authority/projects/") && url.includes("/runs")) {
+      if (url.includes("/api/proxy/v1/authority/projects/") && url.includes("/reviews")) {
         await new Promise((resolve) => {
           setTimeout(resolve, 250);
         });
