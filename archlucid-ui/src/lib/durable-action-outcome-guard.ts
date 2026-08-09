@@ -12,7 +12,6 @@ import {
   DURABLE_ACTION_OUTCOME_TRIVIAL_TOAST_SOURCE_ROOTS,
   type DurableActionOutcomeGuardedSurface,
 } from "@/lib/durable-action-outcome-inventory";
-import { DURABLE_MUTATION_FORBIDDEN_TOAST_SUCCESS_PHRASES } from "@/lib/durable-mutation-outcome-inventory";
 import { readSurfaceSourceBundle } from "@/lib/report-problem-surfaces-guard";
 
 export type DurableActionOutcomeGuardViolation = {
@@ -235,7 +234,7 @@ export function listUnexpectedHighStakesSavePathToasts(
       continue;
     }
 
-    if (DURABLE_MUTATION_FORBIDDEN_TOAST_SUCCESS_PHRASES.some((phrase) => message.includes(phrase))) {
+    if (DURABLE_ACTION_OUTCOME_HIGH_STAKES_MESSAGES.some((phrase) => message.includes(phrase))) {
       unexpected.push(`showSuccess(${message})`);
     }
   }
