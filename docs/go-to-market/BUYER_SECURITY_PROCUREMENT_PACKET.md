@@ -2257,23 +2257,23 @@ Former standalone body: `docs/go-to-market/TENANT_ISOLATION_STRUCTURAL_VS_CONVEN
 | Enforced DiD | Layer B INV-001 / identity-wins; Layer C route-tenant; Search/retrieval filters | Defense-in-depth on ingress + retrieval | “Headers establish tenant” / “NetArchTest alone proves isolation” |
 | Convention | Layer D `WHERE TenantId` / scope threading; blob path prefixes; ambient job discipline | Helpful product discipline inside a catalog | “WHERE TenantId is the paying-client boundary” |
 | Non-control | SQL RLS / SESSION_CONTEXT (ADR 0037) | RLS is not deployed or required | “RLS protects production” |
-| Exception / residual | Platform cross-tenant ops; demo/anonymous pin (**TB-1251**); workspace/project | Named exceptions with authority | “Demo pin is structural” / “workspace = paying client” |
+| Exception / residual | Platform cross-tenant ops; demo/anonymous pin (**TB-1251** **Done** — factory wiring follow-on); workspace/project | Named exceptions with authority | “Demo pin is structural” / “workspace = paying client” |
 
 ### PA review
 
 1. Ask which class the buyer is probing — catalog, identity, SQL predicate, RLS, or demo.
 2. Confirm RLS is not cited as a production DiD control.
-3. Confirm demo/anonymous is not sold as structural while **TB-1251** is open.
+3. Confirm demo/anonymous is not sold as structural isolation (contract **TB-1251** **Done**; dedicated demo factory/catalog wiring may still be follow-on).
 4. Treat “WHERE TenantId = tenant boundary” as a review finding.
 
 ### Claim boundary
 
-Do not sell `WHERE TenantId` / scope threading as the paying-client boundary, cite SQL RLS as deployed or required DiD, call demo pin structural while **TB-1251** is open, or treat workspace/project as paying-client security. Say Layer A catalogs are structural; B/C/Search are enforced DiD; D/blob/ambient are convention; RLS is a non-control (ADR 0037).
+Do not sell `WHERE TenantId` / scope threading as the paying-client boundary, cite SQL RLS as deployed or required DiD, call demo pin structural isolation (factory/catalog wiring may still be follow-on per **TB-1251** contract), or treat workspace/project as paying-client security. Say Layer A catalogs are structural; B/C/Search are enforced DiD; D/blob/ambient are convention; RLS is a non-control (ADR 0037).
 
 ### Residuals (honest)
 
 - **TB-1418** / **TB-1419** own the classification map and language guards.
-- Orchestrates **TB-1122** / **TB-1232** / **TB-999** / **TB-1251** without replacing those contracts.
+- Orchestrates **TB-1122** / **TB-1232** / **TB-999** / **TB-1251** (contract **Done**; factory wiring follow-on) without replacing those contracts.
 - Complements **M-194** / **M-213** / **M-214** / **M-150** / **M-168** / **M-217** / **M-218**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
 
@@ -2356,13 +2356,13 @@ Do not equate repository `WHERE TenantId = @scope` or scope-provider threading a
 
 ## Demo / anonymous read plane (M-218) {#demo-anonymous-read-plane-m-218}
 
-Former standalone body: `docs/go-to-market/DEMO_ANONYMOUS_READ_PLANE_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-217** / **M-218** / **TB-1251**). Complements [Empty-scope catalog routing (M-169)](#empty-scope-catalog-routing-m-169), [DiD structural vs convention (M-256)](#tenant-isolation-structural-vs-convention-m-256), and [Marketing static vs live boundary (M-179)](#marketing-static-vs-live-demo-boundary-m-179). Does not reopen Done **TB-887**–**TB-890** / Quick Scan safety. Not an assurance attestation.
+Former standalone body: `docs/go-to-market/DEMO_ANONYMOUS_READ_PLANE_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-217** / **M-218** / **TB-1251**). Contributor contract: [`DEMO_ANONYMOUS_READ_PLANE_CONTRACT.md`](../library/DEMO_ANONYMOUS_READ_PLANE_CONTRACT.md) (**TB-1251** **Done**). Complements [Empty-scope catalog routing (M-169)](#empty-scope-catalog-routing-m-169), [DiD structural vs convention (M-256)](#tenant-isolation-structural-vs-convention-m-256), and [Marketing static vs live boundary (M-179)](#marketing-static-vs-live-demo-boundary-m-179). Does not reopen Done **TB-887**–**TB-890** / Quick Scan safety. Not an assurance attestation.
 
 **Path-stable alias:** [`DEMO_ANONYMOUS_READ_PLANE_PA_ONE_PAGER.md`](DEMO_ANONYMOUS_READ_PLANE_PA_ONE_PAGER.md).
 
 **Audience:** Principal architects and security reviewers probing anonymous demo vs paying-tenant isolation.
 
-**Decision:** Treat **tenant**, **system**, and **demo** as distinct read planes. `[AllowAnonymous]`, read-only demo UI, and `DemoScopes` hard-pin alone do **not** prove structural isolation from paying-tenant data. Structural target (while **TB-1251** is open): dedicated demo factory/catalog **or** static-only surfaces; production live demo SQL off. Query filters are discipline, not the demo boundary.
+**Decision:** Treat **tenant**, **system**, and **demo** as distinct read planes. `[AllowAnonymous]`, read-only demo UI, and `DemoScopes` hard-pin alone do **not** prove structural isolation from paying-tenant data. Structural **target** (contract **TB-1251** **Done**; factory/catalog wiring follow-on): dedicated demo factory/catalog **or** static-only surfaces; production live demo SQL off. Query filters are discipline, not the demo boundary.
 
 ### Planes
 
@@ -2370,7 +2370,7 @@ Former standalone body: `docs/go-to-market/DEMO_ANONYMOUS_READ_PLANE_PA_ONE_PAGE
 | --- | --- | --- |
 | Paying tenant | Authenticated customer workspace | Layer A catalogs + INV-001 (structural / enforced DiD) |
 | System catalog | Platform / empty-scope risk path | Explicit exception — not “no data” ([M-169](#empty-scope-catalog-routing-m-169)) |
-| Demo / anonymous | Public or unauthenticated sample paths | Exception / residual until structural pin (**TB-1251**) |
+| Demo / anonymous | Public or unauthenticated sample paths | Exception / residual — structural target named (**TB-1251** **Done**); factory/catalog wiring follow-on |
 
 ### Surfaces (cite, do not oversell)
 
@@ -2395,7 +2395,7 @@ Former standalone body: `docs/go-to-market/DEMO_ANONYMOUS_READ_PLANE_PA_ONE_PAGE
 
 ### Claim boundary
 
-Do not claim `[AllowAnonymous]`, read-only demo, or `DemoScopes` hard-pin alone prevents reading paying-tenant data; do not equate empty demo ambient scope with “no data” (system catalog risk); do not sell query filters as the demo boundary. Say: three planes; structural pin is dedicated demo factory/catalog or static-only with prod live demo SQL off; disclose **TB-1251** while open.
+Do not claim `[AllowAnonymous]`, read-only demo, or `DemoScopes` hard-pin alone prevents reading paying-tenant data; do not equate empty demo ambient scope with “no data” (system catalog risk); do not sell query filters as the demo boundary. Say: three planes; structural target is dedicated demo factory/catalog or static-only with prod live demo SQL off; cite **TB-1251** contract for plane matrix; dedicated factory wiring remains follow-on.
 
 ### Safe pin
 
@@ -2404,13 +2404,13 @@ Do not claim `[AllowAnonymous]`, read-only demo, or `DemoScopes` hard-pin alone 
 ### PA review
 
 1. Ask which plane a cited demo surface uses — tenant, system, or demo.
-2. Confirm AllowAnonymous / DemoScopes are not sold as structural while **TB-1251** is open.
+2. Confirm AllowAnonymous / DemoScopes are not sold as structural isolation (contract **TB-1251** names targets; factory wiring may still be open).
 3. Confirm empty demo ambient is not equated with “no rows.”
 4. Treat “demo pin is structural isolation” as a review finding.
 
 ### Residuals (honest)
 
-- **TB-1251** / **TB-1252** own the structural demo-plane contract and honesty CI.
+- **TB-1251** contract **Done** — [`DEMO_ANONYMOUS_READ_PLANE_CONTRACT.md`](../library/DEMO_ANONYMOUS_READ_PLANE_CONTRACT.md); dedicated demo factory/catalog wiring + **TB-1252** honesty CI remain follow-on.
 - Complements **M-168**/**M-169**, **M-178**/**M-179**, **M-213**/**M-256**; pairs claim-honesty **M-217**.
 - Cite `DemoScopes`, `DemoExplainController`, `DemoReadModelClient`, `ScopedRoutingSqlConnectionFactory`, `ProductionSafetyRules`, ADR 0037 / ADR 0027.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
