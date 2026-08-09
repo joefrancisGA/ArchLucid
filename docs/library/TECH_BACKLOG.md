@@ -21,7 +21,7 @@ Regenerate after opening or closing summary-table rows:
 | Cutting-edge AI | 3 |
 | Explainability | 2 |
 | Proof-of-ROI / executive value | 2 |
-| Trustworthiness | 175 |
+| Trustworthiness | 174 |
 | Maintainability | 9 |
 | Traceability | 4 |
 | Interoperability | 4 |
@@ -36,9 +36,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **785** |
+| **Total (unique open)** | **784** |
 
-**By priority band:** P0 **2** | P1 **651** | P2 **115** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **2** | P1 **650** | P2 **115** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -669,7 +669,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-967 | ~~Bounded webhook body intake ? Content-Length/pre-read max, size before HMAC, no unbounded ReadToEnd on inbound routes~~ **Done** 2026-08-04 ? shared bounded reader on ITSM/Stripe/Marketplace/Slack; see `## TB-967` below | Trustworthiness P1 ? **V1**; after **TB-966**; ITSM + Stripe + Marketplace | M |
 | TB-968 | ~~ITSM inbound replay/idempotency + freshness ? event-id guard + optional timestamp skew; parity with billing replay patterns~~ **Done** 2026-08-04 ? `IItsmInboundWebhookReplayGuard` + runbook; see `## TB-968` below | Trustworthiness P1 ? **V1**; after **TB-966**; pairs billing `IBillingWebhookReplayGuard` | M |
 | TB-970 | **Done** (2026-08-09) — per-task mode + cacheServed persistence; auto-derive run Mixed after execute/selective resume; see `## TB-970` below | Trustworthiness P1 ? **V1**; after **TB-969**; extends `StructuralExecutionModeResolver` | M |
-| TB-971 | Cross-surface execution-mode honesty guards ? never promote Mixed/Fallback?Real; within-run vs ROI period mix; see `## TB-971` below | Trustworthiness P1 ? **V1**; after **TB-970**; pairs Done **TB-239** / G1 | M |
+| TB-971 | **Done** (2026-08-09) — cross-surface execution-mode honesty guards; within-run Mixed vs ROI period mix; see `## TB-971` below | Trustworthiness P1 ? **V1**; after **TB-970**; pairs Done **TB-239** / G1 | M |
 | TB-974 | Wrong-gate migration playbook ? deprecate version, selective re-execute, append-only supersede; never silent UPDATE; see `## TB-974` below | Trustworthiness P1 ? **V1**; after **TB-972**; pairs **TB-973** | M |
 | TB-985 | Cross-surface Simulator-ROI honesty regression + CI guard ? no leading USD on forbidden postures; see `## TB-985` below | Trustworthiness P1 ? **V1**; after **TB-984**; extends `check_sponsor_evidence_label_consistency.py` / sponsor invariant tests | M |
 | TB-995 | ~~Polly/CB transport vs run-level surface matrix ? partial agents / poisoned cache / mid-run budget map to **TB-937**?**TB-945**~~ **Done** 2026-08-04 ? [`POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md`](POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md); see `## TB-995` below | Trustworthiness P1 ? **V1**; PA Q7 2026-07-24; GTM **M-146**/**M-147**; does not duplicate implementation TBs | S |
@@ -26099,7 +26099,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Trustworthiness.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-09).
 
 **Priority:** P1.
 
@@ -26121,6 +26121,8 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 **Out of scope:** Replacing **G-REAL-06**/**G-REAL-07** proof packets; forcing all tenants into Real.
 
 **Size estimate:** M.
+
+**Closure (2026-08-09):** Implementation shipped in `2bcc54be4` — `StructuralExecutionModeHonesty` invariants; `FindingInspectTrustLabelEnricher` fail-closed on Real promotion; ROI period-mix footnote distinct from within-run Mixed badge; UI `execution-mode-honesty.ts` + `execution-mode-honesty-drift-guard.test.ts`; finding export metadata via `finding-trust-export.ts`. Backend guards: `StructuralExecutionModeHonestyGuardTests`, `FindingInspectTrustLabelEnricherTests`. This closure aligns backlog with shipped code.
 
 ---
 
