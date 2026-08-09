@@ -1,6 +1,5 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
@@ -427,10 +426,7 @@ export function CompareForm() {
       {isStaticDemoPayloadFallbackEnabled() && !buyerPolished ? (
         <CompareDemoQuickPick onPickClaimsIntake={pickClaimsIntakePair} />
       ) : null}
-      <div
-        className={cn("flex max-w-3xl flex-col gap-6", compareInsightFirstLayout ? "flex-col-reverse" : null)}
-        data-testid="compare-workspace"
-      >
+      <div className="flex flex-col gap-6" data-testid="compare-workspace">
         {buyerPolished ? (
           <div className="flex flex-col gap-4">
             <CompareComparisonDimensionsPreview />
@@ -446,6 +442,33 @@ export function CompareForm() {
             </div>
           </div>
         ) : null}
+
+        {compareInsightFirstLayout ? (
+          <CompareResultsPanel
+            showStaleInputsWarning={showStaleInputsWarning}
+            lastComparedPair={lastComparedPair}
+            leftPickedSummary={leftPickedSummary}
+            rightPickedSummary={rightPickedSummary}
+            loading={loading}
+            leftTrim={leftTrim}
+            rightTrim={rightTrim}
+            aiLoading={aiLoading}
+            legacyFailure={legacyFailure}
+            legacyMalformed={legacyMalformed}
+            goldenFailure={goldenFailure}
+            goldenMalformed={goldenMalformed}
+            aiFailure={aiFailure}
+            aiMalformed={aiMalformed}
+            hasResultsToNavigate={hasResultsToNavigate}
+            golden={golden}
+            result={result}
+            aiExplanation={aiExplanation}
+            comparisonNarrative={comparisonNarrative}
+            comparisonNarrativeLoading={comparisonNarrativeLoading}
+            buyerPolished={buyerPolished}
+          />
+        ) : null}
+
         <CompareRunPickersSection
           leftPickerLabel={leftPickerLabel}
           rightPickerLabel={rightPickerLabel}
@@ -471,31 +494,33 @@ export function CompareForm() {
           collapseBelowResults={compareInsightFirstLayout && buyerPolished}
         />
 
-        {showEmptyComparisonOutput ? <CompareEmptyResultsPlaceholder /> : null}
+        {!compareInsightFirstLayout && showEmptyComparisonOutput ? <CompareEmptyResultsPlaceholder /> : null}
 
-        <CompareResultsPanel
-          showStaleInputsWarning={showStaleInputsWarning}
-          lastComparedPair={lastComparedPair}
-          leftPickedSummary={leftPickedSummary}
-          rightPickedSummary={rightPickedSummary}
-          loading={loading}
-          leftTrim={leftTrim}
-          rightTrim={rightTrim}
-          aiLoading={aiLoading}
-          legacyFailure={legacyFailure}
-          legacyMalformed={legacyMalformed}
-          goldenFailure={goldenFailure}
-          goldenMalformed={goldenMalformed}
-          aiFailure={aiFailure}
-          aiMalformed={aiMalformed}
-          hasResultsToNavigate={hasResultsToNavigate}
-          golden={golden}
-          result={result}
-          aiExplanation={aiExplanation}
-          comparisonNarrative={comparisonNarrative}
-          comparisonNarrativeLoading={comparisonNarrativeLoading}
-          buyerPolished={buyerPolished}
-        />
+        {!compareInsightFirstLayout ? (
+          <CompareResultsPanel
+            showStaleInputsWarning={showStaleInputsWarning}
+            lastComparedPair={lastComparedPair}
+            leftPickedSummary={leftPickedSummary}
+            rightPickedSummary={rightPickedSummary}
+            loading={loading}
+            leftTrim={leftTrim}
+            rightTrim={rightTrim}
+            aiLoading={aiLoading}
+            legacyFailure={legacyFailure}
+            legacyMalformed={legacyMalformed}
+            goldenFailure={goldenFailure}
+            goldenMalformed={goldenMalformed}
+            aiFailure={aiFailure}
+            aiMalformed={aiMalformed}
+            hasResultsToNavigate={hasResultsToNavigate}
+            golden={golden}
+            result={result}
+            aiExplanation={aiExplanation}
+            comparisonNarrative={comparisonNarrative}
+            comparisonNarrativeLoading={comparisonNarrativeLoading}
+            buyerPolished={buyerPolished}
+          />
+        ) : null}
       </div>
 
       <CompareLastRequestOutcomeDetails
@@ -517,10 +542,11 @@ export function CompareForm() {
       {buyerPolished ? (
         <CompareHowComparisonWorksSection />
       ) : (
-        <LayerHeader pageKey="compare" density="compact" collapsibleGuidance="How compare works" />
+        <>
+          <LayerHeader pageKey="compare" density="compact" collapsibleGuidance="How compare works" />
+          <CompareAdvancedDiagnosticsSection />
+        </>
       )}
-
-      <CompareAdvancedDiagnosticsSection />
     </div>
   );
 }

@@ -4,7 +4,10 @@ import Link from "next/link";
 import { Download } from "lucide-react";
 
 import { AiComparisonExplanationView } from "@/components/compare/AiComparisonExplanationView";
+import { CompareComparisonTrustBanner } from "@/components/compare/CompareComparisonTrustBanner";
 import { CompareRawManifestDiffSection } from "@/components/compare/CompareRawManifestDiffSection";
+import { CompareResultsSectionNav } from "@/components/compare/CompareResultsSectionNav";
+import { CompareVerdictSummary } from "@/components/compare/CompareVerdictSummary";
 import { LegacyRunComparisonView } from "@/components/compare/LegacyRunComparisonView";
 import { StructuredComparisonView } from "@/components/compare/StructuredComparisonView";
 import { ClientErrorBoundary } from "@/components/ClientErrorBoundary";
@@ -23,7 +26,6 @@ import type { GoldenManifestComparison } from "@/types/comparison";
 import type { ComparisonExplanation } from "@/types/explanation";
 import type { RunComparison, RunSummary } from "@/types/authority";
 import { BUYER_COMPARE_TECHNICAL_APPENDIX_LABEL } from "@/lib/buyer-polish-copy";
-import { CROSS_REVIEW_FINDING_CORRELATION_PANEL_TITLE } from "@/lib/finding-correlation-vocabulary";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ComparedPair } from "@/app/(operator)/insights/compare-two-reviews/_sections/compare-page-helpers";
 import { CompareFindingCorrelationSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareFindingCorrelationSection";
@@ -31,6 +33,7 @@ import { CompareGovernanceDiffSection } from "@/app/(operator)/insights/compare-
 import { ComparePairEvidenceCiteStrip } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePairEvidenceCiteStrip";
 import { CompareExecutionModeHonestyStrip } from "@/components/compare/CompareExecutionModeHonestyStrip";
 import { resolveCompareExecutionModeHonesty } from "@/lib/compare-execution-mode-honesty";
+import { useCompareGovernanceDiff } from "@/app/(operator)/insights/compare-two-reviews/_sections/useCompareGovernanceDiff";
 
 export type CompareResultsPanelProps = {
   showStaleInputsWarning: boolean;
@@ -111,11 +114,37 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
     citeBaselineRunId.trim().length > 0 &&
     citeUpdatedRunId.trim().length > 0;
 
+  const governanceDiffState = useCompareGovernanceDiff(
+    golden !== null ? golden.baseRunId : null,
+    golden !== null ? golden.targetRunId : null,
+  );
+  const usesCurrentEffectiveOnly = governanceDiffState.view?.usesCurrentEffectiveOnly === true;
+  const hasAiNarrative = comparisonNarrative !== null || aiExplanation !== null;
+  // Keep trust + verdict tied to loaded golden results, not picker match — otherwise
+  // stale-selection warnings hide governance honesty while the governance panel still renders.
+  const showLoadedComparisonChrome = golden !== null;
+  const trustExecutionModeHonesty = showStaleInputsWarning ? null : executionModeHonesty;
+  const showTrustBanner = showLoadedComparisonChrome;
+  const showVerdictSummary = showLoadedComparisonChrome;
+
   return (
-    <section className="space-y-6" aria-label="Comparison results">
-      {showPairCiteStrip ? (
-        <ComparePairEvidenceCiteStrip baselineRunId={citeBaselineRunId} updatedRunId={citeUpdatedRunId} />
+    <section className="space-y-4" aria-label="Comparison results">
+      {showTrustBanner ? (
+        <CompareComparisonTrustBanner
+          executionModeHonesty={trustExecutionModeHonesty}
+          usesCurrentEffectiveOnly={usesCurrentEffectiveOnly}
+          hasAiNarrative={hasAiNarrative}
+        />
       ) : null}
+
+      {showVerdictSummary ? (
+        <CompareVerdictSummary
+          golden={golden}
+          baselinePickedSummary={leftPickedSummary}
+          updatedPickedSummary={rightPickedSummary}
+        />
+      ) : null}
+
       {showStaleInputsWarning && (
         <OperatorWarningCallout>
           <strong>Selections no longer match the comparison shown here.</strong>
@@ -242,61 +271,39 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
       )}
 
       {hasResultsToNavigate ? (
-        <div className="mt-4 flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
-          {!buyerPolished && (
-            <nav
-              aria-label="Comparison results outline"
-              className={cn(
-                "w-full max-w-3xl rounded-lg border border-neutral-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-900",
-                OPERATOR_TYPOGRAPHY.body,
-              )}
-            >
-              <strong className={cn("mb-2 block text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Review order</strong>
-              <ol className={cn("m-0 list-decimal pl-6 leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                {golden !== null && (
-                  <li>
-                    <a href="#compare-structured">Review comparison summary</a>
-                  </li>
-                )}
-                {golden !== null && (
-                  <li>
-                    <a href="#compare-finding-correlation">{CROSS_REVIEW_FINDING_CORRELATION_PANEL_TITLE}</a>
-                  </li>
-                )}
-                {golden !== null && (
-                  <li>
-                    <a href="#compare-raw-manifest-diff">Review change details appendix</a>
-                  </li>
-                )}
-                {result !== null && (
-                  <li>
-                    <a href="#compare-technical">Technical details (supplementary diff)</a>
-                  </li>
-                )}
-                {aiExplanation !== null && (
-                  <li>
-                    <a href="#compare-ai">AI explanation</a>
-                  </li>
-                )}
-              </ol>
-            </nav>
-          )}
-          
-          <div className="flex flex-col items-start gap-2 sm:items-end">
+        <div
+          className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between"
+          data-testid="compare-results-action-bar"
+        >
+          <CompareResultsSectionNav
+            showStructured={golden !== null}
+            showFindingCorrelation={golden !== null}
+            showGovernanceDiff={golden !== null}
+            showRawManifestDiff={golden !== null}
+            showTechnicalAppendix={result !== null}
+            showAiExplanation={aiExplanation !== null}
+            buyerPolished={buyerPolished}
+            className="flex-1"
+          />
+          <div className="flex shrink-0 flex-col items-stretch gap-2 lg:items-end">
             <Button
-              variant="outline"
+              variant="primary"
               size="sm"
-              onClick={handleDownloadPdf}
+              onClick={() => void handleDownloadPdf()}
               disabled={pdfDownloading}
             >
-              <Download className="mr-2 h-4 w-4" />
-              {pdfDownloading ? "Generating PDF..." : "Download PDF Report"}
+              <Download className="h-4 w-4" />
+              {pdfDownloading ? "Generating PDF…" : "Download PDF report"}
             </Button>
-            {pdfError && (
+            {pdfError ? (
               <p className={cn("text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.helper)}>{pdfError}</p>
-            )}
+            ) : null}
           </div>
         </div>
+      ) : null}
+
+      {showPairCiteStrip ? (
+        <ComparePairEvidenceCiteStrip baselineRunId={citeBaselineRunId} updatedRunId={citeUpdatedRunId} />
       ) : null}
 
       <ClientErrorBoundary title="Comparison results failed to render">
@@ -318,7 +325,7 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
         {comparisonNarrative !== null ? (
           <div
             className={cn(
-              "rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mb-6 px-4 py-3 leading-relaxed",
+              "rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-4 py-3 leading-relaxed",
               OPERATOR_TYPOGRAPHY.body,
             )}
             role="status"
@@ -327,14 +334,6 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
             <p className={cn("m-0 mb-1 uppercase tracking-wide text-teal-800 dark:text-teal-200", OPERATOR_NAV_GROUP_LABEL)}>
               ✦ AI narrative
             </p>
-            {executionModeHonesty?.advisoryParagraph !== null && executionModeHonesty?.advisoryParagraph !== undefined ? (
-              <p
-                className={cn("m-0 mb-2 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="compare-ask-narrative-mode-advisory"
-              >
-                {executionModeHonesty.advisoryParagraph}
-              </p>
-            ) : null}
             <p className="m-0 whitespace-pre-wrap">{comparisonNarrative}</p>
           </div>
         ) : null}
@@ -353,7 +352,11 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
         ) : null}
 
         {golden !== null ? (
-          <CompareGovernanceDiffSection baselineRunId={golden.baseRunId} targetRunId={golden.targetRunId} />
+          <CompareGovernanceDiffSection
+            baselineRunId={golden.baseRunId}
+            targetRunId={golden.targetRunId}
+            preloaded={governanceDiffState}
+          />
         ) : null}
 
         {golden !== null ? (
@@ -372,7 +375,9 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
             className="mt-6 rounded-lg border border-dashed border-neutral-300 bg-neutral-50/50 p-4 dark:border-neutral-600 dark:bg-neutral-900/30"
           >
             <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
-              {buyerPolished ? BUYER_COMPARE_TECHNICAL_APPENDIX_LABEL : "Technical details — supplementary review-level comparison"}
+              <h2 className={cn("m-0 inline text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+                {buyerPolished ? BUYER_COMPARE_TECHNICAL_APPENDIX_LABEL : "Technical details — supplementary review-level comparison"}
+              </h2>
             </summary>
             <div className="mt-4">
               <LegacyRunComparisonView result={result} />
@@ -386,9 +391,11 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
             className="mt-6 rounded-lg border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950"
           >
             <summary className={cn("cursor-pointer list-none px-4 py-3 text-al-text-primary outline-none ring-offset-2 marker:content-none focus-visible:ring-2 focus-visible:ring-teal-600 [&::-webkit-details-marker]:hidden", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
-              {buyerPolished
-                ? "Executive narrative (AI-generated) — optional; confirm against structured summary before sign-off"
-                : "Sponsor narrative (AI-generated) — optional; confirm against structured diff before sign-off"}
+              <h2 className={cn("m-0 inline text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+                {buyerPolished
+                  ? "Executive narrative (AI-generated)"
+                  : "Sponsor narrative (AI-generated)"}
+              </h2>
             </summary>
             <div className="border-t border-neutral-200 px-4 pb-2 dark:border-neutral-700">
               <AiComparisonExplanationView explanation={aiExplanation} />

@@ -18,6 +18,7 @@ export type CompareGovernanceDiffPanelProps = {
   readonly view: CompareGovernanceDiffView | null;
   readonly loading: boolean;
   readonly softFailureMessage: string | null;
+  readonly hideCurrentEffectiveDisclaimer?: boolean;
 };
 
 function formatRuleSetLabel(ruleSetId: string | null, ruleSetVersion: string | null): string {
@@ -126,22 +127,23 @@ export function CompareGovernanceDiffPanel(props: CompareGovernanceDiffPanelProp
   const hasAnyAtCommit = view.baselineManifest.atCommit !== null || view.targetManifest.atCommit !== null;
 
   return (
-    <aside
+    <section
+      id="compare-governance-diff"
       aria-labelledby="compare-governance-diff-heading"
       className="mt-6 rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
       data-testid="compare-governance-diff-panel"
     >
-      <h3
+      <h2
         id="compare-governance-diff-heading"
         className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
       >
         Effective governance diff
-      </h3>
+      </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         Policy pack basis and compliance rule keys for governance buyers — alongside the manifest structural diff above.
       </p>
 
-      {view.usesCurrentEffectiveOnly ? (
+      {view.usesCurrentEffectiveOnly && props.hideCurrentEffectiveDisclaimer !== true ? (
         <p
           className={cn("m-0 mt-3 rounded-md border border-amber-600/35 bg-amber-50/50 p-3 text-al-text-secondary dark:border-amber-800/45 dark:bg-amber-950/20", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="compare-governance-current-effective-disclaimer"
@@ -219,6 +221,6 @@ export function CompareGovernanceDiffPanel(props: CompareGovernanceDiffPanelProp
           </p>
         </div>
       ) : null}
-    </aside>
+    </section>
   );
 }

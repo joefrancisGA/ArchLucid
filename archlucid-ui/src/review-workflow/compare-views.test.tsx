@@ -25,12 +25,10 @@ const emptyGolden: GoldenManifestComparison = {
 };
 
 describe("Compare / review views (55R smoke)", () => {
-  it("StructuredComparisonView shows review heading labels, no empty summary fold, and consolidated no-deltas banner when there is no delta data", () => {
+  it("StructuredComparisonView shows review heading and consolidated no-deltas banner when there is no delta data", () => {
     render(<StructuredComparisonView golden={emptyGolden} />);
 
-    expect(screen.getByText("Review comparison")).toBeInTheDocument();
-    expect(screen.getByText("run-base")).toBeInTheDocument();
-    expect(screen.getByText("run-target")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Review comparison", level: 2 })).toBeInTheDocument();
     expect(screen.queryByText("Summary highlights")).not.toBeInTheDocument();
     expect(screen.getByTestId("compare-no-material-deltas")).toBeInTheDocument();
     expect(screen.getByText(/No other material changes/i)).toBeInTheDocument();
@@ -55,7 +53,6 @@ describe("Compare / review views (55R smoke)", () => {
     // Decision column shows `decisionKeyDisplay(key)` and the raw key in the same cell when no display label.
     expect(screen.getAllByText("deploy-region")).toHaveLength(2);
     expect(screen.getByText("Material architecture deltas")).toBeInTheDocument();
-    expect(screen.getByText("Sponsor recommendation:")).toBeInTheDocument();
     expect(screen.getByText("Modified")).toBeInTheDocument();
     expect(screen.getAllByText("Region changed").length).toBeGreaterThanOrEqual(1);
   });

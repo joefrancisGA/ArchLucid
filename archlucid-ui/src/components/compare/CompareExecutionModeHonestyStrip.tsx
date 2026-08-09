@@ -1,6 +1,4 @@
 import { StructuralExecutionModeBadge } from "@/components/StructuralExecutionModeBadge";
-import { OperatorWarningCallout } from "@/components/OperatorShellMessage";
-import { compareRunHeadingLabel } from "@/lib/compare-run-display";
 import { resolveCompareExecutionModeHonesty } from "@/lib/compare-execution-mode-honesty";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { RunSummary } from "@/types/authority";
@@ -23,9 +21,6 @@ export function CompareExecutionModeHonestyStrip(props: Props) {
   if (honesty === null) {
     return null;
   }
-
-  const baselineLabel = compareRunHeadingLabel(props.baselineRunId, props.baselinePickedSummary);
-  const updatedLabel = compareRunHeadingLabel(props.updatedRunId, props.updatedPickedSummary);
 
   return (
     <section
@@ -53,17 +48,6 @@ export function CompareExecutionModeHonestyStrip(props: Props) {
           </div>
         </div>
       </div>
-
-      {honesty.advisoryParagraph !== null ? (
-        <OperatorWarningCallout>
-          <strong>
-            {honesty.modesDiffer
-              ? `Execution modes differ (${baselineLabel} vs ${updatedLabel}).`
-              : "Non-real execution on one or both reviews."}
-          </strong>
-          <p className={cn("mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{honesty.advisoryParagraph}</p>
-        </OperatorWarningCallout>
-      ) : null}
     </section>
   );
 }

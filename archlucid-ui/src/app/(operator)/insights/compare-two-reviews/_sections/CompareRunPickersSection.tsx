@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { RunIdPicker } from "@/components/RunIdPicker";
+import { Button } from "@/components/ui/button";
 import { BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY } from "@/lib/buyer-polish-copy";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { RunSummary } from "@/types/authority";
@@ -65,7 +66,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
 
   const pickerFields = (
     <>
-      <div className="grid max-w-3xl gap-3">
+      <div className="grid gap-3">
         <RunIdPicker
           preferAutoPick={false}
           autoFocus
@@ -129,30 +130,24 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
           </p>
         ) : null}
         <div className="flex flex-wrap items-center gap-3">
-          <button
+          <Button
             type="button"
+            variant="primary"
             data-testid="compare-submit-button"
-            className={cn(
-              "rounded-md border border-neutral-300 bg-white px-4 py-2.5 font-medium text-al-text-primary shadow-sm hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-600 dark:bg-neutral-900 dark:hover:bg-neutral-800",
-              OPERATOR_TYPOGRAPHY.button,
-            )}
             onClick={() => void onCompare()}
             disabled={compareActionsDisabled}
           >
             {loading ? "Comparing…" : compareButtonLabel}
-          </button>
+          </Button>
           {showSummarizeForSponsor ? (
-            <button
+            <Button
               type="button"
-              className={cn(
-              "rounded-md border border-neutral-300 bg-white px-4 py-2.5 font-medium text-al-text-primary shadow-sm hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-600 dark:bg-neutral-900 dark:hover:bg-neutral-800",
-              OPERATOR_TYPOGRAPHY.button,
-            )}
+              variant="secondary"
               onClick={() => void onSummarizeForSponsor()}
               disabled={aiLoading}
             >
               {aiLoading ? "Summarizing…" : summarizeButtonLabel}
-            </button>
+            </Button>
           ) : null}
         </div>
         {showSelectionHelper ? (
@@ -166,7 +161,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
 
   if (collapseBelowResults) {
     return (
-      <details className="scroll-mt-8 max-w-3xl rounded-lg border border-neutral-200 bg-neutral-50/50 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/30">
+      <details className="scroll-mt-8 rounded-lg border border-neutral-200 bg-neutral-50/50 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/30">
         <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
           {BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY}
         </summary>

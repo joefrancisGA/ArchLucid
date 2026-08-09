@@ -46,7 +46,10 @@ export function CompareFindingCorrelationPanel(props: CompareFindingCorrelationP
         busy
         className="mt-6 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-900"
       >
-        <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+        <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+          {CROSS_REVIEW_FINDING_CORRELATION_PANEL_TITLE}
+        </h2>
+        <p className={cn("m-0 mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           <strong>Loading finding correlation metadata…</strong>
         </p>
       </CompareFindingCorrelationSectionShell>
@@ -56,9 +59,9 @@ export function CompareFindingCorrelationPanel(props: CompareFindingCorrelationP
   if (softFailureMessage !== null) {
     return (
       <CompareFindingCorrelationSectionShell className="mt-6 rounded-lg border border-dashed border-amber-300 bg-amber-50/60 p-4 dark:border-amber-700 dark:bg-amber-950/20">
-        <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+        <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
           {CROSS_REVIEW_FINDING_CORRELATION_PANEL_TITLE}
-        </p>
+        </h2>
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           Could not load {softFailureMessage}. Structured and supplementary compare sections above remain authoritative
           for review deltas.
@@ -70,7 +73,10 @@ export function CompareFindingCorrelationPanel(props: CompareFindingCorrelationP
   if (metadata === null) {
     return (
       <CompareFindingCorrelationSectionShell className="mt-6 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-900">
-        <OperatorEmptyState title={CROSS_REVIEW_FINDING_CORRELATION_PANEL_TITLE}>
+        <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+          {CROSS_REVIEW_FINDING_CORRELATION_PANEL_TITLE}
+        </h2>
+        <OperatorEmptyState title="No correlation metadata">
           No finding correlation metadata on this comparison (API may predate correlation export metadata).
         </OperatorEmptyState>
       </CompareFindingCorrelationSectionShell>
@@ -81,9 +87,9 @@ export function CompareFindingCorrelationPanel(props: CompareFindingCorrelationP
 
   return (
     <CompareFindingCorrelationSectionShell className="mt-6 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-900">
-      <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+      <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
         {CROSS_REVIEW_FINDING_CORRELATION_PANEL_TITLE}
-      </p>
+      </h2>
       <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {COMPARE_FINDING_CORRELATION_EXPORT_PARITY_NOTE}
       </p>

@@ -94,16 +94,18 @@ export function CompareRawManifestDiffSection(props: CompareRawManifestDiffSecti
   const updatedLabel = compareRunHeadingLabel(props.updatedRunId, props.updatedPickedSummary ?? null);
 
   return (
-    <details
-      id="compare-raw-manifest-diff"
-      className={sectionCls}
-      data-testid="compare-raw-manifest-diff"
-      open={open}
-      onToggle={(e) => setOpen((e.currentTarget as HTMLDetailsElement).open)}
-    >
-      <summary className={cn("cursor-pointer list-none font-semibold text-neutral-900 marker:content-none dark:text-neutral-100 [&::-webkit-details-marker]:hidden", OPERATOR_TYPOGRAPHY.helper)}>
+    <section id="compare-raw-manifest-diff" className={sectionCls} data-testid="compare-raw-manifest-diff">
+      <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
         {buyerPolished ? BUYER_COMPARE_MANIFEST_DIFF_APPENDIX_LABEL : "Review record diff appendix"}
-      </summary>
+      </h2>
+      <details
+        className="mt-3"
+        open={open}
+        onToggle={(e) => setOpen((e.currentTarget as HTMLDetailsElement).open)}
+      >
+        <summary className={cn("cursor-pointer list-none font-semibold text-neutral-900 marker:content-none dark:text-neutral-100 [&::-webkit-details-marker]:hidden", OPERATOR_TYPOGRAPHY.helper)}>
+          {open ? "Hide review record diff" : "Show review record diff"}
+        </summary>
       <div className="mt-3 space-y-3">
         <p className={cn("m-0 max-w-prose text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           {buyerPolished ? BUYER_COMPARE_REVIEW_RECORD_DIFF_INTRO : COMPARE_REVIEW_RECORD_DIFF_OPERATOR_INTRO}
@@ -139,6 +141,7 @@ export function CompareRawManifestDiffSection(props: CompareRawManifestDiffSecti
           />
         ) : null}
       </div>
-    </details>
+      </details>
+    </section>
   );
 }
