@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { InAppHelpLink } from "@/components/InAppHelpLink";
@@ -15,6 +16,7 @@ import {
   persistArchitectureDraftGuidanceDismissed,
 } from "@/lib/architecture-draft-guidance-dismiss";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 import { cn } from "@/lib/utils";
 
 export type ArchitectureDraftGuidanceDisclosureProps = {
@@ -25,6 +27,10 @@ export type ArchitectureDraftGuidanceDisclosureProps = {
 export function ArchitectureDraftGuidanceDisclosure(
   props: ArchitectureDraftGuidanceDisclosureProps,
 ): React.JSX.Element | null {
+  const pathname = usePathname();
+  const headerTopicSlug = pageHelpTopicForPathname(pathname ?? "")?.slug;
+  // Skip getting-started when the page header Help button already maps to that topic.
+  const showGettingStartedHelpLink = headerTopicSlug !== "getting-started";
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -65,9 +71,11 @@ export function ArchitectureDraftGuidanceDisclosure(
         >
           <p className="m-0">{ARCHITECTURE_DRAFT_GUIDANCE_DISCLOSURE_LEAD}</p>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{ARCHITECTURE_DRAFT_GUIDANCE_DISCLOSURE_DETAIL}</p>
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-            <InAppHelpLink helpSlug="getting-started" label="Getting started guide" variant="text" />
-          </p>
+          {showGettingStartedHelpLink ? (
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+              <InAppHelpLink helpSlug="getting-started" label="Getting started guide" variant="text" />
+            </p>
+          ) : null}
         </div>
       </details>
       <DismissControl

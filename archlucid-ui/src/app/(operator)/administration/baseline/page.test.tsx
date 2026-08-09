@@ -79,7 +79,7 @@ describe("BaselineSettingsPage", () => {
     expect(screen.getByTestId("baseline-use-conservative-defaults")).toBeInTheDocument();
     expect(screen.getByText("Review cycle baseline")).toBeInTheDocument();
     expect(screen.getByTestId("baseline-settings-methodology")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "View ROI methodology" })).toHaveAttribute("href", "/help/pilot-roi-model");
+    expect(screen.queryByRole("link", { name: "View ROI methodology" })).not.toBeInTheDocument();
 
     vi.unstubAllGlobals();
   });

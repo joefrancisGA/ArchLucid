@@ -83,10 +83,11 @@ describe("SsoWizardPage", () => {
 
     fireEvent.click(screen.getByText(/Not sure which protocol to choose/i));
     expect(screen.getByText(/Choose OpenID Connect when your provider supports it/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Enterprise onboarding checklist/i })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /Configuration reference/i })).toHaveAttribute(
       "href",
-      "/help/enterprise-onboarding",
+      "/help/configuration-reference",
     );
+    expect(screen.queryByRole("link", { name: /Enterprise onboarding checklist/i })).not.toBeInTheDocument();
   });
 
   it("shows durable in-page success after SSO activation without toast", async () => {

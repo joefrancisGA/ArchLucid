@@ -70,10 +70,6 @@ export const REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL = BUYER_START_ARCHITECTURE_R
 
 export const REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL = "Explore the sample review";
 
-export const REVIEWS_HUB_RECENT_EMPTY_HELP_LABEL = "Learn how reviews work";
-
-export const REVIEWS_HUB_RECENT_EMPTY_HELP_HREF = "/help/first-architecture-review";
-
 /** Empty "Your reviews" copy when architecture drafts exist but no review runs yet. */
 export const REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE = "No reviews yet";
 

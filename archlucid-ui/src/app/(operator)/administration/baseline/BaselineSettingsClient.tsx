@@ -1,7 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 
 import { DemoUnavailableNotice } from "@/components/DemoUnavailableNotice";
@@ -14,7 +13,6 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   BASELINE_SETTINGS_CONSERVATIVE_DEFAULTS_NOTE,
-  BASELINE_SETTINGS_METHODOLOGY_HELP_HREF,
   BASELINE_SETTINGS_PAGE_SUBTITLE,
   BASELINE_SETTINGS_USED_IN_SURFACES,
   baselineSettingsStatusLabel,
@@ -608,14 +606,6 @@ export function BaselineSettingsClient() {
                 <li>ROI estimates are shown as estimates, not guaranteed savings.</li>
                 <li>Measured review data takes precedence when available.</li>
               </ul>
-              <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.body)}>
-                <Link
-                  href={BASELINE_SETTINGS_METHODOLOGY_HELP_HREF}
-                  className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
-                >
-                  View ROI methodology
-                </Link>
-              </p>
             </section>
 
             <div

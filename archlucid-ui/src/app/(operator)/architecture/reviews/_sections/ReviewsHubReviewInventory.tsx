@@ -32,8 +32,6 @@ import {
   REVIEWS_HUB_FILTER_SEARCH_PLACEHOLDER,
   REVIEWS_HUB_FILTER_UPDATED_RECENTLY_LABEL,
   REVIEWS_HUB_RECENT_EMPTY_BODY,
-  REVIEWS_HUB_RECENT_EMPTY_HELP_HREF,
-  REVIEWS_HUB_RECENT_EMPTY_HELP_LABEL,
   REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL,
   REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL,
   REVIEWS_HUB_RECENT_EMPTY_TITLE,
@@ -193,15 +191,6 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
                 variant: "outline",
               },
             ]}
-            footer={
-              <Link
-                href={REVIEWS_HUB_RECENT_EMPTY_HELP_HREF}
-                className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="reviews-hub-recent-empty-help-link"
-              >
-                {REVIEWS_HUB_RECENT_EMPTY_HELP_LABEL}
-              </Link>
-            }
           />
         </div>
       ) : (

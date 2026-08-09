@@ -26,8 +26,6 @@ export function SsoWizardProtocolHelpDisclosure(): React.JSX.Element {
         <p className="m-0 text-al-text-secondary">{SSO_WIZARD_PROTOCOL_HELP_BODY}</p>
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
           <InAppHelpLink helpSlug="configuration-reference" label="Configuration reference" variant="text" />
-          {" · "}
-          <InAppHelpLink helpSlug="enterprise-onboarding" label="Enterprise onboarding checklist" variant="text" />
         </p>
       </div>
     </details>

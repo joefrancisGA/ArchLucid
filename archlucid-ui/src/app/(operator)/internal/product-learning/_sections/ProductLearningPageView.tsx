@@ -138,7 +138,6 @@ export function ProductLearningPageView(props: Props) {
             { label: PILOT_FEEDBACK_VOCABULARY.emptyStatePrimaryAction, href: "/architecture/reviews" },
             { label: PILOT_FEEDBACK_VOCABULARY.emptyStateSecondaryAction, href: "/architecture/reviews/new" },
           ]}
-          helpTopicPath="/help/pilot-feedback"
         />
       ) : null}
 

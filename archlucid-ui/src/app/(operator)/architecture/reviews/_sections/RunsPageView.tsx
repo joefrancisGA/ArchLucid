@@ -8,7 +8,6 @@ import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { RunsListProofHeadline } from "@/components/RunsListProofHeadline";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
-import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
 import {
   BUYER_RUNS_LIST_MALFORMED_BODY,
   BUYER_RUNS_LIST_MALFORMED_HEADING,
@@ -75,8 +74,6 @@ export function RunsPageView(props: Props) {
             {isOperatorExperienceFullShellEnv() ? <RunsListProofHeadline /> : null}
           </>
         }
-        helpKey="runs-list-overview"
-        docsPageKey={REVIEWS_LIST_PATH}
         actions={<ReviewsHubHeaderActions />}
       />
 {hubLoadOk ? (

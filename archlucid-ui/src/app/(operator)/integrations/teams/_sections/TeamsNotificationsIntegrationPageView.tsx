@@ -14,7 +14,6 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { INTEGRATIONS_READINESS_PATH, INTEGRATIONS_SLACK_PATH, INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import {
   TEAMS_INTEGRATION_CONNECT_SECTION_LEAD,
   TEAMS_INTEGRATION_CONNECT_SECTION_TITLE,
@@ -80,10 +79,6 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
               {m.loading ? "Loading connection status…" : teamsIntegrationConnectionStatusLabel(m.connectionStatus)}
             </p>
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("alerts")}>
-                How alerts work
-              </Link>
-              {" · "}
               <Link className={OPERATOR_LINK.inline} href={INTEGRATIONS_READINESS_PATH}>
                 Integration readiness
               </Link>

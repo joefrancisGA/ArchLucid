@@ -43,7 +43,6 @@ vi.mock("@/lib/api/itsm-outbound-api", () => ({
 import { AzureBoardsIntegrationPageClient } from "./AzureBoardsIntegrationPageClient";
 import {
   AZURE_BOARDS_BANNED_UI_PATTERNS,
-  AZURE_BOARDS_HELP_TOPIC_HREF,
   AZURE_BOARDS_PAGE_SUBTITLE,
   AZURE_BOARDS_PAGE_TITLE,
   AZURE_BOARDS_TEST_CONNECTION_LABEL,
@@ -154,15 +153,15 @@ describe("AzureBoardsIntegrationPageClient", () => {
     expect(screen.getByTestId("azure-boards-organization-url")).toHaveValue("https://dev.azure.com/example");
   });
 
-  it("TB-1757/1759: setup progress uses StatusTag and help link stays canonical", async () => {
+  it("TB-1757/1759: setup progress uses StatusTag and omits duplicate azure-boards help guide link", async () => {
     render(<AzureBoardsIntegrationPageClient />);
 
     await screen.findByTestId("azure-boards-setup-progress");
     expect(screen.getByTestId("azure-boards-setup-step-credentials")).toBeInTheDocument();
-    expect(screen.getByTestId("azure-boards-help-guide-link")).toHaveAttribute("href", AZURE_BOARDS_HELP_TOPIC_HREF);
-    expect(AZURE_BOARDS_HELP_TOPIC_HREF).not.toContain("integrations/azure-boards");
+    expect(screen.queryByTestId("azure-boards-help-guide-link")).not.toBeInTheDocument();
 
     const aside = screen.getByTestId("azure-boards-integration-aside");
+    expect(aside.textContent ?? "").not.toContain("/help/azure-boards");
     expect(aside.textContent ?? "").not.toContain("/help/integrations/azure-boards");
   });
 

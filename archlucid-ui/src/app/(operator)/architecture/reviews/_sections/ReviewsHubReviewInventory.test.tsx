@@ -33,7 +33,7 @@ beforeEach(() => {
 });
 
 describe("ReviewsHubReviewInventory", () => {
-  it("renders a rich empty state with start, sample, and help actions when no drafts exist", () => {
+  it("renders a rich empty state with start and sample actions when no drafts exist", () => {
     render(<ReviewsHubReviewInventory runs={[]} />);
 
     expect(screen.getByText("No reviews yet")).toBeInTheDocument();
@@ -43,10 +43,7 @@ describe("ReviewsHubReviewInventory", () => {
       "/architecture/reviews/new",
     );
     expect(screen.getByRole("link", { name: "Explore the sample review" })).toBeInTheDocument();
-    expect(screen.getByTestId("reviews-hub-recent-empty-help-link")).toHaveAttribute(
-      "href",
-      "/help/first-architecture-review",
-    );
+    expect(screen.queryByTestId("reviews-hub-recent-empty-help-link")).not.toBeInTheDocument();
   });
 
   it("keeps rich empty CTAs when drafts exist", () => {
@@ -71,7 +68,7 @@ describe("ReviewsHubReviewInventory", () => {
       "/architecture/reviews/new",
     );
     expect(screen.getByRole("link", { name: "Explore the sample review" })).toBeInTheDocument();
-    expect(screen.getByTestId("reviews-hub-recent-empty-help-link")).toBeInTheDocument();
+    expect(screen.queryByTestId("reviews-hub-recent-empty-help-link")).not.toBeInTheDocument();
   });
 
   it("renders review rows with governance, risks, and StatusTag", () => {

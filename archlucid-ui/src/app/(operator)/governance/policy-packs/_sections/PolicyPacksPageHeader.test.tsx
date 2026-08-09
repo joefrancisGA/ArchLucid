@@ -14,7 +14,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 import { PolicyPacksPageHeader } from "@/app/(operator)/governance/policy-packs/_sections/PolicyPacksPageHeader";
 
 describe("PolicyPacksPageHeader", () => {
-  it("renders h1, help, refresh, resolution link, and last-refreshed metadata", () => {
+  it("renders h1, help, refresh, and last-refreshed metadata without a duplicate policy-packs help link", () => {
     const onRefresh = vi.fn();
 
     render(
@@ -31,10 +31,8 @@ describe("PolicyPacksPageHeader", () => {
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("policy-packs-header-actions")).toBeInTheDocument();
     expect(screen.getByTestId("policy-packs-refresh-button")).toBeInTheDocument();
-    expect(screen.getByTestId("policy-packs-resolution-link")).toHaveAttribute(
-      "href",
-      "/help/policy-packs#how-conflicts-are-resolved",
-    );
+    expect(screen.queryByTestId("policy-packs-resolution-link")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /How conflicts are resolved/i })).not.toBeInTheDocument();
     expect(screen.getByTestId("policy-packs-last-refreshed")).toHaveTextContent(/Last refreshed:/i);
 
     fireEvent.click(screen.getByTestId("policy-packs-refresh-button"));

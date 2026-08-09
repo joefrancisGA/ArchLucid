@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ArchitectureDraftGuidanceDisclosure } from "@/components/architecture/ArchitectureDraftGuidanceDisclosure";
 import {
@@ -10,12 +10,20 @@ import {
 } from "@/lib/architecture-draft-guidance-copy";
 import { ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY } from "@/lib/architecture-draft-guidance-dismiss";
 
+const mockUsePathname = vi.fn(() => "/architecture/architectures");
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => mockUsePathname(),
+}));
+
 describe("ArchitectureDraftGuidanceDisclosure", () => {
   afterEach(() => {
     window.localStorage.removeItem(ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY);
+    mockUsePathname.mockReturnValue("/architecture/architectures");
   });
 
-  it("explains the draft vs review distinction with a getting-started help link", async () => {
+  it("explains the draft vs review distinction without duplicating getting-started when that is the header topic", async () => {
+    mockUsePathname.mockReturnValue("/architecture/architectures/draft-1");
     render(<ArchitectureDraftGuidanceDisclosure />);
 
     await waitFor(() => {
@@ -27,6 +35,17 @@ describe("ArchitectureDraftGuidanceDisclosure", () => {
     expect(disclosure.textContent ?? "").toContain(ARCHITECTURE_DRAFT_GUIDANCE_DISCLOSURE_SUMMARY);
     expect(disclosure.textContent ?? "").toContain(ARCHITECTURE_DRAFT_GUIDANCE_DISCLOSURE_LEAD);
     expect(disclosure.textContent ?? "").toContain(ARCHITECTURE_DRAFT_GUIDANCE_DISCLOSURE_DETAIL);
+    expect(screen.queryByRole("link", { name: "Getting started guide" })).not.toBeInTheDocument();
+  });
+
+  it("keeps getting-started help when the header topic is first-architecture-review (/new)", async () => {
+    mockUsePathname.mockReturnValue("/architecture/architectures/new");
+    render(<ArchitectureDraftGuidanceDisclosure />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-guidance-disclosure")).toBeInTheDocument();
+    });
+
     expect(screen.getByRole("link", { name: "Getting started guide" })).toHaveAttribute(
       "href",
       "/help/getting-started",

@@ -1,8 +1,5 @@
 "use client";
 
-import Link from "next/link";
-
-import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cloudSecurityPreflightTopics } from "@/lib/cloud-security-preflight-topics";
 
@@ -21,7 +18,7 @@ export function AwsCloudConnectionDetailClient() {
         providerLabel="AWS"
         overview="Read-only Resource Explorer inventory through a federated IAM role."
       />
-<CloudProviderDetailLayout
+      <CloudProviderDetailLayout
         providerLabel="AWS"
         overview={
           <p className={OPERATOR_TYPOGRAPHY.body}>
@@ -52,11 +49,6 @@ export function AwsCloudConnectionDetailClient() {
             <p>
               Cross-cloud trust uses OIDC federation from ArchLucid&apos;s hosted identity to your AWS IAM role. This
               does not require you to run workloads on Azure.
-            </p>
-            <p>
-              <Link href={inAppHelpHref("cloud-connections-aws")} className="text-teal-700 underline dark:text-teal-400">
-                View setup guide
-              </Link>
             </p>
           </CloudSecurityPreflightTechnicalDetails>
         }

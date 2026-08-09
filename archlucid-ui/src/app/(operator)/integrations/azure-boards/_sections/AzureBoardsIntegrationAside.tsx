@@ -8,8 +8,6 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   AZURE_BOARDS_CONNECTION_VERIFICATION_HELP_LABEL,
   AZURE_BOARDS_DOCUMENTATION_ASIDE_TITLE,
-  AZURE_BOARDS_HELP_TOPIC_HREF,
-  AZURE_BOARDS_HELP_TOPIC_LABEL,
   AZURE_BOARDS_LATEST_TEST_TITLE,
   AZURE_BOARDS_PERMISSIONS_ASIDE_BODY,
   AZURE_BOARDS_PERMISSIONS_ASIDE_TITLE,
@@ -91,15 +89,6 @@ export function AzureBoardsIntegrationAside(props: Props): React.ReactElement {
       <div className="rounded-md border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800">
         <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{AZURE_BOARDS_DOCUMENTATION_ASIDE_TITLE}</h2>
         <ul className={cn("m-0 mt-2 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.helper)}>
-          <li>
-            <Link
-              href={AZURE_BOARDS_HELP_TOPIC_HREF}
-              className={cn(OPERATOR_LINK.inline)}
-              data-testid="azure-boards-help-guide-link"
-            >
-              {AZURE_BOARDS_HELP_TOPIC_LABEL}
-            </Link>
-          </li>
           <li>
             <Link href={inAppHelpHref("troubleshooting")} className={cn(OPERATOR_LINK.inline)}>
               {AZURE_BOARDS_CONNECTION_VERIFICATION_HELP_LABEL}

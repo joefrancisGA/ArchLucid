@@ -12,10 +12,6 @@ import {
   policyPacksPageLeadReaderBuyerPolished,
 } from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import {
-  POLICY_PACKS_RESOLUTION_LINK_HREF,
-  POLICY_PACKS_RESOLUTION_LINK_LABEL,
-} from "@/lib/policy-packs-page";
 
 export type PolicyPacksMarketingIntroProps = {
   buyerPolishedShell: boolean;
@@ -78,20 +74,12 @@ export function PolicyPacksMarketingIntro(props: PolicyPacksMarketingIntroProps)
           <>
             A <GlossaryTooltip termKey="policy_pack">policy pack</GlossaryTooltip> defines which compliance checks apply
             to reviews in this workspace —{" "}
-            {canMutatePacks ? policyPacksPageLeadOperatorBuyerPolished : policyPacksPageLeadReaderBuyerPolished}{" "}
-            <Link href={POLICY_PACKS_RESOLUTION_LINK_HREF} className={OPERATOR_LINK.inline}>
-              {POLICY_PACKS_RESOLUTION_LINK_LABEL}
-            </Link>
-            .
+            {canMutatePacks ? policyPacksPageLeadOperatorBuyerPolished : policyPacksPageLeadReaderBuyerPolished}
           </>
         ) : (
           <>
             A <GlossaryTooltip termKey="policy_pack">policy pack</GlossaryTooltip> bundles versioned controls and
-            advisory defaults for your scope — {canMutatePacks ? policyPacksPageLeadOperator : policyPacksPageLeadReader}{" "}
-            <Link href={POLICY_PACKS_RESOLUTION_LINK_HREF} className={OPERATOR_LINK.inline}>
-              {POLICY_PACKS_RESOLUTION_LINK_LABEL}
-            </Link>
-            .
+            advisory defaults for your scope — {canMutatePacks ? policyPacksPageLeadOperator : policyPacksPageLeadReader}
           </>
         )}
       </p>

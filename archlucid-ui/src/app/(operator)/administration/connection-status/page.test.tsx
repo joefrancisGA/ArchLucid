@@ -24,13 +24,10 @@ describe("AdministrationConnectionStatusPage (ADC)", () => {
     expect(
       screen.getByText(/which notification, ticketing, publishing, and delivery integrations are configured/i),
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "How integration readiness works" })).toHaveAttribute(
-      "href",
-      "/help/integration-readiness",
-    );
+    expect(screen.queryByRole("link", { name: "How integration readiness works" })).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.queryByTestId("connection-status-sources")).toBeNull(); // TB-2092
-    expect(screen.getByTestId("connection-status-claim-discipline")).toBeInTheDocument();
+    expect(screen.queryByTestId("connection-status-claim-discipline")).toBeNull();
     expect(screen.queryByText("About integration readiness")).not.toBeInTheDocument();
     expect(screen.getByTestId("connector-operations-dashboard")).toBeInTheDocument();
   });

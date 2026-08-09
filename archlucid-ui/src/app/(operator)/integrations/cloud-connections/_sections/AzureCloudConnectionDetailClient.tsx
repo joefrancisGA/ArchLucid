@@ -72,10 +72,6 @@ export function AzureCloudConnectionDetailClient() {
               service principal — you are not required to adopt Azure as your primary cloud platform.
             </p>
             <p>
-              <Link href={inAppHelpHref("azure-permissions")} className="text-teal-700 underline dark:text-teal-400">
-                Azure permissions reference
-              </Link>
-              {" · "}
               <Link href={inAppHelpHref("configuration-reference")} className="text-teal-700 underline dark:text-teal-400">
                 Configuration reference
               </Link>

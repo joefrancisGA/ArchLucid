@@ -1,8 +1,5 @@
 ﻿"use client";
 
-import Link from "next/link";
-
-import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cloudSecurityPreflightTopics } from "@/lib/cloud-security-preflight-topics";
 
@@ -21,7 +18,7 @@ export function GcpCloudConnectionDetailClient() {
         providerLabel="GCP"
         overview="Read-only Cloud Asset Inventory through Workload Identity Federation."
       />
-<CloudProviderDetailLayout
+      <CloudProviderDetailLayout
         providerLabel="GCP"
         overview={
           <p className={OPERATOR_TYPOGRAPHY.body}>
@@ -52,11 +49,6 @@ export function GcpCloudConnectionDetailClient() {
             <p>
               GCP Workload Identity Federation binds ArchLucid&apos;s hosted identity to your service account without
               downloadable JSON keys.
-            </p>
-            <p>
-              <Link href={inAppHelpHref("cloud-connections-gcp")} className="text-teal-700 underline dark:text-teal-400">
-                View setup guide
-              </Link>
             </p>
           </CloudSecurityPreflightTechnicalDetails>
         }
