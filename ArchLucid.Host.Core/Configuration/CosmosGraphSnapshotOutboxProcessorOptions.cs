@@ -13,5 +13,6 @@ public sealed class CosmosGraphSnapshotOutboxProcessorOptions
 
     public int RetryBackoffMaxSeconds { get; set; } = 900;
 
+    /// <summary>Maximum idle poll delay (seconds) when the outbox is empty; first empty poll uses <see cref="Hosted.AdaptiveOutboxIdleBackoff.BaseIdleDelay" /> then backs off to this ceiling.</summary>
     public int PollIntervalSeconds { get; set; } = 15;
 }

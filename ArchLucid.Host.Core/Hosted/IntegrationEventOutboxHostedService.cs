@@ -26,31 +26,12 @@ public sealed class IntegrationEventOutboxHostedService(
             stoppingToken);
     }
 
-    private async Task LoopAsync(CancellationToken leaderToken)
+    private Task LoopAsync(CancellationToken leaderToken)
     {
-        while (!leaderToken.IsCancellationRequested)
-        {
-            try
-            {
-                await _processor.ProcessPendingBatchAsync(leaderToken);
-            }
-            catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
-            {
-                break;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Integration event outbox host loop error.");
-            }
-
-            try
-            {
-                await Task.Delay(TimeSpan.FromSeconds(2), leaderToken);
-            }
-            catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
-            {
-                break;
-            }
-        }
+        return AdaptiveOutboxDrainLoop.RunAsync(
+            _processor.ProcessPendingBatchAsync,
+            _logger,
+            "Integration event outbox",
+            leaderToken);
     }
 }

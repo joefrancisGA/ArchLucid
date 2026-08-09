@@ -51,7 +51,7 @@ public sealed class AuthorityPipelineWorkProcessor(
         logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <inheritdoc />
-    public async Task ProcessPendingBatchAsync(CancellationToken cancellationToken)
+    public async Task<int> ProcessPendingBatchAsync(CancellationToken cancellationToken)
     {
         AuthorityPipelineWorkProcessorOptions opts = VerifiedOptions(_processorOptions.Value);
 
@@ -68,6 +68,8 @@ public sealed class AuthorityPipelineWorkProcessor(
             opts.MaxConcurrentBatchEntries,
             (entry, ct) => ProcessEntryWithIsolationAsync(entry, opts, ct),
             cancellationToken).ConfigureAwait(false);
+
+        return batch.Count;
     }
 
     private async Task ProcessEntryWithIsolationAsync(

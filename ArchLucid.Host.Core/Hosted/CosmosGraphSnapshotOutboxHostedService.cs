@@ -33,34 +33,17 @@ public sealed class CosmosGraphSnapshotOutboxHostedService(
             stoppingToken);
     }
 
-    private async Task LoopAsync(CancellationToken leaderToken)
+    private Task LoopAsync(CancellationToken leaderToken)
     {
-        int pollSeconds = Math.Clamp(_processorOptions.Value.PollIntervalSeconds, 5, 300);
-        TimeSpan pollInterval = TimeSpan.FromSeconds(pollSeconds);
+        int maxIdleSeconds = Math.Clamp(_processorOptions.Value.PollIntervalSeconds, 5, 300);
+        TimeSpan maxIdleDelay = TimeSpan.FromSeconds(maxIdleSeconds);
 
-        while (!leaderToken.IsCancellationRequested)
-        {
-            try
-            {
-                await _processor.ProcessPendingBatchAsync(leaderToken);
-            }
-            catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
-            {
-                break;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Cosmos graph snapshot outbox host loop error.");
-            }
-
-            try
-            {
-                await Task.Delay(pollInterval, leaderToken);
-            }
-            catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
-            {
-                break;
-            }
-        }
+        return AdaptiveOutboxDrainLoop.RunAsync(
+            _processor.ProcessPendingBatchAsync,
+            _logger,
+            "Cosmos graph snapshot outbox",
+            leaderToken,
+            baseIdleDelay: AdaptiveOutboxIdleBackoff.BaseIdleDelay,
+            maxIdleDelay: maxIdleDelay);
     }
 }

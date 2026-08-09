@@ -19,7 +19,7 @@ public sealed class AuthorityPipelineWorkHostedServiceTests
         Mock<IAuthorityPipelineWorkProcessor> processor = new();
         processor
             .Setup(p => p.ProcessPendingBatchAsync(It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+            .ReturnsAsync(0);
 
         AuthorityPipelineWorkHostedService sut = new(
             processor.Object,
@@ -47,7 +47,10 @@ public sealed class AuthorityPipelineWorkHostedServiceTests
             {
                 callCount++;
 
-                return callCount == 1 ? throw new InvalidOperationException("simulated failure") : Task.CompletedTask;
+                if (callCount == 1)
+                    throw new InvalidOperationException("simulated failure");
+
+                return Task.FromResult(0);
             });
 
         AuthorityPipelineWorkHostedService sut = new(

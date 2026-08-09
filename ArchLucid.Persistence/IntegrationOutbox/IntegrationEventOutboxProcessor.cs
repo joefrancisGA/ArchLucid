@@ -30,7 +30,7 @@ public sealed class IntegrationEventOutboxProcessor(
         logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <inheritdoc />
-    public async Task ProcessPendingBatchAsync(CancellationToken ct)
+    public async Task<int> ProcessPendingBatchAsync(CancellationToken ct)
     {
         using IServiceScope dequeueScope = _scopeFactory.CreateScope();
         IIntegrationEventOutboxRepository outbox =
@@ -49,6 +49,8 @@ public sealed class IntegrationEventOutboxProcessor(
             maxConcurrent,
             (entry, token) => ProcessEntryAsync(entry, maxAttempts, maxBackoffSeconds, token),
             ct).ConfigureAwait(false);
+
+        return batch.Count;
     }
 
     private async Task ProcessEntryAsync(

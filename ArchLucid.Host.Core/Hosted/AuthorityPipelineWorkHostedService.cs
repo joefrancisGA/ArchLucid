@@ -30,31 +30,12 @@ public sealed class AuthorityPipelineWorkHostedService(
             stoppingToken);
     }
 
-    private async Task LoopAsync(CancellationToken leaderToken)
+    private Task LoopAsync(CancellationToken leaderToken)
     {
-        while (!leaderToken.IsCancellationRequested)
-        {
-            try
-            {
-                await _processor.ProcessPendingBatchAsync(leaderToken);
-            }
-            catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
-            {
-                break;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Authority pipeline work host loop error.");
-            }
-
-            try
-            {
-                await Task.Delay(TimeSpan.FromSeconds(2), leaderToken);
-            }
-            catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
-            {
-                break;
-            }
-        }
+        return AdaptiveOutboxDrainLoop.RunAsync(
+            _processor.ProcessPendingBatchAsync,
+            _logger,
+            "Authority pipeline work outbox",
+            leaderToken);
     }
 }

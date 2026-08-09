@@ -22,6 +22,7 @@ public sealed class AdaptiveOutboxIdleBackoffTests
     {
         AdaptiveOutboxIdleBackoff backoff = new();
 
+        backoff.NextDelay(0).Should().Be(TimeSpan.FromSeconds(1));
         backoff.NextDelay(0).Should().Be(TimeSpan.FromSeconds(2));
         backoff.NextDelay(0).Should().Be(TimeSpan.FromSeconds(4));
         backoff.NextDelay(0).Should().Be(TimeSpan.FromSeconds(8));
@@ -38,5 +39,21 @@ public sealed class AdaptiveOutboxIdleBackoffTests
         backoff.NextDelay(0);
         backoff.NextDelay(3).Should().Be(TimeSpan.Zero);
         backoff.NextDelay(0).Should().Be(AdaptiveOutboxIdleBackoff.BaseIdleDelay);
+    }
+
+    [Fact]
+    public void NextDelay_honors_custom_base_and_max_idle_delays()
+    {
+        AdaptiveOutboxIdleBackoff backoff = new(
+            baseIdleDelay: TimeSpan.FromMilliseconds(500),
+            maxIdleDelay: TimeSpan.FromSeconds(15));
+
+        backoff.NextDelay(0).Should().Be(TimeSpan.FromMilliseconds(500));
+        backoff.NextDelay(0).Should().Be(TimeSpan.FromSeconds(1));
+        backoff.NextDelay(0).Should().Be(TimeSpan.FromSeconds(2));
+        backoff.NextDelay(0).Should().Be(TimeSpan.FromSeconds(4));
+        backoff.NextDelay(0).Should().Be(TimeSpan.FromSeconds(8));
+        backoff.NextDelay(0).Should().Be(TimeSpan.FromSeconds(15));
+        backoff.NextDelay(0).Should().Be(TimeSpan.FromSeconds(15));
     }
 }

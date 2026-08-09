@@ -6,17 +6,28 @@ namespace ArchLucid.Host.Core.Hosted;
 /// </summary>
 public static class AdaptiveOutboxDrainLoop
 {
-    public static async Task RunAsync(
+    public static Task RunAsync(
         Func<CancellationToken, Task<int>> processPendingBatch,
         ILogger logger,
         string loopName,
         CancellationToken leaderToken)
     {
+        return RunAsync(processPendingBatch, logger, loopName, leaderToken, baseIdleDelay: null, maxIdleDelay: null);
+    }
+
+    public static async Task RunAsync(
+        Func<CancellationToken, Task<int>> processPendingBatch,
+        ILogger logger,
+        string loopName,
+        CancellationToken leaderToken,
+        TimeSpan? baseIdleDelay,
+        TimeSpan? maxIdleDelay)
+    {
         ArgumentNullException.ThrowIfNull(processPendingBatch);
         ArgumentNullException.ThrowIfNull(logger);
         ArgumentNullException.ThrowIfNull(loopName);
 
-        AdaptiveOutboxIdleBackoff backoff = new();
+        AdaptiveOutboxIdleBackoff backoff = new(baseIdleDelay, maxIdleDelay);
 
         while (!leaderToken.IsCancellationRequested)
         {
