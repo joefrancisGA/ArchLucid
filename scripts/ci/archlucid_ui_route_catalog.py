@@ -248,7 +248,7 @@ def discover_tab_paths() -> list[str]:
     for tab_id in alert_rules_tabs:
         paths.append(_tab_path("/governance/alert-rules", "tab", tab_id))
     # Alerts inbox is bare `/governance/alerts` (AL) — do not invent `?tab=inbox` (GOI removed).
-    for tab_id in ("users", "roles", "keys"):
+    for tab_id in ("users", "roles"):
         paths.append(_tab_path("/administration/users", "tab", tab_id))
     for path_mode in ("quick-review", "guided-intake", "detailed"):
         paths.append(_tab_path("/architecture/reviews/new", "path", path_mode))
