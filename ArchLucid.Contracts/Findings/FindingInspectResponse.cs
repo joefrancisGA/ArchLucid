@@ -282,4 +282,18 @@ public sealed class FindingInspectResponse
         get;
         init;
     }
+
+    /// <summary>Persisted run execution mode label for inspect and export surfaces (TB-971).</summary>
+    public string? RunExecutionModeDisplayLabel
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Operator detail for persisted run execution mode (TB-971).</summary>
+    public string? RunExecutionModeDetail
+    {
+        get;
+        init;
+    }
 }

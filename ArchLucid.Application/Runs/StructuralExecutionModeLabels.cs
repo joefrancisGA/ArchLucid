@@ -9,6 +9,9 @@ public static class StructuralExecutionModeLabels
         "Mixed execution: some agent steps used deterministic substitution while others used the configured model path. " +
         "Treat numeric highlights conservatively and review per-agent traces.";
 
+    /// <inheritdoc cref="StructuralExecutionModeHonesty.RoiPeriodMixedModeFootnote" />
+    public const string RoiPeriodMixedModeFootnote = StructuralExecutionModeHonesty.RoiPeriodMixedModeFootnote;
+
     public static string ToDisplayLabel(StructuralExecutionMode mode) =>
         mode switch
         {

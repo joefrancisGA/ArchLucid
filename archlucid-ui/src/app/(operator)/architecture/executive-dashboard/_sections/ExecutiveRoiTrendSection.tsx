@@ -14,6 +14,7 @@ import {
   filterHistoryPointsByRange,
 } from "@/lib/executive-time-range";
 import { BUYER_EXECUTIVE_DATA_SOURCE_NOTE } from "@/lib/buyer-polish-copy";
+import { EXECUTION_MODE_ROI_PERIOD_MIX_FOOTNOTE } from "@/lib/execution-mode-honesty";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -178,7 +179,7 @@ export function ExecutiveRoiTrendSection({
                 className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                 data-testid="exec-roi-trend-mixed-mode-footnote"
               >
-                Chart includes both Real and Simulator runs. Hover savings bars for exact monthly savings.
+                {EXECUTION_MODE_ROI_PERIOD_MIX_FOOTNOTE} Hover savings bars for exact monthly savings.
               </p>
             ) : null}
           </div>

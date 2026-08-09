@@ -1,3 +1,5 @@
+using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 
 namespace ArchLucid.Application.Findings;
@@ -22,6 +24,22 @@ public static class FindingInspectTrustLabelEnricher
 
         AgentTrustContext context = FindingInspectTrustContextResolver.Resolve(response);
         FindingTrustSummary summary = mapper.Map(finding, context);
+
+        string? runModeLabel = response.RunStructuralExecutionMode is StructuralExecutionMode mode
+            ? StructuralExecutionModeLabels.ToDisplayLabel(mode)
+            : null;
+
+        string? runModeDetail = response.RunStructuralExecutionMode is StructuralExecutionMode detailMode
+            ? StructuralExecutionModeLabels.ToOperatorDetail(detailMode)
+            : null;
+
+        if (runModeLabel is not null
+            && response.RunStructuralExecutionMode is StructuralExecutionMode persistedMode
+            && !StructuralExecutionModeHonesty.DisplayLabelMatchesPersistedMode(persistedMode, runModeLabel))
+        {
+            throw new InvalidOperationException(
+                "Run execution mode label would promote a non-Real mode to Real (TB-971).");
+        }
 
         return new FindingInspectResponse
         {
@@ -63,6 +81,8 @@ public static class FindingInspectTrustLabelEnricher
             TrustLabelReason = summary.ShortReason,
             RunStructuralExecutionMode = response.RunStructuralExecutionMode,
             RunRealModeFellBackToSimulator = response.RunRealModeFellBackToSimulator,
+            RunExecutionModeDisplayLabel = runModeLabel,
+            RunExecutionModeDetail = runModeDetail,
         };
     }
 }

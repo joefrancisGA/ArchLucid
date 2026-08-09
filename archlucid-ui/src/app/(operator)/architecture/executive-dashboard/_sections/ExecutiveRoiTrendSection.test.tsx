@@ -6,6 +6,7 @@ import {
   buyerPolishedShellVitestOverride,
   extendBuyerPolishedShellVitestMock,
 } from "@/testing/buyer-polished-shell-vitest-override";
+import { EXECUTION_MODE_ROI_PERIOD_MIX_FOOTNOTE } from "@/lib/execution-mode-honesty";
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
   extendBuyerPolishedShellVitestMock(importOriginal),
@@ -70,7 +71,7 @@ describe("ExecutiveRoiTrendSection", () => {
     });
 
     expect(screen.getByTestId("exec-roi-trend-mixed-mode-footnote")).toHaveTextContent(
-      /Chart includes both Real and Simulator runs/i,
+      EXECUTION_MODE_ROI_PERIOD_MIX_FOOTNOTE,
     );
     expect(screen.getByTestId("exec-roi-trend-simulator-only")).toHaveTextContent("Simulator-only");
     expect(screen.getByTestId("exec-roi-trend-svg-chart")).toBeInTheDocument();

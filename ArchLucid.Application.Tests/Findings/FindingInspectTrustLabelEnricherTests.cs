@@ -58,4 +58,21 @@ public sealed class FindingInspectTrustLabelEnricherTests
 
         enriched.TrustLabel.Should().Be(nameof(FindingTrustLabel.DeterministicFallback));
     }
+
+    [Fact]
+    public void Enrich_MixedRun_Surfaces_run_execution_mode_without_promoting_to_Real()
+    {
+        FindingInspectResponse response = new()
+        {
+            FindingId = "f-mixed",
+            Evidence = [new FindingInspectEvidenceItem { Excerpt = "node-1" }],
+            RunStructuralExecutionMode = StructuralExecutionMode.Mixed,
+        };
+
+        FindingInspectResponse enriched = FindingInspectTrustLabelEnricher.Enrich(response, new FindingTrustLabelMapper());
+
+        enriched.RunExecutionModeDisplayLabel.Should().Be("Mixed");
+        enriched.RunExecutionModeDetail.Should().Contain("per-agent traces");
+        enriched.TrustLabel.Should().Be(nameof(FindingTrustLabel.SimulatorDerived));
+    }
 }

@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Findings;
 
 namespace ArchLucid.Application.Findings;
@@ -13,16 +14,16 @@ public static class FindingInspectTrustContextResolver
     {
         ArgumentNullException.ThrowIfNull(response);
 
-        StructuralExecutionMode structuralMode = response.RunStructuralExecutionMode ?? StructuralExecutionMode.Real;
+        StructuralExecutionMode? structuralMode = response.RunStructuralExecutionMode;
         bool realModeFellBackToSimulator = response.RunRealModeFellBackToSimulator ?? false;
 
-        bool isSimulator = structuralMode == StructuralExecutionMode.Simulator
+        bool isSimulator = structuralMode is StructuralExecutionMode.Simulator or StructuralExecutionMode.Mixed
             || IsSimulatorTraceDeployment(response.ModelDeploymentName);
 
-        bool isRealRun = structuralMode == StructuralExecutionMode.Real;
+        bool isRealRun = StructuralExecutionModeHonesty.ShouldTreatRunAsLiveModel(structuralMode);
 
         bool isDegraded = realModeFellBackToSimulator
-            || structuralMode == StructuralExecutionMode.Fallback
+            || structuralMode is StructuralExecutionMode.Fallback or StructuralExecutionMode.Mixed
             || AgentExecutionTraceDegradationProbe.LlmResourceFallbackModelDeployment(response.ModelDeploymentName);
 
         bool isRealModel = isRealRun && !isDegraded && !isSimulator;
