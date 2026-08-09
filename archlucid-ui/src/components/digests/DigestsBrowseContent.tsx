@@ -162,7 +162,7 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
     }
 
     void digestsQuery.refetch();
-  }, [digestsQuery, refreshToken]);
+  }, [refreshToken, digestsQuery.refetch]);
 
   useEffect(() => {
     setSelected(null);

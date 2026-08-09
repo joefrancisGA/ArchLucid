@@ -18,6 +18,5 @@ export function useDigestSubscriptionsQuery() {
     queryFn: () => listDigestSubscriptions(),
     staleTime: OPERATOR_QUERY_STALE_MS,
     gcTime: OPERATOR_QUERY_GC_MS,
-    placeholderData: (previousData) => previousData,
   });
 }
