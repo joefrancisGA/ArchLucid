@@ -4,12 +4,15 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpGovernanceApprovalRoleGuide } from "@/app/(operator)/help/_sections/HelpGovernanceApprovalRoleGuide";
 import { HelpGovernanceApprovalTechnicalReference } from "@/app/(operator)/help/_sections/HelpGovernanceApprovalTechnicalReference";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
+import { MermaidDiagram } from "@/components/help/MermaidDiagram";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   GOVERNANCE_APPROVAL_HELP_COMMON_ACTIONS,
   GOVERNANCE_APPROVAL_HELP_DECISION_OUTCOMES,
+  GOVERNANCE_APPROVAL_HELP_DIAGRAM_SOURCE,
+  GOVERNANCE_APPROVAL_HELP_DIAGRAM_SUMMARY,
   GOVERNANCE_APPROVAL_HELP_GUIDE_HEADINGS,
   GOVERNANCE_APPROVAL_HELP_OVERVIEW,
   GOVERNANCE_APPROVAL_HELP_PAGE_SUBTITLE,
@@ -207,6 +210,16 @@ export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGui
               Governance workflow
             </p>
             <GovernanceWorkflowStepper />
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{GOVERNANCE_APPROVAL_HELP_DIAGRAM_SUMMARY}</p>
+            <div
+              className={cn(
+                "space-y-3 rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800",
+                OPERATOR_TYPOGRAPHY.body,
+              )}
+              data-testid="help-governance-approval-state-diagram"
+            >
+              <MermaidDiagram source={GOVERNANCE_APPROVAL_HELP_DIAGRAM_SOURCE} />
+            </div>
           </section>
 
           <section
