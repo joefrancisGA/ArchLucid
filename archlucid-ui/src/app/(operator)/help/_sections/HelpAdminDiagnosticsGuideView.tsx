@@ -1,32 +1,34 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
-import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
-import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
+import { HelpAdminDiagnosticsHeaderActions } from "@/app/(operator)/help/_sections/HelpAdminDiagnosticsHeaderActions";
+import { HelpAdminDiagnosticsSignalTable } from "@/app/(operator)/help/_sections/HelpAdminDiagnosticsSignalTable";
+import { HelpAdminDiagnosticsSourceLinks } from "@/app/(operator)/help/_sections/HelpAdminDiagnosticsSourceLinks";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
+  ADMIN_DIAGNOSTICS_HELP_ACTION_PANEL_TITLE,
   ADMIN_DIAGNOSTICS_HELP_CANONICAL_PATH,
-  ADMIN_DIAGNOSTICS_HELP_CLAIM_DISCIPLINE,
+  ADMIN_DIAGNOSTICS_HELP_PAGE_ORIENTATION,
+  ADMIN_DIAGNOSTICS_HELP_PAGE_ORIENTATION_TITLE,
   ADMIN_DIAGNOSTICS_HELP_PAGE_SUBTITLE,
   ADMIN_DIAGNOSTICS_HELP_PAGE_TITLE,
   ADMIN_DIAGNOSTICS_HELP_PRIMARY_ACTIONS,
-  ADMIN_DIAGNOSTICS_HELP_SOURCES,
   ADMIN_DIAGNOSTICS_HELP_SOURCES_INTRO,
+  splitAdminDiagnosticsHelpMarkdown,
 } from "@/lib/admin-diagnostics-help-evidence-copy";
 import {
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
-  OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 
@@ -44,7 +46,9 @@ export function HelpAdminDiagnosticsGuideView(
   const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
     helpTopicSlug: entry.slug,
   });
+  const { procedureMarkdown, relatedMarkdown } = splitAdminDiagnosticsHelpMarkdown(preparedMarkdown);
   const headings = extractHelpMarkdownHeadings(preparedMarkdown);
+  const contentGridClass = resolveHelpPageContentGridClass(headings.length);
 
   return (
     <article
@@ -59,21 +63,22 @@ export function HelpAdminDiagnosticsGuideView(
         subtitle={ADMIN_DIAGNOSTICS_HELP_PAGE_SUBTITLE}
         navHref={ADMIN_DIAGNOSTICS_HELP_CANONICAL_PATH}
         metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
-        actions={
-          <div className="flex flex-wrap items-center gap-2" data-testid="help-admin-diagnostics-header-actions">
-            <HelpTopicPdfDownloadButton entry={entry} />
-            <HelpTopicPrintButton entry={entry} />
-          </div>
-        }
+        actions={<HelpAdminDiagnosticsHeaderActions entry={entry} />}
       />
 
       <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
         <Card
           className="border border-neutral-200 bg-al-surface-raised dark:border-neutral-800"
           data-testid="help-admin-diagnostics-action-panel"
+          aria-labelledby="help-admin-diagnostics-action-panel-heading"
         >
           <CardHeader className={OPERATOR_CARD.header}>
-            <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>Start here</CardTitle>
+            <h2
+              id="help-admin-diagnostics-action-panel-heading"
+              className={cn("m-0 text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              {ADMIN_DIAGNOSTICS_HELP_ACTION_PANEL_TITLE}
+            </h2>
             <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               {ADMIN_DIAGNOSTICS_HELP_SOURCES_INTRO}
             </p>
@@ -91,37 +96,43 @@ export function HelpAdminDiagnosticsGuideView(
                 </Link>
               </Button>
             </div>
-            <ul className={cn("m-0 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>
-              {ADMIN_DIAGNOSTICS_HELP_SOURCES.map((link) => (
-                <li key={`${link.href}-${link.label}`}>
-                  <Link className={cn(OPERATOR_LINK.inline, "font-medium")} href={link.href}>
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <HelpAdminDiagnosticsSourceLinks />
           </CardContent>
         </Card>
       </div>
 
-      <div className={HELP_PAGE_LAYOUT.contentGrid}>
+      <div className={contentGridClass}>
         <div className={cn("min-w-0 space-y-6", "max-w-[42rem] lg:max-w-none")}>
-          <aside
-            className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
-            data-testid="help-admin-diagnostics-claim-discipline"
-          >
-            <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Claim discipline</h2>
-            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>{ADMIN_DIAGNOSTICS_HELP_CLAIM_DISCIPLINE}</p>
-          </aside>
-
           <div className={HELP_PAGE_LAYOUT.contentColumn} data-testid="help-admin-diagnostics-content">
             <MarketingAccessibilityMarkdownFragment
-              markdownBody={preparedMarkdown}
+              markdownBody={procedureMarkdown}
               tableCaption={`${entry.title} reference table`}
               presentation="help"
               sourceDocPath={sourceDocPath}
               helpTopicSlug={entry.slug}
             />
+
+            <HelpAdminDiagnosticsSignalTable />
+
+            <aside
+              className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 text-al-text-secondary dark:border-neutral-700 dark:bg-neutral-900/40"
+              data-testid="help-admin-diagnostics-page-orientation"
+            >
+              <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
+                {ADMIN_DIAGNOSTICS_HELP_PAGE_ORIENTATION_TITLE}
+              </h2>
+              <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{ADMIN_DIAGNOSTICS_HELP_PAGE_ORIENTATION}</p>
+            </aside>
+
+            {relatedMarkdown.length > 0 ? (
+              <MarketingAccessibilityMarkdownFragment
+                markdownBody={relatedMarkdown}
+                tableCaption={`${entry.title} related topics`}
+                presentation="help"
+                sourceDocPath={sourceDocPath}
+                helpTopicSlug={entry.slug}
+              />
+            ) : null}
           </div>
         </div>
 

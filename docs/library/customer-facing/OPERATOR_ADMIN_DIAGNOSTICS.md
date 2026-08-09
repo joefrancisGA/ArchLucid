@@ -1,26 +1,17 @@
-> **Scope:** Admin diagnostics — health surfaces and readiness signals for platform health. Not a substitute for engineering deep dives.
-
-# Admin diagnostics
-
-Use these checks when a workspace symptom points to platform health rather than a single architecture review.
-
-## Start here
-
-1. Open [System health](/administration/system-health) in the workspace — live/ready checks and version identity.
-2. On [Workspace Overview](/), expand **Workspace readiness** — per-area status and next actions.
-3. Open **Assistant readiness diagnostics** on [Workspace Overview](/) when LLM or assistant features fail.
-
-## What each signal means
-
-| Signal | Healthy | Needs attention |
-|--------|---------|-----------------|
-| API readiness | Ready | Open System status; capture correlation id from any failed call |
-| SQL / storage | Configured | Check readiness row for database or blob configuration |
-| Search index | Ready when enabled | Degraded search may block global search — note scope |
-| Assistant / LLM | Within budget | Trial or budget banners on Overview explain limits |
-
-## Related Help topics
-
-- [Troubleshooting](/help/troubleshooting) — symptom-first fixes for review and workspace issues.
-- [Report a problem](/help/report-a-problem) — structured support intake with correlation identifiers.
-- [CLI usage](/help/cli-usage) — Admin-only Help topic; also Help drawer Advanced diagnostics.
+> **Scope:** Admin diagnostics — health surfaces and readiness signals for platform health. Not a substitute for engineering deep dives.
+
+# Admin diagnostics
+
+Use these checks when a workspace symptom points to platform health rather than a single architecture review.
+
+## Start here
+
+1. Open [System health](/administration/system-health) in the workspace — live/ready checks and version identity.
+2. On [Workspace Overview](/), expand **Workspace readiness** — per-area status and next actions.
+3. Open **Assistant readiness diagnostics** on [Workspace Overview](/) when LLM or assistant features fail.
+
+## Related Help topics
+
+- [Troubleshooting](/help/troubleshooting) — symptom-first fixes for review and workspace issues.
+- [Report a problem](/help/report-a-problem) — structured support intake with correlation identifiers.
+- [CLI usage](/help/cli-usage) — Admin-only Help topic; also Help drawer Advanced diagnostics.

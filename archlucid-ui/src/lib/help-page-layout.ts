@@ -50,6 +50,18 @@ export const HELP_PAGE_LAYOUT = {
   detailsBody: "mt-3 border-t border-neutral-200 pt-3 dark:border-neutral-700",
 } as const;
 
+/** Minimum `##` / `###` headings before the sticky TOC rail renders. */
+export const HELP_PAGE_MIN_TOC_HEADINGS = 4;
+
+/** Single-column layout when the TOC rail is hidden (fewer than four headings). */
+export function resolveHelpPageContentGridClass(headingCount: number): string {
+  if (headingCount < HELP_PAGE_MIN_TOC_HEADINGS) {
+    return "min-w-0 space-y-6";
+  }
+
+  return HELP_PAGE_LAYOUT.contentGrid;
+}
+
 export const HELP_PAGE_TOC = {
   nav: cn(
     "lg:sticky lg:self-start",

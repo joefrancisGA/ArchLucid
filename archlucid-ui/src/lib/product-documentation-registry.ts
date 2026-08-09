@@ -219,6 +219,8 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "buyer",
     sourcePaths: ["docs/library/AUDIT_EVENT_MODEL.md"],
     pdfStatus: "customer",
+    lastReviewed: "2026-08-09",
+    releaseApplicability: "Applies to V1 GA — audit events and export posture",
   },
   {
     slug: "authentication-sign-in",
@@ -461,9 +463,10 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "admin-diagnostics",
     title: "Admin diagnostics",
     summary:
-      "System status, workspace readiness, assistant diagnostics, and observability signals for platform health.",
+      "System health, workspace readiness, assistant diagnostics, and observability signals for platform health.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md"],
+    pdfStatus: "customer",
     lastReviewed: "2026-08-09",
     releaseApplicability: "Applies to V1 GA — platform health and workspace readiness signals",
   },
