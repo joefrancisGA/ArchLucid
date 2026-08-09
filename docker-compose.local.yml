@@ -1,9 +1,9 @@
 # ArchLucid — minimal local dependencies (SQL only)
 # ────────────────────────────────────────────────────────────────────
 # Overlay for API-only / hot-reload dev when Azurite and Redis are not needed.
-# Matches default appsettings.Development.json: InMemory storage, InMemory background
-# jobs, HotPathCache disabled — SQL still backs DbUp, runs, and governance when
-# ArchLucid:StorageProvider=Sql in user secrets.
+# Matches default appsettings.Development.json: Sql storage against the ArchLucid catalog,
+# in-process background jobs, HotPathCache disabled. Override with user secrets
+# ArchLucid:StorageProvider=InMemory for throwaway API-only runs without SQL.
 #
 # Usage (merge with base compose):
 #   docker compose -f docker-compose.yml -f docker-compose.local.yml up -d
