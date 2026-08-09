@@ -161471,6 +161471,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
         public System.Guid? ProjectId { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("purgeAfterUtc")]
+        public System.DateTimeOffset? PurgeAfterUtc { get; set; } = default!;
+
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
@@ -161554,6 +161557,9 @@ namespace ArchLucid.Api.Client.Generated
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class TenantWorkspacesRecycleBinResponse
     {
+
+        [System.Text.Json.Serialization.JsonPropertyName("retentionDays")]
+        public int? RetentionDays { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("workspaces")]
         public System.Collections.Generic.ICollection<TenantWorkspaceRecycleBinApiDto>? Workspaces { get; set; } = default!;
