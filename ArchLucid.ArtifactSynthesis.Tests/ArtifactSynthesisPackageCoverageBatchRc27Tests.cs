@@ -43,19 +43,13 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc27Tests
     [Theory]
     [InlineData("   ")]
     [InlineData(" ")]
+    [InlineData("\t\t")]
+    [InlineData("\t\r\n")]
     public void FileNameSanitizer_returns_artifact_txt_for_whitespace_only(string input)
     {
         string sanitized = FileNameSanitizer.Sanitize(input);
 
         sanitized.Should().Be("artifact.txt");
-    }
-
-    [Fact]
-    public void FileNameSanitizer_replaces_control_whitespace_with_underscores()
-    {
-        // Tab/CR/LF are invalid file-name chars on Windows, so they become '_' rather than remaining whitespace.
-        FileNameSanitizer.Sanitize("\t\t").Should().Be("__");
-        FileNameSanitizer.Sanitize("\t\r\n").Should().Be("___");
     }
 
     [Fact]

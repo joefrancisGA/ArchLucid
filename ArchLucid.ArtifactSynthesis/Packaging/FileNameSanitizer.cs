@@ -13,6 +13,11 @@ public static class FileNameSanitizer
     {
         ArgumentNullException.ThrowIfNull(fileName);
 
+        // Tab/CR/LF count as whitespace but are not always in Path.GetInvalidFileNameChars (e.g. Linux CI).
+        // Resolve blank names before OS-specific replacement so exports stay consistent across runners.
+        if (string.IsNullOrWhiteSpace(fileName))
+            return "artifact.txt";
+
         string sanitized = new(fileName.Select(c => InvalidChars.Contains(c) ? '_' : c).ToArray());
 
         return string.IsNullOrWhiteSpace(sanitized) ? "artifact.txt" : sanitized;
