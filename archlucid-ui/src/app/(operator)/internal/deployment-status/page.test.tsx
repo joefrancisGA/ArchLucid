@@ -52,7 +52,7 @@ describe("AdminDeploymentStatusPage", () => {
         componentAgreementDetail: "Frontend, API, and worker BUILD_IDs match.",
         overallStatus: "Healthy",
         overallStatusLabel: "Healthy — components agree and readiness is Healthy.",
-        links: [],
+        links: [{ kind: "runbook", label: "Release runbook", url: "https://example.com/runbook" }],
         generatedAtUtc: "2026-07-17T12:01:00Z",
       });
     });
@@ -62,11 +62,16 @@ describe("AdminDeploymentStatusPage", () => {
     render(page);
 
     expect(await screen.findByTestId("admin-deployment-status-page")).toBeInTheDocument();
+    expect(screen.getByTestId("admin-deployment-status-page-lead").textContent).not.toMatch(/BUILD_ID/i);
     expect(screen.getByTestId("admin-deployment-status-overall-tag")).toHaveTextContent("Healthy");
     expect(screen.getByTestId("admin-deployment-status-overall-tag")).toHaveAccessibleName(
       "Overall status: Healthy — components agree and readiness is Healthy.",
     );
     expect(screen.getByTestId("ds-api-build-id").textContent).toContain("frontendsha");
+    const externalLink = screen.getByTestId("ds-external-link-runbook");
+    expect(externalLink).toHaveAttribute("href", "https://example.com/runbook");
+    expect(externalLink).toHaveAttribute("target", "_blank");
+    expect(externalLink).toHaveAccessibleName(/Release runbook.*opens in new tab/i);
     expect(screen.getByTestId("ds-component-agreement").textContent).toMatch(/Match/i);
     expect(screen.getByTestId("admin-deployment-status-overall").textContent).toMatch(/Healthy/i);
 

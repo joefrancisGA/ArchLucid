@@ -3,11 +3,17 @@
 import Link from "next/link";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
+import { ExternalLink } from "@/components/ui/external-link";
 import { StatusTag } from "@/components/ui/status-tag";
 import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { cn } from "@/lib/utils";
 import { displayDeploymentField, deploymentOverallStatusShortLabel, deploymentOverallStatusTagKind, resolveOverallTone } from "@/lib/admin-deployment-status";
+import {
+  ADMIN_DEPLOYMENT_STATUS_DEMO_UNAVAILABLE_DESCRIPTION,
+  ADMIN_DEPLOYMENT_STATUS_EXTERNAL_LINK_NEW_TAB_SUFFIX,
+  ADMIN_DEPLOYMENT_STATUS_PAGE_LEAD,
+} from "@/lib/deployment-status-evidence-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import type { AdminDeploymentStatusPageViewModel } from "./admin-deployment-status-view-model";
@@ -40,7 +46,7 @@ export function AdminDeploymentStatusPageView(props: Props) {
     return (
       <DemoWorkspaceCapabilityUnavailablePanel
         capability="Deployment status"
-        description="In a connected tenant, ArchLucid personnel compare frontend, API, and worker BUILD_IDs here."
+        description={ADMIN_DEPLOYMENT_STATUS_DEMO_UNAVAILABLE_DESCRIPTION}
       />
     );
   }
@@ -56,8 +62,11 @@ export function AdminDeploymentStatusPageView(props: Props) {
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0 flex-1 space-y-1">
             <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Deployment status</h1>
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              Internal view of release identity, health, and whether production components agree on BUILD_ID.
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="admin-deployment-status-page-lead"
+            >
+              {ADMIN_DEPLOYMENT_STATUS_PAGE_LEAD}
             </p>
           </div>
           <PageContextualHelpButton />
@@ -172,14 +181,14 @@ export function AdminDeploymentStatusPageView(props: Props) {
               <ul className="m-0 list-disc space-y-1 pl-5" data-testid="ds-links">
                 {status.links.map((link) => (
                   <li key={`${link.kind}-${link.url}`}>
-                    <a
+                    <ExternalLink
                       href={link.url}
-                      target="_blank"
-                      rel="noreferrer"
                       className="text-al-accent underline-offset-2 hover:underline"
+                      data-testid={`ds-external-link-${link.kind}`}
                     >
                       {link.label}
-                    </a>
+                      <span className="sr-only"> {ADMIN_DEPLOYMENT_STATUS_EXTERNAL_LINK_NEW_TAB_SUFFIX}</span>
+                    </ExternalLink>
                   </li>
                 ))}
               </ul>
