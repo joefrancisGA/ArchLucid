@@ -2194,7 +2194,7 @@ Former standalone body: `docs/go-to-market/INV001_DECIDE_ONCE_COMMITTED_MANIFEST
 
 **Audience:** Principal architects and procurement reviewers who fuse tenant, decide, and commit stories.
 
-**Decision:** Keep three vocabularies separate. Committed golden manifest proves **finalization identity + hash lineage**, not semantic faithfulness, zero AgentTask overlay, or crypto tenant isolation. Tenant single-derivation (**TB-999**) and committed-manifest unit-of-truth (**TB-1003**) matrices are shipped; do not sell the triad as closed while honesty CI (**TB-1000** / **TB-1004**) / DiD erosion (**TB-1232**) / fused triad matrix (**TB-1416**) remain open.
+**Decision:** Keep three vocabularies separate. Committed golden manifest proves **finalization identity + hash lineage**, not semantic faithfulness, zero AgentTask overlay, or crypto tenant isolation. Tenant single-derivation (**TB-999**) and committed-manifest unit-of-truth (**TB-1003**) matrices are shipped; fused triad matrix (**TB-1416**) is shipped in [`INV001_DECIDE_ONCE_COMMITTED_MANIFEST_PA_TRIAD_CHALLENGE_MATRIX.md`](../library/INV001_DECIDE_ONCE_COMMITTED_MANIFEST_PA_TRIAD_CHALLENGE_MATRIX.md). Do not sell the triad as closed while honesty CI (**TB-1000** / **TB-1004** / **TB-1417**) or residual slice contracts (**TB-1122**, **TB-1196**, **TB-1369**, **TB-1277**, **TB-1018**) remain open.
 
 ### Vocabulary (do not fuse)
 
@@ -2223,7 +2223,7 @@ Former standalone body: `docs/go-to-market/INV001_DECIDE_ONCE_COMMITTED_MANIFEST
 
 1. Ask which “decide-once” the buyer means — tenant, quality gate, or architecture commit.
 2. Confirm committed â‰  evidence-grounded / no-overlay / crypto-isolated.
-3. Confirm triad is not sold as closed while **TB-1416** / honesty CI (**TB-1000** / **TB-1004**) / **TB-1232** remain open (tenant **TB-999** and committed-manifest **TB-1003** matrices are Done).
+3. Confirm triad is not sold as closed while honesty CI (**TB-1000** / **TB-1004** / **TB-1417**) or residual slice owners remain open (tenant **TB-999**, committed-manifest **TB-1003**, DiD erosion **TB-1232**, and fused matrix **TB-1416** are Done).
 4. Treat a fourth fused “decide” story as a review finding.
 
 ### Claim boundary
@@ -2232,8 +2232,9 @@ Do not equate INV-001 tenant decide-once with architecture decided once or INV-0
 
 ### Residuals (honest)
 
-- **TB-1416** / **TB-1417** own the fused matrix contract and language guards.
-- Ship-order hint: fused triad matrix **TB-1416** next among residual contracts (**TB-999** / **TB-1003** Done).
+- **TB-1416** **Done** — fused matrix: [`INV001_DECIDE_ONCE_COMMITTED_MANIFEST_PA_TRIAD_CHALLENGE_MATRIX.md`](../library/INV001_DECIDE_ONCE_COMMITTED_MANIFEST_PA_TRIAD_CHALLENGE_MATRIX.md).
+- **TB-1417** **Open** — anti triad-conflation / triad-closed honesty CI (GTM **M-253**).
+- Ship-order hint among open honesty: **TB-1000** + **TB-1004**, then **TB-1417**; residual slices **TB-1122** / **TB-1196** / **TB-1369** / **TB-1277** / **TB-1018**.
 - Complements **M-150** / **M-154** / **M-194** / **M-203** / **M-207** / **M-213** / **M-198** / **M-247**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
 
