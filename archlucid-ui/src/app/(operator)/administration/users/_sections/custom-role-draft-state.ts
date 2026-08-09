@@ -51,6 +51,11 @@ export function dirtyRoleDisplayNames(roles: readonly DraftRole[], baseline: Rol
   return roles.filter((role) => isRoleDirty(role, baseline)).map((role) => roleDisplayLabel(role.name));
 }
 
+/** True when any custom role column still holds unsaved permission edits. */
+export function hasUnsavedRoleEdits(roles: readonly DraftRole[], baseline: RolePermissionBaseline): boolean {
+  return roles.some((role) => isRoleDirty(role, baseline));
+}
+
 /** Add or remove one permission on one custom role column. Built-in columns are never mutated. */
 export function toggleRolePermission(
   roles: readonly DraftRole[],

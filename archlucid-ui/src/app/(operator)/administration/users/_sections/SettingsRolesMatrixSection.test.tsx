@@ -80,18 +80,18 @@ describe("SettingsRolesMatrixSection", () => {
     vi.unstubAllGlobals();
   });
 
-  it("displays the Operator role as Architect and discloses its claim value", async () => {
+  it("displays the Operator role consistently on the roles matrix", async () => {
     stubRolesResponse(rolesWithCustomColumn);
 
     render(<SettingsRolesMatrixSection />);
 
     const summary = await screen.findByTestId("settings-roles-builtin-summary");
-    expect(within(summary).getByText("Architect")).toBeInTheDocument();
-    expect(within(summary).getByText("Claim value: Operator")).toBeInTheDocument();
+    expect(within(summary).getByText("Operator")).toBeInTheDocument();
+    expect(within(summary).queryByText("Claim value: Operator")).not.toBeInTheDocument();
 
-    expect(screen.getByRole("columnheader", { name: /Architect/ })).toBeInTheDocument();
-    expect(screen.queryByRole("columnheader", { name: /^Operator/ })).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Clone Architect role" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: /Operator/ })).toBeInTheDocument();
+    expect(screen.queryByRole("columnheader", { name: /^Architect/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Clone Operator role" })).toBeInTheDocument();
 
     vi.unstubAllGlobals();
   });

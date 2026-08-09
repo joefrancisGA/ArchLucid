@@ -34,6 +34,7 @@ import {
   clonedRoleName,
   type DraftRole,
   dirtyRoleDisplayNames,
+  hasUnsavedRoleEdits,
   isRoleDirty,
   mergeUnsavedRoleEdits,
   restoreRoleToBaseline,
@@ -418,7 +419,7 @@ export function SettingsRolesMatrixSection() {
                 id="new-custom-role-name"
                 value={newRoleName}
                 onChange={(event) => setNewRoleName(event.target.value)}
-                placeholder="Architect without billing"
+                placeholder="Operator without billing"
                 className="mt-1"
               />
             </div>

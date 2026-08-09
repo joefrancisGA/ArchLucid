@@ -3,8 +3,8 @@ import { describe, expect, it } from "vitest";
 import { roleClaimCaption, roleDisplayLabel, roleDisplayLabelDiffersFromClaim } from "./role-display-labels";
 
 describe("role-display-labels", () => {
-  it("displays the Operator role as Architect and leaves other built-ins unchanged", () => {
-    expect(roleDisplayLabel("Operator")).toBe("Architect");
+  it("uses claim-aligned labels for built-in roles", () => {
+    expect(roleDisplayLabel("Operator")).toBe("Operator");
     expect(roleDisplayLabel("Admin")).toBe("Admin");
     expect(roleDisplayLabel("Reader")).toBe("Reader");
     expect(roleDisplayLabel("Auditor")).toBe("Auditor");
@@ -20,8 +20,8 @@ describe("role-display-labels", () => {
     expect(roleDisplayLabel(undefined)).toBe("");
   });
 
-  it("discloses the claim value only when it differs from the displayed label", () => {
-    expect(roleClaimCaption("Operator")).toBe("Claim value: Operator");
+  it("does not disclose a claim caption when label matches the claim value", () => {
+    expect(roleClaimCaption("Operator")).toBeNull();
     expect(roleClaimCaption("Admin")).toBeNull();
     expect(roleClaimCaption("Release manager")).toBeNull();
     expect(roleClaimCaption(null)).toBeNull();
@@ -29,7 +29,7 @@ describe("role-display-labels", () => {
   });
 
   it("reports whether the label differs from the claim value", () => {
-    expect(roleDisplayLabelDiffersFromClaim("Operator")).toBe(true);
+    expect(roleDisplayLabelDiffersFromClaim("Operator")).toBe(false);
     expect(roleDisplayLabelDiffersFromClaim("Reader")).toBe(false);
     expect(roleDisplayLabelDiffersFromClaim(undefined)).toBe(false);
   });

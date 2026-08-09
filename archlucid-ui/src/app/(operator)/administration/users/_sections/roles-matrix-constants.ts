@@ -1,6 +1,6 @@
 import { roleDisplayLabel } from "@/lib/role-display-labels";
 
-/** API/claim role ids. Buyer-facing labels come from `roleDisplayLabel` (`Operator` displays as "Architect"). */
+/** API/claim role ids. Buyer-facing labels come from `roleDisplayLabel` (aligned with built-in summaries). */
 export type BuiltinRoleName = "Admin" | "Auditor" | "Operator" | "Reader";
 
 export const BUILTIN_ROLE_ORDER: readonly BuiltinRoleName[] = ["Admin", "Auditor", "Operator", "Reader"];

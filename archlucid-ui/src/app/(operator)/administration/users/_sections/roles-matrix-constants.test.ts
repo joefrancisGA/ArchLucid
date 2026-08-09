@@ -2,23 +2,24 @@ import { describe, expect, it } from "vitest";
 
 import {
   BUILTIN_ROLE_ORDER,
+  BUILTIN_ROLE_SUMMARIES,
   CUSTOM_ROLE_START_FROM_OPTIONS,
   hasHighRiskPermissions,
   highRiskPermissionLabels,
   sortMatrixRoles,
   unsavedRoleEditsNotice,
 } from "./roles-matrix-constants";
+import { roleDisplayLabel } from "@/lib/role-display-labels";
 
 describe("roles-matrix-constants", () => {
-  it("labels the Operator start-from option as Architect while keeping the API role id as its value", () => {
-    expect(CUSTOM_ROLE_START_FROM_OPTIONS.map((option) => option.label)).toEqual([
-      "Admin",
-      "Auditor",
-      "Architect",
-      "Reader",
-      "Empty (no permissions)",
-    ]);
-    expect(CUSTOM_ROLE_START_FROM_OPTIONS.find((option) => option.label === "Architect")?.value).toBe("Operator");
+  it("uses start-from labels that match built-in summary display labels", () => {
+    const summaryLabels = BUILTIN_ROLE_SUMMARIES.map((summary) => roleDisplayLabel(summary.name));
+    const startFromLabels = CUSTOM_ROLE_START_FROM_OPTIONS.filter((option) => option.value !== "Empty").map(
+      (option) => option.label,
+    );
+
+    expect(startFromLabels).toEqual(summaryLabels);
+    expect(startFromLabels).toEqual(["Admin", "Auditor", "Operator", "Reader"]);
   });
 
   it("keeps every start-from value seedable against API role names", () => {
