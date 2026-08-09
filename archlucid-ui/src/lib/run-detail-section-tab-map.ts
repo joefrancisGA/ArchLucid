@@ -24,6 +24,7 @@ export const RUN_DETAIL_SECTION_TAB: Readonly<Record<string, ReviewDetailTabId>>
   "technology-baseline": "architecture",
   "architecture-graph": "architecture",
   "pipeline-timeline": "activity",
+  "pipeline-stages": "activity",
   "architecture-assessment-progress": "activity",
   "authority-chain": "activity",
   "agent-forensics": "activity",

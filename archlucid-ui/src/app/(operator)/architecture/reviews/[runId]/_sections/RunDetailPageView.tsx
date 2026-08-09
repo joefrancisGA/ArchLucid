@@ -46,6 +46,7 @@ import {
   formatDecisionSnapshotFindingsLine,
   formatDecisionSnapshotGovernanceOutcome,
 } from "@/lib/run-detail-workspace-derive";
+import { RunDetailActivityTabSectionNav } from "@/components/RunDetailActivityTabSectionNav";
 import { resolvePartialRunCommitBlockedReason } from "@/lib/run-detail-partial-run-commit-block";
 import {
   countRunDetailEvidenceInventoryItems,
@@ -646,6 +647,7 @@ export function RunDetailPageView(props: {
           architecture: architectureTabPanelEl,
           activity: (
             <div className="space-y-4">
+              <RunDetailActivityTabSectionNav />
               {!m.manifestId && m.showProgressTracker ? (
                 <div id="pipeline-timeline" className="scroll-mt-24">
                   <RunDetailProgressTrackerDeferred runId={m.routeRunId} initialSummary={m.progressForPipelineUi} />
