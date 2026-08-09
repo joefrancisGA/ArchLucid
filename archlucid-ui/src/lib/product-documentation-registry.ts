@@ -464,6 +464,8 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
       "System status, workspace readiness, assistant diagnostics, and observability signals for platform health.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md"],
+    lastReviewed: "2026-08-09",
+    releaseApplicability: "Applies to V1 GA — platform health and workspace readiness signals",
   },
   {
     slug: "developer-troubleshooting",

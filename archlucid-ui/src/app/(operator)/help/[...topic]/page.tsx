@@ -6,6 +6,7 @@ import { HelpTopicMarkdownView } from "../HelpTopicMarkdownView";
 import { HelpAcceleratorChooserGuideView } from "../_sections/HelpAcceleratorChooserGuideView";
 import { HelpAlertsGuideView } from "../_sections/HelpAlertsGuideView";
 import { HelpDigestsGuideView } from "../_sections/HelpDigestsGuideView";
+import { HelpAdminDiagnosticsGuideView } from "../_sections/HelpAdminDiagnosticsGuideView";
 import { HelpApiContractsGuideView } from "../_sections/HelpApiContractsGuideView";
 import { HelpBillingAndPlansGuideView } from "../_sections/HelpBillingAndPlansGuideView";
 import { HelpExecutiveSummaryGuideView } from "../_sections/HelpExecutiveSummaryGuideView";
@@ -280,13 +281,7 @@ function renderHelpTopicView(
   }
 
   if (loaded.entry.slug === "admin-diagnostics") {
-    return (
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        showContextualHelp
-      />
-    );
+    return <HelpAdminDiagnosticsGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
   if (loaded.entry.slug === "authentication-sign-in") {

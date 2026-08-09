@@ -6,9 +6,9 @@ Use these checks when a workspace symptom points to platform health rather than 
 
 ## Start here
 
-1. Open **System health** (`/administration/system-health`) in the workspace — live/ready checks and version identity.
-2. On Overview, expand **Workspace readiness** — per-area status and next actions.
-3. Open **Assistant readiness diagnostics** on Overview when LLM or assistant features fail.
+1. Open [System health](/administration/system-health) in the workspace — live/ready checks and version identity.
+2. On [Workspace Overview](/), expand **Workspace readiness** — per-area status and next actions.
+3. Open **Assistant readiness diagnostics** on [Workspace Overview](/) when LLM or assistant features fail.
 
 ## What each signal means
 
@@ -23,4 +23,4 @@ Use these checks when a workspace symptom points to platform health rather than 
 
 - [Troubleshooting](/help/troubleshooting) — symptom-first fixes for review and workspace issues.
 - [Report a problem](/help/report-a-problem) — structured support intake with correlation identifiers.
-- [CLI usage](/help/cli-usage) — `archlucid doctor` and support-bundle commands (Admin-only Help topic; also Help drawer Advanced diagnostics).
+- [CLI usage](/help/cli-usage) — Admin-only Help topic; also Help drawer Advanced diagnostics.

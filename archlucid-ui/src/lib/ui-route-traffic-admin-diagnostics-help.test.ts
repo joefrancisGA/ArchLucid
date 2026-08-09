@@ -64,7 +64,9 @@ describe("ui-route-traffic-admin-diagnostics-help (HAE)", () => {
     expect(row?.path).toBe(ADMIN_DIAGNOSTICS_HELP_TRAFFIC_PATH);
     expect(row?.section).toBe(ADMIN_DIAGNOSTICS_HELP_TRAFFIC_SECTION);
     expect(row?.notes).toBe(ADMIN_DIAGNOSTICS_HELP_TRAFFIC_NOTE);
-    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
+    expect(row?.notes).toContain("HelpAdminDiagnosticsGuideView");
+    expect(row?.notes).toContain("claim-discipline");
+    expect(row?.notes).toContain("self-suppresses");
     expect(row?.notes).toContain("Score 58");
     expect(row?.notes).toContain("cannot improve further toward 80");
   });

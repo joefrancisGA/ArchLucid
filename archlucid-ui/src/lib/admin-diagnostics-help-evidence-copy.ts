@@ -2,6 +2,16 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const ADMIN_DIAGNOSTICS_HELP_CANONICAL_PATH = "/help/admin-diagnostics" as const;
 
+export const ADMIN_DIAGNOSTICS_HELP_PAGE_TITLE = "Admin diagnostics" as const;
+
+export const ADMIN_DIAGNOSTICS_HELP_PAGE_SUBTITLE =
+  "System status, workspace readiness, assistant diagnostics, and observability signals for platform health." as const;
+
+export const ADMIN_DIAGNOSTICS_HELP_PRIMARY_ACTIONS = {
+  openSystemHealth: { label: "Open System health", href: "/administration/system-health" },
+  openWorkspaceOverview: { label: "Workspace Overview", href: "/" },
+} as const;
+
 export const ADMIN_DIAGNOSTICS_HELP_CLAIM_DISCIPLINE =
   "This Admin diagnostics guide orients architects on system status, workspace readiness, and observability signals — it is help orientation, not a signed-review diligence Sources package from your tenant. Open System health, Engineering troubleshooting, or Customer Troubleshooting when you need live probes or triage.";
 
