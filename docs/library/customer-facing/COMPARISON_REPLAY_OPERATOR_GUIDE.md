@@ -4,6 +4,18 @@
 
 Use **Compare** when you need to see what changed between two architecture packages. Use **replay** when you want to regenerate or re-export a comparison you already saved — without re-running a full architecture review.
 
+```mermaid
+flowchart TD
+  START([What do you need?])
+  START --> Q1{Do you have a saved comparison record to regenerate or re-export?}
+  Q1 -->|Yes| Q2{Need drift verification against the stored record?}
+  Q1 -->|No| Q3{Need a delta narrative between two architecture packages?}
+  Q2 -->|Yes| VFY[Replay with verify]
+  Q2 -->|No| RPL[Replay saved comparison]
+  Q3 -->|Yes| CMP[Compare two reviews]
+  Q3 -->|No| NR[Start a new architecture review]
+```
+
 ## When to compare
 
 Compare two reviews when:
