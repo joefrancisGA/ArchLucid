@@ -1,5 +1,5 @@
 ---
-description: Agent shell lifecycle, block_until_ms tiers, one Shell per turn — Windows
+description: Agent shell lifecycle, block_until_ms tiers, parallel shells OK — Windows
 alwaysApply: true
 ---
 
@@ -7,7 +7,7 @@ alwaysApply: true
 
 **No background shells. Stop everything you start before you finish.**
 
-Each **`Shell`** invocation on Windows typically spawns **powershell.exe** (+ **conhost.exe**). Parallel **`Shell`** batches multiply startup cost (~10–20s per call). Prefer **`Read`**, **`Grep`**, **`Glob`**, and **`SemanticSearch`** over shell for exploration.
+Each **`Shell`** invocation on Windows typically spawns **powershell.exe** (+ **conhost.exe**). On capable workstations, **parallel independent `Shell` calls in one turn are allowed** (e.g. tests + git inspection). Prefer **`Read`**, **`Grep`**, and **`Glob`** over shell for exploration-only work.
 
 ## Windows shell (PowerShell only)
 
@@ -28,14 +28,14 @@ Do not switch to WSL/bash just to run Unix text tools unless the user explicitly
 
 ## Hard limits
 
-- **At most one `Shell` tool call per assistant turn.** Never issue multiple `Shell` calls in the same turn, including “run these in parallel.”
+- **Parallel `Shell` calls are allowed** when commands are independent (owner override 2026-08-08). Do not run dependent steps in parallel (e.g. commit before tests finish).
 - Do not background shell commands unless the user explicitly asked for a long-running process.
 - **No nested launcher:** invoke repo scripts directly from repo root (e.g. `.\scripts\ci\agent-compile-check.ps1 -ProjectPath …`), not wrapped in `powershell -NoProfile -File …`.
 - **No WSL / bash / sh** for routine agent work unless the user explicitly requests a Linux shell command.
 - **No speculative shells:** do not run full-solution `dotnet build`, `dotnet test`, `npm`/`pnpm` install, Docker, or broad `git` history unless the user asked or the task cannot complete without it.
 - Never start dev servers, watchers, log tails, or `gh pr checks --watch` unless the user requested them.
 - Before ending a turn that used shells: stop every process you started and report how many agent shells remain.
-- Do not use Task subagents for command execution; reserve them for codebase search and read-only exploration.
+- **Task `shell` subagents** are allowed for command-heavy work per **`Agent-Execution-Policy.mdc`**.
 
 ## `block_until_ms` tiers (Shell tool)
 
@@ -49,15 +49,13 @@ Do not switch to WSL/bash just to run Unix text tools unless the user explicitly
 
 **Never** use **600000** for git, gh, or read-only inspection. If a fast command exceeds 30s, suspect a **hung shell** (see cleanup below), not a need for a longer ceiling.
 
-## Git (single invocation)
+## Git
 
-When git is required, **chain** in one `Shell` call from repo root:
+When git inspection is needed, **`git status`**, **`git diff`**, and **`git log`** may run in **parallel** with other independent shells, or **chained** in one call when only git is needed:
 
 ```powershell
 git status --short; git diff --stat; git log -5 --oneline
 ```
-
-Do **not** split `git status`, `git diff`, and `git log` into separate `Shell` calls.
 
 ## Terminal heartbeat
 
@@ -82,4 +80,4 @@ The script targets Cursor agent one-shot `powershell -c` wrappers and script run
 
 ## User overrides
 
-If the user says **no shell**, **read-only**, or **at most one command per turn**, treat that as stricter than this rule for the rest of the session.
+If the user says **no shell**, **read-only**, or **single-thread / at most one command per turn**, treat that as stricter than this rule for the rest of the session.
