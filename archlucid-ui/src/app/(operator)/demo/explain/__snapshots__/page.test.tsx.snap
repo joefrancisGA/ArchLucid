@@ -71,120 +71,67 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
       </span>
     </div>
     <div
-      class="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 dark:border-amber-700/50 text-xs font-normal leading-[18px] text-al-text-secondary"
+      class="space-y-2 rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900 text-xs font-normal leading-[18px] text-al-text-secondary"
       data-testid="demo-explain-status-banner"
     >
-      <span
-        class="font-semibold"
+      <div
+        class="flex flex-wrap items-center gap-2"
+        data-testid="demo-explain-status-banner-summary"
+        role="status"
       >
-        demo tenant — replace before publishing
-      </span>
-       · review
-       
-      <code>
-        6e8c4a102b1f4c9a9d3e10b2a4f0c501
-      </code>
-       
-      · review 
-      <code>
-        v3
-      </code>
-       
-      · generated 
-      <code>
-        2026-04-20T12:00:00.000Z
-      </code>
+        <span
+          aria-label="Status: demo tenant — replace before publishing"
+          class="inline-flex max-w-full items-center rounded px-1.5 py-0.5 cursor-default select-none pointer-events-none text-[11px] font-medium leading-tight bg-neutral-500/10 text-al-text-secondary dark:bg-neutral-500/15"
+        >
+          demo tenant — replace before publishing
+        </span>
+        <span
+          class="text-neutral-700 dark:text-neutral-300"
+        >
+          Generated 4/20/2026, 12:00:00 PM UTC
+        </span>
+      </div>
+      <div
+        class="rounded-lg border border-neutral-200 bg-neutral-50/70 dark:border-neutral-700 dark:bg-neutral-900/40"
+        data-state="closed"
+      >
+        <button
+          aria-controls="_r_1_"
+          aria-expanded="false"
+          class="inline-flex items-center whitespace-nowrap rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-[color:var(--al-text-primary)] h-auto w-full justify-between gap-2 px-4 py-3 text-left hover:bg-neutral-100/80 dark:hover:bg-neutral-800/60 text-[15px] font-semibold leading-[22px] text-al-text-secondary"
+          data-state="closed"
+          type="button"
+        >
+          <span>
+            Technical details
+          </span>
+          <svg
+            aria-hidden="true"
+            class="lucide lucide-chevron-down h-4 w-4 shrink-0 text-neutral-600 transition-transform dark:text-neutral-400"
+            fill="none"
+            height="24"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="m6 9 6 6 6-6"
+            />
+          </svg>
+        </button>
+        <div
+          data-state="closed"
+          hidden=""
+          id="radix-_r_2_"
+          style=""
+        />
+      </div>
     </div>
   </header>
-  <div
-    class="space-y-3"
-    data-testid="demo-explain-orientation"
-  >
-    <section
-      aria-labelledby="demo-explain-sources-heading"
-      class="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
-      data-testid="demo-explain-sources"
-    >
-      <h2
-        class="m-0 text-[15px] font-semibold leading-[22px] text-al-text-primary"
-        id="demo-explain-sources-heading"
-      >
-        Sources for follow-up
-      </h2>
-      <p
-        class="m-0 mt-1 max-w-3xl text-xs font-normal leading-[18px] text-al-text-secondary"
-      >
-        Use these follow-ups when demo explain turns into starting a real review, validating provenance, or opening buyer/demo orientation.
-      </p>
-      <ul
-        class="m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0 text-xs font-normal leading-[18px] text-al-text-secondary"
-      >
-        <li>
-          <a
-            class="text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] font-medium"
-            href="/architecture/reviews/new"
-          >
-            Start a review
-          </a>
-        </li>
-        <li>
-          <a
-            class="text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] font-medium"
-            href="/internal/replay"
-          >
-            Validate review
-          </a>
-        </li>
-        <li>
-          <a
-            class="text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] font-medium"
-            href="/help/evidence-trail"
-          >
-            Evidence trail help
-          </a>
-        </li>
-        <li>
-          <a
-            class="text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] font-medium"
-            href="/why-archlucid"
-          >
-            Why ArchLucid
-          </a>
-        </li>
-        <li>
-          <a
-            class="text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] font-medium"
-            href="/demo/preview"
-          >
-            Demo preview
-          </a>
-        </li>
-        <li>
-          <a
-            class="text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] font-medium"
-            href="/security-trust"
-          >
-            Assurance status
-          </a>
-        </li>
-      </ul>
-    </section>
-    <aside
-      class="rounded-md border border-amber-200/80 bg-amber-50/50 p-3 dark:border-amber-900/40 dark:bg-amber-950/20"
-      data-testid="demo-explain-claim-discipline"
-    >
-      <h2
-        class="m-0 text-[15px] font-semibold leading-[22px] text-al-text-primary"
-      >
-        Demo proof orientation only
-      </h2>
-      <p
-        class="m-0 mt-2 text-[13px] font-normal leading-5 text-al-text-primary"
-      >
-        This page shows an example provenance graph and citations-bound explanation for a seeded demo review — it is not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open live Reviews, Provenance, or Assurance status when you need workspace packages or assurance claims.
-      </p>
-    </aside>
-  </div>
   <section
     aria-label="Provenance and explanation"
     class="grid grid-cols-1 gap-6 lg:grid-cols-2"
