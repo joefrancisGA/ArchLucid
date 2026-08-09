@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { HelpAuditTrailGuideView } from "@/app/(operator)/help/_sections/HelpAuditTrailGuideView";
@@ -72,5 +72,37 @@ describe("HelpTopicAuditTrail", () => {
     expect(screen.getByTestId("help-audit-trail-breadcrumb")).toHaveTextContent("Help");
     expect(screen.getByTestId("help-audit-trail-immutability-claims")).toBeInTheDocument();
     expect(screen.queryByTestId("help-audit-trail-refresh-button")).toBeNull();
+  });
+
+  it("keeps technical reference collapsed by default and mounts engineering detail after expand", async () => {
+    if (loaded === null) {
+      throw new Error("Expected audit-trail documentation to load.");
+    }
+
+    render(<HelpAuditTrailGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    const technicalReference = screen.getByTestId("help-audit-trail-technical-reference");
+    expect(technicalReference).not.toHaveAttribute("open");
+    expect(screen.queryByTestId("help-audit-trail-technical-reference-body")).toBeNull();
+
+    fireEvent.click(within(technicalReference).getByText("Technical reference"));
+
+    expect(await screen.findByTestId("help-audit-trail-technical-reference-body")).toBeInTheDocument();
+  });
+
+  it("mounts technical reference body when hash navigation opens details without a toggle event", async () => {
+    if (loaded === null) {
+      throw new Error("Expected audit-trail documentation to load.");
+    }
+
+    render(<HelpAuditTrailGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    const technicalReference = screen.getByTestId(
+      "help-audit-trail-technical-reference",
+    ) as HTMLDetailsElement;
+    technicalReference.open = true;
+    window.dispatchEvent(new HashChangeEvent("hashchange"));
+
+    expect(await screen.findByTestId("help-audit-trail-technical-reference-body")).toBeInTheDocument();
   });
 });
