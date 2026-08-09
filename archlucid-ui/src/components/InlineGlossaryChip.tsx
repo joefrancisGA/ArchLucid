@@ -77,7 +77,7 @@ export function InlineGlossaryChip({
             ?
           </button>
         </PopoverTrigger>
-        <PopoverContent side="top" align="start" className="max-w-sm">
+        <PopoverContent className="max-w-sm">
           <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
             {entry.label}
           </p>
