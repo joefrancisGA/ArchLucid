@@ -15,13 +15,16 @@ Create a personal access token (PAT) scoped to the selected Azure DevOps project
 - **Read** access to work items and project metadata (to list projects and work item types)
 - **Write** access to work items (to create items from findings)
 
-Do not grant code, pipeline, release, or organization-administration scopes unless your security policy requires broader tokens for unrelated workflows.
+> **Notice:** Grant only work-item read and write scopes for the target project. Do not grant code, pipeline, release, or organization-administration scopes unless your security policy requires broader tokens for unrelated workflows.
 
 ## Setup steps
 
-1. Open **Integrations → Azure Boards** (workspace administrator).
+1. Open [**Integrations → Azure Boards**](/integrations/azure-boards) (workspace administrator).
 2. Enter your Azure DevOps organization URL (for example `https://dev.azure.com/your-organization`).
-3. Save a **secure reference** to the PAT (Key Vault secret name — the token value is never shown again in ArchLucid).
+3. Save a **secure reference** to the PAT (Key Vault secret name).
+
+   > **Warning:** The PAT value is never shown again in ArchLucid after setup. Store the token only in your vault or secret store reference.
+
 4. Choose the default **project** and **work item type**. Types are loaded from your process template (Agile, Scrum, Basic, CMMI, or custom) — ArchLucid does not assume a universal “Bug” type.
 5. Optionally set area path, iteration path, and default tags.
 6. Run **Test connection** to confirm authentication and project access.
@@ -63,7 +66,7 @@ Informational findings may be skipped when severity mapping does not apply.
 | Create failed | Work item type removed from process, field validation on target project |
 | Duplicate blocked | Open the existing linked work item from the finding panel |
 
-## Known limitations (Phase 1)
+## Known limitations in this release
 
 - No inbound status synchronization from Azure Boards to ArchLucid
 - No Azure Repos, Pipelines, or generic Azure resource integration
@@ -72,12 +75,6 @@ Informational findings may be skipped when severity mapping does not apply.
 
 ## Related
 
+- [Azure Boards integration settings](/integrations/azure-boards) — configure organization URL, PAT reference, and defaults
 - [Integration readiness](/help/integration-readiness) — which connectors are optional after the first architecture package
 - [Findings](/help/findings) — how findings become remediation work
-
-<details>
-<summary>Administrator details — smoke validation</summary>
-
-For connector smoke validation, see `docs/integrations/smoke/CONNECTOR_SMOKE_AZURE_BOARDS.md`.
-
-</details>

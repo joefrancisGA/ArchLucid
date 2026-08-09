@@ -33,6 +33,7 @@ import { HelpRepeatReviewLoopGuideView } from "../_sections/HelpRepeatReviewLoop
 import { HelpSpecialtyWalkthroughTemplatesView } from "../_sections/HelpSpecialtyWalkthroughTemplatesView";
 import { HelpGettingStartedGuideView } from "../_sections/HelpGettingStartedGuideView";
 import { HelpCloudConnectionsGuideView } from "../_sections/HelpCloudConnectionsGuideView";
+import { HelpAzureBoardsGuideView } from "../_sections/HelpAzureBoardsGuideView";
 import { HelpTopicAuthorityGate } from "../_sections/HelpTopicAuthorityGate";
 import { HelpTopicMarkdownClient } from "../_sections/HelpTopicMarkdownClient";
 import { HelpTopicNotFoundView } from "../_sections/HelpTopicNotFoundView";
@@ -299,13 +300,7 @@ function renderHelpTopicView(
   }
 
   if (loaded.entry.slug === "azure-boards") {
-    return (
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        showContextualHelp
-      />
-    );
+    return <HelpAzureBoardsGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
   if (loaded.entry.slug === "policy-packs") {
