@@ -1076,7 +1076,7 @@ Former standalone body: `docs/go-to-market/QUALITY_GATE_VERSIONING_PA_ONE_PAGER.
 
 - **TB-972** **Done** — versioning + historical immutability contract: [`QUALITY_GATE_DEFINITION_VERSIONING_CONTRACT.md`](../library/QUALITY_GATE_DEFINITION_VERSIONING_CONTRACT.md).
 - **TB-973** **Done** — durable version/hash on traces + `recorded` vs `advisoryCurrent` API split ([`AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md)).
-- **TB-974** remains open for wrong-gate remediation playbook.
+- **TB-974** **Done** — wrong-gate remediation playbook: [`QUALITY_GATE_WRONG_DEFINITION_MIGRATION_PLAYBOOK.md`](../library/QUALITY_GATE_WRONG_DEFINITION_MIGRATION_PLAYBOOK.md).
 - **TB-964** separately owns durable quality-outcome completeness.
 - Do not claim perfect gate calibration or full historical immutability **implementation** before **TB-973** ships.
 

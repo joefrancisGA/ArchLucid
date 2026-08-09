@@ -8,7 +8,7 @@
 **Buyer / PA one-pager:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#quality-gate-versioning-m-130) (GTM **M-129** / **M-130**).  
 **Execution vs quality taxonomy:** [`LLM_EXECUTION_VS_QUALITY_OUTCOME.md`](LLM_EXECUTION_VS_QUALITY_OUTCOME.md) (TB-963).  
 **Reference types:** `ArchLucid.Core.QualityGates.QualityGateDefinitionSnapshot`, `QualityGateDefinitionFingerprint`.  
-**Persistence:** **TB-973** **Done** · **Wrong-gate playbook:** **TB-974**.
+**Persistence:** **TB-973** **Done** · **Wrong-gate playbook:** **TB-974** **Done**.
 
 ---
 
@@ -74,7 +74,7 @@ Definitions are **append-only**. Operators publish a new row when floors/mode ch
 
 | Situation | Rule |
 |-----------|------|
-| Later-found **wrong gate definition** | **TB-974** — deprecate definition, remediate via re-execute or append-only supersession; never silent `UPDATE` |
+| Later-found **wrong gate definition** | **TB-974** **Done** — [`QUALITY_GATE_WRONG_DEFINITION_MIGRATION_PLAYBOOK.md`](QUALITY_GATE_WRONG_DEFINITION_MIGRATION_PLAYBOOK.md): deprecate definition, remediate via re-execute or append-only supersession; never silent `UPDATE` |
 | Scorer implementation bug (**TB-255** / **TB-256** Done) | Forward fix + new evaluates; do **not** rewrite committed history |
 | PilotStrict calibration policy | Product policy (**TB-684** Done); versioning contract does not claim perfect calibration |
 
@@ -83,7 +83,7 @@ Definitions are **append-only**. Operators publish a new row when floors/mode ch
 ## Explicit non-claims
 
 - Gate **Accepted** ≠ perpetual factual correctness — pass is **as-of** definition version/hash.
-- Versioning contract ≠ wrong-gate admin playbook (**TB-974**). Full durable score persistence remains **TB-964**.
+- Versioning contract ≠ admin supersede UI (follow-on). Full durable score persistence remains **TB-964**. Wrong-definition playbook: [`QUALITY_GATE_WRONG_DEFINITION_MIGRATION_PLAYBOOK.md`](QUALITY_GATE_WRONG_DEFINITION_MIGRATION_PLAYBOOK.md) (**TB-974** **Done**).
 - Advisory recompute ≠ audit trail correction.
 - Quality-gate pass ≠ execution-mode Real / sponsor ROI (**TB-963**, GTM **M-166**).
 
@@ -95,7 +95,7 @@ Definitions are **append-only**. Operators publish a new row when floors/mode ch
 |----|------|
 | **TB-973** | Persist version/hash; split `recorded` vs `advisoryCurrent` API (**Done**) |
 | **TB-964** | Durable quality-outcome field checklist (reuse snapshot schema) |
-| **TB-974** | Wrong-gate deprecation + remediation playbook |
+| **TB-974** | Wrong-gate deprecation + remediation playbook (**Done**) |
 | **TB-965** | Buyer copy guards (quality HOLD ≠ transport LLM error) |
 
 ---
