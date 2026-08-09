@@ -3,7 +3,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const ROI_SUMMARY_CANONICAL_PATH = "/insights/roi-summary";
 
 export const ROI_SUMMARY_CLAIM_DISCIPLINE =
-  "ROI summary hours and dollar estimates are directional portfolio metrics for the selected window — they are not invoices, audited financial reporting, a signed-review diligence Sources package. Open Architecture reviews, Evidence trail, or Trust Center when you need sponsor-safe trails.";
+  "ROI summary hours and dollar estimates are directional portfolio metrics for the selected window — they are not invoices, audited financial reporting, or a signed-review evidence package. Open Architecture reviews, Evidence trail, or Trust Center when you need sponsor-safe trails.";
 
 export const ROI_SUMMARY_SOURCES_INTRO =
   "Use these follow-ups when ROI summary needs review packages, methodology context, or assurance cites.";

@@ -5,7 +5,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { PilotScorecardPageView } from "@/app/(operator)/insights/architecture-scorecard/_sections/PilotScorecardPageView";
 import type { UsePilotScorecardPageModel } from "@/app/(operator)/insights/architecture-scorecard/_sections/use-pilot-scorecard-page";
 import {
-  REVIEW_SCORECARD_DATA_REQUIREMENT_NOTE,
   REVIEW_SCORECARD_EMPTY_PRIMARY_CTA,
   REVIEW_SCORECARD_EMPTY_SECONDARY_CTA,
   REVIEW_SCORECARD_EMPTY_PREVIEW_SECTION_TITLE,
@@ -58,6 +57,7 @@ function buildModel(overrides: Partial<UsePilotScorecardPageModel> = {}): UsePil
     fieldErrors: { hours: null, reviews: null, rate: null },
     hours: "",
     livePreview: null,
+    metricsAsOfUtc: "2026-01-15T12:00:00.000Z",
     onSaveBaselines: vi.fn(async () => undefined),
     rate: "",
     reviews: "",
@@ -83,12 +83,15 @@ describe("PilotScorecardPageView", () => {
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
   });
 
-  it("renders Sources strip and directional claim discipline (SCX Evidence)", () => {
+  it("renders Sources strip, claim discipline callout, and metrics as-of (SCX Evidence)", () => {
     render(<PilotScorecardPageView model={buildModel()} />);
 
-    expect(screen.queryByTestId("architecture-scorecard-sources")).toBeNull(); // TB-2092
+    expect(screen.getByTestId("architecture-scorecard-sources")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-scorecard-claim-discipline")).toBeInTheDocument();
+    expect(screen.getByTestId("review-scorecard-metrics-as-of")).toHaveTextContent(/Metrics as of/i);
     expect(screen.getAllByText(/directional/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/signed review record/i)).toBeInTheDocument();
+    expect(screen.getByText(/not an evidence trail/i)).toBeInTheDocument();
   });
 
   it("uses consistent Architecture scorecard labeling and customer-safe subtitle", () => {
@@ -101,12 +104,12 @@ describe("PilotScorecardPageView", () => {
     expect(screen.queryByText(/SOURCE:/i)).not.toBeInTheDocument();
   });
 
-  it("renders savings hero CTA, linked primary KPIs, and ROI calculator layout", () => {
+  it("promotes throughput metrics before compact savings hero when ROI is not ready", () => {
     render(<PilotScorecardPageView model={buildModel()} />);
 
     expect(screen.getByTestId("review-scorecard-summary-row")).toBeInTheDocument();
     expect(screen.getByTestId("scorecard-summary-estimated-review-time-savings")).toBeInTheDocument();
-    expect(screen.getByTestId("scorecard-set-roi-assumptions-cta")).toHaveAttribute("href", "#roi-assumptions");
+    expect(screen.getByTestId("scorecard-configure-roi-assumptions-cta")).toHaveAttribute("href", "#roi-assumptions");
     expect(screen.getByTestId("scorecard-summary-reviews-finalized")).toHaveAttribute("href", "/architecture/reviews");
     expect(screen.getByTestId("scorecard-summary-governance-approvals")).toHaveAttribute(
       "href",
@@ -117,11 +120,14 @@ describe("PilotScorecardPageView", () => {
     expect(screen.getByTestId("scorecard-metric-committed-reviews")).toBeInTheDocument();
     expect(screen.queryByTestId("scorecard-metric-finalized-packages")).not.toBeInTheDocument();
     expect(screen.getByTestId("review-scorecard-scope-cue")).toHaveTextContent(/Workspace all-time/i);
-    expect(screen.getByRole("link", { name: "ROI summary" })).toHaveAttribute("href", "/insights/roi-summary");
+    expect(screen.getByTestId("review-scorecard-scope-cue")).not.toHaveTextContent(/commit/i);
+    expect(screen.getAllByRole("link", { name: "ROI summary" })[0]).toHaveAttribute("href", "/insights/roi-summary");
     expect(screen.getByTestId("review-scorecard-roi-assumptions")).toHaveClass("grid");
     expect(screen.getByText("ROI assumptions")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Save ROI assumptions" })).toBeDisabled();
-    expect(screen.getByTestId("review-scorecard-roi-estimate-empty")).toBeInTheDocument();
+    expect(screen.queryByTestId("review-scorecard-roi-estimate-empty")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("review-scorecard-roi-estimate")).not.toBeInTheDocument();
+    expect(screen.getAllByText("View architecture reviews").length).toBeGreaterThan(0);
   });
 
   it("shows live preview when assumptions are complete", () => {
@@ -149,7 +155,14 @@ describe("PilotScorecardPageView", () => {
     expect(screen.getByTestId("review-scorecard-roi-preview-badge")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Save ROI assumptions" })).toBeEnabled();
     expect(screen.getAllByText("$144,000").length).toBeGreaterThanOrEqual(2);
-    expect(screen.queryByTestId("scorecard-set-roi-assumptions-cta")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("scorecard-configure-roi-assumptions-cta")).not.toBeInTheDocument();
+    expect(screen.getByTestId("review-scorecard-roi-estimate")).toBeInTheDocument();
+  });
+
+  it("opens methodology section by default", () => {
+    render(<PilotScorecardPageView model={buildModel()} />);
+
+    expect(screen.getByText(/50% review-time reduction lever/i)).toBeInTheDocument();
   });
 
   it("shows an executive-ready empty state when no reviews are committed", () => {
@@ -163,7 +176,6 @@ describe("PilotScorecardPageView", () => {
 
     expect(screen.getByTestId("review-scorecard-empty-state")).toBeInTheDocument();
     expect(screen.getByText("No finalized reviews yet")).toBeInTheDocument();
-    expect(screen.getByText(REVIEW_SCORECARD_DATA_REQUIREMENT_NOTE)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: REVIEW_SCORECARD_EMPTY_PREVIEW_SECTION_TITLE })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: REVIEW_SCORECARD_EMPTY_PRIMARY_CTA })).toHaveAttribute(
       "href",

@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import {
   ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE,
   ARCHITECTURE_SCORECARD_DIRECTIONAL_ROI_HELPER,
+  ARCHITECTURE_SCORECARD_SOURCES,
+  ARCHITECTURE_SCORECARD_SOURCES_INTRO,
 } from "@/lib/architecture-scorecard-page-copy";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
@@ -22,11 +24,13 @@ import {
   REVIEW_SCORECARD_PAGE_SUBTITLE,
   REVIEW_SCORECARD_PAGE_TITLE,
   REVIEW_SCORECARD_ROI_ASSUMPTIONS_HREF,
+  buildReviewScorecardMetricsAsOfLabel,
   buildReviewScorecardMethodologyLines,
   buildReviewScorecardOperationalMetrics,
   buildReviewScorecardScopeCue,
   buildReviewScorecardSummaryRow,
   hasCommittedReviews,
+  hasReviewActivity,
   summarizePrimaryKpiDisplay,
 } from "@/lib/pilot-scorecard-present";
 import { formatUsd } from "@/lib/roi-assumptions";
@@ -40,6 +44,7 @@ import { SPONSOR_REPORT_ROI_SUMMARY_PATH } from "@/lib/sponsor-report-navigation
 import { ReviewScorecardEmptyState } from "./ReviewScorecardEmptyState";
 import {
   ScorecardMetricCard,
+  ScorecardSavingsClaimDiscipline,
   ScorecardSavingsHero,
   ScorecardSummaryTile,
 } from "./ScorecardMetricCard";
@@ -81,6 +86,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
     fieldErrors,
     hours,
     livePreview,
+    metricsAsOfUtc,
     onSaveBaselines,
     rate,
     resolvedAnnualSavingsLabel,
@@ -109,6 +115,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
   const methodologyLines =
     displayData !== null ? buildReviewScorecardMethodologyLines(displayData.metricSources) : [];
   const scopeCue = displayData !== null ? buildReviewScorecardScopeCue(displayData) : null;
+  const metricsAsOfLabel = buildReviewScorecardMetricsAsOfLabel(metricsAsOfUtc);
   const displayHours = sampleMode && displayData?.baselines ? String(displayData.baselines.baselineHoursPerReview ?? "") : hours;
   const displayReviews =
     sampleMode && displayData?.baselines ? String(displayData.baselines.baselineReviewsPerQuarter ?? "") : reviews;
@@ -116,21 +123,34 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
     sampleMode && displayData?.baselines ? String(displayData.baselines.baselineArchitectHourlyCost ?? "") : rate;
   const assumptionsReadOnly = sampleMode || !canExecute || saving;
   const showPreviewBadge = previewActive && (assumptionsDirty || resolvedAnnualSavingsLabel === null);
+  const savingsReady = summaryRow?.estimatedReviewTimeSavingsReady === true;
+  const showRoiEstimatePanel = savingsReady || annualSavingsLabel !== null;
+  const reviewActivity = displayData !== null ? hasReviewActivity(displayData) : false;
+  const saveReadinessId = "scorecard-save-readiness";
 
   const finalizedDisplay =
-    summaryRow === null
+    summaryRow === null || displayData === null
       ? null
       : summarizePrimaryKpiDisplay(
           summaryRow.finalizedPackages,
           "Finalize a package to begin tracking completed reviews.",
+          reviewActivity,
         );
   const governanceDisplay =
-    summaryRow === null
+    summaryRow === null || displayData === null
       ? null
       : summarizePrimaryKpiDisplay(
           summaryRow.governanceApprovals,
           "Complete your first approval to begin tracking governance metrics.",
+          reviewActivity,
         );
+
+  const saveReadinessMessage =
+    !canExecute && !sampleMode
+      ? "Sign in with an account that can update workspace assumptions to save ROI inputs."
+      : canExecute && !sampleMode && !assumptionsComplete
+        ? "Enter all three values greater than zero to enable save."
+        : null;
 
   return (
     <OperatorPageContainer variant="dashboard" className="space-y-4" data-testid="review-scorecard-page">
@@ -143,6 +163,14 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
             {scopeCue !== null ? (
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="review-scorecard-scope-cue">
                 {scopeCue}
+              </p>
+            ) : null}
+            {metricsAsOfLabel !== null ? (
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="review-scorecard-metrics-as-of"
+              >
+                {metricsAsOfLabel}
               </p>
             ) : null}
           </div>
@@ -166,13 +194,27 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
         </div>
       </header>
 
-      <p
-        className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-        data-testid="architecture-scorecard-claim-discipline"
-        role="note"
+      <section
+        className="rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-800"
+        aria-labelledby="architecture-scorecard-sources-heading"
+        data-testid="architecture-scorecard-sources"
       >
-        {ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE}
-      </p>
+        <h2 id="architecture-scorecard-sources-heading" className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          Sources
+        </h2>
+        <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {ARCHITECTURE_SCORECARD_SOURCES_INTRO}
+        </p>
+        <ul className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>
+          {ARCHITECTURE_SCORECARD_SOURCES.map((link) => (
+            <li key={`${link.href}-${link.label}`}>
+              <Link className={cn(OPERATOR_LINK.inline, "font-medium")} href={link.href}>
+                {link.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       {sampleMode ? (
         <div
@@ -215,74 +257,158 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
       {displayData !== null && !scorecardEmpty && summaryRow !== null ? (
         <>
           <section aria-label="Primary outcomes" className="space-y-3" data-testid="review-scorecard-summary-row">
-            <ScorecardSavingsHero
-              empty={!summaryRow.estimatedReviewTimeSavingsReady}
-              value={summaryRow.estimatedReviewTimeSavingsLabel}
-              detail={
-                showPreviewBadge && summaryRow.estimatedReviewTimeSavingsReady
-                  ? `${summaryRow.estimatedReviewTimeSavingsDetail} Preview updates as you edit — save to persist for the workspace.`
-                  : summaryRow.estimatedReviewTimeSavingsDetail
-              }
-              secondaryLabel={
-                summaryRow.estimatedReviewTimeSavingsReady && quarterlySavingsLabel !== null
-                  ? `≈ ${quarterlySavingsLabel} per quarter`
-                  : null
-              }
-              actionHref={!summaryRow.estimatedReviewTimeSavingsReady ? REVIEW_SCORECARD_ROI_ASSUMPTIONS_HREF : null}
-              actionLabel={!summaryRow.estimatedReviewTimeSavingsReady ? "Set ROI assumptions" : null}
-            />
+            {!savingsReady ? (
+              <>
+                {finalizedDisplay !== null && governanceDisplay !== null ? (
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <ScorecardSummaryTile
+                      label="Reviews finalized"
+                      value={finalizedDisplay.value}
+                      detail={
+                        finalizedDisplay.state === "measured"
+                          ? "Finalized packages in the current workspace."
+                          : finalizedDisplay.detail
+                      }
+                      empty={finalizedDisplay.empty}
+                      metricState={finalizedDisplay.state}
+                      useKpiEmphasis={finalizedDisplay.useKpiEmphasis}
+                      emphasis="primary"
+                      href={REVIEW_SCORECARD_FINALIZED_HREF}
+                      drillDownLabel="View architecture reviews"
+                    />
+                    <ScorecardSummaryTile
+                      label="Governance approvals"
+                      value={governanceDisplay.value}
+                      detail={
+                        governanceDisplay.state === "measured"
+                          ? "Completed governance approvals in scope."
+                          : governanceDisplay.detail
+                      }
+                      empty={governanceDisplay.empty}
+                      metricState={governanceDisplay.state}
+                      useKpiEmphasis={governanceDisplay.useKpiEmphasis}
+                      emphasis="primary"
+                      href={REVIEW_SCORECARD_GOVERNANCE_HREF}
+                      drillDownLabel="View approval queue"
+                    />
+                  </div>
+                ) : null}
 
-            {finalizedDisplay !== null && governanceDisplay !== null ? (
-              <div className="grid gap-3 sm:grid-cols-2">
-                <ScorecardSummaryTile
-                  label="Reviews finalized"
-                  value={finalizedDisplay.value}
-                  detail={
-                    finalizedDisplay.empty
-                      ? finalizedDisplay.detail
-                      : "Finalized packages in the current workspace."
-                  }
-                  empty={finalizedDisplay.empty}
-                  emphasis="primary"
-                  href={REVIEW_SCORECARD_FINALIZED_HREF}
-                />
-                <ScorecardSummaryTile
-                  label="Governance approvals"
-                  value={governanceDisplay.value}
-                  detail={
-                    governanceDisplay.empty
-                      ? governanceDisplay.detail
-                      : "Completed governance approvals in scope."
-                  }
-                  empty={governanceDisplay.empty}
-                  emphasis="primary"
-                  href={REVIEW_SCORECARD_GOVERNANCE_HREF}
-                />
-              </div>
-            ) : null}
-          </section>
+                <section aria-labelledby="scorecard-metrics">
+                  <h2 id="scorecard-metrics" className={cn("mb-3", OPERATOR_NAV_GROUP_LABEL)}>
+                    Operational metrics
+                  </h2>
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    {operationalMetrics.map((metric) => (
+                      <ScorecardMetricCard
+                        key={metric.key}
+                        title={metric.title}
+                        value={metric.value}
+                        detail={metric.detail}
+                        empty={metric.empty}
+                        metricState={metric.metricState}
+                        useKpiEmphasis={metric.useKpiEmphasis}
+                        href={metric.href}
+                        drillDownLabel={metric.drillDownLabel}
+                        sourceDisclosure={metric.sourceDisclosure}
+                      />
+                    ))}
+                  </div>
+                </section>
 
-          <section aria-labelledby="scorecard-metrics">
-            <h2 id="scorecard-metrics" className={cn("mb-3", OPERATOR_NAV_GROUP_LABEL)}>
-              Operational metrics
-            </h2>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {operationalMetrics.map((metric) => (
-                <ScorecardMetricCard
-                  key={metric.key}
-                  title={metric.title}
-                  value={metric.value}
-                  detail={metric.detail}
-                  empty={metric.empty}
-                  href={metric.href}
-                />
-              ))}
-            </div>
+                <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:items-start">
+                  <ScorecardSavingsHero
+                    compact
+                    empty={!summaryRow.estimatedReviewTimeSavingsReady}
+                    value={summaryRow.estimatedReviewTimeSavingsLabel}
+                    detail={summaryRow.estimatedReviewTimeSavingsDetail}
+                    actionHref={!summaryRow.estimatedReviewTimeSavingsReady ? REVIEW_SCORECARD_ROI_ASSUMPTIONS_HREF : null}
+                    actionLabel={!summaryRow.estimatedReviewTimeSavingsReady ? "Configure ROI assumptions" : null}
+                  />
+                  <ScorecardSavingsClaimDiscipline>{ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE}</ScorecardSavingsClaimDiscipline>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:items-start">
+                  <ScorecardSavingsHero
+                    empty={false}
+                    value={summaryRow.estimatedReviewTimeSavingsLabel}
+                    detail={
+                      showPreviewBadge
+                        ? `${summaryRow.estimatedReviewTimeSavingsDetail} Preview updates as you edit — save to persist for the workspace.`
+                        : summaryRow.estimatedReviewTimeSavingsDetail
+                    }
+                    secondaryLabel={
+                      quarterlySavingsLabel !== null ? `≈ ${quarterlySavingsLabel} per quarter` : null
+                    }
+                  />
+                  <ScorecardSavingsClaimDiscipline>{ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE}</ScorecardSavingsClaimDiscipline>
+                </div>
+
+                {finalizedDisplay !== null && governanceDisplay !== null ? (
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <ScorecardSummaryTile
+                      label="Reviews finalized"
+                      value={finalizedDisplay.value}
+                      detail={
+                        finalizedDisplay.state === "measured"
+                          ? "Finalized packages in the current workspace."
+                          : finalizedDisplay.detail
+                      }
+                      empty={finalizedDisplay.empty}
+                      metricState={finalizedDisplay.state}
+                      useKpiEmphasis={finalizedDisplay.useKpiEmphasis}
+                      emphasis="primary"
+                      href={REVIEW_SCORECARD_FINALIZED_HREF}
+                      drillDownLabel="View architecture reviews"
+                    />
+                    <ScorecardSummaryTile
+                      label="Governance approvals"
+                      value={governanceDisplay.value}
+                      detail={
+                        governanceDisplay.state === "measured"
+                          ? "Completed governance approvals in scope."
+                          : governanceDisplay.detail
+                      }
+                      empty={governanceDisplay.empty}
+                      metricState={governanceDisplay.state}
+                      useKpiEmphasis={governanceDisplay.useKpiEmphasis}
+                      emphasis="primary"
+                      href={REVIEW_SCORECARD_GOVERNANCE_HREF}
+                      drillDownLabel="View approval queue"
+                    />
+                  </div>
+                ) : null}
+
+                <section aria-labelledby="scorecard-metrics-ready">
+                  <h2 id="scorecard-metrics-ready" className={cn("mb-3", OPERATOR_NAV_GROUP_LABEL)}>
+                    Operational metrics
+                  </h2>
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    {operationalMetrics.map((metric) => (
+                      <ScorecardMetricCard
+                        key={metric.key}
+                        title={metric.title}
+                        value={metric.value}
+                        detail={metric.detail}
+                        empty={metric.empty}
+                        metricState={metric.metricState}
+                        useKpiEmphasis={metric.useKpiEmphasis}
+                        href={metric.href}
+                        drillDownLabel={metric.drillDownLabel}
+                        sourceDisclosure={metric.sourceDisclosure}
+                      />
+                    ))}
+                  </div>
+                </section>
+              </>
+            )}
           </section>
 
           <section
             aria-labelledby="roi-assumptions-heading"
-            className="grid gap-4 lg:grid-cols-2 lg:items-start"
+            className={cn("grid gap-4 lg:items-start", showRoiEstimatePanel ? "lg:grid-cols-2" : "")}
             id="roi-assumptions"
             data-testid="review-scorecard-roi-assumptions"
           >
@@ -357,80 +483,78 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
                     </p>
                   ) : null}
                 </label>
+                {saveReadinessMessage !== null ? (
+                  <p
+                    id={saveReadinessId}
+                    className={OPERATOR_TYPOGRAPHY.helper}
+                    data-testid="review-scorecard-assumptions-incomplete"
+                  >
+                    {saveReadinessMessage}
+                  </p>
+                ) : null}
                 <Button
                   type="button"
                   variant="primary"
                   onClick={() => void onSaveBaselines()}
                   disabled={sampleMode || !canSaveAssumptions}
+                  aria-describedby={saveReadinessMessage !== null ? saveReadinessId : undefined}
+                  className="disabled:bg-neutral-200 disabled:text-neutral-700 disabled:opacity-100 dark:disabled:bg-neutral-700 dark:disabled:text-neutral-200"
                   data-testid="review-scorecard-save-assumptions"
                 >
                   {saving ? "Saving…" : "Save ROI assumptions"}
                 </Button>
-                {!canExecute && !sampleMode ? (
-                  <p className={OPERATOR_TYPOGRAPHY.helper}>
-                    Sign in with an account that can update workspace assumptions to save ROI inputs.
-                  </p>
-                ) : null}
-                {canExecute && !sampleMode && !assumptionsComplete ? (
-                  <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="review-scorecard-assumptions-incomplete">
-                    Enter all three values greater than zero to enable save.
-                  </p>
-                ) : null}
               </div>
             </div>
 
-            <div
-              className="rounded-lg border border-neutral-200 border-l-4 border-l-[var(--al-accent-interactive)] bg-al-surface-raised p-4 dark:border-neutral-800"
-              data-testid="review-scorecard-roi-estimate"
-              aria-labelledby="roi-estimate"
-            >
-              <h2 id="roi-estimate" className={OPERATOR_NAV_GROUP_LABEL}>
-                Estimated savings
-              </h2>
-              {showPreviewBadge ? (
-                <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="review-scorecard-roi-preview-badge">
-                  Live preview — save to persist for sponsor exports.
-                </p>
-              ) : null}
-              {annualSavingsLabel !== null ? (
-                <div className="mt-4 space-y-3">
-                  <div>
-                    <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                      Annual estimated savings
-                    </p>
-                    <p className={cn("m-0 mt-1 font-mono text-4xl font-semibold tabular-nums text-al-text-primary")}>
-                      {annualSavingsLabel}
-                    </p>
-                  </div>
-                  <div className="grid gap-3 sm:grid-cols-2">
+            {showRoiEstimatePanel ? (
+              <div
+                className="rounded-lg border border-neutral-200 border-l-4 border-l-[var(--al-accent-interactive)] bg-al-surface-raised p-4 dark:border-neutral-800"
+                data-testid="review-scorecard-roi-estimate"
+                aria-labelledby="roi-estimate"
+              >
+                <h2 id="roi-estimate" className={OPERATOR_NAV_GROUP_LABEL}>
+                  Estimated savings
+                </h2>
+                {showPreviewBadge ? (
+                  <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="review-scorecard-roi-preview-badge">
+                    Live preview — save to persist for sponsor exports.
+                  </p>
+                ) : null}
+                {annualSavingsLabel !== null ? (
+                  <div className="mt-4 space-y-3">
                     <div>
                       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                        Quarterly estimate
+                        Annual estimated savings
                       </p>
-                      <p className={cn("m-0 mt-1 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                        {quarterlySavingsLabel ?? "—"}
+                      <p className={cn("m-0 mt-1 font-mono text-4xl font-semibold tabular-nums text-al-text-primary")}>
+                        {annualSavingsLabel}
                       </p>
                     </div>
-                    <div>
-                      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                        Status quo annual labor
-                      </p>
-                      <p className={cn("m-0 mt-1 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                        {statusQuoCostLabel ?? "—"}
-                      </p>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div>
+                        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                          Quarterly estimate
+                        </p>
+                        <p className={cn("m-0 mt-1 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                          {quarterlySavingsLabel ?? "—"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                          Status quo annual labor
+                        </p>
+                        <p className={cn("m-0 mt-1 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                          {statusQuoCostLabel ?? "—"}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ) : (
-                <p className={cn("mt-4", OPERATOR_TYPOGRAPHY.body)} data-testid="review-scorecard-roi-estimate-empty">
-                  Enter all three ROI assumptions to preview estimated annual savings. The result appears here and in
-                  the savings hero above.
-                </p>
-              )}
-            </div>
+                ) : null}
+              </div>
+            ) : null}
           </section>
 
-          <CollapsibleSection title="How this is calculated" defaultOpen={false} sectionTestId="review-scorecard-methodology">
+          <CollapsibleSection title="How this is calculated" defaultOpen={true} sectionTestId="review-scorecard-methodology">
             <ul className={cn("m-0 list-disc space-y-2 ps-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               {methodologyLines.map((line) => (
                 <li key={line}>{line}</li>

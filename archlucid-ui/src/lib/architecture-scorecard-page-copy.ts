@@ -4,7 +4,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { SPONSOR_REPORT_ROI_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
 
 export const ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE =
-  "Savings figures are directional for pilot value discussions — not financial reporting and not a signed-review diligence Sources trail.";
+  "Savings figures are directional for pilot value discussions — not financial reporting, not a signed review record, and not an evidence trail.";
 
 export const ARCHITECTURE_SCORECARD_SOURCES_INTRO =
   "Open ROI summary, reviews, or methodology help before briefing sponsors from these tiles.";

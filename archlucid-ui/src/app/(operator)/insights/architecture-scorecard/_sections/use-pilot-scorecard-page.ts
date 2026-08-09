@@ -36,6 +36,7 @@ export type UsePilotScorecardPageModel = {
   setHours: (next: string) => void;
   setRate: (next: string) => void;
   setReviews: (next: string) => void;
+  metricsAsOfUtc: string | null;
   resolvedAnnualSavingsLabel: string | null;
   resolvedQuarterlySavingsLabel: string | null;
   resolvedStatusQuoCostLabel: string | null;
@@ -69,6 +70,8 @@ export function usePilotScorecardPage(loaded: PilotScorecardPageServerLoad): Use
   const initialFields = baselineFieldsFromData(loaded.data);
 
   const [data, setData] = useState<PilotScorecardJson | null>(loaded.data);
+  // Stamp only after a successful client refresh so a failed load cannot imply SSR data is current.
+  const [metricsAsOfUtc, setMetricsAsOfUtc] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(loaded.error);
   const [hours, setHours] = useState(initialFields.hours);
   const [reviews, setReviews] = useState(initialFields.reviews);
@@ -83,6 +86,7 @@ export function usePilotScorecardPage(loaded: PilotScorecardPageServerLoad): Use
       // empty payloads do not stick when the operator's active workspace has finalized reviews.
       const json = await getPilotScorecard();
       setData(json);
+      setMetricsAsOfUtc(new Date().toISOString());
 
       if (json.baselines) {
         setHours(json.baselines.baselineHoursPerReview?.toString() ?? "");
@@ -224,6 +228,7 @@ export function usePilotScorecardPage(loaded: PilotScorecardPageServerLoad): Use
     onSaveBaselines,
     rate,
     reviews,
+    metricsAsOfUtc,
     resolvedAnnualSavingsLabel,
     resolvedQuarterlySavingsLabel,
     resolvedStatusQuoCostLabel,
