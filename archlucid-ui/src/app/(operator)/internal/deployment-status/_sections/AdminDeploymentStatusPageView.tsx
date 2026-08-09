@@ -3,11 +3,11 @@
 import Link from "next/link";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
-import { StatusPill } from "@/components/StatusPill";
+import { StatusTag } from "@/components/ui/status-tag";
 import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { cn } from "@/lib/utils";
-import { displayDeploymentField, resolveOverallTone } from "@/lib/admin-deployment-status";
+import { displayDeploymentField, deploymentOverallStatusShortLabel, deploymentOverallStatusTagKind, resolveOverallTone } from "@/lib/admin-deployment-status";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import type { AdminDeploymentStatusPageViewModel } from "./admin-deployment-status-view-model";
@@ -63,7 +63,12 @@ export function AdminDeploymentStatusPageView(props: Props) {
           <PageContextualHelpButton />
         </div>
         <div className="flex flex-wrap items-center gap-3" data-testid="admin-deployment-status-overall">
-          <StatusPill status={overallTone} domain="health" ariaLabel={`Overall status: ${overallTone}`} />
+          <StatusTag
+            kind={deploymentOverallStatusTagKind(overallTone)}
+            label={deploymentOverallStatusShortLabel(overallTone)}
+            aria-label={`Overall status: ${overallLabel}`}
+            data-testid="admin-deployment-status-overall-tag"
+          />
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{overallLabel}</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">

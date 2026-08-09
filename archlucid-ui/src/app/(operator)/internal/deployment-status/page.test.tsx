@@ -62,6 +62,10 @@ describe("AdminDeploymentStatusPage", () => {
     render(page);
 
     expect(await screen.findByTestId("admin-deployment-status-page")).toBeInTheDocument();
+    expect(screen.getByTestId("admin-deployment-status-overall-tag")).toHaveTextContent("Healthy");
+    expect(screen.getByTestId("admin-deployment-status-overall-tag")).toHaveAccessibleName(
+      "Overall status: Healthy — components agree and readiness is Healthy.",
+    );
     expect(screen.getByTestId("ds-api-build-id").textContent).toContain("frontendsha");
     expect(screen.getByTestId("ds-component-agreement").textContent).toMatch(/Match/i);
     expect(screen.getByTestId("admin-deployment-status-overall").textContent).toMatch(/Healthy/i);
@@ -105,6 +109,10 @@ describe("AdminDeploymentStatusPage", () => {
 
     const overall = await screen.findByTestId("admin-deployment-status-overall");
     expect(overall.textContent).toMatch(/Failed/i);
+    expect(screen.getByTestId("admin-deployment-status-overall-tag")).toHaveTextContent("Failed");
+    expect(screen.getByTestId("admin-deployment-status-overall-tag")).toHaveAccessibleName(
+      "Overall status: Failed — Component BUILD_IDs disagree.",
+    );
     expect(screen.getByTestId("ds-component-agreement").textContent).toMatch(/Mismatch/i);
 
     vi.unstubAllGlobals();
