@@ -13,7 +13,7 @@ export type EnterpriseCompactEmptyStateAction = {
 
 export type EnterpriseCompactEmptyStateProps = {
   readonly title: string;
-  readonly description: string;
+  readonly description: ReactNode;
   readonly actions?: readonly EnterpriseCompactEmptyStateAction[];
   /** Optional client actions (e.g. demo seed button) rendered after link actions. */
   readonly footer?: ReactNode;
@@ -39,7 +39,7 @@ export function EnterpriseCompactEmptyState(props: EnterpriseCompactEmptyStatePr
       )}
     >
       <p className={cn("m-0", OPERATOR_TYPE_SCALE.cardTitle, "text-al-text-primary")}>{title}</p>
-      <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-neutral-600 dark:text-neutral-400")}>{description}</p>
+      <div className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-neutral-600 dark:text-neutral-400")}>{description}</div>
       {actionList.length > 0 ? (
         <div className="flex flex-wrap gap-2 pt-1">
           {actionList.map((action, index) => {

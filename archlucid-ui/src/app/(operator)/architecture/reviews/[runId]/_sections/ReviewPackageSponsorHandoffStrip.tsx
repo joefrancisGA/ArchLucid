@@ -5,12 +5,12 @@ import Link from "next/link";
 
 import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { GoldenManifestExportMenu } from "@/components/GoldenManifestExportMenu";
+import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
 import { Button } from "@/components/ui/button";
 import { getRunPackageExportUrl, SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT } from "@/lib/api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import {
-  RUN_DETAIL_SPONSOR_HANDOFF_LEAD,
   RUN_DETAIL_SPONSOR_HANDOFF_MORE_EXPORTS_LABEL,
   RUN_DETAIL_SPONSOR_HANDOFF_TITLE,
 } from "@/lib/run-detail-deliverables-copy";
@@ -43,9 +43,12 @@ export function ReviewPackageSponsorHandoffStrip(
       >
         {RUN_DETAIL_SPONSOR_HANDOFF_TITLE}
       </h2>
-      <p className={cn("m-0 mt-1 max-w-prose text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-        {RUN_DETAIL_SPONSOR_HANDOFF_LEAD}
-      </p>
+      <div className={cn("m-0 mt-1 max-w-prose text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+        Download the executive review summary or architecture report when you are ready to share this finalized{" "}
+        <InlineGlossaryChip nounId="signed-review-record">signed review record</InlineGlossaryChip> internally or with
+        sponsors. Use <InlineGlossaryChip nounId="governance-approval">governance approval</InlineGlossaryChip> when
+        policy sign-off is required.
+      </div>
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <GoldenManifestExportMenu
           runId={props.runId}

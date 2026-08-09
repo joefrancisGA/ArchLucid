@@ -94,7 +94,7 @@ export function OperatorPageHeader({
       </div>
 
       {subtitle != null && (
-        <p
+        <div
           className={cn(
             "m-0 mt-2 max-w-2xl text-neutral-500 dark:text-neutral-400",
             OPERATOR_TYPOGRAPHY.body,
@@ -103,7 +103,7 @@ export function OperatorPageHeader({
           {...(subtitleTestId !== undefined ? { "data-testid": subtitleTestId } : {})}
         >
           {subtitle}
-        </p>
+        </div>
       )}
 
       {metadata != null && (
