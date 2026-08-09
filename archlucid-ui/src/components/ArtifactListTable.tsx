@@ -161,7 +161,11 @@ export function ArtifactListTable(props: {
               {openActionLabel}
             </Link>
             <span className="mx-2 text-neutral-300 dark:text-neutral-600">|</span>
-            <ExportTrackedAnchor href={getArtifactDownloadUrl(manifestId, artifact.artifactId)}>
+            {/* Same affordance as the Open link — a download rendered as plain text reads as disabled. */}
+            <ExportTrackedAnchor
+              className={OPERATOR_LINK.nav}
+              href={getArtifactDownloadUrl(manifestId, artifact.artifactId)}
+            >
               {downloadActionLabel}
             </ExportTrackedAnchor>
             {runId && !hidePilotFeedbackOnArtifacts ? (

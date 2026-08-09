@@ -10,6 +10,7 @@ import {
   deriveRunDetailWorkspaceStatus,
   deriveSubmittedArchitectureText,
   formatDecisionSnapshotFindingsLine,
+  formatDecisionSnapshotGovernanceOutcome,
 } from "@/lib/run-detail-workspace-derive";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { RunSummary } from "@/types/authority";
@@ -190,6 +191,31 @@ describe("run-detail-workspace-derive", () => {
     ]);
 
     expect(label).toBe("Evidence did not surface topology resources");
+  });
+
+  it("qualifies the governance snapshot line when findings block approval", () => {
+    expect(
+      formatDecisionSnapshotGovernanceOutcome({ governanceDecisionLabel: "Pending", blockingFindingCount: 1 }),
+    ).toBe("Pending · blocked by 1 unresolved finding");
+
+    expect(
+      formatDecisionSnapshotGovernanceOutcome({ governanceDecisionLabel: "Pending", blockingFindingCount: 3 }),
+    ).toBe("Pending · blocked by 3 unresolved findings");
+  });
+
+  it("leaves the governance snapshot line alone when nothing blocks approval", () => {
+    expect(
+      formatDecisionSnapshotGovernanceOutcome({ governanceDecisionLabel: "Approved", blockingFindingCount: 0 }),
+    ).toBe("Approved");
+  });
+
+  it("does not append a second blocking qualifier", () => {
+    expect(
+      formatDecisionSnapshotGovernanceOutcome({
+        governanceDecisionLabel: "Finalized · approval blocked",
+        blockingFindingCount: 2,
+      }),
+    ).toBe("Finalized · approval blocked");
   });
 
   it("omits redundant bottom-line narrative when only posture would repeat the summary strip", () => {

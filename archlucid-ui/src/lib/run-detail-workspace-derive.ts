@@ -12,6 +12,7 @@ import {
   type QuickDecisionFinding,
 } from "@/lib/quick-decision-summary-derive";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
+import { evidenceAbsenceFindingLabel } from "@/lib/evidence-absence-finding-copy";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import { isGeneratedIntakeBrief, toReviewDisplayTitle } from "@/lib/review-display-title";
 import {
@@ -577,11 +578,34 @@ export function derivePrimaryConcernLabel(findings: readonly QuickDecisionFindin
     return null;
   }
 
-  if (/no topology resources were found/i.test(title)) {
-    return "Evidence did not surface topology resources";
+  return evidenceAbsenceFindingLabel(title);
+}
+
+/**
+ * Reconciles the Decision snapshot governance line with the header status verdict.
+ *
+ * The header status already encodes blocking state (for example "Finalized · approval blocked"), so a
+ * bare "Pending" in the snapshot reads as a second, competing verdict for the same review. When
+ * approval is blocked, the snapshot restates *why* instead of asserting an independent outcome.
+ */
+export function formatDecisionSnapshotGovernanceOutcome(input: {
+  readonly governanceDecisionLabel: string;
+  readonly blockingFindingCount: number;
+}): string {
+  const label = input.governanceDecisionLabel.trim();
+
+  if (input.blockingFindingCount <= 0) {
+    return label;
   }
 
-  return title;
+  // Already qualified upstream — do not append a second qualifier.
+  if (/blocked/i.test(label)) {
+    return label;
+  }
+
+  const noun = input.blockingFindingCount === 1 ? "finding" : "findings";
+
+  return `${label} · blocked by ${input.blockingFindingCount} unresolved ${noun}`;
 }
 
 /** One-line findings summary for the decision snapshot — reconciles open, blocking, and triage counts. */

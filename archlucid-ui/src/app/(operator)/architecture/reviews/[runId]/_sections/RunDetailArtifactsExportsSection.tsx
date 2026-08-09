@@ -119,9 +119,10 @@ export function RunDetailArtifactsExportsSection(
                 }}
               />
             ) : null}
+            {/* Exports stay secondary — the review's recommended next step owns the only primary affordance. */}
             {usedStaticDemoRun ? (
               <div className="flex max-w-prose flex-col gap-1.5">
-                <Button variant="primary" disabled title={SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT}>
+                <Button variant="outline" disabled title={SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT}>
                   Download architecture review report (DOCX)
                 </Button>
                 <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
@@ -129,7 +130,7 @@ export function RunDetailArtifactsExportsSection(
                 </p>
               </div>
             ) : (
-              <Button variant="primary" asChild>
+              <Button variant="outline" asChild>
                 <ExportTrackedAnchor href={getRunPackageExportUrl(runId, "docx")}>
                   Download architecture review report (DOCX)
                 </ExportTrackedAnchor>
@@ -259,7 +260,7 @@ export function RunDetailArtifactsExportsSection(
           <div className="mt-4 flex flex-col gap-3">
             {buyerPolishedArtifactTable ? (
               <div className="flex flex-wrap items-center gap-3">
-                <Button variant="primary" size="sm" asChild>
+                <Button variant="outline" size="sm" asChild>
                   <ExportTrackedAnchor href={getBundleDownloadUrl(manifestId)}>
                     Download evidence bundle
                   </ExportTrackedAnchor>
