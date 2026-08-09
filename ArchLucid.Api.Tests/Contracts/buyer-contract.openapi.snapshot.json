@@ -15405,6 +15405,17 @@
         },
         "type": "object"
       },
+      "ItsmFindingCorrelationsBatchResponse": {
+        "properties": {
+          "findings": {
+            "items": {
+              "$ref": "#/components/schemas/ItsmFindingCorrelationsByFindingResponse"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "ItsmFindingCorrelationsByFindingResponse": {
         "properties": {
           "correlations": {
