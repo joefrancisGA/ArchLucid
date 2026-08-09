@@ -119,7 +119,8 @@ public sealed class RealAgentExecutorIdempotencyTests
             new NoOpAgentExecutionTraceRecorder(),
             TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
             RealAgentExecutorTestHosting.DevelopmentEnvironment,
-            RealAgentExecutorTestHosting.EmptyConfiguration);
+            RealAgentExecutorTestHosting.EmptyConfiguration,
+            new FixedValueOptionsMonitor<AgentExecutionOptions>(new AgentExecutionOptions { Mode = "Real" }));
     }
 
     private static ArchitectureRequest MinimalRequest() =>

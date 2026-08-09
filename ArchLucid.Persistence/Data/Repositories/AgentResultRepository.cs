@@ -48,6 +48,8 @@ public sealed class AgentResultRepository(
                                      CalibratedConfidence,
                                      ProposedEvidenceJson,
                                      PromptVariantKey,
+                                     TaskStructuralExecutionMode,
+                                     CacheServed,
                                      ResultJson,
                                      CreatedUtc
                                  )
@@ -61,6 +63,8 @@ public sealed class AgentResultRepository(
                                      @CalibratedConfidence,
                                      @ProposedEvidenceJson,
                                      @PromptVariantKey,
+                                     @TaskStructuralExecutionMode,
+                                     @CacheServed,
                                      @ResultJson,
                                      @CreatedUtc
                                  );
@@ -77,6 +81,8 @@ public sealed class AgentResultRepository(
             result.CalibratedConfidence,
             ProposedEvidenceJson = result.ProposedEvidenceJson,
             PromptVariantKey = result.PromptVariantKey,
+            TaskStructuralExecutionMode = (byte?)result.TaskStructuralExecutionMode,
+            CacheServed = result.CacheServed,
             ResultJson = json,
             result.CreatedUtc
         };
@@ -184,6 +190,8 @@ public sealed class AgentResultRepository(
                                      CalibratedConfidence,
                                      ProposedEvidenceJson,
                                      PromptVariantKey,
+                                     TaskStructuralExecutionMode,
+                                     CacheServed,
                                      ResultJson,
                                      CreatedUtc
                                  )
@@ -197,6 +205,8 @@ public sealed class AgentResultRepository(
                                      @CalibratedConfidence,
                                      @ProposedEvidenceJson,
                                      @PromptVariantKey,
+                                     @TaskStructuralExecutionMode,
+                                     @CacheServed,
                                      @ResultJson,
                                      @CreatedUtc
                                  );
@@ -213,6 +223,8 @@ public sealed class AgentResultRepository(
             replacement.CalibratedConfidence,
             ProposedEvidenceJson = replacement.ProposedEvidenceJson,
             PromptVariantKey = replacement.PromptVariantKey,
+            TaskStructuralExecutionMode = (byte?)replacement.TaskStructuralExecutionMode,
+            CacheServed = replacement.CacheServed,
             ResultJson = json,
             replacement.CreatedUtc
         };
@@ -755,6 +767,8 @@ public sealed class AgentResultRepository(
                                         CalibratedConfidence,
                                         ProposedEvidenceJson,
                                         PromptVariantKey,
+                                        TaskStructuralExecutionMode,
+                                        CacheServed,
                                         ResultJson,
                                         CreatedUtc
                                     )
@@ -788,7 +802,7 @@ public sealed class AgentResultRepository(
                 commandText.Append(',');
 
             commandText.Append(
-                $"(@ResultId{i},@TaskId{i},@RunId{i},@AgentType{i},@Confidence{i},@CalibratedConfidence{i},@ProposedEvidenceJson{i},@PromptVariantKey{i},@ResultJson{i},@CreatedUtc{i})");
+                $"(@ResultId{i},@TaskId{i},@RunId{i},@AgentType{i},@Confidence{i},@CalibratedConfidence{i},@ProposedEvidenceJson{i},@PromptVariantKey{i},@TaskStructuralExecutionMode{i},@CacheServed{i},@ResultJson{i},@CreatedUtc{i})");
 
             parameters.Add($"ResultId{i}", result.ResultId);
             parameters.Add($"TaskId{i}", result.TaskId);
@@ -798,6 +812,8 @@ public sealed class AgentResultRepository(
             parameters.Add($"CalibratedConfidence{i}", result.CalibratedConfidence);
             parameters.Add($"ProposedEvidenceJson{i}", result.ProposedEvidenceJson);
             parameters.Add($"PromptVariantKey{i}", result.PromptVariantKey);
+            parameters.Add($"TaskStructuralExecutionMode{i}", (byte?)result.TaskStructuralExecutionMode);
+            parameters.Add($"CacheServed{i}", result.CacheServed);
             parameters.Add($"ResultJson{i}", resultJson);
             parameters.Add($"CreatedUtc{i}", result.CreatedUtc);
         }

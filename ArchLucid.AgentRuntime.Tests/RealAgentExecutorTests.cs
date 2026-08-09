@@ -75,7 +75,8 @@ public sealed class RealAgentExecutorTests
             new NoOpAgentExecutionTraceRecorder(),
             TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
             RealAgentExecutorTestHosting.DevelopmentEnvironment,
-            RealAgentExecutorTestHosting.EmptyConfiguration);
+            RealAgentExecutorTestHosting.EmptyConfiguration,
+            new FixedValueOptionsMonitor<AgentExecutionOptions>(new AgentExecutionOptions { Mode = "Real" }));
     }
 
     [SkippableFact]

@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.ExecutionMode;
 using ArchLucid.Core.Hosting;
 using ArchLucid.Core.Llm;
 using ArchLucid.Core.Llm.Redaction;
@@ -13,6 +14,9 @@ using ArchLucid.Core.Llm.Redaction;
 using Polly;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+
+using ArchLucid.AgentRuntime.Caching;
 
 namespace ArchLucid.AgentRuntime;
 
@@ -28,6 +32,7 @@ internal static class RealAgentExecutorSingleHandlerExecution
         CancellationToken cancellationToken)
     {
         using (AgentHandlerLlmReasoningTrace.BeginHandlerScope())
+        using (LlmCompletionCacheServedAmbient.BeginTaskScope())
         {
             string dispatchKey = AgentTypeKeys.ResolveDispatchKey(task);
 
@@ -190,8 +195,23 @@ internal static class RealAgentExecutorSingleHandlerExecution
 
             string? providerTrace = AgentHandlerLlmReasoningTrace.TryConsumeBuffered();
 
-            return MergeProviderReasoningTrace(dependencies, result, providerTrace);
+            return StampRealHostTaskOutcome(dependencies, MergeProviderReasoningTrace(dependencies, result, providerTrace));
         }
+    }
+
+    private static AgentResult StampRealHostTaskOutcome(
+        RealAgentExecutorExecutionDependencies dependencies,
+        AgentResult result)
+    {
+        StructuralExecutionMode mode = PerTaskStructuralExecutionModeResolver.ForRealHostPath(
+            dependencies.AgentExecutionOptions.CurrentValue);
+
+        TaskExecutionModeOutcomeApplicator.Apply(
+            result,
+            mode,
+            LlmCompletionCacheServedAmbient.CurrentTaskCacheServed);
+
+        return result;
     }
 
     private static AgentResult MergeProviderReasoningTrace(

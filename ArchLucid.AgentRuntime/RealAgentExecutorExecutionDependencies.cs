@@ -29,7 +29,8 @@ internal sealed class RealAgentExecutorExecutionDependencies
         IAgentExecutionTraceRecorder traceRecorder,
         ITechnologyLedgerRepository technologyLedgerRepository,
         IHostEnvironment hostEnvironment,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IOptionsMonitor<AgentExecutionOptions> agentExecutionOptions)
     {
         Handlers = handlers;
         Logger = logger;
@@ -46,6 +47,7 @@ internal sealed class RealAgentExecutorExecutionDependencies
         TechnologyLedgerRepository = technologyLedgerRepository;
         HostEnvironment = hostEnvironment;
         Configuration = configuration;
+        AgentExecutionOptions = agentExecutionOptions;
     }
 
     internal IReadOnlyDictionary<string, IAgentHandler> Handlers { get; }
@@ -77,4 +79,6 @@ internal sealed class RealAgentExecutorExecutionDependencies
     internal IHostEnvironment HostEnvironment { get; }
 
     internal IConfiguration Configuration { get; }
+
+    internal IOptionsMonitor<AgentExecutionOptions> AgentExecutionOptions { get; }
 }

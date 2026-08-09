@@ -115,6 +115,7 @@ public sealed class CachingLlmCompletionClient : IAgentCompletionClient
                 }
 
                 ArchLucidInstrumentation.RecordLlmCompletionCacheHit(agentType);
+                LlmCompletionCacheServedAmbient.MarkServed();
 
                 if (_deferWritesUntilSchemaAdmission())
                 {

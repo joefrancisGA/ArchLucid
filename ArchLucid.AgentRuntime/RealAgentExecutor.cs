@@ -52,7 +52,8 @@ public sealed class RealAgentExecutor : IAgentExecutor
         IAgentExecutionTraceRecorder traceRecorder,
         ITechnologyLedgerRepository technologyLedgerRepository,
         IHostEnvironment hostEnvironment,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IOptionsMonitor<AgentExecutionOptions> agentExecutionOptions)
     {
         ArgumentNullException.ThrowIfNull(handlers);
         ArgumentNullException.ThrowIfNull(logger);
@@ -69,6 +70,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
         ArgumentNullException.ThrowIfNull(technologyLedgerRepository);
         ArgumentNullException.ThrowIfNull(hostEnvironment);
         ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(agentExecutionOptions);
 
         List<IAgentHandler> list = handlers.ToList();
         string[] duplicateKeys = list
@@ -102,7 +104,8 @@ public sealed class RealAgentExecutor : IAgentExecutor
             traceRecorder,
             technologyLedgerRepository,
             hostEnvironment,
-            configuration);
+            configuration,
+            agentExecutionOptions);
     }
 
     /// <inheritdoc />

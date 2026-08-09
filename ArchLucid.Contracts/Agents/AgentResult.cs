@@ -186,4 +186,24 @@ public sealed class AgentResult
         get;
         set;
     }
+
+    /// <summary>
+    ///     Final structural execution mode for this task after execute or selective resume (INV-002 / TB-970).
+    ///     Also persisted in <c>dbo.AgentResults.TaskStructuralExecutionMode</c>.
+    /// </summary>
+    public StructuralExecutionMode? TaskStructuralExecutionMode
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     When true, the task completion was served from LLM response cache; disclosure-only (TB-970).
+    ///     Also persisted in <c>dbo.AgentResults.CacheServed</c>.
+    /// </summary>
+    public bool CacheServed
+    {
+        get;
+        set;
+    }
 }

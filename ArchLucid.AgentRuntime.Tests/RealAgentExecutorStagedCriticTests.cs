@@ -61,7 +61,8 @@ public sealed class RealAgentExecutorStagedCriticTests
             new NoOpAgentExecutionTraceRecorder(),
             technologyLedgerRepository ?? TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
             RealAgentExecutorTestHosting.DevelopmentEnvironment,
-            RealAgentExecutorTestHosting.EmptyConfiguration);
+            RealAgentExecutorTestHosting.EmptyConfiguration,
+            new FixedValueOptionsMonitor<AgentExecutionOptions>(new AgentExecutionOptions { Mode = "Real" }));
     }
 
     private static RealAgentExecutor CreateSut(

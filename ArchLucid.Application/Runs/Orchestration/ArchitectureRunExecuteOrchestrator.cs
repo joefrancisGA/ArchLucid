@@ -765,11 +765,24 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         header.LegacyRunStatus = derived.ToString();
 
         // TB-310: request-time authority pipeline may have sealed anchors; StructuralExecutionMode is immutable then.
-        if (derived is ArchitectureRunStatus.ReadyForCommit && header.GoldenManifestId is null)
+        if (header.GoldenManifestId is null)
         {
-            header.StructuralExecutionMode = StructuralExecutionModeResolver.FromAgentExecutionOptionsAndFallback(
-                _agentExecutionOptions.Value,
-                header.RealModeFellBackToSimulator);
+            IReadOnlyList<AgentResult> persistedResults =
+                await resultRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+
+            StructuralExecutionMode? rollup =
+                RunStructuralExecutionModeRollup.TryResolveFromStampedResults(persistedResults);
+
+            if (rollup is not null)
+            {
+                header.StructuralExecutionMode = rollup.Value;
+            }
+            else if (derived is ArchitectureRunStatus.ReadyForCommit)
+            {
+                header.StructuralExecutionMode = StructuralExecutionModeResolver.FromAgentExecutionOptionsAndFallback(
+                    _agentExecutionOptions.Value,
+                    header.RealModeFellBackToSimulator);
+            }
         }
 
         await runRepository.UpdateAsync(header, cancellationToken);
@@ -850,6 +863,10 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         await _agentResultPostExecutionEnricher
             .EnrichAsync(runId, request, evidence, retryBatch, cancellationToken)
             .ConfigureAwait(false);
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        RunRecord? header = await TryLoadRunHeaderForStampingAsync(runId, scope, cancellationToken);
+        StampTaskExecutionModesOnResults([replacement], header);
 
         await _resultRepository.ReplaceForRunTaskAsync(replacement, cancellationToken);
 
@@ -1039,6 +1056,13 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         IReadOnlyList<AgentEvaluation> evaluations, IArchLucidUnitOfWork uow, CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        if (results.Count > 0)
+        {
+            RunRecord? header = await TryLoadRunHeaderForStampingAsync(results[0].RunId, scope, cancellationToken);
+
+            StampTaskExecutionModesOnResults(results, header);
+        }
 
         if (uow.SupportsExternalTransaction)
         {
@@ -1253,5 +1277,28 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         }
 
         await _runScopedLlmBudgetReservationService.ReleaseAsync(reservationId, cancellationToken);
+    }
+
+    private async Task<RunRecord?> TryLoadRunHeaderForStampingAsync(
+        string runId,
+        ScopeContext scope,
+        CancellationToken cancellationToken)
+    {
+        if (!TryParseRunGuid(runId, out Guid runGuid))
+            return null;
+
+        return await runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+    }
+
+    private void StampTaskExecutionModesOnResults(IReadOnlyList<AgentResult> results, RunRecord? header)
+    {
+        bool isSimulatorHost = !_agentExecutionOptions.Value.Mode.Equals("Real", StringComparison.OrdinalIgnoreCase);
+        bool realModeFellBackToSimulator = header?.RealModeFellBackToSimulator ?? false;
+
+        AgentResultTaskExecutionModePersistStamper.EnsureStamped(
+            results,
+            _agentExecutionOptions.Value,
+            realModeFellBackToSimulator,
+            isSimulatorHost);
     }
 }

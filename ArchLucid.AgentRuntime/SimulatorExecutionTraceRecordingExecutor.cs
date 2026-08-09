@@ -3,7 +3,9 @@ using System.Text.Json;
 using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.ExecutionMode;
 using ArchLucid.Contracts.Requests;
 
 namespace ArchLucid.AgentRuntime;
@@ -81,6 +83,8 @@ public sealed class SimulatorExecutionTraceRecordingExecutor(
                 true,
                 null,
                 cancellationToken: cancellationToken);
+
+            TaskExecutionModeOutcomeApplicator.Apply(result, StructuralExecutionMode.Simulator);
         }
 
         return results;

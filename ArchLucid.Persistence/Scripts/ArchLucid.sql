@@ -313,6 +313,13 @@ BEGIN
 
     IF COL_LENGTH(N'dbo.AgentResults', N'EvidenceProposalPromotedUtc') IS NULL
         ALTER TABLE dbo.AgentResults ADD EvidenceProposalPromotedUtc DATETIME2 NULL;
+
+    IF COL_LENGTH(N'dbo.AgentResults', N'TaskStructuralExecutionMode') IS NULL
+        ALTER TABLE dbo.AgentResults ADD TaskStructuralExecutionMode TINYINT NULL;
+
+    IF COL_LENGTH(N'dbo.AgentResults', N'CacheServed') IS NULL
+        ALTER TABLE dbo.AgentResults ADD CacheServed BIT NOT NULL
+            CONSTRAINT DF_AgentResults_CacheServed DEFAULT (0);
 END
 GO
 
