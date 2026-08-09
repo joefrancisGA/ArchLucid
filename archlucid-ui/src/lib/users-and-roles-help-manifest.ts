@@ -7,6 +7,7 @@ import {
   BUILTIN_ROLE_SUMMARIES,
   type BuiltinRoleName,
 } from "@/app/(operator)/administration/users/_sections/roles-matrix-constants";
+import { roleDisplayLabel } from "@/lib/role-display-labels";
 import { SETTINGS_USERS_USERS_TAB_PATH } from "@/lib/settings-admin-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
@@ -86,14 +87,6 @@ const ROLE_INTENDED_USERS: Readonly<Record<BuiltinRoleName, string>> = {
   Auditor: "Compliance or audit reviewer",
 };
 
-/** Buyer-facing labels — keep claim/API role id `Operator`; display as Architect (UI glossary). */
-const ROLE_DISPLAY_LABELS: Readonly<Record<BuiltinRoleName, string>> = {
-  Admin: "Admin",
-  Operator: "Architect",
-  Reader: "Reader",
-  Auditor: "Auditor",
-};
-
 export const USERS_AND_ROLES_CAPABILITY_LABELS: Readonly<Record<UsersAndRolesCapabilityId, string>> = {
   "view-reviews": "View architectures and reviews",
   "create-reviews": "Create architectures and start reviews",
@@ -113,7 +106,7 @@ export const USERS_AND_ROLES_ROLE_OVERVIEW: readonly UsersAndRolesRoleOverview[]
 
   return {
     id: roleId,
-    label: ROLE_DISPLAY_LABELS[roleId],
+    label: roleDisplayLabel(roleId),
     intendedUser: ROLE_INTENDED_USERS[roleId],
     summary: summary?.description ?? "",
     restrictions: ROLE_RESTRICTIONS[roleId],

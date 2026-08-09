@@ -22,8 +22,10 @@ from archlucid_ui_route_catalog import (
 from archlucid_ui_route_traffic_table import (
     DOC,
     ensure_owner_workbook,
+    format_score_cell,
     parse_hit_pct,
     parse_rows,
+    parse_score_series,
     sort_rows,
     split_document,
     write_table,
@@ -48,6 +50,20 @@ def _is_legacy_merge_stub(notes: str) -> bool:
     return bool(_LEGACY_MERGE_STUB_NOTES.search(notes or ""))
 
 
+def _merge_score_series(existing: dict[str, str], incoming: dict[str, str]) -> str:
+    existing_series = parse_score_series(existing)
+    incoming_series = parse_score_series(incoming)
+    length = max(len(existing_series), len(incoming_series))
+    merged = [
+        max(
+            existing_series[index] if index < len(existing_series) else 0,
+            incoming_series[index] if index < len(incoming_series) else 0,
+        )
+        for index in range(length)
+    ]
+    return format_score_cell(merged)
+
+
 def _merge_rows(existing: dict[str, str], incoming: dict[str, str]) -> dict[str, str]:
     # Prefer the live canonical row (ID + Notes) when a legacy redirect stub collides.
     existing_stub = _is_legacy_merge_stub(existing.get("notes", ""))
@@ -60,10 +76,7 @@ def _merge_rows(existing: dict[str, str], incoming: dict[str, str]) -> dict[str,
         other = incoming
 
     merged = base
-    other_score = int(other["score"])
-    base_score = int(merged["score"])
-    if other_score > base_score:
-        merged["score"] = other["score"]
+    merged["score"] = _merge_score_series(merged, other)
     merged_pct = parse_hit_pct(merged["pct"]) + parse_hit_pct(other["pct"])
     merged["pct"] = f"{merged_pct:g}%"
     if merged.get("notes", "None") == "None" and other.get("notes", "None") != "None":

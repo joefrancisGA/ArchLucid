@@ -117,6 +117,13 @@ def test_build_catalog_skips_rer_run_artifact_preview_redirect_page() -> None:
     assert "/architecture/reviews/[runId]/artifacts/[artifactId]" not in catalog
 
 
+def test_build_catalog_skips_demo_entry_redirect_page() -> None:
+    catalog = build_catalog()
+    assert "/demo" not in catalog
+    assert "/demo/explain" in catalog
+    assert "/demo/preview" in catalog
+
+
 def test_build_catalog_does_not_invent_alerts_inbox_tab_query() -> None:
     catalog = build_catalog()
     assert "/governance/alerts?tab=inbox" not in catalog

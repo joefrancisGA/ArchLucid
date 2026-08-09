@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { sendAdminUserInvitation } from "@/lib/admin-user-invitations";
+import { roleDisplayLabel } from "@/lib/role-display-labels";
 import { showError, showSuccess } from "@/lib/toast";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -138,7 +139,7 @@ export function SettingsRolesInvitePanel({ directoryUnavailable, onRetry, onInvi
           <SelectContent>
             {SETTINGS_ROLES_ASSIGNABLE.map((role) => (
               <SelectItem key={role} value={role}>
-                {role}
+                {roleDisplayLabel(role)}
               </SelectItem>
             ))}
           </SelectContent>

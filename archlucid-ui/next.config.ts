@@ -120,6 +120,11 @@ const nextConfig: NextConfig = {
       { source: "/reviews/:path*", destination: "/architecture/reviews/:path*", permanent: true },
       { source: "/runs", destination: "/architecture/reviews", permanent: true },
       { source: "/runs/:path*", destination: "/architecture/reviews/:path*", permanent: true },
+      {
+        source: "/demo",
+        destination: "/architecture/reviews/claims-intake-modernization?ctoDemoTour=1",
+        permanent: true,
+      },
     ];
   },
   async rewrites() {

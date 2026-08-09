@@ -1172,7 +1172,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "residuals-honest-18",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-972–TB-974 remain open for versioning, durable version/hash persistence, and wrong-gate remediation. - TB-964 separately owns durable quality-outcome completeness. - Do not claim perfect gate calibration or full historical immutability implementation before these items ship."
+    "excerpt": "- TB-972 Done — versioning + historical immutability contract: [`QUALITY_GATE_DEFINITION_VERSIONING_CONTRACT.md`](../library/QUALITY_GATE_DEFINITION_VERSIONING_CONTRACT.md). - TB-973 Done — durable version/hash on traces + `recorded` vs `advisoryCurrent` API split ([`AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUT…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
