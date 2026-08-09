@@ -88,8 +88,13 @@ const RunDetailRetrievalGroundingSection = dynamic(
 type RunDetailBelowFoldSectionsProps = {
   readonly model: RunDetailPageModel;
   readonly context: RunDetailDeferredSectionContext;
-  /** Tabbed buyer workspace renders deliverables on the Evidence tab — skip duplicate anchor here. */
-  readonly skipArtifactsExports?: boolean;
+  /**
+   * `LEGACY_HASH_TO_TAB` already assigns run explanation, deliverables, manifest alerts, and run
+   * actions to the Findings / Evidence / Policies / Signed review record tabs. The tabbed workspace
+   * mounts them there, so this shared block must omit them to avoid rendering the same anchor id on
+   * two tabs. The legacy single-column path passes nothing and still renders every section.
+   */
+  readonly renderedInsideTabbedWorkspace?: boolean;
 };
 
 type BelowFoldAsyncProps = {
@@ -134,10 +139,11 @@ async function RunDetailBelowFoldProjectContextAsync(
 export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProps): React.JSX.Element {
   const m = props.model;
   const findingCoverageSummary = m.resolvedDetail.findingCoverageSummary ?? null;
+  const ownedByAnotherTab = props.renderedInsideTabbedWorkspace === true;
 
   return (
     <>
-      {!m.buyerPolishedArtifactTable && m.manifestId ? (
+      {!ownedByAnotherTab && !m.buyerPolishedArtifactTable && m.manifestId ? (
         <Suspense fallback={<RunDetailExplanationSkeleton />}>
           <RunDetailExplanationDeferred
             runId={m.routeRunId}
@@ -200,10 +206,12 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
 
       {!m.manifestId ? <RunDetailPreFinalizedEmptyState /> : null}
 
-      <RunDetailManifestSummaryAlerts
-        manifestSummaryFailure={m.manifestSummaryFailure}
-        manifestSummaryMalformed={m.manifestSummaryMalformed}
-      />
+      {ownedByAnotherTab ? null : (
+        <RunDetailManifestSummaryAlerts
+          manifestSummaryFailure={m.manifestSummaryFailure}
+          manifestSummaryMalformed={m.manifestSummaryMalformed}
+        />
+      )}
 
       {m.manifestId ? (
         <>
@@ -219,7 +227,7 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
         <RunDetailBelowFoldProjectContextAsync model={m} context={props.context} />
       </Suspense>
 
-      {m.manifestId && props.skipArtifactsExports !== true ? (
+      {m.manifestId && !ownedByAnotherTab ? (
         <RunDetailArtifactsExportsSectionDeferred
           manifestId={m.manifestId}
           runId={m.resolvedDetail.run.runId}
@@ -261,7 +269,7 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
 
       {!m.buyerPolishedArtifactTable ? <RunAgentForensicsSection runId={m.routeRunId} /> : null}
 
-      {!m.buyerPolishedArtifactTable ? (
+      {!m.buyerPolishedArtifactTable && !ownedByAnotherTab ? (
         <RunDetailRunActionsSection
           runId={m.resolvedDetail.run.runId}
           systemName={m.resolvedDetail.run.description?.trim() || m.resolvedDetail.run.runId}
