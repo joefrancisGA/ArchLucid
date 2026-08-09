@@ -1,7 +1,6 @@
 import {
   OPERATOR_HOME_DEMO_SEEDED_SAMPLE_BRIDGE,
   OPERATOR_HOME_DO_THIS_NEXT_SETUP_BRIDGE,
-  OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
   OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA,
   PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY,
 } from "@/lib/buyer-polish-copy";
@@ -14,9 +13,10 @@ import {
 } from "@/lib/finish-setup-wizard-steps";
 import { resolveOperatorHomeWorkspaceReadiness } from "@/lib/operator-home-workspace-readiness";
 import {
-  SHOWCASE_SAMPLE_REVIEW_REGISTRY,
-  showcaseSampleReviewPackageHref,
-} from "@/lib/showcase-sample-review-registry";
+  GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA,
+  buildGoldenSponsorPackageWalkthroughHref,
+  buildGoldenSponsorPackageWalkthroughHrefFromReviewPath,
+} from "@/lib/golden-sponsor-package-walkthrough";
 
 export type EmptyHomeDoThisNextAction = {
   readonly label: string;
@@ -81,14 +81,23 @@ function resolveSampleHref(sampleHref: string | null | undefined): string {
     return sampleHref.trim();
   }
 
-  return showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId);
+  return buildGoldenSponsorPackageWalkthroughHref();
 }
 
 function resolveSampleAction(sampleHref: string | null | undefined): EmptyHomeDoThisNextAction {
+  let href = buildGoldenSponsorPackageWalkthroughHref();
+
+  if (typeof sampleHref === "string" && sampleHref.trim().length > 0) {
+    const trimmed = sampleHref.trim();
+
+    href =
+      buildGoldenSponsorPackageWalkthroughHrefFromReviewPath(trimmed) ?? trimmed;
+  }
+
   return {
     kind: "sample",
-    label: OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
-    href: resolveSampleHref(sampleHref),
+    label: GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA,
+    href,
     bridgeCopy: PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY,
   };
 }

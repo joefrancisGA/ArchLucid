@@ -1,6 +1,7 @@
 "use client";
 
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
+import { GoldenSponsorPackageWalkthroughPanel } from "@/components/golden-walkthrough/GoldenSponsorPackageWalkthroughPanel";
 import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
 import { OperatorHomeNavigateLoadingButton } from "@/components/operator-home/OperatorHomeNavigateLoadingButton";
 import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
@@ -72,42 +73,46 @@ export function OperatorHomeExploreSampleSection(): React.JSX.Element | null {
           {sectionLead}
         </p>
       </div>
-      <div className={cn("grid gap-3 sm:grid-cols-2", reducedProminence ? "mt-3" : "mt-4", OPERATOR_LAYOUT.inlineGap)}>
-        <article className="flex flex-col gap-2" aria-labelledby="operator-home-creation-example-title">
-          <h3 className={cn("m-0", OPERATOR_TYPE_SCALE.sectionTitle)} id="operator-home-creation-example-title">
-            {OPERATOR_HOME_CREATION_EXAMPLE_TITLE}
-          </h3>
-          <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
-            {OPERATOR_HOME_CREATION_EXAMPLE_BODY}
-          </p>
-          <OperatorHomeNavigateLoadingButton
-            variant="outline"
-            size="sm"
-            className="h-8 w-fit"
-            href={creationExampleHref}
-            idleLabel={OPERATOR_HOME_OPEN_CREATION_EXAMPLE_CTA}
-            loadingLabel={OPERATOR_HOME_OPENING_CREATION_EXAMPLE_LABEL}
-            data-testid="operator-home-explore-open-created-sample"
-          />
-        </article>
-        <article className="flex flex-col gap-2" aria-labelledby="operator-home-guided-review-example-title">
-          <h3 className={cn("m-0", OPERATOR_TYPE_SCALE.sectionTitle)} id="operator-home-guided-review-example-title">
-            {OPERATOR_HOME_GUIDED_REVIEW_EXAMPLE_TITLE}
-          </h3>
-          <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
-            {OPERATOR_HOME_GUIDED_REVIEW_EXAMPLE_BODY}
-          </p>
-          <OperatorHomeNavigateLoadingButton
-            variant="outline"
-            size="sm"
-            className="h-8 w-fit"
-            href={runSampleReviewHref}
-            idleLabel={OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA}
-            loadingLabel={OPERATOR_HOME_RUNNING_GUIDED_REVIEW_LABEL}
-            data-testid="operator-home-explore-run-sample-review"
-          />
-        </article>
-      </div>
+      {!reducedProminence ? (
+        <GoldenSponsorPackageWalkthroughPanel compact />
+      ) : (
+        <div className={cn("grid gap-3 sm:grid-cols-2", "mt-3", OPERATOR_LAYOUT.inlineGap)}>
+          <article className="flex flex-col gap-2" aria-labelledby="operator-home-creation-example-title">
+            <h3 className={cn("m-0", OPERATOR_TYPE_SCALE.sectionTitle)} id="operator-home-creation-example-title">
+              {OPERATOR_HOME_CREATION_EXAMPLE_TITLE}
+            </h3>
+            <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
+              {OPERATOR_HOME_CREATION_EXAMPLE_BODY}
+            </p>
+            <OperatorHomeNavigateLoadingButton
+              variant="outline"
+              size="sm"
+              className="h-8 w-fit"
+              href={creationExampleHref}
+              idleLabel={OPERATOR_HOME_OPEN_CREATION_EXAMPLE_CTA}
+              loadingLabel={OPERATOR_HOME_OPENING_CREATION_EXAMPLE_LABEL}
+              data-testid="operator-home-explore-open-created-sample"
+            />
+          </article>
+          <article className="flex flex-col gap-2" aria-labelledby="operator-home-guided-review-example-title">
+            <h3 className={cn("m-0", OPERATOR_TYPE_SCALE.sectionTitle)} id="operator-home-guided-review-example-title">
+              {OPERATOR_HOME_GUIDED_REVIEW_EXAMPLE_TITLE}
+            </h3>
+            <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
+              {OPERATOR_HOME_GUIDED_REVIEW_EXAMPLE_BODY}
+            </p>
+            <OperatorHomeNavigateLoadingButton
+              variant="outline"
+              size="sm"
+              className="h-8 w-fit"
+              href={runSampleReviewHref}
+              idleLabel={OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA}
+              loadingLabel={OPERATOR_HOME_RUNNING_GUIDED_REVIEW_LABEL}
+              data-testid="operator-home-explore-run-sample-review"
+            />
+          </article>
+        </div>
+      )}
     </section>
   );
 }

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_PAGE_CONTAINER, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
+import { GoldenSponsorPackageWalkthroughDestination } from "@/components/golden-walkthrough/GoldenSponsorPackageWalkthroughDestination";
 import { GovernanceModePresentationGate } from "@/components/GovernanceModePresentationGate";
 import { HelpPageSituationRegistrar } from "@/components/help/HelpPageSituationRegistrar";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
@@ -915,15 +916,25 @@ export function RunDetailPageView(props: {
                   </div>
 
                   {reviewPackagePrimaryAction.kind === "send-to-sponsor" && m.manifestId ? (
-                    <ReviewPackageSponsorHandoffStripDeferred
-                      runId={m.resolvedDetail.run.runId}
-                      manifestId={m.manifestId}
-                      goldenManifestJsonForExport={m.goldenManifestJsonForExport}
-                      manifestSummary={m.manifestSummaryForUi ?? m.manifestSummary}
-                      trustEvidenceCard={m.resolvedDetail.trustEvidenceCard}
-                      usedStaticDemoRun={m.usedStaticDemoRun}
-                      showExtendedSponsorBriefing={m.showPilotScorecardPackageCta}
-                    />
+                    <>
+                      <Suspense fallback={null}>
+                        <GoldenSponsorPackageWalkthroughDestination
+                          showSampleWalkthroughDestination={
+                            m.usedStaticDemoRun ||
+                            isShowcaseStaticDemoRunId(m.resolvedDetail.run.runId)
+                          }
+                        />
+                      </Suspense>
+                      <ReviewPackageSponsorHandoffStripDeferred
+                        runId={m.resolvedDetail.run.runId}
+                        manifestId={m.manifestId}
+                        goldenManifestJsonForExport={m.goldenManifestJsonForExport}
+                        manifestSummary={m.manifestSummaryForUi ?? m.manifestSummary}
+                        trustEvidenceCard={m.resolvedDetail.trustEvidenceCard}
+                        usedStaticDemoRun={m.usedStaticDemoRun}
+                        showExtendedSponsorBriefing={m.showPilotScorecardPackageCta}
+                      />
+                    </>
                   ) : null}
                 </>
               )}

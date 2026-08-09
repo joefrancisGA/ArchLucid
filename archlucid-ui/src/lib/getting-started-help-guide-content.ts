@@ -1,7 +1,7 @@
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+import { buildGoldenSponsorPackageWalkthroughHref, GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA, GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_TITLE } from "@/lib/golden-sponsor-package-walkthrough";
 import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 export const GETTING_STARTED_HELP_SUBTITLE =
   "Learn how ArchLucid turns architecture evidence into review findings, decisions, and governance-ready outputs.";
@@ -158,11 +158,11 @@ export type GettingStartedActionCard = {
   readonly ctaLabel: string;
 };
 
-const sampleReviewHref = `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
+const sampleReviewHref = buildGoldenSponsorPackageWalkthroughHref();
 
 export const GETTING_STARTED_HELP_PRIMARY_ACTIONS = {
   startReview: { href: "/architecture/reviews/new", label: BUYER_START_ARCHITECTURE_REVIEW_CTA },
-  sampleReview: { href: sampleReviewHref, label: "Open completed sample" },
+  sampleReview: { href: sampleReviewHref, label: GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA },
   firstReviewGuide: { href: inAppHelpHref("first-architecture-review"), label: "View first review guide" },
 } as const;
 
@@ -174,10 +174,10 @@ export const GETTING_STARTED_HELP_NEXT_ACTION_CARDS: readonly GettingStartedActi
     ctaLabel: BUYER_START_ARCHITECTURE_REVIEW_CTA,
   },
   {
-    title: "Open a sample review",
-    description: "Walk through a completed review to see findings, decisions, and exports.",
+    title: GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_TITLE,
+    description: "Walk through a labeled sample from architecture package to sponsor-ready exports.",
     href: sampleReviewHref,
-    ctaLabel: "Open completed sample",
+    ctaLabel: GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA,
   },
   {
     title: "Learn the vocabulary",

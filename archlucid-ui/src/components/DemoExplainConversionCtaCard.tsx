@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { CLOUD_NEUTRAL_PRIMARY_COPY } from "@/lib/cloud-neutral-primary-copy";
+import { buildGoldenSponsorPackageWalkthroughHref, GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA } from "@/lib/golden-sponsor-package-walkthrough";
 import { viewerCanStartReviewFromDemoExplain } from "@/lib/demo-explain-conversion-auth";
 import {
   DEMO_EXPLAIN_CONVERSION_ANONYMOUS_HEADING,
@@ -77,7 +78,16 @@ export function DemoExplainConversionCtaCard() {
               label="See what you need first"
               variant="text"
             />
-            {canStartReview ? null : (
+            {canStartReview ? (
+              <Button asChild type="button" size="sm" variant="outline">
+                <Link
+                  href={buildGoldenSponsorPackageWalkthroughHref()}
+                  data-testid="demo-explain-conversion-sponsor-walkthrough"
+                >
+                  {GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA}
+                </Link>
+              </Button>
+            ) : (
               <Button asChild type="button" size="sm" variant="outline">
                 <Link href={DEMO_EXPLAIN_CONVERSION_SEE_IT_HREF} data-testid="demo-explain-conversion-see-it">
                   {DEMO_EXPLAIN_CONVERSION_SEE_IT_SECONDARY}

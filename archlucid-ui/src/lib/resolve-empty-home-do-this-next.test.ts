@@ -1,18 +1,18 @@
 import { afterEach, describe, expect, it } from "vitest";
 
 import {
+  GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA,
+  buildGoldenSponsorPackageWalkthroughHref,
+  buildGoldenSponsorPackageWalkthroughHrefFromReviewPath,
+} from "@/lib/golden-sponsor-package-walkthrough";
+import {
   OPERATOR_HOME_DEMO_SEEDED_SAMPLE_BRIDGE,
-  OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
   OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA,
   PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY,
 } from "@/lib/buyer-polish-copy";
 import { FINISH_SETUP_SYSTEM_HEALTH_PATH } from "@/lib/finish-setup-wizard-steps";
 import { resolveEmptyHomeDoThisNext } from "@/lib/resolve-empty-home-do-this-next";
 import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
-import {
-  SHOWCASE_SAMPLE_REVIEW_REGISTRY,
-  showcaseSampleReviewPackageHref,
-} from "@/lib/showcase-sample-review-registry";
 
 describe("resolveEmptyHomeDoThisNext", () => {
   const originalSelfHosted = process.env.NEXT_PUBLIC_ARCHLUCID_SELF_HOSTED;
@@ -35,8 +35,8 @@ describe("resolveEmptyHomeDoThisNext", () => {
     });
 
     expect(action.kind).toBe("sample");
-    expect(action.label).toBe(OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA);
-    expect(action.href).toBe(showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId));
+    expect(action.label).toBe(GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA);
+    expect(action.href).toBe(buildGoldenSponsorPackageWalkthroughHref());
     expect(action.bridgeCopy).toBe(PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY);
   });
 
@@ -51,14 +51,18 @@ describe("resolveEmptyHomeDoThisNext", () => {
     });
 
     expect(action.kind).toBe("sample");
-    expect(action.href).toBe("/architecture/reviews/tenant-featured-run");
+    expect(action.href).toBe(
+      buildGoldenSponsorPackageWalkthroughHrefFromReviewPath(
+        "/architecture/reviews/tenant-featured-run",
+      ),
+    );
   });
 
   it("returns sample package action while setup context is still loading", () => {
     const action = resolveEmptyHomeDoThisNext({ setupContext: null });
 
     expect(action.kind).toBe("sample");
-    expect(action.label).toBe(OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA);
+    expect(action.label).toBe(GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA);
   });
 
   it("returns admin setup CTA when principal is not admin", () => {

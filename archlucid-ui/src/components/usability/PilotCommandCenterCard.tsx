@@ -10,6 +10,7 @@ import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-co
 import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
 import { OperatorHomeDoThisNextCard } from "@/components/operator-home/OperatorHomeDoThisNextCard";
+import { GoldenSponsorPackageWalkthroughPanel } from "@/components/golden-walkthrough/GoldenSponsorPackageWalkthroughPanel";
 import { OperatorHomeDualPathCards } from "@/components/operator-home/OperatorHomeDualPathCards";
 import { OperatorHomeResumeDraftCallout } from "@/components/operator-home/OperatorHomeResumeDraftCallout";
 import { OperatorHomeWorkspaceMetricsSummary } from "@/components/operator-home/OperatorHomeWorkspaceMetricsSummary";
@@ -19,7 +20,6 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
 import {
   OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
-  OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA,
 } from "@/lib/buyer-polish-copy";
 import {
   OPERATOR_CARD,
@@ -35,15 +35,15 @@ import {
   resolveOperatorHomeWorkspacePhase,
 } from "@/lib/resolve-operator-home-workspace-phase";
 import {
-  SHOWCASE_SAMPLE_REVIEW_REGISTRY,
-  showcaseSampleReviewPackageHref,
-} from "@/lib/showcase-sample-review-registry";
+  GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA,
+  buildGoldenSponsorPackageWalkthroughHref,
+} from "@/lib/golden-sponsor-package-walkthrough";
 
 const heroCtaButtonClass = "h-8";
 
 const DEFAULT_NEXT_ACTION: PilotNextBestAction = {
-  label: OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA,
-  href: showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId),
+  label: GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA,
+  href: buildGoldenSponsorPackageWalkthroughHref(),
   bridgeCopy: OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
 };
 
@@ -185,7 +185,10 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
       ) : null}
 
       {workspacePhase === "eval-empty" ? (
-        <OperatorHomeDoThisNextCard />
+        <div className={cn("space-y-4", OPERATOR_LAYOUT.inlineGap)}>
+          <GoldenSponsorPackageWalkthroughPanel />
+          <OperatorHomeDoThisNextCard />
+        </div>
       ) : null}
 
       {workspacePhase === "eval-with-drafts" ? (
