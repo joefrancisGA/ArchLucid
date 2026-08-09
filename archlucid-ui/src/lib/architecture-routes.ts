@@ -16,7 +16,7 @@ export const LEGACY_REVIEWS_LIST_PATH = "/reviews" as const;
 /** Legacy runs list bookmark — retired; canonical is {@link REVIEWS_LIST_PATH}. */
 export const LEGACY_RUNS_LIST_PATH = "/runs" as const;
 
-/** Left-nav Reviews destination — same as {@link REVIEWS_LIST_PATH}; default project scope is applied server-side. */
+/** Left-nav Reviews destination — same as {@link REVIEWS_LIST_PATH}; lists all project slugs in scope server-side. */
 export const REVIEWS_LIST_NAV_HREF = REVIEWS_LIST_PATH;
 
 /** Review intake for an existing architecture or submitted material. */

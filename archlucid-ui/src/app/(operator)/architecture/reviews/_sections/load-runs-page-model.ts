@@ -1,6 +1,10 @@
 import { redirect } from "next/navigation";
 
-import { listRunsByProjectPaged } from "@/lib/api";
+import {
+  listRunsByProjectPaged,
+  listRunsInScopePaged,
+  shouldListReviewsAcrossProjectSlugs,
+} from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { dedupeRunSummariesByRunId, normalizeRunSummaryForDemoPicker } from "@/lib/demo-run-canonical";
@@ -19,12 +23,16 @@ export function formatRunsPageProjectTitle(projectId: string): string {
 /**
  * Fetches paged runs, applies static demo fallbacks when enabled, normalizes rows, and enforces last-page redirect.
  * Call from the server `page`; uses `redirect()` which throws to short-circuit rendering.
+ *
+ * Default / omitted `projectId` lists every authority project slug in the current scope (create stores system name
+ * as the run project slug). Explicit non-default `projectId` still filters to that slug.
  */
 export async function loadRunsPageModel(resolved: RunsPageSearchParams): Promise<RunsPageModel> {
   const projectId = resolved.projectId ?? "default";
   const page = Math.max(1, Number.parseInt(resolved.page ?? "1", 10) || 1);
   const sizeRaw = resolved.pageSize ?? resolved.take ?? "20";
   const pageSize = Math.min(200, Math.max(1, Number.parseInt(sizeRaw, 10) || 20));
+  const listAcrossProjectSlugs = shouldListReviewsAcrossProjectSlugs(resolved.projectId);
 
   const cursorParam = resolved.cursor?.trim();
 
@@ -46,7 +54,9 @@ export async function loadRunsPageModel(resolved: RunsPageSearchParams): Promise
   const scopeHeaders = await resolveServerScopeHeadersForProject(projectId);
 
   try {
-    const raw: unknown = await listRunsByProjectPaged(projectId, page, pageSize, { cursor, scopeHeaders });
+    const raw: unknown = listAcrossProjectSlugs
+      ? await listRunsInScopePaged(page, pageSize, { cursor, scopeHeaders })
+      : await listRunsByProjectPaged(projectId, page, pageSize, { cursor, scopeHeaders });
     const coerced = coerceRunSummaryPaged(raw, { page });
 
     if (!coerced.ok) {

@@ -40,7 +40,7 @@
     <Compile Include="Generated\ArchLucidApiClient.g.cs" />
   </ItemGroup>
 
-  <Target Name="GenerateArchLucidOpenApiClient" BeforeTargets="BeforeCompile" DependsOnTargets="PrepareForBuild">
+  <Target Name="GenerateArchLucidOpenApiClient" BeforeTargets="BeforeCompile" DependsOnTargets="PrepareForBuild" Condition="'$(ArchLucidSkipNSwag)' != 'true'">
     <MakeDir Directories="$(MSBuildProjectDirectory)/Generated" />
     <Exec Command="$(NSwagExe_Net90) run &quot;$(MSBuildProjectDirectory)/nswag.json&quot;"
           WorkingDirectory="$(MSBuildProjectDirectory)" />

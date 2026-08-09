@@ -45,6 +45,18 @@ public interface IAuthorityQueryService
         int take,
         CancellationToken ct);
 
+    /// <summary>
+    ///     Keyset page of runs across all authority project slugs in <paramref name="scope" /> (newest first).
+    ///     Use for operator inventory hubs: create maps <c>SystemName</c> onto the run project slug, so listing only
+    ///     <c>default</c> misses real reviews.
+    /// </summary>
+    Task<(IReadOnlyList<RunSummaryDto> Items, bool HasMore)> ListRunsInScopeKeysetAsync(
+        ScopeContext scope,
+        DateTime? cursorCreatedUtc,
+        Guid? cursorRunId,
+        int take,
+        CancellationToken ct);
+
     /// <summary>Loads a single run’s summary by id within <paramref name="scope" />.</summary>
     /// <returns>The summary, or <see langword="null" /> when the run is missing or out of scope.</returns>
     Task<RunSummaryDto?> GetRunSummaryAsync(
