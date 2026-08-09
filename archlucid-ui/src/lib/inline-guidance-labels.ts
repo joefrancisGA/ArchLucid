@@ -1,6 +1,6 @@
 /** Canonical inline guidance prefixes — longest match first for parsing. */
 export const INLINE_GUIDANCE_LABELS = [
-  "Fastest first-pilot path:",
+  "Quick start:",
   "Start with an example:",
   "What you can do here:",
   "Review and evidence trail:",

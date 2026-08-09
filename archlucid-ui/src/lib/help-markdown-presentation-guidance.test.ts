@@ -27,12 +27,11 @@ describe("emphasizeInlineGuidanceLabels", () => {
     );
   });
 
-  it("bolds fastest first-pilot path scan labels in help markdown", () => {
-    const input =
-      "Fastest first-pilot path: First Real Value (`archlucid try --real`, `ARCHLUCID_REAL_AOAI=1`).";
+  it("bolds quick start scan labels in help markdown", () => {
+    const input = "Quick start: First Real Value (`archlucid try --real`, `ARCHLUCID_REAL_AOAI=1`).";
 
     expect(emphasizeInlineGuidanceLabels(input)).toBe(
-      "**Fastest first-pilot path:** First Real Value (`archlucid try --real`, `ARCHLUCID_REAL_AOAI=1`).",
+      "**Quick start:** First Real Value (`archlucid try --real`, `ARCHLUCID_REAL_AOAI=1`).",
     );
   });
 

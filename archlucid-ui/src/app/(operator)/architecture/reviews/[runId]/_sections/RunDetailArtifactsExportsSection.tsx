@@ -39,6 +39,10 @@ import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR } from "@/lib/first-week-route-guidance";
 import { RUN_DELIVERABLES_PENDING_FINALIZE_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
+import {
+  RUN_DETAIL_DELIVERABLES_BUYER_TABLE_LEAD,
+  RUN_DETAIL_DELIVERABLES_INTRO,
+} from "@/lib/run-detail-deliverables-copy";
 
 export type RunDetailArtifactsExportsSectionProps = {
   readonly manifestId: string;
@@ -103,8 +107,7 @@ export function RunDetailArtifactsExportsSection(
           defaultOpen={deliverablesSectionDefaultOpen}
         >
           <p className={cn("m-0 mb-4 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            Review the decisions, findings, and supporting evidence for this review. Download artifacts for offline
-            review below.
+            {RUN_DETAIL_DELIVERABLES_INTRO}
           </p>
           <div className="mb-4 flex flex-wrap gap-3">
             {showDecisionReceipt ? (
@@ -143,11 +146,7 @@ export function RunDetailArtifactsExportsSection(
           {buyerPolishedArtifactTable ? (
             <div className="m-0 mb-3 space-y-2">
               <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                Rows are grouped by executive and review-board consumers.{" "}
-                <strong className="text-neutral-800 dark:text-neutral-200">Download evidence bundle</strong> is the
-                diligence bundle.{" "}
-                <strong className="text-neutral-800 dark:text-neutral-200">Download review summary</strong> captures a concise
-                narrative handoff aligned to this manifest.
+                {RUN_DETAIL_DELIVERABLES_BUYER_TABLE_LEAD}
               </p>
             </div>
           ) : null}

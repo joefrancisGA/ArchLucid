@@ -49,15 +49,15 @@ const PIPELINE_STEPS: PipelineStepConfig[] = [
     stage: "Finalize",
     icon: Play,
     label: "Finalize review",
-    description: "Finalize the signed review record and export artifacts.",
+    description: "Finalize the signed review record and export deliverables.",
     href: "/architecture/reviews",
   },
   {
     step: 4,
     stage: "Review",
     icon: FileCheck,
-    label: "Review Artifacts",
-    description: "Review, download, and share architecture artifacts.",
+    label: "Review exports",
+    description: "Review, download, and share architecture deliverables.",
     href: "/architecture/reviews",
   },
 ];

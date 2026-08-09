@@ -26,11 +26,12 @@ import {
   REVIEW_TERMINOLOGY_BANNED_REVIEW_ONLY_PACKAGE_LIST_PATTERNS,
   REVIEW_TERMINOLOGY_BUYER_SURFACE_PATHS,
   REVIEW_TERMINOLOGY_FIRST_HOUR_SURFACE_PATHS,
+  REVIEW_TERMINOLOGY_GOLDEN_PATH_SURFACE_PATHS,
   REVIEW_TERMINOLOGY_HIGH_TRAFFIC_SURFACE_PATHS,
   REVIEW_TERMINOLOGY_NAV_EMPTY_GLOSSARY_SURFACE_PATHS,
   REVIEW_TERMINOLOGY_REVIEW_PACKAGE_DETAIL_SURFACE_PATHS,
 } from "@/lib/review-terminology-surfaces";
-import { scanBuyerFacingTerminology, scanGlobalBuyerSurfaces } from "@/lib/review-terminology-scanner";
+import { scanBuyerFacingTerminology, scanGlobalBuyerSurfaces, scanGoldenPathBuyerCopy } from "@/lib/review-terminology-scanner";
 import { AUDIT_TRAIL_LABEL, SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import { resolveFirstPilotOperatingRailStepsForDisplay } from "@/lib/first-pilot-operating-rail-copy";
 
@@ -170,6 +171,18 @@ describe("review terminology guard", () => {
 
         expect(paletteTask?.label, route.path).toBe(route.navLabel);
       }
+    }
+  });
+
+  it("TB-2131: golden-path surfaces avoid residual eng jargon on primary chrome", () => {
+    for (const relativePath of REVIEW_TERMINOLOGY_GOLDEN_PATH_SURFACE_PATHS) {
+      const source = readFileSync(path.join(process.cwd(), relativePath), "utf8");
+      const violations = scanGoldenPathBuyerCopy(relativePath, source);
+
+      expect(
+        violations,
+        violations.map((v) => `${v.relativePath}:${v.line} "${v.pattern}" — ${v.excerpt}`).join("\n"),
+      ).toEqual([]);
     }
   });
 

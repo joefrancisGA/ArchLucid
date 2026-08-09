@@ -9,7 +9,11 @@ import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { NewRunWizardSkeleton } from "@/components/skeletons/NewRunWizardSkeleton";
 import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import { Button } from "@/components/ui/button";
-import { REVIEWS_NEW_BACK_TO_QUICK_START_CTA, REVIEWS_NEW_PATH_HINTS } from "@/lib/reviews-new-path-copy";
+import {
+  REVIEWS_NEW_BACK_TO_QUICK_START_CTA,
+  REVIEWS_NEW_GUIDED_QUESTIONS_LABEL,
+  REVIEWS_NEW_PATH_HINTS,
+} from "@/lib/reviews-new-path-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
 import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
@@ -42,7 +46,7 @@ const NewRunWizardClient = dynamic(
 
 const REVIEWS_NEW_PATH_TABS: readonly { id: ReviewsNewActivePath; label: string }[] = [
   { id: "quick-review", label: "Quick start" },
-  { id: "guided-intake", label: "Guided intake" },
+  { id: "guided-intake", label: REVIEWS_NEW_GUIDED_QUESTIONS_LABEL },
   { id: "detailed", label: "Templates and imports" },
 ] as const;
 

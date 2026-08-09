@@ -9,7 +9,7 @@ export function RunDetailPreFinalizedEmptyState(): ReactElement {
     <OperatorEmptyState title="Review not ready yet">
       <p className="m-0">
         This architecture review has not been finalized yet. After the pipeline completes and you finalize, the{" "}
-        <GlossaryTooltip termKey="golden_manifest">{SIGNED_MANIFEST_LABEL.toLowerCase()}</GlossaryTooltip>, artifacts, and exports will appear here.
+        <GlossaryTooltip termKey="golden_manifest">{SIGNED_MANIFEST_LABEL.toLowerCase()}</GlossaryTooltip>, deliverables, and exports will appear here.
       </p>
     </OperatorEmptyState>
   );

@@ -19,12 +19,12 @@ describe("InlineGuidanceText", () => {
     ).toBeInTheDocument();
   });
 
-  it("emphasizes the fastest first-pilot path scan label", () => {
+  it("emphasizes the quick start scan label", () => {
     render(
-      <InlineGuidanceText text="Fastest first-pilot path: review title, attach evidence, and start a review in one screen." />,
+      <InlineGuidanceText text="Quick start: review title, attach evidence, and start a review in one screen." />,
     );
 
-    expect(screen.getByText("Fastest first-pilot path:").tagName).toBe("STRONG");
+    expect(screen.getByText("Quick start:").tagName).toBe("STRONG");
     expect(screen.getByText(/review title, attach evidence, and start a review in one screen\./)).toBeInTheDocument();
   });
 

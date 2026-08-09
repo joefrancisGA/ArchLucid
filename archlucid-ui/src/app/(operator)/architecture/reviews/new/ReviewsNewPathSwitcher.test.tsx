@@ -60,7 +60,7 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
     expect(screen.getByTestId("reviews-new-primary-path-layout")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-more-intake-options")).toBeInTheDocument();
     expect(screen.queryByTestId("reviews-new-path-toggle")).toBeNull();
-    expect(screen.getByText("Fastest first-pilot path:", { selector: "strong" })).toBeInTheDocument();
+    expect(screen.getByText("Quick start:", { selector: "strong" })).toBeInTheDocument();
 
     const visiblePaths = [
       screen.queryByTestId("first-pilot-intake-wizard-stub"),
@@ -136,13 +136,13 @@ describe("ReviewsNewPathSwitcher (returning tenant)", () => {
     expect(screen.queryByTestId("reviews-new-more-intake-options")).toBeNull();
     expect(screen.getByRole("tab", { name: "Quick start" })).toHaveAttribute("aria-selected", "true");
 
-    fireEvent.click(screen.getByRole("tab", { name: "Guided intake" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Guided questions" }));
 
     await waitFor(() => {
       expect(screen.getByTestId("socratic-intake-wizard-stub")).toBeTruthy();
     });
 
-    expect(screen.getByRole("tab", { name: "Guided intake" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tab", { name: "Guided questions" })).toHaveAttribute("aria-selected", "true");
     expect(replace).toHaveBeenCalledWith(
       "/architecture/reviews/new?path=guided-intake",
       expect.objectContaining({ scroll: false }),
@@ -165,7 +165,7 @@ describe("ReviewsNewPathSwitcher (returning tenant)", () => {
       expect(screen.getByTestId("socratic-intake-wizard-stub")).toBeTruthy();
     });
 
-    expect(screen.getByRole("tab", { name: "Guided intake" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tab", { name: "Guided questions" })).toHaveAttribute("aria-selected", "true");
   });
 
   it("prevents vertical overflow scrollbars on the path tab row", async () => {

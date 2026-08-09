@@ -1,10 +1,10 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const REVIEWS_NEW_CLAIM_DISCIPLINE =
-  "Starting a review captures intake for analysis — not a signed-review diligence Sources trail.";
+  "Starting a review captures your architecture context for analysis — not a signed-review diligence Sources trail.";
 
 export const REVIEWS_NEW_SOURCES_INTRO =
-  "Choose an intake path below, or open Reviews and the first-review guide when you need orientation before submitting.";
+  "Choose a start path below, or open Reviews and the first-review guide when you need orientation before submitting.";
 
 export type ReviewsNewSourceLink = {
   readonly label: string;
@@ -16,7 +16,7 @@ export const REVIEWS_NEW_SOURCES: readonly ReviewsNewSourceLink[] = [
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "First review guide", href: "/architecture/first-review-guide" },
   { label: "Review guide help", href: inAppHelpHref("review-guide") },
-  { label: "Evidence intake help", href: inAppHelpHref("evidence-intake") },
+  { label: "Submit evidence help", href: inAppHelpHref("evidence-intake") },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;
 

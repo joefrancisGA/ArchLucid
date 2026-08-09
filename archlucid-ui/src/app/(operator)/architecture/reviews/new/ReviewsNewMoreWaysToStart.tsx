@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  REVIEWS_NEW_GUIDED_QUESTIONS_LABEL,
   REVIEWS_NEW_MORE_WAYS_TO_START_SUMMARY,
   REVIEWS_NEW_MORE_WAYS_TO_START_TITLE,
   REVIEWS_NEW_PATH_HINTS,
@@ -18,7 +19,7 @@ type ReviewsNewMoreWaysToStartProps = {
 };
 
 const SECONDARY_PATHS: readonly { id: ReviewsNewActivePath; label: string }[] = [
-  { id: "guided-intake", label: "Guided intake" },
+  { id: "guided-intake", label: REVIEWS_NEW_GUIDED_QUESTIONS_LABEL },
   { id: "detailed", label: "Templates and imports" },
 ] as const;
 

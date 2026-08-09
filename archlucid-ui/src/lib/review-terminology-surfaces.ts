@@ -232,6 +232,42 @@ export const REVIEW_TERMINOLOGY_FIRST_HOUR_SURFACE_PATHS = [
  * Review Package detail page modules (TB-617–TB-621 summary layer and section chrome).
  * Scanned by {@link ./review-terminology-guard.test.ts} for {@link REVIEW_TERMINOLOGY_BANNED_PRIMARY_RUN_PATTERNS}.
  */
+/** Golden-path modules scanned for residual eng jargon (TB-2131). */
+export const REVIEW_TERMINOLOGY_GOLDEN_PATH_SURFACE_PATHS = [
+  "src/lib/reviews-new-path-copy.ts",
+  "src/lib/reviews-new-evidence-copy.ts",
+  "src/lib/run-detail-deliverables-copy.ts",
+  "src/app/(operator)/architecture/reviews/_sections/reviews-hub-copy.ts",
+  "src/lib/core-pilot-first-review-copy.ts",
+  "src/lib/first-pilot-operating-rail-copy.ts",
+  "src/lib/invite-reviewer-evidence-copy.ts",
+  "src/lib/operator-home-evidence-copy.ts",
+  "src/components/operator-home/OperatorHomeGlossarySections.tsx",
+  "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailPreFinalizedEmptyState.tsx",
+  "src/app/(operator)/architecture/reviews/new/ReviewsNewMoreWaysToStart.tsx",
+  "src/app/(operator)/architecture/reviews/[runId]/_sections/resolve-review-package-attention-line.ts",
+] as const;
+
+/** Lowercase phrase fragments banned on golden-path primary chrome (TB-2131). */
+export const REVIEW_TERMINOLOGY_GOLDEN_PATH_BANNED_PATTERNS = [
+  "guided intake",
+  "first-pilot",
+  "first pilot",
+  "intake path",
+  "captures intake",
+  "evidence intake",
+  "export artifacts",
+  "review artifacts",
+  "architecture artifacts",
+  "download artifacts",
+  "finalize artifacts",
+  "artifacts, and exports",
+  "artifacts & exports",
+  "after commit",
+  "this manifest",
+  "aligned to this manifest",
+] as const;
+
 export const REVIEW_TERMINOLOGY_REVIEW_PACKAGE_DETAIL_SURFACE_PATHS = [
   "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailPageView.tsx",
   "src/app/(operator)/architecture/reviews/[runId]/_sections/ReviewPackageSummaryHeader.tsx",
