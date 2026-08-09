@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  FINDINGS_ROW_METADATA_TAG_SIZE,
   METADATA_STATUS_TAG_SHELL,
   OPERATOR_CARD,
   OPERATOR_KPI_CARD_DESCRIPTION,
@@ -31,6 +32,12 @@ describe("design-tokens TB-115 surfaces", () => {
     expect(METADATA_STATUS_TAG_SHELL).toContain("pointer-events-none");
     expect(METADATA_STATUS_TAG_SHELL).not.toContain("hover:");
     expect(METADATA_STATUS_TAG_SHELL).not.toContain("shadow");
+  });
+
+  it("findings-row tag size steps to 12px without arbitrary sizing", () => {
+    expect(FINDINGS_ROW_METADATA_TAG_SIZE).toContain("text-xs");
+    expect(FINDINGS_ROW_METADATA_TAG_SIZE).not.toContain("text-sm");
+    expect(FINDINGS_ROW_METADATA_TAG_SIZE).not.toContain("text-[");
   });
 
   it("operatorConfidenceSurface maps proof disposition tones", () => {

@@ -450,6 +450,12 @@ export const METADATA_STATUS_TAG_SHELL =
   `inline-flex max-w-full items-center rounded px-1.5 py-0.5 cursor-default select-none pointer-events-none ${OPERATOR_TYPOGRAPHY.micro} font-medium leading-tight`;
 
 /**
+ * Findings rows sit tags inline with a 13px finding title, where the 11px shell reads as a size
+ * jump rather than a hierarchy step. Apply to every tag in such a row so they stay uniform.
+ */
+export const FINDINGS_ROW_METADATA_TAG_SIZE = "text-xs leading-4";
+
+/**
  * Design-system distinction:
  * - {@link StatusTag} / {@link SeverityTag} / {@link StatusPill} → noninteractive metadata (`status`, `severity`, `metadata`)
  * - {@link INTERACTIVE_FILTER_CHIP_SHELL} / `Badge` action variants → interactive filter/action chips only

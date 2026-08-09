@@ -437,4 +437,50 @@ describe("QuickDecisionSummary", () => {
     expect(within(primaryCard).getByTestId("finding-itsm-sync-f-high")).toBeInTheDocument();
     expect(within(primaryCard).getByTestId("itsm-sync-jira")).toBeVisible();
   });
+
+  it("workspace rows size severity and status tags uniformly against the finding title", () => {
+    const findings: QuickDecisionFinding[] = [
+      {
+        findingId: "f-high",
+        title: "High title",
+        recommendation: "Fix immediately.",
+        severityValue: 2,
+        findingOrder: 1,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+      },
+      {
+        findingId: "f-low",
+        title: "Low title",
+        recommendation: "Later.",
+        severityValue: 0,
+        findingOrder: 0,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+      },
+    ];
+
+    render(<QuickDecisionSummary runId="run-workspace" findings={findings} workspaceCardMode />);
+
+    const tags = [
+      ...within(screen.getByTestId("finding-workspace-card-f-high")).getAllByLabelText(
+        /^(Severity|Status): /,
+      ),
+      ...within(screen.getByTestId("finding-workspace-card-f-low")).getAllByLabelText(
+        /^(Severity|Status): /,
+      ),
+    ];
+
+    expect(tags.length).toBeGreaterThan(0);
+
+    for (const tag of tags) {
+      expect(tag.className).toContain("text-xs");
+      expect(tag.className).not.toContain("text-[11px]");
+      expect(tag.className).not.toContain("text-sm");
+    }
+  });
 });

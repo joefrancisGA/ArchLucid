@@ -8,7 +8,11 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { CoverageChecklistPanel } from "@/components/usability/CoverageChecklistPanel";
 import { InsightDensityCurationBanner } from "@/components/usability/InsightDensityCurationBanner";
-import type { FindingsSnapshotInsightDensityView } from "@/lib/findings-snapshot-insight-density";
+import {
+  hasFindingsSnapshotInsightDensityContent,
+  type FindingsSnapshotInsightDensityView,
+} from "@/lib/findings-snapshot-insight-density";
+import { hasFindingsWhatIfAnalysisContent } from "@/lib/findings-what-if-analysis";
 import type { FindingWireSnapshot, QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { RunExplanationSummary } from "@/types/explanation";
 import { RunDecisionExplainabilitySection } from "@/components/RunDecisionExplainabilitySection";
@@ -106,6 +110,11 @@ export function RunDetailRunExplanationCollapsible(
     packageCommitted,
   } = props;
   const findingTitlesById = buildFindingTitlesById(quickDecisionFindings);
+  const showCoverageAndCuration = hasFindingsSnapshotInsightDensityContent(insightDensityView);
+  const showImpactAnalysis = hasFindingsWhatIfAnalysisContent(
+    quickDecisionFindings,
+    baselineAnnualCostUsd,
+  );
 
   return (
     <section id="run-explanation" className="scroll-mt-24 space-y-4">
@@ -124,28 +133,40 @@ export function RunDetailRunExplanationCollapsible(
           packageCommitted={packageCommitted}
         />
 
-        <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" data-workspace-disclosure>
-          <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.body)}>
-            Finding coverage and curation
-          </summary>
-          <div className="mt-3 space-y-3">
-            <InsightDensityCurationBanner curation={insightDensityView.curation} />
-            <CoverageChecklistPanel items={insightDensityView.checklistCoverage} />
-          </div>
-        </details>
+        {showCoverageAndCuration ? (
+          <details
+            className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
+            data-workspace-disclosure
+            data-testid="run-detail-coverage-curation-disclosure"
+          >
+            <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.body)}>
+              Finding coverage and curation
+            </summary>
+            <div className="mt-3 space-y-3">
+              <InsightDensityCurationBanner curation={insightDensityView.curation} />
+              <CoverageChecklistPanel items={insightDensityView.checklistCoverage} />
+            </div>
+          </details>
+        ) : null}
 
-        <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" data-workspace-disclosure>
-          <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.body)}>
-            Impact analysis
-          </summary>
-          <div className="mt-3">
-            <FindingsWhatIfAnalysisPanel
-              findings={quickDecisionFindings}
-              baselineAnnualCostUsd={baselineAnnualCostUsd}
-              isIllustrativePricing={isIllustrativePricing}
-            />
-          </div>
-        </details>
+        {showImpactAnalysis ? (
+          <details
+            className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
+            data-workspace-disclosure
+            data-testid="run-detail-impact-analysis-disclosure"
+          >
+            <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.body)}>
+              Impact analysis
+            </summary>
+            <div className="mt-3">
+              <FindingsWhatIfAnalysisPanel
+                findings={quickDecisionFindings}
+                baselineAnnualCostUsd={baselineAnnualCostUsd}
+                isIllustrativePricing={isIllustrativePricing}
+              />
+            </div>
+          </details>
+        ) : null}
       </div>
 
       <CollapsibleSection

@@ -72,7 +72,12 @@ import {
   formatHiddenLowConfidenceHint,
   partitionQuickDecisionFindingsByConfidence,
 } from "@/lib/finding-confidence-filter";
-import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  FINDINGS_ROW_METADATA_TAG_SIZE,
+  OPERATOR_LINK,
+  OPERATOR_NAV_GROUP_LABEL,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
 import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
 
 export type QuickDecisionSummaryProps = {
@@ -592,18 +597,23 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
               severity={badgeLabel}
               kind={severityKindFromNumericValue(f.severityValue)}
               label={badgeLabel}
-              className="shrink-0 text-sm tabular-nums"
+              className={cn("shrink-0 tabular-nums", FINDINGS_ROW_METADATA_TAG_SIZE)}
             />
             {reviewStatus !== null ? (
               <StatusTag
                 kind={reviewStatus.statusKind}
                 label={reviewStatus.label}
+                className={FINDINGS_ROW_METADATA_TAG_SIZE}
                 data-testid={`finding-review-status-${f.findingId}`}
               />
             ) : (
-              <StatusTag kind="neutral" label="Open" />
+              <StatusTag kind="neutral" label="Open" className={FINDINGS_ROW_METADATA_TAG_SIZE} />
             )}
-            <StatusTag kind="neutral" label={findingEnforcementTierLabel(f.enforcementTier)} className="shrink-0" />
+            <StatusTag
+              kind="neutral"
+              label={findingEnforcementTierLabel(f.enforcementTier)}
+              className={cn("shrink-0", FINDINGS_ROW_METADATA_TAG_SIZE)}
+            />
           </div>
           <h3 className={cn("m-0 text-xl font-bold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {f.title}
@@ -738,12 +748,16 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
                 severity={badgeLabel}
                 kind={severityKindFromNumericValue(f.severityValue)}
                 label={badgeLabel}
-                className="shrink-0 tabular-nums"
+                className={cn("shrink-0 tabular-nums", FINDINGS_ROW_METADATA_TAG_SIZE)}
               />
               {reviewStatus !== null ? (
-                <StatusTag kind={reviewStatus.statusKind} label={reviewStatus.label} />
+                <StatusTag
+                  kind={reviewStatus.statusKind}
+                  label={reviewStatus.label}
+                  className={FINDINGS_ROW_METADATA_TAG_SIZE}
+                />
               ) : (
-                <StatusTag kind="neutral" label="Open" />
+                <StatusTag kind="neutral" label="Open" className={FINDINGS_ROW_METADATA_TAG_SIZE} />
               )}
               <span className="min-w-0 flex-1 font-semibold text-al-text-primary">{f.title}</span>
             </div>
