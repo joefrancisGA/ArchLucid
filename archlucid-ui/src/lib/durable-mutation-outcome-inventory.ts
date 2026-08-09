@@ -117,4 +117,6 @@ export const DURABLE_MUTATION_DUAL_TOAST_TEST_PATHS: readonly string[] = [
   "components/usability/GovernanceFindingsBulkActions.test.tsx",
   "components/operator/OperatorSuccessCallout.test.tsx",
   "components/review-intake/ReviewGenerationCreatedNotice.test.tsx",
+  "lib/durable-action-outcome-guard.test.ts",
+  "lib/tb2116-durable-mutation-outcome-guard.test.ts",
 ];

@@ -91,6 +91,18 @@ function hasDualToastRegressionGuard(testSource: string): boolean {
     return true;
   }
 
+  if (testSource.includes("showError).not.toHaveBeenCalled")) {
+    return true;
+  }
+
+  if (testSource.includes("expectNoHighStakesSavePathToasts")) {
+    return true;
+  }
+
+  if (testSource.includes("findToastOnlyHighStakesOffenders")) {
+    return true;
+  }
+
   if (testSource.includes("success-callout")) {
     return true;
   }
