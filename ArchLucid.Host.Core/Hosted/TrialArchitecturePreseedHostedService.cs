@@ -15,21 +15,19 @@ public sealed class TrialArchitecturePreseedHostedService(
 {
     /// <inheritdoc />
     protected override Task ExecuteAsync(CancellationToken stoppingToken) =>
-        electionCoordinator.RunLeaderWorkAsync(
+        electionCoordinator.RunLeaderWorkWhenEnabledAsync(
+            optionsMonitor.CurrentValue.Enabled,
+            LogDisabled,
             HostElectionLeaseNames.TrialArchitecturePreseed,
             PollLoopAsync,
             stoppingToken);
 
+    private void LogDisabled() =>
+        logger.LogInformation("Trial architecture pre-seed is disabled (TrialArchitecturePreseed:Enabled=false).");
+
     private async Task PollLoopAsync(CancellationToken leaderToken)
     {
         TrialArchitecturePreseedOptions initial = optionsMonitor.CurrentValue;
-
-        if (!initial.Enabled)
-        {
-            logger.LogInformation("Trial architecture pre-seed is disabled (TrialArchitecturePreseed:Enabled=false).");
-
-            return;
-        }
 
         logger.LogInformation(
             "Trial architecture pre-seed worker started (poll every {Seconds}s).",
