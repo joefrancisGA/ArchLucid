@@ -31,5 +31,5 @@
       "firstLoadJsKb": 1360.9
     }
   },
-  "notes": "TB-2030: operator Overview (`/`) and alert hubs tracked alongside canonical /architecture/reviews paths. `/`, `/governance/alerts`, and `/governance/alert-rules` baselines are governance-cluster estimates pending CI remeasure (`npm run build && npm run write:first-load-js-baseline`)."
+  "notes": "TB-2117: `/architecture/reviews/[runId]` measured **2237.5 → 2150.6 kB** (−86.9 kB) after workspace/overview chrome deferrals. TB-2030: operator Overview (`/`) and alert hubs tracked alongside canonical /architecture/reviews paths. `/`, `/governance/alerts`, and `/governance/alert-rules` baselines are governance-cluster estimates pending CI remeasure (`npm run build && npm run write:first-load-js-baseline`)."
 }
