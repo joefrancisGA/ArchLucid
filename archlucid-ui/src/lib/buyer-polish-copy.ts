@@ -416,7 +416,8 @@ export const BUYER_CTO_DEMO_TOUR_EXPAND_CTA = "Expand CTO demo tour";
 
 export const BUYER_CTO_DEMO_READINESS_HEADING = "Demo readiness";
 
-export const BUYER_CTO_DEMO_READINESS_ARIA = "CTO demo readiness checks";
+/** Internal admin panel region — must not say "CTO demo" in screenshare or a11y trees (TB-1410). */
+export const BUYER_CTO_DEMO_READINESS_ARIA = "Internal demo readiness checks";
 
 export const BUYER_CTO_DEMO_READINESS_READY_LABEL = "Demo ready";
 

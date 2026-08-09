@@ -3,6 +3,9 @@ import { LIVE_DEMO_PAGE_TITLE } from "@/lib/live-demo-page-copy";
 
 export const DEMO_READINESS_CANONICAL_PATH = "/internal/demo-readiness" as const;
 
+/** Default run-of-show download name on Demo readiness admin — no `cto-demo` segment (TB-1410). */
+export const DEMO_READINESS_RUN_OF_SHOW_DOWNLOAD_FILENAME = "archlucid-internal-demo-runofshow.md" as const;
+
 export const DEMO_READINESS_CLAIM_DISCIPLINE =
   "This Demo readiness page is an internal employee diagnostic for buyer CTO demo checks - it is not a signed-review diligence Sources package. Open System health, Trial funnel, or Audit when you need live dependency, conversion, or governed trails.";
 

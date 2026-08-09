@@ -2,6 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { BuyerCtoDemoReadinessPanel } from "@/components/operator-home/BuyerCtoDemoReadinessPanel";
+import { BUYER_CTO_DEMO_READINESS_ARIA } from "@/lib/buyer-polish-copy";
 
 vi.mock("@/lib/demo-ui-env", () => ({
   isBuyerPolishedOperatorShellEnv: () => true,
@@ -77,6 +78,8 @@ describe("BuyerCtoDemoReadinessPanel", () => {
       expect(screen.getByTestId("buyer-cto-demo-readiness-badge")).toHaveTextContent("Demo ready");
     });
 
+    expect(screen.getByRole("region", { name: BUYER_CTO_DEMO_READINESS_ARIA })).toBeInTheDocument();
+    expect(BUYER_CTO_DEMO_READINESS_ARIA.toLowerCase()).not.toContain("cto demo");
     expect(screen.getByTestId("buyer-cto-demo-readiness-check-buyer-shell")).toBeInTheDocument();
     expect(mockEvaluate).toHaveBeenCalledTimes(1);
     expect(screen.queryByTestId("buyer-cto-demo-run-of-show-download")).toBeNull();

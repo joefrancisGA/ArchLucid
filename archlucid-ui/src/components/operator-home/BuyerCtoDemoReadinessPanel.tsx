@@ -23,6 +23,7 @@ import {
   type BuyerCtoDemoReadinessResult,
 } from "@/lib/buyer-cto-demo-readiness";
 import { buildCtoDemoRunOfShowMarkdown } from "@/lib/buyer-cto-demo-tour";
+import { DEMO_READINESS_RUN_OF_SHOW_DOWNLOAD_FILENAME } from "@/lib/demo-readiness-evidence-copy";
 import { groupDemoReadinessChecksBySection } from "@/lib/demo-readiness-check-sections";
 import { emitDemoReadinessInternalSignal } from "@/lib/demo-readiness-internal-telemetry";
 import { EXPLORE_ARCHLUCID_ROW_CLASS } from "@/components/operator-home/explore-archlucid-row-class";
@@ -58,7 +59,7 @@ function downloadCtoDemoRunOfShow(): void {
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = url;
-  anchor.download = "archlucid-cto-demo-runofshow.md";
+  anchor.download = DEMO_READINESS_RUN_OF_SHOW_DOWNLOAD_FILENAME;
   anchor.click();
   URL.revokeObjectURL(url);
 }
