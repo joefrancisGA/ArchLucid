@@ -248,6 +248,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
             labelId="first-pilot-evidence"
             title="Attach evidence (optional)"
             description="Diagram, PDF export, or architecture document. Accepted: PDF, DOCX, Markdown, text, JSON, YAML, images."
+            attachmentSummarySuffix="architecture context optional"
             onFilesSelected={(files) => {
               setEvidenceFiles(files);
               setClientValidationMessage(null);
@@ -267,11 +268,6 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
               placeholder="Add as much useful context as you can: goals, constraints, risks, business drivers, integrations, data flows, security concerns, known tradeoffs, and what you want ArchLucid to focus on."
               data-testid="first-pilot-brief"
             />
-            {evidenceFiles.length > 0 ? (
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-                {`${evidenceFiles.length} file${evidenceFiles.length === 1 ? "" : "s"} attached — architecture context optional.`}
-              </p>
-            ) : null}
           </div>
 
           <AdvancedOptionsAccordion triggerLabel="Review scope (optional)">

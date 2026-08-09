@@ -237,19 +237,11 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
                     ? ".json,.yaml,.yml,.tf,.txt"
                     : undefined
               }
+              attachmentSummarySuffix="uploads automatically after the review is created"
               onFilesSelected={(files) => {
                 onPendingDocumentFilesChange(files);
               }}
             />
-            {pendingDocumentFiles.length > 0 ? (
-              <p
-                className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
-                data-testid="wizard-evidence-documents-selected"
-              >
-                {pendingDocumentFiles.length} file{pendingDocumentFiles.length === 1 ? "" : "s"} ready — uploads
-                automatically after the review is created.
-              </p>
-            ) : null}
           </div>
         ) : null}
 
