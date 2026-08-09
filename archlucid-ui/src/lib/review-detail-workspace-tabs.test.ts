@@ -21,7 +21,7 @@ describe("review-detail-workspace-tabs", () => {
     expect(resolveReviewDetailTabFromHash("run-explanation")).toBe("findings");
     expect(resolveReviewDetailTabFromHash("#governance-decision")).toBe("decisions-remediation");
     expect(resolveReviewDetailTabFromHash("submitted-architecture")).toBe("architecture");
-    expect(resolveReviewDetailTabFromHash("sponsor-handoff")).toBe("activity");
+    expect(resolveReviewDetailTabFromHash("sponsor-handoff")).toBe("review-package");
     expect(resolveReviewDetailTabFromHash("artifacts-exports")).toBe("evidence");
     expect(resolveReviewDetailTabFromHash("unknown-anchor")).toBeNull();
   });

@@ -58,10 +58,10 @@ describe("run-detail-architect-section-order (TB-620)", () => {
 
   it("gates every tab-owned section in the shared below-fold block", () => {
     expect(belowFoldSource).toContain("const ownedByAnotherTab = props.renderedInsideTabbedWorkspace === true;");
-    expect(belowFoldSource).toContain("!ownedByAnotherTab && !m.buyerPolishedArtifactTable && m.manifestId");
-    expect(belowFoldSource).toContain("{ownedByAnotherTab ? null : (");
+    expect(belowFoldSource).toContain("{!ownedByAnotherTab && !m.buyerPolishedArtifactTable && m.manifestId ? (");
+    expect(belowFoldSource).toContain("{m.manifestId && !ownedByAnotherTab && !m.buyerPolishedArtifactTable ? (");
     expect(belowFoldSource).toContain("{m.manifestId && !ownedByAnotherTab ? (");
-    expect(belowFoldSource).toContain("{!m.buyerPolishedArtifactTable && !ownedByAnotherTab ? (");
+    expect(pageViewSource).toContain("RunDetailTabbedSectionNavDeferred");
   });
 
   it("places operator findings before pipeline timeline in below-fold", () => {

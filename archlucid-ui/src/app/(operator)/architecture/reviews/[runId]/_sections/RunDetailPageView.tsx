@@ -80,6 +80,11 @@ import {
   RunDetailManifestSummarySectionDeferred,
   RunDetailReviewPackageSectionDeferred,
   RunDetailSectionNavDeferred,
+  RunDetailTabbedSectionNavDeferred,
+  BeforeAfterDeltaPanelDeferred,
+  RecurrenceSchedulePostCommitCardDeferred,
+  RunDetailRetrievalGroundingSectionDeferred,
+  RunDetailAdvancedAnalysisSectionDeferred,
   RunDetailSubmittedArchitectureSectionDeferred,
   RunDetailWorkspaceHeaderDeferred,
   RunDetailWorkspaceBlockingBannerDeferred,
@@ -118,6 +123,10 @@ import { RunDetailManifestSummaryAlerts } from "./RunDetailManifestSummaryAlerts
 import { RunDetailRunActionsSection } from "./RunDetailRunActionsSection";
 import { resolveRunDetailSponsorBriefingSection } from "./RunDetailSponsorBriefingSection";
 import { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
+import {
+  RunDetailArchitectureGraphIsland,
+  RunDetailPostCommitHabitIsland,
+} from "./RunDetailTabbedDeferredIslands";
 import {
   RunDetailBelowFoldDeferredSkeleton,
   RunDetailExplanationSkeleton,
@@ -404,6 +413,21 @@ export function RunDetailPageView(props: {
           evidenceAskRunId={m.buyerPolishedArtifactTable ? m.resolvedDetail.run.runId : null}
         />
       ) : null}
+      {!m.buyerPolishedArtifactTable && m.manifestId ? (
+        <RunDetailRetrievalGroundingSectionDeferred
+          runId={m.routeRunId}
+          showWhenFaithfulnessWarning={
+            typeof m.explanationSummary?.faithfulnessWarning === "string"
+            && m.explanationSummary.faithfulnessWarning.trim().length > 0
+          }
+        />
+      ) : null}
+      {m.manifestId ? (
+        <RunDetailAdvancedAnalysisSectionDeferred
+          runId={m.routeRunId}
+          buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
+        />
+      ) : null}
     </div>
   );
   const architectureSummaryTitle =
@@ -480,6 +504,22 @@ export function RunDetailPageView(props: {
       helperText="Source material submitted for this review — distinct from ArchLucid analysis in other tabs."
     />
   );
+  const architectureTabPanelEl = (
+    <div className="space-y-4">
+      {submittedArchitectureTabEl}
+      <RunDetailTechnologyBaselineSection
+        runId={m.resolvedDetail.run.runId}
+        manifestFinalized={Boolean(m.manifestId)}
+        buyerPolished={m.buyerPolishedArtifactTable ?? false}
+        usedStaticDemoRun={m.usedStaticDemoRun}
+        warningCountDisplay={m.warningCountDisplay ?? 0}
+      />
+      <RunDetailArchitectureGraphIsland model={m} context={deferredContext} />
+    </div>
+  );
+  const tabbedSectionNavEl = (
+    <RunDetailTabbedSectionNavDeferred sections={m.runDetailNavSections} />
+  );
   const tabbedWorkspaceEl = !showArchitectureCreatedHome ? (
     <Suspense fallback={<RunDetailExplanationSkeleton />}>
       <ReviewDetailWorkspaceDeferred
@@ -490,18 +530,30 @@ export function RunDetailPageView(props: {
         }}
         panels={{
           overview: (
-            <RunDetailOverviewPanelClientDeferred
-              runId={m.resolvedDetail.run.runId}
-              architectureTitle={architectureSummaryTitle}
-              architectureText={submittedArchitectureText}
-              evidenceCount={evidenceInventoryCount}
-              hasSubmittedArchitecture={hasSubmittedArchitecture}
-              userAssertions={null}
-              recommendedActions={recommendedActions}
-              criticalCount={severityCounts.critical}
-              highCount={severityCounts.high}
-              proofStatusSlot={<RunDetailFirstScreenProofStatusClient runId={m.resolvedDetail.run.runId} />}
-            />
+            <div className="space-y-4">
+              <RunDetailOverviewPanelClientDeferred
+                runId={m.resolvedDetail.run.runId}
+                architectureTitle={architectureSummaryTitle}
+                architectureText={submittedArchitectureText}
+                evidenceCount={evidenceInventoryCount}
+                hasSubmittedArchitecture={hasSubmittedArchitecture}
+                userAssertions={null}
+                recommendedActions={recommendedActions}
+                criticalCount={severityCounts.critical}
+                highCount={severityCounts.high}
+                proofStatusSlot={<RunDetailFirstScreenProofStatusClient runId={m.resolvedDetail.run.runId} />}
+              />
+              <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" open={false}>
+                <summary className="cursor-pointer font-semibold">Detailed outcome cards</summary>
+                <div className="mt-3">{outcomeCardsEl}</div>
+              </details>
+              <Suspense fallback={<RunDetailMidDeferredSkeleton />}>
+                <RunDetailMidDeferredSections context={deferredContext} />
+              </Suspense>
+              {buyerFinalizedPackage ? null : (
+                <RunDetailExecutiveSummaryCtaCardDeferred runId={m.resolvedDetail.run.runId} demoted />
+              )}
+            </div>
           ),
           findings: (
             <>
@@ -509,6 +561,10 @@ export function RunDetailPageView(props: {
                 <RunDetailExplanationConfidenceBannerDeferred summary={m.explanationSummary} />
               ) : null}
               {explanationDeferredEl}
+              <RunDetailHolisticCriticPanelDeferred
+                runId={m.resolvedDetail.run.runId}
+                hasGoldenManifest={Boolean(m.manifestId)}
+              />
             </>
           ),
           evidence: evidenceTabPanelEl,
@@ -552,6 +608,28 @@ export function RunDetailPageView(props: {
                 </Suspense>
               ) : null}
               {buyerFinalizedPackage ? null : showGovernanceCtaCard ? governanceCtaEl : null}
+              {!m.buyerPolishedArtifactTable ? (
+                <Suspense
+                  fallback={
+                    <div
+                      className="h-12 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
+                      role="status"
+                      aria-label="Loading comparison banner"
+                    />
+                  }
+                >
+                  <RunDetailWhatIfBranchCompareBannerDeferred
+                    currentRunId={m.resolvedDetail.run.runId}
+                    hasCurrentManifest={Boolean(m.manifestId)}
+                  />
+                </Suspense>
+              ) : null}
+              {!m.buyerPolishedArtifactTable ? (
+                <RunDetailCompareToBaselineCta currentRunId={m.resolvedDetail.run.runId} />
+              ) : null}
+              {m.manifestId && !m.buyerPolishedArtifactTable ? (
+                <BeforeAfterDeltaPanelDeferred variant="inline" runId={m.routeRunId} />
+              ) : null}
             </div>
           ),
           reviewPackage: (
@@ -577,6 +655,21 @@ export function RunDetailPageView(props: {
               ) : null}
               {showDemoMarketingChrome ? sampleReviewPackageSummaryEl : null}
               {!m.buyerPolishedArtifactTable ? (
+                <div className={cn("flex flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)}>
+                  <RunDetailGenerateAdrFromRunModal input={m.adrGeneratorInput} buyerPolished={false} />
+                </div>
+              ) : null}
+              {resolveRunDetailSponsorBriefingSection(m)}
+              {m.manifestId ? (
+                <RunDetailPostCommitHabitIsland model={m} context={deferredContext} />
+              ) : null}
+              {m.manifestId ? (
+                <RecurrenceSchedulePostCommitCardDeferred
+                  runId={m.routeRunId}
+                  hasStickinessPrompt={Boolean(m.manifestId)}
+                />
+              ) : null}
+              {!m.buyerPolishedArtifactTable ? (
                 <RunDetailRunActionsSection
                   runId={m.resolvedDetail.run.runId}
                   systemName={m.resolvedDetail.run.description?.trim() || m.resolvedDetail.run.runId}
@@ -587,7 +680,7 @@ export function RunDetailPageView(props: {
               ) : null}
             </div>
           ),
-          architecture: submittedArchitectureTabEl,
+          architecture: architectureTabPanelEl,
           activity: (
             <div className="space-y-4">
               {!m.manifestId && m.showProgressTracker ? (
@@ -607,62 +700,12 @@ export function RunDetailPageView(props: {
                   Full provenance view
                 </Link>
               </p>
-              <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" open={false}>
-                <summary className="cursor-pointer font-semibold">Technology baseline</summary>
-                <div className="mt-3">
-                  <RunDetailTechnologyBaselineSection
-                    runId={m.resolvedDetail.run.runId}
-                    manifestFinalized={Boolean(m.manifestId)}
-                    buyerPolished={m.buyerPolishedArtifactTable ?? false}
-                    usedStaticDemoRun={m.usedStaticDemoRun}
-                    warningCountDisplay={m.warningCountDisplay ?? 0}
-                  />
-                </div>
-              </details>
-              <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" open={false}>
-                <summary className="cursor-pointer font-semibold">Detailed outcome cards</summary>
-                <div className="mt-3">{outcomeCardsEl}</div>
-              </details>
-              <Suspense fallback={<RunDetailMidDeferredSkeleton />}>
-                <RunDetailMidDeferredSections context={deferredContext} />
-              </Suspense>
-              {!m.buyerPolishedArtifactTable ? (
-                <Suspense
-                  fallback={
-                    <div
-                      className="h-12 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
-                      role="status"
-                      aria-label="Loading comparison banner"
-                    />
-                  }
-                >
-                  <RunDetailWhatIfBranchCompareBannerDeferred
-                    currentRunId={m.resolvedDetail.run.runId}
-                    hasCurrentManifest={Boolean(m.manifestId)}
-                  />
-                </Suspense>
-              ) : null}
-              <RunDetailHolisticCriticPanelDeferred
-                runId={m.resolvedDetail.run.runId}
-                hasGoldenManifest={Boolean(m.manifestId)}
-              />
               <RunDetailLastFailureCardDeferred
                 summary={resolveRunDetailLastFailureSummary(m.resolvedDetail)}
                 legacyRunStatus={
                   (m.resolvedDetail.run as { legacyRunStatus?: string | null }).legacyRunStatus ?? null
                 }
               />
-              {buyerFinalizedPackage ? null : (
-                <RunDetailExecutiveSummaryCtaCardDeferred runId={m.resolvedDetail.run.runId} demoted />
-              )}
-              {!m.buyerPolishedArtifactTable ? (
-                <div className={cn("flex flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)}>
-                  <RunDetailGenerateAdrFromRunModal input={m.adrGeneratorInput} buyerPolished={false} />
-                </div>
-              ) : null}
-              {!m.buyerPolishedArtifactTable ? (
-                <RunDetailCompareToBaselineCta currentRunId={m.resolvedDetail.run.runId} />
-              ) : null}
               {!m.buyerPolishedArtifactTable ? (
                 <RunDetailOperatorTechnicalForensicsPanelDeferred
                   agentExecutionLlmCostEstimate={m.resolvedDetail.agentExecutionLlmCostEstimate}
@@ -673,8 +716,6 @@ export function RunDetailPageView(props: {
                   runDetailTraceId={m.runDetailTraceId}
                 />
               ) : null}
-              {/* Outside below-fold deferred await — sponsor CTA must mount with the Activity tab. */}
-              {resolveRunDetailSponsorBriefingSection(m)}
               <Suspense fallback={<RunDetailBelowFoldDeferredSkeleton />}>
                 <RunDetailBelowFoldSections
                   model={m}
@@ -956,6 +997,7 @@ export function RunDetailPageView(props: {
 
               {!showArchitectureCreatedHome ? executiveBottomLineEl : null}
 
+              {tabbedSectionNavEl}
               {tabbedWorkspaceEl}
 
               {!m.manifestId ? (

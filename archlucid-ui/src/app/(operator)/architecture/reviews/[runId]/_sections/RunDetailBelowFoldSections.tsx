@@ -213,7 +213,7 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
         />
       )}
 
-      {m.manifestId ? (
+      {m.manifestId && !ownedByAnotherTab ? (
         <>
           <RunDetailWhatsNextSection runId={m.routeRunId} />
           <RecurrenceSchedulePostCommitCard
@@ -223,9 +223,11 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
         </>
       ) : null}
 
-      <Suspense fallback={<RunDetailBelowFoldProjectContextSkeleton />}>
-        <RunDetailBelowFoldProjectContextAsync model={m} context={props.context} />
-      </Suspense>
+      {!ownedByAnotherTab ? (
+        <Suspense fallback={<RunDetailBelowFoldProjectContextSkeleton />}>
+          <RunDetailBelowFoldProjectContextAsync model={m} context={props.context} />
+        </Suspense>
+      ) : null}
 
       {m.manifestId && !ownedByAnotherTab ? (
         <RunDetailArtifactsExportsSectionDeferred
@@ -244,7 +246,7 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
         />
       ) : null}
 
-      {!m.buyerPolishedArtifactTable && m.manifestId ? (
+      {!ownedByAnotherTab && !m.buyerPolishedArtifactTable && m.manifestId ? (
         <RunDetailRetrievalGroundingSection
           runId={m.routeRunId}
           showWhenFaithfulnessWarning={
@@ -254,11 +256,11 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
         />
       ) : null}
 
-      {m.manifestId && !m.buyerPolishedArtifactTable ? (
+      {m.manifestId && !ownedByAnotherTab && !m.buyerPolishedArtifactTable ? (
         <BeforeAfterDeltaPanel variant="inline" runId={m.routeRunId} />
       ) : null}
 
-      {m.manifestId ? (
+      {m.manifestId && !ownedByAnotherTab ? (
         <RunDetailAdvancedAnalysisSection
           runId={m.routeRunId}
           buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}

@@ -334,6 +334,38 @@ export const RunDetailSectionNavDeferred = dynamic(
   { ssr: false, loading: () => sectionNavLoading },
 );
 
+export const RunDetailTabbedSectionNavDeferred = dynamic(
+  () => import("@/components/RunDetailTabbedSectionNav").then((module) => module.RunDetailTabbedSectionNav),
+  { ssr: false, loading: () => sectionNavLoading },
+);
+
+export const BeforeAfterDeltaPanelDeferred = dynamic(
+  () => import("@/components/BeforeAfterDeltaPanel").then((module) => module.BeforeAfterDeltaPanel),
+  { loading: () => null },
+);
+
+export const RecurrenceSchedulePostCommitCardDeferred = dynamic(
+  () =>
+    import("@/components/governance/RecurrenceSchedulePostCommitCard").then(
+      (module) => module.RecurrenceSchedulePostCommitCard,
+    ),
+  { loading: () => null },
+);
+
+export const RunDetailRetrievalGroundingSectionDeferred = dynamic(
+  () =>
+    import("./RunDetailRetrievalGroundingSection").then(
+      (module) => module.RunDetailRetrievalGroundingSection,
+    ),
+  { loading: () => null },
+);
+
+export const RunDetailAdvancedAnalysisSectionDeferred = dynamic(
+  () =>
+    import("./RunDetailAdvancedAnalysisSection").then((module) => module.RunDetailAdvancedAnalysisSection),
+  { loading: () => null },
+);
+
 export const RunDetailExecutiveBottomLineDeferred = dynamic(
   () => import("./RunDetailExecutiveBottomLine").then((module) => module.RunDetailExecutiveBottomLine),
   { ssr: false, loading: () => executiveBottomLineLoading },

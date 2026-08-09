@@ -1,3 +1,6 @@
+import type { ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
+import { RUN_DETAIL_SECTION_TAB } from "@/lib/run-detail-section-tab-map";
+
 export const REVIEW_DETAIL_TAB_PARAM = "reviewTab" as const;
 
 export const REVIEW_DETAIL_TAB_IDS = [
@@ -26,23 +29,6 @@ export const REVIEW_DETAIL_TAB_LABELS: Record<ReviewDetailTabId, string> = {
   activity: "Activity",
 };
 
-const LEGACY_HASH_TO_TAB: Readonly<Record<string, ReviewDetailTabId>> = {
-  "run-explanation": "findings",
-  "capture-evidence": "evidence",
-  "artifacts-exports": "evidence",
-  "governance-decision": "decisions-remediation",
-  "recommended-actions": "overview",
-  "review-package": "review-package",
-  "submitted-architecture": "architecture",
-  "manifest-summary": "policies",
-  "pipeline-timeline": "activity",
-  "architecture-assessment-progress": "activity",
-  "architecture-graph": "activity",
-  "authority-chain": "activity",
-  "sponsor-handoff": "activity",
-  "sponsor-handoff-extended": "activity",
-  "run-actions": "review-package",
-};
 
 export function isReviewDetailTabId(value: string | null | undefined): value is ReviewDetailTabId {
   if (value === null || value === undefined || value.trim().length === 0) {
@@ -71,7 +57,7 @@ export function resolveReviewDetailTabFromHash(hash: string | null | undefined):
     return null;
   }
 
-  return LEGACY_HASH_TO_TAB[normalized] ?? null;
+  return RUN_DETAIL_SECTION_TAB[normalized] ?? null;
 }
 
 export function buildReviewDetailTabHref(

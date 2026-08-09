@@ -74,6 +74,7 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(pageViewSource).toContain("ReviewPackagePrimaryActionDeferred");
     expect(pageViewSource).toContain("RunDetailExecutiveBottomLineDeferred");
     expect(pageViewSource).toContain("RunDetailSectionNavDeferred");
+    expect(pageViewSource).toContain("RunDetailTabbedSectionNavDeferred");
     expect(pageViewSource).toContain("RunDetailManifestSummarySectionDeferred");
     expect(pageViewSource).toContain("RunDetailSubmittedArchitectureSectionDeferred");
     expect(pageViewSource).toContain("RunDetailCaptureEvidenceSectionDeferred");

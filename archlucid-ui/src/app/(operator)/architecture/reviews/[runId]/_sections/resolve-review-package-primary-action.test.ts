@@ -61,7 +61,9 @@ describe("resolveReviewPackagePrimaryAction", () => {
 
     expect(action.kind).toBe("send-to-sponsor");
     expect(action.label).toBe("Send to sponsor");
-    expect(action.href).toBe("#sponsor-handoff");
+    expect(action.href).toBe(
+      "/architecture/reviews/run-abc?reviewTab=review-package#sponsor-handoff",
+    );
   });
 
   it("guides in-progress reviews toward evidence capture before completion", () => {

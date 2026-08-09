@@ -53,8 +53,8 @@ function addEvidenceHref(runId: string): string {
   return buildReviewDetailTabHref(runId, "evidence");
 }
 
-function sendToSponsorHref(_runId: string): string {
-  return "#sponsor-handoff";
+function sendToSponsorHref(runId: string): string {
+  return buildReviewDetailTabHref(runId, "review-package", { hash: "sponsor-handoff" });
 }
 
 function buildLinkAction(

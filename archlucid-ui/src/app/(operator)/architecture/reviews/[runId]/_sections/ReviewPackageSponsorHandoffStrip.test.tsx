@@ -48,7 +48,7 @@ describe("ReviewPackageSponsorHandoffStrip", () => {
     expect(screen.getByTestId("review-package-sponsor-handoff-docx")).toBeInTheDocument();
     expect(screen.getByTestId("review-package-sponsor-handoff-more")).toHaveAttribute(
       "href",
-      "/architecture/reviews/run-abc?reviewTab=activity#sponsor-handoff-extended",
+      "/architecture/reviews/run-abc?reviewTab=review-package#sponsor-handoff-extended",
     );
   });
 });
