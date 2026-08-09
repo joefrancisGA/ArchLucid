@@ -21,8 +21,9 @@ import {
   COMMAND_PALETTE_ARIA_KEYSHORTCUTS,
   commandPaletteOpenAriaLabel,
 } from "@/lib/keyboard-shortcut-display";
-import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview, useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { useOperatorShellAuditRunId } from "@/hooks/useOperatorShellAuditRunId";
+import { useRoleNavDensityExpanded } from "@/hooks/use-role-nav-density-expanded";
 import { auditTrailNavHref, isAuditNavPath } from "@/lib/audit-nav-paths";
 import { scopeOperatorShellHrefSet, scopeOperatorShellNavRows } from "@/lib/nav-audit-run-scope";
 import { BUYER_COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-buyer-curated-tasks";
@@ -42,7 +43,12 @@ import {
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
-import { listNavGroupsVisibleInOperatorShell, visibleOperatorShellHrefSet } from "@/lib/nav-shell-visibility";
+import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
+import {
+  filterNavGroupsByRoleDensity,
+  resolveRoleNavDensityPersona,
+  visibleOperatorShellHrefSetFromNavRows,
+} from "@/lib/role-shaped-nav-density";
 import { applyPatternLibraryHrefSetGate, applyPatternLibraryNavGate } from "@/lib/apply-pattern-library-nav-gate";
 import { usePatternLibraryNavVisible } from "@/hooks/use-pattern-library-nav-visible";
 import { CommandPaletteRecentViewsGroup } from "@/components/usability/CommandPaletteRecentViewsGroup";
@@ -227,6 +233,8 @@ function CommandPaletteNavGroups({
   buyerPolishedShell,
   auditRunId,
   patternLibraryNavVisible,
+  roleNavDensityPersona,
+  roleNavDensityShowFullNav,
   onNavigate,
 }: {
   callerAuthorityRank: number;
@@ -236,54 +244,68 @@ function CommandPaletteNavGroups({
   buyerPolishedShell: boolean;
   auditRunId: string | null;
   patternLibraryNavVisible: boolean;
+  roleNavDensityPersona: ReturnType<typeof resolveRoleNavDensityPersona>;
+  roleNavDensityShowFullNav: boolean;
   onNavigate: (href: string) => void;
 }) {
   const search = useCommandState((state) => state.search);
   const showAdminPalette = search.trim().length > 0;
 
-  const reviewRows = applyPatternLibraryNavGate(
-    scopeOperatorShellNavRows(
-      listNavGroupsVisibleInOperatorShell(
-        NAV_GROUPS,
-        shellShowExtended,
-        shellShowAdvanced,
-        callerAuthorityRank,
-        false,
-        "review-workflow",
-        hasCommittedArchitectureReview,
+  const reviewRows = filterNavGroupsByRoleDensity(
+    applyPatternLibraryNavGate(
+      scopeOperatorShellNavRows(
+        listNavGroupsVisibleInOperatorShell(
+          NAV_GROUPS,
+          shellShowExtended,
+          shellShowAdvanced,
+          callerAuthorityRank,
+          false,
+          "review-workflow",
+          hasCommittedArchitectureReview,
+        ),
+        auditRunId,
       ),
-      auditRunId,
+      patternLibraryNavVisible,
     ),
-    patternLibraryNavVisible,
+    roleNavDensityPersona,
+    roleNavDensityShowFullNav,
   );
 
-  const adminRows = applyPatternLibraryNavGate(
-    scopeOperatorShellNavRows(
-      listNavGroupsVisibleInOperatorShell(
-        NAV_GROUPS,
-        shellShowExtended,
-        shellShowAdvanced,
-        callerAuthorityRank,
-        false,
-        "platform-admin",
-        hasCommittedArchitectureReview,
+  const adminRows = filterNavGroupsByRoleDensity(
+    applyPatternLibraryNavGate(
+      scopeOperatorShellNavRows(
+        listNavGroupsVisibleInOperatorShell(
+          NAV_GROUPS,
+          shellShowExtended,
+          shellShowAdvanced,
+          callerAuthorityRank,
+          false,
+          "platform-admin",
+          hasCommittedArchitectureReview,
+        ),
+        auditRunId,
       ),
-      auditRunId,
+      patternLibraryNavVisible,
     ),
-    patternLibraryNavVisible,
+    roleNavDensityPersona,
+    roleNavDensityShowFullNav,
   );
 
-  const systemAdminRows = isShowSystemAdministrationNavEnabled()
-    ? listNavGroupsVisibleInOperatorShell(
-        NAV_GROUPS,
-        shellShowExtended,
-        shellShowAdvanced,
-        callerAuthorityRank,
-        false,
-        "system-admin",
-        hasCommittedArchitectureReview,
-      )
-    : [];
+  const systemAdminRows = filterNavGroupsByRoleDensity(
+    isShowSystemAdministrationNavEnabled()
+      ? listNavGroupsVisibleInOperatorShell(
+          NAV_GROUPS,
+          shellShowExtended,
+          shellShowAdvanced,
+          callerAuthorityRank,
+          false,
+          "system-admin",
+          hasCommittedArchitectureReview,
+        )
+      : [],
+    roleNavDensityPersona,
+    roleNavDensityShowFullNav,
+  );
 
   return (
     <>
@@ -429,20 +451,39 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
   // Tier disclosure retired: palette lists every authority-eligible href (same as sidebar).
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
+  const { currentPrincipal } = useOperatorNavAuthority();
+  const { showFullNav: roleNavDensityShowFullNav } = useRoleNavDensityExpanded();
+  const roleNavDensityPersona = resolveRoleNavDensityPersona(currentPrincipal.roleClaimValues);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const paletteExtended = true;
   const paletteAdvanced = true;
   const patternLibraryNavVisible = usePatternLibraryNavVisible();
 
   const visibleHrefs = useMemo(() => {
-    return applyPatternLibraryHrefSetGate(
-      scopeOperatorShellHrefSet(
-        visibleOperatorShellHrefSet(
+    const shellRows = applyPatternLibraryNavGate(
+      scopeOperatorShellNavRows(
+        listNavGroupsVisibleInOperatorShell(
+          NAV_GROUPS,
           paletteExtended,
           paletteAdvanced,
           callerAuthorityRank,
+          false,
+          "all",
           hasCommittedArchitectureReview,
         ),
+        auditRunId,
+      ),
+      patternLibraryNavVisible,
+    );
+    const densityFilteredRows = filterNavGroupsByRoleDensity(
+      shellRows,
+      roleNavDensityPersona,
+      roleNavDensityShowFullNav,
+    );
+
+    return applyPatternLibraryHrefSetGate(
+      scopeOperatorShellHrefSet(
+        visibleOperatorShellHrefSetFromNavRows(densityFilteredRows),
         auditRunId,
       ),
       patternLibraryNavVisible,
@@ -454,6 +495,8 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     callerAuthorityRank,
     hasCommittedArchitectureReview,
     patternLibraryNavVisible,
+    roleNavDensityPersona,
+    roleNavDensityShowFullNav,
   ]);
 
   useEffect(() => {
@@ -604,6 +647,8 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
             buyerPolishedShell={buyerPolishedShell}
             auditRunId={auditRunId}
             patternLibraryNavVisible={patternLibraryNavVisible}
+            roleNavDensityPersona={roleNavDensityPersona}
+            roleNavDensityShowFullNav={roleNavDensityShowFullNav}
             onNavigate={navigate}
           />
           {buyerPolishedShell ? null : (

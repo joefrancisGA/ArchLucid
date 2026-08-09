@@ -3,9 +3,14 @@
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 
-import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
+import {
+  useNavCallerAuthorityRank,
+  useNavCommittedArchitectureReview,
+  useOperatorNavAuthority,
+} from "@/components/OperatorNavAuthorityProvider";
 import { useOperatorShellAuditRunId } from "@/hooks/useOperatorShellAuditRunId";
 import { usePatternLibraryNavVisible } from "@/hooks/use-pattern-library-nav-visible";
+import { useRoleNavDensityExpanded } from "@/hooks/use-role-nav-density-expanded";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
@@ -14,6 +19,11 @@ import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
 import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 import { applyPatternLibraryNavGate } from "@/lib/apply-pattern-library-nav-gate";
 import { scopeOperatorShellNavRows } from "@/lib/nav-audit-run-scope";
+import {
+  countNavGroupsHiddenByRoleDensity,
+  filterNavGroupsByRoleDensity,
+  resolveRoleNavDensityPersona,
+} from "@/lib/role-shaped-nav-density";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { resolveSidebarNavExpansionState } from "@/lib/sidebar-nav-disclosure-state";
 import type { OperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
@@ -31,6 +41,9 @@ type UseOperatorShellNavRowsResult = {
   readonly navAdvanced: boolean;
   readonly shellShowExtended: boolean;
   readonly shellShowAdvanced: boolean;
+  readonly roleNavDensityHiddenGroupCount: number;
+  readonly roleNavDensityShowFullNav: boolean;
+  readonly toggleRoleNavDensityShowFullNav: () => void;
 };
 
 /** Shared sidebar / mobile drawer nav composition. */
@@ -39,6 +52,10 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
   const auditRunId = useOperatorShellAuditRunId();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
+  const { currentPrincipal } = useOperatorNavAuthority();
+  const { showFullNav: roleNavDensityShowFullNav, toggleShowFullNav: toggleRoleNavDensityShowFullNav } =
+    useRoleNavDensityExpanded();
+  const roleNavDensityPersona = resolveRoleNavDensityPersona(currentPrincipal.roleClaimValues);
   const demoUi = isStaticDemoPayloadFallbackEnabled();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   // Tier / operate-unlock disclosure retired: always request full link sets; authority filters below.
@@ -101,14 +118,26 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
             true,
           );
 
-    return {
-      allRows: applyPatternLibraryNavGate(
-        scopeOperatorShellNavRows(
-          [...reviewNavRows, ...adminNavRows, ...systemAdminNavRows],
-          auditRunId,
-        ),
-        patternLibraryNavVisible,
+    const scopedRows = applyPatternLibraryNavGate(
+      scopeOperatorShellNavRows(
+        [...reviewNavRows, ...adminNavRows, ...systemAdminNavRows],
+        auditRunId,
       ),
+      patternLibraryNavVisible,
+    );
+    const allRows = filterNavGroupsByRoleDensity(
+      scopedRows,
+      roleNavDensityPersona,
+      roleNavDensityShowFullNav,
+    );
+    const roleNavDensityHiddenGroupCount = countNavGroupsHiddenByRoleDensity(
+      scopedRows,
+      roleNavDensityPersona,
+      roleNavDensityShowFullNav,
+    );
+
+    return {
+      allRows,
       buyerPolishedShell,
       demoUi,
       effectiveHasCommittedArchitectureReview,
@@ -120,6 +149,9 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
       navAdvanced,
       shellShowExtended,
       shellShowAdvanced,
+      roleNavDensityHiddenGroupCount,
+      roleNavDensityShowFullNav,
+      toggleRoleNavDensityShowFullNav,
     };
   }, [
     auditRunId,
@@ -132,6 +164,8 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
     navExpanded,
     omitAdminClusters,
     patternLibraryNavVisible,
+    roleNavDensityPersona,
+    roleNavDensityShowFullNav,
     shellShowAdvanced,
     shellShowExtended,
     showAdvanced,

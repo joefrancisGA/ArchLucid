@@ -37,7 +37,6 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           title: "Workspace overview",
           icon: Home,
           tier: "essential",
-          defaultVisibleInCollapsedSidebar: true,
         },
         {
           href: ARCHITECTURES_LIST_PATH,
@@ -45,7 +44,6 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           title: resolveArchitecturesListNavTitle(),
           icon: Layers,
           tier: "essential",
-          defaultVisibleInCollapsedSidebar: true,
         },
         {
           // String literal required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
@@ -55,7 +53,6 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           keyShortcut: "alt+r",
           icon: ListOrdered,
           tier: "essential",
-          defaultVisibleInCollapsedSidebar: true,
         },
         {
           // String literals required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
@@ -64,16 +61,14 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           title: PORTFOLIO_OVERVIEW_NAV_TITLE,
           icon: LayoutDashboard,
           tier: "essential",
-          defaultVisibleInCollapsedSidebar: true,
         },
         {
           href: FIRST_REVIEW_GUIDE_PATH as typeof FIRST_REVIEW_GUIDE_PATH & "/architecture/first-review-guide",
           label: OPERATOR_NAV_LINK_LABELS.onboarding,
           title: BUYER_ONBOARDING_NAV_TOOLTIP,
-          // Catalog tier is essential; demoted to extended after first commit in nav-committed-architecture-review-promotion.ts (TB-524).
+          // Catalog tier is essential; demoted to extended and moved last after first commit in nav-committed-architecture-review-promotion.ts (TB-524).
           tier: "essential",
           icon: Compass,
-          defaultVisibleInCollapsedSidebar: true,
         },
         {
           href: DIGESTS_HUB_PATH as typeof DIGESTS_HUB_PATH & "/architecture/digests",

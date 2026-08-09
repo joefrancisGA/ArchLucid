@@ -5,6 +5,7 @@ import { Fragment, useEffect, useLayoutEffect, useState } from "react";
 
 import { SidebarRecentActivityCard } from "@/components/SidebarRecentActivityCard";
 import { SidebarNavCluster } from "@/components/sidebar-nav/SidebarNavCluster";
+import { RoleNavDensityExpandControl } from "@/components/sidebar-nav/RoleNavDensityExpandControl";
 import { useGovernanceMode } from "@/hooks/use-governance-mode";
 import { useOperatorShellNavRows } from "@/hooks/useOperatorShellNavRows";
 import { useSidebarNavGroupExpansion } from "@/hooks/useSidebarNavGroupExpansion";
@@ -39,6 +40,9 @@ export function SidebarNav() {
     demoUi,
     effectiveHasCommittedArchitectureReview,
     effectiveOperateUnlockPhase,
+    roleNavDensityHiddenGroupCount,
+    roleNavDensityShowFullNav,
+    toggleRoleNavDensityShowFullNav,
   } = useOperatorShellNavRows();
   const demoUiEnv = isOperatorDemoStaticMode() || isPublicDemoModeEnv();
   const [runtimeDemoUi, setRuntimeDemoUi] = useState(demoUiEnv);
@@ -130,6 +134,12 @@ export function SidebarNav() {
           </Fragment>
         );
       })}
+
+      <RoleNavDensityExpandControl
+        hiddenGroupCount={roleNavDensityHiddenGroupCount}
+        showFullNav={roleNavDensityShowFullNav}
+        onToggle={toggleRoleNavDensityShowFullNav}
+      />
     </div>
   );
 }
