@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   computeProvenanceGraphBounds,
   computeProvenanceGraphLayout,
+  PROVENANCE_LAYER_HEIGHT,
   PROVENANCE_NODE_RADIUS,
 } from "@/lib/provenance-graph-layout";
 import type { ArchitectureLinkageEdge, ArchitectureLinkageNode } from "@/types/architecture-provenance";
@@ -48,6 +49,28 @@ describe("computeProvenanceGraphLayout", () => {
       expect(node.x).toBeGreaterThanOrEqual(bounds.minX - node.radius);
       expect(node.x).toBeLessThanOrEqual(bounds.maxX + node.radius);
     }
+  });
+
+  it("compacts empty provenance layers out of the layout", () => {
+    const nodes: ArchitectureLinkageNode[] = [
+      { id: "n-run", type: "run", referenceId: "r-1", name: "Review started" },
+      { id: "n-find", type: "Finding", referenceId: "f-1", name: "Risk" },
+      { id: "n-manifest", type: "goldenManifestPointer", referenceId: "m-1", name: "Signed review record" },
+    ];
+    const layout = computeProvenanceGraphLayout(nodes, sampleEdges);
+    const run = layout.nodes.find((node) => node.id === "n-run");
+    const manifest = layout.nodes.find((node) => node.id === "n-manifest");
+
+    expect(run).toBeDefined();
+    expect(manifest).toBeDefined();
+
+    if (run === undefined || manifest === undefined) {
+      return;
+    }
+
+    const layerGap = manifest.y - run.y;
+
+    expect(layerGap).toBeLessThan(PROVENANCE_LAYER_HEIGHT * 4);
   });
 
   it("returns stable layout for the same inputs", () => {

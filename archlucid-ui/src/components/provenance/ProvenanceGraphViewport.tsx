@@ -29,6 +29,7 @@ import {
   applyProvenanceZoomAtPoint,
   computeFitToViewTransform,
   PROVENANCE_GRAPH_MIN_HEIGHT_PX,
+  PROVENANCE_GRAPH_MIN_LABEL_FONT_PX,
   PROVENANCE_GRAPH_ZOOM_STEP,
   provenancePanTransform,
   provenanceTransformToSvg,
@@ -38,6 +39,7 @@ import {
   provenanceLegendEntriesForNodes,
   type ProvenanceNodeFilterCategory,
   provenanceNodeMatchesFilter,
+  provenanceNodeTypeLabel,
 } from "@/lib/provenance-node-presentation";
 import type { ArchitectureLinkageEdge, ArchitectureLinkageNode } from "@/types/architecture-provenance";
 
@@ -414,6 +416,8 @@ export function ProvenanceGraphViewport(props: ProvenanceGraphViewportProps): Re
   );
 
   const viewportHeight = expanded ? "100vh" : `${Math.max(PROVENANCE_GRAPH_MIN_HEIGHT_PX, containerSize.height)}px`;
+  const graphSummaryLabel = `Provenance graph with ${visibleNodes.length} nodes and ${visibleEdges.length} relationships`;
+  const labelFontSize = PROVENANCE_GRAPH_MIN_LABEL_FONT_PX / Math.max(transform.scale, 0.01);
 
   return (
     <div className={shellClass} data-testid="provenance-graph-viewport" data-expanded={expanded ? "true" : "false"}>
@@ -443,8 +447,8 @@ export function ProvenanceGraphViewport(props: ProvenanceGraphViewportProps): Re
           width="100%"
           height="100%"
           className={cn("block", layoutReady ? "opacity-100" : "opacity-0")}
-          role="img"
-          aria-label="Provenance nodes and relationships"
+          role="group"
+          aria-label={graphSummaryLabel}
           data-testid="provenance-graph-svg"
         >
           <defs>
@@ -491,25 +495,52 @@ export function ProvenanceGraphViewport(props: ProvenanceGraphViewportProps): Re
               const connected = connectedNodeIds.has(node.id);
               const dimmed =
                 props.selectedNodeId !== null && !selected && !connected && props.highlightedEdgeId === null;
+              const nodeTypeLabel = provenanceNodeTypeLabel(node.type);
+              const nodeRadius = selected ? node.radius + 4 : node.radius;
 
               return (
                 <g
                   key={node.id}
                   data-provenance-node="true"
                   data-testid={`provenance-node-${node.id}`}
-                  className="cursor-pointer"
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${node.fullLabel}, ${nodeTypeLabel}`}
+                  className="cursor-pointer outline-none focus-visible:outline-none"
                   onClick={(event) => {
                     event.stopPropagation();
                     props.onSelectNode(node.id);
                     props.onHighlightEdge(null);
                   }}
+                  onKeyDown={(event) => {
+                    if (event.key !== "Enter" && event.key !== " ") {
+                      return;
+                    }
+
+                    event.preventDefault();
+                    event.stopPropagation();
+                    props.onSelectNode(node.id);
+                    props.onHighlightEdge(null);
+                  }}
                 >
+                  <rect
+                    className="prov-node-focus-indicator opacity-0"
+                    x={node.x - nodeRadius - 6}
+                    y={node.y - nodeRadius - 6}
+                    width={(nodeRadius + 6) * 2}
+                    height={(nodeRadius + 6) * 2 + node.labelHeight + 12}
+                    rx={8}
+                    fill="none"
+                    stroke="#0f766e"
+                    strokeWidth={2}
+                    pointerEvents="none"
+                  />
                   <ProvenanceNodeShape node={node} selected={selected} connected={connected} dimmed={dimmed} />
                   <text
                     x={node.x}
                     y={node.y + node.radius + 16}
                     textAnchor="middle"
-                    fontSize={11}
+                    fontSize={labelFontSize}
                     fill={dimmed ? "#94a3b8" : "#334155"}
                     className="pointer-events-none dark:fill-neutral-300"
                   >
@@ -519,7 +550,7 @@ export function ProvenanceGraphViewport(props: ProvenanceGraphViewportProps): Re
                       </tspan>
                     ))}
                   </text>
-                  <title>{`${node.fullLabel}\n${node.type}`}</title>
+                  <title>{`${node.fullLabel}\n${nodeTypeLabel}`}</title>
                 </g>
               );
             })}
@@ -628,8 +659,13 @@ export function ProvenanceGraphViewport(props: ProvenanceGraphViewportProps): Re
         </div>
       </div>
       <p className={cn("m-0 px-3 py-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.micro)}>
-        Drag to pan. Ctrl + scroll to zoom. Select a node to highlight relationships.
+        Drag to pan. Ctrl + scroll to zoom. Tab to select nodes; Enter opens node details.
       </p>
+      <style>{`
+        [data-provenance-node="true"]:focus-visible .prov-node-focus-indicator {
+          opacity: 1;
+        }
+      `}</style>
     </div>
   );
 }

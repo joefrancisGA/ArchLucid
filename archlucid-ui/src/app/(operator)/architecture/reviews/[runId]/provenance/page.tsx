@@ -2,13 +2,14 @@
 import { notFound } from "next/navigation";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { ProvenancePageWorkspace } from "@/components/provenance/ProvenancePageWorkspace";
+import { ProvenancePageWorkspace, type ProvenanceReviewContext } from "@/components/provenance/ProvenancePageWorkspace";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 import { tryStaticDemoProvenanceGraph } from "@/lib/operator-static-demo";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { type ApiResponseWithTrace, getArchitectureRunProvenance } from "@/lib/api";
+import { type ApiResponseWithTrace, getArchitectureRunProvenance, getRunSummary } from "@/lib/api";
+import { provenanceReviewContextFromSummary } from "@/lib/provenance-review-context";
 import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
 import Link from "next/link";
 
@@ -26,11 +27,20 @@ export default async function RunProvenancePage({
 
   let loadFailure: ApiLoadFailureState | null = null;
   let provenanceResponse: ApiResponseWithTrace<ArchitectureRunProvenanceGraph> | null = null;
+  let reviewContext: ProvenanceReviewContext | null = null;
+
+  const reviewSummaryPromise = getRunSummary(runId).catch(() => null);
 
   try {
     provenanceResponse = await getArchitectureRunProvenance(runId);
   } catch (e) {
     loadFailure = toApiLoadFailure(e);
+  }
+
+  const reviewSummary = await reviewSummaryPromise;
+
+  if (reviewSummary !== null) {
+    reviewContext = provenanceReviewContextFromSummary(reviewSummary);
   }
 
   if (loadFailure !== null || provenanceResponse === null) {
@@ -85,6 +95,7 @@ export default async function RunProvenancePage({
       runId={runId}
       graph={provenanceResponse.data}
       provenanceTraceId={provenanceResponse.traceId}
+      reviewContext={reviewContext}
     />
   );
 }

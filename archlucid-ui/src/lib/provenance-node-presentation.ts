@@ -35,13 +35,7 @@ export function provenanceLayerLabels(): readonly string[] {
 
 /** Human-readable primary label for a provenance node (never raw internal id). */
 export function provenanceNodeDisplayName(node: ArchitectureLinkageNode): string {
-  const trimmedName = node.name.trim();
-
-  if (trimmedName.length > 0) {
-    return buyerLabelForProvenanceNode(node.type, trimmedName);
-  }
-
-  return provenanceGraphNodeTypeBuyerLabel(node.type);
+  return buyerLabelForProvenanceNode(node.type, node.name);
 }
 
 /** Secondary type label for tables and detail panels. */

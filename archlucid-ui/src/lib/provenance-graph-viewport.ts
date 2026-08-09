@@ -5,6 +5,9 @@ export const PROVENANCE_GRAPH_FIT_PADDING_PX = 40;
 export const PROVENANCE_GRAPH_MIN_ZOOM = 0.25;
 export const PROVENANCE_GRAPH_MAX_ZOOM = 3;
 export const PROVENANCE_GRAPH_ZOOM_STEP = 1.15;
+/** Minimum initial fit scale — prefer panning over shrinking labels below legibility. */
+export const PROVENANCE_GRAPH_MIN_FIT_SCALE = 0.8;
+export const PROVENANCE_GRAPH_MIN_LABEL_FONT_PX = 11;
 
 export type ProvenanceViewportTransform = {
   scale: number;
@@ -28,7 +31,8 @@ export function computeFitToViewTransform(
 
   const availableWidth = Math.max(1, containerWidth - padding * 2);
   const availableHeight = Math.max(1, containerHeight - padding * 2);
-  const scale = clampProvenanceZoom(Math.min(availableWidth / bounds.width, availableHeight / bounds.height));
+  const fitScale = Math.min(availableWidth / bounds.width, availableHeight / bounds.height);
+  const scale = clampProvenanceZoom(Math.max(fitScale, PROVENANCE_GRAPH_MIN_FIT_SCALE));
   const contentCenterX = bounds.minX + bounds.width / 2;
   const contentCenterY = bounds.minY + bounds.height / 2;
   const translateX = containerWidth / 2 - contentCenterX * scale;

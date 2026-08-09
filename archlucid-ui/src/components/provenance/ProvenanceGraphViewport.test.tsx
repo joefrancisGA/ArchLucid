@@ -123,6 +123,33 @@ describe("ProvenanceGraphViewport", () => {
     expect(onSelectNode).toHaveBeenCalledWith("n-find");
   });
 
+  it("activates nodes from the keyboard", async () => {
+    const onSelectNode = vi.fn();
+
+    render(
+      <ProvenanceGraphViewport
+        nodes={nodes}
+        edges={edges}
+        selectedNodeId={null}
+        highlightedEdgeId={null}
+        activeFilters={new Set()}
+        layoutSeed={0}
+        onSelectNode={onSelectNode}
+        onHighlightEdge={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("provenance-node-n-find")).toBeInTheDocument();
+    });
+
+    const node = screen.getByTestId("provenance-node-n-find");
+    node.focus();
+    fireEvent.keyDown(node, { key: "Enter" });
+
+    expect(onSelectNode).toHaveBeenCalledWith("n-find");
+  });
+
   it("shows a fallback panel when rendering fails", () => {
     const onRetry = vi.fn();
 
