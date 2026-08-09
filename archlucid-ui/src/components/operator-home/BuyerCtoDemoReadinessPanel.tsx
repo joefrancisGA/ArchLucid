@@ -24,6 +24,10 @@ import {
 } from "@/lib/buyer-cto-demo-readiness";
 import { buildCtoDemoRunOfShowMarkdown } from "@/lib/buyer-cto-demo-tour";
 import { DEMO_READINESS_RUN_OF_SHOW_DOWNLOAD_FILENAME } from "@/lib/demo-readiness-evidence-copy";
+import {
+  demoReadinessCheckStatusKind,
+  demoReadinessCheckStatusLabel,
+} from "@/lib/demo-readiness-check-status-label";
 import { groupDemoReadinessChecksBySection } from "@/lib/demo-readiness-check-sections";
 import { emitDemoReadinessInternalSignal } from "@/lib/demo-readiness-internal-telemetry";
 import { EXPLORE_ARCHLUCID_ROW_CLASS } from "@/components/operator-home/explore-archlucid-row-class";
@@ -72,17 +76,11 @@ function DemoReadinessCheckRow(props: { readonly check: BuyerCtoDemoReadinessChe
     >
       <div className="flex flex-wrap items-center gap-2">
         <StatusTag
-          kind={
-            props.check.status === "pass"
-              ? "ready"
-              : props.check.status === "warn"
-                ? "needs-attention"
-                : props.check.status === "fail"
-                  ? "blocked"
-                  : "needs-attention"
-          }
-          label={props.check.label}
+          kind={demoReadinessCheckStatusKind(props.check.status)}
+          label={demoReadinessCheckStatusLabel(props.check.status)}
+          data-testid={`demo-readiness-check-status-${props.check.id}`}
         />
+        <span className={cn("font-medium text-al-text-primary", OPERATOR_TYPE_SCALE.body)}>{props.check.label}</span>
       </div>
       <p className="m-0 mt-1 text-neutral-600 dark:text-neutral-400">{props.check.detail}</p>
     </li>

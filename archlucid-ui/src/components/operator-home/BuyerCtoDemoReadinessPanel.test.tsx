@@ -81,6 +81,8 @@ describe("BuyerCtoDemoReadinessPanel", () => {
     expect(screen.getByRole("region", { name: BUYER_CTO_DEMO_READINESS_ARIA })).toBeInTheDocument();
     expect(BUYER_CTO_DEMO_READINESS_ARIA.toLowerCase()).not.toContain("cto demo");
     expect(screen.getByTestId("buyer-cto-demo-readiness-check-buyer-shell")).toBeInTheDocument();
+    expect(screen.getByTestId("demo-readiness-check-status-buyer-shell")).toHaveTextContent("Pass");
+    expect(screen.getByText("Buyer-polished shell")).toBeInTheDocument();
     expect(mockEvaluate).toHaveBeenCalledTimes(1);
     expect(screen.queryByTestId("buyer-cto-demo-run-of-show-download")).toBeNull();
     expect(screen.getByRole("button", { name: "Recheck readiness" })).toBeInTheDocument();
