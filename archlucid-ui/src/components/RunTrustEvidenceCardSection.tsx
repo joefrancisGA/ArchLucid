@@ -3,9 +3,11 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { FindingEvidenceTrailLink } from "@/components/usability/FindingEvidenceTrailLink";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
-import { enterpriseStatusTagClass, operatorSemanticSurface, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { Card, CardContent } from "@/components/ui/card";
+import { StatusTag } from "@/components/ui/status-tag";
+import { operatorSemanticSurface, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { evidenceAbsenceFindingLabel, isEvidenceAbsenceFindingTitle } from "@/lib/evidence-absence-finding-copy";
 import {
@@ -23,6 +25,11 @@ import {
   trustEvidenceGoldenManifestFieldTitle,
   trustEvidenceProofChainManifestStepLabel,
 } from "@/lib/trust-evidence-display";
+import {
+  resolveTrustEvidenceDiagnosticsApiPath,
+  resolveTrustEvidenceProductLink,
+} from "@/lib/trust-evidence-product-links";
+import { trustEvidenceStatusTag } from "@/lib/trust-evidence-status-tag";
 import type { RunTrustEvidenceCard, RunTrustEvidenceRouteRef, TrustEvidenceFieldSnapshot } from "@/types/authority";
 
 /** Status used when a finding is on record but only reports that evidence found nothing. */
@@ -32,60 +39,6 @@ const RECORDED_STATUS = "Recorded";
 type EvidenceBasisField = TrustEvidenceReadinessField & {
   readonly technical: string | null;
 };
-
-function proxyApiPath(path: string): string {
-  if (path.startsWith("/v1/")) {
-    return `/api/proxy${path}`;
-  }
-
-  return path;
-}
-
-function statusClass(status: string): string {
-  const key = status.trim().toLowerCase();
-
-  if (key === "available") {
-    return enterpriseStatusTagClass("ready");
-  }
-
-  if (key === "missing") {
-    return enterpriseStatusTagClass("needs-attention");
-  }
-
-  if (key === "demo-only") {
-    return enterpriseStatusTagClass("in-progress");
-  }
-
-  if (key === "low confidence") {
-    return enterpriseStatusTagClass("needs-attention");
-  }
-
-  if (key === "not applicable") {
-    return enterpriseStatusTagClass("neutral");
-  }
-
-  return enterpriseStatusTagClass("neutral");
-}
-
-function FieldRow(props: {
-  readonly title: string;
-  readonly status: string;
-  readonly detail?: string | null;
-}): ReactElement {
-  const { title, status, detail } = props;
-
-  return (
-    <div className="rounded-lg border border-neutral-200 bg-white/60 p-3 dark:border-neutral-700 dark:bg-neutral-900/40">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div className={cn("font-medium text-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>{title}</div>
-        <span className={cn("rounded px-2 py-0.5 font-semibold", OPERATOR_TYPOGRAPHY.badge, statusClass(status))}>{status}</span>
-      </div>
-      {detail ? (
-        <p className={cn("m-0 mt-2 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{detail}</p>
-      ) : null}
-    </div>
-  );
-}
 
 function linkByRel(links: readonly RunTrustEvidenceRouteRef[], rel: string): RunTrustEvidenceRouteRef | null {
   return links.find((link) => link.rel === rel) ?? null;
@@ -106,15 +59,36 @@ function proofStepTone(field: TrustEvidenceFieldSnapshot): string {
   return operatorSemanticSurface("warn");
 }
 
+function FieldRow(props: {
+  readonly title: string;
+  readonly status: string;
+  readonly detail?: string | null;
+}): ReactElement {
+  const { title, status, detail } = props;
+  const tag = trustEvidenceStatusTag(status);
+
+  return (
+    <div className="rounded-lg border border-neutral-200 bg-white/60 p-3 dark:border-neutral-700 dark:bg-neutral-900/40">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div className={cn("font-medium text-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>{title}</div>
+        <StatusTag kind={tag.kind} label={tag.label} />
+      </div>
+      {detail ? (
+        <p className={cn("m-0 mt-2 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{detail}</p>
+      ) : null}
+    </div>
+  );
+}
+
 function ProofChainStep(props: {
   readonly index: number;
   readonly label: string;
   readonly field: TrustEvidenceFieldSnapshot;
-  readonly href?: string | null;
-  readonly linkLabel?: string;
+  readonly productLink?: { readonly href: string; readonly label: string } | null;
 }): ReactElement {
-  const { index, label, field, href, linkLabel } = props;
+  const { index, label, field, productLink = null } = props;
   const unavailable = field.status.trim().toLowerCase() !== "available";
+  const tag = trustEvidenceStatusTag(field.status);
 
   return (
     <li className={`rounded-lg border p-3 ${proofStepTone(field)}`} data-testid={`proof-chain-step-${index}`}>
@@ -125,20 +99,20 @@ function ProofChainStep(props: {
           </p>
           <p className={cn("m-0 mt-1 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>{field.title}</p>
         </div>
-        <span className={cn("rounded px-2 py-0.5 font-semibold", OPERATOR_TYPOGRAPHY.badge, statusClass(field.status))}>{field.status}</span>
+        <StatusTag kind={tag.kind} label={tag.label} />
       </div>
       {field.detail ? (
         <p className={cn("m-0 mt-2 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{field.detail}</p>
       ) : null}
-      {href ? (
+      {productLink !== null ? (
         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
-          <Link className={OPERATOR_LINK.nav} href={proxyApiPath(href)}>
-            {linkLabel ?? "Open supporting evidence"}
+          <Link className={OPERATOR_LINK.nav} href={productLink.href}>
+            {productLink.label}
           </Link>
         </p>
       ) : unavailable && field.status.trim().toLowerCase() !== RECORDED_STATUS.toLowerCase() ? (
         <p className={cn("m-0 mt-2 font-medium text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)}>
-          WARN: supporting link is missing; collect or regenerate proof before sponsor send.
+          Supporting link unavailable — regenerate this evidence before sharing the package.
         </p>
       ) : null}
     </li>
@@ -150,7 +124,7 @@ function proofChainFindingField(card: RunTrustEvidenceCard): TrustEvidenceFieldS
   const rawTitle = card.topFinding?.title ?? null;
   const pointers = splitTrustEvidenceDetail(card.topFinding?.evidencePointersSummary);
 
-  if (card.topFinding === null || card.topFinding === undefined) {
+  if (card.topFinding == null) {
     return {
       title: "Top finding evidence chain",
       status: "Missing",
@@ -173,8 +147,12 @@ function proofChainFindingField(card: RunTrustEvidenceCard): TrustEvidenceFieldS
   };
 }
 
-function ProofChainView(props: { readonly card: RunTrustEvidenceCard; readonly buyerPolishedShell: boolean }): ReactElement {
-  const { card, buyerPolishedShell } = props;
+function ProofChainView(props: {
+  readonly card: RunTrustEvidenceCard;
+  readonly runId: string;
+  readonly buyerPolishedShell: boolean;
+}): ReactElement {
+  const { card, runId, buyerPolishedShell } = props;
   const evidenceLink = linkByRel(card.links, "evidence");
   const topFindingLink = linkByRel(card.links, "topFindingEvidenceChain");
   const traceabilityLink = linkByRel(card.links, "traceabilityZip");
@@ -184,6 +162,7 @@ function ProofChainView(props: { readonly card: RunTrustEvidenceCard; readonly b
   );
   const bundleDetail = splitTrustEvidenceDetail(card.artifactBundlePointer.detail);
   const auditField = card.auditTrail.status.trim().toLowerCase() === "available" ? card.auditTrail : card.agentTraces;
+  const topFindingId = card.topFinding?.findingId ?? null;
 
   return (
     <div
@@ -194,10 +173,9 @@ function ProofChainView(props: { readonly card: RunTrustEvidenceCard; readonly b
         <h4 className={cn("m-0 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Evidence → finding → review record → artifact → audit proof chain
         </h4>
-        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          This chain shows why a committed ArchLucid review is stronger than a free-form AI answer: each sponsor-facing
-          claim can point back to stored evidence, a finding, a committed review record, an exportable artifact, and durable
-          audit or trace metadata. It is not a legal attestation.
+        <p className={cn("m-0 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          This chain links sponsor-facing claims to stored evidence, findings, the committed review record, exportable
+          artifacts, and audit metadata for this package. It is not a legal attestation.
         </p>
       </div>
       <ol className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
@@ -205,15 +183,15 @@ function ProofChainView(props: { readonly card: RunTrustEvidenceCard; readonly b
           index={1}
           label="Evidence"
           field={card.aiExplainability}
-          href={evidenceLink?.path}
-          linkLabel={evidenceLink?.label}
+          productLink={evidenceLink !== null ? resolveTrustEvidenceProductLink(evidenceLink, runId, topFindingId) : null}
         />
         <ProofChainStep
           index={2}
           label="Finding"
           field={proofChainFindingField(card)}
-          href={topFindingLink?.path}
-          linkLabel={topFindingLink?.label}
+          productLink={
+            topFindingLink !== null ? resolveTrustEvidenceProductLink(topFindingLink, runId, topFindingId) : null
+          }
         />
         <ProofChainStep
           index={3}
@@ -232,17 +210,22 @@ function ProofChainView(props: { readonly card: RunTrustEvidenceCard; readonly b
             title: trustEvidenceFieldTitleForDisplay(card.artifactBundlePointer.title),
             detail: bundleDetail.display,
           }}
-          href={traceabilityLink?.path}
-          linkLabel={traceabilityLink?.label}
+          productLink={
+            traceabilityLink !== null ? resolveTrustEvidenceProductLink(traceabilityLink, runId, topFindingId) : null
+          }
         />
         <ProofChainStep
           index={5}
           label="Audit"
           field={auditField}
-          href={tracesLink?.path}
-          linkLabel={tracesLink?.label}
+          productLink={tracesLink !== null ? resolveTrustEvidenceProductLink(tracesLink, runId, topFindingId) : null}
         />
       </ol>
+      {topFindingId !== null ? (
+        <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}>
+          <FindingEvidenceTrailLink runId={runId} findingId={topFindingId} label="Open top finding evidence trail" />
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -297,8 +280,9 @@ function buildEvidenceBasisFields(card: RunTrustEvidenceCard, buyerPolishedShell
 export function RunTrustEvidenceCardSection(props: {
   readonly card: RunTrustEvidenceCard;
   readonly evidenceAskRunId?: string | null;
+  readonly runId: string;
 }): ReactElement {
-  const { card, evidenceAskRunId } = props;
+  const { card, evidenceAskRunId, runId } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   const trimmedAskRun =
@@ -308,30 +292,22 @@ export function RunTrustEvidenceCardSection(props: {
   const readiness = deriveTrustEvidenceReadiness(fields);
   const technicalRows = fields.filter((field) => field.technical !== null);
   const topFindingPointers = splitTrustEvidenceDetail(card.topFinding?.evidencePointersSummary);
+  const readinessKind = readiness.verdict === "complete" ? "ready" : "needs-attention";
 
   return (
     <section id="trust-evidence" className="scroll-mt-24">
       <Card>
-        <CardHeader>
-          <h3 className={cn("m-0 tracking-tight text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-            {buyerPolishedShell ? "Evidence basis" : "Evidence basis (operational)"}
-          </h3>
-          <CardDescription className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-            {card.selfAttestationNotice}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div
-            className={readiness.verdict === "complete" ? operatorSemanticSurface("ready") : operatorSemanticSurface("warn")}
-            data-testid="trust-evidence-readiness-verdict"
-            role="status"
-          >
-            <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.body)}>
-              {readiness.headline}
-            </p>
-            <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+        <CardContent className="space-y-4 pt-4">
+          <div data-testid="trust-evidence-readiness-verdict">
+            <h3 className={cn("m-0 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+              Evidence basis — {readiness.headline}
+            </h3>
+            <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               {readiness.readyCount} of {readiness.totalCount} evidence fields are available for this review.
             </p>
+            <div className="mt-2">
+              <StatusTag kind={readinessKind} label={readiness.headline} />
+            </div>
           </div>
 
           {readiness.exceptions.length > 0 ? (
@@ -344,8 +320,6 @@ export function RunTrustEvidenceCardSection(props: {
               ))}
             </div>
           ) : null}
-
-          <ProofChainView card={card} buyerPolishedShell={buyerPolishedShell} />
 
           {trimmedAskRun.length > 0 ? (
             <div
@@ -360,7 +334,6 @@ export function RunTrustEvidenceCardSection(props: {
                 allows.
               </p>
               <div className="mt-3">
-                {/* Secondary on purpose — the review's recommended next step owns the single primary affordance. */}
                 <Button variant="outline" size="sm" asChild>
                   <Link href={`/insights/ask-review-questions?runId=${encodeURIComponent(trimmedAskRun)}`}>Ask about this review</Link>
                 </Button>
@@ -391,6 +364,7 @@ export function RunTrustEvidenceCardSection(props: {
 
           <CollapsibleSection
             title="All evidence fields"
+            headingLevel={4}
             summaryLine={`${readiness.satisfied.length} field${readiness.satisfied.length === 1 ? "" : "s"} need no attention`}
             defaultOpen={false}
             sectionTestId="trust-evidence-satisfied-fields"
@@ -402,8 +376,20 @@ export function RunTrustEvidenceCardSection(props: {
             </div>
           </CollapsibleSection>
 
+          <ProofChainView card={card} runId={runId} buyerPolishedShell={buyerPolishedShell} />
+
+          <section aria-labelledby="trust-evidence-scope-limitations">
+            <h4 id="trust-evidence-scope-limitations" className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+              Scope and limitations
+            </h4>
+            <p className={cn("m-0 mt-2 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+              {card.selfAttestationNotice}
+            </p>
+          </section>
+
           <CollapsibleSection
             title="Technical details (diagnostics)"
+            headingLevel={4}
             summaryLine="Identifiers, versions, and API routes for support and audit"
             defaultOpen={false}
             sectionTestId="trust-evidence-technical-details"
@@ -433,13 +419,14 @@ export function RunTrustEvidenceCardSection(props: {
             ) : null}
             <div className="mt-3">
               <div className={cn("font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-                {buyerPolishedShell ? "Evidence API endpoints" : "Evidence routes"}
+                {buyerPolishedShell ? "Operator diagnostics API routes" : "Evidence routes (operator diagnostics)"}
               </div>
               <ul className={cn("m-0 mt-2 list-disc space-y-1 pl-5", OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.body)}>
-                {card.links.map((l) => (
-                  <li key={l.rel}>
-                    <Link className="underline" href={proxyApiPath(l.path)}>
-                      {l.label}
+                {card.links.map((link) => (
+                  <li key={link.rel}>
+                    <span className="font-medium text-neutral-700 dark:text-neutral-300">{link.label}: </span>
+                    <Link className="underline" href={resolveTrustEvidenceDiagnosticsApiPath(link.path)}>
+                      {link.path}
                     </Link>
                   </li>
                 ))}

@@ -2,17 +2,17 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
+
 type FindingEvidenceTrailLinkProps = {
   readonly runId: string;
   readonly findingId: string;
   readonly label?: string;
 };
 
-/** One-click jump from a finding to its slice of the evidence trail graph. */
+/** One-click jump from a finding to its evidence-trace drill-down. */
 export function FindingEvidenceTrailLink(props: FindingEvidenceTrailLinkProps) {
-  const encodedRun = encodeURIComponent(props.runId);
-  const encodedFinding = encodeURIComponent(props.findingId);
-  const href = `/insights/evidence-graph?runId=${encodedRun}&findingId=${encodedFinding}&mode=review-trail`;
+  const href = getFindingEvidenceTraceHref(props.runId, props.findingId);
 
   return (
     <Link

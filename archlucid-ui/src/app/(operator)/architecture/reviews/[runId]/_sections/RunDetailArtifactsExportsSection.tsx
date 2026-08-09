@@ -104,6 +104,7 @@ export function RunDetailArtifactsExportsSection(
     <section id="artifacts-exports" className="scroll-mt-24">
         <CollapsibleSection
           title={BUYER_MANIFEST_DELIVERABLES_HEADING}
+          headingLevel={3}
           defaultOpen={deliverablesSectionDefaultOpen}
         >
           <p className={cn("m-0 mb-4 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>

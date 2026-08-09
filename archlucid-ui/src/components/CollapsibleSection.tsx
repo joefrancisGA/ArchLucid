@@ -6,6 +6,8 @@ import type { ReactNode } from "react";
 
 type CollapsibleSectionProps = {
   title: string;
+  /** When set, wraps the visible title in a heading element for outline order. */
+  headingLevel?: 2 | 3 | 4;
   /** When true, section starts expanded. */
   defaultOpen?: boolean;
   /** Optional one-line preview under the title in the summary row. */
@@ -30,6 +32,7 @@ type CollapsibleSectionProps = {
  */
 export function CollapsibleSection({
   title,
+  headingLevel,
   defaultOpen = false,
   summaryLine,
   summaryId,
@@ -55,7 +58,15 @@ export function CollapsibleSection({
         aria-label={summaryAriaLabel}
         className={cn("cursor-pointer select-none text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
       >
-        <span className="font-semibold">{title}</span>
+        {headingLevel === 2 ? (
+          <h2 className="m-0 font-semibold">{title}</h2>
+        ) : headingLevel === 3 ? (
+          <h3 className="m-0 font-semibold">{title}</h3>
+        ) : headingLevel === 4 ? (
+          <h4 className="m-0 font-semibold">{title}</h4>
+        ) : (
+          <span className="font-semibold">{title}</span>
+        )}
         {summaryLine !== undefined && summaryLine.trim().length > 0 ? (
           <span className={cn("mt-1 block font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             {summaryLine}
