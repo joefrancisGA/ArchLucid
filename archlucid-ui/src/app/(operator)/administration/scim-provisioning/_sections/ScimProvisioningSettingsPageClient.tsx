@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
+import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -91,10 +93,15 @@ import {
   SCIM_VERIFYING_ACTION,
 } from "@/lib/scim-provisioning-page-copy";
 import {
+  SCIM_TOKEN_CREATE_FAILED_MESSAGE,
+  SCIM_TOKEN_CREATED_SUCCESS_MESSAGE,
+  SCIM_TOKEN_REVOKE_FAILED_MESSAGE,
+  SCIM_TOKEN_REVOKED_SUCCESS_MESSAGE,
+} from "@/lib/admin-integration-mutation-outcome-copy";
+import {
   buildScimVerifyFailureDetails,
   buildScimVerifyFailureMessage,
 } from "@/lib/scim-provisioning-verify-present";
-import { showError, showSuccess } from "@/lib/toast";
 
 type ScimTokenSummary = {
   id: string;
@@ -157,6 +164,8 @@ export function ScimProvisioningSettingsPageClient() {
   const [copiedBaseUrl, setCopiedBaseUrl] = useState(false);
   const [copiedToken, setCopiedToken] = useState(false);
   const [statusAnnouncement, setStatusAnnouncement] = useState("");
+  const [mutationSuccessMessage, setMutationSuccessMessage] = useState<string | null>(null);
+  const [mutationErrorMessage, setMutationErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -211,6 +220,8 @@ export function ScimProvisioningSettingsPageClient() {
 
     setIssuing(true);
     setVerifyState({ status: "idle" });
+    setMutationErrorMessage(null);
+    setMutationSuccessMessage(null);
 
     try {
       const response = await fetch(
@@ -219,7 +230,7 @@ export function ScimProvisioningSettingsPageClient() {
       );
 
       if (!response.ok) {
-        showError(SCIM_CREATE_TOKEN_ACTION, SCIM_TOKEN_CREATE_FAILED);
+        setMutationErrorMessage(SCIM_TOKEN_CREATE_FAILED_MESSAGE);
 
         return;
       }
@@ -228,8 +239,8 @@ export function ScimProvisioningSettingsPageClient() {
       setIssuedToken(payload);
       setSetupSessionToken(payload.plaintextToken);
       setManualVerifyToken("");
-      setStatusAnnouncement(SCIM_TOKEN_CREATED_SUCCESS);
-      showSuccess(SCIM_TOKEN_CREATED_SUCCESS);
+      setStatusAnnouncement(SCIM_TOKEN_CREATED_SUCCESS_MESSAGE);
+      setMutationSuccessMessage(SCIM_TOKEN_CREATED_SUCCESS_MESSAGE);
       await load();
     } finally {
       setIssuing(false);
@@ -285,6 +296,8 @@ export function ScimProvisioningSettingsPageClient() {
   const revokeToken = useCallback(
     async (tokenId: string) => {
       setRevokingId(tokenId);
+      setMutationErrorMessage(null);
+      setMutationSuccessMessage(null);
 
       try {
         const response = await fetch(
@@ -293,13 +306,13 @@ export function ScimProvisioningSettingsPageClient() {
         );
 
         if (!response.ok) {
-          showError(SCIM_REVOKE_ACTION, SCIM_TOKEN_REVOKE_FAILED);
+          setMutationErrorMessage(SCIM_TOKEN_REVOKE_FAILED_MESSAGE);
 
           return;
         }
 
-        setStatusAnnouncement(SCIM_TOKEN_REVOKED_SUCCESS);
-        showSuccess(SCIM_TOKEN_REVOKED_SUCCESS);
+        setStatusAnnouncement(SCIM_TOKEN_REVOKED_SUCCESS_MESSAGE);
+        setMutationSuccessMessage(SCIM_TOKEN_REVOKED_SUCCESS_MESSAGE);
         await load();
       } finally {
         setRevokingId(null);
@@ -358,6 +371,14 @@ export function ScimProvisioningSettingsPageClient() {
       <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
         {statusAnnouncement}
       </p>
+
+      {mutationSuccessMessage !== null ? (
+        <OperatorSuccessCallout message={mutationSuccessMessage} testId="scim-mutation-success-callout" />
+      ) : null}
+
+      {mutationErrorMessage !== null ? (
+        <OperatorMutationInlineError message={mutationErrorMessage} testId="scim-mutation-inline-error" />
+      ) : null}
 
       <Card data-testid="scim-configure-section">
         <CardHeader>

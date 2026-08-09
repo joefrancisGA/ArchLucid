@@ -25,10 +25,12 @@ vi.mock("@/lib/toast", () => ({
 }));
 
 import { SlackIntegrationPageClient } from "@/app/(operator)/integrations/slack/_sections/SlackIntegrationPageClient";
+import { SLACK_INTEGRATION_SAVE_SUCCESS_MESSAGE } from "@/lib/admin-integration-mutation-outcome-copy";
 import {
   SLACK_INTEGRATION_PAGE_SUBTITLE,
   SLACK_INTEGRATION_PAGE_TITLE,
 } from "@/lib/slack-integration-page-copy";
+import { showSuccess } from "@/lib/toast";
 
 describe("SlackIntegrationPageClient", () => {
   beforeEach(() => {
@@ -46,7 +48,7 @@ describe("SlackIntegrationPageClient", () => {
     expect(screen.getByRole("heading", { level: 1, name: SLACK_INTEGRATION_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(SLACK_INTEGRATION_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(await screen.findByTestId("slack-configuration-status")).toHaveTextContent("Not configured");
-    expect(screen.getByTestId("slack-integration-help-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
   });
 
   it("renders customer-facing form labels and actions", async () => {
@@ -93,6 +95,29 @@ describe("SlackIntegrationPageClient", () => {
     expect(await screen.findByTestId("slack-form-test-feedback")).toHaveTextContent(
       "Test notification sent successfully.",
     );
+  });
+
+  it("shows durable success callout after saving a destination", async () => {
+    render(<SlackIntegrationPageClient />);
+
+    fireEvent.change(await screen.findByLabelText("Destination name"), {
+      target: { value: "Governance alerts" },
+    });
+    fireEvent.blur(screen.getByLabelText("Destination name"));
+    fireEvent.change(screen.getByLabelText("Slack incoming webhook URL"), {
+      target: { value: "https://hooks.slack.com/services/T000/B000/XXXXXXXX" },
+    });
+    fireEvent.blur(screen.getByLabelText("Slack incoming webhook URL"));
+    fireEvent.click(screen.getByRole("button", { name: "Save destination" }));
+
+    await waitFor(() => {
+      expect(mockCreate).toHaveBeenCalled();
+    });
+
+    expect(await screen.findByTestId("slack-integration-mutation-success-callout")).toHaveTextContent(
+      SLACK_INTEGRATION_SAVE_SUCCESS_MESSAGE,
+    );
+    expect(showSuccess).not.toHaveBeenCalled();
   });
 
   it("lists existing destinations without exposing webhook URLs in the table", async () => {

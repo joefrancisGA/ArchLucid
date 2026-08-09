@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -34,7 +35,10 @@ import {
   IDENTITY_PROVIDERS_SAVE_CONFIRM_TITLE,
   IDENTITY_PROVIDERS_TEST_BEFORE_ENABLE_NOTICE,
 } from "@/lib/identity-providers-settings-copy";
-import { showSuccess } from "@/lib/toast";
+import {
+  SAML_CONFIGURATION_SAVED_SUCCESS_MESSAGE,
+  SAML_METADATA_FETCHED_SUCCESS_MESSAGE,
+} from "@/lib/admin-integration-mutation-outcome-copy";
 
 const ARCHLUCID_ROLES = ["Admin", "Operator", "Reader", "Auditor"] as const;
 
@@ -46,6 +50,7 @@ export function SamlSpConfigurationForm() {
   const [error, setError] = useState<string | null>(null);
   const [savedUtc, setSavedUtc] = useState<string | null>(null);
   const [discoveredClaimNames, setDiscoveredClaimNames] = useState<string[]>([]);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const loadConfiguration = useCallback(async () => {
     setLoading(true);
@@ -76,6 +81,7 @@ export function SamlSpConfigurationForm() {
 
     setBusy(true);
     setError(null);
+    setSuccessMessage(null);
 
     try {
       const response = await discoverIdentityProviderMetadata("saml", values.idpMetadataUrl.trim());
@@ -92,7 +98,7 @@ export function SamlSpConfigurationForm() {
       }));
       setDiscoveredClaimNames(response.availableClaimNames ?? []);
 
-      showSuccess("IdP metadata fetched — confirm issuer and claim mappings.");
+      setSuccessMessage(SAML_METADATA_FETCHED_SUCCESS_MESSAGE);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -115,12 +121,13 @@ export function SamlSpConfigurationForm() {
 
     setBusy(true);
     setError(null);
+    setSuccessMessage(null);
 
     try {
       const response = await activateTenantSamlIdentityProvider(buildSamlSpActivateRequest(values));
 
       setSavedUtc(response.updatedUtc ?? new Date().toISOString());
-      showSuccess("SAML configuration saved for this workspace.");
+      setSuccessMessage(SAML_CONFIGURATION_SAVED_SUCCESS_MESSAGE);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -143,6 +150,10 @@ export function SamlSpConfigurationForm() {
           <div role="alert">
             <OperatorApiProblem problem={null} fallbackMessage={error} />
           </div>
+        ) : null}
+
+        {successMessage !== null ? (
+          <OperatorSuccessCallout message={successMessage} testId="saml-sp-configuration-success-callout" />
         ) : null}
 
         {loading ? (

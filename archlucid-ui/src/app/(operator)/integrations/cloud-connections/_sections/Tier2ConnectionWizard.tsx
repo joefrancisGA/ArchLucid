@@ -4,6 +4,8 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 
+import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
+import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { WizardStepper } from "@/components/wizard/WizardStepper";
 import { Button } from "@/components/ui/button";
@@ -20,6 +22,11 @@ import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-control
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { resolveApiErrorMessage } from "@/lib/resolve-api-error-message";
 import { sanitizeHostedAzureValidationError } from "@/lib/sanitize-hosted-azure-validation-error";
+import {
+  CLOUD_CONNECTION_SAVE_FAILURE_MESSAGE,
+  CLOUD_CONNECTION_SAVE_SUCCESS_MESSAGE,
+  CLOUD_CONNECTION_VALIDATION_ACCEPTED_MESSAGE,
+} from "@/lib/admin-integration-mutation-outcome-copy";
 import { showError, showSuccess } from "@/lib/toast";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
@@ -66,6 +73,7 @@ export function Tier2ConnectionWizard({ onSaved, skipSecurityStep = false }: Tie
   const [savedConnection, setSavedConnection] = useState<Tier2ConnectionResponse | null>(null);
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
   const [validationSucceeded, setValidationSucceeded] = useState(false);
+  const [saveErrorMessage, setSaveErrorMessage] = useState<string | null>(null);
 
   const setupScript = useMemo(() => buildTier2AzureSetupScript(), []);
 
@@ -131,6 +139,7 @@ export function Tier2ConnectionWizard({ onSaved, skipSecurityStep = false }: Tie
     setIsSaving(true);
     setValidationMessage(null);
     setValidationSucceeded(false);
+    setSaveErrorMessage(null);
 
     try {
       const saved = await configureTier2Connection({
@@ -141,10 +150,9 @@ export function Tier2ConnectionWizard({ onSaved, skipSecurityStep = false }: Tie
 
       setSavedConnection(saved);
       await onSaved([saved]);
-      showSuccess("Your Azure cloud evidence connection has been saved.");
     } catch (error) {
       console.error(error);
-      showError(resolveApiErrorMessage(error, "Failed to save connection."));
+      setSaveErrorMessage(resolveApiErrorMessage(error, CLOUD_CONNECTION_SAVE_FAILURE_MESSAGE));
     } finally {
       setIsSaving(false);
     }
@@ -172,9 +180,8 @@ export function Tier2ConnectionWizard({ onSaved, skipSecurityStep = false }: Tie
       const result = await validateTier2ConnectionHostedRun({ subscriptionId: firstSubscriptionId });
       setValidationSucceeded(true);
       setValidationMessage(
-        `Validation pull accepted — package ${result.packageId} with ${result.resourceCount} resources.`,
+        `${CLOUD_CONNECTION_VALIDATION_ACCEPTED_MESSAGE} Package ${result.packageId} with ${result.resourceCount} resources.`,
       );
-      showSuccess("Hosted extractor validation run accepted.");
     } catch (error) {
       console.error(error);
       setValidationSucceeded(false);
@@ -351,9 +358,13 @@ export function Tier2ConnectionWizard({ onSaved, skipSecurityStep = false }: Tie
 
           {savedConnection !== null ? (
             <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 space-y-3 p-4">
-              <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-teal-900 dark:text-teal-100")}>
-                Connection saved. Run a hosted validation pull to confirm ArchLucid can sign in with federation and list
-                resources with Reader.
+              <OperatorSuccessCallout
+                message={CLOUD_CONNECTION_SAVE_SUCCESS_MESSAGE}
+                testId="tier2-connection-save-success-callout"
+              />
+              <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-al-text-secondary")}>
+                Run a hosted validation pull to confirm ArchLucid can sign in with federation and list resources with
+                Reader.
               </p>
               <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="tier2-validation-prerequisites">
                 An Azure app registration alone is not enough. Before validating, confirm: (1) a federated credential on
@@ -410,6 +421,13 @@ export function Tier2ConnectionWizard({ onSaved, skipSecurityStep = false }: Tie
             </p>
           ) : null}
         </section>
+      ) : null}
+
+      {saveErrorMessage !== null ? (
+        <OperatorMutationInlineError
+          message={saveErrorMessage}
+          testId="tier2-connection-save-inline-error"
+        />
       ) : null}
 
       <WizardNavButtons

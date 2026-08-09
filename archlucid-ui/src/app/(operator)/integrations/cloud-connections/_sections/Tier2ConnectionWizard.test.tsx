@@ -19,6 +19,10 @@ vi.mock("@/lib/api/cloud-connections-api", () => ({
   validateTier2ConnectionHostedRun: vi.fn(),
 }));
 
+import { configureTier2Connection } from "@/lib/api/cloud-connections-api";
+import { CLOUD_CONNECTION_SAVE_SUCCESS_MESSAGE } from "@/lib/admin-integration-mutation-outcome-copy";
+import { showError, showSuccess } from "@/lib/toast";
+
 import { Tier2ConnectionWizard } from "./Tier2ConnectionWizard";
 
 const VALID_GUID = "00000000-0000-0000-0000-000000000001";
@@ -70,5 +74,32 @@ describe("Tier2ConnectionWizard", () => {
 
     expect(screen.getByText("Save and validate")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Save connection" })).toBeInTheDocument();
+  });
+
+  it("shows durable in-page success after save without toast", async () => {
+    vi.mocked(configureTier2Connection).mockResolvedValue({
+      id: "conn-1",
+      tenantId: VALID_GUID,
+      clientId: VALID_GUID,
+      subscriptionIds: [VALID_GUID],
+    } as never);
+
+    render(<Tier2ConnectionWizard onSaved={vi.fn()} skipSecurityStep />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    fireEvent.change(screen.getByTestId("tier2-tenant-id"), { target: { value: VALID_GUID } });
+    fireEvent.change(screen.getByTestId("tier2-client-id"), { target: { value: VALID_GUID } });
+    fireEvent.change(screen.getByTestId("tier2-subscription-ids"), { target: { value: VALID_GUID } });
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save connection" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("tier2-connection-save-success-callout")).toHaveTextContent(
+        CLOUD_CONNECTION_SAVE_SUCCESS_MESSAGE,
+      );
+    });
+
+    expect(showSuccess).not.toHaveBeenCalled();
+    expect(showError).not.toHaveBeenCalled();
   });
 });

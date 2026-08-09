@@ -5,6 +5,7 @@ import Link from "next/link";
 import { PageHeading } from "@/components/PageHeading";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -102,6 +103,14 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
             correlationId={m.failure.correlationId}
           />
         </div>
+      ) : null}
+
+      {m.mutationSuccessMessage !== null ? (
+        <OperatorSuccessCallout
+          message={m.mutationSuccessMessage}
+          testId="teams-integration-mutation-success-callout"
+          onDismiss={() => m.setMutationSuccessMessage(null)}
+        />
       ) : null}
 
       {m.loading && m.conn === null ? (

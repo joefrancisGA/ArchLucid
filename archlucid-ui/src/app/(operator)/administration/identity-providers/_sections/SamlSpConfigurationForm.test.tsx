@@ -11,6 +11,8 @@ vi.mock("@/lib/toast", () => ({
 }));
 
 import { SamlSpConfigurationForm } from "./SamlSpConfigurationForm";
+import { SAML_CONFIGURATION_SAVED_SUCCESS_MESSAGE } from "@/lib/admin-integration-mutation-outcome-copy";
+import { showSuccess } from "@/lib/toast";
 
 describe("SamlSpConfigurationForm", () => {
   beforeEach(() => {
@@ -98,5 +100,10 @@ describe("SamlSpConfigurationForm", () => {
 
     expect(body.issuerUri).toBe("https://idp.example.com/");
     expect(body.claimMapping?.mappings?.[0]?.idpValue).toBe("archlucid-admins");
+
+    expect(await screen.findByTestId("saml-sp-configuration-success-callout")).toHaveTextContent(
+      SAML_CONFIGURATION_SAVED_SUCCESS_MESSAGE,
+    );
+    expect(showSuccess).not.toHaveBeenCalled();
   });
 });

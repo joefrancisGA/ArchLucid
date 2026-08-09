@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
+import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,7 +35,11 @@ import {
   SSO_WIZARD_STATUS_NOT_ACTIVE,
   SSO_WIZARD_TRUST_REASSURANCE,
 } from "@/lib/sso-wizard-copy";
-import { showError, showSuccess } from "@/lib/toast";
+import {
+  SSO_WIZARD_ACTIVATE_SUCCESS_MESSAGE,
+  SSO_WIZARD_METADATA_RETRIEVED_SUCCESS_MESSAGE,
+  SSO_WIZARD_TEST_LOGIN_SUCCESS_MESSAGE,
+} from "@/lib/admin-integration-mutation-outcome-copy";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { SsoWizardFooter } from "./SsoWizardFooter";
@@ -97,6 +102,7 @@ export function SsoWizardPageClient() {
   const [state, setState] = useState<SsoWizardState>(() => createDefaultSsoWizardState());
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const completedSteps = useMemo(() => {
     const done: number[] = [];
@@ -144,6 +150,7 @@ export function SsoWizardPageClient() {
 
     setBusy(true);
     setError(null);
+    setSuccessMessage(null);
 
     try {
       const result = await postJson<DiscoverResponse>("/api/proxy/v1/admin/identity/discover", {
@@ -173,7 +180,7 @@ export function SsoWizardPageClient() {
         availableClaimNames: data.availableClaimNames ?? prev.availableClaimNames,
       }));
 
-      showSuccess("Provider metadata retrieved. Confirm issuer and signing details.");
+      setSuccessMessage(SSO_WIZARD_METADATA_RETRIEVED_SUCCESS_MESSAGE);
     } catch (error: unknown) {
       setError(formatSsoWizardUnexpectedError(error));
     } finally {
@@ -188,6 +195,7 @@ export function SsoWizardPageClient() {
 
     setBusy(true);
     setError(null);
+    setSuccessMessage(null);
 
     const sampleValues = state.sampleClaimValues
       .split(/[\n,;]+/)
@@ -229,7 +237,7 @@ export function SsoWizardPageClient() {
         return;
       }
 
-      showSuccess("Connection test succeeded.");
+      setSuccessMessage(SSO_WIZARD_TEST_LOGIN_SUCCESS_MESSAGE);
     } catch (error: unknown) {
       setError(formatSsoWizardUnexpectedError(error));
     } finally {
@@ -244,6 +252,7 @@ export function SsoWizardPageClient() {
 
     setBusy(true);
     setError(null);
+    setSuccessMessage(null);
 
     try {
       const result = await postJson<ActivateResponse>("/api/proxy/v1/admin/identity/activate", {
@@ -264,7 +273,7 @@ export function SsoWizardPageClient() {
         return;
       }
 
-      showSuccess("Single sign-on activated for this workspace.");
+      setSuccessMessage(SSO_WIZARD_ACTIVATE_SUCCESS_MESSAGE);
       setStep(4);
     } catch (error: unknown) {
       setError(formatSsoWizardUnexpectedError(error));
@@ -291,11 +300,13 @@ export function SsoWizardPageClient() {
     }
 
     setError(null);
+    setSuccessMessage(null);
     setStep((current) => Math.min(SSO_WIZARD_STEPS.length - 1, current + 1));
   }, [busy, canProceed]);
 
   const handleBack = useCallback(() => {
     setError(null);
+    setSuccessMessage(null);
     setStep((current) => Math.max(0, current - 1));
   }, []);
 
@@ -322,7 +333,13 @@ export function SsoWizardPageClient() {
       </header>
 <SsoWizardStepper currentStep={step} completedSteps={completedSteps} />
 
-      {error ? <OperatorApiProblem problem={null} fallbackMessage={error} /> : null}
+      {error !== null ? (
+        <OperatorMutationInlineError message={error} testId="sso-wizard-mutation-inline-error" />
+      ) : null}
+
+      {successMessage !== null ? (
+        <OperatorSuccessCallout message={successMessage} testId="sso-wizard-success-callout" />
+      ) : null}
 
       <Card>
         <CardHeader>
@@ -551,8 +568,8 @@ export function SsoWizardPageClient() {
             onBack={handleBack}
             onContinue={handleContinue}
             onActivate={() => {
-              void runActivate().catch((error: unknown) => {
-                showError(formatSsoWizardUnexpectedError(error));
+              void runActivate().catch((activateError: unknown) => {
+                setError(formatSsoWizardUnexpectedError(activateError));
               });
             }}
           />

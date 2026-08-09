@@ -1,12 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const showError = vi.fn();
-const showSuccess = vi.fn();
-
-vi.mock("@/lib/toast", () => ({
-  showError: (...args: unknown[]) => showError(...args),
-  showSuccess: (...args: unknown[]) => showSuccess(...args),
-}));
+import {
+  BILLING_CHECKOUT_NOT_CONFIGURED_MESSAGE,
+  BILLING_CHECKOUT_REQUEST_ACCEPTED_MESSAGE,
+} from "@/lib/admin-integration-mutation-outcome-copy";
 
 vi.mock("@/lib/proxy-fetch-registration-scope", () => ({
   mergeRegistrationScopeForProxy: (init: RequestInit) => init,
@@ -16,8 +13,6 @@ import { startBillingCheckout } from "@/lib/billing-checkout-client";
 
 describe("startBillingCheckout", () => {
   beforeEach(() => {
-    showError.mockClear();
-    showSuccess.mockClear();
     const locationAssign = vi.fn();
     Object.defineProperty(window, "location", {
       configurable: true,
@@ -39,7 +34,7 @@ describe("startBillingCheckout", () => {
       cancelUrl: "https://app.example.com/settings/billing?checkout=cancelled",
     });
 
-    expect(result).toBe("redirected");
+    expect(result).toEqual({ outcome: "redirected" });
     expect(window.location.assign).toHaveBeenCalledWith("https://checkout.stripe.com/c/pay/cs_test_abc");
   });
 
@@ -51,7 +46,31 @@ describe("startBillingCheckout", () => {
 
     const result = await startBillingCheckout({ targetTier: "Pro" });
 
-    expect(result).toBe("not_configured");
-    expect(showSuccess).toHaveBeenCalled();
+    expect(result).toEqual({
+      outcome: "not_configured",
+      message: BILLING_CHECKOUT_NOT_CONFIGURED_MESSAGE,
+    });
+  });
+
+  it("returns accepted when checkout succeeds without redirect URL", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({ status: "ok" }), { status: 200 })));
+
+    const result = await startBillingCheckout({ targetTier: "Pro" });
+
+    expect(result).toEqual({
+      outcome: "accepted",
+      message: BILLING_CHECKOUT_REQUEST_ACCEPTED_MESSAGE,
+    });
+  });
+
+  it("returns failed with message when API rejects checkout", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(new Response(JSON.stringify({ title: "Billing unavailable" }), { status: 403 })),
+    );
+
+    const result = await startBillingCheckout({ targetTier: "Pro" });
+
+    expect(result).toEqual({ outcome: "failed", message: "Billing unavailable" });
   });
 });

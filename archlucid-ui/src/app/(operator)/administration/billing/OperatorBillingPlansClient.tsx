@@ -8,6 +8,8 @@ import { useSearchParams } from "next/navigation";
 import { AsyncActionButton } from "@/components/ui/AsyncActionButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
+import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { BILLING_TIER_FEATURE_BULLETS } from "@/lib/billing-plan-tier-features";
 import { startMarketingPlanBillingCheckout } from "@/lib/billing-checkout-client";
 import { isSelfServeBillingCheckoutPlan } from "@/lib/billing-checkout-tier-map";
@@ -26,7 +28,10 @@ import {
 } from "@/lib/pricing-catalog-display";
 import { fetchPricingCatalog } from "@/lib/pricing-catalog-client";
 import type { PricingDoc, PricingPackage } from "@/lib/pricing-types";
-import { showInfo, showSuccess } from "@/lib/toast";
+import {
+  BILLING_CHECKOUT_COMPLETED_SUCCESS_MESSAGE,
+} from "@/lib/admin-integration-mutation-outcome-copy";
+import { showInfo } from "@/lib/toast";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 function PlanSummaryLines(props: { pricing: PricingDoc; pkg: PricingPackage }) {
@@ -77,6 +82,8 @@ export function OperatorBillingPlansClient(props: OperatorBillingPlansClientProp
   const [pricing, setPricing] = useState<PricingDoc | null>(null);
   const [pricingError, setPricingError] = useState(false);
   const [checkoutPlanId, setCheckoutPlanId] = useState<MarketingPricingTierId | null>(null);
+  const [checkoutSuccessMessage, setCheckoutSuccessMessage] = useState<string | null>(null);
+  const [checkoutErrorMessage, setCheckoutErrorMessage] = useState<string | null>(null);
   const checkoutInFlightRef = useRef(false);
 
   const selectedPlanRaw = props.initialPlanId ?? searchParams.get("plan");
@@ -101,7 +108,7 @@ export function OperatorBillingPlansClient(props: OperatorBillingPlansClientProp
     const checkoutState = searchParams.get("checkout");
 
     if (checkoutState === "success") {
-      showSuccess("Billing: Checkout completed. Your plan will update once payment is confirmed.");
+      setCheckoutSuccessMessage(BILLING_CHECKOUT_COMPLETED_SUCCESS_MESSAGE);
     }
   }, [searchParams]);
 
@@ -135,13 +142,21 @@ export function OperatorBillingPlansClient(props: OperatorBillingPlansClientProp
 
       checkoutInFlightRef.current = true;
       setCheckoutPlanId(tierId);
+      setCheckoutErrorMessage(null);
+      setCheckoutSuccessMessage(null);
 
       try {
-        await startMarketingPlanBillingCheckout({
+        const result = await startMarketingPlanBillingCheckout({
           planId: tierId,
           seats: pkg.includedUsers ?? 1,
           workspaces: pkg.includedWorkspaces ?? 1,
         });
+
+        if (result.outcome === "not_configured" || result.outcome === "accepted") {
+          setCheckoutSuccessMessage(result.message);
+        } else if (result.outcome === "failed") {
+          setCheckoutErrorMessage(result.message);
+        }
       } finally {
         checkoutInFlightRef.current = false;
         setCheckoutPlanId(null);
@@ -152,6 +167,21 @@ export function OperatorBillingPlansClient(props: OperatorBillingPlansClientProp
 
   return (
     <div className="space-y-4">
+      {checkoutSuccessMessage !== null ? (
+        <OperatorSuccessCallout
+          message={checkoutSuccessMessage}
+          testId="billing-checkout-success-callout"
+          onDismiss={() => setCheckoutSuccessMessage(null)}
+        />
+      ) : null}
+
+      {checkoutErrorMessage !== null ? (
+        <OperatorMutationInlineError
+          message={checkoutErrorMessage}
+          testId="billing-checkout-inline-error"
+        />
+      ) : null}
+
       <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>
         {OPERATOR_BILLING_CATALOG_NOTE}{" "}
         <Link href="/pricing" className={OPERATOR_LINK.nav}>

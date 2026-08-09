@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 const pushMock = vi.fn();
@@ -27,6 +27,8 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 
 import { SsoWizardPageClient } from "./_sections/SsoWizardPageClient";
 import { SSO_WIZARD_BANNED_UI_PATTERNS } from "@/lib/sso-wizard-copy";
+import { SSO_WIZARD_ACTIVATE_SUCCESS_MESSAGE } from "@/lib/admin-integration-mutation-outcome-copy";
+import { showSuccess } from "@/lib/toast";
 
 describe("SsoWizardPage", () => {
   it("renders enterprise SSO wizard chrome without internal implementation language", () => {
@@ -85,5 +87,76 @@ describe("SsoWizardPage", () => {
       "href",
       "/help/enterprise-onboarding",
     );
+  });
+
+  it("shows durable in-page success after SSO activation without toast", async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+
+      if (url.includes("/admin/identity/discover")) {
+        return new Response(
+          JSON.stringify({
+            discoverySucceeded: true,
+            issuerUri: "https://idp.example.com/",
+            availableClaimNames: ["groups"],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
+      if (url.includes("/admin/identity/test-login")) {
+        return new Response(JSON.stringify({ success: true, mappedRoles: ["Admin"] }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      if (url.includes("/admin/identity/activate") && init?.method === "POST") {
+        return new Response(JSON.stringify({ isActive: true }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      return new Response("not found", { status: 404 });
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<SsoWizardPageClient />);
+
+    fireEvent.click(screen.getByTestId("sso-protocol-oidc"));
+    fireEvent.click(screen.getByTestId("sso-wizard-continue"));
+
+    fireEvent.change(screen.getByTestId("sso-metadata-url"), {
+      target: { value: "https://idp.example.com/metadata" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Fetch provider metadata/i }));
+
+    await screen.findByTestId("sso-wizard-success-callout");
+
+    fireEvent.click(screen.getByTestId("sso-wizard-continue"));
+    fireEvent.change(screen.getByTestId("sso-role-claim"), { target: { value: "groups" } });
+    fireEvent.change(screen.getAllByPlaceholderText("e.g. al-admin-group")[0], { target: { value: "al-admins" } });
+    fireEvent.click(screen.getByTestId("sso-wizard-continue"));
+
+    fireEvent.change(screen.getByTestId("sso-sample-claims"), { target: { value: "al-admins" } });
+    fireEvent.click(screen.getByRole("button", { name: /Test connection/i }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("sso-wizard-continue")).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByTestId("sso-wizard-continue"));
+
+    expect(await screen.findByTestId("sso-wizard-activate")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("sso-wizard-activate"));
+
+    expect(await screen.findByTestId("sso-wizard-success-callout")).toHaveTextContent(
+      SSO_WIZARD_ACTIVATE_SUCCESS_MESSAGE,
+    );
+    expect(showSuccess).not.toHaveBeenCalled();
+
+    vi.unstubAllGlobals();
   });
 });

@@ -18,10 +18,12 @@ import {
   TEAMS_RECOMMENDED_EVENT_TYPES,
 } from "@/lib/teams-integration-notification-catalog";
 import {
+  TEAMS_INTEGRATION_REMOVE_SUCCESS_MESSAGE,
+  TEAMS_INTEGRATION_SAVE_SUCCESS_MESSAGE,
+} from "@/lib/admin-integration-mutation-outcome-copy";
+import {
   resolveTeamsIntegrationConnectionStatus,
   TEAMS_INTEGRATION_REMOVE_CONFIRM,
-  TEAMS_INTEGRATION_REMOVE_SUCCESS,
-  TEAMS_INTEGRATION_SAVE_SUCCESS,
   TEAMS_INTEGRATION_SECRET_ACCESS_FAILURE_MESSAGE,
   TEAMS_INTEGRATION_TEST_FAILURE,
   TEAMS_INTEGRATION_TEST_SUCCESS,
@@ -31,7 +33,6 @@ import {
   validateTeamsKeyVaultSecretNameClient,
   type TeamsSecretValidationResult,
 } from "@/lib/teams-integration-secret-validation";
-import { showSuccess } from "@/lib/toast";
 import type {
   TeamsIncomingWebhookConnectionResponse,
   TeamsIncomingWebhookConnectionUpsertRequest,
@@ -95,6 +96,7 @@ export function useTeamsNotificationsIntegrationPage(
   const [testKind, setTestKind] = useState<"success" | "error" | null>(null);
   const [showTriggerValidationError, setShowTriggerValidationError] = useState(false);
   const [lastTestMessage, setLastTestMessage] = useState<string | null>(null);
+  const [mutationSuccessMessage, setMutationSuccessMessage] = useState<string | null>(null);
 
   const skipInitialClientLoadRef = useRef(serverLoad.mode === "live");
 
@@ -264,6 +266,7 @@ export function useTeamsNotificationsIntegrationPage(
     setSaving(true);
     setFailure(null);
     setShowTriggerValidationError(false);
+    setMutationSuccessMessage(null);
 
     try {
       const orderedTriggers = (catalog.length > 0 ? catalog : TEAMS_NOTIFICATION_EVENT_TYPES).filter((eventType) =>
@@ -278,7 +281,7 @@ export function useTeamsNotificationsIntegrationPage(
 
       setConn(saved);
       setEnabledTriggers(new Set(saved.enabledTriggers));
-      showSuccess(TEAMS_INTEGRATION_SAVE_SUCCESS);
+      setMutationSuccessMessage(TEAMS_INTEGRATION_SAVE_SUCCESS_MESSAGE);
     } catch {
       setFailure({
         message: SAVE_FAILURE_MESSAGE,
@@ -305,6 +308,7 @@ export function useTeamsNotificationsIntegrationPage(
 
     setSaving(true);
     setFailure(null);
+    setMutationSuccessMessage(null);
 
     try {
       await deleteTeamsIncomingWebhookConnection();
@@ -317,7 +321,7 @@ export function useTeamsNotificationsIntegrationPage(
       setTestKind(null);
       setLastTestMessage(null);
       await load();
-      showSuccess(TEAMS_INTEGRATION_REMOVE_SUCCESS);
+      setMutationSuccessMessage(TEAMS_INTEGRATION_REMOVE_SUCCESS_MESSAGE);
     } catch (error) {
       setFailure(toApiLoadFailure(error));
     } finally {
@@ -346,6 +350,8 @@ export function useTeamsNotificationsIntegrationPage(
     testKind,
     lastTestMessage,
     showTriggerValidationError,
+    mutationSuccessMessage,
+    setMutationSuccessMessage,
     canSendTest,
     toggleTrigger,
     onSelectRecommended,

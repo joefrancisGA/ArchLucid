@@ -7,6 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, FormProvider, useForm, useWatch } from "react-hook-form";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
+import { WEBHOOK_SUBSCRIPTION_SAVE_SUCCESS_MESSAGE } from "@/lib/admin-integration-mutation-outcome-copy";
 import { PageHeading } from "@/components/PageHeading";
 import { BooleanStatusChip } from "@/components/ui/boolean-status-chip";
 import { Button } from "@/components/ui/button";
@@ -43,7 +45,6 @@ import {
   WEBHOOKS_PAGE_DEDICATED_INTEGRATIONS_INTRO,
   WEBHOOKS_PAGE_TITLE,
   WEBHOOKS_SAVE_LABEL,
-  WEBHOOKS_SAVE_SUCCESS,
   WEBHOOKS_SAVE_THEN_TEST_HELPER,
   WEBHOOKS_SAVING_LABEL,
   WEBHOOKS_SEVERITY_HELPER,
@@ -66,7 +67,6 @@ import {
   presentWebhookConnectionTestRequestFailure,
   presentWebhookConnectionTestToasts,
 } from "@/lib/webhook-subscription-connection-test";
-import { showSuccess } from "@/lib/toast";
 
 import type { AlertRoutingSubscription, WebhookTestResponse } from "@/types/alert-routing";
 
@@ -91,6 +91,7 @@ export function WebhooksSettingsClient() {
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [testingId, setTestingId] = useState<string | null>(null);
   const [testResults, setTestResults] = useState<Record<string, WebhookTestResponse>>({});
+  const [saveSuccessMessage, setSaveSuccessMessage] = useState<string | null>(null);
 
   const form = useForm<WebhookSettingsFormValues>({
     resolver: zodResolver(webhookSettingsFormSchema),
@@ -195,6 +196,7 @@ export function WebhooksSettingsClient() {
     }
 
     setFailure(null);
+    setSaveSuccessMessage(null);
     isSavingRef.current = true;
     setIsSaving(true);
 
@@ -209,7 +211,7 @@ export function WebhooksSettingsClient() {
       });
       reset({ ...webhookSettingsDefaultValues });
       await load();
-      showSuccess(WEBHOOKS_SAVE_SUCCESS);
+      setSaveSuccessMessage(WEBHOOK_SUBSCRIPTION_SAVE_SUCCESS_MESSAGE);
     } catch (error: unknown) {
       const apiFailure = toApiLoadFailure(error);
       setFailure({
@@ -450,6 +452,14 @@ export function WebhooksSettingsClient() {
               >
                 {isSaving ? WEBHOOKS_SAVING_LABEL : WEBHOOKS_SAVE_LABEL}
               </Button>
+
+              {saveSuccessMessage !== null ? (
+                <OperatorSuccessCallout
+                  message={saveSuccessMessage}
+                  testId="webhook-save-success-callout"
+                  onDismiss={() => setSaveSuccessMessage(null)}
+                />
+              ) : null}
             </section>
 
             <section aria-labelledby="webhook-existing-heading">

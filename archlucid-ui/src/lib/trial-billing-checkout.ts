@@ -4,5 +4,5 @@ import { startBillingCheckout } from "@/lib/billing-checkout-client";
 export async function startTrialBillingCheckout(): Promise<boolean> {
   const result = await startBillingCheckout({ targetTier: "Team" });
 
-  return result === "redirected";
+  return result.outcome === "redirected";
 }

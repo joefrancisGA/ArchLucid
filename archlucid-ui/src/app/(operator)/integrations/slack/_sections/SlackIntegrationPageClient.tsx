@@ -7,6 +7,7 @@ import { FormProvider, useForm } from "react-hook-form";
 
 import { PageHeading } from "@/components/PageHeading";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -27,19 +28,20 @@ import {
 } from "@/lib/slack-integration-form-schema";
 import {
   SLACK_INTEGRATION_DISABLE_CONFIRM,
-  SLACK_INTEGRATION_DISABLE_SUCCESS,
-  SLACK_INTEGRATION_ENABLE_SUCCESS,
   SLACK_INTEGRATION_PAGE_SUBTITLE,
   SLACK_INTEGRATION_PAGE_TITLE,
-  SLACK_INTEGRATION_SAVE_SUCCESS,
   slackIntegrationConfigurationStatusLabel,
 } from "@/lib/slack-integration-page-copy";
+import {
+  SLACK_INTEGRATION_DISABLE_SUCCESS_MESSAGE,
+  SLACK_INTEGRATION_ENABLE_SUCCESS_MESSAGE,
+  SLACK_INTEGRATION_SAVE_SUCCESS_MESSAGE,
+} from "@/lib/admin-integration-mutation-outcome-copy";
 import {
   interpretSlackIntegrationTestResult,
   type SlackIntegrationTestFeedback,
 } from "@/lib/slack-integration-test-feedback";
 import { buildWebhookSubscriptionMetadata } from "@/lib/webhook-subscription-metadata";
-import { showSuccess } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import type { AlertRoutingSubscription } from "@/types/alert-routing";
 
@@ -60,6 +62,7 @@ export function SlackIntegrationPageClient(): React.ReactElement {
   const [testingForm, setTestingForm] = useState(false);
   const [formTestFeedback, setFormTestFeedback] = useState<SlackIntegrationTestFeedback | null>(null);
   const [rowTestFeedback, setRowTestFeedback] = useState<Record<string, SlackIntegrationTestFeedback>>({});
+  const [mutationSuccessMessage, setMutationSuccessMessage] = useState<string | null>(null);
 
   const form = useForm<SlackIntegrationFormValues>({
     resolver: zodResolver(slackIntegrationFormSchema),
@@ -159,11 +162,14 @@ export function SlackIntegrationPageClient(): React.ReactElement {
     }
 
     setFailure(null);
+    setMutationSuccessMessage(null);
 
     try {
       await toggleAlertRoutingSubscription(routingSubscriptionId);
       await load();
-      showSuccess(isEnabled ? SLACK_INTEGRATION_DISABLE_SUCCESS : SLACK_INTEGRATION_ENABLE_SUCCESS);
+      setMutationSuccessMessage(
+        isEnabled ? SLACK_INTEGRATION_DISABLE_SUCCESS_MESSAGE : SLACK_INTEGRATION_ENABLE_SUCCESS_MESSAGE,
+      );
     } catch (error) {
       setFailure(toApiLoadFailure(error));
     }
@@ -176,6 +182,7 @@ export function SlackIntegrationPageClient(): React.ReactElement {
 
     setFailure(null);
     setFormTestFeedback(null);
+    setMutationSuccessMessage(null);
 
     try {
       await createAlertRoutingSubscription({
@@ -188,7 +195,7 @@ export function SlackIntegrationPageClient(): React.ReactElement {
       });
       reset(slackIntegrationDefaultValues);
       await load();
-      showSuccess(SLACK_INTEGRATION_SAVE_SUCCESS);
+      setMutationSuccessMessage(SLACK_INTEGRATION_SAVE_SUCCESS_MESSAGE);
     } catch {
       setFailure({
         message: SAVE_FAILURE_MESSAGE,
@@ -241,6 +248,14 @@ export function SlackIntegrationPageClient(): React.ReactElement {
             correlationId={failure.correlationId}
           />
         </div>
+      ) : null}
+
+      {mutationSuccessMessage !== null ? (
+        <OperatorSuccessCallout
+          message={mutationSuccessMessage}
+          testId="slack-integration-mutation-success-callout"
+          onDismiss={() => setMutationSuccessMessage(null)}
+        />
       ) : null}
 
       <FormProvider {...form}>

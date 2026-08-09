@@ -2,6 +2,12 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ScimProvisioningSettingsPageClient } from "./ScimProvisioningSettingsPageClient";
+import { SCIM_TOKEN_CREATED_SUCCESS, SCIM_TOKEN_REVOKED_SUCCESS } from "@/lib/scim-provisioning-page-copy";
+
+vi.mock("@/lib/toast", () => ({
+  showSuccess: vi.fn(),
+  showError: vi.fn(),
+}));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <button type="button">Page help</button>,
@@ -114,6 +120,8 @@ describe("ScimProvisioningSettingsPageClient", () => {
       expect(screen.getByTestId("scim-token-plaintext")).toHaveValue(plaintextToken);
     });
 
+    expect(screen.getByTestId("scim-mutation-success-callout")).toHaveTextContent(SCIM_TOKEN_CREATED_SUCCESS);
+
     expect(screen.queryByTestId("scim-verify-token-input")).not.toBeInTheDocument();
     expect(screen.getByTestId("scim-verify-session-hint")).toBeInTheDocument();
 
@@ -175,6 +183,8 @@ describe("ScimProvisioningSettingsPageClient", () => {
         expect.objectContaining({ method: "DELETE" }),
       );
     });
+
+    expect(screen.getByTestId("scim-mutation-success-callout")).toHaveTextContent(SCIM_TOKEN_REVOKED_SUCCESS);
   });
 
   it("sanitizes verification failures without exposing response payloads", async () => {

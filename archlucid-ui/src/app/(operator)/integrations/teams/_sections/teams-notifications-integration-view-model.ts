@@ -26,6 +26,8 @@ export type TeamsNotificationsIntegrationPageViewModel = {
   readonly testKind: "success" | "error" | null;
   readonly lastTestMessage: string | null;
   readonly showTriggerValidationError: boolean;
+  readonly mutationSuccessMessage: string | null;
+  readonly setMutationSuccessMessage: Dispatch<SetStateAction<string | null>>;
   readonly canSendTest: boolean;
   readonly toggleTrigger: (eventType: string, checked: boolean) => void;
   readonly onSelectRecommended: () => void;

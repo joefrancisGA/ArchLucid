@@ -1,10 +1,13 @@
 import {
+  BILLING_CHECKOUT_NOT_CONFIGURED_MESSAGE,
+  BILLING_CHECKOUT_REQUEST_ACCEPTED_MESSAGE,
+} from "@/lib/admin-integration-mutation-outcome-copy";
+import {
   resolveBillingCheckoutTargetTier,
   type BillingCheckoutTargetTier,
 } from "@/lib/billing-checkout-tier-map";
 import type { MarketingPricingTierId } from "@/lib/marketing/marketing-public-pricing";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
-import { showError, showSuccess } from "@/lib/toast";
 
 type BillingCheckoutResponse = {
   status?: string;
@@ -21,7 +24,11 @@ export type StartBillingCheckoutRequest = {
   readonly cancelUrl?: string;
 };
 
-export type StartBillingCheckoutResult = "redirected" | "not_configured" | "failed";
+export type StartBillingCheckoutResult =
+  | { readonly outcome: "redirected" }
+  | { readonly outcome: "not_configured"; readonly message: string }
+  | { readonly outcome: "accepted"; readonly message: string }
+  | { readonly outcome: "failed"; readonly message: string };
 
 function resolveBillingSettingsUrl(): string {
   if (typeof window === "undefined") {
@@ -66,15 +73,12 @@ export async function startBillingCheckout(request: StartBillingCheckoutRequest)
     if (!res.ok) {
       const detail = typeof json === "object" && json !== null && "title" in json ? String((json as { title?: string }).title ?? "") : "";
       const message = detail.length > 0 ? detail : `Checkout request failed (${res.status}).`;
-      showError("Billing", message);
 
-      return "failed";
+      return { outcome: "failed", message };
     }
 
     if (json?.status === "not_configured") {
-      showSuccess("Billing: checkout will open here once billing is connected for your tenant.");
-
-      return "not_configured";
+      return { outcome: "not_configured", message: BILLING_CHECKOUT_NOT_CONFIGURED_MESSAGE };
     }
 
     const checkoutUrl = json?.checkoutUrl?.trim() ?? "";
@@ -82,17 +86,14 @@ export async function startBillingCheckout(request: StartBillingCheckoutRequest)
     if (checkoutUrl.length > 0) {
       window.location.assign(checkoutUrl);
 
-      return "redirected";
+      return { outcome: "redirected" };
     }
 
-    showSuccess("Billing: request accepted.");
-
-    return "redirected";
+    return { outcome: "accepted", message: BILLING_CHECKOUT_REQUEST_ACCEPTED_MESSAGE };
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Request failed.";
-    showError("Billing", message);
 
-    return "failed";
+    return { outcome: "failed", message };
   }
 }
 

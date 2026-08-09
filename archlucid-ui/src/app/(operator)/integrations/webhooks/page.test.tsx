@@ -38,6 +38,7 @@ import { OperateIntegrationsNavGroupBuilder } from "@/lib/operate-integrations-n
 import { resolveNavIconForHref } from "@/lib/resolve-nav-link-for-pathname";
 import { WEBHOOKS_BANNED_UI_PATTERNS, WEBHOOKS_PAGE_TITLE } from "@/lib/webhooks-page-copy";
 import { WEBHOOKS_SURFACE_ICON } from "@/lib/webhooks-surface-icon";
+import { WEBHOOK_SUBSCRIPTION_SAVE_SUCCESS_MESSAGE } from "@/lib/admin-integration-mutation-outcome-copy";
 import { showError, showSuccess } from "@/lib/toast";
 
 import WebhooksIntegrationPage from "./page";
@@ -175,7 +176,8 @@ describe("WebhooksIntegrationPage", () => {
       expect(apiMocks.create).toHaveBeenCalled();
     });
 
-    expect(showSuccess).toHaveBeenCalledWith("Subscription saved.");
+    expect(await screen.findByTestId("webhook-save-success-callout")).toHaveTextContent("Subscription saved.");
+    expect(showSuccess).not.toHaveBeenCalled();
     expect((screen.getByLabelText(/signing secret/i) as HTMLInputElement).value).toBe("");
 
     const callBody = apiMocks.create.mock.calls[0][0];

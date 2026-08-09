@@ -5,7 +5,7 @@ const showError = vi.fn();
 const showInfo = vi.fn();
 const showSuccess = vi.fn();
 
-const startMarketingPlanBillingCheckout = vi.hoisted(() => vi.fn().mockResolvedValue("redirected"));
+const startMarketingPlanBillingCheckout = vi.hoisted(() => vi.fn().mockResolvedValue({ outcome: "redirected" }));
 
 vi.mock("@/lib/toast", () => ({
   showError: (...args: unknown[]) => showError(...args),
@@ -82,6 +82,7 @@ vi.mock("@/lib/llm-monthly-budget-status", async (importOriginal) => {
 });
 
 import { OperatorBillingSettingsClient } from "./OperatorBillingSettingsClient";
+import { BILLING_CHECKOUT_COMPLETED_SUCCESS_MESSAGE } from "@/lib/admin-integration-mutation-outcome-copy";
 
 const pricingFixture = {
   schemaVersion: 1,
@@ -214,5 +215,44 @@ describe("BillingSettingsPage", () => {
     });
 
     vi.unstubAllGlobals();
+  });
+
+  it("shows durable checkout success callout when returning from Stripe", async () => {
+    const navigation = await import("next/navigation");
+    vi.spyOn(navigation, "useSearchParams").mockReturnValue(new URLSearchParams("checkout=success") as never);
+
+    const fetchMock = vi.fn(async (input: string | URL) => {
+      const url = String(input);
+
+      if (url.includes("/pricing.json")) {
+        return new Response(JSON.stringify(pricingFixture), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      if (url.includes("/api/proxy/v1/billing/wallet")) {
+        return new Response(JSON.stringify(walletFixture), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      return new Response("not found", { status: 404 });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<OperatorBillingSettingsClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("billing-checkout-success-callout")).toHaveTextContent(
+        BILLING_CHECKOUT_COMPLETED_SUCCESS_MESSAGE,
+      );
+    });
+
+    expect(showSuccess).not.toHaveBeenCalled();
+
+    vi.unstubAllGlobals();
+    vi.mocked(navigation.useSearchParams).mockRestore();
   });
 });
