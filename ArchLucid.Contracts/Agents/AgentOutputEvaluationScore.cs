@@ -60,4 +60,20 @@ public sealed class AgentOutputEvaluationScore
         get;
         set;
     }
+
+    /// <summary>
+    ///     Evaluate-time gate outcome from persistence when available (TB-973). Null on advisory rows that omit recorded snapshots.
+    /// </summary>
+    public AgentOutputQualityGateOutcome? QualityGateOutcome
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Evaluate-time gate definition content hash when persisted on the trace (TB-973).</summary>
+    public string? QualityGateDefinitionContentHashSha256
+    {
+        get;
+        set;
+    }
 }

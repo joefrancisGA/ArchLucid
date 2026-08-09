@@ -123,8 +123,8 @@ Use this as the **TB-964** gap inventory source of truth. Prefer buyer-safe stru
 |----|------|
 | **TB-964** | Durable persistence / API gaps vs this checklist |
 | **TB-965** | Buyer/operator copy + Vitest guards (never conflate quality HOLD with transport LLM error) |
-| **TB-972** | Gate definition versioning + historical immutability contract (**Done**) |
-| **TB-973**–**TB-974** | Persist version/hash + wrong-gate migration (coordinate snapshot fields with **TB-964**) |
+| **TB-973** | Persist version/hash + `recorded` vs `advisoryCurrent` API (**Done**) |
+| **TB-974** | Wrong-gate migration playbook (coordinate snapshot fields with **TB-964**) |
 | **TB-937** | Partial-run vocabulary (Done) — align UX language |
 
 ---

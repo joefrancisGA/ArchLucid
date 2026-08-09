@@ -147,6 +147,29 @@ public sealed class CosmosAgentExecutionTraceRepository(
     }
 
     /// <inheritdoc />
+    public async Task PatchQualityGateRecordedSnapshotAsync(
+        string traceId,
+        AgentOutputQualityGateOutcome recordedOutcome,
+        string definitionVersion,
+        string definitionContentHashSha256,
+        string gateMode,
+        CancellationToken cancellationToken = default)
+    {
+        AgentExecutionTrace? trace = await LoadTraceAsync(traceId, cancellationToken);
+
+        if (trace is null || trace.RecordedQualityGateOutcome is not null)
+            return;
+
+        trace.QualityWarning = recordedOutcome == AgentOutputQualityGateOutcome.Warned;
+        trace.QualityRejected = recordedOutcome == AgentOutputQualityGateOutcome.Rejected;
+        trace.QualityGateDefinitionVersion = definitionVersion;
+        trace.QualityGateDefinitionContentHashSha256 = definitionContentHashSha256;
+        trace.QualityGateDefinitionMode = gateMode;
+        trace.RecordedQualityGateOutcome = recordedOutcome;
+        await ReplaceTraceAsync(trace, cancellationToken);
+    }
+
+    /// <inheritdoc />
     public async Task<AgentExecutionTrace?> GetByTraceIdAsync(string traceId,
         CancellationToken cancellationToken = default)
     {

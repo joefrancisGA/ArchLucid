@@ -326,6 +326,34 @@ public sealed class AgentExecutionTrace
         set;
     }
 
+    /// <summary>Monotonic config-derived gate definition label at evaluate time (TB-973).</summary>
+    public string? QualityGateDefinitionVersion
+    {
+        get;
+        set;
+    }
+
+    /// <summary>SHA-256 over threshold-affecting gate options at evaluate time (TB-973).</summary>
+    public string? QualityGateDefinitionContentHashSha256
+    {
+        get;
+        set;
+    }
+
+    /// <summary><c>WarnOnly</c> or <c>PilotStrict</c> at evaluate time (TB-973).</summary>
+    public string? QualityGateDefinitionMode
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Immutable evaluate-time gate outcome (TB-973). Distinct from live recompute.</summary>
+    public AgentOutputQualityGateOutcome? RecordedQualityGateOutcome
+    {
+        get;
+        set;
+    }
+
     /// <summary>
     ///     Source citations linking AI-generated findings to specific policies or evidence.
     /// </summary>

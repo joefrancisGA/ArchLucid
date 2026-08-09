@@ -1,6 +1,9 @@
 namespace ArchLucid.Contracts.Agents;
 
-/// <summary>On-demand structural evaluation across traces for one run (not persisted).</summary>
+/// <summary>
+///     Run agent-evaluation with explicit recorded vs advisory-current authority split (TB-973).
+///     Authority surfaces must read <see cref="Recorded" />; <see cref="AdvisoryCurrent" /> is diagnostic only.
+/// </summary>
 public sealed class AgentOutputEvaluationSummary
 {
     public string RunId
@@ -16,48 +19,17 @@ public sealed class AgentOutputEvaluationSummary
     }
 
     /// <summary>
-    ///     Rows with <see cref="AgentExecutionTrace.ParseSucceeded" /> and non-empty
-    ///     <see cref="AgentExecutionTrace.ParsedResultJson" />.
+    ///     Evaluate-time view from persisted trace snapshots. Null when no traces carry recorded gate snapshots
+    ///     (for example pre-TB-973 runs).
     /// </summary>
-    public IReadOnlyList<AgentOutputEvaluationScore> Scores
-    {
-        get;
-        set;
-    } = [];
-
-    /// <summary>Traces skipped (no parsed JSON to score).</summary>
-    public int TracesSkippedCount
+    public AgentOutputEvaluationPerspective? Recorded
     {
         get;
         set;
     }
 
-    /// <summary>
-    ///     Mean of <see cref="AgentOutputEvaluationScore.StructuralCompletenessRatio" /> over scores where
-    ///     <see cref="AgentOutputEvaluationScore.IsJsonParseFailure" /> is false; null when none.
-    /// </summary>
-    public double? AverageStructuralCompletenessRatio
-    {
-        get;
-        set;
-    }
-
-    /// <summary>
-    ///     Mean of <see cref="AgentOutputSemanticScore.OverallSemanticScore" /> over the same rows as
-    ///     <see cref="AverageStructuralCompletenessRatio" />; null when none.
-    /// </summary>
-    public double? AverageSemanticScore
-    {
-        get;
-        set;
-    }
-
-    /// <summary>
-    ///     Worst <see cref="AgentOutputQualityGateOutcome" /> across <see cref="Scores" /> rows that had both structural
-    ///     and semantic scores, using the host's configured <c>ArchLucid:AgentOutput:QualityGate</c> thresholds. Null when
-    ///     none were evaluable (for example all parse failures or no semantic rows).
-    /// </summary>
-    public AgentOutputQualityGateOutcome? AggregateQualityGateOutcome
+    /// <summary>Live host-floor recompute; non-authoritative.</summary>
+    public required AgentOutputEvaluationPerspective AdvisoryCurrent
     {
         get;
         set;

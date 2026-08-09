@@ -221,6 +221,46 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
     }
 
     /// <inheritdoc />
+    public Task PatchQualityGateRecordedSnapshotAsync(
+        string traceId,
+        AgentOutputQualityGateOutcome recordedOutcome,
+        string definitionVersion,
+        string definitionContentHashSha256,
+        string gateMode,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(definitionVersion);
+        ArgumentException.ThrowIfNullOrWhiteSpace(definitionContentHashSha256);
+        ArgumentException.ThrowIfNullOrWhiteSpace(gateMode);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        lock (_gate)
+        {
+            int i = _items.FindIndex(t => string.Equals(t.TraceId, traceId, StringComparison.Ordinal));
+
+            if (i < 0)
+                return Task.CompletedTask;
+
+            AgentExecutionTrace existing = _items[i];
+
+            if (existing.RecordedQualityGateOutcome is not null)
+                return Task.CompletedTask;
+
+            AgentExecutionTrace t = Clone(existing);
+            t.QualityWarning = recordedOutcome == AgentOutputQualityGateOutcome.Warned;
+            t.QualityRejected = recordedOutcome == AgentOutputQualityGateOutcome.Rejected;
+            t.QualityGateDefinitionVersion = definitionVersion;
+            t.QualityGateDefinitionContentHashSha256 = definitionContentHashSha256;
+            t.QualityGateDefinitionMode = gateMode;
+            t.RecordedQualityGateOutcome = recordedOutcome;
+            _items[i] = t;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
     public Task<AgentExecutionTrace?> GetByTraceIdAsync(string traceId, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(traceId);

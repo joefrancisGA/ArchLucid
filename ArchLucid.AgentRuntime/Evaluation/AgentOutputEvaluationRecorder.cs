@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.QualityGates;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
@@ -244,6 +245,19 @@ public sealed class AgentOutputEvaluationRecorder(
 
             if (evaluated.EmitQualityGateMetric)
             {
+                QualityGateDefinitionSnapshot gateSnapshot =
+                    QualityGateDefinitionSnapshotFactory.FromOptions(gateOptions);
+
+                await traceRepository
+                    .PatchQualityGateRecordedSnapshotAsync(
+                        trace.TraceId,
+                        evaluated.GateOutcome,
+                        gateSnapshot.DefinitionVersion,
+                        gateSnapshot.ContentHashSha256,
+                        gateOptions.Mode.ToString(),
+                        cancellationToken)
+                    .ConfigureAwait(false);
+
                 string gateModeLabel = !gateOptions.Enabled
                     ? "disabled"
                     : gateOptions.Mode == AgentOutputQualityGateMode.PilotStrict
@@ -279,9 +293,6 @@ public sealed class AgentOutputEvaluationRecorder(
                         evaluated.Structural.StructuralCompletenessRatio,
                         evaluated.Semantic.OverallSemanticScore);
 
-                    await traceRepository.PatchQualityRejectedAsync(trace.TraceId, true, cancellationToken)
-                        .ConfigureAwait(false);
-
                     if (gateOptions.EnforceOnReject)
                         throw new AgentOutputQualityGateRejectedException(
                             runId,
@@ -298,9 +309,6 @@ public sealed class AgentOutputEvaluationRecorder(
                         agentLabel,
                         evaluated.Structural.StructuralCompletenessRatio,
                         evaluated.Semantic.OverallSemanticScore);
-
-                    await traceRepository.PatchQualityWarningAsync(trace.TraceId, true, cancellationToken)
-                        .ConfigureAwait(false);
                 }
 
                 await TryLogLlmFaithfulnessGateAuditAsync(

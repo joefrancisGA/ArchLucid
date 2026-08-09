@@ -25,15 +25,28 @@ describe("buildPlainLanguageQualityBlockSummary", () => {
 
   it("names rejected agents in plain language", () => {
     const evaluation = {
-      scores: [
-        {
-          traceId: "t1",
-          agentType: "Critic",
-          structuralCompletenessRatio: 0.5,
-          qualityWarning: true,
-          semantic: { overallSemanticScore: 0.4 },
-        },
-      ],
+      recorded: {
+        authority: "recorded",
+        scores: [
+          {
+            traceId: "t1",
+            agentType: "Critic",
+            structuralCompletenessRatio: 0.5,
+            qualityWarning: true,
+            semantic: { overallSemanticScore: 0.4 },
+          },
+        ],
+        tracesSkippedCount: 0,
+        averageStructuralCompletenessRatio: 0.5,
+        averageSemanticScore: 0.4,
+      },
+      advisoryCurrent: {
+        authority: "advisoryCurrent",
+        scores: [],
+        tracesSkippedCount: 0,
+        averageStructuralCompletenessRatio: null,
+        averageSemanticScore: null,
+      },
     };
     const traces = [{ traceId: "t1", qualityRejected: true, qualityWarning: true }];
     const rows = buildAgentQualityConcernRows(evaluation as never, traces as never);

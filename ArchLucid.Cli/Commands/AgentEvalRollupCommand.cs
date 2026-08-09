@@ -86,14 +86,23 @@ internal static class AgentEvalRollupCommand
         return CliExitCode.Success;
     }
 
+    private static AgentOutputEvaluationPerspective ResolveRollupPerspective(AgentOutputEvaluationSummary summary)
+    {
+        ArgumentNullException.ThrowIfNull(summary);
+
+        return summary.Recorded ?? summary.AdvisoryCurrent;
+    }
+
     private static AgentEvalRollupModel BuildRollupModel(AgentOutputEvaluationSummary summary)
     {
-        int parseFails = summary.Scores.Count(static s => s.IsJsonParseFailure);
-        Dictionary<string, int> byAgent = summary.Scores
+        AgentOutputEvaluationPerspective perspective = ResolveRollupPerspective(summary);
+
+        int parseFails = perspective.Scores.Count(static s => s.IsJsonParseFailure);
+        Dictionary<string, int> byAgent = perspective.Scores
             .GroupBy(static s => s.AgentType.ToString())
             .ToDictionary(static g => g.Key, static g => g.Count(), StringComparer.Ordinal);
 
-        Dictionary<string, double> semanticMeans = summary.Scores
+        Dictionary<string, double> semanticMeans = perspective.Scores
             .Where(static s => s.Semantic is not null)
             .GroupBy(static s => s.AgentType.ToString())
             .ToDictionary(
@@ -101,7 +110,7 @@ internal static class AgentEvalRollupCommand
                 static g => g.Average(x => x.Semantic!.OverallSemanticScore),
                 StringComparer.Ordinal);
 
-        Dictionary<string, double> structuralMeans = summary.Scores
+        Dictionary<string, double> structuralMeans = perspective.Scores
             .Where(static s => !s.IsJsonParseFailure)
             .GroupBy(static s => s.AgentType.ToString())
             .ToDictionary(
@@ -112,11 +121,11 @@ internal static class AgentEvalRollupCommand
         return new AgentEvalRollupModel(
             summary.RunId,
             summary.EvaluatedAtUtc,
-            summary.TracesSkippedCount,
-            summary.Scores.Count,
+            perspective.TracesSkippedCount,
+            perspective.Scores.Count,
             parseFails,
-            summary.AverageStructuralCompletenessRatio,
-            summary.AverageSemanticScore,
+            perspective.AverageStructuralCompletenessRatio,
+            perspective.AverageSemanticScore,
             byAgent,
             structuralMeans,
             semanticMeans);
@@ -152,7 +161,9 @@ internal static class AgentEvalRollupCommand
 
         sb.AppendLine(semanticLine);
 
-        if (summary.AggregateQualityGateOutcome is { } aggregateGate)
+        AgentOutputEvaluationPerspective perspective = ResolveRollupPerspective(summary);
+
+        if (perspective.AggregateQualityGateOutcome is { } aggregateGate)
         {
             sb.AppendLine(FormattableString.Invariant($"- Aggregate quality gate (worst trace): **`{aggregateGate}`**"));
         }

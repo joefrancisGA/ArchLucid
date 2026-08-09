@@ -3,6 +3,8 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.QualityGates;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
@@ -12,6 +14,7 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Controllers.Authority;
 
@@ -35,11 +38,11 @@ public sealed class RunAgentEvaluationController(
     IAgentOutputQualityGate agentOutputQualityGate,
     IAgentResultEvidenceFaithfulnessChecker agentResultEvidenceFaithfulnessChecker,
     IAgentResultEmbeddingFaithfulnessScorer embeddingFaithfulnessScorer,
+    IOptionsMonitor<AgentOutputQualityGateOptions> qualityGateOptions,
     IScopeContextProvider scopeContextProvider) : ControllerBase
 {
     /// <summary>
-    ///     On-demand structural and semantic evaluation of <see cref="AgentExecutionTrace.ParsedResultJson" /> for traces in
-    ///     the run (no metrics).
+    ///     Returns recorded (authoritative) and advisory-current agent-evaluation perspectives (TB-973).
     /// </summary>
     [HttpGet("run/{runId}/agent-evaluation")]
     [HttpGet("/v{version:apiVersion}/architecture/review/{runId}/agent-evaluation")]
@@ -72,33 +75,27 @@ public sealed class RunAgentEvaluationController(
                         trace => EvaluateTraceRowAsync(trace, evidence, cancellationToken)))
                 .ConfigureAwait(false);
 
-        List<AgentOutputEvaluationScore> scores = [.. evaluatedRows];
+        List<AgentOutputEvaluationScore> advisoryScores = [.. evaluatedRows];
 
-        IEnumerable<double> ratiosForAverage =
-            scores.Where(static s => !s.IsJsonParseFailure).Select(static s => s.StructuralCompletenessRatio);
+        QualityGateDefinitionSnapshot advisoryDefinition =
+            QualityGateDefinitionSnapshotFactory.FromOptions(qualityGateOptions.CurrentValue);
 
-        IEnumerable<double> semanticForAverage =
-            scores.Where(static s => s is { IsJsonParseFailure: false, Semantic: not null })
-                .Select(static s => s.Semantic!.OverallSemanticScore);
+        AgentOutputEvaluationPerspective advisoryCurrent = AgentOutputEvaluationPerspectiveMapper.Build(
+            AgentOutputEvaluationPerspectiveMapper.AdvisoryCurrentAuthority,
+            advisoryScores,
+            skipped,
+            AgentOutputEvaluationPerspectiveMapper.ToDto(advisoryDefinition),
+            scores => AgentOutputEvaluationWorstGateAggregator.WorstOutcome(scores, agentOutputQualityGate));
 
-        double[] ratioArray = ratiosForAverage.ToArray();
-        double[] semanticArray = semanticForAverage.ToArray();
-
-        double? averageStructural =
-            ratioArray.Length == 0 ? null : ratioArray.Average();
-
-        double? averageSemantic =
-            semanticArray.Length == 0 ? null : semanticArray.Average();
+        AgentOutputEvaluationPerspective? recorded =
+            AgentOutputEvaluationRecordedPerspectiveBuilder.TryBuild(traces, advisoryScores, skipped);
 
         AgentOutputEvaluationSummary summary = new()
         {
             RunId = runId,
             EvaluatedAtUtc = TimeProvider.System.UtcNowDateTime(),
-            Scores = scores,
-            TracesSkippedCount = skipped,
-            AverageStructuralCompletenessRatio = averageStructural,
-            AverageSemanticScore = averageSemantic,
-            AggregateQualityGateOutcome = AgentOutputEvaluationWorstGateAggregator.WorstOutcome(scores, agentOutputQualityGate),
+            Recorded = recorded,
+            AdvisoryCurrent = advisoryCurrent,
         };
 
         return Ok(summary);
@@ -136,6 +133,8 @@ public sealed class RunAgentEvaluationController(
 
         if (emb is { } e)
             score.Semantic.AgentResultEmbeddingFaithfulnessMeanCosine = e;
+
+        score.QualityGateOutcome = agentOutputQualityGate.Evaluate(score, score.Semantic);
 
         return score;
     }

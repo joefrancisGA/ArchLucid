@@ -511,7 +511,17 @@ export function getScreenshotMockFallbackGetJson(pathname: string, search: strin
   }
 
   if (pathname.includes("agent-evaluation")) {
-    return { runId: "r1", summary: "Mock" };
+    return {
+      runId: "r1",
+      evaluatedAtUtc: new Date().toISOString(),
+      advisoryCurrent: {
+        authority: "advisoryCurrent",
+        scores: [],
+        tracesSkippedCount: 0,
+        averageStructuralCompletenessRatio: null,
+        averageSemanticScore: null,
+      },
+    };
   }
 
   if (pathname.startsWith("/v1/admin/")) {

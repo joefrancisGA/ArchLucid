@@ -474,6 +474,83 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
     }
 
     /// <inheritdoc />
+    public async Task PatchQualityGateRecordedSnapshotAsync(
+        string traceId,
+        AgentOutputQualityGateOutcome recordedOutcome,
+        string definitionVersion,
+        string definitionContentHashSha256,
+        string gateMode,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(definitionVersion);
+        ArgumentException.ThrowIfNullOrWhiteSpace(definitionContentHashSha256);
+        ArgumentException.ThrowIfNullOrWhiteSpace(gateMode);
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        const string selectSql = """
+                                 SELECT TraceJson, RecordedQualityGateOutcome
+                                 FROM AgentExecutionTraces
+                                 WHERE TraceId = @TraceId;
+                                 """;
+
+        (string? RowJson, byte? ExistingOutcome)? row = await connection.QuerySingleOrDefaultAsync<(string? RowJson, byte? ExistingOutcome)>(
+            new CommandDefinition(selectSql, new
+            {
+                TraceId = traceId
+            }, cancellationToken: cancellationToken));
+
+        if (string.IsNullOrEmpty(row?.RowJson) || row.Value.ExistingOutcome is not null)
+            return;
+
+        AgentExecutionTrace? trace = JsonSerializer.Deserialize<AgentExecutionTrace>(row.Value.RowJson, ContractJson.Default);
+
+        if (trace is null)
+            return;
+
+        bool qualityWarning = recordedOutcome == AgentOutputQualityGateOutcome.Warned;
+        bool qualityRejected = recordedOutcome == AgentOutputQualityGateOutcome.Rejected;
+
+        trace.QualityWarning = qualityWarning;
+        trace.QualityRejected = qualityRejected;
+        trace.QualityGateDefinitionVersion = definitionVersion;
+        trace.QualityGateDefinitionContentHashSha256 = definitionContentHashSha256;
+        trace.QualityGateDefinitionMode = gateMode;
+        trace.RecordedQualityGateOutcome = recordedOutcome;
+
+        string updatedJson = JsonSerializer.Serialize(trace, ContractJson.Default);
+        byte recordedOutcomeByte = (byte)recordedOutcome;
+
+        const string updateSql = """
+                                 UPDATE AgentExecutionTraces
+                                 SET TraceJson = @TraceJson,
+                                     QualityWarning = @QualityWarning,
+                                     QualityRejected = @QualityRejected,
+                                     QualityGateDefinitionVersion = @QualityGateDefinitionVersion,
+                                     QualityGateDefinitionContentHashSha256 = @QualityGateDefinitionContentHashSha256,
+                                     RecordedQualityGateOutcome = @RecordedQualityGateOutcome
+                                 WHERE TraceId = @TraceId
+                                   AND RecordedQualityGateOutcome IS NULL;
+                                 """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                updateSql,
+                new
+                {
+                    TraceId = traceId,
+                    TraceJson = updatedJson,
+                    QualityWarning = qualityWarning,
+                    QualityRejected = qualityRejected,
+                    QualityGateDefinitionVersion = definitionVersion,
+                    QualityGateDefinitionContentHashSha256 = definitionContentHashSha256,
+                    RecordedQualityGateOutcome = recordedOutcomeByte,
+                },
+                cancellationToken: cancellationToken));
+    }
+
+    /// <inheritdoc />
     public async Task<AgentExecutionTrace?> GetByTraceIdAsync(
         string traceId,
         CancellationToken cancellationToken = default)

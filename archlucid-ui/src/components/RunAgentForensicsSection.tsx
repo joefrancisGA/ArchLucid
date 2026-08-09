@@ -1,3 +1,4 @@
+import { diagnosticAgentEvaluationPerspective } from "@/lib/agent-evaluation-perspective";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AgentEvidenceFaithfulnessBadge } from "@/components/AgentEvidenceFaithfulnessBadge";
@@ -128,18 +129,22 @@ function EvaluationSummaryFooter(props: {
   semanticOverallTooltip: string;
 }) {
   const { evaluationPayload, semanticOverallTooltip } = props;
-  const avgGrounding = averageEvidenceGroundingRatio(evaluationPayload.scores);
+  const perspective = diagnosticAgentEvaluationPerspective(evaluationPayload);
+  const avgGrounding = averageEvidenceGroundingRatio(perspective?.scores);
+
+  if (!perspective)
+    return null;
 
   return (
     <p className={cn("mt-3 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
       Evaluated at {formatInstantForLocale(evaluationPayload.evaluatedAtUtc)} · skipped traces:{" "}
-      {evaluationPayload.tracesSkippedCount}
-      {evaluationPayload.averageStructuralCompletenessRatio !== null &&
-      evaluationPayload.averageStructuralCompletenessRatio !== undefined
-        ? ` · avg structural: ${evaluationPayload.averageStructuralCompletenessRatio.toFixed(2)}`
+      {perspective.tracesSkippedCount}
+      {perspective.averageStructuralCompletenessRatio !== null &&
+      perspective.averageStructuralCompletenessRatio !== undefined
+        ? ` · avg structural: ${perspective.averageStructuralCompletenessRatio.toFixed(2)}`
         : ""}
-      {evaluationPayload.averageSemanticScore !== null &&
-      evaluationPayload.averageSemanticScore !== undefined ? (
+      {perspective.averageSemanticScore !== null &&
+      perspective.averageSemanticScore !== undefined ? (
         <>
           {" "}
           ·{" "}
@@ -147,7 +152,7 @@ function EvaluationSummaryFooter(props: {
             className="cursor-help underline decoration-dotted decoration-neutral-400"
             title={semanticOverallTooltip}
           >
-            avg semantic: {evaluationPayload.averageSemanticScore.toFixed(2)}
+            avg semantic: {perspective.averageSemanticScore.toFixed(2)}
           </span>
         </>
       ) : null}
@@ -192,6 +197,8 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
   } catch {
     toolInvocationPayload = null;
   }
+
+  const evaluationPerspective = diagnosticAgentEvaluationPerspective(evaluationPayload);
 
   const tracesRaw = tracesPayload?.traces ?? [];
   const traces = [...tracesRaw].sort(
@@ -297,7 +304,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
             </thead>
             <tbody>
               {traces.map((t, index) => {
-                const sc = scoreForTrace(evaluationPayload?.scores, t.traceId);
+                const sc = scoreForTrace(evaluationPerspective?.scores, t.traceId);
                 const sem = sc?.semantic;
                 const rawNotes = notesPreview(sem?.llmJudgeNotes);
                 const prevCreated =

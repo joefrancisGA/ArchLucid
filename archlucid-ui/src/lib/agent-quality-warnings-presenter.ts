@@ -2,6 +2,7 @@ import type {
   AgentExecutionTraceRow,
   AgentOutputEvaluationSummaryPayload,
 } from "@/types/agent-forensics";
+import { authoritativeAgentEvaluationPerspective } from "@/lib/agent-evaluation-perspective";
 
 /** Default gate floors mirrored from server `AgentOutputQualityGateOptions` (display-only hints). */
 export const DEFAULT_STRUCTURAL_WARN_BELOW = 0.85;
@@ -75,13 +76,15 @@ export function buildAgentQualityConcernRows(
   evaluation: AgentOutputEvaluationSummaryPayload | null,
   traces: AgentExecutionTraceRow[],
 ): AgentQualityConcernRow[] {
-  if (!evaluation?.scores?.length)
+  const perspective = authoritativeAgentEvaluationPerspective(evaluation);
+
+  if (!perspective?.scores?.length)
     return [];
 
   const traceById = new Map(traces.map((t) => [t.traceId, t]));
   const rows: AgentQualityConcernRow[] = [];
 
-  for (const score of evaluation.scores)
+  for (const score of perspective.scores)
   {
     const trace = traceById.get(score.traceId);
     const rejected = trace?.qualityRejected === true;

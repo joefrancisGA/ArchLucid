@@ -1889,6 +1889,22 @@
           "qualityWarning": {
             "type": "boolean"
           },
+          "qualityGateOutcome": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AgentOutputQualityGateOutcome"
+              }
+            ]
+          },
+          "qualityGateDefinitionContentHashSha256": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "semantic": {
             "anyOf": [
               {
@@ -1913,7 +1929,31 @@
         },
         "type": "object"
       },
-      "AgentOutputEvaluationSummary": {
+      "QualityGateDefinitionSnapshotDto": {
+        "properties": {
+          "contentHashSha256": {
+            "type": "string"
+          },
+          "definitionVersion": {
+            "type": "string"
+          },
+          "deprecatedReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "effectiveFromUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "mode": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "AgentOutputEvaluationPerspective": {
         "properties": {
           "aggregateQualityGateOutcome": {
             "anyOf": [
@@ -1924,6 +1964,9 @@
                 "$ref": "#/components/schemas/AgentOutputQualityGateOutcome"
               }
             ]
+          },
+          "authority": {
+            "type": "string"
           },
           "averageSemanticScore": {
             "format": "double",
@@ -1943,12 +1986,15 @@
               "string"
             ]
           },
-          "evaluatedAtUtc": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "runId": {
-            "type": "string"
+          "gateDefinition": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/QualityGateDefinitionSnapshotDto"
+              }
+            ]
           },
           "scores": {
             "items": {
@@ -1959,6 +2005,31 @@
           "tracesSkippedCount": {
             "format": "int32",
             "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "AgentOutputEvaluationSummary": {
+        "properties": {
+          "advisoryCurrent": {
+            "$ref": "#/components/schemas/AgentOutputEvaluationPerspective"
+          },
+          "evaluatedAtUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "recorded": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AgentOutputEvaluationPerspective"
+              }
+            ]
+          },
+          "runId": {
+            "type": "string"
           }
         },
         "type": "object"

@@ -78,15 +78,27 @@ export type RunToolInvocationForensicRow = components["schemas"]["RunToolInvocat
 
 export type RunToolInvocationForensicsPayload = components["schemas"]["RunToolInvocationForensicsResponse"];
 
-export type AgentOutputEvaluationSummaryPayload = {
-  runId: string;
-  evaluatedAtUtc: string;
+export type AgentOutputEvaluationPerspectivePayload = {
+  authority: "recorded" | "advisoryCurrent";
+  gateDefinition?: {
+    definitionVersion: string;
+    contentHashSha256: string;
+    mode: string;
+    effectiveFromUtc: string;
+    deprecatedReason?: string | null;
+  } | null;
   scores: AgentOutputEvaluationScoreRow[];
   tracesSkippedCount: number;
   averageStructuralCompletenessRatio: number | null;
-  /** Mean of {@link AgentOutputSemanticScoreRow.overallSemanticScore} over evaluated rows (same heuristic / optional-judge meaning). */
   averageSemanticScore: number | null;
   aggregateQualityGateOutcome?: number | null;
+};
+
+export type AgentOutputEvaluationSummaryPayload = {
+  runId: string;
+  evaluatedAtUtc: string;
+  recorded?: AgentOutputEvaluationPerspectivePayload | null;
+  advisoryCurrent: AgentOutputEvaluationPerspectivePayload;
 };
 
 export type RunRetrievalGroundingScoreSummary = {

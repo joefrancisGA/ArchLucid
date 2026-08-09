@@ -8,7 +8,7 @@
 **Buyer / PA one-pager:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#quality-gate-versioning-m-130) (GTM **M-129** / **M-130**).  
 **Execution vs quality taxonomy:** [`LLM_EXECUTION_VS_QUALITY_OUTCOME.md`](LLM_EXECUTION_VS_QUALITY_OUTCOME.md) (TB-963).  
 **Reference types:** `ArchLucid.Core.QualityGates.QualityGateDefinitionSnapshot`, `QualityGateDefinitionFingerprint`.  
-**Persistence (follow-on):** **TB-973** · **Wrong-gate playbook:** **TB-974**.
+**Persistence:** **TB-973** **Done** · **Wrong-gate playbook:** **TB-974**.
 
 ---
 
@@ -66,7 +66,7 @@ Definitions are **append-only**. Operators publish a new row when floors/mode ch
 2. Does not mutate persistence, audit payloads, or export hashes.
 3. Cites both the **recorded** definition hash and the **live** hash when they differ.
 
-Until **TB-973** ships, `GET …/agent-evaluation` recomputes with live floors — treat as **advisory** only; do not cite as historical proof.
+`GET …/agent-evaluation` returns **`recorded`** and **`advisoryCurrent`** perspectives (**TB-973**). Authority surfaces must read **`recorded`** only.
 
 ---
 
@@ -83,7 +83,7 @@ Until **TB-973** ships, `GET …/agent-evaluation` recomputes with live floors �
 ## Explicit non-claims
 
 - Gate **Accepted** ≠ perpetual factual correctness — pass is **as-of** definition version/hash.
-- Versioning contract ≠ durable persistence (**TB-973**) or wrong-gate admin playbook (**TB-974**).
+- Versioning contract ≠ wrong-gate admin playbook (**TB-974**). Full durable score persistence remains **TB-964**.
 - Advisory recompute ≠ audit trail correction.
 - Quality-gate pass ≠ execution-mode Real / sponsor ROI (**TB-963**, GTM **M-166**).
 
@@ -93,7 +93,7 @@ Until **TB-973** ships, `GET …/agent-evaluation` recomputes with live floors �
 
 | ID | Owns |
 |----|------|
-| **TB-973** | Persist version/hash; split `recorded` vs `advisoryCurrent` API and authority reads |
+| **TB-973** | Persist version/hash; split `recorded` vs `advisoryCurrent` API (**Done**) |
 | **TB-964** | Durable quality-outcome field checklist (reuse snapshot schema) |
 | **TB-974** | Wrong-gate deprecation + remediation playbook |
 | **TB-965** | Buyer copy guards (quality HOLD ≠ transport LLM error) |

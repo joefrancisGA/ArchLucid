@@ -20,32 +20,36 @@ public sealed class AgentEvalRollupCommandTests
         {
             RunId = "abc123",
             EvaluatedAtUtc = new DateTime(2026, 5, 2, 12, 0, 0, DateTimeKind.Utc),
-            TracesSkippedCount = 1,
-            Scores =
-            [
-                new AgentOutputEvaluationScore
-                {
-                    TraceId = "t1",
-                    AgentType = AgentType.Topology,
-                    StructuralCompletenessRatio = 0.9,
-                    IsJsonParseFailure = false,
-                    Semantic = new AgentOutputSemanticScore
+            AdvisoryCurrent = new AgentOutputEvaluationPerspective
+            {
+                Authority = "advisoryCurrent",
+                TracesSkippedCount = 1,
+                Scores =
+                [
+                    new AgentOutputEvaluationScore
                     {
                         TraceId = "t1",
                         AgentType = AgentType.Topology,
-                        OverallSemanticScore = 0.8,
+                        StructuralCompletenessRatio = 0.9,
+                        IsJsonParseFailure = false,
+                        Semantic = new AgentOutputSemanticScore
+                        {
+                            TraceId = "t1",
+                            AgentType = AgentType.Topology,
+                            OverallSemanticScore = 0.8,
+                        },
                     },
-                },
-                new AgentOutputEvaluationScore
-                {
-                    TraceId = "t2",
-                    AgentType = AgentType.Cost,
-                    StructuralCompletenessRatio = 0.0,
-                    IsJsonParseFailure = true,
-                },
-            ],
-            AverageStructuralCompletenessRatio = 0.45,
-            AverageSemanticScore = 0.8,
+                    new AgentOutputEvaluationScore
+                    {
+                        TraceId = "t2",
+                        AgentType = AgentType.Cost,
+                        StructuralCompletenessRatio = 0.0,
+                        IsJsonParseFailure = true,
+                    },
+                ],
+                AverageStructuralCompletenessRatio = 0.45,
+                AverageSemanticScore = 0.8,
+            },
         };
 
         string path = Path.Combine(Path.GetTempPath(), $"agent-eval-rollup-test-{Guid.NewGuid():N}.json");

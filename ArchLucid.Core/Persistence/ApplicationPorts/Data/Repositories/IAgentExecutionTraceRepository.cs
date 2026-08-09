@@ -73,6 +73,17 @@ public interface IAgentExecutionTraceRepository
         bool qualityRejected,
         CancellationToken cancellationToken = default);
 
+    /// <summary>
+    ///     Persists evaluate-time gate definition snapshot + immutable outcome (TB-973). Never overwrites an existing snapshot.
+    /// </summary>
+    Task PatchQualityGateRecordedSnapshotAsync(
+        string traceId,
+        AgentOutputQualityGateOutcome recordedOutcome,
+        string definitionVersion,
+        string definitionContentHashSha256,
+        string gateMode,
+        CancellationToken cancellationToken = default);
+
     /// <summary>Returns a single trace by id, or <see langword="null" /> when the row is missing.</summary>
     Task<AgentExecutionTrace?> GetByTraceIdAsync(
         string traceId,
