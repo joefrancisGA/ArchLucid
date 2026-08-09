@@ -1,6 +1,7 @@
 import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { stripRetiredDemoOrgBranding } from "@/lib/retired-demo-org-branding";
+import { toReviewDisplayTitle } from "@/lib/review-display-title";
 import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE, SHOWCASE_BUYER_REVIEW_TITLE } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 
@@ -39,7 +40,7 @@ export function buyerFacingReviewTitleFromSummary(run: RunSummary): string {
     displayName !== runIdTrim &&
     displayName.toLowerCase() !== runIdTrim.toLowerCase()
   ) {
-    return displayName;
+    return toReviewDisplayTitle(displayName);
   }
 
   const description = stripRetiredDemoOrgBranding(run.description).trim();
@@ -50,7 +51,7 @@ export function buyerFacingReviewTitleFromSummary(run: RunSummary): string {
     description !== runIdTrim &&
     description.toLowerCase() !== runIdTrim.toLowerCase()
   ) {
-    return description;
+    return toReviewDisplayTitle(description);
   }
 
   return "Untitled review";

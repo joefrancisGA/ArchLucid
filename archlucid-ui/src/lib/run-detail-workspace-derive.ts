@@ -13,6 +13,7 @@ import {
 } from "@/lib/quick-decision-summary-derive";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
+import { isGeneratedIntakeBrief, toReviewDisplayTitle } from "@/lib/review-display-title";
 import {
   isQualityRejectedRunStatus,
   resolveExecutionFailedWorkspaceStatusLabel,
@@ -136,7 +137,8 @@ export function deriveHighestFindingSeverityLabel(
 export function deriveArchitectureSystemName(run: RunSummary, headline: string): string | null {
   const displayName = run.displayName?.trim() ?? "";
 
-  if (displayName.length > 0 && displayName !== headline) {
+  // The auto-generated intake brief is boilerplate, not a system name the operator supplied.
+  if (displayName.length > 0 && displayName !== headline && !isGeneratedIntakeBrief(displayName)) {
     return displayName;
   }
 
@@ -147,7 +149,8 @@ export function deriveArchitectureSystemName(run: RunSummary, headline: string):
     description.length > 0 &&
     description !== headline &&
     description !== runId &&
-    description.toLowerCase() !== runId.toLowerCase()
+    description.toLowerCase() !== runId.toLowerCase() &&
+    !isGeneratedIntakeBrief(description)
   ) {
     const firstLine = description.split(/\r?\n/).find((line) => line.trim().length > 0)?.trim() ?? description;
 
@@ -174,6 +177,11 @@ export function deriveSubmittedArchitectureText(run: RunSummary, headline: strin
   }
 
   if (description === headline) {
+    return null;
+  }
+
+  // The auto-generated intake brief is not architecture content the operator submitted.
+  if (isGeneratedIntakeBrief(description)) {
     return null;
   }
 
@@ -615,7 +623,9 @@ export function deriveReviewDisplayTitle(run: RunSummary, headline: string): str
     return buyerTitle;
   }
 
-  return headline.trim().length > 0 ? headline : "Architecture review";
+  const normalizedHeadline = toReviewDisplayTitle(headline);
+
+  return normalizedHeadline.length > 0 ? normalizedHeadline : "Architecture review";
 }
 
 export function deriveOverallPostureLabel(

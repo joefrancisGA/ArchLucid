@@ -35,14 +35,14 @@ export function buildEvidenceBackedIntakeBrief(title: string, files: readonly Fi
       ? `\n\nAttached architecture evidence:\n${fileLines}`
       : "";
 
-  return [
+  const summary = [
     `Architecture review intake for "${reviewTitle}".`,
     "Evaluate the attached materials for topology, cost, compliance, security, and policy-pack violations.",
     "Treat each upload as architecture evidence unless a more specific category was supplied.",
-    attachmentSection,
-  ]
-    .join("")
-    .trim();
+  ].join(" ");
+
+  // The attachment block already opens with its own blank line, so it is appended without a separator.
+  return `${summary}${attachmentSection}`.trim();
 }
 
 export function isFirstPilotIntakeReady(input: FirstPilotIntakeReadinessInput): boolean {
