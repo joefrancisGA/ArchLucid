@@ -1898,7 +1898,7 @@ Do not treat unexplained mass SHA rewrites as regression proof; do not sell coho
 ### Residuals (honest)
 
 - **TB-1172** / **TB-1173** own the re-lock vs rubber-stamp contract and honesty CI.
-- Cite `tests/golden-cohort/README.md` lock ritual + **TB-1156** dual-hasher.
+- Cite `tests/golden-cohort/README.md` lock ritual + **TB-1156** **Done** dual-hasher contract.
 - Complements **M-154**, **M-198**/**M-199**, **M-274**; pairs claim-honesty **M-201**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
 
@@ -1959,7 +1959,7 @@ Do not equate golden-cohort content SHA with production `ManifestHash`; do not c
 
 ### Residuals (honest)
 
-- **TB-1156** / **TB-1157** own dual-hasher / production re-lock contract and honesty CI.
+- **TB-1156** **Done** — [`MANIFEST_DUAL_HASHER_PROJECTION_EVOLUTION_CONTRACT.md`](../library/MANIFEST_DUAL_HASHER_PROJECTION_EVOLUTION_CONTRACT.md); **TB-1157** owns production re-lock CI.
 - Cite `ManifestHashService`, `GoldenManifestFingerprint`, `AuthorityCommitProjectionBuilder`, ADR 0040, Done **TB-307**.
 - Complements **M-154**/**M-155**, **M-160**, **M-201**/**M-202**, **M-223**/**M-224**; pairs claim-honesty **M-198**.
 - This handout does not claim CPA SOC 2, a published third-party penetration test, or platform WORM.
