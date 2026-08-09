@@ -78,7 +78,7 @@ public sealed class AuthorityRunDetailOperatorEnricherTests
 
         Mock<IRunDetailQueryService> runDetailQuery = new();
         runDetailQuery
-            .Setup(q => q.GetRunDetailAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
+            .Setup(q => q.GetRunDetailForOperatorEnrichAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
             .ReturnsAsync(architectureDetail);
 
         Mock<IAgentExecutionTraceRepository> traces = new();
@@ -171,7 +171,7 @@ public sealed class AuthorityRunDetailOperatorEnricherTests
 
         Mock<IRunDetailQueryService> runDetailQuery = new();
         runDetailQuery
-            .Setup(q => q.GetRunDetailAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
+            .Setup(q => q.GetRunDetailForOperatorEnrichAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
             .ReturnsAsync(architectureDetail);
 
         Mock<IAgentExecutionTraceRepository> traces = new();
@@ -221,6 +221,84 @@ public sealed class AuthorityRunDetailOperatorEnricherTests
         detail.TrustEvidenceCard.Should().BeNull();
         trustBuilder.Verify(
             b => b.BuildAsync(It.IsAny<ArchitectureRunDetail>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
+    public async Task EnrichAsync_does_not_load_full_run_detail_result_json()
+    {
+        Guid runId = Guid.Parse("99999999-9999-9999-9999-999999999999");
+        RunDetailDto detail = new()
+        {
+            Run = new RunRecord
+            {
+                RunId = runId,
+                TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                ScopeProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+            },
+        };
+
+        ArchitectureRunDetail architectureDetail = new()
+        {
+            Run = new ArchitectureRun { RunId = runId.ToString("N") },
+            Results = [],
+        };
+
+        Mock<IRunDetailQueryService> runDetailQuery = new();
+        runDetailQuery
+            .Setup(q => q.GetRunDetailForOperatorEnrichAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(architectureDetail);
+
+        Mock<IAgentExecutionTraceRepository> traces = new();
+        traces
+            .Setup(t => t.GetLlmCostSlicesByRunIdAsync(It.IsAny<ScopeContext>(), runId.ToString("N"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<AgentExecutionTraceLlmCostSlice>());
+
+        Mock<ILlmCostEstimator> estimator = new();
+        Mock<IRunTrustEvidenceCardBuilder> trustBuilder = new();
+        Mock<IRetrievalGroundingTraceReader> groundingReader = new();
+        groundingReader
+            .Setup(r => r.GetByRunIdAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        Mock<ITenantEstimatedUsdSavingsResolver> savingsResolver = new();
+        savingsResolver
+            .Setup(r => r.ResolveFromFindingsSnapshotIdAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((decimal?)null);
+
+        Mock<ITenantCostSettingsRepository> tenantCostSettings = new();
+        Mock<IDecisionNodeRepository> decisionNodes = new();
+        decisionNodes
+            .Setup(r => r.GetByRunIdAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        Mock<IAgentResultRepository> agentResults = new();
+
+        AuthorityRunDetailOperatorEnricher sut = new(
+            runDetailQuery.Object,
+            traces.Object,
+            agentResults.Object,
+            estimator.Object,
+            trustBuilder.Object,
+            groundingReader.Object,
+            savingsResolver.Object,
+            tenantCostSettings.Object,
+            decisionNodes.Object,
+            new ConfigurationBuilder().Build());
+
+        await sut.EnrichAsync(detail, "Real", CancellationToken.None);
+
+        runDetailQuery.Verify(
+            q => q.GetRunDetailForOperatorEnrichAsync(runId.ToString("N"), It.IsAny<CancellationToken>()),
+            Times.Once);
+        runDetailQuery.Verify(
+            q => q.GetRunDetailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 

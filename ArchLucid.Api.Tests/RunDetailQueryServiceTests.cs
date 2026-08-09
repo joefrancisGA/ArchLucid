@@ -256,6 +256,42 @@ public sealed class RunDetailQueryServiceTests
     }
 
     [SkippableFact]
+    public async Task GetRunDetailForOperatorEnrichAsync_uses_rollup_projection_with_operator_enrichment()
+    {
+        Guid traceId = Guid.NewGuid();
+        RunRecord record = CommittedRunRecord(decisionTraceId: traceId);
+        GoldenManifest manifest = Manifest(Run1N);
+        AgentResult agentResult = new() { ResultId = "r1", RunId = Run1N, TaskId = "t1" };
+        DecisionTraceDto trace = RunEventTraceDto.From(new RunEventTracePayload { TraceId = "tr1", RunId = Run1N });
+
+        _runRepo.Setup(r => r.GetByIdAsync(_scope, _runGuid1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(record);
+        _taskRepo.Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), Run1N, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([new AgentTask { TaskId = "t1", RunId = Run1N }]);
+        _resultRepo.Setup(r => r.GetRollupProjectionByRunIdAsync(It.IsAny<ScopeContext>(), Run1N, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([agentResult]);
+        _unifiedManifestReader
+            .Setup(r => r.ReadByRunIdAsync(_scope, _runGuid1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(manifest);
+        _authorityTraceRepo.Setup(r => r.GetByIdAsync(_scope, traceId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(trace);
+
+        ArchitectureRunDetail? result = await _sut.GetRunDetailForOperatorEnrichAsync(Run1N);
+
+        result.Should().NotBeNull();
+        result!.Results.Should().HaveCount(1);
+        result.Manifest.Should().NotBeNull();
+        result.DecisionTraces.Should().HaveCount(1);
+        result.IsCommitted.Should().BeTrue();
+        _resultRepo.Verify(
+            r => r.GetRollupProjectionByRunIdAsync(It.IsAny<ScopeContext>(), Run1N, It.IsAny<CancellationToken>()),
+            Times.Once);
+        _resultRepo.Verify(
+            r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
     public async Task GetRunDetailAsync_CommittedRunWithoutDecisionTraceId_ReturnsEmptyTraces()
     {
         RunRecord record = CommittedRunRecord(decisionTraceId: null);

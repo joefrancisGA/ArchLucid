@@ -76,7 +76,19 @@ public sealed class RunDetailQueryService(
         unifiedGoldenManifestReader ?? throw new ArgumentNullException(nameof(unifiedGoldenManifestReader));
 
     /// <inheritdoc/>
-    public async Task<ArchitectureRunDetail?> GetRunDetailAsync(string runId, CancellationToken cancellationToken = default)
+    public Task<ArchitectureRunDetail?> GetRunDetailAsync(string runId, CancellationToken cancellationToken = default) =>
+        LoadRunDetailAsync(runId, useRollupProjection: false, cancellationToken);
+
+    /// <inheritdoc/>
+    public Task<ArchitectureRunDetail?> GetRunDetailForOperatorEnrichAsync(
+        string runId,
+        CancellationToken cancellationToken = default) =>
+        LoadRunDetailAsync(runId, useRollupProjection: true, cancellationToken);
+
+    private async Task<ArchitectureRunDetail?> LoadRunDetailAsync(
+        string runId,
+        bool useRollupProjection,
+        CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         if (!TryParseRunGuid(runId, out Guid runGuid))
@@ -97,8 +109,9 @@ public sealed class RunDetailQueryService(
 
         Task<IReadOnlyList<AgentTask>> tasksTask =
             taskRepository.GetByRunIdAsync(scope, runId, cancellationToken);
-        Task<IReadOnlyList<AgentResult>> resultsTask =
-            resultRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+        Task<IReadOnlyList<AgentResult>> resultsTask = useRollupProjection
+            ? resultRepository.GetRollupProjectionByRunIdAsync(scope, runId, cancellationToken)
+            : resultRepository.GetByRunIdAsync(scope, runId, cancellationToken);
         Task<GoldenManifest?> manifestTask =
             unifiedGoldenManifestReader.ReadByRunIdAsync(scope, runGuid, cancellationToken);
         Task<IReadOnlyList<AgentExecutionTraceLlmCostSlice>> costSlicesTask =

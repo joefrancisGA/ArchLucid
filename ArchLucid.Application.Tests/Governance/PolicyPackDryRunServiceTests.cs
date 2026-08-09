@@ -295,6 +295,9 @@ public sealed class PolicyPackDryRunServiceTests
         public Task<ArchitectureRunDetail?> GetRunDetailAsync(string runId, CancellationToken cancellationToken = default) =>
             Task.FromResult(_byId.TryGetValue(runId, out ArchitectureRunDetail? detail) ? detail : null);
 
+        public Task<ArchitectureRunDetail?> GetRunDetailForOperatorEnrichAsync(string runId, CancellationToken cancellationToken = default) =>
+            GetRunDetailAsync(runId, cancellationToken);
+
         public Task<ArchitectureRunDetail?> GetRunDetailForRollupAsync(string runId, CancellationToken cancellationToken = default) =>
             GetRunDetailAsync(runId, cancellationToken);
 

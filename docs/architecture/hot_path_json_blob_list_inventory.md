@@ -17,6 +17,7 @@
 | Evidence proposals list | `AgentResultListSql.ListEvidenceProposalsSelectColumns` | `ResultJson` | needs `ProposedEvidenceJson` by purpose |
 | Rollup/compare agent results | `AgentResultListSql.GetByRunIdSelectRollupProjection` + `GetRollupProjectionByRunIdAsync` | bare full `ResultJson` | TB-2053 — JSON subpaths for claims/findings/controls only |
 | Comparison history / search | `ComparisonRecordListSql` + `ComparisonRecordRepository` list methods | `PayloadJson` | TB-2057 — detail via `GetByIdAsync` only |
+| Authority run detail (operator enrich) | `IRunDetailQueryService.GetRunDetailForOperatorEnrichAsync` | bare full `ResultJson` | TB-2119 — rollup projection + mute/trust; full LOB via `GetRunDetailAsync` / architecture review route |
 | Authority run detail (default) | `IAuthorityQueryService.GetRunDetailAsync` | artifact LOB bodies | TB-2059 — metadata-only bundle; bodies via `IArtifactQueryService` or `loadArtifactBodies: true` |
 
 ## Intentional full-blob readers (documented)
@@ -24,7 +25,7 @@
 | Surface | Method | Blob | Why |
 | --- | --- | --- | --- |
 | Run detail by id | `SqlRunRepository.GetByIdAsync` | `EngineProvenanceJson` | single-row detail (not a list) |
-| Agent results by run | `AgentResultRepository.GetByRunIdAsync` | `ResultJson` | commit/detail path — lazy split tracked **TB-930**; rollup/compare uses TB-2053 projection instead |
+| Agent results by run | `AgentResultRepository.GetByRunIdAsync` | `ResultJson` | commit/detail/forensics — operator enrich uses TB-2119 rollup projection; buyer-summary uses TB-930 markers |
 | Trace forensics | `GetPagedByRunIdAsync` | `TraceJson` | internal operator forensics endpoint |
 | Trace by id / task / full run | `GetByTraceIdAsync`, `GetByTaskIdAsync`, `GetByRunIdAsync` | `TraceJson` | forensic / orchestration detail |
 | Finding inspect | `DapperFindingInspectReadRepository` | `PayloadJson` | single-finding inspect |

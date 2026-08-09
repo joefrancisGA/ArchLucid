@@ -19,6 +19,14 @@ public interface IRunDetailQueryService
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    ///     Operator authority enrich path (TB-2119): same enrichment as <see cref="GetRunDetailAsync"/> but agent
+    ///     results load via rollup projection — no bare <c>ResultJson</c> LOB SELECT.
+    /// </summary>
+    Task<ArchitectureRunDetail?> GetRunDetailForOperatorEnrichAsync(
+        string runId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     ///     Internal rollup/compare path (TB-931 / TB-2053): run header, rollup-projected agent results, and golden
     ///     manifest without tasks, decision traces, mute/trust enrichment, or LLM cost slices. Agent results omit
     ///     full <c>ResultJson</c> LOBs (reasoning / topology additions).

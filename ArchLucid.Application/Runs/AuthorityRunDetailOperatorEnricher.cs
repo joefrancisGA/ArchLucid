@@ -91,7 +91,7 @@ public sealed class AuthorityRunDetailOperatorEnricher(
             .ConfigureAwait(false);
 
         ArchitectureRunDetail? architectureDetail =
-            await _runDetailQueryService.GetRunDetailAsync(runHex, cancellationToken).ConfigureAwait(false);
+            await _runDetailQueryService.GetRunDetailForOperatorEnrichAsync(runHex, cancellationToken).ConfigureAwait(false);
 
         if (architectureDetail is null)
             return;
