@@ -5,6 +5,7 @@ import type { OperatorScopeQueryKey } from "@/lib/operator-scope-query-key";
 export const operatorQueryKeys = {
   tenantTrialStatus: ["operator", "tenant", "trial-status"] as const,
   tenantUsageStatus: ["operator", "tenant", "usage-status"] as const,
+  billingSubscriptionStatus: ["operator", "tenant", "billing-subscription-status"] as const,
   healthReadySummary: ["operator", "health", "ready-summary"] as const,
   llmMonthlyBudgetStatus: ["operator", "llm", "monthly-budget-status"] as const,
   adminAiUsageDashboard: ["operator", "admin", "ai-usage-dashboard"] as const,

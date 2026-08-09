@@ -2,45 +2,59 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AlertsOutstandingNavBadge } from "@/components/alerts/AlertsOutstandingNavBadge";
-import { getAlertsInboxSummary } from "@/lib/api/alerts-api";
+import { fetchAlertsInboxSummary } from "@/components/alerts/alerts-inbox-query-fetch";
+import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
-vi.mock("@/lib/api/alerts-api", () => ({
-  getAlertsInboxSummary: vi.fn(),
+vi.mock("@/components/alerts/alerts-inbox-query-fetch", () => ({
+  fetchAlertsInboxSummary: vi.fn(),
 }));
 
-const getAlertsInboxSummaryMock = vi.mocked(getAlertsInboxSummary);
+vi.mock("@/lib/operator-scope-storage", () => ({
+  ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT: "archlucid:operator-scope-changed",
+  getEffectiveBrowserProxyScopeHeaders: () => ({
+    "x-tenant-id": "tenant-1",
+    "x-workspace-id": "workspace-1",
+    "x-project-id": "project-1",
+  }),
+}));
 
-describe("AlertsOutstandingNavBadge", () => {
+const fetchAlertsInboxSummaryMock = vi.mocked(fetchAlertsInboxSummary);
+
+describe("AlertsOutstandingNavBadge (TB-2144)", () => {
   beforeEach(() => {
-    getAlertsInboxSummaryMock.mockReset();
+    resetOperatorQueryClientForTests();
+    fetchAlertsInboxSummaryMock.mockReset();
+    fetchAlertsInboxSummaryMock.mockResolvedValue({
+      open: 0,
+      acknowledged: 0,
+      resolved: 0,
+      blocking: 0,
+      lastEvaluatedUtc: null,
+    });
   });
 
   it("renders nothing when open count is zero", async () => {
-    getAlertsInboxSummaryMock.mockResolvedValue({
-      openCount: 0,
-      acknowledgedCount: 1,
-      resolvedCount: 2,
-      blockingCount: 0,
-    });
-
-    const { container } = render(<AlertsOutstandingNavBadge />);
+    const { container, unmount } = renderWithOperatorQuery(<AlertsOutstandingNavBadge />);
 
     await waitFor(() => {
-      expect(getAlertsInboxSummaryMock).toHaveBeenCalledTimes(1);
+      expect(fetchAlertsInboxSummaryMock).toHaveBeenCalledTimes(1);
     });
 
     expect(container).toBeEmptyDOMElement();
+    unmount();
   });
 
   it("renders the open-alert count when outstanding alerts exist", async () => {
-    getAlertsInboxSummaryMock.mockResolvedValue({
-      openCount: 3,
-      acknowledgedCount: 0,
-      resolvedCount: 0,
-      blockingCount: 1,
+    fetchAlertsInboxSummaryMock.mockResolvedValue({
+      open: 3,
+      acknowledged: 0,
+      resolved: 0,
+      blocking: 1,
+      lastEvaluatedUtc: null,
     });
 
-    render(<AlertsOutstandingNavBadge />);
+    renderWithOperatorQuery(<AlertsOutstandingNavBadge />);
 
     const badge = await screen.findByTestId("alerts-outstanding-nav-badge");
 
@@ -49,14 +63,15 @@ describe("AlertsOutstandingNavBadge", () => {
   });
 
   it("uses singular aria-label for one open alert", async () => {
-    getAlertsInboxSummaryMock.mockResolvedValue({
-      openCount: 1,
-      acknowledgedCount: 0,
-      resolvedCount: 0,
-      blockingCount: 0,
+    fetchAlertsInboxSummaryMock.mockResolvedValue({
+      open: 1,
+      acknowledged: 0,
+      resolved: 0,
+      blocking: 0,
+      lastEvaluatedUtc: null,
     });
 
-    render(<AlertsOutstandingNavBadge />);
+    renderWithOperatorQuery(<AlertsOutstandingNavBadge />);
 
     expect(await screen.findByTestId("alerts-outstanding-nav-badge")).toHaveAttribute(
       "aria-label",
@@ -64,15 +79,23 @@ describe("AlertsOutstandingNavBadge", () => {
     );
   });
 
-  it("renders nothing when the inbox summary request fails", async () => {
-    getAlertsInboxSummaryMock.mockRejectedValue(new Error("network"));
-
-    const { container } = render(<AlertsOutstandingNavBadge />);
-
-    await waitFor(() => {
-      expect(getAlertsInboxSummaryMock).toHaveBeenCalledTimes(1);
+  it("does not refetch inbox summary on remount while query data is still fresh", async () => {
+    fetchAlertsInboxSummaryMock.mockResolvedValue({
+      open: 2,
+      acknowledged: 0,
+      resolved: 0,
+      blocking: 0,
+      lastEvaluatedUtc: null,
     });
 
-    expect(container).toBeEmptyDOMElement();
+    const first = renderWithOperatorQuery(<AlertsOutstandingNavBadge />);
+
+    await screen.findByTestId("alerts-outstanding-nav-badge");
+    first.unmount();
+
+    renderWithOperatorQuery(<AlertsOutstandingNavBadge />);
+
+    await screen.findByTestId("alerts-outstanding-nav-badge");
+    expect(fetchAlertsInboxSummaryMock).toHaveBeenCalledTimes(1);
   });
 });

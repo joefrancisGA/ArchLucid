@@ -1,36 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
-import { getAlertsInboxSummary } from "@/lib/api/alerts-api";
+import { useAlertsInboxSummaryQuery } from "@/components/alerts/use-alerts-inbox-queries";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 /** Count badge beside Alerts nav when open (outstanding) alerts exist. */
 export function AlertsOutstandingNavBadge(): React.JSX.Element | null {
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    void (async () => {
-      try {
-        const summary = await getAlertsInboxSummary();
-
-        if (!cancelled) {
-          setCount(summary.openCount);
-        }
-      } catch {
-        if (!cancelled) {
-          setCount(0);
-        }
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const { summary } = useAlertsInboxSummaryQuery({ initialModel: null });
+  const count = summary.open;
 
   if (count <= 0) {
     return null;
