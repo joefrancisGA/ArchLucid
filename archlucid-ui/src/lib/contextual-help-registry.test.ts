@@ -102,6 +102,8 @@ describe("contextual-help-registry (TB-733)", () => {
       "/governance/approval-requests",
       "/governance/signed-records",
       INTERNAL_TENANT_HEALTH_PATH,
+      INTERNAL_RECOMMENDATION_LEARNING_PATH,
+      INTERNAL_TENANTS_PATH,
       INTERNAL_TRIAL_FUNNEL_PATH,
       INTERNAL_DEMO_READINESS_PATH,
       INTERNAL_DEPLOYMENT_STATUS_PATH,
@@ -328,7 +330,9 @@ describe("contextual-help-registry (TB-733)", () => {
 
   it("resolves API keys settings Category-1 help (ADP)", () => {
     expect(contextualHelpForPathname("/administration/api-keys")?.whatIsThisPage).toContain("API keys");
-    expect(contextualHelpForPathname("/administration/api-keys")?.whatToDoNext).toContain("Audit");
+    expect(contextualHelpForPathname("/administration/api-keys")?.whatToDoNext).toContain(
+      "Users and roles",
+    );
   });
 
   it("resolves Preferences settings Category-1 help (ADR)", () => {

@@ -1,6 +1,12 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("@/components/help/MermaidDiagram", () => ({
+  MermaidDiagram: ({ source }: { readonly source: string }) => (
+    <div data-testid="mermaid-diagram">{source}</div>
+  ),
+}));
+
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
@@ -88,6 +94,28 @@ expect(GETTING_STARTED_HELP_SOURCES.some((link) => link.href === GETTING_STARTED
     expect(screen.getByTestId("getting-started-plain-language-table")).toBeInTheDocument();
     expect(screen.getByText("Architecture package")).toBeInTheDocument();
     expect(screen.getByText("Governance approval")).toBeInTheDocument();
+  });
+
+  it("renders the authority pipeline as a visible Mermaid diagram in How ArchLucid works", () => {
+    if (entry === undefined) {
+      throw new Error("Expected getting-started documentation entry.");
+    }
+
+    render(<HelpGettingStartedGuideView entry={entry} />);
+
+    const pipelineDiagram = screen.getByTestId("getting-started-pipeline-diagram");
+    expect(
+      within(pipelineDiagram).getByText(
+        "Authority pipeline from architecture request through governance gate and committed outputs:",
+      ),
+    ).toBeInTheDocument();
+
+    const mermaid = within(pipelineDiagram).getByTestId("mermaid-diagram");
+    expect(mermaid).toHaveTextContent("subgraph pipeline [Authority pipeline]");
+    expect(mermaid).toHaveTextContent("gov{Governance gate}");
+    expect(mermaid).toHaveTextContent("SR[Signed review record]");
+    expect(within(pipelineDiagram).queryByText(/Diagram source \(Mermaid\)/i)).not.toBeInTheDocument();
+    expect(screen.queryByTestId("getting-started-pipeline-diagram-details")).not.toBeInTheDocument();
   });
 
   it("renders a five-step review workflow with expected outputs", () => {

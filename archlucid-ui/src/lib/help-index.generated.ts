@@ -1361,7 +1361,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "residuals-honest-22",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-239 is Done for ROI period-mix semantics. - TB-969–TB-971 remain open for per-outcome aggregation, persisted cache/task mode, and cross-surface guards. - This handout complements, but does not replace, Real-mode proof packets G-REAL-06 and G-REAL-07."
+    "excerpt": "- TB-239 is Done for ROI period-mix semantics. - TB-969 Done (2026-08-08) — within-run aggregation contract [`INV002_EXECUTION_MODE_AGGREGATION_CONTRACT.md`](../library/INV002_EXECUTION_MODE_AGGREGATION_CONTRACT.md). - TB-970–TB-971 remain open for persisted per-task mode + cross-surface guards. - This handout compl…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",

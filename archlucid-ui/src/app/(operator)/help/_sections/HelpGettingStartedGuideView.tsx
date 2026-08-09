@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
+import { MermaidDiagram } from "@/components/help/MermaidDiagram";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -18,8 +19,6 @@ import {
   GETTING_STARTED_HELP_PRIMARY_ACTIONS,
   GETTING_STARTED_HELP_QUICK_START_COPY,
   GETTING_STARTED_HELP_QUICK_START_TITLE,
-  GETTING_STARTED_HELP_SOURCES,
-  GETTING_STARTED_HELP_SOURCES_INTRO,
   GETTING_STARTED_HELP_SUBTITLE,
   GETTING_STARTED_HELP_TECHNICAL_DETAILS_BODY,
   GETTING_STARTED_HELP_TECHNICAL_DETAILS_TITLE,
@@ -172,17 +171,18 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
               {GETTING_STARTED_HELP_DIAGRAM_SUMMARY}
             </p>
             <HowArchLucidWorksDiagram />
-            <details className={HELP_PAGE_LAYOUT.details}>
-              <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                Technical details
-              </summary>
-              <div className={cn(HELP_PAGE_LAYOUT.detailsBody, OPERATOR_TYPOGRAPHY.body)}>
-                <p className="m-0">Diagram source (Mermaid):</p>
-                <pre className="mt-2 overflow-x-auto rounded-md border border-neutral-200 bg-neutral-50 p-3 text-xs dark:border-neutral-800 dark:bg-neutral-950">
-                  <code>{GETTING_STARTED_HELP_DIAGRAM_SOURCE}</code>
-                </pre>
-              </div>
-            </details>
+            <div
+              className={cn(
+                "space-y-3 rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800",
+                OPERATOR_TYPOGRAPHY.body,
+              )}
+              data-testid="getting-started-pipeline-diagram"
+            >
+              <p className="m-0">
+                Authority pipeline from architecture request through governance gate and committed outputs:
+              </p>
+              <MermaidDiagram source={GETTING_STARTED_HELP_DIAGRAM_SOURCE} />
+            </div>
           </section>
 
           <section aria-labelledby="plain-language-vocabulary-heading" className="space-y-3">

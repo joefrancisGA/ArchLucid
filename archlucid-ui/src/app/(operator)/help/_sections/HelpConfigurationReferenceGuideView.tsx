@@ -14,7 +14,6 @@ import {
   CONFIGURATION_REFERENCE_HELP_PAGE_SUBTITLE,
   CONFIGURATION_REFERENCE_HELP_PAGE_TITLE,
   CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS,
-  CONFIGURATION_REFERENCE_HELP_SOURCES,
   CONFIGURATION_REFERENCE_HELP_TASK_SECTIONS,
 } from "@/lib/configuration-reference-help-guide-content";
 import { CONFIGURATION_REFERENCE_HELP_PATH } from "@/lib/configuration-reference-help-route";
@@ -22,7 +21,6 @@ import {
   DESIGN_TOKENS,
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
-  OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
@@ -86,11 +84,6 @@ export function HelpConfigurationReferenceGuideView(
                 {CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openIdentityProviders.label}
               </Link>
             </Button>
-            <Button asChild size="sm" variant="outline">
-              <Link href={CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openApiKeys.href}>
-                {CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openApiKeys.label}
-              </Link>
-            </Button>
             <Link
               href={CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openConfigurationSummary.href}
               className={cn(
@@ -103,31 +96,6 @@ export function HelpConfigurationReferenceGuideView(
             </Link>
           </CardContent>
         </Card>
-
-        <section
-          className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
-          aria-labelledby="help-configuration-reference-sources-heading"
-          data-testid="help-configuration-reference-sources"
-        >
-          <h2
-            id="help-configuration-reference-sources-heading"
-            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
-          >
-            Sources for configuration tasks
-          </h2>
-          <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Prefer product settings and operator help before treating the key catalog appendix as diligence evidence.
-          </p>
-          <ul className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>
-            {CONFIGURATION_REFERENCE_HELP_SOURCES.map((link) => (
-              <li key={link.href}>
-                <Link className={cn(OPERATOR_LINK.inline, "font-medium")} href={link.href}>
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
       </div>
 
       <div className={cn("min-w-0 space-y-6", HELP_PAGE_LAYOUT.contentColumn, "max-w-[42rem] lg:max-w-none")}>

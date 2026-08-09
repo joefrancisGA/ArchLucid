@@ -369,11 +369,11 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     prefix: "/help/configuration-reference",
     entry: {
       whatIsThisPage:
-        "Admin configuration task guide for SSO, identity providers, API keys, and production-like hosting posture.",
+        "Admin configuration task guide for SSO, identity providers, and production-like hosting posture.",
       whatToDoNext:
-        "Open the matching settings CTA (SSO, identity providers, or API keys), then expand the key catalog appendix only if needed.",
+        "Open the matching settings CTA (SSO or identity providers), then expand the key catalog appendix only if needed.",
       whyEmpty: "This guide always shows configuration tasks when the help topic loads.",
-      whereToConfigurePrerequisite: "Admin access to identity settings, API keys, and the configuration summary.",
+      whereToConfigurePrerequisite: "Admin access to identity settings and the configuration summary.",
     },
   },
   {
@@ -1474,9 +1474,9 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     prefix: "/administration/users",
     entry: {
       whatIsThisPage:
-        "Invite users, assign ArchLucid app roles, and manage API keys for this workspace tenant.",
+        "Invite users and assign ArchLucid app roles for this workspace tenant.",
       whatToDoNext:
-        "Invite a teammate, open Roles and permissions to adjust authority, or manage API keys when you have Admin authority.",
+        "Invite a teammate, then open Roles and permissions to adjust authority.",
       whyEmpty: "Directory rows appear after invitations are accepted or users are provisioned for this tenant.",
       whereToConfigurePrerequisite:
         "SSO and identity-provider mapping may be required before enterprise users can sign in.",
@@ -1603,13 +1603,13 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     prefix: "/administration/api-keys",
     entry: {
       whatIsThisPage:
-        "API keys - manage Admin and read-only automation credentials for approved enterprise workspace access.",
+        "API keys - host automation credential controls (parked in product UI until Internal Operations maturity).",
       whatToDoNext:
-        "Review credential status, rotate or issue overlap keys when needed, then open Audit when rotation events need a governed trail.",
+        "Use Users and roles for people access. Prefer Key Vault / host configuration for machine credentials until this surface returns under Internal Operations.",
       whyEmpty:
-        "Summary and credential rows load after API key settings respond; enterprise-only workspaces may keep this surface disabled.",
+        "This page stays restricted while in-product API key management is deferred.",
       whereToConfigurePrerequisite:
-        "Rotating keys needs Admin authority; some tenants require SSO-only sign-in and disable API keys.",
+        "Re-enable requires flipping isApiKeysSettingsSurfaceEnabled and Admin authority; some tenants require SSO-only sign-in.",
     },
   },
   {

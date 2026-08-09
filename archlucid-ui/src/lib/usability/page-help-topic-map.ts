@@ -523,6 +523,14 @@ const ARTIFACT_PREVIEW_HELP_TOPIC: PageHelpTopic = {
   label: "Review artifacts",
 };
 
+/** True on in-app `/help` topic pages — contextual help chrome would only link back to the same article. */
+export function pathnameIsInAppHelpTopic(pathname: string): boolean {
+  const rawPath = (pathname ?? "").split("?")[0] ?? "";
+  const path = (canonicalizeLegacyOperatorRoutePath(rawPath).split("?")[0] ?? rawPath).trim() || "/";
+
+  return path === "/help" || path.startsWith("/help/");
+}
+
 export function pageHelpTopicForPathname(pathname: string): PageHelpTopic | null {
   const rawPath = (pathname ?? "").split("?")[0] ?? "";
   const path = (canonicalizeLegacyOperatorRoutePath(rawPath).split("?")[0] ?? rawPath).trim() || "/";

@@ -9,19 +9,19 @@ import {
 } from "@/lib/configuration-reference-help-guide-content";
 
 describe("configuration-reference-help-guide-content", () => {
-  it("keeps primary CTAs on SSO, identity providers, API keys, and config summary", () => {
+  it("keeps primary CTAs on SSO, identity providers, and config summary", () => {
     expect(CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openSsoWizard.href).toBe(
       "/administration/identity/sso-wizard",
     );
     expect(CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openIdentityProviders.href).toBe(
       "/administration/identity-providers",
     );
-    expect(CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openApiKeys.href).toBe(
-      "/administration/api-keys",
-    );
     expect(CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openConfigurationSummary.href).toBe(
       "/internal/configuration",
     );
+    expect(
+      Object.prototype.hasOwnProperty.call(CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS, "openApiKeys"),
+    ).toBe(false);
   });
 
   it("lists three Admin task sections", () => {

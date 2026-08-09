@@ -70,12 +70,19 @@ describe("HelpConfigurationReferenceGuideView", () => {
 
     expect(
       within(actionPanel).getByRole("link", {
-        name: CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openApiKeys.label,
+        name: CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openIdentityProviders.label,
       }),
-    ).toHaveAttribute("href", CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openApiKeys.href);
+    ).toHaveAttribute("href", CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openIdentityProviders.href);
+
+    expect(
+      within(actionPanel).queryByRole("link", {
+        name: "API keys",
+      }),
+    ).toBeNull();
 
     expect(screen.queryByTestId("help-configuration-reference-sources")).toBeNull(); // TB-2092
-for (const banned of CONFIGURATION_REFERENCE_BANNED_HREF_FRAGMENTS) {
+
+    for (const banned of CONFIGURATION_REFERENCE_BANNED_HREF_FRAGMENTS) {
       expect(preparedMarkdown, `banned href fragment still present: ${banned}`).not.toContain(`](${banned}`);
       expect(preparedMarkdown, `banned href fragment still present: ${banned}`).not.toMatch(
         new RegExp(`\\]\\([^)]*${banned.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "i"),
