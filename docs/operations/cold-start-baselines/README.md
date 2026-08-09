@@ -1,6 +1,6 @@
 # Cold-start baseline register
 
-**Purpose:** One row per captured deploy proves whether free CD levers (**TB-754**–**TB-758**) are enough before paid Azure changes (CPU, R2R, `min_replicas`, Redis, pre-migrate Jobs).
+**Purpose:** One row per captured deploy proves whether free CD levers (**TB-754**–**TB-758**) are enough before paid Azure changes (CPU, R2R, `min_replicas`, Redis, pre-migrate Jobs). Owner cost × latency matrix and per-lever go/no-go: [`PERFORMANCE_COLD_START_AND_TRIMMING.md`](../../library/PERFORMANCE_COLD_START_AND_TRIMMING.md#paid-lever-decision-pack-tb-2124) (**TB-2124**).
 
 **How to add a row:** Follow [`COLD_START_MEASUREMENT.md`](../../runbooks/COLD_START_MEASUREMENT.md). Copy the table template from an existing file, name it `<environment>-<yyyy-mm-dd>-<short-sha>.md`, and link it below.
 

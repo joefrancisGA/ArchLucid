@@ -8,7 +8,7 @@
 
 **Assumptions:** API on **Azure Container Apps**; CD uses [`DEPLOYMENT_CD_PIPELINE.md`](../library/DEPLOYMENT_CD_PIPELINE.md) (post-deploy retries **TB-754**, canary+bake **TB-755**, synthetic warm-path **TB-758**). This runbook does **not** change SKUs.
 
-**Out of scope (document only):** Debian ReadyToRun, pre-migrate Jobs, raising `min_replicas`, Redis — see [decision table](#decision-table-paid-levers) below.
+**Out of scope (document only):** Debian ReadyToRun, pre-migrate Jobs, raising `min_replicas`, Redis — see [decision table](#decision-table-paid-levers) below and the owner **cost × latency matrix** in [`PERFORMANCE_COLD_START_AND_TRIMMING.md`](../library/PERFORMANCE_COLD_START_AND_TRIMMING.md#paid-lever-decision-pack-tb-2124) (**TB-2124**).
 
 ---
 
@@ -110,7 +110,7 @@ If staging passes CD reliably but Phase B is high, prefer **JIT/R2R/CPU** eviden
 | Scale-from-zero after idle | No running replica | Accept for dev; canary for staging traffic | `min_replicas ≥ 1` |
 | Intermittent 502/503 at ingress | Revision swap / platform | **TB-757**, **TB-754** | `min_replicas`, more CPU |
 
-**Rule:** Do not open a paid-lever backlog row until **one baseline row** exists in [`cold-start-baselines/`](../operations/cold-start-baselines/README.md) for the target environment.
+**Rule:** Do not open a paid-lever backlog row until **one baseline row** exists in [`cold-start-baselines/`](../operations/cold-start-baselines/README.md) for the target environment. Owner go/no-go per lever: [`PERFORMANCE_COLD_START_AND_TRIMMING.md`](../library/PERFORMANCE_COLD_START_AND_TRIMMING.md#paid-lever-decision-pack-tb-2124) (**TB-2124**).
 
 ---
 
