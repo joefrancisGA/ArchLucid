@@ -157,7 +157,7 @@ describe("RunsPageView page chrome", () => {
     expect(screen.getByTestId("runs-page-project-label").querySelector("strong")).toHaveTextContent("Project:");
   });
 
-  it("leads with summary and Your reviews empty state on an empty hub", () => {
+  it("leads with summary and empty inventory state on an empty hub", () => {
     render(<RunsPageView model={baseModel({ totalCount: 0 })} />);
 
     expect(screen.getByTestId("runs-page-header-actions")).toBeInTheDocument();

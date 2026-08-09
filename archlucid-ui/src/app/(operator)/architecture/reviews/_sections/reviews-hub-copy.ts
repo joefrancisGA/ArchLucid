@@ -59,8 +59,6 @@ export const REVIEWS_HUB_COMPARE_LABEL = "Compare two reviews";
 
 export const REVIEWS_HUB_COMPARE_HINT = "Compare changes between finalized reviews.";
 
-export const REVIEWS_HUB_RECENT_SECTION_TITLE = "Your reviews";
-
 export const REVIEWS_HUB_RECENT_EMPTY_TITLE = "No reviews yet";
 
 export const REVIEWS_HUB_RECENT_EMPTY_BODY =
@@ -70,7 +68,7 @@ export const REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL = BUYER_START_ARCHITECTURE_R
 
 export const REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL = "Explore the sample review";
 
-/** Empty "Your reviews" copy when architecture drafts exist but no review runs yet. */
+/** Empty inventory copy when architecture drafts exist but no review runs yet. */
 export const REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE = "No reviews yet";
 
 /** Empty inventory when exactly one draft — header Continue owns the draft chooser. */

@@ -1,11 +1,11 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { TOOLTIP_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   getGoldenPathGlossaryNoun,
   goldenPathGlossaryHelpHref,
@@ -16,12 +16,13 @@ import {
 export type InlineGlossaryChipProps = {
   readonly nounId: GoldenPathGlossaryNounId;
   readonly children: React.ReactNode;
-  /** When false, skip first-encounter pulse on the chip affordance. */
+  /** When false, skip first-encounter pulse on the term affordance. */
   readonly pulseOnFirstEncounter?: boolean;
 };
 
 /**
- * Inline product-noun chip with a one-sentence definition popover sourced from `customer-glossary-manifest.ts`.
+ * Inline golden-path product noun with a dotted underline and short definition tooltip
+ * sourced from `customer-glossary-manifest.ts`.
  */
 export function InlineGlossaryChip({
   nounId,
@@ -60,37 +61,27 @@ export function InlineGlossaryChip({
   };
 
   return (
-    <span className="inline-flex flex-wrap items-baseline gap-1">
-      <span>{children}</span>
-      <Popover onOpenChange={(open) => open && markSeen()}>
-        <PopoverTrigger asChild>
-          <button
-            type="button"
-            className={cn(
-              "inline-flex h-5 min-w-5 cursor-help items-center justify-center rounded-full border border-neutral-300 bg-neutral-50 px-1 font-semibold text-neutral-600 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-300",
-              OPERATOR_TYPOGRAPHY.micro,
-              firstPulse && "motion-safe:animate-pulse",
-            )}
-            aria-label={`What is ${entry.label}?`}
-            data-testid={`inline-glossary-chip-${nounId}`}
-          >
-            ?
-          </button>
-        </PopoverTrigger>
-        <PopoverContent className="max-w-sm">
-          <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-            {entry.label}
-          </p>
-          <p className={cn("m-0 mt-1.5 leading-snug text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
-            {entry.definition}
-          </p>
-          <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
-            <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-400" href={goldenPathGlossaryHelpHref(nounId)}>
-              Open glossary →
-            </Link>
-          </p>
-        </PopoverContent>
-      </Popover>
-    </span>
+    <Tooltip onOpenChange={(open) => open && markSeen()}>
+      <TooltipTrigger asChild>
+        <span
+          className={cn(
+            "cursor-help border-b border-dotted border-neutral-500 text-inherit underline-offset-2 dark:border-neutral-400",
+            firstPulse && "motion-safe:animate-pulse",
+          )}
+          data-testid={`inline-glossary-chip-${nounId}`}
+        >
+          {children}
+        </span>
+      </TooltipTrigger>
+      <TooltipContent side="top" className="pointer-events-auto max-w-sm py-2">
+        <p className={cn("m-0", TOOLTIP_TYPOGRAPHY.title)}>{entry.label}</p>
+        <p className={cn("mb-0 mt-1.5 leading-snug", TOOLTIP_TYPOGRAPHY.body)}>{entry.definition}</p>
+        <p className={cn("mb-0 mt-2", TOOLTIP_TYPOGRAPHY.body)}>
+          <Link className={TOOLTIP_TYPOGRAPHY.link} href={goldenPathGlossaryHelpHref(nounId)}>
+            Open glossary →
+          </Link>
+        </p>
+      </TooltipContent>
+    </Tooltip>
   );
 }

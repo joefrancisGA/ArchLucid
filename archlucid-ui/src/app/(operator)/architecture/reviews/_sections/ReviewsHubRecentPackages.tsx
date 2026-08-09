@@ -20,7 +20,7 @@ import {
   REVIEWS_HUB_RECENT_EMPTY_BODY,
   REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL,
   REVIEWS_HUB_RECENT_EMPTY_TITLE,
-  REVIEWS_HUB_RECENT_SECTION_TITLE,
+  REVIEWS_HUB_PAGE_TITLE,
 } from "./reviews-hub-copy";
 import { toReviewsHubPackageRowDisplay } from "./reviews-hub-package-display";
 
@@ -34,11 +34,9 @@ export function ReviewsHubRecentPackages(props: ReviewsHubRecentPackagesProps): 
 
   return (
     <section className="mt-8" data-testid="reviews-hub-recent-packages">
-      <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{REVIEWS_HUB_RECENT_SECTION_TITLE}</h2>
-
       {rows.length === 0 ? (
         <div
-          className="mt-3 rounded-md border border-dashed border-neutral-300 bg-neutral-50/60 px-4 py-5 dark:border-neutral-700 dark:bg-neutral-900/40"
+          className="rounded-md border border-dashed border-neutral-300 bg-neutral-50/60 px-4 py-5 dark:border-neutral-700 dark:bg-neutral-900/40"
           data-testid="reviews-hub-recent-empty"
           role="status"
         >
@@ -55,8 +53,8 @@ export function ReviewsHubRecentPackages(props: ReviewsHubRecentPackagesProps): 
           </div>
         </div>
       ) : (
-        <div className="mt-3 overflow-x-auto">
-          <EnterpriseTable ariaLabel={REVIEWS_HUB_RECENT_SECTION_TITLE} data-testid="reviews-hub-packages-table">
+        <div className="overflow-x-auto">
+          <EnterpriseTable ariaLabel={REVIEWS_HUB_PAGE_TITLE} data-testid="reviews-hub-packages-table">
             <EnterpriseTableHead>
               <EnterpriseTableHeadRow>
                 <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
