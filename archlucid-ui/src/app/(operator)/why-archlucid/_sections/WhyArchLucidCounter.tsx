@@ -20,9 +20,7 @@ export function WhyArchLucidCounter(props: WhyArchLucidCounterProps) {
     >
       <p className={OPERATOR_NAV_GROUP_LABEL}>{label}</p>
       <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.kpiValue)}>{shown}</p>
-      <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        <code>{hint}</code>
-      </p>
+      <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{hint}</p>
     </div>
   );
 }

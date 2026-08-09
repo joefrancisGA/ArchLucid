@@ -3,6 +3,13 @@ import type { WhyArchLucidSnapshot } from "@/lib/api";
 import { formatWhyPageInstant } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-page-helpers";
 import { WhyArchLucidCounter } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidCounter";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  WHY_ARCHLUCID_COUNTER_HINT_AUDIT_ROWS,
+  WHY_ARCHLUCID_COUNTER_HINT_FINDINGS,
+  WHY_ARCHLUCID_COUNTER_HINT_HOURS_SAVED,
+  WHY_ARCHLUCID_COUNTER_HINT_RUNS_CREATED,
+  whyArchlucidCounterHintAuditRowsTruncated,
+} from "@/lib/why-archlucid-page-copy";
 
 export type WhyArchLucidCounterGridProps = {
   readonly snapshot: WhyArchLucidSnapshot;
@@ -14,11 +21,15 @@ export function WhyArchLucidCounterGrid(props: WhyArchLucidCounterGridProps) {
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-      <WhyArchLucidCounter label="Architecture reviews created" value={snapshot.runsCreatedTotal} hint="archlucid_runs_created_total" />
+      <WhyArchLucidCounter
+        label="Architecture reviews created"
+        value={snapshot.runsCreatedTotal}
+        hint={WHY_ARCHLUCID_COUNTER_HINT_RUNS_CREATED}
+      />
       <WhyArchLucidCounter
         label="Est. manual hours saved"
         value={snapshot.estimatedManualWorkHoursSaved ?? 0}
-        hint="planning heuristic — see methodology footnote"
+        hint={WHY_ARCHLUCID_COUNTER_HINT_HOURS_SAVED}
         valueFormat="hours"
       />
       <WhyArchLucidCounter
@@ -26,8 +37,8 @@ export function WhyArchLucidCounterGrid(props: WhyArchLucidCounterGridProps) {
         value={snapshot.auditRowCount}
         hint={
           snapshot.auditRowCountTruncated
-            ? `IAuditRepository.GetByScopeAsync (capped at ${snapshot.auditRowCount})`
-            : "IAuditRepository.GetByScopeAsync"
+            ? whyArchlucidCounterHintAuditRowsTruncated(snapshot.auditRowCount)
+            : WHY_ARCHLUCID_COUNTER_HINT_AUDIT_ROWS
         }
       />
       <WhyArchLucidCounter
@@ -36,7 +47,7 @@ export function WhyArchLucidCounterGrid(props: WhyArchLucidCounterGridProps) {
           (sum, [, count]) => sum + (typeof count === "number" && Number.isFinite(count) ? count : 0),
           0,
         )}
-        hint="sum of archlucid_findings_produced_total"
+        hint={WHY_ARCHLUCID_COUNTER_HINT_FINDINGS}
       />
       {severityRows.length > 0 ? (
         <div className="sm:col-span-3">
@@ -58,7 +69,7 @@ export function WhyArchLucidCounterGrid(props: WhyArchLucidCounterGridProps) {
         </div>
       ) : null}
       <p className={cn("sm:col-span-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Snapshot generated {formatWhyPageInstant(snapshot.generatedUtc)} · demo review <code>{snapshot.demoRunId}</code>
+        Snapshot generated {formatWhyPageInstant(snapshot.generatedUtc)} · demo review {snapshot.demoRunId}
         {typeof snapshot.estimatedManualWorkHoursSavedMethodology === "string" &&
         snapshot.estimatedManualWorkHoursSavedMethodology.trim().length > 0 ? (
           <span className="mt-1 block">{snapshot.estimatedManualWorkHoursSavedMethodology}</span>
