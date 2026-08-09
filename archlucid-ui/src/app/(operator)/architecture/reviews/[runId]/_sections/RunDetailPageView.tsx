@@ -114,6 +114,8 @@ import {
   RunDetailOverviewPanelClientDeferred,
 } from "./run-detail-page-view-deferred-chunks";
 import { RunDetailBelowFoldSections } from "./RunDetailBelowFoldSections";
+import { RunDetailManifestSummaryAlerts } from "./RunDetailManifestSummaryAlerts";
+import { RunDetailRunActionsSection } from "./RunDetailRunActionsSection";
 import { resolveRunDetailSponsorBriefingSection } from "./RunDetailSponsorBriefingSection";
 import { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
 import {
@@ -530,6 +532,10 @@ export function RunDetailPageView(props: {
                   }}
                 />
               ) : null}
+              <RunDetailManifestSummaryAlerts
+                manifestSummaryFailure={m.manifestSummaryFailure}
+                manifestSummaryMalformed={m.manifestSummaryMalformed}
+              />
             </div>
           ),
           decisionsRemediation: (
@@ -570,6 +576,15 @@ export function RunDetailPageView(props: {
                 </div>
               ) : null}
               {showDemoMarketingChrome ? sampleReviewPackageSummaryEl : null}
+              {!m.buyerPolishedArtifactTable ? (
+                <RunDetailRunActionsSection
+                  runId={m.resolvedDetail.run.runId}
+                  systemName={m.resolvedDetail.run.description?.trim() || m.resolvedDetail.run.runId}
+                  manifestId={m.manifestId}
+                  hasCommitBlockingFailures={findingCoverageSummary?.hasCommitBlockingFailures === true}
+                  operatorGovernanceDecision={m.resolvedDetail.run.operatorGovernanceDecision ?? null}
+                />
+              ) : null}
             </div>
           ),
           architecture: submittedArchitectureTabEl,
@@ -664,7 +679,7 @@ export function RunDetailPageView(props: {
                 <RunDetailBelowFoldSections
                   model={m}
                   context={deferredContext}
-                  skipArtifactsExports={buyerFinalizedPackage}
+                  renderedInsideTabbedWorkspace
                 />
               </Suspense>
             </div>
