@@ -6,6 +6,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useRouter, useSearchParams } from "next/navigation";
 
+import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
+import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { CtoDemoSegregationCallout } from "@/components/cto-demo/CtoDemoSegregationCallout";
 import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
@@ -33,7 +35,7 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { CtoDemoGovernancePreviewHint } from "@/components/OperateCapabilityHints";
-import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
@@ -60,6 +62,15 @@ import {
   BUYER_GOVERNANCE_GOVERNED_USE_SCOPE,
 } from "@/lib/buyer-polish-copy";
 import {
+  GOVERNANCE_WORKFLOW_ACTIVATE_AUDIT_NAME_REQUIRED,
+  GOVERNANCE_WORKFLOW_APPROVAL_SUBMITTED_SUCCESS,
+  GOVERNANCE_WORKFLOW_LOAD_REVIEW_REQUIRED,
+  GOVERNANCE_WORKFLOW_REQUEST_APPROVED_SUCCESS,
+  GOVERNANCE_WORKFLOW_REQUEST_REJECTED_SUCCESS,
+  GOVERNANCE_WORKFLOW_REVIEWED_BY_REQUIRED,
+  governanceWorkflowActivateSuccessMessage,
+} from "@/lib/governance-mutation-outcome-copy";
+import {
   GOVERNANCE_WORKFLOW_AUDIT_NAME_REQUIRED_BEFORE_RELEASE,
   GOVERNANCE_WORKFLOW_ENVIRONMENT_RELEASES_ACCORDION_LABEL,
   GOVERNANCE_WORKFLOW_RELEASE_SUCCESS_TOAST,
@@ -81,7 +92,6 @@ import {
   sortGovernanceActivations,
   sortGovernancePromotions,
   type GovernanceWorkflowPendingReview,
-  type GovernanceWorkflowToastState,
 } from "./governance-workflow-helpers";
 import { loadGovernanceReviewContext } from "./load-governance-review-context";
 import {
@@ -96,7 +106,8 @@ export function GovernanceWorkflowPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const canMutateWorkflow = useOperateCapability();
-  const [toast, setToast] = useState<GovernanceWorkflowToastState>(null);
+  const [mutationSuccessMessage, setMutationSuccessMessage] = useState<string | null>(null);
+  const [mutationErrorMessage, setMutationErrorMessage] = useState<string | null>(null);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const submitSectionRef = useRef<HTMLDivElement | null>(null);
   const approvalsSectionRef = useRef<HTMLElement | null>(null);
@@ -179,16 +190,6 @@ export function GovernanceWorkflowPageContent() {
   useEffect(() => {
     warnStaticDemoPayloadFallbackOutsidePackagedDeployOnce();
   }, []);
-
-  useEffect(() => {
-    if (toast === null) {
-      return;
-    }
-
-    const handle = window.setTimeout(() => setToast(null), 5000);
-
-    return () => window.clearTimeout(handle);
-  }, [toast]);
 
   useEffect(() => {
     if (canMutateWorkflow) {
@@ -295,7 +296,8 @@ export function GovernanceWorkflowPageContent() {
     const id = queryRunId.trim();
 
     if (!id) {
-      setToast({ kind: "err", message: "Choose a review to load approval data." });
+      setMutationErrorMessage(GOVERNANCE_WORKFLOW_LOAD_REVIEW_REQUIRED);
+      setMutationSuccessMessage(null);
 
       return;
     }
@@ -432,7 +434,8 @@ export function GovernanceWorkflowPageContent() {
         targetEnvironment: submitTarget,
         requestComment: submitComment.trim() || undefined,
       });
-      setToast({ kind: "ok", message: "Approval request submitted." });
+      setMutationSuccessMessage(GOVERNANCE_WORKFLOW_APPROVAL_SUBMITTED_SUCCESS);
+      setMutationErrorMessage(null);
       setSubmitComment("");
 
       if (activeRunId === runId) {
@@ -440,7 +443,8 @@ export function GovernanceWorkflowPageContent() {
       }
     } catch (e) {
       const f = toApiLoadFailure(e);
-      setToast({ kind: "err", message: f.message });
+      setMutationErrorMessage(f.message);
+      setMutationSuccessMessage(null);
     } finally {
       setSubmitBusy(false);
     }
@@ -456,7 +460,8 @@ export function GovernanceWorkflowPageContent() {
     }
 
     if (!reviewedBy.trim()) {
-      setToast({ kind: "err", message: "Reviewed by is required." });
+      setMutationErrorMessage(GOVERNANCE_WORKFLOW_REVIEWED_BY_REQUIRED);
+      setMutationSuccessMessage(null);
 
       return;
     }
@@ -469,13 +474,15 @@ export function GovernanceWorkflowPageContent() {
           reviewedBy: reviewedBy.trim(),
           reviewComment: reviewComment.trim() || undefined,
         });
-        setToast({ kind: "ok", message: "Request approved." });
+        setMutationSuccessMessage(GOVERNANCE_WORKFLOW_REQUEST_APPROVED_SUCCESS);
+        setMutationErrorMessage(null);
       } else {
         await rejectRequest(pendingReview.approvalRequestId, {
           reviewedBy: reviewedBy.trim(),
           reviewComment: reviewComment.trim() || undefined,
         });
-        setToast({ kind: "ok", message: "Request rejected." });
+        setMutationSuccessMessage(GOVERNANCE_WORKFLOW_REQUEST_REJECTED_SUCCESS);
+        setMutationErrorMessage(null);
       }
 
       setPendingReview(null);
@@ -484,7 +491,8 @@ export function GovernanceWorkflowPageContent() {
       await refreshIfActive();
     } catch (e) {
       const f = toApiLoadFailure(e);
-      setToast({ kind: "err", message: f.message });
+      setMutationErrorMessage(f.message);
+      setMutationSuccessMessage(null);
     } finally {
       setReviewBusy(false);
     }
@@ -504,7 +512,8 @@ export function GovernanceWorkflowPageContent() {
     const by = workflowActor.trim();
 
     if (!by) {
-      setToast({ kind: "err", message: GOVERNANCE_WORKFLOW_AUDIT_NAME_REQUIRED_BEFORE_RELEASE });
+      setMutationErrorMessage(GOVERNANCE_WORKFLOW_AUDIT_NAME_REQUIRED_BEFORE_RELEASE);
+      setMutationSuccessMessage(null);
 
       return;
     }
@@ -520,13 +529,15 @@ export function GovernanceWorkflowPageContent() {
         promotedBy: by,
         approvalRequestId: promoteFor.approvalRequestId ?? undefined,
       });
-      setToast({ kind: "ok", message: GOVERNANCE_WORKFLOW_RELEASE_SUCCESS_TOAST });
+      setMutationSuccessMessage(GOVERNANCE_WORKFLOW_RELEASE_SUCCESS_TOAST);
+      setMutationErrorMessage(null);
       setPendingPromote(null);
       pendingPromoteRequestRef.current = null;
       await refreshIfActive();
     } catch (e) {
       const f = toApiLoadFailure(e);
-      setToast({ kind: "err", message: f.message });
+      setMutationErrorMessage(f.message);
+      setMutationSuccessMessage(null);
     } finally {
       setPromoteBusy(false);
     }
@@ -546,7 +557,8 @@ export function GovernanceWorkflowPageContent() {
     const by = workflowActor.trim();
 
     if (!by) {
-      setToast({ kind: "err", message: "Enter your name for the audit trail before activating." });
+      setMutationErrorMessage(GOVERNANCE_WORKFLOW_ACTIVATE_AUDIT_NAME_REQUIRED);
+      setMutationSuccessMessage(null);
 
       return;
     }
@@ -560,13 +572,15 @@ export function GovernanceWorkflowPageContent() {
         environment: row.targetEnvironment,
         activatedBy: by,
       });
-      setToast({ kind: "ok", message: `Activated ${row.manifestVersion} for ${row.targetEnvironment}.` });
+      setMutationSuccessMessage(governanceWorkflowActivateSuccessMessage(row.manifestVersion, row.targetEnvironment));
+      setMutationErrorMessage(null);
       setPendingActivate(null);
       pendingActivatePromotionRef.current = null;
       await refreshIfActive();
     } catch (e) {
       const f = toApiLoadFailure(e);
-      setToast({ kind: "err", message: f.message });
+      setMutationErrorMessage(f.message);
+      setMutationSuccessMessage(null);
     } finally {
       setActivateBusyId(null);
     }
@@ -637,18 +651,22 @@ export function GovernanceWorkflowPageContent() {
         }
         actions={overviewHeaderActions}
       />
-{toast ? (
-        <div className="fixed bottom-6 right-6 z-50 max-w-sm" role="status">
-          <div
-            className={cn(
-              OPERATOR_TYPOGRAPHY.body,
-              "shadow-lg",
-              toast.kind === "ok" ? DESIGN_TOKENS.callout.success : DESIGN_TOKENS.callout.blocked,
-            )}
-          >
-            {toast.message}
-          </div>
-        </div>
+
+      {mutationSuccessMessage !== null ? (
+        <OperatorSuccessCallout
+          message={mutationSuccessMessage}
+          testId="governance-workflow-mutation-success"
+          className="mb-4"
+          onDismiss={() => setMutationSuccessMessage(null)}
+        />
+      ) : null}
+
+      {mutationErrorMessage !== null ? (
+        <OperatorMutationInlineError
+          message={mutationErrorMessage}
+          testId="governance-workflow-mutation-error"
+          className="mb-4"
+        />
       ) : null}
 
       {!isReviewContext ? (

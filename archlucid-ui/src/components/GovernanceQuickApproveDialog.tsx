@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 /** Stored on the governance record when the approver leaves the note field empty (TB-501). */
@@ -26,6 +27,7 @@ export type GovernanceQuickApproveDialogProps = {
   approvalSubject: string;
   runId: string;
   busy?: boolean;
+  errorMessage?: string | null;
   onConfirm: (approverNote: string) => void;
 };
 
@@ -38,6 +40,7 @@ export function GovernanceQuickApproveDialog({
   approvalSubject,
   runId,
   busy = false,
+  errorMessage = null,
   onConfirm,
 }: GovernanceQuickApproveDialogProps) {
   const [approverNote, setApproverNote] = useState("");
@@ -74,6 +77,13 @@ export function GovernanceQuickApproveDialog({
             </dd>
           </div>
         </dl>
+
+        {errorMessage !== null && errorMessage.trim().length > 0 ? (
+          <OperatorMutationInlineError
+            message={errorMessage}
+            testId="governance-quick-approve-inline-error"
+          />
+        ) : null}
 
         <div className="space-y-2">
           <Label htmlFor="governance-quick-approve-note">Approver note (optional)</Label>

@@ -66,6 +66,8 @@ export type PolicyPacksPageViewModel = {
   readonly onCreate: () => Promise<void>;
   readonly onPublish: () => Promise<void>;
   readonly onAssign: () => Promise<void>;
+  readonly publishSuccessMessage: string | null;
+  readonly setPublishSuccessMessage: Dispatch<SetStateAction<string | null>>;
   readonly compareLeftVersion: PolicyPackVersion | undefined;
   readonly compareRightVersion: PolicyPackVersion | undefined;
   readonly selectedPackSummary: PolicyPack | undefined;

@@ -26,6 +26,7 @@ import { PolicyPacksRegisteredListSection } from "./PolicyPacksRegisteredListSec
 import { PolicyPacksAdvancedAuthoringPanel } from "./PolicyPacksAdvancedAuthoringPanel";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import {
   Tabs,
   TabsContent,
@@ -92,7 +93,17 @@ className="mb-3"
         lastRefreshedAt={m.lastRefreshedAt}
         onRefresh={m.load}
       />
-{!m.buyerPolishedShell ? (
+
+      {m.publishSuccessMessage !== null ? (
+        <OperatorSuccessCallout
+          message={m.publishSuccessMessage}
+          testId="policy-pack-publish-success-callout"
+          className="mb-4"
+          onDismiss={() => m.setPublishSuccessMessage(null)}
+        />
+      ) : null}
+
+      {!m.buyerPolishedShell ? (
         <PolicyPacksMarketingIntro buyerPolishedShell={m.buyerPolishedShell} canMutatePacks={m.canMutatePacks} />
       ) : null}
 
@@ -158,6 +169,15 @@ className="mb-3"
         </TabsContent>
 
         <TabsContent value="my-packs" className="pt-4" data-testid="policy-packs-panel-my-packs">
+          {m.publishSuccessMessage !== null ? (
+            <OperatorSuccessCallout
+              message={m.publishSuccessMessage}
+              testId="policy-pack-publish-success-callout"
+              className="mb-4"
+              onDismiss={() => m.setPublishSuccessMessage(null)}
+            />
+          ) : null}
+
           {m.failure !== null ? (
             <div role="alert">
               <OperatorApiProblem

@@ -21,6 +21,7 @@ import {
   mergePolicyPacksStateWithStaticDemo,
   staticDemoPolicyPacksFallbackBundle,
 } from "@/lib/operator-static-demo";
+import { policyPackPublishSuccessMessage } from "@/lib/governance-mutation-outcome-copy";
 import { showSuccess } from "@/lib/toast";
 import { useNavSurface } from "@/lib/use-nav-surface";
 import type {
@@ -104,6 +105,7 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
   const [compareRightId, setCompareRightId] = useState("");
   const [showVersionDiff, setShowVersionDiff] = useState(false);
   const [verticalImportSlug, setVerticalImportSlug] = useState<string | null>(null);
+  const [publishSuccessMessage, setPublishSuccessMessage] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -370,6 +372,7 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
     }
 
     setFailure(null);
+    setPublishSuccessMessage(null);
 
     try {
       JSON.parse(publishJson);
@@ -385,8 +388,10 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
         version: publishVersion.trim(),
         contentJson: publishJson,
       });
+      setPublishSuccessMessage(policyPackPublishSuccessMessage(publishVersion));
       await load();
     } catch (e) {
+      setPublishSuccessMessage(null);
       setFailure(toApiLoadFailure(e));
     } finally {
       setLoading(false);
@@ -549,6 +554,8 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
     onCreate,
     onPublish,
     onAssign,
+    publishSuccessMessage,
+    setPublishSuccessMessage,
     compareLeftVersion,
     compareRightVersion,
     selectedPackSummary,
