@@ -171,6 +171,10 @@ describe("WelcomeMarketingPage", () => {
       expect(href.toLowerCase()).not.toContain("pre_commit_governance");
     }
 
+    expect(within(pillars as HTMLElement).getByRole("link", { name: WELCOME_SEE_IT_CTA_LABEL })).toHaveAttribute(
+      "href",
+      WELCOME_SEE_IT_HREF,
+    );
     expect(within(pillars as HTMLElement).getByRole("link", { name: /^Evidence trail$/i })).toHaveAttribute(
       "href",
       "/help/evidence-trail",
