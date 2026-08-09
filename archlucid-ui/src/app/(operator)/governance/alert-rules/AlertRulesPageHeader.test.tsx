@@ -26,7 +26,10 @@ describe("AlertRulesPageHeader", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { level: 2, name: "Alert Rules" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Alert rules" })).toBeInTheDocument();
+    expect(screen.getByTestId("alert-rules-page-breadcrumb")).toHaveTextContent("Governance");
+    expect(screen.getByTestId("alert-rules-page-breadcrumb")).toHaveTextContent("Alert rules");
+    expect(screen.getByRole("link", { name: "Governance" })).toHaveAttribute("href", "/governance/approval-queue");
     expect(screen.getByText(alertsConfigurationPageSubtitle(false))).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("alert-rules-header-actions")).toBeInTheDocument();

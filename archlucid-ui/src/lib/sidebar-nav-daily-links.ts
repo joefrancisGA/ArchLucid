@@ -13,6 +13,7 @@ export const SIDEBAR_DAILY_HREFS_BY_GROUP: Readonly<Record<string, readonly stri
     "/governance/policy-packs",
     SIGNED_RECORDS_LIST_PATH,
     "/governance/alerts",
+    "/governance/alert-rules",
   ],
   "operator-admin": [
     SETTINGS_ROOT_PATH,

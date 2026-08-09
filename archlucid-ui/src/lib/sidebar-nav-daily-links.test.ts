@@ -24,6 +24,25 @@ describe("splitSidebarLinksDailyVsMore", () => {
     expect(split.more).toEqual([]);
   });
 
+  it("keeps alert rules in the governance daily strip beside Alerts", () => {
+    const links = [
+      link("/governance/alert-rules", "Alert rules"),
+      link("/governance/alerts", "Alerts"),
+      link("/governance/approval-queue", "Approval"),
+      link("/governance/findings", "Findings"),
+      link("/governance/audit", "Audit"),
+    ];
+    const split = splitSidebarLinksDailyVsMore("operate-governance", links, "/");
+
+    expect(split.daily.map((row) => row.href)).toEqual([
+      "/governance/approval-queue",
+      "/governance/findings",
+      "/governance/alerts",
+      "/governance/alert-rules",
+    ]);
+    expect(split.more.map((row) => row.href)).toEqual(["/governance/audit"]);
+  });
+
   it("splits governance into daily vs more and preserves daily order", () => {
     const links = [
       link("/governance/alerts", "Alerts"),
