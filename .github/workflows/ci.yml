@@ -2962,14 +2962,14 @@ jobs:
           head -n 50 "${OUT}/Summary.txt" | grep -E 'Line coverage:|Branch coverage:' | sed 's/^[[:space:]]*//' > "${{ runner.temp }}/coverage-metrics.txt"
           ART_DIR="${{ runner.temp }}/coverage-metrics-artifact"
           mkdir -p "${ART_DIR}"
-          # Merged line floor 78% / branch 61% / package 84% — all set above measured CI #2938 Cobertura
+          # Merged line floor 78% / branch 61% / package 86% — all set above measured CI #2938 Cobertura
           # (~74.94% line / ~59.67% branch; Analyzers ~81.57% lowest gated), so these gates intentionally
           # fail until coverage rises (job is warn-only via continue-on-error).
           # Ratchet via .coverage-floor. V1.1 target remains 95% line (see coverage-exclusions.md).
           python3 scripts/ci/assert_merged_line_coverage_min.py \
             "${OUT}/Cobertura.xml" 78 \
             --min-branch-pct 61 \
-            --min-package-line-pct 84 \
+            --min-package-line-pct 86 \
             --skip-package-line-gate ArchLucid.Mcp \
             --skip-package-line-gate ArchLucid.Backfill.Cli \
             --skip-package-line-gate ArchLucid.Api \
