@@ -1,7 +1,8 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { DigestsBrowseContent } from "@/components/digests/DigestsBrowseContent";
+import { renderWithOperatorQuery } from "@/testing/operator-query-test-helpers";
 import { DIGEST_EXPORT_ACTION_LABEL } from "@/lib/digest-delivery-presentation";
 import {
   DIGEST_COVERAGE_COLUMN_HEADER,
@@ -79,7 +80,7 @@ describe("DigestsBrowseContent", () => {
       }),
     );
 
-    render(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
+    renderWithOperatorQuery(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
 
     expect(screen.getByTestId("digests-browse-skeleton")).toBeInTheDocument();
     expect(screen.queryByText("Loading digests…")).not.toBeInTheDocument();
@@ -94,7 +95,7 @@ describe("DigestsBrowseContent", () => {
   it("renders one guided empty composition, not a stacked tower (TB-1480)", async () => {
     vi.mocked(listArchitectureDigests).mockResolvedValue([]);
 
-    render(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
+    renderWithOperatorQuery(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
 
     const empty = await screen.findByTestId("digests-browse-empty-state");
 
@@ -111,7 +112,7 @@ describe("DigestsBrowseContent", () => {
   it("keeps the checklist history step status-only instead of self-linking to Browse", async () => {
     vi.mocked(listArchitectureDigests).mockResolvedValue([]);
 
-    render(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
+    renderWithOperatorQuery(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
 
     const historyStep = await screen.findByTestId("digests-browse-checklist-item-history");
 
@@ -123,7 +124,7 @@ describe("DigestsBrowseContent", () => {
   it("falls back to an honest empty state when setup status could not be read", async () => {
     vi.mocked(listArchitectureDigests).mockResolvedValue([]);
 
-    render(<DigestsBrowseContent hidePageHeader healthSnap={null} />);
+    renderWithOperatorQuery(<DigestsBrowseContent hidePageHeader healthSnap={null} />);
 
     expect(await screen.findByTestId("digests-empty-state")).toBeInTheDocument();
     expect(screen.getByText(DIGESTS_BROWSE_SETUP_UNKNOWN_TITLE)).toBeInTheDocument();
@@ -134,7 +135,7 @@ describe("DigestsBrowseContent", () => {
     vi.mocked(listArchitectureDigests).mockResolvedValue([digestRow]);
     vi.mocked(listDigestDeliveryAttempts).mockResolvedValue([]);
 
-    render(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
+    renderWithOperatorQuery(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
 
     expect(await screen.findByRole("table", { name: "Architecture digest history" })).toBeInTheDocument();
     expect(
@@ -150,7 +151,7 @@ describe("DigestsBrowseContent", () => {
     vi.mocked(listArchitectureDigests).mockResolvedValue([digestRow]);
     vi.mocked(listDigestDeliveryAttempts).mockResolvedValue([]);
 
-    render(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
+    renderWithOperatorQuery(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
 
     await screen.findByRole("table", { name: "Architecture digest history" });
 
@@ -163,7 +164,7 @@ describe("DigestsBrowseContent", () => {
     vi.mocked(listDigestDeliveryAttempts).mockResolvedValue([]);
     vi.mocked(getArchitectureDigest).mockResolvedValue(digestRow);
 
-    render(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
+    renderWithOperatorQuery(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
 
     await waitFor(() => {
       expect(getArchitectureDigest).toHaveBeenCalledWith("d1");
@@ -178,7 +179,7 @@ describe("DigestsBrowseContent", () => {
     vi.mocked(listArchitectureDigests).mockResolvedValue([digestRow]);
     vi.mocked(listDigestDeliveryAttempts).mockResolvedValue([]);
 
-    render(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
+    renderWithOperatorQuery(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
 
     await screen.findByRole("table", { name: "Architecture digest history" });
 
@@ -201,7 +202,7 @@ describe("DigestsBrowseContent", () => {
     vi.mocked(listDigestDeliveryAttempts).mockResolvedValue([failedAttempt]);
     vi.mocked(getArchitectureDigest).mockResolvedValue(digestRow);
 
-    render(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
+    renderWithOperatorQuery(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
 
     await screen.findByRole("table", { name: "Architecture digest history" });
     fireEvent.click(screen.getByRole("button", { name: "Weekly architecture digest" }));
@@ -231,7 +232,7 @@ describe("DigestsBrowseContent", () => {
       },
     ]);
 
-    render(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
+    renderWithOperatorQuery(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
 
     expect(await screen.findByRole("table", { name: "Architecture digest history" })).toBeInTheDocument();
     expect(screen.getByText("Weekly architecture digest")).toBeInTheDocument();

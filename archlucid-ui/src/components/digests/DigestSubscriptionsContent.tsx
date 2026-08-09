@@ -4,7 +4,9 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState, type ReactElement } from "react";
+import { useEffect, useRef, useState, type ReactElement } from "react";
+
+import { useDigestSubscriptionsQuery } from "@/hooks/use-digest-subscriptions-query";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { DigestSubscriptionCreateForm } from "@/components/digests/DigestSubscriptionCreateForm";
@@ -15,7 +17,6 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   createDigestSubscription,
-  listDigestSubscriptions,
   listSubscriptionDeliveryAttempts,
   toggleDigestSubscription,
 } from "@/lib/api";
@@ -29,6 +30,8 @@ import {
 import type { DigestDeliveryAttempt, DigestSubscription } from "@/types/digest-subscriptions";
 import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
 
+const EMPTY_SUBSCRIPTIONS: DigestSubscription[] = [];
+
 export type DigestSubscriptionsContentProps = {
   readonly healthSnap: WeeklyDigestHealthDto | null;
   readonly refreshToken?: number;
@@ -39,31 +42,50 @@ export type DigestSubscriptionsContentProps = {
  */
 export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProps): ReactElement {
   const canMutateSubscriptions: boolean = useOperateCapability();
-  const [items, setItems] = useState<DigestSubscription[]>([]);
+  const refreshToken = props.refreshToken ?? 0;
+  const subscriptionsQuery = useDigestSubscriptionsQuery();
+  const items = subscriptionsQuery.data ?? EMPTY_SUBSCRIPTIONS;
   const [attemptsBySub, setAttemptsBySub] = useState<Record<string, DigestDeliveryAttempt[]>>({});
   const [historyOpenFor, setHistoryOpenFor] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [mutating, setMutating] = useState<boolean>(false);
   const [creating, setCreating] = useState<boolean>(false);
   const [createSuccess, setCreateSuccess] = useState<boolean>(false);
-  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
+  const [mutationFailure, setMutationFailure] = useState<ApiLoadFailureState | null>(null);
   const [prefillFrom, setPrefillFrom] = useState<DigestSubscription | null>(null);
   const [formResetKey, setFormResetKey] = useState<number>(0);
+  const loading = subscriptionsQuery.isLoading || mutating;
+  const failure =
+    mutationFailure ??
+    (subscriptionsQuery.isError ? toApiLoadFailure(subscriptionsQuery.error) : null);
 
   const formCardRef = useRef<HTMLDivElement | null>(null);
   const successTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setFailure(null);
+  useEffect(() => {
+    if (refreshToken === 0) {
+      return;
+    }
 
-    try {
-      const data: DigestSubscription[] = await listDigestSubscriptions();
-      setItems(data);
+    void subscriptionsQuery.refetch();
+  }, [refreshToken, subscriptionsQuery]);
 
+  useEffect(() => {
+    if (items.length === 0) {
+      setAttemptsBySub({});
+
+      return;
+    }
+
+    let cancelled = false;
+
+    void (async () => {
       const attemptEntries = await Promise.all(
-        data.map(async (item) => {
+        items.map(async (item) => {
           try {
-            const rows: DigestDeliveryAttempt[] = await listSubscriptionDeliveryAttempts(item.subscriptionId, 30);
+            const rows: DigestDeliveryAttempt[] = await listSubscriptionDeliveryAttempts(
+              item.subscriptionId,
+              30,
+            );
             return [item.subscriptionId, rows] as const;
           } catch {
             return [item.subscriptionId, [] as DigestDeliveryAttempt[]] as const;
@@ -72,27 +94,29 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
       );
       const nextAttempts: Record<string, DigestDeliveryAttempt[]> = {};
 
+      if (cancelled) {
+        return;
+      }
+
       for (const [subscriptionId, rows] of attemptEntries) {
         nextAttempts[subscriptionId] = rows;
       }
 
       setAttemptsBySub(nextAttempts);
-    } catch (error) {
-      setFailure(toApiLoadFailure(error));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [items, refreshToken]);
 
   useEffect(() => {
-    void load();
-
     return () => {
       if (successTimerRef.current !== null) {
         clearTimeout(successTimerRef.current);
       }
     };
-  }, [load, props.refreshToken]);
+  }, []);
 
   async function onCreate(input: {
     name: string;
@@ -107,7 +131,7 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
 
     setCreating(true);
     setCreateSuccess(false);
-    setFailure(null);
+    setMutationFailure(null);
 
     try {
       await createDigestSubscription({
@@ -127,11 +151,12 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
         setCreateSuccess(false);
       }, 4000);
 
-      await load();
+      await subscriptionsQuery.refetch();
+      setMutationFailure(null);
       setPrefillFrom(null);
       setFormResetKey((value) => value + 1);
     } catch (error) {
-      setFailure(toApiLoadFailure(error));
+      setMutationFailure(toApiLoadFailure(error));
     } finally {
       setCreating(false);
     }
@@ -142,25 +167,29 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
       return;
     }
 
-    setFailure(null);
+    setMutationFailure(null);
+    setMutating(true);
 
     try {
       await toggleDigestSubscription(subscriptionId);
-      await load();
+      await subscriptionsQuery.refetch();
+      setMutationFailure(null);
     } catch (error) {
-      setFailure(toApiLoadFailure(error));
+      setMutationFailure(toApiLoadFailure(error));
+    } finally {
+      setMutating(false);
     }
   }
 
   async function onViewHistory(subscriptionId: string): Promise<void> {
-    setFailure(null);
+    setMutationFailure(null);
 
     try {
       const rows: DigestDeliveryAttempt[] = await listSubscriptionDeliveryAttempts(subscriptionId, 30);
       setAttemptsBySub((previous) => ({ ...previous, [subscriptionId]: rows }));
       setHistoryOpenFor((current) => (current === subscriptionId ? null : subscriptionId));
     } catch (error) {
-      setFailure(toApiLoadFailure(error));
+      setMutationFailure(toApiLoadFailure(error));
     }
   }
 
@@ -232,7 +261,7 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
           loading={loading}
           canMutate={canMutateSubscriptions}
           canRevealDestinations={canMutateSubscriptions}
-          onRefresh={() => void load()}
+          onRefresh={() => void subscriptionsQuery.refetch()}
           onToggle={(subscriptionId) => void onToggle(subscriptionId)}
           onViewHistory={(subscriptionId) => void onViewHistory(subscriptionId)}
           onPrefillCreate={onPrefillCreate}

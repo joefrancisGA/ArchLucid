@@ -1,7 +1,8 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AdvisoryScansContent } from "@/components/advisory/AdvisoryScansContent";
+import { renderWithOperatorQuery } from "@/testing/operator-query-test-helpers";
 import {
   ADVISORY_SCANS_EMPTY_NEXT_STORY_LEAD,
   ADVISORY_SCANS_EMPTY_TITLE,
@@ -52,7 +53,7 @@ describe("AdvisoryScansContent", () => {
   });
 
   it("shows one empty/demo next story above the fold (TB-1126)", () => {
-    render(<AdvisoryScansContent />);
+    renderWithOperatorQuery(<AdvisoryScansContent />);
 
     expect(screen.getByTestId("advisory-empty-next-story")).toBeInTheDocument();
     expect(screen.getByTestId("advisory-empty-next-story-lead")).toHaveTextContent(
@@ -77,7 +78,7 @@ describe("AdvisoryScansContent", () => {
   });
 
   it("keeps exactly one primary CTA in empty/demo state (TB-1128)", () => {
-    render(<AdvisoryScansContent />);
+    renderWithOperatorQuery(<AdvisoryScansContent />);
 
     const primaryCta = screen.getByTestId("advisory-empty-primary-cta");
 
@@ -98,7 +99,7 @@ describe("AdvisoryScansContent", () => {
   });
 
   it("promotes Generate to primary after a review is selected (TB-1128)", () => {
-    render(<AdvisoryScansContent />);
+    renderWithOperatorQuery(<AdvisoryScansContent />);
 
     fireEvent.change(screen.getByLabelText("Finalized review"), {
       target: { value: "run-finalized-1" },
@@ -115,7 +116,7 @@ describe("AdvisoryScansContent", () => {
   });
 
   it("explains disabled generate action and shows sample preview", () => {
-    render(<AdvisoryScansContent />);
+    renderWithOperatorQuery(<AdvisoryScansContent />);
 
     expect(screen.getByText(ADVISORY_SCANS_GENERATE_DISABLED_HINT)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: ADVISORY_SCANS_GENERATE_BUTTON_LABEL })).toBeDisabled();
@@ -124,7 +125,7 @@ describe("AdvisoryScansContent", () => {
   });
 
   it("hides admin manual id entry for non-admin callers", () => {
-    render(<AdvisoryScansContent />);
+    renderWithOperatorQuery(<AdvisoryScansContent />);
 
     fireEvent.click(screen.getByText("Can't find a review?"));
 

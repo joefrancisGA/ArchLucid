@@ -11,7 +11,7 @@ The items below remain **out of scope for V1** and are intentionally deferred to
 
 ## 1. Client data-fetching layer (TanStack Query / SWR)
 
-**Status:** **Partially shipped** (2026-07-01, **TB-562**). Operator shell high-traffic reads (home runs list, pilot recent deltas, executive ROI summary, core-pilot commit context) use TanStack Query via `OperatorQueryProvider`, shared keys in `operator-query-keys.ts`, and `use-*-query.ts` hooks with 60s stale / 5min GC defaults. Governance queue, alerts inbox, and billing banners remain on imperative fetch until follow-on batches.
+**Status:** **Partially shipped** (2026-07-01, **TB-562**; extended 2026-08-09, **TB-2123**). Operator shell high-traffic reads (home runs list, pilot recent deltas, executive ROI summary, core-pilot commit context) use TanStack Query via `OperatorQueryProvider`, shared keys in `operator-query-keys.ts`, and `use-*-query.ts` hooks with 60s stale / 5min GC defaults. **TB-2123** added digests browse/subscriptions and advisory persisted recommendations; governance alerts inbox and billing banners remain on imperative fetch until follow-on batches.
 
 **Why deferred (remainder):** Pilot-scale usage tolerates imperative `fetch` + local `useState` for low-traffic surfaces; full-shell migration is incremental.
 
@@ -31,9 +31,11 @@ The items below remain **out of scope for V1** and are intentionally deferred to
 
 ## 4. Operator route caching (`force-dynamic` nuance)
 
-**Why deferred:** The `(operator)` layout correctly opts out of static prerender across authenticated product chrome; narrowing `force-dynamic` per route is risky before traffic and observability targets are pinned.
+**Status:** **Partially shipped** (2026-08-09, **TB-2123**). Digests, advisory-scans, integrations, and Ask layouts use `OperatorClientDrivenRouteLayout` (no blanket `force-dynamic`); live data still flows through client fetches and TanStack Query.
 
-**V1.1 intent:** Optionally mark stable help/marketing-adjacent operator pages for caching or partial prerender after security review.
+**Why deferred (remainder):** Most other `(operator)` segment layouts still opt out of static prerender; narrowing further is incremental after security review.
+
+**V1.1 intent:** Continue marking stable operator pages for caching or partial prerender after traffic and observability targets are pinned.
 
 ## 5. `SidebarNav` decomposition
 

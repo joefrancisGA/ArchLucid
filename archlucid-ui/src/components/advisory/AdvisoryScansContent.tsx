@@ -3,7 +3,11 @@
 import { cn } from "@/lib/utils";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+
+import { useAdvisoryRecommendationsQuery } from "@/hooks/use-advisory-recommendations-query";
+import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 
 import { AdvisoryRecommendationCard } from "@/components/advisory/AdvisoryRecommendationCard";
 import { AdvisorySampleRecommendationPreview } from "@/components/advisory/AdvisorySampleRecommendationPreview";
@@ -14,6 +18,7 @@ import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProv
 import { RunIdPicker } from "@/components/RunIdPicker";
 import { Button } from "@/components/ui/button";
 import { applyRecommendationAction, listRecommendations } from "@/lib/advisory-api";
+import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import {
   ADVISORY_SCANS_BASELINE_REVIEW_HELPER,
   ADVISORY_SCANS_BASELINE_REVIEW_LABEL,
@@ -60,6 +65,8 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const isAdminCaller = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const bootstrappedRunId = (props.initialRunId ?? "").trim();
+  const queryClient = useQueryClient();
+  const scope = useOperatorScopeQueryKey();
 
   const [runId, setRunId] = useState(bootstrappedRunId);
   const [compareToRunId, setCompareToRunId] = useState("");
@@ -67,7 +74,19 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
   const [recommendations, setRecommendations] = useState<RecommendationRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
-  const didAutoLoadRef = useRef(false);
+  const bootstrapRecommendationsQuery = useAdvisoryRecommendationsQuery(bootstrappedRunId, {
+    enabled: bootstrappedRunId.length > 0,
+  });
+
+  useEffect(() => {
+    if (bootstrappedRunId.length === 0) {
+      return;
+    }
+
+    if (bootstrapRecommendationsQuery.isPending) {
+      setLoading(true);
+    }
+  }, [bootstrappedRunId, bootstrapRecommendationsQuery.isPending]);
 
   const reviewSelected = runId.trim().length > 0;
   const hasResults = planSummary !== null || recommendations.length > 0;
@@ -83,27 +102,37 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
   }, [props.initialRunId]);
 
   useEffect(() => {
-    const rid = bootstrappedRunId;
-
-    if (rid.length === 0 || didAutoLoadRef.current) {
+    if (bootstrapRecommendationsQuery.data === undefined) {
       return;
     }
 
-    didAutoLoadRef.current = true;
-    setLoading(true);
-    setFailure(null);
+    setRecommendations(bootstrapRecommendationsQuery.data);
+    setLoading(false);
+  }, [bootstrapRecommendationsQuery.data]);
 
-    void (async () => {
-      try {
-        const persisted = await listRecommendations(rid);
-        setRecommendations(persisted);
-      } catch (error) {
-        setFailure(toApiLoadFailure(error));
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [bootstrappedRunId]);
+  useEffect(() => {
+    if (!bootstrapRecommendationsQuery.isError) {
+      return;
+    }
+
+    setFailure(toApiLoadFailure(bootstrapRecommendationsQuery.error));
+    setLoading(false);
+  }, [bootstrapRecommendationsQuery.error, bootstrapRecommendationsQuery.isError]);
+
+  const fetchPersistedRecommendations = useCallback(
+    async (rid: string): Promise<RecommendationRecord[]> => {
+      const queryKey = operatorQueryKeys.advisoryRecommendations(scope, rid);
+
+      await queryClient.invalidateQueries({ queryKey });
+
+      return queryClient.fetchQuery({
+        queryKey,
+        queryFn: () => listRecommendations(rid),
+        staleTime: 0,
+      });
+    },
+    [queryClient, scope],
+  );
 
   const scanSummary = useMemo(
     () => buildAdvisoryScanSummary(recommendations, planSummary, compareToRunId),
@@ -122,14 +151,14 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
         const rid = runId.trim();
 
         if (rid.length > 0) {
-          const refreshed = await listRecommendations(rid);
+          const refreshed = await fetchPersistedRecommendations(rid);
           setRecommendations(refreshed);
         }
       } catch (error) {
         setFailure(toApiLoadFailure(error));
       }
     },
-    [runId],
+    [fetchPersistedRecommendations, runId],
   );
 
   const loadAdvice = useCallback(async () => {
@@ -145,7 +174,7 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
     try {
       const data = await getImprovementPlan(rid, compareToRunId.trim() || undefined);
       setPlanSummary(data);
-      const persisted = await listRecommendations(rid);
+      const persisted = await fetchPersistedRecommendations(rid);
       setRecommendations(persisted);
     } catch (error) {
       setFailure(toApiLoadFailure(error));
@@ -154,7 +183,7 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
     } finally {
       setLoading(false);
     }
-  }, [compareToRunId, runId]);
+  }, [compareToRunId, fetchPersistedRecommendations, runId]);
 
   const refreshPersistedOnly = useCallback(async () => {
     const rid = runId.trim();
@@ -167,14 +196,14 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
     setFailure(null);
 
     try {
-      const persisted = await listRecommendations(rid);
+      const persisted = await fetchPersistedRecommendations(rid);
       setRecommendations(persisted);
     } catch (error) {
       setFailure(toApiLoadFailure(error));
     } finally {
       setLoading(false);
     }
-  }, [runId]);
+  }, [fetchPersistedRecommendations, runId]);
 
   return (
     <div className="w-full max-w-[1200px] px-4 py-6">

@@ -1,8 +1,9 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { DigestSubscriptionsContent } from "@/components/digests/DigestSubscriptionsContent";
 import { digestSubscriptionsCreateSubscriptionButtonLabelReaderRank } from "@/lib/enterprise-controls-context-copy";
+import { renderWithOperatorQuery } from "@/testing/operator-query-test-helpers";
 
 const mutateCapability = vi.hoisted(() => ({ current: true }));
 
@@ -64,7 +65,7 @@ describe("DigestSubscriptionsContent", () => {
   });
 
   it("renders customer-goal copy, readiness panel, and create affordance", async () => {
-    render(<DigestSubscriptionsContent healthSnap={null} />);
+    renderWithOperatorQuery(<DigestSubscriptionsContent healthSnap={null} />);
 
     expect(await screen.findByRole("heading", { level: 2, name: "Delivery destinations" })).toBeInTheDocument();
     expect(
@@ -79,7 +80,7 @@ describe("DigestSubscriptionsContent", () => {
   });
 
   it("disables save until destination is valid and shows success", async () => {
-    render(<DigestSubscriptionsContent healthSnap={null} />);
+    renderWithOperatorQuery(<DigestSubscriptionsContent healthSnap={null} />);
 
     await screen.findByTestId("digest-subscriptions-empty");
 
@@ -113,7 +114,7 @@ describe("DigestSubscriptionsContent", () => {
       },
     ]);
 
-    render(<DigestSubscriptionsContent healthSnap={null} />);
+    renderWithOperatorQuery(<DigestSubscriptionsContent healthSnap={null} />);
 
     await screen.findByRole("table", { name: "Digest subscriptions" });
 
@@ -135,7 +136,7 @@ describe("DigestSubscriptionsContent", () => {
 
   it("shows reader-rank save label when mutation is unavailable", async () => {
     mutateCapability.current = false;
-    render(<DigestSubscriptionsContent healthSnap={null} />);
+    renderWithOperatorQuery(<DigestSubscriptionsContent healthSnap={null} />);
 
     await waitFor(() => {
       expect(listDigestSubscriptions).toHaveBeenCalled();
@@ -174,7 +175,7 @@ describe("DigestSubscriptionsContent", () => {
       },
     ]);
 
-    render(<DigestSubscriptionsContent healthSnap={null} />);
+    renderWithOperatorQuery(<DigestSubscriptionsContent healthSnap={null} />);
 
     expect(await screen.findByRole("table", { name: "Digest subscriptions" })).toBeInTheDocument();
     expect(screen.getByText("Ops mailbox")).toBeInTheDocument();
@@ -204,7 +205,7 @@ describe("DigestSubscriptionsContent", () => {
       },
     ]);
 
-    render(<DigestSubscriptionsContent healthSnap={null} />);
+    renderWithOperatorQuery(<DigestSubscriptionsContent healthSnap={null} />);
 
     await screen.findByRole("button", { name: "Edit" });
     fireEvent.click(screen.getByRole("button", { name: "Edit" }));

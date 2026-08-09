@@ -24,6 +24,12 @@ export const operatorQueryKeys = {
   pilotRecentDeltas: (count: number) => ["operator", "pilots", "recent-deltas", { count }] as const,
   runsByProjectPaged: (params: RunsByProjectPagedParams) => ["operator", "runs", "paged", params] as const,
   askProjectRuns: (projectId: string) => ["operator", "ask", "project-runs", projectId] as const,
+  architectureDigestsBrowse: (scope: OperatorScopeQueryKey, take: number) =>
+    ["operator", "digests", "architecture-list", scope, { take }] as const,
+  digestSubscriptions: (scope: OperatorScopeQueryKey) =>
+    ["operator", "digests", "subscriptions", scope] as const,
+  advisoryRecommendations: (scope: OperatorScopeQueryKey, runId: string) =>
+    ["operator", "advisory", "recommendations", scope, runId] as const,
   conversationThreads: (take: number) => ["operator", "conversations", "threads", { take }] as const,
   tenantHomepageSettings: ["operator", "tenant", "homepage-settings"] as const,
   featuredCompletedSampleCandidates: ["operator", "tenant", "homepage-settings", "eligible-samples"] as const,

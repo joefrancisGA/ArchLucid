@@ -186,6 +186,7 @@ import { CompositeAlertRulesContent } from "@/components/alerts/CompositeAlertRu
 
 import { AdvisorySchedulesContent } from "@/components/advisory/AdvisorySchedulesContent";
 import { DigestSubscriptionsContent } from "@/components/digests/DigestSubscriptionsContent";
+import { renderWithOperatorQuery } from "@/testing/operator-query-test-helpers";
 import GovernanceResolutionPage from "./governance/standards-and-rules/page";
 import GovernanceWorkflowPage from "./governance/approval-queue/page";
 import PolicyPacksPage from "./governance/policy-packs/page";
@@ -452,7 +453,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
 
   it("Digest subscriptions: Create subscription stays disabled when mutation capability is false", async () => {
     mutateCapability.current = false;
-    render(<DigestSubscriptionsContent healthSnap={null} />);
+    renderWithOperatorQuery(<DigestSubscriptionsContent healthSnap={null} />);
 
     await waitFor(() => {
       expect(apiHoisted.listDigestSubscriptions).toHaveBeenCalled();

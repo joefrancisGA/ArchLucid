@@ -186,6 +186,7 @@ import { ADVISORY_SCANS_FORM_SECTION_TITLE } from "@/lib/advisory-copy";
 import { AdvisorySchedulesContent } from "@/components/advisory/AdvisorySchedulesContent";
 import { DigestsBrowseContent } from "@/components/digests/DigestsBrowseContent";
 import { DigestSubscriptionsContent } from "@/components/digests/DigestSubscriptionsContent";
+import { renderWithOperatorQuery } from "@/testing/operator-query-test-helpers";
 
 import AskPage from "./insights/ask-review-questions/page";
 import EvolutionReviewPage from "./insights/impact-preview/page";
@@ -235,7 +236,7 @@ describe("operator client pages — render gate", () => {
   });
 
   it("Advisory hub Scans tab content renders primary heading", () => {
-    render(<AdvisoryScansContent />);
+    renderWithOperatorQuery(<AdvisoryScansContent />);
     expect(screen.getByRole("heading", { level: 2, name: ADVISORY_SCANS_FORM_SECTION_TITLE })).toBeInTheDocument();
   });
 
@@ -281,12 +282,12 @@ describe("operator client pages — render gate", () => {
   });
 
   it("Digests hub Browse tab content renders primary heading", () => {
-    render(<DigestsBrowseContent />);
+    renderWithOperatorQuery(<DigestsBrowseContent />);
     expect(screen.getByRole("heading", { level: 2, name: "Architecture digests" })).toBeInTheDocument();
   });
 
   it("Digests hub Subscriptions tab content renders primary heading", () => {
-    render(<DigestSubscriptionsContent healthSnap={null} />);
+    renderWithOperatorQuery(<DigestSubscriptionsContent healthSnap={null} />);
     expect(screen.getByRole("heading", { level: 2, name: "Delivery destinations" })).toBeInTheDocument();
   });
 
