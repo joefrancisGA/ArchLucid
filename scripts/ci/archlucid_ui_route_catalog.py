@@ -17,7 +17,9 @@ DEFAULT_NEW_HIT_PCT = "0.02%"
 # Owner overrides pinning a specific 3-letter workbook ID to a route path. Empty by default: the sync
 # falls back to suggest_row_id(). Add an entry only to keep an ID stable across a path rename, and keep
 # values unique 3-letter uppercase IDs (guarded by tests/test_archlucid_ui_route_catalog.py).
-PREFERRED_NEW_ROW_IDS: dict[str, str] = {}
+PREFERRED_NEW_ROW_IDS: dict[str, str] = {
+    "/shell/contextual-help-drawer": "HCD",
+}
 
 # Legacy workbook paths → canonical catalog paths (scores and Hit% merge on collision).
 WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
@@ -140,6 +142,11 @@ REDIRECT_ONLY_APP_PATHS = frozenset(
 # /help/core-pilot retired from the workbook (ECO removed, TB-2050) — no App Router page or
 # redirect remains; do not re-add via this set.
 TRAFFIC_TRACKED_REDIRECT_BOOKMARKS = frozenset()
+
+# Operator-shell overlays scored in the workbook but not App Router pages.
+SHELL_OVERLAY_TRAFFIC_ENTRIES: dict[str, str] = {
+    "/shell/contextual-help-drawer": "Shell overlay",
+}
 
 
 @dataclass(frozen=True)
@@ -381,6 +388,9 @@ def build_catalog() -> dict[str, CatalogEntry]:
 
     for path in discover_tab_paths():
         catalog[path] = CatalogEntry(path=path, section="Tab surface", source="tab_surface")
+
+    for path, section in SHELL_OVERLAY_TRAFFIC_ENTRIES.items():
+        catalog[path] = CatalogEntry(path=path, section=section, source="shell_overlay")
 
     for path in TRAFFIC_TRACKED_REDIRECT_BOOKMARKS:
         if path not in catalog:

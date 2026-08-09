@@ -199,7 +199,16 @@ def test_build_catalog_tracks_first_review_guide_as_onboarding() -> None:
     assert catalog["/architecture/first-review-guide"].section == "Onboarding"
 
 
-def test_suggest_row_id_is_unique_and_three_chars() -> None:
+def test_build_catalog_includes_contextual_help_drawer_shell_overlay() -> None:
+    catalog = build_catalog()
+    assert "/shell/contextual-help-drawer" in catalog
+    assert catalog["/shell/contextual-help-drawer"].section == "Shell overlay"
+
+
+def test_preferred_new_row_ids_assign_hcd_to_contextual_help_drawer() -> None:
+    assert PREFERRED_NEW_ROW_IDS["/shell/contextual-help-drawer"] == "HCD"
+
+
     used = {"HOM", "RE"}
     row_id = suggest_row_id("/architectures/new", used)
     assert row_id not in used
