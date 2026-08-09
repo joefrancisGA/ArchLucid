@@ -9,6 +9,8 @@ const componentsDir = join(shellDir, "..");
 
 const appShellSource = readFileSync(join(componentsDir, "AppShellClient.tsx"), "utf8");
 const deferredSource = readFileSync(join(shellDir, "app-shell-deferred-chunks.tsx"), "utf8");
+const topBarSource = readFileSync(join(shellDir, "OperatorShellTopBar.tsx"), "utf8");
+const topBarDeferredSource = readFileSync(join(shellDir, "operator-shell-top-bar-deferred-chunks.tsx"), "utf8");
 
 const bannedStaticImports = [
   '@/components/shell/OperatorShellTopBar"',
@@ -25,6 +27,16 @@ const bannedStaticImports = [
   '@/components/DemoStrictNavigationGate"',
   '@/components/SponsorExecutiveShellRedirect"',
   '@/components/OperatorRoleGate"',
+] as const;
+
+const bannedTopBarStaticImports = [
+  '@/components/GlobalSearchBar"',
+  '@/components/MobileNavDrawer"',
+  '@/components/ScopeSwitcher"',
+  '@/components/shell/ShellInFlightOperationsAffordance"',
+  '@/components/shell/AccountSettingsMenu"',
+  '@/components/shell/OperatorShellTopBarMoreMenu"',
+  '@/components/LlmBudgetStatusPill"',
 ] as const;
 
 describe("operator shell deferred imports (TB-2118)", () => {
@@ -57,5 +69,21 @@ describe("operator shell deferred imports (TB-2118)", () => {
     expect(deferredSource).toContain('import("@/components/SyncActiveRunFromPathname")');
     expect(deferredSource).toContain('import("./AppShellMainContentGate")');
     expect(deferredSource).toContain("next/dynamic");
+  });
+
+  it("keeps heavy top-bar modules off the sync import graph", () => {
+    for (const bannedImport of bannedTopBarStaticImports) {
+      expect(topBarSource).not.toContain(bannedImport);
+    }
+
+    expect(topBarSource).toContain("operator-shell-top-bar-deferred-chunks");
+    expect(topBarSource).toContain("GlobalSearchBarDeferred");
+    expect(topBarSource).toContain("MobileNavDrawerDeferred");
+  });
+
+  it("dynamic-imports deferred top-bar modules", () => {
+    expect(topBarDeferredSource).toContain('import("@/components/GlobalSearchBar")');
+    expect(topBarDeferredSource).toContain('import("@/components/MobileNavDrawer")');
+    expect(topBarDeferredSource).toContain("next/dynamic");
   });
 });

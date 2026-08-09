@@ -99,7 +99,7 @@ describe("OperatorShellTopBar", () => {
     });
   });
 
-  it("reserves a sidebar-width brand rail and left-aligns search in the content column", () => {
+  it("reserves a sidebar-width brand rail and left-aligns search in the content column", async () => {
     render(
       <TooltipProvider>
         <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
@@ -107,7 +107,7 @@ describe("OperatorShellTopBar", () => {
     );
 
     const brandRail = screen.getByTestId("app-shell-topbar-primary");
-    const searchInput = screen.getByRole("combobox", { name: GLOBAL_SEARCH_ARIA_LABEL });
+    const searchInput = await screen.findByRole("combobox", { name: GLOBAL_SEARCH_ARIA_LABEL });
 
     expect(brandRail).toHaveClass(OPERATOR_SHELL_SIDEBAR_WIDTH_LG_CLASS);
     expect(brandRail.compareDocumentPosition(searchInput) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
@@ -165,7 +165,7 @@ describe("OperatorShellTopBar", () => {
 
     const sessionRail = screen.getByTestId("app-shell-topbar-session");
     const contextRail = screen.getByTestId("app-shell-topbar-context");
-    const scopeTrigger = screen.getByTestId("operator-scope-switcher-trigger");
+    const scopeTrigger = await screen.findByTestId("operator-scope-switcher-trigger");
     const helpTrigger = screen.getByTestId("operator-shell-help-trigger");
     const budgetPill = await screen.findByTestId("llm-budget-status-pill");
 
@@ -221,7 +221,7 @@ describe("OperatorShellTopBar", () => {
     );
 
     expect(await screen.findByTestId("llm-budget-status-pill")).toBeInTheDocument();
-    expect(screen.getByTestId("operator-shell-topbar-more-trigger")).toBeInTheDocument();
+    expect(await screen.findByTestId("operator-shell-topbar-more-trigger")).toBeInTheDocument();
 
     openMoreMenu();
 

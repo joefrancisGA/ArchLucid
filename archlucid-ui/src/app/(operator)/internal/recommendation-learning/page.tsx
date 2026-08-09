@@ -1,7 +1,5 @@
 import { redirect } from "next/navigation";
 
-import { RECOMMENDATION_LEARNING_CANONICAL_PATH } from "@/types/recommendation-learning-operational";
-
 import { RecommendationLearningOpsPageClient } from "./_sections/RecommendationLearningOpsPageClient";
 import { loadRecommendationLearningOpsPageData } from "./_sections/load-recommendation-learning-ops-page-data";
 
@@ -21,5 +19,3 @@ export default async function RecommendationLearningOpsPage() {
     />
   );
 }
-
-export { RECOMMENDATION_LEARNING_CANONICAL_PATH };

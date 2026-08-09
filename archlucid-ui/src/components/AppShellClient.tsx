@@ -8,32 +8,30 @@ import { Suspense, useEffect, useLayoutEffect, useRef, useState, useCallback, ty
 import { usePathname } from "next/navigation";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
-import { AppInsightsTelemetryInit } from "@/components/AppInsightsTelemetryInit";
-import { ClientRuntimeDiagnostics } from "@/components/ClientRuntimeDiagnostics";
-import { OperatorRouteEnteredTelemetry } from "@/components/OperatorRouteEnteredTelemetry";
 import { AppToaster } from "@/components/AppToaster";
 import { OperatorQueryProvider } from "@/components/OperatorQueryProvider";
-import { AuthPanel } from "@/components/AuthPanel";
-import { AppShellIdleOverlays } from "@/components/shell/AppShellIdleOverlays";
-import { AppShellWorkspaceFooter } from "@/components/shell/AppShellWorkspaceFooter";
+import {
+  AppShellIdleOverlaysDeferred,
+  AppShellMainContentGateDeferred,
+  AppShellTelemetryBundleDeferred,
+  AppShellWorkspaceFooterDeferred,
+  AuthPanelDeferred,
+  DevTestingShellShortcutsDeferred,
+  OperatorShellTopBarDeferred,
+  SessionIdleTimeoutGuardDeferred,
+  SyncActiveRunFromPathnameDeferred,
+} from "@/components/shell/app-shell-deferred-chunks";
+import { AppShellKeyboardShortcutBoundary } from "@/components/shell/AppShellKeyboardShortcutBoundary";
 import { ColorModeToggle } from "@/components/ColorModeToggle";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
-import { KeyboardShortcutProvider } from "@/components/KeyboardShortcutProvider";
-import { DemoStrictNavigationGate } from "@/components/DemoStrictNavigationGate";
-import { SponsorExecutiveShellRedirect } from "@/components/SponsorExecutiveShellRedirect";
 import {
   OperatorChromeModeProvider,
   useOperatorChromeMode,
 } from "@/components/OperatorChromeModeContext";
-import { OperatorShellTopBar } from "@/components/shell/OperatorShellTopBar";
-import { DevTestingShellShortcuts } from "@/components/dev-testing/DevTestingShellShortcuts";
 import { OperatorShellProviders } from "@/components/OperatorShellProviders";
-import { OperatorRoleGate } from "@/components/OperatorRoleGate";
 import { OperatorShellDeferredChrome } from "@/components/OperatorShellDeferredChrome";
 import { RouteAnnouncer } from "@/components/RouteAnnouncer";
-import { SyncActiveRunFromPathname } from "@/components/SyncActiveRunFromPathname";
 import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
-import { SessionIdleTimeoutGuard } from "@/components/SessionIdleTimeoutGuard";
 import { Button } from "@/components/ui/button";
 import { ToolbarHelpTooltip } from "@/components/ToolbarHelpTooltip";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -299,10 +297,8 @@ function AppShellInner({ children }: AppShellClientProps) {
     return (
       <OperatorShellProviders>
         <AppShellDeferChromeBoundary deferChrome={deferChrome} shellRootRef={shellRootRef}>
-          <AppInsightsTelemetryInit />
-          <ClientRuntimeDiagnostics />
-          <OperatorRouteEnteredTelemetry />
-          <SessionIdleTimeoutGuard />
+          <AppShellTelemetryBundleDeferred />
+          <SessionIdleTimeoutGuardDeferred />
           <TooltipProvider delayDuration={200}>
             <a href="#main-content" className="skip-to-main">
               Skip to main content
@@ -333,7 +329,7 @@ function AppShellInner({ children }: AppShellClientProps) {
                       </Link>
                     </div>
                     <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-                      <AuthPanel />
+                      <AuthPanelDeferred />
                       <ToolbarHelpTooltip
                         aria-label={OPERATOR_HELP_ARIA_LABEL}
                         content={OPERATOR_HELP_TOOLTIP}
@@ -366,20 +362,16 @@ function AppShellInner({ children }: AppShellClientProps) {
                 className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_SHELL_MAIN_PADDING_CLASS, "flex flex-1 flex-col")}
               >
                 <AppShellStatusBanners variant="minimal" />
-                <KeyboardShortcutProvider onHelpRequested={openHelpSearch}>
+                <AppShellKeyboardShortcutBoundary onHelpRequested={openHelpSearch}>
                   <main
                     id="main-content"
                     tabIndex={-1}
                     className="outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 dark:focus-visible:ring-neutral-600"
                   >
-                    <SyncActiveRunFromPathname />
-                    <DemoStrictNavigationGate>
-                      <SponsorExecutiveShellRedirect>
-                        <OperatorRoleGate>{children}</OperatorRoleGate>
-                      </SponsorExecutiveShellRedirect>
-                    </DemoStrictNavigationGate>
+                    <SyncActiveRunFromPathnameDeferred />
+                    <AppShellMainContentGateDeferred>{children}</AppShellMainContentGateDeferred>
                   </main>
-                </KeyboardShortcutProvider>
+                </AppShellKeyboardShortcutBoundary>
               </div>
             </div>
             <AppToaster />
@@ -402,11 +394,9 @@ function AppShellInner({ children }: AppShellClientProps) {
   return (
     <OperatorShellProviders>
       <AppShellDeferChromeBoundary deferChrome={deferChrome} shellRootRef={shellRootRef}>
-      <AppInsightsTelemetryInit />
-      <ClientRuntimeDiagnostics />
-      <OperatorRouteEnteredTelemetry />
-      <DevTestingShellShortcuts />
-      <SessionIdleTimeoutGuard />
+      <AppShellTelemetryBundleDeferred />
+      <DevTestingShellShortcutsDeferred />
+      <SessionIdleTimeoutGuardDeferred />
       <TooltipProvider delayDuration={200}>
         <a href="#main-content" className="skip-to-main">
           Skip to main content
@@ -419,7 +409,7 @@ function AppShellInner({ children }: AppShellClientProps) {
             className="sticky top-0 z-30 bg-neutral-50 shadow-sm dark:bg-neutral-950 print:hidden"
           >
             <FrictionlessTrialBanner />
-            <OperatorShellTopBar onOpenHelpSearch={openHelpSearch} />
+            <OperatorShellTopBarDeferred onOpenHelpSearch={openHelpSearch} />
           </div>
           <CtoDemoJourneyCaptionBar />
           <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_SHELL_BODY_ROW_CLASS)}>
@@ -436,24 +426,20 @@ function AppShellInner({ children }: AppShellClientProps) {
             </nav>
             <div data-testid="app-shell-main" className={cn("min-h-0 min-w-0 flex-1 print:px-0", OPERATOR_SHELL_MAIN_PADDING_CLASS)}>
               <AppShellStatusBanners variant="full" />
-              <KeyboardShortcutProvider onHelpRequested={openHelpSearch}>
+              <AppShellKeyboardShortcutBoundary onHelpRequested={openHelpSearch}>
                 <main
                   id="main-content"
                   tabIndex={-1}
                   className="outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 dark:focus-visible:ring-neutral-600"
                 >
-                    <AppShellMainAffordances />
-                    <SyncActiveRunFromPathname />
-                    <DemoStrictNavigationGate>
-                      <SponsorExecutiveShellRedirect>
-                        <OperatorRoleGate>{children}</OperatorRoleGate>
-                      </SponsorExecutiveShellRedirect>
-                    </DemoStrictNavigationGate>
+                  <AppShellMainAffordances />
+                  <SyncActiveRunFromPathnameDeferred />
+                  <AppShellMainContentGateDeferred>{children}</AppShellMainContentGateDeferred>
                 </main>
-              </KeyboardShortcutProvider>
+              </AppShellKeyboardShortcutBoundary>
             </div>
           </div>
-          <AppShellWorkspaceFooter hideWorkspaceHealthFooter={hideWorkspaceHealthFooter} />
+          <AppShellWorkspaceFooterDeferred hideWorkspaceHealthFooter={hideWorkspaceHealthFooter} />
         </div>
         <AppToaster />
         <RouteAnnouncer />
@@ -470,7 +456,7 @@ function AppShellInner({ children }: AppShellClientProps) {
         <Suspense fallback={null}>
           <RegistrationOnboardingTourAutoStart />
         </Suspense>
-        <AppShellIdleOverlays />
+        <AppShellIdleOverlaysDeferred />
       </TooltipProvider>
       </AppShellDeferChromeBoundary>
     </OperatorShellProviders>

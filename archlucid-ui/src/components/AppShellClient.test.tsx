@@ -79,6 +79,34 @@ vi.mock("@/components/shell/AppShellStatusBanners", () => ({
   AppShellStatusBanners: () => <div data-testid="llm-budget-approaching-limit-banner" />,
 }));
 
+vi.mock("@/components/shell/AppShellKeyboardShortcutBoundary", () => ({
+  AppShellKeyboardShortcutBoundary: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
+vi.mock("@/components/shell/app-shell-deferred-chunks", async () => {
+  const { OperatorShellTopBar } = await import("@/components/shell/OperatorShellTopBar");
+  const { AppShellWorkspaceFooter } = await import("@/components/shell/AppShellWorkspaceFooter");
+  const { AppShellIdleOverlays } = await import("@/components/shell/AppShellIdleOverlays");
+  const { DevTestingShellShortcuts } = await import("@/components/dev-testing/DevTestingShellShortcuts");
+  const { AppShellTelemetryBundle } = await import("@/components/shell/AppShellTelemetryBundle");
+  const { SessionIdleTimeoutGuard } = await import("@/components/SessionIdleTimeoutGuard");
+  const { AuthPanel } = await import("@/components/AuthPanel");
+  const { SyncActiveRunFromPathname } = await import("@/components/SyncActiveRunFromPathname");
+  const { AppShellMainContentGate } = await import("@/components/shell/AppShellMainContentGate");
+
+  return {
+    OperatorShellTopBarDeferred: OperatorShellTopBar,
+    AppShellWorkspaceFooterDeferred: AppShellWorkspaceFooter,
+    AppShellIdleOverlaysDeferred: AppShellIdleOverlays,
+    DevTestingShellShortcutsDeferred: DevTestingShellShortcuts,
+    AppShellTelemetryBundleDeferred: AppShellTelemetryBundle,
+    SessionIdleTimeoutGuardDeferred: SessionIdleTimeoutGuard,
+    AuthPanelDeferred: AuthPanel,
+    SyncActiveRunFromPathnameDeferred: SyncActiveRunFromPathname,
+    AppShellMainContentGateDeferred: AppShellMainContentGate,
+  };
+});
+
 describe("AppShellClient — LLM budget chrome", () => {
   useOperatorQueryTestLifecycle();
 

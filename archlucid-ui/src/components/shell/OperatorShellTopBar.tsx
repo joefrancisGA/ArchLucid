@@ -2,20 +2,22 @@
 
 import { CircleHelp } from "lucide-react";
 
-import { AccountSettingsMenu } from "@/components/shell/AccountSettingsMenu";
-import { OperatorShellTopBarMoreMenu } from "@/components/shell/OperatorShellTopBarMoreMenu";
-import { ShellInFlightOperationsAffordance } from "@/components/shell/ShellInFlightOperationsAffordance";
+import {
+  AccountSettingsMenuDeferred,
+  GlobalSearchBarDeferred,
+  LlmBudgetStatusPillDeferred,
+  MobileNavDrawerDeferred,
+  OperatorShellTopBarMoreMenuDeferred,
+  ScopeSwitcherDeferred,
+  ShellInFlightOperationsAffordanceDeferred,
+} from "@/components/shell/operator-shell-top-bar-deferred-chunks";
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AuthPanel } from "@/components/AuthPanel";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
 import { CommandPalette } from "@/components/CommandPaletteLazy";
-import { GlobalSearchBar } from "@/components/GlobalSearchBar";
-import { LlmBudgetStatusPill } from "@/components/LlmBudgetStatusPill";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { useCommandPaletteChunkPreload } from "@/hooks/use-command-palette-chunk-preload";
 import { useSearchShortcut } from "@/hooks/useSearchShortcut";
-import { MobileNavDrawer } from "@/components/MobileNavDrawer";
-import { ScopeSwitcher } from "@/components/ScopeSwitcher";
 import { Button } from "@/components/ui/button";
 import { ToolbarHelpTooltip } from "@/components/ToolbarHelpTooltip";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
@@ -66,7 +68,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
             OPERATOR_SHELL_SIDEBAR_WIDTH_LG_CLASS,
           )}
         >
-          <MobileNavDrawer />
+          <MobileNavDrawerDeferred />
           <h1 className="m-0">
             <Button variant="ghost" className="h-auto p-0" asChild>
               <ArchLucidWordmarkLink href="/" aria-label={PERSONA_SHELL_WORDMARK_ARIA_LABEL} variant="operator" />
@@ -81,7 +83,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
           )}
         >
           <div className="min-w-0 flex-1 sm:max-w-md lg:max-w-lg xl:max-w-xl">
-            <GlobalSearchBar />
+            <GlobalSearchBarDeferred />
           </div>
 
           <div
@@ -92,11 +94,11 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
               data-testid="app-shell-topbar-context"
               className="flex min-w-0 flex-nowrap items-center gap-2"
             >
-              <ScopeSwitcher density="compact" />
+              <ScopeSwitcherDeferred density="compact" />
             </div>
             <AuthPanel />
             <div className="flex shrink-0 items-center gap-2 border-l border-neutral-200 pl-2 dark:border-neutral-700">
-              <ShellInFlightOperationsAffordance />
+              <ShellInFlightOperationsAffordanceDeferred />
               <ToolbarHelpTooltip
                 aria-label={OPERATOR_HELP_ARIA_LABEL}
                 content={OPERATOR_HELP_TOOLTIP}
@@ -120,15 +122,15 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
                   <span className="hidden sm:inline">Help</span>
                 </Button>
               </ToolbarHelpTooltip>
-              {showLlmBudgetPill ? <LlmBudgetStatusPill /> : null}
+              {showLlmBudgetPill ? <LlmBudgetStatusPillDeferred /> : null}
               {showMoreMenu ? (
-                <OperatorShellTopBarMoreMenu>
+                <OperatorShellTopBarMoreMenuDeferred>
                   <div className="flex flex-col gap-2" data-testid="app-shell-topbar-more-tools">
                     <AuthorityThemeToggle />
                   </div>
-                </OperatorShellTopBarMoreMenu>
+                </OperatorShellTopBarMoreMenuDeferred>
               ) : null}
-              <AccountSettingsMenu />
+              <AccountSettingsMenuDeferred />
             </div>
           </div>
         </div>
