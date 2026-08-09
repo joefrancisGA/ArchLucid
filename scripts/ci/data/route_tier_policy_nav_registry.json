@@ -989,7 +989,7 @@
       "commercial_tier": "none",
       "class_policy": "ReadAuthority",
       "exemption": null,
-      "nav_operator_href": "/architecture/reviews?projectId=default"
+      "nav_operator_href": "/architecture/reviews"
     },
     {
       "controller_file": "Authority/RunsExportController.cs",
@@ -1539,7 +1539,7 @@
       "commercial_tier": "none",
       "class_policy": "ReadAuthority",
       "exemption": null,
-      "nav_operator_href": "/architecture/reviews?projectId=default"
+      "nav_operator_href": "/architecture/reviews"
     },
     {
       "controller_file": "Planning/AskController.cs",

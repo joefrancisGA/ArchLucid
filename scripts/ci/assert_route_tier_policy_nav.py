@@ -149,6 +149,7 @@ def parse_nav_hrefs(ui_nav_dir: Path) -> set[str]:
 
     # Nav builders increasingly import path constants; harvest canonical literals for parity checks.
     for extra in (
+        ui_nav_dir / "architecture-routes.ts",
         ui_nav_dir / "internal-ops-route-paths.ts",
         ui_nav_dir / "product-learning-route.ts",
     ):
