@@ -1,12 +1,13 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExceededBanner";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
 import { WizardStepAdvanced } from "@/components/wizard/steps/WizardStepAdvanced";
@@ -22,8 +23,13 @@ import { isApiRequestError } from "@/lib/api-request-error";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_SHELL_CONTENT_BLEED_X_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
+import {
+  REVIEW_START_CREATION_FAILED_MESSAGE,
+  REVIEW_START_LLM_BUDGET_EXCEEDED_MESSAGE,
+  REVIEW_START_STEP_VALIDATION_MESSAGE,
+  REVIEW_START_SUBMIT_VALIDATION_MESSAGE,
+} from "@/lib/review-start-progress-copy";
 import { SIMPLIFIED_PILOT_WIZARD_STEP_FIELD_GROUPS } from "@/lib/simplified-pilot-wizard-step-fields";
-import { showError, showSuccess } from "@/lib/toast";
 import { applyWizardPreset, wizardPresets } from "@/lib/wizard-presets";
 import { buildDefaultWizardValues, type WizardFormValues } from "@/lib/wizard-schema";
 import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
@@ -54,6 +60,7 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
   const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<unknown | null>(null);
+  const [stepValidationMessage, setStepValidationMessage] = useState<string | null>(null);
   const {
     baselineReviewCycleHours,
     setBaselineReviewCycleHours,
@@ -81,18 +88,12 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
     if (pilotStep !== PILOT_STEPS.length - 1) {
       setSubmitError(null);
     }
+
+    setStepValidationMessage(null);
   }, [pilotStep]);
 
   const canProceed = !submitting;
   const canSubmit = !submitting && !blocksLlmExecution;
-
-  const showToast = useCallback((kind: "ok" | "err", message: string) => {
-    if (kind === "ok") {
-      showSuccess(message);
-    } else {
-      showError("Pilot wizard", message);
-    }
-  }, []);
 
   const goBack = () => {
     setPilotStep((current) => Math.max(0, current - 1));
@@ -123,12 +124,13 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
           PILOT_STEPS[pilotStep]?.label ?? "Unknown",
           "field_validation",
         );
-        showToast("err", "Fix the highlighted fields before continuing.");
+        setStepValidationMessage(REVIEW_START_STEP_VALIDATION_MESSAGE);
 
         return;
       }
     }
 
+    setStepValidationMessage(null);
     setPilotStep((current) => Math.min(PILOT_STEPS.length - 1, current + 1));
   };
 
@@ -136,19 +138,20 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
     const ok = await trigger(undefined, { shouldFocus: true });
 
     if (!ok) {
-      showToast("err", "Fix validation errors before creating the architecture review.");
+      setStepValidationMessage(REVIEW_START_SUBMIT_VALIDATION_MESSAGE);
 
       return;
     }
 
     if (blocksLlmExecution) {
-      showToast("err", "LLM Execution budget exceeded for this month. You may still view previous reviews.");
+      setStepValidationMessage(REVIEW_START_LLM_BUDGET_EXCEEDED_MESSAGE);
 
       return;
     }
 
     setSubmitting(true);
     setSubmitError(null);
+    setStepValidationMessage(null);
 
     try {
       const body = wizardValuesToCreateRunPayload(getValues(), {
@@ -159,25 +162,16 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
       const id = res.run?.runId ?? null;
 
       if (id === null) {
-        showToast("err", "API returned no architecture review id.");
+        setSubmitError(new Error(REVIEW_START_CREATION_FAILED_MESSAGE));
 
         return;
       }
 
       trackWizardCompleted("SimplifiedPilot");
       recordFirstTenantFunnelEvent("first_run_started");
-      showToast("ok", `Architecture review ${id} created — tracking pipeline below.`);
       onRunCreated(id);
     } catch (error: unknown) {
       setSubmitError(error);
-
-      if (!isApiRequestError(error)) {
-        const message =
-          error && typeof error === "object" && "message" in error
-            ? String((error as { message?: string }).message)
-            : "Request failed.";
-        showToast("err", message);
-      }
     } finally {
       setSubmitting(false);
     }
@@ -239,6 +233,11 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
         )}
         data-testid="simplified-pilot-footer"
       >
+        {stepValidationMessage !== null ? (
+          <div className="mb-3" data-testid="simplified-pilot-validation-error">
+            <ReviewStartInlineError message={stepValidationMessage} />
+          </div>
+        ) : null}
         {isReviewStep && submitError !== null ? (
           <div className="mb-3" data-testid="simplified-pilot-submit-error">
             {isApiRequestError(submitError) ? (

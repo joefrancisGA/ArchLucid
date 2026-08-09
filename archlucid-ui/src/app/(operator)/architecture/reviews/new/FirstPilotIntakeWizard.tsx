@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExceededBanner";
@@ -31,8 +31,11 @@ import {
 import { createArchitectureRun, type CreateArchitectureRunRequestPayload } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture-request-limits";
-import { BUYER_NEW_REVIEW_TOAST_CATEGORY, BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer-polish-copy";
-import { REVIEW_START_CREATION_FAILED_MESSAGE, REVIEW_START_PREPARING_LABEL } from "@/lib/review-start-progress-copy";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer-polish-copy";
+import {
+  REVIEW_START_CREATION_FAILED_MESSAGE,
+  REVIEW_START_PREPARING_LABEL,
+} from "@/lib/review-start-progress-copy";
 import { applyFocusedPilotModePolicyReferences } from "@/lib/focused-pilot-mode-policy-packs";
 import {
   REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD,
@@ -49,7 +52,6 @@ import {
 import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator-home-example-request";
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
 import { PROXY_UPSTREAM_UPLOAD_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
-import { showError, showSuccess } from "@/lib/toast";
 import { uploadWizardPendingDocumentEvidence } from "@/lib/wizard-pending-evidence-upload";
 
 import { WizardEvidenceUploadZone } from "./QuickReviewWizardDeferredPanels";
@@ -106,6 +108,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   const [evidenceFiles, setEvidenceFiles] = useState<File[]>([]);
   const [proofScope, setProofScope] = useState<QuickReviewProofScopeId[]>(DEFAULT_PROOF_SCOPE);
   const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
+  const [clientValidationMessage, setClientValidationMessage] = useState<string | null>(null);
   const creationProgress = useReviewCreationProgress();
 
   useEffect(() => {
@@ -136,26 +139,22 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   const titleReady = runTitle.trim().length >= 2;
   const evidenceReady = evidenceFiles.length > 0;
 
-  const showToast = useCallback((kind: "ok" | "err", message: string) => {
-    if (kind === "ok") {
-      showSuccess(message);
-    } else {
-      showError(BUYER_NEW_REVIEW_TOAST_CATEGORY, message);
-    }
-  }, []);
-
   const submitRun = async () => {
     if (!canStart) {
-      showToast("err", FIRST_PILOT_INTAKE_SUBMIT_VALIDATION_MESSAGE);
+      setClientValidationMessage(FIRST_PILOT_INTAKE_SUBMIT_VALIDATION_MESSAGE);
 
       return;
     }
 
     if (resolvedBrief.length > ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH) {
-      showToast("err", `Brief must not exceed ${ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH} characters.`);
+      setClientValidationMessage(
+        `Brief must not exceed ${ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH} characters.`,
+      );
 
       return;
     }
+
+    setClientValidationMessage(null);
 
     const filesToUpload = [...evidenceFiles];
     creationProgress.begin({
@@ -245,6 +244,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
               value={runTitle}
               onChange={(event) => {
                 setRunTitle(event.target.value);
+                setClientValidationMessage(null);
               }}
               placeholder="Example: Retail API modernization review"
               autoComplete="off"
@@ -257,6 +257,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
             description="Required for your first review — a diagram, PDF export, or architecture document. Additional files are optional."
             onFilesSelected={(files) => {
               setEvidenceFiles(files);
+              setClientValidationMessage(null);
             }}
           />
 
@@ -267,6 +268,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
               value={briefText}
               onChange={(event) => {
                 setBriefText(event.target.value);
+                setClientValidationMessage(null);
               }}
               className={cn("min-h-[100px]", OPERATOR_TYPOGRAPHY.body)}
               placeholder="Add as much useful context as you can: goals, constraints, risks, business drivers, integrations, data flows, security concerns, known tradeoffs, and what you want ArchLucid to focus on."
@@ -306,6 +308,10 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
               headline={REVIEW_START_PREPARING_LABEL}
               testId="first-pilot-review-start-progress"
             />
+          ) : null}
+
+          {clientValidationMessage !== null ? (
+            <ReviewStartInlineError message={clientValidationMessage} testId="first-pilot-validation-error" />
           ) : null}
 
           {creationProgress.error !== null ? (

@@ -35,5 +35,16 @@ export const REVIEW_START_CREATION_FAILED_MESSAGE =
 
 export const REVIEW_START_CREATED_CONFIRMATION = "Architecture review created.";
 
+export const REVIEW_START_STEP_VALIDATION_MESSAGE = "Fix the highlighted fields before continuing.";
+
+export const REVIEW_START_SUBMIT_VALIDATION_MESSAGE =
+  "Fix validation errors before creating the architecture review.";
+
+export const REVIEW_START_LLM_BUDGET_EXCEEDED_MESSAGE =
+  "LLM Execution budget exceeded for this month. You may still view previous reviews.";
+
+export const REVIEW_START_DEMO_MODE_SUBMIT_MESSAGE =
+  "Use Start simulator create or Try it live on the demo panel above for simulator/live paths.";
+
 /** Delay before showing staged progress during navigation or creation. */
 export const REVIEW_START_STAGED_PANEL_DELAY_MS = 2000;

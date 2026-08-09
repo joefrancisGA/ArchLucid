@@ -32,6 +32,9 @@ vi.mock("@/lib/toast", () => ({
   showError: vi.fn(),
 }));
 
+import { REVIEW_START_STEP_VALIDATION_MESSAGE } from "@/lib/review-start-progress-copy";
+import { showError } from "@/lib/toast";
+
 import { SimplifiedPilotWizard } from "./SimplifiedPilotWizard";
 
 function makeArchLucidPackageZip(): File {
@@ -161,5 +164,20 @@ describe("SimplifiedPilotWizard", () => {
     render(<Harness />);
 
     expect(screen.getByRole("button", { name: "Advanced configuration" })).toBeInTheDocument();
+  });
+
+  it("surfaces step validation inline without toast (TB-2113)", async () => {
+    render(<Harness />);
+
+    fireEvent.change(screen.getByLabelText("System name"), { target: { value: "" } });
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("simplified-pilot-validation-error")).toHaveTextContent(
+        REVIEW_START_STEP_VALIDATION_MESSAGE,
+      );
+    });
+
+    expect(vi.mocked(showError)).not.toHaveBeenCalled();
   });
 });

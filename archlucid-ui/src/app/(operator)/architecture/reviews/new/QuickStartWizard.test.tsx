@@ -22,6 +22,10 @@ vi.mock("@/lib/toast", () => ({
   showError: vi.fn(),
 }));
 
+import { REVIEW_START_STEP_VALIDATION_MESSAGE } from "@/lib/review-start-progress-copy";
+
+import { showError } from "@/lib/toast";
+
 import { QuickStartWizard } from "./QuickStartWizard";
 
 function Harness() {
@@ -159,5 +163,20 @@ describe("QuickStartWizard", () => {
 
     expect(screen.getByText("Role cannot create reviews")).toBeInTheDocument();
     expect(screen.getByText(/corr-quick-1/)).toBeInTheDocument();
+  });
+
+  it("surfaces step validation inline without toast (TB-2113)", async () => {
+    render(<Harness />);
+
+    fireEvent.change(screen.getByLabelText("System name"), { target: { value: "" } });
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("quick-start-validation-error")).toHaveTextContent(
+        REVIEW_START_STEP_VALIDATION_MESSAGE,
+      );
+    });
+
+    expect(vi.mocked(showError)).not.toHaveBeenCalled();
   });
 });

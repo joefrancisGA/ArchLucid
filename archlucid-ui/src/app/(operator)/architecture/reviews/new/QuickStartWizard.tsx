@@ -1,11 +1,12 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExceededBanner";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
 import { WizardStepDescription } from "@/components/wizard/steps/WizardStepDescription";
@@ -21,7 +22,12 @@ import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_SHELL_CONTENT_BLEED_X_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
-import { showError, showSuccess } from "@/lib/toast";
+import {
+  REVIEW_START_CREATION_FAILED_MESSAGE,
+  REVIEW_START_LLM_BUDGET_EXCEEDED_MESSAGE,
+  REVIEW_START_STEP_VALIDATION_MESSAGE,
+  REVIEW_START_SUBMIT_VALIDATION_MESSAGE,
+} from "@/lib/review-start-progress-copy";
 import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
 import { resolveWizardPresetDeeplinkTokenFromPresetId } from "@/lib/wizard-preset-deeplink";
 import { applyWizardPreset, wizardPresets, type WizardPreset } from "@/lib/wizard-presets";
@@ -58,6 +64,7 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
   const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<unknown | null>(null);
+  const [stepValidationMessage, setStepValidationMessage] = useState<string | null>(null);
   const [presetId, setPresetId] = useState<string>(() => {
     if (props.initialPresetId !== undefined && wizardPresets.some((entry) => entry.id === props.initialPresetId)) {
       return props.initialPresetId;
@@ -95,17 +102,12 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
     if (quickStep !== 2) {
       setSubmitError(null);
     }
+
+    setStepValidationMessage(null);
   }, [quickStep]);
 
   const canProceed = !submitting;
   const canSubmit = !submitting && !blocksLlmExecution;
-  const showToast = useCallback((kind: "ok" | "err", message: string) => {
-    if (kind === "ok") {
-      showSuccess(message);
-    } else {
-      showError("Quick start", message);
-    }
-  }, []);
 
   const applyReviewTemplate = (templateId: string) => {
     const template = architectureReviewTemplates.find((t) => t.id === templateId);
@@ -139,11 +141,13 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
           QUICK_STEPS[quickStep]?.label ?? "Unknown",
           "field_validation",
         );
-        showToast("err", "Fix the highlighted fields before continuing.");
+        setStepValidationMessage(REVIEW_START_STEP_VALIDATION_MESSAGE);
+
         return;
       }
     }
 
+    setStepValidationMessage(null);
     setQuickStep((s) => Math.min(QUICK_STEPS.length - 1, s + 1));
   };
 
@@ -151,19 +155,20 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
     const ok = await trigger(undefined, { shouldFocus: true });
 
     if (!ok) {
-      showToast("err", "Fix validation errors before creating the architecture review.");
+      setStepValidationMessage(REVIEW_START_SUBMIT_VALIDATION_MESSAGE);
 
       return;
     }
 
     if (blocksLlmExecution) {
-      showToast("err", "LLM Execution budget exceeded for this month. You may still view previous reviews.");
+      setStepValidationMessage(REVIEW_START_LLM_BUDGET_EXCEEDED_MESSAGE);
 
       return;
     }
 
     setSubmitting(true);
     setSubmitError(null);
+    setStepValidationMessage(null);
 
     try {
       const presetToken = resolveWizardPresetDeeplinkTokenFromPresetId(presetId);
@@ -176,25 +181,16 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
       const id = res.run?.runId ?? null;
 
       if (!id) {
-        showToast("err", "API returned no architecture review id.");
+        setSubmitError(new Error(REVIEW_START_CREATION_FAILED_MESSAGE));
 
         return;
       }
 
       trackWizardCompleted("QuickStart");
       recordFirstTenantFunnelEvent("first_run_started");
-      showToast("ok", `Architecture review ${id} created — tracking pipeline below.`);
       onRunCreated(id);
     } catch (error: unknown) {
       setSubmitError(error);
-
-      if (!isApiRequestError(error)) {
-        const message =
-          error && typeof error === "object" && "message" in error
-            ? String((error as { message?: string }).message)
-            : "Request failed.";
-        showToast("err", message);
-      }
     } finally {
       setSubmitting(false);
     }
@@ -296,6 +292,11 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
         )}
         data-testid="quick-start-footer"
       >
+        {stepValidationMessage !== null ? (
+          <div className="mb-3" data-testid="quick-start-validation-error">
+            <ReviewStartInlineError message={stepValidationMessage} />
+          </div>
+        ) : null}
         {isReviewStep && submitError !== null ? (
           <div className="mb-3" data-testid="quick-start-submit-error">
             {isApiRequestError(submitError) ? (

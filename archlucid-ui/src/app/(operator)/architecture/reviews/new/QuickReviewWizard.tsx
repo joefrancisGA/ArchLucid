@@ -19,7 +19,7 @@ import { useReviewCreationProgress } from "@/hooks/use-review-creation-progress"
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
 import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture-request-limits";
-import { showError, showSuccess } from "@/lib/toast";
+import { QUICK_REVIEW_SAMPLE_BRIEF_CAPTION } from "@/lib/buyer-polish-copy";
 import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
 import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
 import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
@@ -37,9 +37,8 @@ import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
-import { QUICK_REVIEW_SAMPLE_BRIEF_CAPTION } from "@/lib/buyer-polish-copy";
 import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator-home-example-request";
-import { REVIEW_START_CREATION_FAILED_MESSAGE, REVIEW_START_PREPARING_LABEL } from "@/lib/review-start-progress-copy";
+import { REVIEW_START_CREATION_FAILED_MESSAGE, REVIEW_START_DEMO_MODE_SUBMIT_MESSAGE, REVIEW_START_LLM_BUDGET_EXCEEDED_MESSAGE, REVIEW_START_PREPARING_LABEL } from "@/lib/review-start-progress-copy";
 import {
   persistQuickReviewWizardPreferences,
   readQuickReviewWizardPreferences,
@@ -150,6 +149,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
   const [evidenceAttached, setEvidenceAttached] = useState(false);
   const [proofScope, setProofScope] = useState<QuickReviewProofScopeId[]>(initialWizardState.proofScope);
   const [advancedConfigExpanded, setAdvancedConfigExpanded] = useState(initialWizardState.advancedConfigExpanded);
+  const [clientValidationMessage, setClientValidationMessage] = useState<string | null>(null);
 
   const briefOk = briefText.trim().length >= MIN_BRIEF_CHARS && briefText.trim().length <= ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH;
   const showDemoModeCallout = isCtoDemoPackEnv() || isBuyerPolishedOperatorShellEnv() || readBuyerCtoDemoTourActive();
@@ -172,6 +172,10 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
     }
 
     setScope(getEffectiveBrowserProxyScopeHeaders());
+  }, [step]);
+
+  useEffect(() => {
+    setClientValidationMessage(null);
   }, [step]);
 
   const defaultBriefAppliedRef = useRef(false);
@@ -218,31 +222,22 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
     return t.length >= 2 ? t : "Architecture review";
   }, [runTitle]);
 
-  const showToast = useCallback((kind: "ok" | "err", message: string) => {
-    if (kind === "ok") {
-      showSuccess(message);
-    } else {
-      showError("Quick review", message);
-    }
-  }, []);
-
-  const goBack = () => {
-    setStep((s) => Math.max(0, s - 1));
-  };
-
   const goNext = () => {
     if (step === 0 && briefText.trim().length > ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH) {
-      showToast("err", `Brief must not exceed ${ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH} characters.`);
+      setClientValidationMessage(
+        `Brief must not exceed ${ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH} characters.`,
+      );
 
       return;
     }
 
     if (step === 0 && !briefOk) {
-      showToast("err", `Brief must be at least ${MIN_BRIEF_CHARS} characters.`);
+      setClientValidationMessage(`Brief must be at least ${MIN_BRIEF_CHARS} characters.`);
 
       return;
     }
 
+    setClientValidationMessage(null);
     setStep((s) => Math.min(QUICK_REVIEW_STEPS.length - 1, s + 1));
   };
 
@@ -261,25 +256,32 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
     applySampleBrief("retail");
   };
 
+  const goBack = () => {
+    setStep((s) => Math.max(0, s - 1));
+  };
+
   const submitRun = async () => {
     if (briefText.trim().length > ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH) {
-      showToast("err", `Brief must not exceed ${ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH} characters.`);
+      setClientValidationMessage(
+        `Brief must not exceed ${ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH} characters.`,
+      );
 
       return;
     }
 
     if (!briefOk) {
-      showToast("err", `Brief must be at least ${MIN_BRIEF_CHARS} characters.`);
+      setClientValidationMessage(`Brief must be at least ${MIN_BRIEF_CHARS} characters.`);
 
       return;
     }
 
     if (blocksLlmExecution) {
-      showToast("err", "LLM Execution budget exceeded for this month. You may still view previous reviews.");
+      setClientValidationMessage(REVIEW_START_LLM_BUDGET_EXCEEDED_MESSAGE);
 
       return;
     }
 
+    setClientValidationMessage(null);
     creationProgress.begin({ hasTemplate: exampleTemplate !== null });
 
     try {
@@ -364,6 +366,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
                 onChange={(e) => {
                   setBriefText(e.target.value);
                   setActiveSampleBriefId(null);
+                  setClientValidationMessage(null);
                 }}
                 className={cn("min-h-[220px] font-mono", OPERATOR_TYPOGRAPHY.body)}
                 placeholder="Example: Document the target architecture for a customer-facing retail API — containerized services behind an API gateway, relational store for orders, Redis cache, PCI-scoped segregation for payment-adjacent flows, 99.9% availability during peak, EU data residency for profiles, and a phased cutover from the current on-prem monolith…"
@@ -488,6 +491,13 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
       ) : null}
 
       <div className="flex flex-wrap items-center gap-2 border-t border-neutral-200 pt-4 dark:border-neutral-800">
+        {clientValidationMessage !== null ? (
+          <ReviewStartInlineError
+            message={clientValidationMessage}
+            testId="quick-review-validation-error"
+            className="w-full"
+          />
+        ) : null}
         {step > 0 ? (
           <Button type="button" variant="outline" onClick={goBack} disabled={isStartingReview}>
             Back
@@ -502,7 +512,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
             type="button"
             onClick={() => {
               if (executionMode === "simulator" && showDemoModeCallout) {
-                showToast("err", "Use Start simulator create or Try it live on the demo panel above for simulator/live paths.");
+                setClientValidationMessage(REVIEW_START_DEMO_MODE_SUBMIT_MESSAGE);
 
                 return;
               }
