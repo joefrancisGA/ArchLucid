@@ -15,7 +15,6 @@ import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownVi
 import { findCustomerAuthBannedPhrases } from "@/lib/auth/customer-auth-messaging";
 import { AUTHENTICATION_SIGN_IN_COMMON_ISSUES_ANCHOR } from "@/lib/authentication-sign-in-help-triage";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
-import { resolveNavLinkForPathname } from "@/lib/resolve-nav-link-for-pathname";
 
 describe("HelpTopicMarkdownView authentication and sign-in", () => {
   const loaded = tryLoadProductDocumentation("authentication-sign-in");
@@ -65,10 +64,4 @@ describe("HelpTopicMarkdownView authentication and sign-in", () => {
     expect(screen.queryByTestId("help-topic-print-pdf")).not.toBeInTheDocument();
   });
 
-  it("registers help center in nav for authentication-sign-in routes", () => {
-    const navLink = resolveNavLinkForPathname("/help/authentication-sign-in");
-
-    expect(navLink?.href).toBe("/help");
-    expect(navLink?.label).toBe("Help");
-  });
 });

@@ -13,9 +13,9 @@ export const ROLE_NAV_DENSITY_SHOW_FULL_NAV_STORAGE_KEY = "archlucid_role_nav_de
 export const DEFAULT_NAV_GROUP_IDS_BY_ROLE_NAV_DENSITY_PERSONA: Readonly<
   Record<RoleNavDensityPersona, readonly string[]>
 > = {
-  architect: ["pilot", "operate-analysis", "help-documentation"],
-  governance: ["pilot", "operate-governance", "help-documentation"],
-  admin: ["pilot", "operator-admin", "help-documentation"],
+  architect: ["pilot", "operate-analysis"],
+  governance: ["pilot", "operate-governance"],
+  admin: ["pilot", "operator-admin"],
 };
 
 const ADMIN_ROLE_CLAIMS = new Set(["admin", "workspaceadmin", "projectadmin"]);

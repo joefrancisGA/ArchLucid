@@ -90,12 +90,11 @@ describe("nav-config structure", () => {
     expect(pilot?.label).not.toBe("Review work");
   });
 
-  it("labels the help nav group by its contents, not Documentation", () => {
-    const helpGroup = NAV_GROUPS.find((group) => group.id === "help-documentation");
+  it("does not register /help in primary shell navigation", () => {
+    const flat = flattenNavLinks();
 
-    expect(helpGroup?.label).toBe("Help");
-    expect(helpGroup?.label).not.toBe("Documentation");
-    expect(helpGroup?.links.map((link) => link.href)).toEqual(["/help"]);
+    expect(NAV_GROUPS.some((group) => group.id === "help-documentation")).toBe(false);
+    expect(flat.some((link) => link.href === "/help" || link.href.startsWith("/help/"))).toBe(false);
   });
 
   it("labels operate-analysis nav group Insights (TB-525)", () => {

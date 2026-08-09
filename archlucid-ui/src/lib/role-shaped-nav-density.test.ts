@@ -52,7 +52,7 @@ describe("role-shaped-nav-density", () => {
     const expanded = filterNavGroupsByRoleDensity(rows, persona, true);
 
     expect(collapsed.map((row) => row.group.id)).toEqual(
-      expect.arrayContaining(["pilot", "operator-admin", "help-documentation"]),
+      expect.arrayContaining(["pilot", "operator-admin"]),
     );
     expect(collapsed.some((row) => row.group.id === "operate-governance")).toBe(false);
     expect(expanded.length).toBeGreaterThan(collapsed.length);
