@@ -8,15 +8,19 @@ When you connect a cloud provider, ArchLucid uses **read-only** inventory and co
 
 ## Choose your cloud platform {#choose-your-cloud-platform}
 
-ArchLucid supports optional Tier 2 hosted polling for three cloud platforms. Pick the guide that matches your environment:
+**Tier 1 (default, no ArchLucid credentials in your cloud account):** run `Get-ArchLucidAzurePackage.ps1`, `Get-ArchLucidAwsPackage.ps1`, or `Get-ArchLucidGcpPackage.ps1` from your ArchLucid clone, then upload the resulting ZIP from the **New architecture review** wizard. Tier 1 is the default posture when you do not want long-lived vendor access in your cloud account.
 
-- **[Connect Azure securely](/help/cloud-connections/azure)** — workload identity federation, Reader + Cost Management Reader, subscription scope.
-- **[Connect AWS securely](/help/cloud-connections/aws)** — OIDC-federated read-only IAM role, Resource Explorer inventory.
-- **[Connect GCP securely](/help/cloud-connections/gcp)** — Workload Identity Federation, Cloud Asset Viewer, project scope.
+**Tier 2 (optional):** cloud-connected hosted pull through federated read-only roles in Azure, AWS, or GCP. Use this when you want ArchLucid to poll inventory on a schedule without storing access keys in tenant configuration.
+
+ArchLucid supports optional Tier 2 hosted polling for three cloud platforms:
+
+| Platform | Identity model | Read-only role / scope | Scope unit | Setup guide |
+|----------|----------------|------------------------|------------|-------------|
+| Azure | Workload identity federation | Reader + Cost Management Reader | Subscription | [Connect Azure securely](/help/cloud-connections/azure) |
+| AWS | OIDC web identity federation | Read-only IAM role (Resource Explorer) | AWS account | [Connect AWS securely](/help/cloud-connections/aws) |
+| GCP | Workload Identity Federation | Cloud Asset Viewer | GCP project | [Connect GCP securely](/help/cloud-connections/gcp) |
 
 You can also run **evidence-only** reviews from uploaded inventory ZIPs without enabling Tier 2.
-
-**Tier 1 (no ArchLucid credentials in your cloud account):** run `Get-ArchLucidAzurePackage.ps1`, `Get-ArchLucidAwsPackage.ps1`, or `Get-ArchLucidGcpPackage.ps1` from your ArchLucid clone, then upload the resulting ZIP from the **New architecture review** wizard. Tier 1 is the default posture when you do not want long-lived vendor access in your AWS or GCP account.
 
 <details>
 <summary>Administrator details — automation upload paths</summary>

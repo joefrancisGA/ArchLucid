@@ -298,6 +298,9 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sourcePaths: ["docs/library/customer-facing/CLOUD_CONNECTIONS.md"],
     sectionAnchors: ["choose-your-cloud-platform", "related-topics"],
     includeIntroWithSections: true,
+    pdfStatus: "customer",
+    lastReviewed: "2026-08-09",
+    releaseApplicability: "Applies to V1 GA — optional cloud evidence connectors",
   },
   {
     slug: "cloud-connections-azure",
