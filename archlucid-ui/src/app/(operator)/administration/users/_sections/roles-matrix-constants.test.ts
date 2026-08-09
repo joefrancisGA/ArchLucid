@@ -1,12 +1,42 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  BUILTIN_ROLE_ORDER,
+  CUSTOM_ROLE_START_FROM_OPTIONS,
   hasHighRiskPermissions,
   highRiskPermissionLabels,
   sortMatrixRoles,
+  unsavedRoleEditsNotice,
 } from "./roles-matrix-constants";
 
 describe("roles-matrix-constants", () => {
+  it("labels the Operator start-from option as Architect while keeping the API role id as its value", () => {
+    expect(CUSTOM_ROLE_START_FROM_OPTIONS.map((option) => option.label)).toEqual([
+      "Admin",
+      "Auditor",
+      "Architect",
+      "Reader",
+      "Empty (no permissions)",
+    ]);
+    expect(CUSTOM_ROLE_START_FROM_OPTIONS.find((option) => option.label === "Architect")?.value).toBe("Operator");
+  });
+
+  it("keeps every start-from value seedable against API role names", () => {
+    const seedableValues = CUSTOM_ROLE_START_FROM_OPTIONS.filter((option) => option.value !== "Empty").map(
+      (option) => option.value,
+    );
+
+    // Permission seeding matches these values against role names from GET /v1/admin/roles; a display
+    // label leaking into the value would silently seed an empty permission set.
+    expect(seedableValues.every((value) => BUILTIN_ROLE_ORDER.includes(value as never))).toBe(true);
+  });
+
+  it("names the columns holding unsaved edits", () => {
+    expect(unsavedRoleEditsNotice([])).toBe("");
+    expect(unsavedRoleEditsNotice(["Reviewer plus"])).toContain("Reviewer plus");
+    expect(unsavedRoleEditsNotice(["Reviewer plus", "Release manager"])).toContain("Reviewer plus, Release manager");
+  });
+
   it("sorts built-in roles before custom roles in canonical order", () => {
     const sorted = sortMatrixRoles([
       { name: "Operator (custom)", isSystem: false },

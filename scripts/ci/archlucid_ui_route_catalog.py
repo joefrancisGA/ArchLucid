@@ -125,6 +125,7 @@ REDIRECT_ONLY_APP_PATHS = frozenset(
         "/advisory-scheduling",
         "/alert-routing",
         "/architecture/reviews/[runId]/artifacts/[artifactId]",
+        "/demo",
     }
 )
 

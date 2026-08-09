@@ -31,6 +31,7 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import type { ArchLucidAppRole } from "@/lib/current-principal";
 import { isApiKeysSettingsSurfaceEnabled } from "@/lib/api-keys-settings-access";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { roleDisplayLabel } from "@/lib/role-display-labels";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE } from "@/lib/buyer-polish-copy";
@@ -320,7 +321,7 @@ function PrincipalTable({ rows, onRoleChange }: PrincipalTableProps) {
                 <SelectContent>
                   {SETTINGS_ROLES_ASSIGNABLE.map((role) => (
                     <SelectItem key={role} value={role}>
-                      {role}
+                      {roleDisplayLabel(role)}
                     </SelectItem>
                   ))}
                 </SelectContent>
