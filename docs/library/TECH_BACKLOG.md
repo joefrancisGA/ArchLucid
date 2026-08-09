@@ -1627,7 +1627,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1443 | Owner traffic workbook ? mark AL2 redirect-only (inherit alert-rules Routing tab); see ## TB-1443 below | Adoption friction P2 ? **V1**; with **TB-1441**; pairs **TB-1406**/**TB-748** | XS |
 | TB-1444 | CI drift ? `/alert-routing` must stay redirect-only (no product UI reintro); see ## TB-1444 below | Testability P2 ? **V1**; after **TB-1441**; pairs **TB-1407** | S |
 | TB-1482 | Shared empty form+rail whitespace contract + Vitest inventory; see ## TB-1482 below | Testability P2 ? **V1**; after **TB-1477**?**TB-1481**; orchestrates **TB-1133**/**TB-1177**/**TB-1194** | S |
-| TB-1484 | Compliance journey — ISR `revalidate=300` + surface test id; see ## TB-1484 below | Performance / testability P0 — **V1** (promoted P0 2026-08-09 with perf wave 6; was P2); with **TB-1483**; pairs **TB-567**/**TB-1517** | XS |
+| TB-1484 | ~~Compliance journey — ISR `revalidate=300` + surface test id~~ **Done** 2026-08-09 — `revalidate = 300` + `data-testid="compliance-journey-page"`; Vitest ISR inventory; see ## TB-1484 below | Performance / testability P0 — **V1** (promoted P0 2026-08-09 with perf wave 6; was P2); with **TB-1483**; pairs **TB-567**/**TB-1517** | XS |
 | TB-1492 | `/digest-subscriptions` ? single redirect shim (drop dual config+page / dead layout); see ## TB-1492 below | Maintainability P2 ? **V1**; owner review ~50/100 2026-07-27; traffic **IXX**; pairs **TB-1441**/**TB-1404** | S |
 | TB-1493 | Owner traffic workbook ? mark IXX redirect-only (inherit Digests Subscriptions tab); see ## TB-1493 below | Adoption friction P2 ? **V1**; with **TB-1492**; pairs **TB-1443**/**TB-1406** | XS |
 | TB-1494 | CI drift ? `/digest-subscriptions` must stay redirect-only; see ## TB-1494 below | Testability P2 ? **V1**; after **TB-1492**; pairs **TB-1444**/**TB-1407** | S |
@@ -38002,7 +38002,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Performance / testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-09) — `export const revalidate = 300` + `data-testid="compliance-journey-page"` on `/compliance-journey`; Vitest `marketing-isr-route-policy.test.ts` (TB-1484 block).
 
 **Priority:** P0.
 

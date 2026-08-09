@@ -4,6 +4,8 @@ import Link from "next/link";
 import { ComplianceJourneyEvidenceOrientationStrip } from "@/components/marketing/ComplianceJourneyEvidenceOrientationStrip";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 
+export const revalidate = 300;
+
 export const metadata: Metadata = {
   title: "Compliance journey",
   description: "Where ArchLucid is today on security and compliance — honest scope, no over-claims.",
@@ -12,7 +14,7 @@ export const metadata: Metadata = {
 /** Public compliance posture page — content pointers only; no new certifications claimed. */
 export default function ComplianceJourneyPage() {
   return (
-    <main className="mx-auto max-w-3xl px-4 py-10">
+    <main className="mx-auto max-w-3xl px-4 py-10" data-testid="compliance-journey-page">
       <h1 className="mb-2 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">Compliance journey</h1>
       <p className="mb-6 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
         ArchLucid is <strong>not SOC 2 attested</strong> today. We publish self-assessment material, questionnaires, and
