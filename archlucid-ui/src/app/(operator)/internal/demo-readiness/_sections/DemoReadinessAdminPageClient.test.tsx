@@ -1,21 +1,37 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const demoOperatorToolingForced = vi.hoisted(() => ({ on: true as boolean }));
+const navAuthorityState = vi.hoisted(() => ({
+  callerAuthorityRank: 3,
+  isAuthorityLoading: false,
+}));
 
 vi.mock("@/lib/cto-demo-presenter-pack", () => ({
   isCtoDemoOperatorToolingEnv: () => demoOperatorToolingForced.on,
 }));
 
 vi.mock("@/components/operator-home/BuyerCtoDemoReadinessPanel", () => ({
-  BuyerCtoDemoReadinessPanel: () => <div data-testid="buyer-cto-demo-readiness-panel" />,
+  BuyerCtoDemoReadinessPanel: ({
+    onRecheckControlsChange,
+  }: {
+    onRecheckControlsChange?: (controls: { runChecks: () => void; loading: boolean }) => void;
+  }) => {
+    const { useEffect } = require("react") as typeof import("react");
+
+    useEffect(() => {
+      onRecheckControlsChange?.({
+        runChecks: () => undefined,
+        loading: false,
+      });
+    }, [onRecheckControlsChange]);
+
+    return <div data-testid="buyer-cto-demo-readiness-panel" />;
+  },
 }));
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
-  useOperatorNavAuthority: () => ({
-    callerAuthorityRank: 3,
-    isAuthorityLoading: false,
-  }),
+  useOperatorNavAuthority: () => navAuthorityState,
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
@@ -23,7 +39,11 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 }));
 
 import { DemoReadinessAdminPageClient } from "@/app/(operator)/internal/demo-readiness/_sections/DemoReadinessAdminPageClient";
-import { BUYER_CTO_DEMO_READINESS_HEADING } from "@/lib/buyer-polish-copy";
+import {
+  BUYER_CTO_DEMO_READINESS_HEADING,
+  BUYER_CTO_DEMO_READINESS_REFRESH_CTA,
+  INTERNAL_DEMO_READINESS_DIAGNOSTICS_LINK,
+} from "@/lib/buyer-polish-copy";
 import {
   INTERNAL_DEMO_READINESS_PAGE_TITLE,
   INTERNAL_DEMO_READINESS_TOOLING_DISABLED_DIAGNOSTICS_CTA,
@@ -35,9 +55,11 @@ import {
 describe("DemoReadinessAdminPageClient", () => {
   beforeEach(() => {
     demoOperatorToolingForced.on = true;
+    navAuthorityState.callerAuthorityRank = 3;
+    navAuthorityState.isAuthorityLoading = false;
   });
 
-  it("renders a single PageHeading with Internal Operations wayfinding and no duplicate panel title", () => {
+  it("renders a single PageHeading with Internal Operations wayfinding and no duplicate panel title", async () => {
     render(<DemoReadinessAdminPageClient />);
 
     expect(screen.getByTestId("demo-readiness-admin-page")).toBeInTheDocument();
@@ -48,6 +70,31 @@ describe("DemoReadinessAdminPageClient", () => {
     expect(screen.getByTestId("buyer-cto-demo-readiness-panel")).toBeInTheDocument();
     expect(screen.queryByRole("heading", { level: 2, name: BUYER_CTO_DEMO_READINESS_HEADING })).toBeNull();
     expect(screen.getAllByRole("heading")).toHaveLength(1);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("demo-readiness-admin-recheck-cta")).toBeEnabled();
+    });
+  });
+
+  it("promotes recheck to the page heading and demotes diagnostics to a text link", async () => {
+    render(<DemoReadinessAdminPageClient />);
+
+    const recheckButton = await screen.findByRole("button", { name: BUYER_CTO_DEMO_READINESS_REFRESH_CTA });
+    expect(recheckButton).toHaveAttribute("data-testid", "demo-readiness-admin-recheck-cta");
+    expect(screen.queryByRole("button", { name: INTERNAL_DEMO_READINESS_DIAGNOSTICS_LINK })).toBeNull();
+
+    const diagnosticsLink = screen.getByRole("link", { name: INTERNAL_DEMO_READINESS_DIAGNOSTICS_LINK });
+    expect(diagnosticsLink).toHaveAttribute("href", "/internal/health");
+    expect(diagnosticsLink).toHaveAttribute("data-testid", "demo-readiness-admin-diagnostics-link");
+  });
+
+  it("shows a loading skeleton while operator authority is resolving", () => {
+    navAuthorityState.isAuthorityLoading = true;
+
+    render(<DemoReadinessAdminPageClient />);
+
+    expect(screen.getByTestId("demo-readiness-admin-loading-skeleton")).toHaveAttribute("aria-busy", "true");
+    expect(screen.queryByText("Loading…")).toBeNull();
   });
 
   it("shows oriented next-step links when demo-operator tooling is disabled", () => {

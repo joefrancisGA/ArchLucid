@@ -34,11 +34,19 @@ import { EXPLORE_ARCHLUCID_ROW_CLASS } from "@/components/operator-home/explore-
 import { isCtoDemoInternalOperatorControlsEnv } from "@/lib/cto-demo-presenter-pack";
 import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 
+export type DemoReadinessRecheckControls = {
+  readonly runChecks: () => void;
+  readonly loading: boolean;
+};
+
 export type BuyerCtoDemoReadinessPanelProps = {
   /** When true, renders inside a parent disclosure without a duplicate card shell. */
   readonly embedded?: boolean;
   /** Internal admin page uses grouped sections and always shows operator diagnostics. */
   readonly layout?: "embedded" | "internal-page";
+  /** When `page`, primary recheck renders in page chrome instead of the panel toolbar (TB-1412). */
+  readonly recheckPlacement?: "panel" | "page";
+  readonly onRecheckControlsChange?: (controls: DemoReadinessRecheckControls) => void;
 };
 
 function readinessBadgeLabel(result: BuyerCtoDemoReadinessResult | null): string {
@@ -89,10 +97,11 @@ function DemoReadinessCheckRow(props: { readonly check: BuyerCtoDemoReadinessChe
 
 /** Internal demo-operator preflight — showcase seed and golden journey checks. */
 export function BuyerCtoDemoReadinessPanel(props: BuyerCtoDemoReadinessPanelProps = {}): React.JSX.Element {
+  const { embedded, layout: layoutProp, recheckPlacement: recheckPlacementProp, onRecheckControlsChange } = props;
   const [result, setResult] = useState<BuyerCtoDemoReadinessResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [lastCheckedAt, setLastCheckedAt] = useState<string | null>(null);
-  const layout = props.layout ?? (props.embedded === true ? "embedded" : "internal-page");
+  const layout = layoutProp ?? (embedded === true ? "embedded" : "internal-page");
 
   const runChecks = useCallback(async () => {
     setLoading(true);
@@ -111,10 +120,26 @@ export function BuyerCtoDemoReadinessPanel(props: BuyerCtoDemoReadinessPanelProp
     void runChecks();
   }, [runChecks]);
 
+  const recheckPlacement = recheckPlacementProp ?? "panel";
+  const recheckInPageChrome = layout === "internal-page" && recheckPlacement === "page";
+
+  useEffect(() => {
+    if (!recheckInPageChrome || onRecheckControlsChange === undefined) {
+      return;
+    }
+
+    onRecheckControlsChange({
+      runChecks: () => {
+        void runChecks();
+      },
+      loading,
+    });
+  }, [loading, onRecheckControlsChange, recheckInPageChrome, runChecks]);
+
   const statusKind = result === null ? "needs-attention" : buyerCtoDemoReadinessStatusKind(result.verdict);
-  const embedded = layout === "embedded";
+  const isEmbeddedLayout = layout === "embedded";
   const showPanelHeading = layout !== "embedded" && layout !== "internal-page";
-  const shellClassName = embedded ? "space-y-3" : cn(EXPLORE_ARCHLUCID_ROW_CLASS, "p-4");
+  const shellClassName = isEmbeddedLayout ? "space-y-3" : cn(EXPLORE_ARCHLUCID_ROW_CLASS, "p-4");
   const showInternalDemoControls = isCtoDemoInternalOperatorControlsEnv();
   const groupedChecks = result === null ? [] : groupDemoReadinessChecksBySection(result.checks);
 
@@ -147,17 +172,19 @@ export function BuyerCtoDemoReadinessPanel(props: BuyerCtoDemoReadinessPanelProp
           aria-label="Demo operations actions"
           className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end"
         >
-          <Button
-            type="button"
-            variant="primary"
-            size="sm"
-            disabled={loading}
-            onClick={() => {
-              void runChecks();
-            }}
-          >
-            {BUYER_CTO_DEMO_READINESS_REFRESH_CTA}
-          </Button>
+          {recheckInPageChrome ? null : (
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              disabled={loading}
+              onClick={() => {
+                void runChecks();
+              }}
+            >
+              {BUYER_CTO_DEMO_READINESS_REFRESH_CTA}
+            </Button>
+          )}
           {showInternalDemoControls ? (
             <>
               <Button
@@ -181,7 +208,7 @@ export function BuyerCtoDemoReadinessPanel(props: BuyerCtoDemoReadinessPanelProp
 
       {result !== null ? (
         layout === "internal-page" ? (
-          <div className={cn("space-y-4", embedded ? "" : "mt-3")}>
+          <div className={cn("space-y-4", isEmbeddedLayout ? "" : "mt-3")}>
             {groupedChecks.map((entry) => (
               <section key={entry.section.id} aria-labelledby={`demo-readiness-section-${entry.section.id}`}>
                 <h3
@@ -199,7 +226,7 @@ export function BuyerCtoDemoReadinessPanel(props: BuyerCtoDemoReadinessPanelProp
             ))}
           </div>
         ) : (
-          <ul className={cn("m-0 list-none space-y-2 p-0", embedded ? "" : "mt-3", OPERATOR_TYPE_SCALE.body)}>
+          <ul className={cn("m-0 list-none space-y-2 p-0", isEmbeddedLayout ? "" : "mt-3", OPERATOR_TYPE_SCALE.body)}>
             {result.checks.map((check) => (
               <DemoReadinessCheckRow key={check.id} check={check} />
             ))}
