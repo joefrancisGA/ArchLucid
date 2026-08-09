@@ -89,9 +89,7 @@ describe("SettingsRolesInvitePanel (TB-794)", () => {
     fireEvent.click(screen.getByTestId("settings-roles-invite-submit"));
 
     await waitFor(() => {
-      expect(showSuccess).toHaveBeenCalledWith(
-        "Invite sent to reviewer@example.com (reference aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa).",
-      );
+      expect(showSuccess).toHaveBeenCalledWith("Invitation sent to reviewer@example.com.");
     });
     expect(onInviteSent).toHaveBeenCalled();
   });

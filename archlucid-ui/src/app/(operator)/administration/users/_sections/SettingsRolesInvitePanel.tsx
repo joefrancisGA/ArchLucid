@@ -68,10 +68,10 @@ export function SettingsRolesInvitePanel({ directoryUnavailable, onRetry, onInvi
 
     showSuccess(
       result.invitation.acceptUrl
-        ? `Invitation sent to ${form.email}. Share link: ${result.invitation.acceptUrl}`
+        ? `Invitation sent to ${form.email}. Copy the accept link from Pending invitations if you need to share it manually.`
         : result.invitation.acceptPath
-          ? `Invitation sent to ${form.email}. Share path: ${result.invitation.acceptPath}`
-          : `Invite sent to ${form.email} (reference ${result.invitation.id}).`,
+          ? `Invitation sent to ${form.email}. The invitee can open ${result.invitation.acceptPath} to accept.`
+          : `Invitation sent to ${form.email}.`,
     );
     setForm(EMPTY_FORM);
     onInviteSent?.();
@@ -81,10 +81,12 @@ export function SettingsRolesInvitePanel({ directoryUnavailable, onRetry, onInvi
     setForm(EMPTY_FORM);
   }
 
+  const canSubmit = form.email.trim().length > 0 && form.role.length > 0;
+
   return (
     <form
       data-testid="settings-roles-invite-form"
-      className="space-y-4"
+      className="max-w-xl space-y-4"
       onSubmit={(event) => void handleSubmit(event)}
     >
       {directoryUnavailable ? (
@@ -161,25 +163,32 @@ export function SettingsRolesInvitePanel({ directoryUnavailable, onRetry, onInvi
         />
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        <Button
-          type="submit"
-          size="sm"
-          disabled={sending || !form.email.trim() || !form.role}
-          data-testid="settings-roles-invite-submit"
-        >
-          {sending ? "Sending…" : "Send invite"}
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          disabled={sending}
-          onClick={handleCancel}
-          data-testid="settings-roles-invite-cancel"
-        >
-          Cancel
-        </Button>
+      <div className="space-y-2">
+        <div className="flex flex-wrap gap-2">
+          <Button
+            type="submit"
+            size="sm"
+            disabled={sending || !canSubmit}
+            data-testid="settings-roles-invite-submit"
+          >
+            {sending ? "Sending…" : "Send invite"}
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            disabled={sending}
+            onClick={handleCancel}
+            data-testid="settings-roles-invite-clear"
+          >
+            Clear
+          </Button>
+        </div>
+        {!canSubmit && !sending ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="settings-roles-invite-readiness">
+            Enter an email address and choose a role to send an invitation.
+          </p>
+        ) : null}
       </div>
     </form>
   );

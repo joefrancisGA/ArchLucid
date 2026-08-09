@@ -6,24 +6,39 @@ import { useCallback, useEffect, useState } from "react";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
+import { StatusTag } from "@/components/ui/status-tag";
+import {
   fetchAdminUserInvitations,
   revokeAdminUserInvitation,
   type AdminUserInvitationRow,
 } from "@/lib/admin-user-invitations";
-import { formatInstantForLocale } from "@/lib/locale-datetime";
-import { showError, showSuccess } from "@/lib/toast";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { formatInstantForLocale } from "@/lib/locale-datetime";
+import { formatRelativeTime } from "@/lib/relative-time";
+import { showError, showSuccess } from "@/lib/toast";
+
+import { adminUserInvitationStatusKind } from "./admin-user-invitation-status";
 
 type Props = {
   /** Increment to reload the pending-invitations list after a new invite is sent. */
   readonly refreshKey: number;
+  readonly onCountChange?: (count: number) => void;
 };
 
-export function PendingInvitationsPanel({ refreshKey }: Props) {
+export function PendingInvitationsPanel({ refreshKey, onCountChange }: Props) {
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<AdminUserInvitationRow[]>([]);
   const [loadFailed, setLoadFailed] = useState(false);
   const [revokingId, setRevokingId] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -35,13 +50,15 @@ export function PendingInvitationsPanel({ refreshKey }: Props) {
       setRows([]);
       setLoadFailed(true);
       setLoading(false);
+      onCountChange?.(0);
 
       return;
     }
 
     setRows(invitations);
     setLoading(false);
-  }, []);
+    onCountChange?.(invitations.length);
+  }, [onCountChange]);
 
   useEffect(() => {
     void load();
@@ -64,8 +81,18 @@ export function PendingInvitationsPanel({ refreshKey }: Props) {
       return;
     }
 
-    showSuccess(`Invitation ${invitation.id} revoked.`);
+    showSuccess(`Invitation for ${invitation.email} revoked.`);
     await load();
+  }
+
+  async function handleCopyReference(invitation: AdminUserInvitationRow) {
+    try {
+      await navigator.clipboard.writeText(invitation.id);
+      setCopiedId(invitation.id);
+      window.setTimeout(() => setCopiedId(null), 2000);
+    } catch {
+      showError("Could not copy reference", "Your browser blocked clipboard access. Copy the reference manually.");
+    }
   }
 
   if (loading) {
@@ -97,54 +124,66 @@ export function PendingInvitationsPanel({ refreshKey }: Props) {
   }
 
   return (
-    <div className="overflow-x-auto" data-testid="settings-roles-pending-invitations-table">
-      <table className={cn("w-full text-left", OPERATOR_TYPOGRAPHY.body)}>
-        <thead>
-          <tr className={cn("border-b border-neutral-200 dark:border-neutral-700", OPERATOR_TYPOGRAPHY.helper)}>
-            <th className="py-2 pr-3">Reference</th>
-            <th className="py-2 pr-3">Email</th>
-            <th className="py-2 pr-3">Role</th>
-            <th className="py-2 pr-3">Status</th>
-            <th className="py-2 pr-3">Expires</th>
-            <th className="py-2 pr-3">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
+    <div data-testid="settings-roles-pending-invitations-table">
+      <EnterpriseTable ariaLabel="Pending user invitations">
+        <EnterpriseTableHead>
+          <EnterpriseTableHeadRow>
+            <EnterpriseTableHeaderCell>Email</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Role</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Expires</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
+          </EnterpriseTableHeadRow>
+        </EnterpriseTableHead>
+        <EnterpriseTableBody>
           {rows.map((invitation) => (
-            <tr
+            <EnterpriseTableRow
               key={invitation.id}
-              className="border-b border-neutral-100 dark:border-neutral-800"
               data-testid={`settings-roles-pending-invitation-${invitation.id}`}
             >
-              <td className={cn("py-2 pr-3 font-mono text-xs text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                {invitation.id}
-              </td>
-              <td className={cn("py-2 pr-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{invitation.email}</td>
-              <td className={cn("py-2 pr-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{invitation.appRole}</td>
-              <td className={cn("py-2 pr-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{invitation.status}</td>
-              <td className={cn("py-2 pr-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                {formatInstantForLocale(invitation.expiresUtc)}
-              </td>
-              <td className="py-2 pr-3">
-                {invitation.status === "Pending" ? (
+              <EnterpriseTableCell>
+                <span className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{invitation.email}</span>
+              </EnterpriseTableCell>
+              <EnterpriseTableCell>{invitation.appRole}</EnterpriseTableCell>
+              <EnterpriseTableCell>
+                <StatusTag kind={adminUserInvitationStatusKind(invitation.status)} label={invitation.status} />
+              </EnterpriseTableCell>
+              <EnterpriseTableCell>
+                <span className="block text-al-text-primary">{formatInstantForLocale(invitation.expiresUtc)}</span>
+                <span className={cn("block text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {formatRelativeTime(invitation.expiresUtc)}
+                </span>
+              </EnterpriseTableCell>
+              <EnterpriseTableCell>
+                <div className="flex flex-wrap gap-2">
+                  {invitation.status === "Pending" ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={revokingId === invitation.id}
+                      data-testid={`settings-roles-revoke-invitation-${invitation.id}`}
+                      onClick={() => void handleRevoke(invitation)}
+                    >
+                      {revokingId === invitation.id ? "Revoking…" : "Revoke"}
+                    </Button>
+                  ) : null}
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
-                    disabled={revokingId === invitation.id}
-                    data-testid={`settings-roles-revoke-invitation-${invitation.id}`}
-                    onClick={() => void handleRevoke(invitation)}
+                    data-testid={`settings-roles-copy-invitation-reference-${invitation.id}`}
+                    aria-label={`Copy invitation reference for ${invitation.email}`}
+                    onClick={() => void handleCopyReference(invitation)}
                   >
-                    {revokingId === invitation.id ? "Revoking…" : "Revoke"}
+                    {copiedId === invitation.id ? "Copied" : "Copy reference"}
                   </Button>
-                ) : (
-                  <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>—</span>
-                )}
-              </td>
-            </tr>
+                </div>
+              </EnterpriseTableCell>
+            </EnterpriseTableRow>
           ))}
-        </tbody>
-      </table>
+        </EnterpriseTableBody>
+      </EnterpriseTable>
     </div>
   );
 }
