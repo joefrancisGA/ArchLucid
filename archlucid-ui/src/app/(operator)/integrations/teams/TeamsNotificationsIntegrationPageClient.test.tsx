@@ -27,6 +27,7 @@ vi.mock("@/lib/toast", () => ({
 }));
 
 import { TeamsNotificationsIntegrationPageClient } from "@/app/(operator)/integrations/teams/_sections/TeamsNotificationsIntegrationPageClient";
+import { TEAMS_INTEGRATION_SAVE_SUCCESS_MESSAGE } from "@/lib/admin-integration-mutation-outcome-copy";
 import {
   TEAMS_INTEGRATION_DRAFT_NOT_SAVED_HELPER,
   TEAMS_INTEGRATION_PAGE_SUBTITLE,
@@ -35,6 +36,7 @@ import {
   TEAMS_INTEGRATION_SECRET_NAME_NOT_URL_MESSAGE,
 } from "@/lib/teams-integration-page-copy";
 import { TEAMS_RECOMMENDED_EVENT_TYPES } from "@/lib/teams-integration-notification-catalog";
+import { showSuccess } from "@/lib/toast";
 
 const CATALOG = [
   "com.archlucid.authority.run.completed",
@@ -175,6 +177,28 @@ describe("TeamsNotificationsIntegrationPageClient", () => {
     expect(await screen.findByTestId("teams-test-feedback")).toHaveTextContent(
       "Test notification sent to Microsoft Teams.",
     );
+  });
+
+  it("shows durable success callout after saving a Teams connection", async () => {
+    render(
+      <TeamsNotificationsIntegrationPageClient
+        loaded={{ mode: "live", conn: null, catalog: CATALOG, failure: null }}
+      />,
+    );
+
+    const secretInput = await screen.findByLabelText(TEAMS_INTEGRATION_SECRET_NAME_LABEL);
+    fireEvent.change(secretInput, { target: { value: "teams-governance-alerts-prod" } });
+    fireEvent.click(screen.getByRole("button", { name: "Select recommended" }));
+    fireEvent.click(screen.getByTestId("teams-save-button"));
+
+    await waitFor(() => {
+      expect(mockUpsert).toHaveBeenCalled();
+    });
+
+    expect(await screen.findByTestId("teams-integration-mutation-success-callout")).toHaveTextContent(
+      TEAMS_INTEGRATION_SAVE_SUCCESS_MESSAGE,
+    );
+    expect(showSuccess).not.toHaveBeenCalled();
   });
 
   it("rejects webhook URLs in the secret name field", async () => {
