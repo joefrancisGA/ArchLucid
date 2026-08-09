@@ -104,6 +104,32 @@ def parse_ux_score(row: dict[str, str]) -> int:
     return _score_at(row, UX_INDEX)
 
 
+INTERNAL_PATH_PREFIX = "/internal"
+
+
+def is_internal_path(path: str) -> bool:
+    """True for ArchLucid-internal operator routes (excluded from buyer UX rankings)."""
+    bare = path.split("?", 1)[0]
+
+    return bare == INTERNAL_PATH_PREFIX or bare.startswith(f"{INTERNAL_PATH_PREFIX}/")
+
+
+def is_buyer_facing_ux_row(row: dict[str, str]) -> bool:
+    """Buyer-facing rows with a scored UX dimension (position 2 > 0)."""
+    return not is_internal_path(row.get("path", "")) and parse_ux_score(row) > 0
+
+
+def lowest_ux_buyer_rows(rows: list[dict[str, str]], *, limit: int = 20) -> list[dict[str, str]]:
+    """Return the lowest UX-scored non-internal rows, ascending by UX then path."""
+    buyer = [row for row in rows if is_buyer_facing_ux_row(row)]
+    buyer.sort(key=lambda row: (parse_ux_score(row), row["path"]))
+
+    if limit < 1:
+        return []
+
+    return buyer[:limit]
+
+
 def format_score_cell(series: list[int]) -> str:
     trimmed = list(series)
 

@@ -98,6 +98,6 @@ describe("custom-role-draft-state", () => {
   });
 
   it("names clones from the buyer-facing label of the source role", () => {
-    expect(clonedRoleName(builtinOperator())).toBe("Operator (custom)");
+    expect(clonedRoleName(builtinOperator())).toBe("Architect (custom)");
   });
 });

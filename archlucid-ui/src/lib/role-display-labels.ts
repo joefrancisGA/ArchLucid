@@ -1,12 +1,15 @@
 /**
  * Buyer-facing labels for built-in workspace roles.
  *
- * The claim/API role id is authoritative (`Operator`, `Admin`, …). On Users and roles settings,
- * labels match the claim value so start-from options, matrix columns, and built-in summaries stay aligned.
+ * The claim/API role id is authoritative and unchanged (`Operator`); the UI glossary displays that
+ * role as "Architect". Identity providers are still configured with the claim value, so any admin
+ * surface showing the display label should also disclose the claim value via `roleClaimCaption`.
+ *
+ * This module must not import from role matrix constants — those constants read labels from here.
  */
 export const BUILTIN_ROLE_DISPLAY_LABELS: Readonly<Record<string, string>> = {
   Admin: "Admin",
-  Operator: "Operator",
+  Operator: "Architect",
   Reader: "Reader",
   Auditor: "Auditor",
 };

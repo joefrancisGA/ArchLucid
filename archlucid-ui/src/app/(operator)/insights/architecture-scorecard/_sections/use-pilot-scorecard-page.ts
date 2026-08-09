@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { getPilotScorecard } from "@/lib/api";
@@ -75,12 +75,12 @@ export function usePilotScorecardPage(loaded: PilotScorecardPageServerLoad): Use
   const [rate, setRate] = useState(initialFields.rate);
   const [saving, setSaving] = useState(false);
 
-  const skipMountRefetchRef = useRef(true);
-
   const load = useCallback(async () => {
     setError(null);
 
     try {
+      // Browser proxy scope (localStorage/cookie mirror) — must refresh on mount so SSR
+      // empty payloads do not stick when the operator's active workspace has finalized reviews.
       const json = await getPilotScorecard();
       setData(json);
 
@@ -95,12 +95,6 @@ export function usePilotScorecardPage(loaded: PilotScorecardPageServerLoad): Use
   }, []);
 
   useEffect(() => {
-    if (skipMountRefetchRef.current) {
-      skipMountRefetchRef.current = false;
-
-      return;
-    }
-
     void load();
   }, [load]);
 

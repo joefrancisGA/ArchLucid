@@ -10,6 +10,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { operatorSemanticSurface, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { evidenceAbsenceFindingLabel, isEvidenceAbsenceFindingTitle } from "@/lib/evidence-absence-finding-copy";
+import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import {
   formatProofConfidenceLabelFromTrustStatus,
   PROOF_CONFIDENCE_FIELD_LABEL,
@@ -221,11 +222,6 @@ function ProofChainView(props: {
           productLink={tracesLink !== null ? resolveTrustEvidenceProductLink(tracesLink, runId, topFindingId) : null}
         />
       </ol>
-      {topFindingId !== null ? (
-        <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}>
-          <FindingEvidenceTrailLink runId={runId} findingId={topFindingId} label="Open top finding evidence trail" />
-        </p>
-      ) : null}
     </div>
   );
 }
@@ -276,13 +272,23 @@ function buildEvidenceBasisFields(card: RunTrustEvidenceCard, buyerPolishedShell
   ];
 }
 
+/** Shared readiness rollup for the Evidence tab scope header and trust-evidence card body. */
+export function deriveRunTrustEvidenceReadinessFromCard(
+  card: RunTrustEvidenceCard,
+  buyerPolishedShell: boolean,
+) {
+  return deriveTrustEvidenceReadiness(buildEvidenceBasisFields(card, buyerPolishedShell));
+}
+
 /** Committed-run evidence summary: manifest/audit/traces/export posture (no CPA / pen-test / legal claims). */
 export function RunTrustEvidenceCardSection(props: {
   readonly card: RunTrustEvidenceCard;
   readonly evidenceAskRunId?: string | null;
   readonly runId: string;
+  readonly blockingFindingId?: string | null;
+  readonly blockingFindingTitle?: string | null;
 }): ReactElement {
-  const { card, evidenceAskRunId, runId } = props;
+  const { card, evidenceAskRunId, runId, blockingFindingId, blockingFindingTitle } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   const trimmedAskRun =
@@ -292,23 +298,43 @@ export function RunTrustEvidenceCardSection(props: {
   const readiness = deriveTrustEvidenceReadiness(fields);
   const technicalRows = fields.filter((field) => field.technical !== null);
   const topFindingPointers = splitTrustEvidenceDetail(card.topFinding?.evidencePointersSummary);
-  const readinessKind = readiness.verdict === "complete" ? "ready" : "needs-attention";
+  const trimmedBlockingFindingId =
+    typeof blockingFindingId === "string" ? blockingFindingId.trim() : "";
+  const trimmedBlockingFindingTitle =
+    typeof blockingFindingTitle === "string" ? blockingFindingTitle.trim() : "";
+  const showApprovalBlockerLink =
+    readiness.exceptions.length > 0
+    && trimmedBlockingFindingId.length > 0
+    && trimmedBlockingFindingTitle.length > 0;
+  const findingsTabHref = buildReviewDetailTabHref(runId, "findings", {
+    hash: `finding-workspace-card-${trimmedBlockingFindingId}`,
+  });
 
   return (
     <section id="trust-evidence" className="scroll-mt-24">
       <Card>
         <CardContent className="space-y-4 pt-4">
-          <div data-testid="trust-evidence-readiness-verdict">
-            <h3 className={cn("m-0 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-              Evidence basis — {readiness.headline}
-            </h3>
-            <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              {readiness.readyCount} of {readiness.totalCount} evidence fields are available for this review.
+          <h3 className={cn("m-0 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+            Evidence basis
+          </h3>
+
+          {showApprovalBlockerLink ? (
+            <p
+              className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="trust-evidence-approval-blocker-link"
+            >
+              Approval is blocked by{" "}
+              <Link className={OPERATOR_LINK.nav} href={findingsTabHref}>
+                {trimmedBlockingFindingTitle}
+              </Link>
+              .{" "}
+              <FindingEvidenceTrailLink
+                runId={runId}
+                findingId={trimmedBlockingFindingId}
+                label="Open finding evidence trail"
+              />
             </p>
-            <div className="mt-2">
-              <StatusTag kind={readinessKind} label={readiness.headline} />
-            </div>
-          </div>
+          ) : null}
 
           {readiness.exceptions.length > 0 ? (
             <div

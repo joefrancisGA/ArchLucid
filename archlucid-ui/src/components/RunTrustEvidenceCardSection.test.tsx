@@ -98,7 +98,7 @@ describe("RunTrustEvidenceCardSection", () => {
     expect(screen.getAllByText(/Supporting link unavailable — regenerate this evidence before sharing the package/i).length).toBeGreaterThan(0);
   });
 
-  it("leads with a readiness verdict instead of a flat wall of status tags", () => {
+  it("surfaces exception fields without a duplicate tab-level readiness verdict", () => {
     render(
       <RunTrustEvidenceCardSection
         card={card({ aiExplainability: field("AI explainability rollup", "Low confidence") })}
@@ -106,12 +106,34 @@ describe("RunTrustEvidenceCardSection", () => {
       />,
     );
 
-    const verdict = screen.getByTestId("trust-evidence-readiness-verdict");
-
-    expect(verdict).toHaveTextContent(/evidence fields need attention before sponsor handoff/i);
+    expect(screen.getByRole("heading", { name: "Evidence basis" })).toBeInTheDocument();
+    expect(screen.queryByTestId("trust-evidence-readiness-verdict")).not.toBeInTheDocument();
     expect(
       within(screen.getByTestId("trust-evidence-exception-fields")).getByText("AI explainability rollup"),
     ).toBeInTheDocument();
+  });
+
+  it("links approval blockers to the findings tab above the exception grid", () => {
+    render(
+      <RunTrustEvidenceCardSection
+        card={card({ aiExplainability: field("AI explainability rollup", "Low confidence") })}
+        runId={RUN_ID}
+        blockingFindingId="finding-1"
+        blockingFindingTitle="Encrypt PHI stores"
+      />,
+    );
+
+    const blocker = screen.getByTestId("trust-evidence-approval-blocker-link");
+
+    expect(blocker).toHaveTextContent("Encrypt PHI stores");
+    expect(within(blocker).getByRole("link", { name: "Encrypt PHI stores" })).toHaveAttribute(
+      "href",
+      "/architecture/reviews/run-1?reviewTab=findings#finding-workspace-card-finding-1",
+    );
+    expect(within(blocker).getByRole("link", { name: "Open finding evidence trail" })).toHaveAttribute(
+      "href",
+      "/architecture/reviews/run-1/findings/finding-1/evidence-trace",
+    );
   });
 
   it("gives Proof confidence its own copy rather than repeating the execution mode detail", () => {

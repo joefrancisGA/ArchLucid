@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import {
   countRunDetailEvidenceInventoryItems,
+  deriveEvidenceScopeCoverageLine,
+  deriveEvidenceScopeReadiness,
   deriveRunDetailEvidenceInventory,
 } from "@/lib/run-detail-evidence-inventory";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
@@ -52,5 +54,34 @@ describe("run-detail-evidence-inventory", () => {
 
     expect(items).toHaveLength(1);
     expect(items[0]?.kind).toBe("Architecture brief");
+  });
+
+  it("replaces findings coverage copy when inventory is empty but findings cite pointers", () => {
+    const line = deriveEvidenceScopeCoverageLine({
+      inventoryCount: 0,
+      findingsCoverageSummaryLine: "1 of 1 open finding has linked evidence",
+      linkedFindingCount: 1,
+      openFindingCount: 1,
+    });
+
+    expect(line).toContain("internal finding pointers");
+    expect(line).not.toContain("linked evidence");
+  });
+
+  it("forces gaps readiness when inventory is empty", () => {
+    const readiness = deriveEvidenceScopeReadiness({
+      inventoryCount: 0,
+      trustReadiness: {
+        verdict: "complete",
+        headline: "Evidence is complete for sponsor handoff.",
+        readyCount: 8,
+        totalCount: 8,
+        exceptions: [],
+        satisfied: [],
+      },
+    });
+
+    expect(readiness.verdict).toBe("gaps");
+    expect(readiness.headline).toBe("Submitted evidence inventory is empty.");
   });
 });

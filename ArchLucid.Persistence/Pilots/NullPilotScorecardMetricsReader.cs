@@ -1,6 +1,9 @@
 namespace ArchLucid.Persistence.Pilots;
 
-/// <summary>In-memory / non-SQL storage: no relational aggregates; returns empty metrics (operator UI still loads).</summary>
+/// <summary>
+///     Optional zero stub for hosts that intentionally omit scorecard aggregates.
+///     InMemory DI registers <see cref="RunRepositoryPilotScorecardMetricsReader"/> instead.
+/// </summary>
 public sealed class NullPilotScorecardMetricsReader : IPilotScorecardMetricsReader
 {
     public Task<PilotScorecardTenantMetrics> GetAsync(Guid tenantId, CancellationToken cancellationToken)

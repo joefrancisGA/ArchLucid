@@ -1,5 +1,6 @@
 import { normalizeEvidenceRefSnippet } from "@/lib/finding-evidence-ref-snippet";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import type { TrustEvidenceReadiness, TrustEvidenceReadinessVerdict } from "@/lib/trust-evidence-readiness";
 
 export type RunDetailEvidenceInventoryItem = {
   readonly key: string;
@@ -121,4 +122,58 @@ export function countRunDetailEvidenceInventoryItems(
   items: readonly RunDetailEvidenceInventoryItem[],
 ): number {
   return items.length;
+}
+
+export type EvidenceScopeCoverageInput = {
+  readonly inventoryCount: number;
+  readonly findingsCoverageSummaryLine: string;
+  readonly linkedFindingCount: number;
+  readonly openFindingCount: number;
+};
+
+/** Coverage copy for the Evidence tab header — never implies satisfied coverage when inventory is empty. */
+export function deriveEvidenceScopeCoverageLine(input: EvidenceScopeCoverageInput): string {
+  if (input.inventoryCount > 0) {
+    return input.findingsCoverageSummaryLine;
+  }
+
+  if (input.openFindingCount > 0 && input.linkedFindingCount > 0) {
+    const findingNoun = input.openFindingCount === 1 ? "finding cites" : "findings cite";
+
+    return `${input.linkedFindingCount} open ${findingNoun} internal finding pointers — no submitted source documents are listed.`;
+  }
+
+  return "No submitted source documents are listed for this review.";
+}
+
+/** Single Evidence-tab readiness verdict — inventory gaps override a complete trust-evidence rollup. */
+export function deriveEvidenceScopeReadiness(input: {
+  readonly inventoryCount: number;
+  readonly trustReadiness: TrustEvidenceReadiness | null;
+}): { readonly verdict: TrustEvidenceReadinessVerdict; readonly headline: string } {
+  if (input.inventoryCount === 0) {
+    if (input.trustReadiness !== null && input.trustReadiness.verdict === "gaps") {
+      return {
+        verdict: "gaps",
+        headline: input.trustReadiness.headline,
+      };
+    }
+
+    return {
+      verdict: "gaps",
+      headline: "Submitted evidence inventory is empty.",
+    };
+  }
+
+  if (input.trustReadiness !== null) {
+    return {
+      verdict: input.trustReadiness.verdict,
+      headline: input.trustReadiness.headline,
+    };
+  }
+
+  return {
+    verdict: "complete",
+    headline: "Evidence is available for review.",
+  };
 }

@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { REVIEWS_NEW_PATH } from "@/lib/architecture-routes";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -16,6 +17,8 @@ import type { RunDetailEvidenceInventoryItem } from "@/lib/run-detail-evidence-i
 
 export type RunDetailEvidenceInventorySectionProps = {
   readonly items: readonly RunDetailEvidenceInventoryItem[];
+  /** True when the review record is committed (golden manifest present). */
+  readonly hasManifest?: boolean;
 };
 
 function formatIngestedLabel(iso: string): string {
@@ -40,10 +43,18 @@ export function RunDetailEvidenceInventorySection(props: RunDetailEvidenceInvent
       <section id="submitted-evidence-inventory" className="scroll-mt-24" data-testid="run-detail-evidence-inventory">
         <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>Submitted evidence</h3>
         <div className="mt-3">
-          <EnterpriseCompactEmptyState
-            title="No submitted evidence is listed yet"
-            description="Upload supporting files or add architecture context. Findings will cite evidence here after analysis."
-          />
+          {props.hasManifest === true ? (
+            <EnterpriseCompactEmptyState
+              title="No submitted source documents are listed"
+              description="This signed review record is sealed — source documents cannot be added after finalization. Start a new review to submit updated evidence."
+              actions={[{ label: "Start a new review", href: REVIEWS_NEW_PATH, variant: "primary" }]}
+            />
+          ) : (
+            <EnterpriseCompactEmptyState
+              title="No submitted evidence is listed yet"
+              description="Upload supporting files or add architecture context. Findings will cite evidence here after analysis."
+            />
+          )}
         </div>
       </section>
     );

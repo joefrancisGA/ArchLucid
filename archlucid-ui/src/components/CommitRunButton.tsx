@@ -27,7 +27,6 @@ import {
   recordFirstTenantFunnelEvent,
 } from "@/lib/first-tenant-funnel-telemetry";
 import { resolvePreCommitGovernanceBlockView } from "@/lib/pre-commit-governance-block-problem";
-import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 /** Nav and review-detail copy — replay/compare stay available post-finalize (see UI_GLOSSARY_V1). */

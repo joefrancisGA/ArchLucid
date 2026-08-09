@@ -30,7 +30,8 @@ describe("HelpUsersAndRolesGuideView", () => {
   it("registers the users and roles help entry", () => {
     expect(entry?.slug).toBe("users-and-roles");
     expect(entry?.title).toBe(USERS_AND_ROLES_PAGE_TITLE);
-    expect(getProductDocumentationEntry("operator-auth-roles")).toBeNull();
+    // Legacy slug remains as a registry alias so old bookmarks resolve.
+    expect(getProductDocumentationEntry("operator-auth-roles")?.slug).toBe("users-and-roles");
   });
 
   it("renders one H1 and customer intro without internal engineering sections", () => {
@@ -84,7 +85,7 @@ describe("HelpUsersAndRolesGuideView", () => {
 
     const overview = screen.getByTestId("users-and-roles-role-overview-table");
     expect(within(overview).getByText("Admin")).toBeInTheDocument();
-    expect(within(overview).getByText("Operator")).toBeInTheDocument();
+    expect(within(overview).getByText("Architect")).toBeInTheDocument();
     expect(within(overview).getByText("Reader")).toBeInTheDocument();
     expect(within(overview).getByText("Auditor")).toBeInTheDocument();
 

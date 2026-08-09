@@ -67,6 +67,10 @@ def test_migrate_workbook_path_maps_retired_cloud_connection_help_slugs() -> Non
     assert migrate_workbook_path("/help/cloud-connections-gcp") == "/help/cloud-connections/gcp"
 
 
+def test_migrate_workbook_path_maps_retired_api_contracts_help_alias() -> None:
+    assert migrate_workbook_path("/help/api-contracts") == "/help/governance-api-contracts"
+
+
 def test_migrate_workbook_path_maps_legacy_alerts() -> None:
     assert migrate_workbook_path("/alerts") == "/governance/alerts"
 
