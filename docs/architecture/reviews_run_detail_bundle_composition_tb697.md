@@ -1,7 +1,7 @@
 # `/reviews/[runId]` bundle composition investigation (TB-697 / TB-933)
 
 > **Scope:** Contributor investigation artifact; not buyer/operator documentation.  
-> **Date:** 2026-07-18 (TB-697); **Updated:** 2026-08-03 (**TB-2021** findings/export/below-fold deferrals); prior 2026-07-24 (**TB-933**).
+> **Date:** 2026-07-18 (TB-697); **Updated:** 2026-08-08 (**TB-2117** workspace/overview chrome deferrals); prior 2026-08-03 (**TB-2021** findings/export/below-fold deferrals); prior 2026-07-24 (**TB-933**).
 > **Method:** Cross-reference committed First Load JS baseline + static import/deferred-chunk inventory on `RunDetailPageView` (post-**TB-697** / **TB-933** / **TB-2021** deferred-chunk work).
 > **Blocked locally (2026-07-18):** `npm run build` / `npm run build:analyze` did not complete in that pass — prefer CI/Linux for analyzer HTML; refresh First Load JS baseline after measured cuts via `npm run write:first-load-js-baseline`.
 
@@ -47,7 +47,12 @@ These modules are **not** in the `RunDetailPageView` static import graph (enforc
 | `RunDetailArtifactsExportsSectionDeferred` | `RunDetailArtifactsExportsSection` | TB-2021 |
 | Findings / what-if / explanation / explainability table | `dynamic()` inside `RunDetailRunExplanationCollapsible` | TB-2021 |
 | Habit loop / recurrence / authority / grounding | `dynamic()` inside `RunDetailBelowFoldSections` | TB-2021 |
-| … | (see `run-detail-page-view-deferred-chunks.tsx`) | |
+| `RunDetailBuyerModeFallbackBannerDeferred` | `RunDetailBuyerModeFallbackBanner` | TB-2117 |
+| `RunDetailWorkspaceHeaderDeferred` / summary strip / blocking banner / sticky actions | `RunDetailWorkspaceChrome` | TB-2117 |
+| `RunDetailSectionNavDeferred` | `RunDetailSectionNav` | TB-2117 |
+| `RunDetailExecutiveBottomLineDeferred` / `RunDetailExecutiveSummaryCtaCardDeferred` | executive overview chrome | TB-2117 |
+| `RunDetailManifestSummarySectionDeferred` / submitted architecture / capture evidence / governance decision / review package | tab-gated sections | TB-2117 |
+| `RunDetailWorkspaceLayout` + `RunDetailWorkspaceDisclosureProvider` | `RunDetailWorkspaceShell.tsx` (sync layout only) | TB-2117 |
 
 Below-fold route sections also dynamic-load `BeforeAfterDeltaPanel` and `RunDetailArchitectureGraphSection` (`RunDetailBelowFoldSections.tsx`).
 
@@ -66,11 +71,11 @@ Ranked by **bundle-risk** (module size/transitive deps × first-paint necessity)
 
 | Rank | Module / cluster | First-paint? | Dynamic precedent on this route? |
 | --- | --- | --- | --- |
-| 1 | `ReviewDetailWorkspace` + tab chrome | Yes | Partial — many tabs defer content, shell is sync |
-| 2 | `RunDetailOverviewPanelClient` | Yes | No |
-| 3 | `RunDetailWorkspaceChrome` (`Header`, `SummaryStrip`, `Layout`, …) | Yes | No |
-| 4 | `RunDetailOutcomeCards` + executive summary stack (`RunDetailExecutiveSummary`, `RunDetailExecutiveBottomLine`, CTAs) | Yes | No |
-| 5 | `RunDetailSectionNav` + in-page section components (`RunDetailGovernanceDecisionSection`, `RunDetailReviewPackageSection`, …) | Yes | No |
+| 1 | `ReviewDetailWorkspace` + tab chrome | Yes | **Deferred** — `ReviewDetailWorkspaceDeferred` (TB-2021); tab panel sections deferred TB-2117 |
+| 2 | `RunDetailOverviewPanelClient` | Yes | **Deferred** — `RunDetailOverviewPanelClientDeferred` (TB-2021) |
+| 3 | `RunDetailWorkspaceChrome` (`Header`, `SummaryStrip`, …) | Yes | **Deferred** — TB-2117; layout stays in `RunDetailWorkspaceShell` |
+| 4 | `RunDetailOutcomeCards` + executive summary stack | Yes | Outcome cards deferred TB-933; bottom line / CTA deferred TB-2117 |
+| 5 | `RunDetailSectionNav` + in-page section components | Often below-fold / tab-gated | **Deferred** — TB-2117 import-policy guards |
 | 6 | Usability/demo banner cluster (`CommitBlockingFindingsBanner`, `StalledReviewGuidanceCallout`, `OperatorDemoStaticBanner`, …) | Often | **TB-696** defers similar chrome in `AppShell` — not yet here |
 | 7 | `ArchitectureCreateWorkItemSection` | Tab-gated | **Yes** — `RunDetailArchitectureCreateWorkItemSectionDeferred` (2026-07-18) |
 | 8 | `ArchitectureSponsorSharingPanel` | Tab-gated | **Yes** — `RunDetailArchitectureSponsorSharingPanelDeferred` (2026-07-18) |
