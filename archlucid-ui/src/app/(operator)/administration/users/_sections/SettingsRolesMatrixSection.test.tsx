@@ -13,7 +13,15 @@ const sampleRoles = [
     id: "role-admin",
     name: "Admin",
     description: null,
-    permissions: ["Runs.Read", "Billing.Manage", "AdminConsole.Access"],
+    permissions: ["Runs.Read", "Billing.Manage", "AdminConsole.Access", "Audit.Export"],
+    isSystem: true,
+    updatedUtc: "2026-01-01T00:00:00Z",
+  },
+  {
+    id: "role-auditor",
+    name: "Auditor",
+    description: null,
+    permissions: ["Runs.Read", "Audit.Read", "Audit.Export"],
     isSystem: true,
     updatedUtc: "2026-01-01T00:00:00Z",
   },
@@ -21,7 +29,7 @@ const sampleRoles = [
     id: "role-reader",
     name: "Reader",
     description: null,
-    permissions: ["Runs.Read"],
+    permissions: ["Runs.Read", "Audit.Read"],
     isSystem: true,
     updatedUtc: "2026-01-01T00:00:00Z",
   },
@@ -42,7 +50,7 @@ const rolesWithCustomColumn = [
     description: null,
     permissions: ["Runs.Read"],
     isSystem: false,
-    updatedUtc: "2026-01-01T00:00:00Z",
+    updatedUtc: "2026-01-02T12:00:00Z",
   },
 ];
 
@@ -54,18 +62,16 @@ function stubRolesResponse(payload: unknown) {
 }
 
 describe("SettingsRolesMatrixSection", () => {
-  it("renders role summaries, create form, and accessible permission values", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () => new Response(JSON.stringify(sampleRoles), { status: 200, headers: { "Content-Type": "application/json" } })),
-    );
+  it("renders create form, legend, and accessible permission values", async () => {
+    stubRolesResponse(sampleRoles);
 
-    render(<SettingsRolesMatrixSection />);
+    render(<SettingsRolesMatrixSection assignmentCountsByRole={new Map([["Reader", 2]])} />);
 
-    expect(await screen.findByTestId("settings-roles-builtin-summary")).toBeInTheDocument();
+    expect(await screen.findByTestId("settings-roles-matrix-legend")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Create custom role" })).toBeInTheDocument();
     expect(screen.getByText(/Built-in roles cannot be edited/i)).toBeInTheDocument();
-    expect(screen.queryByText(/Clone to custom role/i)).not.toBeInTheDocument();
+    expect(screen.queryByTestId("settings-roles-builtin-summary")).not.toBeInTheDocument();
+    expect(screen.getByTestId("settings-roles-create-readiness")).toHaveTextContent("Enter a role name");
 
     const readReviewsCell = await screen.findByLabelText("Read reviews for Reader: Allowed");
     expect(readReviewsCell).toBeInTheDocument();
@@ -73,6 +79,7 @@ describe("SettingsRolesMatrixSection", () => {
 
     const billingCell = screen.getByLabelText("Manage billing for Reader: Not allowed");
     expect(billingCell).toBeInTheDocument();
+    expect(screen.getByText("2 assignments")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Reviews permissions" }));
     expect(screen.queryByLabelText("Read reviews for Reader: Allowed")).not.toBeInTheDocument();
@@ -80,42 +87,51 @@ describe("SettingsRolesMatrixSection", () => {
     vi.unstubAllGlobals();
   });
 
-  it("displays the Operator role consistently on the roles matrix", async () => {
-    stubRolesResponse(rolesWithCustomColumn);
+  it("shows audit export differences between Auditor and Reader above the fold", async () => {
+    stubRolesResponse(sampleRoles);
 
     render(<SettingsRolesMatrixSection />);
 
-    const summary = await screen.findByTestId("settings-roles-builtin-summary");
-    expect(within(summary).getByText("Operator")).toBeInTheDocument();
-    expect(within(summary).queryByText("Claim value: Operator")).not.toBeInTheDocument();
+    await screen.findByRole("heading", { name: "Create custom role" });
 
-    expect(screen.getByRole("columnheader", { name: /Operator/ })).toBeInTheDocument();
-    expect(screen.queryByRole("columnheader", { name: /^Architect/ })).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Clone Operator role" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Export audit for Auditor: Allowed")).toBeInTheDocument();
+    expect(screen.getByLabelText("Export audit for Reader: Not allowed")).toBeInTheDocument();
 
     vi.unstubAllGlobals();
   });
 
-  it("flags unsaved column edits, enables Save only when dirty, and discards on request", async () => {
+  it("displays the Operator role as Architect and discloses its claim value", async () => {
     stubRolesResponse(rolesWithCustomColumn);
 
     render(<SettingsRolesMatrixSection />);
 
-    await screen.findByTestId("settings-roles-builtin-summary");
+    expect(await screen.findByRole("columnheader", { name: /Architect/ })).toBeInTheDocument();
+    expect(screen.queryByRole("columnheader", { name: /^Operator/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Clone Architect role" })).toBeInTheDocument();
+    expect(screen.getByText(/Last updated/i)).toBeInTheDocument();
 
-    expect(screen.getByRole("button", { name: "Save Reviewer plus role" })).toBeDisabled();
-    expect(screen.queryByTestId("settings-roles-unsaved-notice")).not.toBeInTheDocument();
+    vi.unstubAllGlobals();
+  });
+
+  it("flags unsaved edits in the command bar and saves from there", async () => {
+    stubRolesResponse(rolesWithCustomColumn);
+
+    render(<SettingsRolesMatrixSection />);
+
+    await screen.findByRole("heading", { name: "Create custom role" });
+
+    expect(screen.queryByTestId("settings-roles-command-bar")).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByLabelText("Create reviews for Reviewer plus"));
 
     expect(screen.getByTestId("settings-roles-unsaved-notice")).toHaveTextContent("Reviewer plus");
+    expect(screen.getByTestId("settings-roles-command-bar")).toBeInTheDocument();
     expect(screen.getByTestId("settings-roles-unsaved-badge-role-custom")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Save Reviewer plus role" })).toBeEnabled();
 
     fireEvent.click(screen.getByRole("button", { name: "Discard unsaved changes to Reviewer plus" }));
 
-    expect(screen.queryByTestId("settings-roles-unsaved-notice")).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Save Reviewer plus role" })).toBeDisabled();
+    expect(screen.queryByTestId("settings-roles-command-bar")).not.toBeInTheDocument();
 
     vi.unstubAllGlobals();
   });

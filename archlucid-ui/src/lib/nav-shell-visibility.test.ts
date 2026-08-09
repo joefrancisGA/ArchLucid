@@ -601,6 +601,23 @@ describe("listNavGroupsVisibleInOperatorShell — system-admin surface", () => {
     expect(visible[0]!.visibleLinks.map((l) => l.label)).toContain("Knowledge index health");
     expect(visible[0]!.visibleLinks.map((l) => l.href)).toContain("/internal/replay");
   });
+
+  it("omits internal operations in public demo mode even when internal operator flag is set", () => {
+    vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_INTERNAL_OPERATOR", "true");
+    vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "true");
+
+    const visible = listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      true,
+      true,
+      AUTHORITY_RANK.AdminAuthority,
+      false,
+      "all",
+      true,
+    );
+
+    expect(visible.some((row) => row.group.id === "operator-system-admin")).toBe(false);
+  });
 });
 
 describe("committed architecture review gate — operator shell composition", () => {

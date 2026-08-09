@@ -83,7 +83,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
             OPERATOR_SHELL_CONTENT_PADDING_X_CLASS,
           )}
         >
-          <div className="min-w-0 flex-1 sm:max-w-md lg:max-w-lg xl:max-w-xl">
+          <div className="min-w-0 flex-1 sm:max-w-sm lg:max-w-md xl:max-w-lg">
             <GlobalSearchBarDeferred />
           </div>
 

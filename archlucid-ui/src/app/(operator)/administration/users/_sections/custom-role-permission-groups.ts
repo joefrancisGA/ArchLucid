@@ -21,6 +21,13 @@ export const CUSTOM_ROLE_PERMISSION_GROUPS: readonly PermissionGroup[] = [
     ],
   },
   {
+    area: "Audit",
+    permissions: [
+      { id: "Audit.Read", label: "Read audit" },
+      { id: "Audit.Export", label: "Export audit" },
+    ],
+  },
+  {
     area: "Governance",
     permissions: [
       { id: "Governance.Read", label: "Read governance" },
@@ -31,13 +38,6 @@ export const CUSTOM_ROLE_PERMISSION_GROUPS: readonly PermissionGroup[] = [
   {
     area: "Policy packs",
     permissions: [{ id: "PolicyPacks.Author", label: "Author policy packs" }],
-  },
-  {
-    area: "Audit",
-    permissions: [
-      { id: "Audit.Read", label: "Read audit" },
-      { id: "Audit.Export", label: "Export audit" },
-    ],
   },
   {
     area: "Tenants",

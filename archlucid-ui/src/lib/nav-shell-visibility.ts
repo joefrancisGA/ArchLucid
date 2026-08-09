@@ -210,6 +210,10 @@ export function listNavGroupsVisibleInOperatorShell(
         continue;
       }
 
+      if (isNextPublicDemoMode()) {
+        continue;
+      }
+
       if (isBuyerPolishedOperatorShellEnv() && !isOperatorExperienceFullShellEnv()) {
         continue;
       }

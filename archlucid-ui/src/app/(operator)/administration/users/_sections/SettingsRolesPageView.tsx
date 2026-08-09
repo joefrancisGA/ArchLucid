@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { PageHeading } from "@/components/PageHeading";
@@ -46,6 +46,7 @@ import { PendingInvitationsPanel } from "./PendingInvitationsPanel";
 import { SETTINGS_ROLES_ASSIGNABLE } from "./settings-roles-page-constants";
 import { settingsRolesEmptyStateDescription, settingsRolesEmptyStateTitle } from "./settings-roles-page-empty-copy";
 import { SettingsRolesMatrixSection } from "./SettingsRolesMatrixSection";
+import { assignmentCountsByRoleName } from "./roles-matrix-assignment-counts";
 import type { SettingsRolesPageViewModel } from "./settings-roles-page-view-model";
 
 const ALL_TABS: readonly { id: SettingsUsersTabId; label: string }[] = [
@@ -148,6 +149,7 @@ export function SettingsRolesPageView(props: Props) {
     m.loading || m.note !== null ? "Members" : `Members (${userRows.length})`;
   const pendingSectionTitle =
     pendingInvitationCount === null ? "Pending invitations" : `Pending invitations (${pendingInvitationCount})`;
+  const roleAssignmentCounts = useMemo(() => assignmentCountsByRoleName(m.sortedRows), [m.sortedRows]);
 
   return (
     <div className="w-full max-w-[1200px] space-y-6" data-testid="settings-roles-page">
@@ -155,9 +157,9 @@ export function SettingsRolesPageView(props: Props) {
         navHref="/administration/users"
         title="Users and roles"
         description="Invite users, assign roles, and manage workspace access."
-        actions={<PageContextualHelpButton />}
+        actions={<PageContextualHelpButton triggerText="Help" />}
       />
-<Tabs value={activeTab} onValueChange={onSelectTab} className="space-y-6">
+      <Tabs value={activeTab} onValueChange={onSelectTab} className="space-y-6">
         <TabsList aria-label="Users and roles sections" data-testid="settings-roles-tablist">
           {tabs.map((tab) => (
             <TabsTrigger key={tab.id} value={tab.id} data-testid={`settings-roles-tab-${tab.id}`}>
@@ -229,11 +231,8 @@ export function SettingsRolesPageView(props: Props) {
 
         <TabsContent value="roles" data-testid="settings-roles-tabpanel-roles">
           <Card>
-            <CardHeader>
-              <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Roles and permissions</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <SettingsRolesMatrixSection />
+            <CardContent className="pt-6">
+              <SettingsRolesMatrixSection assignmentCountsByRole={roleAssignmentCounts} />
             </CardContent>
           </Card>
         </TabsContent>

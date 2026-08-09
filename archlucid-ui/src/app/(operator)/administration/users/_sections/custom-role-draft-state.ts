@@ -8,6 +8,7 @@ export type DraftRole = {
   readonly name: string;
   readonly permissions: ReadonlySet<string>;
   readonly isSystem: boolean;
+  readonly updatedUtc?: string;
 };
 
 /** Last-saved permissions per role column, captured on load for dirty detection and discard. */
@@ -49,6 +50,39 @@ export function isRoleDirty(role: DraftRole, baseline: RolePermissionBaseline): 
 /** Buyer-facing names of every column holding unsaved edits; empty when the matrix is clean. */
 export function dirtyRoleDisplayNames(roles: readonly DraftRole[], baseline: RolePermissionBaseline): string[] {
   return roles.filter((role) => isRoleDirty(role, baseline)).map((role) => roleDisplayLabel(role.name));
+}
+
+/** Custom role columns that still hold unsaved permission edits. */
+export function dirtyRoles(roles: readonly DraftRole[], baseline: RolePermissionBaseline): DraftRole[] {
+  return roles.filter((role) => isRoleDirty(role, baseline));
+}
+
+/** Count permission toggles between a dirty column and its last-saved baseline. */
+export function countDirtyPermissions(role: DraftRole, baseline: RolePermissionBaseline): number {
+  if (role.isSystem)
+    return 0;
+
+  const saved = baseline.get(roleMatrixKey(role));
+
+  if (saved === undefined)
+    return 0;
+
+  let changes = 0;
+
+  for (const permissionId of ALL_MATRIX_PERMISSION_IDS) {
+    const wasAllowed = saved.has(permissionId);
+    const isAllowed = role.permissions.has(permissionId);
+
+    if (wasAllowed !== isAllowed)
+      changes += 1;
+  }
+
+  return changes;
+}
+
+/** Total unsaved permission toggles across all dirty custom role columns. */
+export function totalUnsavedPermissionChanges(roles: readonly DraftRole[], baseline: RolePermissionBaseline): number {
+  return dirtyRoles(roles, baseline).reduce((total, role) => total + countDirtyPermissions(role, baseline), 0);
 }
 
 /** True when any custom role column still holds unsaved permission edits. */

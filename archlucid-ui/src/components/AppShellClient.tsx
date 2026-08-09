@@ -275,7 +275,7 @@ function AppShellInner({ children }: AppShellClientProps) {
     return (
       <div
         ref={shellRootRef}
-        className="flex min-h-screen flex-col items-center justify-center bg-neutral-50 px-4 py-10 dark:bg-neutral-950 sm:py-16"
+        className="flex min-h-dvh flex-col items-center justify-center bg-neutral-50 px-4 py-10 dark:bg-neutral-950 sm:py-16"
       >
         <div className="mb-8">
           <ArchLucidWordmarkLink
@@ -309,7 +309,7 @@ function AppShellInner({ children }: AppShellClientProps) {
               ref={shellRootRef}
               key={chromeMode}
               data-testid="app-shell-minimal-root"
-              className="flex min-h-screen flex-col bg-neutral-50 dark:bg-neutral-950"
+              className="flex min-h-dvh flex-col bg-neutral-50 dark:bg-neutral-950"
             >
               <div ref={stickyHeaderRef} className="sticky top-0 z-30 bg-neutral-50 shadow-sm dark:bg-neutral-950 print:hidden">
                 <header
@@ -404,7 +404,7 @@ function AppShellInner({ children }: AppShellClientProps) {
         <a href="#main-content" className="skip-to-main">
           Skip to main content
         </a>
-        <div ref={shellRootRef} key={chromeMode} className="flex min-h-screen flex-col overflow-x-hidden bg-neutral-50 dark:bg-neutral-950">
+        <div ref={shellRootRef} key={chromeMode} className="flex min-h-dvh flex-col overflow-x-hidden bg-neutral-50 dark:bg-neutral-950">
           {/* Sticky budget: optional trial strip + one-row top bar only. Journey caption scrolls with the page. */}
           <div
             ref={stickyHeaderRef}
@@ -415,19 +415,22 @@ function AppShellInner({ children }: AppShellClientProps) {
             <OperatorShellTopBarDeferred onOpenHelpSearch={openHelpSearch} />
           </div>
           <CtoDemoJourneyCaptionBar />
-          <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_SHELL_BODY_ROW_CLASS)}>
+          <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_SHELL_BODY_ROW_CLASS, "flex-1")}>
             <nav
               data-testid="sidebar-nav"
               aria-label="Primary navigation"
               className={cn(
-                "hidden shrink-0 self-stretch overflow-y-auto border-r border-neutral-200 bg-neutral-50/80 print:!hidden dark:border-neutral-800 dark:bg-neutral-950/80 lg:block lg:max-h-full",
+                "hidden shrink-0 self-stretch overflow-y-auto border-r border-neutral-200 bg-neutral-50/80 print:!hidden dark:border-neutral-800 dark:bg-neutral-950/80 lg:block",
                 OPERATOR_SHELL_SIDEBAR_PADDING_CLASS,
                 OPERATOR_SHELL_SIDEBAR_WIDTH_CLASS,
               )}
             >
               <SidebarNav />
             </nav>
-            <div data-testid="app-shell-main" className={cn("min-h-0 min-w-0 flex-1 print:px-0", OPERATOR_SHELL_MAIN_PADDING_CLASS)}>
+            <div
+              data-testid="app-shell-main"
+              className={cn("flex min-h-0 min-w-0 flex-1 flex-col print:px-0", OPERATOR_SHELL_MAIN_PADDING_CLASS)}
+            >
               <AppShellStatusBanners variant="full" />
               <AppShellKeyboardShortcutBoundary onHelpRequested={openHelpSearch}>
                 <main
@@ -442,7 +445,9 @@ function AppShellInner({ children }: AppShellClientProps) {
               </AppShellKeyboardShortcutBoundary>
             </div>
           </div>
-          <AppShellWorkspaceFooterDeferred hideWorkspaceHealthFooter={hideWorkspaceHealthFooter} />
+          <div className="mt-auto shrink-0">
+            <AppShellWorkspaceFooterDeferred hideWorkspaceHealthFooter={hideWorkspaceHealthFooter} />
+          </div>
         </div>
         <AppToaster />
         <RouteAnnouncer />
