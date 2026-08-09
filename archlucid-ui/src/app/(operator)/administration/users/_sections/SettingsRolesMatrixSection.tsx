@@ -42,6 +42,8 @@ import {
   type RolePermissionBaseline,
   toggleRolePermission,
 } from "./custom-role-draft-state";
+import { type CustomRoleFailureKind, customRoleFailureCopy } from "./custom-role-failure-copy";
+import { CustomRoleRequestError, customRoleRequestStatus } from "./custom-role-request-error";
 import {
   BUILTIN_ROLE_SUMMARIES,
   CUSTOM_ROLE_START_FROM_OPTIONS,
@@ -52,6 +54,12 @@ import {
   sortMatrixRoles,
   unsavedRoleEditsNotice,
 } from "./roles-matrix-constants";
+
+function showCustomRoleFailure(kind: CustomRoleFailureKind, error: unknown): void {
+  const copy = customRoleFailureCopy(kind, customRoleRequestStatus(error));
+
+  showError(copy.title, copy.description);
+}
 
 type CustomRoleDto = {
   id: string;
@@ -82,7 +90,7 @@ async function fetchRoles(): Promise<CustomRoleDto[]> {
   const res = await fetch("/api/proxy/v1/admin/roles", mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }));
 
   if (!res.ok)
-    throw new Error(`Failed to load roles (${res.status})`);
+    throw new CustomRoleRequestError(res.status);
 
   return (await res.json()) as CustomRoleDto[];
 }
@@ -186,7 +194,7 @@ export function SettingsRolesMatrixSection() {
         baseline: baselinePermissionsByKey(reloaded),
       }));
     } catch (error) {
-      showError(error instanceof Error ? error.message : "Could not load custom roles.");
+      showCustomRoleFailure("load", error);
     } finally {
       setLoading(false);
     }
@@ -259,12 +267,12 @@ export function SettingsRolesMatrixSection() {
       );
 
       if (!res.ok)
-        throw new Error(`Save failed (${res.status})`);
+        throw new CustomRoleRequestError(res.status);
 
       showSuccess(`Saved role "${role.name}".`);
       await load();
     } catch (error) {
-      showError(error instanceof Error ? error.message : "Could not save role.");
+      showCustomRoleFailure("save", error);
     } finally {
       setSavingRoleId(null);
     }
@@ -282,14 +290,14 @@ export function SettingsRolesMatrixSection() {
       );
 
       if (!res.ok)
-        throw new Error(`Create failed (${res.status})`);
+        throw new CustomRoleRequestError(res.status);
 
       showSuccess(`Created custom role "${name}".`);
       setNewRoleName("");
       setStartFromRole("Operator");
       await load();
     } catch (error) {
-      showError(error instanceof Error ? error.message : "Could not create role.");
+      showCustomRoleFailure("create", error);
     }
   }
 
