@@ -168,13 +168,22 @@ describe("SessionExpiredClient", () => {
     expect(screen.getByText(/you need to sign in to access that page/i)).toBeInTheDocument();
   });
 
-  it("shows an error panel when OIDC is not configured", () => {
-    isJwtAuthModeMock.mockReturnValueOnce(false);
-    clearSearchParams();
+  it("TB-1316: frames OIDC failures honestly and retries sign-in with returnUrl preserved", async () => {
+    isJwtAuthModeMock.mockReturnValueOnce(false).mockReturnValue(true);
+    setSearchParams({ returnUrl: "/architecture/reviews/123" });
 
     render(<SessionExpiredClient />);
     fireEvent.click(screen.getByTestId("session-expired-sign-in"));
 
-    expect(screen.getByText("Access request")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Sign-in could not start" })).toBeInTheDocument();
+    expect(screen.queryByText("Access request")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("auth-error-try-again"));
+
+    await waitFor(() => {
+      expect(window.location.assign).toHaveBeenCalledWith("https://login.example.com/authorize?foo=bar");
+    });
+
+    expect(consumePostSignInReturnUrl()).toBe("/architecture/reviews/123");
   });
 });
