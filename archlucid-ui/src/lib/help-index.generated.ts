@@ -122,21 +122,14 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Admin diagnostics",
     "sectionSlug": "start-here",
     "sectionHeading": "Start here",
-    "excerpt": "1. Open System health (`/administration/system-health`) in the workspace — live/ready checks and version identity. 2. On Overview, expand Workspace readiness — per-area status and next actions. 3. Open Assistant readiness diagnostics on Overview when LLM or assistant features fail."
-  },
-  {
-    "docPath": "docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md",
-    "docTitle": "Admin diagnostics",
-    "sectionSlug": "what-each-signal-means",
-    "sectionHeading": "What each signal means",
-    "excerpt": "What each signal means"
+    "excerpt": "1. Open [System health](/administration/system-health) in the workspace — live/ready checks and version identity. 2. On [Workspace Overview](/), expand Workspace readiness — per-area status and next actions. 3. Open Assistant readiness diagnostics on [Workspace Overview](/) when LLM or assistant features fail."
   },
   {
     "docPath": "docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md",
     "docTitle": "Admin diagnostics",
     "sectionSlug": "related-help-topics",
     "sectionHeading": "Related Help topics",
-    "excerpt": "- [Troubleshooting](/help/troubleshooting) — symptom-first fixes for review and workspace issues. - [Report a problem](/help/report-a-problem) — structured support intake with correlation identifiers. - [CLI usage](/help/cli-usage) — `archlucid doctor` and support-bundle commands (Admin-only Help topic; also Help dr…"
+    "excerpt": "- [Troubleshooting](/help/troubleshooting) — symptom-first fixes for review and workspace issues. - [Report a problem](/help/report-a-problem) — structured support intake with correlation identifiers. - [CLI usage](/help/cli-usage) — Admin-only Help topic; also Help drawer Advanced diagnostics."
   },
   {
     "docPath": "docs/library/CONFIGURATION_REFERENCE.md",
@@ -1487,7 +1480,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "azure-workload-privilege-escalation-seam-m-216",
     "sectionHeading": "Azure workload privilege-escalation seam (M-216)",
-    "excerpt": "Former standalone body: `docs/go-to-market/AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-215 / M-216 / TB-1244). Complements [Container Apps Terraform authority (M-234)](#container-apps-terraform-authority-m-234) and [Tenant DiD erosion (M-21…"
+    "excerpt": "Former standalone body: `docs/go-to-market/AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-215 / M-216 / TB-1244). Contributor contract: [`AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md`](../library/AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEA…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -1543,7 +1536,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "residuals-honest-26",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1244 / TB-1245 own the seam contract and honesty CI. - Cite `enable_api_sql_runtime_identity`, [`../security/MANAGED_IDENTITY_SQL_BLOB.md`](../security/MANAGED_IDENTITY_SQL_BLOB.md), OpenAI User RBAC, ADR 0020. - Complements M-213/M-214, TB-903/TB-906; pairs claim-honesty M-215. - This handout does not claim CP…"
+    "excerpt": "- TB-1244 contract Done — [`AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md`](../library/AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md); runtime UAMI default-on + app wiring remains follow-on. - TB-1245 honesty CI (open) hardens buyer/proof stubs. - Cite `enable_api_sql_runtime_identity`, [`../security/M…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -1900,7 +1893,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "residuals-honest-34",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1172 / TB-1173 own the re-lock vs rubber-stamp contract and honesty CI. - Cite `tests/golden-cohort/README.md` lock ritual + TB-1156 dual-hasher. - Complements M-154, M-198/M-199, M-274; pairs claim-honesty M-201. - This handout does not claim CPA SOC 2 or a published third-party penetration test."
+    "excerpt": "- TB-1172 Done — [`GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_CONTRACT.md`](../library/GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_CONTRACT.md); TB-1173 owns anti-rubber-stamp CI. - Cite `tests/golden-cohort/README.md` lock ritual + TB-1156 Done dual-hasher contract. - Complements M-154, M-198/M-199, M-274; pairs claim-honesty M…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -1956,14 +1949,14 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "residuals-honest-35",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1156 / TB-1157 own dual-hasher / production re-lock contract and honesty CI. - Cite `ManifestHashService`, `GoldenManifestFingerprint`, `AuthorityCommitProjectionBuilder`, ADR 0040, Done TB-307. - Complements M-154/M-155, M-160, M-201/M-202, M-223/M-224; pairs claim-honesty M-198. - This handout does not claim …"
+    "excerpt": "- TB-1156 Done — [`MANIFEST_DUAL_HASHER_PROJECTION_EVOLUTION_CONTRACT.md`](../library/MANIFEST_DUAL_HASHER_PROJECTION_EVOLUTION_CONTRACT.md); TB-1157 owns production re-lock CI. - Cite `ManifestHashService`, `GoldenManifestFingerprint`, `AuthorityCommitProjectionBuilder`, ADR 0040, Done TB-307. - Complements M-154/M…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "decision-grade-finding-provenance-m-208",
     "sectionHeading": "Decision-grade finding provenance fail-closed (M-208)",
-    "excerpt": "Former standalone body: `docs/go-to-market/DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-207 / M-208 / TB-1221). Complements [AgentTask→decisioning leak seams (M-248)](#agenttask-decisioning-ungated-leak-seams-m-248), [Committed golden m…"
+    "excerpt": "Former standalone body: `docs/go-to-market/DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-207 / M-208 / TB-1221). Contributor contract: [`DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_CONTRACT.md`](../library/DECISION_GRADE_FINDING_PROVEN…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -1998,21 +1991,21 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "safe-pin-5",
     "sectionHeading": "Safe pin",
-    "excerpt": "> Decision-grade findings are fail-closed only where emission and commit gates enforce structural provenance. Empty EvidenceRefs, prompt-only “cite your sources,” and Critic confidence are not that guarantee — treat “every finding is evidence-grounded” as a review finding while TB-1221 residuals remain."
+    "excerpt": "> Decision-grade findings are fail-closed only where emission and commit gates enforce structural provenance (TB-1221 contract). Empty EvidenceRefs, prompt-only “cite your sources,” and Critic confidence are not that guarantee — treat “every finding is evidence-grounded” as a review finding until gates ship."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "pa-review-20",
     "sectionHeading": "PA review",
-    "excerpt": "1. Ask whether the buyer means structural provenance or semantic faithfulness. 2. Confirm empty `EvidenceRefs` is disclosed for decision-grade paths. 3. Confirm prompt/Critic language is not sold as the gate. 4. Treat “all findings are citation-bound” as a review finding while TB-1221 is open."
+    "excerpt": "1. Ask whether the buyer means structural provenance or semantic faithfulness. 2. Confirm empty `EvidenceRefs` is disclosed for decision-grade paths. 3. Confirm prompt/Critic language is not sold as the gate. 4. Treat “all findings are citation-bound” as a review finding until emission/commit gates ship."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "residuals-honest-36",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1221 / TB-1222 own the fail-closed provenance contract and honesty CI. - Score-lane positioning is M-209/M-210 / TB-1228 — see [Faithfulness / support-ratio lanes (M-210)](#faithfulness-support-ratio-scoring-lanes-m-210); shared defense plane is M-212 / TB-1230. - Cite `FindingFactory`, `AgentResultParser`, `Fi…"
+    "excerpt": "- TB-1221 contract Done — [`DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_CONTRACT.md`](../library/DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_CONTRACT.md); emission/commit validator wiring remains follow-on. - TB-1222 honesty CI (open) hardens buyer/proof stubs. - Score-lane positioning is M-209/M-210 / TB-1228 —…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2208,28 +2201,28 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "pa-review-25",
     "sectionHeading": "PA review",
-    "excerpt": "1. Ask which class the buyer is probing — catalog, identity, SQL predicate, RLS, or demo. 2. Confirm RLS is not cited as a production DiD control. 3. Confirm demo/anonymous is not sold as structural while TB-1251 is open. 4. Treat “WHERE TenantId = tenant boundary” as a review finding."
+    "excerpt": "1. Ask which class the buyer is probing — catalog, identity, SQL predicate, RLS, or demo. 2. Confirm RLS is not cited as a production DiD control. 3. Confirm demo/anonymous is not sold as structural isolation (contract TB-1251 Done; dedicated demo factory/catalog wiring may still be follow-on). 4. Treat “WHERE Tenan…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "claim-boundary-27",
     "sectionHeading": "Claim boundary",
-    "excerpt": "Do not sell `WHERE TenantId` / scope threading as the paying-client boundary, cite SQL RLS as deployed or required DiD, call demo pin structural while TB-1251 is open, or treat workspace/project as paying-client security. Say Layer A catalogs are structural; B/C/Search are enforced DiD; D/blob/ambient are convention…"
+    "excerpt": "Do not sell `WHERE TenantId` / scope threading as the paying-client boundary, cite SQL RLS as deployed or required DiD, call demo pin structural isolation (factory/catalog wiring may still be follow-on per TB-1251 contract), or treat workspace/project as paying-client security. Say Layer A catalogs are structural; B…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "residuals-honest-41",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1418 / TB-1419 own the classification map and language guards. - Orchestrates TB-1122 / TB-1232 / TB-999 / TB-1251 without replacing those contracts. - Complements M-194 / M-213 / M-214 / M-150 / M-168 / M-217 / M-218. - This handout does not claim CPA SOC 2 or a published third-party penetration test."
+    "excerpt": "- TB-1418 / TB-1419 own the classification map and language guards. - Orchestrates TB-1122 / TB-1232 / TB-999 / TB-1251 (contract Done; factory wiring follow-on) without replacing those contracts. - Complements M-194 / M-213 / M-214 / M-150 / M-168 / M-217 / M-218. - This handout does not claim CPA SOC 2 or a publis…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "tenant-did-erosion-beyond-predicates-m-214",
     "sectionHeading": "Tenant DiD erosion beyond predicates (M-214)",
-    "excerpt": "Former standalone body: `docs/go-to-market/TENANT_DID_EROSION_BEYOND_PREDICATES_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-213 / M-214 / TB-1232). Complements [DiD structural vs convention (M-256)](#tenant-isolation-structural-vs-convention-m-256), [Isolation claims (M-195)](#iso…"
+    "excerpt": "Former standalone body: `docs/go-to-market/TENANT_DID_EROSION_BEYOND_PREDICATES_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-213 / M-214 / TB-1232). Contributor contract: [`TENANT_DID_EROSION_AND_ENFORCEMENT_BEYOND_PREDICATES_CONTRACT.md`](../library/TENANT_DID_EROSION_AND_ENFORCEM…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2285,14 +2278,14 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "residuals-honest-42",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1232 / TB-1233 own the erosion contract and honesty CI. - Cite `IScopeContextProvider`, `AmbientScopeContext`, `ScopedRoutingSqlConnectionFactory`, ARCH001/ARCH006, `AzureSearchTenantScopeFilterBuilder`, ADR 0037. - Complements M-150/M-152/M-156/M-194/M-256; pairs claim-honesty M-213. - This handout does not cl…"
+    "excerpt": "- TB-1232 contract Done — [`TENANT_DID_EROSION_AND_ENFORCEMENT_BEYOND_PREDICATES_CONTRACT.md`](../library/TENANT_DID_EROSION_AND_ENFORCEMENT_BEYOND_PREDICATES_CONTRACT.md); exemption budget / ambient job guards remain follow-on. - TB-1233 honesty CI (open) hardens buyer/proof stubs. - Cite `IScopeContextProvider`, `…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "demo-anonymous-read-plane-m-218",
     "sectionHeading": "Demo / anonymous read plane (M-218)",
-    "excerpt": "Former standalone body: `docs/go-to-market/DEMO_ANONYMOUS_READ_PLANE_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-217 / M-218 / TB-1251). Complements [Empty-scope catalog routing (M-169)](#empty-scope-catalog-routing-m-169), [DiD structural vs convention (M-256)](#tenant-isolation-…"
+    "excerpt": "Former standalone body: `docs/go-to-market/DEMO_ANONYMOUS_READ_PLANE_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-217 / M-218 / TB-1251). Contributor contract: [`DEMO_ANONYMOUS_READ_PLANE_CONTRACT.md`](../library/DEMO_ANONYMOUS_READ_PLANE_CONTRACT.md) (TB-1251 Done). Complements [E…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2320,7 +2313,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "claim-boundary-29",
     "sectionHeading": "Claim boundary",
-    "excerpt": "Do not claim `[AllowAnonymous]`, read-only demo, or `DemoScopes` hard-pin alone prevents reading paying-tenant data; do not equate empty demo ambient scope with “no data” (system catalog risk); do not sell query filters as the demo boundary. Say: three planes; structural pin is dedicated demo factory/catalog or stat…"
+    "excerpt": "Do not claim `[AllowAnonymous]`, read-only demo, or `DemoScopes` hard-pin alone prevents reading paying-tenant data; do not equate empty demo ambient scope with “no data” (system catalog risk); do not sell query filters as the demo boundary. Say: three planes; structural target is dedicated demo factory/catalog or s…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2334,14 +2327,14 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "pa-review-27",
     "sectionHeading": "PA review",
-    "excerpt": "1. Ask which plane a cited demo surface uses — tenant, system, or demo. 2. Confirm AllowAnonymous / DemoScopes are not sold as structural while TB-1251 is open. 3. Confirm empty demo ambient is not equated with “no rows.” 4. Treat “demo pin is structural isolation” as a review finding."
+    "excerpt": "1. Ask which plane a cited demo surface uses — tenant, system, or demo. 2. Confirm AllowAnonymous / DemoScopes are not sold as structural isolation (contract TB-1251 names targets; factory wiring may still be open). 3. Confirm empty demo ambient is not equated with “no rows.” 4. Treat “demo pin is structural isolati…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "residuals-honest-43",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1251 / TB-1252 own the structural demo-plane contract and honesty CI. - Complements M-168/M-169, M-178/M-179, M-213/M-256; pairs claim-honesty M-217. - Cite `DemoScopes`, `DemoExplainController`, `DemoReadModelClient`, `ScopedRoutingSqlConnectionFactory`, `ProductionSafetyRules`, ADR 0037 / ADR 0027. - This han…"
+    "excerpt": "- TB-1251 contract Done — [`DEMO_ANONYMOUS_READ_PLANE_CONTRACT.md`](../library/DEMO_ANONYMOUS_READ_PLANE_CONTRACT.md); dedicated demo factory/catalog wiring + TB-1252 honesty CI remain follow-on. - Complements M-168/M-169, M-178/M-179, M-213/M-256; pairs claim-honesty M-217. - Cite `DemoScopes`, `DemoExplainControll…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -4175,7 +4168,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "4-can-we-authenticate-with-okta-ping-auth0-instead-of-microsoft-entra-id",
     "sectionHeading": "4. Can we authenticate with Okta / Ping / Auth0 instead of Microsoft Entra ID?",
-    "excerpt": "Answer: Yes — V1 GA. ArchLucid supports OIDC against configurable issuers (including non-Microsoft IdPs) and native SAML 2.0 workforce SSO (ArchLucid as SAML service provider). Microsoft Entra ID remains the reference path in hosted samples. Capture your issuer URLs, audience/metadata, and claim shapes in questionna…"
+    "excerpt": "Answer: Yes — V1 GA. ArchLucid supports OIDC (including Okta, Ping, and Auth0-class issuers) and SAML 2.0 workforce SSO. Provide issuer, audience, and claim-mapping details with your IdP administrator during diligence. See [Enterprise onboarding](/help/enterprise-onboarding), [Users and roles](/help/users-and-roles)…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",

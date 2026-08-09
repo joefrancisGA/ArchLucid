@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpAdminDiagnosticsHeaderActions } from "@/app/(operator)/help/_sections/HelpAdminDiagnosticsHeaderActions";
 import { HelpAdminDiagnosticsSignalTable } from "@/app/(operator)/help/_sections/HelpAdminDiagnosticsSignalTable";
@@ -8,16 +6,15 @@ import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegi
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   ADMIN_DIAGNOSTICS_HELP_ACTION_PANEL_TITLE,
   ADMIN_DIAGNOSTICS_HELP_CANONICAL_PATH,
   ADMIN_DIAGNOSTICS_HELP_PAGE_ORIENTATION,
   ADMIN_DIAGNOSTICS_HELP_PAGE_ORIENTATION_TITLE,
+  ADMIN_DIAGNOSTICS_HELP_PAGE_SCOPE,
   ADMIN_DIAGNOSTICS_HELP_PAGE_SUBTITLE,
   ADMIN_DIAGNOSTICS_HELP_PAGE_TITLE,
-  ADMIN_DIAGNOSTICS_HELP_PRIMARY_ACTIONS,
   ADMIN_DIAGNOSTICS_HELP_SOURCES_INTRO,
   splitAdminDiagnosticsHelpMarkdown,
 } from "@/lib/admin-diagnostics-help-evidence-copy";
@@ -55,13 +52,28 @@ export function HelpAdminDiagnosticsGuideView(
       className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
       data-testid="help-admin-diagnostics-guide"
     >
+      <a href="#help-admin-diagnostics-content" className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
+        Skip to diagnostics guidance
+      </a>
       <HelpTopicHashScroll />
 
       <OperatorPageHeader
         title={ADMIN_DIAGNOSTICS_HELP_PAGE_TITLE}
         titleTestId="help-admin-diagnostics-page-title"
-        subtitle={ADMIN_DIAGNOSTICS_HELP_PAGE_SUBTITLE}
+        subtitle={
+          <>
+            <p className="m-0">{ADMIN_DIAGNOSTICS_HELP_PAGE_SUBTITLE}</p>
+            <p
+              className="m-0 mt-2 text-al-text-secondary"
+              data-testid="help-admin-diagnostics-page-scope"
+            >
+              {ADMIN_DIAGNOSTICS_HELP_PAGE_SCOPE}
+            </p>
+          </>
+        }
+        subtitleClassName="max-w-3xl"
         navHref={ADMIN_DIAGNOSTICS_HELP_CANONICAL_PATH}
+        headingLevel="h1"
         metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
         actions={<HelpAdminDiagnosticsHeaderActions entry={entry} />}
       />
@@ -83,19 +95,7 @@ export function HelpAdminDiagnosticsGuideView(
               {ADMIN_DIAGNOSTICS_HELP_SOURCES_INTRO}
             </p>
           </CardHeader>
-          <CardContent className={cn(OPERATOR_CARD.content, "space-y-3")}>
-            <div className="flex flex-wrap items-center gap-2">
-              <Button asChild size="sm" variant="primary" data-testid="help-admin-diagnostics-primary-cta">
-                <Link href={ADMIN_DIAGNOSTICS_HELP_PRIMARY_ACTIONS.openSystemHealth.href}>
-                  {ADMIN_DIAGNOSTICS_HELP_PRIMARY_ACTIONS.openSystemHealth.label}
-                </Link>
-              </Button>
-              <Button asChild size="sm" variant="outline">
-                <Link href={ADMIN_DIAGNOSTICS_HELP_PRIMARY_ACTIONS.openWorkspaceOverview.href}>
-                  {ADMIN_DIAGNOSTICS_HELP_PRIMARY_ACTIONS.openWorkspaceOverview.label}
-                </Link>
-              </Button>
-            </div>
+          <CardContent className={OPERATOR_CARD.content}>
             <HelpAdminDiagnosticsSourceLinks />
           </CardContent>
         </Card>
@@ -103,7 +103,11 @@ export function HelpAdminDiagnosticsGuideView(
 
       <div className={contentGridClass}>
         <div className={cn("min-w-0 space-y-6", "max-w-[42rem] lg:max-w-none")}>
-          <div className={HELP_PAGE_LAYOUT.contentColumn} data-testid="help-admin-diagnostics-content">
+          <div
+            id="help-admin-diagnostics-content"
+            className={HELP_PAGE_LAYOUT.contentColumn}
+            data-testid="help-admin-diagnostics-content"
+          >
             <MarketingAccessibilityMarkdownFragment
               markdownBody={procedureMarkdown}
               tableCaption={`${entry.title} reference table`}

@@ -6,14 +6,12 @@ export const ADMIN_DIAGNOSTICS_HELP_CANONICAL_PATH = "/help/admin-diagnostics" a
 export const ADMIN_DIAGNOSTICS_HELP_PAGE_TITLE = "Admin diagnostics" as const;
 
 export const ADMIN_DIAGNOSTICS_HELP_PAGE_SUBTITLE =
-  "System health, workspace readiness, assistant diagnostics, and observability signals for platform health." as const;
+  "Orientation for system health, workspace readiness, assistant diagnostics, and observability signals." as const;
+
+export const ADMIN_DIAGNOSTICS_HELP_PAGE_SCOPE =
+  "Use this page when a workspace symptom points to platform health rather than a single architecture review." as const;
 
 export const ADMIN_DIAGNOSTICS_HELP_ACTION_PANEL_TITLE = "Go to live diagnostics" as const;
-
-export const ADMIN_DIAGNOSTICS_HELP_PRIMARY_ACTIONS = {
-  openSystemHealth: { label: "Open System health", href: "/administration/system-health" },
-  openWorkspaceOverview: { label: "Workspace Overview", href: "/" },
-} as const;
 
 export const ADMIN_DIAGNOSTICS_HELP_PAGE_ORIENTATION_TITLE = "What this page is" as const;
 
@@ -32,6 +30,7 @@ export type AdminDiagnosticsHelpSourceLink = {
 /** Operator Sources — no self-href to `/help/admin-diagnostics`. */
 export const ADMIN_DIAGNOSTICS_HELP_SOURCES: readonly AdminDiagnosticsHelpSourceLink[] = [
   { label: "System health", href: "/administration/system-health" },
+  { label: "Workspace overview", href: "/" },
   { label: "Troubleshooting", href: inAppHelpHref("troubleshooting") },
   {
     label: "Engineering troubleshooting runbook",

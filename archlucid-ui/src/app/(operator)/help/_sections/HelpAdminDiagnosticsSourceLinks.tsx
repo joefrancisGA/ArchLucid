@@ -25,10 +25,16 @@ export function HelpAdminDiagnosticsSourceLinks(): React.ReactElement {
   const visibleSources = filterAdminDiagnosticsHelpSources(ADMIN_DIAGNOSTICS_HELP_SOURCES, isAdmin);
 
   return (
-    <ul className={cn("m-0 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>
+    <ul
+      className={cn("m-0 list-none space-y-1 p-0", OPERATOR_TYPOGRAPHY.body)}
+      data-testid="help-admin-diagnostics-source-links"
+    >
       {visibleSources.map((link) => (
         <li key={`${link.href}-${link.label}`}>
-          <Link className={cn(OPERATOR_LINK.inline, "font-medium")} href={link.href}>
+          <Link
+            className={cn(OPERATOR_LINK.inline, "inline-flex min-h-6 items-center py-1 font-medium")}
+            href={link.href}
+          >
             {link.label}
           </Link>
         </li>
