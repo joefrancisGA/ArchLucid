@@ -68,6 +68,8 @@ See `docs/runbooks/TB-905_STAGING_RELIABILITY_DRILL.md`.
 
 Before the launch-load half of **TB-905**, run single-signal drills A (HTTP/LLM-wait), B (CPU-bound), and C (worker backlog when enabled). Record time-to-first-extra-replica and which scale rule fired.
 
+**Runbook:** [`SCALE_MICRO_DRILL.md`](SCALE_MICRO_DRILL.md) — k6 scripts under `scripts/load/scale-drill-*.js`, orchestrator `scripts/ci/run_scale_micro_drill.sh`, results via `scripts/ops/append-scale-micro-drill-results.ps1`. **Gate:** drills **A** and **B** must pass on staging before Phase C of `docs/runbooks/TB-905_STAGING_RELIABILITY_DRILL.md` (owner **G-SCALE-01**).
+
 **Capacity gate:** complete [`infra/terraform-container-apps/README.md` § API max-replicas sizing](../../infra/terraform-container-apps/README.md#api-max-replicas-sizing-vs-bulkhead-and-aoai-tpm-tb-947) (**TB-947**) so `api_max_replicas` is capped against `MaxConcurrentHandlers` and AOAI TPM — do not assume more replicas equals more LLM throughput.
 
 ## Non-goals

@@ -74,6 +74,8 @@ The script:
 
 ## Phase C — Launch load drill (30–60 min)
 
+**Precondition (TB-946):** Complete scale micro-drills **A** and **B** on staging per [`SCALE_MICRO_DRILL.md`](../architecture/SCALE_MICRO_DRILL.md) and record results (**G-SCALE-01**). Do not run this phase until HTTP and CPU scale signals are independently verified (drill **C** when worker scalers are enabled, or document **N/A**).
+
 **Harness:** `docs/architecture/LAUNCH_LOAD_DRILL.md`
 
 **Against staging** (after API/UI URLs are known):
@@ -118,4 +120,5 @@ Without `-Apply`, prints the markdown table row to paste into `LAUNCH_LOAD_DRILL
 - `scripts/ops/run-failover-drill.ps1`
 - `scripts/ops/run-tb905-preflight.ps1`
 - `scripts/ops/append-launch-load-drill-results.ps1`
+- `scripts/ci/run_scale_micro_drill.sh` / `docs/architecture/SCALE_MICRO_DRILL.md` (**TB-946** gate)
 - **TB-903** (secondary stack always-on; SQL failover waiver model)

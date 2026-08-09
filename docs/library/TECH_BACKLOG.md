@@ -1251,7 +1251,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1317 | Container Apps Terraform drift escape classes + provably authoritative state contract; see `## TB-1317` below | Deployability P1 ? **V1**; PA 2026-07-26 CA/IaC drift; GTM **M-233**/**M-234** | S |
 | TB-1336 | 100× review-volume fail-first order + option-preserving capacity ledger contract; see `## TB-1336` below | Scalability P1 ? **V1**; PA Q20 100× reviews; GTM **M-237**/**M-238** | S |
 | TB-1577 | Shared-CA / shared-AOAI-TPM noisy-neighbor + per-tenant fairness claim map; see `## TB-1577` below | Scalability P1 ? **V1**; PA noisy-neighbor / TPM fairness Q; GTM **M-296**/**M-297**; see `SHARED_AOAI_TPM_NOISY_NEIGHBOR_FAIRNESS_CLAIM_MAP.md`; orchestrates **TB-1336**/**TB-1299**/**TB-947** | S |
-| TB-946 | Single-signal scale micro-drill harness — drills A (HTTP/LLM-wait), B (CPU-bound), C (worker backlog); record time-to-scale + dominant rule; gate before launch load; see `## TB-946` below | Performance / testability P0 — **V1** (promoted P0 2026-08-09 with perf wave 6; was P1); validates **TB-915**; owner **G-SCALE-01**; before **TB-905** launch-load half | M |
+| TB-946 | ~~Single-signal scale micro-drill harness~~ **Done** 2026-08-09 — `SCALE_MICRO_DRILL.md` + k6 drills A/B/C + `run_scale_micro_drill.sh` + results append; TB-905 Phase C gate; CI smoke; see ## TB-946 below | Performance / testability P0 — **V1** (promoted P0 2026-08-09 with perf wave 6; was P1); validates **TB-915**; owner **G-SCALE-01**; before **TB-905** launch-load half | M |
 | TB-1032 | Launch-load hot-path failure order + graceful degradation matrix (HTTP / SQL / AOAI 429 / worker); see `## TB-1032` below | Reliability / scalability P1 ? **V1**; PA Q19 2026-07-25; GTM **M-182**/**M-183**; cites `LAUNCH_LOAD_DRILL` / `DEGRADED_MODE`; complements **TB-915**/**TB-905** / **G-SCALE-*** | S |
 | TB-182 | `Write-AiReadinessPosture.ps1` ? automate production of `ai-readiness-posture.json` from evidence artifacts | AI/Agent readiness P1 ? **V1**; every pilot delivery currently requires manual JSON fill; schema stable | M |
 | TB-1196 | Agent?decisioning Real-variance isolation contract (typed proposals only); see `## TB-1196` below | AI/Agent readiness P1 ? **V1**; PA Q3 agent/decisioning; GTM **M-203**/**M-204** | S |
@@ -25372,7 +25372,7 @@ Private-beta deploy P0 (**TB-928**): surface beta-blocking auth/email config in 
 
 **Window:** V1 — Performance / testability. Validates **TB-915** before **TB-905** launch-load half.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-09) — `docs/architecture/SCALE_MICRO_DRILL.md`; k6 `scripts/load/scale-drill-{a,b,c}-*.js` + `scale-drill-k6-common.js`; orchestrators `scripts/ci/run_scale_micro_drill.sh` / `scripts/ops/run-scale-micro-drill.ps1`; results `scripts/ops/append-scale-micro-drill-results.ps1`; TB-905 Phase C gate + `LAUNCH_LOAD_DRILL.md` cross-link; CI smoke `scripts/ci/tests/test_scale_micro_drill_scripts.py`. Staging execution + replica observations remain owner **G-SCALE-01**.
 
 **Priority:** P0 (promoted 2026-08-09 with perf wave 6; was P1).
 

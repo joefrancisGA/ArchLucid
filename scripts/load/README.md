@@ -54,6 +54,23 @@ Orchestrator (unit flood proof + optional k6):
 
 See `docs/runbooks/EMAIL_OTP_DELIVERY_AND_ABUSE.md` § Abuse drill (Evidence E1).
 
+## Scale micro-drills (TB-946)
+
+Single-signal staging drills before **TB-905** launch load — validate HTTP, CPU, and worker backlog scale rules independently:
+
+| Script | Drill |
+|--------|-------|
+| `scale-drill-a-http-llm-wait.js` | A — HTTP / LLM-wait concurrency |
+| `scale-drill-b-cpu-bound.js` | B — CPU-bound reads |
+| `scale-drill-c-worker-backlog.js` | C — worker export backlog |
+
+```bash
+export ARCHLUCID_BASE_URL=https://<staging-api>
+bash scripts/ci/run_scale_micro_drill.sh
+```
+
+Full runbook: `docs/architecture/SCALE_MICRO_DRILL.md`.
+
 ## CI
 
 The workflow `.github/workflows/load-test.yml` runs on **manual** `workflow_dispatch` against Compose `full-stack` with fixed runner resources (see workflow). It uploads a summary snippet to the job log; copy p50/p95/p99 into `docs/LOAD_TEST_BASELINE.md` after each formal baseline run.
