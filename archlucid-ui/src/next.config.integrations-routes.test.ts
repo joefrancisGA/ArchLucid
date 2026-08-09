@@ -11,6 +11,11 @@ describe("next.config integrations routes (TB-407 / TB-750)", () => {
       { source: "/reviews/:path*", destination: "/architecture/reviews/:path*", permanent: true },
       { source: "/runs", destination: "/architecture/reviews", permanent: true },
       { source: "/runs/:path*", destination: "/architecture/reviews/:path*", permanent: true },
+      {
+        source: "/demo",
+        destination: "/architecture/reviews/claims-intake-modernization?ctoDemoTour=1",
+        permanent: true,
+      },
     ]);
   });
 

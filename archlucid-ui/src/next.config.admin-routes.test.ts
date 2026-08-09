@@ -11,6 +11,11 @@ describe("next.config administration routes (TB-406 / TB-522 / TB-751)", () => {
       { source: "/reviews/:path*", destination: "/architecture/reviews/:path*", permanent: true },
       { source: "/runs", destination: "/architecture/reviews", permanent: true },
       { source: "/runs/:path*", destination: "/architecture/reviews/:path*", permanent: true },
+      {
+        source: "/demo",
+        destination: "/architecture/reviews/claims-intake-modernization?ctoDemoTour=1",
+        permanent: true,
+      },
     ]);
   });
 
