@@ -1,5 +1,6 @@
 using ArchLucid.ArtifactSynthesis.Classifiers;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Services;
 using ArchLucid.ArtifactSynthesis.Validation;
 using ArchLucid.Core.Terraform;
 
@@ -192,5 +193,131 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc26Tests
         page.Items.Should().HaveCount(2);
         page.HasMore.Should().BeTrue();
         page.ToString().Should().Contain("HasMore");
+    }
+
+    [Fact]
+    public void Artifact_synthesis_model_DTOs_round_trip_properties()
+    {
+        ComplianceMatrixArtifactModel compliance = new()
+        {
+            Rows =
+            [
+                new ComplianceMatrixRow
+                {
+                    ControlId = "REQ-1",
+                    ControlName = "Encrypt data at rest",
+                    AppliesToCategory = "Storage",
+                    Status = "Met",
+                    Notes = "Policy pack mapping",
+                },
+            ],
+        };
+
+        compliance.Rows.Should().ContainSingle();
+        compliance.Rows[0].ControlId.Should().Be("REQ-1");
+
+        CostSummaryArtifactModel cost = new()
+        {
+            TopologyInferredInfrastructureUsdPerMonth = 120.5m,
+            InfrastructureSummaryNote = "Retail blend",
+            InfrastructureLines =
+            [
+                new CostSummaryInfrastructureLineModel
+                {
+                    LineKind = "compute",
+                    DisplayName = "App Service",
+                    EstimatedUsdPerMonth = 80m,
+                    PriceSource = "heuristic",
+                },
+            ],
+            MaxMonthlyCost = 200m,
+            Risks = ["Burst traffic"],
+            Notes = ["Illustrative only"],
+        };
+
+        cost.TopologyInferredInfrastructureUsdPerMonth.Should().Be(120.5m);
+        cost.InfrastructureLines.Should().ContainSingle();
+        cost.InfrastructureLines[0].DisplayName.Should().Be("App Service");
+
+        CoverageSummaryArtifactModel coverage = new()
+        {
+            CoveredRequirementCount = 12,
+            UncoveredRequirementCount = 3,
+            SecurityGapCount = 1,
+            ComplianceGapCount = 2,
+            UnresolvedIssueCount = 4,
+            TopologyGaps = ["Missing DR region"],
+        };
+
+        coverage.CoveredRequirementCount.Should().Be(12);
+        coverage.TopologyGaps.Should().ContainSingle("Missing DR region");
+
+        UnresolvedIssuesArtifactModel unresolved = new()
+        {
+            Items =
+            [
+                new UnresolvedIssueArtifactItem
+                {
+                    IssueType = "Constraint",
+                    Title = "Undefined RPO",
+                    Description = "Recovery point objective missing.",
+                    Severity = "Medium",
+                },
+            ],
+        };
+
+        unresolved.Items.Should().ContainSingle();
+        unresolved.Items[0].Title.Should().Be("Undefined RPO");
+    }
+
+    [Theory]
+    [InlineData("BundleId")]
+    [InlineData("ManifestId")]
+    [InlineData("At least one artifact")]
+    public void ArtifactBundleValidator_rejects_invalid_bundle_shape(string expectedFragment)
+    {
+        ArtifactBundle bundle = new()
+        {
+            BundleId = expectedFragment == "BundleId" ? Guid.Empty : Guid.NewGuid(),
+            ManifestId = expectedFragment == "ManifestId" ? Guid.Empty : Guid.NewGuid(),
+            Artifacts = expectedFragment == "At least one artifact"
+                ? []
+                :
+                [
+                    new SynthesizedArtifact
+                    {
+                        ArtifactType = "Inventory",
+                        Content = "body",
+                        ContentHash = "hash",
+                    },
+                ],
+        };
+
+        Action act = () => new ArtifactBundleValidator().Validate(bundle);
+
+        act.Should().Throw<InvalidOperationException>().WithMessage($"*{expectedFragment}*");
+    }
+
+    [Fact]
+    public void ArtifactBundleValidator_rejects_blank_artifact_type_or_hash()
+    {
+        ArtifactBundle bundle = new()
+        {
+            BundleId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            Artifacts =
+            [
+                new SynthesizedArtifact
+                {
+                    ArtifactType = "   ",
+                    Content = "body",
+                    ContentHash = "hash",
+                },
+            ],
+        };
+
+        Action act = () => new ArtifactBundleValidator().Validate(bundle);
+
+        act.Should().Throw<InvalidOperationException>().WithMessage("*ArtifactType*");
     }
 }

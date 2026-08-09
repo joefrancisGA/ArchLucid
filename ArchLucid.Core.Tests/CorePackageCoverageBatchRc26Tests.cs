@@ -6,12 +6,17 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Compliance;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Ask;
+using ArchLucid.Core.Authority;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.AzureExtractor;
+using ArchLucid.Core.Billing;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Explanation;
 using ArchLucid.Core.GoldenCorpus;
 using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Core.Governance.PolicyPacks.CuratedRules;
+using ArchLucid.Core.Metering;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Tenancy;
 
@@ -812,5 +817,211 @@ public sealed class CorePackageCoverageBatchRc26Tests
         record.CorrelationId.Should().BeEmpty();
         record.MaintenanceMessage.Should().BeEmpty();
         record.IsActive.Should().BeFalse();
+    }
+
+    [Fact]
+    public void AskRequest_and_AskResponse_round_trip_properties()
+    {
+        Guid threadId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid runId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        Guid targetRunId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+        AskRequest request = new()
+        {
+            ThreadId = threadId,
+            RunId = runId,
+            BaseRunId = runId,
+            TargetRunId = targetRunId,
+            Question = "What changed between runs?",
+        };
+
+        request.ThreadId.Should().Be(threadId);
+        request.RunId.Should().Be(runId);
+        request.BaseRunId.Should().Be(runId);
+        request.TargetRunId.Should().Be(targetRunId);
+        request.Question.Should().Be("What changed between runs?");
+
+        AskResponse response = new()
+        {
+            ThreadId = threadId,
+            Answer = "Both runs share the same storage tier.",
+            ReferencedDecisions = ["dec-1"],
+            ReferencedFindings = ["finding-9"],
+            ReferencedArtifacts = ["manifest-v3"],
+            ComparisonNarrative = "Target run adds encryption.",
+            RetrievalDegraded = true,
+        };
+
+        response.ThreadId.Should().Be(threadId);
+        response.Answer.Should().Contain("storage tier");
+        response.ReferencedDecisions.Should().ContainSingle("dec-1");
+        response.ReferencedFindings.Should().ContainSingle("finding-9");
+        response.ReferencedArtifacts.Should().ContainSingle("manifest-v3");
+        response.ComparisonNarrative.Should().Contain("encryption");
+        response.RetrievalDegraded.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task DisabledAsyncAuthorityPipelineModeResolver_never_queues_stages()
+    {
+        DisabledAsyncAuthorityPipelineModeResolver sut = new();
+
+        bool shouldQueue = await sut.ShouldQueueContextAndGraphStagesAsync(CancellationToken.None);
+
+        shouldQueue.Should().BeFalse();
+    }
+
+    [Fact]
+    public void BillingConversionBlockedException_carries_operator_message()
+    {
+        BillingConversionBlockedException ex = new("Activate billing before converting the trial.");
+
+        ex.Message.Should().Be("Activate billing before converting the trial.");
+    }
+
+    [Fact]
+    public void LlmTelemetryOptions_and_MeteringOptions_expose_section_names_and_flags()
+    {
+        LlmTelemetryOptions.SectionName.Should().Be("LlmTelemetry");
+        ArchLucid.Core.Configuration.MeteringOptions.SectionName.Should().Be("Metering");
+
+        LlmTelemetryOptions telemetry = new()
+        {
+            RecordPerTenantTokens = true,
+            CapturePromptResponseOnSpans = true,
+        };
+
+        telemetry.RecordPerTenantTokens.Should().BeTrue();
+        telemetry.CapturePromptResponseOnSpans.Should().BeTrue();
+
+        ArchLucid.Core.Configuration.MeteringOptions metering = new() { Enabled = true };
+
+        metering.Enabled.Should().BeTrue();
+    }
+
+    [Fact]
+    public void OutboxDepthGaugeValues_record_stores_queue_depths()
+    {
+        OutboxDepthGaugeValues values = new(
+            AuthorityPipelineWorkPending: 4,
+            AuthorityPipelineWorkOldestPendingAgeSeconds: 12.5,
+            RetrievalIndexingOutboxPending: 2,
+            RetrievalIndexingOutboxOldestPendingAgeSeconds: 3.1,
+            RetrievalIndexingOutboxDeadLetter: 1,
+            IntegrationEventOutboxPublishPending: 6,
+            IntegrationEventOutboxDeadLetter: 0,
+            IntegrationEventOutboxOldestActionablePendingAgeSeconds: 8.2,
+            AuthorityPipelineWorkDeadLetter: 1,
+            RunExportBlobPushOutboxPending: 5,
+            RunExportBlobPushOutboxOldestPendingAgeSeconds: 1.4,
+            RunExportBlobPushOutboxDeadLetter: 0,
+            PostCommitProjectionOutboxPending: 7,
+            PostCommitProjectionOutboxOldestPendingAgeSeconds: 9.9,
+            PostCommitProjectionOutboxDeadLetter: 2);
+
+        values.AuthorityPipelineWorkPending.Should().Be(4);
+        values.RetrievalIndexingOutboxDeadLetter.Should().Be(1);
+        values.PostCommitProjectionOutboxDeadLetter.Should().Be(2);
+        values.IntegrationEventOutboxOldestActionablePendingAgeSeconds.Should().Be(8.2);
+    }
+
+    [Fact]
+    public void Explanation_projection_models_round_trip_properties()
+    {
+        DateTimeOffset createdUtc = new(2026, 8, 8, 15, 0, 0, TimeSpan.Zero);
+
+        DecisionTraceEntry traceEntry = new()
+        {
+            TraceId = "trace-1",
+            CreatedUtc = createdUtc,
+            Kind = "ruleAudit",
+            Description = "Denied public endpoint",
+            Details = new Dictionary<string, object> { ["ruleId"] = "SEC-01" },
+        };
+
+        traceEntry.TraceId.Should().Be("trace-1");
+        traceEntry.Kind.Should().Be("ruleAudit");
+        traceEntry.Details.Should().ContainKey("ruleId");
+
+        FindingTraceCompletenessScore completeness = new()
+        {
+            FindingId = "finding-42",
+            EngineType = "policy",
+            HasGraphNodeIds = true,
+            HasRulesApplied = true,
+            PopulatedFieldCount = 4,
+            CompletenessRatio = 0.8,
+            MissingTraceFields = ["alternativePaths"],
+        };
+
+        FindingRationale rationale = new()
+        {
+            FindingId = "finding-42",
+            Title = "Open storage account",
+            Severity = "High",
+            Rationale = "Public blob access detected.",
+            Category = "Security",
+            EngineType = "policy",
+            RelatedNodeIds = ["node-7"],
+            RecommendedActions = ["Enable private endpoint"],
+            TraceCompleteness = completeness,
+        };
+
+        rationale.TraceCompleteness.Should().NotBeNull();
+        rationale.TraceCompleteness!.CompletenessRatio.Should().Be(0.8);
+        rationale.RecommendedActions.Should().ContainSingle("Enable private endpoint");
+    }
+
+    [Fact]
+    public void TenantHardPurgeOptions_defaults_and_flags()
+    {
+        TenantHardPurgeOptions defaults = new();
+
+        defaults.DryRun.Should().BeFalse();
+        defaults.MaxRowsPerStatement.Should().Be(5000);
+        defaults.DeleteTenantScopedAuditEvents.Should().BeFalse();
+
+        TenantHardPurgeOptions configured = new()
+        {
+            DryRun = true,
+            MaxRowsPerStatement = 250,
+            DeleteTenantScopedAuditEvents = true,
+        };
+
+        configured.DryRun.Should().BeTrue();
+        configured.MaxRowsPerStatement.Should().Be(250);
+        configured.DeleteTenantScopedAuditEvents.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task NullUsageMeteringService_is_no_op()
+    {
+        NullUsageMeteringService sut = new();
+        Guid tenantId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        DateTimeOffset periodStart = new(2026, 8, 1, 0, 0, 0, TimeSpan.Zero);
+        DateTimeOffset periodEnd = new(2026, 8, 31, 0, 0, 0, TimeSpan.Zero);
+
+        UsageEvent usageEvent = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+            ProjectId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"),
+            Kind = UsageMeterKind.ApiRequest,
+            Quantity = 3,
+            RecordedUtc = periodStart,
+            CorrelationId = "corr-usage",
+            IdempotencyKey = "idem-1",
+        };
+
+        await sut.RecordAsync(usageEvent, CancellationToken.None);
+        await sut.RecordBatchAsync([usageEvent], CancellationToken.None);
+
+        IReadOnlyList<TenantUsageSummary> summary = await sut.GetSummaryAsync(
+            tenantId,
+            periodStart,
+            periodEnd,
+            CancellationToken.None);
+
+        summary.Should().BeEmpty();
     }
 }

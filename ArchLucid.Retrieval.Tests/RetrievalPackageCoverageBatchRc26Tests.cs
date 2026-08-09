@@ -1,4 +1,6 @@
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Retrieval.Chunking;
+using ArchLucid.Retrieval.Embedding;
 using ArchLucid.Retrieval.PolicyPacks;
 using ArchLucid.Retrieval.Pricing;
 
@@ -210,5 +212,43 @@ public sealed class RetrievalPackageCoverageBatchRc26Tests
         File.WriteAllText(Path.Combine(verticalDirectory, "compliance-rules.json"), complianceRulesJson);
 
         return root;
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void SimpleTextChunker_returns_empty_for_blank_input(string? text)
+    {
+        SimpleTextChunker sut = new();
+
+        sut.Chunk(text!).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void SimpleTextChunker_splits_long_text_with_overlap()
+    {
+        SimpleTextChunker sut = new();
+        string text = string.Concat(new string('a', 25), " ", new string('b', 25));
+
+        IReadOnlyList<string> chunks = sut.Chunk(text, maxChars: 20, overlap: 5);
+
+        chunks.Should().HaveCountGreaterThan(1);
+        chunks.Should().OnlyContain(chunk => !string.IsNullOrWhiteSpace(chunk));
+    }
+
+    [Fact]
+    public async Task FakeEmbeddingService_returns_deterministic_vectors()
+    {
+        FakeEmbeddingService sut = new();
+
+        float[] single = await sut.EmbedAsync("architecture review", CancellationToken.None);
+        IReadOnlyList<float[]> many = await sut.EmbedManyAsync(["alpha", "beta"], CancellationToken.None);
+
+        single.Should().HaveCount(32);
+        many.Should().HaveCount(2);
+        many[0].Should().HaveCount(32);
+        many[1].Should().NotBeEquivalentTo(many[0]);
+        (await sut.EmbedAsync("architecture review", CancellationToken.None)).Should().Equal(single);
     }
 }
