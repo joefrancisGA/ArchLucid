@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 
 import { HelpTopicMarkdownView } from "../HelpTopicMarkdownView";
-import { HelpAlertsGuideView } from "../_sections/HelpAlertsGuideView";
+import { HelpAcceleratorChooserGuideView } from "../_sections/HelpAcceleratorChooserGuideView";
 import { HelpDigestsGuideView } from "../_sections/HelpDigestsGuideView";
 import { HelpApiContractsGuideView } from "../_sections/HelpApiContractsGuideView";
 import { HelpBillingAndPlansGuideView } from "../_sections/HelpBillingAndPlansGuideView";
@@ -49,7 +49,7 @@ import { DPA_TEMPLATE_HELP_ROUTE_METADATA } from "@/lib/dpa-template-help-route-
 import { SOC2_SELF_ASSESSMENT_HELP_ROUTE_METADATA } from "@/lib/soc2-self-assessment-help-route-metadata";
 import { FIRST_REVIEW_HELP_ROUTE_METADATA } from "@/lib/first-review-help-route-metadata";
 import { POLICY_PACK_DELTA_DEMO_HELP_ROUTE_METADATA } from "@/lib/policy-pack-delta-demo-help-route-metadata";
-import { PATH_CHOOSER_HELP_ROUTE_METADATA } from "@/lib/path-chooser-help-route-metadata";
+import { ACCELERATOR_CHOOSER_HELP_ROUTE_METADATA } from "@/lib/accelerator-chooser-help-route-metadata";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import {
   getProductDocumentationEntry,
@@ -273,13 +273,7 @@ function renderHelpTopicView(
   }
 
   if (loaded.entry.slug === "accelerator-chooser") {
-    return (
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        showContextualHelp
-      />
-    );
+    return <HelpAcceleratorChooserGuideView entry={loaded.entry} />;
   }
 
   if (loaded.entry.slug === "admin-diagnostics") {
@@ -509,6 +503,10 @@ export async function generateMetadata(props: HelpTopicPageProps): Promise<Metad
 
   if (entry.slug === "path-chooser") {
     return PATH_CHOOSER_HELP_ROUTE_METADATA;
+  }
+
+  if (entry.slug === "accelerator-chooser") {
+    return ACCELERATOR_CHOOSER_HELP_ROUTE_METADATA;
   }
 
   if (entry.slug === "data-handling") {

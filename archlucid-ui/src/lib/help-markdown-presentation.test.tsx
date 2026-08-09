@@ -32,6 +32,7 @@ import {
   alignSubprocessorsResidencyHonesty,
   stripAcceleratorChooserContributorLeakage,
   stripAcceleratorChooserContributorSections,
+  stripAcceleratorChooserIntroAndTable,
   stripAzureBoardsContributorLeakage,
   stripCaiqSigContributorLeakage,
   stripConfigurationReferenceContributorLeakage,
@@ -493,8 +494,34 @@ describe("help-markdown-presentation", () => {
     expect(prepared.toLowerCase()).not.toContain("walkthroughs/");
     expect(prepared.toLowerCase()).not.toContain("## policy packs");
     expect(prepared.toLowerCase()).not.toContain("## canonical references");
-    expect(prepared).toContain("/help/first-architecture-review");
-    expect(prepared).toContain("regulated-saas-soc-procurement");
+    expect(prepared.toLowerCase()).not.toContain("former standalone body");
+    expect(prepared.toLowerCase()).not.toContain("path-stable alias");
+    expect(prepared).not.toContain("regulated-saas-soc-procurement");
+    expect(prepared).toContain("**Out of scope for all V1-ready packs:**");
+  });
+
+  it("strips accelerator chooser intro and markdown table for specialty view appendix (TB-1604)", () => {
+    const source = [
+      "## Accelerator chooser {#accelerator-chooser}",
+      "",
+      "Former standalone body: `docs/library/ACCELERATOR_CHOOSER.md`",
+      "",
+      "| Buyer job | Starter pack |",
+      "| --- | --- |",
+      "| Regulated SaaS | regulated-saas-soc-procurement |",
+      "",
+      "### How to start in the architect workspace",
+      "",
+      "1. Confirm finalize.",
+      "",
+      "**Out of scope for all V1-ready packs:** live Stripe checkout.",
+    ].join("\n");
+
+    const prepared = stripAcceleratorChooserIntroAndTable(source);
+
+    expect(prepared.toLowerCase()).not.toContain("former standalone");
+    expect(prepared).not.toContain("regulated-saas-soc-procurement");
+    expect(prepared).not.toContain("### How to start");
     expect(prepared).toContain("**Out of scope for all V1-ready packs:**");
   });
 

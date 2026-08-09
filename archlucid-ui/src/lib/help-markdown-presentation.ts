@@ -1139,6 +1139,99 @@ export function stripRepeatReviewLoopContributorLeakage(markdown: string): strin
 const ACCELERATOR_CHOOSER_OMITTED_SECTION_PREFIXES = ["policy packs", "canonical references"] as const;
 
 /**
+ * TB-1606 / TB-1604 — removes contributor intro prose and markdown table; specialty view owns the chooser grid.
+ */
+export function stripAcceleratorChooserIntroAndTable(markdown: string): string {
+  const lines = markdown.split("\n");
+  const result: string[] = [];
+  let inTable = false;
+  let pastChooserBody = false;
+
+  for (const line of lines) {
+    if (line.startsWith("### How to start") || line.startsWith("**Out of scope")) {
+      pastChooserBody = true;
+      inTable = false;
+    }
+
+    if (!pastChooserBody) {
+      if (line.startsWith("## ") && !line.startsWith("###")) {
+        continue;
+      }
+
+      if (/Former standalone body/i.test(line)) {
+        continue;
+      }
+
+      if (/Path-stable alias/i.test(line)) {
+        continue;
+      }
+
+      if (/CI pack-tree twin/i.test(line)) {
+        continue;
+      }
+
+      if (/^\*\*Last reviewed:\*\*/i.test(line)) {
+        continue;
+      }
+
+      if (/ACCELERATOR_CHOOSER/i.test(line)) {
+        continue;
+      }
+
+      if (/templates\/starter-proof-packs/i.test(line)) {
+        continue;
+      }
+
+      if (/no new templates/i.test(line)) {
+        continue;
+      }
+
+      if (line.trim().length === 0) {
+        if (!inTable) {
+          continue;
+        }
+
+        inTable = false;
+        continue;
+      }
+
+      if (line.trimStart().startsWith("|")) {
+        inTable = true;
+        continue;
+      }
+
+      if (inTable) {
+        continue;
+      }
+
+      continue;
+    }
+
+    if (line.trimStart().startsWith("|")) {
+      inTable = true;
+      continue;
+    }
+
+    if (inTable && line.trim().length === 0) {
+      inTable = false;
+      continue;
+    }
+
+    if (inTable) {
+      continue;
+    }
+
+    if (line.startsWith("### How to start in the architect workspace")) {
+      continue;
+    }
+
+    result.push(line);
+  }
+
+  return result.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+
+/**
  * TB-1606 — drops policy-pack index and canonical library sections from accelerator chooser help.
  */
 export function stripAcceleratorChooserContributorSections(markdown: string): string {
@@ -1232,6 +1325,8 @@ export function stripAcceleratorChooserContributorLeakage(markdown: string): str
     .replace(/walkthroughs\/[^\s)]+/gi, "product walkthrough")
     .replace(/`?starter-pack\.json`?/gi, "pack manifest")
     .replace(/starter-pack\.json/gi, "pack manifest")
+    .replace(/`?ACCELERATOR_CHOOSER\.md`?/gi, "starter proof pack chooser")
+    .replace(/ACCELERATOR_CHOOSER\.md/gi, "starter proof pack chooser")
     .replace(/from the pack folder/gi, "when starting the review")
     .replace(/in the pack folder/gi, "with the review")
     .replace(/\n{3,}/g, "\n\n");
@@ -3121,7 +3216,9 @@ export function prepareHelpMarkdownForPresentation(
   } else if (isRepeatReviewLoop) {
     afterAudienceStrip = stripRepeatReviewLoopContributorLeakage(sanitized);
   } else if (isAcceleratorChooser) {
-    afterAudienceStrip = stripAcceleratorChooserContributorLeakage(sanitized);
+    afterAudienceStrip = stripAcceleratorChooserIntroAndTable(
+      stripAcceleratorChooserContributorLeakage(sanitized),
+    );
   } else if (isAzureBoardsIntegration) {
     afterAudienceStrip = stripAzureBoardsContributorLeakage(sanitized);
   } else if (isCaiqSigResponse) {

@@ -8,6 +8,7 @@ export type AcceleratorChooserEntry = {
   readonly requiredInputs: string;
   readonly expectedOutputs: string;
   readonly scopeLabel: "V1-ready" | "V1.1-deferred";
+  readonly doNotUseWhen: string;
   readonly startHref: string;
 };
 
@@ -21,6 +22,7 @@ export const ACCELERATOR_CHOOSER_ENTRIES: readonly AcceleratorChooserEntry[] = [
     requiredInputs: "second-run.json, policy-context.json",
     expectedOutputs: "Governance findings + proof checklist",
     scopeLabel: "V1-ready",
+    doNotUseWhen: "Before any finalize; buyer demands CPA attestation",
     startHref: buildAcceleratorReviewStartHref("regulated-saas-soc-procurement"),
   },
   {
@@ -31,6 +33,7 @@ export const ACCELERATOR_CHOOSER_ENTRIES: readonly AcceleratorChooserEntry[] = [
     requiredInputs: "second-run.json, policy-context.json",
     expectedOutputs: "AI governance findings + checklist",
     scopeLabel: "V1-ready",
+    doNotUseWhen: "Generic chat comparison only; no LLM in scope",
     startHref: buildAcceleratorReviewStartHref("ai-llm-workload"),
   },
   {
@@ -41,6 +44,7 @@ export const ACCELERATOR_CHOOSER_ENTRIES: readonly AcceleratorChooserEntry[] = [
     requiredInputs: "second-run.json (optional extractor ZIP)",
     expectedOutputs: "Cost findings + ROI labels",
     scopeLabel: "V1-ready",
+    doNotUseWhen: "Non-Azure-only architecture with no Azure evidence",
     startHref: buildAcceleratorReviewStartHref("azure-cost-governance"),
   },
   {
@@ -51,6 +55,18 @@ export const ACCELERATOR_CHOOSER_ENTRIES: readonly AcceleratorChooserEntry[] = [
     requiredInputs: "second-run.json, policy-context.json",
     expectedOutputs: "Healthcare pack findings + checklist",
     scopeLabel: "V1-ready",
+    doNotUseWhen: "Real PHI in inputs; HIPAA certification claims",
     startHref: buildAcceleratorReviewStartHref("healthcare-data-workflow"),
+  },
+  {
+    id: "greenfield-web-app",
+    buyerJob: "Multi-tier web architecture (greenfield)",
+    packLabel: "Greenfield web app wizard preset",
+    summary: "Topology and compliance findings on your architecture inputs via the new-review wizard.",
+    requiredInputs: "Architecture request via new-review wizard",
+    expectedOutputs: "Topology/compliance findings on your inputs",
+    scopeLabel: "V1-ready",
+    doNotUseWhen: "Buyer needs a specialty starter proof pack instead",
+    startHref: "/architecture/reviews/new?preset=greenfield",
   },
 ] as const;

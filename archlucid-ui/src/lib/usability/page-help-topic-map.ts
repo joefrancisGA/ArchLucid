@@ -47,7 +47,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/help/getting-started", topic: { slug: "getting-started", label: "Getting started" } },
   {
     prefix: "/help/accelerator-chooser",
-    topic: { slug: "accelerator-chooser", label: "Accelerator chooser" },
+    topic: { slug: "accelerator-chooser", label: "Pick a starter proof pack" },
   },
   {
     prefix: "/help/admin-diagnostics",
