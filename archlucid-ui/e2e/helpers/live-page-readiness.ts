@@ -15,16 +15,16 @@ function matchesLiveProxyProjectRunsList(url: URL): boolean {
     return false;
   }
 
-  // Reviews hub SSR uses GET /v1/authority/projects/{projectId}/runs (not /v1/architecture/runs).
-  return /^\/v1\/authority\/projects\/[^/]+\/runs$/.test(path);
+  // Reviews hub SSR uses GET /v1/authority/projects/{projectId}/reviews (not /v1/architecture/runs).
+  return /^\/v1\/authority\/projects\/[^/]+\/reviews$/.test(path);
 }
 
 function matchesLiveProxyAuthorityRunDetail(url: URL, runId: string): boolean {
   const path = backendApiPath(url);
 
   return (
-    path === `/v1/authority/runs/${encodeURIComponent(runId)}`
-    || path === `/v1/authority/runs/${encodeURIComponent(runId)}/buyer-summary`
+    path === `/v1/authority/reviews/${encodeURIComponent(runId)}`
+    || path === `/v1/authority/reviews/${encodeURIComponent(runId)}/buyer-summary`
   );
 }
 

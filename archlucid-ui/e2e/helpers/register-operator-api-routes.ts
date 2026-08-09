@@ -87,7 +87,7 @@ export type OperatorJourneyRouteConfig = {
   authorityRunManifests?: readonly AuthorityRunManifestRouteSpec[] | null;
   compareExplanation?: CompareExplanationRouteSpec | null;
   artifactBundle?: ArtifactBundleRouteSpec | null;
-  /** Stubs `GET /v1/authority/projects/{projectId}/runs` (Compare {@link RunIdPicker} loads rows on focus). */
+  /** Stubs `GET /v1/authority/projects/{projectId}/reviews` (Compare {@link RunIdPicker} loads rows on focus). */
   projectRunsPaged?: { projectId: string; body: unknown } | null;
 };
 
@@ -410,7 +410,7 @@ export async function registerScreenshotSuiteProxyRoutes(page: Page): Promise<vo
       return;
     }
 
-    if (apiPath === "/v1/authority/projects/default/runs") {
+    if (apiPath === "/v1/authority/projects/default/reviews") {
       await fulfillJson(route, 200, {
         items: [],
         totalCount: 0,

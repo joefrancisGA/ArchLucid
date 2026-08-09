@@ -43,7 +43,7 @@ export async function probeLiveApiInfrastructureReady(
         };
       }
 
-      const runs = await request.get(`${base}/v1/authority/projects/default/runs?page=1&pageSize=1`, {
+      const runs = await request.get(`${base}/v1/authority/projects/default/reviews?page=1&pageSize=1`, {
         headers: { Accept: "application/json" },
         timeout: 20_000,
       });

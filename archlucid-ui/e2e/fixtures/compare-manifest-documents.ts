@@ -1,6 +1,6 @@
 import { FIXTURE_LEFT_RUN_ID, FIXTURE_RIGHT_RUN_ID } from "./ids";
 
-/** Minimal manifest-shaped JSON for E2E mock `GET /v1/authority/runs/{runId}/manifest` (left fixture run). */
+/** Minimal manifest-shaped JSON for E2E mock `GET /v1/authority/reviews/{runId}/manifest` (left fixture run). */
 export function fixtureCompareLeftRunManifestDocument(): Record<string, unknown> {
   return {
     systemName: "Fixture intake",

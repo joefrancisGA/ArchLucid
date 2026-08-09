@@ -243,7 +243,7 @@ type RunDetailSnapshots = Pick<
 >;
 
 /**
- * Authority run detail (`GET /v1/authority/runs/{runId}`): **OpenAPI** `RunDetailDto` plus sporadic merges.
+ * Authority run detail (`GET /v1/authority/reviews/{runId}`): **OpenAPI** `RunDetailDto` plus sporadic merges.
  *
  * Snapshot/manifest/binary-adjacent fields stay **`unknown`** at the boundary so curated static-demo placeholders
  * and evolving DTO variants do not fight generated schema literals.

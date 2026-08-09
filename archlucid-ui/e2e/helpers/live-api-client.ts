@@ -781,7 +781,7 @@ export async function getRunDetailsRaw(
   });
 }
 
-/** GET `/v1/authority/runs/{runId}` — scoped authority aggregate incl. findings snapshot (demo workspace smoke counts). */
+/** GET `/v1/authority/reviews/{runId}` — scoped authority aggregate incl. findings snapshot (demo workspace smoke counts). */
 export async function getAuthorityRunDetailRaw(
   request: APIRequestContext,
   runId: string,
@@ -790,7 +790,7 @@ export async function getAuthorityRunDetailRaw(
 ): Promise<APIResponse> {
   const encoded = encodeURIComponent(runId);
 
-  return request.get(`${resolveLiveApiBase()}/v1/authority/runs/${encoded}`, {
+  return request.get(`${resolveLiveApiBase()}/v1/authority/reviews/${encoded}`, {
     headers: mergeTenantScope(liveAcceptHeaders(options?.apiKey), tenantScope),
   });
 }
@@ -804,7 +804,7 @@ export async function getAuthorityBuyerSummaryRaw(
 ): Promise<APIResponse> {
   const encoded = encodeURIComponent(runId);
 
-  return request.get(`${resolveLiveApiBase()}/v1/authority/runs/${encoded}/buyer-summary`, {
+  return request.get(`${resolveLiveApiBase()}/v1/authority/reviews/${encoded}/buyer-summary`, {
     headers: mergeTenantScope(liveAcceptHeaders(options?.apiKey), tenantScope),
   });
 }
@@ -1247,7 +1247,7 @@ export async function waitForAuthorityRunSummaryReady(
   const encoded = encodeURIComponent(runId);
 
   while (Date.now() < deadline) {
-    const res = await request.get(`${resolveLiveApiBase()}/v1/authority/runs/${encoded}/summary`, {
+    const res = await request.get(`${resolveLiveApiBase()}/v1/authority/reviews/${encoded}/summary`, {
       headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
     });
 
@@ -1256,14 +1256,14 @@ export async function waitForAuthorityRunSummaryReady(
     }
 
     if (res.status() !== 404) {
-      await throwIfNotOk(res, `GET /v1/authority/runs/${encoded}/summary`);
+      await throwIfNotOk(res, `GET /v1/authority/reviews/${encoded}/summary`);
     }
 
     await new Promise((r) => setTimeout(r, 1000));
   }
 
   throw new Error(
-    `Authority run summary for ${runId} not ready (GET /v1/authority/runs/{id}/summary) within ${liveE2eCommitWaitMs(timeoutMs)}ms`,
+    `Authority run summary for ${runId} not ready (GET /v1/authority/reviews/{id}/summary) within ${liveE2eCommitWaitMs(timeoutMs)}ms`,
   );
 }
 
@@ -1278,7 +1278,7 @@ export async function waitForAuthorityBuyerSummaryGoldenManifest(
   const encoded = encodeURIComponent(runId);
 
   while (Date.now() < deadline) {
-    const res = await request.get(`${resolveLiveApiBase()}/v1/authority/runs/${encoded}/buyer-summary`, {
+    const res = await request.get(`${resolveLiveApiBase()}/v1/authority/reviews/${encoded}/buyer-summary`, {
       headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
     });
 
@@ -1298,7 +1298,7 @@ export async function waitForAuthorityBuyerSummaryGoldenManifest(
         continue;
       }
 
-      await throwIfNotOk(res, `GET /v1/authority/runs/${encoded}/buyer-summary`);
+      await throwIfNotOk(res, `GET /v1/authority/reviews/${encoded}/buyer-summary`);
     }
 
     await new Promise((r) => setTimeout(r, 1000));

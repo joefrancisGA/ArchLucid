@@ -49,7 +49,7 @@ describe("sandbox-api-mocks", () => {
 
   it("returns authority paged runs for project paths when enabled", () => {
     process.env.VITE_USE_SANDBOX_MOCKS = "true";
-    const body = trySandboxMockJsonForApiGet("/v1/authority/projects/acme/runs?page=1&pageSize=50");
+    const body = trySandboxMockJsonForApiGet("/v1/authority/projects/acme/reviews?page=1&pageSize=50");
 
     expect(body).toMatchObject({
       totalCount: 3,

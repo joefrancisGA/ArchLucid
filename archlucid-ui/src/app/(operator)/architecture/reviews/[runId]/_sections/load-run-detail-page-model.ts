@@ -80,7 +80,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
   const progressSummaryPromise = getRunSummary(runId).catch(() => null);
 
   // TB-2022: always slim buyer-summary for first paint (no fat PayloadJson/ResultJson).
-  // Inspect/export keep GET /v1/authority/runs/{id}. UI chrome density still uses isBuyerPolishedOperatorShellEnv.
+  // Inspect/export keep GET /v1/authority/reviews/{id}. UI chrome density still uses isBuyerPolishedOperatorShellEnv.
   const usedBuyerRunDetailSummary = true;
 
   try {

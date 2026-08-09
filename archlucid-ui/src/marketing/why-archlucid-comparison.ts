@@ -72,7 +72,7 @@ export const WHY_ARCHLUCID_COMPARISON_ROWS: readonly WhyArchLucidComparisonRow[]
   },
   {
     claim:
-      "After commit, **`IFindingEvidenceChainService`** reconstructs explainability links for findings, and **`GET /v1/authority/runs/{runId}/provenance`** returns a **decision provenance graph** tying manifest, graph snapshot, findings snapshot, authority trace, and artifacts when the authority pipeline is complete.",
+      "After commit, **`IFindingEvidenceChainService`** reconstructs explainability links for findings, and **`GET /v1/authority/reviews/{runId}/provenance`** returns a **decision provenance graph** tying manifest, graph snapshot, findings snapshot, authority trace, and artifacts when the authority pipeline is complete.",
     archlucidEvidence:
       "`ArchLucid.Application/Explanation/IFindingEvidenceChainService.cs` · `ArchLucid.Api/Controllers/Authority/AuthorityQueryController.cs` (provenance action) · `docs/library/KNOWLEDGE_GRAPH.md`",
     competitorBaseline:

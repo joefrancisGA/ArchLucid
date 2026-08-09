@@ -1,7 +1,7 @@
 const PROXY_PREFIX = "/api/proxy";
 
 /**
- * Returns the backend-relative path for a same-origin proxy request (e.g. `/v1/authority/runs/x`),
+ * Returns the backend-relative path for a same-origin proxy request (e.g. `/v1/authority/reviews/x`),
  * or null if the URL is not under `/api/proxy`.
  */
 export function backendApiPath(url: URL): string | null {
@@ -17,22 +17,22 @@ export function backendApiPath(url: URL): string | null {
 export function matchesRunDetailGet(url: URL, runId: string): boolean {
   return (
     url.search === "" &&
-    backendApiPath(url) === `/v1/authority/runs/${encodeURIComponent(runId)}`
+    backendApiPath(url) === `/v1/authority/reviews/${encodeURIComponent(runId)}`
   );
 }
 
-/** Buyer-polished run detail (`GET /v1/authority/runs/{runId}/buyer-summary`, TB-283). */
+/** Buyer-polished run detail (`GET /v1/authority/reviews/{runId}/buyer-summary`, TB-283). */
 export function matchesBuyerRunDetailSummaryGet(url: URL, runId: string): boolean {
   return (
     url.search === "" &&
-    backendApiPath(url) === `/v1/authority/runs/${encodeURIComponent(runId)}/buyer-summary`
+    backendApiPath(url) === `/v1/authority/reviews/${encodeURIComponent(runId)}/buyer-summary`
   );
 }
 
 export function matchesAuthorityRunManifestGet(url: URL, runId: string): boolean {
   return (
     url.search === "" &&
-    backendApiPath(url) === `/v1/authority/runs/${encodeURIComponent(runId)}/manifest`
+    backendApiPath(url) === `/v1/authority/reviews/${encodeURIComponent(runId)}/manifest`
   );
 }
 
@@ -87,7 +87,7 @@ export function matchesCompareExplainGet(url: URL, baseRunId: string, targetRunI
   );
 }
 
-/** Paged runs list (`GET /v1/authority/projects/{projectId}/runs`) — query string varies (`page`/`pageSize` vs `cursor`/`take`). */
+/** Paged runs list (`GET /v1/authority/projects/{projectId}/reviews`) — query string varies (`page`/`pageSize` vs `cursor`/`take`). */
 export function matchesAuthorityProjectRunsPagedGet(url: URL, projectId: string): boolean {
-  return backendApiPath(url) === `/v1/authority/projects/${encodeURIComponent(projectId)}/runs`;
+  return backendApiPath(url) === `/v1/authority/projects/${encodeURIComponent(projectId)}/reviews`;
 }

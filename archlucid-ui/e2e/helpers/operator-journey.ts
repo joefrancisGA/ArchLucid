@@ -275,7 +275,7 @@ export async function expandCompareRunPickersIfCollapsed(page: Page): Promise<vo
 
 /**
  * Buyer-polished Compare: left run picker is readonly — change selection by opening the list and activating an option.
- * Requires a mocked non-empty `GET /v1/authority/projects/default/runs` (see {@link registerCompareStaleInputWarningRoutes}).
+ * Requires a mocked non-empty `GET /v1/authority/projects/default/reviews` (see {@link registerCompareStaleInputWarningRoutes}).
  */
 export async function selectCompareLeftRunOptionByPrimaryLabel(page: Page, primaryLabel: string): Promise<void> {
   await expandCompareRunPickersIfCollapsed(page);
