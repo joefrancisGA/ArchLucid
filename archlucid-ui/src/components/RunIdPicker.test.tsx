@@ -3,17 +3,23 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/api", () => ({
   listRunsByProjectPaged: vi.fn(),
+  listRunsInScopePaged: vi.fn(),
+  shouldListReviewsAcrossProjectSlugs: vi.fn((projectId: string | null | undefined) => {
+    const trimmed = projectId?.trim() ?? "";
+
+    return trimmed.length === 0 || trimmed.toLowerCase() === "default";
+  }),
 }));
 
-import { listRunsByProjectPaged } from "@/lib/api";
+import { listRunsInScopePaged } from "@/lib/api";
 
 import { RunIdPicker } from "./RunIdPicker";
 
-const mockList = vi.mocked(listRunsByProjectPaged);
+const mockListInScope = vi.mocked(listRunsInScopePaged);
 
 describe("RunIdPicker", () => {
   it("loads runs on focus", async () => {
-    mockList.mockResolvedValue({
+    mockListInScope.mockResolvedValue({
       items: [
         {
           runId: "11111111-1111-1111-1111-111111111111",
@@ -36,12 +42,12 @@ describe("RunIdPicker", () => {
     fireEvent.focus(screen.getByPlaceholderText("Review ID"));
 
     await waitFor(() => {
-      expect(mockList).toHaveBeenCalledWith("default", 1, 50);
+      expect(mockListInScope).toHaveBeenCalledWith(1, 50);
     });
   });
 
   it("selecting a suggestion sets the run id", async () => {
-    mockList.mockResolvedValue({
+    mockListInScope.mockResolvedValue({
       items: [
         {
           runId: "22222222-2222-2222-2222-222222222222",
@@ -70,7 +76,7 @@ describe("RunIdPicker", () => {
   });
 
   it("opens the list again when clicking the input after picking an option (input stays focused)", async () => {
-    mockList.mockResolvedValue({
+    mockListInScope.mockResolvedValue({
       items: [
         {
           runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
