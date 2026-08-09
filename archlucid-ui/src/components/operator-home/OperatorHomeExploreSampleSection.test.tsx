@@ -7,8 +7,6 @@ import {
   OPERATOR_HOME_EXPLORE_SAMPLE_HEADING,
   OPERATOR_HOME_EXPLORE_SAMPLE_LEAD,
   OPERATOR_HOME_GUIDED_REVIEW_EXAMPLE_TITLE,
-  OPERATOR_HOME_LEARNING_RESOURCES_HEADING,
-  OPERATOR_HOME_LEARNING_RESOURCES_LEAD,
   OPERATOR_HOME_OPEN_CREATION_EXAMPLE_CTA,
   OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA,
 } from "@/lib/buyer-polish-copy";
@@ -33,12 +31,13 @@ vi.mock("@/components/operator-home/operator-home-workspace-activity-context", (
     hasWorkspaceReviews: workspaceReviewsMock.value,
     hasActionNeededReviews: false,
     openFindingsCount: 0,
-    recentRunIds: [],
+    recentRunIds: recentRunIdsMock.value,
     reportWorkspaceReviews: vi.fn(),
   }),
 }));
 
 const workspaceReviewsMock = vi.hoisted(() => ({ value: false }));
+const recentRunIdsMock = vi.hoisted(() => ({ value: [] as string[] }));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
@@ -52,6 +51,7 @@ describe("OperatorHomeExploreSampleSection", () => {
   it("renders secondary examples without duplicating the hero completed review", () => {
     committedReviewMock.value = false;
     workspaceReviewsMock.value = false;
+    recentRunIdsMock.value = [];
 
     render(<OperatorHomeExploreSampleSection />);
 
@@ -86,22 +86,19 @@ describe("OperatorHomeExploreSampleSection", () => {
     expect(screen.getByRole("link", { name: OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA })).toBeInTheDocument();
   });
 
-  it("uses the learning resources grouping once workspace reviews exist", () => {
+  it("hides when Recent reviews already lists a sample or tenant row", () => {
     committedReviewMock.value = false;
-    workspaceReviewsMock.value = true;
+    workspaceReviewsMock.value = false;
+    recentRunIdsMock.value = ["claims-intake-modernization"];
 
     render(<OperatorHomeExploreSampleSection />);
 
-    expect(screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_LEARNING_RESOURCES_HEADING })).toBeInTheDocument();
-    expect(screen.getByText(OPERATOR_HOME_LEARNING_RESOURCES_LEAD)).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-explore-sample-section")).toHaveAttribute(
-      "data-prominence",
-      "secondary",
-    );
+    expect(screen.queryByTestId("operator-home-explore-sample-section")).toBeNull();
   });
 
   it("hides once the tenant has a committed architecture review", () => {
     committedReviewMock.value = true;
+    recentRunIdsMock.value = [];
 
     render(<OperatorHomeExploreSampleSection />);
 

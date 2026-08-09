@@ -9,7 +9,9 @@ import {
 } from "@/components/operator-home/runs-dashboard-helpers";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
+import { DemoDataBadge } from "@/components/usability/DemoDataBadge";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
+import { isDemoSeededOverviewInjectedRun } from "@/lib/demo-seeded-overview";
 import { BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK } from "@/lib/buyer-polish-copy";
 import {
   INLINE_METADATA_LABEL_CLASS,
@@ -74,6 +76,8 @@ export function OperatorHomeReviewSummaryCard(props: OperatorHomeReviewSummaryCa
   const updatedLabel = formatRunHomeListUpdatedLabel(props.run);
   const findingsMetadata = formatFindingsMetadata(props.run);
   const isShowcaseDemo = isShowcaseStaticDemoRunId(props.run.runId ?? "");
+  const isExampleReview =
+    isShowcaseDemo || isDemoSeededOverviewInjectedRun(props.run);
   const showcaseProofMetadata = variant === "featured" && isShowcaseDemo;
   const insightText = [insightLine, updatedLabel].filter((part) => part !== null).join(" · ");
 
@@ -102,11 +106,7 @@ export function OperatorHomeReviewSummaryCard(props: OperatorHomeReviewSummaryCa
         />
       </div>
 
-      {isShowcaseDemo ? (
-        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}>
-          Completed example review
-        </p>
-      ) : null}
+      {isExampleReview ? <DemoDataBadge /> : null}
 
       <ArchitecturePackageOriginMetadataLine run={props.run} buyerPolishedShell={props.buyerPolishedShell} />
 

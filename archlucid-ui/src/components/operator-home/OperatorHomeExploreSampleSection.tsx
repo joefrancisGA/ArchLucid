@@ -37,9 +37,10 @@ const creationExampleHref = showcaseSampleCreatedPackageHref(SHOWCASE_SAMPLE_CRE
 /** Secondary examples below workspace activity — distinct from the hero completed-review path. */
 export function OperatorHomeExploreSampleSection(): React.JSX.Element | null {
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
-  const { hasWorkspaceReviews } = useOperatorHomeWorkspaceActivity();
+  const { hasWorkspaceReviews, recentRunIds } = useOperatorHomeWorkspaceActivity();
 
-  if (hasCommittedArchitectureReview) {
+  // When Recent reviews already shows a sample or tenant row, do not solicit more demos (Azure Portal bar).
+  if (hasCommittedArchitectureReview || recentRunIds.length > 0) {
     return null;
   }
 
