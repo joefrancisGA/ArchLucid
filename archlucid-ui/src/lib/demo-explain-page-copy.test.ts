@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  DEMO_EXPLAIN_CONVERSION_REVIEW_HREF,
   DEMO_EXPLAIN_MANIFEST_VERSION_LABEL,
   DEMO_EXPLAIN_REVIEW_ID_LABEL,
   formatDemoExplainGeneratedLabel,
+  resolveDemoExplainConversionPrimaryHref,
   resolveDemoExplainStatusTag,
 } from "@/lib/demo-explain-page-copy";
 
@@ -27,5 +29,13 @@ describe("demo-explain-page-copy (TB-1320)", () => {
 
     expect(tag.kind).toBe("draft");
     expect(tag.label).toBe("demo tenant — replace before publishing");
+  });
+
+  it("routes anonymous conversion CTA through sign-in with wizard return path (TB-1323)", () => {
+    const href = resolveDemoExplainConversionPrimaryHref(false);
+
+    expect(href).toContain("/auth/signin");
+    expect(href).toContain(encodeURIComponent(DEMO_EXPLAIN_CONVERSION_REVIEW_HREF));
+    expect(resolveDemoExplainConversionPrimaryHref(true)).toBe(DEMO_EXPLAIN_CONVERSION_REVIEW_HREF);
   });
 });
