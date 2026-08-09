@@ -165,7 +165,7 @@ describe("OperatorShellTopBar", () => {
 
     const sessionRail = screen.getByTestId("app-shell-topbar-session");
     const contextRail = screen.getByTestId("app-shell-topbar-context");
-    const scopeTrigger = await screen.findByTestId("operator-scope-switcher-trigger");
+    const scopeTrigger = screen.getByTestId("operator-scope-switcher-trigger");
     const helpTrigger = screen.getByTestId("operator-shell-help-trigger");
     const budgetPill = await screen.findByTestId("llm-budget-status-pill");
 
@@ -221,7 +221,7 @@ describe("OperatorShellTopBar", () => {
     );
 
     expect(await screen.findByTestId("llm-budget-status-pill")).toBeInTheDocument();
-    expect(await screen.findByTestId("operator-shell-topbar-more-trigger")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-shell-topbar-more-trigger")).toBeInTheDocument();
 
     openMoreMenu();
 

@@ -64,6 +64,12 @@ See `docs/runbooks/TB-905_STAGING_RELIABILITY_DRILL.md`.
 | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
 | _pending_ | local/staging | — | — | — | — | — | Scripts shipped 2026-07-11; first measured run pending owner traffic-sizing input |
 
+## Pre-launch scale bake-off (**TB-946**)
+
+Before the launch-load half of **TB-905**, run single-signal drills A (HTTP/LLM-wait), B (CPU-bound), and C (worker backlog when enabled). Record time-to-first-extra-replica and which scale rule fired.
+
+**Capacity gate:** complete [`infra/terraform-container-apps/README.md` § API max-replicas sizing](../../infra/terraform-container-apps/README.md#api-max-replicas-sizing-vs-bulkhead-and-aoai-tpm-tb-947) (**TB-947**) so `api_max_replicas` is capped against `MaxConcurrentHandlers` and AOAI TPM — do not assume more replicas equals more LLM throughput.
+
 ## Non-goals
 
 - Changing production rate-limit partitions (measure first, tune only when drill shows failure)

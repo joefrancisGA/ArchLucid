@@ -1,20 +1,11 @@
-import {
-  isBuyerPolishedOperatorShellEnv,
-  isNextPublicDemoMode,
-  isOperatorExperienceFullShellEnv,
-} from "@/lib/demo-ui-env";
-
 /**
- * API key management is an enterprise / full-operator security surface — not buyer-demo or polished retail shell.
+ * Operator UI for API key management (Administration → API keys, Users hub keys tab).
+ *
+ * Owner decision (2026-08-08): park this surface until product maturity needs
+ * host automation credentials in-product. Prefer invite + roles for people.
+ * Host keys remain configurable via deployment / Key Vault; re-enable here when
+ * Internal Operations (or equivalent) is ready to own the workflow.
  */
 export function isApiKeysSettingsSurfaceEnabled(): boolean {
-  if (isBuyerPolishedOperatorShellEnv()) {
-    return false;
-  }
-
-  if (isNextPublicDemoMode()) {
-    return false;
-  }
-
-  return isOperatorExperienceFullShellEnv();
+  return false;
 }

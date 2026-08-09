@@ -9,6 +9,7 @@ import {
   parseAdminApiKeysDirectoryPayload,
   parseAdminUsersDirectoryPayload,
 } from "@/lib/admin-tenant-directory-parse";
+import { isApiKeysSettingsSurfaceEnabled } from "@/lib/api-keys-settings-access";
 import type { ArchLucidAppRole } from "@/lib/current-principal";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
@@ -62,10 +63,11 @@ export function useSettingsRolesPage(loaded: SettingsRolesPageServerLoad): Setti
 
     try {
       const proxyInit = mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } });
-      const [usersRes, keysRes] = await Promise.all([
-        fetch(SETTINGS_ROLES_USERS_PATH, proxyInit),
-        fetch(SETTINGS_ROLES_API_KEYS_PATH, proxyInit),
-      ]);
+      const includeApiKeys = isApiKeysSettingsSurfaceEnabled();
+      const usersRes = await fetch(SETTINGS_ROLES_USERS_PATH, proxyInit);
+      const keysRes = includeApiKeys
+        ? await fetch(SETTINGS_ROLES_API_KEYS_PATH, proxyInit)
+        : null;
 
       if (!usersRes.ok) {
         setRows([]);
@@ -80,7 +82,7 @@ export function useSettingsRolesPage(loaded: SettingsRolesPageServerLoad): Setti
       const userRows = parseAdminUsersDirectoryPayload(usersJson);
       let keyRows = parseAdminApiKeysDirectoryPayload({});
 
-      if (keysRes.ok) {
+      if (keysRes !== null && keysRes.ok) {
         const keysJson: unknown = await keysRes.json();
         keyRows = parseAdminApiKeysDirectoryPayload(keysJson);
       }

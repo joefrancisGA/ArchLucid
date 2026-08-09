@@ -15,6 +15,8 @@ ui_container_image  = "<your-acr>.azurecr.io/archlucid-ui:<staging-tag>"
 api_revision_mode = "Multiple"
 
 api_min_replicas = 2
+# TB-947: size api_max_replicas with README § "API max-replicas sizing" — bulkhead (default MaxConcurrentHandlers=8) × replicas must fit AOAI TPM.
+# Example: 240K TPM × 0.7 headroom ÷ 8K TPM/handler ≈ 21 parallel handlers → ceil(21/8)=3 replica cap for Real-heavy load (HTTP-only bursts may justify higher).
 api_max_replicas = 6
 ui_min_replicas  = 1
 ui_max_replicas  = 6

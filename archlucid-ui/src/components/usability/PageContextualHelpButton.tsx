@@ -9,7 +9,7 @@ import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { contextualHelpForPathname } from "@/lib/contextual-help-registry";
-import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
+import { pageHelpTopicForPathname, pathnameIsInAppHelpTopic } from "@/lib/usability/page-help-topic-map";
 import { PageScopedContextualHelpPanel } from "@/components/usability/PageScopedContextualHelpPanel";
 
 /**
@@ -26,6 +26,11 @@ export type PageContextualHelpButtonProps = {
 /** Contextual help for the current route — inline answers when migrated, otherwise `/help/{topic}`. */
 export function PageContextualHelpButton(props: PageContextualHelpButtonProps = {}) {
   const pathname = usePathname() ?? "/";
+
+  if (pathnameIsInAppHelpTopic(pathname)) {
+    return null;
+  }
+
   const topic = pageHelpTopicForPathname(pathname);
   const contextualEntry = contextualHelpForPathname(pathname);
   const learnMoreHref =

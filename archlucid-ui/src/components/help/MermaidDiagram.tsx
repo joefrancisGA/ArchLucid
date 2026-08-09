@@ -2,10 +2,14 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useEffect, useId, useMemo, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type RefObject } from "react";
 
 import { HelpMarkdownCodeBlock } from "@/components/help/HelpMarkdownCodeBlock";
-import { sanitizeMermaidRenderId } from "@/lib/help-mermaid";
+import {
+  fitMermaidSvgElementToHost,
+  prepareMermaidSvgForResponsiveLayout,
+  sanitizeMermaidRenderId,
+} from "@/lib/help-mermaid";
 
 export type MermaidDiagramProps = {
   readonly source: string;
@@ -35,15 +39,62 @@ function useDocumentDarkMode(): boolean {
   return dark;
 }
 
+/** True once the diagram frame has been on-screen (avoids collapsed Mermaid layout inside closed details). */
+function useHasBeenVisible(targetRef: RefObject<HTMLElement | null>): boolean {
+  const [hasBeenVisible, setHasBeenVisible] = useState(false);
+
+  useEffect(() => {
+    if (hasBeenVisible) {
+      return;
+    }
+
+    const node = targetRef.current;
+
+    if (node === null) {
+      return;
+    }
+
+    if (typeof IntersectionObserver === "undefined") {
+      setHasBeenVisible(true);
+
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setHasBeenVisible(true);
+        }
+      },
+      { threshold: 0 },
+    );
+
+    observer.observe(node);
+
+    return (): void => {
+      observer.disconnect();
+    };
+  }, [hasBeenVisible, targetRef]);
+
+  return hasBeenVisible;
+}
+
 /** Client-rendered Mermaid diagram for trusted in-app help markdown. */
 export function MermaidDiagram(props: MermaidDiagramProps): React.JSX.Element {
   const reactId = useId();
   const renderId = useMemo(() => sanitizeMermaidRenderId(`help-mermaid-${reactId}`), [reactId]);
+  const frameRef = useRef<HTMLDivElement>(null);
+  const hostRef = useRef<HTMLDivElement>(null);
+  const hasBeenVisible = useHasBeenVisible(frameRef);
   const dark = useDocumentDarkMode();
   const [svgMarkup, setSvgMarkup] = useState<string | null>(null);
   const [renderError, setRenderError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!hasBeenVisible) {
+      return;
+    }
+
     let cancelled = false;
 
     async function renderDiagram(): Promise<void> {
@@ -64,7 +115,7 @@ export function MermaidDiagram(props: MermaidDiagramProps): React.JSX.Element {
         const result = await mermaid.render(renderId, props.source.trim());
 
         if (!cancelled) {
-          setSvgMarkup(result.svg);
+          setSvgMarkup(prepareMermaidSvgForResponsiveLayout(result.svg));
         }
       }
       catch (error) {
@@ -80,14 +131,58 @@ export function MermaidDiagram(props: MermaidDiagramProps): React.JSX.Element {
     return (): void => {
       cancelled = true;
     };
-  }, [props.source, dark, renderId]);
+  }, [props.source, dark, renderId, hasBeenVisible]);
+
+  useLayoutEffect(() => {
+    if (svgMarkup === null) {
+      return;
+    }
+
+    const host = hostRef.current;
+    const svg = host?.querySelector("svg");
+
+    if (host === null || host === undefined || svg === null || !(svg instanceof SVGSVGElement)) {
+      return;
+    }
+
+    const applyFit = (): void => {
+      const width = host.clientWidth;
+
+      if (width <= 0) {
+        return;
+      }
+
+      fitMermaidSvgElementToHost(svg, width);
+    };
+
+    applyFit();
+
+    // Mermaid layout can settle one frame after insert; re-fit once more.
+    const rafId = window.requestAnimationFrame(applyFit);
+
+    const resizeObserver =
+      typeof ResizeObserver === "undefined"
+        ? null
+        : new ResizeObserver(() => {
+            applyFit();
+          });
+
+    resizeObserver?.observe(host);
+
+    return (): void => {
+      window.cancelAnimationFrame(rafId);
+      resizeObserver?.disconnect();
+    };
+  }, [svgMarkup]);
 
   return (
-    <figure className="relative my-4">
+    <figure className="relative my-4 w-full min-w-0">
       <div
+        ref={frameRef}
         className={cn(
-          "overflow-x-auto rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950/80",
+          "w-full min-w-0 overflow-x-auto rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950/80",
         )}
+        data-testid="mermaid-diagram-frame"
       >
         {renderError !== null ? (
           <p className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.body)} role="alert">
@@ -99,10 +194,12 @@ export function MermaidDiagram(props: MermaidDiagramProps): React.JSX.Element {
           </p>
         ) : (
           <div
-            className="flex justify-center [&_svg]:h-auto [&_svg]:max-w-full"
+            ref={hostRef}
+            className="w-full min-w-0 [&_svg]:block"
             // Mermaid SVG is generated from trusted repo markdown in help topics.
             dangerouslySetInnerHTML={{ __html: svgMarkup }}
             aria-label="Architecture diagram"
+            data-testid="mermaid-diagram-svg-host"
           />
         )}
       </div>

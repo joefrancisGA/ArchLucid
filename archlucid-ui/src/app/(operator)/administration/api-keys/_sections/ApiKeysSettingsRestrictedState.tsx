@@ -29,8 +29,9 @@ export function ApiKeysSettingsRestrictedState(props: ApiKeysSettingsRestrictedS
       <Card>
         <CardContent className={cn("py-6 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           <p className="m-0">
-            If you need API key access for an approved integration, ask a workspace administrator or your ArchLucid
-            contact to enable enterprise configuration.
+            {props.reason === "surface_disabled"
+              ? "Invite people under Users and roles. Machine credentials, when required later, will live under Internal Operations rather than day-to-day Administration."
+              : "If you need API key access for an approved integration, ask a workspace administrator or your ArchLucid contact to enable enterprise configuration."}
           </p>
         </CardContent>
       </Card>

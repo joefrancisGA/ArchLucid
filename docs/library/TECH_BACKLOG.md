@@ -2,7 +2,7 @@
 
 <!-- tech-backlog-open-by-category:start -->
 
-**Open counts by architectural quality** (auto-maintained; last refreshed **2026-08-08**).
+**Open counts by architectural quality** (auto-maintained; last refreshed **2026-08-08** — approximate after wave 5 open; regenerate with script).
 
 Regenerate after opening or closing summary-table rows:
 `python scripts/ci/refresh_tech_backlog_category_counts.py --write`
@@ -10,12 +10,12 @@ Regenerate after opening or closing summary-table rows:
 | Architectural quality | Open |
 | --- | ---: |
 | Correctness | 3 |
-| Testability | 127 |
+| Testability | 128 |
 | Reliability | 15 |
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
 | Architectural integrity | 11 |
-| Adoption friction | 363 |
+| Adoption friction | 366 |
 | Commercial / marketability | 9 |
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
@@ -23,10 +23,10 @@ Regenerate after opening or closing summary-table rows:
 | Proof-of-ROI / executive value | 2 |
 | Trustworthiness | 176 |
 | Maintainability | 9 |
-| Traceability | 3 |
+| Traceability | 4 |
 | Interoperability | 4 |
 | Compliance readiness | 1 |
-| Performance | 7 |
+| Performance | 14 |
 | Scalability | 4 |
 | Cost-effectiveness | 9 |
 | Supportability | 2 |
@@ -36,15 +36,15 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **787** |
+| **Total (unique open)** | **799** |
 
-**By priority band:** P0 **4** | P1 **651** | P2 **115** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **20** | P1 **650** | P2 **115** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
-**Updated:** 2026-08-09 (**TB-2124** **Done** — cold-start paid-lever decision pack in PERFORMANCE_COLD_START_AND_TRIMMING.md; owner go/no-go all defer/no-go on dev baseline). Prior: 2026-08-09 (**TB-2123** **Done** — digests/advisory/integrations/Ask layouts use OperatorClientDrivenRouteLayout; TanStack Query for digests browse, digest subscriptions, advisory recommendations; Vitest guard). Prior: 2026-08-09 (**TB-2122** **Done** — authority/integration/Cosmos graph outboxes use `AdaptiveOutboxDrainLoop`; base idle **1 s** with exponential backoff; Cosmos `PollIntervalSeconds` is max idle ceiling). Prior: 2026-08-09 (**TB-2119** **Done** — operator `GetRunDetailForOperatorEnrichAsync` uses rollup projection; `AuthorityRunDetailOperatorEnricher` off full `ResultJson`; hot-path inventory + tests). Prior: 2026-08-09 (**TB-2118** **Done** — modules only; **TB-2117** **Done** — run-detail workspace/overview chrome deferred; baseline **2237.5 → 2150.6 kB** (−87 kB)). Prior: 2026-08-08 (**TB-2116** **Done** — `durable-action-outcome-inventory.ts` + `durable-action-outcome-guard.ts` Vitest inventory/dual-toast guard for TB-2113–TB-2115 surfaces; shared `expectNoDurableOutcomeToasts` helper; `ReviewGenerationCreatedNotice.test.tsx`). Prior: 2026-08-08 (**TB-2115** **Done** — admin/integrations high-stakes saves use durable in-page outcomes on cloud connections, SSO wizard, SAML, SCIM, webhooks, billing checkout; Vitest no-toast guards). Prior: 2026-08-08 (**TB-2114** **Done** — governance mutations use durable in-page outcomes: `OperatorSuccessCallout` / `OperatorMutationInlineError` on quick approve, bulk disposition, workflow promote/activate, policy-pack publish; Vitest no-toast guards). Prior: 2026-08-08 (**TB-2113** **Done** — review-start paths use inline validation/errors on FirstPilot, QuickReview, QuickStart, SimplifiedPilot; shared validation copy; Vitest no-toast guards). Prior: 2026-08-08 (**TB-973** **Done** — persist gate definition version/hash on traces; `GET …/agent-evaluation` split `recorded` vs `advisoryCurrent`; migration **299** + immutable patch + UI perspective helpers). Prior: 2026-08-08 (**TB-2117**–**TB-2124** opened + **TB-915**/**TB-947**/**TB-932** promoted to **P0** — Performance wave 5: next-10 quantified opportunities after Done **TB-2053**–**TB-2062**). Prior: 2026-08-08 (**TB-2112** **Done** + **TB-2113**–**TB-2116** opened — durable action outcomes: high-stakes acceptance/errors in-page, not toast-only). Prior: 2026-08-08 (**TB-972** **Done** — quality-gate definition versioning + historical immutability contract). Prior: 2026-08-08 (**TB-971** **Done** — cross-surface execution-mode honesty guards). Prior: 2026-08-08 (**TB-970** **Done** — per-task execution mode on `dbo.AgentResults`). Prior: 2026-08-08 (**TB-969** **Done** — INV-002 aggregation contract). First Load JS gate tracks `/`, `/governance/alerts`, `/governance/alert-rules`; `TRACKED_ROUTES` + baseline + Next 16 fixture; governance-cluster estimates pending CI remeasure). Prior: 2026-08-08 (**TB-2029** **Done** — SSE-first run progress pauses HTTP fallback while connected/hidden; shell banner polls only when visible banners need refresh; Vitest policy tests). Prior: 2026-08-08 (**TB-2028** **Done** — `/welcome` server page + deferred pricing/layout chrome; Suspense for `useSearchParams` CTAs; import-policy Vitest; before **711.5 kB** First Load JS, baseline refresh on next green CI build). Prior: 2026-08-08 (**TB-935** **Done** — alerts inbox on TanStack Query + 50-row card virtualization; audit search via query cache + threshold virtualization; reviews hub waived at 25-row server page size; Vitest). Prior: 2026-08-08 (**TB-934** **Done** — reviews hub below-fold panels + governance approval-queue workflow deferred via `next/dynamic`; import-policy Vitest guards; Vitest + typecheck on touched routes). Prior: 2026-08-08 (**TB-2107** **Done** — Open tile nests blocking as subset (`3 open · 2 blocking`); drop peer Blocking tile; relationship title + aria; Vitest). Prior: 2026-08-08 (**TB-2106** **Done** — no-rules Alerts empty state names a verified CriticalRecommendationCount example; governance setup primary CTA; Vitest). Prior: 2026-08-08 (**TB-2105** **Done** — hide Alerts Status/Refresh/last-refreshed/batch when no rules; filed **TB-2111** for shared “Not refreshed yet” sweep; Vitest). Prior: 2026-08-08 (**TB-2104** **Done** — Alerts summary counters show not-evaluated sentinel (not `0`) when rules missing or never run; accessible names explain dash; Vitest). Prior: 2026-08-08 (**TB-2103** **Done** — one “Configure alert rules” affordance per Alerts state; suppress header on no_rules; drop healthy_clear duplicate; Vitest). Prior: 2026-08-08 (**TB-2102** **Done** — Evidence graph canvas toolbar named `Graph canvas controls`; Highlight path / Focus selection disabled with title until a node is selected; Vitest). Prior: 2026-08-08 (**TB-2101** **Done** — AskRunIdPicker label drops pick-an-architecture-review parenthetical; placeholder keeps empty-state prompt; Vitest guard). Prior: 2026-08-08 (**TB-2100** **Done** — one in-page Evidence graph sample notice via compact banner; suppress picker sample status + trailing operator paragraph; Vitest guard). Prior: 2026-08-08 (**TB-2099** **Done** — remove dead review-trail mode tip; Vitest leakage guard; tip host gone with **TB-2098**). Prior: 2026-08-08 (**TB-2098** **Done** — one Evidence graph node-type legend beside canvas; drop role chips + tip legend + prose LEGEND card; Vitest guard). Prior: 2026-08-08 (**TB-2097** **Done** — Evidence graph surface vs Evidence trail concept (decision B); step pill + export CTA + design-system rule; Vitest guard). Prior: 2026-08-08 (**TB-2096** **Done** — Evidence graph spine keeps only numbered step pills; drop prev/next, Review lifecycle banner, tabs helper; Vitest guard). Prior: 2026-08-08 (**TB-2095** **Done** — remove vague unnamed Deliverables policy-pack callout; header Review template remains SoT; Vitest guard). Prior: 2026-08-08 (**TB-2094** **Done** — remove page-local Settings back arrows on administration child pages; Vitest regression guard). Prior: 2026-08-08 (**TB-2093** **Done** — remove mid-page About … scope/details collapsibles; Vitest regression guard). Prior: 2026-08-08 (**TB-2092** **Done** — remove mid-page operator Sources for follow-up chrome; Vitest regression guard). Prior: 2026-08-08 (**TB-2091** **Done** — remove SOC 2 / pen-test disclaimer warnings from non-assurance Evidence chrome; Vitest regression guard). Prior: 2026-08-08 (**TB-2090** **Done** — remove all breadcrumbs system-wide; shell + page-local trails gone; explicit back links where hierarchy needs them). Prior: 2026-08-08 (**TB-2079** **Done** — API latency-tier CI gate: `check_api_latency_tiers.py` + `api_latency_tiers.v1.json` + `[AsyncRequired]` on async execute/replay/export accepts). Prior: 2026-08-08 (**TB-2078** **Done** — Tier B staged wait (`LongOperationWaitNotice`) + administration/integrations `loading.tsx`; wait matrix in LONG_RUNNING_OPERATIONS_CONTRACT). Prior: 2026-08-08 (**TB-2077** **Done** — shell in-flight operations store + top-bar affordance; polls `GET /v1/operations/{id}`; toast on terminal when elsewhere; async execute registers handle). Prior: 2026-08-08 (**TB-2076** **Done** — `POST /v1/operations/{operationId}/cancel` cooperative cancel with `CancelRequested`/`Canceled` operation states). Prior: 2026-08-08 (**TB-2075** **Done** — async execute/replay siblings `POST .../execute/async` and `.../replay/async` return 202 + `Location: /v1/operations/{id}`; in-process queue + hosted worker). Prior: 2026-08-07 (**TB-2074** **Done** — unified `GET /v1/operations/{operationId}`). Prior: 2026-08-07 (**TB-2096**–**TB-2107** opened — owner page ratings: P0 Evidence graph fold budget / vocabulary / single legend / dead review-trail tip / one sample notice / picker label / canvas toolbar gating, plus P0 Alerts duplicate configure-rules CTA, never-evaluated `0` counters, dead no-rules controls, circular empty-state copy, Open-vs-Blocking tile relationship). Prior: 2026-08-07 (**TB-2073** **Done** — HTTP timeout ceiling matrix + `GET /v1/jobs/{id}` tenant-scope enforcement). Prior: 2026-08-07 (**TB-2095** opened — P0 clarify or remove vague Deliverables “Policy pack used for this review.” line). Prior: 2026-08-07 (**TB-2094** opened — P0 remove page-local `← Settings` back arrows on administration child pages). Prior: 2026-08-07 (**TB-2072** **Done** — long-running operations latency-tier contract + operation inventory SoT). Prior: 2026-08-07 (**TB-2071** **Done** — compare workspace execution-mode honesty strip + delta narrative trust advisory). Prior: 2026-08-07 (**TB-2070** **Done** — P0 remove “About …” scope/details blocks; merge needed copy into title/header). Prior: 2026-08-07 (**TB-2092** opened — P0 remove mid-page operator “Sources for follow-up” blocks). Prior: 2026-08-07 (**TB-2090**/**TB-2091** opened — P0 remove all breadcrumbs; P0 remove SOC 2 / pen-test disclaimer warnings system-wide). Prior: 2026-08-07 (**TB-2069** **Done** — tenant migration fan-out stage guards + acknowledge-catalog-attach API). Prior: 2026-08-07 (**TB-2068** **Done** — tenant migration banner on AppShell with polling + stage suspend copy). Prior: 2026-08-07 (**TB-2066** **Done** — finding inspect trust labels use parent run execution mode + degradation signals). Prior: 2026-08-07 (**TB-2062** **Done** — audit list scope revision bumps coalesce during append bursts; first-page cache hit-rate under write churn). Prior: 2026-08-07 (**TB-2061** **Done** — `/dashboard` + `/signed-records` First Load JS deferred chunks + CI gate routes). Prior: 2026-08-07 (**TB-2060** **Done** — V2 decision-node materialization moved to post-commit outbox; commit HTTP path no longer runs `IDecisionEngineV2`). Prior: 2026-08-07 (**TB-2057** **Done** — comparison list/search omit `PayloadJson`; detail via `GetByIdAsync`). Prior: 2026-08-07 (**TB-2055** **Done** — retrieval indexing outbox slim `GetRunDetailForRetrievalIndexingAsync` + bounded parallel drain). Prior: 2026-08-07 (**TB-1949** **Done** — MAM traffic workbook retagged Core review; ui_routes.md honesty; Vitest). Prior: 2026-08-06 (**TB-2080**–**TB-2089** opened — architecture simplification: delete duplicate UI/workers/controllers, pilot profile, gate unwired features/outboxes, DDL drift gate, API/CI consolidation). Prior: 2026-08-06 (**TB-2054** **Done** — ROI uses `GetRunDetailForRoiAsync` rollup+mute; no N× fat `GetRunDetailAsync`). Prior: 2026-08-06 (**TB-2072**–**TB-2079** opened — long-running operations contract + unified operation API + async execute + cancel + shell activity + Tier B wait UX + latency-tier CI; all **P0** **V1**). Prior: 2026-08-06 (**TB-2053** **Done** — `GetRollupProjectionByRunIdAsync` JSON subpaths; rollup/compare off bare `ResultJson`). Prior: 2026-08-06 (**TB-965** **Done** — quality vs execution UX + Vitest; **TB-963** SoT). Prior: 2026-08-06 (**TB-934**/**TB-935**/**TB-2028**–**TB-2030** promoted to **P0** — open UI performance peers). Prior: 2026-08-06 (**TB-2053**–**TB-2062** opened — Performance wave 4: top-10 untracked opportunities refiled as **P0** **V1**; prior **TB-2048**–**TB-2057** IDs were consumed by Learn more cluster — do not reuse). Prior: 2026-08-06 (**TB-963** **Done** — LLM_EXECUTION_VS_QUALITY_OUTCOME.md taxonomy + persist checklist; GTM **M-123**/**M-124** SoT). Prior: 2026-08-06 (**TB-2052** **Done** — Learn more job-match Vitest suite; secondary-hub ban + Digests golden; **TB-2048**—**TB-2052** cluster closed). Prior: 2026-08-05 (**TB-2051** **Done** — Category-1 deep-link CTAs on allowlisted hubs; Digests golden retained; Vitest allowlist; **TB-2052** remains open). Prior: 2026-08-05 (**TB-2050** **Done** — secondary-hub Learn more off getting-started/how-it-works; omit when no specialty; **TB-2051**–**TB-2052** remain open). Prior: 2026-08-05 (**TB-2049** **Done** ? Digests Learn more to `/help/digests` specialty + Schedule Category-1 deep links; traffic **DI**/**DIS**/**HDG**; **TB-2050**?**TB-2052** remain open). Prior: 2026-08-05 (**TB-2048** **Done** ? Learn more job-match in [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md) + UI ARCHITECTURE pointer; ban generic getting-started/how-it-works on secondary hubs; **TB-2049**?**TB-2052** remain open). Prior: 2026-08-05 (**TB-2048**?**TB-2052** opened ? P0 page-scoped contextual help *quality*: Learn more must match page job (ban generic `getting-started`/`how-it-works` on secondary hubs), Digests golden remap + Schedule deep link, secondary-hub sweep, actionable Category-1 popover links, Vitest; owner Digests help review 2026-08-05; traffic **OCH**; complements open mount cluster **TB-1666**?**TB-1670** ? do not reopen). Prior: 2026-08-05 (**TB-931** **Done** ? typed hot scalars on `AgentExecutionTraces` (DbUp **294**); list + LLM cost prefer typed columns with JSON_VALUE COALESCE; dual-write Create + quality columns; inventory). Prior: 2026-08-05 (**TB-1030** **Done** ? [`PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md`](PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md) must-complete + package-spine IA unlock + minute-12 + narration residuals; GTM **M-181** + claim-boundary cites; **TB-1031** remains open). Prior: 2026-08-05 (**TB-1026** **Done** ? [`OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md`](OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md) package primary + `/reviews` spine + collapse surfaces; GTM **M-177** + claim-boundary cites; **TB-1027** remains open). Prior: 2026-08-05 (**TB-1024** **Done** ? [`COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md`](COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md) minimal immutable snapshot + artifact/regenerate/verify modes; GTM **M-175** + claim-boundary cites; **TB-1025** remains open). Prior: 2026-08-05 (**TB-1022** **Done** ? [`PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md`](PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md) block vs advisory + SoD ownership matrix; GTM **M-173** + claim-boundary cites; **TB-1023** remains open). Prior: 2026-08-05 (**TB-1011** **Done** ? [`TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md`](TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md) finalize vs outbox + never-silent best-effort matrix; GTM **M-163** + claim-boundary cites; **TB-1012** remains open). Prior: 2026-08-05 (**TB-1009** **Done** ? [`APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md`](APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md) append-only/sealed vs mutable + Update-destruction matrix; GTM **M-161** + claim-boundary cites; **TB-1010** remains open). Prior: 2026-08-05 (**TB-1007** **Done** ? [`AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md`](AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md) Authority canonical + AgentTask forbid matrix; GTM **M-159** + Flow A1 cites; **TB-1008** remains open). Prior: 2026-08-05 (**TB-1005** **Done** ? [`LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md`](LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md) NetArchTest vs ranked runtime residuals; GTM **M-157** + claim-boundary cites; **TB-1006** remains open). Prior: 2026-08-05 (**TB-1003** **Done** ? [`COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md`](COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md) unit-of-truth + hop/label matrix; GTM **M-155** + claim-boundary cites; **TB-1004** remains open). Prior: 2026-08-05 (**TB-1001** **Done** ? [`RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md`](RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md) Ask/Search/Graph-RAG hit guarantee matrix; GTM **M-153** + Layer E / Ask threat-model cites; **TB-1002** remains open). Prior: 2026-08-05 (**TB-999** **Done** ? [`TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md`](TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md) decide-once matrix; GTM **M-151** + Layer B cites; **TB-1000** remains open). Prior: 2026-08-05 (**TB-997** **Done** ? [`LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md`](LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md) ingress vs confinement matrix; GTM **M-149** + claim-boundary cites; **TB-952** remains open). Prior: 2026-08-04 (**TB-995** **Done** ? [`POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md`](POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md) transport vs partial/cache/budget matrix; `LLM_RETRY` + GTM **M-147** + claim-boundary cites; does not close **TB-941**?**TB-945**). Prior: 2026-08-04 (**TB-968** **Done** ? `IItsmInboundWebhookReplayGuard` + in-memory 24h dedupe; delivery-id / Atlassian identifier / synthetic replay keys; `Integration.ItsmInboundWebhookReplayIgnored` audit; optional timestamp skew without HMAC; [`ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md`](runbooks/ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md); hostile-traffic inventory Replay ? Y). Prior: 2026-08-04 (**TB-2038**?**TB-2041** opened ? operator short-helper measure caps: design-system contract + `OperatorPageHeader`/`PageHeading` + dashboard inventory + Vitest; Overview `/` premature `max-w-prose`/`max-w-2xl` fixed in-session). Prior: 2026-08-04 (**TB-967** **Done** ? `InboundWebhookBoundedBodyReader` Content-Length + hard ceiling before HMAC; ITSM/Stripe/Marketplace/Slack; 413; unit/arch/integration tests; inventory updated). Prior: 2026-08-04 (**TB-966** **Done** ? `INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md` PA order rate?size?verify?parse + surface matrix + checklist; INV-015 refresh; GTM **M-125**/**M-126** cite SoT; **TB-968** remains open). Prior: 2026-08-03 (**TB-955** **Done** ? Required audit abandon metric + pageable Prometheus alerts; domain?audit orphan probe + job; triage runbook; informational TryLogAsync excluded). Prior: 2026-08-03 (**TB-954** **Done** ? `RequiredAuditEventTypes` registry + arch test forbids `TryLogAsync` on Required types; INV-003 enforcement note; Core + Architecture tests). Prior: 2026-08-03 (**TB-951** **Done** ? ?3 indirect doc/README/ADR corpus scenarios + `indirect-doc-injection.json` with `expectedContained` residual; CI assert + eval_agent_quality strict; no 100% detection claim). Prior: 2026-08-03 (**TB-950** **Done** ? production-like empty/null `AllowedTools` fail-closed; `*` unrestricted sentinel; DemoSeed concrete tools; TB-082 tests updated). Prior: 2026-08-03 (**TB-949** **Done** ? untrusted customer-content `CUSTOMER_CONTENT_BEGIN`/`END` + framing; Agent/Ask composers; contract doc; unit + wiring tests; hygiene ? security boundary). Prior: 2026-08-03 (**DI** Evidence chrome ? /digests Sources + claim discipline; Vitest; traffic **DI**). Prior: 2026-08-03 (**PLA** Evidence chrome ? `/planning` Sources + claim discipline + topic honesty `how-it-works`; Vitest; traffic **PLA**). Prior: 2026-08-03 (**TB-897** **Done** ? Quick Scan layered identity/abuse limits + CAPTCHA/sign-in friction codes; mig **292**; abuse ? spend ceiling). Prior: 2026-08-03 (**SCX** Evidence chrome ? `/insights/architecture-scorecard` Sources + Category-1 registry + directional ROI claim; Vitest; traffic **SCX**; **TB-1956**?**TB-1960** remain Done). Prior: 2026-08-03 (**TB-1668** GDX/alerts topic slice ? `/governance/dashboard` Sources + registry + topic honesty; `/governance/alerts` ? `alerts`; Vitest; traffic **GDX**; remaining mount hubs open). Prior: 2026-08-03 (**TB-1667** HOM slice ? `/` remounts `OperatorHomePageChrome` + Category-1 registry; Vitest; traffic **HOM**; remaining hubs open). Prior: 2026-08-03 (**TB-1746**/**TB-1749**/**TB-1750** **Done** ? `/help/soc2-self-assessment` specialty buyer guide + Trust CTA / IA dual / Help Center; Vitest; traffic **HES**; **TB-1747**/**TB-1748** retained). Prior: 2026-08-03 (**TB-1386** **Done** ? `/help/governance-api-contracts` specialty API contracts guide + title honesty; Vitest; traffic **HG**). Prior: 2026-08-02 (**TB-1691**/**TB-1692**/**TB-1694**/**TB-1695** **Done** ? `/help/first-value-20-minutes` Admin specialty guide; Vitest; traffic **HEF**). Prior: 2026-08-02 (**TB-1676**/**TB-1678**/**TB-1679**/**TB-1680** **Done** ? `/help/dpa-template` specialty buyer DPA guide; Vitest; traffic **HDP**). Prior: 2026-07-31 (Open **P1** summary rows reordered - human-impact ship order for /ship-next-improvement; 723 open P1s; see `### P1 - human-impact ship order`).
+**Updated:** 2026-08-08 (**TB-2125**–**TB-2129** opened — P0 help-topic Mermaid diagrams for principal-architect mental models: governance approval, policy packs, evidence trail, repeat-review loop, compare/replay; Getting started pattern). Prior: 2026-08-08 (**TB-2117**–**TB-2124** opened + **TB-915**/**TB-947**/**TB-932** promoted to **P0** — Performance wave 5: next-10 quantified opportunities after Done **TB-2053**–**TB-2062**). Prior: 2026-08-08 (**TB-2112** **Done** + **TB-2113**–**TB-2116** opened — durable action outcomes: high-stakes acceptance/errors in-page, not toast-only). Prior: 2026-08-08 (**TB-969** **Done** — INV-002 per-task → run aggregation contract + `AggregateFromFinalTaskOutcomes` reference; Vitest/unit tests). Prior: 2026-08-08 (**TB-2030** **Done** — First Load JS gate tracks `/`, `/governance/alerts`, `/governance/alert-rules`; `TRACKED_ROUTES` + baseline + Next 16 fixture; governance-cluster estimates pending CI remeasure). Prior: 2026-08-08 (**TB-2029** **Done** — SSE-first run progress pauses HTTP fallback while connected/hidden; shell banner polls only when visible banners need refresh; Vitest policy tests). Prior: 2026-08-08 (**TB-2028** **Done** — `/welcome` server page + deferred pricing/layout chrome; Suspense for `useSearchParams` CTAs; import-policy Vitest; before **711.5 kB** First Load JS, baseline refresh on next green CI build). Prior: 2026-08-08 (**TB-935** **Done** — alerts inbox on TanStack Query + 50-row card virtualization; audit search via query cache + threshold virtualization; reviews hub waived at 25-row server page size; Vitest). Prior: 2026-08-08 (**TB-934** **Done** — reviews hub below-fold panels + governance approval-queue workflow deferred via `next/dynamic`; import-policy Vitest guards; Vitest + typecheck on touched routes). Prior: 2026-08-08 (**TB-2107** **Done** — Open tile nests blocking as subset (`3 open · 2 blocking`); drop peer Blocking tile; relationship title + aria; Vitest). Prior: 2026-08-08 (**TB-2106** **Done** — no-rules Alerts empty state names a verified CriticalRecommendationCount example; governance setup primary CTA; Vitest). Prior: 2026-08-08 (**TB-2105** **Done** — hide Alerts Status/Refresh/last-refreshed/batch when no rules; filed **TB-2111** for shared “Not refreshed yet” sweep; Vitest). Prior: 2026-08-08 (**TB-2104** **Done** — Alerts summary counters show not-evaluated sentinel (not `0`) when rules missing or never run; accessible names explain dash; Vitest). Prior: 2026-08-08 (**TB-2103** **Done** — one “Configure alert rules” affordance per Alerts state; suppress header on no_rules; drop healthy_clear duplicate; Vitest). Prior: 2026-08-08 (**TB-2102** **Done** — Evidence graph canvas toolbar named `Graph canvas controls`; Highlight path / Focus selection disabled with title until a node is selected; Vitest). Prior: 2026-08-08 (**TB-2101** **Done** — AskRunIdPicker label drops pick-an-architecture-review parenthetical; placeholder keeps empty-state prompt; Vitest guard). Prior: 2026-08-08 (**TB-2100** **Done** — one in-page Evidence graph sample notice via compact banner; suppress picker sample status + trailing operator paragraph; Vitest guard). Prior: 2026-08-08 (**TB-2099** **Done** — remove dead review-trail mode tip; Vitest leakage guard; tip host gone with **TB-2098**). Prior: 2026-08-08 (**TB-2098** **Done** — one Evidence graph node-type legend beside canvas; drop role chips + tip legend + prose LEGEND card; Vitest guard). Prior: 2026-08-08 (**TB-2097** **Done** — Evidence graph surface vs Evidence trail concept (decision B); step pill + export CTA + design-system rule; Vitest guard). Prior: 2026-08-08 (**TB-2096** **Done** — Evidence graph spine keeps only numbered step pills; drop prev/next, Review lifecycle banner, tabs helper; Vitest guard). Prior: 2026-08-08 (**TB-2095** **Done** — remove vague unnamed Deliverables policy-pack callout; header Review template remains SoT; Vitest guard). Prior: 2026-08-08 (**TB-2094** **Done** — remove page-local Settings back arrows on administration child pages; Vitest regression guard). Prior: 2026-08-08 (**TB-2093** **Done** — remove mid-page About … scope/details collapsibles; Vitest regression guard). Prior: 2026-08-08 (**TB-2092** **Done** — remove mid-page operator Sources for follow-up chrome; Vitest regression guard). Prior: 2026-08-08 (**TB-2091** **Done** — remove SOC 2 / pen-test disclaimer warnings from non-assurance Evidence chrome; Vitest regression guard). Prior: 2026-08-08 (**TB-2090** **Done** — remove all breadcrumbs system-wide; shell + page-local trails gone; explicit back links where hierarchy needs them). Prior: 2026-08-08 (**TB-2079** **Done** — API latency-tier CI gate: `check_api_latency_tiers.py` + `api_latency_tiers.v1.json` + `[AsyncRequired]` on async execute/replay/export accepts). Prior: 2026-08-08 (**TB-2078** **Done** — Tier B staged wait (`LongOperationWaitNotice`) + administration/integrations `loading.tsx`; wait matrix in LONG_RUNNING_OPERATIONS_CONTRACT). Prior: 2026-08-08 (**TB-2077** **Done** — shell in-flight operations store + top-bar affordance; polls `GET /v1/operations/{id}`; toast on terminal when elsewhere; async execute registers handle). Prior: 2026-08-08 (**TB-2076** **Done** — `POST /v1/operations/{operationId}/cancel` cooperative cancel with `CancelRequested`/`Canceled` operation states). Prior: 2026-08-08 (**TB-2075** **Done** — async execute/replay siblings `POST .../execute/async` and `.../replay/async` return 202 + `Location: /v1/operations/{id}`; in-process queue + hosted worker). Prior: 2026-08-07 (**TB-2074** **Done** — unified `GET /v1/operations/{operationId}`). Prior: 2026-08-07 (**TB-2096**–**TB-2107** opened — owner page ratings: P0 Evidence graph fold budget / vocabulary / single legend / dead review-trail tip / one sample notice / picker label / canvas toolbar gating, plus P0 Alerts duplicate configure-rules CTA, never-evaluated `0` counters, dead no-rules controls, circular empty-state copy, Open-vs-Blocking tile relationship). Prior: 2026-08-07 (**TB-2073** **Done** — HTTP timeout ceiling matrix + `GET /v1/jobs/{id}` tenant-scope enforcement). Prior: 2026-08-07 (**TB-2095** opened — P0 clarify or remove vague Deliverables “Policy pack used for this review.” line). Prior: 2026-08-07 (**TB-2094** opened — P0 remove page-local `← Settings` back arrows on administration child pages). Prior: 2026-08-07 (**TB-2072** **Done** — long-running operations latency-tier contract + operation inventory SoT). Prior: 2026-08-07 (**TB-2071** **Done** — compare workspace execution-mode honesty strip + delta narrative trust advisory). Prior: 2026-08-07 (**TB-2070** **Done** — P0 remove “About …” scope/details blocks; merge needed copy into title/header). Prior: 2026-08-07 (**TB-2092** opened — P0 remove mid-page operator “Sources for follow-up” blocks). Prior: 2026-08-07 (**TB-2090**/**TB-2091** opened — P0 remove all breadcrumbs; P0 remove SOC 2 / pen-test disclaimer warnings system-wide). Prior: 2026-08-07 (**TB-2069** **Done** — tenant migration fan-out stage guards + acknowledge-catalog-attach API). Prior: 2026-08-07 (**TB-2068** **Done** — tenant migration banner on AppShell with polling + stage suspend copy). Prior: 2026-08-07 (**TB-2066** **Done** — finding inspect trust labels use parent run execution mode + degradation signals). Prior: 2026-08-07 (**TB-2062** **Done** — audit list scope revision bumps coalesce during append bursts; first-page cache hit-rate under write churn). Prior: 2026-08-07 (**TB-2061** **Done** — `/dashboard` + `/signed-records` First Load JS deferred chunks + CI gate routes). Prior: 2026-08-07 (**TB-2060** **Done** — V2 decision-node materialization moved to post-commit outbox; commit HTTP path no longer runs `IDecisionEngineV2`). Prior: 2026-08-07 (**TB-2057** **Done** — comparison list/search omit `PayloadJson`; detail via `GetByIdAsync`). Prior: 2026-08-07 (**TB-2055** **Done** — retrieval indexing outbox slim `GetRunDetailForRetrievalIndexingAsync` + bounded parallel drain). Prior: 2026-08-07 (**TB-1949** **Done** — MAM traffic workbook retagged Core review; ui_routes.md honesty; Vitest). Prior: 2026-08-06 (**TB-2080**–**TB-2089** opened — architecture simplification: delete duplicate UI/workers/controllers, pilot profile, gate unwired features/outboxes, DDL drift gate, API/CI consolidation). Prior: 2026-08-06 (**TB-2054** **Done** — ROI uses `GetRunDetailForRoiAsync` rollup+mute; no N× fat `GetRunDetailAsync`). Prior: 2026-08-06 (**TB-2072**–**TB-2079** opened — long-running operations contract + unified operation API + async execute + cancel + shell activity + Tier B wait UX + latency-tier CI; all **P0** **V1**). Prior: 2026-08-06 (**TB-2053** **Done** — `GetRollupProjectionByRunIdAsync` JSON subpaths; rollup/compare off bare `ResultJson`). Prior: 2026-08-06 (**TB-965** **Done** — quality vs execution UX + Vitest; **TB-963** SoT). Prior: 2026-08-06 (**TB-934**/**TB-935**/**TB-2028**–**TB-2030** promoted to **P0** — open UI performance peers). Prior: 2026-08-06 (**TB-2053**–**TB-2062** opened — Performance wave 4: top-10 untracked opportunities refiled as **P0** **V1**; prior **TB-2048**–**TB-2057** IDs were consumed by Learn more cluster — do not reuse). Prior: 2026-08-06 (**TB-963** **Done** — LLM_EXECUTION_VS_QUALITY_OUTCOME.md taxonomy + persist checklist; GTM **M-123**/**M-124** SoT). Prior: 2026-08-06 (**TB-2052** **Done** — Learn more job-match Vitest suite; secondary-hub ban + Digests golden; **TB-2048**—**TB-2052** cluster closed). Prior: 2026-08-05 (**TB-2051** **Done** — Category-1 deep-link CTAs on allowlisted hubs; Digests golden retained; Vitest allowlist; **TB-2052** remains open). Prior: 2026-08-05 (**TB-2050** **Done** — secondary-hub Learn more off getting-started/how-it-works; omit when no specialty; **TB-2051**–**TB-2052** remain open). Prior: 2026-08-05 (**TB-2049** **Done** ? Digests Learn more to `/help/digests` specialty + Schedule Category-1 deep links; traffic **DI**/**DIS**/**HDG**; **TB-2050**?**TB-2052** remain open). Prior: 2026-08-05 (**TB-2048** **Done** ? Learn more job-match in [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md) + UI ARCHITECTURE pointer; ban generic getting-started/how-it-works on secondary hubs; **TB-2049**?**TB-2052** remain open). Prior: 2026-08-05 (**TB-2048**?**TB-2052** opened ? P0 page-scoped contextual help *quality*: Learn more must match page job (ban generic `getting-started`/`how-it-works` on secondary hubs), Digests golden remap + Schedule deep link, secondary-hub sweep, actionable Category-1 popover links, Vitest; owner Digests help review 2026-08-05; traffic **OCH**; complements open mount cluster **TB-1666**?**TB-1670** ? do not reopen). Prior: 2026-08-05 (**TB-931** **Done** ? typed hot scalars on `AgentExecutionTraces` (DbUp **294**); list + LLM cost prefer typed columns with JSON_VALUE COALESCE; dual-write Create + quality columns; inventory). Prior: 2026-08-05 (**TB-1030** **Done** ? [`PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md`](PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md) must-complete + package-spine IA unlock + minute-12 + narration residuals; GTM **M-181** + claim-boundary cites; **TB-1031** remains open). Prior: 2026-08-05 (**TB-1026** **Done** ? [`OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md`](OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md) package primary + `/reviews` spine + collapse surfaces; GTM **M-177** + claim-boundary cites; **TB-1027** remains open). Prior: 2026-08-05 (**TB-1024** **Done** ? [`COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md`](COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md) minimal immutable snapshot + artifact/regenerate/verify modes; GTM **M-175** + claim-boundary cites; **TB-1025** remains open). Prior: 2026-08-05 (**TB-1022** **Done** ? [`PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md`](PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md) block vs advisory + SoD ownership matrix; GTM **M-173** + claim-boundary cites; **TB-1023** remains open). Prior: 2026-08-05 (**TB-1011** **Done** ? [`TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md`](TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md) finalize vs outbox + never-silent best-effort matrix; GTM **M-163** + claim-boundary cites; **TB-1012** remains open). Prior: 2026-08-05 (**TB-1009** **Done** ? [`APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md`](APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md) append-only/sealed vs mutable + Update-destruction matrix; GTM **M-161** + claim-boundary cites; **TB-1010** remains open). Prior: 2026-08-05 (**TB-1007** **Done** ? [`AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md`](AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md) Authority canonical + AgentTask forbid matrix; GTM **M-159** + Flow A1 cites; **TB-1008** remains open). Prior: 2026-08-05 (**TB-1005** **Done** ? [`LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md`](LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md) NetArchTest vs ranked runtime residuals; GTM **M-157** + claim-boundary cites; **TB-1006** remains open). Prior: 2026-08-05 (**TB-1003** **Done** ? [`COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md`](COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md) unit-of-truth + hop/label matrix; GTM **M-155** + claim-boundary cites; **TB-1004** remains open). Prior: 2026-08-05 (**TB-1001** **Done** ? [`RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md`](RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md) Ask/Search/Graph-RAG hit guarantee matrix; GTM **M-153** + Layer E / Ask threat-model cites; **TB-1002** remains open). Prior: 2026-08-05 (**TB-999** **Done** ? [`TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md`](TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md) decide-once matrix; GTM **M-151** + Layer B cites; **TB-1000** remains open). Prior: 2026-08-05 (**TB-997** **Done** ? [`LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md`](LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md) ingress vs confinement matrix; GTM **M-149** + claim-boundary cites; **TB-952** remains open). Prior: 2026-08-04 (**TB-995** **Done** ? [`POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md`](POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md) transport vs partial/cache/budget matrix; `LLM_RETRY` + GTM **M-147** + claim-boundary cites; does not close **TB-941**?**TB-945**). Prior: 2026-08-04 (**TB-968** **Done** ? `IItsmInboundWebhookReplayGuard` + in-memory 24h dedupe; delivery-id / Atlassian identifier / synthetic replay keys; `Integration.ItsmInboundWebhookReplayIgnored` audit; optional timestamp skew without HMAC; [`ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md`](runbooks/ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md); hostile-traffic inventory Replay ? Y). Prior: 2026-08-04 (**TB-2038**?**TB-2041** opened ? operator short-helper measure caps: design-system contract + `OperatorPageHeader`/`PageHeading` + dashboard inventory + Vitest; Overview `/` premature `max-w-prose`/`max-w-2xl` fixed in-session). Prior: 2026-08-04 (**TB-967** **Done** ? `InboundWebhookBoundedBodyReader` Content-Length + hard ceiling before HMAC; ITSM/Stripe/Marketplace/Slack; 413; unit/arch/integration tests; inventory updated). Prior: 2026-08-04 (**TB-966** **Done** ? `INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md` PA order rate?size?verify?parse + surface matrix + checklist; INV-015 refresh; GTM **M-125**/**M-126** cite SoT; **TB-968** remains open). Prior: 2026-08-03 (**TB-955** **Done** ? Required audit abandon metric + pageable Prometheus alerts; domain?audit orphan probe + job; triage runbook; informational TryLogAsync excluded). Prior: 2026-08-03 (**TB-954** **Done** ? `RequiredAuditEventTypes` registry + arch test forbids `TryLogAsync` on Required types; INV-003 enforcement note; Core + Architecture tests). Prior: 2026-08-03 (**TB-951** **Done** ? ?3 indirect doc/README/ADR corpus scenarios + `indirect-doc-injection.json` with `expectedContained` residual; CI assert + eval_agent_quality strict; no 100% detection claim). Prior: 2026-08-03 (**TB-950** **Done** ? production-like empty/null `AllowedTools` fail-closed; `*` unrestricted sentinel; DemoSeed concrete tools; TB-082 tests updated). Prior: 2026-08-03 (**TB-949** **Done** ? untrusted customer-content `CUSTOMER_CONTENT_BEGIN`/`END` + framing; Agent/Ask composers; contract doc; unit + wiring tests; hygiene ? security boundary). Prior: 2026-08-03 (**DI** Evidence chrome ? /digests Sources + claim discipline; Vitest; traffic **DI**). Prior: 2026-08-03 (**PLA** Evidence chrome ? `/planning` Sources + claim discipline + topic honesty `how-it-works`; Vitest; traffic **PLA**). Prior: 2026-08-03 (**TB-897** **Done** ? Quick Scan layered identity/abuse limits + CAPTCHA/sign-in friction codes; mig **292**; abuse ? spend ceiling). Prior: 2026-08-03 (**SCX** Evidence chrome ? `/insights/architecture-scorecard` Sources + Category-1 registry + directional ROI claim; Vitest; traffic **SCX**; **TB-1956**?**TB-1960** remain Done). Prior: 2026-08-03 (**TB-1668** GDX/alerts topic slice ? `/governance/dashboard` Sources + registry + topic honesty; `/governance/alerts` ? `alerts`; Vitest; traffic **GDX**; remaining mount hubs open). Prior: 2026-08-03 (**TB-1667** HOM slice ? `/` remounts `OperatorHomePageChrome` + Category-1 registry; Vitest; traffic **HOM**; remaining hubs open). Prior: 2026-08-03 (**TB-1746**/**TB-1749**/**TB-1750** **Done** ? `/help/soc2-self-assessment` specialty buyer guide + Trust CTA / IA dual / Help Center; Vitest; traffic **HES**; **TB-1747**/**TB-1748** retained). Prior: 2026-08-03 (**TB-1386** **Done** ? `/help/governance-api-contracts` specialty API contracts guide + title honesty; Vitest; traffic **HG**). Prior: 2026-08-02 (**TB-1691**/**TB-1692**/**TB-1694**/**TB-1695** **Done** ? `/help/first-value-20-minutes` Admin specialty guide; Vitest; traffic **HEF**). Prior: 2026-08-02 (**TB-1676**/**TB-1678**/**TB-1679**/**TB-1680** **Done** ? `/help/dpa-template` specialty buyer DPA guide; Vitest; traffic **HDP**). Prior: 2026-07-31 (Open **P1** summary rows reordered - human-impact ship order for /ship-next-improvement; 723 open P1s; see `### P1 - human-impact ship order`).
 
 **BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **TB-386?397 Done** (2026-06-22 through 2026-06-27). **First-party connector V1.1?åÆV1 GA promotion (2026-07-03):** Jira/ServiceNow/Confluence/Slack/Microsoft Teams moved to **V1 GA** (`V1_DEFERRED.md` ?º6/?º6a); **TB-599?ÇôTB-602** track the resulting tightening work (native-create default posture, OAuth upgrade, live-validation parity, buyer-copy sweep). **Next recommended batch:** **TB-398** (full enterprise ITSM connector ?Çö **V2** ITSM cluster; out of V1/V1.1 unless owner promotes) remains separate and unaffected by the promotion. Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
@@ -190,6 +190,8 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 **TB-933 ? TB-935** were added 2026-07-22 from the owner follow-up on **UI performance** after **TB-560?TB-573** / **TB-691?TB-698** shipped the first bundle/CWV/Lighthouse wave. Easy static-import wins are largely done; this cluster is the next engineering wave: cut remaining First Load JS on `/reviews/[runId]` (**TB-933**, still ~2.2 MB per `reviews_run_detail_bundle_composition_tb697.md`), then `/reviews` + `/governance` (**TB-934**), then TanStack Query + virtualization for remaining high-churn operator lists beyond findings (**TB-935**). Does **not** duplicate API/SQL payload work (**TB-929**/**TB-930**) ? if field LCP/INP is fine but the page feels slow, triage to those first. Owner cadence for field Web Vitals and pre-cut triage lives in GTM **G-QA-06** / **G-QA-07** / **M-112**. Cross-ref [`UI_LIGHTHOUSE_CI.md`](../architecture/UI_LIGHTHOUSE_CI.md), [`ui_dependency_assessment.md`](../architecture/ui_dependency_assessment.md). **TB-933** **Done** (2026-07-24); **TB-934**/**TB-935** remain open. Wave-3 follow-ons: **TB-2021**?**TB-2032** (2026-07-31).
 
 **TB-2021 ? TB-2032** were added 2026-07-31 from an **owner ask** for quantified UI speedups (top-10 + follow-up audit of alerts/home/alert-rules). Baseline still shows `/reviews/[runId]` **2,255 kB**, `/reviews` **1,695 kB**, `/governance` **1,417 kB**, `/welcome` **736 kB** First Load JS. Does **not** recreate open **TB-934** (hub First Load JS) or **TB-935** (list Query + virtualization) ? execute those as peers. Does **not** reopen Done **TB-933**/**TB-930**/**TB-560**?**TB-573**/**TB-691**?**TB-698**. **TB-2021** (P1) post-933 run-detail sync shell cut ? **Done** (2026-08-03; baseline remeasure pending). **TB-2022** (P1) operator slim first-paint ? **Done** (2026-08-03; always buyer-summary). **TB-2023** (P1) alerts inbox mount fan-out ? **Done** (2026-08-03; `GET /v1/alerts/inbox-summary`). **TB-2024** (P2) alert-rules tab code-split ? **Done** (2026-08-03). **TB-2025** (P2) home empty-SSR refetch skip ? **Done** (2026-08-03; authoritative empty SSR). **TB-2026** (P2) nested Suspense streaming ? **Done** (2026-08-03; alerts hub + run-detail below-fold). **TB-2027** (P2) loader/proxy parallelization ? **Done** (2026-08-03; five hot loaders + `DATA_FLOW_AND_STATE` §9). **TB-2028**?**TB-2029** (P2) `/welcome` shell cut, SSE/poll hygiene. **TB-2030** (P2) baseline expansion. **TB-2031** (P2) field CWV triage gate ? **Done** (2026-08-03; [`FIELD_WEB_VITALS_TRIAGE.md`](../runbooks/FIELD_WEB_VITALS_TRIAGE.md); pairs GTM **G-QA-06**/**G-QA-07**). **TB-2032** (P3) marketing `next/image` ? **Done** (2026-08-03, **waived**; [`tb2032_marketing_lcp_image_waiver.md`](../architecture/tb2032_marketing_lcp_image_waiver.md)). No new GTM IDs. Cross-ref [`reviews_run_detail_bundle_composition_tb697.md`](../architecture/reviews_run_detail_bundle_composition_tb697.md), [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) §1/§7, [`run_detail_summary_lazy_load_tb930.md`](../architecture/run_detail_summary_lazy_load_tb930.md).
+
+**TB-2125 — TB-2129** were added 2026-08-08 from the owner ask to **create P0s** for **Mermaid pipeline diagrams** on high-flow help topics (principal-architect mental models). Only **Getting started** ships Mermaid today; infrastructure (`help-mermaid.ts`, markdown fences) is ready but customer-facing help bodies have no diagrams elsewhere. **Owner refinement 2026-08-08:** diagrams must be **visible by default** in the primary help section — **not** behind collapsed **Technical details** (`<details>`); eng-only prose may stay in separate collapsed disclosures. **TB-2125** (P0) `/help/governance-approval` — approval state machine beside existing workflow stepper. **TB-2126** (P0) `/help/policy-packs` — hierarchical merge adapted from [`archlucid-governance-policy-packs.mmd`](architecture/architecture_diagrams/archlucid-governance-policy-packs.mmd). **TB-2127** (P0) `/help/evidence-trail` — provenance graph; complements **TB-1360**–**TB-1364**. **TB-2128** (P0) `/help/repeat-review-loop` — stickiness cycle; complements **TB-1394**–**TB-1398**. **TB-2129** (P0) `/help/comparison-replay` — compare vs replay decision tree; complements **TB-1636**–**TB-1640**. Pattern: buyer-safe intro + visible `<MermaidDiagram>` (parity **Getting started** after visible-default fix). Vitest per route. No new GTM IDs.
 
 **TB-2117 — TB-2124** were added 2026-08-08 from the owner ask to **create P0s** for the next quantified performance opportunities after Done **TB-2053**–**TB-2062**. All **P0** **V1**: further `/architecture/reviews/[runId]` First Load JS cut (**TB-2117**, baseline **2237.5 kB**); shared operator-shell First Load JS tax on hubs (**TB-2118**); slim operator `GetRunDetailAsync` off full `ResultJson` (**TB-2119**); Production Redis L2 + replica-count enablement (**TB-2120**); Real-mode Critic/bulkhead wall-time (**TB-2121**); outbox idle-poll floors (**TB-2122**); narrow `force-dynamic` + TanStack Query remainder (**TB-2123**); cold-start paid-lever decision pack (**TB-2124**). Same pass **promotes** open peers to **P0**: Container Apps HTTP+CPU scale mix (**TB-915**), API max-replicas vs TPM checklist (**TB-947**), measured JSON LOB → blob offload (**TB-932**, evidence-gated). Does **not** reopen Done **TB-560**–**TB-593** / **TB-929**–**TB-935** / **TB-2021**–**TB-2032** / **TB-2053**–**TB-2062**.
 
@@ -1182,18 +1184,23 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-2107 | **Done** — Define the Open vs Blocking alert tile relationship (nest or label) — currently unexplained peers; see ## TB-2107 below | Explainability P0 — **V1**; owner ask 2026-08-07; possible double count | S |
 | TB-2111 | Shared “Not refreshed yet” last-updated copy decision across operator page headers; see ## TB-2111 below | Adoption friction P2 — **V1**; filed from **TB-2105**; ~15 duplicated strings | S |
 | TB-2112 | **Done** — Design-system durable action outcomes (toast vs in-page) + `OperatorSuccessCallout`; see ## TB-2112 below | Adoption friction P0 — **V1**; owner ask 2026-08-08 | S |
-| TB-2113 | **Done** — Review-start residuals: FirstPilot / QuickReview / QuickStart / SimplifiedPilot inline validation + no toast-only create paths; see ## TB-2113 below | Adoption friction P0 — **V1**; with **TB-2112** | M |
-| TB-2114 | **Done** — Governance mutations — durable in-page outcomes (quick approve, promote, bulk); see ## TB-2114 below | Adoption friction P0 — **V1**; with **TB-2112** | M |
-| TB-2115 | **Done** — Admin / integrations high-stakes saves durable feedback sweep; see ## TB-2115 below | Adoption friction P0 — **V1**; with **TB-2112** | M |
-| TB-2116 | **Done** — Durable action outcomes Vitest inventory + dual-toast guard; see ## TB-2116 below | Testability P0 — **V1**; after **TB-2113**–**TB-2115** | S |
-| TB-2117 | **Done** (2026-08-08) — Further `/architecture/reviews/[runId]` First Load JS cut — `RunDetailWorkspaceShell` split + deferred workspace/overview chrome; baseline **2150.6 kB** (−87 vs **2237.5**); see ## TB-2117 below | Performance P0 — **V1**; owner perf wave 5 2026-08-08; after **TB-933**/**TB-2021** | M |
-| TB-2118 | **Done** — shared operator-shell First Load JS deferrals wired; hub cuts measured; see ## TB-2118 below | Performance P0 — **V1**; owner perf wave 5 2026-08-08; residual after **TB-934**/**TB-2030** | L |
-| TB-2119 | **Done** (2026-08-09) — Slim operator run detail off full `ResultJson` — `GetRunDetailForOperatorEnrichAsync` + enricher wiring; see ## TB-2119 below | Performance P0 — **V1**; owner perf wave 5 2026-08-08; residual after **TB-930**/**TB-2053**/**TB-2059** | L |
+| TB-2113 | Review-start residuals — FirstPilot / QuickReview / dual validation toasts → durable feedback; see ## TB-2113 below | Adoption friction P0 — **V1**; with **TB-2112** | M |
+| TB-2114 | Governance mutations — durable in-page outcomes (quick approve, promote, bulk); see ## TB-2114 below | Adoption friction P0 — **V1**; with **TB-2112** | M |
+| TB-2115 | Admin / integrations high-stakes saves — durable feedback sweep; see ## TB-2115 below | Adoption friction P0 — **V1**; with **TB-2112** | M |
+| TB-2116 | Durable action outcomes — Vitest inventory + dual-toast guard; see ## TB-2116 below | Testability P0 — **V1**; after **TB-2113**–**TB-2115** | S |
+| TB-2117 | Further `/architecture/reviews/[runId]` First Load JS cut — remaining sync workspace/overview chrome; target **−100 to −250 kB** from **2237.5 kB**; see ## TB-2117 below | Performance P0 — **V1**; owner perf wave 5 2026-08-08; after **TB-933**/**TB-2021** | M |
+| TB-2118 | Shared operator-shell First Load JS tax — route-group split so hubs drop below **~1.5–1.7 MB**; see ## TB-2118 below | Performance P0 — **V1**; owner perf wave 5 2026-08-08; residual after **TB-934**/**TB-2030** | L |
+| TB-2119 | Slim operator `GetRunDetailAsync` off full `ResultJson` — first-paint projection + lazy expand; see ## TB-2119 below | Performance P0 — **V1**; owner perf wave 5 2026-08-08; residual after **TB-930**/**TB-2053**/**TB-2059** | L |
 | TB-2120 | Production Redis L2 + `ExpectedApiReplicaCount` enablement — wiring Done (**TB-580**); config still cold; see ## TB-2120 below | Performance P0 — **V1**; owner perf wave 5 2026-08-08; ops enablement | M |
 | TB-2121 | Real-mode Critic/bulkhead wall-time — staged Critic cost + concurrency ceilings vs **900s** handler / **~60s** edge; see ## TB-2121 below | Performance P0 — **V1**; owner perf wave 5 2026-08-08; peers **TB-2075**/**TB-915** | M |
-| TB-2122 | **Done** (2026-08-09) — Outbox idle-poll floors — authority/integration/Cosmos graph adaptive backoff; see ## TB-2122 below | Performance P0 — **V1**; owner perf wave 5 2026-08-08; after **TB-586**/**TB-2056** | S |
-| TB-2123 | **Done** (2026-08-09) — Narrow operator `force-dynamic` + TanStack Query remainder on medium surfaces; see ## TB-2123 below | Performance P0 — **V1**; owner perf wave 5 2026-08-08; after **TB-562**/**TB-935** | M |
-| TB-2124 | **Done** (2026-08-09) — Cold-start paid-lever decision pack — owner cost×latency matrix + go/no-go; see ## TB-2124 below | Performance P0 — **V1**; owner perf wave 5 2026-08-08; after free levers **TB-754**–**TB-759** | S |
+| TB-2122 | Outbox idle-poll floors — authority/integration **2s** + Cosmos graph **15s** → backoff idle poll; see ## TB-2122 below | Performance P0 — **V1**; owner perf wave 5 2026-08-08; after **TB-586**/**TB-2056** | S |
+| TB-2123 | Narrow operator `force-dynamic` + TanStack Query remainder on medium surfaces; see ## TB-2123 below | Performance P0 — **V1**; owner perf wave 5 2026-08-08; `UI_ARCHITECTURE_V1_1` §1/§4 | M |
+| TB-2124 | Cold-start paid-lever decision pack — R2R / trim / `min_replicas` cost×latency with Phase A/B evidence; see ## TB-2124 below | Performance P0 — **V1**; owner perf wave 5 2026-08-08; after free levers **TB-754**–**TB-759** | S |
+| TB-2125 | `/help/governance-approval` — Mermaid approval state-machine diagram; see ## TB-2125 below | Adoption friction P0 — **V1**; owner PA help-diagram ask 2026-08-08; traffic **HG**; with **TB-2126**–**TB-2129** | S |
+| TB-2126 | `/help/policy-packs` — Mermaid hierarchical merge diagram; see ## TB-2126 below | Adoption friction P0 — **V1**; owner PA help-diagram ask 2026-08-08; with **TB-2125**/**TB-2127**–**TB-2129** | S |
+| TB-2127 | `/help/evidence-trail` — Mermaid provenance lineage diagram; see ## TB-2127 below | Adoption friction P0 — **V1**; owner PA help-diagram ask 2026-08-08; traffic **EV**; complements **TB-1360**–**TB-1364** | S |
+| TB-2128 | `/help/repeat-review-loop` — Mermaid stickiness-cycle diagram; see ## TB-2128 below | Adoption friction P0 — **V1**; owner PA help-diagram ask 2026-08-08; traffic **HRX**; complements **TB-1394**–**TB-1398** | S |
+| TB-2129 | `/help/comparison-replay` — Mermaid compare vs replay decision tree; see ## TB-2129 below | Adoption friction P0 — **V1**; owner PA help-diagram ask 2026-08-08; traffic **CO**; complements **TB-1636**–**TB-1640** | S |
 | TB-932 | Offload large JSON payloads to blob storage — keep ids + metadata in SQL; park multi-MB `*Json` in blob when measured row sizes justify; see `## TB-932` below | Performance P0 — **V1** (promoted P0 + V1 2026-08-08 with perf wave 5; evidence-gated; was P3 V2); after **TB-929**–**TB-931**; peers **TB-2119** | L |
 | TB-2103 | Operator-maintained model catalog — DDL-backed `IAgentModelAliasRegistry` replacing `ConfigAgentModelAliasRegistry`; internal-only admin surface; lifecycle + audit on every mutation; see ## TB-2103 below | Maintainability P1 — **V1.1**; ADR 0065 D2′; today curation needs a code change + deploy | L |
 | TB-2104 | Structured-output capability ladder (`StrictJsonSchema` \| `JsonObject` \| `DegradedTextParse`) per catalog row + per-task minimum, fail-closed routing; see ## TB-2104 below | Correctness P1 — **V1.1**; ADR 0065 D4′; the **only** quality-adjacent fail-closed control — function, not quality judgment | M |
@@ -1213,7 +1220,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-2014 | Audit + Value report ? From/To ? Start/End date + picker width; see ## TB-2014 below | Adoption friction P1 ? **V1**; with **TB-2012**; Pilot value report is reference | S |
 | TB-891 | Showcase render-mode telemetry ? `showcase_viewed` + `showcase_render_mode` (`static` \| `api` \| `api_fallback` \| `failed`) via Clarity/App Insights on marketing routes; no PII; **extended 2026-07-23** ? require `scenario` dimension + funnel events per **TB-978**; see `## TB-891` / `## TB-978` below | Traceability P1 ? **V1**; assessment 2026-07-19; portfolio assessment 2026-07-23 | S |
 | TB-964 | Durable auditable quality-outcome persistence ? scores, reject category, gate mode/floors, triage id reconstructible without raw LLM bodies; see `## TB-964` below | Traceability P1 ? **V1**; after **TB-963**; builds on quality gate Done path | M |
-| TB-973 | **Done** — Persist gate version/hash with outcome; recorded vs advisoryCurrent evaluation split; see `## TB-973` below | Traceability P1 ? **V1**; after **TB-972**; closes live `GET ?/agent-evaluation` re-gate authority gap | M |
+| TB-973 | Persist gate version/hash with outcome; recorded vs advisoryCurrent evaluation split ? freeze authoritative path; see `## TB-973` below | Traceability P1 ? **V1**; after **TB-972**; closes live `GET ?/agent-evaluation` re-gate authority gap | M |
 | TB-978 | Showcase scenario telemetry ? extend **TB-891** with `scenario` dimension + finding/evidence/demo/signup funnel events; see `## TB-978` below | Traceability P1 ? **V1**; showcase portfolio assessment 2026-07-23; GTM **M-133**/**M-136**; blocks default flip (**TB-981**) | S |
 | TB-1292 | Fine-tuning promotion decision record (code-rollback-grade audit) contract; see `## TB-1292` below | Traceability P1 ? **V1**; PA Q15 FT promote/rollback; GTM **M-227**/**M-228** | S |
 | TB-1120 | First security review PA one-pager ship-order contract; see `## TB-1120` below | Commercial / marketability P1 ? **V1**; PA Q16; GTM **M-192**/**M-193** | S |
@@ -26171,13 +26178,11 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Traceability.
 
-**Status:** **Done** (2026-08-08).
+**Status:** Not started.
 
 **Priority:** P1.
 
 **Source:** Follow-on to **TB-972** ? close the live re-gate authority gap.
-
-**Shipped:** Migration **299** (`QualityGateDefinitionVersion`, `QualityGateDefinitionContentHashSha256`, `RecordedQualityGateOutcome` on `dbo.AgentExecutionTraces`); `PatchQualityGateRecordedSnapshotAsync` (immutable first-write); execute-time snapshot via `QualityGateDefinitionSnapshotFactory`; `GET …/agent-evaluation` returns `recorded` + `advisoryCurrent` perspectives; UI reads authoritative recorded for quality concerns and advisory for forensic score display; unit tests.
 
 **Problem:** Execute-time only patches booleans; `GET ?/agent-evaluation` recomputes with host-configured thresholds (`AgentOutputEvaluationSummary` ?not persisted?), so a PA can see a different aggregate outcome than the run?s recorded decision after a floor change.
 
@@ -48915,7 +48920,7 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Window:** V1 — Adoption friction.
 
-**Status:** Done (2026-08-08).
+**Status:** Not started.
 
 **Priority:** P0.
 
@@ -48923,11 +48928,11 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Why:** First-pilot and quick-review are the highest-traffic create paths beside guided intake; leftover toast-only validation/error paths reintroduce the owner miss risk.
 
-**Approach (shipped):**
+**Approach:**
 
-1. FirstPilot / QuickReview / QuickStart / SimplifiedPilot: `ReviewStartInlineError` + shared `review-start-progress-copy` validation messages; removed toast-only validation and success-on-navigate paths.
-2. Creation failures remain on `creationProgress.error` / `OperatorApiProblem` / inline validation until corrected.
-3. Vitest guards on QuickStart + SimplifiedPilot inline validation (no `showError`).
+1. Finish FirstPilot / QuickReview: drop toast-only validation (align **TB-2005**); keep creation failures on `ReviewStartInlineError` / `creationProgress.error`.
+2. Remove dead `showToast("ok")` paths that navigate away without destination notice.
+3. Audit QuickStart / SimplifiedPilot validation toasts still firing when field errors exist (dual feedback).
 
 **Acceptance:**
 
@@ -48944,7 +48949,7 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Window:** V1 — Adoption friction.
 
-**Status:** Done (2026-08-08).
+**Status:** Not started.
 
 **Priority:** P0.
 
@@ -48973,7 +48978,7 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Window:** V1 — Adoption friction.
 
-**Status:** Done (2026-08-08 — cloud connection save, SSO wizard, SAML save, SCIM token create/revoke, webhook save, billing checkout return use `OperatorSuccessCallout` / `OperatorMutationInlineError`; clipboard/trivial echoes remain toast-only; Vitest no-toast guards).
+**Status:** Not started.
 
 **Priority:** P0.
 
@@ -49002,7 +49007,7 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Window:** V1 — Testability.
 
-**Status:** Done (2026-08-08 — `durable-mutation-outcome-inventory.ts` + `tb2116-durable-mutation-outcome-guard.test.ts` forbid toast-only high-stakes acceptance copy; dual-toast Vitest inventory; `ReviewGenerationCreatedNotice.test.tsx`; temporary allowlist for trial billing checkout toasts).
+**Status:** Not started.
 
 **Priority:** P0.
 
@@ -49417,9 +49422,7 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Window:** V1 — Performance.
 
-**Status:** Done (2026-08-08).
-
-**Shipped:** Split sync layout (`RunDetailWorkspaceShell.tsx`) from deferred workspace chrome (`RunDetailWorkspaceHeaderDeferred`, summary strip, blocking banner, sticky actions, section nav, executive bottom line, tab-gated manifest/submitted-architecture/capture-evidence/governance/review-package sections, buyer conversion + fallback banners). Extended `run-detail-bundle-deferred-imports.test.ts` import-policy guards. Committed baseline **2150.6 kB** on `/architecture/reviews/[runId]` (−**87 kB** vs pre-cut **2237.5 kB**; includes partial **TB-2118** hub deferral in same remeasure pass).
+**Status:** Not started.
 
 **Priority:** P0.
 
@@ -49439,7 +49442,7 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Affected files:** `archlucid-ui/src/components/reviews/**`, `run-detail-page-view-deferred-chunks.tsx`, `performance/first-load-js-baseline.v1.json`, composition doc.
 
-**Peers:** Done **TB-933**/**TB-2021**; hub shell **TB-2118** Done; payload **TB-2119** Done.
+**Peers:** Done **TB-933**/**TB-2021**; hub residual **TB-2118**; payload residual **TB-2119**.
 
 **Size estimate:** M.
 
@@ -49449,38 +49452,27 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Window:** V1 — Performance.
 
-**Status:** Done (2026-08-09).
+**Status:** Not started.
 
 **Priority:** P0.
 
 **Source:** Owner perf wave 5 2026-08-08.
 
-**Why:** After per-route deferrals, hubs still sat at **~1.5–1.7 MB** First Load JS because shared chrome dominated: `/` **1520** (estimate), `/architecture/reviews` **1710.6**, `/governance/alerts` **~1485**, executive **1546** kB.
+**Why:** After per-route deferrals, hubs still sit at **~1.5–1.7 MB** First Load JS because shared chrome dominates: `/` **1520**, `/architecture/reviews` **1710.6**, `/governance/alerts` **~1485**, executive **1546** kB.
 
-**Shipped:**
+**Quantified target:** **−100 to −300 kB** per hub (estimate) via route-group isolation / further shell code-split; remeasure `/` + alert hubs (notes still mark some as estimates pending CI).
 
-1. `app-shell-deferred-chunks.tsx` — dynamic imports for `OperatorShellTopBar`, telemetry bundle, session idle guard, auth panel (minimal shell), sync-active-run, main content gates, workspace footer, dev shortcuts.
-2. `operator-shell-top-bar-deferred-chunks.tsx` — defers `GlobalSearchBar`, `MobileNavDrawer`, `ScopeSwitcher`, in-flight ops affordance, account settings, more menu, LLM budget pill off top-bar sync graph.
-3. `AppShellKeyboardShortcutBoundary` — lazy keyboard shortcut provider after first paint (children not blocked).
-4. `AppShellMainContentGate` / `AppShellTelemetryBundle` — split demo/sponsor/role gates and telemetry init off `AppShellClient` sync graph.
-5. `AppShellClient.tsx` wired to deferred exports; `OperatorShellTopBar.tsx` wired to top-bar deferred chunks.
-6. `app-shell-deferred-imports.test.ts` — Vitest import-policy guard.
-7. `performance/first-load-js-baseline.v1.json` — remeasured cuts (turbopack `route-bundle-stats.json`, 2026-08-09).
+**Approach:**
 
-**Measured hub cuts** (vs pre-wiring turbopack remeasure on same tree):
+1. Profile shared imports from `OperatorShellProviders` / top bar / nav authority against hub entry chunks.
+2. Split shell so low-traffic hubs do not pay for high-churn modules; keep command palette / evidence graph lazy (Done **TB-560**/**TB-561**).
+3. Refresh tracked baselines after measured cuts.
 
-| Route | Before (kB) | After (kB) | Δ kB |
-|-------|-------------|------------|------|
-| `/` | 1733.2 | 1619.5 | −113.7 |
-| `/architecture/reviews` | 1374.9 | 1169.5 | −205.4 |
-| `/governance/alerts` | 1442.5 | 1331.5 | −111.0 |
-| `/architecture/executive-dashboard` | 1570.4 | 1420.3 | −150.1 |
+**Acceptance:** At least two tracked hubs show measured First Load JS reduction; import guards for deferred shell modules; `check:first-load-js` green.
 
-**Acceptance:** At least two tracked hubs show measured First Load JS reduction; import guards for deferred shell modules; `check:first-load-js` green — **met**.
+**Affected files:** `archlucid-ui/src/components/OperatorShellProviders.tsx`, shell top bar, `(operator)` layouts, baseline JSON.
 
-**Affected files:** `archlucid-ui/src/components/AppShellClient.tsx`, `archlucid-ui/src/components/shell/*`, baseline JSON.
-
-**Peers:** Done **TB-934**/**TB-2030**/**TB-2061**/**TB-2117**.
+**Peers:** Done **TB-934**/**TB-2030**/**TB-2061**; run-detail **TB-2117**.
 
 **Size estimate:** L.
 
@@ -49490,17 +49482,7 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Window:** V1 — Performance.
 
-**Status:** Done (2026-08-09).
-
-**Shipped:**
-
-1. `IRunDetailQueryService.GetRunDetailForOperatorEnrichAsync` — same enrichment stack as `GetRunDetailAsync` (tasks, mute, trust labels, manifest, decision traces, LLM cost slices) but loads agent results via `GetRollupProjectionByRunIdAsync` (TB-2053) instead of bare `ResultJson`.
-2. `RunDetailQueryService.LoadRunDetailAsync` — shared loader with `useRollupProjection` flag; `GetRunDetailAsync` unchanged for forensics/export/replay.
-3. `AuthorityRunDetailOperatorEnricher.EnrichAsync` — calls slim path; buyer-summary path unchanged (TB-930 markers).
-4. Tests: `RunDetailQueryServiceTests.GetRunDetailForOperatorEnrichAsync_*`, `AuthorityRunDetailOperatorEnricherTests.EnrichAsync_does_not_load_full_run_detail_result_json`.
-5. `docs/architecture/hot_path_json_blob_list_inventory.md` — operator enrich row (TB-2119).
-
-**Lazy expand:** UI expand/forensics callers continue to use `GET /v1/architecture/review/{runId}` (`GetRunDetailAsync` full path) or trace/finding inspect endpoints — no new route required for v1.
+**Status:** Not started.
 
 **Priority:** P0.
 
@@ -49590,7 +49572,7 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Window:** V1 — Performance.
 
-**Status:** **Done** (2026-08-09).
+**Status:** Not started.
 
 **Priority:** P0.
 
@@ -49600,17 +49582,27 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Quantified target:** Cut empty→busy visibility lag by **~0–2s** (authority/integration) or **~0–15s** (Cosmos); tightening idle poll to **0.5–1s** with backoff ≈ **~50%** median lag cut (estimate) without burning CPU when idle.
 
-**Shipped (2026-08-09):** AuthorityPipelineWorkHostedService, IntegrationEventOutboxHostedService, and CosmosGraphSnapshotOutboxHostedService now drain via AdaptiveOutboxDrainLoop (same helper as retrieval/projection/export outboxes). AdaptiveOutboxIdleBackoff.BaseIdleDelay lowered from **2 s → 1 s**; Cosmos PollIntervalSeconds is the **max idle ceiling** (default **15 s**) instead of a fixed poll. Processors return dequeued batch counts so busy paths drain back-to-back with zero idle delay.
+**Approach:**
+
+1. Replace fixed idle sleep with short poll + exponential backoff when empty.
+2. Keep busy-path drain unchanged (bounded parallel).
+3. Unit/integration tests for backoff bounds; metric for queue wait age.
+
+**Acceptance:** Configurable idle poll with backoff; default lower than today’s fixed floors; no regression in busy drain throughput; docs updated.
+
+**Affected files:** `AuthorityPipelineWorkHostedService`, `IntegrationEventOutboxHostedService`, Cosmos graph outbox options/processor.
 
 **Peers:** Done **TB-586**/**TB-2056**.
 
 **Size estimate:** S.
 
+---
+
 ## TB-2123 — Narrow force-dynamic + TanStack Query remainder (P0)
 
 **Window:** V1 — Performance.
 
-**Status:** **Done** (2026-08-09).
+**Status:** Not started.
 
 **Priority:** P0.
 
@@ -49620,7 +49612,15 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Quantified target:** **−50–200 ms** TTFB on selectively cacheable operator pages (estimate); **−1–3 RTTs** / **−100–400 ms** perceived on remount-heavy medium surfaces (estimate).
 
-**Shipped (2026-08-09):** Removed blanket `force-dynamic` from digests, advisory-scans, integrations, and Ask layouts via `OperatorClientDrivenRouteLayout`. Migrated digests browse (`useArchitectureDigestsBrowseQuery`), digest subscriptions (`useDigestSubscriptionsQuery`), and advisory persisted recommendations (`useAdvisoryRecommendationsQuery` + `fetchQuery` refresh paths) to TanStack Query with scoped keys in `operator-query-keys.ts`. Vitest layout guard + updated `UI_ARCHITECTURE_V1_1.md` §1/§4.
+**Approach:**
+
+1. Inventory layouts with `force-dynamic`; narrow to routes that must opt out of caching after security review.
+2. Migrate next medium-traffic reads (Ask picker, digests, advisory, billing/integrations slices) to TanStack Query shared keys with tenant/run scope.
+3. Vitest/import guards where useful; update `UI_ARCHITECTURE_V1_1.md` §1/§4 status.
+
+**Acceptance:** At least one operator layout group no longer blanket force-dynamic; ≥3 medium surfaces on Query with scoped keys; docs updated.
+
+**Affected files:** `archlucid-ui/src/app/(operator)/**/layout.tsx`, `use-*-query.ts` hooks, client fetch sites, `UI_ARCHITECTURE_V1_1.md`.
 
 **Peers:** Done **TB-562**/**TB-935**/**TB-2027**.
 
@@ -49632,7 +49632,7 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Window:** V1 — Performance / Cost-effectiveness.
 
-**Status:** **Done** (2026-08-09).
+**Status:** Not started.
 
 **Priority:** P0.
 
@@ -49642,9 +49642,174 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Quantified target:** Owner-ready cost×latency matrix with expected **tens of %** first-request improvement ranges per lever (estimate) and monthly Azure cost delta; pick 0–N levers with explicit go/no-go.
 
-**Shipped (2026-08-09):** Consolidated dev baseline vs staging gates; cost×latency matrix with risk/rollback columns; owner go/no-go table (all **no-go** / **defer** on current evidence) in `PERFORMANCE_COLD_START_AND_TRIMMING.md` § Paid-lever decision pack; cross-links from `COLD_START_MEASUREMENT.md` and `cold-start-baselines/README.md`.
+**Approach:**
+
+1. Consolidate Phase A/B measurements from `PERFORMANCE_COLD_START_AND_TRIMMING.md` / cold-start baselines.
+2. Table each paid lever: latency impact band, monthly cost band, risk, rollback.
+3. Owner decision recorded; implement only chosen levers (separate follow-on if needed).
+
+**Acceptance:** Decision pack merged; owner go/no-go per lever; no silent `min_replicas` raise without cost note.
+
+**Affected files:** `docs/library/PERFORMANCE_COLD_START_AND_TRIMMING.md`, `docs/runbooks/COLD_START_MEASUREMENT.md`, optional GTM/ops pointer.
 
 **Peers:** Done **TB-754**–**TB-759**; Redis enablement **TB-2120**.
+
+**Size estimate:** S.
+
+---
+
+## TB-2125 — `/help/governance-approval` — Mermaid approval state-machine diagram (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner PA help-diagram ask 2026-08-08; route already has `HelpGovernanceApprovalGuideView` + six-step workflow stepper but no pipeline diagram.
+
+**Why:** Principal architects expect a **state** view (Draft → Submitted → Under review → Approved / Rejected / Superseded) alongside the procedural stepper. Diagram must be **visible by default** in the primary section (owner 2026-08-08) — not behind collapsed Technical details.
+
+**Approach:**
+
+1. Add `GOVERNANCE_APPROVAL_HELP_DIAGRAM_SOURCE` (buyer-safe `flowchart` or `stateDiagram-v2`) to `governance-approval-help-guide-content.ts`.
+2. Render summary copy + visible `<MermaidDiagram>` in the workflow section (raised border container parity **Getting started** `getting-started-pipeline-diagram`).
+3. **Do not** hide the diagram inside `<details>`; eng-only reference stays in existing collapsed technical reference only.
+4. Align node labels with status table on the same page — no eng API paths in the diagram.
+5. Vitest: diagram region visible without expanding disclosures; `data-testid` for diagram host; banned jargon guard unchanged.
+
+**Acceptance:** `/help/governance-approval` shows a buyer-safe approval state diagram in the default viewport without expanding Technical details; diagram matches documented statuses.
+
+**Affected files:** `archlucid-ui/src/lib/governance-approval-help-guide-content.ts`, `archlucid-ui/src/app/(operator)/help/_sections/HelpGovernanceApprovalGuideView.tsx`, `HelpTopicGovernanceApproval.test.tsx`.
+
+**Peers:** **TB-2126**–**TB-2129**; specialty guide already shipped — this row is diagram-only.
+
+**Out of scope:** Rewriting role guides or technical reference (**TB-1250** Done).
+
+**Size estimate:** S.
+
+---
+
+## TB-2126 — `/help/policy-packs` — Mermaid hierarchical merge diagram (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner PA help-diagram ask 2026-08-08; route uses `HelpTopicMarkdownView` over `POLICY_PACKS_OPERATOR_GUIDE.md`; conflict-resolution section is prose-only.
+
+**Why:** “Higher scope wins” (tenant → workspace → project) is easier to retain as a diagram. Adapt [`archlucid-governance-policy-packs.mmd`](architecture/architecture_diagrams/archlucid-governance-policy-packs.mmd) to **buyer-safe** labels (no internal engine names). Diagram **visible by default** in the primary section (owner 2026-08-08).
+
+**Approach:**
+
+1. Add buyer-safe mermaid source under **How conflicts are resolved** — ` ```mermaid ` in `POLICY_PACKS_OPERATOR_GUIDE.md` **or** `*_DIAGRAM_SOURCE` + visible host in a specialty section.
+2. Diagram renders in the default viewport (not inside `<details>`); `prepareHelpMarkdownForPresentation` → `MermaidDiagram` when using markdown.
+3. Strip contributor-only subgraph labels from the adapted source.
+4. Vitest: mermaid region present without expanding disclosures.
+
+**Acceptance:** Policy packs help shows hierarchical merge + effective-rules outcome **without** collapsing the diagram; copy and diagram agree on scope precedence.
+
+**Affected files:** `docs/library/customer-facing/POLICY_PACKS_OPERATOR_GUIDE.md`, optional `archlucid-ui/src/app/(operator)/help/[...topic]/page.tsx`, help topic test.
+
+**Peers:** **TB-2125**/**TB-2127**–**TB-2129**; does not reopen policy-pack **UI** rows (**TB-1134** cluster).
+
+**Out of scope:** New policy-pack product features or bundled catalog changes (**TB-719** Done).
+
+**Size estimate:** S.
+
+---
+
+## TB-2127 — `/help/evidence-trail` — Mermaid provenance lineage diagram (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner PA help-diagram ask 2026-08-08; complements open **TB-1360**–**TB-1364** (specialty companion + `/graph` CTA).
+
+**Why:** Evidence graph help describes lineage (evidence → findings → decisions → signed review record) and three graph modes — a provenance diagram helps PAs before they open `/graph`. Diagram **visible by default** (owner 2026-08-08).
+
+**Approach:**
+
+1. Add buyer-safe `flowchart` source (evidence intake → findings → governance decisions → signed review record → exports).
+2. Render visible `<MermaidDiagram>` in the primary help section (raised border host parity **Getting started**); graph-mode detail may stay in prose below the diagram.
+3. Ship alongside or after **TB-1360** specialty view — diagram can live in content module + specialty view section.
+4. Vitest: diagram `data-testid` visible without expanding disclosures; valid mode vocabulary if deep links mentioned (**TB-1361**).
+
+**Acceptance:** Evidence-trail help includes a **default-viewport** provenance diagram consistent with Evidence graph chrome (**TB-2097** Done).
+
+**Affected files:** `archlucid-ui/src/lib/*evidence-trail*help*`, `HelpEvidenceTrailGuideView` or markdown body, tests; traffic **EV**.
+
+**Depends on:** Coordinate **TB-1360**–**TB-1364** — diagram does not block specialty CTA work.
+
+**Out of scope:** `/graph` canvas UX (**TB-2096**–**TB-2102** Done).
+
+**Size estimate:** S.
+
+---
+
+## TB-2128 — `/help/repeat-review-loop` — Mermaid stickiness-cycle diagram (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner PA help-diagram ask 2026-08-08; complements **TB-1394**–**TB-1398** (specialty second-review companion).
+
+**Why:** `REPEAT_REVIEW_LOOP.md` documents compare → replay → dry-run → second proof as a loop; markdown route has no visual cycle. Diagram **visible by default** (owner 2026-08-08).
+
+**Approach:**
+
+1. Add `REPEAT_REVIEW_LOOP_HELP_DIAGRAM_SOURCE` or markdown ` ```mermaid ` cycle (`first finalize` → `compare` → `replay` → `dry-run` → `second finalize` → `proof`).
+2. Render in the primary section — **not** inside collapsed Technical details.
+3. Buyer-safe labels only — no `collect-first-pilot-proof.ps1` or repo paths in the diagram.
+4. Cross-link destinations in prose beside the diagram (comparison-replay, first-architecture-review).
+5. Vitest: diagram region visible without expanding disclosures.
+
+**Acceptance:** Repeat-review-loop help shows the stickiness cycle in the default viewport; complements **TB-1394** specialty hero without duplicating eng runbook body.
+
+**Affected files:** `docs/library/REPEAT_REVIEW_LOOP.md` or `repeat-review-loop-help-guide-content.ts`, `HelpRepeatReviewLoopGuideView.tsx`, `HelpTopicRepeatReviewLoop.test.tsx`; traffic **HRX**.
+
+**Peers:** **TB-2129**; **TB-1394**–**TB-1398**.
+
+**Out of scope:** Habit-loop validation cohort execution (GTM / facilitator work).
+
+**Size estimate:** S.
+
+---
+
+## TB-2129 — `/help/comparison-replay` — Mermaid compare vs replay decision tree (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner PA help-diagram ask 2026-08-08; complements **TB-1636**–**TB-1640** (specialty Compare CTA).
+
+**Why:** Operators confuse **compare** (two reviews) with **replay** (saved comparison record) and when to start a **new review**. A decision tree reduces misuse (replay when evidence materially changed). Diagram **visible by default** (owner 2026-08-08).
+
+**Approach:**
+
+1. Add buyer-safe `flowchart TD` (material evidence change? → new review; need delta narrative? → compare; need regenerate from saved record? → replay; drift check? → replay + verify).
+2. Adapt logic from [`ARCHITECTURE_FLOWS.md`](ARCHITECTURE_FLOWS.md) Flow C — customer language only.
+3. Render in the primary help section — markdown fence on `COMPARISON_REPLAY_OPERATOR_GUIDE.md` or visible host in specialty view when **TB-1636** lands; **not** inside `<details>`.
+4. Vitest: diagram visible without expanding disclosures; no duplicate job with repeat-review-loop prose only (**TB-1638**).
+
+**Acceptance:** Compare/replay help includes a **default-viewport** decision tree; diagram distinguishes compare, replay, and new review without API endpoint names.
+
+**Affected files:** `docs/library/customer-facing/COMPARISON_REPLAY_OPERATOR_GUIDE.md`, optional `comparison-replay-help-guide-content.ts`, help topic test; traffic **CO**.
+
+**Peers:** **TB-2128**; **TB-1636**–**TB-1640**; contract **TB-1024** Done.
+
+**Out of scope:** Compare UI implementation changes.
 
 **Size estimate:** S.
 

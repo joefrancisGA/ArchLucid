@@ -31,5 +31,5 @@
       "firstLoadJsKb": 1360.9
     }
   },
-  "notes": "TB-2118 (2026-08-09): remeasured after AppShellClient deferred shell wiring (`app-shell-deferred-chunks.tsx`). Hub cuts vs pre-wiring turbopack remeasure: `/` −113.7 kB, `/architecture/reviews` −205.4 kB, `/governance/alerts` −111 kB, `/architecture/executive-dashboard` −150.1 kB. TB-2030: operator Overview and alert hubs tracked alongside canonical /architecture/reviews paths."
+  "notes": "TB-2030: operator Overview (`/`) and alert hubs tracked alongside canonical /architecture/reviews paths. `/`, `/governance/alerts`, and `/governance/alert-rules` baselines are governance-cluster estimates pending CI remeasure (`npm run build && npm run write:first-load-js-baseline`)."
 }

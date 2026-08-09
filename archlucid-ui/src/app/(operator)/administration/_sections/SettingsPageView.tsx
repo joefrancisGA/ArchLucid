@@ -67,7 +67,7 @@ export function SettingsPageView() {
             {showAdvanced ? "Hide advanced settings" : "Show advanced settings"}
           </Button>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Identity, API keys, and rarely changed controls stay collapsed until you need them.
+            Identity and rarely changed controls stay collapsed until you need them.
           </p>
         </div>
       ) : null}

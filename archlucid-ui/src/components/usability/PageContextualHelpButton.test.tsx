@@ -29,15 +29,22 @@ describe("PageContextualHelpButton", () => {
     );
   });
 
-  it("falls back to a direct help link when the route is not migrated", () => {
-    mockUsePathname.mockReturnValue("/insights/roi-summary");
+  it("shows contextual panel on Internal Ops recommendation-learning", () => {
+    mockUsePathname.mockReturnValue("/internal/recommendation-learning");
 
     render(<PageContextualHelpButton />);
 
-    const link = screen.getByRole("link", { name: /view roi methodology/i });
+    const trigger = screen.getByTestId("page-contextual-help-button");
 
-    expect(link).toHaveAttribute("href", "/help/pilot-roi-model");
-    expect(screen.queryByTestId("page-scoped-contextual-help-panel")).not.toBeInTheDocument();
+    expect(trigger.tagName).toBe("BUTTON");
+
+    fireEvent.click(trigger);
+
+    expect(screen.getByTestId("page-scoped-contextual-help-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("page-scoped-contextual-help-learn-more")).toHaveAttribute(
+      "href",
+      "/help/pilot-feedback",
+    );
   });
 
   it("uses Category-1 popover on architecture draft detail pages (ARR)", () => {
@@ -56,6 +63,14 @@ describe("PageContextualHelpButton", () => {
       "href",
       "/help/getting-started",
     );
+  });
+
+  it("renders nothing on in-app help topic pages", () => {
+    mockUsePathname.mockReturnValue("/help/getting-started");
+
+    const { container } = render(<PageContextualHelpButton />);
+
+    expect(container).toBeEmptyDOMElement();
   });
 });
 

@@ -8,9 +8,9 @@ describe("resolveNavLinkTooltipTitle", () => {
     expect(
       resolveNavLinkTooltipTitle(
         "Users & roles",
-        "Users & roles — directory, role assignments, and API keys",
+        "Users & roles — directory and role assignments",
       ),
-    ).toBe("directory, role assignments, and API keys");
+    ).toBe("directory and role assignments");
   });
 
   it("strips when the configured label uses i18n constants", () => {

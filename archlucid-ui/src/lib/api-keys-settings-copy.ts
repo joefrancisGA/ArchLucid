@@ -12,7 +12,7 @@ export const API_KEYS_RESTRICTED_DESCRIPTION =
   "API key management is available to workspace administrators.";
 
 export const API_KEYS_SURFACE_DISABLED_DESCRIPTION =
-  "API key management is not available in this workspace experience. Contact your ArchLucid representative for enterprise API access.";
+  "API key management is not offered in the product UI yet. Interactive access uses Users and roles. Host automation credentials stay in deployment configuration when needed.";
 
 export const API_KEYS_SSO_ONLY_NOTICE =
   "This workspace uses SSO-managed sign-in. API keys may be disabled when your organization requires identity-provider authentication only.";
