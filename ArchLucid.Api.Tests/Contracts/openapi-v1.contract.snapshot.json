@@ -2101,6 +2101,9 @@
           "agentType": {
             "$ref": "#/components/schemas/AgentType"
           },
+          "cacheServed": {
+            "type": "boolean"
+          },
           "calibratedConfidence": {
             "format": "double",
             "maximum": 1,
@@ -2209,6 +2212,16 @@
           },
           "taskId": {
             "type": "string"
+          },
+          "taskStructuralExecutionMode": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/StructuralExecutionMode"
+              }
+            ]
           }
         },
         "required": [
@@ -12589,6 +12602,18 @@
           },
           "revisitDueUtc": {
             "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "runExecutionModeDetail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "runExecutionModeDisplayLabel": {
             "type": [
               "null",
               "string"

@@ -131146,6 +131146,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<AgentType>))]
         public AgentType AgentType { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("cacheServed")]
+        public bool? CacheServed { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("calibratedConfidence")]
         [System.ComponentModel.DataAnnotations.Range(0D, 1D)]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
@@ -131202,6 +131205,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("taskId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string TaskId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("taskStructuralExecutionMode")]
+        public TaskStructuralExecutionMode? TaskStructuralExecutionMode { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
@@ -141850,6 +141856,12 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("revisitDueUtc")]
         public System.DateTimeOffset? RevisitDueUtc { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("runExecutionModeDetail")]
+        public string? RunExecutionModeDetail { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("runExecutionModeDisplayLabel")]
+        public string? RunExecutionModeDisplayLabel { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
         public System.Guid? RunId { get; set; } = default!;
@@ -161504,6 +161516,21 @@ namespace ArchLucid.Api.Client.Generated
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class RetrievalGroundingTrace
+    {
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class TaskStructuralExecutionMode
     {
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
