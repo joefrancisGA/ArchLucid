@@ -9,8 +9,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { HelpDrawerContent } from "@/components/help/HelpDrawerContent";
 import { focusHelpDrawerRow } from "@/components/help/help-drawer-list-keyboard";
+import { useHelpPageSituation } from "@/components/help/help-page-situation-store";
 import {
   HELP_DRAWER_CHEVRON_CLASS,
+  HELP_DRAWER_ROW_LIST_CLASS,
   helpDrawerRowButtonClass,
 } from "@/components/help/help-drawer-row-class";
 import { HelpDrawerDoThisNowRow } from "@/components/help/HelpDrawerDoThisNowRow";
@@ -35,9 +37,14 @@ import {
   HELP_SEARCH_PANEL_KEYBOARD_HINT,
   HELP_SEARCH_PANEL_SEARCH_PLACEHOLDER,
   HELP_SEARCH_PANEL_SEARCHING_SUBTITLE,
+  HELP_SEARCH_PANEL_START_HERE_COLLAPSED_SUMMARY,
+  HELP_SEARCH_PANEL_START_HERE_GROUP_ID,
   HELP_SEARCH_PANEL_SUBTITLE,
+  HELP_SEARCH_PANEL_SUPPORT_FOOTER_LABEL,
   listHelpSearchPanelGroups,
+  listHelpSearchPanelTopics,
   recommendedHelpSearchPanelTopics,
+  shouldCollapseHelpStartHereGroup,
   splitHelpSearchPanelDoThisNow,
   type HelpSearchPanelAction,
   type HelpSearchPanelTopic,
@@ -184,14 +191,14 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
   const isViewingArticle = article.status === "loaded" || article.status === "loading" || article.status === "error";
   const helpOnHelp = isHelpOnHelpPath(pathname);
 
+  const situation = useHelpPageSituation();
   const visibleGroups = useMemo(() => listHelpSearchPanelGroups(isAdmin), [isAdmin]);
-  const allTopics = useMemo(
-    () => visibleGroups.flatMap((group) => group.topics),
-    [visibleGroups],
-  );
+  // Search spans situation topics too, which are deliberately absent from the browse groups.
+  const allTopics = useMemo(() => listHelpSearchPanelTopics(isAdmin), [isAdmin]);
+  const collapseStartHere = useMemo(() => shouldCollapseHelpStartHereGroup(pathname), [pathname]);
   const recommendedTopics = useMemo(
-    () => recommendedHelpSearchPanelTopics(pathname, isAdmin),
-    [isAdmin, pathname],
+    () => recommendedHelpSearchPanelTopics(pathname, isAdmin, situation),
+    [isAdmin, pathname, situation],
   );
   const { doThisNow, moreRecommended } = useMemo(
     () => splitHelpSearchPanelDoThisNow(recommendedTopics),
@@ -416,11 +423,20 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
 
   return (
     <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog open={open} onOpenChange={onOpenChange} modal={false}>
         <HelpDrawerContent
           data-testid="help-search-panel"
           closeAriaLabel="Close help"
           aria-label="Contextual help"
+          modal={false}
+          onPointerDownOutside={(event) => {
+            // Contextual help stays open while the reader works the page behind it;
+            // Esc and the close button remain the dismissal paths.
+            event.preventDefault();
+          }}
+          onInteractOutside={(event) => {
+            event.preventDefault();
+          }}
           onOpenAutoFocus={(event) => {
             // Keep caret in search so the drawer opens ready to type (TB-1047).
             event.preventDefault();
@@ -571,7 +587,7 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
                     {filteredTopics.length > 0 ? (
                       <section aria-labelledby="help-search-topics-heading">
                         <HelpDrawerGroupHeading id="help-search-topics-heading">Topics</HelpDrawerGroupHeading>
-                        <ul className="m-0 space-y-2 p-0">
+                        <ul className={HELP_DRAWER_ROW_LIST_CLASS}>
                           {filteredTopics.map((topic) => {
                             const rowId = `search:${topic.id}`;
 
@@ -593,7 +609,7 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
                     {hits.length > 0 ? (
                       <section aria-labelledby="help-search-documentation-heading">
                         <HelpDrawerGroupHeading id="help-search-documentation-heading">Documentation</HelpDrawerGroupHeading>
-                        <ul className="m-0 space-y-2 p-0">
+                        <ul className={HELP_DRAWER_ROW_LIST_CLASS}>
                           {hits.map((hit) => {
                             const rowId = `doc:${helpRecordSelectionValue(hit)}`;
 
@@ -633,7 +649,7 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
                         <HelpDrawerGroupHeading id="help-search-on-this-page-heading">
                           {HELP_ON_HELP_ON_THIS_PAGE_HEADING}
                         </HelpDrawerGroupHeading>
-                        <ul className="m-0 space-y-2 p-0">
+                        <ul className={HELP_DRAWER_ROW_LIST_CLASS}>
                           {onThisPageAnchors.map((anchor) => {
                             const rowId = `on-page:${helpRecordSelectionValue(anchor)}`;
 
@@ -660,7 +676,7 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
                         <HelpDrawerGroupHeading id="help-search-recommended-heading">
                           Recommended for this page
                         </HelpDrawerGroupHeading>
-                        <ul className="m-0 space-y-2 p-0">
+                        <ul className={HELP_DRAWER_ROW_LIST_CLASS}>
                           {moreRecommended.map((topic) => {
                             const rowId = `recommended:${topic.id}`;
 
@@ -679,36 +695,67 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
                         </ul>
                       </section>
                     ) : null}
-                    {visibleGroupsWithoutRecommended.map((group) =>
-                      group.topics.length === 0 ? null : (
+                    {visibleGroupsWithoutRecommended.map((group) => {
+                      if (group.topics.length === 0) {
+                        return null;
+                      }
+
+                      const headingId = `help-search-group-${group.id}-heading`;
+                      const collapsed =
+                        collapseStartHere && group.id === HELP_SEARCH_PANEL_START_HERE_GROUP_ID;
+                      const heading = (
+                        <HelpDrawerGroupHeading id={headingId}>{group.heading}</HelpDrawerGroupHeading>
+                      );
+                      const rows = (
+                        <ul className={HELP_DRAWER_ROW_LIST_CLASS}>
+                          {group.topics.map((topic) => {
+                            const rowId = `group:${group.id}:${topic.id}`;
+
+                            return (
+                              <HelpDrawerTopicRow
+                                key={rowId}
+                                topic={topic}
+                                isHighlighted={highlightedRowId === rowId}
+                                onActivate={openTopic}
+                                onHighlight={() => {
+                                  setHighlightedRowId(rowId);
+                                }}
+                              />
+                            );
+                          })}
+                        </ul>
+                      );
+
+                      return (
                         <section
                           key={group.id}
-                          aria-labelledby={`help-search-group-${group.id}-heading`}
+                          aria-labelledby={headingId}
                           data-testid={`help-search-group-${group.id}`}
                         >
-                          <HelpDrawerGroupHeading id={`help-search-group-${group.id}-heading`}>
-                            {group.heading}
-                          </HelpDrawerGroupHeading>
-                          <ul className="m-0 space-y-2 p-0">
-                            {group.topics.map((topic) => {
-                              const rowId = `group:${group.id}:${topic.id}`;
-
-                              return (
-                                <HelpDrawerTopicRow
-                                  key={rowId}
-                                  topic={topic}
-                                  isHighlighted={highlightedRowId === rowId}
-                                  onActivate={openTopic}
-                                  onHighlight={() => {
-                                    setHighlightedRowId(rowId);
-                                  }}
-                                />
-                              );
-                            })}
-                          </ul>
+                          {collapsed ? (
+                            <details data-testid="help-search-start-here-disclosure">
+                              <summary className="flex cursor-pointer items-center justify-between gap-2 rounded-md hover:bg-neutral-50 dark:hover:bg-neutral-900">
+                                {heading}
+                                <span
+                                  className={cn(
+                                    "pr-3 text-neutral-500 dark:text-neutral-400",
+                                    OPERATOR_TYPOGRAPHY.helper,
+                                  )}
+                                >
+                                  {HELP_SEARCH_PANEL_START_HERE_COLLAPSED_SUMMARY}
+                                </span>
+                              </summary>
+                              {rows}
+                            </details>
+                          ) : (
+                            <>
+                              {heading}
+                              {rows}
+                            </>
+                          )}
                         </section>
-                      ),
-                    )}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -729,7 +776,7 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
                       openGuidesTab("troubleshooting");
                     }}
                   >
-                    Contact support
+                    {HELP_SEARCH_PANEL_SUPPORT_FOOTER_LABEL}
                   </button>
                   {" · "}
                   <button
@@ -746,7 +793,7 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
                   </button>
                 </p>
                 <p
-                  className={cn("m-0 text-neutral-400 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}
+                  className={cn("m-0 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}
                   data-testid="help-search-keyboard-hint"
                 >
                   {HELP_SEARCH_PANEL_KEYBOARD_HINT}

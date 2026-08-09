@@ -1,12 +1,14 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { HelpSearchPanel } from "@/components/HelpSearchPanel";
+import { setHelpPageSituation } from "@/components/help/help-page-situation-store";
 import {
   HELP_SEARCH_PANEL_DO_THIS_NOW_HEADING,
   HELP_SEARCH_PANEL_KEYBOARD_HINT,
   HELP_SEARCH_PANEL_SEARCH_PLACEHOLDER,
   HELP_SEARCH_PANEL_SUBTITLE,
+  HELP_SEARCH_PANEL_SUPPORT_FOOTER_LABEL,
 } from "@/lib/help-search-panel-catalog";
 import {
   HELP_ON_HELP_ON_THIS_PAGE_HEADING,
@@ -44,6 +46,10 @@ vi.mock("@/components/usability/ProductConceptsGlossaryDialog", () => ({
 vi.mock("@/lib/help-index", () => ({
   searchHelpDocumentation: vi.fn(() => []),
 }));
+
+afterEach(() => {
+  setHelpPageSituation(null);
+});
 
 describe("HelpSearchPanel", () => {
   it("renders title, subtitle, search input, and grouped topics", () => {
@@ -218,6 +224,86 @@ describe("HelpSearchPanel", () => {
     fireEvent.click(screen.getByRole("button", { name: "Close help" }));
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it("opens non-modally so the page behind stays usable (al-ui-rate P0)", () => {
+    pathnameMock.value = "/architecture/reviews/run-1";
+    render(<HelpSearchPanel open onOpenChange={() => {}} />);
+
+    const drawer = screen.getByTestId("help-search-panel");
+
+    expect(drawer).toHaveAttribute("aria-modal", "false");
+    expect(document.querySelector("[data-radix-dialog-overlay]")).toBeNull();
+  });
+
+  it("stays open when the reader interacts with the page behind it", () => {
+    pathnameMock.value = "/architecture/reviews/run-1";
+    const onOpenChange = vi.fn();
+    render(<HelpSearchPanel open onOpenChange={onOpenChange} />);
+
+    fireEvent.pointerDown(document.body);
+
+    expect(onOpenChange).not.toHaveBeenCalledWith(false);
+  });
+
+  it("leads with the blocking condition when the page publishes a blocked review", () => {
+    pathnameMock.value = "/architecture/reviews/run-1";
+    setHelpPageSituation("review-approval-blocked");
+
+    render(<HelpSearchPanel open onOpenChange={() => {}} />);
+
+    expect(screen.getByTestId("help-search-do-this-now-primary")).toHaveTextContent(
+      "Resolve findings that block approval",
+    );
+  });
+
+  it("falls back to page recommendations once the situation clears", () => {
+    pathnameMock.value = "/architecture/reviews/run-1";
+    setHelpPageSituation(null);
+
+    render(<HelpSearchPanel open onOpenChange={() => {}} />);
+
+    expect(screen.getByTestId("help-search-do-this-now-primary")).toHaveTextContent(
+      "Review findings and evidence trail",
+    );
+  });
+
+  it("collapses onboarding topics on product surfaces (al-ui-rate P0)", () => {
+    pathnameMock.value = "/architecture/reviews/run-1";
+    render(<HelpSearchPanel open onOpenChange={() => {}} />);
+
+    const disclosure = screen.getByTestId("help-search-start-here-disclosure");
+
+    expect(disclosure).toBeInstanceOf(HTMLDetailsElement);
+    expect((disclosure as HTMLDetailsElement).open).toBe(false);
+  });
+
+  it("keeps onboarding topics expanded on the marketing overview", () => {
+    pathnameMock.value = "/";
+    render(<HelpSearchPanel open onOpenChange={() => {}} />);
+
+    expect(screen.queryByTestId("help-search-start-here-disclosure")).toBeNull();
+    expect(screen.getByTestId("help-search-group-start-here")).toBeInTheDocument();
+  });
+
+  it("names the support footer action after what it opens", () => {
+    const onOpenGuidesPanel = vi.fn();
+    render(<HelpSearchPanel open onOpenChange={vi.fn()} onOpenGuidesPanel={onOpenGuidesPanel} />);
+
+    expect(screen.queryByRole("button", { name: "Contact support" })).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: HELP_SEARCH_PANEL_SUPPORT_FOOTER_LABEL }));
+
+    expect(onOpenGuidesPanel).toHaveBeenCalledWith("troubleshooting");
+  });
+
+  it("finds situation topics that are hidden from the browse groups", () => {
+    pathnameMock.value = "/architecture/reviews/run-1";
+    render(<HelpSearchPanel open onOpenChange={() => {}} />);
+
+    fireEvent.change(screen.getByLabelText("Search help"), { target: { value: "blocking" } });
+
+    expect(screen.getByText("Resolve findings that block approval")).toBeInTheDocument();
   });
 
   it("shows admin diagnostics topics only for admin callers", () => {

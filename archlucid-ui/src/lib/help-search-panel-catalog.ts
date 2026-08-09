@@ -1,10 +1,12 @@
 import type { HelpTabId } from "@/components/HelpPanel";
 import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
+import { helpPageSituationTopicIds, type HelpPageSituation } from "@/lib/help-page-situation";
 import { REVIEW_TERMINOLOGY_BANNED_OPERATOR_PATTERNS } from "@/lib/review-terminology-surfaces";
 
+/** Says what the drawer gets you; the search placeholder already describes the input. */
 export const HELP_SEARCH_PANEL_SUBTITLE =
-  "Search guides, troubleshooting, and keyboard shortcuts." as const;
+  "Find the next step for what you are working on." as const;
 
 export const HELP_SEARCH_PANEL_SEARCHING_SUBTITLE = "Showing matching guides and topics." as const;
 
@@ -22,6 +24,15 @@ export const HELP_SEARCH_PANEL_MAX_RECOMMENDED = 3 as const;
 
 /** Primary next-step heading above the first recommended topic (TB-1045). */
 export const HELP_SEARCH_PANEL_DO_THIS_NOW_HEADING = "Do this now" as const;
+
+/**
+ * Footer label for the guides troubleshooting tab. Names the destination (guides plus a
+ * diagnostic bundle) rather than promising a contact channel the button does not open.
+ */
+export const HELP_SEARCH_PANEL_SUPPORT_FOOTER_LABEL = "Support and troubleshooting" as const;
+
+/** Summary shown when the onboarding group is collapsed on a signed-in product surface. */
+export const HELP_SEARCH_PANEL_START_HERE_COLLAPSED_SUMMARY = "New to ArchLucid?" as const;
 
 export type HelpSearchPanelAction =
   | { readonly kind: "route"; readonly href: string; readonly helpSlug: string | null }
@@ -267,11 +278,39 @@ const TROUBLESHOOTING_TOPICS: readonly HelpSearchPanelTopic[] = [
     action: { kind: "guides-panel", tab: "shortcuts" },
   },
   {
+    id: "report-a-problem",
+    title: "Report a problem",
+    description: "What to include so support can reproduce and trace the problem.",
+    keywords: ["report", "problem", "bug", "defect", "support", "ticket"],
+    action: { kind: "route", href: "/help/report-a-problem", helpSlug: "report-a-problem" },
+  },
+  {
     id: "contact-support",
-    title: "Contact support",
-    description: "Send support or download a diagnostic bundle.",
+    title: HELP_SEARCH_PANEL_SUPPORT_FOOTER_LABEL,
+    description: "Troubleshooting guides, support email, and a downloadable diagnostic bundle.",
     keywords: ["support", "contact", "bundle", "diagnostics", "ticket"],
     action: { kind: "guides-panel", tab: "troubleshooting" },
+  },
+];
+
+/**
+ * Situation-only topics: resolvable and searchable, but kept out of the browse groups so
+ * the drawer surfaces them when a page publishes matching review state.
+ */
+const SITUATION_TOPICS: readonly HelpSearchPanelTopic[] = [
+  {
+    id: "resolve-blocking-findings",
+    title: "Resolve findings that block approval",
+    description: "Work each blocking finding, record its decision, then return to governance approval.",
+    keywords: ["blocked", "blocking", "approval", "findings", "disposition", "remediation"],
+    action: { kind: "route", href: "/help/findings", helpSlug: "findings" },
+  },
+  {
+    id: "close-evidence-gaps",
+    title: "Close evidence gaps before approval",
+    description: "Add the missing evidence so findings trace back to source artifacts.",
+    keywords: ["evidence gap", "incomplete", "missing evidence", "trace", "coverage"],
+    action: { kind: "route", href: "/help/evidence-intake", helpSlug: "evidence-intake" },
   },
 ];
 
@@ -302,8 +341,11 @@ const ADVANCED_ADMIN_TOPICS: readonly HelpSearchPanelTopic[] = [
   },
 ];
 
+/** Group id for the onboarding topics collapsed on signed-in product surfaces. */
+export const HELP_SEARCH_PANEL_START_HERE_GROUP_ID = "start-here" as const;
+
 export const HELP_SEARCH_PANEL_GROUPS: readonly HelpSearchPanelGroup[] = [
-  { id: "start-here", heading: "Start here", topics: START_HERE_TOPICS },
+  { id: HELP_SEARCH_PANEL_START_HERE_GROUP_ID, heading: "Start here", topics: START_HERE_TOPICS },
   { id: "review-work", heading: "Review work", topics: REVIEW_WORK_TOPICS },
   { id: "governance", heading: "Governance", topics: GOVERNANCE_TOPICS },
   { id: "setup", heading: "Setup", topics: SETUP_TOPICS },
@@ -427,6 +469,8 @@ export function listHelpSearchPanelTopics(isAdmin: boolean): HelpSearchPanelTopi
     }
   }
 
+  topics.push(...SITUATION_TOPICS);
+
   if (isAdmin) {
     topics.push(...ADVANCED_ADMIN_TOPICS);
   }
@@ -454,7 +498,41 @@ export function listHelpSearchPanelGroups(isAdmin: boolean): HelpSearchPanelGrou
   return groups;
 }
 
-export function recommendedHelpSearchPanelTopicIds(pathname: string): string[] {
+/**
+ * Surfaces where onboarding topics stay expanded: the marketing funnel, sign-in, and the
+ * Help Center itself. Everywhere else the reader is already working inside the product.
+ */
+const HELP_START_HERE_EXPANDED_PREFIXES: readonly string[] = [
+  "/",
+  "/help",
+  "/faq",
+  "/why",
+  "/pricing",
+  "/signup",
+  "/auth",
+  "/trust",
+];
+
+/** True when the Start here group should render collapsed behind a disclosure. */
+export function shouldCollapseHelpStartHereGroup(pathname: string): boolean {
+  const path = normalizePathname(pathname);
+
+  return !HELP_START_HERE_EXPANDED_PREFIXES.some(
+    (prefix) => path === prefix || (prefix !== "/" && path.startsWith(`${prefix}/`)),
+  );
+}
+
+export function recommendedHelpSearchPanelTopicIds(
+  pathname: string,
+  situation: HelpPageSituation | null = null,
+): string[] {
+  const situationTopicIds = helpPageSituationTopicIds(situation);
+
+  // A published situation describes the review in front of the user; it outranks the route.
+  if (situationTopicIds.length > 0) {
+    return [...situationTopicIds];
+  }
+
   const path = normalizePathname(pathname);
 
   if (path === "/") {
@@ -479,9 +557,10 @@ export function recommendedHelpSearchPanelTopicIds(pathname: string): string[] {
 export function recommendedHelpSearchPanelTopics(
   pathname: string,
   isAdmin: boolean,
+  situation: HelpPageSituation | null = null,
 ): HelpSearchPanelTopic[] {
   const byId = new Map(listHelpSearchPanelTopics(isAdmin).map((topic) => [topic.id, topic]));
-  const ids = recommendedHelpSearchPanelTopicIds(pathname);
+  const ids = recommendedHelpSearchPanelTopicIds(pathname, situation);
 
   return ids
     .map((id) => byId.get(id))

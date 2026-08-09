@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_LAYOUT, OPERATOR_PAGE_CONTAINER } from "@/lib/design-tokens";
 
 import { GovernanceModePresentationGate } from "@/components/GovernanceModePresentationGate";
+import { HelpPageSituationRegistrar } from "@/components/help/HelpPageSituationRegistrar";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
 import { DemoDataBadge } from "@/components/usability/DemoDataBadge";
 import { detectStalledReview } from "@/lib/usability/stalled-review-detection";
@@ -43,6 +44,7 @@ import {
   deriveRunDetailWorkspaceStatus,
   deriveSubmittedArchitectureText,
   formatDecisionSnapshotFindingsLine,
+  formatDecisionSnapshotGovernanceOutcome,
 } from "@/lib/run-detail-workspace-derive";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import { resolvePartialRunCommitBlockedReason } from "@/lib/run-detail-partial-run-commit-block";
@@ -641,6 +643,10 @@ export function RunDetailPageView(props: {
     >
       <RunDetailCtoDemoReviewRouteGuardDeferred runId={m.resolvedDetail.run.runId} />
 
+      <HelpPageSituationRegistrar
+        situation={blockingApprovalCount > 0 ? "review-approval-blocked" : null}
+      />
+
       {!showArchitectureCreatedHome ? (
         <Suspense fallback={null}>
           <ReviewGenerationCreatedNotice analysisInProgress={m.showProgressTracker} />
@@ -794,7 +800,14 @@ export function RunDetailPageView(props: {
 
                   <RunDetailWorkspaceSummaryStripDeferred
                     outcomeHeading={m.manifestId ? "Governance decision" : "Review posture"}
-                    reviewOutcome={m.manifestId ? governanceDecisionLabel : reviewStatusSummary.reviewOutcome}
+                    reviewOutcome={
+                      m.manifestId
+                        ? formatDecisionSnapshotGovernanceOutcome({
+                            governanceDecisionLabel,
+                            blockingFindingCount: blockingApprovalCount,
+                          })
+                        : reviewStatusSummary.reviewOutcome
+                    }
                     highestUnresolvedSeverity={reviewStatusSummary.highestUnresolvedSeverity}
                     findingsSummaryLine={formatDecisionSnapshotFindingsLine(
                       reviewStatusSummary.openFindingsCount,

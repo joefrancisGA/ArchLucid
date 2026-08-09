@@ -34,7 +34,7 @@ export function HelpDrawerDoThisNowRow({
       <h3
         id="help-search-do-this-now-heading"
         className={cn(
-          "m-0 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400",
+          "m-0 px-3 py-2 text-xs font-bold uppercase tracking-wide text-neutral-700 dark:text-neutral-200",
         )}
       >
         {HELP_SEARCH_PANEL_DO_THIS_NOW_HEADING}
@@ -49,7 +49,8 @@ export function HelpDrawerDoThisNowRow({
             className={cn(
               "group",
               helpDrawerRowButtonClass(isHighlighted),
-              "border-teal-300/80 bg-teal-50/80 dark:border-teal-700/60 dark:bg-teal-950/40",
+              // The only elevated row in the drawer, so primacy is not carried by tint alone.
+              "border border-teal-300/80 bg-teal-50/80 p-3 shadow-sm dark:border-teal-700/60 dark:bg-teal-950/40",
             )}
             onClick={() => {
               onActivate(topic);
