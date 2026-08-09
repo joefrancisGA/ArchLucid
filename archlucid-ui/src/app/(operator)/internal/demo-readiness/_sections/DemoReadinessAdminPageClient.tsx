@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { DemoReadinessToolingDisabledEmptyState } from "@/app/(operator)/internal/demo-readiness/_sections/DemoReadinessToolingDisabledEmptyState";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { BuyerCtoDemoReadinessPanel } from "@/components/operator-home/BuyerCtoDemoReadinessPanel";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
@@ -19,12 +20,14 @@ import {
 import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { INTERNAL_DEMO_READINESS_PATH } from "@/lib/internal-ops-route-paths";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { isCtoDemoOperatorToolingEnv } from "@/lib/cto-demo-presenter-pack";
 import { cn } from "@/lib/utils";
 
 /** Employee-only demo diagnostics — moved off the customer homepage. */
 export function DemoReadinessAdminPageClient(): React.JSX.Element {
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
   const isAdmin = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
+  const demoOperatorToolingEnabled = isCtoDemoOperatorToolingEnv();
 
   if (isAuthorityLoading) {
     return (
@@ -59,11 +62,17 @@ export function DemoReadinessAdminPageClient(): React.JSX.Element {
         actions={<PageContextualHelpButton />}
         data-testid="demo-readiness-admin-page-heading"
       >
-        <Button asChild variant="outline" size="sm" className="h-8">
-          <Link href="/internal/health">{INTERNAL_DEMO_READINESS_DIAGNOSTICS_LINK}</Link>
-        </Button>
+        {demoOperatorToolingEnabled ? (
+          <Button asChild variant="outline" size="sm" className="h-8">
+            <Link href="/internal/health">{INTERNAL_DEMO_READINESS_DIAGNOSTICS_LINK}</Link>
+          </Button>
+        ) : null}
       </PageHeading>
-      <BuyerCtoDemoReadinessPanel layout="internal-page" />
+      {demoOperatorToolingEnabled ? (
+        <BuyerCtoDemoReadinessPanel layout="internal-page" />
+      ) : (
+        <DemoReadinessToolingDisabledEmptyState />
+      )}
     </OperatorPageContainer>
   );
 }
