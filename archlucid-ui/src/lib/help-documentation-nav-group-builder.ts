@@ -10,9 +10,9 @@ export class HelpDocumentationNavGroupBuilder extends NavGroupBuilderBase {
   build(): NavGroupConfig {
     return {
       id: "help-documentation",
-      label: OPERATOR_NAV_GROUP_LABELS.documentation,
+      label: OPERATOR_NAV_GROUP_LABELS.help,
       surface: "review-workflow",
-      caption: "Product documentation, troubleshooting, and procurement-ready help topics.",
+      caption: "Guides, troubleshooting, and procurement-ready help topics.",
       links: [
         {
           href: "/help",

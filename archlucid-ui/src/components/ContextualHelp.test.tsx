@@ -1,19 +1,23 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { contextualHelpTriggerAriaLabel } from "@/lib/contextual-help-content";
 
 import { ContextualHelp } from "./ContextualHelp";
 
+function renderContextualHelp(helpKey: string): HTMLButtonElement {
+  render(<ContextualHelp helpKey={helpKey} />);
+
+  return screen.getByLabelText(contextualHelpTriggerAriaLabel(helpKey)!) as HTMLButtonElement;
+}
+
+function queryPanel(): HTMLElement | null {
+  return screen.queryByRole("dialog", { name: /contextual help/i });
+}
+
 describe("ContextualHelp", () => {
-  afterEach(() => {
-    vi.unstubAllEnvs();
-  });
-
   it("uses a recognizable info trigger instead of a question-mark help icon", () => {
-    render(<ContextualHelp helpKey="commit-manifest" />);
-
-    const button = screen.getByLabelText(contextualHelpTriggerAriaLabel("commit-manifest")!);
+    const button = renderContextualHelp("commit-manifest");
 
     expect(button).toHaveAttribute("data-help-tooltip-trigger");
     expect(button).toHaveAttribute("data-help-tooltip-icon", "info");
@@ -22,171 +26,119 @@ describe("ContextualHelp", () => {
     expect(button.className).not.toMatch(/rounded-full/);
   });
 
-  it("renders tooltip on click and toggles on second click", async () => {
-    const { getByLabelText, queryByRole, getByText } = render(
-      <ContextualHelp helpKey="commit-manifest" />,
-    );
+  it("opens on press and closes on a second press", async () => {
+    const button = renderContextualHelp("commit-manifest");
 
-    const button = getByLabelText(contextualHelpTriggerAriaLabel("commit-manifest")!);
-    expect(queryByRole("region", { name: /contextual help/i })).toBeNull();
+    expect(queryPanel()).toBeNull();
 
     act(() => {
       fireEvent.click(button);
     });
 
-    expect(await screen.findByRole("region", { name: /contextual help/i })).toBeInTheDocument();
-    expect(getByText(/locks the signed review record/i)).toBeInTheDocument();
+    expect(await screen.findByRole("dialog", { name: /contextual help/i })).toBeInTheDocument();
+    expect(screen.getByText(/locks the signed review record/i)).toBeInTheDocument();
 
     act(() => {
       fireEvent.click(button);
     });
 
     await waitFor(() => {
-      expect(screen.queryByRole("region", { name: /contextual help/i })).toBeNull();
+      expect(queryPanel()).toBeNull();
     });
   });
 
-  it("uses role=region (not tooltip) when learn-more link is present", () => {
-    render(<ContextualHelp helpKey="commit-manifest" />);
-    const button = screen.getByLabelText(contextualHelpTriggerAriaLabel("commit-manifest")!);
+  it("does not open on hover, because the panel carries a focusable Learn more link", () => {
+    const button = renderContextualHelp("governance-gate");
+
+    act(() => {
+      fireEvent.pointerOver(button);
+      fireEvent.pointerEnter(button);
+      fireEvent.mouseOver(button);
+    });
+
+    expect(queryPanel()).toBeNull();
+  });
+
+  it("uses role=dialog (not tooltip) so interactive help copy is announced as a panel", () => {
+    const button = renderContextualHelp("commit-manifest");
 
     act(() => {
       fireEvent.click(button);
     });
 
-    expect(screen.getByRole("region", { name: /contextual help/i })).toBeInTheDocument();
+    expect(screen.getByRole("dialog", { name: /contextual help/i })).toBeInTheDocument();
     expect(screen.queryByRole("tooltip")).toBeNull();
   });
 
-  it("renders learn-more link when the entry defines learnMoreUrl", () => {
-    render(<ContextualHelp helpKey="commit-manifest" />);
-    const button = screen.getByLabelText(contextualHelpTriggerAriaLabel("commit-manifest")!);
+  it("associates the trigger with the help panel for assistive technology when open", async () => {
+    const button = renderContextualHelp("governance-gate");
+
+    expect(button).toHaveAttribute("aria-haspopup", "dialog");
+    expect(button).toHaveAttribute("aria-expanded", "false");
 
     act(() => {
       fireEvent.click(button);
     });
 
-    const more = screen.getByRole("link", { name: /learn more/i });
-    expect(more.getAttribute("href")).toBe("/help/first-architecture-review#commit");
-    expect(more).toHaveAttribute("target", "_blank");
-  });
+    const panel = await screen.findByRole("dialog", { name: /contextual help/i });
 
-  it("associates the trigger with the help panel for assistive technology when open", () => {
-    const { getByLabelText, getByRole } = render(<ContextualHelp helpKey="governance-gate" />);
-    const button = getByLabelText(contextualHelpTriggerAriaLabel("governance-gate")!);
-
-    act(() => {
-      fireEvent.click(button);
-    });
-
-    const panel = getByRole("region", { name: /contextual help/i });
-    const tid = panel.getAttribute("id");
-
-    expect(tid).toBeTruthy();
-    expect(button).toHaveAttribute("aria-describedby", tid as string);
     expect(button).toHaveAttribute("aria-expanded", "true");
-    expect(button).toHaveAttribute("aria-controls", tid as string);
+    expect(button).toHaveAttribute("aria-controls", panel.getAttribute("id") as string);
   });
 
-  it.each([" ", "Enter"] as const)("is keyboard accessible: %s toggles the help panel", (key) => {
-    const { getByLabelText, queryByRole, unmount } = render(<ContextualHelp helpKey="governance-gate" />);
-    const label = contextualHelpTriggerAriaLabel("governance-gate");
-
-    expect(label).not.toBeNull();
-
-    const button = getByLabelText(label!) as HTMLButtonElement;
+  it("moves focus into the panel on open so the Learn more link is keyboard reachable", async () => {
+    const button = renderContextualHelp("governance-gate");
 
     act(() => {
-      button.focus();
-      fireEvent.keyDown(button, { key, code: key === " " ? "Space" : "Enter" });
+      fireEvent.click(button);
     });
 
-    expect(queryByRole("region", { name: /contextual help/i })).toBeInTheDocument();
+    const panel = await screen.findByRole("dialog", { name: /contextual help/i });
 
-    act(() => {
-      fireEvent.keyDown(button, { key, code: key === " " ? "Space" : "Enter" });
+    await waitFor(() => {
+      expect(panel === document.activeElement || panel.contains(document.activeElement)).toBe(true);
     });
 
-    expect(queryByRole("region", { name: /contextual help/i })).toBeNull();
-    unmount();
+    expect(screen.getByRole("link", { name: /learn more/i })).toBeInTheDocument();
   });
 
-  describe("hover-safe interactive content (governance-gate Learn more link)", () => {
-    afterEach(() => {
-      vi.useRealTimers();
+  it("closes on Escape and returns focus to the trigger", async () => {
+    const button = renderContextualHelp("governance-gate");
+
+    act(() => {
+      fireEvent.click(button);
     });
 
-    it("renders a correctly-routed, clickable Learn more link when the finalize help is open", () => {
-      render(<ContextualHelp helpKey="governance-gate" />);
-      const button = screen.getByLabelText(contextualHelpTriggerAriaLabel("governance-gate")!);
+    await screen.findByRole("dialog", { name: /contextual help/i });
 
-      act(() => {
-        fireEvent.click(button);
-      });
-
-      const link = screen.getByRole("link", { name: /learn more/i });
-      expect(link).toHaveAttribute("href", "/help/evidence-intake#governance-gate");
-      expect(link).toHaveAttribute("target", "_blank");
+    act(() => {
+      fireEvent.keyDown(document, { key: "Escape", code: "Escape" });
     });
 
-    it("stays open while the pointer transits from the trigger to the panel (Learn more stays clickable)", () => {
-      vi.useFakeTimers();
-      render(<ContextualHelp helpKey="governance-gate" />);
-      const button = screen.getByLabelText(contextualHelpTriggerAriaLabel("governance-gate")!);
-
-      act(() => {
-        fireEvent.pointerOver(button);
-      });
-      expect(screen.getByRole("region", { name: /contextual help/i })).toBeInTheDocument();
-
-      // Leaving the trigger toward the panel must not close the panel mid-transit (no flicker).
-      act(() => {
-        fireEvent.pointerOut(button);
-      });
-      const panel = screen.getByRole("region", { name: /contextual help/i });
-      expect(panel).toBeInTheDocument();
-
-      act(() => {
-        fireEvent.pointerOver(panel);
-        vi.advanceTimersByTime(1000);
-      });
-
-      expect(screen.getByRole("region", { name: /contextual help/i })).toBeInTheDocument();
-      expect(screen.getByRole("link", { name: /learn more/i })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(queryPanel()).toBeNull();
     });
 
-    it("closes the hover-only preview once the pointer leaves both the trigger and the panel", () => {
-      vi.useFakeTimers();
-      render(<ContextualHelp helpKey="governance-gate" />);
-      const button = screen.getByLabelText(contextualHelpTriggerAriaLabel("governance-gate")!);
+    await waitFor(() => {
+      expect(document.activeElement).toBe(button);
+    });
+  });
 
-      act(() => {
-        fireEvent.pointerOver(button);
-      });
-      const panel = screen.getByRole("region", { name: /contextual help/i });
+  it.each([
+    ["commit-manifest", "/help/first-architecture-review#commit"],
+    ["governance-gate", "/help/evidence-intake#governance-gate"],
+  ] as const)("routes the %s Learn more link to its in-app help topic", async (helpKey, href) => {
+    const button = renderContextualHelp(helpKey);
 
-      act(() => {
-        fireEvent.pointerOut(button);
-        fireEvent.pointerOut(panel);
-        vi.advanceTimersByTime(1000);
-      });
-
-      expect(screen.queryByRole("region", { name: /contextual help/i })).toBeNull();
+    act(() => {
+      fireEvent.click(button);
     });
 
-    it("keeps a click-opened panel visible even after the pointer leaves (sticky until Escape/outside click)", () => {
-      vi.useFakeTimers();
-      render(<ContextualHelp helpKey="governance-gate" />);
-      const button = screen.getByLabelText(contextualHelpTriggerAriaLabel("governance-gate")!);
+    await screen.findByRole("dialog", { name: /contextual help/i });
 
-      act(() => {
-        fireEvent.click(button);
-        fireEvent.pointerOver(button);
-        fireEvent.pointerOut(button);
-        vi.advanceTimersByTime(1000);
-      });
+    const link = screen.getByRole("link", { name: /learn more/i });
 
-      expect(screen.getByRole("region", { name: /contextual help/i })).toBeInTheDocument();
-    });
+    expect(link).toHaveAttribute("href", href);
+    expect(link).toHaveAttribute("target", "_blank");
   });
 });

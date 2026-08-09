@@ -21,7 +21,6 @@
     "check:first-load-js": "node ./scripts/first-load-js-baseline.mjs check",
     "lighthouse:ci": "node ./scripts/run-lighthouse-ci.mjs",
     "lighthouse:acceptance": "node ./scripts/run-lighthouse-acceptance.mjs",
-
     "write:first-load-js-baseline": "node ./scripts/first-load-js-baseline.mjs write-baseline",
     "build:help-index": "node ./scripts/build-help-search-index.mjs",
     "build:docs-pdf": "tsx ./scripts/build-docs-pdf.ts",
@@ -56,7 +55,6 @@
     "test:e2e:founder:release-smoke": "playwright test -c playwright.founder.config.ts --grep @release-smoke",
     "test:e2e:founder:a11y": "playwright test -c playwright.founder.config.ts e2e/founder-a11y.spec.ts",
     "test:e2e:founder:console-network": "playwright test -c playwright.founder.config.ts e2e/founder-console-network.spec.ts",
-
     "typecheck": "npm run build:api-types && tsc --noEmit -p tsconfig.json",
     "typecheck:e2e": "tsc --noEmit -p e2e/tsconfig.json",
     "generate:api-types": "openapi-typescript ../ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json -o src/lib/api-types.generated.ts",
@@ -74,6 +72,7 @@
     "@radix-ui/react-collapsible": "^1.1.12",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-label": "^2.1.8",
+    "@radix-ui/react-popover": "^1.1.23",
     "@radix-ui/react-progress": "^1.1.8",
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-separator": "^1.1.8",

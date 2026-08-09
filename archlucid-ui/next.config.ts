@@ -78,6 +78,7 @@ const nextConfig: NextConfig = {
       "@radix-ui/react-collapsible",
       "@radix-ui/react-dialog",
       "@radix-ui/react-label",
+      "@radix-ui/react-popover",
       "@radix-ui/react-progress",
       "@radix-ui/react-select",
       "@radix-ui/react-separator",

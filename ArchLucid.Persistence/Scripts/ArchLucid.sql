@@ -8716,7 +8716,7 @@ BEGIN
 END;
 GO
 
-/* Analytics non-clustered columnstore indexes (Improvement #36). */
+/* Analytics non-clustered columnstore indexes (Improvement #36). ONLINE omitted for local Standard/Express. */
 IF OBJECT_ID(N'dbo.AuditEvents', N'U') IS NOT NULL
    AND NOT EXISTS (
        SELECT 1
@@ -8724,8 +8724,7 @@ IF OBJECT_ID(N'dbo.AuditEvents', N'U') IS NOT NULL
        WHERE name = N'NCCI_AuditEvents_Analytics'
          AND object_id = OBJECT_ID(N'dbo.AuditEvents'))
     CREATE NONCLUSTERED COLUMNSTORE INDEX NCCI_AuditEvents_Analytics
-        ON dbo.AuditEvents (TenantId, WorkspaceId, ProjectId, OccurredUtc, EventType, RunId)
-        WITH (ONLINE = ON);
+        ON dbo.AuditEvents (TenantId, WorkspaceId, ProjectId, OccurredUtc, EventType, RunId);
 GO
 
 IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL
@@ -8735,8 +8734,7 @@ IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL
        WHERE name = N'NCCI_FindingRecords_Analytics'
          AND object_id = OBJECT_ID(N'dbo.FindingRecords'))
     CREATE NONCLUSTERED COLUMNSTORE INDEX NCCI_FindingRecords_Analytics
-        ON dbo.FindingRecords (TenantId, WorkspaceId, ProjectId, FindingsSnapshotId, Severity, FindingRecordId)
-        WITH (ONLINE = ON);
+        ON dbo.FindingRecords (TenantId, WorkspaceId, ProjectId, FindingsSnapshotId, Severity, FindingRecordId);
 GO
 
 IF OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL
@@ -8746,8 +8744,7 @@ IF OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL
        WHERE name = N'NCCI_GoldenManifests_Analytics'
          AND object_id = OBJECT_ID(N'dbo.GoldenManifests'))
     CREATE NONCLUSTERED COLUMNSTORE INDEX NCCI_GoldenManifests_Analytics
-        ON dbo.GoldenManifests (TenantId, WorkspaceId, ProjectId, RunId, CreatedUtc, ArchivedUtc, FindingsSnapshotId)
-        WITH (ONLINE = ON);
+        ON dbo.GoldenManifests (TenantId, WorkspaceId, ProjectId, RunId, CreatedUtc, ArchivedUtc, FindingsSnapshotId);
 GO
 
 IF OBJECT_ID(N'dbo.RetrievalGroundingTrace', N'U') IS NULL

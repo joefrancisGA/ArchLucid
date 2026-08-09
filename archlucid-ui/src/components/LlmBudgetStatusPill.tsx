@@ -124,38 +124,34 @@ export function LlmBudgetStatusPill() {
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <div className="relative">
-        <PopoverTrigger asChild>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className={cn(
-              "h-6 shrink-0 border px-1.5 font-normal tabular-nums text-neutral-600 dark:text-neutral-300",
-              OPERATOR_TYPOGRAPHY.micro,
-              pillClassForTone(tone),
-            )}
-            data-testid="llm-budget-status-pill"
-            aria-label={ariaLabel}
-            aria-expanded={open}
-            aria-haspopup="dialog"
-          >
-            {label}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent data-testid="llm-budget-status-pill-popover">
-          <LlmBudgetUtilizationMeter />
-          <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}>
-            <Link href={AI_USAGE_SETTINGS_PATH} className={OPERATOR_LINK.nav}>
-              Open AI usage and budget
-            </Link>
-            {" · "}
-            <Link href="/administration/billing#billing-usage" className={OPERATOR_LINK.nav}>
-              Billing &amp; plans
-            </Link>
-          </p>
-        </PopoverContent>
-      </div>
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className={cn(
+            "h-6 shrink-0 border px-1.5 font-normal tabular-nums text-neutral-600 dark:text-neutral-300",
+            OPERATOR_TYPOGRAPHY.micro,
+            pillClassForTone(tone),
+          )}
+          data-testid="llm-budget-status-pill"
+          aria-label={ariaLabel}
+        >
+          {label}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent data-testid="llm-budget-status-pill-popover">
+        <LlmBudgetUtilizationMeter />
+        <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}>
+          <Link href={AI_USAGE_SETTINGS_PATH} className={OPERATOR_LINK.nav}>
+            Open AI usage and budget
+          </Link>
+          {" · "}
+          <Link href="/administration/billing#billing-usage" className={OPERATOR_LINK.nav}>
+            Billing &amp; plans
+          </Link>
+        </p>
+      </PopoverContent>
     </Popover>
   );
 }

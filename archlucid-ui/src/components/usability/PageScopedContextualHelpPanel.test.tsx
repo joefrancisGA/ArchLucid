@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { PageScopedContextualHelpPanel } from "@/components/usability/PageScopedContextualHelpPanel";
@@ -19,8 +19,23 @@ const FULL_ENTRY: PageContextualHelpEntry = {
   },
 };
 
+const MINIMAL_ENTRY: PageContextualHelpEntry = {
+  whatIsThisPage: "Only required fields.",
+  whatToDoNext: "Next step only.",
+};
+
+function pressTrigger(): HTMLElement {
+  const trigger = screen.getByTestId("page-contextual-help-button");
+
+  act(() => {
+    fireEvent.click(trigger);
+  });
+
+  return trigger;
+}
+
 describe("PageScopedContextualHelpPanel", () => {
-  it("renders available fields and the learn more link", () => {
+  it("renders available fields and the learn more link", async () => {
     render(
       <PageScopedContextualHelpPanel
         entry={FULL_ENTRY}
@@ -29,9 +44,9 @@ describe("PageScopedContextualHelpPanel", () => {
       />,
     );
 
-    fireEvent.click(screen.getByTestId("page-contextual-help-button"));
+    pressTrigger();
 
-    expect(screen.getByTestId("page-scoped-contextual-help-panel")).toBeInTheDocument();
+    expect(await screen.findByTestId("page-scoped-contextual-help-panel")).toBeInTheDocument();
     expect(screen.getByText("Short page summary.")).toBeInTheDocument();
     expect(screen.getByText("Do the next thing.")).toBeInTheDocument();
     expect(screen.getByText("Empty because nothing happened yet.")).toBeInTheDocument();
@@ -50,19 +65,14 @@ describe("PageScopedContextualHelpPanel", () => {
     expect(learnMore).toHaveAttribute("href", "/help/review-packages");
   });
 
-  it("omits optional fields and learn more when absent", () => {
+  it("omits optional fields and learn more when absent", async () => {
     render(
-      <PageScopedContextualHelpPanel
-        entry={{
-          whatIsThisPage: "Only required fields.",
-          whatToDoNext: "Next step only.",
-        }}
-        triggerLabel="Fallback"
-        learnMoreHref={null}
-      />,
+      <PageScopedContextualHelpPanel entry={MINIMAL_ENTRY} triggerLabel="Fallback" learnMoreHref={null} />,
     );
 
-    fireEvent.click(screen.getByTestId("page-contextual-help-button"));
+    pressTrigger();
+
+    await screen.findByTestId("page-scoped-contextual-help-panel");
 
     expect(screen.queryByText("Why is this empty?")).not.toBeInTheDocument();
     expect(screen.queryByText("Where to configure")).not.toBeInTheDocument();
@@ -73,10 +83,7 @@ describe("PageScopedContextualHelpPanel", () => {
   it("keeps the full topic in the accessible name when short trigger text is set", () => {
     render(
       <PageScopedContextualHelpPanel
-        entry={{
-          whatIsThisPage: "Only required fields.",
-          whatToDoNext: "Next step only.",
-        }}
+        entry={MINIMAL_ENTRY}
         triggerLabel="Reviews"
         triggerText="Help"
         learnMoreHref={null}
@@ -87,5 +94,91 @@ describe("PageScopedContextualHelpPanel", () => {
 
     expect(trigger).toHaveAttribute("aria-label", "Help: Reviews");
     expect(trigger).toHaveTextContent("Help");
+  });
+
+  it("exposes the panel as a dialog wired to the trigger", async () => {
+    render(
+      <PageScopedContextualHelpPanel
+        entry={FULL_ENTRY}
+        triggerLabel="Reviews"
+        learnMoreHref="/help/review-packages"
+      />,
+    );
+
+    const trigger = screen.getByTestId("page-contextual-help-button");
+
+    expect(trigger).toHaveAttribute("aria-haspopup", "dialog");
+    expect(trigger).toHaveAttribute("aria-expanded", "false");
+
+    pressTrigger();
+
+    const panel = await screen.findByRole("dialog", { name: /page help/i });
+
+    expect(trigger).toHaveAttribute("aria-expanded", "true");
+    expect(trigger).toHaveAttribute("aria-controls", panel.getAttribute("id") as string);
+  });
+
+  it("does not open on hover, because the panel carries focusable deep links", () => {
+    render(
+      <PageScopedContextualHelpPanel
+        entry={FULL_ENTRY}
+        triggerLabel="Reviews"
+        learnMoreHref="/help/review-packages"
+      />,
+    );
+
+    const trigger = screen.getByTestId("page-contextual-help-button");
+
+    act(() => {
+      fireEvent.pointerOver(trigger);
+      fireEvent.pointerEnter(trigger);
+      fireEvent.mouseOver(trigger);
+    });
+
+    expect(screen.queryByTestId("page-scoped-contextual-help-panel")).not.toBeInTheDocument();
+  });
+
+  it("moves focus into the panel on open so deep-link CTAs are keyboard reachable", async () => {
+    render(
+      <PageScopedContextualHelpPanel
+        entry={FULL_ENTRY}
+        triggerLabel="Reviews"
+        learnMoreHref="/help/review-packages"
+      />,
+    );
+
+    pressTrigger();
+
+    const panel = await screen.findByTestId("page-scoped-contextual-help-panel");
+
+    await waitFor(() => {
+      expect(panel === document.activeElement || panel.contains(document.activeElement)).toBe(true);
+    });
+  });
+
+  it("closes on Escape and returns focus to the trigger", async () => {
+    render(
+      <PageScopedContextualHelpPanel
+        entry={FULL_ENTRY}
+        triggerLabel="Reviews"
+        learnMoreHref="/help/review-packages"
+      />,
+    );
+
+    const trigger = pressTrigger();
+
+    await screen.findByTestId("page-scoped-contextual-help-panel");
+
+    act(() => {
+      fireEvent.keyDown(document, { key: "Escape", code: "Escape" });
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("page-scoped-contextual-help-panel")).not.toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      expect(document.activeElement).toBe(trigger);
+    });
   });
 });

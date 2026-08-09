@@ -106,7 +106,7 @@ export const OPERATOR_NAV_GROUP_LABELS = {
   reports: "Reports",
   integrations: "Integrations",
   operations: "Operations",
-  documentation: "Documentation",
+  help: "Help",
 } as const;
 
 /** Primary sidebar link labels — adapt terminology here without editing each nav builder. */
