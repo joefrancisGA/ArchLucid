@@ -15,6 +15,13 @@ vi.mock("@/lib/api/governance-stickiness-api", () => ({
   recordBulkFindingDisposition: (...args: unknown[]) => recordBulkFindingDisposition(...args),
 }));
 
+vi.mock("@/lib/toast", () => ({
+  showError: vi.fn(),
+  showSuccess: vi.fn(),
+}));
+
+import { showError, showSuccess } from "@/lib/toast";
+
 describe("GovernanceFindingsBulkActions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -22,7 +29,11 @@ describe("GovernanceFindingsBulkActions", () => {
 
   it("shows inline error when reason is missing", () => {
     render(
-      <GovernanceFindingsBulkActions selectedFindingIds={["f1", "f2"]} onApplied={vi.fn()} />,
+      <GovernanceFindingsBulkActions
+        selectedFindingIds={["f1", "f2"]}
+        onApplied={vi.fn()}
+        onDispositionSucceeded={vi.fn()}
+      />,
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Accept all" }));
@@ -30,14 +41,21 @@ describe("GovernanceFindingsBulkActions", () => {
     expect(screen.getByTestId("governance-bulk-disposition-inline-error")).toHaveTextContent(
       GOVERNANCE_BULK_DISPOSITION_REASON_REQUIRED,
     );
+    expect(showError).not.toHaveBeenCalled();
+    expect(showSuccess).not.toHaveBeenCalled();
   });
 
-  it("shows durable success callout after bulk disposition succeeds", async () => {
+  it("notifies parent with durable success message after bulk disposition succeeds", async () => {
     recordBulkFindingDisposition.mockResolvedValue({ processedCount: 2 });
     const onApplied = vi.fn();
+    const onDispositionSucceeded = vi.fn();
 
     render(
-      <GovernanceFindingsBulkActions selectedFindingIds={["f1", "f2"]} onApplied={onApplied} />,
+      <GovernanceFindingsBulkActions
+        selectedFindingIds={["f1", "f2"]}
+        onApplied={onApplied}
+        onDispositionSucceeded={onDispositionSucceeded}
+      />,
     );
 
     fireEvent.change(screen.getByLabelText("Shared reason"), {
@@ -46,12 +64,12 @@ describe("GovernanceFindingsBulkActions", () => {
     fireEvent.click(screen.getByRole("button", { name: "Accept all" }));
 
     await waitFor(() => {
-      expect(screen.getByTestId("governance-bulk-disposition-success-callout")).toHaveTextContent(
-        "Marked 2 finding(s) as accepted.",
-      );
+      expect(onDispositionSucceeded).toHaveBeenCalledWith("Marked 2 finding(s) as accepted.");
     });
 
     expect(onApplied).toHaveBeenCalled();
     expect(refresh).toHaveBeenCalled();
+    expect(showError).not.toHaveBeenCalled();
+    expect(showSuccess).not.toHaveBeenCalled();
   });
 });

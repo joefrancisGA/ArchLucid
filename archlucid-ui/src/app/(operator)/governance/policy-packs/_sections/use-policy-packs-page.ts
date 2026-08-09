@@ -389,12 +389,18 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
         contentJson: publishJson,
       });
       setPublishSuccessMessage(policyPackPublishSuccessMessage(publishVersion));
-      await load();
     } catch (e) {
       setPublishSuccessMessage(null);
       setFailure(toApiLoadFailure(e));
+      return;
     } finally {
       setLoading(false);
+    }
+
+    try {
+      await load();
+    } catch (e) {
+      setFailure(toApiLoadFailure(e));
     }
   }, [canMutatePacks, load, packs, publishJson, publishVersion, selectedPackId]);
 

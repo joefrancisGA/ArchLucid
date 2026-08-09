@@ -155,7 +155,10 @@ export const DURABLE_ACTION_OUTCOME_GUARDED_SURFACES: readonly DurableActionOutc
   },
   {
     id: "governance-bulk-disposition",
-    sourceRoots: ["components/usability/GovernanceFindingsBulkActions.tsx"],
+    sourceRoots: [
+      "components/usability/GovernanceFindingsBulkActions.tsx",
+      "components/governance/findings/GovernanceFindingsList.tsx",
+    ],
     requiredDurableMarkers: ["OperatorSuccessCallout", "OperatorMutationInlineError"],
   },
   {

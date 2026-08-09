@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { PolicyPacksPageView } from "./PolicyPacksPageView";
 import type { PolicyPacksPageViewModel } from "./policy-packs-page-view-model";
+import { policyPackPublishSuccessMessage } from "@/lib/governance-mutation-outcome-copy";
 
 function buildModel(overrides: Partial<PolicyPacksPageViewModel> = {}): PolicyPacksPageViewModel {
   return {
@@ -113,5 +114,13 @@ describe("PolicyPacksPageView tabs (TB-668)", () => {
     fireEvent.click(screen.getByRole("tab", { name: "Catalog" }));
 
     expect(setPageTab).toHaveBeenCalledWith("catalog");
+  });
+
+  it("surfaces publish success inline without toast (TB-2114)", () => {
+    const publishMessage = policyPackPublishSuccessMessage("1.2.0");
+
+    render(<PolicyPacksPageView model={buildModel({ publishSuccessMessage: publishMessage })} />);
+
+    expect(screen.getByTestId("policy-pack-publish-success-callout")).toHaveTextContent(publishMessage);
   });
 });

@@ -1,8 +1,9 @@
 "use client";
 
-import { memo, type ReactElement } from "react";
+import { memo, useState, type ReactElement } from "react";
 
 import { GovernanceFindingsBulkActions } from "@/components/usability/GovernanceFindingsBulkActions";
+import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { BUYER_GOVERNANCE_FINDINGS_RISKS_SECTION_TITLE } from "@/lib/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -32,6 +33,7 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
 
   const findingRows = displayedRows.filter((row) => row.recordKind === "finding");
   const decisionRows = displayedRows.filter((row) => row.recordKind === "decision");
+  const [bulkDispositionSuccessMessage, setBulkDispositionSuccessMessage] = useState<string | null>(null);
 
   if (buyerPolishedShell) {
     return (
@@ -82,10 +84,20 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
 
   return (
     <>
+      {bulkDispositionSuccessMessage !== null ? (
+        <OperatorSuccessCallout
+          message={bulkDispositionSuccessMessage}
+          testId="governance-bulk-disposition-success-callout"
+          className="mb-2"
+          onDismiss={() => setBulkDispositionSuccessMessage(null)}
+        />
+      ) : null}
+
       {selectedFindingIds.size > 0 ? (
         <div className="mb-2">
           <GovernanceFindingsBulkActions
             selectedFindingIds={Array.from(selectedFindingIds)}
+            onDispositionSucceeded={setBulkDispositionSuccessMessage}
             onApplied={onBulkApplied}
           />
         </div>

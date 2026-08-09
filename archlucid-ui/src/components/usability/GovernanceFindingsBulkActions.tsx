@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
-import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { createGovernanceMutationIdempotencyKey } from "@/lib/governance-mutation-idempotency-key";
 import {
   GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE,
@@ -21,6 +20,7 @@ import { recordBulkFindingDisposition, type FindingDispositionKind } from "@/lib
 type GovernanceFindingsBulkActionsProps = {
   readonly selectedFindingIds: readonly string[];
   readonly onApplied: () => void;
+  readonly onDispositionSucceeded: (message: string) => void;
 };
 
 type BulkDisposition = Extract<FindingDispositionKind, "Accepted" | "RejectedAsNotApplicable" | "Deferred">;
@@ -30,7 +30,6 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
   const [inlineErrorMessage, setInlineErrorMessage] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const router = useRouter();
 
   if (props.selectedFindingIds.length === 0) {
@@ -41,7 +40,6 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
     const trimmedReason = reason.trim();
 
     if (trimmedReason.length === 0) {
-      setSuccessMessage(null);
       setInlineErrorMessage(GOVERNANCE_BULK_DISPOSITION_REASON_REQUIRED);
 
       return;
@@ -49,7 +47,6 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
 
     setBusy(true);
     setInlineErrorMessage(null);
-    setSuccessMessage(null);
 
     const idempotencyKey = createGovernanceMutationIdempotencyKey();
 
@@ -63,7 +60,9 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
         { idempotencyKey },
       );
 
-      setSuccessMessage(governanceBulkDispositionSuccessMessage(result.processedCount, disposition));
+      const successMessage = governanceBulkDispositionSuccessMessage(result.processedCount, disposition);
+
+      props.onDispositionSucceeded(successMessage);
       props.onApplied();
       setReason("");
       router.refresh();
@@ -79,15 +78,6 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
       className="flex flex-wrap items-end gap-3 rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
       data-testid="governance-findings-bulk-actions"
     >
-      {successMessage !== null ? (
-        <OperatorSuccessCallout
-          message={successMessage}
-          testId="governance-bulk-disposition-success-callout"
-          className="w-full"
-          onDismiss={() => setSuccessMessage(null)}
-        />
-      ) : null}
-
       {inlineErrorMessage !== null ? (
         <OperatorMutationInlineError
           message={inlineErrorMessage}
