@@ -1,8 +1,10 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { ChevronDown, ChevronRight } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -22,32 +24,37 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { roleClaimCaption, roleDisplayLabel } from "@/lib/role-display-labels";
 import { showError, showSuccess } from "@/lib/toast";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { ALL_MATRIX_PERMISSION_IDS, CUSTOM_ROLE_PERMISSION_GROUPS } from "./custom-role-permission-groups";
+import { CUSTOM_ROLE_PERMISSION_GROUPS } from "./custom-role-permission-groups";
 import {
   baselinePermissionsByKey,
   clonedRoleName,
   type DraftRole,
   dirtyRoleDisplayNames,
+  findSystemRoleByName,
   isRoleDirty,
+  matrixPermissionList,
   mergeUnsavedRoleEdits,
   restoreRoleToBaseline,
   roleMatrixKey,
   type RolePermissionBaseline,
   toggleRolePermission,
 } from "./custom-role-draft-state";
+import { type CustomRoleFailureCopy, customRoleFailureCopy } from "./custom-role-failure-copy";
+import { CustomRoleRequestError, customRoleRequestStatus } from "./custom-role-request-error";
 import {
   BUILTIN_ROLE_SUMMARIES,
+  createCustomRoleBlockedReason,
   CUSTOM_ROLE_START_FROM_OPTIONS,
   type CustomRoleStartFromValue,
   hasHighRiskPermissions,
   highRiskPermissionLabels,
   ROLES_MATRIX_HELPER_COPY,
+  ROLES_MATRIX_LEGEND_COPY,
   sortMatrixRoles,
   unsavedRoleEditsNotice,
 } from "./roles-matrix-constants";
@@ -71,8 +78,7 @@ const EMPTY_MATRIX_STATE: RoleMatrixState = { roles: [], baseline: new Map() };
 
 type PendingHighRiskAction =
   | { kind: "create"; name: string; permissions: string[] }
-  | { kind: "save"; role: DraftRole }
-  | { kind: "clone"; source: DraftRole };
+  | { kind: "save"; role: DraftRole };
 
 const ROLE_COLUMN_WIDTH = "7.5rem";
 const PERMISSION_COLUMN_WIDTH = "14rem";
@@ -81,7 +87,7 @@ async function fetchRoles(): Promise<CustomRoleDto[]> {
   const res = await fetch("/api/proxy/v1/admin/roles", mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }));
 
   if (!res.ok)
-    throw new Error(`Failed to load roles (${res.status})`);
+    throw new CustomRoleRequestError(res.status);
 
   return (await res.json()) as CustomRoleDto[];
 }
@@ -154,6 +160,8 @@ export function SettingsRolesMatrixSection() {
   const [startFromRole, setStartFromRole] = useState<CustomRoleStartFromValue>("Operator");
   const [collapsedGroups, setCollapsedGroups] = useState<ReadonlySet<string>>(() => new Set());
   const [pendingHighRisk, setPendingHighRisk] = useState<PendingHighRiskAction | null>(null);
+  const [loadFailure, setLoadFailure] = useState<CustomRoleFailureCopy | null>(null);
+  const newRoleNameRef = useRef<HTMLInputElement | null>(null);
   const roles = matrix.roles;
 
   const permissionLabelsById = useMemo(() => {
@@ -175,17 +183,20 @@ export function SettingsRolesMatrixSection() {
       const reloaded: DraftRole[] = rows.map((row) => ({
         id: row.id,
         name: row.name,
+        description: row.description ?? null,
         isSystem: row.isSystem,
         permissions: new Set(row.permissions),
       }));
 
-      // Creating or cloning a role refreshes the whole matrix; unsaved edits on other columns survive it.
+      // Creating a role refreshes the whole matrix; unsaved edits on other columns survive it.
       setMatrix((current) => ({
         roles: mergeUnsavedRoleEdits(reloaded, current.roles, current.baseline),
         baseline: baselinePermissionsByKey(reloaded),
       }));
+      setLoadFailure(null);
     } catch (error) {
-      showError(error instanceof Error ? error.message : "Could not load custom roles.");
+      // Surfaced inline rather than as a toast: without columns the matrix is unusable until retried.
+      setLoadFailure(customRoleFailureCopy("load", customRoleRequestStatus(error)));
     } finally {
       setLoading(false);
     }
@@ -197,7 +208,7 @@ export function SettingsRolesMatrixSection() {
 
   const columns = useMemo(() => sortMatrixRoles(roles), [roles]);
   const unsavedRoleNames = useMemo(() => dirtyRoleDisplayNames(roles, matrix.baseline), [matrix.baseline, roles]);
-  const hasUnsavedEdits = hasUnsavedRoleEdits(roles, matrix.baseline);
+  const hasUnsavedEdits = unsavedRoleNames.length > 0;
 
   useEffect(() => {
     if (!hasUnsavedEdits)
@@ -250,20 +261,23 @@ export function SettingsRolesMatrixSection() {
         mergeRegistrationScopeForProxy({
           method: "PUT",
           headers: { Accept: "application/json", "Content-Type": "application/json" },
+          // Description is echoed back so a permission-only save cannot blank it.
           body: JSON.stringify({
             name: role.name,
-            permissions: ALL_MATRIX_PERMISSION_IDS.filter((permission) => role.permissions.has(permission)),
+            description: role.description ?? null,
+            permissions: matrixPermissionList(role.permissions),
           }),
         }),
       );
 
       if (!res.ok)
-        throw new Error(`Save failed (${res.status})`);
+        throw new CustomRoleRequestError(res.status);
 
       showSuccess(`Saved role "${role.name}".`);
       await load();
     } catch (error) {
-      showError(error instanceof Error ? error.message : "Could not save role.");
+      const copy = customRoleFailureCopy("save", customRoleRequestStatus(error));
+      showError(copy.title, copy.description);
     } finally {
       setSavingRoleId(null);
     }
@@ -281,14 +295,15 @@ export function SettingsRolesMatrixSection() {
       );
 
       if (!res.ok)
-        throw new Error(`Create failed (${res.status})`);
+        throw new CustomRoleRequestError(res.status);
 
       showSuccess(`Created custom role "${name}".`);
       setNewRoleName("");
       setStartFromRole("Operator");
       await load();
     } catch (error) {
-      showError(error instanceof Error ? error.message : "Could not create role.");
+      const copy = customRoleFailureCopy("create", customRoleRequestStatus(error));
+      showError(copy.title, copy.description);
     }
   }
 
@@ -305,18 +320,18 @@ export function SettingsRolesMatrixSection() {
     if (startFrom === "Empty")
       return [];
 
-    const source = roles.find((role) => role.isSystem && role.name === startFrom);
+    const source = findSystemRoleByName(roles, startFrom);
 
-    if (!source)
+    if (source === null)
       return [];
 
-    return ALL_MATRIX_PERMISSION_IDS.filter((permission) => source.permissions.has(permission));
+    return matrixPermissionList(source.permissions);
   }
 
   function requestCreateCustomRole(name: string, permissions: string[]) {
     const trimmed = name.trim();
 
-    if (!trimmed)
+    if (trimmed.length === 0)
       return;
 
     if (hasHighRiskPermissions(new Set(permissions))) {
@@ -327,16 +342,16 @@ export function SettingsRolesMatrixSection() {
     void persistCreate(trimmed, permissions);
   }
 
-  function requestCloneRole(source: DraftRole) {
-    const cloneName = clonedRoleName(source);
-    const permissions = ALL_MATRIX_PERMISSION_IDS.filter((permission) => source.permissions.has(permission));
-
-    if (hasHighRiskPermissions(new Set(permissions))) {
-      setPendingHighRisk({ kind: "clone", source });
-      return;
-    }
-
-    void persistCreate(cloneName, permissions);
+  /**
+   * Clone prefills the create form instead of writing immediately, so the administrator names the role
+   * and reviews its seeded permissions before anything is persisted.
+   */
+  function prefillCloneOfRole(source: DraftRole) {
+    setNewRoleName(clonedRoleName(source));
+    // Clone is rendered on built-in columns only, and the API seeds exactly the four roles in
+    // BUILTIN_ROLE_ORDER, so the source name is always one of the start-from option values.
+    setStartFromRole(source.name as CustomRoleStartFromValue);
+    newRoleNameRef.current?.focus();
   }
 
   async function confirmHighRiskAction() {
@@ -348,37 +363,46 @@ export function SettingsRolesMatrixSection() {
 
     if (action.kind === "save") {
       await persistRole(action.role);
+
       return;
     }
 
-    if (action.kind === "create") {
-      await persistCreate(action.name, action.permissions);
-      return;
-    }
-
-    const permissions = ALL_MATRIX_PERMISSION_IDS.filter((permission) => action.source.permissions.has(permission));
-    await persistCreate(clonedRoleName(action.source), permissions);
+    await persistCreate(action.name, action.permissions);
   }
 
   const pendingHighRiskLabels = useMemo(() => {
-    if (!pendingHighRisk)
+    if (pendingHighRisk === null)
       return [];
 
     if (pendingHighRisk.kind === "save")
       return highRiskPermissionLabels(pendingHighRisk.role.permissions, permissionLabelsById);
 
-    if (pendingHighRisk.kind === "create")
-      return highRiskPermissionLabels(new Set(pendingHighRisk.permissions), permissionLabelsById);
-
-    return highRiskPermissionLabels(actionSourcePermissions(pendingHighRisk.source), permissionLabelsById);
+    return highRiskPermissionLabels(new Set(pendingHighRisk.permissions), permissionLabelsById);
   }, [pendingHighRisk, permissionLabelsById]);
+
+  const trimmedNewRoleName = newRoleName.trim();
+  const createBlockedReason = createCustomRoleBlockedReason({
+    hasName: trimmedNewRoleName.length > 0,
+    startFromResolvable: startFromRole === "Empty" || findSystemRoleByName(roles, startFromRole) !== null,
+    startFromLabel: roleDisplayLabel(startFromRole),
+  });
 
   if (loading)
     return <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading role matrix…</p>;
 
+  if (loadFailure !== null) {
+    return (
+      <div className="space-y-4" data-testid="settings-roles-matrix-load-error">
+        <OperatorEmptyState title={loadFailure.title} description={loadFailure.description} />
+        <Button type="button" variant="secondary" size="sm" onClick={() => void load()}>
+          Retry
+        </Button>
+      </div>
+    );
+  }
+
   return (
-    <TooltipProvider>
-      <section data-testid="settings-roles-matrix" className="space-y-6">
+    <section data-testid="settings-roles-matrix" className="space-y-6">
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{ROLES_MATRIX_HELPER_COPY}</p>
 
         {hasUnsavedEdits ? (
@@ -397,6 +421,7 @@ export function SettingsRolesMatrixSection() {
         <div
           className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
           data-testid="settings-roles-builtin-summary"
+          role="group"
           aria-label="Built-in role summaries"
         >
           {BUILTIN_ROLE_SUMMARIES.map((summary) => (
@@ -416,6 +441,7 @@ export function SettingsRolesMatrixSection() {
               </label>
               <Input
                 id="new-custom-role-name"
+                ref={newRoleNameRef}
                 value={newRoleName}
                 onChange={(event) => setNewRoleName(event.target.value)}
                 placeholder="Architect without billing"
@@ -442,14 +468,22 @@ export function SettingsRolesMatrixSection() {
             <Button
               type="button"
               onClick={() => requestCreateCustomRole(newRoleName, permissionsForStartFrom(startFromRole))}
-              disabled={!newRoleName.trim()}
+              disabled={createBlockedReason !== null}
             >
               Create custom role
             </Button>
           </div>
+          {createBlockedReason !== null ? (
+            <p
+              className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="settings-roles-create-readiness"
+            >
+              {createBlockedReason}
+            </p>
+          ) : null}
         </div>
 
-        <div className="overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-800">
+        <div className="rounded-md border border-neutral-200 dark:border-neutral-800">
           <div className="max-h-[70vh] overflow-auto">
             <table className={cn("w-full min-w-[48rem] table-fixed border-collapse text-left", OPERATOR_TYPOGRAPHY.body)}>
               <colgroup>
@@ -485,15 +519,11 @@ export function SettingsRolesMatrixSection() {
                         )}
                       >
                         <div className="flex min-h-[4.5rem] flex-col items-center justify-start gap-1">
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className="line-clamp-2 text-center">{displayName}</span>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              {BUILTIN_ROLE_SUMMARIES.find((summary) => summary.name === role.name)?.description ??
-                                (role.isSystem ? "Built-in role" : "Custom role")}
-                            </TooltipContent>
-                          </Tooltip>
+                          {/* Descriptions live in the summary cards above; a hover-only tooltip here was
+                              unreachable by keyboard. `title` only reveals names clipped by line-clamp. */}
+                          <span className="line-clamp-2 text-center" title={displayName}>
+                            {displayName}
+                          </span>
                           <span className={cn("font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
                             {role.isSystem ? "Built-in role" : "Custom role"}
                           </span>
@@ -516,8 +546,8 @@ export function SettingsRolesMatrixSection() {
                               size="sm"
                               variant="outline"
                               className="h-7 px-2 text-xs"
-                              onClick={() => requestCloneRole(role)}
-                              aria-label={`Clone ${displayName} role`}
+                              onClick={() => prefillCloneOfRole(role)}
+                              aria-label={`Clone ${displayName} role into the create form`}
                             >
                               Clone
                             </Button>
@@ -575,9 +605,11 @@ export function SettingsRolesMatrixSection() {
                           onClick={() => toggleGroupCollapsed(group.area)}
                         >
                           <span>{group.area}</span>
-                          <span aria-hidden="true" className="text-al-text-secondary">
-                            {isCollapsed ? "Show" : "Hide"}
-                          </span>
+                          {isCollapsed ? (
+                            <ChevronRight aria-hidden="true" className="h-4 w-4 shrink-0 text-al-text-secondary" />
+                          ) : (
+                            <ChevronDown aria-hidden="true" className="h-4 w-4 shrink-0 text-al-text-secondary" />
+                          )}
                         </button>
                       </td>
                     </tr>,
@@ -615,6 +647,13 @@ export function SettingsRolesMatrixSection() {
           </div>
         </div>
 
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}
+          data-testid="settings-roles-matrix-legend"
+        >
+          {ROLES_MATRIX_LEGEND_COPY}
+        </p>
+
         <AlertDialog open={pendingHighRisk !== null} onOpenChange={(open) => !open && setPendingHighRisk(null)}>
           <AlertDialogContent>
             <AlertDialogHeader>
@@ -637,15 +676,12 @@ export function SettingsRolesMatrixSection() {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={() => void confirmHighRiskAction()}>Confirm custom role</AlertDialogAction>
+              <AlertDialogAction onClick={() => void confirmHighRiskAction()}>
+                {pendingHighRisk?.kind === "save" ? "Save role" : "Create custom role"}
+              </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
       </section>
-    </TooltipProvider>
   );
-}
-
-function actionSourcePermissions(source: DraftRole): ReadonlySet<string> {
-  return new Set(ALL_MATRIX_PERMISSION_IDS.filter((permission) => source.permissions.has(permission)));
 }

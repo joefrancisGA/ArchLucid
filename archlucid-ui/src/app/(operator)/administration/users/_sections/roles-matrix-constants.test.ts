@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   BUILTIN_ROLE_ORDER,
+  createCustomRoleBlockedReason,
   CUSTOM_ROLE_START_FROM_OPTIONS,
   hasHighRiskPermissions,
   highRiskPermissionLabels,
@@ -29,6 +30,23 @@ describe("roles-matrix-constants", () => {
     // Permission seeding matches these values against role names from GET /v1/admin/roles; a display
     // label leaking into the value would silently seed an empty permission set.
     expect(seedableValues.every((value) => BUILTIN_ROLE_ORDER.includes(value as never))).toBe(true);
+  });
+
+  it("blocks create until a role name is entered", () => {
+    const reason = createCustomRoleBlockedReason({ hasName: false, startFromResolvable: true, startFromLabel: "Architect" });
+
+    expect(reason).toMatch(/enter a role name/i);
+  });
+
+  it("blocks create when the start-from role cannot be resolved, so seeding would grant nothing", () => {
+    const reason = createCustomRoleBlockedReason({ hasName: true, startFromResolvable: false, startFromLabel: "Architect" });
+
+    expect(reason).toContain("Architect");
+    expect(reason).toMatch(/empty permission set/i);
+  });
+
+  it("allows create once the name and start-from role are both ready", () => {
+    expect(createCustomRoleBlockedReason({ hasName: true, startFromResolvable: true, startFromLabel: "Architect" })).toBeNull();
   });
 
   it("names the columns holding unsaved edits", () => {

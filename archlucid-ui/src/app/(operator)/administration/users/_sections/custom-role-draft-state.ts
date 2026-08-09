@@ -6,6 +6,8 @@ import { ALL_MATRIX_PERMISSION_IDS } from "./custom-role-permission-groups";
 export type DraftRole = {
   readonly id?: string;
   readonly name: string;
+  /** Carried through saves so updating permissions cannot blank a description set elsewhere. */
+  readonly description?: string | null;
   readonly permissions: ReadonlySet<string>;
   readonly isSystem: boolean;
 };
@@ -27,6 +29,16 @@ function matrixPermissionSignature(permissions: ReadonlySet<string> | null | und
     return "";
 
   return ALL_MATRIX_PERMISSION_IDS.filter((permission) => permissions.has(permission)).join("|");
+}
+
+/** Matrix-visible permissions of a role, in canonical order, ready to send to the API. */
+export function matrixPermissionList(permissions: ReadonlySet<string>): string[] {
+  return ALL_MATRIX_PERMISSION_IDS.filter((permission) => permissions.has(permission));
+}
+
+/** The built-in role a new custom role can be seeded from, or null when it is not loaded or seeded. */
+export function findSystemRoleByName(roles: readonly DraftRole[], name: string): DraftRole | null {
+  return roles.find((role) => role.isSystem && role.name === name) ?? null;
 }
 
 export function baselinePermissionsByKey(roles: readonly DraftRole[]): RolePermissionBaseline {
