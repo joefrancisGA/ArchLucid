@@ -18,6 +18,8 @@ describe("help-page-layout", () => {
   it("constrains help content to the reading-width column", () => {
     expect(HELP_PAGE_LAYOUT.contentColumn).toContain("max-w-3xl");
     expect(HELP_PAGE_LAYOUT.contentGrid).toContain("gap-10");
+    expect(HELP_PAGE_LAYOUT.contentGrid).toContain("justify-start");
+    expect(HELP_PAGE_LAYOUT.contentGrid).toContain("48rem");
   });
 
   it("styles the on-this-page heading with stronger hierarchy", () => {
@@ -43,7 +45,8 @@ describe("help-page-layout", () => {
   });
 
   it("defines a wider technical-reference grid and content column", () => {
-    expect(HELP_PAGE_LAYOUT.technicalReferenceGrid).toContain("18rem");
+    expect(HELP_PAGE_LAYOUT.technicalReferenceGrid).toContain("52rem");
+    expect(HELP_PAGE_LAYOUT.technicalReferenceGrid).toContain("justify-start");
     expect(HELP_PAGE_LAYOUT.technicalReferenceColumn).toContain("lg:max-w-[52rem]");
     expect(HELP_PAGE_LAYOUT.technicalReferenceArticle).toContain("72rem");
   });

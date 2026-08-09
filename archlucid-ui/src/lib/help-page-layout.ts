@@ -17,9 +17,10 @@ export const HELP_PAGE_LAYOUT = {
     "border-b border-neutral-200 pb-6 dark:border-neutral-800",
     OPERATOR_LAYOUT.sectionHeadingStack,
   ),
-  contentGrid: "grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_12.5rem] lg:items-start",
+  contentGrid:
+    "grid grid-cols-1 justify-start gap-10 lg:grid-cols-[minmax(0,48rem)_12.5rem] lg:items-start",
   technicalReferenceGrid:
-    "grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_16.5rem] xl:grid-cols-[minmax(0,1fr)_18rem] lg:items-start",
+    "grid grid-cols-1 justify-start gap-10 lg:grid-cols-[minmax(0,52rem)_16.5rem] lg:items-start",
   contentColumn: cn("min-w-0", OPERATOR_PAGE_CONTAINER.variant.reading),
   technicalReferenceArticle: "w-full max-w-[72rem]",
   technicalReferenceColumn: "min-w-0 w-full max-w-none lg:max-w-[52rem]",

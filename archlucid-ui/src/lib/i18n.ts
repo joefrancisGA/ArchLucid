@@ -106,6 +106,7 @@ export const OPERATOR_NAV_GROUP_LABELS = {
   reports: "Reports",
   integrations: "Integrations",
   operations: "Operations",
+  documentation: "Documentation",
 } as const;
 
 /** Primary sidebar link labels — adapt terminology here without editing each nav builder. */
@@ -134,7 +135,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   /** Architecture scorecard (`/insights/architecture-scorecard`). */
   scorecard: BUYER_TERMINOLOGY.reviewScorecard,
   alerts: "Alerts",
-  alertRules: "Alert Rules",
+  alertRules: "Alert rules",
   policyPacks: "Policy packs",
   /** Standards & rules (`/governance/standards-and-rules`). */
   governanceResolution: "Standards & rules",

@@ -30,6 +30,8 @@ export type ProductDocumentationEntry = {
   /** IA taxonomy kind for `/help` (TB-732); unused by rendering until later phases. */
   contentKind: ProductDocumentationContentKind;
   pdfStatus: ProductDocumentationPdfStatus | null;
+  lastReviewed?: string;
+  releaseApplicability?: string;
 };
 
 type ProductDocumentationRegistryInput = Omit<ProductDocumentationEntry, "pdfStatus" | "contentKind"> & {
@@ -226,6 +228,8 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "buyer",
     sourcePaths: ["docs/library/customer-facing/AUTHENTICATION_AND_SIGN_IN.md"],
     pdfStatus: "public",
+    lastReviewed: "2026-08-04",
+    releaseApplicability: "Applies to hosted SaaS sign-in, invitations, and SSO-enforced tenants",
   },
   {
     slug: "report-a-problem",
@@ -357,6 +361,9 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
       "Connect Azure DevOps for work item creation from ArchLucid findings — independent of your architecture cloud provider.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/AZURE_BOARDS_INTEGRATION.md"],
+    pdfStatus: "public",
+    lastReviewed: "2026-08-09",
+    releaseApplicability: "Applies to V1 GA — Azure Boards work item connector",
   },
   {
     slug: "procurement",

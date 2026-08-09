@@ -244,6 +244,7 @@ function AppShellInner({ children }: AppShellClientProps) {
   /** Omit platform readiness on operator home — avoids “Healthy” next to an empty or fragile demo workspace story. */
   const hideWorkspaceHealthFooter =
     pathname === "/" ||
+    pathname.startsWith("/help") ||
     pathname.startsWith("/insights/evidence-graph") ||
     pathname.startsWith("/insights/ask-review-questions") ||
     pathname.startsWith("/governance") ||

@@ -6,6 +6,7 @@ import { OperateIntegrationsNavGroupBuilder } from "@/lib/operate-integrations-n
 import { OperatorAdminNavGroupBuilder } from "@/lib/operator-admin-nav-group-builder";
 import { OperatorSystemAdminNavGroupBuilder } from "@/lib/operator-system-admin-nav-group-builder";
 import type { NavGroupBuilder } from "@/lib/nav-group-builder";
+import { HelpDocumentationNavGroupBuilder } from "@/lib/help-documentation-nav-group-builder";
 import { PilotNavGroupBuilder } from "@/lib/pilot-nav-group-builder";
 
 export type { NavGroupConfig, NavLinkItem, NavShellSurface } from "@/lib/nav-config.types";
@@ -23,6 +24,7 @@ const NAV_GROUP_BUILDERS: NavGroupBuilder[] = [
   new OperateIntegrationsNavGroupBuilder(),
   new OperatorAdminNavGroupBuilder(),
   new OperatorSystemAdminNavGroupBuilder(),
+  new HelpDocumentationNavGroupBuilder(),
 ];
 
 export const NAV_GROUPS: NavGroupConfig[] = NAV_GROUP_BUILDERS.map((builder) => builder.build());

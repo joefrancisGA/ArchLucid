@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 
 import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
+import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
+import { HelpTopicSignInFailureTriageLine } from "@/components/help/HelpTopicSignInFailureTriageLine";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
@@ -33,20 +35,24 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
     helpTopicSlug: entry.slug,
   });
   const headings = extractHelpMarkdownHeadings(preparedMarkdown);
+  const isAuthenticationSignInHelp = entry.slug === "authentication-sign-in";
+  const exportButtonVariant = isAuthenticationSignInHelp ? "ghost" : "outline";
 
   return (
     <article className={OPERATOR_LAYOUT.majorSectionGap}>
       <HelpTopicHashScroll />
       <header className={HELP_PAGE_LAYOUT.articleHeader}>
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="min-w-0 flex-1">
+          <div className="min-w-0 flex-1 space-y-2">
             <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>{entry.title}</h1>
             <p className={`m-0 ${OPERATOR_TYPOGRAPHY.helper}`}>{entry.summary}</p>
+            <HelpTopicRegistryProvenanceLine entry={entry} />
+            {isAuthenticationSignInHelp ? <HelpTopicSignInFailureTriageLine /> : null}
           </div>
           <div className="flex flex-wrap items-center gap-2" data-testid="help-topic-export-actions">
             {showContextualHelp ? <PageContextualHelpButton /> : null}
-            <HelpTopicPdfDownloadButton entry={entry} />
-            <HelpTopicPrintButton entry={entry} />
+            <HelpTopicPdfDownloadButton entry={entry} variant={exportButtonVariant} />
+            {isAuthenticationSignInHelp ? null : <HelpTopicPrintButton entry={entry} />}
           </div>
         </div>
         {entry.audience === "developer" ? (

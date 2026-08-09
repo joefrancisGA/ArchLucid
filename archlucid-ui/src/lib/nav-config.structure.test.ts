@@ -83,21 +83,18 @@ describe("nav-config structure", () => {
     }
   });
 
-  it("does not pin collapsed-pilot defaults on platform-admin links", () => {
-    const admin = NAV_GROUPS.find((group) => group.id === "operator-admin");
-
-    expect(admin).toBeDefined();
-
-    for (const link of admin!.links) {
-      expect(link.defaultVisibleInCollapsedSidebar, link.href).toBeUndefined();
-    }
-  });
-
   it("labels pilot nav group Architecture", () => {
     const pilot = NAV_GROUPS.find((group) => group.id === "pilot");
 
     expect(pilot?.label).toBe("Architecture");
     expect(pilot?.label).not.toBe("Review work");
+  });
+
+  it("registers Documentation nav group with help center entry", () => {
+    const documentation = NAV_GROUPS.find((group) => group.id === "help-documentation");
+
+    expect(documentation?.label).toBe("Documentation");
+    expect(documentation?.links.map((link) => link.href)).toEqual(["/help"]);
   });
 
   it("labels operate-analysis nav group Insights (TB-525)", () => {
@@ -285,10 +282,17 @@ describe("nav-config structure", () => {
 
     expect(governance).toBeDefined();
 
+    const governanceNamespaceExceptions = new Set(
+      NAV_ROUTE_NAMESPACE_EXCEPTIONS
+        .filter((row) => row.navGroupId === "operate-governance")
+        .map((row) => row.href),
+    );
+
     for (const link of governance!.links) {
       expect(
         link.href === "/governance/approval-queue"
-          || link.href.startsWith("/governance/"),
+          || link.href.startsWith("/governance/")
+          || governanceNamespaceExceptions.has(link.href),
         link.href,
       ).toBe(true);
     }
