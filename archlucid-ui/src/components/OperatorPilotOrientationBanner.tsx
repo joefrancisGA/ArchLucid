@@ -2,6 +2,10 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  FIRST_ARCHITECTURE_REVIEW_ORIENTATION_BODY,
+  FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE,
+} from "@/lib/first-architecture-review-help-copy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 const PRIMARY_HREF = "/architecture/reviews/new";
@@ -19,11 +23,9 @@ export function OperatorPilotOrientationBanner() {
       data-testid="operator-pilot-orientation"
     >
       <h2 id="operator-pilot-orientation-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
-        Your first architecture review
+        {FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE}
       </h2>
-      <p className={`mt-2 max-w-3xl ${OPERATOR_TYPOGRAPHY.body}`}>
-        Run one governed architecture review, finalize the package, then collect proof before any sponsor handoff.
-      </p>
+      <p className={`mt-2 max-w-3xl ${OPERATOR_TYPOGRAPHY.body}`}>{FIRST_ARCHITECTURE_REVIEW_ORIENTATION_BODY}</p>
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <Button asChild size="sm">
           <Link href={PRIMARY_HREF} data-testid="operator-pilot-primary-action">

@@ -3,6 +3,7 @@
  * Source of truth: `docs/library/PRODUCT_DOCUMENTATION_PRESENTATION.md`.
  */
 import { ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE } from "@/lib/enterprise-onboarding-help-copy";
+import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
 import {
   resolveProductDocumentationContentKind,
   type ProductDocumentationContentKind,
@@ -390,7 +391,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "first-architecture-review",
-    title: "Your first architecture review",
+    title: FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE,
     summary:
       "Your guided path from evidence intake to a finalized architecture review and sponsor-ready exports.",
     audience: "buyer",

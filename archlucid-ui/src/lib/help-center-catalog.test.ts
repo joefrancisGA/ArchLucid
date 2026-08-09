@@ -120,7 +120,7 @@ describe("help topic slug aliases", () => {
     expect(getProductDocumentationEntry("api-contracts")).toBeNull();
     expect(getProductDocumentationEntry("evaluator-workbook")).toBeNull();
     expect(getProductDocumentationEntry("first-hour-operator-path")).toBeNull();
-    expect(getProductDocumentationEntry("first-pilot-path")).toBeNull();
+    expect(getProductDocumentationEntry("first-pilot-path")?.slug).toBe("first-architecture-review");
   });
 });
 

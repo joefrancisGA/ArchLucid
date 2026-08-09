@@ -1,4 +1,5 @@
 import { ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE } from "@/lib/enterprise-onboarding-help-copy";
+import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
 import { resolveProductDocumentationContentKind } from "@/lib/product-documentation-content-kinds";
 import {
   listProductDocumentationEntries,
@@ -93,7 +94,7 @@ const HELP_CENTER_DISPLAY_OVERRIDES: Readonly<Partial<Record<string, HelpCenterD
       "Configure an enterprise tenant — SSO, roles, governance, policy packs, audit export, and optional cloud connector evidence.",
   },
   "first-architecture-review": {
-    title: "Your first architecture review",
+    title: FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE,
     summary:
       "Your guided path from evidence intake to a finalized architecture review and sponsor-ready exports.",
   },
