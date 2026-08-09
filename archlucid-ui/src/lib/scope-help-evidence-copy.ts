@@ -3,7 +3,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const SCOPE_HELP_CANONICAL_PATH = "/help/scope" as const;
 
 export const SCOPE_HELP_CLAIM_DISCIPLINE =
-  "This workspace and scope guide explains tenant, workspace, and project boundaries for operators — it is orientation vocabulary, not a signed-review diligence Sources package. Open Users and roles or Data handling when you need access or isolation depth.";
+  "This workspace and scope guide explains tenant, workspace, and project boundaries for architects — it is orientation vocabulary, not a signed-review diligence Sources package. Open Users and roles or Data handling when you need access or isolation depth.";
 
 export const SCOPE_HELP_SOURCES_INTRO =
   "Use these follow-ups when scope vocabulary turns into access control, isolation, or first-run setup.";

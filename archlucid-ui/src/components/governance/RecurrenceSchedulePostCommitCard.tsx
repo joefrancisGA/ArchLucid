@@ -112,7 +112,7 @@ export function RecurrenceSchedulePostCommitCard({
       </CollapsibleTrigger>
       <CollapsibleContent className="border-t border-neutral-200 px-4 pb-4 pt-3 dark:border-neutral-700">
         <p className={cn("m-0 mb-3", OPERATOR_TYPOGRAPHY.body)}>
-          Clone this committed review on a schedule so governance does not depend on operator memory.
+          Clone this committed review on a schedule so governance does not depend on manual scheduling.
         </p>
         {existing ? (
           <div className="space-y-2">

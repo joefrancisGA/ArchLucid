@@ -9,7 +9,7 @@ import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
 export const DIGESTS_HELP_PAGE_TITLE = "Architecture digests";
 
 export const DIGESTS_HELP_PAGE_SUBTITLE =
-  "Schedule summaries of review activity, governance signals, findings, and advisory scans for operators.";
+  "Schedule summaries of review activity, governance signals, findings, and advisory scans for architects.";
 
 export const DIGESTS_HELP_OVERVIEW =
   "Architecture digests send scheduled summaries of workspace review activity. Configure cadence and recipients on the Schedule tab, manage subscriptions, then browse generated digests — digests are operator rollups, not a signed-review diligence Sources trail.";

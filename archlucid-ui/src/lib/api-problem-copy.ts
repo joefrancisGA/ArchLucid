@@ -179,7 +179,7 @@ export function operatorCopyForProblem(
         {
           heading: "Not permitted",
           body: trimmedFallback,
-          hint: "Your role may not allow this action. Ask an administrator to grant the right capability, or open a workspace where you have operator permissions.",
+          hint: "Your role may not allow this action. Ask an administrator to grant the right capability, or open a workspace where you have architect permissions.",
         },
         context,
         null,

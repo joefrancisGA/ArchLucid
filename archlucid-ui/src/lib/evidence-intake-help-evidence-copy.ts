@@ -5,7 +5,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const EVIDENCE_INTAKE_HELP_CANONICAL_PATH = "/help/evidence-intake" as const;
 
 export const EVIDENCE_INTAKE_HELP_CLAIM_DISCIPLINE =
-  "This Start a review guide is operator orientation for evidence intake — it is not a signed-review diligence Sources package. Open New review, Reviews, or Audit when you need live packages or assurance claims.";
+  "This Start a review guide is architect orientation for evidence intake — it is not a signed-review diligence Sources package. Open New review, Reviews, or Audit when you need live packages or assurance claims.";
 
 export const EVIDENCE_INTAKE_HELP_SOURCES_INTRO =
   "Use these follow-ups when intake guidance turns into starting a review, first-run walkthrough, or cloud attachment.";

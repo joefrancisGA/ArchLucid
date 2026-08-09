@@ -81,4 +81,8 @@ export const HELP_TOPIC_BANNED_COPY_PATTERNS = [
   "architecture" + " run",
   "operator shell",
   "pilot operator",
+  "operator permission",
+  "operator access",
+  "for operators",
+  "an operator",
 ] as const;

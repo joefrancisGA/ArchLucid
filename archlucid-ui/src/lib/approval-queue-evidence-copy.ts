@@ -6,7 +6,7 @@ import {
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const APPROVAL_QUEUE_CLAIM_DISCIPLINE =
-  "This approval queue records submit / approve / reject decisions for architecture reviews in the current workspace — an operator workflow surface, not a complete diligence Sources package on its own. Open Audit or the linked review when you need the fuller trail.";
+  "This approval queue records submit / approve / reject decisions for architecture reviews in the current workspace — an architect workflow surface, not a complete diligence Sources package on its own. Open Audit or the linked review when you need the fuller trail.";
 
 export const APPROVAL_QUEUE_SOURCES_INTRO =
   "Use these follow-ups when a decision needs findings triage, audit trail, workspace health, or governance orientation.";

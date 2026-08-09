@@ -10,7 +10,7 @@ export function ReplayPageDemoShell() {
       <DemoWorkspaceCapabilityUnavailablePanel
         layout="embedded"
         capability="Validate review"
-        description="In a connected tenant, operators validate stored review output for diagnostics and audit support."
+        description="In a connected tenant, architects validate stored review output for diagnostics and audit support."
       />
     </div>
   );

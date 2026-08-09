@@ -3,7 +3,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const GLOSSARY_HELP_CANONICAL_PATH = "/help/glossary" as const;
 
 export const GLOSSARY_HELP_CLAIM_DISCIPLINE =
-  "This glossary defines product terms for operators and buyers — it is orientation vocabulary, not a signed-review diligence Sources package. Open Getting started, Assurance status, or Audit when you need live workflow or assurance trails.";
+  "This glossary defines product terms for architects and buyers — it is orientation vocabulary, not a signed-review diligence Sources package. Open Getting started, Assurance status, or Audit when you need live workflow or assurance trails.";
 
 export const GLOSSARY_HELP_SOURCES_INTRO =
   "Use these follow-ups when a glossary term turns into product orientation, assurance, or first-run setup.";

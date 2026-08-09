@@ -1,7 +1,7 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const ADMIN_HEALTH_CLAIM_DISCIPLINE =
-  "Diagnostics dashboard shows workspace health, readiness, and configuration advisories for operators — it is not a signed-review diligence Sources package. Open System health, Audit, or Assurance status when you need governed or evaluation trails.";
+  "Diagnostics dashboard shows workspace health, readiness, and configuration advisories for architects — it is not a signed-review diligence Sources package. Open System health, Audit, or Assurance status when you need governed or evaluation trails.";
 
 export const ADMIN_HEALTH_SOURCES_INTRO =
   "Use these follow-ups when diagnostics need customer-facing readiness, activity trails, or troubleshooting guides.";

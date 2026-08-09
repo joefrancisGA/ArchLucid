@@ -409,7 +409,7 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
                 value={actorUserId}
                 onChange={(e) => setActorUserId(e.target.value)}
                 className="mt-1 w-full"
-                placeholder="Filter by operator or service principal"
+                placeholder="Filter by architect or service principal"
               />
             </label>
             <>

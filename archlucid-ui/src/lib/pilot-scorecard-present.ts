@@ -151,7 +151,7 @@ export function buildReviewScorecardOperationalMetrics(data: PilotScorecardJson)
       title: "Audit events recorded",
       ...zeroAwareCountMetric(
         data.totalAuditEventsGenerated,
-        "Audit activity appears as operators work through reviews.",
+        "Audit activity appears as architects work through reviews.",
       ),
       methodologyKey: "totalAuditEventsGenerated",
     },
