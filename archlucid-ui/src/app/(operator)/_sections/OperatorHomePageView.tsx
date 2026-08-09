@@ -1,35 +1,30 @@
 "use client";
 
-import { DevTestingQuickSwitchPanel } from "@/components/dev-testing/DevTestingQuickSwitchPanel";
-import { OperatorHomeAdvancedGuidancePanel } from "@/components/operator-home/OperatorHomeAdvancedGuidancePanel";
-import {
-  OperatorHomeDeferredOnboarding,
-  OperatorHomeFirstValueCallout,
-} from "@/components/operator-home/OperatorHomeDeferredOnboarding";
-import { OperatorHomeExamplesPlacement } from "@/components/operator-home/OperatorHomeExamplesPlacement";
+import { OperatorHomeDeferredOnboarding } from "@/components/operator-home/OperatorHomeDeferredOnboarding";
 import {
   OperatorHomeRunsPanel,
 } from "@/components/operator-home/OperatorHomeDeferredPanels";
-import { OperatorHomeWorkspaceContextDisclosure } from "@/components/operator-home/OperatorHomeWorkspaceContextDisclosure";
-import { OperatorHomeExecutiveRoiStrip } from "@/components/operator-home/OperatorHomeExecutiveRoiStrip";
-import { BuyerPolishedHomeHeroSection } from "@/components/operator-home/BuyerPolishedHomeHeroSection";
 import { OperatorHomeWorkspaceActivityProvider } from "@/components/operator-home/operator-home-workspace-activity-context";
-import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCenterCard";
 import { OperatorHomeGate } from "@/components/OperatorHomeGate";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import {
   OPERATOR_HOME_PRIMARY_SECTION_HEADING,
   OPERATOR_LAYOUT,
 } from "@/lib/design-tokens";
-import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
+import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator-home-workspace-metrics";
+import { OperatorHomeRefreshProvider } from "@/lib/operator-home-refresh-context";
+import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator-home-recent-reviews-heading";
+import {
+  OperatorHomeBelowFoldPanelsDeferred,
+  OperatorHomeExecutiveRoiStripDeferred,
+  PilotCommandCenterCardDeferred,
+} from "./operator-home-page-view-deferred-chunks";
+import { OperatorHomePageHeader } from "./OperatorHomePageHeader";
+import type { OperatorHomePageViewModel } from "./operator-home-page-view-model";
+import { BuyerPolishedHomeHeroSection } from "@/components/operator-home/BuyerPolishedHomeHeroSection";
 import {
   operatorHomePageSubtitle,
 } from "@/lib/operator-home-page-copy";
-import { OperatorHomeRefreshProvider } from "@/lib/operator-home-refresh-context";
-import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator-home-recent-reviews-heading";
-import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator-home-workspace-metrics";
-import { OperatorHomePageHeader } from "./OperatorHomePageHeader";
-import type { OperatorHomePageViewModel } from "./operator-home-page-view-model";
 
 type OperatorHomePageViewProps = {
   model: OperatorHomePageViewModel;
@@ -72,19 +67,9 @@ function BuyerPolishedHomePageBody(props: { readonly model: OperatorHomePageView
 
       <HomeRecentReviewsSection model={props.model} />
 
-      <OperatorHomeExecutiveRoiStrip />
+      <OperatorHomeBelowFoldPanelsDeferred buyerPolishedShell model={props.model} />
 
-      <OperatorHomeExamplesPlacement
-        beforeWorkspaceContext={null}
-        afterWorkspaceContext={
-          <>
-            <OperatorHomeWorkspaceContextDisclosure showWorkspaceStatus={false} runsDashboard={props.model.runsDashboard} />
-            <OperatorHomeAdvancedGuidancePanel buyerPolishedShell checklistVariant="compact" />
-          </>
-        }
-      />
-
-      <DevTestingQuickSwitchPanel />
+      <OperatorHomeExecutiveRoiStripDeferred />
 
     </OperatorHomeWorkspaceActivityProvider>
 
@@ -92,7 +77,6 @@ function BuyerPolishedHomePageBody(props: { readonly model: OperatorHomePageView
 }
 
 function OperatorHomePageBody(props: { readonly model: OperatorHomePageViewModel }) {
-  const fullOperatorShell = isOperatorExperienceFullShellEnv();
   const workspaceMetrics = deriveOperatorHomeWorkspaceMetrics(
     props.model.runsDashboard.items,
     props.model.runsDashboard.totalCount,
@@ -107,7 +91,7 @@ function OperatorHomePageBody(props: { readonly model: OperatorHomePageViewModel
 
       <section aria-label="Overview command center" data-testid="operator-home-pilot-command-center-host">
 
-        <PilotCommandCenterCard
+        <PilotCommandCenterCardDeferred
           openFindingsCount={workspaceMetrics.openFindings}
           governanceWarningsCount={workspaceMetrics.governanceWarnings}
           hasWorkspaceReviews={workspaceMetrics.hasReviews}
@@ -120,28 +104,13 @@ function OperatorHomePageBody(props: { readonly model: OperatorHomePageViewModel
 
       <HomeRecentReviewsSection model={props.model} />
 
-      <OperatorHomeExecutiveRoiStrip />
-
-      <OperatorHomeFirstValueCallout />
-
-      <OperatorHomeExamplesPlacement
-        beforeWorkspaceContext={null}
-        afterWorkspaceContext={
-          <>
-            <OperatorHomeWorkspaceContextDisclosure
-              showWorkspaceStatus={fullOperatorShell}
-              runsDashboard={props.model.runsDashboard}
-            />
-            <OperatorHomeAdvancedGuidancePanel
-              buyerPolishedShell={false}
-              fullOperatorShell={fullOperatorShell}
-              checklistVariant={fullOperatorShell ? "full" : "compact"}
-            />
-          </>
-        }
+      <OperatorHomeBelowFoldPanelsDeferred
+        buyerPolishedShell={false}
+        model={props.model}
+        showFirstValueCallout
       />
 
-      <DevTestingQuickSwitchPanel />
+      <OperatorHomeExecutiveRoiStripDeferred />
 
     </OperatorHomeWorkspaceActivityProvider>
 

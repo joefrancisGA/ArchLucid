@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
-import { CtoDemoExecutiveLandingRedirect } from "@/components/cto-demo/CtoDemoExecutiveLandingRedirect";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
+import { CtoDemoExecutiveLandingRedirectDeferred } from "./_sections/operator-home-page-view-deferred-chunks";
 import { loadOperatorHomeRunsDashboardModel } from "./_sections/load-operator-home-runs-dashboard-model";
 import { OperatorHomePageView } from "./_sections/OperatorHomePageView";
 
@@ -21,7 +21,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <CtoDemoExecutiveLandingRedirect />
+      <CtoDemoExecutiveLandingRedirectDeferred />
       <OperatorHomePageView model={{ buyerPolishedShell, runsDashboard }} />
     </>
   );

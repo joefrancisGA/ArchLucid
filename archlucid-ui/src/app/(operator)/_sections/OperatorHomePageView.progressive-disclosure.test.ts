@@ -11,9 +11,13 @@ const source = readFileSync(
 
 describe("OperatorHomePageView progressive disclosure", () => {
   it("places workspace activity after hero and examples via state-aware placement", () => {
-    const heroIndex = source.indexOf("PilotCommandCenterCard");
-    const reviewsIndex = source.indexOf('aria-labelledby="operator-home-reviews-heading"');
-    const examplesPlacementIndex = source.indexOf("<OperatorHomeExamplesPlacement");
+    const buyerBodyStart = source.indexOf("function BuyerPolishedHomePageBody");
+    const buyerBodyEnd = source.indexOf("function OperatorHomePageBody");
+    const buyerBody = source.slice(buyerBodyStart, buyerBodyEnd);
+
+    const heroIndex = buyerBody.indexOf("BuyerPolishedHomeHeroSection");
+    const reviewsIndex = buyerBody.indexOf("<HomeRecentReviewsSection");
+    const examplesPlacementIndex = buyerBody.indexOf("OperatorHomeBelowFoldPanelsDeferred");
 
     expect(heroIndex).toBeGreaterThan(-1);
     expect(reviewsIndex).toBeGreaterThan(heroIndex);
@@ -25,7 +29,12 @@ describe("OperatorHomePageView progressive disclosure", () => {
   });
 
   it("keeps workspace metrics behind default-closed disclosure below recent reviews", () => {
-    expect(source).toContain("OperatorHomeWorkspaceContextDisclosure");
+    const belowFoldSource = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "OperatorHomeBelowFoldPanels.tsx"),
+      "utf8",
+    );
+
+    expect(belowFoldSource).toContain("OperatorHomeWorkspaceContextDisclosure");
     expect(source).not.toContain("<OperatorHomeDeltaPanel />");
     expect(source).not.toContain("<OperatorHomeWorkspaceStatusPanel />");
 
