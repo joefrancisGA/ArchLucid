@@ -37,10 +37,10 @@ const STATUS_TAG_BASE =
 const BUYER_NEUTRAL_ATTENTION_TAG_CLASS = `${STATUS_TAG_BASE} border-neutral-300 bg-neutral-50 text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900/60 dark:text-neutral-300`;
 
 const BUYER_FILTER_CHIP_ACTIVE_CLASS =
-  "border-neutral-400 bg-neutral-100 text-neutral-800 dark:border-neutral-500 dark:bg-neutral-800 dark:text-neutral-200";
+  "border-neutral-500 bg-neutral-100 text-neutral-900 dark:border-neutral-500 dark:bg-neutral-800 dark:text-neutral-200";
 
 const BUYER_FILTER_CHIP_IDLE_CLASS =
-  "border-neutral-200 bg-white text-neutral-600 hover:border-neutral-300 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400 dark:hover:border-neutral-600";
+  "border-neutral-300 bg-neutral-100 text-neutral-700 hover:border-neutral-400 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:border-neutral-600";
 
 export function isBuyerShellHomePresentation(): boolean {
   return isBuyerPolishedOperatorShellEnv();
@@ -244,11 +244,11 @@ export function shellHealthReadinessSummary(healthLoadFailed: boolean, healthSta
 }
 
 const BUYER_FILTER_CHIP_DISABLED_CLASS =
-  "cursor-not-allowed border-neutral-200 bg-neutral-50 text-neutral-400 opacity-70 dark:border-neutral-800 dark:bg-neutral-900/40 dark:text-neutral-500";
+  "cursor-not-allowed border-neutral-300 bg-neutral-50 text-neutral-500 opacity-80 dark:border-neutral-800 dark:bg-neutral-900/40 dark:text-neutral-500";
 
-/** Selectable but currently empty — muted so `(0)` counts do not compete with populated filters. */
+/** Selectable but currently empty — muted vs populated, still WCAG AA on light surfaces. */
 const BUYER_FILTER_CHIP_EMPTY_CLASS =
-  "border-neutral-200 bg-white text-neutral-400 hover:border-neutral-300 hover:bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-500 dark:hover:border-neutral-700";
+  "border-neutral-300 bg-neutral-100 text-neutral-700 hover:border-neutral-400 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400 dark:hover:border-neutral-600";
 
 export function buyerFilterChipActiveClass(active: boolean): string {
   return active ? BUYER_FILTER_CHIP_ACTIVE_CLASS : BUYER_FILTER_CHIP_IDLE_CLASS;

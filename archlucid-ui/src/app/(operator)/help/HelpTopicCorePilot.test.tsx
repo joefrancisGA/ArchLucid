@@ -21,7 +21,6 @@ vi.mock("@/hooks/use-core-pilot-commit-context-query", () => ({
 
 import { HelpCorePilotGuideView } from "@/app/(operator)/help/_sections/HelpCorePilotGuideView";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
-import { CORE_PILOT_HELP_CLAIM_DISCIPLINE } from "@/lib/core-pilot-help-evidence-copy";
 import {
   CORE_PILOT_HELP_DISCLOSURE,
   CORE_PILOT_HELP_SUMMARY_TITLE,
@@ -184,7 +183,7 @@ describe("HelpCorePilotGuideView", () => {
     expect(within(firstViewport).queryByTestId("core-pilot-related-guides")).toBeNull();
 
     const related = screen.getByTestId("core-pilot-related-guides");
-    expect(within(related).getAllByRole("link")).toHaveLength(5);
+    expect(within(related).getAllByRole("link")).toHaveLength(3);
     expect(within(related).getByRole("link", { name: "Pilot guide" })).toBeInTheDocument();
     expect(within(related).getByRole("link", { name: "First review guide in the product" })).toBeInTheDocument();
     expect(within(related).getByRole("link", { name: "Troubleshooting" })).toBeInTheDocument();
@@ -203,32 +202,26 @@ describe("HelpCorePilotGuideView", () => {
     expect(screen.queryByRole("heading", { name: "Sources for follow-up" })).toBeNull();
 
     const related = screen.getByTestId("core-pilot-related-guides");
-    expect(within(related).getByRole("link", { name: "Getting started" })).toBeInTheDocument();
-    expect(within(related).getByRole("link", { name: "Cloud connections" })).toBeInTheDocument();
-    // "Start a review" is already a page CTA; it must not reappear as a follow-up link.
+    expect(within(related).getByRole("link", { name: "Pilot guide" })).toBeInTheDocument();
+    expect(within(related).getByRole("link", { name: "First review guide in the product" })).toBeInTheDocument();
     expect(within(related).queryByRole("link", { name: "Start a review" })).toBeNull();
   });
 
-  it("keeps claim discipline verbatim but places it after the guide (not above it)", () => {
+  it("keeps claim discipline out of the first viewport after Sources chrome removal", () => {
     if (entry === undefined) {
       throw new Error("Expected first-architecture-review documentation entry.");
     }
 
     render(<HelpCorePilotGuideView entry={entry} />);
 
-    const orientation = screen.getByTestId("core-pilot-help-orientation");
-    expect(within(orientation).getByTestId("core-pilot-help-claim-discipline")).toHaveTextContent(
-      CORE_PILOT_HELP_CLAIM_DISCIPLINE,
-    );
+    expect(screen.queryByTestId("core-pilot-help-orientation")).toBeNull(); // TB-2092
+    expect(screen.queryByTestId("core-pilot-help-claim-discipline")).toBeNull(); // TB-2092
 
     const firstViewport = screen.getByTestId("core-pilot-first-viewport");
     expect(within(firstViewport).queryByTestId("core-pilot-help-orientation")).toBeNull();
-
-    const related = screen.getByTestId("core-pilot-related-guides");
-    expect(related.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it("opens the guide-scope disclosure by default so the lower page is not all collapsed bars", () => {
+  it("keeps the guide-scope disclosure collapsed by default", () => {
     if (entry === undefined) {
       throw new Error("Expected first-architecture-review documentation entry.");
     }
@@ -239,7 +232,7 @@ describe("HelpCorePilotGuideView", () => {
     const scopeDetails = scopeSummary.closest("details");
 
     expect(scopeDetails).not.toBeNull();
-    expect(scopeDetails?.open).toBe(true);
+    expect(scopeDetails?.open).toBe(false);
   });
 
   it("renders sticky on-this-page navigation when enough sections exist", () => {

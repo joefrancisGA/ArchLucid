@@ -80,7 +80,10 @@ export function resolveRepeatReviewActivation(input: {
     actions: [
       {
         label: "Replay latest review",
-        href: latestHref !== null ? `/replay?runId=${encodeURIComponent(input.latestRunId!)}` : "/internal/replay",
+        href:
+          latestHref !== null
+            ? `/internal/replay?runId=${encodeURIComponent(input.latestRunId!)}`
+            : "/internal/replay",
         reason: "Reconstruct authority pipeline when investigating regressions.",
       },
       {

@@ -15,14 +15,12 @@ import {
   DPA_TEMPLATE_HELP_PAGE_SUBTITLE,
   DPA_TEMPLATE_HELP_PAGE_TITLE,
   DPA_TEMPLATE_HELP_PRIMARY_ACTIONS,
-  DPA_TEMPLATE_HELP_SOURCES,
 } from "@/lib/dpa-template-help-guide-content";
 import { DPA_TEMPLATE_HELP_PATH } from "@/lib/dpa-template-help-route";
 import {
   DESIGN_TOKENS,
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
-  OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
@@ -93,31 +91,6 @@ export function HelpDpaTemplateGuideView(props: HelpDpaTemplateGuideViewProps): 
             </Link>
           </CardContent>
         </Card>
-
-        <section
-          className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
-          aria-labelledby="help-dpa-template-sources-heading"
-          data-testid="help-dpa-template-sources"
-        >
-          <h2
-            id="help-dpa-template-sources-heading"
-            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
-          >
-            Sources for diligence
-          </h2>
-          <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Open Trust Center and related contracts before treating this template as executed agreement language.
-          </p>
-          <ul className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>
-            {DPA_TEMPLATE_HELP_SOURCES.map((link) => (
-              <li key={`${link.href}-${link.label}`}>
-                <Link className={cn(OPERATOR_LINK.inline, "font-medium")} href={link.href}>
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
       </div>
 
       <div className={cn("min-w-0 space-y-6", HELP_PAGE_LAYOUT.contentColumn, "max-w-[42rem] lg:max-w-none")}>

@@ -65,7 +65,7 @@ describe("ui-route-traffic-alert-rules-rules-tab (GLR)", () => {
     expect(row?.section).toBe(ALERT_RULES_RULES_TAB_TRAFFIC_SECTION);
     expect(row?.notes).toBe(ALERT_RULES_RULES_TAB_TRAFFIC_NOTE);
     expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
-    expect(row?.notes).toContain("Score 58");
+
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

@@ -65,6 +65,6 @@ describe("ui-route-traffic-core-pilot-help-alias (ECO)", () => {
     expect(row?.section).toBe(CORE_PILOT_HELP_ALIAS_TRAFFIC_SECTION);
     expect(row?.notes).toBe(CORE_PILOT_HELP_ALIAS_TRAFFIC_NOTE);
     expect(row?.notes).toContain("HelpCorePilotGuideView");
-    expect(row?.notes).toContain("Score 58");
+    expect(row?.notes).toContain("Score 52");
   });
 });

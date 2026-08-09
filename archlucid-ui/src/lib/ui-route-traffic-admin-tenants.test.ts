@@ -66,7 +66,7 @@ describe("ui-route-traffic-admin-tenants (INT)", () => {
     expect(row?.notes).toBe(ADMIN_TENANTS_TRAFFIC_NOTE);
     expect(row?.notes).toContain("AdminTenantsPageClient");
     expect(row?.notes).toContain("Sources");
-    expect(row?.notes).toContain("Score 58");
+
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

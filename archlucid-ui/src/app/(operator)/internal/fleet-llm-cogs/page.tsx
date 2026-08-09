@@ -1,5 +1,5 @@
-import { FleetLlmCogsPageClient } from "./_sections/FleetLlmCogsPageClient";
+import { FleetLlmCogsAdminPageClient } from "./_sections/FleetLlmCogsAdminPageClient";
 
 export default function FleetLlmCogsPage() {
-  return <FleetLlmCogsPageClient />;
+  return <FleetLlmCogsAdminPageClient />;
 }

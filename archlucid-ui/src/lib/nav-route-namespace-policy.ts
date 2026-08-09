@@ -24,7 +24,7 @@ export const NAV_GROUP_CANONICAL_PREFIX_POLICIES: readonly NavGroupCanonicalPref
   { navGroupId: "operate-governance", canonicalPrefixes: ["/governance"] },
   { navGroupId: "operate-integrations", canonicalPrefixes: ["/integrations"] },
   { navGroupId: "operator-admin", canonicalPrefixes: ["/administration"] },
-  { navGroupId: "operator-system-admin", canonicalPrefixes: ["/admin"] },
+  { navGroupId: "operator-system-admin", canonicalPrefixes: ["/internal"] },
 ];
 
 export function hrefMatchesCanonicalPrefix(href: string, prefix: string): boolean {

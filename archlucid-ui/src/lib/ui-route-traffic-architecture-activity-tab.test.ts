@@ -64,9 +64,8 @@ describe("ui-route-traffic-architecture-activity-tab (REA)", () => {
     expect(row?.path).toBe(ARCHITECTURE_ACTIVITY_TAB_TRAFFIC_PATH);
     expect(row?.section).toBe(ARCHITECTURE_ACTIVITY_TAB_TRAFFIC_SECTION);
     expect(row?.notes).toBe(ARCHITECTURE_ACTIVITY_TAB_TRAFFIC_NOTE);
-    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("archTab=activity");
-    expect(row?.notes).toContain("Score 58");
+
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

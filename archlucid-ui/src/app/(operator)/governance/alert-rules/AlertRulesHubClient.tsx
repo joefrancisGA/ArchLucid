@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import { useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { LayerHeader } from "@/components/LayerHeader";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -14,9 +13,6 @@ import {
   type AlertRulesHubTabId,
 } from "@/lib/alerts-hub-tab";
 import {
-  ALERTS_CONFIGURATION_LAYER_GUIDANCE_TRIGGER,
-  ALERTS_CONFIGURATION_SCOPE_DETAILS_TRIGGER,
-  ALERTS_CONTEXT_NOTE,
   alertsConfigurationPageSubtitle,
 } from "@/lib/alerts-page-copy";
 import { governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
@@ -66,7 +62,6 @@ function AlertRulesHubChrome(): React.JSX.Element {
         <LayerHeader
           pageKey="alert-rules"
           density="compact"
-          collapsibleGuidance={ALERTS_CONFIGURATION_LAYER_GUIDANCE_TRIGGER}
         />
       ) : null}
 
@@ -76,16 +71,6 @@ function AlertRulesHubChrome(): React.JSX.Element {
         lastRefreshedAt={lastRefreshedAt}
         onRefresh={requestRefresh}
       />
-
-      {buyerPolishedShell ? (
-        <CollapsibleSection
-          title={ALERTS_CONFIGURATION_SCOPE_DETAILS_TRIGGER}
-          defaultOpen={false}
-          sectionTestId="alert-rules-scope-details"
-        >
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{ALERTS_CONTEXT_NOTE}</p>
-        </CollapsibleSection>
-      ) : null}
     </>
   );
 }

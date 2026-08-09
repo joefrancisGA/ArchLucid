@@ -21,8 +21,13 @@ describe("sponsor-report-navigation", () => {
     expect(isSponsorReportOutcomesSurface("/architecture/reviews")).toBe(false);
   });
 
-  it("detects legacy sponsor-report bookmarks", () => {
-    expect(isSponsorReportOutcomesSurface("/sponsor-report/executive-summary")).toBe(true);
-    expect(isSponsorReportOutcomesSurface("/sponsor-report/pilot-outcomes")).toBe(true);
+  it("detects insights sponsor-report outcome paths", () => {
+    expect(isSponsorReportOutcomesSurface("/insights/roi-summary")).toBe(true);
+    expect(isSponsorReportOutcomesSurface("/insights/pilot-outcomes")).toBe(true);
+  });
+
+  it("does not treat retired /sponsor-report bookmarks as live surfaces", () => {
+    expect(isSponsorReportOutcomesSurface("/sponsor-report/executive-summary")).toBe(false);
+    expect(isSponsorReportOutcomesSurface("/sponsor-report/pilot-outcomes")).toBe(false);
   });
 });

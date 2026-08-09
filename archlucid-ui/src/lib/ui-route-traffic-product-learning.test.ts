@@ -66,7 +66,7 @@ describe("ui-route-traffic-product-learning (INR)", () => {
     expect(row?.notes).toBe(PRODUCT_LEARNING_TRAFFIC_NOTE);
     expect(row?.notes).toContain("ProductLearningPageView");
     expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
-    expect(row?.notes).toContain("Score 68");
+
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

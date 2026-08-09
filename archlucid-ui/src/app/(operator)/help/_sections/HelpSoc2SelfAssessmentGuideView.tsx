@@ -17,7 +17,6 @@ import {
   SOC2_SELF_ASSESSMENT_HELP_PAGE_SUBTITLE,
   SOC2_SELF_ASSESSMENT_HELP_PAGE_TITLE,
   SOC2_SELF_ASSESSMENT_HELP_PRIMARY_ACTIONS,
-  SOC2_SELF_ASSESSMENT_HELP_SOURCES,
 } from "@/lib/soc2-self-assessment-help-guide-content";
 import { SOC2_SELF_ASSESSMENT_HELP_PATH } from "@/lib/soc2-self-assessment-help-route";
 import {
@@ -106,31 +105,6 @@ export function HelpSoc2SelfAssessmentGuideView(
             </Link>
           </CardContent>
         </Card>
-
-        <section
-          className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
-          aria-labelledby="help-soc2-self-assessment-sources-heading"
-          data-testid="help-soc2-self-assessment-sources"
-        >
-          <h2
-            id="help-soc2-self-assessment-sources-heading"
-            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
-          >
-            Sources for diligence
-          </h2>
-          <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Open Trust Center and questionnaire help before treating this self-assessment as an audit opinion.
-          </p>
-          <ul className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>
-            {SOC2_SELF_ASSESSMENT_HELP_SOURCES.map((link) => (
-              <li key={`${link.href}-${link.label}`}>
-                <Link className={cn(OPERATOR_LINK.inline, "font-medium")} href={link.href}>
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
       </div>
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>

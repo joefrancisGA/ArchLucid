@@ -1,5 +1,8 @@
 import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import {
+  EXECUTIVE_DASHBOARD_HREF,
+  EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF,
+} from "@/lib/executive-dashboard-route";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance-overview-copy";
@@ -19,6 +22,9 @@ describe("getRouteTitle — static routes", () => {
     expect(getRouteTitle("/governance/approval-queue")).toBe(GOVERNANCE_OVERVIEW_PAGE_TITLE);
     expect(getRouteTitle(SIGNED_RECORDS_LIST_PATH)).toBe(OPERATOR_NAV_LINK_LABELS.signedReviewRecords);
     expect(getRouteTitle(EXECUTIVE_DASHBOARD_HREF)).toBe(BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle);
+    expect(getRouteTitle(EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF)).toBe(
+      OPERATOR_NAV_LINK_LABELS.workspaceHealth,
+    );
     expect(getRouteTitle("/internal/replay")).toBe(OPERATOR_NAV_LINK_LABELS.replayReview);
     expect(getRouteTitle("/insights/ask-review-questions")).toBe("Ask review questions");
     expect(getRouteTitle("/insights/search-review-evidence")).toBe("Search review evidence");

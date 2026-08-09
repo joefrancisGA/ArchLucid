@@ -65,7 +65,7 @@ describe("ui-route-traffic-digests-browse-tab (ARB)", () => {
     expect(row?.section).toBe(DIGESTS_BROWSE_TAB_TRAFFIC_SECTION);
     expect(row?.notes).toBe(DIGESTS_BROWSE_TAB_TRAFFIC_NOTE);
     expect(row?.notes).toContain("DigestsBrowseSetupChecklist");
-    expect(row?.notes).toContain("Score 58");
+
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

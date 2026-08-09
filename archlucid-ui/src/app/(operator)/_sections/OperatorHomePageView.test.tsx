@@ -135,7 +135,7 @@ describe("OperatorHomePageView", () => {
 
     expect(screen.getByTestId("operator-home-page-title")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-scope-details")).toBeInTheDocument();
+    expect(screen.queryByTestId("operator-home-scope-details")).toBeNull(); // TB-2093
   });
 
   it("renders an elevated Recent reviews section heading in buyer-polished home (TB-347)", () => {

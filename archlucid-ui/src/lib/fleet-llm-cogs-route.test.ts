@@ -15,7 +15,7 @@ const FLEET_LLM_COGS_PAGE = join(
   "src",
   "app",
   "(operator)",
-  "admin",
+  "internal",
   "fleet-llm-cogs",
   "page.tsx",
 );
@@ -24,22 +24,23 @@ const FLEET_LLM_COGS_LAYOUT = join(
   "src",
   "app",
   "(operator)",
-  "admin",
+  "internal",
   "fleet-llm-cogs",
   "layout.tsx",
 );
 
 const PRODUCT_FLEET_LLM_COGS_SURFACES = [
   "archlucid-ui/src/lib/operator-system-admin-nav-group-builder.ts",
-  "archlucid-ui/src/lib/platform-admin-path.ts",
   "archlucid-ui/src/lib/trial-funnel-ops.ts",
 ] as const;
 
 const CANONICAL_FLEET_LLM_COGS_HANDOFF_MARKERS = [
   FLEET_LLM_COGS_PATH,
   "FLEET_LLM_COGS_PATH",
+  "INTERNAL_FLEET_LLM_COGS_PATH",
   "fetchAdminFleetLlmCogsDashboard",
-  "admin/fleet-llm-cogs",
+  "internal/fleet-llm-cogs",
+  "fleet-llm-cogs",
 ] as const;
 
 function expectCanonicalFleetLlmCogsHandoff(source: string): void {
@@ -61,7 +62,7 @@ describe("fleet-llm-cogs-route (AFX)", () => {
     const pageSource = readFileSync(FLEET_LLM_COGS_PAGE, "utf8");
     const layoutSource = readFileSync(FLEET_LLM_COGS_LAYOUT, "utf8");
 
-    expect(pageSource).toContain("FleetLlmCogsPageClient");
+    expect(pageSource).toContain("FleetLlmCogsAdminPageClient");
     expect(layoutSource).toContain("FLEET_LLM_COGS_ROUTE_METADATA");
     expect(layoutSource).toContain("OperatorDataRouteLayout");
   });

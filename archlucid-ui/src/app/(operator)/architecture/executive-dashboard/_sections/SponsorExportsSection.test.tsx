@@ -24,7 +24,7 @@ describe("SponsorExportsSection", () => {
     expect(previewLinks[1]).toHaveAttribute("href", v.sponsorExportsPilotValueSampleHref);
     expect(screen.getByRole("link", { name: v.sponsorExportsRoiAction })).toHaveAttribute(
       "href",
-      "/sponsor-report/roi-summary",
+      "/insights/roi-summary",
     );
     expect(screen.queryByTestId("sponsor-exports-scorecard-action")).not.toBeInTheDocument();
     expect(screen.queryByTestId("sponsor-exports-pilot-value-action")).not.toBeInTheDocument();
@@ -39,7 +39,7 @@ describe("SponsorExportsSection", () => {
     );
     expect(screen.getByRole("link", { name: v.sponsorExportsPilotValueAction })).toHaveAttribute(
       "href",
-      "/sponsor-report/pilot-outcomes",
+      "/insights/pilot-outcomes",
     );
     expect(screen.queryByText(v.sponsorExportsUnavailableFootnote)).not.toBeInTheDocument();
   });

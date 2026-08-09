@@ -1,4 +1,4 @@
-import { CloudCog, Hash, Ticket, Users, Workflow } from "lucide-react";
+import { CloudCog, Hash, ListOrdered, Ticket, Users, Workflow } from "lucide-react";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -34,8 +34,10 @@ describe("resolveNavLinkForPathname", () => {
     expect(resolveNavIconForHref("/help/billing-and-plans")).toBeUndefined();
   });
 
-  it("does not assign primary nav icons to review detail routes without nav rows", () => {
-    expect(resolveNavIconForHref("/architecture/reviews/runs/00000000-0000-0000-0000-000000000001")).toBeUndefined();
+  it("assigns the reviews nav icon to nested review detail routes", () => {
+    expect(resolveNavIconForHref("/architecture/reviews/runs/00000000-0000-0000-0000-000000000001")).toBe(
+      ListOrdered,
+    );
   });
 
   it("keeps Microsoft Teams distinct from Users & roles", () => {

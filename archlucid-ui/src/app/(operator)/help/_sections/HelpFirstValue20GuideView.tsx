@@ -16,7 +16,6 @@ import {
   FIRST_VALUE_20_HELP_PAGE_SUBTITLE,
   FIRST_VALUE_20_HELP_PAGE_TITLE,
   FIRST_VALUE_20_HELP_PRIMARY_ACTIONS,
-  FIRST_VALUE_20_HELP_SOURCES,
 } from "@/lib/first-value-20-help-guide-content";
 import { FIRST_VALUE_20_HELP_PATH } from "@/lib/first-value-20-help-route";
 import {
@@ -98,31 +97,6 @@ export function HelpFirstValue20GuideView(props: HelpFirstValue20GuideViewProps)
             </Link>
           </CardContent>
         </Card>
-
-        <section
-          className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
-          aria-labelledby="help-first-value-20-sources-heading"
-          data-testid="help-first-value-20-sources"
-        >
-          <h2
-            id="help-first-value-20-sources-heading"
-            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
-          >
-            Related guides
-          </h2>
-          <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Send customers to the buyer guides; keep this Admin time box for SE proof collection.
-          </p>
-          <ul className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>
-            {FIRST_VALUE_20_HELP_SOURCES.map((link) => (
-              <li key={`${link.href}-${link.label}`}>
-                <Link className={cn(OPERATOR_LINK.inline, "font-medium")} href={link.href}>
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
       </div>
 
       <div className={cn("min-w-0 space-y-6", HELP_PAGE_LAYOUT.contentColumn, "max-w-[42rem] lg:max-w-none")}>

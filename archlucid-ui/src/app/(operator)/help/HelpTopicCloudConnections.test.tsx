@@ -4,12 +4,12 @@ import { describe, expect, it } from "vitest";
 import { HelpCloudConnectionsGuideView } from "@/app/(operator)/help/_sections/HelpCloudConnectionsGuideView";
 import {
   CLOUD_CONNECTIONS_HELP_PATH,
-  CLOUD_CONNECTIONS_HELP_SOURCES,
+  CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS,
 } from "@/lib/cloud-connections-help-guide-content";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpCloudConnectionsGuideView (HCE)", () => {
-  it("renders Sources strip, claim discipline, and primary CTAs without self-linking", () => {
+  it("renders claim discipline and primary CTAs without a Sources strip", () => {
     const entry = getProductDocumentationEntry("cloud-connections");
 
     expect(entry?.slug).toBe("cloud-connections");
@@ -28,21 +28,14 @@ describe("HelpCloudConnectionsGuideView (HCE)", () => {
     expect(screen.getByTestId("help-cloud-connections-guide")).toBeInTheDocument();
     expect(screen.queryByTestId("help-cloud-connections-sources")).toBeNull(); // TB-2092
     expect(screen.getByTestId("help-cloud-connections-claim-discipline")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open cloud connections" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.openHub.label })).toHaveAttribute(
       "href",
-      "/integrations/cloud-connections",
+      CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.openHub.href,
     );
-
-    expect(screen.queryByTestId("help-cloud-connections-sources")).toBeNull(); // TB-2092
-    for (const link of CLOUD_CONNECTIONS_HELP_SOURCES) {
-      const matches = screen.getAllByRole("link", { name: link.label });
-
-      expect(matches.some((anchor) => anchor.getAttribute("href") === link.href)).toBe(true);
-      expect(sources.querySelector(`a[href="${link.href}"]`)).not.toBeNull();
-    }
-
-    expect(CLOUD_CONNECTIONS_HELP_SOURCES.some((link) => link.href === CLOUD_CONNECTIONS_HELP_PATH)).toBe(
-      false,
+    expect(screen.getByRole("link", { name: CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.connectAzure.label })).toHaveAttribute(
+      "href",
+      CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.connectAzure.href,
     );
+    expect(CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.openHub.href).not.toBe(CLOUD_CONNECTIONS_HELP_PATH);
   });
 });

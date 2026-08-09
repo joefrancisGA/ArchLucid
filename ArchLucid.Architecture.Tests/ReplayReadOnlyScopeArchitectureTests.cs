@@ -62,13 +62,15 @@ public sealed class ReplayReadOnlyScopeArchitectureTests
         string root = FindRepoRoot();
         string path = Path.Combine(root, "ArchLucid.Application", "ReplayRunService.cs");
         string source = File.ReadAllText(path);
+        // Collapse whitespace so multiline PersistCommittedChainAsync calls still match.
+        string compact = System.Text.RegularExpressions.Regex.Replace(source, @"\s+", " ");
 
-        source.Should().Contain(
-            "PersistCommittedChainAsync(scope, replayGuid,",
+        compact.Should().MatchRegex(
+            @"PersistCommittedChainAsync\(\s*scope,\s*replayGuid,",
             "INV-013 replay commit must target the replay authority run id.");
 
-        source.Should().NotContain(
-            "PersistCommittedChainAsync(scope, originalGuid,",
+        compact.Should().NotMatchRegex(
+            @"PersistCommittedChainAsync\(\s*scope,\s*originalGuid,",
             "INV-013 must not commit replay outputs against the original run id.");
     }
 

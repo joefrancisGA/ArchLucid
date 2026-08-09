@@ -288,6 +288,7 @@ describe("nav-config structure", () => {
     for (const link of governance!.links) {
       expect(
         link.href === "/governance/approval-queue"
+          || link.href === "/architecture/executive-dashboard#workspace-health"
           || link.href.startsWith("/governance/"),
         link.href,
       ).toBe(true);

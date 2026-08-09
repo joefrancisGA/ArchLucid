@@ -30,7 +30,7 @@ describe("resolveSoftNavigationHardFallbackAssignUrl", () => {
       resolveSoftNavigationHardFallbackAssignUrl(
         "/architecture/reviews",
         "/architecture/reviews",
-        "?projectId=default",
+        "",
         "https://www.archlucid.net",
       ),
     ).toBeNull();

@@ -31,16 +31,16 @@ const PAGES = [
   { name: "Trial signup", path: "/signup" },
   { name: "First review guide (canonical)", path: "/architecture/first-review-guide" },
   { name: "New request", path: "/architecture/reviews/new" },
-  { name: "Runs", path: "/runs?projectId=default" },
-  { name: "Run detail", path: `/runs/${FIXTURE_RUN_ID}` },
-  { name: "Run provenance", path: `/runs/${FIXTURE_RUN_ID}/provenance` },
-  { name: "Finding detail (showcase run)", path: `/runs/${SHOWCASE_DEMO_RUN_ID}/findings/${SCREENSHOT_FINDING_ID}` },
+  { name: "Runs", path: "/architecture/reviews?projectId=default" },
+  { name: "Run detail", path: `/architecture/reviews/${FIXTURE_RUN_ID}` },
+  { name: "Run provenance", path: `/architecture/reviews/${FIXTURE_RUN_ID}/provenance` },
+  { name: "Finding detail (showcase run)", path: `/architecture/reviews/${SHOWCASE_DEMO_RUN_ID}/findings/${SCREENSHOT_FINDING_ID}` },
   {
     name: "Finding inspect (showcase run)",
-    path: `/runs/${SHOWCASE_DEMO_RUN_ID}/findings/${SCREENSHOT_FINDING_ID}/inspect`,
+    path: `/architecture/reviews/${SHOWCASE_DEMO_RUN_ID}/findings/${SCREENSHOT_FINDING_ID}/inspect`,
   },
-  { name: "Manifest detail", path: `/signed-records/${FIXTURE_MANIFEST_ID}` },
-  { name: "Manifest detail (empty artifacts fixture)", path: `/signed-records/${FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID}` },
+  { name: "Manifest detail", path: `/governance/signed-records/${FIXTURE_MANIFEST_ID}` },
+  { name: "Manifest detail (empty artifacts fixture)", path: `/governance/signed-records/${FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID}` },
   { name: "Compare", path: "/insights/compare-two-reviews" },
   { name: "Replay", path: "/internal/replay" },
   { name: "Ask", path: "/insights/ask-review-questions" },
@@ -87,18 +87,6 @@ const PAGES = [
   { name: "Settings support", path: "/administration/support" },
   { name: "Admin health", path: "/internal/health" },
   { name: "Admin configuration", path: "/internal/configuration" },
-  { name: "Create architecture (canonical /reviews)", path: "/architecture/reviews/new" },
-  { name: "Reviews list (canonical /reviews)", path: "/architecture/reviews" },
-  { name: "Run detail (canonical /reviews)", path: `/architecture/reviews/${FIXTURE_RUN_ID}` },
-  { name: "Run provenance (canonical /reviews)", path: `/architecture/reviews/${FIXTURE_RUN_ID}/provenance` },
-  {
-    name: "Finding detail showcase (canonical /reviews)",
-    path: `/architecture/reviews/${SHOWCASE_DEMO_RUN_ID}/findings/${SCREENSHOT_FINDING_ID}`,
-  },
-  {
-    name: "Finding inspect showcase (canonical /reviews)",
-    path: `/architecture/reviews/${SHOWCASE_DEMO_RUN_ID}/findings/${SCREENSHOT_FINDING_ID}/inspect`,
-  },
   { name: "Replay (pre-filled runId)", path: `/replay?runId=${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}` },
   {
     name: "Compare (fixture left/right)",
@@ -110,7 +98,7 @@ const PAGES = [
   { name: "Marketing get started", path: "/get-started" },
   {
     name: "Manifest detail (showcase static demo UUID)",
-    path: `/signed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`,
+    path: `/governance/signed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`,
   },
   {
     name: "Planning plan detail (demo slug)",
@@ -130,7 +118,7 @@ const GOLDEN_PATH_OPERATOR_A11Y_PAGES = [
   { name: "Overview", path: "/" },
   { name: "Reviews list (canonical /reviews)", path: "/architecture/reviews" },
   { name: "Run detail (canonical /reviews)", path: `/architecture/reviews/${FIXTURE_RUN_ID}` },
-  { name: "Manifest detail", path: `/signed-records/${FIXTURE_MANIFEST_ID}` },
+  { name: "Manifest detail", path: `/governance/signed-records/${FIXTURE_MANIFEST_ID}` },
 ] as const;
 
 const goldenPathSet = new Set<string>(GOLDEN_PATH_OPERATOR_A11Y_PAGES.map((p) => p.path));

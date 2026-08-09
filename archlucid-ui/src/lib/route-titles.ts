@@ -5,7 +5,19 @@ import { ROUTE_TITLES } from "@/lib/route-static-titles";
 
 /** Human-readable title for route announcements and accessibility copy. */
 export function getRouteTitle(pathname: string): string {
-  const withoutHash = pathname.split("#")[0] ?? pathname;
+  const withoutQuery = pathname.split("?")[0] ?? pathname;
+  // Hash-preserving keys (e.g. #workspace-health) must win before stripping the fragment.
+  const hashedCanonical = canonicalizeLegacyOperatorRoutePath(withoutQuery);
+
+  if (ROUTE_TITLES[hashedCanonical] !== undefined) {
+    return ROUTE_TITLES[hashedCanonical];
+  }
+
+  if (ROUTE_TITLES[withoutQuery] !== undefined) {
+    return ROUTE_TITLES[withoutQuery];
+  }
+
+  const withoutHash = withoutQuery.split("#")[0] ?? withoutQuery;
   const normalized =
     withoutHash.length > 1 && withoutHash.endsWith("/") ? withoutHash.slice(0, -1) : withoutHash;
   const canonical = canonicalizeLegacyOperatorRoutePath(normalized);

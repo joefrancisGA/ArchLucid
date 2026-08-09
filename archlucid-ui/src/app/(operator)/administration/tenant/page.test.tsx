@@ -88,7 +88,7 @@ describe("TenantSettingsPage", () => {
 
     expect(await screen.findByTestId("tenant-settings-page")).toBeInTheDocument();
     expect(await screen.findByTestId("tenant-settings-page-title")).toHaveTextContent("Workspace settings");
-    expect(await screen.findByTestId("tenant-settings-orientation")).toBeInTheDocument();
+    expect(screen.queryByTestId("tenant-settings-orientation")).toBeNull(); // TB-2092
     expect(await screen.findByText("Workspace scope")).toBeInTheDocument();
     expect(await screen.findByText(/selected from the workspace switcher\./i)).toBeInTheDocument();
     expect(await screen.findByText(/Status:/i)).toBeInTheDocument();

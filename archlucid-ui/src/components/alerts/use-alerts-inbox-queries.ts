@@ -16,6 +16,7 @@ import {
   OPERATOR_QUERY_GC_MS,
   OPERATOR_QUERY_STALE_MS,
 } from "@/lib/query/operator-query-stale-time";
+import type { AlertRecord } from "@/types/alerts";
 import type { AlertsInboxPageModel } from "@/app/(operator)/governance/alerts/_sections/alerts-inbox-page-model";
 import { ALERTS_INBOX_ALL_STATUSES_VALUE } from "@/app/(operator)/governance/alerts/_sections/load-alerts-inbox-page-model";
 
@@ -26,6 +27,9 @@ const EMPTY_SUMMARY: AlertsInboxSummaryCounts = {
   blocking: 0,
   lastEvaluatedUtc: null,
 };
+
+/** Stable empty list — `?? []` would allocate every render and retrigger inbox effects. */
+const EMPTY_ALERT_ITEMS: AlertRecord[] = [];
 
 const EMPTY_WORKSPACE_CONTEXT: AlertsInboxWorkspaceContext = {
   hasReviews: false,
@@ -65,7 +69,7 @@ export function useAlertsInboxPageQuery(args: {
   }, [query]);
 
   return {
-    items: query.data?.items ?? [],
+    items: query.data?.items ?? EMPTY_ALERT_ITEMS,
     totalCount: query.data?.totalCount ?? 0,
     loadFailure: query.data?.loadFailure ?? null,
     loading: query.isPending || query.isFetching,

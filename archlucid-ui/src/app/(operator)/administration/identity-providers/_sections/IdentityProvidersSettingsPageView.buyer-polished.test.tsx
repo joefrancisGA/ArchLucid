@@ -23,7 +23,6 @@ import type { UseIdentityProvidersSettingsPageModel } from "./use-identity-provi
 import {
   BUYER_IDENTITY_PROVIDERS_PAGE_SUBTITLE,
   IDENTITY_PROVIDERS_PAGE_SUBTITLE,
-  IDENTITY_PROVIDERS_PAGE_INTRO,
 } from "@/lib/identity-providers-settings-copy";
 
 function buildModel(
@@ -72,9 +71,6 @@ describe("IdentityProvidersSettingsPageView buyer-polished shell", () => {
     expect(screen.queryByText(IDENTITY_PROVIDERS_PAGE_SUBTITLE)).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("identity-providers-refresh-button")).toBeInTheDocument();
-    expect(screen.getByTestId("identity-providers-scope-details")).toBeInTheDocument();
-    expect(screen.getByTestId("identity-providers-scope-overview")).toHaveTextContent(
-      IDENTITY_PROVIDERS_PAGE_INTRO,
-    );
+    expect(screen.queryByTestId("identity-providers-scope-details")).toBeNull(); // TB-2093
   });
 });

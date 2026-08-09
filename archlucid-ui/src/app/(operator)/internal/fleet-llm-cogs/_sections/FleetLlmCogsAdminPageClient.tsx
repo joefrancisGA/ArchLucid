@@ -11,7 +11,7 @@ import { FLEET_LLM_COGS_PAGE_LEAD, FLEET_LLM_COGS_PAGE_TITLE } from "@/lib/fleet
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { fetchAdminFleetLlmCogsDashboard, type AdminFleetLlmCogsDashboard } from "@/lib/trial-funnel-ops";
 
-export function FleetLlmCogsPageClient() {
+export function FleetLlmCogsAdminPageClient() {
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
   const isAdmin = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const [data, setData] = useState<AdminFleetLlmCogsDashboard | null>(null);

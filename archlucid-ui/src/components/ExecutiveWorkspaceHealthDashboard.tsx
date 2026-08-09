@@ -46,7 +46,6 @@ import { computeWorkspaceHealthSlaStats } from "@/lib/workspace-health-sla";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   executiveWorkspaceHealthKpiTitle,
-  EXECUTIVE_WORKSPACE_HEALTH_LAYER_GUIDANCE_TRIGGER,
   EXECUTIVE_WORKSPACE_HEALTH_SESSION_SCOPE_SUMMARY,
 } from "@/lib/executive-workspace-health-page-copy";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
@@ -198,8 +197,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
     <LayerHeader
       pageKey="governance-dashboard"
       density={buyerPolishedShell ? "compact" : "default"}
-      collapsibleGuidance={buyerPolishedShell ? EXECUTIVE_WORKSPACE_HEALTH_LAYER_GUIDANCE_TRIGGER : undefined}
-/>
+    />
   );
 
   if (state.status === "loading" || state.status === "idle") {
