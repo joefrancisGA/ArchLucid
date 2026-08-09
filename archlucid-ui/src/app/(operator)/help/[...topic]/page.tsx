@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 
 import { HelpTopicMarkdownView } from "../HelpTopicMarkdownView";
 import { HelpAcceleratorChooserGuideView } from "../_sections/HelpAcceleratorChooserGuideView";
+import { HelpAlertsGuideView } from "../_sections/HelpAlertsGuideView";
 import { HelpDigestsGuideView } from "../_sections/HelpDigestsGuideView";
 import { HelpApiContractsGuideView } from "../_sections/HelpApiContractsGuideView";
 import { HelpBillingAndPlansGuideView } from "../_sections/HelpBillingAndPlansGuideView";
@@ -50,6 +51,7 @@ import { SOC2_SELF_ASSESSMENT_HELP_ROUTE_METADATA } from "@/lib/soc2-self-assess
 import { FIRST_REVIEW_HELP_ROUTE_METADATA } from "@/lib/first-review-help-route-metadata";
 import { POLICY_PACK_DELTA_DEMO_HELP_ROUTE_METADATA } from "@/lib/policy-pack-delta-demo-help-route-metadata";
 import { ACCELERATOR_CHOOSER_HELP_ROUTE_METADATA } from "@/lib/accelerator-chooser-help-route-metadata";
+import { PATH_CHOOSER_HELP_ROUTE_METADATA } from "@/lib/path-chooser-help-route-metadata";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import {
   getProductDocumentationEntry,
