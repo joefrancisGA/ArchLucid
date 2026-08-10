@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
+import { ComplianceJourneyDiligenceSections } from "@/components/marketing/ComplianceJourneyDiligenceSections";
 import { ComplianceJourneyEvidenceOrientationStrip } from "@/components/marketing/ComplianceJourneyEvidenceOrientationStrip";
-import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 
 export const revalidate = 300;
 
@@ -22,79 +21,7 @@ export default function ComplianceJourneyPage() {
         summarizes what is in scope now — no new certifications are claimed here.
       </p>
       <ComplianceJourneyEvidenceOrientationStrip />
-      <ul className="mt-6 list-disc space-y-2 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
-        <li>
-          <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/trust">
-            Trust Center
-          </Link>{" "}
-          — consolidated posture, questionnaires, and procurement downloads.
-        </li>
-        <li>
-          CAIQ Lite and SIG Core pre-fills:{" "}
-          <Link
-            className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
-            href={resolveInAppDocHref("docs/security/CAIQ_LITE_2026.md")}
-          >
-            CAIQ Lite
-          </Link>
-          ,{" "}
-          <Link
-            className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
-            href={resolveInAppDocHref("docs/security/SIG_CORE_2026.md")}
-          >
-            SIG Core
-          </Link>
-          .
-        </li>
-        <li>
-          Control and evidence mapping:{" "}
-          <Link
-            className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
-            href={resolveInAppDocHref("docs/security/COMPLIANCE_MATRIX.md")}
-          >
-            Compliance matrix
-          </Link>
-          .
-        </li>
-        <li>
-          Data processing terms:{" "}
-          <Link
-            className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
-            href={resolveInAppDocHref("docs/go-to-market/DPA_TEMPLATE.md")}
-          >
-            DPA template
-          </Link>{" "}
-          and{" "}
-          <Link
-            className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
-            href={resolveInAppDocHref("docs/go-to-market/SUBPROCESSORS.md")}
-          >
-            subprocessor list
-          </Link>
-          .
-        </li>
-      </ul>
-      <p className="mt-8 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-        <span className="font-semibold text-neutral-900 dark:text-neutral-100">Verify:</span> start from the in-product{" "}
-        <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/trust">
-          Trust Center
-        </Link>
-        , or open the{" "}
-        <Link
-          className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
-          href={resolveInAppDocHref("docs/go-to-market/trust-center.md")}
-        >
-          Trust Center pack
-        </Link>{" "}
-        and{" "}
-        <Link
-          className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
-          href={resolveInAppDocHref("docs/security/COMPLIANCE_MATRIX.md")}
-        >
-          compliance matrix
-        </Link>{" "}
-        in product help.
-      </p>
+      <ComplianceJourneyDiligenceSections />
     </main>
   );
 }
