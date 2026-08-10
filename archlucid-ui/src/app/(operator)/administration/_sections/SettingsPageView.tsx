@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { AdminPrerequisitesReadinessBoard } from "@/components/administration/AdminPrerequisitesReadinessBoard";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
 import { Button } from "@/components/ui/button";
@@ -44,11 +45,13 @@ export function SettingsPageView() {
 
   const hasAdvancedCatalog = SETTINGS_MASTER_SECTIONS.some((section) => section.tier === "advanced");
   const showAdvancedToggle = hasAdvancedCatalog && searchQuery.trim().length === 0;
+  const canViewPrerequisitesBoard = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
 
   return (
     <div className="w-full max-w-6xl space-y-6" data-testid="settings-page">
       <SettingsMasterOverviewHeader scope={scope} environmentLabel={environmentLabel} />
-<SettingsMasterSearchField
+      <AdminPrerequisitesReadinessBoard enabled={canViewPrerequisitesBoard && !isAuthorityLoading} />
+      <SettingsMasterSearchField
         value={searchQuery}
         onChange={setSearchQuery}
         resultCount={visibleSections.length}
