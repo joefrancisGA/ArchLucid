@@ -16,6 +16,10 @@ import {
 } from "@/lib/api/gcp-cloud-connections-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import {
+  formatGcpConnectionCollectionSuccessMessage,
+  GCP_CONNECTION_COLLECTION_FAILED_ERROR,
+} from "@/lib/gcp-cloud-connection-copy";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 
 function formatTimestamp(value: string | null): string {
@@ -150,11 +154,11 @@ export function GcpConnectionSection(props: { readonly embedded?: boolean }) {
         const result = await triggerGcpTier2HostedRun({ connectionId: connection.connectionId });
         await refreshConnections();
         setActionMessage(
-          `Poll completed (${result.resourceCount} resources ingested as package ${result.packageId}).`,
+          formatGcpConnectionCollectionSuccessMessage(result.resourceCount, result.packageId),
         );
       } catch (err) {
         console.error(err);
-        setFormError("Hosted GCP poll failed. Confirm Tier 2 is enabled and Workload Identity Federation is configured.");
+        setFormError(GCP_CONNECTION_COLLECTION_FAILED_ERROR);
       } finally {
         setPollingConnectionId(null);
       }
@@ -268,7 +272,7 @@ export function GcpConnectionSection(props: { readonly embedded?: boolean }) {
                   <dd className="break-all">{connection.workloadIdentityPoolProvider}</dd>
                   <dt className="text-muted-foreground">Service account</dt>
                   <dd className="break-all">{connection.serviceAccountEmail}</dd>
-                  <dt className="text-muted-foreground">Last polled</dt>
+                  <dt className="text-muted-foreground">Last collected</dt>
                   <dd>{formatTimestamp(connection.lastPolledUtc)}</dd>
                 </dl>
                 <div className="flex flex-wrap gap-2">

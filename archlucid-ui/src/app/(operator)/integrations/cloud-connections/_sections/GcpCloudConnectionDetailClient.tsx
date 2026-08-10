@@ -1,6 +1,10 @@
 ﻿"use client";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  GCP_CONNECTION_RECENT_ACTIVITY_INSTRUCTIONS,
+  GCP_CONNECTION_VALIDATE_INSTRUCTIONS,
+} from "@/lib/gcp-cloud-connection-copy";
 import { cloudSecurityPreflightTopics } from "@/lib/cloud-security-preflight-topics";
 
 import { CloudConnectionsProviderHeader } from "./CloudConnectionsProviderHeader";
@@ -35,14 +39,10 @@ export function GcpCloudConnectionDetailClient() {
         }
         connectionDetails={<GcpConnectionSection embedded />}
         validateConnection={
-          <p className={OPERATOR_TYPOGRAPHY.helper}>
-            Use Re-poll now on a saved connection to validate access and ingest a hosted inventory package.
-          </p>
+          <p className={OPERATOR_TYPOGRAPHY.helper}>{GCP_CONNECTION_VALIDATE_INSTRUCTIONS}</p>
         }
         recentActivity={
-          <p className={OPERATOR_TYPOGRAPHY.helper}>
-            Saved connections and last poll timestamps appear in Connection details after you save a project.
-          </p>
+          <p className={OPERATOR_TYPOGRAPHY.helper}>{GCP_CONNECTION_RECENT_ACTIVITY_INSTRUCTIONS}</p>
         }
         technicalDetails={
           <CloudSecurityPreflightTechnicalDetails>
