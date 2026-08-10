@@ -21,6 +21,8 @@ import {
 } from "@/lib/users-and-roles-help-copy";
 import { USERS_AND_ROLES_BANNED_CUSTOMER_PATTERNS } from "@/lib/users-and-roles-help-manifest";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-redirects";
+import { USERS_AND_ROLES_HELP_CANONICAL_PATH } from "@/lib/users-and-roles-help-evidence-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { SETTINGS_USERS_USERS_TAB_PATH } from "@/lib/settings-admin-route-paths";
 
@@ -30,8 +32,9 @@ describe("HelpUsersAndRolesGuideView", () => {
   it("registers the users and roles help entry", () => {
     expect(entry?.slug).toBe("users-and-roles");
     expect(entry?.title).toBe(USERS_AND_ROLES_PAGE_TITLE);
-    // Legacy slug remains as a registry alias so old bookmarks resolve.
-    expect(getProductDocumentationEntry("operator-auth-roles")?.slug).toBe("users-and-roles");
+    // Legacy slug redirects before registry lookup (TB-1707); catalog keeps alias retired (TB-2050).
+    expect(getProductDocumentationEntry("operator-auth-roles")).toBeNull();
+    expect(resolveHelpTopicPermanentRedirect("operator-auth-roles")).toBe(USERS_AND_ROLES_HELP_CANONICAL_PATH);
   });
 
   it("renders one H1 and customer intro without internal engineering sections", () => {
