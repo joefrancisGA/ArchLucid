@@ -17,7 +17,7 @@
 
 | Prohibited implication | Why | Say instead |
 | --- | --- | --- |
-| SOC 2 certified / CPA attested | TB-135 V1.1 backlog | Self-assessment; roadmap to CPA program |
+| SOC 2 certified / CPA attested | Tech **TB-135** Done; CPA attestation owner **G-REAL-05** (not issued) | Self-assessment; roadmap to CPA program |
 | Buy on Azure Marketplace today | Commerce un-hold deferred | Request quote / guided pilot |
 | Live Stripe production checkout | Build-flag gated | Request quote unless flag explicitly enabled |
 | Public reference customer available | GTM owner output | Anonymized pilot evidence only |
@@ -35,7 +35,7 @@ Separates `(A)` product readiness from `(B)` procurement realism. Use in sales, 
 | Live Marketplace / Stripe checkout | "Quote + order-form path; self-serve commerce deferred" | "Buy on Marketplace today" |
 | Named reference customer | "Demo proof packets + founder-led pilot" | "Customer X saved Y%" without approval |
 | MCP / plugin marketplace | "REST/CLI integration recipes" | "MCP marketplace GA" |
-| V1.1 connectors (Jira, ServiceNow, …) | "V1 REST/CLI/export handoff; roadmap connectors labeled V1.1" | "Native Jira/Teams GA in V1" |
+| Native connectors (Jira, ServiceNow, Microsoft Teams) | "V1 GA first-party connectors with honest empty-state/credential caveats (**TB-1420**)" | "Native connector GA with zero setup everywhere" / "Connectors not in V1" |
 | Multi-region active/active | "Single-region pilot deployment documented" | "Active/active multi-region SLA" |
 | Realized ROI USD | "Source-classified estimates; tenant baselines when captured" | "Guaranteed $ savings" |
 | Invoiced Azure OpenAI cost | "Budget estimates and token rollups" | "Invoice-accurate COGS" |

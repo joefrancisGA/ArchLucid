@@ -21,14 +21,14 @@
 
 | # | Drift class | Inventory status | Living owner (rewrite if still open) |
 |---|---|---|---|
-| **C1** | Stale connector V1.1 row vs `V1_SCOPE` GA | **OPEN** — `PUBLIC_CLAIM_BOUNDARY_GUIDE.md` GTM table still labels native connectors V1.1 | **TB-1343** / **TB-1367**; empty UX **TB-1420** |
-| **C2** | SOC row cites open **TB-135** | **OPEN** — Never-imply table still says “TB-135 V1.1 backlog” | **TB-1343** / **M-190** (**G-REAL-05**) |
+| **C1** | Stale connector V1.1 row vs `V1_SCOPE` GA | **SHIPPED** — `PUBLIC_CLAIM_BOUNDARY_GUIDE.md` GTM table labels native connectors V1 GA with maturity caveats (**TB-1464** CI) | **TB-1343** / **TB-1367**; empty UX **TB-1420** |
+| **C2** | SOC row cites open **TB-135** | **SHIPPED** — Never-imply table cites **TB-135** Done + **G-REAL-05** owner deferral (**TB-1464** CI) | **TB-1343** / **M-190** (**G-REAL-05**) |
 | **C3** | Unguarded “two weeks → two hours” | **SHIPPED** — brief forbids without measured baseline (**M-245**) | **TB-1367** (elevator audit body) |
 | **C4** | `/live-demo` as live product + integrity overclaim | **SHIPPED** — honest sample-walkthrough title + ladder (**TB-1265**, **TB-1427**) | — |
 | **C5** | See-it “30 seconds” / “evidence bundle” PDF lie | **SHIPPED** — honest titles + marketing PDF label (**TB-1280**, **TB-1283**) | — |
 | **C6** | Contoso under Claims chrome | **SHIPPED** — fail-closed universe banner (**TB-1279**, **TB-1028**) | — |
 
-**SEND gate:** Do not SEND sponsor/procurement packets until **C1** and **C2** are rewritten in [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md). **C3–C6** UI/marketing surfaces are closed; residual quantified ROI audit lives on **TB-1367** / **M-245**.
+**SEND gate:** Do not SEND sponsor/procurement packets until any **OPEN** Critical rows in this inventory are rewritten. **C1–C6** guide/UI rows are closed or CI-guarded (**TB-1464**); residual quantified ROI audit lives on **TB-1367** / **M-245**.
 
 ---
 

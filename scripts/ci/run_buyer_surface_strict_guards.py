@@ -54,6 +54,11 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "weekly buyer-claim drift honesty",
+        ("python", "scripts/ci/check_weekly_buyer_claim_drift_honesty.py"),
+        None,
+    ),
+    GuardCommand(
         "buyer first-30-minutes sync",
         ("python", "scripts/ci/assert_buyer_first_30_minutes_in_sync.py"),
         None,
