@@ -15,8 +15,11 @@ sys.path.insert(0, str(REPO_ROOT / "scripts" / "ci"))
 from archlucid_ui_route_catalog import migrate_workbook_path
 from archlucid_ui_route_traffic_table import (
     DOC,
+    EVIDENCE_INDEX,
     ensure_owner_workbook,
     parse_rows,
+    parse_score,
+    set_score_dimension,
     sort_rows,
     split_document,
     write_table,
@@ -75,7 +78,7 @@ def score_map_from_text(text: str) -> dict[str, int]:
     by_path: dict[str, int] = {}
 
     for row in rows:
-        score = int(row["score"])
+        score = parse_score(row)
         if score <= 0:
             continue
         canonical = canonical_workbook_path(row["path"])
@@ -117,9 +120,9 @@ def restore_scores(doc: Path, source_refs: list[str], *, dry_run: bool = False) 
         restored_score = score_map.get(canonical)
         if restored_score is None:
             continue
-        if int(row["score"]) >= restored_score:
+        if parse_score(row) >= restored_score:
             continue
-        row["score"] = str(restored_score)
+        set_score_dimension(row, EVIDENCE_INDEX, restored_score)
         applied += 1
 
     sorted_rows = sort_rows(rows)
