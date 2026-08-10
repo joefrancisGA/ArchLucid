@@ -46,8 +46,12 @@ export function RunDetailGovernanceDecisionSection(
   });
 
   if (!manifestFinalized) {
-    const findingsHref = buildArchitectureWorkspaceTabHref(props.runId, "findings");
-    const activityHref = buildArchitectureWorkspaceTabHref(props.runId, "activity");
+    const findingsHref = buildArchitectureWorkspaceTabHref(props.runId, "findings", {
+      includeCreateIntent: true,
+    });
+    const activityHref = buildArchitectureWorkspaceTabHref(props.runId, "activity", {
+      includeCreateIntent: true,
+    });
 
     return (
       <section

@@ -280,7 +280,9 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
         );
       }
 
-      const activityHref = buildArchitectureWorkspaceTabHref(props.runId, "activity");
+      const activityHref = buildArchitectureWorkspaceTabHref(props.runId, "activity", {
+        includeCreateIntent: true,
+      });
 
       return (
         <div

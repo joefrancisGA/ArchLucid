@@ -32,7 +32,9 @@ export function ArchitectureCreatedFindingsNextAction(
 ): React.JSX.Element | null {
   const sortedFindings = sortQuickDecisionFindings(triageVisibleFindings(props.findings));
   const highestSeverityFinding = sortedFindings[0] ?? null;
-  const activityHref = buildArchitectureWorkspaceTabHref(props.runId, "activity");
+  const activityHref = buildArchitectureWorkspaceTabHref(props.runId, "activity", {
+    includeCreateIntent: true,
+  });
 
   if (highestSeverityFinding !== null) {
     const href = `/architecture/reviews/${encodeURIComponent(props.runId)}/findings/${encodeURIComponent(highestSeverityFinding.findingId)}`;
@@ -65,7 +67,9 @@ export function ArchitectureCreatedFindingsNextAction(
         </p>
         <Button type="button" variant="primary" size="sm" className="mt-2 h-8" asChild>
           <Link
-            href={buildArchitectureWorkspaceTabHref(props.runId, "governance")}
+            href={buildArchitectureWorkspaceTabHref(props.runId, "governance", {
+              includeCreateIntent: true,
+            })}
             prefetch={false}
             data-testid="architecture-findings-finalize-primary-action"
           >

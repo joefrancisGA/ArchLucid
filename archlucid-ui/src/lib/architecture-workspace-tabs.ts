@@ -1,8 +1,16 @@
+import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
+import { FROM_GENERATION_QUERY_KEY } from "@/lib/review-generation-handoff";
+
 /**
  * Create-home ArchitectureCreatedWorkspace tabs use `?archTab=`; committed review packages
  * use `?reviewTab=` on ReviewDetailWorkspace instead — `archTab` is ignored there (TB-1831).
  */
 export const ARCHITECTURE_WORKSPACE_TAB_PARAM = "archTab" as const;
+
+export type BuildArchitectureWorkspaceTabHrefOptions = {
+  /** Opt in when a deep link must mount create-home chrome (TB-1833). */
+  readonly includeCreateIntent?: boolean;
+};
 
 export const ARCHITECTURE_WORKSPACE_TAB_IDS = [
   "overview",
@@ -73,12 +81,16 @@ export function resolveArchitectureWorkspaceTabFromHash(
 export function buildArchitectureWorkspaceTabHref(
   runId: string,
   tab: ArchitectureWorkspaceTabId,
+  options?: BuildArchitectureWorkspaceTabHrefOptions,
 ): string {
   const params = new URLSearchParams({
-    fromGeneration: "1",
-    intent: "create-architecture",
     [ARCHITECTURE_WORKSPACE_TAB_PARAM]: tab,
   });
+
+  if (options?.includeCreateIntent === true) {
+    params.set(FROM_GENERATION_QUERY_KEY, "1");
+    params.set("intent", CREATE_ARCHITECTURE_INTENT);
+  }
 
   return `/architecture/reviews/${encodeURIComponent(runId.trim())}?${params.toString()}`;
 }

@@ -195,7 +195,7 @@ Columns:
 | `/onboarding` | In-product onboarding | T1/T2; T2 may show `trialSampleRunId` from API |
 | `/architecture/first-review-guide` | First review guide (onboarding checklist) | Trial card when `?source=registration`; core walkthrough wizard (**ARF**); legacy `/onboarding` retired (no redirect) |
 | `/onboarding/start` | Deprecated alias | Legacy bookmark — canonical UX on **ARF** (`/architecture/first-review-guide`; query preserved when redirect shim exists) |
-| `/onboard` | Deprecated alias | App Router shim permanently redirects to `/onboarding` (query preserved; canonical UX on **ARF**) |
+| `/onboard` | Deprecated alias | Legacy bookmark — canonical UX on **ARF** (`/architecture/first-review-guide`; query preserved when redirect shim exists) |
 | `/getting-started` | Deprecated alias | App Router shim permanently redirects to `/onboarding` (query preserved) |
 | `/help` | In-app help index | Open directly |
 | `/help/first-architecture-review` | Your first architecture review (specialty guide) | `HelpCorePilotGuideView` with stepper + gated finalize CTAs (**COR**) |

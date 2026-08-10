@@ -84,7 +84,6 @@ export function buildReviewDetailFindingsTabHref(runId: string): string {
 }
 
 export function buildArchitectureClarificationsTabHref(runId: string): string {
-  // Create-home Clarifications tab requires fromGeneration+intent or the workspace unmounts.
   return buildArchitectureWorkspaceTabHref(runId.trim(), "clarifications");
 }
 

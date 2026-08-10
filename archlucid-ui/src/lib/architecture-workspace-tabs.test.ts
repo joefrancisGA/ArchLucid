@@ -24,10 +24,19 @@ describe("architecture-workspace-tabs", () => {
     expect(resolveArchitectureWorkspaceTabFromHash("unknown-anchor")).toBeNull();
   });
 
-  it("builds shareable tab hrefs with create-architecture query context", () => {
+  it("builds shareable tab hrefs without forcing create-architecture query context (TB-1833)", () => {
     const href = buildArchitectureWorkspaceTabHref("run-abc", "governance");
 
-    expect(href).toContain("/architecture/reviews/run-abc?");
+    expect(href).toBe("/architecture/reviews/run-abc?archTab=governance");
+    expect(href).not.toContain("fromGeneration=1");
+    expect(href).not.toContain("intent=create-architecture");
+  });
+
+  it("can opt in to create-architecture query context when a caller requires create-home chrome", () => {
+    const href = buildArchitectureWorkspaceTabHref("run-abc", "governance", {
+      includeCreateIntent: true,
+    });
+
     expect(href).toContain("archTab=governance");
     expect(href).toContain("fromGeneration=1");
     expect(href).toContain("intent=create-architecture");
