@@ -12,7 +12,7 @@ public sealed class HotPathReadCacheSingleFlightTests
         List<Task<string>> tasks = Enumerable.Range(0, 6)
             .Select(_ => Task.Run(async () =>
             {
-                await startGate.Task.ConfigureAwait(false);
+                await startGate.Task;
 
                 return await HotPathReadCacheSingleFlight.CoalesceAsync(
                     "flight-key",
@@ -20,16 +20,16 @@ public sealed class HotPathReadCacheSingleFlightTests
                     {
                         Interlocked.Increment(ref calls);
 
-                        await Task.Delay(40, ct).ConfigureAwait(false);
+                        await Task.Delay(40, ct);
 
                         return "ok";
                     },
-                    CancellationToken.None).ConfigureAwait(false);
+                    CancellationToken.None);
             }))
             .ToList();
 
         startGate.SetResult();
-        string[] results = await Task.WhenAll(tasks).ConfigureAwait(false);
+        string[] results = await Task.WhenAll(tasks);
 
         results.Should().OnlyContain(static value => value == "ok");
         calls.Should().Be(1);
@@ -44,7 +44,7 @@ public sealed class HotPathReadCacheSingleFlightTests
         List<Task> waiters = Enumerable.Range(0, 3)
             .Select(_ => Task.Run(async () =>
             {
-                await startGate.Task.ConfigureAwait(false);
+                await startGate.Task;
 
                 Func<Task> act = () => HotPathReadCacheSingleFlight.CoalesceAsync<string>(
                     "fault-key",
@@ -58,12 +58,12 @@ public sealed class HotPathReadCacheSingleFlightTests
                     },
                     CancellationToken.None);
 
-                await act.Should().ThrowAsync<InvalidOperationException>().ConfigureAwait(false);
+                await act.Should().ThrowAsync<InvalidOperationException>();
             }))
             .ToList();
 
         startGate.SetResult();
-        await Task.WhenAll(waiters).ConfigureAwait(false);
+        await Task.WhenAll(waiters);
 
         calls.Should().Be(1);
 
@@ -79,7 +79,7 @@ public sealed class HotPathReadCacheSingleFlightTests
             },
             CancellationToken.None);
 
-        await retry.Should().ThrowAsync<InvalidOperationException>().ConfigureAwait(false);
+        await retry.Should().ThrowAsync<InvalidOperationException>();
         calls.Should().Be(2);
     }
 
@@ -95,7 +95,7 @@ public sealed class HotPathReadCacheSingleFlightTests
         List<Task<string>> tasks = Enumerable.Range(0, 4)
             .Select(_ => Task.Run(async () =>
             {
-                await startGate.Task.ConfigureAwait(false);
+                await startGate.Task;
 
                 return await HotPathReadCacheSingleFlight.CoalesceAsync(
                     "dedupe-key",
@@ -103,16 +103,16 @@ public sealed class HotPathReadCacheSingleFlightTests
                     {
                         Interlocked.Increment(ref calls);
 
-                        await Task.Delay(30, ct).ConfigureAwait(false);
+                        await Task.Delay(30, ct);
 
                         return "dedupe";
                     },
-                    CancellationToken.None).ConfigureAwait(false);
+                    CancellationToken.None);
             }))
             .ToList();
 
         startGate.SetResult();
-        await Task.WhenAll(tasks).ConfigureAwait(false);
+        await Task.WhenAll(tasks);
 
         calls.Should().Be(1);
 
