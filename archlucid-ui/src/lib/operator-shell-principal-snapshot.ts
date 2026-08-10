@@ -1,6 +1,6 @@
 import type { CurrentPrincipal } from "@/lib/current-principal";
-import { isJwtAuthMode } from "@/lib/oidc/config";
-import { isLikelySignedIn } from "@/lib/oidc/session";
+import * as oidcConfig from "@/lib/oidc/config";
+import * as oidcSession from "@/lib/oidc/session";
 
 let latestPrincipal: CurrentPrincipal | null = null;
 
@@ -14,7 +14,7 @@ export function publishOperatorShellPrincipalSnapshot(principal: CurrentPrincipa
  * Used for operator-shell 403 troubleshooting (not for principals that have a role but lack execute permission).
  */
 export function shouldShowJwtBearerMissingRoleBanner(): boolean {
-  if (!isJwtAuthMode() || !isLikelySignedIn()) {
+  if (!oidcConfig.isJwtAuthMode() || !oidcSession.isLikelySignedIn()) {
     return false;
   }
 

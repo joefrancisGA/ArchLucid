@@ -884,12 +884,17 @@ export function deriveEvidenceCoverageSummary(
 }
 
 /** Short label for the sticky primary CTA — imperative, ≤24 chars for first-viewport scanability. */
-export function shortenNextActionForPrimaryCta(nextAction: string): string {
+export function shortenNextActionForPrimaryCta(nextAction: string): string | null {
   const trimmed = nextAction.trim();
   const primarySegment = trimmed.split(" — ")[0]?.trim() ?? trimmed;
 
   if (primarySegment.length <= 24) {
     return primarySegment;
+  }
+
+  // Long prose without an em-dash lead-in is not CTA-safe — callers keep the full next-action body.
+  if (primarySegment === trimmed) {
+    return null;
   }
 
   return `${primarySegment.slice(0, 21).trimEnd()}…`;

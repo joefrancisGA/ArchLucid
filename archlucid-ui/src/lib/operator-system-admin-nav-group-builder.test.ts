@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
-import { BUYER_CTO_DEMO_READINESS_HEADING } from "@/lib/buyer-polish-copy";
+import { INTERNAL_DEMO_READINESS_PAGE_TITLE } from "@/lib/demo-readiness-evidence-copy";
 import { OperatorSystemAdminNavGroupBuilder } from "@/lib/operator-system-admin-nav-group-builder";
 
 describe("OperatorSystemAdminNavGroupBuilder", () => {
@@ -36,7 +36,7 @@ describe("OperatorSystemAdminNavGroupBuilder", () => {
     const group = new OperatorSystemAdminNavGroupBuilder().build();
     const demoReadiness = group.links.find((link) => link.href === "/internal/demo-readiness");
 
-    expect(demoReadiness?.label).toBe(BUYER_CTO_DEMO_READINESS_HEADING);
+    expect(demoReadiness?.label).toBe(INTERNAL_DEMO_READINESS_PAGE_TITLE);
     expect(demoReadiness?.requiredAuthority).toBe("AdminAuthority");
     expect(demoReadiness?.tier).toBe("advanced");
   });
