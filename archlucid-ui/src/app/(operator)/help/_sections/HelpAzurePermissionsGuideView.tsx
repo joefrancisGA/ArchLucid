@@ -27,6 +27,7 @@ import {
   AZURE_PERMISSIONS_CANNOT_DO_HEADING,
   AZURE_PERMISSIONS_CANNOT_DO_INTRO,
   AZURE_PERMISSIONS_COLLECTED_HEADING,
+  AZURE_PERMISSIONS_CONNECTION_CONTEXT_HEADING,
   AZURE_PERMISSIONS_COST_OPTIONAL_NOTE,
   AZURE_PERMISSIONS_CUSTOM_ROLE_HEADING,
   AZURE_PERMISSIONS_CUSTOM_ROLE_INTRO,
@@ -43,15 +44,15 @@ import {
   AZURE_PERMISSIONS_TRUST_NO_ROLE_ASSIGN,
   AZURE_PERMISSIONS_TROUBLESHOOT_HEADING,
 } from "@/lib/azure-cloud-connection-permissions-copy";
-import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY, DESIGN_TOKENS } from "@/lib/design-tokens";
 import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
 import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 
 const AZURE_PERMISSIONS_TOC_HEADINGS: readonly HelpMarkdownHeading[] = [
-  { id: "read-only-summary", title: "Read-only by design", level: 2 },
   { id: "permissions-matrix", title: "Required and optional permissions", level: 2 },
+  { id: "read-only-summary", title: "Read-only by design", level: 2 },
   { id: "recommended-scope", title: "Choose the narrowest practical scope", level: 2 },
   { id: "connection-context-heading", title: "Connection values", level: 2 },
   { id: "setup", title: "Assign the Azure roles", level: 2 },
@@ -62,6 +63,9 @@ const AZURE_PERMISSIONS_TOC_HEADINGS: readonly HelpMarkdownHeading[] = [
   { id: "troubleshoot", title: "Troubleshoot permission checks", level: 2 },
   { id: "other-providers", title: "Other cloud providers", level: 2 },
 ];
+
+const CLOUD_CONNECTIONS_HUB_HREF = "/integrations/cloud-connections";
+const AZURE_CONNECTION_SETUP_HREF = "/integrations/cloud-connections/azure";
 
 type HelpAzurePermissionsGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -204,8 +208,10 @@ function CustomRoleActionsTable(): React.ReactElement {
 /** Manifest-driven Azure permissions guide for `/help/azure-permissions`. */
 export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideViewProps): React.ReactElement {
   void props.entry;
-  const returnHref = props.returnHref ?? "/integrations/cloud-connections";
+  const returnHref = props.returnHref ?? CLOUD_CONNECTIONS_HUB_HREF;
   const otherProviders = AZURE_CLOUD_CONNECTION_RELATED_HELP.filter((link) => link.provider !== "azure");
+  // A bare hub href carries no per-connection context, so the verify CTA targets the Azure setup page it names.
+  const verifySetupHref = returnHref === CLOUD_CONNECTIONS_HUB_HREF ? AZURE_CONNECTION_SETUP_HREF : returnHref;
 
   return (
     <article
@@ -220,6 +226,10 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
               <Link href={returnHref} className="text-teal-700 underline dark:text-teal-400">
                 ← {AZURE_PERMISSIONS_BACK_TO_CONNECTIONS}
               </Link>
+              <span aria-hidden="true"> · </span>
+              <a href="#troubleshoot" className="text-teal-700 underline dark:text-teal-400">
+                Fix a failed permission check
+              </a>
             </p>
             <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{AZURE_PERMISSIONS_PAGE_TITLE}</h1>
             <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.helper)}>{AZURE_PERMISSIONS_PAGE_SUBTITLE}</p>
@@ -230,40 +240,29 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
           <PageContextualHelpButton />
         </div>
       </header>
-<div className={HELP_PAGE_LAYOUT.contentGrid}>
+      <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className="min-w-0 space-y-8" data-testid="help-azure-permissions-primary">
-          <section aria-labelledby="read-only-summary" className="space-y-3">
-            <HelpSectionHeading id="read-only-summary">{AZURE_PERMISSIONS_READ_ONLY_HEADING}</HelpSectionHeading>
-            <Card
-              className="border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20"
-              data-testid="azure-permissions-trust-panel"
-            >
-              <CardContent className={cn(OPERATOR_CARD.content, "space-y-3 pt-6")}>
-                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{AZURE_PERMISSIONS_READ_ONLY_INTRO}</p>
-                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                  {AZURE_PERMISSIONS_COST_OPTIONAL_NOTE}
-                </p>
-                <ul className={cn("m-0 grid gap-2 sm:grid-cols-3", OPERATOR_TYPOGRAPHY.body)}>
-                  <li className="rounded-md border border-neutral-200 bg-white px-3 py-2 dark:border-neutral-800 dark:bg-neutral-950">
-                    {AZURE_PERMISSIONS_TRUST_NO_MODIFY}
-                  </li>
-                  <li className="rounded-md border border-neutral-200 bg-white px-3 py-2 dark:border-neutral-800 dark:bg-neutral-950">
-                    {AZURE_PERMISSIONS_TRUST_NO_ROLE_ASSIGN}
-                  </li>
-                  <li className="rounded-md border border-neutral-200 bg-white px-3 py-2 dark:border-neutral-800 dark:bg-neutral-950">
-                    {AZURE_PERMISSIONS_TRUST_NO_DEPLOY}
-                  </li>
-                </ul>
-                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  Do not assign: {AZURE_CLOUD_CONNECTION_FORBIDDEN_ROLES.join(", ")}.
-                </p>
-              </CardContent>
-            </Card>
-          </section>
-
-          <section aria-labelledby="permissions-matrix" className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800">
+          <section aria-labelledby="permissions-matrix" className="space-y-3">
             <HelpSectionHeading id="permissions-matrix">{AZURE_PERMISSIONS_MATRIX_HEADING}</HelpSectionHeading>
             <PermissionsMatrixTable />
+          </section>
+
+          <section aria-labelledby="read-only-summary" className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800">
+            <HelpSectionHeading id="read-only-summary">{AZURE_PERMISSIONS_READ_ONLY_HEADING}</HelpSectionHeading>
+            <div className={cn(DESIGN_TOKENS.callout.neutral, "space-y-3")} data-testid="azure-permissions-trust-panel">
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{AZURE_PERMISSIONS_READ_ONLY_INTRO}</p>
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                {AZURE_PERMISSIONS_COST_OPTIONAL_NOTE}
+              </p>
+              <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
+                <li>{AZURE_PERMISSIONS_TRUST_NO_MODIFY}</li>
+                <li>{AZURE_PERMISSIONS_TRUST_NO_ROLE_ASSIGN}</li>
+                <li>{AZURE_PERMISSIONS_TRUST_NO_DEPLOY}</li>
+              </ul>
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                Do not assign: {AZURE_CLOUD_CONNECTION_FORBIDDEN_ROLES.join(", ")}.
+              </p>
+            </div>
           </section>
 
           <section
@@ -287,7 +286,7 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
             id="connection-context"
             className="scroll-mt-24 space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
           >
-            <HelpSectionHeading id="connection-context-heading">Connection values</HelpSectionHeading>
+            <HelpSectionHeading id="connection-context-heading">{AZURE_PERMISSIONS_CONNECTION_CONTEXT_HEADING}</HelpSectionHeading>
             <Suspense fallback={<p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Loading connection context…</p>}>
               <HelpAzurePermissionsConnectionContext />
             </Suspense>
@@ -351,7 +350,7 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
           </section>
 
           <section id="verify" className="scroll-mt-24 border-t border-neutral-200 pt-6 dark:border-neutral-800">
-            <HelpAzurePermissionsVerificationPanel subscriptionId={props.subscriptionId} />
+            <HelpAzurePermissionsVerificationPanel subscriptionId={props.subscriptionId} returnHref={verifySetupHref} />
           </section>
 
           <section
@@ -360,14 +359,11 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
             data-testid="azure-permissions-troubleshoot-section"
           >
             <HelpSectionHeading id="troubleshoot">{AZURE_PERMISSIONS_TROUBLESHOOT_HEADING}</HelpSectionHeading>
-            <details className={HELP_PAGE_LAYOUT.details}>
-              <summary className="cursor-pointer font-medium">Common permission check issues</summary>
-              <ul className={cn(HELP_PAGE_LAYOUT.bulletList, HELP_PAGE_LAYOUT.detailsBody)}>
-                {AZURE_CLOUD_CONNECTION_TROUBLESHOOTING_ITEMS.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </details>
+            <ul className={HELP_PAGE_LAYOUT.bulletList} data-testid="azure-permissions-troubleshoot-list">
+              {AZURE_CLOUD_CONNECTION_TROUBLESHOOTING_ITEMS.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
           </section>
 
           <section

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
 import { HelpCopyableValue } from "@/components/help/HelpCopyableValue";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   AZURE_CLOUD_CONNECTION_IDENTITY_MODEL,
   AZURE_CLOUD_CONNECTION_ROLE_ROWS,
@@ -42,10 +42,7 @@ export function HelpAzurePermissionsConnectionContext(): React.ReactElement {
 
   return (
     <Card data-testid="azure-permissions-connection-context">
-      <CardHeader className={OPERATOR_CARD.header}>
-        <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>Connection values</CardTitle>
-      </CardHeader>
-      <CardContent className={cn(OPERATOR_CARD.content, "space-y-4")}>
+      <CardContent className={cn(OPERATOR_CARD.content, "space-y-4 pt-6")}>
         {!hasContext ? (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             {AZURE_PERMISSIONS_CONTEXT_MISSING}{" "}
@@ -60,17 +57,21 @@ export function HelpAzurePermissionsConnectionContext(): React.ReactElement {
           value={SUGGESTED_PRINCIPAL_NAME}
           testId="azure-permissions-copy-principal-name"
         />
-        <HelpCopyableValue label="Tenant ID" value={tenantId} testId="azure-permissions-copy-tenant-id" />
-        <HelpCopyableValue
-          label="Application (client) ID"
-          value={clientId}
-          testId="azure-permissions-copy-client-id"
-        />
-        <HelpCopyableValue
-          label="Subscription ID"
-          value={subscriptionId}
-          testId="azure-permissions-copy-subscription-id"
-        />
+        {hasContext ? (
+          <>
+            <HelpCopyableValue label="Tenant ID" value={tenantId} testId="azure-permissions-copy-tenant-id" />
+            <HelpCopyableValue
+              label="Application (client) ID"
+              value={clientId}
+              testId="azure-permissions-copy-client-id"
+            />
+            <HelpCopyableValue
+              label="Subscription ID"
+              value={subscriptionId}
+              testId="azure-permissions-copy-subscription-id"
+            />
+          </>
+        ) : null}
         <HelpCopyableValue label="Required roles" value={requiredRoles} testId="azure-permissions-copy-required-roles" />
         <HelpCopyableValue
           label="Optional or conditional roles"
