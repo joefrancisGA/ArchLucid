@@ -4,8 +4,14 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { InvitationAcceptLoadingView } from "@/app/(operator)/auth/invite/InvitationAcceptLoadingView";
+import { AuthFlowShell } from "@/components/auth/AuthFlowShell";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  AUTH_INVITE_PAGE_LEAD,
+  AUTH_INVITE_PAGE_TITLE,
+} from "@/lib/auth/auth-invite-page-copy";
 import { storeInvitationToken } from "@/lib/auth/email-otp-session";
 import {
   validateInvitationToken,
@@ -49,48 +55,50 @@ export function InvitationAcceptPageClient() {
 
   const signInHref = `/auth/signin?invitationToken=${encodeURIComponent(token)}`;
 
+  if (loading) {
+    return (
+      <AuthFlowShell showEvaluationSignupLink={false}>
+        <InvitationAcceptLoadingView />
+      </AuthFlowShell>
+    );
+  }
+
   return (
-    <div className="mx-auto w-full max-w-lg space-y-6 p-6" data-testid="invitation-accept-page">
-      <div>
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Workspace invitation</h1>
-        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          Sign in to accept your invitation. We never grant access until you authenticate and confirm.
-        </p>
+    <AuthFlowShell showEvaluationSignupLink={false}>
+      <div className="max-w-[560px]" data-testid="invitation-accept-page">
+        <h1 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{AUTH_INVITE_PAGE_TITLE}</h1>
+        <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{AUTH_INVITE_PAGE_LEAD}</p>
+
+        {errorMessage ? (
+          <p className="mt-4 text-sm text-red-700 dark:text-red-300" role="alert">
+            {errorMessage}
+          </p>
+        ) : null}
+
+        {validation?.status === "Valid" ? (
+          <div className="mt-6 space-y-4 rounded-md border border-al-border p-4">
+            {validation.maskedInvitedEmail ? (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                Invited address: {validation.maskedInvitedEmail}
+              </p>
+            ) : null}
+            {validation.appRole ? (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                Role: {validation.appRole}
+              </p>
+            ) : null}
+            {validation.requireEnterpriseSso && validation.routingMessage ? (
+              <p className={cn("m-0 text-amber-800 dark:text-amber-300", OPERATOR_TYPOGRAPHY.body)}>
+                {validation.routingMessage}
+              </p>
+            ) : null}
+            <Button asChild>
+              <Link href={signInHref}>Continue to sign in</Link>
+            </Button>
+          </div>
+        ) : null}
       </div>
-
-      {loading ? (
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Validating invitation…</p>
-      ) : null}
-
-      {errorMessage ? (
-        <p className="m-0 text-sm text-red-700 dark:text-red-300" role="alert">
-          {errorMessage}
-        </p>
-      ) : null}
-
-      {validation?.status === "Valid" ? (
-        <div className="space-y-4 rounded-md border border-al-border p-4">
-          {validation.maskedInvitedEmail ? (
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              Invited address: {validation.maskedInvitedEmail}
-            </p>
-          ) : null}
-          {validation.appRole ? (
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              Role: {validation.appRole}
-            </p>
-          ) : null}
-          {validation.requireEnterpriseSso && validation.routingMessage ? (
-            <p className={cn("m-0 text-amber-800 dark:text-amber-300", OPERATOR_TYPOGRAPHY.body)}>
-              {validation.routingMessage}
-            </p>
-          ) : null}
-          <Button asChild>
-            <Link href={signInHref}>Continue to sign in</Link>
-          </Button>
-        </div>
-      ) : null}
-</div>
+    </AuthFlowShell>
   );
 }
 
