@@ -56,6 +56,71 @@ function writeSnapshot(snapshot: ArchitectureDraftRegistrySnapshot): void {
   }
 
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
+  cachedArchitectureDraftRegistrySignature = "";
+  notifyArchitectureDraftRegistryListeners();
+}
+
+const architectureDraftRegistryListeners = new Set<() => void>();
+
+let cachedArchitectureDraftRegistrySnapshot: readonly ArchitectureDraftRegistryEntry[] = [];
+let cachedArchitectureDraftRegistrySignature = "";
+
+function architectureDraftRegistrySignature(entries: readonly ArchitectureDraftRegistryEntry[]): string {
+  return entries
+    .map(
+      (entry) =>
+        `${entry.architectureId}:${entry.lastUpdatedUtc}:${entry.customerStatus}:${entry.linkedReviewId ?? ""}:${entry.displayName}:${entry.ownerLabel}`,
+    )
+    .join("|");
+}
+
+function notifyArchitectureDraftRegistryListeners(): void {
+  for (const listener of architectureDraftRegistryListeners) {
+    listener();
+  }
+}
+
+/** `useSyncExternalStore` subscription for browser-local draft registry reads (TB-1450). */
+export function subscribeArchitectureDraftRegistry(onStoreChange: () => void): () => void {
+  architectureDraftRegistryListeners.add(onStoreChange);
+
+  const onStorage = (event: StorageEvent): void => {
+    if (event.key === STORAGE_KEY) {
+      onStoreChange();
+    }
+  };
+
+  if (typeof window !== "undefined") {
+    window.addEventListener("storage", onStorage);
+  }
+
+  return () => {
+    architectureDraftRegistryListeners.delete(onStoreChange);
+
+    if (typeof window !== "undefined") {
+      window.removeEventListener("storage", onStorage);
+    }
+  };
+}
+
+/** Stable snapshot for `useSyncExternalStore` — avoids rerender loops when data is unchanged. */
+export function getArchitectureDraftRegistrySnapshot(): readonly ArchitectureDraftRegistryEntry[] {
+  const next = listArchitectureDraftRegistryEntries();
+  const nextSignature = architectureDraftRegistrySignature(next);
+
+  if (nextSignature === cachedArchitectureDraftRegistrySignature) {
+    return cachedArchitectureDraftRegistrySnapshot;
+  }
+
+  cachedArchitectureDraftRegistrySignature = nextSignature;
+  cachedArchitectureDraftRegistrySnapshot = next;
+
+  return cachedArchitectureDraftRegistrySnapshot;
+}
+
+/** SSR / hydration fallback for {@link getArchitectureDraftRegistrySnapshot}. */
+export function getArchitectureDraftRegistryServerSnapshot(): readonly ArchitectureDraftRegistryEntry[] {
+  return [];
 }
 
 export function listArchitectureDraftRegistryEntries(): ArchitectureDraftRegistryEntry[] {

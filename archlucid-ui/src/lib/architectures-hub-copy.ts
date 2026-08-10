@@ -35,3 +35,17 @@ export const ARCHITECTURES_HUB_EMPTY_FILTER_TITLE = "No drafts match your filter
 
 export const ARCHITECTURES_HUB_EMPTY_FILTER_BODY =
   "Try clearing search or choosing a different filter." as const;
+
+export const ARCHITECTURES_HUB_LIST_LOADING_LABEL = "Loading drafts…" as const;
+
+export const ARCHITECTURES_HUB_TABLE_ACTIONS_COLUMN = "Action" as const;
+
+export const ARCHITECTURES_HUB_TABLE_DRAFT_COLUMN = "Draft" as const;
+
+export const ARCHITECTURES_HUB_TABLE_OWNER_COLUMN = "Owner" as const;
+
+export const ARCHITECTURES_HUB_TABLE_REVIEW_COLUMN = "Review" as const;
+
+export const ARCHITECTURES_HUB_TABLE_STATUS_COLUMN = "Status" as const;
+
+export const ARCHITECTURES_HUB_TABLE_UPDATED_COLUMN = "Updated" as const;

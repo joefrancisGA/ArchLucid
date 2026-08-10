@@ -1,19 +1,40 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 import {
-  listArchitectureDraftRegistryEntries,
+  getArchitectureDraftRegistryServerSnapshot,
+  getArchitectureDraftRegistrySnapshot,
+  subscribeArchitectureDraftRegistry,
   type ArchitectureDraftRegistryEntry,
 } from "@/lib/architecture-draft-registry";
 
+function subscribeArchitectureDraftRegistryHydration(_onStoreChange: () => void): () => void {
+  return () => {};
+}
+
+function getArchitectureDraftRegistryHydratedSnapshot(): boolean {
+  return true;
+}
+
+function getArchitectureDraftRegistryHydrationServerSnapshot(): boolean {
+  return false;
+}
+
 /** Client-only snapshot of saved architecture drafts (local registry). */
 export function useArchitectureDraftRegistryEntries(): readonly ArchitectureDraftRegistryEntry[] {
-  const [entries, setEntries] = useState<readonly ArchitectureDraftRegistryEntry[]>([]);
+  return useSyncExternalStore(
+    subscribeArchitectureDraftRegistry,
+    getArchitectureDraftRegistrySnapshot,
+    getArchitectureDraftRegistryServerSnapshot,
+  );
+}
 
-  useEffect(() => {
-    setEntries(listArchitectureDraftRegistryEntries());
-  }, []);
-
-  return entries;
+/** False during SSR / pre-hydration so lists can avoid a false empty state (TB-1450). */
+export function useArchitectureDraftRegistryHydrated(): boolean {
+  return useSyncExternalStore(
+    subscribeArchitectureDraftRegistryHydration,
+    getArchitectureDraftRegistryHydratedSnapshot,
+    getArchitectureDraftRegistryHydrationServerSnapshot,
+  );
 }
