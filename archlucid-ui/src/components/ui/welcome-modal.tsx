@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { CTA_WIDTH, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { CheckCircle2, FileText, LayoutDashboard, Package, Route, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -230,16 +230,16 @@ export function WelcomeModal(props: WelcomeModalProps) {
             </>
           ) : (
             <>
-              <div className="flex w-full flex-col gap-2">
+              <div className="flex w-full flex-col items-stretch gap-2 sm:items-end">
                 <Button
                   type="button"
                   variant="primary"
-                  className="w-full"
+                  className={CTA_WIDTH.formMatch}
                   onClick={handleGetStartedInApp}
                 >
                   {buyerShell ? "Open sample executive summary" : "Get started — new review"}
                 </Button>
-                <Button type="button" variant="secondary" className="w-full" asChild>
+                <Button type="button" variant="secondary" className={CTA_WIDTH.formMatch} asChild>
                   <Link href="/quick-scan" onClick={onDismiss}>
                     Try Quick Scan (no sign-in demo)
                   </Link>

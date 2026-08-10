@@ -1,5 +1,5 @@
 "use client";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY, CTA_WIDTH } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import { useSearchParams } from "next/navigation";
@@ -34,7 +34,7 @@ export function SelfDemoRequestCta(props: { readonly className?: string }) {
   return (
     <div
       className={cn(
-        "flex w-full flex-col items-center gap-1 sm:w-auto sm:max-w-[18rem] sm:items-stretch",
+        "flex w-full flex-col items-center gap-1 sm:w-auto sm:max-w-[18rem] sm:items-start",
         props.className,
       )}
     >
@@ -43,7 +43,7 @@ export function SelfDemoRequestCta(props: { readonly className?: string }) {
         variant="primary"
         size="lg"
         sameTab
-        className="min-h-11 w-full px-8 font-semibold shadow-sm sm:w-auto sm:min-w-[12rem]"
+        className={cn("min-h-11 px-8 font-semibold shadow-sm", CTA_WIDTH.content, "sm:min-w-[12rem]")}
         title={SELF_DEMO_HERO_DISCLOSURE_COPY}
         ariaDescribedby={SELF_DEMO_DISCLOSURE_ID}
         data-testid="welcome-self-demo-cta"

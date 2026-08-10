@@ -10,7 +10,7 @@ import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
-import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { CTA_WIDTH, DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
 
 const NOT_RECORDED_LABEL = "Not recorded";
@@ -225,11 +225,11 @@ export function RunDetailWorkspacePrimaryAction(
         </p>
       ) : null}
       {props.href !== null ? (
-        <Link className={cn(buttonVariants({ variant: "default" }), "w-full")} href={props.href}>
+        <Link className={cn(buttonVariants({ variant: "default" }), CTA_WIDTH.content)} href={props.href}>
           {props.label}
         </Link>
       ) : (
-        <button className={cn(buttonVariants({ variant: "default" }), "w-full")} type="button">
+        <button className={cn(buttonVariants({ variant: "default" }), CTA_WIDTH.content)} type="button">
           {props.label}
         </button>
       )}

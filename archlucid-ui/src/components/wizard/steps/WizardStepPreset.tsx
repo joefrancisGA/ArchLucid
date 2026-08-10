@@ -21,10 +21,16 @@ import { TRIAL_ONBOARDING_SAMPLE_RUN_ID } from "@/lib/trial-sample-run";
 import { verticalBriefWizardPresets } from "@/lib/vertical-wizard-presets";
 import { starterArchitectureTemplates } from "@/data/starter-templates";
 import { buildDefaultWizardValues, type WizardFormValues } from "@/lib/wizard-schema";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { CTA_WIDTH, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 
 const HERO_VERTICAL_IDS = new Set<string>(["vertical-healthcare", "vertical-financial-services"]);
+
+/** Content-sized outline CTA for preset cards — avoid short labels spanning the card width. */
+const PRESET_CARD_CTA_CLASS = cn(
+  CTA_WIDTH.content,
+  "border-neutral-400 text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-neutral-600",
+);
 
 function verticalTemplateActionLabel(preset: WizardPreset): string {
   return `Use ${preset.label.toLowerCase()} starter`;
@@ -177,7 +183,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
             </CardDescription>
           </CardHeader>
           <CardFooter>
-            <Button asChild type="button" className="w-full sm:w-auto">
+            <Button asChild type="button" className={CTA_WIDTH.content}>
               <Link href={`/architecture/reviews/${featuredSampleRunId}`} data-testid="wizard-open-trial-sample-run">
                 Open example review
               </Link>
@@ -197,7 +203,10 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
         <CardFooter>
           <Button 
             type="button" 
-            className="w-full bg-teal-600 text-white hover:bg-teal-700 dark:bg-teal-700 dark:text-white dark:hover:bg-teal-600 sm:w-auto" 
+            className={cn(
+              CTA_WIDTH.content,
+              "bg-teal-600 text-white hover:bg-teal-700 dark:bg-teal-700 dark:text-white dark:hover:bg-teal-600",
+            )} 
             onClick={startScratch} 
             data-testid="wizard-start-blank"
           >
@@ -225,9 +234,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
               <CardFooter>
                 <Button
                   type="button"
-                  className={cn(
-                    "w-full border-neutral-400 text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-neutral-600",
-                  )}
+                  className={PRESET_CARD_CTA_CLASS}
                   variant="outline"
                   onClick={() => selectPreset(preset.id, preset.values)}
                 >
@@ -255,7 +262,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
                 <CardFooter>
                   <Button
                     type="button"
-                    className="w-full border-neutral-400 text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-neutral-600"
+                    className={PRESET_CARD_CTA_CLASS}
                     variant="outline"
                     onClick={() => selectPreset(preset.id, preset.values)}
                   >
@@ -285,7 +292,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
               <CardFooter>
                 <Button
                   type="button"
-                  className="w-full border-neutral-400 text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-neutral-600"
+                  className={PRESET_CARD_CTA_CLASS}
                   variant="outline"
                   data-testid={`wizard-starter-${preset.id}`}
                   onClick={() => selectPreset(preset.id, preset.values)}
@@ -314,7 +321,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
               <CardFooter>
                 <Button
                   type="button"
-                  className="w-full border-neutral-400 text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-neutral-600"
+                  className={PRESET_CARD_CTA_CLASS}
                   variant="outline"
                   onClick={() => selectPreset(preset.id, preset.values)}
                 >
@@ -354,7 +361,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full border-neutral-400 text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-neutral-600"
+                  className={PRESET_CARD_CTA_CLASS}
                   data-testid={index === 0 ? "wizard-docs-architecture-template-first" : undefined}
                   onClick={() => selectPreset(preset.id, preset.values)}
                 >

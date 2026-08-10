@@ -63,7 +63,7 @@ export default async function SeeItMarketingPage() {
           >
             {SEE_IT_HERO_LEAD}
           </p>
-          <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <Button asChild variant="primary" size="lg" data-testid="see-it-cta-showcase">
               <Link href={CANONICAL_ANONYMOUS_PROOF_HREF}>Open interactive sample review</Link>
             </Button>

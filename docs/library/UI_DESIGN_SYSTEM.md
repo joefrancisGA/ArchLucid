@@ -312,6 +312,18 @@ Product separator is a colon (`Label: value`), not a comma.
 | **`FilterChip`** | Optional filters, drill-down links, compact toggles outside a tab strip | `button` or `link` | Mutually exclusive page sections with dedicated panels |
 | **Segmented control** (`aria-pressed` / radiogroup) | 2–4 compact modes on one dataset where tab panels are not used (graph scope pills) | `aria-pressed` or `radiogroup` | Multi-panel layouts needing `tabpanel` linkage — use **`Tabs variant="pill"`** instead |
 
+### Button / CTA width
+
+Prefer **content-sized** buttons (`CTA_WIDTH.content` → `w-fit max-w-full`). Do not stretch short labels across a hero, pricing card, or wide card footer.
+
+| Token | Use when |
+| --- | --- |
+| `CTA_WIDTH.content` | Card footers, heroes, short-label actions (default) |
+| `CTA_WIDTH.formMatch` | Submit aligned to a full-width field in a narrow form/auth column (`w-full sm:w-auto`) |
+| `CTA_WIDTH.listRow` | Stacked navigational hit-targets in a constrained rail/list only |
+
+Code: `archlucid-ui/src/lib/design-tokens.ts` (`CTA_WIDTH`, `MARKETING_HERO_SECONDARY_CTA_CLASS`).
+
 Cursor enforcement: `.cursor/rules/UI-Enterprise-Design-Standard.mdc` (**TB-120**).
 
 ---

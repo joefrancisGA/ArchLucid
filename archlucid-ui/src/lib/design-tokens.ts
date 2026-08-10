@@ -392,9 +392,21 @@ export const MARKETING_SURFACES = {
     "flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-neutral-200 bg-al-surface-raised text-sm font-semibold text-al-text-primary dark:border-neutral-800",
 } as const;
 
+/**
+ * Button width affordances (Carbon-style).
+ * Prefer {@link CTA_WIDTH.content} for card footers, heroes, and short-label actions.
+ * Use {@link CTA_WIDTH.formMatch} only to align submits with full-width fields in a narrow form column.
+ * Use {@link CTA_WIDTH.listRow} only for stacked navigational hit-targets in a constrained rail/list — never for short labels spanning a wide card or hero.
+ */
+export const CTA_WIDTH = {
+  content: "w-fit max-w-full",
+  formMatch: "w-full sm:w-auto",
+  listRow: "w-full",
+} as const;
+
 /** Outline hero CTA sizing/contrast — never combine with {@link OPERATOR_TYPOGRAPHY.body} on the same control (overrides button fg). */
 export const MARKETING_HERO_SECONDARY_CTA_CLASS =
-  "h-11 min-h-11 w-full border-neutral-300 bg-white px-8 text-neutral-900 shadow-sm hover:bg-neutral-100 sm:w-auto sm:min-w-[12rem] dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800";
+  `h-11 min-h-11 ${CTA_WIDTH.content} border-neutral-300 bg-white px-8 text-neutral-900 shadow-sm hover:bg-neutral-100 sm:min-w-[12rem] dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800`;
 
 /** Primary marketing CTA — white on teal-800 meets WCAG 2.2 AA 4.5:1 at 14px (`text-sm`) in light and dark. */
 export const MARKETING_PRIMARY_CTA_CLASS =

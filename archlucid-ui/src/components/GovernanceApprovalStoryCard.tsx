@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { CTA_WIDTH, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -140,8 +140,8 @@ export function GovernanceApprovalStoryCard(props: {
         </p>
       </CardContent>
       {auditTrailHref.length > 0 ? (
-        <CardFooter className="flex flex-col items-stretch gap-2 border-t border-teal-200/70 pt-4 dark:border-teal-900/60">
-          <Button type="button" asChild variant="primary" size="lg" className="w-full sm:w-auto">
+        <CardFooter className="flex flex-col items-start gap-2 border-t border-teal-200/70 pt-4 dark:border-teal-900/60">
+          <Button type="button" asChild variant="primary" size="lg" className={CTA_WIDTH.content}>
             <Link href={auditTrailHref}>Open audit trail</Link>
           </Button>
         </CardFooter>

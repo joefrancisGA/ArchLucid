@@ -20,7 +20,7 @@ import {
   type BuyerCtoDemoReadinessResult,
 } from "@/lib/buyer-cto-demo-readiness";
 import { writeBuyerCtoDemoPreflightAcknowledged } from "@/lib/buyer-cto-demo-tour";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { CTA_WIDTH, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type CtoDemoPreflightGateProps = {
   readonly onAcknowledged: () => void;
@@ -78,7 +78,7 @@ export function CtoDemoPreflightGate(props: CtoDemoPreflightGateProps): React.JS
       <Button
         type="button"
         size="sm"
-        className="w-full"
+        className={CTA_WIDTH.content}
         disabled={loading || !canBegin}
         data-testid="cto-demo-preflight-begin"
         onClick={() => {

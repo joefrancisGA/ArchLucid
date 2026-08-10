@@ -57,7 +57,7 @@ export function WelcomeMarketingHeroSection(): React.JSX.Element {
               className="mt-8 flex w-full flex-col items-center gap-4 lg:items-start"
             >
               <div
-                className="flex w-full max-w-2xl flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-center lg:justify-start"
+                className="flex w-full max-w-2xl flex-col items-center gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-center lg:items-start lg:justify-start"
                 data-testid="welcome-hero-primary-secondary-row"
               >
                 <Suspense

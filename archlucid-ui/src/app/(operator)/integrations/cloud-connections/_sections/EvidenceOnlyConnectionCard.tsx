@@ -6,7 +6,7 @@ import {
   CLOUD_CONNECTIONS_EVIDENCE_ONLY_SUMMARY,
   CLOUD_CONNECTIONS_EVIDENCE_ONLY_TITLE,
 } from "@/lib/cloud-connections-copy";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { CTA_WIDTH, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 /** Evidence-only path — valid first option without cloud vendor access. */
 export function EvidenceOnlyConnectionCard() {
@@ -33,7 +33,7 @@ export function EvidenceOnlyConnectionCard() {
         </dl>
       </CardContent>
       <CardFooter className="mt-auto border-t border-neutral-200 pt-4 dark:border-neutral-700">
-        <Button type="button" variant="primary" className="w-full" asChild>
+        <Button type="button" variant="primary" className={CTA_WIDTH.content} asChild>
           <Link href="/architecture/reviews/new">Start architecture review</Link>
         </Button>
       </CardFooter>

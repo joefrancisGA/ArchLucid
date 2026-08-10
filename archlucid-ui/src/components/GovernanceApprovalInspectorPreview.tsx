@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { CTA_WIDTH, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 
@@ -102,7 +102,7 @@ export function GovernanceApprovalInspectorPreview({ request }: GovernanceApprov
       </dl>
 
       <div className="border-t border-neutral-200 pt-3 dark:border-neutral-700">
-        <Button size="sm" variant="outline" className="w-full sm:w-auto" asChild>
+        <Button size="sm" variant="outline" className={CTA_WIDTH.content} asChild>
           <Link href={`/governance/approval-requests/${encodeURIComponent(request.approvalRequestId)}/lineage`}>
             Open lineage
           </Link>

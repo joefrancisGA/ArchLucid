@@ -10,7 +10,7 @@ import {
 } from "@/lib/cloud-connections-copy";
 import { cloudProviderDetailPath } from "@/lib/cloud-connections-paths";
 import type { CloudProviderId } from "@/lib/cloud-platform-scope-storage";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { CTA_WIDTH, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { isCloudProviderSummaryConfigured } from "./is-cloud-provider-summary-configured";
 import { resolveCloudProviderSummaryPrimaryCtaLabel } from "./resolve-cloud-provider-summary-primary-cta-label";
@@ -97,7 +97,7 @@ export function CloudProviderSummaryCard(props: CloudProviderSummaryCardProps) {
         <Button
           type="button"
           variant={configured ? "primary" : "outline"}
-          className="w-full"
+          className={CTA_WIDTH.content}
           asChild
           data-testid={`cloud-connection-card-${provider}-primary-cta`}
         >

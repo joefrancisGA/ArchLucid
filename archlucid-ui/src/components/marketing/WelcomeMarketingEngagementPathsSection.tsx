@@ -55,7 +55,7 @@ export function WelcomeMarketingEngagementPathsSection(): React.JSX.Element {
         }
       >
         <div
-          className="mt-6 flex w-full max-w-2xl flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-start"
+          className="mt-6 flex w-full max-w-2xl flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-start"
           data-testid="welcome-engagement-request-row"
         >
           <WalkthroughRequestCta />

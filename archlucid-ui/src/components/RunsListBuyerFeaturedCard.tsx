@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { CTA_WIDTH, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 
@@ -121,7 +121,7 @@ export function RunsListBuyerFeaturedCard({ run }: RunsListBuyerFeaturedCardProp
           </dl>
         </CardContent>
         <CardFooter className="border-t border-neutral-200 pt-4 dark:border-neutral-800">
-          <Button type="button" variant="primary" size="sm" asChild className="w-full sm:w-auto">
+          <Button type="button" variant="primary" size="sm" asChild className={CTA_WIDTH.content}>
             <Link href={packageLink.href} data-testid={`runs-row-primary-explore-${run.runId}`}>
               {packageLink.label}
             </Link>

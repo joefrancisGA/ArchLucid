@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { CTA_WIDTH, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -252,21 +252,21 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                       ) : null}
                     </div>
                     {cta !== undefined ? (
-                    <div className="mt-auto flex min-h-[3.25rem] flex-col justify-end gap-2 pt-5">
+                    <div className="mt-auto flex min-h-[3.25rem] flex-col items-start justify-end gap-2 pt-5">
                       {cta.primaryKind === "quote" ? (
-                        <Button type="button" variant={primaryCtaVariant} size={primaryCtaSize} className="w-full" onClick={() => scrollToQuote()}>
+                        <Button type="button" variant={primaryCtaVariant} size={primaryCtaSize} className={CTA_WIDTH.content} onClick={() => scrollToQuote()}>
                           {cta.primaryLabel}
                         </Button>
                       ) : null}
 
                       {cta.primaryKind === "stripe" && props.preferSalesLedQuoteCta ? (
-                        <Button type="button" variant={primaryCtaVariant} size={primaryCtaSize} className="w-full" onClick={() => scrollToQuote()}>
+                        <Button type="button" variant={primaryCtaVariant} size={primaryCtaSize} className={CTA_WIDTH.content} onClick={() => scrollToQuote()}>
                           {cta.primaryLabel}
                         </Button>
                       ) : null}
 
                       {cta.primaryKind === "stripe" && !props.preferSalesLedQuoteCta && billingHref !== null ? (
-                        <Button asChild variant={primaryCtaVariant} size={primaryCtaSize} className="w-full">
+                        <Button asChild variant={primaryCtaVariant} size={primaryCtaSize} className={CTA_WIDTH.content}>
                           <Link
                             data-testid={pkg.id === "team" ? "pricing-team-subscribe-stripe" : `pricing-${pkg.id}-subscribe-stripe`}
                             href={billingHref}
@@ -277,19 +277,19 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                       ) : null}
 
                       {cta.primaryKind === "stripe" && !props.preferSalesLedQuoteCta && billingHref === null ? (
-                        <Button asChild variant={primaryCtaVariant} size={primaryCtaSize} className="w-full">
+                        <Button asChild variant={primaryCtaVariant} size={primaryCtaSize} className={CTA_WIDTH.content}>
                           <Link href={props.signupHref}>{cta.primaryLabel}</Link>
                         </Button>
                       ) : null}
 
                       {cta.primaryKind === "stripe" && !props.preferSalesLedQuoteCta && billingHref !== null ? (
-                        <Button asChild variant="outline" className="w-full">
+                        <Button asChild variant="outline" className={CTA_WIDTH.content}>
                           <Link href={props.signupHref}>{cta.secondaryLabel ?? "Start now"}</Link>
                         </Button>
                       ) : null}
 
                       {cta.primaryKind === "stripe" && props.preferSalesLedQuoteCta && billingHref !== null ? (
-                        <Button asChild variant="outline" className="w-full">
+                        <Button asChild variant="outline" className={CTA_WIDTH.content}>
                           <Link
                             data-testid="pricing-team-subscribe-stripe"
                             href={billingHref}
