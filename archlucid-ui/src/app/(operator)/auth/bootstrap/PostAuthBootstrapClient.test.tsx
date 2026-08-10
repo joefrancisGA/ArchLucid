@@ -39,3 +39,49 @@ describe("PostAuthBootstrapClient (TB-1465)", () => {
     expect(screen.queryByText(/Preparing your ArchLucid workspace/i)).not.toBeInTheDocument();
   });
 });
+
+describe("PostAuthBootstrapClient (TB-1468)", () => {
+  beforeEach(() => {
+    fetchPostAuthBootstrapStatus.mockReset();
+  });
+
+  it("uses a primary continue action when one workspace is available", async () => {
+    fetchPostAuthBootstrapStatus.mockResolvedValue({
+      destination: "SelectWorkspace",
+      pendingInvitations: [],
+      workspaces: [{ tenantId: "t1", workspaceId: "w1", workspaceName: "Northwind" }],
+      canCreateWorkspace: false,
+    });
+
+    render(<PostAuthBootstrapClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("bootstrap-select-workspace-step")).toBeInTheDocument();
+    });
+
+    const workspaceButton = screen.getByTestId("bootstrap-select-workspace-w1");
+
+    expect(workspaceButton).toHaveAttribute("data-workspace-primary", "true");
+    expect(workspaceButton).toHaveTextContent("Continue to Northwind");
+  });
+
+  it("sanitizes raw denial reasons on the no-access step", async () => {
+    fetchPostAuthBootstrapStatus.mockResolvedValue({
+      destination: "NoAccess",
+      pendingInvitations: [],
+      workspaces: [],
+      canCreateWorkspace: false,
+      denialReason: "System.NullReferenceException: Object reference not set",
+    });
+
+    render(<PostAuthBootstrapClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("bootstrap-no-access-step")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText(/no workspace is available for this account/i)).toBeInTheDocument();
+    expect(screen.queryByText(/NullReferenceException/i)).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Request access/i })).toBeInTheDocument();
+  });
+});

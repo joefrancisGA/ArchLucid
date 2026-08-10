@@ -23,6 +23,10 @@ import {
 import { isSafeReturnPath, resolveSafeReturnPath } from "@/lib/navigation/safe-return-path";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { persistTokenResponse } from "@/lib/oidc/session";
+import {
+  POST_AUTH_BOOTSTRAP_COPY,
+  resolvePostAuthBootstrapDenialMessage,
+} from "@/lib/auth/post-auth-bootstrap-denial-copy";
 
 function applyBootstrapSession(session: {
   accessToken: string;
@@ -217,26 +221,44 @@ export function PostAuthBootstrapClient() {
   }
 
   if (status.destination === "SelectWorkspace") {
+    const singleWorkspace = status.workspaces.length === 1 ? status.workspaces[0] : null;
+
     return bootstrapChrome(
         <div className="max-w-[560px]" data-testid="bootstrap-select-workspace-step">
           <h1 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{CREATE_WORKSPACE_COPY.selectWorkspaceTitle}</h1>
-          <div className="mt-6 flex flex-col gap-3">
-            {status.workspaces.map((workspace) => (
-              <Button
-                key={`${workspace.tenantId}:${workspace.workspaceId}`}
-                type="button"
-                variant="outline"
-                className="w-full justify-start"
-                disabled={pending}
-                data-testid={`bootstrap-select-workspace-${workspace.workspaceId}`}
-                onClick={() => {
-                  void handleSelectWorkspace(workspace.tenantId, workspace.workspaceId);
-                }}
-              >
-                {workspace.workspaceName}
-              </Button>
-            ))}
-          </div>
+          <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {POST_AUTH_BOOTSTRAP_COPY.selectWorkspaceLead}
+          </p>
+          {status.workspaces.length === 0 ? (
+            <p className={cn("mt-6 text-sm text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role="status">
+              {POST_AUTH_BOOTSTRAP_COPY.selectWorkspaceEmpty}
+            </p>
+          ) : (
+            <div className="mt-6 flex flex-col gap-3">
+              {status.workspaces.map((workspace) => {
+                const usePrimary = singleWorkspace !== null;
+
+                return (
+                  <Button
+                    key={`${workspace.tenantId}:${workspace.workspaceId}`}
+                    type="button"
+                    variant={usePrimary ? "primary" : "outline"}
+                    className="w-full justify-start"
+                    disabled={pending}
+                    data-testid={`bootstrap-select-workspace-${workspace.workspaceId}`}
+                    data-workspace-primary={usePrimary ? "true" : "false"}
+                    onClick={() => {
+                      void handleSelectWorkspace(workspace.tenantId, workspace.workspaceId);
+                    }}
+                  >
+                    {singleWorkspace
+                      ? POST_AUTH_BOOTSTRAP_COPY.selectWorkspaceContinueLabel(workspace.workspaceName)
+                      : POST_AUTH_BOOTSTRAP_COPY.selectWorkspaceOpenLabel(workspace.workspaceName)}
+                  </Button>
+                );
+              })}
+            </div>
+          )}
           {errorMessage ? (
             <p role="alert" className="mt-4 text-sm text-red-700">
               {errorMessage}
@@ -266,14 +288,14 @@ export function PostAuthBootstrapClient() {
       <div className="max-w-[560px]" data-testid="bootstrap-no-access-step">
         <h1 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{CREATE_WORKSPACE_COPY.noAccessTitle}</h1>
         <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          {status.denialReason ?? "Sign-in succeeded, but no workspace is available for this account."}
+          {resolvePostAuthBootstrapDenialMessage(status.denialReason)}
         </p>
         {accessRequestSent ? (
           <p role="status" className="mt-3 text-sm text-al-text-secondary">
             Your access request was recorded. Your administrator will follow up if appropriate.
           </p>
         ) : (
-          <Button type="button" variant="outline" className="mt-4" disabled={pending} onClick={() => void handleAccessRequest()}>
+          <Button type="button" variant="primary" className="mt-4" disabled={pending} onClick={() => void handleAccessRequest()}>
             {CREATE_WORKSPACE_COPY.accessRequest}
           </Button>
         )}
