@@ -2,16 +2,22 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { InvitationAcceptLoadingView } from "@/app/(operator)/auth/invite/InvitationAcceptLoadingView";
+import { InvitationInvalidRecoveryActions } from "@/app/(operator)/auth/invite/InvitationInvalidRecoveryActions";
 import { AuthFlowShell } from "@/components/auth/AuthFlowShell";
 import { Button } from "@/components/ui/button";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   AUTH_INVITE_PAGE_LEAD,
   AUTH_INVITE_PAGE_TITLE,
 } from "@/lib/auth/auth-invite-page-copy";
+import {
+  mapInvitationStatusToRecoveryContext,
+  resolveInvalidInvitationMessage,
+  type InvitationRecoveryContext,
+} from "@/lib/auth/invitation-invalid-recovery-copy";
 import { storeInvitationToken } from "@/lib/auth/email-otp-session";
 import {
   validateInvitationToken,
@@ -24,34 +30,42 @@ export function InvitationAcceptPageClient() {
   const token = searchParams.get("token")?.trim() ?? "";
 
   const [validation, setValidation] = useState<InvitationValidationResponse | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [recoveryContext, setRecoveryContext] = useState<InvitationRecoveryContext | null>(null);
   const [loading, setLoading] = useState(true);
+  const [validationAttempt, setValidationAttempt] = useState(0);
+
+  const runValidation = useCallback(async (invitationToken: string) => {
+    setLoading(true);
+    setValidation(null);
+    setRecoveryContext(null);
+
+    try {
+      const result = await validateInvitationToken(invitationToken);
+      setValidation(result);
+
+      const context = mapInvitationStatusToRecoveryContext(result.status);
+
+      if (context) {
+        setRecoveryContext(context);
+      }
+    } catch {
+      setRecoveryContext("validation-failed");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (!token) {
-      setErrorMessage("This invitation link is not valid.");
+      setRecoveryContext("missing-token");
       setLoading(false);
 
       return;
     }
 
     storeInvitationToken(token);
-
-    void (async () => {
-      try {
-        const result = await validateInvitationToken(token);
-        setValidation(result);
-
-        if (result.status !== "Valid") {
-          setErrorMessage(resolveInvalidMessage(result.status));
-        }
-      } catch {
-        setErrorMessage("We could not validate this invitation. Try again or contact your administrator.");
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [token]);
+    void runValidation(token);
+  }, [runValidation, token, validationAttempt]);
 
   const signInHref = `/auth/signin?invitationToken=${encodeURIComponent(token)}`;
 
@@ -69,10 +83,28 @@ export function InvitationAcceptPageClient() {
         <h1 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{AUTH_INVITE_PAGE_TITLE}</h1>
         <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{AUTH_INVITE_PAGE_LEAD}</p>
 
-        {errorMessage ? (
-          <p className="mt-4 text-sm text-red-700 dark:text-red-300" role="alert">
-            {errorMessage}
-          </p>
+        {recoveryContext ? (
+          <>
+            <div
+              className={cn("mt-4", DESIGN_TOKENS.callout.blocked)}
+              role="alert"
+              data-testid="invitation-invalid-alert"
+            >
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+                {resolveInvalidInvitationMessage(recoveryContext)}
+              </p>
+            </div>
+            <InvitationInvalidRecoveryActions
+              context={recoveryContext}
+              onRetry={
+                recoveryContext === "validation-failed" && token
+                  ? () => {
+                      setValidationAttempt((attempt) => attempt + 1);
+                    }
+                  : undefined
+              }
+            />
+          </>
         ) : null}
 
         {validation?.status === "Valid" ? (
@@ -100,17 +132,4 @@ export function InvitationAcceptPageClient() {
       </div>
     </AuthFlowShell>
   );
-}
-
-function resolveInvalidMessage(status: InvitationValidationResponse["status"]): string {
-  switch (status) {
-    case "Expired":
-      return "This invitation has expired. Ask your administrator to send a new invitation.";
-    case "Revoked":
-      return "This invitation is no longer active.";
-    case "Accepted":
-      return "This invitation has already been used.";
-    default:
-      return "This invitation link is not valid.";
-  }
 }
