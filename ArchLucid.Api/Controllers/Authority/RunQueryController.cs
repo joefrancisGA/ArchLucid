@@ -3,12 +3,14 @@ using System.IO;
 using System.Text;
 using System.Text.Json;
 
+using ArchLucid.Api.Http;
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.Models.Graph;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
 using ArchLucid.Application;
+using ArchLucid.Application.Http;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Findings;
@@ -86,11 +88,30 @@ public sealed class RunQueryController(
     /// </summary>
     [HttpGet("review/{runId}")]
     [ProducesResponseType(typeof(RunDetailsResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetRun(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
+        if (!TryParseRunId(runId, out Guid runGuid))
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        Persistence.Models.RunRecord? runHeader =
+            await authorityRunRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+
+        if (runHeader is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        if (ConditionalGetNegotiation.TryFromRowVersion(runHeader.RowVersion, out string runEtag))
+        {
+            IActionResult? notModified = this.TryConditionalNotModified(runEtag);
+
+            if (notModified is not null)
+                return notModified;
+        }
+
         ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
 
         if (detail is null)
@@ -129,7 +150,10 @@ public sealed class RunQueryController(
             llmCostEstimator,
             cancellationToken);
 
-        return Ok(response);
+        if (!ConditionalGetNegotiation.TryFromRowVersion(runHeader.RowVersion, out runEtag))
+            runEtag = ConditionalGetNegotiation.FromRowVersionWithFingerprint(null, $"run-detail:{runId}");
+
+        return this.OkWithConditionalEtag(response, runEtag);
     }
 
     /// <summary>Directional analyst-hour estimate for packaging work implied by this run (configured multipliers).</summary>
@@ -179,6 +203,7 @@ public sealed class RunQueryController(
     /// <summary>Keyset list of relational finding metadata for <paramref name="runId" />.</summary>
     [HttpGet("review/{runId}/findings")]
     [ProducesResponseType(typeof(RunFindingsListResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ListRunFindings(
         [FromRoute] string runId,
@@ -203,6 +228,14 @@ public sealed class RunQueryController(
 
         bool orderByPriority = string.Equals(orderBy, "priority", StringComparison.OrdinalIgnoreCase);
         int pageTake = take ?? FindingPagination.DefaultTake;
+        string findingsFingerprint =
+            $"findings:{snapshotId:N}|order={(orderByPriority ? "priority" : "sortOrder")}|take={pageTake}|cs={cursorSortOrder}|cp={cursorPriorityRank}|cf={cursorFindingRecordId}";
+        string findingsEtag = ConditionalGetNegotiation.FromRowVersionWithFingerprint(run.RowVersion, findingsFingerprint);
+
+        IActionResult? findingsNotModified = this.TryConditionalNotModified(findingsEtag);
+
+        if (findingsNotModified is not null)
+            return findingsNotModified;
 
         FindingRecordMetadataPage page = await findingsSnapshotRepository.ListFindingRecordsKeysetAsync(
             scope,
@@ -279,7 +312,7 @@ public sealed class RunQueryController(
             body.NextCursorFindingRecordId = last.FindingRecordId;
         }
 
-        return Ok(body);
+        return this.OkWithConditionalEtag(body, findingsEtag);
     }
 
     /// <summary>
@@ -632,6 +665,7 @@ public sealed class RunQueryController(
     [HttpGet("reviews")]
     [HttpGet("runs")]
     [ProducesResponseType(typeof(CursorPagedResponse<RunListItemResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
     public async Task<IActionResult> ListRuns(
         [FromQuery] string? cursor = null,
         [FromQuery] int? limit = null,
@@ -648,7 +682,12 @@ public sealed class RunQueryController(
             (IReadOnlyList<RunSummary> keysetSummaries, bool keysetHasMore, string? nextCursor) =
                 await runDetailQueryService.ListRunSummariesKeysetAsync(cursor, effectiveTake, cancellationToken);
 
-            return Ok(MapRunListPage(keysetSummaries, keysetHasMore, nextCursor, effectiveTake));
+            string listFingerprint = $"keyset|cursor={cursor}|take={effectiveTake}";
+            string listEtag = BuildRunListEtag(keysetSummaries, listFingerprint);
+            CursorPagedResponse<RunListItemResponse> keysetBody =
+                MapRunListPage(keysetSummaries, keysetHasMore, nextCursor, effectiveTake);
+
+            return this.OkWithConditionalEtag(keysetBody, listEtag);
         }
 
         int effectiveLimit = RunPagination.ClampLimit(limit ?? pageSize);
@@ -659,7 +698,28 @@ public sealed class RunQueryController(
         (IReadOnlyList<RunSummary> offsetSummaries, bool offsetHasMore) =
             await runDetailQueryService.ListRunSummariesOffsetAsync(effectiveOffset, effectiveLimit, cancellationToken);
 
-        return Ok(MapRunListPage(offsetSummaries, offsetHasMore, nextCursor: null, effectiveLimit));
+        string offsetFingerprint = $"offset|offset={effectiveOffset}|limit={effectiveLimit}";
+        string offsetEtag = BuildRunListEtag(offsetSummaries, offsetFingerprint);
+        CursorPagedResponse<RunListItemResponse> offsetBody =
+            MapRunListPage(offsetSummaries, offsetHasMore, nextCursor: null, effectiveLimit);
+
+        return this.OkWithConditionalEtag(offsetBody, offsetEtag);
+    }
+
+    private static string BuildRunListEtag(IReadOnlyList<RunSummary> summaries, string requestFingerprint)
+    {
+        RunSummaryRowVersionSlice[] slices = summaries
+            .Select(summary =>
+            {
+                Guid runGuid = Guid.TryParseExact(summary.RunId, "N", out Guid nFormat)
+                    ? nFormat
+                    : Guid.Parse(summary.RunId);
+
+                return new RunSummaryRowVersionSlice(runGuid, summary.RowVersion);
+            })
+            .ToArray();
+
+        return ConditionalGetNegotiation.ComputeRunListEtag(slices, requestFingerprint);
     }
 
     private static CursorPagedResponse<RunListItemResponse> MapRunListPage(

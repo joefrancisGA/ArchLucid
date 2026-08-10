@@ -2,6 +2,8 @@ using System.Buffers.Binary;
 using System.Security.Cryptography;
 using System.Text;
 
+using ArchLucid.Application.Http;
+
 namespace ArchLucid.Application.Marketing;
 
 /// <summary>
@@ -47,6 +49,6 @@ public static class EvidencePackEtag
         }
 
         byte[] digest = hash.GetHashAndReset();
-        return $"\"{Convert.ToHexString(digest).ToLowerInvariant()}\"";
+        return ConditionalGetNegotiation.QuoteStrongEtag(digest);
     }
 }

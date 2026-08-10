@@ -24,6 +24,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
@@ -83,7 +84,14 @@ public sealed class RunQueryControllerTests
             .Setup(s => s.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
 
-        RunQueryController controller = CreateController(runDetailQueryService: runDetail.Object);
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"), RowVersion = [1] });
+
+        RunQueryController controller = CreateController(
+            runDetailQueryService: runDetail.Object,
+            authorityRunRepository: runs.Object);
 
         IActionResult action = await controller.GetRun(RunId, CancellationToken.None);
 
@@ -104,11 +112,17 @@ public sealed class RunQueryControllerTests
             .Setup(s => s.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
 
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"), RowVersion = [2] });
+
         Mock<IAgentExecutionTraceRepository> traces = CreateAgentExecutionTraceRepositoryMock();
 
         RunQueryController controller = CreateController(
             runDetailQueryService: runDetail.Object,
-            agentExecutionTraceRepository: traces.Object);
+            agentExecutionTraceRepository: traces.Object,
+            authorityRunRepository: runs.Object);
 
         IActionResult action = await controller.GetRun(RunId, CancellationToken.None);
 

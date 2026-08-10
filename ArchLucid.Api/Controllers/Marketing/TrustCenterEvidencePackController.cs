@@ -1,4 +1,5 @@
 using ArchLucid.Application.Marketing;
+using ArchLucid.Application.Http;
 
 using Asp.Versioning;
 
@@ -67,7 +68,7 @@ public sealed class TrustCenterEvidencePackController(
     {
         EvidencePackArtifact artifact = await GetOrBuildAsync(cancellationToken);
 
-        if (TryMatchIfNoneMatch(Request.Headers.IfNoneMatch, artifact.ETag))
+        if (ConditionalGetNegotiation.TryMatchIfNoneMatch(Request.Headers.IfNoneMatch, artifact.ETag))
         {
             ApplyCachingHeaders(artifact.ETag);
             return StatusCode(StatusCodes.Status304NotModified);
@@ -97,30 +98,5 @@ public sealed class TrustCenterEvidencePackController(
     {
         Response.Headers.ETag = etag;
         Response.Headers.CacheControl = $"public, max-age={(int)CacheLifetime.TotalSeconds}";
-    }
-
-    private static bool TryMatchIfNoneMatch(IList<string?>? ifNoneMatchValues, string artifactEtag)
-    {
-        if (ifNoneMatchValues is null || ifNoneMatchValues.Count == 0)
-            return false;
-
-        foreach (string? raw in ifNoneMatchValues)
-        {
-            if (string.IsNullOrWhiteSpace(raw)) continue;
-            if (raw == "*") return true;
-
-            foreach (string token in raw.Split(','))
-            {
-                string trimmed = token.Trim();
-
-                if (trimmed.StartsWith("W/", StringComparison.Ordinal))
-                    trimmed = trimmed[2..].Trim();
-
-                if (string.Equals(trimmed, artifactEtag, StringComparison.Ordinal))
-                    return true;
-            }
-        }
-
-        return false;
     }
 }

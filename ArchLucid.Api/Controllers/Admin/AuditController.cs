@@ -1,8 +1,10 @@
 using System.Reflection;
 
+using ArchLucid.Api.Http;
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Formatters;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Http;
 using ArchLucid.Application.Reporting;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -45,6 +47,7 @@ public sealed class AuditController(
     /// </remarks>
     [HttpGet]
     [ProducesResponseType(typeof(CursorPagedResponse<AuditEvent>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
     public async Task<IActionResult> GetAudit(
         [FromQuery] string? cursor = null,
         [FromQuery] int take = 100,
@@ -66,7 +69,11 @@ public sealed class AuditController(
         IReadOnlyList<AuditEvent> rows =
             await repo.GetFilteredAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, filter, ct);
 
-        return Ok(ToCursorPage(rows, clampedTake));
+        CursorPagedResponse<AuditEvent> page = ToCursorPage(rows, clampedTake);
+        string fingerprint = $"audit|take={clampedTake}|cursor={cursor}";
+        string etag = ConditionalGetNegotiation.ComputeAuditPageEtag(page.Items, fingerprint);
+
+        return this.OkWithConditionalEtag(page, etag);
     }
 
     /// <summary>Filtered audit query within the current tenant/workspace/project scope.</summary>
@@ -81,6 +88,7 @@ public sealed class AuditController(
     /// </param>
     [HttpGet("search")]
     [ProducesResponseType(typeof(CursorPagedResponse<AuditEvent>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
     public async Task<IActionResult> SearchAudit(
         [FromQuery] string? cursor = null,
         [FromQuery] string? eventType = null,
@@ -141,7 +149,12 @@ public sealed class AuditController(
             filter,
             ct);
 
-        return Ok(ToCursorPage(rows, clampedTake));
+        CursorPagedResponse<AuditEvent> page = ToCursorPage(rows, clampedTake);
+        string fingerprint =
+            $"audit-search|take={clampedTake}|cursor={cursor}|eventType={eventType}|from={fromUtc:O}|to={toUtc:O}|before={effectiveBeforeUtc:O}|beforeId={effectiveBeforeEventId}|corr={correlationId}|actor={actorUserId}|run={runId}|data={includeDataJson}";
+        string etag = ConditionalGetNegotiation.ComputeAuditPageEtag(page.Items, fingerprint);
+
+        return this.OkWithConditionalEtag(page, etag);
     }
 
     private static CursorPagedResponse<AuditEvent> ToCursorPage(IReadOnlyList<AuditEvent> rows, int clampedTake)

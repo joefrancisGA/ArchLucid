@@ -278,7 +278,8 @@ public sealed class RunDetailQueryService(
             CurrentManifestVersion = r.CurrentManifestVersion,
             SystemName = r.ProjectId,
             IsDeadLettered = RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(r),
-            PackageOrigin = r.PackageOrigin
+            PackageOrigin = r.PackageOrigin,
+            RowVersion = r.RowVersion
         }).ToList();
     }
 
@@ -307,7 +308,8 @@ public sealed class RunDetailQueryService(
             CurrentManifestVersion = r.CurrentManifestVersion,
             SystemName = r.ProjectId,
             IsDeadLettered = RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(r),
-            PackageOrigin = r.PackageOrigin
+            PackageOrigin = r.PackageOrigin,
+            RowVersion = r.RowVersion
         }).ToList();
         string? next = null;
         if (!page.HasMore || page.Items.Count <= 0)
@@ -339,7 +341,8 @@ public sealed class RunDetailQueryService(
             CurrentManifestVersion = r.CurrentManifestVersion,
             SystemName = r.ProjectId,
             IsDeadLettered = RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(r),
-            PackageOrigin = r.PackageOrigin
+            PackageOrigin = r.PackageOrigin,
+            RowVersion = r.RowVersion
         }).ToList();
 
         return (items, page.HasMore);

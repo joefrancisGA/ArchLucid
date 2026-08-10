@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace ArchLucid.Contracts.Architecture;
 
 /// <summary>
@@ -60,6 +62,14 @@ public sealed class RunSummary
     ///     When <see langword="true" />, deferred authority pipeline work dead-lettered after retry exhaustion.
     /// </summary>
     public bool IsDeadLettered
+    {
+        get;
+        set;
+    }
+
+    /// <summary>SQL <c>ROWVERSION</c> for conditional GET; not exposed in list API payloads.</summary>
+    [JsonIgnore]
+    public byte[]? RowVersion
     {
         get;
         set;
