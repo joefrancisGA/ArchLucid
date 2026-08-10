@@ -1,4 +1,5 @@
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { REVIEW_DETAIL_TAB_PARAM } from "@/lib/review-detail-workspace-tabs";
 import {
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE,
@@ -31,6 +32,30 @@ export function showcaseSampleReviewPackageHref(
   runId: string = SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId,
 ): string {
   return `/architecture/reviews/${encodeURIComponent(canonicalizeDemoRunId(runId))}`;
+}
+
+function showcaseSampleReviewTabHref(
+  tabId: "review-package" | "findings",
+  runId: string = SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId,
+): string {
+  const baseHref = showcaseSampleReviewPackageHref(runId);
+  const params = new URLSearchParams({ [REVIEW_DETAIL_TAB_PARAM]: tabId });
+
+  return `${baseHref}?${params.toString()}`;
+}
+
+/** Specimen signed review record tab for pre-intake preview (TB-2151). */
+export function showcaseSpecimenSignedReviewRecordHref(
+  runId: string = SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId,
+): string {
+  return showcaseSampleReviewTabHref("review-package", runId);
+}
+
+/** Specimen findings tab for pre-intake preview (TB-2151). */
+export function showcaseSpecimenFindingsHref(
+  runId: string = SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId,
+): string {
+  return showcaseSampleReviewTabHref("findings", runId);
 }
 
 export function showcasePrimaryFindingDetailHref(

@@ -146,6 +146,8 @@ describe("OperatorHomeDualPathCards", () => {
   it("shows immediate loading feedback when starting the review architecture path", () => {
     render(<OperatorHomeDualPathCards emphasizedPath="review-architecture" />);
 
+    expect(screen.getByTestId("operator-home-review-architecture-specimen-preview")).toBeInTheDocument();
+
     fireEvent.click(screen.getByTestId("operator-home-review-architecture-cta"));
 
     expect(screen.getByRole("button", { name: REVIEW_START_LOADING_LABEL })).toBeDisabled();

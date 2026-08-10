@@ -6,7 +6,7 @@ import {
   NEW_REVIEW_SAMPLE_ESCAPE_CTA,
   NEW_REVIEW_SAMPLE_ESCAPE_HINT,
 } from "@/lib/buyer-polish-copy";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { showcaseSpecimenSignedReviewRecordHref } from "@/lib/showcase-sample-review-registry";
 
 describe("NewReviewSampleEscapeLink", () => {
   it("renders the calm, expert-facing guidance copy", () => {
@@ -40,7 +40,7 @@ describe("NewReviewSampleEscapeLink", () => {
 
     const link = screen.getByRole("link", { name: NEW_REVIEW_SAMPLE_ESCAPE_CTA });
 
-    expect(link).toHaveAttribute("href", `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`);
+    expect(link).toHaveAttribute("href", showcaseSpecimenSignedReviewRecordHref());
   });
 
   it("renders an inline sample escape button for first-pilot intake", () => {
@@ -49,7 +49,7 @@ describe("NewReviewSampleEscapeLink", () => {
     expect(screen.getByTestId("new-review-sample-escape-inline")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: NEW_REVIEW_SAMPLE_ESCAPE_CTA })).toHaveAttribute(
       "href",
-      `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
+      showcaseSpecimenSignedReviewRecordHref(),
     );
   });
 });

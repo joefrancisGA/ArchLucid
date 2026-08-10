@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { OperatorHomeCompletedSampleAction } from "@/components/operator-home/OperatorHomeCompletedSampleAction";
+import { SpecimenDeliverablePreviewCallout } from "@/components/usability/SpecimenDeliverablePreviewCallout";
 import { OperatorHomeNavigateLoadingButton } from "@/components/operator-home/OperatorHomeNavigateLoadingButton";
 import { OperatorHomeReadinessStrip } from "@/components/operator-home/OperatorHomeReadinessStrip";
 import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
@@ -210,6 +211,10 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
               {OPERATOR_HOME_READ_ONLY_INTENT_HINT}
             </p>
           )}
+          <SpecimenDeliverablePreviewCallout
+            variant="compact"
+            sectionTestId="operator-home-review-architecture-specimen-preview"
+          />
           {canManageCloudConnections ? (
             <div className="pt-1" data-testid="operator-home-optional-cloud-shortcut">
               <OperatorHomeNavigateLoadingButton

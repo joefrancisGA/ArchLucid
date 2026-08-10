@@ -5,6 +5,8 @@ import {
   SHOWCASE_SAMPLE_REVIEW_REGISTRY,
   isShowcaseCanonicalPrimaryFindingRoute,
   showcasePrimaryFindingDetailHref,
+  showcaseSpecimenFindingsHref,
+  showcaseSpecimenSignedReviewRecordHref,
   showcaseSampleReviewPackageHref,
 } from "@/lib/showcase-sample-review-registry";
 import {
@@ -21,6 +23,12 @@ describe("showcase-sample-review-registry", () => {
 
   it("builds canonical review and finding detail hrefs", () => {
     expect(showcaseSampleReviewPackageHref()).toBe("/architecture/reviews/claims-intake-modernization");
+    expect(showcaseSpecimenSignedReviewRecordHref()).toBe(
+      "/architecture/reviews/claims-intake-modernization?reviewTab=review-package",
+    );
+    expect(showcaseSpecimenFindingsHref()).toBe(
+      "/architecture/reviews/claims-intake-modernization?reviewTab=findings",
+    );
     expect(showcasePrimaryFindingDetailHref()).toBe(
       "/architecture/reviews/claims-intake-modernization/findings/phi-minimization-risk",
     );

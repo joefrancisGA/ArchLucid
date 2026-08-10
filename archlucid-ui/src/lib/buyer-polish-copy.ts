@@ -385,6 +385,16 @@ export const NEW_REVIEW_SAMPLE_ESCAPE_CTA =
 export const NEW_REVIEW_SAMPLE_ESCAPE_HINT =
   "Skip setup and explore a finished architecture package.";
 
+/** TB-2151 — pre-intake specimen preview on `/architecture/reviews/new` and home start CTAs. */
+export const REVIEWS_NEW_SPECIMEN_PREVIEW_TITLE = "See what you will get";
+
+export const REVIEWS_NEW_SPECIMEN_PREVIEW_LEAD =
+  "Open the Claims Intake Demo specimen — a signed review record with findings — before you commit to intake.";
+
+export const REVIEWS_NEW_SPECIMEN_PREVIEW_PRIMARY_CTA = "Open sample signed review record";
+
+export const REVIEWS_NEW_SPECIMEN_PREVIEW_FINDINGS_LINK = "View sample findings";
+
 /** Streamlined first-run lead on `/architecture/reviews/new` — avoids path-switcher jargon above the fold. */
 export const REVIEWS_NEW_PAGE_LEAD = CLOUD_NEUTRAL_PRIMARY_COPY.reviewsNewPageLead;
 

@@ -61,6 +61,11 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
       expect(screen.getByTestId("reviews-new-job-chooser-section")).toBeInTheDocument();
     });
 
+    expect(screen.getByTestId("reviews-new-specimen-preview")).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-new-specimen-preview-primary-cta")).toHaveAttribute(
+      "href",
+      "/architecture/reviews/claims-intake-modernization?reviewTab=review-package",
+    );
     expect(screen.getByTestId("reviews-new-primary-path-layout")).toBeInTheDocument();
     expect(screen.queryByText(/Expected outputs:/i)).toBeNull();
     expect(screen.getByTestId("reviews-new-more-intake-options")).toBeInTheDocument();
@@ -200,6 +205,7 @@ describe("ReviewsNewPathSwitcher (returning tenant)", () => {
       expect(screen.getByTestId("first-pilot-intake-wizard-stub")).toBeTruthy();
     });
 
+    expect(screen.getByTestId("reviews-new-specimen-preview")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-path-toggle")).toBeTruthy();
     expect(screen.queryByTestId("reviews-new-more-intake-options")).toBeNull();
     expect(screen.getByRole("tab", { name: "Quick start" })).toHaveAttribute("aria-selected", "true");

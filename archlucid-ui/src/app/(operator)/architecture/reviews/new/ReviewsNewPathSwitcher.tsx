@@ -21,6 +21,7 @@ import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-co
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { ReviewsNewDeferredIntentCallout } from "./ReviewsNewDeferredIntentCallout";
+import { SpecimenDeliverablePreviewCallout } from "@/components/usability/SpecimenDeliverablePreviewCallout";
 import { ReviewIntakeInvalidTemplateCallout } from "@/components/review-intake/ReviewIntakeInvalidTemplateCallout";
 import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator-home-example-request";
 import { ReviewsNewMoreWaysToStart } from "./ReviewsNewMoreWaysToStart";
@@ -175,6 +176,7 @@ export function ReviewsNewPathSwitcher() {
       {shellReady ? (
         usePrimaryPathLayout ? (
           <div className="space-y-4" data-testid="reviews-new-primary-path-layout">
+            <SpecimenDeliverablePreviewCallout />
             {showFirstRunStartOptions ? (
               <>
                 <ReviewsNewOwnEvidenceStart />
@@ -218,6 +220,7 @@ export function ReviewsNewPathSwitcher() {
             }}
             className="space-y-3"
           >
+            <SpecimenDeliverablePreviewCallout />
             <TabsList
               aria-label="Review creation path"
               data-testid="reviews-new-path-toggle"
