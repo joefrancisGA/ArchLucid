@@ -18,6 +18,7 @@ import {
 } from "@/lib/showcase-static-demo";
 
 import type { BuildArchitectureCreatedHomeModelInput } from "@/lib/architecture-created-home-model";
+import { deriveArchitectureGapBaselineFromSubmittedText } from "@/lib/derive-architecture-gap-baseline";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import {
   countFindingsBySeverity,
@@ -118,6 +119,9 @@ import {
 import { RunDetailBelowFoldSections } from "./RunDetailBelowFoldSections";
 import { resolveRunDetailSponsorBriefingSection } from "./RunDetailSponsorBriefingSection";
 import { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
+import { buildBuyerReviewPackageDispositionLine } from "@/lib/review-buyer-disposition-line";
+import { RunDetailActivitySourcesPanel } from "./RunDetailActivitySourcesPanel";
+import { analysisStagesCompleteOnSummary } from "./pipeline-complete-on-summary";
 import {
   RunDetailArchitectureGraphIsland,
   RunDetailPostCommitHabitIsland,
@@ -221,6 +225,25 @@ export function RunDetailPageView(props: {
       degradedFindingCoverage={m.resolvedDetail.degradedFindingCoverage === true}
       failedEngineLabels={findingCoverageSummary?.failedEngineLabels ?? []}
       findingCoverageSummary={findingCoverageSummary}
+    />
+  );
+
+  const createHomeActivityOutcomeCardsEl = (
+    <RunDetailOutcomeCardsDeferred
+      runId={m.resolvedDetail.run.runId}
+      manifestId={m.manifestId}
+      artifactCount={m.artifacts.length}
+      findingCountDisplay={m.findingCountDisplay}
+      warningCountDisplay={m.warningCountDisplay}
+      hasGoldenManifest={Boolean(m.manifestId)}
+      unresolvedIssueCountDisplay={m.manifestSummary?.unresolvedIssueCount ?? null}
+      aggregateRiskPosture={m.explanationSummary?.riskPosture ?? null}
+      governanceGateLabel={m.governanceGateLabel}
+      showcasePolicyPackStrip={showcasePolicyPackStrip}
+      degradedFindingCoverage={m.resolvedDetail.degradedFindingCoverage === true}
+      failedEngineLabels={findingCoverageSummary?.failedEngineLabels ?? []}
+      findingCoverageSummary={findingCoverageSummary}
+      hidePromotedStatus
     />
   );
 
@@ -429,6 +452,19 @@ export function RunDetailPageView(props: {
 
   const showArchitectureCreatedHome =
     props.fromArchitectureCreation === true && (m.manifestId ?? "").trim().length === 0;
+  const createHomeAnalysisStagesComplete = analysisStagesCompleteOnSummary(m.progressForPipelineUi);
+  const createHomePreFinalizeReadyToFinalize = showArchitectureCreatedHome && createHomeAnalysisStagesComplete;
+  const createHomeActivityStatusLine = buildBuyerReviewPackageDispositionLine({
+    hasGoldenManifest: Boolean(m.manifestId),
+    findingCountDisplay: m.findingCountDisplay,
+    warningCountDisplay: m.warningCountDisplay,
+    unresolvedIssueCountDisplay: m.manifestSummary?.unresolvedIssueCount ?? null,
+    governanceGateLabel: m.governanceGateLabel,
+    aggregateRiskPosture: m.explanationSummary?.riskPosture ?? null,
+  });
+  const createHomeActivityProvenanceAsOfLabel = formatInstantForLocale(
+    m.resolvedDetail.run.completedUtc ?? m.resolvedDetail.run.createdUtc,
+  );
   const lastEvaluatedUtc = deriveLastEvaluatedLabel(m.resolvedDetail.run, m.manifestSummary);
   const pendingDecisionCount = quickDecisionFindings.filter((finding) => {
     const status = humanReviewStatusDisplay(finding.humanReviewStatus);
@@ -704,18 +740,26 @@ export function RunDetailPageView(props: {
       />
     </Suspense>
   ) : null;
+  const derivedGapBaseline = deriveArchitectureGapBaselineFromSubmittedText(submittedArchitectureText);
+  const architectureCorrectionHref =
+    !m.manifestId
+      ? `/architecture/reviews/new?path=guided-intake&rerun=${encodeURIComponent(m.resolvedDetail.run.runId)}`
+      : null;
   const architectureCreatedBaseline: BuildArchitectureCreatedHomeModelInput = {
     runId: m.resolvedDetail.run.runId,
     architectureName: systemName ?? reviewDisplayTitle,
     architectureOverview: submittedArchitectureText ?? "",
-    businessOutcome: "",
-    peopleAndSystems: [],
+    businessOutcome: derivedGapBaseline.businessOutcome,
+    peopleAndSystems: derivedGapBaseline.peopleAndSystems,
     ownerLabel: deriveReviewOwnerLabel(m.resolvedDetail.run),
     lastUpdatedLabel:
       lastEvaluatedUtc !== null ? formatInstantForLocale(lastEvaluatedUtc) : "just now",
     workspaceStatus,
     assessmentInProgress: m.showProgressTracker,
     hasArtifacts: m.artifacts.length > 0,
+    correctionHref: architectureCorrectionHref,
+    gapAssertion: derivedGapBaseline.gapAssertion,
+    gapSourceCapturedAtUtc: null,
   };
 
   const runDetailBody = (
@@ -835,10 +879,28 @@ export function RunDetailPageView(props: {
                         </>
                       ),
                       activity: (
-                        <div className="space-y-4">
-{!m.manifestId && m.showProgressTracker ? (
+                        <div className="space-y-4" data-testid="run-detail-create-home-activity">
+                          <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+                            Assessment progress
+                          </h2>
+                          <p
+                            className={cn(
+                              "m-0 rounded-md border border-neutral-200 bg-al-surface-raised font-medium leading-snug dark:border-neutral-800 p-3",
+                              OPERATOR_TYPOGRAPHY.body,
+                            )}
+                            role="status"
+                            data-testid="run-detail-activity-status-headline"
+                          >
+                            {createHomeActivityStatusLine}
+                          </p>
+                          {!m.manifestId ? (
                             <div id="architecture-assessment-progress" className="scroll-mt-24">
-                              <RunDetailProgressTrackerDeferred runId={m.routeRunId} initialSummary={m.progressForPipelineUi} />
+                              <RunDetailProgressTrackerDeferred
+                                runId={m.routeRunId}
+                                initialSummary={m.progressForPipelineUi}
+                                preFinalizeReadyToFinalize={createHomePreFinalizeReadyToFinalize}
+                                buyerAssessmentCopy
+                              />
                             </div>
                           ) : null}
                           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
@@ -849,26 +911,18 @@ export function RunDetailPageView(props: {
                             >
                               Full provenance view
                             </Link>
+                            {createHomeActivityProvenanceAsOfLabel !== "—" ? (
+                              <span className="text-al-text-secondary"> (as of {createHomeActivityProvenanceAsOfLabel})</span>
+                            ) : null}
                           </p>
                           <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" open={false}>
-                            <summary className="cursor-pointer font-semibold">Technology baseline</summary>
-                            <div className="mt-3">
-                              <RunDetailTechnologyBaselineSection
-                                runId={m.resolvedDetail.run.runId}
-                                manifestFinalized={Boolean(m.manifestId)}
-                                buyerPolished={m.buyerPolishedArtifactTable ?? false}
-                                usedStaticDemoRun={m.usedStaticDemoRun}
-                                warningCountDisplay={m.warningCountDisplay ?? 0}
-                              />
-                            </div>
-                          </details>
-                          <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" open={false}>
-                            <summary className="cursor-pointer font-semibold">Detailed outcome cards</summary>
-                            <div className="mt-3">{outcomeCardsEl}</div>
+                            <summary className="cursor-pointer font-semibold">Outcome metrics and taxonomy</summary>
+                            <div className="mt-3">{createHomeActivityOutcomeCardsEl}</div>
                           </details>
                           <Suspense fallback={<RunDetailMidDeferredSkeleton />}>
-                            <RunDetailMidDeferredSections context={deferredContext} />
+                            <RunDetailMidDeferredSections context={deferredContext} includeSavingsSummary={false} />
                           </Suspense>
+                          <RunDetailActivitySourcesPanel />
                         </div>
                       ),
                       submittedArchitecture: (

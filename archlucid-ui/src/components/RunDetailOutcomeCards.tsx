@@ -48,6 +48,8 @@ type RunDetailOutcomeCardsProps = {
   readonly findingCoverageSummary?: components["schemas"]["RunFindingCoverageSummary"] | null;
   /** Buyer-polished strip only: prominent link to read-only pack detail (showcase demo). */
   readonly showcasePolicyPackStrip?: ShowcasePolicyPackStripLink | null;
+  /** When true, omit promoted status headline and disposition line (shown elsewhere). */
+  readonly hidePromotedStatus?: boolean;
 };
 
 /**
@@ -439,6 +441,7 @@ export function RunDetailOutcomeCards({
   degradedFindingCoverage = false,
   failedEngineLabels = [],
   findingCoverageSummary = null,
+  hidePromotedStatus = false,
 }: RunDetailOutcomeCardsProps) {
   const { approvalStatusLabel } = useStreamlinedPilotOutcomeLabels();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
@@ -463,7 +466,7 @@ export function RunDetailOutcomeCards({
     <div id="run-decision-summary" className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}>
       {coverageBanner}
       {dispositionPanel}
-      {statusHeadline !== null ? (
+      {!hidePromotedStatus && statusHeadline !== null ? (
         <div
           className={cn(
             "rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 shadow-sm",
@@ -517,6 +520,7 @@ export function RunDetailOutcomeCards({
           ) : null}
         </div>
       ) : null}
+      {!hidePromotedStatus ? (
       <p
         className={cn(
           "m-0 rounded-md border border-neutral-200 bg-al-surface-raised font-medium leading-snug dark:border-neutral-800",
@@ -535,6 +539,7 @@ export function RunDetailOutcomeCards({
           aggregateRiskPosture,
         })}
       </p>
+      ) : null}
       {typeof warningCountDisplay === "number" && warningCountDisplay > 0 ? (
         <details className={cn("mt-2 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           <summary className={cn("cursor-pointer font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>

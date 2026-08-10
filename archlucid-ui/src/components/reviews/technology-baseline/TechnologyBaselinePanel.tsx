@@ -27,6 +27,7 @@ import {
   technologyLedgerSourceLabel,
   technologyLedgerStatusTag,
 } from "@/lib/technology-ledger-labels";
+import { TechnologyBaselineRationaleDialog } from "@/components/reviews/technology-baseline/TechnologyBaselineRationaleDialog";
 import type { TechnologyLedgerEntry } from "@/types/technology-ledger";
 
 export type TechnologyBaselinePanelProps = {
@@ -52,6 +53,7 @@ export function TechnologyBaselinePanel({
     message: string;
     correlationId: string | null;
   } | null>(null);
+  const [rationaleDialogEntry, setRationaleDialogEntry] = useState<TechnologyLedgerEntry | null>(null);
 
   const sectionTitle = buyerPolished ? "Technology choices" : "Technology baseline";
 
@@ -181,15 +183,7 @@ export function TechnologyBaselinePanel({
             variant="outline"
             size="sm"
             disabled={busy}
-            onClick={() => {
-              const next = window.prompt("Rationale for this technology choice", entry.rationale ?? "");
-
-              if (next === null) {
-                return;
-              }
-
-              void runPatch(entry.entryId, { rationale: next.trim() });
-            }}
+            onClick={() => setRationaleDialogEntry(entry)}
           >
             Edit note
           </Button>
@@ -311,6 +305,26 @@ export function TechnologyBaselinePanel({
           variant="error"
         />
       ) : null}
+
+      <TechnologyBaselineRationaleDialog
+        open={rationaleDialogEntry !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setRationaleDialogEntry(null);
+          }
+        }}
+        initialRationale={rationaleDialogEntry?.rationale ?? ""}
+        busy={rationaleDialogEntry !== null && actionEntryId === rationaleDialogEntry.entryId}
+        onConfirm={(rationale) => {
+          if (rationaleDialogEntry === null) {
+            return;
+          }
+
+          void runPatch(rationaleDialogEntry.entryId, { rationale }).finally(() => {
+            setRationaleDialogEntry(null);
+          });
+        }}
+      />
     </div>
   );
 }

@@ -6,15 +6,17 @@ import type { RunDetailDeferredSectionContext } from "./run-detail-page-model";
 
 type RunDetailMidDeferredSectionsProps = {
   readonly context: RunDetailDeferredSectionContext;
+  readonly includeSavingsSummary?: boolean;
 };
 
 /** Streams compare banner and savings summary after critical run-detail chrome paints. */
 export async function RunDetailMidDeferredSections(
   props: RunDetailMidDeferredSectionsProps,
 ): Promise<React.JSX.Element | null> {
+  const includeSavingsSummary = props.includeSavingsSummary ?? true;
   const deferred = await loadRunDetailMidDeferredModel(props.context);
 
-  if (deferred.changesSinceLastReviewBanner === null && deferred.savingsSummary === null) {
+  if (deferred.changesSinceLastReviewBanner === null && (!includeSavingsSummary || deferred.savingsSummary === null)) {
     return null;
   }
 
@@ -28,7 +30,9 @@ export async function RunDetailMidDeferredSections(
           copy={deferred.changesSinceLastReviewBanner.copy}
         />
       ) : null}
-      {deferred.savingsSummary !== null ? <RunSavingsSummary model={deferred.savingsSummary} /> : null}
+      {includeSavingsSummary && deferred.savingsSummary !== null ? (
+        <RunSavingsSummary model={deferred.savingsSummary} />
+      ) : null}
     </>
   );
 }

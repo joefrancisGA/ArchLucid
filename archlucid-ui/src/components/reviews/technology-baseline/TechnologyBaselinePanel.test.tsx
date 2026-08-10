@@ -151,4 +151,67 @@ describe("TechnologyBaselinePanel", () => {
     expect(await screen.findByText("Locked row cannot change status.")).toBeInTheDocument();
     expect(screen.getByText("Azure SQL Database")).toBeInTheDocument();
   });
+
+  it("opens rationale dialog and PATCHes trimmed note on submit", async () => {
+    const chosen = sampleEntry({ status: "Chosen", source: "User", isLocked: true, rationale: "" });
+    mockGetTechnologyLedger.mockResolvedValue(listResponse([chosen]));
+    mockPatchTechnologyLedgerEntry.mockResolvedValue({
+      entry: { ...chosen, rationale: "Operator-approved datastore choice." },
+    });
+
+    render(
+      <TechnologyBaselinePanel
+        runId={runId}
+        manifestFinalized={true}
+        buyerPolished={false}
+        usedStaticDemoRun={false}
+        warningCountDisplay={0}
+      />,
+    );
+
+    await screen.findByRole("button", { name: "Edit note" });
+    fireEvent.click(screen.getByRole("button", { name: "Edit note" }));
+
+    expect(await screen.findByTestId("technology-baseline-rationale-dialog")).toBeInTheDocument();
+
+    const submit = screen.getByTestId("technology-baseline-rationale-submit");
+    expect(submit).toBeDisabled();
+
+    fireEvent.change(screen.getByTestId("technology-baseline-rationale-input"), {
+      target: { value: "Operator-approved datastore choice." },
+    });
+    expect(submit).not.toBeDisabled();
+
+    fireEvent.click(submit);
+
+    await waitFor(() => {
+      expect(mockPatchTechnologyLedgerEntry).toHaveBeenCalledWith(runId, "entry-assumed", {
+        rationale: "Operator-approved datastore choice.",
+      });
+    });
+  });
+
+  it("does not use window.prompt for rationale capture", async () => {
+    const chosen = sampleEntry({ status: "Chosen", source: "User", isLocked: true, rationale: "" });
+    mockGetTechnologyLedger.mockResolvedValue(listResponse([chosen]));
+    const promptSpy = vi.spyOn(window, "prompt");
+
+    render(
+      <TechnologyBaselinePanel
+        runId={runId}
+        manifestFinalized={true}
+        buyerPolished={false}
+        usedStaticDemoRun={false}
+        warningCountDisplay={0}
+      />,
+    );
+
+    await screen.findByRole("button", { name: "Edit note" });
+    fireEvent.click(screen.getByRole("button", { name: "Edit note" }));
+
+    expect(promptSpy).not.toHaveBeenCalled();
+    expect(await screen.findByTestId("technology-baseline-rationale-dialog")).toBeInTheDocument();
+
+    promptSpy.mockRestore();
+  });
 });
