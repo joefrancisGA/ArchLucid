@@ -1,4 +1,5 @@
 import { REVIEWS_NEW_PATH } from "@/lib/architecture-routes";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
@@ -15,7 +16,7 @@ export const PILOT_GUIDE_HELP_OVERVIEW =
 
 export const PILOT_GUIDE_HELP_PRIMARY_ACTIONS = {
   startReview: {
-    label: "Start an architecture review",
+    label: BUYER_START_ARCHITECTURE_REVIEW_CTA,
     href: REVIEWS_NEW_PATH,
   },
   firstArchitectureReview: {

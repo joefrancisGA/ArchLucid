@@ -97,6 +97,9 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
       "Prepare for a pilot, run the first architecture review, interpret outputs, report issues, and get help.",
     audience: "buyer",
     sourcePaths: ["docs/library/customer-facing/PILOT_GUIDE.md"],
+    lastReviewed: "2026-08-09",
+    releaseApplicability: "Applies to V1 GA — pilot preparation and first architecture review workflow",
+    pdfStatus: "public",
   },
   {
     slug: "prior-manifest-retrieval",
