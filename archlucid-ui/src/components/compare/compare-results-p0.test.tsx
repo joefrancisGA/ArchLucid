@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { CompareResultsPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareResultsPanel";
 import { CompareComparisonTrustBanner } from "@/components/compare/CompareComparisonTrustBanner";
 import { CompareVerdictSummary } from "@/components/compare/CompareVerdictSummary";
+import { SponsorLensCompareSummaryPanel } from "@/components/compare/SponsorLensCompareSummaryPanel";
 import type { GoldenManifestComparison } from "@/types/comparison";
 
 vi.mock("@/app/(operator)/insights/compare-two-reviews/_sections/useCompareGovernanceDiff", () => ({
@@ -66,6 +67,19 @@ describe("Compare verdict and trust banner", () => {
     expect(screen.getByTestId("compare-verdict-category-counts")).toHaveTextContent("Decisions");
     expect(screen.getByTestId("compare-top-change-highlight")).toHaveTextContent("Region changed for residency");
     expect(screen.getByTestId("compare-top-change-highlight")).toHaveTextContent("from structured comparison summary");
+  });
+
+  it("SponsorLensCompareSummaryPanel renders sponsor lens bullets above technical verdict", () => {
+    render(
+      <SponsorLensCompareSummaryPanel
+        golden={goldenWithDeltas}
+        executionModeHonesty={null}
+        governanceDiff={null}
+      />,
+    );
+
+    expect(screen.getByTestId("sponsor-lens-compare-summary")).toHaveTextContent("Sponsor lens");
+    expect(screen.getByTestId("sponsor-lens-compare-bullets")).toBeInTheDocument();
   });
 
   it("CompareComparisonTrustBanner keeps medium-severity governance caveat visible without expanding", () => {

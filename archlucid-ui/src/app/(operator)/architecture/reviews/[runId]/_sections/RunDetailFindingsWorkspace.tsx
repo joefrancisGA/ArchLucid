@@ -66,6 +66,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
     toolbar.ownerFilter,
     toolbar.domainFilter,
     toolbar.searchQuery,
+    toolbar.jobView,
   );
   const { visibleFindings: confidenceVisibleScoped, hiddenByConfidenceCount } = applyFindingsConfidenceVisibility(
     toolbarScopedFindings,
@@ -79,6 +80,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       toolbar.ownerFilter,
       toolbar.domainFilter,
       toolbar.searchQuery,
+      toolbar.jobView,
     ),
     showLowConfidence,
   );
@@ -150,6 +152,8 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       excludedSummaryLine={excludedSummaryLine}
       filter={toolbar.filter}
       onFilterChange={toolbar.setFilter}
+      jobView={toolbar.jobView}
+      onJobViewChange={toolbar.setJobView}
       ownerFilter={toolbar.ownerFilter}
       onOwnerFilterChange={toolbar.setOwnerFilter}
       domainFilter={toolbar.domainFilter}

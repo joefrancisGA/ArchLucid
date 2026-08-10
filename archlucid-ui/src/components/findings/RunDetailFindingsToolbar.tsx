@@ -9,6 +9,12 @@ import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatFindingsVisibilitySummaryLine } from "@/lib/finding-confidence-filter";
+import { FindingJobViewToggleBar } from "@/components/findings/FindingJobViewToggleBar";
+import {
+  DEFAULT_FINDING_JOB_VIEW,
+  filterReviewFindingsForJobView,
+  type FindingJobView,
+} from "@/lib/finding-job-view";
 import {
   humanReviewStatusDisplay,
   severityBadgeLabel,
@@ -40,6 +46,8 @@ export type RunDetailFindingsToolbarProps = {
   readonly excludedSummaryLine?: string | null;
   readonly filter: RunDetailFindingsFilterKind;
   readonly onFilterChange: (filter: RunDetailFindingsFilterKind) => void;
+  readonly jobView: FindingJobView;
+  readonly onJobViewChange: (jobView: FindingJobView) => void;
   readonly ownerFilter: string;
   readonly onOwnerFilterChange: (value: string) => void;
   readonly domainFilter: string;
@@ -67,8 +75,9 @@ const FILTER_OPTIONS: readonly { id: RunDetailFindingsFilterKind; label: string 
 export function countFindingsForToolbarFilter(
   findings: readonly QuickDecisionFinding[],
   filter: RunDetailFindingsFilterKind,
+  jobView: FindingJobView = DEFAULT_FINDING_JOB_VIEW,
 ): number {
-  return filterFindingsForToolbar(findings, filter, "", "", "").length;
+  return filterFindingsForToolbar(findings, filter, "", "", "", jobView).length;
 }
 
 export function filterFindingsForToolbar(
@@ -77,12 +86,14 @@ export function filterFindingsForToolbar(
   ownerFilter: string,
   domainFilter: string,
   searchQuery: string,
+  jobView: FindingJobView = DEFAULT_FINDING_JOB_VIEW,
 ): QuickDecisionFinding[] {
   const ownerNeedle = ownerFilter.trim().toLowerCase();
   const domainNeedle = domainFilter.trim().toLowerCase();
   const searchNeedle = searchQuery.trim().toLowerCase();
+  const jobScopedFindings = filterReviewFindingsForJobView(findings, jobView);
 
-  return findings.filter((finding) => {
+  return jobScopedFindings.filter((finding) => {
     if (finding.isMuted) {
       return false;
     }
@@ -227,9 +238,17 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
     props.toolbarFilteredCount ?? props.findings.length,
     props.hiddenByConfidenceCount ?? 0,
   );
+  const jobViewToggle = (
+    <FindingJobViewToggleBar
+      jobView={props.jobView}
+      onJobViewChange={props.onJobViewChange}
+      reviewFindings={props.findings}
+    />
+  );
+
   const filterChips = FILTER_OPTIONS.map((option) => {
     const active = props.filter === option.id;
-    const count = countFindingsForToolbarFilter(props.findings, option.id);
+    const count = countFindingsForToolbarFilter(props.findings, option.id, props.jobView);
 
     return (
       <button
@@ -342,6 +361,8 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
           </p>
         ) : null}
 
+        {jobViewToggle}
+
         <details
           className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
           data-workspace-disclosure
@@ -423,6 +444,7 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
           {visibilitySummaryLine}
         </p>
       ) : null}
+      {jobViewToggle}
       <div className="flex flex-wrap gap-1" role="group" aria-label="Finding severity and status filters">
         {filterChips}
       </div>
@@ -502,6 +524,8 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
 export function useRunDetailFindingsToolbarState(): {
   readonly filter: RunDetailFindingsFilterKind;
   readonly setFilter: (filter: RunDetailFindingsFilterKind) => void;
+  readonly jobView: FindingJobView;
+  readonly setJobView: (jobView: FindingJobView) => void;
   readonly ownerFilter: string;
   readonly setOwnerFilter: (value: string) => void;
   readonly domainFilter: string;
@@ -512,6 +536,7 @@ export function useRunDetailFindingsToolbarState(): {
   readonly setSort: (sort: RunDetailFindingsSortKind) => void;
 } {
   const [filter, setFilter] = useState<RunDetailFindingsFilterKind>("all");
+  const [jobView, setJobView] = useState<FindingJobView>(DEFAULT_FINDING_JOB_VIEW);
   const [ownerFilter, setOwnerFilter] = useState("");
   const [domainFilter, setDomainFilter] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -520,6 +545,8 @@ export function useRunDetailFindingsToolbarState(): {
   return {
     filter,
     setFilter,
+    jobView,
+    setJobView,
     ownerFilter,
     setOwnerFilter,
     domainFilter,

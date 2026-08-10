@@ -15,16 +15,23 @@ import { cn } from "@/lib/utils";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import type { GovernanceFindingsFilterPreset } from "@/components/governance/findings/governance-findings-filter-presets";
+import { FindingJobViewToggleBar } from "@/components/findings/FindingJobViewToggleBar";
+import {
+  type FindingJobView,
+} from "@/lib/finding-job-view";
 
 export type GovernanceFindingsFilterBarProps = {
   readonly registerFilter: RiskRegisterFilter;
   readonly onRegisterFilterChange: (filter: RiskRegisterFilter) => void;
+  readonly jobView: FindingJobView;
+  readonly onJobViewChange: (jobView: FindingJobView) => void;
   readonly savedPresets: readonly GovernanceFindingsFilterPreset[];
   readonly onSaveCurrentFilterAsPreset: () => void;
   readonly onRemovePreset: (id: string) => void;
   readonly groupByResource: boolean;
   readonly onToggleGroupByResource: () => void;
   readonly displayedRows: readonly GovernanceFindingQueueRow[];
+  readonly filterableRows: readonly GovernanceFindingQueueRow[];
 };
 
 function GovernanceFindingsFilterBarComponent(props: GovernanceFindingsFilterBarProps): ReactElement {
@@ -41,6 +48,11 @@ function GovernanceFindingsFilterBarComponent(props: GovernanceFindingsFilterBar
 
   return (
     <div className="space-y-2">
+      <FindingJobViewToggleBar
+        jobView={props.jobView}
+        onJobViewChange={props.onJobViewChange}
+        governanceRows={props.filterableRows}
+      />
       <div
         className="flex flex-wrap items-center gap-2"
         data-testid="architecture-risk-register-filters"

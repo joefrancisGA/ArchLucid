@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { ArchitectureDiagramProvenancePanel } from "@/components/architecture/ArchitectureDiagramProvenancePanel";
 import { ArchitectureDiagramEditor } from "@/components/architecture/ArchitectureDiagramEditor";
 import { ArchitectureDiagramInferredPanel } from "@/components/architecture/ArchitectureDiagramInferredPanel";
 import { ArchitectureDiagramLegend } from "@/components/architecture/ArchitectureDiagramLegend";
@@ -44,7 +45,8 @@ import {
   setArchitectureDiagramNodeOverrides,
   shouldRegenerateArchitectureDiagram,
 } from "@/lib/architecture-diagram-storage";
-import type { ArchitectureDiagramModel, ArchitectureDiagramNode } from "@/lib/architecture-diagram-types";
+import type { ArchitectureDiagramModel, ArchitectureDiagramNode, ArchitectureDiagramVersionSource } from "@/lib/architecture-diagram-types";
+import type { ArchitectureDiagramElementKind } from "@/lib/architecture-diagram-provenance";
 import type { ArchitectureCreationUserAssertions } from "@/lib/architecture-structured-content-types";
 import { downloadBrowserTextFile, safeGraphExportFilenameSegment } from "@/lib/graph-view-model-export";
 import { useDocumentDarkMode } from "@/lib/use-document-dark-mode";
@@ -78,6 +80,8 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
   const [copied, setCopied] = useState(false);
   const [storageWriteFailed, setStorageWriteFailed] = useState(false);
   const [liveModelSynced, setLiveModelSynced] = useState(true);
+  const [selectedElementKind, setSelectedElementKind] = useState<ArchitectureDiagramElementKind | null>(null);
+  const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
   const [, setCacheVersion] = useState(0);
   const autoStartedRef = useRef(false);
   const dark = useDocumentDarkMode();
@@ -87,6 +91,7 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
   const activeVersionId = cache?.activeVersionId ?? null;
   const activeVersion = getActiveArchitectureDiagramVersion(cache);
   const inferredReviewLocked = activeVersion?.source === "user-edit";
+  const diagramVersionSource: ArchitectureDiagramVersionSource | null = activeVersion?.source ?? null;
 
   // History restore keeps mermaidSource; live generated views re-derive for theme-aware classDefs.
   const displayMermaidSource = useMemo(() => {
@@ -409,7 +414,18 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
               onRetry={() => void runGeneration(false)}
             />
             {diagramModel !== null ? (
-              <div className="space-y-2">
+              <div className="space-y-3">
+                <ArchitectureDiagramProvenancePanel
+                  runId={props.runId}
+                  model={diagramModel}
+                  diagramVersionSource={diagramVersionSource}
+                  selectedKind={selectedElementKind}
+                  selectedId={selectedElementId}
+                  onSelect={(kind, id) => {
+                    setSelectedElementKind(kind);
+                    setSelectedElementId(id);
+                  }}
+                />
                 {inferredReviewLocked ? (
                   <p
                     className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}

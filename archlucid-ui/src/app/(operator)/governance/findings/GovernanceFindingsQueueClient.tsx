@@ -40,7 +40,11 @@ import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/Canoni
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import { secondaryViewFromGovernanceQueueRow } from "@/lib/canonical-object-home-registry";
 import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
-import { cn } from "@/lib/utils";
+import {
+  DEFAULT_FINDING_JOB_VIEW,
+  filterGovernanceRowsForJobView,
+  type FindingJobView,
+} from "@/lib/finding-job-view";
 
 export type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
 
@@ -49,6 +53,7 @@ export type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
  */
 export default function GovernanceFindingsQueueClient() {
   const [selectedFindingIds, setSelectedFindingIds] = useState<ReadonlySet<string>>(new Set());
+  const [jobView, setJobView] = useState<FindingJobView>(DEFAULT_FINDING_JOB_VIEW);
   const { rows, loading, loadFailed, refresh } = useGovernanceFindingsQuery();
   const {
     registerFilter,
@@ -62,14 +67,17 @@ export default function GovernanceFindingsQueueClient() {
   } = useGovernanceFindingsFilter();
 
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const scopedRows = useMemo(
+    () => rows.filter((row) => matchesGovernanceFindingsRunScope(row, scopedRunId)),
+    [rows, scopedRunId],
+  );
   const displayedRows = useMemo(
     () =>
-      rows.filter(
-        (row) =>
-          matchesGovernanceFindingsRunScope(row, scopedRunId) &&
-          matchesRiskRegisterFilter(row, registerFilter),
+      filterGovernanceRowsForJobView(
+        scopedRows.filter((row) => matchesRiskRegisterFilter(row, registerFilter)),
+        jobView,
       ),
-    [rows, registerFilter, scopedRunId],
+    [scopedRows, registerFilter, jobView],
   );
   const registerSummary = useMemo(() => computeArchitectureRiskRegisterSummary(rows), [rows]);
   const findingIds = useMemo(
@@ -186,12 +194,15 @@ export default function GovernanceFindingsQueueClient() {
           <GovernanceFindingsFilterBar
             registerFilter={registerFilter}
             onRegisterFilterChange={setRegisterFilter}
+            jobView={jobView}
+            onJobViewChange={setJobView}
             savedPresets={savedPresets}
             onSaveCurrentFilterAsPreset={saveCurrentFilterAsPreset}
             onRemovePreset={removePreset}
             groupByResource={groupByResource}
             onToggleGroupByResource={toggleGroupByResource}
             displayedRows={displayedRows}
+            filterableRows={scopedRows}
           />
         ) : null}
 

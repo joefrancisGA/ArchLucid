@@ -7,6 +7,7 @@ import { AiComparisonExplanationView } from "@/components/compare/AiComparisonEx
 import { CompareComparisonTrustBanner } from "@/components/compare/CompareComparisonTrustBanner";
 import { CompareRawManifestDiffSection } from "@/components/compare/CompareRawManifestDiffSection";
 import { CompareResultsSectionNav } from "@/components/compare/CompareResultsSectionNav";
+import { SponsorLensCompareSummaryPanel } from "@/components/compare/SponsorLensCompareSummaryPanel";
 import { CompareVerdictSummary } from "@/components/compare/CompareVerdictSummary";
 import { LegacyRunComparisonView } from "@/components/compare/LegacyRunComparisonView";
 import { StructuredComparisonView } from "@/components/compare/StructuredComparisonView";
@@ -177,6 +178,14 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
           executionModeHonesty={trustExecutionModeHonesty}
           usesCurrentEffectiveOnly={usesCurrentEffectiveOnly}
           hasAiNarrative={hasAiNarrative}
+        />
+      ) : null}
+
+      {showLoadedComparisonChrome ? (
+        <SponsorLensCompareSummaryPanel
+          golden={golden}
+          executionModeHonesty={trustExecutionModeHonesty}
+          governanceDiff={governanceDiffState.view}
         />
       ) : null}
 
