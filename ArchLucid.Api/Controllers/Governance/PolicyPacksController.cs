@@ -1,8 +1,10 @@
 using ArchLucid.Api.Attributes;
+using ArchLucid.Api.Http;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Validators;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Http;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
@@ -17,6 +19,7 @@ using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.AspNetCore.RateLimiting;
 
 using System.Text.Json;
@@ -516,8 +519,10 @@ public sealed class PolicyPacksController(
     ///     <c>GET …/governance-resolution</c>.
     /// </remarks>
     [HttpGet("effective")]
+    [OutputCache(PolicyName = "ImmutableShort")]
     [ProducesResponseType(typeof(EffectivePolicyPackSet), StatusCodes.Status200OK)]
-    public async Task<ActionResult<EffectivePolicyPackSet>> GetEffective(CancellationToken ct = default)
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
+    public async Task<IActionResult> GetEffective(CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
@@ -527,7 +532,14 @@ public sealed class PolicyPacksController(
             scope.ProjectId,
             ct);
 
-        return Ok(effective);
+        string fingerprint =
+            $"effective|tenant={scope.TenantId:N}|workspace={scope.WorkspaceId:N}|project={scope.ProjectId:N}";
+        string etag = ConditionalGetNegotiation.ComputeJsonResponseEtag(
+            effective,
+            ContractJson.CamelCaseIgnoreNullCompact,
+            fingerprint);
+
+        return this.OkWithConditionalEtag(effective, etag);
     }
 
     /// <summary>
@@ -540,8 +552,10 @@ public sealed class PolicyPacksController(
     ///     Used by alert/compliance/advisory code paths indirectly through the same loader in persistence services.
     /// </remarks>
     [HttpGet("effective-content")]
+    [OutputCache(PolicyName = "ImmutableShort")]
     [ProducesResponseType(typeof(PolicyPackContentDocument), StatusCodes.Status200OK)]
-    public async Task<ActionResult<PolicyPackContentDocument>> GetEffectiveContent(CancellationToken ct = default)
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
+    public async Task<IActionResult> GetEffectiveContent(CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
@@ -551,7 +565,14 @@ public sealed class PolicyPacksController(
             scope.ProjectId,
             ct);
 
-        return Ok(doc);
+        string fingerprint =
+            $"effective-content|tenant={scope.TenantId:N}|workspace={scope.WorkspaceId:N}|project={scope.ProjectId:N}";
+        string etag = ConditionalGetNegotiation.ComputeJsonResponseEtag(
+            doc,
+            ContractJson.CamelCaseIgnoreNullCompact,
+            fingerprint);
+
+        return this.OkWithConditionalEtag(doc, etag);
     }
 
     /// <summary>Bundled starter policy pack templates for the visual rule builder (flattened manifest).</summary>

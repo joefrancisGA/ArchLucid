@@ -21,30 +21,6 @@ import { buildArchitectureCreatedHomeModel } from "@/lib/architecture-created-ho
 import { deriveArchitectureGapBaselineFromSubmittedText } from "@/lib/derive-architecture-gap-baseline";
 import { deriveEvidencePresenceFromInventoryKinds } from "@/lib/evidence-gap-forecast";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
-import {
-  countFindingsBySeverity,
-  deriveArchitectureSystemName,
-  deriveBlockingApprovalCount,
-  deriveEvidenceCoverageSummary,
-  deriveExecutiveBottomLineContent,
-  deriveHighestFindingSeverityLabel,
-  derivePrimaryConcernFinding,
-  derivePrimaryConcernLabel,
-  deriveFinalizedAtUtc,
-  deriveLastEvaluatedLabel,
-  deriveOverallPostureLabel,
-  derivePackageVersionLabel,
-  deriveRecommendedWorkspaceActions,
-  deriveReviewDisplayTitle,
-  deriveReviewHeaderPresentation,
-  deriveReviewOwnerLabel,
-  deriveReviewStatusSummary,
-  deriveReviewTemplateLabel,
-  deriveRunDetailWorkspaceStatus,
-  deriveSubmittedArchitectureText,
-  formatDecisionSnapshotFindingsLine,
-  formatDecisionSnapshotGovernanceOutcome,
-} from "@/lib/run-detail-workspace-derive";
 import { deriveReviewDetailTabActivityAt } from "@/lib/review-detail-tab-activity";
 import { deriveRunDetailFindingsTriageCounts } from "@/lib/run-detail-findings-triage-counts";
 import {
@@ -150,10 +126,35 @@ function toDeferredSectionContext(model: RunDetailPageModel): RunDetailDeferredS
 }
 
 /** Server component: renders the main run detail chrome from a preloaded `RunDetailPageModel`. */
-export function RunDetailPageView(props: {
+export async function RunDetailPageView(props: {
   readonly model: RunDetailPageModel;
   readonly fromArchitectureCreation?: boolean;
-}): React.JSX.Element {
+}): Promise<React.JSX.Element> {
+  const {
+    countFindingsBySeverity,
+    deriveArchitectureSystemName,
+    deriveBlockingApprovalCount,
+    deriveEvidenceCoverageSummary,
+    deriveExecutiveBottomLineContent,
+    deriveHighestFindingSeverityLabel,
+    derivePrimaryConcernFinding,
+    derivePrimaryConcernLabel,
+    deriveFinalizedAtUtc,
+    deriveLastEvaluatedLabel,
+    deriveOverallPostureLabel,
+    derivePackageVersionLabel,
+    deriveRecommendedWorkspaceActions,
+    deriveReviewDisplayTitle,
+    deriveReviewHeaderPresentation,
+    deriveReviewOwnerLabel,
+    deriveReviewStatusSummary,
+    deriveReviewTemplateLabel,
+    deriveRunDetailWorkspaceStatus,
+    deriveSubmittedArchitectureText,
+    formatDecisionSnapshotFindingsLine,
+    formatDecisionSnapshotGovernanceOutcome,
+  } = await import("@/lib/run-detail-workspace-derive");
+
   const m = props.model;
   const deferredContext = toDeferredSectionContext(m);
   const runSummaryForBadge = m.progressForPipelineUi;

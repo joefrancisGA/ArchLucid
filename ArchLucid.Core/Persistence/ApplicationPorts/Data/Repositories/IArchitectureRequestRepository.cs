@@ -26,6 +26,14 @@ public interface IArchitectureRequestRepository
     Task<ArchitectureRequest?> GetByIdAsync(string requestId, CancellationToken cancellationToken = default);
 
     /// <summary>
+    ///     Batch lookup for list paths that would otherwise N× <see cref="GetByIdAsync" />.
+    ///     Missing ids are omitted from the result dictionary.
+    /// </summary>
+    Task<IReadOnlyDictionary<string, ArchitectureRequest>> ListByIdsAsync(
+        IReadOnlyCollection<string> requestIds,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     ///     Marks the request as archived.
     /// </summary>
     Task ArchiveAsync(string requestId, CancellationToken cancellationToken = default);

@@ -89,7 +89,9 @@ public sealed class DemoViewerController(
                 CreatedUtc = r.CreatedUtc,
                 CompletedUtc = r.CompletedUtc,
                 CurrentManifestVersion = r.CurrentManifestVersion,
-                SystemName = r.SystemName
+                SystemName = r.SystemName,
+                GoldenManifestId = r.GoldenManifestId,
+                HasGoldenManifest = r.GoldenManifestId.HasValue
             })
             .ToList();
 
@@ -108,7 +110,7 @@ public sealed class DemoViewerController(
 
         using IDisposable _ = AmbientScopeContext.Push(DemoScopes.BuildDemoScope());
 
-        ArchitectureRunDetail? detail = await _runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+        ArchitectureRunDetail? detail = await _runDetailQueryService.GetRunDetailForOperatorEnrichAsync(runId, cancellationToken);
 
         if (detail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found (or is out of scope).", ProblemTypes.RunNotFound);

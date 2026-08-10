@@ -1,3 +1,5 @@
+using ArchLucid.Core.Hosting;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -12,8 +14,12 @@ public sealed class PolicyPackCorpusStartupIndexerHostedService(
     PolicyPackCorpusIndexer indexer,
     IServiceScopeFactory scopeFactory,
     IOptionsMonitor<PolicyPackCorpusIndexerOptions> options,
+    ILeaderElectionWorkRunner electionWorkRunner,
     ILogger<PolicyPackCorpusStartupIndexerHostedService> logger) : BackgroundService
 {
+    /// <summary>Must stay aligned with <c>HostElectionLeaseNames.PolicyPackCorpusStartupIndexer</c>.</summary>
+    private const string LeaderLeaseName = "hosted:policy-pack-corpus-startup-indexer";
+
     private readonly PolicyPackCorpusIndexer _indexer =
         indexer ?? throw new ArgumentNullException(nameof(indexer));
 
@@ -23,10 +29,18 @@ public sealed class PolicyPackCorpusStartupIndexerHostedService(
     private readonly IOptionsMonitor<PolicyPackCorpusIndexerOptions> _options =
         options ?? throw new ArgumentNullException(nameof(options));
 
+    private readonly ILeaderElectionWorkRunner _electionWorkRunner =
+        electionWorkRunner ?? throw new ArgumentNullException(nameof(electionWorkRunner));
+
     private readonly ILogger<PolicyPackCorpusStartupIndexerHostedService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        return _electionWorkRunner.RunLeaderWorkAsync(LeaderLeaseName, IndexOnceAsync, stoppingToken);
+    }
+
+    private async Task IndexOnceAsync(CancellationToken leaderToken)
     {
         if (!_options.CurrentValue.IndexOnStartup)
             return;
@@ -34,7 +48,7 @@ public sealed class PolicyPackCorpusStartupIndexerHostedService(
         try
         {
             IReadOnlyList<Models.RetrievalDocument> documents =
-                await _indexer.BuildDocumentsAsync(stoppingToken).ConfigureAwait(false);
+                await _indexer.BuildDocumentsAsync(leaderToken).ConfigureAwait(false);
 
             if (documents.Count == 0)
             {
@@ -47,7 +61,7 @@ public sealed class PolicyPackCorpusStartupIndexerHostedService(
             using IServiceScope scope = _scopeFactory.CreateScope();
             IRetrievalIndexingService indexingService = scope.ServiceProvider.GetRequiredService<IRetrievalIndexingService>();
 
-            await indexingService.IndexDocumentsAsync(documents, stoppingToken).ConfigureAwait(false);
+            await indexingService.IndexDocumentsAsync(documents, leaderToken).ConfigureAwait(false);
 
             if (_logger.IsEnabled(LogLevel.Information))
                 _logger.LogInformation("Indexed {Count} policy-pack rule documents for retrieval.", documents.Count);

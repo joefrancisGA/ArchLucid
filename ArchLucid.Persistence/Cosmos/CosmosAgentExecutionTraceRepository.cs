@@ -190,17 +190,8 @@ public sealed class CosmosAgentExecutionTraceRepository(
         string runId,
         CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<AgentExecutionTrace> traces = await GetByRunIdAsync(scope, runId, cancellationToken);
-
-        return traces
-            .Select(static t => new AgentExecutionTraceLlmCostSlice
-            {
-                ModelDeploymentName = t.ModelDeploymentName,
-                InputTokenCount = t.InputTokenCount,
-                OutputTokenCount = t.OutputTokenCount,
-                ReasoningTokenCount = t.ReasoningTokenCount,
-            })
-            .ToList();
+        _ = scope;
+        return await QueryLlmCostSlicesByRunIdAsync(runId, cancellationToken);
     }
 
     public async Task<IReadOnlyDictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>>> GetLlmCostSlicesByRunIdsAsync(
@@ -538,6 +529,49 @@ public sealed class CosmosAgentExecutionTraceRepository(
             QualityRejected = trace.QualityRejected,
             BlobUploadFailed = trace.BlobUploadFailed,
         };
+    }
+
+    private async Task<IReadOnlyList<AgentExecutionTraceLlmCostSlice>> QueryLlmCostSlicesByRunIdAsync(
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        Container container = await _clientFactory.GetContainerAsync(ContainerId, cancellationToken);
+
+        QueryDefinition query = new QueryDefinition(
+                """
+                SELECT c.inputTokenCount, c.outputTokenCount, c.modelDeploymentName
+                FROM c
+                WHERE c.runId = @runId
+                """)
+            .WithParameter("@runId", runId);
+
+        using FeedIterator<AgentTraceLlmCostProjection> iterator =
+            container.GetItemQueryIterator<AgentTraceLlmCostProjection>(
+                query,
+                requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(runId) });
+
+        List<AgentExecutionTraceLlmCostSlice> slices = [];
+
+        while (iterator.HasMoreResults)
+        {
+            FeedResponse<AgentTraceLlmCostProjection> page = await iterator.ReadNextAsync(cancellationToken);
+
+            foreach (AgentTraceLlmCostProjection row in page.Resource)
+            {
+                slices.Add(
+                    new AgentExecutionTraceLlmCostSlice
+                    {
+                        ModelDeploymentName = row.ModelDeploymentName,
+                        InputTokenCount = row.InputTokenCount,
+                        OutputTokenCount = row.OutputTokenCount,
+                        ReasoningTokenCount = null,
+                    });
+            }
+        }
+
+        return slices;
     }
 
     private static AgentExecutionTraceSummary MapSummaryProjection(AgentTraceSummaryProjection row)

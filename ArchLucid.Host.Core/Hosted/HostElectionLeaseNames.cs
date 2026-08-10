@@ -84,4 +84,8 @@ public static class HostElectionLeaseNames
     public const string LlmTenantBudgetUtilizationMetrics = "hosted:llm-tenant-budget-utilization-metrics";
 
     public const string MarketingPricingQuoteAgingMetrics = "hosted:marketing-pricing-quote-aging-metrics";
+
+    public const string ExemplarCorpusStartupIndexer = "hosted:exemplar-corpus-startup-indexer";
+
+    public const string PolicyPackCorpusStartupIndexer = "hosted:policy-pack-corpus-startup-indexer";
 }

@@ -112,7 +112,7 @@ public sealed class RunQueryController(
                 return notModified;
         }
 
-        ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+        ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailForOperatorEnrichAsync(runId, cancellationToken);
 
         if (detail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
@@ -164,7 +164,7 @@ public sealed class RunQueryController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+        ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailForOperatorEnrichAsync(runId, cancellationToken);
 
         if (detail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
@@ -327,7 +327,7 @@ public sealed class RunQueryController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+        ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailForOperatorEnrichAsync(runId, cancellationToken);
 
         if (detail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);

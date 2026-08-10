@@ -3,7 +3,10 @@ using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Http;
+using ArchLucid.Application.Http;
 using ArchLucid.Application.Roi;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -51,10 +54,16 @@ public sealed class RoiController(
     [HttpGet("executive-summary")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(ExecutiveRoiSummaryResponse), StatusCodes.Status200OK)]
-    public async Task<ActionResult<ExecutiveRoiSummaryResponse>> GetExecutiveSummaryAsync(CancellationToken cancellationToken)
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
+    public async Task<IActionResult> GetExecutiveSummaryAsync(CancellationToken cancellationToken)
     {
         ExecutiveRoiSummaryResponse body = await _executiveRoiSummaryService.BuildAsync(cancellationToken).ConfigureAwait(false);
-        return Ok(body);
+        string etag = ConditionalGetNegotiation.ComputeJsonResponseEtag(
+            body,
+            ContractJson.CamelCaseIgnoreNullCompact,
+            "roi:executive-summary");
+
+        return this.OkWithConditionalEtag(body, etag);
     }
 
     /// <summary>One-page Markdown or PDF board pack derived from the executive ROI summary (no LLM).</summary>
@@ -119,20 +128,32 @@ public sealed class RoiController(
     [HttpGet("executive-summary/history")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(ExecutiveRoiHistoryResponse), StatusCodes.Status200OK)]
-    public async Task<ActionResult<ExecutiveRoiHistoryResponse>> GetExecutiveSummaryHistoryAsync(CancellationToken cancellationToken)
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
+    public async Task<IActionResult> GetExecutiveSummaryHistoryAsync(CancellationToken cancellationToken)
     {
         ExecutiveRoiHistoryResponse body = await _executiveRoiSummaryService.BuildHistoryAsync(cancellationToken).ConfigureAwait(false);
-        return Ok(body);
+        string etag = ConditionalGetNegotiation.ComputeJsonResponseEtag(
+            body,
+            ContractJson.CamelCaseIgnoreNullCompact,
+            "roi:executive-summary:history");
+
+        return this.OkWithConditionalEtag(body, etag);
     }
 
     /// <summary>Deduplicated finding export rows and environment savings slices.</summary>
     [HttpGet("executive-summary/export")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(ExecutiveRoiExportResponse), StatusCodes.Status200OK)]
-    public async Task<ActionResult<ExecutiveRoiExportResponse>> GetExecutiveSummaryExportAsync(CancellationToken cancellationToken)
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
+    public async Task<IActionResult> GetExecutiveSummaryExportAsync(CancellationToken cancellationToken)
     {
         ExecutiveRoiExportResponse body = await _executiveRoiSummaryService.BuildExportAsync(cancellationToken).ConfigureAwait(false);
-        return Ok(body);
+        string etag = ConditionalGetNegotiation.ComputeJsonResponseEtag(
+            body,
+            ContractJson.CamelCaseIgnoreNullCompact,
+            "roi:executive-summary:export");
+
+        return this.OkWithConditionalEtag(body, etag);
     }
 
     private static bool TryParseBoardPackFormat(string? format, out ExecutiveRoiBoardPackFormat parsedFormat)

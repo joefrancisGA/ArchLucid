@@ -113,6 +113,79 @@ public sealed class ArchitectureRequestRepository(IDbConnectionFactory connectio
                    "The stored JSON may be empty or corrupt.");
     }
 
+    public async Task<IReadOnlyDictionary<string, ArchitectureRequest>> ListByIdsAsync(
+        IReadOnlyCollection<string> requestIds,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(requestIds);
+
+        List<string> normalized = requestIds
+            .Where(static id => !string.IsNullOrWhiteSpace(id))
+            .Select(static id => id.Trim())
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+
+        if (normalized.Count == 0)
+            return new Dictionary<string, ArchitectureRequest>(StringComparer.Ordinal);
+
+        const string sql = """
+                           SELECT RequestId, RequestJson
+                           FROM ArchitectureRequests
+                           WHERE RequestId IN @RequestIds;
+                           """;
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<ArchitectureRequestIdRow> rows = await connection.QueryAsync<ArchitectureRequestIdRow>(
+            new CommandDefinition(sql, new { RequestIds = normalized }, cancellationToken: cancellationToken));
+
+        Dictionary<string, ArchitectureRequest> map = new(StringComparer.Ordinal);
+
+        foreach (ArchitectureRequestIdRow row in rows)
+        {
+            if (string.IsNullOrWhiteSpace(row.RequestJson))
+                continue;
+
+            ArchitectureRequest? request;
+
+            try
+            {
+                request = JsonSerializer.Deserialize<ArchitectureRequest>(row.RequestJson, ContractJson.Default);
+            }
+            catch (JsonException ex)
+            {
+                throw new InvalidOperationException(
+                    $"Request JSON for '{row.RequestId}' could not be deserialized. " +
+                    "The stored JSON may be corrupt or written by an incompatible schema version.",
+                    ex);
+            }
+
+            if (request is null)
+                throw new InvalidOperationException(
+                    $"Request JSON for '{row.RequestId}' deserialized to null. " +
+                    "The stored JSON may be empty or corrupt.");
+
+            map[row.RequestId] = request;
+        }
+
+        return map;
+    }
+
+    private sealed class ArchitectureRequestIdRow
+    {
+        public string RequestId
+        {
+            get;
+            init;
+        } = string.Empty;
+
+        public string RequestJson
+        {
+            get;
+            init;
+        } = string.Empty;
+    }
+
     public async Task ArchiveAsync(string requestId, CancellationToken cancellationToken = default)
     {
         const string sql = """

@@ -234,22 +234,28 @@ public sealed class ExecutiveRoiSummaryService(
         CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        List<FindingsSnapshot> snapshots = [];
+        List<Guid> snapshotIds = latestDetails
+            .Select(static detail => detail.Run.FindingsSnapshotId)
+            .Where(static id => id is Guid snapshotId && snapshotId != Guid.Empty)
+            .Select(static id => id!.Value)
+            .Distinct()
+            .ToList();
 
-        foreach (ArchitectureRunDetail detail in latestDetails)
-        {
-            Guid? snapshotId = detail.Run.FindingsSnapshotId;
+        FindingsSnapshot?[] snapshotSlots = snapshotIds.Count == 0
+            ? []
+            : await BoundedParallelMap.MapAsync(
+                snapshotIds,
+                RunDetailRoiFanOutMaxConcurrent,
+                async (snapshotId, ct) =>
+                    await _findingsSnapshotRepository
+                        .GetByIdAsync(scope, snapshotId, ct)
+                        .ConfigureAwait(false),
+                cancellationToken).ConfigureAwait(false);
 
-            if (snapshotId is null || snapshotId == Guid.Empty)
-                continue;
-
-            FindingsSnapshot? snapshot = await _findingsSnapshotRepository
-                .GetByIdAsync(scope, snapshotId.Value, cancellationToken)
-                .ConfigureAwait(false);
-
-            if (snapshot is not null)
-                snapshots.Add(snapshot);
-        }
+        List<FindingsSnapshot> snapshots = snapshotSlots
+            .Where(static snapshot => snapshot is not null)
+            .Select(static snapshot => snapshot!)
+            .ToList();
 
         DateTimeOffset since = TimeProvider.System.UtcNowDateTime().Subtract(FindingDispositionTrailWindow.BasisBreakdownLookback);
         IReadOnlyList<FindingReviewEventRecord> trailEvents =

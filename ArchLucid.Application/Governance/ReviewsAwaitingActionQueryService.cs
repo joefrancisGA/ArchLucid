@@ -1,6 +1,7 @@
 using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
@@ -38,39 +39,42 @@ public sealed class ReviewsAwaitingActionQueryService(
         IReadOnlyList<ArchLucid.Persistence.Models.RunRecord> runs =
             await _runRepository.ListRecentInScopeAsync(scope, MaxRows * 4, cancellationToken).ConfigureAwait(false);
 
+        List<ArchLucid.Persistence.Models.RunRecord> candidateRuns = runs
+            .Where(static run =>
+                !run.GoldenManifestId.HasValue
+                && string.Equals(
+                    run.LegacyRunStatus,
+                    nameof(ArchitectureRunStatus.ReadyForCommit),
+                    StringComparison.OrdinalIgnoreCase)
+                && !string.IsNullOrWhiteSpace(run.ArchitectureRequestId))
+            .ToList();
+
+        IReadOnlyDictionary<string, ArchitectureRequest> requestsById =
+            await _architectureRequestRepository
+                .ListByIdsAsync(
+                    candidateRuns.Select(static run => run.ArchitectureRequestId!).ToList(),
+                    cancellationToken)
+                .ConfigureAwait(false);
+
         List<GovernanceReviewAwaitingActionItem> items = [];
 
-        foreach (ArchLucid.Persistence.Models.RunRecord run in runs.OrderByDescending(r => r.CompletedUtc ?? r.CreatedUtc))
+        foreach (ArchLucid.Persistence.Models.RunRecord run in candidateRuns.OrderByDescending(r => r.CompletedUtc ?? r.CreatedUtc))
         {
             if (items.Count >= MaxRows)
                 break;
 
-            if (run.GoldenManifestId.HasValue)
-                continue;
-
-            if (!string.Equals(
-                    run.LegacyRunStatus,
-                    nameof(ArchitectureRunStatus.ReadyForCommit),
-                    StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            if (string.IsNullOrWhiteSpace(run.ArchitectureRequestId))
-                continue;
-
-            ArchLucid.Contracts.Requests.ArchitectureRequest? request =
-                await _architectureRequestRepository.GetByIdAsync(run.ArchitectureRequestId, cancellationToken)
-                    .ConfigureAwait(false);
+            ArchitectureRequest? request = requestsById.GetValueOrDefault(run.ArchitectureRequestId!);
 
             if (request is null)
                 continue;
 
             bool isRecurrence = string.Equals(request.RequestSource, "recurrence", StringComparison.OrdinalIgnoreCase)
-                                || run.ArchitectureRequestId.StartsWith("recurrence-", StringComparison.OrdinalIgnoreCase);
+                                || run.ArchitectureRequestId!.StartsWith("recurrence-", StringComparison.OrdinalIgnoreCase);
 
             if (!isRecurrence)
                 continue;
 
-            Guid? sourceRunId = TryParseSourceRunIdFromRequestId(run.ArchitectureRequestId);
+            Guid? sourceRunId = TryParseSourceRunIdFromRequestId(run.ArchitectureRequestId!);
             int newFindingCount = 0;
 
             if (sourceRunId.HasValue)
@@ -100,7 +104,7 @@ public sealed class ReviewsAwaitingActionQueryService(
                 new GovernanceReviewAwaitingActionItem
                 {
                     RunId = run.RunId,
-                    Name = string.IsNullOrWhiteSpace(run.Description) ? run.ArchitectureRequestId : run.Description.Trim(),
+                    Name = string.IsNullOrWhiteSpace(run.Description) ? run.ArchitectureRequestId! : run.Description.Trim(),
                     ExecutedUtc = run.CompletedUtc.HasValue
                         ? new DateTimeOffset(DateTime.SpecifyKind(run.CompletedUtc.Value, DateTimeKind.Utc))
                         : null,

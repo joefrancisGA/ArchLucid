@@ -43,6 +43,33 @@ public sealed class InMemoryArchitectureRequestRepository : IArchitectureRequest
     }
 
     /// <inheritdoc />
+    public Task<IReadOnlyDictionary<string, ArchitectureRequest>> ListByIdsAsync(
+        IReadOnlyCollection<string> requestIds,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(requestIds);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        Dictionary<string, ArchitectureRequest> map = new(StringComparer.Ordinal);
+
+        lock (_gate)
+        {
+            foreach (string requestId in requestIds)
+            {
+                if (string.IsNullOrWhiteSpace(requestId))
+                    continue;
+
+                string normalized = requestId.Trim();
+
+                if (_byId.TryGetValue(normalized, out ArchitectureRequest? request))
+                    map[normalized] = Clone(request);
+            }
+        }
+
+        return Task.FromResult<IReadOnlyDictionary<string, ArchitectureRequest>>(map);
+    }
+
+    /// <inheritdoc />
     public Task ArchiveAsync(string requestId, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
