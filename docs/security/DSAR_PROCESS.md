@@ -17,6 +17,7 @@
 - [AUDIT_RETENTION_POLICY.md](../library/AUDIT_RETENTION_POLICY.md) — audit data lifecycle
 - [CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) — data access patterns
 - [MULTI_TENANT_RLS.md](MULTI_TENANT_RLS.md) — row-level security and tenant isolation
+- [GDPR_ERASURE_VS_APPEND_ONLY_MAP.md](../library/GDPR_ERASURE_VS_APPEND_ONLY_MAP.md) — tenant hard purge vs per-user Art. 17 vs append-only sealed evidence (**TB-1470** / **M-265**)
 
 ---
 

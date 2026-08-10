@@ -5,7 +5,7 @@
 **Status:** Active (V1)  
 **Backlog:** **TB-1009** (this contract) · **TB-1010** (honesty CI anchors — open until shipped)  
 **Audience:** Security / compliance engineers, principal architects, procurement reviewers, coding agents  
-**Related:** [EVIDENCE_IMMUTABILITY.md](./EVIDENCE_IMMUTABILITY.md) (deep dive) · [ARCHITECTURE_INVARIANTS.md](./ARCHITECTURE_INVARIANTS.md) **INV-011** · [PUBLIC_CLAIM_BOUNDARY_GUIDE.md](./PUBLIC_CLAIM_BOUNDARY_GUIDE.md) (**M-160**) · [BUYER_SECURITY_PROCUREMENT_PACKET.md § M-161](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#append-only-sealed-evidence-m-161) · Done **TB-303** / **TB-307** / **TB-310** / **TB-311** · ADR [0039](../architecture/adrs/0039-commit-sealed-evidence-immutability.md) · ADR [0040](../architecture/adrs/0040-tamper-evident-lineage-without-worm-storage.md) · PA alias [APPEND_ONLY_SEALED_EVIDENCE_PA_ONE_PAGER.md](../go-to-market/APPEND_ONLY_SEALED_EVIDENCE_PA_ONE_PAGER.md)
+**Related:** [EVIDENCE_IMMUTABILITY.md](./EVIDENCE_IMMUTABILITY.md) (deep dive) · [ARCHITECTURE_INVARIANTS.md](./ARCHITECTURE_INVARIANTS.md) **INV-011** · [PUBLIC_CLAIM_BOUNDARY_GUIDE.md](./PUBLIC_CLAIM_BOUNDARY_GUIDE.md) (**M-160**) · [BUYER_SECURITY_PROCUREMENT_PACKET.md § M-161](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#append-only-sealed-evidence-m-161) · [GDPR_ERASURE_VS_APPEND_ONLY_MAP.md](./GDPR_ERASURE_VS_APPEND_ONLY_MAP.md) (**TB-1470** / **M-265**) · Done **TB-303** / **TB-307** / **TB-310** / **TB-311** · ADR [0039](../architecture/adrs/0039-commit-sealed-evidence-immutability.md) · ADR [0040](../architecture/adrs/0040-tamper-evident-lineage-without-worm-storage.md) · PA alias [APPEND_ONLY_SEALED_EVIDENCE_PA_ONE_PAGER.md](../go-to-market/APPEND_ONLY_SEALED_EVIDENCE_PA_ONE_PAGER.md)
 
 ---
 

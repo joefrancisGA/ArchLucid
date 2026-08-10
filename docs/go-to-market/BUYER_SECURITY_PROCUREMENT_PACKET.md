@@ -2749,7 +2749,7 @@ Do not sell sealed evidence as undeletable after offboard, “complete erasure i
 
 ### Residuals (honest)
 
-- **TB-1470** / **TB-1471** own the plane map and language guards.
+- **TB-1470** **Done** (2026-08-10) — plane map published; **TB-1471** owns honesty CI guards.
 - Complements **M-160** / **M-161**; does not reopen Done **TB-303** / **TB-071**.
 - Full map: [`../library/GDPR_ERASURE_VS_APPEND_ONLY_MAP.md`](../library/GDPR_ERASURE_VS_APPEND_ONLY_MAP.md).
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.

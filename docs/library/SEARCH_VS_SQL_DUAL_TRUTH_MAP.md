@@ -87,7 +87,7 @@ Safe pin: Search is a **second store**, not a second **source of truth**. Commit
 | Open **TB-1001** / **M-152** | Retrieval tenancy guarantee (shared index + `$filter`) |
 | Open **TB-1011** / **M-162** | Finalize vs outbox; committed ≠ indexed |
 | Open **TB-1013** / **M-164** | Read-after-write / Ask-Search lag disclosure |
-| Open **TB-1470** / **M-265** | GDPR / Search residual |
+| Open **TB-1471** / **M-265** | GDPR / Search residual honesty CI |
 | **TB-1514** / **M-277** | This dual-truth / rebuild / review-window map |
 
 ---

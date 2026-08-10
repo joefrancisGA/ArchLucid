@@ -4,7 +4,10 @@
 
 **Audience:** Engineering, privacy counsel, principal-architect diligence. Not a buyer brochure.
 
-**Status:** Working contract for **TB-1470** / GTM **M-265**. Pair honesty CI **TB-1471** / **M-265**.
+**Status:** **Done** (**TB-1470**, 2026-08-10). GTM **M-265** / **M-266**. Pair honesty CI **TB-1471** / **M-265**.
+
+**Buyer / PA one-pager:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#gdpr-erasure-vs-append-only-m-266`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#gdpr-erasure-vs-append-only-m-266) (GTM **M-266**).  
+**Claim honesty:** [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) (GTM **M-265**).
 
 **Verdict (one line):** Append-only sealed evidence and “we delete your data” are **not contradictory** when scoped correctly — **sealed during tenant life** (app principal cannot UPDATE/DELETE) vs **lifecycle hard purge after admin-approved erasure**. They **are** contradictory if either claim is absolute (“immutable forever” or “every copy including Search/backups/telemetry gone on day one”).
 
@@ -25,20 +28,22 @@ Fully **automated** quarantine→purge product pipeline remains **V2** ([`V1_DEF
 
 Orchestration: `TenantDeletionService` → (1) blob prefixes → (2) `ITenantHardPurgeService` → (3) platform audit `TenantDataDeleted` (counts JSON; **survives** tenant SQL purge).
 
-| Plane | Deleted on admin-approved hard purge? | Notes |
-|-------|----------------------------------------|-------|
-| **SQL — runs / manifests / snapshots / agent tasks** | **Yes** | Including `GoldenManifests`, artifact bundles, runs, comparison records (`SqlTenantHardPurgeService`) |
-| **SQL — allowlisted tenant-scoped tables** | **Yes** | Billing, alerts, advisory schedules, policy packs, usage, etc. (frozen allowlist) |
-| **SQL — `AuditEvents` (tenant-scoped)** | **Yes** (offboarding flag) | App-role `DENY UPDATE/DELETE` does **not** apply to elevated/lifecycle purge principal |
-| **SQL — `Tenants` / projects / workspaces** | **Yes** | After dependents |
-| **Blob — tenant prefixes** | **Yes** | `golden-manifests`, `artifact-bundles`, `agent-traces` under tenant segment |
-| **Blob — content-addressed `artifact-contents`** | **No** (by design) | Shared dedup container; skipped so other tenants’ hashes stay |
-| **Platform audit** | **No** | `TenantDataDeleted` (+ metadata) remains for controller accountability |
-| **Azure AI Search index** | **Not in purge orchestration** | Client has scoped `RemoveChunksForDocumentAsync` only; **no** tenant-wide delete step in `TenantDeletionService` — residual risk until closed |
-| **Backups / PITR / geo-replicas** | **No (immediate)** | Expire per retention; DPA ~90-day delete window after termination except legal hold / backups |
-| **App Insights / AOAI provider logs / subprocessors** | **No (product purge)** | Disclose; subprocessors register + DPA |
+| Plane | Deleted on admin-approved hard purge? | Code anchor | Notes |
+|-------|----------------------------------------|-------------|-------|
+| **SQL — runs / manifests / snapshots / agent tasks** | **Yes** | `SqlTenantHardPurgeService` (`GoldenManifests`, `ArtifactBundles`, `Runs`, …) | Including `GoldenManifests`, artifact bundles, comparison records |
+| **SQL — allowlisted tenant-scoped tables** | **Yes** | `AllowedTenantScopedPurgeTables` in `SqlTenantHardPurgeService` | Billing, alerts, advisory schedules, policy packs, usage, etc. (frozen allowlist) |
+| **SQL — `AuditEvents` (tenant-scoped)** | **Yes** (offboarding flag) | `SqlTenantHardPurgeService` when `DeleteTenantScopedAuditEvents` | App-role `DENY UPDATE/DELETE` does **not** apply to elevated/lifecycle purge principal |
+| **SQL — `Tenants` / projects / workspaces** | **Yes** | `SqlTenantHardPurgeService` | After dependents |
+| **Blob — tenant prefixes** | **Yes** | `TenantBlobPrefixDeletionService` (`golden-manifests`, `artifact-bundles`, `agent-traces`) | Under tenant segment |
+| **Blob — content-addressed `artifact-contents`** | **No** (by design) | `TenantBlobPrefixDeletionService` class doc | Shared dedup container; skipped so other tenants’ hashes stay |
+| **Platform audit** | **No** | `TenantDeletionService` → `PlatformAuditRepository.AppendAsync` (`TenantDataDeleted`) | Controller accountability |
+| **Azure AI Search index** | **Not in purge orchestration** | `IVectorIndex.RemoveChunksForDocumentAsync` exists; **not** called from `TenantDeletionService` | Residual risk until tenant-wide Search purge is wired |
+| **Backups / PITR / geo-replicas** | **No (immediate)** | Azure ops / DPA | Expire per retention; DPA ~90-day delete window after termination except legal hold / backups |
+| **App Insights / AOAI provider logs / subprocessors** | **No (product purge)** | Subprocessor register + DPA | Disclose; not product-orchestrated |
 
 “Committed / sealed golden manifests” means **immutable while the tenant is live**, not **eternal retention after offboard**. Hard purge deletes those SQL rows and tenant-prefixed blobs.
+
+**Gate:** `TenantDeletionService` requires `TenantErasureApprovedUtc` before purge (`InvalidOperationException` otherwise).
 
 ---
 
@@ -71,3 +76,16 @@ Orchestration: `TenantDeletionService` → (1) blob prefixes → (2) `ITenantHar
 1. **Document** Search residual (this file) until a tenant-scoped Search purge is wired into `TenantDeletionService` (or explicitly deferred with buyer-visible honesty).
 2. **Honesty CI** — fail “append-only forever” and “complete erasure including Search/backups” without caveats (**TB-1471**).
 3. Keep **per-user DSAR** vs **tenant hard purge** language separate in trust center and PA one-pager (**M-266**).
+
+---
+
+## 6. Code entry points (verification)
+
+| Concern | Primary file |
+|---------|--------------|
+| Hard-purge orchestration + platform receipt | `ArchLucid.Application/Tenancy/TenantDeletionService.cs` |
+| SQL delete order + `GoldenManifests` / `AuditEvents` | `ArchLucid.Persistence/Tenancy/SqlTenantHardPurgeService.cs` |
+| Blob prefix delete + `artifact-contents` skip | `ArchLucid.Persistence/BlobStore/TenantBlobPrefixDeletionService.cs` |
+| Offboarding audit flag default | `ArchLucid.Core/Tenancy/TenantHardPurgeOptions.cs` |
+| Per-document Search chunk remove (not tenant purge) | `ArchLucid.Retrieval/Indexing/IVectorIndex.cs` |
+| Automated eligible purge worker | `ArchLucid.Host.Core/Hosted/TenantErasureEligiblePurgeBackgroundWork.cs` |
