@@ -29,6 +29,7 @@ import {
   ARCHITECTURE_DIAGRAM_RETRY_ACTION,
   ARCHITECTURE_DIAGRAM_SECTION_HEADING,
   ARCHITECTURE_DIAGRAM_STORAGE_WRITE_FAILURE,
+  ARCHITECTURE_DIAGRAM_MERMAID_SOURCE_DISCLOSURE,
   ARCHITECTURE_DIAGRAM_VIEW_MERMAID_ACTION,
 } from "@/lib/architecture-diagram-copy";
 import { generateArchitectureDiagramAsync } from "@/lib/architecture-diagram-generate";
@@ -440,14 +441,21 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
               <summary className={cn("cursor-pointer px-1 py-2 font-medium text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
                 {ARCHITECTURE_DIAGRAM_VIEW_MERMAID_ACTION}
               </summary>
-              <pre className="mt-2 max-h-48 overflow-auto rounded-md bg-neutral-50 p-3 text-xs dark:bg-neutral-900">{mermaidSource}</pre>
+              <div className="mt-2 space-y-2">
+                <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  {ARCHITECTURE_DIAGRAM_MERMAID_SOURCE_DISCLOSURE}
+                </p>
+                <pre className="max-h-48 overflow-auto rounded-md bg-neutral-50 p-3 text-xs dark:bg-neutral-900">{mermaidSource}</pre>
+                <div className="flex flex-wrap gap-2">
+                  <Button type="button" variant="outline" size="sm" onClick={() => void copyMermaid()}>
+                    {copied ? "Copied" : ARCHITECTURE_DIAGRAM_COPY_MERMAID_ACTION}
+                  </Button>
+                  <Button type="button" variant="outline" size="sm" onClick={downloadMermaid}>
+                    {ARCHITECTURE_DIAGRAM_DOWNLOAD_ACTION}
+                  </Button>
+                </div>
+              </div>
             </details>
-            <Button type="button" variant="outline" size="sm" onClick={() => void copyMermaid()}>
-              {copied ? "Copied" : ARCHITECTURE_DIAGRAM_COPY_MERMAID_ACTION}
-            </Button>
-            <Button type="button" variant="outline" size="sm" onClick={downloadMermaid}>
-              {ARCHITECTURE_DIAGRAM_DOWNLOAD_ACTION}
-            </Button>
           </div>
         </>
       ) : null}

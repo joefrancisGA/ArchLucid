@@ -10,9 +10,12 @@ vi.mock("@/components/architecture/ArchitectureDiagramViewer", () => ({
 import { ArchitectureDiagramPanel } from "@/components/architecture/ArchitectureDiagramPanel";
 import {
   ARCHITECTURE_DIAGRAM_ADD_DETAILS_ACTION,
+  ARCHITECTURE_DIAGRAM_COPY_MERMAID_ACTION,
+  ARCHITECTURE_DIAGRAM_DOWNLOAD_ACTION,
   ARCHITECTURE_DIAGRAM_DRAFT_STATUS_LABEL,
   ARCHITECTURE_DIAGRAM_RENDER_FAILURE,
   ARCHITECTURE_DIAGRAM_RETRY_ACTION,
+  ARCHITECTURE_DIAGRAM_VIEW_MERMAID_ACTION,
 } from "@/lib/architecture-diagram-copy";
 import * as generateModule from "@/lib/architecture-diagram-generate";
 
@@ -156,6 +159,31 @@ describe("ArchitectureDiagramPanel", () => {
     });
 
     expect(screen.queryByRole("button", { name: "Edit diagram" })).not.toBeInTheDocument();
+  });
+
+  it("gates Mermaid source copy and download behind disclosure by default (TB-1844)", async () => {
+    render(
+      <ArchitectureDiagramPanel
+        runId="run-mermaid-disclosure"
+        architectureName="Claims platform"
+        sourceText={sufficientSource}
+        userAssertions={assertions}
+        canEdit
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-diagram-mermaid-source")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText(ARCHITECTURE_DIAGRAM_VIEW_MERMAID_ACTION)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: ARCHITECTURE_DIAGRAM_COPY_MERMAID_ACTION, hidden: true })).not.toBeVisible();
+    expect(screen.getByRole("button", { name: ARCHITECTURE_DIAGRAM_DOWNLOAD_ACTION, hidden: true })).not.toBeVisible();
+
+    fireEvent.click(screen.getByText(ARCHITECTURE_DIAGRAM_VIEW_MERMAID_ACTION));
+
+    expect(screen.getByRole("button", { name: ARCHITECTURE_DIAGRAM_COPY_MERMAID_ACTION })).toBeVisible();
+    expect(screen.getByRole("button", { name: ARCHITECTURE_DIAGRAM_DOWNLOAD_ACTION })).toBeVisible();
   });
 
   it("reports unconfirmed inferred count changes", async () => {
