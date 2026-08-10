@@ -599,7 +599,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | Create-home Governance (`archTab=governance`) | **TB-1856**–**TB-1860** **Done** | Create-home-only traffic notes, Sources + density + Vitest shipped 2026-08-02; traffic **REG**; residual twin-SoT pairs **TB-1831** |
 | Create-home Overview (`archTab=overview`) | **TB-1861**–**TB-1865** (open **V1**) | Traffic honesty; run-scoped CTA; Still needed dedupe; empty orientation; Vitest; ~55/100; traffic **REO**; pairs **TB-1831**/**TB-1837** |
 | Templates and imports (`/reviews/new?path=detailed`) | **TB-1866**–**TB-1870** (open **V1**) | Traffic naming; URL `path` sync; wizard density; chrome; Vitest; ~48/100; traffic **REN**; sibling **REQ** |
-| Quick start (`/reviews/new?path=quick-review`) | **TB-1871**–**TB-1875** (open **V1**) | Traffic naming; URL sync with **TB-1867**; retire dual wizard; Card density; Vitest; ~58/100; traffic **REQ**; sibling **REN** |
+| Quick start (`/reviews/new?path=quick-review`) | **TB-1873**–**TB-1875** (open **V1**); **TB-1871**/**TB-1872** **Done** 2026-08-10 | Retire dual wizard; Card density; Vitest; ~58/100; traffic **REQ**; sibling **REN** |
 | Guided intake (`/reviews/new?path=guided-intake`) | **TB-1876**–**TB-1880** (open **V1**) | Traffic naming; URL sync with **TB-1867**; jargon purge; density; Vitest; ~56/100; traffic **ENE**; siblings **REN**/**REQ** |
 | TB-1848 | Create-home Evidence — cross-link Diagram as supporting evidence | Adoption friction P1 **V1** — with **TB-1846** |
 | TB-1849 | Evidence tab chrome — Capture/Add naming + card density | Adoption friction P1 **V1** — with **TB-1846** |
@@ -617,8 +617,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1868 | Detailed path — label/hint vs full-wizard density honesty | Adoption friction P1 **V1** — with **TB-1866** |
 | TB-1869 | Detailed path — nested page-container / dual-chrome cleanup | Adoption friction P1 **V1** — with **TB-1866** |
 | TB-1870 | Detailed path — Vitest URL sync + traffic honesty | Testability P2 **V1** — with **TB-1866** |
-| TB-1871 | Traffic honesty — `path=quick-review` is Quick start tab | Trustworthiness P1 **V1** — REQ ~58 |
-| TB-1872 | Quick start — execute URL `path` sync with **TB-1867** | Trustworthiness P1 **V1** — with **TB-1871** |
 | TB-1873 | Quick start vs legacy `QuickReviewWizard` dual-surface honesty | Maintainability P1 **V1** — with **TB-1871** |
 | TB-1874 | Quick start Card chrome / first-viewport density | Adoption friction P1 **V1** — with **TB-1871** |
 | TB-1875 | Quick start — Vitest URL sync + traffic honesty | Testability P2 **V1** — with **TB-1871** |

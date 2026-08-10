@@ -223,6 +223,33 @@ describe("ReviewsNewPathSwitcher (returning tenant)", () => {
     );
   });
 
+  it("syncs path=quick-review when the Quick start tab is selected (TB-1872)", async () => {
+    render(<ReviewsNewPathSwitcher />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("first-pilot-intake-wizard-stub")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByRole("tab", { name: "Guided questions" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("socratic-intake-wizard-stub")).toBeTruthy();
+    });
+
+    replace.mockClear();
+
+    fireEvent.click(screen.getByRole("tab", { name: "Quick start" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("first-pilot-intake-wizard-stub")).toBeTruthy();
+    });
+
+    expect(replace).toHaveBeenCalledWith(
+      "/architecture/reviews/new?path=quick-review",
+      expect.objectContaining({ scroll: false }),
+    );
+  });
+
   it("defaults to quick start when localStorage remembers guided-intake but the URL has no path query", async () => {
     window.localStorage.setItem("archlucid_reviews_new_path_v2", "full-guided");
     window.localStorage.setItem("archlucid_reviews_new_full_guided_sub_v1", "guided-intake");

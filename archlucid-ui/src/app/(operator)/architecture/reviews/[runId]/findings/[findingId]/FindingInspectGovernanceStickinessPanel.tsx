@@ -4,6 +4,8 @@ import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { DispositionExportImpactNotice } from "@/components/operator/DispositionExportImpactNotice";
 import {
   createRiskException,
   defaultRiskExceptionExpiresAtUtc,
@@ -54,6 +56,8 @@ type GovernanceBusyAction =
   | "revoke-waiver"
   | null;
 
+type PendingDispositionConfirm = "disposition" | "mark-remediated";
+
 export type FindingInspectGovernanceStickinessPanelProps = {
   readonly findingId: string;
   readonly runId: string;
@@ -97,6 +101,9 @@ export function FindingInspectGovernanceStickinessPanel({
   const [remediationOwnerError, setRemediationOwnerError] = useState<string | null>(null);
   const [waiverOwnerError, setWaiverOwnerError] = useState<string | null>(null);
   const [busyAction, setBusyAction] = useState<GovernanceBusyAction>(null);
+  const [pendingDispositionConfirm, setPendingDispositionConfirm] = useState<PendingDispositionConfirm | null>(
+    null,
+  );
 
   const reload = useCallback(async (): Promise<void> => {
     const [dispositions, waivers] = await Promise.all([
@@ -294,6 +301,8 @@ export function FindingInspectGovernanceStickinessPanel({
 
   const currentDisposition = latestDispositionLabel(history);
   const mutateDisabledTitle = canMutate ? undefined : enterpriseMutationControlDisabledTitle;
+  const pendingDispositionKind: FindingDispositionKind =
+    pendingDispositionConfirm === "mark-remediated" ? "Remediated" : disposition;
 
   return (
     <div className={cn("space-y-6 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950/40", OPERATOR_TYPOGRAPHY.body)}>
@@ -421,7 +430,9 @@ export function FindingInspectGovernanceStickinessPanel({
             variant="default"
             disabled={busyAction !== null || !canMutate}
             title={mutateDisabledTitle}
-            onClick={() => void submitDisposition()}
+            onClick={() => {
+              setPendingDispositionConfirm("disposition");
+            }}
             data-testid="finding-disposition-save"
             aria-busy={busyAction === "disposition"}
           >
@@ -433,7 +444,9 @@ export function FindingInspectGovernanceStickinessPanel({
             variant="outline"
             disabled={busyAction !== null || !canMutate}
             title={mutateDisabledTitle}
-            onClick={() => void submitExplicitRemediation()}
+            onClick={() => {
+              setPendingDispositionConfirm("mark-remediated");
+            }}
             data-testid="finding-mark-remediated"
             aria-busy={busyAction === "mark-remediated"}
           >
@@ -551,6 +564,40 @@ export function FindingInspectGovernanceStickinessPanel({
           </ul>
         </section>
       ) : null}
+
+      <ConfirmationDialog
+        open={pendingDispositionConfirm !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingDispositionConfirm(null);
+          }
+        }}
+        title="Confirm finding disposition"
+        description="Review export impact before recording this disposition on the audit trail."
+        confirmLabel="Record disposition"
+        variant="default"
+        busy={busyAction === "disposition" || busyAction === "mark-remediated"}
+        extraContent={
+          pendingDispositionConfirm !== null ? (
+            <DispositionExportImpactNotice disposition={pendingDispositionKind} className="mt-2" />
+          ) : null
+        }
+        onConfirm={() => {
+          if (pendingDispositionConfirm === "disposition") {
+            void submitDisposition().finally(() => {
+              setPendingDispositionConfirm(null);
+            });
+
+            return;
+          }
+
+          if (pendingDispositionConfirm === "mark-remediated") {
+            void submitExplicitRemediation().finally(() => {
+              setPendingDispositionConfirm(null);
+            });
+          }
+        }}
+      />
     </div>
   );
 }

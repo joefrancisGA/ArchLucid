@@ -11,6 +11,12 @@ export const REVIEWS_NEW_GUIDED_INTAKE_HREF = "/architecture/reviews/new?path=gu
 /** Deep link for templates / imports detailed wizard path. */
 export const REVIEWS_NEW_DETAILED_HREF = "/architecture/reviews/new?path=detailed" as const;
 
+/** Product tab label on `/architecture/reviews/new` path switcher (path query token: `quick-review`). */
+export const REVIEWS_NEW_QUICK_START_TAB_LABEL = "Quick start";
+
+/** URL path query token for the Quick start tab (product label: {@link REVIEWS_NEW_QUICK_START_TAB_LABEL}). */
+export const REVIEWS_NEW_QUICK_REVIEW_PATH_TOKEN = "quick-review";
+
 /** Deep link for quick-start first-review path. */
 export const REVIEWS_NEW_QUICK_REVIEW_HREF = "/architecture/reviews/new?path=quick-review" as const;
 

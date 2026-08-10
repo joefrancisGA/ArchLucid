@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { DispositionExportImpactNotice } from "@/components/operator/DispositionExportImpactNotice";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
@@ -191,6 +192,11 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
         confirmLabel="Apply disposition"
         variant="default"
         busy={busy}
+        extraContent={
+          pendingDisposition !== null ? (
+            <DispositionExportImpactNotice disposition={pendingDisposition} className="mt-2" />
+          ) : null
+        }
         reversibilityMutationId="governance_bulk_disposition"
         onConfirm={() => {
           if (pendingDisposition !== null) {

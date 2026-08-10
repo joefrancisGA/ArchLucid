@@ -14,6 +14,7 @@ import {
   REVIEWS_NEW_BACK_TO_QUICK_START_CTA,
   REVIEWS_NEW_GUIDED_QUESTIONS_LABEL,
   REVIEWS_NEW_PATH_HINTS,
+  REVIEWS_NEW_QUICK_START_TAB_LABEL,
 } from "@/lib/reviews-new-path-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
@@ -49,7 +50,7 @@ const NewRunWizardClient = dynamic(
 );
 
 const REVIEWS_NEW_PATH_TABS: readonly { id: ReviewsNewActivePath; label: string }[] = [
-  { id: "quick-review", label: "Quick start" },
+  { id: "quick-review", label: REVIEWS_NEW_QUICK_START_TAB_LABEL },
   { id: "guided-intake", label: REVIEWS_NEW_GUIDED_QUESTIONS_LABEL },
   { id: "detailed", label: "Templates and imports" },
 ] as const;

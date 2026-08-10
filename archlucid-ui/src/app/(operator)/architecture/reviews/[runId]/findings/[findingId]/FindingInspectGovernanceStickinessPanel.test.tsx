@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { FindingInspectGovernanceStickinessPanel } from "./FindingInspectGovernanceStickinessPanel";
@@ -41,9 +41,24 @@ describe("FindingInspectGovernanceStickinessPanel", () => {
     const dispositionSave = screen.getByTestId("finding-disposition-save");
     const markRemediated = screen.getByTestId("finding-mark-remediated");
 
-    expect(remediationSave.className).toContain("bg-neutral-900");
-    expect(dispositionSave.className).toContain("bg-neutral-900");
+    expect(remediationSave).toBeEnabled();
+    expect(dispositionSave).toBeEnabled();
     expect(markRemediated.className).not.toContain("bg-teal");
     expect(screen.getByLabelText(/Remediation owner/i)).toBeTruthy();
+  });
+
+  it("shows export impact before confirming a disposition (TB-2184)", () => {
+    render(
+      <FindingInspectGovernanceStickinessPanel
+        findingId="phi-minimization-risk"
+        runId="claims-intake-modernization"
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("finding-disposition-save"));
+
+    expect(screen.getByTestId("disposition-export-impact-notice-Accepted")).toBeInTheDocument();
+    expect(screen.getByTestId("disposition-export-impact-signed_review_record")).toBeInTheDocument();
+    expect(screen.getByTestId("disposition-export-impact-sponsor_packet")).toBeInTheDocument();
   });
 });
