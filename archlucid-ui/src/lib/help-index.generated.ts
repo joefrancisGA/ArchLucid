@@ -112,24 +112,17 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   },
   {
     "docPath": "docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md",
-    "docTitle": "Admin diagnostics",
-    "sectionSlug": "",
-    "sectionHeading": "Admin diagnostics — overview",
-    "excerpt": "Use these checks when a workspace symptom points to platform health rather than a single architecture review."
-  },
-  {
-    "docPath": "docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md",
-    "docTitle": "Admin diagnostics",
+    "docTitle": "OPERATOR_ADMIN_DIAGNOSTICS",
     "sectionSlug": "start-here",
     "sectionHeading": "Start here",
-    "excerpt": "1. Open [System health](/administration/system-health) in the workspace — live/ready checks and version identity. 2. On [Workspace Overview](/), expand Workspace readiness — per-area status and next actions. 3. Open Assistant readiness diagnostics on [Workspace Overview](/) when LLM or assistant features fail."
+    "excerpt": "1. Open [System health](/administration/system-health) in the workspace — live/ready checks and version identity. 2. On [Workspace overview](/), expand Workspace readiness — per-area status and next actions. 3. Open Assistant readiness diagnostics on [Workspace overview](/) when LLM or assistant features fail."
   },
   {
     "docPath": "docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md",
-    "docTitle": "Admin diagnostics",
+    "docTitle": "OPERATOR_ADMIN_DIAGNOSTICS",
     "sectionSlug": "related-help-topics",
     "sectionHeading": "Related Help topics",
-    "excerpt": "- [Troubleshooting](/help/troubleshooting) — symptom-first fixes for review and workspace issues. - [Report a problem](/help/report-a-problem) — structured support intake with correlation identifiers. - [CLI usage](/help/cli-usage) — Admin-only Help topic; also Help drawer Advanced diagnostics."
+    "excerpt": "- [Troubleshooting](/help/troubleshooting) — symptom-first fixes for review and workspace issues."
   },
   {
     "docPath": "docs/library/CONFIGURATION_REFERENCE.md",
@@ -2166,7 +2159,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "pa-review-24",
     "sectionHeading": "PA review",
-    "excerpt": "1. Ask which “decide-once” the buyer means — tenant, quality gate, or architecture commit. 2. Confirm committed â‰ evidence-grounded / no-overlay / crypto-isolated. 3. Confirm triad is not sold as closed while TB-1416 / honesty CI (TB-1000 / TB-1004) / TB-1232 remain open (tenant TB-999 and committed-manifest TB-100…"
+    "excerpt": "1. Ask which “decide-once” the buyer means — tenant, quality gate, or architecture commit. 2. Confirm committed â‰ evidence-grounded / no-overlay / crypto-isolated. 3. Confirm triad is not sold as closed while honesty CI (TB-1000 / TB-1004 / TB-1417) or residual slice owners remain open (tenant TB-999, committed-man…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2180,7 +2173,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "residuals-honest-40",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1416 / TB-1417 own the fused matrix contract and language guards. - Ship-order hint: fused triad matrix TB-1416 next among residual contracts (TB-999 / TB-1003 Done). - Complements M-150 / M-154 / M-194 / M-203 / M-207 / M-213 / M-198 / M-247. - This handout does not claim CPA SOC 2 or a published third-party p…"
+    "excerpt": "- TB-1416 Done — fused matrix: [`INV001_DECIDE_ONCE_COMMITTED_MANIFEST_PA_TRIAD_CHALLENGE_MATRIX.md`](../library/INV001_DECIDE_ONCE_COMMITTED_MANIFEST_PA_TRIAD_CHALLENGE_MATRIX.md). - TB-1417 Open — anti triad-conflation / triad-closed honesty CI (GTM M-253). - Ship-order hint among open honesty: TB-1000 + TB-1004, …"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2411,21 +2404,21 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "pa-review-29",
     "sectionHeading": "PA review",
-    "excerpt": "1. Ask which rung the buyer will open and whether Resources still says “Live demo.” 2. Confirm offline curated fallback is not narrated as a live API session. 3. Confirm Contoso payload is not under Claims chrome. 4. Treat “ladder done” while TB-1265 / TB-1267 / TB-1282 remain open as a review finding."
+    "excerpt": "1. Ask which rung the buyer will open and whether ladder UI labels the `/see-it` ↔ `/live-demo` relationship (TB-1267 / TB-1282). 2. Confirm offline curated fallback is not narrated as a live API session. 3. Confirm Contoso payload is not under Claims chrome. 4. Treat “ladder done” while TB-1267 / TB-1282 / TB-1029 …"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "claim-boundary-31",
     "sectionHeading": "Claim boundary",
-    "excerpt": "Do not sell `/live-demo` as a live product/tenant demo, treat offline curated fallback as a live API session, leave Resources “Live demo” competing with welcome `/see-it` without rung labels, or put Contoso preview under Claims chrome. Say see-it (rung 1) → guided fabricated sample walkthrough (rung 2, rename off Li…"
+    "excerpt": "Do not sell `/live-demo` as a live product/tenant demo, treat offline curated fallback as a live API session, present rungs 1–2 without ladder labels (TB-1267 / TB-1282), or put Contoso preview under Claims chrome. Say see-it (rung 1) → guided fabricated sample walkthrough (rung 2) → eval/enterprise CTA, with mode c…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "residuals-honest-45",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1427 / TB-1428 own the fused ladder contract and language guards. - Orchestrates TB-1265–TB-1269 / TB-1279–TB-1283 / TB-1028 without replacing those P0s. - Does not reopen Done M-107. - This handout does not claim CPA SOC 2 or a published third-party penetration test."
+    "excerpt": "- TB-1427 Done (2026-08-09) — fused ladder + claim-honesty contract published in [`../library/LIVE_DEMO_SEE_IT_LADDER_HONESTY.md`](../library/LIVE_DEMO_SEE_IT_LADDER_HONESTY.md). - TB-1428 owns anti-live-demo-as-live / ladder-closed language guards (depends on TB-1427). - UI ship remains on TB-1266–TB-1269 / TB-1281…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
