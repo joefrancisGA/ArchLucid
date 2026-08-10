@@ -18,6 +18,9 @@ import {
 } from "@/lib/api/aws-cloud-connections-api";
 import {
   AWS_CONNECTION_COLLECTION_FAILED_ERROR,
+  AWS_CONNECTION_DISCONNECT_FAILED_ERROR,
+  AWS_CONNECTION_LOAD_FAILED_ERROR,
+  AWS_CONNECTION_SAVE_FAILED_ERROR,
   formatAwsConnectionCollectionSuccessMessage,
 } from "@/lib/aws-cloud-connection-copy";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
@@ -66,7 +69,7 @@ export function AwsConnectionDataProvider(props: { readonly children: ReactNode 
         await refreshConnections();
       } catch (err) {
         console.error(err);
-        setLoadError("Could not load AWS connections. Check your permissions and try again.");
+        setLoadError(AWS_CONNECTION_LOAD_FAILED_ERROR);
       } finally {
         setIsLoading(false);
       }

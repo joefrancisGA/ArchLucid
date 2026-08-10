@@ -10,6 +10,10 @@ import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
 import { configureAwsTier2Connection, disconnectAwsTier2Connection } from "@/lib/api/aws-cloud-connections-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  AWS_CONNECTION_DISCONNECT_FAILED_ERROR,
+  AWS_CONNECTION_SAVE_FAILED_ERROR,
+} from "@/lib/aws-cloud-connection-copy";
 import { awsConnectionStatusTagKind, formatAwsConnectionTimestamp } from "@/lib/aws-connection-present";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 
@@ -79,7 +83,7 @@ export function AwsConnectionSection(props: { readonly embedded?: boolean }) {
       setRoleArn("");
     } catch (err) {
       console.error(err);
-      setFormError("Could not save the AWS connection. Verify the role ARN and try again.");
+      setFormError(AWS_CONNECTION_SAVE_FAILED_ERROR);
     } finally {
       setIsSaving(false);
     }
@@ -100,7 +104,7 @@ export function AwsConnectionSection(props: { readonly embedded?: boolean }) {
         setActionMessage("AWS connection removed.");
       } catch (err) {
         console.error(err);
-        setFormError("Could not disconnect the AWS connection.");
+        setFormError(AWS_CONNECTION_DISCONNECT_FAILED_ERROR);
       }
     },
     [canMutate, refreshConnections, setActionMessage, setFormError],

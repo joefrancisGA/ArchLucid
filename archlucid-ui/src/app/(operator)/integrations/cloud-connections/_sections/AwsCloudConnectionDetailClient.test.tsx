@@ -22,6 +22,7 @@ vi.mock("./CloudSecurityPreflightPanel", () => ({
 }));
 
 import { AwsCloudConnectionDetailClient } from "./AwsCloudConnectionDetailClient";
+import { AWS_CLOUD_CONNECTION_BANNED_COPY } from "@/lib/aws-cloud-connection-copy";
 
 describe("AwsCloudConnectionDetailClient", () => {
   it("mounts live Validate and Recent activity panels instead of static stubs (TB-1762)", () => {
@@ -30,5 +31,16 @@ describe("AwsCloudConnectionDetailClient", () => {
     expect(screen.getByTestId("aws-connection-validate-panel")).toBeInTheDocument();
     expect(screen.getByTestId("aws-connection-recent-activity-panel")).toBeInTheDocument();
     expect(screen.queryByText(/appear in Connection details after you save/i)).not.toBeInTheDocument();
+  });
+
+  it("does not surface Tier/hosted-poll jargon on the AWS product surface (TB-1763)", () => {
+    render(<AwsCloudConnectionDetailClient />);
+
+    const detail = screen.getByTestId("cloud-connection-detail-aws");
+    const text = detail.textContent ?? "";
+
+    for (const banned of AWS_CLOUD_CONNECTION_BANNED_COPY) {
+      expect(text.toLowerCase()).not.toContain(banned.toLowerCase());
+    }
   });
 });
