@@ -4,8 +4,15 @@ import { memo, useState, type ReactElement } from "react";
 
 import { GovernanceFindingsBulkActions } from "@/components/usability/GovernanceFindingsBulkActions";
 import { ReversibleMutationSuccessCallout } from "@/components/operator/ReversibleMutationSuccessCallout";
-import { GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE } from "@/lib/governance-mutation-outcome-copy";
+import { NewSinceLastVisitMarker } from "@/components/usability/NewSinceLastVisitMarker";
+import { resolveGovernanceQueueRowActivityAtUtc } from "@/lib/finding-activity-at-utc";
+import {
+  governanceQueueRowWatermarkKey,
+  isActivityNewSinceLastVisit,
+  markLastVisitedNow,
+} from "@/lib/usability/last-visited-watermark";
 import { BUYER_GOVERNANCE_FINDINGS_RISKS_SECTION_TITLE } from "@/lib/buyer-polish-copy";
+import { GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE } from "@/lib/governance-mutation-outcome-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -38,6 +45,18 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
   const [bulkDispositionUndo, setBulkDispositionUndo] = useState<(() => Promise<void>) | null>(null);
   const [bulkDispositionUndoBusy, setBulkDispositionUndoBusy] = useState(false);
 
+  function isGovernanceRowNewSinceLastVisit(row: GovernanceFindingQueueRow): boolean {
+    const activityAt = resolveGovernanceQueueRowActivityAtUtc(row.lastReviewedUtc, row.revisitDueUtc);
+
+    return isActivityNewSinceLastVisit(governanceQueueRowWatermarkKey(row.runId, row.findingId), activityAt);
+  }
+
+  function markGovernanceRowSeen(row: GovernanceFindingQueueRow): void {
+    const activityAt = resolveGovernanceQueueRowActivityAtUtc(row.lastReviewedUtc, row.revisitDueUtc);
+
+    markLastVisitedNow(governanceQueueRowWatermarkKey(row.runId, row.findingId), activityAt);
+  }
+
   if (buyerPolishedShell) {
     return (
       <div className="space-y-4">
@@ -56,6 +75,10 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
                   row={row}
                   buyerPolishedShell={buyerPolishedShell}
                   variant="buyer"
+                  showNewSinceLastVisit={isGovernanceRowNewSinceLastVisit(row)}
+                  onOpenRow={() => {
+                    markGovernanceRowSeen(row);
+                  }}
                 />
               ))}
             </div>
@@ -76,6 +99,10 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
                   row={row}
                   buyerPolishedShell={buyerPolishedShell}
                   variant="buyer"
+                  showNewSinceLastVisit={isGovernanceRowNewSinceLastVisit(row)}
+                  onOpenRow={() => {
+                    markGovernanceRowSeen(row);
+                  }}
                 />
               ))}
             </div>
@@ -141,6 +168,8 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
         groupByResource={groupByResource}
         selectedFindingIds={selectedFindingIds}
         onSelectionChange={onSelectionChange}
+        isRowNewSinceLastVisit={isGovernanceRowNewSinceLastVisit}
+        onRowOpened={markGovernanceRowSeen}
       />
 
       <div className="space-y-3 md:hidden" data-testid="governance-findings-queue-mobile">
@@ -150,6 +179,10 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
             row={row}
             buyerPolishedShell={buyerPolishedShell}
             variant="operational"
+            showNewSinceLastVisit={isGovernanceRowNewSinceLastVisit(row)}
+            onOpenRow={() => {
+              markGovernanceRowSeen(row);
+            }}
           />
         ))}
       </div>

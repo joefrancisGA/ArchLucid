@@ -4,8 +4,9 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { CSSProperties, ReactElement } from "react";
 
-import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
+import { NewSinceLastVisitMarker } from "@/components/usability/NewSinceLastVisitMarker";
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { FindingEvidenceLinkChip } from "@/components/usability/FindingEvidenceLinkChip";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -170,11 +171,23 @@ export type GovernanceFindingsQueueTableRowProps = {
   readonly onToggleRow?: (findingId: string) => void;
   readonly isFocused?: boolean;
   readonly style?: CSSProperties;
+  readonly showNewSinceLastVisit?: boolean;
+  readonly onOpenRow?: () => void;
 };
 
 /** Single governance findings queue row (flat list; supports virtualization). */
 export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTableRowProps): ReactElement {
-  const { row, buyerPolishedShell, hasBulkSelect, selectedFindingIds, onToggleRow, isFocused, style } = props;
+  const {
+    row,
+    buyerPolishedShell,
+    hasBulkSelect,
+    selectedFindingIds,
+    onToggleRow,
+    isFocused,
+    style,
+    showNewSinceLastVisit = false,
+    onOpenRow,
+  } = props;
   const graphHref = governanceQueueGraphEvidenceHref(row);
   const evidenceChipHref =
     graphHref ??
@@ -219,10 +232,18 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
             {formatGovernanceQueueRecordKind(row.recordKind, buyerPolishedShell)}
           </EnterpriseTableCell>
           <EnterpriseTableCell className="font-medium text-al-text-primary">
+            {showNewSinceLastVisit ? (
+              <span className="mr-2 inline-flex align-middle">
+                <NewSinceLastVisitMarker testId={`governance-table-row-new-${row.findingId}`} />
+              </span>
+            ) : null}
             <Link
               className={OPERATOR_LINK.inline}
               href={governanceFindingInspectHref(row.runId, row.findingId)}
               prefetch={false}
+              onClick={() => {
+                onOpenRow?.();
+              }}
             >
               {row.title}
             </Link>
@@ -280,7 +301,13 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
         {buyerPolishedShell ? (
           <div className="flex flex-col gap-2">
             <Button asChild variant="primary" size="sm" className="h-8">
-              <Link href={governanceFindingInspectHref(row.runId, row.findingId)} prefetch={false}>
+              <Link
+                href={governanceFindingInspectHref(row.runId, row.findingId)}
+                prefetch={false}
+                onClick={() => {
+                  onOpenRow?.();
+                }}
+              >
                 {row.recordKind === "decision" ? "View decision" : BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA}
               </Link>
             </Button>

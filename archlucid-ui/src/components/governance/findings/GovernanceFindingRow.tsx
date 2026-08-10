@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { memo, type ReactElement } from "react";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { NewSinceLastVisitMarker } from "@/components/usability/NewSinceLastVisitMarker";
 import { FindingPolicyTraceabilityBadges } from "@/components/FindingPolicyTraceabilityBadges";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -34,12 +35,16 @@ export type GovernanceFindingRowProps = {
   readonly row: GovernanceFindingQueueRow;
   readonly buyerPolishedShell: boolean;
   readonly variant: "buyer" | "operational";
+  readonly showNewSinceLastVisit?: boolean;
+  readonly onOpenRow?: () => void;
 };
 
 function GovernanceFindingRowComponent({
   row,
   buyerPolishedShell,
   variant,
+  showNewSinceLastVisit = false,
+  onOpenRow,
 }: GovernanceFindingRowProps): ReactElement {
   const router = useRouter();
   const rowIsDecision = row.recordKind === "decision";
@@ -53,10 +58,20 @@ function GovernanceFindingRowComponent({
             ? "cursor-pointer border border-neutral-200 shadow-sm transition-colors hover:border-neutral-300 hover:bg-[var(--al-layer-hover)] dark:hover:border-neutral-700 dark:hover:bg-neutral-800/80"
             : "border border-neutral-200 shadow-sm dark:border-neutral-800"
         }
-        onClick={rowIsDecision ? () => navigateGovernanceFindingDetail(router, row.runId, row.findingId) : undefined}
+        onClick={
+          rowIsDecision
+            ? () => {
+                onOpenRow?.();
+                navigateGovernanceFindingDetail(router, row.runId, row.findingId);
+              }
+            : undefined
+        }
         onKeyDown={
           rowIsDecision
-            ? (event) => governanceFindingDetailKeyboardActivate(event, router, row.runId, row.findingId)
+            ? (event) => {
+                governanceFindingDetailKeyboardActivate(event, router, row.runId, row.findingId);
+                onOpenRow?.();
+              }
             : undefined
         }
         tabIndex={rowIsDecision ? 0 : undefined}
@@ -65,9 +80,17 @@ function GovernanceFindingRowComponent({
       >
         <CardHeader className="space-y-1 pb-2">
           <CardTitle className={cn(OPERATOR_TYPOGRAPHY.cardTitle, "text-al-text-primary")}>
+            {showNewSinceLastVisit ? (
+              <span className="mr-2 inline-flex align-middle">
+                <NewSinceLastVisitMarker testId={`governance-row-new-${row.findingId}`} />
+              </span>
+            ) : null}
             <Link
               className={OPERATOR_LINK.inline}
               href={governanceFindingInspectHref(row.runId, row.findingId)}
+              onClick={() => {
+                onOpenRow?.();
+              }}
             >
               {row.title}
             </Link>

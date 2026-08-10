@@ -20,10 +20,6 @@ import {
 import type { BuildArchitectureCreatedHomeModelInput } from "@/lib/architecture-created-home-model";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import {
-  humanReviewStatusDisplay,
-  resolveQuickDecisionFindingsForRunDetail,
-} from "@/lib/quick-decision-summary-derive";
-import {
   countFindingsBySeverity,
   deriveArchitectureSystemName,
   deriveBlockingApprovalCount,
@@ -47,6 +43,11 @@ import {
   formatDecisionSnapshotFindingsLine,
   formatDecisionSnapshotGovernanceOutcome,
 } from "@/lib/run-detail-workspace-derive";
+import { deriveReviewDetailTabActivityAt } from "@/lib/review-detail-tab-activity";
+import {
+  humanReviewStatusDisplay,
+  resolveQuickDecisionFindingsForRunDetail,
+} from "@/lib/quick-decision-summary-derive";
 import { RunDetailActivityTabSectionNav } from "@/components/RunDetailActivityTabSectionNav";
 import { resolvePartialRunCommitBlockPresentation } from "@/lib/run-detail-partial-run-commit-block";
 import {
@@ -493,6 +494,14 @@ export function RunDetailPageView(props: {
   const tabbedWorkspaceEl = !showArchitectureCreatedHome ? (
     <Suspense fallback={<RunDetailExplanationSkeleton />}>
       <ReviewDetailWorkspaceDeferred
+        runId={m.resolvedDetail.run.runId}
+        tabActivityAt={deriveReviewDetailTabActivityAt({
+          run: m.resolvedDetail.run,
+          manifestSummary: m.manifestSummary,
+          manifestId: m.manifestId,
+          findings: quickDecisionFindings,
+          operatorGovernanceDecisionUtc: m.resolvedDetail.run.operatorGovernanceDecisionUtc,
+        })}
         tabCounts={{
           findings: (m.findingCountDisplay ?? 0) > 0 ? m.findingCountDisplay : null,
           evidence: evidenceInventoryCount > 0 ? evidenceInventoryCount : null,

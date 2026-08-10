@@ -36,6 +36,8 @@ export type GovernanceFindingsQueueDesktopTableProps = {
   /** When provided, the table renders a leading checkbox column for bulk selection. */
   readonly selectedFindingIds?: ReadonlySet<string>;
   readonly onSelectionChange?: (ids: ReadonlySet<string>) => void;
+  readonly isRowNewSinceLastVisit?: (row: GovernanceFindingQueueRow) => boolean;
+  readonly onRowOpened?: (row: GovernanceFindingQueueRow) => void;
 };
 
 type GovernanceFindingsQueueTableBodyProps = {
@@ -45,6 +47,8 @@ type GovernanceFindingsQueueTableBodyProps = {
   readonly selectedFindingIds?: ReadonlySet<string>;
   readonly onToggleRow?: (findingId: string) => void;
   readonly isRowFocused?: (index: number) => boolean;
+  readonly isRowNewSinceLastVisit?: (row: GovernanceFindingQueueRow) => boolean;
+  readonly onRowOpened?: (row: GovernanceFindingQueueRow) => void;
 };
 
 function GovernanceFindingsQueueTableHead(props: {
@@ -119,6 +123,8 @@ function GovernanceFindingsQueueTableBody(props: GovernanceFindingsQueueTableBod
     selectedFindingIds,
     onToggleRow,
     isRowFocused,
+    isRowNewSinceLastVisit,
+    onRowOpened,
   } = props;
 
   return (
@@ -132,6 +138,10 @@ function GovernanceFindingsQueueTableBody(props: GovernanceFindingsQueueTableBod
           selectedFindingIds={selectedFindingIds}
           onToggleRow={onToggleRow}
           isFocused={isRowFocused?.(rowIndex)}
+          showNewSinceLastVisit={isRowNewSinceLastVisit?.(row) ?? false}
+          onOpenRow={() => {
+            onRowOpened?.(row);
+          }}
         />
       ))}
     </EnterpriseTableBody>
@@ -153,6 +163,8 @@ function GovernanceFindingsQueueVirtualizedTableBody(
     onToggleRow,
     isRowFocused,
     rowVirtualizer,
+    isRowNewSinceLastVisit,
+    onRowOpened,
   } = props;
 
   return (
@@ -189,6 +201,10 @@ function GovernanceFindingsQueueVirtualizedTableBody(
             onToggleRow={onToggleRow}
             isFocused={isRowFocused?.(virtualRow.index)}
             style={rowStyle}
+            showNewSinceLastVisit={isRowNewSinceLastVisit?.(row) ?? false}
+            onOpenRow={() => {
+              onRowOpened?.(row);
+            }}
           />
         );
       })}
@@ -206,6 +222,8 @@ export function GovernanceFindingsQueueDesktopTable(
     groupByResource = false,
     selectedFindingIds,
     onSelectionChange,
+    isRowNewSinceLastVisit,
+    onRowOpened,
   } = props;
   const router = useRouter();
   const scrollParentRef = useRef<HTMLDivElement>(null);
@@ -224,6 +242,7 @@ export function GovernanceFindingsQueueDesktopTable(
       }
 
       router.push(governanceFindingInspectHref(row.runId, row.findingId));
+      onRowOpened?.(row);
     },
   });
 
@@ -310,6 +329,8 @@ export function GovernanceFindingsQueueDesktopTable(
     selectedFindingIds,
     onToggleRow: toggleRow,
     isRowFocused: keyboardNav.isRowFocused,
+    isRowNewSinceLastVisit,
+    onRowOpened,
   };
 
   return (

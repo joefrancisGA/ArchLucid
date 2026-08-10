@@ -1,7 +1,12 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ReviewDetailWorkspace } from "@/components/reviews/ReviewDetailWorkspace";
+import {
+  isActivityNewSinceLastVisit,
+  markLastVisitedNow,
+  reviewTabWatermarkKey,
+} from "@/lib/usability/last-visited-watermark";
 
 const pushMock = vi.fn();
 const replaceMock = vi.fn();
@@ -15,6 +20,8 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams("reviewTab=overview"),
 }));
 
+const RUN_ID = "run-abc";
+
 const workspacePanels = {
   overview: <div data-testid="panel-overview">Overview content</div>,
   findings: <div data-testid="panel-findings">Findings</div>,
@@ -27,9 +34,14 @@ const workspacePanels = {
 };
 
 describe("ReviewDetailWorkspace", () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
   it("renders tab list and overview panel by default", () => {
     render(
       <ReviewDetailWorkspace
+        runId={RUN_ID}
         tabCounts={{ findings: 3, evidence: 2 }}
         panels={workspacePanels}
       />,
@@ -48,7 +60,7 @@ describe("ReviewDetailWorkspace", () => {
 
     window.history.replaceState({}, "", "/architecture/reviews/run-abc?reviewTab=overview");
 
-    render(<ReviewDetailWorkspace tabCounts={{ findings: 3 }} panels={workspacePanels} />);
+    render(<ReviewDetailWorkspace runId={RUN_ID} tabCounts={{ findings: 3 }} panels={workspacePanels} />);
 
     fireEvent.click(screen.getByRole("tab", { name: /Findings/i }));
 
@@ -57,5 +69,42 @@ describe("ReviewDetailWorkspace", () => {
     expect(replaceStateSpy).toHaveBeenCalled();
     expect(screen.getByRole("tab", { name: /Findings/i })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByTestId("panel-findings")).toBeInTheDocument();
+  });
+
+  it("shows new-since-last-visit marker when tab activity is newer than watermark", () => {
+    markLastVisitedNow(reviewTabWatermarkKey(RUN_ID, "findings"), "2026-01-01T00:00:00.000Z");
+
+    render(
+      <ReviewDetailWorkspace
+        runId={RUN_ID}
+        tabActivityAt={{ findings: "2026-02-01T12:00:00.000Z" }}
+        panels={workspacePanels}
+      />,
+    );
+
+    expect(screen.getByTestId("review-detail-tab-new-findings")).toBeInTheDocument();
+    expect(screen.getByTestId("review-detail-mark-all-seen")).toBeInTheDocument();
+  });
+
+  it("clears tab marker after mark all as seen", () => {
+    markLastVisitedNow(reviewTabWatermarkKey(RUN_ID, "findings"), "2026-01-01T00:00:00.000Z");
+
+    render(
+      <ReviewDetailWorkspace
+        runId={RUN_ID}
+        tabActivityAt={{ findings: "2026-02-01T12:00:00.000Z" }}
+        panels={workspacePanels}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("review-detail-mark-all-seen"));
+
+    expect(screen.queryByTestId("review-detail-tab-new-findings")).not.toBeInTheDocument();
+    expect(
+      isActivityNewSinceLastVisit(
+        reviewTabWatermarkKey(RUN_ID, "findings"),
+        "2026-02-01T12:00:00.000Z",
+      ),
+    ).toBe(false);
   });
 });

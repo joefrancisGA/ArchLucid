@@ -42,6 +42,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
 import { postFindingMute } from "@/lib/api";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
@@ -79,7 +80,13 @@ import {
   OPERATOR_NAV_GROUP_LABEL,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
+import { resolveFindingActivityAtUtc } from "@/lib/finding-activity-at-utc";
+import { NewSinceLastVisitMarker } from "@/components/usability/NewSinceLastVisitMarker";
+import {
+  isActivityNewSinceLastVisit,
+  markLastVisitedNow,
+  reviewFindingWatermarkKey,
+} from "@/lib/usability/last-visited-watermark";
 
 export type QuickDecisionSummaryConfidenceVisibility = {
   readonly showLowConfidence: boolean;
@@ -628,6 +635,9 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
       ) ?? graphHref;
     const reviewStatus = humanReviewStatusDisplay(f.humanReviewStatus);
     const owner = f.assignedToUserId?.trim() ?? "";
+    const findingActivityAt = resolveFindingActivityAtUtc(f.aiReasoning);
+    const findingWatermarkKey = reviewFindingWatermarkKey(props.runId, f.findingId);
+    const showNewSinceLastVisit = isActivityNewSinceLastVisit(findingWatermarkKey, findingActivityAt);
 
     return (
       <article
@@ -638,6 +648,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
       >
         <header className="space-y-2">
           <div className="flex flex-wrap items-center gap-2">
+            {showNewSinceLastVisit ? <NewSinceLastVisitMarker testId={`finding-new-${f.findingId}`} /> : null}
             <SeverityTag
               severity={badgeLabel}
               kind={severityKindFromNumericValue(f.severityValue)}
@@ -701,7 +712,15 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
         </dl>
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <Button type="button" size="sm" variant="default" className="h-8" asChild>
-            <Link href={href} prefetch={false}>Open finding</Link>
+            <Link
+              href={href}
+              prefetch={false}
+              onClick={() => {
+                markLastVisitedNow(findingWatermarkKey, findingActivityAt);
+              }}
+            >
+              Open finding
+            </Link>
           </Button>
           {viewEvidenceHref !== null ? (
             <FindingEvidenceLinkChip

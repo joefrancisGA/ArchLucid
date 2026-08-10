@@ -10,8 +10,12 @@ import {
 } from "react";
 import { useSearchParams } from "next/navigation";
 
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { NewSinceLastVisitMarker } from "@/components/usability/NewSinceLastVisitMarker";
+import { useReviewDetailLastVisited } from "@/hooks/use-review-detail-last-visited";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import type { ReviewDetailTabActivityAt } from "@/lib/review-detail-tab-activity";
 import {
   REVIEW_DETAIL_TAB_LABELS,
   REVIEW_DETAIL_TAB_PARAM,
@@ -42,6 +46,8 @@ export type ReviewDetailWorkspacePanels = {
 };
 
 export type ReviewDetailWorkspaceProps = {
+  readonly runId: string;
+  readonly tabActivityAt?: ReviewDetailTabActivityAt;
   readonly tabCounts?: ReviewDetailTabCounts;
   readonly panels: ReviewDetailWorkspacePanels;
 };
@@ -70,6 +76,13 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
   const [hashResolved, setHashResolved] = useState(false);
   const searchParamTab = resolveReviewDetailTab(searchParams.get(REVIEW_DETAIL_TAB_PARAM));
   const [activeTab, setActiveTab] = useState<ReviewDetailTabId>(searchParamTab);
+  const tabActivityAt = props.tabActivityAt ?? {};
+  const {
+    isTabNewSinceLastVisit,
+    hasAnyNewSinceLastVisit,
+    markTabSeen,
+    markAllTabsSeen,
+  } = useReviewDetailLastVisited(props.runId, tabActivityAt);
 
   useEffect(() => {
     setActiveTab(searchParamTab);
@@ -85,10 +98,14 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
 
-  const navigateTab = useCallback((tab: ReviewDetailTabId) => {
-    setActiveTab(tab);
-    writeReviewDetailTabToUrl(tab, { hash: null });
-  }, []);
+  const navigateTab = useCallback(
+    (tab: ReviewDetailTabId) => {
+      setActiveTab(tab);
+      writeReviewDetailTabToUrl(tab, { hash: null });
+      markTabSeen(tab);
+    },
+    [markTabSeen],
+  );
 
   useEffect(() => {
     if (hashResolved) {
@@ -150,6 +167,19 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
   return (
     <ReviewDetailWorkspaceTabContext.Provider value={{ navigateTab }}>
       <div className="min-w-0 space-y-4" data-testid="review-detail-workspace">
+        {hasAnyNewSinceLastVisit ? (
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              data-testid="review-detail-mark-all-seen"
+              onClick={markAllTabsSeen}
+            >
+              Mark all as seen
+            </Button>
+          </div>
+        ) : null}
         <Tabs
           className="min-w-0"
           variant="line"
@@ -178,7 +208,12 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
                     data-testid={`review-detail-workspace-tab-${tabId}`}
                     className="whitespace-nowrap"
                   >
-                    {REVIEW_DETAIL_TAB_LABELS[tabId]}
+                    <span className="inline-flex items-center gap-2">
+                      {REVIEW_DETAIL_TAB_LABELS[tabId]}
+                      {isTabNewSinceLastVisit(tabId) ? (
+                        <NewSinceLastVisitMarker testId={`review-detail-tab-new-${tabId}`} />
+                      ) : null}
+                    </span>
                     {count !== null ? (
                       <span
                         className={cn(
