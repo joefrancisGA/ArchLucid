@@ -29,17 +29,30 @@ export const FINDINGS_HELP_PRIMARY_ACTIONS = {
   },
 } as const;
 
+/** Policy packs link for related governance context — not shown as a raw path in copy. */
+export const FINDINGS_HELP_POLICY_PACKS_LINK = {
+  label: "Open policy packs",
+  href: GOVERNANCE_POLICY_PACKS_PATH,
+} as const;
+
 /** TB-1250 / TB-1387: buyer Findings help must not deep-link eng API contracts. */
 export const FINDINGS_HELP_RELATED_PRODUCT_DOCS = {
   label: "Audit trail",
   href: inAppHelpHref("audit-trail"),
 } as const;
 
+export const FINDINGS_HELP_READINESS_SECTION_TITLE = "Workspace finding summary";
+
+export const FINDINGS_HELP_READINESS_FORBIDDEN_MESSAGE =
+  "Live finding status needs a role that can view the governance findings queue.";
+
+export const FINDINGS_HELP_WORKSPACE_SCOPE_FALLBACK_LABEL = "This workspace";
+
 export const FINDINGS_HELP_READINESS_LABELS = {
   openFindings: "Open findings",
-  criticalAndHigh: "Critical and high findings",
+  criticalAndError: `${SEVERITY_LABELS.critical} and ${SEVERITY_LABELS.error.toLowerCase()} findings`,
   awaitingDecision: "Findings awaiting decision",
-  recentlyResolved: "Findings resolved recently",
+  recentlyResolved: "Findings remediated (30 days)",
 } as const;
 
 export type FindingsHelpAnatomyField = {
@@ -64,7 +77,7 @@ export type FindingsHelpSeverityRow = {
   readonly description: string;
 };
 
-/** Customer-facing severity guidance aligned with the API FindingSeverity model (Info, Warning, Error, Critical). */
+/** Customer-facing severity guidance aligned with normalizeFindingSeverity output labels. */
 export const FINDINGS_HELP_SEVERITY_ROWS: readonly FindingsHelpSeverityRow[] = [
   {
     level: SEVERITY_LABELS.critical,
@@ -81,6 +94,22 @@ export const FINDINGS_HELP_SEVERITY_ROWS: readonly FindingsHelpSeverityRow[] = [
   {
     level: SEVERITY_LABELS.info,
     description: "Limited risk or an improvement opportunity that should be tracked.",
+  },
+  {
+    level: SEVERITY_LABELS.high,
+    description: "Elevated risk that should be prioritized before lower-severity items.",
+  },
+  {
+    level: SEVERITY_LABELS.medium,
+    description: "Moderate concern that should be tracked with owners and follow-up dates.",
+  },
+  {
+    level: SEVERITY_LABELS.low,
+    description: "Lower-priority improvement or hygiene item that should still be recorded.",
+  },
+  {
+    level: SEVERITY_LABELS.unknown,
+    description: "Severity was missing or could not be classified — triage before disposition.",
   },
 ] as const;
 
@@ -142,17 +171,12 @@ export const FINDINGS_HELP_EVIDENCE_ITEMS = [
 
 export const FINDINGS_HELP_EVIDENCE_ACTIONS = [
   {
-    label: "Open finding",
-    description: "Open the finding from the risk register or review.",
+    label: FINDINGS_HELP_PRIMARY_ACTIONS.openFindings.label,
+    description: "Open the finding from the risk register or review and inspect linked evidence.",
     href: FINDINGS_HELP_PRIMARY_ACTIONS.openFindings.href,
   },
   {
-    label: "View evidence",
-    description: "Inspect linked evidence from the finding detail view.",
-    href: FINDINGS_HELP_PRIMARY_ACTIONS.openFindings.href,
-  },
-  {
-    label: "View related rule",
+    label: "Browse standards and rules",
     description: "See the policy or standard that produced the finding.",
     href: GOVERNANCE_RESOLUTION_PATH,
   },
@@ -160,6 +184,11 @@ export const FINDINGS_HELP_EVIDENCE_ACTIONS = [
     label: "Open evidence graph",
     description: "Explore provenance and relationships across the review.",
     href: "/insights/evidence-graph",
+  },
+  {
+    label: FINDINGS_HELP_POLICY_PACKS_LINK.label,
+    description: "Review enabled policy packs that scope standards and rules for reviews.",
+    href: FINDINGS_HELP_POLICY_PACKS_LINK.href,
   },
 ] as const;
 
@@ -287,11 +316,5 @@ export const FINDINGS_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "inspect-the-evidence", title: "Inspect the evidence" },
   { level: 2, id: "respond-to-a-finding", title: "Respond to a finding" },
   { level: 2, id: "findings-and-governance", title: "Findings and governance" },
-  { level: 2, id: "role-guidance", title: "Role guidance" },
+  { level: 2, id: "role-guidance", title: "What each role usually does" },
 ];
-
-/** Policy packs link for related governance context — not shown as a raw path in copy. */
-export const FINDINGS_HELP_POLICY_PACKS_LINK = {
-  label: "Open policy packs",
-  href: GOVERNANCE_POLICY_PACKS_PATH,
-} as const;

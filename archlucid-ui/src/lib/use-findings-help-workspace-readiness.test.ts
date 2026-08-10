@@ -5,6 +5,7 @@ import {
   getArchitectureDecisionRegister,
   getArchitectureRiskRegister,
 } from "@/lib/api/governance-stickiness-api";
+import { FINDINGS_HELP_READINESS_LABELS } from "@/lib/findings-help-guide-content";
 import { useFindingsHelpWorkspaceReadiness } from "@/lib/use-findings-help-workspace-readiness";
 
 vi.mock("@/lib/api/governance-stickiness-api", () => ({
@@ -20,7 +21,7 @@ describe("useFindingsHelpWorkspaceReadiness", () => {
     vi.clearAllMocks();
   });
 
-  it("summarizes open, critical/high, awaiting decision, and recent resolutions", async () => {
+  it("summarizes open, critical/error, awaiting decision, and recent remediations", async () => {
     const recentUtc = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString();
 
     mockedRiskRegister.mockResolvedValue({
@@ -59,13 +60,50 @@ describe("useFindingsHelpWorkspaceReadiness", () => {
       expect(result.current.loading).toBe(false);
     });
 
-    expect(result.current.openFindingsLabel).toBe("1 open finding");
-    expect(result.current.criticalAndHighLabel).toBe("1 critical or high finding");
-    expect(result.current.awaitingDecisionLabel).toBe("1 finding awaiting decision");
-    expect(result.current.recentlyResolvedLabel).toBe("1 recent resolution");
+    expect(result.current.openFindings.valueLabel).toBe("1");
+    expect(result.current.criticalAndError.valueLabel).toBe("1");
+    expect(result.current.awaitingDecision.valueLabel).toBe("1");
+    expect(result.current.recentlyResolved.valueLabel).toBe("1");
+    expect(result.current.openFindings.href).toBe("/governance/findings?filter=open");
+    expect(result.current.criticalAndError.href).toBe("/governance/findings?filter=critical-error");
+    expect(result.current.awaitingDecision.href).toBe("/governance/findings?filter=needs-decision");
+    expect(result.current.recentlyResolved.href).toBe(
+      "/governance/findings?filter=remediated-recent",
+    );
+    expect(result.current.criticalAndError.label).toBe(FINDINGS_HELP_READINESS_LABELS.criticalAndError);
+    expect(result.current.recentlyResolved.label).toBe(FINDINGS_HELP_READINESS_LABELS.recentlyResolved);
   });
 
-  it("uses neutral empty states when no findings match", async () => {
+  it("does not count warning severity in the critical and error tile", async () => {
+    mockedRiskRegister.mockResolvedValue({
+      entries: [
+        {
+          findingId: "f-open-warning",
+          title: "Open warning",
+          severity: "Warning",
+          category: "Security",
+          statusLabel: "Open",
+          agingDays: 1,
+          isStale: false,
+          evidenceHref: "/evidence/1",
+          latestDisposition: null,
+          humanReviewStatus: 1,
+        },
+      ],
+    });
+    mockedDecisionRegister.mockResolvedValue({ decisions: [] });
+
+    const { result } = renderHook(() => useFindingsHelpWorkspaceReadiness());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.openFindings.valueLabel).toBe("1");
+    expect(result.current.criticalAndError.valueLabel).toBe("0");
+  });
+
+  it("uses zero counts when no findings match", async () => {
     mockedRiskRegister.mockResolvedValue({ entries: [] });
     mockedDecisionRegister.mockResolvedValue({ decisions: [] });
 
@@ -75,9 +113,9 @@ describe("useFindingsHelpWorkspaceReadiness", () => {
       expect(result.current.loading).toBe(false);
     });
 
-    expect(result.current.openFindingsLabel).toBe("No open findings");
-    expect(result.current.criticalAndHighLabel).toBe("No critical or high findings");
-    expect(result.current.awaitingDecisionLabel).toBe("No findings awaiting decision");
-    expect(result.current.recentlyResolvedLabel).toBe("No recent resolutions");
+    expect(result.current.openFindings.valueLabel).toBe("0");
+    expect(result.current.criticalAndError.valueLabel).toBe("0");
+    expect(result.current.awaitingDecision.valueLabel).toBe("0");
+    expect(result.current.recentlyResolved.valueLabel).toBe("0");
   });
 });

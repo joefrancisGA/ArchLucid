@@ -11,6 +11,11 @@ vi.mock("@/app/(operator)/help/_sections/HelpFindingsWorkspaceReadinessStrip", (
 
 import { HelpFindingsGuideView } from "@/app/(operator)/help/_sections/HelpFindingsGuideView";
 import {
+  FINDINGS_HELP_CLAIM_DISCIPLINE,
+  FINDINGS_HELP_SOURCES,
+} from "@/lib/findings-help-evidence-copy";
+import {
+  FINDINGS_HELP_EVIDENCE_ACTIONS,
   FINDINGS_HELP_OVERVIEW,
   FINDINGS_HELP_PAGE_SUBTITLE,
   FINDINGS_HELP_PAGE_TITLE,
@@ -51,7 +56,7 @@ describe("HelpFindingsGuideView", () => {
     expect(entry?.sourcePaths).toContain("docs/library/customer-facing/FINDINGS_OPERATOR_GUIDE.md");
   });
 
-  it("shows purpose, actions, and overview near the top", () => {
+  it("shows purpose, actions, orientation callout, and overview near the top", () => {
     if (entry === undefined) {
       throw new Error("Expected findings documentation entry.");
     }
@@ -61,6 +66,7 @@ describe("HelpFindingsGuideView", () => {
     expect(screen.getByRole("heading", { level: 1, name: FINDINGS_HELP_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(FINDINGS_HELP_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByTestId("help-findings-workspace-readiness-mock")).toBeInTheDocument();
+    expect(screen.getByTestId("help-findings-claim-discipline")).toHaveTextContent(FINDINGS_HELP_CLAIM_DISCIPLINE);
     expect(screen.getByTestId("help-findings-overview")).toHaveTextContent(FINDINGS_HELP_OVERVIEW);
 
     const actionPanel = screen.getByTestId("help-findings-action-panel");
@@ -73,9 +79,12 @@ describe("HelpFindingsGuideView", () => {
     expect(
       within(actionPanel).getByRole("link", { name: FINDINGS_HELP_PRIMARY_ACTIONS.governanceDecisions.label }),
     ).toHaveAttribute("href", FINDINGS_HELP_PRIMARY_ACTIONS.governanceDecisions.href);
+    expect(
+      within(actionPanel).getByRole("heading", { level: 2, name: "Go to findings" }),
+    ).toBeInTheDocument();
   });
 
-  it("renders revised sections and on-this-page navigation", () => {
+  it("renders revised sections, evidence action descriptions, and on-this-page navigation", () => {
     if (entry === undefined) {
       throw new Error("Expected findings documentation entry.");
     }
@@ -92,14 +101,26 @@ describe("HelpFindingsGuideView", () => {
     expect(screen.getByTestId("help-topic-toc")).toBeInTheDocument();
     expect(screen.getByTestId("help-findings-anatomy-panel")).toBeInTheDocument();
     expect(screen.getByTestId("help-findings-severity-table")).toBeInTheDocument();
-    // Audit trail appears both in the Sources strip and inline near governance — product intentionally
-    // repeats the link in both contexts, so assert on at least one match rather than a single unique node.
-    expect(screen.getAllByRole("link", { name: "Audit trail" }).length).toBeGreaterThan(0);
+
+    for (const source of FINDINGS_HELP_SOURCES) {
+      const matches = screen.getAllByRole("link", { name: source.label });
+      expect(matches.some((link) => link.getAttribute("href") === source.href)).toBe(true);
+    }
+
+    const evidenceActions = screen.getByTestId("help-findings-evidence-actions");
+    for (const action of FINDINGS_HELP_EVIDENCE_ACTIONS) {
+      expect(within(evidenceActions).getByRole("link", { name: action.label })).toHaveAttribute("href", action.href);
+      expect(within(evidenceActions).getByText(action.description)).toBeInTheDocument();
+    }
 
     const desktopToc = screen.getByTestId("help-topic-toc");
     expect(within(desktopToc).getByRole("link", { name: "What a finding is" })).toHaveAttribute(
       "href",
       "#what-a-finding-is",
+    );
+    expect(within(desktopToc).getByRole("link", { name: "What each role usually does" })).toHaveAttribute(
+      "href",
+      "#role-guidance",
     );
   });
 

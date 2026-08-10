@@ -36,6 +36,9 @@ const FILTER_SCOPE_LABELS: Partial<Record<RiskRegisterFilter, string>> = {
   stale: "stale",
   "expiring-soon": "expiring soon",
   "high-severity": "high severity",
+  "critical-error": "critical and error",
+  "needs-decision": "needs decision",
+  "remediated-recent": "remediated (30 days)",
   all: "all rows",
 };
 

@@ -1,9 +1,11 @@
 import Link from "next/link";
 
 import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
+import { FindingsHelpEvidenceOrientationStrip } from "@/components/help/FindingsHelpEvidenceOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpFindingsWorkspaceReadinessStrip } from "@/app/(operator)/help/_sections/HelpFindingsWorkspaceReadinessStrip";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
+import { SeverityTag } from "@/components/ui/severity-tag";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -39,6 +41,7 @@ import {
   DESIGN_TOKENS,
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
+  OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
@@ -103,7 +106,7 @@ function SeverityTable(): React.ReactElement {
               className={index % 2 === 0 ? HELP_PAGE_LAYOUT.tableRowOdd : HELP_PAGE_LAYOUT.tableRowEven}
             >
               <th scope="row" className={HELP_PAGE_LAYOUT.tableBodyCell}>
-                {row.level}
+                <SeverityTag severity={row.level} />
               </th>
               <td className={HELP_PAGE_LAYOUT.tableBodyCell}>{row.description}</td>
             </tr>
@@ -141,13 +144,15 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
         <HelpTopicTitleRow title={FINDINGS_HELP_PAGE_TITLE} actions={<PageContextualHelpButton />} />
         <p className={cn("m-0 max-w-[42rem]", OPERATOR_TYPOGRAPHY.helper)}>{FINDINGS_HELP_PAGE_SUBTITLE}</p>
       </header>
-<div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
+      <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
         <Card
           className="border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20"
           data-testid="help-findings-action-panel"
         >
           <CardHeader className={OPERATOR_CARD.header}>
-            <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>Go to findings</CardTitle>
+            <CardTitle as="h2" className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+              Go to findings
+            </CardTitle>
           </CardHeader>
           <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
             <Button asChild size="sm" variant="primary">
@@ -163,7 +168,7 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
             <Link
               href={FINDINGS_HELP_PRIMARY_ACTIONS.governanceDecisions.href}
               className={cn(
-                "text-sm underline-offset-2 hover:underline",
+                "inline-flex min-h-6 items-center py-1 text-sm underline-offset-2 hover:underline",
                 DESIGN_TOKENS.accent.link,
                 OPERATOR_TYPOGRAPHY.body,
               )}
@@ -173,6 +178,7 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
           </CardContent>
         </Card>
 
+        <FindingsHelpEvidenceOrientationStrip />
         <HelpFindingsWorkspaceReadinessStrip />
       </div>
 
@@ -183,36 +189,27 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
           </p>
 
           <section
-            aria-labelledby="what-a-finding-is-heading"
+            aria-labelledby="what-a-finding-is"
             className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
           >
             <HelpSectionHeading id="what-a-finding-is">What a finding is</HelpSectionHeading>
-            <p id="what-a-finding-is-heading" className="sr-only">
-              What a finding is
-            </p>
             <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{FINDINGS_HELP_WHAT_IS_BODY}</p>
           </section>
 
           <section
-            aria-labelledby="anatomy-of-a-finding-heading"
+            aria-labelledby="anatomy-of-a-finding"
             className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
           >
             <HelpSectionHeading id="anatomy-of-a-finding">Anatomy of a finding</HelpSectionHeading>
-            <p id="anatomy-of-a-finding-heading" className="sr-only">
-              Anatomy of a finding
-            </p>
             <FindingsAnatomyPanel />
           </section>
 
           <section
-            aria-labelledby="where-findings-come-from-heading"
+            aria-labelledby="where-findings-come-from"
             className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
             data-testid="help-findings-provenance"
           >
             <HelpSectionHeading id="where-findings-come-from">{FINDINGS_HELP_PROVENANCE_TITLE}</HelpSectionHeading>
-            <p id="where-findings-come-from-heading" className="sr-only">
-              {FINDINGS_HELP_PROVENANCE_TITLE}
-            </p>
             <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{FINDINGS_HELP_PROVENANCE_INTRO}</p>
             <ul className={HELP_PAGE_LAYOUT.bulletList}>
               {FINDINGS_HELP_PROVENANCE_AXES.map((row) => (
@@ -236,48 +233,52 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
           </section>
 
           <section
-            aria-labelledby="severity-and-impact-heading"
+            aria-labelledby="severity-and-impact"
             className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
           >
             <HelpSectionHeading id="severity-and-impact">Severity and impact</HelpSectionHeading>
-            <p id="severity-and-impact-heading" className="sr-only">
-              Severity and impact
-            </p>
             <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{FINDINGS_HELP_SEVERITY_INTRO}</p>
             <SeverityTable />
           </section>
 
           <section
-            aria-labelledby="inspect-the-evidence-heading"
+            aria-labelledby="inspect-the-evidence"
             className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
           >
             <HelpSectionHeading id="inspect-the-evidence">Inspect the evidence</HelpSectionHeading>
-            <p id="inspect-the-evidence-heading" className="sr-only">
-              Inspect the evidence
-            </p>
             <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{FINDINGS_HELP_EVIDENCE_INTRO}</p>
             <ul className={HELP_PAGE_LAYOUT.bulletList}>
               {FINDINGS_HELP_EVIDENCE_ITEMS.map((item) => (
                 <li key={item}>{item}</li>
               ))}
             </ul>
-            <div className="flex flex-wrap gap-2" data-testid="help-findings-evidence-actions">
+            <div className="grid gap-3 sm:grid-cols-2" data-testid="help-findings-evidence-actions">
               {FINDINGS_HELP_EVIDENCE_ACTIONS.map((action) => (
-                <Button key={action.label} asChild size="sm" variant="outline">
-                  <Link href={action.href}>{action.label}</Link>
-                </Button>
+                <div
+                  key={action.label}
+                  className="rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
+                >
+                  <Link
+                    href={action.href}
+                    className={cn(
+                      "inline-flex min-h-6 items-center py-1 font-semibold underline-offset-2 hover:underline",
+                      DESIGN_TOKENS.accent.link,
+                      OPERATOR_LINK.inline,
+                    )}
+                  >
+                    {action.label}
+                  </Link>
+                  <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.body)}>{action.description}</p>
+                </div>
               ))}
             </div>
           </section>
 
           <section
-            aria-labelledby="respond-to-a-finding-heading"
+            aria-labelledby="respond-to-a-finding"
             className="space-y-4 border-t border-neutral-200 pt-6 dark:border-neutral-800"
           >
             <HelpSectionHeading id="respond-to-a-finding">Respond to a finding</HelpSectionHeading>
-            <p id="respond-to-a-finding-heading" className="sr-only">
-              Respond to a finding
-            </p>
             <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{FINDINGS_HELP_RESPOND_INTRO}</p>
             <LifecycleList />
             <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{FINDINGS_HELP_ACTIONS_INTRO}</p>
@@ -293,13 +294,10 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
           </section>
 
           <section
-            aria-labelledby="findings-and-governance-heading"
+            aria-labelledby="findings-and-governance"
             className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
           >
             <HelpSectionHeading id="findings-and-governance">Findings and governance</HelpSectionHeading>
-            <p id="findings-and-governance-heading" className="sr-only">
-              Findings and governance
-            </p>
             <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{FINDINGS_HELP_GOVERNANCE_INTRO}</p>
             <ul className={HELP_PAGE_LAYOUT.bulletList}>
               {FINDINGS_HELP_GOVERNANCE_ITEMS.map((item) => (
@@ -309,13 +307,10 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
           </section>
 
           <section
-            aria-labelledby="role-guidance-heading"
+            aria-labelledby="role-guidance"
             className="space-y-3 border-t border-neutral-200 pb-2 dark:border-neutral-800"
           >
             <HelpSectionHeading id="role-guidance">What each role usually does</HelpSectionHeading>
-            <p id="role-guidance-heading" className="sr-only">
-              What each role usually does
-            </p>
             <div className="grid gap-3 sm:grid-cols-2" data-testid="help-findings-role-guidance">
               {FINDINGS_HELP_ROLE_GUIDANCE.map((entry) => (
                 <div

@@ -89,6 +89,47 @@ describe("architecture-risk-register-page", () => {
     expect(matchesRiskRegisterFilter(row, "no-owner", nowMs)).toBe(false);
   });
 
+  it("matches help deep-link filters for critical/error, needs-decision, and remediations", () => {
+    const nowMs = Date.parse("2026-07-01T12:00:00.000Z");
+
+    expect(
+      matchesRiskRegisterFilter(
+        sampleRow({ status: "Open", severity: "Critical", latestDisposition: null }),
+        "critical-error",
+        nowMs,
+      ),
+    ).toBe(true);
+    expect(
+      matchesRiskRegisterFilter(
+        sampleRow({ status: "Open", severity: "Warning", latestDisposition: null }),
+        "critical-error",
+        nowMs,
+      ),
+    ).toBe(false);
+    expect(
+      matchesRiskRegisterFilter(
+        sampleRow({ status: "Open", severity: "Error", latestDisposition: null }),
+        "needs-decision",
+        nowMs,
+      ),
+    ).toBe(true);
+    expect(
+      matchesRiskRegisterFilter(
+        sampleRow({
+          status: "Closed",
+          severity: "Warning",
+          latestDisposition: "Remediated",
+          lastReviewedUtc: "2026-06-20T12:00:00.000Z",
+        }),
+        "remediated-recent",
+        nowMs,
+      ),
+    ).toBe(true);
+    expect(riskRegisterFilterFromQuery("critical-error")).toBe("critical-error");
+    expect(riskRegisterFilterFromQuery("needs-decision")).toBe("needs-decision");
+    expect(riskRegisterFilterFromQuery("remediated-recent")).toBe("remediated-recent");
+  });
+
   it("derives disposition label from latest disposition or status", () => {
     expect(
       governanceQueueDispositionLabel(

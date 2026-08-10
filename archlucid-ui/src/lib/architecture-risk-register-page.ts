@@ -34,7 +34,13 @@ export type RiskRegisterFilter =
   | "no-owner"
   | "overdue-review"
   | "high-severity"
+  | "critical-error"
+  | "needs-decision"
+  | "remediated-recent"
   | "stale";
+
+/** Shared with help readiness tiles so deep links and counts use the same window. */
+export const RISK_REGISTER_REMEDIATED_RECENT_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
 
 export const RISK_REGISTER_FILTER_LABELS: Record<RiskRegisterFilter, string> = {
   all: "All",
@@ -45,6 +51,9 @@ export const RISK_REGISTER_FILTER_LABELS: Record<RiskRegisterFilter, string> = {
   "no-owner": "No owner",
   "overdue-review": "Overdue review",
   "high-severity": "High severity",
+  "critical-error": "Critical and error",
+  "needs-decision": "Needs decision",
+  "remediated-recent": "Remediated (30 days)",
   stale: "Stale",
 };
 
@@ -56,6 +65,9 @@ export const RISK_REGISTER_QUICK_FILTERS: readonly RiskRegisterFilter[] = [
   "no-owner",
   "overdue-review",
   "high-severity",
+  "critical-error",
+  "needs-decision",
+  "remediated-recent",
 ];
 
 export const ARCHITECTURE_RISK_REGISTER_GLOSSARY = [
@@ -159,6 +171,18 @@ export function riskRegisterFilterFromQuery(raw: string | null): RiskRegisterFil
     return "high-severity";
   }
 
+  if (raw === "critical-error") {
+    return "critical-error";
+  }
+
+  if (raw === "needs-decision") {
+    return "needs-decision";
+  }
+
+  if (raw === "remediated-recent") {
+    return "remediated-recent";
+  }
+
   return "all";
 }
 
@@ -236,6 +260,61 @@ function isHighSeverity(row: GovernanceFindingQueueRow): boolean {
   return normalized === "high" || normalized === "critical";
 }
 
+function isCriticalOrErrorSeverity(row: GovernanceFindingQueueRow): boolean {
+  if (!isFindingRow(row)) {
+    return false;
+  }
+
+  const normalized = row.severity.trim().toLowerCase();
+
+  return normalized === "critical" || normalized === "error";
+}
+
+function isNeedsDecision(row: GovernanceFindingQueueRow): boolean {
+  if (!isFindingRow(row) || !isOpenRisk(row)) {
+    return false;
+  }
+
+  const disposition = (row.latestDisposition ?? "").trim();
+  const humanReview = (row.humanReviewStatusLabel ?? "").toLowerCase();
+
+  if (disposition.length > 0 && disposition !== "NeedsEvidence") {
+    return false;
+  }
+
+  if (humanReview.includes("pending")) {
+    return true;
+  }
+
+  return disposition.length === 0 || disposition === "NeedsEvidence";
+}
+
+function isRemediatedRecent(row: GovernanceFindingQueueRow, nowMs: number): boolean {
+  if (!isFindingRow(row)) {
+    return false;
+  }
+
+  const disposition = (row.latestDisposition ?? "").trim();
+
+  if (disposition !== "Remediated") {
+    return false;
+  }
+
+  const reviewedRaw = row.lastReviewedUtc?.trim() ?? "";
+
+  if (reviewedRaw.length === 0) {
+    return false;
+  }
+
+  const reviewedMs = Date.parse(reviewedRaw);
+
+  if (Number.isNaN(reviewedMs)) {
+    return false;
+  }
+
+  return nowMs - reviewedMs <= RISK_REGISTER_REMEDIATED_RECENT_WINDOW_MS;
+}
+
 function hasGrantedException(row: GovernanceFindingQueueRow): boolean {
   if (!isFindingRow(row)) {
     return false;
@@ -303,6 +382,18 @@ export function matchesRiskRegisterFilter(
 
   if (filter === "high-severity") {
     return isHighSeverity(row);
+  }
+
+  if (filter === "critical-error") {
+    return isOpenRisk(row) && isCriticalOrErrorSeverity(row);
+  }
+
+  if (filter === "needs-decision") {
+    return isNeedsDecision(row);
+  }
+
+  if (filter === "remediated-recent") {
+    return isRemediatedRecent(row, nowMs);
   }
 
   return true;

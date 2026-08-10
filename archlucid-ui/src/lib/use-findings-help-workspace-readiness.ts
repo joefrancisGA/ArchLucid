@@ -4,165 +4,164 @@ import { useCallback, useEffect, useState } from "react";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import { getArchitectureDecisionRegister, getArchitectureRiskRegister } from "@/lib/api/governance-stickiness-api";
+import { isApiRequestError } from "@/lib/api-request-error";
 import {
   decisionRegisterRows,
   dedupeGovernanceFindingRows,
   riskRegisterRows,
 } from "@/components/governance/findings/governance-findings-row-mappers";
-import { FINDINGS_HELP_READINESS_LABELS } from "@/lib/findings-help-guide-content";
+import {
+  FINDINGS_HELP_READINESS_LABELS,
+  FINDINGS_HELP_WORKSPACE_SCOPE_FALLBACK_LABEL,
+} from "@/lib/findings-help-guide-content";
+import type { EnterpriseStatusKind } from "@/lib/design-tokens";
+import {
+  matchesRiskRegisterFilter,
+  type RiskRegisterFilter,
+} from "@/lib/architecture-risk-register-page";
+import {
+  buildGovernanceFindingsQueueHref,
+  workspaceOpenFindingsPresentation,
+} from "@/lib/metric-count-presentation";
+
+export type FindingsHelpWorkspaceReadinessMetric = {
+  readonly label: string;
+  readonly valueLabel: string;
+  readonly statusKind: EnterpriseStatusKind;
+  readonly href: string;
+};
 
 export type FindingsHelpWorkspaceReadinessSnapshot = {
   readonly loading: boolean;
   readonly loadFailed: boolean;
-  readonly openFindingsLabel: string;
-  readonly criticalAndHighLabel: string;
-  readonly awaitingDecisionLabel: string;
-  readonly recentlyResolvedLabel: string;
+  readonly loadForbidden: boolean;
+  readonly openFindings: FindingsHelpWorkspaceReadinessMetric;
+  readonly criticalAndError: FindingsHelpWorkspaceReadinessMetric;
+  readonly awaitingDecision: FindingsHelpWorkspaceReadinessMetric;
+  readonly recentlyResolved: FindingsHelpWorkspaceReadinessMetric;
+  readonly workspaceScopeLabel: string | null;
+  readonly loadedAtUtc: string | null;
+  readonly reload: () => void;
 };
 
-const INITIAL_SNAPSHOT: FindingsHelpWorkspaceReadinessSnapshot = {
+const INITIAL_METRIC: FindingsHelpWorkspaceReadinessMetric = {
+  label: "",
+  valueLabel: "…",
+  statusKind: "neutral",
+  href: "/governance/findings",
+};
+
+const INITIAL_SNAPSHOT: Omit<FindingsHelpWorkspaceReadinessSnapshot, "reload"> = {
   loading: true,
   loadFailed: false,
-  openFindingsLabel: "…",
-  criticalAndHighLabel: "…",
-  awaitingDecisionLabel: "…",
-  recentlyResolvedLabel: "…",
+  loadForbidden: false,
+  openFindings: { ...INITIAL_METRIC, label: FINDINGS_HELP_READINESS_LABELS.openFindings },
+  criticalAndError: { ...INITIAL_METRIC, label: FINDINGS_HELP_READINESS_LABELS.criticalAndError },
+  awaitingDecision: { ...INITIAL_METRIC, label: FINDINGS_HELP_READINESS_LABELS.awaitingDecision },
+  recentlyResolved: { ...INITIAL_METRIC, label: FINDINGS_HELP_READINESS_LABELS.recentlyResolved },
+  workspaceScopeLabel: null,
+  loadedAtUtc: null,
 };
 
-const RECENTLY_RESOLVED_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
-
-function isFindingRow(row: GovernanceFindingQueueRow): boolean {
-  return row.recordKind === "finding";
+function formatMetricCountValue(count: number): string {
+  return String(count);
 }
 
-function isOpenFinding(row: GovernanceFindingQueueRow): boolean {
-  if (!isFindingRow(row)) {
-    return false;
-  }
-
-  const normalized = row.status.toLowerCase();
-
-  if (normalized.includes("recorded")) {
-    return false;
-  }
-
-  if (normalized.includes("closed") || normalized.includes("resolved")) {
-    return false;
-  }
-
-  return true;
-}
-
-function isCriticalOrHighSeverity(row: GovernanceFindingQueueRow): boolean {
-  if (!isFindingRow(row)) {
-    return false;
-  }
-
-  const normalized = row.severity.trim().toLowerCase();
-
-  return (
-    normalized === "critical"
-    || normalized === "error"
-    || normalized === "high"
-    || normalized === "warning"
-  );
-}
-
-function isAwaitingDecision(row: GovernanceFindingQueueRow): boolean {
-  if (!isFindingRow(row) || !isOpenFinding(row)) {
-    return false;
-  }
-
-  const disposition = (row.latestDisposition ?? "").trim();
-  const humanReview = (row.humanReviewStatusLabel ?? "").toLowerCase();
-
-  if (disposition.length > 0 && disposition !== "NeedsEvidence") {
-    return false;
-  }
-
-  if (humanReview.includes("pending")) {
-    return true;
-  }
-
-  return disposition.length === 0 || disposition === "NeedsEvidence";
-}
-
-function isRecentlyResolved(row: GovernanceFindingQueueRow, nowMs: number): boolean {
-  if (!isFindingRow(row)) {
-    return false;
-  }
-
-  const disposition = (row.latestDisposition ?? "").trim();
-
-  if (disposition !== "Remediated") {
-    return false;
-  }
-
-  const reviewedRaw = row.lastReviewedUtc?.trim() ?? "";
-
-  if (reviewedRaw.length === 0) {
-    return false;
-  }
-
-  const reviewedMs = Date.parse(reviewedRaw);
-
-  if (Number.isNaN(reviewedMs)) {
-    return false;
-  }
-
-  return nowMs - reviewedMs <= RECENTLY_RESOLVED_WINDOW_MS;
-}
-
-function formatCountLabel(count: number, singular: string, plural: string, empty: string): string {
+function resolveCountStatusKind(count: number, attentionWhenPositive = true): EnterpriseStatusKind {
   if (count === 0) {
-    return empty;
+    return "neutral";
   }
 
-  if (count === 1) {
-    return `1 ${singular}`;
+  if (attentionWhenPositive) {
+    return "needs-attention";
   }
 
-  return `${count} ${plural}`;
+  return "ready";
+}
+
+function countMatchingFilter(
+  rows: readonly GovernanceFindingQueueRow[],
+  filter: RiskRegisterFilter,
+  nowMs: number,
+): number {
+  return rows.filter((row) => matchesRiskRegisterFilter(row, filter, nowMs)).length;
+}
+
+function buildReadinessMetric(
+  label: string,
+  count: number,
+  href: string,
+  attentionWhenPositive = true,
+): FindingsHelpWorkspaceReadinessMetric {
+  return {
+    label,
+    valueLabel: formatMetricCountValue(count),
+    statusKind: resolveCountStatusKind(count, attentionWhenPositive),
+    href,
+  };
 }
 
 function summarizeFindingsRows(rows: readonly GovernanceFindingQueueRow[]): Omit<
   FindingsHelpWorkspaceReadinessSnapshot,
-  "loading" | "loadFailed"
+  "loading" | "loadFailed" | "loadForbidden" | "workspaceScopeLabel" | "loadedAtUtc" | "reload"
 > {
   const nowMs = Date.now();
-  const openCount = rows.filter((row) => isOpenFinding(row)).length;
-  const criticalHighCount = rows.filter((row) => isOpenFinding(row) && isCriticalOrHighSeverity(row)).length;
-  const awaitingCount = rows.filter((row) => isAwaitingDecision(row)).length;
-  const recentCount = rows.filter((row) => isRecentlyResolved(row, nowMs)).length;
+  const openCount = countMatchingFilter(rows, "open", nowMs);
+  const criticalErrorCount = countMatchingFilter(rows, "critical-error", nowMs);
+  const awaitingCount = countMatchingFilter(rows, "needs-decision", nowMs);
+  const recentCount = countMatchingFilter(rows, "remediated-recent", nowMs);
 
   return {
-    openFindingsLabel: formatCountLabel(openCount, "open finding", "open findings", "No open findings"),
-    criticalAndHighLabel: formatCountLabel(
-      criticalHighCount,
-      "critical or high finding",
-      "critical or high findings",
-      "No critical or high findings",
+    openFindings: buildReadinessMetric(
+      FINDINGS_HELP_READINESS_LABELS.openFindings,
+      openCount,
+      workspaceOpenFindingsPresentation(openCount).href,
     ),
-    awaitingDecisionLabel: formatCountLabel(
+    criticalAndError: buildReadinessMetric(
+      FINDINGS_HELP_READINESS_LABELS.criticalAndError,
+      criticalErrorCount,
+      buildGovernanceFindingsQueueHref({ filter: "critical-error" }),
+    ),
+    awaitingDecision: buildReadinessMetric(
+      FINDINGS_HELP_READINESS_LABELS.awaitingDecision,
       awaitingCount,
-      "finding awaiting decision",
-      "findings awaiting decision",
-      "No findings awaiting decision",
+      buildGovernanceFindingsQueueHref({ filter: "needs-decision" }),
     ),
-    recentlyResolvedLabel: formatCountLabel(
+    recentlyResolved: buildReadinessMetric(
+      FINDINGS_HELP_READINESS_LABELS.recentlyResolved,
       recentCount,
-      "recent resolution",
-      "recent resolutions",
-      "No recent resolutions",
+      buildGovernanceFindingsQueueHref({ filter: "remediated-recent" }),
+      false,
     ),
   };
 }
 
+function unavailableMetric(label: string): FindingsHelpWorkspaceReadinessMetric {
+  return {
+    label,
+    valueLabel: "Unavailable",
+    statusKind: "blocked",
+    href: "/governance/findings",
+  };
+}
+
+function isAuthorizationFailure(error: unknown): boolean {
+  return isApiRequestError(error) && (error.httpStatus === 401 || error.httpStatus === 403);
+}
+
 export function useFindingsHelpWorkspaceReadiness(): FindingsHelpWorkspaceReadinessSnapshot {
-  const [snapshot, setSnapshot] = useState<FindingsHelpWorkspaceReadinessSnapshot>(INITIAL_SNAPSHOT);
+  const [snapshot, setSnapshot] = useState<Omit<FindingsHelpWorkspaceReadinessSnapshot, "reload">>(
+    INITIAL_SNAPSHOT,
+  );
 
   const load = useCallback(async (): Promise<void> => {
-    setSnapshot((prev) => ({ ...prev, loading: true, loadFailed: false }));
+    setSnapshot((prev) => ({
+      ...prev,
+      loading: true,
+      loadFailed: false,
+      loadForbidden: false,
+      workspaceScopeLabel: null,
+    }));
 
     try {
       const [riskRegister, decisionRegister] = await Promise.all([
@@ -178,16 +177,38 @@ export function useFindingsHelpWorkspaceReadiness(): FindingsHelpWorkspaceReadin
       setSnapshot({
         loading: false,
         loadFailed: false,
+        loadForbidden: false,
         ...summary,
+        workspaceScopeLabel: FINDINGS_HELP_WORKSPACE_SCOPE_FALLBACK_LABEL,
+        loadedAtUtc: new Date().toISOString(),
       });
-    } catch {
+    } catch (error) {
+      if (isAuthorizationFailure(error)) {
+        setSnapshot({
+          loading: false,
+          loadFailed: false,
+          loadForbidden: true,
+          openFindings: { ...INITIAL_METRIC, label: FINDINGS_HELP_READINESS_LABELS.openFindings },
+          criticalAndError: { ...INITIAL_METRIC, label: FINDINGS_HELP_READINESS_LABELS.criticalAndError },
+          awaitingDecision: { ...INITIAL_METRIC, label: FINDINGS_HELP_READINESS_LABELS.awaitingDecision },
+          recentlyResolved: { ...INITIAL_METRIC, label: FINDINGS_HELP_READINESS_LABELS.recentlyResolved },
+          workspaceScopeLabel: null,
+          loadedAtUtc: null,
+        });
+
+        return;
+      }
+
       setSnapshot({
         loading: false,
         loadFailed: true,
-        openFindingsLabel: "Unavailable",
-        criticalAndHighLabel: "Unavailable",
-        awaitingDecisionLabel: "Unavailable",
-        recentlyResolvedLabel: "Unavailable",
+        loadForbidden: false,
+        openFindings: unavailableMetric(FINDINGS_HELP_READINESS_LABELS.openFindings),
+        criticalAndError: unavailableMetric(FINDINGS_HELP_READINESS_LABELS.criticalAndError),
+        awaitingDecision: unavailableMetric(FINDINGS_HELP_READINESS_LABELS.awaitingDecision),
+        recentlyResolved: unavailableMetric(FINDINGS_HELP_READINESS_LABELS.recentlyResolved),
+        workspaceScopeLabel: null,
+        loadedAtUtc: new Date().toISOString(),
       });
     }
   }, []);
@@ -196,7 +217,10 @@ export function useFindingsHelpWorkspaceReadiness(): FindingsHelpWorkspaceReadin
     void load();
   }, [load]);
 
-  return snapshot;
+  return {
+    ...snapshot,
+    reload: load,
+  };
 }
 
 export { FINDINGS_HELP_READINESS_LABELS };
