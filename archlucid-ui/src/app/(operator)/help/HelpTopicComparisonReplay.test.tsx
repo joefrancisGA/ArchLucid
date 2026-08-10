@@ -9,7 +9,7 @@ vi.mock("@/components/help/MermaidDiagram", () => ({
     readonly source: string;
     readonly accessibleName: string;
   }) => (
-    <div data-testid="help-comparison-replay-decision-diagram" aria-label={accessibleName}>
+    <div data-testid="help-comparison-replay-decision-diagram-mermaid" aria-label={accessibleName}>
       {source}
     </div>
   ),
@@ -80,7 +80,7 @@ describe("HelpTopicComparisonReplay (CO)", () => {
     expect(OPERATOR_NAV_LINK_LABELS.replayReview).toBe("Validate review");
   });
 
-  it("renders primary actions, provenance, evidence strip, and collapsed decision diagram", () => {
+  it("renders primary actions, provenance, evidence strip, and visible decision diagram", () => {
     if (loaded === null) {
       throw new Error("Expected comparison-replay documentation to load.");
     }
@@ -114,24 +114,26 @@ describe("HelpTopicComparisonReplay (CO)", () => {
 
     expect(screen.getByRole("heading", { name: "When to compare" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "When to replay" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "When to use this guide" })).toBeInTheDocument();
+    const repeatReviewLinks = screen.getAllByRole("link", { name: "Repeat-review stickiness loop" });
+    expect(repeatReviewLinks.some((link) => link.getAttribute("href") === "/help/repeat-review-loop")).toBe(true);
     expect(screen.getByText(/Validate review.*in the workspace/i)).toBeInTheDocument();
 
-    const diagramDetails = screen.getByTestId("help-comparison-replay-decision-diagram-details");
-    expect(diagramDetails).not.toHaveAttribute("open");
+    expect(screen.getByTestId("help-comparison-replay-decision-diagram-panel")).toBeInTheDocument();
     expect(screen.getByTestId("help-comparison-replay-decision-diagram-summary")).toHaveTextContent(
       COMPARISON_REPLAY_HELP_DIAGRAM_TEXT_ALTERNATIVE,
     );
 
-    const diagram = screen.getByTestId("help-comparison-replay-decision-diagram");
-    expect(diagram).toHaveAttribute("aria-label", COMPARISON_REPLAY_HELP_DIAGRAM_ACCESSIBLE_NAME);
-    expect(diagram).toHaveTextContent("Compare two reviews");
-    expect(diagram).toHaveTextContent("Replay saved comparison");
-    expect(diagram).toHaveTextContent("Replay with verify");
-    expect(diagram).toHaveTextContent("Start a new architecture review");
-    expect(diagram).toHaveTextContent("saved comparison record");
-    expect(diagram).toHaveTextContent("delta narrative");
+    const mermaid = screen.getByTestId("help-comparison-replay-decision-diagram-mermaid");
+    expect(mermaid).toHaveAttribute("aria-label", COMPARISON_REPLAY_HELP_DIAGRAM_ACCESSIBLE_NAME);
+    expect(mermaid).toHaveTextContent("Compare two reviews");
+    expect(mermaid).toHaveTextContent("Replay saved comparison");
+    expect(mermaid).toHaveTextContent("Replay with verify");
+    expect(mermaid).toHaveTextContent("Start a new architecture review");
+    expect(mermaid).toHaveTextContent("saved comparison record");
+    expect(mermaid).toHaveTextContent("delta narrative");
 
-    const diagramText = diagram.textContent ?? "";
+    const diagramText = mermaid.textContent ?? "";
 
     for (const phrase of BANNED_DIAGRAM_COPY) {
       expect(diagramText, `diagram should not contain "${phrase}"`).not.toContain(phrase);

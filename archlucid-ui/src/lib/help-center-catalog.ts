@@ -77,7 +77,7 @@ const HELP_CENTER_TIER_BY_SLUG: Readonly<Record<string, HelpCenterTier>> = {
   "governance-api-contracts": "internal",
   "admin-diagnostics": "internal",
   "pilot-feedback": "internal",
-  "comparison-replay": "internal",
+  "comparison-replay": "product",
   "repeat-review-loop": "internal",
   "policy-pack-delta-demo": "internal",
   "pilot-roi-model": "product",

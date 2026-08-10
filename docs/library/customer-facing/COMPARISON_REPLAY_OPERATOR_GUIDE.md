@@ -25,6 +25,12 @@ Open **Compare two reviews** from the analysis tools in the architect workspace,
 
 Replay does **not** replace starting a new architecture review when your evidence has materially changed. Prefer a new review (or compare two fresh packages) when the architecture itself moved.
 
+## When to use this guide
+
+Use this page for **compare and replay mechanics** — side-by-side deltas between two packages or regenerating a saved comparison record.
+
+For the **repeat-review stickiness loop** (compare → replay → governance dry-run → second finalize → sponsor proof), use [Repeat-review stickiness loop](/help/repeat-review-loop) instead.
+
 ## What you get
 
 | Output | Use when |
@@ -37,7 +43,4 @@ Replay does **not** replace starting a new architecture review when your evidenc
 
 - [Compare two reviews](/insights/compare-two-reviews) — open the live pair-diff workspace.
 - [Validate review](/internal/replay) — re-check or replay a saved comparison record.
-- [Architecture packages](/help/review-packages) — open and finalize packages before comparing.
-- [Repeat-review stickiness loop](/help/repeat-review-loop) — second-review value after the first finalize.
-- [Prior manifest retrieval](/help/prior-manifest-retrieval) — how finalized packages become searchable memory for Ask.
-- [Your first architecture review](/help/first-architecture-review) — complete one package before deep compare work.
+- [Repeat-review stickiness loop](/help/repeat-review-loop) — second-review habit after the first finalize.

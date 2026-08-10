@@ -176,4 +176,16 @@ describe("help center tiers", () => {
     expect(entry).not.toBeNull();
     expect(getHelpCenterTier(entry!)).toBe("product");
   });
+
+  it("classifies comparison-replay as product tier for customer-facing operator guide (CO)", () => {
+    const entry = getProductDocumentationEntry("comparison-replay");
+
+    expect(entry).not.toBeNull();
+    expect(entry?.audience).toBe("operator");
+    expect(getHelpCenterTier(entry!)).toBe("product");
+
+    const advanced = listHelpCenterTopics({ showAdvanced: true, isAdmin: false }).map((topic) => topic.slug);
+
+    expect(advanced).toContain("comparison-replay");
+  });
 });

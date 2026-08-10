@@ -19,7 +19,6 @@ import {
   COMPARISON_REPLAY_HELP_DECISION_PANEL_TITLE,
   COMPARISON_REPLAY_HELP_DECISION_VALIDATE,
   COMPARISON_REPLAY_HELP_DIAGRAM_ACCESSIBLE_NAME,
-  COMPARISON_REPLAY_HELP_DIAGRAM_DETAILS_SUMMARY,
   COMPARISON_REPLAY_HELP_DIAGRAM_SOURCE,
   COMPARISON_REPLAY_HELP_DIAGRAM_TEXT_ALTERNATIVE,
   COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS,
@@ -153,6 +152,22 @@ export function HelpComparisonReplayGuideView(
         </Card>
       </div>
 
+      <div
+        className={cn(
+          "space-y-3 rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800",
+          OPERATOR_TYPOGRAPHY.body,
+        )}
+        data-testid="help-comparison-replay-decision-diagram-panel"
+      >
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-comparison-replay-decision-diagram-summary">
+          {COMPARISON_REPLAY_HELP_DIAGRAM_TEXT_ALTERNATIVE}
+        </p>
+        <MermaidDiagram
+          source={COMPARISON_REPLAY_HELP_DIAGRAM_SOURCE}
+          accessibleName={COMPARISON_REPLAY_HELP_DIAGRAM_ACCESSIBLE_NAME}
+        />
+      </div>
+
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className={cn("min-w-0 space-y-6", HELP_PAGE_LAYOUT.contentColumn)} data-testid="help-comparison-replay-content">
           <MarketingAccessibilityMarkdownFragment
@@ -163,21 +178,6 @@ export function HelpComparisonReplayGuideView(
             helpTopicSlug={entry.slug}
             preparedMarkdownOverride={beforeRelatedGuides}
           />
-
-          <details className={HELP_PAGE_LAYOUT.details} data-testid="help-comparison-replay-decision-diagram-details">
-            <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.body)}>
-              {COMPARISON_REPLAY_HELP_DIAGRAM_DETAILS_SUMMARY}
-            </summary>
-            <div className={HELP_PAGE_LAYOUT.detailsBody}>
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-comparison-replay-decision-diagram-summary">
-                {COMPARISON_REPLAY_HELP_DIAGRAM_TEXT_ALTERNATIVE}
-              </p>
-              <MermaidDiagram
-                source={COMPARISON_REPLAY_HELP_DIAGRAM_SOURCE}
-                accessibleName={COMPARISON_REPLAY_HELP_DIAGRAM_ACCESSIBLE_NAME}
-              />
-            </div>
-          </details>
 
           {relatedGuidesSection.length > 0 ? (
             <MarketingAccessibilityMarkdownFragment
