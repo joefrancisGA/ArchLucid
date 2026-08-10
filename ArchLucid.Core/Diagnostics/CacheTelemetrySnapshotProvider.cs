@@ -22,6 +22,7 @@ public sealed class CacheTelemetrySnapshotProvider : ICacheTelemetrySnapshotProv
         {
             HotPathReadCacheHits = snapshot.HotPathReadCacheHits,
             HotPathReadCacheMisses = snapshot.HotPathReadCacheMisses,
+            HotPathReadCacheInFlightDeduped = snapshot.HotPathReadCacheInFlightDeduped,
             ExplanationCacheHits = snapshot.ExplanationCacheHits,
             ExplanationCacheMisses = snapshot.ExplanationCacheMisses,
             LlmCompletionCacheHits = snapshot.LlmCompletionCacheHits,

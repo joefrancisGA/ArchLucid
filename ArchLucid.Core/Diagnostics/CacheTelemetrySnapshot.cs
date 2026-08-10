@@ -15,6 +15,12 @@ public sealed class CacheTelemetrySnapshot
         init;
     }
 
+    public long HotPathReadCacheInFlightDeduped
+    {
+        get;
+        init;
+    }
+
     public long ExplanationCacheHits
     {
         get;

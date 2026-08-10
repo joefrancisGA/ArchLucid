@@ -15,6 +15,12 @@ public sealed class AdminCacheDiagnosticsResponse
         init;
     }
 
+    public long HotPathReadCacheInFlightDeduped
+    {
+        get;
+        init;
+    }
+
     public long ExplanationCacheHits
     {
         get;

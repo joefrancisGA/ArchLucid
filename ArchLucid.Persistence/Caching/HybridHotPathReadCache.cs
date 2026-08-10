@@ -42,15 +42,18 @@ public sealed class HybridHotPathReadCache(
         HotPathTypedCacheSlot<T> slot = await _hybridCache
             .GetOrCreateAsync(
                 key,
-                async innerCt =>
-                {
-                    Interlocked.Exchange(ref factoryInvoked, 1);
-                    ArchLucidInstrumentation.RecordHotPathReadCacheMiss();
+                async innerCt => await HotPathReadCacheSingleFlight.CoalesceAsync(
+                    key,
+                    async leaderCt =>
+                    {
+                        Interlocked.Exchange(ref factoryInvoked, 1);
+                        ArchLucidInstrumentation.RecordHotPathReadCacheMiss();
 
-                    T? created = await factory(innerCt).ConfigureAwait(false);
+                        T? created = await factory(leaderCt).ConfigureAwait(false);
 
-                    return new HotPathTypedCacheSlot<T>(created is not null, created);
-                },
+                        return new HotPathTypedCacheSlot<T>(created is not null, created);
+                    },
+                    innerCt),
                 entryOptions,
                 cancellationToken: ct)
             .ConfigureAwait(false);
