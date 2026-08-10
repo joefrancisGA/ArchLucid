@@ -15,10 +15,6 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
-vi.mock("@/components/usability/PageContextualHelpButton", () => ({
-  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
-}));
-
 vi.mock("@/components/help/HelpTopicPdfDownloadButton", () => ({
   HelpTopicPdfDownloadButton: () => <div data-testid="help-topic-pdf-download-button" />,
 }));
@@ -32,6 +28,7 @@ import {
   AUDIT_TRAIL_HELP_OVERVIEW,
   AUDIT_TRAIL_HELP_PAGE_SUBTITLE_OPERATOR,
   AUDIT_TRAIL_HELP_PAGE_SUBTITLE_BUYER,
+  AUDIT_TRAIL_HELP_SOURCE_OF_RECORD_HREF,
 } from "@/lib/audit-trail-help-guide-content";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
@@ -50,14 +47,18 @@ describe("HelpAuditTrailGuideView buyer-polished shell", () => {
     expect(screen.getByTestId("help-audit-trail-breadcrumb")).toHaveTextContent("Help");
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-09");
     expect(screen.getByTestId("help-audit-trail-document-status")).toHaveTextContent("Current");
-    expect(screen.getByTestId("help-audit-trail-source-of-record")).toHaveTextContent("Audit event model");
-    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+
+    const sourceOfRecordLink = screen.getByRole("link", { name: "Data handling" });
+    expect(sourceOfRecordLink).toHaveAttribute("href", AUDIT_TRAIL_HELP_SOURCE_OF_RECORD_HREF);
+    expect(screen.getByTestId("help-audit-trail-source-of-record")).toHaveTextContent("Source of record: Data handling");
+
+    expect(screen.queryByTestId("page-contextual-help-button")).toBeNull();
     expect(screen.queryByTestId("help-audit-trail-refresh-button")).toBeNull();
     expect(screen.getByTestId("help-audit-trail-header-open-audit-trail")).toHaveAttribute("href", "/governance/audit");
     expect(screen.getByTestId("help-audit-trail-overview")).toHaveTextContent(AUDIT_TRAIL_HELP_OVERVIEW);
-    expect(screen.getByTestId("help-audit-trail-action-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("audit-trail-help-sources")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-audit-trail-action-panel")).toBeNull();
     expect(screen.getByTestId("help-audit-trail-immutability-claims")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-toc")).toBeInTheDocument();
-    expect(screen.getByTestId("help-audit-trail-header-open-audit-trail")).toHaveAttribute("href", "/governance/audit");
   });
 });

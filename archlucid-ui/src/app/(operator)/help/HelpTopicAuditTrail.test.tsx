@@ -2,14 +2,13 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { HelpAuditTrailGuideView } from "@/app/(operator)/help/_sections/HelpAuditTrailGuideView";
+import { AUDIT_TRAIL_HELP_ANATOMY_FIELDS } from "@/lib/audit-trail-help-guide-content";
+import { AUDIT_TRAIL_HELP_SOURCES } from "@/lib/audit-trail-help-evidence-copy";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
+import { AUDIT_TRAIL_OPERATOR_TABLE_COLUMN_LABELS } from "@/lib/audit-trail-page-copy";
 
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
-}));
-
-vi.mock("@/components/usability/PageContextualHelpButton", () => ({
-  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 
 vi.mock("@/components/help/HelpTopicPdfDownloadButton", () => ({
@@ -42,6 +41,12 @@ describe("HelpTopicAuditTrail", () => {
     expect(loaded).not.toBeNull();
   });
 
+  it("keeps anatomy field labels aligned with live audit trail table headers", () => {
+    expect(AUDIT_TRAIL_HELP_ANATOMY_FIELDS.map((field) => field.label)).toEqual([
+      ...AUDIT_TRAIL_OPERATOR_TABLE_COLUMN_LABELS,
+    ]);
+  });
+
   it("purges contributor and engineering leakage from rendered audit-trail help", () => {
     if (loaded === null) {
       throw new Error("Expected audit-trail documentation to load.");
@@ -64,13 +69,18 @@ describe("HelpTopicAuditTrail", () => {
     render(<HelpAuditTrailGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     expect(screen.getByTestId("help-audit-trail-header-open-audit-trail")).toHaveAttribute("href", "/governance/audit");
-    expect(screen.getAllByRole("link", { name: "Governance approval" })[0]).toHaveAttribute(
-      "href",
-      "/help/governance-approval",
-    );
+    const sourcesSection = screen.getByTestId("audit-trail-help-sources");
+
+    for (const source of AUDIT_TRAIL_HELP_SOURCES) {
+      expect(within(sourcesSection).getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
+    }
+
     expect(screen.getByTestId("help-audit-trail-overview")).toBeInTheDocument();
     expect(screen.getByTestId("help-audit-trail-breadcrumb")).toHaveTextContent("Help");
     expect(screen.getByTestId("help-audit-trail-immutability-claims")).toBeInTheDocument();
+    expect(screen.getByTestId("help-audit-trail-append-only-enforcement")).toBeInTheDocument();
+    expect(screen.queryByText(/^Evidence:/)).toBeNull();
+    expect(screen.queryByTestId("help-audit-trail-action-panel")).toBeNull();
     expect(screen.queryByTestId("help-audit-trail-refresh-button")).toBeNull();
   });
 
@@ -104,5 +114,18 @@ describe("HelpTopicAuditTrail", () => {
     window.dispatchEvent(new HashChangeEvent("hashchange"));
 
     expect(await screen.findByTestId("help-audit-trail-technical-reference-body")).toBeInTheDocument();
+  });
+
+  it("opens technical reference when the immutability-enforcement hash is present", async () => {
+    if (loaded === null) {
+      throw new Error("Expected audit-trail documentation to load.");
+    }
+
+    window.location.hash = "#immutability-enforcement";
+    render(<HelpAuditTrailGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+    window.dispatchEvent(new HashChangeEvent("hashchange"));
+
+    expect(await screen.findByTestId("help-audit-trail-technical-reference-body")).toBeInTheDocument();
+    expect(document.getElementById("immutability-enforcement")).not.toBeNull();
   });
 });

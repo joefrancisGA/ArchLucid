@@ -13,7 +13,7 @@ export function AuditBuyerEmptyStatePreview(): React.JSX.Element {
         {AUDIT_TRAIL_EMPTY_PREVIEW_SECTION_TITLE}
       </h2>
       <div className="mt-3 overflow-hidden rounded-md border border-neutral-200/80 dark:border-neutral-800/80">
-        <div className="grid grid-cols-2 gap-px bg-neutral-200/80 dark:bg-neutral-800/80 sm:grid-cols-4 lg:grid-cols-7">
+        <div className="grid grid-cols-2 gap-px bg-neutral-200/80 dark:bg-neutral-800/80 sm:grid-cols-3 lg:grid-cols-6">
           {AUDIT_TRAIL_EMPTY_PREVIEW_COLUMNS.map((column) => (
             <div key={column} className="bg-neutral-50/80 px-2 py-2 dark:bg-neutral-950/60">
               <p className={cn("m-0 font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>{column}</p>

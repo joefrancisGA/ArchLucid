@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState, type ReactElement } from "react";
 
 import {
+  AUDIT_TRAIL_HELP_APPEND_ONLY_ENFORCEMENT_ANCHOR,
   AUDIT_TRAIL_HELP_RELATED_PRODUCT_DOCS,
   AUDIT_TRAIL_HELP_TECHNICAL_REFERENCE_INTRO,
   AUDIT_TRAIL_HELP_TECHNICAL_REFERENCE_SECTIONS,
@@ -11,6 +12,12 @@ import {
 import { cn } from "@/lib/utils";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+
+function technicalReferenceHashShouldOpen(): boolean {
+  const hash = typeof window !== "undefined" ? window.location.hash.replace(/^#/, "").trim() : "";
+
+  return hash === "technical-reference" || hash === AUDIT_TRAIL_HELP_APPEND_ONLY_ENFORCEMENT_ANCHOR;
+}
 
 /** Lazy-mounts engineering detail so collapsed technical reference stays out of primary page text scans. */
 export function HelpAuditTrailTechnicalReference(): ReactElement {
@@ -21,7 +28,16 @@ export function HelpAuditTrailTechnicalReference(): ReactElement {
     const syncOpenFromDom = (): void => {
       const details = detailsRef.current;
 
-      if (details !== null && details.open) {
+      if (details === null) {
+        return;
+      }
+
+      // Deep links to enforcement detail must open before the lazy body mounts.
+      if (technicalReferenceHashShouldOpen()) {
+        details.open = true;
+      }
+
+      if (details.open) {
         setOpen(true);
       }
     };
@@ -55,6 +71,10 @@ export function HelpAuditTrailTechnicalReference(): ReactElement {
         Technical reference
       </summary>
       <div className={HELP_PAGE_LAYOUT.detailsBody}>
+        {/* Always-mounted target so HelpTopicHashScroll can open this disclosure before the body mounts. */}
+        <span id={AUDIT_TRAIL_HELP_APPEND_ONLY_ENFORCEMENT_ANCHOR} className="sr-only">
+          Immutability enforcement
+        </span>
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{AUDIT_TRAIL_HELP_TECHNICAL_REFERENCE_INTRO}</p>
         <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.body)}>
           <Link

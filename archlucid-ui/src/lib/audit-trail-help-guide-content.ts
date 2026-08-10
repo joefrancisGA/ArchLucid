@@ -1,5 +1,6 @@
 import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
 import {
+  AUDIT_TRAIL_OPERATOR_TABLE_COLUMN_LABELS,
   AUDIT_TRAIL_PAGE_SUBTITLE_BUYER,
   AUDIT_TRAIL_PAGE_SUBTITLE_OPERATOR,
 } from "@/lib/audit-trail-page-copy";
@@ -24,7 +25,9 @@ export function auditTrailHelpPageSubtitle(buyerPolishedShell: boolean): string 
 /** From `AUDIT_EVENT_MODEL.md` front matter — buyer-facing document status. */
 export const AUDIT_TRAIL_HELP_DOCUMENT_STATUS_LABEL = "Current" as const;
 
-export const AUDIT_TRAIL_HELP_SOURCE_OF_RECORD_LABEL = "Audit event model" as const;
+export const AUDIT_TRAIL_HELP_SOURCE_OF_RECORD_LABEL = "Data handling" as const;
+
+export const AUDIT_TRAIL_HELP_SOURCE_OF_RECORD_HREF = inAppHelpHref("data-handling", "audit-trail");
 
 export const AUDIT_TRAIL_HELP_ACTION_PANEL_TITLE = "Related follow-ups" as const;
 
@@ -57,51 +60,64 @@ export type AuditTrailHelpAnatomyField = {
   readonly description: string;
 };
 
-export const AUDIT_TRAIL_HELP_ANATOMY_FIELDS: readonly AuditTrailHelpAnatomyField[] = [
-  { label: "Time", description: "When the action occurred in UTC." },
-  { label: "Actor", description: "The person or service identity that performed the action." },
-  { label: "Action", description: "What changed — for example submission, approval, export, or evidence update." },
-  { label: "Scope", description: "Tenant, workspace, and project context for the event." },
-  { label: "Review link", description: "The architecture review or signed review record when the action is review-scoped." },
-  { label: "Correlation", description: "Optional identifier linking related operations for forensics." },
-  { label: "Details", description: "Structured payload describing the action outcome when shown." },
-] as const;
+const AUDIT_TRAIL_HELP_ANATOMY_DESCRIPTIONS: Readonly<
+  Record<(typeof AUDIT_TRAIL_OPERATOR_TABLE_COLUMN_LABELS)[number], string>
+> = {
+  Occurred: "When the action occurred in UTC.",
+  Event: "What changed — for example submission, approval, export, or evidence update.",
+  Actor: "The person or service identity that performed the action.",
+  Review: "The architecture review or signed review record when the action is review-scoped.",
+  Correlation: "Optional identifier linking related operations for forensics.",
+  Payload:
+    "Structured action outcome when shown. Tenant, workspace, and project scope appear as row context rather than a separate column.",
+};
+
+export const AUDIT_TRAIL_HELP_ANATOMY_FIELDS: readonly AuditTrailHelpAnatomyField[] =
+  AUDIT_TRAIL_OPERATOR_TABLE_COLUMN_LABELS.map((label) => ({
+    label,
+    description: AUDIT_TRAIL_HELP_ANATOMY_DESCRIPTIONS[label],
+  }));
 
 export const AUDIT_TRAIL_HELP_IMMUTABILITY_TITLE = "Immutability and export posture";
 
 export const AUDIT_TRAIL_HELP_IMMUTABILITY_INTRO =
-  "Audit trail rows are append-only under the application identity. Diligence reviewers should pair each immutability statement below with linked evidence — this help topic orients buyers; it is not itself a signed diligence Sources package.";
+  "Audit trail rows are append-only under the application identity. Diligence reviewers should pair each immutability statement below with linked guidance — this help topic orients buyers; it is not itself a signed diligence Sources package.";
+
+export const AUDIT_TRAIL_HELP_APPEND_ONLY_ENFORCEMENT =
+  "Append-only rows are enforced by a database-level deny on update and delete for the application role.";
+
+export const AUDIT_TRAIL_HELP_APPEND_ONLY_ENFORCEMENT_ANCHOR = "immutability-enforcement" as const;
 
 export type AuditTrailHelpImmutabilityClaim = {
   readonly claim: string;
-  readonly evidenceLabel: string;
-  readonly evidenceHref: string;
+  readonly relatedGuidanceLabel: string;
+  readonly relatedGuidanceHref: string;
 };
 
 export const AUDIT_TRAIL_HELP_IMMUTABILITY_CLAIMS: readonly AuditTrailHelpImmutabilityClaim[] = [
   {
     claim:
       "Application roles append audit trail entries only; they cannot silently rewrite or delete prior rows through normal product APIs.",
-    evidenceLabel: "Security and trust center",
-    evidenceHref: inAppHelpHref("security-trust"),
+    relatedGuidanceLabel: "Security and trust center",
+    relatedGuidanceHref: inAppHelpHref("security-trust"),
   },
   {
     claim:
       "Hot, warm, and cold retention guidance defines how interactive query windows, bulk exports, and long-term blob copies should be operated.",
-    evidenceLabel: "Data handling and retention",
-    evidenceHref: inAppHelpHref("data-handling"),
+    relatedGuidanceLabel: "Data handling and retention",
+    relatedGuidanceHref: inAppHelpHref("data-handling"),
   },
   {
     claim:
       "Diligence exports can apply buyer-configurable redaction profiles so sensitive payloads stay out of shared proof packets.",
-    evidenceLabel: "Procurement FAQ",
-    evidenceHref: inAppHelpHref("procurement"),
+    relatedGuidanceLabel: "Procurement FAQ",
+    relatedGuidanceHref: inAppHelpHref("procurement"),
   },
   {
     claim:
       "Authorized users can export CSV or JSON samples from the live audit trail surface for workspace-scoped review.",
-    evidenceLabel: "Open audit trail",
-    evidenceHref: GOVERNANCE_AUDIT_PATH,
+    relatedGuidanceLabel: "Open audit trail",
+    relatedGuidanceHref: GOVERNANCE_AUDIT_PATH,
   },
 ] as const;
 
@@ -177,6 +193,7 @@ export const AUDIT_TRAIL_HELP_TECHNICAL_REFERENCE_SECTIONS = [
   },
   {
     title: "Immutability enforcement",
+    anchorId: AUDIT_TRAIL_HELP_APPEND_ONLY_ENFORCEMENT_ANCHOR,
     lines: [
       "IAuditRepository.AppendAsync — sole application write path.",
       "051_AuditEvents_DenyUpdateDelete.sql — DENY UPDATE/DELETE for ArchLucidApp role.",

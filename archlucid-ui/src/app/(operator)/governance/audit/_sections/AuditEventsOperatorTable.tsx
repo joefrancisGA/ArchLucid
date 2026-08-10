@@ -12,6 +12,7 @@ import {
   EnterpriseTableHeaderCell,
 } from "@/components/ui/enterprise-table";
 import type { AuditEvent } from "@/lib/api";
+import { AUDIT_TRAIL_OPERATOR_TABLE_COLUMN_LABELS } from "@/lib/audit-trail-page-copy";
 
 import { AuditEventOperatorTableRow } from "./AuditEventOperatorTableRow";
 import {
@@ -43,12 +44,9 @@ export function AuditEventsOperatorTable(props: AuditEventsOperatorTableProps): 
         <EnterpriseTable ariaLabel={ariaLabel} className="border-0">
           <EnterpriseTableHead>
             <EnterpriseTableHeadRow>
-              <EnterpriseTableHeaderCell>Occurred</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Event</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Actor</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Correlation</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Payload</EnterpriseTableHeaderCell>
+              {AUDIT_TRAIL_OPERATOR_TABLE_COLUMN_LABELS.map((columnLabel) => (
+                <EnterpriseTableHeaderCell key={columnLabel}>{columnLabel}</EnterpriseTableHeaderCell>
+              ))}
             </EnterpriseTableHeadRow>
           </EnterpriseTableHead>
           <EnterpriseTableBody>
@@ -69,12 +67,9 @@ export function AuditEventsOperatorTable(props: AuditEventsOperatorTableProps): 
       <EnterpriseTable ariaLabel={ariaLabel} className="border-0">
         <EnterpriseTableHead className="sticky top-0 z-[1] bg-al-surface-raised shadow-[0_1px_0_0_rgb(229_229_229)] dark:shadow-[0_1px_0_0_rgb(38_38_38)]">
           <EnterpriseTableHeadRow>
-            <EnterpriseTableHeaderCell>Occurred</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Event</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Actor</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Correlation</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Payload</EnterpriseTableHeaderCell>
+            {AUDIT_TRAIL_OPERATOR_TABLE_COLUMN_LABELS.map((columnLabel) => (
+              <EnterpriseTableHeaderCell key={columnLabel}>{columnLabel}</EnterpriseTableHeaderCell>
+            ))}
           </EnterpriseTableHeadRow>
         </EnterpriseTableHead>
         <EnterpriseTableBody

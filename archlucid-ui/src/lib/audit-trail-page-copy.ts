@@ -67,15 +67,17 @@ export const AUDIT_TRAIL_SUMMARY_LAST_ACTIVITY = "Last activity" as const;
 
 export const AUDIT_TRAIL_EMPTY_PREVIEW_SECTION_TITLE = "What audit entries look like" as const;
 
-export const AUDIT_TRAIL_EMPTY_PREVIEW_COLUMNS = [
-  "Time",
-  "Actor",
+/** Live `/governance/audit` table headers — keep aligned with `AUDIT_TRAIL_HELP_ANATOMY_FIELDS`. */
+export const AUDIT_TRAIL_OPERATOR_TABLE_COLUMN_LABELS = [
+  "Occurred",
   "Event",
-  "Object affected",
-  "Outcome",
-  "Evidence",
-  "Details",
+  "Actor",
+  "Review",
+  "Correlation",
+  "Payload",
 ] as const;
+
+export const AUDIT_TRAIL_EMPTY_PREVIEW_COLUMNS = AUDIT_TRAIL_OPERATOR_TABLE_COLUMN_LABELS;
 
 export const AUDIT_TRAIL_ACTIVE_FILTER_CLEAR = "Clear filters" as const;
 

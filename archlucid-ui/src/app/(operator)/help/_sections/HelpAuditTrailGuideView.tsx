@@ -5,13 +5,12 @@ import Link from "next/link";
 import { HelpAuditTrailPageHeader } from "@/app/(operator)/help/_sections/HelpAuditTrailPageHeader";
 import { HelpAuditTrailTechnicalReference } from "@/app/(operator)/help/_sections/HelpAuditTrailTechnicalReference";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { AuditTrailHelpEvidenceOrientationStrip } from "@/components/help/AuditTrailHelpEvidenceOrientationStrip";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  AUDIT_TRAIL_HELP_ACTION_PANEL_INTRO,
-  AUDIT_TRAIL_HELP_ACTION_PANEL_TITLE,
   AUDIT_TRAIL_HELP_ANATOMY_FIELDS,
+  AUDIT_TRAIL_HELP_APPEND_ONLY_ENFORCEMENT,
+  AUDIT_TRAIL_HELP_APPEND_ONLY_ENFORCEMENT_ANCHOR,
   AUDIT_TRAIL_HELP_EVIDENCE_TRAIL_INTRO,
   AUDIT_TRAIL_HELP_EVIDENCE_TRAIL_ITEMS,
   AUDIT_TRAIL_HELP_GUIDE_HEADINGS,
@@ -20,17 +19,14 @@ import {
   AUDIT_TRAIL_HELP_IMMUTABILITY_TITLE,
   AUDIT_TRAIL_HELP_LIVE_VS_HELP_BODY,
   AUDIT_TRAIL_HELP_OVERVIEW,
-  AUDIT_TRAIL_HELP_PRIMARY_ACTIONS,
   AUDIT_TRAIL_HELP_RELATED_PRODUCT_DOCS,
   AUDIT_TRAIL_HELP_ROLE_GUIDANCE,
   AUDIT_TRAIL_HELP_WHAT_IS_BODY,
   auditTrailHelpPageSubtitle,
 } from "@/lib/audit-trail-help-guide-content";
-import { AUDIT_TRAIL_HELP_CLAIM_DISCIPLINE } from "@/lib/audit-trail-help-evidence-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   DESIGN_TOKENS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
@@ -97,45 +93,7 @@ export function HelpAuditTrailGuideView(props: HelpAuditTrailGuideViewProps): Re
 
       <HelpAuditTrailPageHeader entry={entry} subtitle={auditTrailHelpPageSubtitle(buyerPolishedShell)} />
 
-      <aside
-        className="rounded-md border border-amber-200/80 bg-amber-50/50 p-3 dark:border-amber-900/40 dark:bg-amber-950/20"
-        data-testid="help-audit-trail-claim-discipline"
-      >
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{AUDIT_TRAIL_HELP_CLAIM_DISCIPLINE}</p>
-      </aside>
-
-      <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <Card
-          className="border border-neutral-200 bg-al-surface-raised dark:border-neutral-800"
-          data-testid="help-audit-trail-action-panel"
-        >
-          <CardHeader className={OPERATOR_CARD.header}>
-            <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-              {AUDIT_TRAIL_HELP_ACTION_PANEL_TITLE}
-            </CardTitle>
-            <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              {AUDIT_TRAIL_HELP_ACTION_PANEL_INTRO}
-            </p>
-          </CardHeader>
-          <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
-            <Button asChild size="sm" variant="outline">
-              <Link href={AUDIT_TRAIL_HELP_PRIMARY_ACTIONS.governanceApproval.href}>
-                {AUDIT_TRAIL_HELP_PRIMARY_ACTIONS.governanceApproval.label}
-              </Link>
-            </Button>
-            <Button asChild size="sm" variant="outline">
-              <Link href={AUDIT_TRAIL_HELP_PRIMARY_ACTIONS.securityTrust.href}>
-                {AUDIT_TRAIL_HELP_PRIMARY_ACTIONS.securityTrust.label}
-              </Link>
-            </Button>
-            <Button asChild size="sm" variant="outline">
-              <Link href={AUDIT_TRAIL_HELP_PRIMARY_ACTIONS.openAuditTrail.href}>
-                {AUDIT_TRAIL_HELP_PRIMARY_ACTIONS.openAuditTrail.label}
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      <AuditTrailHelpEvidenceOrientationStrip />
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className={cn("min-w-0 space-y-8", "max-w-[42rem] lg:max-w-none")}>
@@ -175,6 +133,16 @@ export function HelpAuditTrailGuideView(props: HelpAuditTrailGuideViewProps): Re
               {AUDIT_TRAIL_HELP_IMMUTABILITY_TITLE}
             </p>
             <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{AUDIT_TRAIL_HELP_IMMUTABILITY_INTRO}</p>
+            <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)} data-testid="help-audit-trail-append-only-enforcement">
+              {AUDIT_TRAIL_HELP_APPEND_ONLY_ENFORCEMENT}{" "}
+              <Link
+                href={`#${AUDIT_TRAIL_HELP_APPEND_ONLY_ENFORCEMENT_ANCHOR}`}
+                className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
+              >
+                Technical reference
+              </Link>
+              .
+            </p>
             <ul className="m-0 list-none space-y-3 p-0" data-testid="help-audit-trail-immutability-claims">
               {AUDIT_TRAIL_HELP_IMMUTABILITY_CLAIMS.map((row) => (
                 <li
@@ -183,12 +151,12 @@ export function HelpAuditTrailGuideView(props: HelpAuditTrailGuideViewProps): Re
                 >
                   <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{row.claim}</p>
                   <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.label)}>
-                    Evidence:{" "}
+                    Related guidance:{" "}
                     <Link
-                      href={row.evidenceHref}
+                      href={row.relatedGuidanceHref}
                       className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
                     >
-                      {row.evidenceLabel}
+                      {row.relatedGuidanceLabel}
                     </Link>
                   </p>
                 </li>

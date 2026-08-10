@@ -9,15 +9,15 @@ import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   AUDIT_TRAIL_HELP_CANONICAL_PATH,
   AUDIT_TRAIL_HELP_DOCUMENT_STATUS_LABEL,
   AUDIT_TRAIL_HELP_PAGE_TITLE,
   AUDIT_TRAIL_HELP_PRIMARY_ACTIONS,
+  AUDIT_TRAIL_HELP_SOURCE_OF_RECORD_HREF,
   AUDIT_TRAIL_HELP_SOURCE_OF_RECORD_LABEL,
 } from "@/lib/audit-trail-help-guide-content";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 
@@ -51,7 +51,13 @@ export function HelpAuditTrailPageHeader(props: HelpAuditTrailPageHeaderProps): 
           />
           <HelpTopicRegistryProvenanceLine entry={props.entry} />
           <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.label)} data-testid="help-audit-trail-source-of-record">
-            Source of record: {AUDIT_TRAIL_HELP_SOURCE_OF_RECORD_LABEL}
+            Source of record:{" "}
+            <Link
+              href={AUDIT_TRAIL_HELP_SOURCE_OF_RECORD_HREF}
+              className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
+            >
+              {AUDIT_TRAIL_HELP_SOURCE_OF_RECORD_LABEL}
+            </Link>
           </span>
         </div>
       }
@@ -62,7 +68,6 @@ export function HelpAuditTrailPageHeader(props: HelpAuditTrailPageHeaderProps): 
               {AUDIT_TRAIL_HELP_PRIMARY_ACTIONS.openAuditTrail.label}
             </Link>
           </Button>
-          <PageContextualHelpButton />
           <HelpTopicPdfDownloadButton entry={props.entry} />
           <HelpTopicPrintButton entry={props.entry} />
         </div>
