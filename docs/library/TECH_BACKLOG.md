@@ -21,12 +21,12 @@ Regenerate after opening or closing summary-table rows:
 | Cutting-edge AI | 3 |
 | Explainability | 2 |
 | Proof-of-ROI / executive value | 2 |
-| Trustworthiness | 143 |
+| Trustworthiness | 142 |
 | Maintainability | 9 |
 | Traceability | 3 |
 | Interoperability | 4 |
 | Compliance readiness | 1 |
-| Performance | 6 |
+| Performance | 16 |
 | Scalability | 2 |
 | Cost-effectiveness | 9 |
 | Supportability | 2 |
@@ -36,9 +36,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **754** |
+| **Total (unique open)** | **763** |
 
-**By priority band:** P0 **13** | P1 **611** | P2 **113** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **23** | P1 **610** | P2 **113** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -727,7 +727,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1448 | **Done** (2026-08-09) — Architectures list browser-local registry honesty; see ## TB-1448 below | Trustworthiness P1 ? **V1**; with **TB-1446** | S |
 | TB-1452 | **Done** (2026-08-09) — Architecture draft workspace StatusTag honesty; see ## TB-1452 below | Trustworthiness P1 ? **V1**; with **TB-1451**; pairs **TB-116** | S |
 | TB-1455 | **Done** (2026-08-09) — Architecture draft workspace Save vs autosave CTA honesty; see ## TB-1455 below | Trustworthiness P1 ? **V1**; with **TB-1451** | S |
-| TB-1456 | Bake-off loser + 15-minute proof sequence (manual ARB first); see `## TB-1456` below | Trustworthiness P1 ? **V1**; PA bake-off Q; GTM **M-261**/**M-262**; see `BAKEOFF_15MIN_LOSER_SEQUENCE.md` | S |
+| TB-1456 | **Done** (2026-08-09) — Bake-off loser + 15-minute proof sequence (manual ARB first); see `## TB-1456` below | Trustworthiness P1 ? **V1**; PA bake-off Q; GTM **M-261**/**M-262**; see `BAKEOFF_15MIN_LOSER_SEQUENCE.md` | S |
 | TB-1459 | Architecture creation bootstrap ? browser-local recent-drafts honesty; see ## TB-1459 below | Trustworthiness P1 ? **V1**; with **TB-1458**; pairs **TB-1448** | S |
 | TB-1460 | Architecture creation bootstrap ? autosave reassurance only when true; see ## TB-1460 below | Trustworthiness P1 ? **V1**; with **TB-1458** | XS |
 | TB-1463 | Weekly proof-language / buyer-claim drift inventory (SEND vs rewrite); see `## TB-1463` below | Trustworthiness P1 ? **V1**; PA weekly claim drift; GTM **M-263**/**M-264**; see `WEEKLY_BUYER_CLAIM_DRIFT_2026_07_27.md` | S |
@@ -1238,7 +1238,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-2156 | Admin prerequisites readiness board — unmet setup only, dependency order; see ## TB-2156 below | Adoption friction P0 — **V1**; owner confusion-reduction ask 2026-08-09; extends Done **TB-210** | M |
 | TB-2157 | Multi-step wizard session persistence (intake, baseline, SSO) — resume anytime; see ## TB-2157 below | Adoption friction P0 — **V1**; owner confusion-reduction ask 2026-08-09; extends Done **TB-1455** draft autosave | M |
 | TB-2158 | Conditional GET (ETag / `If-None-Match`) on hot operator reads — `RowVersion` already the cache key; see ## TB-2158 below | Performance P0 — **V1**; owner perf wave 7 2026-08-09; ETag exists only on evidence pack / demo preview | M |
-| TB-2159 | Azure OpenAI prompt-cache prefix stability + `cached_tokens` telemetry; see ## TB-2159 below | Performance/cost P0 — **V1**; owner perf wave 7 2026-08-09; `cached_tokens` absent from tree; peer **TB-2140** | M |
+| TB-2159 | Azure OpenAI prompt-cache prefix stability + `cached_tokens` telemetry; see ## TB-2159 below | Performance P0 — **V1**; owner perf wave 7 2026-08-09; `cached_tokens` absent from tree; cost lever too; peer **TB-2140** | M |
 | TB-2160 | Single-flight (request coalescing) in `HybridHotPathReadCache` — kill miss stampedes; see ## TB-2160 below | Performance P0 — **V1**; owner perf wave 7 2026-08-09; no lock/`Lazy<T>` in cache today; pairs **TB-2141** | M |
 | TB-2161 | Zero-cost runtime knobs — Server GC + TieredPGO + invariant globalization; see ## TB-2161 below | Performance P0 — **V1**; owner perf wave 7 2026-08-09; free complement to R2R **no-go** in **TB-2124** | S |
 | TB-2162 | `System.Text.Json` source-generated contexts for API DTOs — cuts cold-start Phase B reflection; see ## TB-2162 below | Performance P0 — **V1**; owner perf wave 7 2026-08-09; only `GraphJsonSerializerContext` exists; pairs **TB-2146** | L |
@@ -1246,7 +1246,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-2164 | Table-valued parameters for findings child inserts — stop plan-cache churn from variable chunk sizes; see ## TB-2164 below | Performance P0 — **V1**; owner perf wave 7 2026-08-09; needs SQL-mode measurement first | M |
 | TB-2165 | TanStack Query cache persistence across navigation / reload; see ## TB-2165 below | Performance P0 — **V1**; owner perf wave 7 2026-08-09; residual after Done **TB-2123**/**TB-2144** | S |
 | TB-2166 | Web Worker offload for INP on evidence graph + compare views; see ## TB-2166 below | Performance P0 — **V1**; owner perf wave 7 2026-08-09; INP not addressed by bundle cuts; after Done **TB-2031** | M |
-| TB-2167 | Leader election for hosted background services — unblocks `min_replicas` lever; see ## TB-2167 below | Performance/reliability P0 — **V1**; owner perf wave 7 2026-08-09; blocker named in **TB-2124** matrix | L |
+| TB-2167 | Leader election for hosted background services — unblocks `min_replicas` lever; see ## TB-2167 below | Performance P0 — **V1**; owner perf wave 7 2026-08-09; reliability lever too; blocker named in **TB-2124** matrix | L |
 | TB-932 | **Done** (2026-08-09) — **Won't do** — Offload large JSON payloads to blob storage; DEV LOB evidence max ~30 KB / 0% ≥1 MB; see ## TB-932 below | Performance P0 — **V1** (promoted P0 + V1 2026-08-08 with perf wave 5; evidence-gated; was P3 V2); after **TB-929**–**TB-931**; peers **TB-2119** | L |
 | TB-2103 | Operator-maintained model catalog — DDL-backed `IAgentModelAliasRegistry` replacing `ConfigAgentModelAliasRegistry`; internal-only admin surface; lifecycle + audit on every mutation; see ## TB-2103 below | Maintainability P1 — **V1.1**; ADR 0065 D2′; today curation needs a code change + deploy | L |
 | TB-2104 | Structured-output capability ladder (`StrictJsonSchema` \| `JsonObject` \| `DegradedTextParse`) per catalog row + per-task minimum, fail-closed routing; see ## TB-2104 below | Correctness P1 — **V1.1**; ADR 0065 D4′; the **only** quality-adjacent fail-closed control — function, not quality judgment | M |
@@ -37231,7 +37231,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Trustworthiness / commercial.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-09) ? `BAKEOFF_15MIN_LOSER_SEQUENCE.md` fused contract; GTM **M-261**/**M-262** residuals; cross-links in `COMPETITIVE_POSITIONING.md` + `WHAT_NOT_TO_PROMISE.md` alias.
 
 **Priority:** P1.
 

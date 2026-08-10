@@ -59,6 +59,7 @@ Use these in internal decks and emails; buyers can be pointed to the same paths 
 | Pilot structure and success framing | [CORE_PILOT.md](../CORE_PILOT.md), [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md) (incl. [onboarding playbook](PILOT_SUCCESS_SCORECARD.md#customer-onboarding-operating-playbook)) |
 | Buyer-safe evidence templates | [PMF buyer-safe evidence row](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md#21a-buyer-safe-evidence-row-template), [reference-customers/](reference-customers/README.md) |
 | Scope contract (what to claim in competitive talk tracks) | [V1_SCOPE.md](../library/V1_SCOPE.md), [POSITIONING.md](POSITIONING.md) |
+| 15-minute competitive bake-off (loser order + click sequence) | [`../library/BAKEOFF_15MIN_LOSER_SEQUENCE.md`](../library/BAKEOFF_15MIN_LOSER_SEQUENCE.md) (**M-261**/**M-262**); pairs [Why-not-ChatGPT (M-244)](BUYER_SECURITY_PROCUREMENT_PACKET.md#why-not-chatgpt-copilot-m-244) and [`DIFFERENTIATION_PROOF_PACKET.md`](DIFFERENTIATION_PROOF_PACKET.md) |
 
 ---
 
@@ -91,6 +92,12 @@ Use these in internal decks and emails; buyers can be pointed to the same paths 
 **Where ArchLucid does *not* win:** The buyer insists on **one vendor** for *all* evidence lifecycle and will not allow a sidecar Azure deployment.
 
 **Summary:** ArchLucid is strongest when the buyer admits **manual packaging and inconsistent decision evidence** are slowing releases — and will put a **bounded pilot** on **Core Pilot** success metrics ([BUYER_PERSONAS.md](BUYER_PERSONAS.md#buyer-journey-field-motion)).
+
+### 15-minute competitive bake-off (manual ARB first)
+
+**Framing:** In a timed head-to-head, **manual ARB / status-quo packaging loses first** — not because ArchLucid is “smarter AI,” but because wiki/slides/email cannot produce a **committed architecture package** with evidence-linked findings and sponsor export in the box. **Generic LLM seats** may win first-draft speed; contrast on **packaging, mode labels, audit, and finalize** only (**M-42** before beats-ChatGPT claims). **EA / portfolio tools** are **out of the 15-minute bake-off** (complement / system of record) — do not stage a fake LeanIX loss.
+
+**Canonical sequence:** [`../library/BAKEOFF_15MIN_LOSER_SEQUENCE.md`](../library/BAKEOFF_15MIN_LOSER_SEQUENCE.md) (**TB-1456**); PA handout [`BUYER_SECURITY_PROCUREMENT_PACKET.md#bakeoff-15min-loser-sequence-m-262`](BUYER_SECURITY_PROCUREMENT_PACKET.md#bakeoff-15min-loser-sequence-m-262). Orchestrates [deal-loss heuristic (M-186)](BUYER_SECURITY_PROCUREMENT_PACKET.md#competitive-deal-loss-closing-evidence-m-187), [first-15 package spine (M-180)](../library/PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md), and [`DIFFERENTIATION_PROOF_PACKET.md`](DIFFERENTIATION_PROOF_PACKET.md) — not a measured win-rate claim (**M-20**).
 
 ---
 
