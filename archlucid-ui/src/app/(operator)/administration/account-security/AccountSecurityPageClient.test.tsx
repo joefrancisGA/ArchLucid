@@ -10,6 +10,7 @@ import {
   verifyEmailLinkChallenge,
 } from "@/lib/sign-in-methods-api";
 import { SignInMethodsApiError } from "@/lib/sign-in-methods-problem";
+import { ACCOUNT_SECURITY_AUTH_GATE_MESSAGE } from "@/lib/account-security-page-copy";
 
 const frictionlessMock = vi.hoisted(() => ({
   enabled: false,
@@ -62,8 +63,7 @@ describe("AccountSecurityPageClient", () => {
     vi.mocked(fetchSignInMethods).mockRejectedValue(
       new SignInMethodsApiError({
         kind: "unauthorized-platform-user",
-        message:
-          "Account security needs a signed-in ArchLucid account. Sign in or start an evaluation to continue.",
+        message: ACCOUNT_SECURITY_AUTH_GATE_MESSAGE,
       }),
     );
 

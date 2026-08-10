@@ -63,7 +63,6 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/pilot-feedback",
       "/help/pilot-nav-profile",
       "/help/executive-summary",
-      "/help/product-overview",
       "/help/policy-pack-delta-demo",
       "/help/configuration-reference",
       "/help/cli-usage",
@@ -115,7 +114,6 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/caiq-sig-response",
       "/help/comparison-replay",
       "/help/getting-started",
-      "/help/how-it-works",
       "/help/troubleshooting",
       "/help/alerts",
       "/help/billing-and-plans",
@@ -128,14 +126,11 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/findings",
       "/help/governance-approval",
       "/help/review-guide",
-      "/help/starting-reviews",
       "/help/repeat-review-loop",
       "/help/pilot-guide",
       "/help/first-architecture-review",
-      "/help/core-pilot",
       "/help/first-pilot-path",
       "/help/first-hour-operator-path",
-      "/help/evidence-only-review",
       "/help/cloud-connections/azure",
       "/help/cloud-connections/aws",
       "/help/cloud-connections/gcp",
@@ -341,12 +336,12 @@ describe("contextual-help-registry (TB-733)", () => {
     );
   });
 
-  it("resolves Account security settings Category-1 help (ADS)", () => {
+  it("resolves Sign-in methods settings Category-1 help (ADS)", () => {
     expect(contextualHelpForPathname("/administration/account-security")?.whatIsThisPage).toContain(
-      "Account security",
+      "Sign-in methods",
     );
     expect(contextualHelpForPathname("/administration/account-security")?.whatToDoNext).toContain(
-      "sign-in",
+      "one-time code",
     );
   });
 
@@ -480,11 +475,6 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname(INTERNAL_TENANTS_PATH)?.whatToDoNext).toContain("Create a tenant");
   });
 
-  it("resolves how-it-works help Category-1 help (HHX alias → getting-started)", () => {
-    expect(contextualHelpForPathname("/help/how-it-works")?.whatIsThisPage).toContain("Getting started");
-    expect(contextualHelpForPathname("/help/how-it-works")?.whatToDoNext).toContain("Start a review");
-  });
-
   it("resolves troubleshooting help Category-1 help (HTX)", () => {
     expect(contextualHelpForPathname("/help/troubleshooting")?.whatIsThisPage).toContain("Troubleshooting");
     expect(contextualHelpForPathname("/help/troubleshooting")?.whatToDoNext).toContain("System health");
@@ -531,9 +521,6 @@ describe("contextual-help-registry (TB-733)", () => {
     );
     expect(contextualHelpForPathname("/help/first-architecture-review")?.whatToDoNext).toContain(
       "architecture review",
-    );
-    expect(contextualHelpForPathname("/help/core-pilot")?.whatIsThisPage).toContain(
-      "Your first architecture review",
     );
   });
 

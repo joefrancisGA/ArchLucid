@@ -1,4 +1,5 @@
 import { tryParseApiProblemDetails, type ApiProblemDetails } from "@/lib/api-problem";
+import { ACCOUNT_SECURITY_AUTH_GATE_MESSAGE } from "@/lib/account-security-page-copy";
 
 /** Discriminated failure from sign-in-methods API calls — never carries raw JSON for UI. */
 export type SignInMethodsProblemKind =
@@ -46,7 +47,7 @@ function humanMessageFromProblem(problem: ApiProblemDetails | null, status: numb
   }
 
   if (status === 401) {
-    return "Sign in is required to manage account security.";
+    return "Sign in is required to manage sign-in methods.";
   }
 
   if (status === 404) {
@@ -54,10 +55,10 @@ function humanMessageFromProblem(problem: ApiProblemDetails | null, status: numb
   }
 
   if (status >= 500) {
-    return "Account security is temporarily unavailable. Try again.";
+    return "Sign-in methods are temporarily unavailable. Try again.";
   }
 
-  return "Could not complete the account security request.";
+  return "Could not complete the sign-in methods request.";
 }
 
 function classifyProblem(problem: ApiProblemDetails | null, status: number, plainText: string): SignInMethodsProblem {
@@ -76,7 +77,7 @@ function classifyProblem(problem: ApiProblemDetails | null, status: number, plai
       kind: "unauthorized-platform-user",
       message:
         detail === PLATFORM_USER_REQUIRED || detail.length > 0
-          ? "Account security needs a signed-in ArchLucid account. Sign in or start an evaluation to continue."
+          ? ACCOUNT_SECURITY_AUTH_GATE_MESSAGE
           : humanMessageFromProblem(problem, status),
     };
   }
@@ -122,7 +123,7 @@ export function classifySignInMethodsHttpFailure(
   if (classified.message.includes("{") && classified.message.includes("}")) {
     return {
       kind: classified.kind,
-      message: "Could not complete the account security request.",
+      message: "Could not complete the sign-in methods request.",
     };
   }
 
@@ -143,7 +144,7 @@ export function classifySignInMethodsUnknownFailure(error: unknown): SignInMetho
 
   return {
     kind: "unknown",
-    message: "Could not complete the account security request.",
+    message: "Could not complete the sign-in methods request.",
   };
 }
 

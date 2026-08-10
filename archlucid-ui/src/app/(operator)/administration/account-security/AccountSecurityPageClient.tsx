@@ -12,6 +12,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  ACCOUNT_SECURITY_AUTH_GATE_MESSAGE,
+  ACCOUNT_SECURITY_PAGE_SUBTITLE,
+  ACCOUNT_SECURITY_PAGE_TITLE,
+} from "@/lib/account-security-page-copy";
 import { readFrictionlessTrialSessionEnabled } from "@/lib/frictionless-trial-session";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import {
@@ -134,8 +139,7 @@ export function AccountSecurityPageClient() {
     if (readFrictionlessTrialSessionEnabled()) {
       setGateProblem({
         kind: "unauthorized-platform-user",
-        message:
-          "Account security needs a signed-in ArchLucid account. Sign in or start an evaluation to continue.",
+        message: ACCOUNT_SECURITY_AUTH_GATE_MESSAGE,
       });
       setMethods([]);
       setListLoaded(false);
@@ -329,8 +333,8 @@ export function AccountSecurityPageClient() {
   return (
     <div className="w-full max-w-[62rem] space-y-6" data-testid="account-security-page">
       <OperatorPageHeader
-        title="Account security"
-        subtitle="Manage how you sign in. Adding a method requires a fresh sign-in. Email matches alone never link accounts."
+        title={ACCOUNT_SECURITY_PAGE_TITLE}
+        subtitle={ACCOUNT_SECURITY_PAGE_SUBTITLE}
         titleTestId="account-security-page-title"
         actions={<PageContextualHelpButton />}
       />

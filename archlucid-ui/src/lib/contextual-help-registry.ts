@@ -331,19 +331,6 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    /** Legacy slug alias — same Category-1 copy as executive-summary (EPR / EXE). */
-    prefix: "/help/product-overview",
-    entry: {
-      whatIsThisPage:
-        "Executive summary help — sponsor-safe pilot proof, ROI framing, and what executives should expect in exports.",
-      whatToDoNext:
-        "Open the live executive value report or dashboard, then review Pilot ROI model when methodology needs clarity.",
-      whyEmpty: "This guide is always available; live sponsor reports populate after finalized reviews exist.",
-      whereToConfigurePrerequisite:
-        "Sponsor exports need a role that can read finalized architecture reviews in this workspace.",
-    },
-  },
-  {
     prefix: "/help/policy-pack-delta-demo",
     entry: {
       whatIsThisPage:
@@ -945,7 +932,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whatIsThisPage:
         "Authentication and sign-in — passwordless work or school accounts, email one-time codes, invitations, SSO, and recovery.",
       whatToDoNext:
-        "Sign in when ready, or open Users and roles / Account security when you need workspace access or recovery steps.",
+        "Sign in when ready, or open Users and roles / Sign-in methods when you need workspace access or recovery steps.",
       whyEmpty: "This guide is always available; live invitations and SSO settings appear after your tenant configures identity.",
       whereToConfigurePrerequisite:
         "SSO and identity-provider changes usually need an Admin role; evaluators can still use email one-time codes when enabled.",
@@ -954,7 +941,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
         href: "/help/users-and-roles",
       },
       whereToConfigureAction: {
-        label: "Open Account security",
+        label: "Open Sign-in methods",
         href: "/administration/account-security",
       },
     },
@@ -1040,19 +1027,6 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     entry: {
       whatIsThisPage:
         "Getting started guide — how ArchLucid turns evidence into findings, decisions, and governance-ready review outputs.",
-      whatToDoNext:
-        "Start a review, open the sample walkthrough, or pick a path from Choose your next step when you know your goal.",
-      whyEmpty: "This guide is always available; review metrics appear after you create or finalize reviews.",
-      whereToConfigurePrerequisite:
-        "Choose a workspace in the header scope switcher before starting a real (non-sample) review.",
-    },
-  },
-  {
-    // Alias URL still reachable; canon topic is getting-started (how-it-works fold).
-    prefix: "/help/how-it-works",
-    entry: {
-      whatIsThisPage:
-        "Getting started — how ArchLucid turns evidence into findings, decisions, and governance-ready review outputs (includes How ArchLucid works).",
       whatToDoNext:
         "Start a review, open the sample walkthrough, or pick a path from Choose your next step when you know your goal.",
       whyEmpty: "This guide is always available; review metrics appear after you create or finalize reviews.",
@@ -1205,19 +1179,6 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    /** Legacy slug alias — same Category-1 copy as review-guide (HET / HR). */
-    prefix: "/help/starting-reviews",
-    entry: {
-      whatIsThisPage:
-        "Review guide — field reference for naming a review, uploading evidence, confirming scope, and finalizing the package.",
-      whatToDoNext:
-        "Start an architecture review, or open the First review guide when you need the walkthrough instead of field detail.",
-      whyEmpty: "This guide is always available; live architecture reviews appear after you create them in this workspace.",
-      whereToConfigurePrerequisite:
-        "Creating reviews needs a role that can start architecture reviews in this workspace.",
-    },
-  },
-  {
     prefix: "/help/repeat-review-loop",
     entry: {
       whatIsThisPage:
@@ -1254,18 +1215,6 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/help/core-pilot",
-    entry: {
-      whatIsThisPage:
-        "Your first architecture review — guided path from evidence intake to a finalized package and sponsor-ready exports.",
-      whatToDoNext:
-        "Start an architecture review from the hero CTA, or open the sample review when you want a completed outcome first.",
-      whyEmpty: "This guide is always available; live architecture reviews appear after you create them.",
-      whereToConfigurePrerequisite:
-        "Creating reviews needs a role that can start architecture reviews in this workspace.",
-    },
-  },
-  {
     prefix: "/help/first-pilot-path",
     entry: {
       whatIsThisPage:
@@ -1279,19 +1228,6 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
   },
   {
     prefix: "/help/first-hour-operator-path",
-    entry: {
-      whatIsThisPage:
-        "Your first architecture review — guided path from evidence intake to a finalized package and sponsor-ready exports.",
-      whatToDoNext:
-        "Start an architecture review from the hero CTA, or open the sample review when you want a completed outcome first.",
-      whyEmpty: "This guide is always available; live architecture reviews appear after you create them.",
-      whereToConfigurePrerequisite:
-        "Creating reviews needs a role that can start architecture reviews in this workspace.",
-    },
-  },
-  {
-    /** Legacy slug alias — same Category-1 copy as first-architecture-review (HEV / COR). */
-    prefix: "/help/evidence-only-review",
     entry: {
       whatIsThisPage:
         "Your first architecture review — guided path from evidence intake to a finalized package and sponsor-ready exports.",
@@ -1574,7 +1510,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whatIsThisPage:
         "Preferences - personal appearance settings saved to your ArchLucid account for this device and signed-in profile.",
       whatToDoNext:
-        "Choose a theme, then open Account security when sign-in controls need attention or Getting started for onboarding.",
+        "Choose a theme, then open Sign-in methods when sign-in controls need attention or Getting started for onboarding.",
       whyEmpty:
         "Theme controls are ready whenever you are signed in; saved preferences sync after the preferences API responds.",
       whereToConfigurePrerequisite:
@@ -1585,13 +1521,13 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     prefix: "/administration/account-security",
     entry: {
       whatIsThisPage:
-        "Account security - manage personal sign-in methods linked to your ArchLucid account for this workspace.",
+        "Sign-in methods — manage personal sign-in methods linked to your ArchLucid account for this workspace.",
       whatToDoNext:
-        "Review linked methods, add email after a fresh sign-in when needed, then open Preferences or Security and trust help for related controls.",
+        "Review linked methods, add email with a one-time code while signed in when needed, then open Preferences or Security and trust help for related controls.",
       whyEmpty:
         "Method rows load after the sign-in methods API responds; empty lists mean no secondary methods are linked yet.",
       whereToConfigurePrerequisite:
-        "Adding or removing methods needs a recent sign-in; email matches alone never link accounts.",
+        "Removing a method may require signing in again when your session is stale; email matches alone never link accounts.",
     },
   },
   {

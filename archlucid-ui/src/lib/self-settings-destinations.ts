@@ -1,4 +1,8 @@
 import { SETTINGS_ACCOUNT_SECURITY_PATH, SETTINGS_PREFERENCES_PATH } from "@/lib/settings-admin-route-paths";
+import {
+  ACCOUNT_SECURITY_PAGE_TITLE,
+  ACCOUNT_SECURITY_SELF_SETTINGS_DESCRIPTION,
+} from "@/lib/account-security-page-copy";
 
 /** One user-scoped settings destination shown in the top-bar account menu. */
 export type SelfSettingsDestination = {
@@ -24,8 +28,8 @@ export const SELF_SETTINGS_DESTINATIONS: readonly SelfSettingsDestination[] = [
   },
   {
     id: "account-security",
-    title: "Account security",
-    description: "Sign-in methods, linking, and removal for your platform account.",
+    title: ACCOUNT_SECURITY_PAGE_TITLE,
+    description: ACCOUNT_SECURITY_SELF_SETTINGS_DESCRIPTION,
     href: SETTINGS_ACCOUNT_SECURITY_PATH,
   },
 ] as const;

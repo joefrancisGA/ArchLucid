@@ -18,6 +18,6 @@ export const AUTH_DOMAINS_SETTINGS_SOURCES: readonly AuthDomainsSettingsSourceLi
   { label: "SSO and identity", href: "/administration/identity-providers" },
   { label: "Enterprise onboarding help", href: inAppHelpHref("enterprise-onboarding") },
   { label: "Users and roles", href: "/administration/users" },
-  { label: "Account security", href: "/administration/account-security" },
+  { label: "Sign-in methods", href: "/administration/account-security" },
   { label: "Assurance status", href: "/security-trust" },
 ] as const;

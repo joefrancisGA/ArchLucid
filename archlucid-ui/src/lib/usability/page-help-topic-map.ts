@@ -74,10 +74,6 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "comparison-replay", label: "Compare and replay" },
   },
   {
-    prefix: "/help/how-it-works",
-    topic: { slug: "getting-started", label: "Getting started" },
-  },
-  {
     prefix: "/help/troubleshooting",
     topic: { slug: "troubleshooting", label: "Troubleshooting" },
   },
@@ -98,10 +94,6 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "review-guide", label: "Review guide" },
   },
   {
-    prefix: "/help/starting-reviews",
-    topic: { slug: "review-guide", label: "Review guide" },
-  },
-  {
     prefix: "/help/pilot-guide",
     topic: { slug: "pilot-guide", label: "Pilot guide" },
   },
@@ -110,19 +102,11 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "first-architecture-review", label: "Your first architecture review" },
   },
   {
-    prefix: "/help/core-pilot",
-    topic: { slug: "first-architecture-review", label: "Your first architecture review" },
-  },
-  {
     prefix: "/help/first-pilot-path",
     topic: { slug: "first-architecture-review", label: "Your first architecture review" },
   },
   {
     prefix: "/help/first-hour-operator-path",
-    topic: { slug: "first-architecture-review", label: "Your first architecture review" },
-  },
-  {
-    prefix: "/help/evidence-only-review",
     topic: { slug: "first-architecture-review", label: "Your first architecture review" },
   },
   {
@@ -354,10 +338,6 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "executive-summary", label: "Executive summary" },
   },
   {
-    prefix: "/help/product-overview",
-    topic: { slug: "executive-summary", label: "Executive summary" },
-  },
-  {
     prefix: "/help/policy-pack-delta-demo",
     topic: { slug: "policy-pack-delta-demo", label: "Policy-pack delta demo" },
   },
@@ -502,7 +482,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/administration/account-security",
-    topic: { slug: "security-trust", label: "Account security" },
+    topic: { slug: "security-trust", label: "Sign-in methods" },
   },
   {
     prefix: "/administration/auth-domains",
