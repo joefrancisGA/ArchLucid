@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ArchitectureDraftGuidanceDisclosure } from "@/components/architecture/ArchitectureDraftGuidanceDisclosure";
+import { ARCHITECTURE_DRAFT_ALTERNATIVES_HINT } from "@/lib/create-vs-review-intake-copy";
 import {
   ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_LABEL,
   ARCHITECTURE_DRAFT_GUIDANCE_DISCLOSURE_DETAIL,
@@ -35,6 +36,9 @@ describe("ArchitectureDraftGuidanceDisclosure", () => {
     expect(disclosure.textContent ?? "").toContain(ARCHITECTURE_DRAFT_GUIDANCE_DISCLOSURE_SUMMARY);
     expect(disclosure.textContent ?? "").toContain(ARCHITECTURE_DRAFT_GUIDANCE_DISCLOSURE_LEAD);
     expect(disclosure.textContent ?? "").toContain(ARCHITECTURE_DRAFT_GUIDANCE_DISCLOSURE_DETAIL);
+    expect(screen.getByTestId("architecture-draft-guidance-alternatives")).toHaveTextContent(
+      ARCHITECTURE_DRAFT_ALTERNATIVES_HINT,
+    );
     expect(screen.queryByRole("link", { name: "Getting started guide" })).not.toBeInTheDocument();
   });
 

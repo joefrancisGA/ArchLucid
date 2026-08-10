@@ -12,9 +12,9 @@ import { ARCHITECTURE_DRAFTS_LIST_LABEL } from "@/lib/architecture-workflow-labe
 export const REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD =
   "Attach a diagram or document when you have one, or describe the architecture in enough detail if you are not uploading files.";
 
-/** Architecture draft workspace — iterative brief before review handoff. */
+/** Architecture draft workspace — iterative brief before review handoff (TB-1454: draft≠review boundary lives in guidance disclosure only). */
 export const ARCHITECTURE_DRAFT_WORKSPACE_LEAD =
-  "Draft goals, constraints, and tradeoffs before you file evidence for review. Save and refine this brief anytime — nothing starts a review until you choose to.";
+  "Capture goals, constraints, and tradeoffs in this brief. Save and return anytime to keep refining.";
 
 /** `/architectures/new` page subtitle — subordinate to H1 {@link CREATE_ARCHITECTURE_LABEL} (TB-1461). */
 export const ARCHITECTURE_CREATION_PAGE_SUBTITLE =

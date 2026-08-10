@@ -85,6 +85,7 @@ vi.mock("@/lib/architecture-draft-handoff-gate", async () => {
 
 import { ArchitectureDraftWorkspace } from "./ArchitectureDraftWorkspace";
 import { ARCHITECTURE_DRAFT_WORKSPACE_BACK_TO_LIST_LABEL, ARCHITECTURE_DRAFT_WORKSPACE_LEAD, ARCHITECTURE_CREATION_AUTOSAVE_REASSURANCE, ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE, ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE, ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD } from "@/lib/create-vs-review-intake-copy";
+import { ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY } from "@/lib/architecture-draft-guidance-dismiss";
 import { ARCHITECTURES_LIST_PATH, ARCHITECTURE_NEW_DRAFT_SEGMENT } from "@/lib/architecture-routes";
 import { useArchitectureDraftAutosave } from "@/hooks/use-architecture-draft-autosave";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
@@ -108,6 +109,7 @@ const spawnedDraft = {
 } as const;
 
 beforeEach(() => {
+  window.localStorage.removeItem(ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY);
   getDraftRequest.mockReset();
   getRunSummary.mockReset();
   saveDraft.mockReset();
@@ -296,6 +298,32 @@ describe("ArchitectureDraftWorkspace", () => {
     );
     expect(screen.getByTestId("architecture-draft-ai-refine-stub")).toBeInTheDocument();
     expect(screen.getByTestId("draft-intake-reasoning-stub")).toBeInTheDocument();
+  });
+
+  it("stacks at most two intro teaching blocks above the form card (TB-1454)", async () => {
+    getDraftRequest.mockResolvedValue({
+      ...spawnedDraft,
+      status: "Drafting",
+      spawnedRunId: null,
+      document: { ...spawnedDraft.document, workflowIntent: "create-architecture" },
+    });
+
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-workspace")).toBeInTheDocument();
+    });
+
+    const introTeachingTestIds = [
+      "architecture-draft-workspace-lead",
+      "architecture-draft-guidance-disclosure",
+      "architecture-draft-alternatives-hint",
+    ] as const;
+
+    const visibleIntroBlocks = introTeachingTestIds.filter((testId) => screen.queryByTestId(testId) !== null);
+
+    expect(visibleIntroBlocks).toHaveLength(2);
+    expect(screen.queryByTestId("architecture-draft-alternatives-hint")).not.toBeInTheDocument();
   });
 
   it("hides AI refinement while the post-spawn handoff lock is active", async () => {

@@ -64,7 +64,6 @@ import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 import {
   ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE,
   ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD,
-  ARCHITECTURE_DRAFT_ALTERNATIVES_HINT,
   ARCHITECTURE_DRAFT_WORKSPACE_LEAD,
 } from "@/lib/create-vs-review-intake-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -422,10 +421,6 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
           </button>
         </p>
       ) : null}
-
-      <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-draft-alternatives-hint">
-        {ARCHITECTURE_DRAFT_ALTERNATIVES_HINT}
-      </p>
 
       <Card>
         <CardContent className="space-y-6 pt-6">
