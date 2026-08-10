@@ -18,7 +18,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResumePrompt";
+import { WizardSessionSaveStatus } from "@/components/wizard/WizardSessionSaveStatus";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
+import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExceededBanner";
 import {
   admitDraftRequest,
@@ -81,6 +84,7 @@ import type { ActorSet, BranchDraftResponse, DraftElicitationQuestion } from "@/
 import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator-home-example-request";
 import { REVIEWS_NEW_GUIDED_QUESTIONS_LABEL } from "@/lib/reviews-new-path-copy";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
+import { WIZARD_SESSION_IDS, wizardSessionHasTextContent } from "@/lib/wizard-session-persistence";
 
 import {
   DraftIntakeDecisionReceiptCard,
@@ -89,6 +93,15 @@ import {
 
 const MIN_INTENT_CHARS = GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS;
 const MIN_OUTCOME_CHARS = 10;
+
+type GuidedIntakeSessionState = {
+  readonly freeTextIntent: string;
+  readonly businessOutcome: string;
+  readonly systemName: string;
+  readonly actorSet: ActorSet;
+  readonly answers: Record<string, string>;
+  readonly draftId: string | null;
+};
 
 const INTAKE_STEPS = [
   {
@@ -175,6 +188,38 @@ export function SocraticIntakeWizard() {
   const [savedLocallyQuestionKeys, setSavedLocallyQuestionKeys] = useState<ReadonlySet<string>>(() => new Set());
   const [viewAllClarifications, setViewAllClarifications] = useState(false);
   const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
+  const sessionState = useMemo<GuidedIntakeSessionState>(
+    () => ({
+      freeTextIntent,
+      businessOutcome,
+      systemName,
+      actorSet,
+      answers,
+      draftId,
+    }),
+    [actorSet, answers, businessOutcome, draftId, freeTextIntent, systemName],
+  );
+  const handleSessionRestore = useCallback((snapshot: { stepIndex: number; state: GuidedIntakeSessionState }) => {
+    setStep(snapshot.stepIndex);
+    setFreeTextIntent(snapshot.state.freeTextIntent);
+    setBusinessOutcome(snapshot.state.businessOutcome);
+    setSystemName(snapshot.state.systemName);
+    setActorSet(snapshot.state.actorSet);
+    setAnswers(snapshot.state.answers);
+    setDraftId(snapshot.state.draftId);
+  }, []);
+  const wizardSession = useWizardSessionPersistence({
+    wizardId: WIZARD_SESSION_IDS.reviewsNewGuidedQuestions,
+    stepIndex: step,
+    state: sessionState,
+    hasSaveableContent: (state, currentStep) =>
+      currentStep > 0 ||
+      wizardSessionHasTextContent(state.freeTextIntent) ||
+      wizardSessionHasTextContent(state.businessOutcome) ||
+      wizardSessionHasTextContent(state.systemName) ||
+      state.draftId !== null,
+    onRestore: handleSessionRestore,
+  });
 
   const totalRequiredClarifications = Math.max(requiredMustQuestionKeys.length, pendingQuestions.length);
   const activePendingQuestions = useMemo(
@@ -521,6 +566,7 @@ export function SocraticIntakeWizard() {
     try {
       const result = await submitDraftRequest(draftId);
       recordFirstTenantFunnelEvent("first_run_started");
+      wizardSession.clearSession();
 
       const compareParentRunId = result.parentSpawnedRunId ?? parentSpawnedRunId;
 
@@ -564,13 +610,25 @@ export function SocraticIntakeWizard() {
     } finally {
       setBusy(false);
     }
-  }, [actorSet.actors, businessOutcome, draftId, freeTextIntent, isCreateArchitectureFlow, parentSpawnedRunId, router, systemName]);
+  }, [actorSet.actors, businessOutcome, draftId, freeTextIntent, isCreateArchitectureFlow, parentSpawnedRunId, router, systemName, wizardSession]);
 
   return (
     <div
       className={cn("space-y-4", isCreateArchitectureFlow && "max-w-3xl")}
       data-testid="socratic-intake-wizard"
     >
+      {wizardSession.pendingRestore !== null ? (
+        <WizardSessionResumePrompt
+          onResume={wizardSession.acceptRestore}
+          onDismiss={wizardSession.dismissRestore}
+        />
+      ) : null}
+      <div className="flex justify-end">
+        <WizardSessionSaveStatus
+          saveState={wizardSession.saveState}
+          lastSavedUtc={wizardSession.lastSavedUtc}
+        />
+      </div>
       {!isCreateArchitectureFlow ? (
         <p className={cn(OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")} data-testid="socratic-intake-progress">
           {stepLabel} — {INTAKE_STEPS[step]?.progressLabel}

@@ -3,9 +3,12 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { useCallback, useState, type FormEvent, type ReactElement } from "react";
+import { useCallback, useMemo, useState, type FormEvent, type ReactElement } from "react";
 
 import { InAppHelpLink } from "@/components/InAppHelpLink";
+import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResumePrompt";
+import { WizardSessionSaveStatus } from "@/components/wizard/WizardSessionSaveStatus";
+import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -21,8 +24,16 @@ import { Progress } from "@/components/ui/progress";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { PILOT_BASELINE_WIZARD_SAVED_EVENT } from "@/lib/pilot-baseline-wizard-events";
 import { showError, showSuccess } from "@/lib/toast";
+import { WIZARD_SESSION_IDS, wizardSessionHasTextContent } from "@/lib/wizard-session-persistence";
 
 const STEP_COUNT = 2;
+
+type PilotBaselineSessionState = {
+  readonly reviewHours: string;
+  readonly reviewNote: string;
+  readonly manualPrep: string;
+  readonly people: string;
+};
 
 export type PilotBaselineWizardProps = {
   open: boolean;
@@ -72,6 +83,34 @@ export function PilotBaselineWizard({ open, onOpenChange, onSaved }: PilotBaseli
   const [reviewNote, setReviewNote] = useState("");
   const [manualPrep, setManualPrep] = useState("");
   const [people, setPeople] = useState("");
+  const sessionState = useMemo<PilotBaselineSessionState>(
+    () => ({
+      reviewHours,
+      reviewNote,
+      manualPrep,
+      people,
+    }),
+    [manualPrep, people, reviewHours, reviewNote],
+  );
+  const handleSessionRestore = useCallback((snapshot: { stepIndex: number; state: PilotBaselineSessionState }) => {
+    setStepIndex(snapshot.stepIndex);
+    setReviewHours(snapshot.state.reviewHours);
+    setReviewNote(snapshot.state.reviewNote);
+    setManualPrep(snapshot.state.manualPrep);
+    setPeople(snapshot.state.people);
+  }, []);
+  const wizardSession = useWizardSessionPersistence({
+    wizardId: WIZARD_SESSION_IDS.pilotBaseline,
+    stepIndex,
+    state: sessionState,
+    enabled: open,
+    hasSaveableContent: (state) =>
+      wizardSessionHasTextContent(state.reviewHours) ||
+      wizardSessionHasTextContent(state.reviewNote) ||
+      wizardSessionHasTextContent(state.manualPrep) ||
+      wizardSessionHasTextContent(state.people),
+    onRestore: handleSessionRestore,
+  });
 
   const pct = Math.round(((stepIndex + 1) / STEP_COUNT) * 100);
 
@@ -205,6 +244,7 @@ export function PilotBaselineWizard({ open, onOpenChange, onSaved }: PilotBaseli
       }
 
       showSuccess("Review-cycle baseline saved.");
+      wizardSession.clearSession();
       onSaved?.();
 
       if (typeof window !== "undefined") {
@@ -252,6 +292,18 @@ export function PilotBaselineWizard({ open, onOpenChange, onSaved }: PilotBaseli
         </DialogHeader>
 
         <div id="pilot-baseline-wizard-body" className={cn("space-y-4 pb-4 text-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+          {wizardSession.pendingRestore !== null ? (
+            <WizardSessionResumePrompt
+              onResume={wizardSession.acceptRestore}
+              onDismiss={wizardSession.dismissRestore}
+            />
+          ) : null}
+          <div className="flex justify-end">
+            <WizardSessionSaveStatus
+              saveState={wizardSession.saveState}
+              lastSavedUtc={wizardSession.lastSavedUtc}
+            />
+          </div>
           {demoMode ? (
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
               Demo mode hides authenticated baseline persistence — connect a tenant workspace to capture ROI anchors.

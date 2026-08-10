@@ -10,6 +10,8 @@ import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { CorePilotProgressTrackerBanner } from "@/components/usability/CorePilotProgressTrackerBanner";
 import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
+import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResumePrompt";
+import { WizardSessionSaveStatus } from "@/components/wizard/WizardSessionSaveStatus";
 import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
 import { WizardStepper } from "@/components/wizard/WizardStepper";
 import { WizardStepConstraints } from "@/components/wizard/steps/WizardStepConstraints";
@@ -23,6 +25,7 @@ import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExc
 import { LlmUsageBandHint } from "@/components/LlmUsageBandHint";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
+import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
 import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
 import { createArchitectureRun, listRunsByProjectPaged } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
@@ -72,6 +75,11 @@ import {
   resolveZeroConfigDemoScenarioId,
 } from "@/lib/zero-config-demo-mode";
 import type { AzureExtractorDemoScenarioId } from "@/lib/arch-lucid-azure-extractor-demo-scenarios";
+import {
+  WIZARD_SESSION_IDS,
+  wizardSessionHasTextContent,
+  writeWizardSessionSnapshot,
+} from "@/lib/wizard-session-persistence";
 
 import {
   ArchitectureRequestWizardHelpDrawer,
@@ -158,8 +166,6 @@ const MACRO_WIZARD_STEP_DEFINITIONS = [
   { label: "Review & submit", description: "Confirm before creation" },
   { label: "Pipeline", description: "Execution visibility" },
 ] as const;
-
-const WIZARD_DRAFT_STORAGE_KEY = "archlucid_new_run_wizard_draft_v1";
 
 const SAMPLE_RUN_GUID_RE =
   /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$|^[0-9a-fA-F]{32}$/;
@@ -313,6 +319,11 @@ export function NewRunWizardClient() {
     Array.isArray(recapConstraintsList) && recapConstraintsList.length > 0
       ? recapConstraintsList.map((c) => String(c).trim()).filter((c) => c.length > 0).join(", ")
       : "";
+  const watchedWizardValues = useWatch({ control }) as WizardFormValues;
+  const templateWizardSessionState = useMemo(
+    () => watchedWizardValues ?? getValues(),
+    [getValues, watchedWizardValues],
+  );
 
   const presetDeeplinkToken = useMemo(
     () => parseWizardPresetDeeplinkToken(searchParams?.get("preset")),
@@ -466,8 +477,10 @@ export function NewRunWizardClient() {
 
   const saveWizardDraft = useCallback(() => {
     try {
-      const payload = JSON.stringify({ v: 1, stepIndex, values: getValues() });
-      window.localStorage.setItem(WIZARD_DRAFT_STORAGE_KEY, payload);
+      writeWizardSessionSnapshot(WIZARD_SESSION_IDS.reviewsNewTemplates, {
+        stepIndex,
+        state: getValues(),
+      });
       showSuccess("Draft saved in this browser.");
     } catch {
       showError("Wizard", "Could not save draft.");
@@ -707,6 +720,7 @@ export function NewRunWizardClient() {
 
       setRunId(id);
       setStepIndex(trackStepIndex);
+      templateWizardSession.clearSession();
       trackWizardCompleted("FullGuided");
       recordFirstTenantFunnelEvent("first_run_started");
       showToast("ok", `Architecture review ${id} created — tracking pipeline below.`);
@@ -749,6 +763,24 @@ export function NewRunWizardClient() {
     ? WIZARD_STEP_DEFINITIONS_BASELINE.length
     : WIZARD_STEP_DEFINITIONS_FULL.length;
   const quickModeLabel = baselineFirst ? "Pilot baseline (4 steps)" : "Quick start (3 steps)";
+  const handleTemplateWizardRestore = useCallback(
+    (snapshot: { stepIndex: number; state: WizardFormValues }) => {
+      setStepIndex(snapshot.stepIndex);
+      reset(snapshot.state);
+    },
+    [reset],
+  );
+  const templateWizardSession = useWizardSessionPersistence({
+    wizardId: WIZARD_SESSION_IDS.reviewsNewTemplates,
+    stepIndex,
+    state: templateWizardSessionState,
+    enabled: wizardModeReady && showFullWizardShell,
+    hasSaveableContent: (state, currentStep) =>
+      currentStep > 0 ||
+      wizardSessionHasTextContent(state.systemName) ||
+      wizardSessionHasTextContent(state.description),
+    onRestore: handleTemplateWizardRestore,
+  });
 
   return (
     <FormProvider {...form}>
@@ -901,6 +933,12 @@ export function NewRunWizardClient() {
 
           {wizardModeReady && showFullWizardShell ? (
             <>
+          {templateWizardSession.pendingRestore !== null ? (
+            <WizardSessionResumePrompt
+              onResume={templateWizardSession.acceptRestore}
+              onDismiss={templateWizardSession.dismissRestore}
+            />
+          ) : null}
           <div className="flex flex-wrap items-start justify-between gap-2" data-testid="new-run-wizard-progress">
             <div className="min-w-0 flex-1 space-y-1">
             <p
@@ -918,6 +956,10 @@ export function NewRunWizardClient() {
             </p>
             </div>
             <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+              <WizardSessionSaveStatus
+                saveState={templateWizardSession.saveState}
+                lastSavedUtc={templateWizardSession.lastSavedUtc}
+              />
               <ArchitectureRequestWizardHelpDrawer />
             </div>
           </div>

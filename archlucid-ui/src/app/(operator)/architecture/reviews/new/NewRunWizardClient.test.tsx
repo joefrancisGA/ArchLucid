@@ -56,9 +56,9 @@ vi.mock("@/lib/api", () => ({
 
 import { NewRunWizardClient } from "./NewRunWizardClient";
 import { optIntoAdvancedNewRunWizardConfiguration } from "./new-run-wizard-test-helpers";
+import { buildWizardSessionStorageKey, WIZARD_SESSION_IDS } from "@/lib/wizard-session-persistence";
 
 const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
-const WIZARD_DRAFT_STORAGE_KEY = "archlucid_new_run_wizard_draft_v1";
 
 function greenfieldPresetCard(): HTMLElement {
   const useGreenfield = screen.getByRole("button", { name: "Use greenfield web app" });
@@ -159,7 +159,7 @@ describe("NewRunWizardClient", { timeout: 60_000 }, () => {
   beforeEach(() => {
     vi.clearAllMocks();
     window.localStorage.removeItem(WIZARD_MODE_STORAGE_KEY);
-    window.localStorage.removeItem(WIZARD_DRAFT_STORAGE_KEY);
+    window.sessionStorage.removeItem(buildWizardSessionStorageKey(WIZARD_SESSION_IDS.reviewsNewTemplates));
     vi.stubGlobal(
       "fetch",
       vi.fn(async (input: RequestInfo | URL) => {

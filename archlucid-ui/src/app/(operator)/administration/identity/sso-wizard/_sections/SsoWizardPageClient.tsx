@@ -6,6 +6,9 @@ import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
+import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResumePrompt";
+import { WizardSessionSaveStatus } from "@/components/wizard/WizardSessionSaveStatus";
+import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
@@ -42,6 +45,7 @@ import {
 } from "@/lib/admin-integration-mutation-outcome-copy";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SSO_WIZARD_CANONICAL_PATH } from "@/lib/sso-wizard-evidence-copy";
+import { WIZARD_SESSION_IDS } from "@/lib/wizard-session-persistence";
 
 import { SsoWizardFooter } from "./SsoWizardFooter";
 import { SsoWizardProtocolHelpDisclosure } from "./SsoWizardProtocolHelpDisclosure";
@@ -104,6 +108,17 @@ export function SsoWizardPageClient() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const handleSessionRestore = useCallback((snapshot: { stepIndex: number; state: SsoWizardState }) => {
+    setStep(snapshot.stepIndex);
+    setState(snapshot.state);
+  }, []);
+  const wizardSession = useWizardSessionPersistence({
+    wizardId: WIZARD_SESSION_IDS.adminSsoWizard,
+    stepIndex: step,
+    state,
+    hasSaveableContent: (currentState, currentStep) => ssoWizardHasUnsavedChanges(currentState, currentStep),
+    onRestore: handleSessionRestore,
+  });
 
   const completedSteps = useMemo(() => {
     const done: number[] = [];
@@ -275,13 +290,14 @@ export function SsoWizardPageClient() {
       }
 
       setSuccessMessage(SSO_WIZARD_ACTIVATE_SUCCESS_MESSAGE);
+      wizardSession.clearSession();
       setStep(4);
     } catch (error: unknown) {
       setError(formatSsoWizardUnexpectedError(error));
     } finally {
       setBusy(false);
     }
-  }, [state]);
+  }, [state, wizardSession]);
 
   const handleCancel = useCallback(() => {
     if (ssoWizardHasUnsavedChanges(state, step)) {
@@ -333,7 +349,22 @@ export function SsoWizardPageClient() {
           {SSO_WIZARD_STATUS_NOT_ACTIVE}
         </p>
       </header>
-<SsoWizardStepper currentStep={step} completedSteps={completedSteps} />
+
+      {wizardSession.pendingRestore !== null ? (
+        <WizardSessionResumePrompt
+          onResume={wizardSession.acceptRestore}
+          onDismiss={wizardSession.dismissRestore}
+        />
+      ) : null}
+
+      <div className="flex justify-end">
+        <WizardSessionSaveStatus
+          saveState={wizardSession.saveState}
+          lastSavedUtc={wizardSession.lastSavedUtc}
+        />
+      </div>
+
+      <SsoWizardStepper currentStep={step} completedSteps={completedSteps} />
 
       {error !== null ? (
         <OperatorMutationInlineError message={error} testId="sso-wizard-mutation-inline-error" />

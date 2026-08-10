@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExceededBanner";
@@ -25,7 +25,10 @@ import { readActiveTenantContext } from "@/lib/active-tenant-context-display";
 import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/core-pilot-path-vocabulary";
 import { FocusedPilotPolicyPackAppliedCallout } from "@/components/wizard/FocusedPilotPolicyPackAppliedCallout";
 import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
+import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResumePrompt";
+import { WizardSessionSaveStatus } from "@/components/wizard/WizardSessionSaveStatus";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
+import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
 import {
   REVIEW_CREATION_PROGRESS_TIMEOUT_MS,
   useReviewCreationProgress,
@@ -55,6 +58,7 @@ import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
 import { ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT } from "@/lib/operator-scope-storage";
 import { PROXY_UPSTREAM_UPLOAD_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 import { uploadWizardPendingDocumentEvidence } from "@/lib/wizard-pending-evidence-upload";
+import { WIZARD_SESSION_IDS, wizardSessionHasTextContent } from "@/lib/wizard-session-persistence";
 
 import { WizardEvidenceUploadZone } from "./QuickReviewWizardDeferredPanels";
 
@@ -70,6 +74,12 @@ const FIRST_PILOT_REQUIRED_CAPABILITIES: string[] = proofScopeToRequiredCapabili
 /** Create + multipart evidence upload can exceed the default soft-fail budget on slow links. */
 const FIRST_PILOT_WITH_UPLOAD_TIMEOUT_MS =
   REVIEW_CREATION_PROGRESS_TIMEOUT_MS + PROXY_UPSTREAM_UPLOAD_FETCH_TIMEOUT_MS;
+
+type FirstPilotIntakeSessionState = {
+  readonly runTitle: string;
+  readonly briefText: string;
+  readonly focusedPilotModeEnabled: boolean;
+};
 
 export const FIRST_PILOT_INTAKE_SUBMIT_VALIDATION_MESSAGE =
   "Add a review title and either attach architecture evidence or provide enough context in the description.";
@@ -137,6 +147,27 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
     formatFirstPilotIntakeWriteDestination(readActiveTenantContext()),
   );
   const creationProgress = useReviewCreationProgress();
+  const sessionState = useMemo<FirstPilotIntakeSessionState>(
+    () => ({
+      runTitle,
+      briefText,
+      focusedPilotModeEnabled,
+    }),
+    [briefText, focusedPilotModeEnabled, runTitle],
+  );
+  const handleSessionRestore = useCallback((snapshot: { state: FirstPilotIntakeSessionState }) => {
+    setRunTitle(snapshot.state.runTitle);
+    setBriefText(snapshot.state.briefText);
+    setFocusedPilotModeEnabled(snapshot.state.focusedPilotModeEnabled);
+  }, []);
+  const wizardSession = useWizardSessionPersistence({
+    wizardId: WIZARD_SESSION_IDS.reviewsNewQuickStart,
+    stepIndex: 0,
+    state: sessionState,
+    hasSaveableContent: (state) =>
+      wizardSessionHasTextContent(state.runTitle) || wizardSessionHasTextContent(state.briefText),
+    onRestore: handleSessionRestore,
+  });
 
   useEffect(() => {
     const refreshWriteDestination = () => {
@@ -239,6 +270,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       creationProgress.markPreparingQuestions();
       creationProgress.markOpeningReview();
       creationProgress.succeed();
+      wizardSession.clearSession();
 
       if (onRunCreatedNavigate !== undefined) {
         onRunCreatedNavigate(id);
@@ -259,6 +291,12 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
 
   return (
     <div className="space-y-5 pb-24" data-testid="first-pilot-intake-wizard">
+      {wizardSession.pendingRestore !== null ? (
+        <WizardSessionResumePrompt
+          onResume={wizardSession.acceptRestore}
+          onDismiss={wizardSession.dismissRestore}
+        />
+      ) : null}
       {llmBudgetStatus !== null ? <LlmMonthlyBudgetExceededBanner status={llmBudgetStatus} /> : null}
       {exampleTemplate !== null ? <ReviewIntakeExampleTemplateCallout template={exampleTemplate} /> : null}
 
@@ -382,6 +420,10 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
           </p>
 
           <div className="flex flex-wrap items-center gap-3">
+            <WizardSessionSaveStatus
+              saveState={wizardSession.saveState}
+              lastSavedUtc={wizardSession.lastSavedUtc}
+            />
             <ReviewStartLoadingButton
               type="button"
               variant="primary"
