@@ -19,17 +19,19 @@ export const FIRST_VALUE_20_HELP_ORIENTATION = [
   "Collect the proof packet and review sponsor first-page status before handoff.",
 ] as const;
 
+export type FirstValue20HelpJobMatrixRow = {
+  readonly label: string;
+  readonly href: string;
+  readonly when: string;
+  readonly isCurrent?: boolean;
+};
+
 /** Explicit job split vs other “first” help URLs (TB-1694). */
-export const FIRST_VALUE_20_HELP_JOB_MATRIX = [
-  {
-    label: "Customer first review",
-    href: FIRST_ARCHITECTURE_REVIEW_HELP_PATH,
-    when: "Default path for customer architects",
-  },
+export const FIRST_VALUE_20_HELP_JOB_MATRIX: readonly FirstValue20HelpJobMatrixRow[] = [
   {
     label: "Your first architecture review",
-    href: inAppHelpHref("first-architecture-review"),
-    when: "End-to-end lifecycle without the Admin time box",
+    href: FIRST_ARCHITECTURE_REVIEW_HELP_PATH,
+    when: "Default customer path — end-to-end lifecycle without the Admin time box",
   },
   {
     label: "First-run evidence checklist",
@@ -40,23 +42,29 @@ export const FIRST_VALUE_20_HELP_JOB_MATRIX = [
     label: "This Admin 20-minute runbook",
     href: FIRST_VALUE_20_HELP_PATH,
     when: "Time-boxed SE proof when wiring is already green",
+    isCurrent: true,
   },
-] as const;
+];
 
 export const FIRST_VALUE_20_HELP_PRIMARY_ACTIONS = {
-  openBuyerFirstReview: {
-    label: "Your first architecture review",
-    href: FIRST_ARCHITECTURE_REVIEW_HELP_PATH,
-  },
   startArchitectureReview: {
     label: "Start architecture review",
     href: "/architecture/reviews/new",
+  },
+  openCustomerFirstReviewGuide: {
+    label: "Customer first-review guide",
+    href: FIRST_ARCHITECTURE_REVIEW_HELP_PATH,
   },
   openTroubleshooting: {
     label: "Customer Troubleshooting",
     href: inAppHelpHref("troubleshooting"),
   },
 } as const;
+
+export const FIRST_VALUE_20_HELP_RELATED_PAGES_TITLE = "Related help pages";
+
+export const FIRST_VALUE_20_HELP_SOURCES_INTRO =
+  "Backing help topics for freshness and scope — not a substitute for signed review records.";
 
 export type FirstValue20HelpSourceLink = {
   readonly label: string;

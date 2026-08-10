@@ -413,6 +413,8 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "operator",
     sourcePaths: ["docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md"],
     sectionAnchors: ["first-value-in-20-minutes"],
+    lastReviewed: "2026-08-09",
+    releaseApplicability: "Applies to V1 GA — Admin SE time-boxed first-value proof path",
   },
   {
     slug: "pilot-roi-model",

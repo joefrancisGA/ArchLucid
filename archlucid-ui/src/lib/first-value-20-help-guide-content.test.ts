@@ -11,12 +11,12 @@ import {
 } from "@/lib/first-value-20-help-guide-content";
 
 describe("first-value-20-help-guide-content", () => {
-  it("keeps primary CTA on the buyer first-architecture-review path", () => {
-    expect(FIRST_VALUE_20_HELP_PRIMARY_ACTIONS.openBuyerFirstReview.href).toBe(
-      "/help/first-architecture-review",
-    );
+  it("keeps primary CTA on start architecture review", () => {
     expect(FIRST_VALUE_20_HELP_PRIMARY_ACTIONS.startArchitectureReview.href).toBe(
       "/architecture/reviews/new",
+    );
+    expect(FIRST_VALUE_20_HELP_PRIMARY_ACTIONS.openCustomerFirstReviewGuide.href).toBe(
+      "/help/first-architecture-review",
     );
   });
 
@@ -26,14 +26,32 @@ describe("first-value-20-help-guide-content", () => {
     expect(FIRST_VALUE_20_HELP_PAGE_TITLE.toLowerCase()).not.toContain("first-pilot operator path");
   });
 
-  it("lists a job matrix covering buyer, workflow, checklist, and this Admin runbook", () => {
-    expect(FIRST_VALUE_20_HELP_JOB_MATRIX).toHaveLength(4);
+  it("lists a job matrix with unique interactive destinations and a current-page row", () => {
+    expect(FIRST_VALUE_20_HELP_JOB_MATRIX).toHaveLength(3);
+
+    const interactiveRows = FIRST_VALUE_20_HELP_JOB_MATRIX.filter((row) => row.isCurrent !== true);
+    const hrefs = interactiveRows.map((row) => row.href);
+    const uniqueHrefs = new Set(hrefs);
+
+    expect(uniqueHrefs.size).toBe(hrefs.length);
     expect(FIRST_VALUE_20_HELP_JOB_MATRIX.some((row) => row.href === "/help/first-architecture-review")).toBe(
       true,
     );
-    expect(FIRST_VALUE_20_HELP_JOB_MATRIX.some((row) => row.href === FIRST_VALUE_20_HELP_CANONICAL_PATH)).toBe(
-      true,
-    );
+    expect(
+      FIRST_VALUE_20_HELP_JOB_MATRIX.find((row) => row.isCurrent === true)?.href,
+    ).toBe(FIRST_VALUE_20_HELP_CANONICAL_PATH);
+  });
+
+  it("keeps distinct CTA labels across primary actions and job matrix", () => {
+    const labels = [
+      FIRST_VALUE_20_HELP_PRIMARY_ACTIONS.startArchitectureReview.label,
+      FIRST_VALUE_20_HELP_PRIMARY_ACTIONS.openCustomerFirstReviewGuide.label,
+      FIRST_VALUE_20_HELP_PRIMARY_ACTIONS.openTroubleshooting.label,
+      ...FIRST_VALUE_20_HELP_JOB_MATRIX.map((row) => row.label),
+    ];
+    const uniqueLabels = new Set(labels);
+
+    expect(uniqueLabels.size).toBe(labels.length);
   });
 
   it("lists orientation steps and Sources without a self-link in Sources", () => {

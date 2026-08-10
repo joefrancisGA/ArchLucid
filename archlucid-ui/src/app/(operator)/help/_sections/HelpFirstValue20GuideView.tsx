@@ -3,10 +3,12 @@ import Link from "next/link";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
+import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { OperatorPageBreadcrumb } from "@/components/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { Button } from "@/components/ui/button";
+import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   FIRST_VALUE_20_HELP_CLAIM_DISCIPLINE,
@@ -16,15 +18,18 @@ import {
   FIRST_VALUE_20_HELP_PAGE_SUBTITLE,
   FIRST_VALUE_20_HELP_PAGE_TITLE,
   FIRST_VALUE_20_HELP_PRIMARY_ACTIONS,
+  FIRST_VALUE_20_HELP_RELATED_PAGES_TITLE,
+  FIRST_VALUE_20_HELP_SOURCES,
+  FIRST_VALUE_20_HELP_SOURCES_INTRO,
 } from "@/lib/first-value-20-help-guide-content";
 import { FIRST_VALUE_20_HELP_PATH } from "@/lib/first-value-20-help-route";
 import {
   DESIGN_TOKENS,
-  OPERATOR_CARD,
-  OPERATOR_LAYOUT,
   OPERATOR_LINK,
+  OPERATOR_LAYOUT,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { HELP_TOPIC_DOCUMENT_STATUS_LABEL } from "@/lib/help-topic-markdown-header-content";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
 import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -55,6 +60,26 @@ export function HelpFirstValue20GuideView(props: HelpFirstValue20GuideViewProps)
         titleTestId="help-first-value-20-page-title"
         subtitle={FIRST_VALUE_20_HELP_PAGE_SUBTITLE}
         navHref={FIRST_VALUE_20_HELP_PATH}
+        headingLevel="h1"
+        breadcrumb={
+          <OperatorPageBreadcrumb
+            data-testid="help-first-value-20-breadcrumb"
+            items={[{ label: "Help", href: "/help" }, { label: FIRST_VALUE_20_HELP_PAGE_TITLE }]}
+          />
+        }
+        statusBadge={
+          <StatusTag kind="neutral" label="Admin only" data-testid="help-first-value-20-admin-tag" />
+        }
+        metadata={
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1" data-testid="help-first-value-20-header-metadata">
+            <StatusTag
+              kind="ready"
+              label={HELP_TOPIC_DOCUMENT_STATUS_LABEL}
+              data-testid="help-first-value-20-document-status"
+            />
+            <HelpTopicRegistryProvenanceLine entry={entry} />
+          </div>
+        }
         actions={
           <div className="flex flex-wrap items-center gap-2" data-testid="help-first-value-20-header-actions">
             <PageContextualHelpButton />
@@ -65,24 +90,22 @@ export function HelpFirstValue20GuideView(props: HelpFirstValue20GuideViewProps)
       />
 
       <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <Card
-          className="border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20"
+        <div
+          className={cn(DESIGN_TOKENS.callout.info, "p-3")}
           data-testid="help-first-value-20-action-panel"
         >
-          <CardHeader className={OPERATOR_CARD.header}>
-            <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-              Prefer customer paths first
-            </CardTitle>
-          </CardHeader>
-          <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
+          <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+            Prefer customer paths first
+          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
             <Button asChild size="sm" variant="primary" data-testid="help-first-value-20-primary-cta">
-              <Link href={FIRST_VALUE_20_HELP_PRIMARY_ACTIONS.openBuyerFirstReview.href}>
-                {FIRST_VALUE_20_HELP_PRIMARY_ACTIONS.openBuyerFirstReview.label}
+              <Link href={FIRST_VALUE_20_HELP_PRIMARY_ACTIONS.startArchitectureReview.href}>
+                {FIRST_VALUE_20_HELP_PRIMARY_ACTIONS.startArchitectureReview.label}
               </Link>
             </Button>
             <Button asChild size="sm" variant="outline">
-              <Link href={FIRST_VALUE_20_HELP_PRIMARY_ACTIONS.startArchitectureReview.href}>
-                {FIRST_VALUE_20_HELP_PRIMARY_ACTIONS.startArchitectureReview.label}
+              <Link href={FIRST_VALUE_20_HELP_PRIMARY_ACTIONS.openCustomerFirstReviewGuide.href}>
+                {FIRST_VALUE_20_HELP_PRIMARY_ACTIONS.openCustomerFirstReviewGuide.label}
               </Link>
             </Button>
             <Link
@@ -95,14 +118,42 @@ export function HelpFirstValue20GuideView(props: HelpFirstValue20GuideViewProps)
             >
               {FIRST_VALUE_20_HELP_PRIMARY_ACTIONS.openTroubleshooting.label}
             </Link>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
       <div className={cn("min-w-0 space-y-6", HELP_PAGE_LAYOUT.contentColumn, "max-w-[42rem] lg:max-w-none")}>
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-first-value-20-overview">
           {FIRST_VALUE_20_HELP_OVERVIEW}
         </p>
+
+        <section
+          className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
+          aria-labelledby="help-first-value-20-sources-heading"
+          data-testid="help-first-value-20-sources"
+        >
+          <h2
+            id="help-first-value-20-sources-heading"
+            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+          >
+            {FIRST_VALUE_20_HELP_RELATED_PAGES_TITLE}
+          </h2>
+          <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            {FIRST_VALUE_20_HELP_SOURCES_INTRO}
+          </p>
+          <ul className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.body)}>
+            {FIRST_VALUE_20_HELP_SOURCES.map((link) => (
+              <li key={`${link.href}-${link.label}`}>
+                <Link
+                  className={cn(OPERATOR_LINK.inline, "inline-flex min-h-6 items-center py-1 font-medium")}
+                  href={link.href}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
 
         <section
           aria-labelledby="help-first-value-20-orientation-heading"
@@ -134,9 +185,19 @@ export function HelpFirstValue20GuideView(props: HelpFirstValue20GuideViewProps)
           <ul className={cn("m-0 mt-2 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body)}>
             {FIRST_VALUE_20_HELP_JOB_MATRIX.map((row) => (
               <li key={row.label} className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-2">
-                <Link className={cn(OPERATOR_LINK.inline, "font-medium shrink-0")} href={row.href}>
-                  {row.label}
-                </Link>
+                {row.isCurrent === true ? (
+                  <span
+                    className="font-medium shrink-0 text-al-text-primary"
+                    aria-current="page"
+                    data-testid="help-first-value-20-job-matrix-current"
+                  >
+                    {row.label}
+                  </span>
+                ) : (
+                  <Link className={cn(OPERATOR_LINK.inline, "font-medium shrink-0")} href={row.href}>
+                    {row.label}
+                  </Link>
+                )}
                 <span className="text-al-text-secondary">{row.when}</span>
               </li>
             ))}
@@ -144,10 +205,10 @@ export function HelpFirstValue20GuideView(props: HelpFirstValue20GuideViewProps)
         </section>
 
         <aside
-          className="rounded-md border border-amber-200/80 bg-amber-50/50 p-3 dark:border-amber-900/40 dark:bg-amber-950/20"
+          className={cn(DESIGN_TOKENS.callout.warn, "p-3")}
           data-testid="help-first-value-20-claim-discipline"
         >
-          <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Claim discipline</h2>
+          <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Claim discipline</h3>
           <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>{FIRST_VALUE_20_HELP_CLAIM_DISCIPLINE}</p>
         </aside>
 

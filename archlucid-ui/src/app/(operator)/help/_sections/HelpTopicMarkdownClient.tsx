@@ -7,6 +7,7 @@ import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownVi
 import { HelpApiContractsGuideView } from "@/app/(operator)/help/_sections/HelpApiContractsGuideView";
 import { HelpConfigurationReferenceGuideView } from "@/app/(operator)/help/_sections/HelpConfigurationReferenceGuideView";
 import { HelpEngineeringTroubleshootingGuideView } from "@/app/(operator)/help/_sections/HelpEngineeringTroubleshootingGuideView";
+import { HelpFirstValue20GuideView } from "@/app/(operator)/help/_sections/HelpFirstValue20GuideView";
 import { HelpTopicNotFoundView } from "@/app/(operator)/help/_sections/HelpTopicNotFoundView";
 import { ensureAccessTokenFresh, getAccessTokenForApi } from "@/lib/oidc/session";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -88,6 +89,10 @@ export function HelpTopicMarkdownClient(props: HelpTopicMarkdownClientProps): Re
 
   if (props.entry.slug === "governance-api-contracts") {
     return <HelpApiContractsGuideView entry={props.entry} markdown={state.markdown} />;
+  }
+
+  if (props.entry.slug === "first-value-20-minutes") {
+    return <HelpFirstValue20GuideView entry={props.entry} markdown={state.markdown} />;
   }
 
   return (

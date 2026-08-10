@@ -828,6 +828,8 @@ describe("help-markdown-presentation", () => {
       "",
       "`dotnet run --project ArchLucid.Cli -- doctor`",
       "",
+      "`archlucid pilot proof-packet <runId> --out artifacts/proof-packet/<runId>`",
+      "",
       "See [`ROLE_INDEX.md`](ROLE_INDEX.md) and [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md).",
       "",
       "## Phase A — Platform ready",
@@ -841,8 +843,35 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toContain("ROLE_INDEX");
     expect(prepared).not.toContain("TROUBLESHOOTING.md");
     expect(prepared).not.toContain("Phase A");
+    expect(prepared).not.toContain("proof output folder");
+    expect(prepared).not.toContain("admin automation script");
     expect(prepared).toContain("archlucid doctor");
+    expect(prepared).toContain("--out <output-folder>");
     expect(prepared).toContain("/help/troubleshooting");
+  });
+
+  it("keeps first-value-20 inline CLI commands copy-pasteable with placeholders (HEF P0-2)", () => {
+    const source = [
+      "## First value in 20 minutes (time-boxed) {#first-value-in-20-minutes}",
+      "",
+      "`dotnet run --project ArchLucid.Cli -- try --sponsor-packet --out artifacts/proof`",
+      "",
+      "`archlucid buyer-proof-pack <runId> --out artifacts/buyer-proof.zip`",
+      "",
+      "Before handoff run ./scripts/collect-first-pilot-proof.ps1 with a finalized run id.",
+    ].join("\n");
+
+    const prepared = stripFirstValue20ContributorLeakage(source);
+    const inlineCodeMatches = prepared.match(/`[^`]+`/g) ?? [];
+
+    for (const span of inlineCodeMatches) {
+      expect(span).not.toMatch(/--out\s+proof output folder/i);
+      expect(span).not.toMatch(/admin automation script/i);
+    }
+
+    expect(prepared).toContain("archlucid try --sponsor-packet --out <output-folder>");
+    expect(prepared).toContain("archlucid buyer-proof-pack <runId> --out <output-folder>");
+    expect(prepared).toContain("<admin-automation-script>");
   });
 
   it("keeps presented first-value-20 help buyer-safe (TB-1691 / TB-1693)", () => {
@@ -860,7 +889,9 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toContain("role_index");
     expect(prepared).not.toContain("canonical_first_run_path");
     expect(prepared).not.toContain("phase a — platform ready");
-    expect(prepared).toContain("first value in 20 minutes");
+    expect(prepared).not.toContain("phase a");
+    expect(prepared).not.toContain("â");
+    expect(prepared).not.toContain("first value in 20 minutes (time-boxed)");
     expect(prepared).toContain("archlucid doctor");
   });
 

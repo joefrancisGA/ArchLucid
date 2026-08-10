@@ -104,7 +104,7 @@ See [`docs/library/REPEAT_REVIEW_LOOP.md`](../library/REPEAT_REVIEW_LOOP.md) for
 
 ## First value in 20 minutes (time-boxed) {#first-value-in-20-minutes}
 
-Shortest path from zero to a sponsor-safe artifact when platform wiring is already green. For the full phased checklist, continue with Â§ **Phase A** below.
+Shortest path from zero to a sponsor-safe artifact when platform wiring is already green. Use this section when the platform is already wired — not the full phased first-pilot checklist.
 
 **Mode expectation:** Steps below work in **simulator** mode without Azure OpenAI credentials. Label outputs **Simulator** unless you configured real-mode and collected live LLM evidence.
 

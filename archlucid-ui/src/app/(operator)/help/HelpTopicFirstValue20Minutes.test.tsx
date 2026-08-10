@@ -19,6 +19,7 @@ import {
   FIRST_VALUE_20_HELP_PRIMARY_ACTIONS,
   FIRST_VALUE_20_HELP_SOURCES,
 } from "@/lib/first-value-20-help-guide-content";
+import { HELP_TOPIC_DOCUMENT_STATUS_LABEL } from "@/lib/help-topic-markdown-header-content";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
@@ -28,6 +29,7 @@ describe("HelpFirstValue20GuideView", () => {
   it("loads first-value-20 help from the operator runbook source", () => {
     expect(loaded).not.toBeNull();
     expect(loaded?.entry.title).toContain("20 minutes");
+    expect(loaded?.entry.lastReviewed).toBe("2026-08-09");
   });
 
   it("renders specialty Admin chrome with 20-minute body only (TB-1691 / TB-1692 / TB-1695)", () => {
@@ -46,6 +48,8 @@ describe("HelpFirstValue20GuideView", () => {
 
     expect(preparedMarkdown.toLowerCase()).not.toContain("dotnet run --project");
     expect(preparedMarkdown.toLowerCase()).not.toContain("phase a — platform ready");
+    expect(preparedMarkdown.toLowerCase()).not.toContain("phase a");
+    expect(preparedMarkdown.toLowerCase()).not.toContain("â");
     expect(preparedMarkdown.toLowerCase()).toContain("archlucid doctor");
     expect(visible).not.toContain("role_index");
     expect(visible).not.toContain("first-pilot operator path (internal runbook)");
@@ -55,19 +59,35 @@ describe("HelpFirstValue20GuideView", () => {
     expect(screen.getByTestId("help-first-value-20-page-title")).toHaveTextContent(
       FIRST_VALUE_20_HELP_PAGE_TITLE,
     );
+    expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+    expect(screen.getByTestId("help-first-value-20-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByTestId("help-first-value-20-document-status")).toHaveTextContent(
+      HELP_TOPIC_DOCUMENT_STATUS_LABEL,
+    );
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("2026-08-09");
+    expect(screen.getByTestId("help-first-value-20-admin-tag")).toHaveTextContent("Admin only");
     expect(screen.getByTestId("help-first-value-20-claim-discipline")).toBeInTheDocument();
     expect(screen.getByTestId("help-first-value-20-job-matrix")).toBeInTheDocument();
     expect(screen.getByTestId("help-first-value-20-orientation")).toBeInTheDocument();
+    expect(screen.getByTestId("help-first-value-20-sources")).toBeInTheDocument();
+    expect(screen.getByTestId("help-first-value-20-job-matrix-current")).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
 
     const actionPanel = screen.getByTestId("help-first-value-20-action-panel");
 
     expect(
       within(actionPanel).getByRole("link", {
-        name: FIRST_VALUE_20_HELP_PRIMARY_ACTIONS.openBuyerFirstReview.label,
+        name: FIRST_VALUE_20_HELP_PRIMARY_ACTIONS.startArchitectureReview.label,
       }),
-    ).toHaveAttribute("href", FIRST_VALUE_20_HELP_PRIMARY_ACTIONS.openBuyerFirstReview.href);
+    ).toHaveAttribute("href", FIRST_VALUE_20_HELP_PRIMARY_ACTIONS.startArchitectureReview.href);
 
-    expect(screen.queryByTestId("help-first-value-20-sources")).toBeNull(); // TB-2092
-expect(visible).not.toContain("first-pilot operator path");
+    for (const source of FIRST_VALUE_20_HELP_SOURCES) {
+      expect(within(screen.getByTestId("help-first-value-20-sources")).getByRole("link", { name: source.label }))
+        .toHaveAttribute("href", source.href);
+    }
+
+    expect(visible).not.toContain("first-pilot operator path");
   });
 });

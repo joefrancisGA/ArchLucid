@@ -2133,11 +2133,51 @@ export function stripDeveloperTroubleshootingContributorLeakage(markdown: string
     .trimEnd();
 }
 
-export function stripFirstValue20ContributorLeakage(markdown: string): string {
-  const focused = extractFirstValue20MinutesSection(markdown);
+function stripFirstValue20ExtractedSectionHeading(markdown: string): string {
+  const lines = markdown.split("\n");
+  let index = 0;
 
-  return focused
-    .replace(/dotnet run --project ArchLucid\.Cli -- /gi, "archlucid ")
+  while (index < lines.length && (lines[index] ?? "").trim().length === 0) {
+    index++;
+  }
+
+  const firstLine = (lines[index] ?? "").trim();
+
+  if (FIRST_VALUE_20_MINUTES_SECTION_HEADING_RE.test(firstLine)) {
+    index++;
+
+    while (index < lines.length && (lines[index] ?? "").trim().length === 0) {
+      index++;
+    }
+  }
+
+  return lines.slice(index).join("\n").trimStart();
+}
+
+function replaceFirstValue20OutsideBacktickSpans(
+  text: string,
+  proseReplace: (segment: string) => string,
+  codeReplace: (inner: string) => string,
+): string {
+  const parts = text.split(/(`[^`]*`)/g);
+
+  return parts
+    .map((part, index) => {
+      if (index % 2 === 1 && part.startsWith("`") && part.endsWith("`")) {
+        const inner = part.slice(1, -1);
+
+        return `\`${codeReplace(inner)}\``;
+      }
+
+      return proseReplace(part);
+    })
+    .join("");
+}
+
+function applyFirstValue20ProseLeakageReplacements(segment: string): string {
+  return segment
+    .replace(/\[ROLE_INDEX\.md\]/gi, "[role index]")
+    .replace(/\[TROUBLESHOOTING\.md\]/gi, "[Troubleshooting]")
     .replace(/`?archlucid\.json`?/gi, "CLI configuration file")
     .replace(/`?ARCHLUCID_API_KEY`?/gi, "API key environment variable")
     .replace(/`GET \/health\/live`/gi, "health check endpoint")
@@ -2151,7 +2191,7 @@ export function stripFirstValue20ContributorLeakage(markdown: string): string {
     .replace(/PILOT_PREREQUISITES\.md/gi, "pilot prerequisites checklist")
     .replace(/`?FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT\.md`?/gi, "production-like preflight checklist")
     .replace(/FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT\.md/gi, "production-like preflight checklist")
-    .replace(/`?TROUBLESHOOTING\.md`?/gi, "[Troubleshooting](/help/troubleshooting)")
+    .replace(/`?TROUBLESHOOTING\.md`?/gi, "/help/troubleshooting")
     .replace(/TROUBLESHOOTING\.md/gi, "/help/troubleshooting")
     .replace(
       /`?PRODUCTION_LIKE_AUTH_HANDOFF_CHECKLIST\.md`?/gi,
@@ -2168,17 +2208,39 @@ export function stripFirstValue20ContributorLeakage(markdown: string): string {
     .replace(/GOLDEN_ACCELERATOR_WALKTHROUGH\.md/gi, "golden accelerator walkthrough")
     .replace(/`?STARTER_PROOF_PACK_CHOOSER\.md`?/gi, "[Specialty walkthroughs](/help/specialty-walkthroughs)")
     .replace(/STARTER_PROOF_PACK_CHOOSER\.md/gi, "/help/specialty-walkthroughs")
-    .replace(/`?scripts\/[^`\s)]+`?/gi, "admin automation script")
-    .replace(/\.\/scripts\/[^\s)`]*/gi, "admin automation script")
-    .replace(/`proof-summary\.md`/gi, "proof summary")
-    .replace(/`run-evidence\.json`/gi, "run evidence export")
-    .replace(/`audit-sample\.json`/gi, "audit sample export")
-    .replace(/`artifact-manifest\.json`/gi, "artifact manifest")
-    .replace(/`environment\.json`/gi, "environment summary")
-    .replace(/`limitations\.md`/gi, "limitations summary")
-    .replace(/artifacts\/[^\s`|)]+/gi, "proof output folder")
-    .replace(/\n{3,}/g, "\n\n")
-    .trimEnd();
+    .replace(/\.\/scripts\/[^\s)`]*/gi, "<admin-automation-script>")
+    .replace(/artifacts\/[^\s`|)]+/gi, "<output-folder>");
+}
+
+function applyFirstValue20CodeSpanLeakageReplacements(inner: string): string {
+  return inner
+    .replace(/dotnet run --project ArchLucid\.Cli -- /gi, "archlucid ")
+    .replace(/ROLE_INDEX\.md/gi, "role-index")
+    .replace(/TROUBLESHOOTING\.md/gi, "troubleshooting")
+    .replace(/\.\/scripts\/[^\s)`]*/gi, "<admin-automation-script>")
+    .replace(/scripts\/[^\s)`]+/gi, "<admin-automation-script>")
+    .replace(/artifacts\/[^\s`|)]+/gi, "<output-folder>");
+}
+
+export function stripFirstValue20ContributorLeakage(markdown: string): string {
+  const focused = extractFirstValue20MinutesSection(markdown);
+  const withoutSectionHeading = stripFirstValue20ExtractedSectionHeading(focused);
+  const withoutMojibake = withoutSectionHeading
+    .replace(/Â§/g, "§")
+    .replace(/Â/g, "")
+    .replace(
+      /For the full phased checklist, continue with §?\s*\*\*Phase A\*\* below\./gi,
+      "Use this section when the platform is already wired — not the full phased first-pilot checklist.",
+    )
+    .replace(/continue with §?\s*\*\*Phase A\*\* below/gi, "use this time-boxed section");
+
+  const sanitized = replaceFirstValue20OutsideBacktickSpans(
+    withoutMojibake,
+    applyFirstValue20ProseLeakageReplacements,
+    applyFirstValue20CodeSpanLeakageReplacements,
+  );
+
+  return sanitized.replace(/\n{3,}/g, "\n\n").trimEnd();
 }
 
 /**
