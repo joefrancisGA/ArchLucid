@@ -8,6 +8,7 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 import { HelpConnectAwsSecurelyGuideView } from "@/app/(operator)/help/_sections/HelpConnectAwsSecurelyGuideView";
 import { formatAwsPermissionRequirementLabel } from "@/lib/aws-cloud-connection-permissions-manifest";
 import {
+  CONNECT_AWS_SECURELY_BANNED_COPY,
   CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE,
   CONNECT_AWS_SECURELY_SOURCES,
 } from "@/lib/connect-aws-securely-help-evidence-copy";
@@ -20,14 +21,14 @@ import {
 } from "@/lib/connect-aws-securely-help-content";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
-const BANNED_COPY = ["Evidence tier", "hosted pull", "published managed identity", "validation pull"] as const;
-
 describe("HelpConnectAwsSecurelyGuideView", () => {
   const entry = getProductDocumentationEntry("cloud-connections-aws");
 
-  it("registers the connect AWS securely help guide entry", () => {
+  it("registers the connect AWS securely help guide entry with provenance metadata", () => {
     expect(entry?.slug).toBe("cloud-connections-aws");
     expect(entry?.title).toBe(CONNECT_AWS_SECURELY_PAGE_TITLE);
+    expect(entry?.lastReviewed).toBe("2026-08-09");
+    expect(entry?.releaseApplicability).toContain("V1 GA");
   });
 
   it("renders one H1 and starts on-page navigation with Security model", () => {
@@ -48,6 +49,19 @@ describe("HelpConnectAwsSecurelyGuideView", () => {
       "#security-model",
     );
     expect(within(toc).queryByRole("link", { name: CONNECT_AWS_SECURELY_PAGE_TITLE })).toBeNull();
+  });
+
+  it("shows registry provenance without stub markdown PDF/print chrome", () => {
+    if (entry === undefined) {
+      throw new Error("Expected cloud-connections-aws documentation entry.");
+    }
+
+    render(<HelpConnectAwsSecurelyGuideView entry={entry} />);
+
+    expect(screen.getByTestId("help-topic-registry-provenance")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-pdf-download-button")).toBeNull();
+    expect(screen.queryByTestId("help-topic-print-button")).toBeNull();
+    expect(screen.getByTestId("connect-aws-configure-action")).toBeInTheDocument();
   });
 
   it("shows evidence orientation strip with claim discipline and Sources links", () => {
@@ -130,7 +144,7 @@ describe("HelpConnectAwsSecurelyGuideView", () => {
     const primary = screen.getByTestId("help-connect-aws-securely-primary");
     const text = primary.textContent?.toLowerCase() ?? "";
 
-    for (const banned of BANNED_COPY) {
+    for (const banned of CONNECT_AWS_SECURELY_BANNED_COPY) {
       expect(text).not.toContain(banned.toLowerCase());
     }
   });

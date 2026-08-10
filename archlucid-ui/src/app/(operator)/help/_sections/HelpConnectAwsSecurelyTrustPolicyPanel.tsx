@@ -8,12 +8,14 @@ import {
   CONNECT_AWS_SECURELY_FEDERATION_IDENTIFIERS,
   CONNECT_AWS_SECURELY_FEDERATION_HEADING,
   CONNECT_AWS_SECURELY_FEDERATION_INTRO,
+  CONNECT_AWS_SECURELY_TRUST_POLICY_COPY_ERROR,
   CONNECT_AWS_SECURELY_TRUST_POLICY_HEADING,
   CONNECT_AWS_SECURELY_TRUST_POLICY_INTRO,
   CONNECT_AWS_SECURELY_TRUST_POLICY_REPLACE_HINT,
 } from "@/lib/connect-aws-securely-help-content";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import { showError } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 
 /** Federation identifiers table and copyable IAM trust-policy template for AWS setup. */
@@ -28,6 +30,7 @@ export function HelpConnectAwsSecurelyTrustPolicyPanel(): React.ReactElement {
       window.setTimeout(() => setCopied(false), 2000);
     } catch {
       setCopied(false);
+      showError("AWS trust policy", CONNECT_AWS_SECURELY_TRUST_POLICY_COPY_ERROR);
     }
   }, [trustPolicyTemplate]);
 
@@ -87,6 +90,13 @@ export function HelpConnectAwsSecurelyTrustPolicyPanel(): React.ReactElement {
             {copied ? "Copied" : "Copy trust policy"}
           </Button>
         </div>
+        <p
+          className="sr-only"
+          aria-live="polite"
+          data-testid="connect-aws-securely-trust-policy-copy-status"
+        >
+          {copied ? "Trust policy copied to clipboard." : ""}
+        </p>
         <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           {CONNECT_AWS_SECURELY_TRUST_POLICY_INTRO}
         </p>

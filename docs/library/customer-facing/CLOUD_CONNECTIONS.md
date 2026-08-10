@@ -39,48 +39,9 @@ For role requirements, scopes, CLI templates, and verification, see **[Azure per
 
 ## Connect AWS securely {#connect-aws-securely}
 
-ArchLucid can use AWS resource inventory when you connect an AWS account. The AWS connection is optional; reviews can also use briefs, diagrams, documents, and uploaded inventory ZIPs.
+The in-app guide at `/help/cloud-connections/aws` is the canonical setup reference for OIDC-federated authentication, read-only IAM permissions, setup steps, and data classification.
 
-**Evidence tiers:**
-
-- **Tier 1 (default, no vendor credentials):** run `Get-ArchLucidAwsPackage.ps1` in your AWS account with read-only CLI credentials, then upload the ZIP from the **New architecture review** wizard. ArchLucid never receives your AWS access keys.
-- **Tier 2 (optional):** cloud-connected hosted pull from an authorized IAM role (see below).
-
-### Security model
-
-- **OIDC web identity federation** — ArchLucid's hosted poller assumes your read-only IAM role at runtime without storing access keys.
-- **No long-lived access keys** — trust is established through an IAM role that federates to ArchLucid's published Azure managed identity.
-- **Read-only inventory** — ArchLucid polls **AWS Resource Explorer** for architecture evidence only.
-- **Account-scoped role** — you provision the IAM role and can revoke the trust policy at any time.
-
-### Setup steps
-
-1. Complete the in-product **security review** checklist from the [**AWS cloud connection**](/integrations/cloud-connections/aws) page.
-2. Create a read-only IAM role in your AWS account with a trust policy for ArchLucid's federated identity.
-3. Enter your 12-digit AWS account ID, primary region, and read-only role ARN.
-4. Save the connection, then run **Re-poll now** to confirm federated assume-role and inventory access.
-
-### Required permissions
-
-Grant **read-only** inventory access through your IAM role. ArchLucid requests Resource Explorer data only — **no** write, mutate, or infrastructure-apply permissions.
-
-| Permission area | Purpose | Write access |
-|-----------------|---------|--------------|
-| **Resource Explorer** | Account inventory for architecture evidence | No |
-
-Do **not** assign **AdministratorAccess**, **PowerUserAccess**, **IAMFullAccess**, or any role that can modify your AWS infrastructure on your behalf.
-
-### What ArchLucid stores
-
-- AWS account ID
-- Primary region
-- Read-only IAM role ARN
-- Connection status and last-polled timestamp
-
-### What ArchLucid does not store
-
-- Access key ID / secret access key pairs
-- Administrator or PowerUser privileges
+**[Open Connect AWS securely](/help/cloud-connections/aws)**
 
 ## Connect GCP securely {#connect-gcp-securely}
 

@@ -14,7 +14,6 @@ import { principalCanAccessHelpTopic } from "@/lib/product-documentation-access"
 import { BILLING_AND_PLANS_HELP_ROUTE_METADATA } from "@/lib/billing-and-plans-help-route-metadata";
 import { EXECUTIVE_SUMMARY_HELP_ROUTE_METADATA } from "@/lib/executive-summary-help-route-metadata";
 import { FINDINGS_HELP_ROUTE_METADATA } from "@/lib/findings-help-route-metadata";
-import { CORE_PILOT_HELP_ALIAS_ROUTE_METADATA } from "@/lib/core-pilot-help-alias-route-metadata";
 import { FIRST_ARCHITECTURE_REVIEW_HELP_ROUTE_METADATA } from "@/lib/first-architecture-review-help-route-metadata";
 import { GOVERNANCE_APPROVAL_HELP_ROUTE_METADATA } from "@/lib/governance-approval-help-route-metadata";
 import { CONFIGURATION_REFERENCE_HELP_ROUTE_METADATA } from "@/lib/configuration-reference-help-route-metadata";
@@ -125,6 +124,9 @@ const HelpPolicyPackDeltaDemoGuideView = dynamic(() =>
 );
 const HelpConnectAzureSecurelyGuideView = dynamic(() =>
   import("../_sections/HelpConnectAzureSecurelyGuideView").then((module) => module.HelpConnectAzureSecurelyGuideView),
+);
+const HelpConnectAwsSecurelyGuideView = dynamic(() =>
+  import("../_sections/HelpConnectAwsSecurelyGuideView").then((module) => module.HelpConnectAwsSecurelyGuideView),
 );
 const HelpConnectGcpSecurelyGuideView = dynamic(() =>
   import("../_sections/HelpConnectGcpSecurelyGuideView").then((module) => module.HelpConnectGcpSecurelyGuideView),
@@ -273,10 +275,9 @@ function renderHelpTopicView(
 
   if (loaded.entry.slug === "cloud-connections-aws") {
     return (
-      <HelpTopicMarkdownView
+      <HelpConnectAwsSecurelyGuideView
         entry={loaded.entry}
-        markdown={loaded.markdown}
-        showContextualHelp
+        returnHref={resolveAzurePermissionsReturnHref(readSearchParam(searchParams, "returnTo"))}
       />
     );
   }
@@ -564,10 +565,6 @@ export async function generateMetadata(props: HelpTopicPageProps): Promise<Metad
 
   if (entry.slug === "first-architecture-review") {
     return FIRST_ARCHITECTURE_REVIEW_HELP_ROUTE_METADATA;
-  }
-
-  if (helpSlugFromTopicSegments(topic) === "core-pilot") {
-    return CORE_PILOT_HELP_ALIAS_ROUTE_METADATA;
   }
 
   if (entry.slug === "billing-and-plans") {

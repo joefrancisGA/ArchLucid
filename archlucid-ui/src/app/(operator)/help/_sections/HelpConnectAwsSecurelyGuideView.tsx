@@ -1,9 +1,12 @@
 import Link from "next/link";
 
+import { AlertTriangle } from "lucide-react";
+
 import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpConnectAwsSecurelyTrustPolicyPanel } from "@/app/(operator)/help/_sections/HelpConnectAwsSecurelyTrustPolicyPanel";
 import { ConnectAwsSecurelyHelpEvidenceOrientationStrip } from "@/components/help/ConnectAwsSecurelyHelpEvidenceOrientationStrip";
+import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -32,7 +35,13 @@ import {
   CONNECT_AWS_SECURELY_SETUP_HEADING,
   CONNECT_AWS_SECURELY_SETUP_STEPS,
 } from "@/lib/connect-aws-securely-help-content";
-import { OPERATOR_LAYOUT, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  DESIGN_TOKENS,
+  OPERATOR_LAYOUT,
+  OPERATOR_LINK,
+  OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
 import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
 import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -122,7 +131,7 @@ function ClassificationList(props: { readonly items: readonly string[] }): React
 
 /** Concise enterprise setup guide for `/help/cloud-connections/aws`. */
 export function HelpConnectAwsSecurelyGuideView(props: HelpConnectAwsSecurelyGuideViewProps): React.ReactElement {
-  void props.entry;
+  const { entry } = props;
   const returnHref = props.returnHref ?? "/integrations/cloud-connections";
 
   return (
@@ -135,7 +144,7 @@ export function HelpConnectAwsSecurelyGuideView(props: HelpConnectAwsSecurelyGui
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0 space-y-3">
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-              <Link href={returnHref} className="text-teal-700 underline dark:text-teal-400">
+              <Link href={returnHref} className={OPERATOR_LINK.nav}>
                 ← {CONNECT_AWS_SECURELY_BACK_TO_CONNECTIONS}
               </Link>
             </p>
@@ -149,12 +158,15 @@ export function HelpConnectAwsSecurelyGuideView(props: HelpConnectAwsSecurelyGui
             <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               {CONNECT_AWS_SECURELY_OPTIONAL_ZIP_NOTE}
             </p>
+            <HelpTopicRegistryProvenanceLine entry={entry} />
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <PageContextualHelpButton />
-            <Button asChild size="sm" variant="primary" data-testid="connect-aws-configure-action">
-              <Link href={CONNECT_AWS_SECURELY_CONFIGURE_HREF}>{CONNECT_AWS_SECURELY_CONFIGURE_ACTION}</Link>
-            </Button>
+          <div className="flex min-w-0 flex-col items-start gap-2" data-testid="help-connect-aws-securely-header-actions">
+            <div className="flex flex-wrap items-center gap-2">
+              <PageContextualHelpButton />
+              <Button asChild size="sm" variant="primary" data-testid="connect-aws-configure-action">
+                <Link href={CONNECT_AWS_SECURELY_CONFIGURE_HREF}>{CONNECT_AWS_SECURELY_CONFIGURE_ACTION}</Link>
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -165,10 +177,7 @@ export function HelpConnectAwsSecurelyGuideView(props: HelpConnectAwsSecurelyGui
         <div className="min-w-0 space-y-8" data-testid="help-connect-aws-securely-primary">
           <section aria-labelledby="security-model" className="space-y-3">
             <HelpSectionHeading id="security-model">{CONNECT_AWS_SECURELY_SECURITY_HEADING}</HelpSectionHeading>
-            <Card
-              className="border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20"
-              data-testid="connect-aws-securely-security-panel"
-            >
+            <Card className={DESIGN_TOKENS.surface.card} data-testid="connect-aws-securely-security-panel">
               <CardContent className="space-y-3 pt-6">
                 <ul className="m-0 list-none space-y-3 p-0">
                   {CONNECT_AWS_SECURELY_SECURITY_ITEMS.map((item) => (
@@ -196,7 +205,7 @@ export function HelpConnectAwsSecurelyGuideView(props: HelpConnectAwsSecurelyGui
                   {step.id === "open-cloud-connections" ? (
                     <>
                       Open{" "}
-                      <Link href={CONNECT_AWS_SECURELY_CONFIGURE_HREF} className="text-teal-700 underline dark:text-teal-400">
+                      <Link href={CONNECT_AWS_SECURELY_CONFIGURE_HREF} className={OPERATOR_LINK.nav}>
                         Cloud connections
                       </Link>{" "}
                       and begin an AWS connection.
@@ -219,18 +228,27 @@ export function HelpConnectAwsSecurelyGuideView(props: HelpConnectAwsSecurelyGui
             <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               {CONNECT_AWS_SECURELY_RESOURCE_EXPLORER_NOTE}
             </p>
-            <div
-              className="rounded-md border border-amber-300/80 bg-amber-50/70 px-4 py-3 dark:border-amber-900/60 dark:bg-amber-950/30"
+            <aside
+              className={cn(DESIGN_TOKENS.callout.warn, "flex gap-3")}
               data-testid="connect-aws-securely-forbidden-policies-callout"
-              role="note"
+              aria-labelledby="connect-aws-securely-forbidden-policies-heading"
             >
-              <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                {CONNECT_AWS_SECURELY_FORBIDDEN_POLICIES_HEADING}
-              </p>
-              <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                {CONNECT_AWS_SECURELY_FORBIDDEN_POLICIES_BODY}
-              </p>
-            </div>
+              <AlertTriangle
+                className="mt-0.5 h-4 w-4 shrink-0 text-amber-800 dark:text-amber-200"
+                aria-hidden
+              />
+              <div className="min-w-0 space-y-2">
+                <h3
+                  id="connect-aws-securely-forbidden-policies-heading"
+                  className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}
+                >
+                  {CONNECT_AWS_SECURELY_FORBIDDEN_POLICIES_HEADING}
+                </h3>
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                  {CONNECT_AWS_SECURELY_FORBIDDEN_POLICIES_BODY}
+                </p>
+              </div>
+            </aside>
           </section>
 
           <section

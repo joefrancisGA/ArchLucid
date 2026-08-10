@@ -110,3 +110,6 @@ export const CONNECT_AWS_SECURELY_PERMISSIONS_ITEMS = [
 ] as const;
 
 export const CONNECT_AWS_SECURELY_CONFIGURE_HREF = "/integrations/cloud-connections/aws";
+
+export const CONNECT_AWS_SECURELY_TRUST_POLICY_COPY_ERROR =
+  "Could not copy the trust policy. Select the template below and copy it manually.";
