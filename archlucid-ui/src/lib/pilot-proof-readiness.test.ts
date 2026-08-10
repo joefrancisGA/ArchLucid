@@ -4,6 +4,7 @@ import {
   isAgentOutputPilotStrictSponsorSafe,
   isExternalSponsorPdfBlockedForExecutionMode,
   isProjectedDollarClaimsSponsorSafe,
+  isProjectedUsdSponsorBadgeVisible,
 } from "@/lib/pilot-proof-readiness";
 import { describe, expect, it } from "vitest";
 
@@ -26,6 +27,37 @@ describe("isProjectedDollarClaimsSponsorSafe", () => {
     ).toBe(false);
 
     expect(isProjectedDollarClaimsSponsorSafe(null)).toBe(false);
+  });
+});
+
+describe("isProjectedUsdSponsorBadgeVisible", () => {
+  it("requires sponsor-safe projected dollars and non-blocked execution mode", () => {
+    const sponsorSafeReal = {
+      structuralExecutionMode: "Real",
+      proofPackageCompleteness: {
+        roiBaselineInputs: { projectedDollarClaimsSponsorSafe: true },
+      },
+    } as const;
+
+    expect(isProjectedUsdSponsorBadgeVisible(sponsorSafeReal)).toBe(true);
+
+    expect(
+      isProjectedUsdSponsorBadgeVisible({
+        structuralExecutionMode: "Simulator",
+        proofPackageCompleteness: {
+          roiBaselineInputs: { projectedDollarClaimsSponsorSafe: true },
+        },
+      }),
+    ).toBe(false);
+
+    expect(
+      isProjectedUsdSponsorBadgeVisible({
+        structuralExecutionMode: "Real",
+        proofPackageCompleteness: {
+          roiBaselineInputs: { projectedDollarClaimsSponsorSafe: false },
+        },
+      }),
+    ).toBe(false);
   });
 });
 

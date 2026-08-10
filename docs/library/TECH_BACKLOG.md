@@ -688,6 +688,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-971 | **Done** (2026-08-09) — cross-surface execution-mode honesty guards; within-run Mixed vs ROI period mix; see `## TB-971` below | Trustworthiness P1 ? **V1**; after **TB-970**; pairs Done **TB-239** / G1 | M |
 | TB-974 | **Done** (2026-08-09) — wrong-gate migration playbook; deprecate / selective re-execute / append-only supersede; see `## TB-974` below | Trustworthiness P1 ? **V1**; after **TB-972**; pairs **TB-973** | M |
 | TB-985 | Cross-surface Simulator-ROI honesty regression + CI guard ? no leading USD on forbidden postures; see `## TB-985` below | Trustworthiness P1 ? **V1**; after **TB-984**; extends `check_sponsor_evidence_label_consistency.py` / sponsor invariant tests | M |
+| TB-984 | **Done** (2026-08-10) — buyer-polished ROI trend + Email projected-USD badge honor Simulator forbid gates; see ## TB-984 below | Proof-of-ROI P1 ? **V1**; after **TB-983**; pairs PDF execution-mode block | M |
 | TB-983 | ~~Simulator-derived ROI/savings forbid contract (sponsor-facing)~~ **Done** 2026-08-10 ? [`SIMULATOR_ROI_SPONSOR_FORBID_CONTRACT.md`](SIMULATOR_ROI_SPONSOR_FORBID_CONTRACT.md); see `## TB-983` below | Proof-of-ROI P1 ? **V1**; PA Q19 2026-07-24; GTM **M-138**/**M-139**; after Done **TB-239** / first-value ROI gate | S |
 | TB-995 | ~~Polly/CB transport vs run-level surface matrix ? partial agents / poisoned cache / mid-run budget map to **TB-937**?**TB-945**~~ **Done** 2026-08-04 ? [`POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md`](POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md); see `## TB-995` below | Trustworthiness P1 ? **V1**; PA Q7 2026-07-24; GTM **M-146**/**M-147**; does not duplicate implementation TBs | S |
 | TB-997 | ~~LLM trust-boundary ingress vs structurally-impossible matrix ? docs/repo/retrieval into model; no model-driven exfil/side effects~~ **Done** 2026-08-05 ? [`LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md`](LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md); see `## TB-997` below | Trustworthiness P1 ? **V1**; PA Q11 2026-07-24; GTM **M-148**/**M-149**; complements **TB-949**?**TB-952** | S |
@@ -763,7 +764,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1557 | Zero-downtime SQL migration claim map (DbUp startup / identity / old×new schema); see `## TB-1557` below | Trustworthiness P1 ? **V1**; PA DDL migration Q; GTM **M-286**/**M-287**; see `ZERO_DOWNTIME_SQL_MIGRATION_CLAIM_MAP.md` | S |
 | TB-1559 | REST+CLI breaking-change compatibility claim map (policy vs snapshot); see `## TB-1559` below | Trustworthiness P1 ? **V1**; PA API/CLI compat Q; GTM **M-288**/**M-289**; see `REST_CLI_BREAKING_CHANGE_COMPATIBILITY_CLAIM_MAP.md` | S |
 | TB-1561 | Configuration architecture claim map (precedence / fail-fast vs runtime / drift); see `## TB-1561` below | Trustworthiness P1 ? **V1**; PA config Q + TB-881 class; GTM **M-290**/**M-291**; see `CONFIGURATION_ARCHITECTURE_PRECEDENCE_VALIDATION_DRIFT_CLAIM_MAP.md` | S |
-| TB-1581 | Composite alert rules ? enum/join/enabled honesty (no eng operator strings); see ## TB-1581 below | Trustworthiness P1 ? **V1**; with **TB-1579** | S |
+| TB-1581 | **Done** (2026-08-10) — composite alert rules enum/join/enabled honesty; `composite-alert-rules-labels.ts`; Vitest; see ## TB-1581 below | Trustworthiness P1 ? **V1**; with **TB-1579** | S |
 | TB-1583 | Composite alert rules ? hide reserved reopen-delta + loading skeleton; see ## TB-1583 below | Trustworthiness / adoption P1 ? **V1**; with **TB-1579** | S |
 | TB-1587 | Alert rules Conditions ? scope preview `projectId=default` honesty; see ## TB-1587 below | Trustworthiness P1 ? **V1**; with **TB-1584** | S |
 | TB-1592 | Alert simulation/tuning ? GUID placeholder + `default` slug honesty; see ## TB-1592 below | Trustworthiness P1 ? **V1**; with **TB-1589**; pairs **TB-1587** | S |
@@ -883,7 +884,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-980 | Author Enterprise Customer Intake Modernization sample package ? second static spine; pin primary one-sentence + Contoso/Northwind ban; see `## TB-980` below | Commercial / marketability P1 ? **V1**; after **TB-979**; GTM **M-133**/**M-135**; PA primary-sentence 2026-07-25 | L |
 | TB-981 | Showcase default flip + trial/marketing universe+ID alignment ? no silent dual universe; see `## TB-981` below | Commercial / marketability P1 ? **V1**; after **TB-978**/**TB-980** + GTM **M-133**/**M-134**/**M-136**; PA Q15 2026-07-25 | M |
 | TB-983 | ~~Simulator-derived ROI/savings forbid contract (sponsor-facing)~~ **Done** 2026-08-10 ? [`SIMULATOR_ROI_SPONSOR_FORBID_CONTRACT.md`](SIMULATOR_ROI_SPONSOR_FORBID_CONTRACT.md); see `## TB-983` below | Proof-of-ROI P1 ? **V1**; PA Q19 2026-07-24; GTM **M-138**/**M-139**; after Done **TB-239** / first-value ROI gate | S |
-| TB-984 | Enforce Simulator/HOLD ROI dollar suppression ? executive headline + buyer trend (**BDA-069**/**BDA-070**) + Email-to-sponsor projected-USD badge; see `## TB-984` below | Proof-of-ROI P1 ? **V1**; after **TB-983**; pairs PDF execution-mode block already shipped | M |
+| TB-984 | **Done** (2026-08-10) — buyer-polished ROI trend + Email projected-USD badge honor Simulator forbid gates; see ## TB-984 below | Proof-of-ROI P1 ? **V1**; after **TB-983**; pairs PDF execution-mode block already shipped | M |
 | TB-1112 | Minimum pilot trust packet contract (no CPA SOC 2 / 3P pen test); see `## TB-1112` below | Commercial / marketability P1 ? **V1**; PA Q14; GTM **M-190**/**M-191** | S |
 | TB-1122 | Isolation claims too strong vs INV-001 / ADR 0037 + RLS purge; see `## TB-1122` below | Commercial / marketability P1 ? **V1**; PA Q18; GTM **M-194**/**M-195** | S |
 | TB-1137 | Governance setup checklist visual design (not five identical cards); see ## TB-1137 below | Adoption friction P1 ? **V1**; with **TB-1135** | M |
@@ -26576,7 +26577,9 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Proof-of-ROI / executive value.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-10).
+
+**Closed:** `isProjectedUsdSponsorBadgeVisible` aligns Email-to-sponsor projected-USD badge with PDF execution-mode gates; buyer-polished `ExecutiveRoiTrendSection` charts `realModeSavingsUsd` via `resolveExecutiveTrendSavingsUsd`; Vitest coverage. Residual: API `TotalEstimatedUsdSavings` headline aggregation and board-pack composer — operator-density views unchanged with labels.
 
 **Priority:** P1.
 

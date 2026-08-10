@@ -21,6 +21,26 @@ export const EXECUTION_MODE_HONESTY_DRIFT_GUARD_SOURCES = [
   "src/components/StructuralExecutionModeBadge.tsx",
 ] as const;
 
+export function resolveExecutiveTrendSavingsUsd(
+  point: {
+    readonly totalEstimatedUsdSavings: number;
+    readonly realModeSavingsUsd: number;
+    readonly realRunCount: number;
+    readonly simulatorRunCount: number;
+  },
+  buyerPolished: boolean,
+): number {
+  if (!buyerPolished) {
+    return point.totalEstimatedUsdSavings;
+  }
+
+  if (point.realRunCount === 0 && point.simulatorRunCount > 0) {
+    return 0;
+  }
+
+  return point.realModeSavingsUsd;
+}
+
 export function isBuyerRealEvidenceMode(mode: Parameters<typeof formatStructuralExecutionModeLabel>[0]): boolean {
   return formatStructuralExecutionModeLabel(mode) === StructuralExecutionModeWire.Real;
 }

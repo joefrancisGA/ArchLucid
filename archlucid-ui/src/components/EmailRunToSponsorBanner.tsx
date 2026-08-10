@@ -34,6 +34,7 @@ import {
   isAgentOutputPilotStrictSponsorSafe,
   isExternalSponsorPdfBlockedForExecutionMode,
   isProjectedDollarClaimsSponsorSafe,
+  isProjectedUsdSponsorBadgeVisible,
   type PilotRunDeltasProofSummaryJson,
 } from "@/lib/pilot-proof-readiness";
 import { isPilotRoiBaselineComplete } from "@/lib/pilot-roi-baseline-completeness";
@@ -204,7 +205,7 @@ export function EmailRunToSponsorBanner({
             const deltasJson = (await deltasRes.json()) as PilotRunDeltasProofSummaryJson;
 
             if (
-              isProjectedDollarClaimsSponsorSafe(deltasJson)
+              isProjectedUsdSponsorBadgeVisible(deltasJson)
               && typeof deltasJson.estimatedUsdSavings === "number"
               && Number.isFinite(deltasJson.estimatedUsdSavings)
             ) {
@@ -341,7 +342,9 @@ export function EmailRunToSponsorBanner({
             {timeToFirstCommitHours.toFixed(2)} h to first finalization
           </span>
         ) : null}
-        {estimatedUsdSavings !== null ? (
+        {estimatedUsdSavings !== null
+        && proofGate.status === "ok"
+        && isProjectedUsdSponsorBadgeVisible(proofGate.payload) ? (
           <span
             data-testid="email-run-to-sponsor-estimated-usd-savings"
             className={cn("ml-2 inline-flex items-center rounded-full bg-teal-100 px-2 py-0.5 font-medium text-teal-900 dark:bg-teal-900 dark:text-teal-100", OPERATOR_TYPOGRAPHY.helper)}

@@ -469,6 +469,7 @@ describe("EmailRunToSponsorBanner", () => {
     stubFetchForBannerMocks({
       deltasBody: {
         isDemoTenant: false,
+        estimatedUsdSavings: 12_500,
         structuralExecutionMode: "Simulator",
         proofPackageCompleteness: {
           demoTenantWarningRequired: false,
@@ -487,6 +488,7 @@ describe("EmailRunToSponsorBanner", () => {
     });
 
     expect(screen.getByTestId("email-run-to-sponsor-execution-mode")).toHaveTextContent("Simulator");
+    expect(screen.queryByTestId("email-run-to-sponsor-estimated-usd-savings")).not.toBeInTheDocument();
     expect(screen.getByTestId("email-run-to-sponsor-primary-action")).toBeDisabled();
     expect(screen.getByTestId("email-run-to-sponsor-mark-sent")).toBeDisabled();
   });

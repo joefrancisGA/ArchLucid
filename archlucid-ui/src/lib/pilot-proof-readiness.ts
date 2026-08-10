@@ -47,6 +47,24 @@ export function isProjectedDollarClaimsSponsorSafe(
   return payload?.proofPackageCompleteness?.roiBaselineInputs?.projectedDollarClaimsSponsorSafe === true;
 }
 
+/**
+ * TB-984 — projected-USD sponsor badge uses the same gates as external sponsor PDF:
+ * sponsor-safe ROI basis plus Real (non-blocked) execution mode.
+ */
+export function isProjectedUsdSponsorBadgeVisible(
+  payload: PilotRunDeltasProofSummaryJson | null,
+): boolean {
+  if (!isProjectedDollarClaimsSponsorSafe(payload)) {
+    return false;
+  }
+
+  if (isExternalSponsorPdfBlockedForExecutionMode(payload)) {
+    return false;
+  }
+
+  return true;
+}
+
 /** Human-readable execution mode from persisted pilot-run-deltas (Real / Simulator / Fallback / Mixed). */
 export function formatStructuralExecutionModeLabel(
   payload: PilotRunDeltasProofSummaryJson | null,

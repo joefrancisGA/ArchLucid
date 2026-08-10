@@ -14,7 +14,7 @@ import {
   filterHistoryPointsByRange,
 } from "@/lib/executive-time-range";
 import { BUYER_EXECUTIVE_DATA_SOURCE_NOTE } from "@/lib/buyer-polish-copy";
-import { EXECUTION_MODE_ROI_PERIOD_MIX_FOOTNOTE } from "@/lib/execution-mode-honesty";
+import { EXECUTION_MODE_ROI_PERIOD_MIX_FOOTNOTE, resolveExecutiveTrendSavingsUsd } from "@/lib/execution-mode-honesty";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -148,7 +148,7 @@ export function ExecutiveRoiTrendSection({
             <ExecutiveRoiSavingsTrendSvgChart
               points={points.map((point) => ({
                 snapshotUtc: point.snapshotUtc,
-                totalEstimatedUsdSavings: point.totalEstimatedUsdSavings,
+                totalEstimatedUsdSavings: resolveExecutiveTrendSavingsUsd(point, buyerPolished),
               }))}
             />
             <div>

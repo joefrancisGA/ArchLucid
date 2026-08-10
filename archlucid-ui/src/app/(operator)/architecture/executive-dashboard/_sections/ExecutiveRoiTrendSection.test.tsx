@@ -76,4 +76,22 @@ describe("ExecutiveRoiTrendSection", () => {
     expect(screen.getByTestId("exec-roi-trend-simulator-only")).toHaveTextContent("Simulator-only");
     expect(screen.getByTestId("exec-roi-trend-svg-chart")).toBeInTheDocument();
   });
+
+  it("uses Real-mode savings only on buyer-polished trend chart", async () => {
+    buyerPolishedShellVitestOverride.value = true;
+
+    renderWithQueryClient(<ExecutiveRoiTrendSection defaultTimeRange="all" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("exec-roi-trend-chart")).toBeInTheDocument();
+    });
+
+    const bars = screen.getAllByTestId("exec-roi-trend-svg-bar");
+
+    expect(bars).toHaveLength(2);
+    expect(bars[0]?.parentElement?.querySelector("title")).toHaveTextContent("$300");
+    expect(bars[1]?.parentElement?.querySelector("title")).toHaveTextContent("$0");
+    expect(screen.queryByTestId("exec-roi-trend-simulator-only")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("exec-roi-trend-mixed-mode-footnote")).not.toBeInTheDocument();
+  });
 });
