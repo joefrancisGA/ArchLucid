@@ -8,6 +8,9 @@ export type ReviewsNewPathMode = "quick-review" | "guided-intake" | "detailed";
 /** Deep link for born-governed creation intake (guided clarifying questions). */
 export const REVIEWS_NEW_GUIDED_INTAKE_HREF = "/architecture/reviews/new?path=guided-intake" as const;
 
+/** URL path query token for the Guided questions tab (product label: {@link REVIEWS_NEW_GUIDED_QUESTIONS_LABEL}). */
+export const REVIEWS_NEW_GUIDED_INTAKE_PATH_TOKEN = "guided-intake";
+
 /** Deep link for templates / imports detailed wizard path. */
 export const REVIEWS_NEW_DETAILED_HREF = "/architecture/reviews/new?path=detailed" as const;
 
