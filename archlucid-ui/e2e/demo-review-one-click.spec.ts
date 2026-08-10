@@ -44,7 +44,9 @@ test.describe("demo review one-click reliability @demo-review", () => {
     // Findings workspace uses card mode (primary + additional), not the legacy Policy violations list test id.
     const primaryCard = await expandFindingWorkspaceCard(quickDecisionSummary, "demo-finding-1");
     await expect(primaryCard).toHaveAttribute("data-finding-workspace-primary", "true");
-    await expect(primaryCard.getByTestId("finding-policy-rule-badge").first()).toBeVisible({ timeout: 30_000 });
+    await expect(
+      primaryCard.getByRole("heading", { level: 3, name: "Public SQL endpoint without private link" }),
+    ).toBeVisible({ timeout: 30_000 });
 
     await expect(quickDecisionSummary.getByTestId("finding-workspace-card-demo-finding-2")).toBeVisible({
       timeout: 30_000,

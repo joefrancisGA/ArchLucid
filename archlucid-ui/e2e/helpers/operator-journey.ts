@@ -301,9 +301,9 @@ export function comparePageSubmitButton(page: Page) {
   return page.getByTestId("compare-submit-button");
 }
 
-/** H3 shown once structured compare payload renders (`CompareResultsPanel`). */
+/** H2 shown once structured compare payload renders (`StructuredComparisonView`). */
 export function compareManifestComparisonHeading(page: Page): Locator {
-  return page.getByRole("heading", { name: "Review comparison", level: 3 });
+  return page.getByRole("heading", { name: "Review comparison", level: 2 });
 }
 
 /**
