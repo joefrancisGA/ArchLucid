@@ -1,12 +1,14 @@
 "use client";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { AWS_TRUST_STARTER_IDENTITY_INTRO } from "@/lib/aws-cloud-connection-trust-policy-starter";
 import { cloudSecurityPreflightTopics } from "@/lib/cloud-security-preflight-topics";
 
 import { AwsConnectionDataProvider } from "./AwsConnectionDataContext";
 import { AwsConnectionRecentActivityPanel } from "./AwsConnectionRecentActivityPanel";
 import { AwsConnectionSection } from "./AwsConnectionSection";
 import { AwsConnectionValidatePanel } from "./AwsConnectionValidatePanel";
+import { AwsTrustPolicyStarterPanel } from "./AwsTrustPolicyStarterPanel";
 import { CloudConnectionsProviderHeader } from "./CloudConnectionsProviderHeader";
 import { CloudProviderDetailLayout } from "./CloudProviderDetailLayout";
 import {
@@ -32,10 +34,10 @@ export function AwsCloudConnectionDetailClient() {
           }
           securityPreflight={<CloudSecurityPreflightPanel topics={cloudSecurityPreflightTopics("aws")} providerLabel="AWS" />}
           identitySetup={
-            <p className={OPERATOR_TYPOGRAPHY.body}>
-              Create a read-only IAM role in your AWS account with a trust policy that allows ArchLucid to assume the role
-              through OIDC federation. Record the role ARN for connection setup.
-            </p>
+            <div className="space-y-4">
+              <p className={OPERATOR_TYPOGRAPHY.body}>{AWS_TRUST_STARTER_IDENTITY_INTRO}</p>
+              <AwsTrustPolicyStarterPanel />
+            </div>
           }
           connectionDetails={<AwsConnectionSection embedded />}
           validateConnection={<AwsConnectionValidatePanel />}

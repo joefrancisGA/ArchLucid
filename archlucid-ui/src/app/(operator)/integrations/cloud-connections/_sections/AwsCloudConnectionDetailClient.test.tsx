@@ -43,4 +43,17 @@ describe("AwsCloudConnectionDetailClient", () => {
       expect(text.toLowerCase()).not.toContain(banned.toLowerCase());
     }
   });
+
+  it("exposes federation identifiers and a copyable IAM trust-policy starter (TB-1765)", () => {
+    render(<AwsCloudConnectionDetailClient />);
+
+    expect(screen.getByTestId("aws-trust-starter-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("aws-trust-starter-federation-identifiers")).toBeInTheDocument();
+    expect(screen.getByText("api://AzureADTokenExchange")).toBeInTheDocument();
+
+    const trustPolicyTemplate = screen.getByTestId("aws-trust-starter-trust-policy-template");
+    expect(trustPolicyTemplate).toHaveTextContent("sts:AssumeRoleWithWebIdentity");
+    expect(trustPolicyTemplate).toHaveTextContent("sts.windows.net/{ArchLucid tenant ID}");
+    expect(screen.getByTestId("aws-trust-starter-trust-policy-copy")).toBeInTheDocument();
+  });
 });

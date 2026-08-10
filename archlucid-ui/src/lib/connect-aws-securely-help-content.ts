@@ -67,73 +67,16 @@ export const CONNECT_AWS_SECURELY_SETUP_STEPS = [
   },
 ] as const;
 
-export const CONNECT_AWS_SECURELY_FEDERATION_HEADING = "Federation identifiers";
-
-export const CONNECT_AWS_SECURELY_FEDERATION_INTRO =
-  "Bind your IAM OIDC identity provider and role trust policy to ArchLucid's hosted Azure user-assigned managed identity. Obtain the current tenant ID and managed identity object ID from Assurance status or the in-product AWS connection security review when values are environment-specific.";
-
-export type ConnectAwsSecurelyFederationIdentifier = {
-  readonly id: string;
-  readonly label: string;
-  readonly value: string;
-  readonly isPlaceholder: boolean;
-};
-
-export const CONNECT_AWS_SECURELY_FEDERATION_IDENTIFIERS: readonly ConnectAwsSecurelyFederationIdentifier[] = [
-  {
-    id: "issuer",
-    label: "OIDC issuer (Entra ID)",
-    value: "https://login.microsoftonline.com/{ArchLucid tenant ID}/v2.0",
-    isPlaceholder: true,
-  },
-  {
-    id: "audience",
-    label: "Token audience",
-    value: "api://AzureADTokenExchange",
-    isPlaceholder: false,
-  },
-  {
-    id: "subject",
-    label: "Subject (managed identity object ID)",
-    value: "{ArchLucid managed identity object ID}",
-    isPlaceholder: true,
-  },
-  {
-    id: "oidc-provider-arn",
-    label: "IAM OIDC provider ARN (example)",
-    value: "arn:aws:iam::{your AWS account ID}:oidc-provider/sts.windows.net/{ArchLucid tenant ID}",
-    isPlaceholder: true,
-  },
-] as const;
-
-export const CONNECT_AWS_SECURELY_TRUST_POLICY_HEADING = "IAM trust policy template";
-
-export const CONNECT_AWS_SECURELY_TRUST_POLICY_INTRO =
-  "Use this AssumeRoleWithWebIdentity trust policy on your read-only IAM role. Replace placeholder values before applying it in AWS.";
-
-export const CONNECT_AWS_SECURELY_TRUST_POLICY_REPLACE_HINT =
-  "Replace {your AWS account ID}, {ArchLucid tenant ID}, and {ArchLucid managed identity object ID} with your values. Create the IAM OIDC provider in your account before attaching this trust policy.";
-
-export function buildAwsCloudConnectionTrustPolicyTemplate(): string {
-  return `{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Federated": "arn:aws:iam::{your AWS account ID}:oidc-provider/sts.windows.net/{ArchLucid tenant ID}"
-      },
-      "Action": "sts:AssumeRoleWithWebIdentity",
-      "Condition": {
-        "StringEquals": {
-          "sts.windows.net/{ArchLucid tenant ID}:aud": "api://AzureADTokenExchange",
-          "sts.windows.net/{ArchLucid tenant ID}:sub": "{ArchLucid managed identity object ID}"
-        }
-      }
-    }
-  ]
-}`;
-}
+export {
+  AWS_TRUST_STARTER_FEDERATION_HEADING as CONNECT_AWS_SECURELY_FEDERATION_HEADING,
+  AWS_TRUST_STARTER_FEDERATION_IDENTIFIERS as CONNECT_AWS_SECURELY_FEDERATION_IDENTIFIERS,
+  AWS_TRUST_STARTER_FEDERATION_INTRO as CONNECT_AWS_SECURELY_FEDERATION_INTRO,
+  AWS_TRUST_STARTER_TRUST_POLICY_HEADING as CONNECT_AWS_SECURELY_TRUST_POLICY_HEADING,
+  AWS_TRUST_STARTER_TRUST_POLICY_INTRO as CONNECT_AWS_SECURELY_TRUST_POLICY_INTRO,
+  AWS_TRUST_STARTER_TRUST_POLICY_REPLACE_HINT as CONNECT_AWS_SECURELY_TRUST_POLICY_REPLACE_HINT,
+  buildAwsTrustStarterPolicyTemplate as buildAwsCloudConnectionTrustPolicyTemplate,
+  type AwsTrustStarterFederationIdentifier as ConnectAwsSecurelyFederationIdentifier,
+} from "@/lib/aws-cloud-connection-trust-policy-starter";
 
 export const CONNECT_AWS_SECURELY_PERMISSIONS_HEADING = "IAM permissions";
 
