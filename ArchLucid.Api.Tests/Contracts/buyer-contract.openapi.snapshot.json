@@ -1797,7 +1797,7 @@
           },
           "traces": {
             "items": {
-              "$ref": "#/components/schemas/AgentExecutionTrace"
+              "$ref": "#/components/schemas/AgentExecutionTraceSummary"
             },
             "type": "array"
           }
@@ -9450,6 +9450,32 @@
             "type": "string"
           },
           "workspaceId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "DigestDeliveryAttemptsBatchResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/DigestDeliveryAttemptsForDigestResponse"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "DigestDeliveryAttemptsForDigestResponse": {
+        "properties": {
+          "attempts": {
+            "items": {
+              "$ref": "#/components/schemas/DigestDeliveryAttempt"
+            },
+            "type": "array"
+          },
+          "digestId": {
             "format": "uuid",
             "type": "string"
           }
