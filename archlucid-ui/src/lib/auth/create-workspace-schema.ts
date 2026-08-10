@@ -11,7 +11,7 @@ export const createWorkspaceFormSchema = z
       .min(2, "Workspace name must be at least 2 characters.")
       .max(120, "Workspace name must be at most 120 characters."),
     organizationName: z.string().trim().max(200, "Organization name must be at most 200 characters."),
-    dataRegion: z.enum(createWorkspaceDataRegionValues).default("default"),
+    dataRegion: z.enum(createWorkspaceDataRegionValues),
     industryVertical: z.enum(industryVerticalOptions).optional(),
     industryVerticalOther: z.string().max(200).optional(),
     termsAccepted: z.boolean().refine((value) => value, { message: "Accept the terms to continue." }),
