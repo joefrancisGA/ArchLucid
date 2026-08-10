@@ -62,6 +62,8 @@ const nextConfig: NextConfig = {
   // Soft-nav from heavy Overview was stuck on Next 16.2.x (RSC OK, URL never commits) under
   // loading.tsx — React reconciler fix ships in 16.3.0-preview+ (vercel/next.js#86151). Pin that line until 16.3 stable.
   reactStrictMode: true,
+  /** Automatic memoization for operator client trees (perf wave 8). Escape hatch: "use no memo". */
+  reactCompiler: true,
   devIndicators: false,
   // Standalone output copies only required node_modules into .next/standalone,
   // producing a self-contained deployment unit suitable for Docker / App Service.

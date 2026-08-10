@@ -316,7 +316,7 @@ export const DESIGN_TOKENS = {
     headRow: "border-b border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900",
     headCell: `px-3 py-2.5 text-left ${OPERATOR_TYPE_SCALE.tab} text-al-text-secondary`,
     body: "divide-y divide-neutral-100 dark:divide-neutral-800",
-    row: "outline-none transition-colors hover:bg-[var(--al-layer-hover)] dark:hover:bg-neutral-800/80",
+    row: "content-visibility-auto outline-none transition-colors hover:bg-[var(--al-layer-hover)] dark:hover:bg-neutral-800/80",
     rowSelected:
       "border-l-2 border-l-[var(--al-accent-interactive)] bg-[var(--al-layer-hover)] dark:bg-neutral-800/80",
     cell: "px-3 py-3 align-top text-[13px] leading-snug text-al-text-primary",

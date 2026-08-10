@@ -486,3 +486,18 @@ export const ReviewGenerationCreatedNoticeDeferred = dynamic(
     ),
   { ssr: false, loading: () => null },
 );
+
+/** Perf wave 8 — below-fold forensics/pipeline/provenance cluster off sync First Load JS. */
+export const RunDetailBelowFoldSectionsDeferred = dynamic(
+  () => import("./RunDetailBelowFoldSections").then((module) => module.RunDetailBelowFoldSections),
+  {
+    ssr: false,
+    loading: () => (
+      <div
+        className="h-32 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
+        role="status"
+        aria-label="Loading additional review sections"
+      />
+    ),
+  },
+);

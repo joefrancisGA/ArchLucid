@@ -367,4 +367,26 @@ internal static class InfrastructureExtensions
         });
         return services;
     }
+
+    /// <summary>Server-side output cache for anonymous immutable GETs (version probe, marketing showcase).</summary>
+    public static IServiceCollection AddArchLucidOutputCache(this IServiceCollection services)
+    {
+        services.AddOutputCache(options =>
+        {
+            options.AddPolicy(
+                "ImmutableShort",
+                builder => builder
+                    .Expire(TimeSpan.FromSeconds(30))
+                    .SetVaryByHeader("Accept"));
+
+            options.AddPolicy(
+                "Showcase",
+                builder => builder
+                    .Expire(TimeSpan.FromSeconds(300))
+                    .SetVaryByRouteValue("runKey")
+                    .SetVaryByHeader("Accept"));
+        });
+
+        return services;
+    }
 }

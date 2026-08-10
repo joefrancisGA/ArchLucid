@@ -9,6 +9,7 @@ using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 
@@ -41,6 +42,7 @@ public sealed class MarketingShowcaseController(
 
     [HttpGet("{runKey}")]
     [ResponseCache(Duration = 300, Location = ResponseCacheLocation.Any, NoStore = false)]
+    [OutputCache(PolicyName = "Showcase")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(DemoCommitPagePreviewResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

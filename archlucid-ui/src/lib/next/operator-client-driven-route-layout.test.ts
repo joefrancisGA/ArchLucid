@@ -8,7 +8,24 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..")
 
 const CLIENT_DRIVEN_LAYOUTS = [
   "src/app/(operator)/architecture/digests/layout.tsx",
+  "src/app/(operator)/architecture/first-review-guide/layout.tsx",
+  "src/app/(operator)/architecture/architectures/layout.tsx",
+  "src/app/(operator)/architecture/executive-dashboard/layout.tsx",
+  "src/app/(operator)/architecture/reviews/new/layout.tsx",
   "src/app/(operator)/governance/advisory-scans/layout.tsx",
+  "src/app/(operator)/governance/layout.tsx",
+  "src/app/(operator)/governance/alerts/layout.tsx",
+  "src/app/(operator)/governance/audit/layout.tsx",
+  "src/app/(operator)/governance/standards-and-rules/layout.tsx",
+  "src/app/(operator)/governance/signed-records/layout.tsx",
+  "src/app/(operator)/governance/signed-records/[manifestId]/layout.tsx",
+  "src/app/(operator)/administration/layout.tsx",
+  "src/app/(operator)/administration/system-health/layout.tsx",
+  "src/app/(operator)/demo/layout.tsx",
+  "src/app/(operator)/internal/layout.tsx",
+  "src/app/(operator)/internal/replay/layout.tsx",
+  "src/app/(operator)/internal/product-learning/layout.tsx",
+  "src/app/(operator)/internal/fleet-llm-cogs/layout.tsx",
   "src/app/(operator)/integrations/layout.tsx",
   "src/app/(operator)/insights/ask-review-questions/layout.tsx",
   "src/app/(operator)/insights/architecture-scorecard/layout.tsx",
@@ -23,6 +40,10 @@ const CLIENT_DRIVEN_LAYOUTS = [
 const CLIENT_DRIVEN_LAYOUTS_WITHOUT_FORCE_DYNAMIC = [
   ...CLIENT_DRIVEN_LAYOUTS,
   "src/app/(operator)/insights/improvement-planning/plans/[planId]/layout.tsx",
+  "src/app/(operator)/architecture/reviews/[runId]/findings/[findingId]/layout.tsx",
+  "src/app/(operator)/governance/policy-packs/[id]/layout.tsx",
+  "src/app/(operator)/governance/approval-requests/[id]/layout.tsx",
+  "src/app/(operator)/governance/approval-requests/[id]/lineage/layout.tsx",
 ] as const;
 
 describe("operator client-driven route layouts (TB-2123)", () => {

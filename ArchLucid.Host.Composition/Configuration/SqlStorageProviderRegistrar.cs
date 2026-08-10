@@ -595,6 +595,9 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddHostedService<LlmTenantBudgetUtilizationMetricsHostedService>();
         services.AddHostedService<MarketingPricingQuoteAgingMetricsHostedService>();
         services.AddHostedService<SqlConnectionPoolMetricsHostedService>();
+        services.Configure<SqlConnectionPoolWarmupOptions>(
+            configuration.GetSection(SqlConnectionPoolWarmupOptions.SectionPath));
+        services.AddHostedService<SqlConnectionPoolWarmupHostedService>();
 
         services.AddSingleton<DataConsistencyOrphanProbeExecutor>();
         services.AddSingleton<IDataConsistencyOrphanProbeExecutor>(

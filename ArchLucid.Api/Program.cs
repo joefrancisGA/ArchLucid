@@ -94,6 +94,7 @@ public partial class Program
         builder.Services.Configure<E2EHarnessOptions>(builder.Configuration.GetSection(E2EHarnessOptions.SectionName));
         builder.Services.AddArchLucidCors(builder.Configuration);
         builder.Services.AddArchLucidResponseCompression();
+        builder.Services.AddArchLucidOutputCache();
         builder.Services.Configure<ArchitectureRunCreationPayloadLimitsOptions>(
             builder.Configuration.GetSection(ArchitectureRunCreationPayloadLimitsOptions.SectionName));
         builder.Services.AddArchLucidApplicationServices(builder.Configuration, hostingRole);

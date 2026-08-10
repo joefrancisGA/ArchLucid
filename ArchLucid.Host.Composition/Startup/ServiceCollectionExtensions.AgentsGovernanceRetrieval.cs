@@ -1100,7 +1100,18 @@ public static partial class ServiceCollectionExtensions
 
                 return new CircuitBreakingOpenAiEmbeddingClient(inner, gate, embeddingRetry, logger);
             });
-            services.AddSingleton<IEmbeddingService, AzureOpenAiEmbeddingService>();
+            services.Configure<EmbeddingContentHashCacheOptions>(
+                configuration.GetSection(EmbeddingContentHashCacheOptions.SectionPath));
+            services.AddSingleton<AzureOpenAiEmbeddingService>();
+            services.AddSingleton<IEmbeddingService>(static sp =>
+            {
+                AzureOpenAiEmbeddingService inner = sp.GetRequiredService<AzureOpenAiEmbeddingService>();
+
+                return new CachingEmbeddingService(
+                    inner,
+                    sp.GetRequiredService<IMemoryCache>(),
+                    sp.GetRequiredService<IOptionsMonitor<EmbeddingContentHashCacheOptions>>());
+            });
         }
         else
         {
@@ -1110,7 +1121,18 @@ public static partial class ServiceCollectionExtensions
                 options.ExpectedDimension = 32;
             });
 
-            services.AddSingleton<IEmbeddingService, FakeEmbeddingService>();
+            services.Configure<EmbeddingContentHashCacheOptions>(
+                configuration.GetSection(EmbeddingContentHashCacheOptions.SectionPath));
+            services.AddSingleton<FakeEmbeddingService>();
+            services.AddSingleton<IEmbeddingService>(static sp =>
+            {
+                FakeEmbeddingService inner = sp.GetRequiredService<FakeEmbeddingService>();
+
+                return new CachingEmbeddingService(
+                    inner,
+                    sp.GetRequiredService<IMemoryCache>(),
+                    sp.GetRequiredService<IOptionsMonitor<EmbeddingContentHashCacheOptions>>());
+            });
         }
 
     }

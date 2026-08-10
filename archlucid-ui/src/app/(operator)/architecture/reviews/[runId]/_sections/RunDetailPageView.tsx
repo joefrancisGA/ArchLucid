@@ -116,8 +116,8 @@ import {
   RunDetailOverviewPanelClientDeferred,
   HelpPageSituationRegistrarDeferred,
   ReviewGenerationCreatedNoticeDeferred,
+  RunDetailBelowFoldSectionsDeferred,
 } from "./run-detail-page-view-deferred-chunks";
-import { RunDetailBelowFoldSections } from "./RunDetailBelowFoldSections";
 import { resolveRunDetailSponsorBriefingSection } from "./RunDetailSponsorBriefingSection";
 import { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
 import { buildBuyerReviewPackageDispositionLine } from "@/lib/review-buyer-disposition-line";
@@ -729,7 +729,7 @@ export function RunDetailPageView(props: {
                 />
               ) : null}
               <Suspense fallback={<RunDetailBelowFoldDeferredSkeleton />}>
-                <RunDetailBelowFoldSections
+                <RunDetailBelowFoldSectionsDeferred
                   model={m}
                   context={deferredContext}
                   renderedInsideTabbedWorkspace
@@ -1229,7 +1229,7 @@ export function RunDetailPageView(props: {
           {resolveRunDetailSponsorBriefingSection(m)}
 
           <Suspense fallback={<RunDetailBelowFoldDeferredSkeleton />}>
-            <RunDetailBelowFoldSections model={m} context={deferredContext} />
+            <RunDetailBelowFoldSectionsDeferred model={m} context={deferredContext} />
           </Suspense>
         </>
       ) : null}

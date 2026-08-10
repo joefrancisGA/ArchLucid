@@ -14,6 +14,14 @@
 # terraform-sql-failover (after servers + databases exist)
 # enable_sql_failover_group = true
 
+# SQL read-scale-out (perf wave 8) — pair with failover RO listener after enable_sql_failover_group:
+# enable_read_replica = true
+# Inject on API/Worker (Key Vault preferred):
+#   ArchLucid__Persistence__ReadOnlyConnectionStringTemplate = "<listener + Application Intent=ReadOnly>"
+#   SqlServer__ReadReplica__AuthorityRunListReadsConnectionString = "<same>"
+#   SqlServer__ReadReplica__FailoverGroupReadOnlyListenerConnectionString = "<failover RO listener>"
+# Confirm /health/ready sql-read-replica is Healthy. See docs/library/READ_REPLICA_ROUTING.md.
+
 # terraform-edge
 # enable_front_door_waf = true
 

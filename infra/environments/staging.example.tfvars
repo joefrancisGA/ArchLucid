@@ -8,6 +8,15 @@
 # terraform-container-apps
 # enable_container_apps = true
 
+# SQL read-scale-out (perf wave 8) — enable geo/read replica in azure-sql module, then inject on API/Worker:
+# enable_read_replica = true
+# After apply, set Container App env (or Key Vault reference):
+#   ArchLucid__Persistence__ReadOnlyConnectionStringTemplate = "<primary connection string + Application Intent=ReadOnly>"
+# Optional authority list / governance routes:
+#   SqlServer__ReadReplica__AuthorityRunListReadsConnectionString = "<same RO listener>"
+#   SqlServer__ReadReplica__FailoverGroupReadOnlyListenerConnectionString = "<failover RO listener>"
+# See docs/library/READ_REPLICA_ROUTING.md. Empty template = primary fallback (safe default).
+
 # terraform-monitoring
 # enable_monitoring_stack = true  # now the default (2026-07-20); still needs resource_group_name + alert_email_address set
 

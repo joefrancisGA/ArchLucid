@@ -121,6 +121,12 @@ body {
 
 /* Operator type scale — keep in sync with OPERATOR_TYPE_SCALE in design-tokens.ts */
 @layer utilities {
+  /* Skip offscreen paint/layout for dense EnterpriseTable rows (perf wave 8). */
+  .content-visibility-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 48px;
+  }
+
   .text-page-title {
     @apply text-xl font-semibold leading-7 tracking-tight text-al-text-primary;
   }

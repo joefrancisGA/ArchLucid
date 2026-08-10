@@ -3,7 +3,23 @@
 import dynamic from "next/dynamic";
 
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
-import { RunsDashboardPanel } from "@/components/operator-home/RunsDashboardPanel";
+import { cn } from "@/lib/utils";
+import { OPERATOR_SURFACE_CARD_CLASS } from "@/lib/design-tokens";
+
+const RunsDashboardPanel = dynamic(
+  () => import("@/components/operator-home/RunsDashboardPanel").then((module) => module.RunsDashboardPanel),
+  {
+    ssr: false,
+    loading: () => (
+      <div
+        className={cn(OPERATOR_SURFACE_CARD_CLASS, "h-40 animate-pulse p-4")}
+        role="status"
+        aria-label="Loading recent reviews"
+        data-testid="home-block-runs-dashboard-loading"
+      />
+    ),
+  },
+);
 
 const BeforeAfterDeltaPanel = dynamic(
   () => import("@/components/BeforeAfterDeltaPanel").then((module) => module.BeforeAfterDeltaPanel),

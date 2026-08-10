@@ -13,6 +13,16 @@ ArchLucid can offload read-mostly analytical SQL from the primary using Azure SQ
 
 When `ReadOnlyConnectionStringTemplate` is **empty**, analytical repositories transparently use the primary connection (existing tests and single-DB pilots behave unchanged).
 
+## Staging / production enablement (perf wave 8)
+
+1. Ensure Azure SQL read scale-out or geo-secondary is provisioned (`enable_read_replica` in `infra/modules/azure-sql-serverless-app`, default **true**).
+2. Set API/Worker env **`ArchLucid__Persistence__ReadOnlyConnectionStringTemplate`** to a connection string that includes **`Application Intent=ReadOnly`** (see examples below).
+3. Optionally set **`SqlServer__ReadReplica__AuthorityRunListReadsConnectionString`** and **`SqlServer__ReadReplica__FailoverGroupReadOnlyListenerConnectionString`** for run-list / governance / golden-manifest routes.
+4. Confirm `/health/ready` **`sql-read-replica`** is Healthy (session `Updateability` must not be `READ_WRITE`).
+5. Knobs are documented in `infra/environments/staging.example.tfvars` and `prod.example.tfvars`.
+
+**There is no application feature flag** — non-empty config activates routing that already ships in `SqlStorageProviderRegistrar`.
+
 Example (single catalog):
 
 ```text

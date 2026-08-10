@@ -131,6 +131,7 @@ internal static class PipelineExtensions
         app.UseResponseCompression();
         app.UseRouting();
         app.UseCors("ArchLucid");
+        app.UseOutputCache();
         return app;
     }
 
@@ -158,7 +159,8 @@ internal static class PipelineExtensions
                 "/health/version",
                 (IHostEnvironment environment, IConfiguration configuration, TimeProvider timeProvider) =>
                     Results.Ok(ApiBuildInfoFactory.Create(environment, configuration, timeProvider)))
-            .AllowAnonymous();
+            .AllowAnonymous()
+            .CacheOutput("ImmutableShort");
         app.MapHealthChecks("/health/ready", new HealthCheckOptions
             {
                 Predicate = static check => check.Tags.Contains(ReadinessTags.Ready),
