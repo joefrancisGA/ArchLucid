@@ -1,10 +1,12 @@
 import { useMemo } from "react";
 
 import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCompactEmptyState";
+import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import { ALERTS_INBOX_ALL_STATUSES_VALUE } from "@/app/(operator)/governance/alerts/_sections/load-alerts-inbox-page-model";
 import {
   buildAlertsInboxEmptyStateProps,
   resolveAlertsInboxEmptyVariant,
+  resolveAlertsOpenReviewPackagesHref,
   type AlertsInboxWorkspaceContext,
 } from "@/lib/alerts-inbox-workspace-context";
 
@@ -15,9 +17,14 @@ export function useAlertsInboxEmptyFilteredProps(
   workspaceContext: AlertsInboxWorkspaceContext,
   statusFilter: string,
 ): EnterpriseCompactEmptyStateProps {
+  const scope = useOperatorScopeQueryKey();
+
   return useMemo((): EnterpriseCompactEmptyStateProps => {
     const variant = resolveAlertsInboxEmptyVariant(workspaceContext, statusFilter, ALERTS_INBOX_ALL_STATUSES_VALUE);
-    const { title, description, actions } = buildAlertsInboxEmptyStateProps(variant, canMutateAlertInbox);
+    const openReviewPackagesHref = resolveAlertsOpenReviewPackagesHref(scope.projectId);
+    const { title, description, actions } = buildAlertsInboxEmptyStateProps(variant, canMutateAlertInbox, {
+      openReviewPackagesHref,
+    });
 
     if (buyerPolishedShell) {
       return {
@@ -34,5 +41,5 @@ export function useAlertsInboxEmptyFilteredProps(
       description,
       actions,
     };
-  }, [buyerPolishedShell, canMutateAlertInbox, workspaceContext, statusFilter]);
+  }, [buyerPolishedShell, canMutateAlertInbox, scope.projectId, workspaceContext, statusFilter]);
 }

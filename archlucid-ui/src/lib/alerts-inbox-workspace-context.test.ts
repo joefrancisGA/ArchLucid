@@ -4,6 +4,7 @@ import {
   buildAlertsInboxEmptyStateProps,
   countAlertsConfigureRulesAffordances,
   resolveAlertsInboxEmptyVariant,
+  resolveAlertsOpenReviewPackagesHref,
   shouldShowAlertsHeaderConfigureRulesLink,
   type AlertsInboxEmptyVariant,
 } from "@/lib/alerts-inbox-workspace-context";
@@ -91,7 +92,29 @@ describe("shouldShowAlertsHeaderConfigureRulesLink", () => {
   });
 });
 
+describe("resolveAlertsOpenReviewPackagesHref", () => {
+  it("TB-1598: omits projectId=default when session scope resolves to the authority default slug", () => {
+    expect(resolveAlertsOpenReviewPackagesHref(null)).toBe("/architecture/reviews");
+    expect(resolveAlertsOpenReviewPackagesHref("33333333-3333-3333-3333-333333333333")).toBe("/architecture/reviews");
+  });
+
+  it("TB-1598: adds projectId when session scope has a real reviews list slug", () => {
+    expect(resolveAlertsOpenReviewPackagesHref("claims-intake")).toBe(
+      "/architecture/reviews?projectId=claims-intake",
+    );
+  });
+});
+
 describe("buildAlertsInboxEmptyStateProps", () => {
+  it("TB-1598: never emits projectId=default in Open reviews empty actions", () => {
+    for (const variant of ["healthy_clear", "filtered"] as const) {
+      const props = buildAlertsInboxEmptyStateProps(variant, true);
+      const hrefs = props.actions?.map((action) => action.href).join(" ") ?? "";
+
+      expect(hrefs).not.toContain("projectId=default");
+    }
+  });
+
   it("maps healthy_clear to open reviews CTA without a configure-rules duplicate", () => {
     const props = buildAlertsInboxEmptyStateProps("healthy_clear", true);
     expect(props.title).toBe(ALERTS_EMPTY_HEALTHY_TITLE);

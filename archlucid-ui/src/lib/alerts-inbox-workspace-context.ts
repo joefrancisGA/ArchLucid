@@ -18,6 +18,7 @@ import {
   ALERTS_EMPTY_NO_RULES_TITLE,
 } from "@/lib/alerts-page-copy";
 import type { EnterpriseCompactEmptyStateProps, EnterpriseCompactEmptyStateAction } from "@/components/EnterpriseCompactEmptyState";
+import { resolveAdvisoryRunProjectSlug } from "@/lib/advisory-schedule-form";
 import { governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
 
 export const ALERTS_INBOX_DEFAULT_PROJECT_ID = "default";
@@ -66,10 +67,29 @@ export function shouldShowAlertsHeaderConfigureRulesLink(
   return resolveAlertsInboxEmptyVariant(context, statusFilter, allStatusesValue) !== "no_rules";
 }
 
+/**
+ * Reviews deep-link for inbox empty states — omit `projectId=default`; add scope only for a real slug (TB-1598).
+ */
+export function resolveAlertsOpenReviewPackagesHref(sessionProjectId: string | null | undefined): string {
+  const projectSlug = resolveAdvisoryRunProjectSlug(sessionProjectId);
+
+  if (projectSlug === ALERTS_INBOX_DEFAULT_PROJECT_ID) {
+    return ALERTS_ACTION_OPEN_REVIEW_PACKAGES_HREF;
+  }
+
+  return `${ALERTS_ACTION_OPEN_REVIEW_PACKAGES_HREF}?projectId=${encodeURIComponent(projectSlug)}`;
+}
+
+export type BuildAlertsInboxEmptyStateOptions = {
+  readonly openReviewPackagesHref?: string;
+};
+
 export function buildAlertsInboxEmptyStateProps(
   variant: AlertsInboxEmptyVariant,
   _canMutateAlertInbox: boolean,
+  options: BuildAlertsInboxEmptyStateOptions = {},
 ): Pick<EnterpriseCompactEmptyStateProps, "title" | "description" | "actions"> {
+  const openReviewPackagesHref = options.openReviewPackagesHref ?? ALERTS_ACTION_OPEN_REVIEW_PACKAGES_HREF;
   const governanceSetupSecondary = {
     label: ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE,
     href: ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE_HREF,
@@ -81,7 +101,7 @@ export function buildAlertsInboxEmptyStateProps(
       title: ALERTS_EMPTY_FILTERED_TITLE,
       description: ALERTS_EMPTY_FILTERED_BODY,
       actions: [
-        { label: ALERTS_ACTION_OPEN_REVIEW_PACKAGES, href: ALERTS_ACTION_OPEN_REVIEW_PACKAGES_HREF, variant: "primary" },
+        { label: ALERTS_ACTION_OPEN_REVIEW_PACKAGES, href: openReviewPackagesHref, variant: "primary" },
         {
           label: ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW,
           href: ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW_HREF,
@@ -127,7 +147,7 @@ export function buildAlertsInboxEmptyStateProps(
 
   // healthy_clear: header link owns configure-rules; do not push a third CTA (TB-2103).
   const actions: EnterpriseCompactEmptyStateAction[] = [
-    { label: ALERTS_ACTION_OPEN_REVIEW_PACKAGES, href: ALERTS_ACTION_OPEN_REVIEW_PACKAGES_HREF, variant: "primary" },
+    { label: ALERTS_ACTION_OPEN_REVIEW_PACKAGES, href: openReviewPackagesHref, variant: "primary" },
     {
       label: ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW,
       href: ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW_HREF,

@@ -40,7 +40,6 @@ export function AlertsInboxAlertListSection({ controller, emptyFilteredProps }: 
         hasLoadFailure={failure !== null}
         visibleAlertCount={visibleAlerts.length}
         alertCount={alerts.length}
-        buyerPolishedShell={buyerPolishedShell}
         emptyFilteredProps={emptyFilteredProps}
       />
 
