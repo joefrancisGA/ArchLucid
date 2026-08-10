@@ -26,6 +26,8 @@ describe("ArchitecturesListPage", () => {
     expect(screen.getByTestId("architectures-hub-page-title")).toHaveTextContent(ARCHITECTURES_HUB_PAGE_TITLE);
     expect(screen.getByTestId("architectures-hub-page-title").textContent?.toLowerCase()).toContain("draft");
     expect(screen.getByText(ARCHITECTURES_HUB_PAGE_SUBTITLE)).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: ARCHITECTURES_HUB_PAGE_TITLE })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 1, name: ARCHITECTURES_HUB_PAGE_TITLE }),
+    ).toBeInTheDocument();
   });
 });
