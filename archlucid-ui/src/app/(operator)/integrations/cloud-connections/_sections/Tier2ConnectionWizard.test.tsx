@@ -20,6 +20,7 @@ vi.mock("@/lib/api/cloud-connections-api", () => ({
 }));
 
 import { configureTier2Connection } from "@/lib/api/cloud-connections-api";
+import { AZURE_CLOUD_CONNECTION_BANNED_COPY } from "@/lib/azure-cloud-connection-copy";
 import { CLOUD_CONNECTION_SAVE_SUCCESS_MESSAGE } from "@/lib/admin-integration-mutation-outcome-copy";
 import { showError, showSuccess } from "@/lib/toast";
 
@@ -101,5 +102,34 @@ describe("Tier2ConnectionWizard", () => {
 
     expect(showSuccess).not.toHaveBeenCalled();
     expect(showError).not.toHaveBeenCalled();
+  });
+
+  it("does not surface Tier/hosted-pull jargon on the Azure wizard surface (TB-1766)", async () => {
+    vi.mocked(configureTier2Connection).mockResolvedValue({
+      id: "conn-1",
+      tenantId: VALID_GUID,
+      clientId: VALID_GUID,
+      subscriptionIds: [VALID_GUID],
+    } as never);
+
+    render(<Tier2ConnectionWizard onSaved={vi.fn()} skipSecurityStep />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    fireEvent.change(screen.getByTestId("tier2-tenant-id"), { target: { value: VALID_GUID } });
+    fireEvent.change(screen.getByTestId("tier2-client-id"), { target: { value: VALID_GUID } });
+    fireEvent.change(screen.getByTestId("tier2-subscription-ids"), { target: { value: VALID_GUID } });
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save connection" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("tier2-connection-save-success-callout")).toBeInTheDocument();
+    });
+
+    const wizard = screen.getByTestId("tier2-connection-wizard");
+    const text = wizard.textContent ?? "";
+
+    for (const banned of AZURE_CLOUD_CONNECTION_BANNED_COPY) {
+      expect(text.toLowerCase()).not.toContain(banned.toLowerCase());
+    }
   });
 });

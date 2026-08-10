@@ -5,6 +5,10 @@ import Link from "next/link";
 import { listTier2Connections } from "@/lib/api/cloud-connections-api";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  AZURE_CONNECTION_RECENT_ACTIVITY_LEAD,
+  AZURE_CONNECTION_VALIDATE_HELPER,
+} from "@/lib/azure-cloud-connection-copy";
 import { cloudSecurityPreflightTopics } from "@/lib/cloud-security-preflight-topics";
 
 import { CloudConnectionsProviderHeader } from "./CloudConnectionsProviderHeader";
@@ -51,14 +55,11 @@ export function AzureCloudConnectionDetailClient() {
           />
         }
         validateConnection={
-          <p className={OPERATOR_TYPOGRAPHY.helper}>
-            After saving, run the validation pull from the Save &amp; validate step to confirm federated credentials and
-            read-only access.
-          </p>
+          <p className={OPERATOR_TYPOGRAPHY.helper}>{AZURE_CONNECTION_VALIDATE_HELPER}</p>
         }
         recentActivity={
           <p className={OPERATOR_TYPOGRAPHY.helper}>
-            Recent hosted collection runs appear after validation. Return to{" "}
+            {AZURE_CONNECTION_RECENT_ACTIVITY_LEAD} Return to{" "}
             <Link href="/integrations/cloud-connections" className="text-teal-700 underline dark:text-teal-400">
               Cloud connections
             </Link>{" "}

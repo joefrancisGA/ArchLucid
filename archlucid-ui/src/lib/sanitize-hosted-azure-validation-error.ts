@@ -1,3 +1,7 @@
+import {
+  AZURE_CONNECTION_VALIDATION_DISABLED_ERROR,
+  AZURE_CONNECTION_VALIDATION_FALLBACK_ERROR,
+} from "@/lib/azure-cloud-connection-copy";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { resolveApiErrorMessage } from "@/lib/resolve-api-error-message";
 
@@ -6,26 +10,22 @@ export type SanitizedHostedAzureValidationError = {
   readonly technicalDetail?: string;
 };
 
-const FALLBACK =
-  "Validation could not be completed. Confirm federated credentials, Reader on the subscription, and that hosted Azure collection is enabled — then try again.";
-
 /**
  * Maps hosted Azure validation API failures to operator-facing guidance.
  * An app registration alone is not enough; federation + Reader + host enablement are required.
  */
 export function sanitizeHostedAzureValidationError(error: unknown): SanitizedHostedAzureValidationError {
-  const raw = resolveApiErrorMessage(error, FALLBACK);
+  const raw = resolveApiErrorMessage(error, AZURE_CONNECTION_VALIDATION_FALLBACK_ERROR);
   const httpStatus = isApiRequestError(error) ? error.httpStatus : null;
   const haystack = `${httpStatus ?? ""} ${raw}`;
 
   if (/stack|trace|exception|System\./i.test(raw)) {
-    return { message: FALLBACK };
+    return { message: AZURE_CONNECTION_VALIDATION_FALLBACK_ERROR };
   }
 
   if (httpStatus === 503 || /503|disabled|Hosted Azure extractor is disabled/i.test(haystack)) {
     return {
-      message:
-        "Hosted Azure collection is not enabled in this ArchLucid environment. Contact your ArchLucid administrator — an app registration in Azure cannot complete validation until the host enables it.",
+      message: AZURE_CONNECTION_VALIDATION_DISABLED_ERROR,
       technicalDetail: raw.length < 200 ? raw : undefined,
     };
   }
@@ -58,7 +58,7 @@ export function sanitizeHostedAzureValidationError(error: unknown): SanitizedHos
   }
 
   if (raw.length > 240) {
-    return { message: FALLBACK };
+    return { message: AZURE_CONNECTION_VALIDATION_FALLBACK_ERROR };
   }
 
   return { message: raw };

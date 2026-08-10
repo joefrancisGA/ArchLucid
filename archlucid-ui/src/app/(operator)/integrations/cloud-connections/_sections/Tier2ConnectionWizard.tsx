@@ -23,6 +23,13 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { resolveApiErrorMessage } from "@/lib/resolve-api-error-message";
 import { sanitizeHostedAzureValidationError } from "@/lib/sanitize-hosted-azure-validation-error";
 import {
+  AZURE_CONNECTION_POST_SAVE_VALIDATE_LEAD,
+  AZURE_CONNECTION_SAVE_VALIDATE_LEAD,
+  AZURE_CONNECTION_VALIDATION_ADMIN_REQUIRED,
+  AZURE_CONNECTION_VALIDATION_BUTTON_LABEL,
+  AZURE_CONNECTION_VALIDATION_PREREQUISITES,
+} from "@/lib/azure-cloud-connection-copy";
+import {
   CLOUD_CONNECTION_SAVE_FAILURE_MESSAGE,
   CLOUD_CONNECTION_SAVE_SUCCESS_MESSAGE,
   CLOUD_CONNECTION_VALIDATION_ACCEPTED_MESSAGE,
@@ -341,10 +348,7 @@ export function Tier2ConnectionWizard({ onSaved, skipSecurityStep = false }: Tie
             <h3 id="tier2-wizard-save-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
               Save and validate
             </h3>
-            <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-              Persist the connection for hosted inventory pull jobs, then optionally trigger an on-demand validation run
-              against the first subscription ID.
-            </p>
+            <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>{AZURE_CONNECTION_SAVE_VALIDATE_LEAD}</p>
           </div>
 
           <dl className={cn("grid max-w-xl grid-cols-[auto_1fr] gap-x-4 gap-y-2 rounded-md border p-4", OPERATOR_TYPOGRAPHY.body)}>
@@ -363,13 +367,10 @@ export function Tier2ConnectionWizard({ onSaved, skipSecurityStep = false }: Tie
                 testId="tier2-connection-save-success-callout"
               />
               <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-al-text-secondary")}>
-                Run a hosted validation pull to confirm ArchLucid can sign in with federation and list resources with
-                Reader.
+                {AZURE_CONNECTION_POST_SAVE_VALIDATE_LEAD}
               </p>
               <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="tier2-validation-prerequisites">
-                An Azure app registration alone is not enough. Before validating, confirm: (1) a federated credential on
-                the app that trusts ArchLucid&apos;s managed identity, (2) Reader on the subscription, and (3) hosted
-                Azure collection enabled for this ArchLucid environment.
+                {AZURE_CONNECTION_VALIDATION_PREREQUISITES}
               </p>
               <Button
                 type="button"
@@ -379,13 +380,11 @@ export function Tier2ConnectionWizard({ onSaved, skipSecurityStep = false }: Tie
                 title={canRunValidation ? undefined : enterpriseMutationControlDisabledTitle}
                 onClick={() => void handleValidateHostedRun()}
               >
-                {isValidating ? "Validating…" : "Run validation pull"}
+                {isValidating ? "Validating…" : AZURE_CONNECTION_VALIDATION_BUTTON_LABEL}
               </Button>
 
               {!canRunValidation ? (
-                <p className={OPERATOR_TYPOGRAPHY.helper}>
-                  Administrator role required to run a hosted validation pull.
-                </p>
+                <p className={OPERATOR_TYPOGRAPHY.helper}>{AZURE_CONNECTION_VALIDATION_ADMIN_REQUIRED}</p>
               ) : null}
 
               {validationMessage ? (

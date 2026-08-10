@@ -1,17 +1,22 @@
 import type { WizardStepDefinition } from "@/components/wizard/WizardStepper";
+import {
+  AZURE_CONNECTION_SETUP_SCRIPT_FEDERATION_DESCRIPTION,
+  AZURE_CONNECTION_SETUP_SCRIPT_VALIDATION_NOTE,
+  AZURE_CONNECTION_WIZARD_SAVE_STEP_DESCRIPTION,
+} from "@/lib/azure-cloud-connection-copy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const TIER2_CONNECTION_WIZARD_STEPS: WizardStepDefinition[] = [
   { label: "Security preflight", description: "Confirm access posture" },
   { label: "Create Azure identity", description: "Azure CLI or IaC" },
   { label: "Connection IDs", description: "Tenant, app, subscriptions" },
-  { label: "Save & validate", description: "Persist and test pull" },
+  { label: "Save & validate", description: AZURE_CONNECTION_WIZARD_SAVE_STEP_DESCRIPTION },
 ];
 
 export const TIER2_CONNECTION_DETAIL_WIZARD_STEPS: WizardStepDefinition[] = [
   { label: "Create Azure identity", description: "Azure CLI or IaC" },
   { label: "Connection IDs", description: "Tenant, app, subscriptions" },
-  { label: "Save & validate", description: "Persist and test pull" },
+  { label: "Save & validate", description: AZURE_CONNECTION_WIZARD_SAVE_STEP_DESCRIPTION },
 ];
 
 export type Tier2RbacChecklistItem = {
@@ -83,7 +88,7 @@ az ad sp create-for-rbac --name "$SP_NAME" --role "Reader" --scopes "$TARGET_SCO
 
 # 2. Optional — Cost Management Reader (read-only cost evidence)
 # Skip if cost collection is not needed, or if your Azure admin cannot assign this role.
-# Hosted connection validation requires Reader only.
+${AZURE_CONNECTION_SETUP_SCRIPT_VALIDATION_NOTE}
 # ASSIGNEE_OBJECT_ID=$(az ad sp list --display-name "$SP_NAME" --query "[0].id" -o tsv)
 # az role assignment create --assignee "$ASSIGNEE_OBJECT_ID" --role "Cost Management Reader" --scope "$TARGET_SCOPE"
 
@@ -93,7 +98,7 @@ az ad app federated-credential create --id "$APP_OBJECT_ID" --parameters "{
   \\"name\\": \\"ArchLucidFederation\\",
   \\"issuer\\": \\"https://login.microsoftonline.com/\${ARCHLUCID_TENANT_ID}/v2.0\\",
   \\"subject\\": \\"\${ARCHLUCID_MANAGED_IDENTITY_OBJECT_ID}\\",
-  \\"description\\": \\"Trust ArchLucid hosted extractor MI\\",
+  \\"description\\": \\"${AZURE_CONNECTION_SETUP_SCRIPT_FEDERATION_DESCRIPTION}\\",
   \\"audiences\\": [\\"api://AzureADTokenExchange\\"]
 }"
 

@@ -4,6 +4,7 @@ import {
   buildTier2AzureSetupScript,
   TIER2_AZURE_SETUP_SCRIPT_REPLACE_HINT,
 } from "./tier2-connection-wizard-content";
+import { AZURE_CONNECTION_SETUP_SCRIPT_VALIDATION_NOTE } from "@/lib/azure-cloud-connection-copy";
 
 describe("buildTier2AzureSetupScript", () => {
   it("surfaces replaceable ArchLucid identity variables at the top of the script", () => {
@@ -20,7 +21,7 @@ describe("buildTier2AzureSetupScript", () => {
     expect(script).toContain("${ARCHLUCID_TENANT_ID}");
     expect(script).toContain("${ARCHLUCID_MANAGED_IDENTITY_OBJECT_ID}");
     expect(script).toContain("Optional — Cost Management Reader");
-    expect(script).toContain("Hosted connection validation requires Reader only");
+    expect(script).toContain(AZURE_CONNECTION_SETUP_SCRIPT_VALIDATION_NOTE);
     expect(script).toMatch(/# az role assignment create .*Cost Management Reader/);
     expect(TIER2_AZURE_SETUP_SCRIPT_REPLACE_HINT).toContain("ARCHLUCID_TENANT_ID");
     expect(TIER2_AZURE_SETUP_SCRIPT_REPLACE_HINT).toContain("ARCHLUCID_MANAGED_IDENTITY_OBJECT_ID");
