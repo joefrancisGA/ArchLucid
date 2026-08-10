@@ -2,7 +2,6 @@
 
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { recommendAlertThreshold } from "@/lib/api";
@@ -14,11 +13,14 @@ import {
   resolveAlertSimulationRunProjectSlug,
 } from "@/lib/alert-simulation-form";
 import {
+  ALERT_TUNING_RANKING_FACTORS_HEADING,
+  formatAlertTuningScoreAxisLines,
+} from "@/lib/alert-tuning-score-labels";
+import {
   alertToolingChangeConfigurationHeadingOperator,
   alertToolingConfigureSectionSubline,
   alertTuningCurrentTuningHeadingOperator,
   alertTuningCurrentTuningHeadingReader,
-  alertTuningPageLead,
   alertTuningRecommendButtonTitle,
 } from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -72,15 +74,13 @@ function CandidateCard({
         <div>Would suppress: {simulationResult.wouldSuppressCount}</div>
       </div>
       <div className="mt-2">
-        <strong>Score breakdown</strong>
+        <strong>{ALERT_TUNING_RANKING_FACTORS_HEADING}</strong>
         <ul className="my-1 pl-5">
-          <li>Coverage: {scoreBreakdown.coverageScore.toFixed(2)}</li>
-          <li>Noise penalty: {scoreBreakdown.noisePenalty.toFixed(2)}</li>
-          <li>Suppression penalty: {scoreBreakdown.suppressionPenalty.toFixed(2)}</li>
-          <li>Density penalty: {scoreBreakdown.densityPenalty.toFixed(2)}</li>
-          <li>
-            <strong>Final: {scoreBreakdown.finalScore.toFixed(2)}</strong>
-          </li>
+          {formatAlertTuningScoreAxisLines(scoreBreakdown).map((line) => (
+            <li key={line.label}>
+              {line.emphasize ? <strong>{line.label}: {line.value}</strong> : `${line.label}: ${line.value}`}
+            </li>
+          ))}
         </ul>
         <ul className={cn("mt-2 pl-5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           {scoreBreakdown.notes.map((note, i) => (
@@ -219,8 +219,6 @@ export function AlertTuningContent() {
   return (
     <div>
       <h2 className={cn("mt-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Tune alert thresholds</h2>
-      <p className={cn("mb-2 max-w-prose leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{alertTuningPageLead}</p>
-      <AlertOperatorToolingRankCue />
 
       {failure !== null ? (
         <div role="alert">
@@ -255,7 +253,9 @@ export function AlertTuningContent() {
                 </section>
               ) : null}
 
-              <h4 className={cn("mb-2 mt-2", OPERATOR_TYPOGRAPHY.sectionTitle)}>All candidates (sorted by final score, highest first)</h4>
+              <h4 className={cn("mb-2 mt-2", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+                All candidates (highest overall ranking first)
+              </h4>
               <div className="grid gap-3">
                 {[...result.candidates]
                   .sort((a, b) => b.scoreBreakdown.finalScore - a.scoreBreakdown.finalScore)

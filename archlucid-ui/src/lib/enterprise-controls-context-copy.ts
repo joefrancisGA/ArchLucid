@@ -257,6 +257,13 @@ export const alertTuningPageLead =
 export const alertSimulationPageLead =
   "What-if tabs call simulation APIs (Read on the API). Enabling subscriptions or editing live rules stays on Alert routing or Alert rules (Execute+).";
 
+/**
+ * Alert rules Test alerts tab — shared lead for merged simulation + tuning (`AlertSimulationTuningSection`).
+ * Child sections keep their own `h2` titles; rank cue mounts once at tab level (TB-1593).
+ */
+export const alertTestAlertsTabLead =
+  "Simulation and threshold tuning use read-only APIs on this tab. Enabling subscriptions, editing live rules, or applying a winning threshold stays on Alert rules or routing (Execute+).";
+
 /** Alert tuning — primary **Recommend threshold** control (`alert-tuning/page.tsx`). */
 export const alertTuningRecommendButtonTitle =
   "Run threshold recommendation (Read access on the API; does not change live rules).";

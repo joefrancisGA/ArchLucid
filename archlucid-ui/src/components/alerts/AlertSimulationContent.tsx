@@ -2,7 +2,6 @@
 
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
@@ -18,7 +17,6 @@ import {
 import {
   alertSimulationCurrentBehaviorHeadingOperator,
   alertSimulationCurrentBehaviorHeadingReader,
-  alertSimulationPageLead,
   alertSimulationRunControlTitle,
 } from "@/lib/enterprise-controls-context-copy";
 import { alertSimulationOutcomesEmptyGettingStarted } from "@/lib/alerts-hub-empty-guidance";
@@ -315,10 +313,6 @@ export function AlertSimulationContent() {
   return (
     <div className="max-w-[1100px]">
       <h2 className="mt-0">Simulate alerts</h2>
-      <p className={cn("mb-2 max-w-prose leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-        {alertSimulationPageLead}
-      </p>
-      <AlertOperatorToolingRankCue className="mb-3" />
 
       <div className="mb-5 flex flex-wrap gap-2">
         {TABS.map((t) => (
