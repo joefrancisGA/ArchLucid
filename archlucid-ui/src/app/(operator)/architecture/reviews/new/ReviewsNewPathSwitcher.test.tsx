@@ -62,8 +62,9 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
     });
 
     expect(screen.getByTestId("reviews-new-primary-path-layout")).toBeInTheDocument();
-    expect(screen.getAllByText(/Expected outputs:/i).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/Expected outputs:/i)).toBeNull();
     expect(screen.getByTestId("reviews-new-more-intake-options")).toBeInTheDocument();
+    expect(screen.getByTestId("new-review-sample-escape")).toBeInTheDocument();
     expect(screen.queryByTestId("reviews-new-path-toggle")).toBeNull();
     expect(screen.queryByTestId("reviews-new-path-hint")).toBeNull();
 

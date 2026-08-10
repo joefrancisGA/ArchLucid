@@ -10,6 +10,8 @@ Pick **one** existing pack after Core Pilot first value (finalized architecture 
 | Regulated SaaS procurement / SOC-style diligence language | [`regulated-saas-soc-procurement/`](regulated-saas-soc-procurement/) | `second-run.json`, `policy-context.json` | Policy-pack findings, proof checklist, sponsor-safe caveats (no certification claims) | First session before any commit; buyer demands CPA SOC 2 report |
 | Healthcare data workflow / PHI storyline | [`healthcare-data-workflow/`](healthcare-data-workflow/) | `second-run.json`, `policy-context.json` | Healthcare pack findings, checklist | Real PHI in inputs; HIPAA certification claims |
 | Azure cost / orphan / governance review | [`azure-cost-governance/`](azure-cost-governance/) | `second-run.json`, optional extractor ZIP | Cost/orphan-oriented findings, ROI source labels | Non-Azure-only architecture with no Azure evidence |
+| AWS cost / orphan / governance review | [`aws-cost-governance/`](aws-cost-governance/) | `second-run.json`, optional extractor ZIP | Cost/orphan-oriented findings, ROI source labels | Non-AWS-only architecture with no AWS evidence |
+| GCP cost / orphan / governance review | [`gcp-cost-governance/`](gcp-cost-governance/) | `second-run.json`, optional extractor ZIP | Cost/orphan-oriented findings, ROI source labels | Non-GCP-only architecture with no GCP evidence |
 | AI / LLM workload governance | [`ai-llm-workload/`](ai-llm-workload/) | `second-run.json`, `policy-context.json` | AI governance pack findings, faithfulness-friendly citations | Buyer only wants generic chat — use differentiation proof instead |
 
 Each pack includes `starter-pack.json` metadata (`scopeLabel`, `deferredScopeNotes`, `doNotUseWhen`).

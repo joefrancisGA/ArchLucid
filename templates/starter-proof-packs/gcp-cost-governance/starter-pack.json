@@ -1,14 +1,14 @@
 {
-  "id": "azure-cost-governance",
-  "title": "Azure cost and orphan governance review",
+  "id": "gcp-cost-governance",
+  "title": "GCP cost and orphan governance review",
   "targetBuyer": "FinOps or cloud architect",
-  "buyerJob": "Azure cost, orphan, and governance signals from architecture evidence",
+  "buyerJob": "GCP cost, orphan, and governance signals from architecture evidence",
   "owner": "ArchLucid GTM",
-  "lastReviewedUtc": "2026-05-29",
+  "lastReviewedUtc": "2026-08-09",
   "requiredInputs": [
     "second-run.json",
     "architecture-request.json",
-    "optional Azure extractor ZIP via Tier 1 script"
+    "optional GCP extractor ZIP via Tier 1 script"
   ],
   "expectedOutputs": [
     "Cost/orphan-oriented findings with source classification",
@@ -17,7 +17,7 @@
   ],
   "scopeLabel": "V1-ready",
   "doNotUseWhen": [
-    "Primary target cloud is non-Azure with no Azure evidence",
+    "Primary target cloud is non-GCP with no GCP evidence",
     "Buyer expects guaranteed dollar savings",
     "First session before Core Pilot commit"
   ],

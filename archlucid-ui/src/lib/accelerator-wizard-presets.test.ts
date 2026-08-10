@@ -15,6 +15,8 @@ describe("accelerator-wizard-presets", () => {
 
   it("recognizes starter proof pack ids", () => {
     expect(isAcceleratorPackId("azure-cost-governance")).toBe(true);
+    expect(isAcceleratorPackId("aws-cost-governance")).toBe(true);
+    expect(isAcceleratorPackId("gcp-cost-governance")).toBe(true);
     expect(isAcceleratorPackId("unknown-pack")).toBe(false);
   });
 

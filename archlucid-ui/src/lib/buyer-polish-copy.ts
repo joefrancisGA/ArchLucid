@@ -379,9 +379,10 @@ export const OPERATOR_HOME_WORKSPACE_STATUS_COLLAPSED_SUMMARY =
 export const OPERATOR_HOME_WORKSPACE_STATUS_COLLAPSED_SUMMARY_FIRST_RUN =
   "Workspace readiness signals.";
 
-export const NEW_REVIEW_SAMPLE_ESCAPE_LEAD = "Start with an example:";
+export const NEW_REVIEW_SAMPLE_ESCAPE_CTA = "View completed sample review";
 
-export const NEW_REVIEW_SAMPLE_ESCAPE_CTA = "Skip setup and open a completed sample review";
+export const NEW_REVIEW_SAMPLE_ESCAPE_HINT =
+  "Skip setup and explore a finished architecture package.";
 
 /** Streamlined first-run lead on `/architecture/reviews/new` — avoids path-switcher jargon above the fold. */
 export const REVIEWS_NEW_PAGE_LEAD = CLOUD_NEUTRAL_PRIMARY_COPY.reviewsNewPageLead;

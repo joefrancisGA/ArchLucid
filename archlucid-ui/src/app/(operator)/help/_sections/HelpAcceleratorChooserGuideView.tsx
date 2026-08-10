@@ -9,7 +9,8 @@ import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ACCELERATOR_CHOOSER_ENTRIES } from "@/lib/accelerator-chooser";
+import { HelpAcceleratorCostGovernancePackCard } from "@/components/accelerator/HelpAcceleratorCostGovernancePackCard";
+import { buildAcceleratorChooserGridItems } from "@/lib/accelerator-chooser-grid";
 import {
   ACCELERATOR_CHOOSER_HELP_OUT_OF_SCOPE,
   ACCELERATOR_CHOOSER_HELP_OVERVIEW,
@@ -123,7 +124,14 @@ export function HelpAcceleratorChooserGuideView(
             {ACCELERATOR_CHOOSER_HELP_OVERVIEW}
           </p>
           <ul className="m-0 mt-3 grid list-none gap-3 p-0 sm:grid-cols-2">
-            {ACCELERATOR_CHOOSER_ENTRIES.map((packEntry) => (
+            {buildAcceleratorChooserGridItems().map((gridItem) => {
+              if (gridItem.kind === "cost-governance-group") {
+                return <HelpAcceleratorCostGovernancePackCard key="cost-governance-group" />;
+              }
+
+              const packEntry = gridItem.entry;
+
+              return (
               <li
                 key={packEntry.id}
                 className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
@@ -165,7 +173,8 @@ export function HelpAcceleratorChooserGuideView(
                   </Link>
                 </Button>
               </li>
-            ))}
+              );
+            })}
           </ul>
         </section>
       </div>

@@ -13,6 +13,8 @@ public sealed class StarterProofPackSecondRunTests
         Path.Combine("templates", "starter-proof-packs", "regulated-saas-soc-procurement", "second-run.json"),
         Path.Combine("templates", "starter-proof-packs", "healthcare-data-workflow", "second-run.json"),
         Path.Combine("templates", "starter-proof-packs", "azure-cost-governance", "second-run.json"),
+        Path.Combine("templates", "starter-proof-packs", "aws-cost-governance", "second-run.json"),
+        Path.Combine("templates", "starter-proof-packs", "gcp-cost-governance", "second-run.json"),
         Path.Combine("templates", "starter-proof-packs", "ai-llm-workload", "second-run.json")
     ];
 

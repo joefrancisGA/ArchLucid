@@ -14,7 +14,8 @@ vi.mock("next/navigation", () => ({
 }));
 
 import { HelpAcceleratorChooserGuideView } from "@/app/(operator)/help/_sections/HelpAcceleratorChooserGuideView";
-import { ACCELERATOR_CHOOSER_ENTRIES } from "@/lib/accelerator-chooser";
+import { ACCELERATOR_CHOOSER_ENTRIES, isAcceleratorCostGovernancePackId } from "@/lib/accelerator-chooser";
+import { ACCELERATOR_COST_GOVERNANCE_HELP_PACK_TEST_ID } from "@/lib/accelerator-chooser-grid";
 import {
   ACCELERATOR_CHOOSER_HELP_PAGE_TITLE,
   ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS,
@@ -52,11 +53,21 @@ describe("HelpAcceleratorChooserGuideView", () => {
     ).toHaveAttribute("href", ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS.firstPilotPath.href);
 
     for (const packEntry of ACCELERATOR_CHOOSER_ENTRIES) {
+      if (isAcceleratorCostGovernancePackId(packEntry.id)) {
+        continue;
+      }
+
       expect(screen.getByTestId(`help-accelerator-chooser-pack-${packEntry.id}`)).toBeInTheDocument();
       expect(screen.getByTestId(`help-accelerator-chooser-start-${packEntry.id}`)).toHaveAttribute(
         "href",
         packEntry.startHref,
       );
     }
+
+    expect(screen.getByTestId(ACCELERATOR_COST_GOVERNANCE_HELP_PACK_TEST_ID)).toBeInTheDocument();
+    expect(screen.getByTestId("help-accelerator-chooser-start-azure-cost-governance")).toHaveAttribute(
+      "href",
+      "/architecture/reviews/new?baseline=1&accelerator=azure-cost-governance",
+    );
   });
 });

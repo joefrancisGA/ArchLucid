@@ -15,6 +15,8 @@ public sealed class StarterProofPackArchitectureRequestDryRunTests
         "regulated-saas-soc-procurement",
         "healthcare-data-workflow",
         "azure-cost-governance",
+        "aws-cost-governance",
+        "gcp-cost-governance",
         "ai-llm-workload",
     ];
 
@@ -23,6 +25,8 @@ public sealed class StarterProofPackArchitectureRequestDryRunTests
         Path.Combine("templates", "starter-proof-packs", "regulated-saas-soc-procurement", "architecture-request.json"),
         Path.Combine("templates", "starter-proof-packs", "healthcare-data-workflow", "architecture-request.json"),
         Path.Combine("templates", "starter-proof-packs", "azure-cost-governance", "architecture-request.json"),
+        Path.Combine("templates", "starter-proof-packs", "aws-cost-governance", "architecture-request.json"),
+        Path.Combine("templates", "starter-proof-packs", "gcp-cost-governance", "architecture-request.json"),
         Path.Combine("templates", "starter-proof-packs", "ai-llm-workload", "architecture-request.json"),
     ];
 
@@ -31,6 +35,8 @@ public sealed class StarterProofPackArchitectureRequestDryRunTests
         Path.Combine("templates", "starter-proof-packs", "regulated-saas-soc-procurement", "starter-pack.json"),
         Path.Combine("templates", "starter-proof-packs", "healthcare-data-workflow", "starter-pack.json"),
         Path.Combine("templates", "starter-proof-packs", "azure-cost-governance", "starter-pack.json"),
+        Path.Combine("templates", "starter-proof-packs", "aws-cost-governance", "starter-pack.json"),
+        Path.Combine("templates", "starter-proof-packs", "gcp-cost-governance", "starter-pack.json"),
         Path.Combine("templates", "starter-proof-packs", "ai-llm-workload", "starter-pack.json"),
     ];
 

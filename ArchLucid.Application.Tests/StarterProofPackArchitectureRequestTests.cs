@@ -22,17 +22,26 @@ public sealed class StarterProofPackArchitectureRequestTests
         Converters = { new JsonStringEnumConverter(null) }
     };
 
-    public static TheoryData<string> StarterArchitectureRequestRelativePaths =>
-    [
-        Path.Combine("templates", "starter-proof-packs", "regulated-saas-soc-procurement", "architecture-request.json"),
-        Path.Combine("templates", "starter-proof-packs", "healthcare-data-workflow", "architecture-request.json"),
-        Path.Combine("templates", "starter-proof-packs", "azure-cost-governance", "architecture-request.json"),
-        Path.Combine("templates", "starter-proof-packs", "ai-llm-workload", "architecture-request.json")
-    ];
+    public static TheoryData<string, CloudProvider> StarterArchitectureRequestRelativePaths
+    {
+        get
+        {
+            TheoryData<string, CloudProvider> data = new();
+
+            data.Add(Path.Combine("templates", "starter-proof-packs", "regulated-saas-soc-procurement", "architecture-request.json"), CloudProvider.Azure);
+            data.Add(Path.Combine("templates", "starter-proof-packs", "healthcare-data-workflow", "architecture-request.json"), CloudProvider.Azure);
+            data.Add(Path.Combine("templates", "starter-proof-packs", "azure-cost-governance", "architecture-request.json"), CloudProvider.Azure);
+            data.Add(Path.Combine("templates", "starter-proof-packs", "aws-cost-governance", "architecture-request.json"), CloudProvider.Aws);
+            data.Add(Path.Combine("templates", "starter-proof-packs", "gcp-cost-governance", "architecture-request.json"), CloudProvider.Gcp);
+            data.Add(Path.Combine("templates", "starter-proof-packs", "ai-llm-workload", "architecture-request.json"), CloudProvider.Azure);
+
+            return data;
+        }
+    }
 
     [Theory]
     [MemberData(nameof(StarterArchitectureRequestRelativePaths))]
-    public void Starter_architecture_request_json_deserializes(string relativePath)
+    public void Starter_architecture_request_json_deserializes(string relativePath, CloudProvider expectedCloudProvider)
     {
         string fullPath = Path.Combine(AppContext.BaseDirectory, relativePath);
 
@@ -48,7 +57,7 @@ public sealed class StarterProofPackArchitectureRequestTests
         request.SystemName.Should().NotBeNullOrWhiteSpace();
         request.Description.Length.Should().BeInRange(ArchitectureRequestFieldLimits.MinDescriptionLength, ArchitectureRequestFieldLimits.MaxDescriptionLength);
         request.Environment.Should().NotBeNullOrWhiteSpace();
-        request.CloudProvider.Should().Be(CloudProvider.Azure);
+        request.CloudProvider.Should().Be(expectedCloudProvider);
         request.Constraints.Should().NotBeNull();
         request.PolicyReferences.Should().NotBeNull();
         request.PolicyReferences.Should().NotBeEmpty();

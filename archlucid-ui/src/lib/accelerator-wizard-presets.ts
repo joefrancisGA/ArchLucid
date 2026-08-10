@@ -5,6 +5,8 @@ export const ACCELERATOR_PACK_IDS = [
   "regulated-saas-soc-procurement",
   "ai-llm-workload",
   "azure-cost-governance",
+  "aws-cost-governance",
+  "gcp-cost-governance",
   "healthcare-data-workflow",
 ] as const;
 
@@ -112,6 +114,58 @@ export const ACCELERATOR_WIZARD_PRESETS: Readonly<Record<AcceleratorPackId, Part
       "Call out FinOps maturity as design hooks: budgets, anomaly detection, RI/SP posture — not dollar outcomes",
     ],
     policyReferences: ["starter:azure-cost-governance"],
+  },
+  "aws-cost-governance": {
+    systemName: "AcmeRetail.FinOps.Organization",
+    environment: "prod",
+    description:
+      "Acme Retail (fictional) runs multi-account AWS Organizations with shared hub networking, workload OUs, and a FinOps review ask: tag governance, budget alerts, Savings Plans posture, and Service Control Policies for encryption and public network restrictions.",
+    constraints: [
+      "Deny public IPs on sensitive services via SCP at organization scope (design intent)",
+      "Mandatory resource tags: cost-center, environment, workload-owner before production promotion",
+      "Hub egress through transit gateway; spoke-to-spoke via hub (illustrative)",
+    ],
+    requiredCapabilities: [
+      "hub-vpc-transit-gateway",
+      "workload-ou-app-landing",
+      "workload-ou-data-landing",
+      "cost-and-usage-report-export",
+    ],
+    assumptions: [
+      "Single AWS Organization; OU hierarchy already exists for pilot story",
+      "No third-party FinOps tool in scope — AWS-native CUR and Cost Explorer exports only in this starter",
+    ],
+    inlineRequirements: [
+      "Review should highlight observability for cost anomalies and governance drift (tags, region) without asserting measured savings",
+      "Call out FinOps maturity as design hooks: budgets, anomaly detection, Savings Plans / Reserved Instance posture — not dollar outcomes",
+    ],
+    policyReferences: ["starter:aws-cost-governance"],
+  },
+  "gcp-cost-governance": {
+    systemName: "ExampleCorp.FinOps.FolderHierarchy",
+    environment: "prod",
+    description:
+      "Example Corp (fictional) runs multi-project GCP folder hierarchies with shared hub networking, workload folders, and a FinOps review ask: label governance, budget alerts, committed use discount posture, and organization policy constraints for encryption and public network restrictions.",
+    constraints: [
+      "Deny public IPs on sensitive services via organization policy at folder scope (design intent)",
+      "Mandatory resource labels: cost-center, environment, workload-owner before production promotion",
+      "Hub egress through Cloud NAT; spoke-to-spoke via hub (illustrative)",
+    ],
+    requiredCapabilities: [
+      "hub-vpc-cloud-nat",
+      "workload-folder-app-landing",
+      "workload-folder-data-landing",
+      "billing-export-bigquery",
+    ],
+    assumptions: [
+      "Single Google Cloud organization; folder hierarchy already exists for pilot story",
+      "No third-party FinOps tool in scope — GCP-native billing export and Recommender signals only in this starter",
+    ],
+    inlineRequirements: [
+      "Review should highlight observability for cost anomalies and governance drift (labels, region) without asserting measured savings",
+      "Call out FinOps maturity as design hooks: budgets, anomaly detection, committed use discount posture — not dollar outcomes",
+    ],
+    policyReferences: ["starter:gcp-cost-governance"],
   },
   "healthcare-data-workflow": {
     systemName: "Clinical.DataHub",

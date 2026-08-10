@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { NewReviewSampleEscapeLink } from "@/components/usability/NewReviewSampleEscapeLink";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   REVIEWS_NEW_GUIDED_QUESTIONS_LABEL,
@@ -49,6 +50,7 @@ export function ReviewsNewMoreWaysToStart(props: ReviewsNewMoreWaysToStartProps)
       sectionTestId="reviews-new-more-intake-options"
     >
       <ul className="m-0 list-none space-y-3 p-0">
+        <NewReviewSampleEscapeLink />
         {SECONDARY_PATHS.map((path) => (
           <li key={path.id} className="space-y-1">
             <Button

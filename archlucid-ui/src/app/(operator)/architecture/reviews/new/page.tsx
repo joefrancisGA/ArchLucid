@@ -4,7 +4,6 @@ import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
 
-import { NewReviewSampleEscapeLink } from "@/components/usability/NewReviewSampleEscapeLink";
 import { NewRunWizardSkeleton } from "@/components/skeletons/NewRunWizardSkeleton";
 
 import { ReviewsNewPageChrome } from "./ReviewsNewPageChrome";
@@ -22,7 +21,6 @@ export default async function NewRunPage() {
   return (
     <OperatorPageContainer variant="workflow">
       <ReviewsNewPageChrome />
-      <NewReviewSampleEscapeLink className="mt-3" />
       <div id="new-review-wizard" className="mt-6 scroll-mt-24">
         <Suspense fallback={<NewRunWizardSkeleton />}>
           <ReviewsNewPathSwitcher />
