@@ -1,13 +1,16 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { AuthDomainsPageClient } from "./AuthDomainsPageClient";
 import {
   enableTenantAuthDomainEnforcement,
   fetchTenantAuthDomainEnforcementReadiness,
+  fetchTenantAuthDomainRecoveryAdmins,
   fetchTenantAuthDomains,
   proposeTenantAuthDomain,
+  removeTenantAuthDomainRecoveryAdmin,
 } from "@/lib/admin-auth-domains-api";
+import { AUTH_DOMAINS_ENFORCEMENT_WARNING } from "@/lib/auth-domains-confirm-copy";
 
 vi.mock("@/lib/admin-auth-domains-api", () => ({
   fetchTenantAuthDomains: vi.fn(),
@@ -36,6 +39,19 @@ const sampleDomain = {
   isEnforcementActive: false,
 };
 
+const recoveryDomain = {
+  ...sampleDomain,
+  enforcementMode: "SsoRequiredWithRecoveryException",
+};
+
+const recoveryAdmin = {
+  tenantId: "tenant-1",
+  normalizedDomain: "example.com",
+  displayRecoveryAdminEmail: "breakglass@example.com",
+  normalizedRecoveryAdminEmail: "breakglass@example.com",
+  authenticationVerifiedUtc: "2026-07-01T00:00:00.000Z",
+};
+
 const readyReadiness = {
   canEnableEnforcement: true,
   hasRecoveryRoute: true,
@@ -44,10 +60,6 @@ const readyReadiness = {
 };
 
 describe("AuthDomainsPageClient", () => {
-  beforeEach(() => {
-    vi.spyOn(window, "confirm").mockReturnValue(true);
-  });
-
   afterEach(() => {
     vi.clearAllMocks();
     vi.restoreAllMocks();
@@ -65,6 +77,38 @@ describe("AuthDomainsPageClient", () => {
     expect(statusRow).not.toHaveTextContent("SsoOptional");
     expect(statusRow.querySelector("[data-verification-status='Verified']")).not.toBeNull();
     expect(statusRow.querySelector("[data-enforcement-mode='SsoOptional']")).not.toBeNull();
+  });
+
+  it("does not call window.confirm for enable enforcement", async () => {
+    const confirmSpy = vi.spyOn(window, "confirm");
+    vi.mocked(fetchTenantAuthDomains).mockResolvedValue([sampleDomain]);
+    vi.mocked(fetchTenantAuthDomainEnforcementReadiness).mockResolvedValue(readyReadiness);
+    vi.mocked(enableTenantAuthDomainEnforcement).mockResolvedValue(undefined);
+
+    render(<AuthDomainsPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-domain-row-example.com")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("auth-domain-row-example.com"));
+    fireEvent.click(screen.getByTestId("auth-domains-session-ack"));
+    fireEvent.click(screen.getByTestId("auth-domains-enable-enforcement"));
+
+    expect(await screen.findByTestId("auth-domains-enable-confirm-dialog")).toBeInTheDocument();
+    expect(
+      within(screen.getByTestId("auth-domains-enable-confirm-dialog")).getByText(
+        AUTH_DOMAINS_ENFORCEMENT_WARNING,
+      ),
+    ).toBeInTheDocument();
+    expect(confirmSpy).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByTestId("auth-domains-confirm-confirm"));
+
+    await waitFor(() => {
+      expect(enableTenantAuthDomainEnforcement).toHaveBeenCalledWith("example.com", true);
+    });
+    expect(confirmSpy).not.toHaveBeenCalled();
   });
 
   it("disables enable enforcement while enable is in flight", async () => {
@@ -86,6 +130,7 @@ describe("AuthDomainsPageClient", () => {
     fireEvent.click(screen.getByTestId("auth-domain-row-example.com"));
     fireEvent.click(screen.getByTestId("auth-domains-session-ack"));
     fireEvent.click(screen.getByTestId("auth-domains-enable-enforcement"));
+    fireEvent.click(await screen.findByTestId("auth-domains-confirm-confirm"));
 
     await waitFor(() => {
       expect(screen.getByTestId("auth-domains-enable-enforcement")).toBeDisabled();
@@ -100,6 +145,47 @@ describe("AuthDomainsPageClient", () => {
     await waitFor(() => {
       expect(enableTenantAuthDomainEnforcement).toHaveBeenCalledTimes(1);
     });
+  });
+
+  it("shows in-page confirm before forced recovery-admin removal", async () => {
+    const confirmSpy = vi.spyOn(window, "confirm");
+    const warningMessage = "Removing the last recovery administrator may lock out break-glass access.";
+
+    vi.mocked(fetchTenantAuthDomains).mockResolvedValue([recoveryDomain]);
+    vi.mocked(fetchTenantAuthDomainEnforcementReadiness).mockResolvedValue(readyReadiness);
+    vi.mocked(fetchTenantAuthDomainRecoveryAdmins).mockResolvedValue([recoveryAdmin]);
+    vi.mocked(removeTenantAuthDomainRecoveryAdmin)
+      .mockResolvedValueOnce({
+        removed: false,
+        warningMessage,
+      })
+      .mockResolvedValueOnce({
+        removed: true,
+        warningMessage: null,
+      });
+
+    render(<AuthDomainsPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-domain-row-example.com")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("auth-domain-row-example.com"));
+
+    const removeButton = await screen.findByTestId("auth-domains-remove-recovery-breakglass@example.com");
+    fireEvent.click(removeButton);
+
+    expect(await screen.findByTestId("auth-domains-recovery-remove-confirm-dialog")).toBeInTheDocument();
+    expect(screen.getByText(warningMessage)).toBeInTheDocument();
+    expect(confirmSpy).not.toHaveBeenCalled();
+    expect(removeTenantAuthDomainRecoveryAdmin).toHaveBeenCalledWith("example.com", "breakglass@example.com", false);
+
+    fireEvent.click(screen.getByTestId("auth-domains-confirm-confirm"));
+
+    await waitFor(() => {
+      expect(removeTenantAuthDomainRecoveryAdmin).toHaveBeenCalledWith("example.com", "breakglass@example.com", true);
+    });
+    expect(confirmSpy).not.toHaveBeenCalled();
   });
 
   it("disables add domain while propose is in flight", async () => {

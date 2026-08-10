@@ -9,11 +9,16 @@ import { Input } from "@/components/ui/input";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
+  AuthDomainsActionConfirmDialog,
+  type AuthDomainsPendingConfirm,
+} from "@/app/(operator)/administration/auth-domains/AuthDomainsActionConfirmDialog";
+import {
   authDomainEnforcementModeKind,
   authDomainVerificationStatusKind,
   labelForAuthDomainEnforcementMode,
   labelForAuthDomainVerificationStatus,
 } from "@/lib/auth-domains-enum-labels";
+import { AUTH_DOMAINS_ENFORCEMENT_WARNING } from "@/lib/auth-domains-confirm-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   addTenantAuthDomainRecoveryAdmin,
@@ -34,9 +39,6 @@ import {
 } from "@/lib/admin-auth-domains-api";
 import { cn } from "@/lib/utils";
 
-const ENFORCEMENT_WARNING =
-  "Requiring SSO may prevent users from signing in through other methods. Confirm that the configured identity provider and recovery access have been tested.";
-
 type RefreshOptions = {
   readonly surfaceError?: boolean;
 };
@@ -55,6 +57,7 @@ export function AuthDomainsPageClient() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [pendingConfirm, setPendingConfirm] = useState<AuthDomainsPendingConfirm | null>(null);
 
   const refreshDomains = useCallback(async () => {
     setLoading(true);
@@ -214,12 +217,16 @@ export function AuthDomainsPageClient() {
     }
   }
 
-  async function handleEnableEnforcement() {
+  function requestEnableEnforcement() {
     if (selectedDomain === null || busy) {
       return;
     }
 
-    if (!window.confirm(ENFORCEMENT_WARNING)) {
+    setPendingConfirm({ kind: "enable-enforcement" });
+  }
+
+  async function executeEnableEnforcement() {
+    if (selectedDomain === null || busy) {
       return;
     }
 
@@ -232,6 +239,43 @@ export function AuthDomainsPageClient() {
       await enableTenantAuthDomainEnforcement(selectedDomain, true);
       setStatusMessage("SSO enforcement enabled.");
       await refreshDomains();
+      await refreshReadiness(selectedDomain, { surfaceError: true });
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : String(error));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleConfirmPendingAction() {
+    if (pendingConfirm === null || busy) {
+      return;
+    }
+
+    if (pendingConfirm.kind === "enable-enforcement") {
+      setPendingConfirm(null);
+      await executeEnableEnforcement();
+      return;
+    }
+
+    if (selectedDomain === null) {
+      setPendingConfirm(null);
+      return;
+    }
+
+    setErrorMessage(null);
+    setStatusMessage(null);
+
+    setBusy(true);
+
+    try {
+      await removeTenantAuthDomainRecoveryAdmin(
+        selectedDomain,
+        pendingConfirm.normalizedRecoveryAdminEmail,
+        true,
+      );
+      setPendingConfirm(null);
+      await refreshRecoveryAdmins(selectedDomain, { surfaceError: true });
       await refreshReadiness(selectedDomain, { surfaceError: true });
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : String(error));
@@ -258,15 +302,13 @@ export function AuthDomainsPageClient() {
       );
 
       if (!result.removed && result.warningMessage) {
-        if (!window.confirm(result.warningMessage)) {
-          return;
-        }
-
-        await removeTenantAuthDomainRecoveryAdmin(
-          selectedDomain,
-          row.normalizedRecoveryAdminEmail,
-          true,
-        );
+        setPendingConfirm({
+          kind: "recovery-remove",
+          normalizedRecoveryAdminEmail: row.normalizedRecoveryAdminEmail,
+          displayRecoveryAdminEmail: row.displayRecoveryAdminEmail,
+          warningMessage: result.warningMessage,
+        });
+        return;
       }
 
       await refreshRecoveryAdmins(selectedDomain, { surfaceError: true });
@@ -553,14 +595,14 @@ export function AuthDomainsPageClient() {
 
             <div className="space-y-2">
               <p className={cn("m-0 text-amber-900", OPERATOR_TYPOGRAPHY.helper)} role="note">
-                {ENFORCEMENT_WARNING}
+                {AUTH_DOMAINS_ENFORCEMENT_WARNING}
               </p>
               <Button
                 type="button"
                 variant="primary"
                 data-testid="auth-domains-enable-enforcement"
                 disabled={busy || !sessionAcknowledged || readiness?.canEnableEnforcement === false}
-                onClick={() => void handleEnableEnforcement()}
+                onClick={() => requestEnableEnforcement()}
               >
                 Enable enforcement
               </Button>
@@ -609,6 +651,13 @@ export function AuthDomainsPageClient() {
           </CardContent>
         </Card>
       ) : null}
+
+      <AuthDomainsActionConfirmDialog
+        pending={pendingConfirm}
+        busy={busy}
+        onCancel={() => setPendingConfirm(null)}
+        onConfirm={() => void handleConfirmPendingAction()}
+      />
     </div>
   );
 }
