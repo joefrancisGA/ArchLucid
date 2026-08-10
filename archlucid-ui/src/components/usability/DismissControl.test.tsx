@@ -4,13 +4,14 @@ import { describe, expect, it, vi } from "vitest";
 import { DISMISS_CONTROL_LABEL, DismissControl } from "@/components/usability/DismissControl";
 
 describe("DismissControl", () => {
-  it("renders a text dismiss button with button semantics", () => {
+  it("renders a text dismiss button with button semantics and a visible boundary by default", () => {
     const onDismiss = vi.fn();
     render(<DismissControl onDismiss={onDismiss} data-testid="dismiss-control" />);
 
     const control = screen.getByTestId("dismiss-control");
     expect(control.tagName).toBe("BUTTON");
     expect(control).toHaveAttribute("type", "button");
+    expect(control.className).toMatch(/border/);
     expect(screen.getByRole("button", { name: DISMISS_CONTROL_LABEL })).toBe(control);
     expect(screen.queryByRole("link", { name: DISMISS_CONTROL_LABEL })).toBeNull();
 
@@ -31,6 +32,7 @@ describe("DismissControl", () => {
 
     const control = screen.getByTestId("dismiss-control-icon");
     expect(control.tagName).toBe("BUTTON");
+    expect(control.className).toMatch(/border/);
     expect(screen.getByRole("button", { name: "Dismiss guidance" })).toBe(control);
     expect(screen.queryByRole("link", { name: "Dismiss guidance" })).toBeNull();
 
