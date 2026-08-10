@@ -12,6 +12,7 @@ import {
 
 const validateInvitationToken = vi.fn();
 const storeInvitationToken = vi.fn();
+const clearInvitationToken = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useSearchParams: vi.fn(),
@@ -23,6 +24,7 @@ vi.mock("@/lib/auth/invitation-validation-api", () => ({
 
 vi.mock("@/lib/auth/email-otp-session", () => ({
   storeInvitationToken: (...args: unknown[]) => storeInvitationToken(...args),
+  clearInvitationToken: (...args: unknown[]) => clearInvitationToken(...args),
 }));
 
 import { useSearchParams } from "next/navigation";
@@ -45,6 +47,7 @@ describe("InvitationAcceptPageClient (TB-1474)", () => {
   beforeEach(() => {
     validateInvitationToken.mockReset();
     storeInvitationToken.mockReset();
+    clearInvitationToken.mockReset();
   });
 
   it("exposes recovery controls when the invitation token is missing", async () => {
@@ -59,6 +62,8 @@ describe("InvitationAcceptPageClient (TB-1474)", () => {
     });
 
     expectRecoveryControls();
+    expect(storeInvitationToken).not.toHaveBeenCalled();
+    expect(clearInvitationToken).toHaveBeenCalled();
     expect(screen.getByTestId("invitation-recovery-sign-in")).toHaveAttribute("href", "/auth/signin");
     expect(screen.getByTestId("invitation-recovery-request-access")).toHaveAttribute("href", "/signup");
     expect(screen.getByTestId("invitation-recovery-public-exit")).toHaveTextContent(
@@ -143,5 +148,155 @@ describe("InvitationAcceptPageClient (TB-1474)", () => {
     await waitFor(() => {
       expect(screen.getByRole("link", { name: "Continue to sign in" })).toBeInTheDocument();
     });
+    expect(storeInvitationToken).toHaveBeenCalledWith("invite-token");
+  });
+});
+
+describe("InvitationAcceptPageClient (TB-1475)", () => {
+  beforeEach(() => {
+    validateInvitationToken.mockReset();
+    storeInvitationToken.mockReset();
+    clearInvitationToken.mockReset();
+  });
+
+  it("stores the invitation token only after validation succeeds", async () => {
+    mockToken("invite-token");
+    validateInvitationToken.mockResolvedValue({
+      status: "Valid",
+      allowEmailCode: true,
+      requireEnterpriseSso: false,
+      maskedInvitedEmail: "o***@example.com",
+      appRole: "Reader",
+    });
+
+    render(<InvitationAcceptPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("invitation-valid-panel")).toBeInTheDocument();
+    });
+
+    expect(storeInvitationToken).toHaveBeenCalledTimes(1);
+    expect(storeInvitationToken).toHaveBeenCalledWith("invite-token");
+  });
+
+  it("clears the invitation token for non-valid invitations", async () => {
+    mockToken("invite-token");
+    validateInvitationToken.mockResolvedValue({
+      status: "Expired",
+      allowEmailCode: true,
+      requireEnterpriseSso: false,
+    });
+
+    render(<InvitationAcceptPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("invitation-invalid-alert")).toBeInTheDocument();
+    });
+
+    expect(storeInvitationToken).not.toHaveBeenCalled();
+    expect(clearInvitationToken).toHaveBeenCalled();
+  });
+
+  it("maps known roles to buyer-safe labels and hides unknown enums", async () => {
+    mockToken("invite-token");
+    validateInvitationToken.mockResolvedValue({
+      status: "Valid",
+      allowEmailCode: true,
+      requireEnterpriseSso: false,
+      appRole: "Operator",
+    });
+
+    render(<InvitationAcceptPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("invitation-valid-role")).toHaveTextContent("Workspace role: Architect");
+    });
+
+    expect(screen.getByTestId("invitation-valid-role")).toHaveTextContent("Claim value: Operator");
+  });
+
+  it("uses tokenized SSO callout styling for enterprise routing", async () => {
+    mockToken("invite-token");
+    validateInvitationToken.mockResolvedValue({
+      status: "Valid",
+      allowEmailCode: true,
+      requireEnterpriseSso: true,
+      routingMessage: "Your organization requires work or school sign-in.",
+      appRole: "Reader",
+    });
+
+    render(<InvitationAcceptPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("invitation-valid-sso-callout")).toHaveTextContent(
+        "Your organization requires work or school sign-in.",
+      );
+    });
+  });
+});
+
+describe("InvitationAcceptPageClient (TB-1476)", () => {
+  beforeEach(() => {
+    validateInvitationToken.mockReset();
+    storeInvitationToken.mockReset();
+    clearInvitationToken.mockReset();
+  });
+
+  it("exposes secondary exits on a valid invitation", async () => {
+    mockToken("invite-token");
+    validateInvitationToken.mockResolvedValue({
+      status: "Valid",
+      allowEmailCode: true,
+      requireEnterpriseSso: false,
+      maskedInvitedEmail: "o***@example.com",
+      appRole: "Reader",
+    });
+
+    render(<InvitationAcceptPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "Continue to sign in" })).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("invitation-secondary-exit")).toBeInTheDocument();
+    expect(screen.getByTestId("invitation-secondary-sign-in-again")).toBeInTheDocument();
+    expect(screen.getByTestId("invitation-secondary-use-different-account")).toBeInTheDocument();
+    expect(screen.getByTestId("invitation-secondary-help")).toBeInTheDocument();
+    expect(screen.getByTestId("invitation-secondary-public-exit")).toHaveAttribute("href", "/welcome");
+  });
+
+  it("exposes use-different-account secondary exit on invalid invitations", async () => {
+    mockToken("invite-token");
+    validateInvitationToken.mockResolvedValue({
+      status: "Expired",
+      allowEmailCode: true,
+      requireEnterpriseSso: false,
+    });
+
+    render(<InvitationAcceptPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("invitation-invalid-alert")).toBeInTheDocument();
+    });
+
+    expectRecoveryControls();
+    expect(screen.getByTestId("invitation-secondary-use-different-account")).toBeInTheDocument();
+    expect(screen.queryByTestId("invitation-secondary-sign-in-again")).toBeNull();
+  });
+
+  it("exposes secondary exits when validation fails", async () => {
+    mockToken("invite-token");
+    validateInvitationToken.mockRejectedValue(new Error("network"));
+
+    render(<InvitationAcceptPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("invitation-invalid-alert")).toHaveTextContent(
+        AUTH_INVITE_VALIDATION_FAILED_MESSAGE,
+      );
+    });
+
+    expect(screen.getByTestId("invitation-secondary-use-different-account")).toBeInTheDocument();
+    expect(screen.getByTestId("invitation-secondary-public-exit")).toHaveAttribute("href", "/welcome");
   });
 });

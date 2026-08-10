@@ -1,24 +1,24 @@
 "use client";
 
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { InvitationAcceptLoadingView } from "@/app/(operator)/auth/invite/InvitationAcceptLoadingView";
+import { InvitationAuthSecondaryExitActions } from "@/app/(operator)/auth/invite/InvitationAuthSecondaryExitActions";
 import { InvitationInvalidRecoveryActions } from "@/app/(operator)/auth/invite/InvitationInvalidRecoveryActions";
+import { InvitationValidPanel } from "@/app/(operator)/auth/invite/InvitationValidPanel";
 import { AuthFlowShell } from "@/components/auth/AuthFlowShell";
-import { Button } from "@/components/ui/button";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   AUTH_INVITE_PAGE_LEAD,
   AUTH_INVITE_PAGE_TITLE,
 } from "@/lib/auth/auth-invite-page-copy";
+import { clearInvitationToken, storeInvitationToken } from "@/lib/auth/email-otp-session";
 import {
   mapInvitationStatusToRecoveryContext,
   resolveInvalidInvitationMessage,
   type InvitationRecoveryContext,
 } from "@/lib/auth/invitation-invalid-recovery-copy";
-import { storeInvitationToken } from "@/lib/auth/email-otp-session";
 import {
   validateInvitationToken,
   type InvitationValidationResponse,
@@ -46,9 +46,15 @@ export function InvitationAcceptPageClient() {
       const context = mapInvitationStatusToRecoveryContext(result.status);
 
       if (context) {
+        clearInvitationToken();
         setRecoveryContext(context);
+
+        return;
       }
+
+      storeInvitationToken(invitationToken);
     } catch {
+      clearInvitationToken();
       setRecoveryContext("validation-failed");
     } finally {
       setLoading(false);
@@ -57,13 +63,13 @@ export function InvitationAcceptPageClient() {
 
   useEffect(() => {
     if (!token) {
+      clearInvitationToken();
       setRecoveryContext("missing-token");
       setLoading(false);
 
       return;
     }
 
-    storeInvitationToken(token);
     void runValidation(token);
   }, [runValidation, token, validationAttempt]);
 
@@ -104,30 +110,12 @@ export function InvitationAcceptPageClient() {
                   : undefined
               }
             />
+            <InvitationAuthSecondaryExitActions showSignInAgain={false} />
           </>
         ) : null}
 
         {validation?.status === "Valid" ? (
-          <div className="mt-6 space-y-4 rounded-md border border-al-border p-4">
-            {validation.maskedInvitedEmail ? (
-              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                Invited address: {validation.maskedInvitedEmail}
-              </p>
-            ) : null}
-            {validation.appRole ? (
-              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                Role: {validation.appRole}
-              </p>
-            ) : null}
-            {validation.requireEnterpriseSso && validation.routingMessage ? (
-              <p className={cn("m-0 text-amber-800 dark:text-amber-300", OPERATOR_TYPOGRAPHY.body)}>
-                {validation.routingMessage}
-              </p>
-            ) : null}
-            <Button asChild>
-              <Link href={signInHref}>Continue to sign in</Link>
-            </Button>
-          </div>
+          <InvitationValidPanel validation={validation} signInHref={signInHref} />
         ) : null}
       </div>
     </AuthFlowShell>
