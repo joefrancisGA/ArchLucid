@@ -38,4 +38,19 @@ describe("HelpAzurePermissionsConnectionContext", () => {
     expect(screen.getByText("22222222-2222-2222-2222-222222222222")).toBeInTheDocument();
     expect(screen.getByText("33333333-3333-3333-3333-333333333333")).toBeInTheDocument();
   });
+
+  it("rejects malformed tenant, client, and subscription query parameters", () => {
+    useSearchParams.mockReturnValue(
+      new URLSearchParams(
+        "tenantId=not-a-guid&clientId=also-bad&subscriptionId='; DROP TABLE subscriptions;--",
+      ),
+    );
+
+    render(<HelpAzurePermissionsConnectionContext />);
+
+    expect(screen.queryByText("Tenant ID")).not.toBeInTheDocument();
+    expect(screen.queryByText("Application (client) ID")).not.toBeInTheDocument();
+    expect(screen.queryByText("Subscription ID")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open Azure connection setup" })).toBeInTheDocument();
+  });
 });

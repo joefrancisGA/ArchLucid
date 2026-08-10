@@ -343,6 +343,8 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/AZURE_CLOUD_CONNECTION_PERMISSIONS.md"],
     pdfStatus: "customer",
+    lastReviewed: "2026-08-09",
+    releaseApplicability: "Applies to V1 GA — optional cloud evidence connectors",
   },
   {
     slug: "enterprise-onboarding",

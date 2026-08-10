@@ -14,6 +14,7 @@ import {
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
+import { isAzureGuid } from "@/lib/azure-identifier-validation";
 import { sanitizeHostedAzureValidationError } from "@/lib/sanitize-hosted-azure-validation-error";
 import { cn } from "@/lib/utils";
 
@@ -28,6 +29,23 @@ type HelpAzurePermissionsVerificationPanelProps = {
   readonly subscriptionId?: string;
   readonly returnHref: string;
 };
+
+function verificationStateFromReason(
+  sanitized: ReturnType<typeof sanitizeHostedAzureValidationError>,
+): AzurePermissionsVerificationState {
+  if (sanitized.reason === "permission") {
+    return {
+      status: "missing",
+      message: sanitized.message,
+    };
+  }
+
+  return {
+    status: "failed",
+    message: sanitized.message,
+    technicalDetail: sanitized.technicalDetail,
+  };
+}
 
 function verificationStatusTag(
   state: AzurePermissionsVerificationState,
@@ -54,7 +72,7 @@ export function HelpAzurePermissionsVerificationPanel(props: HelpAzurePermission
   const canRunValidation = useNavCallerAuthorityRank() >= AUTHORITY_RANK.AdminAuthority;
   const [state, setState] = useState<AzurePermissionsVerificationState>({ status: "idle" });
   const subscriptionId = props.subscriptionId?.trim() ?? "";
-  const hasSubscription = subscriptionId.length > 0;
+  const hasSubscription = subscriptionId.length > 0 && isAzureGuid(subscriptionId);
   const statusTag = useMemo(() => verificationStatusTag(state), [state]);
 
   const verify = useCallback(async () => {
@@ -73,11 +91,7 @@ export function HelpAzurePermissionsVerificationPanel(props: HelpAzurePermission
       });
     } catch (error: unknown) {
       const sanitized = sanitizeHostedAzureValidationError(error);
-      setState({
-        status: /could not read the subscription|Reader/i.test(sanitized.message) ? "missing" : "failed",
-        message: sanitized.message,
-        technicalDetail: sanitized.technicalDetail,
-      });
+      setState(verificationStateFromReason(sanitized));
     }
   }, [hasSubscription, subscriptionId]);
 
@@ -112,7 +126,7 @@ export function HelpAzurePermissionsVerificationPanel(props: HelpAzurePermission
         {hasSubscription ? (
           <Button
             type="button"
-            variant="outline"
+            variant="primary"
             disabled={!canRunValidation || state.status === "checking"}
             onClick={() => void verify()}
             data-testid="azure-permissions-verify-button"

@@ -15,6 +15,7 @@ import {
   AZURE_PERMISSIONS_PORTAL_TAB,
   AZURE_PERMISSIONS_SETUP_HEADING,
 } from "@/lib/azure-cloud-connection-permissions-copy";
+import { isAzureGuid } from "@/lib/azure-identifier-validation";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -34,9 +35,10 @@ type HelpAzurePermissionsSetupSectionProps = {
 
 export function HelpAzurePermissionsSetupSection(props: HelpAzurePermissionsSetupSectionProps): React.ReactElement {
   const [copied, setCopied] = useState(false);
+  const trimmedSubscriptionId = props.subscriptionId?.trim() ?? "";
   const subscriptionPlaceholder =
-    props.subscriptionId !== undefined && props.subscriptionId.trim().length > 0
-      ? props.subscriptionId.trim()
+    trimmedSubscriptionId.length > 0 && isAzureGuid(trimmedSubscriptionId)
+      ? trimmedSubscriptionId
       : "YOUR_SUBSCRIPTION_ID";
   const setupScript = useMemo(() => buildTier2AzureSetupScript(subscriptionPlaceholder), [subscriptionPlaceholder]);
 

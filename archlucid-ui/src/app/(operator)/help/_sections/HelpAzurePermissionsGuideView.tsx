@@ -3,13 +3,16 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 import { AzureCloudConnectionRolesTable } from "@/components/help/AzureCloudConnectionRolesTable";
+import { AzurePermissionsHelpEvidenceOrientationStrip } from "@/components/help/AzurePermissionsHelpEvidenceOrientationStrip";
 import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
+import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { HelpAzurePermissionsHeaderActions } from "@/app/(operator)/help/_sections/HelpAzurePermissionsHeaderActions";
 import { HelpAzurePermissionsConnectionContext } from "@/app/(operator)/help/_sections/HelpAzurePermissionsConnectionContext";
 import { HelpAzurePermissionsSetupSection } from "@/app/(operator)/help/_sections/HelpAzurePermissionsSetupSection";
 import { HelpAzurePermissionsVerificationPanel } from "@/app/(operator)/help/_sections/HelpAzurePermissionsVerificationPanel";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   AZURE_CLOUD_CONNECTION_CANNOT_DO,
@@ -57,10 +60,10 @@ const AZURE_PERMISSIONS_TOC_HEADINGS: readonly HelpMarkdownHeading[] = [
   { id: "recommended-scope", title: "Choose the narrowest practical scope", level: 2 },
   { id: "connection-context-heading", title: "Connection values", level: 2 },
   { id: "setup", title: "Assign the Azure roles", level: 2 },
+  { id: "azure-permissions-verify-heading", title: "Verify the connection", level: 2 },
   { id: "collected-data", title: "Information ArchLucid collects", level: 2 },
   { id: "cannot-do", title: "Actions these permissions do not allow", level: 2 },
   { id: "custom-role", title: "Using a custom Azure role", level: 2 },
-  { id: "azure-permissions-verify-heading", title: "Verify the connection", level: 2 },
   { id: "troubleshoot", title: "Troubleshoot permission checks", level: 2 },
   { id: "other-providers", title: "Other cloud providers", level: 2 },
 ];
@@ -126,7 +129,7 @@ function CustomRoleActionsTable(): React.ReactElement {
 
 /** Manifest-driven Azure permissions guide for `/help/azure-permissions`. */
 export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideViewProps): React.ReactElement {
-  void props.entry;
+  const { entry } = props;
   const returnHref = props.returnHref ?? CLOUD_CONNECTIONS_HUB_HREF;
   const otherProviders = AZURE_CLOUD_CONNECTION_RELATED_HELP.filter((link) => link.provider !== "azure");
   // A bare hub href carries no per-connection context, so the verify CTA targets the Azure setup page it names.
@@ -139,7 +142,7 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
     >
       <HelpTopicHashScroll />
       <header className={HELP_PAGE_LAYOUT.articleHeader}>
-        <div className="flex flex-wrap items-start justify-between gap-2">
+        <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0 space-y-2">
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
               <Link href={returnHref} className="text-teal-700 underline dark:text-teal-400">
@@ -152,13 +155,21 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
             </p>
             <HelpTopicTitleRow title={AZURE_PERMISSIONS_PAGE_TITLE} />
             <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.helper)}>{AZURE_PERMISSIONS_PAGE_SUBTITLE}</p>
+            <HelpTopicRegistryProvenanceLine entry={entry} />
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
               {AZURE_PERMISSIONS_REVISION_NOTE(AZURE_CLOUD_CONNECTION_PERMISSIONS_CONTRACT_VERSION)}
             </p>
           </div>
-          <PageContextualHelpButton />
+          <div className="flex min-w-0 flex-col items-start gap-2">
+            <Button asChild size="sm" variant="primary" data-testid="azure-permissions-setup-primary-action">
+              <Link href={verifySetupHref}>Open Azure connection setup</Link>
+            </Button>
+            <HelpAzurePermissionsHeaderActions entry={entry} />
+          </div>
         </div>
       </header>
+
+      <AzurePermissionsHelpEvidenceOrientationStrip />
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className="min-w-0 space-y-8" data-testid="help-azure-permissions-primary">
           <section aria-labelledby="permissions-matrix" className="space-y-3">
@@ -215,6 +226,10 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
             <HelpAzurePermissionsSetupSection subscriptionId={props.subscriptionId} />
           </section>
 
+          <section id="verify" className="scroll-mt-24 border-t border-neutral-200 pt-6 dark:border-neutral-800">
+            <HelpAzurePermissionsVerificationPanel subscriptionId={props.subscriptionId} returnHref={verifySetupHref} />
+          </section>
+
           <section
             aria-labelledby="collected-data"
             className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
@@ -266,10 +281,6 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
               {AZURE_PERMISSIONS_CUSTOM_ROLE_INTRO}
             </p>
             <CustomRoleActionsTable />
-          </section>
-
-          <section id="verify" className="scroll-mt-24 border-t border-neutral-200 pt-6 dark:border-neutral-800">
-            <HelpAzurePermissionsVerificationPanel subscriptionId={props.subscriptionId} returnHref={verifySetupHref} />
           </section>
 
           <section

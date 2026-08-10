@@ -9,6 +9,7 @@ import {
   AZURE_CLOUD_CONNECTION_IDENTITY_MODEL,
   AZURE_CLOUD_CONNECTION_ROLE_ROWS,
 } from "@/lib/azure-cloud-connection-permissions-manifest";
+import { isAzureGuid } from "@/lib/azure-identifier-validation";
 import { AZURE_PERMISSIONS_CONTEXT_MISSING } from "@/lib/azure-cloud-connection-permissions-copy";
 import { OPERATOR_CARD, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -27,9 +28,12 @@ function resolveReturnHref(returnTo: string | null): string {
 
 export function HelpAzurePermissionsConnectionContext(): React.ReactElement {
   const searchParams = useSearchParams();
-  const tenantId = searchParams.get("tenantId")?.trim() ?? "";
-  const clientId = searchParams.get("clientId")?.trim() ?? "";
-  const subscriptionId = searchParams.get("subscriptionId")?.trim() ?? "";
+  const rawTenantId = searchParams.get("tenantId")?.trim() ?? "";
+  const rawClientId = searchParams.get("clientId")?.trim() ?? "";
+  const rawSubscriptionId = searchParams.get("subscriptionId")?.trim() ?? "";
+  const tenantId = isAzureGuid(rawTenantId) ? rawTenantId : "";
+  const clientId = isAzureGuid(rawClientId) ? rawClientId : "";
+  const subscriptionId = isAzureGuid(rawSubscriptionId) ? rawSubscriptionId : "";
   const returnHref = resolveReturnHref(searchParams.get("returnTo"));
   const hasContext = tenantId.length > 0 || clientId.length > 0 || subscriptionId.length > 0;
 

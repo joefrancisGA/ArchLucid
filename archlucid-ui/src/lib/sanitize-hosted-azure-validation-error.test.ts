@@ -36,6 +36,7 @@ describe("sanitizeHostedAzureValidationError", () => {
 
     expect(result.message).toMatch(/Reader/i);
     expect(result.message).toMatch(/federated credential/i);
+    expect(result.reason).toBe("permission");
   });
 
   it("points at federation when token exchange fails", () => {
@@ -45,5 +46,28 @@ describe("sanitizeHostedAzureValidationError", () => {
 
     expect(result.message).toMatch(/Federated sign-in/i);
     expect(result.message).toMatch(/app registration alone is not enough/i);
+    expect(result.reason).toBe("federation");
+  });
+
+  it("does not classify a bare HTTP 500 as federation", () => {
+    const result = sanitizeHostedAzureValidationError(apiError(500, "Unexpected host fault."));
+
+    expect(result.reason).toBe("unknown");
+    expect(result.message).not.toMatch(/Federated sign-in/i);
+  });
+
+  it("classifies stack traces as unknown", () => {
+    const result = sanitizeHostedAzureValidationError(
+      new Error("System.InvalidOperationException: at ArchLucid.Host.Core.Services.Foo.Bar()"),
+    );
+
+    expect(result.reason).toBe("unknown");
+    expect(result.message).toMatch(/Validation could not be completed/i);
+  });
+
+  it("does not treat the generic fallback copy as a federation failure", () => {
+    const result = sanitizeHostedAzureValidationError(new Error(""));
+
+    expect(result.reason).toBe("unknown");
   });
 });
