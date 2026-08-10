@@ -2848,7 +2848,7 @@ Do not sell append-only as “backups cannot rewrite history,” claim restored 
 
 ### Residuals (honest)
 
-- **TB-1490** / **TB-1491** own the invariant map and language guards.
+- **TB-1490** **Done** (2026-08-10) — engineering invariant map [`../library/EVIDENCE_BACKUP_RESTORE_INVARIANT_MAP.md`](../library/EVIDENCE_BACKUP_RESTORE_INVARIANT_MAP.md). **TB-1491** owns language guards CI.
 - Complements **M-160** / **M-267** / **M-265**; cite [`../runbooks/BACKUP_RESTORE_DRILL.md`](../runbooks/BACKUP_RESTORE_DRILL.md).
 - Does not reopen Done **TB-303** / **TB-307**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.

@@ -25,7 +25,7 @@ Regenerate after opening or closing summary-table rows:
 | Traceability | 3 |
 | Interoperability | 4 |
 | Compliance readiness | 1 |
-| Performance | 6 |
+| Performance | 7 |
 | Scalability | 2 |
 | Cost-effectiveness | 9 |
 | Supportability | 2 |
@@ -35,9 +35,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **710** |
+| **Total (unique open)** | **711** |
 
-**By priority band:** P0 **3** | P1 **577** | P2 **113** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **4** | P1 **577** | P2 **113** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -1255,7 +1255,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2164 | Table-valued parameters for findings child inserts — stop plan-cache churn from variable chunk sizes; see ## TB-2164 below | Performance P0 — **V1**; owner perf wave 7 2026-08-09; needs SQL-mode measurement first | M |
 | TB-2165 | **Done** (2026-08-10) — TanStack Query cache persistence across navigation / reload; see ## TB-2165 below | Performance P0 — **V1**; owner perf wave 7 2026-08-09; residual after Done **TB-2123**/**TB-2144** | S |
 | TB-2166 | **Done** (2026-08-10) — Web Worker offload for INP on evidence graph + compare views; see ## TB-2166 below | Performance P0 — **V1**; owner perf wave 7 2026-08-09; INP not addressed by bundle cuts; after Done **TB-2031** | M |
-| TB-2167 | **Done** (2026-08-10) — Leader election for hosted background services; see ## TB-2167 below | Performance P0 — **V1**; owner perf wave 7 2026-08-09; reliability lever too; blocker named in **TB-2124** matrix | L |
+| TB-2167 | Leader election for hosted background services — unblocks `min_replicas` lever; see ## TB-2167 below | Performance P0 — **V1**; owner perf wave 7 2026-08-09; reliability lever too; blocker named in **TB-2124** matrix | L |
 | TB-2168 | **Done** (2026-08-10) — visible-boundary `Button` contract: removed `ghost`/`link` from `buttonVariants`; design-system + Cursor rule; Vitest; mechanical `ghost`→`outline` call-site migration; see ## TB-2168 below | Adoption friction P0 — **V1**; owner button-affordance ask 2026-08-09 (scope narrowed same day); foundation for **TB-2169**–**TB-2174** | S |
 | TB-2169 | **Done** (2026-08-10) — shared button wrappers: outline defaults, no ghost props/branches; Vitest drift guard; see ## TB-2169 below | Adoption friction P0 — **V1**; owner button-affordance ask 2026-08-09; after **TB-2168** | S |
 | TB-2170 | **Done** (2026-08-10) — shell/auth/marketing ghost sweep verified (migration in **TB-2168**); `shell-auth-marketing-button-visible-boundary.test.ts`; shared pattern helper; see ## TB-2170 below | Adoption friction P0 — **V1**; owner button-affordance ask 2026-08-09; after **TB-2168** | M |
@@ -51079,13 +51079,11 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Window:** V1 — Performance / Reliability.
 
-**Status:** **Done** (2026-08-10).
+**Status:** Not started.
 
 **Priority:** P0.
 
 **Source:** Owner perf wave 7 2026-08-09; blocker named explicitly in the Done **TB-2124** paid-lever matrix — "duplicate hosted background work if raised without worker split / leader election".
-
-**Closure (2026-08-10):** `HostLeaderElectionCoordinator` + `SqlHostLeaderLeaseRepository` gate singleton hosted loops (outbox drains, stuck-job watchdog, reconciliation, orphan probes, archival, advisory scan, extractors, and related workers). `GET /v1/admin/diagnostics/leases` exposes holders and expiry. Final gaps closed: `BackgroundJobStuckRunningWatchdogHostedService`, `DataConsistencyOrphanProbeHostedService`, `RequiredAuditTrailOrphanProbeHostedService`. Contention tests in `HostLeaderElectionCoordinatorTests` and `SqlHostLeaderLeaseRepositorySqlIntegrationTests`. Decision-pack note in [`PERFORMANCE_COLD_START_AND_TRIMMING.md`](PERFORMANCE_COLD_START_AND_TRIMMING.md); Terraform README updated. **`api_min_replicas` raise remains owner-gated under TB-2146**.
 
 **Why:** The `min_replicas` levers are blocked on this, not on cost: raising replicas today duplicates outbox drains, the stuck-job watchdog, cache warmups, and reconciliation probes across every replica. That is wasted SQL polling at steady state **and** a correctness smell (N pollers contending on the same rows), and it makes the **−5 to −20 s** warm-path deploy improvement unavailable.
 

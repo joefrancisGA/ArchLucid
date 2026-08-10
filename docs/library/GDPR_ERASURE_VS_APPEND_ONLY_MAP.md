@@ -38,7 +38,7 @@ Orchestration: `TenantDeletionService` → (1) blob prefixes → (2) `ITenantHar
 | **Blob — content-addressed `artifact-contents`** | **No** (by design) | `TenantBlobPrefixDeletionService` class doc | Shared dedup container; skipped so other tenants’ hashes stay |
 | **Platform audit** | **No** | `TenantDeletionService` → `PlatformAuditRepository.AppendAsync` (`TenantDataDeleted`) | Controller accountability |
 | **Azure AI Search index** | **Not in purge orchestration** | `IVectorIndex.RemoveChunksForDocumentAsync` exists; **not** called from `TenantDeletionService` | Residual risk until tenant-wide Search purge is wired |
-| **Backups / PITR / geo-replicas** | **No (immediate)** | Azure ops / DPA | Expire per retention; DPA ~90-day delete window after termination except legal hold / backups |
+| **Backups / PITR / geo-replicas** | **No (immediate)** | Azure ops / DPA | Expire per retention; DPA ~90-day delete window after termination except legal hold / backups — restore vs tamper: [`EVIDENCE_BACKUP_RESTORE_INVARIANT_MAP.md`](EVIDENCE_BACKUP_RESTORE_INVARIANT_MAP.md) (**TB-1490** Done) |
 | **App Insights / AOAI provider logs / subprocessors** | **No (product purge)** | Subprocessor register + DPA | Disclose; not product-orchestrated |
 
 “Committed / sealed golden manifests” means **immutable while the tenant is live**, not **eternal retention after offboard**. Hard purge deletes those SQL rows and tenant-prefixed blobs.

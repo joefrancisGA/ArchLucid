@@ -4,7 +4,10 @@
 
 **Audience:** Engineering, SRE, principal-architect diligence. Not a buyer brochure.
 
-**Status:** Working contract for **TB-1490** / GTM **M-269**. Pair honesty CI **TB-1491** / **M-269**.
+**Status:** **Done** (**TB-1490**, 2026-08-10). GTM **M-269** / **M-270**. Pair honesty CI **TB-1491** / **M-269**.
+
+**Buyer / PA one-pager:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#evidence-backup-restore-invariant-m-270`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#evidence-backup-restore-invariant-m-270) (GTM **M-270**).  
+**Claim honesty:** [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) (GTM **M-269**).
 
 **Verdict (one line):** Backup/restore is **Azure SQL (PITR/LTR/geo) + separate blob durability**, not an app “evidence restore” product; a restore can preserve **point-in-time** sealed consistency while still looking identical to a **dbo-level rewrite** unless you keep **external** anchors (export ZIPs / out-of-band receipts). Restored ≠ cryptographically labeled “restore event.”
 
@@ -12,13 +15,13 @@
 
 ## 1. What the backup/restore design actually is
 
-| Layer | Mechanism | Authoritative docs |
-|-------|-----------|-------------------|
-| **SQL (evidence + audit + manifests)** | Azure SQL automated backups, **PITR** to a new DB (drill), optional **LTR**, **geo-failover** / auto-failover group | [`BACKUP_RESTORE_DRILL.md`](../runbooks/BACKUP_RESTORE_DRILL.md), [`DATABASE_FAILOVER.md`](../runbooks/DATABASE_FAILOVER.md), [`RTO_RPO_TARGETS.md`](RTO_RPO_TARGETS.md) |
-| **Per-tenant catalogs** | Restore **that** tenant catalog; re-run tenant DbUp; verify binding Active | [`TENANT_SQL_TOPOLOGY_RUNBOOK.md`](../operations/TENANT_SQL_TOPOLOGY_RUNBOOK.md) |
-| **Blob (artifacts / traces)** | Storage redundancy / GRS + lifecycle (e.g. `agent-traces`); **not** the same PITR clock as SQL | Drill § artifact blob lifecycle; [`RTO_RPO_TARGETS.md`](RTO_RPO_TARGETS.md) |
-| **App principal seals** | `DENY UPDATE/DELETE` on sealed tables for `[ArchLucidApp]` (Done **TB-303** / ADR 0039) | [`EVIDENCE_IMMUTABILITY.md`](EVIDENCE_IMMUTABILITY.md) |
-| **Hash lineage** | `ManifestHash` + export verify (Done **TB-307** / ADR 0040) — detects divergence **if** external export anchors exist | ADR 0040 |
+| Layer | Mechanism | Authoritative docs | Code / ops anchor |
+|-------|-----------|-------------------|-------------------|
+| **SQL (evidence + audit + manifests)** | Azure SQL automated backups, **PITR** to a new DB (drill), optional **LTR**, **geo-failover** / auto-failover group | [`BACKUP_RESTORE_DRILL.md`](../runbooks/BACKUP_RESTORE_DRILL.md), [`DATABASE_FAILOVER.md`](../runbooks/DATABASE_FAILOVER.md), [`RTO_RPO_TARGETS.md`](RTO_RPO_TARGETS.md) | Azure platform; per-tenant catalog restore in [`TENANT_SQL_TOPOLOGY_RUNBOOK.md`](../operations/TENANT_SQL_TOPOLOGY_RUNBOOK.md) |
+| **Per-tenant catalogs** | Restore **that** tenant catalog; re-run tenant DbUp; verify binding Active | [`TENANT_SQL_TOPOLOGY_RUNBOOK.md`](../operations/TENANT_SQL_TOPOLOGY_RUNBOOK.md) | Tenant DbUp on startup |
+| **Blob (artifacts / traces)** | Storage redundancy / GRS + lifecycle (e.g. `agent-traces`); **not** the same PITR clock as SQL | Drill § artifact blob lifecycle; [`RTO_RPO_TARGETS.md`](RTO_RPO_TARGETS.md) | Azure Storage; separate continuity clock |
+| **App principal seals** | `DENY UPDATE/DELETE` on sealed tables for `[ArchLucidApp]` (Done **TB-303** / ADR 0039) | [`EVIDENCE_IMMUTABILITY.md`](EVIDENCE_IMMUTABILITY.md) | `SqlSealedEvidenceImmutabilityRules`, migrations `247_*` / `259_*` |
+| **Hash lineage (external anchor)** | `ManifestHash` + export verify (Done **TB-307** / ADR 0040) — detects divergence **if** external export anchors exist | ADR 0040; [`OFFLINE_VERIFIABLE_EXPORT_PORTABILITY.md`](OFFLINE_VERIFIABLE_EXPORT_PORTABILITY.md) | `RunExportLineageVerifier`, `GET …/export/verify` |
 
 There is **no** first-class in-product “restore evidence store” API that re-validates append-only or emits a buyer-visible restore attestation.
 
@@ -72,7 +75,7 @@ ADR 0040 already states: a malicious `dbo` can alter SQL despite app DENY; hash 
 | Done **TB-307** / ADR 0040 | Export hash lineage (external anchor) |
 | Done **TB-310** / **TB-311** | Run-header seal + FK repoint detection |
 | **TB-1009** / **M-160** | Append-only inventory |
-| **TB-1488** / **M-267** | Offline export portability (external anchors) |
+| Done **TB-1488** / **M-267** | Offline export portability (external anchors) |
 | **TB-1470** / **M-265** | Backups survive hard purge |
 | `BACKUP_RESTORE_DRILL.md`, `RTO_RPO_TARGETS.md` | Ops drill / RPO |
 
@@ -83,3 +86,17 @@ ADR 0040 already states: a malicious `dbo` can alter SQL despite app DENY; hash 
 1. Extend PITR drill: after restore-to-new-DB, run sealed-evidence startup probes + sample `/export/verify` + note SQL/blob skew.
 2. Platform audit / runbook step: record restore operator, target time, catalog name (ops attribution).
 3. Do **not** claim in-tenant “RestoreAttested” rows unless productized — honesty CI forbids “restored ≠ tampered by SQL alone.”
+
+---
+
+## 7. Code entry points (verification)
+
+| Concern | Primary file |
+|---------|--------------|
+| Startup sealed-evidence DENY validation | `ArchLucid.Host.Core/Startup/Validation/Rules/SqlSealedEvidenceImmutabilityRules.cs` |
+| Startup committed-run-header DENY validation | `ArchLucid.Host.Core/Startup/Validation/Rules/SqlCommittedRunHeaderImmutabilityRules.cs` |
+| Host wiring (validate on startup) | `ArchLucid.Host.Core/Startup/ArchLucidPersistenceStartup.cs` |
+| Committed header anchor guard (runtime) | `ArchLucid.Core/Persistence/CommittedRunHeaderAnchorGuard.cs` |
+| Export lineage verify (external anchor) | `ArchLucid.Application/Analysis/RunExportLineageVerifier.cs` |
+| Sealed table registry | `ArchLucid.Core/Persistence/SealedEvidenceTableRegistry.cs` |
+| SQL migrations (DENY triggers) | `ArchLucid.Persistence/Migrations/247_CommitSealedEvidenceImmutability.sql`, `259_SealCommittedRunHeader.sql` |
