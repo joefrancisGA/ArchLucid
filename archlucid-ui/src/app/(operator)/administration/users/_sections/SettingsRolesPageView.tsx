@@ -81,6 +81,8 @@ export function SettingsRolesPageView(props: Props) {
   const [activeTab, setActiveTab] = useState<SettingsUsersTabId>(urlTab);
   const [invitationsRefreshKey, setInvitationsRefreshKey] = useState(0);
   const [pendingInvitationCount, setPendingInvitationCount] = useState<number | null>(null);
+  const roleAssignmentCounts = useMemo(() => assignmentCountsByRoleName(m.sortedRows), [m.sortedRows]);
+  const assignmentCountsReliable = !m.loading && m.note === null;
 
   useEffect(() => {
     setActiveTab(urlTab);
@@ -149,7 +151,6 @@ export function SettingsRolesPageView(props: Props) {
     m.loading || m.note !== null ? "Members" : `Members (${userRows.length})`;
   const pendingSectionTitle =
     pendingInvitationCount === null ? "Pending invitations" : `Pending invitations (${pendingInvitationCount})`;
-  const roleAssignmentCounts = useMemo(() => assignmentCountsByRoleName(m.sortedRows), [m.sortedRows]);
 
   return (
     <div className="w-full max-w-[1200px] space-y-6" data-testid="settings-roles-page">
@@ -231,8 +232,14 @@ export function SettingsRolesPageView(props: Props) {
 
         <TabsContent value="roles" data-testid="settings-roles-tabpanel-roles">
           <Card>
-            <CardContent className="pt-6">
-              <SettingsRolesMatrixSection assignmentCountsByRole={roleAssignmentCounts} />
+            <CardHeader>
+              <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Roles and permissions</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <SettingsRolesMatrixSection
+                assignmentCountsByRole={roleAssignmentCounts}
+                assignmentCountsReliable={assignmentCountsReliable}
+              />
             </CardContent>
           </Card>
         </TabsContent>

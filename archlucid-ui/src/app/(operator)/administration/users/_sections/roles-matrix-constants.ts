@@ -126,3 +126,30 @@ export function highRiskPermissionLabels(permissions: ReadonlySet<string>, label
 
   return labels;
 }
+
+export function highRiskPermissionLabelsFromIds(
+  permissionIds: readonly string[],
+  labelsById: ReadonlyMap<string, string>,
+): string[] {
+  return permissionIds
+    .filter((permissionId) => HIGH_RISK_PERMISSION_IDS.has(permissionId))
+    .map((permissionId) => labelsById.get(permissionId) ?? permissionId);
+}
+
+export function permissionLabelsFromIds(
+  permissionIds: readonly string[],
+  labelsById: ReadonlyMap<string, string>,
+): string[] {
+  return permissionIds.map((permissionId) => labelsById.get(permissionId) ?? permissionId);
+}
+
+export const ROLES_MATRIX_CONFIRMATION_DIALOG = {
+  saveTitle: "Save role permissions?",
+  createTitle: "Create custom role?",
+  cloneTitle: "Clone role?",
+  savePrimary: "Save changes",
+  createPrimary: "Create role",
+  clonePrimary: "Clone role",
+  highRiskLead:
+    "This change grants sensitive workspace controls. Confirm only if this role should manage billing, tenants, identity providers, or the admin console.",
+} as const;

@@ -1,6 +1,12 @@
 import { roleDisplayLabel } from "@/lib/role-display-labels";
 
 import { ALL_MATRIX_PERMISSION_IDS } from "./custom-role-permission-groups";
+import { HIGH_RISK_PERMISSION_IDS } from "./roles-matrix-constants";
+
+export type PermissionChanges = {
+  readonly added: string[];
+  readonly removed: string[];
+};
 
 /** One role column in the permission matrix. Built-in roles are read-only; custom roles accumulate edits. */
 export type DraftRole = {
@@ -153,4 +159,36 @@ export function mergeUnsavedRoleEdits(
 /** Generated name for a cloned role, using the buyer-facing label of the source role. */
 export function clonedRoleName(source: DraftRole): string {
   return `${roleDisplayLabel(source.name)} (custom)`;
+}
+
+/** Matrix permission ids added or removed relative to the last-saved baseline for one column. */
+export function permissionChangesForRole(role: DraftRole, baseline: RolePermissionBaseline): PermissionChanges {
+  const saved = baseline.get(roleMatrixKey(role));
+  const added: string[] = [];
+  const removed: string[] = [];
+
+  for (const permissionId of ALL_MATRIX_PERMISSION_IDS) {
+    const wasAllowed = saved?.has(permissionId) ?? false;
+    const isAllowed = role.permissions.has(permissionId);
+
+    if (!wasAllowed && isAllowed)
+      added.push(permissionId);
+
+    if (wasAllowed && !isAllowed)
+      removed.push(permissionId);
+  }
+
+  return { added, removed };
+}
+
+/** High-risk permission ids newly granted on a custom role column versus its baseline. */
+export function newlyGrantedHighRiskPermissionIds(role: DraftRole, baseline: RolePermissionBaseline): string[] {
+  return permissionChangesForRole(role, baseline).added.filter((permissionId) =>
+    HIGH_RISK_PERMISSION_IDS.has(permissionId),
+  );
+}
+
+/** High-risk permission ids in a new role permission list (create / clone — no prior baseline). */
+export function newlyGrantedHighRiskPermissionIdsFromList(permissions: readonly string[]): string[] {
+  return permissions.filter((permissionId) => HIGH_RISK_PERMISSION_IDS.has(permissionId));
 }

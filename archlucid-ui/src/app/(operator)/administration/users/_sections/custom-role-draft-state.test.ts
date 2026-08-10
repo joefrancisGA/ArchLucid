@@ -8,6 +8,8 @@ import {
   hasUnsavedRoleEdits,
   isRoleDirty,
   mergeUnsavedRoleEdits,
+  newlyGrantedHighRiskPermissionIds,
+  permissionChangesForRole,
   restoreRoleToBaseline,
   roleMatrixKey,
   toggleRolePermission,
@@ -99,5 +101,18 @@ describe("custom-role-draft-state", () => {
 
   it("names clones from the buyer-facing label of the source role", () => {
     expect(clonedRoleName(builtinOperator())).toBe("Architect (custom)");
+  });
+
+  it("reports permission deltas and newly granted high-risk ids", () => {
+    const roles = [customRole(["Runs.Read"])];
+    const baseline = baselinePermissionsByKey(roles);
+    const withBilling = toggleRolePermission(roles, "role-custom", "Billing.Manage");
+    const edited = toggleRolePermission(withBilling, "role-custom", "Runs.Create");
+
+    expect(permissionChangesForRole(edited[0] as DraftRole, baseline)).toEqual({
+      added: ["Runs.Create", "Billing.Manage"],
+      removed: [],
+    });
+    expect(newlyGrantedHighRiskPermissionIds(edited[0] as DraftRole, baseline)).toEqual(["Billing.Manage"]);
   });
 });

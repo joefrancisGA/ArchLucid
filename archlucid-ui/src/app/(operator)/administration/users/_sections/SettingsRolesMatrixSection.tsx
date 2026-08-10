@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -24,10 +25,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { SeverityTag } from "@/components/ui/severity-tag";
+import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { roleClaimCaption, roleDisplayLabel } from "@/lib/role-display-labels";
+import { SETTINGS_USERS_USERS_TAB_PATH } from "@/lib/settings-admin-route-paths";
 import { showError, showSuccess } from "@/lib/toast";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -42,6 +45,9 @@ import {
   hasUnsavedRoleEdits,
   isRoleDirty,
   mergeUnsavedRoleEdits,
+  newlyGrantedHighRiskPermissionIds,
+  newlyGrantedHighRiskPermissionIdsFromList,
+  permissionChangesForRole,
   restoreRoleToBaseline,
   roleMatrixKey,
   type RolePermissionBaseline,
@@ -51,7 +57,7 @@ import {
 import { type CustomRoleFailureKind, customRoleFailureCopy } from "./custom-role-failure-copy";
 import { CustomRoleRequestError, customRoleRequestStatus } from "./custom-role-request-error";
 import {
-  formatRoleAssignmentCount,
+  formatRoleAssignmentDisplay,
 } from "./roles-matrix-assignment-counts";
 import {
   EMPTY_ROLES_MATRIX_PERMISSION_FILTER,
@@ -60,9 +66,10 @@ import {
 import {
   CUSTOM_ROLE_START_FROM_OPTIONS,
   type CustomRoleStartFromValue,
-  hasHighRiskPermissions,
-  highRiskPermissionLabels,
+  HIGH_RISK_PERMISSION_IDS,
+  permissionLabelsFromIds,
   ROLES_MATRIX_CLONE_VS_CREATE_COPY,
+  ROLES_MATRIX_CONFIRMATION_DIALOG,
   ROLES_MATRIX_CREATE_READINESS_COPY,
   ROLES_MATRIX_HELPER_COPY,
   ROLES_MATRIX_PERMISSION_LEGEND,
@@ -94,13 +101,14 @@ type RoleMatrixState = {
 
 const EMPTY_MATRIX_STATE: RoleMatrixState = { roles: [], baseline: new Map() };
 
-type PendingHighRiskAction =
-  | { kind: "create"; name: string; permissions: string[] }
+type PendingRoleConfirmation =
   | { kind: "save"; role: DraftRole }
-  | { kind: "clone"; source: DraftRole };
+  | { kind: "create"; name: string; permissions: string[] }
+  | { kind: "clone"; source: DraftRole; permissions: string[] };
 
 type SettingsRolesMatrixSectionProps = {
   readonly assignmentCountsByRole?: ReadonlyMap<string, number>;
+  readonly assignmentCountsReliable?: boolean;
 };
 
 async function fetchRoles(): Promise<CustomRoleDto[]> {
@@ -130,12 +138,11 @@ function PermissionValue({
   if (editable) {
     return (
       <div className="flex h-10 items-center justify-center px-2">
-        <input
-          type="checkbox"
+        <Checkbox
           checked={checked}
           aria-label={`${permissionLabel} for ${roleName}`}
-          className="h-4 w-4 accent-teal-700"
-          onChange={onToggle}
+          className="accent-teal-700 dark:accent-teal-300"
+          onCheckedChange={() => onToggle()}
         />
       </div>
     );
@@ -244,13 +251,15 @@ function RolesMatrixCommandBar(props: RolesMatrixCommandBarProps) {
 }
 
 export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProps) {
+  const assignmentCountsReliable = props.assignmentCountsReliable ?? true;
   const [matrix, setMatrix] = useState<RoleMatrixState>(EMPTY_MATRIX_STATE);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [savingRoleId, setSavingRoleId] = useState<string | null>(null);
   const [newRoleName, setNewRoleName] = useState("");
   const [startFromRole, setStartFromRole] = useState<CustomRoleStartFromValue>("Operator");
   const [collapsedGroups, setCollapsedGroups] = useState<ReadonlySet<string>>(() => new Set());
-  const [pendingHighRisk, setPendingHighRisk] = useState<PendingHighRiskAction | null>(null);
+  const [pendingConfirmation, setPendingConfirmation] = useState<PendingRoleConfirmation | null>(null);
   const [permissionFilter, setPermissionFilter] = useState(EMPTY_ROLES_MATRIX_PERMISSION_FILTER);
   const roles = matrix.roles;
   const trimmedRoleName = newRoleName.trim();
@@ -269,6 +278,7 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
 
   const load = useCallback(async () => {
     setLoading(true);
+    setLoadError(false);
 
     try {
       const rows = await fetchRoles();
@@ -286,6 +296,7 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
         baseline: baselinePermissionsByKey(reloaded),
       }));
     } catch (error) {
+      setLoadError(true);
       showCustomRoleFailure("load", error);
     } finally {
       setLoading(false);
@@ -400,12 +411,12 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
   }
 
   function requestSaveRole(role: DraftRole) {
-    if (hasHighRiskPermissions(role.permissions)) {
-      setPendingHighRisk({ kind: "save", role });
-      return;
-    }
+    const changes = permissionChangesForRole(role, matrix.baseline);
 
-    void persistRole(role);
+    if (changes.added.length === 0 && changes.removed.length === 0)
+      return;
+
+    setPendingConfirmation({ kind: "save", role });
   }
 
   function permissionsForStartFrom(startFrom: CustomRoleStartFromValue): string[] {
@@ -426,32 +437,21 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
     if (!trimmed)
       return;
 
-    if (hasHighRiskPermissions(new Set(permissions))) {
-      setPendingHighRisk({ kind: "create", name: trimmed, permissions });
-      return;
-    }
-
-    void persistCreate(trimmed, permissions);
+    setPendingConfirmation({ kind: "create", name: trimmed, permissions });
   }
 
   function requestCloneRole(source: DraftRole) {
-    const cloneName = clonedRoleName(source);
     const permissions = ALL_MATRIX_PERMISSION_IDS.filter((permission) => source.permissions.has(permission));
 
-    if (hasHighRiskPermissions(new Set(permissions))) {
-      setPendingHighRisk({ kind: "clone", source });
-      return;
-    }
-
-    void persistCreate(cloneName, permissions);
+    setPendingConfirmation({ kind: "clone", source, permissions });
   }
 
-  async function confirmHighRiskAction() {
-    if (!pendingHighRisk)
+  async function confirmPendingAction() {
+    if (!pendingConfirmation)
       return;
 
-    const action = pendingHighRisk;
-    setPendingHighRisk(null);
+    const action = pendingConfirmation;
+    setPendingConfirmation(null);
 
     if (action.kind === "save") {
       await persistRole(action.role);
@@ -463,34 +463,74 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
       return;
     }
 
-    const permissions = ALL_MATRIX_PERMISSION_IDS.filter((permission) => action.source.permissions.has(permission));
-    await persistCreate(clonedRoleName(action.source), permissions);
+    await persistCreate(clonedRoleName(action.source), action.permissions);
   }
 
-  const pendingHighRiskLabels = useMemo(() => {
-    if (!pendingHighRisk)
-      return [];
+  const confirmationCopy = useMemo(() => {
+    if (!pendingConfirmation)
+      return null;
 
-    if (pendingHighRisk.kind === "save")
-      return highRiskPermissionLabels(pendingHighRisk.role.permissions, permissionLabelsById);
+    if (pendingConfirmation.kind === "save") {
+      const changes = permissionChangesForRole(pendingConfirmation.role, matrix.baseline);
+      const highRiskAdded = newlyGrantedHighRiskPermissionIds(pendingConfirmation.role, matrix.baseline);
 
-    if (pendingHighRisk.kind === "create")
-      return highRiskPermissionLabels(new Set(pendingHighRisk.permissions), permissionLabelsById);
+      return {
+        title: ROLES_MATRIX_CONFIRMATION_DIALOG.saveTitle,
+        primaryLabel: ROLES_MATRIX_CONFIRMATION_DIALOG.savePrimary,
+        addedLabels: permissionLabelsFromIds(changes.added, permissionLabelsById),
+        removedLabels: permissionLabelsFromIds(changes.removed, permissionLabelsById),
+        highRiskLabels: permissionLabelsFromIds(highRiskAdded, permissionLabelsById),
+      };
+    }
 
-    return highRiskPermissionLabels(actionSourcePermissions(pendingHighRisk.source), permissionLabelsById);
-  }, [pendingHighRisk, permissionLabelsById]);
+    if (pendingConfirmation.kind === "create") {
+      const highRiskAdded = newlyGrantedHighRiskPermissionIdsFromList(pendingConfirmation.permissions);
+
+      return {
+        title: ROLES_MATRIX_CONFIRMATION_DIALOG.createTitle,
+        primaryLabel: ROLES_MATRIX_CONFIRMATION_DIALOG.createPrimary,
+        addedLabels: [],
+        removedLabels: [],
+        highRiskLabels: permissionLabelsFromIds(highRiskAdded, permissionLabelsById),
+      };
+    }
+
+    const highRiskAdded = newlyGrantedHighRiskPermissionIdsFromList(pendingConfirmation.permissions);
+
+    return {
+      title: ROLES_MATRIX_CONFIRMATION_DIALOG.cloneTitle,
+      primaryLabel: ROLES_MATRIX_CONFIRMATION_DIALOG.clonePrimary,
+      addedLabels: [],
+      removedLabels: [],
+      highRiskLabels: permissionLabelsFromIds(highRiskAdded, permissionLabelsById),
+    };
+  }, [matrix.baseline, pendingConfirmation, permissionLabelsById]);
 
   if (loading)
     return <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading role matrix…</p>;
 
+  if (loadError) {
+    return (
+      <section data-testid="settings-roles-matrix" className="space-y-4">
+        <OperatorEmptyState
+          title="Role matrix unavailable"
+          description="Custom roles and permissions could not be loaded. Refresh to try again."
+        />
+        <div className="flex flex-wrap gap-2">
+          <Button type="button" variant="secondary" size="sm" onClick={() => void load()}>
+            Refresh
+          </Button>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <TooltipProvider>
-      <section data-testid="settings-roles-matrix" className="space-y-6">
+    <section data-testid="settings-roles-matrix" className="space-y-6">
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{ROLES_MATRIX_HELPER_COPY}</p>
 
         {hasUnsavedEdits ? (
           <p
-            role="status"
             data-testid="settings-roles-unsaved-notice"
             className={cn(
               "m-0 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-amber-900 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-100",
@@ -500,6 +540,14 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
             {unsavedRoleEditsNotice(unsavedRoleNames, unsavedChangeCount)}
           </p>
         ) : null}
+
+        <RolesMatrixCommandBar
+          dirtyRoleList={dirtyRoleList}
+          changeCount={unsavedChangeCount}
+          savingRoleId={savingRoleId}
+          onSaveRole={requestSaveRole}
+          onDiscardRole={discardRoleEdits}
+        />
 
         <div className="rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
           <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Create custom role</h3>
@@ -593,22 +641,17 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
             </Button>
           </div>
 
-          <RolesMatrixCommandBar
-            dirtyRoleList={dirtyRoleList}
-            changeCount={unsavedChangeCount}
-            savingRoleId={savingRoleId}
-            onSaveRole={requestSaveRole}
-            onDiscardRole={discardRoleEdits}
-          />
-
-          <div className="overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-800">
-            <table className={cn("w-full min-w-[48rem] table-auto border-collapse text-left", OPERATOR_TYPOGRAPHY.body)}>
-              <thead className="sticky top-0 z-30 bg-neutral-50 shadow-sm dark:bg-neutral-900/95">
+          <div className="max-h-[70vh] overflow-auto rounded-md border border-neutral-200 dark:border-neutral-800">
+            <table
+              aria-label="Role permissions matrix"
+              className={cn("w-full min-w-[48rem] table-auto border-collapse text-left", OPERATOR_TYPOGRAPHY.body)}
+            >
+              <thead className="sticky top-0 z-20 bg-neutral-50 shadow-sm dark:bg-neutral-900/95">
                 <tr>
                   <th
                     scope="col"
                     className={cn(
-                      "sticky left-0 z-40 min-w-[14rem] border-b border-neutral-200 bg-neutral-50 px-3 py-3 text-left font-semibold text-al-text-primary dark:border-neutral-800 dark:bg-neutral-900/95",
+                      "sticky left-0 top-0 z-30 min-w-[14rem] border-b border-neutral-200 bg-neutral-50 px-3 py-3 text-left font-semibold text-al-text-primary dark:border-neutral-800 dark:bg-neutral-900/95",
                       OPERATOR_TYPOGRAPHY.body,
                     )}
                   >
@@ -620,6 +663,7 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
                     const claimCaption = roleClaimCaption(role.name);
                     const isDirty = isRoleDirty(role, matrix.baseline);
                     const assignmentCount = props.assignmentCountsByRole?.get(role.name) ?? 0;
+                    const assignmentDisplay = formatRoleAssignmentDisplay(assignmentCount, assignmentCountsReliable);
                     const lastUpdated = formatRoleLastUpdated(role.updatedUtc);
 
                     return (
@@ -632,12 +676,7 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
                         )}
                       >
                         <div className="flex min-h-[5.5rem] flex-col items-center justify-start gap-1">
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className="line-clamp-2 text-center">{displayName}</span>
-                            </TooltipTrigger>
-                            <TooltipContent>{role.isSystem ? "Built-in role" : "Custom role"}</TooltipContent>
-                          </Tooltip>
+                          <span className="line-clamp-2 text-center">{displayName}</span>
                           <span className={cn("font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
                             {role.isSystem ? "Built-in role" : "Custom role"}
                           </span>
@@ -646,12 +685,18 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
                               {claimCaption}
                             </span>
                           ) : null}
-                          <Link
-                            href="/administration/users"
-                            className={cn("font-normal text-teal-700 underline underline-offset-2 dark:text-teal-300", OPERATOR_TYPOGRAPHY.micro)}
-                          >
-                            {formatRoleAssignmentCount(assignmentCount)}
-                          </Link>
+                          {assignmentDisplay.linkable ? (
+                            <Link
+                              href={SETTINGS_USERS_USERS_TAB_PATH}
+                              className={cn("font-normal text-teal-700 underline underline-offset-2 dark:text-teal-300", OPERATOR_TYPOGRAPHY.micro)}
+                            >
+                              {assignmentDisplay.text}
+                            </Link>
+                          ) : (
+                            <span className={cn("font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
+                              {assignmentDisplay.text}
+                            </span>
+                          )}
                           {!role.isSystem && lastUpdated !== null ? (
                             <span className={cn("font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
                               Last updated {lastUpdated}
@@ -742,7 +787,12 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
                                 OPERATOR_TYPOGRAPHY.body,
                               )}
                             >
-                              <div className="py-2 pr-2">{permission.label}</div>
+                              <div className="flex flex-wrap items-center gap-2 py-2 pr-2">
+                                <span>{permission.label}</span>
+                                {HIGH_RISK_PERMISSION_IDS.has(permission.id) ? (
+                                  <SeverityTag kind="high" label="High risk" className="shrink-0" />
+                                ) : null}
+                              </div>
                             </th>
                             {columns.map((role) => (
                               <td key={`${roleMatrixKey(role)}:${permission.id}`} className="p-0 text-center align-middle">
@@ -766,37 +816,55 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
           </div>
         </div>
 
-        <AlertDialog open={pendingHighRisk !== null} onOpenChange={(open) => !open && setPendingHighRisk(null)}>
+        <AlertDialog open={pendingConfirmation !== null} onOpenChange={(open) => !open && setPendingConfirmation(null)}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Grant high-risk permissions?</AlertDialogTitle>
+              <AlertDialogTitle>{confirmationCopy?.title ?? "Confirm role change?"}</AlertDialogTitle>
               <AlertDialogDescription asChild>
-                <div className="space-y-2">
-                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-                    This role includes sensitive workspace controls. Confirm only if the assignee should manage billing,
-                    tenants, identity providers, or the admin console.
-                  </p>
-                  {pendingHighRiskLabels.length > 0 ? (
-                    <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
-                      {pendingHighRiskLabels.map((label) => (
-                        <li key={label}>{label}</li>
-                      ))}
-                    </ul>
+                <div className="space-y-3">
+                  {confirmationCopy !== null && confirmationCopy.addedLabels.length > 0 ? (
+                    <div className="space-y-1">
+                      <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>Permissions to grant</p>
+                      <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
+                        {confirmationCopy.addedLabels.map((label) => (
+                          <li key={`add-${label}`}>{label}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+                  {confirmationCopy !== null && confirmationCopy.removedLabels.length > 0 ? (
+                    <div className="space-y-1">
+                      <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>Permissions to remove</p>
+                      <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
+                        {confirmationCopy.removedLabels.map((label) => (
+                          <li key={`remove-${label}`}>{label}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+                  {confirmationCopy !== null && confirmationCopy.highRiskLabels.length > 0 ? (
+                    <div className="space-y-1 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 dark:border-amber-700/60 dark:bg-amber-950/40">
+                      <p className={cn("m-0 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}>
+                        {ROLES_MATRIX_CONFIRMATION_DIALOG.highRiskLead}
+                      </p>
+                      <ul className={cn("m-0 list-disc space-y-1 pl-5 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}>
+                        {confirmationCopy.highRiskLabels.map((label) => (
+                          <li key={`high-risk-${label}`}>{label}</li>
+                        ))}
+                      </ul>
+                    </div>
                   ) : null}
                 </div>
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={() => void confirmHighRiskAction()}>Confirm custom role</AlertDialogAction>
+              <AlertDialogAction onClick={() => void confirmPendingAction()}>
+                {confirmationCopy?.primaryLabel ?? "Confirm"}
+              </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
       </section>
-    </TooltipProvider>
   );
-}
-
-function actionSourcePermissions(source: DraftRole): ReadonlySet<string> {
-  return new Set(ALL_MATRIX_PERMISSION_IDS.filter((permission) => source.permissions.has(permission)));
 }

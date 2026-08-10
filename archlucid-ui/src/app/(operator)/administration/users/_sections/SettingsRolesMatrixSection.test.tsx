@@ -114,7 +114,19 @@ describe("SettingsRolesMatrixSection", () => {
   });
 
   it("flags unsaved edits in the command bar and saves from there", async () => {
-    stubRolesResponse(rolesWithCustomColumn);
+    const fetchMock = vi.fn(async (input: RequestInfo) => {
+      const url = typeof input === "string" ? input : input.url;
+
+      if (url.includes("/api/proxy/v1/admin/roles/role-custom")) {
+        return new Response(null, { status: 200 });
+      }
+
+      return new Response(JSON.stringify(rolesWithCustomColumn), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    vi.stubGlobal("fetch", fetchMock);
 
     render(<SettingsRolesMatrixSection />);
 
@@ -132,6 +144,44 @@ describe("SettingsRolesMatrixSection", () => {
     fireEvent.click(screen.getByRole("button", { name: "Discard unsaved changes to Reviewer plus" }));
 
     expect(screen.queryByTestId("settings-roles-command-bar")).not.toBeInTheDocument();
+
+    vi.unstubAllGlobals();
+  });
+
+  it("shows load error state with refresh affordance", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(null, { status: 500 })),
+    );
+
+    render(<SettingsRolesMatrixSection />);
+
+    expect(await screen.findByText("Role matrix unavailable")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Refresh" })).toBeInTheDocument();
+    expect(screen.queryByTestId("settings-roles-matrix-legend")).not.toBeInTheDocument();
+
+    vi.unstubAllGlobals();
+  });
+
+  it("shows assignments unavailable when counts are unreliable", async () => {
+    stubRolesResponse(sampleRoles);
+
+    render(<SettingsRolesMatrixSection assignmentCountsReliable={false} />);
+
+    expect((await screen.findAllByText("Assignments unavailable")).length).toBeGreaterThan(0);
+    expect(screen.queryByText("2 assignments")).not.toBeInTheDocument();
+
+    vi.unstubAllGlobals();
+  });
+
+  it("marks high-risk permissions inline in the matrix", async () => {
+    stubRolesResponse(sampleRoles);
+
+    render(<SettingsRolesMatrixSection />);
+
+    await screen.findByRole("heading", { name: "Create custom role" });
+
+    expect(screen.getAllByText("High risk").length).toBeGreaterThan(0);
 
     vi.unstubAllGlobals();
   });
