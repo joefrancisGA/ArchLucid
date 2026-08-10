@@ -434,15 +434,19 @@ public sealed class PolicyPacksController(
 
     /// <summary>Reads one version including full <c>ContentJson</c>.</summary>
     /// <returns>404 when the pack or version is missing in the current scope.</returns>
-    [HttpGet("{policyPackId:guid}/versions/{version}")]
+    /// <remarks>
+    /// Route token is <c>packVersion</c> (not <c>version</c>) so it does not collide with the
+    /// controller API-version token <c>v{version:apiVersion}</c>.
+    /// </remarks>
+    [HttpGet("{policyPackId:guid}/versions/{packVersion}")]
     [ProducesResponseType(typeof(PolicyPackVersion), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetVersion(
         Guid policyPackId,
-        string version,
+        string packVersion,
         CancellationToken ct = default)
     {
-        if (string.IsNullOrWhiteSpace(version))
+        if (string.IsNullOrWhiteSpace(packVersion))
             return this.BadRequestProblem("Version is required.", ProblemTypes.ValidationFailed);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
@@ -456,7 +460,7 @@ public sealed class PolicyPacksController(
                 $"Policy pack '{policyPackId}' was not found in the current scope.",
                 ProblemTypes.ResourceNotFound);
 
-        string versionKey = version.Trim();
+        string versionKey = packVersion.Trim();
         PolicyPackVersion? row = await versionRepository.GetByPackAndVersionAsync(policyPackId, versionKey, ct);
 
         if (row is null)
