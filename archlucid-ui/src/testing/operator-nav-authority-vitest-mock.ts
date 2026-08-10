@@ -5,7 +5,7 @@ import {
   operatorNavOutsideProviderPrincipal,
   type CurrentPrincipal,
 } from "@/lib/current-principal";
-import { AUTHORITY_RANK, type AuthorityRankName } from "@/lib/nav-authority";
+import { AUTHORITY_RANK, requiredAuthorityFromRank } from "@/lib/nav-authority";
 
 export type OperatorNavAuthorityVitestMockOptions = {
   readonly callerAuthorityRank?: number;
@@ -13,18 +13,6 @@ export type OperatorNavAuthorityVitestMockOptions = {
   readonly isAuthorityLoading?: boolean;
   readonly currentPrincipal?: CurrentPrincipal;
 };
-
-function resolveMaxAuthority(rank: number): AuthorityRankName {
-  if (rank >= AUTHORITY_RANK.AdminAuthority) {
-    return "AdminAuthority";
-  }
-
-  if (rank >= AUTHORITY_RANK.ExecuteAuthority) {
-    return "ExecuteAuthority";
-  }
-
-  return "ReadAuthority";
-}
 
 function buildPrincipal(
   callerAuthorityRank: number,
@@ -38,7 +26,7 @@ function buildPrincipal(
   return {
     ...operatorNavOutsideProviderPrincipal,
     authorityRank: callerAuthorityRank,
-    maxAuthority: resolveMaxAuthority(callerAuthorityRank),
+    maxAuthority: requiredAuthorityFromRank(callerAuthorityRank),
     hasCommittedArchitectureReview,
   };
 }

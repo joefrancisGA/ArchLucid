@@ -835,7 +835,7 @@ export function deriveReviewHeaderPresentation(input: {
 
   return {
     h1Title: "Architecture under review",
-    eyebrowLabel: "Review package",
+    eyebrowLabel: "Architecture review",
     reviewIdentifierLabel: shortReviewId.length > 0 ? shortReviewId : runId,
   };
 }

@@ -43,7 +43,7 @@ describe("canonical-object-home-registry (TB-2153)", () => {
       findingId: "finding-xyz",
     });
 
-    expect(presentation.surfaceLabel).toBe("Review package findings");
+    expect(presentation.surfaceLabel).toBe("Architecture review findings");
     expect(presentation.homeHref).toBe(getFindingDetailHref("run-abc", "finding-xyz"));
     expect(presentation.homeActionLabel).toBe("finding record");
   });

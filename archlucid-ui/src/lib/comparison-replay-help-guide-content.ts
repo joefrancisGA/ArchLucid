@@ -24,7 +24,7 @@ export const COMPARISON_REPLAY_HELP_DECISION_PANEL_TITLE = "Choose your next ste
 export const COMPARISON_REPLAY_HELP_DECISION_COMPARE = {
   title: "Compare two reviews",
   summary:
-    "Pick two finalized architecture packages and generate a delta narrative for sponsors, reviewers, or governance.",
+    "Pick two finalized signed review records and generate a delta narrative for sponsors, reviewers, or governance.",
 } as const;
 
 export const COMPARISON_REPLAY_HELP_DECISION_VALIDATE = {
@@ -38,7 +38,7 @@ export const COMPARISON_REPLAY_HELP_DIAGRAM_SOURCE = `flowchart TD
   START([What do you need?])
   START --> Q1{Do you have a saved comparison record to regenerate or re-export?}
   Q1 -->|Yes| Q2{Need drift verification against the stored record?}
-  Q1 -->|No| Q3{Need a delta narrative between two architecture packages?}
+  Q1 -->|No| Q3{Need a delta narrative between two signed review records?}
   Q2 -->|Yes| VFY[Replay with verify]
   Q2 -->|No| RPL[Replay saved comparison]
   Q3 -->|Yes| CMP[Compare two reviews]
