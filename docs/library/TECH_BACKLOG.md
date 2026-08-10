@@ -457,7 +457,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 
 **TB-1761 ? TB-1765** were added 2026-07-27 from an **owner review of AWS cloud connection detail** at `/integrations/cloud-connections/aws` (~44/100; traffic **INC**). Strengths: shared provider layout + security preflight; federated IAM form (no long-lived keys); StatusTag + capability gates; help deep-link; **Done** **TB-1762** live Validate + Recent activity panels (`AwsConnectionDataContext`, validate/activity panels); **Done** **TB-1763** operator-safe collection copy (no Tier/hosted-poll jargon); **Done** **TB-1765** copyable IAM trust-policy starter (pairs help **TB-1237**). Hub UX remains open **TB-1139**?**TB-1143**; AWS help remains open **TB-1234**?**TB-1238** ? do not reopen; do not reopen Done **TB-720**. Residual on this detail route: flat form vs Azure Tier2 wizard; thinner empty/connected CTA hierarchy. IDs skip IAZ **TB-1756**?**TB-1760**. No new GTM IDs.
 
-**TB-1766 ? TB-1770** were added 2026-07-27 from an **owner review of Azure cloud connection detail** at `/integrations/cloud-connections/azure` (~72/100; traffic **INZ**). Strengths: guided `Tier2ConnectionWizard` (reference for open AWS **TB-1761**); copyable Azure CLI setup; live save + hosted validation; federated no-secrets posture; shared preflight layout. Hub **TB-1139**?**TB-1143**, AWS detail **TB-1761**?**TB-1765**, help **TB-1626**?**TB-1630** stay open ? do not reopen; do not reopen Done **TB-720**/**TB-623**. Residual polish: **Done** **TB-1766** operator-safe collection copy (no Tier/hosted-poll jargon); layout Validate / Recent activity helper stubs (real validate lives in wizard); page-help may land on azure-permissions vs Connect Azure securely; weak hydrate/list/disconnect for existing connections; long scroll density. IDs skip INC **TB-1761**?**TB-1765**. No new GTM IDs.
+**TB-1766 ? TB-1770** were added 2026-07-27 from an **owner review of Azure cloud connection detail** at `/integrations/cloud-connections/azure` (~72/100; traffic **INZ**). Strengths: guided `Tier2ConnectionWizard` (reference for open AWS **TB-1761**); copyable Azure CLI setup; live save + hosted validation; federated no-secrets posture; shared preflight layout. Hub **TB-1139**?**TB-1143**, AWS detail **TB-1761**?**TB-1765**, help **TB-1626**?**TB-1630** stay open ? do not reopen; do not reopen Done **TB-720**/**TB-623**. Residual polish: **Done** **TB-1766** operator-safe collection copy (no Tier/hosted-poll jargon); **Done** **TB-1767** live Validate + Recent activity panels (`AzureConnectionDataContext`, validate/activity panels); page-help may land on azure-permissions vs Connect Azure securely; weak hydrate/list/disconnect for existing connections; long scroll density. IDs skip INC **TB-1761**?**TB-1765**. No new GTM IDs.
 
 **TB-1771 ? TB-1775** were added 2026-07-27 from an **owner review of GCP cloud connection detail** at `/integrations/cloud-connections/gcp` (~44/100; traffic **IGC**). Strengths: live WIF + Cloud Asset Inventory configure/list/re-poll/disconnect; shared detail layout + security preflight; help deep-link to `/help/cloud-connections/gcp`; connected list with last polled; **Done** **TB-1774** operator-safe collection copy (no Tier/hosted-poll jargon); **Done** **TB-1775** copyable WIF pool-provider starter (pairs help **TB-1242**); **Done** **TB-1773** live Validate + Recent activity panels (`GcpConnectionDataContext`, validate/activity panels). Hub **TB-1139**?**TB-1143** (incl. **TB-1140** hub Preview chip), AWS **TB-1761**?**TB-1765**, Azure **TB-1766**?**TB-1770**, help **TB-1239**?**TB-1243** stay open ? do not reopen. Residual on this detail: still says Preview connector / in preview; flat form vs Azure wizard. IDs skip INZ **TB-1766**?**TB-1770**. No new GTM IDs.
 
@@ -780,7 +780,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1763 | **Done** (2026-08-10) — AWS cloud detail Tier/hosted-poll jargon purge; `AWS_CLOUD_CONNECTION_BANNED_COPY`; Vitest; see ## TB-1763 below | Trustworthiness P1 ? **V1**; with **TB-1761**; pairs **TB-1235** | S |
 | TB-1765 | **Done** (2026-08-10) — AWS cloud detail copyable IAM trust-policy starter; `aws-cloud-connection-trust-policy-starter.ts` + `AwsTrustPolicyStarterPanel`; Vitest; see ## TB-1765 below | Trustworthiness P1 ? **V1**; with **TB-1761**; pairs **TB-1237** | M |
 | TB-1766 | **Done** (2026-08-10) — Azure cloud detail Tier/hosted-pull jargon purge; `azure-cloud-connection-copy.ts`; Vitest; see ## TB-1766 below | Trustworthiness P1 ? **V1**; owner review ~72/100 2026-07-27; traffic **INZ**; pairs **TB-1235**/**TB-1763** | S |
-| TB-1767 | Azure cloud detail ? collapse or wire Validate + Recent activity stubs; see ## TB-1767 below | Trustworthiness P1 ? **V1**; with **TB-1766**; pairs **TB-1762** | S |
+| TB-1767 | **Done** (2026-08-10) — Azure cloud detail live Validate + Recent activity panels; `AzureConnectionDataContext`, validate/activity panels; Vitest; see ## TB-1767 below | Trustworthiness P1 ? **V1**; with **TB-1766**; pairs **TB-1762** | S |
 | TB-1773 | GCP cloud detail ? live Validate + Recent activity (or collapse stubs); see ## TB-1773 below | Trustworthiness P1 ? **V1**; with **TB-1771**; pairs **TB-1762**/**TB-1767** | M |
 | TB-1774 | **Done** (2026-08-10) — GCP cloud detail Tier 2 / hosted-poll jargon purge; `gcp-cloud-connection-copy.ts`; Vitest; see ## TB-1774 below | Trustworthiness P1 ? **V1**; with **TB-1771**; pairs **TB-1235**/**TB-1763** | S |
 | TB-1775 | **Done** (2026-08-10) — GCP cloud detail copyable WIF pool-provider starter; `gcp-cloud-connection-wif-starter.ts` + `GcpWifStarterPanel`; Vitest; see ## TB-1775 below | Trustworthiness P1 ? **V1**; with **TB-1771**; pairs **TB-1242**/**TB-1765** | M |
@@ -794,14 +794,14 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1802 | ~~`/onboarding/start` — robots/noindex + metadata honesty~~ **Done** 2026-08-10 — `LEGACY_ONBOARDING_START_ROUTE_METADATA` noindex + Vitest; see ## TB-1802 below | Trustworthiness P1 — **V1**; with **TB-1801**; pairs **TB-1797** | XS |
 | TB-1803 | ~~Canonicalize inbound `/onboarding/start` → `/onboarding`~~ **Done** 2026-08-10 — contributor doc guard + canonical `/architecture/first-review-guide`; see ## TB-1803 below | Trustworthiness P1 — **V1**; with **TB-1801**; pairs **TB-1799** | S |
 | TB-1804 | ~~Drop `/onboarding/start` from marketing SEO inventory (keep shim)~~ **Done** 2026-08-10 — robots disallow + sitemap exclusion Vitest; see ## TB-1804 below | Trustworthiness P1 — **V1**; with **TB-1801**; pairs **TB-1800** | S |
-| TB-1807 | `/operate/architecture-graph` ? robots/noindex + metadata honesty; see ## TB-1807 below | Trustworthiness P1 ? **V1**; with **TB-1806** | XS |
+| TB-1807 | ~~`/operate/architecture-graph` — robots/noindex + metadata honesty~~ **Done** 2026-08-10 — `LEGACY_ARCHITECTURE_GRAPH_ROUTE_METADATA` noindex + SEO Vitest; see ## TB-1807 below | Trustworthiness P1 — **V1**; with **TB-1806** | XS |
 | TB-1809 | ~~Canonicalize inbound `/operate/architecture-graph` → `/insights/evidence-graph`~~ **Done** 2026-08-10 — contributor doc guard + IA canonical path; see ## TB-1809 below | Trustworthiness P1 — **V1**; with **TB-1806** | S |
 | TB-1811 | ~~`/patterns/[patternKey]` detail provenance parity with library hub~~ **Done** 2026-08-10 — `usePatternLibraryProvenance` shared hook + detail notice/privacy; see ## TB-1811 below | Trustworthiness P1 — **V1**; owner review ~48/100 2026-07-27; traffic **PAP**; do not reopen **TB-880** | M |
 | TB-1813 | ~~`/patterns/[patternKey]` — related policy rules honesty / deep links~~ **Done** 2026-08-10 — `PatternLibraryPolicyGuidance` + stable `/governance/policy-packs` hub link; see ## TB-1813 below | Trustworthiness P1 — **V1**; with **TB-1811** | M |
 | TB-1818 | ~~`/quick-start` — robots/noindex honesty if shim page retained~~ **Done** 2026-08-10 — `LEGACY_QUICK_START_ROUTE_METADATA` noindex + Vitest; see ## TB-1818 below | Trustworthiness P1 — **V1**; with **TB-1816** | XS |
 | TB-1819 | ~~Drop residual `/quick-start` product/docs pointers (API demos OK)~~ **Done** 2026-08-10 — contributor doc guard + canonical `/get-started`; see ## TB-1819 below | Trustworthiness P1 — **V1**; with **TB-1816** | S |
 | TB-1831 | ~~Traffic honesty — `archTab=activity` is create-home only (not `reviewTab`)~~ **Done** 2026-08-10 — REA create-home-only notes + Vitest; see ## TB-1831 below | Trustworthiness P1 — **V1**; owner review ~42/100 2026-07-27; traffic **REA** | S |
-| TB-1833 | `buildArchitectureWorkspaceTabHref` must not force create-intent query; see ## TB-1833 below | Trustworthiness P1 ? **V1**; with **TB-1831**; siblings **REC**?**REO** | S |
+| TB-1833 | ~~`buildArchitectureWorkspaceTabHref` must not force create-intent query~~ **Done** 2026-08-10 — tab hrefs default to `archTab` only; opt-in `includeCreateIntent`; see ## TB-1833 below | Trustworthiness P1 — **V1**; with **TB-1831**; siblings **REC**?**REO** | S |
 | TB-1836 | Traffic honesty ? `archTab=clarifications` create-home only; see ## TB-1836 below | Trustworthiness P1 ? **V1**; owner review ~44/100 2026-07-27; traffic **REC**; pairs **TB-1831** | S |
 | TB-1841 | Traffic honesty ? `archTab=diagram` create-home only; see ## TB-1841 below | Trustworthiness P1 ? **V1**; owner review ~50/100 2026-07-27; traffic **RED**; pairs **TB-1831** | S |
 | TB-1844 | Diagram Mermaid/source disclosure honesty for buyer shell; see ## TB-1844 below | Trustworthiness P1 ? **V1**; with **TB-1841** | S |
@@ -42965,11 +42965,11 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1767 ? Azure cloud detail ? collapse or wire Validate + Recent activity stubs (P0)
 
-**Window:** V1 ? Trustworthiness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Trustworthiness. **Status:** **Done** (2026-08-10). **Priority:** P0.
 
 **Problem:** Shared layout Validate / Recent activity helpers look interactive while real validation is inside the wizard ? stub theater.
 
-**Approach:** Remove stubs, collapse sections, or wire live probes consistent with wizard validate. Vitest: no stub-only helpers in primary chrome. Pairs **TB-1762**.
+**Shipped:** `AzureConnectionDataContext` + `AzureConnectionValidatePanel` + `AzureConnectionRecentActivityPanel` wired on `/integrations/cloud-connections/azure`; wizard save refreshes connection list; Vitest live-panel guards. Pairs **TB-1762**.
 
 **Acceptance:** No fake Validate/Activity on Azure detail. **Size estimate:** S.
 
@@ -43367,13 +43367,15 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ---
 
-## TB-1799 ? Canonicalize inbound `/onboard` ? `/onboarding` (nav/docs) (P0)
+## TB-1799 — Canonicalize inbound `/onboard` → `/onboarding` (nav/docs) (P0)
 
-**Window:** V1 ? Trustworthiness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 — Trustworthiness. **Status:** **Done** (2026-08-10) — contributor docs canonicalize `/architecture/first-review-guide`; Vitest `legacy-onboard-route-doc-guard.test.ts`; `ui_routes.md` + traffic note updated. **Priority:** P0.
 
 **Problem:** Nav/docs/help may still emit `/onboard` as the start URL.
 
 **Approach:** Prefer `/onboarding` everywhere product-facing; keep shim for bookmarks. Vitest/docs grep.
+
+**Shipped:** Doc guard fails on unlabeled `/onboard` path references in contributor docs; canonical first-review-guide path asserted in tests.
 
 **Acceptance:** Inbound links use canonical onboarding. **Size estimate:** S.
 
@@ -43475,13 +43477,15 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ---
 
-## TB-1807 ? `/operate/architecture-graph` ? robots/noindex + metadata honesty (P0)
+## TB-1807 — `/operate/architecture-graph` — robots/noindex + metadata honesty (P0)
 
-**Window:** V1 ? Trustworthiness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 — Trustworthiness. **Status:** **Done** (2026-08-10) — `LEGACY_ARCHITECTURE_GRAPH_ROUTE_METADATA` sets `robots: { index: false, follow: false }` with redirect-only title/description naming `/insights/evidence-graph`; Vitest `legacy-architecture-graph-route-metadata.test.ts` + `legacy-architecture-graph-route-seo.test.ts`. **Priority:** P0.
 
 **Problem:** Legacy Operate URL may be indexed as a distinct graph product page.
 
 **Approach:** noindex / metadata stating redirect shim to `/graph`. Vitest: metadata assert.
+
+**Shipped:** Metadata constant documents redirect-only shim to canonical evidence graph; Vitest asserts noindex and SEO inventory exclusion.
 
 **Acceptance:** Shim is not a discoverable second graph surface. **Size estimate:** XS.
 

@@ -1,4 +1,4 @@
-/** Operator-facing copy for `/integrations/cloud-connections/azure` (TB-1766). */
+/** Operator-facing copy for `/integrations/cloud-connections/azure` (TB-1766, TB-1767). */
 
 export const AZURE_CLOUD_CONNECTION_BANNED_COPY = [
   "Evidence tier",
@@ -15,11 +15,21 @@ export const AZURE_CLOUD_CONNECTION_BANNED_COPY = [
   "hosted collection",
 ] as const;
 
-export const AZURE_CONNECTION_VALIDATE_HELPER =
-  "After saving, run Validate connection from the Save & validate step to confirm federated credentials and read-only access.";
+export const AZURE_CONNECTION_LOAD_FAILED_ERROR =
+  "Could not load Azure connections. Check your permissions and try again.";
 
-export const AZURE_CONNECTION_RECENT_ACTIVITY_LEAD =
-  "Recent collection activity appears after validation.";
+export const AZURE_CONNECTION_VALIDATE_EMPTY_STATE =
+  "Save an Azure connection in Connection details before validating access.";
+
+export const AZURE_CONNECTION_RECENT_ACTIVITY_EMPTY_STATE =
+  "No collection activity yet. Save a connection and run Validate connection to import inventory.";
+
+export function formatAzureConnectionValidationSuccessMessage(
+  resourceCount: number,
+  packageId: string,
+): string {
+  return `Validation completed (${resourceCount} resources imported as package ${packageId}).`;
+}
 
 export const AZURE_CONNECTION_SAVE_VALIDATE_LEAD =
   "Persist the connection for scheduled read-only inventory collection, then optionally validate access against the first subscription ID.";

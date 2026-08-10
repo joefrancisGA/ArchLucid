@@ -6,6 +6,14 @@ vi.mock("./Tier2ConnectionWizard", () => ({
   Tier2ConnectionWizard: () => <div data-testid="tier2-connection-wizard-stub" />,
 }));
 
+vi.mock("./AzureConnectionValidatePanel", () => ({
+  AzureConnectionValidatePanel: () => <div data-testid="azure-connection-validate-panel" />,
+}));
+
+vi.mock("./AzureConnectionRecentActivityPanel", () => ({
+  AzureConnectionRecentActivityPanel: () => <div data-testid="azure-connection-recent-activity-panel" />,
+}));
+
 vi.mock("./CloudSecurityPreflightPanel", () => ({
   CloudSecurityPreflightPanel: () => <div data-testid="azure-preflight-stub" />,
   CloudSecurityPreflightTechnicalDetails: ({ children }: { children: ReactNode }) => (
@@ -17,6 +25,14 @@ import { AzureCloudConnectionDetailClient } from "./AzureCloudConnectionDetailCl
 import { AZURE_CLOUD_CONNECTION_BANNED_COPY } from "@/lib/azure-cloud-connection-copy";
 
 describe("AzureCloudConnectionDetailClient", () => {
+  it("mounts live Validate and Recent activity panels instead of static stubs (TB-1767)", () => {
+    render(<AzureCloudConnectionDetailClient />);
+
+    expect(screen.getByTestId("azure-connection-validate-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("azure-connection-recent-activity-panel")).toBeInTheDocument();
+    expect(screen.queryByText(/Recent collection activity appears after validation/i)).not.toBeInTheDocument();
+  });
+
   it("does not surface Tier/hosted-pull jargon on the Azure product surface (TB-1766)", () => {
     render(<AzureCloudConnectionDetailClient />);
 
