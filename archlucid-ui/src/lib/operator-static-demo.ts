@@ -1551,6 +1551,10 @@ export function tryStaticDemoGovernanceApprovalLineage(approvalRequestId: string
       decisionCount: 12,
       unresolvedIssueCount: 0,
       complianceGapCount: 0,
+      signedBy: "Taylor Morgan",
+      signedUtc: "2026-01-14T22:00:00.000Z",
+      verificationStatus: "Verified",
+      recordDigest: "sha256-demo-7f91c4aab3…",
     },
     topFindings: [
       {

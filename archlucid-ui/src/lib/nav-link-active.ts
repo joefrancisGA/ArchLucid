@@ -32,5 +32,12 @@ export function isNavLinkActive(pathname: string, href: string): boolean {
     return pathname === "/administration/tenant";
   }
 
+  if (pathPart === "/governance/approval-queue") {
+    return (
+      pathname === "/governance/approval-queue" ||
+      pathname.startsWith("/governance/approval-requests/")
+    );
+  }
+
   return pathname === pathPart || pathname.startsWith(`${pathPart}/`);
 }

@@ -38,4 +38,11 @@ describe("isNavLinkActive", () => {
     expect(isNavLinkActive("/administration/tenant/recycle-bin", "/administration/tenant")).toBe(false);
     expect(isNavLinkActive("/administration/tenant/recycle-bin", "/administration/tenant/recycle-bin")).toBe(true);
   });
+
+  it("highlights approval queue when viewing approval lineage detail", () => {
+    expect(
+      isNavLinkActive("/governance/approval-requests/claims-intake-approval-001/lineage", "/governance/approval-queue"),
+    ).toBe(true);
+    expect(isNavLinkActive("/governance/policy-packs", "/governance/approval-queue")).toBe(false);
+  });
 });

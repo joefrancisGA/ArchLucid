@@ -40,4 +40,15 @@ describe("findSidebarNavGroupIdsForActivePath", () => {
 
     expect(findSidebarNavGroupIdsForActivePath(rows, "/governance/advisory-scans")).toEqual(["operate-governance"]);
   });
+
+  it("returns governance when approval lineage detail is active", () => {
+    const rows = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, true, true, 3, false, "all", true);
+
+    expect(
+      findSidebarNavGroupIdsForActivePath(
+        rows,
+        "/governance/approval-requests/claims-intake-approval-001/lineage",
+      ),
+    ).toEqual(["operate-governance"]);
+  });
 });

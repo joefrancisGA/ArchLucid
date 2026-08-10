@@ -3,11 +3,9 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { getShowcaseWalkthroughHref } from "@/lib/buyer-safe-review-navigation";
-
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+import { OperatorPageBreadcrumb } from "@/components/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -16,17 +14,31 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Separator } from "@/components/ui/separator";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance-route-paths";
-import { formatInstantForBuyerGovernance } from "@/lib/locale-datetime";
+import { SeverityTag } from "@/components/ui/severity-tag";
+import { StatusTag } from "@/components/ui/status-tag";
 import {
-  formatGovernanceLineageCompletenessPercent,
-  formatGovernanceLineageWholeCount,
-} from "@/lib/governance-lineage-metric-format";
-import type { GovernanceLineageResult } from "@/types/governance-dashboard";
+  PAGE_HELP_SHORT_TRIGGER_TEXT,
+  PageContextualHelpButton,
+} from "@/components/usability/PageContextualHelpButton";
+import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
+import { getFindingDetailHref } from "@/lib/finding-evidence-navigation";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance-route-paths";
+import {
+  buildGovernanceLineageManifestMetricFields,
+  governanceApprovalRequestParentHref,
+  governanceApprovalStatusTagPresentation,
+  governanceLineageVerificationStatusTagPresentation,
+  governanceRiskPostureStatusTagPresentation,
+} from "@/lib/governance-lineage-presentation";
+import { formatInstantForBuyerGovernance } from "@/lib/locale-datetime";
+import { formatGovernanceLineageCompletenessPercent } from "@/lib/governance-lineage-metric-format";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import type { GovernanceLineageResult } from "@/types/governance-dashboard";
 
+import { GovernanceApprovalLineageSpine } from "./GovernanceApprovalLineageSpine";
 import { governanceLineageApprovalDisplayTitle } from "./governance-lineage-approval-display-title";
 
 type GovernanceApprovalLineageDetailContentProps = {
@@ -36,6 +48,18 @@ type GovernanceApprovalLineageDetailContentProps = {
 export function GovernanceApprovalLineageDetailContent({ data }: GovernanceApprovalLineageDetailContentProps) {
   const a = data.approvalRequest;
   const displayApprovalTitle = governanceLineageApprovalDisplayTitle(a.requestComment);
+  const approvalStatus = governanceApprovalStatusTagPresentation(a.status);
+  const riskPostureStatus = data.riskPosture
+    ? governanceRiskPostureStatusTagPresentation(data.riskPosture)
+    : null;
+  const approvalParentHref = governanceApprovalRequestParentHref(a.runId);
+  const reviewHref = `/architecture/reviews/${encodeURIComponent(a.runId)}`;
+  const manifestMetricFields = data.manifest
+    ? buildGovernanceLineageManifestMetricFields({ manifest: data.manifest, runId: a.runId })
+    : [];
+  const verificationStatus = data.manifest?.verificationStatus
+    ? governanceLineageVerificationStatusTagPresentation(data.manifest.verificationStatus)
+    : null;
 
   return (
     <div className="space-y-6">
@@ -44,17 +68,37 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
         title="Approval lineage"
         subtitle={displayApprovalTitle}
         titleTestId="approval-lineage-page-title"
+        breadcrumb={
+          <OperatorPageBreadcrumb
+            data-testid="approval-lineage-page-breadcrumb"
+            items={[
+              {
+                label: OPERATOR_NAV_GROUP_LABELS.governance,
+                href: GOVERNANCE_APPROVAL_QUEUE_PATH,
+              },
+              {
+                label: OPERATOR_NAV_LINK_LABELS.governanceWorkflow,
+                href: GOVERNANCE_APPROVAL_QUEUE_PATH,
+              },
+              {
+                label: "Approval lineage",
+              },
+            ]}
+          />
+        }
         actions={
           <div className="flex flex-wrap items-center gap-2">
-            <PageContextualHelpButton />
-            {/* Returns to the curated showcase walkthrough, not the breadcrumb parent (approval request detail). */}
+            <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
             <Button variant="outline" size="sm" asChild>
-              <Link href={getShowcaseWalkthroughHref()}>Back to governance approval</Link>
+              <Link href={approvalParentHref}>Back to approval request</Link>
             </Button>
           </div>
         }
       />
-<Card>
+
+      <GovernanceApprovalLineageSpine data={data} />
+
+      <Card>
         <CardHeader>
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Approval</CardTitle>
           <CardDescription>Status and reviewer context</CardDescription>
@@ -62,27 +106,20 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
         <CardContent className={cn("grid gap-2", OPERATOR_TYPOGRAPHY.body)}>
           <div className="flex flex-wrap items-center gap-2">
             <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Status</span>
-            <Badge variant="secondary">{a.status}</Badge>
-            {data.riskPosture ? (
+            <StatusTag kind={approvalStatus.kind} label={approvalStatus.label} />
+            {riskPostureStatus ? (
               <>
                 <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Risk posture</span>
-                <Badge variant="outline">{data.riskPosture}</Badge>
+                <StatusTag kind={riskPostureStatus.kind} label={riskPostureStatus.label} />
               </>
             ) : null}
           </div>
           <div>
             <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Review</span>{" "}
-            <Link
-              className={OPERATOR_LINK.inline}
-              href={`/architecture/reviews/${encodeURIComponent(a.runId)}`}
-            >
-              Open →
+            <Link className={OPERATOR_LINK.inline} href={reviewHref}>
+              Open architecture review
+              <span className="sr-only"> ({a.runId})</span>
             </Link>
-            <span className="sr-only"> ({a.runId})</span>
-          </div>
-          <div>
-            <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Signed review record version</span>{" "}
-            <span className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{a.manifestVersion}</span>
           </div>
           <div className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Requested {formatInstantForBuyerGovernance(a.requestedUtc)} by {a.requestedBy}
@@ -100,17 +137,23 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
       {data.run ? (
         <Card>
           <CardHeader>
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Architecture review checkpoint</CardTitle>
-          <CardDescription>Status and completion record</CardDescription>
+            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Architecture review checkpoint</CardTitle>
+            <CardDescription>Status and completion record</CardDescription>
           </CardHeader>
-          <CardContent className={OPERATOR_TYPOGRAPHY.body}>
-            <div>Status {data.run.status}</div>
-            <div>Created {formatInstantForBuyerGovernance(data.run.createdUtc)}</div>
+          <CardContent className={cn("grid gap-1", OPERATOR_TYPOGRAPHY.body)}>
+            <div>
+              <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Status</span>{" "}
+              {data.run.status}
+            </div>
+            <div>
+              <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Created</span>{" "}
+              {formatInstantForBuyerGovernance(data.run.createdUtc)}
+            </div>
             {data.run.completedUtc ? (
-              <div>Completed {formatInstantForBuyerGovernance(data.run.completedUtc)}</div>
-            ) : null}
-            {data.run.currentManifestVersion ? (
-              <div>Current review version {data.run.currentManifestVersion}</div>
+              <div>
+                <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Completed</span>{" "}
+                {formatInstantForBuyerGovernance(data.run.completedUtc)}
+              </div>
             ) : null}
           </CardContent>
         </Card>
@@ -122,11 +165,46 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
             <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Signed review record</CardTitle>
             <CardDescription>Signed review record associated with this approval</CardDescription>
           </CardHeader>
-          <CardContent className={cn("grid gap-1", OPERATOR_TYPOGRAPHY.body)}>
-            <div>Version {data.manifest.manifestVersion ?? "—"}</div>
-            <div>Decisions {formatGovernanceLineageWholeCount(data.manifest.decisionCount)}</div>
-            <div>Unresolved issues {formatGovernanceLineageWholeCount(data.manifest.unresolvedIssueCount)}</div>
-            <div>Unresolved findings {formatGovernanceLineageWholeCount(data.manifest.unresolvedIssueCount)}</div>
+          <CardContent className={cn("grid gap-3", OPERATOR_TYPOGRAPHY.body)}>
+            {verificationStatus ? (
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Verification</span>
+                <StatusTag kind={verificationStatus.kind} label={verificationStatus.label} />
+              </div>
+            ) : null}
+            {data.manifest.signedBy ? (
+              <div className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                Signed by {data.manifest.signedBy}
+                {data.manifest.signedUtc
+                  ? ` · ${formatInstantForBuyerGovernance(data.manifest.signedUtc)}`
+                  : null}
+              </div>
+            ) : null}
+            <dl className="m-0 grid gap-2">
+              {manifestMetricFields.map((field) => (
+                <div key={field.manifestProperty} className="grid gap-0.5">
+                  <dt className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{field.label}</dt>
+                  <dd className="m-0">
+                    <SelfDescribingMetricCount
+                      presentation={field.presentation}
+                      testId={`approval-lineage-manifest-${field.manifestProperty}`}
+                      variant="inline"
+                    />
+                  </dd>
+                </div>
+              ))}
+            </dl>
+            {data.manifest.recordDigest ? (
+              <CollapsibleSection
+                title="Record digest"
+                defaultOpen={false}
+                sectionTestId="approval-lineage-record-digest"
+              >
+                <p className={cn("m-0 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
+                  {data.manifest.recordDigest}
+                </p>
+              </CollapsibleSection>
+            ) : null}
           </CardContent>
         </Card>
       ) : null}
@@ -145,14 +223,21 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
             </OperatorEmptyState>
           ) : (
             <ul className={cn("space-y-2", OPERATOR_TYPOGRAPHY.body)}>
-              {data.topFindings.map((f) => (
-                <li key={f.findingId} className="rounded-md border p-2">
+              {data.topFindings.map((finding) => (
+                <li key={finding.findingId} className="rounded-md border p-2">
                   <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="outline">{f.severity}</Badge>
-                    <span className="font-medium">{f.title}</span>
+                    <SeverityTag severity={finding.severity} />
+                    <Link
+                      className={cn("font-medium", OPERATOR_LINK.inline)}
+                      href={getFindingDetailHref(a.runId, finding.findingId)}
+                      aria-label={`Open finding: ${finding.title}`}
+                    >
+                      {finding.title}
+                    </Link>
                   </div>
                   <div className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
-                    {f.engineType} · trace completeness {formatGovernanceLineageCompletenessPercent(f.traceCompletenessRatio)}
+                    {finding.engineType} · trace completeness{" "}
+                    {formatGovernanceLineageCompletenessPercent(finding.traceCompletenessRatio)}
                   </div>
                 </li>
               ))}
@@ -171,14 +256,14 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
             <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No promotion records.</p>
           ) : (
             <ul className={cn("space-y-2", OPERATOR_TYPOGRAPHY.body)}>
-              {data.promotions.map((p) => (
-                <li key={p.promotionRecordId} className="rounded-md border p-2">
+              {data.promotions.map((promotion) => (
+                <li key={promotion.promotionRecordId} className="rounded-md border p-2">
                   <div className="font-medium">
-                    Signed review record <span className="font-mono">{p.manifestVersion}</span>
+                    Promoted {formatInstantForBuyerGovernance(promotion.promotedUtc)} · {promotion.promotedBy}
                   </div>
-                  <div className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
-                    {formatInstantForBuyerGovernance(p.promotedUtc)} · {p.promotedBy}
-                  </div>
+                  {promotion.notes ? (
+                    <div className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>{promotion.notes}</div>
+                  ) : null}
                 </li>
               ))}
             </ul>
