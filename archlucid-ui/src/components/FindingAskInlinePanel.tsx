@@ -10,6 +10,7 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { AskVsFrontierAiDifferentiationStrip } from "@/components/ask/AskVsFrontierAiDifferentiationStrip";
 import { BUYER_ASK_GROUNDING_ONCE } from "@/lib/buyer-polish-copy";
 import { askAboutFinding } from "@/lib/api/finding-ask-api";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -83,6 +84,7 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
   return (
     <CollapsibleSection title="Ask about this finding" defaultOpen={props.defaultOpen === true}>
       <div className="finding-ask-inline-panel space-y-4">
+          <AskVsFrontierAiDifferentiationStrip variant="compact" />
           {isBuyerPolishedOperatorShellEnv() ? (
             <p className={cn("m-0 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{BUYER_ASK_GROUNDING_ONCE}</p>
           ) : null}

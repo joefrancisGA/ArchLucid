@@ -25,6 +25,7 @@ import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { ConversationMessage, ConversationThread } from "@/types/conversation";
 import { AskMainPanel } from "@/app/(operator)/insights/ask-review-questions/_sections/AskMainPanel";
 import { AskNoReviewEmptyState } from "@/app/(operator)/insights/ask-review-questions/_sections/AskNoReviewEmptyState";
+import { AskVsFrontierAiDifferentiationStrip } from "@/components/ask/AskVsFrontierAiDifferentiationStrip";
 import { AskThreadHistoryPanel } from "@/app/(operator)/insights/ask-review-questions/_sections/AskThreadHistoryPanel";
 const ASK_PAGE_SUBTITLE =
   "Ask questions about a finalized review. Answers use the signed review record and cite evidence when available.";
@@ -427,6 +428,7 @@ export function AskPageContent() {
         subtitle={buyerPolishedShell ? BUYER_ASK_PAGE_HERO : ASK_PAGE_SUBTITLE}
         actions={<PageContextualHelpButton />}
       />
+      <AskVsFrontierAiDifferentiationStrip />
 {listFailure !== null ? (
         <div role="alert" className="mb-4">
           <OperatorApiProblem
