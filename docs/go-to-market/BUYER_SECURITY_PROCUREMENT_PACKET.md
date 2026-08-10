@@ -2797,7 +2797,7 @@ Do not sell “fully offline ManifestHash verify forever,” equate Art. 20 ZIP/
 
 ### Residuals (honest)
 
-- **TB-1488** / **TB-1489** own the portability map and language guards.
+- **TB-1488** **Done** (2026-08-10) — engineering portability map [`../library/OFFLINE_VERIFIABLE_EXPORT_PORTABILITY.md`](../library/OFFLINE_VERIFIABLE_EXPORT_PORTABILITY.md). **TB-1489** owns language guards CI.
 - Complements **M-160** / **M-198** / **M-265**; open **TB-886** (surface verify in buyer materials) remains separate.
 - Does not reopen Done **TB-307** / ADR 0040.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.

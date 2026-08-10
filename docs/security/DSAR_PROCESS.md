@@ -139,6 +139,8 @@ WHERE ActorUserId = @SubjectUserId;
 
 **Formats supported:** JSON, CSV.
 
+**Honesty pin (not lineage-complete):** Art. 20 exports are structured machine-readable portability — not the same as commit-audit **ManifestHash** lineage. Per-file SHA-256 in run export ZIPs is offline-verifiable via `export-manifest.json`; full lineage verify needs live `/export/verify` (or a saved receipt) while the tenant exists. See [`OFFLINE_VERIFIABLE_EXPORT_PORTABILITY.md`](../library/OFFLINE_VERIFIABLE_EXPORT_PORTABILITY.md) (**TB-1488** Done) and export-before-purge in [`GDPR_ERASURE_VS_APPEND_ONLY_MAP.md`](../library/GDPR_ERASURE_VS_APPEND_ONLY_MAP.md).
+
 ---
 
 ## 6. Processor obligations

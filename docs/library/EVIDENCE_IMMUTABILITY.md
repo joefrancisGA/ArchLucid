@@ -77,7 +77,7 @@ Run export ZIPs (`GET /v1/artifacts/runs/{runId}/export`) include **`export-mani
 
 Each verify call emits `RunExportLineageVerified` audit (run id, status, hashes only — no secrets).
 
-**Honest claim:** committed evidence is sealed in SQL; sponsor packets include checksums verifiable against commit anchors; long-term immutable retention is applied by the customer on exported copies ([ADR 0040](../architecture/adrs/0040-tamper-evident-lineage-without-worm-storage.md)).
+**Honest claim:** committed evidence is sealed in SQL; sponsor packets include checksums verifiable against commit anchors; long-term immutable retention is applied by the customer on exported copies ([ADR 0040](../architecture/adrs/0040-tamper-evident-lineage-without-worm-storage.md)). **Offline vs online split** (departing-tenant portability, Art. 20 vs lineage): [`OFFLINE_VERIFIABLE_EXPORT_PORTABILITY.md`](OFFLINE_VERIFIABLE_EXPORT_PORTABILITY.md) (**TB-1488** Done).
 
 ## PA / procurement matrix (TB-1009)
 

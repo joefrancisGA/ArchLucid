@@ -4,7 +4,10 @@
 
 **Audience:** Engineering, privacy/procurement, principal-architect diligence. Not a buyer brochure.
 
-**Status:** Working contract for **TB-1488** / GTM **M-267**. Pair honesty CI **TB-1489** / **M-267**.
+**Status:** **Done** (**TB-1488**, 2026-08-10). GTM **M-267** / **M-268**. Pair honesty CI **TB-1489** / **M-267**.
+
+**Buyer / PA one-pager:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#offline-verifiable-export-portability-m-268`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#offline-verifiable-export-portability-m-268) (GTM **M-268**).  
+**Claim honesty:** [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) (GTM **M-267**).
 
 **Verdict (one line):** Departing tenants can take **committed-run export ZIPs** whose **file bytes** are checkable offline via `export-manifest.json` SHA-256 lists; **full ManifestHash ↔ commit-audit lineage** still needs ArchLucid’s live verify path (or an unpublished offline reimplementation of `ManifestHashService`) — and vanishes after hard purge unless already exported.
 
@@ -12,15 +15,15 @@
 
 ## 1. What ships today
 
-| Capability | Surface | Offline without ArchLucid? |
-|------------|---------|----------------------------|
-| Architecture package + evidence ZIP | `GET /v1/artifacts/runs/{runId}/export` (`ArtifactPackagingService`) | ZIP bytes persist after download |
-| Per-file SHA-256 + declared anchors | `export-manifest.json` (`ExportManifestBuilder`, ADR 0040 / Done **TB-307**) | **Yes** — `Get-FileHash` / `sha256sum` vs listed `files[].sha256` (UPPER hex) |
-| Golden manifest JSON in ZIP | `manifest.json` (+ traces/artifacts/README) | Portable JSON; **not** the same as “hash = SHA256(file bytes)” |
-| ManifestHash ↔ `ManifestGenerated` audit | `GET …/export/verify` (`RunExportLineageVerifier` + `IManifestHashService`) | **No** — needs live SQL + canonical hasher |
-| Sponsor DOCX / CSV audit / API | Various export endpoints; DSAR Art. 20 | Machine-readable portability; **not** lineage-complete |
-| PKI / code-signing of packages | — | **Not claimed** — “signed” = hash-anchored (`POSITIONING.md`) |
-| Platform WORM of exports | ADR 0040 rejected | Customer applies WORM/retention on **their** copies |
+| Capability | Surface | Code anchor | Offline without ArchLucid? |
+|------------|---------|-------------|----------------------------|
+| Architecture package + evidence ZIP | `GET /v1/artifacts/runs/{runId}/export` | `ArtifactExportController.DownloadRunExport`, `ArtifactPackagingService` | ZIP bytes persist after download |
+| Per-file SHA-256 + declared anchors | `export-manifest.json` (ADR 0040 / Done **TB-307**) | `ExportManifestBuilder` | **Yes** — `Get-FileHash` / `sha256sum` vs listed `files[].sha256` (UPPER hex) |
+| Golden manifest JSON in ZIP | `manifest.json` (+ traces/artifacts/README) | `RunExportPackageBuilder` | Portable JSON; **not** the same as “hash = SHA256(file bytes)” |
+| ManifestHash ↔ `ManifestGenerated` audit | `GET …/runs/{runId}/export/verify` | `ArtifactExportController.VerifyRunExportLineage`, `RunExportLineageVerifier` | **No** — needs live SQL + canonical hasher |
+| Sponsor DOCX / CSV audit / API | Various export endpoints; DSAR Art. 20 | `ArtifactExportController`, audit export APIs | Machine-readable portability; **not** lineage-complete |
+| PKI / code-signing of packages | — | — | **Not claimed** — “signed” = hash-anchored (`POSITIONING.md`) |
+| Platform WORM of exports | ADR 0040 rejected | — | Customer applies WORM/retention on **their** copies |
 
 Canonical hasher: `ManifestHashService` — SHA-256 over a **sorted canonical JSON projection** of `ManifestDocument` (excludes `CreatedUtc`). Dual-hasher residual: **TB-1156** / **TB-1157**.
 
@@ -70,3 +73,17 @@ Canonical hasher: `ManifestHashService` — SHA-256 over a **sorted canonical JS
 1. Documented **offline file-integrity** script (PowerShell) that walks `export-manifest.json` — no API.
 2. Optional **offline ManifestHash recompute** CLI that embeds/documents the canonical projection (version-pinned) — only if owner wants full offline lineage; until then disclose live verify.
 3. Offboard checklist: “export ZIPs + save verify JSON before purge.”
+
+---
+
+## 7. Code entry points (verification)
+
+| Concern | Primary file |
+|---------|--------------|
+| Run export ZIP download | `ArchLucid.Api/Controllers/Authority/ArtifactExportController.cs` (`DownloadRunExport`) |
+| Export manifest assembly | `ArchLucid.ArtifactSynthesis/Packaging/ExportManifestBuilder.cs` |
+| ZIP packaging | `ArchLucid.ArtifactSynthesis/Packaging/ArtifactPackagingService.cs` |
+| Lineage verify API | `ArchLucid.Api/Controllers/Authority/ArtifactExportController.cs` (`VerifyRunExportLineage`) |
+| Verify logic | `ArchLucid.Application/Analysis/RunExportLineageVerifier.cs` |
+| Canonical ManifestHash | `ArchLucid.Decisioning/Services/ManifestHashService.cs` |
+| Export package build | `ArchLucid.Application/Analysis/RunExportPackageBuilder.cs` |
