@@ -451,7 +451,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "integration-readiness", label: "Integration event dead letters" },
   },
   { prefix: "/administration/system-health", topic: { slug: "troubleshooting", label: "Troubleshooting" } },
-  { prefix: "/admin/integrations/itsm", topic: { slug: "integration-readiness", label: "How integration readiness works" } },
+  { prefix: "/internal/integrations/itsm", topic: { slug: "integration-readiness", label: "ITSM connectors" } },
   {
     prefix: "/admin/tenant-health",
     topic: { slug: "troubleshooting", label: "Tenant health" },

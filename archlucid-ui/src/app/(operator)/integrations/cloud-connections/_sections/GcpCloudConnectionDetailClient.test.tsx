@@ -6,6 +6,14 @@ vi.mock("./GcpConnectionSection", () => ({
   GcpConnectionSection: () => <div data-testid="gcp-connection-section-stub" />,
 }));
 
+vi.mock("./GcpConnectionValidatePanel", () => ({
+  GcpConnectionValidatePanel: () => <div data-testid="gcp-connection-validate-panel" />,
+}));
+
+vi.mock("./GcpConnectionRecentActivityPanel", () => ({
+  GcpConnectionRecentActivityPanel: () => <div data-testid="gcp-connection-recent-activity-panel" />,
+}));
+
 vi.mock("./CloudSecurityPreflightPanel", () => ({
   CloudSecurityPreflightPanel: () => <div data-testid="gcp-preflight-stub" />,
   CloudSecurityPreflightTechnicalDetails: ({ children }: { children: ReactNode }) => (
@@ -50,5 +58,12 @@ describe("GcpCloudConnectionDetailClient", () => {
     expect(scriptTemplate).toHaveTextContent("workload-identity-pools providers create-oidc");
     expect(scriptTemplate).toHaveTextContent("YOUR_ARCHLUCID_MANAGED_IDENTITY_OBJECT_ID");
     expect(screen.getByTestId("gcp-wif-starter-script-copy")).toBeInTheDocument();
+  });
+
+  it("mounts live Validate and Recent activity panels instead of static stubs (TB-1773)", () => {
+    render(<GcpCloudConnectionDetailClient />);
+
+    expect(screen.getByTestId("gcp-connection-validate-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("gcp-connection-recent-activity-panel")).toBeInTheDocument();
   });
 });

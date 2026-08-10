@@ -10,6 +10,7 @@ import {
   REMOVED_INTEGRATIONS_ITSM_HUB_PATH,
 } from "@/lib/integrations-nav-paths";
 import { ITSM_CONNECTOR_SMOKE_HELP, ITSM_PRODUCT_SMOKE_VERIFICATION_HREF } from "@/lib/itsm-connectors-admin-scope";
+import { ITSM_PRODUCT_CANONICAL_DEEP_LINKS } from "@/lib/itsm-product-canonical-deep-links";
 import {
   hrefTargetsPermanentRedirectSource,
   NEXT_CONFIG_PERMANENT_REDIRECT_SOURCE_PATHS,
@@ -120,6 +121,7 @@ describe("ITSM removed hub route (pre-release cleanup)", () => {
     const productSurface = readFileSync(join(repoRoot, ITSM_PRODUCT_DEEP_LINK_SURFACES[0]), "utf8");
 
     expect(productSurface).toContain("INTEGRATIONS_READINESS_PATH");
+    expect(ITSM_PRODUCT_CANONICAL_DEEP_LINKS.jira).toBe(ITSM_CONNECTOR_SMOKE_HELP.jira);
     expect(ITSM_CONNECTOR_SMOKE_HELP.jira).not.toBe(REMOVED_INTEGRATIONS_ITSM_HUB_PATH);
     expect(ITSM_CONNECTOR_SMOKE_HELP.serviceNow).not.toBe(REMOVED_INTEGRATIONS_ITSM_HUB_PATH);
     expect(ITSM_PRODUCT_SMOKE_VERIFICATION_HREF).toBe(INTEGRATIONS_READINESS_PATH);

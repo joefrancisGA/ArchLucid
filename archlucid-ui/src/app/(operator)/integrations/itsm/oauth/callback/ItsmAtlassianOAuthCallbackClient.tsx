@@ -9,6 +9,14 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { completeItsmAtlassianOAuthConsent } from "@/lib/api/itsm-outbound-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { INTEGRATIONS_JIRA_PATH } from "@/lib/integrations-nav-paths";
+import {
+  ITSM_ATLASSIAN_OAUTH_CALLBACK_INCOMPLETE_RESPONSE,
+  ITSM_ATLASSIAN_OAUTH_CALLBACK_REFRESH_TOKEN_STORE_FAILED,
+  ITSM_ATLASSIAN_OAUTH_CALLBACK_RETRY_LABEL,
+  mapItsmAtlassianOAuthCallbackFailure,
+  mapItsmAtlassianOAuthIdpError,
+} from "@/lib/itsm-atlassian-oauth-callback-error-copy";
+import { ARCHLUCID_SUPPORT_EMAIL } from "@/lib/support-workspace-present";
 
 export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
   const searchParams = useSearchParams();
@@ -33,7 +41,7 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
     };
 
     if (oauthError) {
-      fail(oauthErrorDescription ?? "Atlassian consent was denied or interrupted.");
+      fail(mapItsmAtlassianOAuthIdpError(oauthError, oauthErrorDescription));
 
       return () => {
         cancelled = true;
@@ -41,7 +49,7 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
     }
 
     if (!code || !state) {
-      fail("Atlassian did not return a complete authorization response. Try Connect with Atlassian again.");
+      fail(ITSM_ATLASSIAN_OAUTH_CALLBACK_INCOMPLETE_RESPONSE);
 
       return () => {
         cancelled = true;
@@ -56,7 +64,7 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
           return;
 
         if (!result.refreshTokenStored) {
-          fail("Consent succeeded but the refresh token could not be stored. Check secret storage configuration.");
+          fail(ITSM_ATLASSIAN_OAUTH_CALLBACK_REFRESH_TOKEN_STORE_FAILED);
 
           return;
         }
@@ -65,7 +73,7 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
         setMessage("Jira is connected with OAuth. You can run a connector health probe from ITSM settings.");
       } catch (error: unknown) {
         if (!cancelled)
-          fail(error instanceof Error ? error.message : "Could not complete Atlassian consent.");
+          fail(mapItsmAtlassianOAuthCallbackFailure(error));
       }
     })();
 
@@ -80,7 +88,7 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
         <h2 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>Atlassian connector consent</h2>
         <PageContextualHelpButton />
       </div>
-<p
+      <p
         role={failed ? "alert" : "status"}
         aria-live="polite"
         className={cn(
@@ -88,6 +96,7 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
           failed ? "text-red-600 dark:text-red-400" : "text-al-text-secondary",
           OPERATOR_TYPOGRAPHY.body,
         )}
+        data-testid="itsm-oauth-callback-message"
       >
         {message}
       </p>
@@ -97,9 +106,17 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
         </Link>
       ) : null}
       {failed ? (
-        <Link href={INTEGRATIONS_JIRA_PATH} className="text-sm font-medium text-al-accent-primary hover:underline">
-          Back to Jira integration settings
-        </Link>
+        <div className="flex flex-wrap items-center gap-3" data-testid="itsm-oauth-callback-failure-actions">
+          <Link href={INTEGRATIONS_JIRA_PATH} className="text-sm font-medium text-al-accent-primary hover:underline">
+            {ITSM_ATLASSIAN_OAUTH_CALLBACK_RETRY_LABEL}
+          </Link>
+          <Link
+            href={`mailto:${ARCHLUCID_SUPPORT_EMAIL}`}
+            className="text-sm font-medium text-al-accent-primary hover:underline"
+          >
+            Contact support
+          </Link>
+        </div>
       ) : null}
     </div>
   );
