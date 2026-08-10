@@ -5,6 +5,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
   type ReactNode,
 } from "react";
@@ -17,6 +18,7 @@ import { useReviewDetailLastVisited } from "@/hooks/use-review-detail-last-visit
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReviewDetailTabActivityAt } from "@/lib/review-detail-tab-activity";
 import {
+  REVIEW_DETAIL_DEFAULT_TAB,
   REVIEW_DETAIL_TAB_LABELS,
   REVIEW_DETAIL_TAB_PARAM,
   type ReviewDetailTabId,
@@ -25,6 +27,12 @@ import {
   resolveReviewDetailTabFromHash,
   writeReviewDetailTabToUrl,
 } from "@/lib/review-detail-workspace-tabs";
+import {
+  coerceReviewDetailTabToVisible,
+  isReviewDetailTabAdvanced,
+  resolveReviewDetailVisibleTabs,
+  type ResolveReviewDetailVisibleTabsInput,
+} from "@/lib/resolve-review-detail-visible-tabs";
 import { scheduleScrollToReviewDetailSection } from "@/lib/review-detail-section-scroll";
 import { cn } from "@/lib/utils";
 
@@ -50,6 +58,8 @@ export type ReviewDetailWorkspaceProps = {
   readonly tabActivityAt?: ReviewDetailTabActivityAt;
   readonly tabCounts?: ReviewDetailTabCounts;
   readonly panels: ReviewDetailWorkspacePanels;
+  /** When omitted, all tabs stay primary (legacy / tests). */
+  readonly tabLifecycle?: ResolveReviewDetailVisibleTabsInput;
 };
 
 type ReviewDetailWorkspaceTabContextValue = {
@@ -74,7 +84,23 @@ function tabCountBadge(count: number | null | undefined, tabId: ReviewDetailTabI
 export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.JSX.Element {
   const searchParams = useSearchParams();
   const [hashResolved, setHashResolved] = useState(false);
-  const searchParamTab = resolveReviewDetailTab(searchParams.get(REVIEW_DETAIL_TAB_PARAM));
+  const resolved = useMemo(() => {
+    if (props.tabLifecycle !== undefined) {
+      return resolveReviewDetailVisibleTabs(props.tabLifecycle);
+    }
+
+    return {
+      stage: "committed" as const,
+      visibleTabIds: Object.keys(REVIEW_DETAIL_TAB_LABELS) as ReviewDetailTabId[],
+      advancedCollapsedTabIds: [] as ReviewDetailTabId[],
+      defaultTabId: REVIEW_DETAIL_DEFAULT_TAB,
+    };
+  }, [props.tabLifecycle]);
+  const searchParamTabRaw = resolveReviewDetailTab(searchParams.get(REVIEW_DETAIL_TAB_PARAM));
+  const searchParamTab =
+    props.tabLifecycle !== undefined
+      ? coerceReviewDetailTabToVisible(searchParamTabRaw, resolved)
+      : searchParamTabRaw;
   const [activeTab, setActiveTab] = useState<ReviewDetailTabId>(searchParamTab);
   const tabActivityAt = props.tabActivityAt ?? {};
   const {
@@ -191,43 +217,96 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
             data-testid="review-detail-workspace-tabs"
             className="-mx-1 overflow-x-auto overflow-y-hidden px-1"
           >
-              {(Object.keys(REVIEW_DETAIL_TAB_LABELS) as ReviewDetailTabId[]).map((tabId) => {
-                const count =
-                  tabId === "findings"
-                    ? tabCountBadge(counts.findings, tabId)
-                    : tabId === "evidence"
-                      ? tabCountBadge(counts.evidence, tabId)
-                      : tabId === "decisions-remediation"
-                        ? tabCountBadge(counts.decisionsRemediation, tabId)
-                        : null;
+            {resolved.visibleTabIds.map((tabId) => {
+              const count =
+                tabId === "findings"
+                  ? tabCountBadge(counts.findings, tabId)
+                  : tabId === "evidence"
+                    ? tabCountBadge(counts.evidence, tabId)
+                    : tabId === "decisions-remediation"
+                      ? tabCountBadge(counts.decisionsRemediation, tabId)
+                      : null;
 
-                return (
-                  <TabsTrigger
-                    key={tabId}
-                    value={tabId}
-                    data-testid={`review-detail-workspace-tab-${tabId}`}
-                    className="whitespace-nowrap"
-                  >
-                    <span className="inline-flex items-center gap-2">
-                      {REVIEW_DETAIL_TAB_LABELS[tabId]}
-                      {isTabNewSinceLastVisit(tabId) ? (
-                        <NewSinceLastVisitMarker testId={`review-detail-tab-new-${tabId}`} />
-                      ) : null}
-                    </span>
-                    {count !== null ? (
-                      <span
-                        className={cn(
-                          "ml-2 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-neutral-200 px-1.5 py-0.5 text-xs font-semibold text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200",
-                          OPERATOR_TYPOGRAPHY.helper,
-                        )}
-                      >
-                        {count}
-                      </span>
+              return (
+                <TabsTrigger
+                  key={tabId}
+                  value={tabId}
+                  data-testid={`review-detail-workspace-tab-${tabId}`}
+                  className="whitespace-nowrap"
+                >
+                  <span className="inline-flex items-center gap-2">
+                    {REVIEW_DETAIL_TAB_LABELS[tabId]}
+                    {isTabNewSinceLastVisit(tabId) ? (
+                      <NewSinceLastVisitMarker testId={`review-detail-tab-new-${tabId}`} />
                     ) : null}
-                  </TabsTrigger>
-                );
-              })}
-            </TabsList>
+                  </span>
+                  {count !== null ? (
+                    <span
+                      className={cn(
+                        "ml-2 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-neutral-200 px-1.5 py-0.5 text-xs font-semibold text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200",
+                        OPERATOR_TYPOGRAPHY.helper,
+                      )}
+                    >
+                      {count}
+                    </span>
+                  ) : null}
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
+
+          {resolved.advancedCollapsedTabIds.length > 0 ? (
+            <details
+              className="rounded-md border border-neutral-200 p-2 dark:border-neutral-800"
+              open={isReviewDetailTabAdvanced(activeTab, resolved) ? true : undefined}
+              data-testid="review-detail-workspace-more-tabs"
+            >
+              <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.helper)}>
+                More sections
+              </summary>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {resolved.advancedCollapsedTabIds.map((tabId) => {
+                  const count =
+                    tabId === "findings"
+                      ? tabCountBadge(counts.findings, tabId)
+                      : tabId === "evidence"
+                        ? tabCountBadge(counts.evidence, tabId)
+                        : tabId === "decisions-remediation"
+                          ? tabCountBadge(counts.decisionsRemediation, tabId)
+                          : null;
+
+                  return (
+                    <Button
+                      key={tabId}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      data-testid={`review-detail-workspace-tab-${tabId}`}
+                      aria-current={activeTab === tabId ? "page" : undefined}
+                      onClick={() => navigateTab(tabId)}
+                    >
+                      <span className="inline-flex items-center gap-2">
+                        {REVIEW_DETAIL_TAB_LABELS[tabId]}
+                        {isTabNewSinceLastVisit(tabId) ? (
+                          <NewSinceLastVisitMarker testId={`review-detail-tab-new-${tabId}`} />
+                        ) : null}
+                      </span>
+                      {count !== null ? (
+                        <span
+                          className={cn(
+                            "ml-2 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-neutral-200 px-1.5 py-0.5 text-xs font-semibold text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200",
+                            OPERATOR_TYPOGRAPHY.helper,
+                          )}
+                        >
+                          {count}
+                        </span>
+                      ) : null}
+                    </Button>
+                  );
+                })}
+              </div>
+            </details>
+          ) : null}
 
           <TabsContent
             value="overview"

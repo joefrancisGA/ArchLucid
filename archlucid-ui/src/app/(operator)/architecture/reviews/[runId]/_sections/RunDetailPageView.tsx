@@ -458,7 +458,7 @@ export function RunDetailPageView(props: {
     ) : null;
   const materialSeverityLine =
     severityCounts.critical + severityCounts.high > 0
-      ? `${severityCounts.critical} critical · ${severityCounts.high} high`
+      ? `${severityCounts.critical} critical ┬╖ ${severityCounts.high} high`
       : null;
 
   const showArchitectureCreatedHome =
@@ -522,7 +522,7 @@ export function RunDetailPageView(props: {
       editHref={architectureEditHref}
       useStructuredPresentation
       runId={m.resolvedDetail.run.runId}
-      helperText="Source material submitted for this review — distinct from ArchLucid analysis in other tabs."
+      helperText="Source material submitted for this review ΓÇö distinct from ArchLucid analysis in other tabs."
     />
   );
   const architectureTabPanelEl = (
@@ -542,6 +542,11 @@ export function RunDetailPageView(props: {
     <Suspense fallback={<RunDetailExplanationSkeleton />}>
       <ReviewDetailWorkspaceDeferred
         runId={m.resolvedDetail.run.runId}
+        tabLifecycle={{
+          manifestId: m.manifestId,
+          showProgressTracker: m.showProgressTracker,
+          runCompleted: m.resolvedDetail.run.completedUtc != null,
+        }}
         tabActivityAt={deriveReviewDetailTabActivityAt({
           run: m.resolvedDetail.run,
           manifestSummary: m.manifestSummary,
@@ -949,7 +954,7 @@ export function RunDetailPageView(props: {
                             >
                               Full provenance view
                             </Link>
-                            {createHomeActivityProvenanceAsOfLabel !== "—" ? (
+                            {createHomeActivityProvenanceAsOfLabel !== "ΓÇö" ? (
                               <span className="text-al-text-secondary"> (as of {createHomeActivityProvenanceAsOfLabel})</span>
                             ) : null}
                           </p>
@@ -1092,7 +1097,7 @@ export function RunDetailPageView(props: {
                   blockingFindings={[
                     {
                       findingId: "blocking-findings",
-                      title: "Open blocking findings — review the Findings tab",
+                      title: "Open blocking findings ΓÇö review the Findings tab",
                     },
                   ]}
                 />

@@ -107,4 +107,27 @@ describe("ReviewDetailWorkspace", () => {
       ),
     ).toBe(false);
   });
+
+  it("with draft tabLifecycle hides Findings from primary tabs and opens it from More sections", () => {
+    render(
+      <ReviewDetailWorkspace
+        runId={RUN_ID}
+        tabLifecycle={{
+          manifestId: null,
+          showProgressTracker: false,
+          runCompleted: false,
+        }}
+        tabCounts={{ findings: 3 }}
+        panels={workspacePanels}
+      />,
+    );
+
+    expect(screen.queryByRole("tab", { name: /Findings/i })).not.toBeInTheDocument();
+    expect(screen.getByTestId("review-detail-workspace-more-tabs")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("review-detail-workspace-tab-findings"));
+
+    expect(screen.getByTestId("panel-findings")).toBeInTheDocument();
+    expect(screen.getByTestId("review-detail-workspace-panel-findings")).toBeInTheDocument();
+  });
 });
