@@ -53,6 +53,20 @@ describe("AuthDomainsPageClient", () => {
     vi.restoreAllMocks();
   });
 
+  it("humanizes verification and enforcement enums in the domain list", async () => {
+    vi.mocked(fetchTenantAuthDomains).mockResolvedValue([sampleDomain]);
+
+    render(<AuthDomainsPageClient />);
+
+    const statusRow = await screen.findByTestId("auth-domain-status-example.com");
+
+    expect(statusRow).toHaveTextContent("Verified");
+    expect(statusRow).toHaveTextContent("SSO optional");
+    expect(statusRow).not.toHaveTextContent("SsoOptional");
+    expect(statusRow.querySelector("[data-verification-status='Verified']")).not.toBeNull();
+    expect(statusRow.querySelector("[data-enforcement-mode='SsoOptional']")).not.toBeNull();
+  });
+
   it("disables enable enforcement while enable is in flight", async () => {
     vi.mocked(fetchTenantAuthDomains).mockResolvedValue([sampleDomain]);
     vi.mocked(fetchTenantAuthDomainEnforcementReadiness).mockResolvedValue(readyReadiness);

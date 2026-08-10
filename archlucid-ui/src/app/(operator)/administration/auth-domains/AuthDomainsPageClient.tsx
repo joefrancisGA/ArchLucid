@@ -6,7 +6,14 @@ import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import {
+  authDomainEnforcementModeKind,
+  authDomainVerificationStatusKind,
+  labelForAuthDomainEnforcementMode,
+  labelForAuthDomainVerificationStatus,
+} from "@/lib/auth-domains-enum-labels";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   addTenantAuthDomainRecoveryAdmin,
@@ -377,9 +384,23 @@ export function AuthDomainsPageClient() {
                   data-testid={`auth-domain-row-${row.normalizedDomain}`}
                 >
                   <div className="font-medium text-al-text-primary">{row.displayDomain}</div>
-                  <div className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    {row.verificationStatus} · {row.enforcementMode}
-                    {row.isEnforcementActive ? " · enforcement active" : ""}
+                  <div
+                    className="flex flex-wrap items-center gap-2 pt-1"
+                    data-testid={`auth-domain-status-${row.normalizedDomain}`}
+                  >
+                    <StatusTag
+                      kind={authDomainVerificationStatusKind(row.verificationStatus)}
+                      label={labelForAuthDomainVerificationStatus(row.verificationStatus)}
+                      data-verification-status={row.verificationStatus}
+                    />
+                    <StatusTag
+                      kind={authDomainEnforcementModeKind(row.enforcementMode)}
+                      label={labelForAuthDomainEnforcementMode(row.enforcementMode)}
+                      data-enforcement-mode={row.enforcementMode}
+                    />
+                    {row.isEnforcementActive ? (
+                      <StatusTag kind="ready" label="Enforcement active" data-testid="auth-domain-enforcement-active" />
+                    ) : null}
                   </div>
                 </button>
               </li>
