@@ -69,7 +69,7 @@ This makes "tenant isolation" tangible at the moment the CTO is most focused.
 ### 5. Link to the isolation details panel
 The `TenantWorkspaceBoundaryBadge` should be clickable in demo mode: clicking opens the `CtoDemoHowItWorksTrigger` dialog (built in the `ux-how-it-works-panel.md` prompt) directly to the "Isolation" section.
 
-If the how-it-works panel has not been built yet, link to `/help/how-it-works` as a fallback.
+If the how-it-works panel has not been built yet, link to `/help/getting-started#how-archlucid-works` as a fallback.
 
 ## Acceptance criteria
 - `TenantWorkspaceBoundaryBadge` renders in the shell header in both buyer-polished and full-operator mode.

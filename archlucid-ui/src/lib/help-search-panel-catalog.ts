@@ -2,6 +2,7 @@ import type { HelpTabId } from "@/components/HelpPanel";
 import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { helpPageSituationTopicIds, type HelpPageSituation } from "@/lib/help-page-situation";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { REVIEW_TERMINOLOGY_BANNED_OPERATOR_PATTERNS } from "@/lib/review-terminology-surfaces";
 
 /** Says what the drawer gets you; the search placeholder already describes the input. */
@@ -209,7 +210,7 @@ const SETUP_TOPICS: readonly HelpSearchPanelTopic[] = [
     title: "Connect Azure securely",
     description: "Workload identity federation, read-only roles, and connection validation.",
     keywords: ["azure", "federation", "workload identity", "permissions"],
-    action: { kind: "route", href: "/help/cloud-connections-azure", helpSlug: "cloud-connections-azure" },
+    action: { kind: "route", href: inAppHelpHref("cloud-connections-azure"), helpSlug: "cloud-connections-azure" },
   },
   {
     id: "azure-permissions",
@@ -223,14 +224,14 @@ const SETUP_TOPICS: readonly HelpSearchPanelTopic[] = [
     title: "Connect AWS securely",
     description: "OIDC-federated read-only IAM role, Resource Explorer inventory, and validation.",
     keywords: ["aws", "iam", "oidc", "resource explorer", "federation"],
-    action: { kind: "route", href: "/help/cloud-connections-aws", helpSlug: "cloud-connections-aws" },
+    action: { kind: "route", href: inAppHelpHref("cloud-connections-aws"), helpSlug: "cloud-connections-aws" },
   },
   {
     id: "connect-gcp",
     title: "Connect GCP securely",
     description: "Workload Identity Federation, Cloud Asset Viewer, and connection validation.",
     keywords: ["gcp", "google cloud", "workload identity", "cloud asset"],
-    action: { kind: "route", href: "/help/cloud-connections-gcp", helpSlug: "cloud-connections-gcp" },
+    action: { kind: "route", href: inAppHelpHref("cloud-connections-gcp"), helpSlug: "cloud-connections-gcp" },
   },
   {
     id: "security-trust-help",

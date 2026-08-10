@@ -16,6 +16,16 @@ import {
 } from "@/lib/help-search-panel-catalog";
 
 describe("help-search-panel-catalog", () => {
+  it("uses slash-canonical cloud connection help hrefs (TB-748)", () => {
+    const topics = listHelpSearchPanelTopics();
+
+    expect(topics.find((topic) => topic.id === "connect-azure")?.action.href).toBe(
+      "/help/cloud-connections/azure",
+    );
+    expect(topics.find((topic) => topic.id === "connect-aws")?.action.href).toBe("/help/cloud-connections/aws");
+    expect(topics.find((topic) => topic.id === "connect-gcp")?.action.href).toBe("/help/cloud-connections/gcp");
+  });
+
   it("recommends first-review topics on overview", () => {
     expect(recommendedHelpSearchPanelTopicIds("/")).toEqual([
       "getting-started-help",

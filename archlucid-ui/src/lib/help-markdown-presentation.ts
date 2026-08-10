@@ -2021,7 +2021,7 @@ export function stripFirstReviewEvidenceChecklistContributorLeakage(markdown: st
     .replace(/\[([^\]]*)\]\(\.\.\/library\/contributor-reference\/SECURITY\.md\)/gi, "[Security and trust](/help/security-trust)")
     .replace(/\[([^\]]*)\]\(FIRST_PILOT_OPERATOR_PATH\.md\)/gi, "[Troubleshooting](/help/troubleshooting)")
     .replace(/\[([^\]]*)\]\(\.\.\/library\/customer-facing\/PILOT_GUIDE\.md\)/gi, "[Your first architecture review](/help/first-architecture-review)")
-    .replace(/\[([^\]]*)\]\(\.\.\/library\/AZURE_EXTRACTOR\.md[^)]*\)/gi, "[Connect Azure securely](/help/cloud-connections-azure)")
+    .replace(/\[([^\]]*)\]\(\.\.\/library\/AZURE_EXTRACTOR\.md[^)]*\)/gi, "[Connect Azure securely](/help/cloud-connections/azure)")
     .replace(
       /\[([^\]]*)\]\(\.\.\/library\/CANONICAL_FIRST_RUN_PATH\.md[^)]*\)/gi,
       "[Your first architecture review](/help/first-architecture-review)",
