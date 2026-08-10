@@ -16,3 +16,13 @@ describe("InvitationAcceptLoadingView (TB-1472)", () => {
     expect(screen.getByText(AUTH_INVITE_LOADING_DETAIL)).toBeInTheDocument();
   });
 });
+
+describe("InvitationAcceptLoadingView (TB-1473)", () => {
+  it("shows structured skeleton placeholders for the invite summary card", () => {
+    render(<InvitationAcceptLoadingView />);
+
+    expect(screen.getByTestId("invitation-accept-loading-skeleton-card")).toBeInTheDocument();
+    expect(screen.getByTestId("invitation-accept-loading-lead-skeleton")).toBeInTheDocument();
+    expect(screen.getByTestId("invitation-accept-loading")).toBeInTheDocument();
+  });
+});

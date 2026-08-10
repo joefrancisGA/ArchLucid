@@ -26,5 +26,6 @@ describe("InvitationAcceptPage (TB-1472)", () => {
 
     expect(screen.getByTestId("auth-flow-shell")).toBeInTheDocument();
     expect(screen.getByTestId("invitation-accept-loading")).toBeInTheDocument();
+    expect(screen.getByTestId("invitation-accept-loading-skeleton-card")).toBeInTheDocument();
   });
 });
