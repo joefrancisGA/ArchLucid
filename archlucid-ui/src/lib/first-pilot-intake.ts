@@ -1,3 +1,5 @@
+import type { ActiveTenantContextView } from "@/lib/active-tenant-context-display";
+
 /** Default evidence category label when operators do not manually tag uploads. */
 export const DEFAULT_ARCHITECTURE_EVIDENCE_CATEGORY = "Architecture evidence";
 
@@ -60,21 +62,23 @@ export function isFirstPilotIntakeReady(input: FirstPilotIntakeReadinessInput): 
 /**
  * Names what still blocks submit, for the line beside a disabled start button (TB-2005).
  * Delegates the ready check to {@link isFirstPilotIntakeReady} so this can never promise a gate that does not exist.
- *
- * Stays silent while the title is missing: an empty first field is already visible, and naming it would
- * greet the page with an instruction. Only the evidence-or-context rule is invisible from the controls,
- * since either one satisfies it and the context threshold is not otherwise stated.
  */
 export function describeFirstPilotIntakeGap(input: FirstPilotIntakeReadinessInput): string | null {
   if (isFirstPilotIntakeReady(input)) {
     return null;
   }
 
-  if (input.title.trim().length < FIRST_PILOT_MIN_TITLE_CHARS) {
-    return null;
+  const titleReady = input.title.trim().length >= FIRST_PILOT_MIN_TITLE_CHARS;
+  const briefLength = input.brief.trim().length;
+  const evidenceReady = input.evidenceFileCount > 0;
+
+  if (!titleReady && !evidenceReady && briefLength === 0) {
+    return `Add a review title and attach evidence or add architecture context (at least ${FIRST_PILOT_MIN_BRIEF_CHARS} characters) to start.`;
   }
 
-  const briefLength = input.brief.trim().length;
+  if (!titleReady) {
+    return "Add a review title to start.";
+  }
 
   // Naming the shortfall matters once context exists: otherwise "add architecture context" reads as
   // wrong to someone who just added some, with no way to see how much more is needed.
@@ -83,4 +87,12 @@ export function describeFirstPilotIntakeGap(input: FirstPilotIntakeReadinessInpu
   }
 
   return "Attach evidence or add architecture context to start.";
+}
+
+/** Compact write-target line above the first-pilot start CTA — mirrors quick-review scope disclosure. */
+export function formatFirstPilotIntakeWriteDestination(context: ActiveTenantContextView): string {
+  const workspaceLabel =
+    context.workspaceLabel ?? context.workspaceId ?? "current workspace";
+
+  return `This review will be created in ${workspaceLabel} (${context.displayName}).`;
 }

@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExceededBanner";
 import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
 import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
@@ -15,10 +15,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { NewReviewSampleEscapeLink } from "@/components/usability/NewReviewSampleEscapeLink";
 import {
   proofScopeToRequiredCapabilities,
   type QuickReviewProofScopeId,
 } from "@/components/usability/QuickReviewProofScopeField";
+import { readActiveTenantContext } from "@/lib/active-tenant-context-display";
+import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/core-pilot-path-vocabulary";
 import { FocusedPilotPolicyPackAppliedCallout } from "@/components/wizard/FocusedPilotPolicyPackAppliedCallout";
 import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
@@ -41,11 +44,14 @@ import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetr
 import {
   buildEvidenceBackedIntakeBrief,
   describeFirstPilotIntakeGap,
+  FIRST_PILOT_MIN_BRIEF_CHARS,
+  formatFirstPilotIntakeWriteDestination,
   isFirstPilotIntakeReady,
   normalizeFirstPilotReviewTitle,
 } from "@/lib/first-pilot-intake";
 import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator-home-example-request";
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
+import { ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT } from "@/lib/operator-scope-storage";
 import { PROXY_UPSTREAM_UPLOAD_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 import { uploadWizardPendingDocumentEvidence } from "@/lib/wizard-pending-evidence-upload";
 
@@ -66,6 +72,23 @@ const FIRST_PILOT_WITH_UPLOAD_TIMEOUT_MS =
 
 export const FIRST_PILOT_INTAKE_SUBMIT_VALIDATION_MESSAGE =
   "Add a review title and either attach architecture evidence or provide enough context in the description.";
+
+type IntakeFieldLabelProps = {
+  readonly htmlFor: string;
+  readonly label: string;
+  readonly required: boolean;
+};
+
+function IntakeFieldLabel(props: IntakeFieldLabelProps): React.JSX.Element {
+  return (
+    <Label htmlFor={props.htmlFor} className="font-semibold text-neutral-900 dark:text-neutral-100">
+      {props.label}
+      <span className={cn("font-normal text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+        {props.required ? " (required)" : " (required without evidence)"}
+      </span>
+    </Label>
+  );
+}
 
 function buildFirstPilotPayload(
   title: string,
@@ -109,7 +132,23 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   const [evidenceFiles, setEvidenceFiles] = useState<File[]>([]);
   const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
   const [clientValidationMessage, setClientValidationMessage] = useState<string | null>(null);
+  const [writeDestination, setWriteDestination] = useState(() =>
+    formatFirstPilotIntakeWriteDestination(readActiveTenantContext()),
+  );
   const creationProgress = useReviewCreationProgress();
+
+  useEffect(() => {
+    const refreshWriteDestination = () => {
+      setWriteDestination(formatFirstPilotIntakeWriteDestination(readActiveTenantContext()));
+    };
+
+    refreshWriteDestination();
+    window.addEventListener(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT, refreshWriteDestination);
+
+    return () => {
+      window.removeEventListener(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT, refreshWriteDestination);
+    };
+  }, []);
 
   useEffect(() => {
     if (exampleTemplate === null || exampleTemplatePrefillAppliedRef.current) {
@@ -221,8 +260,6 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       {llmBudgetStatus !== null ? <LlmMonthlyBudgetExceededBanner status={llmBudgetStatus} /> : null}
       {exampleTemplate !== null ? <ReviewIntakeExampleTemplateCallout template={exampleTemplate} /> : null}
 
-      <FocusedPilotPolicyPackAppliedCallout />
-
       <Card>
         <CardHeader>
           <CardTitle>{CREATE_REVIEW_PACKAGE_HEADING}</CardTitle>
@@ -230,7 +267,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="first-pilot-title">Review title</Label>
+            <IntakeFieldLabel htmlFor="first-pilot-title" label="Review title" required />
             <Input
               id="first-pilot-title"
               value={runTitle}
@@ -240,15 +277,16 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
               }}
               placeholder="Example: Retail API modernization review"
               autoComplete="off"
+              aria-required
               data-testid="first-pilot-title"
             />
           </div>
 
           <WizardEvidenceUploadZone
             labelId="first-pilot-evidence"
-            title="Attach evidence (optional)"
+            title="Attach architecture evidence"
             description="Diagram, PDF export, or architecture document. Accepted: PDF, DOCX, Markdown, text, JSON, YAML, images."
-            attachmentSummarySuffix="architecture context optional"
+            attachmentSummarySuffix="or add architecture context below"
             onFilesSelected={(files) => {
               setEvidenceFiles(files);
               setClientValidationMessage(null);
@@ -256,7 +294,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
           />
 
           <div className="space-y-2">
-            <Label htmlFor="first-pilot-brief">Architecture context</Label>
+            <IntakeFieldLabel htmlFor="first-pilot-brief" label="Architecture context" required={false} />
             <Textarea
               id="first-pilot-brief"
               value={briefText}
@@ -266,17 +304,29 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
               }}
               className={cn("min-h-[100px]", OPERATOR_TYPOGRAPHY.body)}
               placeholder="Add as much useful context as you can: goals, constraints, risks, business drivers, integrations, data flows, security concerns, known tradeoffs, and what you want ArchLucid to focus on."
+              aria-describedby="first-pilot-brief-hint"
               data-testid="first-pilot-brief"
             />
+            <p
+              id="first-pilot-brief-hint"
+              className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            >
+              {briefText.trim().length}/{FIRST_PILOT_MIN_BRIEF_CHARS} characters minimum if you are not attaching
+              evidence.
+            </p>
           </div>
 
-          <AdvancedOptionsAccordion triggerLabel="Review scope (optional)">
+          <CollapsibleSection
+            title="Review standards selection"
+            summaryLine={CORE_PILOT_PATH_STREAMLINED_LABELS.firstIntakeAdvancedNote}
+            sectionTestId="first-pilot-standards-selection"
+          >
             <PilotModePolicyPackToggle
               presentation="choice"
               enabled={focusedPilotModeEnabled}
               onEnabledChange={setFocusedPilotModeEnabled}
             />
-          </AdvancedOptionsAccordion>
+          </CollapsibleSection>
 
           <ReviewPathTimeEstimateBanner pathId="quick-review" />
 
@@ -299,6 +349,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
 
           {intakeGap !== null ? (
             <p
+              id="first-pilot-readiness"
               className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="first-pilot-readiness"
               role="status"
@@ -307,20 +358,33 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
             </p>
           ) : null}
 
-          <ReviewStartLoadingButton
-            type="button"
-            variant="primary"
-            disabled={!canStart}
-            onClick={() => {
-              void submitRun();
-            }}
-            data-testid="first-pilot-start"
-            idleLabel={BUYER_START_ARCHITECTURE_REVIEW_CTA}
-            loadingLabel={creationProgress.loadingLabel}
-            isLoading={creationProgress.isActive}
-          />
+          <p
+            className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="first-pilot-write-destination"
+          >
+            {writeDestination}
+          </p>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <ReviewStartLoadingButton
+              type="button"
+              variant="primary"
+              disabled={!canStart}
+              onClick={() => {
+                void submitRun();
+              }}
+              data-testid="first-pilot-start"
+              idleLabel={BUYER_START_ARCHITECTURE_REVIEW_CTA}
+              loadingLabel={creationProgress.loadingLabel}
+              isLoading={creationProgress.isActive}
+              aria-describedby={intakeGap !== null ? "first-pilot-readiness" : undefined}
+            />
+            <NewReviewSampleEscapeLink presentation="inline" />
+          </div>
         </CardContent>
       </Card>
+
+      <FocusedPilotPolicyPackAppliedCallout />
     </div>
   );
 }

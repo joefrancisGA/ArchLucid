@@ -379,7 +379,8 @@ export const OPERATOR_HOME_WORKSPACE_STATUS_COLLAPSED_SUMMARY =
 export const OPERATOR_HOME_WORKSPACE_STATUS_COLLAPSED_SUMMARY_FIRST_RUN =
   "Workspace readiness signals.";
 
-export const NEW_REVIEW_SAMPLE_ESCAPE_CTA = "View completed sample review";
+export const NEW_REVIEW_SAMPLE_ESCAPE_CTA =
+  "See a completed architecture package and its evidence trail.";
 
 export const NEW_REVIEW_SAMPLE_ESCAPE_HINT =
   "Skip setup and explore a finished architecture package.";

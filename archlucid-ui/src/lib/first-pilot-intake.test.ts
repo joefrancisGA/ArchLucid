@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildEvidenceBackedIntakeBrief,
   describeFirstPilotIntakeGap,
+  formatFirstPilotIntakeWriteDestination,
   isFirstPilotIntakeReady,
   normalizeFirstPilotReviewTitle,
 } from "@/lib/first-pilot-intake";
@@ -46,10 +47,12 @@ describe("first-pilot-intake", () => {
     expect(normalizeFirstPilotReviewTitle("  ")).toBe("Architecture review");
   });
 
-  it("describeFirstPilotIntakeGap stays silent while the title is still empty", () => {
+  it("describeFirstPilotIntakeGap names both title and evidence-or-context gates on cold load", () => {
     expect(
       describeFirstPilotIntakeGap({ title: " ", brief: "", evidenceFileCount: 0 }),
-    ).toBeNull();
+    ).toBe(
+      "Add a review title and attach evidence or add architecture context (at least 100 characters) to start.",
+    );
   });
 
   it("describeFirstPilotIntakeGap asks for evidence or context once a title exists", () => {
@@ -71,5 +74,16 @@ describe("first-pilot-intake", () => {
     expect(
       describeFirstPilotIntakeGap({ title: "Retail API", brief: "x".repeat(120), evidenceFileCount: 0 }),
     ).toBeNull();
+  });
+
+  it("formatFirstPilotIntakeWriteDestination prefers workspace label over id", () => {
+    expect(
+      formatFirstPilotIntakeWriteDestination({
+        displayName: "Contoso Retail",
+        tenantId: "contoso-retail",
+        workspaceId: "ws-42",
+        workspaceLabel: "Retail modernization",
+      }),
+    ).toBe("This review will be created in Retail modernization (Contoso Retail).");
   });
 });

@@ -42,4 +42,14 @@ describe("NewReviewSampleEscapeLink", () => {
 
     expect(link).toHaveAttribute("href", `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`);
   });
+
+  it("renders an inline sample escape button for first-pilot intake", () => {
+    render(<NewReviewSampleEscapeLink presentation="inline" />);
+
+    expect(screen.getByTestId("new-review-sample-escape-inline")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: NEW_REVIEW_SAMPLE_ESCAPE_CTA })).toHaveAttribute(
+      "href",
+      `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
+    );
+  });
 });

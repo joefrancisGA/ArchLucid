@@ -7,6 +7,7 @@ import {
   AcceleratorCostGovernanceCloudPicker,
   useAcceleratorCostGovernancePackSelection,
 } from "@/components/accelerator/AcceleratorCostGovernanceCloudPicker";
+import { Button } from "@/components/ui/button";
 import {
   ACCELERATOR_JOB_CHOOSER_EXPECTED_OUTPUTS_LABEL,
   ACCELERATOR_JOB_CHOOSER_REQUIRED_INPUTS_LABEL,
@@ -17,7 +18,7 @@ import {
   ACCELERATOR_COST_GOVERNANCE_GROUP_ID,
 } from "@/lib/accelerator-chooser";
 import { resolveAcceleratorCostGovernancePackEntry } from "@/lib/accelerator-chooser-grid";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type AcceleratorCostGovernancePackRowProps = {
   readonly compact?: boolean;
@@ -67,13 +68,11 @@ export function AcceleratorCostGovernancePackRow(props: AcceleratorCostGovernanc
           {ACCELERATOR_COST_GOVERNANCE_GROUP.expectedOutputs}
         </p>
       )}
-      <Link
-        href={selectedPack.startHref}
-        className={cn("mt-3 inline-flex", OPERATOR_LINK.nav)}
-        data-testid={`${startPrefix}-${selectedPackId}`}
-      >
-        {ACCELERATOR_JOB_CHOOSER_START_CTA}
-      </Link>
+      <Button asChild variant="outline" size="sm" className="mt-3">
+        <Link href={selectedPack.startHref} data-testid={`${startPrefix}-${selectedPackId}`}>
+          {ACCELERATOR_JOB_CHOOSER_START_CTA}
+        </Link>
+      </Button>
     </li>
   );
 }

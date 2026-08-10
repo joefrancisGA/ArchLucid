@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { AcceleratorCostGovernancePackRow } from "@/components/accelerator/AcceleratorCostGovernancePackRow";
+import { Button } from "@/components/ui/button";
 import {
   ACCELERATOR_JOB_CHOOSER_EXPECTED_OUTPUTS_LABEL,
   ACCELERATOR_JOB_CHOOSER_REQUIRED_INPUTS_LABEL,
@@ -9,7 +10,7 @@ import {
 } from "@/lib/accelerator-chooser-start-copy";
 import type { AcceleratorChooserEntry } from "@/lib/accelerator-chooser";
 import { buildAcceleratorChooserGridItems } from "@/lib/accelerator-chooser-grid";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type AcceleratorJobChooserListProps = {
   readonly listTestId?: string;
@@ -60,13 +61,11 @@ function AcceleratorChooserPackRow(props: AcceleratorChooserPackRowProps): React
           {entry.expectedOutputs}
         </p>
       )}
-      <Link
-        href={entry.startHref}
-        className={cn("mt-3 inline-flex", OPERATOR_LINK.nav)}
-        data-testid={`${startPrefix}-${entry.id}`}
-      >
-        {ACCELERATOR_JOB_CHOOSER_START_CTA}
-      </Link>
+      <Button asChild variant="outline" size="sm" className="mt-3">
+        <Link href={entry.startHref} data-testid={`${startPrefix}-${entry.id}`}>
+          {ACCELERATOR_JOB_CHOOSER_START_CTA}
+        </Link>
+      </Button>
     </li>
   );
 }
