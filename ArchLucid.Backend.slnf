@@ -19,6 +19,8 @@
       "ArchLucid.Capabilities.Cost.Tests\\ArchLucid.Capabilities.Cost.Tests.csproj",
       "ArchLucid.Cli\\ArchLucid.Cli.csproj",
       "ArchLucid.Cli.Tests\\ArchLucid.Cli.Tests.csproj",
+      "ArchLucid.ReviewApiHarness\\ArchLucid.ReviewApiHarness.csproj",
+      "ArchLucid.ReviewApiHarness.Tests\\ArchLucid.ReviewApiHarness.Tests.csproj",
       "ArchLucid.ContextIngestion\\ArchLucid.ContextIngestion.csproj",
       "ArchLucid.ContextIngestion.Tests\\ArchLucid.ContextIngestion.Tests.csproj",
       "ArchLucid.Contracts\\ArchLucid.Contracts.csproj",

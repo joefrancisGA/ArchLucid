@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>ArchLucid.ReviewApiHarness</RootNamespace>
+    <AssemblyName>ArchLucid.ReviewApiHarness</AssemblyName>
+    <Description>Full-operator architecture review API harness: real AI only, OpenAPI + DTO validation, per-step timing.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="JsonSchema.Net" />
+    <PackageReference Include="Json.More.Net" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ArchLucid.ReviewApiHarness.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ArchLucid.Api.Client\ArchLucid.Api.Client.csproj" />
+    <ProjectReference Include="..\ArchLucid.Contracts\ArchLucid.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Contract snapshot of record — same file Api.Client / contract tests use. -->
+    <Content Include="..\ArchLucid.Api.Tests\Contracts\openapi-v1.contract.snapshot.json"
+             Link="Contracts\openapi-v1.contract.snapshot.json"
+             CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

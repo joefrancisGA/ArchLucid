@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.4.11612.150
@@ -147,6 +147,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.Integrations.AwsExtractor", "ArchLucid.Integrations.AwsExtractor\ArchLucid.Integrations.AwsExtractor.csproj", "{A6B8B83B-B8C5-4551-9FFC-F4923EB5FE8D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.Integrations.GcpExtractor", "ArchLucid.Integrations.GcpExtractor\ArchLucid.Integrations.GcpExtractor.csproj", "{BDF18754-071D-4448-9A18-DE231E0CE063}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.ReviewApiHarness", "ArchLucid.ReviewApiHarness\ArchLucid.ReviewApiHarness.csproj", "{A8517D35-8DEF-4987-B35D-142BE39F7D8B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.ReviewApiHarness.Tests", "ArchLucid.ReviewApiHarness.Tests\ArchLucid.ReviewApiHarness.Tests.csproj", "{5C4572D9-A2BC-4078-8EC5-E975D6621DFA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -830,11 +834,37 @@ Global
 		{BDF18754-071D-4448-9A18-DE231E0CE063}.Release|x64.Build.0 = Release|Any CPU
 		{BDF18754-071D-4448-9A18-DE231E0CE063}.Release|x86.ActiveCfg = Release|Any CPU
 		{BDF18754-071D-4448-9A18-DE231E0CE063}.Release|x86.Build.0 = Release|Any CPU
+		{A8517D35-8DEF-4987-B35D-142BE39F7D8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8517D35-8DEF-4987-B35D-142BE39F7D8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8517D35-8DEF-4987-B35D-142BE39F7D8B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A8517D35-8DEF-4987-B35D-142BE39F7D8B}.Debug|x64.Build.0 = Debug|Any CPU
+		{A8517D35-8DEF-4987-B35D-142BE39F7D8B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A8517D35-8DEF-4987-B35D-142BE39F7D8B}.Debug|x86.Build.0 = Debug|Any CPU
+		{A8517D35-8DEF-4987-B35D-142BE39F7D8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8517D35-8DEF-4987-B35D-142BE39F7D8B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8517D35-8DEF-4987-B35D-142BE39F7D8B}.Release|x64.ActiveCfg = Release|Any CPU
+		{A8517D35-8DEF-4987-B35D-142BE39F7D8B}.Release|x64.Build.0 = Release|Any CPU
+		{A8517D35-8DEF-4987-B35D-142BE39F7D8B}.Release|x86.ActiveCfg = Release|Any CPU
+		{A8517D35-8DEF-4987-B35D-142BE39F7D8B}.Release|x86.Build.0 = Release|Any CPU
+		{5C4572D9-A2BC-4078-8EC5-E975D6621DFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C4572D9-A2BC-4078-8EC5-E975D6621DFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C4572D9-A2BC-4078-8EC5-E975D6621DFA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5C4572D9-A2BC-4078-8EC5-E975D6621DFA}.Debug|x64.Build.0 = Debug|Any CPU
+		{5C4572D9-A2BC-4078-8EC5-E975D6621DFA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5C4572D9-A2BC-4078-8EC5-E975D6621DFA}.Debug|x86.Build.0 = Debug|Any CPU
+		{5C4572D9-A2BC-4078-8EC5-E975D6621DFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C4572D9-A2BC-4078-8EC5-E975D6621DFA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C4572D9-A2BC-4078-8EC5-E975D6621DFA}.Release|x64.ActiveCfg = Release|Any CPU
+		{5C4572D9-A2BC-4078-8EC5-E975D6621DFA}.Release|x64.Build.0 = Release|Any CPU
+		{5C4572D9-A2BC-4078-8EC5-E975D6621DFA}.Release|x86.ActiveCfg = Release|Any CPU
+		{5C4572D9-A2BC-4078-8EC5-E975D6621DFA}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{A8517D35-8DEF-4987-B35D-142BE39F7D8B} = {C785F5C7-BE2A-4FF9-8E3A-23DAF886AA3B}
+		{5C4572D9-A2BC-4078-8EC5-E975D6621DFA} = {C785F5C7-BE2A-4FF9-8E3A-23DAF886AA3B}
 		{9DFBBF70-173F-4190-A3F5-2203DFE6C526} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{9150AB13-E527-47F2-83DB-F7FB2B900B8C} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{A0F0E0D0-C0B0-4000-8000-000000000001} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
