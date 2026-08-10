@@ -391,6 +391,8 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
       "How ArchLucid billing works — manage subscriptions, payment methods, seats, and usage from Billing and plans.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/BILLING_AND_PLANS.md"],
+    lastReviewed: "2026-08-09",
+    releaseApplicability: "Applies to V1 GA — workspace billing and subscriptions",
   },
   {
     slug: "first-architecture-review",

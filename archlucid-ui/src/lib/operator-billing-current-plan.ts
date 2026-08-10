@@ -5,7 +5,10 @@ export type OperatorBillingPlanKind =
   | "frictionless-trial"
   | "tenant-trial"
   | "paid-plan"
-  | "no-paid-plan";
+  | "no-paid-plan"
+  | "unknown";
+
+export type OperatorBillingSubscriptionLoadState = "pending" | "unavailable" | "resolved";
 
 export type OperatorBillingCurrentPlanView = {
   planKind: OperatorBillingPlanKind;
@@ -26,6 +29,7 @@ type ResolveOperatorBillingCurrentPlanInput = {
   /** From `GET /v1/tenant/usage-status` — when false with a commercial tier, treat as paid. */
   isTrialUsage?: boolean | null;
   commercialTier?: string | null;
+  subscriptionLoadState?: OperatorBillingSubscriptionLoadState;
 };
 
 function isActiveTenantTrialStatus(status: TenantTrialStatusPayload["status"] | null | undefined): boolean {
@@ -35,6 +39,28 @@ function isActiveTenantTrialStatus(status: TenantTrialStatusPayload["status"] | 
 export function resolveOperatorBillingCurrentPlan(
   input: ResolveOperatorBillingCurrentPlanInput,
 ): OperatorBillingCurrentPlanView {
+  if (input.subscriptionLoadState === "pending") {
+    return {
+      planKind: "unknown",
+      headline: "Checking…",
+      supportingLine: "Loading subscription details for this workspace.",
+      workspaceLabel: null,
+      aiBudgetRemainingPercent: input.aiBudgetRemainingPercent,
+      hasPaidPlan: false,
+    };
+  }
+
+  if (input.subscriptionLoadState === "unavailable") {
+    return {
+      planKind: "unknown",
+      headline: "Unavailable",
+      supportingLine: "Subscription status unavailable — open Billing and plans.",
+      workspaceLabel: null,
+      aiBudgetRemainingPercent: input.aiBudgetRemainingPercent,
+      hasPaidPlan: false,
+    };
+  }
+
   const workspaceSuffix =
     input.workspaceLabel !== null && input.workspaceLabel.trim().length > 0
       ? input.workspaceLabel.trim()

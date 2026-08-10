@@ -68,4 +68,36 @@ describe("resolveOperatorBillingCurrentPlan", () => {
     expect(view.supportingLine).toContain("Team");
     expect(view.supportingLine).toContain("Acme");
   });
+
+  it("returns unknown copy while subscription data is pending", () => {
+    const view = resolveOperatorBillingCurrentPlan({
+      isDemoMode: false,
+      isFrictionlessTrial: false,
+      trialStatus: "None",
+      trialDaysRemaining: null,
+      workspaceLabel: null,
+      aiBudgetRemainingPercent: null,
+      subscriptionLoadState: "pending",
+    });
+
+    expect(view.planKind).toBe("unknown");
+    expect(view.headline).toBe("Checking…");
+    expect(view.hasPaidPlan).toBe(false);
+  });
+
+  it("returns unavailable copy when subscription data cannot be loaded", () => {
+    const view = resolveOperatorBillingCurrentPlan({
+      isDemoMode: false,
+      isFrictionlessTrial: false,
+      trialStatus: "None",
+      trialDaysRemaining: null,
+      workspaceLabel: null,
+      aiBudgetRemainingPercent: null,
+      subscriptionLoadState: "unavailable",
+    });
+
+    expect(view.planKind).toBe("unknown");
+    expect(view.supportingLine).toContain("Subscription status unavailable");
+    expect(view.hasPaidPlan).toBe(false);
+  });
 });

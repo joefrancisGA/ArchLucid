@@ -17,8 +17,11 @@ const useTenantTrialStatusQuery = vi.hoisted(() =>
       status: "Active",
       daysRemaining: 5,
     },
+    isPending: false,
+    isError: false,
   })),
 );
+const showError = vi.hoisted(() => vi.fn());
 
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
@@ -34,6 +37,10 @@ vi.mock("@/hooks/use-tenant-trial-status-query", () => ({
 
 vi.mock("@/lib/tenant-usage-status-client", () => ({
   fetchTenantUsageStatusCached,
+}));
+
+vi.mock("@/lib/toast", () => ({
+  showError: (...args: unknown[]) => showError(...args),
 }));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
@@ -69,7 +76,12 @@ import {
   BILLING_HELP_PAGE_SUBTITLE,
   BILLING_HELP_PAGE_TITLE,
   BILLING_HELP_PRIMARY_ACTIONS,
+  BILLING_HELP_REFRESH_ERROR_MESSAGE,
+  BILLING_HELP_SUBSCRIPTION_CHECKING_LABEL,
+  BILLING_HELP_SUBSCRIPTION_UNAVAILABLE_LABEL,
+  BILLING_HELP_VIEW_BILLING_ACTION,
 } from "@/lib/billing-help-guide-content";
+import { OPERATOR_NOT_REFRESHED_LABEL } from "@/lib/operator-last-refreshed-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 const BANNED_CUSTOMER_COPY = [
@@ -110,12 +122,15 @@ describe("HelpBillingAndPlansGuideView", () => {
         status: "Active",
         daysRemaining: 5,
       },
+      isPending: false,
+      isError: false,
     });
     fetchTenantUsageStatusCached.mockResolvedValue({
       isTrial: true,
       seatsUsed: 2,
       seatsLimit: 3,
     });
+    showError.mockReset();
   });
 
   it("registers customer-facing billing help metadata", () => {
@@ -123,30 +138,47 @@ describe("HelpBillingAndPlansGuideView", () => {
     expect(entry?.title).toBe(BILLING_HELP_PAGE_TITLE);
     expect(entry?.summary).toContain("Billing and plans");
     expect(entry?.sourcePaths).toContain("docs/library/customer-facing/BILLING_AND_PLANS.md");
+    expect(entry?.lastReviewed).toBeTruthy();
+    expect(entry?.releaseApplicability).toContain("V1 GA");
   });
 
-  it("renders the reduced page structure without an on-this-page table of contents", () => {
+  it("renders the reduced page structure without an on-this-page table of contents", async () => {
     if (entry === undefined) {
       throw new Error("Expected billing-and-plans documentation entry.");
     }
 
     renderWithOperatorQuery(<HelpBillingAndPlansGuideView entry={entry} />);
 
-    expect(screen.getByRole("heading", { level: 2, name: BILLING_HELP_PAGE_DISPLAY_TITLE })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: BILLING_HELP_PAGE_DISPLAY_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("help-billing-breadcrumb")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
     expect(screen.getByText(BILLING_HELP_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByTestId("help-billing-refresh-button")).toBeInTheDocument();
-    expect(screen.getByTestId("help-billing-last-refreshed")).toHaveTextContent(/Last refreshed:/i);
+    expect(screen.getByTestId("help-billing-last-refreshed")).toHaveTextContent(OPERATOR_NOT_REFRESHED_LABEL);
+    expect(screen.getByTestId("help-billing-last-refreshed")).not.toHaveTextContent(
+      "Last refreshed: Not refreshed yet",
+    );
+    expect(screen.getByTestId("help-billing-document-status")).toHaveTextContent("Current");
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(/Last reviewed/i);
+    expect(screen.getByTestId("help-billing-source-of-record")).toHaveTextContent(
+      "docs/library/customer-facing/BILLING_AND_PLANS.md",
+    );
     expect(screen.getByTestId("help-billing-action-panel")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "How billing works" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Common questions" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Support" })).toBeInTheDocument();
+    expect(screen.getAllByRole("heading", { level: 2, name: "How billing works" })).toHaveLength(1);
+    expect(screen.getAllByRole("heading", { level: 2, name: "Common questions" })).toHaveLength(1);
+    expect(screen.getAllByRole("heading", { level: 2, name: "Support" })).toHaveLength(1);
+    expect(screen.getByRole("heading", { level: 2, name: "Your workspace" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Billing support" })).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-toc")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-billing-faq-list").children).toHaveLength(BILLING_HELP_FAQ_ITEMS.length);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("help-billing-last-refreshed")).toHaveTextContent(/Plan data:/i);
+      expect(screen.getByTestId("help-billing-last-refreshed")).not.toHaveTextContent(OPERATOR_NOT_REFRESHED_LABEL);
+    });
   });
 
-  it("links to public pricing and in-app billing for administrators", () => {
+  it("links to public pricing and in-app billing for administrators", async () => {
     if (entry === undefined) {
       throw new Error("Expected billing-and-plans documentation entry.");
     }
@@ -155,8 +187,12 @@ describe("HelpBillingAndPlansGuideView", () => {
 
     const actionPanel = screen.getByTestId("help-billing-action-panel");
 
-    expect(within(actionPanel).getByTestId("help-billing-view-public-pricing")).toHaveAttribute("href", "/pricing");
-    expect(within(actionPanel).getByTestId("help-billing-view-public-pricing")).toHaveTextContent(/Public page/i);
+    await waitFor(() => {
+      expect(within(actionPanel).getByTestId("help-billing-view-public-pricing")).toHaveAttribute("href", "/pricing");
+    });
+
+    expect(within(actionPanel).getByTestId("help-billing-view-public-pricing-wrap")).toBeInTheDocument();
+    expect(within(actionPanel).getByText(/Public page/i)).toBeInTheDocument();
     expect(
       within(actionPanel).getByRole("link", { name: BILLING_HELP_PRIMARY_ACTIONS.manageBilling.label }),
     ).toHaveAttribute("href", "/administration/billing");
@@ -174,13 +210,12 @@ describe("HelpBillingAndPlansGuideView", () => {
     const actionPanel = screen.getByTestId("help-billing-action-panel");
     const context = screen.getByTestId("help-billing-current-plan-context");
 
-    expect(within(context).getByText("Trial")).toBeInTheDocument();
-    expect(within(actionPanel).getByText(/5 days remaining/i)).toBeInTheDocument();
-    expect(within(context).getByTestId("help-billing-subscription-status")).toHaveTextContent(
-      "No active subscription",
-    );
-
     await waitFor(() => {
+      expect(within(context).getByText("Trial")).toBeInTheDocument();
+      expect(within(actionPanel).getByText(/5 days remaining/i)).toBeInTheDocument();
+      expect(within(context).getByTestId("help-billing-subscription-status")).toHaveTextContent(
+        "No active subscription",
+      );
       expect(within(context).getByText("Trial seats")).toBeInTheDocument();
       expect(within(context).getByText("2 of 3 in use")).toBeInTheDocument();
     });
@@ -191,7 +226,11 @@ describe("HelpBillingAndPlansGuideView", () => {
       throw new Error("Expected billing-and-plans documentation entry.");
     }
 
-    useTenantTrialStatusQuery.mockReturnValue({ data: { status: "Expired", daysRemaining: 0 } });
+    useTenantTrialStatusQuery.mockReturnValue({
+      data: { status: "Expired", daysRemaining: 0 },
+      isPending: false,
+      isError: false,
+    });
     fetchTenantUsageStatusCached.mockResolvedValue({
       isTrial: false,
       seatsUsed: 0,
@@ -202,18 +241,64 @@ describe("HelpBillingAndPlansGuideView", () => {
 
     const context = screen.getByTestId("help-billing-current-plan-context");
 
-    expect(within(context).getByText("No paid plan")).toBeInTheDocument();
-    expect(within(context).getByTestId("help-billing-subscription-status")).toHaveTextContent(
-      "No active subscription",
-    );
-    expect(within(context).queryByText(/seats/i)).not.toBeInTheDocument();
-
     await waitFor(() => {
+      expect(within(context).getByText("No paid plan")).toBeInTheDocument();
+      expect(within(context).getByTestId("help-billing-subscription-status")).toHaveTextContent(
+        "No active subscription",
+      );
+      expect(within(context).queryByText(/seats/i)).not.toBeInTheDocument();
       expect(fetchTenantUsageStatusCached).toHaveBeenCalled();
     });
   });
 
-  it("shows a billing administrator hint for users without mutation permission", () => {
+  it("shows checking subscription while plan data is pending", () => {
+    if (entry === undefined) {
+      throw new Error("Expected billing-and-plans documentation entry.");
+    }
+
+    useTenantTrialStatusQuery.mockReturnValue({
+      data: undefined,
+      isPending: true,
+      isError: false,
+    });
+
+    renderWithOperatorQuery(<HelpBillingAndPlansGuideView entry={entry} />);
+
+    const context = screen.getByTestId("help-billing-current-plan-context");
+
+    expect(within(context).getByText("Checking…")).toBeInTheDocument();
+    expect(within(context).getByTestId("help-billing-subscription-status")).toHaveTextContent(
+      BILLING_HELP_SUBSCRIPTION_CHECKING_LABEL,
+    );
+    expect(within(context).queryByText("No paid plan")).not.toBeInTheDocument();
+    expect(within(context).queryByText("No active subscription")).not.toBeInTheDocument();
+  });
+
+  it("shows unavailable subscription status when trial query errors", async () => {
+    if (entry === undefined) {
+      throw new Error("Expected billing-and-plans documentation entry.");
+    }
+
+    useTenantTrialStatusQuery.mockReturnValue({
+      data: undefined,
+      isPending: false,
+      isError: true,
+    });
+
+    renderWithOperatorQuery(<HelpBillingAndPlansGuideView entry={entry} />);
+
+    const context = screen.getByTestId("help-billing-current-plan-context");
+
+    await waitFor(() => {
+      expect(within(context).getByTestId("help-billing-subscription-status")).toHaveTextContent(
+        BILLING_HELP_SUBSCRIPTION_UNAVAILABLE_LABEL,
+      );
+      expect(within(context).queryByText("No paid plan")).not.toBeInTheDocument();
+      expect(within(context).queryByText("No active subscription")).not.toBeInTheDocument();
+    });
+  });
+
+  it("shows a billing administrator hint for users without mutation permission", async () => {
     if (entry === undefined) {
       throw new Error("Expected billing-and-plans documentation entry.");
     }
@@ -223,19 +308,55 @@ describe("HelpBillingAndPlansGuideView", () => {
     renderWithOperatorQuery(<HelpBillingAndPlansGuideView entry={entry} />);
 
     const actionPanel = screen.getByTestId("help-billing-action-panel");
+    const hint = within(actionPanel).getByTestId("help-billing-no-permission-hint");
+    const pricingLink = within(actionPanel).getByTestId("help-billing-view-public-pricing");
 
-    expect(within(actionPanel).getByTestId("help-billing-no-permission-hint")).toHaveTextContent(
-      BILLING_HELP_NO_PERMISSION_HINT,
-    );
-    expect(within(actionPanel).getByRole("link", { name: "Open Billing and plans" })).toHaveAttribute(
-      "href",
-      "/administration/billing",
-    );
+    expect(hint).toHaveTextContent(BILLING_HELP_NO_PERMISSION_HINT);
+    expect(hint.compareDocumentPosition(pricingLink)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(
+      within(actionPanel).getByRole("link", { name: BILLING_HELP_VIEW_BILLING_ACTION.label }),
+    ).toHaveAttribute("href", "/administration/billing");
+    expect(
+      within(actionPanel).getByRole("link", { name: BILLING_HELP_VIEW_BILLING_ACTION.label }),
+    ).not.toHaveAttribute("title");
     expect(screen.queryByRole("button", { name: "Manage billing" })).not.toBeInTheDocument();
     expect(within(actionPanel).getByTestId("help-billing-view-public-pricing")).toBeInTheDocument();
   });
 
-  it("uses keyboard-operable FAQ accordions with expand affordance", () => {
+  it("surfaces refresh failures without advancing the plan freshness timestamp", async () => {
+    if (entry === undefined) {
+      throw new Error("Expected billing-and-plans documentation entry.");
+    }
+
+    fetchTenantUsageStatusCached
+      .mockResolvedValueOnce({
+        isTrial: true,
+        seatsUsed: 2,
+        seatsLimit: 3,
+      })
+      .mockRejectedValueOnce(new Error("network"));
+
+    renderWithOperatorQuery(<HelpBillingAndPlansGuideView entry={entry} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("help-billing-last-refreshed")).not.toHaveTextContent(OPERATOR_NOT_REFRESHED_LABEL);
+    });
+
+    const beforeRefresh = screen.getByTestId("help-billing-last-refreshed").textContent;
+
+    fireEvent.click(screen.getByTestId("help-billing-refresh-button"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("help-billing-refresh-error")).toHaveTextContent(
+        BILLING_HELP_REFRESH_ERROR_MESSAGE,
+      );
+      expect(showError).toHaveBeenCalledWith("Billing", BILLING_HELP_REFRESH_ERROR_MESSAGE);
+    });
+
+    expect(screen.getByTestId("help-billing-last-refreshed").textContent).toBe(beforeRefresh);
+  });
+
+  it("uses keyboard-operable FAQ accordions with expand affordance", async () => {
     if (entry === undefined) {
       throw new Error("Expected billing-and-plans documentation entry.");
     }
@@ -255,14 +376,26 @@ describe("HelpBillingAndPlansGuideView", () => {
     expect(within(firstFaq).getByText(/choose a paid plan/i)).toBeVisible();
   });
 
-  it("avoids prohibited customer-facing billing terminology and duplicated pricing matrices", () => {
+  it("renders help copy at the reading scale with a capped measure", () => {
     if (entry === undefined) {
       throw new Error("Expected billing-and-plans documentation entry.");
     }
 
     renderWithOperatorQuery(<HelpBillingAndPlansGuideView entry={entry} />);
 
-    const pageText = document.body.textContent?.toLowerCase() ?? "";
+    expect(screen.getByTestId("help-billing-overview").className).toContain("text-[15px]");
+    expect(screen.getByTestId("help-billing-overview").parentElement?.className).toContain("max-w-[52rem]");
+  });
+
+  it("avoids prohibited customer-facing billing terminology and duplicated pricing matrices", async () => {
+    if (entry === undefined) {
+      throw new Error("Expected billing-and-plans documentation entry.");
+    }
+
+    renderWithOperatorQuery(<HelpBillingAndPlansGuideView entry={entry} />);
+
+    const headerMetadata = screen.getByTestId("help-billing-header-metadata").textContent?.toLowerCase() ?? "";
+    const pageText = (document.body.textContent?.toLowerCase() ?? "").replace(headerMetadata, "");
 
     for (const phrase of BANNED_CUSTOMER_COPY) {
       expect(pageText, `should not contain "${phrase}"`).not.toContain(phrase);

@@ -4,11 +4,13 @@ import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 import {
   useCallback,
-  useEffect,
   useState,
 } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { HelpBillingCurrentPlanCard } from "@/app/(operator)/help/_sections/HelpBillingCurrentPlanCard";
+import {
+  HelpBillingCurrentPlanCard,
+  type BillingPlanDataLoadState,
+} from "@/app/(operator)/help/_sections/HelpBillingCurrentPlanCard";
 import { HelpBillingAndPlansPageHeader } from "@/app/(operator)/help/_sections/HelpBillingAndPlansPageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { Button } from "@/components/ui/button";
@@ -23,6 +25,7 @@ import {
   BILLING_HELP_FAQ_ITEMS,
   BILLING_HELP_HOW_BILLING_WORKS_ITEMS,
   BILLING_HELP_OVERVIEW,
+  BILLING_HELP_REFRESH_ERROR_MESSAGE,
   BILLING_HELP_SUPPORT_ACTION,
   BILLING_HELP_SUPPORT_INTRO,
   billingHelpPageSubtitle,
@@ -34,11 +37,12 @@ import {
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
-  OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
-import { fetchTenantUsageStatusCached } from "@/lib/tenant-usage-status-client";
+import { showError } from "@/lib/toast";
+
 type HelpBillingAndPlansGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
 };
@@ -47,7 +51,7 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
   return (
     <h2
       id={props.id}
-      className={cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY.sectionTitle, "m-0 scroll-mt-24")}
+      className={cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, HELP_PAGE_LAYOUT.compactSectionH2, "m-0 scroll-mt-24")}
     >
       {props.children}
     </h2>
@@ -69,7 +73,8 @@ function BillingFaqItemCard(props: { readonly item: BillingHelpFaqItem }): React
       <summary
         className={cn(
           "flex cursor-pointer list-none items-start justify-between gap-3 marker:content-none [&::-webkit-details-marker]:hidden",
-          OPERATOR_TYPOGRAPHY.cardTitle,
+          HELP_PAGE_LAYOUT.readingBody,
+          "font-medium text-al-text-primary",
         )}
       >
         <span className="font-medium text-al-text-primary">{item.question}</span>
@@ -78,34 +83,55 @@ function BillingFaqItemCard(props: { readonly item: BillingHelpFaqItem }): React
           aria-hidden
         />
       </summary>
-      <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{item.answer}</p>
+      <p className={cn("m-0 mt-3 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}>{item.answer}</p>
     </details>
   );
 }
 
 /** Buyer-safe billing orientation for `/help/billing-and-plans`. */
 export function HelpBillingAndPlansGuideView(props: HelpBillingAndPlansGuideViewProps): React.ReactElement {
-  void props.entry;
-
+  const { entry } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const queryClient = useQueryClient();
   const [refreshing, setRefreshing] = useState(false);
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
+  const [refreshError, setRefreshError] = useState<string | null>(null);
   const [refreshToken, setRefreshToken] = useState(0);
 
-  useEffect(() => {
-    setLastRefreshedAt(new Date());
+  const handlePlanLoadStateChange = useCallback((state: BillingPlanDataLoadState) => {
+    if (state.status === "pending") {
+      return;
+    }
+
+    if (state.status === "resolved") {
+      setLastRefreshedAt(new Date());
+      setRefreshError(null);
+      setRefreshing(false);
+      return;
+    }
+
+    setRefreshing((wasRefreshing) => {
+      if (wasRefreshing) {
+        setRefreshError(BILLING_HELP_REFRESH_ERROR_MESSAGE);
+        showError("Billing", BILLING_HELP_REFRESH_ERROR_MESSAGE);
+      }
+
+      return false;
+    });
   }, []);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
+    setRefreshError(null);
 
     try {
       await queryClient.invalidateQueries({ queryKey: operatorQueryKeys.tenantTrialStatus });
-      await fetchTenantUsageStatusCached({ force: true });
+      await queryClient.refetchQueries({ queryKey: operatorQueryKeys.tenantTrialStatus });
+      // Card re-fetches usage via refreshToken and reports freshness through onLoadStateChange.
       setRefreshToken((previous) => previous + 1);
-      setLastRefreshedAt(new Date());
-    } finally {
+    } catch {
+      setRefreshError(BILLING_HELP_REFRESH_ERROR_MESSAGE);
+      showError("Billing", BILLING_HELP_REFRESH_ERROR_MESSAGE);
       setRefreshing(false);
     }
   }, [queryClient]);
@@ -118,35 +144,43 @@ export function HelpBillingAndPlansGuideView(props: HelpBillingAndPlansGuideView
       <HelpTopicHashScroll />
 
       <HelpBillingAndPlansPageHeader
+        entry={entry}
         subtitle={billingHelpPageSubtitle(buyerPolishedShell)}
         refreshing={refreshing}
         lastRefreshedAt={lastRefreshedAt}
+        refreshError={refreshError}
         onRefresh={() => {
           void onRefresh();
         }}
       />
       <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <HelpBillingCurrentPlanCard refreshToken={refreshToken} />
+        <HelpBillingCurrentPlanCard
+          refreshToken={refreshToken}
+          onLoadStateChange={handlePlanLoadStateChange}
+        />
       </div>
 
-      <div className="max-w-[42rem] space-y-8 lg:max-w-none">
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-billing-overview">
-            {BILLING_HELP_OVERVIEW}
-          </p>
+      <div className={cn("space-y-6", "w-full max-w-[52rem]")}>
+        <p className={cn("m-0", HELP_PAGE_LAYOUT.readingBody)} data-testid="help-billing-overview">
+          {BILLING_HELP_OVERVIEW}
+        </p>
 
         <section
           aria-labelledby="how-billing-works"
           className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
         >
           <HelpSectionHeading id="how-billing-works">How billing works</HelpSectionHeading>
-          <ul className={cn("m-0 list-none space-y-3 p-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-billing-how-it-works">
+          <ul
+            className={cn("m-0 list-none space-y-3 p-0", HELP_PAGE_LAYOUT.readingBody)}
+            data-testid="help-billing-how-it-works"
+          >
             {BILLING_HELP_HOW_BILLING_WORKS_ITEMS.map((item) => (
               <li
                 key={item.id}
                 className="rounded-md border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"
               >
-                <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{item.title}</h3>
-                <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{item.body}</p>
+                <h3 className={cn("m-0", HELP_PAGE_LAYOUT.sectionH3)}>{item.title}</h3>
+                <p className={cn("m-0 mt-1 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}>{item.body}</p>
               </li>
             ))}
           </ul>
@@ -157,7 +191,7 @@ export function HelpBillingAndPlansGuideView(props: HelpBillingAndPlansGuideView
           className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
         >
           <HelpSectionHeading id="common-questions">Common questions</HelpSectionHeading>
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+          <p className={cn("m-0", HELP_PAGE_LAYOUT.paragraph, "text-al-text-secondary")}>
             Expand a question for a short answer and where to go next in the product.
           </p>
           <div className="space-y-3" data-testid="help-billing-faq-list">
@@ -174,8 +208,12 @@ export function HelpBillingAndPlansGuideView(props: HelpBillingAndPlansGuideView
           <HelpSectionHeading id="support">Support</HelpSectionHeading>
           <Card className="border-neutral-200 dark:border-neutral-800" data-testid="help-billing-support-card">
             <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle className={cn("text-base", OPERATOR_TYPOGRAPHY.cardTitle)}>Billing support</CardTitle>
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{BILLING_HELP_SUPPORT_INTRO}</p>
+              <CardTitle as="h2" className={cn("text-base", HELP_PAGE_LAYOUT.sectionH3)}>
+                Billing support
+              </CardTitle>
+              <p className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}>
+                {BILLING_HELP_SUPPORT_INTRO}
+              </p>
             </CardHeader>
             <CardContent className={OPERATOR_CARD.content}>
               <Button asChild size="sm" variant="outline">
@@ -186,7 +224,7 @@ export function HelpBillingAndPlansGuideView(props: HelpBillingAndPlansGuideView
                 className={cn(
                   "mt-3 inline-block text-sm underline-offset-2 hover:underline",
                   DESIGN_TOKENS.accent.link,
-                  OPERATOR_TYPOGRAPHY.body,
+                  HELP_PAGE_LAYOUT.readingBody,
                 )}
               >
                 Open Billing and plans

@@ -51,6 +51,21 @@ export const BILLING_HELP_PRIMARY_ACTIONS = {
 export const BILLING_HELP_NO_PERMISSION_HINT =
   "Billing changes require workspace administrator access. Contact your workspace billing administrator or workspace owner.";
 
+export const BILLING_HELP_VIEW_BILLING_ACTION = {
+  label: "View billing details",
+  href: SETTINGS_BILLING_PATH,
+} as const;
+
+export const BILLING_HELP_SUBSCRIPTION_CHECKING_LABEL = "Checking subscription" as const;
+
+export const BILLING_HELP_SUBSCRIPTION_UNAVAILABLE_LABEL = "Subscription status unavailable" as const;
+
+export const BILLING_HELP_REFRESH_ERROR_MESSAGE = "Couldn't refresh plan details" as const;
+
+export const BILLING_HELP_PLAN_DATA_FRESHNESS_PREFIX = "Plan data" as const;
+
+export const BILLING_HELP_SOURCE_OF_RECORD_LABEL = "BILLING_AND_PLANS.md" as const;
+
 export const BILLING_HELP_HOW_BILLING_WORKS_ITEMS = [
   {
     id: "trial",
@@ -148,4 +163,69 @@ export const BILLING_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "how-billing-works", title: "How billing works" },
   { level: 2, id: "common-questions", title: "Common questions" },
   { level: 2, id: "support", title: "Support" },
+];
+
+export type BillingHelpSourceDriftAnchor = {
+  readonly id: string;
+  readonly phrases: readonly string[];
+};
+
+/** Phrases that must appear in `docs/library/customer-facing/BILLING_AND_PLANS.md`. */
+export const BILLING_HELP_SOURCE_DRIFT_ANCHORS: readonly BillingHelpSourceDriftAnchor[] = [
+  {
+    id: "overview",
+    phrases: ["ArchLucid subscription", "Billing and plans"],
+  },
+  {
+    id: "how-trial",
+    phrases: ["Trial", "When the trial ends"],
+  },
+  {
+    id: "how-subscription",
+    phrases: ["Subscription", "Paid plans activate after checkout"],
+  },
+  {
+    id: "how-seats",
+    phrases: ["Seats", "workspace seats"],
+  },
+  {
+    id: "how-ai-usage",
+    phrases: ["AI usage", "Prepaid credits"],
+  },
+  {
+    id: "how-changes",
+    phrases: ["Changes and cancellation", "Workspace administrators"],
+  },
+  {
+    id: "faq-trial-ends",
+    phrases: ["When the trial ends", "paid plan"],
+  },
+  {
+    id: "faq-who-manages",
+    phrases: ["Workspace administrators", "Billing and plans"],
+  },
+  {
+    id: "faq-payment-method",
+    phrases: ["payment details", "Billing and plans"],
+  },
+  {
+    id: "faq-invoices",
+    phrases: ["Billing and plans"],
+  },
+  {
+    id: "faq-seats",
+    phrases: ["Seats", "workspace seats"],
+  },
+  {
+    id: "faq-ai-usage",
+    phrases: ["AI usage", "Billing and plans"],
+  },
+  {
+    id: "faq-change-cancel",
+    phrases: ["cancel", "Billing and plans"],
+  },
+  {
+    id: "faq-billing-help",
+    phrases: ["ArchLucid support", "Billing and plans"],
+  },
 ];
