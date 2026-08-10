@@ -91,3 +91,11 @@ export function matchesCompareExplainGet(url: URL, baseRunId: string, targetRunI
 export function matchesAuthorityProjectRunsPagedGet(url: URL, projectId: string): boolean {
   return backendApiPath(url) === `/v1/authority/projects/${encodeURIComponent(projectId)}/reviews`;
 }
+
+/**
+ * Scope-wide paged reviews (`GET /v1/authority/reviews`) — Compare {@link RunIdPicker} uses this when
+ * `projectId` is `default` / omitted (`shouldListReviewsAcrossProjectSlugs`).
+ */
+export function matchesAuthorityReviewsInScopePagedGet(url: URL): boolean {
+  return backendApiPath(url) === "/v1/authority/reviews";
+}

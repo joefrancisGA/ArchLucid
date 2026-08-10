@@ -44,7 +44,7 @@ test.describe("Core pilot path (mock API, buyer-polished shell)", () => {
     // Buyer-polished Overview omits the collapsed advanced-guidance rail (hero contextual help covers onboarding).
     await expect(page.getByTestId("operator-home-advanced-guidance")).toHaveCount(0);
 
-    // Mock Playwright config sets NEXT_PUBLIC_CTO_DEMO_NAV_EXPANDED — advanced nav is visible without unlock panel.
+    // Mock Playwright config sets NEXT_PUBLIC_CTO_DEMO_NAV_EXPANDED — full nav (incl. governance) without unlock / density collapse.
     await expect(page.getByTestId("operate-features-unlock-panel")).toHaveCount(0);
     await expect(page.getByTestId("sidebar-group-toggle-operate-analysis")).toBeVisible();
     await expect(page.getByTestId("sidebar-group-toggle-operate-governance")).toBeVisible();

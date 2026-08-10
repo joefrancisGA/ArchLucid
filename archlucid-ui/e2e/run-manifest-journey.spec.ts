@@ -76,7 +76,7 @@ test.describe("operator journey — run detail to manifest and back", () => {
       getAppMain(page).getByRole("heading", { level: 1 }).filter({ hasText: SHOWCASE_RUN_DETAIL_HEADING }),
     ).toBeVisible({ timeout: 60_000 });
 
-    await openReviewDetailWorkspaceTab(page, SHOWCASE_DEMO_RUN_ID, "activity");
+    await openReviewDetailWorkspaceTab(page, SHOWCASE_DEMO_RUN_ID, "overview");
     await expandReviewDetailOutcomeCards(page);
     await expect(page.locator('section[aria-label="Review outcome summary"]')).toBeVisible({ timeout: 60_000 });
   });

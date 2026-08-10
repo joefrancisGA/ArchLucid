@@ -501,13 +501,14 @@ export async function openReviewDetailWorkspaceTab(
 }
 
 function reviewDetailOutcomeCardsDetails(page: Page): Locator {
-  return reviewDetailWorkspacePanel(page, "activity")
+  // Primary buyer layout folds outcome cards under Overview; architecture-created layouts keep them on Activity.
+  return getAppMain(page)
     .locator("details")
     .filter({ has: page.getByText("Detailed outcome cards", { exact: true }) })
     .first();
 }
 
-/** Activity tab folds outcome cards by default — expand before asserting the outcome summary strip. */
+/** Overview/Activity folds outcome cards by default — expand before asserting the outcome summary strip. */
 export async function expandReviewDetailOutcomeCards(page: Page): Promise<void> {
   const details = reviewDetailOutcomeCardsDetails(page);
 
@@ -545,9 +546,9 @@ export async function expandFindingWorkspaceCard(scope: Locator, findingId: stri
   return card;
 }
 
-/** Opens activity tab, expands outcome cards, and returns the visible outcome summary strip. */
+/** Opens overview (buyer layout) or activity, expands outcome cards, and returns the outcome summary strip. */
 export async function openVisibleReviewOutcomeSummaryStrip(page: Page, runId: string): Promise<Locator> {
-  await openReviewDetailWorkspaceTab(page, runId, "activity");
+  await openReviewDetailWorkspaceTab(page, runId, "overview");
 
   const outcomeStrip = reviewOutcomeSummaryStrip(page);
   const manifestLink = runDetailFinalizedPackageLink(page);
@@ -555,6 +556,11 @@ export async function openVisibleReviewOutcomeSummaryStrip(page: Page, runId: st
   await expect(async () => {
     if (await outcomeStrip.isVisible()) {
       return;
+    }
+
+    // Architecture-created layouts keep the disclosure on Activity — retry there if Overview has no fold.
+    if ((await reviewDetailOutcomeCardsDetails(page).count()) === 0) {
+      await openReviewDetailWorkspaceTab(page, runId, "activity");
     }
 
     await expandReviewDetailOutcomeCards(page);
@@ -824,12 +830,12 @@ export async function expandCompareStructuredDecisionChanges(page: Page): Promis
 }
 
 /**
- * Sponsor callout under structured manifest compare (`#compare-structured`).
+ * Sponsor callout on the comparison verdict summary (sibling above `#compare-structured`).
  * Uses `data-testid` — buyer-polished shells rewrite fixture highlight prose (see
  * {@link applyBuyerPolishedGoldenManifestSummaryHighlights}), so asserting raw fixture copy flakes in mock CI.
  */
 export function structuredCompareSponsorRecommendationParagraph(page: Page): Locator {
-  return page.locator("#compare-structured").getByTestId("compare-sponsor-recommendation");
+  return page.getByTestId("compare-sponsor-recommendation");
 }
 
 /** Navigates to `/architecture/reviews/{runId}` with encoded id and DOM-ready wait (live API E2E parity). */
