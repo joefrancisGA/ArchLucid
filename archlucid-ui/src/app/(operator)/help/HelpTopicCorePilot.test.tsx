@@ -1,22 +1,14 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, beforeEach, vi } from "vitest";
 
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+const mockUseCorePilotCommitContextQuery = vi.fn();
+
 vi.mock("@/hooks/use-core-pilot-commit-context-query", () => ({
-  useCorePilotCommitContextQuery: () => ({
-    isPending: false,
-    data: {
-      hasCommittedManifest: false,
-      committedReviewCount: 0,
-      latestRunId: null,
-      firstCommittedRunId: null,
-      secondCommittedRunId: null,
-      latestRunReadyToFinalize: false,
-    },
-  }),
+  useCorePilotCommitContextQuery: () => mockUseCorePilotCommitContextQuery(),
 }));
 
 import { HelpCorePilotGuideView } from "@/app/(operator)/help/_sections/HelpCorePilotGuideView";
@@ -25,6 +17,7 @@ import {
   CORE_PILOT_HELP_DISCLOSURE,
   CORE_PILOT_HELP_SUMMARY_TITLE,
 } from "@/lib/core-pilot-help-guide-content";
+import { CORE_PILOT_HELP_CLAIM_DISCIPLINE } from "@/lib/core-pilot-help-evidence-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 const BANNED_INTERNAL_COPY = [
@@ -35,14 +28,43 @@ const BANNED_INTERNAL_COPY = [
   "status on home:",
 ] as const;
 
+const emptyCommitContext = {
+  hasCommittedManifest: false,
+  committedReviewCount: 0,
+  latestRunId: null,
+  firstCommittedRunId: null,
+  secondCommittedRunId: null,
+  latestRunReadyToFinalize: false,
+};
+
+function mockCommitQuery(
+  overrides: Partial<{
+    isPending: boolean;
+    isError: boolean;
+    data: typeof emptyCommitContext;
+  }> = {},
+): void {
+  mockUseCorePilotCommitContextQuery.mockReturnValue({
+    isPending: overrides.isPending ?? false,
+    isError: overrides.isError ?? false,
+    data: overrides.data ?? emptyCommitContext,
+  });
+}
+
 describe("HelpCorePilotGuideView", () => {
   const entry = getProductDocumentationEntry("first-architecture-review");
+
+  beforeEach(() => {
+    mockCommitQuery();
+  });
 
   it("registers the core pilot guide entry", () => {
     expect(entry?.title).toBe("Your first architecture review");
     expect(entry?.slug).toBe("first-architecture-review");
     expect(entry?.summary).toMatch(/guided path from evidence intake/i);
     expect(entry?.summary).not.toMatch(/core[- ]?pilot/i);
+    expect(entry?.lastReviewed).toBe("2026-08-09");
+    expect(entry?.releaseApplicability).toMatch(/first architecture review workflow/i);
   });
 
   it("renders buyer title and subtitle without Core-pilot jargon (TB-1041)", () => {
@@ -55,6 +77,8 @@ describe("HelpCorePilotGuideView", () => {
     expect(screen.getByRole("heading", { level: 1, name: "Your first architecture review" })).toBeInTheDocument();
     expect(screen.getByText(entry.summary)).toBeInTheDocument();
     expect(screen.queryByText(/core[- ]?pilot/i)).toBeNull();
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(/Last reviewed 2026-08-09/i);
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(/first architecture review workflow/i);
   });
 
   it("renders the guided first-review path near the top", () => {
@@ -75,8 +99,24 @@ describe("HelpCorePilotGuideView", () => {
     expect(within(summaryCard).getByRole("link", { name: "Open sample review" })).toBeInTheDocument();
     expect(within(summaryCard).queryByRole("link", { name: "View pilot guide" })).toBeNull();
     expect(screen.getByTestId("core-pilot-primary-start-cta")).toBeInTheDocument();
-    // TB-1040: only the hero Start control uses the primary button style.
     expect(screen.getAllByTestId("core-pilot-primary-start-cta")).toHaveLength(1);
+  });
+
+  it("limits /architecture/reviews/new links to the hero and gate note", () => {
+    if (entry === undefined) {
+      throw new Error("Expected first-architecture-review documentation entry.");
+    }
+
+    render(<HelpCorePilotGuideView entry={entry} />);
+
+    const newReviewLinks = screen
+      .getAllByRole("link")
+      .filter((link) => link.getAttribute("href") === "/architecture/reviews/new");
+
+    expect(newReviewLinks).toHaveLength(2);
+    expect(newReviewLinks.map((link) => link.textContent)).toEqual(
+      expect.arrayContaining([BUYER_START_ARCHITECTURE_REVIEW_CTA, "Start a review first"]),
+    );
   });
 
   it("does not link recursively to View pilot guide in the hero path (TB-1040)", () => {
@@ -86,8 +126,6 @@ describe("HelpCorePilotGuideView", () => {
 
     render(<HelpCorePilotGuideView entry={entry} />);
 
-    // TB-1043 later added a legitimate cross-link to the distinct "Pilot guide" topic in
-    // core-pilot-related-guides — only the exact self-referential "View pilot guide" label is banned.
     expect(screen.queryByRole("link", { name: "View pilot guide" })).toBeNull();
     expect(within(screen.getByTestId("core-pilot-summary-card")).queryByRole("link", { name: /pilot guide/i })).toBeNull();
   });
@@ -100,12 +138,16 @@ describe("HelpCorePilotGuideView", () => {
     render(<HelpCorePilotGuideView entry={entry} />);
 
     const stepper = screen.getByTestId("core-pilot-workflow-stepper");
-    expect(within(stepper).getByRole("heading", { name: "Start review" })).toBeInTheDocument();
-    expect(within(stepper).getByRole("heading", { name: "Add evidence" })).toBeInTheDocument();
-    expect(within(stepper).getByRole("heading", { name: "Monitor review progress" })).toBeInTheDocument();
-    expect(within(stepper).getByRole("heading", { name: "Finalize review" })).toBeInTheDocument();
-    expect(within(stepper).getByRole("heading", { name: "Share outputs" })).toBeInTheDocument();
-    expect(within(stepper).getAllByRole("link").length).toBeGreaterThanOrEqual(3);
+    expect(within(stepper).getByRole("heading", { name: /Start review/ })).toBeInTheDocument();
+    expect(within(stepper).getByRole("heading", { name: /Add evidence/ })).toBeInTheDocument();
+    expect(within(stepper).getByRole("heading", { name: /Monitor review progress/ })).toBeInTheDocument();
+    expect(within(stepper).getByRole("heading", { name: /Finalize review/ })).toBeInTheDocument();
+    expect(within(stepper).getByRole("heading", { name: /Share outputs/ })).toBeInTheDocument();
+    expect(within(stepper).getByRole("link", { name: "Open upload settings" })).toHaveAttribute(
+      "href",
+      "/administration/extract-upload",
+    );
+    expect(within(stepper).queryByTestId("core-pilot-step-1-cta")).toBeNull();
   });
 
   it("collapses the steps 3–5 gate into one control when no active run (TB-1042)", () => {
@@ -126,10 +168,72 @@ describe("HelpCorePilotGuideView", () => {
     expect(gateNote).toHaveTextContent(/steps 3, 4 and 5 unlock after your first review starts/i);
     expect(gateNote).toHaveTextContent(/exports unlock after you start a review/i);
 
-    // The per-step duplicates of the same gate are gone.
     expect(screen.queryByTestId("core-pilot-step-3-cta")).toBeNull();
     expect(screen.queryByTestId("core-pilot-step-4-cta")).toBeNull();
     expect(screen.queryByTestId("core-pilot-step-5-cta")).toBeNull();
+  });
+
+  it("shows pending placeholders instead of disabled controls while context loads", () => {
+    if (entry === undefined) {
+      throw new Error("Expected first-architecture-review documentation entry.");
+    }
+
+    mockCommitQuery({ isPending: true });
+
+    render(<HelpCorePilotGuideView entry={entry} />);
+
+    expect(screen.getByTestId("core-pilot-step-3-pending")).toHaveAttribute("aria-busy", "true");
+    expect(screen.getByTestId("core-pilot-step-4-pending")).toHaveAttribute("aria-busy", "true");
+    expect(screen.getByTestId("core-pilot-step-5-pending")).toHaveAttribute("aria-busy", "true");
+    expect(screen.queryByTestId("core-pilot-workflow-gate-note")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Open review detail" })).toBeNull();
+  });
+
+  it("falls back to the gate note when context fetch fails", () => {
+    if (entry === undefined) {
+      throw new Error("Expected first-architecture-review documentation entry.");
+    }
+
+    mockCommitQuery({ isError: true });
+
+    render(<HelpCorePilotGuideView entry={entry} />);
+
+    expect(screen.getByTestId("core-pilot-workflow-context-error")).toHaveTextContent(
+      /Couldn't check workspace status/i,
+    );
+    expect(screen.getByTestId("core-pilot-workflow-gate-note")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Start a review first" })).toHaveAttribute("href", "/architecture/reviews/new");
+  });
+
+  it("exposes step ordinals and status tags on each workflow step", () => {
+    if (entry === undefined) {
+      throw new Error("Expected first-architecture-review documentation entry.");
+    }
+
+    render(<HelpCorePilotGuideView entry={entry} />);
+
+    const stepper = screen.getByTestId("core-pilot-workflow-stepper");
+
+    for (let stepNumber = 1; stepNumber <= 5; stepNumber += 1) {
+      expect(
+        within(stepper).getByRole("heading", { name: new RegExp(`Step ${stepNumber} of 5`) }),
+      ).toBeInTheDocument();
+      expect(screen.getByTestId(`core-pilot-step-${stepNumber}-status`)).toHaveTextContent("Not started");
+    }
+  });
+
+  it("labels sections from visible h2 headings", () => {
+    if (entry === undefined) {
+      throw new Error("Expected first-architecture-review documentation entry.");
+    }
+
+    render(<HelpCorePilotGuideView entry={entry} />);
+
+    expect(screen.getByRole("region", { name: "Run the first review" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Cloud connectors are optional for your first review" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Fast path: evidence-only review" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "What can wait" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Ready to begin?" })).toBeInTheDocument();
   });
 
   it("frames cloud connectors as optional and shows fast-path evidence-only review", () => {
@@ -143,7 +247,9 @@ describe("HelpCorePilotGuideView", () => {
       screen.getByRole("heading", { name: "Cloud connectors are optional for your first review" }),
     ).toBeInTheDocument();
     expect(screen.getByTestId("core-pilot-cloud-disclosure")).toBeInTheDocument();
-    expect(screen.getByTestId("cloud-connectors-heading")).toHaveTextContent(/evidence-only review first/i);
+    expect(screen.getByRole("region", { name: "Cloud connectors are optional for your first review" })).toHaveTextContent(
+      /evidence-only review first/i,
+    );
     expect(screen.getByRole("heading", { name: "Fast path: evidence-only review" })).toBeInTheDocument();
     expect(screen.getByTestId("core-pilot-fast-path-disclosure")).toBeInTheDocument();
     expect(screen.getByTestId("core-pilot-cloud-actions")).toBeInTheDocument();
@@ -161,6 +267,9 @@ describe("HelpCorePilotGuideView", () => {
     expect(screen.getByText(/compare, replay, and portfolio graph at scale/i)).toBeInTheDocument();
     expect(screen.getByTestId("core-pilot-closing-cta")).toBeInTheDocument();
     expect(screen.getByText("The home page shows your next recommended action after each review step.")).toBeInTheDocument();
+    expect(
+      within(screen.getByTestId("core-pilot-closing-cta")).getByRole("link", { name: "Jump to start control" }),
+    ).toHaveAttribute("href", "#first-review-path");
 
     const visibleText = document.body.textContent?.toLowerCase() ?? "";
 
@@ -181,6 +290,8 @@ describe("HelpCorePilotGuideView", () => {
     expect(within(firstViewport).getByTestId("core-pilot-workflow-stepper")).toBeInTheDocument();
     expect(within(firstViewport).queryByTestId("core-pilot-cloud-disclosure")).toBeNull();
     expect(within(firstViewport).queryByTestId("core-pilot-related-guides")).toBeNull();
+    expect(within(firstViewport).queryByTestId("core-pilot-help-orientation")).toBeNull();
+    expect(within(firstViewport).queryByTestId("help-topic-registry-provenance")).toBeNull();
 
     const related = screen.getByTestId("core-pilot-related-guides");
     expect(within(related).getAllByRole("link")).toHaveLength(3);
@@ -207,18 +318,20 @@ describe("HelpCorePilotGuideView", () => {
     expect(within(related).queryByRole("link", { name: "Start a review" })).toBeNull();
   });
 
-  it("keeps claim discipline out of the first viewport after Sources chrome removal", () => {
+  it("places claim discipline at the article tail, not the first viewport (TB-2092)", () => {
     if (entry === undefined) {
       throw new Error("Expected first-architecture-review documentation entry.");
     }
 
     render(<HelpCorePilotGuideView entry={entry} />);
 
-    expect(screen.queryByTestId("core-pilot-help-orientation")).toBeNull(); // TB-2092
-    expect(screen.queryByTestId("core-pilot-help-claim-discipline")).toBeNull(); // TB-2092
-
+    const orientation = screen.getByTestId("core-pilot-help-orientation");
+    const related = screen.getByTestId("core-pilot-related-guides");
     const firstViewport = screen.getByTestId("core-pilot-first-viewport");
+
     expect(within(firstViewport).queryByTestId("core-pilot-help-orientation")).toBeNull();
+    expect(orientation.compareDocumentPosition(related) & Node.DOCUMENT_POSITION_FOLLOWING).not.toBe(0);
+    expect(screen.getByTestId("core-pilot-help-claim-discipline")).toHaveTextContent(CORE_PILOT_HELP_CLAIM_DISCIPLINE);
   });
 
   it("keeps the guide-scope disclosure collapsed by default", () => {

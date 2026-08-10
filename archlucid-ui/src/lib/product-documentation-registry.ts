@@ -402,6 +402,8 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "buyer",
     sourcePaths: ["docs/CORE_PILOT.md"],
     pdfStatus: "public",
+    lastReviewed: "2026-08-09",
+    releaseApplicability: "Applies to V1 GA — first architecture review workflow",
   },
   {
     slug: "first-value-20-minutes",

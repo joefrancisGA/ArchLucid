@@ -1,5 +1,6 @@
 import type { CorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import type { CorePilotHelpWorkflowStep } from "@/lib/core-pilot-help-guide-content";
+import { EXTRACT_UPLOAD_SETTINGS_PATH } from "@/lib/core-pilot-steps";
 import { BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR } from "@/lib/first-week-route-guidance";
 
 export type CorePilotHelpWorkflowStepCta = {
@@ -134,17 +135,48 @@ function resolveShareCta(ctx: CorePilotCommitContext): CorePilotHelpWorkflowStep
  * Resolves help-guide workflow CTAs from Core Pilot commit signals (TB-1042).
  * Steps 1–2 stay static; steps 3–5 never deep-link into an empty reviews list.
  */
+function resolveEvidenceStepCta(ctx: CorePilotCommitContext): CorePilotHelpWorkflowStepCta {
+  if (ctx.latestRunId !== null) {
+    return {
+      enabled: true,
+      href: reviewDetailHref(ctx.latestRunId),
+      label: "Add evidence on review detail",
+      helperText: null,
+    };
+  }
+
+  return {
+    enabled: true,
+    href: EXTRACT_UPLOAD_SETTINGS_PATH,
+    label: "Open upload settings",
+    helperText: null,
+  };
+}
+
 export function resolveCorePilotHelpWorkflowStepCta(
   step: CorePilotHelpWorkflowStep,
   ctx: CorePilotCommitContext | null,
 ): CorePilotHelpWorkflowStepCta {
-  if (step.stepNumber <= 2) {
+  if (step.stepNumber === 1) {
     return {
-      enabled: true,
-      href: step.href,
+      enabled: false,
+      href: null,
       label: step.ctaLabel,
       helperText: null,
     };
+  }
+
+  if (step.stepNumber === 2) {
+    if (ctx === null) {
+      return {
+        enabled: false,
+        href: null,
+        label: step.ctaLabel,
+        helperText: null,
+      };
+    }
+
+    return resolveEvidenceStepCta(ctx);
   }
 
   if (ctx === null) {

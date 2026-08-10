@@ -19,12 +19,26 @@ const step4 = CORE_PILOT_HELP_WORKFLOW_STEPS[3]!;
 const step5 = CORE_PILOT_HELP_WORKFLOW_STEPS[4]!;
 
 describe("resolveCorePilotHelpWorkflowStepCta (TB-1042)", () => {
-  it("keeps steps 1–2 on static start/evidence hrefs", () => {
+  it("does not surface a duplicate step-1 start CTA in the stepper", () => {
     const step1 = resolveCorePilotHelpWorkflowStepCta(CORE_PILOT_HELP_WORKFLOW_STEPS[0]!, emptyCtx);
-    const step2 = resolveCorePilotHelpWorkflowStepCta(CORE_PILOT_HELP_WORKFLOW_STEPS[1]!, emptyCtx);
 
-    expect(step1.href).toBe("/architecture/reviews/new");
-    expect(step2.href).toBe("/architecture/reviews/new");
+    expect(step1.enabled).toBe(false);
+    expect(step1.href).toBeNull();
+  });
+
+  it("routes step 2 to upload settings or review detail", () => {
+    const step2Empty = resolveCorePilotHelpWorkflowStepCta(CORE_PILOT_HELP_WORKFLOW_STEPS[1]!, emptyCtx);
+
+    expect(step2Empty.href).toBe("/administration/extract-upload");
+    expect(step2Empty.label).toBe("Open upload settings");
+
+    const step2WithRun = resolveCorePilotHelpWorkflowStepCta(CORE_PILOT_HELP_WORKFLOW_STEPS[1]!, {
+      ...emptyCtx,
+      latestRunId: "run-abc",
+    });
+
+    expect(step2WithRun.href).toBe("/architecture/reviews/run-abc");
+    expect(step2WithRun.label).toBe("Add evidence on review detail");
   });
 
   it("gates steps 3–5 to Start a review first when no active run", () => {

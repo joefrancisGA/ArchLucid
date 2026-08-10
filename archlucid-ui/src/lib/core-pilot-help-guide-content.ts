@@ -48,8 +48,8 @@ export const CORE_PILOT_HELP_WORKFLOW_STEPS: readonly CorePilotHelpWorkflowStep[
     description:
       "Attach briefs, diagrams, documents, IaC, or exports. Cloud connectors are optional for this step.",
     expectedOutput: "Evidence linked to the architecture review before analysis runs.",
-    href: "/architecture/reviews/new",
-    ctaLabel: "Add evidence",
+    href: EXTRACT_UPLOAD_SETTINGS_PATH,
+    ctaLabel: "Open upload settings",
   },
   {
     stepNumber: 3,

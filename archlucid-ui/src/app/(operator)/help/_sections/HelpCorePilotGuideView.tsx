@@ -1,7 +1,9 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { CorePilotHelpOrientationFooter } from "@/app/(operator)/help/_sections/CorePilotHelpOrientationFooter";
 import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
+import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpCorePilotWorkflowStepper } from "@/app/(operator)/help/_sections/HelpCorePilotWorkflowStepper";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -24,6 +26,7 @@ import {
   DESIGN_TOKENS,
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
+  OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
@@ -70,11 +73,13 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
           <div className="min-w-0 space-y-1">
             <HelpTopicTitleRow title={entry.title} />
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{entry.summary}</p>
+            <HelpTopicRegistryProvenanceLine entry={entry} />
           </div>
           <PageContextualHelpButton />
         </div>
       </header>
-<div className={HELP_PAGE_LAYOUT.contentGrid}>
+
+      <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
           <div className="space-y-6" data-testid="core-pilot-first-viewport">
             <Card
@@ -106,9 +111,9 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
               </CardContent>
             </Card>
 
-            <section aria-labelledby="run-the-first-review-heading" className="space-y-4">
+            <section aria-labelledby="run-the-first-review" className="space-y-4">
               <HelpSectionHeading id="run-the-first-review">Run the first review</HelpSectionHeading>
-              <p id="run-the-first-review-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                 Follow these five steps in order. Each step links to the product surface where you take action.
               </p>
               <HelpCorePilotWorkflowStepper />
@@ -119,15 +124,11 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
             {CORE_PILOT_HELP_DISCLOSURE.whatThisGuideCovers.body}
           </HelpDisclosure>
 
-          <section aria-labelledby="cloud-connectors-heading" className="space-y-3">
+          <section aria-labelledby="cloud-connectors-optional" className="space-y-3">
             <HelpSectionHeading id="cloud-connectors-optional">
               Cloud connectors are optional for your first review
             </HelpSectionHeading>
-            <p
-              id="cloud-connectors-heading"
-              data-testid="cloud-connectors-heading"
-              className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
-            >
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
               You can run an evidence-only review first, then connect a provider later when needed.
             </p>
             <details className={HELP_PAGE_LAYOUT.details} data-testid="core-pilot-cloud-disclosure">
@@ -157,14 +158,14 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
             </details>
           </section>
 
-          <section aria-labelledby="fast-path-heading" className="space-y-3">
+          <section aria-labelledby="fast-path-evidence-only" className="space-y-3">
             <HelpSectionHeading id="fast-path-evidence-only">Fast path: evidence-only review</HelpSectionHeading>
             <details className={HELP_PAGE_LAYOUT.details} data-testid="core-pilot-fast-path-disclosure">
               <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>
                 Show evidence-only steps
               </summary>
               <div className={cn(HELP_PAGE_LAYOUT.detailsBody, "space-y-3")}>
-                <Card id="fast-path-heading" className="border-neutral-200 dark:border-neutral-800">
+                <Card className="border-neutral-200 dark:border-neutral-800">
                   <CardContent className={cn(OPERATOR_CARD.body, "space-y-3")}>
                     <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
                       Recommended when connector access is not approved yet, or when your first session only has briefs,
@@ -175,25 +176,25 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
                       <li>Upload files or paste your architecture brief — a cloud connector is not required.</li>
                       <li>Start the review, finalize the package, and export the sponsor packet.</li>
                     </ol>
-                    <Button asChild size="sm" variant="outline">
-                      <Link href={CORE_PILOT_HELP_PRIMARY_ACTIONS.startReview.href}>
-                        {CORE_PILOT_HELP_PRIMARY_ACTIONS.startReview.label}
+                    <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+                      <Link href="#first-review-path" className={cn(OPERATOR_LINK.inline, DESIGN_TOKENS.accent.link)}>
+                        Start evidence-only review
                       </Link>
-                    </Button>
+                    </p>
                   </CardContent>
                 </Card>
               </div>
             </details>
           </section>
 
-          <section aria-labelledby="what-can-wait-heading" className="space-y-3">
+          <section aria-labelledby="what-can-wait" className="space-y-3">
             <HelpSectionHeading id="what-can-wait">What can wait</HelpSectionHeading>
             <details className={HELP_PAGE_LAYOUT.details} data-testid="core-pilot-what-can-wait-disclosure">
               <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>
                 Show deferred topics
               </summary>
               <div className={cn(HELP_PAGE_LAYOUT.detailsBody, "space-y-3")}>
-                <ul id="what-can-wait-heading" className="m-0 list-none space-y-3 p-0">
+                <ul className="m-0 list-none space-y-3 p-0">
                   {CORE_PILOT_HELP_DEFERRED_ITEMS.map((item) => (
                     <li
                       key={item.title}
@@ -212,27 +213,28 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
           </section>
 
           <section
-            aria-labelledby="ready-to-begin-heading"
+            aria-labelledby="ready-to-begin"
             className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-6 dark:border-neutral-800 dark:bg-neutral-900/30"
             data-testid="core-pilot-closing-cta"
           >
             <HelpSectionHeading id="ready-to-begin">Ready to begin?</HelpSectionHeading>
-            <p id="ready-to-begin-heading" className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
+            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
               Start your first review now, or explore the sample review to see a completed outcome.
             </p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <Button asChild size="sm" variant="outline">
-                <Link href={CORE_PILOT_HELP_PRIMARY_ACTIONS.startReview.href}>
-                  {CORE_PILOT_HELP_PRIMARY_ACTIONS.startReview.label}
-                </Link>
-              </Button>
-              <Button asChild size="sm" variant="outline">
-                <Link href={CORE_PILOT_HELP_PRIMARY_ACTIONS.sampleReview.href}>
-                  {CORE_PILOT_HELP_PRIMARY_ACTIONS.sampleReview.label}
-                </Link>
-              </Button>
-            </div>
+            <p className={cn("m-0 mt-4 flex flex-wrap gap-x-4 gap-y-2", OPERATOR_TYPOGRAPHY.body)}>
+              <Link href="#first-review-path" className={cn(OPERATOR_LINK.inline, DESIGN_TOKENS.accent.link)}>
+                Jump to start control
+              </Link>
+              <Link
+                href={CORE_PILOT_HELP_PRIMARY_ACTIONS.sampleReview.href}
+                className={cn(OPERATOR_LINK.inline, DESIGN_TOKENS.accent.link)}
+              >
+                {CORE_PILOT_HELP_PRIMARY_ACTIONS.sampleReview.label}
+              </Link>
+            </p>
           </section>
+
+          <CorePilotHelpOrientationFooter />
 
           <section
             aria-labelledby="depth-guides-heading"
