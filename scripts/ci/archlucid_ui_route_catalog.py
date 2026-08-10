@@ -60,7 +60,11 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/help/api-contracts": "/help/governance-api-contracts",
     "/help/creating-runs": "/help/review-guide",
     "/help/data-handling-tenant-isolation": "/help/data-handling",
+    "/help/evidence-only-review": "/help/first-architecture-review",
+    "/help/how-it-works": "/help/getting-started",
     "/help/integrations/azure-boards": "/help/azure-boards",
+    "/help/product-overview": "/help/executive-summary",
+    "/help/starting-reviews": "/help/review-guide",
     "/help/evaluator-workbook": "/help/path-chooser",
     "/help/first-hour-operator-path": "/help/first-architecture-review",
     "/help/operator-auth-roles": "/help/users-and-roles",
@@ -90,7 +94,7 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     # TB-1902 / TB-1901: /settings/exec-digest is next.config-only → Digests Schedule tab.
     "/settings/exec-digest": "/architecture/digests?tab=schedule",
     "/health": "/administration/system-health",
-    # Folded alias still present in HELP_TOPIC_SLUG_ALIASES; migrate out of workbook/catalog.
+    # Batch A retired help aliases (permanent redirect only) — migrate out of workbook/catalog.
     "/help/core-pilot": "/help/first-architecture-review",
     "/dashboard": "/architecture/executive-dashboard",
     "/executive/dashboard": "/architecture/executive-dashboard",

@@ -2,6 +2,7 @@
  * Customer-visible in-app documentation registry.
  * Source of truth: `docs/library/PRODUCT_DOCUMENTATION_PRESENTATION.md`.
  */
+import { CUSTOMER_GLOSSARY_CONTRACT_VERSION } from "@/lib/customer-glossary-manifest";
 import { ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE } from "@/lib/enterprise-onboarding-help-copy";
 import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
 import {
@@ -43,19 +44,11 @@ type ProductDocumentationRegistryInput = Omit<ProductDocumentationEntry, "pdfSta
 
 /** Slug aliases for contextual deep links (`/help/{slug}`). */
 /** Path-style + folded-topic aliases. TB-2050 retires only the hyphen twins listed in help-center-catalog. */
-/** Retired bookmarks with permanent redirects live in `help-topic-permanent-redirects.ts` (Batch B). */
+/** Retired bookmarks with permanent redirects live in `help-topic-permanent-redirects.ts` (Batch B / Batch A). */
 export const HELP_TOPIC_SLUG_ALIASES: Readonly<Record<string, string>> = {
   "cloud-connections/azure": "cloud-connections-azure",
   "cloud-connections/aws": "cloud-connections-aws",
   "cloud-connections/gcp": "cloud-connections-gcp",
-  "users-and-roles": "users-and-roles",
-  "core-pilot": "first-architecture-review",
-  /** Starting reviews twin folded into review-guide (TB-1258 / TB-1643). */
-  "starting-reviews": "review-guide",
-  /** Evidence-only CORE_PILOT section twin folded into first-architecture-review (TB-1683). */
-  "evidence-only-review": "first-architecture-review",
-  /** Product-overview twin folded into executive-summary (TB-1739). */
-  "product-overview": "executive-summary",
 };
 
 export function normalizeHelpTopicSlug(slug: string): string {
@@ -140,6 +133,8 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "operator",
     // App-rendered from `customer-glossary-manifest.ts` — not a markdown help body.
     sourcePaths: [],
+    lastReviewed: CUSTOMER_GLOSSARY_CONTRACT_VERSION,
+    releaseApplicability: "Applies to V1 GA — product vocabulary for reviews, evidence, and governance",
   },
   {
     slug: "evidence-intake",
@@ -322,6 +317,8 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sourcePaths: ["docs/library/customer-facing/CLOUD_CONNECTIONS.md"],
     sectionAnchors: ["connect-aws-securely"],
     pdfStatus: "customer",
+    lastReviewed: "2026-08-09",
+    releaseApplicability: "Applies to V1 GA — optional cloud evidence connectors",
   },
   {
     slug: "cloud-connections-gcp",
@@ -332,6 +329,8 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sourcePaths: ["docs/library/customer-facing/CLOUD_CONNECTIONS.md"],
     sectionAnchors: ["connect-gcp-securely"],
     pdfStatus: "customer",
+    lastReviewed: "2026-08-09",
+    releaseApplicability: "Applies to V1 GA — optional cloud evidence connectors (GCP Workload Identity Federation connector)",
   },
   {
     slug: "azure-permissions",

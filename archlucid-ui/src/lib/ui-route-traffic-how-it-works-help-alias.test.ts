@@ -1,13 +1,13 @@
-﻿import { readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
 import {
-  CANONICAL_EXECUTIVE_SUMMARY_HELP_TRAFFIC_PATH_FROM_PRODUCT_OVERVIEW,
-  REMOVED_PRODUCT_OVERVIEW_HELP_ALIAS_TRAFFIC_ROW_ID,
-  RETIRED_PRODUCT_OVERVIEW_HELP_ALIAS_TRAFFIC_PATH,
-} from "@/lib/ui-route-traffic-product-overview-help-alias";
+  CANONICAL_GETTING_STARTED_HELP_TRAFFIC_PATH_FROM_HOW_IT_WORKS,
+  REMOVED_HOW_IT_WORKS_HELP_ALIAS_TRAFFIC_ROW_ID,
+  RETIRED_HOW_IT_WORKS_HELP_ALIAS_TRAFFIC_PATH,
+} from "@/lib/ui-route-traffic-how-it-works-help-alias";
 
 const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md";
 
@@ -50,18 +50,18 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
   return rows;
 }
 
-describe("ui-route-traffic product-overview alias retirement (EPR merged into EXE)", () => {
-  it("does not track retired EPR; executive summary help stays on EXE only", () => {
+describe("ui-route-traffic how-it-works alias retirement (HHX merged into HGX)", () => {
+  it("does not track retired HHX; getting started help stays on HGX only", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
-    const eprRow = rows.find((row) => row.id === REMOVED_PRODUCT_OVERVIEW_HELP_ALIAS_TRAFFIC_ROW_ID);
-    const retiredPathRows = rows.filter((row) => row.path === RETIRED_PRODUCT_OVERVIEW_HELP_ALIAS_TRAFFIC_PATH);
+    const hhxRow = rows.find((row) => row.id === REMOVED_HOW_IT_WORKS_HELP_ALIAS_TRAFFIC_ROW_ID);
+    const retiredPathRows = rows.filter((row) => row.path === RETIRED_HOW_IT_WORKS_HELP_ALIAS_TRAFFIC_PATH);
     const canonicalRows = rows.filter(
-      (row) => row.path === CANONICAL_EXECUTIVE_SUMMARY_HELP_TRAFFIC_PATH_FROM_PRODUCT_OVERVIEW,
+      (row) => row.path === CANONICAL_GETTING_STARTED_HELP_TRAFFIC_PATH_FROM_HOW_IT_WORKS,
     );
 
-    expect(eprRow).toBeUndefined();
+    expect(hhxRow).toBeUndefined();
     expect(retiredPathRows).toHaveLength(0);
     expect(canonicalRows).toHaveLength(1);
-    expect(canonicalRows[0]?.id).toBe("EXE");
+    expect(canonicalRows[0]?.id).toBe("HGX");
   });
 });

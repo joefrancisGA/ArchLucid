@@ -1,18 +1,14 @@
-﻿/**
- * Traffic workbook row ID for legacy `/help/product-overview` alias.
- * Owner backlog shorthand: EPR (template formerly HPR; twin folded into EXE / executive-summary).
- */
-export const PRODUCT_OVERVIEW_HELP_ALIAS_TRAFFIC_ROW_ID = "EPR";
-
-/** Canonical path tracked on the EPR workbook row. */
-export const PRODUCT_OVERVIEW_HELP_ALIAS_TRAFFIC_PATH = "/help/product-overview";
-
-/** Workbook Section column value - retired slug alias under Help. */
-export const PRODUCT_OVERVIEW_HELP_ALIAS_TRAFFIC_SECTION = "Help alias";
+﻿import { EXECUTIVE_SUMMARY_HELP_TRAFFIC_PATH } from "@/lib/ui-route-traffic-executive-summary-help";
 
 /**
- * Owner workbook Notes for EPR - documents Evidence chrome inherited via HelpExecutiveSummaryGuideView.
- * ASCII-only for Windows console note scripts.
+ * Removed traffic workbook row ID for the retired `/help/product-overview` alias (merged into EXE).
+ * Do not reintroduce — executive summary help is scored only on EXE (`/help/executive-summary`).
  */
-export const PRODUCT_OVERVIEW_HELP_ALIAS_TRAFFIC_NOTE =
- "Deprecated product-overview help alias (Help alias) - slug alias product-overview -> executive-summary (prefer #what-archlucid-is); renders HelpExecutiveSummaryGuideView Evidence chrome (Sources strip + claim-discipline + PageContextualHelp + Category-1 on alias path). Canon EXE = /help/executive-summary. Body lives in EXECUTIVE_SPONSOR_BRIEF.md (TB-1739). Template HPR renamed to EPR to match owner. Score 58/100 (2026-08-07) - help-topic orientation hard-caps higher Evidence (alias inherits EXE). Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
+export const REMOVED_PRODUCT_OVERVIEW_HELP_ALIAS_TRAFFIC_ROW_ID = "EPR";
+
+/** Retired alias bookmark — not a standalone traffic row. */
+export const RETIRED_PRODUCT_OVERVIEW_HELP_ALIAS_TRAFFIC_PATH = "/help/product-overview";
+
+/** Canonical executive summary help scored on traffic row EXE. */
+export const CANONICAL_EXECUTIVE_SUMMARY_HELP_TRAFFIC_PATH_FROM_PRODUCT_OVERVIEW =
+  EXECUTIVE_SUMMARY_HELP_TRAFFIC_PATH;

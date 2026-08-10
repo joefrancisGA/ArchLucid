@@ -4,11 +4,9 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
-  EVIDENCE_ONLY_REVIEW_HELP_ALIAS_CANONICAL_PATH,
-  EVIDENCE_ONLY_REVIEW_HELP_ALIAS_TRAFFIC_NOTE,
-  EVIDENCE_ONLY_REVIEW_HELP_ALIAS_TRAFFIC_PATH,
-  EVIDENCE_ONLY_REVIEW_HELP_ALIAS_TRAFFIC_ROW_ID,
-  EVIDENCE_ONLY_REVIEW_HELP_ALIAS_TRAFFIC_SECTION,
+  CANONICAL_FIRST_ARCHITECTURE_REVIEW_HELP_TRAFFIC_PATH_FROM_EVIDENCE_ONLY,
+  REMOVED_EVIDENCE_ONLY_REVIEW_HELP_ALIAS_TRAFFIC_ROW_ID,
+  RETIRED_EVIDENCE_ONLY_REVIEW_HELP_ALIAS_TRAFFIC_PATH,
 } from "@/lib/ui-route-traffic-evidence-only-review-help-alias";
 
 const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md";
@@ -16,8 +14,6 @@ const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md"
 type TrafficWorkbookRow = {
   id: string;
   path: string;
-  section: string;
-  notes: string;
 };
 
 function readTemplateMarkdown(): string {
@@ -48,27 +44,24 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
     rows.push({
       id: cells[1] ?? "",
       path: (cells[2] ?? "").replace(/^`|`$/g, ""),
-      section: cells[7] ?? "",
-      notes: cells[8] ?? "",
     });
   }
 
   return rows;
 }
 
-describe("ui-route-traffic-evidence-only-review-help-alias (HEV)", () => {
-  it("tracks evidence-only-review help alias with honest workbook notes", () => {
+describe("ui-route-traffic evidence-only-review alias retirement (HEV merged into COR)", () => {
+  it("does not track retired HEV; first-architecture-review help stays on COR only", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
-    const row = rows.find(
-      (candidate) => candidate.id === EVIDENCE_ONLY_REVIEW_HELP_ALIAS_TRAFFIC_ROW_ID,
+    const hevRow = rows.find((row) => row.id === REMOVED_EVIDENCE_ONLY_REVIEW_HELP_ALIAS_TRAFFIC_ROW_ID);
+    const retiredPathRows = rows.filter((row) => row.path === RETIRED_EVIDENCE_ONLY_REVIEW_HELP_ALIAS_TRAFFIC_PATH);
+    const canonicalRows = rows.filter(
+      (row) => row.path === CANONICAL_FIRST_ARCHITECTURE_REVIEW_HELP_TRAFFIC_PATH_FROM_EVIDENCE_ONLY,
     );
 
-    expect(row).toBeDefined();
-    expect(row?.path).toBe(EVIDENCE_ONLY_REVIEW_HELP_ALIAS_TRAFFIC_PATH);
-    expect(row?.section).toBe(EVIDENCE_ONLY_REVIEW_HELP_ALIAS_TRAFFIC_SECTION);
-    expect(row?.notes).toBe(EVIDENCE_ONLY_REVIEW_HELP_ALIAS_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("HelpCorePilotGuideView");
-    expect(row?.notes).toContain("Score 58");
-    expect(EVIDENCE_ONLY_REVIEW_HELP_ALIAS_CANONICAL_PATH).toBe("/help/first-architecture-review");
+    expect(hevRow).toBeUndefined();
+    expect(retiredPathRows).toHaveLength(0);
+    expect(canonicalRows).toHaveLength(1);
+    expect(canonicalRows[0]?.id).toBe("COR");
   });
 });

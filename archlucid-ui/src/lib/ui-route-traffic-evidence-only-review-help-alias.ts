@@ -1,23 +1,14 @@
-﻿import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
+﻿import { FIRST_ARCHITECTURE_REVIEW_HELP_TRAFFIC_PATH } from "@/lib/ui-route-traffic-first-architecture-review-help";
 
 /**
- * Traffic workbook row ID for legacy `/help/evidence-only-review` alias.
- * Owner backlog shorthand: HEV (twin folded into COR / first-architecture-review).
+ * Removed traffic workbook row ID for the retired `/help/evidence-only-review` alias (merged into COR).
+ * Do not reintroduce — first-architecture-review help is scored only on COR.
  */
-export const EVIDENCE_ONLY_REVIEW_HELP_ALIAS_TRAFFIC_ROW_ID = "HEV";
+export const REMOVED_EVIDENCE_ONLY_REVIEW_HELP_ALIAS_TRAFFIC_ROW_ID = "HEV";
 
-/** Canonical path tracked on the HEV workbook row. */
-export const EVIDENCE_ONLY_REVIEW_HELP_ALIAS_TRAFFIC_PATH = "/help/evidence-only-review";
+/** Retired alias bookmark — not a standalone traffic row. */
+export const RETIRED_EVIDENCE_ONLY_REVIEW_HELP_ALIAS_TRAFFIC_PATH = "/help/evidence-only-review";
 
-/** Canonical first-review help path that HEV resolves to (workbook row COR). */
-export const EVIDENCE_ONLY_REVIEW_HELP_ALIAS_CANONICAL_PATH = FIRST_ARCHITECTURE_REVIEW_HELP_PATH;
-
-/** Workbook Section column value - retired slug alias under Help. */
-export const EVIDENCE_ONLY_REVIEW_HELP_ALIAS_TRAFFIC_SECTION = "Help alias";
-
-/**
- * Owner workbook Notes for HEV - documents Evidence chrome inherited via HelpCorePilotGuideView.
- * ASCII-only for Windows console note scripts.
- */
-export const EVIDENCE_ONLY_REVIEW_HELP_ALIAS_TRAFFIC_NOTE =
- "Deprecated evidence-only-review help alias (Help alias) - slug alias evidence-only-review -> first-architecture-review (prefer #fast-path-evidence-only); renders HelpCorePilotGuideView Evidence chrome (Sources strip + claim-discipline + PageContextualHelp + Category-1 on alias path). Canon COR = /help/first-architecture-review. Body lives in CORE_PILOT.md (TB-1683). Sibling ECO/FIR/HFE = other COR aliases. Score 58/100 (2026-08-07) - help-topic orientation hard-caps higher Evidence (alias inherits COR). Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
+/** Canonical first-architecture-review help scored on traffic row COR. */
+export const CANONICAL_FIRST_ARCHITECTURE_REVIEW_HELP_TRAFFIC_PATH_FROM_EVIDENCE_ONLY =
+  FIRST_ARCHITECTURE_REVIEW_HELP_TRAFFIC_PATH;

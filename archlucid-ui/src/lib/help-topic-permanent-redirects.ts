@@ -6,11 +6,15 @@
  * redirects without circular initialization with route copy modules.
  */
 export const HELP_TOPIC_PERMANENT_REDIRECTS: Readonly<Record<string, string>> = {
+  "core-pilot": "/help/first-architecture-review",
   "creating-runs": "/help/review-guide",
   "data-handling-tenant-isolation": "/help/data-handling",
+  "evidence-only-review": "/help/first-architecture-review",
   "how-it-works": "/help/getting-started#how-archlucid-works",
   "integrations/azure-boards": "/help/azure-boards",
   "operator-auth-roles": "/help/users-and-roles",
+  "product-overview": "/help/executive-summary#what-archlucid-is",
+  "starting-reviews": "/help/review-guide",
 };
 
 export function resolveHelpTopicPermanentRedirect(slug: string): string | null {

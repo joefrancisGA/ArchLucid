@@ -3,6 +3,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE } from "@/lib/enterprise-onboarding-help-copy";
+import { CUSTOMER_GLOSSARY_CONTRACT_VERSION } from "@/lib/customer-glossary-manifest";
 
 import {
   isInternalRunbookSlug,
@@ -55,7 +56,8 @@ describe("product-documentation-registry", () => {
     expect(inAppHelpHref("review-guide")).toBe("/help/review-guide");
     expect(inAppHelpHref("pilot-guide")).toBe("/help/pilot-guide");
     expect(getProductDocumentationEntry("troubleshooting")?.title).toBe("Troubleshooting");
-    expect(getProductDocumentationEntry("starting-reviews")?.slug).toBe("review-guide");
+    expect(getProductDocumentationEntry("starting-reviews")).toBeNull();
+    expect(resolveHelpTopicPermanentRedirect("starting-reviews")).toBe("/help/review-guide");
     expect(inAppHelpHref("starting-reviews")).toBe("/help/review-guide");
     expect(getProductDocumentationEntry("creating-runs")).toBeNull();
     expect(resolveHelpTopicPermanentRedirect("creating-runs")).toBe("/help/review-guide");
@@ -66,7 +68,8 @@ describe("product-documentation-registry", () => {
     expect(getProductDocumentationEntry("integrations/azure-boards")).toBeNull();
     expect(resolveHelpTopicPermanentRedirect("integrations/azure-boards")).toBe("/help/azure-boards");
     expect(inAppHelpHref("integrations/azure-boards")).toBe("/help/azure-boards");
-    expect(getProductDocumentationEntry("evidence-only-review")?.slug).toBe("first-architecture-review");
+    expect(getProductDocumentationEntry("evidence-only-review")).toBeNull();
+    expect(resolveHelpTopicPermanentRedirect("evidence-only-review")).toBe("/help/first-architecture-review");
     expect(inAppHelpHref("evidence-only-review")).toBe("/help/first-architecture-review");
     expect(inAppHelpHref("evidence-only-review", "fast-path-evidence-only")).toBe(
       "/help/first-architecture-review#fast-path-evidence-only",
@@ -81,8 +84,15 @@ describe("product-documentation-registry", () => {
     expect(inAppHelpHref("cloud-connections-azure")).toBe("/help/cloud-connections/azure");
     expect(inAppHelpHref("cloud-connections-aws")).toBe("/help/cloud-connections/aws");
     expect(inAppHelpHref("cloud-connections-gcp")).toBe("/help/cloud-connections/gcp");
+    expect(getProductDocumentationEntry("core-pilot")).toBeNull();
+    expect(resolveHelpTopicPermanentRedirect("core-pilot")).toBe("/help/first-architecture-review");
     expect(inAppHelpHref("core-pilot")).toBe("/help/first-architecture-review");
-    expect(getProductDocumentationEntry("core-pilot")?.slug).toBe("first-architecture-review");
+    expect(getProductDocumentationEntry("product-overview")).toBeNull();
+    expect(resolveHelpTopicPermanentRedirect("product-overview")).toBe("/help/executive-summary#what-archlucid-is");
+    expect(inAppHelpHref("product-overview")).toBe("/help/executive-summary#what-archlucid-is");
+    expect(getProductDocumentationEntry("how-it-works")).toBeNull();
+    expect(resolveHelpTopicPermanentRedirect("how-it-works")).toBe("/help/getting-started#how-archlucid-works");
+    expect(inAppHelpHref("how-it-works")).toBe("/help/getting-started#how-archlucid-works");
   });
 
   it("loads markdown for every registry topic from the monorepo", () => {
@@ -105,6 +115,8 @@ describe("product-documentation-registry", () => {
 
     expect(glossary?.sourcePaths).toEqual([]);
     expect(glossary?.pdfStatus).toBeNull();
+    expect(glossary?.lastReviewed).toBe(CUSTOMER_GLOSSARY_CONTRACT_VERSION);
+    expect(glossary?.releaseApplicability).toContain("V1 GA");
     expect(tryLoadProductDocumentation("glossary")?.markdown).toBe("");
   });
 
@@ -120,7 +132,7 @@ describe("product-documentation-registry", () => {
     expect(getProductDocumentationEntry("integration-readiness")?.title).toBe("Integration readiness");
   });
 
-  it("keeps AWS and GCP cloud-connection help free of Azure-only copy", () => {
+  it("keeps AWS and GCP cloud-connection help free of Azure-only copy and AWS banned jargon", () => {
     const awsLoaded = tryLoadProductDocumentation("cloud-connections-aws");
     const gcpLoaded = tryLoadProductDocumentation("cloud-connections-gcp");
 
@@ -133,6 +145,9 @@ describe("product-documentation-registry", () => {
     expect(awsMarkdown).toContain("Connect AWS securely");
     expect(awsMarkdown).not.toContain("Cost Management Reader");
     expect(awsMarkdown).not.toContain("connect-azure-securely");
+    expect(awsMarkdown).not.toContain("Evidence tier");
+    expect(awsMarkdown).not.toContain("hosted pull");
+    expect(awsMarkdown).not.toContain("Get-ArchLucidAwsPackage.ps1");
 
     expect(gcpMarkdown).toContain("Connect GCP securely");
     expect(gcpMarkdown).not.toContain("Cost Management Reader");
@@ -186,8 +201,7 @@ describe("product-documentation-registry", () => {
       "getting-started": "public",
       "data-handling": "public",
       "security-trust": "public",
-      "evidence-only-review": "public",
-      "product-overview": "public",
+      "executive-summary": "public",
       "cloud-connections-azure": "customer",
       "cloud-connections-aws": "customer",
       "cloud-connections-gcp": "customer",
@@ -297,20 +311,18 @@ describe("product-documentation-registry", () => {
   });
 
   it("loads TB-727 sectionAnchor registry entries from existing markdown only", () => {
-    const productOverview = tryLoadProductDocumentation("product-overview");
-    const evidenceOnlyReview = tryLoadProductDocumentation("evidence-only-review");
+    const executiveSummary = tryLoadProductDocumentation("executive-summary");
     const firstArchitectureReview = tryLoadProductDocumentation("first-architecture-review");
     const dataHandling = tryLoadProductDocumentation("data-handling");
 
-    // TB-1739: product-overview folded into executive-summary — same EXECUTIVE_SPONSOR_BRIEF.md sections apply.
-    expect(productOverview?.entry.slug).toBe("executive-summary");
-    expect(productOverview?.markdown).toContain("What Pilot proves");
-    expect(productOverview?.markdown).toContain("Manual review vs ArchLucid proof package");
+    // TB-1739 / Batch A: product-overview retired — executive-summary owns EXECUTIVE_SPONSOR_BRIEF.md sections.
+    expect(executiveSummary?.entry.slug).toBe("executive-summary");
+    expect(executiveSummary?.markdown).toContain("What Pilot proves");
+    expect(executiveSummary?.markdown).toContain("Manual review vs ArchLucid proof package");
 
-    expect(evidenceOnlyReview?.entry.slug).toBe("first-architecture-review");
-    expect(evidenceOnlyReview?.markdown).toBe(firstArchitectureReview?.markdown);
-    expect(evidenceOnlyReview?.markdown).toContain("evidence-only review");
-    expect(evidenceOnlyReview?.markdown).toContain("What can wait");
+    expect(firstArchitectureReview?.entry.slug).toBe("first-architecture-review");
+    expect(firstArchitectureReview?.markdown).toContain("evidence-only review");
+    expect(firstArchitectureReview?.markdown).toContain("What can wait");
 
     expect(dataHandling?.markdown).toContain("What stays in your tenant");
     expect(dataHandling?.markdown).toContain("Three layers");

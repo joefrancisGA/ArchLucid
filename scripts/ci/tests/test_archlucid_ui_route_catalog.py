@@ -110,6 +110,25 @@ def test_build_catalog_keeps_batch_b_retired_help_aliases_out() -> None:
     assert "/help/azure-boards" in catalog
 
 
+def test_migrate_workbook_path_maps_batch_a_retired_help_aliases() -> None:
+    assert migrate_workbook_path("/help/starting-reviews") == "/help/review-guide"
+    assert migrate_workbook_path("/help/evidence-only-review") == "/help/first-architecture-review"
+    assert migrate_workbook_path("/help/product-overview") == "/help/executive-summary"
+    assert migrate_workbook_path("/help/how-it-works") == "/help/getting-started"
+
+
+def test_build_catalog_keeps_batch_a_retired_help_aliases_out() -> None:
+    catalog = build_catalog()
+    assert "/help/starting-reviews" not in catalog
+    assert "/help/evidence-only-review" not in catalog
+    assert "/help/product-overview" not in catalog
+    assert "/help/how-it-works" not in catalog
+    assert "/help/review-guide" in catalog
+    assert "/help/first-architecture-review" in catalog
+    assert "/help/executive-summary" in catalog
+    assert "/help/getting-started" in catalog
+
+
 def test_migrate_workbook_path_maps_legacy_alerts() -> None:
     assert migrate_workbook_path("/alerts") == "/governance/alerts"
 
