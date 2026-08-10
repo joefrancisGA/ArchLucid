@@ -74,6 +74,4 @@ Informational findings may be skipped when severity mapping does not apply.
 
 ## Related
 
-- [Azure Boards integration settings](/integrations/azure-boards) — configure organization URL, PAT reference, and defaults
-- [Integration readiness](/help/integration-readiness) — which connectors are optional after the first architecture package
 - [Findings](/help/findings) — how findings become remediation work
