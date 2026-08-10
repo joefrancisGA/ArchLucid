@@ -30,13 +30,16 @@ export function buildCompareComparisonTrustItems(input: {
   if (input.executionModeHonesty !== null && input.executionModeHonesty.advisoryParagraph !== null) {
     const severity: FindingSeverityKind =
       input.executionModeHonesty.modesDiffer ? "high" : "medium";
+    const headline = input.executionModeHonesty.modesDiffer
+      ? "Execution modes differ between reviews"
+      : input.executionModeHonesty.modeUnavailable
+        ? "Execution mode metadata unavailable"
+        : "Non-real execution on one or both reviews";
 
     items.push({
       id: "execution-mode",
       severity,
-      headline: input.executionModeHonesty.modesDiffer
-        ? "Execution modes differ between reviews"
-        : "Non-real execution on one or both reviews",
+      headline,
       detail: input.executionModeHonesty.advisoryParagraph,
     });
   }

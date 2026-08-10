@@ -9,7 +9,7 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { coerceComparisonExplanation, coerceGoldenManifestComparison, coerceRunComparison } from "@/lib/operator-response-guards";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { compareGoldenManifestRuns, compareRuns, explainComparisonRuns } from "@/lib/api";
+import { compareGoldenManifestRuns, compareRuns, explainComparisonRuns, getRunSummary } from "@/lib/api";
 import { fetchComparisonNarrativeViaAsk } from "@/lib/api/conversation-api";
 import {
   compareRunIdsAreSameAfterDemoCanonicalization,
@@ -77,6 +77,21 @@ export function CompareForm() {
   const [leftPickedSummary, setLeftPickedSummary] = useState<RunSummary | null>(null);
   const [rightPickedSummary, setRightPickedSummary] = useState<RunSummary | null>(null);
 
+  const hydratePickedSummariesForPair = useCallback(async (leftAtStart: string, rightAtStart: string) => {
+    const [leftSummary, rightSummary] = await Promise.all([
+      getRunSummary(leftAtStart).catch(() => null),
+      getRunSummary(rightAtStart).catch(() => null),
+    ]);
+
+    if (leftSummary !== null) {
+      setLeftPickedSummary(leftSummary);
+    }
+
+    if (rightSummary !== null) {
+      setRightPickedSummary(rightSummary);
+    }
+  }, []);
+
   const runCompareForPair = useCallback(async (leftAtStart: string, rightAtStart: string) => {
     const gen = ++compareGenerationRef.current;
 
@@ -106,6 +121,7 @@ export function CompareForm() {
       setGolden(staticGolden);
       setLoading(false);
       setLastComparedPair({ left: leftAtStart, right: rightAtStart });
+      void hydratePickedSummariesForPair(leftAtStart, rightAtStart);
 
       return;
     }
@@ -151,10 +167,11 @@ export function CompareForm() {
       if (gen === compareGenerationRef.current) {
         setLoading(false);
         setLastComparedPair({ left: leftAtStart, right: rightAtStart });
+        void hydratePickedSummariesForPair(leftAtStart, rightAtStart);
         void loadComparisonNarrative(leftAtStart, rightAtStart, gen);
       }
     }
-  }, []);
+  }, [hydratePickedSummariesForPair]);
 
   const loadComparisonNarrative = async (leftAtStart: string, rightAtStart: string, compareGen: number) => {
     setComparisonNarrativeLoading(true);
@@ -409,6 +426,12 @@ export function CompareForm() {
     }
   };
 
+  const showRelatedReviewLinks =
+    leftTrim.length > 0 ||
+    rightTrim.length > 0 ||
+    (lastComparedPair !== null && (lastComparedPair.left.length > 0 || lastComparedPair.right.length > 0)) ||
+    isStaticDemoPayloadFallbackEnabled();
+
   return (
     <div data-testid="compare-page-ready">
       <OperatorPageHeader
@@ -431,42 +454,18 @@ export function CompareForm() {
           <div className="flex flex-col gap-4">
             <CompareComparisonDimensionsPreview />
             <div className="flex flex-wrap items-center gap-2">
-              <CompareRelatedReviewLinks
-                baselineRunId={leftTrim}
-                updatedRunId={rightTrim}
-                preferredRunId={lastComparedPair?.right ?? rightTrim}
-              />
+              {showRelatedReviewLinks ? (
+                <CompareRelatedReviewLinks
+                  baselineRunId={leftTrim}
+                  updatedRunId={rightTrim}
+                  preferredRunId={lastComparedPair?.right ?? rightTrim}
+                />
+              ) : null}
               {showEmptyComparisonOutput ? (
                 <CompareSampleComparisonAction onLoadSampleComparison={loadBuyerSampleComparison} />
               ) : null}
             </div>
           </div>
-        ) : null}
-
-        {compareInsightFirstLayout ? (
-          <CompareResultsPanel
-            showStaleInputsWarning={showStaleInputsWarning}
-            lastComparedPair={lastComparedPair}
-            leftPickedSummary={leftPickedSummary}
-            rightPickedSummary={rightPickedSummary}
-            loading={loading}
-            leftTrim={leftTrim}
-            rightTrim={rightTrim}
-            aiLoading={aiLoading}
-            legacyFailure={legacyFailure}
-            legacyMalformed={legacyMalformed}
-            goldenFailure={goldenFailure}
-            goldenMalformed={goldenMalformed}
-            aiFailure={aiFailure}
-            aiMalformed={aiMalformed}
-            hasResultsToNavigate={hasResultsToNavigate}
-            golden={golden}
-            result={result}
-            aiExplanation={aiExplanation}
-            comparisonNarrative={comparisonNarrative}
-            comparisonNarrativeLoading={comparisonNarrativeLoading}
-            buyerPolished={buyerPolished}
-          />
         ) : null}
 
         <CompareRunPickersSection
@@ -496,31 +495,30 @@ export function CompareForm() {
 
         {!compareInsightFirstLayout && showEmptyComparisonOutput ? <CompareEmptyResultsPlaceholder /> : null}
 
-        {!compareInsightFirstLayout ? (
-          <CompareResultsPanel
-            showStaleInputsWarning={showStaleInputsWarning}
-            lastComparedPair={lastComparedPair}
-            leftPickedSummary={leftPickedSummary}
-            rightPickedSummary={rightPickedSummary}
-            loading={loading}
-            leftTrim={leftTrim}
-            rightTrim={rightTrim}
-            aiLoading={aiLoading}
-            legacyFailure={legacyFailure}
-            legacyMalformed={legacyMalformed}
-            goldenFailure={goldenFailure}
-            goldenMalformed={goldenMalformed}
-            aiFailure={aiFailure}
-            aiMalformed={aiMalformed}
-            hasResultsToNavigate={hasResultsToNavigate}
-            golden={golden}
-            result={result}
-            aiExplanation={aiExplanation}
-            comparisonNarrative={comparisonNarrative}
-            comparisonNarrativeLoading={comparisonNarrativeLoading}
-            buyerPolished={buyerPolished}
-          />
-        ) : null}
+        <CompareResultsPanel
+          showStaleInputsWarning={showStaleInputsWarning}
+          lastComparedPair={lastComparedPair}
+          leftPickedSummary={leftPickedSummary}
+          rightPickedSummary={rightPickedSummary}
+          loading={loading}
+          leftTrim={leftTrim}
+          rightTrim={rightTrim}
+          aiLoading={aiLoading}
+          legacyFailure={legacyFailure}
+          legacyMalformed={legacyMalformed}
+          goldenFailure={goldenFailure}
+          goldenMalformed={goldenMalformed}
+          aiFailure={aiFailure}
+          aiMalformed={aiMalformed}
+          hasResultsToNavigate={hasResultsToNavigate}
+          golden={golden}
+          result={result}
+          aiExplanation={aiExplanation}
+          comparisonNarrative={comparisonNarrative}
+          comparisonNarrativeLoading={comparisonNarrativeLoading}
+          buyerPolished={buyerPolished}
+          resultsFirst={compareInsightFirstLayout}
+        />
       </div>
 
       <CompareLastRequestOutcomeDetails

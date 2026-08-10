@@ -102,22 +102,20 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
             <span className="font-medium text-al-text-primary">Showing:</span> {rightFootnote}
           </p>
         ) : null}
-        {!useBuyerFacingRunLabels ? (
-          <details
-            className={cn(
-              "rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40",
-              OPERATOR_TYPOGRAPHY.helper,
-            )}
-          >
-            <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
-              Advanced: enter review IDs manually
-            </summary>
-            <p className={cn("mt-2 m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              Type or paste a review ID in either field above when the review is not in the recent list (for example an
-              in-progress or archived review).
-            </p>
-          </details>
-        ) : null}
+        <details
+          className={cn(
+            "rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40",
+            OPERATOR_TYPOGRAPHY.helper,
+          )}
+        >
+          <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
+            Advanced: enter review IDs manually
+          </summary>
+          <p className={cn("mt-2 m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Type or paste a review ID in either field above when the review is not in the recent list (for example an
+            in-progress or archived review).
+          </p>
+        </details>
         {sameCanonicalRunIdsBlocked ? (
           <p
             role="alert"
@@ -159,22 +157,21 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
     </>
   );
 
-  if (collapseBelowResults) {
-    return (
-      <details className="scroll-mt-8 rounded-lg border border-neutral-200 bg-neutral-50/50 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/30">
-        <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
-          {BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY}
-        </summary>
-        <section className="mt-3 space-y-4" aria-label="Change compared reviews">
-          {pickerFields}
-        </section>
-      </details>
-    );
-  }
-
   return (
-    <section className="scroll-mt-8 space-y-4" aria-label="Select reviews to compare">
-      {pickerFields}
+    <section
+      className={cn("scroll-mt-8 space-y-4", collapseBelowResults && "order-2")}
+      aria-label={collapseBelowResults ? "Change compared reviews" : "Select reviews to compare"}
+    >
+      {collapseBelowResults ? (
+        <details className="rounded-lg border border-neutral-200 bg-neutral-50/50 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/30">
+          <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
+            {BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY}
+          </summary>
+          <div className="mt-3 space-y-4">{pickerFields}</div>
+        </details>
+      ) : (
+        pickerFields
+      )}
     </section>
   );
 }

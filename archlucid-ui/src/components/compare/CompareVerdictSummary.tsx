@@ -1,10 +1,12 @@
 import type { ReactElement } from "react";
 
+import Link from "next/link";
+
 import { cn } from "@/lib/utils";
 
 import { compareRunHeadingLabel } from "@/lib/compare-run-display";
 import { buildCompareVerdictSummary } from "@/lib/build-compare-verdict-summary";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { GoldenManifestComparison } from "@/types/comparison";
 import type { RunSummary } from "@/types/authority";
 
@@ -18,6 +20,10 @@ export function CompareVerdictSummary(props: CompareVerdictSummaryProps): ReactE
   const verdict = buildCompareVerdictSummary(props.golden);
   const baselineLabel = compareRunHeadingLabel(verdict.baselineRunId, props.baselinePickedSummary ?? null);
   const updatedLabel = compareRunHeadingLabel(verdict.targetRunId, props.updatedPickedSummary ?? null);
+  const highlightSourceLabel =
+    verdict.topChangeHighlight?.source === "deterministic"
+      ? "from structured comparison summary"
+      : "from AI narrative";
 
   return (
     <section
@@ -58,15 +64,22 @@ export function CompareVerdictSummary(props: CompareVerdictSummaryProps): ReactE
         ) : null}
       </div>
 
-      {verdict.sponsorRecommendation !== null ? (
+      {verdict.topChangeHighlight !== null ? (
         <p
           className={cn(
             "m-0 mt-4 rounded-md border border-neutral-200 bg-al-surface-raised p-3 text-al-text-primary dark:border-neutral-800",
             OPERATOR_TYPOGRAPHY.body,
           )}
-          data-testid="compare-sponsor-recommendation"
+          data-testid="compare-top-change-highlight"
         >
-          <strong>Sponsor recommendation:</strong> {verdict.sponsorRecommendation}
+          <strong>Top change highlight</strong>{" "}
+          <span className="text-al-text-secondary">({highlightSourceLabel}):</span>{" "}
+          <Link
+            href={`#${verdict.topChangeHighlight.supportingSectionId}`}
+            className={OPERATOR_LINK.inline}
+          >
+            {verdict.topChangeHighlight.text}
+          </Link>
         </p>
       ) : null}
     </section>

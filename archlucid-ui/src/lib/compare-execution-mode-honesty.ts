@@ -11,7 +11,11 @@ export type CompareExecutionModeHonesty = {
   modesDiffer: boolean;
   anyNonReal: boolean;
   advisoryParagraph: string | null;
+  modeUnavailable: boolean;
 };
+
+const MODE_UNAVAILABLE_ADVISORY =
+  "Execution mode metadata was not available for one or both reviews — treat finding and cost deltas as directional only.";
 
 function normalizeModeLabel(mode: StructuralExecutionModeInput): string | null {
   const label = formatStructuralExecutionModeLabel(mode);
@@ -37,25 +41,40 @@ function modesEqual(left: StructuralExecutionModeInput, right: StructuralExecuti
   return normalizeModeLabel(left) === normalizeModeLabel(right);
 }
 
+function modeIsUnavailable(mode: StructuralExecutionModeInput): boolean {
+  return mode === undefined || mode === null || normalizeModeLabel(mode) === null;
+}
+
 /** TB-2071: execution-mode + trust honesty for compare delta narratives. */
 export function resolveCompareExecutionModeHonesty(
   baseline: RunSummary | null,
   updated: RunSummary | null,
 ): CompareExecutionModeHonesty | null {
-  const baselineMode = baseline?.structuralExecutionMode;
-  const updatedMode = updated?.structuralExecutionMode;
-
-  if (baselineMode === undefined && updatedMode === undefined) {
+  if (baseline === null && updated === null) {
     return null;
   }
 
-  if (baselineMode === null && updatedMode === null) {
-    return null;
+  const baselineMode = baseline?.structuralExecutionMode;
+  const updatedMode = updated?.structuralExecutionMode;
+  const modeUnavailable = modeIsUnavailable(baselineMode) || modeIsUnavailable(updatedMode);
+
+  if (
+    (baselineMode === undefined && updatedMode === undefined) ||
+    (baselineMode === null && updatedMode === null)
+  ) {
+    return {
+      baselineMode,
+      updatedMode,
+      modesDiffer: false,
+      anyNonReal: false,
+      advisoryParagraph: MODE_UNAVAILABLE_ADVISORY,
+      modeUnavailable: true,
+    };
   }
 
   const modesDiffer = !modesEqual(baselineMode, updatedMode);
   const anyNonReal = isNonRealMode(baselineMode) || isNonRealMode(updatedMode);
-  const advisoryParagraph = buildAdvisoryParagraph(baselineMode, updatedMode, modesDiffer, anyNonReal);
+  const advisoryParagraph = buildAdvisoryParagraph(baselineMode, updatedMode, modesDiffer, anyNonReal, modeUnavailable);
 
   return {
     baselineMode,
@@ -63,6 +82,7 @@ export function resolveCompareExecutionModeHonesty(
     modesDiffer,
     anyNonReal,
     advisoryParagraph,
+    modeUnavailable,
   };
 }
 
@@ -71,9 +91,14 @@ function buildAdvisoryParagraph(
   updatedMode: StructuralExecutionModeInput,
   modesDiffer: boolean,
   anyNonReal: boolean,
+  modeUnavailable: boolean,
 ): string | null {
   const baselineLabel = normalizeModeLabel(baselineMode) ?? "unknown";
   const updatedLabel = normalizeModeLabel(updatedMode) ?? "unknown";
+
+  if (modeUnavailable) {
+    return MODE_UNAVAILABLE_ADVISORY;
+  }
 
   if (!modesDiffer && !anyNonReal) {
     return null;

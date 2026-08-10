@@ -21,7 +21,8 @@ describe("buildCompareVerdictSummary", () => {
 
     expect(summary.totalChanges).toBe(2);
     expect(summary.categoryCounts.map((row) => row.key)).toEqual(["decisions", "requirements"]);
-    expect(summary.sponsorRecommendation).toBe("Leadership note");
+    expect(summary.topChangeHighlight?.text).toBe("Leadership note");
+    expect(summary.summaryHighlightsForFold).toEqual([]);
   });
 });
 
@@ -34,6 +35,7 @@ describe("buildCompareComparisonTrustItems", () => {
         modesDiffer: true,
         anyNonReal: true,
         advisoryParagraph: "Modes differ advisory.",
+        modeUnavailable: false,
       },
       usesCurrentEffectiveOnly: true,
       hasAiNarrative: true,

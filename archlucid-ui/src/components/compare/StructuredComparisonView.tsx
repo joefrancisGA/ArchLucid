@@ -8,44 +8,13 @@ import {
 } from "@/lib/buyer-polish-copy";
 import { decisionKeyDisplay } from "@/lib/compare-decision-key-display";
 import { partitionDecisionDeltas } from "@/lib/compare-decision-delta-material";
-import { getArchitecturePackageDocxUrl } from "@/lib/api";
+import { formatCompareCostEstimateCell } from "@/lib/compare-cost-estimate-format";
 import { sortGoldenManifestComparison } from "@/lib/compare-display-sort";
 import type { DecisionDelta, GoldenManifestComparison } from "@/types/comparison";
 import type { RunSummary } from "@/types/authority";
 
 const cellCls = "border border-neutral-200 px-2.5 py-2 text-left align-top dark:border-neutral-700";
 const sectionBoxCls = "mt-5 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950";
-
-/**
- * Prefer dollar + monthly framing when the payload is numeric (demo-friendly "100 vs 120" deltas).
- */
-function formatCostEstimateCell(value: unknown): string {
-  if (value === null || value === undefined) {
-    return "—";
-  }
-
-  const s = String(value).trim();
-
-  if (s.length === 0) {
-    return "—";
-  }
-
-  if (/^[\$\u00a3\u20ac]/.test(s)) {
-    return `${s}/mo — projected monthly run rate (from review pipeline cost model)`;
-  }
-
-  if (/^\d+([\.,]\d+)?$/.test(s.replace(/,/g, ""))) {
-    const n = Number(s.replace(/,/g, ""));
-
-    if (Number.isFinite(n)) {
-      return `~${new Intl.NumberFormat(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n)}/mo — projected monthly run rate`;
-    }
-
-    return `~$${s.replace(/,/g, "")}/mo — projected monthly run rate`;
-  }
-
-  return s;
-}
 
 function DecisionDeltasTable(props: { rows: DecisionDelta[] }) {
   if (props.rows.length === 0) {
@@ -119,9 +88,12 @@ export function StructuredComparisonView(props: {
   updatedPickedSummary?: RunSummary | null;
   /** Buyer-polished compare: collapse supplemental fold sections by default (summary stays open when present). */
   buyerCompareUi?: boolean;
+  /** Highlights already surfaced in the verdict summary — omit from the fold to avoid duplication. */
+  summaryHighlightsForFold?: readonly string[];
 }) {
   const golden = sortGoldenManifestComparison(props.golden);
   const foldDefaultOpen = props.buyerCompareUi !== true;
+  const summaryHighlights = props.summaryHighlightsForFold ?? golden.summaryHighlights;
 
   const noMaterialDeltaSections =
     golden.decisionChanges.length === 0 &&
@@ -129,6 +101,11 @@ export function StructuredComparisonView(props: {
     golden.securityChanges.length === 0 &&
     golden.topologyChanges.length === 0 &&
     golden.costChanges.length === 0;
+  const costFormattedRows = golden.costChanges.map((c) => ({
+    base: formatCompareCostEstimateCell(c.baseCost),
+    target: formatCompareCostEstimateCell(c.targetCost),
+  }));
+  const costHasUnitUnknown = costFormattedRows.some((row) => row.base.unitUnknown || row.target.unitUnknown);
 
   return (
     <section id="compare-structured" className="mt-7">
@@ -136,21 +113,14 @@ export function StructuredComparisonView(props: {
       <p className={cn("mb-3 font-medium leading-relaxed text-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
         {BUYER_COMPARE_STRUCTURED_LEAD}
       </p>
-      <p className={cn("mb-4 mt-0", OPERATOR_TYPOGRAPHY.body)}>
-        <a
-          href={getArchitecturePackageDocxUrl(golden.baseRunId, golden.targetRunId, {
-            includeComparisonExplanation: true,
-          })}
-          rel="noreferrer"
-        >
-          Download comparison package (DOCX)
-        </a>
+      <p className={cn("mb-4 mt-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        Export comparison reports from the action bar above when results are loaded.
       </p>
 
-      {golden.summaryHighlights.length > 0 ? (
-        <ComparisonFoldSection title="Summary highlights" countBadge={golden.summaryHighlights.length} defaultOpen>
+      {summaryHighlights.length > 0 ? (
+        <ComparisonFoldSection title="Summary highlights" countBadge={summaryHighlights.length} defaultOpen>
           <ul className="m-0 pl-5 leading-normal">
-            {golden.summaryHighlights.map((h, i) => (
+            {summaryHighlights.map((h, i) => (
               <li key={`highlight-${i}`}>{h}</li>
             ))}
           </ul>
@@ -289,22 +259,28 @@ export function StructuredComparisonView(props: {
               <table className={cn("mt-2 w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
                 <thead>
                   <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
-                    <th className={cellCls}>Baseline — projected monthly run rate</th>
-                    <th className={cellCls}>Updated — projected monthly run rate</th>
+                    <th className={cellCls}>Baseline cost estimate</th>
+                    <th className={cellCls}>Updated cost estimate</th>
                   </tr>
                 </thead>
                 <tbody>
                   {golden.costChanges.map((c, i) => (
                     <tr key={`${String(c.baseCost ?? "n")}-${String(c.targetCost ?? "n")}-${i}`}>
-                      <td className={cellCls}>{formatCostEstimateCell(c.baseCost)}</td>
-                      <td className={cellCls}>{formatCostEstimateCell(c.targetCost)}</td>
+                      <td className={cellCls}>{costFormattedRows[i]?.base.display ?? "—"}</td>
+                      <td className={cellCls}>{costFormattedRows[i]?.target.display ?? "—"}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              {costHasUnitUnknown ? (
+                <p className={cn("mt-2 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  Numeric values are shown as returned by the comparison payload — currency and billing period were not
+                  declared, so no unit is inferred.
+                </p>
+              ) : null}
               <p className={cn("mt-2 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                Projected monthly run rates are derived from the review pipeline cost model. Figures reflect the
-                architecture as described; validate against your FinOps baseline before using in budget planning.
+                Cost estimates are derived from the review pipeline cost model when the payload includes units. Validate
+                against your FinOps baseline before using in budget planning.
                 Use &ldquo;{props.buyerCompareUi === true ? "Summarize for leadership" : "Summarize for sponsor"}
                 &rdquo; to include this delta in an executive narrative.
               </p>

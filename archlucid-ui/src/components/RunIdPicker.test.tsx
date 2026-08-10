@@ -125,4 +125,56 @@ describe("RunIdPicker", () => {
 
     expect(await screen.findByRole("option", { name: /Second row/i })).toBeInTheDocument();
   });
+
+  it("filters buyer-facing titles and supports keyboard selection", async () => {
+    const runs = Array.from({ length: 15 }, (_, index) => ({
+      runId: `run-${String(index).padStart(2, "0")}`,
+      projectId: "default",
+      createdUtc: "2026-01-01T00:00:00.000Z",
+      description: `Review title ${index}`,
+    }));
+
+    mockListInScope.mockResolvedValue({
+      items: runs,
+      totalCount: runs.length,
+      page: 1,
+      pageSize: 50,
+      hasMore: false,
+    });
+
+    let currentValue = "";
+    const onChange = vi.fn((next: string) => {
+      currentValue = next;
+    });
+
+    const { rerender } = render(
+      <RunIdPicker
+        preferAutoPick={false}
+        value={currentValue}
+        onChange={onChange}
+        label="Review"
+        placeholder="Pick"
+        useBuyerFacingRunLabels
+      />,
+    );
+
+    const input = screen.getByPlaceholderText("Pick");
+    fireEvent.focus(input);
+    fireEvent.change(input, { target: { value: "Review title 14" } });
+    rerender(
+      <RunIdPicker
+        preferAutoPick={false}
+        value={currentValue}
+        onChange={onChange}
+        label="Review"
+        placeholder="Pick"
+        useBuyerFacingRunLabels
+      />,
+    );
+
+    await screen.findByRole("option", { name: /Review title 14/i });
+    fireEvent.keyDown(input, { key: "Enter" });
+
+    expect(onChange).toHaveBeenLastCalledWith("run-14");
+  });
 });

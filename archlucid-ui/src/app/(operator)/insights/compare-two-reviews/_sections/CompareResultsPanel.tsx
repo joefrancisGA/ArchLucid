@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Download } from "lucide-react";
+import { Download, FileText } from "lucide-react";
 
 import { AiComparisonExplanationView } from "@/components/compare/AiComparisonExplanationView";
 import { CompareComparisonTrustBanner } from "@/components/compare/CompareComparisonTrustBanner";
@@ -21,7 +21,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { compareRunHeadingLabel } from "@/lib/compare-run-display";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { createAndDownloadComparisonPdf } from "@/lib/api";
+import { createAndDownloadComparisonPdf, getArchitecturePackageDocxUrl } from "@/lib/api";
+import { buildCompareVerdictSummary } from "@/lib/build-compare-verdict-summary";
 import type { GoldenManifestComparison } from "@/types/comparison";
 import type { ComparisonExplanation } from "@/types/explanation";
 import type { RunComparison, RunSummary } from "@/types/authority";
@@ -58,6 +59,8 @@ export type CompareResultsPanelProps = {
   comparisonNarrativeLoading: boolean;
   /** Buyer shell: softer labels, collapsed technical outline, collapsed structured folds by default. */
   buyerPolished?: boolean;
+  /** Places results above collapsed pickers in buyer insight-first layout. */
+  resultsFirst?: boolean;
 };
 
 export function CompareResultsPanel(props: CompareResultsPanelProps) {
@@ -83,9 +86,13 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
     comparisonNarrative,
     comparisonNarrativeLoading,
     buyerPolished = false,
+    resultsFirst = false,
   } = props;
 
   const summarizeCue = buyerPolished ? "Summarize for leadership" : "Summarize for sponsor";
+  const resultsRegionRef = useRef<HTMLElement>(null);
+  const lastAnnouncedPairRef = useRef<string | null>(null);
+  const [liveAnnouncement, setLiveAnnouncement] = useState("");
 
   const [pdfDownloading, setPdfDownloading] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
@@ -110,9 +117,9 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
   const executionModeHonesty = resolveCompareExecutionModeHonesty(leftPickedSummary, rightPickedSummary);
   const showExecutionModeHonesty =
     hasResultsToNavigate &&
-    executionModeHonesty !== null &&
     citeBaselineRunId.trim().length > 0 &&
-    citeUpdatedRunId.trim().length > 0;
+    citeUpdatedRunId.trim().length > 0 &&
+    (leftPickedSummary !== null || rightPickedSummary !== null);
 
   const governanceDiffState = useCompareGovernanceDiff(
     golden !== null ? golden.baseRunId : null,
@@ -126,9 +133,45 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
   const trustExecutionModeHonesty = showStaleInputsWarning ? null : executionModeHonesty;
   const showTrustBanner = showLoadedComparisonChrome;
   const showVerdictSummary = showLoadedComparisonChrome;
+  const verdictSummary = golden !== null ? buildCompareVerdictSummary(golden) : null;
+
+  useEffect(() => {
+    if (loading || verdictSummary === null || lastComparedPair === null) {
+      return;
+    }
+
+    const pairKey = `${lastComparedPair.left}::${lastComparedPair.right}`;
+
+    if (lastAnnouncedPairRef.current === pairKey) {
+      return;
+    }
+
+    lastAnnouncedPairRef.current = pairKey;
+    setLiveAnnouncement(`Comparison loaded. ${verdictSummary.totalChanges} total changes.`);
+
+    window.requestAnimationFrame(() => {
+      resultsRegionRef.current?.focus();
+    });
+  }, [loading, verdictSummary, lastComparedPair]);
+
+  const docxHref =
+    golden !== null
+      ? getArchitecturePackageDocxUrl(golden.baseRunId, golden.targetRunId, {
+          includeComparisonExplanation: true,
+        })
+      : null;
 
   return (
-    <section className="space-y-4" aria-label="Comparison results">
+    <section
+      ref={resultsRegionRef}
+      tabIndex={-1}
+      className={cn("space-y-4 outline-none", resultsFirst && "order-1")}
+      aria-label="Comparison results"
+      data-testid="compare-results-region"
+    >
+      <div className="sr-only" aria-live="polite" aria-atomic="true" data-testid="compare-results-live-region">
+        {liveAnnouncement}
+      </div>
       {showTrustBanner ? (
         <CompareComparisonTrustBanner
           executionModeHonesty={trustExecutionModeHonesty}
@@ -285,18 +328,29 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
             buyerPolished={buyerPolished}
             className="flex-1"
           />
-          <div className="flex shrink-0 flex-col items-stretch gap-2 lg:items-end">
+          <div className="flex shrink-0 flex-col items-stretch gap-2 sm:flex-row lg:items-end">
+            {docxHref !== null ? (
+              <Button variant="outline" size="sm" asChild data-testid="compare-download-docx-button">
+                <a href={docxHref} rel="noreferrer">
+                  <FileText className="h-4 w-4" />
+                  Download DOCX package
+                </a>
+              </Button>
+            ) : null}
             <Button
-              variant="primary"
+              variant="outline"
               size="sm"
               onClick={() => void handleDownloadPdf()}
               disabled={pdfDownloading}
+              data-testid="compare-download-pdf-button"
             >
               <Download className="h-4 w-4" />
               {pdfDownloading ? "Generating PDF…" : "Download PDF report"}
             </Button>
             {pdfError ? (
-              <p className={cn("text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.helper)}>{pdfError}</p>
+              <p role="alert" className={cn("text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.helper)}>
+                {pdfError}
+              </p>
             ) : null}
           </div>
         </div>
@@ -344,6 +398,7 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
             baselinePickedSummary={leftPickedSummary}
             updatedPickedSummary={rightPickedSummary}
             buyerCompareUi={buyerPolished}
+            summaryHighlightsForFold={verdictSummary?.summaryHighlightsForFold}
           />
         )}
 

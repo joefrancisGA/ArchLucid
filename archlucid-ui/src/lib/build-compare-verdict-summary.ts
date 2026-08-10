@@ -9,10 +9,17 @@ export type CompareVerdictCategoryCount = {
   readonly count: number;
 };
 
+export type CompareTopChangeHighlight = {
+  readonly text: string;
+  readonly source: "deterministic" | "model";
+  readonly supportingSectionId: string;
+};
+
 export type CompareVerdictSummaryModel = {
   readonly totalChanges: number;
   readonly categoryCounts: readonly CompareVerdictCategoryCount[];
-  readonly sponsorRecommendation: string | null;
+  readonly topChangeHighlight: CompareTopChangeHighlight | null;
+  readonly summaryHighlightsForFold: readonly string[];
   readonly baselineRunId: string;
   readonly targetRunId: string;
 };
@@ -37,10 +44,20 @@ export function buildCompareVerdictSummary(golden: GoldenManifestComparison): Co
     { key: "cost", label: "Cost", count: sorted.costChanges.length },
   ].filter((row) => row.count > 0);
 
+  const firstHighlight = summaryHighlights.length > 0 ? summaryHighlights[0] : null;
+
   return {
     totalChanges: total,
     categoryCounts,
-    sponsorRecommendation: summaryHighlights.length > 0 ? summaryHighlights[0] : null,
+    topChangeHighlight:
+      firstHighlight !== null
+        ? {
+            text: firstHighlight,
+            source: "deterministic",
+            supportingSectionId: "compare-structured",
+          }
+        : null,
+    summaryHighlightsForFold: summaryHighlights.slice(1),
     baselineRunId: sorted.baseRunId,
     targetRunId: sorted.targetRunId,
   };

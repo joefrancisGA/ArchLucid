@@ -16,6 +16,7 @@ import { runSummaryDisplayLabel } from "@/lib/run-summary-display-label";
 
 /** Preferred demo run id when multiple rows exist and demo mode is enabled (`NEXT_PUBLIC_DEMO_MODE`). */
 const DEMO_RUN_PREF_ID = "claims-intake-modernization";
+const RUN_PICKER_MAX_VISIBLE = 50;
 
 type RunIdPickerProps = {
   value: string;
@@ -54,6 +55,28 @@ function truncate(text: string, max: number): string {
   return `${t.slice(0, max - 1)}…`;
 }
 
+function runMatchesQuery(run: RunSummary, query: string, useBuyerFacingRunLabels: boolean): boolean {
+  const q = query.trim().toLowerCase();
+
+  if (q.length === 0) {
+    return true;
+  }
+
+  if (run.runId.toLowerCase().includes(q)) {
+    return true;
+  }
+
+  if (useBuyerFacingRunLabels) {
+    return buyerFacingReviewTitleFromSummary(run).toLowerCase().includes(q);
+  }
+
+  return (
+    (run.displayName ?? "").toLowerCase().includes(q) ||
+    (run.description ?? "").toLowerCase().includes(q) ||
+    (run.projectId ?? "").toLowerCase().includes(q)
+  );
+}
+
 /**
  * Run ID text field with debounced typeahead over recent runs (server list + local filter).
  */
@@ -74,16 +97,28 @@ export function RunIdPicker({
 }: RunIdPickerProps) {
   const generatedId = useId();
   const controlId = inputId ?? `run-id-picker-${generatedId}`;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const blurTimerRef = useRef<number | null>(null);
   const [query, setQuery] = useState(value);
   const [runs, setRuns] = useState<RunSummary[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [activeIndex, setActiveIndex] = useState(-1);
   const autoPickAppliedRef = useRef(false);
+  const previousValueRef = useRef(value);
+  const [listFilter, setListFilter] = useState("");
 
   useEffect(() => {
+    if (previousValueRef.current === value) {
+      return;
+    }
+
+    previousValueRef.current = value;
+
     if (!useBuyerFacingRunLabels) {
       setQuery(value);
+      setListFilter(value);
       return;
     }
 
@@ -91,17 +126,21 @@ export function RunIdPicker({
 
     if (knownFriendly !== null) {
       setQuery(knownFriendly);
+      setListFilter(knownFriendly);
       return;
     }
 
     const match = runs.find((r) => r.runId === value.trim());
 
     if (match !== undefined) {
-      setQuery(buyerFacingReviewTitleFromSummary(match));
+      const friendly = buyerFacingReviewTitleFromSummary(match);
+      setQuery(friendly);
+      setListFilter(friendly);
       return;
     }
 
     setQuery(value);
+    setListFilter(value);
   }, [value, runs, useBuyerFacingRunLabels]);
 
   const loadRuns = useCallback(async () => {
@@ -206,35 +245,75 @@ export function RunIdPicker({
   }, [preferAutoPick, loading, loadError, runs, value, onChange, onSelect]);
 
   const filtered = useMemo(() => {
-    if (useBuyerFacingRunLabels) {
-      return runs.slice(0, 12);
-    }
-
-    const q = query.trim().toLowerCase();
+    const q = listFilter.trim();
 
     if (q.length === 0) {
-      return runs.slice(0, 12);
+      return runs.slice(0, RUN_PICKER_MAX_VISIBLE);
     }
 
     return runs
-      .filter(
-        (r) =>
-          r.runId.toLowerCase().includes(q) ||
-          (r.displayName ?? "").toLowerCase().includes(q) ||
-          (r.description ?? "").toLowerCase().includes(q) ||
-          (r.projectId ?? "").toLowerCase().includes(q),
-      )
-      .slice(0, 12);
-  }, [runs, query, useBuyerFacingRunLabels]);
+      .filter((r) => runMatchesQuery(r, q, useBuyerFacingRunLabels))
+      .slice(0, RUN_PICKER_MAX_VISIBLE);
+  }, [runs, listFilter, useBuyerFacingRunLabels]);
+
+  const hiddenMatchCount = useMemo(() => {
+    const q = listFilter.trim();
+
+    if (q.length === 0) {
+      return Math.max(0, runs.length - RUN_PICKER_MAX_VISIBLE);
+    }
+
+    const totalMatches = runs.filter((r) => runMatchesQuery(r, q, useBuyerFacingRunLabels)).length;
+
+    return Math.max(0, totalMatches - RUN_PICKER_MAX_VISIBLE);
+  }, [runs, listFilter, useBuyerFacingRunLabels]);
+
+  useEffect(() => {
+    if (!open) {
+      setActiveIndex(-1);
+      return;
+    }
+
+    if (filtered.length === 0) {
+      setActiveIndex(-1);
+      return;
+    }
+
+    const selectedIndex = filtered.findIndex((r) => r.runId === value.trim());
+
+    setActiveIndex(selectedIndex >= 0 ? selectedIndex : 0);
+  }, [open, filtered, value]);
+
+  const selectRun = (run: RunSummary) => {
+    const displayValue = useBuyerFacingRunLabels ? buyerFacingReviewTitleFromSummary(run) : run.runId;
+    setQuery(displayValue);
+    setListFilter(displayValue);
+    onChange(run.runId);
+    onSelect?.(run.runId);
+    onRunPicked?.(run);
+    setOpen(false);
+  };
+
+  const scheduleClose = () => {
+    if (blurTimerRef.current !== null) {
+      window.clearTimeout(blurTimerRef.current);
+    }
+
+    blurTimerRef.current = window.setTimeout(() => {
+      if (!containerRef.current?.contains(document.activeElement)) {
+        setOpen(false);
+      }
+    }, 150);
+  };
 
   const popupContainerClass =
     (cn("absolute z-30 mt-1 max-h-60 w-full overflow-auto rounded-md border border-neutral-200 bg-white py-1 shadow-md dark:border-neutral-700 dark:bg-neutral-900", OPERATOR_TYPOGRAPHY.body));
-  /** role="listbox" must contain option/group children — avoid it for loading-only or empty-list error banners (axe aria-required-children). */
-  const showRunPopup = open && (filtered.length > 0 || loadError !== null || loading);
+  const showRunPopup = open && (filtered.length > 0 || loadError !== null || loading || listFilter.trim().length > 0);
   const popupUsesListbox = !loading && filtered.length > 0;
+  const showNoMatches = !loading && loadError === null && listFilter.trim().length > 0 && filtered.length === 0;
 
   return (
-    <div className="relative max-w-xl">
+    <div ref={containerRef} className="relative max-w-xl">
       <Label htmlFor={controlId} className={cn("mb-1 block font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
         {label}
       </Label>
@@ -243,10 +322,9 @@ export function RunIdPicker({
         role="combobox"
         value={query}
         placeholder={placeholder}
-        readOnly={useBuyerFacingRunLabels}
         title={
           useBuyerFacingRunLabels
-            ? "Pick a review from the list. The field shows the review title; selection keeps the technical id for loading."
+            ? "Type to filter reviews by title or id. Pick from the list or paste a review id directly."
             : undefined
         }
         autoComplete="off"
@@ -254,9 +332,15 @@ export function RunIdPicker({
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={open ? `${controlId}-listbox` : undefined}
+        aria-activedescendant={
+          open && activeIndex >= 0 && filtered[activeIndex] !== undefined
+            ? `${controlId}-option-${activeIndex}`
+            : undefined
+        }
         autoFocus={autoFocus}
         onFocus={() => {
           setOpen(true);
+          setListFilter("");
           void loadRuns();
         }}
         /**
@@ -265,29 +349,110 @@ export function RunIdPicker({
          */
         onClick={() => {
           setOpen(true);
+          setListFilter("");
           void loadRuns();
         }}
-        onBlur={() => {
-          window.setTimeout(() => {
+        onBlur={scheduleClose}
+        onKeyDown={(event) => {
+          if (event.key === "Escape") {
+            event.preventDefault();
             setOpen(false);
-          }, 150);
+            return;
+          }
+
+          if (event.key === "ArrowDown") {
+            event.preventDefault();
+            setOpen(true);
+
+            if (filtered.length === 0) {
+              return;
+            }
+
+            setActiveIndex((prev) => (prev < filtered.length - 1 ? prev + 1 : 0));
+            return;
+          }
+
+          if (event.key === "ArrowUp") {
+            event.preventDefault();
+            setOpen(true);
+
+            if (filtered.length === 0) {
+              return;
+            }
+
+            setActiveIndex((prev) => (prev > 0 ? prev - 1 : filtered.length - 1));
+            return;
+          }
+
+          if (event.key === "Home") {
+            event.preventDefault();
+
+            if (filtered.length > 0) {
+              setActiveIndex(0);
+            }
+
+            return;
+          }
+
+          if (event.key === "End") {
+            event.preventDefault();
+
+            if (filtered.length > 0) {
+              setActiveIndex(filtered.length - 1);
+            }
+
+            return;
+          }
+
+          if (event.key === "Enter") {
+            event.preventDefault();
+            setOpen(true);
+
+            if (activeIndex >= 0 && filtered[activeIndex] !== undefined) {
+              selectRun(filtered[activeIndex]);
+              return;
+            }
+
+            if (filtered.length === 1) {
+              selectRun(filtered[0]);
+              return;
+            }
+
+            const exactIdMatch = runs.find((r) => r.runId.trim().toLowerCase() === query.trim().toLowerCase());
+
+            if (exactIdMatch !== undefined) {
+              selectRun(exactIdMatch);
+            }
+          }
         }}
         onChange={(e) => {
           const next = e.target.value;
           setQuery(next);
-          onChange(next);
+          setListFilter(next);
           setOpen(true);
+
+          // Keep committed value as a review id — typing filters locally until list/Enter selection.
+          if (!useBuyerFacingRunLabels) {
+            onChange(next);
+          }
         }}
       />
       {showRunPopup ? (
         popupUsesListbox ? (
-          <ul id={`${controlId}-listbox`} role="listbox" className={popupContainerClass}>
+          <ul
+            id={`${controlId}-listbox`}
+            role="listbox"
+            className={popupContainerClass}
+            onMouseDown={(event) => {
+              event.preventDefault();
+            }}
+          >
             {loadError !== null ? (
               <li className="px-3 py-2 text-red-700 dark:text-red-400" role="presentation">
                 {loadError}
               </li>
             ) : null}
-            {filtered.map((r) => {
+            {filtered.map((r, index) => {
               const primaryText = useBuyerFacingRunLabels
                 ? buyerFacingReviewTitleFromSummary(r)
                 : truncate(runSummaryDisplayLabel(r), 52);
@@ -296,26 +461,24 @@ export function RunIdPicker({
               ) : (
                 truncate(r.runId, 48)
               );
+              const isActive = index === activeIndex;
 
               return (
                 <li key={r.runId} role="presentation">
                   <button
+                    id={`${controlId}-option-${index}`}
                     type="button"
                     role="option"
                     aria-selected={r.runId === value.trim()}
                     className={cn(
                       "flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left hover:bg-neutral-100 dark:hover:bg-neutral-800",
-                      r.runId === value.trim() && "bg-[var(--al-layer-hover)] dark:bg-neutral-800/80",
+                      (r.runId === value.trim() || isActive) && "bg-[var(--al-layer-hover)] dark:bg-neutral-800/80",
                     )}
                     onMouseDown={(e) => {
                       e.preventDefault();
                     }}
                     onClick={() => {
-                      setQuery(useBuyerFacingRunLabels ? buyerFacingReviewTitleFromSummary(r) : r.runId);
-                      onChange(r.runId);
-                      onSelect?.(r.runId);
-                      onRunPicked?.(r);
-                      setOpen(false);
+                      selectRun(r);
                     }}
                   >
                     <span className={cn("font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>{primaryText}</span>
@@ -328,14 +491,32 @@ export function RunIdPicker({
                 </li>
               );
             })}
+            {hiddenMatchCount > 0 ? (
+              <li className="px-3 py-2 text-neutral-600 dark:text-neutral-400" role="presentation">
+                {hiddenMatchCount} more match(es) — refine your search or paste a review id directly.
+              </li>
+            ) : null}
           </ul>
         ) : (
-          <div id={`${controlId}-listbox`} role="status" aria-live="polite" className={popupContainerClass}>
+          <div
+            id={`${controlId}-listbox`}
+            role="status"
+            aria-live="polite"
+            className={popupContainerClass}
+            onMouseDown={(event) => {
+              event.preventDefault();
+            }}
+          >
             {loading ? (
               <div className="px-3 py-2 text-neutral-500 dark:text-neutral-400">Loading reviews…</div>
             ) : null}
             {!loading && loadError !== null ? (
               <div className="px-3 py-2 text-red-700 dark:text-red-400">{loadError}</div>
+            ) : null}
+            {showNoMatches ? (
+              <div className="px-3 py-2 text-neutral-700 dark:text-neutral-300" data-testid="run-id-picker-no-matches">
+                No matching reviews. Paste a review id directly in this field to compare an older or in-progress review.
+              </div>
             ) : null}
           </div>
         )

@@ -58,16 +58,17 @@ describe("Compare verdict and trust banner", () => {
     vi.clearAllMocks();
   });
 
-  it("CompareVerdictSummary surfaces total changes, category counts, and sponsor recommendation", () => {
+  it("CompareVerdictSummary surfaces total changes, category counts, and top change highlight", () => {
     render(<CompareVerdictSummary golden={goldenWithDeltas} />);
 
     expect(screen.getByTestId("compare-verdict-summary")).toHaveTextContent("Total changes:");
     expect(screen.getByTestId("compare-verdict-summary")).toHaveTextContent("1");
     expect(screen.getByTestId("compare-verdict-category-counts")).toHaveTextContent("Decisions");
-    expect(screen.getByTestId("compare-sponsor-recommendation")).toHaveTextContent("Region changed for residency");
+    expect(screen.getByTestId("compare-top-change-highlight")).toHaveTextContent("Region changed for residency");
+    expect(screen.getByTestId("compare-top-change-highlight")).toHaveTextContent("from structured comparison summary");
   });
 
-  it("CompareComparisonTrustBanner rolls governance and AI caveats into one banner", () => {
+  it("CompareComparisonTrustBanner keeps medium-severity governance caveat visible without expanding", () => {
     render(
       <CompareComparisonTrustBanner
         executionModeHonesty={null}
@@ -77,7 +78,9 @@ describe("Compare verdict and trust banner", () => {
     );
 
     expect(screen.getByTestId("compare-comparison-trust-banner")).toBeInTheDocument();
-    expect(screen.getAllByText("Governance diff uses current effective policy only").length).toBeGreaterThan(0);
+    expect(screen.getByTestId("compare-trust-visible-items")).toHaveTextContent(
+      "Governance diff uses current effective policy only",
+    );
     expect(screen.getByText("Caution")).toBeInTheDocument();
   });
 

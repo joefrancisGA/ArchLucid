@@ -11,6 +11,7 @@ import {
   getShowcaseEvidenceTrailHref,
   getShowcaseManifestHref,
 } from "@/lib/buyer-safe-review-navigation";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { reviewSignedRecordPath } from "@/lib/signed-records-paths";
 import {
   SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID,
@@ -24,7 +25,7 @@ export type CompareRelatedReviewLinksProps = {
   readonly updatedRunId?: string;
 };
 
-function resolvePreferredRunId(props: CompareRelatedReviewLinksProps): string {
+function resolvePreferredRunId(props: CompareRelatedReviewLinksProps): string | null {
   const updated = canonicalizeDemoRunId((props.updatedRunId ?? "").trim());
   const preferred = canonicalizeDemoRunId((props.preferredRunId ?? "").trim());
   const baseline = canonicalizeDemoRunId((props.baselineRunId ?? "").trim());
@@ -41,12 +42,21 @@ function resolvePreferredRunId(props: CompareRelatedReviewLinksProps): string {
     return baseline;
   }
 
-  return SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID;
+  if (isStaticDemoPayloadFallbackEnabled()) {
+    return SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID;
+  }
+
+  return null;
 }
 
 /** Secondary navigation to related review artifacts — pair-scoped when run ids are known. */
 export function CompareRelatedReviewLinks(props: CompareRelatedReviewLinksProps = {}) {
   const runId = resolvePreferredRunId(props);
+
+  if (runId === null) {
+    return null;
+  }
+
   const isShowcasePair =
     runId === SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID ||
     runId === SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID ||

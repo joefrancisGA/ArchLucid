@@ -27,7 +27,6 @@ export function CompareGovernanceDiffSection(props: CompareGovernanceDiffSection
       view={view}
       loading={loading}
       softFailureMessage={softFailureMessage}
-      hideCurrentEffectiveDisclaimer
     />
   );
 }
