@@ -21,6 +21,7 @@ import { prepareHelpMarkdownForPresentation, sanitizeBareMarkdownFileReferences 
 
 type RenderInlineOptions = {
   readonly linkMode: "external-only" | "help";
+  readonly nowrapInlineCode?: boolean;
 };
 
 /** Landmark names must be unique when multiple scrollable table regions appear on one page (axe landmark-unique). */
@@ -81,7 +82,11 @@ function renderInline(text: string, keyPrefix: string, options: RenderInlineOpti
       nodes.push(
         <code
           key={`${keyPrefix}-ic-${i}`}
-          className="rounded bg-neutral-100 px-1 py-0.5 font-mono text-[0.9em] text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100"
+          className={cn(
+            "rounded bg-neutral-100 px-1 py-0.5 font-mono text-[0.9em] text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100",
+            options.nowrapInlineCode &&
+              "inline-block max-w-full overflow-x-auto whitespace-nowrap align-bottom",
+          )}
         >
           {inner}
         </code>,
@@ -269,7 +274,10 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
       : cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, "mt-4 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle);
   const tableTextClass = isPrivacy || isHelp ? OPERATOR_TYPOGRAPHY.body : OPERATOR_TYPOGRAPHY.body;
   // Privacy needs in-app /help, /trust, and #section links (same allowance as help topics).
-  const renderOptions: RenderInlineOptions = { linkMode: isHelp || isPrivacy ? "help" : "external-only" };
+  const renderOptions: RenderInlineOptions = {
+    linkMode: isHelp || isPrivacy ? "help" : "external-only",
+    nowrapInlineCode: isHelp,
+  };
   const markdownBody =
     props.preparedMarkdownOverride !== undefined && props.preparedMarkdownOverride.trim().length > 0
       ? props.preparedMarkdownOverride

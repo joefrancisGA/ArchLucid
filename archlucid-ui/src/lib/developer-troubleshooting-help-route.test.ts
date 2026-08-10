@@ -49,7 +49,7 @@ describe("developer-troubleshooting-help-route (HDX)", () => {
     expect(pageSource).toContain("HelpTopicMarkdownClient");
     expect(pageSource).toContain("HelpEngineeringTroubleshootingGuideView");
     expect(pageSource).toContain('loaded.entry.slug === "developer-troubleshooting"');
-    expect(pageSource).toContain('return { title: "Help topic not found" };');
+    expect(pageSource).toContain("resolveInternalRunbookHelpRouteMetadata");
   });
 
   it("keeps marketing SEO inventory off the in-app help path", () => {

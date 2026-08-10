@@ -5,6 +5,15 @@ export function stripInlineMarkdownForSlug(text: string): string {
   return text.replace(/\*\*([^*]+)\*\*/g, "$1").replace(/\*([^*]+)\*/g, "$1");
 }
 
+/** Strips inline emphasis and code spans for TOC / heading display (anchors stay slug-based). */
+export function stripInlineMarkdownForDisplay(text: string): string {
+  return stripInlineMarkdownForSlug(text)
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/_([^_]+)_/g, "$1")
+    .replace(/[*_`]/g, "")
+    .trim();
+}
+
 export type ParsedHelpMarkdownHeading = {
   readonly title: string;
   readonly explicitAnchor: string | null;
@@ -30,8 +39,9 @@ export function resolveHelpHeadingId(
 ): { readonly id: string; readonly title: string } {
   const { title, explicitAnchor } = parseHelpMarkdownHeading(rawTitle);
   const id = explicitAnchor ?? allocateSectionSlug(title);
+  const displayTitle = stripInlineMarkdownForDisplay(title);
 
-  return { id, title };
+  return { id, title: displayTitle.length > 0 ? displayTitle : title.trim() };
 }
 
 export function slugifyHelpHeading(heading: string): string {
