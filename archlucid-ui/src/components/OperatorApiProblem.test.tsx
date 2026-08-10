@@ -26,7 +26,7 @@ describe("OperatorApiProblem", () => {
       />,
     );
 
-    expect(screen.getByText("Not found")).toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent("Not found");
     expect(screen.getByText("Missing resource.")).toBeInTheDocument();
   });
 
@@ -100,7 +100,7 @@ describe("OperatorApiProblem", () => {
       />,
     );
 
-    expect(screen.getByText("Too many requests")).toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent("Too many requests");
     expect(screen.getByText("Too many concurrent requests")).toBeInTheDocument();
     expect(screen.getByText(/5 seconds/)).toBeInTheDocument();
   });
@@ -141,7 +141,7 @@ describe("OperatorApiProblem", () => {
       />,
     );
 
-    expect(screen.getByText("Request validation failed (HTTP 400)")).toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent("Request validation failed (HTTP 400)");
     expect(screen.getByTestId("operator-api-problem-validation")).toBeInTheDocument();
     expect(screen.getByText("description")).toBeInTheDocument();
     expect(screen.getByText("Description must not exceed 4000 characters.")).toBeInTheDocument();
@@ -209,7 +209,7 @@ describe("OperatorApiProblem", () => {
       />,
     );
 
-    expect(screen.getByText("Not found in this workspace")).toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent("Not found in this workspace");
     expect(screen.queryByText(/^Not Found$/)).not.toBeInTheDocument();
     expect(screen.getByText(/workspace selector/i)).toBeInTheDocument();
   });

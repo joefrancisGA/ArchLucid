@@ -27,6 +27,7 @@ export function StatusTag({
   return (
     <MetadataStatusLabel
       className={cn(enterpriseStatusTagClass(kind), className)}
+      aria-label={`Status: ${display}`}
       {...rest}
     >
       {display}

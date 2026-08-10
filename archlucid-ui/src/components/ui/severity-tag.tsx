@@ -31,6 +31,7 @@ export function SeverityTag({
   return (
     <MetadataStatusLabel
       className={cn(severityTagClass(resolved), className)}
+      aria-label={`Severity: ${display}`}
       {...rest}
     >
       {display}

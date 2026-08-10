@@ -135,18 +135,18 @@ describe("buildTraceRowWorkItemBody", () => {
   it("includes trust label in markdown and JSON when provided", () => {
     const withTrust = {
       ...traceInput,
-      trustLabel: "ModelInference",
+      trustLabel: "EvidenceBacked",
       trustLabelReason: "Agent cited evidence.",
     };
 
     const markdown = buildTraceRowWorkItemBody("markdown", withTrust);
-    expect(markdown).toContain("**Trust label:** ModelInference — Agent cited evidence.");
+    expect(markdown).toContain("**Trust label:** EvidenceBacked — Agent cited evidence.");
 
     const json = JSON.parse(buildTraceRowWorkItemBody("json", withTrust)) as {
       trustLabel: string;
       trustLabelReason: string;
     };
-    expect(json.trustLabel).toBe("ModelInference");
+    expect(json.trustLabel).toBe("EvidenceBacked");
     expect(json.trustLabelReason).toBe("Agent cited evidence.");
   });
 });

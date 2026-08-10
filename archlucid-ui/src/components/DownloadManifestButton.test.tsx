@@ -14,10 +14,8 @@ describe("DownloadManifestButton", () => {
   it("downloads manifest JSON with a run-scoped file name", async () => {
     vi.mocked(fetchManifestJsonText).mockResolvedValue('{"manifestId":"m-1","decisions":[]}');
 
-    const createObjectUrl = vi.fn(() => "blob:mock");
-    const revokeObjectUrl = vi.fn();
-
-    vi.stubGlobal("URL", { createObjectURL: createObjectUrl, revokeObjectURL: revokeObjectUrl });
+    const createObjectUrl = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock");
+    const revokeObjectUrl = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
 
     const originalCreateElement = document.createElement.bind(document);
     const anchor = originalCreateElement("a");
@@ -41,7 +39,8 @@ describe("DownloadManifestButton", () => {
     expect(revokeObjectUrl).toHaveBeenCalledWith("blob:mock");
 
     createElement.mockRestore();
-    vi.unstubAllGlobals();
+    createObjectUrl.mockRestore();
+    revokeObjectUrl.mockRestore();
   });
 
   it("surfaces API failures", async () => {

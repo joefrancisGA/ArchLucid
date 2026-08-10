@@ -31,7 +31,7 @@ export function StatusPill({
   return (
     <MetadataStatusLabel
       className={cn(statusPillCombinedClass(label, domain), uppercase ? "uppercase" : null, className)}
-      aria-label={ariaLabel}
+      aria-label={ariaLabel ?? `Status: ${label}`}
       {...rest}
     >
       {label}

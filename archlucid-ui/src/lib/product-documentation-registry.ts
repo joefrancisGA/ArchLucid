@@ -60,6 +60,8 @@ export const HELP_TOPIC_SLUG_ALIASES: Readonly<Record<string, string>> = {
   "product-overview": "executive-summary",
   /** How-it-works twin folded into getting-started. Prefer #how-archlucid-works. */
   "how-it-works": "getting-started",
+  /** Bookmark alias folded into first-architecture-review (TB-1380 / TB-2050). */
+  "first-pilot-path": "first-architecture-review",
 };
 
 export function normalizeHelpTopicSlug(slug: string): string {

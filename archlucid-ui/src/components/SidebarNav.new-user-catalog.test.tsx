@@ -57,6 +57,15 @@ vi.mock("@/hooks/use-pattern-library-nav-visible", () => ({
   usePatternLibraryNavVisible: () => true,
 }));
 
+/** TB-2139: Admin density hides Operate groups unless “show all destinations” is on. */
+vi.mock("@/hooks/use-role-nav-density-expanded", () => ({
+  useRoleNavDensityExpanded: () => ({
+    showFullNav: true,
+    setShowFullNav: vi.fn(),
+    toggleShowFullNav: vi.fn(),
+  }),
+}));
+
 vi.mock("next/link", () => ({
   default: ({
     href,

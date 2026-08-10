@@ -38,7 +38,7 @@ import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
-import { BUYER_CTO_DEMO_READINESS_HEADING } from "@/lib/buyer-polish-copy";
+import { INTERNAL_DEMO_READINESS_PAGE_TITLE } from "@/lib/demo-readiness-evidence-copy";
 
 import {
 
@@ -320,7 +320,7 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
 
           href: INTERNAL_DEMO_READINESS_PATH,
 
-          label: BUYER_CTO_DEMO_READINESS_HEADING,
+          label: INTERNAL_DEMO_READINESS_PAGE_TITLE,
 
           title: "Demo readiness — showcase seed, authentication, and execution-budget diagnostics",
 
