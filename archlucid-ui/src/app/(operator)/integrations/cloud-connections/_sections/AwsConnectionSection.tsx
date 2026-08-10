@@ -1,92 +1,39 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
-import {
-  AwsTier2ConnectionResponse,
-  configureAwsTier2Connection,
-  disconnectAwsTier2Connection,
-  listAwsTier2Connections,
-  triggerAwsTier2HostedRun,
-} from "@/lib/api/aws-cloud-connections-api";
-import type { EnterpriseStatusKind } from "@/lib/design-tokens";
+import { configureAwsTier2Connection, disconnectAwsTier2Connection } from "@/lib/api/aws-cloud-connections-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { awsConnectionStatusTagKind, formatAwsConnectionTimestamp } from "@/lib/aws-connection-present";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
-import { useOperateCapability } from "@/hooks/use-operate-capability";
 
-function formatTimestamp(value: string | null): string {
-  if (!value) {
-    return "Never";
-  }
-
-  const parsed = Date.parse(value);
-
-  if (Number.isNaN(parsed)) {
-    return value;
-  }
-
-  return new Date(parsed).toLocaleString();
-}
-
-/** Maps a raw AWS connection status to the canonical enterprise status vocabulary. */
-function statusTagKind(status: string): EnterpriseStatusKind {
-  switch (status.toLowerCase()) {
-    case "connected":
-      return "ready";
-    case "polling":
-      return "in-progress";
-    case "error":
-      return "blocked";
-    default:
-      return "neutral";
-  }
-}
+import { useAwsConnectionData } from "./AwsConnectionDataContext";
 
 export function AwsConnectionSection(props: { readonly embedded?: boolean }) {
   const embedded = props.embedded === true;
-  const canMutate = useOperateCapability();
-  const [connections, setConnections] = useState<AwsTier2ConnectionResponse[]>([]);
+  const {
+    connections,
+    isLoading,
+    loadError,
+    formError,
+    actionMessage,
+    pollingConnectionId,
+    canMutate,
+    refreshConnections,
+    setFormError,
+    setActionMessage,
+    triggerRePoll,
+  } = useAwsConnectionData();
   const [accountId, setAccountId] = useState("");
   const [region, setRegion] = useState("us-east-1");
   const [roleArn, setRoleArn] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [pollingConnectionId, setPollingConnectionId] = useState<string | null>(null);
-  const [formError, setFormError] = useState<string | null>(null);
-  const [actionMessage, setActionMessage] = useState<string | null>(null);
-  const loadStartedRef = useRef(false);
-
-  const refreshConnections = useCallback(async () => {
-    const data = await listAwsTier2Connections();
-    setConnections(data);
-  }, []);
-
-  useEffect(() => {
-    if (loadStartedRef.current) {
-      return;
-    }
-
-    loadStartedRef.current = true;
-
-    async function load() {
-      try {
-        await refreshConnections();
-      } catch (err) {
-        console.error(err);
-        setFormError("Could not load AWS connections. Check your permissions and try again.");
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    void load();
-  }, [refreshConnections]);
 
   const handleConnect = useCallback(async () => {
     if (!canMutate) {
@@ -136,33 +83,7 @@ export function AwsConnectionSection(props: { readonly embedded?: boolean }) {
     } finally {
       setIsSaving(false);
     }
-  }, [accountId, canMutate, region, roleArn, refreshConnections]);
-
-  const handleRePoll = useCallback(
-    async (connection: AwsTier2ConnectionResponse) => {
-      if (!canMutate) {
-        return;
-      }
-
-      setActionMessage(null);
-      setFormError(null);
-      setPollingConnectionId(connection.connectionId);
-
-      try {
-        const result = await triggerAwsTier2HostedRun({ connectionId: connection.connectionId });
-        await refreshConnections();
-        setActionMessage(
-          `Poll completed (${result.resourceCount} resources ingested as package ${result.packageId}).`,
-        );
-      } catch (err) {
-        console.error(err);
-        setFormError("Hosted AWS poll failed. Confirm Tier 2 is enabled and the IAM trust is configured.");
-      } finally {
-        setPollingConnectionId(null);
-      }
-    },
-    [canMutate, refreshConnections],
-  );
+  }, [accountId, canMutate, region, roleArn, refreshConnections, setActionMessage, setFormError]);
 
   const handleDisconnect = useCallback(
     async (connectionId: string) => {
@@ -182,116 +103,122 @@ export function AwsConnectionSection(props: { readonly embedded?: boolean }) {
         setFormError("Could not disconnect the AWS connection.");
       }
     },
-    [canMutate, refreshConnections],
+    [canMutate, refreshConnections, setActionMessage, setFormError],
   );
 
   const body = (
     <>
       <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2 sm:col-span-2">
-            <Label htmlFor="awsAccountId">AWS account ID</Label>
-            <Input
-              id="awsAccountId"
-              data-testid="aws-account-id"
-              value={accountId}
-              onChange={(event) => setAccountId(event.target.value)}
-              placeholder="123456789012"
-              autoComplete="off"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="awsRegion">Primary region</Label>
-            <Input
-              id="awsRegion"
-              data-testid="aws-region"
-              value={region}
-              onChange={(event) => setRegion(event.target.value)}
-              placeholder="us-east-1"
-              autoComplete="off"
-            />
-          </div>
-          <div className="space-y-2 sm:col-span-2">
-            <Label htmlFor="awsRoleArn">Read-only IAM role ARN</Label>
-            <Input
-              id="awsRoleArn"
-              data-testid="aws-role-arn"
-              value={roleArn}
-              onChange={(event) => setRoleArn(event.target.value)}
-              placeholder="arn:aws:iam::123456789012:role/ArchLucidReadOnly"
-              autoComplete="off"
-            />
-          </div>
+        <div className="space-y-2 sm:col-span-2">
+          <Label htmlFor="awsAccountId">AWS account ID</Label>
+          <Input
+            id="awsAccountId"
+            data-testid="aws-account-id"
+            value={accountId}
+            onChange={(event) => setAccountId(event.target.value)}
+            placeholder="123456789012"
+            autoComplete="off"
+          />
         </div>
+        <div className="space-y-2">
+          <Label htmlFor="awsRegion">Primary region</Label>
+          <Input
+            id="awsRegion"
+            data-testid="aws-region"
+            value={region}
+            onChange={(event) => setRegion(event.target.value)}
+            placeholder="us-east-1"
+            autoComplete="off"
+          />
+        </div>
+        <div className="space-y-2 sm:col-span-2">
+          <Label htmlFor="awsRoleArn">Read-only IAM role ARN</Label>
+          <Input
+            id="awsRoleArn"
+            data-testid="aws-role-arn"
+            value={roleArn}
+            onChange={(event) => setRoleArn(event.target.value)}
+            placeholder="arn:aws:iam::123456789012:role/ArchLucidReadOnly"
+            autoComplete="off"
+          />
+        </div>
+      </div>
 
-        <Button
-          type="button"
-          data-testid="aws-connect-submit"
-          variant="primary"
-          disabled={isSaving || !canMutate}
-          title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-          onClick={() => void handleConnect()}
-        >
-          {isSaving ? "Saving…" : "Save AWS connection"}
-        </Button>
+      <Button
+        type="button"
+        data-testid="aws-connect-submit"
+        variant="primary"
+        disabled={isSaving || !canMutate}
+        title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+        onClick={() => void handleConnect()}
+      >
+        {isSaving ? "Saving…" : "Save AWS connection"}
+      </Button>
 
-        {formError ? (
-          <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-red-600 dark:text-red-400")} role="alert">
-            {formError}
-          </p>
-        ) : null}
+      {loadError !== null ? (
+        <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-red-600 dark:text-red-400")} role="alert">
+          {loadError}
+        </p>
+      ) : null}
 
-        {actionMessage ? (
-          <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-emerald-700 dark:text-emerald-300")} role="status">
-            {actionMessage}
-          </p>
-        ) : null}
+      {formError !== null ? (
+        <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-red-600 dark:text-red-400")} role="alert">
+          {formError}
+        </p>
+      ) : null}
 
-        {isLoading ? <p className={OPERATOR_TYPOGRAPHY.helper}>Loading AWS connections…</p> : null}
+      {actionMessage !== null ? (
+        <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-emerald-700 dark:text-emerald-300")} role="status">
+          {actionMessage}
+        </p>
+      ) : null}
 
-        {!isLoading && connections.length > 0 ? (
-          <div className="space-y-4" data-testid="aws-connection-list">
-            {connections.map((connection) => (
-              <div key={connection.connectionId} className="rounded-md border p-4 space-y-3">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className={cn(OPERATOR_TYPOGRAPHY.body, "font-semibold")}>
-                    Account {connection.accountId}
-                  </p>
-                  <StatusTag kind={statusTagKind(connection.status)} label={connection.status} />
-                </div>
-                <dl className={cn("grid grid-cols-2 gap-2", OPERATOR_TYPOGRAPHY.body)}>
-                  <dt className="text-muted-foreground">Region</dt>
-                  <dd>{connection.region}</dd>
-                  <dt className="text-muted-foreground">Role ARN</dt>
-                  <dd className="break-all">{connection.roleArn}</dd>
-                  <dt className="text-muted-foreground">Last polled</dt>
-                  <dd>{formatTimestamp(connection.lastPolledUtc)}</dd>
-                </dl>
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    data-testid={`aws-repoll-${connection.connectionId}`}
-                    disabled={pollingConnectionId === connection.connectionId || !canMutate}
-                    title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-                    onClick={() => void handleRePoll(connection)}
-                  >
-                    {pollingConnectionId === connection.connectionId ? "Polling…" : "Re-poll now"}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    data-testid={`aws-disconnect-${connection.connectionId}`}
-                    disabled={!canMutate}
-                    title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-                    onClick={() => void handleDisconnect(connection.connectionId)}
-                  >
-                    Disconnect
-                  </Button>
-                </div>
+      {isLoading ? <p className={OPERATOR_TYPOGRAPHY.helper}>Loading AWS connections…</p> : null}
+
+      {!isLoading && connections.length > 0 ? (
+        <div className="space-y-4" data-testid="aws-connection-list">
+          {connections.map((connection) => (
+            <div key={connection.connectionId} className="rounded-md border p-4 space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className={cn(OPERATOR_TYPOGRAPHY.body, "font-semibold")}>
+                  Account {connection.accountId}
+                </p>
+                <StatusTag kind={awsConnectionStatusTagKind(connection.status)} label={connection.status} />
               </div>
-            ))}
-          </div>
-        ) : null}
+              <dl className={cn("grid grid-cols-2 gap-2", OPERATOR_TYPOGRAPHY.body)}>
+                <dt className="text-muted-foreground">Region</dt>
+                <dd>{connection.region}</dd>
+                <dt className="text-muted-foreground">Role ARN</dt>
+                <dd className="break-all">{connection.roleArn}</dd>
+                <dt className="text-muted-foreground">Last collected</dt>
+                <dd>{formatAwsConnectionTimestamp(connection.lastPolledUtc)}</dd>
+              </dl>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  data-testid={`aws-repoll-${connection.connectionId}`}
+                  disabled={pollingConnectionId === connection.connectionId || !canMutate}
+                  title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                  onClick={() => void triggerRePoll(connection)}
+                >
+                  {pollingConnectionId === connection.connectionId ? "Polling…" : "Re-poll now"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  data-testid={`aws-disconnect-${connection.connectionId}`}
+                  disabled={!canMutate}
+                  title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                  onClick={() => void handleDisconnect(connection.connectionId)}
+                >
+                  Disconnect
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : null}
     </>
   );
 
