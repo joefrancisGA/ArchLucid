@@ -5,6 +5,7 @@ import type { Metadata } from "next";
  */
 export const LEGACY_ONBOARDING_START_ROUTE_METADATA: Metadata = {
   title: "Redirecting to onboarding",
-  description: "Legacy /onboarding/start bookmark — redirects immediately to the canonical onboarding hub.",
+  description:
+    "Legacy /onboarding/start bookmark — redirects immediately to the canonical first review guide (/architecture/first-review-guide).",
   robots: { index: false, follow: false },
 };

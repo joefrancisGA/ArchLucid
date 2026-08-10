@@ -49,7 +49,7 @@ However, **Azure, AWS, and Google Cloud are not currently presented as first-cla
 | `/architectures`, `/architectures/new`, `/architectures/[id]` | Operator | Creation flow; wizard defaults `cloudProvider: "None"` — **aligned** |
 | `/reviews/new` | Operator | Cloud-neutral lead copy + guard tests — **aligned** |
 | `/reviews`, `/reviews/[runId]/*` | Operator | Sample `claims-intake-modernization` is Azure-heavy demo |
-| `/onboarding`, `/onboarding/start`, `/onboard`, `/getting-started` | Operator | Finish setup mentions Key Vault (`FinishSetupWizardPanel.tsx`) |
+| `/architecture/first-review-guide` (canonical onboarding), legacy `/onboarding/start`, `/onboard`, `/getting-started` (redirect shims), retired `/onboarding` | Operator | Finish setup mentions Key Vault (`FinishSetupWizardPanel.tsx`) |
 | `/dashboard`, `/graph`, `/ask`, `/search`, `/compare` | Operator | Empty states link Azure-skewed sample run |
 | `/patterns`, `/patterns/[key]` | Operator | Catalog includes multi-cloud tags — **mostly aligned** |
 | `/governance/*` | Operator | Policy packs; default provisioning Azure-biased (backend) |

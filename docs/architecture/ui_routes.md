@@ -194,7 +194,7 @@ Columns:
 | `/insights/evidence-graph` | Evidence graph (trace table + interactive graph) | T1: `?runId=claims-intake-modernization` → **Load graph**; deep links via `runId` + `graphNodeId` (**INE**) |
 | `/onboarding` | In-product onboarding | T1/T2; T2 may show `trialSampleRunId` from API |
 | `/architecture/first-review-guide` | First review guide (onboarding checklist) | Trial card when `?source=registration`; core walkthrough wizard (**ARF**); legacy `/onboarding` retired (no redirect) |
-| `/onboarding/start` | Deprecated alias | App Router shim permanently redirects to `/onboarding` (query preserved; canonical UX on **ARF**) |
+| `/onboarding/start` | Deprecated alias | Legacy bookmark — canonical UX on **ARF** (`/architecture/first-review-guide`; query preserved when redirect shim exists) |
 | `/onboard` | Deprecated alias | App Router shim permanently redirects to `/onboarding` (query preserved; canonical UX on **ARF**) |
 | `/getting-started` | Deprecated alias | App Router shim permanently redirects to `/onboarding` (query preserved) |
 | `/help` | In-app help index | Open directly |
