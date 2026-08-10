@@ -46,6 +46,12 @@ worker_max_replicas = 20
 api_scale_concurrent_requests = 10
 ui_scale_concurrent_requests  = 10
 
+# TB-915 scale-rule mix (OR semantics — see README § Scale-rule mix):
+# api_enable_cpu_scale_rule = true          # default: HTTP + CPU on API
+# api_cpu_scale_utilization_percent = 70
+# api_enable_memory_scale_rule = false        # enable only with RSS evidence
+# ui_enable_cpu_scale_rule = false          # optional operator UI CPU rule
+
 # Staging/production cold-start canary (TB-755): set api_revision_mode = "Multiple" before enabling CD_CANARY_* repo vars.
 # Dev may keep the module default "Single".
 # api_revision_mode = "Multiple"

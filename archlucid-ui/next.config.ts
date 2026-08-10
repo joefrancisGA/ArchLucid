@@ -78,6 +78,7 @@ const nextConfig: NextConfig = {
       "@radix-ui/react-collapsible",
       "@radix-ui/react-dialog",
       "@radix-ui/react-label",
+      "@radix-ui/react-popover",
       "@radix-ui/react-progress",
       "@radix-ui/react-select",
       "@radix-ui/react-separator",
@@ -113,14 +114,9 @@ const nextConfig: NextConfig = {
     ];
   },
   async redirects() {
-    // IA batch 4: no `/architectures` bookmark redirects — canonicalizeLegacyOperatorRoutePath handles product hrefs.
-    // Legacy `/reviews` and `/runs` still surface in help markdown; force-canonical server redirects prevent 404s.
-    return [
-      { source: "/reviews", destination: "/architecture/reviews", permanent: true },
-      { source: "/reviews/:path*", destination: "/architecture/reviews/:path*", permanent: true },
-      { source: "/runs", destination: "/architecture/reviews", permanent: true },
-      { source: "/runs/:path*", destination: "/architecture/reviews/:path*", permanent: true },
-    ];
+    // IA batch 4: no permanent bookmark redirects — canonicalizeLegacyOperatorRoutePath and help
+    // link rewriting map retired paths; legacy bookmarks that are not updated 404.
+    return [];
   },
   async rewrites() {
     return [];

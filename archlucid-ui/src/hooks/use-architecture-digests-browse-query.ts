@@ -18,6 +18,5 @@ export function useArchitectureDigestsBrowseQuery(take = 40) {
     queryFn: () => listArchitectureDigests(take),
     staleTime: OPERATOR_QUERY_STALE_MS,
     gcTime: OPERATOR_QUERY_GC_MS,
-    placeholderData: (previousData) => previousData,
   });
 }

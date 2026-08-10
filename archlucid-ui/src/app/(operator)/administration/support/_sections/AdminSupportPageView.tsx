@@ -62,7 +62,7 @@ export function AdminSupportPageView({ model }: AdminSupportPageViewProps) {
     return (
       <DemoWorkspaceCapabilityUnavailablePanel
         capability="Support tools"
-        description="In a connected tenant, operators download redacted support bundles and attach them to tickets."
+        description="In a connected tenant, architects download redacted support bundles and attach them to tickets."
       />
     );
   }

@@ -7,7 +7,7 @@ This document replaces the historical mega-comment on `nav-config.ts`. **API aut
 ## API vs UI
 
 - **`tier`** and **`requiredAuthority`** describe how the shell **should** present routes.
-- **Computed visibility** is **`filterNavLinksForOperatorShell`** in **`nav-shell-visibility.ts`** (**tier → authority**; empty groups dropped).
+- **Computed visibility** is **`filterNavLinksForOperatorShell`** in **`nav-shell-visibility.ts`** (**authority only**, plus demo/buyer packaging omissions; empty groups dropped). **`tier` does not hide rows** (owner 2026-08-03) — it is presentation and telemetry metadata; the `showExtended` / `showAdvanced` arguments are ignored.
 - **`[Authorize(Policy = …)]`** on **ArchLucid.Api** is **authoritative** (`401`/`403`); nav omission or soft-disabled controls never imply a safe POST or deep link.
 
 ## Two shaping surfaces
@@ -28,7 +28,9 @@ Removed **workflow-mode presets** (Pilot operator, Full navigator, Governance re
 | Workflow-mode toolbar + sidebar preset radios | No | No | No | No | **Sidebar link visibility only** — `localStorage` filter by href prefix; API `[Authorize]` unchanged |
 | **Operator \| Executive** (retained) | No | Yes (shell destination) | No | No | Switches between operator workspace (`/`) and executive dashboard (`/architecture/executive-dashboard`) |
 
-**Retained shaping:** progressive disclosure tiers (`essential` / `extended` / `advanced`), authority rank from `GET /api/auth/me`, collapsed-pilot **Show all features**, and per-group **N more** disclosure in the sidebar.
+**Retained shaping:** authority rank from `GET /api/auth/me`, plus demo/buyer packaging omissions. Progressive disclosure tiers (`essential` / `extended` / `advanced`), collapsed-pilot **Show all features**, and per-group **N more** counts were **retired as visibility mechanisms** (owner 2026-08-03); tier survives only as metadata, and the `N more` counters now always resolve to zero.
+
+**Commit-state presentation (TB-524):** `nav-committed-architecture-review-promotion.ts` never adds or removes a row. Once `hasCommittedArchitectureReview` is true it moves **First review guide** to the end of the Architecture group and re-tags it `extended`, and re-tags Compare / Evidence graph / pilot outcomes `essential`.
 
 ## Nav groups → buyer layers
 
@@ -87,12 +89,12 @@ Shell and page-local **breadcrumb trails are removed** (**TB-2090**). Primary wa
 
 ### Cross-module Vitest anchors
 
-- **`authority-seam-regression.test.ts`** — e.g. **`/governance`** must stay **`ExecuteAuthority`** so Reader-ranked callers do not see it under Operate nav (deep-link still hits API policy); every **`ExecuteAuthority`** row under **`operate-analysis`** and **`operate-governance`** stays absent from Read-tier filtered nav; Pilot essential hrefs stay visible for Reader with default tier toggles; **caller rank `0`** stays stricter than Read for **`ReadAuthority`** links; **`/alerts`** stays **`essential`** tier; filtered link order and **`listNavGroupsVisibleInOperatorShell`** group order stay aligned with config; Operate governance href sets grow **monotonically** Read→Execute→Admin under **`filterNavLinksByAuthority`** alone; default Reader shell keeps **Operate analysis** to **`/ask`** only (tier before authority); **`/governance`** appears only when **extended and advanced** are on for **Execute** rank (**`filterNavLinksForOperatorShell`**).
+- **`authority-seam-regression.test.ts`** — e.g. **`/governance`** must stay **`ExecuteAuthority`** so Reader-ranked callers do not see it under Operate nav (deep-link still hits API policy); every **`ExecuteAuthority`** row under **`operate-analysis`** and **`operate-governance`** stays absent from Read-tier filtered nav; Pilot essential hrefs stay visible for Reader; **caller rank `0`** stays stricter than Read for **`ReadAuthority`** links; **`/alerts`** stays **`advanced`** tier in config; filtered link order and **`listNavGroupsVisibleInOperatorShell`** group order stay aligned with config; Operate governance href sets grow **monotonically** Read→Execute→Admin under **`filterNavLinksByAuthority`**; the full **Operate analysis** link set survives with both disclosure flags off (tiering retired); **`/governance/approval-queue`** appears for **Execute** rank regardless of disclosure flags (**`filterNavLinksForOperatorShell`**).
 - **`OperatorNavAuthorityProvider.test.tsx`** — **`useNavCallerAuthorityRank`** stays Read during JWT **`/me`** refetch so stale Execute rank does not flash in nav or hooks.
 - **`OperateCapabilityHints.authority.test.tsx`** — rank-gated Operate sidebar/page cues share the same **`ExecuteAuthority`** numeric floor as **`useOperateCapability`** (governance resolution, audit log, **Alerts inbox**, **governance dashboard** reader cue, alert tooling).
 - **`authority-execute-floor-regression.test.ts`** — same **boolean** for a synthetic **`ExecuteAuthority`** row vs **`operateCapabilityFromRank`**.
 - **`authority-shaped-ui-regression.test.ts`** — every catalog **`ExecuteAuthority`** link hidden at Read / visible at Execute (new rows cannot drift untested); **`operate-governance`** monotonicity Reader→Admin.
-- **`nav-shell-visibility.test.ts`** — Analysis extended **Execute** links (e.g. **`/internal/replay`**) behind **Show more** — tier before rank.
+- **`nav-shell-visibility.test.ts`** — Analysis extended **Execute** links (e.g. **`/internal/replay`**) gate on rank alone, with no **Show more** step; empty groups are dropped after authority filtering.
 - **`current-principal.test.ts`** — **`maxAuthority`** vs **`requiredAuthorityFromRank`** and **`hasEnterpriseOperatorSurfaces`** vs mutation capability.
 - **`nav-config.structure.test.ts`** — duplicate **`href`**s; **Pilot** essentials omit **`requiredAuthority`**; **Operate** **`ExecuteAuthority`** links must not use **`essential`** tier (progressive disclosure + rank story).
 - **`nav-route-namespace.test.ts`** — every nav **`href`** matches its group canonical prefix or **`NAV_ROUTE_NAMESPACE_EXCEPTIONS`** (TB-404).
@@ -104,7 +106,7 @@ Shell and page-local **breadcrumb trails are removed** (**TB-2090**). Primary wa
 
 ## `requiredAuthority` vs Operate POSTs
 
-This field shapes **nav / palette visibility** after tier filtering only (higher **caller rank** does **not** bypass **`tier`** — e.g. Operate **extended** hrefs stay hidden until “Show more”; **`nav-shell-visibility.test.ts`**). In-page **POST / toggle** soft-enable on Operate-heavy routes uses **`useOperateCapability()`** — same **`AUTHORITY_RANK.ExecuteAuthority`** floor as **`ExecuteAuthority`** links here; keep both aligned with C# policies. **Audit CSV export** is a documented exception: gated on **`/me`** roles (**Auditor** or **Admin**) on the audit page, not this nav field alone.
+This field is the **only** gate on **nav / palette visibility** — Operate `extended` and `advanced` hrefs are visible at sufficient rank without any “Show more” interaction (**`nav-shell-visibility.test.ts`**). In-page **POST / toggle** soft-enable on Operate-heavy routes uses **`useOperateCapability()`** — same **`AUTHORITY_RANK.ExecuteAuthority`** floor as **`ExecuteAuthority`** links here; keep both aligned with C# policies. **Audit CSV export** is a documented exception: gated on **`/me`** roles (**Auditor** or **Admin**) on the audit page, not this nav field alone.
 
 ## Authority (`requiredAuthority`) — first-pass map
 
@@ -118,10 +120,10 @@ UI hint only; API still 401/403.
 
 ## UI shaping vs API authorization (boundary)
 
-**`[Authorize(Policy = …)]`** on **ArchLucid.Api** is authoritative (**401/403**) for every route and POST — always. `requiredAuthority` drives **shell visibility** after **`nav-shell-visibility`** tier filtering — not whether HTTP writes succeed. Keep policy **names** aligned with C# when moving routes.
+**`[Authorize(Policy = …)]`** on **ArchLucid.Api** is authoritative (**401/403**) for every route and POST — always. `requiredAuthority` drives **shell visibility** in **`nav-shell-visibility`** — not whether HTTP writes succeed. Keep policy **names** aligned with C# when moving routes.
 
 **Vitest:** `nav-config.structure.test.ts` (graph invariants); **`authority-execute-floor-regression.test.ts`** (Execute-class nav row vs mutation capability; Operate **`operate-governance`** Reader vs Execute href sets); **`src/app/(operator)/operate-authority-ui-shaping.test.tsx`** (representative Operate pages: **`useOperateCapability`** → **`disabled`** on primary actions).
 
-Omitting `requiredAuthority` is used only for **Pilot essentials** (default path for any authenticated rank). Every **Operate** nav link sets `requiredAuthority`. Composed with tiers in **`nav-shell-visibility`**.
+Omitting `requiredAuthority` is used only for **Pilot essentials** (default path for any authenticated rank). Every **Operate** nav link sets `requiredAuthority`. Applied in **`nav-shell-visibility`**.
 
 Group IDs are intentionally stable (used as localStorage keys); only labels are user-visible.

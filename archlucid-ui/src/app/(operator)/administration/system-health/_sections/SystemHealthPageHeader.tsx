@@ -1,16 +1,10 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
+import { HealthFreshnessLabel } from "@/components/health-dashboard/HealthDashboardSections";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import {
-  operatorLastRefreshedExactLabel,
-  operatorLastRefreshedLabel,
-} from "@/lib/operator-last-refreshed-label";
-import { SYSTEM_HEALTH_PAGE_TITLE } from "@/lib/system-health-page-copy";
+import { SYSTEM_HEALTH_PAGE_TITLE, SYSTEM_HEALTH_REFRESH_POLICY } from "@/lib/system-health-page-copy";
 
 export type SystemHealthPageHeaderProps = {
   readonly subtitle: string;
@@ -23,7 +17,6 @@ export type SystemHealthPageHeaderProps = {
 /** Shared System health hero — title, lead, contextual help, and refresh in the first viewport. */
 export function SystemHealthPageHeader(props: SystemHealthPageHeaderProps): React.JSX.Element {
   const refreshTestId = props.refreshTestId ?? "system-health-refresh";
-  const lastRefreshedLabel = operatorLastRefreshedLabel(props.lastRefreshedAt);
 
   return (
     <OperatorPageHeader
@@ -31,8 +24,16 @@ export function SystemHealthPageHeader(props: SystemHealthPageHeaderProps): Reac
       titleTestId="system-health-page-title"
       subtitle={props.subtitle}
       actions={
+        // Freshness sits with the control that changes it — a stamp stranded across the
+        // header cannot be read as state belonging to Refresh.
         <div className="flex flex-wrap items-center gap-2" data-testid="system-health-header-actions">
           <PageContextualHelpButton />
+          <HealthFreshnessLabel
+            loading={props.loading}
+            lastRefreshedAt={props.lastRefreshedAt}
+            refreshPolicy={SYSTEM_HEALTH_REFRESH_POLICY}
+            testId="system-health-refresh-timestamp"
+          />
           <Button
             type="button"
             variant="outline"
@@ -44,15 +45,6 @@ export function SystemHealthPageHeader(props: SystemHealthPageHeaderProps): Reac
             {props.loading ? "Refreshing…" : "Refresh"}
           </Button>
         </div>
-      }
-      metadata={
-        <span
-          className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="system-health-refresh-timestamp"
-          title={operatorLastRefreshedExactLabel(props.lastRefreshedAt)}
-        >
-          Last refreshed: {props.loading ? "Refreshing…" : lastRefreshedLabel}
-        </span>
       }
     />
   );

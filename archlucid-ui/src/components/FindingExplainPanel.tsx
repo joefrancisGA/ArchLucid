@@ -325,7 +325,7 @@ export function FindingExplainPanel({
         </div>
       ) : (
         <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          Thumbs feedback requires Operator access or higher (API-enforced).
+          Thumbs feedback requires Architect access or higher (API-enforced).
         </p>
       )}
     </div>

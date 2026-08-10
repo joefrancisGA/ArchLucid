@@ -5,7 +5,6 @@ import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCente
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import {
   OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
-  OPERATOR_HOME_DO_THIS_NEXT_HEADING,
   OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_HEADING,
   OPERATOR_HOME_INTENT_CHOOSER_HEADING,
   OPERATOR_HOME_CONTINUE_ARCHITECTURE_HEADING,
@@ -161,7 +160,7 @@ describe("PilotCommandCenterCard", () => {
     }
 
     expect(screen.getByTestId("operator-home-do-this-next")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: OPERATOR_HOME_DO_THIS_NEXT_HEADING })).toBeInTheDocument();
+    expect(screen.queryByText("Do this next")).toBeNull();
 
     await waitFor(() => {
       expect(screen.getByTestId("operator-home-do-this-next-primary")).toHaveTextContent(

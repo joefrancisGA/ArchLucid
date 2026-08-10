@@ -94,6 +94,18 @@ describe("isApiNotFoundFailure", () => {
     ).toBe(true);
   });
 
+  it("is true for RESOURCE_NOT_FOUND error codes without httpStatus", () => {
+    expect(
+      isApiNotFoundFailure({
+        message: "m",
+        problem: { title: "Missing", errorCode: "RESOURCE_NOT_FOUND" },
+        correlationId: null,
+        httpStatus: null,
+        retryAfterSeconds: null,
+      }),
+    ).toBe(true);
+  });
+
   it("is false for other errors", () => {
     expect(
       isApiNotFoundFailure({

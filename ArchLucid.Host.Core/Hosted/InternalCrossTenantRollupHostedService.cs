@@ -15,22 +15,20 @@ public sealed class InternalCrossTenantRollupHostedService(
     /// <inheritdoc />
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        return electionCoordinator.RunLeaderWorkAsync(
+        return electionCoordinator.RunLeaderWorkWhenEnabledAsync(
+            optionsMonitor.CurrentValue.RollupJobEnabled,
+            LogDisabled,
             HostElectionLeaseNames.InternalCrossTenantRollup,
             PollLoopAsync,
             stoppingToken);
     }
 
+    private void LogDisabled() =>
+        logger.LogInformation("Internal cross-tenant rollup worker is disabled via configuration.");
+
     private async Task PollLoopAsync(CancellationToken leaderToken)
     {
         InternalCrossTenantAnalyticsOptions initial = optionsMonitor.CurrentValue;
-
-        if (!initial.RollupJobEnabled)
-        {
-            logger.LogInformation("Internal cross-tenant rollup worker is disabled via configuration.");
-
-            return;
-        }
 
         logger.LogInformation(
             "Internal cross-tenant rollup worker started (interval {Hours} hours).",

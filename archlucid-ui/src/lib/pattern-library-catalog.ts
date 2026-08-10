@@ -248,7 +248,7 @@ export const PATTERN_LIBRARY_SAMPLE_CATALOG: readonly PatternLibraryRecord[] = [
     reviewQuestions: [
       "What happens when the queue depth exceeds threshold?",
       "How are reassigned cases tracked?",
-      "Which fields are redacted in operator views?",
+      "Which fields are redacted in architect views?",
     ],
   },
   {
@@ -267,7 +267,7 @@ export const PATTERN_LIBRARY_SAMPLE_CATALOG: readonly PatternLibraryRecord[] = [
     reviewCountLabel: "10–20 reviews",
     tenantCountLabel: "5+ tenants",
     overview:
-      "Helps operators and reviewers query architecture knowledge without exposing unapproved sources or tenant data.",
+      "Helps architects and reviewers query architecture knowledge without exposing unapproved sources or tenant data.",
     whereAppears: "Architecture review assistants, policy copilots, and internal enablement chat experiences.",
     typicalRisks: [
       "Retrieval of stale or draft policy documents",

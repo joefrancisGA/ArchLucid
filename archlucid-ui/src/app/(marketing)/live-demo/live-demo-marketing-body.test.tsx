@@ -47,7 +47,8 @@ describe("LiveDemoMarketingBody", () => {
 });
 
 describe("live-demo page identity", () => {
-  it("uses Live demo title constant", () => {
-    expect(LIVE_DEMO_PAGE_TITLE).toBe("Live demo");
+  it("uses honest sample-walkthrough title constant (TB-1265)", () => {
+    expect(LIVE_DEMO_PAGE_TITLE).toBe("Guided sample walkthrough");
+    expect(LIVE_DEMO_PAGE_TITLE.toLowerCase()).not.toMatch(/^live demo$/);
   });
 });

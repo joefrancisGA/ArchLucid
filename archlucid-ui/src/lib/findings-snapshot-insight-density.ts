@@ -126,6 +126,25 @@ export function resolveFindingsSnapshotInsightDensityView(detail: RunDetail): Fi
   return { checklistCoverage, curation };
 }
 
+/**
+ * True when the coverage/curation disclosure has something to show — either checklist rows or a
+ * non-empty curation message. Mirrors the child components' own null guards so callers can drop
+ * the surrounding disclosure heading instead of rendering an empty one.
+ */
+export function hasFindingsSnapshotInsightDensityContent(
+  view: FindingsSnapshotInsightDensityView,
+): boolean {
+  if (view.checklistCoverage.length > 0) {
+    return true;
+  }
+
+  if (view.curation === null) {
+    return false;
+  }
+
+  return formatInsightDensityCurationMessage(view.curation).length > 0;
+}
+
 /** Buyer-facing curation copy for TB-385 banner (empty when there is nothing to communicate). */
 export function formatInsightDensityCurationMessage(curation: InsightDensityCurationCounts): string {
   const demoted = curation.demotedToChecklistCount;

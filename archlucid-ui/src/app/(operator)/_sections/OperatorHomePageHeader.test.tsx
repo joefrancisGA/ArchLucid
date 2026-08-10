@@ -24,7 +24,7 @@ vi.mock("@/lib/operator-home-refresh-context", () => ({
 import { OperatorHomePageHeader } from "@/app/(operator)/_sections/OperatorHomePageHeader";
 
 describe("OperatorHomePageHeader", () => {
-  it("renders Overview title, help, refresh, and last-refreshed metadata", () => {
+  it("renders Overview title, help, and refresh without Last refreshed metadata", () => {
     requestRefresh.mockReset();
 
     render(<OperatorHomePageHeader subtitle={operatorHomePageSubtitle(false)} />);
@@ -35,12 +35,12 @@ describe("OperatorHomePageHeader", () => {
       operatorHomePageSubtitle(false),
     );
     expect(screen.getByTestId("operator-home-page-subtitle").className).toContain("max-w-none");
+    expect(screen.getByTestId("operator-home-page-subtitle").className).toContain("text-[13px]");
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-header-actions")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-refresh-button")).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-last-refreshed")).toHaveTextContent(/Last refreshed:/i);
-    expect(screen.getByText("Last refreshed:").tagName).toBe("STRONG");
-    expect(screen.getByText("Last refreshed:").className).toContain("font-bold");
+    expect(screen.queryByTestId("operator-home-last-refreshed")).toBeNull();
+    expect(screen.queryByText("Last refreshed:")).toBeNull();
 
     fireEvent.click(screen.getByTestId("operator-home-refresh-button"));
 

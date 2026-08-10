@@ -1,0 +1,68 @@
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+
+import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+
+import { RunDetailFindingsWorkspace } from "./RunDetailFindingsWorkspace";
+
+vi.mock("@/components/QuickDecisionSummary", () => ({
+  QuickDecisionSummary: () => <div data-testid="quick-decision-summary-stub" />,
+}));
+
+vi.mock("@/components/FindingsItsmExportToolbar", () => ({
+  FindingsItsmExportToolbar: () => null,
+}));
+
+function finding(overrides: Partial<QuickDecisionFinding>): QuickDecisionFinding {
+  return {
+    findingId: "f-default",
+    title: "Finding",
+    recommendation: "Fix it.",
+    severityValue: 1,
+    findingOrder: 0,
+    aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+    isMuted: false,
+    muteReason: null,
+    enforcementTier: "PolicyViolation",
+    confidenceLevel: "High",
+    ...overrides,
+  };
+}
+
+describe("RunDetailFindingsWorkspace", () => {
+  it("keeps chip counts on the confidence-gated set when a severity filter is active", () => {
+    const findings: QuickDecisionFinding[] = [
+      finding({ findingId: "f-medium-1", severityValue: 1, findingOrder: 0 }),
+      finding({ findingId: "f-medium-2", severityValue: 1, findingOrder: 1 }),
+      finding({ findingId: "f-high-1", severityValue: 2, findingOrder: 2 }),
+    ];
+
+    render(<RunDetailFindingsWorkspace runId="run-1" findings={findings} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Medium (2)" }));
+
+    expect(screen.getByRole("button", { name: "All (3)" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Medium (2)" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "High (1)" })).toBeInTheDocument();
+  });
+
+  it("names the confidence gate in the visibility summary when rows are hidden", () => {
+    const findings: QuickDecisionFinding[] = [
+      finding({ findingId: "f-medium-1", severityValue: 1, findingOrder: 0 }),
+      finding({ findingId: "f-medium-2", severityValue: 1, findingOrder: 1 }),
+      finding({
+        findingId: "f-hidden-low",
+        severityValue: 1,
+        findingOrder: 2,
+        confidenceLevel: "Low",
+        enforcementTier: "Advisory",
+      }),
+    ];
+
+    render(<RunDetailFindingsWorkspace runId="run-1" findings={findings} />);
+
+    expect(screen.getByTestId("run-detail-findings-visibility-summary")).toHaveTextContent(
+      "Showing 2 of 3 — 1 hidden by confidence filter",
+    );
+  });
+});

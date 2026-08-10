@@ -20,7 +20,7 @@ Reviewer shorthand: the appendix below is generated from the executable registry
 
 | HTTP route family | Commercial tier gate (`RequiresCommercialTenantTier`) | Primary policy (`[Authorize(Policy=…)]`) | Nav (`href` Â· tier Â· `requiredAuthority`) | Notes |
 | --- | --- | --- | --- | --- |
-| `GET/POST /v1/pilots/*` (excluding Standard-only actions) | None on controller base (`PilotsController` uses `ReadAuthority`) | Mix: base **ReadAuthority**; `PUT scorecard/baselines`, `POST closeout` **ExecuteAuthority** | Pilot: `/`, `/reviews/new`, `/architecture/reviews` Â· essential Â· (unset) | `POST …/sponsor-one-pager` **Standard** per PRODUCT_PACKAGING Â§4 |
+| `GET/POST /v1/pilots/*` (excluding Standard-only actions) | None on controller base (`PilotsController` uses `ReadAuthority`) | Mix: base **ReadAuthority**; `PUT scorecard/baselines`, `POST closeout` **ExecuteAuthority** | Pilot: `/`, `/architecture/reviews/new`, `/architecture/reviews?projectId=default` Â· essential Â· (unset) | `POST …/sponsor-one-pager` **Standard** per PRODUCT_PACKAGING Â§4 |
 | `GET/POST /v1/runs/*`, run detail APIs | None on typical read paths (verify per action) | **ReadAuthority** / **ExecuteAuthority** per action | Pilot essential + extended **`/governance/findings`** | Compare PRODUCT_PACKAGING Layer A/B inventories |
 | `GET /v1/tenant/trial-status` | None | **ReadAuthority** (`TenantTrialController.GetTrialStatusAsync`) | (indirect — Home / trial widgets) | Class `[Authorize]` + action policy |
 | `POST /v1/diagnostics/core-pilot-rail-step` | None | **`[AllowAnonymous]`** on action (overrides controller **ReadAuthority**); **fixed** rate limit | N/A | Core Pilot checklist counter only (`ClientErrorTelemetryController`) |
@@ -170,7 +170,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Authority/RunComparisonController.cs` | `/v1/architecture` | standard | ReadAuthority | /insights/compare-two-reviews |  |
 | `Authority/RunCoverageController.cs` | `/v1/runs` | none | ReadAuthority |  |  |
 | `Authority/RunQueryController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
-| `Authority/RunsController.cs` | `/v1/architecture` | none | ReadAuthority | /architecture/reviews |  |
+| `Authority/RunsController.cs` | `/v1/architecture` | none | ReadAuthority | /architecture/reviews?projectId=default |  |
 | `Authority/RunsExportController.cs` | `/v1/runs` | standard | ReadAuthority |  |  |
 | `Authority/TechnologyLedgerController.cs` | `/v1/runs` | none | ReadAuthority |  |  |
 | `Authority/TemplatesController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
@@ -225,7 +225,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Notifications/ExecDigestUnsubscribeController.cs` | `/v1/notifications/exec-digest` | none | AllowAnonymous |  | signed_token_unsubscribe |
 | `Operator/OperatorSavedViewsController.cs` | `/v1/operator/saved-views` | standard | AuthenticatedUserOnly |  |  |
 | `Pilots/PilotsBoardPackController.cs` | `/v1/pilots` | standard | ExecuteAuthority | /insights/architecture-scorecard |  |
-| `Pilots/PilotsController.cs` | `/v1/pilots` | none | ReadAuthority | /architecture/reviews |  |
+| `Pilots/PilotsController.cs` | `/v1/pilots` | none | ReadAuthority | /architecture/reviews?projectId=default |  |
 | `Planning/AskController.cs` | `/v1/ask` | standard | ReadAuthority | /insights/ask-review-questions |  |
 | `Planning/ComparisonController.cs` | `/v1/compare` | standard | ReadAuthority | /insights/compare-two-reviews |  |
 | `Planning/ComparisonsController.cs` | `/v1/architecture` | standard | ReadAuthority | /internal/replay |  |

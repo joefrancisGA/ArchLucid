@@ -2,13 +2,14 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
 import { ItsmOutboundQuickActions } from "./ItsmOutboundQuickActions";
+import { resetItsmFindingCorrelationsStoreForTests } from "@/lib/itsm-finding-correlations-store";
 
-const listItsmFindingCorrelations = vi.fn();
+const listItsmFindingCorrelationsBatch = vi.fn();
 const createItsmOutboundIssue = vi.fn();
 const useItsmNativeCreateEnabled = vi.fn(() => true);
 
 vi.mock("@/lib/api/itsm-outbound-api", () => ({
-  listItsmFindingCorrelations: (...args: unknown[]) => listItsmFindingCorrelations(...args),
+  listItsmFindingCorrelationsBatch: (...args: unknown[]) => listItsmFindingCorrelationsBatch(...args),
   createItsmOutboundIssue: (...args: unknown[]) => createItsmOutboundIssue(...args),
 }));
 
@@ -18,11 +19,12 @@ vi.mock("@/lib/use-itsm-native-create-enabled", () => ({
 
 describe("ItsmOutboundQuickActions", () => {
   beforeEach(() => {
-    listItsmFindingCorrelations.mockReset();
+    resetItsmFindingCorrelationsStoreForTests();
+    listItsmFindingCorrelationsBatch.mockReset();
     createItsmOutboundIssue.mockReset();
     useItsmNativeCreateEnabled.mockReset();
     useItsmNativeCreateEnabled.mockReturnValue(true);
-    listItsmFindingCorrelations.mockResolvedValue({ correlations: [] });
+    listItsmFindingCorrelationsBatch.mockResolvedValue({ findings: [{ findingId: "finding-001", correlations: [] }] });
   });
 
   it("renders one-click Jira and ServiceNow actions", async () => {
@@ -57,10 +59,18 @@ describe("ItsmOutboundQuickActions", () => {
     const { container } = render(<ItsmOutboundQuickActions findingId="finding-001" />);
 
     await waitFor(() => {
-      expect(listItsmFindingCorrelations).toHaveBeenCalled();
+      expect(listItsmFindingCorrelationsBatch).toHaveBeenCalled();
     });
 
     expect(container).toBeEmptyDOMElement();
     expect(screen.queryByTestId("itsm-sync-jira")).not.toBeInTheDocument();
+  });
+
+  it("defers correlation loading until loadWhen is true", async () => {
+    render(<ItsmOutboundQuickActions findingId="finding-001" loadWhen={false} />);
+
+    await waitFor(() => {
+      expect(listItsmFindingCorrelationsBatch).not.toHaveBeenCalled();
+    });
   });
 });

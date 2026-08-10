@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
+
 import {
   isDocumentationMaintenanceMetadataLine,
   prepareHelpMarkdownForPresentation,
@@ -38,14 +40,13 @@ describe("complete review workflow → Core Pilot (TB-1379)", () => {
   const retiredAliasSlug = "first-pilot-path";
   const canonicalSlug = "first-architecture-review";
 
-  it("no longer resolves the retired first-pilot-path alias", () => {
-    expect(normalizeHelpTopicSlug(retiredAliasSlug)).toBe(retiredAliasSlug);
-    expect(getProductDocumentationEntry(retiredAliasSlug)).toBeNull();
+  it("resolves the first-pilot-path bookmark alias onto first-architecture-review (TB-1380)", () => {
+    expect(normalizeHelpTopicSlug(retiredAliasSlug)).toBe(canonicalSlug);
 
-    const entry = getProductDocumentationEntry(canonicalSlug);
+    const entry = getProductDocumentationEntry(retiredAliasSlug);
 
     expect(entry?.slug).toBe(canonicalSlug);
-    expect(entry?.title).toBe("Your first architecture review");
+    expect(entry?.title).toBe(FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE);
     expect(entry?.audience).toBe("buyer");
     expect(entry?.sourcePaths).toEqual(["docs/CORE_PILOT.md"]);
     expect(inAppHelpHref(canonicalSlug)).toBe(`/help/${canonicalSlug}`);

@@ -51,7 +51,7 @@ export function ShareableReviewLinkButton(props: ShareableReviewLinkButtonProps)
         <DialogHeader>
           <DialogTitle>Share review</DialogTitle>
           <DialogDescription>
-            Send this read-only link to sponsors who do not need operator access. Scope and retention follow your tenant policy.
+            Send this read-only link to sponsors who do not need architect access. Scope and retention follow your tenant policy.
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-wrap items-center gap-2">

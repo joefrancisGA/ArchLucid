@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 
 import { HelpTopicMarkdownView } from "../HelpTopicMarkdownView";
+import { CaiqSigResponseHelpEvidenceOrientationStrip } from "@/components/help/CaiqSigResponseHelpEvidenceOrientationStrip";
+import { HelpAcceleratorChooserGuideView } from "../_sections/HelpAcceleratorChooserGuideView";
 import { HelpAlertsGuideView } from "../_sections/HelpAlertsGuideView";
 import { HelpDigestsGuideView } from "../_sections/HelpDigestsGuideView";
+import { HelpAdminDiagnosticsGuideView } from "../_sections/HelpAdminDiagnosticsGuideView";
 import { HelpApiContractsGuideView } from "../_sections/HelpApiContractsGuideView";
 import { HelpBillingAndPlansGuideView } from "../_sections/HelpBillingAndPlansGuideView";
 import { HelpExecutiveSummaryGuideView } from "../_sections/HelpExecutiveSummaryGuideView";
@@ -27,11 +30,14 @@ import { HelpFirstReviewEvidenceChecklistGuideView } from "../_sections/HelpFirs
 import { HelpFirstValue20GuideView } from "../_sections/HelpFirstValue20GuideView";
 import { HelpPolicyPackDeltaDemoGuideView } from "../_sections/HelpPolicyPackDeltaDemoGuideView";
 import { HelpConnectAzureSecurelyGuideView } from "../_sections/HelpConnectAzureSecurelyGuideView";
+import { HelpConnectGcpSecurelyGuideView } from "../_sections/HelpConnectGcpSecurelyGuideView";
 import { HelpCorePilotGuideView } from "../_sections/HelpCorePilotGuideView";
+import { HelpComparisonReplayGuideView } from "../_sections/HelpComparisonReplayGuideView";
 import { HelpRepeatReviewLoopGuideView } from "../_sections/HelpRepeatReviewLoopGuideView";
 import { HelpSpecialtyWalkthroughTemplatesView } from "../_sections/HelpSpecialtyWalkthroughTemplatesView";
 import { HelpGettingStartedGuideView } from "../_sections/HelpGettingStartedGuideView";
 import { HelpCloudConnectionsGuideView } from "../_sections/HelpCloudConnectionsGuideView";
+import { HelpAzureBoardsGuideView } from "../_sections/HelpAzureBoardsGuideView";
 import { HelpTopicAuthorityGate } from "../_sections/HelpTopicAuthorityGate";
 import { HelpTopicMarkdownClient } from "../_sections/HelpTopicMarkdownClient";
 import { HelpTopicNotFoundView } from "../_sections/HelpTopicNotFoundView";
@@ -49,6 +55,7 @@ import { DPA_TEMPLATE_HELP_ROUTE_METADATA } from "@/lib/dpa-template-help-route-
 import { SOC2_SELF_ASSESSMENT_HELP_ROUTE_METADATA } from "@/lib/soc2-self-assessment-help-route-metadata";
 import { FIRST_REVIEW_HELP_ROUTE_METADATA } from "@/lib/first-review-help-route-metadata";
 import { POLICY_PACK_DELTA_DEMO_HELP_ROUTE_METADATA } from "@/lib/policy-pack-delta-demo-help-route-metadata";
+import { ACCELERATOR_CHOOSER_HELP_ROUTE_METADATA } from "@/lib/accelerator-chooser-help-route-metadata";
 import { PATH_CHOOSER_HELP_ROUTE_METADATA } from "@/lib/path-chooser-help-route-metadata";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import {
@@ -57,6 +64,7 @@ import {
   listProductDocumentationEntries,
 } from "@/lib/product-documentation-registry";
 import { getInboundAuthenticatedServerPrincipal } from "@/lib/server-current-principal";
+import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-redirects";
 
 export const dynamic = "force-dynamic";
 
@@ -184,10 +192,9 @@ function renderHelpTopicView(
 
   if (loaded.entry.slug === "cloud-connections-gcp") {
     return (
-      <HelpTopicMarkdownView
+      <HelpConnectGcpSecurelyGuideView
         entry={loaded.entry}
         markdown={loaded.markdown}
-        showContextualHelp
       />
     );
   }
@@ -273,23 +280,11 @@ function renderHelpTopicView(
   }
 
   if (loaded.entry.slug === "accelerator-chooser") {
-    return (
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        showContextualHelp
-      />
-    );
+    return <HelpAcceleratorChooserGuideView entry={loaded.entry} />;
   }
 
   if (loaded.entry.slug === "admin-diagnostics") {
-    return (
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        showContextualHelp
-      />
-    );
+    return <HelpAdminDiagnosticsGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
   if (loaded.entry.slug === "authentication-sign-in") {
@@ -303,13 +298,7 @@ function renderHelpTopicView(
   }
 
   if (loaded.entry.slug === "azure-boards") {
-    return (
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        showContextualHelp
-      />
-    );
+    return <HelpAzureBoardsGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
   if (loaded.entry.slug === "policy-packs") {
@@ -388,18 +377,15 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
+        evidenceOrientation={<CaiqSigResponseHelpEvidenceOrientationStrip />}
+        layoutVariant="technicalReference"
+        showExportClaimDiscipline
       />
     );
   }
 
   if (loaded.entry.slug === "comparison-replay") {
-    return (
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        showContextualHelp
-      />
-    );
+    return <HelpComparisonReplayGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
   if (loaded.entry.slug === "scope") {
@@ -511,6 +497,10 @@ export async function generateMetadata(props: HelpTopicPageProps): Promise<Metad
     return PATH_CHOOSER_HELP_ROUTE_METADATA;
   }
 
+  if (entry.slug === "accelerator-chooser") {
+    return ACCELERATOR_CHOOSER_HELP_ROUTE_METADATA;
+  }
+
   if (entry.slug === "data-handling") {
     return DATA_HANDLING_TENANT_ISOLATION_HELP_ROUTE_METADATA;
   }
@@ -545,6 +535,12 @@ export default async function HelpTopicPage(props: HelpTopicPageProps): Promise<
   const { topic } = await props.params;
   const resolvedSearchParams = props.searchParams !== undefined ? await props.searchParams : undefined;
   const slug = helpSlugFromTopicSegments(topic);
+  const permanentRedirectTarget = resolveHelpTopicPermanentRedirect(slug);
+
+  if (permanentRedirectTarget !== null) {
+    permanentRedirect(permanentRedirectTarget);
+  }
+
   const entry = getProductDocumentationEntry(slug);
 
   if (entry === null) {

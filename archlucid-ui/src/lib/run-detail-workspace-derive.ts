@@ -12,6 +12,7 @@ import {
   type QuickDecisionFinding,
 } from "@/lib/quick-decision-summary-derive";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
+import { evidenceAbsenceFindingLabel } from "@/lib/evidence-absence-finding-copy";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import { isGeneratedIntakeBrief, toReviewDisplayTitle } from "@/lib/review-display-title";
 import {
@@ -20,6 +21,20 @@ import {
   resolveQualityRejectedWorkspaceStatusLabel,
 } from "@/lib/execution-vs-quality-outcome-copy";
 import type { ManifestSummary, RunDetail, RunSummary } from "@/types/authority";
+
+const PRODUCT_BRAND_NAME = "ArchLucid";
+
+export type ReviewHeaderPresentation = {
+  readonly h1Title: string;
+  readonly eyebrowLabel: string;
+  readonly reviewIdentifierLabel: string;
+};
+
+export type EvidenceCoverageSummary = {
+  readonly linkedCount: number;
+  readonly totalCount: number;
+  readonly summaryLine: string;
+};
 
 export type RunDetailWorkspaceStatusKind =
   | "draft"
@@ -81,6 +96,8 @@ export type DeriveRunDetailWorkspaceStatusInput = {
   readonly showProgressTracker: boolean;
   readonly operatorGovernanceDecision: string | null | undefined;
   readonly buyerPolishedArtifactTable: boolean;
+  /** Open findings that block approval — used to avoid a bare "Finalized" tag when approval is still blocked. */
+  readonly blockingFindingCount?: number;
 };
 
 export function countFindingsBySeverity(findings: readonly QuickDecisionFinding[]): FindingSeverityCounts {
@@ -138,8 +155,17 @@ export function deriveArchitectureSystemName(run: RunSummary, headline: string):
   const displayName = run.displayName?.trim() ?? "";
 
   // The auto-generated intake brief is boilerplate, not a system name the operator supplied.
-  if (displayName.length > 0 && displayName !== headline && !isGeneratedIntakeBrief(displayName)) {
-    return displayName;
+  // When the operator names the system ArchLucid (or any non-generic title), displayName may match
+  // the review headline — still prefer that name over the generic "Architecture under review" fallback.
+  if (displayName.length > 0 && !isGeneratedIntakeBrief(displayName)) {
+    const headlineMatchesDisplayName = displayName === headline;
+    const headlineIsGenericPlaceholder =
+      isProductBrandReviewTitle(headline) &&
+      headline.trim().toLowerCase() !== PRODUCT_BRAND_NAME.toLowerCase();
+
+    if (!headlineMatchesDisplayName || !headlineIsGenericPlaceholder) {
+      return displayName;
+    }
   }
 
   const description = run.description?.trim() ?? "";
@@ -236,6 +262,31 @@ export function deriveLastEvaluatedLabel(
   return run.createdUtc;
 }
 
+/**
+ * Timestamp for the header "Finalized at" slot.
+ * Never falls back to run.createdUtc — that would label in-progress reviews as finalized.
+ */
+export function deriveFinalizedAtUtc(
+  run: RunDetail["run"],
+  manifestSummary: ManifestSummary | null,
+  manifestId: string | null | undefined,
+): string | null {
+  const hasManifest = (manifestId ?? "").trim().length > 0;
+  const completedUtc = run.completedUtc?.trim() ?? "";
+
+  if (completedUtc.length > 0 && hasManifest) {
+    return completedUtc;
+  }
+
+  if (!hasManifest) {
+    return null;
+  }
+
+  const manifestUtc = manifestSummary?.createdUtc?.trim() ?? "";
+
+  return manifestUtc.length > 0 ? manifestUtc : null;
+}
+
 export function deriveRunDetailWorkspaceStatus(input: DeriveRunDetailWorkspaceStatusInput): RunDetailWorkspaceStatus {
   const manifestId = (input.manifestId ?? "").trim();
   const governanceDecision = (input.operatorGovernanceDecision ?? "").trim();
@@ -277,12 +328,53 @@ export function deriveRunDetailWorkspaceStatus(input: DeriveRunDetailWorkspaceSt
       return { label: "Awaiting decision", kind: "awaiting-decision", statusTagKind: "needs-attention" };
     }
 
-    if (/approv/i.test(governanceDecision) || gateLabel === "Passed") {
-      return { label: "Approved", kind: "approved", statusTagKind: "approved" };
+    const blockingCount = input.blockingFindingCount ?? 0;
+    const governancePending =
+      gateLabel === "Pending" ||
+      /pending/i.test(governanceDecision) ||
+      shouldShowRunDetailGovernanceCta({
+        manifestId,
+        buyerPolishedArtifactTable: input.buyerPolishedArtifactTable,
+        operatorGovernanceDecision: input.operatorGovernanceDecision,
+        manifestStatus: input.manifestStatus,
+      });
+    const isFinalized =
+      manifestStatus === "Finalized" || pipelineLabel === PIPELINE_STATUS_LABELS.finalized;
+
+    if (isFinalized) {
+      if (blockingCount > 0) {
+        return {
+          label: "Finalized · approval blocked",
+          kind: "finalized",
+          statusTagKind: "needs-attention",
+        };
+      }
+
+      if (governancePending) {
+        return {
+          label: "Finalized · decision pending",
+          kind: "finalized",
+          statusTagKind: "needs-attention",
+        };
+      }
+
+      if (/approv/i.test(governanceDecision) || gateLabel === "Passed") {
+        return { label: "Approved", kind: "approved", statusTagKind: "approved" };
+      }
+
+      return { label: "Finalized", kind: "finalized", statusTagKind: "ready" };
     }
 
-    if (manifestStatus === "Finalized" || pipelineLabel === PIPELINE_STATUS_LABELS.finalized) {
-      return { label: "Finalized", kind: "finalized", statusTagKind: "ready" };
+    if (blockingCount > 0) {
+      return {
+        label: "Review complete · approval blocked",
+        kind: "review-complete",
+        statusTagKind: "needs-attention",
+      };
+    }
+
+    if (/approv/i.test(governanceDecision) || gateLabel === "Passed") {
+      return { label: "Approved", kind: "approved", statusTagKind: "approved" };
     }
 
     return { label: "Review complete", kind: "review-complete", statusTagKind: "ready" };
@@ -343,6 +435,8 @@ export function deriveRecommendedWorkspaceActions(input: {
   readonly manifestStatus: string | null | undefined;
   readonly runCompleted: boolean;
   readonly evidenceCoverageComplete?: boolean;
+  /** When the header primary CTA already targets findings, omit duplicate findings rows here. */
+  readonly skipDuplicateFindingsActions?: boolean;
 }): RunDetailWorkspaceRecommendedAction[] {
   const actions: RunDetailWorkspaceRecommendedAction[] = [];
   const severityCounts = countFindingsBySeverity(input.findings);
@@ -374,27 +468,33 @@ export function deriveRecommendedWorkspaceActions(input: {
   if (input.hasCommitBlockingFailures || input.blockingFindingCount > 0) {
     const count = Math.max(input.blockingFindingCount, severityCounts.critical + severityCounts.high);
 
-    actions.push({
-      id: "review-blocking",
-      title: "Review blocking findings",
-      reason: `${count} unresolved finding${count === 1 ? "" : "s"} currently block approval or finalization.`,
-      relatedFindingCount: count,
-      ownerOrRole: null,
-      href: buildReviewDetailTabHref(input.runId, "findings"),
-      actionLabel: "Review findings",
-    });
+    if (!input.skipDuplicateFindingsActions) {
+      const verb = count === 1 ? "blocks" : "block";
+
+      actions.push({
+        id: "review-blocking",
+        title: "Review blocking findings",
+        reason: `${count} unresolved finding${count === 1 ? "" : "s"} currently ${verb} approval or finalization.`,
+        relatedFindingCount: count,
+        ownerOrRole: null,
+        href: buildReviewDetailTabHref(input.runId, "findings"),
+        actionLabel: "Review findings",
+      });
+    }
   } else if (severityCounts.critical > 0 || severityCounts.high > 0) {
     const count = severityCounts.critical + severityCounts.high;
 
-    actions.push({
-      id: "review-critical-high",
-      title: "Review critical findings",
-      reason: `${count} critical or high finding${count === 1 ? "" : "s"} need attention.`,
-      relatedFindingCount: count,
-      ownerOrRole: null,
-      href: buildReviewDetailTabHref(input.runId, "findings"),
-      actionLabel: "Review findings",
-    });
+    if (!input.skipDuplicateFindingsActions) {
+      actions.push({
+        id: "review-critical-high",
+        title: "Review critical findings",
+        reason: `${count} critical or high finding${count === 1 ? "" : "s"} need attention.`,
+        relatedFindingCount: count,
+        ownerOrRole: null,
+        href: buildReviewDetailTabHref(input.runId, "findings"),
+        actionLabel: "Review findings",
+      });
+    }
   }
 
   if (unassignedHigh > 0) {
@@ -526,11 +626,34 @@ export function derivePrimaryConcernLabel(findings: readonly QuickDecisionFindin
     return null;
   }
 
-  if (/no topology resources were found/i.test(title)) {
-    return "Evidence did not surface topology resources";
+  return evidenceAbsenceFindingLabel(title);
+}
+
+/**
+ * Reconciles the Decision snapshot governance line with the header status verdict.
+ *
+ * The header status already encodes blocking state (for example "Finalized · approval blocked"), so a
+ * bare "Pending" in the snapshot reads as a second, competing verdict for the same review. When
+ * approval is blocked, the snapshot restates *why* instead of asserting an independent outcome.
+ */
+export function formatDecisionSnapshotGovernanceOutcome(input: {
+  readonly governanceDecisionLabel: string;
+  readonly blockingFindingCount: number;
+}): string {
+  const label = input.governanceDecisionLabel.trim();
+
+  if (input.blockingFindingCount <= 0) {
+    return label;
   }
 
-  return title;
+  // Already qualified upstream — do not append a second qualifier.
+  if (/blocked/i.test(label)) {
+    return label;
+  }
+
+  const noun = input.blockingFindingCount === 1 ? "finding" : "findings";
+
+  return `${label} · blocked by ${input.blockingFindingCount} unresolved ${noun}`;
 }
 
 /** One-line findings summary for the decision snapshot — reconciles open, blocking, and triage counts. */
@@ -639,14 +762,7 @@ export function deriveExecutiveBottomLineContent(input: {
     parts.push(rationale.endsWith(".") ? rationale : `${rationale}.`);
   }
 
-  if (input.blockingFindingCount > 0) {
-    const severityLabel = (input.highestSeverity ?? "material").toLowerCase();
-    const verb = input.blockingFindingCount === 1 ? "requires" : "require";
-
-    parts.push(
-      `${input.blockingFindingCount} unresolved ${severityLabel} finding${input.blockingFindingCount === 1 ? "" : "s"} still ${verb} an assigned owner and supporting evidence before unrestricted production use.`,
-    );
-  }
+  // Blocking-finding counts live in Decision snapshot — do not repeat in Additional context.
 
   if (parts.length > 0) {
     return { kind: "narrative", text: parts.join(" ") };
@@ -657,6 +773,141 @@ export function deriveExecutiveBottomLineContent(input: {
   }
 
   return null;
+}
+
+export function isProductBrandReviewTitle(title: string): boolean {
+  const normalized = title.trim().toLowerCase();
+
+  return normalized === PRODUCT_BRAND_NAME.toLowerCase() || normalized === "architecture review";
+}
+
+export function deriveReviewHeaderPresentation(input: {
+  readonly reviewTitle: string;
+  readonly systemName: string | null;
+  readonly runId: string;
+  readonly templateLabel?: string | null;
+  readonly manifestId?: string | null;
+}): ReviewHeaderPresentation {
+  const reviewTitle = input.reviewTitle.trim();
+  const systemName = input.systemName?.trim() ?? "";
+  const templateLabel = input.templateLabel?.trim() ?? "";
+  const hasManifest = (input.manifestId ?? "").trim().length > 0;
+  const runId = input.runId.trim();
+  const shortReviewId =
+    runId.length > 12 ? `${runId.slice(0, 8)}…${runId.slice(-4)}` : runId;
+
+  if (systemName.length > 0) {
+    const eyebrow =
+      reviewTitle.length > 0 && !isProductBrandReviewTitle(reviewTitle)
+        ? reviewTitle
+        : "Architecture review";
+
+    return {
+      h1Title: systemName,
+      eyebrowLabel: eyebrow,
+      reviewIdentifierLabel: shortReviewId.length > 0 ? shortReviewId : runId,
+    };
+  }
+
+  if (reviewTitle.length > 0 && !isProductBrandReviewTitle(reviewTitle)) {
+    return {
+      h1Title: reviewTitle,
+      eyebrowLabel: "Architecture review",
+      reviewIdentifierLabel: shortReviewId.length > 0 ? shortReviewId : runId,
+    };
+  }
+
+  if (hasManifest && templateLabel.length > 0) {
+    return {
+      h1Title: templateLabel,
+      eyebrowLabel: "Architecture review",
+      reviewIdentifierLabel: shortReviewId.length > 0 ? shortReviewId : runId,
+    };
+  }
+
+  if (reviewTitle.length > 0 && reviewTitle.toLowerCase() === PRODUCT_BRAND_NAME.toLowerCase()) {
+    return {
+      h1Title: PRODUCT_BRAND_NAME,
+      eyebrowLabel: "Architecture review",
+      reviewIdentifierLabel: shortReviewId.length > 0 ? shortReviewId : runId,
+    };
+  }
+
+  return {
+    h1Title: "Architecture under review",
+    eyebrowLabel: "Review package",
+    reviewIdentifierLabel: shortReviewId.length > 0 ? shortReviewId : runId,
+  };
+}
+
+export function derivePackageVersionLabel(
+  manifestSummary: ManifestSummary | null,
+  manifestId: string | null | undefined,
+): string | null {
+  const version = manifestSummary?.ruleSetVersion?.trim() ?? "";
+
+  if (version.length > 0) {
+    return version;
+  }
+
+  const manifest = (manifestId ?? "").trim();
+
+  if (manifest.length > 0) {
+    return manifest.length > 16 ? `${manifest.slice(0, 8)}…${manifest.slice(-4)}` : manifest;
+  }
+
+  return null;
+}
+
+export function deriveEvidenceCoverageSummary(
+  findings: readonly QuickDecisionFinding[],
+): EvidenceCoverageSummary {
+  const unresolved = filterUnresolvedFindings(findings);
+  const totalCount = unresolved.length;
+
+  if (totalCount === 0) {
+    return {
+      linkedCount: 0,
+      totalCount: 0,
+      summaryLine: "No open findings",
+    };
+  }
+
+  const linkedCount = unresolved.filter((finding) => (finding.evidenceRefCount ?? 0) > 0).length;
+  const noun = totalCount === 1 ? "finding has" : "findings have";
+
+  return {
+    linkedCount,
+    totalCount,
+    summaryLine: `${linkedCount} of ${totalCount} open ${noun} linked evidence`,
+  };
+}
+
+/** Short label for the sticky primary CTA — imperative, ≤24 chars for first-viewport scanability. */
+export function shortenNextActionForPrimaryCta(nextAction: string): string {
+  const trimmed = nextAction.trim();
+  const primarySegment = trimmed.split(" — ")[0]?.trim() ?? trimmed;
+
+  if (primarySegment.length <= 24) {
+    return primarySegment;
+  }
+
+  return `${primarySegment.slice(0, 21).trimEnd()}…`;
+}
+
+export function deriveBlockingFindingHref(
+  runId: string,
+  findings: readonly QuickDecisionFinding[],
+): string {
+  const primaryFinding = derivePrimaryConcernFinding(findings);
+
+  if (primaryFinding !== null) {
+    return buildReviewDetailTabHref(runId, "findings", {
+      hash: `finding-workspace-card-${primaryFinding.findingId}`,
+    });
+  }
+
+  return buildReviewDetailTabHref(runId, "findings");
 }
 
 export function deriveReviewDisplayTitle(run: RunSummary, headline: string): string {

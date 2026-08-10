@@ -38,7 +38,8 @@ type OperatorShellTopBarProps = {
 
 /**
  * Operator shell header: brand rail (sidebar width), content-aligned search, session controls.
- * Help and AI usage stay freestanding; eval-only theme toggle uses the overflow menu when enabled.
+ * Help stays freestanding; AI budget pill appears only when utilization is warn/critical.
+ * Eval-only theme toggle uses the overflow menu when enabled.
  */
 export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.Element {
   const showDevOperatorChrome = isOperatorExperienceFullShellEnv();
@@ -82,7 +83,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
             OPERATOR_SHELL_CONTENT_PADDING_X_CLASS,
           )}
         >
-          <div className="min-w-0 flex-1 sm:max-w-md lg:max-w-lg xl:max-w-xl">
+          <div className="min-w-0 flex-1 sm:max-w-sm lg:max-w-md xl:max-w-lg">
             <GlobalSearchBarDeferred />
           </div>
 

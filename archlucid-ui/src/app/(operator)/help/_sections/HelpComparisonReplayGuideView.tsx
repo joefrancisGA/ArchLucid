@@ -1,0 +1,198 @@
+"use client";
+
+import Link from "next/link";
+
+import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
+import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { ComparisonReplayHelpEvidenceOrientationStrip } from "@/components/help/ComparisonReplayHelpEvidenceOrientationStrip";
+import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
+import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
+import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
+import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
+import { MermaidDiagram } from "@/components/help/MermaidDiagram";
+import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import {
+  COMPARISON_REPLAY_HELP_DECISION_COMPARE,
+  COMPARISON_REPLAY_HELP_DECISION_PANEL_TITLE,
+  COMPARISON_REPLAY_HELP_DECISION_VALIDATE,
+  COMPARISON_REPLAY_HELP_DIAGRAM_ACCESSIBLE_NAME,
+  COMPARISON_REPLAY_HELP_DIAGRAM_DETAILS_SUMMARY,
+  COMPARISON_REPLAY_HELP_DIAGRAM_SOURCE,
+  COMPARISON_REPLAY_HELP_DIAGRAM_TEXT_ALTERNATIVE,
+  COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS,
+  COMPARISON_REPLAY_HELP_RELATED_GUIDES_HEADING,
+  comparisonReplayValidateReviewUnavailableCopy,
+  isComparisonReplayValidateReviewActionAvailable,
+} from "@/lib/comparison-replay-help-guide-content";
+import {
+  OPERATOR_CARD,
+  OPERATOR_LAYOUT,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
+import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { cn } from "@/lib/utils";
+
+type HelpComparisonReplayGuideViewProps = {
+  readonly entry: ProductDocumentationEntry;
+  readonly markdown: string;
+};
+
+function splitComparisonReplayMarkdown(markdown: string): {
+  readonly beforeRelatedGuides: string;
+  readonly relatedGuidesSection: string;
+} {
+  const relatedIndex = markdown.indexOf(COMPARISON_REPLAY_HELP_RELATED_GUIDES_HEADING);
+
+  if (relatedIndex < 0) {
+    return { beforeRelatedGuides: markdown, relatedGuidesSection: "" };
+  }
+
+  return {
+    beforeRelatedGuides: markdown.slice(0, relatedIndex).trimEnd(),
+    relatedGuidesSection: markdown.slice(relatedIndex).trimStart(),
+  };
+}
+
+/** Operator compare vs replay orientation for `/help/comparison-replay`. */
+export function HelpComparisonReplayGuideView(
+  props: HelpComparisonReplayGuideViewProps,
+): React.JSX.Element {
+  const { entry, markdown } = props;
+  const sourceDocPath = entry.sourcePaths[0] ?? "";
+  const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
+    helpTopicSlug: entry.slug,
+  });
+  const headings = extractHelpMarkdownHeadings(preparedMarkdown);
+  const { beforeRelatedGuides, relatedGuidesSection } = splitComparisonReplayMarkdown(preparedMarkdown);
+  const validateUnavailable = comparisonReplayValidateReviewUnavailableCopy();
+  const validateActionAvailable = isComparisonReplayValidateReviewActionAvailable();
+
+  return (
+    <article
+      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
+      data-testid="help-comparison-replay-guide"
+    >
+      <HelpTopicHashScroll />
+
+      <header className={HELP_PAGE_LAYOUT.articleHeader}>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0 flex-1 space-y-2">
+            <HelpTopicTitleRow title={entry.title} />
+            <p className={`m-0 ${OPERATOR_TYPOGRAPHY.helper}`}>{entry.summary}</p>
+            <HelpTopicRegistryProvenanceLine entry={entry} />
+          </div>
+          <div className="flex flex-wrap items-center gap-2" data-testid="help-topic-export-actions">
+            <PageContextualHelpButton />
+            <HelpTopicPdfDownloadButton entry={entry} />
+            <HelpTopicPrintButton entry={entry} />
+          </div>
+        </div>
+      </header>
+
+      <ComparisonReplayHelpEvidenceOrientationStrip />
+
+      <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
+        <Card
+          className="border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20"
+          data-testid="help-comparison-replay-decision-panel"
+        >
+          <CardHeader className={OPERATOR_CARD.header}>
+            <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+              {COMPARISON_REPLAY_HELP_DECISION_PANEL_TITLE}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className={cn(OPERATOR_CARD.content, "space-y-4")}>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div
+                className="space-y-3 rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
+                data-testid="help-comparison-replay-decision-compare"
+              >
+                <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{COMPARISON_REPLAY_HELP_DECISION_COMPARE.title}</h2>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{COMPARISON_REPLAY_HELP_DECISION_COMPARE.summary}</p>
+                <Button asChild size="sm" variant="primary">
+                  <Link href={COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS.compareTwoReviews.href}>
+                    {COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS.compareTwoReviews.label}
+                  </Link>
+                </Button>
+              </div>
+
+              <div
+                className="space-y-3 rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
+                data-testid="help-comparison-replay-decision-validate"
+              >
+                <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{COMPARISON_REPLAY_HELP_DECISION_VALIDATE.title}</h2>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{COMPARISON_REPLAY_HELP_DECISION_VALIDATE.summary}</p>
+
+                {validateActionAvailable ? (
+                  <Button asChild size="sm" variant="outline">
+                    <Link href={COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS.validateReview.href}>
+                      {COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS.validateReview.label}
+                    </Link>
+                  </Button>
+                ) : null}
+
+                {validateUnavailable !== null ? (
+                  <p
+                    className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="comparison-replay-validate-unavailable"
+                    role="status"
+                  >
+                    <span className="font-medium text-al-text-primary">{validateUnavailable.label}</span> is not available
+                    in this workspace mode. {validateUnavailable.description}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className={HELP_PAGE_LAYOUT.contentGrid}>
+        <div className={cn("min-w-0 space-y-6", HELP_PAGE_LAYOUT.contentColumn)} data-testid="help-comparison-replay-content">
+          <MarketingAccessibilityMarkdownFragment
+            markdownBody={markdown}
+            tableCaption={`${entry.title} reference table`}
+            presentation="help"
+            sourceDocPath={sourceDocPath}
+            helpTopicSlug={entry.slug}
+            preparedMarkdownOverride={beforeRelatedGuides}
+          />
+
+          <details className={HELP_PAGE_LAYOUT.details} data-testid="help-comparison-replay-decision-diagram-details">
+            <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.body)}>
+              {COMPARISON_REPLAY_HELP_DIAGRAM_DETAILS_SUMMARY}
+            </summary>
+            <div className={HELP_PAGE_LAYOUT.detailsBody}>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-comparison-replay-decision-diagram-summary">
+                {COMPARISON_REPLAY_HELP_DIAGRAM_TEXT_ALTERNATIVE}
+              </p>
+              <MermaidDiagram
+                source={COMPARISON_REPLAY_HELP_DIAGRAM_SOURCE}
+                accessibleName={COMPARISON_REPLAY_HELP_DIAGRAM_ACCESSIBLE_NAME}
+              />
+            </div>
+          </details>
+
+          {relatedGuidesSection.length > 0 ? (
+            <MarketingAccessibilityMarkdownFragment
+              markdownBody={markdown}
+              tableCaption={`${entry.title} related guides`}
+              presentation="help"
+              sourceDocPath={sourceDocPath}
+              helpTopicSlug={entry.slug}
+              preparedMarkdownOverride={relatedGuidesSection}
+            />
+          ) : null}
+        </div>
+
+        <HelpTopicTableOfContents headings={headings} />
+      </div>
+    </article>
+  );
+}

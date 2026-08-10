@@ -45,11 +45,18 @@ describe("buyerPolishedRouteOrientation", () => {
     );
   });
 
-  it("orients the operator review scorecard route without repeating scorecard in the layer label", () => {
-    const o = buyerPolishedRouteOrientation("/insights/architecture-scorecard");
+  it("orients Outcomes tab hub routes with a shared Insights strip", () => {
+    const scorecard = buyerPolishedRouteOrientation("/insights/architecture-scorecard");
+    const executive = buyerPolishedRouteOrientation(SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH);
+    const pilot = buyerPolishedRouteOrientation(SPONSOR_REPORT_PILOT_OUTCOMES_PATH);
+    const roi = buyerPolishedRouteOrientation(SPONSOR_REPORT_ROI_SUMMARY_PATH);
 
-    expect(o?.label).toBe("Insights");
-    expect(o?.line).toBe("Value metrics and recommended actions.");
+    expect(scorecard?.label).toBe("Insights");
+    expect(scorecard?.line).toBe("Value metrics and recommended actions.");
+    expect(executive).toEqual(scorecard);
+    expect(pilot).toEqual(scorecard);
+    expect(roi).toEqual(scorecard);
+    expect(scorecard?.line).not.toBe(BUYER_VALUE_REPORT_PAGE_SUBTITLE);
   });
 
   it("returns null for ask — the page carries its own hero copy", () => {
@@ -134,14 +141,10 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(legacy).toEqual(canonical);
   });
 
-  it("returns null for value-report sponsor hero routes — page header owns the lead (TB-1437)", () => {
+  it("returns null for retired /value-report bookmarks (not Outcomes surfaces)", () => {
     expect(buyerPolishedRouteOrientation("/value-report")).toBeNull();
     expect(buyerPolishedRouteOrientation("/value-report/pilot")).toBeNull();
     expect(buyerPolishedRouteOrientation("/value-report/roi")).toBeNull();
-    expect(buyerPolishedRouteOrientation(SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH)).toBeNull();
-    expect(buyerPolishedRouteOrientation(SPONSOR_REPORT_PILOT_OUTCOMES_PATH)).toBeNull();
-    expect(buyerPolishedRouteOrientation(SPONSOR_REPORT_ROI_SUMMARY_PATH)).toBeNull();
-    expect(buyerPolishedRouteOrientation("/value-report")?.line).not.toBe(BUYER_VALUE_REPORT_PAGE_SUBTITLE);
   });
 
   it("returns null for /product-learning — pageLead owns the intro (TB-1438)", () => {

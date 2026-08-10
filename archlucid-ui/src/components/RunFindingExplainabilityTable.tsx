@@ -25,6 +25,7 @@ import {
 } from "@/lib/finding-source-evidence-links";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
 import type { FindingWireSnapshot } from "@/lib/quick-decision-summary-derive";
 import { truncateForList } from "@/lib/truncate-for-list";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
@@ -113,6 +114,12 @@ export function RunFindingExplainabilityTable({
 
     return copy;
   }, [rows, confidenceSortReversed]);
+
+  const findingIds = useMemo(
+    () => sortedRows.map((row) => row.findingId),
+    [sortedRows],
+  );
+  usePrefetchItsmFindingCorrelations(findingIds);
 
   const rowVirtualizer = useVirtualizer({
     count: sortedRows.length,
@@ -292,12 +299,16 @@ export function RunFindingExplainabilityTable({
                     <Button type="button" size="sm" variant="ghost" className={cn("h-7 px-2", OPERATOR_TYPOGRAPHY.button)} asChild>
                       <Link
                         href={getFindingEvidenceTraceHref(runId, row.findingId)}
+                        prefetch={false}
                       >
                         Why?
                       </Link>
                     </Button>
                     <Button type="button" size="sm" variant="ghost" className={cn("h-7 px-2", OPERATOR_TYPOGRAPHY.button)} asChild>
-                      <Link href={`/architecture/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(row.findingId)}`}>
+                      <Link
+                        href={`/architecture/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(row.findingId)}`}
+                        prefetch={false}
+                      >
                         Explain
                       </Link>
                     </Button>

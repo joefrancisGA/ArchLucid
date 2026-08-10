@@ -30,10 +30,10 @@ function structuralExecutionModeLabel(payload: PilotRunDeltasProofSummaryJson | 
 
 function pilotStrictLabel(payload: PilotRunDeltasProofSummaryJson | null): string {
   if (!isAgentOutputPilotStrictSponsorSafe(payload)) {
-    return "HOLD — PilotStrict not satisfied";
+    return "HOLD — strict sponsor proof not satisfied";
   }
 
-  return "PASS — PilotStrict satisfied";
+  return "PASS — strict sponsor proof satisfied";
 }
 
 function roiBasisLabel(payload: PilotRunDeltasProofSummaryJson | null): string {
@@ -179,7 +179,7 @@ export function buildRunDetailFirstScreenProofSummary(
       ? "Generate proof-packet folder and schedule sponsor review."
       : disposition === "WARN"
         ? "Review first-value report caveats before external send."
-        : "Resolve HOLD items (PilotStrict, ROI sources, or simulator substitution) before sponsor send.";
+        : "Resolve proof HOLD items before sponsor send.";
 
   const detailParts: string[] = [];
 

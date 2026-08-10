@@ -27,6 +27,7 @@ export function FindingEvidenceLinkChip(props: FindingEvidenceLinkChipProps): Re
     // for noninteractive content (TB-619).
     <Link
       href={props.href}
+      prefetch={false}
       className={cn(
         "inline-flex items-center font-medium text-al-accent-interactive underline decoration-al-accent-interactive/50 underline-offset-2 hover:decoration-al-accent-interactive",
         OPERATOR_TYPOGRAPHY.badge,

@@ -58,7 +58,7 @@ const HELP_DOCS_STATIC_ENTRIES: readonly DocIndexEntry[] = [
   },
   {
     title: "Troubleshooting",
-    summary: "Symptom-first operator triage for Overview, reviews, exports, and permissions.",
+    summary: "Symptom-first architect triage for Overview, reviews, exports, and permissions.",
     category: "Operations",
     url: "/help/troubleshooting",
   },

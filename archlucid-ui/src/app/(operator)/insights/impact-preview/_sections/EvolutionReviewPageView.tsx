@@ -48,7 +48,7 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
     return (
       <DemoWorkspaceCapabilityUnavailablePanel
         capability={IMPACT_PREVIEW_PAGE_TITLE}
-        description="In a connected tenant, operators preview the estimated impact of a proposed architecture change with a before-and-after comparison."
+        description="In a connected tenant, architects preview the estimated impact of a proposed architecture change with a before-and-after comparison."
       />
     );
   }

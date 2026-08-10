@@ -78,6 +78,7 @@ import {
 } from "@/lib/guided-intake-copy";
 import type { ActorSet, BranchDraftResponse, DraftElicitationQuestion } from "@/types/draft-intake";
 import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator-home-example-request";
+import { REVIEWS_NEW_GUIDED_QUESTIONS_LABEL } from "@/lib/reviews-new-path-copy";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 
 import {
@@ -393,7 +394,7 @@ export function SocraticIntakeWizard() {
       if (!admission.admitted) {
         setRedirectReason(admission.redirectReason ?? admission.verdict.summary);
         setRedirectVerdict(admission.verdict);
-        showError("Guided intake", admission.redirectReason ?? "Readiness checks redirected this draft.");
+        showError(REVIEWS_NEW_GUIDED_QUESTIONS_LABEL, admission.redirectReason ?? "Readiness checks redirected this draft.");
         return;
       }
 
@@ -407,7 +408,7 @@ export function SocraticIntakeWizard() {
     } catch (error) {
       setSubmitError(error);
       if (isApiRequestError(error)) {
-        showError("Guided intake", error.message);
+        showError(REVIEWS_NEW_GUIDED_QUESTIONS_LABEL, error.message);
       }
     } finally {
       setBusy(false);
@@ -424,7 +425,7 @@ export function SocraticIntakeWizard() {
     );
 
     if (unresolvedQuestions.length > 0) {
-      showError("Guided intake", "Answer or skip each required clarification before reviewing.");
+      showError(REVIEWS_NEW_GUIDED_QUESTIONS_LABEL, "Answer or skip each required clarification before reviewing.");
       return;
     }
 
@@ -454,7 +455,7 @@ export function SocraticIntakeWizard() {
     } catch (error) {
       setSubmitError(error);
       if (isApiRequestError(error)) {
-        showError("Guided intake", error.message);
+        showError(REVIEWS_NEW_GUIDED_QUESTIONS_LABEL, error.message);
       }
     } finally {
       setBusy(false);
@@ -465,7 +466,7 @@ export function SocraticIntakeWizard() {
     const answer = answers[questionKey]?.trim() ?? "";
 
     if (answer.length === 0) {
-      showError("Guided intake", "Enter an answer or skip this clarification.");
+      showError(REVIEWS_NEW_GUIDED_QUESTIONS_LABEL, "Enter an answer or skip this clarification.");
       return;
     }
 
@@ -499,7 +500,7 @@ export function SocraticIntakeWizard() {
       } catch (error) {
         setSubmitError(error);
         if (isApiRequestError(error)) {
-          showError("Guided intake", error.message);
+          showError(REVIEWS_NEW_GUIDED_QUESTIONS_LABEL, error.message);
         }
       } finally {
         setBusy(false);
@@ -557,7 +558,7 @@ export function SocraticIntakeWizard() {
     } catch (error) {
       setSubmitError(error);
       if (isApiRequestError(error)) {
-        showError("Guided intake", error.message);
+        showError(REVIEWS_NEW_GUIDED_QUESTIONS_LABEL, error.message);
       }
     } finally {
       setBusy(false);
@@ -605,7 +606,7 @@ export function SocraticIntakeWizard() {
         <OperatorApiProblem
           problem={isApiRequestError(submitError) ? submitError.problem : null}
           fallbackMessage={
-            isApiRequestError(submitError) ? submitError.message : "Guided intake request failed."
+            isApiRequestError(submitError) ? submitError.message : "Guided questions request failed."
           }
         />
       ) : null}

@@ -3,7 +3,6 @@ import { NAV_GROUPS } from "@/lib/nav-config";
 import { filterNavLinksByAuthority } from "@/lib/nav-authority";
 import { filterNavLinksByCommittedArchitectureReviewGate } from "@/lib/nav-committed-architecture-review-gate";
 import { applyCommittedArchitectureReviewNavPromotions } from "@/lib/nav-committed-architecture-review-promotion";
-import { filterNavLinksByTier } from "@/lib/nav-tier";
 import { filterNavLinksByPublishReadiness } from "@/lib/nav-publish-readiness";
 import { isApiKeysSettingsSurfaceEnabled } from "@/lib/api-keys-settings-access";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
@@ -114,7 +113,7 @@ function omitApiKeysSettingsWhenSurfaceDisabled(links: NavLinkItem[]): NavLinkIt
   return links.filter((l) => l.href !== "/administration/api-keys");
 }
 
-/** One nav group after **tier → authority** filtering, only emitted when at least one link remains. */
+/** One nav group after **authority** filtering, only emitted when at least one link remains. */
 export type NavGroupWithVisibleLinks = {
   group: NavGroupConfig;
   visibleLinks: NavLinkItem[];
@@ -125,13 +124,14 @@ export type NavGroupWithVisibleLinks = {
  *
  * Single composition point for operator shell navigation (sidebar, mobile drawer, command palette).
  * **Out of scope:** **`useOperateCapability()`** and other page-level POST soft-disables — this module only
- * applies **tier** then **`filterNavLinksByAuthority`**; see **docs/PRODUCT_PACKAGING.md** §3 *Four UI shaping surfaces*.
+ * applies **`filterNavLinksByAuthority`** plus packaging omissions; see **docs/PRODUCT_PACKAGING.md** §3 *Four UI shaping surfaces*.
  *
  * ## Composition order (do not reorder)
  *
- * Within each **`NAV_GROUPS`** block from **`nav-config.ts`**: **Authority** (`filterNavLinksByAuthority`) is the
- * visibility gate (owner 2026-08-03 — progressive **tier** / operate-unlock / pre-commit spine retired for sidebar
- * shaping). Demo/buyer packaging omissions and system-admin feature flags still apply. **Packaging map:**
+ * Within each **`NAV_GROUPS`** block from **`nav-config.ts`**: **Pre-commit** (`filterNavLinksByCommittedArchitectureReviewGate`)
+ * runs first so Operate/diagnostics stay off the default spine until **`hasCommittedArchitectureReview`**. **Authority**
+ * (`filterNavLinksByAuthority`) runs after promotion metadata. Demo/buyer packaging omissions and system-admin feature
+ * flags still apply. **Packaging map:**
  * **docs/PRODUCT_PACKAGING.md** §3 *Code seams* table (**`NAV_GROUPS[].id`** → layer).
  *
  * Pass **`useNavCallerAuthorityRank()`** (or **`CurrentPrincipal.authorityRank`**) and **`useNavCommittedArchitectureReview()`**
@@ -162,23 +162,23 @@ export type NavGroupWithVisibleLinks = {
  */
 export function filterNavLinksForOperatorShell(
   links: ReadonlyArray<NavLinkItem>,
-  showExtended: boolean,
-  showAdvanced: boolean,
+  /** @deprecated Progressive tier disclosure retired — argument ignored (owner 2026-08-03). */
+  _showExtended: boolean,
+  /** @deprecated Progressive tier disclosure retired — argument ignored (owner 2026-08-03). */
+  _showAdvanced: boolean,
   callerAuthorityRank: number,
   /** @deprecated Collapsed-pilot link filtering retired — argument ignored (owner 2026-08-03). */
   _applyCollapsedSidebarPilotFilter = false,
   hasCommittedArchitectureReview = true,
 ): NavLinkItem[] {
+  void _showExtended;
+  void _showAdvanced;
   void _applyCollapsedSidebarPilotFilter;
 
-  // Tier / pre-commit / collapsed-pilot disclosure retired: role (authority) is the visibility gate.
-  const promoted = applyCommittedArchitectureReviewNavPromotions(links, hasCommittedArchitectureReview);
-  const gated = filterNavLinksByCommittedArchitectureReviewGate(promoted, hasCommittedArchitectureReview);
+  const gated = filterNavLinksByCommittedArchitectureReviewGate(links, hasCommittedArchitectureReview);
+  const promoted = applyCommittedArchitectureReviewNavPromotions(gated, hasCommittedArchitectureReview);
 
-  let visible: NavLinkItem[] = filterNavLinksByAuthority(
-    filterNavLinksByTier(gated, showExtended, showAdvanced),
-    callerAuthorityRank,
-  );
+  let visible: NavLinkItem[] = filterNavLinksByAuthority(promoted, callerAuthorityRank);
 
   visible = omitThinRoutesInPublicDemoMode(visible);
   visible = omitBuyerPolishedShellNonGoldenNavLinks(visible);
@@ -207,6 +207,10 @@ export function listNavGroupsVisibleInOperatorShell(
 
     if (group.surface === "system-admin") {
       if (!isShowSystemAdministrationNavEnabled()) {
+        continue;
+      }
+
+      if (isNextPublicDemoMode()) {
         continue;
       }
 

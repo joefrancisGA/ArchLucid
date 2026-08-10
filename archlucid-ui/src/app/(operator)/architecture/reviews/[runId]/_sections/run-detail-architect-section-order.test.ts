@@ -31,17 +31,38 @@ describe("run-detail-architect-section-order (TB-620)", () => {
     );
   });
 
-  it("places buyer findings before decision delta and below-fold pipeline sections", () => {
-    const findingsIndex = pageViewSource.indexOf("<RunDetailExplanationDeferred");
-    const decisionDeltaIndex = pageViewSource.indexOf("<RunDetailDecisionDeltaDeferred");
-    const trustEvidenceIndex = pageViewSource.indexOf("<RunDetailTrustEvidenceCardSectionDeferred");
-    const belowFoldIndex = pageViewSource.indexOf("<RunDetailBelowFoldSections");
+  // Replaces an earlier source-order assertion. Order of JSX within RunDetailPageView stopped
+  // implying render order once the workspace became tabbed: each tab renders independently, so the
+  // invariant worth guarding is that a section is owned by exactly one tab, not where its JSX sits.
+  // Gating these out of RunDetailBelowFoldSections must not drop them from the workspace entirely:
+  // each has to stay mounted on the tab that LEGACY_HASH_TO_TAB assigns it to.
+  it("keeps every tab-owned section mounted in the page view", () => {
+    const sectionsOwnedByOneTab = [
+      "<RunDetailExplanationDeferred",
+      "<RunDetailArtifactsExportsSectionDeferred",
+      "<RunDetailManifestSummaryAlerts",
+      "<RunDetailRunActionsSection",
+    ] as const;
 
-    expect(findingsIndex).toBeGreaterThan(-1);
-    expect(decisionDeltaIndex).toBeGreaterThan(findingsIndex);
-    expect(trustEvidenceIndex).toBeGreaterThan(findingsIndex);
-    expect(belowFoldIndex).toBeGreaterThan(findingsIndex);
-    expect(belowFoldIndex).toBeGreaterThan(trustEvidenceIndex);
+    for (const marker of sectionsOwnedByOneTab) {
+      expect(pageViewSource, `${marker} must stay mounted on its owning tab`).toContain(marker);
+    }
+  });
+
+  it("tells the tabbed workspace's below-fold block that tabs own those sections", () => {
+    expect(pageViewSource).toContain("renderedInsideTabbedWorkspace");
+    // Superseded by renderedInsideTabbedWorkspace, which covers all four tab-owned sections.
+    expect(pageViewSource).not.toContain("skipArtifactsExports");
+    expect(belowFoldSource).not.toContain("skipArtifactsExports");
+  });
+
+  it("gates every tab-owned section in the shared below-fold block", () => {
+    expect(belowFoldSource).toContain("const ownedByAnotherTab = props.renderedInsideTabbedWorkspace === true;");
+    expect(belowFoldSource).toContain("{!ownedByAnotherTab && !m.buyerPolishedArtifactTable && m.manifestId ? (");
+    expect(belowFoldSource).toContain("{m.manifestId && !ownedByAnotherTab && !m.buyerPolishedArtifactTable ? (");
+    expect(belowFoldSource).toContain("{m.manifestId && !ownedByAnotherTab ? (");
+    expect(pageViewSource).not.toContain("RunDetailTabbedSectionNavDeferred");
+    expect(pageViewSource).toContain("ReviewDetailWorkspaceDeferred");
   });
 
   it("places operator findings before pipeline timeline in below-fold", () => {

@@ -68,6 +68,20 @@ export function resolveLlmBudgetUtilizationTone(
   return "ok";
 }
 
+/**
+ * Top-bar chrome shows budget only when headroom is degraded or exhausted.
+ * Healthy (ok) remaining budget stays on Administration → AI usage.
+ */
+export function shouldShowShellLlmBudgetStatusPill(status: LlmMonthlyDollarBudgetStatus): boolean {
+  if (!status.monthlyBudgetMonitoringActive) {
+    return false;
+  }
+
+  const tone = resolveLlmBudgetUtilizationTone(status);
+
+  return tone === "warn" || tone === "critical";
+}
+
 export function llmBudgetUtilizationPercent(status: LlmMonthlyDollarBudgetStatus): number | null {
   if (!status.monthlyBudgetMonitoringActive) {
     return null;

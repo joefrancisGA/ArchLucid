@@ -4,6 +4,7 @@ import type { RunDetail } from "@/types/authority";
 
 import {
   formatInsightDensityCurationMessage,
+  hasFindingsSnapshotInsightDensityContent,
   resolveFindingsSnapshotInsightDensityView,
 } from "./findings-snapshot-insight-density";
 
@@ -47,5 +48,30 @@ describe("findings-snapshot-insight-density", () => {
       formatInsightDensityCurationMessage({ demotedToChecklistCount: 3, retainedFindingCount: 2 }),
     ).toContain("suppressed 3");
     expect(formatInsightDensityCurationMessage({ demotedToChecklistCount: 0, retainedFindingCount: 0 })).toBe("");
+  });
+
+  it("hasFindingsSnapshotInsightDensityContent is false when there is nothing to disclose", () => {
+    expect(hasFindingsSnapshotInsightDensityContent({ checklistCoverage: [], curation: null })).toBe(false);
+    expect(
+      hasFindingsSnapshotInsightDensityContent({
+        checklistCoverage: [],
+        curation: { demotedToChecklistCount: 0, retainedFindingCount: 0 },
+      }),
+    ).toBe(false);
+  });
+
+  it("hasFindingsSnapshotInsightDensityContent is true for checklist rows or curation copy", () => {
+    expect(
+      hasFindingsSnapshotInsightDensityContent({
+        checklistCoverage: [{ findingId: "chk-1", title: "Enable monitoring", category: null, recommendation: null }],
+        curation: null,
+      }),
+    ).toBe(true);
+    expect(
+      hasFindingsSnapshotInsightDensityContent({
+        checklistCoverage: [],
+        curation: { demotedToChecklistCount: 0, retainedFindingCount: 2 },
+      }),
+    ).toBe(true);
   });
 });

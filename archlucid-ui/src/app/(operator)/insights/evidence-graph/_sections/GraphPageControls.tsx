@@ -216,7 +216,7 @@ export function GraphPageControls(props: GraphPageControlsProps) {
         {showPresentationTabs ? (
           <div className="space-y-1">
             <div className="flex flex-wrap items-center gap-2">
-              <TabsList aria-label="Evidence graph view" data-testid="graph-presentation-tabs" className="gap-1 border-0">
+              <TabsList aria-label="Evidence graph view" data-testid="graph-presentation-tabs">
                 <TabsTrigger value="graph" data-testid="graph-presentation-tab-graph" className="shrink-0">
                   {BUYER_EVIDENCE_TRAIL_VIEW_GRAPH}
                 </TabsTrigger>

@@ -6,6 +6,11 @@ import { useMemo, useState } from "react";
 
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { formatUsd } from "@/lib/roi-assumptions";
+import {
+  hasFindingsWhatIfAnalysisContent,
+  readFindingProjectedImpactInterval,
+  readFindingProjectedImpactUsd,
+} from "@/lib/findings-what-if-analysis";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { Label } from "@/components/ui/label";
 
@@ -16,48 +21,6 @@ export type FindingsWhatIfAnalysisPanelProps = {
   readonly isIllustrativePricing?: boolean;
 };
 
-type FindingWireCostData = {
-  projectedImpactUsd?: unknown;
-  payload?: {
-    projectedImpactUsdLowerBound?: unknown;
-    projectedImpactUsdUpperBound?: unknown;
-    confidenceReasoning?: unknown;
-  };
-};
-
-function readEstimatedUsdSavings(finding: QuickDecisionFinding): number {
-  try {
-    const parsed = JSON.parse(finding.aiReasoning.wireJson) as FindingWireCostData;
-    const value = parsed.projectedImpactUsd;
-
-    if (typeof value === "number" && Number.isFinite(value))
-      return value;
-
-    return 0;
-  } catch {
-    return 0;
-  }
-}
-
-function readConfidenceInterval(finding: QuickDecisionFinding) {
-  try {
-    const parsed = JSON.parse(finding.aiReasoning.wireJson) as FindingWireCostData;
-    const payload = parsed.payload;
-    if (!payload) return null;
-
-    const lower = typeof payload.projectedImpactUsdLowerBound === "number" ? payload.projectedImpactUsdLowerBound : null;
-    const upper = typeof payload.projectedImpactUsdUpperBound === "number" ? payload.projectedImpactUsdUpperBound : null;
-    const reasoning = typeof payload.confidenceReasoning === "string" ? payload.confidenceReasoning : null;
-
-    if (lower !== null || upper !== null) {
-      return { lower, upper, reasoning };
-    }
-    return null;
-  } catch {
-    return null;
-  }
-}
-
 /** What-if ROI toggle: subtract selected finding savings from baseline annual cost. */
 export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelProps) {
   const [enabled, setEnabled] = useState(false);
@@ -67,8 +30,8 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
     () =>
       props.findings.map((finding) => ({
         finding,
-        savingsUsd: readEstimatedUsdSavings(finding),
-        interval: readConfidenceInterval(finding),
+        savingsUsd: readFindingProjectedImpactUsd(finding),
+        interval: readFindingProjectedImpactInterval(finding),
       })),
     [props.findings],
   );
@@ -98,7 +61,7 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
     });
   }
 
-  if (baseline === null && enriched.every((row) => row.savingsUsd <= 0))
+  if (!hasFindingsWhatIfAnalysisContent(props.findings, baseline))
     return null;
 
   return (

@@ -101,17 +101,21 @@ export function computeProvenanceGraphLayout(
     480,
     PROVENANCE_LAYOUT_PADDING_X * 2 + Math.max(maxPerLayer - 1, 0) * PROVENANCE_MIN_NODE_GAP + PROVENANCE_NODE_RADIUS * 2,
   );
-  const maxLayer = Math.max(...byLayer.keys(), 0);
+  const occupiedLayers = [...byLayer.keys()].sort((a, b) => a - b);
+  const compactLayerIndex = new Map(occupiedLayers.map((layer, index) => [layer, index]));
   const contentHeight =
-    PROVENANCE_LAYOUT_PADDING_Y * 2 + (maxLayer + 1) * PROVENANCE_LAYER_HEIGHT + PROVENANCE_LABEL_LINE_HEIGHT * 2;
+    PROVENANCE_LAYOUT_PADDING_Y * 2 +
+    occupiedLayers.length * PROVENANCE_LAYER_HEIGHT +
+    PROVENANCE_LABEL_LINE_HEIGHT * 2;
 
   const layoutNodes: ProvenanceLayoutNode[] = [];
 
-  for (let layer = 0; layer <= maxLayer; layer++) {
+  for (const layer of occupiedLayers) {
     const layerNodes = (byLayer.get(layer) ?? []).slice().sort((a, b) => a.id.localeCompare(b.id));
     const count = layerNodes.length;
     const span = contentWidth - PROVENANCE_LAYOUT_PADDING_X * 2;
     const gap = count > 1 ? span / count : span;
+    const compactLayer = compactLayerIndex.get(layer) ?? 0;
 
     layerNodes.forEach((node, index) => {
       const style = provenanceNodeVisualStyle(node.type);
@@ -119,7 +123,7 @@ export function computeProvenanceGraphLayout(
       const labelLines = wrapProvenanceLabel(fullLabel, 22, 2);
       const { labelWidth, labelHeight } = layoutLabelMetrics(labelLines);
       const x = PROVENANCE_LAYOUT_PADDING_X + gap * (index + 0.5);
-      const y = PROVENANCE_LAYOUT_PADDING_Y + layer * PROVENANCE_LAYER_HEIGHT + PROVENANCE_LAYER_HEIGHT / 2;
+      const y = PROVENANCE_LAYOUT_PADDING_Y + compactLayer * PROVENANCE_LAYER_HEIGHT + PROVENANCE_LAYER_HEIGHT / 2;
 
       layoutNodes.push({
         id: node.id,

@@ -4,10 +4,13 @@ import { cn } from "@/lib/utils";
 import { useEffect, useMemo, useState } from "react";
 
 import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
+import type { HelpTopicTocGroup } from "@/lib/caiq-sig-response-help-presentation";
 import { HELP_PAGE_TOC } from "@/lib/help-page-layout";
 
 export type HelpTopicTableOfContentsProps = {
   readonly headings: readonly HelpMarkdownHeading[];
+  /** Optional grouped parents (for example CAIQ Lite vs SIG Core halves). */
+  readonly groups?: readonly HelpTopicTocGroup[];
   /** When true, highlights the section nearest the viewport center while scrolling. */
   readonly enableScrollSpy?: boolean;
 };
@@ -22,31 +25,67 @@ function readLocationHash(): string {
   return window.location.hash.replace(/^#/, "").trim();
 }
 
+function TableOfContentsLink(props: {
+  readonly heading: HelpMarkdownHeading;
+  readonly activeId: string;
+}): React.JSX.Element {
+  const isActive = props.activeId.length > 0 && props.activeId === props.heading.id;
+
+  return (
+    <a
+      href={`#${props.heading.id}`}
+      aria-current={isActive ? "location" : undefined}
+      className={cn(
+        HELP_PAGE_TOC.link,
+        props.heading.level === 3 ? HELP_PAGE_TOC.linkNested : "",
+        isActive ? HELP_PAGE_TOC.linkActive : "",
+      )}
+    >
+      {props.heading.title}
+    </a>
+  );
+}
+
 function TableOfContentsList(props: {
   readonly headings: readonly HelpMarkdownHeading[];
   readonly activeId: string;
 }): React.JSX.Element {
   return (
     <ul className={HELP_PAGE_TOC.list}>
-      {props.headings.map((heading) => {
-        const isActive = props.activeId.length > 0 && props.activeId === heading.id;
+      {props.headings.map((heading) => (
+        <li key={heading.id}>
+          <TableOfContentsLink heading={heading} activeId={props.activeId} />
+        </li>
+      ))}
+    </ul>
+  );
+}
 
-        return (
-          <li key={heading.id}>
-            <a
-              href={`#${heading.id}`}
-              aria-current={isActive ? "location" : undefined}
-              className={cn(
-                HELP_PAGE_TOC.link,
-                heading.level === 3 ? HELP_PAGE_TOC.linkNested : "",
-                isActive ? HELP_PAGE_TOC.linkActive : "",
-              )}
-            >
-              {heading.title}
-            </a>
-          </li>
-        );
-      })}
+function GroupedTableOfContentsList(props: {
+  readonly groups: readonly HelpTopicTocGroup[];
+  readonly activeId: string;
+}): React.JSX.Element {
+  return (
+    <ul className={HELP_PAGE_TOC.list}>
+      {props.groups.map((group) => (
+        <li key={group.id}>
+          <details
+            className={cn(HELP_PAGE_TOC.referenceGroup, HELP_PAGE_TOC.referenceGroupOpen)}
+            open
+          >
+            <summary className={HELP_PAGE_TOC.referenceGroupSummary}>
+              <span className="font-semibold text-al-text-primary">{group.label}</span>
+            </summary>
+            <ul className={HELP_PAGE_TOC.referenceGroupChildren}>
+              {group.headings.map((heading) => (
+                <li key={heading.id}>
+                  <TableOfContentsLink heading={heading} activeId={props.activeId} />
+                </li>
+              ))}
+            </ul>
+          </details>
+        </li>
+      ))}
     </ul>
   );
 }
@@ -54,7 +93,13 @@ function TableOfContentsList(props: {
 /** Sticky jump links for long in-app help topics. */
 export function HelpTopicTableOfContents(props: HelpTopicTableOfContentsProps): React.JSX.Element | null {
   const [activeId, setActiveId] = useState("");
-  const sectionIds = useMemo(() => props.headings.map((heading) => heading.id), [props.headings]);
+  const sectionIds = useMemo(() => {
+    if (props.groups !== undefined && props.groups.length > 0) {
+      return props.groups.flatMap((group) => group.headings.map((heading) => heading.id));
+    }
+
+    return props.headings.map((heading) => heading.id);
+  }, [props.groups, props.headings]);
 
   useEffect(() => {
     const syncHash = (): void => {
@@ -117,16 +162,28 @@ export function HelpTopicTableOfContents(props: HelpTopicTableOfContentsProps): 
     };
   }, [props.enableScrollSpy, sectionIds]);
 
-  if (props.headings.length < MIN_HEADINGS_FOR_TOC) {
+  const headingCount =
+    props.groups !== undefined && props.groups.length > 0
+      ? props.groups.reduce((total, group) => total + group.headings.length, 0)
+      : props.headings.length;
+
+  if (headingCount < MIN_HEADINGS_FOR_TOC) {
     return null;
   }
+
+  const tocBody =
+    props.groups !== undefined && props.groups.length > 0 ? (
+      <GroupedTableOfContentsList groups={props.groups} activeId={activeId} />
+    ) : (
+      <TableOfContentsList headings={props.headings} activeId={activeId} />
+    );
 
   return (
     <>
       <details className="mb-4 rounded-md border border-neutral-200 bg-al-surface-raised p-3 lg:hidden dark:border-neutral-800">
         <summary className={cn("cursor-pointer font-semibold", HELP_PAGE_TOC.heading)}>On this page</summary>
         <nav aria-label="On this page" className="mt-3" data-testid="help-topic-toc-mobile">
-          <TableOfContentsList headings={props.headings} activeId={activeId} />
+          {tocBody}
         </nav>
       </details>
 
@@ -138,7 +195,7 @@ export function HelpTopicTableOfContents(props: HelpTopicTableOfContentsProps): 
         <p className={HELP_PAGE_TOC.heading} data-testid="help-topic-toc-heading">
           On this page
         </p>
-        <TableOfContentsList headings={props.headings} activeId={activeId} />
+        {tocBody}
       </nav>
     </>
   );

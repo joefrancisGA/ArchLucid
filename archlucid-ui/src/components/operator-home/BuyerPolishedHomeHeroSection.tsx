@@ -1,6 +1,8 @@
-import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCenterCard";
-import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator-home-workspace-metrics";
+"use client";
+
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
+import { PilotCommandCenterCardDeferred } from "@/app/(operator)/_sections/operator-home-page-view-deferred-chunks";
+import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator-home-workspace-metrics";
 
 type BuyerPolishedHomeHeroSectionProps = {
   readonly runsDashboard: OperatorHomeRunsDashboardModel;
@@ -18,7 +20,7 @@ export function BuyerPolishedHomeHeroSection(props: BuyerPolishedHomeHeroSection
       aria-label="Overview command center"
       data-testid="operator-home-hero-section"
     >
-      <PilotCommandCenterCard
+      <PilotCommandCenterCardDeferred
         suppressLeadCopy
         showContextualHelp={false}
         runsDashboard={props.runsDashboard}

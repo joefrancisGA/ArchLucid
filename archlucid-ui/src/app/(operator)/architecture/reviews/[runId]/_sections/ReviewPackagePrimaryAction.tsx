@@ -3,7 +3,8 @@
 import Link from "next/link";
 
 import { CommitRunButton } from "@/components/CommitRunButton";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 import type { ReviewPackagePrimaryAction } from "./resolve-review-package-primary-action";
 
@@ -32,7 +33,7 @@ export function ReviewPackagePrimaryAction(props: ReviewPackagePrimaryActionProp
       );
     case "review-findings":
     case "add-evidence":
-    case "export-proof-packet":
+    case "send-to-sponsor":
     case "open-governance-decision": {
       if (action.href === null) {
         throw new Error(`Primary action ${action.kind} requires an href.`);
@@ -40,9 +41,12 @@ export function ReviewPackagePrimaryAction(props: ReviewPackagePrimaryActionProp
 
       return (
         <div data-testid="review-package-primary-action" data-review-package-primary-action-kind={action.kind}>
-          <Button type="button" variant="primary" size="sm" asChild>
-            <Link href={action.href}>{action.label}</Link>
-          </Button>
+          <Link
+            className={cn(buttonVariants({ variant: "primary", size: "sm" }))}
+            href={action.href}
+          >
+            {action.label}
+          </Link>
         </div>
       );
     }

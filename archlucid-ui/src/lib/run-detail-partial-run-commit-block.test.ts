@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { resolvePartialRunCommitBlockedReason } from "@/lib/run-detail-partial-run-commit-block";
+import { resolvePartialRunCommitBlockPresentation } from "@/lib/run-detail-partial-run-commit-block";
 
 describe("resolvePartialRunCommitBlockedReason (TB-937)", () => {
   it("returns null when finding coverage already owns the block", () => {
     expect(
-      resolvePartialRunCommitBlockedReason({
+      resolvePartialRunCommitBlockPresentation({
         legacyRunStatus: "PartiallyCompleted",
         findingCoverageAlreadyBlocking: true,
       }),
@@ -14,49 +14,56 @@ describe("resolvePartialRunCommitBlockedReason (TB-937)", () => {
 
   it("blocks PartiallyCompleted and FailedPartial statuses", () => {
     expect(
-      resolvePartialRunCommitBlockedReason({
+      resolvePartialRunCommitBlockPresentation({
         legacyRunStatus: "PartiallyCompleted",
         findingCoverageAlreadyBlocking: false,
-      }),
+      })?.summary,
     ).toContain("incomplete");
 
     expect(
-      resolvePartialRunCommitBlockedReason({
+      resolvePartialRunCommitBlockPresentation({
         legacyRunStatus: "FailedPartial",
         findingCoverageAlreadyBlocking: false,
-      }),
-    ).toContain("partially failed");
+      })?.summary,
+    ).toContain("partially completed");
   });
 
   it("blocks quality-rejected and Failed with distinct copy (TB-965)", () => {
-    const quality = resolvePartialRunCommitBlockedReason({
+    const quality = resolvePartialRunCommitBlockPresentation({
       legacyRunStatus: "ExecutionCompletedQualityRejected",
       findingCoverageAlreadyBlocking: false,
     });
 
-    expect(quality).toContain("Quality gate rejected");
-    expect(quality).toContain("not a platform outage");
-    expect(quality?.toLowerCase()).not.toContain("llm error");
+    expect(quality?.summary).toContain("Quality gate rejected");
+    expect(quality?.summary).toContain("not a platform outage");
+    expect(quality?.summary?.toLowerCase()).not.toContain("llm error");
 
-    const failed = resolvePartialRunCommitBlockedReason({
+    const failed = resolvePartialRunCommitBlockPresentation({
       legacyRunStatus: "Failed",
       findingCoverageAlreadyBlocking: false,
     });
 
-    expect(failed).toContain("execution failed");
+    expect(failed?.summary).toContain("assessment failed");
   });
 
-  it("blocks when outcome matrix has non-Succeeded required agents", () => {
-    const reason = resolvePartialRunCommitBlockedReason({
+  it("uses product-language assessment coverage copy with technical detail behind the summary", () => {
+    const presentation = resolvePartialRunCommitBlockPresentation({
       legacyRunStatus: "ReadyForCommit",
       findingCoverageAlreadyBlocking: false,
       agentExecutionOutcomes: [
         { agentType: "Topology", outcome: "Succeeded" },
         { agentType: "Cost", outcome: "Missing" },
+        { agentType: "Critic", outcome: "Missing" },
       ],
     });
 
-    expect(reason).toContain("Cost");
-    expect(reason).toContain("Missing");
+    expect(presentation?.summary).toContain("Assessment coverage is incomplete");
+    expect(presentation?.summary).toContain("quality review");
+    expect(presentation?.summary).toContain("Re-run the review");
+    expect(presentation?.summary).not.toContain("Critic");
+    expect(presentation?.summary).not.toContain("Missing");
+    expect(presentation?.summary?.toLowerCase()).not.toContain("re-execute");
+    expect(presentation?.technicalDetail).toContain("Cost (Missing)");
+    expect(presentation?.technicalDetail).toContain("Critic (Missing)");
   });
 });

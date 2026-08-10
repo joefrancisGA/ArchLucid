@@ -13,8 +13,8 @@ export const SETTINGS_USERS_ROLES_TAB_TRAFFIC_PATH = SETTINGS_USERS_ROLES_TAB_PA
 export const SETTINGS_USERS_ROLES_TAB_TRAFFIC_SECTION = "Tab surface";
 
 /**
- * Owner workbook Notes for SER - documents Evidence chrome inherited from AUX hub on Roles tab.
+ * Owner workbook Notes for SER - Roles tab UX pass (2026-08-09).
  * ASCII-only for Windows console note scripts.
  */
 export const SETTINGS_USERS_ROLES_TAB_TRAFFIC_NOTE =
- "Users and roles Roles tab (Tab surface) - inherits AUX hub Evidence chrome (SettingsRolesPageView PageContextualHelpButton + Category-1 registry on /administration/users; Sources follow-up chrome removed (TB-2092) above tabs). SettingsRolesPageView syncs ?tab=roles via router.replace; mounts roles matrix + assignable roles. Sibling SSU = users; AUX = hub. Template SRX renamed to SER to match owner.tab-surface ceiling below parent hub Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
+ "Roles tab 2026-08-09: closed /al-ui-rate P0 backlog - full-height shell, matrix page scroll (no nested clip), allowed/denied legend + contrast, sticky Save/Discard command bar, assignment counts + last-updated + audit link, permission search/high-risk/differences filters, Audit group above fold, Create CTA readiness, demo hides Internal Operations nav. UX 84/100. Residual: custom-role actor attribution needs API.";

@@ -75,4 +75,45 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
         root.TryGetProperty("nextCursor", out JsonElement _).Should().BeTrue();
         root.GetProperty("hasMore").ValueKind.Should().BeOneOf(JsonValueKind.True, JsonValueKind.False);
     }
+
+    [SkippableFact]
+    public async Task ListRunsInScope_includes_run_hidden_from_default_project_slug()
+    {
+        HttpResponseMessage createResponse = await Client.PostAsync(
+            "/v1/architecture/request",
+            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-AUTH-LIST-SCOPE-001")));
+        await createResponse.EnsureSuccessForTestAsync();
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        string runId = created!.Run.RunId;
+
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
+        await executeResponse.EnsureSuccessForTestAsync();
+        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
+        await commitResponse.EnsureSuccessForTestAsync();
+
+        HttpResponseMessage defaultSlugResponse =
+            await Client.GetAsync("/v1/authority/projects/default/reviews?take=50");
+        defaultSlugResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        string defaultBody = await defaultSlugResponse.Content.ReadAsStringAsync();
+        using JsonDocument defaultDoc = JsonDocument.Parse(defaultBody);
+        Guid createdRunId = Guid.Parse(runId);
+        defaultDoc.RootElement.GetProperty("items").EnumerateArray()
+            .Any(item => Guid.Parse(item.GetProperty("runId").GetString()!) == createdRunId)
+            .Should()
+            .BeFalse("create maps SystemName onto the run project slug, not 'default'");
+
+        HttpResponseMessage scopeResponse = await Client.GetAsync("/v1/authority/reviews?take=50");
+        scopeResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        string scopeBody = await scopeResponse.Content.ReadAsStringAsync();
+        using JsonDocument scopeDoc = JsonDocument.Parse(scopeBody);
+        JsonElement scopeRoot = scopeDoc.RootElement;
+        scopeRoot.GetProperty("items").EnumerateArray()
+            .Any(item => Guid.Parse(item.GetProperty("runId").GetString()!) == createdRunId)
+            .Should()
+            .BeTrue();
+        scopeRoot.GetProperty("requestedTake").GetInt32().Should().Be(50);
+        scopeRoot.TryGetProperty("nextCursor", out JsonElement _).Should().BeTrue();
+        scopeRoot.GetProperty("hasMore").ValueKind.Should().BeOneOf(JsonValueKind.True, JsonValueKind.False);
+    }
 }

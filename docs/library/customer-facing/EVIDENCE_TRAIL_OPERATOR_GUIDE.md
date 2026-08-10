@@ -17,6 +17,28 @@ An **evidence trail** is the inspectable lineage from architecture inputs throug
 
 The **evidence graph** is the interactive view that shows how those pieces connect for one finalized architecture package.
 
+```mermaid
+flowchart LR
+  subgraph intake [Evidence intake]
+    EV[Evidence and artifacts]
+  end
+
+  subgraph analysis [Review analysis]
+    FD[Findings]
+    GV[Governance decisions]
+  end
+
+  subgraph outputs [Committed outputs]
+    SR[Signed review record]
+    PKG[Exports and downloads]
+  end
+
+  EV --> FD
+  FD --> GV
+  GV --> SR
+  SR --> PKG
+```
+
 ## Open the Evidence graph {#open-the-evidence-graph}
 
 1. In the architect workspace, open **Insights** and choose **Evidence graph** (route `/graph`).

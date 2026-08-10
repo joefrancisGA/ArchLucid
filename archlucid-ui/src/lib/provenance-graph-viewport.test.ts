@@ -5,6 +5,7 @@ import {
   computeFitToViewTransform,
   PROVENANCE_GRAPH_FIT_PADDING_PX,
   PROVENANCE_GRAPH_MAX_ZOOM,
+  PROVENANCE_GRAPH_MIN_FIT_SCALE,
   PROVENANCE_GRAPH_MIN_ZOOM,
 } from "@/lib/provenance-graph-viewport";
 
@@ -26,6 +27,13 @@ describe("provenance graph viewport", () => {
     expect(clampProvenanceZoom(0.1)).toBe(PROVENANCE_GRAPH_MIN_ZOOM);
     expect(clampProvenanceZoom(10)).toBe(PROVENANCE_GRAPH_MAX_ZOOM);
     expect(clampProvenanceZoom(1)).toBe(1);
+  });
+
+  it("does not shrink initial fit below the legibility floor", () => {
+    const bounds = { minX: 0, minY: 0, maxX: 2000, maxY: 1600, width: 2000, height: 1600 };
+    const transform = computeFitToViewTransform(bounds, 960, 580);
+
+    expect(transform.scale).toBeGreaterThanOrEqual(PROVENANCE_GRAPH_MIN_FIT_SCALE);
   });
 
   it("recalculates when container size changes", () => {

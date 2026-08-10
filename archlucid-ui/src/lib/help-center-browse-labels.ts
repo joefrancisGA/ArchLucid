@@ -27,3 +27,14 @@ export function resolveHelpTopicBrowseLabel(helpSlug: string | null): HelpBrowse
 
   return null;
 }
+
+/**
+ * Browse label for the Help drawer, where nearly every row is a guide. Only the
+ * exception (technical documentation) earns an eyebrow; a label repeated on every row
+ * carries no information and costs a line of vertical space per topic.
+ */
+export function resolveHelpDrawerBrowseLabel(helpSlug: string | null): HelpBrowseLabel | null {
+  const label = resolveHelpTopicBrowseLabel(helpSlug);
+
+  return label === HELP_BROWSE_DOCUMENTATION_LABEL ? label : null;
+}

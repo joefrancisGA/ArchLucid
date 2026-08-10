@@ -8,6 +8,12 @@ import {
   MARKETING_SURFACES,
   MARKETING_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import {
+  SEE_IT_MARKETING_PDF_DOWNLOAD_FILENAME,
+  SEE_IT_MARKETING_PDF_DOWNLOAD_LABEL,
+  SEE_IT_MARKETING_PDF_HELPER,
+  SEE_IT_MARKETING_PDF_HREF,
+} from "@/lib/see-it-page-copy";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import {
   CANONICAL_ANONYMOUS_PROOF_HREF,
@@ -122,10 +128,10 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
         <Button asChild variant="outline">
           <a
             data-testid="see-it-proof-pack-download"
-            href="/api/proxy/v1/marketing/why-archlucid-pack.pdf"
-            download="why-archlucid-pack.pdf"
+            href={SEE_IT_MARKETING_PDF_HREF}
+            download={SEE_IT_MARKETING_PDF_DOWNLOAD_FILENAME}
           >
-            Download sample overview (PDF)
+            {SEE_IT_MARKETING_PDF_DOWNLOAD_LABEL}
           </a>
         </Button>
         <Button asChild variant="outline">
@@ -135,8 +141,7 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
         </Button>
       </section>
       <p className={cn("text-al-text-secondary", MARKETING_TYPOGRAPHY.meta, MARKETING_CAPTION_TEXT_CLASS)}>
-        The PDF is a no-sign-in marketing overview aligned with this sample — not the full governed evidence
-        bundle from a signed-in workspace.
+        {SEE_IT_MARKETING_PDF_HELPER}
       </p>
     </div>
   );

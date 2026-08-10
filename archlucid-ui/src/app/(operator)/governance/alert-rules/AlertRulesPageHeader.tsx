@@ -5,16 +5,19 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageBreadcrumb } from "@/components/OperatorPageBreadcrumb";
 import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  operatorFreshnessMetadataLabel,
   operatorLastRefreshedExactLabel,
-  operatorLastRefreshedLabel,
 } from "@/lib/operator-last-refreshed-label";
 import {
   ALERTS_CONFIGURATION_ACTION_REFRESH,
   ALERTS_CONFIGURATION_ACTION_REFRESHING,
+  ALERTS_CONFIGURATION_BREADCRUMB_GOVERNANCE_HREF,
+  ALERTS_CONFIGURATION_BREADCRUMB_GOVERNANCE_LABEL,
   ALERTS_CONFIGURATION_LAST_REFRESHED_PREFIX,
   ALERTS_CONFIGURATION_PAGE_TITLE,
   ALERTS_OPEN_INBOX_LINK_HREF,
@@ -30,13 +33,29 @@ export type AlertRulesPageHeaderProps = {
 
 /** Shared `/governance/alert-rules` hero — title, lead, contextual help, refresh, and inbox shortcut. */
 export function AlertRulesPageHeader(props: AlertRulesPageHeaderProps): React.JSX.Element {
-  const lastRefreshedLabel = operatorLastRefreshedLabel(props.lastRefreshedAt);
+  const freshnessLabel = operatorFreshnessMetadataLabel({
+    prefix: ALERTS_CONFIGURATION_LAST_REFRESHED_PREFIX,
+    lastRefreshedAt: props.lastRefreshedAt,
+    refreshingLabel: props.refreshing ? ALERTS_CONFIGURATION_ACTION_REFRESHING : null,
+  });
 
   return (
     <OperatorPageHeader
       title={ALERTS_CONFIGURATION_PAGE_TITLE}
       titleTestId="alert-rules-page-title"
       subtitle={props.subtitle}
+      breadcrumb={
+        <OperatorPageBreadcrumb
+          data-testid="alert-rules-page-breadcrumb"
+          items={[
+            {
+              label: ALERTS_CONFIGURATION_BREADCRUMB_GOVERNANCE_LABEL,
+              href: ALERTS_CONFIGURATION_BREADCRUMB_GOVERNANCE_HREF,
+            },
+            { label: ALERTS_CONFIGURATION_PAGE_TITLE },
+          ]}
+        />
+      }
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="alert-rules-header-actions">
           <PageContextualHelpButton />
@@ -65,8 +84,7 @@ export function AlertRulesPageHeader(props: AlertRulesPageHeaderProps): React.JS
           data-testid="alert-rules-last-refreshed"
           title={operatorLastRefreshedExactLabel(props.lastRefreshedAt)}
         >
-          {ALERTS_CONFIGURATION_LAST_REFRESHED_PREFIX}:{" "}
-          {props.refreshing ? ALERTS_CONFIGURATION_ACTION_REFRESHING : lastRefreshedLabel}
+          {freshnessLabel}
         </span>
       }
     />

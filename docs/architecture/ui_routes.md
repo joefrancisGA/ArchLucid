@@ -111,7 +111,7 @@ Constants live in `archlucid-ui/src/lib/showcase-static-demo.ts` and `archlucid-
 
 ## Legacy URL handling (IA batch 4–8)
 
-`archlucid-ui/next.config.ts` ships **architectures force-canonical redirects only** (`/architectures` → `/architecture/architectures`). Other retired bookmarks 404. Orientation helpers (`canonicalizeLegacyOperatorRoutePath`) still map retired prefixes for help, readiness, and buyer-polish lookups.
+`archlucid-ui/next.config.ts` ships **no permanent bookmark redirects** (IA batch 4). Orientation helpers (`canonicalizeLegacyOperatorRoutePath`) and help link rewriting map retired prefixes for in-app navigation; bookmarks that are not updated **404**.
 
 **Retired bookmarks** (404 unless noted — use canonical paths):
 
@@ -121,8 +121,9 @@ Constants live in `archlucid-ui/src/lib/showcase-static-demo.ts` and `archlucid-
 | `/digests`, `/digest-subscriptions` | `/architecture/digests` (+ `?tab=subscriptions`) |
 | `/governance/risk-exceptions`, `/governance/risk-exceptions/*` | `/governance/exceptions` |
 | `/settings/roles` | `/administration/users?tab=roles` |
-| `/reviews`, `/reviews/*`, `/runs`, `/runs/*` | `/architecture/reviews/*` |
-| `/architectures`, `/architectures/*` | `/architecture/architectures/*` (permanent redirect) |
+| `/reviews`, `/reviews/*`, `/runs`, `/runs/*` | `/architecture/reviews/*` (help/orientation only — direct navigation 404) |
+| `/demo` | `/architecture/reviews/claims-intake-modernization?ctoDemoTour=1` (help/orientation only) |
+| `/architectures`, `/architectures/*` | `/architecture/architectures/*` (help/orientation only) |
 | `/dashboard`, `/executive/dashboard`, `/portfolio` | `/architecture/executive-dashboard` |
 | `/audit`, `/policy-packs/*`, `/alerts`, `/alert-rules/*` | `/governance/*` |
 | `/signed-records`, `/signed-records/*` | `/governance/signed-records/*` |

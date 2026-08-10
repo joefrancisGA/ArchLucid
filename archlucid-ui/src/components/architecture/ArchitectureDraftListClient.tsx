@@ -1,23 +1,34 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { ArchitectureDraftGuidanceDisclosure } from "@/components/architecture/ArchitectureDraftGuidanceDisclosure";
 import { Button } from "@/components/ui/button";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { Input } from "@/components/ui/input";
 import { StatusTag } from "@/components/ui/status-tag";
+import {
+  useArchitectureDraftRegistryEntries,
+  useArchitectureDraftRegistryHydrated,
+} from "@/hooks/use-architecture-draft-registry-entries";
 import {
   ARCHITECTURE_DRAFT_STATUS_LABELS,
   architectureDraftCustomerStatusTagKind,
   formatArchitectureDraftCreatedLabel,
   type ArchitectureDraftCustomerStatus,
 } from "@/lib/architecture-draft-status";
-import {
-  listArchitectureDraftRegistryEntries,
-  type ArchitectureDraftRegistryEntry,
-} from "@/lib/architecture-draft-registry";
+import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture-draft-registry";
 import {
   architectureDraftPath,
   ARCHITECTURES_NEW_PATH,
@@ -35,10 +46,18 @@ import {
   ARCHITECTURES_HUB_FILTER_NO_REVIEW_LABEL,
   ARCHITECTURES_HUB_FILTER_READY_LABEL,
   ARCHITECTURES_HUB_FILTER_SEARCH_PLACEHOLDER,
+  ARCHITECTURES_HUB_LIST_LOADING_LABEL,
+  ARCHITECTURES_HUB_PAGE_TITLE,
   ARCHITECTURES_HUB_SORT_NAME_ASC_LABEL,
   ARCHITECTURES_HUB_SORT_NAME_DESC_LABEL,
   ARCHITECTURES_HUB_SORT_UPDATED_ASC_LABEL,
   ARCHITECTURES_HUB_SORT_UPDATED_DESC_LABEL,
+  ARCHITECTURES_HUB_TABLE_ACTIONS_COLUMN,
+  ARCHITECTURES_HUB_TABLE_DRAFT_COLUMN,
+  ARCHITECTURES_HUB_TABLE_OWNER_COLUMN,
+  ARCHITECTURES_HUB_TABLE_REVIEW_COLUMN,
+  ARCHITECTURES_HUB_TABLE_STATUS_COLUMN,
+  ARCHITECTURES_HUB_TABLE_UPDATED_COLUMN,
 } from "@/lib/architectures-hub-copy";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { buyerFilterChipClass } from "@/lib/buyer-shell-home-present";
@@ -152,14 +171,11 @@ function ArchitectureFilterChip(props: {
 
 /** Client-side architecture draft registry — search, filter, and sort saved drafts. */
 export function ArchitectureDraftListClient(): React.JSX.Element {
-  const [entries, setEntries] = useState<ArchitectureDraftRegistryEntry[]>([]);
+  const isHydrated = useArchitectureDraftRegistryHydrated();
+  const entries = useArchitectureDraftRegistryEntries();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<ArchitectureFilterId>("all");
   const [activeSort, setActiveSort] = useState<ArchitectureSortId>("updated-desc");
-
-  useEffect(() => {
-    setEntries(listArchitectureDraftRegistryEntries());
-  }, []);
 
   const filterCounts = useMemo(() => {
     const counts = new Map<ArchitectureFilterId, number>();
@@ -177,6 +193,16 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
       .slice()
       .sort((left, right) => compareEntries(left, right, activeSort));
   }, [activeFilter, activeSort, entries, searchQuery]);
+
+  if (!isHydrated) {
+    return (
+      <div className="mt-4" data-testid="architecture-draft-list-loading" aria-busy="true">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>
+          {ARCHITECTURES_HUB_LIST_LOADING_LABEL}
+        </p>
+      </div>
+    );
+  }
 
   if (entries.length === 0) {
     return (
@@ -198,6 +224,7 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
 
   return (
     <div className="mt-4 space-y-4" data-testid="architecture-draft-list">
+      <ArchitectureDraftGuidanceDisclosure />
       <div
         className="flex flex-col gap-2 lg:flex-row lg:flex-wrap lg:items-center"
         data-testid="architecture-draft-list-toolbar"
@@ -251,63 +278,78 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
           description={ARCHITECTURES_HUB_EMPTY_FILTER_BODY}
         />
       ) : (
-        <ul className="m-0 list-none space-y-3 p-0">
-          {filteredEntries.map((entry) => {
-            const absoluteUpdated = formatArchitectureDraftCreatedLabel(entry.lastUpdatedUtc);
-            const updatedLabel = formatUpdatedListLabel(entry.lastUpdatedUtc);
+        <EnterpriseTable
+          ariaLabel={ARCHITECTURES_HUB_PAGE_TITLE}
+          data-testid="architecture-draft-list-table"
+        >
+          <EnterpriseTableHead>
+            <EnterpriseTableHeadRow>
+              <EnterpriseTableHeaderCell>{ARCHITECTURES_HUB_TABLE_DRAFT_COLUMN}</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>{ARCHITECTURES_HUB_TABLE_STATUS_COLUMN}</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>{ARCHITECTURES_HUB_TABLE_OWNER_COLUMN}</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>{ARCHITECTURES_HUB_TABLE_UPDATED_COLUMN}</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>{ARCHITECTURES_HUB_TABLE_REVIEW_COLUMN}</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>{ARCHITECTURES_HUB_TABLE_ACTIONS_COLUMN}</EnterpriseTableHeaderCell>
+            </EnterpriseTableHeadRow>
+          </EnterpriseTableHead>
+          <EnterpriseTableBody>
+            {filteredEntries.map((entry) => {
+              const absoluteUpdated = formatArchitectureDraftCreatedLabel(entry.lastUpdatedUtc);
+              const updatedLabel = formatUpdatedListLabel(entry.lastUpdatedUtc);
 
-            return (
-              <li
-                key={entry.architectureId}
-                className="rounded-lg border border-al-border-subtle bg-al-surface-raised p-4 transition-shadow hover:border-neutral-300 hover:shadow-sm dark:hover:border-neutral-600"
-                data-testid={`architecture-draft-row-${entry.architectureId}`}
-              >
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="min-w-0 space-y-1">
-                    <p className={cn("m-0 font-medium text-al-text-primary")}>{entry.displayName}</p>
-                    <p
-                      className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
-                      title={absoluteUpdated ?? undefined}
+              return (
+                <EnterpriseTableRow
+                  key={entry.architectureId}
+                  data-testid={`architecture-draft-row-${entry.architectureId}`}
+                >
+                  <EnterpriseTableCell>
+                    <Link
+                      href={architectureDraftPath(entry.architectureId)}
+                      className={cn("font-medium text-al-text-primary hover:underline")}
                     >
-                      Owner: {entry.ownerLabel} · {updatedLabel}
-                    </p>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <StatusTag
-                        kind={architectureDraftCustomerStatusTagKind(entry.customerStatus)}
-                        label={ARCHITECTURE_DRAFT_STATUS_LABELS[entry.customerStatus]}
-                      />
-                      {entry.linkedReviewId !== null ? (
-                        <Link
-                          href={reviewDetailPath(entry.linkedReviewId)}
-                          className={cn(
-                            OPERATOR_TYPOGRAPHY.helper,
-                            "font-medium text-teal-800 underline dark:text-teal-300",
-                          )}
-                        >
-                          Review linked
-                        </Link>
-                      ) : (
-                        <span className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>
-                          No review yet
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Button type="button" variant="outline" size="sm" asChild>
-                      <Link href={architectureDraftPath(entry.architectureId)}>Continue editing</Link>
-                    </Button>
-                    {entry.linkedReviewId === null && entry.customerStatus !== "archived" ? (
-                      <Button type="button" variant="primary" size="sm" asChild>
-                        <Link href={startReviewFromArchitectureHref(entry.architectureId)}>Start review</Link>
+                      {entry.displayName}
+                    </Link>
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell>
+                    <StatusTag
+                      kind={architectureDraftCustomerStatusTagKind(entry.customerStatus)}
+                      label={ARCHITECTURE_DRAFT_STATUS_LABELS[entry.customerStatus]}
+                    />
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell>{entry.ownerLabel}</EnterpriseTableCell>
+                  <EnterpriseTableCell title={absoluteUpdated ?? undefined}>{updatedLabel}</EnterpriseTableCell>
+                  <EnterpriseTableCell>
+                    {entry.linkedReviewId !== null ? (
+                      <Link
+                        href={reviewDetailPath(entry.linkedReviewId)}
+                        className={cn(
+                          OPERATOR_TYPOGRAPHY.helper,
+                          "font-medium text-teal-800 underline dark:text-teal-300",
+                        )}
+                      >
+                        Review linked
+                      </Link>
+                    ) : (
+                      <span className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>No review yet</span>
+                    )}
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell>
+                    <div className="flex flex-wrap gap-2">
+                      <Button type="button" variant="outline" size="sm" asChild>
+                        <Link href={architectureDraftPath(entry.architectureId)}>Continue editing</Link>
                       </Button>
-                    ) : null}
-                  </div>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+                      {entry.linkedReviewId === null && entry.customerStatus !== "archived" ? (
+                        <Button type="button" variant="primary" size="sm" asChild>
+                          <Link href={startReviewFromArchitectureHref(entry.architectureId)}>Start review</Link>
+                        </Button>
+                      ) : null}
+                    </div>
+                  </EnterpriseTableCell>
+                </EnterpriseTableRow>
+              );
+            })}
+          </EnterpriseTableBody>
+        </EnterpriseTable>
       )}
     </div>
   );

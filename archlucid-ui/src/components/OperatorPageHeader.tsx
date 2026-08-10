@@ -38,6 +38,8 @@ export type OperatorPageHeaderProps = {
   docsPageKey?: string;
   metadata?: ReactNode;
   actions?: ReactNode;
+  /** Optional hierarchy trail rendered above the title row. */
+  breadcrumb?: ReactNode;
   /** Page heading level when `navHref` renders {@link PageHeading}. Defaults to `h2` (shell chrome owns the document `h1`). */
   headingLevel?: "h1" | "h2";
   children?: ReactNode;
@@ -56,24 +58,27 @@ export function OperatorPageHeader({
   subtitleTestId,
   metadata,
   actions,
+  breadcrumb,
   headingLevel = "h2",
   children,
 }: OperatorPageHeaderProps) {
   if (navHref !== undefined) {
     return (
-      <PageHeading
-        navHref={navHref}
-        title={title}
-        description={subtitle}
-        metadata={metadata}
-        actions={actions}
-        headingLevel={headingLevel}
-        bordered
-        className="mb-6"
-        titleTestId={titleTestId}
-      >
-        {children}
-      </PageHeading>
+      <div className="mb-6">
+        {breadcrumb != null ? <div className="mb-2">{breadcrumb}</div> : null}
+        <PageHeading
+          navHref={navHref}
+          title={title}
+          description={subtitle}
+          metadata={metadata}
+          actions={actions}
+          headingLevel={headingLevel}
+          bordered
+          titleTestId={titleTestId}
+        >
+          {children}
+        </PageHeading>
+      </div>
     );
   }
 
@@ -81,6 +86,7 @@ export function OperatorPageHeader({
 
   return (
     <header className="mb-6 border-b border-neutral-200 pb-4 dark:border-neutral-800">
+      {breadcrumb != null ? <div className="mb-2">{breadcrumb}</div> : null}
       <div className="flex flex-wrap items-center gap-2">
         <TitleTag
           className={cn("m-0 text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}
@@ -94,7 +100,7 @@ export function OperatorPageHeader({
       </div>
 
       {subtitle != null && (
-        <p
+        <div
           className={cn(
             "m-0 mt-2 max-w-2xl text-neutral-500 dark:text-neutral-400",
             OPERATOR_TYPOGRAPHY.body,
@@ -103,7 +109,7 @@ export function OperatorPageHeader({
           {...(subtitleTestId !== undefined ? { "data-testid": subtitleTestId } : {})}
         >
           {subtitle}
-        </p>
+        </div>
       )}
 
       {metadata != null && (

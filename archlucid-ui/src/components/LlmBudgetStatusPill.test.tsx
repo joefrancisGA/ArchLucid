@@ -65,11 +65,37 @@ describe("LlmBudgetStatusPill", () => {
 
     expect(await screen.findByTestId("llm-budget-status-pill-popover")).toBeInTheDocument();
     expect(await screen.findByTestId("llm-budget-utilization-meter")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "View usage on Billing & plans" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Open AI usage and budget" })).toHaveAttribute(
+      "href",
+      "/administration/ai-usage",
+    );
+    expect(screen.getByRole("link", { name: "Billing & plans" })).toHaveAttribute(
       "href",
       "/administration/billing#billing-usage",
     );
-    expect(screen.getByRole("link", { name: "AI usage" })).toHaveAttribute("href", "/administration/ai-usage");
+  });
+
+  it("hides the pill when remaining budget is healthy (ok tone)", async () => {
+    fetchCached.mockResolvedValue({
+      monthlyBudgetMonitoringActive: true,
+      blocksAdditionalLlmExecution: false,
+      utcMonth: "2026-05",
+      hardCutoffUsdPerUtcMonth: 75,
+      effectiveHardCapUsd: 75,
+      purchasedCapBumpUsd: 0,
+      estimatedUsdPressure: 5,
+      assumedNextCallReservationUsd: 1,
+      hardCapUtilizationFraction: 0.05,
+      warnFraction: 0.75,
+    });
+
+    render(<LlmBudgetStatusPill />);
+
+    await waitFor(() => {
+      expect(fetchCached).toHaveBeenCalled();
+    });
+
+    expect(screen.queryByTestId("llm-budget-status-pill")).not.toBeInTheDocument();
   });
 
   it("renders nothing when monitoring is inactive", async () => {

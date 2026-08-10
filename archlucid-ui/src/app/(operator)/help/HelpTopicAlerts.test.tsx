@@ -5,8 +5,8 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
-vi.mock("@/app/(operator)/help/_sections/HelpAlertsWorkspaceReadinessStrip", () => ({
-  HelpAlertsWorkspaceReadinessStrip: () => <div data-testid="help-alerts-workspace-readiness-mock" />,
+vi.mock("@/app/(operator)/help/_sections/HelpAlertsGuideHeroClient", () => ({
+  HelpAlertsGuideHeroClient: () => <div data-testid="help-alerts-guide-hero-mock" />,
 }));
 
 import { HelpAlertsGuideView } from "@/app/(operator)/help/_sections/HelpAlertsGuideView";
@@ -14,7 +14,6 @@ import {
   ALERTS_HELP_OVERVIEW,
   ALERTS_HELP_PAGE_SUBTITLE,
   ALERTS_HELP_PAGE_TITLE,
-  ALERTS_HELP_PRIMARY_ACTIONS,
 } from "@/lib/alerts-help-guide-content";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -42,7 +41,7 @@ describe("HelpAlertsGuideView", () => {
     expect(entry?.summary).toBe(ALERTS_HELP_PAGE_SUBTITLE);
   });
 
-  it("shows purpose, actions, and overview near the top", () => {
+  it("shows purpose, hero, and overview near the top", () => {
     if (entry === undefined) {
       throw new Error("Expected alerts documentation entry.");
     }
@@ -51,19 +50,8 @@ describe("HelpAlertsGuideView", () => {
 
     expect(screen.getByRole("heading", { level: 1, name: ALERTS_HELP_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(ALERTS_HELP_PAGE_SUBTITLE)).toBeInTheDocument();
-    expect(screen.getByTestId("help-alerts-workspace-readiness-mock")).toBeInTheDocument();
+    expect(screen.getByTestId("help-alerts-guide-hero-mock")).toBeInTheDocument();
     expect(screen.getByTestId("help-alerts-overview")).toHaveTextContent(ALERTS_HELP_OVERVIEW);
-
-    const actionPanel = screen.getByTestId("help-alerts-action-panel");
-    expect(
-      within(actionPanel).getByRole("link", { name: ALERTS_HELP_PRIMARY_ACTIONS.openInbox.label }),
-    ).toHaveAttribute("href", ALERTS_HELP_PRIMARY_ACTIONS.openInbox.href);
-    expect(
-      within(actionPanel).getByRole("link", { name: ALERTS_HELP_PRIMARY_ACTIONS.configureRules.label }),
-    ).toHaveAttribute("href", ALERTS_HELP_PRIMARY_ACTIONS.configureRules.href);
-    expect(
-      within(actionPanel).getByRole("link", { name: ALERTS_HELP_PRIMARY_ACTIONS.governanceSetup.label }),
-    ).toHaveAttribute("href", ALERTS_HELP_PRIMARY_ACTIONS.governanceSetup.href);
   });
 
   it("renders revised sections and on-this-page navigation", () => {
@@ -84,6 +72,21 @@ describe("HelpAlertsGuideView", () => {
       "href",
       "#how-alerts-work",
     );
+  });
+
+  it("links related concepts to audit trail help instead of self-referential alerts", () => {
+    if (entry === undefined) {
+      throw new Error("Expected alerts documentation entry.");
+    }
+
+    render(<HelpAlertsGuideView entry={entry} />);
+
+    const related = screen.getByTestId("help-alerts-related-concepts");
+    expect(within(related).getByRole("link", { name: "Open audit trail help" })).toHaveAttribute(
+      "href",
+      "/help/audit-trail",
+    );
+    expect(within(related).queryByRole("link", { name: "Open alerts inbox" })).not.toBeInTheDocument();
   });
 
   it("avoids developer-facing routes and implementation jargon", () => {

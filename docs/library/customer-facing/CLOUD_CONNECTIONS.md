@@ -8,15 +8,19 @@ When you connect a cloud provider, ArchLucid uses **read-only** inventory and co
 
 ## Choose your cloud platform {#choose-your-cloud-platform}
 
-ArchLucid supports optional Tier 2 hosted polling for three cloud platforms. Pick the guide that matches your environment:
+**Tier 1 (default, no ArchLucid credentials in your cloud account):** run `Get-ArchLucidAzurePackage.ps1`, `Get-ArchLucidAwsPackage.ps1`, or `Get-ArchLucidGcpPackage.ps1` from your ArchLucid clone, then upload the resulting ZIP from the **New architecture review** wizard. Tier 1 is the default posture when you do not want long-lived vendor access in your cloud account.
 
-- **[Connect Azure securely](/help/cloud-connections/azure)** — workload identity federation, Reader + Cost Management Reader, subscription scope.
-- **[Connect AWS securely](/help/cloud-connections/aws)** — OIDC-federated read-only IAM role, Resource Explorer inventory.
-- **[Connect GCP securely](/help/cloud-connections/gcp)** — Workload Identity Federation, Cloud Asset Viewer, project scope.
+**Tier 2 (optional):** cloud-connected hosted pull through federated read-only roles in Azure, AWS, or GCP. Use this when you want ArchLucid to poll inventory on a schedule without storing access keys in tenant configuration.
+
+ArchLucid supports optional Tier 2 hosted polling for three cloud platforms:
+
+| Platform | Identity model | Read-only role / scope | Scope unit | Setup guide |
+|----------|----------------|------------------------|------------|-------------|
+| Azure | Workload identity federation | Reader + Cost Management Reader | Subscription | [Connect Azure securely](/help/cloud-connections/azure) |
+| AWS | OIDC web identity federation | Read-only IAM role (Resource Explorer) | AWS account | [Connect AWS securely](/help/cloud-connections/aws) |
+| GCP | Workload Identity Federation | Cloud Asset Viewer | GCP project | [Connect GCP securely](/help/cloud-connections/gcp) |
 
 You can also run **evidence-only** reviews from uploaded inventory ZIPs without enabling Tier 2.
-
-**Tier 1 (no ArchLucid credentials in your cloud account):** run `Get-ArchLucidAzurePackage.ps1`, `Get-ArchLucidAwsPackage.ps1`, or `Get-ArchLucidGcpPackage.ps1` from your ArchLucid clone, then upload the resulting ZIP from the **New architecture review** wizard. Tier 1 is the default posture when you do not want long-lived vendor access in your AWS or GCP account.
 
 <details>
 <summary>Administrator details — automation upload paths</summary>
@@ -84,32 +88,61 @@ ArchLucid can use GCP resource inventory when you connect a GCP project. The GCP
 
 **Evidence tiers:**
 
-- **Tier 1 (default, no vendor credentials):** run `Get-ArchLucidGcpPackage.ps1` in your GCP project with read-only `gcloud` credentials, then upload the ZIP from the **New architecture review** wizard. ArchLucid never receives your service-account JSON keys.
-- **Tier 2 (optional):** cloud-connected hosted pull from Workload Identity Federation (see below).
+- **Tier 1 (default, no vendor credentials):** export a read-only inventory ZIP from your GCP project using your own operator credentials, then upload from the **New architecture review** wizard. ArchLucid never receives your service-account JSON keys.
+- **Tier 2 (optional):** cloud-connected scheduled inventory pull from Workload Identity Federation (see below).
+
+<details>
+<summary>Administrator details — Tier 1 package script</summary>
+
+Run `Get-ArchLucidGcpPackage.ps1` from your ArchLucid clone with read-only `gcloud` credentials, then upload the resulting ZIP from the wizard.
+
+</details>
 
 ### Security model
 
-- **Workload Identity Federation** — ArchLucid authenticates through a pool provider bound to ArchLucid's published Azure managed identity.
+- **Workload Identity Federation** — ArchLucid authenticates through a pool provider bound to ArchLucid's federated identity. Obtain issuer and subject values from **[Assurance status](/security-trust)** (see administrator disclosure below).
 - **No service-account JSON keys** — impersonation uses federated tokens at runtime on the primary path.
 - **Read-only inventory** — ArchLucid polls **Cloud Asset Inventory** for architecture evidence only.
 - **Project-scoped access** — you provision the pool provider and service account and can revoke bindings at any time.
 
+<details>
+<summary>ArchLucid federated identity — values for pool provider binding</summary>
+
+GCP Workload Identity Federation must trust ArchLucid's hosted **Azure user-assigned managed identity**:
+
+| Field | Value |
+|-------|-------|
+| **Issuer (Entra ID)** | `https://login.microsoftonline.com/{ArchLucid tenant ID}/v2.0` |
+| **Subject** | ArchLucid managed identity **object ID** (not the client ID) |
+| **Audience** | `api://AzureADTokenExchange` for Azure federated credentials; follow your provider's OIDC audience rules for GCP pool providers |
+
+Obtain the current **tenant ID** and **managed identity object ID** from **[Assurance status](/security-trust)** before creating your Workload Identity Pool provider.
+
+</details>
+
 ### Setup steps
 
 1. Complete the in-product **security review** checklist from the [**GCP cloud connection**](/integrations/cloud-connections/gcp) page.
-2. Create a Workload Identity Pool provider that trusts ArchLucid's federated identity and bind a read-only service account.
+2. Create a Workload Identity Pool provider that trusts ArchLucid's federated identity (values in the administrator disclosure above) and bind a read-only service account.
 3. Enter GCP project ID, Workload Identity Pool provider resource name, and service account email.
 4. Save the connection, then run **Re-poll now** to confirm federation and inventory access.
 
 ### Required roles
 
-Grant **read-only** inventory access to the service account ArchLucid impersonates.
+Grant **read-only** Cloud Asset Viewer scope to the service account ArchLucid impersonates.
+
+Do **not** assign roles that can modify your GCP infrastructure on your behalf.
+
+<details>
+<summary>Administrator details — IAM role identifiers</summary>
 
 | GCP role | Purpose | Write access |
 |----------|---------|--------------|
-| **Cloud Asset Viewer** (or equivalent read-only asset inventory role) | Project/folder asset inventory for architecture evidence | No |
+| **Cloud Asset Viewer** (`roles/cloudasset.viewer`) | Project/folder asset inventory for architecture evidence | No |
 
 Do **not** assign **Owner**, **Editor**, **roles/iam.serviceAccountKeyAdmin**, or any role that can modify your GCP infrastructure on your behalf.
+
+</details>
 
 ### What ArchLucid stores
 

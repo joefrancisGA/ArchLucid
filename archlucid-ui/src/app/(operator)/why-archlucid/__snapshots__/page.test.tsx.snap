@@ -17,49 +17,46 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
       >
         Why ArchLucid
       </h1>
-      <span
-        class="inline-flex items-center"
+      <button
+        aria-expanded="false"
+        aria-haspopup="dialog"
+        aria-label="Help: Architecture workflow"
+        class="inline-flex items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-semibold hover:bg-neutral-100 hover:text-[color:var(--al-text-primary)] dark:hover:bg-neutral-800 rounded-md text-xs h-8 gap-1.5 px-2 text-neutral-700 dark:text-neutral-300"
+        data-state="closed"
+        data-testid="page-contextual-help-button"
+        type="button"
       >
-        <button
-          aria-expanded="false"
-          aria-label="Help: Architecture workflow"
-          class="inline-flex items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-semibold hover:bg-neutral-100 hover:text-[color:var(--al-text-primary)] dark:hover:bg-neutral-800 rounded-md text-xs h-8 gap-1.5 px-2 text-neutral-700 dark:text-neutral-300"
-          data-testid="page-contextual-help-button"
-          title="Help: Architecture workflow"
-          type="button"
+        <svg
+          aria-hidden="true"
+          class="lucide lucide-circle-question-mark h-4 w-4"
+          fill="none"
+          height="24"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
         >
-          <svg
-            aria-hidden="true"
-            class="lucide lucide-circle-question-mark h-4 w-4"
-            fill="none"
-            height="24"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            viewBox="0 0 24 24"
-            width="24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <circle
-              cx="12"
-              cy="12"
-              r="10"
-            />
-            <path
-              d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"
-            />
-            <path
-              d="M12 17h.01"
-            />
-          </svg>
-          <span
-            class="text-xs font-normal leading-[18px] text-al-text-secondary"
-          >
-            Architecture workflow
-          </span>
-        </button>
-      </span>
+          <circle
+            cx="12"
+            cy="12"
+            r="10"
+          />
+          <path
+            d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"
+          />
+          <path
+            d="M12 17h.01"
+          />
+        </svg>
+        <span
+          class="text-xs font-normal leading-[18px] text-al-text-secondary"
+        >
+          Architecture workflow
+        </span>
+      </button>
     </div>
     <div
       class="rounded border px-3 py-2 text-sm border-neutral-200 bg-neutral-50 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-200"
@@ -96,11 +93,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
     <p
       class="text-xs font-normal leading-[18px] text-al-text-secondary"
     >
-      Cumulative 
-      <code>
-        ArchLucidInstrumentation
-      </code>
-       counters since the API host started, plus the in-scope audit row count for the demo tenant.
+      Cumulative process totals since this API host started, plus audit trail rows in scope for the demo review.
     </p>
     <div
       class="grid grid-cols-1 gap-4 sm:grid-cols-3"
@@ -123,9 +116,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
         <p
           class="mt-1 text-xs font-normal leading-[18px] text-al-text-secondary"
         >
-          <code>
-            archlucid_runs_created_total
-          </code>
+          Reviews created since host start
         </p>
       </div>
       <div
@@ -146,9 +137,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
         <p
           class="mt-1 text-xs font-normal leading-[18px] text-al-text-secondary"
         >
-          <code>
-            planning heuristic — see methodology footnote
-          </code>
+          Planning heuristic — see methodology footnote
         </p>
       </div>
       <div
@@ -169,9 +158,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
         <p
           class="mt-1 text-xs font-normal leading-[18px] text-al-text-secondary"
         >
-          <code>
-            IAuditRepository.GetByScopeAsync
-          </code>
+          Audit trail rows in demo scope
         </p>
       </div>
       <div
@@ -192,9 +179,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
         <p
           class="mt-1 text-xs font-normal leading-[18px] text-al-text-secondary"
         >
-          <code>
-            sum of archlucid_findings_produced_total
-          </code>
+          Findings across all severities
         </p>
       </div>
       <div
@@ -264,9 +249,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
         Snapshot generated 
         2026-04-20T12:00:00.000Z
          · demo review 
-        <code>
-          6e8c4a102b1f4c9a9d3e10b2a4f0c501
-        </code>
+        6e8c4a102b1f4c9a9d3e10b2a4f0c501
       </p>
     </div>
   </section>
@@ -750,19 +733,30 @@ Demo body.
   </section>
   <footer
     class="border-t border-neutral-200 pt-3 dark:border-neutral-800 text-xs font-normal leading-[18px] text-al-text-secondary"
+    data-testid="why-archlucid-page-footer"
   >
     Aggregated sponsor-facing proof from measured ROI, sponsor evidence pack, value report, and aggregate explanation services.
-     See repo
      
-    <code>
-      docs/library/SPONSOR_ONE_PAGER.md
-    </code>
-     and
-     
-    <code>
-      docs/go-to-market/POSITIONING.md
-    </code>
-     for narrative context.
+    <a
+      class="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-200"
+      href="/help/executive-summary"
+    >
+      Executive sponsor brief
+    </a>
+     · 
+    <a
+      class="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-200"
+      href="/get-started"
+    >
+      Getting started
+    </a>
+     · 
+    <a
+      class="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-200"
+      href="/trust"
+    >
+      Trust Center
+    </a>
   </footer>
 </div>
 `;

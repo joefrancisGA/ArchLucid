@@ -1,7 +1,16 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { FindingEvidenceLinkChip } from "./FindingEvidenceLinkChip";
+
+const chipSource = readFileSync(
+  join(dirname(fileURLToPath(import.meta.url)), "FindingEvidenceLinkChip.tsx"),
+  "utf8",
+);
 
 describe("FindingEvidenceLinkChip", () => {
   it("shows linked count when evidence refs exist", () => {
@@ -25,5 +34,9 @@ describe("FindingEvidenceLinkChip", () => {
     expect(link.className).toContain("underline");
     expect(link.className).not.toContain("border");
     expect(link.className).not.toContain("bg-white");
+  });
+
+  it("disables Next.js prefetch so list surfaces do not fan out finding inspect calls", () => {
+    expect(chipSource).toContain("prefetch={false}");
   });
 });

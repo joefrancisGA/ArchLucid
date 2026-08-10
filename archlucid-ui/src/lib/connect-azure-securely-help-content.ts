@@ -10,11 +10,17 @@ export const CONNECT_AZURE_SECURELY_PAGE_INTRO =
 export const CONNECT_AZURE_SECURELY_CONNECTION_VALUE =
   "Connecting Azure adds current resource and cost evidence to reviews. ArchLucid can still review uploaded documents and diagrams without a cloud connection.";
 
+export const CONNECT_AZURE_SECURELY_CLAIM_DISCIPLINE =
+  "This topic is setup orientation for Azure federated trust and read-only role assignment — it is not an evidence trail or signed review record. Open Assurance status or the live Cloud connections hub before treating setup guidance as assurance evidence.";
+
 export const CONNECT_AZURE_SECURELY_BACK_TO_CONNECTIONS = "Back to cloud connections";
 
 export const CONNECT_AZURE_SECURELY_CONFIGURE_ACTION = "Configure Azure connection";
 
-export const CONNECT_AZURE_SECURELY_DETAILED_SETUP_LINK = "View detailed Azure setup instructions";
+export const CONNECT_AZURE_SECURELY_DETAILED_SETUP_LINK =
+  "Assign federated trust and Azure roles (detailed procedure)";
+
+export const CONNECT_AZURE_SECURELY_STEP_AZURE_CONNECTION_SETTINGS_LINK = "Azure connection settings";
 
 export const CONNECT_AZURE_SECURELY_SECURITY_HEADING = "Security model";
 
@@ -75,6 +81,8 @@ export const CONNECT_AZURE_SECURELY_COST_OPTIONAL_NOTE =
 
 export const CONNECT_AZURE_SECURELY_FORBIDDEN_ROLES_HEADING = "Do not assign broad write-enabled roles";
 
+export const CONNECT_AZURE_SECURELY_FORBIDDEN_ROLES_STATUS_LABEL = "Restricted roles";
+
 export const CONNECT_AZURE_SECURELY_FORBIDDEN_ROLES_BODY =
   "ArchLucid does not require Owner, Contributor, User Access Administrator, or tenant-wide directory roles for an Azure cloud connection.";
 
@@ -105,6 +113,19 @@ export const CONNECT_AZURE_SECURELY_PERMISSIONS_ITEMS = [
   "Tenant-wide Global Reader or other broad directory roles",
 ] as const;
 
+export const CONNECT_AZURE_SECURELY_DATA_NOT_COLLECTED_HEADING = "Customer data not collected";
+
+export const CONNECT_AZURE_SECURELY_VERIFICATION_HEADING = "What verification confirms";
+
+export const CONNECT_AZURE_SECURELY_VERIFICATION_CHECKS_LABEL = "Confirmed by hosted verification";
+
+export const CONNECT_AZURE_SECURELY_VERIFICATION_DOES_NOT_VERIFY_LABEL = "Not confirmed by hosted verification";
+
+export const CONNECT_AZURE_SECURELY_VERIFY_STEP_TEXT = "Return to ArchLucid and verify the connection";
+
 export const CONNECT_AZURE_SECURELY_CONFIGURE_HREF = "/integrations/cloud-connections/azure";
 
 export const CONNECT_AZURE_SECURELY_PERMISSIONS_GUIDE_HREF = "/help/azure-permissions";
+
+export const CONNECT_AZURE_SECURELY_VERIFY_HREF =
+  "/help/azure-permissions#azure-permissions-verify-heading";

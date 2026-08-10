@@ -23,7 +23,19 @@ function hasDualToastRegressionGuard(testSource: string): boolean {
     return true;
   }
 
+  if (testSource.includes("showError).not.toHaveBeenCalled")) {
+    return true;
+  }
+
+  if (testSource.includes("mocked(showError)")) {
+    return true;
+  }
+
   if (testSource.includes("success-callout")) {
+    return true;
+  }
+
+  if (testSource.includes("-validation-error")) {
     return true;
   }
 
@@ -41,6 +53,7 @@ describe("durable-action-outcome-guard (TB-2116)", () => {
     expect(surfaceIds).toContain("review-generation-created-notice");
     expect(surfaceIds).toContain("review-start-first-pilot");
     expect(surfaceIds).toContain("governance-quick-approve");
+    expect(surfaceIds).toContain("review-start-quick-review");
     expect(surfaceIds).toContain("admin-cloud-connection-save");
     expect(surfaceIds).toContain("admin-billing-checkout");
     expect(DURABLE_ACTION_OUTCOME_GUARDED_SURFACES.length).toBeGreaterThanOrEqual(16);

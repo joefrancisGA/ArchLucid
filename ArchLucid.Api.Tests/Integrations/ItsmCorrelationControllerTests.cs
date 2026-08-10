@@ -182,6 +182,34 @@ public sealed class ItsmCorrelationControllerTests
     }
 
     [SkippableFact]
+    public async Task ListByFindings_returns_correlations_grouped_by_finding()
+    {
+        ItsmFindingCorrelationRecord jira = CreateRecord("finding-1", "Jira", "PROJ-1", null);
+        ItsmFindingCorrelationRecord serviceNow = CreateRecord("finding-2", "ServiceNow", "INC001", null);
+
+        Mock<IItsmFindingCorrelationRepository> correlations = new();
+        correlations
+            .Setup(repo => repo.ListByFindingsAsync(
+                TenantId,
+                It.Is<IReadOnlyList<string>>(ids => ids.SequenceEqual(new[] { "finding-1", "finding-2" })),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new[] { jira, serviceNow });
+
+        Mock<IAuditService> audit = new();
+        ItsmCorrelationController sut = CreateController(correlations.Object, audit);
+
+        IActionResult result = await sut.ListByFindings(["finding-1", "finding-2"], CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        ItsmFindingCorrelationsBatchResponse body = ok.Value.Should().BeOfType<ItsmFindingCorrelationsBatchResponse>().Subject;
+        body.Findings.Should().HaveCount(2);
+        body.Findings[0].FindingId.Should().Be("finding-1");
+        body.Findings[0].Correlations.Should().ContainSingle(c => c.ExternalKey == "PROJ-1");
+        body.Findings[1].FindingId.Should().Be("finding-2");
+        body.Findings[1].Correlations.Should().ContainSingle(c => c.ExternalKey == "INC001");
+    }
+
+    [SkippableFact]
     public async Task RemoveCorrelation_when_absent_is_idempotent_and_does_not_emit_audit()
     {
         Mock<IItsmFindingCorrelationRepository> correlations = new();

@@ -1,4 +1,4 @@
-> **Reviewed:** 2026-08-03
+﻿> **Reviewed:** 2026-08-03
 
 > **Scope:** ArchLucid positioning — full detail, tables, and links below — plus the closed create/review adversarial evaluation (formerly `CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md`; Done **TB-738**–**TB-747**) and the product datasheet (formerly the body of `PRODUCT_DATASHEET.md`; that filename remains a path-stable alias for PDF/CI callers).
 
@@ -34,7 +34,7 @@ Canonical in-product labels: [`buyer-surface-vocabulary.ts`](../../archlucid-ui/
 
 ### Create vs review — adversarial evaluation (closed) {#create-vs-review--adversarial-evaluation-closed}
 
-**Status:** Closed — findings shipped as **TB-738**–**TB-747** (all **Done**). Implement detail lives in [`TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) (`## TB-738` through `## TB-747`). This subsection is the durable assessment pointer for product, UI, and GTM authors updating `/reviews/new`, home dual-path cards, billing meter nouns, and marketing CTAs.
+**Status:** Closed — findings shipped as **TB-738**–**TB-747** (all **Done**). Implement detail lives in [`TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) (`## TB-738` through `## TB-747`). This subsection is the durable assessment pointer for product, UI, and GTM authors updating `/architecture/reviews/new`, home dual-path cards, billing meter nouns, and marketing CTAs.
 
 | Question | Answer |
 | --- | --- |
@@ -43,7 +43,7 @@ Canonical in-product labels: [`buyer-surface-vocabulary.ts`](../../archlucid-ui/
 
 **One-sentence positioning rule:** Create and review are verbs; the artifact buyers hire ArchLucid for is an **architecture package** with findings, evidence, and a decision record — not “AI creates your architecture” as the lead claim.
 
-**Guardrails for `/reviews/new`, wizard intake, and marketing CTAs:**
+**Guardrails for `/architecture/reviews/new`, wizard intake, and marketing CTAs:**
 
 - Do **not** over-promise automated approval or production deployment.
 - Do **not** lead create-path copy with commodity “generate from goals” without a born-governed follow-on (findings, risks, evidence, explicit limits).
@@ -128,7 +128,7 @@ The unauthenticated proof route **`/demo/explain`** (architect workspace / marke
 
 These are factual claims grounded in what the repository ships today.
 
-> **See it live, not on a slide:** the architect workspace ships a built-in proof page at **`/why-archlucid`** (Core Pilot tier, no extra authority required). It calls `GET /v1/pilots/why-archlucid-snapshot`, `GET /v1/pilots/runs/{runId}/first-value-report`, and `GET /v1/explain/runs/{runId}/aggregate` against the seeded **Contoso Retail Modernization** demo tenant and renders live `ArchLucidInstrumentation` counters, the sponsor first-value report, and the **review** explanation + citations. Every claim in the table below should reconcile against what shows on that page after `pilot up` (or `POST /v1/demo/seed`).
+> **See it live, not on a slide:** the architect workspace ships a built-in proof page at **`/why-archlucid`** (Core Pilot tier, no extra authority required). It calls `GET /v1/pilots/why-archlucid-snapshot`, `GET /v1/pilots/architecture/reviews/{runId}/first-value-report`, and `GET /v1/explain/architecture/reviews/{runId}/aggregate` against the seeded **Contoso Retail Modernization** demo tenant and renders live `ArchLucidInstrumentation` counters, the sponsor first-value report, and the **review** explanation + citations. Every claim in the table below should reconcile against what shows on that page after `pilot up` (or `POST /v1/demo/seed`).
 
 > **Anonymous buyer self-qualification:** the public marketing site page **`/why`** links to **`GET /v1/marketing/why-archlucid-pack.pdf`** (via Next.js `/api/proxy/...`), which returns a single PDF sourced only from the same cached anonymous demo bundle as `GET /v1/demo/preview` — deterministic, no tenant data, and **404** (not 403) when `Demo:Enabled` is false. The PDF repeats the incumbent comparison with every competitive cell tied to `docs/go-to-market/COMPETITIVE_LANDSCAPE.md` §2.1.
 
@@ -331,7 +331,7 @@ ArchLucid proves the review happened and is defensible — not that the design w
 
 1. **Quickest local evaluation (Docker on your machine):** Run `.\scripts\demo-start.ps1` (Windows) or `./scripts/demo-start.sh` (macOS/Linux), or `docker compose -f docker-compose.yml -f docker-compose.demo.yml --profile full-stack up -d --build` — see [DEMO_QUICKSTART.md](DEMO_QUICKSTART.md) for a five-minute walkthrough. This path is an **optional engineering / seller-led demo** artifact, not something ArchLucid **ships to customers** as the product.
 2. **Full-stack without demo overlay:** `docker compose --profile full-stack up -d --build` — same stack without automatic Contoso demo seed (see [CONTAINERIZATION.md](../engineering/CONTAINERIZATION.md)).
-3. **First run:** Open `http://localhost:3000/reviews/new` — seven-step guided wizard (legacy `/runs/new` may redirect).
+3. **First run:** Open `http://localhost:3000/architecture/reviews/new` — seven-step guided wizard (retired bookmark).
 4. **See it live, not on a slide:** open `http://localhost:3000/why-archlucid` — the in-product proof page renders live `ArchLucidInstrumentation` counters, the sponsor first-value report, and the run explanation + citations against the seeded Contoso Retail demo tenant.
 5. **Record a buyer demo video:** follow [`DEMO_QUICKSTART.md#two-minute--under-3-minute-video-storyboard`](DEMO_QUICKSTART.md#two-minute--under-3-minute-video-storyboard) (live-call scripts + shot table).
 6. **Pilot:** Follow the [Pilot Guide](../library/customer-facing/PILOT_GUIDE.md) for production-style deployment.

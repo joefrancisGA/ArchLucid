@@ -38,7 +38,7 @@ describe("OperateAnalysisNavGroupBuilder", () => {
       "/insights/roi-summary",
     ]);
     expect(group.links.at(-4)?.label).toBe("Pattern library");
-    expect(group.links.at(-4)?.navBadge).toBe("Preview");
+    expect(group.links.at(-4)?.navBadge).toBeUndefined();
     expect(group.links.at(-3)?.label).toBe("Executive value report");
     expect(group.links.at(-1)?.label).toBe("ROI summary");
   });

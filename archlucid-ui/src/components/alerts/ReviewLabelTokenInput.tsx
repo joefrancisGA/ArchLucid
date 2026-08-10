@@ -73,7 +73,7 @@ export function ReviewLabelTokenInput({
             {label}
             <button
               type="button"
-              className="rounded px-1 text-neutral-600 hover:bg-neutral-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[var(--al-focus-ring)] dark:text-neutral-300 dark:hover:bg-neutral-800"
+              className="rounded px-1 text-neutral-600 hover:bg-neutral-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-primary-action-ring)] focus-visible:ring-offset-1 dark:text-neutral-300 dark:hover:bg-neutral-800"
               aria-label={`Remove label ${label}`}
               disabled={disabled}
               onClick={() => onChange(labels.filter((entry) => entry !== label))}

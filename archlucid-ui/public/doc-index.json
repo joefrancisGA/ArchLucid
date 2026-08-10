@@ -204,7 +204,7 @@
     "url": "/help/dpa-template"
   },
   {
-    "title": "Enterprise onboarding checklist",
+    "title": "Hosted SaaS enterprise onboarding checklist",
     "summary": "Checklist for configuring a hosted ArchLucid enterprise tenant: SSO, roles, governance, policy packs, audit export, and optional Azure cloud evidence.",
     "category": "Go-to-Market",
     "url": "/help/enterprise-onboarding"
@@ -318,8 +318,8 @@
     "url": "/help/first-architecture-review"
   },
   {
-    "title": "Accelerator chooser",
-    "summary": "Map buyer jobs to existing starter proof packs after your first finalized architecture review \u2014 inputs, outputs, and V1 scope labels.",
+    "title": "Pick an accelerator pack",
+    "summary": "Map buyer jobs to existing accelerator packs after your first finalized architecture review \u2014 inputs, outputs, and when not to use each pack.",
     "category": "Operations",
     "url": "/help/accelerator-chooser"
   },

@@ -78,6 +78,10 @@ locals {
     length(trimspace(var.api_key_workspace_id)) > 0 &&
     length(trimspace(var.api_key_project_id)) > 0
   )
+
+  api_cpu_scale_enabled    = local.enabled && var.api_enable_cpu_scale_rule
+  api_memory_scale_enabled = local.enabled && var.api_enable_memory_scale_rule
+  ui_cpu_scale_enabled     = local.enabled && var.ui_enable_cpu_scale_rule
 }
 
 data "azurerm_resource_group" "target" {
@@ -405,6 +409,30 @@ resource "azurerm_container_app" "api" {
       name                = "http-concurrency"
       concurrent_requests = var.api_scale_concurrent_requests
     }
+
+    dynamic "custom_scale_rule" {
+      for_each = local.api_cpu_scale_enabled ? [1] : []
+      content {
+        name             = "cpu-utilization"
+        custom_rule_type = "cpu"
+        metadata = {
+          type  = "Utilization"
+          value = tostring(var.api_cpu_scale_utilization_percent)
+        }
+      }
+    }
+
+    dynamic "custom_scale_rule" {
+      for_each = local.api_memory_scale_enabled ? [1] : []
+      content {
+        name             = "memory-utilization"
+        custom_rule_type = "memory"
+        metadata = {
+          type  = "Utilization"
+          value = tostring(var.api_memory_scale_utilization_percent)
+        }
+      }
+    }
   }
 
   ingress {
@@ -559,88 +587,88 @@ resource "azurerm_container_app" "worker" {
       dynamic "env" {
         for_each = local.background_jobs_durable ? [1] : []
         content {
-          name = "BackgroundJobs__QueueName"
-          dynamic "env" {
-            for_each = local.azure_openai_app_configured ? [1] : []
-            content {
-              name  = "AzureOpenAI__AuthenticationMode"
-              value = "ManagedIdentity"
-            }
-          }
-
-          dynamic "env" {
-            for_each = local.azure_openai_app_configured ? [1] : []
-            content {
-              name  = "AzureOpenAI__Endpoint"
-              value = trimspace(var.azure_openai_endpoint)
-            }
-          }
-
-          dynamic "env" {
-            for_each = local.azure_openai_app_configured ? [1] : []
-            content {
-              name  = "AzureOpenAI__DeploymentName"
-              value = trimspace(var.azure_openai_chat_deployment_name)
-            }
-          }
-
-          dynamic "env" {
-            for_each = local.azure_openai_app_configured ? [1] : []
-            content {
-              name  = "AzureOpenAI__EmbeddingDeploymentName"
-              value = trimspace(var.azure_openai_embedding_deployment_name)
-            }
-          }
-
-
-          dynamic "env" {
-            for_each = local.azure_search_app_configured ? [1] : []
-            content {
-              name  = "Retrieval__VectorIndex"
-              value = "AzureSearch"
-            }
-          }
-
-          dynamic "env" {
-            for_each = local.azure_search_app_configured ? [1] : []
-            content {
-              name  = "Retrieval__AzureSearch__Endpoint"
-              value = trimspace(var.azure_search_endpoint)
-            }
-          }
-
-          dynamic "env" {
-            for_each = local.azure_search_app_configured ? [1] : []
-            content {
-              name  = "Retrieval__AzureSearch__IndexName"
-              value = trimspace(var.azure_search_index_name)
-            }
-          }
-
-          dynamic "env" {
-            for_each = local.azure_search_app_configured ? [1] : []
-            content {
-              name  = "Retrieval__Reranking__Provider"
-              value = "AzureAiSearchSemantic"
-            }
-          }
-          dynamic "env" {
-            for_each = local.hot_path_cache_redis_configured ? [1] : []
-            content {
-              name        = "HotPathCache__RedisConnectionString"
-              secret_name = "hot-path-redis-connection"
-            }
-          }
-
-          dynamic "env" {
-            for_each = local.hot_path_cache_redis_configured ? [1] : []
-            content {
-              name  = "HotPathCache__ExpectedApiReplicaCount"
-              value = tostring(var.api_max_replicas)
-            }
-          }
-
+          name  = "BackgroundJobs__QueueName"
           value = var.background_jobs_queue_name
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.azure_openai_app_configured ? [1] : []
+        content {
+          name  = "AzureOpenAI__AuthenticationMode"
+          value = "ManagedIdentity"
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.azure_openai_app_configured ? [1] : []
+        content {
+          name  = "AzureOpenAI__Endpoint"
+          value = trimspace(var.azure_openai_endpoint)
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.azure_openai_app_configured ? [1] : []
+        content {
+          name  = "AzureOpenAI__DeploymentName"
+          value = trimspace(var.azure_openai_chat_deployment_name)
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.azure_openai_app_configured ? [1] : []
+        content {
+          name  = "AzureOpenAI__EmbeddingDeploymentName"
+          value = trimspace(var.azure_openai_embedding_deployment_name)
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.azure_search_app_configured ? [1] : []
+        content {
+          name  = "Retrieval__VectorIndex"
+          value = "AzureSearch"
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.azure_search_app_configured ? [1] : []
+        content {
+          name  = "Retrieval__AzureSearch__Endpoint"
+          value = trimspace(var.azure_search_endpoint)
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.azure_search_app_configured ? [1] : []
+        content {
+          name  = "Retrieval__AzureSearch__IndexName"
+          value = trimspace(var.azure_search_index_name)
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.azure_search_app_configured ? [1] : []
+        content {
+          name  = "Retrieval__Reranking__Provider"
+          value = "AzureAiSearchSemantic"
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.hot_path_cache_redis_configured ? [1] : []
+        content {
+          name        = "HotPathCache__RedisConnectionString"
+          secret_name = "hot-path-redis-connection"
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.hot_path_cache_redis_configured ? [1] : []
+        content {
+          name  = "HotPathCache__ExpectedApiReplicaCount"
+          value = tostring(var.api_max_replicas)
         }
       }
 
@@ -808,6 +836,18 @@ resource "azurerm_container_app" "ui" {
     http_scale_rule {
       name                = "http-concurrency"
       concurrent_requests = var.ui_scale_concurrent_requests
+    }
+
+    dynamic "custom_scale_rule" {
+      for_each = local.ui_cpu_scale_enabled ? [1] : []
+      content {
+        name             = "cpu-utilization"
+        custom_rule_type = "cpu"
+        metadata = {
+          type  = "Utilization"
+          value = tostring(var.ui_cpu_scale_utilization_percent)
+        }
+      }
     }
   }
 

@@ -58,7 +58,7 @@ describe("MermaidDiagram", () => {
   });
 
   it("renders mermaid output instead of raw source by default", async () => {
-    render(<MermaidDiagram source={"flowchart LR\n  A --> B"} />);
+    render(<MermaidDiagram source={"flowchart LR\n  A --> B"} accessibleName="Sample help diagram" />);
 
     expect(screen.getByText("Rendering diagram…")).toBeInTheDocument();
     expect(screen.queryByText("flowchart LR")).toBeNull();
@@ -72,7 +72,7 @@ describe("MermaidDiagram", () => {
   });
 
   it("keeps raw source behind a collapsed disclosure", async () => {
-    render(<MermaidDiagram source={"flowchart LR\n  A --> B"} />);
+    render(<MermaidDiagram source={"flowchart LR\n  A --> B"} accessibleName="Sample help diagram" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("rendered-mermaid")).toBeInTheDocument();
@@ -82,7 +82,7 @@ describe("MermaidDiagram", () => {
   });
 
   it("scales the SVG host to the full frame width", async () => {
-    render(<MermaidDiagram source={"flowchart LR\n  A --> B"} />);
+    render(<MermaidDiagram source={"flowchart LR\n  A --> B"} accessibleName="Sample help diagram" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("mermaid-diagram-svg-host")).toBeInTheDocument();
@@ -90,5 +90,23 @@ describe("MermaidDiagram", () => {
 
     expect(screen.getByTestId("mermaid-diagram-svg-host").className).toContain("w-full");
     expect(screen.getByTestId("rendered-mermaid").getAttribute("width")).toBe("100%");
+  });
+
+  it("exposes accessible name and optional description on the figure", async () => {
+    render(
+      <MermaidDiagram
+        source={"flowchart LR\n  A --> B"}
+        accessibleName="Compare vs replay decision flow"
+        description="Text alternative for the decision diagram."
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("rendered-mermaid")).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole("img", { name: "Compare vs replay decision flow" })).toBeInTheDocument();
+    expect(screen.getByText("Text alternative for the decision diagram.")).toBeInTheDocument();
+    expect(screen.getByTestId("mermaid-diagram-svg-host")).toHaveAttribute("aria-hidden", "true");
   });
 });

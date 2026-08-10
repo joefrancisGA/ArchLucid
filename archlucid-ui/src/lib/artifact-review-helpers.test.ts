@@ -24,6 +24,13 @@ describe("sponsorArtifactOpenActionLabel", () => {
   });
 });
 
+describe("residual risk vocabulary", () => {
+  it("names the unresolved-issues report with product vocabulary, not 'issues'", () => {
+    expect(sponsorArtifactOpenActionLabel("UnresolvedIssuesReport")).toBe("Open residual risk summary");
+    expect(sponsorArtifactDownloadActionLabel("UnresolvedIssuesReport")).toBe("Download residual risk summary");
+  });
+});
+
 describe("sponsorArtifactDownloadActionLabel", () => {
   it("pairs EvidenceBundle with audit wording", () => {
     expect(sponsorArtifactDownloadActionLabel("EvidenceBundle")).toBe("Download audit evidence");
@@ -136,6 +143,12 @@ describe("sponsorArtifactSecondaryCaption", () => {
     expect(sponsorArtifactSecondaryCaption("Intake modernization context diagram.mmd", "Intake context diagram")).toBe(
       "Intake modernization context diagram",
     );
+  });
+
+  it("suppresses uncapitalized build-time filename stems", () => {
+    expect(sponsorArtifactSecondaryCaption("cost summary.json", "Cost analysis")).toBeNull();
+    expect(sponsorArtifactSecondaryCaption("unresolved-issues.json", "Residual risk summary")).toBeNull();
+    expect(sponsorArtifactSecondaryCaption("architecture_narrative.md", "Architecture narrative")).toBeNull();
   });
 });
 

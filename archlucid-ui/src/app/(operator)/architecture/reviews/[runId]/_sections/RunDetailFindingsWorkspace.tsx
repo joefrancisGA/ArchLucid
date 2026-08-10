@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { ReactElement } from "react";
 
 import { FindingsItsmExportToolbar } from "@/components/FindingsItsmExportToolbar";
@@ -10,7 +11,11 @@ import {
   sortFindingsForToolbar,
   useRunDetailFindingsToolbarState,
 } from "@/components/findings/RunDetailFindingsToolbar";
-import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { applyFindingsConfidenceVisibility } from "@/lib/finding-confidence-filter";
+import {
+  buildWorkspaceCardRenderedFindings,
+  type QuickDecisionFinding,
+} from "@/lib/quick-decision-summary-derive";
 
 export type RunDetailFindingsWorkspaceProps = {
   readonly runId: string;
@@ -33,21 +38,42 @@ export type RunDetailFindingsWorkspaceProps = {
 /** Findings list with workspace toolbar filters for the review detail page. */
 export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProps): ReactElement {
   const toolbar = useRunDetailFindingsToolbarState();
-  const filtered = sortFindingsForToolbar(
+  const [showLowConfidence, setShowLowConfidence] = useState(false);
+  const [showAdvisory, setShowAdvisory] = useState(false);
+  const toolbarScopedFindings = filterFindingsForToolbar(
+    props.findings,
+    toolbar.filter,
+    toolbar.ownerFilter,
+    toolbar.domainFilter,
+    toolbar.searchQuery,
+  );
+  const { visibleFindings: confidenceVisibleScoped, hiddenByConfidenceCount } = applyFindingsConfidenceVisibility(
+    toolbarScopedFindings,
+    showLowConfidence,
+  );
+  const listFindings = sortFindingsForToolbar(confidenceVisibleScoped, toolbar.sort);
+  const { visibleFindings: confidenceGatedForCounts } = applyFindingsConfidenceVisibility(
     filterFindingsForToolbar(
       props.findings,
-      toolbar.filter,
+      "all",
       toolbar.ownerFilter,
       toolbar.domainFilter,
       toolbar.searchQuery,
     ),
-    toolbar.sort,
+    showLowConfidence,
   );
+  const exportFindings = buildWorkspaceCardRenderedFindings(listFindings, {
+    showAdvisory,
+    showMuted: false,
+  });
 
   return (
     <div data-testid="run-detail-findings-workspace">
       <RunDetailFindingsToolbar
-        findings={props.findings}
+        findings={confidenceGatedForCounts}
+        renderedFindingCount={listFindings.length}
+        toolbarFilteredCount={toolbarScopedFindings.length}
+        hiddenByConfidenceCount={hiddenByConfidenceCount}
         filter={toolbar.filter}
         onFilterChange={toolbar.setFilter}
         ownerFilter={toolbar.ownerFilter}
@@ -59,12 +85,17 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
         sort={toolbar.sort}
         onSortChange={toolbar.setSort}
         exportSlot={
-          <FindingsItsmExportToolbar runId={props.runId} findings={props.findings} compact />
+          <FindingsItsmExportToolbar
+            runId={props.runId}
+            findings={exportFindings}
+            totalFindingCount={listFindings.length}
+            compact
+          />
         }
       />
       <QuickDecisionSummary
         runId={props.runId}
-        findings={filtered}
+        findings={listFindings}
         buyerPolishedShell={props.buyerPolishedShell}
         headlineFindingCount={props.headlineFindingCount}
         headlineWarningCount={props.headlineWarningCount}
@@ -76,6 +107,17 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
         providerNeutralWorkItems={props.providerNeutralWorkItems}
         architectureWorkItemContext={props.architectureWorkItemContext}
         packageCommitted={props.packageCommitted}
+        confidenceVisibility={{
+          showLowConfidence,
+          onShowLowConfidenceChange: setShowLowConfidence,
+          hiddenByConfidenceCount,
+          managedExternally: true,
+        }}
+        advisoryVisibility={{
+          showAdvisory,
+          onShowAdvisoryChange: setShowAdvisory,
+          managedExternally: true,
+        }}
       />
     </div>
   );

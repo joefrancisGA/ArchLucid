@@ -10,6 +10,7 @@ if str(_REPO_ROOT / "scripts" / "ci") not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT / "scripts" / "ci"))
 
 from archlucid_ui_route_catalog import (  # noqa: E402
+    PREFERRED_NEW_ROW_IDS,
     build_catalog,
     discover_app_router_paths,
     discover_tab_paths,
@@ -88,6 +89,14 @@ def test_migrate_workbook_path_maps_retired_cloud_connection_help_slugs() -> Non
     assert migrate_workbook_path("/help/cloud-connections-gcp") == "/help/cloud-connections/gcp"
 
 
+def test_migrate_workbook_path_maps_retired_api_contracts_help_alias() -> None:
+    assert migrate_workbook_path("/help/api-contracts") == "/help/governance-api-contracts"
+
+
+def test_migrate_workbook_path_maps_retired_creating_runs_help_alias() -> None:
+    assert migrate_workbook_path("/help/creating-runs") == "/help/review-guide"
+
+
 def test_migrate_workbook_path_maps_legacy_alerts() -> None:
     assert migrate_workbook_path("/alerts") == "/governance/alerts"
 
@@ -137,6 +146,13 @@ def test_build_catalog_does_not_track_retired_settings_alerts_bookmark() -> None
 def test_build_catalog_skips_rer_run_artifact_preview_redirect_page() -> None:
     catalog = build_catalog()
     assert "/architecture/reviews/[runId]/artifacts/[artifactId]" not in catalog
+
+
+def test_build_catalog_skips_demo_entry_redirect_page() -> None:
+    catalog = build_catalog()
+    assert "/demo" not in catalog
+    assert "/demo/explain" in catalog
+    assert "/demo/preview" in catalog
 
 
 def test_build_catalog_does_not_invent_alerts_inbox_tab_query() -> None:
@@ -199,6 +215,7 @@ def test_infer_section_maps_internal_and_insights_sponsor_paths() -> None:
     assert catalog["/internal/integration-events/dlq"].section == "Advisory"
     assert catalog["/insights/roi-summary"].section == "Sponsor report"
     assert catalog["/insights/pilot-outcomes"].section == "Sponsor report"
+    assert catalog["/help/configuration-reference"].section == "Internal"
 
 
 def test_build_catalog_tracks_evidence_graph_as_planning() -> None:
@@ -213,8 +230,38 @@ def test_build_catalog_tracks_first_review_guide_as_onboarding() -> None:
     assert catalog["/architecture/first-review-guide"].section == "Onboarding"
 
 
-def test_suggest_row_id_is_unique_and_three_chars() -> None:
+def test_build_catalog_includes_contextual_help_drawer_shell_overlay() -> None:
+    catalog = build_catalog()
+    assert "/shell/contextual-help-drawer" in catalog
+    assert catalog["/shell/contextual-help-drawer"].section == "Shell overlay"
+
+
+def test_preferred_new_row_ids_assign_hcd_to_contextual_help_drawer() -> None:
+    assert PREFERRED_NEW_ROW_IDS["/shell/contextual-help-drawer"] == "HCD"
+
+
     used = {"HOM", "RE"}
     row_id = suggest_row_id("/architectures/new", used)
     assert row_id not in used
     assert len(row_id) <= 3
+
+
+def test_preferred_new_row_ids_are_well_formed_and_unique() -> None:
+    """Guards the ID override map the workbook sync imports (empty is valid)."""
+    assert isinstance(PREFERRED_NEW_ROW_IDS, dict)
+
+    for path, row_id in PREFERRED_NEW_ROW_IDS.items():
+        assert path.startswith("/"), path
+        assert 1 <= len(row_id) <= 3, row_id
+        assert row_id.isupper(), row_id
+
+    row_ids = list(PREFERRED_NEW_ROW_IDS.values())
+    assert len(row_ids) == len(set(row_ids))
+
+
+def test_preferred_new_row_ids_only_pins_catalog_paths() -> None:
+    """A pinned ID for a path the catalog no longer serves would never be applied."""
+    catalog_paths = set(build_catalog())
+
+    for path in PREFERRED_NEW_ROW_IDS:
+        assert path in catalog_paths, path

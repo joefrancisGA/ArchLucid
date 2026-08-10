@@ -49,6 +49,11 @@ describe("resolveInAppDocHref", () => {
     expect(tryResolveInAppDocHref("docs/library/OPERATOR_ATLAS.md")).toBe("/help/pilot-nav-profile");
   });
 
+  it("maps procurement diligence docs to in-app help (TB-1257)", () => {
+    expect(resolveInAppDocHref("docs/go-to-market/SOC2_STATUS_PROCUREMENT.md")).toBe("/help/soc2-self-assessment");
+    expect(resolveInAppDocHref("docs/go-to-market/TRANSACTABLE_PROCUREMENT_PATH.md")).toBe("/help/procurement");
+  });
+
   it("maps executive-summary diligence docs to the correct help topics (TB-1689)", () => {
     expect(resolveInAppDocHref("docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md")).toBe("/help/executive-summary");
     expect(resolveInAppDocHref("docs/go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md")).toBe("/help/procurement");

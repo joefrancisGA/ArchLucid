@@ -1,3 +1,6 @@
+import { roleDisplayLabel } from "@/lib/role-display-labels";
+
+/** API/claim role ids. Buyer-facing labels come from `roleDisplayLabel` (Operator → Architect). */
 export type BuiltinRoleName = "Admin" | "Auditor" | "Operator" | "Reader";
 
 export const BUILTIN_ROLE_ORDER: readonly BuiltinRoleName[] = ["Admin", "Auditor", "Operator", "Reader"];
@@ -14,11 +17,16 @@ export const BUILTIN_ROLE_SUMMARIES: readonly BuiltinRoleSummary[] = [
   { name: "Reader", description: "Read-only review access" },
 ];
 
-export const CUSTOM_ROLE_START_FROM_OPTIONS: readonly { readonly value: BuiltinRoleName | "Empty"; readonly label: string }[] = [
-  { value: "Admin", label: "Admin" },
-  { value: "Auditor", label: "Auditor" },
-  { value: "Operator", label: "Architect" },
-  { value: "Reader", label: "Reader" },
+export type CustomRoleStartFromValue = BuiltinRoleName | "Empty";
+
+export type CustomRoleStartFromOption = {
+  /** API role id. Permission seeding matches this against role names returned by the API. */
+  readonly value: CustomRoleStartFromValue;
+  readonly label: string;
+};
+
+export const CUSTOM_ROLE_START_FROM_OPTIONS: readonly CustomRoleStartFromOption[] = [
+  ...BUILTIN_ROLE_ORDER.map((roleName) => ({ value: roleName, label: roleDisplayLabel(roleName) })),
   { value: "Empty", label: "Empty (no permissions)" },
 ];
 
@@ -32,7 +40,42 @@ export const HIGH_RISK_PERMISSION_IDS: ReadonlySet<string> = new Set([
 ]);
 
 export const ROLES_MATRIX_HELPER_COPY =
-  "Built-in roles cannot be edited. Clone a built-in role to create a custom role.";
+  "Built-in roles cannot be edited. Use Create custom role to start from a template, or Clone on a column to copy an existing role.";
+
+export const ROLES_MATRIX_PERMISSION_LEGEND = {
+  allowed: "Allowed",
+  denied: "Not allowed",
+} as const;
+
+export const ROLES_MATRIX_CREATE_READINESS_COPY = "Enter a role name to continue.";
+
+export const ROLES_MATRIX_CLONE_VS_CREATE_COPY =
+  "Create custom role seeds permissions from Start from role. Clone copies the full column into a new custom role.";
+
+/** Notice shown above the matrix while custom role columns hold permission edits that were never saved. */
+export function unsavedRoleEditsNotice(roleNames: readonly string[], changeCount: number): string {
+  if (roleNames.length === 0)
+    return "";
+
+  const roleLabel = roleNames.join(", ");
+
+  if (changeCount === 1)
+    return `1 unsaved permission change on ${roleLabel}. Save or discard from the action bar.`;
+
+  return `${changeCount} unsaved permission changes on ${roleLabel}. Save or discard from the action bar.`;
+}
+
+export function formatRoleLastUpdated(updatedUtc: string | undefined): string | null {
+  if (updatedUtc === undefined || updatedUtc.trim().length === 0)
+    return null;
+
+  const parsed = new Date(updatedUtc);
+
+  if (Number.isNaN(parsed.getTime()))
+    return null;
+
+  return parsed.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+}
 
 export function sortMatrixRoles<T extends { name: string; isSystem: boolean }>(roles: readonly T[]): T[] {
   return [...roles].sort((left, right) => {

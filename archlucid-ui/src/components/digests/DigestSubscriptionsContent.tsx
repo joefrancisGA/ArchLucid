@@ -67,7 +67,7 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
     }
 
     void subscriptionsQuery.refetch();
-  }, [refreshToken, subscriptionsQuery]);
+  }, [refreshToken, subscriptionsQuery.refetch]);
 
   useEffect(() => {
     if (items.length === 0) {

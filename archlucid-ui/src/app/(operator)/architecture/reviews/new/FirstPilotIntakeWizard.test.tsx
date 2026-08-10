@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const createRun = vi.fn();
@@ -49,7 +49,7 @@ vi.mock("./QuickReviewWizardDeferredPanels", () => ({
 }));
 
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
-import { BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer-polish-copy";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING, NEW_REVIEW_SAMPLE_ESCAPE_CTA } from "@/lib/buyer-polish-copy";
 import { REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD } from "@/lib/create-vs-review-intake-copy";
 import { showError } from "@/lib/toast";
 import { FOCUSED_PILOT_MODE_POLICY_REFERENCE } from "@/lib/focused-pilot-mode-policy-packs";
@@ -82,9 +82,12 @@ describe("FirstPilotIntakeWizard", () => {
   it("names the remaining gap beside the disabled start button", () => {
     render(<FirstPilotIntakeWizard />);
 
-    // An empty required field speaks for itself — no readiness line before the operator has typed anything.
-    expect(screen.queryByTestId("first-pilot-readiness")).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA })).toBeDisabled();
+    expect(screen.getByTestId("first-pilot-readiness")).toHaveTextContent(
+      "Add a review title and attach evidence or add architecture context (at least 100 characters) to start.",
+    );
+    const startButton = screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA });
+    expect(startButton).toBeDisabled();
+    expect(startButton).toHaveAttribute("aria-describedby", "first-pilot-readiness");
 
     fireEvent.change(screen.getByTestId("first-pilot-title"), {
       target: { value: "Retail API review" },
@@ -94,6 +97,19 @@ describe("FirstPilotIntakeWizard", () => {
       "Attach evidence or add architecture context to start.",
     );
     expect(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA })).toBeDisabled();
+    expect(showError).not.toHaveBeenCalled();
+  });
+
+  it("surfaces intake readiness inline without toast (TB-2113)", () => {
+    render(<FirstPilotIntakeWizard />);
+
+    fireEvent.change(screen.getByTestId("first-pilot-title"), {
+      target: { value: "Retail API review" },
+    });
+
+    expect(screen.getByTestId("first-pilot-readiness")).toBeInTheDocument();
+    expect(screen.queryByTestId("first-pilot-validation-error")).not.toBeInTheDocument();
+    expect(showError).not.toHaveBeenCalled();
   });
 
   it("does not accept a bare title as a substitute for evidence or context", () => {
@@ -119,13 +135,13 @@ describe("FirstPilotIntakeWizard", () => {
     expect(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA })).toBeEnabled();
   });
 
-  it("encourages rich architecture context without short-brief guidance", () => {
+  it("encourages rich architecture context with a 100-character helper", () => {
     render(<FirstPilotIntakeWizard />);
 
-    expect(screen.getByLabelText("Architecture context")).toBeInTheDocument();
+    expect(screen.getByLabelText(/Architecture context/i)).toBeInTheDocument();
+    expect(screen.getByText(/100 characters minimum if you are not attaching evidence/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/Add as much useful context as you can/i)).toBeInTheDocument();
     expect(screen.queryByText(/2–3 sentences/i)).toBeNull();
-    // The evidence-or-context rule lives on the card lead and the readiness line, not a fourth static helper.
     expect(
       screen.queryByText(/If you do not upload files, provide enough context/i),
     ).not.toBeInTheDocument();
@@ -139,6 +155,8 @@ describe("FirstPilotIntakeWizard", () => {
 
     expect(screen.getByText(CREATE_REVIEW_PACKAGE_HEADING)).toBeInTheDocument();
     expect(screen.getByTestId("focused-pilot-policy-pack-applied-callout")).toBeTruthy();
+    expect(screen.getByTestId("first-pilot-write-destination")).toBeInTheDocument();
+    expect(screen.getByTestId("new-review-sample-escape-inline")).toBeInTheDocument();
 
     fireEvent.change(screen.getByTestId("first-pilot-title"), {
       target: { value: "Retail API review" },
@@ -227,18 +245,21 @@ describe("FirstPilotIntakeWizard", () => {
     expect(push).not.toHaveBeenCalled();
   });
 
-  it("keeps review scope accordion collapsed by default", () => {
+  it("keeps review standards selection collapsed by default", () => {
     render(<FirstPilotIntakeWizard />);
 
-    expect(screen.queryByText(/Review scope \(optional\)/i)).toBeTruthy();
+    const standardsSection = screen.getByTestId("first-pilot-standards-selection");
+    expect(standardsSection).not.toHaveAttribute("open");
     expect(screen.queryByText(/pilot mode/i)).not.toBeInTheDocument();
-    expect(screen.queryByTestId("pilot-mode-policy-pack-toggle-recommended")).not.toBeInTheDocument();
+    expect(
+      within(standardsSection).getByTestId("pilot-mode-policy-pack-toggle-recommended"),
+    ).not.toBeVisible();
   });
 
-  it("offers review scope as two stated outcomes and drops the proof-dimension selector", () => {
+  it("offers review standards as two stated outcomes and drops the proof-dimension selector", () => {
     render(<FirstPilotIntakeWizard />);
 
-    fireEvent.click(screen.getByRole("button", { name: /Review scope \(optional\)/i }));
+    fireEvent.click(screen.getByText(/Review standards selection/i));
 
     expect(screen.getByTestId("pilot-mode-policy-pack-toggle-recommended")).toBeChecked();
     expect(screen.getByTestId("pilot-mode-policy-pack-toggle-all")).not.toBeChecked();
@@ -256,7 +277,7 @@ describe("FirstPilotIntakeWizard", () => {
       target: { value: "Retail API review" },
     });
     fireEvent.click(screen.getByTestId("first-pilot-upload-stub"));
-    fireEvent.click(screen.getByRole("button", { name: /Review scope \(optional\)/i }));
+    fireEvent.click(screen.getByText(/Review standards selection/i));
     fireEvent.click(screen.getByTestId("pilot-mode-policy-pack-toggle-all"));
     fireEvent.click(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA }));
 
@@ -289,5 +310,11 @@ describe("FirstPilotIntakeWizard", () => {
       );
     });
     expect(showError).not.toHaveBeenCalled();
+  });
+
+  it("surfaces the completed sample package link beside the primary CTA", () => {
+    render(<FirstPilotIntakeWizard />);
+
+    expect(screen.getByRole("link", { name: NEW_REVIEW_SAMPLE_ESCAPE_CTA })).toBeInTheDocument();
   });
 });

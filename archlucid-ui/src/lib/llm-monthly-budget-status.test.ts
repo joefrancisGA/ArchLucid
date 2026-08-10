@@ -4,6 +4,7 @@ import {
   llmBudgetRemainingPercent,
   llmBudgetUtilizationPercent,
   resolveLlmBudgetUtilizationTone,
+  shouldShowShellLlmBudgetStatusPill,
   type LlmMonthlyDollarBudgetStatus,
 } from "@/lib/llm-monthly-budget-status";
 
@@ -40,6 +41,30 @@ describe("resolveLlmBudgetUtilizationTone", () => {
 
   it("returns ok below warn fraction", () => {
     expect(resolveLlmBudgetUtilizationTone(status({ hardCapUtilizationFraction: 0.2, warnFraction: 0.75 }))).toBe("ok");
+  });
+});
+
+describe("shouldShowShellLlmBudgetStatusPill", () => {
+  it("hides when monitoring is inactive", () => {
+    expect(shouldShowShellLlmBudgetStatusPill(status({ monthlyBudgetMonitoringActive: false }))).toBe(false);
+  });
+
+  it("hides when utilization tone is ok", () => {
+    expect(shouldShowShellLlmBudgetStatusPill(status({ hardCapUtilizationFraction: 0.1, warnFraction: 0.75 }))).toBe(
+      false,
+    );
+  });
+
+  it("shows when utilization meets warn fraction", () => {
+    expect(shouldShowShellLlmBudgetStatusPill(status({ hardCapUtilizationFraction: 0.8, warnFraction: 0.75 }))).toBe(
+      true,
+    );
+  });
+
+  it("shows when execution is blocked", () => {
+    expect(
+      shouldShowShellLlmBudgetStatusPill(status({ blocksAdditionalLlmExecution: true, hardCapUtilizationFraction: 0.2 })),
+    ).toBe(true);
   });
 });
 

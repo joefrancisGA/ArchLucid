@@ -4,11 +4,12 @@ import {
   ALERTS_CONFIGURE_RULES_LINK_LABEL,
 } from "@/lib/alerts-page-copy";
 import {
-  GOVERNANCE_ALERTS_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
   GOVERNANCE_RESOLUTION_PATH,
+  GOVERNANCE_ALERTS_PATH,
   governanceAlertRulesTabHref,
 } from "@/lib/governance-route-paths";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const ALERTS_HELP_PAGE_TITLE = "Understanding governance alerts";
 
@@ -33,6 +34,52 @@ export const ALERTS_HELP_PRIMARY_ACTIONS = {
   },
 } as const;
 
+export type AlertsHelpActionPanelState =
+  | "loading"
+  | "unavailable"
+  | "rules-not-configured"
+  | "ready-for-inbox";
+
+export function resolveAlertsHelpActionPanelState(
+  readiness: Pick<
+    { readonly loading: boolean; readonly loadFailed: boolean; readonly enabledRulesCount: number },
+    "loading" | "loadFailed" | "enabledRulesCount"
+  >,
+): AlertsHelpActionPanelState {
+  if (readiness.loading) {
+    return "loading";
+  }
+
+  if (readiness.loadFailed) {
+    return "unavailable";
+  }
+
+  if (readiness.enabledRulesCount === 0) {
+    return "rules-not-configured";
+  }
+
+  return "ready-for-inbox";
+}
+
+export const ALERTS_HELP_ACTION_PANEL_TITLES: Readonly<Record<AlertsHelpActionPanelState, string>> = {
+  loading: "Checking workspace alert readiness",
+  unavailable: "Workspace alert status unavailable",
+  "rules-not-configured": "Configure alert rules first",
+  "ready-for-inbox": "Open your alerts inbox",
+};
+
+export const ALERTS_HELP_ACTION_PANEL_CONSEQUENCES: Readonly<Record<AlertsHelpActionPanelState, string>> = {
+  loading: "Loading enabled rules and routing for this workspace.",
+  unavailable:
+    "Retry from the readiness strip below, or open the alerts inbox or alert rules directly.",
+  "rules-not-configured":
+    "Without enabled rules, governance risks will not surface as alerts in this workspace.",
+  "ready-for-inbox":
+    "Review, assign, and resolve alerts routed from your enabled rules.",
+};
+
+export const ALERTS_HELP_READINESS_SECTION_TITLE = "Workspace alert readiness";
+
 export const ALERTS_HELP_READINESS_LABELS = {
   enabledRules: "Enabled rules",
   openAlerts: "Open alerts",
@@ -51,7 +98,7 @@ export const ALERTS_HELP_TRIGGER_INTRO =
   "Alerts can fire when rule conditions match patterns such as:";
 
 export const ALERTS_HELP_TRIGGER_ITEMS = [
-  "Severity thresholds on open findings",
+  "Configured thresholds on finding severity or status",
   "Compliance gaps against expected controls",
   "Policy violations from active governance packs",
   "Drift or repeated findings across reviews",
@@ -97,10 +144,10 @@ export const ALERTS_HELP_RELATED_CONCEPTS = [
     linkLabel: "Open standards and rules",
   },
   {
-    title: "Alerts",
-    description: "Surface findings that need attention or follow-up.",
-    href: GOVERNANCE_ALERTS_PATH,
-    linkLabel: "Open alerts inbox",
+    title: "Audit trail",
+    description: "Trace who acknowledged, assigned, and resolved governance actions across this workspace.",
+    href: inAppHelpHref("audit-trail"),
+    linkLabel: "Open audit trail help",
   },
 ] as const;
 

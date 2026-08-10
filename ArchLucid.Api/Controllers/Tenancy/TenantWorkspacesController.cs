@@ -4,6 +4,7 @@ using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
@@ -11,6 +12,7 @@ using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Controllers.Tenancy;
 
@@ -23,7 +25,8 @@ public sealed class TenantWorkspacesController(
     ITenantRepository tenantRepository,
     IArchitectureProjectRepository architectureProjectRepository,
     IScopeContextProvider scopeProvider,
-    IAuditService auditService) : ControllerBase
+    IAuditService auditService,
+    IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions> retentionPurgeOptions) : ControllerBase
 {
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
@@ -35,6 +38,9 @@ public sealed class TenantWorkspacesController(
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions> _retentionPurgeOptions =
+        retentionPurgeOptions ?? throw new ArgumentNullException(nameof(retentionPurgeOptions));
 
     /// <summary>Workspaces for the current <see cref="ScopeContext.TenantId" /> with active projects.</summary>
     [HttpGet]
@@ -102,6 +108,9 @@ public sealed class TenantWorkspacesController(
         IReadOnlyList<ArchitectureProjectRecord> deleted =
             await _architectureProjectRepository.ListSoftDeletedByTenantAsync(scope.TenantId, cancellationToken);
 
+        int retentionDays =
+            ArchitectureProjectRetentionSchedule.ClampRetentionDays(_retentionPurgeOptions.CurrentValue.RetentionDays);
+
         HashSet<Guid> candidateIds = [];
 
         foreach (ArchitectureProjectRecord row in deleted)
@@ -128,7 +137,7 @@ public sealed class TenantWorkspacesController(
                 DisplayName = w.Name,
                 DeletedProjects = wsDeleted
                     .Select(
-                        static p =>
+                        p =>
                         {
                             DateTimeOffset deletedUtc = p.DeletedUtc ?? p.CreatedUtc;
 
@@ -137,7 +146,9 @@ public sealed class TenantWorkspacesController(
                                 ProjectId = p.Id,
                                 Name = p.Name,
                                 DisplayName = p.Name,
-                                DeletedUtc = deletedUtc
+                                DeletedUtc = deletedUtc,
+                                PurgeAfterUtc =
+                                    ArchitectureProjectRetentionSchedule.ComputePurgeAfterUtc(deletedUtc, retentionDays)
                             };
                         })
                     .ToList()
@@ -146,7 +157,7 @@ public sealed class TenantWorkspacesController(
             items.Add(dto);
         }
 
-        TenantWorkspacesRecycleBinResponse body = new() { Workspaces = items };
+        TenantWorkspacesRecycleBinResponse body = new() { RetentionDays = retentionDays, Workspaces = items };
 
         return Ok(body);
     }

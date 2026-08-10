@@ -23,8 +23,11 @@ describe("architecture-scorecard Insights regressions (TB-1960)", () => {
     expect(REVIEW_SCORECARD_SAMPLE_HREF).toBe(`${SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH}?sample=1`);
   });
 
-  it("contextual help maps architecture scorecard to pilot-roi-model (TB-1959)", () => {
-    expect(pageHelpTopicForPathname(SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH)?.slug).toBe("pilot-roi-model");
+  it("contextual help maps architecture scorecard label to the page (TB-1959)", () => {
+    const topic = pageHelpTopicForPathname(SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH);
+
+    expect(topic?.slug).toBe("pilot-roi-model");
+    expect(topic?.label).toBe("Architecture scorecard");
   });
 
   it("empty primary CTA uses buyer Start architecture review label (TB-1958)", () => {

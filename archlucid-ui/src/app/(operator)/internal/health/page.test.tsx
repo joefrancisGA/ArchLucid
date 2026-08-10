@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 const hoistedAdminHealthLoad = vi.hoisted(() => ({ demo: false }));
@@ -46,10 +46,12 @@ describe("AdminHealthPage", () => {
 
     render(page);
     expect(await screen.findByTestId("admin-health-ready-table")).toBeInTheDocument();
-    fireEvent.click(await screen.findByText(/Show Data stores checks/i));
+    fireEvent.click(await screen.findByText(/Show all 1 check/i));
     expect(await screen.findByText("Primary database")).toBeInTheDocument();
-    fireEvent.click(screen.getByTestId("health-check-technical-database").querySelector("summary")!);
-    expect(await screen.findByText("12 ms")).toBeInTheDocument();
+    const technicalDetails = screen.getByTestId("health-check-technical-database");
+
+    fireEvent.click(technicalDetails.querySelector("summary")!);
+    expect(await within(technicalDetails).findByText("12 ms")).toBeInTheDocument();
     vi.unstubAllGlobals();
   });
 

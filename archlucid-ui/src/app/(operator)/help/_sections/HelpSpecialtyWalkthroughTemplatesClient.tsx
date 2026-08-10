@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useId, useMemo, useState } from "react";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
@@ -328,10 +329,7 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
       <HelpTopicHashScroll />
       <OperatorPageContainer variant="reading" className="mx-auto max-w-[1100px] space-y-6">
         <header className="space-y-3 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{SPECIALTY_REVIEW_TEMPLATES_PAGE_TITLE}</h1>
-            <PageContextualHelpButton />
-          </div>
+          <HelpTopicTitleRow title={SPECIALTY_REVIEW_TEMPLATES_PAGE_TITLE} actions={<PageContextualHelpButton />} />
           <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.helper)}>{SPECIALTY_REVIEW_TEMPLATES_PAGE_SUBTITLE}</p>
           <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.body)}>{SPECIALTY_REVIEW_TEMPLATES_INTRO}</p>
           <div className="flex flex-wrap items-center gap-2">

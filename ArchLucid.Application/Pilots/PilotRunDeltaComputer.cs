@@ -7,6 +7,7 @@ using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Core.Agents;
@@ -14,6 +15,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Explanation;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
@@ -39,6 +41,7 @@ public sealed class PilotRunDeltaComputer(
     IAuditRepository auditRepository,
     IArtifactQueryService artifactQueryService,
     ITenantEstimatedUsdSavingsResolver tenantEstimatedUsdSavingsResolver,
+    IFindingsSnapshotRepository findingsSnapshotRepository,
     IScopeContextProvider scopeContextProvider,
     IRunExplanationSummaryService runExplanationSummaryService,
     IRunAgentOutputPilotEvidenceAggregator pilotEvidenceAggregator,
@@ -52,6 +55,8 @@ public sealed class PilotRunDeltaComputer(
     private readonly IAuditRepository _auditRepository = auditRepository ?? throw new ArgumentNullException(nameof(auditRepository));
     private readonly ITenantEstimatedUsdSavingsResolver _tenantEstimatedUsdSavingsResolver =
         tenantEstimatedUsdSavingsResolver ?? throw new ArgumentNullException(nameof(tenantEstimatedUsdSavingsResolver));
+    private readonly IFindingsSnapshotRepository _findingsSnapshotRepository =
+        findingsSnapshotRepository ?? throw new ArgumentNullException(nameof(findingsSnapshotRepository));
     private readonly IFindingEvidenceChainService _evidenceChainService = evidenceChainService ?? throw new ArgumentNullException(nameof(evidenceChainService));
     private readonly ILogger<PilotRunDeltaComputer> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -71,9 +76,20 @@ public sealed class PilotRunDeltaComputer(
         ArgumentNullException.ThrowIfNull(detail);
         ArchitectureRun run = detail.Run;
         string runId = run.RunId;
-        DateTime? committedUtc = detail.Manifest?.Metadata.CreatedUtc;
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        DateTime? committedUtc = ResolveManifestCommittedUtc(run, detail.Manifest);
         TimeSpan? wall = committedUtc is { } c ? c - run.CreatedUtc : null;
         IReadOnlyList<KeyValuePair<string, int>> findings = AggregateFindingsBySeverity(detail);
+
+        if (SumFindingCounts(findings) == 0 && run.FindingsSnapshotId is { } findingsSnapshotId && findingsSnapshotId != Guid.Empty)
+        {
+            IReadOnlyList<KeyValuePair<string, int>> snapshotFindings =
+                await TryAggregateFindingsFromSnapshotAsync(scope, findingsSnapshotId, cancellationToken);
+
+            if (snapshotFindings.Count > 0)
+                findings = snapshotFindings;
+        }
+
         GovernedFindingCoverageMetric governedCoverage = AggregateGovernedFindingCoverage(detail);
         ArchitectureFinding? topFinding = SelectTopSeverityFinding(detail);
         (IReadOnlyList<AgentExecutionTrace> traces, int llmCallCount, bool tracesResolved) = await TryListExecutionTracesAsync(runId, cancellationToken);
@@ -84,7 +100,6 @@ public sealed class PilotRunDeltaComputer(
             RunExplanationSummary? summary = null;
             if (gateOpts.PilotStrictMinFaithfulnessSupportRatio.HasValue && TryParseRunGuid(runId, out Guid runGuid))
             {
-                ScopeContext scope = _scopeContextProvider.GetCurrentScope();
                 summary = await _runExplanationSummaryService.GetSummaryAsync(scope, runGuid, cancellationToken);
             }
 
@@ -166,6 +181,64 @@ public sealed class PilotRunDeltaComputer(
         return detail.Results.Where(_ => true).SelectMany(static r => r.Findings).Where(_ => true)
             .GroupBy(static f => f.Severity.ToString(), StringComparer.OrdinalIgnoreCase).Select(g => new KeyValuePair<string, int>(g.Key, g.Count()))
             .OrderByDescending(static p => p.Value).ThenBy(static p => p.Key, StringComparer.OrdinalIgnoreCase).ToList();
+    }
+
+    private async Task<IReadOnlyList<KeyValuePair<string, int>>> TryAggregateFindingsFromSnapshotAsync(
+        ScopeContext scope,
+        Guid findingsSnapshotId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            FindingsSnapshot? snapshot =
+                await _findingsSnapshotRepository.GetCoverageProjectionByIdAsync(scope, findingsSnapshotId, cancellationToken);
+
+            if (snapshot?.Findings is null || snapshot.Findings.Count == 0)
+                return [];
+
+            return snapshot.Findings
+                .GroupBy(static f => f.Severity.ToString(), StringComparer.OrdinalIgnoreCase)
+                .Select(g => new KeyValuePair<string, int>(g.Key, g.Count()))
+                .OrderByDescending(static p => p.Value)
+                .ThenBy(static p => p.Key, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogWarning(ex,
+                "Pilot delta: findings snapshot {FindingsSnapshotId} unavailable; reporting zero findings from agent results.",
+                findingsSnapshotId);
+
+            return [];
+        }
+    }
+
+    private static int SumFindingCounts(IReadOnlyList<KeyValuePair<string, int>> findingsBySeverity)
+    {
+        int total = 0;
+
+        foreach (KeyValuePair<string, int> pair in findingsBySeverity)
+            total += pair.Value;
+
+        return total;
+    }
+
+    /// <summary>
+    ///     Committed wall clock prefers <see cref="ArchitectureRun.CompletedUtc" /> when manifest metadata was stamped at
+    ///     run creation but the review finalized later — keeps median time-to-finalized honest on the reviews hub.
+    /// </summary>
+    private static DateTime? ResolveManifestCommittedUtc(ArchitectureRun run, GoldenManifest? manifest)
+    {
+        DateTime? manifestUtc = manifest?.Metadata?.CreatedUtc;
+        DateTime? completedUtc = run.CompletedUtc;
+
+        if (completedUtc is null)
+            return manifestUtc;
+
+        if (manifestUtc is null)
+            return completedUtc;
+
+        return completedUtc > manifestUtc ? completedUtc : manifestUtc;
     }
 
     /// <summary>

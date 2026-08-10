@@ -1,7 +1,8 @@
 import Link from "next/link";
 
+import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
-import { HelpAlertsWorkspaceReadinessStrip } from "@/app/(operator)/help/_sections/HelpAlertsWorkspaceReadinessStrip";
+import { HelpAlertsGuideHeroClient } from "@/app/(operator)/help/_sections/HelpAlertsGuideHeroClient";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,7 +14,6 @@ import {
   ALERTS_HELP_OVERVIEW,
   ALERTS_HELP_PAGE_SUBTITLE,
   ALERTS_HELP_PAGE_TITLE,
-  ALERTS_HELP_PRIMARY_ACTIONS,
   ALERTS_HELP_RELATED_CONCEPTS,
   ALERTS_HELP_RESOLUTION_STEPS,
   ALERTS_HELP_TRIGGER_INTRO,
@@ -83,46 +83,11 @@ export function HelpAlertsGuideView(props: HelpAlertsGuideViewProps): React.Reac
     <article className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")} data-testid="help-alerts-guide">
       <HelpTopicHashScroll />
       <header className={HELP_PAGE_LAYOUT.articleHeader}>
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{ALERTS_HELP_PAGE_TITLE}</h1>
-          <PageContextualHelpButton />
-        </div>
+        <HelpTopicTitleRow title={ALERTS_HELP_PAGE_TITLE} actions={<PageContextualHelpButton />} />
         <p className={cn("m-0 max-w-[42rem]", OPERATOR_TYPOGRAPHY.helper)}>{ALERTS_HELP_PAGE_SUBTITLE}</p>
       </header>
-<div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <Card
-          className="border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20"
-          data-testid="help-alerts-action-panel"
-        >
-          <CardHeader className={OPERATOR_CARD.header}>
-            <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>Go to alerts</CardTitle>
-          </CardHeader>
-          <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
-            <Button asChild size="sm" variant="primary">
-              <Link href={ALERTS_HELP_PRIMARY_ACTIONS.openInbox.href}>
-                {ALERTS_HELP_PRIMARY_ACTIONS.openInbox.label}
-              </Link>
-            </Button>
-            <Button asChild size="sm" variant="outline">
-              <Link href={ALERTS_HELP_PRIMARY_ACTIONS.configureRules.href}>
-                {ALERTS_HELP_PRIMARY_ACTIONS.configureRules.label}
-              </Link>
-            </Button>
-            <Link
-              href={ALERTS_HELP_PRIMARY_ACTIONS.governanceSetup.href}
-              className={cn(
-                "text-sm underline-offset-2 hover:underline",
-                DESIGN_TOKENS.accent.link,
-                OPERATOR_TYPOGRAPHY.body,
-              )}
-            >
-              {ALERTS_HELP_PRIMARY_ACTIONS.governanceSetup.label}
-            </Link>
-          </CardContent>
-        </Card>
 
-        <HelpAlertsWorkspaceReadinessStrip />
-      </div>
+      <HelpAlertsGuideHeroClient />
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className={cn("min-w-0 space-y-8", "max-w-[42rem] lg:max-w-none")}>
@@ -130,22 +95,20 @@ export function HelpAlertsGuideView(props: HelpAlertsGuideViewProps): React.Reac
             {ALERTS_HELP_OVERVIEW}
           </p>
 
-          <section aria-labelledby="how-alerts-work-heading" className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800">
+          <section
+            aria-labelledby="how-alerts-work"
+            className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+          >
             <HelpSectionHeading id="how-alerts-work">How alerts work</HelpSectionHeading>
-            <p id="how-alerts-work-heading" className="sr-only">
-              How alerts work
-            </p>
             <HowAlertsWorkStepper />
           </section>
 
           <section
-            aria-labelledby="what-can-trigger-an-alert-heading"
+            aria-labelledby="what-can-trigger-an-alert"
             className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
           >
             <HelpSectionHeading id="what-can-trigger-an-alert">What can trigger an alert</HelpSectionHeading>
-            <p id="what-can-trigger-an-alert-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-              {ALERTS_HELP_TRIGGER_INTRO}
-            </p>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{ALERTS_HELP_TRIGGER_INTRO}</p>
             <ul className={HELP_PAGE_LAYOUT.bulletList}>
               {ALERTS_HELP_TRIGGER_ITEMS.map((item) => (
                 <li key={item}>{item}</li>
@@ -154,13 +117,10 @@ export function HelpAlertsGuideView(props: HelpAlertsGuideViewProps): React.Reac
           </section>
 
           <section
-            aria-labelledby="where-alerts-are-managed-heading"
+            aria-labelledby="where-alerts-are-managed"
             className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
           >
             <HelpSectionHeading id="where-alerts-are-managed">Where alerts are managed</HelpSectionHeading>
-            <p id="where-alerts-are-managed-heading" className="sr-only">
-              Where alerts are managed
-            </p>
             <div className="grid gap-3 sm:grid-cols-2" data-testid="help-alerts-destination-cards">
               {ALERTS_HELP_DESTINATION_CARDS.map((card) => (
                 <Card key={card.id} className="h-full border-neutral-200 dark:border-neutral-800">
@@ -179,13 +139,10 @@ export function HelpAlertsGuideView(props: HelpAlertsGuideViewProps): React.Reac
           </section>
 
           <section
-            aria-labelledby="resolving-an-alert-heading"
+            aria-labelledby="resolving-an-alert"
             className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
           >
             <HelpSectionHeading id="resolving-an-alert">Resolving an alert</HelpSectionHeading>
-            <p id="resolving-an-alert-heading" className="sr-only">
-              Resolving an alert
-            </p>
             <ol className={HELP_PAGE_LAYOUT.orderedList} data-testid="help-alerts-resolution-steps">
               {ALERTS_HELP_RESOLUTION_STEPS.map((step) => (
                 <li key={step}>{step}</li>
@@ -194,13 +151,10 @@ export function HelpAlertsGuideView(props: HelpAlertsGuideViewProps): React.Reac
           </section>
 
           <section
-            aria-labelledby="related-governance-concepts-heading"
+            aria-labelledby="related-governance-concepts"
             className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
           >
             <HelpSectionHeading id="related-governance-concepts">Related governance concepts</HelpSectionHeading>
-            <p id="related-governance-concepts-heading" className="sr-only">
-              Related governance concepts
-            </p>
             <div className="grid gap-3" data-testid="help-alerts-related-concepts">
               {ALERTS_HELP_RELATED_CONCEPTS.map((concept) => (
                 <div
@@ -210,11 +164,11 @@ export function HelpAlertsGuideView(props: HelpAlertsGuideViewProps): React.Reac
                   <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{concept.title}</h3>
                   <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.body)}>{concept.description}</p>
                   <Link
-                    href={concept.href}
                     className={cn(
                       "mt-2 inline-block text-sm underline-offset-2 hover:underline",
                       DESIGN_TOKENS.accent.link,
                     )}
+                    href={concept.href}
                   >
                     {concept.linkLabel}
                   </Link>

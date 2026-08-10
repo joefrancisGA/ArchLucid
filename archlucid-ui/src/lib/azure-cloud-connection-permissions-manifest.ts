@@ -57,24 +57,24 @@ export const AZURE_CLOUD_CONNECTION_ROLE_ROWS: readonly AzureCloudConnectionRole
     recommendedScope: "Subscription (one assignment per connected subscription)",
     writeAccess: false,
     enabledCapabilities: [
-      "Hosted Tier 2 inventory pull",
+      "Hosted subscription inventory pull",
       "Connection validation pull (resource listing)",
-      "Tier 1 extractor inventory and policy definition reads",
+      "Manual extractor script inventory and policy definition reads",
     ],
     dataCategories: [
       "Resource types, names, locations, and IDs",
       "SKU and selected configuration metadata",
       "Resource tags",
-      "Policy definitions and assignments (Tier 1 script path)",
+      "Policy definitions and assignments (manual extractor script)",
     ],
     supportedScopes: [
       "/subscriptions/{subscriptionId}",
-      "Tier 1 manual script also supports resource group and management group scopes",
+      "Manual extractor script also supports resource group and management group scopes",
     ],
     omittedImpact:
       "Without Reader, ArchLucid cannot collect inventory or complete a hosted validation pull for the subscription.",
     expandedDetails:
-      "Hosted Tier 2 collection calls GET https://management.azure.com/subscriptions/{subscriptionId}/resources. Tier 1 manual upload can collect broader inventory when run at management-group or resource-group scope.",
+      "Hosted connection collection calls GET https://management.azure.com/subscriptions/{subscriptionId}/resources. Manual script upload can collect broader inventory when run at management-group or resource-group scope.",
   },
   {
     azureRole: "Cost Management Reader",
@@ -83,7 +83,7 @@ export const AZURE_CLOUD_CONNECTION_ROLE_ROWS: readonly AzureCloudConnectionRole
     recommendedScope: "Same subscription scope as Reader",
     writeAccess: false,
     enabledCapabilities: [
-      "Tier 1 extractor actual cost summary when -IncludeCost is used",
+      "Manual extractor script actual cost summary when -IncludeCost is used",
       "Future hosted cost merge when enabled in product configuration",
     ],
     dataCategories: ["Subscription actual cost summaries", "Usage-based cost signals for review context"],
@@ -91,7 +91,7 @@ export const AZURE_CLOUD_CONNECTION_ROLE_ROWS: readonly AzureCloudConnectionRole
     omittedImpact:
       "Architecture review remains available, but cost evidence and related findings may be incomplete when cost analysis is expected.",
     expandedDetails:
-      "Customer onboarding templates assign Cost Management Reader at subscription scope. Hosted Tier 2 validation today confirms Reader access only; cost APIs are not called on the hosted GET-only collector path yet.",
+      "Customer onboarding templates assign Cost Management Reader at subscription scope. Hosted connection validation today confirms Reader access only; cost APIs are not called on the hosted GET-only collector path yet.",
   },
 ];
 
@@ -104,24 +104,24 @@ export const AZURE_CLOUD_CONNECTION_CUSTOM_ROLE_READ_ACTIONS: readonly AzureClou
   {
     action: "Microsoft.Resources/subscriptions/resources/read",
     requirement: "required",
-    usedBy: "Hosted Tier 2 inventory and validation pull",
+    usedBy: "Hosted subscription inventory and validation pull",
   },
   {
     action: "Microsoft.PolicyInsights/policyStates/queryResults/action",
     requirement: "optional",
-    usedBy: "Tier 1 manual extractor policy compliance (not hosted Tier 2)",
+    usedBy: "Manual extractor script policy compliance (not hosted connection)",
   },
   {
     action: "Microsoft.CostManagement/query/action",
     requirement: "conditional",
-    usedBy: "Tier 1 manual extractor when -IncludeCost is enabled",
+    usedBy: "Manual extractor script when -IncludeCost is enabled",
   },
 ];
 
 export const AZURE_CLOUD_CONNECTION_DATA_COLLECTED: readonly string[] = [
   "Azure resource inventory (types, locations, names, resource IDs)",
   "Selected configuration metadata and tags on supported resources",
-  "Policy definitions and assignments when collected through the Tier 1 script",
+  "Policy definitions and assignments when collected through the manual extractor script",
   "Cost and usage summaries when Cost Management Reader is assigned and cost collection is enabled",
 ];
 
@@ -145,9 +145,9 @@ export const AZURE_CLOUD_CONNECTION_SCOPE_GUIDANCE = {
   recommendedTier2:
     "Assign Reader at the subscription scope for each subscription ArchLucid should connect. Assign Cost Management Reader only when cost evidence is required and an Azure admin can grant it.",
   resourceGroupLimitation:
-    "Resource-group-only assignments are supported by the Tier 1 manual extractor script, not by the hosted Tier 2 connection API (subscription GUIDs only).",
+    "Resource-group-only assignments are supported by the manual extractor script, not by the hosted connection API (subscription GUIDs only).",
   managementGroupLimitation:
-    "Management-group inventory is supported by the Tier 1 manual script only. Hosted Tier 2 connections are configured per subscription.",
+    "Management-group inventory is supported by the manual extractor script only. Hosted connections are configured per subscription.",
   multipleSubscriptions:
     "Assign roles on each subscription you connect. One ArchLucid connection record can list multiple subscription IDs when your workspace connects to more than one subscription.",
   billingScope:
@@ -179,7 +179,7 @@ export const AZURE_CLOUD_CONNECTION_VERIFICATION_BEHAVIOR = {
 export const AZURE_CLOUD_CONNECTION_TROUBLESHOOTING_ITEMS: readonly string[] = [
   "Role assignment has not propagated yet — wait and retry verification.",
   "The role was assigned to the wrong identity — confirm the service principal object ID.",
-  "The role was assigned at the wrong scope — use subscription scope for hosted Tier 2 connections.",
+  "The role was assigned at the wrong scope — use subscription scope for hosted connections.",
   "The selected subscription is outside the tenant configured on the connection.",
   "Cost Management Reader was assigned at billing-account scope — ArchLucid onboarding uses subscription scope.",
   "A conditional access or tenant policy blocks federated token exchange for the application.",

@@ -3,11 +3,9 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import type { ReactElement } from "react";
-import { useMemo } from "react";
 
 import { ArtifactIntegrityTechnicalDetails } from "@/components/ArtifactIntegrityTechnicalDetails";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   DELIVERABLE_TAB_ARB_BUCKETS,
   DELIVERABLE_TAB_EXECUTIVE_BUCKETS,
@@ -25,9 +23,6 @@ function artifactsMatchingBuckets(
   return [...artifacts].filter((a) => bucketSet.has(sponsorArtifactAudienceBucket(a.artifactType)));
 }
 
-/**
- * Buyer-polished run detail: two top-level groupings instead of five stacked audience sections.
- */
 export function BuyerDeliverablesArtifactTabs(props: {
   readonly manifestId: string;
   readonly runId: string;
@@ -35,66 +30,55 @@ export function BuyerDeliverablesArtifactTabs(props: {
 }): ReactElement {
   const { manifestId, runId, artifacts } = props;
 
-  const sortedAll = useMemo(
-    () => [...artifacts].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" })),
-    [artifacts],
-  );
-
-  const execRows = useMemo(
-    () => artifactsMatchingBuckets(sortedAll, DELIVERABLE_TAB_EXECUTIVE_BUCKETS),
-    [sortedAll],
-  );
-
-  const arbRows = useMemo(() => artifactsMatchingBuckets(sortedAll, DELIVERABLE_TAB_ARB_BUCKETS), [sortedAll]);
+  const sortedAll = [...artifacts].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
+  const execRows = artifactsMatchingBuckets(sortedAll, DELIVERABLE_TAB_EXECUTIVE_BUCKETS);
+  const arbRows = artifactsMatchingBuckets(sortedAll, DELIVERABLE_TAB_ARB_BUCKETS);
 
   return (
     <div className="w-full min-w-0 space-y-4" data-testid="buyer-deliverables-artifact-tabs">
-      <Tabs defaultValue="executive" className="w-full">
-        <TabsList aria-label="Deliverable groups" className="h-auto w-full flex-wrap gap-2 border-0">
-          <TabsTrigger value="executive" className="rounded-md border px-3 py-1.5">
-            Executive and sponsor artifacts
-          </TabsTrigger>
-          <TabsTrigger value="arb" className="rounded-md border px-3 py-1.5">
-            Architecture review board artifacts
-          </TabsTrigger>
-        </TabsList>
+      <section className="space-y-3" data-testid="buyer-deliverables-panel-executive">
+        <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          Executive and sponsor artifacts
+        </h3>
+        {execRows.length === 0 ? (
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+            No executive or sponsor-scoped outputs are listed for this review in this view.
+          </p>
+        ) : (
+          <ArtifactListTable
+            manifestId={manifestId}
+            runId={runId}
+            artifacts={execRows}
+            sponsorMode
+            audienceSections
+            deliverablesBucketAllowlist={DELIVERABLE_TAB_EXECUTIVE_BUCKETS}
+            omitIntegrityDetails
+            audienceHeadingLevel={4}
+          />
+        )}
+      </section>
 
-        <TabsContent value="executive" className="w-full min-w-0 pt-4" data-testid="buyer-deliverables-panel-executive">
-          {execRows.length === 0 ? (
-            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-              No executive or sponsor-scoped outputs are listed for this review in this view.
-            </p>
-          ) : (
-            <ArtifactListTable
-              manifestId={manifestId}
-              runId={runId}
-              artifacts={execRows}
-              sponsorMode
-              audienceSections
-              deliverablesBucketAllowlist={DELIVERABLE_TAB_EXECUTIVE_BUCKETS}
-              omitIntegrityDetails
-            />
-          )}
-        </TabsContent>
-
-        <TabsContent value="arb" className="w-full min-w-0 pt-4" data-testid="buyer-deliverables-panel-arb">
-          {arbRows.length === 0 ? (
-            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-              No architecture review board or audit-scoped outputs are listed for this review in this view.
-            </p>
-          ) : (
-            <ArtifactListTable
-              manifestId={manifestId}
-              runId={runId}
-              artifacts={arbRows}
-              sponsorMode
-              audienceSections
-              deliverablesBucketAllowlist={DELIVERABLE_TAB_ARB_BUCKETS}
-              omitIntegrityDetails
-            />
-          )}
-        </TabsContent>
-      </Tabs>
+      <section className="space-y-3" data-testid="buyer-deliverables-panel-arb">
+        <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          Architecture review board artifacts
+        </h3>
+        {arbRows.length === 0 ? (
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+            No architecture review board or audit-scoped outputs are listed for this review in this view.
+          </p>
+        ) : (
+          <ArtifactListTable
+            manifestId={manifestId}
+            runId={runId}
+            artifacts={arbRows}
+            sponsorMode
+            audienceSections
+            deliverablesBucketAllowlist={DELIVERABLE_TAB_ARB_BUCKETS}
+            omitIntegrityDetails
+            audienceHeadingLevel={4}
+          />
+        )}
+      </section>
 
       <ArtifactIntegrityTechnicalDetails artifacts={sortedAll} />
     </div>

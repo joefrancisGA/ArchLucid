@@ -63,7 +63,7 @@ describe("ArtifactListTable", () => {
     expect(preview.getAttribute("href")).toBe(signedRecordArtifactPath("manifest-1", "artifact-guid-1"));
   });
 
-  it("sponsor mode: Output column and role-specific open/download labels; technical details include raw format MIME", () => {
+  it("sponsor mode: Output column and role-specific open/download labels; integrity appendix shows fingerprints", () => {
     const mimeSample = {
       ...sample,
       format: "text/markdown",
@@ -76,14 +76,15 @@ describe("ArtifactListTable", () => {
 
     expect(screen.getByRole("columnheader", { name: "Output" })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "Generated" })).toBeInTheDocument();
-    expect(screen.getByRole("table")).toHaveClass("table-fixed");
+    const deliverableTables = screen.getAllByRole("table");
+    expect(deliverableTables[0]).toHaveClass("table-fixed");
     expect(screen.getByRole("link", { name: "Open sponsor brief" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Download sponsor brief" })).toBeInTheDocument();
     expect(screen.queryByRole("columnheader", { name: "Format" })).toBeNull();
 
-    expect(screen.getByText(/Integrity and format details/)).toBeInTheDocument();
-    expect(screen.getByText("text/markdown")).toBeInTheDocument();
-    expect(screen.getByText(/Presentation:/)).toBeInTheDocument();
+    expect(screen.getByText(/Integrity fingerprints/)).toBeInTheDocument();
+    expect(screen.getByText("SHA-256")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Copy fingerprint for Sponsor briefing/i })).toBeInTheDocument();
   });
 
   it("sponsor mode with audienceSections groups rows under ordered audience headings", () => {

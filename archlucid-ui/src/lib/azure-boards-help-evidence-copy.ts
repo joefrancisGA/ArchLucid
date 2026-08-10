@@ -2,8 +2,17 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const AZURE_BOARDS_HELP_CANONICAL_PATH = "/help/azure-boards" as const;
 
+export const AZURE_BOARDS_HELP_PAGE_TITLE = "Azure Boards integration" as const;
+
+export const AZURE_BOARDS_HELP_PAGE_SUBTITLE =
+  "Connect Azure DevOps for work item creation from ArchLucid findings — independent of your architecture cloud provider." as const;
+
+export const AZURE_BOARDS_HELP_PRIMARY_ACTIONS = {
+  openSettings: { label: "Open Azure Boards settings", href: "/integrations/azure-boards" },
+} as const;
+
 export const AZURE_BOARDS_HELP_CLAIM_DISCIPLINE =
-  "This Azure Boards integration guide orients operators on work-item creation from ArchLucid findings — it is help orientation, not a signed-review diligence Sources package from your tenant. Open the Azure Boards integration settings or Integration readiness when you need live connector health.";
+  "This Azure Boards integration guide orients architects on work-item creation from ArchLucid findings — it is help orientation, not a signed-review diligence Sources package from your tenant. Open the Azure Boards integration settings or Integration readiness when you need live connector health.";
 
 export const AZURE_BOARDS_HELP_SOURCES_INTRO =
   "Use these follow-ups when Azure Boards vocabulary turns into live connector setup, readiness checks, or sibling ITSM destinations.";

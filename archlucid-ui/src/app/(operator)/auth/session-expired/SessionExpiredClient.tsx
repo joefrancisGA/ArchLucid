@@ -9,6 +9,7 @@ import { initiateOidcRedirect } from "@/lib/oidc/initiate-redirect";
 import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
 import { SessionExpiredView } from "@/app/(operator)/auth/signin/SessionExpiredView";
 import { AuthErrorPanel } from "@/app/(operator)/auth/signin/AuthErrorPanel";
+import { SESSION_EXPIRED_SIGN_IN_ERROR_TITLE } from "@/lib/auth/session-expired-page-copy";
 /**
  * Cleaner, user-facing counterpart to `/auth/signin?reason=idle-timeout&returnUrl=…`.
  * `reason` defaults to "idle-timeout" (the only trigger today — `SessionIdleTimeoutGuard`)
@@ -44,7 +45,13 @@ export function SessionExpiredClient() {
   };
 
   if (error) {
-    return <AuthErrorPanel message={error} />;
+    return (
+      <AuthErrorPanel
+        title={SESSION_EXPIRED_SIGN_IN_ERROR_TITLE}
+        message={error}
+        onTryAgain={handleSignIn}
+      />
+    );
   }
 
   return (

@@ -66,6 +66,14 @@ public static class ArchLucidPersistenceStartup
             ?? new ArchLucidPersistenceOptions();
         bool storageIsSql = ArchLucidOptions.EffectiveIsSql(archLucidOptions.StorageProvider);
 
+        if (!storageIsSql && app.Environment.IsDevelopment())
+        {
+            app.Logger.LogWarning(
+                "ArchLucid:StorageProvider is InMemory in Development — reviews and other persisted state are lost when the API process exits. "
+                + "Use Sql with ConnectionStrings:ArchLucid for durable local dev (see docker-compose.yml or "
+                + "dotnet run --project ArchLucid.Cli -- dev up --sql-only).");
+        }
+
         // DbUp must run before SqlSchemaBootstrapper (ArchLucid.sql). On an empty database, the bootstrapper
         // creates objects that migration 001 also creates; DbUp then sees an empty journal and fails with
         // "already an object named …". Integration tests use DbUp-only on a fresh catalog; API startup should match.

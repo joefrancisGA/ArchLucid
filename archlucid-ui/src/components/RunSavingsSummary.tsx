@@ -33,15 +33,13 @@ export function RunSavingsSummary(props: { readonly model: RunSavingsSummaryMode
 
   return (
     <section aria-label="Annualized savings opportunity" className="scroll-mt-24">
-      <div className="relative overflow-visible rounded-xl border border-emerald-700/35 bg-gradient-to-br from-emerald-50 via-white to-white px-4 py-3 shadow-sm ring-1 ring-black/5 dark:border-emerald-400/35 dark:from-emerald-950/50 dark:via-neutral-950/40 dark:to-neutral-950 dark:shadow-none">
-        <p className={cn("m-0 mb-1 text-emerald-950/80 dark:text-emerald-300/95", OPERATOR_NAV_GROUP_LABEL)}>
+      <div className="rounded-md border border-neutral-200 bg-al-surface-raised px-4 py-3 dark:border-neutral-800">
+        <p className={cn("m-0 mb-1", OPERATOR_NAV_GROUP_LABEL)}>
           Annualized savings opportunity
         </p>
         <div className="flex flex-wrap items-baseline gap-3">
-          <p className="m-0 text-3xl font-semibold tracking-tight text-neutral-950 tabular-nums dark:text-neutral-50 sm:text-[2.125rem]">
-            {formatted}
-          </p>
-          <span className={cn("rounded-full bg-white/85 px-2 py-1 font-mono font-medium text-emerald-900 shadow-sm backdrop-blur dark:bg-emerald-950/85 dark:text-emerald-100", OPERATOR_TYPOGRAPHY.badge)}>
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.executiveDashboardMetric)}>{formatted}</p>
+          <span className={cn("rounded-full border border-neutral-200 bg-neutral-50 px-2 py-1 font-mono font-medium text-al-text-secondary dark:border-neutral-700 dark:bg-neutral-900/60", OPERATOR_TYPOGRAPHY.badge)}>
             {badgeLabel}
           </span>
         </div>

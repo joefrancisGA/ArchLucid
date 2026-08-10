@@ -92,9 +92,9 @@ describe("OperatorShellTopBar", () => {
       hardCutoffUsdPerUtcMonth: 75,
       effectiveHardCapUsd: 75,
       purchasedCapBumpUsd: 0,
-      estimatedUsdPressure: 10,
+      estimatedUsdPressure: 56,
       assumedNextCallReservationUsd: 1,
-      hardCapUtilizationFraction: 0.15,
+      hardCapUtilizationFraction: 0.76,
       warnFraction: 0.75,
     });
   });
@@ -133,7 +133,7 @@ describe("OperatorShellTopBar", () => {
     expect(onOpenHelpSearch).toHaveBeenCalledTimes(1);
   });
 
-  it("keeps the top bar on one row and shows AI usage on the toolbar", async () => {
+  it("keeps the top bar on one row and shows AI budget when utilization is warn/critical", async () => {
     render(
       <TooltipProvider>
         <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
@@ -156,6 +156,33 @@ describe("OperatorShellTopBar", () => {
     );
   });
 
+  it("hides the AI budget pill when remaining budget is healthy", async () => {
+    fetchBudgetCached.mockResolvedValue({
+      monthlyBudgetMonitoringActive: true,
+      blocksAdditionalLlmExecution: false,
+      utcMonth: "2026-05",
+      hardCutoffUsdPerUtcMonth: 75,
+      effectiveHardCapUsd: 75,
+      purchasedCapBumpUsd: 0,
+      estimatedUsdPressure: 10,
+      assumedNextCallReservationUsd: 1,
+      hardCapUtilizationFraction: 0.15,
+      warnFraction: 0.75,
+    });
+
+    render(
+      <TooltipProvider>
+        <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
+      </TooltipProvider>,
+    );
+
+    await waitFor(() => {
+      expect(fetchBudgetCached).toHaveBeenCalled();
+    });
+
+    expect(screen.queryByTestId("llm-budget-status-pill")).not.toBeInTheDocument();
+  });
+
   it("renders workspace chrome before Help and AI usage on the toolbar", async () => {
     render(
       <TooltipProvider>
@@ -165,7 +192,7 @@ describe("OperatorShellTopBar", () => {
 
     const sessionRail = screen.getByTestId("app-shell-topbar-session");
     const contextRail = screen.getByTestId("app-shell-topbar-context");
-    const scopeTrigger = screen.getByTestId("operator-scope-switcher-trigger");
+    const scopeTrigger = await screen.findByTestId("operator-scope-switcher-trigger");
     const helpTrigger = screen.getByTestId("operator-shell-help-trigger");
     const budgetPill = await screen.findByTestId("llm-budget-status-pill");
 
@@ -221,7 +248,7 @@ describe("OperatorShellTopBar", () => {
     );
 
     expect(await screen.findByTestId("llm-budget-status-pill")).toBeInTheDocument();
-    expect(screen.getByTestId("operator-shell-topbar-more-trigger")).toBeInTheDocument();
+    expect(await screen.findByTestId("operator-shell-topbar-more-trigger")).toBeInTheDocument();
 
     openMoreMenu();
 

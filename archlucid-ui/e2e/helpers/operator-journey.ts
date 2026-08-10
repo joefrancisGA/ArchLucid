@@ -339,7 +339,7 @@ export async function clickCompareSubmitWhenReady(page: Page): Promise<void> {
 
 /** Run detail for the standard mock-api run fixture (`e2e/mock-archlucid-api-server`). */
 export async function gotoRunDetailForMockFixtureRun(page: Page): Promise<void> {
-  // Canonical route is `/architecture/reviews/*` (`next.config.ts` redirects `/runs/*`). Go direct to avoid redirect flake on CI.
+  // Canonical route is `/architecture/reviews/*` — go direct; legacy `/runs/*` bookmarks 404.
   await page.goto(`/architecture/reviews/${encodeURIComponent(FIXTURE_RUN_ID)}`);
 }
 

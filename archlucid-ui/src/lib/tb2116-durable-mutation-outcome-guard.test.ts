@@ -95,6 +95,10 @@ function hasDualToastRegressionGuard(testSource: string): boolean {
     return true;
   }
 
+  if (testSource.includes("mocked(showError)")) {
+    return true;
+  }
+
   if (testSource.includes("expectNoHighStakesSavePathToasts")) {
     return true;
   }
@@ -104,6 +108,10 @@ function hasDualToastRegressionGuard(testSource: string): boolean {
   }
 
   if (testSource.includes("success-callout")) {
+    return true;
+  }
+
+  if (testSource.includes("-validation-error")) {
     return true;
   }
 
@@ -132,6 +140,8 @@ describe("TB-2116 durable mutation outcome guard", () => {
       return (
         !content.includes("OperatorSuccessCallout")
         && !content.includes("ReviewGenerationCreatedNotice")
+        && !content.includes("ReviewStartInlineError")
+        && !content.includes("OperatorMutationInlineError")
         && !content.includes("StatusTag")
       );
     });

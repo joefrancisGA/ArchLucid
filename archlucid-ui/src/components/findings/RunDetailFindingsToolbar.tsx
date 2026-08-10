@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { formatFindingsVisibilitySummaryLine } from "@/lib/finding-confidence-filter";
 import {
   humanReviewStatusDisplay,
   severityBadgeLabel,
@@ -26,6 +27,9 @@ export type RunDetailFindingsSortKind = "severity-desc" | "severity-asc" | "titl
 
 export type RunDetailFindingsToolbarProps = {
   readonly findings: readonly QuickDecisionFinding[];
+  readonly renderedFindingCount?: number;
+  readonly toolbarFilteredCount?: number;
+  readonly hiddenByConfidenceCount?: number;
   readonly filter: RunDetailFindingsFilterKind;
   readonly onFilterChange: (filter: RunDetailFindingsFilterKind) => void;
   readonly ownerFilter: string;
@@ -153,12 +157,12 @@ export function sortFindingsForToolbar(
 }
 
 export function deriveFindingsToolbarStatusCounts(findings: readonly QuickDecisionFinding[]): {
-  readonly open: number;
-  readonly assigned: number;
+  readonly unresolved: number;
+  readonly awaitingDecision: number;
   readonly resolved: number;
 } {
-  let open = 0;
-  let assigned = 0;
+  let unresolved = 0;
+  let awaitingDecision = 0;
   let resolved = 0;
 
   for (const finding of findings) {
@@ -167,18 +171,17 @@ export function deriveFindingsToolbarStatusCounts(findings: readonly QuickDecisi
     }
 
     const status = humanReviewStatusDisplay(finding.humanReviewStatus);
-    const owner = (finding.assignedToUserId ?? "").trim();
 
     if (status?.label === "Approved" || status?.label === "Overridden") {
       resolved += 1;
-    } else if (owner.length > 0) {
-      assigned += 1;
+    } else if (status?.label === "Pending review") {
+      awaitingDecision += 1;
     } else {
-      open += 1;
+      unresolved += 1;
     }
   }
 
-  return { open, assigned, resolved };
+  return { unresolved, awaitingDecision, resolved };
 }
 
 export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): React.JSX.Element {
@@ -208,6 +211,11 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
     () => deriveFindingsToolbarStatusCounts(props.findings),
     [props.findings],
   );
+  const visibilitySummaryLine = formatFindingsVisibilitySummaryLine(
+    props.renderedFindingCount ?? props.findings.length,
+    props.toolbarFilteredCount ?? props.findings.length,
+    props.hiddenByConfidenceCount ?? 0,
+  );
 
   return (
     <div
@@ -226,10 +234,18 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
         <span className={cn("font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Status:
         </span>
-        <span className="tabular-nums">Open {statusCounts.open}</span>
-        <span className="tabular-nums">Assigned {statusCounts.assigned}</span>
+        <span className="tabular-nums">Unresolved {statusCounts.unresolved}</span>
+        <span className="tabular-nums">Awaiting decision {statusCounts.awaitingDecision}</span>
         <span className="tabular-nums">Resolved {statusCounts.resolved}</span>
       </div>
+      {visibilitySummaryLine !== null ? (
+        <p
+          className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="run-detail-findings-visibility-summary"
+        >
+          {visibilitySummaryLine}
+        </p>
+      ) : null}
       <div className="flex flex-wrap gap-1" role="group" aria-label="Finding severity and status filters">
         {FILTER_OPTIONS.map((option) => {
           const active = props.filter === option.id;

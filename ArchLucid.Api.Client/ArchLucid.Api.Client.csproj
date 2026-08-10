@@ -41,7 +41,7 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <SkipGenerateArchLucidOpenApiClient Condition="'$(ARCHLUCID_SKIP_OPENAPI_CLIENT_REGEN)' == '1'">true</SkipGenerateArchLucidOpenApiClient>
+    <SkipGenerateArchLucidOpenApiClient Condition="'$(ARCHLUCID_SKIP_OPENAPI_CLIENT_REGEN)' == '1' Or '$(ArchLucidSkipNSwag)' == 'true'">true</SkipGenerateArchLucidOpenApiClient>
   </PropertyGroup>
 
   <Target Name="GenerateArchLucidOpenApiClient" BeforeTargets="BeforeCompile" DependsOnTargets="PrepareForBuild" Condition="'$(SkipGenerateArchLucidOpenApiClient)' != 'true'">

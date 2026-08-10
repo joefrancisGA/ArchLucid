@@ -130,7 +130,6 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/findings",
       "/help/governance-approval",
       "/help/review-guide",
-      "/help/creating-runs",
       "/help/starting-reviews",
       "/help/repeat-review-loop",
       "/help/pilot-guide",
@@ -254,7 +253,7 @@ describe("contextual-help-registry (TB-733)", () => {
 
   it("resolves alert-rules Category-1 help (ALE hub)", () => {
     expect(contextualHelpForPathname("/governance/alert-rules")?.whatIsThisPage).toContain("notifications");
-    expect(contextualHelpForPathname("/governance/alert-rules?tab=routing")?.whatToDoNext).toContain(
+    expect(contextualHelpForPathname("/governance/alert-rules?tab=notifications")?.whatToDoNext).toContain(
       "Notifications",
     );
   });

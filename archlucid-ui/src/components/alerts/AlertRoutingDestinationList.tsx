@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 
+import { Button } from "@/components/ui/button";
 import {
   alertRoutingDeliveryAttemptsButtonLabelReaderRank,
   alertRoutingDeliveryAttemptsButtonTitleOperator,
@@ -57,13 +58,9 @@ export function AlertRoutingDestinationList({
           Create a destination to receive email, webhook, Teams, or Slack notifications when alert conditions are met.
         </p>
         {canMutateRouting ? (
-          <button
-            type="button"
-            className="mt-4 rounded-md bg-[var(--al-primary)] px-4 py-2 font-medium text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-focus-ring)]"
-            onClick={onAddDestination}
-          >
-            Add notification destination
-          </button>
+          <Button type="button" variant="primary" className="mt-4" onClick={onAddDestination}>
+            Create notification destination
+          </Button>
         ) : null}
       </div>
     );
@@ -72,16 +69,17 @@ export function AlertRoutingDestinationList({
   return (
     <div className="space-y-3" data-testid="alert-routing-destination-list">
       <div className="flex items-center justify-end">
-        <button
+        <Button
           type="button"
+          variant="outline"
+          size="sm"
           onClick={onRefresh}
           disabled={loading}
           aria-label="Refresh notification destinations"
           title="Refresh notification destinations"
-          className="rounded-md border border-neutral-300 px-2 py-1 text-neutral-700 hover:bg-neutral-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-focus-ring)] dark:border-neutral-600 dark:text-neutral-200 dark:hover:bg-neutral-900"
         >
           {loading ? "Refreshing…" : "↻"}
-        </button>
+        </Button>
       </div>
       <div className="overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-700">
         <table className="min-w-full border-collapse text-left">

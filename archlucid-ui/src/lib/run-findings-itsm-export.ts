@@ -24,14 +24,56 @@ function severityLabelFromQuickDecisionFinding(finding: QuickDecisionFinding): s
   return severityBadgeLabel(finding.severityValue);
 }
 
-function triggerJsonDownload(json: string, filename: string): void {
-  const blob = new Blob([json], { type: "application/json;charset=utf-8" });
+function triggerBinaryDownload(content: string, mimeType: string, filename: string): void {
+  const blob = new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = url;
   anchor.download = filename;
   anchor.click();
   URL.revokeObjectURL(url);
+}
+
+function triggerJsonDownload(json: string, filename: string): void {
+  triggerBinaryDownload(json, "application/json;charset=utf-8", filename);
+}
+
+function escapeCsvCell(value: string): string {
+  if (value.includes(",") || value.includes('"') || value.includes("\n") || value.includes("\r")) {
+    return `"${value.replaceAll('"', '""')}"`;
+  }
+
+  return value;
+}
+
+/** Builds a CSV export for the on-screen findings set (client-side; matches visible rows). */
+export function buildQuickDecisionFindingsCsv(
+  runId: string,
+  findings: readonly QuickDecisionFinding[],
+): string {
+  const header = "FindingId,RunId,Severity,Title,Recommendation,Confidence,PolicyRuleId,Status";
+  const lines = findings.map((finding) =>
+    [
+      finding.findingId,
+      runId,
+      severityLabelFromQuickDecisionFinding(finding),
+      escapeCsvCell(finding.title),
+      escapeCsvCell(finding.recommendation),
+      finding.confidenceLevel ?? "",
+      finding.policyRuleId ?? "",
+      finding.isMuted ? "Muted" : "Open",
+    ].join(","),
+  );
+
+  return [header, ...lines].join("\n");
+}
+
+export function downloadQuickDecisionFindingsCsv(
+  runId: string,
+  findings: readonly QuickDecisionFinding[],
+): void {
+  const csv = buildQuickDecisionFindingsCsv(runId, findings);
+  triggerBinaryDownload(csv, "text/csv;charset=utf-8", `architecture-run-${runId}-findings.csv`);
 }
 
 /** Builds Jira/ServiceNow-ready work-item JSON for every finding on a review. */

@@ -3,9 +3,9 @@
  */
 
 import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
-import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture-routes";
 import { ALERTS_HOW_ALERTS_WORK_LABEL } from "@/lib/alerts-page-copy";
-import { START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
+import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture-routes";
+import { ARCHITECTURE_DRAFTS_LIST_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 import {
   BUYER_ONBOARDING_PAGE_TITLE,
   OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_HEADING,
@@ -47,7 +47,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/help/getting-started", topic: { slug: "getting-started", label: "Getting started" } },
   {
     prefix: "/help/accelerator-chooser",
-    topic: { slug: "accelerator-chooser", label: "Accelerator chooser" },
+    topic: { slug: "accelerator-chooser", label: "Pick an accelerator pack" },
   },
   {
     prefix: "/help/admin-diagnostics",
@@ -99,10 +99,6 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/help/review-guide",
-    topic: { slug: "review-guide", label: "Review guide" },
-  },
-  {
-    prefix: "/help/creating-runs",
     topic: { slug: "review-guide", label: "Review guide" },
   },
   {
@@ -165,13 +161,13 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/help/users-and-roles",
     topic: { slug: "users-and-roles", label: "Users and roles" },
   },
-  { prefix: ARCHITECTURES_LIST_PATH, topic: { slug: "getting-started", label: "Getting started" } },
+  { prefix: ARCHITECTURES_LIST_PATH, topic: { slug: "getting-started", label: ARCHITECTURE_DRAFTS_LIST_LABEL } },
   { prefix: "/architecture/architectures/new", topic: { slug: "first-architecture-review", label: "Create architecture" } },
   {
     prefix: "/architecture/architecture-intelligence",
     topic: { slug: "evidence-trail", label: "Architecture intelligence" },
   },
-  { prefix: "/architectures", topic: { slug: "getting-started", label: "Getting started" } },
+  { prefix: "/architectures", topic: { slug: "getting-started", label: ARCHITECTURE_DRAFTS_LIST_LABEL } },
   { prefix: "/architecture/reviews/new", topic: { slug: "evidence-intake", label: START_REVIEW_LABEL } },
   { prefix: "/architecture/reviews", topic: { slug: "review-packages", label: "Reviews" } },
   {
@@ -227,6 +223,24 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/governance/alerts", topic: { slug: "alerts", label: "Alerts" } },
   { prefix: "/governance/alert-rules", topic: { slug: "alerts", label: "How alerts work" } },
   { prefix: "/governance/policy-packs", topic: { slug: "policy-packs", label: "Policy packs" } },
+  {
+    prefix: "/insights/roi-summary",
+    topic: { slug: "pilot-roi-model", label: "View ROI methodology" },
+  },
+  {
+    prefix: "/insights/pilot-outcomes",
+    topic: { slug: "executive-summary", label: "Pilot outcomes" },
+  },
+  {
+    // Trigger names the page; Learn more still opens ROI methodology for assumption drill-down.
+    prefix: "/insights/architecture-scorecard",
+    topic: { slug: "pilot-roi-model", label: OPERATOR_NAV_LINK_LABELS.scorecard },
+  },
+  {
+    prefix: "/insights/executive-summary",
+    topic: { slug: "executive-summary", label: "Executive summary" },
+  },
+  // Legacy sponsor-report bookmarks canonicalize to /insights/* above; keep prefixes for direct lookups.
   {
     prefix: "/sponsor-report/roi-summary",
     topic: { slug: "pilot-roi-model", label: "View ROI methodology" },

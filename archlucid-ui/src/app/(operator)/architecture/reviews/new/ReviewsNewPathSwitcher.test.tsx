@@ -17,11 +17,10 @@ vi.mock("next/navigation", async (importOriginal) => {
   };
 });
 
-vi.mock("@/lib/use-core-pilot-commit-presentation-context", () => ({
-  useCorePilotCommitPresentationContext: () => ({
-    hasCommittedManifest: false,
-    latestCommittedRunId: null,
-  }),
+const useCorePilotCommitContextQuery = vi.fn();
+
+vi.mock("@/hooks/use-core-pilot-commit-context-query", () => ({
+  useCorePilotCommitContextQuery: () => useCorePilotCommitContextQuery(),
 }));
 
 vi.mock("./FirstPilotIntakeWizard", () => ({
@@ -36,6 +35,10 @@ vi.mock("./NewRunWizardClient", () => ({
   NewRunWizardClient: () => <div data-testid="new-run-wizard-stub">Detailed wizard</div>,
 }));
 
+vi.mock("./ReviewsNewOwnEvidenceStart", () => ({
+  ReviewsNewOwnEvidenceStart: () => <div data-testid="reviews-new-own-evidence-start" />,
+}));
+
 import { REVIEWS_NEW_PATH_HINTS } from "@/lib/reviews-new-path-copy";
 
 import { ReviewsNewPathSwitcher } from "./ReviewsNewPathSwitcher";
@@ -45,9 +48,152 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
     window.localStorage.clear();
     useSearchParams.mockReturnValue(new URLSearchParams());
     replace.mockClear();
+    useCorePilotCommitContextQuery.mockReturnValue({
+      isPending: false,
+      data: { hasCommittedManifest: false, firstCommittedRunId: null, latestRunId: null },
+    });
   });
 
-  it("shows review-start tabs immediately and switches modes", async () => {
+  it("leads with the create-review form and offers accelerator packs below it (TB-2136)", async () => {
+    render(<ReviewsNewPathSwitcher />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("reviews-new-job-chooser-section")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("reviews-new-primary-path-layout")).toBeInTheDocument();
+    expect(screen.queryByText(/Expected outputs:/i)).toBeNull();
+    expect(screen.getByTestId("reviews-new-more-intake-options")).toBeInTheDocument();
+    expect(screen.getByTestId("new-review-sample-escape")).toBeInTheDocument();
+    expect(screen.queryByTestId("reviews-new-path-toggle")).toBeNull();
+    expect(screen.queryByTestId("reviews-new-path-hint")).toBeNull();
+
+    const ownEvidence = screen.getByTestId("reviews-new-own-evidence-start");
+    const packs = screen.getByTestId("reviews-new-job-chooser-section");
+
+    expect(ownEvidence.compareDocumentPosition(packs) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("ignores persisted guided-intake when the URL has no path query", async () => {
+    window.localStorage.setItem("archlucid_reviews_new_path_v2", "full-guided");
+    window.localStorage.setItem("archlucid_reviews_new_full_guided_sub_v1", "guided-intake");
+
+    render(<ReviewsNewPathSwitcher />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("reviews-new-job-chooser-section")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("socratic-intake-wizard-stub")).toBeNull();
+    expect(screen.queryByTestId("reviews-new-back-to-quick-start")).toBeNull();
+  });
+
+  it("opens guided intake from the disclosure without showing peer tabs", async () => {
+    render(<ReviewsNewPathSwitcher />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("reviews-new-more-path-guided-intake")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("reviews-new-more-path-guided-intake"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("socratic-intake-wizard-stub")).toBeTruthy();
+    });
+
+    expect(screen.queryByTestId("reviews-new-path-toggle")).toBeNull();
+    expect(screen.queryByTestId("reviews-new-job-chooser-section")).toBeNull();
+    expect(screen.getByTestId("reviews-new-back-to-quick-start")).toBeInTheDocument();
+    expect(replace).toHaveBeenCalledWith(
+      "/architecture/reviews/new?path=guided-intake",
+      expect.objectContaining({ scroll: false }),
+    );
+  });
+
+  it("opens guided intake when path=guided-intake is in the query string", async () => {
+    useSearchParams.mockReturnValue(new URLSearchParams("path=guided-intake"));
+
+    render(<ReviewsNewPathSwitcher />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("socratic-intake-wizard-stub")).toBeTruthy();
+    });
+
+    expect(screen.queryByTestId("reviews-new-path-toggle")).toBeNull();
+    expect(screen.getByTestId("reviews-new-back-to-quick-start")).toBeInTheDocument();
+  });
+
+  it("returns to the job chooser when back to quick start clears accelerator deep-link params", async () => {
+    useSearchParams.mockReturnValue(new URLSearchParams("baseline=1&accelerator=ai-llm-workload"));
+
+    render(<ReviewsNewPathSwitcher />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("new-run-wizard-stub")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByTestId("reviews-new-back-to-quick-start"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("reviews-new-job-chooser-section")).toBeInTheDocument();
+    });
+
+    expect(replace).toHaveBeenCalledWith(
+      "/architecture/reviews/new?path=quick-review",
+      expect.objectContaining({ scroll: false }),
+    );
+  });
+
+  it("keeps default review path hints when an accelerator pack deep link is used", async () => {
+    useSearchParams.mockReturnValue(new URLSearchParams("baseline=1&accelerator=ai-llm-workload"));
+
+    render(<ReviewsNewPathSwitcher />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("new-run-wizard-stub")).toBeTruthy();
+    });
+
+    expect(screen.queryByTestId("reviews-new-job-chooser-section")).toBeNull();
+    expect(screen.getByTestId("reviews-new-path-hint")).toHaveTextContent(REVIEWS_NEW_PATH_HINTS.detailed);
+  });
+
+  it("opens the templates wizard for greenfield preset without showing the job chooser", async () => {
+    useSearchParams.mockReturnValue(new URLSearchParams("preset=greenfield"));
+
+    render(<ReviewsNewPathSwitcher />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("new-run-wizard-stub")).toBeTruthy();
+    });
+
+    expect(screen.queryByTestId("reviews-new-job-chooser-section")).toBeNull();
+  });
+
+  it("skips the job chooser when a valid example template deep link is present", async () => {
+    useSearchParams.mockReturnValue(new URLSearchParams("template=claims-intake-modernization"));
+
+    render(<ReviewsNewPathSwitcher />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("first-pilot-intake-wizard-stub")).toBeTruthy();
+    });
+
+    expect(screen.queryByTestId("reviews-new-job-chooser-section")).toBeNull();
+  });
+});
+
+describe("ReviewsNewPathSwitcher (returning tenant)", () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    useSearchParams.mockReturnValue(new URLSearchParams());
+    replace.mockClear();
+    useCorePilotCommitContextQuery.mockReturnValue({
+      isPending: false,
+      data: { hasCommittedManifest: true, firstCommittedRunId: "run-committed-1", latestRunId: "run-committed-1" },
+    });
+  });
+
+  it("shows review-start tabs and switches modes", async () => {
     render(<ReviewsNewPathSwitcher />);
 
     await waitFor(() => {
@@ -57,19 +203,32 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
     expect(screen.getByTestId("reviews-new-path-toggle")).toBeTruthy();
     expect(screen.queryByTestId("reviews-new-more-intake-options")).toBeNull();
     expect(screen.getByRole("tab", { name: "Quick start" })).toHaveAttribute("aria-selected", "true");
-    expect(screen.getByText("Fastest first-pilot path:", { selector: "strong" })).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("tab", { name: "Guided intake" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Guided questions" }));
 
     await waitFor(() => {
       expect(screen.getByTestId("socratic-intake-wizard-stub")).toBeTruthy();
     });
 
-    expect(screen.getByRole("tab", { name: "Guided intake" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tab", { name: "Guided questions" })).toHaveAttribute("aria-selected", "true");
     expect(replace).toHaveBeenCalledWith(
       "/architecture/reviews/new?path=guided-intake",
       expect.objectContaining({ scroll: false }),
     );
+  });
+
+  it("defaults to quick start when localStorage remembers guided-intake but the URL has no path query", async () => {
+    window.localStorage.setItem("archlucid_reviews_new_path_v2", "full-guided");
+    window.localStorage.setItem("archlucid_reviews_new_full_guided_sub_v1", "guided-intake");
+
+    render(<ReviewsNewPathSwitcher />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("first-pilot-intake-wizard-stub")).toBeTruthy();
+    });
+
+    expect(screen.getByRole("tab", { name: "Quick start" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.queryByTestId("socratic-intake-wizard-stub")).toBeNull();
   });
 
   it("moves selection with ArrowRight keyboard navigation on the tablist", async () => {
@@ -88,31 +247,7 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
       expect(screen.getByTestId("socratic-intake-wizard-stub")).toBeTruthy();
     });
 
-    expect(screen.getByRole("tab", { name: "Guided intake" })).toHaveAttribute("aria-selected", "true");
-  });
-
-  it("opens guided intake when path=guided-intake is in the query string", async () => {
-    useSearchParams.mockReturnValue(new URLSearchParams("path=guided-intake"));
-
-    render(<ReviewsNewPathSwitcher />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId("socratic-intake-wizard-stub")).toBeTruthy();
-    });
-
-    expect(screen.getByRole("tab", { name: "Guided intake" })).toHaveAttribute("aria-selected", "true");
-    expect(screen.getByRole("tab", { name: "Quick start" })).toHaveAttribute("aria-selected", "false");
-  });
-
-  it("keeps default review tab labels", async () => {
-    render(<ReviewsNewPathSwitcher />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId("reviews-new-path-hint")).toHaveTextContent(REVIEWS_NEW_PATH_HINTS["quick-review"]);
-    });
-
-    expect(screen.getByRole("tab", { name: "Quick start" })).toBeInTheDocument();
-    expect(screen.queryByRole("tab", { name: "Describe it" })).not.toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Guided questions" })).toHaveAttribute("aria-selected", "true");
   });
 
   it("prevents vertical overflow scrollbars on the path tab row", async () => {

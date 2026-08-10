@@ -24,6 +24,7 @@ export const NAV_GROUP_CANONICAL_PREFIX_POLICIES: readonly NavGroupCanonicalPref
   { navGroupId: "operate-governance", canonicalPrefixes: ["/governance"] },
   { navGroupId: "operate-integrations", canonicalPrefixes: ["/integrations"] },
   { navGroupId: "operator-admin", canonicalPrefixes: ["/administration"] },
+  // Internal operations routes moved `/admin/*` → `/internal/*`; legacy `/admin/*` bookmarks are redirects only.
   { navGroupId: "operator-system-admin", canonicalPrefixes: ["/internal"] },
 ];
 

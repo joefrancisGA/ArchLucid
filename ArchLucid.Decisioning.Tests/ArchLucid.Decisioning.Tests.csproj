@@ -82,6 +82,8 @@
     <None Include="..\templates\starter-proof-packs\regulated-saas-soc-procurement\policy-context.json" Link="Templates\StarterProofPacks\regulated-saas-soc-procurement\policy-context.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\templates\starter-proof-packs\healthcare-data-workflow\policy-context.json" Link="Templates\StarterProofPacks\healthcare-data-workflow\policy-context.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\templates\starter-proof-packs\azure-cost-governance\policy-context.json" Link="Templates\StarterProofPacks\azure-cost-governance\policy-context.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\templates\starter-proof-packs\aws-cost-governance\policy-context.json" Link="Templates\StarterProofPacks\aws-cost-governance\policy-context.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\templates\starter-proof-packs\gcp-cost-governance\policy-context.json" Link="Templates\StarterProofPacks\gcp-cost-governance\policy-context.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\templates\starter-proof-packs\ai-llm-workload\policy-context.json" Link="Templates\StarterProofPacks\ai-llm-workload\policy-context.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 

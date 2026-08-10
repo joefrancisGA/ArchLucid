@@ -1,35 +1,35 @@
 {
   "schemaVersion": 1,
-  "updatedUtc": "2026-08-09T15:20:00.000Z",
+  "updatedUtc": "2026-08-09T22:11:14.050Z",
   "regressionToleranceKb": 25,
   "routes": {
     "/": {
-      "firstLoadJsKb": 1620.6
+      "firstLoadJsKb": 1587.2
     },
     "/welcome": {
-      "firstLoadJsKb": 711.5
+      "firstLoadJsKb": 609.6
     },
     "/governance/approval-queue": {
-      "firstLoadJsKb": 1462.7
+      "firstLoadJsKb": 1429.9
     },
     "/governance/alerts": {
-      "firstLoadJsKb": 1485
+      "firstLoadJsKb": 1377.3
     },
     "/governance/alert-rules": {
-      "firstLoadJsKb": 1470
+      "firstLoadJsKb": 1049.4
     },
     "/architecture/reviews": {
-      "firstLoadJsKb": 1710.6
+      "firstLoadJsKb": 1211.2
     },
     "/architecture/reviews/[runId]": {
-      "firstLoadJsKb": 2237.5
+      "firstLoadJsKb": 1903.6
     },
     "/architecture/executive-dashboard": {
-      "firstLoadJsKb": 1546
+      "firstLoadJsKb": 1471.7
     },
     "/governance/signed-records": {
-      "firstLoadJsKb": 1436.3
+      "firstLoadJsKb": 1412.4
     }
   },
-  "notes": "Ceiling per route is max(real Next build, scripts/fixtures/route-bundle-stats.next16.v1.json) so CI check:first-load-js and unit fixture tests both pass."
+  "notes": "TB-2145: `/` measured **1646.1 → 1587.2 kB** (−58.9 kB) after deferring pilot command center, executive ROI strip, below-fold panels, and CTO demo redirect (`operator-home-page-view-deferred-chunks.tsx`). TB-2142: `/architecture/reviews/[runId]` measured **2150.6 → 1879.1 kB** (−271.5 kB) after deferring evidence tab, share/export row, demo chrome, manifest alerts, run actions, and help registrar off sync First Load JS. TB-2118: shared operator-shell deferrals remeasured hubs — `/architecture/reviews` **1710.6 → 1169.5 kB**, `/governance/alerts` **1485 → 1331.5 kB**, `/governance/alert-rules` **1470 → 1103.9 kB** (`app-shell-deferred-chunks.tsx`). TB-2117: prior `/architecture/reviews/[runId]` cut **2237.5 → 2150.6 kB** (−86.9 kB) after workspace/overview chrome deferrals."
 }

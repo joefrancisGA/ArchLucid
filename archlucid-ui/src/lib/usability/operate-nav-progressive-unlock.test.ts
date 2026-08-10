@@ -23,8 +23,8 @@ describe("operate-nav-progressive-unlock", () => {
     expect(isOperateNavGroupId("operator-admin")).toBe(false);
   });
 
-  it("keeps Operate groups in the operator shell at phase 0 when authority allows", () => {
-    const rows = listNavGroupsVisibleInOperatorShell(
+  it("hides Operate groups before first commit and restores them after", () => {
+    const preCommit = listNavGroupsVisibleInOperatorShell(
       NAV_GROUPS,
       true,
       true,
@@ -33,13 +33,27 @@ describe("operate-nav-progressive-unlock", () => {
       "all",
       false,
     );
-    const ids = rows.map((row) => row.group.id);
+    const preCommitIds = preCommit.map((row) => row.group.id);
 
-    expect(ids).toContain("pilot");
-    expect(ids).toContain("operate-analysis");
-    expect(ids).toContain("operate-governance");
-    expect(ids).toContain("operate-integrations");
-    expect(ids).toContain("operator-admin");
+    expect(preCommitIds).toContain("pilot");
+    expect(preCommitIds).not.toContain("operate-governance");
+    expect(preCommitIds).not.toContain("operate-integrations");
+
+    const postCommit = listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      true,
+      true,
+      AUTHORITY_RANK.ReadAuthority,
+      false,
+      "all",
+      true,
+    );
+    const postCommitIds = postCommit.map((row) => row.group.id);
+
+    expect(postCommitIds).toContain("operate-analysis");
+    expect(postCommitIds).toContain("operate-governance");
+    expect(postCommitIds).toContain("operate-integrations");
+    expect(postCommitIds).toContain("operator-admin");
   });
 
   it("shows extended governance hrefs regardless of unlock phase when authority allows", () => {

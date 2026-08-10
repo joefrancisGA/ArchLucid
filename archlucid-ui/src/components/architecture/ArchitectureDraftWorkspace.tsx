@@ -4,10 +4,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { ArchitectureCreationLocalDraftsPanel } from "@/components/architecture/ArchitectureCreationLocalDraftsPanel";
 import { ArchitectureDraftAiRefinePanel } from "@/components/architecture/ArchitectureDraftAiRefinePanel";
 import { ArchitectureDraftFormFields } from "@/components/architecture/ArchitectureDraftFormFields";
 import { ArchitectureDraftGuidanceDisclosure } from "@/components/architecture/ArchitectureDraftGuidanceDisclosure";
 import { ArchitectureDraftHandoffBanner } from "@/components/architecture/ArchitectureDraftHandoffBanner";
+import { ArchitectureDraftWorkspaceListWayfinding } from "@/components/architecture/ArchitectureDraftWorkspaceListWayfinding";
+import { ArchitectureDraftWorkspaceLoadingSkeleton } from "@/components/architecture/ArchitectureDraftWorkspaceLoadingSkeleton";
 import { ArchitectureDraftSaveStatus } from "@/components/architecture/ArchitectureDraftSaveStatus";
 import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
 import { DraftIntakeAdvancedSection } from "@/components/draft-intake/DraftIntakeAdvancedSection";
@@ -15,6 +18,8 @@ import { DraftIntakeReasoningPanel } from "@/components/draft-intake/DraftIntake
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { StatusTag } from "@/components/ui/status-tag";
+import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { useArchitectureDraftAutosave, type ArchitectureDraftSaveState } from "@/hooks/use-architecture-draft-autosave";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { SOFT_NAVIGATION_TIMEOUT_MS } from "@/hooks/use-soft-navigation-loading";
@@ -32,13 +37,18 @@ import {
 } from "@/lib/architecture-draft-handoff-gate";
 import {
   ARCHITECTURE_DRAFT_STATUS_LABELS,
+  architectureDraftCustomerStatusTagKind,
   architectureDraftDisplayName,
+  resolveArchitectureDraftCustomerStatus,
 } from "@/lib/architecture-draft-status";
 import {
   buildArchitectureDraftRegistryEntry,
   upsertArchitectureDraftRegistryEntry,
 } from "@/lib/architecture-draft-registry";
-import { validateArchitectureReviewReadiness } from "@/lib/architecture-draft-readiness";
+import {
+  hasArchitectureDraftSaveableContent,
+  validateArchitectureReviewReadiness,
+} from "@/lib/architecture-draft-readiness";
 import {
   ARCHITECTURES_LIST_PATH,
   architectureDraftPath,
@@ -52,6 +62,8 @@ import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-tit
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 import {
+  ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE,
+  ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD,
   ARCHITECTURE_DRAFT_ALTERNATIVES_HINT,
   ARCHITECTURE_DRAFT_WORKSPACE_LEAD,
 } from "@/lib/create-vs-review-intake-copy";
@@ -81,11 +93,20 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const [exitPending, setExitPending] = useState(false);
   const [handoffAcknowledged, setHandoffAcknowledged] = useState(false);
   const [linkedReviewTitle, setLinkedReviewTitle] = useState("Untitled review");
+  const [registryHydrated, setRegistryHydrated] = useState(false);
   const previousSaveStateRef = useRef<ArchitectureDraftSaveState>("saved");
   const exitTimeoutIdRef = useRef<number | null>(null);
 
   const linkedReviewId = architectureDraftSpawnedRunId(draft);
   const handoffEditorLocked = linkedReviewId !== null && !handoffAcknowledged;
+  const localDraftRegistryEntries = useArchitectureDraftRegistryEntries();
+
+  useEffect(() => {
+    setRegistryHydrated(true);
+  }, []);
+
+  const hasLocalDraftsOnCreatePath =
+    isNewDraft && registryHydrated && localDraftRegistryEntries.length > 0;
   // Reasoning needs a real draft id — unavailable on /new until the first deferred create succeeds.
   const refinementDraftId = draft?.draftId?.trim() || (isNewDraft ? null : props.architectureId.trim() || null);
 
@@ -116,7 +137,23 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     [fields.freeTextIntent, fields.systemName],
   );
 
+  const workspaceHeading = isNewDraft ? ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE : displayName;
+  const WorkspaceHeadingTag = isNewDraft ? "h2" : "h1";
+
+  const workspaceLead = hasLocalDraftsOnCreatePath
+    ? ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD
+    : ARCHITECTURE_DRAFT_WORKSPACE_LEAD;
+
   const reviewReadiness = useMemo(() => validateArchitectureReviewReadiness(fields), [fields]);
+
+  const customerStatus = useMemo(
+    () =>
+      resolveArchitectureDraftCustomerStatus({
+        linkedReviewId,
+        reviewReadinessValid: reviewReadiness.isValid,
+      }),
+    [linkedReviewId, reviewReadiness.isValid],
+  );
 
   const loadDraft = useCallback(async () => {
     if (isNewDraft) {
@@ -219,7 +256,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   }, []);
 
   const handleSaveAndExit = useCallback(async () => {
-    if (isNewDraft && !hasPersistedDraft) {
+    if (isNewDraft && !hasPersistedDraft && !hasArchitectureDraftSaveableContent(fields)) {
       router.push(ARCHITECTURES_LIST_PATH);
 
       return;
@@ -247,7 +284,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     }, SOFT_NAVIGATION_TIMEOUT_MS);
 
     router.push(ARCHITECTURES_LIST_PATH);
-  }, [hasPersistedDraft, isNewDraft, router, saveDraft]);
+  }, [fields, hasPersistedDraft, isNewDraft, router, saveDraft]);
 
   const handleStartReview = useCallback(async () => {
     if (isNewDraft && !hasPersistedDraft) {
@@ -293,12 +330,18 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   }, [linkedReviewId, props.architectureId]);
 
   if (loading) {
-    return <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Loading architecture draft…</p>;
+    return (
+      <div className="space-y-3" data-testid="architecture-draft-workspace-loading">
+        {isNewDraft ? null : <ArchitectureDraftWorkspaceListWayfinding />}
+        <ArchitectureDraftWorkspaceLoadingSkeleton />
+      </div>
+    );
   }
 
   if (loadError !== null) {
     return (
-      <div className="space-y-3">
+      <div className="space-y-3" data-testid="architecture-draft-workspace-error">
+        {isNewDraft ? null : <ArchitectureDraftWorkspaceListWayfinding />}
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} role="alert">
           {loadError}
         </p>
@@ -311,25 +354,44 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
 
   return (
     <div className="space-y-4" data-testid="architecture-draft-workspace">
+      {isNewDraft ? null : <ArchitectureDraftWorkspaceListWayfinding />}
+      {isNewDraft ? <ArchitectureCreationLocalDraftsPanel /> : null}
+
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 space-y-1">
-          <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{displayName}</h2>
+          <WorkspaceHeadingTag
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}
+            data-testid={
+              isNewDraft ? "architecture-creation-new-draft-section-title" : "architecture-draft-workspace-title"
+            }
+          >
+            {workspaceHeading}
+          </WorkspaceHeadingTag>
           <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-draft-workspace-lead">
-            {ARCHITECTURE_DRAFT_WORKSPACE_LEAD}
+            {workspaceLead}
           </p>
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>
-            Status: {ARCHITECTURE_DRAFT_STATUS_LABELS.draft}
+          <div className="flex flex-wrap items-center gap-2">
+            <StatusTag
+              kind={architectureDraftCustomerStatusTagKind(customerStatus)}
+              label={ARCHITECTURE_DRAFT_STATUS_LABELS[customerStatus]}
+              data-testid="architecture-draft-workspace-status-tag"
+            />
             {linkedReviewId !== null ? (
-              <>
-                {" · "}
-                <Link href={reviewDetailPath(linkedReviewId)} className="font-medium text-teal-800 underline dark:text-teal-300">
-                  Open linked review
-                </Link>
-              </>
+              <Link
+                href={reviewDetailPath(linkedReviewId)}
+                className={cn(OPERATOR_TYPOGRAPHY.helper, "font-medium text-teal-800 underline dark:text-teal-300")}
+              >
+                Open linked review
+              </Link>
             ) : null}
-          </p>
+          </div>
         </div>
-        <ArchitectureDraftSaveStatus saveState={saveState} lastSavedUtc={lastSavedUtc} />
+        <ArchitectureDraftSaveStatus
+          saveState={saveState}
+          lastSavedUtc={lastSavedUtc}
+          autosaveActive={!handoffEditorLocked}
+          hasPersistedDraft={hasPersistedDraft}
+        />
       </div>
 
       {linkedReviewId !== null ? (
@@ -343,7 +405,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
 
       <div className="flex flex-wrap items-center justify-between gap-2">
         <ArchitectureDraftGuidanceDisclosure className="flex-1" />
-        <PageContextualHelpButton />
+        {isNewDraft ? null : <PageContextualHelpButton />}
       </div>
 
       {conflictMessage !== null ? (
@@ -415,18 +477,20 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
             {BUYER_START_ARCHITECTURE_REVIEW_CTA}
           </Button>
         )}
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={handoffEditorLocked || saveState === "saving" || !hasUnsavedChanges}
-          onClick={() => {
-            void handleSaveDraft();
-          }}
-          data-testid="architecture-save-draft"
-        >
-          Save draft
-        </Button>
+        {saveState === "error" || saveState === "offline" ? (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={handoffEditorLocked}
+            onClick={() => {
+              void handleSaveDraft();
+            }}
+            data-testid="architecture-save-draft-retry"
+          >
+            Save now
+          </Button>
+        ) : null}
         <Button
           type="button"
           variant="outline"

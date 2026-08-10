@@ -15,12 +15,12 @@ Canonical route and HTTP map: [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md). **[`STA
 
 **Steps**
 
-1. **Request** — UI: `/reviews/new` (legacy `/runs/new` may redirect) Â· API: `POST /v1/architecture/request` Â· CLI: `dotnet run --project ArchLucid.Cli -- run` (see [CLI_USAGE.md](../CLI_USAGE.md)).
-2. **Track pipeline** — UI: `/reviews/{runId}` Â· API: `GET /v1/architecture/review/{runId}` Â· CLI: `… status <runId>`.
+1. **Request** — UI: `/architecture/reviews/new` (retired bookmark) Â· API: `POST /v1/architecture/request` Â· CLI: `dotnet run --project ArchLucid.Cli -- run` (see [CLI_USAGE.md](../CLI_USAGE.md)).
+2. **Track pipeline** — UI: `/architecture/reviews/{runId}` Â· API: `GET /v1/architecture/review/{runId}` Â· CLI: `… status <runId>`.
 3. **Finalize** — UI: review detail **Finalize** Â· API: `POST /v1/architecture/review/{runId}/finalize` Â· CLI: `… commit <runId>` (signed review record must exist before downstream exports).
 4. **Package for stakeholders** — UI: review detail exports (first-value report, sponsor artefacts) Â· API: **review export** — first-value report (`text/markdown`, ReadAuthority) Â· CLI: `… first-value-report <runId> [--save]`, `… sponsor-one-pager <runId> [--save]` where applicable.
 
-**Expected outputs:** Finalized architecture package with signed review record; Markdown/PDF-style sponsor artefacts when generated; shareable links into `/reviews/{runId}`.
+**Expected outputs:** Finalized architecture package with signed review record; Markdown/PDF-style sponsor artefacts when generated; shareable links into `/architecture/reviews/{runId}`.
 
 **Failure hints:** `404` on first-value report → review not finalized or wrong scope; finalize blocked → see recipe 2 (governance gate) and [PRE_COMMIT_GOVERNANCE_GATE.md](../PRE_COMMIT_GOVERNANCE_GATE.md). If your automation mixes **`POST …/execute`**, **`…/result`**, and **`…/commit`** with the Authority pipeline, read [ARCHITECTURE_FLOWS.md](../ARCHITECTURE_FLOWS.md) Flow A1 first.
 
@@ -35,7 +35,7 @@ Canonical route and HTTP map: [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md). **[`STA
 
 **Steps**
 
-1. **Triage in UI** — Open `/reviews/{runId}`; drill **findings** (`/reviews/{runId}/findings/{findingId}`) and confirm severity labels match your pack intent.
+1. **Triage in UI** — Open `/architecture/reviews/{runId}`; drill **findings** (`/architecture/reviews/{runId}/findings/{findingId}`) and confirm severity labels match your pack intent.
 2. **Assign / confirm policy** — UI: `/policy-packs` Â· API: `/v1/policy-packs…` Â· Behaviour matrix: [PRE_COMMIT_GOVERNANCE_GATE.md](../PRE_COMMIT_GOVERNANCE_GATE.md) (`BlockCommitOnCritical`, `BlockCommitMinimumSeverity`).
 3. **Pre-finalize dry run** — API: `POST /v1/governance/approval-requests?dryRun=true` (validation path per [GOVERNANCE.md](../contributor-reference/GOVERNANCE.md)).
 4. **Workflow** — UI: `/governance?runId={runId}`, `/governance/dashboard` Â· API: `POST /v1/governance/approval-requests`, promote/activate routes on `GovernanceController` as needed ([GOVERNANCE.md](../contributor-reference/GOVERNANCE.md)).
@@ -97,9 +97,9 @@ The numbered steps above use **review** vocabulary. HTTP clients that still call
 
 | Review export | Backward-compatible alias |
 | --- | --- |
-| First-value report (Markdown) | `GET /v1/pilots/runs/{runId}/first-value-report` |
-| Review proof metrics (JSON) | `GET /v1/pilots/runs/{runId}/pilot-run-deltas` |
-| Sponsor PDF attachment | `POST /v1/pilots/runs/{runId}/first-value-report.pdf` |
-| Recent review proof rows | `GET /v1/pilots/runs/recent-deltas?count=…` |
+| First-value report (Markdown) | `GET /v1/pilots/architecture/reviews/{runId}/first-value-report` |
+| Review proof metrics (JSON) | `GET /v1/pilots/architecture/reviews/{runId}/pilot-run-deltas` |
+| Sponsor PDF attachment | `POST /v1/pilots/architecture/reviews/{runId}/first-value-report.pdf` |
+| Recent review proof rows | `GET /v1/pilots/architecture/reviews/recent-deltas?count=…` |
 
 </details>

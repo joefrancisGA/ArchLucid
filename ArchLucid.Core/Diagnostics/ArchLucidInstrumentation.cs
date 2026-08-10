@@ -617,6 +617,15 @@ public static class ArchLucidInstrumentation
             "Per-stage wall time inside the authority pipeline (labels: stage, outcome).");
 
     /// <summary>
+    ///     Staged Critic batch phases in <c>RealAgentExecutor</c> (labels: <c>phase</c>=phase1|phase2, <c>outcome</c>).
+    /// </summary>
+    public static readonly Histogram<double> AgentExecutionStagedCriticPhaseDurationMilliseconds =
+        AppMeter.CreateHistogram<double>(
+            "archlucid_agent_execution_staged_critic_phase_duration_ms",
+            "ms",
+            "Staged Critic batch phase wall time in RealAgentExecutor (labels: phase=phase1|phase2, outcome).");
+
+    /// <summary>
     ///     Authority pipeline stages skipped because run header checkpoint FKs were already set (label <c>stage</c>).
     /// </summary>
     public static readonly Counter<long> AuthorityPipelineStageSkippedCheckpointTotal =

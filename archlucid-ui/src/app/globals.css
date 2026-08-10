@@ -378,8 +378,7 @@ kbd {
   [data-testid="marketing-analytics-consent-banner"],
   [data-testid="help-topic-export-actions"],
   [data-testid="help-topic-toc"],
-  [data-testid="help-topic-toc-mobile"],
-  [data-testid="help-tabs-shell-tablist"] {
+  [data-testid="help-topic-toc-mobile"] {
     display: none !important;
   }
 

@@ -8,6 +8,7 @@ import {
   architectureDraftPlaceholderTitle,
   customerFacingArchitectureDraftTitle,
   LEGACY_UNTITLED_ARCHITECTURE_LABEL,
+  resolveArchitectureDraftCustomerStatus,
   stripLeadingMarkdownHeading,
   UNTITLED_ARCHITECTURE_LABEL,
 } from "./architecture-draft-status";
@@ -85,6 +86,35 @@ describe("stripLeadingMarkdownHeading", () => {
   it("removes ATX heading markers", () => {
     expect(stripLeadingMarkdownHeading("## Foo")).toBe("Foo");
     expect(stripLeadingMarkdownHeading("Foo")).toBe("Foo");
+  });
+});
+
+describe("resolveArchitectureDraftCustomerStatus", () => {
+  it("returns ready-for-review when a linked review exists", () => {
+    expect(
+      resolveArchitectureDraftCustomerStatus({
+        linkedReviewId: "run-001",
+        reviewReadinessValid: false,
+      }),
+    ).toBe("ready-for-review");
+  });
+
+  it("returns ready-for-review when fields pass review readiness without a linked review", () => {
+    expect(
+      resolveArchitectureDraftCustomerStatus({
+        linkedReviewId: null,
+        reviewReadinessValid: true,
+      }),
+    ).toBe("ready-for-review");
+  });
+
+  it("returns draft when no linked review and readiness is incomplete", () => {
+    expect(
+      resolveArchitectureDraftCustomerStatus({
+        linkedReviewId: null,
+        reviewReadinessValid: false,
+      }),
+    ).toBe("draft");
   });
 });
 

@@ -13,14 +13,17 @@ export type ItsmNativeCreateReadiness = {
   azureBoardsReady: boolean;
 };
 
+export const INITIAL_ITSM_NATIVE_CREATE_READINESS: ItsmNativeCreateReadiness = {
+  deploymentEnabled: false,
+  defaultPathReady: false,
+  health: null,
+  azureBoardsReady: false,
+};
+
 let cachedReadiness: ItsmNativeCreateReadiness | undefined;
+let inFlightReadiness: Promise<ItsmNativeCreateReadiness> | undefined;
 
-/** Resolves deployment flag + probe readiness for native create default path (TB-387 + Tier 2 #6). Fails closed on errors. */
-export async function resolveItsmNativeCreateReadiness(): Promise<ItsmNativeCreateReadiness> {
-  if (cachedReadiness !== undefined) {
-    return cachedReadiness;
-  }
-
+async function loadItsmNativeCreateReadiness(): Promise<ItsmNativeCreateReadiness> {
   try {
     const health = await fetchItsmIntegrationHealth();
     const deploymentEnabled = health.nativeEnabled === true;
@@ -60,6 +63,21 @@ export async function resolveItsmNativeCreateReadiness(): Promise<ItsmNativeCrea
   return cachedReadiness;
 }
 
+/** Resolves deployment flag + probe readiness for native create default path (TB-387 + Tier 2 #6). Fails closed on errors. */
+export async function resolveItsmNativeCreateReadiness(): Promise<ItsmNativeCreateReadiness> {
+  if (cachedReadiness !== undefined) {
+    return cachedReadiness;
+  }
+
+  if (inFlightReadiness === undefined) {
+    inFlightReadiness = loadItsmNativeCreateReadiness().finally(() => {
+      inFlightReadiness = undefined;
+    });
+  }
+
+  return inFlightReadiness;
+}
+
 /** Resolves whether one-click Jira/ServiceNow create is the default operator path. Fails closed on errors. */
 export async function resolveItsmNativeCreateEnabled(): Promise<boolean> {
   const readiness = await resolveItsmNativeCreateReadiness();
@@ -70,4 +88,5 @@ export async function resolveItsmNativeCreateEnabled(): Promise<boolean> {
 /** Clears the module cache (tests). */
 export function resetItsmNativeCreateEnabledCacheForTests(): void {
   cachedReadiness = undefined;
+  inFlightReadiness = undefined;
 }

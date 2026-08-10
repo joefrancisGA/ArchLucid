@@ -1,0 +1,49 @@
+import { describe, expect, it } from "vitest";
+
+import {
+  WHY_ARCHLUCID_COUNTERS_INTRO,
+  WHY_ARCHLUCID_COUNTER_HINT_AUDIT_ROWS,
+  WHY_ARCHLUCID_COUNTER_HINT_FINDINGS,
+  WHY_ARCHLUCID_COUNTER_HINT_RUNS_CREATED,
+  WHY_ARCHLUCID_FOOTER_EXECUTIVE_BRIEF_HREF,
+  WHY_ARCHLUCID_FOOTER_GETTING_STARTED_HREF,
+  WHY_ARCHLUCID_FOOTER_TRUST_CENTER_HREF,
+  whyArchlucidCounterHintAuditRowsTruncated,
+} from "@/lib/why-archlucid-page-copy";
+
+const ENGINEERING_LEAK_PATTERNS = [
+  /archlucidinstrumentation/i,
+  /iauditrepository/i,
+  /archlucid_/i,
+  /docs\/library/i,
+  /docs\/go-to-market/i,
+];
+
+describe("why-archlucid-page-copy (TB-1308)", () => {
+  it("uses operator language for counter helper copy", () => {
+    const values = [
+      WHY_ARCHLUCID_COUNTERS_INTRO,
+      WHY_ARCHLUCID_COUNTER_HINT_RUNS_CREATED,
+      WHY_ARCHLUCID_COUNTER_HINT_AUDIT_ROWS,
+      WHY_ARCHLUCID_COUNTER_HINT_FINDINGS,
+      whyArchlucidCounterHintAuditRowsTruncated(12),
+    ];
+
+    for (const value of values) {
+      for (const pattern of ENGINEERING_LEAK_PATTERNS) {
+        expect(value).not.toMatch(pattern);
+      }
+    }
+  });
+
+  it("routes footer narrative to in-app buyer surfaces only", () => {
+    for (const href of [
+      WHY_ARCHLUCID_FOOTER_EXECUTIVE_BRIEF_HREF,
+      WHY_ARCHLUCID_FOOTER_GETTING_STARTED_HREF,
+      WHY_ARCHLUCID_FOOTER_TRUST_CENTER_HREF,
+    ]) {
+      expect(href.startsWith("/")).toBe(true);
+      expect(href.toLowerCase()).not.toContain("docs/");
+    }
+  });
+});

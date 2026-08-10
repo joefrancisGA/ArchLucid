@@ -12,7 +12,9 @@ export type CompareFinalizedRunAvailability = {
 
 /**
  * Loads committed (finalized) reviews available for compare pickers.
- * Demo fallback may inject showcase rows when the live list is empty.
+ * Uses the same scope-wide inventory as the Reviews hub when project is `default`
+ * (create stores system name as the run project slug). Demo fallback may inject
+ * showcase rows when the live list is empty.
  */
 export function useCompareFinalizedRunAvailability(): CompareFinalizedRunAvailability {
   const [loading, setLoading] = useState(true);

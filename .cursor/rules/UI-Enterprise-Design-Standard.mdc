@@ -21,7 +21,7 @@ Specific rules:
 - Neutral grays and restrained teal accent only.
 - Reduce teal border overuse; teal borders on focus rings and interactive affordances only.
 - Avoid large pastel cards unless they communicate actionable status — use `DESIGN_TOKENS.callout.*` or `StatusTag`.
-- Prefer structured enterprise cards, `EnterpriseTable`, tabs, accordions, command bars, and side panels.
+- Prefer structured enterprise cards, `EnterpriseTable`, tabs (`variant="pill"` default), accordions, command bars, and side panels.
 - Use `StatusTag` / `SeverityTag` with canonical copy: Ready, Needs attention, Blocked, Approved, Approved with monitoring, In progress, Draft.
 - Make primary content visibly dominant; diagnostics and supporting content quieter (collapsed by default).
 - Operator views: `space-y-4`, `p-4`, `gap-2` — not `space-y-8` / `py-8`.
@@ -43,7 +43,7 @@ Specific rules:
 ## Implementation anchors
 
 - Tokens: `archlucid-ui/src/lib/design-tokens.ts`, `globals.css` (`--al-*`)
-- Components: `src/components/ui/status-tag.tsx`, `severity-tag.tsx`, `enterprise-table.tsx`
+- Components: `src/components/ui/status-tag.tsx`, `severity-tag.tsx`, `enterprise-table.tsx`, `tabs.tsx` (default `variant="pill"` — Reviews hub exemplar)
 - Bulk pastel migration (operator): `archlucid-ui/scripts/migrate-tb115-operator-surfaces.ps1` — extend patterns; do not reintroduce `bg-*-50` card fills.
 - Bulk typography (operator): `archlucid-ui/scripts/migrate-tb119-operator-typography.ps1` — prefer `OPERATOR_TYPOGRAPHY.*` tokens for new headings.
 

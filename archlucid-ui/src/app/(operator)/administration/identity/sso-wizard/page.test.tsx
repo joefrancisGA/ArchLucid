@@ -35,6 +35,7 @@ describe("SsoWizardPage", () => {
     render(<SsoWizardPageClient />);
 
     expect(screen.getByRole("heading", { name: /Configure single sign-on/i })).toBeInTheDocument();
+    expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
     expect(screen.getByText(/test the connection before it can be activated/i)).toBeInTheDocument();
     expect(screen.getByTestId("sso-wizard-stepper")).toBeInTheDocument();
     expect(screen.getByTestId("sso-protocol-selector")).toBeInTheDocument();

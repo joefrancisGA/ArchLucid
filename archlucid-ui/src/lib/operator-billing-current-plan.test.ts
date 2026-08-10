@@ -46,5 +46,26 @@ describe("resolveOperatorBillingCurrentPlan", () => {
 
     expect(view.planKind).toBe("no-paid-plan");
     expect(view.supportingLine).toContain("No paid plan is active");
+    expect(view.supportingLine).not.toContain("below");
+    expect(view.hasPaidPlan).toBe(false);
+  });
+
+  it("returns paid plan when usage reports a commercial tier off trial", () => {
+    const view = resolveOperatorBillingCurrentPlan({
+      isDemoMode: false,
+      isFrictionlessTrial: false,
+      trialStatus: "None",
+      trialDaysRemaining: null,
+      workspaceLabel: "Acme",
+      aiBudgetRemainingPercent: 40,
+      isTrialUsage: false,
+      commercialTier: "Team",
+    });
+
+    expect(view.planKind).toBe("paid-plan");
+    expect(view.headline).toBe("Team");
+    expect(view.hasPaidPlan).toBe(true);
+    expect(view.supportingLine).toContain("Team");
+    expect(view.supportingLine).toContain("Acme");
   });
 });

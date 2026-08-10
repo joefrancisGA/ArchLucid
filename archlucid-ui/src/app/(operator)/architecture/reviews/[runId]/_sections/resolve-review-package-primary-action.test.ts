@@ -50,7 +50,7 @@ describe("resolveReviewPackagePrimaryAction", () => {
     expect(action.href).toBe("/governance/approval-queue?runId=run-abc");
   });
 
-  it("defaults finalized packages to export proof packet when no blockers remain", () => {
+  it("defaults finalized packages to send-to-sponsor when no blockers remain", () => {
     const action = resolveReviewPackagePrimaryAction({
       ...baseInput,
       manifestId: "manifest-1",
@@ -59,8 +59,11 @@ describe("resolveReviewPackagePrimaryAction", () => {
       operatorGovernanceDecision: "Approved",
     });
 
-    expect(action.kind).toBe("export-proof-packet");
-    expect(action.href).toBe("/architecture/reviews/run-abc?reviewTab=evidence#artifacts-exports");
+    expect(action.kind).toBe("send-to-sponsor");
+    expect(action.label).toBe("Send to sponsor");
+    expect(action.href).toBe(
+      "/architecture/reviews/run-abc?reviewTab=review-package#sponsor-handoff",
+    );
   });
 
   it("guides in-progress reviews toward evidence capture before completion", () => {
@@ -81,5 +84,32 @@ describe("resolveReviewPackagePrimaryAction", () => {
 
     expect(action.kind).toBe("finalize-package");
     expect(action.href).toBeNull();
+  });
+
+  it("aligns the primary CTA label with the decision snapshot next action", () => {
+    const action = resolveReviewPackagePrimaryAction({
+      ...baseInput,
+      manifestId: "manifest-1",
+      runCompleted: true,
+      blockingFindingCount: 1,
+      nextAction:
+        "Review findings — 1 unresolved finding currently blocks approval or finalization.",
+    });
+
+    expect(action.kind).toBe("review-findings");
+    expect(action.label).toBe("Review findings");
+  });
+
+  it("keeps governance CTA labels independent of next-action copy", () => {
+    const action = resolveReviewPackagePrimaryAction({
+      ...baseInput,
+      manifestId: "manifest-1",
+      runCompleted: true,
+      manifestStatus: "Draft",
+      nextAction: "Confirm evidence and remediation ownership for the open medium-severity finding",
+    });
+
+    expect(action.kind).toBe("open-governance-decision");
+    expect(action.label).not.toContain("Confirm evidence");
   });
 });

@@ -6,15 +6,34 @@ import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { showSuccess } from "@/lib/toast";
 
 type WizardEvidenceUploadZoneProps = {
   readonly title?: string;
   readonly description?: string;
   readonly accept?: string;
   readonly labelId?: string;
+  /** Optional suffix after the file count, e.g. "architecture context optional". */
+  readonly attachmentSummarySuffix?: string;
   readonly onFilesSelected?: (files: File[]) => void;
 };
+
+export function formatWizardEvidenceAttachmentSummary(
+  fileCount: number,
+  suffix?: string,
+): string {
+  if (fileCount === 0) {
+    return "";
+  }
+
+  const countLabel = `${fileCount} file${fileCount === 1 ? "" : "s"} attached`;
+  const trimmedSuffix = suffix?.trim();
+
+  if (trimmedSuffix === undefined || trimmedSuffix.length === 0) {
+    return countLabel;
+  }
+
+  return `${countLabel} — ${trimmedSuffix}`;
+}
 
 const DEFAULT_ACCEPTED_EXTENSIONS = ".pdf,.docx,.md,.txt,.json,.yaml,.yml,.png,.jpg,.jpeg";
 const DEFAULT_LABEL = "Attach evidence (optional)";
@@ -28,6 +47,10 @@ export function WizardEvidenceUploadZone(props: WizardEvidenceUploadZoneProps) {
   const label = props.title ?? DEFAULT_LABEL;
   const description = props.description ?? DEFAULT_DESCRIPTION;
   const [files, setFiles] = useState<File[]>([]);
+  const attachmentSummary = formatWizardEvidenceAttachmentSummary(
+    files.length,
+    props.attachmentSummarySuffix,
+  );
 
   const syncFiles = useCallback(
     (nextFiles: File[]) => {
@@ -43,9 +66,7 @@ export function WizardEvidenceUploadZone(props: WizardEvidenceUploadZoneProps) {
         return;
       }
 
-      const list = Array.from(incoming);
-      syncFiles(list);
-      showSuccess(`${list.length} file${list.length === 1 ? "" : "s"} ready for intake`);
+      syncFiles(Array.from(incoming));
     },
     [syncFiles],
   );
@@ -134,6 +155,19 @@ export function WizardEvidenceUploadZone(props: WizardEvidenceUploadZoneProps) {
           </div>
         ) : null}
       </div>
+      {/* Mounted even when empty so assistive tech announces attachment changes; a region added at the
+          same moment its text appears is not reliably announced. */}
+      <p
+        className={cn(
+          "m-0",
+          files.length > 0 ? "text-neutral-700 dark:text-neutral-300" : "sr-only",
+          OPERATOR_TYPOGRAPHY.helper,
+        )}
+        role="status"
+        data-testid="wizard-evidence-upload-summary"
+      >
+        {attachmentSummary}
+      </p>
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{description}</p>
     </div>
   );

@@ -22,6 +22,15 @@ describe("docs-search-index", () => {
     expect(resolveDocumentationHref("docs/runbooks/TROUBLESHOOTING.md")).toMatch(/^\/help\//);
   });
 
+  it("indexes first architecture review without first-pilot checklist jargon (TB-1380)", () => {
+    const corePilot = DOCUMENTATION_SEARCH_ITEMS.find((row) => row.relativeDocsPath === "docs/CORE_PILOT.md");
+
+    expect(corePilot).toBeDefined();
+    expect(corePilot?.title).toBe("Your first architecture review");
+    expect(corePilot?.description.toLowerCase()).not.toContain("first-pilot");
+    expect(corePilot?.description.toLowerCase()).not.toContain("manifest");
+  });
+
   it("omits Admin-only internal-runbook topics from Ctrl+K documentation search (TB-1385)", () => {
     expect(
       DOCUMENTATION_SEARCH_ITEMS.some((row) => row.relativeDocsPath.toLowerCase().includes("api_contracts")),

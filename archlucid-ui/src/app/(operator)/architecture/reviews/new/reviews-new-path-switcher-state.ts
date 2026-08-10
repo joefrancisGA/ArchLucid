@@ -69,6 +69,42 @@ export function readStoredActivePath(): ReviewsNewActivePath {
   return subMode === "detailed" ? "detailed" : "guided-intake";
 }
 
+type ResolveInitialReviewsNewActivePathInput = {
+  readonly pathQuery: string;
+  readonly baselineFirst: boolean;
+  readonly presetGreenfield: boolean;
+  readonly activeTour: boolean;
+};
+
+/** Bare `/architecture/reviews/new` opens review quick start — not a persisted guided/architecture draft path. */
+export function resolveInitialReviewsNewActivePath(
+  input: ResolveInitialReviewsNewActivePathInput,
+): ReviewsNewActivePath {
+  const normalizedPath = input.pathQuery.trim().toLowerCase();
+
+  if (normalizedPath === "quick-review") {
+    return "quick-review";
+  }
+
+  if (normalizedPath === "guided-intake") {
+    return "guided-intake";
+  }
+
+  if (normalizedPath === "detailed") {
+    return "detailed";
+  }
+
+  if (input.baselineFirst || input.presetGreenfield) {
+    return "detailed";
+  }
+
+  if (input.activeTour) {
+    return "quick-review";
+  }
+
+  return "quick-review";
+}
+
 function persistPathMode(mode: ReviewsNewPathMode): void {
   try {
     window.localStorage.setItem(REVIEWS_NEW_PATH_STORAGE_KEY, mode);

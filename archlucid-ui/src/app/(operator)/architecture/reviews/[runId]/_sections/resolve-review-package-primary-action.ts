@@ -5,6 +5,7 @@ import {
 } from "@/lib/run-detail-governance-cta-visibility";
 
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
+import { shortenNextActionForPrimaryCta } from "@/lib/run-detail-workspace-derive";
 
 import { resolveReviewPackageSummaryMode } from "./resolve-review-package-summary-mode";
 
@@ -12,7 +13,7 @@ export type ReviewPackagePrimaryActionKind =
   | "review-findings"
   | "add-evidence"
   | "finalize-package"
-  | "export-proof-packet"
+  | "send-to-sponsor"
   | "open-governance-decision";
 
 export type ReviewPackagePrimaryAction = {
@@ -31,6 +32,7 @@ export type ResolveReviewPackagePrimaryActionInput = {
   readonly operatorGovernanceDecision: string | null | undefined;
   readonly manifestStatus: string | null | undefined;
   readonly runCompleted: boolean;
+  readonly nextAction?: string | null;
 };
 
 const REVIEW_PACKAGE_PRIMARY_ACTION_LABELS: Record<
@@ -40,7 +42,7 @@ const REVIEW_PACKAGE_PRIMARY_ACTION_LABELS: Record<
   "review-findings": "Review findings",
   "add-evidence": "Add evidence",
   "finalize-package": "Finalize review",
-  "export-proof-packet": "Export proof packet",
+  "send-to-sponsor": "Send to sponsor",
 };
 
 function reviewFindingsHref(runId: string): string {
@@ -51,8 +53,8 @@ function addEvidenceHref(runId: string): string {
   return buildReviewDetailTabHref(runId, "evidence");
 }
 
-function exportProofPacketHref(runId: string): string {
-  return buildReviewDetailTabHref(runId, "evidence", { hash: "artifacts-exports" });
+function sendToSponsorHref(runId: string): string {
+  return buildReviewDetailTabHref(runId, "review-package", { hash: "sponsor-handoff" });
 }
 
 function buildLinkAction(
@@ -62,7 +64,7 @@ function buildLinkAction(
   const hrefByKind: Record<typeof kind, string> = {
     "review-findings": reviewFindingsHref(runId),
     "add-evidence": addEvidenceHref(runId),
-    "export-proof-packet": exportProofPacketHref(runId),
+    "send-to-sponsor": sendToSponsorHref(runId),
   };
 
   return {
@@ -88,6 +90,30 @@ function buildGovernanceAction(runId: string): ReviewPackagePrimaryAction {
   };
 }
 
+/**
+ * Only findings-tab CTAs may inherit the decision-snapshot next-action phrasing.
+ * Governance / sponsor / finalize labels must stay aligned with their href targets.
+ */
+function applyNextActionLabelForFindings(
+  action: ReviewPackagePrimaryAction,
+  nextAction: string | null | undefined,
+): ReviewPackagePrimaryAction {
+  if (action.kind !== "review-findings") {
+    return action;
+  }
+
+  const trimmed = (nextAction ?? "").trim();
+
+  if (trimmed.length === 0) {
+    return action;
+  }
+
+  return {
+    ...action,
+    label: shortenNextActionForPrimaryCta(trimmed),
+  };
+}
+
 /** Picks exactly one primary next-action CTA for the Review Package summary header (TB-618). */
 export function resolveReviewPackagePrimaryAction(
   input: ResolveReviewPackagePrimaryActionInput,
@@ -95,12 +121,18 @@ export function resolveReviewPackagePrimaryAction(
   const mode = resolveReviewPackageSummaryMode(input.manifestId);
 
   if (input.hasCommitBlockingFailures) {
-    return buildLinkAction(input.runId, "review-findings");
+    return applyNextActionLabelForFindings(
+      buildLinkAction(input.runId, "review-findings"),
+      input.nextAction,
+    );
   }
 
   if (mode === "finalized") {
     if (input.blockingFindingCount > 0) {
-      return buildLinkAction(input.runId, "review-findings");
+      return applyNextActionLabelForFindings(
+        buildLinkAction(input.runId, "review-findings"),
+        input.nextAction,
+      );
     }
 
     if (
@@ -114,7 +146,7 @@ export function resolveReviewPackagePrimaryAction(
       return buildGovernanceAction(input.runId);
     }
 
-    return buildLinkAction(input.runId, "export-proof-packet");
+    return buildLinkAction(input.runId, "send-to-sponsor");
   }
 
   if (!input.runCompleted) {

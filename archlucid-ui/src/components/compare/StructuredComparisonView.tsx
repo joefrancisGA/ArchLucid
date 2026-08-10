@@ -2,7 +2,6 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReactNode } from "react";
 
-import { applyBuyerPolishedGoldenManifestSummaryHighlights } from "@/lib/buyer-golden-manifest-summary-highlights";
 import {
   BUYER_COMPARE_STRUCTURED_HEADING,
   BUYER_COMPARE_STRUCTURED_LEAD,
@@ -10,7 +9,6 @@ import {
 import { decisionKeyDisplay } from "@/lib/compare-decision-key-display";
 import { partitionDecisionDeltas } from "@/lib/compare-decision-delta-material";
 import { getArchitecturePackageDocxUrl } from "@/lib/api";
-import { compareRunHeadingLabel } from "@/lib/compare-run-display";
 import { sortGoldenManifestComparison } from "@/lib/compare-display-sort";
 import type { DecisionDelta, GoldenManifestComparison } from "@/types/comparison";
 import type { RunSummary } from "@/types/authority";
@@ -123,16 +121,7 @@ export function StructuredComparisonView(props: {
   buyerCompareUi?: boolean;
 }) {
   const golden = sortGoldenManifestComparison(props.golden);
-  const summaryHighlights = applyBuyerPolishedGoldenManifestSummaryHighlights(golden.summaryHighlights);
   const foldDefaultOpen = props.buyerCompareUi !== true;
-  const total =
-    golden.totalDeltaCount !== undefined
-      ? golden.totalDeltaCount
-      : golden.decisionChanges.length +
-        golden.requirementChanges.length +
-        golden.securityChanges.length +
-        golden.topologyChanges.length +
-        golden.costChanges.length;
 
   const noMaterialDeltaSections =
     golden.decisionChanges.length === 0 &&
@@ -143,38 +132,10 @@ export function StructuredComparisonView(props: {
 
   return (
     <section id="compare-structured" className="mt-7">
-      <h3 className="mb-2">{BUYER_COMPARE_STRUCTURED_HEADING}</h3>
-      <p className={cn("mb-3 max-w-3xl font-medium leading-relaxed text-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+      <h2 className={cn("mb-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>{BUYER_COMPARE_STRUCTURED_HEADING}</h2>
+      <p className={cn("mb-3 font-medium leading-relaxed text-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
         {BUYER_COMPARE_STRUCTURED_LEAD}
       </p>
-      <div className={cn("mb-3 flex flex-wrap items-baseline gap-3 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-        <span>
-          <strong>Baseline review:</strong> {compareRunHeadingLabel(golden.baseRunId, props.baselinePickedSummary)}
-        </span>
-        <span aria-hidden="true" className="text-neutral-300 dark:text-neutral-600">
-          →
-        </span>
-        <span>
-          <strong>Updated review:</strong> {compareRunHeadingLabel(golden.targetRunId, props.updatedPickedSummary)}
-        </span>
-        <span className="text-neutral-500 dark:text-neutral-400">
-          · <strong>Total changes:</strong> {total}
-        </span>
-      </div>
-      {summaryHighlights.length > 0 ? (
-        <p
-          className={cn("rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mb-3 max-w-3xl p-3", OPERATOR_TYPOGRAPHY.body)}
-          data-testid="compare-sponsor-recommendation"
-        >
-          <strong>Sponsor recommendation:</strong> {summaryHighlights[0]}
-          {summaryHighlights.length > 1 ? (
-            <span className="text-neutral-600 dark:text-neutral-400">
-              {" "}
-              (+{summaryHighlights.length - 1} more in summary highlights below)
-            </span>
-          ) : null}
-        </p>
-      ) : null}
       <p className={cn("mb-4 mt-0", OPERATOR_TYPOGRAPHY.body)}>
         <a
           href={getArchitecturePackageDocxUrl(golden.baseRunId, golden.targetRunId, {
@@ -186,10 +147,10 @@ export function StructuredComparisonView(props: {
         </a>
       </p>
 
-      {summaryHighlights.length > 0 ? (
-        <ComparisonFoldSection title="Summary highlights" countBadge={summaryHighlights.length} defaultOpen>
+      {golden.summaryHighlights.length > 0 ? (
+        <ComparisonFoldSection title="Summary highlights" countBadge={golden.summaryHighlights.length} defaultOpen>
           <ul className="m-0 pl-5 leading-normal">
-            {summaryHighlights.map((h, i) => (
+            {golden.summaryHighlights.map((h, i) => (
               <li key={`highlight-${i}`}>{h}</li>
             ))}
           </ul>
@@ -209,7 +170,7 @@ export function StructuredComparisonView(props: {
           </span>
         </div>
       ) : (
-        <>
+        <div className="grid gap-4 xl:grid-cols-2">
           {golden.decisionChanges.length > 0 ? (
             <ComparisonFoldSection title="Decision changes" countBadge={golden.decisionChanges.length} defaultOpen={foldDefaultOpen}>
               {(() => {
@@ -349,7 +310,7 @@ export function StructuredComparisonView(props: {
               </p>
             </ComparisonFoldSection>
           ) : null}
-        </>
+        </div>
       )}
     </section>
   );

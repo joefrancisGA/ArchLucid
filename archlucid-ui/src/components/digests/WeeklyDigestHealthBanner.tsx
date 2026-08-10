@@ -39,6 +39,11 @@ export type WeeklyDigestHealthBannerProps = {
   readonly variant?: "full" | "subscriptions" | "schedule";
   /** When true, loads health for parent state but renders no banner chrome. */
   readonly loadOnly?: boolean;
+  /**
+   * When true on Browse during setup, the checklist owns metrics and related links —
+   * the banner shows only the status tag.
+   */
+  readonly suppressCompactFacts?: boolean;
 };
 
 type HealthMetricProps = {
@@ -79,7 +84,13 @@ function formatExecutiveScheduleSummary(snap: WeeklyDigestHealthDto): string {
  * sentence, a next-best-action card, and per-gap rows on top of all three.
  */
 export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): ReactElement | null {
-  const { refreshToken = 0, onHealthLoaded, variant = "full", loadOnly = false } = props;
+  const {
+    refreshToken = 0,
+    onHealthLoaded,
+    variant = "full",
+    loadOnly = false,
+    suppressCompactFacts = false,
+  } = props;
   const [snap, setSnap] = useState<WeeklyDigestHealthDto | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -140,6 +151,8 @@ export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): 
         : "—";
   // Full metric grid only earns its space once the loop is actually running.
   const showMetricGrid: boolean = variant === "full" && !setupNeeded;
+  const showCompactFacts: boolean =
+    variant === "full" && setupNeeded && !suppressCompactFacts;
   const compactTitle: string =
     variant === "subscriptions"
       ? "Subscription delivery"
@@ -180,7 +193,7 @@ export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): 
               Cadence: {formatExecutiveScheduleSummary(snap)}
             </span>
           ) : null}
-          {variant === "full" && !showMetricGrid ? (
+          {variant === "full" && showCompactFacts ? (
             <span
               className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="digest-status-compact-facts"
@@ -205,7 +218,7 @@ export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): 
               <Link href={INTEGRATIONS_READINESS_PATH}>{DIGESTS_BROWSE_RELATED_INTEGRATIONS_LABEL}</Link>
             </Button>
           </div>
-        ) : (
+        ) : showCompactFacts ? (
           <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Related:{" "}
             <Link
@@ -219,7 +232,7 @@ export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): 
               Integration readiness
             </Link>
           </p>
-        )}
+        ) : null}
       </div>
 
       {showMetricGrid ? (

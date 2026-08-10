@@ -27,7 +27,7 @@ describe("HelpDrawerTopicRow (TB-734)", () => {
     expect(screen.getByTestId("help-drawer-browse-label")).toHaveTextContent("Documentation");
   });
 
-  it("shows a Guide browse label for product-help slugs", () => {
+  it("omits the Guide eyebrow for product-help slugs but keeps it in the accessible name", () => {
     const topic: HelpSearchPanelTopic = {
       id: "getting-started-help",
       title: "Getting started",
@@ -45,6 +45,30 @@ describe("HelpDrawerTopicRow (TB-734)", () => {
       />,
     );
 
-    expect(screen.getByTestId("help-drawer-browse-label")).toHaveTextContent("Guide");
+    expect(screen.queryByTestId("help-drawer-browse-label")).toBeNull();
+    expect(screen.getByRole("button")).toHaveAccessibleName(
+      "Guide. Getting started. Learn how ArchLucid works.",
+    );
+  });
+
+  it("renders flat rows without per-row card elevation", () => {
+    const topic: HelpSearchPanelTopic = {
+      id: "glossary",
+      title: "Glossary",
+      description: "Definitions used in ArchLucid.",
+      keywords: ["glossary"],
+      action: { kind: "route", href: "/help/glossary", helpSlug: "glossary" },
+    };
+
+    render(
+      <HelpDrawerTopicRow
+        topic={topic}
+        isHighlighted={false}
+        onActivate={vi.fn()}
+        onHighlight={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole("button").className).not.toContain("shadow-sm");
   });
 });

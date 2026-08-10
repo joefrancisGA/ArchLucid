@@ -296,7 +296,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
         "Pilot feedback help — human judgment signals, ranked improvement opportunities, and how triage differs from recommendation learning.",
       whatToDoNext:
         "Open Pilot feedback for live aggregates, then Improvement planning when opportunities become themes or draft plans.",
-      whyEmpty: "This guide is always available; live feedback rows appear after operators capture review outcomes.",
+      whyEmpty: "This guide is always available; live feedback rows appear after architects capture review outcomes.",
       whereToConfigurePrerequisite:
         "Pilot feedback is an Internal Ops surface — System Admin authority is typically required.",
       whatToDoNextAction: {
@@ -418,7 +418,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whatToDoNext:
         "Prefer Customer Troubleshooting and System health first, then use eng CLI/env detail; open Report a problem when filing a ticket.",
       whyEmpty: "This runbook always shows when the help topic loads for Admins.",
-      whereToConfigurePrerequisite: "Admin access; Operators should use the customer Troubleshooting guide instead.",
+      whereToConfigurePrerequisite: "Admin access; Architects should use the customer Troubleshooting guide instead.",
     },
   },
   {
@@ -537,10 +537,10 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     prefix: "/governance/audit",
     entry: {
       whatIsThisPage:
-        "Search and export operator audit events for reviews, governance actions, and integrity checks in this workspace.",
+        "Search and export workspace audit events for reviews, governance actions, and integrity checks in this workspace.",
       whatToDoNext:
         "Filter by review or action, refresh the trail, then export or open the related architecture review when needed.",
-      whyEmpty: "Events appear after operators take actions that the audit coverage matrix records.",
+      whyEmpty: "Events appear after architects take actions that the audit coverage matrix records.",
       whereToConfigurePrerequisite:
         "Audit retention and export privileges follow workspace role and enterprise controls.",
     },
@@ -586,11 +586,11 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     prefix: "/administration/developer",
     entry: {
       whatIsThisPage:
-        "Internal developer tools - evaluate branded themes and try CLI demos for operator diagnostics; not part of the customer settings navigation.",
+        "Internal developer tools - evaluate branded themes and try CLI demos for workspace diagnostics; not part of the customer settings navigation.",
       whatToDoNext:
         "Use the theme selector for visual evaluation, try the CLI demo card when validating local tooling, then open Engineering troubleshooting or System health for live runbooks.",
       whyEmpty:
-        "Theme and CLI cards always render for authorized operators; empty results only appear inside the CLI demo after a command returns no output.",
+        "Theme and CLI cards always render for authorized architects; empty results only appear inside the CLI demo after a command returns no output.",
       whereToConfigurePrerequisite:
         "Requires an authenticated Admin session with advanced/developer route access; customer settings hubs do not deep-link here.",
     },
@@ -684,7 +684,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
         "Pilot feedback — aggregate review signals, ranked improvement opportunities, and exports for product triage.",
       whatToDoNext:
         "Filter by time range, open Improvement planning for themes and plans, or start a review when the dataset is empty.",
-      whyEmpty: "Feedback rows appear after operators capture review outcomes in this workspace.",
+      whyEmpty: "Feedback rows appear after architects capture review outcomes in this workspace.",
       whereToConfigurePrerequisite:
         "Pilot feedback is an Internal Ops surface — System Admin authority is typically required.",
       whatToDoNextAction: {
@@ -848,7 +848,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
         "Tenants — provision new tenant scopes or shut off existing tenants without deleting retained data.",
       whatToDoNext:
         "Create a tenant when onboarding a customer, shut off access when needed, then open Tenant health or Audit for follow-up.",
-      whyEmpty: "Rows appear after platform operators provision tenant registry entries.",
+      whyEmpty: "Rows appear after platform administrators provision tenant registry entries.",
       whereToConfigurePrerequisite:
         "This page requires tenant administrator access; customer tenants never see other tenants here.",
     },
@@ -893,10 +893,10 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     prefix: "/help",
     entry: {
       whatIsThisPage:
-        "In-app help topic — curated product documentation for operators and evaluators in this workspace.",
+        "In-app help topic — curated product documentation for architects and evaluators in this workspace.",
       whatToDoNext:
         "Read the topic, then open Getting started or Troubleshooting when you need the next step.",
-      whyEmpty: "Help topics are always available; live workspace data appears on operator surfaces after reviews start.",
+      whyEmpty: "Help topics are always available; live workspace data appears on workspace surfaces after reviews start.",
       whereToConfigurePrerequisite:
         "Workspace and project scope come from the shell header switcher once you are signed in.",
       whatToDoNextAction: {
@@ -913,12 +913,13 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     prefix: "/help/accelerator-chooser",
     entry: {
       whatIsThisPage:
-        "Accelerator chooser — map buyer jobs to starter proof packs after your first finalized architecture review.",
+        "Pick an accelerator pack — map buyer jobs to accelerator packs after your first finalized architecture review.",
       whatToDoNext:
-        "Pick an accelerator that matches the job, then open Path chooser or start a review with the matching starter pack.",
-      whyEmpty: "This guide is always available; live accelerators appear on Home after you finalize a first review.",
+        "Pick a pack that matches the buyer job, then start the review with the matching accelerator pack.",
+      whyEmpty:
+        "This guide is always available; accelerator packs appear on Home after you finalize a first review.",
       whereToConfigurePrerequisite:
-        "Starter packs assume a workspace with at least one finalized architecture review.",
+        "Accelerator packs assume a workspace with at least one finalized architecture review.",
       whatToDoNextAction: {
         label: "Open Path chooser",
         href: "/help/path-chooser",
@@ -1095,7 +1096,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     prefix: "/help/troubleshooting",
     entry: {
       whatIsThisPage:
-        "Troubleshooting — symptom-first guidance to unblock reviews, connections, and operator workflows.",
+        "Troubleshooting — symptom-first guidance to unblock reviews, connections, and architect workflows.",
       whatToDoNext:
         "Start with System health, download a support bundle when needed, then open the matching common-issue card.",
       whyEmpty: "This guide is always available; live dependency status appears on System health.",
@@ -1107,7 +1108,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     prefix: "/help/alerts",
     entry: {
       whatIsThisPage:
-        "How alerts work — how ArchLucid raises, routes, and resolves governance notifications for operators.",
+        "How alerts work — how ArchLucid raises, routes, and resolves governance notifications for architects.",
       whatToDoNext:
         "Open the alerts inbox or Alert rules, then confirm destinations and conditions for this workspace.",
       whyEmpty: "This guide is always available; live inbox and rules appear after reviews raise alerts.",
@@ -1119,7 +1120,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     prefix: "/help/billing-and-plans",
     entry: {
       whatIsThisPage:
-        "Billing and plans — how evaluation and paid plans, usage, and invoices show up for operators.",
+        "Billing and plans — how evaluation and paid plans, usage, and invoices show up for architects.",
       whatToDoNext:
         "Open Billing settings for this workspace, or Pricing when you need public packaging before changing plans.",
       whyEmpty: "This guide is always available; live plan and usage cards appear after billing data loads.",
@@ -1131,7 +1132,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     prefix: "/help/security-trust",
     entry: {
       whatIsThisPage:
-        "Security and trust help — assurance ladder, data handling, subprocessors, and diligence materials for operators and buyers.",
+        "Security and trust help — assurance ladder, data handling, subprocessors, and diligence materials for architects and buyers.",
       whatToDoNext:
         "Open Assurance status or Trust Center for live assurance surfaces, or Audit when you need governed trails.",
       whyEmpty: "This guide is always available; downloadable diligence packs appear on Trust Center when published.",
@@ -1158,7 +1159,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
         "Workspace and scope guide — how tenant, workspace, and project boundaries work with the header switcher.",
       whatToDoNext:
         "Confirm the header scope switcher, then open Users and roles or Users settings when access needs adjustment.",
-      whyEmpty: "This guide is always available; live scope labels appear in the operator header after sign-in.",
+      whyEmpty: "This guide is always available; live scope labels appear in the workspace header after sign-in.",
       whereToConfigurePrerequisite:
         "Changing tenant or project membership needs Admin authority in the target workspace.",
     },
@@ -1215,7 +1216,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     prefix: "/help/governance-approval",
     entry: {
       whatIsThisPage:
-        "Governance approval — how architecture decisions move through submit, review, and finalize for operators.",
+        "Governance approval — how architecture decisions move through submit, review, and finalize for architects.",
       whatToDoNext:
         "Open the approval queue or Workspace Health, then use Findings when you need the risk register behind a decision.",
       whyEmpty: "This guide is always available; live approval queues appear after reviews enter governance.",
@@ -1225,19 +1226,6 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
   },
   {
     prefix: "/help/review-guide",
-    entry: {
-      whatIsThisPage:
-        "Review guide — field reference for naming a review, uploading evidence, confirming scope, and finalizing the package.",
-      whatToDoNext:
-        "Start an architecture review, or open the First review guide when you need the walkthrough instead of field detail.",
-      whyEmpty: "This guide is always available; live architecture reviews appear after you create them in this workspace.",
-      whereToConfigurePrerequisite:
-        "Creating reviews needs a role that can start architecture reviews in this workspace.",
-    },
-  },
-  {
-    /** Legacy slug alias — same Category-1 copy as review-guide (HER / HR). */
-    prefix: "/help/creating-runs",
     entry: {
       whatIsThisPage:
         "Review guide — field reference for naming a review, uploading evidence, confirming scope, and finalizing the package.",
@@ -1282,7 +1270,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
         "Start an architecture review, or open Your first architecture review when you need the step-by-step walkthrough.",
       whyEmpty: "This guide is always available; live pilot outcomes appear after reviews and sponsor reports exist.",
       whereToConfigurePrerequisite:
-        "Running a pilot needs a workspace where operators can create and finalize architecture reviews.",
+        "Running a pilot needs a workspace where architects can create and finalize architecture reviews.",
     },
   },
   {
@@ -1414,7 +1402,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     prefix: "/help/glossary",
     entry: {
       whatIsThisPage:
-        "Glossary — searchable product terms for operators and buyers reviewing ArchLucid vocabulary.",
+        "Glossary — searchable product terms for architects and buyers reviewing ArchLucid vocabulary.",
       whatToDoNext:
         "Look up a term, then open Getting started or Assurance status when you need live workflow or assurance orientation.",
       whyEmpty: "Glossary terms are always listed; search filters the catalog without needing a live review.",
@@ -1426,7 +1414,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     prefix: "/help/operator-auth-roles",
     entry: {
       whatIsThisPage:
-        "Users and roles — ArchLucid app roles, capabilities, and how operators invite teammates (alias of users-and-roles).",
+        "Users and roles — ArchLucid app roles, capabilities, and how architects invite teammates (alias of users-and-roles).",
       whatToDoNext:
         "Open Users settings to invite or assign roles, or Assurance status when you need assurance orientation.",
       whyEmpty: "This guide is always available; live directory rows appear after users are invited or provisioned.",
@@ -1438,7 +1426,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     prefix: "/help/users-and-roles",
     entry: {
       whatIsThisPage:
-        "Users and roles — ArchLucid app roles, capabilities, and how operators invite teammates for this workspace.",
+        "Users and roles — ArchLucid app roles, capabilities, and how architects invite teammates for this workspace.",
       whatToDoNext:
         "Open Users settings to invite or assign roles, or Assurance status when you need assurance orientation.",
       whyEmpty: "This guide is always available; live directory rows appear after users are invited or provisioned.",
@@ -1687,7 +1675,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty:
         "Public materials list here when published; NDA-gated packs require contacting security@archlucid.net.",
       whereToConfigurePrerequisite:
-        "No workspace toggle is required — this page orients operators to published and NDA diligence paths.",
+        "No workspace toggle is required — this page orients architects to published and NDA diligence paths.",
     },
   },
   {
@@ -1881,7 +1869,7 @@ export function allPageContextualHelpRows(): readonly PageContextualHelpRow[] {
   return PAGE_CONTEXTUAL_HELP;
 }
 
-/** Resolve short-form contextual help for an operator pathname, or `null` when not migrated yet. */
+/** Resolve short-form contextual help for an architect pathname, or `null` when not migrated yet. */
 export function contextualHelpForPathname(pathname: string): PageContextualHelpEntry | null {
   const rawPath = (pathname ?? "").split("?")[0] ?? "";
   const path = (canonicalizeLegacyOperatorRoutePath(rawPath).split("?")[0] ?? rawPath).trim() || "/";

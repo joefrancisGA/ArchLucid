@@ -5,7 +5,7 @@ import { SETTINGS_USERS_USERS_TAB_PATH } from "@/lib/settings-admin-route-paths"
 export const USERS_AND_ROLES_HELP_CANONICAL_PATH = "/help/users-and-roles" as const;
 
 export const USERS_AND_ROLES_HELP_CLAIM_DISCIPLINE =
-  "This users-and-roles guide explains ArchLucid app roles and capabilities — it is operator access orientation, not a signed-review diligence Sources package. Open Assurance status or the live Users settings when you need assurance trails or directory changes.";
+  "This users-and-roles guide explains ArchLucid app roles and capabilities — it is architect access orientation, not a signed-review diligence Sources package. Open Assurance status or the live Users settings when you need assurance trails or directory changes.";
 
 export const USERS_AND_ROLES_HELP_SOURCES_INTRO =
   "Use these follow-ups when role vocabulary turns into inviting teammates, adjusting workspace access, or citing assurance orientation.";

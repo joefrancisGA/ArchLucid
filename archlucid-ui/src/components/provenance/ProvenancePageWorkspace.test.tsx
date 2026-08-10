@@ -114,18 +114,25 @@ describe("ProvenancePageWorkspace", () => {
   it("shows filter notice without removing table data", () => {
     render(<ProvenancePageWorkspace runId="demo-run" graph={graph} provenanceTraceId={null} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Findings" }));
+    fireEvent.click(screen.getByRole("button", { name: "Findings (1)" }));
 
     expect(
       screen.getByText(/Filters hide graph elements for focus only/i),
     ).toBeInTheDocument();
+    expect(screen.getByText(/Showing 1 of 3 nodes in the graph/i)).toBeInTheDocument();
     expect(screen.getByTestId("provenance-nodes-table")).toBeInTheDocument();
+    expect(within(screen.getByTestId("provenance-nodes-table")).getAllByRole("row").length).toBeGreaterThan(3);
   });
 
-  it("highlights edges when an edge row is expanded and clicked", () => {
+  it("expands the edges table by default for small graphs", () => {
     render(<ProvenancePageWorkspace runId="demo-run" graph={graph} provenanceTraceId={null} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Expand" }));
+    expect(screen.getByTestId("provenance-edges-table")).toBeInTheDocument();
+  });
+
+  it("highlights edges when an edge row is clicked", () => {
+    render(<ProvenancePageWorkspace runId="demo-run" graph={graph} provenanceTraceId={null} />);
+
     const edgesTable = screen.getByTestId("provenance-edges-table");
     fireEvent.click(within(edgesTable).getByText(/Reviewed source context → PHI minimization risk/));
 

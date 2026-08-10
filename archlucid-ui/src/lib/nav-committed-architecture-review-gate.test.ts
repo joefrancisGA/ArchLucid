@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { NAV_GROUPS } from "@/lib/nav-config";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
-  pathnameEligibleBeforeFirstCommittedArchitectureReview,
   filterNavLinksByCommittedArchitectureReviewGate,
+  pathnameEligibleBeforeFirstCommittedArchitectureReview,
 } from "@/lib/nav-committed-architecture-review-gate";
+import { filterNavLinksForOperatorShell } from "@/lib/nav-shell-visibility";
 
 describe("pathnameEligibleBeforeFirstCommittedArchitectureReview", () => {
   it("allows the pilot path and help/onboarding before first commit, not operate hubs", () => {
@@ -21,41 +23,66 @@ describe("pathnameEligibleBeforeFirstCommittedArchitectureReview", () => {
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/help")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/architecture/first-review-guide")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/administration/baseline")).toBe(true);
+    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/administration/tenant")).toBe(true);
+    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/administration")).toBe(false);
+    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/administration/users")).toBe(false);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/governance/findings")).toBe(false);
-    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/alerts")).toBe(false);
+    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/governance/alerts")).toBe(false);
+    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/insights/compare-two-reviews")).toBe(false);
   });
 });
 
 describe("filterNavLinksByCommittedArchitectureReviewGate", () => {
-  it("is a no-op when the tenant already committed a review", () => {
-    const pilot = NAV_GROUPS.find((g) => g.id === "pilot");
-    if (pilot === undefined) {
-      throw new Error("nav smoke: missing pilot group");
-    }
+  it("omits Operate and diagnostics links before first commit and restores them after", () => {
+    const enterprise = NAV_GROUPS.find((g) => g.id === "operate-governance");
+    const analysis = NAV_GROUPS.find((g) => g.id === "operate-analysis");
 
-    const full = filterNavLinksByCommittedArchitectureReviewGate(pilot.links, true);
-    expect(full).toEqual([...pilot.links]);
+    expect(enterprise).toBeDefined();
+    expect(analysis).toBeDefined();
+
+    const preCommitGovernance = filterNavLinksByCommittedArchitectureReviewGate(enterprise!.links, false);
+
+    expect(preCommitGovernance).toHaveLength(0);
+
+    const postCommitGovernance = filterNavLinksByCommittedArchitectureReviewGate(enterprise!.links, true);
+
+    expect(postCommitGovernance.length).toBe(enterprise!.links.length);
+
+    const preCommitAnalysis = filterNavLinksByCommittedArchitectureReviewGate(analysis!.links, false);
+
+    expect(preCommitAnalysis.map((l) => l.href)).toEqual(["/insights/evidence-graph"]);
   });
+});
 
-  it("returns all pilot links when uncommitted (gate retired — authority-only visibility)", () => {
-    const pilot = NAV_GROUPS.find((g) => g.id === "pilot");
-    if (pilot === undefined) {
-      throw new Error("nav smoke: missing pilot group");
-    }
+describe("filterNavLinksForOperatorShell — pre-commit gate", () => {
+  it("excludes Compare and governance destinations before first finalize", () => {
+    const analysis = NAV_GROUPS.find((g) => g.id === "operate-analysis");
+    const enterprise = NAV_GROUPS.find((g) => g.id === "operate-governance");
 
-    const thin = filterNavLinksByCommittedArchitectureReviewGate(pilot.links, false);
+    expect(analysis).toBeDefined();
+    expect(enterprise).toBeDefined();
 
-    expect(thin).toEqual(pilot.links);
-  });
+    const analysisVisible = filterNavLinksForOperatorShell(
+      analysis!.links,
+      true,
+      true,
+      AUTHORITY_RANK.AdminAuthority,
+      false,
+      false,
+    );
 
-  it("returns all operate-governance links when uncommitted (gate retired)", () => {
-    const governance = NAV_GROUPS.find((g) => g.id === "operate-governance");
-    if (governance === undefined) {
-      throw new Error("nav smoke: missing operate-governance group");
-    }
+    expect(analysisVisible.some((l) => l.href === "/insights/compare-two-reviews")).toBe(false);
+    expect(analysisVisible.some((l) => l.href === "/insights/evidence-graph")).toBe(true);
 
-    const thin = filterNavLinksByCommittedArchitectureReviewGate(governance.links, false);
+    const governanceVisible = filterNavLinksForOperatorShell(
+      enterprise!.links,
+      true,
+      true,
+      AUTHORITY_RANK.AdminAuthority,
+      false,
+      false,
+    );
 
-    expect(thin).toEqual(governance.links);
+    expect(governanceVisible).toHaveLength(0);
   });
 });

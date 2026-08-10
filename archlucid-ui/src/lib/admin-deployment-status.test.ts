@@ -4,6 +4,8 @@ import {
   ADMIN_DEPLOYMENT_STATUS_PROXY_PATH,
   buildDeploymentStatusRequestUrl,
   DEPLOYMENT_STATUS_UNKNOWN,
+  deploymentOverallStatusShortLabel,
+  deploymentOverallStatusTagKind,
   displayDeploymentField,
   resolveOverallTone,
 } from "./admin-deployment-status";
@@ -30,5 +32,14 @@ describe("admin-deployment-status helpers", () => {
     expect(buildDeploymentStatusRequestUrl("deadbeef")).toBe(
       `${ADMIN_DEPLOYMENT_STATUS_PROXY_PATH}?frontendBuildId=deadbeef`,
     );
+  });
+
+  it("maps deployment overall tone to StatusTag kind and short label", () => {
+    expect(deploymentOverallStatusTagKind("Healthy")).toBe("ready");
+    expect(deploymentOverallStatusTagKind("Warning")).toBe("needs-attention");
+    expect(deploymentOverallStatusTagKind("Failed")).toBe("blocked");
+    expect(deploymentOverallStatusTagKind("Unknown")).toBe("neutral");
+    expect(deploymentOverallStatusShortLabel("Healthy")).toBe("Healthy");
+    expect(deploymentOverallStatusShortLabel("Failed")).toBe("Failed");
   });
 });

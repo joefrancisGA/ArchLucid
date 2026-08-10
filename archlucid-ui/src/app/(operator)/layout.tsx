@@ -2,12 +2,15 @@ import type { ReactNode } from "react";
 
 import { AppShellClient } from "@/components/AppShellClient";
 import { GovernanceModeProvider } from "@/components/GovernanceModeProvider";
+import { ItsmNativeCreateReadinessProvider } from "@/components/ItsmNativeCreateReadinessProvider";
 
 /** Shell is client-driven; child routes opt into request-time rendering only when needed. */
 export default function OperatorLayout({ children }: { children: ReactNode }) {
   return (
     <GovernanceModeProvider>
-      <AppShellClient>{children}</AppShellClient>
+      <ItsmNativeCreateReadinessProvider>
+        <AppShellClient>{children}</AppShellClient>
+      </ItsmNativeCreateReadinessProvider>
     </GovernanceModeProvider>
   );
 }

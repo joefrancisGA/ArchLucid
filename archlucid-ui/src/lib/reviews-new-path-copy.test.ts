@@ -14,8 +14,9 @@ describe("reviews-new-path-copy buyer-facing copy", () => {
     expect(REVIEWS_NEW_PATH_HINTS["guided-intake"]).not.toMatch(/admission gates/i);
   });
 
-  it("quick-review hint is clearly for the fastest first-pilot path", () => {
-    expect(REVIEWS_NEW_PATH_HINTS["quick-review"]).toMatch(/first-pilot|evidence|review title/i);
+  it("quick-review hint is clearly for the fastest first-review path", () => {
+    expect(REVIEWS_NEW_PATH_HINTS["quick-review"]).toMatch(/quick start|evidence|review title/i);
+    expect(REVIEWS_NEW_PATH_HINTS["quick-review"].toLowerCase()).not.toMatch(/first-pilot|first pilot/);
   });
 
   it("detailed hint is for export-ready reviews", () => {

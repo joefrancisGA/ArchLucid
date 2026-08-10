@@ -1,6 +1,13 @@
 import type { PilotScorecardJson } from "@/types/pilot-scorecard";
 
+import { REVIEWS_LIST_PATH, REVIEWS_NEW_PATH } from "@/lib/architecture-routes";
 import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
+import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
+import {
+  GOVERNANCE_APPROVAL_QUEUE_PATH,
+  GOVERNANCE_AUDIT_PATH,
+} from "@/lib/governance-route-paths";
+import { GOVERNANCE_FINDINGS_TRAFFIC_PATH } from "@/lib/ui-route-traffic-governance-findings";
 
 export const REVIEW_SCORECARD_PAGE_TITLE = BUYER_TERMINOLOGY.reviewScorecard;
 
@@ -8,6 +15,29 @@ export const REVIEW_SCORECARD_PAGE_SUBTITLE =
   "See review throughput, governance effectiveness, and estimated ROI at a glance.";
 
 export const REVIEW_SCORECARD_EMPTY_VALUE = "—";
+
+export const REVIEW_SCORECARD_NOT_MEASURED_LABEL = "Not measured";
+
+export const REVIEW_SCORECARD_MEASURED_ZERO_DETAIL = "Measured — none yet in scope.";
+
+export const REVIEW_SCORECARD_MEASURED_DETAIL = "Measured in the current workspace scope.";
+
+export const REVIEW_SCORECARD_FINALIZED_HREF = REVIEWS_LIST_PATH;
+export const REVIEW_SCORECARD_GOVERNANCE_HREF = GOVERNANCE_APPROVAL_QUEUE_PATH;
+export const REVIEW_SCORECARD_FINDINGS_HREF = GOVERNANCE_FINDINGS_TRAFFIC_PATH;
+export const REVIEW_SCORECARD_AUDIT_HREF = GOVERNANCE_AUDIT_PATH;
+export const REVIEW_SCORECARD_START_REVIEW_HREF = REVIEWS_NEW_PATH;
+export const REVIEW_SCORECARD_ROI_ASSUMPTIONS_HREF = "#roi-assumptions";
+
+export type ReviewScorecardMetricState = "unavailable" | "measuredZero" | "measured";
+
+export type ReviewScorecardMetricDisplay = {
+  readonly state: ReviewScorecardMetricState;
+  readonly value: string;
+  readonly detail: string;
+  readonly empty: boolean;
+  readonly useKpiEmphasis: boolean;
+};
 
 export type ReviewScorecardSummaryRow = {
   readonly finalizedPackages: number;
@@ -24,11 +54,20 @@ export type ReviewScorecardOperationalMetric = {
   readonly value: string;
   readonly detail: string;
   readonly empty: boolean;
+  readonly metricState: ReviewScorecardMetricState;
+  readonly useKpiEmphasis: boolean;
+  readonly href: string;
+  readonly drillDownLabel: string;
   readonly methodologyKey?: string;
+  readonly sourceDisclosure?: string;
 };
 
 export function hasCommittedReviews(data: PilotScorecardJson): boolean {
   return data.totalRunsCommitted > 0;
+}
+
+export function hasReviewActivity(data: PilotScorecardJson): boolean {
+  return hasCommittedReviews(data) || data.totalManifestsCreated > 0;
 }
 
 export function buildReviewScorecardSummaryRow(
@@ -37,7 +76,7 @@ export function buildReviewScorecardSummaryRow(
 ): ReviewScorecardSummaryRow {
   let estimatedReviewTimeSavingsLabel = REVIEW_SCORECARD_EMPTY_VALUE;
   let estimatedReviewTimeSavingsDetail =
-    "Save ROI assumptions below to estimate annual review-time savings for sponsor discussions.";
+    "Configure ROI assumptions below to preview annual review-time savings for sponsor discussions.";
   let estimatedReviewTimeSavingsReady = false;
 
   if (annualSavingsLabel !== null) {
@@ -47,7 +86,7 @@ export function buildReviewScorecardSummaryRow(
     estimatedReviewTimeSavingsReady = true;
   } else if (data.baselines !== null) {
     estimatedReviewTimeSavingsDetail =
-      "Complete all three ROI assumptions and save to calculate estimated savings.";
+      "Complete all three ROI assumptions below to preview and save estimated savings.";
   }
 
   return {
@@ -60,9 +99,43 @@ export function buildReviewScorecardSummaryRow(
   };
 }
 
-function formatCycleTime(minutes: number | null): string {
-  if (minutes === null || !Number.isFinite(minutes)) {
-    return REVIEW_SCORECARD_EMPTY_VALUE;
+function resolveCountMetricDisplay(
+  count: number,
+  measurementActive: boolean,
+  unavailableDetail: string,
+): ReviewScorecardMetricDisplay {
+  if (!measurementActive && count === 0) {
+    return {
+      state: "unavailable",
+      value: REVIEW_SCORECARD_EMPTY_VALUE,
+      detail: unavailableDetail,
+      empty: true,
+      useKpiEmphasis: false,
+    };
+  }
+
+  if (count === 0) {
+    return {
+      state: "measuredZero",
+      value: "0",
+      detail: REVIEW_SCORECARD_MEASURED_ZERO_DETAIL,
+      empty: false,
+      useKpiEmphasis: false,
+    };
+  }
+
+  return {
+    state: "measured",
+    value: String(count),
+    detail: REVIEW_SCORECARD_MEASURED_DETAIL,
+    empty: false,
+    useKpiEmphasis: true,
+  };
+}
+
+function formatCycleTimeValue(minutes: number): string {
+  if (minutes < 1) {
+    return "< 1 min";
   }
 
   if (minutes < 60) {
@@ -74,35 +147,70 @@ function formatCycleTime(minutes: number | null): string {
   return `${hours.toFixed(1)} h`;
 }
 
-function zeroAwareCountMetric(
-  count: number,
-  zeroDetail: string,
-): { value: string; detail: string; empty: boolean } {
-  if (count === 0) {
-    return { value: REVIEW_SCORECARD_EMPTY_VALUE, detail: zeroDetail, empty: true };
+function resolveCycleTimeDisplay(
+  minutes: number | null,
+  finalizedPackageCount: number,
+): ReviewScorecardMetricDisplay {
+  if (minutes === null || !Number.isFinite(minutes)) {
+    return {
+      state: "unavailable",
+      value: REVIEW_SCORECARD_EMPTY_VALUE,
+      detail: "Average review cycle time appears after a finalized architecture package.",
+      empty: true,
+      useKpiEmphasis: false,
+    };
   }
 
-  return { value: String(count), detail: "Measured in the current workspace scope.", empty: false };
+  const sampleSize = finalizedPackageCount;
+  const detail =
+    sampleSize > 0
+      ? `Mean across ${sampleSize} finalized package${sampleSize === 1 ? "" : "s"}.`
+      : "Average elapsed time from review start to finalized package.";
+
+  return {
+    state: "measured",
+    value: formatCycleTimeValue(minutes),
+    detail,
+    empty: false,
+    useKpiEmphasis: sampleSize >= 3,
+  };
+}
+
+function resolveMetricSourceDisclosure(
+  metricSources: PilotScorecardJson["metricSources"],
+  key: string,
+): string | undefined {
+  if (metricSources === undefined) {
+    return undefined;
+  }
+
+  const source = metricSources[key]?.trim();
+
+  if (source === undefined || source.length === 0) {
+    return undefined;
+  }
+
+  return source;
 }
 
 export function buildReviewScorecardOperationalMetrics(data: PilotScorecardJson): ReviewScorecardOperationalMetric[] {
-  const committed = zeroAwareCountMetric(
+  const reviewActivity = hasReviewActivity(data);
+  const committed = resolveCountMetricDisplay(
     data.totalRunsCommitted,
-    "Commit a review to begin tracking throughput.",
+    reviewActivity,
+    "Start an architecture review to begin tracking throughput.",
   );
-  const finalized = zeroAwareCountMetric(
-    data.totalManifestsCreated,
-    "Finalize a package to begin tracking completed reviews.",
-  );
-  const affirmed = zeroAwareCountMetric(
+  const affirmed = resolveCountMetricDisplay(
     data.totalFindingsResolved,
+    hasCommittedReviews(data),
     "Affirm findings from a review to begin tracking decisions.",
   );
-  const cycleTimeValue = formatCycleTime(data.averageTimeToManifestMinutes);
-  const cycleTimeEmpty = data.averageTimeToManifestMinutes === null;
-  const cycleTimeDetail = cycleTimeEmpty
-    ? "Average review cycle time appears after a finalized package."
-    : "Average elapsed time from commit to finalized package.";
+  const cycleTime = resolveCycleTimeDisplay(data.averageTimeToManifestMinutes, data.totalManifestsCreated);
+  const audit = resolveCountMetricDisplay(
+    data.totalAuditEventsGenerated,
+    hasCommittedReviews(data),
+    "Audit activity appears as architects work through reviews.",
+  );
 
   return [
     {
@@ -111,15 +219,12 @@ export function buildReviewScorecardOperationalMetrics(data: PilotScorecardJson)
       value: committed.value,
       detail: committed.detail,
       empty: committed.empty,
+      metricState: committed.state,
+      useKpiEmphasis: committed.useKpiEmphasis,
+      href: committed.empty ? REVIEW_SCORECARD_START_REVIEW_HREF : REVIEW_SCORECARD_FINALIZED_HREF,
+      drillDownLabel: committed.empty ? "Start architecture review" : "View architecture reviews",
       methodologyKey: "totalRunsCommitted",
-    },
-    {
-      key: "totalManifestsCreated",
-      title: "Finalized packages",
-      value: finalized.value,
-      detail: finalized.detail,
-      empty: finalized.empty,
-      methodologyKey: "totalManifestsCreated",
+      sourceDisclosure: resolveMetricSourceDisclosure(data.metricSources, "totalRunsCommitted"),
     },
     {
       key: "totalFindingsResolved",
@@ -127,49 +232,76 @@ export function buildReviewScorecardOperationalMetrics(data: PilotScorecardJson)
       value: affirmed.value,
       detail: affirmed.detail,
       empty: affirmed.empty,
+      metricState: affirmed.state,
+      useKpiEmphasis: affirmed.useKpiEmphasis,
+      href: REVIEW_SCORECARD_FINDINGS_HREF,
+      drillDownLabel: "View findings register",
       methodologyKey: "totalFindingsResolved",
+      sourceDisclosure: resolveMetricSourceDisclosure(data.metricSources, "totalFindingsResolved"),
     },
     {
       key: "averageTimeToManifestMinutes",
       title: "Average review cycle time",
-      value: cycleTimeValue,
-      detail: cycleTimeDetail,
-      empty: cycleTimeEmpty,
+      value: cycleTime.value,
+      detail: cycleTime.detail,
+      empty: cycleTime.empty,
+      metricState: cycleTime.state,
+      useKpiEmphasis: cycleTime.useKpiEmphasis,
+      href: cycleTime.empty ? REVIEW_SCORECARD_START_REVIEW_HREF : REVIEW_SCORECARD_FINALIZED_HREF,
+      drillDownLabel: cycleTime.empty ? "Start architecture review" : "View architecture reviews",
       methodologyKey: "averageTimeToManifestMinutes",
-    },
-    {
-      key: "totalGovernanceApprovalsCompleted",
-      title: "Governance approvals completed",
-      ...zeroAwareCountMetric(
-        data.totalGovernanceApprovalsCompleted,
-        "Complete your first approval to begin tracking governance metrics.",
-      ),
-      methodologyKey: "totalGovernanceApprovalsCompleted",
+      sourceDisclosure: resolveMetricSourceDisclosure(data.metricSources, "averageTimeToManifestMinutes"),
     },
     {
       key: "totalAuditEventsGenerated",
       title: "Audit events recorded",
-      ...zeroAwareCountMetric(
-        data.totalAuditEventsGenerated,
-        "Audit activity appears as operators work through reviews.",
-      ),
+      value: audit.value,
+      detail: audit.detail,
+      empty: audit.empty,
+      metricState: audit.state,
+      useKpiEmphasis: audit.useKpiEmphasis,
+      href: REVIEW_SCORECARD_AUDIT_HREF,
+      drillDownLabel: "View audit trail",
       methodologyKey: "totalAuditEventsGenerated",
+      sourceDisclosure: resolveMetricSourceDisclosure(data.metricSources, "totalAuditEventsGenerated"),
     },
   ];
+}
+
+export function buildReviewScorecardScopeCue(data: PilotScorecardJson): string {
+  if (data.firstCommitUtc !== null && data.firstCommitUtc !== undefined && data.firstCommitUtc.length > 0) {
+    const days = data.daysSinceFirstCommit;
+
+    if (typeof days === "number" && Number.isFinite(days) && days >= 0) {
+      return `Workspace all-time · ${days} day${days === 1 ? "" : "s"} of review activity`;
+    }
+
+    return "Workspace all-time · since review activity began";
+  }
+
+  return "Workspace all-time · metrics appear after the first review activity";
+}
+
+export function buildReviewScorecardMetricsAsOfLabel(metricsAsOfUtc: string | null): string | null {
+  if (metricsAsOfUtc === null || metricsAsOfUtc.trim().length === 0) {
+    return null;
+  }
+
+  return `Metrics as of ${formatIsoUtcForDisplay(metricsAsOfUtc)}`;
 }
 
 export function buildReviewScorecardMethodologyLines(
   metricSources: PilotScorecardJson["metricSources"],
 ): string[] {
-  if (metricSources === undefined) {
-    return [
-      "Committed reviews and finalized packages count tenant-scoped review activity.",
-      "Affirmed findings reflect positive feedback on generated findings.",
-      "Estimated savings use saved ROI assumptions when all three inputs are provided.",
-    ];
-  }
+  // Sponsor-facing copy only — never dump raw API metricSources keys (tenantId, roiEstimate, …).
+  void metricSources;
 
-  return Object.entries(metricSources).map(([metric, source]) => `${metric}: ${source}`);
+  return [
+    "Committed reviews and finalized packages count workspace-scoped review activity.",
+    "Affirmed findings reflect positive disposition on generated findings.",
+    "Estimated savings use saved ROI assumptions when all three inputs are provided.",
+    "Per-tile provenance labels state whether each metric is measured, modeled, or unavailable.",
+  ];
 }
 
 export function formatQuarterlySavingsFromAnnualUsd(annualUsd: number): string {
@@ -180,18 +312,10 @@ export function formatQuarterlySavingsFromAnnualUsd(annualUsd: number): string {
   }).format(annualUsd / 4);
 }
 
-export function summarizePrimaryKpiDisplay(count: number, zeroDetail: string): {
-  value: string;
-  detail: string;
-  empty: boolean;
-} {
-  if (count === 0) {
-    return { value: REVIEW_SCORECARD_EMPTY_VALUE, detail: zeroDetail, empty: true };
-  }
-
-  return {
-    value: String(count),
-    detail: "Measured in the current workspace scope.",
-    empty: false,
-  };
+export function summarizePrimaryKpiDisplay(
+  count: number,
+  unavailableDetail: string,
+  measurementActive: boolean,
+): ReviewScorecardMetricDisplay {
+  return resolveCountMetricDisplay(count, measurementActive, unavailableDetail);
 }

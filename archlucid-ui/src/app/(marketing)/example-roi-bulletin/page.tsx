@@ -9,6 +9,8 @@ import {
 } from "@/lib/marketing/example-roi-bulletin-honesty";
 import { loadSampleAggregateRoiBulletinSyntheticMarkdown } from "@/marketing/load-sample-aggregate-roi-bulletin-synthetic";
 
+export const revalidate = 300;
+
 // TB-1520: noindex until buyer-facing CTA rewrite (TB-1518) lands — avoids SERP contributor-path leakage.
 export const metadata: Metadata = {
   title: "ArchLucid · Example aggregate ROI bulletin (synthetic)",
@@ -23,7 +25,7 @@ export default function ExampleRoiBulletinMarketingPage() {
   const operatorAdminPreviewHref = adminRoiBulletinPreviewHref(illustrativeQuarter);
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-10">
+    <main className="mx-auto max-w-3xl px-4 py-10" data-testid="example-roi-bulletin-page">
       <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">
         Example aggregate ROI bulletin (synthetic)
       </h1>

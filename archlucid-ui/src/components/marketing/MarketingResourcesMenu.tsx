@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { LIVE_DEMO_PAGE_TITLE } from "@/lib/live-demo-page-copy";
 import { MARKETING_PUBLIC_NAV_LINK_CLASS } from "@/lib/marketing-public-nav-link-class";
 import { cn } from "@/lib/utils";
 
@@ -166,7 +167,7 @@ export function MarketingResourcesMenu({ liveDemoLinked }: MarketingResourcesMen
               )}
               onClick={closeMenu}
             >
-              Live demo
+              {LIVE_DEMO_PAGE_TITLE}
             </Link>
           ) : null}
         </div>

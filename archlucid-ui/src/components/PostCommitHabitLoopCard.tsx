@@ -52,7 +52,7 @@ export function PostCommitHabitLoopCard({
           <Button
             type="button"
             asChild
-            variant="default"
+            variant="primary"
             size="sm"
             className="w-fit justify-center sm:justify-start"
             data-testid="post-commit-habit-primary"

@@ -50,7 +50,7 @@ export const WHY_ARCHLUCID_COMPARISON_ROWS: readonly WhyArchLucidComparisonRow[]
   },
   {
     claim:
-      "Operators can enable **`ArchLucid:Governance:PreCommitGateEnabled`** so **architecture review finalization** consults governance findings and policy assignments **before** the commit succeeds, returning a structured problem response when blocked.",
+      "Architects can enable **`ArchLucid:Governance:PreCommitGateEnabled`** so **architecture review finalization** consults governance findings and policy assignments **before** the commit succeeds, returning a structured problem response when blocked.",
     archlucidEvidence:
       "`docs/library/PRE_COMMIT_GOVERNANCE_GATE.md` · `ArchLucid.Application/Governance/PreCommitGovernanceGate.cs` · `ArchLucid.Application.Tests/ArchitectureRunCommitPipelineIntegrationTests.cs` (gate exercised)",
     competitorBaseline:

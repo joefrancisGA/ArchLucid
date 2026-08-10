@@ -1,5 +1,7 @@
 "use client";
 
+import { ChevronDown } from "lucide-react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -23,20 +25,57 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { roleClaimCaption, roleDisplayLabel } from "@/lib/role-display-labels";
 import { showError, showSuccess } from "@/lib/toast";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { ALL_MATRIX_PERMISSION_IDS, CUSTOM_ROLE_PERMISSION_GROUPS } from "./custom-role-permission-groups";
+import { CUSTOM_ROLE_PERMISSION_GROUPS, ALL_MATRIX_PERMISSION_IDS } from "./custom-role-permission-groups";
 import {
-  BUILTIN_ROLE_SUMMARIES,
+  baselinePermissionsByKey,
+  clonedRoleName,
+  countDirtyPermissions,
+  dirtyRoles,
+  type DraftRole,
+  dirtyRoleDisplayNames,
+  hasUnsavedRoleEdits,
+  isRoleDirty,
+  mergeUnsavedRoleEdits,
+  restoreRoleToBaseline,
+  roleMatrixKey,
+  type RolePermissionBaseline,
+  toggleRolePermission,
+  totalUnsavedPermissionChanges,
+} from "./custom-role-draft-state";
+import { type CustomRoleFailureKind, customRoleFailureCopy } from "./custom-role-failure-copy";
+import { CustomRoleRequestError, customRoleRequestStatus } from "./custom-role-request-error";
+import {
+  formatRoleAssignmentCount,
+} from "./roles-matrix-assignment-counts";
+import {
+  EMPTY_ROLES_MATRIX_PERMISSION_FILTER,
+  filterPermissionGroupsForMatrix,
+} from "./roles-matrix-permission-filter";
+import {
   CUSTOM_ROLE_START_FROM_OPTIONS,
-  type BuiltinRoleName,
+  type CustomRoleStartFromValue,
   hasHighRiskPermissions,
   highRiskPermissionLabels,
+  ROLES_MATRIX_CLONE_VS_CREATE_COPY,
+  ROLES_MATRIX_CREATE_READINESS_COPY,
   ROLES_MATRIX_HELPER_COPY,
+  ROLES_MATRIX_PERMISSION_LEGEND,
+  formatRoleLastUpdated,
   sortMatrixRoles,
+  unsavedRoleEditsNotice,
 } from "./roles-matrix-constants";
+
+function showCustomRoleFailure(kind: CustomRoleFailureKind, error: unknown): void {
+  const copy = customRoleFailureCopy(kind, customRoleRequestStatus(error));
+
+  showError(copy.title, copy.description);
+}
 
 type CustomRoleDto = {
   id: string;
@@ -47,26 +86,28 @@ type CustomRoleDto = {
   updatedUtc: string;
 };
 
-type DraftRole = {
-  id?: string;
-  name: string;
-  permissions: Set<string>;
-  isSystem: boolean;
+/** Role columns and their last-saved permissions move together so dirty state can never drift apart. */
+type RoleMatrixState = {
+  readonly roles: readonly DraftRole[];
+  readonly baseline: RolePermissionBaseline;
 };
+
+const EMPTY_MATRIX_STATE: RoleMatrixState = { roles: [], baseline: new Map() };
 
 type PendingHighRiskAction =
   | { kind: "create"; name: string; permissions: string[] }
   | { kind: "save"; role: DraftRole }
   | { kind: "clone"; source: DraftRole };
 
-const ROLE_COLUMN_WIDTH = "7.5rem";
-const PERMISSION_COLUMN_WIDTH = "14rem";
+type SettingsRolesMatrixSectionProps = {
+  readonly assignmentCountsByRole?: ReadonlyMap<string, number>;
+};
 
 async function fetchRoles(): Promise<CustomRoleDto[]> {
   const res = await fetch("/api/proxy/v1/admin/roles", mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }));
 
   if (!res.ok)
-    throw new Error(`Failed to load roles (${res.status})`);
+    throw new CustomRoleRequestError(res.status);
 
   return (await res.json()) as CustomRoleDto[];
 }
@@ -93,7 +134,7 @@ function PermissionValue({
           type="checkbox"
           checked={checked}
           aria-label={`${permissionLabel} for ${roleName}`}
-          className="h-4 w-4"
+          className="h-4 w-4 accent-teal-700"
           onChange={onToggle}
         />
       </div>
@@ -105,25 +146,115 @@ function PermissionValue({
       <span
         className={cn(
           "inline-flex min-w-[2rem] items-center justify-center rounded-sm px-1 text-base font-semibold leading-none",
-          allowed ? "text-teal-700 dark:text-teal-300" : "text-neutral-400 dark:text-neutral-500",
+          allowed ? "text-teal-700 dark:text-teal-300" : "text-neutral-600 dark:text-neutral-400",
         )}
-        aria-label={`${permissionLabel} for ${roleName}: ${allowed ? "Allowed" : "Not allowed"}`}
+        aria-label={`${permissionLabel} for ${roleName}: ${allowed ? ROLES_MATRIX_PERMISSION_LEGEND.allowed : ROLES_MATRIX_PERMISSION_LEGEND.denied}`}
       >
         <span aria-hidden="true">{allowed ? "✓" : "—"}</span>
-        <span className="sr-only">{allowed ? "Allowed" : "Not allowed"}</span>
+        <span className="sr-only">{allowed ? ROLES_MATRIX_PERMISSION_LEGEND.allowed : ROLES_MATRIX_PERMISSION_LEGEND.denied}</span>
       </span>
     </div>
   );
 }
 
-export function SettingsRolesMatrixSection() {
-  const [roles, setRoles] = useState<DraftRole[]>([]);
+function RolesMatrixPermissionLegend() {
+  return (
+    <div
+      className={cn("flex flex-wrap items-center gap-x-4 gap-y-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}
+      data-testid="settings-roles-matrix-legend"
+      aria-label="Permission matrix legend"
+    >
+      <span className="inline-flex items-center gap-1.5">
+        <span className="font-semibold text-teal-700 dark:text-teal-300" aria-hidden="true">
+          ✓
+        </span>
+        {ROLES_MATRIX_PERMISSION_LEGEND.allowed}
+      </span>
+      <span className="inline-flex items-center gap-1.5">
+        <span className="font-semibold text-neutral-600 dark:text-neutral-400" aria-hidden="true">
+          —
+        </span>
+        {ROLES_MATRIX_PERMISSION_LEGEND.denied}
+      </span>
+    </div>
+  );
+}
+
+type RolesMatrixCommandBarProps = {
+  readonly dirtyRoleList: readonly DraftRole[];
+  readonly changeCount: number;
+  readonly savingRoleId: string | null;
+  readonly onSaveRole: (role: DraftRole) => void;
+  readonly onDiscardRole: (roleKey: string) => void;
+};
+
+function RolesMatrixCommandBar(props: RolesMatrixCommandBarProps) {
+  const { dirtyRoleList, changeCount, savingRoleId, onSaveRole, onDiscardRole } = props;
+
+  if (dirtyRoleList.length === 0)
+    return null;
+
+  const roleNames = dirtyRoleList.map((role) => roleDisplayLabel(role.name)).join(", ");
+
+  return (
+    <div
+      data-testid="settings-roles-command-bar"
+      className={cn(
+        "sticky top-0 z-40 flex flex-wrap items-center justify-between gap-3 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 dark:border-amber-700/60 dark:bg-amber-950/40",
+      )}
+      role="status"
+    >
+      <p className={cn("m-0 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}>
+        {changeCount === 1
+          ? `1 unsaved permission change on ${roleNames}.`
+          : `${changeCount} unsaved permission changes on ${roleNames}.`}
+      </p>
+      <div className="flex flex-wrap items-center gap-2">
+        {dirtyRoleList.map((role) => {
+          const roleKey = roleMatrixKey(role);
+          const displayName = roleDisplayLabel(role.name);
+
+          return (
+            <div key={roleKey} className="flex items-center gap-1">
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                disabled={savingRoleId === role.id}
+                aria-label={`Save ${displayName} role`}
+                onClick={() => onSaveRole(role)}
+              >
+                {savingRoleId === role.id ? "Saving…" : `Save ${displayName}`}
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                aria-label={`Discard unsaved changes to ${displayName}`}
+                onClick={() => onDiscardRole(roleKey)}
+              >
+                Discard
+              </Button>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProps) {
+  const [matrix, setMatrix] = useState<RoleMatrixState>(EMPTY_MATRIX_STATE);
   const [loading, setLoading] = useState(true);
   const [savingRoleId, setSavingRoleId] = useState<string | null>(null);
   const [newRoleName, setNewRoleName] = useState("");
-  const [startFromRole, setStartFromRole] = useState<BuiltinRoleName | "Empty">("Operator");
+  const [startFromRole, setStartFromRole] = useState<CustomRoleStartFromValue>("Operator");
   const [collapsedGroups, setCollapsedGroups] = useState<ReadonlySet<string>>(() => new Set());
   const [pendingHighRisk, setPendingHighRisk] = useState<PendingHighRiskAction | null>(null);
+  const [permissionFilter, setPermissionFilter] = useState(EMPTY_ROLES_MATRIX_PERMISSION_FILTER);
+  const roles = matrix.roles;
+  const trimmedRoleName = newRoleName.trim();
+  const canCreateRole = trimmedRoleName.length > 0;
 
   const permissionLabelsById = useMemo(() => {
     const labels = new Map<string, string>();
@@ -141,16 +272,21 @@ export function SettingsRolesMatrixSection() {
 
     try {
       const rows = await fetchRoles();
-      setRoles(
-        rows.map((row) => ({
-          id: row.id,
-          name: row.name,
-          isSystem: row.isSystem,
-          permissions: new Set(row.permissions),
-        })),
-      );
+      const reloaded: DraftRole[] = rows.map((row) => ({
+        id: row.id,
+        name: row.name,
+        isSystem: row.isSystem,
+        permissions: new Set(row.permissions),
+        updatedUtc: row.updatedUtc,
+      }));
+
+      // Creating or cloning a role refreshes the whole matrix; unsaved edits on other columns survive it.
+      setMatrix((current) => ({
+        roles: mergeUnsavedRoleEdits(reloaded, current.roles, current.baseline),
+        baseline: baselinePermissionsByKey(reloaded),
+      }));
     } catch (error) {
-      showError(error instanceof Error ? error.message : "Could not load custom roles.");
+      showCustomRoleFailure("load", error);
     } finally {
       setLoading(false);
     }
@@ -161,25 +297,39 @@ export function SettingsRolesMatrixSection() {
   }, [load]);
 
   const columns = useMemo(() => sortMatrixRoles(roles), [roles]);
+  const unsavedRoleNames = useMemo(() => dirtyRoleDisplayNames(roles, matrix.baseline), [matrix.baseline, roles]);
+  const dirtyRoleList = useMemo(() => dirtyRoles(roles, matrix.baseline), [matrix.baseline, roles]);
+  const unsavedChangeCount = useMemo(() => totalUnsavedPermissionChanges(roles, matrix.baseline), [matrix.baseline, roles]);
+  const hasUnsavedEdits = hasUnsavedRoleEdits(roles, matrix.baseline);
+  const visiblePermissionGroups = useMemo(
+    () => filterPermissionGroupsForMatrix(CUSTOM_ROLE_PERMISSION_GROUPS, columns, permissionFilter),
+    [columns, permissionFilter],
+  );
+
+  useEffect(() => {
+    if (!hasUnsavedEdits)
+      return;
+
+    // Browser-level guard only: the App Router has no navigation-blocking API, so the command bar
+    // and notice above the matrix remain the in-app signal for unsaved edits.
+    const warnBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", warnBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", warnBeforeUnload);
+    };
+  }, [hasUnsavedEdits]);
 
   function togglePermission(roleKey: string, permissionId: string) {
-    setRoles((prev) =>
-      prev.map((role) => {
-        const currentKey = role.id ?? role.name;
+    setMatrix((current) => ({ ...current, roles: toggleRolePermission(current.roles, roleKey, permissionId) }));
+  }
 
-        if (currentKey !== roleKey || role.isSystem)
-          return role;
-
-        const nextPermissions = new Set(role.permissions);
-
-        if (nextPermissions.has(permissionId))
-          nextPermissions.delete(permissionId);
-        else
-          nextPermissions.add(permissionId);
-
-        return { ...role, permissions: nextPermissions };
-      }),
-    );
+  function discardRoleEdits(roleKey: string) {
+    setMatrix((current) => ({ ...current, roles: restoreRoleToBaseline(current.roles, roleKey, current.baseline) }));
   }
 
   function toggleGroupCollapsed(area: string) {
@@ -215,12 +365,12 @@ export function SettingsRolesMatrixSection() {
       );
 
       if (!res.ok)
-        throw new Error(`Save failed (${res.status})`);
+        throw new CustomRoleRequestError(res.status);
 
-      showSuccess(`Saved role "${role.name}".`);
+      showSuccess(`Saved role "${roleDisplayLabel(role.name)}".`);
       await load();
     } catch (error) {
-      showError(error instanceof Error ? error.message : "Could not save role.");
+      showCustomRoleFailure("save", error);
     } finally {
       setSavingRoleId(null);
     }
@@ -238,14 +388,14 @@ export function SettingsRolesMatrixSection() {
       );
 
       if (!res.ok)
-        throw new Error(`Create failed (${res.status})`);
+        throw new CustomRoleRequestError(res.status);
 
       showSuccess(`Created custom role "${name}".`);
       setNewRoleName("");
       setStartFromRole("Operator");
       await load();
     } catch (error) {
-      showError(error instanceof Error ? error.message : "Could not create role.");
+      showCustomRoleFailure("create", error);
     }
   }
 
@@ -258,7 +408,7 @@ export function SettingsRolesMatrixSection() {
     void persistRole(role);
   }
 
-  function permissionsForStartFrom(startFrom: BuiltinRoleName | "Empty"): string[] {
+  function permissionsForStartFrom(startFrom: CustomRoleStartFromValue): string[] {
     if (startFrom === "Empty")
       return [];
 
@@ -285,7 +435,7 @@ export function SettingsRolesMatrixSection() {
   }
 
   function requestCloneRole(source: DraftRole) {
-    const cloneName = `${source.name} (custom)`;
+    const cloneName = clonedRoleName(source);
     const permissions = ALL_MATRIX_PERMISSION_IDS.filter((permission) => source.permissions.has(permission));
 
     if (hasHighRiskPermissions(new Set(permissions))) {
@@ -314,7 +464,7 @@ export function SettingsRolesMatrixSection() {
     }
 
     const permissions = ALL_MATRIX_PERMISSION_IDS.filter((permission) => action.source.permissions.has(permission));
-    await persistCreate(`${action.source.name} (custom)`, permissions);
+    await persistCreate(clonedRoleName(action.source), permissions);
   }
 
   const pendingHighRiskLabels = useMemo(() => {
@@ -338,27 +488,22 @@ export function SettingsRolesMatrixSection() {
       <section data-testid="settings-roles-matrix" className="space-y-6">
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{ROLES_MATRIX_HELPER_COPY}</p>
 
-        <div
-          className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
-          data-testid="settings-roles-builtin-summary"
-          aria-label="Built-in role summaries"
-        >
-          {BUILTIN_ROLE_SUMMARIES.map((summary) => (
-            <div
-              key={summary.name}
-              className="rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900/40"
-            >
-              <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{summary.name}</p>
-              <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>{summary.description}</p>
-            </div>
-          ))}
-        </div>
+        {hasUnsavedEdits ? (
+          <p
+            role="status"
+            data-testid="settings-roles-unsaved-notice"
+            className={cn(
+              "m-0 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-amber-900 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-100",
+              OPERATOR_TYPOGRAPHY.body,
+            )}
+          >
+            {unsavedRoleEditsNotice(unsavedRoleNames, unsavedChangeCount)}
+          </p>
+        ) : null}
 
         <div className="rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
           <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Create custom role</h3>
-          <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            Start from a built-in role or an empty permission set, then refine permissions in the matrix below.
-          </p>
+          <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{ROLES_MATRIX_CLONE_VS_CREATE_COPY}</p>
           <div className="mt-4 grid gap-3 md:grid-cols-[minmax(12rem,1fr)_minmax(12rem,1fr)_auto] md:items-end">
             <div>
               <label htmlFor="new-custom-role-name" className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.label)}>
@@ -368,15 +513,15 @@ export function SettingsRolesMatrixSection() {
                 id="new-custom-role-name"
                 value={newRoleName}
                 onChange={(event) => setNewRoleName(event.target.value)}
-                placeholder="Operator without Billing"
-                className="mt-1"
+                placeholder="Architect without billing"
+                className="mt-1 placeholder:text-neutral-500"
               />
             </div>
             <div>
               <label htmlFor="start-from-role" className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.label)}>
                 Start from role
               </label>
-              <Select value={startFromRole} onValueChange={(value) => setStartFromRole(value as BuiltinRoleName | "Empty")}>
+              <Select value={startFromRole} onValueChange={(value) => setStartFromRole(value as CustomRoleStartFromValue)}>
                 <SelectTrigger id="start-from-role" className="mt-1" aria-label="Start from role">
                   <SelectValue />
                 </SelectTrigger>
@@ -389,90 +534,175 @@ export function SettingsRolesMatrixSection() {
                 </SelectContent>
               </Select>
             </div>
-            <Button
-              type="button"
-              onClick={() => requestCreateCustomRole(newRoleName, permissionsForStartFrom(startFromRole))}
-              disabled={!newRoleName.trim()}
-            >
-              Create custom role
-            </Button>
+            <div className="space-y-1">
+              <Button
+                type="button"
+                variant="default"
+                onClick={() => requestCreateCustomRole(newRoleName, permissionsForStartFrom(startFromRole))}
+                disabled={!canCreateRole}
+              >
+                Create custom role
+              </Button>
+              {!canCreateRole ? (
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)} data-testid="settings-roles-create-readiness">
+                  {ROLES_MATRIX_CREATE_READINESS_COPY}
+                </p>
+              ) : null}
+            </div>
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-800">
-          <div className="max-h-[70vh] overflow-auto">
-            <table className={cn("w-full min-w-[48rem] table-fixed border-collapse text-left", OPERATOR_TYPOGRAPHY.body)}>
-              <colgroup>
-                <col style={{ width: PERMISSION_COLUMN_WIDTH }} />
-                {columns.map((role) => (
-                  <col key={role.id ?? role.name} style={{ width: ROLE_COLUMN_WIDTH }} />
-                ))}
-              </colgroup>
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <RolesMatrixPermissionLegend />
+            <div className="flex min-w-[12rem] flex-1 flex-wrap items-center gap-2 sm:max-w-md">
+              <Input
+                value={permissionFilter.searchQuery}
+                onChange={(event) => {
+                  setPermissionFilter((current) => ({ ...current, searchQuery: event.target.value }));
+                }}
+                placeholder="Filter permissions"
+                aria-label="Filter permissions"
+                className="min-w-[10rem] flex-1"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant={permissionFilter.highRiskOnly ? "secondary" : "outline"}
+              aria-pressed={permissionFilter.highRiskOnly}
+              onClick={() => {
+                setPermissionFilter((current) => ({ ...current, highRiskOnly: !current.highRiskOnly }));
+              }}
+            >
+              High-risk only
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={permissionFilter.differencesOnly ? "secondary" : "outline"}
+              aria-pressed={permissionFilter.differencesOnly}
+              onClick={() => {
+                setPermissionFilter((current) => ({ ...current, differencesOnly: !current.differencesOnly }));
+              }}
+            >
+              Differences only
+            </Button>
+          </div>
+
+          <RolesMatrixCommandBar
+            dirtyRoleList={dirtyRoleList}
+            changeCount={unsavedChangeCount}
+            savingRoleId={savingRoleId}
+            onSaveRole={requestSaveRole}
+            onDiscardRole={discardRoleEdits}
+          />
+
+          <div className="overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-800">
+            <table className={cn("w-full min-w-[48rem] table-auto border-collapse text-left", OPERATOR_TYPOGRAPHY.body)}>
               <thead className="sticky top-0 z-30 bg-neutral-50 shadow-sm dark:bg-neutral-900/95">
                 <tr>
                   <th
                     scope="col"
                     className={cn(
-                      "sticky left-0 z-40 border-b border-neutral-200 bg-neutral-50 px-3 py-3 text-left font-semibold text-al-text-primary dark:border-neutral-800 dark:bg-neutral-900/95",
+                      "sticky left-0 z-40 min-w-[14rem] border-b border-neutral-200 bg-neutral-50 px-3 py-3 text-left font-semibold text-al-text-primary dark:border-neutral-800 dark:bg-neutral-900/95",
                       OPERATOR_TYPOGRAPHY.body,
                     )}
                   >
                     Permission
                   </th>
-                  {columns.map((role) => (
-                    <th
-                      key={role.id ?? role.name}
-                      scope="col"
-                      className={cn(
-                        "border-b border-neutral-200 px-2 py-3 text-center align-top font-semibold text-al-text-primary dark:border-neutral-800",
-                        OPERATOR_TYPOGRAPHY.body,
-                      )}
-                    >
-                      <div className="flex min-h-[4.5rem] flex-col items-center justify-start gap-1">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="line-clamp-2 text-center">{role.name}</span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            {BUILTIN_ROLE_SUMMARIES.find((summary) => summary.name === role.name)?.description ??
-                              (role.isSystem ? "Built-in role" : "Custom role")}
-                          </TooltipContent>
-                        </Tooltip>
-                        {role.isSystem ? (
-                          <span className={cn("font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>Built-in role</span>
-                        ) : (
-                          <span className={cn("font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>Custom role</span>
+                  {columns.map((role) => {
+                    const roleKey = roleMatrixKey(role);
+                    const displayName = roleDisplayLabel(role.name);
+                    const claimCaption = roleClaimCaption(role.name);
+                    const isDirty = isRoleDirty(role, matrix.baseline);
+                    const assignmentCount = props.assignmentCountsByRole?.get(role.name) ?? 0;
+                    const lastUpdated = formatRoleLastUpdated(role.updatedUtc);
+
+                    return (
+                      <th
+                        key={roleKey}
+                        scope="col"
+                        className={cn(
+                          "min-w-[8rem] border-b border-neutral-200 px-2 py-3 text-center align-top font-semibold text-al-text-primary dark:border-neutral-800",
+                          OPERATOR_TYPOGRAPHY.body,
                         )}
-                        {role.isSystem ? (
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            className="h-7 px-2 text-xs"
-                            onClick={() => requestCloneRole(role)}
-                            aria-label={`Clone ${role.name} role`}
+                      >
+                        <div className="flex min-h-[5.5rem] flex-col items-center justify-start gap-1">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="line-clamp-2 text-center">{displayName}</span>
+                            </TooltipTrigger>
+                            <TooltipContent>{role.isSystem ? "Built-in role" : "Custom role"}</TooltipContent>
+                          </Tooltip>
+                          <span className={cn("font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
+                            {role.isSystem ? "Built-in role" : "Custom role"}
+                          </span>
+                          {claimCaption !== null ? (
+                            <span className={cn("font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
+                              {claimCaption}
+                            </span>
+                          ) : null}
+                          <Link
+                            href="/administration/users"
+                            className={cn("font-normal text-teal-700 underline underline-offset-2 dark:text-teal-300", OPERATOR_TYPOGRAPHY.micro)}
                           >
-                            Clone
-                          </Button>
-                        ) : (
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="secondary"
-                            className="h-7 px-2 text-xs"
-                            disabled={savingRoleId === role.id}
-                            onClick={() => requestSaveRole(role)}
-                          >
-                            Save
-                          </Button>
-                        )}
-                      </div>
-                    </th>
-                  ))}
+                            {formatRoleAssignmentCount(assignmentCount)}
+                          </Link>
+                          {!role.isSystem && lastUpdated !== null ? (
+                            <span className={cn("font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
+                              Last updated {lastUpdated}
+                            </span>
+                          ) : null}
+                          {!role.isSystem ? (
+                            <Link
+                              href={GOVERNANCE_AUDIT_PATH}
+                              className={cn("font-normal text-teal-700 underline underline-offset-2 dark:text-teal-300", OPERATOR_TYPOGRAPHY.micro)}
+                            >
+                              View audit trail
+                            </Link>
+                          ) : null}
+                          {isDirty ? (
+                            <span
+                              data-testid={`settings-roles-unsaved-badge-${roleKey}`}
+                              className={cn("font-medium text-amber-700 dark:text-amber-300", OPERATOR_TYPOGRAPHY.micro)}
+                            >
+                              Unsaved ({countDirtyPermissions(role, matrix.baseline)})
+                            </span>
+                          ) : null}
+                          {role.isSystem ? (
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              className="h-7 px-2 text-xs"
+                              onClick={() => requestCloneRole(role)}
+                              aria-label={`Clone ${displayName} role`}
+                            >
+                              Clone
+                            </Button>
+                          ) : null}
+                        </div>
+                      </th>
+                    );
+                  })}
                 </tr>
               </thead>
               <tbody>
-                {CUSTOM_ROLE_PERMISSION_GROUPS.map((group) => {
+                {visiblePermissionGroups.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={columns.length + 1}
+                      className="px-3 py-6 text-center text-al-text-secondary"
+                    >
+                      No permissions match the current filter.
+                    </td>
+                  </tr>
+                ) : null}
+                {visiblePermissionGroups.map((group) => {
                   const isCollapsed = collapsedGroups.has(group.area);
 
                   return [
@@ -492,33 +722,37 @@ export function SettingsRolesMatrixSection() {
                           onClick={() => toggleGroupCollapsed(group.area)}
                         >
                           <span>{group.area}</span>
-                          <span aria-hidden="true" className="text-al-text-secondary">
-                            {isCollapsed ? "Show" : "Hide"}
-                          </span>
+                          <ChevronDown
+                            className={cn("size-4 shrink-0 text-al-text-secondary transition-transform", !isCollapsed && "rotate-180")}
+                            aria-hidden
+                          />
                         </button>
                       </td>
                     </tr>,
                     ...(!isCollapsed
                       ? group.permissions.map((permission) => (
-                          <tr key={permission.id} className="border-b border-neutral-100 dark:border-neutral-800">
+                          <tr
+                            key={permission.id}
+                            className="border-b border-neutral-200 hover:bg-neutral-50 dark:border-neutral-800 dark:hover:bg-neutral-900/50"
+                          >
                             <th
                               scope="row"
                               className={cn(
-                                "sticky left-0 z-10 border-r border-neutral-100 bg-white px-3 py-0 text-left font-normal text-al-text-primary dark:border-neutral-800 dark:bg-neutral-950",
+                                "sticky left-0 z-10 border-r border-neutral-200 bg-white px-3 py-0 text-left font-normal text-al-text-primary dark:border-neutral-800 dark:bg-neutral-950",
                                 OPERATOR_TYPOGRAPHY.body,
                               )}
                             >
                               <div className="py-2 pr-2">{permission.label}</div>
                             </th>
                             {columns.map((role) => (
-                              <td key={`${role.id ?? role.name}:${permission.id}`} className="p-0 text-center align-middle">
+                              <td key={`${roleMatrixKey(role)}:${permission.id}`} className="p-0 text-center align-middle">
                                 <PermissionValue
                                   allowed={role.permissions.has(permission.id)}
-                                  roleName={role.name}
+                                  roleName={roleDisplayLabel(role.name)}
                                   permissionLabel={permission.label}
                                   editable={!role.isSystem}
                                   checked={role.permissions.has(permission.id)}
-                                  onToggle={() => togglePermission(role.id ?? role.name, permission.id)}
+                                  onToggle={() => togglePermission(roleMatrixKey(role), permission.id)}
                                 />
                               </td>
                             ))}

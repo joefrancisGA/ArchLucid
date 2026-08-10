@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 
-import { ArchitectureDraftGuidanceDisclosure } from "@/components/architecture/ArchitectureDraftGuidanceDisclosure";
 import { ArchitectureDraftListClient } from "@/components/architecture/ArchitectureDraftListClient";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
@@ -23,9 +22,11 @@ export default function ArchitecturesListPage(): React.JSX.Element {
         title={ARCHITECTURES_HUB_PAGE_TITLE}
         subtitle={ARCHITECTURES_HUB_PAGE_SUBTITLE}
         navHref={ARCHITECTURES_LIST_PATH}
+        headingLevel="h1"
+        titleTestId="architectures-hub-page-title"
+        subtitleTestId="architectures-hub-page-subtitle"
         actions={<ArchitecturesHubHeaderActions />}
       />
-<ArchitectureDraftGuidanceDisclosure className="mb-3" />
       <ArchitectureDraftListClient />
     </OperatorPageContainer>
   );

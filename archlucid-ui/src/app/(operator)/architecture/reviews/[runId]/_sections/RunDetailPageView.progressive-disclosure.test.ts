@@ -39,7 +39,7 @@ describe("RunDetailPageView progressive disclosure", () => {
   });
 
   it("prioritizes workspace header and summary before tabbed workspace render", () => {
-    const headerIndex = source.indexOf("<RunDetailWorkspaceHeaderDeferred");
+    const headerIndex = source.indexOf("<RunDetailWorkspaceHeader");
     const summaryMatch = /<RunDetailWorkspaceSummaryStripDeferred(?:\s|>)/.exec(source);
     const summaryIndex = summaryMatch?.index ?? -1;
     const workspaceRenderIndex = source.indexOf("{tabbedWorkspaceEl}");

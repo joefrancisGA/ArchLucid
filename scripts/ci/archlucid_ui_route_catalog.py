@@ -16,8 +16,17 @@ DEFAULT_NEW_HIT_PCT = "0.02%"
 
 # Owner overrides pinning a specific 3-letter workbook ID to a route path. Empty by default: the sync
 # falls back to suggest_row_id(). Add an entry only to keep an ID stable across a path rename, and keep
-# values unique 3-letter uppercase IDs.
-PREFERRED_NEW_ROW_IDS: dict[str, str] = {}
+# values unique 3-letter uppercase IDs (guarded by tests/test_archlucid_ui_route_catalog.py).
+PREFERRED_NEW_ROW_IDS: dict[str, str] = {
+    "/shell/contextual-help-drawer": "HCD",
+}
+
+# Admin internal-runbook help topics excluded from buyer UX scoring (/al-ui-lowest).
+INTERNAL_UX_RANKING_HELP_PATHS: frozenset[str] = frozenset(
+    {
+        "/help/configuration-reference",
+    }
+)
 
 # Legacy workbook paths → canonical catalog paths (scores and Hit% merge on collision).
 WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
@@ -49,6 +58,7 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     # TB-2050 retired help aliases (removed from HELP_TOPIC_SLUG_ALIASES) — fold Hit% into canons.
     # Do not re-add these to the catalog; FIR `/help/first-pilot-path` stays via TRAFFIC_TRACKED only.
     "/help/api-contracts": "/help/governance-api-contracts",
+    "/help/creating-runs": "/help/review-guide",
     "/help/evaluator-workbook": "/help/path-chooser",
     "/help/first-hour-operator-path": "/help/first-architecture-review",
     "/help/operator-auth-roles": "/help/users-and-roles",
@@ -137,6 +147,7 @@ REDIRECT_ONLY_APP_PATHS = frozenset(
         "/advisory-scheduling",
         "/alert-routing",
         "/architecture/reviews/[runId]/artifacts/[artifactId]",
+        "/demo",
     }
 )
 
@@ -147,6 +158,11 @@ REDIRECT_ONLY_APP_PATHS = frozenset(
 # redirect remains; do not re-add via this set.
 # FIR `/help/first-pilot-path` stays as a scored redirect bookmark (alias retired TB-2050; COR canonical).
 TRAFFIC_TRACKED_REDIRECT_BOOKMARKS = frozenset({"/help/first-pilot-path"})
+
+# Operator-shell overlays scored in the workbook but not App Router pages.
+SHELL_OVERLAY_TRAFFIC_ENTRIES: dict[str, str] = {
+    "/shell/contextual-help-drawer": "Shell overlay",
+}
 
 
 @dataclass(frozen=True)
@@ -299,6 +315,8 @@ def infer_section(path: str, *, help_alias_paths: set[str]) -> str:
     if path == "/help":
         return "Help hub"
     if path.startswith("/help/"):
+        if path in INTERNAL_UX_RANKING_HELP_PATHS:
+            return "Internal"
         if path in help_alias_paths:
             return "Help alias"
         return "Help topic"
@@ -388,6 +406,9 @@ def build_catalog() -> dict[str, CatalogEntry]:
 
     for path in discover_tab_paths():
         catalog[path] = CatalogEntry(path=path, section="Tab surface", source="tab_surface")
+
+    for path, section in SHELL_OVERLAY_TRAFFIC_ENTRIES.items():
+        catalog[path] = CatalogEntry(path=path, section=section, source="shell_overlay")
 
     for path in TRAFFIC_TRACKED_REDIRECT_BOOKMARKS:
         if path not in catalog:

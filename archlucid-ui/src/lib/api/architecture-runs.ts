@@ -282,6 +282,16 @@ export async function listRunsByProject(projectId: string, take = 20): Promise<R
   );
 }
 
+/**
+ * True when the Reviews hub (and similar inventories) should list every authority project slug in scope.
+ * Create maps system name → run project slug, so listing only `default` hides real packages.
+ */
+export function shouldListReviewsAcrossProjectSlugs(projectId: string | null | undefined): boolean {
+  const trimmed = projectId?.trim() ?? "";
+
+  return trimmed.length === 0 || trimmed.toLowerCase() === "default";
+}
+
 /** Paged runs for a project (GET — legacy `page`/`pageSize` on page 1, or `cursor`+`take` for keyset pages). */
 export async function listRunsByProjectPaged(
   projectId: string,
@@ -308,6 +318,34 @@ export async function listRunsByProjectPaged(
 
   return apiGet<PagedResponse<RunSummary>>(
     `/v1/authority/projects/${encodeURIComponent(projectId)}/reviews?${q}`,
+    options?.scopeHeaders !== undefined ? { scopeHeaders: options.scopeHeaders } : undefined,
+  );
+}
+
+/**
+ * Paged runs across all authority project slugs in the current scope
+ * (`GET /v1/authority/reviews` — same envelope as project-scoped list).
+ */
+export async function listRunsInScopePaged(
+  page: number,
+  pageSize: number,
+  options?: {
+    readonly cursor?: string | null;
+    readonly scopeHeaders?: Record<string, string>;
+  },
+): Promise<PagedResponse<RunSummary>> {
+  const q = new URLSearchParams();
+
+  if (options?.cursor) {
+    q.set("cursor", options.cursor);
+    q.set("take", String(pageSize));
+  } else {
+    q.set("page", String(page));
+    q.set("pageSize", String(pageSize));
+  }
+
+  return apiGet<PagedResponse<RunSummary>>(
+    `/v1/authority/reviews?${q}`,
     options?.scopeHeaders !== undefined ? { scopeHeaders: options.scopeHeaders } : undefined,
   );
 }

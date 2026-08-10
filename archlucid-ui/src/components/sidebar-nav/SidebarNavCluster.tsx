@@ -4,10 +4,15 @@ import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { useEffect, useState, type ReactElement } from "react";
 
+import { AlertsOutstandingNavBadge } from "@/components/alerts/AlertsOutstandingNavBadge";
 import { GovernanceReviewsAwaitingNavBadge } from "@/components/governance/GovernanceReviewsAwaitingNavBadge";
 import { SidebarNavLink } from "@/components/sidebar-nav/SidebarNavLink";
 import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  GOVERNANCE_ALERTS_PATH,
+  GOVERNANCE_APPROVAL_QUEUE_PATH,
+} from "@/lib/governance-route-paths";
 import { isNavLinkActive } from "@/lib/nav-link-active";
 import {
   filterSidebarNavClusterLinks,
@@ -20,6 +25,19 @@ import {
 } from "@/lib/sidebar-nav-daily-links";
 import type { SidebarCollapsibleNavGroupId } from "@/lib/sidebar-nav-group-expansion-storage";
 import type { OperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
+
+/** Work-queue count badges for sidebar links that surface outstanding operator follow-up. */
+function sidebarNavLinkAfterLabel(href: string): ReactElement | null {
+  if (href === GOVERNANCE_APPROVAL_QUEUE_PATH) {
+    return <GovernanceReviewsAwaitingNavBadge />;
+  }
+
+  if (href === GOVERNANCE_ALERTS_PATH) {
+    return <AlertsOutstandingNavBadge />;
+  }
+
+  return null;
+}
 
 type SidebarNavClusterProps = {
   readonly row: NavGroupWithVisibleLinks;
@@ -101,9 +119,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
         navGroupId={group.id}
         unlockPhase={props.effectiveOperateUnlockPhase}
         onNavigate={props.onNavLinkNavigate}
-        afterLabel={
-          presented.href === "/governance/approval-queue" ? <GovernanceReviewsAwaitingNavBadge /> : null
-        }
+        afterLabel={sidebarNavLinkAfterLabel(presented.href)}
       />
     );
   }

@@ -22,18 +22,22 @@ vi.mock("@/lib/api/architecture-runs", () => ({
 }));
 
 vi.mock("@/hooks/use-architecture-draft-autosave", () => ({
-  useArchitectureDraftAutosave: () => ({
+  useArchitectureDraftAutosave: vi.fn(() => ({
     saveState: "idle",
     lastSavedUtc: null,
     conflictMessage: null,
     saveDraft,
     reloadDraft,
     hasPersistedDraft: true,
-  }),
+  })),
 }));
 
 vi.mock("@/hooks/use-unsaved-changes-guard", () => ({
   useUnsavedChangesGuard: vi.fn(),
+}));
+
+vi.mock("@/hooks/use-architecture-draft-registry-entries", () => ({
+  useArchitectureDraftRegistryEntries: vi.fn(() => []),
 }));
 
 vi.mock("@/hooks/use-llm-monthly-budget-execution-gate", () => ({
@@ -80,8 +84,10 @@ vi.mock("@/lib/architecture-draft-handoff-gate", async () => {
 });
 
 import { ArchitectureDraftWorkspace } from "./ArchitectureDraftWorkspace";
-import { ARCHITECTURE_DRAFT_WORKSPACE_LEAD } from "@/lib/create-vs-review-intake-copy";
-import { ARCHITECTURE_NEW_DRAFT_SEGMENT } from "@/lib/architecture-routes";
+import { ARCHITECTURE_DRAFT_WORKSPACE_BACK_TO_LIST_LABEL, ARCHITECTURE_DRAFT_WORKSPACE_LEAD, ARCHITECTURE_CREATION_AUTOSAVE_REASSURANCE, ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE, ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE, ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD } from "@/lib/create-vs-review-intake-copy";
+import { ARCHITECTURES_LIST_PATH, ARCHITECTURE_NEW_DRAFT_SEGMENT } from "@/lib/architecture-routes";
+import { useArchitectureDraftAutosave } from "@/hooks/use-architecture-draft-autosave";
+import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 
 const spawnedDraft = {
   draftId: "arch-001",
@@ -113,16 +119,158 @@ beforeEach(() => {
     runId: "run-001",
     displayName: "Claims intake modernization",
   });
+  vi.mocked(useArchitectureDraftAutosave).mockReturnValue({
+    saveState: "idle",
+    lastSavedUtc: null,
+    conflictMessage: null,
+    saveDraft,
+    reloadDraft,
+    hasPersistedDraft: true,
+  });
 });
 
 describe("ArchitectureDraftWorkspace", () => {
-  it("opens the empty workspace immediately on /new without fetching a draft", () => {
+  it("opens the empty workspace immediately on /new without fetching a draft", async () => {
+    vi.mocked(useArchitectureDraftAutosave).mockReturnValue({
+      saveState: "idle",
+      lastSavedUtc: null,
+      conflictMessage: null,
+      saveDraft,
+      reloadDraft,
+      hasPersistedDraft: false,
+    });
+
     render(<ArchitectureDraftWorkspace architectureId={ARCHITECTURE_NEW_DRAFT_SEGMENT} />);
 
     expect(getDraftRequest).not.toHaveBeenCalled();
     expect(screen.getByTestId("architecture-draft-workspace")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-creation-new-draft-section-title")).toHaveTextContent(
+      ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE,
+    );
     expect(screen.getByTestId("architecture-draft-workspace-lead")).toHaveTextContent(
       ARCHITECTURE_DRAFT_WORKSPACE_LEAD,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-creation-no-drafts-guidance")).toHaveTextContent(
+        ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE,
+      );
+    });
+
+    expect(screen.queryByTestId("architecture-draft-autosave-reassurance")).not.toBeInTheDocument();
+  });
+
+  it("shows browser-local resume drafts on /new when registry entries exist (TB-1459)", async () => {
+    vi.mocked(useArchitectureDraftRegistryEntries).mockReturnValue([
+      {
+        architectureId: "draft-001",
+        displayName: "Claims intake",
+        customerStatus: "draft",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-07-12T23:42:05.000Z",
+        linkedReviewId: null,
+        serverUpdatedUtc: "2026-07-12T23:42:05.000Z",
+      },
+    ]);
+
+    render(<ArchitectureDraftWorkspace architectureId={ARCHITECTURE_NEW_DRAFT_SEGMENT} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-creation-resume-drafts")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("architecture-creation-no-drafts-guidance")).toBeNull();
+  });
+
+  it("uses resume-first workspace lead on /new when registry entries exist (TB-1462)", async () => {
+    vi.mocked(useArchitectureDraftRegistryEntries).mockReturnValue([
+      {
+        architectureId: "draft-001",
+        displayName: "Claims intake",
+        customerStatus: "draft",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-07-12T23:42:05.000Z",
+        linkedReviewId: null,
+        serverUpdatedUtc: "2026-07-12T23:42:05.000Z",
+      },
+    ]);
+
+    render(<ArchitectureDraftWorkspace architectureId={ARCHITECTURE_NEW_DRAFT_SEGMENT} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-workspace-lead")).toHaveTextContent(
+        ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD,
+      );
+    });
+  });
+
+  it("renders an H1 workspace title on edit routes (TB-1451)", async () => {
+    getDraftRequest.mockResolvedValue({
+      ...spawnedDraft,
+      status: "Drafting",
+      spawnedRunId: null,
+      document: { ...spawnedDraft.document, workflowIntent: "create-architecture" },
+    });
+
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-workspace-title")).toBeInTheDocument();
+    });
+
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Claims intake" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-creation-new-draft-section-title")).not.toBeInTheDocument();
+  });
+
+  it("shows a skeleton and list wayfinding while loading an existing draft (TB-1453)", async () => {
+    let resolveDraft: (value: typeof spawnedDraft) => void = () => {};
+    getDraftRequest.mockReturnValue(
+      new Promise((resolve) => {
+        resolveDraft = resolve;
+      }),
+    );
+
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    expect(screen.getByTestId("architecture-draft-workspace-loading")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-draft-workspace-loading-skeleton")).toBeInTheDocument();
+    expect(screen.queryByText(/Loading architecture draft/i)).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: ARCHITECTURE_DRAFT_WORKSPACE_BACK_TO_LIST_LABEL })).toHaveAttribute(
+      "href",
+      ARCHITECTURES_LIST_PATH,
+    );
+
+    resolveDraft({
+      ...spawnedDraft,
+      status: "Drafting",
+      spawnedRunId: null,
+      document: { ...spawnedDraft.document, workflowIntent: "create-architecture" },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-workspace")).toBeInTheDocument();
+    });
+  });
+
+  it("keeps back-to-list wayfinding on loaded edit routes (TB-1453)", async () => {
+    getDraftRequest.mockResolvedValue({
+      ...spawnedDraft,
+      status: "Drafting",
+      spawnedRunId: null,
+      document: { ...spawnedDraft.document, workflowIntent: "create-architecture" },
+    });
+
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-workspace")).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole("link", { name: ARCHITECTURE_DRAFT_WORKSPACE_BACK_TO_LIST_LABEL })).toHaveAttribute(
+      "href",
+      ARCHITECTURES_LIST_PATH,
     );
   });
 
@@ -167,6 +315,8 @@ describe("ArchitectureDraftWorkspace", () => {
       expect(screen.getByTestId("architecture-draft-handoff-banner")).toBeInTheDocument();
     });
 
+    expect(screen.getByTestId("architecture-draft-workspace-status-tag")).toHaveTextContent("Ready for review");
+    expect(screen.queryByText(/^Status: Draft$/i)).not.toBeInTheDocument();
     expect(screen.getByTestId("architecture-continue-review")).toHaveAttribute("href", "/architecture/reviews/run-001");
     expect(screen.getByTestId("architecture-draft-acknowledge-edit")).toBeInTheDocument();
     expect(screen.queryByTestId("architecture-start-review")).not.toBeInTheDocument();
@@ -189,5 +339,59 @@ describe("ArchitectureDraftWorkspace", () => {
     });
 
     expect(screen.queryByTestId("architecture-draft-acknowledge-edit")).not.toBeInTheDocument();
+  });
+
+  it("discloses autosave and omits a disabled Save draft when autosave is authoritative (TB-1455)", async () => {
+    vi.mocked(useArchitectureDraftAutosave).mockReturnValue({
+      saveState: "saved",
+      lastSavedUtc: "2026-07-18T22:00:00.000Z",
+      conflictMessage: null,
+      saveDraft,
+      reloadDraft,
+      hasPersistedDraft: true,
+    });
+
+    getDraftRequest.mockResolvedValue({
+      ...spawnedDraft,
+      status: "Drafting",
+      spawnedRunId: null,
+      document: { ...spawnedDraft.document, workflowIntent: "create-architecture" },
+    });
+
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-autosave-reassurance")).toHaveTextContent(
+        ARCHITECTURE_CREATION_AUTOSAVE_REASSURANCE,
+      );
+    });
+
+    expect(screen.queryByTestId("architecture-save-draft")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-save-draft-retry")).not.toBeInTheDocument();
+    expect(screen.getByTestId("architecture-save-and-exit")).toBeInTheDocument();
+  });
+
+  it("offers Save now only when autosave cannot complete (TB-1455)", async () => {
+    vi.mocked(useArchitectureDraftAutosave).mockReturnValue({
+      saveState: "error",
+      lastSavedUtc: null,
+      conflictMessage: null,
+      saveDraft,
+      reloadDraft,
+      hasPersistedDraft: true,
+    });
+
+    getDraftRequest.mockResolvedValue({
+      ...spawnedDraft,
+      status: "Drafting",
+      spawnedRunId: null,
+      document: { ...spawnedDraft.document, workflowIntent: "create-architecture" },
+    });
+
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-save-draft-retry")).toHaveTextContent("Save now");
+    });
   });
 });

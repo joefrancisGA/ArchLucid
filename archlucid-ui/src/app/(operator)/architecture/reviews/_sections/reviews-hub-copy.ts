@@ -59,8 +59,6 @@ export const REVIEWS_HUB_COMPARE_LABEL = "Compare two reviews";
 
 export const REVIEWS_HUB_COMPARE_HINT = "Compare changes between finalized reviews.";
 
-export const REVIEWS_HUB_RECENT_SECTION_TITLE = "Your reviews";
-
 export const REVIEWS_HUB_RECENT_EMPTY_TITLE = "No reviews yet";
 
 export const REVIEWS_HUB_RECENT_EMPTY_BODY =
@@ -70,7 +68,7 @@ export const REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL = BUYER_START_ARCHITECTURE_R
 
 export const REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL = "Explore the sample review";
 
-/** Empty "Your reviews" copy when architecture drafts exist but no review runs yet. */
+/** Empty inventory copy when architecture drafts exist but no review runs yet. */
 export const REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE = "No reviews yet";
 
 /** Empty inventory when exactly one draft — header Continue owns the draft chooser. */
@@ -113,6 +111,13 @@ export const REVIEWS_HUB_FILTER_NEEDS_ATTENTION_LABEL = "Needs attention";
 export const REVIEWS_HUB_FILTER_UPDATED_RECENTLY_LABEL = "Updated recently";
 
 export const REVIEWS_HUB_FILTER_FINALIZED_LABEL = "Finalized";
+
+/** Shown when the reviews list API returns 404 / RESOURCE_NOT_FOUND (not an empty inventory). */
+export const REVIEWS_HUB_LIST_NOT_FOUND_TRY_NEXT =
+  "Confirm the workspace selector, then reload. If this continues, contact support with the reference id.";
+
+export const REVIEWS_HUB_LIST_LOAD_FAILURE_TRY_NEXT =
+  "The reviews list could not be loaded. Check your connection and try reloading.";
 
 /** @deprecated Use {@link REVIEWS_HUB_INCLUDES_TITLE}. */
 export const REVIEWS_HUB_PACKAGE_INCLUDES_TITLE = REVIEWS_HUB_INCLUDES_TITLE;

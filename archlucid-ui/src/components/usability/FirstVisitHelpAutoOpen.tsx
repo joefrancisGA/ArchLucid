@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { DismissControl } from "@/components/usability/DismissControl";
+import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import {
   dismissFirstVisitHelp,
   firstVisitHelpSlugForPathname,
@@ -16,26 +17,33 @@ import { FIRST_VISIT_HELP_THREE_THINGS } from "@/lib/onboarding-secondary-surfac
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 /**
- * Auto-surfaces a one-time tip on operator home.
- * Deep-link CTA is omitted — Overview already exposes Architecture workflow via PageContextualHelpButton.
+ * Auto-surfaces a one-time tip on operator home for buyer-default shells.
+ * Full architect workspace skips this coach banner — Overview already exposes Architecture workflow help.
  */
 export function FirstVisitHelpAutoOpen() {
   const pathname = usePathname() ?? "/";
   const [visible, setVisible] = useState(false);
   const slug = firstVisitHelpSlugForPathname(pathname);
   const isOperatorHome = pathname === "/";
+  const fullOperatorShell = isOperatorExperienceFullShellEnv();
 
   useEffect(() => {
-    if (!isOperatorHome || slug === null || isFirstVisitHelpDismissed(pathname) || isFirstVisitHelpSessionDone()) {
+    if (
+      fullOperatorShell ||
+      !isOperatorHome ||
+      slug === null ||
+      isFirstVisitHelpDismissed(pathname) ||
+      isFirstVisitHelpSessionDone()
+    ) {
       setVisible(false);
 
       return;
     }
 
     setVisible(true);
-  }, [isOperatorHome, pathname, slug]);
+  }, [fullOperatorShell, isOperatorHome, pathname, slug]);
 
-  if (!visible || slug === null || !isOperatorHome) {
+  if (fullOperatorShell || !visible || slug === null || !isOperatorHome) {
     return null;
   }
 

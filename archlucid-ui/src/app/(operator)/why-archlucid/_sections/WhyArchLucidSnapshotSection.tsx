@@ -3,6 +3,7 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import type { WhyArchLucidPageState } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-page-state";
 import { WhyArchLucidCounterGrid } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidCounterGrid";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { WHY_ARCHLUCID_COUNTERS_INTRO } from "@/lib/why-archlucid-page-copy";
 
 export type WhyArchLucidSnapshotSectionProps = {
   readonly state: WhyArchLucidPageState;
@@ -21,8 +22,7 @@ export function WhyArchLucidSnapshotSection(props: WhyArchLucidSnapshotSectionPr
         Process counters
       </h2>
       <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Cumulative <code>ArchLucidInstrumentation</code> counters since the API host started, plus the in-scope audit row
-        count for the demo tenant.
+        {WHY_ARCHLUCID_COUNTERS_INTRO}
       </p>
 
       {state.snapshotError ? (

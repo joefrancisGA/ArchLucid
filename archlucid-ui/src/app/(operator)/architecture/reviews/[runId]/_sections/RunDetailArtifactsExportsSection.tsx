@@ -22,7 +22,7 @@ import {
   OperatorMalformedCallout,
 } from "@/components/OperatorShellMessage";
 import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   getArchitectureRequestDownloadUrl,
   getBundleDownloadUrl,
@@ -36,9 +36,13 @@ import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { isExportableDecisionVerdict } from "@/lib/decision-receipt-export";
 import type { ArtifactDescriptor, ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR } from "@/lib/first-week-route-guidance";
 import { RUN_DELIVERABLES_PENDING_FINALIZE_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
+import {
+  RUN_DETAIL_DELIVERABLES_BUYER_TABLE_LEAD,
+  RUN_DETAIL_DELIVERABLES_INTRO,
+} from "@/lib/run-detail-deliverables-copy";
 
 export type RunDetailArtifactsExportsSectionProps = {
   readonly manifestId: string;
@@ -100,11 +104,11 @@ export function RunDetailArtifactsExportsSection(
     <section id="artifacts-exports" className="scroll-mt-24">
         <CollapsibleSection
           title={BUYER_MANIFEST_DELIVERABLES_HEADING}
+          headingLevel={3}
           defaultOpen={deliverablesSectionDefaultOpen}
         >
           <p className={cn("m-0 mb-4 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            Review the decisions, findings, and supporting evidence for this review. Download artifacts for offline
-            review below.
+            {RUN_DETAIL_DELIVERABLES_INTRO}
           </p>
           <div className="mb-4 flex flex-wrap gap-3">
             {showDecisionReceipt ? (
@@ -116,9 +120,10 @@ export function RunDetailArtifactsExportsSection(
                 }}
               />
             ) : null}
+            {/* Exports stay secondary — the review's recommended next step owns the only primary affordance. */}
             {usedStaticDemoRun ? (
               <div className="flex max-w-prose flex-col gap-1.5">
-                <Button variant="primary" disabled title={SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT}>
+                <Button variant="outline" disabled title={SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT}>
                   Download architecture review report (DOCX)
                 </Button>
                 <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
@@ -126,28 +131,27 @@ export function RunDetailArtifactsExportsSection(
                 </p>
               </div>
             ) : (
-              <Button variant="primary" asChild>
-                <ExportTrackedAnchor href={getRunPackageExportUrl(runId, "docx")}>
-                  Download architecture review report (DOCX)
-                </ExportTrackedAnchor>
-              </Button>
+              <ExportTrackedAnchor
+                className={buttonVariants({ variant: "outline" })}
+                href={getRunPackageExportUrl(runId, "docx")}
+              >
+                Download architecture review report (DOCX)
+              </ExportTrackedAnchor>
             )}
             {requestId ? (
-              <Button variant="secondary" asChild>
-                <ExportTrackedAnchor href={getArchitectureRequestDownloadUrl(requestId)} download={`ArchitectureRequest-${requestId}.json`}>
-                  Download Request JSON
-                </ExportTrackedAnchor>
-              </Button>
+              <ExportTrackedAnchor
+                className={buttonVariants({ variant: "secondary" })}
+                href={getArchitectureRequestDownloadUrl(requestId)}
+                download={`ArchitectureRequest-${requestId}.json`}
+              >
+                Download Request JSON
+              </ExportTrackedAnchor>
             ) : null}
           </div>
           {buyerPolishedArtifactTable ? (
             <div className="m-0 mb-3 space-y-2">
               <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                Rows are grouped by executive and review-board consumers.{" "}
-                <strong className="text-neutral-800 dark:text-neutral-200">Download evidence bundle</strong> is the
-                diligence bundle.{" "}
-                <strong className="text-neutral-800 dark:text-neutral-200">Download review summary</strong> captures a concise
-                narrative handoff aligned to this manifest.
+                {RUN_DETAIL_DELIVERABLES_BUYER_TABLE_LEAD}
               </p>
             </div>
           ) : null}
@@ -260,11 +264,12 @@ export function RunDetailArtifactsExportsSection(
           <div className="mt-4 flex flex-col gap-3">
             {buyerPolishedArtifactTable ? (
               <div className="flex flex-wrap items-center gap-3">
-                <Button variant="primary" size="sm" asChild>
-                  <ExportTrackedAnchor href={getBundleDownloadUrl(manifestId)}>
-                    Download evidence bundle
-                  </ExportTrackedAnchor>
-                </Button>
+                <ExportTrackedAnchor
+                  className={buttonVariants({ variant: "outline", size: "sm" })}
+                  href={getBundleDownloadUrl(manifestId)}
+                >
+                  Download evidence bundle
+                </ExportTrackedAnchor>
                 <GoldenManifestExportMenu
                   runId={runId}
                   manifestId={manifestId}
@@ -283,9 +288,12 @@ export function RunDetailArtifactsExportsSection(
                   manifestSummary={manifestSummaryForUi ?? manifestSummary}
                   trustEvidenceCard={trustEvidenceCard ?? null}
                 />
-                <Button variant="outline" size="sm" asChild>
-                  <ExportTrackedAnchor href={getBundleDownloadUrl(manifestId)}>Download bundle (ZIP)</ExportTrackedAnchor>
-                </Button>
+                <ExportTrackedAnchor
+                  className={buttonVariants({ variant: "outline", size: "sm" })}
+                  href={getBundleDownloadUrl(manifestId)}
+                >
+                  Download bundle (ZIP)
+                </ExportTrackedAnchor>
                 <ConsultingDocxExportButton runId={runId} />
                 <ReviewBoardWhitelabelConsultingExportButton runId={runId} />
                 <ExportTerraformAdvisoryButton runId={runId} />
@@ -293,18 +301,25 @@ export function RunDetailArtifactsExportsSection(
             )}
             {buyerPolishedArtifactTable ? null : (
               <div className="flex flex-wrap items-center gap-3">
-                <Button variant="outline" size="sm" asChild>
-                  <ExportTrackedAnchor href={getRunExportDownloadUrl(runId)}>
-                    Download review export (ZIP)
-                  </ExportTrackedAnchor>
-                </Button>
+                <ExportTrackedAnchor
+                  className={buttonVariants({ variant: "outline", size: "sm" })}
+                  href={getRunExportDownloadUrl(runId)}
+                >
+                  Download review export (ZIP)
+                </ExportTrackedAnchor>
                 <RunScopedAuditExportButton runId={runId} />
-                <Button variant="outline" size="sm" asChild>
-                  <Link href={comparePageHrefAdaptive(runId)}>Compare with another review</Link>
-                </Button>
-                <Button variant="ghost" size="sm" className="text-teal-800 dark:text-teal-300" asChild>
-                  <Link href={`/insights/ask-review-questions?runId=${encodeURIComponent(runId)}`}>Ask about this review</Link>
-                </Button>
+                <Link
+                  className={cn(buttonVariants({ variant: "outline", size: "sm" }), OPERATOR_LINK.nav)}
+                  href={comparePageHrefAdaptive(runId)}
+                >
+                  Compare with another review
+                </Link>
+                <Link
+                  className={cn(buttonVariants({ variant: "ghost", size: "sm" }), OPERATOR_LINK.nav)}
+                  href={`/insights/ask-review-questions?runId=${encodeURIComponent(runId)}`}
+                >
+                  Ask about this review
+                </Link>
               </div>
             )}
           </div>

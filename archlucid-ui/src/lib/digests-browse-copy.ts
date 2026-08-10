@@ -22,8 +22,16 @@ export function digestsSchedulePageSubtitle(buyerPolishedShell: boolean): string
 
 export const DIGESTS_LAST_UPDATED_PREFIX = "Last updated" as const;
 
+export const DIGESTS_HEALTH_CHECK_PREFIX = "Health check" as const;
+
+export const DIGESTS_BROWSE_TAB_BROWSE_LABEL = "Browse" as const;
+
+export const DIGESTS_BROWSE_TAB_GET_STARTED_LABEL = "Get started" as const;
+
+export const DIGESTS_SCHEDULE_TAB_LABEL = "Executive schedule" as const;
+
 export const DIGESTS_PRIVACY_NOTE =
-  "Digest emails include summaries and links back to ArchLucid. Sensitive evidence content is not included unless explicitly configured." as const;
+  "Digest emails include summaries and links back to ArchLucid. Sensitive evidence is excluded by default — configure inclusion on the Subscriptions tab." as const;
 
 export const DIGESTS_PRIVACY_DETAILS_TRIGGER = "About digest content" as const;
 
@@ -65,7 +73,10 @@ export const DIGESTS_BROWSE_SETUP_UNKNOWN_DESCRIPTION =
 export const DIGESTS_BROWSE_GENERATE_FIRST_LABEL = "Generate the first digest" as const;
 
 export const DIGESTS_BROWSE_GENERATE_FIRST_DETAIL =
-  "Digests are produced by an advisory scan run. Open advisory schedules to run one." as const;
+  "Run an advisory scan to produce the first digest. Open Advisory schedules to manage cadence or trigger a run." as const;
+
+export const DIGESTS_BROWSE_GENERATE_FIRST_DETAIL_PREREQ =
+  "Complete advisory scan schedule and subscriptions first, then run a scan to produce the first digest." as const;
 
 export const DIGESTS_BROWSE_GENERATE_FIRST_DONE_DETAIL =
   "At least one digest has been generated." as const;
@@ -104,3 +115,22 @@ export const DIGESTS_BROWSE_SEND_TEST_TITLE =
 export const DIGESTS_BROWSE_RELATED_ADVISORY_LABEL = "Open advisory schedules" as const;
 
 export const DIGESTS_BROWSE_RELATED_INTEGRATIONS_LABEL = "Check integration readiness" as const;
+
+export const DIGESTS_CHECKLIST_SCHEDULE_LABEL = "Enable advisory scan schedule" as const;
+
+export const DIGESTS_CHECKLIST_SCHEDULE_DETAIL_ENABLED = "Advisory scan schedule enabled." as const;
+
+export const DIGESTS_CHECKLIST_SCHEDULE_DETAIL_PENDING =
+  "Set generation cadence in Advisory schedules — not on the Executive schedule tab on this page." as const;
+
+export const DIGESTS_CHECKLIST_ACTION_OPEN_ADVISORY = DIGESTS_BROWSE_RELATED_ADVISORY_LABEL;
+
+export const DIGESTS_CHECKLIST_ACTION_RUN_SCAN = "Run advisory scan" as const;
+
+export const DIGESTS_CHECKLIST_ACTION_ADD_SUBSCRIPTIONS = "Add subscriptions" as const;
+
+export const DIGESTS_CHECKLIST_ACTION_OPEN_EXECUTIVE = "Open executive schedule" as const;
+
+export function digestsBrowseTabLabel(hasDigestHistory: boolean): string {
+  return hasDigestHistory ? DIGESTS_BROWSE_TAB_BROWSE_LABEL : DIGESTS_BROWSE_TAB_GET_STARTED_LABEL;
+}

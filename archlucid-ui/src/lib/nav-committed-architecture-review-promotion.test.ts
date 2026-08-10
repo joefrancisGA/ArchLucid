@@ -10,23 +10,38 @@ describe("committed architecture review nav promotion", () => {
   const analysis = NAV_GROUPS.find((g) => g.id === "operate-analysis");
   // /insights/pilot-outcomes lives in Insights (formerly operate-reports).
 
-  it("TB-524: keeps Getting started essential before first commit and demotes after", () => {
+  it("TB-524: keeps First review guide essential before first commit and demotes after", () => {
     expect(pilot).toBeDefined();
 
     const beforeCommit = applyCommittedArchitectureReviewNavPromotions(pilot!.links, false);
     const before = beforeCommit.find((l) => l.href === "/architecture/first-review-guide");
 
     expect(before?.tier).toBe("essential");
-    expect(before?.defaultVisibleInCollapsedSidebar).toBe(true);
 
     const afterCommit = applyCommittedArchitectureReviewNavPromotions(pilot!.links, true);
     const after = afterCommit.find((l) => l.href === "/architecture/first-review-guide");
 
     expect(after?.tier).toBe("extended");
-    expect(after?.defaultVisibleInCollapsedSidebar).toBeUndefined();
   });
 
-  it("TB-524: keeps Getting started visible under authority-only shell shaping after first commit", () => {
+  it("moves First review guide last in its group after first commit, keeping other links in order", () => {
+    expect(pilot).toBeDefined();
+
+    const beforeCommit = applyCommittedArchitectureReviewNavPromotions(pilot!.links, false);
+
+    expect(beforeCommit.map((l) => l.href)).toEqual(pilot!.links.map((l) => l.href));
+
+    const afterCommit = applyCommittedArchitectureReviewNavPromotions(pilot!.links, true);
+    const hrefs = afterCommit.map((l) => l.href);
+
+    expect(hrefs.at(-1)).toBe("/architecture/first-review-guide");
+    expect(hrefs).toHaveLength(pilot!.links.length);
+    expect(hrefs.slice(0, -1)).toEqual(
+      pilot!.links.map((l) => l.href).filter((href) => href !== "/architecture/first-review-guide"),
+    );
+  });
+
+  it("TB-524: keeps First review guide visible under authority-only shell shaping after first commit", () => {
     // Tier disclosure filtering is retired (owner 2026-08-03); demotion remains metadata for progressive copy.
     const rows = listNavGroupsVisibleInOperatorShell(
       NAV_GROUPS,
@@ -50,12 +65,10 @@ describe("committed architecture review nav promotion", () => {
     const compare = promotedAnalysis.find((l) => l.href === "/insights/compare-two-reviews");
 
     expect(compare?.tier).toBe("essential");
-    expect(compare?.defaultVisibleInCollapsedSidebar).toBeUndefined();
 
     const outcomes = promotedAnalysis.find((l) => l.href === "/insights/pilot-outcomes");
 
     expect(outcomes?.tier).toBe("essential");
-    expect(outcomes?.defaultVisibleInCollapsedSidebar).toBeUndefined();
 
     const shellAnalysis = filterNavLinksForOperatorShell(
       analysis!.links,
@@ -69,7 +82,7 @@ describe("committed architecture review nav promotion", () => {
     expect(shellAnalysis.some((l) => l.href === "/insights/compare-two-reviews")).toBe(true);
   });
 
-  it("keeps Compare visible in the authority-shaped shell before the first committed review", () => {
+  it("hides Compare in the authority-shaped shell before the first committed review", () => {
     expect(analysis).toBeDefined();
 
     const visible = filterNavLinksForOperatorShell(
@@ -81,7 +94,7 @@ describe("committed architecture review nav promotion", () => {
       false,
     );
 
-    // Collapsed-pilot filtering retired — Compare stays authority-visible pre-commit.
-    expect(visible.some((l) => l.href === "/insights/compare-two-reviews")).toBe(true);
+    expect(visible.some((l) => l.href === "/insights/compare-two-reviews")).toBe(false);
+    expect(visible.some((l) => l.href === "/insights/evidence-graph")).toBe(true);
   });
 });

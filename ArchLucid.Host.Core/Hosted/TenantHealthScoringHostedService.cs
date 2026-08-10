@@ -17,22 +17,20 @@ public sealed class TenantHealthScoringHostedService(
     /// <inheritdoc />
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        return electionCoordinator.RunLeaderWorkAsync(
+        return electionCoordinator.RunLeaderWorkWhenEnabledAsync(
+            optionsMonitor.CurrentValue.Enabled,
+            LogDisabled,
             HostElectionLeaseNames.TenantHealthScoring,
             PollLoopAsync,
             stoppingToken);
     }
 
+    private void LogDisabled() =>
+        logger.LogInformation("Tenant health scoring worker is disabled via configuration.");
+
     private async Task PollLoopAsync(CancellationToken leaderToken)
     {
         TenantHealthScoringOptions initial = optionsMonitor.CurrentValue;
-
-        if (!initial.Enabled)
-        {
-            logger.LogInformation("Tenant health scoring worker is disabled via configuration.");
-
-            return;
-        }
 
         logger.LogInformation(
             "Tenant health scoring worker started (interval {Hours} hours).",

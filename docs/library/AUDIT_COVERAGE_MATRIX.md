@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:369 -->
+<!-- audit-core-const-count:371 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -228,6 +228,8 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Customer notification channel preferences upsert | `CustomerNotificationChannelPreferencesController` (`PUT …/customer-channel-preferences`) | `TenantNotificationChannelPreferencesUpdated` | Tenant + default workspace/project from scope | `{ email, teams, outboundWebhook }` booleans |
 | Tenant agent-output quality gate mode override | `SettingsController` (`PUT /v1/admin/settings/agent-output-quality-gate-mode`) | `TenantAgentOutputQualityGateModeUpdated` | Tenant + default workspace/project from scope | `{ effectiveMode }` (`WarnOnly` / `PilotStrict`) |
 | Tenant agent-output quality gate mode override cleared | `SettingsController` (`DELETE /v1/admin/settings/agent-output-quality-gate-mode`) | `TenantAgentOutputQualityGateModeOverrideCleared` | Tenant + default workspace/project from scope | `{ effectiveMode }` after revert to host default |
+| Quality-gate definition version deprecated (wrong-definition playbook) | Operator/admin remediation (TB-974; follow-on API) | `TenantQualityGateDefinitionDeprecated` | Tenant + default workspace/project from scope | `{ deprecatedDefinitionVersion, deprecatedContentHashSha256, successorDefinitionVersion, successorContentHashSha256, reason }` |
+| Append-only quality-gate superseding evaluation recorded | Operator/admin remediation (TB-974; follow-on API) | `RunQualityGateSupersedingEvaluationRecorded` | RunId + trace when present | `{ supersedingEvaluationId, misclassificationClass, originalRecordedOutcome, supersedingOutcome, originalContentHashSha256, successorContentHashSha256 }` — **no** silent UPDATE of recorded trace columns |
 | Host API key rotation material issued | `AdminApiKeySettingsController` (`POST /v1/admin/settings/api-keys/rotate`) | `AdminApiKeyRotationMaterialIssued` | Tenant + default workspace/project from scope | `{ slot, deploymentAction, configPath }` — **no** key material |
 | Host API key rotated by key id | `AdminApiKeySettingsController` (`POST /v1/admin/apikeys/{keyId}/rotate`) | `ApiKeyRotated` | Tenant + default workspace/project from scope | `{ keyId, slot, deploymentAction, configPath }` — **no** key material |
 | Admin JWT token claims diagnostic (SSO role mapping) | `AdminAuthDiagnosticsController` (`POST /v1/admin/auth/diagnose-token`) | `AuthTokenDiagnosticRequested` | Tenant/Workspace/Project from ambient scope | `{ resolvedRoleCount, unmappedValueCount, warningCount }` — **no** bearer token material |
@@ -577,6 +579,8 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `TenantNotificationChannelPreferencesUpdated` | `TenantNotificationChannelPreferencesUpdated` | `CustomerNotificationChannelPreferencesController` |
 | `TenantAgentOutputQualityGateModeUpdated` | `Tenant.AgentOutputQualityGateModeUpdated` | `SettingsController` (`PUT …/admin/settings/agent-output-quality-gate-mode`) |
 | `TenantAgentOutputQualityGateModeOverrideCleared` | `Tenant.AgentOutputQualityGateModeOverrideCleared` | `SettingsController` (`DELETE …/admin/settings/agent-output-quality-gate-mode`) |
+| `TenantQualityGateDefinitionDeprecated` | `Tenant.QualityGateDefinitionDeprecated` | TB-974 wrong-definition remediation (follow-on operator API) |
+| `RunQualityGateSupersedingEvaluationRecorded` | `Run.QualityGateSupersedingEvaluationRecorded` | TB-974 append-only supersession (follow-on operator API) |
 | `WorkspaceModelExecutionProfileUpdated` | `Workspace.ModelExecutionProfileUpdated` | `SettingsController` (`PUT …/admin/settings/model-execution-profile`) |
 | `WorkspaceModelExecutionProfileOverrideCleared` | `Workspace.ModelExecutionProfileOverrideCleared` | `SettingsController` (`DELETE …/admin/settings/model-execution-profile`) |
 | `RunModelExecutionProfileOverrideApplied` | `Run.ModelExecutionProfileOverrideApplied` | `ModelExecutionProfileOverrideAuditWriter` (per-review override at run create) |
@@ -718,7 +722,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `TenantCatalogMigrationVerificationPassed` | `TenantCatalogMigrationVerificationPassed` | `TenantCatalogMigrationOrchestrator` (`POST /v1/admin/tenants/{tenantId}/catalog-migration/verify` when probe passes) |
 | `TenantCatalogMigrationVerificationFailed` | `TenantCatalogMigrationVerificationFailed` | `TenantCatalogMigrationOrchestrator` (`POST /v1/admin/tenants/{tenantId}/catalog-migration/verify` when probe fails) |
 | `TenantCatalogMigrationCompleted` | `TenantCatalogMigrationCompleted` | `TenantCatalogMigrationOrchestrator` (`POST /v1/admin/tenants/{tenantId}/catalog-migration/complete`) |
-| `TenantCatalogMigrationCatalogAttachAcknowledged` | `TenantCatalogMigrationCatalogAttachAcknowledged` | `TenantCatalogMigrationOrchestrator` (`POST /v1/admin/tenants/{tenantId}/catalog-migration/acknowledge-catalog-attach`) |
+| `TenantCatalogMigrationCatalogAttachAcknowledged` | `TenantCatalogMigrationCatalogAttachAcknowledged` | `TenantCatalogMigrationOrchestrator` (`POST /v1/admin/tenants/{tenantId}/catalog-migration/acknowledge-catalog-attach`; TB-2069) |
 | `PilotScorecardValueMetricsSubmitted` | `PilotScorecardValueMetricsSubmitted` | `PilotsController` |
 
 When adding a Core constant, add a row here and bump `audit-core-const-count`.
@@ -731,8 +735,6 @@ When adding a Core constant, add a row here and bump `audit-core-const-count`.
 - `POST /v1/architecture/review/exports/{exportRecordId}/replay/metadata`
 - `POST /v1/architecture/review/{runId}/evidence/bulk`
 - `POST /v1/architecture/review/{runId}/execute/selective`
-- `POST /v1/architecture/review/{runId}/execute/async`
-- `POST /v1/architecture/review/{runId}/replay/async`
 - `POST /v1/architecture/review/{runId}/finalize`
 - `POST /v1/architecture/review/{runId}/replay`
 - `POST /v1/architecture/review/{runId}/result`
@@ -754,7 +756,7 @@ When adding a Core constant, add a row here and bump `audit-core-const-count`.
 | `Run.QualityGateRejected` | `Run.QualityGateRejected` | `BaselineMutationAuditService` / `BaselineMutationAuditArchitectureDurableWriter` (baseline `Architecture.RunQualityGateRejected`) |
 | `Run.RetryRequested` | `Run.RetryRequested` | `ArchitectureRunExecuteOrchestrator` (`ExecuteRunAsync` when load maps to `ArchitectureRunStatus.Failed`; scoped tenant/workspace/project + `RunId`) |
 | `Run.SelectiveExecuteRequested` | `Run.SelectiveExecuteRequested` | `RunsController` (`POST /v1/architecture/run/{runId}/execute/selective`) → `ArchitectureRunExecuteOrchestrator` (`ExecuteSelectiveRunAsync`; scoped tenant/workspace/project + `RunId`; payload `includeDependents`, `taskIds`, `agentTypes`) |
-| `Run.CancelRequested` | `Operation.CancelRequested` | `OperationsController` (`POST /v1/operations/{operationId}/cancel`; durable audit via `AuditEventTypes.Operation.CancelRequested`) |
+| `Run.CancelRequested` | `Operation.CancelRequested` | `OperationsController` (`POST /v1/operations/{operationId}/cancel`; TB-2076 cooperative cancel) |
 
 When adding a `Run` constant, add a row here and bump `audit-core-const-count`.
 

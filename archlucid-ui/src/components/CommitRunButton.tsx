@@ -246,9 +246,7 @@ export function CommitRunButton({
             </p>
             <div className="flex flex-col gap-2">
               <Button variant="outline" asChild className="justify-start">
-                <Link href={`/architecture/reviews/${encodeURIComponent(runId)}#artifacts-export`}>
-                  Artifacts Export
-                </Link>
+                <Link href="#sponsor-handoff">Send to sponsor</Link>
               </Button>
               <Button variant="outline" asChild className="justify-start">
                 <Link href={`/architecture/reviews/${encodeURIComponent(runId)}/compare`}>

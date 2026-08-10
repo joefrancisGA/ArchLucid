@@ -17,7 +17,7 @@ export function RunDetailFirstScreenProofStatus(props: RunDetailFirstScreenProof
 
   return (
     <section
-      className={`rounded-lg border px-4 py-3 ${runDetailFirstScreenProofDispositionClass(summary.disposition)}`}
+      className={`min-w-0 overflow-visible rounded-lg border px-4 py-3 ${runDetailFirstScreenProofDispositionClass(summary.disposition)}`}
       data-testid="run-detail-first-screen-proof-status"
       aria-label={summary.cardTitle}
     >
@@ -42,7 +42,7 @@ export function RunDetailFirstScreenProofStatus(props: RunDetailFirstScreenProof
         <summary className={cn("cursor-pointer font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
           View proof details
         </summary>
-        <div className="mt-3 space-y-3">
+        <div className="mt-3 min-w-0 space-y-3">
           {detailBullets.length > 0 ? (
             <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
               {detailBullets.map((bullet) => (
@@ -51,7 +51,7 @@ export function RunDetailFirstScreenProofStatus(props: RunDetailFirstScreenProof
             </ul>
           ) : null}
 
-          <dl className={cn("m-0 grid gap-2 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
+          <dl className={cn("m-0 grid min-w-0 gap-2 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
             <div>
               <dt className="font-semibold">{PROOF_CONFIDENCE_FIELD_LABEL}</dt>
               <dd className="m-0">{summary.proofConfidenceLabel}</dd>
@@ -61,7 +61,7 @@ export function RunDetailFirstScreenProofStatus(props: RunDetailFirstScreenProof
               <dd className="m-0">{summary.executionModeLabel}</dd>
             </div>
             <div>
-              <dt className="font-semibold">PilotStrict</dt>
+              <dt className="font-semibold">Sponsor proof gate</dt>
               <dd className="m-0">{summary.pilotStrictLabel}</dd>
             </div>
             <div>

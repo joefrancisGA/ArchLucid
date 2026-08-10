@@ -6,12 +6,20 @@ import {
 } from "@/lib/digests-route-paths";
 import {
   DIGESTS_BROWSE_GENERATE_FIRST_DETAIL,
+  DIGESTS_BROWSE_GENERATE_FIRST_DETAIL_PREREQ,
   DIGESTS_BROWSE_GENERATE_FIRST_DONE_DETAIL,
   DIGESTS_BROWSE_GENERATE_FIRST_LABEL,
   DIGESTS_BROWSE_HISTORY_PENDING_DETAIL,
   DIGESTS_BROWSE_HISTORY_READY_DETAIL,
   DIGESTS_BROWSE_RELATED_ADVISORY_LABEL,
   DIGESTS_BROWSE_SETUP_STATUS_LABEL,
+  DIGESTS_CHECKLIST_ACTION_ADD_SUBSCRIPTIONS,
+  DIGESTS_CHECKLIST_ACTION_OPEN_ADVISORY,
+  DIGESTS_CHECKLIST_ACTION_OPEN_EXECUTIVE,
+  DIGESTS_CHECKLIST_ACTION_RUN_SCAN,
+  DIGESTS_CHECKLIST_SCHEDULE_DETAIL_ENABLED,
+  DIGESTS_CHECKLIST_SCHEDULE_DETAIL_PENDING,
+  DIGESTS_CHECKLIST_SCHEDULE_LABEL,
 } from "@/lib/digests-browse-copy";
 import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
 
@@ -59,7 +67,7 @@ export function mapDigestSetupGap(gap: string): DigestSetupGapAction {
     return {
       title: "Executive recipients not configured",
       impact: "Sponsor emails will not receive the executive rollup.",
-      actionLabel: "Configure schedule",
+      actionLabel: DIGESTS_CHECKLIST_ACTION_OPEN_EXECUTIVE,
       href: DIGESTS_SCHEDULE_TAB_PATH,
     };
   }
@@ -67,7 +75,7 @@ export function mapDigestSetupGap(gap: string): DigestSetupGapAction {
   return {
     title: "Digest setup needs attention",
     impact: trimmed.length > 0 ? trimmed : "Complete digest configuration to enable delivery.",
-    actionLabel: "Configure schedule",
+    actionLabel: DIGESTS_CHECKLIST_ACTION_OPEN_EXECUTIVE,
     href: DIGESTS_SCHEDULE_TAB_PATH,
   };
 }
@@ -86,6 +94,7 @@ export type DigestSetupChecklistItem = {
   readonly label: string;
   /** `null` when the step has no destination to send the operator to (status-only row). */
   readonly href: string | null;
+  readonly actionLabel: string;
   readonly complete: boolean;
   readonly detail: string;
 };
@@ -116,9 +125,9 @@ export function resolveDigestOverallStatus(snap: WeeklyDigestHealthDto): DigestO
 export function resolveDigestNextBestAction(snap: WeeklyDigestHealthDto): DigestSetupGapAction | null {
   if (snap.enabledAdvisoryScheduleCount === 0) {
     return {
-      title: "Configure schedule",
+      title: DIGESTS_CHECKLIST_SCHEDULE_LABEL,
       impact: "Enable an advisory scan schedule to generate digests on a cadence.",
-      actionLabel: "Configure schedule",
+      actionLabel: DIGESTS_CHECKLIST_ACTION_OPEN_ADVISORY,
       href: ADVISORY_SCANS_SCHEDULES_HREF,
     };
   }
@@ -127,7 +136,7 @@ export function resolveDigestNextBestAction(snap: WeeklyDigestHealthDto): Digest
     return {
       title: "Add recipients or subscriptions",
       impact: "Add digest subscriptions so generated digests have outbound recipients.",
-      actionLabel: "Add subscriptions",
+      actionLabel: DIGESTS_CHECKLIST_ACTION_ADD_SUBSCRIPTIONS,
       href: DIGESTS_SUBSCRIPTIONS_TAB_PATH,
     };
   }
@@ -135,26 +144,29 @@ export function resolveDigestNextBestAction(snap: WeeklyDigestHealthDto): Digest
   if (!snap.executiveEmailDigestEnabled && snap.executiveDigestRecipientCount === 0) {
     return {
       title: "Configure executive recipients",
-      impact: "Optional sponsor rollup emails are configured on the Schedule tab.",
-      actionLabel: "Configure schedule",
+      impact: "Optional sponsor rollup emails are configured on the Executive schedule tab.",
+      actionLabel: DIGESTS_CHECKLIST_ACTION_OPEN_EXECUTIVE,
       href: DIGESTS_SCHEDULE_TAB_PATH,
     };
   }
 
-  if (
-    snap.latestArchitectureDigestGeneratedUtc === null ||
-    snap.latestArchitectureDigestGeneratedUtc === undefined ||
-    snap.latestArchitectureDigestGeneratedUtc.trim() === ""
-  ) {
+  if (!hasGeneratedDigestHistory(snap)) {
     return {
       title: DIGESTS_BROWSE_GENERATE_FIRST_LABEL,
       impact: DIGESTS_BROWSE_GENERATE_FIRST_DETAIL,
-      actionLabel: DIGESTS_BROWSE_RELATED_ADVISORY_LABEL,
+      actionLabel: DIGESTS_CHECKLIST_ACTION_RUN_SCAN,
       href: ADVISORY_SCANS_SCHEDULES_HREF,
     };
   }
 
   return null;
+}
+
+/** True when at least one architecture digest has been generated for this scope. */
+export function hasGeneratedDigestHistory(snap: WeeklyDigestHealthDto): boolean {
+  const generatedUtc: string = snap.latestArchitectureDigestGeneratedUtc?.trim() ?? "";
+
+  return generatedUtc.length > 0;
 }
 
 export function buildDigestSetupChecklistItems(
@@ -163,23 +175,23 @@ export function buildDigestSetupChecklistItems(
 ): readonly DigestSetupChecklistItem[] {
   const hasSchedule: boolean = snap.enabledAdvisoryScheduleCount > 0;
   const hasRecipients: boolean = snap.enabledDigestSubscriptionCount > 0;
-  const hasTestDigest: boolean =
-    snap.latestArchitectureDigestGeneratedUtc !== null &&
-    snap.latestArchitectureDigestGeneratedUtc !== undefined &&
-    snap.latestArchitectureDigestGeneratedUtc.trim() !== "";
+  const hasTestDigest: boolean = hasGeneratedDigestHistory(snap);
+  const prerequisitesForScan: boolean = hasSchedule && hasRecipients;
 
   return [
     {
       id: "schedule",
-      label: "Configure schedule",
+      label: DIGESTS_CHECKLIST_SCHEDULE_LABEL,
       href: ADVISORY_SCANS_SCHEDULES_HREF,
+      actionLabel: DIGESTS_CHECKLIST_ACTION_OPEN_ADVISORY,
       complete: hasSchedule,
-      detail: hasSchedule ? "Advisory scan schedule enabled." : "Enable a cadence for digest generation.",
+      detail: hasSchedule ? DIGESTS_CHECKLIST_SCHEDULE_DETAIL_ENABLED : DIGESTS_CHECKLIST_SCHEDULE_DETAIL_PENDING,
     },
     {
       id: "recipients",
       label: "Add recipients or subscriptions",
       href: DIGESTS_SUBSCRIPTIONS_TAB_PATH,
+      actionLabel: DIGESTS_CHECKLIST_ACTION_ADD_SUBSCRIPTIONS,
       complete: hasRecipients,
       detail: hasRecipients ? "Active digest subscriptions configured." : "Add outbound recipients for delivery.",
     },
@@ -187,16 +199,22 @@ export function buildDigestSetupChecklistItems(
       id: "test",
       label: DIGESTS_BROWSE_GENERATE_FIRST_LABEL,
       href: ADVISORY_SCANS_SCHEDULES_HREF,
+      actionLabel: prerequisitesForScan
+        ? DIGESTS_CHECKLIST_ACTION_RUN_SCAN
+        : DIGESTS_CHECKLIST_ACTION_OPEN_ADVISORY,
       complete: hasTestDigest,
       detail: hasTestDigest
         ? DIGESTS_BROWSE_GENERATE_FIRST_DONE_DETAIL
-        : DIGESTS_BROWSE_GENERATE_FIRST_DETAIL,
+        : prerequisitesForScan
+          ? DIGESTS_BROWSE_GENERATE_FIRST_DETAIL
+          : DIGESTS_BROWSE_GENERATE_FIRST_DETAIL_PREREQ,
     },
     {
       // Status-only: the checklist renders on Browse, so linking here would be a self-link.
       id: "history",
       label: "Review generated history",
       href: null,
+      actionLabel: "Pending",
       complete: hasGeneratedDigests,
       detail: hasGeneratedDigests
         ? DIGESTS_BROWSE_HISTORY_READY_DETAIL

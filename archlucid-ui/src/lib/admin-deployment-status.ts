@@ -1,5 +1,7 @@
 /** Shared types and pure helpers for the internal deployment-status view. */
 
+import type { EnterpriseStatusKind } from "@/lib/design-tokens";
+
 export const DEPLOYMENT_STATUS_UNKNOWN = "Unknown";
 
 export type DeploymentOverallStatus = "Healthy" | "Warning" | "Failed" | "Unknown";
@@ -66,6 +68,40 @@ export function resolveOverallTone(status: string): DeploymentOverallStatus {
   }
 
   return "Unknown";
+}
+
+export function deploymentOverallStatusTagKind(tone: DeploymentOverallStatus): EnterpriseStatusKind {
+  switch (tone) {
+    case "Healthy":
+      return "ready";
+    case "Warning":
+      return "needs-attention";
+    case "Failed":
+      return "blocked";
+    case "Unknown":
+      return "neutral";
+    default: {
+      const exhaustive: never = tone;
+      return exhaustive;
+    }
+  }
+}
+
+export function deploymentOverallStatusShortLabel(tone: DeploymentOverallStatus): string {
+  switch (tone) {
+    case "Healthy":
+      return "Healthy";
+    case "Warning":
+      return "Warning";
+    case "Failed":
+      return "Failed";
+    case "Unknown":
+      return "Unknown";
+    default: {
+      const exhaustive: never = tone;
+      return exhaustive;
+    }
+  }
 }
 
 export function buildDeploymentStatusRequestUrl(frontendBuildId: string): string {

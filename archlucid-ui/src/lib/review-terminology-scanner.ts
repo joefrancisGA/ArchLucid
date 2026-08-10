@@ -6,6 +6,7 @@ import {
   REVIEW_TERMINOLOGY_BANNED_OPERATOR_PATTERNS,
   REVIEW_TERMINOLOGY_BANNED_PACKAGE_PATTERNS,
   REVIEW_TERMINOLOGY_BANNED_PRIMARY_RUN_PATTERNS,
+  REVIEW_TERMINOLOGY_GOLDEN_PATH_BANNED_PATTERNS,
 } from "@/lib/review-terminology-surfaces";
 
 const SOURCE_EXTENSIONS = new Set([".ts", ".tsx"]);
@@ -271,6 +272,37 @@ export function scanBuyerFacingTerminology(
     }
 
     for (const pattern of ALL_BANNED_PATTERNS) {
+      if (!patternMatchesLine(line, pattern)) {
+        continue;
+      }
+
+      violations.push({
+        relativePath,
+        line: index + 1,
+        pattern,
+        excerpt: line.trim().slice(0, 160),
+      });
+    }
+  }
+
+  return violations;
+}
+
+export function scanGoldenPathBuyerCopy(
+  relativePath: string,
+  source: string,
+): ReviewTerminologyViolation[] {
+  const violations: ReviewTerminologyViolation[] = [];
+  const lines = source.split(/\r?\n/);
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index] ?? "";
+
+    if (isCommentLine(line) || isSafelistedLine(line)) {
+      continue;
+    }
+
+    for (const pattern of REVIEW_TERMINOLOGY_GOLDEN_PATH_BANNED_PATTERNS) {
       if (!patternMatchesLine(line, pattern)) {
         continue;
       }

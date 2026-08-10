@@ -421,12 +421,8 @@ describe("RunsDashboardPanel", () => {
       expect(monitoringPanel).toBeInTheDocument();
       expect(monitoringPanel.querySelector('[data-testid="runs-dashboard-buyer-proof-summary"]')).not.toBeNull();
       expect(screen.queryByTestId("runs-dashboard-buyer-outcome-cards")).toBeNull();
-
-      fireEvent.click(screen.getByTestId("runs-dashboard-filter-approved"));
-
-      const approvedPanel = await screen.findByTestId("runs-dashboard-panel-approved");
-      expect(approvedPanel).toHaveTextContent(BUYER_RUNS_DASHBOARD_NO_APPROVED_PACKAGES);
-      expect(approvedPanel.querySelector('[data-testid="runs-dashboard-buyer-proof-summary"]')).toBeNull();
+      // Zero-count Approved facet is omitted on buyer Overview (empty-count theater).
+      expect(screen.queryByTestId("runs-dashboard-filter-approved")).toBeNull();
     } finally {
       runsDashBuyerPolishedForced.on = false;
     }
@@ -501,7 +497,7 @@ describe("RunsDashboardPanel", () => {
     }
   });
 
-  it("uses buyer-polished tab labels with stable test ids when reviews exist (TB-352)", async () => {
+  it("shows buyer status filters without zero-count facets when a single review exists", async () => {
     runsDashBuyerPolishedForced.on = true;
 
     const run: RunSummary = {
@@ -526,20 +522,14 @@ describe("RunsDashboardPanel", () => {
 
     await waitFor(() => {
       expect(screen.getByRole("group", { name: "Filter reviews" })).toBeInTheDocument();
-      expect(screen.queryByRole("tablist")).toBeNull();
-      expect(screen.getByTestId("runs-dashboard-filter-all")).toHaveAttribute("aria-pressed", "true");
       expect(screen.getByTestId("runs-dashboard-filter-all")).toHaveTextContent("All (1)");
       expect(screen.getByTestId("runs-dashboard-filter-approved")).toHaveTextContent("Approved (1)");
-      expect(screen.getByTestId("runs-dashboard-filter-attention")).toHaveTextContent("Action needed (0)");
-      expect(screen.getByTestId("runs-dashboard-filter-outcomes")).toHaveTextContent("Approved with monitoring (0)");
-      expect(screen.getByTestId("runs-dashboard-filter-approved")).toBeInTheDocument();
-      expect(screen.getByTestId("runs-dashboard-filter-attention")).toBeInTheDocument();
-      expect(screen.getByTestId("runs-dashboard-filter-outcomes")).toBeInTheDocument();
-      expect(screen.queryByTestId("runs-dashboard-view-all-reviews")).toBeNull();
-      expect(screen.queryByTestId("runs-dashboard-show-archived")).toBeNull();
-      expect(screen.queryByTestId("runs-dashboard-open-all-reviews")).toBeNull();
-      expect(screen.queryByRole("link", { name: "All" })).toBeNull();
     });
+
+    expect(screen.queryByTestId("runs-dashboard-filter-attention")).toBeNull();
+    expect(screen.queryByTestId("runs-dashboard-filter-outcomes")).toBeNull();
+    expect(screen.queryByTestId("runs-dashboard-view-all-reviews")).toBeNull();
+    expect(screen.queryByTestId("runs-dashboard-show-archived")).toBeNull();
     expect(screen.queryByTestId("runs-dashboard-filters")).toBeNull();
     expect(screen.queryByTestId("runs-dashboard-governance-warnings-only")).toBeNull();
 

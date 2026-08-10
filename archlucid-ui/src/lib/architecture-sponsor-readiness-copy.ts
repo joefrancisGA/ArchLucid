@@ -22,7 +22,7 @@ export const ARCHITECTURE_SPONSOR_PRELIMINARY_CONFIRMATION =
   "I understand that this architecture is incomplete and will be labeled as a preliminary draft.";
 
 export const ARCHITECTURE_SPONSOR_SHARING_PERMISSION_DENIED =
-  "You need operator access to share architecture content with sponsors. Ask an administrator if you need this permission.";
+  "You need architect access to share architecture content with sponsors. Ask an administrator if you need this permission.";
 
 export const ARCHITECTURE_SPONSOR_POLICY_BLOCKED =
   "Organizational policy blocks external sponsor sharing for this architecture.";

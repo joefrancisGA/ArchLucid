@@ -43,8 +43,8 @@ type OperatorShellTopBarMoreMenuProps = {
 
 /**
  * Portaled overflow for eval-only secondary top-bar tools (authority theme toggle)
- * so the sticky header stays a single row. Help and AI usage stay freestanding —
- * do not park them here.
+ * so the sticky header stays a single row. Help stays freestanding; the AI budget
+ * pill (warn/critical only) also stays freestanding — do not park them here.
  */
 export function OperatorShellTopBarMoreMenu(props: OperatorShellTopBarMoreMenuProps): React.JSX.Element {
   const [open, setOpen] = useState(false);

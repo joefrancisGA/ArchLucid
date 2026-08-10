@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { FindingPolicyRuleBadge } from "@/components/FindingPolicyRuleBadge";
+import { FindingTrustChipFromSet } from "@/components/FindingTrustChip";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -62,6 +63,7 @@ export function RunDetailDecisionDeltaPanel(props: RunDetailDecisionDeltaPanelPr
                 <SeverityTag severity={row.severityLabel} label={row.severityLabel} />
                 <Link
                   href={`/architecture/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(row.findingId)}`}
+                  prefetch={false}
                   className={cn(OPERATOR_LINK.inline, "min-w-0 flex-1 font-medium")}
                 >
                   {row.title}
@@ -69,6 +71,7 @@ export function RunDetailDecisionDeltaPanel(props: RunDetailDecisionDeltaPanelPr
               </div>
 
               <div className="mt-2 flex flex-wrap items-center gap-2">
+                <FindingTrustChipFromSet chipSet={row.trustChipSet} />
                 {row.policyRuleId !== null ? (
                   <FindingPolicyRuleBadge policyRuleId={row.policyRuleId} />
                 ) : (

@@ -17,7 +17,7 @@
   ],
   "scopeLabel": "V1-ready",
   "doNotUseWhen": [
-    "Primary target cloud is non-Azure with no Azure evidence (AWS/GCP analysis is V1.1)",
+    "Primary target cloud is non-Azure with no Azure evidence",
     "Buyer expects guaranteed dollar savings",
     "First session before Core Pilot commit"
   ],

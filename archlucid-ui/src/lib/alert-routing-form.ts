@@ -24,9 +24,28 @@ export function severitiesAtOrAboveMinimum(minimumSeverity: string): string[] {
   return [...ALERT_ROUTING_SEVERITY_ORDER.slice(startIndex)];
 }
 
-export function formatMinimumSeverityPreview(minimumSeverity: string): string {
-  const included = severitiesAtOrAboveMinimum(minimumSeverity);
+function canonicalSeverityLabel(severity: string): string | null {
+  const normalized = severity.trim().toLowerCase();
+  const match = ALERT_ROUTING_SEVERITY_ORDER.find((entry) => entry.toLowerCase() === normalized);
 
+  return match ?? null;
+}
+
+export function resolveEffectiveAlertSeverities(minimumSeverity: string, exactSeverities: string[]): string[] {
+  if (exactSeverities.length > 0) {
+    const canonical = exactSeverities
+      .map((severity) => canonicalSeverityLabel(severity))
+      .filter((severity): severity is (typeof ALERT_ROUTING_SEVERITY_ORDER)[number] => severity !== null);
+
+    return ALERT_ROUTING_SEVERITY_ORDER.filter((severity) =>
+      canonical.some((entry) => entry.toLowerCase() === severity.toLowerCase()),
+    );
+  }
+
+  return severitiesAtOrAboveMinimum(minimumSeverity);
+}
+
+export function formatSeverityListPreview(included: string[]): string {
   if (included.length === 0) {
     return "Choose a minimum severity to preview which alerts will be delivered.";
   }
@@ -43,6 +62,54 @@ export function formatMinimumSeverityPreview(minimumSeverity: string): string {
   const rest = included.slice(0, -1).join(", ");
 
   return `This destination will receive ${rest}, and ${last} alerts.`;
+}
+
+export function formatMinimumSeverityPreview(minimumSeverity: string): string {
+  return formatSeverityListPreview(severitiesAtOrAboveMinimum(minimumSeverity));
+}
+
+export function exactSeverityCriticalExcludedWarning(
+  minimumSeverity: string,
+  exactSeverities: string[],
+): string | null {
+  if (exactSeverities.length === 0) {
+    return null;
+  }
+
+  const atOrAbove = severitiesAtOrAboveMinimum(minimumSeverity);
+  const includesCriticalAtMinimum = atOrAbove.some((severity) => severity.toLowerCase() === "critical");
+  const effective = resolveEffectiveAlertSeverities(minimumSeverity, exactSeverities);
+  const includesCriticalEffective = effective.some((severity) => severity.toLowerCase() === "critical");
+
+  if (includesCriticalAtMinimum && !includesCriticalEffective) {
+    return "Critical alerts are excluded by your exact-severity selection. Save only if that is intentional.";
+  }
+
+  return null;
+}
+
+export function formatAlertRoutingThresholdPreview(
+  minimumSeverity: string,
+  exactSeverities: string[],
+): { preview: string; criticalExcludedWarning: string | null } {
+  const effective = resolveEffectiveAlertSeverities(minimumSeverity, exactSeverities);
+
+  return {
+    preview: formatSeverityListPreview(effective),
+    criticalExcludedWarning: exactSeverityCriticalExcludedWarning(minimumSeverity, exactSeverities),
+  };
+}
+
+export function validateAlertRoutingName(name: string): string | null {
+  if (name.trim().length === 0) {
+    return "Enter a name for this notification destination.";
+  }
+
+  return null;
+}
+
+export function isAlertRoutingDestinationFormValid(channelType: string, name: string, destination: string): boolean {
+  return validateAlertRoutingName(name) === null && validateAlertRoutingDestination(channelType, destination) === null;
 }
 
 export function destinationFieldLabel(channelType: string): string {
@@ -122,14 +189,6 @@ export function validateAlertRoutingDestination(channelType: string, destination
     }
   } catch {
     return "Enter a valid HTTPS webhook URL.";
-  }
-
-  return null;
-}
-
-export function validateAlertRoutingName(name: string): string | null {
-  if (name.trim().length === 0) {
-    return "Enter a name for this notification destination.";
   }
 
   return null;

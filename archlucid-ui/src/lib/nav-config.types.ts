@@ -19,12 +19,10 @@ export type NavLinkItem = {
    * **Not used for sidebar visibility** (owner 2026-08-03) — authority/`requiredAuthority` gates the shell.
    */
   tier: NavTier;
-  /** When sidebar is in default collapsed pilot mode (“fewer sidebar links”), only links with **true** here stay visible before “Show all features”. Omit = hidden when collapsed (after tier ∩ authority). See **docs/library/PRODUCT_PACKAGING.md** §3 Improvement 7. */
-  defaultVisibleInCollapsedSidebar?: boolean;
   /**
    * Minimum API policy tier this destination assumes (see `ArchLucidPolicies` on the server).
    * **Pilot essentials** omit this (broad default path). **Operate** nav links set it — see **`docs/NAV_CONFIG_CONTRACT.md`**.
-   * Enforced after **`tier`** in **`nav-shell-visibility.ts`** (`filterNavLinksForOperatorShell`).
+   * The only sidebar visibility gate — see **`nav-shell-visibility.ts`** (`filterNavLinksForOperatorShell`).
    */
   requiredAuthority?: RequiredAuthority;
   /** Registry combo for `aria-keyshortcuts`, e.g. `alt+n` */

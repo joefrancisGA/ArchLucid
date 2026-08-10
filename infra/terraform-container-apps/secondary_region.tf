@@ -154,6 +154,30 @@ resource "azurerm_container_app" "api_secondary" {
       name                = "http-concurrency"
       concurrent_requests = var.api_scale_concurrent_requests
     }
+
+    dynamic "custom_scale_rule" {
+      for_each = local.api_cpu_scale_enabled ? [1] : []
+      content {
+        name             = "cpu-utilization"
+        custom_rule_type = "cpu"
+        metadata = {
+          type  = "Utilization"
+          value = tostring(var.api_cpu_scale_utilization_percent)
+        }
+      }
+    }
+
+    dynamic "custom_scale_rule" {
+      for_each = local.api_memory_scale_enabled ? [1] : []
+      content {
+        name             = "memory-utilization"
+        custom_rule_type = "memory"
+        metadata = {
+          type  = "Utilization"
+          value = tostring(var.api_memory_scale_utilization_percent)
+        }
+      }
+    }
   }
 
   ingress {
@@ -406,6 +430,18 @@ resource "azurerm_container_app" "ui_secondary" {
     http_scale_rule {
       name                = "http-concurrency"
       concurrent_requests = var.ui_scale_concurrent_requests
+    }
+
+    dynamic "custom_scale_rule" {
+      for_each = local.ui_cpu_scale_enabled ? [1] : []
+      content {
+        name             = "cpu-utilization"
+        custom_rule_type = "cpu"
+        metadata = {
+          type  = "Utilization"
+          value = tostring(var.ui_cpu_scale_utilization_percent)
+        }
+      }
     }
   }
 

@@ -1,6 +1,5 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
@@ -11,15 +10,9 @@ import {
   OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_BODY,
   OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL,
 } from "@/lib/buyer-polish-copy";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import {
-  operatorLastRefreshedExactLabel,
-  operatorLastRefreshedLabel,
-} from "@/lib/operator-last-refreshed-label";
 import {
   OPERATOR_HOME_ACTION_REFRESH,
   OPERATOR_HOME_ACTION_REFRESHING,
-  OPERATOR_HOME_LAST_REFRESHED_PREFIX,
   OPERATOR_HOME_PAGE_TITLE,
 } from "@/lib/operator-home-page-copy";
 import { useOperatorHomeRefresh } from "@/lib/operator-home-refresh-context";
@@ -43,10 +36,9 @@ function operatorHomeSubtitleContent(subtitle: string): ReactNode {
   );
 }
 
-/** Shared `/` Overview hero — title, lead, contextual help, refresh, and last-refreshed metadata. */
+/** Shared `/` Overview hero — title, lead, contextual help, and refresh (no Last refreshed on this launcher). */
 export function OperatorHomePageHeader(props: OperatorHomePageHeaderProps): React.JSX.Element {
-  const { refreshing, lastRefreshedAt, requestRefresh } = useOperatorHomeRefresh();
-  const lastRefreshedLabel = operatorLastRefreshedLabel(lastRefreshedAt);
+  const { refreshing, requestRefresh } = useOperatorHomeRefresh();
 
   return (
     <OperatorPageHeader
@@ -69,21 +61,6 @@ export function OperatorHomePageHeader(props: OperatorHomePageHeaderProps): Reac
             {refreshing ? OPERATOR_HOME_ACTION_REFRESHING : OPERATOR_HOME_ACTION_REFRESH}
           </Button>
         </div>
-      }
-      metadata={
-        <span
-          className={cn(
-            "text-al-text-secondary [&_strong]:font-bold",
-            OPERATOR_TYPOGRAPHY.helper,
-          )}
-          data-testid="operator-home-last-refreshed"
-          title={operatorLastRefreshedExactLabel(lastRefreshedAt)}
-        >
-          <strong className="font-bold text-al-text-primary">
-            {OPERATOR_HOME_LAST_REFRESHED_PREFIX}:
-          </strong>{" "}
-          {refreshing ? OPERATOR_HOME_ACTION_REFRESHING : lastRefreshedLabel}
-        </span>
       }
     />
   );

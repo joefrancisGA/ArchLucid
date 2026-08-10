@@ -1076,7 +1076,7 @@ Former standalone body: `docs/go-to-market/QUALITY_GATE_VERSIONING_PA_ONE_PAGER.
 
 - **TB-972** **Done** — versioning + historical immutability contract: [`QUALITY_GATE_DEFINITION_VERSIONING_CONTRACT.md`](../library/QUALITY_GATE_DEFINITION_VERSIONING_CONTRACT.md).
 - **TB-973** **Done** — durable version/hash on traces + `recorded` vs `advisoryCurrent` API split ([`AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md)).
-- **TB-974** remains open for wrong-gate remediation playbook.
+- **TB-974** **Done** — wrong-gate remediation playbook: [`QUALITY_GATE_WRONG_DEFINITION_MIGRATION_PLAYBOOK.md`](../library/QUALITY_GATE_WRONG_DEFINITION_MIGRATION_PLAYBOOK.md).
 - **TB-964** separately owns durable quality-outcome completeness.
 - Do not claim perfect gate calibration or full historical immutability **implementation** before **TB-973** ships.
 
@@ -1440,7 +1440,7 @@ Do not say Terraform state alone is authoritative while ignore_changes / portal 
 
 ## Azure workload privilege-escalation seam (M-216) {#azure-workload-privilege-escalation-seam-m-216}
 
-Former standalone body: `docs/go-to-market/AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-215** / **M-216** / **TB-1244**). Complements [Container Apps Terraform authority (M-234)](#container-apps-terraform-authority-m-234) and [Tenant DiD erosion (M-214)](#tenant-did-erosion-beyond-predicates-m-214). Does not reopen Done **TB-080** / **TB-091** / **TB-092**. Not an assurance attestation.
+Former standalone body: `docs/go-to-market/AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-215** / **M-216** / **TB-1244**). Contributor contract: [`AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md`](../library/AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md) (**TB-1244** **Done**). Complements [Container Apps Terraform authority (M-234)](#container-apps-terraform-authority-m-234) and [Tenant DiD erosion (M-214)](#tenant-did-erosion-beyond-predicates-m-214). Does not reopen Done **TB-080** / **TB-091** / **TB-092**. Not an assurance attestation.
 
 **Path-stable alias:** [`AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_PA_ONE_PAGER.md`](AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_PA_ONE_PAGER.md).
 
@@ -1501,7 +1501,8 @@ Do not claim production API SQL is least-privilege / non-`db_owner` while bootst
 
 ### Residuals (honest)
 
-- **TB-1244** / **TB-1245** own the seam contract and honesty CI.
+- **TB-1244** contract **Done** — [`AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md`](../library/AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md); runtime UAMI default-on + app wiring remains follow-on.
+- **TB-1245** honesty CI (open) hardens buyer/proof stubs.
 - Cite `enable_api_sql_runtime_identity`, [`../security/MANAGED_IDENTITY_SQL_BLOB.md`](../security/MANAGED_IDENTITY_SQL_BLOB.md), OpenAI User RBAC, ADR 0020.
 - Complements **M-213**/**M-214**, **TB-903**/**TB-906**; pairs claim-honesty **M-215**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
@@ -1860,7 +1861,7 @@ Former standalone body: `docs/go-to-market/GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_
 | Mass SHA rewrite that silences drift without owning the change | **Rubber-stamp (forbid as proof)** | Not regression proof |
 | Healing production export verify via cohort re-lock | **Forbid** | Eval baselines â‰  prod ManifestHash |
 | Real captured as Simulator baseline | **Forbid** | Mode honesty (**M-128**) |
-| Touch never-re-lockable list (**TB-1172**) | **Forbid** without explicit contract change | Invariants stay pinned |
+| Touch never-re-lockable list (**TB-1172** **Done**) | **Forbid** without explicit contract change | Invariants stay pinned |
 
 ### Never-re-lockable (buyer-safe)
 
@@ -1882,7 +1883,7 @@ Former standalone body: `docs/go-to-market/GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_
 
 ### Claim boundary
 
-Do not treat unexplained mass SHA rewrites as regression proof; do not sell cohort re-lock as healing production `ManifestHash` / export verify; do not capture Real-mode as Simulator baseline. Say: intentional content re-lock OK with rationale; rubber-stamp when mass rewrite silences drift without owning the product change; never-re-lockable list per **TB-1172**.
+Do not treat unexplained mass SHA rewrites as regression proof; do not sell cohort re-lock as healing production `ManifestHash` / export verify; do not capture Real-mode as Simulator baseline. Say: intentional content re-lock OK with rationale; rubber-stamp when mass rewrite silences drift without owning the product change; never-re-lockable list per **TB-1172** **Done** contract.
 
 ### Safe pin
 
@@ -1897,8 +1898,8 @@ Do not treat unexplained mass SHA rewrites as regression proof; do not sell coho
 
 ### Residuals (honest)
 
-- **TB-1172** / **TB-1173** own the re-lock vs rubber-stamp contract and honesty CI.
-- Cite `tests/golden-cohort/README.md` lock ritual + **TB-1156** dual-hasher.
+- **TB-1172** **Done** — [`GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_CONTRACT.md`](../library/GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_CONTRACT.md); **TB-1173** owns anti-rubber-stamp CI.
+- Cite `tests/golden-cohort/README.md` lock ritual + **TB-1156** **Done** dual-hasher contract.
 - Complements **M-154**, **M-198**/**M-199**, **M-274**; pairs claim-honesty **M-201**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
 
@@ -1959,7 +1960,7 @@ Do not equate golden-cohort content SHA with production `ManifestHash`; do not c
 
 ### Residuals (honest)
 
-- **TB-1156** / **TB-1157** own dual-hasher / production re-lock contract and honesty CI.
+- **TB-1156** **Done** — [`MANIFEST_DUAL_HASHER_PROJECTION_EVOLUTION_CONTRACT.md`](../library/MANIFEST_DUAL_HASHER_PROJECTION_EVOLUTION_CONTRACT.md); **TB-1157** owns production re-lock CI.
 - Cite `ManifestHashService`, `GoldenManifestFingerprint`, `AuthorityCommitProjectionBuilder`, ADR 0040, Done **TB-307**.
 - Complements **M-154**/**M-155**, **M-160**, **M-201**/**M-202**, **M-223**/**M-224**; pairs claim-honesty **M-198**.
 - This handout does not claim CPA SOC 2, a published third-party penetration test, or platform WORM.
@@ -1968,7 +1969,7 @@ Do not equate golden-cohort content SHA with production `ManifestHash`; do not c
 
 ## Decision-grade finding provenance fail-closed (M-208) {#decision-grade-finding-provenance-m-208}
 
-Former standalone body: `docs/go-to-market/DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-207** / **M-208** / **TB-1221**). Complements [AgentTask→decisioning leak seams (M-248)](#agenttask-decisioning-ungated-leak-seams-m-248), [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155), and [Shared hallucination defense plane (M-212)](#shared-hallucination-defense-plane-m-212). Does not reopen Done **TB-033**–**TB-037**. Not an assurance attestation and not a semantic-faithfulness claim (**M-210**).
+Former standalone body: `docs/go-to-market/DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-207** / **M-208** / **TB-1221**). Contributor contract: [`DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_CONTRACT.md`](../library/DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_CONTRACT.md) (**TB-1221** **Done**). Complements [AgentTask→decisioning leak seams (M-248)](#agenttask-decisioning-ungated-leak-seams-m-248), [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155), and [Shared hallucination defense plane (M-212)](#shared-hallucination-defense-plane-m-212). Does not reopen Done **TB-033**–**TB-037**. Not an assurance attestation and not a semantic-faithfulness claim (**M-210**).
 
 **Path-stable alias:** [`DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_PA_ONE_PAGER.md`](DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_PA_ONE_PAGER.md).
 
@@ -1999,7 +2000,7 @@ Former standalone body: `docs/go-to-market/DECISION_GRADE_FINDING_PROVENANCE_FAI
 | Claim / pattern | Status |
 | --- | --- |
 | Decision-grade needs structural ProvenanceKind + emission/commit gates | **Allow** |
-| Disclose empty `EvidenceRefs` residual while **TB-1221** open | **Allow** |
+| Disclose empty `EvidenceRefs` residual until emission/commit gates ship | **Allow** |
 | All findings are citation-bound / evidence-grounded | **Forbid** (while empty refs persist) |
 | Critic Low or top-level agent refs = per-finding guarantee | **Forbid** |
 | Prompt instructions = fail-closed provenance | **Forbid** |
@@ -2011,18 +2012,19 @@ Do not claim all findings are citation-bound or evidence-grounded while empty `E
 
 ### Safe pin
 
-> Decision-grade findings are fail-closed only where emission and commit gates enforce structural provenance. Empty EvidenceRefs, prompt-only “cite your sources,” and Critic confidence are not that guarantee — treat “every finding is evidence-grounded” as a review finding while TB-1221 residuals remain.
+> Decision-grade findings are fail-closed only where emission and commit gates enforce structural provenance (**TB-1221** contract). Empty EvidenceRefs, prompt-only “cite your sources,” and Critic confidence are not that guarantee — treat “every finding is evidence-grounded” as a review finding until gates ship.
 
 ### PA review
 
 1. Ask whether the buyer means structural provenance or semantic faithfulness.
 2. Confirm empty `EvidenceRefs` is disclosed for decision-grade paths.
 3. Confirm prompt/Critic language is not sold as the gate.
-4. Treat “all findings are citation-bound” as a review finding while **TB-1221** is open.
+4. Treat “all findings are citation-bound” as a review finding until emission/commit gates ship.
 
 ### Residuals (honest)
 
-- **TB-1221** / **TB-1222** own the fail-closed provenance contract and honesty CI.
+- **TB-1221** contract **Done** — [`DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_CONTRACT.md`](../library/DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_CONTRACT.md); emission/commit validator wiring remains follow-on.
+- **TB-1222** honesty CI (open) hardens buyer/proof stubs.
 - Score-lane positioning is **M-209**/**M-210** / **TB-1228** — see [Faithfulness / support-ratio lanes (M-210)](#faithfulness-support-ratio-scoring-lanes-m-210); shared defense plane is **M-212** / **TB-1230**.
 - Cite `FindingFactory`, `AgentResultParser`, `FindingPayloadValidator`, `AgentOutputQualityGate`.
 - Complements **M-154**, **M-203**, **M-247**/**M-248**; pairs claim-honesty **M-207**.
@@ -2192,7 +2194,7 @@ Former standalone body: `docs/go-to-market/INV001_DECIDE_ONCE_COMMITTED_MANIFEST
 
 **Audience:** Principal architects and procurement reviewers who fuse tenant, decide, and commit stories.
 
-**Decision:** Keep three vocabularies separate. Committed golden manifest proves **finalization identity + hash lineage**, not semantic faithfulness, zero AgentTask overlay, or crypto tenant isolation. Tenant single-derivation (**TB-999**) and committed-manifest unit-of-truth (**TB-1003**) matrices are shipped; do not sell the triad as closed while honesty CI (**TB-1000** / **TB-1004**) / DiD erosion (**TB-1232**) / fused triad matrix (**TB-1416**) remain open.
+**Decision:** Keep three vocabularies separate. Committed golden manifest proves **finalization identity + hash lineage**, not semantic faithfulness, zero AgentTask overlay, or crypto tenant isolation. Tenant single-derivation (**TB-999**) and committed-manifest unit-of-truth (**TB-1003**) matrices are shipped; fused triad matrix (**TB-1416**) is shipped in [`INV001_DECIDE_ONCE_COMMITTED_MANIFEST_PA_TRIAD_CHALLENGE_MATRIX.md`](../library/INV001_DECIDE_ONCE_COMMITTED_MANIFEST_PA_TRIAD_CHALLENGE_MATRIX.md). Do not sell the triad as closed while honesty CI (**TB-1000** / **TB-1004** / **TB-1417**) or residual slice contracts (**TB-1122**, **TB-1196**, **TB-1369**, **TB-1277**, **TB-1018**) remain open.
 
 ### Vocabulary (do not fuse)
 
@@ -2221,7 +2223,7 @@ Former standalone body: `docs/go-to-market/INV001_DECIDE_ONCE_COMMITTED_MANIFEST
 
 1. Ask which “decide-once” the buyer means — tenant, quality gate, or architecture commit.
 2. Confirm committed â‰  evidence-grounded / no-overlay / crypto-isolated.
-3. Confirm triad is not sold as closed while **TB-1416** / honesty CI (**TB-1000** / **TB-1004**) / **TB-1232** remain open (tenant **TB-999** and committed-manifest **TB-1003** matrices are Done).
+3. Confirm triad is not sold as closed while honesty CI (**TB-1000** / **TB-1004** / **TB-1417**) or residual slice owners remain open (tenant **TB-999**, committed-manifest **TB-1003**, DiD erosion **TB-1232**, and fused matrix **TB-1416** are Done).
 4. Treat a fourth fused “decide” story as a review finding.
 
 ### Claim boundary
@@ -2230,8 +2232,9 @@ Do not equate INV-001 tenant decide-once with architecture decided once or INV-0
 
 ### Residuals (honest)
 
-- **TB-1416** / **TB-1417** own the fused matrix contract and language guards.
-- Ship-order hint: fused triad matrix **TB-1416** next among residual contracts (**TB-999** / **TB-1003** Done).
+- **TB-1416** **Done** — fused matrix: [`INV001_DECIDE_ONCE_COMMITTED_MANIFEST_PA_TRIAD_CHALLENGE_MATRIX.md`](../library/INV001_DECIDE_ONCE_COMMITTED_MANIFEST_PA_TRIAD_CHALLENGE_MATRIX.md).
+- **TB-1417** **Open** — anti triad-conflation / triad-closed honesty CI (GTM **M-253**).
+- Ship-order hint among open honesty: **TB-1000** + **TB-1004**, then **TB-1417**; residual slices **TB-1122** / **TB-1196** / **TB-1369** / **TB-1277** / **TB-1018**.
 - Complements **M-150** / **M-154** / **M-194** / **M-203** / **M-207** / **M-213** / **M-198** / **M-247**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
 
@@ -2255,23 +2258,23 @@ Former standalone body: `docs/go-to-market/TENANT_ISOLATION_STRUCTURAL_VS_CONVEN
 | Enforced DiD | Layer B INV-001 / identity-wins; Layer C route-tenant; Search/retrieval filters | Defense-in-depth on ingress + retrieval | “Headers establish tenant” / “NetArchTest alone proves isolation” |
 | Convention | Layer D `WHERE TenantId` / scope threading; blob path prefixes; ambient job discipline | Helpful product discipline inside a catalog | “WHERE TenantId is the paying-client boundary” |
 | Non-control | SQL RLS / SESSION_CONTEXT (ADR 0037) | RLS is not deployed or required | “RLS protects production” |
-| Exception / residual | Platform cross-tenant ops; demo/anonymous pin (**TB-1251**); workspace/project | Named exceptions with authority | “Demo pin is structural” / “workspace = paying client” |
+| Exception / residual | Platform cross-tenant ops; demo/anonymous pin (**TB-1251** **Done** — factory wiring follow-on); workspace/project | Named exceptions with authority | “Demo pin is structural” / “workspace = paying client” |
 
 ### PA review
 
 1. Ask which class the buyer is probing — catalog, identity, SQL predicate, RLS, or demo.
 2. Confirm RLS is not cited as a production DiD control.
-3. Confirm demo/anonymous is not sold as structural while **TB-1251** is open.
+3. Confirm demo/anonymous is not sold as structural isolation (contract **TB-1251** **Done**; dedicated demo factory/catalog wiring may still be follow-on).
 4. Treat “WHERE TenantId = tenant boundary” as a review finding.
 
 ### Claim boundary
 
-Do not sell `WHERE TenantId` / scope threading as the paying-client boundary, cite SQL RLS as deployed or required DiD, call demo pin structural while **TB-1251** is open, or treat workspace/project as paying-client security. Say Layer A catalogs are structural; B/C/Search are enforced DiD; D/blob/ambient are convention; RLS is a non-control (ADR 0037).
+Do not sell `WHERE TenantId` / scope threading as the paying-client boundary, cite SQL RLS as deployed or required DiD, call demo pin structural isolation (factory/catalog wiring may still be follow-on per **TB-1251** contract), or treat workspace/project as paying-client security. Say Layer A catalogs are structural; B/C/Search are enforced DiD; D/blob/ambient are convention; RLS is a non-control (ADR 0037).
 
 ### Residuals (honest)
 
 - **TB-1418** / **TB-1419** own the classification map and language guards.
-- Orchestrates **TB-1122** / **TB-1232** / **TB-999** / **TB-1251** without replacing those contracts.
+- Orchestrates **TB-1122** / **TB-1232** / **TB-999** / **TB-1251** (contract **Done**; factory wiring follow-on) without replacing those contracts.
 - Complements **M-194** / **M-213** / **M-214** / **M-150** / **M-168** / **M-217** / **M-218**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
 
@@ -2279,7 +2282,7 @@ Do not sell `WHERE TenantId` / scope threading as the paying-client boundary, ci
 
 ## Tenant DiD erosion beyond predicates (M-214) {#tenant-did-erosion-beyond-predicates-m-214}
 
-Former standalone body: `docs/go-to-market/TENANT_DID_EROSION_BEYOND_PREDICATES_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-213** / **M-214** / **TB-1232**). Complements [DiD structural vs convention (M-256)](#tenant-isolation-structural-vs-convention-m-256), [Isolation claims (M-195)](#isolation-claims-vs-inv001-adr0037-m-195), [Empty-scope catalog routing (M-169)](#empty-scope-catalog-routing-m-169), and [Tenant identity (M-151)](#tenant-identity-single-derivation-m-151). Does not reopen Done **M-114** or reinstate SQL RLS. Not an assurance attestation.
+Former standalone body: `docs/go-to-market/TENANT_DID_EROSION_BEYOND_PREDICATES_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-213** / **M-214** / **TB-1232**). Contributor contract: [`TENANT_DID_EROSION_AND_ENFORCEMENT_BEYOND_PREDICATES_CONTRACT.md`](../library/TENANT_DID_EROSION_AND_ENFORCEMENT_BEYOND_PREDICATES_CONTRACT.md) (**TB-1232** **Done**). Complements [DiD structural vs convention (M-256)](#tenant-isolation-structural-vs-convention-m-256), [Isolation claims (M-195)](#isolation-claims-vs-inv001-adr0037-m-195), [Empty-scope catalog routing (M-169)](#empty-scope-catalog-routing-m-169), and [Tenant identity (M-151)](#tenant-identity-single-derivation-m-151). Does not reopen Done **M-114** or reinstate SQL RLS. Not an assurance attestation.
 
 **Path-stable alias:** [`TENANT_DID_EROSION_BEYOND_PREDICATES_PA_ONE_PAGER.md`](TENANT_DID_EROSION_BEYOND_PREDICATES_PA_ONE_PAGER.md).
 
@@ -2344,7 +2347,8 @@ Do not equate repository `WHERE TenantId = @scope` or scope-provider threading a
 
 ### Residuals (honest)
 
-- **TB-1232** / **TB-1233** own the erosion contract and honesty CI.
+- **TB-1232** contract **Done** — [`TENANT_DID_EROSION_AND_ENFORCEMENT_BEYOND_PREDICATES_CONTRACT.md`](../library/TENANT_DID_EROSION_AND_ENFORCEMENT_BEYOND_PREDICATES_CONTRACT.md); exemption budget / ambient job guards remain follow-on.
+- **TB-1233** honesty CI (open) hardens buyer/proof stubs.
 - Cite `IScopeContextProvider`, `AmbientScopeContext`, `ScopedRoutingSqlConnectionFactory`, ARCH001/ARCH006, `AzureSearchTenantScopeFilterBuilder`, ADR 0037.
 - Complements **M-150**/**M-152**/**M-156**/**M-194**/**M-256**; pairs claim-honesty **M-213**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
@@ -2353,13 +2357,13 @@ Do not equate repository `WHERE TenantId = @scope` or scope-provider threading a
 
 ## Demo / anonymous read plane (M-218) {#demo-anonymous-read-plane-m-218}
 
-Former standalone body: `docs/go-to-market/DEMO_ANONYMOUS_READ_PLANE_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-217** / **M-218** / **TB-1251**). Complements [Empty-scope catalog routing (M-169)](#empty-scope-catalog-routing-m-169), [DiD structural vs convention (M-256)](#tenant-isolation-structural-vs-convention-m-256), and [Marketing static vs live boundary (M-179)](#marketing-static-vs-live-demo-boundary-m-179). Does not reopen Done **TB-887**–**TB-890** / Quick Scan safety. Not an assurance attestation.
+Former standalone body: `docs/go-to-market/DEMO_ANONYMOUS_READ_PLANE_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-217** / **M-218** / **TB-1251**). Contributor contract: [`DEMO_ANONYMOUS_READ_PLANE_CONTRACT.md`](../library/DEMO_ANONYMOUS_READ_PLANE_CONTRACT.md) (**TB-1251** **Done**). Complements [Empty-scope catalog routing (M-169)](#empty-scope-catalog-routing-m-169), [DiD structural vs convention (M-256)](#tenant-isolation-structural-vs-convention-m-256), and [Marketing static vs live boundary (M-179)](#marketing-static-vs-live-demo-boundary-m-179). Does not reopen Done **TB-887**–**TB-890** / Quick Scan safety. Not an assurance attestation.
 
 **Path-stable alias:** [`DEMO_ANONYMOUS_READ_PLANE_PA_ONE_PAGER.md`](DEMO_ANONYMOUS_READ_PLANE_PA_ONE_PAGER.md).
 
 **Audience:** Principal architects and security reviewers probing anonymous demo vs paying-tenant isolation.
 
-**Decision:** Treat **tenant**, **system**, and **demo** as distinct read planes. `[AllowAnonymous]`, read-only demo UI, and `DemoScopes` hard-pin alone do **not** prove structural isolation from paying-tenant data. Structural target (while **TB-1251** is open): dedicated demo factory/catalog **or** static-only surfaces; production live demo SQL off. Query filters are discipline, not the demo boundary.
+**Decision:** Treat **tenant**, **system**, and **demo** as distinct read planes. `[AllowAnonymous]`, read-only demo UI, and `DemoScopes` hard-pin alone do **not** prove structural isolation from paying-tenant data. Structural **target** (contract **TB-1251** **Done**; factory/catalog wiring follow-on): dedicated demo factory/catalog **or** static-only surfaces; production live demo SQL off. Query filters are discipline, not the demo boundary.
 
 ### Planes
 
@@ -2367,7 +2371,7 @@ Former standalone body: `docs/go-to-market/DEMO_ANONYMOUS_READ_PLANE_PA_ONE_PAGE
 | --- | --- | --- |
 | Paying tenant | Authenticated customer workspace | Layer A catalogs + INV-001 (structural / enforced DiD) |
 | System catalog | Platform / empty-scope risk path | Explicit exception — not “no data” ([M-169](#empty-scope-catalog-routing-m-169)) |
-| Demo / anonymous | Public or unauthenticated sample paths | Exception / residual until structural pin (**TB-1251**) |
+| Demo / anonymous | Public or unauthenticated sample paths | Exception / residual — structural target named (**TB-1251** **Done**); factory/catalog wiring follow-on |
 
 ### Surfaces (cite, do not oversell)
 
@@ -2392,7 +2396,7 @@ Former standalone body: `docs/go-to-market/DEMO_ANONYMOUS_READ_PLANE_PA_ONE_PAGE
 
 ### Claim boundary
 
-Do not claim `[AllowAnonymous]`, read-only demo, or `DemoScopes` hard-pin alone prevents reading paying-tenant data; do not equate empty demo ambient scope with “no data” (system catalog risk); do not sell query filters as the demo boundary. Say: three planes; structural pin is dedicated demo factory/catalog or static-only with prod live demo SQL off; disclose **TB-1251** while open.
+Do not claim `[AllowAnonymous]`, read-only demo, or `DemoScopes` hard-pin alone prevents reading paying-tenant data; do not equate empty demo ambient scope with “no data” (system catalog risk); do not sell query filters as the demo boundary. Say: three planes; structural target is dedicated demo factory/catalog or static-only with prod live demo SQL off; cite **TB-1251** contract for plane matrix; dedicated factory wiring remains follow-on.
 
 ### Safe pin
 
@@ -2401,13 +2405,13 @@ Do not claim `[AllowAnonymous]`, read-only demo, or `DemoScopes` hard-pin alone 
 ### PA review
 
 1. Ask which plane a cited demo surface uses — tenant, system, or demo.
-2. Confirm AllowAnonymous / DemoScopes are not sold as structural while **TB-1251** is open.
+2. Confirm AllowAnonymous / DemoScopes are not sold as structural isolation (contract **TB-1251** names targets; factory wiring may still be open).
 3. Confirm empty demo ambient is not equated with “no rows.”
 4. Treat “demo pin is structural isolation” as a review finding.
 
 ### Residuals (honest)
 
-- **TB-1251** / **TB-1252** own the structural demo-plane contract and honesty CI.
+- **TB-1251** contract **Done** — [`DEMO_ANONYMOUS_READ_PLANE_CONTRACT.md`](../library/DEMO_ANONYMOUS_READ_PLANE_CONTRACT.md); dedicated demo factory/catalog wiring + **TB-1252** honesty CI remain follow-on.
 - Complements **M-168**/**M-169**, **M-178**/**M-179**, **M-213**/**M-256**; pairs claim-honesty **M-217**.
 - Cite `DemoScopes`, `DemoExplainController`, `DemoReadModelClient`, `ScopedRoutingSqlConnectionFactory`, `ProductionSafetyRules`, ADR 0037 / ADR 0027.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
@@ -2481,14 +2485,14 @@ Former standalone body: `docs/go-to-market/LIVE_DEMO_SEE_IT_LADDER_PA_ONE_PAGER.
 
 **Audience:** Principal architects, SE facilitators, and marketing reviewers of public proof CTAs.
 
-**Decision / verdict today:** `/live-demo` is **net hurting** claim honesty while H1/Resources still say “Live demo” on fabricated/offline sample. Keep it only as rung 2 of a labeled see-it ladder after renaming off “Live” and pinning universe/mode honesty.
+**Decision / verdict today:** `/live-demo` title honesty is **shipped** (**TB-1265** Done — H1/metadata/Resources use “Guided sample walkthrough”), but the page remains **conditionally hurting** when mode chip is absent, offline fallback is narrated as a live API session, ladder UI between `/see-it` and `/live-demo` is missing (**TB-1267** / **TB-1282**), or Contoso payload sits under Claims chrome. Keep it as rung 2 of a labeled see-it ladder with universe/mode pins.
 
 ### 3-rung ladder (buyer-safe)
 
 | Rung | Route | Honest job | Forbidden |
 | --- | --- | --- | --- |
 | 1 | `/see-it` | Universe-honest quick proof (prefer Claims-static Option A per **TB-1028**) | Contoso payload under Claims chrome; “live tenant” |
-| 2 | `/live-demo` | Guided **fabricated sample walkthrough** (rename off “Live”) | “Live demo/product”; imply Real execute / customer record |
+| 2 | `/live-demo` | Guided **fabricated sample walkthrough** (H1: “Guided sample walkthrough” per **TB-1265**) | “Live demo/product”; imply Real execute / customer record |
 | 3 | Eval / enterprise CTA | Authenticated trial or sales-led demo | Presenting rungs 1–2 as the evaluation |
 
 ### Mode + universe pins (rung 2)
@@ -2501,20 +2505,21 @@ Former standalone body: `docs/go-to-market/LIVE_DEMO_SEE_IT_LADDER_PA_ONE_PAGER.
 
 ### PA review
 
-1. Ask which rung the buyer will open and whether Resources still says “Live demo.”
+1. Ask which rung the buyer will open and whether ladder UI labels the `/see-it` ↔ `/live-demo` relationship (**TB-1267** / **TB-1282**).
 2. Confirm offline curated fallback is not narrated as a live API session.
 3. Confirm Contoso payload is not under Claims chrome.
-4. Treat “ladder done” while **TB-1265** / **TB-1267** / **TB-1282** remain open as a review finding.
+4. Treat “ladder done” while **TB-1267** / **TB-1282** / **TB-1029** remain open as a review finding.
 
 ### Claim boundary
 
-Do not sell `/live-demo` as a live product/tenant demo, treat offline curated fallback as a live API session, leave Resources “Live demo” competing with welcome `/see-it` without rung labels, or put Contoso preview under Claims chrome. Say see-it (rung 1) → guided fabricated sample walkthrough (rung 2, rename off Live) → eval/enterprise CTA, with mode chip and universe pin.
+Do not sell `/live-demo` as a live product/tenant demo, treat offline curated fallback as a live API session, present rungs 1–2 without ladder labels (**TB-1267** / **TB-1282**), or put Contoso preview under Claims chrome. Say see-it (rung 1) → guided fabricated sample walkthrough (rung 2) → eval/enterprise CTA, with mode chip and universe pin.
 
 ### Residuals (honest)
 
-- **TB-1427** / **TB-1428** own the fused ladder contract and language guards.
-- Orchestrates **TB-1265**–**TB-1269** / **TB-1279**–**TB-1283** / **TB-1028** without replacing those P0s.
-- Does not reopen Done **M-107**.
+- **TB-1427** **Done** (2026-08-09) — fused ladder + claim-honesty contract published in [`../library/LIVE_DEMO_SEE_IT_LADDER_HONESTY.md`](../library/LIVE_DEMO_SEE_IT_LADDER_HONESTY.md).
+- **TB-1428** owns anti-live-demo-as-live / ladder-closed language guards (depends on **TB-1427**).
+- UI ship remains on **TB-1266**–**TB-1269** / **TB-1281**–**TB-1282**; title-honesty rows **TB-1265** / **TB-1280** / **TB-1283** are Done.
+- Does not reopen Done **M-107** / **TB-1028** / **TB-1279**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
 
 **Related:** [Integration not-configured empty state (M-258)](#integration-not-configured-empty-state-m-258) Â· [Marketing static vs live boundary (M-179)](#marketing-static-vs-live-demo-boundary-m-179) Â· [Bake-off 15-min loser sequence (M-262)](#bakeoff-15min-loser-sequence-m-262) Â· [`../library/LIVE_DEMO_SEE_IT_LADDER_HONESTY.md`](../library/LIVE_DEMO_SEE_IT_LADDER_HONESTY.md) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
@@ -4692,7 +4697,7 @@ A: Current sub-processors are listed in [`SUBPROCESSORS.md`](SUBPROCESSORS.md). 
 
 ### 4. Can we authenticate with **Okta / Ping / Auth0** instead of Microsoft Entra ID?
 
-**Answer:** **Yes — V1 GA.** ArchLucid supports **OIDC** against configurable issuers (including non-Microsoft IdPs) and **native SAML 2.0** workforce SSO (ArchLucid as SAML service provider). **Microsoft Entra ID** remains the reference path in hosted samples. Capture your issuer URLs, audience/metadata, and claim shapes in questionnaire follow-ups; for SAML cutovers use the IdP mapping guidance in [Enterprise onboarding](/help/enterprise-onboarding) and [Authentication and sign-in](/help/authentication-sign-in). Lead times depend on IdP-specific federation work on **your** side.
+**Answer:** **Yes — V1 GA.** ArchLucid supports **OIDC** (including Okta, Ping, and Auth0-class issuers) and **SAML 2.0** workforce SSO. Provide issuer, audience, and claim-mapping details with your IdP administrator during diligence. See [Enterprise onboarding](/help/enterprise-onboarding), [Users and roles](/help/users-and-roles), and [Authentication and sign-in](/help/authentication-sign-in).
 
 ### 5. What **SLA** do you publish?
 

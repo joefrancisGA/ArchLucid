@@ -319,7 +319,7 @@ export function EmailRunToSponsorBanner({
       data-testid="email-run-to-sponsor-banner"
       role="region"
       aria-label="Executive sponsor deliverables (downstream)"
-      className="mb-6 max-w-3xl rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-4 py-3"
+      className="mb-6 rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-4 py-3"
     >
       <p className={cn("m-0 flex flex-wrap items-center font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}>
         <span>{buyerPolishedShell ? "Downstream deliverable" : "Sponsor distribution"}</span>

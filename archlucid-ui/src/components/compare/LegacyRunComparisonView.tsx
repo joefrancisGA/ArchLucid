@@ -1,11 +1,20 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+import { CompareDiffExpandableValueCell } from "@/components/compare/CompareDiffExpandableValueCell";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 import { sortDiffItems } from "@/lib/compare-display-sort";
 import type { RunComparison } from "@/types/authority";
 
-const cellCls = "border border-neutral-200 px-2.5 py-2 text-left align-top dark:border-neutral-700";
-const monoCls = (cn("font-mono", OPERATOR_TYPOGRAPHY.helper));
+const monoCls = cn("font-mono", OPERATOR_TYPOGRAPHY.helper);
 
 const FIXTURE_MANIFEST_RE = /manifest-(left|right)-fixture/i;
 const FIXTURE_HASH_RE = /^sha256:(left|right)$/i;
@@ -51,7 +60,7 @@ export function LegacyRunComparisonView(props: { result: RunComparison }) {
 
   return (
     <section id="compare-legacy" className="mt-7">
-      <h3 className="mb-2">Review-level diff</h3>
+      <h3 className={cn("mb-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Review-level diff</h3>
       <p className={cn("mt-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         <strong>Baseline:</strong> <code className={monoCls}>{result.leftRunId}</code> ·{" "}
         <strong>Updated:</strong> <code className={monoCls}>{result.rightRunId}</code>
@@ -71,28 +80,28 @@ export function LegacyRunComparisonView(props: { result: RunComparison }) {
           </p>
         </OperatorEmptyState>
       ) : (
-        <table className={cn("mt-2 w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
-          <thead>
-            <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
-              <th className={cellCls}>Kind</th>
-              <th className={cellCls}>Section</th>
-              <th className={cellCls}>Key</th>
-              <th className={cellCls}>Before</th>
-              <th className={cellCls}>After</th>
-            </tr>
-          </thead>
-          <tbody>
+        <EnterpriseTable ariaLabel="Review-level diffs" className="mt-2">
+          <EnterpriseTableHead>
+            <EnterpriseTableHeadRow>
+              <EnterpriseTableHeaderCell>Kind</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>Section</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>Key</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>Before</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>After</EnterpriseTableHeaderCell>
+            </EnterpriseTableHeadRow>
+          </EnterpriseTableHead>
+          <EnterpriseTableBody>
             {runLevelDiffs.map((diff, index) => (
-              <tr key={`${diff.section}-${diff.key}-${diff.diffKind}-${index}`}>
-                <td className={cellCls}>{diff.diffKind}</td>
-                <td className={cellCls}>{diff.section}</td>
-                <td className={cellCls}>{diff.key}</td>
-                <td className={`${cellCls} ${monoCls}`}>{diff.beforeValue ?? "—"}</td>
-                <td className={`${cellCls} ${monoCls}`}>{diff.afterValue ?? "—"}</td>
-              </tr>
+              <EnterpriseTableRow key={`${diff.section}-${diff.key}-${diff.diffKind}-${index}`}>
+                <EnterpriseTableCell>{diff.diffKind}</EnterpriseTableCell>
+                <EnterpriseTableCell>{diff.section}</EnterpriseTableCell>
+                <EnterpriseTableCell>{diff.key}</EnterpriseTableCell>
+                <CompareDiffExpandableValueCell value={diff.beforeValue ?? null} monospace />
+                <CompareDiffExpandableValueCell value={diff.afterValue ?? null} monospace />
+              </EnterpriseTableRow>
             ))}
-          </tbody>
-        </table>
+          </EnterpriseTableBody>
+        </EnterpriseTable>
       )}
 
       <h4 className={cn("mt-6", OPERATOR_TYPOGRAPHY.helper)}>Review diff</h4>
@@ -134,30 +143,30 @@ export function LegacyRunComparisonView(props: { result: RunComparison }) {
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>Comparison object present but diff list is empty.</p>
             </OperatorEmptyState>
           ) : (
-            <table className={cn("mt-2 w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
-              <thead>
-                <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
-                  <th className={cellCls}>Kind</th>
-                  <th className={cellCls}>Section</th>
-                  <th className={cellCls}>Key</th>
-                  <th className={cellCls}>Before</th>
-                  <th className={cellCls}>After</th>
-                  <th className={cellCls}>Notes</th>
-                </tr>
-              </thead>
-              <tbody>
+            <EnterpriseTable ariaLabel="Review manifest diffs" className="mt-2">
+              <EnterpriseTableHead>
+                <EnterpriseTableHeadRow>
+                  <EnterpriseTableHeaderCell>Kind</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>Section</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>Key</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>Before</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>After</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>Notes</EnterpriseTableHeaderCell>
+                </EnterpriseTableHeadRow>
+              </EnterpriseTableHead>
+              <EnterpriseTableBody>
                 {manifestDiffs.map((diff, index) => (
-                  <tr key={`${diff.section}-${diff.key}-${diff.diffKind}-${index}`}>
-                    <td className={cellCls}>{diff.diffKind}</td>
-                    <td className={cellCls}>{diff.section}</td>
-                    <td className={cellCls}>{diff.key}</td>
-                    <td className={`${cellCls} ${monoCls}`}>{diff.beforeValue ?? "—"}</td>
-                    <td className={`${cellCls} ${monoCls}`}>{diff.afterValue ?? "—"}</td>
-                    <td className={cellCls}>{diff.notes ?? "—"}</td>
-                  </tr>
+                  <EnterpriseTableRow key={`${diff.section}-${diff.key}-${diff.diffKind}-${index}`}>
+                    <EnterpriseTableCell>{diff.diffKind}</EnterpriseTableCell>
+                    <EnterpriseTableCell>{diff.section}</EnterpriseTableCell>
+                    <EnterpriseTableCell>{diff.key}</EnterpriseTableCell>
+                    <CompareDiffExpandableValueCell value={diff.beforeValue ?? null} monospace />
+                    <CompareDiffExpandableValueCell value={diff.afterValue ?? null} monospace />
+                    <CompareDiffExpandableValueCell value={diff.notes ?? null} />
+                  </EnterpriseTableRow>
                 ))}
-              </tbody>
-            </table>
+              </EnterpriseTableBody>
+            </EnterpriseTable>
           )}
         </>
       )}

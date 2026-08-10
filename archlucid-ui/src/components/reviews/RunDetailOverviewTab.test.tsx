@@ -15,7 +15,7 @@ const action: RunDetailWorkspaceRecommendedAction = {
 };
 
 describe("RunDetailOverviewTab", () => {
-  it("renders recommended actions without redundant tab link cards", () => {
+  it("keeps overview compact without duplicating sticky recommended actions", () => {
     render(
       <RunDetailOverviewTab
         runId="run-abc"
@@ -28,14 +28,13 @@ describe("RunDetailOverviewTab", () => {
         criticalCount={1}
         highCount={0}
         onNavigateTab={vi.fn()}
-        proofStatusSlot={null}
+        proofStatusSlot={<div data-testid="proof-status-slot" />}
       />,
     );
 
     expect(screen.getByTestId("run-detail-overview-tab")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Review findings" })).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Findings" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Open" })).not.toBeInTheDocument();
-    expect(screen.getByText("1 critical · 0 high")).toBeInTheDocument();
+    expect(screen.getByTestId("proof-status-slot")).toBeInTheDocument();
+    expect(screen.queryByTestId("run-detail-recommended-actions")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Review findings" })).not.toBeInTheDocument();
   });
 });

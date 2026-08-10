@@ -2,6 +2,8 @@
  * Customer-visible in-app documentation registry.
  * Source of truth: `docs/library/PRODUCT_DOCUMENTATION_PRESENTATION.md`.
  */
+import { ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE } from "@/lib/enterprise-onboarding-help-copy";
+import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
 import {
   resolveProductDocumentationContentKind,
   type ProductDocumentationContentKind,
@@ -30,6 +32,8 @@ export type ProductDocumentationEntry = {
   /** IA taxonomy kind for `/help` (TB-732); unused by rendering until later phases. */
   contentKind: ProductDocumentationContentKind;
   pdfStatus: ProductDocumentationPdfStatus | null;
+  lastReviewed?: string;
+  releaseApplicability?: string;
 };
 
 type ProductDocumentationRegistryInput = Omit<ProductDocumentationEntry, "pdfStatus" | "contentKind"> & {
@@ -94,6 +98,8 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
       "Create an architecture review: name the review, upload evidence, add context, confirm scope, and finalize the review.",
     audience: "buyer",
     sourcePaths: ["docs/library/customer-facing/REVIEW_GUIDE.md"],
+    lastReviewed: "2026-08-09",
+    pdfStatus: "public",
   },
   {
     slug: "pilot-guide",
@@ -209,6 +215,8 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "buyer",
     sourcePaths: ["docs/library/AUDIT_EVENT_MODEL.md"],
     pdfStatus: "customer",
+    lastReviewed: "2026-08-09",
+    releaseApplicability: "Applies to V1 GA — audit events and export posture",
   },
   {
     slug: "authentication-sign-in",
@@ -255,8 +263,9 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "caiq-sig-response",
-    title: "CAIQ / SIG questionnaire responses",
-    summary: "CAIQ Lite and SIG Core pre-fills mapped to in-repo evidence for procurement reviewers.",
+    title: "CAIQ Lite / SIG Core questionnaire responses",
+    summary:
+      "CAIQ Lite subset and SIG Core family summary index mapped to in-repo evidence — not a complete CAIQ or SIG submission.",
     audience: "buyer",
     sourcePaths: ["docs/security/CAIQ_LITE_2026.md", "docs/security/SIG_CORE_2026.md"],
     pdfStatus: "public",
@@ -286,6 +295,9 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sourcePaths: ["docs/library/customer-facing/CLOUD_CONNECTIONS.md"],
     sectionAnchors: ["choose-your-cloud-platform", "related-topics"],
     includeIntroWithSections: true,
+    pdfStatus: "customer",
+    lastReviewed: "2026-08-09",
+    releaseApplicability: "Applies to V1 GA — optional cloud evidence connectors",
   },
   {
     slug: "cloud-connections-azure",
@@ -296,6 +308,8 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sourcePaths: ["docs/library/customer-facing/CLOUD_CONNECTIONS.md"],
     sectionAnchors: ["connect-azure-securely"],
     pdfStatus: "customer",
+    lastReviewed: "2026-08-09",
+    releaseApplicability: "Applies to V1 GA — optional cloud evidence connectors",
   },
   {
     slug: "cloud-connections-aws",
@@ -328,10 +342,10 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "enterprise-onboarding",
-    title: "Enterprise onboarding checklist",
+    title: ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE,
     summary:
       "Checklist for configuring a hosted ArchLucid enterprise tenant: SSO, roles, governance, policy packs, audit export, and optional Azure cloud evidence.",
-    audience: "buyer",
+    audience: "operator",
     sourcePaths: ["docs/library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md"],
   },
   {
@@ -349,6 +363,9 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
       "Connect Azure DevOps for work item creation from ArchLucid findings — independent of your architecture cloud provider.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/AZURE_BOARDS_INTEGRATION.md"],
+    pdfStatus: "public",
+    lastReviewed: "2026-08-09",
+    releaseApplicability: "Applies to V1 GA — Azure Boards work item connector",
   },
   {
     slug: "procurement",
@@ -370,7 +387,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "first-architecture-review",
-    title: "Your first architecture review",
+    title: FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE,
     summary:
       "Your guided path from evidence intake to a finalized architecture review and sponsor-ready exports.",
     audience: "buyer",
@@ -411,9 +428,9 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "accelerator-chooser",
-    title: "Accelerator chooser",
+    title: "Pick an accelerator pack",
     summary:
-      "Map buyer jobs to existing starter proof packs after your first finalized architecture review — inputs, outputs, and V1 scope labels.",
+      "Map buyer jobs to existing accelerator packs after your first finalized architecture review — inputs, outputs, and when not to use each pack.",
     audience: "operator",
     sourcePaths: ["docs/go-to-market/DEMO_QUICKSTART.md"],
     sectionAnchors: ["accelerator-chooser"],
@@ -448,9 +465,12 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "admin-diagnostics",
     title: "Admin diagnostics",
     summary:
-      "System status, workspace readiness, assistant diagnostics, and observability signals for platform health.",
+      "System health, workspace readiness, assistant diagnostics, and observability signals for platform health.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md"],
+    pdfStatus: "customer",
+    lastReviewed: "2026-08-09",
+    releaseApplicability: "Applies to V1 GA — platform health and workspace readiness signals",
   },
   {
     slug: "developer-troubleshooting",
@@ -473,6 +493,8 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     summary: "Diff two architecture reviews, replay a saved comparison, and verify drift without re-running a full review.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/COMPARISON_REPLAY_OPERATOR_GUIDE.md"],
+    lastReviewed: "2026-08-09",
+    releaseApplicability: "Applies to V1 GA — Compare two reviews and Validate review workspace tools",
   },
   {
     slug: "repeat-review-loop",

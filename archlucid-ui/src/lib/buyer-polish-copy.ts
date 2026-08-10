@@ -222,9 +222,6 @@ export const OPERATOR_HOME_RECENT_REVIEWS_EXAMPLE_ONLY_OUTCOME =
 
 export const OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA = "Learn how reviews work";
 
-/** Empty Overview primary card title — single next step (TB-1038). */
-export const OPERATOR_HOME_DO_THIS_NEXT_HEADING = "Do this next";
-
 /** Bridge when setup readiness still blocks the first review. */
 export const OPERATOR_HOME_DO_THIS_NEXT_SETUP_BRIDGE =
   "Finish the remaining required setup item, then start or open a sample review.";
@@ -382,9 +379,11 @@ export const OPERATOR_HOME_WORKSPACE_STATUS_COLLAPSED_SUMMARY =
 export const OPERATOR_HOME_WORKSPACE_STATUS_COLLAPSED_SUMMARY_FIRST_RUN =
   "Workspace readiness signals.";
 
-export const NEW_REVIEW_SAMPLE_ESCAPE_LEAD = "Start with an example:";
+export const NEW_REVIEW_SAMPLE_ESCAPE_CTA =
+  "See a completed architecture package and its evidence trail.";
 
-export const NEW_REVIEW_SAMPLE_ESCAPE_CTA = "Skip setup and open a completed sample review";
+export const NEW_REVIEW_SAMPLE_ESCAPE_HINT =
+  "Skip setup and explore a finished architecture package.";
 
 /** Streamlined first-run lead on `/architecture/reviews/new` — avoids path-switcher jargon above the fold. */
 export const REVIEWS_NEW_PAGE_LEAD = CLOUD_NEUTRAL_PRIMARY_COPY.reviewsNewPageLead;
@@ -419,7 +418,8 @@ export const BUYER_CTO_DEMO_TOUR_EXPAND_CTA = "Expand CTO demo tour";
 
 export const BUYER_CTO_DEMO_READINESS_HEADING = "Demo readiness";
 
-export const BUYER_CTO_DEMO_READINESS_ARIA = "CTO demo readiness checks";
+/** Internal admin panel region — must not say "CTO demo" in screenshare or a11y trees (TB-1410). */
+export const BUYER_CTO_DEMO_READINESS_ARIA = "Internal demo readiness checks";
 
 export const BUYER_CTO_DEMO_READINESS_READY_LABEL = "Demo ready";
 

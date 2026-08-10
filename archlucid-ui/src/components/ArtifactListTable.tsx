@@ -66,6 +66,8 @@ export function ArtifactListTable(props: {
   deliverablesBucketAllowlist?: readonly SponsorArtifactAudienceBucket[];
   /** Omit the integrity appendix (e.g. when a parent renders it once below tabbed tables). */
   omitIntegrityDetails?: boolean;
+  /** When set with audience sections, renders bucket headings at this level under parent deliverables h3. */
+  audienceHeadingLevel?: 3 | 4;
 }) {
   const {
     manifestId,
@@ -76,6 +78,7 @@ export function ArtifactListTable(props: {
     audienceSections = false,
     deliverablesBucketAllowlist,
     omitIntegrityDetails = false,
+    audienceHeadingLevel = 3,
   } = props;
   const sorted = [...artifacts].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
   const hidePilotFeedbackOnArtifacts = isBuyerPolishedOperatorShellEnv();
@@ -103,10 +106,10 @@ export function ArtifactListTable(props: {
   const thead = (
     <thead>
       <tr className="border-b border-neutral-300 text-left dark:border-neutral-600">
-        <th className={cn("px-3 py-2.5", sponsorMode === true ? "w-[42%]" : undefined)}>{artifactColumnLabel}</th>
-        {sponsorMode ? null : <th className="px-3 py-2.5">Format</th>}
-        <th className={cn("px-3 py-2.5", sponsorMode === true ? "w-[18%]" : undefined)}>{createdColumnLabel}</th>
-        <th className={cn("px-3 py-2.5", sponsorMode === true ? "w-[40%]" : undefined)}>Actions</th>
+        <th scope="col" className={cn("px-3 py-2.5", sponsorMode === true ? "w-[42%]" : undefined)}>{artifactColumnLabel}</th>
+        {sponsorMode ? null : <th scope="col" className="px-3 py-2.5">Format</th>}
+        <th scope="col" className={cn("px-3 py-2.5", sponsorMode === true ? "w-[18%]" : undefined)}>{createdColumnLabel}</th>
+        <th scope="col" className={cn("px-3 py-2.5", sponsorMode === true ? "w-[40%]" : undefined)}>Actions</th>
       </tr>
     </thead>
   );
@@ -131,7 +134,6 @@ export function ArtifactListTable(props: {
         <tr
           key={artifact.artifactId}
           className={`border-b border-neutral-100 dark:border-neutral-800 ${isCurrent ? "bg-[var(--al-layer-hover)] dark:bg-neutral-800/80" : ""}`}
-          title={sponsorMode ? undefined : `Content hash: ${artifact.contentHash}`}
         >
           <td className={outputCellClassName}>
             <strong className="font-semibold">{businessLabel}</strong>
@@ -160,8 +162,14 @@ export function ArtifactListTable(props: {
             <Link href={reviewHref} className={OPERATOR_LINK.nav}>
               {openActionLabel}
             </Link>
-            <span className="mx-2 text-neutral-300 dark:text-neutral-600">|</span>
-            <ExportTrackedAnchor href={getArtifactDownloadUrl(manifestId, artifact.artifactId)}>
+            <span className="mx-2 text-neutral-300 dark:text-neutral-600" aria-hidden="true">
+              |
+            </span>
+            {/* Same affordance as the Open link — a download rendered as plain text reads as disabled. */}
+            <ExportTrackedAnchor
+              className={OPERATOR_LINK.nav}
+              href={getArtifactDownloadUrl(manifestId, artifact.artifactId)}
+            >
               {downloadActionLabel}
             </ExportTrackedAnchor>
             {runId && !hidePilotFeedbackOnArtifacts ? (
@@ -199,13 +207,15 @@ export function ArtifactListTable(props: {
 
     return (
       <div className="w-full min-w-0 overflow-x-auto">
-        <div className="w-full space-y-10" role="region" aria-label="Deliverables grouped by audience">
+        <div className="w-full space-y-4" role="region" aria-label="Deliverables grouped by audience">
           {bucketSequence.map((bucket) => {
             const slice = sorted.filter((a) => sponsorArtifactAudienceBucket(a.artifactType) === bucket);
 
             if (slice.length === 0) {
               return null;
             }
+
+            const AudienceHeadingTag = audienceHeadingLevel === 4 ? "h4" : "h3";
 
             return (
               <section
@@ -217,12 +227,12 @@ export function ArtifactListTable(props: {
                     : undefined
                 }
               >
-                <h3
+                <AudienceHeadingTag
                   id={`artifact-audience-${bucket}`}
                   className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
                 >
                   {sponsorAudienceSectionHeading(bucket)}
-                </h3>
+                </AudienceHeadingTag>
                 <p className={cn("m-0 mt-1 mb-3 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
                   {sponsorAudienceSectionLead(bucket)}
                 </p>

@@ -14,7 +14,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 import { HelpBillingAndPlansPageHeader } from "@/app/(operator)/help/_sections/HelpBillingAndPlansPageHeader";
 
 describe("HelpBillingAndPlansPageHeader", () => {
-  it("renders h1, help, refresh, and last-refreshed metadata", () => {
+  it("renders help breadcrumb, disambiguated title, refresh, and last-refreshed metadata", () => {
     const onRefresh = vi.fn();
 
     render(
@@ -26,7 +26,11 @@ describe("HelpBillingAndPlansPageHeader", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { level: 2, name: "Billing and plans" })).toBeInTheDocument();
+    expect(screen.getByTestId("help-billing-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Billing and plans — help topic" }),
+    ).toBeInTheDocument();
     expect(screen.getByText(billingHelpPageSubtitle(false))).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-billing-header-actions")).toBeInTheDocument();

@@ -3,12 +3,15 @@ import { describe, expect, it } from "vitest";
 import {
   filterHelpSearchPanelTopics,
   HELP_SEARCH_PANEL_MAX_RECOMMENDED,
+  HELP_SEARCH_PANEL_SUPPORT_FOOTER_LABEL,
   helpSearchPanelTopicHasBannedPublicCopy,
   helpSearchPanelTopicTargetsCurrentPage,
   listDuplicateHelpSearchPanelTopicTitles,
+  listHelpSearchPanelGroups,
   listHelpSearchPanelTopics,
   recommendedHelpSearchPanelTopicIds,
   recommendedHelpSearchPanelTopics,
+  shouldCollapseHelpStartHereGroup,
   splitHelpSearchPanelDoThisNow,
 } from "@/lib/help-search-panel-catalog";
 
@@ -141,5 +144,68 @@ describe("help-search-panel-catalog", () => {
   it("keeps Help drawer topic titles unique after disambiguation (TB-1047)", () => {
     expect(listDuplicateHelpSearchPanelTopicTitles(false)).toEqual([]);
     expect(listDuplicateHelpSearchPanelTopicTitles(true)).toEqual([]);
+  });
+
+  it("lets a published situation outrank path-prefix recommendations", () => {
+    expect(recommendedHelpSearchPanelTopicIds("/architecture/reviews/run-1", "review-approval-blocked")).toEqual([
+      "resolve-blocking-findings",
+      "governance-workflow",
+      "review-artifacts",
+    ]);
+
+    const topics = recommendedHelpSearchPanelTopics(
+      "/architecture/reviews/run-1",
+      false,
+      "review-approval-blocked",
+    );
+    const { doThisNow } = splitHelpSearchPanelDoThisNow(topics);
+
+    expect(doThisNow?.title).toBe("Resolve findings that block approval");
+  });
+
+  it("falls back to path recommendations when no situation is published", () => {
+    expect(recommendedHelpSearchPanelTopicIds("/architecture/reviews/run-1", null)).toEqual([
+      "review-findings",
+      "finalize-review",
+      "review-artifacts",
+    ]);
+  });
+
+  it("resolves situation-only topics that are absent from the browse groups", () => {
+    const situationTopicIds = ["resolve-blocking-findings", "close-evidence-gaps"];
+    const groupedIds = listHelpSearchPanelGroups(true).flatMap((group) => group.topics.map((topic) => topic.id));
+    const allIds = listHelpSearchPanelTopics(true).map((topic) => topic.id);
+
+    for (const id of situationTopicIds) {
+      expect(allIds, id).toContain(id);
+      expect(groupedIds, id).not.toContain(id);
+    }
+  });
+
+  it("collapses onboarding topics on product surfaces but not in the funnel or Help Center", () => {
+    expect(shouldCollapseHelpStartHereGroup("/architecture/reviews/run-1")).toBe(true);
+    expect(shouldCollapseHelpStartHereGroup("/governance/findings")).toBe(true);
+    expect(shouldCollapseHelpStartHereGroup("/")).toBe(false);
+    expect(shouldCollapseHelpStartHereGroup("/help")).toBe(false);
+    expect(shouldCollapseHelpStartHereGroup("/help/getting-started")).toBe(false);
+    expect(shouldCollapseHelpStartHereGroup("/pricing")).toBe(false);
+    expect(shouldCollapseHelpStartHereGroup("/auth/signin")).toBe(false);
+  });
+
+  it("names the support footer action after the destination it opens", () => {
+    const supportTopic = listHelpSearchPanelTopics(false).find((topic) => topic.id === "contact-support");
+
+    expect(HELP_SEARCH_PANEL_SUPPORT_FOOTER_LABEL).toBe("Support and troubleshooting");
+    expect(supportTopic?.title).toBe(HELP_SEARCH_PANEL_SUPPORT_FOOTER_LABEL);
+  });
+
+  it("exposes a report-a-problem topic for defect intake", () => {
+    const reportTopic = listHelpSearchPanelTopics(false).find((topic) => topic.id === "report-a-problem");
+
+    expect(reportTopic?.action).toEqual({
+      kind: "route",
+      href: "/help/report-a-problem",
+      helpSlug: "report-a-problem",
+    });
   });
 });

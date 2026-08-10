@@ -1,3 +1,8 @@
+import {
+  clearAllPersistedInFlightOperations,
+  readPersistedInFlightOperations,
+  writePersistedInFlightOperations,
+} from "@/lib/operations/in-flight-operations-persistence";
 import type { OperationState } from "@/lib/operations/operation-state";
 
 export type TrackedInFlightOperation = {
@@ -23,6 +28,47 @@ function emit(): void {
   for (const listener of listeners) {
     listener();
   }
+}
+
+/** Mutations go through here so the persisted copy never drifts from the in-memory list. */
+function commit(next: readonly TrackedInFlightOperation[]): void {
+  tracked = [...next];
+  writePersistedInFlightOperations(tracked);
+  emit();
+}
+
+/**
+ * Restores operations recorded before a reload. Call from a client effect (never during render)
+ * so the `useSyncExternalStore` server snapshot and first client snapshot stay identical.
+ */
+export function hydrateInFlightOperationsFromStorage(): void {
+  const persisted = readPersistedInFlightOperations();
+
+  if (persisted.length === 0) {
+    return;
+  }
+
+  const known = new Set(tracked.map((row) => row.operationId));
+  const restored = persisted.filter((row) => !known.has(row.operationId));
+
+  if (restored.length === 0) {
+    return;
+  }
+
+  tracked = [...tracked, ...restored];
+  emit();
+}
+
+/** Drops every tracked operation and its persisted copy — sign-out and scope switch. */
+export function clearInFlightOperations(): void {
+  clearAllPersistedInFlightOperations();
+
+  if (tracked.length === 0) {
+    return;
+  }
+
+  tracked = [];
+  emit();
 }
 
 export function getInFlightOperations(): readonly TrackedInFlightOperation[] {
@@ -69,7 +115,7 @@ export function trackInFlightOperation(input: TrackInFlightOperationInput): void
 
   if (existingIndex >= 0) {
     const previous = tracked[existingIndex]!;
-    tracked = [
+    commit([
       ...tracked.slice(0, existingIndex),
       {
         ...next,
@@ -77,12 +123,12 @@ export function trackInFlightOperation(input: TrackInFlightOperationInput): void
         terminalToastShown: previous.terminalToastShown,
       },
       ...tracked.slice(existingIndex + 1),
-    ];
-  } else {
-    tracked = [...tracked, next];
+    ]);
+
+    return;
   }
 
-  emit();
+  commit([...tracked, next]);
 }
 
 export type PatchInFlightOperationInput = {
@@ -104,7 +150,7 @@ export function patchInFlightOperation(
   }
 
   const previous = tracked[index]!;
-  tracked = [
+  commit([
     ...tracked.slice(0, index),
     {
       ...previous,
@@ -115,8 +161,7 @@ export function patchInFlightOperation(
       terminalToastShown: patch.terminalToastShown ?? previous.terminalToastShown,
     },
     ...tracked.slice(index + 1),
-  ];
-  emit();
+  ]);
 }
 
 export function removeInFlightOperation(operationId: string): void {
@@ -126,12 +171,12 @@ export function removeInFlightOperation(operationId: string): void {
     return;
   }
 
-  tracked = next;
-  emit();
+  commit(next);
 }
 
 /** Vitest helper — clear module state between cases. */
 export function resetInFlightOperationsForTests(): void {
+  clearAllPersistedInFlightOperations();
   tracked = [];
   emit();
 }

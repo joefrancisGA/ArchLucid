@@ -1,7 +1,7 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const DECISION_REGISTER_CLAIM_DISCIPLINE =
-  "This register lists architecture decisions recorded with signed reviews in the current workspace — browse and filter for operators, not a standalone diligence Sources package.";
+  "This register lists architecture decisions recorded with signed reviews in the current workspace — browse and filter for architects, not a standalone diligence Sources package.";
 
 export const DECISION_REGISTER_SOURCES_INTRO =
   "Open the related architecture review or findings when a decision needs follow-up; use Audit trail for activity context.";

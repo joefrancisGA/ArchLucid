@@ -8,6 +8,7 @@ import {
   WELCOME_DEFAULT_POLICY_PACK_BASELINE_NOTE,
 } from "@/components/marketing/welcome-marketing-copy";
 import { DEMO_WORKSPACE_B_RUN_ID } from "@/lib/demo-workspace-scope";
+import { SEE_IT_PAGE_TITLE } from "@/lib/see-it-page-copy";
 
 function wordCount(text: string): number {
   return text.split(/\s+/).filter((token) => token.length > 0).length;
@@ -34,6 +35,7 @@ describe("welcome-marketing-copy", () => {
     expect(WELCOME_SEE_IT_CTA_LABEL.toLowerCase()).not.toMatch(/30\s*seconds?/);
     expect(WELCOME_SEE_IT_CTA_LABEL.toLowerCase()).not.toMatch(/\(30s\)/);
     expect(WELCOME_SEE_IT_CTA_LABEL).toMatch(/sample review/i);
+    expect(WELCOME_SEE_IT_CTA_LABEL).toBe(SEE_IT_PAGE_TITLE);
   });
 
   it("TB-769: use-case cards present AWS and Google Cloud framework peers", () => {

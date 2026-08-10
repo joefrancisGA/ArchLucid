@@ -2,14 +2,20 @@ import { describe, expect, it } from "vitest";
 
 import {
   countFindingsBySeverity,
+  deriveArchitectureSystemName,
   deriveBlockingApprovalCount,
+  deriveEvidenceCoverageSummary,
   deriveExecutiveBottomLineContent,
+  deriveFinalizedAtUtc,
   derivePrimaryConcernLabel,
   deriveRecommendedWorkspaceActions,
+  deriveReviewHeaderPresentation,
   deriveReviewStatusSummary,
   deriveRunDetailWorkspaceStatus,
   deriveSubmittedArchitectureText,
   formatDecisionSnapshotFindingsLine,
+  formatDecisionSnapshotGovernanceOutcome,
+  shortenNextActionForPrimaryCta,
 } from "@/lib/run-detail-workspace-derive";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { RunSummary } from "@/types/authority";
@@ -129,7 +135,7 @@ describe("run-detail-workspace-derive", () => {
     expect(deriveSubmittedArchitectureText(run, "My review")).toBeNull();
   });
 
-  it("builds narrative bottom-line copy from governance rationale and blocking findings", () => {
+  it("builds narrative bottom-line copy from governance rationale only (blocking counts stay in Decision snapshot)", () => {
     const content = deriveExecutiveBottomLineContent({
       governanceDecisionLabel: "Approved with monitoring",
       governanceDecisionRationale: "Controls are acceptable for PHI handling.",
@@ -141,8 +147,42 @@ describe("run-detail-workspace-derive", () => {
 
     expect(content?.kind).toBe("narrative");
     expect(content?.kind === "narrative" ? content.text : "").toContain("Controls are acceptable");
-    expect(content?.kind === "narrative" ? content.text : "").toContain("still requires an assigned owner");
+    expect(content?.kind === "narrative" ? content.text : "").not.toContain("still requires an assigned owner");
     expect(content?.kind === "narrative" ? content.text : "").not.toContain("Approved with monitoring");
+  });
+
+  it("maps finalized manifest with blocking findings to composite workspace status", () => {
+    const status = deriveRunDetailWorkspaceStatus({
+      run: { runId: "r1", projectId: "p1", createdUtc: "2026-01-01T00:00:00Z" } as RunSummary,
+      manifestId: "manifest-1",
+      manifestStatus: "Finalized",
+      showProgressTracker: false,
+      operatorGovernanceDecision: null,
+      buyerPolishedArtifactTable: true,
+      blockingFindingCount: 1,
+    });
+
+    expect(status.label).toBe("Finalized · approval blocked");
+    expect(status.statusTagKind).toBe("needs-attention");
+  });
+
+  it("uses plural verb in blocking findings recommended action reason", () => {
+    const actions = deriveRecommendedWorkspaceActions({
+      runId: "run-abc",
+      findings: [finding(2)],
+      manifestId: "manifest-1",
+      showProgressTracker: false,
+      hasCommitBlockingFailures: false,
+      blockingFindingCount: 1,
+      buyerPolishedArtifactTable: true,
+      operatorGovernanceDecision: "Approved",
+      manifestStatus: "Finalized",
+      runCompleted: true,
+    });
+
+    const blocking = actions.find((action) => action.id === "review-blocking");
+
+    expect(blocking?.reason).toContain("currently blocks approval");
   });
 
   it("formats decision snapshot findings line with blocking and triage segments", () => {
@@ -156,6 +196,31 @@ describe("run-detail-workspace-derive", () => {
     ]);
 
     expect(label).toBe("Evidence did not surface topology resources");
+  });
+
+  it("qualifies the governance snapshot line when findings block approval", () => {
+    expect(
+      formatDecisionSnapshotGovernanceOutcome({ governanceDecisionLabel: "Pending", blockingFindingCount: 1 }),
+    ).toBe("Pending · blocked by 1 unresolved finding");
+
+    expect(
+      formatDecisionSnapshotGovernanceOutcome({ governanceDecisionLabel: "Pending", blockingFindingCount: 3 }),
+    ).toBe("Pending · blocked by 3 unresolved findings");
+  });
+
+  it("leaves the governance snapshot line alone when nothing blocks approval", () => {
+    expect(
+      formatDecisionSnapshotGovernanceOutcome({ governanceDecisionLabel: "Approved", blockingFindingCount: 0 }),
+    ).toBe("Approved");
+  });
+
+  it("does not append a second blocking qualifier", () => {
+    expect(
+      formatDecisionSnapshotGovernanceOutcome({
+        governanceDecisionLabel: "Finalized · approval blocked",
+        blockingFindingCount: 2,
+      }),
+    ).toBe("Finalized · approval blocked");
   });
 
   it("omits redundant bottom-line narrative when only posture would repeat the summary strip", () => {
@@ -224,5 +289,101 @@ describe("run-detail-workspace-derive", () => {
 
     expect(actions.some((action) => action.id === "add-evidence")).toBe(false);
     expect(actions.every((action) => action.actionLabel.length > 0)).toBe(true);
+  });
+
+  it("uses template label for H1 when manifest exists without a system name", () => {
+    const presentation = deriveReviewHeaderPresentation({
+      reviewTitle: "ArchLucid",
+      systemName: null,
+      runId: "run-abc-123",
+      templateLabel: "Healthcare baseline pack",
+      manifestId: "manifest-1",
+    });
+
+    expect(presentation.h1Title).toBe("Healthcare baseline pack");
+    expect(presentation.h1Title).not.toBe("Architecture under review");
+  });
+
+  it("disambiguates product-brand titles in the review header", () => {
+    const presentation = deriveReviewHeaderPresentation({
+      reviewTitle: "ArchLucid",
+      systemName: "Payments platform",
+      runId: "run-abc-123",
+    });
+
+    expect(presentation.h1Title).toBe("Payments platform");
+    expect(presentation.eyebrowLabel).toBe("Architecture review");
+  });
+
+  it("uses ArchLucid as H1 when it is the system name and no other label exists", () => {
+    const presentation = deriveReviewHeaderPresentation({
+      reviewTitle: "ArchLucid",
+      systemName: null,
+      runId: "run-abc-123",
+    });
+
+    expect(presentation.h1Title).toBe("ArchLucid");
+    expect(presentation.h1Title).not.toBe("Architecture under review");
+    expect(presentation.eyebrowLabel).toBe("Architecture review");
+  });
+
+  it("derives ArchLucid as system name when displayName matches the review headline", () => {
+    const systemName = deriveArchitectureSystemName(
+      {
+        runId: "run-1",
+        projectId: "p1",
+        displayName: "ArchLucid",
+        description: "Architecture review intake for \"ArchLucid\".",
+      } as RunSummary,
+      "ArchLucid",
+    );
+
+    expect(systemName).toBe("ArchLucid");
+  });
+
+  it("summarizes evidence coverage for open findings", () => {
+    const summary = deriveEvidenceCoverageSummary([
+      finding(2, { evidenceRefCount: 1 }),
+      finding(1, { evidenceRefCount: 0 }),
+    ]);
+
+    expect(summary.summaryLine).toBe("1 of 2 open findings have linked evidence");
+  });
+
+  it("shortens next-action copy for primary CTA labels", () => {
+    expect(
+      shortenNextActionForPrimaryCta(
+        "Review findings — 1 unresolved finding currently blocks approval or finalization.",
+      ),
+    ).toBe("Review findings");
+  });
+
+  it("omits Finalized at when the package is not finalized", () => {
+    const utc = deriveFinalizedAtUtc(
+      {
+        runId: "r1",
+        projectId: "p1",
+        createdUtc: "2026-01-01T00:00:00Z",
+      } as RunSummary,
+      null,
+      null,
+    );
+
+    expect(utc).toBeNull();
+  });
+
+  it("uses completedUtc for Finalized at when a manifest exists", () => {
+    const utc = deriveFinalizedAtUtc(
+      {
+        runId: "r1",
+        projectId: "p1",
+        createdUtc: "2026-01-01T00:00:00Z",
+        completedUtc: "2026-01-02T12:00:00Z",
+      } as RunSummary,
+      { createdUtc: "2026-01-02T11:00:00Z" } as never,
+      "manifest-1",
+    );
+
+    expect(utc).toBe("2026-01-02T12:00:00Z");
   });
 });

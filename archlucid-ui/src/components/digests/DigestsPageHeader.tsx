@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { PageContextualHelpButton, PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   DIGESTS_LAST_UPDATED_PREFIX,
@@ -21,6 +21,8 @@ export type DigestsPageHeaderProps = {
   readonly refreshButtonTitle?: string;
   readonly showRefresh?: boolean;
   readonly actions?: ReactNode;
+  /** Defaults to {@link DIGESTS_LAST_UPDATED_PREFIX}; use health-check label during setup. */
+  readonly lastUpdatedPrefix?: string;
 };
 
 /**
@@ -53,6 +55,7 @@ function formatDigestsLastUpdated(lastUpdatedUtc: string | null): string {
 export function DigestsPageHeader(props: DigestsPageHeaderProps): React.JSX.Element {
   const showRefresh = props.showRefresh !== false;
   const lastUpdatedLabel = formatDigestsLastUpdated(props.lastUpdatedUtc);
+  const lastUpdatedPrefix = props.lastUpdatedPrefix ?? DIGESTS_LAST_UPDATED_PREFIX;
 
   return (
     <OperatorPageHeader
@@ -61,7 +64,7 @@ export function DigestsPageHeader(props: DigestsPageHeaderProps): React.JSX.Elem
       subtitle={props.subtitle}
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="digests-header-actions">
-          <PageContextualHelpButton />
+          <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
           {props.actions}
           {showRefresh ? (
             <Button
@@ -83,7 +86,7 @@ export function DigestsPageHeader(props: DigestsPageHeaderProps): React.JSX.Elem
           className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="digests-last-updated"
         >
-          {DIGESTS_LAST_UPDATED_PREFIX}: {props.refreshing ? "Refreshing…" : lastUpdatedLabel}
+          {lastUpdatedPrefix}: {props.refreshing ? "Refreshing…" : lastUpdatedLabel}
         </span>
       }
     />

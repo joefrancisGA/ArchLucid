@@ -1,7 +1,9 @@
 "use client";
 
 import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
+import { AcceleratorChooserCard } from "@/components/operator-home/AcceleratorChooserCard";
 import { OperatorHomeDualPathCards } from "@/components/operator-home/OperatorHomeDualPathCards";
+import { OperationalMetricsGate } from "@/components/operator-home/OperationalMetricsGate";
 import { OPERATOR_HOME_COMPACT_STARTING_ACTIONS_HEADING } from "@/lib/buyer-polish-copy";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 
@@ -17,6 +19,9 @@ export function OperatorHomeCompactStartingActionsSection(): React.JSX.Element {
         {OPERATOR_HOME_COMPACT_STARTING_ACTIONS_HEADING}
       </OperatorHomeCardSectionTitle>
       <OperatorHomeDualPathCards variant="compact" />
+      <OperationalMetricsGate>
+        <AcceleratorChooserCard />
+      </OperationalMetricsGate>
     </section>
   );
 }

@@ -42,13 +42,13 @@ The script waits up to **120 seconds** for `http://localhost:5000/health/ready`,
 
 ## Your first five minutes (finished-package-first)
 
-**Do not open with `/reviews/new` or generation.** Trust ladder: show a **completed architecture package** first, then optionally bridge to creation.
+**Do not open with `/architecture/reviews/new` or generation.** Trust ladder: show a **completed architecture package** first, then optionally bridge to creation.
 
-1. **Open a finalized package** — From home or **Architecture packages** (`/reviews`), open the seeded **hardened Contoso** review (`6e8c4a102b1f4c9a9d3e10b2a4f0c502` after startup seed; see [demo-quickstart.md](../archive/onboarding/demo-quickstart.md) Â§3) or the static showcase **Claims Intake Modernization** package at `/reviews/claims-intake-modernization` when running UI-only fixtures. You should land on review detail with findings and manifest linkage already present.
+1. **Open a finalized package** — From home or **Architecture packages** (`/architecture/reviews`), open the seeded **hardened Contoso** review (`6e8c4a102b1f4c9a9d3e10b2a4f0c502` after startup seed; see [demo-quickstart.md](../archive/onboarding/demo-quickstart.md) Â§3) or the static showcase **Claims Intake Modernization** package at `/architecture/reviews/claims-intake-modernization` when running UI-only fixtures. You should land on review detail with findings and manifest linkage already present.
 2. **Findings and explainability** — Open one finding. Walk the structured trace (what was examined, rules applied, evidence cited, confidence limits). Call out an **explicit non-conclusion** or evidence gap when the finding flags missing proof — do not imply the AI always concludes.
 3. **Finalize / architecture package** — Show the signed review record / architecture package summary (finding counts, decision trail). This is the sponsor-ready package, not a chat transcript.
 4. **Export** — Download Markdown, DOCX, or ZIP from review detail or the export flow (consulting templates may require optional configuration).
-5. **Creation bridge (one line)** — "Creation follows the same governed pipeline." Optional 30-second peek: home **Open created sample** → `/reviews/northwind-copilot-rag-platform` (**Created** origin badge; see **TB-742**). Do not start the five-minute path there.
+5. **Creation bridge (one line)** — "Creation follows the same governed pipeline." Optional 30-second peek: home **Open created sample** → `/architecture/reviews/northwind-copilot-rag-platform` (**Created** origin badge; see **TB-742**). Do not start the five-minute path there.
 
 **Optional if time remains:** **Compare** two Contoso reviews (`…c501` baseline vs `…c502` hardened) or **Graph** on the opened package. Save **New review** wizard for a longer principal-architect session ([Â§30-minute principal-architect live script](#30-minute-principal-architect-live-script)).
 
@@ -129,7 +129,7 @@ This is a **capture brief**: what to show on screen, data state, annotations, an
 | Attribute | Detail |
 |-----------|--------|
 | **Screen** | New run wizard — Step 1 |
-| **URL** | `/reviews/new` (legacy `/runs/new` redirects) |
+| **URL** | `/architecture/reviews/new` (retired bookmark) |
 | **Data state** | Fresh page load, no preset selected yet. All three preset cards visible: Greenfield web app, Modernize legacy system, Blank (advanced). |
 | **Annotation callouts** | (A) "Choose a starting template or start from scratch" on the preset card area. (B) "Seven guided steps from intent to pipeline" on the stepper indicator. |
 | **Caption** | "ArchLucid's guided wizard walks you from a starting template through identity, requirements, constraints, review, and live pipeline tracking — in seven steps." |
@@ -140,7 +140,7 @@ This is a **capture brief**: what to show on screen, data state, annotations, an
 | Attribute | Detail |
 |-----------|--------|
 | **Screen** | New run wizard — Step 6 (Review) |
-| **URL** | `/reviews/new` (navigate to step 6; legacy `/runs/new` redirects) |
+| **URL** | `/architecture/reviews/new` (navigate to step 6; retired bookmark) |
 | **Data state** | Populated from the "Greenfield web app" preset. System name, environment, description, constraints, and capabilities all filled. Validation messages clear (green). |
 | **Annotation callouts** | (A) "Full request summary before submission" on the review panel. (B) "Inline validation catches errors before the run is created" near a validated field. (C) "Client-generated request ID for idempotency" on the request ID display. |
 | **Caption** | "Review every field before creating the run. The wizard validates inputs inline so errors are caught at design time, not in production." |
@@ -151,7 +151,7 @@ This is a **capture brief**: what to show on screen, data state, annotations, an
 | Attribute | Detail |
 |-----------|--------|
 | **Screen** | Run detail page |
-| **URL** | `/runs/{runId}` (use a completed run) |
+| **URL** | `/architecture/reviews/{runId}` (use a completed run) |
 | **Data state** | Review is finalized. Pipeline timeline shows all stages completed (Context, Graph, Findings, Architecture package — all with "Ready" badges). Architecture package summary visible below. Artifacts table showing at least 3 rows. |
 | **Annotation callouts** | (A) "Real-time pipeline tracking from context to architecture package" on the pipeline timeline. (B) "Versioned architecture package — the source of truth" on the package summary. (C) "Review or download individual artifacts" on the artifacts table. |
 | **Caption** | "Every review shows its complete pipeline journey — from context ingestion through graph build, findings generation, and architecture-package synthesis — with artifacts available for review and download." |
@@ -162,7 +162,7 @@ This is a **capture brief**: what to show on screen, data state, annotations, an
 | Attribute | Detail |
 |-----------|--------|
 | **Screen** | Provenance graph |
-| **URL** | `/runs/{runId}/provenance` |
+| **URL** | `/architecture/reviews/{runId}/provenance` |
 | **Data state** | Graph loaded for a completed run. Full provenance view selected. Multiple node types visible (snapshots, findings, decisions, manifest, artifacts). Type/color legend visible. |
 | **Annotation callouts** | (A) "Visual decision lineage from evidence to artifact" on the graph area. (B) "Color-coded node types: context, findings, decisions, manifest" on the legend. (C) "Click any node to see its detail" near a node. |
 | **Caption** | "The provenance graph traces every architecture decision back to the evidence that drove it — context snapshots, findings, decision traces, manifest entries, and synthesized artifacts." |
@@ -217,7 +217,7 @@ This is a **capture brief**: what to show on screen, data state, annotations, an
 | Attribute | Detail |
 |-----------|--------|
 | **Screen** | New run wizard — Step 7 (Track) |
-| **URL** | `/reviews/new` (navigate to step 7 after creating a review; legacy `/runs/new` redirects) |
+| **URL** | `/architecture/reviews/new` (navigate to step 7 after creating a review; retired bookmark) |
 | **Data state** | Pipeline tracking in progress or completed. Progress bar at 75% or 100%. Stage badges showing Context Ready, Graph Ready, Findings Ready, Manifest Ready (or the last one still Pending for the "in progress" feel). |
 | **Annotation callouts** | (A) "Live pipeline tracking — no page refresh needed" on the progress bar. (B) "Four stages from context to architecture package" on the stage badges. |
 | **Caption** | "After creating a review, the wizard tracks the AI pipeline in real time — context ingestion, graph build, findings generation, and architecture-package synthesis — so you know exactly when your results are ready." |
@@ -228,7 +228,7 @@ This is a **capture brief**: what to show on screen, data state, annotations, an
 | Attribute | Detail |
 |-----------|--------|
 | **Screen** | Run detail — artifacts section or artifact review page |
-| **URL** | `/runs/{runId}` (artifacts table) or `/manifests/{manifestId}` |
+| **URL** | `/architecture/reviews/{runId}` (artifacts table) or `/manifests/{manifestId}` |
 | **Data state** | Artifacts table with at least 4–5 rows showing different artifact types (manifest JSON, architecture diagram, decision trace, DOCX report). One artifact row with "Review" and "Download" buttons visible. |
 | **Annotation callouts** | (A) "Stakeholder-grade DOCX reports with embedded diagrams" near a DOCX artifact row. (B) "Review artifacts in-browser or download individually" on the Review/Download buttons. (C) "ZIP bundle for the complete evidence package" if bundle download link is visible. |
 | **Caption** | "Every run produces reviewable artifacts — manifests, diagrams, decision traces, and consulting-grade DOCX reports — available for in-browser review, individual download, or as a complete ZIP bundle." |
@@ -274,9 +274,9 @@ Live-call demo scripts for the core pilot path, plus the shot-by-shot storyboard
 
 **Setup:** Run with Simulator agents for a deterministic timeline. Use the Contoso Retail demo tenant (Docker seed) or the static showcase tenant (`claims-intake-modernization`). Have the browser at 1440Ã—900, 100% zoom, bookmarks hidden.
 
-**Demo honesty — Workspace B (M-111 / C4):** When you open the regulated Workspace B sample (`/reviews/61c60d76-2b80-93f9-46bb-2f66fd608b9b`, Meridian / Alpine), narrate findings as a **seed-backed curated storyline**. Engines are `AiGovernanceSeed` / `SecurityBaselineSeed` — not live Topology / Cost / Compliance / Critic agent traces. Show live multi-agent analysis on **Workspace A** (Product Tour) or a real pilot run. Durable buyer-facing live sample is **M-93** (dogfood).
+**Demo honesty — Workspace B (M-111 / C4):** When you open the regulated Workspace B sample (`/architecture/reviews/61c60d76-2b80-93f9-46bb-2f66fd608b9b`, Meridian / Alpine), narrate findings as a **seed-backed curated storyline**. Engines are `AiGovernanceSeed` / `SecurityBaselineSeed` — not live Topology / Cost / Compliance / Critic agent traces. Show live multi-agent analysis on **Workspace A** (Product Tour) or a real pilot run. Durable buyer-facing live sample is **M-93** (dogfood).
 
-**Trust ladder:** Open on a **completed architecture package**. Do **not** start at `/reviews/new` or describe generation speed.
+**Trust ladder:** Open on a **completed architecture package**. Do **not** start at `/architecture/reviews/new` or describe generation speed.
 
 **If asked "proof of what, exactly?" (any script version):** Answer in two sentences, then move on — do not improvise a broader claim. *"ArchLucid proves the review happened and is defensible: every finding traces to evidence, and the finalized package is hash-verified on an append-only audit chain. It doesn't prove the design will perform in production — but the alternative isn't runtime validation, it's a review with no durable record at all."* Full objection handling: [`DIFFERENTIATION_PROOF_PACKET.md#objection-proof-of-what`](DIFFERENTIATION_PROOF_PACKET.md#objection-proof-of-what).
 
@@ -292,7 +292,7 @@ Live-call demo scripts for the core pilot path, plus the shot-by-shot storyboard
 
 #### Scene 1 (0:30–1:15) — Open a finished package
 
-**Route:** `/reviews/claims-intake-modernization` (showcase) **or** Contoso hardened run `6e8c4a102b1f4c9a9d3e10b2a4f0c502` (Docker seed)
+**Route:** `/architecture/reviews/claims-intake-modernization` (showcase) **or** Contoso hardened run `6e8c4a102b1f4c9a9d3e10b2a4f0c502` (Docker seed)
 
 > "This is a completed architecture package — not a draft prompt. Status, findings, and manifest linkage are already here because the governed pipeline ran against real intake context.
 >
@@ -302,7 +302,7 @@ Live-call demo scripts for the core pilot path, plus the shot-by-shot storyboard
 
 #### Scene 2 (1:15–2:15) — Findings, explainability, and explicit limits
 
-**Route:** Findings panel or `/reviews/{runId}/findings/{findingId}`
+**Route:** Findings panel or `/architecture/reviews/{runId}/findings/{findingId}`
 
 > "Each finding has severity, confidence, and a recommended action. The differentiator is the explainability trace: what was examined, which rules applied, what evidence was cited, and where confidence stops.
 >
@@ -322,7 +322,7 @@ Live-call demo scripts for the core pilot path, plus the shot-by-shot storyboard
 
 #### Scene 4 (3:15–4:00) — Creation bridge (one line only)
 
-**Route:** Home → **Open created sample** → `/reviews/northwind-copilot-rag-platform`
+**Route:** Home → **Open created sample** → `/architecture/reviews/northwind-copilot-rag-platform`
 
 > "Creation uses the same governed pipeline — findings, confidence, manifest — not a separate toy path. Here is a **Created** sample package in one click; we do not need to run intake live in a five-minute slot."
 
@@ -360,15 +360,15 @@ Live-call demo scripts for the core pilot path, plus the shot-by-shot storyboard
 
 | Phase | Time | Route(s) | Goal |
 |-------|------|----------|------|
-| Finished reviewed package | 0:00–8:00 | `/reviews/claims-intake-modernization` | Findings, traces, manifest (same spine as five-minute) |
+| Finished reviewed package | 0:00–8:00 | `/architecture/reviews/claims-intake-modernization` | Findings, traces, manifest (same spine as five-minute) |
 | Graph + Ask | 8:00–14:00 | `/graph`, `/ask` | Evidence trail and grounded Q&A on the opened package |
-| Created package bridge | 14:00–20:00 | Home → `/reviews/northwind-copilot-rag-platform` | Show **Created** origin; same findings/manifest shape (**TB-742**) |
+| Created package bridge | 14:00–20:00 | Home → `/architecture/reviews/northwind-copilot-rag-platform` | Show **Created** origin; same findings/manifest shape (**TB-742**) |
 | **Compare reviewed vs created** | 20:00–26:00 | `/compare` | Left: `claims-intake-modernization` (Reviewed); Right: `northwind-copilot-rag-platform` (Created) — structured deltas, not generation speed |
 | Governance close | 26:00–30:00 | `/governance` or approval queue | Approval / promotion posture; offer pilot intake |
 
 **Compare talk track:** "Same noun — architecture package — two workflows. Reviewed intake vs born-governed creation. Compare shows semantic drift between packages, not which model typed faster."
 
-**Do not** open this session at `/reviews/new` unless the prospect explicitly asks to see intake live; defer wizard to a follow-up working session.
+**Do not** open this session at `/architecture/reviews/new` unless the prospect explicitly asks to see intake live; defer wizard to a follow-up working session.
 
 ### Two-minute video script (â‰ˆ2 minutes) {#two-minute-video-script-2-minutes}
 
@@ -381,10 +381,10 @@ Live-call demo scripts for the core pilot path, plus the shot-by-shot storyboard
 | Time | Scene | Architect workspace route(s) | VO (voiceover, ~300 words total) | Visual |
 |------|--------|------------------------------|-----------------------------------|--------|
 | 0:00–0:15 | Opening | Marketing or architect home | "Enterprise architecture review is still slow, inconsistent, and hard to prove. ArchLucid turns governed intake into auditable architecture packages you can diff and replay." | Split: messy wiki slide vs clean architecture package table (static slide ok). |
-| 0:15–0:35 | Finished package | `/reviews/claims-intake-modernization` | "Start from a completed package: status, findings, and architecture package linkage already on screen — not a blank wizard." | Review detail summary; pipeline complete. |
+| 0:15–0:35 | Finished package | `/architecture/reviews/claims-intake-modernization` | "Start from a completed package: status, findings, and architecture package linkage already on screen — not a blank wizard." | Review detail summary; pipeline complete. |
 | 0:35–0:55 | Findings + explainability | Finding panel or finding detail | "Findings carry structured traces — what was checked, which rules applied, and where confidence stops." | Expand explainability fields; optional evidence-gap tag. |
 | 0:55–1:15 | Package + export | Review detail → architecture package + artifacts | "Finalize produces a signed architecture package (API: golden manifest) and downloadable artifacts — the sponsor-ready package." | Package summary + one download row. |
-| 1:15–1:30 | Creation bridge | `/reviews/northwind-copilot-rag-platform` | "Creation follows the same pipeline; here is a Created sample in one click." | **Created** badge; brief. |
+| 1:15–1:30 | Creation bridge | `/architecture/reviews/northwind-copilot-rag-platform` | "Creation follows the same pipeline; here is a Created sample in one click." | **Created** badge; brief. |
 | 1:30–1:45 | Compare (optional) | `/compare` | "Compare two packages for structured deltas when designs iterate." | Reviewed vs created or baseline vs hardened. |
 | 1:45–1:55 | Governance (if enabled) | `/governance` | "Policy packs and approvals enforce segregation of duties when enabled." | Brief queue screen. |
 | 1:55–2:00 | Close | `/why` or home | "Every recommendation traced. Every decision governed. Start a pilot on your terms." | Logo + CTA. |
@@ -401,7 +401,7 @@ Trim governance or compare if time is tight — core story is **finished package
 
 ### Acceptance checklist {#demo-script-acceptance-checklist}
 
-- Demos **open on a completed architecture package** — never `/reviews/new` generation-first.
+- Demos **open on a completed architecture package** — never `/architecture/reviews/new` generation-first.
 - Five-minute and two-minute scripts include manifest + export; five-minute and 30-minute scripts include **Compare** (30-minute: reviewed vs created).
 - Routes exist in **`archlucid-ui`** (App Router segments under `(operator)` / `(marketing)`).
 - Claims match **Pilot** capabilities in **[V1_SCOPE.md](../library/V1_SCOPE.md)** Â§2.
@@ -417,9 +417,9 @@ Trim governance or compare if time is tight — core story is **finished package
 | Segment | URL / screen | Action | Narration extract | Annotation | Duration (s) |
 | --- | --- | --- | --- | --- | ---: |
 | Opening | Marketing home or operator home | Hold static frame; optional split slide (wiki chaos vs manifest table) | "Enterprise architecture review is still slow, inconsistent, and hard to prove. ArchLucid turns a structured request into governed, auditable outputs you can diff and replay." | Title-safe lower third optional | 15 |
-| Create review | `/reviews/new` | Step through wizard; paste 3–4 sentence migration scenario | "An operator starts from a guided flow: system name, constraints, and requirement lines that feed the ingestion pipeline—no mystery prompts." | Highlight structured fields, not a chat box | 20 |
+| Create review | `/architecture/reviews/new` | Step through wizard; paste 3–4 sentence migration scenario | "An operator starts from a guided flow: system name, constraints, and requirement lines that feed the ingestion pipeline—no mystery prompts." | Highlight structured fields, not a chat box | 20 |
 | Execute | Run detail → pipeline timeline | Show stages advancing (simulator or pre-seeded run) | "Execution runs the multi-stage authority pipeline: ingestion, graph, findings, decisioning, artifacts—visible in the UI." | Point to stage labels as each completes | 15 |
-| Findings | Run detail findings panel or `/runs/{runId}/findings/{findingId}` | Open one finding; expand explainability trace | "Findings aren't a chat paragraph. Each item carries structured traces you can inspect for what was checked and why." | Show severity, confidence, recommended action | 25 |
+| Findings | Run detail findings panel or `/architecture/reviews/{runId}/findings/{findingId}` | Open one finding; expand explainability trace | "Findings aren't a chat paragraph. Each item carries structured traces you can inspect for what was checked and why." | Show severity, confidence, recommended action | 25 |
 | Finalize + package | Review detail → Finalize → Artifacts | Click Finalize; show architecture package summary and one download row | "When ready, Finalize produces an architecture package and downloadable artifacts—the reviewable record for your program." | Emphasize versioned package, not slide deck | 15 |
 | Governance (optional) | `/governance` or policy packs | Brief policy or approval screen; skip if not configured | "Policy packs and pre-finalize gates can block promotion when severities exceed thresholds." | Say "when enabled for your tenant" if gated | 15 |
 | Compare (optional) | `/compare` | Select two reviews; show structured deltas | "When designs iterate, compare two reviews with structured deltas—not just a text diff." | Trim if total runtime exceeds 2:45 | 15 |
@@ -501,14 +501,14 @@ Marketing, trial, showcase, and SQL seeds are **not** one fictional universe. Tr
 | Surface / knob | Package | Route / API | Stable ID(s) | Label rules |
 |----------------|---------|-------------|--------------|-------------|
 | Public showcase | **P-CLAIMS** | `/showcase/claims-intake-modernization` | Slug `claims-intake-modernization` | “Illustrative sample” / Healthcare Claims — **not** live Contoso preview |
-| Frictionless trial launcher | **P-CLAIMS** | `/try` → `/reviews/claims-intake-modernization` | Same slug | Same as showcase |
-| Operator Tier-1 review package | **P-CLAIMS** | `/reviews/claims-intake-modernization` (+ findings / provenance / snapshot) | Same slug; finding e.g. `phi-minimization-risk` | Static package; may inject client-only when demo pin empty (**TB-1039**) |
-| Welcome secondary CTA “Try the self-demo” | **P-PRODUCT-TOUR** | `NEXT_PUBLIC_SELF_DEMO_URL` (default `/runs/b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` → 301 → `/reviews/...`) | `DemoWorkspaceStableIds.ProductTourArchitectureReviewRunId` = `b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` | Contoso / Product Tour — **never** “Claims Intake” |
+| Frictionless trial launcher | **P-CLAIMS** | `/try` → `/architecture/reviews/claims-intake-modernization` | Same slug | Same as showcase |
+| Operator Tier-1 review package | **P-CLAIMS** | `/architecture/reviews/claims-intake-modernization` (+ findings / provenance / snapshot) | Same slug; finding e.g. `phi-minimization-risk` | Static package; may inject client-only when demo pin empty (**TB-1039**) |
+| Welcome secondary CTA “Try the self-demo” | **P-PRODUCT-TOUR** | `NEXT_PUBLIC_SELF_DEMO_URL` (default `/architecture/reviews/b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` → 301 → `/architecture/reviews/...`) | `DemoWorkspaceStableIds.ProductTourArchitectureReviewRunId` = `b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` | Contoso / Product Tour — **never** “Claims Intake” |
 | Post-registration “Open example review” | **P-PRODUCT-TOUR** (preferred) | `GET /v1/tenant/trial-status` → `trialSampleRunId` | Prefer Product Tour GUID above; if different, document beside `NEXT_PUBLIC_SELF_DEMO_URL` in the deploy runbook | Must match onboarding copy |
 | Anonymous live demo preview | **P-PRODUCT-TOUR** (Contoso seed) | `/demo/preview`, `GET /v1/demo/preview`, `/demo/explain` | Contoso authority baseline `6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c501` (`ContosoRetailDemoIdentifiers.AuthorityRunBaselineId`); hardened pair `…c502` | Banner/universe = Contoso (or unknown fail-closed) — **not** Healthcare Claims |
 | `/see-it` pitch + body | **P-CLAIMS** (M-107 Option A) | `/see-it` (Claims live or Claims snapshot; Contoso/unknown → snapshot) | Claims snapshot / Claims live only | Primary CTA → `/showcase/claims-intake-modernization` — never Contoso `/demo/preview` on this chain |
-| Workspace A deep link (Sales) | **P-PRODUCT-TOUR** | `/reviews/b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` | Workspace `2b2571e1-1884-62a2-1e8b-15a2a70a0342` · Project `9beb918c-83d4-1385-0486-21f341806c5c` | Scope headers must match |
-| Workspace B deep link (SE / regulated) | **P-REGULATED** | `/reviews/61c60d76-2b80-93f9-46bb-2f66fd608b9b` | Workspace `3f1a16c3-172e-5632-c53a-3ed16446f603` · Project `49074cdf-bdab-a5fa-789b-09a3e556a8f2` | Meridian/Alpine; seed engines — not live multi-agent (**M-111**) |
+| Workspace A deep link (Sales) | **P-PRODUCT-TOUR** | `/architecture/reviews/b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` | Workspace `2b2571e1-1884-62a2-1e8b-15a2a70a0342` · Project `9beb918c-83d4-1385-0486-21f341806c5c` | Scope headers must match |
+| Workspace B deep link (SE / regulated) | **P-REGULATED** | `/architecture/reviews/61c60d76-2b80-93f9-46bb-2f66fd608b9b` | Workspace `3f1a16c3-172e-5632-c53a-3ed16446f603` · Project `49074cdf-bdab-a5fa-789b-09a3e556a8f2` | Meridian/Alpine; seed engines — not live multi-agent (**M-111**) |
 | Northwind compare / creation bridge | **Off-funnel** | e.g. `northwind-copilot-rag-platform` in longer scripts | Fixture slugs only | Do **not** use in welcome → `/see-it` → primary CTA |
 | Why-ArchLucid / measured ROI demo pin | Contoso string key | API snapshot fields | `ContosoRetailDemoIdentifiers.RunBaseline` = `6e8c4a102b1f4c9a9d3e10b2a4f0c501` | Sponsor numbers labeled demo — replace before publish |
 
@@ -526,7 +526,7 @@ Pinned Workspace A/B GUID table (CI): [Demo workspaces — pinned fixture anchor
 
 ### Deploy / Sales checklist
 
-1. Set **`NEXT_PUBLIC_SELF_DEMO_URL`** to Workspace A (`/reviews/b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` preferred).
+1. Set **`NEXT_PUBLIC_SELF_DEMO_URL`** to Workspace A (`/architecture/reviews/b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` preferred).
 2. Confirm **`trialSampleRunId`** for evaluator tenants matches that Product Tour run (or document the exception).
 3. Before paid creatives: open the exact URL the creative names — Claims showcase **or** Contoso preview — and match the banner.
 4. For regulated demos, bookmark Workspace B; do not reuse Claims or Contoso labels.
@@ -722,9 +722,9 @@ Manifest: `fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json`. CI v
 
 | Surface | Workspace | Repository wiring |
 |---------|-----------|-------------------|
-| **Landing / welcome — secondary CTA “Try the self-demo”** (improvement **#32**) | **Workspace A** (product tour run) | `archlucid-ui`: [`SelfDemoRequestCta.tsx`](../../archlucid-ui/src/components/marketing/SelfDemoRequestCta.tsx), [`build-self-demo-cta-href.ts`](../../archlucid-ui/src/lib/marketing/build-self-demo-cta-href.ts), env **`NEXT_PUBLIC_SELF_DEMO_URL`** — defaults to legacy `/runs/{ProductTour}` which **301**s to **`/reviews/...`** (see below). Deployments should set **`NEXT_PUBLIC_SELF_DEMO_URL`** explicitly for staging/production hostnames when it must be absolute. **Package map:** [`#sample-package-funnel-id-matrix`](#sample-package-funnel-id-matrix) (**M-134**) — Product Tour ≠ Claims showcase. |
+| **Landing / welcome — secondary CTA “Try the self-demo”** (improvement **#32**) | **Workspace A** (product tour run) | `archlucid-ui`: [`SelfDemoRequestCta.tsx`](../../archlucid-ui/src/components/marketing/SelfDemoRequestCta.tsx), [`build-self-demo-cta-href.ts`](../../archlucid-ui/src/lib/marketing/build-self-demo-cta-href.ts), env **`NEXT_PUBLIC_SELF_DEMO_URL`** — defaults to legacy `/architecture/reviews/{ProductTour}` which **301**s to **`/architecture/reviews/...`** (see below). Deployments should set **`NEXT_PUBLIC_SELF_DEMO_URL`** explicitly for staging/production hostnames when it must be absolute. **Package map:** [`#sample-package-funnel-id-matrix`](#sample-package-funnel-id-matrix) (**M-134**) — Product Tour ≠ Claims showcase. |
 | **Post-registration onboarding** — “Open example review” | Runs returned as **`trialSampleRunId`** | [`OnboardingStartClient.tsx`](../../archlucid-ui/src/components/OnboardingStartClient.tsx) surfaces **`GET /v1/tenant/trial-status`** (`trialSampleRunId`). Coordinators align trial bootstrap with **`DemoWorkspaceStableIds.ProductTourArchitectureReviewRunId`** when hosted evaluators should hit the canonical Product Tour run. |
-| **No dedicated second onboarding deep link today** | **Workspace B** (regulated storyline) | **Sales / CS / marketing** bookmark or email the **Workspace B canonical URL pattern** (`/reviews/{runId}` in this doc). Owners may add explicit copy or CTAs linking Workspace B alongside Workspace A once **#32** copy review extends onboarding. |
+| **No dedicated second onboarding deep link today** | **Workspace B** (regulated storyline) | **Sales / CS / marketing** bookmark or email the **Workspace B canonical URL pattern** (`/architecture/reviews/{runId}` in this doc). Owners may add explicit copy or CTAs linking Workspace B alongside Workspace A once **#32** copy review extends onboarding. |
 
 **Operational alignment:** when trial tenants use a different seeded sample than the Product Tour, document the tenant’s actual **`trialSampleRunId`** next to **`NEXT_PUBLIC_SELF_DEMO_URL`** in the deployment runbook so Sales and onboarding scripts stay truthful.
 
@@ -805,8 +805,8 @@ Repositories **must not bake in** unpublished customer hostnames. Use this patte
 
 | Workspace | Canonical path (recommended) |
 |-----------|--------------------------------|
-| **A — Product Tour** | `{OPERATOR_ORIGIN}/reviews/b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` |
-| **B — Regulated synthesis** | `{OPERATOR_ORIGIN}/reviews/61c60d76-2b80-93f9-46bb-2f66fd608b9b` |
+| **A — Product Tour** | `{OPERATOR_ORIGIN}/architecture/reviews/b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` |
+| **B — Regulated synthesis** | `{OPERATOR_ORIGIN}/architecture/reviews/61c60d76-2b80-93f9-46bb-2f66fd608b9b` |
 
 | Environment | **`{OPERATOR_ORIGIN}`** (fill per deployment — examples only) |
 |-------------|--------------------------------------------------------------|
@@ -814,7 +814,7 @@ Repositories **must not bake in** unpublished customer hostnames. Use this patte
 | **Staging** | **`https://<your-staging-operator-host>`** — record canonical operator origin in **`docs/`** deployment notes when you cut a staging lane (see also [`DEPLOYMENT_CD_PIPELINE.md`](../library/DEPLOYMENT_CD_PIPELINE.md), post-deploy **`SMOKE_TEST_BASE_URL`** where applicable). |
 | **Production** | **`https://<your-production-operator-host>`** — same; GA tagging requires **`ui-e2e-live`** (and **`@release-gate`**) green on candidate builds (**[`docs/engineering/BUILD.md`](../engineering/BUILD.md)**). |
 
-**Legacy shorthand:** **`{OPERATOR_ORIGIN}/runs/<run-guid>` → 301 `/reviews/<run-guid>`** — safe for outbound ads that still omit `/reviews/`.
+**Legacy shorthand:** **`{OPERATOR_ORIGIN}/architecture/reviews/<run-guid>` → 301 `/architecture/reviews/<run-guid>`** — safe for outbound ads that still omit `/architecture/reviews/`.
 
 ---
 
@@ -925,18 +925,18 @@ Use this checklist before tagging **GA / external pilot freeze** aligned with hi
 
 ### Stable UI entry URLs
 
-Next.js redirects legacy **`/runs/*`** to **`/reviews/*`** (`archlucid-ui/next.config.ts`). Use the review shell path for bookmarks and campaigns.
+Next.js redirects legacy **`/architecture/reviews/*`** to **`/architecture/reviews/*`** (`archlucid-ui/next.config.ts`). Use the review shell path for bookmarks and campaigns.
 
 | Variant | Pattern |
 |---------|---------|
-| **Canonical reviewer deep link** | `{UI_ORIGIN}/reviews/b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` |
-| **Legacy / marketing shorthand** (`NEXT_PUBLIC_SELF_DEMO_URL`) | `{UI_ORIGIN}/runs/b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` → **301** to `/reviews/...` |
+| **Canonical reviewer deep link** | `{UI_ORIGIN}/architecture/reviews/b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` |
+| **Legacy / marketing shorthand** (`NEXT_PUBLIC_SELF_DEMO_URL`) | `{UI_ORIGIN}/architecture/reviews/b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` → **301** to `/architecture/reviews/...` |
 
 Replace `{UI_ORIGIN}` with your host (local demo: typically `http://localhost:3000`).
 
 ### API / scope headers (mandatory triplet)
 
-Run rows are SQL-scoped by **tenant**, **workspace**, and **scope project**. The shell forwards scope on `/api/proxy` via **`x-tenant-id`**, **`x-workspace-id`**, and **`x-project-id`**. Opening `/reviews/{runId}` **without** the matching workspace/project still targets the HTTP default scope (`ScopeIds`), so listings and run detail loads may **miss** the Product Tour fixtures.
+Run rows are SQL-scoped by **tenant**, **workspace**, and **scope project**. The shell forwards scope on `/api/proxy` via **`x-tenant-id`**, **`x-workspace-id`**, and **`x-project-id`**. Opening `/architecture/reviews/{runId}` **without** the matching workspace/project still targets the HTTP default scope (`ScopeIds`), so listings and run detail loads may **miss** the Product Tour fixtures.
 
 For **Workspace A**, align headers (or JWT claims interpreted the same way) to:
 
@@ -974,7 +974,7 @@ Today, **enforce read-only evaluator access** operationally (**Entra roles / RBA
 
 | Pattern | Example |
 |---------|---------|
-| **Canonical reviewer deep link** | `{UI_ORIGIN}/reviews/61c60d76-2b80-93f9-46bb-2f66fd608b9b` |
+| **Canonical reviewer deep link** | `{UI_ORIGIN}/architecture/reviews/61c60d76-2b80-93f9-46bb-2f66fd608b9b` |
 
 ### Scope headers (mandatory triplet)
 
@@ -1027,7 +1027,7 @@ Former standalone: `docs/go-to-market/ARCHITECTURE_REVIEW_BOARD_EXPORT.md` → t
 
 ##### Architect workspace (today)
 
-1. Open a **review** from **Reviews** (`/reviews`, `/reviews/{runId}`).
+1. Open a **review** from **Reviews** (`/architecture/reviews`, `/architecture/reviews/{runId}`).
 2. **Finalize** the architecture package when the architecture snapshot is ready (buyer-facing language for API `commit`).
 3. On the review detail page, open **Artifacts & exports** (or **Deliverables** in buyer-polished architect workspace).
 4. **Consulting DOCX:** use **Export to DOCX** when your principal includes `export:consulting-docx` — this uses the consulting analysis template, not the architecture review board packet described here.
@@ -1144,6 +1144,8 @@ Former standalone body: `docs/library/ACCELERATOR_CHOOSER.md` → this section (
 | Regulated SaaS procurement / SOC-style diligence language | [`regulated-saas-soc-procurement`](../../templates/starter-proof-packs/regulated-saas-soc-procurement/) | Security / procurement lead | `second-run.json`, `policy-context.json` | Policy-pack findings, proof checklist, sponsor-safe caveats (not CPA SOC 2) | **V1-ready** | Before any finalize; buyer demands CPA attestation |
 | Healthcare data workflow / PHI storyline | [`healthcare-data-workflow`](../../templates/starter-proof-packs/healthcare-data-workflow/) | Clinical platform or compliance lead | `second-run.json`, `policy-context.json` | Healthcare pack findings, checklist | **V1-ready** | Real PHI in inputs; HIPAA certification claims |
 | Azure cost / orphan / governance review | [`azure-cost-governance`](../../templates/starter-proof-packs/azure-cost-governance/) | FinOps or platform owner | `second-run.json`, optional extractor ZIP | Cost/orphan-oriented findings, ROI source labels | **V1-ready** | Non-Azure-only architecture with no Azure evidence |
+| AWS cost / orphan / governance review | [`aws-cost-governance`](../../templates/starter-proof-packs/aws-cost-governance/) | FinOps or platform owner | `second-run.json`, optional extractor ZIP | Cost/orphan-oriented findings, ROI source labels | **V1-ready** | Non-AWS-only architecture with no AWS evidence |
+| GCP cost / orphan / governance review | [`gcp-cost-governance`](../../templates/starter-proof-packs/gcp-cost-governance/) | FinOps or platform owner | `second-run.json`, optional extractor ZIP | Cost/orphan-oriented findings, ROI source labels | **V1-ready** | Non-GCP-only architecture with no GCP evidence |
 | AI / LLM workload governance | [`ai-llm-workload`](../../templates/starter-proof-packs/ai-llm-workload/) | AI governance or platform lead | `second-run.json`, `policy-context.json` | AI governance findings, faithfulness-friendly citations | **V1-ready** | Generic chat comparison only; no LLM in scope |
 | Multi-tier web architecture (greenfield) | Wizard preset **Greenfield web app** (in-app) | Engineering lead / architect | Architecture request via new-review wizard | Topology/compliance findings on your inputs | **V1-ready** | Buyer needs specialty pack above instead |
 
@@ -1153,7 +1155,7 @@ Each pack folder includes `starter-pack.json` with `scopeLabel`, `doNotUseWhen`,
 
 1. Confirm a Core Pilot finalize exists (signed review record on an architecture package).
 2. Pick one row from the table.
-3. Open **New architecture review** with baseline ZIP intake (`/reviews/new?baseline=1`) when the pack lists `second-run.json`, or use **Quick review** / **Detailed wizard** for greenfield presets.
+3. Open **New architecture review** with baseline ZIP intake (`/architecture/reviews/new?baseline=1`) when the pack lists `second-run.json`, or use **Quick review** / **Detailed wizard** for greenfield presets.
 4. Attach pack JSON/ZIP from the pack folder as evidence; run the assessment; finalize; export the proof checklist in the pack folder.
 
 ### Policy packs (governance templates)

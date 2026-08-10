@@ -87,7 +87,7 @@ export function RunTraceViewerLink({ traceId }: RunTraceViewerLinkProps) {
         className="font-mono text-neutral-600 dark:text-neutral-400"
         title={traceId}
       >
-        {preview}
+        Support ref: {preview}
       </span>
       <Button
         type="button"

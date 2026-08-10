@@ -1,8 +1,12 @@
 import { redirect } from "next/navigation";
 
-import { listRunsByProjectPaged } from "@/lib/api";
+import {
+  listRunsByProjectPaged,
+  listRunsInScopePaged,
+  shouldListReviewsAcrossProjectSlugs,
+} from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
 import { dedupeRunSummariesByRunId, normalizeRunSummaryForDemoPicker } from "@/lib/demo-run-canonical";
 import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
 import { resolveServerScopeHeadersForProject } from "@/lib/server-run-scope";
@@ -17,14 +21,57 @@ export function formatRunsPageProjectTitle(projectId: string): string {
 }
 
 /**
+ * Loads the Reviews hub inventory. Prefers scope-wide listing when the hub URL uses the default project;
+ * if that route is missing on an older API (404), falls back to the project-slug list so the hub does not
+ * hard-fail with RESOURCE_NOT_FOUND during UI/API version skew.
+ */
+export async function fetchReviewsHubPagedInventory(params: {
+  readonly projectId: string;
+  readonly page: number;
+  readonly pageSize: number;
+  readonly cursor: string | undefined;
+  readonly scopeHeaders: Record<string, string>;
+  readonly listAcrossProjectSlugs: boolean;
+}): Promise<unknown> {
+  if (!params.listAcrossProjectSlugs) {
+    return listRunsByProjectPaged(params.projectId, params.page, params.pageSize, {
+      cursor: params.cursor,
+      scopeHeaders: params.scopeHeaders,
+    });
+  }
+
+  try {
+    return await listRunsInScopePaged(params.page, params.pageSize, {
+      cursor: params.cursor,
+      scopeHeaders: params.scopeHeaders,
+    });
+  } catch (error) {
+    const failure = toApiLoadFailure(error);
+
+    if (!isApiNotFoundFailure(failure)) {
+      throw error;
+    }
+
+    return listRunsByProjectPaged(params.projectId, params.page, params.pageSize, {
+      cursor: params.cursor,
+      scopeHeaders: params.scopeHeaders,
+    });
+  }
+}
+
+/**
  * Fetches paged runs, applies static demo fallbacks when enabled, normalizes rows, and enforces last-page redirect.
  * Call from the server `page`; uses `redirect()` which throws to short-circuit rendering.
+ *
+ * Default / omitted `projectId` lists every authority project slug in the current scope (create stores system name
+ * as the run project slug). Explicit non-default `projectId` still filters to that slug.
  */
 export async function loadRunsPageModel(resolved: RunsPageSearchParams): Promise<RunsPageModel> {
   const projectId = resolved.projectId ?? "default";
   const page = Math.max(1, Number.parseInt(resolved.page ?? "1", 10) || 1);
   const sizeRaw = resolved.pageSize ?? resolved.take ?? "20";
   const pageSize = Math.min(200, Math.max(1, Number.parseInt(sizeRaw, 10) || 20));
+  const listAcrossProjectSlugs = shouldListReviewsAcrossProjectSlugs(resolved.projectId);
 
   const cursorParam = resolved.cursor?.trim();
 
@@ -46,7 +93,14 @@ export async function loadRunsPageModel(resolved: RunsPageSearchParams): Promise
   const scopeHeaders = await resolveServerScopeHeadersForProject(projectId);
 
   try {
-    const raw: unknown = await listRunsByProjectPaged(projectId, page, pageSize, { cursor, scopeHeaders });
+    const raw: unknown = await fetchReviewsHubPagedInventory({
+      projectId,
+      page,
+      pageSize,
+      cursor,
+      scopeHeaders,
+      listAcrossProjectSlugs,
+    });
     const coerced = coerceRunSummaryPaged(raw, { page });
 
     if (!coerced.ok) {

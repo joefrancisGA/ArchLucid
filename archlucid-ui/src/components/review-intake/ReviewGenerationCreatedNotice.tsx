@@ -3,19 +3,24 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
-import { StatusTag } from "@/components/ui/status-tag";
+import { DESIGN_TOKENS } from "@/lib/design-tokens";
 import {
   REVIEW_START_CREATED_CONFIRMATION,
 } from "@/lib/review-start-progress-copy";
 import { FROM_GENERATION_QUERY_KEY } from "@/lib/review-generation-handoff";
+import { cn } from "@/lib/utils";
 
-export const REVIEW_CREATED_SUCCESS_MESSAGE = "Architecture review created successfully.";
+export const REVIEW_CREATED_SUCCESS_MESSAGE = "Architecture package created — analysis is starting.";
 
-export const REVIEW_CREATED_ANALYSIS_IN_PROGRESS_MESSAGE = "Review created — analysis in progress.";
+export const REVIEW_CREATED_ANALYSIS_IN_PROGRESS_MESSAGE = "Architecture package created — analysis in progress.";
 
 export type ReviewGenerationCreatedNoticeProps = {
   /** When true, analysis pipeline is still running — show in-progress confirmation. */
   readonly analysisInProgress?: boolean;
+  /** Hide the transient receipt when governance approval is blocked. */
+  readonly approvalBlocked?: boolean;
+  /** Hide once the architecture package is finalized. */
+  readonly packageFinalized?: boolean;
 };
 
 /** Brief confirmation after redirecting to a newly created architecture review. */
@@ -25,6 +30,7 @@ export function ReviewGenerationCreatedNotice(
   const searchParams = useSearchParams();
   const [visible, setVisible] = useState(false);
   const analysisInProgress = props.analysisInProgress === true;
+  const suppressed = props.approvalBlocked === true || props.packageFinalized === true;
 
   useEffect(() => {
     const fromGeneration = searchParams?.get(FROM_GENERATION_QUERY_KEY);
@@ -37,7 +43,7 @@ export function ReviewGenerationCreatedNotice(
   }, [searchParams]);
 
   useEffect(() => {
-    if (!visible || analysisInProgress) {
+    if (!visible || analysisInProgress || suppressed) {
       return;
     }
 
@@ -48,9 +54,9 @@ export function ReviewGenerationCreatedNotice(
     return () => {
       window.clearTimeout(timerId);
     };
-  }, [visible, analysisInProgress]);
+  }, [visible, analysisInProgress, suppressed]);
 
-  if (!visible) {
+  if (!visible || suppressed) {
     return null;
   }
 
@@ -60,12 +66,12 @@ export function ReviewGenerationCreatedNotice(
 
   return (
     <div
-      className="mb-3"
+      className={cn("mb-3", DESIGN_TOKENS.callout.info)}
       data-testid="review-generation-created-notice"
       role="status"
       aria-live="polite"
     >
-      <StatusTag kind={analysisInProgress ? "in-progress" : "ready"} label={label} />
+      <p className="m-0 text-sm text-al-text-primary">{label}</p>
     </div>
   );
 }

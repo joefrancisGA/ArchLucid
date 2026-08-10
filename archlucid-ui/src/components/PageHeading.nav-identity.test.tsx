@@ -104,4 +104,11 @@ describe("PageHeading nav identity", () => {
     expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
     expect(resolveNavIconForHref("/insights/evidence-graph")).toBeDefined();
   });
+
+  it("uses the help topic book icon for in-app help routes without nav identity", () => {
+    render(<PageHeading navHref="/help/cloud-connections" title="Cloud connections" />);
+
+    expect(resolveNavIconForHref("/help/cloud-connections")).toBeUndefined();
+    expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
+  });
 });

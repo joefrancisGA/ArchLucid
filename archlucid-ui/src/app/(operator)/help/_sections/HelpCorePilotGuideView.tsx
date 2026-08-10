@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpCorePilotWorkflowStepper } from "@/app/(operator)/help/_sections/HelpCorePilotWorkflowStepper";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -67,7 +68,7 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
       <header className={HELP_PAGE_LAYOUT.articleHeader}>
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div className="min-w-0 space-y-1">
-            <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{entry.title}</h1>
+            <HelpTopicTitleRow title={entry.title} />
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{entry.summary}</p>
           </div>
           <PageContextualHelpButton />

@@ -31,8 +31,10 @@ export type TenantMeasuredRoiPayload = {
 };
 
 /** GET `/v1/pilots/scorecard` — committed-run aggregates and ROI baseline slots for the active tenant scope. */
-export async function getPilotScorecard(): Promise<PilotScorecardJson> {
-  return apiGet<PilotScorecardJson>(`/${ApiV1Routes.pilotsScorecard}`);
+export async function getPilotScorecard(options?: {
+  readonly scopeHeaders?: Record<string, string>;
+}): Promise<PilotScorecardJson> {
+  return apiGet<PilotScorecardJson>(`/${ApiV1Routes.pilotsScorecard}`, options);
 }
 
 /** GET `/v1/pilots/sponsor-evidence-pack` — aggregated sponsor-facing proof bundle (Standard tier). */

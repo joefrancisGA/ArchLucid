@@ -4,6 +4,30 @@ import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 /** Customer-facing architecture lifecycle — distinct from review or review states. */
 export type ArchitectureDraftCustomerStatus = "draft" | "ready-for-review" | "archived";
 
+/**
+ * Derives customer-facing draft lifecycle for list and workspace chrome.
+ * Linked review or review-ready fields mean ready-for-review — not bare Draft.
+ */
+export function resolveArchitectureDraftCustomerStatus(input: {
+  readonly linkedReviewId: string | null;
+  readonly reviewReadinessValid: boolean;
+  readonly registryStatus?: ArchitectureDraftCustomerStatus | null;
+}): ArchitectureDraftCustomerStatus {
+  if (input.registryStatus === "archived") {
+    return "archived";
+  }
+
+  if (input.linkedReviewId !== null) {
+    return "ready-for-review";
+  }
+
+  if (input.reviewReadinessValid) {
+    return "ready-for-review";
+  }
+
+  return "draft";
+}
+
 export const ARCHITECTURE_DRAFT_STATUS_LABELS: Record<ArchitectureDraftCustomerStatus, string> = {
   draft: "Draft",
   "ready-for-review": "Ready for review",

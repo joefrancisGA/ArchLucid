@@ -24,14 +24,20 @@
 
 ---
 
-## Pre-finalize nav guard (UI)
+## Pre-finalize nav behaviour (UI)
 
-Before the tenant's first finalized review (`hasCommittedArchitectureReview=false`), the architect workspace narrows sidebar links via `nav-committed-architecture-review-gate.ts`:
+**Retired as a guard (owner 2026-08-03).** Commit state no longer hides sidebar links: role/authority
+(`filterNavLinksByAuthority`) is the only visibility gate, so Operate analysis and governance clusters are visible
+before the first finalized review. Do not troubleshoot a "missing" nav row by checking
+`hasCommittedArchitectureReview` — check the caller's authority rank instead.
 
-- **Allowed:** Home, Start review, Architecture packages, Evidence graph, Portfolio overview, Onboarding, Help, ROI baselines (`/settings/baseline`).
-- **Hidden:** Operate analysis/governance clusters until first finalize **or** explicit **Show all features** (`data-testid=nav-advanced-unlock`).
+Commit state still shapes presentation only, in `nav-committed-architecture-review-promotion.ts`: once
+`hasCommittedArchitectureReview=true`, **First review guide** moves to the end of the Architecture group and is
+re-tagged `extended` tier (telemetry and packaging metadata), while Compare, Evidence graph, and pilot outcomes are
+re-tagged `essential`.
 
-Deep links to hidden routes remain valid; API authorization unchanged.
+`pathnameEligibleBeforeFirstCommittedArchitectureReview` in `nav-committed-architecture-review-gate.ts` still records
+the former allow-list for deep-link documentation, but no shell code calls it.
 
 ---
 

@@ -103,10 +103,10 @@ describe("DigestsBrowseContent", () => {
     expect(within(empty).getByTestId("digests-browse-setup-checklist")).toBeInTheDocument();
     expect(screen.queryByTestId("digests-empty-state")).not.toBeInTheDocument();
 
-    // Includes preview is demoted behind a disclosure rather than stacked inline.
+    // Includes preview is expanded on setup so operators see scope before history exists.
     expect(within(empty).getByTestId("digests-browse-includes-disclosure")).toBeInTheDocument();
     expect(screen.getByText(DIGESTS_BROWSE_INCLUDES_SECTION_TITLE)).toBeInTheDocument();
-    expect(screen.getByTestId("digests-browse-includes-disclosure")).not.toHaveAttribute("open");
+    expect(screen.getByTestId("digests-browse-includes-disclosure")).toHaveAttribute("open");
   });
 
   it("keeps the checklist history step status-only instead of self-linking to Browse", async () => {

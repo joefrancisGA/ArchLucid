@@ -1,6 +1,7 @@
 import type { CitationReference } from "@/types/explanation";
 
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { provenanceNodeTypeBuyerLabel } from "@/lib/provenance-node-type-labels";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 
 /**
@@ -27,19 +28,5 @@ export function citationKindBuyerLabel(kind: CitationReference["kind"]): string 
 
 /** Maps provenance graph node `type` strings to buyer-facing labels (demo explain, trail panels). */
 export function provenanceGraphNodeTypeBuyerLabel(nodeType: string): string {
-  switch (nodeType) {
-    case "Manifest":
-    case "GoldenManifest":
-      return SIGNED_MANIFEST_LABEL;
-    case "Review":
-      return "Review";
-    case "Finding":
-      return "Finding";
-    case "GraphSnapshot":
-      return BUYER_SURFACE_VOCABULARY.evidenceGraph;
-    case "ContextSnapshot":
-      return "Reviewed source context";
-    default:
-      return nodeType;
-  }
+  return provenanceNodeTypeBuyerLabel(nodeType);
 }

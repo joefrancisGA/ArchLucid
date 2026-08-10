@@ -50,7 +50,7 @@ describe("digest-setup-gap-actions", () => {
 
     expect(mapped[0]?.actionLabel).toBe("Create subscription");
     expect(mapped[0]?.href).toBe("/architecture/digests?tab=subscriptions");
-    expect(mapped[1]?.actionLabel).toBe("Configure schedule");
+    expect(mapped[1]?.actionLabel).toBe("Open executive schedule");
     expect(mapped[1]?.href).toBe("/architecture/digests?tab=schedule");
   });
 
@@ -77,10 +77,10 @@ describe("digest-setup-gap-actions", () => {
     ).toBe("needs-attention");
   });
 
-  it("suggests configure schedule as the first next best action", () => {
+  it("suggests open advisory schedules as the first next best action", () => {
     const action = resolveDigestNextBestAction(baseSnap());
 
-    expect(action?.actionLabel).toBe("Configure schedule");
+    expect(action?.actionLabel).toBe("Open advisory schedules");
     expect(action?.href).toBe("/governance/advisory-scans?tab=schedules");
   });
 

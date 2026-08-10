@@ -81,9 +81,11 @@ describe("DemoExplainPage (proof page snapshot)", () => {
     const { container } = render(page);
 
     await waitFor(() => {
-      expect(screen.getByTestId("demo-explain-status-banner")).toHaveTextContent(
-        "demo tenant — replace before publishing",
-      );
+      const summary = screen.getByTestId("demo-explain-status-banner-summary");
+
+      expect(summary).toHaveTextContent("demo tenant — replace before publishing");
+      expect(summary.textContent).not.toContain(fixedPayload.runId);
+      expect(summary.textContent).not.toContain("2026-04-20T12:00:00.000Z");
       expect(screen.getByTestId("demo-explain-provenance-graph-nodes")).toHaveTextContent(
         "Review baseline",
       );

@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTroubleshootingAdvancedDiagnostics } from "@/app/(operator)/help/_sections/HelpTroubleshootingAdvancedDiagnostics";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -109,10 +110,7 @@ export function HelpTroubleshootingGuideView(props: HelpTroubleshootingGuideView
     <article className={OPERATOR_LAYOUT.majorSectionGap} data-testid="help-troubleshooting-guide">
       <HelpTopicHashScroll />
       <header className={HELP_PAGE_LAYOUT.articleHeader}>
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{entry.title}</h1>
-          <PageContextualHelpButton />
-        </div>
+        <HelpTopicTitleRow title={entry.title} actions={<PageContextualHelpButton />} />
         <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{TROUBLESHOOTING_HELP_SUBTITLE}</p>
       </header>
 <div className={HELP_PAGE_LAYOUT.contentGrid}>

@@ -17,7 +17,7 @@ export type AlertRulesSourceLink = {
 /** Operator Sources — no self-href to the default alert-rules hub path. */
 export const ALERT_RULES_SOURCES: readonly AlertRulesSourceLink[] = [
   { label: "Alert inbox", href: "/governance/alerts" },
-  { label: "Notifications tab", href: governanceAlertRulesTabHref("routing") },
+  { label: "Notifications tab", href: governanceAlertRulesTabHref("notifications") },
   { label: "Integrations (webhooks)", href: "/integrations/webhooks" },
   { label: "How alerts work", href: inAppHelpHref("alerts") },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },

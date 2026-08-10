@@ -9,7 +9,7 @@ import {
 } from "@/components/help/help-drawer-row-class";
 import type { HelpSearchPanelTopic } from "@/lib/help-search-panel-catalog";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { resolveHelpTopicBrowseLabel } from "@/lib/help-center-browse-labels";
+import { resolveHelpDrawerBrowseLabel, resolveHelpTopicBrowseLabel } from "@/lib/help-center-browse-labels";
 
 export type HelpDrawerTopicRowProps = {
   readonly topic: HelpSearchPanelTopic;
@@ -25,11 +25,13 @@ export function HelpDrawerTopicRow({
   onActivate,
   onHighlight,
 }: HelpDrawerTopicRowProps): React.JSX.Element {
-  const browseLabel =
-    topic.action.kind === "route" ? resolveHelpTopicBrowseLabel(topic.action.helpSlug) : null;
+  const helpSlug = topic.action.kind === "route" ? topic.action.helpSlug : null;
+  const browseLabel = resolveHelpDrawerBrowseLabel(helpSlug);
+  // Screen readers still hear Guide vs Documentation even when the eyebrow is not drawn.
+  const spokenBrowseLabel = resolveHelpTopicBrowseLabel(helpSlug);
   const accessibleLabel =
-    browseLabel !== null
-      ? `${browseLabel}. ${topic.title}. ${topic.description}`
+    spokenBrowseLabel !== null
+      ? `${spokenBrowseLabel}. ${topic.title}. ${topic.description}`
       : `${topic.title}. ${topic.description}`;
 
   return (

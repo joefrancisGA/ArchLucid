@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
 
+import { ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE } from "@/lib/enterprise-onboarding-help-copy";
 import {
+  getHelpCenterDisplay,
   getHelpCenterTier,
   HELP_CENTER_FEATURED_SLUGS,
-  listHelpCenterDocumentationTopics,
   listHelpCenterGuideTopics,
   listHelpCenterTopics,
 } from "@/lib/help-center-catalog";
@@ -41,21 +42,23 @@ describe("help-center-catalog", () => {
     expect(adminAdvanced).toContain("enterprise-onboarding");
   });
 
-  it("lists technical-documentation on the Documentation tab instead of Guides", () => {
-    const architectDocs = listHelpCenterDocumentationTopics({ isAdmin: false }).map((entry) => entry.slug);
+  it("folds technical-documentation into Guides behind the same admin gate", () => {
+    const architectGuides = listHelpCenterGuideTopics({ showAdvanced: true, isAdmin: false }).map(
+      (entry) => entry.slug,
+    );
 
-    // TB-1329: full configuration catalog is internal-runbook (Admin-gated), not Documentation-tab.
-    expect(architectDocs).not.toContain("configuration-reference");
-    expect(architectDocs).not.toContain("getting-started");
-    expect(architectDocs).not.toContain("cli-usage");
+    expect(architectGuides).not.toContain("admin-diagnostics");
 
-    const adminDocs = listHelpCenterDocumentationTopics({ isAdmin: true }).map((entry) => entry.slug);
+    const adminGuides = listHelpCenterGuideTopics({ showAdvanced: true, isAdmin: true }).map(
+      (entry) => entry.slug,
+    );
 
-    // TB-1250 / TB-1329: eng CLI/API/config catalogs are internal-runbook, not Documentation-tab technical docs.
-    expect(adminDocs).not.toContain("cli-usage");
-    expect(adminDocs).not.toContain("governance-api-contracts");
-    expect(adminDocs).not.toContain("configuration-reference");
-    expect(adminDocs).toContain("admin-diagnostics");
+    expect(adminGuides).toContain("admin-diagnostics");
+
+    // TB-1250 / TB-1329: eng CLI/API/config catalogs are internal-runbook and stay out of the help catalog.
+    expect(adminGuides).not.toContain("cli-usage");
+    expect(adminGuides).not.toContain("governance-api-contracts");
+    expect(adminGuides).not.toContain("configuration-reference");
   });
 
   it("resolves browse labels for guides and documentation slugs (TB-734)", () => {
@@ -91,11 +94,9 @@ describe("help-center-catalog", () => {
     const nonAdminGuides = listHelpCenterGuideTopics({ showAdvanced: true, isAdmin: false }).map(
       (entry) => entry.slug,
     );
-    const nonAdminDocs = listHelpCenterDocumentationTopics({ isAdmin: false }).map((entry) => entry.slug);
 
     expect(nonAdminTopics).not.toContain("developer-troubleshooting");
     expect(nonAdminGuides).not.toContain("developer-troubleshooting");
-    expect(nonAdminDocs).not.toContain("developer-troubleshooting");
   });
 });
 
@@ -118,11 +119,21 @@ describe("help topic slug aliases", () => {
     expect(getProductDocumentationEntry("api-contracts")).toBeNull();
     expect(getProductDocumentationEntry("evaluator-workbook")).toBeNull();
     expect(getProductDocumentationEntry("first-hour-operator-path")).toBeNull();
-    expect(getProductDocumentationEntry("first-pilot-path")).toBeNull();
+    expect(getProductDocumentationEntry("first-pilot-path")?.slug).toBe("first-architecture-review");
   });
 });
 
 describe("help center tiers", () => {
+  it("classifies enterprise onboarding as admin tier with operator audience title honesty (TB-1341)", () => {
+    const entry = getProductDocumentationEntry("enterprise-onboarding");
+
+    expect(entry).not.toBeNull();
+    expect(entry?.audience).toBe("operator");
+    expect(getHelpCenterTier(entry!)).toBe("admin");
+    expect(getHelpCenterDisplay(entry!).title).toBe(ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE);
+    expect(entry?.title).toBe(ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE);
+  });
+
   it("classifies engineering runbooks as internal", () => {
     const cli = getProductDocumentationEntry("cli-usage");
 

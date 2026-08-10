@@ -1,69 +1,73 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import Link from "next/link";
 
+import { OperatorPageBreadcrumb } from "@/components/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
+import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { Button } from "@/components/ui/button";
+import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
-  operatorLastRefreshedExactLabel,
-  operatorLastRefreshedLabel,
-} from "@/lib/operator-last-refreshed-label";
-import {
-  AUDIT_TRAIL_HELP_ACTION_REFRESH,
-  AUDIT_TRAIL_HELP_ACTION_REFRESHING,
-  AUDIT_TRAIL_HELP_LAST_REFRESHED_PREFIX,
+  AUDIT_TRAIL_HELP_CANONICAL_PATH,
+  AUDIT_TRAIL_HELP_DOCUMENT_STATUS_LABEL,
   AUDIT_TRAIL_HELP_PAGE_TITLE,
+  AUDIT_TRAIL_HELP_PRIMARY_ACTIONS,
+  AUDIT_TRAIL_HELP_SOURCE_OF_RECORD_LABEL,
 } from "@/lib/audit-trail-help-guide-content";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { cn } from "@/lib/utils";
 
 export type HelpAuditTrailPageHeaderProps = {
   readonly entry: ProductDocumentationEntry;
   readonly subtitle: string;
-  readonly refreshing: boolean;
-  readonly lastRefreshedAt: Date | null;
-  readonly onRefresh: () => void;
 };
 
-/** Shared `/help/audit-trail` hero — title, lead, contextual help, refresh, export, and last-refreshed metadata. */
+/** Shared `/help/audit-trail` hero — help breadcrumb, provenance, live audit trail CTA, and export actions. */
 export function HelpAuditTrailPageHeader(props: HelpAuditTrailPageHeaderProps): React.JSX.Element {
-  const lastRefreshedLabel = operatorLastRefreshedLabel(props.lastRefreshedAt);
-
   return (
     <OperatorPageHeader
       title={AUDIT_TRAIL_HELP_PAGE_TITLE}
       titleTestId="help-audit-trail-page-title"
       subtitle={props.subtitle}
+      breadcrumb={
+        <OperatorPageBreadcrumb
+          data-testid="help-audit-trail-breadcrumb"
+          items={[
+            { label: "Help", href: "/help" },
+            { label: AUDIT_TRAIL_HELP_PAGE_TITLE },
+          ]}
+        />
+      }
+      metadata={
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1" data-testid="help-audit-trail-provenance">
+          <StatusTag
+            kind="ready"
+            label={AUDIT_TRAIL_HELP_DOCUMENT_STATUS_LABEL}
+            data-testid="help-audit-trail-document-status"
+          />
+          <HelpTopicRegistryProvenanceLine entry={props.entry} />
+          <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.label)} data-testid="help-audit-trail-source-of-record">
+            Source of record: {AUDIT_TRAIL_HELP_SOURCE_OF_RECORD_LABEL}
+          </span>
+        </div>
+      }
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="help-audit-trail-header-actions">
-          <PageContextualHelpButton />
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            data-testid="help-audit-trail-refresh-button"
-            disabled={props.refreshing}
-            onClick={() => void props.onRefresh()}
-          >
-            {props.refreshing ? AUDIT_TRAIL_HELP_ACTION_REFRESHING : AUDIT_TRAIL_HELP_ACTION_REFRESH}
+          <Button asChild size="sm" variant="primary" data-testid="help-audit-trail-header-open-audit-trail">
+            <Link href={AUDIT_TRAIL_HELP_PRIMARY_ACTIONS.openAuditTrail.href}>
+              {AUDIT_TRAIL_HELP_PRIMARY_ACTIONS.openAuditTrail.label}
+            </Link>
           </Button>
+          <PageContextualHelpButton />
           <HelpTopicPdfDownloadButton entry={props.entry} />
           <HelpTopicPrintButton entry={props.entry} />
         </div>
       }
-      metadata={
-        <span
-          className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="help-audit-trail-last-refreshed"
-          title={operatorLastRefreshedExactLabel(props.lastRefreshedAt)}
-        >
-          {AUDIT_TRAIL_HELP_LAST_REFRESHED_PREFIX}:{" "}
-          {props.refreshing ? AUDIT_TRAIL_HELP_ACTION_REFRESHING : lastRefreshedLabel}
-        </span>
-      }
+      navHref={AUDIT_TRAIL_HELP_CANONICAL_PATH}
     />
   );
 }

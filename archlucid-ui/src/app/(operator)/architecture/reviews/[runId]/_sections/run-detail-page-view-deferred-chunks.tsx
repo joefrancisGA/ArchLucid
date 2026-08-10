@@ -235,11 +235,10 @@ export const RunDetailArtifactsExportsSectionDeferred = dynamic(
 );
 
 const workspaceShellLoading = (
-  <div
-    className="min-h-[min(60vh,640px)] animate-pulse rounded-lg border border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900/40"
-    role="status"
-    aria-label="Loading review workspace"
-  />
+  <div className="space-y-3" role="status" aria-label="Loading review workspace">
+    <div className="h-10 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800" />
+    <div className="h-48 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800" />
+  </div>
 );
 
 /** TB-2021 remainder — tabbed workspace shell off sync First Load JS. */
@@ -313,7 +312,10 @@ export const RunDetailWorkspaceHeaderDeferred = dynamic(
 );
 
 export const RunDetailWorkspaceSummaryStripDeferred = dynamic(
-  () => import("./RunDetailWorkspaceChrome").then((module) => module.RunDetailWorkspaceSummaryStrip),
+  () =>
+    import("./RunDetailWorkspaceSummaryStripTabAware").then(
+      (module) => module.RunDetailWorkspaceSummaryStripTabAware,
+    ),
   { ssr: false, loading: () => workspaceSummaryLoading },
 );
 
@@ -332,6 +334,38 @@ export const RunDetailSectionNavDeferred = dynamic(
   { ssr: false, loading: () => sectionNavLoading },
 );
 
+export const RunDetailTabbedSectionNavDeferred = dynamic(
+  () => import("@/components/RunDetailTabbedSectionNav").then((module) => module.RunDetailTabbedSectionNav),
+  { ssr: false, loading: () => sectionNavLoading },
+);
+
+export const BeforeAfterDeltaPanelDeferred = dynamic(
+  () => import("@/components/BeforeAfterDeltaPanel").then((module) => module.BeforeAfterDeltaPanel),
+  { loading: () => null },
+);
+
+export const RecurrenceSchedulePostCommitCardDeferred = dynamic(
+  () =>
+    import("@/components/governance/RecurrenceSchedulePostCommitCard").then(
+      (module) => module.RecurrenceSchedulePostCommitCard,
+    ),
+  { loading: () => null },
+);
+
+export const RunDetailRetrievalGroundingSectionDeferred = dynamic(
+  () =>
+    import("./RunDetailRetrievalGroundingSection").then(
+      (module) => module.RunDetailRetrievalGroundingSection,
+    ),
+  { loading: () => null },
+);
+
+export const RunDetailAdvancedAnalysisSectionDeferred = dynamic(
+  () =>
+    import("./RunDetailAdvancedAnalysisSection").then((module) => module.RunDetailAdvancedAnalysisSection),
+  { loading: () => null },
+);
+
 export const RunDetailExecutiveBottomLineDeferred = dynamic(
   () => import("./RunDetailExecutiveBottomLine").then((module) => module.RunDetailExecutiveBottomLine),
   { ssr: false, loading: () => executiveBottomLineLoading },
@@ -343,7 +377,14 @@ export const RunDetailExecutiveSummaryCtaCardDeferred = dynamic(
 );
 
 export const ReviewPackagePrimaryActionDeferred = dynamic(
-  () => import("./ReviewPackagePrimaryAction").then((module) => module.ReviewPackagePrimaryAction),
+  () =>
+    import("./ReviewPackagePrimaryActionTabAware").then((module) => module.ReviewPackagePrimaryActionTabAware),
+  { ssr: false, loading: () => null },
+);
+
+export const ReviewPackageSponsorHandoffStripDeferred = dynamic(
+  () =>
+    import("./ReviewPackageSponsorHandoffStrip").then((module) => module.ReviewPackageSponsorHandoffStrip),
   { ssr: false, loading: () => null },
 );
 
@@ -391,5 +432,57 @@ export const RunDetailBuyerPilotConversionSectionDeferred = dynamic(
 
 export const RunDetailBuyerModeFallbackBannerDeferred = dynamic(
   () => import("./RunDetailBuyerModeFallbackBanner").then((module) => module.RunDetailBuyerModeFallbackBanner),
+  { ssr: false, loading: () => null },
+);
+
+const evidenceTabLoading = (
+  <div
+    className="h-48 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
+    role="status"
+    aria-label="Loading evidence tab"
+  />
+);
+
+/** TB-2142 — evidence tab scope/inventory cluster off sync First Load JS. */
+export const RunDetailEvidenceTabPanelDeferred = dynamic(
+  () => import("./RunDetailEvidenceTabPanel").then((module) => module.RunDetailEvidenceTabPanel),
+  { ssr: false, loading: () => evidenceTabLoading },
+);
+
+/** TB-2142 — post-finalize share/export row off sync First Load JS. */
+export const RunDetailReviewPackageShareRowDeferred = dynamic(
+  () => import("./RunDetailReviewPackageShareRow").then((module) => module.RunDetailReviewPackageShareRow),
+  { ssr: false, loading: () => null },
+);
+
+/** TB-2142 — demo marketing chrome off sync First Load JS. */
+export const RunDetailDemoMarketingChromeDeferred = dynamic(
+  () => import("./RunDetailDemoMarketingChrome").then((module) => module.RunDetailDemoMarketingChrome),
+  { ssr: false, loading: () => null },
+);
+
+export const RunDetailManifestSummaryAlertsDeferred = dynamic(
+  () => import("./RunDetailManifestSummaryAlerts").then((module) => module.RunDetailManifestSummaryAlerts),
+  { ssr: false, loading: () => null },
+);
+
+export const RunDetailRunActionsSectionDeferred = dynamic(
+  () => import("./RunDetailRunActionsSection").then((module) => module.RunDetailRunActionsSection),
+  { ssr: false, loading: () => null },
+);
+
+export const HelpPageSituationRegistrarDeferred = dynamic(
+  () =>
+    import("@/components/help/HelpPageSituationRegistrar").then(
+      (module) => module.HelpPageSituationRegistrar,
+    ),
+  { ssr: false, loading: () => null },
+);
+
+export const ReviewGenerationCreatedNoticeDeferred = dynamic(
+  () =>
+    import("@/components/review-intake/ReviewGenerationCreatedNotice").then(
+      (module) => module.ReviewGenerationCreatedNotice,
+    ),
   { ssr: false, loading: () => null },
 );

@@ -1,5 +1,5 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
 import { AuthErrorPanel } from "@/app/(operator)/auth/signin/AuthErrorPanel";
 
@@ -18,5 +18,16 @@ describe("AuthErrorPanel", () => {
     render(<AuthErrorPanel title="Sign-in could not finish" message="Token exchange failed." />);
 
     expect(screen.getByRole("heading", { name: "Sign-in could not finish" })).toBeInTheDocument();
+  });
+
+  it("retries in place when onTryAgain is provided", () => {
+    const onTryAgain = vi.fn();
+
+    render(<AuthErrorPanel title="Sign-in could not start" message="Temporary failure." onTryAgain={onTryAgain} />);
+
+    fireEvent.click(screen.getByTestId("auth-error-try-again"));
+
+    expect(onTryAgain).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId("auth-error-try-again").tagName).toBe("BUTTON");
   });
 });

@@ -16,6 +16,7 @@ using ArchLucid.Core.Agents;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Explanation;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
@@ -234,7 +235,7 @@ public sealed class PilotRunDeltaComputerTests
     }
 
     [SkippableFact]
-    public async Task ComputeAsync_WhenManifestMissing_TimeToCommitIsNull()
+    public async Task ComputeAsync_WhenManifestMissing_UsesCompletedUtcForTimeToCommit()
     {
         Guid runGuid = Guid.Parse("eeeeeeee-1111-2222-3333-444444444444");
         ArchitectureRunDetail detail = BuildDetail(runGuid, isDemoSeed: false);
@@ -244,8 +245,8 @@ public sealed class PilotRunDeltaComputerTests
 
         PilotRunDeltas result = await sut.ComputeAsync(detail);
 
-        result.TimeToCommittedManifest.Should().BeNull();
-        result.ManifestCommittedUtc.Should().BeNull();
+        result.TimeToCommittedManifest.Should().Be(detail.Run.CompletedUtc - detail.Run.CreatedUtc);
+        result.ManifestCommittedUtc.Should().Be(detail.Run.CompletedUtc);
     }
 
     [SkippableFact]
@@ -469,7 +470,8 @@ public sealed class PilotRunDeltaComputerTests
         IScopeContextProvider scope,
         AgentOutputQualityGateOptions? gateOpts = null,
         IRunAgentOutputPilotEvidenceAggregator? pilotAggregator = null,
-        ITenantEstimatedUsdSavingsResolver? savingsResolver = null)
+        ITenantEstimatedUsdSavingsResolver? savingsResolver = null,
+        IFindingsSnapshotRepository? findingsSnapshotRepository = null)
     {
         Mock<ITenantEstimatedUsdSavingsResolver> savings = new();
         savings
@@ -482,6 +484,7 @@ public sealed class PilotRunDeltaComputerTests
             audit,
             artifacts,
             savingsResolver ?? savings.Object,
+            findingsSnapshotRepository ?? Mock.Of<IFindingsSnapshotRepository>(),
             scope,
             Mock.Of<IRunExplanationSummaryService>(),
             pilotAggregator ?? DefaultStrictPilotAgg(),
@@ -640,5 +643,90 @@ public sealed class PilotRunDeltaComputerTests
             Results = [result],
             DecisionTraces = [],
         };
+    }
+
+    [SkippableFact]
+    public async Task ComputeAsync_WhenAgentResultsHaveNoFindings_UsesFindingsSnapshotCountsAndCompletedUtc()
+    {
+        Guid runGuid = Guid.Parse("bbbbbbbb-1111-2222-3333-444444444444");
+        Guid findingsSnapshotId = Guid.Parse("cccccccc-1111-2222-3333-444444444444");
+        DateTime created = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime completed = created.AddMinutes(24);
+
+        ArchitectureRun run = new()
+        {
+            RunId = runGuid.ToString("N"),
+            RequestId = "req-snapshot",
+            Status = ArchitectureRunStatus.Committed,
+            CreatedUtc = created,
+            CompletedUtc = completed,
+            CurrentManifestVersion = "v1",
+            FindingsSnapshotId = findingsSnapshotId,
+        };
+
+        GoldenManifest manifest = new()
+        {
+            RunId = run.RunId,
+            SystemName = "ArchLucid",
+            Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = created },
+            Governance = new ManifestGovernance(),
+        };
+
+        ArchitectureRunDetail detail = new()
+        {
+            Run = run,
+            Manifest = manifest,
+            Results =
+            [
+                new AgentResult
+                {
+                    TaskId = "t-empty",
+                    RunId = run.RunId,
+                    AgentType = AgentType.Topology,
+                    Findings = [],
+                },
+            ],
+            DecisionTraces = [],
+        };
+
+        Mock<IFindingsSnapshotRepository> snapshots = new();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        snapshots.Setup(s => s.GetCoverageProjectionByIdAsync(scope, findingsSnapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingsSnapshot
+            {
+                FindingsSnapshotId = findingsSnapshotId,
+                Findings =
+                [
+                    new Finding
+                    {
+                        FindingId = "f-1",
+                        Severity = FindingSeverity.Error,
+                        EngineType = "topology",
+                        Category = "cost",
+                    },
+                ],
+            });
+
+        PilotRunDeltaComputer sut = CreatePilotDeltaComputer(
+            Mock.Of<IFindingEvidenceChainService>(),
+            Mock.Of<IAgentExecutionTraceRepository>(),
+            Mock.Of<IAuditRepository>(),
+            LooseArtifacts().Object,
+            scopeProvider.Object,
+            savingsResolver: null,
+            findingsSnapshotRepository: snapshots.Object);
+
+        PilotRunDeltas deltas = await sut.ComputeAsync(detail);
+
+        deltas.FindingsBySeverity.Sum(static p => p.Value).Should().Be(1);
+        deltas.TimeToCommittedManifest.Should().Be(completed - created);
     }
 }

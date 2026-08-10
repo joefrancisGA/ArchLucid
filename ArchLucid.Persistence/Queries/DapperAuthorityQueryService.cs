@@ -76,6 +76,27 @@ public sealed class DapperAuthorityQueryService(
     }
 
     /// <inheritdoc />
+    public async Task<(IReadOnlyList<RunSummaryDto> Items, bool HasMore)> ListRunsInScopeKeysetAsync(
+        ScopeContext scope,
+        DateTime? cursorCreatedUtc,
+        Guid? cursorRunId,
+        int take,
+        CancellationToken ct)
+    {
+        RunListPage page = await runRepository.ListRecentInScopeKeysetAsync(
+            scope,
+            cursorCreatedUtc,
+            cursorRunId,
+            take,
+            ct);
+
+        List<RunSummaryDto> summaries = page.Items.Select(AuthorityRunMapper.MapSummary).ToList();
+        await RunExecutionDegradation.PopulateSummariesAsync(scope, summaries, page.Items, _agentExecutionTraceRepository, ct);
+
+        return (summaries, page.HasMore);
+    }
+
+    /// <inheritdoc />
     public async Task<RunSummaryDto?> GetRunSummaryAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
         RunRecord? run = await runRepository.GetByIdAsync(scope, runId, ct);

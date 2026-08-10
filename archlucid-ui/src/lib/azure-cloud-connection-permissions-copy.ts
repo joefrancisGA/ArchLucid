@@ -11,7 +11,7 @@ export const AZURE_PERMISSIONS_READ_ONLY_INTRO =
   "ArchLucid uses Azure permissions to collect architecture evidence. It does not require Owner, Contributor, User Access Administrator, or other write-enabled roles.";
 
 export const AZURE_PERMISSIONS_COST_OPTIONAL_NOTE =
-  "Cost access is optional and is required only when cost analysis is enabled for the connection or when you run the Tier 1 extractor with cost collection.";
+  "Cost access is optional and is required only when cost analysis is enabled for the connection or when you run the manual extractor script with cost collection.";
 
 export const AZURE_PERMISSIONS_TRUST_NO_MODIFY = "No resource modification";
 

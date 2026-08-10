@@ -21,6 +21,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 
 import { HelpGettingStartedGuideView } from "@/app/(operator)/help/_sections/HelpGettingStartedGuideView";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+import { GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA } from "@/lib/golden-sponsor-package-walkthrough";
 import {
   GETTING_STARTED_HELP_PATH,
   GETTING_STARTED_HELP_QUICK_START_TITLE,
@@ -75,7 +76,7 @@ expect(GETTING_STARTED_HELP_SOURCES.some((link) => link.href === GETTING_STARTED
       "href",
       "/architecture/reviews/new",
     );
-    expect(within(quickStart).getByRole("link", { name: "Open completed sample" })).toBeInTheDocument();
+    expect(within(quickStart).getByRole("link", { name: GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA })).toBeInTheDocument();
     expect(within(quickStart).getByRole("link", { name: "View first review guide" })).toHaveAttribute(
       "href",
       "/help/first-architecture-review",

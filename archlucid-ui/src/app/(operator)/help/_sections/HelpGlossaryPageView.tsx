@@ -1,5 +1,6 @@
-import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpGlossaryPageClient } from "@/app/(operator)/help/_sections/HelpGlossaryPageClient";
+import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
+import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import {
   CUSTOMER_GLOSSARY_PAGE_INTRO,
   CUSTOMER_GLOSSARY_PAGE_SECONDARY,
@@ -25,7 +26,7 @@ export function HelpGlossaryPageView(props: HelpGlossaryPageViewProps): React.Re
     >
       <HelpTopicHashScroll />
       <header className={cn(HELP_PAGE_LAYOUT.articleHeader, "space-y-3 pb-4")}>
-        <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{CUSTOMER_GLOSSARY_PAGE_TITLE}</h1>
+        <HelpTopicTitleRow title={CUSTOMER_GLOSSARY_PAGE_TITLE} />
         <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           {CUSTOMER_GLOSSARY_PAGE_INTRO}
         </p>

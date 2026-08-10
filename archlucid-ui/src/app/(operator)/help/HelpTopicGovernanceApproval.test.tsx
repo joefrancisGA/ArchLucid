@@ -1,16 +1,25 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("@/components/help/MermaidDiagram", () => ({
+  MermaidDiagram: ({ source }: { readonly source: string }) => (
+    <div data-testid="mermaid-diagram">{source}</div>
+  ),
+}));
+
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
 import { HelpGovernanceApprovalGuideView } from "@/app/(operator)/help/_sections/HelpGovernanceApprovalGuideView";
 import {
+  GOVERNANCE_APPROVAL_HELP_DIAGRAM_SOURCE,
+  GOVERNANCE_APPROVAL_HELP_DIAGRAM_SUMMARY,
   GOVERNANCE_APPROVAL_HELP_OVERVIEW,
   GOVERNANCE_APPROVAL_HELP_PAGE_SUBTITLE,
   GOVERNANCE_APPROVAL_HELP_PAGE_TITLE,
   GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS,
+  GOVERNANCE_APPROVAL_HELP_STATUS_ROWS,
   GOVERNANCE_APPROVAL_HELP_WORKFLOW_STEPS,
 } from "@/lib/governance-approval-help-guide-content";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -91,6 +100,18 @@ describe("HelpGovernanceApprovalGuideView", () => {
 
     expect(screen.getByRole("heading", { name: "Overview" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Governance workflow" })).toBeInTheDocument();
+    expect(screen.getByText(GOVERNANCE_APPROVAL_HELP_DIAGRAM_SUMMARY)).toBeInTheDocument();
+
+    const diagramHost = screen.getByTestId("help-governance-approval-state-diagram");
+    const mermaid = within(diagramHost).getByTestId("mermaid-diagram");
+    expect(mermaid).toHaveTextContent('state "Under review" as UnderReview');
+    expect(mermaid).toHaveTextContent("Draft --> Submitted");
+    expect(mermaid).toHaveTextContent("Approved --> Superseded");
+    for (const status of ["Draft", "Submitted", "Under review", "Approved", "Rejected", "Superseded"]) {
+      expect(GOVERNANCE_APPROVAL_HELP_DIAGRAM_SOURCE).toContain(status);
+      expect(GOVERNANCE_APPROVAL_HELP_STATUS_ROWS.some((row) => row.status === status)).toBe(true);
+    }
+
     expect(screen.getByRole("heading", { name: "Role guides" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Statuses" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Common actions" })).toBeInTheDocument();

@@ -1,7 +1,14 @@
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { BRAND_CATEGORY, BRAND_CATEGORY_LEGACY, BRAND_PROOF_SCOPE_STATEMENT } from "@/lib/brand-category";
+import {
+  WHY_CLOSING_PRIMARY_CTA_HREF,
+  WHY_CLOSING_PRIMARY_CTA_LABEL,
+  WHY_CLOSING_SECONDARY_CTA_HREF,
+  WHY_CLOSING_SECONDARY_CTA_LABEL,
+  WHY_MARKETING_PDF_DOWNLOAD_LABEL,
+} from "@/lib/why-page-copy";
 import { WHY_MARKET_LANDSCAPE_MARKETING_ROWS } from "@/lib/why-market-landscape-comparison";
 import { WHY_COMPARISON_ROWS } from "@/lib/why-comparison";
 
@@ -42,6 +49,21 @@ describe("WhyArchlucidMarketingView", () => {
 
     const link = getByTestId("why-proof-pack-download");
     expect(link.getAttribute("href")).toBe("/api/proxy/v1/marketing/why-archlucid-pack.pdf");
+    expect(link.textContent).toBe(WHY_MARKETING_PDF_DOWNLOAD_LABEL);
+    expect(link.textContent?.toLowerCase()).not.toContain("audit evidence bundle");
+  });
+
+  it("TB-1305: renders closing conversion CTAs after the comparison table", () => {
+    render(<WhyArchlucidMarketingView frontDoorRows={WHY_COMPARISON_ROWS} showDemoEmbed={false} />);
+
+    expect(screen.getByTestId("why-closing-cta")).toBeInTheDocument();
+    expect(screen.getByTestId("why-closing-primary-cta")).toHaveAttribute("href", WHY_CLOSING_PRIMARY_CTA_HREF);
+    expect(screen.getByTestId("why-closing-primary-cta")).toHaveTextContent(WHY_CLOSING_PRIMARY_CTA_LABEL);
+    expect(screen.getByTestId("why-closing-secondary-cta")).toHaveAttribute("href", WHY_CLOSING_SECONDARY_CTA_HREF);
+    expect(screen.getByTestId("why-closing-secondary-cta")).toHaveTextContent(WHY_CLOSING_SECONDARY_CTA_LABEL);
+
+    const pageText = document.body.textContent ?? "";
+    expect(pageText.toLowerCase()).not.toMatch(/download the audit evidence bundle/);
   });
 
   it("renders the brand-category paragraph using BRAND_CATEGORY (not the legacy string)", () => {

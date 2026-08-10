@@ -41,15 +41,14 @@ describe("enterprise Tabs primitive drift guard (TB-665)", () => {
   });
 
   it("migrates TB-670 call sites onto shared Tabs imports", () => {
-    const helpTabsShell = readRepoFile("archlucid-ui/src/app/(operator)/help/HelpTabsShell.tsx");
+    const advisoryHub = readRepoFile("archlucid-ui/src/components/advisory/AdvisoryHubClient.tsx");
     const settingsRoles = readRepoFile(
       "archlucid-ui/src/app/(operator)/administration/users/_sections/SettingsRolesPageView.tsx",
     );
-    const deliverables = readRepoFile("archlucid-ui/src/components/BuyerDeliverablesArtifactTabs.tsx");
 
-    expect(helpTabsShell).toContain('@/components/ui/tabs');
+    expect(advisoryHub).toContain('@/components/ui/tabs');
+    expect(advisoryHub).toContain("TabsContent");
     expect(settingsRoles).toContain("settingsUsersTabFromLocation");
     expect(settingsRoles).toContain("onValueChange={onSelectTab}");
-    expect(deliverables).toContain("TabsContent");
   });
 });

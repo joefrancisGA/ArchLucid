@@ -2,10 +2,7 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { OperatorHomeDoThisNextCard } from "@/components/operator-home/OperatorHomeDoThisNextCard";
-import {
-  OPERATOR_HOME_DO_THIS_NEXT_HEADING,
-  OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA,
-} from "@/lib/buyer-polish-copy";
+import { OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA } from "@/lib/buyer-polish-copy";
 import { SHOWCASE_SAMPLE_REVIEW_REGISTRY } from "@/lib/showcase-sample-review-registry";
 
 const shouldInjectDemoSeededOverviewSample = vi.fn();
@@ -82,7 +79,8 @@ describe("OperatorHomeDoThisNextCard", () => {
 
     render(<OperatorHomeDoThisNextCard />);
 
-    expect(screen.getByRole("heading", { name: OPERATOR_HOME_DO_THIS_NEXT_HEADING })).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-do-this-next")).toBeInTheDocument();
+    expect(screen.queryByText("Do this next")).toBeNull();
 
     await waitFor(() => {
       expect(screen.getByTestId("operator-home-do-this-next-primary")).toHaveTextContent(

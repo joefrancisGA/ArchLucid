@@ -1,10 +1,9 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
 
 import { OperatorBillingManageBillingAction } from "@/app/(operator)/administration/billing/OperatorBillingManageBillingAction";
-import { fetchBillingSubscriptionStatus } from "@/lib/billing-subscription-status-client";
+import { useBillingSubscriptionStatusQuery } from "@/hooks/use-billing-subscription-status-query";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type OperatorBillingPaymentPastDueBannerProps = {
@@ -13,23 +12,8 @@ type OperatorBillingPaymentPastDueBannerProps = {
 
 /** Surfaces Stripe dunning state when subscription payment is past due. */
 export function OperatorBillingPaymentPastDueBanner(props: OperatorBillingPaymentPastDueBannerProps) {
-  const [isPastDue, setIsPastDue] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    void (async () => {
-      const status = await fetchBillingSubscriptionStatus();
-
-      if (!cancelled) {
-        setIsPastDue(status?.isPaymentPastDue === true);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const { data: status } = useBillingSubscriptionStatusQuery();
+  const isPastDue = status?.isPaymentPastDue === true;
 
   if (!isPastDue) {
     return null;

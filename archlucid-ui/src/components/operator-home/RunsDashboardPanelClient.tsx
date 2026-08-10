@@ -360,6 +360,7 @@ export function RunsDashboardPanelClient({
   const showInitialLoadingSkeleton = shouldShowRunsDashboardInitialSkeleton(phase, effectiveItems.length);
   const showReviewFilters =
     effectiveItems.length > 0 && (phase === "ready" || phase === "error");
+  // Prefer the same strip gate as before; zero-count facets are filtered from statusTabIds below.
 
   useEffect(() => {
     if (phase === "ready" || phase === "error") {
@@ -383,7 +384,11 @@ export function RunsDashboardPanelClient({
 
   const buyerStatusTabIds: readonly RunsDashboardTabId[] = ["all", "approved", "attention", "outcomes"];
   const operatorStatusTabIds: readonly RunsDashboardTabId[] = ["all", "attention", "outcomes"];
-  const statusTabIds = buyerPolishedShell ? buyerStatusTabIds : operatorStatusTabIds;
+  const rawStatusTabIds = buyerPolishedShell ? buyerStatusTabIds : operatorStatusTabIds;
+  // Buyer Overview: omit zero-count facets (Approved (0) theater). Operator keeps full tab strip.
+  const statusTabIds = buyerPolishedShell
+    ? rawStatusTabIds.filter((id) => id === "all" || statusTabCounts[id] > 0)
+    : rawStatusTabIds;
 
   // Buyer status pills are all filtered review lists; operator keeps Outcomes as metrics.
   const isRecentListTab =

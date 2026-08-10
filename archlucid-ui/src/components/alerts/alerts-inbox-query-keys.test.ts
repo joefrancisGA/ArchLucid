@@ -30,3 +30,13 @@ describe("operatorQueryKeys alerts inbox (TB-935)", () => {
     ]);
   });
 });
+
+describe("operatorQueryKeys billing subscription (TB-2144)", () => {
+  it("uses a stable tenant-scoped billing subscription key", () => {
+    expect(operatorQueryKeys.billingSubscriptionStatus).toEqual([
+      "operator",
+      "tenant",
+      "billing-subscription-status",
+    ]);
+  });
+});

@@ -11,15 +11,24 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
-import { resolveDigestNextBestAction } from "@/lib/digest-setup-gap-actions";
+import {
+  buildDigestSetupChecklistItems,
+  digestSetupHasIncompleteActionableStep,
+  hasGeneratedDigestHistory,
+  resolveDigestNextBestAction,
+} from "@/lib/digest-setup-gap-actions";
 import { digestHashFragment } from "@/lib/digests-browse-deep-link";
 import {
+  DIGESTS_HEALTH_CHECK_PREFIX,
   DIGESTS_PRIVACY_NOTE,
   DIGESTS_SCHEDULE_PREVIEW_LABEL,
+  DIGESTS_SCHEDULE_TAB_LABEL,
   digestsBrowsePageSubtitle,
+  digestsBrowseTabLabel,
   digestsSchedulePageSubtitle,
 } from "@/lib/digests-browse-copy";
 import {
+  DIGESTS_BROWSE_TAB_GET_STARTED_RESPONSIBILITY,
   DIGESTS_BROWSE_TAB_RESPONSIBILITY,
   DIGESTS_SCHEDULE_TAB_RESPONSIBILITY,
   DIGESTS_SUBSCRIPTIONS_TAB_RESPONSIBILITY,
@@ -43,24 +52,16 @@ import { WeeklyDigestHealthBanner } from "./WeeklyDigestHealthBanner";
 
 const TAB_PARAM = "tab";
 
-const TAB_LABEL: Record<DigestsHubTabId, string> = {
-  browse: "Browse",
-  subscriptions: "Subscriptions",
-  schedule: "Schedule",
-};
-
-const TAB_RESPONSIBILITY: Record<DigestsHubTabId, string> = {
-  browse: DIGESTS_BROWSE_TAB_RESPONSIBILITY,
-  subscriptions: DIGESTS_SUBSCRIPTIONS_TAB_RESPONSIBILITY,
-  schedule: DIGESTS_SCHEDULE_TAB_RESPONSIBILITY,
-};
-
 const SUBSCRIPTIONS_TAB_READER_TITLE =
   "List is readable at Read rank; creating or changing subscriptions requires a role that can manage digests.";
 const SCHEDULE_TAB_READER_TITLE =
-  "Schedule is readable; saving or enabling delivery requires a role that can manage digests.";
+  "Executive schedule is readable; saving or enabling delivery requires a role that can manage digests.";
 
 const PREVIEW_LATEST_TITLE = "Opens the most recently generated digest summary.";
+
+function browseTabResponsibility(hasDigestHistory: boolean): string {
+  return hasDigestHistory ? DIGESTS_BROWSE_TAB_RESPONSIBILITY : DIGESTS_BROWSE_TAB_GET_STARTED_RESPONSIBILITY;
+}
 
 /**
  * Single `/digests` surface: browse, subscriptions, and executive digest schedule. Tab state in `?tab=` for deep links.
@@ -85,6 +86,18 @@ export function DigestsHubClient(): ReactElement {
     () => digestsHubTabFromLocation(pathname, rawTab),
     [pathname, rawTab],
   );
+
+  const hasDigestHistory: boolean =
+    healthSnap !== null ? hasGeneratedDigestHistory(healthSnap) : false;
+
+  const browseSetupChecklistIncomplete: boolean =
+    healthSnap !== null
+      ? digestSetupHasIncompleteActionableStep(
+          buildDigestSetupChecklistItems(healthSnap, hasDigestHistory),
+        )
+      : false;
+
+  const browseSetupGuidesChecklist: boolean = activeTab === "browse" && browseSetupChecklistIncomplete;
 
   // Always carry `?tab=` so shared and traffic deep links survive tab selection (TB-1505).
   const onSelectTab = useCallback(
@@ -122,12 +135,12 @@ export function DigestsHubClient(): ReactElement {
   const previewHref: string = `${pathname}?${TAB_PARAM}=browse${digestHashFragment(previewDigestId)}`;
 
   /**
-   * One primary job per page (TB-1539): the next unresolved setup step while the
-   * loop is incomplete, otherwise reading the latest digest. The Browse setup
-   * checklist owns the full step list, so the header never repeats it.
+   * One primary job per page (TB-1539): preview when configured, or the next setup
+   * step only when the Browse checklist is not already guiding setup.
    */
   const nextBestAction = healthSnap !== null ? resolveDigestNextBestAction(healthSnap) : null;
-  const previewIsPrimary: boolean = nextBestAction === null && hasPreviewDigest;
+  const showHeaderSetupAction: boolean = nextBestAction !== null && !browseSetupGuidesChecklist;
+  const previewIsPrimary: boolean = !showHeaderSetupAction && hasPreviewDigest;
 
   const pageSubtitle: string =
     activeTab === "schedule"
@@ -136,11 +149,11 @@ export function DigestsHubClient(): ReactElement {
   const showBrowseHeaderActions: boolean = activeTab === "browse";
 
   const browseHeaderActions =
-    showBrowseHeaderActions ? (
+    showBrowseHeaderActions && (showHeaderSetupAction || hasPreviewDigest) ? (
       <>
-        {nextBestAction !== null ? (
+        {showHeaderSetupAction ? (
           <Button asChild size="sm" variant="primary" data-testid="digests-primary-action">
-            <Link href={nextBestAction.href}>{nextBestAction.actionLabel}</Link>
+            <Link href={nextBestAction!.href}>{nextBestAction!.actionLabel}</Link>
           </Button>
         ) : null}
         {hasPreviewDigest ? (
@@ -157,6 +170,30 @@ export function DigestsHubClient(): ReactElement {
       </>
     ) : null;
 
+  const tabLabel = (id: DigestsHubTabId): string => {
+    if (id === "browse") {
+      return digestsBrowseTabLabel(hasDigestHistory);
+    }
+
+    if (id === "schedule") {
+      return DIGESTS_SCHEDULE_TAB_LABEL;
+    }
+
+    return "Subscriptions";
+  };
+
+  const tabResponsibility = (id: DigestsHubTabId): string => {
+    if (id === "browse") {
+      return browseTabResponsibility(hasDigestHistory);
+    }
+
+    if (id === "schedule") {
+      return DIGESTS_SCHEDULE_TAB_RESPONSIBILITY;
+    }
+
+    return DIGESTS_SUBSCRIPTIONS_TAB_RESPONSIBILITY;
+  };
+
   return (
     <div className="px-0" data-testid="digests-hub">
       <DigestsPageHeader
@@ -167,6 +204,7 @@ export function DigestsHubClient(): ReactElement {
         refreshButtonTitle={
           canMutate ? digestsListRefreshButtonTitleOperator : digestsListRefreshButtonTitleReader
         }
+        lastUpdatedPrefix={browseSetupGuidesChecklist ? DIGESTS_HEALTH_CHECK_PREFIX : undefined}
         actions={browseHeaderActions}
       />
 
@@ -180,7 +218,7 @@ export function DigestsHubClient(): ReactElement {
                 : !canMutate && id === "schedule"
                   ? SCHEDULE_TAB_READER_TITLE
                   : undefined;
-            const tabTitle: string = readerTitle ?? TAB_RESPONSIBILITY[id];
+            const tabTitle: string = readerTitle ?? tabResponsibility(id);
 
             return (
               <TabsTrigger
@@ -189,13 +227,13 @@ export function DigestsHubClient(): ReactElement {
                 data-testid={`digests-hub-tab-${id}`}
                 title={tabTitle}
               >
-                {TAB_LABEL[id]}
+                {tabLabel(id)}
               </TabsTrigger>
             );
           })}
         </TabsList>
 
-{activeTab === "schedule" ? (
+        {activeTab === "schedule" ? (
           <WeeklyDigestHealthBanner
             refreshToken={healthRefreshToken}
             onHealthLoaded={onHealthLoaded}
@@ -207,19 +245,20 @@ export function DigestsHubClient(): ReactElement {
             refreshToken={healthRefreshToken}
             onHealthLoaded={onHealthLoaded}
             variant={healthBannerVariant}
+            suppressCompactFacts={browseSetupGuidesChecklist}
           />
         )}
 
-        {activeTab !== "subscriptions" && activeTab !== "schedule" ? (
+        {activeTab === "browse" && !browseSetupGuidesChecklist ? (
           <p
-              className={cn(
-                "mb-4 m-0 max-w-3xl rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400",
-                OPERATOR_TYPOGRAPHY.helper,
-              )}
-              data-testid="digests-privacy-note"
-            >
-              {DIGESTS_PRIVACY_NOTE}
-            </p>
+            className={cn(
+              "mb-4 m-0 max-w-3xl rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400",
+              OPERATOR_TYPOGRAPHY.helper,
+            )}
+            data-testid="digests-privacy-note"
+          >
+            {DIGESTS_PRIVACY_NOTE}
+          </p>
         ) : null}
 
         <TabsContent value="browse" className="mt-4" data-testid="digests-hub-panel">

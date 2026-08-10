@@ -1,4 +1,5 @@
 import { CANONICAL_ANONYMOUS_PROOF_HREF } from "@/lib/showcase-static-demo";
+import { LIVE_DEMO_PAGE_TITLE } from "@/lib/live-demo-page-copy";
 
 export const SEE_IT_CANONICAL_PATH = "/see-it" as const;
 
@@ -17,7 +18,7 @@ export type SeeItSourceLink = {
 export const SEE_IT_SOURCES: readonly SeeItSourceLink[] = [
   { label: "Start evaluation", href: "/signup" },
   { label: "Get started", href: "/get-started" },
-  { label: "Live demo", href: "/live-demo" },
+  { label: LIVE_DEMO_PAGE_TITLE, href: "/live-demo" },
   { label: "Claims showcase", href: CANONICAL_ANONYMOUS_PROOF_HREF },
   { label: "Security & trust", href: "/security-trust" },
 ] as const;

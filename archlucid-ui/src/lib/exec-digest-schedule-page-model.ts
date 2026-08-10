@@ -330,10 +330,13 @@ export const EXEC_DIGEST_READ_ONLY =
   "You can review the executive digest schedule. Changing recipients, cadence, or delivery requires a role that can manage digests." as const;
 
 export const DIGESTS_SCHEDULE_TAB_RESPONSIBILITY =
-  "Configure when the executive digest is generated and sent to direct recipients." as const;
+  "Executive sponsor rollup email — separate from advisory scan cadence (Advisory schedules)." as const;
 
 export const DIGESTS_BROWSE_TAB_RESPONSIBILITY =
-  "Read generated architecture digests." as const;
+  "Read generated architecture digest history." as const;
+
+export const DIGESTS_BROWSE_TAB_GET_STARTED_RESPONSIBILITY =
+  "Complete setup steps before digest history appears on this tab." as const;
 
 export const DIGESTS_SUBSCRIPTIONS_TAB_RESPONSIBILITY =
   "Manage who receives architecture digest delivery." as const;

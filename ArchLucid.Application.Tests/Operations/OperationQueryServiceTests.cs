@@ -186,6 +186,61 @@ public sealed class OperationQueryServiceTests
         detail.ResultRef!.RunId.Should().Be(runId);
     }
 
+    [Fact]
+    public async Task GetAsync_run_waiting_for_results_projects_staged_critic_phase_label()
+    {
+        Guid runId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        RunRecord run = new()
+        {
+            RunId = runId,
+            LegacyRunStatus = nameof(ArchitectureRunStatus.WaitingForResults),
+            CreatedUtc = DateTime.UtcNow.AddMinutes(-3)
+        };
+        List<AgentTask> tasks =
+        [
+            new()
+            {
+                RunId = runId.ToString("D"),
+                AgentType = AgentType.Topology,
+                Status = AgentTaskStatus.Completed,
+                CreatedUtc = DateTime.UtcNow.AddMinutes(-3),
+                CompletedUtc = DateTime.UtcNow.AddMinutes(-2)
+            },
+            new()
+            {
+                RunId = runId.ToString("D"),
+                AgentType = AgentType.Compliance,
+                Status = AgentTaskStatus.Completed,
+                CreatedUtc = DateTime.UtcNow.AddMinutes(-3),
+                CompletedUtc = DateTime.UtcNow.AddMinutes(-2)
+            },
+            new()
+            {
+                RunId = runId.ToString("D"),
+                AgentType = AgentType.Critic,
+                Status = AgentTaskStatus.InProgress,
+                CreatedUtc = DateTime.UtcNow.AddMinutes(-1)
+            }
+        ];
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(DefaultScope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(run);
+        Mock<IAgentTaskRepository> agentTasks = new();
+        agentTasks
+            .Setup(t => t.GetByRunIdAsync(DefaultScope, runId.ToString("D"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(tasks);
+        OperationQueryService sut = CreateSut(runs: runs, agentTasks: agentTasks);
+
+        OperationDetail? detail = await sut.GetAsync(OperationIdCodec.ForRun(runId), DefaultScope, CancellationToken.None);
+
+        detail.Should().NotBeNull();
+        detail!.StepLabel.Should().Be("Critic phase running");
+        detail.CurrentStep.Should().Be(2);
+        detail.TotalSteps.Should().Be(3);
+    }
+
     private static OperationQueryService CreateSut(
         Mock<IBackgroundJobInfoReader>? jobs = null,
         Mock<IBackgroundJobTenantAccessVerifier>? tenantAccess = null,

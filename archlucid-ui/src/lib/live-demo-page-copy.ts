@@ -1,9 +1,11 @@
 /** Customer-facing copy for the public `/live-demo` guided walkthrough (TB-960). */
 
-export const LIVE_DEMO_PAGE_TITLE = "Live demo";
+/** Primary H1 — must not read as a live product/tenant session (TB-1265). */
+export const LIVE_DEMO_PAGE_TITLE = "Guided sample walkthrough";
 
-export const LIVE_DEMO_PAGE_SUBTITLE =
-  "Explore a guided, read-only architecture review using fabricated sample data.";
+export const LIVE_DEMO_PAGE_METADATA_TITLE = `ArchLucid · ${LIVE_DEMO_PAGE_TITLE}`;
+
+export const LIVE_DEMO_PAGE_SUBTITLE = "Sample architecture review using fabricated, read-only evidence.";
 
 export const LIVE_DEMO_VALUE_PROPOSITION =
   "In about five minutes, see how ArchLucid turns captured evidence into an executive conclusion, signed review record, evidence chain, governance approval, and retained audit history.";

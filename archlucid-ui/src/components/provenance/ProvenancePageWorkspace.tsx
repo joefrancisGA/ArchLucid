@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { MessageSquareText, Search } from "lucide-react";
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ProvenanceGraphViewport } from "@/components/provenance/ProvenanceGraphViewport";
@@ -12,11 +13,15 @@ import { ProvenanceReferenceLink } from "@/components/ProvenanceReferenceLink";
 import { RunTraceViewerLink } from "@/components/RunTraceViewerLink";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { REVIEWS_LIST_PATH, reviewDetailPath } from "@/lib/architecture-routes";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
+import { PROVENANCE_CLAIM_DISCIPLINE } from "@/lib/provenance-evidence-copy";
 import {
   provenanceEdgeDisplayLabel,
   provenanceNodeDisplayName,
+  provenanceNodeFilterCategory,
   provenanceNodeMatchesFilter,
   provenanceNodeTypeLabel,
   type ProvenanceNodeFilterCategory,
@@ -27,10 +32,17 @@ import {
 } from "@/lib/provenance-timeline-presentation";
 import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
 
+export type ProvenanceReviewContext = {
+  readonly reviewTitle: string | null;
+  readonly statusLabel: string | null;
+  readonly statusTagKind: EnterpriseStatusKind | null;
+};
+
 export type ProvenancePageWorkspaceProps = {
   readonly runId: string;
   readonly graph: ArchitectureRunProvenanceGraph;
   readonly provenanceTraceId: string | null;
+  readonly reviewContext?: ProvenanceReviewContext | null;
 };
 
 type ProvenanceViewMode = "graph" | "timeline" | "table";
@@ -69,7 +81,7 @@ function flashNodeRow(nodeId: string): void {
 }
 
 export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): React.JSX.Element {
-  const { runId, provenanceTraceId } = props;
+  const { runId, provenanceTraceId, reviewContext } = props;
   // OpenAPI may omit optional arrays; normalize before .length / .map so SSR/demo payloads cannot crash.
   const graph: ArchitectureRunProvenanceGraph = {
     ...props.graph,
@@ -83,7 +95,7 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
   const [highlightedEdgeId, setHighlightedEdgeId] = useState<string | null>(null);
   const [activeFilters, setActiveFilters] = useState<Set<ProvenanceNodeFilterCategory>>(new Set());
   const [layoutSeed, setLayoutSeed] = useState(0);
-  const [edgesExpanded, setEdgesExpanded] = useState(false);
+  const [edgesExpanded, setEdgesExpanded] = useState(() => graph.edges.length < SEARCH_THRESHOLD);
   const [nodeSearch, setNodeSearch] = useState("");
   const [nodeTypeFilter, setNodeTypeFilter] = useState("");
   const [edgeSearch, setEdgeSearch] = useState("");
@@ -118,15 +130,29 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
     return graph.edges.filter((edge) => edge.fromNodeId === selectedNodeId);
   }, [graph.edges, selectedNodeId]);
 
+  const filterCounts = useMemo(() => {
+    const counts = new Map<ProvenanceNodeFilterCategory, number>(
+      FILTER_OPTIONS.map((option) => [option.id, 0]),
+    );
+
+    for (const node of graph.nodes) {
+      const category = provenanceNodeFilterCategory(node.type);
+
+      if (category === null) {
+        continue;
+      }
+
+      counts.set(category, (counts.get(category) ?? 0) + 1);
+    }
+
+    return counts;
+  }, [graph.nodes]);
+
   const filteredNodesForTable = useMemo(() => {
     const query = nodeSearch.trim().toLowerCase();
     const typeQuery = nodeTypeFilter.trim().toLowerCase();
 
     return graph.nodes.filter((node) => {
-      if (!provenanceNodeMatchesFilter(node, activeFilters)) {
-        return false;
-      }
-
       if (typeQuery.length > 0 && !provenanceNodeTypeLabel(node.type).toLowerCase().includes(typeQuery)) {
         return false;
       }
@@ -139,7 +165,7 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
 
       return haystack.includes(query);
     });
-  }, [activeFilters, graph.nodes, nodeSearch, nodeTypeFilter]);
+  }, [graph.nodes, nodeSearch, nodeTypeFilter]);
 
   const filteredEdgesForTable = useMemo(() => {
     const query = edgeSearch.trim().toLowerCase();
@@ -180,6 +206,12 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
   }, [graph.edges]);
 
   const toggleFilter = useCallback((filter: ProvenanceNodeFilterCategory) => {
+    const count = filterCounts.get(filter) ?? 0;
+
+    if (count === 0) {
+      return;
+    }
+
     setActiveFilters((current) => {
       const next = new Set(current);
 
@@ -192,7 +224,14 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
       return next;
     });
     setLayoutSeed((value) => value + 1);
-  }, []);
+  }, [filterCounts]);
+
+  const graphVisibleNodeCount = useMemo(() => {
+    return graph.nodes.filter((node) => provenanceNodeMatchesFilter(node, activeFilters)).length;
+  }, [activeFilters, graph.nodes]);
+
+  const reviewTitle = reviewContext?.reviewTitle?.trim() ?? "";
+  const reviewHref = reviewDetailPath(runId);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent): void => {
@@ -220,18 +259,64 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
           <ProvenanceSectionNav sections={sections} placement="inline-top" />
 
           <header className="space-y-2">
+            <nav aria-label="Breadcrumb" className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+              <ol className="m-0 flex flex-wrap items-center gap-1 p-0 list-none">
+                <li>
+                  <Link className={OPERATOR_LINK.nav} href={REVIEWS_LIST_PATH}>
+                    Reviews
+                  </Link>
+                </li>
+                <li aria-hidden="true" className="text-neutral-400">
+                  /
+                </li>
+                <li>
+                  <Link className={OPERATOR_LINK.nav} href={reviewHref}>
+                    {reviewTitle.length > 0 ? reviewTitle : "Review"}
+                  </Link>
+                </li>
+                <li aria-hidden="true" className="text-neutral-400">
+                  /
+                </li>
+                <li aria-current="page" className="text-neutral-800 dark:text-neutral-200">
+                  Provenance
+                </li>
+              </ol>
+            </nav>
             <div className="flex flex-wrap items-center gap-2">
               <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>Provenance</h2>
+              {reviewContext?.statusLabel !== null &&
+              reviewContext?.statusLabel !== undefined &&
+              reviewContext.statusLabel.length > 0 &&
+              reviewContext.statusTagKind !== null &&
+              reviewContext.statusTagKind !== undefined ? (
+                <StatusTag kind={reviewContext.statusTagKind} label={reviewContext.statusLabel} />
+              ) : null}
               <PageContextualHelpButton />
             </div>
+            {reviewTitle.length > 0 ? (
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+                Evidence trail for{" "}
+                <span className="font-medium text-neutral-900 dark:text-neutral-100">{reviewTitle}</span>
+              </p>
+            ) : null}
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-              Review{" "}
-              <code className={cn("rounded bg-neutral-100 px-1 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.micro)}>
-                {graph.runId}
-              </code>{" "}
-              — {graph.nodes.length} nodes, {graph.edges.length} edges, {graph.timeline.length} timeline events.
+              {graph.nodes.length} nodes, {graph.edges.length} edges, {graph.timeline.length} timeline events.
             </p>
+            <details className="rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-700">
+              <summary className={cn("cursor-pointer text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.micro)}>
+                Review identifier
+              </summary>
+              <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.micro)}>
+                <code className="rounded bg-neutral-100 px-1 dark:bg-neutral-800">{graph.runId}</code>
+              </p>
+            </details>
             <RunTraceViewerLink traceId={provenanceTraceId} />
+            <p
+              className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="provenance-claim-discipline"
+            >
+              {PROVENANCE_CLAIM_DISCIPLINE}
+            </p>
           </header>
 {graph.traceabilityGaps.length > 0 ? (
             <section
@@ -277,6 +362,8 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
             <div className="flex flex-wrap gap-1.5" data-testid="provenance-graph-filters">
               {FILTER_OPTIONS.map((option) => {
                 const active = activeFilters.has(option.id);
+                const count = filterCounts.get(option.id) ?? 0;
+                const disabled = count === 0;
 
                 return (
                   <Button
@@ -286,9 +373,10 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
                     variant={active ? "default" : "outline"}
                     className="h-8"
                     aria-pressed={active}
+                    disabled={disabled}
                     onClick={() => toggleFilter(option.id)}
                   >
-                    {option.label}
+                    {option.label} ({count})
                   </Button>
                 );
               })}
@@ -298,6 +386,7 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
           {activeFilters.size > 0 ? (
             <p className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.micro)} role="status">
               Filters hide graph elements for focus only — all provenance data remains available in the tables below.
+              Showing {graphVisibleNodeCount} of {graph.nodes.length} nodes in the graph.
             </p>
           ) : null}
 
@@ -451,19 +540,23 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
                         <tr
                           key={`${row.timestampUtc}-${row.kind}-${row.referenceId ?? row.label}`}
                           className="transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-900/40"
-                          onClick={() => {
-                            if (relatedNode !== undefined) {
-                              onSelectNode(relatedNode.id);
-                            }
-                          }}
                         >
                           <td className="border-b border-neutral-100 p-3 align-top whitespace-nowrap dark:border-neutral-800">
                             <time dateTime={row.timestampUtc}>{formatUtc(row.timestampUtc)}</time>
                           </td>
                           <td className="border-b border-neutral-100 p-3 align-top dark:border-neutral-800">
-                            <span className="font-medium text-neutral-900 dark:text-neutral-100">
+                            <button
+                              type="button"
+                              className="text-left font-medium text-neutral-900 underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 dark:text-neutral-100"
+                              disabled={relatedNode === undefined}
+                              onClick={() => {
+                                if (relatedNode !== undefined) {
+                                  onSelectNode(relatedNode.id);
+                                }
+                              }}
+                            >
                               {provenanceTimelinePrimaryLabel(row)}
-                            </span>
+                            </button>
                             <span
                               className={cn("mt-0.5 block text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.micro)}
                               title={provenanceTimelineTechnicalKind(row)}
@@ -539,21 +632,24 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
                           key={node.id}
                           id={`prov-node-row-${node.id}`}
                           className={cn(
-                            "cursor-pointer transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-900/40",
+                            "transition-colors",
                             selected ? "bg-blue-50/70 dark:bg-blue-950/30" : "",
                           )}
-                          onClick={() => onSelectNode(node.id)}
                         >
                           <td className="border-b border-neutral-100 p-3 align-top font-medium dark:border-neutral-800">
-                            {provenanceNodeDisplayName(node)}
+                            <button
+                              type="button"
+                              className="text-left font-medium text-neutral-900 underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 dark:text-neutral-100"
+                              onClick={() => onSelectNode(node.id)}
+                            >
+                              {provenanceNodeDisplayName(node)}
+                            </button>
                           </td>
                           <td className="border-b border-neutral-100 p-3 align-top dark:border-neutral-800">
                             {provenanceNodeTypeLabel(node.type)}
                           </td>
                           <td className="break-all border-b border-neutral-100 p-3 align-top dark:border-neutral-800">
-                            <code className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.micro)}>
-                              <ProvenanceReferenceLink runId={runId} referenceId={node.referenceId} nodes={graph.nodes} />
-                            </code>
+                            <ProvenanceReferenceLink runId={runId} referenceId={node.referenceId} nodes={graph.nodes} />
                           </td>
                           <td className="border-b border-neutral-100 p-3 align-top dark:border-neutral-800">
                             <Button

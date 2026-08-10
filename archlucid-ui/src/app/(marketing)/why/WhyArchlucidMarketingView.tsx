@@ -8,6 +8,20 @@ import { Button } from "@/components/ui/button";
 import { BUYER_OUTCOME_LED_VALUE_PROPOSITION } from "@/lib/buyer-polish-copy";
 import { BRAND_CATEGORY, BRAND_PROOF_SCOPE_STATEMENT } from "@/lib/brand-category";
 import { MARKETING_LAYOUT, MARKETING_MOTION, MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  WHY_BRAND_CATEGORY_DOWNLOAD_NOTE,
+  WHY_CLOSING_PRIMARY_CTA_HREF,
+  WHY_CLOSING_PRIMARY_CTA_LABEL,
+  WHY_CLOSING_SECONDARY_CTA_HREF,
+  WHY_CLOSING_SECONDARY_CTA_LABEL,
+  WHY_MARKET_LANDSCAPE_CITATION_NOTE,
+  WHY_MARKETING_PDF_DOWNLOAD_FILENAME,
+  WHY_MARKETING_PDF_DOWNLOAD_LABEL,
+  WHY_MARKETING_PDF_HREF,
+  WHY_MARKETING_PDF_SECTION_INTRO_AFTER_LINK,
+  WHY_MARKETING_PDF_SECTION_INTRO_BEFORE_LINK,
+  WHY_MARKETING_PDF_SECTION_TITLE,
+} from "@/lib/why-page-copy";
 import { cn } from "@/lib/utils";
 import { WHY_MARKET_LANDSCAPE_MARKETING_ROWS } from "@/lib/why-market-landscape-comparison";
 import { type WhyVerifyLink, WHY_COMPARISON_VERIFY_LINK_ROWS } from "@/lib/why-comparison-verify-points";
@@ -70,7 +84,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
         className={cn("mt-4 max-w-3xl", MARKETING_TYPOGRAPHY.lead)}
         data-testid="why-brand-category-paragraph"
       >
-        {`ArchLucid is an ${BRAND_CATEGORY}: governed architecture reviews whose findings, signed decisions, approvals, and exports share one traceable evidence trail — durable evidence before emphasizing agent-assisted acceleration. Comparisons below summarize typical fit versus adjacent tooling. The downloadable evidence bundle carries the citation-backed drill-down for diligence teams who need paperwork parity.`}
+        {`ArchLucid is an ${BRAND_CATEGORY}: governed architecture reviews whose findings, signed decisions, approvals, and exports share one traceable evidence trail — durable evidence before emphasizing agent-assisted acceleration. Comparisons below summarize typical fit versus adjacent tooling. ${WHY_BRAND_CATEGORY_DOWNLOAD_NOTE}`}
       </p>
       <p
         className={cn("mt-3 max-w-3xl", MARKETING_TYPOGRAPHY.meta)}
@@ -142,7 +156,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
           Where ArchLucid fits (adjacent tooling)
         </h2>
         <p className="mt-2 max-w-3xl text-xs leading-snug text-neutral-600 dark:text-neutral-400">
-          Summarized wording only — citations and benchmark detail are included in the evidence bundle linked from this page.
+          {WHY_MARKET_LANDSCAPE_CITATION_NOTE}
         </p>
         <div className="mt-4 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
           <table
@@ -198,24 +212,22 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
       </section>
 
       <section className={MARKETING_SURFACES.mutedPanel}>
-        <h2 className={MARKETING_TYPOGRAPHY.sectionTitle}>Side-by-side audit evidence bundle</h2>
+        <h2 className={MARKETING_TYPOGRAPHY.sectionTitle}>{WHY_MARKETING_PDF_SECTION_TITLE}</h2>
         <p className={`mt-2 max-w-3xl ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}>
-          Download a single PDF that bundles the same read-only sample output as the{" "}
+          {WHY_MARKETING_PDF_SECTION_INTRO_BEFORE_LINK}
           <a className={`font-medium ${MARKETING_SURFACES.inlineLink}`} href="/demo/preview">
             public demo preview
-          </a>{" "}
-          (review excerpt, explanation, citations, timeline) plus the citation-backed differentiation narrative table (five
-          detailed rows with citations — not the symbol-only front-door grid below). If the download is not available in
-          your environment, use the contact path on the getting started page.
+          </a>
+          {WHY_MARKETING_PDF_SECTION_INTRO_AFTER_LINK}
         </p>
         <p className="mt-3">
           <Button asChild variant="primary">
             <a
               data-testid="why-proof-pack-download"
-              href="/api/proxy/v1/marketing/why-archlucid-pack.pdf"
-              download="why-archlucid-pack.pdf"
+              href={WHY_MARKETING_PDF_HREF}
+              download={WHY_MARKETING_PDF_DOWNLOAD_FILENAME}
             >
-              Download the audit evidence bundle (PDF)
+              {WHY_MARKETING_PDF_DOWNLOAD_LABEL}
             </a>
           </Button>
         </p>
@@ -329,13 +341,32 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
         </div>
       </section>
 
-      <section className="mt-10 border-t border-neutral-200 pt-8 dark:border-neutral-800">
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">
+      <section
+        className="mt-10 border-t border-neutral-200 pt-8 dark:border-neutral-800"
+        aria-labelledby="why-closing-cta-heading"
+        data-testid="why-closing-cta"
+      >
+        <h2 id="why-closing-cta-heading" className={MARKETING_TYPOGRAPHY.sectionTitle}>
+          Next step
+        </h2>
+        <p className={`mt-2 max-w-3xl ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}>
+          Inspect the public sample review, then start an evaluation when you are ready to bring your own architecture
+          evidence.
+        </p>
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+          <Button asChild variant="primary" size="lg" data-testid="why-closing-primary-cta">
+            <Link href={WHY_CLOSING_PRIMARY_CTA_HREF}>{WHY_CLOSING_PRIMARY_CTA_LABEL}</Link>
+          </Button>
+          <Button asChild variant="outline" size="lg" data-testid="why-closing-secondary-cta">
+            <Link href={WHY_CLOSING_SECONDARY_CTA_HREF}>{WHY_CLOSING_SECONDARY_CTA_LABEL}</Link>
+          </Button>
+        </div>
+        <p className="mt-4 text-sm text-neutral-600 dark:text-neutral-400">
           For sponsor-ready language and procurement context, see the{" "}
           <Link className={MARKETING_SURFACES.inlineLink} href="/get-started">
             getting started guide
-          </Link>{" "}
-          or ask your account team for the executive overview pack.
+          </Link>
+          .
         </p>
       </section>
     </MarketingPageShell>

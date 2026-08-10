@@ -1,4 +1,5 @@
 import { tryResolveInAppDocHref, resolveInAppDocHref } from "@/lib/in-app-doc-href";
+import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
 import { isInternalRunbookSlug } from "@/lib/product-documentation-content-kinds";
 import { PERSONA_SHELL_WORKSPACE_UI_MAP_LABEL } from "@/lib/persona-shell-vocabulary";
 
@@ -32,9 +33,9 @@ export type DocumentationSearchItem = {
  */
 const CURATED_DOCUMENTATION_SEARCH_ITEMS: readonly DocumentationSearchItem[] = [
   {
-    category: "Pilot",
-    title: "Core Pilot walkthrough",
-    description: "First-pilot checklist from request to manifest.",
+    category: "Guides",
+    title: FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE,
+    description: "Guided path from evidence intake to a finalized architecture review and sponsor-ready exports.",
     relativeDocsPath: "docs/CORE_PILOT.md",
   },
   {

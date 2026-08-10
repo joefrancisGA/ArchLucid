@@ -30,6 +30,7 @@ public sealed class HostLeaderElectionCoordinator(
     /// <summary>
     /// When election is disabled, runs <paramref name="leaderWork"/> with <paramref name="applicationStoppingToken"/> only.
     /// When enabled, repeats: acquire lease, run work with a token cancelled on lease loss or shutdown, renew in the background, release on exit.
+    /// Re-competition happens only after lease loss; work that returns while the lease is still held ends the loop.
     /// </summary>
     public async Task RunLeaderWorkAsync(
         string leaseName,
@@ -98,9 +99,15 @@ public sealed class HostLeaderElectionCoordinator(
 
             Task renewTask = RenewLoopAsync(leaseName, id, leaseSec, renewSec, leaderCts, applicationStoppingToken);
 
+            // Captured before the finally cancels leaderCts, so it still distinguishes "work returned on its own"
+            // from "lease lost or host shutting down".
+            bool workCompletedWhileStillLeader = false;
+
             try
             {
                 await leaderWork(leaderToken);
+
+                workCompletedWhileStillLeader = !leaderToken.IsCancellationRequested;
             }
             catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
             {
@@ -130,6 +137,11 @@ public sealed class HostLeaderElectionCoordinator(
             if (applicationStoppingToken.IsCancellationRequested)
                 return;
 
+            // The body finished while the lease was still held, so it has no more work to do (for example a worker
+            // that is disabled by configuration). Re-competing would acquire and release the lease forever.
+            if (workCompletedWhileStillLeader)
+                return;
+
             // Lost lease while app still running: re-enter outer loop to compete again.
         }
     }
@@ -144,11 +156,13 @@ public sealed class HostLeaderElectionCoordinator(
     {
         try
         {
-            while (!applicationStoppingToken.IsCancellationRequested && !leaderCts.IsCancellationRequested)
+            while (!leaderCts.IsCancellationRequested)
             {
-                await Task.Delay(TimeSpan.FromSeconds(renewIntervalSeconds), applicationStoppingToken);
+                // leaderCts is linked to applicationStoppingToken, so this delay also observes host shutdown. Waiting on
+                // the application token alone would keep the caller blocked here for a full renew interval after handoff.
+                await Task.Delay(TimeSpan.FromSeconds(renewIntervalSeconds), leaderCts.Token);
 
-                if (applicationStoppingToken.IsCancellationRequested || leaderCts.IsCancellationRequested)
+                if (leaderCts.IsCancellationRequested)
                     return;
 
                 bool renewed = await _leaseRepository.TryAcquireOrRenewAsync(
@@ -171,7 +185,7 @@ public sealed class HostLeaderElectionCoordinator(
                 return;
             }
         }
-        catch (OperationCanceledException) when (applicationStoppingToken.IsCancellationRequested)
+        catch (OperationCanceledException)
         {
         }
     }

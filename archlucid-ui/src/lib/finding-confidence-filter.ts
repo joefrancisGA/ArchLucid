@@ -1,4 +1,7 @@
-import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import {
+  humanReviewStatusDisplay,
+  type QuickDecisionFinding,
+} from "@/lib/quick-decision-summary-derive";
 
 /** Minimum evaluation score (0–100 scale) before a finding is shown by default. */
 export const LOW_CONFIDENCE_EVALUATION_SCORE_THRESHOLD = 40;
@@ -17,6 +20,25 @@ function normalizedEvaluationScore(score: number): number {
   }
 
   return score;
+}
+
+/** Policy violations that are not dispositioned still block governance approval. */
+export function isApprovalBlockingFinding(finding: QuickDecisionFinding): boolean {
+  if (finding.isMuted) {
+    return false;
+  }
+
+  if (finding.enforcementTier === "Advisory") {
+    return false;
+  }
+
+  const reviewStatus = humanReviewStatusDisplay(finding.humanReviewStatus);
+
+  if (reviewStatus?.label === "Approved" || reviewStatus?.label === "Overridden") {
+    return false;
+  }
+
+  return finding.enforcementTier === "PolicyViolation";
 }
 
 /** True when the finding should be hidden from default quick-decision views. */
@@ -45,7 +67,7 @@ export function partitionQuickDecisionFindingsByConfidence(
   const lowConfidenceFindings: QuickDecisionFinding[] = [];
 
   for (const finding of findings) {
-    if (isLowConfidenceFinding(finding)) {
+    if (isLowConfidenceFinding(finding) && !isApprovalBlockingFinding(finding)) {
       lowConfidenceFindings.push(finding);
     } else {
       trustedFindings.push(finding);
@@ -53,6 +75,50 @@ export function partitionQuickDecisionFindingsByConfidence(
   }
 
   return { trustedFindings, lowConfidenceFindings };
+}
+
+export type FindingsConfidenceVisibilityResult = {
+  readonly visibleFindings: readonly QuickDecisionFinding[];
+  readonly hiddenByConfidenceCount: number;
+};
+
+/** Applies the confidence gate while always retaining approval-blocking findings. */
+export function applyFindingsConfidenceVisibility(
+  findings: readonly QuickDecisionFinding[],
+  showLowConfidence: boolean,
+): FindingsConfidenceVisibilityResult {
+  if (showLowConfidence) {
+    return { visibleFindings: findings, hiddenByConfidenceCount: 0 };
+  }
+
+  const visibleFindings: QuickDecisionFinding[] = [];
+  let hiddenByConfidenceCount = 0;
+
+  for (const finding of findings) {
+    if (isLowConfidenceFinding(finding) && !isApprovalBlockingFinding(finding)) {
+      hiddenByConfidenceCount += 1;
+    } else {
+      visibleFindings.push(finding);
+    }
+  }
+
+  return { visibleFindings, hiddenByConfidenceCount };
+}
+
+export function formatFindingsVisibilitySummaryLine(
+  shownCount: number,
+  toolbarFilteredCount: number,
+  hiddenByConfidenceCount: number,
+): string | null {
+  if (hiddenByConfidenceCount <= 0 && shownCount === toolbarFilteredCount) {
+    return null;
+  }
+
+  if (hiddenByConfidenceCount > 0) {
+    return `Showing ${shownCount} of ${toolbarFilteredCount} — ${hiddenByConfidenceCount} hidden by confidence filter`;
+  }
+
+  return `Showing ${shownCount} of ${toolbarFilteredCount}`;
 }
 
 export function formatHiddenLowConfidenceHint(hiddenCount: number): string | null {

@@ -2,7 +2,7 @@
 
 # Bake-off: who loses first + 15-minute proof sequence
 
-**Status:** Contract draft for **TB-1456** / **M-261**/**M-262**.  
+**Status:** **Done** (2026-08-09) — **TB-1456**; GTM **M-261**/**M-262** residuals in procurement packet + claim boundary.  
 **Date:** 2026-07-27.
 
 ## Verdict

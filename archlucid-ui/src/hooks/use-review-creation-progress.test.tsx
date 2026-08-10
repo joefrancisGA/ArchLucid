@@ -17,7 +17,7 @@ describe("useReviewCreationProgress", () => {
     vi.useRealTimers();
   });
 
-  it("fails the CTA when create + navigate never settles", async () => {
+  it("reports an unresolved outcome when create never settles", async () => {
     const { result } = renderHook(() => useReviewCreationProgress());
 
     act(() => {
@@ -31,6 +31,60 @@ describe("useReviewCreationProgress", () => {
     });
 
     expect(result.current.isActive).toBe(false);
-    expect(result.current.error).toBe(REVIEW_START_CREATION_FAILED_MESSAGE);
+    expect(result.current.outcome).toEqual({ kind: "unresolved" });
+  });
+
+  it("reports a failed outcome carrying the server message", () => {
+    const { result } = renderHook(() => useReviewCreationProgress());
+
+    act(() => {
+      result.current.begin({ hasTemplate: false });
+    });
+
+    act(() => {
+      result.current.fail();
+    });
+
+    expect(result.current.isActive).toBe(false);
+    expect(result.current.outcome).toEqual({
+      kind: "failed",
+      message: REVIEW_START_CREATION_FAILED_MESSAGE,
+    });
+  });
+
+  it("disarms the watchdog once the server accepts, so slow navigation stays silent", async () => {
+    const { result } = renderHook(() => useReviewCreationProgress());
+
+    act(() => {
+      result.current.begin({ hasTemplate: false });
+    });
+
+    act(() => {
+      result.current.succeed();
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(REVIEW_CREATION_PROGRESS_TIMEOUT_MS * 2);
+    });
+
+    expect(result.current.outcome).toBeNull();
+    expect(result.current.isActive).toBe(true);
+  });
+
+  it("escalates wait copy as the operation runs long, without a percentage", async () => {
+    const { result } = renderHook(() => useReviewCreationProgress());
+
+    act(() => {
+      result.current.begin({ hasTemplate: false });
+    });
+
+    expect(result.current.waitCopy?.level).toBe("quiet");
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(31_000);
+    });
+
+    expect(result.current.waitCopy?.level).toBe("after30s");
+    expect(result.current.waitCopy?.detail).not.toMatch(/%/);
   });
 });

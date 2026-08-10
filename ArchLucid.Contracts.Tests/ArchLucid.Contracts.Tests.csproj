@@ -42,6 +42,12 @@
     <None Include="..\templates\starter-proof-packs\azure-cost-governance\architecture-request.json" Link="templates\starter-proof-packs\azure-cost-governance\architecture-request.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\templates\starter-proof-packs\azure-cost-governance\starter-pack.json" Link="templates\starter-proof-packs\azure-cost-governance\starter-pack.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\templates\starter-proof-packs\azure-cost-governance\policy-context.json" Link="templates\starter-proof-packs\azure-cost-governance\policy-context.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\templates\starter-proof-packs\aws-cost-governance\architecture-request.json" Link="templates\starter-proof-packs\aws-cost-governance\architecture-request.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\templates\starter-proof-packs\aws-cost-governance\starter-pack.json" Link="templates\starter-proof-packs\aws-cost-governance\starter-pack.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\templates\starter-proof-packs\aws-cost-governance\policy-context.json" Link="templates\starter-proof-packs\aws-cost-governance\policy-context.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\templates\starter-proof-packs\gcp-cost-governance\architecture-request.json" Link="templates\starter-proof-packs\gcp-cost-governance\architecture-request.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\templates\starter-proof-packs\gcp-cost-governance\starter-pack.json" Link="templates\starter-proof-packs\gcp-cost-governance\starter-pack.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\templates\starter-proof-packs\gcp-cost-governance\policy-context.json" Link="templates\starter-proof-packs\gcp-cost-governance\policy-context.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\templates\starter-proof-packs\ai-llm-workload\architecture-request.json" Link="templates\starter-proof-packs\ai-llm-workload\architecture-request.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\templates\starter-proof-packs\ai-llm-workload\starter-pack.json" Link="templates\starter-proof-packs\ai-llm-workload\starter-pack.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\templates\starter-proof-packs\ai-llm-workload\policy-context.json" Link="templates\starter-proof-packs\ai-llm-workload\policy-context.json" CopyToOutputDirectory="PreserveNewest" />

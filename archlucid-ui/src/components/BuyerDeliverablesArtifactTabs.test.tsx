@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { BuyerDeliverablesArtifactTabs } from "./BuyerDeliverablesArtifactTabs";
@@ -22,7 +22,7 @@ const base = {
 };
 
 describe("BuyerDeliverablesArtifactTabs", () => {
-  it("switches between executive and architecture review board artifact groupings", () => {
+  it("renders executive and architecture review board sections without nested tabs", () => {
     const artifacts = [
       { ...base, artifactId: "md", artifactType: "MarkdownReport", name: "b.md", format: "text/markdown" },
       { ...base, artifactId: "jb", artifactType: "JsonBundle", name: "decisions.json" },
@@ -33,16 +33,10 @@ describe("BuyerDeliverablesArtifactTabs", () => {
     );
 
     expect(screen.getByTestId("buyer-deliverables-artifact-tabs")).toBeInTheDocument();
-    expect(
-      screen.getByRole("tab", { name: "Executive and sponsor artifacts" }).getAttribute("aria-selected"),
-    ).toBe("true");
-
-    fireEvent.click(screen.getByRole("tab", { name: "Architecture review board artifacts" }));
-
-    expect(screen.getByRole("heading", { name: "Architecture review board" })).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("tab", { name: "Executive and sponsor artifacts" }));
-
-    expect(screen.getByRole("heading", { name: "Executive & sponsor" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Executive and sponsor artifacts" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Architecture review board artifacts" })).toBeInTheDocument();
+    expect(screen.queryByRole("tab")).not.toBeInTheDocument();
+    expect(screen.getByTestId("buyer-deliverables-panel-executive")).toBeInTheDocument();
+    expect(screen.getByTestId("buyer-deliverables-panel-arb")).toBeInTheDocument();
   });
 });

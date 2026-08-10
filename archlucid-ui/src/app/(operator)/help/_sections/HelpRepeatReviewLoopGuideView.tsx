@@ -9,6 +9,7 @@ import {
 import { HelpRepeatReviewLoopPageHeader } from "@/app/(operator)/help/_sections/HelpRepeatReviewLoopPageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
+import { MermaidDiagram } from "@/components/help/MermaidDiagram";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,6 +30,8 @@ import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presenta
 import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import {
+  REPEAT_REVIEW_LOOP_HELP_DIAGRAM_SOURCE,
+  REPEAT_REVIEW_LOOP_HELP_DIAGRAM_SUMMARY,
   REPEAT_REVIEW_LOOP_HELP_OVERVIEW,
   REPEAT_REVIEW_LOOP_HELP_PRIMARY_ACTIONS,
   repeatReviewLoopHelpPageSubtitle,
@@ -122,6 +125,26 @@ export function HelpRepeatReviewLoopGuideView(props: HelpRepeatReviewLoopGuideVi
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-repeat-review-loop-overview">
             {REPEAT_REVIEW_LOOP_HELP_OVERVIEW}
           </p>
+
+          <div
+            className={cn(
+              "space-y-3 rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800",
+              OPERATOR_TYPOGRAPHY.body,
+            )}
+            data-testid="help-repeat-review-loop-stickiness-diagram"
+          >
+            <MarketingAccessibilityMarkdownFragment
+              markdownBody={REPEAT_REVIEW_LOOP_HELP_DIAGRAM_SUMMARY}
+              tableCaption="Repeat-review stickiness loop summary"
+              presentation="help"
+              sourceDocPath={sourceDocPath}
+              helpTopicSlug={entry.slug}
+            />
+            <MermaidDiagram
+              source={REPEAT_REVIEW_LOOP_HELP_DIAGRAM_SOURCE}
+              accessibleName="Repeat-review stickiness loop"
+            />
+          </div>
 
           <div
             key={contentKey}

@@ -1,8 +1,17 @@
 import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
-import { SETTINGS_BILLING_PATH } from "@/lib/billing-and-plans-help-route";
+import {
+  BILLING_AND_PLANS_HELP_PATH,
+  SETTINGS_BILLING_PATH,
+} from "@/lib/billing-and-plans-help-route";
+import { OPERATOR_BILLING_PUBLIC_PRICING_LINK_LABEL } from "@/lib/marketing/marketing-public-pricing";
 import { ARCHLUCID_SUPPORT_EMAIL } from "@/lib/support-workspace-present";
 
+export const BILLING_HELP_CANONICAL_PATH = BILLING_AND_PLANS_HELP_PATH;
+
 export const BILLING_HELP_PAGE_TITLE = "Billing and plans";
+
+/** Disambiguates the help topic from Administration → Billing and plans. */
+export const BILLING_HELP_PAGE_DISPLAY_TITLE = "Billing and plans — help topic";
 
 export const BILLING_HELP_PAGE_SUBTITLE =
   "Manage your ArchLucid subscription, payment method, invoices, seats, and usage from Billing and plans.";
@@ -29,12 +38,13 @@ export const BILLING_HELP_OVERVIEW =
 
 export const BILLING_HELP_PRIMARY_ACTIONS = {
   manageBilling: {
-    label: "Manage billing",
+    label: "Open Billing and plans",
     href: SETTINGS_BILLING_PATH,
   },
   viewPricing: {
-    label: "View current pricing",
+    label: OPERATOR_BILLING_PUBLIC_PRICING_LINK_LABEL,
     href: "/pricing",
+    publicPageHint: "Public page",
   },
 } as const;
 

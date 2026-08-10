@@ -24,12 +24,25 @@ describe("ReviewGenerationCreatedNotice", () => {
     expect(screen.getByTestId("review-generation-created-notice")).toHaveTextContent(
       REVIEW_CREATED_SUCCESS_MESSAGE,
     );
+    expect(screen.queryByText("Ready")).not.toBeInTheDocument();
   });
 
   it("stays hidden without the fromGeneration query flag", () => {
     searchParamsGet.mockReturnValue(null);
 
     render(<ReviewGenerationCreatedNotice />);
+
+    expect(screen.queryByTestId("review-generation-created-notice")).not.toBeInTheDocument();
+  });
+
+  it("suppresses the receipt when approval is blocked or the package is finalized", () => {
+    searchParamsGet.mockImplementation((key: string) => (key === FROM_GENERATION_QUERY_KEY ? "1" : null));
+
+    const { rerender } = render(<ReviewGenerationCreatedNotice approvalBlocked packageFinalized={false} />);
+
+    expect(screen.queryByTestId("review-generation-created-notice")).not.toBeInTheDocument();
+
+    rerender(<ReviewGenerationCreatedNotice approvalBlocked={false} packageFinalized />);
 
     expect(screen.queryByTestId("review-generation-created-notice")).not.toBeInTheDocument();
   });

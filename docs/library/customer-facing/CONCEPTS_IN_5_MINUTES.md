@@ -1,4 +1,4 @@
-> **Scope:** Customer-facing — one-page conceptual map for evaluators and pilot engineers. The in-app `/help/getting-started` guide is the primary onboarding surface; this file stays aligned for doc index and exports.
+﻿> **Scope:** Customer-facing — one-page conceptual map for evaluators and pilot engineers. The in-app `/help/getting-started` guide is the primary onboarding surface; this file stays aligned for doc index and exports.
 
 # ArchLucid concepts in five minutes
 
@@ -39,8 +39,8 @@ ArchLucid ingests architecture evidence, evaluates it against your standards, an
 
 | Need | In-app guide |
 |------|----------------|
-| Start a review | `/reviews/new` |
-| Open a sample package | `/reviews/claims-intake-modernization` |
+| Start a review | `/architecture/reviews/new` |
+| Open a sample package | `/architecture/reviews/claims-intake-modernization` |
 | First-review walkthrough | `/help/first-architecture-review` |
 | Cloud evidence (optional) | `/integrations/cloud-connections` |
 | Workspace scope | **[WORKSPACE_SCOPE_GUIDE.md](WORKSPACE_SCOPE_GUIDE.md)** |

@@ -111,7 +111,12 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
 
   return (
     <div className="w-full max-w-[1200px] space-y-6 p-4" data-testid="responsible-ai-policy-pack-detail">
-      <OperatorPageHeader title={RESPONSIBLE_AI_POLICY_PACK_PAGE_TITLE} subtitle={RESPONSIBLE_AI_POLICY_PACK_SUBTITLE} titleTestId="policy-pack-detail-title" />
+      <OperatorPageHeader
+        navHref={GOVERNANCE_POLICY_PACKS_PATH}
+        title={RESPONSIBLE_AI_POLICY_PACK_PAGE_TITLE}
+        subtitle={RESPONSIBLE_AI_POLICY_PACK_SUBTITLE}
+        titleTestId="policy-pack-detail-title"
+      />
 
       <Card data-testid="policy-pack-summary-card">
         <CardHeader className="space-y-3">

@@ -26,7 +26,7 @@ export type OperatorProblemCopyContext = {
 const ERROR_CODE_HEADINGS: Record<string, string> = {
   RUN_NOT_FOUND: "Review not found",
   MANIFEST_NOT_FOUND: "Review not found",
-  RESOURCE_NOT_FOUND: "Resource not found",
+  RESOURCE_NOT_FOUND: "Not found in this workspace",
   DATABASE_TIMEOUT: "Database timeout",
   DATABASE_UNAVAILABLE: "Database unavailable",
   CIRCUIT_BREAKER_OPEN: "AI service temporarily unavailable",
@@ -60,6 +60,12 @@ const ERROR_CODE_HEADINGS: Record<string, string> = {
  * Used as a fallback if the API does not provide a specific `supportHint`.
  */
 const ERROR_CODE_REMEDIATION: Record<string, string> = {
+  RESOURCE_NOT_FOUND:
+    "The item may be missing, archived, or outside the selected workspace. Open Reviews and confirm the workspace selector, then retry.",
+  RUN_NOT_FOUND:
+    "This review may have been removed or belongs to another workspace. Open Reviews, confirm the workspace selector, then retry.",
+  MANIFEST_NOT_FOUND:
+    "This review record may have been removed or belongs to another workspace. Open Reviews, confirm the workspace selector, then retry.",
   DATABASE_TIMEOUT: "The database took too long to respond. Wait a minute and try again. If the issue persists, check the database health in the admin dashboard.",
   DATABASE_UNAVAILABLE: "The database is currently unreachable. Verify your connection strings and ensure the database server is running.",
   CIRCUIT_BREAKER_OPEN: "The AI service is currently overwhelmed or unavailable. Please wait a few minutes before retrying your request.",
@@ -179,7 +185,7 @@ export function operatorCopyForProblem(
         {
           heading: "Not permitted",
           body: trimmedFallback,
-          hint: "Your role may not allow this action. Ask an administrator to grant the right capability, or open a workspace where you have operator permissions.",
+          hint: "Your role may not allow this action. Ask an administrator to grant the right capability, or open a workspace where you have architect permissions.",
         },
         context,
         null,

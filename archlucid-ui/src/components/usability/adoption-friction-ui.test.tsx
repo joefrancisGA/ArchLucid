@@ -6,7 +6,6 @@ import { OperatorHomeContinueSetupCard } from "@/components/operator-home/Operat
 import { RunsListCompareSelectionBar } from "./RunsListCompareSelectionBar";
 import { proofScopeToRequiredCapabilities } from "./QuickReviewProofScopeField";
 import {
-  OPERATOR_HOME_DO_THIS_NEXT_HEADING,
   OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA,
   PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL,
 } from "@/lib/buyer-polish-copy";
@@ -72,7 +71,7 @@ describe("PilotCommandCenterCard", () => {
     render(<PilotCommandCenterCard />);
 
     expect(screen.getByTestId("operator-home-do-this-next")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: OPERATOR_HOME_DO_THIS_NEXT_HEADING })).toBeInTheDocument();
+    expect(screen.queryByText("Do this next")).toBeNull();
 
     await waitFor(() => {
       expect(screen.getByTestId("operator-home-do-this-next-primary")).toHaveTextContent(

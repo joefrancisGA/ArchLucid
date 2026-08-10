@@ -1,7 +1,25 @@
+"use client";
+
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { OPERATOR_HOME_REVIEWS_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
+import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
+import {
+  OPERATOR_HOME_WORKSPACE_EMPTY_TITLE,
+} from "@/lib/buyer-polish-copy";
 
 /** First-run workspace with no reviews — compact empty pattern; primary paths live in the hero. */
 export function OperatorHomeWorkspaceEmptyState() {
-  return <EnterpriseCompactEmptyState {...OPERATOR_HOME_REVIEWS_EMPTY_COMPACT} />;
+  return (
+    <EnterpriseCompactEmptyState
+      testId="operator-home-workspace-empty-state"
+      title={OPERATOR_HOME_WORKSPACE_EMPTY_TITLE}
+      description={
+        <>
+          Your in-progress and completed architecture reviews will appear here. When you finalize, you produce a{" "}
+          <InlineGlossaryChip nounId="signed-review-record">signed review record</InlineGlossaryChip> backed by an{" "}
+          <InlineGlossaryChip nounId="evidence-trail">evidence trail</InlineGlossaryChip> and optional{" "}
+          <InlineGlossaryChip nounId="governance-approval">governance approval</InlineGlossaryChip>.
+        </>
+      }
+    />
+  );
 }

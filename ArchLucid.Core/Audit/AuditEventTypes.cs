@@ -740,6 +740,12 @@ public static class AuditEventTypes
 
     public const string TenantAgentOutputQualityGateModeOverrideCleared = "Tenant.AgentOutputQualityGateModeOverrideCleared";
 
+    /// <summary>Quality-gate definition version deprecated with successor (TB-974 wrong-definition playbook).</summary>
+    public const string TenantQualityGateDefinitionDeprecated = "Tenant.QualityGateDefinitionDeprecated";
+
+    /// <summary>Append-only superseding evaluation recorded for a run/trace (TB-974).</summary>
+    public const string RunQualityGateSupersedingEvaluationRecorded = "Run.QualityGateSupersedingEvaluationRecorded";
+
     /// <summary>Workspace default model execution profile changed (<c>PUT /v1/admin/settings/model-execution-profile</c>).</summary>
     public const string WorkspaceModelExecutionProfileUpdated = "Workspace.ModelExecutionProfileUpdated";
 

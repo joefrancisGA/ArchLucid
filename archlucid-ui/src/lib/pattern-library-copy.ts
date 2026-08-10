@@ -35,8 +35,6 @@ export const PATTERN_LIBRARY_SUMMARY_REVIEWS_LABEL = "Reviews contributing";
 export const PATTERN_LIBRARY_SUMMARY_THRESHOLD_LABEL = "Minimum tenant threshold";
 export const PATTERN_LIBRARY_SUMMARY_UPDATED_LABEL = "Last updated";
 
-export const PATTERN_LIBRARY_NAV_BADGE = "Preview";
-
 export const PATTERN_LIBRARY_NAV_LINK_LABEL = "Pattern library";
 
 /** Shown on the disabled sidebar row until aggregate privacy threshold is met. */

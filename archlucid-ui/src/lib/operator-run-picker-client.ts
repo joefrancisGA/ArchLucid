@@ -1,9 +1,15 @@
-import { listRunsByProjectPaged } from "@/lib/api";
+import {
+  listRunsByProjectPaged,
+  listRunsInScopePaged,
+  shouldListReviewsAcrossProjectSlugs,
+} from "@/lib/api";
+import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
 import { shouldMergeDemoRunsIntoProjectPicker } from "@/lib/buyer-demo-content-gating";
 import { filterCommittedRunsForPicker } from "@/lib/committed-run-picker";
 import { normalizeRunSummaryForDemoPicker } from "@/lib/demo-run-canonical";
 import { tryStaticDemoCompareRunSummaries, tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
 import type { RunSummary } from "@/types/authority";
+import type { PagedResponse } from "@/types/pagination";
 
 export type LoadProjectRunsOptions = {
   /**
@@ -28,6 +34,33 @@ function applyPickerFilters(items: RunSummary[], options?: LoadProjectRunsOption
 }
 
 /**
+ * Loads recent runs for pickers. When `projectId` is omitted/`default`, lists every authority project slug in the
+ * current scope (same as the Reviews hub) — create stores the system name as the run project slug, so a
+ * project-only `default` query hides real finalized packages from Compare / Ask / Graph.
+ */
+async function fetchPickerRunsPage(projectId: string): Promise<PagedResponse<RunSummary>> {
+  const page = 1;
+  const pageSize = 50;
+
+  if (!shouldListReviewsAcrossProjectSlugs(projectId)) {
+    return listRunsByProjectPaged(projectId, page, pageSize);
+  }
+
+  try {
+    return await listRunsInScopePaged(page, pageSize);
+  } catch (error) {
+    const failure = toApiLoadFailure(error);
+
+    if (!isApiNotFoundFailure(failure)) {
+      throw error;
+    }
+
+    // Older API hosts may lack GET /v1/authority/reviews — fall back to project slug list.
+    return listRunsByProjectPaged(projectId, page, pageSize);
+  }
+}
+
+/**
  * Loads recent runs from the API, then merges curated demo rows when enabled and the live response is unusable.
  * Matches the server-side spine used on `/runs` so Ask, Compare, and Graph stay consistent in demo deploys.
  */
@@ -39,7 +72,7 @@ export async function loadProjectRunsMergedWithDemoFallback(
   const mergeDemo = shouldMergeDemoRunsIntoProjectPicker(options);
 
   try {
-    const page = await listRunsByProjectPaged(projectId, 1, 50);
+    const page = await fetchPickerRunsPage(projectId);
     const items = page.items ?? [];
 
     if (items.length > 0) {

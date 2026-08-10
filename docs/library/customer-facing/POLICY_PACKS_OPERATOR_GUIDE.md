@@ -34,6 +34,25 @@ When more than one assigned pack defines the same governance item, ArchLucid kee
 
 The higher-precedence pack is the **winner**; other packs that defined the same item are losing candidates. Changing which pack wins usually means changing assignment, pin, or scope on **Policy packs**, then refreshing Standards & rules (or exporting a resolution snapshot when your role can see operator diagnostics).
 
+```mermaid
+flowchart TB
+  subgraph assign["Assigned policy packs"]
+    T["Tenant scope"]
+    W["Workspace scope"]
+    P["Project scope"]
+  end
+
+  subgraph resolve["Effective rules"]
+    MERGE["Hierarchical merge<br/>project beats workspace beats tenant"]
+    EFF["Effective rules for this review"]
+  end
+
+  T --> MERGE
+  W --> MERGE
+  P --> MERGE
+  MERGE --> EFF
+```
+
 Policy packs do not certify compliance frameworks by themselves — they define the checks ArchLucid evaluates during reviews.
 
 ## Related guides {#related-guides}

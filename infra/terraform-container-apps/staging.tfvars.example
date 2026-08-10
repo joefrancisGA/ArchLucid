@@ -27,6 +27,9 @@ worker_max_replicas = 10
 api_scale_concurrent_requests = 15
 ui_scale_concurrent_requests  = 10
 
+# TB-915: API HTTP + CPU scale rules on by default (see README § Scale-rule mix).
+# api_cpu_scale_utilization_percent = 70
+
 artifact_blob_service_uri   = "https://<storage-account>.blob.core.windows.net/"
 artifact_storage_account_id = "/subscriptions/<sub-id>/resourceGroups/<rg>/providers/Microsoft.Storage/storageAccounts/<name>"
 

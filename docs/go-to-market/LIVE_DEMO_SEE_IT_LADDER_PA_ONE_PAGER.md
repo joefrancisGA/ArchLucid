@@ -1,4 +1,4 @@
-﻿> **Last reviewed:** 2026-07-30
+﻿> **Last reviewed:** 2026-08-09 (TB-1427 contract published)
 
 # `/live-demo` vs `/see-it` safe ladder — path-stable alias (M-260)
 

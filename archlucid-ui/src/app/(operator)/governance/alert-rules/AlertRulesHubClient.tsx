@@ -1,20 +1,16 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import { useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import { LayerHeader } from "@/components/LayerHeader";
+import { TABS_PILL_LIST_CLASS, tabsPillTriggerClass } from "@/components/ui/tabs-pill-styles";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   ALERT_RULES_HUB_TAB_IDS,
   alertRulesHubTabFromSearchParam,
   type AlertRulesHubTabId,
 } from "@/lib/alerts-hub-tab";
-import {
-  alertsConfigurationPageSubtitle,
-} from "@/lib/alerts-page-copy";
+import { alertsConfigurationPageSubtitle } from "@/lib/alerts-page-copy";
 import { governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
 
 import { AlertRulesHubRefreshProvider, useAlertRulesHubRefresh } from "@/lib/alerts-hub-refresh-context";
@@ -38,40 +34,35 @@ const TAB_CONFIG: Record<AlertRulesHubTabId, AlertRulesHubTabConfig> = {
     label: "Conditions",
     subtitle: "When completed reviews should raise an alert",
   },
-  routing: {
+  notifications: {
     label: "Notifications",
     subtitle: "Where qualifying alerts are delivered",
   },
-  composite: {
+  "advanced-rules": {
     label: "Advanced rules",
     subtitle: "Combine multiple signals before alerting",
   },
-  simulation: {
+  "test-alerts": {
     label: "Test alerts",
     subtitle: "Simulate and tune alert behavior",
   },
 };
 
+/**
+ * Page identity first (TB-2093): the hub leads with title, lead, and actions.
+ * The former "About alert rules" / "About alert configuration" disclosures are gone —
+ * orientation copy now lives behind the single contextual help entry point in the header.
+ */
 function AlertRulesHubChrome(): React.JSX.Element {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const { refreshing, lastRefreshedAt, requestRefresh } = useAlertRulesHubRefresh();
 
   return (
-    <>
-      {buyerPolishedShell ? (
-        <LayerHeader
-          pageKey="alert-rules"
-          density="compact"
-        />
-      ) : null}
-
-      <AlertRulesPageHeader
-        subtitle={alertsConfigurationPageSubtitle(buyerPolishedShell)}
-        refreshing={refreshing}
-        lastRefreshedAt={lastRefreshedAt}
-        onRefresh={requestRefresh}
-      />
-    </>
+    <AlertRulesPageHeader
+      subtitle={alertsConfigurationPageSubtitle(isBuyerPolishedOperatorShellEnv())}
+      refreshing={refreshing}
+      lastRefreshedAt={lastRefreshedAt}
+      onRefresh={requestRefresh}
+    />
   );
 }
 
@@ -100,14 +91,10 @@ export function AlertRulesHubClient() {
       <div className="px-0">
         <AlertRulesHubChrome />
 
-        <nav
-          className="mb-6 border-b border-neutral-200 dark:border-neutral-800"
-          aria-label="Alerts configuration sections"
-        >
-          <div className="-mb-px flex flex-wrap gap-1" role="tablist">
+        <nav className="mb-6" aria-label="Alerts configuration sections">
+          <div className={TABS_PILL_LIST_CLASS} role="tablist">
             {ALERT_RULES_HUB_TAB_IDS.map((id) => {
               const selected = activeTab === id;
-              const config = TAB_CONFIG[id];
 
               return (
                 <button
@@ -117,18 +104,11 @@ export function AlertRulesHubClient() {
                   aria-selected={selected}
                   id={`alert-rules-hub-tab-${id}`}
                   data-testid={`alert-rules-hub-tab-${id}`}
+                  title={TAB_CONFIG[id].subtitle}
                   onClick={() => onSelectTab(id)}
-                  className={cn(
-                    "rounded-t-md border border-b-0 px-4 py-2 text-left",
-                    selected
-                      ? "border-neutral-300 bg-white text-al-text-primary shadow-sm dark:border-neutral-600 dark:bg-neutral-950"
-                      : "border-transparent bg-transparent text-al-text-secondary hover:bg-neutral-100 dark:hover:bg-neutral-900",
-                  )}
+                  className={tabsPillTriggerClass(selected)}
                 >
-                  <span className={cn("block font-semibold", OPERATOR_TYPOGRAPHY.body)}>{config.label}</span>
-                  <span className={cn("block text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                    {config.subtitle}
-                  </span>
+                  {TAB_CONFIG[id].label}
                 </button>
               );
             })}
@@ -141,11 +121,10 @@ export function AlertRulesHubClient() {
           aria-labelledby={`alert-rules-hub-tab-${activeTab}`}
           data-testid="alert-rules-hub-panel"
         >
-          {null}
           {activeTab === "rules" ? <AlertRulesContentDeferred /> : null}
-          {activeTab === "routing" ? <AlertRoutingContentDeferred /> : null}
-          {activeTab === "composite" ? <CompositeAlertRulesContentDeferred /> : null}
-          {activeTab === "simulation" ? <AlertSimulationTuningSectionDeferred /> : null}
+          {activeTab === "notifications" ? <AlertRoutingContentDeferred /> : null}
+          {activeTab === "advanced-rules" ? <CompositeAlertRulesContentDeferred /> : null}
+          {activeTab === "test-alerts" ? <AlertSimulationTuningSectionDeferred /> : null}
         </div>
       </div>
     </AlertRulesHubRefreshProvider>

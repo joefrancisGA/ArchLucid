@@ -45,7 +45,7 @@ const ARTIFACT_TYPE_COPY: Record<string, { label: string; description: string }>
   UnresolvedIssuesReport: {
     label: "Unresolved issues",
     description:
-      "JSON report listing unresolved issues or warnings that operators should triage before sign-off.",
+      "JSON report listing unresolved issues or warnings that architects should triage before sign-off.",
   },
   JsonBundle: {
     label: "Architecture decision record",
@@ -139,7 +139,7 @@ const ARTIFACT_BUSINESS_LABELS: Record<string, string> = {
   DiagramAst: "Intake context diagram",
   EvidenceBundle: "Evidence bundle",
   CostSummary: "Cost analysis",
-  UnresolvedIssuesReport: "Open issues summary",
+  UnresolvedIssuesReport: "Residual risk summary",
   ArchitectureNarrative: "Architecture narrative",
   Inventory: "Architecture inventory",
 };
@@ -245,6 +245,13 @@ export function sponsorArtifactSecondaryCaption(filename: string, businessLabel:
     return null;
   }
 
+  // An uncapitalized stem (e.g. "cost summary", "unresolved-issues") is a build-time filename, not a
+  // human-authored title. Sponsor deliverables must not surface raw slugs — UI_DESIGN_SYSTEM.md
+  // § Technical details.
+  if (!/[A-Z]/.test(stripped)) {
+    return null;
+  }
+
   return stripped;
 }
 
@@ -261,7 +268,7 @@ export function sponsorArtifactOpenActionLabel(artifactType: string): string {
     EvidenceBundle: "Open audit evidence",
     ComplianceMatrix: "Open compliance matrix",
     CoverageSummary: "Open coverage summary",
-    UnresolvedIssuesReport: "Open issues summary",
+    UnresolvedIssuesReport: "Open residual risk summary",
     CostSummary: "Open cost summary",
     Inventory: "Open inventory",
     DiagramAst: "Open diagram structure",
@@ -284,7 +291,7 @@ export function sponsorArtifactDownloadActionLabel(artifactType: string): string
     EvidenceBundle: "Download audit evidence",
     ComplianceMatrix: "Download compliance matrix",
     CoverageSummary: "Download coverage summary",
-    UnresolvedIssuesReport: "Download issues summary",
+    UnresolvedIssuesReport: "Download residual risk summary",
     CostSummary: "Download cost summary",
     Inventory: "Download inventory",
     DiagramAst: "Download diagram structure",

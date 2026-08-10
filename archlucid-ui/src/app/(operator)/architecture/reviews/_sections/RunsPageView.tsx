@@ -12,10 +12,13 @@ import {
   BUYER_RUNS_LIST_MALFORMED_BODY,
   BUYER_RUNS_LIST_MALFORMED_HEADING,
 } from "@/lib/buyer-polish-copy";
+import { isApiNotFoundFailure } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 
 import {
   REVIEWS_HUB_ADVANCED_LIST_DISCLOSURE,
+  REVIEWS_HUB_LIST_LOAD_FAILURE_TRY_NEXT,
+  REVIEWS_HUB_LIST_NOT_FOUND_TRY_NEXT,
   REVIEWS_HUB_MORE_WAYS_SUMMARY,
   REVIEWS_HUB_MORE_WAYS_TITLE,
   REVIEWS_HUB_PAGE_SUBTITLE,
@@ -109,12 +112,12 @@ export function RunsPageView(props: Props) {
 
       {loadFailure ? (
         <>
-          <OperatorApiProblem
-            problem={loadFailure.problem}
-            fallbackMessage={loadFailure.message}
-            correlationId={loadFailure.correlationId}
-          />
-          <OperatorTryNext>The reviews list could not be loaded. Check your connection and try reloading.</OperatorTryNext>
+          <OperatorApiProblem failure={loadFailure} />
+          <OperatorTryNext>
+            {isApiNotFoundFailure(loadFailure)
+              ? REVIEWS_HUB_LIST_NOT_FOUND_TRY_NEXT
+              : REVIEWS_HUB_LIST_LOAD_FAILURE_TRY_NEXT}
+          </OperatorTryNext>
         </>
       ) : null}
 

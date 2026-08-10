@@ -112,6 +112,28 @@ Operator and buyer forms must make hard validation visible on the form and hones
 
 **Open apply / cleanup:** **TB-2006**–**TB-2011** in `TECH_BACKLOG.md`. Cursor enforcement: `.cursor/rules/UI-Form-Validation-Affordances.mdc`.
 
+### Operator page contextual help — mount + interaction contract (**TB-1666** — done 2026-08-09)
+
+Every navigable operator surface must teach its own job in place. The shell top-bar Help Center is a global escape hatch, **not** a substitute for page-scoped help: an operator who does not already know the vocabulary cannot search for it.
+
+| Rule | Required behavior |
+|------|-------------------|
+| Where required | Navigable operator hubs — every sidebar destination and every primary workflow page. Documented exceptions: auth / callback / error pages, pure redirects, and the Help Center itself. |
+| Affordance | `PageContextualHelpButton` in the page header actions (CircleHelp + short caption). It must resolve a non-null topic via `pageHelpTopicForPathname` — a mounted button that renders `null` because the map row is missing is a **defect**, not a soft gap. |
+| Content preference | Prefer Category-1 short answers from `contextualHelpForPathname` (what is this page / what to do next / why empty / where to configure). Fall back to a `/help/{slug}` link only when short answers are not written yet. |
+| Trigger semantics | Help panels are **press-triggered**, never hover-triggered. They contain links and deep-link CTAs, and hover-only reveal makes those unreachable by keyboard and touch, and unusable on mobile. |
+| Panel semantics | Use the shared `HelpPopover` primitive (`components/ui/help-popover.tsx`, layered on `components/ui/popover.tsx`). It supplies portaled collision-aware placement, `role="dialog"`, focus movement into the panel, Escape / outside-press dismissal, and focus return to the trigger. Do not hand-roll absolute positioning — it clips at the viewport edge and inside `overflow-hidden` ancestors. |
+| Tooltip vs popover | `FieldHelpTooltip` for a short, **non-interactive** hint on a single control. `HelpPopover` whenever the content contains a link, CTA, or more than one idea. Never put interactive content in a tooltip. |
+| Banned — `title` attribute | Never carry help text in a native `title` attribute. Browsers reveal it on mouse hover only, so keyboard and touch users never see it, and screen-reader support is inconsistent. This includes “why is this control disabled” copy, which must be visible near the control. Enforced by `no-restricted-syntax` in `eslint.config.mjs`; legacy surfaces are baselined in `eslint-rules/title-attribute-legacy-surfaces.mjs` and swept under **TB-2147**. |
+| Banned — dead `helpKey` | `OperatorPageHeader` `helpKey` is deprecated and renders **no** affordance. Do not add new `helpKey` props as a help mechanism. |
+| Supplements, not replacements | Field tooltips, `InAppHelpLink`, `InlineGlossaryChip`, and the `/reviews/new` wizard BookOpen drawer supplement page-scoped help. None of them satisfies this contract on their own. |
+
+**Truncation reveal is a separate problem.** `<td className="truncate" title={fullText}>` is overflow recovery, not help, and it is still mouse-only. Prefer widening the column, wrapping, or a press-triggered disclosure; where a hover reveal is genuinely the best option, it needs a real tooltip. Tracked in **TB-2147** alongside the `title` sweep — do not treat it as ratified.
+
+**Code touchpoints:** `PageContextualHelpButton` / `PageScopedContextualHelpPanel`, `page-help-topic-map.ts`, `contextual-help-registry.ts`, `components/ui/help-popover.tsx`, `components/ui/popover.tsx`.
+
+**Good exemplars:** `/architecture/reviews`, `/architecture/architectures`, findings / alerts / alert-rules / advisory-scans, `/architecture/digests`, improvement planning, executive summary, readiness. Remaining mount gaps are owned by **TB-1667**–**TB-1669**; the Vitest allowlist + non-null topic guard is **TB-1670**. **Learn more** destinations are governed by the next section (**TB-2048**) — this section owns mount, trigger, and panel semantics only.
+
 ### Operator page contextual help — Learn more job match (**TB-2048** — done 2026-08-05)
 
 `PageContextualHelpButton` / Category-1 popovers teach the **current page job**. The **Learn more** escape hatch must not send the operator to a generic Getting started / How it works guide when the page is a secondary hub.
@@ -120,7 +142,7 @@ Operator and buyer forms must make hard validation visible on the form and hones
 |------|-------------------|
 | Job match | Learn more targets `/help/{slug}` whose **primary job** matches the route (same job as the Category-1 answers), **or** Learn more is **omitted** when no honest job-matched guide exists. |
 | Ban (secondary hubs) | Do **not** map Learn more to `getting-started` or `how-it-works` solely because a `page-help-topic-map` row exists. Secondary hubs include Digests, Planning, Decision register, Advisory scans, Impact preview, and other non-first-run operator destinations. |
-| First-run allowlist | `getting-started` / `how-it-works` **are** allowed when the page’s primary job *is* first-run / onboarding / draft bootstrap — e.g. Overview empty/home onboarding, `/onboarding*`, `/reviews/new*`, Architectures list/create/draft workspace, Quick start / get-started marketing. Document the allowlist when adding map rows. |
+| First-run allowlist | `getting-started` / `how-it-works` **are** allowed when the page’s primary job *is* first-run / onboarding / draft bootstrap — e.g. Overview empty/home onboarding, `/onboarding*`, `/architecture/reviews/new*`, Architectures list/create/draft workspace, Quick start / get-started marketing. Document the allowlist when adding map rows. |
 | Prefer existing specialty | Prefer an existing specialty or curated product-help slug over inventing an orphan `/help` page. New specialty bodies coordinate **TB-1414** (do not invent bare markdown dumps). |
 | Mount vs target | *When* to mount `PageContextualHelpButton` remains **TB-1666**–**TB-1670**. This rule owns Learn more **targets** only. |
 
@@ -262,16 +284,33 @@ Product separator is a colon (`Label: value`), not a comma.
 | `StatusTag` | `archlucid-ui/src/components/ui/status-tag.tsx` | Run/governance badges |
 | `SeverityTag` | `archlucid-ui/src/components/ui/severity-tag.tsx` | Findings, governance queue |
 | `EnterpriseTable` | `archlucid-ui/src/components/ui/enterprise-table.tsx` | Reviews list, governance findings, operator audit |
-| `Tabs` / `EnterpriseTabs` | `archlucid-ui/src/components/ui/tabs.tsx` | Shared WAI-ARIA line tabs (**TB-665**); migrate call sites in **TB-666**–**TB-670** |
+| `Tabs` / `EnterpriseTabs` | `archlucid-ui/src/components/ui/tabs.tsx` | Shared WAI-ARIA tabs (**TB-665**); default **`variant="pill"`** (Reviews hub exemplar); `variant="line"` for legacy underline only |
+
+### Tabbed interfaces — Reviews hub exemplar (owner decision 2026-08-09)
+
+**Visual reference:** `/architecture/reviews` (`ReviewsHubReviewInventory` + `ReviewsHubSummaryRow`).
+
+| Pattern | Exemplar on Reviews hub | Component / API |
+| --- | --- | --- |
+| **Section tabs** (Browse / Overview / Findings — swap panels below) | Filter row silver pills (same visual as list filters) | `<Tabs variant="pill">` — default; styles in `tabs-pill-styles.ts` via `buyerFilterChipClass` |
+| **List filters** (All / Needs attention — narrow one table) | Filter row silver pills | `FilterChip` + `buyerFilterChipClass` (`aria-pressed`) |
+| **Read-only KPI strip** (Active / Finalized counts) | Summary row tiles | `rounded-md` metric cards — **not** tabs; do not use `Tabs` or `FilterChip` |
+
+**Rules:**
+
+- Operator section tabs use **`variant="pill"`** (default) — silver `rounded-full` chips with neutral border; selected state = light grey fill (`buyerFilterChipClass`).
+- Do **not** add one-off `rounded-md` segmented containers, underline line tabs, or per-call-site pill `className` overrides on `TabsTrigger`.
+- `variant="line"` (teal underline) is legacy-only; new surfaces must not introduce it.
+- List filters that narrow a single dataset stay on **`FilterChip`** even when they look like tabs — semantics differ (`aria-pressed` vs `role="tablist"`).
 
 ### Tabs vs buttons vs filter chips vs segmented controls (**TB-665**)
 
 | Control | Use when | ARIA / behavior | Do not use for |
 | --- | --- | --- | --- |
-| **`Tabs`** (`Tabs`, `TabsList`, `TabsTrigger`, `TabsContent`) | Fixed, peer views of one page (2–7 panels); selection swaps content below without navigation | `role="tablist"` / `tab` / `tabpanel`; `aria-selected`; Left/Right/Home/End keyboard; optional `?tab=` URL sync | One-time actions; unbounded lists; filters that narrow one list |
+| **`Tabs`** (`Tabs`, `TabsList`, `TabsTrigger`, `TabsContent`) | Fixed, peer views of one page (2–7 panels); selection swaps content below without navigation | `role="tablist"` / `tab` / `tabpanel`; `aria-selected`; Left/Right/Home/End keyboard; optional `?tab=` URL sync; default **`variant="pill"`** | One-time actions; unbounded lists; filters that narrow one list |
 | **Primary `Button`** | Single commit actions (Save, Finalize, Export) | `button` | View switchers that swap large panels |
 | **`FilterChip`** | Optional filters, drill-down links, compact toggles outside a tab strip | `button` or `link` | Mutually exclusive page sections with dedicated panels |
-| **Segmented control** (`aria-pressed` / radiogroup) | 2–4 compact modes on one dataset (Cards/Timeline, graph scope) | `aria-pressed` or `radiogroup` | Multi-panel layouts needing `tabpanel` linkage (**TB-671**) |
+| **Segmented control** (`aria-pressed` / radiogroup) | 2–4 compact modes on one dataset where tab panels are not used (graph scope pills) | `aria-pressed` or `radiogroup` | Multi-panel layouts needing `tabpanel` linkage — use **`Tabs variant="pill"`** instead |
 
 Cursor enforcement: `.cursor/rules/UI-Enterprise-Design-Standard.mdc` (**TB-120**).
 
@@ -296,4 +335,5 @@ Cursor enforcement: `.cursor/rules/UI-Enterprise-Design-Standard.mdc` (**TB-120*
 - Deferred UI architecture: `docs/library/UI_ARCHITECTURE_V1_1.md`
 - Cursor rules: `.cursor/rules/UI-React-Next-Conventions.mdc`, `.cursor/rules/UI-Accessibility-Baseline.mdc`, `.cursor/rules/UI-Form-Validation-Affordances.mdc` (**TB-2005**)
 - Agent guidance: `archlucid-ui/AGENTS.md`
-- Page-scoped **Learn more** job match: this file § *Operator page contextual help — Learn more job match* (**TB-2048** Done); mount waves **TB-1666**–**TB-1670**; Digests/secondary remaps **TB-2049**–**TB-2052**
+- Page-scoped help **mount + interaction** contract: this file § *Operator page contextual help — mount + interaction contract* (**TB-1666** Done) — press-only triggers, shared `HelpPopover`, `title`-as-help banned (sweep **TB-2147**); remaining mount waves **TB-1667**–**TB-1670**
+- Page-scoped **Learn more** job match: this file § *Operator page contextual help — Learn more job match* (**TB-2048** Done); Digests/secondary remaps **TB-2049**–**TB-2052**

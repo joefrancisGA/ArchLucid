@@ -30,6 +30,7 @@ export function CommitBlockingFindingsBanner(props: CommitBlockingFindingsBanner
           <li key={finding.findingId}>
             <Link
               href={`/architecture/reviews/${encodeURIComponent(props.runId)}/findings/${encodeURIComponent(finding.findingId)}`}
+              prefetch={false}
               className="font-medium text-teal-900 underline dark:text-teal-200"
             >
               {finding.title}

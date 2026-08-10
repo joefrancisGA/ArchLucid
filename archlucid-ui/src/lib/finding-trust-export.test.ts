@@ -3,9 +3,11 @@ import { describe, expect, it } from "vitest";
 import { findingTrustExportJsonFields, formatFindingTrustExportLine } from "./finding-trust-export";
 
 describe("formatFindingTrustExportLine", () => {
-  it("returns null when no label", () => {
-    expect(formatFindingTrustExportLine({})).toBeNull();
-    expect(formatFindingTrustExportLine({ trustLabel: "  " })).toBeNull();
+  it("derives canonical label when wire trustLabel is absent", () => {
+    expect(formatFindingTrustExportLine({ policyRuleId: "rule-1", evidenceRefCount: 0 })).toBe(
+      "DeterministicRule",
+    );
+    expect(formatFindingTrustExportLine({ evidenceRefCount: 0 })).toBe("MissingCitation");
   });
 
   it("formats label with optional reason", () => {
@@ -20,16 +22,18 @@ describe("formatFindingTrustExportLine", () => {
 });
 
 describe("findingTrustExportJsonFields", () => {
-  it("omits fields when label absent", () => {
-    expect(findingTrustExportJsonFields({})).toEqual({});
+  it("derives json fields when wire label is absent", () => {
+    expect(findingTrustExportJsonFields({ policyRuleId: "rule-1", evidenceRefCount: 0 })).toEqual({
+      trustLabel: "DeterministicRule",
+    });
   });
 
   it("includes label and reason when present", () => {
     expect(
       findingTrustExportJsonFields({
-        trustLabel: "ModelInference",
+        trustLabel: "EvidenceBacked",
         trustLabelReason: "Agent output.",
       }),
-    ).toEqual({ trustLabel: "ModelInference", trustLabelReason: "Agent output." });
+    ).toEqual({ trustLabel: "EvidenceBacked", trustLabelReason: "Agent output." });
   });
 });

@@ -45,6 +45,21 @@ export const GOVERNANCE_APPROVAL_HELP_WORKFLOW_STEPS = [
   "Record and audit the decision",
 ] as const;
 
+export const GOVERNANCE_APPROVAL_HELP_DIAGRAM_SUMMARY =
+  "Approval requests move from draft preparation through governance review to recorded outcomes. Labels match the status table on this page.";
+
+/** Buyer-safe approval state machine — no API paths or eng jargon. */
+export const GOVERNANCE_APPROVAL_HELP_DIAGRAM_SOURCE = `stateDiagram-v2
+  direction LR
+  [*] --> Draft
+  Draft --> Submitted: Submit for approval
+  Submitted --> UnderReview: Review evidence
+  state "Under review" as UnderReview
+  UnderReview --> Approved: Approve
+  UnderReview --> Rejected: Reject or request changes
+  Rejected --> Submitted: Revise and resubmit
+  Approved --> Superseded: Newer release replaces record`;
+
 export type GovernanceApprovalHelpRoleId =
   | "solution-architect"
   | "governance-approver"

@@ -38,7 +38,7 @@ import {
   REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE,
   REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFTS_BODY,
   REVIEWS_HUB_RECENT_EMPTY_WITH_SOLE_DRAFT_BODY,
-  REVIEWS_HUB_RECENT_SECTION_TITLE,
+  REVIEWS_HUB_PAGE_TITLE,
 } from "./reviews-hub-copy";
 import { toReviewsHubReviewRowDisplay } from "./reviews-hub-package-display";
 import { reviewsHubOverallStatusTagKind, type ReviewsHubOverallStatus } from "./reviews-hub-review-status";
@@ -169,12 +169,8 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
 
   return (
     <section className="mt-8" data-testid="reviews-hub-recent-packages">
-      <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-        {REVIEWS_HUB_RECENT_SECTION_TITLE}
-      </h2>
-
       {rows.length === 0 ? (
-        <div className="mt-3" data-has-architecture-drafts={hasDrafts ? "true" : "false"}>
+        <div data-has-architecture-drafts={hasDrafts ? "true" : "false"}>
           <EnterpriseCompactEmptyState
             testId="reviews-hub-recent-empty"
             title={hasDrafts ? REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE : REVIEWS_HUB_RECENT_EMPTY_TITLE}
@@ -195,7 +191,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
         </div>
       ) : (
         <>
-          <div className="mt-3 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
             <div className="w-full max-w-md">
               <Input
                 value={searchQuery}
@@ -234,8 +230,8 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
             </div>
           </div>
 
-          <div className="mt-3 overflow-x-auto">
-            <EnterpriseTable ariaLabel={REVIEWS_HUB_RECENT_SECTION_TITLE} data-testid="reviews-hub-packages-table">
+          <div className="overflow-x-auto">
+            <EnterpriseTable ariaLabel={REVIEWS_HUB_PAGE_TITLE} data-testid="reviews-hub-packages-table">
               <EnterpriseTableHead>
                 <EnterpriseTableHeadRow>
                   <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>

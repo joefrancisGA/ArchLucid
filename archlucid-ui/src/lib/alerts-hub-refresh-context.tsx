@@ -1,6 +1,15 @@
 "use client";
 
-import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 
 import type { AlertRulesHubTabId } from "@/lib/alerts-hub-tab";
 
@@ -10,6 +19,7 @@ type AlertRulesHubRefreshContextValue = {
   readonly refreshing: boolean;
   readonly lastRefreshedAt: Date | null;
   readonly requestRefresh: () => void;
+  readonly reportTabLoaded: (tabId: AlertRulesHubTabId) => void;
   readonly registerTabLoader: (tabId: AlertRulesHubTabId, loader: TabLoader) => () => void;
 };
 
@@ -26,6 +36,12 @@ export function AlertRulesHubRefreshProvider(props: AlertRulesHubRefreshProvider
   const [refreshing, setRefreshing] = useState(false);
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
 
+  // Freshness is per active tab — clear when the operator switches so the header does not
+  // show another tab's stamp.
+  useEffect(() => {
+    setLastRefreshedAt(null);
+  }, [props.activeTab]);
+
   const registerTabLoader = useCallback((tabId: AlertRulesHubTabId, loader: TabLoader) => {
     loadersRef.current[tabId] = loader;
 
@@ -35,6 +51,17 @@ export function AlertRulesHubRefreshProvider(props: AlertRulesHubRefreshProvider
       }
     };
   }, []);
+
+  const reportTabLoaded = useCallback(
+    (tabId: AlertRulesHubTabId) => {
+      if (tabId !== props.activeTab) {
+        return;
+      }
+
+      setLastRefreshedAt(new Date());
+    },
+    [props.activeTab],
+  );
 
   const requestRefresh = useCallback(() => {
     const loader = loadersRef.current[props.activeTab];
@@ -47,21 +74,22 @@ export function AlertRulesHubRefreshProvider(props: AlertRulesHubRefreshProvider
 
     void loader()
       .then(() => {
-        setLastRefreshedAt(new Date());
+        reportTabLoaded(props.activeTab);
       })
       .finally(() => {
         setRefreshing(false);
       });
-  }, [props.activeTab]);
+  }, [props.activeTab, reportTabLoaded]);
 
   const value = useMemo<AlertRulesHubRefreshContextValue>(
     () => ({
       refreshing,
       lastRefreshedAt,
       requestRefresh,
+      reportTabLoaded,
       registerTabLoader,
     }),
-    [lastRefreshedAt, refreshing, registerTabLoader, requestRefresh],
+    [lastRefreshedAt, refreshing, registerTabLoader, reportTabLoaded, requestRefresh],
   );
 
   return (

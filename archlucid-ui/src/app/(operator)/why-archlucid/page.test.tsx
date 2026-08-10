@@ -204,6 +204,34 @@ describe("WhyArchLucidPage (proof page snapshot)", () => {
     expect(screen.getByTestId("why-archlucid-sponsor-pack-source")).not.toHaveTextContent(/Retail baseline/i);
   });
 
+  it("TB-1308: purges engineering metric hints and repo doc footer paths", async () => {
+    measuredRoiMock.mockResolvedValue(fixedMeasuredRoi);
+    sponsorPackMock.mockResolvedValue(fixedSponsorEvidencePack);
+    reportMock.mockResolvedValue(fixedReport);
+    explanationMock.mockResolvedValue(fixedExplanation);
+
+    render(<WhyArchLucidPage />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("why-archlucid-counters")).toBeInTheDocument();
+    });
+
+    const pageText = document.body.textContent ?? "";
+    expect(pageText).not.toMatch(/ArchLucidInstrumentation/i);
+    expect(pageText).not.toMatch(/IAuditRepository/i);
+    expect(pageText).not.toMatch(/archlucid_runs_created_total/i);
+    expect(pageText).not.toMatch(/docs\/library\/SPONSOR_ONE_PAGER\.md/i);
+    expect(pageText).not.toMatch(/docs\/go-to-market\/POSITIONING\.md/i);
+
+    expect(screen.getByTestId("why-archlucid-page-footer")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Executive sponsor brief/i })).toHaveAttribute(
+      "href",
+      "/help/executive-summary",
+    );
+    expect(screen.getByRole("link", { name: /Getting started/i })).toHaveAttribute("href", "/get-started");
+    expect(screen.getByRole("link", { name: /Trust Center/i })).toHaveAttribute("href", "/trust");
+  });
+
   it("shows API-problem callouts when downstream calls fail", async () => {
     measuredRoiMock.mockRejectedValue(new Error("snapshot failed"));
     sponsorPackMock.mockRejectedValue(new Error("pack failed"));

@@ -38,7 +38,7 @@ const CORE_GLOSSARY: GlossaryEntry[] = [
   {
     term: "Governance approval",
     definition:
-      "An operator or authority decision recorded against a finalized review — Approved, Approved with monitoring, or Rejected. Drives downstream workflow.",
+      "An architect or authority decision recorded against a finalized review — Approved, Approved with monitoring, or Rejected. Drives downstream workflow.",
   },
   {
     term: "Audit trail",

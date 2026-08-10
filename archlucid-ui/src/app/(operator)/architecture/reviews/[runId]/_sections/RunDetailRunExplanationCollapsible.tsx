@@ -8,7 +8,11 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { CoverageChecklistPanel } from "@/components/usability/CoverageChecklistPanel";
 import { InsightDensityCurationBanner } from "@/components/usability/InsightDensityCurationBanner";
-import type { FindingsSnapshotInsightDensityView } from "@/lib/findings-snapshot-insight-density";
+import {
+  hasFindingsSnapshotInsightDensityContent,
+  type FindingsSnapshotInsightDensityView,
+} from "@/lib/findings-snapshot-insight-density";
+import { hasFindingsWhatIfAnalysisContent } from "@/lib/findings-what-if-analysis";
 import type { FindingWireSnapshot, QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { RunExplanationSummary } from "@/types/explanation";
 import { RunDecisionExplainabilitySection } from "@/components/RunDecisionExplainabilitySection";
@@ -78,6 +82,10 @@ type RunDetailRunExplanationCollapsibleProps = {
   readonly packageCommitted?: boolean;
 };
 
+function buildFindingTitlesById(findings: readonly QuickDecisionFinding[]): Record<string, string> {
+  return Object.fromEntries(findings.map((finding) => [finding.findingId, finding.title]));
+}
+
 export function RunDetailRunExplanationCollapsible(
   props: RunDetailRunExplanationCollapsibleProps,
 ): ReactElement | null {
@@ -101,43 +109,16 @@ export function RunDetailRunExplanationCollapsible(
     architectureWorkItemContext,
     packageCommitted,
   } = props;
+  const findingTitlesById = buildFindingTitlesById(quickDecisionFindings);
+  const showCoverageAndCuration = hasFindingsSnapshotInsightDensityContent(insightDensityView);
+  const showImpactAnalysis = hasFindingsWhatIfAnalysisContent(
+    quickDecisionFindings,
+    baselineAnnualCostUsd,
+  );
 
   return (
-    <section id="run-explanation" className="scroll-mt-24">
-      <div className="mb-3">
-        <h2 className={cn("m-0 text-lg font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          ArchLucid review
-        </h2>
-        <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          Findings, evidence, and governance outcomes from the completed analysis.
-        </p>
-      </div>
-      <CollapsibleSection
-        title={buyerPolishedArtifactTable ? "Findings" : "Findings and assessment"}
-        defaultOpen
-        sectionTestId="run-detail-findings-section"
-      >
-        <details className="mb-4 rounded-md border border-neutral-200 p-3 dark:border-neutral-800" data-workspace-disclosure>
-          <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.body)}>
-            Finding coverage and curation
-          </summary>
-          <div className="mt-3 space-y-3">
-            <InsightDensityCurationBanner curation={insightDensityView.curation} />
-            <CoverageChecklistPanel items={insightDensityView.checklistCoverage} />
-          </div>
-        </details>
-        <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" data-workspace-disclosure>
-          <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.body)}>
-            Impact analysis
-          </summary>
-          <div className="mt-3">
-            <FindingsWhatIfAnalysisPanel
-              findings={quickDecisionFindings}
-              baselineAnnualCostUsd={baselineAnnualCostUsd}
-              isIllustrativePricing={isIllustrativePricing}
-            />
-          </div>
-        </details>
+    <section id="run-explanation" className="scroll-mt-24 space-y-4">
+      <div className="space-y-4" data-testid="run-detail-findings-section">
         <RunDetailFindingsWorkspace
           runId={runId}
           findings={quickDecisionFindings}
@@ -151,7 +132,42 @@ export function RunDetailRunExplanationCollapsible(
           architectureWorkItemContext={architectureWorkItemContext}
           packageCommitted={packageCommitted}
         />
-      </CollapsibleSection>
+
+        {showCoverageAndCuration ? (
+          <details
+            className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
+            data-workspace-disclosure
+            data-testid="run-detail-coverage-curation-disclosure"
+          >
+            <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.body)}>
+              Finding coverage and curation
+            </summary>
+            <div className="mt-3 space-y-3">
+              <InsightDensityCurationBanner curation={insightDensityView.curation} />
+              <CoverageChecklistPanel items={insightDensityView.checklistCoverage} />
+            </div>
+          </details>
+        ) : null}
+
+        {showImpactAnalysis ? (
+          <details
+            className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
+            data-workspace-disclosure
+            data-testid="run-detail-impact-analysis-disclosure"
+          >
+            <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.body)}>
+              Impact analysis
+            </summary>
+            <div className="mt-3">
+              <FindingsWhatIfAnalysisPanel
+                findings={quickDecisionFindings}
+                baselineAnnualCostUsd={baselineAnnualCostUsd}
+                isIllustrativePricing={isIllustrativePricing}
+              />
+            </div>
+          </details>
+        ) : null}
+      </div>
 
       <CollapsibleSection
         title="Assessment narrative"
@@ -188,6 +204,7 @@ export function RunDetailRunExplanationCollapsible(
               error={null}
               runId={runId}
               displayFindingCount={findingCountDisplay}
+              findingTitlesById={findingTitlesById}
             />
             {(() => {
               const traceRows =

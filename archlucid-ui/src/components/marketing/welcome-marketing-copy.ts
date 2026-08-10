@@ -2,6 +2,7 @@
 
 import { DEMO_WORKSPACE_B_RUN_ID } from "@/lib/demo-workspace-scope";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
+import { SEE_IT_PAGE_TITLE } from "@/lib/see-it-page-copy";
 import { CANONICAL_ANONYMOUS_PROOF_HREF } from "@/lib/showcase-static-demo";
 
 /** TB-1294: metadata title beyond bare “Welcome”. */
@@ -50,7 +51,7 @@ export const WELCOME_HERO_EVALUATION_REASSURANCE =
   "Inspect a governed sample review built on fabricated data, then bring your own architecture evidence when ready. No sales call required.";
 
 /** TB-1298 / TB-1280: honest see-it framing — no bare “30 seconds” / “30s”. */
-export const WELCOME_SEE_IT_CTA_LABEL = "See a finalized sample review";
+export const WELCOME_SEE_IT_CTA_LABEL = SEE_IT_PAGE_TITLE;
 
 export const WELCOME_SEE_IT_HREF = "/see-it" as const;
 
@@ -125,7 +126,7 @@ export const WELCOME_WORKFLOW_STEPS: readonly WelcomeWorkflowStep[] = [
 ] as const;
 
 export const WELCOME_WORKFLOW_INTRO =
-  "One six-stage vocabulary shared by buyers, operators, and governance partners.";
+  "One six-stage vocabulary shared by buyers, architects, and governance partners.";
 
 export type WelcomeUseCaseCard = {
   readonly id: string;

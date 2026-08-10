@@ -21,13 +21,13 @@ export function PersistentSponsorEmailStrip(props: PersistentSponsorEmailStripPr
       data-testid="persistent-sponsor-email-strip"
     >
       <p className={cn("m-0 text-teal-950 dark:text-teal-100", OPERATOR_TYPOGRAPHY.body)}>
-        Review committed — email the sponsor packet or open exports below.
+        Review finalized — download sponsor exports below or open the full handoff package.
       </p>
       <Link
         href="#sponsor-handoff"
         className={cn("font-semibold text-teal-900 underline underline-offset-2 dark:text-teal-200", OPERATOR_TYPOGRAPHY.cardTitle)}
       >
-        Jump to sponsor handoff
+        Send to sponsor
       </Link>
     </div>
   );

@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import type { ReactElement } from "react";
 
 import { FindingAiReasoningDialog } from "@/components/FindingAiReasoningDialog";
@@ -52,6 +52,7 @@ import {
 } from "@/lib/finding-source-evidence-links";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import {
+  buildWorkspaceCardRenderedFindings,
   findingHasNoSourceEvidence,
   firstRecommendationSentence,
   humanReviewStatusDisplay,
@@ -72,7 +73,26 @@ import {
   formatHiddenLowConfidenceHint,
   partitionQuickDecisionFindingsByConfidence,
 } from "@/lib/finding-confidence-filter";
-import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  FINDINGS_ROW_METADATA_TAG_SIZE,
+  OPERATOR_LINK,
+  OPERATOR_NAV_GROUP_LABEL,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
+import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
+
+export type QuickDecisionSummaryConfidenceVisibility = {
+  readonly showLowConfidence: boolean;
+  readonly onShowLowConfidenceChange: (value: boolean) => void;
+  readonly hiddenByConfidenceCount: number;
+  readonly managedExternally: true;
+};
+
+export type QuickDecisionSummaryAdvisoryVisibility = {
+  readonly showAdvisory: boolean;
+  readonly onShowAdvisoryChange: (value: boolean) => void;
+  readonly managedExternally: true;
+};
 
 export type QuickDecisionSummaryProps = {
   readonly runId: string;
@@ -97,6 +117,10 @@ export type QuickDecisionSummaryProps = {
   } | null;
   /** When false, hide work-item / ITSM integration chrome until a committed manifest exists (TB-1854). */
   readonly packageCommitted?: boolean;
+  /** When set, confidence filtering is owned by the parent (review detail findings workspace). */
+  readonly confidenceVisibility?: QuickDecisionSummaryConfidenceVisibility;
+  /** When set, advisory-note expansion is owned by the parent (review detail findings workspace). */
+  readonly advisoryVisibility?: QuickDecisionSummaryAdvisoryVisibility;
 };
 
 /** Top severity-ranked actionable findings from run detail agent results (no extra API calls). */
@@ -104,12 +128,43 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
   const router = useRouter();
   const canMutate = useOperateCapability();
   const sorted = sortQuickDecisionFindings(props.findings);
+  const confidenceManagedExternally = props.confidenceVisibility?.managedExternally === true;
   const [showMuted, setShowMuted] = useState(false);
-  const [showLowConfidence, setShowLowConfidence] = useState(false);
-  const [showAdvisory, setShowAdvisory] = useState(false);
+  const [internalShowLowConfidence, setInternalShowLowConfidence] = useState(false);
+  const showLowConfidence = confidenceManagedExternally
+    ? props.confidenceVisibility?.showLowConfidence === true
+    : internalShowLowConfidence;
+  const setShowLowConfidence = confidenceManagedExternally
+    ? (value: boolean) => {
+        props.confidenceVisibility?.onShowLowConfidenceChange(value);
+      }
+    : setInternalShowLowConfidence;
+  const [showAdvisoryInternal, setShowAdvisoryInternal] = useState(false);
+  const advisoryManagedExternally = props.advisoryVisibility?.managedExternally === true;
+  const showAdvisory = advisoryManagedExternally
+    ? props.advisoryVisibility?.showAdvisory === true
+    : showAdvisoryInternal;
+  const setShowAdvisory = advisoryManagedExternally
+    ? (value: boolean) => {
+        props.advisoryVisibility?.onShowAdvisoryChange(value);
+      }
+    : setShowAdvisoryInternal;
+  const [openWorkspaceIntegrationsByFindingId, setOpenWorkspaceIntegrationsByFindingId] = useState<
+    Readonly<Record<string, boolean>>
+  >({});
   const afterMuteFilter = showMuted ? sorted : sorted.filter((f) => !f.isMuted);
-  const { trustedFindings, lowConfidenceFindings } = partitionQuickDecisionFindingsByConfidence(afterMuteFilter);
-  const hiddenLowConfidenceCount = showLowConfidence ? 0 : lowConfidenceFindings.length;
+  const confidencePartition = confidenceManagedExternally
+    ? {
+        trustedFindings: afterMuteFilter,
+        lowConfidenceFindings: [] as QuickDecisionFinding[],
+      }
+    : partitionQuickDecisionFindingsByConfidence(afterMuteFilter);
+  const { trustedFindings, lowConfidenceFindings } = confidencePartition;
+  const hiddenLowConfidenceCount = confidenceManagedExternally
+    ? (props.confidenceVisibility?.hiddenByConfidenceCount ?? 0)
+    : showLowConfidence
+      ? 0
+      : lowConfidenceFindings.length;
   const hiddenLowConfidenceHint = formatHiddenLowConfidenceHint(hiddenLowConfidenceCount);
   const { policyViolations, advisoryNotes } = partitionQuickDecisionFindings(trustedFindings);
   const {
@@ -128,6 +183,14 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
   );
   const policyPackSummary = policyPackImpact.groups;
   const hasSourceFindings = props.findings.length > 0;
+  const itsmFindingIds = useMemo(
+    () => props.findings.map((finding) => finding.findingId),
+    [props.findings],
+  );
+  usePrefetchItsmFindingCorrelations(
+    itsmFindingIds,
+    props.packageCommitted !== false && props.workspaceCardMode !== true,
+  );
   const provenanceAggregateLine = formatFindingProvenanceAggregateLine(
     aggregateFindingProvenance(
       props.findings.map((finding) => ({
@@ -256,6 +319,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
           {!workspaceCardMode ? (
             <Link
               href={href}
+              prefetch={false}
               className={cn(OPERATOR_LINK.nav, "min-w-0 flex-1")}
             >
               <span className="sr-only">Finding {f.findingId}: </span>
@@ -424,18 +488,17 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
   }
 
   function buildWorkspaceVisibleFindings(): QuickDecisionFinding[] {
-    const { policyViolations, advisoryNotes } = partitionQuickDecisionFindings(trustedFindings);
-    const combined: QuickDecisionFinding[] = [...policyViolations];
+    const sourceFindings = confidenceManagedExternally ? afterMuteFilter : trustedFindings;
+    const rendered = buildWorkspaceCardRenderedFindings(sourceFindings, {
+      showAdvisory,
+      showMuted: false,
+    });
 
-    if (showAdvisory) {
-      combined.push(...advisoryNotes);
+    if (!confidenceManagedExternally && showLowConfidence) {
+      return sortQuickDecisionFindings([...rendered, ...lowConfidenceFindings]);
     }
 
-    if (showLowConfidence) {
-      combined.push(...lowConfidenceFindings);
-    }
-
-    return sortQuickDecisionFindings(combined);
+    return rendered;
   }
 
   function renderWorkspaceIntegrations(f: QuickDecisionFinding): ReactElement | null {
@@ -447,6 +510,13 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
       <details
         className="rounded-md border border-neutral-200 p-2 dark:border-neutral-800"
         data-workspace-disclosure
+        onToggle={(event) => {
+          const open = event.currentTarget.open;
+          setOpenWorkspaceIntegrationsByFindingId((current) => ({
+            ...current,
+            [f.findingId]: open,
+          }));
+        }}
       >
         <summary className={cn("cursor-pointer font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
           Create work item / Integrations
@@ -474,7 +544,11 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
                 statusLabel="Open"
                 compact
               />
-              <ItsmOutboundQuickActions findingId={f.findingId} compact />
+              <ItsmOutboundQuickActions
+                findingId={f.findingId}
+                compact
+                loadWhen={openWorkspaceIntegrationsByFindingId[f.findingId] === true}
+              />
             </div>
           )}
         </div>
@@ -568,18 +642,23 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
               severity={badgeLabel}
               kind={severityKindFromNumericValue(f.severityValue)}
               label={badgeLabel}
-              className="shrink-0 text-sm tabular-nums"
+              className={cn("shrink-0 tabular-nums", FINDINGS_ROW_METADATA_TAG_SIZE)}
             />
             {reviewStatus !== null ? (
               <StatusTag
                 kind={reviewStatus.statusKind}
                 label={reviewStatus.label}
+                className={FINDINGS_ROW_METADATA_TAG_SIZE}
                 data-testid={`finding-review-status-${f.findingId}`}
               />
             ) : (
-              <StatusTag kind="neutral" label="Open" />
+              <StatusTag kind="neutral" label="Open" className={FINDINGS_ROW_METADATA_TAG_SIZE} />
             )}
-            <StatusTag kind="neutral" label={findingEnforcementTierLabel(f.enforcementTier)} className="shrink-0" />
+            <StatusTag
+              kind="neutral"
+              label={findingEnforcementTierLabel(f.enforcementTier)}
+              className={cn("shrink-0", FINDINGS_ROW_METADATA_TAG_SIZE)}
+            />
           </div>
           <h3 className={cn("m-0 text-xl font-bold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {f.title}
@@ -622,7 +701,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
         </dl>
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <Button type="button" size="sm" variant="default" className="h-8" asChild>
-            <Link href={href}>Open finding</Link>
+            <Link href={href} prefetch={false}>Open finding</Link>
           </Button>
           {viewEvidenceHref !== null ? (
             <FindingEvidenceLinkChip
@@ -714,12 +793,16 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
                 severity={badgeLabel}
                 kind={severityKindFromNumericValue(f.severityValue)}
                 label={badgeLabel}
-                className="shrink-0 tabular-nums"
+                className={cn("shrink-0 tabular-nums", FINDINGS_ROW_METADATA_TAG_SIZE)}
               />
               {reviewStatus !== null ? (
-                <StatusTag kind={reviewStatus.statusKind} label={reviewStatus.label} />
+                <StatusTag
+                  kind={reviewStatus.statusKind}
+                  label={reviewStatus.label}
+                  className={FINDINGS_ROW_METADATA_TAG_SIZE}
+                />
               ) : (
-                <StatusTag kind="neutral" label="Open" />
+                <StatusTag kind="neutral" label="Open" className={FINDINGS_ROW_METADATA_TAG_SIZE} />
               )}
               <span className="min-w-0 flex-1 font-semibold text-al-text-primary">{f.title}</span>
             </div>
@@ -727,7 +810,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
           <div className="mt-3 space-y-3 border-t border-neutral-100 pt-3 dark:border-neutral-800">
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{snippet}</p>
             <Button type="button" size="sm" variant="outline" className="h-8" asChild>
-              <Link href={href}>Open finding</Link>
+              <Link href={href} prefetch={false}>Open finding</Link>
             </Button>
             {renderWorkspaceSupportingDetails(f)}
           </div>
@@ -876,21 +959,6 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
               ) : null}
             </div>
           ) : null}
-          {hasSourceFindings && policyPackSummary.length > 0 ? (
-            <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" data-workspace-disclosure>
-              <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.body)}>
-                Policy pack impact
-              </summary>
-              <div className="mt-3">
-                <ReviewDetailPolicyPackFindingsBreakdown
-                  groups={policyPackSummary}
-                  manifestRuleSetId={props.manifestRuleSetId}
-                  mappedFindingCount={policyPackImpact.mappedFindingCount}
-                  unmappedFindingCount={policyPackImpact.unmappedFindingCount}
-                />
-              </div>
-            </details>
-          ) : null}
           {props.usingExplanationFallback === true ? (
             <p
               className={cn(
@@ -910,7 +978,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
             <p className="m-0 text-neutral-600 dark:text-neutral-400">
               All findings are currently muted. Enable <strong>Show muted findings</strong> to review them.
             </p>
-          ) : trustedFindings.length === 0 && lowConfidenceFindings.length > 0 && !showLowConfidence ? (
+          ) : trustedFindings.length === 0 && lowConfidenceFindings.length > 0 && !showLowConfidence && !confidenceManagedExternally ? (
             <p className="m-0 text-neutral-600 dark:text-neutral-400" data-testid="quick-decision-low-confidence-only">
               Low-confidence findings are hidden to reduce noise. Enable <strong>Show low-confidence findings</strong>{" "}
               to review unverified items.
@@ -953,6 +1021,21 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
               ) : null}
             </div>
           )}
+          {hasSourceFindings && policyPackSummary.length > 0 ? (
+            <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" data-workspace-disclosure>
+              <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.body)}>
+                Policy pack impact
+              </summary>
+              <div className="mt-3">
+                <ReviewDetailPolicyPackFindingsBreakdown
+                  groups={policyPackSummary}
+                  manifestRuleSetId={props.manifestRuleSetId}
+                  mappedFindingCount={policyPackImpact.mappedFindingCount}
+                  unmappedFindingCount={policyPackImpact.unmappedFindingCount}
+                />
+              </div>
+            </details>
+          ) : null}
         </div>
         {renderWorkspaceDialogs()}
       </>
@@ -1047,7 +1130,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
             <p className="m-0 text-neutral-600 dark:text-neutral-400">
               All findings are currently muted. Enable <strong>Show muted findings</strong> to review them.
             </p>
-          ) : trustedFindings.length === 0 && lowConfidenceFindings.length > 0 && !showLowConfidence ? (
+          ) : trustedFindings.length === 0 && lowConfidenceFindings.length > 0 && !showLowConfidence && !confidenceManagedExternally ? (
             <p className="m-0 text-neutral-600 dark:text-neutral-400" data-testid="quick-decision-low-confidence-only">
               Low-confidence findings are hidden to reduce noise. Enable <strong>Show low-confidence findings</strong>{" "}
               to review unverified items.
@@ -1100,7 +1183,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
                       variant="outline"
                       size="sm"
                       onClick={() => {
-                        setShowAdvisory((current) => !current);
+                        setShowAdvisory(!showAdvisory);
                       }}
                       aria-expanded={showAdvisory}
                     >
