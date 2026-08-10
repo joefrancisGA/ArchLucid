@@ -6,6 +6,7 @@ import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsCont
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useOptionalAlertRulesHubRefresh } from "@/lib/alerts-hub-refresh-context";
@@ -47,6 +48,20 @@ import type { CompositeAlertRule } from "@/types/composite-alert-rules";
 
 const SEVERITIES = ["Info", "Warning", "High", "Critical"];
 
+function CompositeAlertRulesListLoadingSkeleton(): React.JSX.Element {
+  return (
+    <div
+      className="grid gap-3"
+      data-testid="composite-alert-rules-list-loading-skeleton"
+      aria-busy="true"
+      aria-label="Loading composite alert rules"
+    >
+      <Skeleton className="h-28 w-full rounded-lg border border-neutral-200 dark:border-neutral-700" />
+      <Skeleton className="h-28 w-full rounded-lg border border-neutral-200 dark:border-neutral-700" />
+    </div>
+  );
+}
+
 export function CompositeAlertRulesContent() {
   const canMutateComposite = useOperateCapability();
   const refreshContext = useOptionalAlertRulesHubRefresh();
@@ -59,7 +74,6 @@ export function CompositeAlertRulesContent() {
   const [joinOperator, setJoinOperator] = useState("And");
   const [suppressionWindowMinutes, setSuppressionWindowMinutes] = useState(1440);
   const [cooldownMinutes, setCooldownMinutes] = useState(60);
-  const [reopenDeltaThreshold, setReopenDeltaThreshold] = useState(0);
   const [dedupeScope, setDedupeScope] = useState("RuleAndRun");
 
   const [m1, setM1] = useState("CostIncreasePercent");
@@ -108,7 +122,7 @@ export function CompositeAlertRulesContent() {
         operator: joinOperator,
         suppressionWindowMinutes,
         cooldownMinutes,
-        reopenDeltaThreshold,
+        reopenDeltaThreshold: 0,
         dedupeScope,
         conditions: [
           { metricType: m1, operator: o1, thresholdValue: v1 },
@@ -169,7 +183,9 @@ export function CompositeAlertRulesContent() {
             ) : null}
           </div>
           <div className="grid gap-3.5">
-            {items.length === 0 ? (
+            {loading && items.length === 0 ? (
+              <CompositeAlertRulesListLoadingSkeleton />
+            ) : items.length === 0 ? (
               <div className="grid max-w-xl gap-3">
                 <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
                   {canMutateComposite ? compositeRulesDefinedListEmptyOperatorLine : compositeRulesDefinedListEmptyReaderLine}
@@ -371,16 +387,6 @@ export function CompositeAlertRulesContent() {
             type="number"
             value={cooldownMinutes}
             onChange={(e) => setCooldownMinutes(Number(e.target.value))}
-            className="mt-1 block w-full p-2"
-          />
-        </label>
-        <label>
-          Reopen delta threshold (reserved for future use)
-          <input
-            type="number"
-            step="any"
-            value={reopenDeltaThreshold}
-            onChange={(e) => setReopenDeltaThreshold(Number(e.target.value))}
             className="mt-1 block w-full p-2"
           />
         </label>

@@ -95,4 +95,39 @@ describe("CompositeAlertRulesContent", () => {
       expect(within(operatorSelect).queryByRole("option", { name: /GreaterThanOrEqual/i })).not.toBeInTheDocument();
     }
   });
+
+  it("TB-1583: hides reserved reopen-delta copy from the create form", async () => {
+    render(<CompositeAlertRulesContent />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("composite-alert-rule-row-composite-1")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByText(/reserved for future use/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/reopen delta threshold/i)).not.toBeInTheDocument();
+  });
+
+  it("TB-1583: shows a list loading skeleton while composite rules are loading", async () => {
+    let resolveList: ((rules: CompositeAlertRule[]) => void) | undefined;
+    apiHoisted.listCompositeAlertRules.mockImplementation(
+      () =>
+        new Promise<CompositeAlertRule[]>((resolve) => {
+          resolveList = resolve;
+        }),
+    );
+
+    render(<CompositeAlertRulesContent />);
+
+    expect(screen.getByTestId("composite-alert-rules-list-loading-skeleton")).toBeInTheDocument();
+    expect(screen.queryByText(/reserved for future use/i)).not.toBeInTheDocument();
+    expect(screen.queryByText("None yet.")).not.toBeInTheDocument();
+
+    resolveList?.([sampleRule]);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("composite-alert-rule-row-composite-1")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("composite-alert-rules-list-loading-skeleton")).not.toBeInTheDocument();
+  });
 });
