@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ArchitectureCreationLocalDraftsPanel } from "@/components/architecture/ArchitectureCreationLocalDraftsPanel";
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture-draft-registry";
+import { CONTINUE_DRAFT_LABEL } from "@/lib/architecture-workflow-labels";
 import {
   ARCHITECTURE_CREATION_CONTINUE_SECTION_TITLE,
   ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE,
@@ -61,7 +62,7 @@ describe("ArchitectureCreationLocalDraftsPanel (TB-1459)", () => {
     });
     expect(screen.getByRole("heading", { level: 2, name: ARCHITECTURE_CREATION_CONTINUE_SECTION_TITLE })).toBeInTheDocument();
     expect(screen.getByText(ARCHITECTURE_CREATION_RECENT_DRAFTS_BODY)).toBeInTheDocument();
-    expect(screen.getByTestId("architecture-creation-resume-draft-continue-draft-001")).toHaveAttribute(
+    expect(screen.getByRole("link", { name: CONTINUE_DRAFT_LABEL })).toHaveAttribute(
       "href",
       "/architecture/architectures/draft-001",
     );

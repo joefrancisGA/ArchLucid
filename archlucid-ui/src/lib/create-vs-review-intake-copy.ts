@@ -18,6 +18,14 @@ export const ARCHITECTURE_DRAFT_WORKSPACE_LEAD =
 export const ARCHITECTURE_CREATION_PAGE_SUBTITLE =
   "Resume a saved architecture draft from this browser, or start a new draft in the form below.";
 
+/** `/architectures/new` page subtitle when browser-local drafts exist (TB-1462). */
+export const ARCHITECTURE_CREATION_PAGE_SUBTITLE_WITH_DRAFTS =
+  "Continue a saved architecture draft below, or start a new draft in the form when you are ready.";
+
+/** Workspace lead on `/architectures/new` when browser-local drafts exist (TB-1462). */
+export const ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD =
+  "Your saved drafts are listed first. Continue one to pick up where you left off, or start a new architecture draft below.";
+
 /** Form section heading on `/architectures/new` before the draft is named or persisted (TB-1461). */
 export const ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE = "New architecture draft";
 

@@ -84,7 +84,7 @@ vi.mock("@/lib/architecture-draft-handoff-gate", async () => {
 });
 
 import { ArchitectureDraftWorkspace } from "./ArchitectureDraftWorkspace";
-import { ARCHITECTURE_DRAFT_WORKSPACE_LEAD, ARCHITECTURE_CREATION_AUTOSAVE_REASSURANCE, ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE, ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE } from "@/lib/create-vs-review-intake-copy";
+import { ARCHITECTURE_DRAFT_WORKSPACE_LEAD, ARCHITECTURE_CREATION_AUTOSAVE_REASSURANCE, ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE, ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE, ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD } from "@/lib/create-vs-review-intake-copy";
 import { ARCHITECTURE_NEW_DRAFT_SEGMENT } from "@/lib/architecture-routes";
 import { useArchitectureDraftAutosave } from "@/hooks/use-architecture-draft-autosave";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
@@ -180,6 +180,28 @@ describe("ArchitectureDraftWorkspace", () => {
     });
 
     expect(screen.queryByTestId("architecture-creation-no-drafts-guidance")).toBeNull();
+  });
+
+  it("uses resume-first workspace lead on /new when registry entries exist (TB-1462)", async () => {
+    vi.mocked(useArchitectureDraftRegistryEntries).mockReturnValue([
+      {
+        architectureId: "draft-001",
+        displayName: "Claims intake",
+        customerStatus: "draft",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-07-12T23:42:05.000Z",
+        linkedReviewId: null,
+        serverUpdatedUtc: "2026-07-12T23:42:05.000Z",
+      },
+    ]);
+
+    render(<ArchitectureDraftWorkspace architectureId={ARCHITECTURE_NEW_DRAFT_SEGMENT} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-workspace-lead")).toHaveTextContent(
+        ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD,
+      );
+    });
   });
 
   it("shows drafting-first workspace lead on load (TB-747)", async () => {

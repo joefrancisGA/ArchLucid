@@ -110,7 +110,7 @@ export function ArchitectureCreationLocalDraftsPanel(): React.JSX.Element | null
                 </span>
               </div>
               <div className="mt-2">
-                <Button variant="outline" size="sm" asChild>
+                <Button variant="primary" size="sm" asChild>
                   <Link
                     href={architectureDraftPath(entry.architectureId)}
                     title={entry.displayName}

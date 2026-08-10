@@ -17,6 +17,7 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
+import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { useArchitectureDraftAutosave, type ArchitectureDraftSaveState } from "@/hooks/use-architecture-draft-autosave";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { SOFT_NAVIGATION_TIMEOUT_MS } from "@/hooks/use-soft-navigation-loading";
@@ -60,6 +61,7 @@ import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 import {
   ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE,
+  ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD,
   ARCHITECTURE_DRAFT_ALTERNATIVES_HINT,
   ARCHITECTURE_DRAFT_WORKSPACE_LEAD,
 } from "@/lib/create-vs-review-intake-copy";
@@ -89,11 +91,20 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const [exitPending, setExitPending] = useState(false);
   const [handoffAcknowledged, setHandoffAcknowledged] = useState(false);
   const [linkedReviewTitle, setLinkedReviewTitle] = useState("Untitled review");
+  const [registryHydrated, setRegistryHydrated] = useState(false);
   const previousSaveStateRef = useRef<ArchitectureDraftSaveState>("saved");
   const exitTimeoutIdRef = useRef<number | null>(null);
 
   const linkedReviewId = architectureDraftSpawnedRunId(draft);
   const handoffEditorLocked = linkedReviewId !== null && !handoffAcknowledged;
+  const localDraftRegistryEntries = useArchitectureDraftRegistryEntries();
+
+  useEffect(() => {
+    setRegistryHydrated(true);
+  }, []);
+
+  const hasLocalDraftsOnCreatePath =
+    isNewDraft && registryHydrated && localDraftRegistryEntries.length > 0;
   // Reasoning needs a real draft id — unavailable on /new until the first deferred create succeeds.
   const refinementDraftId = draft?.draftId?.trim() || (isNewDraft ? null : props.architectureId.trim() || null);
 
@@ -125,6 +136,10 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   );
 
   const workspaceHeading = isNewDraft ? ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE : displayName;
+
+  const workspaceLead = hasLocalDraftsOnCreatePath
+    ? ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD
+    : ARCHITECTURE_DRAFT_WORKSPACE_LEAD;
 
   const reviewReadiness = useMemo(() => validateArchitectureReviewReadiness(fields), [fields]);
 
@@ -341,7 +356,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
             {workspaceHeading}
           </h2>
           <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-draft-workspace-lead">
-            {ARCHITECTURE_DRAFT_WORKSPACE_LEAD}
+            {workspaceLead}
           </p>
           <div className="flex flex-wrap items-center gap-2">
             <StatusTag
