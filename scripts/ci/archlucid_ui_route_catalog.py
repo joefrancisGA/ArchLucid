@@ -85,8 +85,8 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/advisory-scheduling": "/governance/advisory-scans?tab=schedules",
     # TB-1134: Governance setup route rename.
     "/governance/first-30-days": "/governance/setup",
-    # TB-1441 / TB-1443: /alert-routing is next.config-only → Alert rules Routing tab.
-    "/alert-routing": "/governance/alert-rules?tab=routing",
+    # TB-1441 / TB-1443: /alert-routing is next.config-only → Alert rules Notifications tab.
+    "/alert-routing": "/governance/alert-rules?tab=notifications",
     # TB-1887 / TB-1886: /settings/alerts is next.config-only → Alert rules hub.
     "/settings/alerts": "/governance/alert-rules",
     # TB-1902 / TB-1901: /settings/exec-digest is next.config-only → Digests Schedule tab.

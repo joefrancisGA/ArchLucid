@@ -1,6 +1,6 @@
 # Accessibility
 
-Last reviewed: 2026-06-24
+Last reviewed: 2026-08-10
 
 > **Public statement:** Buyer-facing copy for **https://archlucid.net/accessibility** lives in
 > `archlucid-ui/src/lib/accessibility-marketing-public-statement.ts` and
@@ -15,7 +15,7 @@ Playwright axe runs attach the **`wcag22aa`** ruleset bundle alongside **`wcag21
 
 ## Current status
 
-**Baseline** — merge-blocking **`@axe-core/playwright`** runs against the `PAGES` list in [`archlucid-ui/e2e/live-api-accessibility.spec.ts`](archlucid-ui/e2e/live-api-accessibility.spec.ts) (**72** URL patterns as of 2026-08-02, including the **16** high-traffic operator and marketing paths in the table below, plus legacy `/onboarding` redirects, run provenance, findings (showcase run), manifest variants, governance findings/policy packs, settings surfaces, product-learning, executive reviews, and admin/help routes). Deferred matrix-only routes are documented as `PAGES_DEFERRED` in the same spec. Critical and serious violations are gated in CI; minor/moderate violations are tracked for incremental resolution.
+**Baseline** — merge-blocking **`@axe-core/playwright`** runs against the `PAGES` list in [`archlucid-ui/e2e/live-api-accessibility.spec.ts`](archlucid-ui/e2e/live-api-accessibility.spec.ts) (**66** URL patterns as of 2026-08-10, including the **16** high-traffic operator and marketing paths in the table below, plus legacy `/onboarding` redirects, run provenance, findings (showcase run), manifest variants, governance findings/policy packs, settings surfaces, product-learning, executive reviews, and admin/help routes). Deferred matrix-only routes are documented as `PAGES_DEFERRED` in the same spec. Critical and serious violations are gated in CI; minor/moderate violations are tracked for incremental resolution.
 
 Automated axe evidence supports procurement disclosure but **does not imply** formal WCAG certification or participant assistive-technology (AT) lab testing unless separately performed and documented.
 
@@ -37,10 +37,10 @@ The following **16** routes are the **priority operator coverage** set (wizard, 
 | Ask | `/insights/ask-review-questions` | Scanned |
 | Graph | `/insights/evidence-graph` | Scanned |
 | Advisory | `/governance/advisory-scans` | Scanned |
-| Governance dashboard | `/governance/dashboard` | Scanned |
+| Governance dashboard | `/architecture/executive-dashboard` | Scanned |
 | Governance workflow | `/governance/approval-queue` | Scanned |
 | Tenant settings | `/administration/tenant` | Scanned |
-| Value report | `/value-report` | Scanned |
+| Value report | `/insights/executive-summary` | Scanned |
 | Audit | `/governance/audit` | Scanned |
 | Policy packs | `/governance/policy-packs` | Scanned |
 | Alerts inbox (hub) | `/governance/alerts` | Scanned |

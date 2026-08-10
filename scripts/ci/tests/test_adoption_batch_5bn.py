@@ -29,7 +29,7 @@ class TestAdoptionBatch5BN(unittest.TestCase):
             / "src"
             / "app"
             / "(operator)"
-            / "admin"
+            / "internal"
             / "tenant-health"
             / "_sections"
             / "TenantHealthAdminPageClient.tsx"

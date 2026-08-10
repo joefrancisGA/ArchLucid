@@ -23,12 +23,20 @@ class TestExecutiveValueBatch5CO(unittest.TestCase):
             / "ExecutiveRoiDashboardPageView.tsx"
         )
         shell = REPO_ROOT / "archlucid-ui" / "src" / "components" / "ExecutiveShellFrame.tsx"
-        next_config = REPO_ROOT / "archlucid-ui" / "next.config.ts"
+        traffic = (
+            REPO_ROOT
+            / "archlucid-ui"
+            / "src"
+            / "lib"
+            / "ui-route-traffic-architecture-executive-dashboard.ts"
+        )
         self.assertTrue(page.is_file())
         self.assertIn("ExecutiveRoiDashboardPageView", page.read_text(encoding="utf-8"))
         self.assertIn("surface", view.read_text(encoding="utf-8"))
         self.assertIn("EXECUTIVE_DASHBOARD_HREF", shell.read_text(encoding="utf-8"))
-        self.assertIn("/executive/dashboard", next_config.read_text(encoding="utf-8"))
+        traffic_text = traffic.read_text(encoding="utf-8")
+        self.assertIn('LEGACY_EXECUTIVE_SHELL_DASHBOARD_PATH = "/executive/dashboard"', traffic_text)
+        self.assertIn("hard-retired", traffic_text)
 
     def test_tb_268_executive_value_narrative(self) -> None:
         helper = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "executive-value-narrative.ts"

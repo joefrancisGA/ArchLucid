@@ -19,7 +19,6 @@
       "label": "app-operator-a (3/9)",
       "paths": [
         "src/app/(operator)/governance",
-        "src/app/(operator)/architecture/architectures",
         "src/app/(operator)/internal",
         "src/app/(operator)/admin",
         "src/app/(operator)/integrations",

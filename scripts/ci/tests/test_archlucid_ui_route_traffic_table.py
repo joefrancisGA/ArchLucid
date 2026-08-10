@@ -48,39 +48,40 @@ def test_parse_rows_eight_columns_with_deficit() -> None:
 
 
 def test_weight_is_hit_pct_times_score() -> None:
-    row = {"pct": "3%", "score": "74"}
+    # Scores cell is Evidence,UX — Weight uses UX (position 2).
+    row = {"pct": "3%", "score": "0,74"}
     assert weight(row) == 222
 
 
 def test_deficit_is_hit_pct_times_evidence_gap() -> None:
-    row = {"pct": "4%", "score": "78"}
+    # Deficit is Hit% × (100 − UX score).
+    row = {"pct": "4%", "score": "0,78"}
     assert deficit(row) == 88
 
 
 def test_sort_zero_scores_before_scored_by_deficit_desc() -> None:
     rows = [
-        {"id": "HOM", "path": "/", "pct": "3%", "score": "0", "section": "Core review", "notes": "None"},
-        {"id": "RE", "path": "/reviews", "pct": "12%", "score": "0", "section": "Core review", "notes": "None"},
-        {"id": "ASK", "path": "/ask", "pct": "4%", "score": "78", "section": "Core review", "notes": "None"},
-        {"id": "AL", "path": "/alerts", "pct": "3%", "score": "61", "section": "Alerts/gov", "notes": "None"},
+        {"id": "HOM", "path": "/", "pct": "3%", "score": "0,0", "section": "Core review", "notes": "None"},
+        {"id": "RE", "path": "/reviews", "pct": "12%", "score": "0,0", "section": "Core review", "notes": "None"},
+        {"id": "ASK", "path": "/ask", "pct": "4%", "score": "0,78", "section": "Core review", "notes": "None"},
+        {"id": "AL", "path": "/alerts", "pct": "3%", "score": "0,61", "section": "Alerts/gov", "notes": "None"},
     ]
     sorted_rows = sort_rows(rows)
     assert [row["id"] for row in sorted_rows] == ["RE", "HOM", "AL", "ASK"]
 
 
 def test_sort_key_groups_zero_scores_before_scored_rows() -> None:
-    zero = {"path": "/reviews", "pct": "12%", "score": "0"}
-    scored = {"path": "/ask", "pct": "4%", "score": "78"}
+    zero = {"path": "/reviews", "pct": "12%", "score": "0,0"}
+    scored = {"path": "/ask", "pct": "4%", "score": "0,78"}
     assert sort_key(zero) < sort_key(scored)
 
 
 def test_overall_weight_total() -> None:
     rows = [
-        {"pct": "3%", "score": "74"},
-        {"pct": "4%", "score": "78"},
+        {"pct": "3%", "score": "0,74"},
+        {"pct": "4%", "score": "0,78"},
     ]
     assert format_overall_weight_total(rows) == "76.29%"
-
 
 def test_default_doc_points_at_owner_workbook() -> None:
     assert DOC == OWNER_DOC

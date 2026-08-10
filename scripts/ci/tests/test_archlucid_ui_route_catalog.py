@@ -80,7 +80,7 @@ def test_build_catalog_excludes_redirect_only_legacy_paths() -> None:
     assert "/advisory-scheduling" not in catalog
     assert "/governance/advisory-scans" in catalog
     assert "/alert-routing" not in catalog
-    assert "/governance/alert-rules?tab=routing" in catalog
+    assert "/governance/alert-rules?tab=notifications" in catalog
 
 
 def test_migrate_workbook_path_maps_retired_cloud_connection_help_slugs() -> None:
@@ -131,7 +131,7 @@ def test_migrate_workbook_path_maps_legacy_advisory_routes() -> None:
 
 
 def test_migrate_workbook_path_maps_legacy_alert_routing() -> None:
-    assert migrate_workbook_path("/alert-routing") == "/governance/alert-rules?tab=routing"
+    assert migrate_workbook_path("/alert-routing") == "/governance/alert-rules?tab=notifications"
 
 
 def test_migrate_workbook_path_maps_legacy_settings_alerts() -> None:
