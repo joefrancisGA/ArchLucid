@@ -29,4 +29,10 @@ describe("help-topic-permanent-redirects", () => {
     expect(resolveHelpTopicPermanentRedirect("operator-auth-roles")).toBe("/help/users-and-roles");
     expect(resolveHelpTopicPermanentRedirect("users-and-roles")).toBeNull();
   });
+
+  it("redirects how-it-works alias to getting-started How ArchLucid works anchor", () => {
+    expect(HELP_TOPIC_PERMANENT_REDIRECTS["how-it-works"]).toBe("/help/getting-started#how-archlucid-works");
+    expect(resolveHelpTopicPermanentRedirect("how-it-works")).toBe("/help/getting-started#how-archlucid-works");
+    expect(resolveHelpTopicPermanentRedirect("getting-started")).toBeNull();
+  });
 });

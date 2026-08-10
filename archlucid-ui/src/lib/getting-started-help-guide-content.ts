@@ -21,8 +21,8 @@ export type GettingStartedHelpSourceLink = {
 };
 
 /**
- * Diligence Sources — no self-href to /help/getting-started. TB-1739: "how-it-works" now aliases to this
- * same page (see #how-archlucid-works below), so it is intentionally omitted here to avoid a self-link.
+ * Diligence Sources — no self-href to /help/getting-started. Retired /help/how-it-works bookmarks
+ * permanently redirect to #how-archlucid-works below, so it is intentionally omitted here to avoid a self-link.
  */
 export const GETTING_STARTED_HELP_SOURCES: readonly GettingStartedHelpSourceLink[] = [
   { label: "Start a review", href: "/architecture/reviews/new" },
@@ -50,6 +50,16 @@ export const GETTING_STARTED_HELP_DIAGRAM_STEPS = [
   "Decisions",
   "Governance outputs",
 ] as const;
+
+export const GETTING_STARTED_HELP_PIPELINE_TEXT_STAGES = [
+  "Architecture request opens a review session and feeds context ingestion.",
+  "Authority pipeline stages: knowledge graph, findings, decisioning, and artifacts.",
+  "Governance gate: allow commits the signed review record; block or warn policy holds finalize.",
+  "Committed outputs: signed review record and downloadable exports.",
+] as const;
+
+export const GETTING_STARTED_HELP_PIPELINE_DIAGRAM_DESCRIPTION =
+  "Stages from architecture request through context ingestion, authority pipeline (knowledge graph, findings, decisioning, artifacts), governance gate (allow commits the signed review record; block or warn policy holds finalize), and committed outputs (signed review record and exports).";
 
 export type GettingStartedPlainLanguageTerm = {
   readonly term: string;
@@ -229,7 +239,7 @@ export const GETTING_STARTED_HELP_TECHNICAL_TERMS: readonly GettingStartedPlainL
 export const GETTING_STARTED_HELP_DIAGRAM_SOURCE = `flowchart LR
   subgraph ingest [Request]
     AR[Architecture request]
-    R[Run record]
+    R[Review session]
   end
   subgraph pipeline [Authority pipeline]
     CI[Context ingestion]

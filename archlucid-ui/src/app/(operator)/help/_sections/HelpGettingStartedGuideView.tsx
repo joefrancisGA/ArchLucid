@@ -1,12 +1,12 @@
 import Link from "next/link";
 
-import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { HelpTopicMarkdownPageHeader } from "@/app/(operator)/help/_sections/HelpTopicMarkdownPageHeader";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MermaidDiagram } from "@/components/help/MermaidDiagram";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { StatusTag } from "@/components/ui/status-tag";
 import {
   GETTING_STARTED_HELP_AUDIENCE_LINE,
   GETTING_STARTED_HELP_CLAIM_DISCIPLINE,
@@ -16,11 +16,12 @@ import {
   GETTING_STARTED_HELP_DIAGRAM_TITLE,
   GETTING_STARTED_HELP_GUIDE_HEADINGS,
   GETTING_STARTED_HELP_NEXT_ACTION_CARDS,
+  GETTING_STARTED_HELP_PIPELINE_DIAGRAM_DESCRIPTION,
+  GETTING_STARTED_HELP_PIPELINE_TEXT_STAGES,
   GETTING_STARTED_HELP_PLAIN_LANGUAGE_TERMS,
   GETTING_STARTED_HELP_PRIMARY_ACTIONS,
   GETTING_STARTED_HELP_QUICK_START_COPY,
   GETTING_STARTED_HELP_QUICK_START_TITLE,
-  GETTING_STARTED_HELP_SUBTITLE,
   GETTING_STARTED_HELP_TECHNICAL_DETAILS_BODY,
   GETTING_STARTED_HELP_TECHNICAL_DETAILS_TITLE,
   GETTING_STARTED_HELP_TECHNICAL_TERMS,
@@ -79,6 +80,22 @@ function PlainLanguageTable(props: {
   );
 }
 
+function GettingStartedNextActionLink(props: { readonly href: string; readonly label: string }): React.ReactElement {
+  if (props.href.startsWith("#")) {
+    return (
+      <Link href={props.href} className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.body)}>
+        {props.label}
+      </Link>
+    );
+  }
+
+  return (
+    <Button asChild size="sm" variant="outline">
+      <Link href={props.href}>{props.label}</Link>
+    </Button>
+  );
+}
+
 function HowArchLucidWorksDiagram(): React.ReactElement {
   return (
     <div
@@ -90,7 +107,7 @@ function HowArchLucidWorksDiagram(): React.ReactElement {
           <div key={step} className="flex min-w-0 flex-1 items-center gap-3">
             <div
               className={cn(
-                "min-h-[4.5rem] flex-1 rounded-md border border-teal-200/80 bg-teal-50/50 px-4 py-3 text-center dark:border-teal-900/60 dark:bg-teal-950/30",
+                "min-h-[4.5rem] flex-1 rounded-md border border-neutral-200 bg-al-surface-raised px-4 py-3 text-center dark:border-neutral-800",
                 OPERATOR_TYPOGRAPHY.cardTitle,
               )}
             >
@@ -115,16 +132,17 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
   return (
     <article className={OPERATOR_LAYOUT.majorSectionGap} data-testid="help-getting-started-guide">
       <HelpTopicHashScroll />
-      <header className={HELP_PAGE_LAYOUT.articleHeader}>
-        <HelpTopicTitleRow title={entry.title} actions={<PageContextualHelpButton />} />
-        <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{GETTING_STARTED_HELP_SUBTITLE}</p>
-        <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{GETTING_STARTED_HELP_AUDIENCE_LINE}</p>
-      </header>
-<aside
-        className="rounded-md border border-amber-200/80 bg-amber-50/50 p-3 dark:border-amber-900/40 dark:bg-amber-950/20"
+      <HelpTopicMarkdownPageHeader entry={entry} showContextualHelp />
+      <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{GETTING_STARTED_HELP_AUDIENCE_LINE}</p>
+      <aside
+        className={cn(DESIGN_TOKENS.callout.neutral, "p-3")}
         data-testid="help-getting-started-claim-discipline"
       >
-        <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Orientation only</h2>
+        <StatusTag
+          kind="neutral"
+          label="Orientation only"
+          data-testid="help-getting-started-orientation-status"
+        />
         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>{GETTING_STARTED_HELP_CLAIM_DISCIPLINE}</p>
       </aside>
 
@@ -134,7 +152,7 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
             id="quick-start"
             className={cn(
               OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
-              "border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20",
+              "border-neutral-200 bg-al-surface-raised dark:border-neutral-800",
             )}
             data-testid="getting-started-quick-start-card"
           >
@@ -163,11 +181,9 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
             </CardContent>
           </Card>
 
-          <section aria-labelledby="how-archlucid-works-heading" className="space-y-3">
+          <section aria-labelledby="how-archlucid-works" className="space-y-3">
             <HelpSectionHeading id="how-archlucid-works">{GETTING_STARTED_HELP_DIAGRAM_TITLE}</HelpSectionHeading>
-            <p id="how-archlucid-works-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-              {GETTING_STARTED_HELP_DIAGRAM_SUMMARY}
-            </p>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{GETTING_STARTED_HELP_DIAGRAM_SUMMARY}</p>
             <HowArchLucidWorksDiagram />
             <div
               className={cn(
@@ -179,21 +195,33 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
               <p className="m-0">
                 Authority pipeline from architecture request through governance gate and committed outputs:
               </p>
-              <MermaidDiagram source={GETTING_STARTED_HELP_DIAGRAM_SOURCE} accessibleName="Architecture review authority pipeline" />
+              <ol
+                className="m-0 list-decimal space-y-1 pl-5 text-al-text-secondary"
+                data-testid="getting-started-pipeline-text-stages"
+              >
+                {GETTING_STARTED_HELP_PIPELINE_TEXT_STAGES.map((stage) => (
+                  <li key={stage}>{stage}</li>
+                ))}
+              </ol>
+              <MermaidDiagram
+                source={GETTING_STARTED_HELP_DIAGRAM_SOURCE}
+                accessibleName="Architecture review authority pipeline"
+                description={GETTING_STARTED_HELP_PIPELINE_DIAGRAM_DESCRIPTION}
+              />
             </div>
           </section>
 
-          <section aria-labelledby="plain-language-vocabulary-heading" className="space-y-3">
+          <section aria-labelledby="plain-language-vocabulary" className="space-y-3">
             <HelpSectionHeading id="plain-language-vocabulary">Plain-language vocabulary</HelpSectionHeading>
-            <p id="plain-language-vocabulary-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
               Seven terms you will see across review, governance, and export surfaces.
             </p>
             <PlainLanguageTable terms={GETTING_STARTED_HELP_PLAIN_LANGUAGE_TERMS} testId="getting-started-plain-language-table" />
           </section>
 
-          <section aria-labelledby="what-happens-during-a-review-heading" className="space-y-4">
+          <section aria-labelledby="what-happens-during-a-review" className="space-y-4">
             <HelpSectionHeading id="what-happens-during-a-review">What happens during a review?</HelpSectionHeading>
-            <p id="what-happens-during-a-review-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
               Follow this path from evidence intake through shareable outputs.
             </p>
             <ol className="m-0 list-none space-y-0 p-0" data-testid="getting-started-workflow-stepper">
@@ -211,7 +239,7 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
                     <span
                       aria-hidden
                       className={cn(
-                        "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-teal-700/30 bg-teal-50 text-sm font-semibold text-teal-900 dark:border-teal-600/40 dark:bg-teal-950/50 dark:text-teal-100",
+                        "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-neutral-300 bg-al-surface-raised text-sm font-semibold text-al-text-primary dark:border-neutral-600",
                       )}
                     >
                       {step.stepNumber}
@@ -232,13 +260,9 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
             </ol>
           </section>
 
-          <section aria-labelledby="what-to-do-next-heading" className="space-y-4">
+          <section aria-labelledby="what-to-do-next" className="space-y-4">
             <HelpSectionHeading id="what-to-do-next">What to do next</HelpSectionHeading>
-            <div
-              id="what-to-do-next-heading"
-              className="grid gap-3 sm:grid-cols-2"
-              data-testid="getting-started-next-action-cards"
-            >
+            <div className="grid gap-3 sm:grid-cols-2" data-testid="getting-started-next-action-cards">
               {GETTING_STARTED_HELP_NEXT_ACTION_CARDS.map((action) => (
                 <Card key={action.title} className="h-full border-neutral-200 dark:border-neutral-800">
                   <CardHeader className={OPERATOR_CARD.header}>
@@ -246,9 +270,7 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
                     <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{action.description}</p>
                   </CardHeader>
                   <CardContent className={OPERATOR_CARD.content}>
-                    <Button asChild size="sm" variant="outline">
-                      <Link href={action.href}>{action.ctaLabel}</Link>
-                    </Button>
+                    <GettingStartedNextActionLink href={action.href} label={action.ctaLabel} />
                   </CardContent>
                 </Card>
               ))}

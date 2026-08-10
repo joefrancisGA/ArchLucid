@@ -6,7 +6,6 @@
 const TYPED_HELP_GUIDE_SLUGS = new Set<string>([
   "first-architecture-review",
   "getting-started",
-  "how-it-works",
   "troubleshooting",
   "alerts",
   "billing-and-plans",

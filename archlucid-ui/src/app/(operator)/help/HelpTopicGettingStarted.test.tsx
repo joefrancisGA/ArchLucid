@@ -2,8 +2,14 @@ import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/components/help/MermaidDiagram", () => ({
-  MermaidDiagram: ({ source }: { readonly source: string }) => (
-    <div data-testid="mermaid-diagram">{source}</div>
+  MermaidDiagram: ({
+    source,
+    description,
+  }: {
+    readonly source: string;
+    readonly description?: string;
+  }) => (
+    <div data-testid="mermaid-diagram" data-description={description ?? ""}>{source}</div>
   ),
 }));
 
@@ -23,10 +29,11 @@ import { HelpGettingStartedGuideView } from "@/app/(operator)/help/_sections/Hel
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 import { GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA } from "@/lib/golden-sponsor-package-walkthrough";
 import {
+  GETTING_STARTED_HELP_DIAGRAM_SOURCE,
   GETTING_STARTED_HELP_PATH,
+  GETTING_STARTED_HELP_PIPELINE_TEXT_STAGES,
   GETTING_STARTED_HELP_QUICK_START_TITLE,
   GETTING_STARTED_HELP_SOURCES,
-  GETTING_STARTED_HELP_SUBTITLE,
 } from "@/lib/getting-started-help-guide-content";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -42,6 +49,8 @@ const BANNED_DEFAULT_VIEW_COPY = [
   "Approval queue",
 ] as const;
 
+const BANNED_PRODUCT_NOUN_RUN = /\bRun record\b/i;
+
 describe("HelpGettingStartedGuideView", () => {
   const entry = getProductDocumentationEntry("getting-started");
 
@@ -49,6 +58,22 @@ describe("HelpGettingStartedGuideView", () => {
     expect(entry?.title).toBe("Getting started");
     expect(entry?.slug).toBe("getting-started");
     expect(entry?.summary).toContain("review findings");
+    expect(entry?.lastReviewed).toBe("2026-08-09");
+    expect(entry?.releaseApplicability).toContain("V1 GA");
+  });
+
+  it("renders shared help header chrome with breadcrumb, status, provenance, and export actions", () => {
+    if (entry === undefined) {
+      throw new Error("Expected getting-started documentation entry.");
+    }
+
+    render(<HelpGettingStartedGuideView entry={entry} />);
+
+    expect(screen.getByRole("heading", { level: 1, name: "Getting started" })).toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-document-status")).toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-export-actions")).toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
   });
 
   it("renders quick-start card with primary actions near the top", () => {
@@ -58,16 +83,13 @@ describe("HelpGettingStartedGuideView", () => {
 
     render(<HelpGettingStartedGuideView entry={entry} />);
 
-    expect(screen.getByRole("heading", { level: 1, name: "Getting started" })).toBeInTheDocument();
-    expect(screen.getByText(GETTING_STARTED_HELP_SUBTITLE)).toBeInTheDocument();
-    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.queryByTestId("help-getting-started-sources")).toBeNull(); // TB-2092
+    expect(screen.queryByTestId("help-getting-started-sources")).toBeNull();
     expect(screen.getByTestId("help-getting-started-claim-discipline")).toHaveTextContent(
       /Orientation only|CPA SOC 2|third-party pen/i,
     );
+    expect(screen.getByTestId("help-getting-started-orientation-status")).toHaveTextContent("Orientation only");
 
-    expect(screen.queryByTestId("help-getting-started-sources")).toBeNull(); // TB-2092
-expect(GETTING_STARTED_HELP_SOURCES.some((link) => link.href === GETTING_STARTED_HELP_PATH)).toBe(false);
+    expect(GETTING_STARTED_HELP_SOURCES.some((link) => link.href === GETTING_STARTED_HELP_PATH)).toBe(false);
     expect(screen.getByTestId("getting-started-quick-start-card")).toBeInTheDocument();
 
     const quickStart = screen.getByTestId("getting-started-quick-start-card");
@@ -81,6 +103,19 @@ expect(GETTING_STARTED_HELP_SOURCES.some((link) => link.href === GETTING_STARTED
       "href",
       "/help/first-architecture-review",
     );
+  });
+
+  it("names section landmarks from h2 headings", () => {
+    if (entry === undefined) {
+      throw new Error("Expected getting-started documentation entry.");
+    }
+
+    render(<HelpGettingStartedGuideView entry={entry} />);
+
+    expect(screen.getByRole("region", { name: "How ArchLucid works" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Plain-language vocabulary" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "What happens during a review?" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "What to do next" })).toBeInTheDocument();
   });
 
   it("shows a scannable mental model diagram and plain-language vocabulary", () => {
@@ -97,7 +132,7 @@ expect(GETTING_STARTED_HELP_SOURCES.some((link) => link.href === GETTING_STARTED
     expect(screen.getByText("Governance approval")).toBeInTheDocument();
   });
 
-  it("renders the authority pipeline as a visible Mermaid diagram in How ArchLucid works", () => {
+  it("renders the authority pipeline with text stages and Mermaid diagram", () => {
     if (entry === undefined) {
       throw new Error("Expected getting-started documentation entry.");
     }
@@ -111,10 +146,16 @@ expect(GETTING_STARTED_HELP_SOURCES.some((link) => link.href === GETTING_STARTED
       ),
     ).toBeInTheDocument();
 
+    const textStages = within(pipelineDiagram).getByTestId("getting-started-pipeline-text-stages");
+    for (const stage of GETTING_STARTED_HELP_PIPELINE_TEXT_STAGES) {
+      expect(within(textStages).getByText(stage)).toBeInTheDocument();
+    }
+
     const mermaid = within(pipelineDiagram).getByTestId("mermaid-diagram");
     expect(mermaid).toHaveTextContent("subgraph pipeline [Authority pipeline]");
     expect(mermaid).toHaveTextContent("gov{Governance gate}");
     expect(mermaid).toHaveTextContent("SR[Signed review record]");
+    expect(mermaid.getAttribute("data-description")).toMatch(/governance gate/i);
     expect(within(pipelineDiagram).queryByText(/Diagram source \(Mermaid\)/i)).not.toBeInTheDocument();
     expect(screen.queryByTestId("getting-started-pipeline-diagram-details")).not.toBeInTheDocument();
   });
@@ -135,7 +176,7 @@ expect(GETTING_STARTED_HELP_SOURCES.some((link) => link.href === GETTING_STARTED
     expect(within(stepper).getAllByText(/Expected outputs:/i).length).toBe(5);
   });
 
-  it("shows action cards for what to do next", () => {
+  it("shows action cards for what to do next with link-styled in-page vocabulary jump", () => {
     if (entry === undefined) {
       throw new Error("Expected getting-started documentation entry.");
     }
@@ -149,6 +190,10 @@ expect(GETTING_STARTED_HELP_SOURCES.some((link) => link.href === GETTING_STARTED
       "href",
       "/integrations/cloud-connections",
     );
+
+    const vocabularyLink = within(cards).getByRole("link", { name: "View vocabulary" });
+    expect(vocabularyLink).toHaveAttribute("href", "#plain-language-vocabulary");
+    expect(vocabularyLink.tagName).toBe("A");
   });
 
   it("keeps internal implementation terms inside the administrator disclosure", () => {
@@ -162,13 +207,18 @@ expect(GETTING_STARTED_HELP_SOURCES.some((link) => link.href === GETTING_STARTED
     const vocabulary = screen.getByTestId("getting-started-plain-language-table");
     const stepper = screen.getByTestId("getting-started-workflow-stepper");
     const diagram = screen.getByTestId("getting-started-mental-model-diagram");
+    const pipelineDiagram = screen.getByTestId("getting-started-pipeline-diagram");
 
     for (const banned of BANNED_DEFAULT_VIEW_COPY) {
       expect(within(quickStart).queryByText(new RegExp(banned, "i"))).not.toBeInTheDocument();
       expect(within(vocabulary).queryByText(new RegExp(banned, "i"))).not.toBeInTheDocument();
       expect(within(stepper).queryByText(new RegExp(banned, "i"))).not.toBeInTheDocument();
       expect(within(diagram).queryByText(new RegExp(banned, "i"))).not.toBeInTheDocument();
+      expect(within(pipelineDiagram).queryByText(new RegExp(banned, "i"))).not.toBeInTheDocument();
     }
+
+    expect(BANNED_PRODUCT_NOUN_RUN.test(GETTING_STARTED_HELP_DIAGRAM_SOURCE)).toBe(false);
+    expect(within(pipelineDiagram).queryByText(BANNED_PRODUCT_NOUN_RUN)).not.toBeInTheDocument();
 
     const technical = screen.getByTestId("getting-started-technical-details");
     expect(within(technical).getByText(/runId/i)).toBeInTheDocument();

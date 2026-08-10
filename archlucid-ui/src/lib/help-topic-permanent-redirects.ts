@@ -8,6 +8,7 @@
 export const HELP_TOPIC_PERMANENT_REDIRECTS: Readonly<Record<string, string>> = {
   "creating-runs": "/help/review-guide",
   "data-handling-tenant-isolation": "/help/data-handling",
+  "how-it-works": "/help/getting-started#how-archlucid-works",
   "integrations/azure-boards": "/help/azure-boards",
   "operator-auth-roles": "/help/users-and-roles",
 };
