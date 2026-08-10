@@ -436,6 +436,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "operator",
     sourcePaths: ["docs/go-to-market/DEMO_QUICKSTART.md"],
     sectionAnchors: ["accelerator-chooser"],
+    pdfStatus: "customer",
   },
   {
     slug: "specialty-walkthroughs",

@@ -46,6 +46,7 @@ export function AcceleratorCostGovernanceCloudPicker(
                 data-testid={`${optionPrefix}-${option.packId}`}
                 className={cn(
                   "inline-flex min-h-8 cursor-pointer items-center gap-1.5 rounded-md border px-3 text-sm transition-colors",
+                  "has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--al-accent-border-focus)]",
                   selected
                     ? "border-neutral-900 bg-neutral-50 font-semibold text-neutral-900 shadow-sm dark:border-neutral-200 dark:bg-neutral-900 dark:text-neutral-100"
                     : "border-neutral-200 bg-white font-medium text-neutral-700 hover:border-neutral-300 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-300 dark:hover:border-neutral-600",

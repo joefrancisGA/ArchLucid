@@ -5,12 +5,24 @@ export type AcceleratorChooserEntry = {
   readonly buyerJob: string;
   readonly packLabel: string;
   readonly summary: string;
+  /** Buyer-facing required-inputs line (no raw artifact filenames). */
   readonly requiredInputs: string;
+  /** Raw artifact filenames — render inside technical disclosure only. */
+  readonly technicalInputs?: string;
   readonly expectedOutputs: string;
   readonly doNotUseWhen: string;
   readonly startHref: string;
   /** Cloud label when a pack is one of the cost-governance variants (Azure, AWS, GCP). */
   readonly cloudLabel?: string;
+};
+
+export type AcceleratorCostGovernanceGroup = {
+  readonly buyerJob: string;
+  readonly packLabel: string;
+  readonly summary: string;
+  readonly requiredInputs: string;
+  readonly technicalInputs: string;
+  readonly expectedOutputs: string;
 };
 
 export const ACCELERATOR_COST_GOVERNANCE_PACK_IDS = [
@@ -40,13 +52,14 @@ export const ACCELERATOR_COST_GOVERNANCE_CLOUD_OPTIONS: readonly AcceleratorCost
   { packId: "gcp-cost-governance", cloudLabel: "GCP" },
 ] as const;
 
-export const ACCELERATOR_COST_GOVERNANCE_GROUP = {
+export const ACCELERATOR_COST_GOVERNANCE_GROUP: AcceleratorCostGovernanceGroup = {
   buyerJob: "Cost & orphan review",
   packLabel: "Cost governance pack",
   summary: "FinOps-oriented orphan and cost findings with ROI labels for finance stakeholders.",
-  requiredInputs: "second-run.json (optional extractor ZIP)",
+  requiredInputs: "Second-pass evidence from a prior finalized architecture review",
+  technicalInputs: "second-run.json (optional extractor ZIP)",
   expectedOutputs: "Findings with ROI labels and sponsor-ready export",
-} as const;
+};
 
 /** Top buyer-job → accelerator pack rows surfaced on operator home (TB-170). */
 export const ACCELERATOR_CHOOSER_ENTRIES: readonly AcceleratorChooserEntry[] = [
@@ -55,7 +68,8 @@ export const ACCELERATOR_CHOOSER_ENTRIES: readonly AcceleratorChooserEntry[] = [
     buyerJob: "Regulated SaaS procurement",
     packLabel: "SOC-style diligence pack",
     summary: "Procurement-ready diligence findings with sponsor-safe export caveats for security reviewers.",
-    requiredInputs: "second-run.json, policy-context.json",
+    requiredInputs: "Second-pass evidence and policy context from a prior finalized architecture review",
+    technicalInputs: "second-run.json, policy-context.json",
     expectedOutputs: "Findings, architecture package, and sponsor-ready export checklist",
     doNotUseWhen: "Before any finalize; buyer demands CPA attestation",
     startHref: buildAcceleratorReviewStartHref("regulated-saas-soc-procurement"),
@@ -65,7 +79,8 @@ export const ACCELERATOR_CHOOSER_ENTRIES: readonly AcceleratorChooserEntry[] = [
     buyerJob: "AI / LLM workload governance",
     packLabel: "AI governance pack",
     summary: "Responsible-AI governance storyline for model owners and platform architects.",
-    requiredInputs: "second-run.json, policy-context.json",
+    requiredInputs: "Second-pass evidence and policy context from a prior finalized architecture review",
+    technicalInputs: "second-run.json, policy-context.json",
     expectedOutputs: "Findings, evidence trail, and sponsor-ready export",
     doNotUseWhen: "Generic chat comparison only; no LLM in scope",
     startHref: buildAcceleratorReviewStartHref("ai-llm-workload"),
@@ -76,7 +91,8 @@ export const ACCELERATOR_CHOOSER_ENTRIES: readonly AcceleratorChooserEntry[] = [
     cloudLabel: "Azure",
     packLabel: "Cost governance pack",
     summary: "Azure spend and orphan-resource findings with ROI labels for cloud finance owners.",
-    requiredInputs: "second-run.json (optional extractor ZIP)",
+    requiredInputs: "Second-pass evidence from a prior finalized architecture review",
+    technicalInputs: "second-run.json (optional extractor ZIP)",
     expectedOutputs: "Findings with ROI labels and sponsor-ready export",
     doNotUseWhen: "Non-Azure-only architecture with no Azure evidence",
     startHref: buildAcceleratorReviewStartHref("azure-cost-governance"),
@@ -87,7 +103,8 @@ export const ACCELERATOR_CHOOSER_ENTRIES: readonly AcceleratorChooserEntry[] = [
     cloudLabel: "AWS",
     packLabel: "Cost governance pack",
     summary: "AWS spend and orphan-resource findings with ROI labels for cloud finance owners.",
-    requiredInputs: "second-run.json (optional extractor ZIP)",
+    requiredInputs: "Second-pass evidence from a prior finalized architecture review",
+    technicalInputs: "second-run.json (optional extractor ZIP)",
     expectedOutputs: "Findings with ROI labels and sponsor-ready export",
     doNotUseWhen: "Non-AWS-only architecture with no AWS evidence",
     startHref: buildAcceleratorReviewStartHref("aws-cost-governance"),
@@ -98,7 +115,8 @@ export const ACCELERATOR_CHOOSER_ENTRIES: readonly AcceleratorChooserEntry[] = [
     cloudLabel: "GCP",
     packLabel: "Cost governance pack",
     summary: "GCP spend and orphan-resource findings with ROI labels for cloud finance owners.",
-    requiredInputs: "second-run.json (optional extractor ZIP)",
+    requiredInputs: "Second-pass evidence from a prior finalized architecture review",
+    technicalInputs: "second-run.json (optional extractor ZIP)",
     expectedOutputs: "Findings with ROI labels and sponsor-ready export",
     doNotUseWhen: "Non-GCP-only architecture with no GCP evidence",
     startHref: buildAcceleratorReviewStartHref("gcp-cost-governance"),
@@ -108,7 +126,8 @@ export const ACCELERATOR_CHOOSER_ENTRIES: readonly AcceleratorChooserEntry[] = [
     buyerJob: "Healthcare data workflow",
     packLabel: "Healthcare workflow pack",
     summary: "Clinical data-flow minimization narrative for privacy and compliance reviewers.",
-    requiredInputs: "second-run.json, policy-context.json",
+    requiredInputs: "Second-pass evidence and policy context from a prior finalized architecture review",
+    technicalInputs: "second-run.json, policy-context.json",
     expectedOutputs: "Findings, architecture package, and sponsor export checklist",
     doNotUseWhen: "Real PHI in inputs; HIPAA certification claims",
     startHref: buildAcceleratorReviewStartHref("healthcare-data-workflow"),
@@ -118,7 +137,7 @@ export const ACCELERATOR_CHOOSER_ENTRIES: readonly AcceleratorChooserEntry[] = [
     buyerJob: "Multi-tier web architecture (greenfield)",
     packLabel: "Greenfield web app wizard preset",
     summary: "Structural architecture findings for engineering leads building a new multi-tier web app.",
-    requiredInputs: "Architecture request via new-review wizard",
+    requiredInputs: "Architecture description entered in the new-review wizard",
     expectedOutputs: "Architecture package and findings on your inputs",
     doNotUseWhen: "Buyer needs a specialty accelerator pack instead",
     startHref: "/architecture/reviews/new?preset=greenfield",

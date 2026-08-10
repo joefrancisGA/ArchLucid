@@ -5,6 +5,10 @@ export const ACCELERATOR_CHOOSER_HELP_CANONICAL_PATH = "/help/accelerator-choose
 export const ACCELERATOR_CHOOSER_HELP_CLAIM_DISCIPLINE =
   "This guide maps stakeholder scenarios to accelerator packs after a first finalized architecture review — architect orientation only, not a tenant diligence evidence bundle from your workspace. Open Path chooser, Your first architecture review, or a live architecture review when you need the next action.";
 
+/** Compact scope line for the prerequisite card (HAX). */
+export const ACCELERATOR_CHOOSER_HELP_CLAIM_DISCIPLINE_SCOPE =
+  "Architect orientation only — not an evidence bundle from your workspace.";
+
 export const ACCELERATOR_CHOOSER_HELP_SOURCES_INTRO =
   "Use these follow-ups when accelerator packs turn into path selection, a first review, or home starting points.";
 
