@@ -24391,6 +24391,16 @@
               "string"
             ]
           },
+          "goldenManifestId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "hasGoldenManifest": {
+            "type": "boolean"
+          },
           "packageOrigin": {
             "type": [
               "null",

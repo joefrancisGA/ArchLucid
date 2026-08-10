@@ -34990,6 +34990,12 @@ namespace ArchLucid.Api.Client.Generated
                             return objectResponse_.Object;
                         }
                         else
+                        if (status_ == 304)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await ReadAsStringAsync(response_.Content, cancellationToken).ConfigureAwait(false);
+                            throw new ArchLucidApiException("Not Modified", status_, responseText_, headers_, null);
+                        }
+                        else
                         if (status_ == 400)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
@@ -90867,6 +90873,12 @@ namespace ArchLucid.Api.Client.Generated
                             return objectResponse_.Object;
                         }
                         else
+                        if (status_ == 304)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await ReadAsStringAsync(response_.Content, cancellationToken).ConfigureAwait(false);
+                            throw new ArchLucidApiException("Not Modified", status_, responseText_, headers_, null);
+                        }
+                        else
                         if (status_ == 400)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
@@ -91281,6 +91293,12 @@ namespace ArchLucid.Api.Client.Generated
                                 throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 304)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await ReadAsStringAsync(response_.Content, cancellationToken).ConfigureAwait(false);
+                            throw new ArchLucidApiException("Not Modified", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 400)
@@ -94554,6 +94572,12 @@ namespace ArchLucid.Api.Client.Generated
                                 throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 304)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await ReadAsStringAsync(response_.Content, cancellationToken).ConfigureAwait(false);
+                            throw new ArchLucidApiException("Not Modified", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 400)
@@ -158845,6 +158869,12 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("currentManifestVersion")]
         public string? CurrentManifestVersion { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("goldenManifestId")]
+        public System.Guid? GoldenManifestId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("hasGoldenManifest")]
+        public bool? HasGoldenManifest { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("packageOrigin")]
         public string? PackageOrigin { get; set; } = default!;
