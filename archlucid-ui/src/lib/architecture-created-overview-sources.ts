@@ -21,4 +21,12 @@ export const ARCHITECTURE_CREATED_OVERVIEW_SOURCES_INTRO =
   "Use these follow-ups when create-home Overview orientation turns into clarifications, findings triage, or a corrected intake pass.";
 
 export const ARCHITECTURE_CREATED_OVERVIEW_CLAIM_DISCIPLINE =
-  "This create-home Overview tab summarizes the submitted architecture brief before finalize. It is not a signed-record Sources trail";
+  "This create-home Overview tab summarizes the submitted architecture brief before finalize. It is not a signed-record Sources trail.";
+
+export const ARCHITECTURE_CREATED_OVERVIEW_EMPTY_HEADING = "No structured overview yet" as const;
+
+export const ARCHITECTURE_CREATED_OVERVIEW_EMPTY_CAUSE =
+  "Your brief was too thin for ArchLucid to extract executive summary, risks, or constraints." as const;
+
+export const ARCHITECTURE_CREATED_OVERVIEW_PROVENANCE_LEGEND =
+  "Asserted — taken directly from your brief. Inferred — derived by ArchLucid and may need correction in guided questions." as const;

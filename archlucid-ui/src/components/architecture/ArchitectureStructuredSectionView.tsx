@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { ArchitectureStructuredNarrative } from "@/components/architecture/ArchitectureStructuredNarrative";
+import { StatusTag } from "@/components/ui/status-tag";
 import {
   ARCHITECTURE_STRUCTURED_ASSERTED_LABEL,
   ARCHITECTURE_STRUCTURED_CORRECT_LABEL,
@@ -11,7 +12,7 @@ import {
   ARCHITECTURE_STRUCTURED_SECTION_EMPTY_LABEL,
 } from "@/lib/architecture-structured-content-copy";
 import type { ArchitectureStructuredSection } from "@/lib/architecture-structured-content-types";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { FINDINGS_ROW_METADATA_TAG_SIZE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureStructuredSectionViewProps = {
   readonly section: ArchitectureStructuredSection;
@@ -19,21 +20,18 @@ export type ArchitectureStructuredSectionViewProps = {
   readonly correctionHref: string | null;
 };
 
-function ProvenanceBadge(props: { readonly provenance: ArchitectureStructuredSection["provenance"] }): React.JSX.Element {
-  const label = props.provenance === "asserted" ? ARCHITECTURE_STRUCTURED_ASSERTED_LABEL : ARCHITECTURE_STRUCTURED_INFERRED_LABEL;
+function ProvenanceStatusTag(props: {
+  readonly provenance: ArchitectureStructuredSection["provenance"];
+}): React.JSX.Element {
+  const isAsserted = props.provenance === "asserted";
 
   return (
-    <span
-      className={cn(
-        "rounded-full border px-2 py-0.5 text-[0.7rem] font-medium uppercase tracking-wide",
-        props.provenance === "asserted"
-          ? "border-teal-200 bg-teal-50 text-teal-900 dark:border-teal-900 dark:bg-teal-950/40 dark:text-teal-200"
-          : "border-neutral-200 bg-neutral-50 text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300",
-      )}
+    <StatusTag
+      kind={isAsserted ? "ready" : "needs-attention"}
+      label={isAsserted ? ARCHITECTURE_STRUCTURED_ASSERTED_LABEL : ARCHITECTURE_STRUCTURED_INFERRED_LABEL}
+      className={FINDINGS_ROW_METADATA_TAG_SIZE}
       data-testid={`architecture-section-provenance-${props.provenance}`}
-    >
-      {label}
-    </span>
+    />
   );
 }
 
@@ -56,7 +54,7 @@ export function ArchitectureStructuredSectionView(
         <span className={cn("font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
           {section.title}
         </span>
-        <ProvenanceBadge provenance={section.provenance} />
+        <ProvenanceStatusTag provenance={section.provenance} />
       </summary>
 
       <div className="mt-3 space-y-3">
