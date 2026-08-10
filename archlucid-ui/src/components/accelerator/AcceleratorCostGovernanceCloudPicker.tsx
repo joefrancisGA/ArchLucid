@@ -1,8 +1,9 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import { Check } from "lucide-react";
 import { useState } from "react";
 
+import { cn } from "@/lib/utils";
 import {
   ACCELERATOR_COST_GOVERNANCE_CLOUD_OPTIONS,
   type AcceleratorCostGovernancePackId,
@@ -17,6 +18,8 @@ export type AcceleratorCostGovernanceCloudPickerProps = {
   readonly optionTestIdPrefix?: string;
 };
 
+const CLOUD_PICKER_GROUP_NAME = "accelerator-cost-governance-cloud";
+
 /** Compact Azure / AWS / GCP selector for the grouped cost-governance accelerator pack row. */
 export function AcceleratorCostGovernanceCloudPicker(
   props: AcceleratorCostGovernanceCloudPickerProps,
@@ -26,39 +29,47 @@ export function AcceleratorCostGovernanceCloudPicker(
 
   return (
     <div className="mt-2" data-testid={pickerTestId}>
-      <div
-        className="flex flex-wrap items-center gap-2"
-        role="radiogroup"
-        aria-label={`${ACCELERATOR_COST_GOVERNANCE_CLOUD_PICKER_LABEL} for cost and orphan review`}
-      >
-        <span className={cn("font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
-          {ACCELERATOR_COST_GOVERNANCE_CLOUD_PICKER_LABEL}
-        </span>
-        {ACCELERATOR_COST_GOVERNANCE_CLOUD_OPTIONS.map((option) => {
-          const selected = props.selectedPackId === option.packId;
+      <fieldset>
+        <legend className="sr-only">{`${ACCELERATOR_COST_GOVERNANCE_CLOUD_PICKER_LABEL} for cost and orphan review`}</legend>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className={cn("font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+            {ACCELERATOR_COST_GOVERNANCE_CLOUD_PICKER_LABEL}
+          </span>
+          {ACCELERATOR_COST_GOVERNANCE_CLOUD_OPTIONS.map((option) => {
+            const selected = props.selectedPackId === option.packId;
+            const inputId = `${optionPrefix}-${option.packId}-input`;
 
-          return (
-            <button
-              key={option.packId}
-              type="button"
-              role="radio"
-              aria-checked={selected}
-              data-testid={`${optionPrefix}-${option.packId}`}
-              className={cn(
-                "rounded-md border px-2.5 py-1 text-sm transition-colors",
-                selected
-                  ? "border-teal-700 bg-teal-50 text-teal-900 dark:border-teal-500 dark:bg-teal-950/40 dark:text-teal-100"
-                  : "border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-300 dark:hover:border-neutral-600",
-              )}
-              onClick={() => {
-                props.onSelectedPackIdChange(option.packId);
-              }}
-            >
-              {option.cloudLabel}
-            </button>
-          );
-        })}
-      </div>
+            return (
+              <label
+                key={option.packId}
+                htmlFor={inputId}
+                data-testid={`${optionPrefix}-${option.packId}`}
+                className={cn(
+                  "inline-flex min-h-8 cursor-pointer items-center gap-1.5 rounded-md border px-3 text-sm transition-colors",
+                  selected
+                    ? "border-neutral-900 bg-neutral-50 font-semibold text-neutral-900 shadow-sm dark:border-neutral-200 dark:bg-neutral-900 dark:text-neutral-100"
+                    : "border-neutral-200 bg-white font-medium text-neutral-700 hover:border-neutral-300 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-300 dark:hover:border-neutral-600",
+                )}
+              >
+                <input
+                  id={inputId}
+                  type="radio"
+                  name={CLOUD_PICKER_GROUP_NAME}
+                  className="sr-only"
+                  value={option.packId}
+                  checked={selected}
+                  aria-label={option.cloudLabel}
+                  onChange={() => {
+                    props.onSelectedPackIdChange(option.packId);
+                  }}
+                />
+                {selected ? <Check aria-hidden className="h-3.5 w-3.5 shrink-0" /> : null}
+                {option.cloudLabel}
+              </label>
+            );
+          })}
+        </div>
+      </fieldset>
     </div>
   );
 }
