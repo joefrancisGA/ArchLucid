@@ -65,9 +65,9 @@ describe("ui-route-traffic-admin-diagnostics-help (HAE)", () => {
     expect(row?.section).toBe(ADMIN_DIAGNOSTICS_HELP_TRAFFIC_SECTION);
     expect(row?.notes).toBe(ADMIN_DIAGNOSTICS_HELP_TRAFFIC_NOTE);
     expect(row?.notes).toContain("HelpAdminDiagnosticsGuideView");
-    expect(row?.notes).toContain("claim-discipline");
-    expect(row?.notes).toContain("self-suppresses");
-    expect(row?.notes).toContain("Score 58");
-    expect(row?.notes).toContain("cannot improve further toward 80");
+    expect(row?.notes).toContain("orientation warn callout");
+    expect(row?.notes).toContain("Admin-tagged");
+    expect(row?.notes).toContain("plain text healthy column");
+    expect(row?.notes).not.toContain("claim-discipline");
   });
 });

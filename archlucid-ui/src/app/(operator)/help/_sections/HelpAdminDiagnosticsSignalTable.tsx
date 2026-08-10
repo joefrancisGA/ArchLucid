@@ -1,5 +1,5 @@
-import { StatusTag } from "@/components/ui/status-tag";
 import {
+  ADMIN_DIAGNOSTICS_HELP_SIGNAL_HEALTHY_COLUMN,
   ADMIN_DIAGNOSTICS_HELP_SIGNAL_ROWS,
   ADMIN_DIAGNOSTICS_HELP_SIGNAL_SECTION_TITLE,
 } from "@/lib/admin-diagnostics-help-evidence-copy";
@@ -23,14 +23,14 @@ export function HelpAdminDiagnosticsSignalTable(): React.ReactElement {
       </h2>
       <div className={HELP_PAGE_LAYOUT.tableWrap}>
         <table className={HELP_PAGE_LAYOUT.table}>
-          <caption className="sr-only">Admin diagnostics signal reference</caption>
+          <caption className="sr-only">Admin diagnostics signal reference — illustrative healthy examples, not live status</caption>
           <thead>
             <tr>
               <th className={HELP_PAGE_LAYOUT.tableHeadCell} scope="col">
                 Signal
               </th>
               <th className={HELP_PAGE_LAYOUT.tableHeadCell} scope="col">
-                Healthy state
+                {ADMIN_DIAGNOSTICS_HELP_SIGNAL_HEALTHY_COLUMN}
               </th>
               <th className={HELP_PAGE_LAYOUT.tableHeadCell} scope="col">
                 What to do next
@@ -46,9 +46,7 @@ export function HelpAdminDiagnosticsSignalTable(): React.ReactElement {
                 <th className={HELP_PAGE_LAYOUT.tableBodyCell} scope="row">
                   {row.signal}
                 </th>
-                <td className={HELP_PAGE_LAYOUT.tableBodyCell}>
-                  <StatusTag kind={row.healthyKind} label={row.healthyLabel} data-testid="help-admin-diagnostics-signal-status" />
-                </td>
+                <td className={HELP_PAGE_LAYOUT.tableBodyCell}>{row.healthyDescription}</td>
                 <td className={HELP_PAGE_LAYOUT.tableBodyCell}>{row.nextStep}</td>
               </tr>
             ))}

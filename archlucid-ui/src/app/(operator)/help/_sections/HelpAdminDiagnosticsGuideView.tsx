@@ -6,19 +6,18 @@ import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegi
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
-  ADMIN_DIAGNOSTICS_HELP_ACTION_PANEL_TITLE,
   ADMIN_DIAGNOSTICS_HELP_CANONICAL_PATH,
   ADMIN_DIAGNOSTICS_HELP_PAGE_ORIENTATION,
   ADMIN_DIAGNOSTICS_HELP_PAGE_ORIENTATION_TITLE,
   ADMIN_DIAGNOSTICS_HELP_PAGE_SCOPE,
   ADMIN_DIAGNOSTICS_HELP_PAGE_SUBTITLE,
   ADMIN_DIAGNOSTICS_HELP_PAGE_TITLE,
-  ADMIN_DIAGNOSTICS_HELP_SOURCES_INTRO,
   splitAdminDiagnosticsHelpMarkdown,
 } from "@/lib/admin-diagnostics-help-evidence-copy";
 import {
+  DESIGN_TOKENS,
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_TYPOGRAPHY,
@@ -43,7 +42,7 @@ export function HelpAdminDiagnosticsGuideView(
   const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
     helpTopicSlug: entry.slug,
   });
-  const { procedureMarkdown, relatedMarkdown } = splitAdminDiagnosticsHelpMarkdown(preparedMarkdown);
+  const { procedureMarkdown } = splitAdminDiagnosticsHelpMarkdown(preparedMarkdown);
   const headings = extractHelpMarkdownHeadings(preparedMarkdown);
   const contentGridClass = resolveHelpPageContentGridClass(headings.length);
 
@@ -78,28 +77,24 @@ export function HelpAdminDiagnosticsGuideView(
         actions={<HelpAdminDiagnosticsHeaderActions entry={entry} />}
       />
 
-      <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <Card
-          className="border border-neutral-200 bg-al-surface-raised dark:border-neutral-800"
-          data-testid="help-admin-diagnostics-action-panel"
-          aria-labelledby="help-admin-diagnostics-action-panel-heading"
-        >
-          <CardHeader className={OPERATOR_CARD.header}>
-            <h2
-              id="help-admin-diagnostics-action-panel-heading"
-              className={cn("m-0 text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}
-            >
-              {ADMIN_DIAGNOSTICS_HELP_ACTION_PANEL_TITLE}
-            </h2>
-            <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              {ADMIN_DIAGNOSTICS_HELP_SOURCES_INTRO}
-            </p>
-          </CardHeader>
-          <CardContent className={OPERATOR_CARD.content}>
-            <HelpAdminDiagnosticsSourceLinks />
-          </CardContent>
-        </Card>
-      </div>
+      <aside
+        className={cn(DESIGN_TOKENS.callout.warn, "p-3")}
+        data-testid="help-admin-diagnostics-page-orientation"
+      >
+        <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+          {ADMIN_DIAGNOSTICS_HELP_PAGE_ORIENTATION_TITLE}
+        </h2>
+        <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>{ADMIN_DIAGNOSTICS_HELP_PAGE_ORIENTATION}</p>
+      </aside>
+
+      <Card
+        className="border border-neutral-200 bg-al-surface-raised dark:border-neutral-800"
+        data-testid="help-admin-diagnostics-action-panel"
+      >
+        <CardContent className={cn(OPERATOR_CARD.content, "pt-6")}>
+          <HelpAdminDiagnosticsSourceLinks />
+        </CardContent>
+      </Card>
 
       <div className={contentGridClass}>
         <div className={cn("min-w-0 space-y-6", "max-w-[42rem] lg:max-w-none")}>
@@ -117,26 +112,6 @@ export function HelpAdminDiagnosticsGuideView(
             />
 
             <HelpAdminDiagnosticsSignalTable />
-
-            <aside
-              className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 text-al-text-secondary dark:border-neutral-700 dark:bg-neutral-900/40"
-              data-testid="help-admin-diagnostics-page-orientation"
-            >
-              <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
-                {ADMIN_DIAGNOSTICS_HELP_PAGE_ORIENTATION_TITLE}
-              </h2>
-              <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{ADMIN_DIAGNOSTICS_HELP_PAGE_ORIENTATION}</p>
-            </aside>
-
-            {relatedMarkdown.length > 0 ? (
-              <MarketingAccessibilityMarkdownFragment
-                markdownBody={relatedMarkdown}
-                tableCaption={`${entry.title} related topics`}
-                presentation="help"
-                sourceDocPath={sourceDocPath}
-                helpTopicSlug={entry.slug}
-              />
-            ) : null}
           </div>
         </div>
 

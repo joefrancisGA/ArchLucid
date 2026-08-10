@@ -4,9 +4,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { HelpAdminDiagnosticsGuideView } from "@/app/(operator)/help/_sections/HelpAdminDiagnosticsGuideView";
 import {
   ADMIN_DIAGNOSTICS_HELP_CANONICAL_PATH,
+  ADMIN_DIAGNOSTICS_HELP_LIVE_SURFACES,
   ADMIN_DIAGNOSTICS_HELP_PAGE_ORIENTATION,
   ADMIN_DIAGNOSTICS_HELP_PAGE_SCOPE,
-  ADMIN_DIAGNOSTICS_HELP_SOURCES,
+  ADMIN_DIAGNOSTICS_HELP_PRIMARY_ACTION,
+  ADMIN_DIAGNOSTICS_HELP_RELATED_TOPICS,
+  ADMIN_DIAGNOSTICS_HELP_SIGNAL_HEALTHY_COLUMN,
 } from "@/lib/admin-diagnostics-help-evidence-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -45,11 +48,11 @@ describe("HelpAdminDiagnosticsGuideView (HAE)", () => {
 
   it("loads OPERATOR_ADMIN_DIAGNOSTICS.md without bare route paths or CLI command strings", () => {
     expect(loaded).not.toBeNull();
-    expect(loaded?.markdown).toContain("[System health](/administration/system-health)");
     expect(loaded?.markdown).not.toMatch(/`\/administration\/system-health`/);
     expect(loaded?.markdown).not.toContain("archlucid doctor");
     expect(loaded?.markdown).not.toContain("System status");
     expect(loaded?.markdown).not.toContain("# Admin diagnostics");
+    expect(loaded?.markdown).not.toContain("## Related Help topics");
   });
 
   it("renders specialty chrome with route links, scope line, skip link, and evidence table", () => {
@@ -78,31 +81,36 @@ describe("HelpAdminDiagnosticsGuideView (HAE)", () => {
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Sources for follow-up" })).toBeNull();
     expect(screen.getAllByRole("heading", { name: /start here/i })).toHaveLength(1);
-    expect(screen.getByRole("heading", { name: "Go to live diagnostics" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Go to live diagnostics" })).toBeNull();
     expect(screen.getByTestId("help-admin-diagnostics-header-actions")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-download-pdf")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-print-pdf")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-toc")).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /system health/i })).not.toBeInTheDocument();
+
+    const primaryAction = screen.getByTestId("help-admin-diagnostics-primary-action");
+    expect(primaryAction).toHaveAttribute("href", ADMIN_DIAGNOSTICS_HELP_PRIMARY_ACTION.href);
+    expect(screen.getByTestId("help-admin-diagnostics-primary-admin-tag")).toHaveTextContent("Admin");
 
     const actionPanel = screen.getByTestId("help-admin-diagnostics-action-panel");
-    const sourceLinks = within(actionPanel).getByTestId("help-admin-diagnostics-source-links");
+    const liveSurfaces = within(actionPanel).getByTestId("help-admin-diagnostics-live-surfaces");
+    const relatedTopics = within(actionPanel).getByTestId("help-admin-diagnostics-related-topics");
 
-    for (const link of ADMIN_DIAGNOSTICS_HELP_SOURCES) {
-      expect(within(sourceLinks).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+    for (const link of ADMIN_DIAGNOSTICS_HELP_LIVE_SURFACES) {
+      expect(within(liveSurfaces).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
     }
 
-    expect(ADMIN_DIAGNOSTICS_HELP_SOURCES.some((link) => link.href === ADMIN_DIAGNOSTICS_HELP_CANONICAL_PATH)).toBe(
-      false,
-    );
+    for (const link of ADMIN_DIAGNOSTICS_HELP_RELATED_TOPICS) {
+      expect(within(relatedTopics).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+    }
+
+    expect(
+      ADMIN_DIAGNOSTICS_HELP_LIVE_SURFACES.some((link) => link.href === ADMIN_DIAGNOSTICS_HELP_CANONICAL_PATH),
+    ).toBe(false);
 
     const content = screen.getByTestId("help-admin-diagnostics-content");
 
-    expect(within(content).getByRole("link", { name: "System health" })).toHaveAttribute(
-      "href",
-      "/administration/system-health",
-    );
-    expect(within(content).getAllByRole("link", { name: "Workspace overview" }).length).toBeGreaterThanOrEqual(1);
+    expect(within(content).queryByRole("link", { name: "System health" })).toBeNull();
+    expect(within(content).queryByRole("link", { name: "Workspace overview" })).toBeNull();
     expect(content.textContent ?? "").not.toContain("archlucid doctor");
     expect(content.textContent ?? "").not.toMatch(/`\/administration\/system-health`/);
     expect(content.textContent ?? "").not.toContain("System status");
@@ -110,45 +118,49 @@ describe("HelpAdminDiagnosticsGuideView (HAE)", () => {
     expect(content.textContent ?? "").not.toContain("claim discipline");
     expect(content.textContent ?? "").not.toContain("Sources package");
     expect(content.textContent ?? "").not.toContain("signed-review diligence");
-    expect(content.textContent ?? "").toContain(ADMIN_DIAGNOSTICS_HELP_PAGE_ORIENTATION);
+    expect(content.textContent ?? "").toContain("Without Admin access");
+
+    const orientation = screen.getByTestId("help-admin-diagnostics-page-orientation");
+    expect(orientation).toHaveTextContent(ADMIN_DIAGNOSTICS_HELP_PAGE_ORIENTATION);
 
     const signalTable = screen.getByTestId("help-admin-diagnostics-signal-table");
 
     expect(within(signalTable).getByRole("columnheader", { name: "Signal" })).toBeInTheDocument();
-    expect(within(signalTable).getByRole("columnheader", { name: "Healthy state" })).toBeInTheDocument();
+    expect(within(signalTable).getByRole("columnheader", { name: ADMIN_DIAGNOSTICS_HELP_SIGNAL_HEALTHY_COLUMN })).toBeInTheDocument();
     expect(within(signalTable).getByRole("columnheader", { name: "What to do next" })).toBeInTheDocument();
-    expect(within(signalTable).getAllByTestId("help-admin-diagnostics-signal-status").length).toBeGreaterThan(0);
+    expect(within(signalTable).queryByTestId("help-admin-diagnostics-signal-status")).toBeNull();
 
-    const orientation = screen.getByTestId("help-admin-diagnostics-page-orientation");
     const signalOrder = signalTable.compareDocumentPosition(orientation);
+    const actionPanelOrder = actionPanel.compareDocumentPosition(orientation);
 
-    expect(signalOrder & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(signalOrder & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+    expect(actionPanelOrder & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
   });
 
   it("matches source link labels to registry titles", () => {
-    if (loaded === null || entry === undefined) {
-      throw new Error("Expected admin-diagnostics documentation to load.");
-    }
-
     const troubleshooting = getProductDocumentationEntry("troubleshooting");
     const engineering = getProductDocumentationEntry("developer-troubleshooting");
     const configuration = getProductDocumentationEntry("configuration-reference");
     const cli = getProductDocumentationEntry("cli-usage");
+    const reportAProblem = getProductDocumentationEntry("report-a-problem");
 
-    expect(ADMIN_DIAGNOSTICS_HELP_SOURCES.find((link) => link.href.includes("troubleshooting") && !link.adminOnly)?.label).toBe(
-      troubleshooting?.title,
+    expect(
+      ADMIN_DIAGNOSTICS_HELP_RELATED_TOPICS.find((link) => link.href.includes("troubleshooting") && !link.adminOnly)?.label,
+    ).toBe(troubleshooting?.title);
+    expect(
+      ADMIN_DIAGNOSTICS_HELP_RELATED_TOPICS.find((link) => link.adminOnly === true && link.href.includes("developer"))?.label,
+    ).toBe(engineering?.title);
+    expect(
+      ADMIN_DIAGNOSTICS_HELP_RELATED_TOPICS.find((link) => link.href.includes("configuration-reference"))?.label,
+    ).toBe(configuration?.title);
+    expect(ADMIN_DIAGNOSTICS_HELP_RELATED_TOPICS.find((link) => link.href.includes("cli-usage"))?.label).toBe(cli?.title);
+    expect(ADMIN_DIAGNOSTICS_HELP_RELATED_TOPICS.find((link) => link.href.includes("report-a-problem"))?.label).toBe(
+      reportAProblem?.title,
     );
-    expect(ADMIN_DIAGNOSTICS_HELP_SOURCES.find((link) => link.adminOnly === true && link.href.includes("developer"))?.label).toBe(
-      engineering?.title,
-    );
-    expect(ADMIN_DIAGNOSTICS_HELP_SOURCES.find((link) => link.href.includes("configuration-reference"))?.label).toBe(
-      configuration?.title,
-    );
-    expect(ADMIN_DIAGNOSTICS_HELP_SOURCES.find((link) => link.href.includes("cli-usage"))?.label).toBe(cli?.title);
-    expect(ADMIN_DIAGNOSTICS_HELP_SOURCES.find((link) => link.href === "/")?.label).toBe("Workspace overview");
+    expect(ADMIN_DIAGNOSTICS_HELP_LIVE_SURFACES.find((link) => link.href === "/")?.label).toBe("Workspace overview");
   });
 
-  it("hides admin-only source links for non-admin callers", () => {
+  it("labels admin-gated links for non-admin callers instead of hiding them", () => {
     if (loaded === null || entry === undefined) {
       throw new Error("Expected admin-diagnostics documentation to load.");
     }
@@ -160,17 +172,19 @@ describe("HelpAdminDiagnosticsGuideView (HAE)", () => {
     render(<HelpAdminDiagnosticsGuideView entry={entry} markdown={loaded.markdown} />);
 
     const actionPanel = screen.getByTestId("help-admin-diagnostics-action-panel");
-    const sourceLinks = within(actionPanel).getByTestId("help-admin-diagnostics-source-links");
+    const relatedTopics = within(actionPanel).getByTestId("help-admin-diagnostics-related-topics");
 
-    expect(within(sourceLinks).getByRole("link", { name: "System health" })).toBeInTheDocument();
-    expect(within(sourceLinks).getByRole("link", { name: "Workspace overview" })).toBeInTheDocument();
-    expect(within(sourceLinks).getByRole("link", { name: "Troubleshooting" })).toBeInTheDocument();
-    expect(within(sourceLinks).queryByRole("link", { name: "Engineering troubleshooting runbook" })).toBeNull();
-    expect(within(sourceLinks).queryByRole("link", { name: "Configuration reference" })).toBeNull();
-    expect(within(sourceLinks).queryByRole("link", { name: "CLI usage" })).toBeNull();
+    expect(within(relatedTopics).getByRole("link", { name: "Troubleshooting" })).toBeInTheDocument();
+    expect(within(relatedTopics).getByRole("link", { name: "Report a problem" })).toBeInTheDocument();
+    expect(within(relatedTopics).getByRole("link", { name: "Engineering troubleshooting runbook" })).toBeInTheDocument();
+    expect(within(relatedTopics).getByRole("link", { name: "Configuration reference" })).toBeInTheDocument();
+    expect(within(relatedTopics).getByRole("link", { name: "CLI usage" })).toBeInTheDocument();
+
+    const adminTags = within(actionPanel).getAllByTestId("help-admin-diagnostics-admin-tag");
+    expect(adminTags.length).toBeGreaterThanOrEqual(3);
   });
 
-  it("shows admin-only source links for admin callers", () => {
+  it("shows admin tags on admin-only related topics for admin callers", () => {
     if (loaded === null || entry === undefined) {
       throw new Error("Expected admin-diagnostics documentation to load.");
     }
@@ -178,10 +192,10 @@ describe("HelpAdminDiagnosticsGuideView (HAE)", () => {
     render(<HelpAdminDiagnosticsGuideView entry={entry} markdown={loaded.markdown} />);
 
     const actionPanel = screen.getByTestId("help-admin-diagnostics-action-panel");
-    const sourceLinks = within(actionPanel).getByTestId("help-admin-diagnostics-source-links");
+    const relatedTopics = within(actionPanel).getByTestId("help-admin-diagnostics-related-topics");
 
-    expect(within(sourceLinks).getByRole("link", { name: "Engineering troubleshooting runbook" })).toBeInTheDocument();
-    expect(within(sourceLinks).getByRole("link", { name: "Configuration reference" })).toBeInTheDocument();
-    expect(within(sourceLinks).getByRole("link", { name: "CLI usage" })).toBeInTheDocument();
+    expect(within(relatedTopics).getByRole("link", { name: "Engineering troubleshooting runbook" })).toBeInTheDocument();
+    expect(within(relatedTopics).getByRole("link", { name: "Configuration reference" })).toBeInTheDocument();
+    expect(within(relatedTopics).getByRole("link", { name: "CLI usage" })).toBeInTheDocument();
   });
 });

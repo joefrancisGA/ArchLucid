@@ -4,19 +4,6 @@
 
 ## Start here
 
-1. Open [System health](/administration/system-health) in the workspace — live/ready checks and version identity.
-2. On [Workspace overview](/), expand **Workspace readiness** — per-area status and next actions.
-3. Open **Assistant readiness diagnostics** on [Workspace overview](/) when LLM or assistant features fail.
-
-
-
-## Related Help topics
-
-
-
-- [Troubleshooting](/help/troubleshooting) — symptom-first fixes for review and workspace issues.
-
-- [Report a problem](/help/report-a-problem) — structured support intake with correlation identifiers.
-
-- [CLI usage](/help/cli-usage) — Admin-only Help topic; also Help drawer Advanced diagnostics.
-
+1. **Admin:** Use **System health** (primary action above) for live/ready checks and version identity. **Without Admin access:** Start with **Troubleshooting** or **Report a problem** in Related Help topics below.
+2. On **Workspace overview** (Live workspace surfaces), expand **Workspace readiness** — per-area status and next actions.
+3. Open **Assistant readiness diagnostics** on Workspace overview when LLM or assistant features fail.
