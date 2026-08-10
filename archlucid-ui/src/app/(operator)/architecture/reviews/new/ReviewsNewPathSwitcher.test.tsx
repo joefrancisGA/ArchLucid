@@ -242,6 +242,26 @@ describe("ReviewsNewPathSwitcher (returning tenant)", () => {
     );
   });
 
+  it("syncs path=guided-intake when the Guided questions tab is selected (TB-1877)", async () => {
+    render(<ReviewsNewPathSwitcher />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("first-pilot-intake-wizard-stub")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByRole("tab", { name: "Guided questions" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("socratic-intake-wizard-stub")).toBeTruthy();
+    });
+
+    expect(screen.getByRole("tab", { name: "Guided questions" })).toHaveAttribute("aria-selected", "true");
+    expect(replace).toHaveBeenCalledWith(
+      "/architecture/reviews/new?path=guided-intake",
+      expect.objectContaining({ scroll: false }),
+    );
+  });
+
   it("syncs path=detailed when the Templates and imports tab is selected (TB-1867)", async () => {
     render(<ReviewsNewPathSwitcher />);
 
