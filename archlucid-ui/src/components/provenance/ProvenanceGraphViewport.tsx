@@ -25,6 +25,7 @@ import {
   PROVENANCE_LABEL_LINE_HEIGHT,
   type ProvenanceLayoutNode,
 } from "@/lib/provenance-graph-layout";
+import { useInpOffloadTask } from "@/lib/workers/inp-offload-client";
 import {
   applyProvenanceZoomAtPoint,
   computeFitToViewTransform,
@@ -145,12 +146,20 @@ export function ProvenanceGraphViewport(props: ProvenanceGraphViewportProps): Re
     [props.edges, visibleNodeIds],
   );
 
-  const layout = useMemo(() => {
-    // layoutSeed busts memo when the same graph is reloaded with a new seed.
-    void props.layoutSeed;
+  const layoutPayload = useMemo(
+    () => ({
+      nodes: visibleNodes,
+      edges: visibleEdges,
+    }),
+    [visibleEdges, visibleNodes],
+  );
 
-    return computeProvenanceGraphLayout(visibleNodes, visibleEdges);
-  }, [visibleEdges, visibleNodes, props.layoutSeed]);
+  const layoutKey = `${props.layoutSeed}:${visibleNodes.length}:${visibleEdges.length}`;
+  const { result: offloadedLayout } = useInpOffloadTask("provenanceLayout", layoutPayload, layoutKey);
+
+  const emptyLayout = useMemo(() => computeProvenanceGraphLayout([], []), []);
+
+  const layout = offloadedLayout ?? emptyLayout;
 
   const posById = useMemo(() => new Map(layout.nodes.map((node) => [node.id, node])), [layout.nodes]);
 

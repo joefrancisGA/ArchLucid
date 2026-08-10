@@ -51,3 +51,21 @@ This measures wall-clock time from request creation through real LLM-powered ana
 | `step_poll_wait_ms` p50 | < 90s | *Same as p50* | Same |
 
 **Note (2026-04-28):** Staging host **`https://staging.archlucid.net`** was not used for k6 from this repo’s automated runs; real-mode wall-clock baselines must come from the **k6 workflow artifact** (or a future scheduled job), not from ad-hoc laptop runs against production-like URLs.
+
+---
+
+## Operator INP regression note (TB-2166)
+
+**Scope:** Client-side Interaction to Next Paint (INP) on evidence-graph and compare surfaces — not API in-process timings above.
+
+| Surface | Offload | Deferred input |
+|--------|---------|----------------|
+| Evidence graph provenance layout (`ProvenanceGraphViewport`) | Web Worker task `provenanceLayout` | Type filter uses `startTransition` in `GraphPageContent` |
+| Evidence graph React Flow map (`GraphViewer`) | Web Worker task `graphReactFlowMap` | `useDeferredValue` on type filter |
+| Finding evidence graph highlight prep (`FindingEvidenceGraph`) | Web Worker task `findingEvidenceGraphPrep` | — |
+| Compare governance diff (`useCompareGovernanceDiff`) | Web Worker task `compareGovernanceDiff` | — |
+| Compare manifest line diff (`ArchitectureManifestUnifiedDiffView`) | Web Worker task `manifestLineDiff` | — |
+
+**Local trace gate:** after a deploy that touches these surfaces, capture a Performance recording on graph pan/zoom and compare diff expand; no interaction long task should exceed **200 ms** on a mid-tier laptop. Field Web Vitals (Done **TB-2031**) remain the authoritative INP trend — target **−100 to −300 ms** INP improvement on these routes when field data is available.
+
+**Contract tests:** `archlucid-ui/src/lib/workers/inp-offload-*.test.ts`.

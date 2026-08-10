@@ -1,9 +1,12 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import {
-  buildArchitectureManifestUnifiedLines,
-  type ArchitectureManifestUnifiedLine,
-} from "@/lib/architecture-manifest-line-diff";
+import { useMemo } from "react";
+
+import { useInpOffloadTask } from "@/lib/workers/inp-offload-client";
+import { buildArchitectureManifestUnifiedLines } from "@/lib/architecture-manifest-line-diff";
+import type { ArchitectureManifestUnifiedLine } from "@/lib/architecture-manifest-line-diff";
 
 function rowClass(line: ArchitectureManifestUnifiedLine): string {
   if (line.kind === "add") {
@@ -28,7 +31,28 @@ export type ArchitectureManifestUnifiedDiffViewProps = {
  * Unified line diff (Git-style prefixes) with scroll clipping for large manifest JSON.
  */
 export function ArchitectureManifestUnifiedDiffView(props: ArchitectureManifestUnifiedDiffViewProps) {
-  const rows = buildArchitectureManifestUnifiedLines(props.beforeText, props.afterText);
+  const offloadPayload = useMemo(
+    () => ({
+      beforeText: props.beforeText,
+      afterText: props.afterText,
+    }),
+    [props.afterText, props.beforeText],
+  );
+
+  const offloadKey = `${props.beforeText.length}:${props.afterText.length}`;
+  const { result: offloadedRows, pending } = useInpOffloadTask("manifestLineDiff", offloadPayload, offloadKey);
+
+  const rows =
+    offloadedRows ??
+    buildArchitectureManifestUnifiedLines(props.beforeText, props.afterText);
+
+  if (pending && offloadedRows === null) {
+    return (
+      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} role="status">
+        Building review record diff…
+      </p>
+    );
+  }
 
   return (
     <div className="rounded-lg border border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900/40">

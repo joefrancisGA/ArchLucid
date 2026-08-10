@@ -6,10 +6,10 @@ import { getAuthorityRunManifest } from "@/lib/api/architecture-runs";
 import { getEffectivePolicyContent, getEffectivePolicyPacks } from "@/lib/api/policy-governance-api";
 import {
   buildCompareEffectiveGovernanceSnapshot,
-  buildCompareGovernanceDiffView,
   parseCompareManifestGovernanceSnapshot,
   type CompareGovernanceDiffView,
 } from "@/lib/compare-effective-governance-diff";
+import { runInpOffloadTask } from "@/lib/workers/inp-offload-client";
 import {
   tryStaticDemoGoldenManifestJsonForExport,
   isStaticDemoPayloadFallbackEnabled,
@@ -122,7 +122,7 @@ export function useCompareGovernanceDiff(
 
       const baselineManifest = parseCompareManifestGovernanceSnapshot(baselineManifestWire);
       const targetManifest = parseCompareManifestGovernanceSnapshot(targetManifestWire);
-      const nextView = buildCompareGovernanceDiffView({
+      const nextView = await runInpOffloadTask("compareGovernanceDiff", {
         baselineManifest,
         targetManifest,
         currentEffective,

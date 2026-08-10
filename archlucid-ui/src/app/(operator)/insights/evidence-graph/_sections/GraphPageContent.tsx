@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, startTransition } from "react";
 
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
@@ -86,6 +86,11 @@ export function GraphPageContent() {
   const [malformedMessage, setMalformedMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [typeFilter, setTypeFilter] = useState("");
+  const handleTypeFilterChange = useCallback((value: string) => {
+    startTransition(() => {
+      setTypeFilter(value);
+    });
+  }, []);
   const [architectureGraphNote, setArchitectureGraphNote] = useState<string | null>(null);
   const [graphInteractiveReady, setGraphInteractiveReady] = useState(false);
   const [presentationView, setPresentationView] = useState<EvidenceTrailPresentationView>(() =>
@@ -674,7 +679,7 @@ export function GraphPageContent() {
             demoUi={demoUi}
             graphSurfaceKey={graphSurfaceKey}
             typeFilter={typeFilter}
-            onTypeFilterChange={setTypeFilter}
+            onTypeFilterChange={handleTypeFilterChange}
             nodeTypes={nodeTypes}
             runId={runId}
             mode={mode}
@@ -753,7 +758,7 @@ export function GraphPageContent() {
             demoUi={demoUi}
             graphSurfaceKey={graphSurfaceKey}
             typeFilter={typeFilter}
-            onTypeFilterChange={setTypeFilter}
+            onTypeFilterChange={handleTypeFilterChange}
             nodeTypes={nodeTypes}
             runId={runId}
             mode={mode}

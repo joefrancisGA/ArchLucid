@@ -9,8 +9,6 @@ import ReactFlow, {
   Controls,
   ReactFlowProvider,
   useReactFlow,
-  type Edge,
-  type Node,
 } from "reactflow";
 import "reactflow/dist/style.css";
 
@@ -26,6 +24,7 @@ import {
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { loadArchitectureGraphViewModel } from "@/lib/load-architecture-graph-view-model";
 import { mapGraphToReactFlow } from "@/lib/graph-mapper";
+import { useInpOffloadTask } from "@/lib/workers/inp-offload-client";
 import type { GraphViewModel } from "@/types/graph";
 
 export type FindingEvidenceGraphProps = {
@@ -64,25 +63,49 @@ function FindingEvidenceGraphCanvas(props: {
   readonly graphNodeIdsExamined: readonly string[];
   readonly viewMode: FindingEvidenceGraphViewMode;
 }) {
-  const filteredGraph = useMemo(
-    () => resolveFindingEvidenceGraphViewModel(props.graph, props.graphNodeIdsExamined, props.viewMode),
+  const offloadPayload = useMemo(
+    () => ({
+      graph: props.graph,
+      graphNodeIdsExamined: props.graphNodeIdsExamined,
+      viewMode: props.viewMode,
+    }),
     [props.graph, props.graphNodeIdsExamined, props.viewMode],
   );
 
-  const mapped = useMemo(() => mapGraphToReactFlow(filteredGraph, "operator"), [filteredGraph]);
-
-  const highlighted = useMemo(
-    () =>
-      applyFindingEvidenceGraphHighlight(
-        mapped.nodes as Node[],
-        mapped.edges as Edge[],
-        props.graphNodeIdsExamined,
-        props.viewMode,
-      ),
-    [mapped.edges, mapped.nodes, props.graphNodeIdsExamined, props.viewMode],
+  const offloadKey = `${props.viewMode}:${props.graphNodeIdsExamined.join(",")}:${props.graph.nodeCount}:${props.graph.edgeCount}`;
+  const { result: highlighted, pending } = useInpOffloadTask(
+    "findingEvidenceGraphPrep",
+    offloadPayload,
+    offloadKey,
   );
 
-  if (highlighted.nodes.length === 0) {
+  const fallbackHighlighted = useMemo(() => {
+    const filteredGraph = resolveFindingEvidenceGraphViewModel(
+      props.graph,
+      props.graphNodeIdsExamined,
+      props.viewMode,
+    );
+    const mapped = mapGraphToReactFlow(filteredGraph, "operator");
+
+    return applyFindingEvidenceGraphHighlight(
+      mapped.nodes,
+      mapped.edges,
+      props.graphNodeIdsExamined,
+      props.viewMode,
+    );
+  }, [props.graph, props.graphNodeIdsExamined, props.viewMode]);
+
+  const rendered = highlighted ?? fallbackHighlighted;
+
+  if (pending && highlighted === null) {
+    return (
+      <OperatorLoadingNotice>
+        <strong>Preparing evidence graph…</strong>
+      </OperatorLoadingNotice>
+    );
+  }
+
+  if (rendered.nodes.length === 0) {
     return (
       <OperatorEmptyState title="No matching graph nodes">
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
@@ -99,8 +122,8 @@ function FindingEvidenceGraphCanvas(props: {
     >
       <ReactFlowProvider>
         <ReactFlow
-          nodes={highlighted.nodes}
-          edges={highlighted.edges}
+          nodes={rendered.nodes}
+          edges={rendered.edges}
           fitView
           fitViewOptions={{ padding: 0.12, maxZoom: 1.4 }}
           minZoom={0.15}
@@ -111,8 +134,8 @@ function FindingEvidenceGraphCanvas(props: {
           proOptions={{ hideAttribution: true }}
         >
           <GraphFitViewOnChange
-            nodeCount={highlighted.nodes.length}
-            edgeCount={highlighted.edges.length}
+            nodeCount={rendered.nodes.length}
+            edgeCount={rendered.edges.length}
             viewMode={props.viewMode}
           />
           <Controls showInteractive={false} />

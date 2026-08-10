@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useEffect, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import ReactFlow, {
   Background,
   BackgroundVariant,
@@ -49,6 +49,7 @@ import {
   resolveBuyerTrailPathNodeIds,
 } from "@/lib/graph-buyer-path-filter";
 import { applyGraphSelectionFocus } from "@/lib/graph-selection-highlight";
+import { useInpOffloadTask } from "@/lib/workers/inp-offload-client";
 import {
   BUYER_EVIDENCE_GRAPH_OPEN_DECISION_RECORD_CTA,
   BUYER_EVIDENCE_GRAPH_OPEN_FINDING_DETAIL_CTA,
@@ -208,7 +209,11 @@ export function GraphViewer({
    */
   compactChrome?: boolean;
 }) {
-  const filtered = useMemo(() => graphViewModelFilteredByNodeType(graph, typeFilter), [graph, typeFilter]);
+  const deferredTypeFilter = useDeferredValue(typeFilter);
+  const filtered = useMemo(
+    () => graphViewModelFilteredByNodeType(graph, deferredTypeFilter),
+    [graph, deferredTypeFilter],
+  );
 
   const forceBuyerTrailForFinding =
     presentation === "buyerTrail" &&
@@ -241,11 +246,22 @@ export function GraphViewer({
     return filterGraphViewModelToNodeIds(filtered, pathNodeIds);
   }, [filtered, pathNodeIds, showPathOnly]);
 
+  const mapPayload = useMemo(
+    () => ({
+      graph: pathScopedGraph,
+      presentation: flowPresentation,
+    }),
+    [flowPresentation, pathScopedGraph],
+  );
+
+  const mapKey = `${flowPresentation}:${pathScopedGraph.nodeCount}:${pathScopedGraph.edgeCount}:${selectedNode?.id ?? ""}`;
+  const { result: mappedResult } = useInpOffloadTask("graphReactFlowMap", mapPayload, mapKey);
+
   const { nodes, edges } = useMemo(() => {
-    const mapped = mapGraphToReactFlow(pathScopedGraph, flowPresentation);
+    const mapped = mappedResult ?? mapGraphToReactFlow(pathScopedGraph, flowPresentation);
 
     return applyGraphSelectionFocus(mapped.nodes, mapped.edges, selectedNode?.id);
-  }, [flowPresentation, pathScopedGraph, selectedNode?.id]);
+  }, [flowPresentation, mappedResult, pathScopedGraph, selectedNode?.id]);
 
   const buyerTrailPanel = flowPresentation === "buyerTrail";
   const [interactiveSurfaceReady, setInteractiveSurfaceReady] = useState(false);
