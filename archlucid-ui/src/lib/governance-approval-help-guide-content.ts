@@ -1,8 +1,9 @@
+import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
 import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   GOVERNANCE_AUDIT_PATH,
-  GOVERNANCE_RESOLUTION_PATH,
+  GOVERNANCE_STANDARDS_AND_RULES_PATH,
   GOVERNANCE_WORKSPACE_HEALTH_HREF,
 } from "@/lib/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
@@ -15,17 +16,19 @@ export const GOVERNANCE_APPROVAL_HELP_PAGE_SUBTITLE =
 export const GOVERNANCE_APPROVAL_HELP_OVERVIEW =
   "Governance approval connects a finalized architecture review to an auditable decision. Solution architects submit work for review, governance approvers record decisions, and supporting evidence stays linked for diligence and audit.";
 
+export const GOVERNANCE_APPROVAL_HELP_ACTION_CARD_TITLE = "Record or track an approval";
+
 export const GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS = {
   openWorkflow: {
-    label: "Open governance workflow",
+    label: "Approval queue",
     href: GOVERNANCE_APPROVAL_QUEUE_PATH,
   },
   openDashboard: {
-    label: "Open governance dashboard",
+    label: "Workspace health",
     href: GOVERNANCE_WORKSPACE_HEALTH_HREF,
   },
-  openRiskRegister: {
-    label: "View the risk register",
+  openFindings: {
+    label: "Findings",
     href: "/governance/findings",
   },
 } as const;
@@ -46,19 +49,18 @@ export const GOVERNANCE_APPROVAL_HELP_WORKFLOW_STEPS = [
 ] as const;
 
 export const GOVERNANCE_APPROVAL_HELP_DIAGRAM_SUMMARY =
-  "Approval requests move from draft preparation through governance review to recorded outcomes. Labels match the status table on this page.";
+  "Approval requests move from draft preparation through governance review to recorded outcomes. Diagram nodes match the approval-request status table on this page.";
 
 /** Buyer-safe approval state machine — no API paths or eng jargon. */
 export const GOVERNANCE_APPROVAL_HELP_DIAGRAM_SOURCE = `stateDiagram-v2
   direction LR
   [*] --> Draft
   Draft --> Submitted: Submit for approval
-  Submitted --> UnderReview: Review evidence
-  state "Under review" as UnderReview
-  UnderReview --> Approved: Approve
-  UnderReview --> Rejected: Reject or request changes
-  Rejected --> Submitted: Revise and resubmit
-  Approved --> Superseded: Newer release replaces record`;
+  Submitted --> Approved: Approve
+  Submitted --> Rejected: Reject
+  Approved --> Promoted: Release
+  Promoted --> Activated: Activate
+  Rejected --> Submitted: Revise and resubmit`;
 
 export type GovernanceApprovalHelpRoleId =
   | "solution-architect"
@@ -125,59 +127,91 @@ export const GOVERNANCE_APPROVAL_HELP_ROLES: readonly GovernanceApprovalHelpRole
 
 export type GovernanceApprovalHelpStatusRow = {
   readonly status: string;
+  readonly kind: EnterpriseStatusKind;
   readonly meaning: string;
   readonly whoCanAct: string;
   readonly nextAction: string;
 };
 
 /**
- * Customer-facing status guidance aligned with {@link GovernanceApprovalStatus} and review workflow UI.
- * "Under review" and "Changes requested" describe phases or outcomes, not separate API enums.
+ * Approval-request statuses from GovernanceApprovalStatus (API / queue).
+ * Do not invent labels here — risk-posture and activation failure copy belong in STATUS_PHASES.
  */
 export const GOVERNANCE_APPROVAL_HELP_STATUS_ROWS: readonly GovernanceApprovalHelpStatusRow[] = [
   {
     status: "Draft",
+    kind: "draft",
     meaning: "A request is being prepared but has not been sent for governance review.",
     whoCanAct: "Users with submission permission on the review.",
     nextAction: "Complete environments, review record version, and comments, then submit.",
   },
   {
     status: "Submitted",
+    kind: "in-progress",
     meaning: "The request is in the governance queue awaiting a reviewer decision.",
     whoCanAct: "Governance approvers with review permission.",
     nextAction: "Open the request, inspect evidence, and approve or reject.",
   },
   {
-    status: "Under review",
-    meaning: "A reviewer is actively evaluating evidence while the request remains submitted.",
-    whoCanAct: "Assigned or authorized governance approvers.",
-    nextAction: "Record approve or reject with optional review comments.",
-  },
-  {
-    status: "Changes requested",
-    meaning:
-      "The product records this outcome as Rejected with reviewer comments. The submitter revises the review and may submit a new linked request.",
-    whoCanAct: "Original submitter or another user with submission permission.",
-    nextAction: "Address reviewer comments, update evidence, and submit again when ready.",
-  },
-  {
     status: "Approved",
-    meaning: "The approval decision is recorded and visible in audit history.",
+    kind: "approved",
+    meaning: "The approval decision is recorded and visible in the audit trail.",
     whoCanAct: "Governance leads with release permission after approval.",
     nextAction: "Release the signed review record to the target environment when required.",
   },
   {
     status: "Rejected",
+    kind: "blocked",
     meaning: "The reviewer declined the request. Rationale remains in the audit trail.",
     whoCanAct: "Submitter or governance lead, per organization policy.",
     nextAction: "Revise the review or open a new request according to current process.",
   },
   {
-    status: "Superseded",
-    meaning:
-      "A newer governance release or environment activation replaced an earlier record. Prior approval rows remain in history for audit.",
+    status: "Promoted",
+    kind: "in-progress",
+    meaning: "An approved signed review record was released toward the target environment.",
+    whoCanAct: "Governance leads with release permission.",
+    nextAction: "Complete activation for the target environment when required.",
+  },
+  {
+    status: "Activated",
+    kind: "ready",
+    meaning: "The signed review record version is live for the target environment.",
     whoCanAct: "Readers with governance or audit access.",
-    nextAction: "Use the latest approved release and audit history for current posture.",
+    nextAction: "Use the audit trail and findings to confirm ongoing posture.",
+  },
+] as const;
+
+export type GovernanceApprovalHelpStatusPhaseRow = {
+  readonly phase: string;
+  readonly meaning: string;
+};
+
+/** Phases and outcomes operators may describe — not GovernanceApprovalStatus enum values. */
+export const GOVERNANCE_APPROVAL_HELP_STATUS_PHASES: readonly GovernanceApprovalHelpStatusPhaseRow[] = [
+  {
+    phase: "Under review",
+    meaning: "A reviewer is actively evaluating evidence while the request remains Submitted.",
+  },
+  {
+    phase: "Changes requested",
+    meaning:
+      "The product records this outcome as Rejected with reviewer comments. The submitter revises the review and may submit again.",
+  },
+  {
+    phase: "Approved with monitoring",
+    meaning:
+      "A risk-posture or gate label used elsewhere in the product — not an approval-request status on the queue.",
+  },
+  {
+    phase: "Activation failed",
+    meaning:
+      "A release or activation step did not complete. The approval request status stays Promoted (or prior) until activation succeeds; remediate and retry.",
+  },
+  {
+    phase: "Superseded",
+    meaning:
+      "A newer governance release or environment activation replaced an earlier record. Prior approval rows remain in the audit trail.",
   },
 ] as const;
 
@@ -233,42 +267,22 @@ export type GovernanceApprovalHelpCommonAction = {
 
 export const GOVERNANCE_APPROVAL_HELP_COMMON_ACTIONS: readonly GovernanceApprovalHelpCommonAction[] = [
   {
-    label: "Submit for approval",
-    description: "Start an approval request on a finalized review.",
-    href: GOVERNANCE_APPROVAL_QUEUE_PATH,
-  },
-  {
-    label: "Review pending requests",
-    description: "See cross-review pending work on the governance dashboard.",
-    href: GOVERNANCE_WORKSPACE_HEALTH_HREF,
-  },
-  {
-    label: "Record a governance decision",
-    description: "Approve or reject submitted requests on the workflow page.",
-    href: GOVERNANCE_APPROVAL_QUEUE_PATH,
-  },
-  {
-    label: "Open the governance dashboard",
-    description: "Monitor pending approvals, recent decisions, and policy changes.",
-    href: GOVERNANCE_WORKSPACE_HEALTH_HREF,
-  },
-  {
-    label: "View the risk register",
-    description: "Inspect architecture findings that may block or inform approval.",
-    href: "/governance/findings",
-  },
-  {
-    label: "Review audit history",
+    label: "Audit",
     description: "Open immutable governance and workflow audit events.",
     href: GOVERNANCE_AUDIT_PATH,
   },
   {
-    label: "Attach supporting evidence",
-    description: "Open reviews to add artifacts before finalize and submission.",
+    label: "Reviews",
+    description: "Open reviews to attach artifacts before finalize and submission.",
     href: "/architecture/reviews",
   },
   {
-    label: "Open trust center",
+    label: "Standards & rules",
+    description: "Inspect active policy packs and rules that may block approval.",
+    href: GOVERNANCE_STANDARDS_AND_RULES_PATH,
+  },
+  {
+    label: "Trust center",
     description: "Review assurance materials for security and procurement diligence.",
     href: "/trust",
   },
@@ -278,6 +292,7 @@ export type GovernanceApprovalHelpTroubleshootingItem = {
   readonly issue: string;
   readonly resolution: string;
   readonly href?: string;
+  readonly linkLabel?: string;
 };
 
 export const GOVERNANCE_APPROVAL_HELP_TROUBLESHOOTING: readonly GovernanceApprovalHelpTroubleshootingItem[] = [
@@ -304,8 +319,7 @@ export const GOVERNANCE_APPROVAL_HELP_TROUBLESHOOTING: readonly GovernanceApprov
   {
     issue: "Policy blocks approval",
     resolution:
-      "Open governance resolution and policy packs to see active rules, then resolve or accept blocking findings.",
-    href: GOVERNANCE_RESOLUTION_PATH,
+      "Open Standards & rules and policy packs to see active rules, then resolve or accept blocking findings.",
   },
   {
     issue: "Request remains pending",
@@ -361,7 +375,7 @@ export const GOVERNANCE_APPROVAL_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeadi
   { level: 2, id: "role-guides", title: "Role guides" },
   { level: 3, id: "solution-architect", title: "Solution architect" },
   { level: 3, id: "governance-approver", title: "Governance approver" },
-  { level: 3, id: "security-reviewer", title: "Security reviewer" },
+  { level: 3, id: "security-reviewer", title: "Security or procurement reviewer" },
   { level: 3, id: "platform-engineer", title: "Platform engineer" },
   { level: 2, id: "statuses", title: "Statuses" },
   { level: 2, id: "prerequisites", title: "Prerequisites" },

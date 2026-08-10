@@ -70,7 +70,7 @@ describe("ui-route-traffic-governance-approval-help (GO)", () => {
     expect(row?.notes).toBe(GOVERNANCE_APPROVAL_HELP_TRAFFIC_NOTE);
     expect(row?.section.toLowerCase()).not.toBe("marketing");
     expect(row?.notes).toContain("HelpGovernanceApprovalGuideView");
-    expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("claim-discipline");
     expect(row?.notes).toContain("TB-1387");
     expect(row?.notes).toContain("cannot improve further toward 80");
   });

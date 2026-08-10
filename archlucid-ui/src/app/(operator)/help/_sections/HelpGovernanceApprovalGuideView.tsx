@@ -6,10 +6,12 @@ import { HelpGovernanceApprovalRoleGuide } from "@/app/(operator)/help/_sections
 import { HelpGovernanceApprovalTechnicalReference } from "@/app/(operator)/help/_sections/HelpGovernanceApprovalTechnicalReference";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MermaidDiagram } from "@/components/help/MermaidDiagram";
+import { StatusTag } from "@/components/StatusTag";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
+  GOVERNANCE_APPROVAL_HELP_ACTION_CARD_TITLE,
   GOVERNANCE_APPROVAL_HELP_COMMON_ACTIONS,
   GOVERNANCE_APPROVAL_HELP_DECISION_OUTCOMES,
   GOVERNANCE_APPROVAL_HELP_DIAGRAM_SOURCE,
@@ -21,10 +23,12 @@ import {
   GOVERNANCE_APPROVAL_HELP_PREREQUISITES,
   GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS,
   GOVERNANCE_APPROVAL_HELP_ROLES,
+  GOVERNANCE_APPROVAL_HELP_STATUS_PHASES,
   GOVERNANCE_APPROVAL_HELP_STATUS_ROWS,
   GOVERNANCE_APPROVAL_HELP_TROUBLESHOOTING,
   GOVERNANCE_APPROVAL_HELP_WORKFLOW_STEPS,
 } from "@/lib/governance-approval-help-guide-content";
+import { GOVERNANCE_APPROVAL_HELP_CLAIM_DISCIPLINE } from "@/lib/governance-approval-help-evidence-copy";
 import { cn } from "@/lib/utils";
 import {
   DESIGN_TOKENS,
@@ -95,44 +99,90 @@ function RoleEntryCards(): React.ReactElement {
 
 function StatusTable(): React.ReactElement {
   return (
-    <div className={HELP_PAGE_LAYOUT.tableWrap} data-testid="help-governance-approval-status-table">
-      <table className={HELP_PAGE_LAYOUT.table}>
-        <caption className="sr-only">Governance approval statuses</caption>
-        <thead>
-          <tr>
-            <th scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
-              Status
-            </th>
-            <th scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
-              Meaning
-            </th>
-            <th scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
-              Who can act
-            </th>
-            <th scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
-              Typical next step
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {GOVERNANCE_APPROVAL_HELP_STATUS_ROWS.map((row, index) => (
-            <tr
-              key={row.status}
-              className={index % 2 === 0 ? HELP_PAGE_LAYOUT.tableRowOdd : HELP_PAGE_LAYOUT.tableRowEven}
-            >
-              <th scope="row" className={HELP_PAGE_LAYOUT.tableBodyCell}>
-                <span className="inline-flex rounded-full border border-neutral-300 bg-neutral-50 px-2 py-0.5 text-sm font-semibold dark:border-neutral-700 dark:bg-neutral-900">
-                  {row.status}
-                </span>
+    <div className="space-y-4">
+      <div className={HELP_PAGE_LAYOUT.tableWrap} data-testid="help-governance-approval-status-table">
+        <table className={HELP_PAGE_LAYOUT.table}>
+          <caption className="sr-only">Governance approval statuses</caption>
+          <thead>
+            <tr>
+              <th scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
+                Status
               </th>
-              <td className={HELP_PAGE_LAYOUT.tableBodyCell}>{row.meaning}</td>
-              <td className={HELP_PAGE_LAYOUT.tableBodyCell}>{row.whoCanAct}</td>
-              <td className={HELP_PAGE_LAYOUT.tableBodyCell}>{row.nextAction}</td>
+              <th scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
+                Meaning
+              </th>
+              <th scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
+                Who can act
+              </th>
+              <th scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
+                Typical next step
+              </th>
             </tr>
+          </thead>
+          <tbody>
+            {GOVERNANCE_APPROVAL_HELP_STATUS_ROWS.map((row, index) => (
+              <tr
+                key={row.status}
+                className={index % 2 === 0 ? HELP_PAGE_LAYOUT.tableRowOdd : HELP_PAGE_LAYOUT.tableRowEven}
+              >
+                <th scope="row" className={HELP_PAGE_LAYOUT.tableBodyCell}>
+                  <StatusTag kind={row.kind} label={row.status} />
+                </th>
+                <td className={HELP_PAGE_LAYOUT.tableBodyCell}>{row.meaning}</td>
+                <td className={HELP_PAGE_LAYOUT.tableBodyCell}>{row.whoCanAct}</td>
+                <td className={HELP_PAGE_LAYOUT.tableBodyCell}>{row.nextAction}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div data-testid="help-governance-approval-status-phases">
+        <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Phases and outcomes, not statuses</h3>
+        <ul className={cn("m-0 mt-2", HELP_PAGE_LAYOUT.bulletList)}>
+          {GOVERNANCE_APPROVAL_HELP_STATUS_PHASES.map((phase) => (
+            <li key={phase.phase}>
+              <span className="font-semibold text-al-text-primary">{phase.phase}</span>
+              {": "}
+              {phase.meaning}
+            </li>
           ))}
-        </tbody>
-      </table>
+        </ul>
+      </div>
     </div>
+  );
+}
+
+function TroubleshootingList(): React.ReactElement {
+  return (
+    <ul className="m-0 list-none space-y-2 p-0" data-testid="help-governance-approval-troubleshooting">
+      {GOVERNANCE_APPROVAL_HELP_TROUBLESHOOTING.map((item) => (
+        <li key={item.issue}>
+          <details className={cn(DESIGN_TOKENS.surface.card, "group p-3")}>
+            <summary
+              className={cn(
+                "cursor-pointer list-none font-semibold text-al-text-primary marker:content-none [&::-webkit-details-marker]:hidden",
+                OPERATOR_TYPOGRAPHY.cardTitle,
+              )}
+            >
+              {item.issue}
+            </summary>
+            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
+              {item.resolution}
+              {item.href !== undefined && item.linkLabel !== undefined ? (
+                <>
+                  {" "}
+                  <Link href={item.href} className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}>
+                    {item.linkLabel}
+                  </Link>
+                  .
+                </>
+              ) : null}
+            </p>
+          </details>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -150,13 +200,16 @@ export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGui
         <HelpTopicTitleRow title={GOVERNANCE_APPROVAL_HELP_PAGE_TITLE} actions={<PageContextualHelpButton />} />
         <p className={cn("m-0 max-w-[42rem]", OPERATOR_TYPOGRAPHY.helper)}>{GOVERNANCE_APPROVAL_HELP_PAGE_SUBTITLE}</p>
       </header>
-<div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
+
+      <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
         <Card
           className="border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20"
           data-testid="help-governance-approval-action-panel"
         >
           <CardHeader className={OPERATOR_CARD.header}>
-            <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>Go to governance</CardTitle>
+            <CardTitle as="h2" className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+              {GOVERNANCE_APPROVAL_HELP_ACTION_CARD_TITLE}
+            </CardTitle>
           </CardHeader>
           <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
             <Button asChild size="sm" variant="primary">
@@ -170,17 +223,24 @@ export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGui
               </Link>
             </Button>
             <Link
-              href={GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS.openRiskRegister.href}
+              href={GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS.openFindings.href}
               className={cn(
                 "text-sm underline-offset-2 hover:underline",
                 DESIGN_TOKENS.accent.link,
                 OPERATOR_TYPOGRAPHY.body,
               )}
             >
-              {GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS.openRiskRegister.label}
+              {GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS.openFindings.label}
             </Link>
           </CardContent>
         </Card>
+
+        <aside
+          className={cn(DESIGN_TOKENS.callout.warn, "p-3")}
+          data-testid="help-governance-approval-claim-discipline"
+        >
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{GOVERNANCE_APPROVAL_HELP_CLAIM_DISCIPLINE}</p>
+        </aside>
       </div>
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
@@ -188,11 +248,8 @@ export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGui
           className={cn("min-w-0 space-y-8", "max-w-[42rem] lg:max-w-none")}
           data-testid="help-governance-approval-primary"
         >
-          <section aria-labelledby="overview-heading" className="space-y-3">
+          <section aria-labelledby="overview" className="space-y-3">
             <HelpSectionHeading id="overview">Overview</HelpSectionHeading>
-            <p id="overview-heading" className="sr-only">
-              Overview
-            </p>
             <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)} data-testid="help-governance-approval-overview">
               {GOVERNANCE_APPROVAL_HELP_OVERVIEW}
             </p>
@@ -200,13 +257,10 @@ export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGui
           </section>
 
           <section
-            aria-labelledby="governance-workflow-heading"
+            aria-labelledby="governance-workflow"
             className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
           >
             <HelpSectionHeading id="governance-workflow">Governance workflow</HelpSectionHeading>
-            <p id="governance-workflow-heading" className="sr-only">
-              Governance workflow
-            </p>
             <GovernanceWorkflowStepper />
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{GOVERNANCE_APPROVAL_HELP_DIAGRAM_SUMMARY}</p>
             <div
@@ -224,35 +278,26 @@ export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGui
           </section>
 
           <section
-            aria-labelledby="role-guides-heading"
+            aria-labelledby="role-guides"
             className="space-y-4 border-t border-neutral-200 pt-6 dark:border-neutral-800"
           >
             <HelpSectionHeading id="role-guides">Role guides</HelpSectionHeading>
-            <p id="role-guides-heading" className="sr-only">
-              Role guides
-            </p>
             <HelpGovernanceApprovalRoleGuide />
           </section>
 
           <section
-            aria-labelledby="statuses-heading"
+            aria-labelledby="statuses"
             className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
           >
             <HelpSectionHeading id="statuses">Statuses</HelpSectionHeading>
-            <p id="statuses-heading" className="sr-only">
-              Statuses
-            </p>
             <StatusTable />
           </section>
 
           <section
-            aria-labelledby="prerequisites-heading"
+            aria-labelledby="prerequisites"
             className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
           >
             <HelpSectionHeading id="prerequisites">Prerequisites</HelpSectionHeading>
-            <p id="prerequisites-heading" className="sr-only">
-              Prerequisites
-            </p>
             <ul className={HELP_PAGE_LAYOUT.bulletList} data-testid="help-governance-approval-prerequisites">
               {GOVERNANCE_APPROVAL_HELP_PREREQUISITES.map((item) => (
                 <li key={item}>{item}</li>
@@ -261,13 +306,10 @@ export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGui
           </section>
 
           <section
-            aria-labelledby="decision-outcomes-heading"
+            aria-labelledby="decision-outcomes"
             className="space-y-4 border-t border-neutral-200 pt-6 dark:border-neutral-800"
           >
             <HelpSectionHeading id="decision-outcomes">Decision outcomes</HelpSectionHeading>
-            <p id="decision-outcomes-heading" className="sr-only">
-              Decision outcomes
-            </p>
             <div className="grid gap-3 lg:grid-cols-3" data-testid="help-governance-approval-decision-outcomes">
               {GOVERNANCE_APPROVAL_HELP_DECISION_OUTCOMES.map((outcome) => (
                 <div
@@ -288,17 +330,14 @@ export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGui
           </section>
 
           <section
-            aria-labelledby="common-actions-heading"
+            aria-labelledby="common-actions"
             className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
           >
             <HelpSectionHeading id="common-actions">Common actions</HelpSectionHeading>
-            <p id="common-actions-heading" className="sr-only">
-              Common actions
-            </p>
             <div className="grid gap-3 sm:grid-cols-2" data-testid="help-governance-approval-common-actions">
               {GOVERNANCE_APPROVAL_HELP_COMMON_ACTIONS.map((action) => (
                 <div
-                  key={action.label}
+                  key={action.href}
                   className="rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
                 >
                   <Link
@@ -314,37 +353,11 @@ export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGui
           </section>
 
           <section
-            aria-labelledby="troubleshooting-heading"
+            aria-labelledby="troubleshooting"
             className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
           >
             <HelpSectionHeading id="troubleshooting">Troubleshooting</HelpSectionHeading>
-            <p id="troubleshooting-heading" className="sr-only">
-              Troubleshooting
-            </p>
-            <ul className="m-0 list-none space-y-3 p-0" data-testid="help-governance-approval-troubleshooting">
-              {GOVERNANCE_APPROVAL_HELP_TROUBLESHOOTING.map((item) => (
-                <li
-                  key={item.issue}
-                  className="rounded-md border border-amber-200/80 bg-amber-50/50 p-4 dark:border-amber-900/50 dark:bg-amber-950/20"
-                >
-                  <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                    {item.issue}
-                  </p>
-                  <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.body)}>
-                    {item.resolution}
-                    {item.href ? (
-                      <>
-                        {" "}
-                        <Link href={item.href} className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}>
-                          Open governance resolution
-                        </Link>
-                        .
-                      </>
-                    ) : null}
-                  </p>
-                </li>
-              ))}
-            </ul>
+            <TroubleshootingList />
           </section>
         </div>
 
