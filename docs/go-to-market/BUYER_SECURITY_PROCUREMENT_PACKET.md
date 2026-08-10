@@ -1685,6 +1685,73 @@ There is **no** “migration job completes before any pod starts” gate in the 
 
 **Related:** [Azure workload privilege seam (M-216)](#azure-workload-privilege-escalation-seam-m-216) Â· [`MIGRATION_ROLLBACK.md`](../library/MIGRATION_ROLLBACK.md) Â· [`DEPLOYMENT_CD_PIPELINE.md`](../library/DEPLOYMENT_CD_PIPELINE.md) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
+## REST + CLI breaking-change compatibility (M-289) {#rest-cli-breaking-change-compatibility-m-289}
+
+Former standalone body: `docs/go-to-market/REST_CLI_BREAKING_CHANGE_COMPATIBILITY_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-288** / **M-289** / **TB-1559**). Engineering map: [`../library/REST_CLI_BREAKING_CHANGE_COMPATIBILITY_CLAIM_MAP.md`](../library/REST_CLI_BREAKING_CHANGE_COMPATIBILITY_CLAIM_MAP.md). Complements Done **TB-285**/**TB-286** (buyer OpenAPI slice) and **TB-318** (CLI handoff) without conflating audience filtering with semver enforcement. Does not claim `oasdiff`, CLI surface freeze, or always-on Sunset headers. Not an assurance attestation.
+
+**Path-stable alias:** [`REST_CLI_BREAKING_CHANGE_COMPATIBILITY_PA_ONE_PAGER.md`](REST_CLI_BREAKING_CHANGE_COMPATIBILITY_PA_ONE_PAGER.md).
+
+**Audience:** Principal architects, integration engineers, and security reviewers evaluating pilot scripting surfaces (`/v1` REST + `archlucid` CLI).
+
+**Decision:** A **written** break/non-break + sunset policy exists (ADR 0006 / `API_CONTRACTS.md`); structural enforcement is **OpenAPI exact-snapshot drift + client/UI codegen sync**, **not** semantic backward-compat analysis or dual-version coexistence. Pilots script **`/v1` + `archlucid` CLI**; regenerating the snapshot can still ship a breaking change under the same major.
+
+### Policy (what we say)
+
+| Rule | Source |
+| --- | --- |
+| Major version in URL path (`/v1/...`) | ADR 0006 |
+| Breaking → new major; additive OK on same major | ADR 0006 + `API_CONTRACTS.md` |
+| Formal sunset ≥ **6 calendar months** + RFC 8594 `Sunset` when implemented | ADR 0006 |
+| Contract of record | `GET /openapi/v1.json` (not Swashbuckle `/swagger/v1`) |
+
+### Structural vs convention
+
+| Mechanism | Structural? | Enforces |
+| --- | --- | --- |
+| OpenAPI v1 snapshot CI | Yes | Exact JSON equality — accidental drift |
+| Buyer OpenAPI slice + forbidden-property tests | Yes | Audience leakage (**TB-285**/**TB-286**) |
+| NSwag + `openapi-typescript` in-sync asserts | Yes | Generated clients match snapshot |
+| Semantic break detector (`oasdiff` / Spectral breaking) | **No** | Absent |
+| Live `/v2` + dual-version runtime | **No** | Policy text only |
+| `ApiDeprecation` Sunset headers | Config present | **Default off** |
+| CLI command/flag/exit-code freeze | **No** | Docs + behavioral tests only |
+
+### Pilot-first-class surfaces
+
+| Surface | First-class for pilots? |
+| --- | --- |
+| `POST/GET …/v1/architecture/*` lifecycle (request → execute → commit) | Yes |
+| `archlucid` CLI calling those routes | Yes |
+| Pilots/export/ROI / pre-commit simulate | Yes |
+| `/v1/internal/*`, `/v1/admin/*`, forensics | No |
+| `Jobs.Cli` / `Backfill.Cli` | No — ops, not pilot contract |
+| SCIM `/scim/v2/*` | Separate protocol |
+
+### Claim boundary
+
+| Do not promise | Do promise |
+| --- | --- |
+| “CI proves backward compatibility / semver for `/v1`” | CI proves OpenAPI snapshot equality |
+| “Breaking changes always require `/v2` and are machine-enforced” | Should per policy; regen can break `/v1` |
+| “Sunset / Deprecation headers always published” | Feature-flagged; default off |
+| “Multiple REST majors coexist in production” | Only `1.0` / `/v1` shipped |
+| “CLI is versioned/stable independently of API” | CLI tracks `/v1` HTTP; no CLI compat gate |
+| “Swashbuckle `/swagger/v1` is the contract” | Explicitly non-authoritative |
+
+### PA diligence prompts
+
+1. Ask what CI **actually** gates (snapshot equality) vs what policy **intends** (break → new major).
+2. Separate buyer OpenAPI slice from full pilot lifecycle routes — pilots use operator `/v1/architecture/*`.
+3. For route sunset questions, pair with open **TB-1034**/**M-184** (strangler) — distinct from REST major versioning.
+
+### Residuals (honest)
+
+- **TB-1560** owns honesty CI for CI-guarantees-compat / Sunset-always-on overclaims.
+- Optional product follow-ons: `oasdiff`, CLI surface snapshot, enable Sunset in prod — not claimed as shipped.
+- This handout does not claim CPA SOC 2 or a published third-party penetration test.
+
+**Related:** [`API_CONTRACTS.md`](../library/API_CONTRACTS.md) Â· [`OPENAPI_CONTRACT_DRIFT.md`](../library/OPENAPI_CONTRACT_DRIFT.md) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+
 ## Azure workload privilege-escalation seam (M-216) {#azure-workload-privilege-escalation-seam-m-216}
 
 Former standalone body: `docs/go-to-market/AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-215** / **M-216** / **TB-1244**). Contributor contract: [`AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md`](../library/AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md) (**TB-1244** **Done**). Complements [Container Apps Terraform authority (M-234)](#container-apps-terraform-authority-m-234) and [Tenant DiD erosion (M-214)](#tenant-did-erosion-beyond-predicates-m-214). Does not reopen Done **TB-080** / **TB-091** / **TB-092**. Not an assurance attestation.

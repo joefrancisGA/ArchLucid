@@ -4,7 +4,10 @@
 
 **Audience:** Engineering, security reviewers, principal-architect diligence. Not a buyer brochure.
 
-**Status:** Working contract for **TB-1559** / GTM **M-288**. Pair honesty CI **TB-1560** / **M-288**.
+**Status:** **Done** (**TB-1559**, 2026-08-10). GTM **M-288** / **M-289**. Pair honesty CI **TB-1560** / **M-288**.
+
+**Buyer / PA one-pager:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#rest-cli-breaking-change-compatibility-m-289`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#rest-cli-breaking-change-compatibility-m-289) (GTM **M-289**).  
+**Claim honesty:** [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) (GTM **M-288**).
 
 **Verdict (one line):** A **written** break/non-break + sunset policy exists (ADR 0006 / `API_CONTRACTS.md`); structural enforcement is **OpenAPI exact-snapshot drift + client/UI codegen sync**, **not** semantic backward-compat analysis or dual-version coexistence. Pilots script **`/v1` + `archlucid` CLI**; regenerating the snapshot can still ship a breaking change under the same major.
 
@@ -90,9 +93,11 @@
 |----|------|
 | Done **TB-285** / **TB-286** | Buyer OpenAPI audience + forbidden props |
 | Done **TB-318** / **TB-208** / **TB-209** | Automation handoff + CLI packaging |
-| Open **TB-1034** / **M-184** | Strangler / `…/result` sunset (adjacent lifecycle) |
-| `OPENAPI_CONTRACT_DRIFT.md` | Snapshot refresh workflow |
-| **TB-1559** / **M-288** | This compatibility claim map |
+| Open **TB-1034** / **M-184** | Strangler / `…/result` sunset (adjacent lifecycle) — do not conflate with REST major versioning |
+| [`OPENAPI_CONTRACT_DRIFT.md`](OPENAPI_CONTRACT_DRIFT.md) | Snapshot refresh workflow |
+| [`API_CONTRACTS.md`](API_CONTRACTS.md) | Written break/non-break policy |
+| Done **TB-1559** / **M-288** | This compatibility claim map |
+| Open **TB-1560** / **M-288** | Honesty CI follow-on |
 
 ---
 
