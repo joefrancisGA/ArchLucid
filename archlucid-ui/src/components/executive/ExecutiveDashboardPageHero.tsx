@@ -8,7 +8,6 @@ import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   operatorLastRefreshedExactLabel,
@@ -31,7 +30,6 @@ export function ExecutiveDashboardPageHero({
   dashboardEmpty,
 }: ExecutiveDashboardPageHeroProps): React.JSX.Element {
   const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const { refreshing, lastRefreshedAt, refreshDashboard } = useExecutiveDashboardData();
 
   const lastRefreshedLabel = operatorLastRefreshedLabel(lastRefreshedAt);
@@ -44,7 +42,7 @@ export function ExecutiveDashboardPageHero({
       <OperatorPageHeader
         title={EXECUTIVE_DASHBOARD_PAGE_TITLE}
         titleTestId="executive-summary-heading"
-        subtitle={executiveDashboardPageSubtitle(buyerPolishedShell)}
+        subtitle={executiveDashboardPageSubtitle()}
         actions={
           <div className="flex flex-wrap items-center gap-2" data-testid="executive-dashboard-hero-actions">
             <PageContextualHelpButton />

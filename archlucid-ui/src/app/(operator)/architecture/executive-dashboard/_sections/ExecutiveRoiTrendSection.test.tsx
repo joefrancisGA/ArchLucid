@@ -63,6 +63,17 @@ describe("ExecutiveRoiTrendSection", () => {
     buyerPolishedShellVitestOverride.value = null;
   });
 
+  it("uses buyer-safe ROI trend copy without endpoint names when buyer polish is off (TB-1533)", async () => {
+    renderWithQueryClient(<ExecutiveRoiTrendSection defaultTimeRange="all" showTimeRangeSelector />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("exec-roi-trend-chart")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByText(/GET \/v1\/roi\/executive-summary\/history/i)).not.toBeInTheDocument();
+    expect(screen.getByTestId("exec-roi-trend-window-help")).toHaveTextContent("Showing the selected time range.");
+  });
+
   it("shows mixed-mode footnote and simulator-only badge when history includes both modes", async () => {
     renderWithQueryClient(<ExecutiveRoiTrendSection defaultTimeRange="all" />);
 

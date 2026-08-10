@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import {
-  EXECUTIVE_DASHBOARD_PAGE_SUBTITLE_OPERATOR,
+  EXECUTIVE_DASHBOARD_PAGE_SUBTITLE_BUYER,
   executiveDashboardPageSubtitle,
 } from "@/lib/executive-dashboard-page-copy";
 
@@ -45,8 +45,8 @@ describe("ExecutiveDashboardPageHero", () => {
 
     expect(screen.getByTestId("executive-dashboard-page-hero")).toHaveAttribute("data-dashboard-empty", "true");
     expect(screen.getByRole("heading", { level: 2, name: v.portfolioPageTitle })).toBeInTheDocument();
-    expect(screen.getByText(executiveDashboardPageSubtitle(false))).toBeInTheDocument();
-    expect(screen.getByText(EXECUTIVE_DASHBOARD_PAGE_SUBTITLE_OPERATOR)).toBeInTheDocument();
+    expect(screen.getByText(executiveDashboardPageSubtitle())).toBeInTheDocument();
+    expect(screen.getByText(EXECUTIVE_DASHBOARD_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.queryByText(v.portfolioPageNextStep)).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("executive-dashboard-refresh-button")).toBeInTheDocument();
@@ -65,7 +65,7 @@ describe("ExecutiveDashboardPageHero", () => {
     render(<ExecutiveDashboardPageHero dashboardEmpty={false} />);
 
     expect(screen.getByTestId("executive-dashboard-page-hero")).toHaveAttribute("data-dashboard-empty", "false");
-    expect(screen.getByText(executiveDashboardPageSubtitle(false))).toBeInTheDocument();
+    expect(screen.getByText(executiveDashboardPageSubtitle())).toBeInTheDocument();
     expect(screen.queryByText(v.portfolioPageNextStep)).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("executive-dashboard-refresh-button")).toBeInTheDocument();

@@ -8,10 +8,9 @@ export const EXECUTIVE_DASHBOARD_PAGE_SUBTITLE_OPERATOR =
 export const EXECUTIVE_DASHBOARD_PAGE_SUBTITLE_BUYER =
   "Track governance posture, ROI impact, and sponsor-ready proof across finalized reviews.";
 
-export function executiveDashboardPageSubtitle(buyerPolishedShell: boolean): string {
-  return buyerPolishedShell
-    ? EXECUTIVE_DASHBOARD_PAGE_SUBTITLE_BUYER
-    : EXECUTIVE_DASHBOARD_PAGE_SUBTITLE_OPERATOR;
+/** Sponsor-safe lead on the executive dashboard — not env-gated (TB-1533). */
+export function executiveDashboardPageSubtitle(): string {
+  return EXECUTIVE_DASHBOARD_PAGE_SUBTITLE_BUYER;
 }
 
 export const EXECUTIVE_DASHBOARD_LAST_REFRESHED_PREFIX = "Last refreshed" as const;

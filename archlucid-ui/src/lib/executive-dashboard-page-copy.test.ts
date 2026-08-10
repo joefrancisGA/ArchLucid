@@ -14,9 +14,8 @@ describe("executive-dashboard-page-copy", () => {
     expect(EXECUTIVE_DASHBOARD_PAGE_SUBTITLE_OPERATOR).toBe(BUYER_EXECUTIVE_SUMMARY_VOCABULARY.portfolioPageLead);
   });
 
-  it("uses a shorter buyer subtitle", () => {
-    expect(executiveDashboardPageSubtitle(true)).toBe(EXECUTIVE_DASHBOARD_PAGE_SUBTITLE_BUYER);
-    expect(executiveDashboardPageSubtitle(false)).toBe(EXECUTIVE_DASHBOARD_PAGE_SUBTITLE_OPERATOR);
+  it("uses sponsor-safe executive dashboard lead without env gating (TB-1533)", () => {
+    expect(executiveDashboardPageSubtitle()).toBe(EXECUTIVE_DASHBOARD_PAGE_SUBTITLE_BUYER);
     expect(EXECUTIVE_DASHBOARD_PAGE_SUBTITLE_BUYER.length).toBeLessThan(
       EXECUTIVE_DASHBOARD_PAGE_SUBTITLE_OPERATOR.length,
     );

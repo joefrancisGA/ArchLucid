@@ -13,7 +13,7 @@ import {
   type ExecutiveTimeRange,
   filterHistoryPointsByRange,
 } from "@/lib/executive-time-range";
-import { BUYER_EXECUTIVE_DATA_SOURCE_NOTE } from "@/lib/buyer-polish-copy";
+import { BUYER_EXECUTIVE_DATA_SOURCE_NOTE, BUYER_EXECUTIVE_SCORECARD_WINDOW_HELP } from "@/lib/buyer-polish-copy";
 import { EXECUTION_MODE_ROI_PERIOD_MIX_FOOTNOTE, resolveExecutiveTrendSavingsUsd } from "@/lib/execution-mode-honesty";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -98,14 +98,7 @@ export function ExecutiveRoiTrendSection({
           <div>
             <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>ROI trend ({trendRangeLabel(timeRange)})</CardTitle>
             <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
-              {buyerPolished
-                ? `Estimated USD savings and critical security findings over time. ${BUYER_EXECUTIVE_DATA_SOURCE_NOTE}`
-                : (
-                    <>
-                      Estimated USD savings and critical security findings over time from{" "}
-                      <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>GET /v1/roi/executive-summary/history</span>.
-                    </>
-                  )}
+              {`Estimated USD savings and critical security findings over time. ${BUYER_EXECUTIVE_DATA_SOURCE_NOTE}`}
             </CardDescription>
           </div>
           {showTimeRangeSelector ? (
@@ -125,6 +118,12 @@ export function ExecutiveRoiTrendSection({
                 <option value="year">Last year</option>
                 <option value="all">All time</option>
               </select>
+              <p
+                className={cn("m-0 mt-1 max-w-xs text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="exec-roi-trend-window-help"
+              >
+                {BUYER_EXECUTIVE_SCORECARD_WINDOW_HELP}
+              </p>
             </div>
           ) : null}
         </div>
