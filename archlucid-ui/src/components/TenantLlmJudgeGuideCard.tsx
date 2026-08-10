@@ -25,8 +25,8 @@ export function TenantLlmJudgeGuideCard(): React.JSX.Element {
           . Daily token budget applies when enabled.
         </p>
         <p className="m-0">
-          Pair with tenant quality-gate mode below — <strong>PilotStrict</strong> blocks runs on reject;{" "}
-          <strong>WarnOnly</strong> surfaces warnings without halting the pipeline.
+          Pair with tenant quality-gate mode below — <strong>Strict quality</strong> blocks runs on reject;{" "}
+          <strong>Warn only</strong> surfaces warnings without halting the pipeline.
         </p>
         <InAppHelpLink helpSlug="configuration-reference" label="Configuration reference" variant="text" />
         {" · "}

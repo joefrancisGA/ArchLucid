@@ -101,7 +101,7 @@ export function buildPlainLanguageQualityBlockSummary(rows: AgentQualityConcernR
 
   const agents = rejected.map((r) => r.agentLabel).join(", ");
 
-  return `This review is blocked because ${agents} output${rejected.length === 1 ? "" : "s"} failed the quality gate (not an LLM outage). Review the scores below, add evidence or context if needed, then re-run the review. Withhold sponsor-grade real-mode claims until PilotStrict evidence passes.`;
+  return `This review is blocked because ${agents} output${rejected.length === 1 ? "" : "s"} failed the quality gate (not an LLM outage). Review the scores below, add evidence or context if needed, then re-run the review. Withhold sponsor-grade real-mode claims until strict AI quality checks pass.`;
 }
 
 /** Operator recovery copy for quality-gate rejection runbook links. */

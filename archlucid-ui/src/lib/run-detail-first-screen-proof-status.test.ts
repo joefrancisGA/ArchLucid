@@ -19,6 +19,8 @@ describe("buildRunDetailFirstScreenProofSummary", () => {
     expect(summary.cardTitle).toBe("Why this is safe to send");
     expect(summary.proofConfidenceLabel).toBe("Real-mode verified");
     expect(summary.whySafeToSendBullets.length).toBeGreaterThan(0);
+    expect(summary.whySafeToSendBullets.join(" ")).toContain("strict AI quality checks");
+    expect(summary.whySafeToSendBullets.join(" ").toLowerCase()).not.toContain("pilotstrict");
   });
 
   it("returns WARN for sendable-with-caveats posture", () => {
@@ -41,6 +43,8 @@ describe("buildRunDetailFirstScreenProofSummary", () => {
     });
 
     expect(strictHold.disposition).toBe("HOLD");
+    expect(strictHold.whySafeToSendBullets.join(" ")).toContain("Strict AI quality");
+    expect(strictHold.whySafeToSendBullets.join(" ").toLowerCase()).not.toContain("pilotstrict");
 
     const roiHold = buildRunDetailFirstScreenProofSummary({
       estimatedUsdSavings: 5000,

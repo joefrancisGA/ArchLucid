@@ -14,7 +14,7 @@ import {
 
 type LoadState = "loading" | "ok" | "error" | "skipped";
 
-/** Surfaces PilotStrict / AI readiness posture on committed review detail before sponsor send. */
+/** Surfaces strict AI quality / AI readiness posture on committed review detail before sponsor send. */
 export function RunDetailAiReadinessGateCard(props: { readonly runId: string; readonly manifestId: string | null }) {
   const { runId, manifestId } = props;
   const [state, setState] = useState<LoadState>("loading");
@@ -101,12 +101,12 @@ export function RunDetailAiReadinessGateCard(props: { readonly runId: string; re
       data-testid="run-detail-ai-readiness-gate"
     >
       <p className="m-0 font-semibold">
-        {pilotStrictOk ? "AI readiness: PilotStrict satisfied" : "AI readiness: HOLD — review before sponsor send"}
+        {pilotStrictOk ? "AI readiness: Strict quality checks passed" : "AI readiness: HOLD — review before sponsor send"}
       </p>
       <p className={cn("m-0 mt-1 leading-relaxed opacity-95", OPERATOR_TYPOGRAPHY.helper)}>
         {pilotStrictOk
-          ? "No PilotStrict trace or faithfulness failures are attested for this committed review on real-mode hosts."
-          : "PilotStrict quality signals failed or are unresolved. Open the first-value report and observability summary before external PDF send."}
+          ? "No strict AI quality trace or faithfulness failures are attested for this committed review on real-mode hosts."
+          : "Strict AI quality signals failed or are unresolved. Open the first-value report and observability summary before external PDF send."}
         {llmResolved && typeof llmCalls === "number" ? (
           <>
             {" "}

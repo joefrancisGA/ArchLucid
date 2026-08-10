@@ -636,7 +636,7 @@ export function stripEvaluatorWorkbookContributorLeakage(markdown: string): stri
     .join("\n")
     .replace(/\(former EVALUATION_GUIDE\)/gi, "")
     .replace(/\bTier-1\b/g, "optional")
-    .replace(/\bPilotStrict\b/g, "pilot host integrity")
+    .replace(/\bPilotStrict\b/g, "strict AI quality checks")
     .replace(/\bauthority pipeline\b/gi, "architecture analysis")
     .replace(/\[`?BUYER_FIRST_30_MINUTES\.md`?\]\([^)]+\)/gi, "[Your first architecture review](/help/first-architecture-review)")
     .replace(/\[`?SECOND_RUN\.md`?\]\([^)]+\)/gi, "[Repeat a review](/help/repeat-review-loop)")

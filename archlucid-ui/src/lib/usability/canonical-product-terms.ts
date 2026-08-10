@@ -44,3 +44,18 @@ export const ARCHITECTURE_STRUCTURE_BUYER_LABEL_LOWER = "architecture structure"
  * Free-text intake hints for components and connections (API field remains `topologyHints`).
  */
 export const ARCHITECTURE_HINTS_BUYER_LABEL = "Architecture hints";
+
+/**
+ * Buyer noun for quality-gate mode `PilotStrict` (wire id stays PilotStrict).
+ * Prefer this over camelCase PilotStrict in PA-facing UI.
+ */
+export const STRICT_AI_QUALITY_BUYER_LABEL = "Strict AI quality checks";
+
+/** Short mode/button label for {@link STRICT_AI_QUALITY_BUYER_LABEL}. */
+export const STRICT_AI_QUALITY_MODE_BUYER_LABEL = "Strict quality";
+
+/** Mid-sentence / lowercase form of {@link STRICT_AI_QUALITY_BUYER_LABEL}. */
+export const STRICT_AI_QUALITY_BUYER_LABEL_LOWER = "strict AI quality checks";
+
+/** Buyer label for quality-gate mode `WarnOnly` (wire id stays WarnOnly). */
+export const WARN_ONLY_QUALITY_MODE_BUYER_LABEL = "Warn only";

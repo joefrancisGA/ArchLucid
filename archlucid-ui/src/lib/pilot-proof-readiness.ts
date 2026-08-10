@@ -99,7 +99,7 @@ export function isExternalSponsorPdfBlockedForExecutionMode(
   return label !== "Real";
 }
 
-/** When false, PilotStrict quality signals failed — withhold sponsor PDF on real-mode hosts. */
+/** When false, strict AI quality signals failed — withhold sponsor PDF on real-mode hosts. */
 export function isAgentOutputPilotStrictSponsorSafe(
   payload: PilotRunDeltasProofSummaryJson | null,
 ): boolean {

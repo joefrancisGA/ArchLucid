@@ -105,7 +105,7 @@ function buildWhySafeToSendBullets(
   const executionMode = structuralExecutionModeLabel(payload);
 
   if (disposition === "READY") {
-    bullets.push(`Execution mode is ${executionMode} with PilotStrict satisfied.`);
+    bullets.push(`Execution mode is ${executionMode} with strict AI quality checks satisfied.`);
     bullets.push(roiLabel.startsWith("Classified") ? roiLabel : "No unsourced projected dollar claims detected.");
     bullets.push("Proof packet completeness reports sponsor-sendable posture from server-side labels.");
     bullets.push("Generate the proof-packet folder and keep limitations.md attached for external send.");
@@ -113,7 +113,7 @@ function buildWhySafeToSendBullets(
   }
 
   if (!strictSafe) {
-    bullets.push("PilotStrict evidence is not satisfied for sponsor-safe agent output.");
+    bullets.push("Strict AI quality evidence is not satisfied for sponsor-safe agent output.");
   }
 
   if (roiLabel.startsWith("HOLD")) {

@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { agentOutputQualityGateConfigPaths, selectAgentOutputQualityGateRows } from "@/lib/quality-gate-config-summary";
+import { buyerLabelForQualityGateMode } from "@/lib/quality-gate-mode-buyer-label";
+import { STRICT_AI_QUALITY_MODE_BUYER_LABEL, WARN_ONLY_QUALITY_MODE_BUYER_LABEL } from "@/lib/usability/canonical-product-terms";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type AdminConfigSummaryResponse = components["schemas"]["AdminConfigSummaryResponse"];
@@ -75,11 +77,14 @@ function QualityGateModeControlsSection(
   return (
     <div className="space-y-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-700" data-testid="quality-gate-mode-controls">
       <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-        Effective mode: <span className="font-mono">{mode.effectiveMode}</span>
+        Effective mode: <span className="font-medium">{buyerLabelForQualityGateMode(mode.effectiveMode)}</span>
         {usingOverride ? (
           <span className="text-al-text-secondary"> (tenant override)</span>
         ) : (
-          <span className="text-al-text-secondary"> (host default: {mode.hostDefaultMode})</span>
+          <span className="text-al-text-secondary">
+            {" "}
+            (host default: {buyerLabelForQualityGateMode(mode.hostDefaultMode)})
+          </span>
         )}
       </p>
       <div className="flex flex-wrap items-center gap-2">
@@ -90,7 +95,7 @@ function QualityGateModeControlsSection(
           disabled={saving || mode.effectiveMode === "WarnOnly"}
           onClick={() => void onSelectMode("WarnOnly")}
         >
-          Warn only
+          {WARN_ONLY_QUALITY_MODE_BUYER_LABEL}
         </Button>
         <Button
           type="button"
@@ -99,7 +104,7 @@ function QualityGateModeControlsSection(
           disabled={saving || mode.effectiveMode === "PilotStrict"}
           onClick={() => void onSelectMode("PilotStrict")}
         >
-          Pilot strict
+          {STRICT_AI_QUALITY_MODE_BUYER_LABEL}
         </Button>
         {usingOverride ? (
           <Button type="button" size="sm" variant="ghost" disabled={saving} onClick={() => void onClearOverride()}>
@@ -248,9 +253,10 @@ export function TenantQualityGatesCard() {
         <p className="m-0">
           Tenant override for{" "}
           <span className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>{agentOutputQualityGateConfigPaths.mode}</span>{" "}
-          (<code>WarnOnly</code> vs <code>PilotStrict</code>). Warn floors below remain host-configured via{" "}
-          <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>GET /v1/admin/config-summary</span>. Effective reject floors and PilotStrict
-          thresholds come from{" "}
+          (<code>WarnOnly</code> vs <code>PilotStrict</code> — shown as {WARN_ONLY_QUALITY_MODE_BUYER_LABEL} vs{" "}
+          {STRICT_AI_QUALITY_MODE_BUYER_LABEL}). Warn floors below remain host-configured via{" "}
+          <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>GET /v1/admin/config-summary</span>. Effective reject floors and strict
+          quality thresholds come from{" "}
           <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>GET /v1/admin/diagnostics/quality-gates</span>.
         </p>
 
@@ -310,15 +316,21 @@ export function TenantQualityGatesCard() {
                 <dd className="m-0 text-neutral-900 dark:text-neutral-100">{state.diagnostics.structuralRejectBelow}</dd>
                 <dt className="m-0 pt-2 text-neutral-500">SemanticRejectBelow</dt>
                 <dd className="m-0 pt-2 text-neutral-900 dark:text-neutral-100">{state.diagnostics.semanticRejectBelow}</dd>
-                <dt className="m-0 pt-2 text-neutral-500">PilotStrictMinStructuralCompleteness</dt>
+                <dt className="m-0 pt-2 text-neutral-500" title="PilotStrictMinStructuralCompleteness">
+                  Strict quality — min structural completeness
+                </dt>
                 <dd className="m-0 pt-2 text-neutral-900 dark:text-neutral-100">
                   {state.diagnostics.pilotStrictMinStructuralCompleteness}
                 </dd>
-                <dt className="m-0 pt-2 text-neutral-500">PilotStrictMinSemanticScore</dt>
+                <dt className="m-0 pt-2 text-neutral-500" title="PilotStrictMinSemanticScore">
+                  Strict quality — min semantic score
+                </dt>
                 <dd className="m-0 pt-2 text-neutral-900 dark:text-neutral-100">
                   {state.diagnostics.pilotStrictMinSemanticScore}
                 </dd>
-                <dt className="m-0 pt-2 text-neutral-500">PilotStrictMinEvidenceRefCount</dt>
+                <dt className="m-0 pt-2 text-neutral-500" title="PilotStrictMinEvidenceRefCount">
+                  Strict quality — min evidence refs
+                </dt>
                 <dd className="m-0 pt-2 text-neutral-900 dark:text-neutral-100">
                   {state.diagnostics.pilotStrictMinEvidenceRefCount}
                 </dd>

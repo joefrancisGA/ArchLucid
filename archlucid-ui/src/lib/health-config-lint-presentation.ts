@@ -38,7 +38,7 @@ const CONFIG_LINT_GUIDANCE: Readonly<
   },
   quality_gate_warn_only_in_real_production_like: {
     title: "Agent quality gate is warn-only in real execution mode",
-    recommendedAction: "Tighten quality gate thresholds or use simulator mode until PilotStrict is configured.",
+    recommendedAction: "Tighten quality gate thresholds or use simulator mode until strict AI quality checks are configured.",
   },
   cors_allowed_origins_empty_production_like_host: {
     title: "Browser CORS origins are not configured",

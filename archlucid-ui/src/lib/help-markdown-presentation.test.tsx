@@ -200,7 +200,7 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toContain("Tier-1");
     expect(prepared).toContain("optional cloud inventory");
     expect(prepared).not.toContain("PilotStrict");
-    expect(prepared).toContain("pilot host integrity");
+    expect(prepared).toContain("strict AI quality checks");
     expect(prepared).not.toContain("authority pipeline");
     expect(prepared).toContain("architecture analysis");
     expect(prepared).toContain("/help/repeat-review-loop");

@@ -59,7 +59,7 @@ export function resolveSponsorArtifactTrustPostures(
       postureBadge(
         "manual-review-required",
         "Manual review required",
-        "PilotStrict quality gate failed — resolve faithfulness and citation signals before sponsor send.",
+        "Strict AI quality checks failed — resolve faithfulness and citation signals before sponsor send.",
       ),
     );
   }
@@ -77,7 +77,7 @@ export function resolveSponsorArtifactTrustPostures(
       postureBadge(
         "evidence-backed",
         "Evidence-backed",
-        "Persisted proof fields attest sponsor-safe ROI basis and PilotStrict posture for this review.",
+        "Persisted proof fields attest sponsor-safe ROI basis and strict AI quality posture for this review.",
       ),
     );
   }

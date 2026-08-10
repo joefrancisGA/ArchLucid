@@ -66,11 +66,11 @@ describe("TenantQualityGatesCard", () => {
       expect(screen.getByTestId("quality-gate-diagnostics-panel")).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Pilot strict" }));
+    fireEvent.click(screen.getByRole("button", { name: "Strict quality" }));
 
     await waitFor(() => {
       const controls = screen.getByTestId("quality-gate-mode-controls");
-      expect(within(controls).getByText("PilotStrict")).toBeInTheDocument();
+      expect(within(controls).getByText("Strict quality")).toBeInTheDocument();
     });
 
     expect(fetchMock).toHaveBeenCalledWith(
