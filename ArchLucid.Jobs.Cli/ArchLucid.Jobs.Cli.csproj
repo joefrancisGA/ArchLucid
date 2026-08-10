@@ -9,6 +9,8 @@
     <UserSecretsId>archlucid-jobs-cli</UserSecretsId>
   </PropertyGroup>
 
+  <Import Project="..\ArchLucid.Host.Runtime.props" />
+
   <ItemGroup>
     <InternalsVisibleTo Include="ArchLucid.Jobs.Cli.Tests" />
   </ItemGroup>

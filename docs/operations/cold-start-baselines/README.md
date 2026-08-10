@@ -8,6 +8,7 @@
 
 | Date | Environment | CD run / commit | File |
 |------|-------------|-----------------|------|
+| 2026-08-10 | dev (pending CD) | **TB-2161** runtime knobs — remeasure on next deploy | [`dev-2026-08-10-tb2161-runtime-knobs-pending.md`](dev-2026-08-10-tb2161-runtime-knobs-pending.md) |
 | 2026-07-16 | dev (representative ACA) | [GitHub run 29542895350](https://github.com/joefrancisGA/ArchLucid/actions/runs/29542895350) · `806b3a0` | [`dev-2026-07-16-806b3a0.md`](dev-2026-07-16-806b3a0.md) |
 
 **Staging:** Capture the next routine staging CD using the same template; append a row here. Dev is acceptable as an interim representative profile until staging is recorded.

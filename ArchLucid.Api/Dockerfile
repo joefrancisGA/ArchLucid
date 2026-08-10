@@ -28,7 +28,7 @@ FROM ${DOTNET_SDK_IMAGE} AS restore
 
 WORKDIR /src
 
-COPY global.json Directory.Build.props Directory.Build.targets Directory.Packages.props ArchLucid.sln ./
+COPY global.json Directory.Build.props Directory.Build.targets Directory.Packages.props ArchLucid.Host.Runtime.props ArchLucid.sln ./
 
 # Copy every .csproj so NuGet restore is cached until a project file changes.
 COPY ArchLucid.Api/*.csproj                ArchLucid.Api/
@@ -136,17 +136,16 @@ ARG DEPLOY_ENV=""
 ENV ARCHLUCID_BUILD_COMMIT_SHA=${BUILD_SHA}
 ENV ARCHLUCID_BUILD_TIMESTAMP=${BUILD_TIMESTAMP}
 
-# ICU for globalisation; wget for HEALTHCHECK (already present in Alpine aspnet image).
+# ICU not required: host projects publish with InvariantGlobalization (TB-2161).
 # apk upgrade + explicit OpenSSL floor (CVE-2026-28390) so cached layers cannot keep 3.5.5-r0.
 RUN apk update --no-cache \
     && apk upgrade --no-cache \
     && apk add --no-cache --upgrade \
          "openssl>=3.5.6-r0" \
          "libssl3>=3.5.6-r0" \
-         "libcrypto3>=3.5.6-r0" \
-    && apk add --no-cache icu-libs
+         "libcrypto3>=3.5.6-r0"
 
-ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true
 
 WORKDIR /app
 

@@ -1,0 +1,10 @@
+<Project>
+  <!-- TB-2161: zero-cost container runtime knobs (Api / Worker / Jobs.Cli). -->
+  <PropertyGroup>
+    <ServerGarbageCollection>true</ServerGarbageCollection>
+    <TieredPGO>true</TieredPGO>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <!-- Softens Server GC heap floor on 1.0 Gi ACA API replicas. -->
+    <GCConserveMemory>1</GCConserveMemory>
+  </PropertyGroup>
+</Project>

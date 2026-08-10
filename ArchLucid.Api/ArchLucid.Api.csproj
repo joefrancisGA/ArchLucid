@@ -7,6 +7,8 @@
     <UserSecretsId>9dfbbf70-173f-4190-a3f5-2203dfe6c526</UserSecretsId>
   </PropertyGroup>
 
+  <Import Project="..\ArchLucid.Host.Runtime.props" />
+
   <ItemGroup>
     <InternalsVisibleTo Include="ArchLucid.Api.Tests" />
     <InternalsVisibleTo Include="ArchLucid.Architecture.Tests" />

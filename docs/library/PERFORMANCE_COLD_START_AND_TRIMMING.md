@@ -74,6 +74,18 @@ Estimates are **order-of-magnitude** for a single API Container App in **central
 
 **Next evidence triggers:** (1) append **staging** baseline row; (2) capture Phase **B** median on that deploy; (3) re-open only levers matching the symptom table in [`COLD_START_MEASUREMENT.md`](../runbooks/COLD_START_MEASUREMENT.md#decision-table-paid-levers).
 
+## Free runtime knobs (**TB-2161**)
+
+Shipped **2026-08-10** via shared [`ArchLucid.Host.Runtime.props`](../../ArchLucid.Host.Runtime.props) imported by **Api**, **Worker**, and **Jobs.Cli**:
+
+| Knob | Setting | Intent | Azure cost |
+|------|---------|--------|------------|
+| **Server GC** | `ServerGarbageCollection=true` + `GCConserveMemory=1` | Parallel collections under concurrent JSON/SQL load on multi-core ACA replicas; conserve memory on **1.0 Gi** floor | **$0** |
+| **Tiered PGO** | `TieredPGO=true` | Steady-state throughput after warm-up | **$0** |
+| **Invariant globalization** | `InvariantGlobalization=true`; Dockerfile drops `icu-libs` and sets `DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true` | Smaller image + faster startup; buyer currency uses explicit `en-US` (`ExecutiveRoiBoardPackMarkdownBuilder`, CLI cost estimate) | **$0** |
+
+**Measurement:** Re-capture Phase **A**/**B** on the next dev/staging CD and append a row to [`cold-start-baselines/`](../operations/cold-start-baselines/README.md). Decline Server GC if working set breaches the **1.0 Gi** limit after deploy.
+
 ## See also
 
 - Sustained throughput and p50/p95/p99 baselines: `docs/LOAD_TEST_BASELINE.md` (k6 against Compose `full-stack`, plus scaling thresholds).
