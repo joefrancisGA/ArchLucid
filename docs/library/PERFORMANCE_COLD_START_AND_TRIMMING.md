@@ -50,7 +50,7 @@ Estimates are **order-of-magnitude** for a single API Container App in **central
 
 | Lever | Primary symptom | Latency impact (estimate) | Monthly Azure delta (estimate) | Risk | Rollback |
 |-------|-----------------|---------------------------|----------------------------------|------|----------|
-| **`api_min_replicas` 0 → 1** (dev idle) | Scale-from-zero after idle | **−30 s to −90 s** first request after idle | **+$25–45** per 0.5 vCPU / 1.0Gi replica | Duplicate hosted background work if raised without worker split / leader election | `api_min_replicas = 0` in tfvars; `terraform apply` |
+| **`api_min_replicas` 0 → 1** (dev idle) | Scale-from-zero after idle | **−30 s to −90 s** first request after idle | **+$25–45** per 0.5 vCPU / 1.0Gi replica | **Unblocked (TB-2167):** singleton hosted loops are leader-elected when `HostLeaderElection:Enabled` and SQL storage; re-evaluate with a fresh baseline before raising replicas | `api_min_replicas = 0` in tfvars; `terraform apply` |
 | **`api_min_replicas` +1** (already ≥1) | Revision swap 502/503 | **−5 s to −20 s** user-visible warm path during deploy | **+$25–45** per added warm replica | Cost at idle; not a substitute for **TB-755** canary | Revert tfvars |
 | **API CPU 0.5 → 1.0 vCPU** | Phase **A**/**B** CPU-bound | **−10% to −25%** wall time | **~2×** vCPU $ for API replicas while running | Low; watch autoscale max bill | `api_cpu = 0.5`; apply |
 | **API memory 1.0Gi → 2.0Gi** | GC / LOH pressure on cold path | **−0% to −15%** unless profiling shows memory pressure | **~1.5–2×** memory $ on API replicas | Low | Revert `api_memory`; apply |
@@ -101,6 +101,21 @@ Shipped **2026-08-10** — per-slice `JsonSerializerContext` types under `ArchLu
 Wire-format parity is guarded by `ArchLucidApiJsonSourceGenerationTests` (reflection baseline vs configured API options). **Run detail** (`RunDetailsResponse`) remains on reflection until a follow-on slice registers its nested graph.
 
 **Measurement:** Pair with **TB-2146** Phase B capture on next CD; append row to [`cold-start-baselines/`](../operations/cold-start-baselines/README.md).
+
+## Host leader election (**TB-2167**)
+
+Shipped **2026-08-10** — SQL-backed lease election for singleton hosted background loops when **`HostLeaderElection:Enabled`** is true (default in `appsettings.Advanced.json`) and storage is **SQL**:
+
+| Component | Role |
+|-----------|------|
+| **`HostLeaderElectionCoordinator`** | Acquire / renew / release per-lease; cancels leader work on lease loss |
+| **`dbo.HostLeaderLeases`** | Lease rows (`LeaseName`, `HolderInstanceId`, `LeaseExpiresUtc`) |
+| **`GET /v1/admin/diagnostics/leases`** | Operator visibility into current holders and lease expiry |
+| **Gated loops** | Outbox drains, watchdog, reconciliation, archival, advisory scan, extractors, and related singleton workers under `ArchLucid.Host.Core/Hosted/*` |
+
+**Effect:** Removes **(N−1)×** duplicate background SQL polling at **N** API/worker replicas (~**67%** at N=3). Unblocks re-evaluation of **`api_min_replicas`** levers under owner-gated **TB-2146** — do not raise replicas in this row without a fresh baseline.
+
+**Tests:** `HostLeaderElectionCoordinatorTests` (contention + renewal loss), `SqlHostLeaderLeaseRepositorySqlIntegrationTests` (SQL acquire / release / expiry).
 
 ## Outbound HTTP sockets pooling (**TB-2163**)
 

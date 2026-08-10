@@ -198,7 +198,7 @@ az containerapp hostname bind --hostname <hostname> -g <rg> -n <app-name> --envi
 
 **Durable export jobs** use **SQL row locks** (`UPDLOCK` + transactional claim) and **batch dequeue** (`BackgroundJobs:ProcessorReceiveBatchSize`, default **16**) so multiple workers do not execute the same job twice; duplicate queue notifications while a job is **Running** are deleted idempotently.
 
-**Advisory scan, archival, and retrieval outbox** loops still run on every worker replica. If duplicate side effects are unacceptable for those features, keep **`worker_max_replicas = 1`** or introduce **leader election** / split workloads in a later iteration.
+**Singleton hosted loops** (advisory scan, archival, outbox drains, stuck-job watchdog, reconciliation probes, and related background workers) are **leader-elected** when **`HostLeaderElection:Enabled`** is true and storage is **SQL** (**TB-2167**, 2026-08-10). Only the replica holding each SQL lease in **`dbo.HostLeaderLeases`** runs that loop; operators can inspect holders via **`GET /v1/admin/diagnostics/leases`**. Per-replica metrics warmups and startup probes are intentionally **not** leader-gated.
 
 **Queue-depth scaling (KEDA in Container Apps):** set **`worker_enable_queue_depth_scaling = true`**, **`worker_queue_scale_connection_string`** (sensitive; same storage account as the jobs queue), and optionally **`worker_queue_depth_target_messages_per_revision`**. Terraform adds a **`custom_scale_rule`** of type **`azure-queue`** on the worker. **Managed identity** is used for runtime queue access; the connection string is **only** for the scaler secret as required by the platform.
 

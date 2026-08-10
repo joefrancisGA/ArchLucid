@@ -70,4 +70,10 @@ public static class HostElectionLeaseNames
     public const string AgentResultBlobCleanup = "hosted:agent-result-blob-cleanup";
 
     public const string WarmTenantCatalogReplenish = "hosted:warm-tenant-catalog-replenish";
+
+    public const string BackgroundJobStuckRunningWatchdog = "hosted:background-job-stuck-running-watchdog";
+
+    public const string DataConsistencyOrphanProbe = "hosted:data-consistency-orphan-probe";
+
+    public const string RequiredAuditTrailOrphanProbe = "hosted:required-audit-trail-orphan-probe";
 }
