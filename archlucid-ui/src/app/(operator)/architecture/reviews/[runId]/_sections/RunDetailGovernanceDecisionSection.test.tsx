@@ -17,18 +17,21 @@ const baseProps = {
 };
 
 describe("RunDetailGovernanceDecisionSection", () => {
-  it("shows pre-commit honesty, one primary CTA, and claim discipline without Sources (TB-1857 / TB-1859 / TB-1860 / TB-2092)", () => {
+  it("shows pre-commit readiness, finalize CTA, help cites, and claim discipline (TB-1857 / TB-2092)", () => {
     render(<RunDetailGovernanceDecisionSection {...baseProps} manifestId={null} />);
 
     expect(screen.getByTestId("run-detail-governance-decision")).toHaveAttribute("data-package-committed", "false");
-    expect(screen.getByText(/after you finalize this architecture review/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Governance after finalize" })).toBeInTheDocument();
     expect(screen.queryByText("Record governance decision")).not.toBeInTheDocument();
     expect(screen.queryByText("No governance decision recorded")).not.toBeInTheDocument();
+    expect(screen.getByText("What happens next")).toBeInTheDocument();
+    expect(screen.queryByText("Awaiting decision")).not.toBeInTheDocument();
 
     const primary = screen.getByTestId("run-detail-governance-primary-cta");
 
-    expect(primary).toHaveAttribute("href", expect.stringContaining("archTab=findings"));
-    expect(primary).toHaveTextContent("Review findings");
+    expect(primary).toHaveAttribute("href", expect.stringContaining("archTab=activity"));
+    expect(primary.getAttribute("href") ?? "").toContain("architecture-assessment-progress");
+    expect(primary).toHaveTextContent("Review finalize readiness");
 
     const secondary = screen.getByTestId("run-detail-governance-secondary-cta");
 
@@ -36,8 +39,33 @@ describe("RunDetailGovernanceDecisionSection", () => {
     expect(secondary.getAttribute("href") ?? "").toContain("archTab=activity");
     expect(screen.queryByRole("button", { name: "View assessment activity" })).not.toBeInTheDocument();
 
-    expect(screen.queryByTestId("run-detail-governance-sources")).toBeNull(); // TB-2092
+    const blockingLink = screen.getByRole("link", { name: "2" });
+
+    expect(blockingLink.getAttribute("href") ?? "").toContain("archTab=findings");
+
+    expect(screen.queryByTestId("run-detail-governance-sources")).toBeNull();
+    expect(screen.getByTestId("run-detail-governance-help-cites")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Governance approval help" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Audit trail help" })).toBeInTheDocument();
+    expect(screen.getByTestId("run-detail-governance-claim-discipline")).toHaveTextContent(
+      /Where governance decisions are recorded/i,
+    );
     expect(screen.getByTestId("run-detail-governance-claim-discipline")).toHaveTextContent(/not the committed/i);
+  });
+
+  it("shows open exceptions and warning banner when governance warnings are present", () => {
+    render(
+      <RunDetailGovernanceDecisionSection
+        {...baseProps}
+        manifestId={null}
+        blockingFindingCount={0}
+        hasGovernanceWarnings
+      />,
+    );
+
+    expect(screen.getByText("None")).toBeInTheDocument();
+    expect(screen.getByText("Needs attention")).toBeInTheDocument();
+    expect(screen.getByTestId("run-detail-governance-warning-banner")).toBeInTheDocument();
   });
 
   it("shows post-commit governance decision chrome when manifest exists", () => {

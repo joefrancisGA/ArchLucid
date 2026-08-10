@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 
+import { RunDetailExplanationSkeleton } from "./RunDetailDeferredSkeleton";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -391,7 +392,7 @@ export const ReviewPackageSponsorHandoffStripDeferred = dynamic(
 export const RunDetailGovernanceDecisionSectionDeferred = dynamic(
   () =>
     import("./RunDetailGovernanceDecisionSection").then((module) => module.RunDetailGovernanceDecisionSection),
-  { ssr: false, loading: () => null },
+  { ssr: false, loading: () => <RunDetailExplanationSkeleton /> },
 );
 
 export const RunDetailReviewPackageSectionDeferred = dynamic(

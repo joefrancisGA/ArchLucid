@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { buildArchitectureGovernanceFinalizeReadinessHref } from "@/lib/architecture-created-finalize-readiness-href";
 import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture-workspace-tabs";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { applyFindingsConfidenceVisibility } from "@/lib/finding-confidence-filter";
@@ -67,7 +68,7 @@ export function ArchitectureCreatedFindingsNextAction(
         </p>
         <Button type="button" variant="primary" size="sm" className="mt-2 h-8" asChild>
           <Link
-            href={buildArchitectureWorkspaceTabHref(props.runId, "governance", {
+            href={buildArchitectureGovernanceFinalizeReadinessHref(props.runId, {
               includeCreateIntent: true,
             })}
             prefetch={false}

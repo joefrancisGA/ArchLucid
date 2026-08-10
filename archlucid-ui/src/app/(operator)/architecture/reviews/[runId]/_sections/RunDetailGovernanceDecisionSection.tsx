@@ -3,15 +3,27 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
+import { buildArchitectureActivityFinalizeReadinessHref } from "@/lib/architecture-created-finalize-readiness-href";
 import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture-workspace-tabs";
 import {
+  RUN_DETAIL_GOVERNANCE_PRE_COMMIT_APPROVAL_GATE_LABEL,
+  RUN_DETAIL_GOVERNANCE_PRE_COMMIT_APPROVAL_GATE_VALUE,
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_BODY,
+  RUN_DETAIL_GOVERNANCE_PRE_COMMIT_CLAIM_DISCIPLINE_HEADING,
+  RUN_DETAIL_GOVERNANCE_PRE_COMMIT_GOVERNANCE_WARNINGS_BODY,
+  RUN_DETAIL_GOVERNANCE_PRE_COMMIT_GOVERNANCE_WARNINGS_TITLE,
+  RUN_DETAIL_GOVERNANCE_PRE_COMMIT_HELP_CITES_INTRO,
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_PRIMARY_CTA,
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_SECONDARY_CTA,
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_TITLE,
+  RUN_DETAIL_GOVERNANCE_PRE_COMMIT_WHAT_HAPPENS_NEXT_HEADING,
+  RUN_DETAIL_GOVERNANCE_PRE_COMMIT_WHAT_HAPPENS_NEXT_STEPS,
 } from "@/lib/run-detail-governance-pre-commit-copy";
-import { RUN_DETAIL_GOVERNANCE_PRE_COMMIT_CLAIM_DISCIPLINE } from "@/lib/run-detail-governance-sources";
+import {
+  RUN_DETAIL_GOVERNANCE_PRE_COMMIT_CLAIM_DISCIPLINE,
+  RUN_DETAIL_GOVERNANCE_PRE_COMMIT_HELP_CITES,
+} from "@/lib/run-detail-governance-sources";
 import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
 import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-registry";
 import { shouldShowRunDetailGovernanceCta, runDetailGovernanceWorkflowHref } from "@/lib/run-detail-governance-cta-visibility";
@@ -52,6 +64,9 @@ export function RunDetailGovernanceDecisionSection(
     const activityHref = buildArchitectureWorkspaceTabHref(props.runId, "activity", {
       includeCreateIntent: true,
     });
+    const finalizeReadinessHref = buildArchitectureActivityFinalizeReadinessHref(props.runId, {
+      includeCreateIntent: true,
+    });
 
     return (
       <section
@@ -67,9 +82,67 @@ export function RunDetailGovernanceDecisionSection(
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             {RUN_DETAIL_GOVERNANCE_PRE_COMMIT_BODY}
           </p>
+
+          {props.hasGovernanceWarnings ? (
+            <div
+              className={cn(DESIGN_TOKENS.callout.warn, "mt-4 px-4 py-3")}
+              role="alert"
+              data-testid="run-detail-governance-warning-banner"
+            >
+              <p className="m-0 font-semibold">{RUN_DETAIL_GOVERNANCE_PRE_COMMIT_GOVERNANCE_WARNINGS_TITLE}</p>
+              <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.body)}>
+                {RUN_DETAIL_GOVERNANCE_PRE_COMMIT_GOVERNANCE_WARNINGS_BODY}
+              </p>
+            </div>
+          ) : null}
+
+          <dl className={cn("m-0 mt-4 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
+            <div>
+              <dt className="text-neutral-500 dark:text-neutral-400">Blocking findings</dt>
+              <dd className="m-0 mt-1 font-medium tabular-nums text-neutral-900 dark:text-neutral-100">
+                {props.blockingFindingCount > 0 ? (
+                  <Link href={findingsHref} className={cn(OPERATOR_LINK.inline, "font-medium tabular-nums")}>
+                    {props.blockingFindingCount}
+                  </Link>
+                ) : (
+                  "None"
+                )}
+              </dd>
+            </div>
+            {props.hasGovernanceWarnings ? (
+              <div>
+                <dt className="text-neutral-500 dark:text-neutral-400">Open exceptions</dt>
+                <dd className="m-0 mt-1">
+                  <StatusTag kind="needs-attention" label="Needs attention" />
+                </dd>
+              </div>
+            ) : null}
+            <div>
+              <dt className="text-neutral-500 dark:text-neutral-400">
+                {RUN_DETAIL_GOVERNANCE_PRE_COMMIT_APPROVAL_GATE_LABEL}
+              </dt>
+              <dd className="m-0 mt-1 font-medium text-neutral-900 dark:text-neutral-100">
+                {RUN_DETAIL_GOVERNANCE_PRE_COMMIT_APPROVAL_GATE_VALUE}
+              </dd>
+            </div>
+          </dl>
+
+          <div className="mt-4">
+            <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+              {RUN_DETAIL_GOVERNANCE_PRE_COMMIT_WHAT_HAPPENS_NEXT_HEADING}
+            </h3>
+            <ol className={cn("m-0 mt-2 list-decimal space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
+              {RUN_DETAIL_GOVERNANCE_PRE_COMMIT_WHAT_HAPPENS_NEXT_STEPS.map((step) => (
+                <li key={step} className="text-neutral-700 dark:text-neutral-300">
+                  {step}
+                </li>
+              ))}
+            </ol>
+          </div>
+
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <Button asChild data-testid="run-detail-governance-primary-cta">
-              <Link href={findingsHref}>{RUN_DETAIL_GOVERNANCE_PRE_COMMIT_PRIMARY_CTA}</Link>
+              <Link href={finalizeReadinessHref}>{RUN_DETAIL_GOVERNANCE_PRE_COMMIT_PRIMARY_CTA}</Link>
             </Button>
             <Link
               href={activityHref}
@@ -79,13 +152,30 @@ export function RunDetailGovernanceDecisionSection(
               {RUN_DETAIL_GOVERNANCE_PRE_COMMIT_SECONDARY_CTA}
             </Link>
           </div>
+
+          <div className="mt-4" data-testid="run-detail-governance-help-cites">
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+              {RUN_DETAIL_GOVERNANCE_PRE_COMMIT_HELP_CITES_INTRO}
+            </p>
+            <ul className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.body)}>
+              {RUN_DETAIL_GOVERNANCE_PRE_COMMIT_HELP_CITES.map((link) => (
+                <li key={`${link.href}-${link.label}`}>
+                  <Link className={OPERATOR_LINK.inline} href={link.href}>
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         <aside
-          className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
+          className={cn(operatorSemanticSurface("info"), "p-3")}
           data-testid="run-detail-governance-claim-discipline"
         >
-          <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Claim discipline</h3>
+          <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+            {RUN_DETAIL_GOVERNANCE_PRE_COMMIT_CLAIM_DISCIPLINE_HEADING}
+          </h3>
           <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
             {RUN_DETAIL_GOVERNANCE_PRE_COMMIT_CLAIM_DISCIPLINE}
           </p>

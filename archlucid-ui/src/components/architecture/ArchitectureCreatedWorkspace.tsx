@@ -141,7 +141,10 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
   const clarificationsTabAriaLabel = formatMetricCountHeadline(clarificationsPresentation);
   const clarificationsTabHref = buildArchitectureWorkspaceTabHref(props.baseline.runId, "clarifications");
   const compactViewportMode =
-    activeTab === "clarifications" || activeTab === "diagram" || activeTab === "findings"
+    activeTab === "clarifications" ||
+    activeTab === "diagram" ||
+    activeTab === "findings" ||
+    activeTab === "governance"
       ? "context-bar"
       : "full";
 
