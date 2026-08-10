@@ -138,8 +138,40 @@ export function resolveOpenAlertsSummaryDisplay(args: {
   };
 }
 
-export function AlertsInboxSummaryRow(props: AlertsInboxSummaryRowProps): React.JSX.Element {
+/**
+ * Summary metrics stay hidden until alert rules exist and evaluation has produced at least one
+ * timestamp — same zero-theater contract as inbox controls (TB-1597, TB-2105).
+ */
+export function shouldShowAlertsInboxSummaryRow(args: {
+  readonly hasAlertRules: boolean;
+  readonly workspaceContextLoading: boolean;
+  readonly summaryLoading: boolean;
+  readonly lastEvaluatedUtc: string | null;
+}): boolean {
+  if (args.workspaceContextLoading || args.summaryLoading) {
+    return true;
+  }
+
+  if (!args.hasAlertRules) {
+    return false;
+  }
+
+  return args.lastEvaluatedUtc !== null;
+}
+
+export function AlertsInboxSummaryRow(props: AlertsInboxSummaryRowProps): React.JSX.Element | null {
   const { summary, loading, hasAlertRules, workspaceContextLoading } = props;
+
+  if (
+    !shouldShowAlertsInboxSummaryRow({
+      hasAlertRules,
+      workspaceContextLoading,
+      summaryLoading: loading,
+      lastEvaluatedUtc: summary.lastEvaluatedUtc,
+    })
+  ) {
+    return null;
+  }
 
   const openDisplay = resolveOpenAlertsSummaryDisplay({
     open: summary.open,

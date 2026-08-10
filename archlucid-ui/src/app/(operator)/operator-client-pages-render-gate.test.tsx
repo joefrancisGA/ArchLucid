@@ -205,7 +205,7 @@ import SearchPage from "./insights/search-review-evidence/page";
  * Alert surfaces: bodies live in `@/components/alerts/*Content`; the `/alerts` route is the tabbed hub.
  */
 describe("operator client pages — render gate", () => {
-  it("Alerts inbox content renders summary row", () => {
+  it("Alerts inbox content renders when workspace context is still loading", () => {
     render(<AlertsInboxContent />);
     expect(screen.getByTestId("alerts-inbox-summary-row")).toBeInTheDocument();
   });

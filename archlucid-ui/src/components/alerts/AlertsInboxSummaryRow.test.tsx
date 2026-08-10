@@ -5,6 +5,7 @@ import {
   AlertsInboxSummaryRow,
   resolveAlertsSummaryCountDisplay,
   resolveOpenAlertsSummaryDisplay,
+  shouldShowAlertsInboxSummaryRow,
 } from "@/components/alerts/AlertsInboxSummaryRow";
 import {
   ALERTS_SUMMARY_ACKNOWLEDGED_LABEL,
@@ -12,8 +13,6 @@ import {
   ALERTS_SUMMARY_COUNT_NOT_EVALUATED,
   ALERTS_SUMMARY_COUNT_NOT_EVALUATED_NEVER_RUN_ARIA,
   ALERTS_SUMMARY_COUNT_NOT_EVALUATED_NO_RULES_ARIA,
-  ALERTS_SUMMARY_LAST_EVALUATED_NEVER,
-  ALERTS_SUMMARY_LAST_EVALUATED_RULES_NOT_CONFIGURED,
   ALERTS_SUMMARY_OPEN_BLOCKING_RELATIONSHIP_TITLE,
   ALERTS_SUMMARY_OPEN_LABEL,
   ALERTS_SUMMARY_RESOLVED_LABEL,
@@ -134,8 +133,62 @@ describe("resolveOpenAlertsSummaryDisplay", () => {
   });
 });
 
+describe("shouldShowAlertsInboxSummaryRow", () => {
+  it("TB-1597: hides the summary strip when rules are absent after workspace context settles", () => {
+    expect(
+      shouldShowAlertsInboxSummaryRow({
+        hasAlertRules: false,
+        workspaceContextLoading: false,
+        summaryLoading: false,
+        lastEvaluatedUtc: null,
+      }),
+    ).toBe(false);
+  });
+
+  it("keeps the summary strip visible while workspace context or summary is loading", () => {
+    expect(
+      shouldShowAlertsInboxSummaryRow({
+        hasAlertRules: false,
+        workspaceContextLoading: true,
+        summaryLoading: false,
+        lastEvaluatedUtc: null,
+      }),
+    ).toBe(true);
+    expect(
+      shouldShowAlertsInboxSummaryRow({
+        hasAlertRules: true,
+        workspaceContextLoading: false,
+        summaryLoading: true,
+        lastEvaluatedUtc: null,
+      }),
+    ).toBe(true);
+  });
+
+  it("hides the summary strip until evaluation has produced a timestamp", () => {
+    expect(
+      shouldShowAlertsInboxSummaryRow({
+        hasAlertRules: true,
+        workspaceContextLoading: false,
+        summaryLoading: false,
+        lastEvaluatedUtc: null,
+      }),
+    ).toBe(false);
+  });
+
+  it("shows the summary strip once rules exist and evaluation has run", () => {
+    expect(
+      shouldShowAlertsInboxSummaryRow({
+        hasAlertRules: true,
+        workspaceContextLoading: false,
+        summaryLoading: false,
+        lastEvaluatedUtc: "2026-08-08T12:00:00Z",
+      }),
+    ).toBe(true);
+  });
+});
+
 describe("AlertsInboxSummaryRow", () => {
-  it("does not render numeric 0 counters when alert rules are not configured", () => {
+  it("TB-1597: does not render the summary strip when alert rules are not configured", () => {
     render(
       <AlertsInboxSummaryRow
         summary={ZERO_SUMMARY}
@@ -145,25 +198,7 @@ describe("AlertsInboxSummaryRow", () => {
       />,
     );
 
-    const row = screen.getByTestId("alerts-inbox-summary-row");
-    const countLabels = [
-      ALERTS_SUMMARY_OPEN_LABEL,
-      ALERTS_SUMMARY_ACKNOWLEDGED_LABEL,
-      ALERTS_SUMMARY_RESOLVED_LABEL,
-    ];
-
-    for (const label of countLabels) {
-      const tile = within(row).getByText(label).parentElement;
-      expect(tile).not.toBeNull();
-      expect(within(tile as HTMLElement).queryByText("0")).toBeNull();
-      expect(within(tile as HTMLElement).getByText(ALERTS_SUMMARY_COUNT_NOT_EVALUATED)).toHaveAttribute(
-        "aria-label",
-        ALERTS_SUMMARY_COUNT_NOT_EVALUATED_NO_RULES_ARIA,
-      );
-    }
-
-    expect(within(row).queryByText(ALERTS_SUMMARY_BLOCKING_LABEL)).toBeNull();
-    expect(within(row).getByText(ALERTS_SUMMARY_LAST_EVALUATED_RULES_NOT_CONFIGURED)).toBeInTheDocument();
+    expect(screen.queryByTestId("alerts-inbox-summary-row")).not.toBeInTheDocument();
   });
 
   it("nests blocking under open and omits a separate blocking tile", () => {
@@ -199,7 +234,7 @@ describe("AlertsInboxSummaryRow", () => {
     expect(within(row).getByText("0")).toBeInTheDocument();
   });
 
-  it("keeps counters unmeasured when rules exist but never evaluated", () => {
+  it("TB-1597: does not render the summary strip before the first evaluation", () => {
     render(
       <AlertsInboxSummaryRow
         summary={ZERO_SUMMARY}
@@ -209,9 +244,6 @@ describe("AlertsInboxSummaryRow", () => {
       />,
     );
 
-    const row = screen.getByTestId("alerts-inbox-summary-row");
-    expect(within(row).queryByText("0")).toBeNull();
-    expect(within(row).getAllByLabelText(ALERTS_SUMMARY_COUNT_NOT_EVALUATED_NEVER_RUN_ARIA)).toHaveLength(3);
-    expect(within(row).getByText(ALERTS_SUMMARY_LAST_EVALUATED_NEVER)).toBeInTheDocument();
+    expect(screen.queryByTestId("alerts-inbox-summary-row")).not.toBeInTheDocument();
   });
 });
