@@ -4,7 +4,10 @@
 
 **Audience:** Engineering, security reviewers, principal-architect diligence. Not a buyer brochure.
 
-**Status:** Working contract for **TB-1561** / GTM **M-290**. Pair honesty CI **TB-1562** / **M-290**.
+**Status:** **Done** (**TB-1561**, 2026-08-10). GTM **M-290** / **M-291**. Pair honesty CI **TB-1562** / **M-290**.
+
+**Buyer / PA one-pager:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#configuration-architecture-precedence-validation-drift-m-291`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#configuration-architecture-precedence-validation-drift-m-291) (GTM **M-291**).  
+**Claim honesty:** [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) (GTM **M-290**).
 
 **Verdict (one line):** Config is a **layered `IConfiguration` composition** (appsettings → Advanced/SaaS overlays → **env wins** → in-memory bridges); fail-fast via `ArchLucidConfigurationRules` + selective `ValidateOnStart`, not universal binding coverage; drift detection is **fragmented** (static TF preflight + SQL MigrateVerify — **no** live cross-env config parity SoT). The RC “registration env-var race” (**TB-881 Done**) was a **CI process-env / parallel-test** defect, not a production precedence race or pilot ship gate.
 
@@ -98,7 +101,8 @@ Documented per-key sources (`CONFIGURATION_REFERENCE.md`) do **not** replace thi
 | Open **TB-1317** / **M-233** | CA Terraform drift escapes |
 | Done **TB-734**; open **TB-1326**–**TB-1330** | Config reference help UX |
 | ADR **0017** | App Config deferred |
-| **TB-1561** / **M-290** | This configuration-architecture claim map |
+| Done **TB-1561** / **M-290** / **M-291** | This configuration-architecture claim map |
+| Open **TB-1562** | Honesty CI for overclaim classes in §6 |
 
 ---
 

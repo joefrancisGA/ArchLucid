@@ -4,6 +4,20 @@
 
 This document lists operator-facing configuration **keys** (colon paths or environment names) recognized by `archlucid config check` and by `GET /v1/admin/config-summary` / `GET /v1/admin/configuration/summary` (presence plus optional redacted scalars; never raw secrets). **`GET /v1/admin/config-lint`** returns structured blocking/advisory lint rows (`OperatorConfigurationLintEvaluator` parity with `archlucid config lint`, optional advisor warnings). The **canonical registry** is `ConfigurationKeyCatalog` in `ArchLucid.Core`.
 
+## Host configuration precedence (API)
+
+Layered `IConfiguration` for the API host (`ArchLucid.Api/Program.cs`). Later sources override earlier ones for the same key. Claim map: [`CONFIGURATION_ARCHITECTURE_PRECEDENCE_VALIDATION_DRIFT_CLAIM_MAP.md`](CONFIGURATION_ARCHITECTURE_PRECEDENCE_VALIDATION_DRIFT_CLAIM_MAP.md) (**TB-1561**).
+
+| Order | Layer |
+| --- | --- |
+| 1 | `WebApplication.CreateBuilder` defaults (base `appsettings.json` → environment-specific JSON → user secrets → environment variables → command-line args) |
+| 2 | Optional `appsettings.Advanced.json` / `appsettings.SaaS.json` overlays |
+| 3 | Explicit `AddEnvironmentVariables()` — **environment variables beat Advanced/SaaS overlays** |
+| 4 | In-memory bridges (`AzureOpenAiEnvironmentConfigurationBridge`, `ArchitectureRunCreationConfigurationBridge`) when nested keys are unset |
+| 5 | Platform Container Apps Key Vault references — appear as env/settings before the process starts |
+
+Per-key **When required** / host-role hints in the table below do **not** replace this ladder. Terraform injects Container Apps env and secret references — it does **not** apply appsettings as deployment SoT. Drift detection is fragmented (static TF preflight, SQL MigrateVerify) — **no** live cross-env config parity SoT (**TB-1561**).
+
 ## Testing (non-production)
 
 | Key | Default | Purpose |
