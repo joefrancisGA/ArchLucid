@@ -56,7 +56,7 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
 }
 
 describe("ui-route-traffic-architecture-clarifications-tab (REC)", () => {
-  it("tracks create-home Clarifications archTab with Evidence notes", () => {
+  it("tracks create-home-only Clarifications archTab with honest workbook notes (TB-1836)", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
     const row = rows.find((candidate) => candidate.id === ARCHITECTURE_CLARIFICATIONS_TAB_TRAFFIC_ROW_ID);
 
@@ -64,8 +64,9 @@ describe("ui-route-traffic-architecture-clarifications-tab (REC)", () => {
     expect(row?.path).toBe(ARCHITECTURE_CLARIFICATIONS_TAB_TRAFFIC_PATH);
     expect(row?.section).toBe(ARCHITECTURE_CLARIFICATIONS_TAB_TRAFFIC_SECTION);
     expect(row?.notes).toBe(ARCHITECTURE_CLARIFICATIONS_TAB_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("archTab=clarifications");
-
+    expect(row?.notes).toContain("Create-home-only");
+    expect(row?.notes).toContain("ignored on committed ReviewDetailWorkspace");
+    expect(row?.notes).toContain("reviewTab only");
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
