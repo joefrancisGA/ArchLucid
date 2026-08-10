@@ -31,11 +31,25 @@ Stale in-flight run detected. TenantId=… RunId=… Status=… AgeSeconds=… F
 With fleet health green:
 
 1. Leave (or inject) one smoke-tenant run stuck in `WaitingForResults` for &gt;1h.
-2. Confirm gauges: `archlucid_runs_stale_in_flight_count >= 1` and oldest age â‰¥ 3600s.
+2. Confirm gauges: `archlucid_runs_stale_in_flight_count >= 1` and oldest age ≥ 3600s.
 3. After 15m, critical action group should fire `ArchLucidStaleInFlightRunsTf`.
 4. Log line must include that smoke tenant’s `TenantId` / `RunId`.
 
-## 4. Related
+## 4. Operator remediation (soft-archive)
+
+Stuck in-flight rows that already hold `GoldenManifestId` / `ArtifactBundleId` **cannot** be marked `Failed` (`CK_Runs_FailedNoManifest` / `CK_Runs_FailedNoArtifact`). Prefer soft-archive (`ArchivedUtc`) so they drop out of the stale probe and clear `/health/ready` `data_consistency` after the next reconciliation pass.
+
+| Step | Call |
+|------|------|
+| Detect | `GET /v1/admin/diagnostics/data-consistency/stale-in-flight-runs` |
+| Preview | `POST /v1/admin/diagnostics/data-consistency/stale-in-flight-runs?dryRun=true&maxRows=50` |
+| Execute | `POST /v1/admin/diagnostics/data-consistency/stale-in-flight-runs?dryRun=false&maxRows=50` |
+
+Execute audits `ManifestArchived` with `kind=staleInFlight` and runs `Archival_CascadeFromArchivedRuns` via `ArchiveRunsByIdsAsync`. Restart or wait for the next data-consistency reconciliation interval (minimum 15 minutes) for health to refresh.
+
+Do **not** use `POST /v1/operations/run:{runId}/cancel` for these CHECK-blocked headers — cancel sets `Failed` and will fail the database UPDATE.
+
+## 5. Related
 
 - MVO catalog: [`SOLO_OPERATOR_MVO_OBSERVABILITY.md`](../operations/SOLO_OPERATOR_MVO_OBSERVABILITY.md)
 - Metrics catalog: [`OBSERVABILITY.md`](../library/OBSERVABILITY.md)

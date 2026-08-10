@@ -599,6 +599,103 @@ public sealed class AdminDiagnosticsService(
     }
 
     /// <inheritdoc />
+    public async Task<DataConsistencyStaleInFlightSnapshot> GetDataConsistencyStaleInFlightSnapshotAsync(
+        int maxSampleRows = 50,
+        CancellationToken cancellationToken = default)
+    {
+        if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
+            return new DataConsistencyStaleInFlightSnapshot(0, []);
+
+        int capped = Math.Clamp(maxSampleRows, 1, PaginationDefaults.MaxListingTake);
+        DbConnection connection = (DbConnection)_connectionFactory.CreateConnection();
+        await using DbConnection _ = connection;
+        await connection.OpenAsync(cancellationToken);
+
+        long count = await ExecuteCountAsync(
+            connection,
+            DataConsistencyStaleInFlightRemediationSql.CountStaleInFlightRuns,
+            cancellationToken);
+
+        List<string> sampleIds = [];
+
+        await using (DbCommand selectCommand = connection.CreateCommand())
+        {
+            selectCommand.CommandText = DataConsistencyStaleInFlightRemediationSql.SelectStaleInFlightRunIds;
+            DbParameter maxRowsParameter = selectCommand.CreateParameter();
+            maxRowsParameter.ParameterName = "@MaxRows";
+            maxRowsParameter.Value = capped;
+            selectCommand.Parameters.Add(maxRowsParameter);
+
+            await using DbDataReader reader = await selectCommand.ExecuteReaderAsync(cancellationToken);
+
+            while (await reader.ReadAsync(cancellationToken))
+                sampleIds.Add(reader.GetGuid(0).ToString("D"));
+        }
+
+        return new DataConsistencyStaleInFlightSnapshot(count, sampleIds);
+    }
+
+    /// <inheritdoc />
+    public async Task<StaleInFlightRemediationResult> RemediateStaleInFlightRunsAsync(
+        bool dryRun,
+        int maxRows,
+        CancellationToken cancellationToken = default)
+    {
+        if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
+            return new StaleInFlightRemediationResult(dryRun, 0, [], [], []);
+
+        int capped = Math.Clamp(maxRows, 1, PaginationDefaults.MaxListingTake);
+        DbConnection connection = (DbConnection)_connectionFactory.CreateConnection();
+        await using DbConnection _ = connection;
+        await connection.OpenAsync(cancellationToken);
+
+        List<Guid> candidateIds = [];
+
+        await using (DbCommand selectCommand = connection.CreateCommand())
+        {
+            selectCommand.CommandText = DataConsistencyStaleInFlightRemediationSql.SelectStaleInFlightRunIds;
+            DbParameter maxRowsParameter = selectCommand.CreateParameter();
+            maxRowsParameter.ParameterName = "@MaxRows";
+            maxRowsParameter.Value = capped;
+            selectCommand.Parameters.Add(maxRowsParameter);
+
+            await using DbDataReader reader = await selectCommand.ExecuteReaderAsync(cancellationToken);
+
+            while (await reader.ReadAsync(cancellationToken))
+                candidateIds.Add(reader.GetGuid(0));
+        }
+
+        IReadOnlyList<string> candidateIdStrings =
+            candidateIds.Select(static id => id.ToString("D")).ToList();
+
+        if (dryRun)
+            return new StaleInFlightRemediationResult(true, candidateIds.Count, candidateIdStrings, [], []);
+
+        if (candidateIds.Count == 0)
+            return new StaleInFlightRemediationResult(false, 0, [], [], []);
+
+        RunArchiveByIdsResult archiveResult =
+            await _runRepository.ArchiveRunsByIdsAsync(candidateIds, cancellationToken);
+
+        if (archiveResult.SucceededRunIds.Count > 0)
+        {
+            await LogManifestArchivedBatchAsync(
+                "staleInFlight",
+                archiveResult.SucceededRunIds.Count,
+                archiveResult.SucceededRunIds.Select(static r => r.ToString("D")).ToList(),
+                archiveResult.ChildCascade,
+                cancellationToken);
+        }
+
+        return new StaleInFlightRemediationResult(
+            false,
+            candidateIds.Count,
+            candidateIdStrings,
+            archiveResult.SucceededRunIds.Select(static r => r.ToString("D")).ToList(),
+            archiveResult.Failed);
+    }
+
+    /// <inheritdoc />
     public async Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeAsync(
         DateTimeOffset createdBeforeUtc,
         CancellationToken cancellationToken = default)

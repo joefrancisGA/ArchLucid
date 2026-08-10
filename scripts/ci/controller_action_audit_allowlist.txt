@@ -5,6 +5,8 @@ ArchLucid.Api.Controllers.Admin.AdminController.ArchiveRunsByIds
 ArchLucid.Api.Controllers.Admin.AdminController.RemediateOrphanComparisonRecords
 ArchLucid.Api.Controllers.Admin.AdminController.RemediateOrphanFindingsSnapshots
 ArchLucid.Api.Controllers.Admin.AdminController.RemediateOrphanGoldenManifests
+# Durable audit: AdminDiagnosticsService.RemediateStaleInFlightRunsAsync logs ManifestArchived (kind=staleInFlight).
+ArchLucid.Api.Controllers.Admin.AdminController.RemediateStaleInFlightRuns
 ArchLucid.Api.Controllers.Admin.AdminController.RetryIntegrationOutboxDeadLetter
 ArchLucid.Api.Controllers.Admin.AdminController.SuppressIntegrationOutboxDeadLetter
 ArchLucid.Api.Controllers.Admin.AdminIntegrationsController.RetryIntegrationOutboxDeadLetters

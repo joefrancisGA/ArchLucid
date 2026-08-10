@@ -14,6 +14,7 @@ using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Admin;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration;
 
 using Microsoft.Extensions.Options;
@@ -556,6 +557,168 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
             Convert.ToInt32(maxRowsParameter.Value, CultureInfo.InvariantCulture));
     }
 
+    [Fact]
+    public async Task GetDataConsistencyStaleInFlightSnapshotAsync_sqlPath_maps_count_and_sample_guids()
+    {
+        Guid sampleId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+
+        Mock<IDbConnectionFactory> factoryOuter = new();
+        Queue<DbCommand> queue = new();
+
+        queue.Enqueue(new ScriptedDbCommand(CreateParameterTemplate)
+        {
+            ScalarAsync = _ => Task.FromResult<object?>(3L)
+        });
+        queue.Enqueue(BuildReaderCommand(ReadResult.OnlyGuids(sampleId), null));
+
+        SequencedCommandDbConnection connection = new(queue);
+        factoryOuter.Setup(f => f.CreateConnection()).Returns(connection);
+
+        AdminDiagnosticsService sut = CreateDiagnosticsService(factoryOuter.Object);
+
+        DataConsistencyStaleInFlightSnapshot snapshot =
+            await sut.GetDataConsistencyStaleInFlightSnapshotAsync(10, CancellationToken.None);
+
+        Assert.Equal(3, snapshot.Count);
+        Assert.Equal([sampleId.ToString("D")], snapshot.SampleRunIds);
+    }
+
+    [Fact]
+    public async Task RemediateStaleInFlightRunsAsync_dryRun_sql_reads_candidates_without_audit_or_archive()
+    {
+        Guid candidateId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        Mock<IAuditService> audit = new();
+        Mock<IRunRepository> runs = new(MockBehavior.Strict);
+        Mock<IDbConnectionFactory> factoryOuter = new();
+
+        ScriptedSqlSession session = new(factoryOuter);
+        session.EnqueueParameterizedReader(ReadResult.OnlyGuids(candidateId));
+        _ = session.Activate();
+
+        AdminDiagnosticsService sut = CreateDiagnosticsService(session.Factory, audit.Object, runs);
+
+        StaleInFlightRemediationResult result =
+            await sut.RemediateStaleInFlightRunsAsync(true, 5, CancellationToken.None);
+
+        Assert.True(result.DryRun);
+        Assert.Equal(1, result.CandidateCount);
+        Assert.Equal([candidateId.ToString("D")], result.CandidateRunIds);
+        Assert.Empty(result.ArchivedRunIds);
+        Assert.Empty(result.Failed);
+
+        audit.Verify(
+            svc => svc.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        runs.Verify(
+            r => r.ArchiveRunsByIdsAsync(It.IsAny<IReadOnlyList<Guid>>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task RemediateStaleInFlightRunsAsync_execute_archives_and_audits_staleInFlight()
+    {
+        Guid candidateId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        Mock<IAuditService> audit = new();
+        Mock<IRunRepository> runs = new();
+        Mock<IDbConnectionFactory> factoryOuter = new();
+
+        ScriptedSqlSession session = new(factoryOuter);
+        session.EnqueueParameterizedReader(ReadResult.OnlyGuids(candidateId));
+        _ = session.Activate();
+
+        RunArchiveByIdsResult archiveResult = new()
+        {
+            SucceededRunIds = [candidateId],
+            ArchivedRuns =
+            [
+                new ArchivedRunScopeRow
+                {
+                    RunId = candidateId,
+                    TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                    WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                    ScopeProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333")
+                }
+            ],
+            Failed = [],
+            ChildCascade = new RunArchiveChildCascadeCounts { GoldenManifests = 1 }
+        };
+
+        _ = runs
+            .Setup(r => r.ArchiveRunsByIdsAsync(
+                It.Is<IReadOnlyList<Guid>>(list => list.Count == 1 && list[0] == candidateId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(archiveResult);
+
+        AdminDiagnosticsService sut = CreateDiagnosticsService(session.Factory, audit.Object, runs);
+
+        StaleInFlightRemediationResult result =
+            await sut.RemediateStaleInFlightRunsAsync(false, 25, CancellationToken.None);
+
+        Assert.False(result.DryRun);
+        Assert.Equal(1, result.CandidateCount);
+        Assert.Equal([candidateId.ToString("D")], result.CandidateRunIds);
+        Assert.Equal([candidateId.ToString("D")], result.ArchivedRunIds);
+        Assert.Empty(result.Failed);
+
+        audit.Verify(
+            svc => svc.LogAsync(
+                It.Is<AuditEvent>(auditEvent =>
+                    auditEvent.EventType == AuditEventTypes.ManifestArchived
+                    && DataJsonFragments(
+                        auditEvent.DataJson,
+                        "\"staleInFlight\"",
+                        "\"updatedRuns\":1",
+                        candidateId.ToString("D"))),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task RemediateStaleInFlightRunsAsync_execute_when_no_candidates_skips_archive()
+    {
+        Mock<IRunRepository> runs = new(MockBehavior.Strict);
+        Mock<IDbConnectionFactory> factoryOuter = new();
+
+        ScriptedSqlSession session = new(factoryOuter);
+        session.EnqueueParameterizedReader(ReadResult.Empty());
+        _ = session.Activate();
+
+        AdminDiagnosticsService sut = CreateDiagnosticsService(session.Factory, runs: runs);
+
+        StaleInFlightRemediationResult result =
+            await sut.RemediateStaleInFlightRunsAsync(false, 10, CancellationToken.None);
+
+        Assert.False(result.DryRun);
+        Assert.Equal(0, result.CandidateCount);
+        Assert.Empty(result.CandidateRunIds);
+        Assert.Empty(result.ArchivedRunIds);
+
+        runs.Verify(
+            r => r.ArchiveRunsByIdsAsync(It.IsAny<IReadOnlyList<Guid>>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task RemediateStaleInFlightRunsAsync_clamps_MaxRows_to_MaxListingTake()
+    {
+        Mock<IDbConnectionFactory> factoryOuter = new();
+        ScriptedDbCommand? capture = null;
+        ScriptedSqlSession session = new(factoryOuter);
+        session.EnqueueParameterizedReader(ReadResult.Empty(), scripted => capture = scripted);
+        _ = session.Activate();
+
+        AdminDiagnosticsService sut = CreateDiagnosticsService(session.Factory);
+
+        _ = await sut.RemediateStaleInFlightRunsAsync(true, 50_000, CancellationToken.None);
+
+        Assert.NotNull(capture);
+        DbParameter? maxRowsParameter = FindParameter(capture!.Parameters, "@MaxRows");
+        Assert.NotNull(maxRowsParameter);
+        Assert.Equal(
+            PaginationDefaults.MaxListingTake,
+            Convert.ToInt32(maxRowsParameter.Value, CultureInfo.InvariantCulture));
+    }
+
     private static void ScalarConnection(Mock<IDbConnectionFactory> factoryProxy,
         IReadOnlyList<object?> scalarSequence)
     {
@@ -662,12 +825,13 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
 
     private static AdminDiagnosticsService CreateDiagnosticsService(
         IDbConnectionFactory connectionFactory,
-        IAuditService? audit = null)
+        IAuditService? audit = null,
+        Mock<IRunRepository>? runs = null)
     {
         Mock<IAdminOutboxSnapshotReader> outboxSnapshot = new();
         Mock<IIntegrationEventOutboxRepository> integration = new();
         Mock<IHostLeaderLeaseRepository> hostLeases = new();
-        Mock<IRunRepository> runs = new();
+        Mock<IRunRepository> runRepository = runs ?? new Mock<IRunRepository>();
 
         ArchLucidOptions options = new()
         {
@@ -684,7 +848,7 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
             outboxSnapshot.Object,
             integration.Object,
             hostLeases.Object,
-            runs.Object,
+            runRepository.Object,
             connectionFactory,
             Options.Create(options),
             Options.Create(new IntegrationEventsOptions()),

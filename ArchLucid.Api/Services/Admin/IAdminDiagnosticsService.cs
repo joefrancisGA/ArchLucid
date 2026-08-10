@@ -84,6 +84,24 @@ public interface IAdminDiagnosticsService
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    ///     Detection-only count and sample of stale in-flight runs (Created / TasksGenerated / WaitingForResults /
+    ///     Retrying older than 1 hour).
+    /// </summary>
+    Task<DataConsistencyStaleInFlightSnapshot> GetDataConsistencyStaleInFlightSnapshotAsync(
+        int maxSampleRows = 50,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Lists or soft-archives up to <paramref name="maxRows" /> stale in-flight runs. When
+    ///     <paramref name="dryRun" /> is true, no rows are modified. Execute path sets <c>ArchivedUtc</c> (not
+    ///     <c>Failed</c>) and emits <c>ManifestArchived</c> with kind <c>staleInFlight</c>.
+    /// </summary>
+    Task<StaleInFlightRemediationResult> RemediateStaleInFlightRunsAsync(
+        bool dryRun,
+        int maxRows,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     ///     Soft-archives runs with <c>CreatedUtc</c> strictly before the cutoff (see
     ///     <see cref="IRunRepository.ArchiveRunsCreatedBeforeAsync" />).
     /// </summary>

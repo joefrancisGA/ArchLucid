@@ -148,6 +148,61 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
         Assert.Equal(new DataConsistencyHeaderRepointCounts(0, 0, 0, 0, 0, 0), counts);
     }
 
+    [Fact]
+    public async Task GetDataConsistencyStaleInFlightSnapshotAsync_InMemory_returns_empty_without_database()
+    {
+        Mock<IAuditService> audit = new();
+        Mock<IActorContext> actor = ActorMock();
+        Mock<IDbConnectionFactory> factory = new(MockBehavior.Strict);
+
+        AdminDiagnosticsService sut =
+            CreateDiagnosticsService(
+                factory,
+                InMemoryOptions(),
+                audit,
+                actor,
+                out _,
+                out _,
+                out _,
+                out _);
+
+        DataConsistencyStaleInFlightSnapshot snapshot =
+            await sut.GetDataConsistencyStaleInFlightSnapshotAsync(20, CancellationToken.None);
+
+        Assert.Equal(0, snapshot.Count);
+        Assert.Empty(snapshot.SampleRunIds);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task RemediateStaleInFlightRunsAsync_InMemory_short_circuits(bool dryRun)
+    {
+        Mock<IAuditService> audit = new();
+        Mock<IActorContext> actor = ActorMock();
+        Mock<IDbConnectionFactory> factory = new(MockBehavior.Strict);
+
+        AdminDiagnosticsService sut =
+            CreateDiagnosticsService(
+                factory,
+                InMemoryOptions(),
+                audit,
+                actor,
+                out _,
+                out _,
+                out _,
+                out _);
+
+        StaleInFlightRemediationResult result =
+            await sut.RemediateStaleInFlightRunsAsync(dryRun, 99, CancellationToken.None);
+
+        Assert.Equal(dryRun, result.DryRun);
+        Assert.Equal(0, result.CandidateCount);
+        Assert.Empty(result.CandidateRunIds);
+        Assert.Empty(result.ArchivedRunIds);
+        Assert.Empty(result.Failed);
+    }
+
     [Theory]
     [InlineData(true)]
     [InlineData(false)]

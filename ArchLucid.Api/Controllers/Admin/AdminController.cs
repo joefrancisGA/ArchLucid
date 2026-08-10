@@ -320,6 +320,41 @@ public sealed class AdminController(
         return Ok(result);
     }
 
+    /// <summary>
+    ///     Detection-only count and sample of stale in-flight runs (Created / TasksGenerated / WaitingForResults /
+    ///     Retrying older than 1 hour). Same predicate as reconciliation <c>stale_in_flight_runs</c>.
+    /// </summary>
+    [HttpGet("diagnostics/data-consistency/stale-in-flight-runs")]
+    [ProducesResponseType(typeof(DataConsistencyStaleInFlightSnapshot), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetDataConsistencyStaleInFlightRuns(
+        [FromQuery] int maxSampleRows = 50,
+        CancellationToken cancellationToken = default)
+    {
+        DataConsistencyStaleInFlightSnapshot snapshot =
+            await _diagnostics.GetDataConsistencyStaleInFlightSnapshotAsync(maxSampleRows, cancellationToken);
+
+        return Ok(snapshot);
+    }
+
+    /// <summary>
+    ///     Lists or soft-archives stale in-flight runs. Prefer archive over Failed cancel when headers already hold
+    ///     golden manifests / artifact bundles (<c>CK_Runs_FailedNoManifest</c>). Use <c>dryRun=true</c> first.
+    ///     Capped at <see cref="PaginationDefaults.MaxListingTake" /> rows per call.
+    /// </summary>
+    [HttpPost("diagnostics/data-consistency/stale-in-flight-runs")]
+    [EnableRateLimiting("expensive")]
+    [ProducesResponseType(typeof(StaleInFlightRemediationResult), StatusCodes.Status200OK)]
+    public async Task<IActionResult> RemediateStaleInFlightRuns(
+        [FromQuery] bool dryRun = true,
+        [FromQuery] int maxRows = 50,
+        CancellationToken cancellationToken = default)
+    {
+        StaleInFlightRemediationResult result =
+            await _diagnostics.RemediateStaleInFlightRunsAsync(dryRun, maxRows, cancellationToken);
+
+        return Ok(result);
+    }
+
     /// <summary>Soft-archives authority runs created strictly before the cutoff (operator-initiated bulk archival).</summary>
     [HttpPost("runs/archive-batch")]
     [EnableRateLimiting("expensive")]
