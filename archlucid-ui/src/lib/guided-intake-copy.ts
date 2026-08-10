@@ -126,6 +126,13 @@ export const GUIDED_INTAKE_READY_DRAFT_CLAIM_LABEL =
 
 export const GUIDED_INTAKE_NOT_READY_RECEIPT_TITLE = "Decision receipt — review not started";
 
+export const GUIDED_INTAKE_SOURCE_ARCHITECTURE_HINT_LEAD = "Reviewing saved architecture.";
+
+export const GUIDED_INTAKE_SOURCE_ARCHITECTURE_HINT_TAIL =
+  "Later edits to the architecture draft will not change this review's evidence basis.";
+
+export const GUIDED_INTAKE_WHAT_IF_BRANCH_HINT_LEAD = "What-if branch.";
+
 export function buildGuidedIntakeCreationAdvanceBlockerMessage(blockers: readonly string[]): string {
   if (blockers.length === 0) {
     return "";

@@ -221,6 +221,19 @@ describe("SocraticIntakeWizard", () => {
       "href",
       `/architecture/architectures/${sourceArchitectureId}`,
     );
+    expect(screen.getByTestId("guided-intake-primary-panel")).toBeInTheDocument();
+    expect(document.querySelector(".border-teal-200")).toBeNull();
+    expect(document.querySelector(".border-sky-300")).toBeNull();
+  });
+
+  it("keeps step 0 on one primary intake panel without colored banner cards (TB-1879)", () => {
+    render(<SocraticIntakeWizard />);
+
+    expect(screen.getByTestId("guided-intake-primary-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("socratic-admit")).toBeInTheDocument();
+    expect(document.querySelectorAll("[data-testid='guided-intake-primary-panel']")).toHaveLength(1);
+    expect(document.querySelector(".border-teal-200")).toBeNull();
+    expect(document.querySelector(".border-sky-300")).toBeNull();
   });
 
   it("prefills guided intake from template=claims-intake-modernization without auto-submitting", () => {

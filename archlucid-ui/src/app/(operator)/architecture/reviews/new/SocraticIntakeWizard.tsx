@@ -77,8 +77,11 @@ import {
   GUIDED_INTAKE_STEP0_CARD_DESCRIPTION,
   GUIDED_INTAKE_STEP0_CARD_TITLE,
   GUIDED_INTAKE_STEP0_PROGRESS_LABEL,
+  GUIDED_INTAKE_SOURCE_ARCHITECTURE_HINT_LEAD,
+  GUIDED_INTAKE_SOURCE_ARCHITECTURE_HINT_TAIL,
   GUIDED_INTAKE_STEP2_CARD_DESCRIPTION,
   GUIDED_INTAKE_STEP2_SUBMIT_DESCRIPTION,
+  GUIDED_INTAKE_WHAT_IF_BRANCH_HINT_LEAD,
   buildGuidedIntakeCreationAdvanceBlockerMessage,
   guidedIntakeArchitectureIntentHelperText,
   guidedIntakeCreationArchitectureOverviewHelperText,
@@ -644,22 +647,26 @@ export function SocraticIntakeWizard() {
       {exampleTemplate !== null ? <ReviewIntakeExampleTemplateCallout template={exampleTemplate} /> : null}
 
       {sourceArchitectureId.length > 0 ? (
-        <Card className="border-teal-200 bg-teal-50 dark:border-teal-800 dark:bg-teal-950/40">
-          <CardHeader>
-            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Reviewing saved architecture</CardTitle>
-            <CardDescription data-testid="socratic-source-architecture-banner">
-              This review evaluates a snapshot of{" "}
-              <Link
-                href={architectureDraftPath(sourceArchitectureId)}
-                className="font-medium underline"
-                title={`Architecture id ${sourceArchitectureId}`}
-              >
-                {sourceArchitectureDisplayName}
-              </Link>
-              . Later edits to the architecture draft will not change this review&apos;s evidence basis.
-            </CardDescription>
-          </CardHeader>
-        </Card>
+        <p
+          className={cn(
+            "m-0 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-300",
+            OPERATOR_TYPOGRAPHY.helper,
+          )}
+          data-testid="socratic-source-architecture-banner"
+        >
+          <span className="font-medium text-neutral-900 dark:text-neutral-100">
+            {GUIDED_INTAKE_SOURCE_ARCHITECTURE_HINT_LEAD}
+          </span>{" "}
+          This review evaluates a snapshot of{" "}
+          <Link
+            href={architectureDraftPath(sourceArchitectureId)}
+            className="font-medium underline"
+            title={`Architecture id ${sourceArchitectureId}`}
+          >
+            {sourceArchitectureDisplayName}
+          </Link>
+          . {GUIDED_INTAKE_SOURCE_ARCHITECTURE_HINT_TAIL}
+        </p>
       ) : null}
 
       {llmBudgetStatus !== null ? <LlmMonthlyBudgetExceededBanner status={llmBudgetStatus} /> : null}
@@ -674,27 +681,31 @@ export function SocraticIntakeWizard() {
       ) : null}
 
       {parentDraftId !== null ? (
-        <Card className="border-sky-300 bg-sky-50 dark:border-sky-800 dark:bg-sky-950/40">
-          <CardHeader>
-            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>What-if branch</CardTitle>
-            <CardDescription>
-              Editing branch draft {draftId} forked from parent {parentDraftId}. Submit as a separate review, then Compare.
-              {parentSpawnedRunId !== null ? (
-                <>
-                  {" "}
-                  Parent review{" "}
-                  <Link
-                    href={comparePageHrefAdaptive(parentSpawnedRunId)}
-                    className="font-medium text-sky-900 underline dark:text-sky-200"
-                  >
-                    {parentSpawnedRunId}
-                  </Link>{" "}
-                  is already spawned — after submit you can compare outcomes immediately.
-                </>
-              ) : null}
-            </CardDescription>
-          </CardHeader>
-        </Card>
+        <p
+          className={cn(
+            "m-0 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-300",
+            OPERATOR_TYPOGRAPHY.helper,
+          )}
+          data-testid="socratic-what-if-branch-hint"
+        >
+          <span className="font-medium text-neutral-900 dark:text-neutral-100">
+            {GUIDED_INTAKE_WHAT_IF_BRANCH_HINT_LEAD}
+          </span>{" "}
+          Editing branch draft {draftId} forked from parent {parentDraftId}. Submit as a separate review, then Compare.
+          {parentSpawnedRunId !== null ? (
+            <>
+              {" "}
+              Parent review{" "}
+              <Link
+                href={comparePageHrefAdaptive(parentSpawnedRunId)}
+                className="font-medium underline"
+              >
+                {parentSpawnedRunId}
+              </Link>{" "}
+              is already spawned — after submit you can compare outcomes immediately.
+            </>
+          ) : null}
+        </p>
       ) : null}
 
       {redirectReason !== null && redirectVerdict !== null && draftId !== null ? (
@@ -709,7 +720,7 @@ export function SocraticIntakeWizard() {
       ) : null}
 
       {step === 0 ? (
-        <Card>
+        <Card data-testid="guided-intake-primary-panel">
           {!isCreateArchitectureFlow ? (
             <CardHeader>
               <CardTitle>{INTAKE_STEPS[0].cardTitle}</CardTitle>
@@ -885,7 +896,7 @@ export function SocraticIntakeWizard() {
       ) : null}
 
       {step === 1 ? (
-        <Card>
+        <Card data-testid="guided-intake-primary-panel">
           <CardHeader>
             <CardTitle>{INTAKE_STEPS[1].cardTitle}</CardTitle>
             <CardDescription>
@@ -1024,7 +1035,7 @@ export function SocraticIntakeWizard() {
       ) : null}
 
       {step === 2 ? (
-        <Card>
+        <Card data-testid="guided-intake-primary-panel">
           <CardHeader>
             <CardTitle>{INTAKE_STEPS[2].cardTitle}</CardTitle>
             <CardDescription>{GUIDED_INTAKE_STEP2_SUBMIT_DESCRIPTION}</CardDescription>
