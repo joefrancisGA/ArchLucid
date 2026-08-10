@@ -3,16 +3,19 @@ import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { BulkEvidenceUpload } from "@/components/BulkEvidenceUpload";
+import { EvidenceGapForecastPanel } from "@/components/evidence/EvidenceGapForecastPanel";
 import {
   BULK_EVIDENCE_UPLOAD_HANDLING_HELPER,
   BULK_EVIDENCE_UPLOAD_HELP_LINKS,
 } from "@/lib/bulk-evidence-upload-copy";
 import { OPERATOR_CARD, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import type { EvidencePresenceFlags } from "@/lib/evidence-gap-forecast";
 
 export type RunDetailCaptureEvidenceSectionProps = {
   readonly runId: string;
   /** Retained for call-site compatibility; capture chrome no longer branches on polish mode. */
   readonly buyerPolished?: boolean;
+  readonly evidencePresence?: EvidencePresenceFlags;
 };
 
 export function RunDetailCaptureEvidenceSection(props: RunDetailCaptureEvidenceSectionProps): ReactElement {
@@ -38,6 +41,11 @@ export function RunDetailCaptureEvidenceSection(props: RunDetailCaptureEvidenceS
           </p>
         </div>
         <div className={OPERATOR_CARD.body}>
+          {props.evidencePresence !== undefined ? (
+            <div className="mb-4">
+              <EvidenceGapForecastPanel presence={props.evidencePresence} />
+            </div>
+          ) : null}
           <BulkEvidenceUpload runId={runId} embedded />
         </div>
       </div>

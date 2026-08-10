@@ -13,6 +13,8 @@ import { InlineMetadataLabel } from "@/components/InlineMetadataLabel";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
 import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
+import { ArchitectureScopeUnderstandingCheckPanel } from "@/components/architecture/ArchitectureScopeUnderstandingCheckPanel";
+import { EvidenceGapForecastPanel } from "@/components/evidence/EvidenceGapForecastPanel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -52,7 +54,12 @@ import { CREATE_ARCHITECTURE_STARTING_LABEL, REVIEW_START_LOADING_LABEL } from "
 import { runDetailHrefWithParentRun } from "@/lib/draft-branch-compare-navigation";
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
 import { recordArchitectureCreationHandoff } from "@/lib/architecture-creation-handoff";
+import {
+  mergeScopeBulletsIntoBrief,
+  type ScopeUnderstandingBullet,
+} from "@/lib/architecture-scope-understanding-check";
 import { isApiRequestError } from "@/lib/api-request-error";
+import { deriveEvidencePresenceFromFileNames } from "@/lib/evidence-gap-forecast";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { showError, showSuccess } from "@/lib/toast";
@@ -194,6 +201,8 @@ export function SocraticIntakeWizard() {
   const [savedLocallyQuestionKeys, setSavedLocallyQuestionKeys] = useState<ReadonlySet<string>>(() => new Set());
   const [viewAllClarifications, setViewAllClarifications] = useState(false);
   const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
+  const [scopeGateOpen, setScopeGateOpen] = useState(false);
+  const [scopeBullets, setScopeBullets] = useState<ScopeUnderstandingBullet[]>([]);
   const sessionState = useMemo<GuidedIntakeSessionState>(
     () => ({
       freeTextIntent,
@@ -280,7 +289,29 @@ export function SocraticIntakeWizard() {
     pendingQuestions.length === 0 ||
     pendingQuestions.every((question) => savedLocallyQuestionKeys.has(question.questionKey));
   const canReviewAnswers = allClarificationsHandled && !busy;
-  const canSubmit = draftId !== null && allClarificationsHandled && !busy && !blocksLlmExecution;
+  const canSubmit =
+    draftId !== null && allClarificationsHandled && scopeGateOpen && !busy && !blocksLlmExecution;
+
+  const scopeUnderstandingInput = useMemo(
+    () => ({
+      architectureName: systemName,
+      businessOutcome,
+      architectureOverview: freeTextIntent,
+      intentText: freeTextIntent,
+      peopleAndSystems: actorSet.actors.map((actor) => ({
+        label: actor.label?.trim() || actor.kind,
+        kind: actor.kind,
+      })),
+    }),
+    [actorSet.actors, businessOutcome, freeTextIntent, systemName],
+  );
+  const guidedIntakeEvidencePresence = useMemo(
+    () =>
+      deriveEvidencePresenceFromFileNames(
+        freeTextIntent.trim().length > 0 || businessOutcome.trim().length > 0 ? ["architecture-brief.md"] : [],
+      ),
+    [businessOutcome, freeTextIntent],
+  );
 
   const stepLabel = useMemo(() => `Step ${step + 1} of ${INTAKE_STEPS.length}`, [step]);
 
@@ -570,6 +601,8 @@ export function SocraticIntakeWizard() {
     setSubmitError(null);
 
     try {
+      const briefWithScope = mergeScopeBulletsIntoBrief(scopeBullets, businessOutcome);
+      await patchDraftRequest(draftId, { businessOutcome: briefWithScope });
       const result = await submitDraftRequest(draftId);
       recordFirstTenantFunnelEvent("first_run_started");
       wizardSession.clearSession();
@@ -1056,6 +1089,13 @@ export function SocraticIntakeWizard() {
                 </li>
               ) : null}
             </ul>
+            <EvidenceGapForecastPanel presence={guidedIntakeEvidencePresence} />
+            <ArchitectureScopeUnderstandingCheckPanel
+              input={scopeUnderstandingInput}
+              disabled={busy || blocksLlmExecution}
+              onBulletsChange={setScopeBullets}
+              onGateChange={setScopeGateOpen}
+            />
             <div className="flex flex-wrap gap-2">
               <Button type="button" variant="outline" disabled={busy} onClick={() => setStep(1)}>
                 Back to questions

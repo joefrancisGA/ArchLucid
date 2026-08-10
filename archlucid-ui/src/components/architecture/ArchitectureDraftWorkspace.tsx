@@ -9,6 +9,7 @@ import { ArchitectureDraftAiRefinePanel } from "@/components/architecture/Archit
 import { ArchitectureDraftFormFields } from "@/components/architecture/ArchitectureDraftFormFields";
 import { ArchitectureDraftGuidanceDisclosure } from "@/components/architecture/ArchitectureDraftGuidanceDisclosure";
 import { ArchitectureDraftHandoffBanner } from "@/components/architecture/ArchitectureDraftHandoffBanner";
+import { ArchitectureScopeUnderstandingCheckPanel } from "@/components/architecture/ArchitectureScopeUnderstandingCheckPanel";
 import { ArchitectureDraftWorkspaceListWayfinding } from "@/components/architecture/ArchitectureDraftWorkspaceListWayfinding";
 import { ArchitectureDraftWorkspaceLoadingSkeleton } from "@/components/architecture/ArchitectureDraftWorkspaceLoadingSkeleton";
 import { ArchitectureDraftSaveStatus } from "@/components/architecture/ArchitectureDraftSaveStatus";
@@ -58,7 +59,11 @@ import {
   startReviewFromArchitectureHref,
 } from "@/lib/architecture-routes";
 import { getRunSummary } from "@/lib/api/architecture-runs";
-import { getDraftRequest } from "@/lib/api/draft-intake-api";
+import { getDraftRequest, patchDraftRequest } from "@/lib/api/draft-intake-api";
+import {
+  mergeScopeBulletsIntoBrief,
+  type ScopeUnderstandingBullet,
+} from "@/lib/architecture-scope-understanding-check";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
@@ -93,6 +98,8 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const [actorSet, setActorSet] = useState<ActorSet>(() => architectureCreationDefaultActorSet());
   const [exitPending, setExitPending] = useState(false);
   const [startReviewPending, setStartReviewPending] = useState(false);
+  const [scopeGateOpen, setScopeGateOpen] = useState(false);
+  const [scopeBullets, setScopeBullets] = useState<ScopeUnderstandingBullet[]>([]);
   const [handoffAcknowledged, setHandoffAcknowledged] = useState(false);
   const [linkedReviewTitle, setLinkedReviewTitle] = useState("Untitled review");
   const [registryHydrated, setRegistryHydrated] = useState(false);
@@ -148,6 +155,19 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     : ARCHITECTURE_DRAFT_WORKSPACE_LEAD;
 
   const reviewReadiness = useMemo(() => validateArchitectureReviewReadiness(fields), [fields]);
+  const scopeUnderstandingInput = useMemo(
+    () => ({
+      architectureName: fields.systemName,
+      businessOutcome: fields.businessOutcome,
+      architectureOverview: fields.freeTextIntent,
+      intentText: fields.freeTextIntent,
+      peopleAndSystems: actorSet.actors.map((actor) => ({
+        label: actor.label?.trim() || actor.kind,
+        kind: actor.kind,
+      })),
+    }),
+    [actorSet.actors, fields.businessOutcome, fields.freeTextIntent, fields.systemName],
+  );
 
   const customerStatus = useMemo(
     () =>
@@ -309,6 +329,12 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       return;
     }
 
+    if (!scopeGateOpen) {
+      showError("Start architecture review", "Confirm or accept the inferred scope before starting a review.");
+
+      return;
+    }
+
     if (startReviewTimeoutIdRef.current !== null) {
       window.clearTimeout(startReviewTimeoutIdRef.current);
     }
@@ -322,6 +348,12 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     }, SOFT_NAVIGATION_TIMEOUT_MS);
 
     try {
+      if (!isNewDraft) {
+        const briefWithScope = mergeScopeBulletsIntoBrief(scopeBullets, fields.businessOutcome);
+        await patchDraftRequest(props.architectureId, { businessOutcome: briefWithScope });
+        setFields((current) => ({ ...current, businessOutcome: briefWithScope }));
+      }
+
       const saved = await saveDraft();
 
       if (!saved) {
@@ -362,6 +394,10 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     reviewReadiness,
     router,
     saveDraft,
+    scopeBullets,
+    scopeGateOpen,
+    fields.businessOutcome,
+    isNewDraft,
     startReviewPending,
   ]);
 
@@ -499,6 +535,15 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         </DraftIntakeAdvancedSection>
       ) : null}
 
+      {linkedReviewId === null ? (
+        <ArchitectureScopeUnderstandingCheckPanel
+          input={scopeUnderstandingInput}
+          disabled={handoffEditorLocked || exitPending || startReviewPending}
+          onBulletsChange={setScopeBullets}
+          onGateChange={setScopeGateOpen}
+        />
+      ) : null}
+
       <div className="flex flex-wrap gap-2">
         {linkedReviewId !== null ? (
           <Button type="button" variant="primary" size="sm" asChild data-testid="architecture-continue-review">
@@ -509,7 +554,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
             type="button"
             variant="primary"
             size="sm"
-            disabled={saveState === "saving" || (isNewDraft && !hasPersistedDraft)}
+            disabled={saveState === "saving" || (isNewDraft && !hasPersistedDraft) || !scopeGateOpen}
             isLoading={startReviewPending}
             idleLabel={BUYER_START_ARCHITECTURE_REVIEW_CTA}
             loadingLabel={REVIEW_START_PREPARING_LABEL}

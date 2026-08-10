@@ -17,6 +17,7 @@ import {
 } from "@/lib/showcase-static-demo";
 
 import type { BuildArchitectureCreatedHomeModelInput } from "@/lib/architecture-created-home-model";
+import { buildArchitectureCreatedHomeModel } from "@/lib/architecture-created-home-model";
 import { deriveArchitectureGapBaselineFromSubmittedText } from "@/lib/derive-architecture-gap-baseline";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import {

@@ -8,6 +8,7 @@ import { RunDetailEvidenceScopeHeader } from "@/components/RunDetailEvidenceScop
 import { RunDetailSectionNav } from "@/components/RunDetailSectionNav";
 import { deriveRunTrustEvidenceReadinessFromCard } from "@/components/RunTrustEvidenceCardSection";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { deriveEvidencePresenceFromInventoryKinds } from "@/lib/evidence-gap-forecast";
 import type { RunDetailEvidenceInventoryItem } from "@/lib/run-detail-evidence-inventory";
 import {
   countRunDetailEvidenceInventoryItems,
@@ -63,6 +64,10 @@ export function RunDetailEvidenceTabPanel(props: RunDetailEvidenceTabPanelProps)
     openFindingCount: props.openFindingCount,
   });
   const hasManifest = Boolean((props.manifestId ?? "").trim().length > 0);
+  const evidencePresence = deriveEvidencePresenceFromInventoryKinds({
+    inventoryKinds: props.items.map((item) => item.kind),
+    submittedArchitecturePresent: props.items.some((item) => item.key === "__architecture-brief__"),
+  });
   const showTrustEvidence = hasManifest && props.trustEvidenceCard != null;
   const showAdvancedAnalysis = hasManifest;
 
@@ -93,6 +98,7 @@ export function RunDetailEvidenceTabPanel(props: RunDetailEvidenceTabPanelProps)
         <RunDetailCaptureEvidenceSectionDeferred
           runId={props.runId}
           buyerPolished={props.buyerPolished}
+          evidencePresence={evidencePresence}
         />
       ) : null}
       {showTrustEvidence ? (

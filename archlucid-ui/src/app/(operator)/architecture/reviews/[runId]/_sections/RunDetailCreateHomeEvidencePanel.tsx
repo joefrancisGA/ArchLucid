@@ -1,7 +1,9 @@
 import type { ReactElement } from "react";
 
+import { EvidenceGapForecastPanel } from "@/components/evidence/EvidenceGapForecastPanel";
 import { RunDetailEvidenceInventorySection } from "@/components/RunDetailEvidenceInventorySection";
 import { RunDetailEvidenceScopeHeader } from "@/components/RunDetailEvidenceScopeHeader";
+import { deriveEvidencePresenceFromInventoryKinds } from "@/lib/evidence-gap-forecast";
 import type { RunDetailEvidenceInventoryItem } from "@/lib/run-detail-evidence-inventory";
 import {
   countRunDetailEvidenceInventoryItems,
@@ -36,6 +38,10 @@ export function RunDetailCreateHomeEvidencePanel(props: RunDetailCreateHomeEvide
     linkedFindingCount: props.linkedFindingCount,
     openFindingCount: props.openFindingCount,
   });
+  const evidencePresence = deriveEvidencePresenceFromInventoryKinds({
+    inventoryKinds: props.items.map((item) => item.kind),
+    submittedArchitecturePresent: props.items.some((item) => item.key === "__architecture-brief__"),
+  });
 
   return (
     <div className="space-y-4" data-testid="run-detail-create-home-evidence">
@@ -48,6 +54,7 @@ export function RunDetailCreateHomeEvidencePanel(props: RunDetailCreateHomeEvide
         readinessVerdict={scopeReadiness.verdict}
         evidenceCoverageLine={evidenceCoverageLine}
       />
+      <EvidenceGapForecastPanel presence={evidencePresence} />
       <RunDetailEvidenceInventorySection items={props.items} hasManifest={false} />
       <RunDetailCaptureEvidenceSectionDeferred runId={props.runId} buyerPolished={props.buyerPolished} />
     </div>

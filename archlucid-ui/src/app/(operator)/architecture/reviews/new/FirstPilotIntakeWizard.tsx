@@ -12,6 +12,8 @@ import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStar
 import { ReviewStartUnresolvedNotice } from "@/components/review-intake/ReviewStartUnresolvedNotice";
 import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
 import { ReviewPathTimeEstimateBanner } from "@/components/ReviewPathTimeEstimateBanner";
+import { ArchitectureScopeUnderstandingCheckPanel } from "@/components/architecture/ArchitectureScopeUnderstandingCheckPanel";
+import { EvidenceGapForecastPanel } from "@/components/evidence/EvidenceGapForecastPanel";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,7 +38,12 @@ import {
 import { createArchitectureRun, type CreateArchitectureRunRequestPayload } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture-request-limits";
+import {
+  mergeScopeBulletsIntoBrief,
+  type ScopeUnderstandingBullet,
+} from "@/lib/architecture-scope-understanding-check";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer-polish-copy";
+import { deriveEvidencePresenceFromFileNames } from "@/lib/evidence-gap-forecast";
 import {
   REVIEW_START_CREATION_FAILED_MESSAGE,
   REVIEW_START_PREPARING_LABEL,
@@ -143,6 +150,8 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   const [evidenceFiles, setEvidenceFiles] = useState<File[]>([]);
   const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
   const [clientValidationMessage, setClientValidationMessage] = useState<string | null>(null);
+  const [scopeGateOpen, setScopeGateOpen] = useState(false);
+  const [scopeBullets, setScopeBullets] = useState<ScopeUnderstandingBullet[]>([]);
   const [writeDestination, setWriteDestination] = useState(() =>
     formatFirstPilotIntakeWriteDestination(readActiveTenantContext()),
   );
@@ -196,6 +205,23 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
     () => buildEvidenceBackedIntakeBrief(runTitle, evidenceFiles, briefText),
     [briefText, evidenceFiles, runTitle],
   );
+  const scopeUnderstandingInput = useMemo(
+    () => ({
+      architectureName: normalizeFirstPilotReviewTitle(runTitle),
+      businessOutcome: briefText,
+      architectureOverview: briefText,
+    }),
+    [briefText, runTitle],
+  );
+  const evidencePresence = useMemo(() => {
+    const fileNames = evidenceFiles.map((file) => file.name);
+
+    if (briefText.trim().length >= FIRST_PILOT_MIN_BRIEF_CHARS) {
+      return deriveEvidencePresenceFromFileNames([...fileNames, "architecture-brief.md"]);
+    }
+
+    return deriveEvidencePresenceFromFileNames(fileNames);
+  }, [briefText, evidenceFiles]);
 
   /**
    * Readiness is judged on what the operator actually supplied. Passing {@link resolvedBrief} here would
@@ -209,6 +235,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
 
   const canStart =
     isFirstPilotIntakeReady(intakeReadiness) &&
+    scopeGateOpen &&
     resolvedBrief.length <= ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH &&
     !creationProgress.isActive &&
     !blocksLlmExecution;
@@ -239,9 +266,10 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
     });
 
     try {
+      const briefWithScope = mergeScopeBulletsIntoBrief(scopeBullets, resolvedBrief);
       const body = buildFirstPilotPayload(
         runTitle,
-        resolvedBrief,
+        briefWithScope,
         FIRST_PILOT_REQUIRED_CAPABILITIES,
         focusedPilotModeEnabled,
       );
@@ -355,6 +383,15 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
               evidence.
             </p>
           </div>
+
+          <EvidenceGapForecastPanel presence={evidencePresence} />
+
+          <ArchitectureScopeUnderstandingCheckPanel
+            input={scopeUnderstandingInput}
+            disabled={creationProgress.isActive || blocksLlmExecution}
+            onBulletsChange={setScopeBullets}
+            onGateChange={setScopeGateOpen}
+          />
 
           <CollapsibleSection
             title="Review standards selection"

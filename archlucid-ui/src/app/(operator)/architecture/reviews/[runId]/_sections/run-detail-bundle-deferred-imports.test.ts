@@ -124,6 +124,10 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(pageViewSource).toContain("HelpPageSituationRegistrarDeferred");
     expect(pageViewSource).toContain("ReviewGenerationCreatedNoticeDeferred");
     expect(pageViewSource).toContain("RunDetailBelowFoldSectionsDeferred");
+    expect(pageViewSource).toContain("GoldenSponsorPackageWalkthroughDestinationDeferred");
+    expect(deferredChunksSource).toContain(
+      'import("@/components/golden-walkthrough/GoldenSponsorPackageWalkthroughDestination")',
+    );
     expect(pageViewSource).toContain("RunDetailWorkspaceShell");
     expect(pageViewSource).not.toContain("./RunDetailWorkspaceChrome");
     expect(pageViewSource).toContain("ReviewDetailWorkspaceDeferred");
