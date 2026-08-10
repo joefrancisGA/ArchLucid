@@ -84,7 +84,7 @@ vi.mock("@/lib/architecture-draft-handoff-gate", async () => {
 });
 
 import { ArchitectureDraftWorkspace } from "./ArchitectureDraftWorkspace";
-import { ARCHITECTURE_DRAFT_WORKSPACE_LEAD, ARCHITECTURE_CREATION_AUTOSAVE_REASSURANCE, ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE } from "@/lib/create-vs-review-intake-copy";
+import { ARCHITECTURE_DRAFT_WORKSPACE_LEAD, ARCHITECTURE_CREATION_AUTOSAVE_REASSURANCE, ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE, ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE } from "@/lib/create-vs-review-intake-copy";
 import { ARCHITECTURE_NEW_DRAFT_SEGMENT } from "@/lib/architecture-routes";
 import { useArchitectureDraftAutosave } from "@/hooks/use-architecture-draft-autosave";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
@@ -144,6 +144,9 @@ describe("ArchitectureDraftWorkspace", () => {
 
     expect(getDraftRequest).not.toHaveBeenCalled();
     expect(screen.getByTestId("architecture-draft-workspace")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-creation-new-draft-section-title")).toHaveTextContent(
+      ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE,
+    );
     expect(screen.getByTestId("architecture-draft-workspace-lead")).toHaveTextContent(
       ARCHITECTURE_DRAFT_WORKSPACE_LEAD,
     );

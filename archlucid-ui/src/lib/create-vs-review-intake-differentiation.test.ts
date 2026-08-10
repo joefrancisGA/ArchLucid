@@ -20,6 +20,9 @@ describe("create vs review intake differentiation (TB-747)", () => {
     expect(newPageSource).toContain("OperatorPageHeader");
     expect(newPageSource).toContain('headingLevel="h1"');
     expect(newPageSource).toContain("ArchitecturesNewPageHeaderActions");
+    expect(newPageSource).toContain("ARCHITECTURE_CREATION_PAGE_SUBTITLE");
+    expect(newPageSource).toContain("architecture-new-page-subtitle");
+    expect(newPageSource).not.toContain("START_NEW_ARCHITECTURE_LABEL");
   });
 
   it("uses evidence-first progress copy on the quick review intake wizard", () => {
@@ -38,6 +41,8 @@ describe("create vs review intake differentiation (TB-747)", () => {
     expect(newPageSource).toContain("ArchitectureDraftWorkspace");
     expect(workspaceSource).toContain("ARCHITECTURE_DRAFT_WORKSPACE_LEAD");
     expect(workspaceSource).toContain("architecture-draft-workspace-lead");
+    expect(workspaceSource).toContain("ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE");
+    expect(workspaceSource).toContain("architecture-creation-new-draft-section-title");
     expect(workspaceSource).toContain("{isNewDraft ? null : <PageContextualHelpButton />}");
   });
 

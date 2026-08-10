@@ -14,9 +14,12 @@ export const REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD =
 export const ARCHITECTURE_DRAFT_WORKSPACE_LEAD =
   "Draft goals, constraints, and tradeoffs before you file evidence for review. Save and refine this brief anytime — nothing starts a review until you choose to.";
 
-/** `/architectures/new` bootstrap page — drafting-first entry. */
-export const ARCHITECTURE_CREATION_BOOTSTRAP_LEAD =
-  "Start a new architecture or continue one of your saved drafts.";
+/** `/architectures/new` page subtitle — subordinate to H1 {@link CREATE_ARCHITECTURE_LABEL} (TB-1461). */
+export const ARCHITECTURE_CREATION_PAGE_SUBTITLE =
+  "Resume a saved architecture draft from this browser, or start a new draft in the form below.";
+
+/** Form section heading on `/architectures/new` before the draft is named or persisted (TB-1461). */
+export const ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE = "New architecture draft";
 
 /** Empty-state guidance when the operator has no saved drafts yet (TB-1459). */
 export const ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE =
@@ -36,11 +39,11 @@ export const ARCHITECTURE_CREATION_REVIEW_BOUNDARY =
 /** Restrained autosave reassurance — only show where draft autosave is real. */
 export const ARCHITECTURE_CREATION_AUTOSAVE_REASSURANCE = "Architecture drafts are saved automatically.";
 
-/** Section label when a single recent draft is offered for resume. */
-export const ARCHITECTURE_CREATION_CONTINUE_SECTION_TITLE = "Continue a draft";
+/** Section label when a single recent draft is offered for resume (TB-1461). */
+export const ARCHITECTURE_CREATION_CONTINUE_SECTION_TITLE = "Resume an architecture draft";
 
-/** Section label when several recent drafts are previewed. */
-export const ARCHITECTURE_CREATION_RECENT_DRAFTS_SECTION_TITLE = "Recent drafts";
+/** Section label when several recent drafts are previewed (TB-1461). */
+export const ARCHITECTURE_CREATION_RECENT_DRAFTS_SECTION_TITLE = "Resume architecture drafts";
 
 /** Optional alternatives framing on the create path (not required to save). */
 export const ARCHITECTURE_DRAFT_ALTERNATIVES_HINT =

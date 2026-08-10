@@ -4,6 +4,7 @@ import { ArchitectureDraftWorkspace } from "@/components/architecture/Architectu
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { ARCHITECTURE_NEW_DRAFT_SEGMENT, ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
+import { ARCHITECTURE_CREATION_PAGE_SUBTITLE } from "@/lib/create-vs-review-intake-copy";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 
 import { ArchitecturesNewPageHeaderActions } from "./_sections/ArchitecturesNewPageHeaderActions";
@@ -21,9 +22,11 @@ export default function NewArchitecturePage(): React.JSX.Element {
     <OperatorPageContainer variant="workflow">
       <OperatorPageHeader
         title={CREATE_ARCHITECTURE_LABEL}
+        subtitle={ARCHITECTURE_CREATION_PAGE_SUBTITLE}
         navHref={ARCHITECTURES_NEW_PATH}
         headingLevel="h1"
         titleTestId="architecture-new-page-title"
+        subtitleTestId="architecture-new-page-subtitle"
         actions={<ArchitecturesNewPageHeaderActions />}
       />
       <ArchitectureDraftWorkspace architectureId={ARCHITECTURE_NEW_DRAFT_SEGMENT} />

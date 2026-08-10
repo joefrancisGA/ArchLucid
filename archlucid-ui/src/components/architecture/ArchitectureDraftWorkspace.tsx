@@ -59,6 +59,7 @@ import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-tit
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 import {
+  ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE,
   ARCHITECTURE_DRAFT_ALTERNATIVES_HINT,
   ARCHITECTURE_DRAFT_WORKSPACE_LEAD,
 } from "@/lib/create-vs-review-intake-copy";
@@ -122,6 +123,8 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     () => architectureDraftDisplayName(fields.systemName, fields.freeTextIntent),
     [fields.freeTextIntent, fields.systemName],
   );
+
+  const workspaceHeading = isNewDraft ? ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE : displayName;
 
   const reviewReadiness = useMemo(() => validateArchitectureReviewReadiness(fields), [fields]);
 
@@ -327,9 +330,16 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
 
   return (
     <div className="space-y-4" data-testid="architecture-draft-workspace">
+      {isNewDraft ? <ArchitectureCreationLocalDraftsPanel /> : null}
+
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 space-y-1">
-          <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{displayName}</h2>
+          <h2
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}
+            {...(isNewDraft ? { "data-testid": "architecture-creation-new-draft-section-title" } : {})}
+          >
+            {workspaceHeading}
+          </h2>
           <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-draft-workspace-lead">
             {ARCHITECTURE_DRAFT_WORKSPACE_LEAD}
           </p>
@@ -365,8 +375,6 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
           onAcknowledgeEditAnyway={handleAcknowledgeHandoff}
         />
       ) : null}
-
-      {isNewDraft ? <ArchitectureCreationLocalDraftsPanel /> : null}
 
       <div className="flex flex-wrap items-center justify-between gap-2">
         <ArchitectureDraftGuidanceDisclosure className="flex-1" />
