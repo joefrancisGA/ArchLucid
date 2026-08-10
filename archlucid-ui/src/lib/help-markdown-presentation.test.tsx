@@ -726,8 +726,7 @@ describe("help-markdown-presentation", () => {
     const loaded = tryLoadProductDocumentation("data-handling");
 
     expect(loaded).not.toBeNull();
-    // Folded alias still resolves to the canonical data-handling entry (not a separate topic page).
-    expect(tryLoadProductDocumentation("data-handling-tenant-isolation")?.entry.slug).toBe("data-handling");
+    // Retired data-handling-tenant-isolation bookmarks redirect to the canonical data-handling entry.
 
     const sourcePath = loaded!.entry.sourcePaths[0] ?? "";
     const prepared = prepareHelpMarkdownForPresentation(loaded!.markdown, sourcePath, {

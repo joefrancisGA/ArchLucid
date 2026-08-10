@@ -31,6 +31,7 @@ import {
   HELP_TOPIC_SLUG_ALIASES,
   listProductDocumentationEntries,
 } from "@/lib/product-documentation-registry";
+import { HELP_TOPIC_PERMANENT_REDIRECTS } from "@/lib/help-topic-permanent-redirects";
 import { getInboundAuthenticatedServerPrincipal } from "@/lib/server-current-principal";
 import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-redirects";
 import { resolveInternalRunbookHelpRouteMetadata } from "@/lib/resolve-internal-runbook-help-route-metadata";
@@ -198,8 +199,11 @@ export async function generateStaticParams(): Promise<Array<{ topic: string[] }>
   const aliasParams = Object.keys(HELP_TOPIC_SLUG_ALIASES).map((alias) => ({
     topic: alias.split("/"),
   }));
+  const retiredSlugParams = Object.keys(HELP_TOPIC_PERMANENT_REDIRECTS).map((slug) => ({
+    topic: slug.split("/"),
+  }));
 
-  return [...registryParams, ...aliasParams];
+  return [...registryParams, ...aliasParams, ...retiredSlugParams];
 }
 
 function renderHelpTopicView(

@@ -8,6 +8,7 @@ import {
   resolveProductDocumentationContentKind,
   type ProductDocumentationContentKind,
 } from "@/lib/product-documentation-content-kinds";
+import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-redirects";
 
 export type { ProductDocumentationContentKind } from "@/lib/product-documentation-content-kinds";
 export type ProductDocumentationAudience = "operator" | "buyer" | "marketing" | "developer";
@@ -42,24 +43,19 @@ type ProductDocumentationRegistryInput = Omit<ProductDocumentationEntry, "pdfSta
 
 /** Slug aliases for contextual deep links (`/help/{slug}`). */
 /** Path-style + folded-topic aliases. TB-2050 retires only the hyphen twins listed in help-center-catalog. */
+/** Retired bookmarks with permanent redirects live in `help-topic-permanent-redirects.ts` (Batch B). */
 export const HELP_TOPIC_SLUG_ALIASES: Readonly<Record<string, string>> = {
   "cloud-connections/azure": "cloud-connections-azure",
   "cloud-connections/aws": "cloud-connections-aws",
   "cloud-connections/gcp": "cloud-connections-gcp",
-  "integrations/azure-boards": "azure-boards",
   "users-and-roles": "users-and-roles",
   "core-pilot": "first-architecture-review",
-  /** Starting reviews / creating-runs twins folded into review-guide (TB-1258 / TB-1643). */
+  /** Starting reviews twin folded into review-guide (TB-1258 / TB-1643). */
   "starting-reviews": "review-guide",
-  "creating-runs": "review-guide",
-  /** Data-handling + tenant-isolation twin folded into data-handling (TB-1652 / TB-1658). */
-  "data-handling-tenant-isolation": "data-handling",
   /** Evidence-only CORE_PILOT section twin folded into first-architecture-review (TB-1683). */
   "evidence-only-review": "first-architecture-review",
   /** Product-overview twin folded into executive-summary (TB-1739). */
   "product-overview": "executive-summary",
-  /** How-it-works twin folded into getting-started. Prefer #how-archlucid-works. */
-  "how-it-works": "getting-started",
 };
 
 export function normalizeHelpTopicSlug(slug: string): string {
@@ -124,6 +120,8 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
       "Learn how ArchLucid turns architecture evidence into review findings, decisions, and governance-ready outputs.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/CONCEPTS_IN_5_MINUTES.md"],
+    lastReviewed: "2026-08-09",
+    releaseApplicability: "Applies to V1 GA — product orientation and first review workflow",
     pdfStatus: "public",
   },
   {
@@ -602,7 +600,10 @@ function preferredHelpPathSegmentForSlug(slug: string): string {
 }
 
 export function inAppHelpHref(slug: string, hashFragment?: string): string {
-  const base = `/help/${preferredHelpPathSegmentForSlug(slug).trim().toLowerCase()}`;
+  const trimmed = slug.trim().toLowerCase();
+  const permanentRedirect = resolveHelpTopicPermanentRedirect(trimmed);
+  const base =
+    permanentRedirect ?? `/help/${preferredHelpPathSegmentForSlug(trimmed).trim().toLowerCase()}`;
   const hash = hashFragment?.trim().replace(/^#/, "");
 
   if (hash === undefined || hash.length === 0) {

@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-redirects";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
-import { AZURE_BOARDS_HELP_ALIAS_TRAFFIC_PATH } from "@/lib/ui-route-traffic-azure-boards-help-alias";
+import { RETIRED_AZURE_BOARDS_HELP_ALIAS_TRAFFIC_PATH } from "@/lib/ui-route-traffic-azure-boards-help-alias";
 import { AZURE_BOARDS_HELP_TRAFFIC_PATH } from "@/lib/ui-route-traffic-azure-boards-help";
 
 const HELP_CATCH_ALL_PAGE_PATH = join(
@@ -45,8 +45,8 @@ describe("azure-boards help alias honesty (TB-1704)", () => {
     (relativePath) => {
       const source = readFileSync(join(process.cwd(), relativePath), "utf8");
 
-      expect(source, `${relativePath} must not deep-link ${AZURE_BOARDS_HELP_ALIAS_TRAFFIC_PATH}`).not.toContain(
-        AZURE_BOARDS_HELP_ALIAS_TRAFFIC_PATH,
+      expect(source, `${relativePath} must not deep-link ${RETIRED_AZURE_BOARDS_HELP_ALIAS_TRAFFIC_PATH}`).not.toContain(
+        RETIRED_AZURE_BOARDS_HELP_ALIAS_TRAFFIC_PATH,
       );
     },
   );

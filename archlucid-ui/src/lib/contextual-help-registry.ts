@@ -210,17 +210,6 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/help/data-handling-tenant-isolation",
-    entry: {
-      whatIsThisPage:
-        "Explain how review evidence is handled, what stays in your tenant, and how three-layer isolation works.",
-      whatToDoNext:
-        "Open Trust Center or Assurance status for diligence artifacts, then review Sources before sponsor briefings.",
-      whyEmpty: "This guide always shows isolation and data-handling content when the help topic loads.",
-      whereToConfigurePrerequisite: "Confirm residency and subprocessors during procurement with your account team.",
-    },
-  },
-  {
     prefix: "/help/dpa-template",
     entry: {
       whatIsThisPage:
@@ -972,27 +961,6 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
   },
   {
     prefix: "/help/azure-boards",
-    entry: {
-      whatIsThisPage:
-        "Azure Boards integration — connect Azure DevOps for work item creation from ArchLucid findings.",
-      whatToDoNext:
-        "Open Azure Boards settings to connect or test the destination, then confirm Integration readiness.",
-      whyEmpty: "This guide is always available; live connector status appears after Azure DevOps is configured for the workspace.",
-      whereToConfigurePrerequisite:
-        "Outbound work-item creation needs a role that can manage integrations for this workspace.",
-      whatToDoNextAction: {
-        label: "Open Azure Boards settings",
-        href: "/integrations/azure-boards",
-      },
-      whereToConfigureAction: {
-        label: "Open Integration readiness help",
-        href: "/help/integration-readiness",
-      },
-    },
-  },
-  {
-    /** Legacy slug alias — same Category-1 copy as azure-boards (HAZ / HEZ). */
-    prefix: "/help/integrations/azure-boards",
     entry: {
       whatIsThisPage:
         "Azure Boards integration — connect Azure DevOps for work item creation from ArchLucid findings.",

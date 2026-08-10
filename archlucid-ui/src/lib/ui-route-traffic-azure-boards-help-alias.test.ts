@@ -4,10 +4,9 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
-  AZURE_BOARDS_HELP_ALIAS_TRAFFIC_NOTE,
-  AZURE_BOARDS_HELP_ALIAS_TRAFFIC_PATH,
-  AZURE_BOARDS_HELP_ALIAS_TRAFFIC_ROW_ID,
-  AZURE_BOARDS_HELP_ALIAS_TRAFFIC_SECTION,
+  CANONICAL_AZURE_BOARDS_HELP_TRAFFIC_PATH,
+  REMOVED_AZURE_BOARDS_HELP_ALIAS_TRAFFIC_ROW_ID,
+  RETIRED_AZURE_BOARDS_HELP_ALIAS_TRAFFIC_PATH,
 } from "@/lib/ui-route-traffic-azure-boards-help-alias";
 
 const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md";
@@ -15,8 +14,6 @@ const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md"
 type TrafficWorkbookRow = {
   id: string;
   path: string;
-  section: string;
-  notes: string;
 };
 
 function readTemplateMarkdown(): string {
@@ -47,25 +44,22 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
     rows.push({
       id: cells[1] ?? "",
       path: (cells[2] ?? "").replace(/^`|`$/g, ""),
-      section: cells[7] ?? "",
-      notes: cells[8] ?? "",
     });
   }
 
   return rows;
 }
 
-describe("ui-route-traffic-azure-boards-help-alias (HAZ)", () => {
-  it("tracks integrations/azure-boards help alias with honest workbook notes", () => {
+describe("ui-route-traffic azure-boards help alias retirement (HAZ merged into HEZ)", () => {
+  it("does not track retired HAZ; azure-boards help stays on HEZ only", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
-    const row = rows.find((candidate) => candidate.id === AZURE_BOARDS_HELP_ALIAS_TRAFFIC_ROW_ID);
+    const hazRow = rows.find((row) => row.id === REMOVED_AZURE_BOARDS_HELP_ALIAS_TRAFFIC_ROW_ID);
+    const retiredPathRows = rows.filter((row) => row.path === RETIRED_AZURE_BOARDS_HELP_ALIAS_TRAFFIC_PATH);
+    const canonicalRows = rows.filter((row) => row.path === CANONICAL_AZURE_BOARDS_HELP_TRAFFIC_PATH);
 
-    expect(row).toBeDefined();
-    expect(row?.path).toBe(AZURE_BOARDS_HELP_ALIAS_TRAFFIC_PATH);
-    expect(row?.section).toBe(AZURE_BOARDS_HELP_ALIAS_TRAFFIC_SECTION);
-    expect(row?.notes).toBe(AZURE_BOARDS_HELP_ALIAS_TRAFFIC_NOTE);
-    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
-    expect(row?.notes).toContain("Score 58");
-    expect(row?.notes).toContain("cannot improve further toward 80");
+    expect(hazRow).toBeUndefined();
+    expect(retiredPathRows).toHaveLength(0);
+    expect(canonicalRows).toHaveLength(1);
+    expect(canonicalRows[0]?.id).toBe("HEZ");
   });
 });

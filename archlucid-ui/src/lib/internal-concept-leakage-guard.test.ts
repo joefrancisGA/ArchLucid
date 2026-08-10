@@ -14,10 +14,10 @@ import {
   INTERNAL_CONCEPT_LEAKAGE_BANNED_PATTERNS,
   INTERNAL_CONCEPT_LEAKAGE_SURFACES,
 } from "@/lib/internal-concept-leakage-surfaces";
+import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-redirects";
 import {
   getProductDocumentationEntry,
   inAppHelpHref,
-  normalizeHelpTopicSlug,
 } from "@/lib/product-documentation-registry";
 
 describe("internal concept leakage guard (IA-013)", () => {
@@ -42,9 +42,9 @@ describe("internal concept leakage guard (IA-013)", () => {
   });
 
   it("maps folded help topic aliases to canonical slugs (TB-1258 / TB-1739)", () => {
-    expect(normalizeHelpTopicSlug("creating-runs")).toBe("review-guide");
+    expect(resolveHelpTopicPermanentRedirect("creating-runs")).toBe("/help/review-guide");
     expect(getProductDocumentationEntry("review-guide")?.title).toBe("Review guide");
-    expect(getProductDocumentationEntry("creating-runs")?.slug).toBe("review-guide");
+    expect(getProductDocumentationEntry("creating-runs")).toBeNull();
     expect(getProductDocumentationEntry("starting-reviews")?.slug).toBe("review-guide");
     expect(inAppHelpHref("review-guide")).toBe("/help/review-guide");
   });

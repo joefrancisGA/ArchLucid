@@ -6,10 +6,9 @@ import { describe, expect, it } from "vitest";
 import { DATA_HANDLING_TENANT_ISOLATION_HELP_PATH } from "@/lib/data-handling-tenant-isolation-help-route";
 import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-redirects";
 import {
-  DATA_HANDLING_TENANT_ISOLATION_HELP_ALIAS_TRAFFIC_NOTE,
-  DATA_HANDLING_TENANT_ISOLATION_HELP_ALIAS_TRAFFIC_PATH,
-  DATA_HANDLING_TENANT_ISOLATION_HELP_ALIAS_TRAFFIC_ROW_ID,
-  DATA_HANDLING_TENANT_ISOLATION_HELP_ALIAS_TRAFFIC_SECTION,
+  CANONICAL_DATA_HANDLING_HELP_TRAFFIC_PATH,
+  REMOVED_DATA_HANDLING_TENANT_ISOLATION_HELP_ALIAS_TRAFFIC_ROW_ID,
+  RETIRED_DATA_HANDLING_TENANT_ISOLATION_HELP_ALIAS_TRAFFIC_PATH,
 } from "@/lib/ui-route-traffic-data-handling-tenant-isolation-help-alias";
 
 const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md";
@@ -17,8 +16,6 @@ const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md"
 type TrafficWorkbookRow = {
   id: string;
   path: string;
-  section: string;
-  notes: string;
 };
 
 function readTemplateMarkdown(): string {
@@ -49,33 +46,30 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
     rows.push({
       id: cells[1] ?? "",
       path: (cells[2] ?? "").replace(/^`|`$/g, ""),
-      section: cells[7] ?? "",
-      notes: cells[8] ?? "",
     });
   }
 
   return rows;
 }
 
-describe("ui-route-traffic-data-handling-tenant-isolation-help-alias (HDA)", () => {
+describe("ui-route-traffic data-handling-tenant-isolation alias retirement (HDA merged into HED)", () => {
   it("permanently redirects the retired alias slug to canonical data-handling", () => {
     expect(resolveHelpTopicPermanentRedirect("data-handling-tenant-isolation")).toBe(
       DATA_HANDLING_TENANT_ISOLATION_HELP_PATH,
     );
   });
 
-  it("tracks data-handling-tenant-isolation help alias with honest workbook notes", () => {
+  it("does not track retired HDA; data-handling help stays on HED only", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
-    const row = rows.find(
-      (candidate) => candidate.id === DATA_HANDLING_TENANT_ISOLATION_HELP_ALIAS_TRAFFIC_ROW_ID,
+    const hdaRow = rows.find((row) => row.id === REMOVED_DATA_HANDLING_TENANT_ISOLATION_HELP_ALIAS_TRAFFIC_ROW_ID);
+    const retiredPathRows = rows.filter(
+      (row) => row.path === RETIRED_DATA_HANDLING_TENANT_ISOLATION_HELP_ALIAS_TRAFFIC_PATH,
     );
+    const canonicalRows = rows.filter((row) => row.path === CANONICAL_DATA_HANDLING_HELP_TRAFFIC_PATH);
 
-    expect(row).toBeDefined();
-    expect(row?.path).toBe(DATA_HANDLING_TENANT_ISOLATION_HELP_ALIAS_TRAFFIC_PATH);
-    expect(row?.section).toBe(DATA_HANDLING_TENANT_ISOLATION_HELP_ALIAS_TRAFFIC_SECTION);
-    expect(row?.notes).toBe(DATA_HANDLING_TENANT_ISOLATION_HELP_ALIAS_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("HelpDataHandlingTenantIsolationGuideView");
-    expect(row?.notes).toContain("Score 58");
-    expect(row?.notes).toContain("cannot improve further toward 80");
+    expect(hdaRow).toBeUndefined();
+    expect(retiredPathRows).toHaveLength(0);
+    expect(canonicalRows).toHaveLength(1);
+    expect(canonicalRows[0]?.id).toBe("HED");
   });
 });

@@ -59,6 +59,8 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     # Do not re-add these to the catalog; FIR `/help/first-pilot-path` stays via TRAFFIC_TRACKED only.
     "/help/api-contracts": "/help/governance-api-contracts",
     "/help/creating-runs": "/help/review-guide",
+    "/help/data-handling-tenant-isolation": "/help/data-handling",
+    "/help/integrations/azure-boards": "/help/azure-boards",
     "/help/evaluator-workbook": "/help/path-chooser",
     "/help/first-hour-operator-path": "/help/first-architecture-review",
     "/help/operator-auth-roles": "/help/users-and-roles",

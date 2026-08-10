@@ -9,6 +9,7 @@ import {
   PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG,
   type ProductDocumentationContentKind,
 } from "@/lib/product-documentation-content-kinds";
+import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-redirects";
 import {
   getProductDocumentationEntry,
   inAppHelpHref,
@@ -55,11 +56,16 @@ describe("product-documentation-registry", () => {
     expect(inAppHelpHref("pilot-guide")).toBe("/help/pilot-guide");
     expect(getProductDocumentationEntry("troubleshooting")?.title).toBe("Troubleshooting");
     expect(getProductDocumentationEntry("starting-reviews")?.slug).toBe("review-guide");
-    expect(getProductDocumentationEntry("creating-runs")?.slug).toBe("review-guide");
     expect(inAppHelpHref("starting-reviews")).toBe("/help/review-guide");
+    expect(getProductDocumentationEntry("creating-runs")).toBeNull();
+    expect(resolveHelpTopicPermanentRedirect("creating-runs")).toBe("/help/review-guide");
     expect(inAppHelpHref("creating-runs")).toBe("/help/review-guide");
-    expect(getProductDocumentationEntry("data-handling-tenant-isolation")?.slug).toBe("data-handling");
+    expect(getProductDocumentationEntry("data-handling-tenant-isolation")).toBeNull();
+    expect(resolveHelpTopicPermanentRedirect("data-handling-tenant-isolation")).toBe("/help/data-handling");
     expect(inAppHelpHref("data-handling-tenant-isolation")).toBe("/help/data-handling");
+    expect(getProductDocumentationEntry("integrations/azure-boards")).toBeNull();
+    expect(resolveHelpTopicPermanentRedirect("integrations/azure-boards")).toBe("/help/azure-boards");
+    expect(inAppHelpHref("integrations/azure-boards")).toBe("/help/azure-boards");
     expect(getProductDocumentationEntry("evidence-only-review")?.slug).toBe("first-architecture-review");
     expect(inAppHelpHref("evidence-only-review")).toBe("/help/first-architecture-review");
     expect(inAppHelpHref("evidence-only-review", "fast-path-evidence-only")).toBe(
@@ -177,9 +183,8 @@ describe("product-documentation-registry", () => {
   it("maps initial PDF strategy slugs to expected pdfStatus (TB-722)", () => {
     const expected: Readonly<Record<string, ProductDocumentationEntry["pdfStatus"]>> = {
       "first-architecture-review": "public",
-      "how-it-works": "public",
+      "getting-started": "public",
       "data-handling": "public",
-      "data-handling-tenant-isolation": "public",
       "security-trust": "public",
       "evidence-only-review": "public",
       "product-overview": "public",
@@ -296,7 +301,6 @@ describe("product-documentation-registry", () => {
     const evidenceOnlyReview = tryLoadProductDocumentation("evidence-only-review");
     const firstArchitectureReview = tryLoadProductDocumentation("first-architecture-review");
     const dataHandling = tryLoadProductDocumentation("data-handling");
-    const dataHandlingIsolation = tryLoadProductDocumentation("data-handling-tenant-isolation");
 
     // TB-1739: product-overview folded into executive-summary — same EXECUTIVE_SPONSOR_BRIEF.md sections apply.
     expect(productOverview?.entry.slug).toBe("executive-summary");
@@ -308,11 +312,9 @@ describe("product-documentation-registry", () => {
     expect(evidenceOnlyReview?.markdown).toContain("evidence-only review");
     expect(evidenceOnlyReview?.markdown).toContain("What can wait");
 
-    expect(dataHandlingIsolation?.entry.slug).toBe("data-handling");
-    expect(dataHandlingIsolation?.markdown).toBe(dataHandling?.markdown);
-    expect(dataHandlingIsolation?.markdown).toContain("What stays in your tenant");
-    expect(dataHandlingIsolation?.markdown).toContain("Three layers");
-    expect(dataHandlingIsolation?.markdown).not.toContain("Verification pack");
+    expect(dataHandling?.markdown).toContain("What stays in your tenant");
+    expect(dataHandling?.markdown).toContain("Three layers");
+    expect(dataHandling?.markdown).not.toContain("Verification pack");
   });
 
   it("declares provenance metadata on comparison-replay operator guide (CO)", () => {

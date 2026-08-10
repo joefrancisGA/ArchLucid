@@ -97,6 +97,19 @@ def test_migrate_workbook_path_maps_retired_creating_runs_help_alias() -> None:
     assert migrate_workbook_path("/help/creating-runs") == "/help/review-guide"
 
 
+def test_migrate_workbook_path_maps_batch_b_retired_help_aliases() -> None:
+    assert migrate_workbook_path("/help/data-handling-tenant-isolation") == "/help/data-handling"
+    assert migrate_workbook_path("/help/integrations/azure-boards") == "/help/azure-boards"
+
+
+def test_build_catalog_keeps_batch_b_retired_help_aliases_out() -> None:
+    catalog = build_catalog()
+    assert "/help/data-handling-tenant-isolation" not in catalog
+    assert "/help/integrations/azure-boards" not in catalog
+    assert "/help/data-handling" in catalog
+    assert "/help/azure-boards" in catalog
+
+
 def test_migrate_workbook_path_maps_legacy_alerts() -> None:
     assert migrate_workbook_path("/alerts") == "/governance/alerts"
 
