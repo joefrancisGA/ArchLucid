@@ -6,6 +6,7 @@ import {
   PatternLibraryDomainPlatformBadges,
   PatternLibrarySignalBadges,
 } from "./PatternLibraryFiltersPanel";
+import { PatternLibraryRelatedPolicyPacks } from "./PatternLibraryPolicyGuidance";
 import { OPERATOR_CARD, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { patternLibraryDetailPath } from "@/lib/pattern-library-route";
 import type { PatternLibraryRecord } from "@/lib/pattern-library-types";
@@ -41,12 +42,7 @@ export function PatternLibraryPatternCard(props: PatternLibraryPatternCardProps)
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {record.reviewCountLabel} · {record.tenantCountLabel}
         </p>
-        {record.relatedPolicyPacks.length > 0 ? (
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            <span className="font-medium text-al-text-primary">Related policy packs:</span>{" "}
-            {record.relatedPolicyPacks.join(" · ")}
-          </p>
-        ) : null}
+        <PatternLibraryRelatedPolicyPacks packs={record.relatedPolicyPacks} />
         <div className="flex flex-wrap gap-2 pt-1">
           <Button asChild size="sm" variant="primary">
             <Link href={detailPath}>Open pattern</Link>

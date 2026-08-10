@@ -20,7 +20,7 @@ Regenerate after opening or closing summary-table rows:
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
 | Explainability | 3 |
-| Trustworthiness | 97 |
+| Trustworthiness | 93 |
 | Maintainability | 9 |
 | Traceability | 3 |
 | Interoperability | 4 |
@@ -35,9 +35,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **684** |
+| **Total (unique open)** | **680** |
 
-**By priority band:** P0 **12** | P1 **542** | P2 **113** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **12** | P1 **538** | P2 **113** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -795,9 +795,9 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1803 | ~~Canonicalize inbound `/onboarding/start` → `/onboarding`~~ **Done** 2026-08-10 — contributor doc guard + canonical `/architecture/first-review-guide`; see ## TB-1803 below | Trustworthiness P1 — **V1**; with **TB-1801**; pairs **TB-1799** | S |
 | TB-1804 | ~~Drop `/onboarding/start` from marketing SEO inventory (keep shim)~~ **Done** 2026-08-10 — robots disallow + sitemap exclusion Vitest; see ## TB-1804 below | Trustworthiness P1 — **V1**; with **TB-1801**; pairs **TB-1800** | S |
 | TB-1807 | `/operate/architecture-graph` ? robots/noindex + metadata honesty; see ## TB-1807 below | Trustworthiness P1 ? **V1**; with **TB-1806** | XS |
-| TB-1809 | Canonicalize inbound `/operate/architecture-graph` ? `/graph`; see ## TB-1809 below | Trustworthiness P1 ? **V1**; with **TB-1806** | S |
-| TB-1811 | `/patterns/[patternKey]` detail provenance parity with library hub; see ## TB-1811 below | Trustworthiness P1 ? **V1**; owner review ~48/100 2026-07-27; traffic **PAP**; do not reopen **TB-880** | M |
-| TB-1813 | `/patterns/[patternKey]` ? related policy rules honesty / deep links; see ## TB-1813 below | Trustworthiness P1 ? **V1**; with **TB-1811** | M |
+| TB-1809 | ~~Canonicalize inbound `/operate/architecture-graph` → `/insights/evidence-graph`~~ **Done** 2026-08-10 — contributor doc guard + IA canonical path; see ## TB-1809 below | Trustworthiness P1 — **V1**; with **TB-1806** | S |
+| TB-1811 | ~~`/patterns/[patternKey]` detail provenance parity with library hub~~ **Done** 2026-08-10 — `usePatternLibraryProvenance` shared hook + detail notice/privacy; see ## TB-1811 below | Trustworthiness P1 — **V1**; owner review ~48/100 2026-07-27; traffic **PAP**; do not reopen **TB-880** | M |
+| TB-1813 | ~~`/patterns/[patternKey]` — related policy rules honesty / deep links~~ **Done** 2026-08-10 — `PatternLibraryPolicyGuidance` + stable `/governance/policy-packs` hub link; see ## TB-1813 below | Trustworthiness P1 — **V1**; with **TB-1811** | M |
 | TB-1818 | ~~`/quick-start` — robots/noindex honesty if shim page retained~~ **Done** 2026-08-10 — `LEGACY_QUICK_START_ROUTE_METADATA` noindex + Vitest; see ## TB-1818 below | Trustworthiness P1 — **V1**; with **TB-1816** | XS |
 | TB-1819 | ~~Drop residual `/quick-start` product/docs pointers (API demos OK)~~ **Done** 2026-08-10 — contributor doc guard + canonical `/get-started`; see ## TB-1819 below | Trustworthiness P1 — **V1**; with **TB-1816** | S |
 | TB-1831 | ~~Traffic honesty — `archTab=activity` is create-home only (not `reviewTab`)~~ **Done** 2026-08-10 — REA create-home-only notes + Vitest; see ## TB-1831 below | Trustworthiness P1 — **V1**; owner review ~42/100 2026-07-27; traffic **REA** | S |
@@ -43491,15 +43491,17 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ---
 
-## TB-1809 ? Canonicalize inbound `/operate/architecture-graph` ? `/graph` (P0)
+## TB-1809 — Canonicalize inbound `/operate/architecture-graph` → `/insights/evidence-graph` (P0)
 
-**Window:** V1 ? Trustworthiness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 — Trustworthiness. **Status:** **Done** (2026-08-10) — contributor docs canonicalize `/insights/evidence-graph`; Vitest `legacy-architecture-graph-route-doc-guard.test.ts`; legacy route metadata names canonical path. **Priority:** P0.
 
 **Problem:** Nav/docs/help may still teach `/operate/architecture-graph` as the primary Evidence graph URL.
 
-**Approach:** Prefer `/graph` (+ query) in product/docs; keep shim for bookmarks. Vitest/docs grep.
+**Approach:** Prefer `/insights/evidence-graph` (+ query) in product/docs; keep shim for bookmarks. Vitest/docs grep.
 
-**Acceptance:** Inbound links use canonical `/graph`. **Size estimate:** S.
+**Shipped:** `information_architecture_assessment_and_backlog.md` legacy row points to `/insights/evidence-graph`; doc guard fails on unlabeled `/operate/architecture-graph` references in contributor docs; `ui_routes.md` already canonical.
+
+**Acceptance:** Inbound links use canonical evidence graph path. **Size estimate:** S.
 
 ---
 
@@ -43515,15 +43517,17 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ---
 
-## TB-1811 ? `/patterns/[patternKey]` detail provenance parity with library hub (P0)
+## TB-1811 — `/patterns/[patternKey]` detail provenance parity with library hub (P0)
 
-**Window:** V1 ? Trustworthiness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 — Trustworthiness. **Status:** **Done** (2026-08-10) — `usePatternLibraryProvenance` hook shared by hub + detail; detail renders badge, `notice`, and `privacyNote`; Vitest `PatternLibraryDetailClient.test.tsx`. **Priority:** P0.
 
 **Source:** Owner PAP ~48/100 2026-07-27.
 
-**Problem:** Detail hard-codes `resolvePatternLibraryProvenance(false)` and shows only a badge ? buyers can open a ?live? pattern card then land on sample/demo provenance without the hub notice/privacy copy.
+**Problem:** Detail hard-codes `resolvePatternLibraryProvenance(false)` and shows only a badge — buyers can open a "live" pattern card then land on sample/demo provenance without the hub notice/privacy copy.
 
 **Approach:** Share hub resolution (live vs sample) into detail (loader, searchParam, or client query reuse); render `notice` + `privacyNote` on detail. Vitest: live path shows aggregate badge; sample path shows sample notice. Coordinate **TB-880**; do not reopen it.
+
+**Shipped:** `use-pattern-library-provenance.ts` centralizes insight-card query + aggregate threshold; detail uses same provenance as hub for the session.
 
 **Acceptance:** Detail provenance matches hub for the same session/data mode. **Size estimate:** M.
 
@@ -43541,13 +43545,15 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ---
 
-## TB-1813 ? `/patterns/[patternKey]` ? related policy rules honesty / deep links (P0)
+## TB-1813 — `/patterns/[patternKey]` — related policy rules honesty / deep links (P0)
 
-**Window:** V1 ? Trustworthiness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 — Trustworthiness. **Status:** **Done** (2026-08-10) — `PatternLibraryPolicyGuidance` labels catalog rules/packs as guidance; stable hub link to `/governance/policy-packs` only; Vitest `pattern-library-policy-guidance.test.ts`. **Priority:** P0.
 
 **Problem:** **Related policy rules** (and packs on cards) are plain strings that look actionable but do not open policy packs/rules.
 
 **Approach:** Link when a stable pack/rule route exists; otherwise label as catalog guidance (not live policy). Vitest: no fake hrefs.
+
+**Shipped:** `PatternLibraryRelatedPolicyRules` + `PatternLibraryRelatedPolicyPacks` on detail and cards; no per-string rule hrefs.
 
 **Acceptance:** Buyers cannot mistake static catalog strings for live policy navigation. **Size estimate:** M.
 

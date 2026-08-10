@@ -3,6 +3,10 @@
 import Link from "next/link";
 
 import { PatternLibraryDomainPlatformBadges, PatternLibrarySignalBadges } from "./PatternLibraryFiltersPanel";
+import {
+  PatternLibraryRelatedPolicyPacks,
+  PatternLibraryRelatedPolicyRules,
+} from "./PatternLibraryPolicyGuidance";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,7 +15,8 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { findPatternLibraryRecord } from "@/lib/pattern-library-catalog";
 import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { PATTERN_LIBRARY_PATH, patternLibraryDetailPath } from "@/lib/pattern-library-route";
-import { resolvePatternLibraryProvenance } from "@/lib/pattern-library-provenance";
+import { PATTERN_LIBRARY_POLICY_RULES_SECTION_TITLE } from "@/lib/pattern-library-policy-guidance-copy";
+import { usePatternLibraryProvenance } from "@/lib/use-pattern-library-provenance";
 import { cn } from "@/lib/utils";
 
 type PatternLibraryDetailClientProps = {
@@ -28,6 +33,7 @@ function DetailSection(props: { readonly id: string; readonly title: string; rea
 }
 
 export function PatternLibraryDetailClient(props: PatternLibraryDetailClientProps): React.JSX.Element {
+  const { provenance } = usePatternLibraryProvenance();
   const record = findPatternLibraryRecord(props.patternKey);
 
   if (record === null) {
@@ -37,8 +43,6 @@ export function PatternLibraryDetailClient(props: PatternLibraryDetailClientProp
       </p>
     );
   }
-
-  const provenance = resolvePatternLibraryProvenance(false);
 
   return (
     <div className={cn("w-full max-w-4xl", OPERATOR_LAYOUT.majorSectionGap)} data-testid="pattern-library-detail-page">
@@ -55,15 +59,19 @@ export function PatternLibraryDetailClient(props: PatternLibraryDetailClientProp
         actions={<PageContextualHelpButton />}
       >
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="outline">{provenance.badgeLabel}</Badge>
+          <Badge variant="outline" data-testid="pattern-library-detail-provenance-badge">
+            {provenance.badgeLabel}
+          </Badge>
           <PatternLibraryDomainPlatformBadges domains={record.domains} platforms={record.platforms} />
           <PatternLibrarySignalBadges adoption={record.adoption} risk={record.risk} governance={record.governance} />
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
             {record.reviewCountLabel} · {record.tenantCountLabel}
           </p>
+          <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{provenance.notice}</p>
+          <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.micro)}>{provenance.privacyNote}</p>
         </div>
       </OperatorPageHeader>
-<div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2">
         <Button asChild size="sm" variant="primary">
           <Link href={`/architecture/reviews/new?pattern=${encodeURIComponent(record.patternKey)}`}>Use in review</Link>
         </Button>
@@ -109,13 +117,15 @@ export function PatternLibraryDetailClient(props: PatternLibraryDetailClientProp
           </ul>
         </DetailSection>
 
-        <DetailSection id="policy-rules" title="Related policy rules">
-          <ul className="m-0 list-disc space-y-1 pl-5">
-            {record.relatedPolicyRules.map((rule) => (
-              <li key={rule}>{rule}</li>
-            ))}
-          </ul>
+        <DetailSection id="policy-rules" title={PATTERN_LIBRARY_POLICY_RULES_SECTION_TITLE}>
+          <PatternLibraryRelatedPolicyRules rules={record.relatedPolicyRules} />
         </DetailSection>
+
+        {record.relatedPolicyPacks.length > 0 ? (
+          <DetailSection id="policy-packs" title="Related policy packs">
+            <PatternLibraryRelatedPolicyPacks packs={record.relatedPolicyPacks} />
+          </DetailSection>
+        ) : null}
 
         <DetailSection id="alternatives" title="Common alternatives">
           <ul className="m-0 list-disc space-y-1 pl-5">

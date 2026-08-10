@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
@@ -12,7 +11,6 @@ import { PatternLibraryFiltersPanel } from "./PatternLibraryFiltersPanel";
 import { PatternLibraryPatternCard } from "./PatternLibraryPatternCard";
 import { PatternLibrarySummaryRow } from "./PatternLibrarySummaryRow";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { fetchPatternLibraryInsightCards } from "@/lib/fetch-pattern-library-insight-cards-client";
 import {
   PATTERN_LIBRARY_EMPTY_BUILDING_BODY,
   PATTERN_LIBRARY_EMPTY_BUILDING_TITLE,
@@ -28,35 +26,27 @@ import {
   filterPatternLibraryRecords,
   resolvePatternLibraryRecords,
 } from "@/lib/pattern-library-filters";
-import { filterEligiblePatternInsightCards } from "@/lib/pattern-library-aggregate-threshold";
-import {
-  resolvePatternLibraryProvenance,
-  shouldUsePatternLibrarySampleCatalogWhenBelowThreshold,
-} from "@/lib/pattern-library-provenance";
 import type { PatternLibraryFiltersState } from "@/lib/pattern-library-types";
-import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
+import { usePatternLibraryProvenance } from "@/lib/use-pattern-library-provenance";
 import { cn } from "@/lib/utils";
 
 export function PatternLibraryPageClient(): React.JSX.Element {
   const [filters, setFilters] = useState<PatternLibraryFiltersState>(DEFAULT_PATTERN_LIBRARY_FILTERS);
-  const { data: insightCards, isPending, isError, error } = useQuery({
-    queryKey: operatorQueryKeys.patternLibraryInsightCards,
-    queryFn: fetchPatternLibraryInsightCards,
-  });
-
-  const eligibleCards = useMemo(
-    () => filterEligiblePatternInsightCards(insightCards ?? []),
-    [insightCards],
-  );
-  const usingLiveAggregate = eligibleCards.length >= 3;
-  const useSampleCatalog = !usingLiveAggregate && shouldUsePatternLibrarySampleCatalogWhenBelowThreshold();
-  const provenance = resolvePatternLibraryProvenance(usingLiveAggregate);
+  const {
+    provenance,
+    usingLiveAggregate,
+    useSampleCatalog,
+    eligiblePatternKeys,
+    isPending,
+    isError,
+    error,
+  } = usePatternLibraryProvenance();
   const allRecords = useMemo(
     () => resolvePatternLibraryRecords(
-      usingLiveAggregate ? eligibleCards.map((card) => card.patternKey) : [],
+      usingLiveAggregate ? eligiblePatternKeys : [],
       useSampleCatalog,
     ),
-    [eligibleCards, useSampleCatalog, usingLiveAggregate],
+    [eligiblePatternKeys, useSampleCatalog, usingLiveAggregate],
   );
   const filteredRecords = useMemo(() => filterPatternLibraryRecords(allRecords, filters), [allRecords, filters]);
   const summary = useMemo(() => derivePatternLibrarySummary(allRecords), [allRecords]);
