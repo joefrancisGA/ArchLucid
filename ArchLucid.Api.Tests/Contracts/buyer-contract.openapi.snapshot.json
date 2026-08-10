@@ -25114,6 +25114,13 @@
               "string"
             ]
           },
+          "goldenManifestId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "hasArtifactBundle": {
             "type": "boolean"
           },
