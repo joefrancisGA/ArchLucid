@@ -64,6 +64,7 @@ describe("GovernanceFindingsBulkActions", () => {
     fireEvent.click(screen.getByRole("button", { name: "Accept all" }));
     expect(screen.getByTestId("mutation-reversibility-notice-governance_bulk_disposition")).toBeInTheDocument();
     expect(screen.getByTestId("disposition-export-impact-notice-Accepted")).toBeInTheDocument();
+    expect(screen.getByTestId("disposition-export-before-after")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Apply disposition" }));
 
     await waitFor(() => {

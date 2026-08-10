@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { DispositionExportBeforeAfterPreview } from "@/components/operator/DispositionExportBeforeAfterPreview";
 import { DispositionExportImpactNotice } from "@/components/operator/DispositionExportImpactNotice";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -194,7 +195,10 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
         busy={busy}
         extraContent={
           pendingDisposition !== null ? (
-            <DispositionExportImpactNotice disposition={pendingDisposition} className="mt-2" />
+            <div className="mt-2 space-y-2">
+              <DispositionExportBeforeAfterPreview disposition={pendingDisposition} />
+              <DispositionExportImpactNotice disposition={pendingDisposition} />
+            </div>
           ) : null
         }
         reversibilityMutationId="governance_bulk_disposition"

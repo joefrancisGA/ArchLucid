@@ -44,6 +44,10 @@ function sponsorRoiBucketForDisposition(disposition: FindingDispositionKind): Sp
   }
 }
 
+export function dispositionExportSponsorRoiBucketLabel(disposition: FindingDispositionKind): string {
+  return sponsorRoiBucketForDisposition(disposition).bucketLabel;
+}
+
 /** Export consequences for a finding disposition — aligned to executive review packet ROI buckets (TB-2184). */
 export function getDispositionExportImpactLines(
   disposition: FindingDispositionKind,

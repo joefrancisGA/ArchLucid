@@ -58,6 +58,7 @@ describe("FindingInspectGovernanceStickinessPanel", () => {
     fireEvent.click(screen.getByTestId("finding-disposition-save"));
 
     expect(screen.getByTestId("disposition-export-impact-notice-Accepted")).toBeInTheDocument();
+    expect(screen.getByTestId("disposition-export-before-after")).toBeInTheDocument();
     expect(screen.getByTestId("disposition-export-impact-signed_review_record")).toBeInTheDocument();
     expect(screen.getByTestId("disposition-export-impact-sponsor_packet")).toBeInTheDocument();
   });

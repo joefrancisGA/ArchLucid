@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { DispositionExportBeforeAfterPreview } from "@/components/operator/DispositionExportBeforeAfterPreview";
 import { DispositionExportImpactNotice } from "@/components/operator/DispositionExportImpactNotice";
 import { SponsorStorySynopsisFromCounts } from "@/components/operator/SponsorStorySynopsisPanel";
 import {
@@ -597,7 +598,10 @@ export function FindingInspectGovernanceStickinessPanel({
         busy={busyAction === "disposition" || busyAction === "mark-remediated"}
         extraContent={
           pendingDispositionConfirm !== null ? (
-            <DispositionExportImpactNotice disposition={pendingDispositionKind} className="mt-2" />
+            <div className="mt-2 space-y-2">
+              <DispositionExportBeforeAfterPreview disposition={pendingDispositionKind} />
+              <DispositionExportImpactNotice disposition={pendingDispositionKind} />
+            </div>
           ) : null
         }
         onConfirm={() => {
