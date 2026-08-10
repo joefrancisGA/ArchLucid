@@ -17,7 +17,6 @@ import {
   DIGESTS_HELP_PRIMARY_ACTIONS,
 } from "@/lib/digests-help-guide-content";
 import {
-  DESIGN_TOKENS,
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -48,10 +47,10 @@ function HowDigestsWorkStepper(): React.ReactElement {
       className="rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"
       data-testid="help-digests-how-stepper"
     >
-      <ol className="m-0 flex list-none flex-col gap-3 p-0 xl:flex-row xl:items-stretch">
+      <ol className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2 xl:grid-cols-4">
         {DIGESTS_HELP_HOW_DIGESTS_WORK_STEPS.map((step, index) => (
-          <li key={step} className="flex min-w-0 flex-1 items-center gap-2">
-            <div className="flex min-w-0 flex-1 flex-col gap-2 rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950">
+          <li key={step} className="min-w-0">
+            <div className="flex h-full flex-col gap-2 rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950">
               <span className="sr-only">{`Step ${index + 1}`}</span>
               <span
                 aria-hidden
@@ -61,11 +60,6 @@ function HowDigestsWorkStepper(): React.ReactElement {
               </span>
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{step}</p>
             </div>
-            {index < DIGESTS_HELP_HOW_DIGESTS_WORK_STEPS.length - 1 ? (
-              <span aria-hidden className="hidden shrink-0 text-xl text-neutral-400 xl:inline">
-                →
-              </span>
-            ) : null}
           </li>
         ))}
       </ol>
@@ -95,7 +89,7 @@ export function HelpDigestsGuideView(props: HelpDigestsGuideViewProps): React.Re
           data-testid="help-digests-action-panel"
         >
           <CardHeader className={OPERATOR_CARD.header}>
-            <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>Go to Digests</CardTitle>
+            <CardTitle className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Go to Digests</CardTitle>
           </CardHeader>
           <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
             <Button asChild size="sm" variant="primary">
@@ -108,16 +102,11 @@ export function HelpDigestsGuideView(props: HelpDigestsGuideViewProps): React.Re
                 {DIGESTS_HELP_PRIMARY_ACTIONS.openSchedule.label}
               </Link>
             </Button>
-            <Link
-              href={DIGESTS_HELP_PRIMARY_ACTIONS.openSubscriptions.href}
-              className={cn(
-                "text-sm underline-offset-2 hover:underline",
-                DESIGN_TOKENS.accent.link,
-                OPERATOR_TYPOGRAPHY.body,
-              )}
-            >
-              {DIGESTS_HELP_PRIMARY_ACTIONS.openSubscriptions.label}
-            </Link>
+            <Button asChild size="sm" variant="outline">
+              <Link href={DIGESTS_HELP_PRIMARY_ACTIONS.openSubscriptions.href}>
+                {DIGESTS_HELP_PRIMARY_ACTIONS.openSubscriptions.label}
+              </Link>
+            </Button>
           </CardContent>
         </Card>
 
@@ -125,7 +114,7 @@ export function HelpDigestsGuideView(props: HelpDigestsGuideViewProps): React.Re
       </div>
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
-        <div className={cn("min-w-0 space-y-6", "max-w-[42rem] lg:max-w-none")}>
+        <div className={cn("min-w-0 space-y-8", "max-w-[42rem] lg:max-w-none")}>
           <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)} data-testid="help-digests-overview">
             {DIGESTS_HELP_OVERVIEW}
           </p>
@@ -146,15 +135,15 @@ export function HelpDigestsGuideView(props: HelpDigestsGuideViewProps): React.Re
             <p id="where-digests-are-managed-heading" className="sr-only">
               Where digests are managed
             </p>
-            <div className="grid gap-3 sm:grid-cols-3" data-testid="help-digests-destination-cards">
+            <div className="grid items-stretch gap-3 sm:grid-cols-3" data-testid="help-digests-destination-cards">
               {DIGESTS_HELP_DESTINATION_CARDS.map((card) => (
-                <Card key={card.id} className="h-full border-neutral-200 dark:border-neutral-800">
-                  <CardHeader className={OPERATOR_CARD.header}>
-                    <CardTitle className={cn("text-base", OPERATOR_TYPOGRAPHY.cardTitle)}>{card.title}</CardTitle>
+                <Card key={card.id} className="flex h-full min-w-0 flex-col border-neutral-200 dark:border-neutral-800">
+                  <CardHeader className={cn(OPERATOR_CARD.header, "flex-1")}>
+                    <CardTitle className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{card.title}</CardTitle>
                     <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{card.description}</p>
                   </CardHeader>
                   <CardContent className={OPERATOR_CARD.content}>
-                    <Button asChild size="sm" variant="outline">
+                    <Button asChild className="w-full" size="sm" variant="outline">
                       <Link href={card.href}>{card.actionLabel}</Link>
                     </Button>
                   </CardContent>
