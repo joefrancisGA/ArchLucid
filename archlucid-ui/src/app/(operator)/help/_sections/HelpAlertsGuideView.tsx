@@ -3,9 +3,8 @@ import Link from "next/link";
 import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpAlertsGuideHeroClient } from "@/app/(operator)/help/_sections/HelpAlertsGuideHeroClient";
+import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   ALERTS_HELP_DESTINATION_CARDS,
@@ -19,10 +18,10 @@ import {
   ALERTS_HELP_TRIGGER_INTRO,
   ALERTS_HELP_TRIGGER_ITEMS,
 } from "@/lib/alerts-help-guide-content";
+import { ALERTS_HELP_CLAIM_DISCIPLINE } from "@/lib/alerts-help-evidence-copy";
 import { cn } from "@/lib/utils";
 import {
   DESIGN_TOKENS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
@@ -77,7 +76,7 @@ function HowAlertsWorkStepper(): React.ReactElement {
 
 /** Buyer-safe governance alerts orientation for `/help/alerts`. */
 export function HelpAlertsGuideView(props: HelpAlertsGuideViewProps): React.ReactElement {
-  void props.entry;
+  const { entry } = props;
 
   return (
     <article className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")} data-testid="help-alerts-guide">
@@ -85,6 +84,13 @@ export function HelpAlertsGuideView(props: HelpAlertsGuideViewProps): React.Reac
       <header className={HELP_PAGE_LAYOUT.articleHeader}>
         <HelpTopicTitleRow title={ALERTS_HELP_PAGE_TITLE} actions={<PageContextualHelpButton />} />
         <p className={cn("m-0 max-w-[42rem]", OPERATOR_TYPOGRAPHY.helper)}>{ALERTS_HELP_PAGE_SUBTITLE}</p>
+        <p
+          className={cn("m-0 max-w-[42rem] text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="help-alerts-claim-discipline"
+        >
+          {ALERTS_HELP_CLAIM_DISCIPLINE}
+        </p>
+        <HelpTopicRegistryProvenanceLine entry={entry} />
       </header>
 
       <HelpAlertsGuideHeroClient />
@@ -123,17 +129,13 @@ export function HelpAlertsGuideView(props: HelpAlertsGuideViewProps): React.Reac
             <HelpSectionHeading id="where-alerts-are-managed">Where alerts are managed</HelpSectionHeading>
             <div className="grid gap-3 sm:grid-cols-2" data-testid="help-alerts-destination-cards">
               {ALERTS_HELP_DESTINATION_CARDS.map((card) => (
-                <Card key={card.id} className="h-full border-neutral-200 dark:border-neutral-800">
-                  <CardHeader className={OPERATOR_CARD.header}>
-                    <CardTitle className={cn("text-base", OPERATOR_TYPOGRAPHY.cardTitle)}>{card.title}</CardTitle>
-                    <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{card.description}</p>
-                  </CardHeader>
-                  <CardContent className={OPERATOR_CARD.content}>
-                    <Button asChild size="sm" variant="outline">
-                      <Link href={card.href}>{card.actionLabel}</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
+                <div
+                  key={card.id}
+                  className="rounded-md border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"
+                >
+                  <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{card.title}</h3>
+                  <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.body)}>{card.description}</p>
+                </div>
               ))}
             </div>
           </section>

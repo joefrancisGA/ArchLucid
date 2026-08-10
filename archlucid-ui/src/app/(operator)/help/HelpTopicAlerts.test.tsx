@@ -11,10 +11,13 @@ vi.mock("@/app/(operator)/help/_sections/HelpAlertsGuideHeroClient", () => ({
 
 import { HelpAlertsGuideView } from "@/app/(operator)/help/_sections/HelpAlertsGuideView";
 import {
+  ALERTS_HELP_GUIDE_HEADINGS,
   ALERTS_HELP_OVERVIEW,
   ALERTS_HELP_PAGE_SUBTITLE,
   ALERTS_HELP_PAGE_TITLE,
+  ALERTS_HELP_PRIMARY_ACTIONS,
 } from "@/lib/alerts-help-guide-content";
+import { ALERTS_HELP_CLAIM_DISCIPLINE } from "@/lib/alerts-help-evidence-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 const BANNED_DEVELOPER_COPY = [
@@ -39,9 +42,11 @@ describe("HelpAlertsGuideView", () => {
     expect(entry?.slug).toBe("alerts");
     expect(entry?.title).toBe(ALERTS_HELP_PAGE_TITLE);
     expect(entry?.summary).toBe(ALERTS_HELP_PAGE_SUBTITLE);
+    expect(entry?.sourcePaths).toEqual([]);
+    expect(entry?.lastReviewed).toBe("2026-08-09");
   });
 
-  it("shows purpose, hero, and overview near the top", () => {
+  it("shows purpose, claim discipline, provenance, hero, and overview near the top", () => {
     if (entry === undefined) {
       throw new Error("Expected alerts documentation entry.");
     }
@@ -50,8 +55,11 @@ describe("HelpAlertsGuideView", () => {
 
     expect(screen.getByRole("heading", { level: 1, name: ALERTS_HELP_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(ALERTS_HELP_PAGE_SUBTITLE)).toBeInTheDocument();
+    expect(screen.getByTestId("help-alerts-claim-discipline")).toHaveTextContent(ALERTS_HELP_CLAIM_DISCIPLINE);
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-09");
     expect(screen.getByTestId("help-alerts-guide-hero-mock")).toBeInTheDocument();
     expect(screen.getByTestId("help-alerts-overview")).toHaveTextContent(ALERTS_HELP_OVERVIEW);
+    expect(screen.queryByTestId("help-alerts-sources")).not.toBeInTheDocument();
   });
 
   it("renders revised sections and on-this-page navigation", () => {
@@ -72,6 +80,18 @@ describe("HelpAlertsGuideView", () => {
       "href",
       "#how-alerts-work",
     );
+  });
+
+  it("keeps destination cards descriptive without duplicate inbox or rules CTAs", () => {
+    if (entry === undefined) {
+      throw new Error("Expected alerts documentation entry.");
+    }
+
+    render(<HelpAlertsGuideView entry={entry} />);
+
+    const destinationCards = screen.getByTestId("help-alerts-destination-cards");
+    expect(within(destinationCards).queryByRole("link", { name: ALERTS_HELP_PRIMARY_ACTIONS.openInbox.label })).not.toBeInTheDocument();
+    expect(within(destinationCards).queryByRole("link", { name: ALERTS_HELP_PRIMARY_ACTIONS.configureRules.label })).not.toBeInTheDocument();
   });
 
   it("links related concepts to audit trail help instead of self-referential alerts", () => {
@@ -101,5 +121,20 @@ describe("HelpAlertsGuideView", () => {
     for (const phrase of BANNED_DEVELOPER_COPY) {
       expect(pageText, `should not contain "${phrase}"`).not.toContain(phrase.toLowerCase());
     }
+  });
+});
+
+describe("alerts help specialty registry guard", () => {
+  it("keeps app-rendered alerts help coherent with its section headings", () => {
+    const entry = getProductDocumentationEntry("alerts");
+
+    expect(entry?.sourcePaths).toEqual([]);
+    expect(ALERTS_HELP_GUIDE_HEADINGS.map((heading) => heading.id)).toEqual([
+      "how-alerts-work",
+      "what-can-trigger-an-alert",
+      "where-alerts-are-managed",
+      "resolving-an-alert",
+      "related-governance-concepts",
+    ]);
   });
 });

@@ -535,7 +535,10 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     summary:
       "Learn how ArchLucid identifies governance risks, routes them to the right owners, and tracks resolution.",
     audience: "operator",
-    sourcePaths: ["docs/library/customer-facing/ALERTS_OPERATOR_GUIDE.md"],
+    // App-rendered specialty (`HelpAlertsGuideView`) — copy owned in `alerts-help-guide-content.ts`.
+    sourcePaths: [],
+    lastReviewed: "2026-08-09",
+    releaseApplicability: "Applies to V1 GA — governance alerts orientation",
   },
   {
     slug: "governance-api-contracts",

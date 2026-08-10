@@ -42,15 +42,20 @@ export type AlertsHelpActionPanelState =
 
 export function resolveAlertsHelpActionPanelState(
   readiness: Pick<
-    { readonly loading: boolean; readonly loadFailed: boolean; readonly enabledRulesCount: number },
-    "loading" | "loadFailed" | "enabledRulesCount"
+    {
+      readonly loading: boolean;
+      readonly loadFailed: boolean;
+      readonly loadForbidden: boolean;
+      readonly enabledRulesCount: number;
+    },
+    "loading" | "loadFailed" | "loadForbidden" | "enabledRulesCount"
   >,
 ): AlertsHelpActionPanelState {
   if (readiness.loading) {
     return "loading";
   }
 
-  if (readiness.loadFailed) {
+  if (readiness.loadFailed || readiness.loadForbidden) {
     return "unavailable";
   }
 
@@ -84,8 +89,18 @@ export const ALERTS_HELP_READINESS_LABELS = {
   enabledRules: "Enabled rules",
   openAlerts: "Open alerts",
   routingDestinations: "Routing destinations",
-  lastEvaluation: "Last evaluation",
+  mostRecentAlertActivity: "Most recent alert activity",
 } as const;
+
+export const ALERTS_HELP_MOST_RECENT_ALERT_ACTIVITY_HELPER =
+  "Based on the latest alert create or update time in this workspace — not a rule evaluation timestamp.";
+
+export const ALERTS_HELP_MOST_RECENT_ALERT_ACTIVITY_NO_RULES = "Rules not configured";
+
+export const ALERTS_HELP_MOST_RECENT_ALERT_ACTIVITY_NONE = "No alert activity yet";
+
+export const ALERTS_HELP_READINESS_FORBIDDEN_MESSAGE =
+  "Live alert status needs a role that can manage governance alerts.";
 
 export const ALERTS_HELP_HOW_ALERTS_WORK_STEPS = [
   "A review identifies architecture findings.",
@@ -109,16 +124,14 @@ export const ALERTS_HELP_DESTINATION_CARDS = [
   {
     id: "alerts-inbox",
     title: "Alerts inbox",
-    description: "Review, acknowledge, assign, waive, and resolve active alerts.",
-    actionLabel: "Open alerts inbox",
-    href: GOVERNANCE_ALERTS_PATH,
+    description:
+      "Review, acknowledge, assign, waive, and resolve active alerts routed from your enabled rules.",
   },
   {
     id: "alert-rules",
     title: "Alert rules",
-    description: "Create thresholds, routing, combined conditions, and simulations.",
-    actionLabel: ALERTS_CONFIGURE_RULES_LINK_LABEL,
-    href: governanceAlertRulesTabHref("rules"),
+    description:
+      "Create thresholds, routing, combined conditions, and simulations that raise governance alerts.",
   },
 ] as const;
 

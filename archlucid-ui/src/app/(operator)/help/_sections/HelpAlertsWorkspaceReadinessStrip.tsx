@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { cn } from "@/lib/utils";
 
-import { readActiveWorkspaceScopeLabel } from "@/lib/active-workspace-scope-label";
 import {
+  ALERTS_HELP_MOST_RECENT_ALERT_ACTIVITY_HELPER,
+  ALERTS_HELP_READINESS_FORBIDDEN_MESSAGE,
   ALERTS_HELP_READINESS_LABELS,
   ALERTS_HELP_READINESS_SECTION_TITLE,
 } from "@/lib/alerts-help-guide-content";
@@ -22,6 +23,7 @@ type ReadinessMetricProps = {
   readonly label: string;
   readonly value: string;
   readonly statusKind: EnterpriseStatusKind;
+  readonly helperText?: string;
 };
 
 function ReadinessMetric(props: ReadinessMetricProps): React.ReactElement {
@@ -31,6 +33,9 @@ function ReadinessMetric(props: ReadinessMetricProps): React.ReactElement {
       <div className="mt-1">
         <StatusTag kind={props.statusKind} label={props.value} />
       </div>
+      {props.helperText !== undefined ? (
+        <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{props.helperText}</p>
+      ) : null}
     </div>
   );
 }
@@ -44,7 +49,14 @@ export function HelpAlertsWorkspaceReadinessStrip(
   props: HelpAlertsWorkspaceReadinessStripProps,
 ): React.ReactElement {
   const { readiness } = props;
-  const workspaceScope = readActiveWorkspaceScopeLabel();
+
+  const scopeLine = useMemo((): string | null => {
+    if (readiness.loading || readiness.workspaceScopeLabel === null) {
+      return null;
+    }
+
+    return readiness.workspaceScopeLabel;
+  }, [readiness.loading, readiness.workspaceScopeLabel]);
 
   const asOfLabel = useMemo((): string | null => {
     if (readiness.loading) {
@@ -57,6 +69,8 @@ export function HelpAlertsWorkspaceReadinessStrip(
 
     return `As of ${formatRelativeTime(readiness.loadedAtUtc)}`;
   }, [readiness.loadedAtUtc, readiness.loading]);
+
+  const headerMeta = [scopeLine, asOfLabel].filter((part): part is string => part !== null).join(" · ");
 
   return (
     <section
@@ -73,34 +87,43 @@ export function HelpAlertsWorkspaceReadinessStrip(
         >
           {ALERTS_HELP_READINESS_SECTION_TITLE}
         </h2>
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          {workspaceScope}
-          {asOfLabel !== null ? ` · ${asOfLabel}` : null}
-        </p>
+        {headerMeta.length > 0 ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{headerMeta}</p>
+        ) : null}
       </header>
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <ReadinessMetric
-          label={ALERTS_HELP_READINESS_LABELS.enabledRules}
-          statusKind={readiness.enabledRulesStatusKind}
-          value={readiness.enabledRulesLabel}
-        />
-        <ReadinessMetric
-          label={ALERTS_HELP_READINESS_LABELS.openAlerts}
-          statusKind={readiness.openAlertsStatusKind}
-          value={readiness.openAlertsLabel}
-        />
-        <ReadinessMetric
-          label={ALERTS_HELP_READINESS_LABELS.routingDestinations}
-          statusKind={readiness.routingDestinationsStatusKind}
-          value={readiness.routingDestinationsLabel}
-        />
-        <ReadinessMetric
-          label={ALERTS_HELP_READINESS_LABELS.lastEvaluation}
-          statusKind={readiness.lastEvaluationStatusKind}
-          value={readiness.lastEvaluationLabel}
-        />
-      </div>
+      {readiness.loadForbidden ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="help-alerts-workspace-readiness-forbidden"
+        >
+          {ALERTS_HELP_READINESS_FORBIDDEN_MESSAGE}
+        </p>
+      ) : (
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <ReadinessMetric
+            label={ALERTS_HELP_READINESS_LABELS.enabledRules}
+            statusKind={readiness.enabledRulesStatusKind}
+            value={readiness.enabledRulesLabel}
+          />
+          <ReadinessMetric
+            label={ALERTS_HELP_READINESS_LABELS.openAlerts}
+            statusKind={readiness.openAlertsStatusKind}
+            value={readiness.openAlertsLabel}
+          />
+          <ReadinessMetric
+            label={ALERTS_HELP_READINESS_LABELS.routingDestinations}
+            statusKind={readiness.routingDestinationsStatusKind}
+            value={readiness.routingDestinationsLabel}
+          />
+          <ReadinessMetric
+            helperText={ALERTS_HELP_MOST_RECENT_ALERT_ACTIVITY_HELPER}
+            label={ALERTS_HELP_READINESS_LABELS.mostRecentAlertActivity}
+            statusKind={readiness.lastEvaluationStatusKind}
+            value={readiness.lastEvaluationLabel}
+          />
+        </div>
+      )}
 
       {readiness.loadFailed ? (
         <div className="flex flex-wrap items-center gap-2">

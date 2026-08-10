@@ -25,6 +25,7 @@ export function HelpAlertsGuideHeroClient(): React.ReactElement {
   const panelState = resolveAlertsHelpActionPanelState(readiness);
   const rulesNotConfigured = panelState === "rules-not-configured";
   const readyForInbox = panelState === "ready-for-inbox";
+  const loading = panelState === "loading";
 
   return (
     <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
@@ -67,19 +68,16 @@ export function HelpAlertsGuideHeroClient(): React.ReactElement {
                 </Link>
               </Button>
             </>
+          ) : loading ? (
+            <Button data-testid="help-alerts-primary-cta" disabled size="sm" variant="primary">
+              {ALERTS_HELP_PRIMARY_ACTIONS.openInbox.label}
+            </Button>
           ) : (
-            <>
-              <Button asChild size="sm" variant="outline">
-                <Link href={ALERTS_HELP_PRIMARY_ACTIONS.openInbox.href}>
-                  {ALERTS_HELP_PRIMARY_ACTIONS.openInbox.label}
-                </Link>
-              </Button>
-              <Button asChild size="sm" variant="outline">
-                <Link href={ALERTS_HELP_PRIMARY_ACTIONS.configureRules.href}>
-                  {ALERTS_HELP_PRIMARY_ACTIONS.configureRules.label}
-                </Link>
-              </Button>
-            </>
+            <Button asChild data-testid="help-alerts-primary-cta" size="sm" variant="primary">
+              <Link href={ALERTS_HELP_PRIMARY_ACTIONS.openInbox.href}>
+                {ALERTS_HELP_PRIMARY_ACTIONS.openInbox.label}
+              </Link>
+            </Button>
           )}
           <Link
             className={cn(
