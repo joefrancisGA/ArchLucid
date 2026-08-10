@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   countFindingsBySeverity,
+  deriveArchitectureSystemName,
   deriveBlockingApprovalCount,
   deriveEvidenceCoverageSummary,
   deriveExecutiveBottomLineContent,
@@ -312,6 +313,32 @@ describe("run-detail-workspace-derive", () => {
 
     expect(presentation.h1Title).toBe("Payments platform");
     expect(presentation.eyebrowLabel).toBe("Architecture review");
+  });
+
+  it("uses ArchLucid as H1 when it is the system name and no other label exists", () => {
+    const presentation = deriveReviewHeaderPresentation({
+      reviewTitle: "ArchLucid",
+      systemName: null,
+      runId: "run-abc-123",
+    });
+
+    expect(presentation.h1Title).toBe("ArchLucid");
+    expect(presentation.h1Title).not.toBe("Architecture under review");
+    expect(presentation.eyebrowLabel).toBe("Architecture review");
+  });
+
+  it("derives ArchLucid as system name when displayName matches the review headline", () => {
+    const systemName = deriveArchitectureSystemName(
+      {
+        runId: "run-1",
+        projectId: "p1",
+        displayName: "ArchLucid",
+        description: "Architecture review intake for \"ArchLucid\".",
+      } as RunSummary,
+      "ArchLucid",
+    );
+
+    expect(systemName).toBe("ArchLucid");
   });
 
   it("summarizes evidence coverage for open findings", () => {

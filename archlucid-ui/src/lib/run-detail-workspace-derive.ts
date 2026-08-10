@@ -155,8 +155,17 @@ export function deriveArchitectureSystemName(run: RunSummary, headline: string):
   const displayName = run.displayName?.trim() ?? "";
 
   // The auto-generated intake brief is boilerplate, not a system name the operator supplied.
-  if (displayName.length > 0 && displayName !== headline && !isGeneratedIntakeBrief(displayName)) {
-    return displayName;
+  // When the operator names the system ArchLucid (or any non-generic title), displayName may match
+  // the review headline — still prefer that name over the generic "Architecture under review" fallback.
+  if (displayName.length > 0 && !isGeneratedIntakeBrief(displayName)) {
+    const headlineMatchesDisplayName = displayName === headline;
+    const headlineIsGenericPlaceholder =
+      isProductBrandReviewTitle(headline) &&
+      headline.trim().toLowerCase() !== PRODUCT_BRAND_NAME.toLowerCase();
+
+    if (!headlineMatchesDisplayName || !headlineIsGenericPlaceholder) {
+      return displayName;
+    }
   }
 
   const description = run.description?.trim() ?? "";
@@ -811,6 +820,14 @@ export function deriveReviewHeaderPresentation(input: {
   if (hasManifest && templateLabel.length > 0) {
     return {
       h1Title: templateLabel,
+      eyebrowLabel: "Architecture review",
+      reviewIdentifierLabel: shortReviewId.length > 0 ? shortReviewId : runId,
+    };
+  }
+
+  if (reviewTitle.length > 0 && reviewTitle.toLowerCase() === PRODUCT_BRAND_NAME.toLowerCase()) {
+    return {
+      h1Title: PRODUCT_BRAND_NAME,
       eyebrowLabel: "Architecture review",
       reviewIdentifierLabel: shortReviewId.length > 0 ? shortReviewId : runId,
     };
