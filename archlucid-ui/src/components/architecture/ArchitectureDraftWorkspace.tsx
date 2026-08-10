@@ -9,6 +9,8 @@ import { ArchitectureDraftAiRefinePanel } from "@/components/architecture/Archit
 import { ArchitectureDraftFormFields } from "@/components/architecture/ArchitectureDraftFormFields";
 import { ArchitectureDraftGuidanceDisclosure } from "@/components/architecture/ArchitectureDraftGuidanceDisclosure";
 import { ArchitectureDraftHandoffBanner } from "@/components/architecture/ArchitectureDraftHandoffBanner";
+import { ArchitectureDraftWorkspaceListWayfinding } from "@/components/architecture/ArchitectureDraftWorkspaceListWayfinding";
+import { ArchitectureDraftWorkspaceLoadingSkeleton } from "@/components/architecture/ArchitectureDraftWorkspaceLoadingSkeleton";
 import { ArchitectureDraftSaveStatus } from "@/components/architecture/ArchitectureDraftSaveStatus";
 import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
 import { DraftIntakeAdvancedSection } from "@/components/draft-intake/DraftIntakeAdvancedSection";
@@ -328,12 +330,18 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   }, [linkedReviewId, props.architectureId]);
 
   if (loading) {
-    return <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Loading architecture draft…</p>;
+    return (
+      <div className="space-y-3" data-testid="architecture-draft-workspace-loading">
+        {isNewDraft ? null : <ArchitectureDraftWorkspaceListWayfinding />}
+        <ArchitectureDraftWorkspaceLoadingSkeleton />
+      </div>
+    );
   }
 
   if (loadError !== null) {
     return (
-      <div className="space-y-3">
+      <div className="space-y-3" data-testid="architecture-draft-workspace-error">
+        {isNewDraft ? null : <ArchitectureDraftWorkspaceListWayfinding />}
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} role="alert">
           {loadError}
         </p>
@@ -346,6 +354,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
 
   return (
     <div className="space-y-4" data-testid="architecture-draft-workspace">
+      {isNewDraft ? null : <ArchitectureDraftWorkspaceListWayfinding />}
       {isNewDraft ? <ArchitectureCreationLocalDraftsPanel /> : null}
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
