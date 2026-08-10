@@ -9,8 +9,6 @@ export type ReviewStartStagedProgressProps = {
   readonly stages: readonly ReviewStartStageDefinition[];
   readonly activeStageId: ReviewStartStageId;
   readonly headline: string;
-  /** Escalating elapsed-time framing (10s / 30s / 60s). Never a percentage. */
-  readonly detail?: string | null;
   readonly className?: string;
   readonly testId?: string;
 };
@@ -31,14 +29,6 @@ export function ReviewStartStagedProgress(props: ReviewStartStagedProgressProps)
       aria-busy="true"
     >
       <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{props.headline}</p>
-      {props.detail !== null && props.detail !== undefined && props.detail.length > 0 ? (
-        <p
-          className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="review-start-staged-progress-detail"
-        >
-          {props.detail}
-        </p>
-      ) : null}
       <ol className="m-0 mt-3 list-none space-y-1 p-0">
         {props.stages.map((stage, index) => {
           const isActive = index === activeIndex;

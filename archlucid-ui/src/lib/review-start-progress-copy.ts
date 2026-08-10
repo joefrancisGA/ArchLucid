@@ -33,29 +33,6 @@ export const CREATE_ARCHITECTURE_BOOTSTRAP_TIMEOUT_MS = 45_000;
 export const REVIEW_START_CREATION_FAILED_MESSAGE =
   "We could not start the architecture review. Your selections have been preserved. Try again.";
 
-/** Operation label used by the escalating Tier B wait copy (TB-2078) while create is outstanding. */
-export const REVIEW_START_WAIT_OPERATION_LABEL = "Starting your architecture review";
-
-/**
- * Shown when the browser stopped waiting but the server was never told to stop.
- * Deliberately not phrased as a failure: reporting an unresolved create as failed is what
- * drives duplicate submissions.
- */
-export const REVIEW_START_UNRESOLVED_HEADLINE = "Still working on it";
-
-export const REVIEW_START_UNRESOLVED_MESSAGE =
-  "We stopped waiting for a response, but your review may still be starting on the server. Nothing was cancelled. Check for it below rather than submitting again — submitting again is what creates duplicates.";
-
-/** Recovery CTA — replays the same idempotency key, so it resolves to one review either way. */
-export const REVIEW_START_UNRESOLVED_RECHECK_CTA = "Check for my review";
-
-export const REVIEW_START_UNRESOLVED_RECHECK_PENDING_LABEL = "Checking…";
-
-export const REVIEW_START_UNRESOLVED_OPEN_REVIEWS_CTA = "Open Reviews";
-
-export const REVIEW_START_RESUMED_EXISTING_MESSAGE =
-  "Found it — your review was already created. Opening it now.";
-
 export const REVIEW_START_CREATED_CONFIRMATION = "Architecture review created.";
 
 export const REVIEW_START_STEP_VALIDATION_MESSAGE = "Fix the highlighted fields before continuing.";
