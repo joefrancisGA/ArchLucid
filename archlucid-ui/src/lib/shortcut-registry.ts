@@ -160,6 +160,37 @@ export const ALERTS_PAGE_SHORTCUTS: PageShortcutEntry[] = [
   },
 ];
 
+export const FINDINGS_PAGE_SHORTCUTS: PageShortcutEntry[] = [
+  {
+    key: "alt+1",
+    label: "Accept finding",
+    description:
+      "Accept the focused finding on Findings queues when Execute+ triage shortcuts are enabled in the shell",
+  },
+  {
+    key: "alt+2",
+    label: "Remediate finding",
+    description:
+      "Mark the focused finding remediated on Findings queues when Execute+ triage shortcuts are enabled in the shell",
+  },
+  {
+    key: "alt+3",
+    label: "Reject finding N/A",
+    description:
+      "Reject the focused finding as not applicable on Findings queues when Execute+ triage shortcuts are enabled in the shell",
+  },
+  {
+    key: "alt+j",
+    label: "Next finding",
+    description: "Move focus to the next finding card or row (Findings queues)",
+  },
+  {
+    key: "alt+k",
+    label: "Previous finding",
+    description: "Move focus to the previous finding card or row (Findings queues); stays on the first",
+  },
+];
+
 /**
  * Dispatched on `window` so the operator command palette can open from shell chrome that does not own palette state.
  * {@link CommandPalette} listens and calls `setOpen(true)`.

@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 
 import { GovernanceFindingsQueueDesktopTable } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueDesktopTable";
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
+import { FindingKeyboardTriageHost } from "@/components/governance/findings/FindingKeyboardTriageHost";
 import { GovernanceFindingRow } from "@/components/governance/findings/GovernanceFindingRow";
 
 export type GovernanceFindingsListProps = {
@@ -57,9 +58,18 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
     markLastVisitedNow(governanceQueueRowWatermarkKey(row.runId, row.findingId), activityAt);
   }
 
+  function resolveFindingRunId(findingId: string): string | null {
+    const match = displayedRows.find(
+      (row) => row.recordKind === "finding" && row.findingId === findingId,
+    );
+
+    return match?.runId ?? null;
+  }
+
   if (buyerPolishedShell) {
     return (
       <div className="space-y-4">
+        <FindingKeyboardTriageHost resolveRunId={resolveFindingRunId} onApplied={onBulkApplied} />
         {findingRows.length > 0 ? (
           <section className="space-y-3" aria-labelledby="governance-findings-risks">
             <h2
@@ -114,6 +124,7 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
 
   return (
     <>
+      <FindingKeyboardTriageHost resolveRunId={resolveFindingRunId} onApplied={onBulkApplied} />
       {bulkDispositionSuccessMessage !== null ? (
         <ReversibleMutationSuccessCallout
           message={bulkDispositionSuccessMessage}

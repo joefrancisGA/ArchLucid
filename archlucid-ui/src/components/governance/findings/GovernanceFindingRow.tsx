@@ -79,9 +79,10 @@ function GovernanceFindingRowComponent({
               }
             : undefined
         }
-        tabIndex={rowIsDecision ? 0 : undefined}
-        role={rowIsDecision ? "button" : undefined}
-        aria-label={rowIsDecision ? `Open decision: ${row.title}` : undefined}
+        tabIndex={0}
+        role={rowIsDecision ? "button" : "article"}
+        aria-label={rowIsDecision ? `Open decision: ${row.title}` : `Finding: ${row.title}`}
+        data-finding-id={row.recordKind === "finding" ? row.findingId : undefined}
       >
         <CardHeader className="space-y-1 pb-2">
           <CardTitle className={cn(OPERATOR_TYPOGRAPHY.cardTitle, "text-al-text-primary")}>
@@ -152,6 +153,10 @@ function GovernanceFindingRowComponent({
   return (
     <Card
       className="border border-neutral-200 shadow-sm dark:border-neutral-800"
+      role="article"
+      tabIndex={0}
+      data-finding-id={row.recordKind === "finding" ? row.findingId : undefined}
+      aria-label={`Finding: ${row.title}`}
     >
       <CardHeader className="space-y-1 pb-2">
         <CardTitle className={cn(OPERATOR_TYPOGRAPHY.cardTitle, "text-al-text-primary")}>

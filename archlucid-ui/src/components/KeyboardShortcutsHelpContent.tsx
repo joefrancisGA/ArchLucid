@@ -6,7 +6,7 @@ import { Fragment, useMemo, useState } from "react";
 import type React from "react";
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ALERTS_PAGE_SHORTCUTS, SHORTCUTS, type ShortcutEntry } from "@/lib/shortcut-registry";
+import { ALERTS_PAGE_SHORTCUTS, FINDINGS_PAGE_SHORTCUTS, SHORTCUTS, type ShortcutEntry } from "@/lib/shortcut-registry";
 
 const COMMON_NAV_KEYS = new Set(["alt+n", "alt+r", "alt+a", "alt+h"]);
 
@@ -106,6 +106,7 @@ export function KeyboardShortcutsTabContent(): React.ReactElement {
   const { common, rest, helpOnly } = useMemo(() => partitionNavigationShortcuts(), []);
   const [moreOpen, setMoreOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
+  const [findingsOpen, setFindingsOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
 
   return (
@@ -136,6 +137,20 @@ export function KeyboardShortcutsTabContent(): React.ReactElement {
           </CollapsibleTrigger>
           <CollapsibleContent className="pt-2">
             <ShortcutTable entries={ALERTS_PAGE_SHORTCUTS} caption="Alerts page" />
+          </CollapsibleContent>
+        </Collapsible>
+      ) : null}
+      {FINDINGS_PAGE_SHORTCUTS.length > 0 ? (
+        <Collapsible open={findingsOpen} onOpenChange={setFindingsOpen}>
+          <CollapsibleTrigger
+            type="button"
+            className={cn("w-full rounded-md border border-dashed border-neutral-200 py-1.5 text-left font-semibold text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-neutral-600", OPERATOR_TYPOGRAPHY.helper)}
+            aria-expanded={findingsOpen}
+          >
+            {findingsOpen ? "Hide" : "Show"} findings page shortcuts
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pt-2">
+            <ShortcutTable entries={FINDINGS_PAGE_SHORTCUTS} caption="Findings page" />
           </CollapsibleContent>
         </Collapsible>
       ) : null}

@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { ALERTS_PAGE_SHORTCUTS, SHORTCUTS } from "@/lib/shortcut-registry";
+import { ALERTS_PAGE_SHORTCUTS, FINDINGS_PAGE_SHORTCUTS, SHORTCUTS } from "@/lib/shortcut-registry";
 
 const { routerPush } = vi.hoisted(() => ({
   routerPush: vi.fn(),
@@ -70,6 +70,7 @@ describe("KeyboardShortcutProvider", () => {
     // Help content groups shortcuts in collapsible sections; hidden nodes are not matched by getByText.
     fireEvent.click(screen.getByRole("button", { name: "Show all navigation shortcuts" }));
     fireEvent.click(screen.getByRole("button", { name: "Show alerts page shortcuts" }));
+    fireEvent.click(screen.getByRole("button", { name: "Show findings page shortcuts" }));
     fireEvent.click(screen.getByRole("button", { name: "Show help overlay shortcut" }));
 
     for (const entry of SHORTCUTS) {
@@ -79,6 +80,12 @@ describe("KeyboardShortcutProvider", () => {
     expect(screen.getByRole("heading", { name: "Alerts page" })).toBeInTheDocument();
 
     for (const entry of ALERTS_PAGE_SHORTCUTS) {
+      expect(screen.getByText(entry.description)).toBeInTheDocument();
+    }
+
+    expect(screen.getByRole("heading", { name: "Findings page" })).toBeInTheDocument();
+
+    for (const entry of FINDINGS_PAGE_SHORTCUTS) {
       expect(screen.getByText(entry.description)).toBeInTheDocument();
     }
   });

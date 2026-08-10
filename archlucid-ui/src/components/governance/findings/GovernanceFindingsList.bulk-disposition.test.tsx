@@ -63,6 +63,7 @@ describe("GovernanceFindingsList bulk disposition (TB-2114)", () => {
       target: { value: "Reviewed with architecture board." },
     });
     fireEvent.click(screen.getByRole("button", { name: "Accept all" }));
+    fireEvent.click(screen.getByRole("button", { name: "Apply disposition" }));
 
     await waitFor(() => {
       expect(screen.getByTestId("governance-bulk-disposition-success-callout")).toHaveTextContent(

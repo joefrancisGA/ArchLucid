@@ -711,6 +711,8 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
         className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-950"
         data-testid={`finding-workspace-card-${f.findingId}`}
         data-finding-workspace-primary="true"
+        data-finding-id={f.findingId}
+        tabIndex={0}
       >
         <header className="space-y-2">
           <div className="flex flex-wrap items-center gap-2">

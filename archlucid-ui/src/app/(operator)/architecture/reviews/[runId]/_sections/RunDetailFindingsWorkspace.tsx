@@ -6,6 +6,7 @@ import type { ReactElement } from "react";
 import { ArchitectureCreatedFindingsEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedFindingsEvidenceOrientationStrip";
 import { ArchitectureCreatedFindingsNextAction } from "@/components/architecture/ArchitectureCreatedFindingsNextAction";
 import { FindingsItsmExportToolbar } from "@/components/FindingsItsmExportToolbar";
+import { FindingKeyboardTriageHost } from "@/components/governance/findings/FindingKeyboardTriageHost";
 import { QuickDecisionSummary } from "@/components/QuickDecisionSummary";
 import {
   RunDetailFindingsToolbar,
@@ -178,6 +179,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
 
   return (
     <div className="space-y-4" data-testid="run-detail-findings-workspace">
+      <FindingKeyboardTriageHost resolveRunId={(findingId) => (findingId.trim().length > 0 ? props.runId : null)} />
       {createHomeSurface ? <ArchitectureCreatedFindingsEvidenceOrientationStrip /> : null}
       {createHomeSurface ? (
         <ArchitectureCreatedFindingsNextAction

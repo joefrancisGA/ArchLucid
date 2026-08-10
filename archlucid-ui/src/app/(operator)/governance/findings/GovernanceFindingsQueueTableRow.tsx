@@ -215,6 +215,9 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
     <EnterpriseTableRow
       style={style}
       className={isFocused ? "ring-2 ring-inset ring-teal-700/40 dark:ring-teal-400/40" : undefined}
+      tabIndex={row.recordKind === "finding" ? 0 : undefined}
+      data-finding-id={row.recordKind === "finding" ? row.findingId : undefined}
+      aria-label={row.recordKind === "finding" ? `Finding: ${row.title}` : undefined}
     >
       {hasBulkSelect ? (
         <EnterpriseTableCell className="w-8">

@@ -40,7 +40,7 @@ Global shortcuts apply from the main content region wrapped by [`KeyboardShortcu
 | **Alt+H** | Overview | `/` |
 | **Shift+?** | Open / close help (Escape closes) | *(dialog only)* |
 
-Registry: [`src/lib/shortcut-registry.ts`](../src/lib/shortcut-registry.ts) (`SHORTCUTS`). Help dialog also lists **Alerts page** combos from `ALERTS_PAGE_SHORTCUTS`.
+Registry: [`src/lib/shortcut-registry.ts`](../src/lib/shortcut-registry.ts) (`SHORTCUTS`). Help dialog also lists **Alerts page** combos from `ALERTS_PAGE_SHORTCUTS` and **Findings page** combos from `FINDINGS_PAGE_SHORTCUTS`.
 
 ## Page-specific: Alerts (`/alerts`)
 
@@ -55,6 +55,20 @@ Focus an alert card (`role="article"`, `tabIndex={0}`, `data-alert-id`) or a con
 | **Alt+K** | Focus previous card (stays on first) |
 
 At Execute+, shortcuts call the same path as the triage buttons (then **Confirm** applies the write).
+
+
+## Page-specific: Findings (`/governance/findings` and review findings lists)
+
+Focus a finding card or row (`data-finding-id`, typically `role="article"` / `tabIndex={0}`) or a control inside it. Implemented in [`useFindingCardShortcuts`](../src/hooks/useFindingCardShortcuts.ts) via [`FindingKeyboardTriageHost`](../src/components/governance/findings/FindingKeyboardTriageHost.tsx). **Alt+1-3 register only when** the same **`useOperateCapability()`** gate used for disposition confirm is true (Execute+ rank in the shell); read-tier callers keep **Alt+J / Alt+K** only.
+
+| Shortcut | Action |
+|----------|--------|
+| **Alt+1** | Accept focused finding (Execute+ shell rank) |
+| **Alt+2** | Mark focused finding remediated (Execute+ shell rank) |
+| **Alt+3** | Reject focused finding as not applicable (Execute+ shell rank) |
+| **Alt+J** | Focus next finding (wraps from last to first) |
+| **Alt+K** | Focus previous finding (stays on first) |
+
 
 ## Discoverability
 
@@ -82,7 +96,7 @@ At Execute+, shortcuts call the same path as the triage buttons (then **Confirm*
 1. Add `PAGE_SHORTCUTS` or extend `ALERTS_PAGE_SHORTCUTS`-style lists in [`shortcut-registry.ts`](../src/lib/shortcut-registry.ts) for documentation.
 2. Create `useYourPageShortcuts({ ... })` calling `useKeyboardShortcuts` with a focused-element strategy (see [`useAlertCardShortcuts.ts`](../src/hooks/useAlertCardShortcuts.ts)).
 3. Mount the hook from the page client component.
-4. Add integration tests alongside [`keyboard-shortcuts-alerts.test.tsx`](../src/integration/keyboard-shortcuts-alerts.test.tsx).
+4. Add integration tests alongside [`keyboard-shortcuts-alerts.test.tsx`](../src/integration/keyboard-shortcuts-alerts.test.tsx) / [`keyboard-shortcuts-findings.test.tsx`](../src/integration/keyboard-shortcuts-findings.test.tsx).
 
 **Skip link** — “Skip to main content” targets `#main-content` inside `KeyboardShortcutProvider`; shortcuts apply after focus lands in main.
 
