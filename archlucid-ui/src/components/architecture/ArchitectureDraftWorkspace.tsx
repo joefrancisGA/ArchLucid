@@ -370,7 +370,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
 
       <div className="flex flex-wrap items-center justify-between gap-2">
         <ArchitectureDraftGuidanceDisclosure className="flex-1" />
-        <PageContextualHelpButton />
+        {isNewDraft ? null : <PageContextualHelpButton />}
       </div>
 
       {conflictMessage !== null ? (

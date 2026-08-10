@@ -2,8 +2,11 @@ import type { Metadata } from "next";
 
 import { ArchitectureDraftWorkspace } from "@/components/architecture/ArchitectureDraftWorkspace";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
-import { ARCHITECTURE_NEW_DRAFT_SEGMENT } from "@/lib/architecture-routes";
+import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { ARCHITECTURE_NEW_DRAFT_SEGMENT, ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+
+import { ArchitecturesNewPageHeaderActions } from "./_sections/ArchitecturesNewPageHeaderActions";
 
 export const metadata: Metadata = {
   title: CREATE_ARCHITECTURE_LABEL,
@@ -16,9 +19,14 @@ export const metadata: Metadata = {
 export default function NewArchitecturePage(): React.JSX.Element {
   return (
     <OperatorPageContainer variant="workflow">
-      <div className="mt-6">
-        <ArchitectureDraftWorkspace architectureId={ARCHITECTURE_NEW_DRAFT_SEGMENT} />
-      </div>
+      <OperatorPageHeader
+        title={CREATE_ARCHITECTURE_LABEL}
+        navHref={ARCHITECTURES_NEW_PATH}
+        headingLevel="h1"
+        titleTestId="architecture-new-page-title"
+        actions={<ArchitecturesNewPageHeaderActions />}
+      />
+      <ArchitectureDraftWorkspace architectureId={ARCHITECTURE_NEW_DRAFT_SEGMENT} />
     </OperatorPageContainer>
   );
 }
