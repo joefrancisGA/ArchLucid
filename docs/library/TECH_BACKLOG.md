@@ -20,7 +20,7 @@ Regenerate after opening or closing summary-table rows:
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
 | Explainability | 3 |
-| Trustworthiness | 70 |
+| Trustworthiness | 69 |
 | Maintainability | 9 |
 | Traceability | 3 |
 | Interoperability | 4 |
@@ -35,9 +35,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **651** |
+| **Total (unique open)** | **650** |
 
-**By priority band:** P0 **8** | P1 **514** | P2 **112** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **8** | P1 **513** | P2 **112** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 

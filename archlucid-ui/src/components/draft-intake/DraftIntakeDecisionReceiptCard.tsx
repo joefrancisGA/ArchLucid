@@ -8,6 +8,7 @@ import {
   feasibilityVerdictTone,
 } from "@/lib/feasibility-verdict-display";
 import { DECISION_RECEIPT_COST_ESTIMATE_LABEL } from "@/lib/decision-receipt-export";
+import { GUIDED_INTAKE_NOT_READY_RECEIPT_TITLE } from "@/lib/guided-intake-copy";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 
 import { DecisionReceiptExportButton } from "./DecisionReceiptExportButton";
@@ -37,7 +38,7 @@ export function DraftIntakeDecisionReceiptCard(props: DraftIntakeDecisionReceipt
   return (
     <Card className={toneClass} data-testid="draft-intake-decision-receipt-card">
       <CardHeader>
-        <CardTitle className={OPERATOR_TYPOGRAPHY.body}>Decision receipt — intake not admitted</CardTitle>
+        <CardTitle className={OPERATOR_TYPOGRAPHY.body}>{GUIDED_INTAKE_NOT_READY_RECEIPT_TITLE}</CardTitle>
         <CardDescription>
           {props.redirectReason} This is a complete product outcome, not an error dead-end (ADR 0052).
         </CardDescription>

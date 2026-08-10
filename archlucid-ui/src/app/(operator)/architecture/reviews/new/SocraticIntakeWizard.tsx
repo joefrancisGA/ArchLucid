@@ -73,9 +73,12 @@ import {
   GUIDED_INTAKE_CREATION_STEP1_CARD_DESCRIPTION,
   GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL,
   GUIDED_INTAKE_CREATION_SYSTEM_NAME_PLACEHOLDER,
+  GUIDED_INTAKE_READINESS_SUCCESS_TOAST,
   GUIDED_INTAKE_STEP0_CARD_DESCRIPTION,
   GUIDED_INTAKE_STEP0_CARD_TITLE,
   GUIDED_INTAKE_STEP0_PROGRESS_LABEL,
+  GUIDED_INTAKE_STEP2_CARD_DESCRIPTION,
+  GUIDED_INTAKE_STEP2_SUBMIT_DESCRIPTION,
   buildGuidedIntakeCreationAdvanceBlockerMessage,
   guidedIntakeArchitectureIntentHelperText,
   guidedIntakeCreationArchitectureOverviewHelperText,
@@ -117,7 +120,7 @@ const INTAKE_STEPS = [
   {
     progressLabel: CREATE_REVIEW_PACKAGE_HEADING,
     cardTitle: CREATE_REVIEW_PACKAGE_HEADING,
-    description: "Submit the admitted draft to the authority pipeline.",
+    description: GUIDED_INTAKE_STEP2_CARD_DESCRIPTION,
   },
 ] as const;
 
@@ -450,7 +453,7 @@ export function SocraticIntakeWizard() {
       await refreshQuestions(id);
       setViewAllClarifications(false);
       setStep(1);
-      showSuccess("Draft admitted — answer the required clarifications to continue.");
+      showSuccess(GUIDED_INTAKE_READINESS_SUCCESS_TOAST);
     } catch (error) {
       setSubmitError(error);
       if (isApiRequestError(error)) {
@@ -1024,9 +1027,7 @@ export function SocraticIntakeWizard() {
         <Card>
           <CardHeader>
             <CardTitle>{INTAKE_STEPS[2].cardTitle}</CardTitle>
-            <CardDescription>
-              Submit launches the canonical review-create path — same authority pipeline as other review entry points.
-            </CardDescription>
+            <CardDescription>{GUIDED_INTAKE_STEP2_SUBMIT_DESCRIPTION}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <ul className={cn("list-disc space-y-1 pl-5 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>

@@ -112,6 +112,20 @@ export const GUIDED_INTAKE_CREATION_DRAFT_GUIDANCE_CALLOUT =
 export const GUIDED_INTAKE_DRAFT_GUIDANCE_CALLOUT =
   "Draft guidance only. Nothing is added to review evidence until you submit.";
 
+export const GUIDED_INTAKE_STEP2_CARD_DESCRIPTION =
+  "Submit your answers to start the architecture review package.";
+
+export const GUIDED_INTAKE_STEP2_SUBMIT_DESCRIPTION =
+  "Submit uses the same review-start path as Quick start and Templates and imports.";
+
+export const GUIDED_INTAKE_READINESS_SUCCESS_TOAST =
+  "Readiness checks passed — answer the required clarifications to continue.";
+
+export const GUIDED_INTAKE_READY_DRAFT_CLAIM_LABEL =
+  "Ready to submit — confirm execution mode on review detail before sponsor export";
+
+export const GUIDED_INTAKE_NOT_READY_RECEIPT_TITLE = "Decision receipt — review not started";
+
 export function buildGuidedIntakeCreationAdvanceBlockerMessage(blockers: readonly string[]): string {
   if (blockers.length === 0) {
     return "";
