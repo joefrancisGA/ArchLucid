@@ -1438,6 +1438,75 @@ Do not say Terraform state alone is authoritative while ignore_changes / portal 
 
 **Related:** [Async orchestration first-force (M-232)](#async-orchestration-first-force-m-232) Â· [Azure workload privilege seam (M-216)](#azure-workload-privilege-escalation-seam-m-216) Â· [100Ã— review-volume capacity (M-238)](#review-volume-100x-capacity-m-238) Â· [`../library/DEPLOYMENT_CD_PIPELINE.md`](../library/DEPLOYMENT_CD_PIPELINE.md) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
+## Configuration architecture — precedence, validation, drift (M-291) {#configuration-architecture-precedence-validation-drift-m-291}
+
+Former standalone body: `docs/go-to-market/CONFIGURATION_ARCHITECTURE_PRECEDENCE_VALIDATION_DRIFT_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-290** / **M-291** / **TB-1561**). Engineering map: [`../library/CONFIGURATION_ARCHITECTURE_PRECEDENCE_VALIDATION_DRIFT_CLAIM_MAP.md`](../library/CONFIGURATION_ARCHITECTURE_PRECEDENCE_VALIDATION_DRIFT_CLAIM_MAP.md). Complements Done **TB-881**, open **TB-1371**/**TB-1317** / **M-249**/**M-233**/**M-234**. Does not reopen Done **TB-881** as a pilot ship gate. Not an assurance attestation.
+
+**Path-stable alias:** [`CONFIGURATION_ARCHITECTURE_PRECEDENCE_VALIDATION_DRIFT_PA_ONE_PAGER.md`](CONFIGURATION_ARCHITECTURE_PRECEDENCE_VALIDATION_DRIFT_PA_ONE_PAGER.md).
+
+**Audience:** Principal architects, platform / SRE reviewers, and security reviewers evaluating config precedence, startup validation coverage, and environment drift detection.
+
+**Decision:** Configuration is a **layered `IConfiguration` composition** (appsettings → Advanced/SaaS overlays → **environment variables win** → in-memory bridges). Fail-fast is **selective** (`ArchLucidConfigurationRules` + chosen `ValidateOnStart`), not universal binding coverage. Drift proof is **fragmented** (static TF preflight + SQL MigrateVerify) — **no** live cross-env config parity SoT. Done **TB-881** was a **CI process-env / parallel-test** defect, not a production precedence race or pilot ship gate.
+
+### Precedence ladder (API host)
+
+| Order | Layer |
+| --- | --- |
+| 1 | `WebApplication.CreateBuilder` defaults |
+| 2 | Optional `appsettings.Advanced.json` / `appsettings.SaaS.json` |
+| 3 | Explicit `AddEnvironmentVariables()` — **env beats overlays** |
+| 4 | In-memory bridges when nested keys unset |
+| 5 | Platform Key Vault references → env before process start |
+
+Per-key catalog rows in [`../library/CONFIGURATION_REFERENCE.md`](../library/CONFIGURATION_REFERENCE.md) document keys — they do **not** replace this ladder.
+
+### Startup validation vs runtime reads
+
+| Fail-fast (startup) | Deferred / runtime |
+| --- | --- |
+| `ArchLucidConfigurationRules.CollectErrors` before DbUp | `IOptionsMonitor<T>` dominant |
+| Production dangerous misconfig lint | Feature flags / `IFeatureFlags` |
+| Selective `ValidateOnStart` + `IValidateOptions<T>` | No Azure App Configuration sentinel (ADR 0017) → most knobs restart-bound |
+| Auth bypass guard at DI | `ConfigurationHealthProbe` = connectivity, not expected-vs-actual matrix |
+
+### Drift detection classes
+
+| Exists | Does **not** exist |
+| --- | --- |
+| Static TF/CD preflight (`Assert-TerraformDeploymentDriftPreflight`) | Live expected-vs-actual **config** health across Staging/Prod |
+| SQL schema MigrateVerify sentinels | Automated per-env appsettings/env parity suite |
+| Catalog ↔ lint key parity tests | Merge-gated continuous `terraform plan` live compare |
+| `IAC_RUNTIME_PARITY.md` (advisory mapping) | Azure App Configuration revision SoT (deferred) |
+| CA `ignore_changes` escape docs (**TB-1317**) | “TF state alone = CA runtime SoT” (**TB-1318**) |
+
+### TB-881 class (do not conflate)
+
+| Class | Status | Meaning |
+| --- | --- | --- |
+| **TB-881** | **Done** | CI/test: process-wide env pins raced under parallel xUnit |
+| Pilot path | Sequential guided provision | Not the TB-881 race class |
+| Signup stress (residual) | Product residual | Concurrent same-name TOCTOU — not a V1 pilot gate |
+
+### Claim boundary
+
+Do not say appsettings.json is deployment SoT, Terraform state is Container Apps config SoT, drift preflight proves live Azure matches TF, startup validation covers all config, `IOptionsMonitor` implies production hot-reload without App Config, or an open RC registration env-var race blocks pilots / requires reopening Done **TB-881**. Say: env (and CA-injected secrets) win after overlays; selective fail-fast for dangerous keys; drift proof is class-specific and incomplete; **TB-881** **Done** = CI isolation.
+
+### PA review
+
+1. Ask which layer wins for deployment overrides (env vs JSON overlays).
+2. Confirm “green preflight” is not sold as live config parity across environments.
+3. Separate startup validation coverage from runtime `IOptionsMonitor` reads.
+4. Classify **TB-881** as Done CI/test — do not reopen for pilots.
+
+### Residuals (honest)
+
+- **TB-1562** / **TB-1372** / **TB-1318** own honesty CI and language guards.
+- Open **TB-1371** / **TB-1317** own ship-blocker classification and CA Terraform escape matrices.
+- Optional follow-ons: expand `ValidateOnStart`, live config parity probe, App Config (**ADR 0017** deferred).
+- This handout does not claim CPA SOC 2 or a published third-party penetration test.
+
+**Related:** [TB-881 ship-blocker class (M-250)](#tb881-org-registration-race-ship-blocker-m-250) Â· [Container Apps Terraform authority (M-234)](#container-apps-terraform-authority-m-234) Â· [`../library/CONFIGURATION_REFERENCE.md#host-configuration-precedence-api`](../library/CONFIGURATION_REFERENCE.md#host-configuration-precedence-api) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+
 ## Azure workload privilege-escalation seam (M-216) {#azure-workload-privilege-escalation-seam-m-216}
 
 Former standalone body: `docs/go-to-market/AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-215** / **M-216** / **TB-1244**). Contributor contract: [`AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md`](../library/AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md) (**TB-1244** **Done**). Complements [Container Apps Terraform authority (M-234)](#container-apps-terraform-authority-m-234) and [Tenant DiD erosion (M-214)](#tenant-did-erosion-beyond-predicates-m-214). Does not reopen Done **TB-080** / **TB-091** / **TB-092**. Not an assurance attestation.
@@ -3801,6 +3870,7 @@ Green quality on Simulator, Fallback, or Mixed must still carry mode labels. Ext
 
 Former standalone body: `docs/go-to-market/SIMULATOR_ROI_SPONSOR_FORBID_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-139** / **TB-983**). Complements [Execution-mode honesty (M-128)](#execution-mode-honesty-m-128) and **M-113** Claim-3. Not an assurance attestation.
 
+**Engineering contract:** [`SIMULATOR_ROI_SPONSOR_FORBID_CONTRACT.md`](../library/SIMULATOR_ROI_SPONSOR_FORBID_CONTRACT.md) (**TB-983**).  
 **Path-stable alias:** [`SIMULATOR_ROI_SPONSOR_FORBID_ONE_PAGER.md`](SIMULATOR_ROI_SPONSOR_FORBID_ONE_PAGER.md).
 
 **Audience:** Sponsors, principal architects, and marketers writing ROI copy.
@@ -4257,6 +4327,7 @@ Companion one-pagers and full do-not/do-promise table: [`PA_CLAIM_HONESTY_INDEX.
 | Evidence backup/restore (M-269/M-270) | Controlled discontinuity; external anchors distinguish | “Append-only means backups can’t rewrite” / “SQL alone proves restoreâ‰ tamper” | [`#evidence-backup-restore-invariant-m-270`](#evidence-backup-restore-invariant-m-270) |
 | Project soft-delete residue (M-271/M-272) | Project row only; sealed evidence + audit remain | “Delete project deletes all evidence” / “Purge = GDPR erasure” / “No trace” | [`#project-soft-delete-sealed-evidence-m-272`](#project-soft-delete-sealed-evidence-m-272) |
 | AOAI model retirement (M-273/M-274) | Committed packages + stored-source replay survive; Real re-exec on retired pin does not | “Bit-identical Real re-execution forever” / “Auto-upgrade preserves ManifestHash identity” | [`#aoai-model-retirement-repro-m-274`](#aoai-model-retirement-repro-m-274) |
+| Configuration architecture (M-290/M-291) | Layered IConfiguration; env wins over Advanced/SaaS; selective fail-fast; fragmented drift proof | “appsettings is deployment SoT” / “TF state is CA config SoT” / “startup validates all config” / “IOptionsMonitor = prod hot-reload” / “TB-881 blocks pilots” | [`#configuration-architecture-precedence-validation-drift-m-291`](#configuration-architecture-precedence-validation-drift-m-291) |
 | Paying-tenant spend storm (M-294/M-295) | Tenant gates fail-closed; metering â‰  Azure invoice; stolen key burns headroom | “Metering reconciles to Azure invoice” / “Per-key spend isolation” | [`#paying-tenant-llm-spend-storm-m-295`](#paying-tenant-llm-spend-storm-m-295) |
 | Shared TPM fairness (M-296/M-297) | No cross-tenant TPM fair share; neighbor can drive 429/breaker | “Fair shared AOAI TPM across tenants” | [`#shared-aoai-tpm-noisy-neighbor-m-297`](#shared-aoai-tpm-noisy-neighbor-m-297) |
 | Customer policy-pack sandbox (M-298/M-299) | Declarative in-process engine; pin at commit; tenant-local blast radius | “WASM sandbox” / “Packs are certifications” / “Broken rule takes down all tenants” | [`#policy-pack-customer-rule-sandbox-m-299`](#policy-pack-customer-rule-sandbox-m-299) |
@@ -5167,6 +5238,7 @@ Optional fifth round: data residency (#5) or DPA placeholders (#3).
 | [`#evidence-backup-restore-invariant-m-270`](#evidence-backup-restore-invariant-m-270) Â· [`EVIDENCE_BACKUP_RESTORE_INVARIANT_PA_ONE_PAGER.md`](EVIDENCE_BACKUP_RESTORE_INVARIANT_PA_ONE_PAGER.md) (alias) | Evidence backup/restore vs tamper (M-270) |
 | [`#project-soft-delete-sealed-evidence-m-272`](#project-soft-delete-sealed-evidence-m-272) Â· [`PROJECT_SOFT_DELETE_SEALED_EVIDENCE_PA_ONE_PAGER.md`](PROJECT_SOFT_DELETE_SEALED_EVIDENCE_PA_ONE_PAGER.md) (alias) | Project soft-delete vs sealed residue (M-272) |
 | [`#aoai-model-retirement-repro-m-274`](#aoai-model-retirement-repro-m-274) Â· [`AOAI_MODEL_RETIREMENT_REPRO_PA_ONE_PAGER.md`](AOAI_MODEL_RETIREMENT_REPRO_PA_ONE_PAGER.md) (alias) Â· [`AOAI_RETIREMENT_CLAIM_SURVIVAL_PA_ONE_PAGER.md`](AOAI_RETIREMENT_CLAIM_SURVIVAL_PA_ONE_PAGER.md) (secondary alias) | AOAI model retirement claim survival (M-274) |
+| [`#configuration-architecture-precedence-validation-drift-m-291`](#configuration-architecture-precedence-validation-drift-m-291) Â· [`CONFIGURATION_ARCHITECTURE_PRECEDENCE_VALIDATION_DRIFT_PA_ONE_PAGER.md`](CONFIGURATION_ARCHITECTURE_PRECEDENCE_VALIDATION_DRIFT_PA_ONE_PAGER.md) (alias) | Configuration architecture precedence / validation / drift (M-291) |
 | [`#paying-tenant-llm-spend-storm-m-295`](#paying-tenant-llm-spend-storm-m-295) Â· [`PAYING_TENANT_LLM_SPEND_STORM_PA_ONE_PAGER.md`](PAYING_TENANT_LLM_SPEND_STORM_PA_ONE_PAGER.md) (alias) Â· [`PAYING_TENANT_SPEND_CONTROLS_METERING_RECONCILIATION_PA_ONE_PAGER.md`](PAYING_TENANT_SPEND_CONTROLS_METERING_RECONCILIATION_PA_ONE_PAGER.md) (secondary alias) | Paying-tenant spend storm + metering (M-295) |
 | [`#shared-aoai-tpm-noisy-neighbor-m-297`](#shared-aoai-tpm-noisy-neighbor-m-297) Â· [`SHARED_AOAI_TPM_NOISY_NEIGHBOR_PA_ONE_PAGER.md`](SHARED_AOAI_TPM_NOISY_NEIGHBOR_PA_ONE_PAGER.md) (alias) Â· [`SHARED_TPM_FAIRNESS_PA_ONE_PAGER.md`](SHARED_TPM_FAIRNESS_PA_ONE_PAGER.md) (secondary alias) | Shared AOAI TPM noisy-neighbor fairness (M-297) |
 | [`#policy-pack-customer-rule-sandbox-m-299`](#policy-pack-customer-rule-sandbox-m-299) Â· [`POLICY_PACK_CUSTOMER_RULE_SANDBOX_PA_ONE_PAGER.md`](POLICY_PACK_CUSTOMER_RULE_SANDBOX_PA_ONE_PAGER.md) (alias) Â· [`CUSTOMER_POLICY_PACK_SANDBOX_PIN_BLAST_RADIUS_PA_ONE_PAGER.md`](CUSTOMER_POLICY_PACK_SANDBOX_PIN_BLAST_RADIUS_PA_ONE_PAGER.md) (secondary alias) | Customer policy-pack sandbox / pin / blast radius (M-299) |

@@ -40358,7 +40358,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1581 ? Composite alert rules ? enum/join/enabled honesty (no eng operator strings) (P0)
 
-**Window:** V1 ? Trustworthiness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Trustworthiness. **Status:** **Done** (2026-08-10) ? `composite-alert-rules-labels.ts`; `CompositeAlertRulesContent` list `StatusTag` + operator-safe summaries; Vitest. **Priority:** P0.
 
 **Problem:** List/options show eng enums / `Enabled: true`.
 

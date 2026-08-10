@@ -115,6 +115,7 @@ Separates `(A)` product readiness from `(B)` procurement realism. Use in sales, 
 | Isolation overclaim (M-194/M-195) | "Database-per-tenant + INV-001 + identity-wins (M-114); RLS non-control" | "SQL RLS is a production control" / "NetArchTest alone proves isolation" |
 | SOC 2 / pen-test talk-track (M-196/M-197) | "Intent → evidence-type label → pack → defer with funding trigger" | "SOC 2 ready/almost" / "Pen test in flight" when only self-assessment exists |
 | AOAI model retirement (M-273/M-274) | "Committed packages + stored-source replay survive; Real re-exec on retired pin does not" | "Bit-identical Real re-execution forever" / "Auto-upgrade preserves ManifestHash identity" |
+| Configuration architecture (M-290/M-291) | "Layered IConfiguration; env wins over Advanced/SaaS; selective fail-fast; fragmented drift proof" | "appsettings is deployment SoT" / "TF state is CA config SoT" / "startup validates all config" / "IOptionsMonitor = prod hot-reload" / "TB-881 blocks pilots" |
 | Paying-tenant spend storm (M-294/M-295) | "Tenant gates fail-closed; metering ≠ Azure invoice; stolen key burns headroom" | "Metering reconciles to Azure invoice for disputes" / "Per-key spend isolation" |
 | Shared TPM fairness (M-296/M-297) | "No cross-tenant TPM fair share; neighbor can drive 429/breaker" | "Fair shared AOAI TPM across tenants" |
 | Customer policy-pack sandbox (M-298/M-299) | "Declarative in-process engine; pin at commit; tenant-local blast radius" | "WASM sandbox" / "Packs are certifications" / "Broken rule takes down all tenants" |
@@ -399,6 +400,7 @@ Use as preflight language for PA conversations, demos, procurement answers, and 
 | **M-269** | Backup and restore | Do not equate append-only storage with tamper-proof backup history. | Promise controlled restore procedures and external anchors. |
 | **M-271** | Project deletion | Do not call project purge tenant or evidence erasure. | Promise the project lifecycle and sealed-evidence residue. |
 | **M-273** | AOAI retirement | Do not promise bit-identical Real re-execution across retirement. | Promise survival of committed packages and stored-source replay. |
+| **M-290** | Configuration architecture | Do not sell appsettings/TF-state as SoT, universal ValidateOnStart, IOptionsMonitor hot-reload, or drift preflight as live parity; do not reopen Done **TB-881** as a pilot gate. | Promise layered precedence (env over overlays), selective fail-fast, drift class honesty, and Done **TB-881** = CI/test isolation. Engineering map: [`CONFIGURATION_ARCHITECTURE_PRECEDENCE_VALIDATION_DRIFT_CLAIM_MAP.md`](CONFIGURATION_ARCHITECTURE_PRECEDENCE_VALIDATION_DRIFT_CLAIM_MAP.md) (**TB-1561**). Follow-on honesty CI: **TB-1562**. |
 | **M-294** | Tenant spend storm | Do not call estimated product metering invoice reconciliation. | Promise tenant gates and the manual Azure-money-truth boundary. |
 | **M-296** | Shared TPM fairness | Do not promise per-tenant fair share of shared TPM. | Promise spend caps and visible Partial/Failed contention behavior. |
 | **M-298** | Policy-pack sandbox | Do not call declarative rules a WASM/script sandbox. | Promise bounded interpretation, commit pins, and tenant-local blast radius. |
@@ -417,7 +419,7 @@ Use as preflight language for PA conversations, demos, procurement answers, and 
 #### Batch C sources
 
 - [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md), detailed rows M-192–M-304.
-- Claim maps: [`AOAI model retirement`](AOAI_MODEL_RETIREMENT_REPRO_CLAIM_MAP.md), [`paying-tenant spend`](PAYING_TENANT_LLM_SPEND_STORM_AND_BILLING_DISPUTE_CLAIM_MAP.md), [`shared AOAI TPM`](SHARED_AOAI_TPM_NOISY_NEIGHBOR_FAIRNESS_CLAIM_MAP.md), and [`policy-pack sandbox`](POLICY_PACK_CUSTOMER_RULE_SANDBOX_PIN_BLAST_RADIUS_CLAIM_MAP.md).
+- Claim maps: [`configuration architecture`](CONFIGURATION_ARCHITECTURE_PRECEDENCE_VALIDATION_DRIFT_CLAIM_MAP.md), [`AOAI model retirement`](AOAI_MODEL_RETIREMENT_REPRO_CLAIM_MAP.md), [`paying-tenant spend`](PAYING_TENANT_LLM_SPEND_STORM_AND_BILLING_DISPUTE_CLAIM_MAP.md), [`shared AOAI TPM`](SHARED_AOAI_TPM_NOISY_NEIGHBOR_FAIRNESS_CLAIM_MAP.md), and [`policy-pack sandbox`](POLICY_PACK_CUSTOMER_RULE_SANDBOX_PIN_BLAST_RADIUS_CLAIM_MAP.md).
 - [GTM do-not-promise table](#gtm-do-not-promise) (formerly `WHAT_NOT_TO_PROMISE.md`).
 
 ### Canonical deferral docs
