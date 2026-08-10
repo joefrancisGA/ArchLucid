@@ -35,6 +35,7 @@ describe("HelpCloudConnectionsGuideView (HCE)", () => {
       "data-nav-href",
       CLOUD_CONNECTIONS_HELP_PATH,
     );
+    expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
     expect(screen.getByTestId("help-cloud-connections-breadcrumb")).toHaveTextContent("Help");
     expect(screen.getByTestId("help-cloud-connections-breadcrumb")).toHaveTextContent("Cloud connections");
     expect(screen.getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");

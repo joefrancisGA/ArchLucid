@@ -12,6 +12,7 @@ import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
+  CONNECT_GCP_SECURELY_CANONICAL_PATH,
   CONNECT_GCP_SECURELY_CONFIGURE_ACTION,
   CONNECT_GCP_SECURELY_CONFIGURE_HREF,
 } from "@/lib/connect-gcp-securely-help-evidence-copy";
@@ -51,6 +52,7 @@ export function HelpConnectGcpSecurelyGuideView(
         titleTestId="help-connect-gcp-securely-page-title"
         subtitle={entry.summary}
         headingLevel="h1"
+        navHref={CONNECT_GCP_SECURELY_CANONICAL_PATH}
         breadcrumb={
           <OperatorPageBreadcrumb
             data-testid="help-connect-gcp-securely-breadcrumb"

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
+import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { HelpTourTrigger } from "./HelpTourTrigger";
 import { HelpProductGuide } from "./HelpProductGuide";
@@ -17,7 +18,7 @@ export default function HelpPage() {
     <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.majorSectionGap}>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className={OPERATOR_LAYOUT.sectionHeadingStack}>
-        <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>Help</h1>
+        <HelpTopicTitleRow title="Help" />
         <p className={`m-0 ${OPERATOR_TYPOGRAPHY.helper}`}>
           Start with the guides below for review workflows and cloud connections. See{" "}
           <Link

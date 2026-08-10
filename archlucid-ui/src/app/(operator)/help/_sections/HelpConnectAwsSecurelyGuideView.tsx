@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpConnectAwsSecurelyTrustPolicyPanel } from "@/app/(operator)/help/_sections/HelpConnectAwsSecurelyTrustPolicyPanel";
 import { ConnectAwsSecurelyHelpEvidenceOrientationStrip } from "@/components/help/ConnectAwsSecurelyHelpEvidenceOrientationStrip";
@@ -138,7 +139,7 @@ export function HelpConnectAwsSecurelyGuideView(props: HelpConnectAwsSecurelyGui
                 ← {CONNECT_AWS_SECURELY_BACK_TO_CONNECTIONS}
               </Link>
             </p>
-            <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{CONNECT_AWS_SECURELY_PAGE_TITLE}</h1>
+            <HelpTopicTitleRow title={CONNECT_AWS_SECURELY_PAGE_TITLE} />
             <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               {CONNECT_AWS_SECURELY_PAGE_INTRO}
             </p>

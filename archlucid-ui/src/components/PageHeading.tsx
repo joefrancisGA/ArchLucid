@@ -3,6 +3,7 @@ import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_TOPIC_PAGE_ICON, isHelpTopicHref } from "@/lib/help-topic-page-icon";
 import { resolveNavIconForHref } from "@/lib/resolve-nav-link-for-pathname";
 
 const PAGE_HEADING_ICON_CLASS =
@@ -10,6 +11,28 @@ const PAGE_HEADING_ICON_CLASS =
 
 const PAGE_HEADING_TILE_CLASS =
   "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-neutral-100 dark:bg-neutral-900";
+
+export type NavDerivedPageIconProps = {
+  /** Canonical nav href used to resolve the decorative icon from nav-config. */
+  navHref: string;
+  /** Rare override when nav-config has no icon for the route. */
+  icon?: LucideIcon;
+};
+
+/** Decorative nav-config icon for custom page headers (detail surfaces, etc.). */
+export function NavDerivedPageIcon({ navHref, icon }: NavDerivedPageIconProps): React.JSX.Element | null {
+  const ResolvedIcon =
+    icon ?? resolveNavIconForHref(navHref) ?? (isHelpTopicHref(navHref) ? HELP_TOPIC_PAGE_ICON : undefined);
+
+  if (ResolvedIcon === undefined) {
+    return null;
+  }
+
+  return (
+    // eslint-disable-next-line react-hooks/static-components -- Lucide icon resolved from navHref
+    <ResolvedIcon className={PAGE_HEADING_ICON_CLASS} data-testid="page-heading-icon" aria-hidden />
+  );
+}
 
 export type PageHeadingProps = {
   /** Canonical nav href used to resolve the decorative icon from nav-config. */
@@ -50,20 +73,18 @@ export function PageHeading({
   "data-testid": dataTestId,
   children,
 }: PageHeadingProps): React.JSX.Element {
-  const Icon = icon ?? resolveNavIconForHref(navHref);
+  const Icon =
+    icon ?? resolveNavIconForHref(navHref) ?? (isHelpTopicHref(navHref) ? HELP_TOPIC_PAGE_ICON : undefined);
   const HeadingTag = headingLevel;
 
   const iconNode =
     Icon !== undefined ? (
       variant === "integration" ? (
         <div className={PAGE_HEADING_TILE_CLASS} data-testid="page-heading-icon-tile" aria-hidden>
-          {/* Icon comes from nav-config resolution — not a locally declared component. */}
-          {/* eslint-disable-next-line react-hooks/static-components -- Lucide icon resolved from navHref */}
-          <Icon className={PAGE_HEADING_ICON_CLASS} data-testid="page-heading-icon" />
+          <NavDerivedPageIcon navHref={navHref} icon={Icon} />
         </div>
       ) : (
-        // eslint-disable-next-line react-hooks/static-components -- Lucide icon resolved from navHref
-        <Icon className={PAGE_HEADING_ICON_CLASS} data-testid="page-heading-icon" aria-hidden />
+        <NavDerivedPageIcon navHref={navHref} icon={Icon} />
       )
     ) : null;
 

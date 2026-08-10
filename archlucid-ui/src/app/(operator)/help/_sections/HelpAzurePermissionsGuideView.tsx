@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { Suspense } from "react";
 
+import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpAzurePermissionsConnectionContext } from "@/app/(operator)/help/_sections/HelpAzurePermissionsConnectionContext";
 import { HelpAzurePermissionsSetupSection } from "@/app/(operator)/help/_sections/HelpAzurePermissionsSetupSection";
@@ -231,7 +232,7 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
                 Fix a failed permission check
               </a>
             </p>
-            <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{AZURE_PERMISSIONS_PAGE_TITLE}</h1>
+            <HelpTopicTitleRow title={AZURE_PERMISSIONS_PAGE_TITLE} />
             <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.helper)}>{AZURE_PERMISSIONS_PAGE_SUBTITLE}</p>
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
               {AZURE_PERMISSIONS_REVISION_NOTE(AZURE_CLOUD_CONNECTION_PERMISSIONS_CONTRACT_VERSION)}

@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
@@ -84,7 +85,7 @@ export function HelpDigestsGuideView(props: HelpDigestsGuideViewProps): React.Re
       <header className="space-y-2 border-b border-neutral-200 pb-4 dark:border-neutral-800">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0 space-y-1">
-            <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{DIGESTS_HELP_PAGE_TITLE}</h1>
+            <HelpTopicTitleRow title={DIGESTS_HELP_PAGE_TITLE} />
             <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               {DIGESTS_HELP_PAGE_SUBTITLE}
             </p>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpUsersAndRolesManageAction } from "@/app/(operator)/help/_sections/HelpUsersAndRolesManageAction";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -143,7 +144,7 @@ export function HelpUsersAndRolesGuideView(props: HelpUsersAndRolesGuideViewProp
       <header className={cn(HELP_PAGE_LAYOUT.articleHeader, "space-y-4 pb-4")}>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0 space-y-4">
-            <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{USERS_AND_ROLES_PAGE_TITLE}</h1>
+            <HelpTopicTitleRow title={USERS_AND_ROLES_PAGE_TITLE} />
             <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               {USERS_AND_ROLES_PAGE_INTRO}
             </p>

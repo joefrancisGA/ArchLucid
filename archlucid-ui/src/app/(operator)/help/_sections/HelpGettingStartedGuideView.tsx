@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MermaidDiagram } from "@/components/help/MermaidDiagram";
@@ -115,10 +116,7 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
     <article className={OPERATOR_LAYOUT.majorSectionGap} data-testid="help-getting-started-guide">
       <HelpTopicHashScroll />
       <header className={HELP_PAGE_LAYOUT.articleHeader}>
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{entry.title}</h1>
-          <PageContextualHelpButton />
-        </div>
+        <HelpTopicTitleRow title={entry.title} actions={<PageContextualHelpButton />} />
         <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{GETTING_STARTED_HELP_SUBTITLE}</p>
         <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{GETTING_STARTED_HELP_AUDIENCE_LINE}</p>
       </header>

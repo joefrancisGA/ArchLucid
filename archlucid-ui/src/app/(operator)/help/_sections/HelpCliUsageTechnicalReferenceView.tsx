@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
@@ -44,7 +45,7 @@ export function HelpCliUsageTechnicalReferenceView(
       <header className={HELP_PAGE_LAYOUT.articleHeader}>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
-            <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>{entry.title}</h1>
+            <HelpTopicTitleRow title={entry.title} />
             <p className={`m-0 ${OPERATOR_TYPOGRAPHY.helper}`}>{entry.summary}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2" data-testid="help-topic-export-actions">

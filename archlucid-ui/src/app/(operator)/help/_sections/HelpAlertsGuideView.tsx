@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpAlertsGuideHeroClient } from "@/app/(operator)/help/_sections/HelpAlertsGuideHeroClient";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -82,10 +83,7 @@ export function HelpAlertsGuideView(props: HelpAlertsGuideViewProps): React.Reac
     <article className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")} data-testid="help-alerts-guide">
       <HelpTopicHashScroll />
       <header className={HELP_PAGE_LAYOUT.articleHeader}>
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{ALERTS_HELP_PAGE_TITLE}</h1>
-          <PageContextualHelpButton />
-        </div>
+        <HelpTopicTitleRow title={ALERTS_HELP_PAGE_TITLE} actions={<PageContextualHelpButton />} />
         <p className={cn("m-0 max-w-[42rem]", OPERATOR_TYPOGRAPHY.helper)}>{ALERTS_HELP_PAGE_SUBTITLE}</p>
       </header>
 

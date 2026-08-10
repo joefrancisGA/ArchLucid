@@ -19,6 +19,7 @@ import {
   REPEAT_REVIEW_LOOP_HELP_LAST_REFRESHED_PREFIX,
   REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE,
 } from "@/lib/repeat-review-loop-help-guide-content";
+import { REPEAT_REVIEW_LOOP_HELP_CANONICAL_PATH } from "@/lib/repeat-review-loop-help-evidence-copy";
 
 export type HelpRepeatReviewLoopPageHeaderProps = {
   readonly entry: ProductDocumentationEntry;
@@ -39,6 +40,8 @@ export function HelpRepeatReviewLoopPageHeader(
       title={REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE}
       titleTestId="help-repeat-review-loop-page-title"
       subtitle={props.subtitle}
+      navHref={REPEAT_REVIEW_LOOP_HELP_CANONICAL_PATH}
+      headingLevel="h1"
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="help-repeat-review-loop-header-actions">
           <PageContextualHelpButton />

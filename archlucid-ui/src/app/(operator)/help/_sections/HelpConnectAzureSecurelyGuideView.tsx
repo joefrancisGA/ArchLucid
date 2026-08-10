@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { AlertTriangle } from "lucide-react";
 
+import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -168,7 +169,7 @@ export function HelpConnectAzureSecurelyGuideView(props: HelpConnectAzureSecurel
                     ← {CONNECT_AZURE_SECURELY_BACK_TO_CONNECTIONS}
                   </Link>
                 </p>
-                <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{CONNECT_AZURE_SECURELY_PAGE_TITLE}</h1>
+                <HelpTopicTitleRow title={CONNECT_AZURE_SECURELY_PAGE_TITLE} />
                 <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
                   {CONNECT_AZURE_SECURELY_PAGE_INTRO}
                 </p>
