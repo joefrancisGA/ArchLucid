@@ -2,33 +2,44 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
-import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
+import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
+  DATA_HANDLING_TENANT_ISOLATION_HELP_ACTION_PANEL_TITLE,
   DATA_HANDLING_TENANT_ISOLATION_HELP_CLAIM_DISCIPLINE,
   DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW,
   DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_SUBTITLE,
   DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_TITLE,
   DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_ACTIONS,
   DATA_HANDLING_TENANT_ISOLATION_HELP_RESIDENCY,
+  DATA_HANDLING_TENANT_ISOLATION_HELP_RESIDENCY_HEADING,
+  DATA_HANDLING_TENANT_ISOLATION_HELP_RESIDENCY_HEADING_ID,
 } from "@/lib/data-handling-tenant-isolation-help-guide-content";
 import { DATA_HANDLING_TENANT_ISOLATION_HELP_PATH } from "@/lib/data-handling-tenant-isolation-help-route";
 import {
   DESIGN_TOKENS,
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
+  OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
+import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
 import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
+
+const DATA_RESIDENCY_TOC_HEADING: HelpMarkdownHeading = {
+  level: 3,
+  id: DATA_HANDLING_TENANT_ISOLATION_HELP_RESIDENCY_HEADING_ID,
+  title: DATA_HANDLING_TENANT_ISOLATION_HELP_RESIDENCY_HEADING,
+};
 
 type HelpDataHandlingTenantIsolationGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -44,7 +55,8 @@ export function HelpDataHandlingTenantIsolationGuideView(
   const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
     helpTopicSlug: entry.slug,
   });
-  const headings = extractHelpMarkdownHeadings(preparedMarkdown);
+  const markdownHeadings = extractHelpMarkdownHeadings(preparedMarkdown);
+  const headings: HelpMarkdownHeading[] = [DATA_RESIDENCY_TOC_HEADING, ...markdownHeadings];
 
   return (
     <article
@@ -58,6 +70,8 @@ export function HelpDataHandlingTenantIsolationGuideView(
         titleTestId="help-data-handling-tenant-isolation-page-title"
         subtitle={DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_SUBTITLE}
         navHref={DATA_HANDLING_TENANT_ISOLATION_HELP_PATH}
+        headingLevel="h1"
+        metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
         actions={
           <div
             className="flex flex-wrap items-center gap-2"
@@ -65,20 +79,19 @@ export function HelpDataHandlingTenantIsolationGuideView(
           >
             <PageContextualHelpButton />
             <HelpTopicPdfDownloadButton entry={entry} />
-            <HelpTopicPrintButton entry={entry} />
           </div>
         }
       />
 
       <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
         <Card
-          className="border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20"
+          className={cn(DESIGN_TOKENS.surface.card, "w-fit max-w-full")}
           data-testid="help-data-handling-tenant-isolation-action-panel"
         >
           <CardHeader className={OPERATOR_CARD.header}>
-            <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-              Continue diligence
-            </CardTitle>
+            <h2 className={cn("m-0 text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+              {DATA_HANDLING_TENANT_ISOLATION_HELP_ACTION_PANEL_TITLE}
+            </h2>
           </CardHeader>
           <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
             <Button asChild size="sm" variant="primary">
@@ -91,16 +104,6 @@ export function HelpDataHandlingTenantIsolationGuideView(
                 {DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_ACTIONS.securityTrust.label}
               </Link>
             </Button>
-            <Link
-              href={DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_ACTIONS.openAuditTrail.href}
-              className={cn(
-                "text-sm underline-offset-2 hover:underline",
-                DESIGN_TOKENS.accent.link,
-                OPERATOR_TYPOGRAPHY.body,
-              )}
-            >
-              {DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_ACTIONS.openAuditTrail.label}
-            </Link>
           </CardContent>
         </Card>
 
@@ -110,23 +113,46 @@ export function HelpDataHandlingTenantIsolationGuideView(
         >
           {DATA_HANDLING_TENANT_ISOLATION_HELP_CLAIM_DISCIPLINE}
         </p>
+
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+          <Link
+            href={DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_ACTIONS.openAuditTrail.href}
+            className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
+            data-testid="help-data-handling-tenant-isolation-audit-trail-link"
+          >
+            {DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_ACTIONS.openAuditTrail.label}
+          </Link>
+          {" "}
+          in your tenant governance workspace.
+        </p>
       </div>
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
-        <div className={cn("min-w-0 space-y-6", "max-w-[42rem] lg:max-w-none")}>
+        <div className={cn("min-w-0 space-y-6", HELP_PAGE_LAYOUT.contentColumn)}>
           <p
-            className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}
+            className={cn("m-0", HELP_PAGE_LAYOUT.readingBody)}
             data-testid="help-data-handling-tenant-isolation-overview"
           >
             {DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW}
           </p>
 
           <aside
+            id={DATA_HANDLING_TENANT_ISOLATION_HELP_RESIDENCY_HEADING_ID}
             className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
             data-testid="help-data-handling-tenant-isolation-residency"
           >
-            <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Data residency</h2>
-            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>{DATA_HANDLING_TENANT_ISOLATION_HELP_RESIDENCY}</p>
+            <h3
+              className={cn(
+                "m-0 text-al-text-primary",
+                OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
+                OPERATOR_TYPOGRAPHY.cardTitle,
+              )}
+            >
+              {DATA_HANDLING_TENANT_ISOLATION_HELP_RESIDENCY_HEADING}
+            </h3>
+            <p className={cn("m-0 mt-2", HELP_PAGE_LAYOUT.readingBody)}>
+              {DATA_HANDLING_TENANT_ISOLATION_HELP_RESIDENCY}
+            </p>
           </aside>
 
           <div
@@ -143,7 +169,7 @@ export function HelpDataHandlingTenantIsolationGuideView(
           </div>
         </div>
 
-        <HelpTopicTableOfContents headings={headings} />
+        <HelpTopicTableOfContents headings={headings} enableScrollSpy />
       </div>
     </article>
   );

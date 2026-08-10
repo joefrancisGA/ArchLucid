@@ -150,6 +150,8 @@ export const OPERATOR_TYPE_SCALE = {
   cardTitle: "text-[15px] font-semibold leading-[22px] text-al-text-primary",
   /** Body — 13/20, normal. */
   body: "text-[13px] font-normal leading-5 text-al-text-primary",
+  /** Help topic long-form body — 15/24 (~1.6) for procurement and security reading surfaces. */
+  helpReadingBody: "text-[15px] font-normal leading-6 text-al-text-primary",
   /** Helper / caption — 12/18, normal. */
   helper: "text-xs font-normal leading-[18px] text-al-text-secondary",
   /** Sidebar nav item — 13/18, medium. */
