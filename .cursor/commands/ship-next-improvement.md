@@ -197,11 +197,12 @@ If **no** implementation occurred in steps 1–4:
 
 Run in this order once the candidate is implemented. Fix issues from each step before moving to the next — don't stack unresolved findings.
 
+**No local CodeQL before push.** Do **not** run `scripts/ci/codeql-local-csharp.ps1`, `scripts/ci/codeql-local-csharp.sh`, JavaScript CodeQL parity steps, or `scripts/ci/assert_codeql_sarif_clean.py` in this gate or before the first push. CodeQL is enforced by the **CodeQL** GitHub Actions workflow **after** push; triage SARIF findings only in the **CI gate** via `/fix-ci`.
+
 1. **`/check-compiler-errors`** — run scoped compile/type-check (`.\scripts\ci\agent-compile-check.ps1` with the right `-ProjectPath` / `-Ui`, or targeted `dotnet test` / `npm run test` for touched areas). Fix failures before continuing.
 2. **`/deslop`** — check the diff against `master` and remove AI-generated slop (unnecessary comments, abnormal defensive try/catch, `any` casts, unneeded nesting) before it goes to review.
 3. **`/review-bugbot`** — launch the Bugbot subagent (`Diff: uncommitted changes`, since this is pre-commit) against the diff. Fix Critical/High findings; note but don't block on style-only comments.
-4. **`/review-security`** — launch the Security Review subagent (`Diff: uncommitted changes`) against the same diff. Fix Critical/High findings before proceeding.
-5. If step 2, 3, or 4 changed code, re-run **`/check-compiler-errors`** once more to confirm the fixes still compile/pass.
+4. If step 2 or 3 changed code, re-run **`/check-compiler-errors`** once more to confirm the fixes still compile/pass.
 
 ---
 
@@ -211,7 +212,8 @@ Run **`/fix-ci`** right after the push in Steps 1–4, before moving on to Step 
 
 1. If the push opened or updated a PR, follow `/fix-ci`: inspect `gh pr checks`, fix the first actionable failure, push, repeat until green.
 2. If this pushed directly to `master` with no open PR, check the run for that commit instead (`gh run list --branch master --limit 1`, then `gh run view --log-failed` on it) and apply the same fix-one-failure-at-a-time loop.
-3. Do not proceed to Step 5/6 with known-red CI for this change.
+3. **CodeQL is post-push only.** When `/fix-ci` reports `CodeQL (csharp)` or `CodeQL (javascript)` failures, fix SARIF findings and push again — do not backfill local CodeQL runs into the pre-push **Quality gate**.
+4. Do not proceed to Step 5/6 with known-red CI for this change.
 
 ---
 
@@ -230,7 +232,7 @@ Always end with:
 - The **## Proposed next improvement** preview block (repeat or reference what was shown at Step 0)
 - Which implementation step (1–6) ran, or **stopped at preview** if blocked
 - TB-ID / assessment title (if any)
-- **Quality gate:** findings from compiler check, deslop, Bugbot, and security review, and what was fixed
+- **Quality gate:** findings from compiler check, deslop, and Bugbot, and what was fixed
 - Commit SHA(s) and branch pushed (if implementation occurred)
 - **CI gate:** final CI status for the push (green, or fixes applied via `/fix-ci`)
 - Rescore summary (step 5) **or** new assessment headline (step 6) **or** explicit blocker reason when stopped after preview
