@@ -361,6 +361,10 @@
             "format": "int64",
             "type": "integer"
           },
+          "hotPathReadCacheInFlightDeduped": {
+            "format": "int64",
+            "type": "integer"
+          },
           "hotPathReadCacheMisses": {
             "format": "int64",
             "type": "integer"

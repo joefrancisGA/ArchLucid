@@ -133514,6 +133514,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("hotPathReadCacheHits")]
         public long? HotPathReadCacheHits { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("hotPathReadCacheInFlightDeduped")]
+        public long? HotPathReadCacheInFlightDeduped { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("hotPathReadCacheMisses")]
         public long? HotPathReadCacheMisses { get; set; } = default!;
 
