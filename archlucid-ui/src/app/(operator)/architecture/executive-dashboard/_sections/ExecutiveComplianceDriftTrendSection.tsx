@@ -7,6 +7,10 @@ import { useEffect, useState } from "react";
 import { ComplianceDriftOpenResolvedChart } from "@/components/ComplianceDriftOpenResolvedChart";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getComplianceDriftTrend } from "@/lib/api";
+import {
+  BUYER_EXECUTIVE_COMPLIANCE_DRIFT_TREND_DESCRIPTION,
+  BUYER_EXECUTIVE_DATA_SOURCE_NOTE,
+} from "@/lib/buyer-polish-copy";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
 import type { ComplianceDriftTrendPoint } from "@/types/governance-dashboard";
@@ -78,8 +82,7 @@ export function ExecutiveComplianceDriftTrendSection({
       <CardHeader className="pb-2">
         <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Compliance drift (last 30 days)</CardTitle>
         <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
-          Daily trend of findings opened when reviews capture snapshots vs resolved through human review. Data from{" "}
-          <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>GET /v1/governance/compliance-drift-trend</span>.
+          {`${BUYER_EXECUTIVE_COMPLIANCE_DRIFT_TREND_DESCRIPTION} ${BUYER_EXECUTIVE_DATA_SOURCE_NOTE}`}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">

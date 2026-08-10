@@ -1070,6 +1070,12 @@ export const BUYER_EXECUTIVE_SUMMARY_LOAD_ERROR =
 
 export const BUYER_EXECUTIVE_SCORECARD_WINDOW_HELP = "Showing the selected time range.";
 
+export const BUYER_EXECUTIVE_COMPLIANCE_DRIFT_TREND_DESCRIPTION =
+  "Daily trend of findings opened when reviews capture snapshots versus findings resolved through governance review.";
+
+export const BUYER_EXECUTIVE_ENVIRONMENT_SAVINGS_DESCRIPTION =
+  "Estimated savings grouped by environment tag from finalized reviews in this workspace.";
+
 export const BUYER_EXECUTIVE_SCORECARD_DRIFT_TREND_INSUFFICIENT =
   "Not enough data in this range yet.";
 

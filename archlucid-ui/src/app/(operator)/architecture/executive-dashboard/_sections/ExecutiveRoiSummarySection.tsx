@@ -295,14 +295,7 @@ export function ExecutiveRoiSummarySection({
           includeNarrative={includeBoardPackNarrative}
         />
         <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
-          {isBuyerPolishedOperatorShellEnv() || executiveSurface ? (
-            <>Latest finalized review per system in this workspace. {BUYER_EXECUTIVE_DATA_SOURCE_NOTE}</>
-          ) : (
-            <>
-              {resolveExecutiveHeadlineScopeLabel(displayData)} {resolveExecutiveSystemRowScopeLabel(displayData)} Data from{" "}
-              <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>GET /v1/roi/executive-summary</span>.
-            </>
-          )}
+          Latest finalized review per system in this workspace. {BUYER_EXECUTIVE_DATA_SOURCE_NOTE}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

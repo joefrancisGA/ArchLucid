@@ -92,14 +92,7 @@ export function BusinessImpactSummaryWidget({
           Business impact summary
         </h2>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          {executiveSurface
-            ? "Theme counts from finalized reviews in this workspace."
-            : (
-              <>
-                Live signals from finalized reviews via{" "}
-                <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>GET /v1/roi/executive-summary</span>.
-              </>
-            )}
+          Theme counts from finalized reviews in this workspace.
           {!hasCommittedRuns && !isLoading ? " Finalize a review to populate these cards." : null}
         </p>
       </div>

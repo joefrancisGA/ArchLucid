@@ -6,6 +6,10 @@ import { useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useExecutiveRoiEnvironmentSavingsQuery } from "@/hooks/use-executive-roi-environment-savings-query";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  BUYER_EXECUTIVE_DATA_SOURCE_NOTE,
+  BUYER_EXECUTIVE_ENVIRONMENT_SAVINGS_DESCRIPTION,
+} from "@/lib/buyer-polish-copy";
 
 const SLICE_COLORS = ["#059669", "#2563eb", "#d97706", "#7c3aed", "#dc2626", "#64748b"];
 
@@ -21,8 +25,7 @@ export function ExecutiveRoiEnvironmentSavingsSection() {
       <CardHeader className="pb-2">
         <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Savings by environment</CardTitle>
         <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
-          Aggregated from deduplicated findings via{" "}
-          <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>GET /v1/roi/executive-summary/export</span>.
+          {`${BUYER_EXECUTIVE_ENVIRONMENT_SAVINGS_DESCRIPTION} ${BUYER_EXECUTIVE_DATA_SOURCE_NOTE}`}
         </CardDescription>
       </CardHeader>
       <CardContent>
