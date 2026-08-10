@@ -19,7 +19,7 @@ describe("reviews-hub-review-status", () => {
     } satisfies RunSummary;
 
     expect(reviewsHubOverallStatus(run)).toBe("Finalized");
-    expect(reviewsHubLifecycleStage(run)).toBe("Approval");
+    expect(reviewsHubLifecycleStage(run)).toBe("Finalized");
     expect(reviewsHubNeedsAttention(run)).toBe(false);
   });
 
@@ -53,5 +53,40 @@ describe("reviews-hub-review-status", () => {
     } satisfies RunSummary;
 
     expect(reviewsHubOverallStatus(run)).toBe("Archived");
+  });
+
+  it("keeps the stage an archived review actually reached instead of reporting it as finalized", () => {
+    const run = {
+      runId: "archived-draft",
+      projectId: "default",
+      createdUtc: "2026-01-01T00:00:00.000Z",
+      isArchived: true,
+    } satisfies RunSummary;
+
+    expect(reviewsHubLifecycleStage(run)).toBe("Architecture definition");
+  });
+
+  it("reports a signed manifest as Finalized so the stage never collides with the approval queue", () => {
+    const run = {
+      runId: "awaiting-governance",
+      projectId: "default",
+      createdUtc: "2026-01-01T00:00:00.000Z",
+      hasGoldenManifest: true,
+      hasGovernanceWarnings: true,
+    } satisfies RunSummary;
+
+    expect(reviewsHubOverallStatus(run)).toBe("Active");
+    expect(reviewsHubLifecycleStage(run)).toBe("Finalized");
+  });
+
+  it("maps evidence collection before findings exist", () => {
+    const run = {
+      runId: "evidence",
+      projectId: "default",
+      createdUtc: "2026-01-01T00:00:00.000Z",
+      hasContextSnapshot: true,
+    } satisfies RunSummary;
+
+    expect(reviewsHubLifecycleStage(run)).toBe("Evidence collection");
   });
 });

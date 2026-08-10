@@ -8,8 +8,7 @@ export type ReviewsHubLifecycleStage =
   | "Architecture definition"
   | "Evidence collection"
   | "Evaluation"
-  | "Decision"
-  | "Approval";
+  | "Finalized";
 
 export function reviewsHubOverallStatus(run: RunSummary): ReviewsHubOverallStatus {
   if (run.isArchived === true) {
@@ -37,19 +36,15 @@ export function reviewsHubOverallStatus(run: RunSummary): ReviewsHubOverallStatu
   return "Draft";
 }
 
+/**
+ * How far a review progressed through the pipeline. "Finalized" means a signed manifest exists — it
+ * does not imply a governance approval request was submitted, so this stage never says "Approval"
+ * (that word is reserved for the approval queue). Archived reviews keep the stage they reached;
+ * archival is reported by {@link reviewsHubOverallStatus} instead.
+ */
 export function reviewsHubLifecycleStage(run: RunSummary): ReviewsHubLifecycleStage {
-  if (run.isArchived === true) {
-    return "Approval";
-  }
-
   if (run.hasGoldenManifest === true) {
-    const status = reviewsHubOverallStatus(run);
-
-    if (status === "Awaiting approval") {
-      return "Approval";
-    }
-
-    return "Approval";
+    return "Finalized";
   }
 
   if (run.hasFindingsSnapshot === true) {
