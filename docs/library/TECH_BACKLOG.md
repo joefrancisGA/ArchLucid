@@ -15,7 +15,7 @@ Regenerate after opening or closing summary-table rows:
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
 | Architectural integrity | 11 |
-| Adoption friction | 344 |
+| Adoption friction | 343 |
 | Commercial / marketability | 9 |
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
@@ -36,9 +36,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **725** |
+| **Total (unique open)** | **724** |
 
-**By priority band:** P0 **6** | P1 **589** | P2 **113** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **6** | P1 **588** | P2 **113** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -1003,7 +1003,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | ~~TB-1461~~ | ~~Architecture creation bootstrap ? Create vs Start new / resume title hierarchy~~ **Done** 2026-08-09; see `## TB-1461` below | Adoption friction P1 ? **V1**; with **TB-1458**; pairs **TB-1447** | S |
 | ~~TB-1462~~ | ~~Architecture creation bootstrap ? resume-first viewport when drafts exist~~ **Done** 2026-08-09; see `## TB-1462` below | Adoption friction P1 ? **V1**; with **TB-1458** | S |
 | ~~TB-1465~~ | ~~`/auth/bootstrap` ? brand + document metadata + Suspense (session-expired parity)~~ **Done** 2026-08-09; see `## TB-1465` below | Adoption friction P1 ? **V1**; owner review ~52/100 2026-07-27; traffic **AUB**; pairs **TB-1313**/**TB-1314** | S |
-| TB-1466 | Post-auth bootstrap ? loading skeleton (not prose-only Preparing?); see ## TB-1466 below | Adoption friction P1 ? **V1**; with **TB-1465** | S |
+| TB-1466 | **Done** (2026-08-10) — post-auth bootstrap loading skeleton (parity **TB-1473**); see ## TB-1466 below | Adoption friction P1 ? **V1**; with **TB-1465** | S |
 | TB-1469 | **Done** (2026-08-10) — bootstrap safe secondary exit / sign-in again path; see ## TB-1469 below | Adoption friction P1 ? **V1**; with **TB-1465**; pairs **TB-1315** | S |
 | TB-1472 | **Done** (2026-08-10) — `/auth/invite` document metadata + AuthFlowShell + Suspense fallback; see ## TB-1472 below | Adoption friction P1 ? **V1**; owner review ~51/100 2026-07-27; traffic **AUI**; pairs **TB-1465**/**TB-1313**/**TB-1314** | S |
 | TB-1473 | **Done** (2026-08-10) — invitation accept loading skeleton (title + summary card); see ## TB-1473 below | Adoption friction P1 ? **V1**; with **TB-1472** | S |
@@ -37533,7 +37533,9 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-10).
+
+**Closed:** `PostAuthBootstrapLoadingView` adds lead + card skeleton placeholders (parity **TB-1473**); polite status text retained; Vitest guards skeleton test ids.
 
 **Priority:** P0.
 
