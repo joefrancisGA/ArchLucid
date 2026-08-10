@@ -48,6 +48,8 @@ describe("HelpEngineeringTroubleshootingGuideView", () => {
     expect(screen.getByTestId("help-engineering-troubleshooting-status-tag")).toHaveTextContent("Admin internal");
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last verified 2026-08-09");
     expect(screen.getByTestId("help-engineering-troubleshooting-sources")).toBeInTheDocument();
+    expect(screen.getByTestId("help-engineering-troubleshooting-sources-strip")).toBeInTheDocument();
+    expect(screen.getByTestId("help-engineering-troubleshooting-orientation")).toBeInTheDocument();
     expect(screen.getByTestId("help-engineering-troubleshooting-symptom-index")).toBeInTheDocument();
     expect(screen.getByTestId("help-engineering-troubleshooting-claim-discipline")).toBeInTheDocument();
 
@@ -57,7 +59,12 @@ describe("HelpEngineeringTroubleshootingGuideView", () => {
 
     const actionPanel = screen.getByTestId("help-engineering-troubleshooting-action-panel");
 
-    expect(within(actionPanel).queryByRole("button", { name: /primary/i })).toBeNull();
+    expect(
+      within(actionPanel).getByTestId("help-engineering-troubleshooting-primary-cta"),
+    ).toHaveAttribute(
+      "href",
+      ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openCustomerTroubleshooting.href,
+    );
     expect(
       within(actionPanel).getByRole("link", {
         name: ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openCliUsage.label,
@@ -68,6 +75,9 @@ describe("HelpEngineeringTroubleshootingGuideView", () => {
 
     fireEvent.change(filter, { target: { value: "401" } });
     expect(screen.getAllByTestId("help-engineering-troubleshooting-symptom-row")).toHaveLength(1);
+
+    fireEvent.change(filter, { target: { value: "no-such-symptom" } });
+    expect(screen.getByTestId("help-engineering-troubleshooting-symptom-empty")).toBeInTheDocument();
 
     expect(preparedMarkdown).not.toMatch(/\]\([^)]*architecture\/adrs\//i);
     expect(preparedMarkdown).not.toMatch(/\bTB-\d+\b/);

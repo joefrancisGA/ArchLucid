@@ -22,6 +22,16 @@ export const ENGINEERING_TROUBLESHOOTING_HELP_SOURCES_DISCLOSURE_TITLE = "Source
 export const ENGINEERING_TROUBLESHOOTING_HELP_SOURCES_DISCLOSURE_INTRO =
   "Merged from upstream engineering runbooks in the repository.";
 
+export const ENGINEERING_TROUBLESHOOTING_HELP_SOURCES_STRIP_TITLE = "Related diligence topics";
+
+export const ENGINEERING_TROUBLESHOOTING_HELP_SOURCES_STRIP_INTRO =
+  "Use Admin diagnostics and configuration reference when you need live-surface signals or env keys — not sponsor diligence packing.";
+
+export const ENGINEERING_TROUBLESHOOTING_HELP_ORIENTATION_TITLE = "When to use this runbook";
+
+export const ENGINEERING_TROUBLESHOOTING_HELP_ORIENTATION =
+  "Open customer Troubleshooting and System health first. Use this Admin eng runbook only when you need CLI, migration, proxy, or auth-depth triage after those paths.";
+
 export const ENGINEERING_TROUBLESHOOTING_HELP_ACTION_PANEL_TITLE = "Prefer customer paths first";
 
 export const ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS = {

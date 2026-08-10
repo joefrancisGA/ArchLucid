@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { HelpEngineeringTroubleshootingHeaderMetadata } from "@/app/(operator)/help/_sections/HelpEngineeringTroubleshootingHeaderMetadata";
+import { HelpEngineeringTroubleshootingSourceLinks } from "@/app/(operator)/help/_sections/HelpEngineeringTroubleshootingSourceLinks";
 import { HelpEngineeringTroubleshootingSymptomIndex } from "@/app/(operator)/help/_sections/HelpEngineeringTroubleshootingSymptomIndex";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
@@ -8,7 +9,6 @@ import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -16,13 +16,15 @@ import { DEVELOPER_TROUBLESHOOTING_HELP_PATH } from "@/lib/developer-troubleshoo
 import {
   ENGINEERING_TROUBLESHOOTING_HELP_ACTION_PANEL_TITLE,
   ENGINEERING_TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE,
+  ENGINEERING_TROUBLESHOOTING_HELP_ORIENTATION,
+  ENGINEERING_TROUBLESHOOTING_HELP_ORIENTATION_TITLE,
   ENGINEERING_TROUBLESHOOTING_HELP_OVERVIEW,
   ENGINEERING_TROUBLESHOOTING_HELP_PAGE_SUBTITLE,
   ENGINEERING_TROUBLESHOOTING_HELP_PAGE_TITLE,
   ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS,
 } from "@/lib/engineering-troubleshooting-help-guide-content";
 import {
-  OPERATOR_CARD,
+  DESIGN_TOKENS,
   OPERATOR_LAYOUT,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
@@ -55,6 +57,9 @@ export function HelpEngineeringTroubleshootingGuideView(
       className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
       data-testid="help-engineering-troubleshooting-guide"
     >
+      <a href="#help-engineering-troubleshooting-content" className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
+        Skip to engineering runbook
+      </a>
       <HelpTopicHashScroll />
 
       <OperatorPageHeader
@@ -83,6 +88,49 @@ export function HelpEngineeringTroubleshootingGuideView(
         }
       />
 
+      <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
+        <div
+          className={cn(DESIGN_TOKENS.callout.info, "p-3")}
+          data-testid="help-engineering-troubleshooting-action-panel"
+        >
+          <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+            {ENGINEERING_TROUBLESHOOTING_HELP_ACTION_PANEL_TITLE}
+          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <Button asChild size="sm" variant="primary" data-testid="help-engineering-troubleshooting-primary-cta">
+              <Link href={ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openCustomerTroubleshooting.href}>
+                {ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openCustomerTroubleshooting.label}
+              </Link>
+            </Button>
+            <Button asChild size="sm" variant="outline">
+              <Link href={ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openSystemHealth.href}>
+                {ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openSystemHealth.label}
+              </Link>
+            </Button>
+            <Button asChild size="sm" variant="outline">
+              <Link href={ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openReportAProblem.href}>
+                {ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openReportAProblem.label}
+              </Link>
+            </Button>
+            <Button asChild size="sm" variant="outline">
+              <Link href={ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openCliUsage.href}>
+                {ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openCliUsage.label}
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <aside
+        className={cn(DESIGN_TOKENS.callout.warn, "p-3")}
+        data-testid="help-engineering-troubleshooting-orientation"
+      >
+        <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          {ENGINEERING_TROUBLESHOOTING_HELP_ORIENTATION_TITLE}
+        </h2>
+        <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>{ENGINEERING_TROUBLESHOOTING_HELP_ORIENTATION}</p>
+      </aside>
+
       <div className={contentGridClass}>
         <div className="min-w-0 space-y-6">
           <p
@@ -92,10 +140,12 @@ export function HelpEngineeringTroubleshootingGuideView(
             {ENGINEERING_TROUBLESHOOTING_HELP_OVERVIEW}
           </p>
 
+          <HelpEngineeringTroubleshootingSourceLinks />
+
           <HelpEngineeringTroubleshootingSymptomIndex />
 
           <aside
-            className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
+            className={cn(DESIGN_TOKENS.callout.warn, "p-3")}
             data-testid="help-engineering-troubleshooting-claim-discipline"
           >
             <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Claim discipline</h2>
@@ -105,11 +155,12 @@ export function HelpEngineeringTroubleshootingGuideView(
           </aside>
 
           <div
+            id="help-engineering-troubleshooting-content"
             className={HELP_PAGE_LAYOUT.contentColumn}
             data-testid="help-engineering-troubleshooting-content"
           >
             <MarketingAccessibilityMarkdownFragment
-              markdownBody={markdown}
+              markdownBody={preparedMarkdown}
               tableCaption={`${entry.title} reference table`}
               presentation="help"
               sourceDocPath={sourceDocPath}
@@ -117,24 +168,6 @@ export function HelpEngineeringTroubleshootingGuideView(
               preserveMaintenanceMetadata
             />
           </div>
-
-          <Card
-            className="border border-neutral-200 bg-al-surface-raised dark:border-neutral-800"
-            data-testid="help-engineering-troubleshooting-action-panel"
-          >
-            <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-                {ENGINEERING_TROUBLESHOOTING_HELP_ACTION_PANEL_TITLE}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
-              {Object.values(ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS).map((action) => (
-                <Button asChild size="sm" variant="outline" key={action.href}>
-                  <Link href={action.href}>{action.label}</Link>
-                </Button>
-              ))}
-            </CardContent>
-          </Card>
         </div>
 
         <HelpTopicTableOfContents headings={headings} enableScrollSpy />

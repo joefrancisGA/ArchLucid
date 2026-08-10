@@ -5,6 +5,7 @@ import {
   ENGINEERING_TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE,
   ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS,
   ENGINEERING_TROUBLESHOOTING_HELP_SOURCES,
+  ENGINEERING_TROUBLESHOOTING_HELP_SOURCES_STRIP_INTRO,
 } from "@/lib/engineering-troubleshooting-help-guide-content";
 
 describe("engineering-troubleshooting-help-guide-content", () => {
@@ -35,5 +36,10 @@ describe("engineering-troubleshooting-help-guide-content", () => {
   it("states claim discipline without implying certification", () => {
     expect(ENGINEERING_TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE.toLowerCase()).toContain("not customer");
     expect(ENGINEERING_TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE.toLowerCase()).not.toContain("cpa");
+  });
+
+  it("names admin-diagnostics and configuration-reference in the Sources strip intro", () => {
+    expect(ENGINEERING_TROUBLESHOOTING_HELP_SOURCES_STRIP_INTRO.toLowerCase()).toContain("admin diagnostics");
+    expect(ENGINEERING_TROUBLESHOOTING_HELP_SOURCES_STRIP_INTRO.toLowerCase()).toContain("configuration reference");
   });
 });

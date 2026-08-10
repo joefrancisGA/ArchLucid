@@ -61,42 +61,51 @@ export function HelpEngineeringTroubleshootingSymptomIndex(): React.ReactElement
         {visibleRows.length} of {ENGINEERING_TROUBLESHOOTING_HELP_SYMPTOM_ROWS.length} symptoms
       </p>
 
-      <div className={HELP_PAGE_LAYOUT.tableWrap}>
-        <table className={HELP_PAGE_LAYOUT.table}>
-          <caption className="sr-only">Engineering troubleshooting symptom lookup</caption>
-          <thead>
-            <tr>
-              <th className={HELP_PAGE_LAYOUT.tableHeadCell} scope="col">
-                Symptom
-              </th>
-              <th className={HELP_PAGE_LAYOUT.tableHeadCell} scope="col">
-                First check
-              </th>
-              <th className={HELP_PAGE_LAYOUT.tableHeadCell} scope="col">
-                Escalation artifact
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {visibleRows.map((row, index) => (
-              <tr
-                key={row.symptom}
-                className={index % 2 === 0 ? HELP_PAGE_LAYOUT.tableRowOdd : HELP_PAGE_LAYOUT.tableRowEven}
-                data-testid="help-engineering-troubleshooting-symptom-row"
-              >
-                <th className={HELP_PAGE_LAYOUT.tableBodyCell} scope="row">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <SeverityTag severity={row.severity} />
-                    <span>{row.symptom}</span>
-                  </div>
+      {visibleRows.length === 0 ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="help-engineering-troubleshooting-symptom-empty"
+        >
+          No symptoms match this filter. Clear the search or try HTTP status codes such as 401 or 503.
+        </p>
+      ) : (
+        <div className={HELP_PAGE_LAYOUT.tableWrap}>
+          <table className={HELP_PAGE_LAYOUT.table}>
+            <caption className="sr-only">Engineering troubleshooting symptom lookup</caption>
+            <thead>
+              <tr>
+                <th className={HELP_PAGE_LAYOUT.tableHeadCell} scope="col">
+                  Symptom
                 </th>
-                <td className={HELP_PAGE_LAYOUT.tableBodyCell}>{row.firstCheck}</td>
-                <td className={HELP_PAGE_LAYOUT.tableBodyCell}>{row.escalationArtifact}</td>
+                <th className={HELP_PAGE_LAYOUT.tableHeadCell} scope="col">
+                  First check
+                </th>
+                <th className={HELP_PAGE_LAYOUT.tableHeadCell} scope="col">
+                  Escalation artifact
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {visibleRows.map((row, index) => (
+                <tr
+                  key={row.symptom}
+                  className={index % 2 === 0 ? HELP_PAGE_LAYOUT.tableRowOdd : HELP_PAGE_LAYOUT.tableRowEven}
+                  data-testid="help-engineering-troubleshooting-symptom-row"
+                >
+                  <th className={HELP_PAGE_LAYOUT.tableBodyCell} scope="row">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <SeverityTag severity={row.severity} />
+                      <span>{row.symptom}</span>
+                    </div>
+                  </th>
+                  <td className={HELP_PAGE_LAYOUT.tableBodyCell}>{row.firstCheck}</td>
+                  <td className={HELP_PAGE_LAYOUT.tableBodyCell}>{row.escalationArtifact}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </section>
   );
 }
