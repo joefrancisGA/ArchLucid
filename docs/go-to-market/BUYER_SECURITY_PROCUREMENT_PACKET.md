@@ -2485,14 +2485,14 @@ Former standalone body: `docs/go-to-market/LIVE_DEMO_SEE_IT_LADDER_PA_ONE_PAGER.
 
 **Audience:** Principal architects, SE facilitators, and marketing reviewers of public proof CTAs.
 
-**Decision / verdict today:** `/live-demo` is **net hurting** claim honesty while H1/Resources still say “Live demo” on fabricated/offline sample. Keep it only as rung 2 of a labeled see-it ladder after renaming off “Live” and pinning universe/mode honesty.
+**Decision / verdict today:** `/live-demo` title honesty is **shipped** (**TB-1265** Done — H1/metadata/Resources use “Guided sample walkthrough”), but the page remains **conditionally hurting** when mode chip is absent, offline fallback is narrated as a live API session, ladder UI between `/see-it` and `/live-demo` is missing (**TB-1267** / **TB-1282**), or Contoso payload sits under Claims chrome. Keep it as rung 2 of a labeled see-it ladder with universe/mode pins.
 
 ### 3-rung ladder (buyer-safe)
 
 | Rung | Route | Honest job | Forbidden |
 | --- | --- | --- | --- |
 | 1 | `/see-it` | Universe-honest quick proof (prefer Claims-static Option A per **TB-1028**) | Contoso payload under Claims chrome; “live tenant” |
-| 2 | `/live-demo` | Guided **fabricated sample walkthrough** (rename off “Live”) | “Live demo/product”; imply Real execute / customer record |
+| 2 | `/live-demo` | Guided **fabricated sample walkthrough** (H1: “Guided sample walkthrough” per **TB-1265**) | “Live demo/product”; imply Real execute / customer record |
 | 3 | Eval / enterprise CTA | Authenticated trial or sales-led demo | Presenting rungs 1–2 as the evaluation |
 
 ### Mode + universe pins (rung 2)
@@ -2505,20 +2505,21 @@ Former standalone body: `docs/go-to-market/LIVE_DEMO_SEE_IT_LADDER_PA_ONE_PAGER.
 
 ### PA review
 
-1. Ask which rung the buyer will open and whether Resources still says “Live demo.”
+1. Ask which rung the buyer will open and whether ladder UI labels the `/see-it` ↔ `/live-demo` relationship (**TB-1267** / **TB-1282**).
 2. Confirm offline curated fallback is not narrated as a live API session.
 3. Confirm Contoso payload is not under Claims chrome.
-4. Treat “ladder done” while **TB-1265** / **TB-1267** / **TB-1282** remain open as a review finding.
+4. Treat “ladder done” while **TB-1267** / **TB-1282** / **TB-1029** remain open as a review finding.
 
 ### Claim boundary
 
-Do not sell `/live-demo` as a live product/tenant demo, treat offline curated fallback as a live API session, leave Resources “Live demo” competing with welcome `/see-it` without rung labels, or put Contoso preview under Claims chrome. Say see-it (rung 1) → guided fabricated sample walkthrough (rung 2, rename off Live) → eval/enterprise CTA, with mode chip and universe pin.
+Do not sell `/live-demo` as a live product/tenant demo, treat offline curated fallback as a live API session, present rungs 1–2 without ladder labels (**TB-1267** / **TB-1282**), or put Contoso preview under Claims chrome. Say see-it (rung 1) → guided fabricated sample walkthrough (rung 2) → eval/enterprise CTA, with mode chip and universe pin.
 
 ### Residuals (honest)
 
-- **TB-1427** / **TB-1428** own the fused ladder contract and language guards.
-- Orchestrates **TB-1265**–**TB-1269** / **TB-1279**–**TB-1283** / **TB-1028** without replacing those P0s.
-- Does not reopen Done **M-107**.
+- **TB-1427** **Done** (2026-08-09) — fused ladder + claim-honesty contract published in [`../library/LIVE_DEMO_SEE_IT_LADDER_HONESTY.md`](../library/LIVE_DEMO_SEE_IT_LADDER_HONESTY.md).
+- **TB-1428** owns anti-live-demo-as-live / ladder-closed language guards (depends on **TB-1427**).
+- UI ship remains on **TB-1266**–**TB-1269** / **TB-1281**–**TB-1282**; title-honesty rows **TB-1265** / **TB-1280** / **TB-1283** are Done.
+- Does not reopen Done **M-107** / **TB-1028** / **TB-1279**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
 
 **Related:** [Integration not-configured empty state (M-258)](#integration-not-configured-empty-state-m-258) Â· [Marketing static vs live boundary (M-179)](#marketing-static-vs-live-demo-boundary-m-179) Â· [Bake-off 15-min loser sequence (M-262)](#bakeoff-15min-loser-sequence-m-262) Â· [`../library/LIVE_DEMO_SEE_IT_LADDER_HONESTY.md`](../library/LIVE_DEMO_SEE_IT_LADDER_HONESTY.md) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).

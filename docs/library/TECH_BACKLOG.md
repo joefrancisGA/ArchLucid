@@ -21,7 +21,7 @@ Regenerate after opening or closing summary-table rows:
 | Cutting-edge AI | 3 |
 | Explainability | 1 |
 | Proof-of-ROI / executive value | 2 |
-| Trustworthiness | 147 |
+| Trustworthiness | 145 |
 | Maintainability | 9 |
 | Traceability | 3 |
 | Interoperability | 4 |
@@ -36,9 +36,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **750** |
+| **Total (unique open)** | **748** |
 
-**By priority band:** P0 **3** | P1 **617** | P2 **113** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **3** | P1 **615** | P2 **113** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -718,7 +718,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1416 | ~~INV-001 / decide-once / committed-manifest PA triad challenge matrix~~ **Done** 2026-08-09 ? [`INV001_DECIDE_ONCE_COMMITTED_MANIFEST_PA_TRIAD_CHALLENGE_MATRIX.md`](INV001_DECIDE_ONCE_COMMITTED_MANIFEST_PA_TRIAD_CHALLENGE_MATRIX.md); GTM **M-253**/**M-254** residuals updated; see `## TB-1416` below | Trustworthiness P1 ? **V1**; PA decide triad; GTM **M-253**/**M-254**; orchestrates **TB-999**/**TB-1003**/? | S |
 | TB-1423 | ~~Deployment status ? StatusTag/overall pill honesty (StatusPill ? design-system)~~ **Done** 2026-08-09 ? overall `StatusTag` + `overallStatusLabel` aria; Vitest; see ## TB-1423 below | Trustworthiness P1 ? **V1**; with **TB-1422**; pairs **TB-116**/**TB-1285** | S |
 | TB-1426 | ~~Deployment status ? related-links external honesty + BUILD_ID chrome soften~~ **Done** 2026-08-09 ? `ExternalLink` new-tab cue + softened page lead; Vitest; see ## TB-1426 below | Trustworthiness P1 ? **V1**; with **TB-1422** | S |
-| TB-1427 | `/live-demo` vs `/see-it` safe ladder + claim-honesty contract; see `## TB-1427` below | Trustworthiness P1 ? **V1**; PA live-demo honesty Q; GTM **M-259**/**M-260**; see `LIVE_DEMO_SEE_IT_LADDER_HONESTY.md` | S |
+| TB-1427 | **Done** (2026-08-09) — `/live-demo` vs `/see-it` safe ladder + claim-honesty contract; see `## TB-1427` below | Trustworthiness P1 ? **V1**; PA live-demo honesty Q; GTM **M-259**/**M-260**; see `LIVE_DEMO_SEE_IT_LADDER_HONESTY.md` | S |
 | TB-1447 | Architectures list ? drafts vs packages title hierarchy honesty; see ## TB-1447 below | Trustworthiness P1 ? **V1**; with **TB-1446**; pairs **TB-1026**/**TB-1400** | S |
 | TB-1448 | Architectures list ? browser-local registry honesty (not tenant inventory theater); see ## TB-1448 below | Trustworthiness P1 ? **V1**; with **TB-1446** | S |
 | TB-1452 | Architecture draft workspace ? StatusTag honesty (not always Status: draft); see ## TB-1452 below | Trustworthiness P1 ? **V1**; with **TB-1451**; pairs **TB-116** | S |
@@ -36867,7 +36867,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Trustworthiness.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-09) ? Published fused ladder + claim-honesty contract in `LIVE_DEMO_SEE_IT_LADDER_HONESTY.md` (PA one-paragraph verdict, 3-rung ladder, mode/universe pins, delivery status table, PA review script, explicit non-claims); GTM **M-260** residuals updated.
 
 **Priority:** P1.
 
