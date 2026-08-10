@@ -40,14 +40,7 @@ internal static class MvcExtensions
                 options.Filters.Add<TrialLimitExceededAuditFilter>();
                 options.Filters.Add<RouteTenantScopeBindingFilter>();
             })
-            .AddJsonOptions(options =>
-            {
-                options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-                options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
-                options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
-                // k6 and CLI payloads often send numeric enum values (cloudProvider: 1); allow integers alongside strings.
-                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(null, allowIntegerValues: true));
-            });
+            .AddJsonOptions(options => ArchLucid.Api.Serialization.ArchLucidApiJsonSerializerOptions.Configure(options.JsonSerializerOptions));
 
         if (ArchLucidSaml2HostFlags.IsSaml2Enabled(configuration))
             mvcBuilder.AddApplicationPart(typeof(ITfoxtec.Identity.Saml2.MvcCore.HttpRequestExtensions).Assembly);

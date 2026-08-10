@@ -86,6 +86,22 @@ Shipped **2026-08-10** via shared [`ArchLucid.Host.Runtime.props`](../../ArchLuc
 
 **Measurement:** Re-capture Phase **A**/**B** on the next dev/staging CD and append a row to [`cold-start-baselines/`](../operations/cold-start-baselines/README.md). Decline Server GC if working set breaches the **1.0 Gi** limit after deploy.
 
+## API JSON source generation (**TB-2162**)
+
+Shipped **2026-08-10** — per-slice `JsonSerializerContext` types under `ArchLucid.Api/Serialization/` chained in `ArchLucidApiJsonSerializerOptions` before `DefaultJsonTypeInfoResolver` (reflection fallback for uncovered DTOs):
+
+| Slice | Hot paths | Types |
+|-------|-----------|-------|
+| **Auth** | `GET /api/auth/me` (Phase B) | `CallerIdentityResponse`, `CallerClaimResponse` |
+| **Runs** | Run list keyset reads | `RunListItemResponse`, `RunSummary`, `CursorPagedResponse<RunListItemResponse>` |
+| **Findings** | Findings keyset metadata | `FindingRecordMetadataPage`, `FindingRecordMetadataRow` |
+| **Audit** | Admin audit list/search | `AuditEvent`, `CursorPagedResponse<AuditEvent>` |
+| **ProblemDetails** | RFC 7807 errors | `ValidationProblemDetails`, `HttpValidationProblemDetails` |
+
+Wire-format parity is guarded by `ArchLucidApiJsonSourceGenerationTests` (reflection baseline vs configured API options). **Run detail** (`RunDetailsResponse`) remains on reflection until a follow-on slice registers its nested graph.
+
+**Measurement:** Pair with **TB-2146** Phase B capture on next CD; append row to [`cold-start-baselines/`](../operations/cold-start-baselines/README.md).
+
 ## See also
 
 - Sustained throughput and p50/p95/p99 baselines: `docs/LOAD_TEST_BASELINE.md` (k6 against Compose `full-stack`, plus scaling thresholds).
