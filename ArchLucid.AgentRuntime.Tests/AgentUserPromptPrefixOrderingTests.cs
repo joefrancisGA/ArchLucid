@@ -1,3 +1,6 @@
+using System.Security.Cryptography;
+using System.Text;
+
 using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -122,5 +125,50 @@ public sealed class AgentUserPromptPrefixOrderingTests
 
         guidanceIndex.Should().BeGreaterOrEqualTo(0);
         retailIndex.Should().BeGreaterThan(guidanceIndex);
+    }
+
+    [Theory]
+    [InlineData(AgentType.Topology, nameof(AgentUserPromptComposer.BuildTopologyUserPrompt))]
+    [InlineData(AgentType.Compliance, nameof(AgentUserPromptComposer.BuildComplianceUserPrompt))]
+    public void UserPrompt_static_prefix_is_byte_stable_across_runs(AgentType agentType, string builderName)
+    {
+        ArchitectureRequest request = SampleRequest();
+        AgentEvidencePackage evidence = SampleEvidence();
+        AgentTask task = SampleTask("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        task.AgentType = agentType;
+
+        string first = BuildPrompt(builderName, "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", request, evidence, task);
+        string second = BuildPrompt(builderName, "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", request, evidence, task);
+
+        string firstPrefix = ExtractStaticPrefix(first);
+        string secondPrefix = ExtractStaticPrefix(second);
+
+        SHA256.HashData(Encoding.UTF8.GetBytes(firstPrefix))
+            .Should()
+            .Equal(SHA256.HashData(Encoding.UTF8.GetBytes(secondPrefix)));
+    }
+
+    private static string BuildPrompt(
+        string builderName,
+        string runId,
+        ArchitectureRequest request,
+        AgentEvidencePackage evidence,
+        AgentTask task) =>
+        builderName switch
+        {
+            nameof(AgentUserPromptComposer.BuildTopologyUserPrompt) =>
+                AgentUserPromptComposer.BuildTopologyUserPrompt(runId, request, evidence, task, CloudProvider.Azure),
+            nameof(AgentUserPromptComposer.BuildComplianceUserPrompt) =>
+                AgentUserPromptComposer.BuildComplianceUserPrompt(runId, request, evidence, task, CloudProvider.Azure),
+            _ => throw new ArgumentOutOfRangeException(nameof(builderName), builderName, null)
+        };
+
+    private static string ExtractStaticPrefix(string prompt)
+    {
+        int runHeaderIndex = prompt.IndexOf(AgentUserPromptComposer.RunHeaderMarker, StringComparison.Ordinal);
+
+        runHeaderIndex.Should().BeGreaterThan(0);
+
+        return prompt[..runHeaderIndex];
     }
 }

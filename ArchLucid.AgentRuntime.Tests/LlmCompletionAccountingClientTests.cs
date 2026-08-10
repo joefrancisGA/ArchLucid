@@ -269,6 +269,52 @@ public sealed class LlmCompletionAccountingClientTests
             Times.Once);
     }
 
+    [Fact]
+    public async Task CompleteJsonAsync_when_cached_input_tokens_are_seeded_records_cached_prompt_counter()
+    {
+        ArchLucidInstrumentation.TestingResetProviderPromptCacheAggregates();
+        _ = ArchLucidInstrumentation.LlmCachedPromptTokensTotal;
+        ArchLucidInstrumentation.EnsureLlmPromptCacheObservableInstrumentsRegistered();
+
+        long cachedTotal = 0;
+
+        using MeterListener listener = new();
+        listener.InstrumentPublished = (instrument, meterListener) =>
+        {
+            if (instrument.Name == "archlucid_llm_cached_prompt_tokens_total")
+                meterListener.EnableMeasurementEvents(instrument);
+        };
+        listener.SetMeasurementEventCallback<long>((instrument, measurement, tags, state) =>
+        {
+            if (instrument.Name == "archlucid_llm_cached_prompt_tokens_total")
+                cachedTotal += measurement;
+        });
+        listener.Start();
+
+        Guid tenant = Guid.NewGuid();
+        Mock<IAgentCompletionClient> inner = new();
+        inner.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("stub", "stub"));
+        inner
+            .Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .Returns(() =>
+            {
+                AzureOpenAiCompletionClient.SeedLastCompletionTokenUsageForTests(100, 12, cachedInputTokens: 60);
+
+                return Task.FromResult("{}");
+            });
+
+        Mock<IUsageMeteringService> metering = new();
+        metering
+            .Setup(m => m.RecordAsync(It.IsAny<UsageEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        LlmCompletionAccountingClient sut = CreateClient(inner.Object, tenant, usageMetering: metering.Object);
+
+        await sut.CompleteJsonAsync("s", "u", cancellationToken: CancellationToken.None);
+
+        cachedTotal.Should().BeGreaterThanOrEqualTo(60);
+    }
+
     private static LlmCompletionAccountingClient CreateClient(
         IAgentCompletionClient inner,
         Guid tenantId,

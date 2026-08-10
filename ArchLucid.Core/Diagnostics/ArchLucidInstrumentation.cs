@@ -54,6 +54,8 @@ public static class ArchLucidInstrumentation
 
     private static int _llmCompletionCacheObservableInstrumentsRegistered;
 
+    private static int _llmPromptCacheObservableInstrumentsRegistered;
+
     private static int _circuitBreakerStateObservableGaugeRegistered;
 
     private static int _llmTenantBudgetUtilizationObservableGaugeRegistered;
@@ -70,6 +72,10 @@ public static class ArchLucidInstrumentation
     private static long _llmCompletionCacheMissesAggregate;
 
     private static long _llmCompletionCachePoisonBustsAggregate;
+
+    private static long _llmProviderPromptTokensAggregate;
+
+    private static long _llmProviderCachedPromptTokensAggregate;
 
     private static long _hotPathReadCacheHitsAggregate;
 
@@ -1443,6 +1449,38 @@ public static class ArchLucidInstrumentation
     }
 
     /// <summary>
+    ///     Registers observable Azure OpenAI automatic prompt-cache instruments once
+    ///     (<see cref="LlmCachedPromptTokensTotal" /> / <see cref="LlmPromptTokensTotal" />).
+    /// </summary>
+    public static void EnsureLlmPromptCacheObservableInstrumentsRegistered()
+    {
+        if (Interlocked.Exchange(ref _llmPromptCacheObservableInstrumentsRegistered, 1) != 0)
+
+            return;
+
+        AppMeter.CreateObservableGauge(
+            "archlucid_llm_prompt_cache_hit_ratio",
+            () =>
+            {
+                long promptTokens = Interlocked.Read(ref _llmProviderPromptTokensAggregate);
+                long cachedTokens = Interlocked.Read(ref _llmProviderCachedPromptTokensAggregate);
+
+                double ratio = promptTokens == 0 ? 0 : cachedTokens / (double)promptTokens;
+
+                return new Measurement<double>(ratio);
+            },
+            description:
+            "Process-wide Azure OpenAI automatic prompt-cache hit ratio (cached prompt tokens / total prompt tokens).");
+    }
+
+    /// <summary>Resets provider prompt-cache aggregates for unit tests only.</summary>
+    internal static void TestingResetProviderPromptCacheAggregates()
+    {
+        Interlocked.Exchange(ref _llmProviderPromptTokensAggregate, 0);
+        Interlocked.Exchange(ref _llmProviderCachedPromptTokensAggregate, 0);
+    }
+
+    /// <summary>
     ///     Registers per-gauge circuit breaker state once (numeric: Closed=0, HalfOpen=1, Open=2; labels <c>gate</c>,
     ///     <c>state</c>).
     /// </summary>
@@ -2571,16 +2609,27 @@ public static class ArchLucidInstrumentation
                        || hasDimensionalTags;
 
         if (promptTokens > 0)
+        {
+            Interlocked.Add(ref _llmProviderPromptTokensAggregate, promptTokens);
+
             if (hasTags)
                 LlmPromptTokensTotal.Add(promptTokens, BuildTags());
             else
                 LlmPromptTokensTotal.Add(promptTokens);
+        }
 
         if (cachedPromptTokens > 0)
+        {
+            Interlocked.Add(ref _llmProviderCachedPromptTokensAggregate, cachedPromptTokens);
+
             if (hasTags)
                 LlmCachedPromptTokensTotal.Add(cachedPromptTokens, BuildTags());
             else
                 LlmCachedPromptTokensTotal.Add(cachedPromptTokens);
+        }
+
+        if (promptTokens > 0 || cachedPromptTokens > 0)
+            EnsureLlmPromptCacheObservableInstrumentsRegistered();
 
         if (completionTokens <= 0)
             return;

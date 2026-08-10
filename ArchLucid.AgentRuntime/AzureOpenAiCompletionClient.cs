@@ -41,8 +41,12 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
     ///     Test-only hook: seeds token counts read by <see cref="TryConsumeLastCompletionTokenUsage" /> on this async flow.
     ///     Used to unit-test <see cref="LlmCompletionAccountingClient" /> without a live Azure completion.
     /// </summary>
-    internal static void SeedLastCompletionTokenUsageForTests(int promptTokens, int completionTokens, int reasoningTokens = 0) =>
-        LlmCompletionTokenUsageAmbient.TestingSeed(promptTokens, completionTokens, reasoningTokens);
+    internal static void SeedLastCompletionTokenUsageForTests(
+        int promptTokens,
+        int completionTokens,
+        int reasoningTokens = 0,
+        int cachedInputTokens = 0) =>
+        LlmCompletionTokenUsageAmbient.TestingSeed(promptTokens, completionTokens, reasoningTokens, cachedInputTokens);
 
     private readonly AzureOpenAIClient _azureOpenAiClient;
     private readonly ChatClient _chatClient;
