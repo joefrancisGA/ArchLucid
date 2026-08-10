@@ -17,6 +17,9 @@ const baseInput = {
   workspaceStatus: { label: "Draft", kind: "draft" as const, statusTagKind: "neutral" as const },
   assessmentInProgress: false,
   hasArtifacts: false,
+  correctionHref: "/architecture/reviews/new?path=guided-intake&rerun=run-1",
+  gapAssertion: { businessOutcome: true, peopleAndSystems: true },
+  gapSourceCapturedAtUtc: null,
 };
 
 describe("buildArchitectureCreatedHomeModel", () => {
@@ -46,7 +49,7 @@ describe("buildArchitectureCreatedHomeModel", () => {
     expect(model.primaryActions.find((action) => action.primary)?.label).toBe("Continue clarifying");
   });
 
-  it("limits missing items to five entries", () => {
+  it("partitions missing items by category", () => {
     const model = buildArchitectureCreatedHomeModel({
       ...baseInput,
       architectureOverview: "",
@@ -57,6 +60,18 @@ describe("buildArchitectureCreatedHomeModel", () => {
       hasArtifacts: false,
     });
 
-    expect(model.missingItems.length).toBeLessThanOrEqual(5);
+    expect(model.clarificationGaps.length).toBeGreaterThan(0);
+    expect(model.evidenceGaps.some((item) => item.id === "diagram")).toBe(true);
+    expect(model.assessmentItems.some((item) => item.id === "assessment-progress")).toBe(true);
+  });
+
+  it("suppresses business-outcome gap when assertion is disabled", () => {
+    const model = buildArchitectureCreatedHomeModel({
+      ...baseInput,
+      businessOutcome: "",
+      gapAssertion: { businessOutcome: false, peopleAndSystems: true },
+    });
+
+    expect(model.clarificationGaps.some((item) => item.id === "business-outcome")).toBe(false);
   });
 });

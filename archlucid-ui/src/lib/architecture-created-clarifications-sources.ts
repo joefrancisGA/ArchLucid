@@ -15,12 +15,12 @@ export const ARCHITECTURE_CREATED_CLARIFICATIONS_SOURCES: readonly ArchitectureC
     { label: "Evidence trail help", href: inAppHelpHref("evidence-trail") },
     { label: "Findings queue", href: "/governance/findings" },
     { label: "Search review evidence", href: "/insights/search-review-evidence" },
-    { label: "Start review (guided intake)", href: "/architecture/reviews/new?path=guided-intake" },
+    { label: "Start review (guided questions)", href: "/architecture/reviews/new?path=guided-intake" },
     { label: "Governance approval help", href: inAppHelpHref("governance-approval") },
   ] as const;
 
 export const ARCHITECTURE_CREATED_CLARIFICATIONS_SOURCES_INTRO =
-  "Use these follow-ups when create-home Clarifications gaps turn into evidence capture, findings triage, or a corrected intake pass.";
+  "Use these follow-ups when create-home Clarifications gaps turn into evidence capture, findings triage, or another guided-questions pass.";
 
 export const ARCHITECTURE_CREATED_CLARIFICATIONS_CLAIM_DISCIPLINE =
   "This create-home Clarifications tab lists unresolved gaps and open questions before finalize. It is not a signed-record Sources trail";

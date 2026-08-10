@@ -1,4 +1,5 @@
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
+import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture-workspace-tabs";
 import {
   matchesGovernanceFindingsRunScope,
   matchesRiskRegisterFilter,
@@ -80,6 +81,23 @@ export function buildReviewDetailFindingsTabHref(runId: string): string {
   const params = new URLSearchParams({ reviewTab: "findings" });
 
   return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}?${params.toString()}`;
+}
+
+export function buildArchitectureClarificationsTabHref(runId: string): string {
+  // Create-home Clarifications tab requires fromGeneration+intent or the workspace unmounts.
+  return buildArchitectureWorkspaceTabHref(runId.trim(), "clarifications");
+}
+
+export function architectureOpenClarificationsPresentation(
+  runId: string,
+  count: number,
+): MetricCountPresentation {
+  return {
+    count,
+    noun: count === 1 ? "open clarification" : "open clarifications",
+    dimensions: [{ kind: "this-review" }],
+    href: buildArchitectureClarificationsTabHref(runId),
+  };
 }
 
 export function reviewFindingsCountPresentation(runId: string, count: number): MetricCountPresentation {

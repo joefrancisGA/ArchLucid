@@ -21,6 +21,7 @@ export type ArchitectureCreatedCompactFirstViewportProps = {
   readonly userAssertions: ArchitectureCreationUserAssertions;
   readonly canEditDiagram: boolean;
   readonly onNavigateTab: (tab: ArchitectureWorkspaceTabId) => void;
+  readonly mode?: "full" | "context-bar";
 };
 
 function WorkspaceActionLink(props: {
@@ -67,9 +68,30 @@ export function ArchitectureCreatedCompactFirstViewport(
   props: ArchitectureCreatedCompactFirstViewportProps,
 ): React.JSX.Element {
   const { model } = props;
+  const mode = props.mode ?? "full";
   const primaryAction = model.primaryActions.find((action) => action.primary) ?? model.primaryActions[0];
   const secondaryActions = model.primaryActions.filter((action) => action !== primaryAction);
   const summaryFields = model.summaryFields.slice(0, 3);
+
+  if (mode === "context-bar") {
+    const summaryPreview = summaryFields[0]?.value ?? model.architectureName;
+
+    return (
+      <section
+        className="rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900/40"
+        data-testid="architecture-created-compact-context-bar"
+        aria-label="Architecture context"
+      >
+        <p className={cn("m-0 truncate text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+          <span className="font-medium text-neutral-900 dark:text-neutral-100">{model.architectureName}</span>
+          <span className="text-neutral-500 dark:text-neutral-400"> · </span>
+          {summaryPreview}
+          <span className="text-neutral-500 dark:text-neutral-400"> · </span>
+          {model.definitionStatusLabel}
+        </p>
+      </section>
+    );
+  }
 
   return (
     <section
@@ -80,7 +102,7 @@ export function ArchitectureCreatedCompactFirstViewport(
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
         <div className="space-y-3">
           <div className="space-y-2">
-            <h2 className={cn("m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100")}>
+            <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {ARCHITECTURE_CREATED_SUMMARY_HEADING}
             </h2>
             {summaryFields.length > 0 ? (
@@ -118,7 +140,7 @@ export function ArchitectureCreatedCompactFirstViewport(
             className="rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"
             data-testid="architecture-created-definition-status"
           >
-            <h2 className={cn("m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100")}>
+            <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {ARCHITECTURE_CREATED_DEFINITION_STATUS_HEADING}
             </h2>
             <p className={cn("m-0 mt-2 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
@@ -130,7 +152,7 @@ export function ArchitectureCreatedCompactFirstViewport(
           </div>
 
           <div className="space-y-2" data-testid="architecture-created-primary-actions">
-            <h2 className={cn("m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100")}>
+            <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {ARCHITECTURE_CREATED_NEXT_STEP_HEADING}
             </h2>
             {primaryAction !== undefined ? (

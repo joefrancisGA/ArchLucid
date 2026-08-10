@@ -17,6 +17,9 @@ describe("ArchitectureCreatedOverviewPanel", () => {
       workspaceStatus: { label: "Draft", kind: "draft", statusTagKind: "neutral" },
       assessmentInProgress: false,
       hasArtifacts: false,
+      correctionHref: "/architecture/reviews/new?path=guided-intake&rerun=run-1",
+      gapAssertion: { businessOutcome: true, peopleAndSystems: true },
+      gapSourceCapturedAtUtc: null,
     });
 
     render(
@@ -25,12 +28,13 @@ describe("ArchitectureCreatedOverviewPanel", () => {
         sourceText=""
         userAssertions={null}
         correctionHref="/architecture/reviews/new?path=guided-intake&rerun=run-abc"
+        openClarificationGapCount={model.clarificationGaps.length}
         onNavigateTab={vi.fn()}
         submittedArchitectureSection={<div>Submitted</div>}
       />,
     );
 
-    const continueLink = screen.getByRole("link", { name: "Continue clarifying" });
+    const continueLink = screen.getByRole("link", { name: /continue clarifying/i });
 
     expect(continueLink.getAttribute("href")).toContain("rerun=run-abc");
     expect(continueLink.getAttribute("href")).toContain("path=guided-intake");

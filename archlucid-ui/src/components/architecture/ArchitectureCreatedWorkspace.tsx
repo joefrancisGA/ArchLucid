@@ -10,6 +10,7 @@ import { ArchitectureCreatedWorkspaceHeader } from "@/components/architecture/Ar
 import { ArchitectureDiagramPanel } from "@/components/architecture/ArchitectureDiagramPanel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+  countClarificationGaps,
   countOpenClarifications,
   countOpenQuestionEntities,
 } from "@/lib/architecture-open-clarifications-count";
@@ -27,6 +28,10 @@ import {
   resolveArchitectureWorkspaceTab,
   resolveArchitectureWorkspaceTabFromHash,
 } from "@/lib/architecture-workspace-tabs";
+import {
+  architectureOpenClarificationsPresentation,
+  formatMetricCountHeadline,
+} from "@/lib/metric-count-presentation";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { REVIEWS_NEW_CREATE_ARCHITECTURE_HREF } from "@/lib/reviews-new-path-copy";
 import { cn } from "@/lib/utils";
@@ -66,6 +71,9 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [hashResolved, setHashResolved] = useState(false);
+  const [dismissedClarificationGapIds, setDismissedClarificationGapIds] = useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
 
   const merged = useMemo(() => {
     const snapshot = readArchitectureCreationHandoff(props.baseline.runId);
@@ -94,6 +102,10 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
     [pathname, router, searchParams],
   );
 
+  const dismissClarificationGap = useCallback((itemId: string) => {
+    setDismissedClarificationGapIds((current) => new Set([...current, itemId]));
+  }, []);
+
   useEffect(() => {
     if (hashResolved) {
       return;
@@ -115,7 +127,16 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
   }, [hashResolved, pathname, router, searchParams]);
 
   const findingsCount = props.findings.length;
-  const clarificationsCount = countOpenClarifications(model.missingItems.length, openQuestionCount);
+  const visibleClarificationGaps = model.clarificationGaps.filter(
+    (item) => !dismissedClarificationGapIds.has(item.id),
+  );
+  const clarificationGapCount = countClarificationGaps(visibleClarificationGaps);
+  const clarificationsCount = countOpenClarifications(clarificationGapCount, openQuestionCount);
+  const clarificationsPresentation = architectureOpenClarificationsPresentation(
+    props.baseline.runId,
+    clarificationsCount,
+  );
+  const clarificationsTabAriaLabel = formatMetricCountHeadline(clarificationsPresentation);
 
   return (
     <div className="space-y-5" data-testid="architecture-created-workspace">
@@ -128,6 +149,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
         userAssertions={userAssertions}
         canEditDiagram={props.canEditDiagram}
         onNavigateTab={navigateTab}
+        mode={activeTab === "clarifications" ? "context-bar" : "full"}
       />
 
       <Tabs value={activeTab} onValueChange={(value) => navigateTab(resolveArchitectureWorkspaceTab(value))}>
@@ -155,6 +177,10 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
                         "ml-2 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-neutral-200 px-1.5 py-0.5 text-xs font-semibold text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200",
                         OPERATOR_TYPOGRAPHY.helper,
                       )}
+                      aria-label={tabId === "clarifications" ? clarificationsTabAriaLabel : undefined}
+                      data-testid={
+                        tabId === "clarifications" ? "architecture-workspace-clarifications-count" : undefined
+                      }
                     >
                       {count}
                     </span>
@@ -172,6 +198,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
               sourceText={props.architectureSourceText}
               userAssertions={userAssertions}
               correctionHref={props.correctionHref}
+              openClarificationGapCount={clarificationGapCount}
               onNavigateTab={navigateTab}
               submittedArchitectureSection={props.panels.submittedArchitecture}
             />
@@ -198,6 +225,8 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
             sourceText={props.architectureSourceText}
             userAssertions={userAssertions}
             correctionHref={props.correctionHref}
+            dismissedClarificationGapIds={dismissedClarificationGapIds}
+            onDismissClarificationGap={dismissClarificationGap}
             onNavigateTab={navigateTab}
           />
         </TabsContent>

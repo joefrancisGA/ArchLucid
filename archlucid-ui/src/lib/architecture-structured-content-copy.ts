@@ -15,6 +15,6 @@ export const ARCHITECTURE_STRUCTURED_SHOW_MORE_LABEL = "Show more" as const;
 
 export const ARCHITECTURE_STRUCTURED_SHOW_LESS_LABEL = "Show less" as const;
 
-export const ARCHITECTURE_STRUCTURED_CORRECT_LABEL = "Correct in intake" as const;
+export const ARCHITECTURE_STRUCTURED_CORRECT_LABEL = "Correct in guided questions" as const;
 
 export const ARCHITECTURE_STRUCTURED_SECTION_EMPTY_LABEL = "Not captured yet" as const;

@@ -34,6 +34,9 @@ describe("ArchitectureCreatedWorkspace", () => {
           workspaceStatus: { label: "Draft", kind: "draft", statusTagKind: "neutral" },
           assessmentInProgress: false,
           hasArtifacts: false,
+          correctionHref: "/architecture/reviews/new?path=guided-intake&rerun=run-1",
+          gapAssertion: { businessOutcome: true, peopleAndSystems: true },
+          gapSourceCapturedAtUtc: null,
         }}
         architectureSourceText="Generated architecture body"
         canEditDiagram
@@ -75,6 +78,9 @@ describe("ArchitectureCreatedWorkspace", () => {
           workspaceStatus: { label: "Draft", kind: "draft", statusTagKind: "neutral" },
           assessmentInProgress: false,
           hasArtifacts: true,
+          correctionHref: "/architecture/reviews/new?path=guided-intake&rerun=run-1",
+          gapAssertion: { businessOutcome: true, peopleAndSystems: true },
+          gapSourceCapturedAtUtc: null,
         }}
         architectureSourceText={`## Open questions
 - Who owns DR failover?

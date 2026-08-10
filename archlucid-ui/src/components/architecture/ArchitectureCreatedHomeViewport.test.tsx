@@ -19,6 +19,9 @@ describe("ArchitectureCreatedHomeViewport", () => {
       workspaceStatus: { label: "Draft", kind: "draft", statusTagKind: "neutral" },
       assessmentInProgress: false,
       hasArtifacts: false,
+      correctionHref: "/architecture/reviews/new?path=guided-intake&rerun=run-1",
+      gapAssertion: { businessOutcome: true, peopleAndSystems: true },
+      gapSourceCapturedAtUtc: null,
     });
 
     render(<ArchitectureCreatedHomeViewport model={model} />);

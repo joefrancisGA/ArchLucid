@@ -1,11 +1,16 @@
+import type { ArchitectureMissingItem } from "@/lib/architecture-created-home-model";
 import { parseArchitectureGeneratedContent } from "@/lib/architecture-generated-content-parser";
 import type { ArchitectureCreationUserAssertions } from "@/lib/architecture-structured-content-types";
 
+export function countClarificationGaps(items: readonly ArchitectureMissingItem[]): number {
+  return items.filter((item) => item.category === "clarification").length;
+}
+
 export function countOpenClarifications(
-  missingCount: number,
+  clarificationGapCount: number,
   openQuestionEntityCount: number,
 ): number {
-  return missingCount + openQuestionEntityCount;
+  return clarificationGapCount + openQuestionEntityCount;
 }
 
 export function countOpenQuestionEntities(

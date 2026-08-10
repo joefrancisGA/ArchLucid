@@ -5,16 +5,12 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { ArchitectureStructuredSectionView } from "@/components/architecture/ArchitectureStructuredSectionView";
-import { Button } from "@/components/ui/button";
+import { ArchitectureStructuringFailureNotice } from "@/components/architecture/ArchitectureStructuringFailureNotice";
 import { parseArchitectureGeneratedContent } from "@/lib/architecture-generated-content-parser";
 import {
-  ARCHITECTURE_STRUCTURED_PARSE_FAILURE_MESSAGE,
-  ARCHITECTURE_STRUCTURED_REPORT_ISSUE_LABEL,
-  ARCHITECTURE_STRUCTURED_RETRY_LABEL,
   ARCHITECTURE_STRUCTURED_VIEW_SOURCE_LABEL,
 } from "@/lib/architecture-structured-content-copy";
 import type { ArchitectureCreationUserAssertions } from "@/lib/architecture-structured-content-types";
-import { SETTINGS_SUPPORT_PATH } from "@/lib/settings-admin-route-paths";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureStructuredContentPanelProps = {
@@ -23,14 +19,6 @@ export type ArchitectureStructuredContentPanelProps = {
   readonly correctionHref: string | null;
   readonly runId: string | null;
 };
-
-function buildReportIssueHref(runId: string | null): string {
-  if (runId === null || runId.trim().length === 0) {
-    return `${SETTINGS_SUPPORT_PATH}?topic=architecture-structuring`;
-  }
-
-  return `${SETTINGS_SUPPORT_PATH}?topic=architecture-structuring&runId=${encodeURIComponent(runId.trim())}`;
-}
 
 /** Structured presentation for generated architecture text — never shows raw model scaffolding by default. */
 export function ArchitectureStructuredContentPanel(
@@ -51,31 +39,12 @@ export function ArchitectureStructuredContentPanel(
   return (
     <div className="space-y-4" data-testid="architecture-structured-content-panel">
       {parseResult.hasPartialParseFailure ? (
-        <div
-          className="rounded-md border border-amber-200 bg-amber-50/80 p-3 dark:border-amber-900 dark:bg-amber-950/30"
-          data-testid="architecture-structured-parse-failure"
-          role="status"
-        >
-          <p className={cn("m-0 text-amber-950 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}>
-            {ARCHITECTURE_STRUCTURED_PARSE_FAILURE_MESSAGE}
-          </p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              data-testid="architecture-structured-retry"
-              onClick={() => {
-                setParseAttempt((current) => current + 1);
-              }}
-            >
-              {ARCHITECTURE_STRUCTURED_RETRY_LABEL}
-            </Button>
-            <Button type="button" variant="outline" size="sm" asChild data-testid="architecture-structured-report-issue">
-              <Link href={buildReportIssueHref(props.runId)}>{ARCHITECTURE_STRUCTURED_REPORT_ISSUE_LABEL}</Link>
-            </Button>
-          </div>
-        </div>
+        <ArchitectureStructuringFailureNotice
+          runId={props.runId}
+          onRetry={() => {
+            setParseAttempt((current) => current + 1);
+          }}
+        />
       ) : null}
 
       {parseResult.sections.length > 0 ? (

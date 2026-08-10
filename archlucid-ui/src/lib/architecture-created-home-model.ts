@@ -3,6 +3,7 @@ import {
   ARCHITECTURE_DEFINITION_STATUS_LABELS,
   ARCHITECTURE_SUMMARY_LABELS,
 } from "@/lib/architecture-created-home-copy";
+import { buildClarificationGapSourcePresentation } from "@/lib/architecture-clarification-gap-present";
 import type { ArchitectureCreationHandoffSnapshot } from "@/lib/architecture-creation-handoff";
 import { REVIEWS_NEW_CREATE_ARCHITECTURE_HREF } from "@/lib/reviews-new-path-copy";
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
@@ -18,10 +19,24 @@ export type ArchitectureSummaryField = {
   readonly value: string;
 };
 
+export type ClarificationGapCategory = "clarification" | "evidence" | "assessment";
+
+export type ClarificationGapSource = {
+  readonly label: string;
+  readonly capturedAtLabel: string | null;
+};
+
+export type ArchitectureGapAssertionFlags = {
+  readonly businessOutcome: boolean;
+  readonly peopleAndSystems: boolean;
+};
+
 export type ArchitectureMissingItem = {
   readonly id: string;
   readonly label: string;
   readonly href: string;
+  readonly category: ClarificationGapCategory;
+  readonly source: ClarificationGapSource;
 };
 
 export type ArchitectureCreatedPrimaryActionKind =
@@ -48,6 +63,9 @@ export type ArchitectureCreatedHomeModel = {
   readonly definitionStatusLabel: string;
   readonly summaryFields: readonly ArchitectureSummaryField[];
   readonly missingItems: readonly ArchitectureMissingItem[];
+  readonly clarificationGaps: readonly ArchitectureMissingItem[];
+  readonly evidenceGaps: readonly ArchitectureMissingItem[];
+  readonly assessmentItems: readonly ArchitectureMissingItem[];
   readonly primaryActions: readonly ArchitectureCreatedPrimaryAction[];
   readonly overflowActions: readonly { readonly label: string; readonly href: string }[];
 };
@@ -63,12 +81,20 @@ export type BuildArchitectureCreatedHomeModelInput = {
   readonly workspaceStatus: RunDetailWorkspaceStatus;
   readonly assessmentInProgress: boolean;
   readonly hasArtifacts: boolean;
+  readonly correctionHref: string | null;
+  readonly gapAssertion: ArchitectureGapAssertionFlags;
+  readonly gapSourceCapturedAtUtc: string | null;
 };
 
 const MIN_STRONG_OVERVIEW_CHARS = 100;
 const MIN_CLARIFICATION_OVERVIEW_CHARS = 40;
 const MIN_OUTCOME_CHARS = 10;
 const MAX_MISSING_ITEMS = 5;
+
+const DEFAULT_GAP_ASSERTION: ArchitectureGapAssertionFlags = {
+  businessOutcome: true,
+  peopleAndSystems: true,
+};
 
 function firstSentence(text: string): string {
   const trimmed = text.trim();
@@ -163,15 +189,29 @@ function buildSummaryFields(input: BuildArchitectureCreatedHomeModelInput): Arch
   return fields.slice(0, 4);
 }
 
+function resolveClarifyHref(input: BuildArchitectureCreatedHomeModelInput): string {
+  return input.correctionHref ?? REVIEWS_NEW_CREATE_ARCHITECTURE_HREF;
+}
+
+function buildGapSource(input: BuildArchitectureCreatedHomeModelInput): ClarificationGapSource {
+  return buildClarificationGapSourcePresentation({
+    capturedAtUtc: input.gapSourceCapturedAtUtc,
+    fromHandoff: input.gapSourceCapturedAtUtc !== null,
+  });
+}
+
 function buildMissingItems(input: BuildArchitectureCreatedHomeModelInput): ArchitectureMissingItem[] {
   const items: ArchitectureMissingItem[] = [];
-  const clarifyHref = REVIEWS_NEW_CREATE_ARCHITECTURE_HREF;
+  const clarifyHref = resolveClarifyHref(input);
+  const source = buildGapSource(input);
 
-  if (input.businessOutcome.trim().length < MIN_OUTCOME_CHARS) {
+  if (input.gapAssertion.businessOutcome && input.businessOutcome.trim().length < MIN_OUTCOME_CHARS) {
     items.push({
       id: "business-outcome",
       label: "Business outcome is still brief or missing",
       href: clarifyHref,
+      category: "clarification",
+      source,
     });
   }
 
@@ -180,10 +220,13 @@ function buildMissingItems(input: BuildArchitectureCreatedHomeModelInput): Archi
       id: "architecture-overview",
       label: "Architecture overview needs more system context",
       href: clarifyHref,
+      category: "clarification",
+      source,
     });
   }
 
   if (
+    input.gapAssertion.peopleAndSystems &&
     input.peopleAndSystems.length === 0 &&
     (input.architectureName.trim().length === 0 ||
       input.architectureName.trim().toLowerCase() === "untitled architecture")
@@ -192,6 +235,8 @@ function buildMissingItems(input: BuildArchitectureCreatedHomeModelInput): Archi
       id: "people-systems",
       label: "People, systems, or integrations are not identified yet",
       href: clarifyHref,
+      category: "clarification",
+      source,
     });
   }
 
@@ -200,6 +245,8 @@ function buildMissingItems(input: BuildArchitectureCreatedHomeModelInput): Archi
       id: "diagram",
       label: "Architecture diagram or supporting evidence not uploaded",
       href: buildArchitectureWorkspaceTabHref(input.runId, "evidence"),
+      category: "evidence",
+      source,
     });
   }
 
@@ -208,21 +255,34 @@ function buildMissingItems(input: BuildArchitectureCreatedHomeModelInput): Archi
       id: "assessment-progress",
       label: "Initial assessment is still running",
       href: buildArchitectureWorkspaceTabHref(input.runId, "activity"),
+      category: "assessment",
+      source,
     });
   }
 
   return items.slice(0, MAX_MISSING_ITEMS);
 }
 
+function partitionMissingItems(items: readonly ArchitectureMissingItem[]): {
+  readonly clarificationGaps: readonly ArchitectureMissingItem[];
+  readonly evidenceGaps: readonly ArchitectureMissingItem[];
+  readonly assessmentItems: readonly ArchitectureMissingItem[];
+} {
+  return {
+    clarificationGaps: items.filter((item) => item.category === "clarification"),
+    evidenceGaps: items.filter((item) => item.category === "evidence"),
+    assessmentItems: items.filter((item) => item.category === "assessment"),
+  };
+}
+
 function buildPrimaryActions(
   input: BuildArchitectureCreatedHomeModelInput,
 ): ArchitectureCreatedPrimaryAction[] {
-  const clarifyHref = REVIEWS_NEW_CREATE_ARCHITECTURE_HREF;
+  const clarifyHref = resolveClarifyHref(input);
   const diagramHref = buildArchitectureWorkspaceTabHref(input.runId, "diagram");
   const assessmentHref = buildArchitectureWorkspaceTabHref(input.runId, "activity");
-  const hasClarificationGaps = buildMissingItems(input).some(
-    (item) => item.id === "business-outcome" || item.id === "architecture-overview" || item.id === "people-systems",
-  );
+  const partitioned = partitionMissingItems(buildMissingItems(input));
+  const hasClarificationGaps = partitioned.clarificationGaps.length > 0;
 
   if (hasClarificationGaps) {
     return [
@@ -298,6 +358,8 @@ export function buildArchitectureCreatedHomeModel(
   input: BuildArchitectureCreatedHomeModelInput,
 ): ArchitectureCreatedHomeModel {
   const definitionStatus = deriveDefinitionStatus(input);
+  const missingItems = buildMissingItems(input);
+  const partitioned = partitionMissingItems(missingItems);
 
   return {
     runId: input.runId,
@@ -309,7 +371,10 @@ export function buildArchitectureCreatedHomeModel(
     definitionStatus,
     definitionStatusLabel: ARCHITECTURE_DEFINITION_STATUS_LABELS[definitionStatus],
     summaryFields: buildSummaryFields(input),
-    missingItems: buildMissingItems(input),
+    missingItems,
+    clarificationGaps: partitioned.clarificationGaps,
+    evidenceGaps: partitioned.evidenceGaps,
+    assessmentItems: partitioned.assessmentItems,
     primaryActions: buildPrimaryActions(input),
     overflowActions: [
       { label: "View assessment details", href: buildArchitectureWorkspaceTabHref(input.runId, "findings") },
@@ -338,5 +403,22 @@ export function mergeArchitectureCreatedHomeInput(
       snapshot.businessOutcome.length > 0 ? snapshot.businessOutcome : baseline.businessOutcome,
     peopleAndSystems:
       snapshot.peopleAndSystems.length > 0 ? snapshot.peopleAndSystems : baseline.peopleAndSystems,
+    gapAssertion: {
+      businessOutcome: true,
+      peopleAndSystems: true,
+    },
+    gapSourceCapturedAtUtc: snapshot.recordedAtUtc,
+  };
+}
+
+export function withDefaultGapAssertionInput(
+  input: Omit<BuildArchitectureCreatedHomeModelInput, "gapAssertion" | "gapSourceCapturedAtUtc" | "correctionHref"> &
+    Partial<Pick<BuildArchitectureCreatedHomeModelInput, "gapAssertion" | "gapSourceCapturedAtUtc" | "correctionHref">>,
+): BuildArchitectureCreatedHomeModelInput {
+  return {
+    ...input,
+    correctionHref: input.correctionHref ?? null,
+    gapAssertion: input.gapAssertion ?? DEFAULT_GAP_ASSERTION,
+    gapSourceCapturedAtUtc: input.gapSourceCapturedAtUtc ?? null,
   };
 }
