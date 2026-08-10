@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { ArchitectureCreationLocalDraftsPanel } from "@/components/architecture/ArchitectureCreationLocalDraftsPanel";
 import { ArchitectureDraftAiRefinePanel } from "@/components/architecture/ArchitectureDraftAiRefinePanel";
 import { ArchitectureDraftFormFields } from "@/components/architecture/ArchitectureDraftFormFields";
 import { ArchitectureDraftGuidanceDisclosure } from "@/components/architecture/ArchitectureDraftGuidanceDisclosure";
@@ -363,6 +364,8 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
           onAcknowledgeEditAnyway={handleAcknowledgeHandoff}
         />
       ) : null}
+
+      {isNewDraft ? <ArchitectureCreationLocalDraftsPanel /> : null}
 
       <div className="flex flex-wrap items-center justify-between gap-2">
         <ArchitectureDraftGuidanceDisclosure className="flex-1" />

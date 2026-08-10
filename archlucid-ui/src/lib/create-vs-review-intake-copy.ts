@@ -18,9 +18,16 @@ export const ARCHITECTURE_DRAFT_WORKSPACE_LEAD =
 export const ARCHITECTURE_CREATION_BOOTSTRAP_LEAD =
   "Start a new architecture or continue one of your saved drafts.";
 
-/** Empty-state guidance when the operator has no saved drafts yet. */
+/** Empty-state guidance when the operator has no saved drafts yet (TB-1459). */
 export const ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE =
-  "Describe the system, goals, and constraints to begin your first architecture.";
+  "No architecture drafts are saved in this browser yet. Describe the system, goals, and constraints below to begin. Drafts you save on other browsers or devices will not appear here.";
+
+/** Resume strip body when local registry entries exist (TB-1459). */
+export const ARCHITECTURE_CREATION_RECENT_DRAFTS_BODY =
+  "These drafts are saved in this browser only — not a tenant-wide inventory. Continue one below or browse the full list on this device.";
+
+/** Link to `/architectures` from the create path — aligned with architectures hub honesty (TB-1459). */
+export const ARCHITECTURE_CREATION_VIEW_ALL_DRAFTS_LABEL = "View all drafts on this browser" as const;
 
 /** Concise create≠review boundary — not a warning banner. */
 export const ARCHITECTURE_CREATION_REVIEW_BOUNDARY =
