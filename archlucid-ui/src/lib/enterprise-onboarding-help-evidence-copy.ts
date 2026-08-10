@@ -15,7 +15,7 @@ export type EnterpriseOnboardingHelpSourceLink = {
 
 /** Operator Sources - no self-href to `/help/enterprise-onboarding`. */
 export const ENTERPRISE_ONBOARDING_HELP_SOURCES: readonly EnterpriseOnboardingHelpSourceLink[] = [
-  { label: "Identity providers", href: "/administration/settings/identity-providers" },
+  { label: "Identity providers", href: "/administration/identity-providers" },
   { label: "Users and roles", href: inAppHelpHref("users-and-roles") },
   { label: "Security and trust help", href: inAppHelpHref("security-trust") },
   { label: "Assurance status", href: "/security-trust" },

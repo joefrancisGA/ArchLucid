@@ -4,6 +4,7 @@ import { notFound, permanentRedirect } from "next/navigation";
 
 import { HelpTopicMarkdownView } from "../HelpTopicMarkdownView";
 import { CaiqSigResponseHelpEvidenceOrientationStrip } from "@/components/help/CaiqSigResponseHelpEvidenceOrientationStrip";
+import { EnterpriseOnboardingHelpEvidenceOrientationStrip } from "@/components/help/EnterpriseOnboardingHelpEvidenceOrientationStrip";
 import { HelpAcceleratorChooserGuideView } from "../_sections/HelpAcceleratorChooserGuideView";
 import { HelpAlertsGuideView } from "../_sections/HelpAlertsGuideView";
 import { HelpDigestsGuideView } from "../_sections/HelpDigestsGuideView";
@@ -65,6 +66,7 @@ import {
 } from "@/lib/product-documentation-registry";
 import { getInboundAuthenticatedServerPrincipal } from "@/lib/server-current-principal";
 import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-redirects";
+import { resolveInternalRunbookHelpRouteMetadata } from "@/lib/resolve-internal-runbook-help-route-metadata";
 
 export const dynamic = "force-dynamic";
 
@@ -434,6 +436,7 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
+        evidenceOrientation={<EnterpriseOnboardingHelpEvidenceOrientationStrip />}
       />
     );
   }
@@ -466,7 +469,7 @@ export async function generateMetadata(props: HelpTopicPageProps): Promise<Metad
   }
 
   if (entry.contentKind === "internal-runbook") {
-    return { title: "Help topic not found" };
+    return resolveInternalRunbookHelpRouteMetadata(entry);
   }
 
   if (entry.slug === "first-architecture-review") {

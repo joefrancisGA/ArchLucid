@@ -37,6 +37,8 @@ export type OperatorPageHeaderProps = {
    */
   docsPageKey?: string;
   metadata?: ReactNode;
+  /** Optional status tag beside the title (navHref / PageHeading path only). */
+  statusBadge?: ReactNode;
   actions?: ReactNode;
   /** Optional hierarchy trail rendered above the title row. */
   breadcrumb?: ReactNode;
@@ -57,6 +59,7 @@ export function OperatorPageHeader({
   titleTestId,
   subtitleTestId,
   metadata,
+  statusBadge,
   actions,
   breadcrumb,
   headingLevel = "h2",
@@ -71,6 +74,7 @@ export function OperatorPageHeader({
           title={title}
           description={subtitle}
           metadata={metadata}
+          statusBadge={statusBadge}
           actions={actions}
           headingLevel={headingLevel}
           bordered

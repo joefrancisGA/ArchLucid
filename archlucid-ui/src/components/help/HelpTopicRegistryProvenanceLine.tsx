@@ -6,12 +6,16 @@ import type { ProductDocumentationEntry } from "@/lib/product-documentation-regi
 
 type HelpTopicRegistryProvenanceLineProps = {
   readonly entry: ProductDocumentationEntry;
+  /** Defaults to "Last reviewed". */
+  readonly reviewedLabel?: string;
 };
 
 export function HelpTopicRegistryProvenanceLine(
   props: HelpTopicRegistryProvenanceLineProps,
 ): React.ReactElement | null {
-  const provenance = formatHelpTopicApplicabilityMetadata(props.entry);
+  const provenance = formatHelpTopicApplicabilityMetadata(props.entry, {
+    reviewedLabel: props.reviewedLabel,
+  });
 
   if (provenance === null) {
     return null;

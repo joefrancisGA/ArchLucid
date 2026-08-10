@@ -180,7 +180,7 @@ export function HelpTopicTableOfContents(props: HelpTopicTableOfContentsProps): 
 
   return (
     <>
-      <details className="mb-4 rounded-md border border-neutral-200 bg-al-surface-raised p-3 lg:hidden dark:border-neutral-800">
+      <details className="mb-4 rounded-md border border-neutral-200 bg-al-surface-raised p-3 xl:hidden dark:border-neutral-800">
         <summary className={cn("cursor-pointer font-semibold", HELP_PAGE_TOC.heading)}>On this page</summary>
         <nav aria-label="On this page" className="mt-3" data-testid="help-topic-toc-mobile">
           {tocBody}
@@ -189,7 +189,7 @@ export function HelpTopicTableOfContents(props: HelpTopicTableOfContentsProps): 
 
       <nav
         aria-label="On this page"
-        className={cn(HELP_PAGE_TOC.nav, "hidden lg:block")}
+        className={cn(HELP_PAGE_TOC.nav, "hidden xl:block")}
         data-testid="help-topic-toc"
       >
         <p className={HELP_PAGE_TOC.heading} data-testid="help-topic-toc-heading">

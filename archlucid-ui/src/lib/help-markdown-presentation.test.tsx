@@ -39,6 +39,7 @@ import {
   stripDocumentationMaintenanceMetadata,
   stripEnterpriseOnboardingContributorLeakage,
   stripEnterpriseOnboardingContributorSections,
+  stripEnterpriseOnboardingQuickLinksBlock,
   stripEvaluatorWorkbookContributorLeakage,
   stripGovernanceApiContractsContributorLeakage,
   stripGovernanceApiContractsContributorSections,
@@ -175,6 +176,32 @@ describe("help-markdown-presentation", () => {
     expect(prepared.toLowerCase()).not.toContain("tenant provisioning");
     expect(prepared).not.toContain("Tenant GUID");
     expect(prepared).toContain("## Workforce SSO");
+  });
+
+  it("strips duplicate Quick links blockquote from enterprise onboarding presentation", () => {
+    const source = [
+      "> **Quick links**",
+      ">",
+      "> - **[Configure SSO](#workforce-sso)**",
+      "",
+      "---",
+      "",
+      "## Onboarding hub {#onboarding-hub}",
+      "",
+      "- **[Configure SSO](#workforce-sso)**",
+      "",
+      "## Sign-in models {#sign-in-models}",
+      "",
+      "Body.",
+    ].join("\n");
+
+    const prepared = stripEnterpriseOnboardingQuickLinksBlock(
+      stripEnterpriseOnboardingContributorSections(source),
+    );
+
+    expect(prepared).not.toContain("**Quick links**");
+    expect(prepared).not.toContain("## Onboarding hub");
+    expect(prepared).toContain("## Sign-in models");
   });
 
   it("strips CLI collectors and eng jargon from evaluator workbook (TB-1346)", () => {
@@ -1498,7 +1525,7 @@ Body copy.`}
     expect(screen.queryByText(/\{#workforce-sso\}/i)).toBeNull();
   });
 
-  it("renders same-page anchor links in onboarding hub bullets", () => {
+  it("strips onboarding hub bullets from enterprise onboarding markdown presentation", () => {
     render(
       <MarketingAccessibilityMarkdownFragment
         markdownBody={[
@@ -1521,8 +1548,8 @@ Body copy.`}
       />,
     );
 
-    expect(screen.getByRole("link", { name: "Configure SSO" })).toHaveAttribute("href", "#workforce-sso");
-    expect(screen.getByRole("link", { name: "Assign policy packs" })).toHaveAttribute("href", "#default-policy-packs");
+    expect(screen.queryByRole("link", { name: "Configure SSO" })).toBeNull();
+    expect(screen.queryByRole("heading", { level: 2, name: "Onboarding hub" })).toBeNull();
     expect(screen.getByRole("heading", { level: 2, name: "Workforce SSO" })).toHaveAttribute("id", "workforce-sso");
   });
 

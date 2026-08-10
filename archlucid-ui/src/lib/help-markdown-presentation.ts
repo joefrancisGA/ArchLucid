@@ -570,7 +570,39 @@ export function stripConfigurationReferenceContributorSections(markdown: string)
 }
 
 /** H2 sections omitted from in-app enterprise onboarding (ArchLucid CS / ops theater). */
-const ENTERPRISE_ONBOARDING_OMITTED_SECTION_PREFIXES = ["tenant provisioning"] as const;
+const ENTERPRISE_ONBOARDING_OMITTED_SECTION_PREFIXES = ["tenant provisioning", "onboarding hub"] as const;
+
+/**
+ * Removes the duplicate Quick links blockquote — the interactive hub step list replaces it in-app.
+ */
+export function stripEnterpriseOnboardingQuickLinksBlock(markdown: string): string {
+  const lines = markdown.split("\n");
+  const result: string[] = [];
+  let omitBlockquote = false;
+
+  for (const line of lines) {
+    if (/^>\s*\*\*Quick links\*\*/i.test(line)) {
+      omitBlockquote = true;
+      continue;
+    }
+
+    if (omitBlockquote) {
+      if (line.trim() === "---" || (line.startsWith("## ") && !line.startsWith("###"))) {
+        omitBlockquote = false;
+
+        if (line.trim() !== "---") {
+          result.push(line);
+        }
+      }
+
+      continue;
+    }
+
+    result.push(line);
+  }
+
+  return result.join("\n");
+}
 
 /**
  * TB-1339 — drops ArchLucid-internal tenant provisioning from the product onboarding help view.
@@ -3413,7 +3445,9 @@ export function prepareHelpMarkdownForPresentation(
     : isFirstReviewEvidenceChecklist
       ? stripFirstReviewEvidenceChecklistContributorSections(afterEvaluatorWorkbookStrip)
       : isEnterpriseOnboarding
-        ? stripEnterpriseOnboardingContributorSections(afterEvaluatorWorkbookStrip)
+        ? stripEnterpriseOnboardingContributorSections(
+            stripEnterpriseOnboardingQuickLinksBlock(afterEvaluatorWorkbookStrip),
+          )
         : isGovernanceApiContracts
           ? stripGovernanceApiContractsContributorSections(afterEvaluatorWorkbookStrip)
           : isPilotRoiModel

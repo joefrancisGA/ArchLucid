@@ -18,10 +18,10 @@ export const HELP_PAGE_LAYOUT = {
     OPERATOR_LAYOUT.sectionHeadingStack,
   ),
   contentGrid:
-    "mx-auto grid w-full max-w-[72rem] grid-cols-1 gap-10 lg:grid-cols-[minmax(0,40rem)_12.5rem] xl:grid-cols-[minmax(0,40rem)_16.5rem] lg:items-start",
+    "mx-auto grid w-full max-w-[72rem] grid-cols-1 gap-10 xl:grid-cols-[minmax(0,1fr)_16.5rem] xl:items-start",
   technicalReferenceGrid:
     "grid grid-cols-1 justify-start gap-10 lg:grid-cols-[minmax(0,52rem)_16.5rem] lg:items-start",
-  contentColumn: "min-w-0 w-full max-w-[40rem]",
+  contentColumn: "min-w-0 w-full max-w-none",
   readingBody: OPERATOR_TYPE_SCALE.helpReadingBody,
   technicalReferenceArticle: "w-full max-w-[72rem]",
   technicalReferenceColumn: "min-w-0 w-full max-w-none lg:max-w-[52rem]",
@@ -67,10 +67,9 @@ export function resolveHelpPageContentGridClass(headingCount: number): string {
 
 export const HELP_PAGE_TOC = {
   nav: cn(
-    "lg:sticky lg:self-start",
+    "xl:sticky xl:self-start",
     OPERATOR_SHELL_STICKY_TOP_CLASS,
-    // Cap height only when the sticky rail exceeds the viewport; overflow-y-auto avoids always-visible scrollbars.
-    "lg:max-h-[calc(100dvh-var(--app-shell-sticky,6rem)-2rem)] lg:overflow-y-auto lg:overscroll-y-contain",
+    "xl:max-h-[calc(100dvh-var(--app-shell-sticky,6rem)-2rem)] xl:overflow-y-auto xl:overscroll-y-contain",
   ),
   heading:
     "m-0 text-xs font-semibold uppercase tracking-[0.08em] text-al-text-primary dark:text-neutral-200",

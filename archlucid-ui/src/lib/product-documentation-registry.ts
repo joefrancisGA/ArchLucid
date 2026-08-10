@@ -349,6 +349,9 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
       "Checklist for configuring a hosted ArchLucid enterprise tenant: SSO, roles, governance, policy packs, audit export, and optional Azure cloud evidence.",
     audience: "operator",
     sourcePaths: ["docs/library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md"],
+    pdfStatus: "customer",
+    lastReviewed: "2026-08-09",
+    releaseApplicability: "Applies to V1 GA — hosted enterprise tenant onboarding checklist",
   },
   {
     slug: "integration-readiness",
@@ -482,6 +485,8 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
       "Admin-only specialty guide for CLI, environment, and log triage. Operators should use Troubleshooting; customers never deep-link here.",
     audience: "developer",
     sourcePaths: ["docs/runbooks/TROUBLESHOOTING.md", "docs/runbooks/COMMON_ERRORS.md"],
+    lastReviewed: "2026-08-09",
+    releaseApplicability: "Applies to V1 GA — engineering support and platform triage",
   },
   {
     slug: "path-chooser",

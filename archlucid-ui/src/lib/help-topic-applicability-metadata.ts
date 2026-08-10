@@ -1,10 +1,14 @@
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
-export function formatHelpTopicApplicabilityMetadata(entry: ProductDocumentationEntry): string | null {
+export function formatHelpTopicApplicabilityMetadata(
+  entry: ProductDocumentationEntry,
+  options?: { readonly reviewedLabel?: string },
+): string | null {
   const parts: string[] = [];
+  const reviewedLabel = options?.reviewedLabel ?? "Last reviewed";
 
   if (entry.lastReviewed !== undefined) {
-    parts.push(`Last reviewed ${entry.lastReviewed}`);
+    parts.push(`${reviewedLabel} ${entry.lastReviewed}`);
   }
 
   if (entry.releaseApplicability !== undefined) {

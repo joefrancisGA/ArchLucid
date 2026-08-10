@@ -322,6 +322,14 @@ describe("product-documentation-registry", () => {
     expect(entry?.releaseApplicability).toContain("V1 GA");
   });
 
+  it("declares provenance metadata on enterprise-onboarding operator checklist (HE)", () => {
+    const entry = getProductDocumentationEntry("enterprise-onboarding");
+
+    expect(entry?.lastReviewed).toBe("2026-08-09");
+    expect(entry?.releaseApplicability).toContain("V1 GA");
+    expect(entry?.pdfStatus).toBe("customer");
+  });
+
   it("keeps operator and buyer topics with governance citations off the missing-provenance list (CO)", () => {
     const missingProvenance = listProductDocumentationEntries()
       .filter(
@@ -333,5 +341,6 @@ describe("product-documentation-registry", () => {
       .sort();
 
     expect(missingProvenance).not.toContain("comparison-replay");
+    expect(missingProvenance).not.toContain("enterprise-onboarding");
   });
 });
