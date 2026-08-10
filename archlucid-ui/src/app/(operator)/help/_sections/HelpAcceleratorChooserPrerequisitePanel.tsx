@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
+import type { AcceleratorChooserPrerequisitePresentationWithRetry } from "@/hooks/use-accelerator-chooser-prerequisite-presentation";
 import { ACCELERATOR_CHOOSER_HELP_CLAIM_DISCIPLINE_SCOPE } from "@/lib/accelerator-chooser-help-evidence-copy";
 import {
   ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS,
@@ -14,17 +15,16 @@ import {
 import {
   prerequisiteBorderAccentClass,
   prerequisiteNeedsPrimaryFirstReviewAction,
+  prerequisiteNeedsPrimaryGreenfieldAction,
+  prerequisiteNeedsRetryAction,
 } from "@/lib/accelerator-chooser-pack-prerequisite";
-import type {
-  AcceleratorChooserPrerequisitePresentation,
-  AcceleratorChooserPrerequisiteStatus,
-} from "@/lib/resolve-accelerator-chooser-prerequisite-status";
+import type { AcceleratorChooserPrerequisiteStatus } from "@/lib/resolve-accelerator-chooser-prerequisite-status";
 import { OPERATOR_CARD, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { cn } from "@/lib/utils";
 
 type HelpAcceleratorChooserPrerequisitePanelProps = {
-  readonly presentation: AcceleratorChooserPrerequisitePresentation;
+  readonly presentation: AcceleratorChooserPrerequisitePresentationWithRetry;
 };
 
 function prerequisiteStatusTag(status: AcceleratorChooserPrerequisiteStatus): React.ReactElement {
@@ -68,7 +68,9 @@ export function HelpAcceleratorChooserPrerequisitePanel(
   props: HelpAcceleratorChooserPrerequisitePanelProps,
 ): React.ReactElement {
   const { presentation } = props;
-  const elevateFirstReview = prerequisiteNeedsPrimaryFirstReviewAction(presentation.status);
+  const elevateGreenfield = prerequisiteNeedsPrimaryGreenfieldAction(presentation.status);
+  const elevateFirstReviewHelp = prerequisiteNeedsPrimaryFirstReviewAction(presentation.status);
+  const showRetry = prerequisiteNeedsRetryAction(presentation.status);
 
   return (
     <Card
@@ -94,6 +96,8 @@ export function HelpAcceleratorChooserPrerequisitePanel(
         <div
           className="flex flex-wrap items-center gap-2"
           data-testid="help-accelerator-chooser-prerequisite-tenant-state"
+          aria-live="polite"
+          aria-atomic="true"
         >
           {prerequisiteStatusTag(presentation.status)}
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
@@ -110,21 +114,76 @@ export function HelpAcceleratorChooserPrerequisitePanel(
           ) : null}
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Button
-            asChild
-            size="sm"
-            variant={elevateFirstReview ? "primary" : "outline"}
-            data-testid="help-accelerator-chooser-first-review-action"
-          >
-            <Link href={ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS.firstArchitectureReview.href}>
-              {ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS.firstArchitectureReview.label}
-            </Link>
-          </Button>
-          <Button asChild size="sm" variant="secondary">
-            <Link href={ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS.pathChooser.href}>
-              {ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS.pathChooser.label}
-            </Link>
-          </Button>
+          {showRetry ? (
+            <Button
+              type="button"
+              size="sm"
+              variant="primary"
+              data-testid="help-accelerator-chooser-prerequisite-retry"
+              onClick={() => {
+                presentation.retry();
+              }}
+            >
+              Retry prerequisite check
+            </Button>
+          ) : null}
+          {elevateGreenfield ? (
+            <>
+              <Button
+                asChild
+                size="sm"
+                variant="primary"
+                data-testid="help-accelerator-chooser-baseline-review-action"
+              >
+                <Link href={ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS.baselineReview.href}>
+                  {ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS.baselineReview.label}
+                </Link>
+              </Button>
+              <Button asChild size="sm" variant="secondary">
+                <Link href={ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS.firstArchitectureReview.href}>
+                  {ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS.firstArchitectureReview.label}
+                </Link>
+              </Button>
+            </>
+          ) : null}
+          {!elevateGreenfield && elevateFirstReviewHelp ? (
+            <>
+              <Button
+                asChild
+                size="sm"
+                variant="primary"
+                data-testid="help-accelerator-chooser-first-review-action"
+              >
+                <Link href={ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS.firstArchitectureReview.href}>
+                  {ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS.firstArchitectureReview.label}
+                </Link>
+              </Button>
+              <Button asChild size="sm" variant="secondary">
+                <Link href={ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS.pathChooser.href}>
+                  {ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS.pathChooser.label}
+                </Link>
+              </Button>
+            </>
+          ) : null}
+          {!elevateGreenfield && !elevateFirstReviewHelp && !showRetry ? (
+            <>
+              <Button
+                asChild
+                size="sm"
+                variant="outline"
+                data-testid="help-accelerator-chooser-first-review-action"
+              >
+                <Link href={ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS.firstArchitectureReview.href}>
+                  {ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS.firstArchitectureReview.label}
+                </Link>
+              </Button>
+              <Button asChild size="sm" variant="secondary">
+                <Link href={ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS.pathChooser.href}>
+                  {ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS.pathChooser.label}
+                </Link>
+              </Button>
+            </>
+          ) : null}
         </div>
       </CardContent>
     </Card>

@@ -1,17 +1,15 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import {
   AcceleratorCostGovernanceCloudPicker,
   useAcceleratorCostGovernancePackSelection,
 } from "@/components/accelerator/AcceleratorCostGovernanceCloudPicker";
-import { Button } from "@/components/ui/button";
+import { AcceleratorPackStartCta } from "@/components/accelerator/AcceleratorPackStartCta";
 import {
   ACCELERATOR_JOB_CHOOSER_EXPECTED_OUTPUTS_LABEL,
   ACCELERATOR_JOB_CHOOSER_REQUIRED_INPUTS_LABEL,
-  ACCELERATOR_JOB_CHOOSER_START_CTA,
 } from "@/lib/accelerator-chooser-start-copy";
 import {
   ACCELERATOR_COST_GOVERNANCE_GROUP,
@@ -19,11 +17,14 @@ import {
 } from "@/lib/accelerator-chooser";
 import { resolveAcceleratorCostGovernancePackEntry } from "@/lib/accelerator-chooser-grid";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import type { AcceleratorChooserPrerequisiteStatus } from "@/lib/resolve-accelerator-chooser-prerequisite-status";
+import { cn } from "@/lib/utils";
 
 export type AcceleratorCostGovernancePackRowProps = {
   readonly compact?: boolean;
   readonly rowTestIdPrefix?: string;
   readonly startTestIdPrefix?: string;
+  readonly prerequisiteStatus: AcceleratorChooserPrerequisiteStatus;
 };
 
 /** Grouped cost-governance accelerator row with Azure / AWS / GCP cloud picker. */
@@ -68,11 +69,15 @@ export function AcceleratorCostGovernancePackRow(props: AcceleratorCostGovernanc
           {ACCELERATOR_COST_GOVERNANCE_GROUP.expectedOutputs}
         </p>
       )}
-      <Button asChild variant="outline" size="sm" className="mt-3">
-        <Link href={selectedPack.startHref} data-testid={`${startPrefix}-${selectedPackId}`}>
-          {ACCELERATOR_JOB_CHOOSER_START_CTA}
-        </Link>
-      </Button>
+      <AcceleratorPackStartCta
+        packId={selectedPackId}
+        packLabel={selectedPack.packLabel}
+        buyerJob={selectedPack.buyerJob}
+        startHref={selectedPack.startHref}
+        prerequisiteStatus={props.prerequisiteStatus}
+        startTestId={`${startPrefix}-${selectedPackId}`}
+        blockedMessageTestId={`${rowPrefix}-${ACCELERATOR_COST_GOVERNANCE_GROUP_ID}-blocked`}
+      />
     </li>
   );
 }

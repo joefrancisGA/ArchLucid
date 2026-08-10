@@ -6,8 +6,8 @@ import {
   AcceleratorCostGovernanceCloudPicker,
   useAcceleratorCostGovernancePackSelection,
 } from "@/components/accelerator/AcceleratorCostGovernanceCloudPicker";
+import { AcceleratorPackStartCta } from "@/components/accelerator/AcceleratorPackStartCta";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { Button } from "@/components/ui/button";
 import {
   ACCELERATOR_COST_GOVERNANCE_GROUP,
   ACCELERATOR_COST_GOVERNANCE_GROUP_ID,
@@ -16,11 +16,7 @@ import {
   ACCELERATOR_COST_GOVERNANCE_HELP_PACK_TEST_ID,
   resolveAcceleratorCostGovernancePackEntry,
 } from "@/lib/accelerator-chooser-grid";
-import { buildAcceleratorPackStartAriaLabel } from "@/lib/accelerator-chooser-pack-start-aria-label";
-import {
-  ACCELERATOR_PACK_PREREQUISITE_BLOCKED_MESSAGE,
-  isAcceleratorPackBlockedByPrerequisite,
-} from "@/lib/accelerator-chooser-pack-prerequisite";
+import { resolvePackCtaState } from "@/lib/accelerator-chooser-pack-prerequisite";
 import { ACCELERATOR_JOB_CHOOSER_REQUIRED_INPUTS_LABEL } from "@/lib/accelerator-chooser-start-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
@@ -38,7 +34,7 @@ export function HelpAcceleratorCostGovernancePackCard(
   const { prerequisiteStatus } = props;
   const { selectedPackId, setSelectedPackId } = useAcceleratorCostGovernancePackSelection();
   const selectedPack = resolveAcceleratorCostGovernancePackEntry(selectedPackId);
-  const blocked = isAcceleratorPackBlockedByPrerequisite(prerequisiteStatus, selectedPackId);
+  const ctaState = resolvePackCtaState(prerequisiteStatus, selectedPackId);
 
   return (
     <li
@@ -84,29 +80,17 @@ export function HelpAcceleratorCostGovernancePackCard(
           {ACCELERATOR_COST_GOVERNANCE_GROUP.expectedOutputs}
         </p>
       </CollapsibleSection>
-      {blocked ? (
-        <>
-          <p
-            className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid={`help-accelerator-chooser-pack-${ACCELERATOR_COST_GOVERNANCE_GROUP_ID}-blocked`}
-          >
-            {ACCELERATOR_PACK_PREREQUISITE_BLOCKED_MESSAGE}
-          </p>
-          <Button size="sm" variant="outline" className="mt-3" disabled>
-            Start with this pack
-          </Button>
-        </>
-      ) : (
-        <Button asChild size="sm" variant="outline" className="mt-3">
-          <Link
-            href={selectedPack.startHref}
-            data-testid={`help-accelerator-chooser-start-${selectedPackId}`}
-            aria-label={buildAcceleratorPackStartAriaLabel(selectedPack.packLabel, selectedPack.buyerJob)}
-          >
-            Start with this pack
-          </Link>
-        </Button>
-      )}
+      <AcceleratorPackStartCta
+        packId={selectedPackId}
+        packLabel={selectedPack.packLabel}
+        buyerJob={selectedPack.buyerJob}
+        startHref={selectedPack.startHref}
+        prerequisiteStatus={prerequisiteStatus}
+        startTestId={ctaState === "ready" ? `help-accelerator-chooser-start-${selectedPackId}` : undefined}
+        blockedMessageTestId={
+          ctaState !== "ready" ? `help-accelerator-chooser-pack-${ACCELERATOR_COST_GOVERNANCE_GROUP_ID}-blocked` : undefined
+        }
+      />
     </li>
   );
 }

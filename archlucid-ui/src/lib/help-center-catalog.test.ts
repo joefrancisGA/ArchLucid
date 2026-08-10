@@ -166,4 +166,11 @@ describe("help center tiers", () => {
 
     expect(advanced).toContain("soc2-self-assessment");
   });
+
+  it("classifies accelerator chooser as product tier (HAX)", () => {
+    const entry = getProductDocumentationEntry("accelerator-chooser");
+
+    expect(entry).not.toBeNull();
+    expect(getHelpCenterTier(entry!)).toBe("product");
+  });
 });

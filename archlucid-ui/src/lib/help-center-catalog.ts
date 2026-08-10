@@ -73,7 +73,7 @@ const HELP_CENTER_TIER_BY_SLUG: Readonly<Record<string, HelpCenterTier>> = {
   "first-value-20-minutes": "internal",
   "cli-usage": "internal",
   "developer-troubleshooting": "internal",
-  "accelerator-chooser": "internal",
+  "accelerator-chooser": "product",
   "governance-api-contracts": "internal",
   "admin-diagnostics": "internal",
   "pilot-feedback": "internal",

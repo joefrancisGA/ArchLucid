@@ -1,9 +1,16 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const useAcceleratorChooserPrerequisitePresentation = vi.fn();
+
+vi.mock("@/hooks/use-accelerator-chooser-prerequisite-presentation", () => ({
+  useAcceleratorChooserPrerequisitePresentation: () => useAcceleratorChooserPrerequisitePresentation(),
+}));
 
 import { AcceleratorJobChooserList } from "@/components/accelerator/AcceleratorJobChooserList";
 import { ACCELERATOR_COST_GOVERNANCE_GROUP_ID } from "@/lib/accelerator-chooser";
 import { buildAcceleratorChooserGridItems } from "@/lib/accelerator-chooser-grid";
+import { ACCELERATOR_GREENFIELD_PACK_ID, ACCELERATOR_PACK_PREREQUISITE_BLOCKED_MESSAGE } from "@/lib/accelerator-chooser-pack-prerequisite";
 
 describe("accelerator-chooser-grid", () => {
   it("collapses Azure, AWS, and GCP cost packs into one grouped grid row", () => {
@@ -17,6 +24,14 @@ describe("accelerator-chooser-grid", () => {
 });
 
 describe("AcceleratorJobChooserList", () => {
+  beforeEach(() => {
+    useAcceleratorChooserPrerequisitePresentation.mockReturnValue({
+      status: "met",
+      signedRecordHref: null,
+      retry: vi.fn(),
+    });
+  });
+
   it("hides expected outputs in compact mode on the start-review page", () => {
     render(
       <AcceleratorJobChooserList
@@ -55,5 +70,21 @@ describe("AcceleratorJobChooserList", () => {
       "href",
       "/architecture/reviews/new?baseline=1&accelerator=aws-cost-governance",
     );
+  });
+
+  it("blocks specialty pack starts when prerequisite is not met", () => {
+    useAcceleratorChooserPrerequisitePresentation.mockReturnValue({
+      status: "not-met",
+      signedRecordHref: null,
+      retry: vi.fn(),
+    });
+
+    render(<AcceleratorJobChooserList startTestIdPrefix="accelerator-chooser-start" />);
+
+    expect(screen.getByTestId(`accelerator-chooser-start-${ACCELERATOR_GREENFIELD_PACK_ID}`)).toBeInTheDocument();
+    expect(screen.getByTestId(`accelerator-chooser-row-ai-llm-workload-blocked`)).toHaveTextContent(
+      ACCELERATOR_PACK_PREREQUISITE_BLOCKED_MESSAGE,
+    );
+    expect(screen.getAllByRole("link", { name: /start with this pack/i })).toHaveLength(1);
   });
 });

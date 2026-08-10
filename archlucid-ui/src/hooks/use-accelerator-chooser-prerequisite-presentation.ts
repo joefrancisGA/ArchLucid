@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
@@ -10,8 +10,13 @@ import {
 } from "@/lib/resolve-accelerator-chooser-prerequisite-status";
 import { resolveGoldenManifestIdForRun } from "@/lib/resolve-golden-manifest-id-for-run";
 
+export type AcceleratorChooserPrerequisitePresentationWithRetry = AcceleratorChooserPrerequisitePresentation & {
+  readonly retry: () => void;
+};
+
 /** Live tenant signed-review-record prerequisite for `/help/accelerator-chooser`. */
-export function useAcceleratorChooserPrerequisitePresentation(): AcceleratorChooserPrerequisitePresentation {
+export function useAcceleratorChooserPrerequisitePresentation(): AcceleratorChooserPrerequisitePresentationWithRetry {
+  const queryClient = useQueryClient();
   const commitQuery = useCorePilotCommitContextQuery();
   const committedRunId = commitQuery.data?.firstCommittedRunId ?? null;
 
@@ -21,7 +26,7 @@ export function useAcceleratorChooserPrerequisitePresentation(): AcceleratorChoo
     enabled: committedRunId !== null && commitQuery.data?.hasCommittedManifest === true,
   });
 
-  return resolveAcceleratorChooserPrerequisitePresentation({
+  const presentation = resolveAcceleratorChooserPrerequisitePresentation({
     commitQueryPending: commitQuery.isPending,
     commitQueryError: commitQuery.isError,
     commitContext: commitQuery.data,
@@ -31,4 +36,14 @@ export function useAcceleratorChooserPrerequisitePresentation(): AcceleratorChoo
       && manifestQuery.isPending,
     manifestId: manifestQuery.data,
   });
+
+  const retry = (): void => {
+    void commitQuery.refetch();
+
+    if (committedRunId !== null) {
+      void manifestQuery.refetch();
+    }
+  };
+
+  return { ...presentation, retry };
 }

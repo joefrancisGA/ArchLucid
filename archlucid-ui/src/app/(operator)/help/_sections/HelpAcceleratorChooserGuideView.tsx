@@ -5,16 +5,15 @@ import Link from "next/link";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpAcceleratorChooserHeaderActions } from "@/app/(operator)/help/_sections/HelpAcceleratorChooserHeaderActions";
 import { HelpAcceleratorChooserPrerequisitePanel } from "@/app/(operator)/help/_sections/HelpAcceleratorChooserPrerequisitePanel";
-import { HelpAcceleratorChooserSourceLinks } from "@/app/(operator)/help/_sections/HelpAcceleratorChooserSourceLinks";
+import { HelpAcceleratorChooserRelatedNextStepsLinks } from "@/app/(operator)/help/_sections/HelpAcceleratorChooserSourceLinks";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { HelpAcceleratorCostGovernancePackCard } from "@/components/accelerator/HelpAcceleratorCostGovernancePackCard";
+import { AcceleratorPackStartCta } from "@/components/accelerator/AcceleratorPackStartCta";
 import { useAcceleratorChooserPrerequisitePresentation } from "@/hooks/use-accelerator-chooser-prerequisite-presentation";
-import { buildAcceleratorChooserGridItems } from "@/lib/accelerator-chooser-grid";
+import { buildAcceleratorChooserGridItemsForPrerequisite } from "@/lib/accelerator-chooser-grid";
 import type { AcceleratorChooserEntry } from "@/lib/accelerator-chooser";
 import {
   ACCELERATOR_CHOOSER_HELP_OVERVIEW,
@@ -23,13 +22,11 @@ import {
   ACCELERATOR_CHOOSER_HELP_WORKFLOW_STEPS,
   ACCELERATOR_CHOOSER_HELP_CLAIM_DISCIPLINE_COPY,
 } from "@/lib/accelerator-chooser-help-guide-content";
-import { ACCELERATOR_CHOOSER_HELP_SOURCES_INTRO } from "@/lib/accelerator-chooser-help-evidence-copy";
+import { ACCELERATOR_CHOOSER_HELP_RELATED_NEXT_STEPS_INTRO } from "@/lib/accelerator-chooser-help-evidence-copy";
 import { ACCELERATOR_CHOOSER_HELP_PATH } from "@/lib/accelerator-chooser-help-route";
-import { buildAcceleratorPackStartAriaLabel } from "@/lib/accelerator-chooser-pack-start-aria-label";
 import {
   ACCELERATOR_GREENFIELD_PACK_ID,
-  ACCELERATOR_PACK_PREREQUISITE_BLOCKED_MESSAGE,
-  isAcceleratorPackBlockedByPrerequisite,
+  resolvePackCtaState,
 } from "@/lib/accelerator-chooser-pack-prerequisite";
 import { ACCELERATOR_JOB_CHOOSER_REQUIRED_INPUTS_LABEL } from "@/lib/accelerator-chooser-start-copy";
 import {
@@ -46,16 +43,17 @@ import {
 } from "@/lib/product-documentation-registry";
 import type { AcceleratorChooserPrerequisiteStatus } from "@/lib/resolve-accelerator-chooser-prerequisite-status";
 import { cn } from "@/lib/utils";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 type HelpAcceleratorChooserGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
 };
 
-const ACCELERATOR_CHOOSER_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
-  { level: 2, id: "sources", title: "Sources" },
+export const ACCELERATOR_CHOOSER_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "accelerator-packs", title: "Accelerator packs" },
-  { level: 2, id: "how-to-start", title: "How to start" },
+  { level: 2, id: "how-to-start", title: "How to start in the architect workspace" },
   { level: 2, id: "claim-discipline", title: "Claim discipline" },
+  { level: 2, id: "related-next-steps", title: "Related next steps" },
 ];
 
 function resolveRequiredInputsHelpHref(packEntry: AcceleratorChooserEntry): string {
@@ -73,8 +71,10 @@ type AcceleratorChooserPackCardProps = {
 
 function AcceleratorChooserPackCard(props: AcceleratorChooserPackCardProps): React.ReactElement {
   const { packEntry, prerequisiteStatus } = props;
-  const blocked = isAcceleratorPackBlockedByPrerequisite(prerequisiteStatus, packEntry.id);
+  const ctaState = resolvePackCtaState(prerequisiteStatus, packEntry.id);
   const hasTechnicalInputs = packEntry.technicalInputs !== undefined;
+  const primaryWhenReady =
+    packEntry.id === ACCELERATOR_GREENFIELD_PACK_ID && prerequisiteStatus === "not-met";
 
   return (
     <li
@@ -122,29 +122,20 @@ function AcceleratorChooserPackCard(props: AcceleratorChooserPackCardProps): Rea
           {packEntry.expectedOutputs}
         </p>
       </CollapsibleSection>
-      {blocked ? (
-        <>
-          <p
-            className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid={`help-accelerator-chooser-pack-${packEntry.id}-blocked`}
-          >
-            {ACCELERATOR_PACK_PREREQUISITE_BLOCKED_MESSAGE}
-          </p>
-          <Button size="sm" variant="outline" className="mt-3" disabled>
-            Start with this pack
-          </Button>
-        </>
-      ) : (
-        <Button asChild size="sm" variant="outline" className="mt-3">
-          <Link
-            href={packEntry.startHref}
-            data-testid={`help-accelerator-chooser-start-${packEntry.id}`}
-            aria-label={buildAcceleratorPackStartAriaLabel(packEntry.packLabel, packEntry.buyerJob)}
-          >
-            Start with this pack
-          </Link>
-        </Button>
-      )}
+      <AcceleratorPackStartCta
+        packId={packEntry.id}
+        packLabel={packEntry.packLabel}
+        buyerJob={packEntry.buyerJob}
+        startHref={packEntry.startHref}
+        prerequisiteStatus={prerequisiteStatus}
+        startTestId={
+          ctaState === "ready" ? `help-accelerator-chooser-start-${packEntry.id}` : undefined
+        }
+        blockedMessageTestId={
+          ctaState !== "ready" ? `help-accelerator-chooser-pack-${packEntry.id}-blocked` : undefined
+        }
+        primaryWhenReady={primaryWhenReady}
+      />
     </li>
   );
 }
@@ -155,6 +146,7 @@ export function HelpAcceleratorChooserGuideView(
 ): React.ReactElement {
   const { entry } = props;
   const presentation = useAcceleratorChooserPrerequisitePresentation();
+  const gridItems = buildAcceleratorChooserGridItemsForPrerequisite(presentation.status);
 
   return (
     <article
@@ -180,29 +172,6 @@ export function HelpAcceleratorChooserGuideView(
         <HelpAcceleratorChooserPrerequisitePanel presentation={presentation} />
 
         <section
-          aria-labelledby="help-accelerator-chooser-sources-heading"
-          data-testid="help-accelerator-chooser-sources"
-          id="sources"
-        >
-          <Card className="border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950">
-            <CardHeader className={OPERATOR_CARD.header}>
-              <h2
-                id="help-accelerator-chooser-sources-heading"
-                className={cn("m-0 text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}
-              >
-                Sources
-              </h2>
-              <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                {ACCELERATOR_CHOOSER_HELP_SOURCES_INTRO}
-              </p>
-            </CardHeader>
-            <CardContent className={OPERATOR_CARD.content}>
-              <HelpAcceleratorChooserSourceLinks />
-            </CardContent>
-          </Card>
-        </section>
-
-        <section
           aria-labelledby="help-accelerator-chooser-packs-heading"
           data-testid="help-accelerator-chooser-packs"
           id="accelerator-packs"
@@ -217,7 +186,7 @@ export function HelpAcceleratorChooserGuideView(
             {ACCELERATOR_CHOOSER_HELP_OVERVIEW}
           </p>
           <ul className="m-0 mt-3 grid list-none gap-3 p-0 sm:grid-cols-2">
-            {buildAcceleratorChooserGridItems().map((gridItem) => {
+            {gridItems.map((gridItem) => {
               if (gridItem.kind === "cost-governance-group") {
                 return (
                   <HelpAcceleratorCostGovernancePackCard
@@ -277,6 +246,29 @@ export function HelpAcceleratorChooserGuideView(
             <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>Claim discipline</h2>
             <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>{ACCELERATOR_CHOOSER_HELP_CLAIM_DISCIPLINE_COPY}</p>
           </aside>
+
+          <section
+            aria-labelledby="help-accelerator-chooser-related-next-steps-heading"
+            data-testid="help-accelerator-chooser-related-next-steps"
+            id="related-next-steps"
+          >
+            <Card className="border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950">
+              <CardHeader className={OPERATOR_CARD.header}>
+                <h2
+                  id="help-accelerator-chooser-related-next-steps-heading"
+                  className={cn("m-0 text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}
+                >
+                  Related next steps
+                </h2>
+                <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {ACCELERATOR_CHOOSER_HELP_RELATED_NEXT_STEPS_INTRO}
+                </p>
+              </CardHeader>
+              <CardContent className={OPERATOR_CARD.content}>
+                <HelpAcceleratorChooserRelatedNextStepsLinks />
+              </CardContent>
+            </Card>
+          </section>
         </div>
 
         <HelpTopicTableOfContents headings={ACCELERATOR_CHOOSER_GUIDE_HEADINGS} />

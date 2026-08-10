@@ -1,21 +1,29 @@
 import { describe, expect, it } from "vitest";
 
+import { ACCELERATOR_GREENFIELD_PACK_ID } from "@/lib/accelerator-chooser-pack-prerequisite";
 import {
-  ACCELERATOR_CHOOSER_ENTRIES,
-  ACCELERATOR_COST_GOVERNANCE_PACK_IDS,
-  isAcceleratorCostGovernancePackId,
-} from "@/lib/accelerator-chooser";
-import { buildAcceleratorChooserGridItems } from "@/lib/accelerator-chooser-grid";
+  buildAcceleratorChooserGridItems,
+  buildAcceleratorChooserGridItemsForPrerequisite,
+} from "@/lib/accelerator-chooser-grid";
 
 describe("accelerator-chooser cost governance grouping", () => {
-  it("marks all three cloud cost packs as cost-governance ids", () => {
-    for (const packId of ACCELERATOR_COST_GOVERNANCE_PACK_IDS) {
-      expect(isAcceleratorCostGovernancePackId(packId)).toBe(true);
-      expect(ACCELERATOR_CHOOSER_ENTRIES.some((entry) => entry.id === packId)).toBe(true);
-    }
-  });
-
   it("builds a single grouped grid row for cost governance packs", () => {
     expect(buildAcceleratorChooserGridItems()).toHaveLength(5);
+  });
+
+  it("hoists greenfield first when prerequisite is not met", () => {
+    const items = buildAcceleratorChooserGridItemsForPrerequisite("not-met");
+
+    expect(items[0]).toEqual({
+      kind: "pack",
+      entry: expect.objectContaining({ id: ACCELERATOR_GREENFIELD_PACK_ID }),
+    });
+  });
+
+  it("keeps default order when prerequisite is met", () => {
+    const defaultItems = buildAcceleratorChooserGridItems();
+    const metItems = buildAcceleratorChooserGridItemsForPrerequisite("met");
+
+    expect(metItems).toEqual(defaultItems);
   });
 });

@@ -5,25 +5,68 @@ export const ACCELERATOR_GREENFIELD_PACK_ID = "greenfield-web-app" as const;
 export const ACCELERATOR_PACK_PREREQUISITE_BLOCKED_MESSAGE =
   "Needs a signed review record first." as const;
 
+export const ACCELERATOR_PACK_CTA_PENDING_CHECKING_MESSAGE =
+  "Checking whether this tenant has a signed review record…" as const;
+
+export const ACCELERATOR_PACK_CTA_PENDING_UNKNOWN_MESSAGE =
+  "Signed review record status is unavailable — verify access, then retry." as const;
+
+export type AcceleratorPackCtaState =
+  | "ready"
+  | "blocked-not-met"
+  | "pending-checking"
+  | "pending-unknown";
+
 export function acceleratorPackRequiresSignedReviewRecord(packId: string): boolean {
   return packId !== ACCELERATOR_GREENFIELD_PACK_ID;
+}
+
+export function resolvePackCtaState(
+  status: AcceleratorChooserPrerequisiteStatus,
+  packId: string,
+): AcceleratorPackCtaState {
+  if (!acceleratorPackRequiresSignedReviewRecord(packId)) {
+    return "ready";
+  }
+
+  switch (status) {
+    case "met":
+      return "ready";
+    case "not-met":
+      return "blocked-not-met";
+    case "checking":
+      return "pending-checking";
+    case "unknown":
+      return "pending-unknown";
+    default: {
+      const exhaustive: never = status;
+
+      return exhaustive;
+    }
+  }
 }
 
 export function isAcceleratorPackBlockedByPrerequisite(
   status: AcceleratorChooserPrerequisiteStatus,
   packId: string,
 ): boolean {
-  if (!acceleratorPackRequiresSignedReviewRecord(packId)) {
-    return false;
-  }
+  return resolvePackCtaState(status, packId) === "blocked-not-met";
+}
 
-  return status !== "met";
+export function prerequisiteNeedsPrimaryGreenfieldAction(
+  status: AcceleratorChooserPrerequisiteStatus,
+): boolean {
+  return status === "not-met";
 }
 
 export function prerequisiteNeedsPrimaryFirstReviewAction(
   status: AcceleratorChooserPrerequisiteStatus,
 ): boolean {
-  return status === "not-met" || status === "unknown";
+  return status === "unknown";
+}
+
+export function prerequisiteNeedsRetryAction(status: AcceleratorChooserPrerequisiteStatus): boolean {
+  return status === "unknown";
 }
 
 export function prerequisiteBorderAccentClass(status: AcceleratorChooserPrerequisiteStatus): string {

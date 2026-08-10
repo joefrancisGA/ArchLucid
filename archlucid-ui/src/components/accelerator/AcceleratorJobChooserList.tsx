@@ -1,15 +1,18 @@
+"use client";
+
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 
 import { AcceleratorCostGovernancePackRow } from "@/components/accelerator/AcceleratorCostGovernancePackRow";
-import { Button } from "@/components/ui/button";
+import { AcceleratorPackStartCta } from "@/components/accelerator/AcceleratorPackStartCta";
+import { useAcceleratorChooserPrerequisitePresentation } from "@/hooks/use-accelerator-chooser-prerequisite-presentation";
 import {
   ACCELERATOR_JOB_CHOOSER_EXPECTED_OUTPUTS_LABEL,
   ACCELERATOR_JOB_CHOOSER_REQUIRED_INPUTS_LABEL,
-  ACCELERATOR_JOB_CHOOSER_START_CTA,
 } from "@/lib/accelerator-chooser-start-copy";
 import type { AcceleratorChooserEntry } from "@/lib/accelerator-chooser";
-import { buildAcceleratorChooserGridItems } from "@/lib/accelerator-chooser-grid";
+import { buildAcceleratorChooserGridItemsForPrerequisite } from "@/lib/accelerator-chooser-grid";
+import { ACCELERATOR_GREENFIELD_PACK_ID } from "@/lib/accelerator-chooser-pack-prerequisite";
+import type { AcceleratorChooserPrerequisiteStatus } from "@/lib/resolve-accelerator-chooser-prerequisite-status";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type AcceleratorJobChooserListProps = {
@@ -26,10 +29,13 @@ type AcceleratorChooserPackRowProps = {
   readonly compact: boolean;
   readonly rowPrefix: string;
   readonly startPrefix: string;
+  readonly prerequisiteStatus: AcceleratorChooserPrerequisiteStatus;
 };
 
 function AcceleratorChooserPackRow(props: AcceleratorChooserPackRowProps): React.JSX.Element {
-  const { entry, compact, rowPrefix, startPrefix } = props;
+  const { entry, compact, rowPrefix, startPrefix, prerequisiteStatus } = props;
+  const primaryWhenReady =
+    entry.id === ACCELERATOR_GREENFIELD_PACK_ID && prerequisiteStatus === "not-met";
 
   return (
     <li
@@ -61,21 +67,27 @@ function AcceleratorChooserPackRow(props: AcceleratorChooserPackRowProps): React
           {entry.expectedOutputs}
         </p>
       )}
-      <Button asChild variant="outline" size="sm" className="mt-3">
-        <Link href={entry.startHref} data-testid={`${startPrefix}-${entry.id}`}>
-          {ACCELERATOR_JOB_CHOOSER_START_CTA}
-        </Link>
-      </Button>
+      <AcceleratorPackStartCta
+        packId={entry.id}
+        packLabel={entry.packLabel}
+        buyerJob={entry.buyerJob}
+        startHref={entry.startHref}
+        prerequisiteStatus={prerequisiteStatus}
+        startTestId={`${startPrefix}-${entry.id}`}
+        blockedMessageTestId={`${rowPrefix}-${entry.id}-blocked`}
+        primaryWhenReady={primaryWhenReady}
+      />
     </li>
   );
 }
 
 /** Buyer-job rows with pack label and expected outputs — shared by home and first-run review start (TB-2136). */
 export function AcceleratorJobChooserList(props: AcceleratorJobChooserListProps): React.JSX.Element {
+  const presentation = useAcceleratorChooserPrerequisitePresentation();
   const rowPrefix = props.rowTestIdPrefix ?? "accelerator-chooser-row";
   const startPrefix = props.startTestIdPrefix ?? "accelerator-chooser-start";
   const compact = props.compact ?? false;
-  const gridItems = buildAcceleratorChooserGridItems();
+  const gridItems = buildAcceleratorChooserGridItemsForPrerequisite(presentation.status);
 
   return (
     <ul
@@ -90,6 +102,7 @@ export function AcceleratorJobChooserList(props: AcceleratorJobChooserListProps)
               compact={compact}
               rowTestIdPrefix={rowPrefix}
               startTestIdPrefix={startPrefix}
+              prerequisiteStatus={presentation.status}
             />
           );
         }
@@ -101,6 +114,7 @@ export function AcceleratorJobChooserList(props: AcceleratorJobChooserListProps)
             compact={compact}
             rowPrefix={rowPrefix}
             startPrefix={startPrefix}
+            prerequisiteStatus={presentation.status}
           />
         );
       })}

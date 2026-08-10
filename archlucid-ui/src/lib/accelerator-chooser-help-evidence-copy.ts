@@ -9,19 +9,26 @@ export const ACCELERATOR_CHOOSER_HELP_CLAIM_DISCIPLINE =
 export const ACCELERATOR_CHOOSER_HELP_CLAIM_DISCIPLINE_SCOPE =
   "Architect orientation only — not an evidence bundle from your workspace.";
 
-export const ACCELERATOR_CHOOSER_HELP_SOURCES_INTRO =
+export const ACCELERATOR_CHOOSER_HELP_RELATED_NEXT_STEPS_INTRO =
   "Use these follow-ups when accelerator packs turn into path selection, a first review, or home starting points.";
 
-export type AcceleratorChooserHelpSourceLink = {
+export type AcceleratorChooserHelpRelatedNextStepLink = {
   readonly label: string;
   readonly href: string;
 };
 
-/** Operator Sources — no self-href to `/help/accelerator-chooser`. */
-export const ACCELERATOR_CHOOSER_HELP_SOURCES: readonly AcceleratorChooserHelpSourceLink[] = [
+/** Related next steps — no self-href to `/help/accelerator-chooser`. */
+export const ACCELERATOR_CHOOSER_HELP_RELATED_NEXT_STEPS: readonly AcceleratorChooserHelpRelatedNextStepLink[] = [
   { label: "Path chooser", href: inAppHelpHref("path-chooser") },
   { label: "Your first architecture review", href: inAppHelpHref("first-architecture-review") },
   { label: "Getting started", href: inAppHelpHref("getting-started") },
   { label: "Start a review", href: "/architecture/reviews/new" },
-  { label: "Home", href: "/" },
 ] as const;
+
+/** @deprecated Use ACCELERATOR_CHOOSER_HELP_RELATED_NEXT_STEPS_INTRO */
+export const ACCELERATOR_CHOOSER_HELP_SOURCES_INTRO = ACCELERATOR_CHOOSER_HELP_RELATED_NEXT_STEPS_INTRO;
+
+/** @deprecated Use ACCELERATOR_CHOOSER_HELP_RELATED_NEXT_STEPS */
+export const ACCELERATOR_CHOOSER_HELP_SOURCES = ACCELERATOR_CHOOSER_HELP_RELATED_NEXT_STEPS;
+
+export type AcceleratorChooserHelpSourceLink = AcceleratorChooserHelpRelatedNextStepLink;

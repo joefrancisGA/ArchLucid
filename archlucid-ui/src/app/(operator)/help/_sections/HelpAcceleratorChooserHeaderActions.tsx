@@ -9,14 +9,28 @@ type HelpAcceleratorChooserHeaderActionsProps = {
   readonly entry: ProductDocumentationEntry;
 };
 
-/** PDF / print actions for accelerator chooser help — omitted when the registry has no pdfStatus. */
+/** PDF / print actions for accelerator chooser help — print remains when pdfStatus is null (HAX). */
 export function HelpAcceleratorChooserHeaderActions(
   props: HelpAcceleratorChooserHeaderActionsProps,
 ): React.ReactElement | null {
   const { entry } = props;
 
   if (entry.pdfStatus === null) {
-    return null;
+    return (
+      <div className="flex flex-wrap items-center gap-2" data-testid="help-accelerator-chooser-header-actions">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          data-testid="help-topic-print-pdf"
+          onClick={() => {
+            printHelpTopicPage();
+          }}
+        >
+          Print / Save as PDF
+        </Button>
+      </div>
+    );
   }
 
   return (
