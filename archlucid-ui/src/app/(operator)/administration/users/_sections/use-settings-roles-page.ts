@@ -54,11 +54,13 @@ export function useSettingsRolesPage(loaded: SettingsRolesPageServerLoad): Setti
 
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<SettingsRolesAssignablePrincipalRow[]>([]);
-  const [note, setNote] = useState<SettingsRolesPageNote | null>(null);
+  const [usersNote, setUsersNote] = useState<SettingsRolesPageNote | null>(null);
+  const [keysNote, setKeysNote] = useState<SettingsRolesPageNote | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
-    setNote(null);
+    setUsersNote(null);
+    setKeysNote(null);
 
     try {
       const proxyInit = mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } });
@@ -68,22 +70,39 @@ export function useSettingsRolesPage(loaded: SettingsRolesPageServerLoad): Setti
         ? await fetch(SETTINGS_ROLES_API_KEYS_PATH, proxyInit)
         : null;
 
+      let userRows = parseAdminUsersDirectoryPayload({});
+      let keyRows = parseAdminApiKeysDirectoryPayload({});
+      let nextUsersNote: SettingsRolesPageNote | null = null;
+      let nextKeysNote: SettingsRolesPageNote | null = null;
+
       if (!usersRes.ok) {
-        setRows([]);
+        userRows = [];
         // Directory list is optional for invites (POST /v1/admin/users/invite). Missing list routes
         // (404/501) must not block the invite form — treat as an empty directory.
-        setNote(usersRes.status === 404 || usersRes.status === 501 ? "empty_response" : "api_unavailable");
+        nextUsersNote =
+          usersRes.status === 404 || usersRes.status === 501 ? "empty_response" : "api_unavailable";
+      } else {
+        const usersJson: unknown = await usersRes.json();
+        userRows = parseAdminUsersDirectoryPayload(usersJson);
 
-        return;
+        if (userRows.length === 0) {
+          nextUsersNote = "empty_response";
+        }
       }
 
-      const usersJson: unknown = await usersRes.json();
-      const userRows = parseAdminUsersDirectoryPayload(usersJson);
-      let keyRows = parseAdminApiKeysDirectoryPayload({});
+      if (keysRes !== null) {
+        if (!keysRes.ok) {
+          keyRows = [];
+          nextKeysNote =
+            keysRes.status === 404 || keysRes.status === 501 ? "empty_response" : "api_unavailable";
+        } else {
+          const keysJson: unknown = await keysRes.json();
+          keyRows = parseAdminApiKeysDirectoryPayload(keysJson);
 
-      if (keysRes !== null && keysRes.ok) {
-        const keysJson: unknown = await keysRes.json();
-        keyRows = parseAdminApiKeysDirectoryPayload(keysJson);
+          if (keyRows.length === 0) {
+            nextKeysNote = "empty_response";
+          }
+        }
       }
 
       const combined: SettingsRolesAssignablePrincipalRow[] = [
@@ -103,17 +122,13 @@ export function useSettingsRolesPage(loaded: SettingsRolesPageServerLoad): Setti
         })),
       ];
 
-      if (combined.length === 0) {
-        setRows([]);
-        setNote("empty_response");
-
-        return;
-      }
-
       setRows(combined);
+      setUsersNote(nextUsersNote);
+      setKeysNote(nextKeysNote);
     } catch {
       setRows([]);
-      setNote("load_failed");
+      setUsersNote("load_failed");
+      setKeysNote("load_failed");
     } finally {
       setLoading(false);
     }
@@ -170,7 +185,8 @@ export function useSettingsRolesPage(loaded: SettingsRolesPageServerLoad): Setti
     surface,
     loading,
     sortedRows,
-    note,
+    usersNote,
+    keysNote,
     load,
     onRoleChange,
   };

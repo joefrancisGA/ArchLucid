@@ -20,7 +20,8 @@ function buildModel(overrides: Partial<SettingsRolesPageViewModel> = {}): Settin
     surface: "admin",
     loading: false,
     sortedRows: [],
-    note: null,
+    usersNote: null,
+    keysNote: null,
     load: async () => {},
     onRoleChange: async () => {},
     ...overrides,
@@ -41,7 +42,7 @@ describe("InviteReviewerPageView", () => {
   });
 
   it("keeps the footer when the user directory is unavailable (invite does not need directory)", () => {
-    render(<InviteReviewerPageView model={buildModel({ note: "api_unavailable" })} />);
+    render(<InviteReviewerPageView model={buildModel({ usersNote: "api_unavailable" })} />);
 
     expect(screen.getByTestId("invite-reviewer-footer")).toBeInTheDocument();
   });

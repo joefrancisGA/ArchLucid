@@ -10,7 +10,8 @@ export type SettingsRolesPageViewModel = {
   readonly surface: SettingsRolesPageSurface;
   readonly loading: boolean;
   readonly sortedRows: SettingsRolesAssignablePrincipalRow[];
-  readonly note: SettingsRolesPageNote | null;
+  readonly usersNote: SettingsRolesPageNote | null;
+  readonly keysNote: SettingsRolesPageNote | null;
   readonly load: () => Promise<void>;
   readonly onRoleChange: (
     row: SettingsRolesAssignablePrincipalRow,

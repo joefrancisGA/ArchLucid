@@ -37,4 +37,11 @@ describe("settingsRolesEmptyState copy", () => {
     expect(settingsRolesEmptyStateDescription("api_unavailable", "users")).toContain("invitation");
     expect(settingsRolesEmptyStateDescription("api_unavailable", "api_keys")).toContain("credentials");
   });
+
+  it("keeps load-failed copy tab-specific (TB-1933)", () => {
+    expect(settingsRolesEmptyStateDescription("load_failed", "api_keys")).toMatch(/api key role list/i);
+    expect(settingsRolesEmptyStateDescription("load_failed", "api_keys")).not.toMatch(/invitation|member directory/i);
+    expect(settingsRolesEmptyStateDescription("load_failed", "users")).toMatch(/workspace member list/i);
+    expect(settingsRolesEmptyStateDescription("load_failed", "users")).not.toMatch(/api key/i);
+  });
 });

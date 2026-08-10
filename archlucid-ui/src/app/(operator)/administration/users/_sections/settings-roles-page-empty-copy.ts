@@ -49,5 +49,9 @@ export function settingsRolesEmptyStateDescription(
     return "People appear here after they accept an invitation. Pending invitations are listed above.";
   }
 
-  return "Check your connection and reload. Contact support if the problem continues.";
+  if (surface === "api_keys") {
+    return "The API key role list could not be loaded. Check your connection and reload, or manage credentials under API keys.";
+  }
+
+  return "The workspace member list could not be loaded. Check your connection and reload. Contact support if the problem continues.";
 }
