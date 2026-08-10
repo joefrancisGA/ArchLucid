@@ -5,18 +5,18 @@ import { describe, expect, it } from "vitest";
 
 import {
   DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CROSS_CHECK_LINKS,
+  DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CROSS_CHECK_PREFIX,
+  DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CONTRACTED_PACK_FOLLOW_UP,
   DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_TITLE,
   DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_ACTIONS,
-  DATA_HANDLING_TENANT_ISOLATION_HELP_RESIDENCY,
 } from "@/lib/data-handling-tenant-isolation-help-guide-content";
 import { getHelpCenterDisplay } from "@/lib/help-center-catalog";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("data-handling-tenant-isolation-help-guide-content", () => {
-  it("keeps primary diligence CTAs on trust and security-trust", () => {
+  it("keeps primary diligence CTA on public Trust Center", () => {
     expect(DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_TITLE).toBe("Data handling and tenant isolation");
     expect(DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_ACTIONS.openTrustCenter.href).toBe("/trust");
-    expect(DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_ACTIONS.securityTrust.href).toBe("/help/security-trust");
     expect(DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_ACTIONS.openAuditTrail.href).toBe("/governance/audit");
   });
 
@@ -36,26 +36,32 @@ describe("data-handling-tenant-isolation-help-guide-content", () => {
     expect(sourceMarkdown.trimStart()).toMatch(/^# Data handling and tenant isolation/m);
   });
 
-  it("links every overview cross-check destination", () => {
-    expect(DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CROSS_CHECK_LINKS.length).toBeGreaterThanOrEqual(3);
-    expect(
-      DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CROSS_CHECK_LINKS.some((link) =>
-        link.label.includes("Security and trust"),
-      ),
-    ).toBe(true);
-    expect(
-      DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CROSS_CHECK_LINKS.some((link) => link.label === "Related topics"),
-    ).toBe(true);
-    expect(
-      DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CROSS_CHECK_LINKS.some((link) =>
-        link.href.includes("related-topics"),
-      ),
-    ).toBe(true);
+  it("links Related topics without implying a tenant pack on /trust", () => {
+    expect(DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CROSS_CHECK_LINKS).toHaveLength(1);
+    expect(DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CROSS_CHECK_LINKS[0]?.label).toBe("Related topics");
+    expect(DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CROSS_CHECK_LINKS[0]?.href).toContain("related-topics");
+    expect(DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CROSS_CHECK_PREFIX.toLowerCase()).toContain(
+      "security and trust",
+    );
+    expect(DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CROSS_CHECK_PREFIX.toLowerCase()).toContain("trust center");
+    expect(DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CONTRACTED_PACK_FOLLOW_UP.toLowerCase()).toContain(
+      "contracted",
+    );
   });
 
-  it("states residency honesty without implying a public single region", () => {
-    expect(DATA_HANDLING_TENANT_ISOLATION_HELP_RESIDENCY.toLowerCase()).toContain("contracted");
-    expect(DATA_HANDLING_TENANT_ISOLATION_HELP_RESIDENCY.toLowerCase()).toContain("azure");
-    expect(DATA_HANDLING_TENANT_ISOLATION_HELP_RESIDENCY.toLowerCase()).not.toContain("cpa");
+  it("documents data residency in customer-facing markdown", () => {
+    const entry = getProductDocumentationEntry("data-handling");
+    const sourcePath = entry?.sourcePaths[0];
+
+    if (sourcePath === undefined) {
+      throw new Error("Expected data-handling source path.");
+    }
+
+    const sourceMarkdown = readFileSync(join(process.cwd(), "..", sourcePath), "utf8").toLowerCase();
+
+    expect(sourceMarkdown).toContain("## data residency");
+    expect(sourceMarkdown).toContain("contracted");
+    expect(sourceMarkdown).toContain("azure");
+    expect(sourceMarkdown).not.toContain("cpa");
   });
 });

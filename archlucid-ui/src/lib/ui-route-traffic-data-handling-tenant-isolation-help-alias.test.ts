@@ -3,6 +3,8 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+import { DATA_HANDLING_TENANT_ISOLATION_HELP_PATH } from "@/lib/data-handling-tenant-isolation-help-route";
+import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-redirects";
 import {
   DATA_HANDLING_TENANT_ISOLATION_HELP_ALIAS_TRAFFIC_NOTE,
   DATA_HANDLING_TENANT_ISOLATION_HELP_ALIAS_TRAFFIC_PATH,
@@ -56,6 +58,12 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
 }
 
 describe("ui-route-traffic-data-handling-tenant-isolation-help-alias (HDA)", () => {
+  it("permanently redirects the retired alias slug to canonical data-handling", () => {
+    expect(resolveHelpTopicPermanentRedirect("data-handling-tenant-isolation")).toBe(
+      DATA_HANDLING_TENANT_ISOLATION_HELP_PATH,
+    );
+  });
+
   it("tracks data-handling-tenant-isolation help alias with honest workbook notes", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
     const row = rows.find(

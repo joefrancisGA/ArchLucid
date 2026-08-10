@@ -1,188 +1,116 @@
-import Link from "next/link";
-
-import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
-import { HelpDataHandlingTenantIsolationOverview } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationOverview";
-import { DataHandlingHelpEvidenceOrientationStrip } from "@/components/help/DataHandlingHelpEvidenceOrientationStrip";
-import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
-import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
-import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
-import { OperatorPageBreadcrumb } from "@/components/OperatorPageBreadcrumb";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import {
-  DATA_HANDLING_TENANT_ISOLATION_HELP_ACTION_PANEL_TITLE,
-  DATA_HANDLING_TENANT_ISOLATION_HELP_AUDIT_TRAIL_LINK_LABEL,
-  DATA_HANDLING_TENANT_ISOLATION_HELP_AUDIT_TRAIL_SENTENCE_PREFIX,
-  DATA_HANDLING_TENANT_ISOLATION_HELP_AUDIT_TRAIL_SENTENCE_SUFFIX,
-  DATA_HANDLING_TENANT_ISOLATION_HELP_BREADCRUMB_HELP_CENTER_LABEL,
-  DATA_HANDLING_TENANT_ISOLATION_HELP_BREADCRUMB_SECURITY_TRUST_LABEL,
-  DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_SUBTITLE,
-  DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_TITLE,
-  DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_ACTIONS,
-  DATA_HANDLING_TENANT_ISOLATION_HELP_RESIDENCY,
-  DATA_HANDLING_TENANT_ISOLATION_HELP_RESIDENCY_HEADING,
-  DATA_HANDLING_TENANT_ISOLATION_HELP_RESIDENCY_HEADING_ID,
-} from "@/lib/data-handling-tenant-isolation-help-guide-content";
-import { DATA_HANDLING_TENANT_ISOLATION_HELP_PATH } from "@/lib/data-handling-tenant-isolation-help-route";
-import {
-  DESIGN_TOKENS,
-  OPERATOR_CARD,
-  OPERATOR_LAYOUT,
-  OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
-  OPERATOR_TYPOGRAPHY,
-} from "@/lib/design-tokens";
-import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
-import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
-import { inAppHelpHref } from "@/lib/product-documentation-registry";
-import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
-import { cn } from "@/lib/utils";
-
-const DATA_RESIDENCY_TOC_HEADING: HelpMarkdownHeading = {
-  level: 2,
-  id: DATA_HANDLING_TENANT_ISOLATION_HELP_RESIDENCY_HEADING_ID,
-  title: DATA_HANDLING_TENANT_ISOLATION_HELP_RESIDENCY_HEADING,
-};
-
-type HelpDataHandlingTenantIsolationGuideViewProps = {
-  readonly entry: ProductDocumentationEntry;
-  readonly markdown: string;
-};
-
-/** Buyer-safe data handling + tenant isolation orientation for `/help/data-handling`. */
-export function HelpDataHandlingTenantIsolationGuideView(
-  props: HelpDataHandlingTenantIsolationGuideViewProps,
-): React.ReactElement {
-  const { entry, markdown } = props;
-  const sourceDocPath = entry.sourcePaths[0] ?? "";
-  const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
-    helpTopicSlug: entry.slug,
-  });
-  const markdownHeadings = extractHelpMarkdownHeadings(preparedMarkdown);
-  const headings: HelpMarkdownHeading[] = [DATA_RESIDENCY_TOC_HEADING, ...markdownHeadings];
-
-  return (
-    <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
-      data-testid="help-data-handling-tenant-isolation-guide"
-    >
-      <HelpTopicHashScroll />
-
-      <OperatorPageHeader
-        title={DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_TITLE}
-        titleTestId="help-data-handling-tenant-isolation-page-title"
-        subtitle={DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_SUBTITLE}
-        navHref={DATA_HANDLING_TENANT_ISOLATION_HELP_PATH}
-        headingLevel="h1"
-        breadcrumb={
-          <OperatorPageBreadcrumb
-            data-testid="help-data-handling-tenant-isolation-breadcrumb"
-            items={[
-              { label: DATA_HANDLING_TENANT_ISOLATION_HELP_BREADCRUMB_HELP_CENTER_LABEL, href: "/help" },
-              {
-                label: DATA_HANDLING_TENANT_ISOLATION_HELP_BREADCRUMB_SECURITY_TRUST_LABEL,
-                href: inAppHelpHref("security-trust"),
-              },
-              { label: DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_TITLE },
-            ]}
-          />
-        }
-        metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
-        actions={
-          <div
-            className="flex flex-wrap items-center gap-2"
-            data-testid="help-data-handling-tenant-isolation-header-actions"
-          >
-            <PageContextualHelpButton />
-            <HelpTopicPdfDownloadButton entry={entry} />
-          </div>
-        }
-      />
-
-      <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <HelpDataHandlingTenantIsolationOverview />
-
-        <DataHandlingHelpEvidenceOrientationStrip showSources={false} />
-
-        <Card
-          className={cn(DESIGN_TOKENS.surface.card, "w-full max-w-full")}
-          data-testid="help-data-handling-tenant-isolation-action-panel"
-        >
-          <CardHeader className={OPERATOR_CARD.header}>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-              {DATA_HANDLING_TENANT_ISOLATION_HELP_ACTION_PANEL_TITLE}
-            </p>
-          </CardHeader>
-          <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
-            <Button asChild size="sm" variant="primary">
-              <Link href={DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_ACTIONS.openTrustCenter.href}>
-                {DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_ACTIONS.openTrustCenter.label}
-              </Link>
-            </Button>
-            <Button asChild size="sm" variant="outline">
-              <Link href={DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_ACTIONS.securityTrust.href}>
-                {DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_ACTIONS.securityTrust.label}
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-
-        <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.body)} data-testid="help-data-handling-tenant-isolation-audit-trail-sentence">
-          {DATA_HANDLING_TENANT_ISOLATION_HELP_AUDIT_TRAIL_SENTENCE_PREFIX}{" "}
-          <Link
-            href={DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_ACTIONS.openAuditTrail.href}
-            className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
-            data-testid="help-data-handling-tenant-isolation-audit-trail-link"
-          >
-            {DATA_HANDLING_TENANT_ISOLATION_HELP_AUDIT_TRAIL_LINK_LABEL}
-          </Link>{" "}
-          {DATA_HANDLING_TENANT_ISOLATION_HELP_AUDIT_TRAIL_SENTENCE_SUFFIX}
-        </p>
-      </div>
-
-      <div className={HELP_PAGE_LAYOUT.contentGrid}>
-        <div className={cn("min-w-0 space-y-6", HELP_PAGE_LAYOUT.contentColumn)}>
-          <DataHandlingHelpEvidenceOrientationStrip showClaimDiscipline={false} />
-
-          <aside
-            id={DATA_HANDLING_TENANT_ISOLATION_HELP_RESIDENCY_HEADING_ID}
-            className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
-            data-testid="help-data-handling-tenant-isolation-residency"
-          >
-            <h2
-              className={cn(
-                "m-0 text-al-text-primary",
-                OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
-                OPERATOR_TYPOGRAPHY.cardTitle,
-              )}
-            >
-              {DATA_HANDLING_TENANT_ISOLATION_HELP_RESIDENCY_HEADING}
-            </h2>
-            <p className={cn("m-0 mt-2", HELP_PAGE_LAYOUT.readingBody)}>
-              {DATA_HANDLING_TENANT_ISOLATION_HELP_RESIDENCY}
-            </p>
-          </aside>
-
-          <div
-            className={HELP_PAGE_LAYOUT.contentColumn}
-            data-testid="help-data-handling-tenant-isolation-content"
-          >
-            <MarketingAccessibilityMarkdownFragment
-              markdownBody={markdown}
-              tableCaption={`${entry.title} reference table`}
-              presentation="help"
-              sourceDocPath={sourceDocPath}
-              helpTopicSlug={entry.slug}
-            />
-          </div>
-        </div>
-
-        <HelpTopicTableOfContents headings={headings} enableScrollSpy />
-      </div>
-    </article>
-  );
-}
+import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { HelpDataHandlingTenantIsolationClaimDiscipline } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationClaimDiscipline";
+import { HelpDataHandlingTenantIsolationHeaderActions } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationHeaderActions";
+import { HelpDataHandlingTenantIsolationOverview } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationOverview";
+import { HelpDataHandlingTenantIsolationSourceLinks } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationSourceLinks";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
+import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
+import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
+import { OperatorPageBreadcrumb } from "@/components/OperatorPageBreadcrumb";
+import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import {
+  DATA_HANDLING_TENANT_ISOLATION_HELP_BREADCRUMB_HELP_CENTER_LABEL,
+  DATA_HANDLING_TENANT_ISOLATION_HELP_BREADCRUMB_SECURITY_TRUST_LABEL,
+  DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_SUBTITLE,
+  DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_TITLE,
+} from "@/lib/data-handling-tenant-isolation-help-guide-content";
+import { DATA_HANDLING_TENANT_ISOLATION_HELP_PATH } from "@/lib/data-handling-tenant-isolation-help-route";
+import {
+  DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_DISCLOSURE_TITLE,
+  DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_INTRO,
+} from "@/lib/data-handling-tenant-isolation-help-evidence-copy";
+import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
+import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { cn } from "@/lib/utils";
+
+type HelpDataHandlingTenantIsolationGuideViewProps = {
+  readonly entry: ProductDocumentationEntry;
+  readonly markdown: string;
+};
+
+/** Buyer-safe data handling + tenant isolation orientation for `/help/data-handling`. */
+export function HelpDataHandlingTenantIsolationGuideView(
+  props: HelpDataHandlingTenantIsolationGuideViewProps,
+): React.ReactElement {
+  const { entry, markdown } = props;
+  const sourceDocPath = entry.sourcePaths[0] ?? "";
+  const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
+    helpTopicSlug: entry.slug,
+  });
+  const headings = extractHelpMarkdownHeadings(preparedMarkdown);
+
+  return (
+    <article
+      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
+      data-testid="help-data-handling-tenant-isolation-guide"
+    >
+      <HelpTopicHashScroll />
+
+      <OperatorPageHeader
+        title={DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_TITLE}
+        titleTestId="help-data-handling-tenant-isolation-page-title"
+        subtitle={DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_SUBTITLE}
+        navHref={DATA_HANDLING_TENANT_ISOLATION_HELP_PATH}
+        headingLevel="h1"
+        breadcrumb={
+          <OperatorPageBreadcrumb
+            data-testid="help-data-handling-tenant-isolation-breadcrumb"
+            items={[
+              { label: DATA_HANDLING_TENANT_ISOLATION_HELP_BREADCRUMB_HELP_CENTER_LABEL, href: "/help" },
+              {
+                label: DATA_HANDLING_TENANT_ISOLATION_HELP_BREADCRUMB_SECURITY_TRUST_LABEL,
+                href: inAppHelpHref("security-trust"),
+              },
+              { label: DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_TITLE },
+            ]}
+          />
+        }
+        metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <PageContextualHelpButton />
+            <HelpDataHandlingTenantIsolationHeaderActions entry={entry} />
+          </div>
+        }
+      />
+
+      <div className="space-y-3 border-b border-neutral-200 pb-4 dark:border-neutral-800">
+        <HelpDataHandlingTenantIsolationOverview />
+        <HelpDataHandlingTenantIsolationClaimDiscipline />
+      </div>
+
+      <div className={HELP_PAGE_LAYOUT.contentGrid}>
+        <div className={cn("min-w-0 space-y-4", HELP_PAGE_LAYOUT.contentColumn)}>
+          <div
+            className={HELP_PAGE_LAYOUT.contentColumn}
+            data-testid="help-data-handling-tenant-isolation-content"
+          >
+            <MarketingAccessibilityMarkdownFragment
+              markdownBody={markdown}
+              tableCaption={`${entry.title} reference table`}
+              presentation="help"
+              sourceDocPath={sourceDocPath}
+              helpTopicSlug={entry.slug}
+            />
+          </div>
+
+          <CollapsibleSection
+            title={DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_DISCLOSURE_TITLE}
+            summaryLine={DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_INTRO}
+            sectionTestId="help-data-handling-tenant-isolation-source-disclosure"
+          >
+            <HelpDataHandlingTenantIsolationSourceLinks />
+          </CollapsibleSection>
+        </div>
+
+        <HelpTopicTableOfContents headings={headings} enableScrollSpy />
+      </div>
+    </article>
+  );
+}
