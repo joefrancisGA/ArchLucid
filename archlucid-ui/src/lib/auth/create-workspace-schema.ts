@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { createWorkspaceDataRegionValues } from "@/lib/auth/create-workspace-data-regions";
 import { industryVerticalOptions } from "@/lib/signup-schema";
 
 export const createWorkspaceFormSchema = z
@@ -10,7 +11,7 @@ export const createWorkspaceFormSchema = z
       .min(2, "Workspace name must be at least 2 characters.")
       .max(120, "Workspace name must be at most 120 characters."),
     organizationName: z.string().trim().max(200, "Organization name must be at most 200 characters."),
-    dataRegion: z.string().trim().optional(),
+    dataRegion: z.enum(createWorkspaceDataRegionValues).default("default"),
     industryVertical: z.enum(industryVerticalOptions).optional(),
     industryVerticalOther: z.string().max(200).optional(),
     termsAccepted: z.boolean().refine((value) => value, { message: "Accept the terms to continue." }),
@@ -35,6 +36,8 @@ export const CREATE_WORKSPACE_COPY = {
   organizationNameLabel: "Organization name (optional)",
   organizationHint: "Use a different name when your workspace label differs from your company name.",
   dataRegionLabel: "Country or region",
+  dataRegionHint:
+    "Select where this workspace's data is stored. Additional regions are added when demand warrants — this choice does not imply multi-region failover.",
   industryLabel: "Industry or evaluation focus (optional)",
   termsLabel: "I accept the ArchLucid terms and privacy policy for this workspace.",
   includeDemoSeedLabel: "Include sample architecture review data",

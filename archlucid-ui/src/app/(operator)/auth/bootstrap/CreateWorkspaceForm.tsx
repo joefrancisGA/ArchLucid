@@ -2,10 +2,20 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { CREATE_WORKSPACE_DATA_REGION_OPTIONS } from "@/lib/auth/create-workspace-data-regions";
 import {
   CREATE_WORKSPACE_COPY,
   createWorkspaceFormSchema,
@@ -34,7 +44,7 @@ export function CreateWorkspaceForm({
     defaultValues: {
       workspaceName: "",
       organizationName: "",
-      dataRegion: "",
+      dataRegion: "default",
       industryVertical: undefined,
       industryVerticalOther: "",
       termsAccepted: false,
@@ -43,7 +53,7 @@ export function CreateWorkspaceForm({
     mode: "onBlur",
   });
 
-  const { register, handleSubmit, watch, formState } = form;
+  const { register, handleSubmit, watch, control, formState } = form;
   const industryVertical = watch("industryVertical");
 
   return (
@@ -55,13 +65,13 @@ export function CreateWorkspaceForm({
           <label className={cn("block", OPERATOR_TYPOGRAPHY.label)} htmlFor="workspaceName">
             {CREATE_WORKSPACE_COPY.workspaceNameLabel}
           </label>
-          <input
+          <Input
             id="workspaceName"
-            className="mt-2 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-base dark:border-neutral-600 dark:bg-neutral-900"
+            className="mt-2"
             autoComplete="organization"
             disabled={pending}
-            {...register("workspaceName")}
             data-testid="create-workspace-name"
+            {...register("workspaceName")}
           />
           {formState.errors.workspaceName ? (
             <p role="alert" className="mt-1 text-sm text-red-700">
@@ -74,62 +84,148 @@ export function CreateWorkspaceForm({
             {CREATE_WORKSPACE_COPY.organizationNameLabel}
           </label>
           <p className="mt-1 text-sm text-al-text-secondary">{CREATE_WORKSPACE_COPY.organizationHint}</p>
-          <input
+          <Input
             id="organizationName"
-            className="mt-2 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-base dark:border-neutral-600 dark:bg-neutral-900"
+            className="mt-2"
             disabled={pending}
+            data-testid="create-workspace-organization-name"
             {...register("organizationName")}
+          />
+        </div>
+        <div>
+          <label className={cn("block", OPERATOR_TYPOGRAPHY.label)} htmlFor="dataRegion">
+            {CREATE_WORKSPACE_COPY.dataRegionLabel}
+          </label>
+          <p className="mt-1 text-sm text-al-text-secondary">{CREATE_WORKSPACE_COPY.dataRegionHint}</p>
+          <Controller
+            control={control}
+            name="dataRegion"
+            render={({ field }) => (
+              <Select
+                value={field.value}
+                onValueChange={field.onChange}
+                disabled={pending}
+              >
+                <SelectTrigger
+                  id="dataRegion"
+                  className="mt-2"
+                  aria-label={CREATE_WORKSPACE_COPY.dataRegionLabel}
+                  data-testid="create-workspace-data-region"
+                >
+                  <SelectValue placeholder="Select a region" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CREATE_WORKSPACE_DATA_REGION_OPTIONS.map((option) => (
+                    <SelectItem
+                      key={option.value}
+                      value={option.value}
+                      data-testid={`create-workspace-data-region-${option.value}`}
+                    >
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           />
         </div>
         <div>
           <label className={cn("block", OPERATOR_TYPOGRAPHY.label)} htmlFor="industryVertical">
             {CREATE_WORKSPACE_COPY.industryLabel}
           </label>
-          <select
-            id="industryVertical"
-            className="mt-2 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-base dark:border-neutral-600 dark:bg-neutral-900"
-            disabled={pending}
-            {...register("industryVertical")}
-          >
-            <option value="">Select…</option>
-            {industryVerticalOptions.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
+          <Controller
+            control={control}
+            name="industryVertical"
+            render={({ field }) => (
+              <Select
+                value={field.value}
+                onValueChange={field.onChange}
+                disabled={pending}
+              >
+                <SelectTrigger
+                  id="industryVertical"
+                  className="mt-2"
+                  aria-label={CREATE_WORKSPACE_COPY.industryLabel}
+                  data-testid="create-workspace-industry"
+                >
+                  <SelectValue placeholder="Select…" />
+                </SelectTrigger>
+                <SelectContent>
+                  {industryVerticalOptions.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
         </div>
         {industryVertical === "Other" ? (
           <div>
             <label className={cn("block", OPERATOR_TYPOGRAPHY.label)} htmlFor="industryVerticalOther">
               Industry (other)
             </label>
-            <input
+            <Input
               id="industryVerticalOther"
-              className="mt-2 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-base dark:border-neutral-600 dark:bg-neutral-900"
+              className="mt-2"
               disabled={pending}
+              data-testid="create-workspace-industry-other"
               {...register("industryVerticalOther")}
             />
           </div>
         ) : null}
-        <label className="flex items-start gap-2 text-sm text-al-text-primary">
-          <input type="checkbox" disabled={pending} {...register("termsAccepted")} data-testid="create-workspace-terms" />
-          <span>
+        <div className="flex items-start gap-2">
+          <Controller
+            control={control}
+            name="termsAccepted"
+            render={({ field }) => (
+              <Checkbox
+                id="create-workspace-terms"
+                checked={field.value}
+                onCheckedChange={(checked) => {
+                  field.onChange(checked === true);
+                }}
+                disabled={pending}
+                data-testid="create-workspace-terms"
+              />
+            )}
+          />
+          <label className={cn("text-sm text-al-text-primary", OPERATOR_TYPOGRAPHY.body)} htmlFor="create-workspace-terms">
             {CREATE_WORKSPACE_COPY.termsLabel}{" "}
             <Link className={OPERATOR_LINK.nav} href="/trust">
               Trust center
             </Link>
-          </span>
-        </label>
+          </label>
+        </div>
         {formState.errors.termsAccepted ? (
           <p role="alert" className="text-sm text-red-700">
             {formState.errors.termsAccepted.message}
           </p>
         ) : null}
-        <label className="flex items-start gap-2 text-sm text-al-text-secondary">
-          <input type="checkbox" disabled={pending} {...register("includeDemoSeed")} />
-          <span>{CREATE_WORKSPACE_COPY.includeDemoSeedLabel}</span>
-        </label>
+        <div className="flex items-start gap-2">
+          <Controller
+            control={control}
+            name="includeDemoSeed"
+            render={({ field }) => (
+              <Checkbox
+                id="create-workspace-demo-seed"
+                checked={field.value}
+                onCheckedChange={(checked) => {
+                  field.onChange(checked === true);
+                }}
+                disabled={pending}
+                data-testid="create-workspace-demo-seed"
+              />
+            )}
+          />
+          <label
+            className={cn("text-sm text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            htmlFor="create-workspace-demo-seed"
+          >
+            {CREATE_WORKSPACE_COPY.includeDemoSeedLabel}
+          </label>
+        </div>
         {errorMessage ? (
           <p role="alert" className="text-sm text-red-700 dark:text-red-300">
             {errorMessage}
