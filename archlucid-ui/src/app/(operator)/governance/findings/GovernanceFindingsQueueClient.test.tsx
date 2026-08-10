@@ -153,12 +153,22 @@ describe("GovernanceFindingsQueueClient", () => {
       "/governance/policy-packs",
     );
 
-    expect(screen.getByTestId("architecture-risk-register-summary-open")).toHaveTextContent("Open risks: 0");
-    expect(screen.getByTestId("architecture-risk-register-summary-expiring")).toHaveTextContent(
-      "Expiring exceptions: 0",
+    expect(screen.getByTestId("architecture-risk-register-summary-open-value")).toHaveAttribute(
+      "href",
+      "/governance/findings?filter=open",
     );
-    expect(screen.getByTestId("architecture-risk-register-summary-owner")).toHaveTextContent("Pending owner: 0");
-    expect(screen.getByTestId("architecture-risk-register-summary-overdue")).toHaveTextContent("Overdue review: 0");
+    expect(screen.getByTestId("architecture-risk-register-summary-expiring-value")).toHaveAttribute(
+      "href",
+      "/governance/findings?filter=expiring-soon",
+    );
+    expect(screen.getByTestId("architecture-risk-register-summary-owner-value")).toHaveAttribute(
+      "href",
+      "/governance/findings?filter=no-owner",
+    );
+    expect(screen.getByTestId("architecture-risk-register-summary-overdue-value")).toHaveAttribute(
+      "href",
+      "/governance/findings?filter=overdue-review",
+    );
 
     expect(screen.queryByText("Terminology reference")).not.toBeInTheDocument();
   });
@@ -208,6 +218,6 @@ describe("GovernanceFindingsQueueClient", () => {
       "href",
       "/governance/exceptions",
     );
-    expect(screen.getByTestId("architecture-risk-register-summary-open")).toHaveTextContent("Open risks: 1");
+    expect(screen.getByTestId("architecture-risk-register-summary-open-value")).toHaveTextContent("1");
   });
 });

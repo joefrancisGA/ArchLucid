@@ -339,6 +339,17 @@ Cursor enforcement: `.cursor/rules/UI-Enterprise-Design-Standard.mdc` (**TB-120*
 
 ---
 
+## Metric counts (TB-2152)
+
+Headline counts on golden-path surfaces must be **self-describing** and **click-through faithful**:
+
+- Render scope inline with the count using middle dots, e.g. `12 open findings · workspace · open`.
+- Use `SelfDescribingMetricCount` + `metric-count-presentation.ts` helpers — do not hand-roll governance queue query strings.
+- Click-through hrefs must reproduce the same filter contract (`buildGovernanceFindingsQueueHref`, `reviewFindingsGovernanceQueuePresentation`, etc.).
+- Review-detail finding totals pair with governance queue rows scoped to the same `runId` and `recordKind=finding` only; decision rows are an intentional exception documented in parity tests.
+
+---
+
 ## Cross-references
 
 - Backlog items: `docs/library/TECH_BACKLOG.md` **TB-114 – TB-120**, **TB-143 – TB-148** (in-app documentation presentation)

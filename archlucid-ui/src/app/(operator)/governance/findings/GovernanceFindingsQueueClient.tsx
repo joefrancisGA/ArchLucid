@@ -33,6 +33,8 @@ import {
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
+import { governanceRegisterMetricPresentation } from "@/lib/metric-count-presentation";
+import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
 import { cn } from "@/lib/utils";
 
@@ -91,18 +93,46 @@ export default function GovernanceFindingsQueueClient() {
         metadata={
           !buyerPolishedShell && !loading ? (
             <>
-              <span data-testid="architecture-risk-register-summary-open">
-                Open risks: {registerSummary.openRisks}
-              </span>
-              <span data-testid="architecture-risk-register-summary-expiring">
-                Expiring exceptions: {registerSummary.expiringExceptions}
-              </span>
-              <span data-testid="architecture-risk-register-summary-owner">
-                Pending owner: {registerSummary.pendingOwner}
-              </span>
-              <span data-testid="architecture-risk-register-summary-overdue">
-                Overdue review: {registerSummary.overdueReview}
-              </span>
+              <SelfDescribingMetricCount
+                variant="inline"
+                testId="architecture-risk-register-summary-open"
+                presentation={governanceRegisterMetricPresentation({
+                  count: registerSummary.openRisks,
+                  noun: registerSummary.openRisks === 1 ? "open risk" : "open risks",
+                  filter: "open",
+                  runId: scopedRunId,
+                })}
+              />
+              <SelfDescribingMetricCount
+                variant="inline"
+                testId="architecture-risk-register-summary-expiring"
+                presentation={governanceRegisterMetricPresentation({
+                  count: registerSummary.expiringExceptions,
+                  noun: registerSummary.expiringExceptions === 1 ? "expiring exception" : "expiring exceptions",
+                  filter: "expiring-soon",
+                  runId: scopedRunId,
+                })}
+              />
+              <SelfDescribingMetricCount
+                variant="inline"
+                testId="architecture-risk-register-summary-owner"
+                presentation={governanceRegisterMetricPresentation({
+                  count: registerSummary.pendingOwner,
+                  noun: registerSummary.pendingOwner === 1 ? "pending owner" : "pending owners",
+                  filter: "no-owner",
+                  runId: scopedRunId,
+                })}
+              />
+              <SelfDescribingMetricCount
+                variant="inline"
+                testId="architecture-risk-register-summary-overdue"
+                presentation={governanceRegisterMetricPresentation({
+                  count: registerSummary.overdueReview,
+                  noun: registerSummary.overdueReview === 1 ? "overdue review" : "overdue reviews",
+                  filter: "overdue-review",
+                  runId: scopedRunId,
+                })}
+              />
             </>
           ) : undefined
         }

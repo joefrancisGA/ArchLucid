@@ -9,6 +9,7 @@ import { getGovernanceDecisionsNeededSummary } from "@/lib/api/governance-sticki
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
 import { EXECUTIVE_KPI_DRILL_THROUGH } from "@/lib/executive-kpi-drill-through-hrefs";
+import { formatMetricCountScopeLabel } from "@/lib/metric-count-presentation";
 import {
   presentCostEvidenceFreshness,
   presentExecutiveKpiCount,
@@ -120,6 +121,12 @@ export function ExecutiveDashboardPrimaryMetricsSection(
             >
               <p className={cn(OPERATOR_TYPOGRAPHY.executiveDashboardMetric, OPERATOR_LINK.nav)}>{decisionsNeeded.display}</p>
             </Link>
+            <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+              {formatMetricCountScopeLabel([
+                { kind: "workspace" },
+                { kind: "governance-filter", filter: "all" },
+              ])}
+            </p>
           </CardContent>
         </Card>
 
@@ -139,6 +146,12 @@ export function ExecutiveDashboardPrimaryMetricsSection(
                 {staleRisks.display}
               </Link>
             </div>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+              {formatMetricCountScopeLabel([
+                { kind: "workspace" },
+                { kind: "governance-filter", filter: "stale" },
+              ])}
+            </p>
             <div className="flex items-baseline justify-between gap-2">
               <span className="text-neutral-600 dark:text-neutral-400">{v.expiringWaiversMetric.title}</span>
               <Link href={EXECUTIVE_KPI_DRILL_THROUGH.expiringWaivers} className={cn(OPERATOR_LINK.nav, "shrink-0 tabular-nums")}>

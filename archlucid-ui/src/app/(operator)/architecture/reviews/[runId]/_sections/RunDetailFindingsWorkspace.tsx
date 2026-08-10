@@ -12,6 +12,8 @@ import {
   useRunDetailFindingsToolbarState,
 } from "@/components/findings/RunDetailFindingsToolbar";
 import { applyFindingsConfidenceVisibility } from "@/lib/finding-confidence-filter";
+import { reviewFindingsGovernanceQueuePresentation } from "@/lib/metric-count-presentation";
+import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import {
   buildWorkspaceCardRenderedFindings,
   type QuickDecisionFinding,
@@ -69,6 +71,17 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
 
   return (
     <div data-testid="run-detail-findings-workspace">
+      {props.headlineFindingCount !== null && props.headlineFindingCount !== undefined ? (
+        <div className="mb-3" data-testid="run-detail-findings-metric-count">
+          <SelfDescribingMetricCount
+            presentation={reviewFindingsGovernanceQueuePresentation(
+              props.runId,
+              props.headlineFindingCount,
+            )}
+            testId="run-detail-findings-governance-metric"
+          />
+        </div>
+      ) : null}
       <RunDetailFindingsToolbar
         findings={confidenceGatedForCounts}
         renderedFindingCount={listFindings.length}

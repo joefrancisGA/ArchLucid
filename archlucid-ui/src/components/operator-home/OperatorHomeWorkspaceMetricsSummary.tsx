@@ -12,9 +12,10 @@ import {
 import {
   OPERATOR_HOME_ARCHITECTURE_PACKAGES_HREF,
   OPERATOR_HOME_GOVERNANCE_WARNINGS_HREF,
-  OPERATOR_HOME_OPEN_FINDINGS_HREF,
   OPERATOR_HOME_SETUP_READINESS_HREF,
 } from "@/lib/operator-home-metric-hrefs";
+import { workspaceOpenFindingsPresentation } from "@/lib/metric-count-presentation";
+import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
 
@@ -29,7 +30,7 @@ type OperatorHomeWorkspaceMetricsSummaryProps = {
 
 type MetricItemProps = {
   readonly label: string;
-  readonly value: string;
+  readonly value: React.ReactNode;
   readonly href?: string;
 };
 
@@ -44,8 +45,10 @@ function MetricItem(props: MetricItemProps) {
           <Link href={props.href!} className={cn("font-medium", OPERATOR_LINK.inline)}>
             {props.value}
           </Link>
-        ) : (
+        ) : typeof props.value === "string" || typeof props.value === "number" ? (
           <span className="font-medium text-neutral-800 dark:text-neutral-100">{props.value}</span>
+        ) : (
+          props.value
         )}
       </dd>
     </div>
@@ -107,8 +110,13 @@ export function OperatorHomeWorkspaceMetricsSummary(props: OperatorHomeWorkspace
           />
           <MetricItem
             label="Open findings"
-            value={String(metrics.openFindings)}
-            href={OPERATOR_HOME_OPEN_FINDINGS_HREF}
+            value={
+              <SelfDescribingMetricCount
+                variant="inline"
+                presentation={workspaceOpenFindingsPresentation(metrics.openFindings)}
+                testId="operator-home-open-findings-metric"
+              />
+            }
           />
           <MetricItem
             label="Governance warnings"
@@ -145,8 +153,13 @@ export function OperatorHomeWorkspaceMetricsSummary(props: OperatorHomeWorkspace
         />
         <MetricItem
           label="Open findings"
-          value={String(metrics.openFindings)}
-          href={OPERATOR_HOME_OPEN_FINDINGS_HREF}
+          value={
+            <SelfDescribingMetricCount
+              variant="inline"
+              presentation={workspaceOpenFindingsPresentation(metrics.openFindings)}
+              testId="operator-home-open-findings-metric"
+            />
+          }
         />
         <MetricItem
           label="Governance warnings"

@@ -1,8 +1,10 @@
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 
+import { buildGovernanceFindingsQueueHref } from "@/lib/metric-count-presentation";
+
 /** Deep-links for clickable operator-home workspace metrics. */
 
-export const OPERATOR_HOME_OPEN_FINDINGS_HREF = "/governance/findings?filter=open";
+export const OPERATOR_HOME_OPEN_FINDINGS_HREF = buildGovernanceFindingsQueueHref({ filter: "open" });
 
 /** Home query param that pre-filters Recent reviews to packages with governance warnings. */
 export const OPERATOR_HOME_GOVERNANCE_WARNINGS_PARAM = "warnings";

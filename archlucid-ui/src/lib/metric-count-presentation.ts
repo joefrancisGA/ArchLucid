@@ -1,0 +1,189 @@
+import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
+import {
+  matchesGovernanceFindingsRunScope,
+  matchesRiskRegisterFilter,
+  type RiskRegisterFilter,
+} from "@/lib/architecture-risk-register-page";
+
+export type MetricCountScopeKind =
+  | "workspace"
+  | "this-review"
+  | "findings-tab"
+  | "governance-filter";
+
+export type MetricCountScopeDimension = {
+  readonly kind: MetricCountScopeKind;
+  readonly filter?: RiskRegisterFilter;
+};
+
+export type MetricCountPresentation = {
+  readonly count: number;
+  readonly noun: string;
+  readonly dimensions: readonly MetricCountScopeDimension[];
+  readonly href: string;
+};
+
+const SCOPE_LABELS: Record<MetricCountScopeKind, string> = {
+  workspace: "workspace",
+  "this-review": "this review",
+  "findings-tab": "findings tab",
+  "governance-filter": "governance queue",
+};
+
+const FILTER_SCOPE_LABELS: Partial<Record<RiskRegisterFilter, string>> = {
+  open: "open",
+  stale: "stale",
+  "expiring-soon": "expiring soon",
+  "high-severity": "high severity",
+  all: "all rows",
+};
+
+export function formatMetricCountScopeLabel(dimensions: readonly MetricCountScopeDimension[]): string {
+  const parts = dimensions.map((dimension) => {
+    if (dimension.kind === "governance-filter" && dimension.filter !== undefined) {
+      return FILTER_SCOPE_LABELS[dimension.filter] ?? dimension.filter;
+    }
+
+    return SCOPE_LABELS[dimension.kind];
+  });
+
+  return parts.join(" · ");
+}
+
+export function formatMetricCountHeadline(presentation: MetricCountPresentation): string {
+  const scope = formatMetricCountScopeLabel(presentation.dimensions);
+
+  return `${presentation.count} ${presentation.noun} · ${scope}`;
+}
+
+export function buildGovernanceFindingsQueueHref(input?: {
+  readonly runId?: string | null;
+  readonly filter?: RiskRegisterFilter;
+}): string {
+  const params = new URLSearchParams();
+
+  if (input?.runId !== null && input?.runId !== undefined && input.runId.trim().length > 0) {
+    params.set("runId", input.runId.trim());
+  }
+
+  if (input?.filter !== undefined && input.filter !== "all") {
+    params.set("filter", input.filter);
+  }
+
+  const query = params.toString();
+
+  return query.length > 0 ? `/governance/findings?${query}` : "/governance/findings";
+}
+
+export function buildReviewDetailFindingsTabHref(runId: string): string {
+  const trimmedRunId = runId.trim();
+  const params = new URLSearchParams({ reviewTab: "findings" });
+
+  return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}?${params.toString()}`;
+}
+
+export function reviewFindingsCountPresentation(runId: string, count: number): MetricCountPresentation {
+  return {
+    count,
+    noun: count === 1 ? "finding" : "findings",
+    dimensions: [{ kind: "this-review" }, { kind: "findings-tab" }],
+    href: buildReviewDetailFindingsTabHref(runId),
+  };
+}
+
+export function reviewFindingsGovernanceQueuePresentation(
+  runId: string,
+  count: number,
+): MetricCountPresentation {
+  return {
+    count,
+    noun: count === 1 ? "finding" : "findings",
+    dimensions: [{ kind: "this-review" }, { kind: "governance-filter", filter: "all" }],
+    href: buildGovernanceFindingsQueueHref({ runId, filter: "all" }),
+  };
+}
+
+export function workspaceOpenFindingsPresentation(count: number): MetricCountPresentation {
+  return {
+    count,
+    noun: count === 1 ? "open finding" : "open findings",
+    dimensions: [{ kind: "workspace" }, { kind: "governance-filter", filter: "open" }],
+    href: buildGovernanceFindingsQueueHref({ filter: "open" }),
+  };
+}
+
+export function governanceOpenRisksPresentation(
+  count: number,
+  runId?: string | null,
+): MetricCountPresentation {
+  const scopedRunId = runId?.trim() ?? "";
+
+  return {
+    count,
+    noun: count === 1 ? "open risk" : "open risks",
+    dimensions:
+      scopedRunId.length > 0
+        ? [{ kind: "this-review" }, { kind: "governance-filter", filter: "open" }]
+        : [{ kind: "workspace" }, { kind: "governance-filter", filter: "open" }],
+    href: buildGovernanceFindingsQueueHref({
+      runId: scopedRunId.length > 0 ? scopedRunId : null,
+      filter: "open",
+    }),
+  };
+}
+
+export function governanceRegisterMetricPresentation(input: {
+  readonly count: number;
+  readonly noun: string;
+  readonly filter: RiskRegisterFilter;
+  readonly runId?: string | null;
+}): MetricCountPresentation {
+  const scopedRunId = input.runId?.trim() ?? "";
+
+  return {
+    count: input.count,
+    noun: input.noun,
+    dimensions:
+      scopedRunId.length > 0
+        ? [{ kind: "this-review" }, { kind: "governance-filter", filter: input.filter }]
+        : [{ kind: "workspace" }, { kind: "governance-filter", filter: input.filter }],
+    href: buildGovernanceFindingsQueueHref({
+      runId: scopedRunId.length > 0 ? scopedRunId : null,
+      filter: input.filter,
+    }),
+  };
+}
+
+export function countGovernanceFindingRowsForReview(
+  rows: readonly GovernanceFindingQueueRow[],
+  runId: string,
+): number {
+  return rows.filter(
+    (row) => row.recordKind === "finding" && matchesGovernanceFindingsRunScope(row, runId),
+  ).length;
+}
+
+export function countGovernanceRowsMatchingFilter(
+  rows: readonly GovernanceFindingQueueRow[],
+  filter: RiskRegisterFilter,
+  runId?: string | null,
+): number {
+  return rows.filter(
+    (row) =>
+      matchesGovernanceFindingsRunScope(row, runId) && matchesRiskRegisterFilter(row, filter),
+  ).length;
+}
+
+/** Golden-path parity: review explanation finding count vs governance finding rows for the same review. */
+export function assertReviewFindingsGovernanceParity(input: {
+  readonly reviewFindingCount: number;
+  readonly rows: readonly GovernanceFindingQueueRow[];
+  readonly runId: string;
+}): { readonly matches: boolean; readonly governanceFindingCount: number } {
+  const governanceFindingCount = countGovernanceFindingRowsForReview(input.rows, input.runId);
+
+  return {
+    matches: governanceFindingCount === input.reviewFindingCount,
+    governanceFindingCount,
+  };
+}
