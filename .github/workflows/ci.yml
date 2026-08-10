@@ -957,6 +957,14 @@ jobs:
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_buyer_claim_drift.py"
 
+      - name: Bake-off 15-min loser-sequence honesty guard (TB-1457 / M-261)
+        continue-on-error: true
+        run: python scripts/ci/check_bakeoff_15min_honesty.py
+
+      - name: Bake-off 15-min honesty guard unit tests
+        continue-on-error: true
+        run: python -m unittest discover -s scripts/ci/tests -p "test_check_bakeoff_15min_honesty.py"
+
       - name: Buyer-surface strict claim guards (blocking when buyer paths changed)
         if: steps.buyer-surface-detect.outputs.changed == 'true'
         run: |
