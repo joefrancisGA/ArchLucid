@@ -38,7 +38,7 @@ graph_has_nodes_and_edges() {
   local body_file
   body_file="$(mktemp)"
   curl -sS -o "${body_file}" \
-    "${API_URL}/v1/graph/runs/${GRAPH_RUN_SEGMENT}" \
+    "${API_URL}/v1/evidence-graph/reviews/${GRAPH_RUN_SEGMENT}" \
     -H "Accept: application/json" || true
   local node_count edge_count
   node_count="$(jq -r '(.nodes // []) | length' "${body_file}" 2>/dev/null || echo 0)"

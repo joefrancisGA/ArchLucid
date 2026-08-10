@@ -1,23 +1,22 @@
-﻿import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
+﻿import { FIRST_ARCHITECTURE_REVIEW_HELP_TRAFFIC_PATH } from "@/lib/ui-route-traffic-first-architecture-review-help";
 
 /**
- * Traffic workbook row ID for the legacy first-hour-operator-path help bookmark.
- * Owner backlog shorthand: HFE.
+ * Removed traffic workbook row ID for the retired `/help/first-hour-operator-path` alias (merged into COR).
+ * Do not reintroduce — first-architecture-review help is scored only on COR.
  */
-export const FIRST_HOUR_OPERATOR_PATH_HELP_ALIAS_TRAFFIC_ROW_ID = "HFE";
+export const REMOVED_FIRST_HOUR_OPERATOR_PATH_HELP_ALIAS_TRAFFIC_ROW_ID = "HFE";
 
-/** Legacy alias path tracked on the HFE workbook row. */
-export const FIRST_HOUR_OPERATOR_PATH_HELP_ALIAS_TRAFFIC_PATH = "/help/first-hour-operator-path";
+/** Retired alias bookmark — not a standalone traffic row. */
+export const RETIRED_FIRST_HOUR_OPERATOR_PATH_HELP_ALIAS_TRAFFIC_PATH =
+  "/help/first-hour-operator-path";
 
-/** Canonical first-review help path that HFE resolves to (workbook row COR). */
-export const FIRST_HOUR_OPERATOR_PATH_HELP_ALIAS_CANONICAL_PATH = FIRST_ARCHITECTURE_REVIEW_HELP_PATH;
-
-/** Workbook Section column value - deprecated help alias, not a separate topic. */
-export const FIRST_HOUR_OPERATOR_PATH_HELP_ALIAS_TRAFFIC_SECTION = "Help alias";
+/** Canonical first-architecture-review help scored on traffic row COR. */
+export const CANONICAL_FIRST_ARCHITECTURE_REVIEW_HELP_TRAFFIC_PATH =
+  FIRST_ARCHITECTURE_REVIEW_HELP_TRAFFIC_PATH;
 
 /**
- * Owner workbook Notes for HFE - documents the legacy slug alias bookmark.
+ * Historical workbook Notes for removed HFE (kept for owner note scripts / migration docs).
  * ASCII-only for Windows console note scripts.
  */
 export const FIRST_HOUR_OPERATOR_PATH_HELP_ALIAS_TRAFFIC_NOTE =
- "Deprecated first-hour-operator-path help alias (Help alias) - slug alias first-hour-operator-path -> first-architecture-review; renders HelpCorePilotGuideView Evidence chrome (Sources strip + PageContextualHelp + Category-1 on alias path). Canon COR = /help/first-architecture-review. Body lives in CORE_PILOT.md (TB-1374). Score 58/100 (2026-08-05) - help-topic orientation hard-caps higher Evidence (alias inherits COR). Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
+  "Deprecated first-hour-operator-path help alias (Help alias) - slug alias first-hour-operator-path -> first-architecture-review; renders HelpCorePilotGuideView Evidence chrome (Sources strip + PageContextualHelp + Category-1 on alias path). Canon COR = /help/first-architecture-review. Body lives in CORE_PILOT.md (TB-1374). Score 58/100 (2026-08-05) - help-topic orientation hard-caps higher Evidence (alias inherits COR). Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";

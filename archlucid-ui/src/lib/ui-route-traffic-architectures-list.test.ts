@@ -59,16 +59,19 @@ function findTrafficRowById(rows: TrafficWorkbookRow[], rowId: string): TrafficW
   return rows.find((row) => row.id === rowId);
 }
 
-describe("ui-route-traffic-architectures-list (ARA)", () => {
+describe("ui-route-traffic-architectures-list (AR)", () => {
   it("tracks architectures list under Core review with honest Evidence workbook notes", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
     const row = findTrafficRowById(rows, ARCHITECTURES_LIST_TRAFFIC_ROW_ID);
+    const retiredAraRow = findTrafficRowById(rows, "ARA");
 
     expect(row).toBeDefined();
+    expect(row?.id).toBe("AR");
     expect(row?.path).toBe(ARCHITECTURES_LIST_TRAFFIC_PATH);
     expect(row?.section).toBe(ARCHITECTURES_LIST_TRAFFIC_SECTION);
     expect(row?.notes).toBe(ARCHITECTURES_LIST_TRAFFIC_NOTE);
     expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("cannot improve further toward 80");
+    expect(retiredAraRow).toBeUndefined();
   });
 });
