@@ -1,3 +1,5 @@
+> **Scope:** Pending cold-start remeasure note for TB-2161 Host.Runtime knobs on next CD — not a measured baseline and not buyer-facing.
+
 # Cold-start baseline — runtime knobs enabled (pending CD remeasure)
 
 **Date:** 2026-08-10  
