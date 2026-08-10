@@ -22,14 +22,14 @@ vi.mock("@/lib/api/architecture-runs", () => ({
 }));
 
 vi.mock("@/hooks/use-architecture-draft-autosave", () => ({
-  useArchitectureDraftAutosave: () => ({
+  useArchitectureDraftAutosave: vi.fn(() => ({
     saveState: "idle",
     lastSavedUtc: null,
     conflictMessage: null,
     saveDraft,
     reloadDraft,
     hasPersistedDraft: true,
-  }),
+  })),
 }));
 
 vi.mock("@/hooks/use-unsaved-changes-guard", () => ({
@@ -80,8 +80,9 @@ vi.mock("@/lib/architecture-draft-handoff-gate", async () => {
 });
 
 import { ArchitectureDraftWorkspace } from "./ArchitectureDraftWorkspace";
-import { ARCHITECTURE_DRAFT_WORKSPACE_LEAD } from "@/lib/create-vs-review-intake-copy";
+import { ARCHITECTURE_DRAFT_WORKSPACE_LEAD, ARCHITECTURE_CREATION_AUTOSAVE_REASSURANCE } from "@/lib/create-vs-review-intake-copy";
 import { ARCHITECTURE_NEW_DRAFT_SEGMENT } from "@/lib/architecture-routes";
+import { useArchitectureDraftAutosave } from "@/hooks/use-architecture-draft-autosave";
 
 const spawnedDraft = {
   draftId: "arch-001",
@@ -112,6 +113,14 @@ beforeEach(() => {
   getRunSummary.mockResolvedValue({
     runId: "run-001",
     displayName: "Claims intake modernization",
+  });
+  vi.mocked(useArchitectureDraftAutosave).mockReturnValue({
+    saveState: "idle",
+    lastSavedUtc: null,
+    conflictMessage: null,
+    saveDraft,
+    reloadDraft,
+    hasPersistedDraft: true,
   });
 });
 
@@ -191,5 +200,59 @@ describe("ArchitectureDraftWorkspace", () => {
     });
 
     expect(screen.queryByTestId("architecture-draft-acknowledge-edit")).not.toBeInTheDocument();
+  });
+
+  it("discloses autosave and omits a disabled Save draft when autosave is authoritative (TB-1455)", async () => {
+    vi.mocked(useArchitectureDraftAutosave).mockReturnValue({
+      saveState: "saved",
+      lastSavedUtc: "2026-07-18T22:00:00.000Z",
+      conflictMessage: null,
+      saveDraft,
+      reloadDraft,
+      hasPersistedDraft: true,
+    });
+
+    getDraftRequest.mockResolvedValue({
+      ...spawnedDraft,
+      status: "Drafting",
+      spawnedRunId: null,
+      document: { ...spawnedDraft.document, workflowIntent: "create-architecture" },
+    });
+
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-autosave-reassurance")).toHaveTextContent(
+        ARCHITECTURE_CREATION_AUTOSAVE_REASSURANCE,
+      );
+    });
+
+    expect(screen.queryByTestId("architecture-save-draft")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-save-draft-retry")).not.toBeInTheDocument();
+    expect(screen.getByTestId("architecture-save-and-exit")).toBeInTheDocument();
+  });
+
+  it("offers Save now only when autosave cannot complete (TB-1455)", async () => {
+    vi.mocked(useArchitectureDraftAutosave).mockReturnValue({
+      saveState: "error",
+      lastSavedUtc: null,
+      conflictMessage: null,
+      saveDraft,
+      reloadDraft,
+      hasPersistedDraft: true,
+    });
+
+    getDraftRequest.mockResolvedValue({
+      ...spawnedDraft,
+      status: "Drafting",
+      spawnedRunId: null,
+      document: { ...spawnedDraft.document, workflowIntent: "create-architecture" },
+    });
+
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-save-draft-retry")).toHaveTextContent("Save now");
+    });
   });
 });

@@ -41,7 +41,10 @@ import {
   buildArchitectureDraftRegistryEntry,
   upsertArchitectureDraftRegistryEntry,
 } from "@/lib/architecture-draft-registry";
-import { validateArchitectureReviewReadiness } from "@/lib/architecture-draft-readiness";
+import {
+  hasArchitectureDraftSaveableContent,
+  validateArchitectureReviewReadiness,
+} from "@/lib/architecture-draft-readiness";
 import {
   ARCHITECTURES_LIST_PATH,
   architectureDraftPath,
@@ -231,7 +234,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   }, []);
 
   const handleSaveAndExit = useCallback(async () => {
-    if (isNewDraft && !hasPersistedDraft) {
+    if (isNewDraft && !hasPersistedDraft && !hasArchitectureDraftSaveableContent(fields)) {
       router.push(ARCHITECTURES_LIST_PATH);
 
       return;
@@ -259,7 +262,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     }, SOFT_NAVIGATION_TIMEOUT_MS);
 
     router.push(ARCHITECTURES_LIST_PATH);
-  }, [hasPersistedDraft, isNewDraft, router, saveDraft]);
+  }, [fields, hasPersistedDraft, isNewDraft, router, saveDraft]);
 
   const handleStartReview = useCallback(async () => {
     if (isNewDraft && !hasPersistedDraft) {
@@ -345,7 +348,11 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
             ) : null}
           </div>
         </div>
-        <ArchitectureDraftSaveStatus saveState={saveState} lastSavedUtc={lastSavedUtc} />
+        <ArchitectureDraftSaveStatus
+          saveState={saveState}
+          lastSavedUtc={lastSavedUtc}
+          autosaveActive={!handoffEditorLocked}
+        />
       </div>
 
       {linkedReviewId !== null ? (
@@ -431,18 +438,20 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
             {BUYER_START_ARCHITECTURE_REVIEW_CTA}
           </Button>
         )}
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={handoffEditorLocked || saveState === "saving" || !hasUnsavedChanges}
-          onClick={() => {
-            void handleSaveDraft();
-          }}
-          data-testid="architecture-save-draft"
-        >
-          Save draft
-        </Button>
+        {saveState === "error" || saveState === "offline" ? (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={handoffEditorLocked}
+            onClick={() => {
+              void handleSaveDraft();
+            }}
+            data-testid="architecture-save-draft-retry"
+          >
+            Save now
+          </Button>
+        ) : null}
         <Button
           type="button"
           variant="outline"
