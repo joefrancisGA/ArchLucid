@@ -13,7 +13,9 @@ import {
 } from "@/components/findings/RunDetailFindingsToolbar";
 import { applyFindingsConfidenceVisibility } from "@/lib/finding-confidence-filter";
 import { reviewFindingsGovernanceQueuePresentation } from "@/lib/metric-count-presentation";
+import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
+import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-registry";
 import {
   buildWorkspaceCardRenderedFindings,
   type QuickDecisionFinding,
@@ -68,9 +70,24 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
     showAdvisory,
     showMuted: false,
   });
+  const firstListedFinding = listFindings[0];
+  const findingsSecondaryViewPresentation =
+    firstListedFinding !== undefined
+      ? buildCanonicalObjectSecondaryView("finding", "reviewPackageFindingsTab", {
+          runId: props.runId,
+          findingId: firstListedFinding.findingId,
+        })
+      : null;
 
   return (
     <div data-testid="run-detail-findings-workspace">
+      {findingsSecondaryViewPresentation !== null ? (
+        <CanonicalObjectSecondaryViewStrip
+          presentation={findingsSecondaryViewPresentation}
+          testId="review-findings-secondary-view-strip"
+          className="mb-3"
+        />
+      ) : null}
       {props.headlineFindingCount !== null && props.headlineFindingCount !== undefined ? (
         <div className="mb-3" data-testid="run-detail-findings-metric-count">
           <SelfDescribingMetricCount

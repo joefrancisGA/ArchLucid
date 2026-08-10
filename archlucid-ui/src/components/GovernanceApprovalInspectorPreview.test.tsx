@@ -30,10 +30,11 @@ describe("approvalRequestPrimaryLabel", () => {
 });
 
 describe("GovernanceApprovalInspectorPreview", () => {
-  it("renders governance StatusPill and run link", () => {
+  it("renders governance StatusPill, secondary-view strip, and run link", () => {
     render(<GovernanceApprovalInspectorPreview request={sample} />);
     const root = screen.getByTestId("governance-approval-inspector-preview");
 
+    expect(screen.getByTestId("governance-approval-inspector-secondary-view-strip")).toBeInTheDocument();
     expect(within(root).getByLabelText("Governance status: Submitted")).toBeInTheDocument();
     expect(within(root).getByRole("link", { name: sample.runId })).toHaveAttribute(
       "href",

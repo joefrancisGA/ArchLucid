@@ -12,6 +12,8 @@ import {
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_TITLE,
 } from "@/lib/run-detail-governance-pre-commit-copy";
 import { RUN_DETAIL_GOVERNANCE_PRE_COMMIT_CLAIM_DISCIPLINE } from "@/lib/run-detail-governance-sources";
+import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
+import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-registry";
 import { shouldShowRunDetailGovernanceCta, runDetailGovernanceWorkflowHref } from "@/lib/run-detail-governance-cta-visibility";
 
 export type RunDetailGovernanceDecisionSectionProps = {
@@ -96,6 +98,11 @@ export function RunDetailGovernanceDecisionSection(
         : "No governance decision recorded";
 
   const findingsHref = buildArchitectureWorkspaceTabHref(props.runId, "findings");
+  const decisionSecondaryViewPresentation = buildCanonicalObjectSecondaryView(
+    "decision",
+    "reviewPackageGovernanceTab",
+    {},
+  );
 
   return (
     <section
@@ -103,6 +110,11 @@ export function RunDetailGovernanceDecisionSection(
       className="scroll-mt-24 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
       data-testid="run-detail-governance-decision"
     >
+      <CanonicalObjectSecondaryViewStrip
+        presentation={decisionSecondaryViewPresentation}
+        testId="review-governance-secondary-view-strip"
+        className="mb-3"
+      />
       <h2 className={cn("m-0 mb-3 text-base font-semibold text-neutral-900 dark:text-neutral-100")}>
         Governance decision
       </h2>

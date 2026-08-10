@@ -34,7 +34,9 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { governanceRegisterMetricPresentation } from "@/lib/metric-count-presentation";
+import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
+import { secondaryViewFromGovernanceQueueRow } from "@/lib/canonical-object-home-registry";
 import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
 import { cn } from "@/lib/utils";
 
@@ -77,6 +79,8 @@ export default function GovernanceFindingsQueueClient() {
   const pageSubtitle = buyerPolishedShell
     ? BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD
     : ARCHITECTURE_RISK_REGISTER_PAGE_SUBTITLE;
+  const secondaryViewPresentation =
+    displayedRows.length > 0 ? secondaryViewFromGovernanceQueueRow(displayedRows[0]) : null;
 
   return (
     <div className="w-full max-w-[1440px]">
@@ -139,6 +143,14 @@ export default function GovernanceFindingsQueueClient() {
         actions={<PageContextualHelpButton />}
       />
 <div className={cn("mt-4", OPERATOR_LAYOUT.sectionStack)}>
+        {secondaryViewPresentation !== null ? (
+          <CanonicalObjectSecondaryViewStrip
+            presentation={secondaryViewPresentation}
+            testId="governance-findings-secondary-view-strip"
+            className="mb-1"
+          />
+        ) : null}
+
         {scopedRunId ? (
           <p
             className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}

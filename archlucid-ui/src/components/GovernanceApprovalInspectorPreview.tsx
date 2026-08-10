@@ -4,6 +4,8 @@ import { CTA_WIDTH, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 
+import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
+import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-registry";
 import { StatusPill } from "@/components/StatusPill";
 import { Button } from "@/components/ui/button";
 import { formatInstantForBuyerGovernance } from "@/lib/locale-datetime";
@@ -23,6 +25,11 @@ export function approvalRequestPrimaryLabel(row: GovernanceApprovalRequest): str
  * Read-only approval request summary for the governance dashboard inspector (dashboard payload only).
  */
 export function GovernanceApprovalInspectorPreview({ request }: GovernanceApprovalInspectorPreviewProps) {
+  const approvalSecondaryViewPresentation = buildCanonicalObjectSecondaryView(
+    "approvalRequest",
+    "governanceApprovalInspector",
+    { approvalRequestId: request.approvalRequestId, runId: request.runId },
+  );
   const requestedLabel = formatInstantForBuyerGovernance(request.requestedUtc);
   const reviewedUtcRaw = request.reviewedUtc;
   const reviewedLabel =
@@ -33,6 +40,10 @@ export function GovernanceApprovalInspectorPreview({ request }: GovernanceApprov
       className={cn("space-y-4 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}
       data-testid="governance-approval-inspector-preview"
     >
+      <CanonicalObjectSecondaryViewStrip
+        presentation={approvalSecondaryViewPresentation}
+        testId="governance-approval-inspector-secondary-view-strip"
+      />
       <div className="flex flex-wrap items-center gap-2">
         <StatusPill status={request.status} domain="governance" ariaLabel={`Governance status: ${request.status}`} />
       </div>

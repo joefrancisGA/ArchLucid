@@ -7,7 +7,9 @@ import {
   OperatorEvidenceLimitsFooter,
   type OperatorEvidenceLimitsExecutionProps,
 } from "@/components/OperatorEvidenceLimitsFooter";
+import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-registry";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { ARCHITECTURE_REVIEW_VOCABULARY } from "@/lib/architecture-review-vocabulary";
 import {
@@ -143,11 +145,20 @@ export function FindingInspectView({
   // TB-1826: finding-first H1 so buyers can name the finding from the first viewport.
   const inspectHeroTitle = findingTitle;
   const findingDetailHref = getFindingDetailHref(runId, decodedFindingId);
+  const evidenceTraceSecondaryViewPresentation = buildCanonicalObjectSecondaryView(
+    "finding",
+    "findingEvidenceTrace",
+    { runId, findingId: decodedFindingId },
+  );
   const policyCitationModel = buildFindingPolicyEvidenceCitationsFromInspect(runId, decodedFindingId, payload);
   const policyTraceExcerpt = resolvePolicyTraceExcerptFromInspect(payload);
 
   return (
     <div className="w-full max-w-[1440px] space-y-6 p-4" data-testid="finding-inspect-view">
+      <CanonicalObjectSecondaryViewStrip
+        presentation={evidenceTraceSecondaryViewPresentation}
+        testId="evidence-trace-secondary-view-strip"
+      />
       <section
         className="space-y-4"
         aria-labelledby="evidence-trace-region-heading"

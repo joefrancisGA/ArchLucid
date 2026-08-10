@@ -11,6 +11,8 @@ import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/
 import { useGovernanceMode } from "@/hooks/use-governance-mode";
 import type { RunDetail } from "@/types/authority";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
+import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-registry";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 
 import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
@@ -27,10 +29,25 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
   const manifestLabel = vocabulary.goldenManifestLabel;
   const rowLabelClass = cn("shrink-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body);
   const monoCodeClass = cn("truncate font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro);
+  const manifestIdTrimmed = (manifestId ?? "").trim();
+  const signedRecordSecondaryViewPresentation =
+    manifestIdTrimmed.length > 0
+      ? buildCanonicalObjectSecondaryView("signedReviewRecord", "reviewPackageAuthorityChain", {
+          manifestId: manifestIdTrimmed,
+        })
+      : null;
 
   return (
     <section id="authority-chain" className="scroll-mt-24">
       <Card>
+        {signedRecordSecondaryViewPresentation !== null ? (
+          <div className="px-6 pt-6">
+            <CanonicalObjectSecondaryViewStrip
+              presentation={signedRecordSecondaryViewPresentation}
+              testId="review-authority-secondary-view-strip"
+            />
+          </div>
+        ) : null}
         <CardHeader>
           <h3 className={runDetailSectionHeadingClass}>{vocabulary.authorityChainLabel}</h3>
           <CardDescription>

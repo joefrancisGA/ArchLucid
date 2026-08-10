@@ -43,6 +43,7 @@ describe("RunDetailGovernanceDecisionSection", () => {
   it("shows post-commit governance decision chrome when manifest exists", () => {
     render(<RunDetailGovernanceDecisionSection {...baseProps} manifestId="manifest-1" />);
 
+    expect(screen.getByTestId("review-governance-secondary-view-strip")).toBeInTheDocument();
     expect(screen.getByText("Governance decision")).toBeInTheDocument();
     expect(screen.getByText("No governance decision recorded")).toBeInTheDocument();
     expect(screen.queryByText(/after you finalize this architecture package/i)).not.toBeInTheDocument();
