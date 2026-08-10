@@ -28,6 +28,7 @@ import {
   formatFindingProvenanceAggregateLine,
 } from "@/lib/finding-provenance-display";
 import { FindingDerivationLine } from "@/components/usability/FindingDerivationLine";
+import { SponsorPlainEnglishFindingPanel } from "@/components/findings/SponsorPlainEnglishFindingPanel";
 import { FindingEvidenceLinkChip } from "@/components/usability/FindingEvidenceLinkChip";
 import { FindingEvidenceRefSnippets } from "@/components/usability/FindingEvidenceRefSnippets";
 import { FindingPolicyEvidenceCitationLinks } from "@/components/findings/FindingPolicyEvidenceCitationLinks";
@@ -744,6 +745,16 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
             evidenceHref={evidenceTraceHref}
             testId={`finding-derivation-${f.findingId}`}
           />
+          <SponsorPlainEnglishFindingPanel
+            input={{
+              title: f.title,
+              message: f.recommendation,
+              severity: badgeLabel,
+              derivationSentence: derivation.sentence,
+              residualRisk: null,
+            }}
+            testId={`sponsor-plain-english-${f.findingId}`}
+          />
           {snippet.length > 0 ? (
             <p className={cn("m-0 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
               {snippet}
@@ -903,6 +914,16 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
               derivation={derivation}
               evidenceHref={evidenceTraceHref}
               testId={`finding-derivation-${f.findingId}`}
+            />
+            <SponsorPlainEnglishFindingPanel
+              input={{
+                title: f.title,
+                message: f.recommendation,
+                severity: badgeLabel,
+                derivationSentence: derivation.sentence,
+                residualRisk: null,
+              }}
+              testId={`sponsor-plain-english-${f.findingId}`}
             />
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{snippet}</p>
             <Button type="button" size="sm" variant="outline" className="h-8" asChild>

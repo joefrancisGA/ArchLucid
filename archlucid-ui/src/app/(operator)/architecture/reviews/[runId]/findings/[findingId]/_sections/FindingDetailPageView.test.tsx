@@ -130,6 +130,14 @@ describe("FindingDetailPageView buyer polish", () => {
     expect(screen.queryByRole("link", { name: "Open evidence trace" })).toBeNull();
   });
 
+  it("renders always-visible sponsor plain-English rewrite (TB-2192)", () => {
+    render(<FindingDetailPageView model={buyerModel()} />);
+
+    expect(screen.getByTestId("sponsor-plain-english-finding")).toBeInTheDocument();
+    expect(screen.getByTestId("sponsor-plain-english-finding-body")).toBeInTheDocument();
+    expect(screen.getByText("Explain for a sponsor")).toBeInTheDocument();
+  });
+
   it("omits footer inspect link for buyer shell and nests ask/itsm under work-with section", () => {
     render(<FindingDetailPageView model={buyerModel()} />);
 

@@ -13,6 +13,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { FindingExplainPanel } from "@/components/FindingExplainPanel";
+import { SponsorPlainEnglishFindingPanel } from "@/components/findings/SponsorPlainEnglishFindingPanel";
 import { FindingExplainabilityTracePanel } from "@/components/FindingExplainabilityTracePanel";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorEvidenceLimitsFooter } from "@/components/OperatorEvidenceLimitsFooter";
@@ -21,10 +22,12 @@ import { StatusTag } from "@/components/ui/status-tag";
 import {
   findingDetailLeadSentence,
   findingDetailPageEyebrow,
+  findingInspectNarrativeFields,
   findingInspectPrimaryLabels,
   findingWhyThisMattersText,
   phiMinimizationBuyerConsequenceNarrative,
 } from "@/lib/finding-display-from-inspect";
+import { buildFindingDerivationSentence } from "@/lib/finding-derivation-sentence";
 import { findingSeverityAudienceCopy } from "@/lib/finding-explainability-summary";
 import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import { isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
@@ -114,6 +117,33 @@ export function FindingDetailPageView(props: Props) {
       : [];
   const buyerRecommendedActionParagraph =
     inspectPayload !== null ? findingRecommendedActionParagraph(inspectPayload, decodedFindingId) : null;
+  const sponsorPlainEnglishInput =
+    inspectPayload !== null
+      ? (() => {
+          const narrative = findingInspectNarrativeFields(inspectPayload);
+          const derivation = buildFindingDerivationSentence({
+            ruleName: inspectPayload.decisionRuleName,
+            ruleId: inspectPayload.decisionRuleId,
+            severityLabel: severityHeadline,
+            evidenceRefCount: inspectPayload.evidence?.length ?? 0,
+            reasoningSummary: inspectPayload.reasoningSummary,
+          });
+
+          return {
+            title: pageTitle,
+            message: narrative.description ?? findingDetailLeadSentence(inspectPayload),
+            severity: severityHeadline,
+            derivationSentence: derivation.sentence,
+            residualRisk: null as string | null,
+          };
+        })()
+      : {
+          title: pageTitle,
+          message: findingDetailLeadFallback(decodedFindingId),
+          severity: severityHeadline,
+          derivationSentence: null as string | null,
+          residualRisk: null as string | null,
+        };
   const showBuyerPolishedBody = buyerPolishedShell && inspectFailure === null;
 
   return (
@@ -190,6 +220,11 @@ export function FindingDetailPageView(props: Props) {
               showOwnerCadence
             />
           ) : null}
+
+          <SponsorPlainEnglishFindingPanel
+            input={sponsorPlainEnglishInput}
+            collapsedByDefault={false}
+          />
 
           {inspectPayload !== null ? (
             <CollapsibleSection
@@ -425,6 +460,13 @@ export function FindingDetailPageView(props: Props) {
           decodedFindingId={decodedFindingId}
           payload={inspectPayload}
           variant="detail"
+        />
+      ) : null}
+
+      {!buyerPolishedShell ? (
+        <SponsorPlainEnglishFindingPanel
+          input={sponsorPlainEnglishInput}
+          collapsedByDefault={false}
         />
       ) : null}
 
