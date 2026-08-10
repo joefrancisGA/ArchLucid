@@ -49,10 +49,16 @@ const scorecardData: PilotScorecardJson = {
 
 function buildModel(overrides: Partial<UsePilotScorecardPageModel> = {}): UsePilotScorecardPageModel {
   return {
+    assumptionsComplete: false,
+    assumptionsDirty: false,
     canExecute: true,
+    canSaveAssumptions: false,
     data: scorecardData,
     error: null,
+    fieldErrors: { hours: null, reviews: null, rate: null },
     hours: "",
+    livePreview: null,
+    metricsAsOfUtc: null,
     onSaveBaselines: vi.fn(async () => undefined),
     rate: "",
     reviews: "",

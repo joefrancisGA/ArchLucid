@@ -282,8 +282,10 @@ export function buildReviewScorecardScopeCue(data: PilotScorecardJson): string {
   return "Workspace all-time · metrics appear after the first review activity";
 }
 
-export function buildReviewScorecardMetricsAsOfLabel(metricsAsOfUtc: string | null): string | null {
-  if (metricsAsOfUtc === null || metricsAsOfUtc.trim().length === 0) {
+export function buildReviewScorecardMetricsAsOfLabel(
+  metricsAsOfUtc: string | null | undefined,
+): string | null {
+  if (metricsAsOfUtc == null || metricsAsOfUtc.trim().length === 0) {
     return null;
   }
 
