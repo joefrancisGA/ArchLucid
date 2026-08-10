@@ -1,5 +1,6 @@
 using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Value;
+using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
@@ -170,6 +171,100 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
             Times.Exactly(2));
     }
 
+    [Fact]
+    public async Task First_value_markdown_hold_disposition_does_not_lead_with_annualized_usd()
+    {
+        ArchitectureRunDetail detail = BuildCommittedDetail();
+        detail.Run.StructuralExecutionMode = StructuralExecutionMode.Simulator;
+
+        Mock<IRunDetailQueryService> query = new();
+        query.Setup(q => q.GetRunDetailAsync("r1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        PilotRunDeltas computed = new()
+        {
+            RunCreatedUtc = detail.Run.CreatedUtc,
+            ManifestCommittedUtc = detail.Manifest!.Metadata.CreatedUtc,
+            FindingsBySeverity = [new KeyValuePair<string, int>("Warning", 1)],
+            AuditRowCount = 5,
+            LlmCallCount = 2,
+            IsDemoTenant = false,
+        };
+
+        Mock<IPilotRunDeltaComputer> deltas = new();
+        deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>())).ReturnsAsync(computed);
+
+        ValueReportRawMetrics holdRawMetrics = new(
+            [],
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            null,
+            null,
+            null,
+            6m,
+            3,
+            null,
+            null,
+            null);
+
+        FirstValueReportBuilder builder = CreateSut(query.Object, deltas.Object, holdRawMetrics);
+        string? markdown = await builder.BuildMarkdownAsync("r1", "http://localhost:5000");
+
+        markdown.Should().NotBeNullOrWhiteSpace();
+        markdown.Should().Contain("| ROI claim gate | **HOLD**");
+        markdown.Should().Contain("**Projected dollar claim disposition:** **HOLD**");
+
+        SponsorSimulatorRoiForbidAssertions.AssertNoLeadingAnnualizedOrProjectedUsd(markdown!);
+    }
+
+    [Fact]
+    public async Task Value_report_docx_hold_suppresses_annualized_usd_lead_lines()
+    {
+        ValueReportSnapshot snapshot = new(
+            Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            DateTimeOffset.Parse("2026-01-01T00:00:00Z"),
+            DateTimeOffset.Parse("2026-02-01T00:00:00Z"),
+            [],
+            0,
+            0,
+            0,
+            0,
+            0m,
+            0m,
+            0m,
+            0m,
+            0m,
+            "estimate",
+            AnnualizedHoursValueUsd: 52_500m,
+            AnnualizedLlmCostUsd: 1_200m,
+            BaselineAnnualSubscriptionAndOpsCostUsdFromRoiModel: 10_000m,
+            NetAnnualizedValueVersusRoiBaselineUsd: 41_300m,
+            RoiAnnualizedPercentVersusRoiBaseline: 18.5m,
+            TenantBaselineReviewCycleHours: null,
+            TenantBaselineReviewCycleSource: null,
+            TenantBaselineReviewCycleCapturedUtc: null,
+            MeasuredAverageReviewCycleHoursForWindow: 6m,
+            MeasuredReviewCycleSampleSize: 2,
+            ReviewCycleBaselineProvenance: ReviewCycleBaselineProvenance.NoMeasurementYet,
+            ReviewCycleHoursDelta: 2m,
+            ReviewCycleHoursDeltaPercent: 10m,
+            FindingFeedbackNetScore: 0,
+            FindingFeedbackVoteCount: 0,
+            TenantBaselineManualPrepHoursPerReview: null,
+            TenantBaselinePeoplePerReview: null);
+
+        DocxValueReportRenderer renderer = new(NullLogger<DocxValueReportRenderer>.Instance);
+        byte[] docx = await renderer.RenderAsync(snapshot, CancellationToken.None);
+
+        SponsorSimulatorRoiForbidAssertions.AssertDocxHoldSuppressesAnnualizedUsd(docx);
+    }
+
     private static ValueReportSnapshot CreateEmptySnapshot() =>
         new(
             Guid.Parse("11111111-1111-1111-1111-111111111111"),
@@ -240,7 +335,8 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
 
     private static FirstValueReportBuilder CreateSut(
         IRunDetailQueryService query,
-        IPilotRunDeltaComputer deltas)
+        IPilotRunDeltaComputer deltas,
+        ValueReportRawMetrics? rawMetrics = null)
     {
         Mock<IValueReportMetricsReader> metrics = new();
         metrics
@@ -251,7 +347,7 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
                 It.IsAny<DateTimeOffset>(),
                 It.IsAny<DateTimeOffset>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ValueReportRawMetrics([], 0, 0, 0, 0, 0, 0, null, null, null, null, 0, null, null, null));
+            .ReturnsAsync(rawMetrics ?? new ValueReportRawMetrics([], 0, 0, 0, 0, 0, 0, null, null, null, null, 0, null, null, null));
 
         Mock<IOptionsMonitor<ValueReportComputationOptions>> opt = new();
         opt.Setup(o => o.CurrentValue).Returns(new ValueReportComputationOptions());

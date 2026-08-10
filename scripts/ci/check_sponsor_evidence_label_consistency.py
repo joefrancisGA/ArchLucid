@@ -57,7 +57,25 @@ _SPONSOR_OUTPUT_SURFACES: dict[str, tuple[str, ...]] = {
     ),
     "archlucid-ui/src/components/EmailRunToSponsorBanner.tsx": (
         "Execution mode",
-        "projected",
+        "isProjectedUsdSponsorBadgeVisible",
+    ),
+    "archlucid-ui/src/lib/pilot-proof-readiness.ts": (
+        "isProjectedUsdSponsorBadgeVisible",
+        "projectedDollarClaimsSponsorSafe",
+    ),
+    "archlucid-ui/src/lib/execution-mode-honesty.ts": (
+        "resolveExecutiveTrendSavingsUsd",
+        "realModeSavingsUsd",
+    ),
+    "docs/library/SIMULATOR_ROI_SPONSOR_FORBID_CONTRACT.md": (
+        "TB-983",
+        "projectedDollarClaimsSponsorSafe",
+        "SponsorRoiClaimDisposition.Hold",
+        "isExternalSponsorPdfBlockedForExecutionMode",
+    ),
+    "ArchLucid.Application.Tests/Pilots/SponsorSimulatorRoiForbidAssertions.cs": (
+        "TB-985",
+        "AssertNoLeadingAnnualizedOrProjectedUsd",
     ),
     "archlucid-ui/src/components/GenerateSponsorValueReportButton.tsx": (
         "ROI baseline",
@@ -66,6 +84,37 @@ _SPONSOR_OUTPUT_SURFACES: dict[str, tuple[str, ...]] = {
         "Unsupported-Claim Audit",
         "execution mode",
         "ROI narrative claim gate",
+    ),
+}
+
+# TB-983 / TB-985 — Simulator-derived ROI sponsor forbid contract + enforcement surfaces.
+_SIMULATOR_ROI_FORBID_ANCHORS: dict[str, tuple[str, ...]] = {
+    "docs/library/SIMULATOR_ROI_SPONSOR_FORBID_CONTRACT.md": (
+        "execution mode ≠ ROI source",
+        "projectedDollarClaimsSponsorSafe",
+        "SponsorRoiClaimDisposition.Hold",
+        "TB-985",
+    ),
+    "archlucid-ui/src/lib/execution-mode-honesty.ts": (
+        "resolveExecutiveTrendSavingsUsd",
+        "buyerPolished",
+        "realModeSavingsUsd",
+    ),
+    "archlucid-ui/src/lib/pilot-proof-readiness.ts": (
+        "isProjectedUsdSponsorBadgeVisible",
+        "isExternalSponsorPdfBlockedForExecutionMode",
+        "projectedDollarClaimsSponsorSafe",
+    ),
+    "archlucid-ui/src/components/EmailRunToSponsorBanner.tsx": (
+        "isProjectedUsdSponsorBadgeVisible",
+        "isExternalSponsorPdfBlockedForExecutionMode",
+    ),
+    "archlucid-ui/src/app/(operator)/architecture/executive-dashboard/_sections/ExecutiveRoiTrendSection.tsx": (
+        "resolveExecutiveTrendSavingsUsd",
+    ),
+    "ArchLucid.Application.Tests/Pilots/SponsorSimulatorRoiForbidAssertions.cs": (
+        "TB-985",
+        "AssertNoLeadingAnnualizedOrProjectedUsd",
     ),
 }
 
@@ -115,6 +164,7 @@ def main(argv: list[str] | None = None) -> int:
 
     errors.extend(_scan_anchor_map(root, _REQUIRED_PROCUREMENT_ANCHORS, label="procurement"))
     errors.extend(_scan_anchor_map(root, _SPONSOR_OUTPUT_SURFACES, label="sponsor-output"))
+    errors.extend(_scan_anchor_map(root, _SIMULATOR_ROI_FORBID_ANCHORS, label="simulator-roi-forbid"))
 
     if errors:
         for error in errors:
