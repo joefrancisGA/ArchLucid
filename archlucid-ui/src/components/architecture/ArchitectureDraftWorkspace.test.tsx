@@ -131,6 +131,15 @@ beforeEach(() => {
 
 describe("ArchitectureDraftWorkspace", () => {
   it("opens the empty workspace immediately on /new without fetching a draft", async () => {
+    vi.mocked(useArchitectureDraftAutosave).mockReturnValue({
+      saveState: "idle",
+      lastSavedUtc: null,
+      conflictMessage: null,
+      saveDraft,
+      reloadDraft,
+      hasPersistedDraft: false,
+    });
+
     render(<ArchitectureDraftWorkspace architectureId={ARCHITECTURE_NEW_DRAFT_SEGMENT} />);
 
     expect(getDraftRequest).not.toHaveBeenCalled();
@@ -144,6 +153,8 @@ describe("ArchitectureDraftWorkspace", () => {
         ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE,
       );
     });
+
+    expect(screen.queryByTestId("architecture-draft-autosave-reassurance")).not.toBeInTheDocument();
   });
 
   it("shows browser-local resume drafts on /new when registry entries exist (TB-1459)", async () => {

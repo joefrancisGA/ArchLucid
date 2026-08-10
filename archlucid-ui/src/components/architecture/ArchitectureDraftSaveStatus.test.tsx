@@ -6,10 +6,22 @@ import { ARCHITECTURE_CREATION_AUTOSAVE_REASSURANCE } from "@/lib/create-vs-revi
 
 describe("ArchitectureDraftSaveStatus", () => {
   it("does not claim Saved before the user has persisted edits", () => {
-    render(<ArchitectureDraftSaveStatus saveState="idle" lastSavedUtc={null} />);
+    render(<ArchitectureDraftSaveStatus saveState="idle" lastSavedUtc={null} hasPersistedDraft={false} />);
 
     expect(screen.getByTestId("architecture-draft-save-status")).toHaveAttribute("data-save-state", "idle");
     expect(screen.queryByText("Saved")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-draft-autosave-reassurance")).not.toBeInTheDocument();
+  });
+
+  it("shows autosave reassurance only after a draft exists (TB-1460)", () => {
+    const { rerender } = render(
+      <ArchitectureDraftSaveStatus saveState="idle" lastSavedUtc={null} hasPersistedDraft={false} />,
+    );
+
+    expect(screen.queryByTestId("architecture-draft-autosave-reassurance")).not.toBeInTheDocument();
+
+    rerender(<ArchitectureDraftSaveStatus saveState="saved" lastSavedUtc="2026-07-18T22:00:00.000Z" hasPersistedDraft />);
+
     expect(screen.getByTestId("architecture-draft-autosave-reassurance")).toHaveTextContent(
       ARCHITECTURE_CREATION_AUTOSAVE_REASSURANCE,
     );

@@ -353,6 +353,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
           saveState={saveState}
           lastSavedUtc={lastSavedUtc}
           autosaveActive={!handoffEditorLocked}
+          hasPersistedDraft={hasPersistedDraft}
         />
       </div>
 

@@ -12,6 +12,8 @@ type ArchitectureDraftSaveStatusProps = {
   readonly lastSavedUtc: string | null;
   /** When false, omit autosave reassurance (autosave disabled, e.g. post-spawn handoff lock). */
   readonly autosaveActive?: boolean;
+  /** When false, omit autosave reassurance until the draft exists on the server (TB-1460). */
+  readonly hasPersistedDraft?: boolean;
 };
 
 function formatLastSavedLabel(lastSavedUtc: string | null): string | null {
@@ -33,8 +35,12 @@ function formatLastSavedLabel(lastSavedUtc: string | null): string | null {
 export function ArchitectureDraftSaveStatus(props: ArchitectureDraftSaveStatusProps): React.JSX.Element {
   const lastSavedLabel = formatLastSavedLabel(props.lastSavedUtc);
   const autosaveActive = props.autosaveActive !== false;
+  const hasPersistedDraft = props.hasPersistedDraft !== false;
   const showAutosaveReassurance =
-    autosaveActive && props.saveState !== "error" && props.saveState !== "offline";
+    autosaveActive &&
+    hasPersistedDraft &&
+    props.saveState !== "error" &&
+    props.saveState !== "offline";
 
   return (
     <div
