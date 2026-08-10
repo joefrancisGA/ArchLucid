@@ -4,7 +4,7 @@
 
 **Audience:** Engineering, SRE, principal-architect diligence. Not a buyer brochure.
 
-**Status:** **Done** (**TB-1499**, 2026-08-10). GTM **M-273** / **M-274**. Pair honesty CI **TB-1500** / **M-273**.
+**Status:** **Done** (**TB-1499**, 2026-08-10). GTM **M-273** / **M-274**. Pair honesty CI **TB-1500** **Done** / **M-273**.
 
 **Buyer / PA one-pager:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#aoai-model-retirement-repro-m-274`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#aoai-model-retirement-repro-m-274) (GTM **M-274**).  
 **Claim honesty:** [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) (GTM **M-273**).

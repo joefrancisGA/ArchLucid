@@ -59,6 +59,11 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "AOAI retirement repro honesty",
+        ("python", "scripts/ci/check_aoai_retirement_repro_honesty.py"),
+        None,
+    ),
+    GuardCommand(
         "buyer first-30-minutes sync",
         ("python", "scripts/ci/assert_buyer_first_30_minutes_in_sync.py"),
         None,
