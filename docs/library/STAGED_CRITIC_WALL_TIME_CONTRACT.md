@@ -3,7 +3,7 @@
 # Staged Critic wall-time contract
 
 **Status:** Active (V1)  
-**Backlog:** **TB-2121** (Done — metrics/docs) · overlap residual **TB-2140** · peers **TB-2075** (async execute) · **TB-915** / **TB-947** (scale vs TPM honesty)  
+**Backlog:** **TB-2121** (Done — metrics/docs) · **TB-2140** (Done — overlap + admission) · peers **TB-2075** (async execute) · **TB-915** / **TB-947** (scale vs TPM honesty)  
 **Audience:** Performance owners, SRE, agent-runtime engineers  
 **Related:** [LONG_RUNNING_OPERATIONS_CONTRACT.md](./LONG_RUNNING_OPERATIONS_CONTRACT.md) · [CONFIGURATION_REFERENCE.md](./CONFIGURATION_REFERENCE.md) · `infra/terraform-container-apps/README.md`
 
@@ -23,7 +23,7 @@ Bulkhead defaults (`AgentExecution:Resilience:MaxConcurrentHandlers` **8**, `Per
 |------------------|-----|
 | More API replicas mint AOAI TPM | TPM/RPM are account-scoped; see **TB-947** checklist and `LAUNCH_LOAD_DRILL.md`. |
 | Sync execute is safe through Front Door for Real mode | Use `POST .../execute/async` + `GET /v1/operations/run:{runId}` for Tier C. |
-| Staged Critic overlap is enabled | V1 runs phases **serially** when staged mode is on; overlap is future evaluation only. |
+| Staged Critic overlap is enabled | Overlap is **opt-in** via `ArchLucid:Agents:StagedCriticOverlapEnabled` and **blocked** under PilotStrict enforce/block (summary must reach Critic first). |
 | `percentComplete` on operations | Use `stepLabel`, `currentStep`/`totalSteps`, `heartbeatUtc` per **TB-2074**. |
 
 ---
@@ -33,6 +33,8 @@ Bulkhead defaults (`AgentExecution:Resilience:MaxConcurrentHandlers` **8**, `Per
 | Knob | Default | Role |
 |------|---------|------|
 | `ArchLucid:Agents:StagedCriticEnabled` | `false` | Enables two-phase batch (non-Critic → Critic). |
+| `ArchLucid:Agents:StagedCriticOverlapEnabled` | `false` | When true with staged mode, runs Critic concurrently with phase 1 when quality posture allows (see §7). |
+| `ArchLucid:Agents:Phase1MaxConcurrentHandlers` | `0` | Optional phase-1 admission cap during overlap (`0` = reserve one bulkhead slot for Critic). |
 | `ArchLucid:Agents:CriticTimeoutSeconds` | `120` | Dedicated wall cap for Critic phase; `0` = use handler bulkhead timeout only. |
 | `AgentExecution:Resilience:MaxConcurrentHandlers` | `8` | Process-wide LLM handler bulkhead. |
 | `AgentExecution:Resilience:PerHandlerTimeoutSeconds` | `900` | Per-handler Polly timeout ceiling. |
@@ -84,7 +86,30 @@ When Critic and other agents run **in parallel** (staged mode off), labels fall 
 
 ---
 
-## 6. Future evaluation (out of **TB-2121** scope)
+## 6. Overlap decision (**TB-2140**, shipped 2026-08-10)
 
-- Critic overlap with phase 1 where quality gates allow.
-- Tighter bulkhead admission when TPM pressure is high (**TB-1336** ledger).
+**Go (opt-in):** Enable `StagedCriticOverlapEnabled` on non–PilotStrict-enforce hosts (e.g. Development, WarnOnly staging) when measured phase-1 and Critic LLM times are similar and wall-clock reduction is worth the trade-off that Critic may start **before** `StagedPriorAgentsSummary` is injected.
+
+**Quality floors (fail-closed):**
+
+| Posture | Overlap |
+|---------|---------|
+| PilotStrict + `EnforceOnReject` or `BlockRunOnReject` | **Off** — serial staged path; Critic prompt always includes prior-agent summary. |
+| WarnOnly / enforce off | **Allowed** when `StagedCriticOverlapEnabled` is true. |
+
+**Behavior when overlap is on:**
+
+1. Phase 1 (non-Critic) and Critic handlers run concurrently (`Task.WhenAll`).
+2. Phase 1 uses a tighter admission cap (`Phase1MaxConcurrentHandlers` or `MaxConcurrentHandlers - 1`) to reserve bulkhead capacity for Critic.
+3. Prior-agent summary is still injected when phase 1 completes (audit trail); an `StagedCriticOverlapApplied` evidence note records that Critic may have run without that summary in its prompt.
+4. Operations poll falls back to per-agent labels when Critic and non-Critic are both in progress (same as unstaged parallel batches).
+
+**Measured target (staging):** Publish Real cohort **p50/p95** from `archlucid_agent_execution_staged_critic_phase_duration_ms` before enabling overlap in production-like PilotStrict hosts. Estimate: up to **~50%** batch wall-time reduction when phase-1 max agent time ≈ Critic LLM time (overlap wall ≈ `max(phase1, phase2)` vs serial `phase1 + phase2`).
+
+**No-go for production PilotStrict:** Keep overlap disabled; residual serial cost remains ~**+1× longest non-Critic agent** when staged mode is on without overlap.
+
+---
+
+## 7. Future evaluation
+
+- TPM-aware bulkhead admission under sustained pressure (**TB-1336** ledger).

@@ -39,9 +39,37 @@ public sealed class RealAgentExecutorStagedCriticTests
         };
     }
 
+    private static AgentTask[] CreateStandardBatchTasks()
+    {
+        string runId = Guid.NewGuid().ToString("N");
+
+        return
+        [
+            new AgentTask
+            {
+                TaskId = "tz",
+                RunId = runId,
+                AgentType = AgentType.Topology
+            },
+            new AgentTask
+            {
+                TaskId = "tc",
+                RunId = runId,
+                AgentType = AgentType.Compliance
+            },
+            new AgentTask
+            {
+                TaskId = "tk",
+                RunId = runId,
+                AgentType = AgentType.Critic
+            }
+        ];
+    }
+
     private static RealAgentExecutor CreateSut(
         IOptions<StagedCriticAgentOptions> stagedOptions,
         ITechnologyLedgerRepository? technologyLedgerRepository,
+        AgentOutputQualityGateOptions? qualityGateOptions,
         params IAgentHandler[] handlers)
     {
         IOptions<AgentExecutionResilienceOptions> ro = Options.Create(
@@ -55,7 +83,7 @@ public sealed class RealAgentExecutorStagedCriticTests
             new AgentHandlerConcurrencyGate(ro),
             ro,
             stagedOptions,
-            Options.Create(new AgentOutputQualityGateOptions()),
+            Options.Create(qualityGateOptions ?? new AgentOutputQualityGateOptions()),
             new NoOpPromptRedactor(),
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
             new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()),
@@ -68,8 +96,20 @@ public sealed class RealAgentExecutorStagedCriticTests
 
     private static RealAgentExecutor CreateSut(
         IOptions<StagedCriticAgentOptions> stagedOptions,
+        AgentOutputQualityGateOptions qualityGateOptions,
         params IAgentHandler[] handlers) =>
-        CreateSut(stagedOptions, null, handlers);
+        CreateSut(stagedOptions, null, qualityGateOptions, handlers);
+
+    private static RealAgentExecutor CreateSut(
+        IOptions<StagedCriticAgentOptions> stagedOptions,
+        ITechnologyLedgerRepository? technologyLedgerRepository,
+        params IAgentHandler[] handlers) =>
+        CreateSut(stagedOptions, technologyLedgerRepository, null, handlers);
+
+    private static RealAgentExecutor CreateSut(
+        IOptions<StagedCriticAgentOptions> stagedOptions,
+        params IAgentHandler[] handlers) =>
+        CreateSut(stagedOptions, technologyLedgerRepository: null, qualityGateOptions: null, handlers);
 
     [SkippableFact]
     public async Task StagedCriticEnabled_true_delays_critic_until_phase1_complete()
@@ -110,6 +150,167 @@ public sealed class RealAgentExecutorStagedCriticTests
         await sut.ExecuteAsync(runId, request, evidence, [tTopo, tComp, tCrit], CancellationToken.None);
 
         critic.ObservedPhase1FinishedAtCriticStart.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task StagedCriticOverlapEnabled_true_allows_critic_to_start_before_phase1_complete()
+    {
+        int phase1Finished = 0;
+        IAgentHandler topo = new SignalAfterDelayHandler(AgentType.Topology, 200, () => Interlocked.Increment(ref phase1Finished));
+        IAgentHandler comp = new SignalAfterDelayHandler(AgentType.Compliance, 200, () => Interlocked.Increment(ref phase1Finished));
+        ObservingCriticHandler critic = new(() => Volatile.Read(ref phase1Finished));
+
+        RealAgentExecutor sut = CreateSut(
+            Options.Create(new StagedCriticAgentOptions
+            {
+                StagedCriticEnabled = true,
+                StagedCriticOverlapEnabled = true,
+            }),
+            new AgentOutputQualityGateOptions
+            {
+                Enabled = true,
+                Mode = AgentOutputQualityGateMode.WarnOnly,
+            },
+            topo,
+            comp,
+            critic);
+
+        ArchitectureRequest request = MinimalRequest();
+        AgentEvidencePackage evidence = new();
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask tTopo = new()
+        {
+            TaskId = "tz",
+            RunId = runId,
+            AgentType = AgentType.Topology
+        };
+        AgentTask tComp = new()
+        {
+            TaskId = "tc",
+            RunId = runId,
+            AgentType = AgentType.Compliance
+        };
+        AgentTask tCrit = new()
+        {
+            TaskId = "tk",
+            RunId = runId,
+            AgentType = AgentType.Critic
+        };
+
+        await sut.ExecuteAsync(runId, request, evidence, [tTopo, tComp, tCrit], CancellationToken.None);
+
+        critic.ObservedPhase1FinishedAtCriticStart.Should().BeLessThan(2);
+        evidence.Notes.Should().Contain(n =>
+            EvidenceNoteTypes.StagedCriticOverlapApplied.Equals(n.NoteType, StringComparison.Ordinal));
+        evidence.Notes.Should().Contain(n =>
+            EvidenceNoteTypes.StagedPriorAgentsSummary.Equals(n.NoteType, StringComparison.Ordinal));
+    }
+
+    [SkippableFact]
+    public async Task StagedCriticOverlapEnabled_true_falls_back_to_serial_under_pilot_strict_enforce()
+    {
+        int phase1Finished = 0;
+        IAgentHandler topo = new SignalAfterDelayHandler(AgentType.Topology, 120, () => Interlocked.Increment(ref phase1Finished));
+        IAgentHandler comp = new SignalAfterDelayHandler(AgentType.Compliance, 120, () => Interlocked.Increment(ref phase1Finished));
+        ObservingCriticHandler critic = new(() => Volatile.Read(ref phase1Finished));
+
+        RealAgentExecutor sut = CreateSut(
+            Options.Create(new StagedCriticAgentOptions
+            {
+                StagedCriticEnabled = true,
+                StagedCriticOverlapEnabled = true,
+            }),
+            new AgentOutputQualityGateOptions
+            {
+                Enabled = true,
+                Mode = AgentOutputQualityGateMode.PilotStrict,
+                EnforceOnReject = true,
+                PilotStrictMinAgentResultFaithfulnessSupportRatio = 0.5,
+                PilotStrictMinFaithfulnessSupportRatio = 0.5,
+                PilotStrictMinEvidenceRefCount = 2,
+            },
+            topo,
+            comp,
+            critic);
+
+        ArchitectureRequest request = MinimalRequest();
+        AgentEvidencePackage evidence = new();
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask tTopo = new()
+        {
+            TaskId = "tz",
+            RunId = runId,
+            AgentType = AgentType.Topology
+        };
+        AgentTask tComp = new()
+        {
+            TaskId = "tc",
+            RunId = runId,
+            AgentType = AgentType.Compliance
+        };
+        AgentTask tCrit = new()
+        {
+            TaskId = "tk",
+            RunId = runId,
+            AgentType = AgentType.Critic
+        };
+
+        await sut.ExecuteAsync(runId, request, evidence, [tTopo, tComp, tCrit], CancellationToken.None);
+
+        critic.ObservedPhase1FinishedAtCriticStart.Should().Be(2);
+        evidence.Notes.Should().NotContain(n =>
+            EvidenceNoteTypes.StagedCriticOverlapApplied.Equals(n.NoteType, StringComparison.Ordinal));
+    }
+
+    [SkippableFact]
+    public async Task StagedCriticOverlapEnabled_true_reduces_wall_clock_versus_serial_when_critic_is_slower()
+    {
+        IAgentHandler topo = new SignalAfterDelayHandler(AgentType.Topology, 50, static () => { });
+        IAgentHandler comp = new SignalAfterDelayHandler(AgentType.Compliance, 50, static () => { });
+        IAgentHandler slowCritic = new SignalAfterDelayHandler(AgentType.Critic, 200, static () => { });
+
+        RealAgentExecutor overlapSut = CreateSut(
+            Options.Create(new StagedCriticAgentOptions
+            {
+                StagedCriticEnabled = true,
+                StagedCriticOverlapEnabled = true,
+            }),
+            new AgentOutputQualityGateOptions { Mode = AgentOutputQualityGateMode.WarnOnly },
+            topo,
+            comp,
+            slowCritic);
+
+        RealAgentExecutor serialSut = CreateSut(
+            Options.Create(new StagedCriticAgentOptions
+            {
+                StagedCriticEnabled = true,
+                StagedCriticOverlapEnabled = false,
+            }),
+            new AgentOutputQualityGateOptions { Mode = AgentOutputQualityGateMode.WarnOnly },
+            topo,
+            comp,
+            slowCritic);
+
+        ArchitectureRequest request = MinimalRequest();
+        Stopwatch overlapWatch = Stopwatch.StartNew();
+        await overlapSut.ExecuteAsync(
+            Guid.NewGuid().ToString("N"),
+            request,
+            new AgentEvidencePackage(),
+            CreateStandardBatchTasks(),
+            CancellationToken.None);
+        overlapWatch.Stop();
+
+        Stopwatch serialWatch = Stopwatch.StartNew();
+        await serialSut.ExecuteAsync(
+            Guid.NewGuid().ToString("N"),
+            request,
+            new AgentEvidencePackage(),
+            CreateStandardBatchTasks(),
+            CancellationToken.None);
+        serialWatch.Stop();
+
+        overlapWatch.ElapsedMilliseconds.Should().BeLessThan(serialWatch.ElapsedMilliseconds);
     }
 
     [Fact]

@@ -14,4 +14,7 @@ public static class EvidenceNoteTypes
     public const string StagedPriorAgentsSummary = "StagedPriorAgentsSummary";
 
     public const string CriticTimeout = "CriticTimeout";
+
+    /// <summary>Records that staged Critic overlap ran without waiting for the prior-agent summary in the Critic prompt.</summary>
+    public const string StagedCriticOverlapApplied = "StagedCriticOverlapApplied";
 }

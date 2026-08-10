@@ -17,6 +17,26 @@ public sealed class StagedCriticAgentOptions
     }
 
     /// <summary>
+    ///     When <see langword="true"/> with <see cref="StagedCriticEnabled"/>, allows Critic to run concurrently with
+    ///     phase-1 agents when quality posture permits (blocked under PilotStrict enforce/block — see TB-2140).
+    /// </summary>
+    public bool StagedCriticOverlapEnabled
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     Optional cap on concurrent non-Critic handlers during staged phase 1 when overlap is active. 0 = derive
+    ///     <c>MaxConcurrentHandlers - 1</c> from <c>AgentExecution:Resilience</c> at runtime.
+    /// </summary>
+    public int Phase1MaxConcurrentHandlers
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
     ///     Isolated wall-clock timeout for the staged Critic phase (seconds). Default 120. 0 disables the dedicated cap.
     /// </summary>
     public int CriticTimeoutSeconds
@@ -70,6 +90,7 @@ public sealed class StagedCriticAgentOptions
     /// <summary>Clamps tuning knobs after configuration bind.</summary>
     public void Normalize()
     {
+        Phase1MaxConcurrentHandlers = Math.Clamp(Phase1MaxConcurrentHandlers, 0, 256);
         CriticTimeoutSeconds = Math.Clamp(CriticTimeoutSeconds, 0, 86400);
         SummaryMaxTotalChars = Math.Clamp(SummaryMaxTotalChars, 2_000, 100_000);
         SummaryPerAgentMaxChars = Math.Clamp(SummaryPerAgentMaxChars, 500, SummaryMaxTotalChars);

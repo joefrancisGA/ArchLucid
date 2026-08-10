@@ -36,6 +36,42 @@ internal static class RealAgentExecutorStagedCriticExecution
         StagedCriticAgentOptions stagedOpts = dependencies.StagedCriticOptions.Value;
         stagedOpts.Normalize();
 
+        if (StagedCriticOverlapPolicy.ShouldUseOverlap(stagedOpts, dependencies.AgentOutputBudgetGate.Value))
+        {
+            return await ExecuteWithOverlapAsync(
+                    dependencies,
+                    runId,
+                    request,
+                    evidence,
+                    orderedTasks,
+                    persistedByTaskId,
+                    stagedOpts,
+                    linkedCancellation)
+                .ConfigureAwait(false);
+        }
+
+        return await ExecuteSerialAsync(
+                dependencies,
+                runId,
+                request,
+                evidence,
+                orderedTasks,
+                persistedByTaskId,
+                stagedOpts,
+                linkedCancellation)
+            .ConfigureAwait(false);
+    }
+
+    private static async Task<AgentResult[]> ExecuteSerialAsync(
+        RealAgentExecutorExecutionDependencies dependencies,
+        string runId,
+        ArchitectureRequest request,
+        AgentEvidencePackage evidence,
+        AgentTask[] orderedTasks,
+        IReadOnlyDictionary<string, AgentResult> persistedByTaskId,
+        StagedCriticAgentOptions stagedOpts,
+        CancellationTokenSource linkedCancellation)
+    {
         AgentTask[] phase1 = orderedTasks.Where(static t => t.AgentType != AgentType.Critic).ToArray();
         AgentTask[] phase2 = orderedTasks.Where(static t => t.AgentType == AgentType.Critic).ToArray();
 
@@ -44,6 +80,7 @@ internal static class RealAgentExecutorStagedCriticExecution
         using (Activity? phase1Activity = ArchLucidInstrumentation.AgentExecution.StartActivity("AgentExecution.Phase1"))
         {
             phase1Activity?.SetTag("archlucid.run_id", runId);
+            phase1Activity?.SetTag("archlucid.staged_critic.overlap_enabled", false);
 
             phase1Results = await RealAgentExecutorParallelPhaseExecution.ExecutePhaseWhenAllAsync(
                     dependencies,
@@ -61,14 +98,14 @@ internal static class RealAgentExecutorStagedCriticExecution
                 Stopwatch.GetElapsedTime(phase1StartTicks).TotalMilliseconds);
         }
 
-        ReplaceStagedPriorSummaryNotes(evidence);
-        ScopeContext scope = dependencies.ScopeContextProvider.GetCurrentScope();
-        IReadOnlyList<TechnologyLedgerEntry> ledgerEntries =
-            await dependencies.TechnologyLedgerRepository
-                .GetByRunIdAsync(scope, runId, linkedCancellation.Token)
-                .ConfigureAwait(false);
-        EvidenceNote note = StagedPriorAgentsSummaryBuilder.CreateNote(phase1Results, stagedOpts, ledgerEntries);
-        evidence.Notes.Add(note);
+        await InjectPriorAgentsSummaryAsync(
+                dependencies,
+                runId,
+                evidence,
+                phase1Results,
+                stagedOpts,
+                linkedCancellation.Token)
+            .ConfigureAwait(false);
 
         int summarizedClaimsCount = CountStagedPriorSummarizedClaimSlots(phase1Results, stagedOpts);
 
@@ -77,6 +114,7 @@ internal static class RealAgentExecutorStagedCriticExecution
         using (Activity? phase2Activity = ArchLucidInstrumentation.AgentExecution.StartActivity("AgentExecution.Phase2_Critic"))
         {
             phase2Activity?.SetTag("archlucid.run_id", runId);
+            phase2Activity?.SetTag("archlucid.staged_critic.overlap_enabled", false);
             phase2Activity?.SetTag("archlucid.staged_critic.summarized_claims_count", summarizedClaimsCount);
 
             phase2Results = await TryExecuteStagedCriticPhaseAsync(
@@ -96,6 +134,154 @@ internal static class RealAgentExecutorStagedCriticExecution
                 Stopwatch.GetElapsedTime(phase2StartTicks).TotalMilliseconds);
         }
 
+        return MergePhaseResults(orderedTasks, phase1Results, phase2Results);
+    }
+
+    private static async Task<AgentResult[]> ExecuteWithOverlapAsync(
+        RealAgentExecutorExecutionDependencies dependencies,
+        string runId,
+        ArchitectureRequest request,
+        AgentEvidencePackage evidence,
+        AgentTask[] orderedTasks,
+        IReadOnlyDictionary<string, AgentResult> persistedByTaskId,
+        StagedCriticAgentOptions stagedOpts,
+        CancellationTokenSource linkedCancellation)
+    {
+        AgentTask[] phase1 = orderedTasks.Where(static t => t.AgentType != AgentType.Critic).ToArray();
+        AgentTask[] phase2 = orderedTasks.Where(static t => t.AgentType == AgentType.Critic).ToArray();
+
+        evidence.Notes.Add(new EvidenceNote
+        {
+            NoteType = EvidenceNoteTypes.StagedCriticOverlapApplied,
+            Message =
+                "Staged Critic overlap is active: the Critic agent may run before the prior-agent summary is injected. "
+                + "PilotStrict enforce/block posture disables overlap; see STAGED_CRITIC_WALL_TIME_CONTRACT.md.",
+        });
+
+        int phase1AdmissionCap = StagedCriticOverlapPolicy.ResolvePhase1MaxConcurrentHandlers(
+            stagedOpts,
+            dependencies.ResilienceOptions.Value.MaxConcurrentHandlers);
+
+        using StagedCriticPhaseAdmissionLimiter? phase1AdmissionLimiter =
+            StagedCriticPhaseAdmissionLimiter.TryCreate(phase1AdmissionCap);
+
+        long overlapStartTicks = Stopwatch.GetTimestamp();
+        using Activity? phase1Activity = ArchLucidInstrumentation.AgentExecution.StartActivity("AgentExecution.Phase1");
+        using Activity? phase2Activity = ArchLucidInstrumentation.AgentExecution.StartActivity("AgentExecution.Phase2_Critic");
+
+        phase1Activity?.SetTag("archlucid.run_id", runId);
+        phase1Activity?.SetTag("archlucid.staged_critic.overlap_enabled", true);
+        phase2Activity?.SetTag("archlucid.run_id", runId);
+        phase2Activity?.SetTag("archlucid.staged_critic.overlap_enabled", true);
+
+        Task<AgentResult[]> phase1Task = ExecutePhase1WithSummaryInjectionAsync(
+            dependencies,
+            runId,
+            request,
+            evidence,
+            phase1,
+            persistedByTaskId,
+            stagedOpts,
+            phase1AdmissionLimiter,
+            linkedCancellation);
+
+        Task<AgentResult[]> phase2Task = TryExecuteStagedCriticPhaseAsync(
+            dependencies,
+            runId,
+            request,
+            evidence,
+            phase2,
+            persistedByTaskId,
+            stagedOpts,
+            linkedCancellation);
+
+        AgentResult[] phase1Results;
+        AgentResult[] phase2Results;
+
+        try
+        {
+            await Task.WhenAll(phase1Task, phase2Task).ConfigureAwait(false);
+            phase1Results = await phase1Task.ConfigureAwait(false);
+            phase2Results = await phase2Task.ConfigureAwait(false);
+        }
+        catch
+        {
+            if (phase1Task.IsFaulted && phase2Task.IsFaulted)
+                throw;
+
+            if (phase1Task.IsFaulted)
+                throw phase1Task.Exception!;
+
+            throw phase2Task.Exception!;
+        }
+
+        double overlapWallMilliseconds = Stopwatch.GetElapsedTime(overlapStartTicks).TotalMilliseconds;
+        int summarizedClaimsCount = CountStagedPriorSummarizedClaimSlots(phase1Results, stagedOpts);
+        phase2Activity?.SetTag("archlucid.staged_critic.summarized_claims_count", summarizedClaimsCount);
+
+        StagedCriticPhaseTelemetry.RecordPhaseCompleted(phase1Activity, "phase1", overlapWallMilliseconds);
+        StagedCriticPhaseTelemetry.RecordPhaseCompleted(phase2Activity, "phase2", overlapWallMilliseconds);
+
+        return MergePhaseResults(orderedTasks, phase1Results, phase2Results);
+    }
+
+    private static async Task<AgentResult[]> ExecutePhase1WithSummaryInjectionAsync(
+        RealAgentExecutorExecutionDependencies dependencies,
+        string runId,
+        ArchitectureRequest request,
+        AgentEvidencePackage evidence,
+        IReadOnlyList<AgentTask> phase1,
+        IReadOnlyDictionary<string, AgentResult> persistedByTaskId,
+        StagedCriticAgentOptions stagedOpts,
+        StagedCriticPhaseAdmissionLimiter? phase1AdmissionLimiter,
+        CancellationTokenSource linkedCancellation)
+    {
+        AgentResult[] phase1Results = await RealAgentExecutorParallelPhaseExecution.ExecutePhaseWhenAllAsync(
+                dependencies,
+                runId,
+                request,
+                evidence,
+                phase1,
+                persistedByTaskId,
+                linkedCancellation,
+                phase1AdmissionLimiter)
+            .ConfigureAwait(false);
+
+        await InjectPriorAgentsSummaryAsync(
+                dependencies,
+                runId,
+                evidence,
+                phase1Results,
+                stagedOpts,
+                linkedCancellation.Token)
+            .ConfigureAwait(false);
+
+        return phase1Results;
+    }
+
+    private static async Task InjectPriorAgentsSummaryAsync(
+        RealAgentExecutorExecutionDependencies dependencies,
+        string runId,
+        AgentEvidencePackage evidence,
+        IReadOnlyList<AgentResult> phase1Results,
+        StagedCriticAgentOptions stagedOpts,
+        CancellationToken cancellationToken)
+    {
+        ReplaceStagedPriorSummaryNotes(evidence);
+        ScopeContext scope = dependencies.ScopeContextProvider.GetCurrentScope();
+        IReadOnlyList<TechnologyLedgerEntry> ledgerEntries =
+            await dependencies.TechnologyLedgerRepository
+                .GetByRunIdAsync(scope, runId, cancellationToken)
+                .ConfigureAwait(false);
+        EvidenceNote note = StagedPriorAgentsSummaryBuilder.CreateNote(phase1Results, stagedOpts, ledgerEntries);
+        evidence.Notes.Add(note);
+    }
+
+    private static AgentResult[] MergePhaseResults(
+        IReadOnlyList<AgentTask> orderedTasks,
+        IReadOnlyList<AgentResult> phase1Results,
+        IReadOnlyList<AgentResult> phase2Results)
+    {
         Dictionary<string, AgentResult> byTaskId = new(StringComparer.Ordinal);
 
         foreach (AgentResult result in phase1Results)

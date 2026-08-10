@@ -14,7 +14,8 @@ internal static class RealAgentExecutorParallelPhaseExecution
         AgentEvidencePackage evidence,
         IReadOnlyList<AgentTask> phaseTasks,
         IReadOnlyDictionary<string, AgentResult> persistedByTaskId,
-        CancellationTokenSource linkedCancellation)
+        CancellationTokenSource linkedCancellation,
+        StagedCriticPhaseAdmissionLimiter? phaseAdmissionLimiter = null)
     {
         if (phaseTasks.Count == 0)
             return [];
@@ -25,15 +26,32 @@ internal static class RealAgentExecutorParallelPhaseExecution
         {
             AgentTask phaseTaskItem = phaseTasks[index];
             persistedByTaskId.TryGetValue(phaseTaskItem.TaskId, out AgentResult? persistedResult);
-            tasks[index] =
-                RealAgentExecutorSingleHandlerExecution.ExecuteSingleAsync(
-                    dependencies,
-                    runId,
-                    request,
-                    evidence,
-                    phaseTaskItem,
-                    persistedResult,
+
+            if (phaseAdmissionLimiter is null)
+            {
+                tasks[index] =
+                    RealAgentExecutorSingleHandlerExecution.ExecuteSingleAsync(
+                        dependencies,
+                        runId,
+                        request,
+                        evidence,
+                        phaseTaskItem,
+                        persistedResult,
+                        linkedCancellation.Token);
+            }
+            else
+            {
+                tasks[index] = phaseAdmissionLimiter.ExecuteAsync(
+                    ct => RealAgentExecutorSingleHandlerExecution.ExecuteSingleAsync(
+                        dependencies,
+                        runId,
+                        request,
+                        evidence,
+                        phaseTaskItem,
+                        persistedResult,
+                        ct),
                     linkedCancellation.Token);
+            }
         }
 
         if (!dependencies.AgentOutputBudgetGate.Value.PersistPartialOutputsOnBudgetExceeded)
