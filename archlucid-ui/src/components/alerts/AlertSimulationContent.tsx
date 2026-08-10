@@ -8,6 +8,14 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { compareAlertRuleCandidates, simulateAlertRule } from "@/lib/api";
 import {
+  ALERT_SIMULATION_COMPARED_REVIEW_ID_HELPER,
+  ALERT_SIMULATION_PROJECT_SLUG_HELPER,
+  ALERT_SIMULATION_PROJECT_SLUG_PLACEHOLDER,
+  ALERT_SIMULATION_REVIEW_ID_HELPER,
+  ALERT_SIMULATION_REVIEW_ID_PLACEHOLDER,
+  resolveAlertSimulationRunProjectSlug,
+} from "@/lib/alert-simulation-form";
+import {
   alertSimulationCurrentBehaviorHeadingOperator,
   alertSimulationCurrentBehaviorHeadingReader,
   alertSimulationPageLead,
@@ -17,6 +25,7 @@ import { alertSimulationOutcomesEmptyGettingStarted } from "@/lib/alerts-hub-emp
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { readOperatorScopeFromStorage } from "@/lib/operator-scope-storage";
 import type {
   RuleCandidateComparisonResult,
   RuleSimulationResult,
@@ -151,7 +160,7 @@ export function AlertSimulationContent() {
   const [sSeverity, setSSeverity] = useState("Warning");
   const [sThreshold, setSThreshold] = useState(15);
   const [sRecent, setSRecent] = useState(10);
-  const [sSlug, setSSlug] = useState("default");
+  const [sSlug, setSSlug] = useState("");
   const [sRunId, setSRunId] = useState("");
   const [sCompareRun, setSCompareRun] = useState("");
   const [sUseHistory, setSUseHistory] = useState(true);
@@ -164,7 +173,7 @@ export function AlertSimulationContent() {
   const [cCooldown, setCCooldown] = useState(60);
   const [cDedupe, setCDedupe] = useState("RuleAndRun");
   const [cRecent, setCRecent] = useState(10);
-  const [cSlug, setCSlug] = useState("default");
+  const [cSlug, setCSlug] = useState("");
   const [cM1, setCM1] = useState("CostIncreasePercent");
   const [cO1, setCO1] = useState("GreaterThanOrEqual");
   const [cV1, setCV1] = useState(15);
@@ -179,12 +188,19 @@ export function AlertSimulationContent() {
   const [cmpA, setCmpA] = useState(10);
   const [cmpB, setCmpB] = useState(20);
   const [cmpRecent, setCmpRecent] = useState(10);
-  const [cmpSlug, setCmpSlug] = useState("default");
+  const [cmpSlug, setCmpSlug] = useState("");
 
   function parseOptionalGuid(s: string): string | undefined {
     const t = s.trim();
     if (!t) return undefined;
     return t;
+  }
+
+  function resolveRunProjectSlug(typedSlug: string): string {
+    return resolveAlertSimulationRunProjectSlug(
+      typedSlug,
+      readOperatorScopeFromStorage()?.projectId,
+    );
   }
 
   async function runSimple() {
@@ -214,7 +230,7 @@ export function AlertSimulationContent() {
         comparedToRunId: comparedToRunId ?? null,
         recentRunCount: sRecent,
         useHistoricalWindow: sUseHistory,
-        runProjectSlug: sSlug.trim() || "default",
+        runProjectSlug: resolveRunProjectSlug(sSlug),
       });
       setSimpleResult(res);
     } catch (e) {
@@ -253,7 +269,7 @@ export function AlertSimulationContent() {
         },
         recentRunCount: cRecent,
         useHistoricalWindow: true,
-        runProjectSlug: cSlug.trim() || "default",
+        runProjectSlug: resolveRunProjectSlug(cSlug),
       });
       setCompositeResult(res);
     } catch (e) {
@@ -286,7 +302,7 @@ export function AlertSimulationContent() {
         candidateA_SimpleRule: { ...base, thresholdValue: cmpA },
         candidateB_SimpleRule: { ...base, thresholdValue: cmpB },
         recentRunCount: cmpRecent,
-        runProjectSlug: cmpSlug.trim() || "default",
+        runProjectSlug: resolveRunProjectSlug(cmpSlug),
       });
       setCompareResult(res);
     } catch (e) {
@@ -395,17 +411,26 @@ export function AlertSimulationContent() {
               <input
                 value={sSlug}
                 onChange={(e) => setSSlug(e.target.value)}
+                placeholder={ALERT_SIMULATION_PROJECT_SLUG_PLACEHOLDER}
                 className="mt-1 block w-full p-2"
+                data-testid="alert-simulation-simple-project-slug"
               />
+              <span className={cn("mt-1 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                {ALERT_SIMULATION_PROJECT_SLUG_HELPER}
+              </span>
             </label>
             <label>
               Specific review ID (optional; overrides recent list)
               <input
                 value={sRunId}
                 onChange={(e) => setSRunId(e.target.value)}
-                placeholder="00000000-0000-0000-0000-000000000000"
+                placeholder={ALERT_SIMULATION_REVIEW_ID_PLACEHOLDER}
                 className="mt-1 block w-full p-2"
+                data-testid="alert-simulation-simple-review-id"
               />
+              <span className={cn("mt-1 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                {ALERT_SIMULATION_REVIEW_ID_HELPER}
+              </span>
             </label>
             <label>
               Compared-to review ID (optional)
@@ -414,6 +439,9 @@ export function AlertSimulationContent() {
                 onChange={(e) => setSCompareRun(e.target.value)}
                 className="mt-1 block w-full p-2"
               />
+              <span className={cn("mt-1 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                {ALERT_SIMULATION_COMPARED_REVIEW_ID_HELPER}
+              </span>
             </label>
             <label className="flex items-center gap-2">
               <input
@@ -573,8 +601,13 @@ export function AlertSimulationContent() {
               <input
                 value={cSlug}
                 onChange={(e) => setCSlug(e.target.value)}
+                placeholder={ALERT_SIMULATION_PROJECT_SLUG_PLACEHOLDER}
                 className="mt-1 block w-full p-2"
+                data-testid="alert-simulation-composite-project-slug"
               />
+              <span className={cn("mt-1 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                {ALERT_SIMULATION_PROJECT_SLUG_HELPER}
+              </span>
             </label>
             <button
               type="button"
@@ -682,8 +715,13 @@ export function AlertSimulationContent() {
               <input
                 value={cmpSlug}
                 onChange={(e) => setCmpSlug(e.target.value)}
+                placeholder={ALERT_SIMULATION_PROJECT_SLUG_PLACEHOLDER}
                 className="mt-1 block w-full p-2"
+                data-testid="alert-simulation-compare-project-slug"
               />
+              <span className={cn("mt-1 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                {ALERT_SIMULATION_PROJECT_SLUG_HELPER}
+              </span>
             </label>
             <button
               type="button"

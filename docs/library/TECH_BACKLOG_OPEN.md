@@ -2,7 +2,7 @@
 
 # Tech backlog — verified open items
 
-> **Updated:** 2026-08-10 (**TB-1587** **Done** — Alert rules Conditions scope preview omits invented `projectId=default`; session/persisted resolve; Vitest). Prior: 2026-08-10 (**TB-2167** **Done** — host leader election for singleton background loops; final gaps: stuck-job watchdog + orphan probes; contention tests; decision-pack note). Prior: 2026-08-09 (**TB-2158**–**TB-2167** opened — Performance wave 7; ten levers verified absent in tree). Prior: 2026-08-09 (**TB-2148**–**TB-2157** opened — confusion-reduction P0s). Prior: 2026-08-09 (**TB-2140**–**TB-2146** opened + **TB-946**/**TB-1484**/**TB-1517** promoted to **P0** — Performance wave 6). Prior: 2026-08-09 (**TB-2130**–**TB-2139** opened — easier-to-use / easier-to-understand P0s). Prior: 2026-08-08 (**TB-2125**–**TB-2129** opened — P0 help-topic Mermaid diagrams). Prior: 2026-08-08 (**TB-2117**–**TB-2124** Performance wave 5 — mostly **Done** 2026-08-09).
+> **Updated:** 2026-08-10 (**TB-1592** **Done** — Alert simulation/tuning GUID placeholder + `default` slug honesty; session-resolved wire slug; Vitest). Prior: 2026-08-10 (**TB-1587** **Done** — Alert rules Conditions scope preview omits invented `projectId=default`; session/persisted resolve; Vitest). Prior: 2026-08-10 (**TB-2167** **Done** — host leader election for singleton background loops; final gaps: stuck-job watchdog + orphan probes; contention tests; decision-pack note). Prior: 2026-08-09 (**TB-2158**–**TB-2167** opened — Performance wave 7; ten levers verified absent in tree). Prior: 2026-08-09 (**TB-2148**–**TB-2157** opened — confusion-reduction P0s). Prior: 2026-08-09 (**TB-2140**–**TB-2146** opened + **TB-946**/**TB-1484**/**TB-1517** promoted to **P0** — Performance wave 6). Prior: 2026-08-09 (**TB-2130**–**TB-2139** opened — easier-to-use / easier-to-understand P0s). Prior: 2026-08-08 (**TB-2125**–**TB-2129** opened — P0 help-topic Mermaid diagrams). Prior: 2026-08-08 (**TB-2117**–**TB-2124** Performance wave 5 — mostly **Done** 2026-08-09).
 
 
 
@@ -112,7 +112,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | Shared AOAI TPM noisy-neighbor fairness (PA) | **TB-1577**–**TB-1578** (open P1 **V1**) | No cross-tenant TPM fair share; spend caps ≠ fairness; B sees 429→breaker→Partial/Failed; honesty CI; GTM **M-296**/**M-297**; orchestrates **TB-1336**/**TB-1299**/**TB-947** |
 | Customer policy-pack rule sandbox / pin / blast radius (PA) | **TB-1624**–**TB-1625** (open P1 **V1**) | Declarative in-process interpreter (not WASM); commit `PolicyPackVersion`+`RuleSetHash` pin; tenant-scoped blast radius; honesty CI; GTM **M-298**/**M-299**; orchestrates **TB-1324**/**TB-1022** |
 | Paying-tenant LLM spend-storm + billing dispute (PA) | **TB-1570**–**TB-1571** (open P1 **V1**) | Tenant HTTP/token/(optional) monthly USD gates; stolen key burns headroom until revoke; metering ≠ Azure invoice; honesty CI; GTM **M-294**/**M-295**; orchestrates **TB-1287** |
-| Alert rules Test (`/governance/alert-rules?tab=simulation`) | **TB-1589**–**TB-1593** (open P1 **V1**) | Demote dual h2; DS form; human sub-tabs; GUID/slug honesty; tuning score density; ~47/100; traffic **GOS** |
+| Alert rules Test (`/governance/alert-rules?tab=simulation`) | **TB-1589**–**TB-1591**, **TB-1593** (open P1 **V1**); **TB-1592** **Done** | Demote dual h2; DS form; human sub-tabs; tuning score density; ~47/100; traffic **GOS**; GUID/slug honesty shipped |
 | Alerts inbox tab (`/governance/alerts?tab=inbox`) | **TB-1594**–**TB-1598** (open P1 **V1**) | Canonicalize `?tab=inbox`; traffic/CI; zero-theater summary; default-project CTA + skeleton; ~53/100; traffic **GOI** |
 | Help catch-all (`/help/[...topic]`) | **TB-1599**–**TB-1603** (open P1/P2 **V1**) | NotFound recovery; loading/dynamic honesty; fallthrough↔**TB-1414**; traffic router-meta; dispatch CI; ~49/100; traffic **HE.** |
 | Accelerator chooser (`/help/accelerator-chooser`) | **TB-1604**–**TB-1608** (open P1 **V1**) | Specialty + Start CTAs; title/tier; leak purge; TS SoT; home inbound; ~42/100; traffic **HAX** |
@@ -376,8 +376,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1589 | Alert rules Test tab — demote dual Simulate/Tune h2 under hub | Adoption friction P1 **V1** — GOS ~47/100 |
 | TB-1590 | Alert simulation/tuning — design-system fields + primary Simulate/Recommend | Adoption friction P1 **V1** — with **TB-1589** |
 | TB-1591 | Alert simulation — human nested sub-tab labels | Adoption friction P1 **V1** — with **TB-1589** |
-| TB-1592 | Alert simulation/tuning — GUID placeholder + default slug honesty | Trustworthiness P1 **V1** — with **TB-1589** |
-| TB-1593 | Alert tuning — score-breakdown operator honesty + dual lead/rank density | Trustworthiness/adoption P1 **V1** — with **TB-1589** |
+| TB-1593 | Alert tuning — score-breakdown operator honesty + dual lead/rank density | Trustworthiness / adoption P1 **V1** — with **TB-1589** |
 | TB-1594 | Alerts inbox — canonicalize `?tab=inbox` → `/governance/alerts` | Adoption friction P1 **V1** — GOI ~53/100 |
 | TB-1595 | Alerts inbox tab twin — traffic redirect-only + nav/docs canonicalize | Adoption friction P1 **V1** — with **TB-1594** |
 | TB-1596 | Alerts inbox — CI/Vitest guard against stale `?tab=inbox` deep links | Adoption friction P2 **V1** — with **TB-1594** |

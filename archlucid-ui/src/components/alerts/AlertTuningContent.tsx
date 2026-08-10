@@ -9,6 +9,11 @@ import { recommendAlertThreshold } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import {
+  ALERT_SIMULATION_PROJECT_SLUG_HELPER,
+  ALERT_SIMULATION_PROJECT_SLUG_PLACEHOLDER,
+  resolveAlertSimulationRunProjectSlug,
+} from "@/lib/alert-simulation-form";
+import {
   alertToolingChangeConfigurationHeadingOperator,
   alertToolingConfigureSectionSubline,
   alertTuningCurrentTuningHeadingOperator,
@@ -17,6 +22,7 @@ import {
   alertTuningRecommendButtonTitle,
 } from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { readOperatorScopeFromStorage } from "@/lib/operator-scope-storage";
 import type { ThresholdCandidateEvaluation, ThresholdRecommendationResult } from "@/types/alert-tuning";
 
 const SIMPLE_RULE_TYPES = [
@@ -97,7 +103,7 @@ export function AlertTuningContent() {
   const [recentRunCount, setRecentRunCount] = useState(10);
   const [targetMin, setTargetMin] = useState(1);
   const [targetMax, setTargetMax] = useState(5);
-  const [runSlug, setRunSlug] = useState("default");
+  const [runSlug, setRunSlug] = useState("");
 
   const [cJoin, setCJoin] = useState("And");
   const [cSuppression, setCSuppression] = useState(1440);
@@ -139,7 +145,10 @@ export function AlertTuningContent() {
           recentRunCount,
           targetCreatedAlertCountMin: targetMin,
           targetCreatedAlertCountMax: targetMax,
-          runProjectSlug: runSlug.trim() || "default",
+          runProjectSlug: resolveAlertSimulationRunProjectSlug(
+            runSlug,
+            readOperatorScopeFromStorage()?.projectId,
+          ),
           baseSimpleRule: {
             ruleId: "00000000-0000-0000-0000-000000000000",
             tenantId: "00000000-0000-0000-0000-000000000000",
@@ -171,7 +180,10 @@ export function AlertTuningContent() {
           recentRunCount,
           targetCreatedAlertCountMin: targetMin,
           targetCreatedAlertCountMax: targetMax,
-          runProjectSlug: runSlug.trim() || "default",
+          runProjectSlug: resolveAlertSimulationRunProjectSlug(
+            runSlug,
+            readOperatorScopeFromStorage()?.projectId,
+          ),
           baseCompositeRule: {
             compositeRuleId: "00000000-0000-0000-0000-000000000000",
             tenantId: "00000000-0000-0000-0000-000000000000",
@@ -447,8 +459,13 @@ export function AlertTuningContent() {
           <input
             value={runSlug}
             onChange={(e) => setRunSlug(e.target.value)}
+            placeholder={ALERT_SIMULATION_PROJECT_SLUG_PLACEHOLDER}
             className="mt-1 block w-full p-2"
+            data-testid="alert-tuning-project-slug"
           />
+          <span className={cn("mt-1 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            {ALERT_SIMULATION_PROJECT_SLUG_HELPER}
+          </span>
         </label>
 
         <div className="grid grid-cols-2 gap-3">
