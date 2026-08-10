@@ -7,6 +7,8 @@ import {
   GOVERNANCE_API_CONTRACTS_HELP_PAGE_TITLE,
   GOVERNANCE_API_CONTRACTS_HELP_PRIMARY_ACTIONS,
   GOVERNANCE_API_CONTRACTS_HELP_SOURCES,
+  GOVERNANCE_API_CONTRACTS_HELP_SOURCES_STRIP_INTRO,
+  GOVERNANCE_API_CONTRACTS_OPENAPI_PATH,
 } from "@/lib/governance-api-contracts-help-guide-content";
 
 describe("governance-api-contracts-help-guide-content", () => {
@@ -15,11 +17,18 @@ describe("governance-api-contracts-help-guide-content", () => {
     expect(GOVERNANCE_API_CONTRACTS_HELP_PAGE_TITLE.toLowerCase()).not.toMatch(/^governance/);
   });
 
-  it("offers CLI and buyer governance-approval escape hatches", () => {
+  it("leads with OpenAPI contract-of-record and offers CLI and buyer governance-approval escape hatches", () => {
+    expect(GOVERNANCE_API_CONTRACTS_OPENAPI_PATH).toBe("/openapi/v1.json");
+    expect(GOVERNANCE_API_CONTRACTS_HELP_PRIMARY_ACTIONS.openOpenApi.href).toBe("/openapi/v1.json");
     expect(GOVERNANCE_API_CONTRACTS_HELP_PRIMARY_ACTIONS.openCliUsage.href).toBe("/help/cli-usage");
     expect(GOVERNANCE_API_CONTRACTS_HELP_PRIMARY_ACTIONS.openBuyerGovernanceApproval.href).toBe(
       "/help/governance-approval",
     );
+  });
+
+  it("names engineering troubleshooting and admin diagnostics in the Sources strip intro", () => {
+    expect(GOVERNANCE_API_CONTRACTS_HELP_SOURCES_STRIP_INTRO.toLowerCase()).toContain("engineering troubleshooting");
+    expect(GOVERNANCE_API_CONTRACTS_HELP_SOURCES_STRIP_INTRO.toLowerCase()).toContain("admin diagnostics");
   });
 
   it("lists Sources without a self-link to this topic", () => {

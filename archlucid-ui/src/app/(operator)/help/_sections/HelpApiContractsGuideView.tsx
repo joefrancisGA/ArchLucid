@@ -1,17 +1,21 @@
 import Link from "next/link";
 
+import { HelpApiContractsHeaderMetadata } from "@/app/(operator)/help/_sections/HelpApiContractsHeaderMetadata";
+import { HelpApiContractsSourceLinks } from "@/app/(operator)/help/_sections/HelpApiContractsSourceLinks";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatusTag } from "@/components/ui/status-tag";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
+  GOVERNANCE_API_CONTRACTS_HELP_ACTION_PANEL_TITLE,
   GOVERNANCE_API_CONTRACTS_HELP_CLAIM_DISCIPLINE,
   GOVERNANCE_API_CONTRACTS_HELP_ORIENTATION,
+  GOVERNANCE_API_CONTRACTS_HELP_ORIENTATION_TITLE,
   GOVERNANCE_API_CONTRACTS_HELP_OVERVIEW,
   GOVERNANCE_API_CONTRACTS_HELP_PAGE_SUBTITLE,
   GOVERNANCE_API_CONTRACTS_HELP_PAGE_TITLE,
@@ -20,13 +24,12 @@ import {
 import { GOVERNANCE_API_CONTRACTS_HELP_PATH } from "@/lib/governance-api-contracts-help-route";
 import {
   DESIGN_TOKENS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 
@@ -43,12 +46,16 @@ export function HelpApiContractsGuideView(props: HelpApiContractsGuideViewProps)
     helpTopicSlug: entry.slug,
   });
   const headings = extractHelpMarkdownHeadings(preparedMarkdown);
+  const contentGridClass = resolveHelpPageContentGridClass(headings.length);
 
   return (
     <article
       className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
       data-testid="help-api-contracts-guide"
     >
+      <a href="#help-api-contracts-content" className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
+        Skip to API contracts reference
+      </a>
       <HelpTopicHashScroll />
 
       <OperatorPageHeader
@@ -56,6 +63,11 @@ export function HelpApiContractsGuideView(props: HelpApiContractsGuideViewProps)
         titleTestId="help-api-contracts-page-title"
         subtitle={GOVERNANCE_API_CONTRACTS_HELP_PAGE_SUBTITLE}
         navHref={GOVERNANCE_API_CONTRACTS_HELP_PATH}
+        headingLevel="h1"
+        statusBadge={
+          <StatusTag kind="neutral" label="Admin internal" data-testid="help-api-contracts-status-tag" />
+        }
+        metadata={<HelpApiContractsHeaderMetadata entry={entry} />}
         actions={
           <div className="flex flex-wrap items-center gap-2" data-testid="help-api-contracts-header-actions">
             <PageContextualHelpButton />
@@ -66,17 +78,20 @@ export function HelpApiContractsGuideView(props: HelpApiContractsGuideViewProps)
       />
 
       <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <Card
-          className="border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20"
+        <div
+          className={cn(DESIGN_TOKENS.callout.info, "p-3")}
           data-testid="help-api-contracts-action-panel"
         >
-          <CardHeader className={OPERATOR_CARD.header}>
-            <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-              Integrator and Admin paths
-            </CardTitle>
-          </CardHeader>
-          <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
+          <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+            {GOVERNANCE_API_CONTRACTS_HELP_ACTION_PANEL_TITLE}
+          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
             <Button asChild size="sm" variant="primary" data-testid="help-api-contracts-primary-cta">
+              <Link href={GOVERNANCE_API_CONTRACTS_HELP_PRIMARY_ACTIONS.openOpenApi.href}>
+                {GOVERNANCE_API_CONTRACTS_HELP_PRIMARY_ACTIONS.openOpenApi.label}
+              </Link>
+            </Button>
+            <Button asChild size="sm" variant="outline">
               <Link href={GOVERNANCE_API_CONTRACTS_HELP_PRIMARY_ACTIONS.openCliUsage.href}>
                 {GOVERNANCE_API_CONTRACTS_HELP_PRIMARY_ACTIONS.openCliUsage.label}
               </Link>
@@ -91,35 +106,26 @@ export function HelpApiContractsGuideView(props: HelpApiContractsGuideViewProps)
                 {GOVERNANCE_API_CONTRACTS_HELP_PRIMARY_ACTIONS.openBuyerGovernanceApproval.label}
               </Link>
             </Button>
-            <Link
-              href={GOVERNANCE_API_CONTRACTS_HELP_PRIMARY_ACTIONS.openEngineeringTroubleshooting.href}
-              className={cn(
-                "text-sm underline-offset-2 hover:underline",
-                DESIGN_TOKENS.accent.link,
-                OPERATOR_TYPOGRAPHY.body,
-              )}
-            >
-              {GOVERNANCE_API_CONTRACTS_HELP_PRIMARY_ACTIONS.openEngineeringTroubleshooting.label}
-            </Link>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
-      <div className={HELP_PAGE_LAYOUT.contentGrid}>
-        <div className={cn("min-w-0 space-y-6", "max-w-[42rem] lg:max-w-none")}>
+      <div className={contentGridClass}>
+        <div className="min-w-0 space-y-6">
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-api-contracts-overview">
             {GOVERNANCE_API_CONTRACTS_HELP_OVERVIEW}
           </p>
 
           <section
             aria-labelledby="help-api-contracts-orientation-heading"
+            className={cn(DESIGN_TOKENS.callout.warn, "p-3")}
             data-testid="help-api-contracts-orientation"
           >
             <h2
               id="help-api-contracts-orientation-heading"
-              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
             >
-              How to use this reference
+              {GOVERNANCE_API_CONTRACTS_HELP_ORIENTATION_TITLE}
             </h2>
             <ol className={cn("m-0 mt-2 list-decimal space-y-2 pl-5", OPERATOR_TYPOGRAPHY.body)}>
               {GOVERNANCE_API_CONTRACTS_HELP_ORIENTATION.map((step) => (
@@ -128,8 +134,10 @@ export function HelpApiContractsGuideView(props: HelpApiContractsGuideViewProps)
             </ol>
           </section>
 
+          <HelpApiContractsSourceLinks />
+
           <aside
-            className="rounded-md border border-amber-200/80 bg-amber-50/50 p-3 dark:border-amber-900/40 dark:bg-amber-950/20"
+            className={cn(DESIGN_TOKENS.callout.warn, "p-3")}
             data-testid="help-api-contracts-claim-discipline"
           >
             <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Claim discipline</h2>
@@ -138,7 +146,11 @@ export function HelpApiContractsGuideView(props: HelpApiContractsGuideViewProps)
             </p>
           </aside>
 
-          <div className={HELP_PAGE_LAYOUT.contentColumn} data-testid="help-api-contracts-content">
+          <div
+            id="help-api-contracts-content"
+            className={HELP_PAGE_LAYOUT.contentColumn}
+            data-testid="help-api-contracts-content"
+          >
             <MarketingAccessibilityMarkdownFragment
               markdownBody={preparedMarkdown}
               tableCaption={`${entry.title} reference table`}

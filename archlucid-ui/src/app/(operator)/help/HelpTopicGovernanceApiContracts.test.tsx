@@ -112,11 +112,18 @@ describe("HelpApiContractsGuideView (TB-1384, TB-1386, TB-1388)", () => {
     expect(screen.getByTestId("help-api-contracts-page-title")).toHaveTextContent(
       GOVERNANCE_API_CONTRACTS_HELP_PAGE_TITLE,
     );
+    expect(screen.getByTestId("help-api-contracts-status-tag")).toHaveTextContent("Admin internal");
+    expect(screen.getByTestId("help-api-contracts-header-metadata")).toBeInTheDocument();
     expect(screen.getByTestId("help-api-contracts-claim-discipline")).toBeInTheDocument();
     expect(screen.getByTestId("help-api-contracts-orientation")).toBeInTheDocument();
+    expect(screen.getByTestId("help-api-contracts-sources")).toBeInTheDocument();
+    expect(screen.getByTestId("help-api-contracts-sources-strip")).toBeInTheDocument();
 
     const actionPanel = screen.getByTestId("help-api-contracts-action-panel");
 
+    expect(
+      within(actionPanel).getByTestId("help-api-contracts-primary-cta"),
+    ).toHaveAttribute("href", GOVERNANCE_API_CONTRACTS_HELP_PRIMARY_ACTIONS.openOpenApi.href);
     expect(
       within(actionPanel).getByRole("link", {
         name: GOVERNANCE_API_CONTRACTS_HELP_PRIMARY_ACTIONS.openCliUsage.label,
@@ -128,7 +135,11 @@ describe("HelpApiContractsGuideView (TB-1384, TB-1386, TB-1388)", () => {
       }),
     ).toHaveAttribute("href", GOVERNANCE_API_CONTRACTS_HELP_PRIMARY_ACTIONS.openBuyerGovernanceApproval.href);
 
-    expect(screen.queryByTestId("help-api-contracts-sources")).toBeNull(); // TB-2092
+    for (const source of GOVERNANCE_API_CONTRACTS_HELP_SOURCES) {
+      expect(
+        within(screen.getByTestId("help-api-contracts-sources-strip")).getByRole("link", { name: source.label }),
+      ).toHaveAttribute("href", source.href);
+    }
 const visible = document.body.textContent ?? "";
 
     expect(visible).toContain(GOVERNANCE_API_CONTRACTS_INTEGRATOR_MARKER);
