@@ -1,5 +1,10 @@
+"use client";
+
 import { cn } from "@/lib/utils";
+import { useState } from "react";
+
 import { PolicyPackContentJsonEditor } from "@/components/PolicyPackContentJsonEditor";
+import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { InlineHelp } from "@/components/InlineHelp";
 import { GovernanceDryRunModal } from "@/components/GovernanceDryRunModal";
 import { Button } from "@/components/ui/button";
@@ -74,6 +79,8 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
     onAssignPinnedChange,
     onAssign,
   } = props;
+
+  const [publishConfirmOpen, setPublishConfirmOpen] = useState(false);
 
   return (
     <section className="mb-0" aria-labelledby="policy-packs-lifecycle-heading">
@@ -247,7 +254,7 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
             />
             <button
               type="button"
-              onClick={() => void onPublish()}
+              onClick={() => setPublishConfirmOpen(true)}
               disabled={loading || !selectedPackId || !canMutatePacks || bundledPublishBlocked}
               title={
                 bundledPublishBlocked
@@ -337,6 +344,21 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
           </div>
         </section>
       </div>
+
+      <ConfirmationDialog
+        open={publishConfirmOpen}
+        onOpenChange={setPublishConfirmOpen}
+        title="Publish policy pack version?"
+        description={`Publish version ${publishVersion.trim() || "(version label)"} for the selected pack.`}
+        confirmLabel="Publish version"
+        variant="default"
+        busy={loading}
+        reversibilityMutationId="governance_policy_pack_publish"
+        onConfirm={() => {
+          setPublishConfirmOpen(false);
+          void onPublish();
+        }}
+      />
     </section>
   );
 }

@@ -4,6 +4,9 @@ import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 import { Loader2 } from "lucide-react";
 
+import { MutationReversibilityNotice } from "@/components/operator/MutationReversibilityNotice";
+import type { GovernanceMutationReversibilityId } from "@/lib/mutation-reversibility-registry";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,6 +30,8 @@ export type ConfirmationDialogProps = {
   busy?: boolean;
   /** Rendered after the description and before the footer (e.g. optional checkboxes). */
   extraContent?: ReactNode;
+  /** When set, renders governed-mutation reversibility copy before the footer (TB-2148). */
+  reversibilityMutationId?: GovernanceMutationReversibilityId;
 };
 
 const defaultConfirmLabel = "Confirm";
@@ -43,6 +48,7 @@ export function ConfirmationDialog({
   onConfirm,
   busy = false,
   extraContent,
+  reversibilityMutationId,
 }: ConfirmationDialogProps) {
   const resolvedConfirmLabel = confirmLabel;
   const isDestructive = variant === "destructive";
@@ -55,6 +61,9 @@ export function ConfirmationDialog({
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         {extraContent ?? null}
+        {reversibilityMutationId !== undefined ? (
+          <MutationReversibilityNotice mutationId={reversibilityMutationId} className="mt-2" />
+        ) : null}
         <AlertDialogFooter>
           <AlertDialogCancel disabled={busy}>{cancelLabel}</AlertDialogCancel>
           <AlertDialogAction

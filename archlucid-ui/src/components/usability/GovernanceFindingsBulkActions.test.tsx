@@ -62,9 +62,14 @@ describe("GovernanceFindingsBulkActions", () => {
       target: { value: "Reviewed with architecture board." },
     });
     fireEvent.click(screen.getByRole("button", { name: "Accept all" }));
+    expect(screen.getByTestId("mutation-reversibility-notice-governance_bulk_disposition")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Apply disposition" }));
 
     await waitFor(() => {
-      expect(onDispositionSucceeded).toHaveBeenCalledWith("Marked 2 finding(s) as accepted.");
+      expect(onDispositionSucceeded).toHaveBeenCalledWith(
+        "Marked 2 finding(s) as accepted.",
+        expect.any(Function),
+      );
     });
 
     expect(onApplied).toHaveBeenCalled();

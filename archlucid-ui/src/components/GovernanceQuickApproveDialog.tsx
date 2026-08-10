@@ -15,6 +15,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
+import { MutationReversibilityNotice } from "@/components/operator/MutationReversibilityNotice";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 /** Stored on the governance record when the approver leaves the note field empty (TB-501). */
@@ -77,6 +78,8 @@ export function GovernanceQuickApproveDialog({
             </dd>
           </div>
         </dl>
+
+        <MutationReversibilityNotice mutationId="governance_quick_approve" />
 
         {errorMessage !== null && errorMessage.trim().length > 0 ? (
           <OperatorMutationInlineError

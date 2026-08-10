@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { MutationReversibilityNotice } from "@/components/operator/MutationReversibilityNotice";
 import {
   enterpriseMutationControlDisabledTitle,
   governanceWorkflowApproveButtonLabelReaderRank,
@@ -165,6 +166,14 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
                     <p className={cn("mb-3 font-medium", OPERATOR_TYPOGRAPHY.body)}>
                       {pendingReview.mode === "approve" ? "Approve request" : "Reject request"}
                     </p>
+                    <MutationReversibilityNotice
+                      mutationId={
+                        pendingReview.mode === "approve"
+                          ? "governance_workflow_approve"
+                          : "governance_workflow_reject"
+                      }
+                      className="mb-3"
+                    />
                     {!canMutateWorkflow ? (
                       <p className={cn("mb-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="note">
                         {buyerPolishedShell

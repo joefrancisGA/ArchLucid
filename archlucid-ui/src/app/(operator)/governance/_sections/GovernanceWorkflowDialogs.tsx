@@ -56,6 +56,7 @@ export function GovernanceWorkflowDialogs(props: GovernanceWorkflowDialogsProps)
         variant="default"
         confirmLabel={GOVERNANCE_WORKFLOW_RELEASE_CONFIRM_BUTTON}
         busy={promoteBusy}
+        reversibilityMutationId="governance_workflow_promote"
         onConfirm={() => {
           void onConfirmPromote();
         }}
@@ -78,6 +79,7 @@ export function GovernanceWorkflowDialogs(props: GovernanceWorkflowDialogsProps)
         variant="default"
         confirmLabel="Activate"
         busy={pendingActivate !== null && activateBusyId === pendingActivate.activationId}
+        reversibilityMutationId="governance_workflow_activate"
         onConfirm={() => {
           void onConfirmActivateFromPromotion();
         }}

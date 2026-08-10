@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
@@ -20,20 +21,40 @@ import { recordBulkFindingDisposition, type FindingDispositionKind } from "@/lib
 type GovernanceFindingsBulkActionsProps = {
   readonly selectedFindingIds: readonly string[];
   readonly onApplied: () => void;
-  readonly onDispositionSucceeded: (message: string) => void;
+  readonly onDispositionSucceeded: (message: string, undo?: () => Promise<void>) => void;
 };
 
 type BulkDisposition = Extract<FindingDispositionKind, "Accepted" | "RejectedAsNotApplicable" | "Deferred">;
+
+const BULK_DISPOSITION_CONFIRM_LABELS: Record<BulkDisposition, string> = {
+  Accepted: "Accept all selected findings",
+  RejectedAsNotApplicable: "Waive all selected findings",
+  Deferred: "Defer all selected findings",
+};
 
 /** Bulk accept / waive / defer for governance findings queue rows. */
 export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActionsProps) {
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
   const [inlineErrorMessage, setInlineErrorMessage] = useState<string | null>(null);
+  const [pendingDisposition, setPendingDisposition] = useState<BulkDisposition | null>(null);
   const router = useRouter();
 
   if (props.selectedFindingIds.length === 0) {
     return null;
+  }
+
+  function requestDisposition(disposition: BulkDisposition): void {
+    const trimmedReason = reason.trim();
+
+    if (trimmedReason.length === 0) {
+      setInlineErrorMessage(GOVERNANCE_BULK_DISPOSITION_REASON_REQUIRED);
+
+      return;
+    }
+
+    setInlineErrorMessage(null);
+    setPendingDisposition(disposition);
   }
 
   async function applyDisposition(disposition: BulkDisposition): Promise<void> {
@@ -49,11 +70,12 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
     setInlineErrorMessage(null);
 
     const idempotencyKey = createGovernanceMutationIdempotencyKey();
+    const findingIds = [...props.selectedFindingIds];
 
     try {
       const result = await recordBulkFindingDisposition(
         {
-          findingIds: props.selectedFindingIds,
+          findingIds,
           disposition,
           rationale: trimmedReason,
         },
@@ -62,9 +84,34 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
 
       const successMessage = governanceBulkDispositionSuccessMessage(result.processedCount, disposition);
 
-      props.onDispositionSucceeded(successMessage);
+      if (result.processedCount !== findingIds.length) {
+        setInlineErrorMessage(GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE);
+
+        return;
+      }
+
+      const undoRationale = `Undo: deferred for revisit after bulk ${disposition.toLowerCase()}.`;
+
+      props.onDispositionSucceeded(successMessage, async () => {
+        const undoResult = await recordBulkFindingDisposition(
+          {
+            findingIds,
+            disposition: "Deferred",
+            rationale: undoRationale,
+          },
+          { idempotencyKey: createGovernanceMutationIdempotencyKey() },
+        );
+
+        if (undoResult.processedCount !== findingIds.length) {
+          throw new Error(GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE);
+        }
+
+        props.onApplied();
+        router.refresh();
+      });
       props.onApplied();
       setReason("");
+      setPendingDisposition(null);
       router.refresh();
     } catch (err) {
       setInlineErrorMessage(err instanceof Error ? err.message : GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE);
@@ -74,40 +121,83 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
   }
 
   return (
-    <div
-      className="flex flex-wrap items-end gap-3 rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
-      data-testid="governance-findings-bulk-actions"
-    >
-      {inlineErrorMessage !== null ? (
-        <OperatorMutationInlineError
-          message={inlineErrorMessage}
-          testId="governance-bulk-disposition-inline-error"
-          className="w-full"
-        />
-      ) : null}
+    <>
+      <div
+        className="flex flex-wrap items-end gap-3 rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
+        data-testid="governance-findings-bulk-actions"
+      >
+        {inlineErrorMessage !== null ? (
+          <OperatorMutationInlineError
+            message={inlineErrorMessage}
+            testId="governance-bulk-disposition-inline-error"
+            className="w-full"
+          />
+        ) : null}
 
-      <p className={cn("m-0 w-full font-medium text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.body)}>
-        {props.selectedFindingIds.length} finding(s) selected
-      </p>
-      <div className="min-w-[16rem] flex-1">
-        <Label htmlFor="bulk-disposition-reason">Shared reason</Label>
-        <Input
-          id="bulk-disposition-reason"
-          value={reason}
-          onChange={(event) => setReason(event.target.value)}
-          placeholder="Applies to all selected findings"
+        <p className={cn("m-0 w-full font-medium text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.body)}>
+          {props.selectedFindingIds.length} finding(s) selected
+        </p>
+        <div className="min-w-[16rem] flex-1">
+          <Label htmlFor="bulk-disposition-reason">Shared reason</Label>
+          <Input
+            id="bulk-disposition-reason"
+            value={reason}
+            onChange={(event) => setReason(event.target.value)}
+            placeholder="Applies to all selected findings"
+            disabled={busy}
+          />
+        </div>
+        <Button
+          type="button"
+          size="sm"
           disabled={busy}
-        />
+          onClick={() => requestDisposition("Accepted")}
+        >
+          Accept all
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          disabled={busy}
+          onClick={() => requestDisposition("RejectedAsNotApplicable")}
+        >
+          Waive all
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          disabled={busy}
+          onClick={() => requestDisposition("Deferred")}
+        >
+          Defer all
+        </Button>
       </div>
-      <Button type="button" size="sm" disabled={busy} onClick={() => void applyDisposition("Accepted")}>
-        Accept all
-      </Button>
-      <Button type="button" size="sm" variant="outline" disabled={busy} onClick={() => void applyDisposition("RejectedAsNotApplicable")}>
-        Waive all
-      </Button>
-      <Button type="button" size="sm" variant="outline" disabled={busy} onClick={() => void applyDisposition("Deferred")}>
-        Defer all
-      </Button>
-    </div>
+
+      <ConfirmationDialog
+        open={pendingDisposition !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingDisposition(null);
+          }
+        }}
+        title="Confirm bulk disposition"
+        description={
+          pendingDisposition !== null
+            ? `${BULK_DISPOSITION_CONFIRM_LABELS[pendingDisposition]} with the shared reason you entered.`
+            : ""
+        }
+        confirmLabel="Apply disposition"
+        variant="default"
+        busy={busy}
+        reversibilityMutationId="governance_bulk_disposition"
+        onConfirm={() => {
+          if (pendingDisposition !== null) {
+            void applyDisposition(pendingDisposition);
+          }
+        }}
+      />
+    </>
   );
 }

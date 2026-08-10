@@ -3,7 +3,8 @@
 import { memo, useState, type ReactElement } from "react";
 
 import { GovernanceFindingsBulkActions } from "@/components/usability/GovernanceFindingsBulkActions";
-import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
+import { ReversibleMutationSuccessCallout } from "@/components/operator/ReversibleMutationSuccessCallout";
+import { GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE } from "@/lib/governance-mutation-outcome-copy";
 import { BUYER_GOVERNANCE_FINDINGS_RISKS_SECTION_TITLE } from "@/lib/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -34,6 +35,8 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
   const findingRows = displayedRows.filter((row) => row.recordKind === "finding");
   const decisionRows = displayedRows.filter((row) => row.recordKind === "decision");
   const [bulkDispositionSuccessMessage, setBulkDispositionSuccessMessage] = useState<string | null>(null);
+  const [bulkDispositionUndo, setBulkDispositionUndo] = useState<(() => Promise<void>) | null>(null);
+  const [bulkDispositionUndoBusy, setBulkDispositionUndoBusy] = useState(false);
 
   if (buyerPolishedShell) {
     return (
@@ -85,11 +88,38 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
   return (
     <>
       {bulkDispositionSuccessMessage !== null ? (
-        <OperatorSuccessCallout
+        <ReversibleMutationSuccessCallout
           message={bulkDispositionSuccessMessage}
+          mutationId="governance_bulk_disposition"
           testId="governance-bulk-disposition-success-callout"
           className="mb-2"
-          onDismiss={() => setBulkDispositionSuccessMessage(null)}
+          undoBusy={bulkDispositionUndoBusy}
+          onDismiss={() => {
+            setBulkDispositionSuccessMessage(null);
+            setBulkDispositionUndo(null);
+          }}
+          onUndo={
+            bulkDispositionUndo !== null
+              ? async () => {
+                  setBulkDispositionUndoBusy(true);
+
+                  try {
+                    await bulkDispositionUndo();
+                    setBulkDispositionSuccessMessage(null);
+                    setBulkDispositionUndo(null);
+                  } catch (undoError) {
+                    setBulkDispositionSuccessMessage(
+                      undoError instanceof Error
+                        ? undoError.message
+                        : GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE,
+                    );
+                    setBulkDispositionUndo(null);
+                  } finally {
+                    setBulkDispositionUndoBusy(false);
+                  }
+                }
+              : undefined
+          }
         />
       ) : null}
 
@@ -97,7 +127,10 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
         <div className="mb-2">
           <GovernanceFindingsBulkActions
             selectedFindingIds={Array.from(selectedFindingIds)}
-            onDispositionSucceeded={setBulkDispositionSuccessMessage}
+            onDispositionSucceeded={(message, undo) => {
+              setBulkDispositionSuccessMessage(message);
+              setBulkDispositionUndo(undo ?? null);
+            }}
             onApplied={onBulkApplied}
           />
         </div>

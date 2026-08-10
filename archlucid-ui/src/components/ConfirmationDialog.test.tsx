@@ -19,6 +19,22 @@ describe("ConfirmationDialog", () => {
     expect(screen.getByText("This cannot be undone.")).toBeInTheDocument();
   });
 
+  it("renders reversibility notice when mutation id is provided", () => {
+    render(
+      <ConfirmationDialog
+        open
+        onOpenChange={vi.fn()}
+        title="Approve change"
+        description="Proceed?"
+        confirmLabel="Apply"
+        reversibilityMutationId="governance_workflow_promote"
+        onConfirm={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByTestId("mutation-reversibility-notice-governance_workflow_promote")).toBeInTheDocument();
+  });
+
   it("calls onConfirm when action button clicked", () => {
     const onConfirm = vi.fn();
 
