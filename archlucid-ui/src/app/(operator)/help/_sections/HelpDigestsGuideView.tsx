@@ -3,6 +3,7 @@ import Link from "next/link";
 import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
+import { DigestsHelpEvidenceOrientationStrip } from "@/components/help/DigestsHelpEvidenceOrientationStrip";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -51,6 +52,7 @@ function HowDigestsWorkStepper(): React.ReactElement {
         {DIGESTS_HELP_HOW_DIGESTS_WORK_STEPS.map((step, index) => (
           <li key={step} className="flex min-w-0 flex-1 items-center gap-2">
             <div className="flex min-w-0 flex-1 flex-col gap-2 rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950">
+              <span className="sr-only">{`Step ${index + 1}`}</span>
               <span
                 aria-hidden
                 className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-teal-700/30 bg-teal-50 text-sm font-semibold text-teal-900 dark:border-teal-600/40 dark:bg-teal-950/50 dark:text-teal-100"
@@ -82,19 +84,12 @@ export function HelpDigestsGuideView(props: HelpDigestsGuideViewProps): React.Re
     >
       <HelpTopicHashScroll />
 
-      <header className="space-y-2 border-b border-neutral-200 pb-4 dark:border-neutral-800">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="min-w-0 space-y-1">
-            <HelpTopicTitleRow title={DIGESTS_HELP_PAGE_TITLE} />
-            <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              {DIGESTS_HELP_PAGE_SUBTITLE}
-            </p>
-          </div>
-          <PageContextualHelpButton />
-        </div>
+      <header className={HELP_PAGE_LAYOUT.articleHeader}>
+        <HelpTopicTitleRow title={DIGESTS_HELP_PAGE_TITLE} actions={<PageContextualHelpButton />} />
+        <p className={cn("m-0 max-w-[42rem]", OPERATOR_TYPOGRAPHY.helper)}>{DIGESTS_HELP_PAGE_SUBTITLE}</p>
       </header>
-<div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.body)}>{DIGESTS_HELP_OVERVIEW}</p>
+
+      <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
         <Card
           className="border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20"
           data-testid="help-digests-action-panel"
@@ -125,11 +120,17 @@ export function HelpDigestsGuideView(props: HelpDigestsGuideViewProps): React.Re
             </Link>
           </CardContent>
         </Card>
+
+        <DigestsHelpEvidenceOrientationStrip />
       </div>
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className={cn("min-w-0 space-y-6", "max-w-[42rem] lg:max-w-none")}>
-          <section aria-labelledby="how-digests-work-heading" className="space-y-3">
+          <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)} data-testid="help-digests-overview">
+            {DIGESTS_HELP_OVERVIEW}
+          </p>
+
+          <section aria-labelledby="how-digests-work-heading" className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800">
             <HelpSectionHeading id="how-digests-work">How digests work</HelpSectionHeading>
             <p id="how-digests-work-heading" className="sr-only">
               How digests work
@@ -164,7 +165,7 @@ export function HelpDigestsGuideView(props: HelpDigestsGuideViewProps): React.Re
         </div>
 
         <aside className="min-w-0 lg:sticky lg:top-24 lg:self-start">
-          <HelpTopicTableOfContents headings={[...DIGESTS_HELP_GUIDE_HEADINGS]} />
+          <HelpTopicTableOfContents headings={[...DIGESTS_HELP_GUIDE_HEADINGS]} enableScrollSpy />
         </aside>
       </div>
     </article>
