@@ -14,7 +14,7 @@ describe("HelpTopicMarkdownView data-handling", () => {
 
   it("loads data-handling markdown from the monorepo", () => {
     expect(loaded).not.toBeNull();
-    expect(loaded?.entry.title).toBe("What ArchLucid does with your data");
+    expect(loaded?.entry.title).toBe("Data handling and tenant isolation");
   });
 
   it("renders isolation, AI provider, and optional connector sections", () => {
@@ -24,7 +24,7 @@ describe("HelpTopicMarkdownView data-handling", () => {
 
     render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
 
-    expect(screen.getByRole("heading", { level: 1, name: "What ArchLucid does with your data" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "Data handling and tenant isolation" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Isolation" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Cloud connectors are optional" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "AI provider handling" })).toBeInTheDocument();

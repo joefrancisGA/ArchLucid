@@ -1,6 +1,4 @@
-# What ArchLucid does with your data
-
-Data flow, tenant isolation, audit trail, and portability for architecture review evidence.
+# Data handling and tenant isolation
 
 ## What ArchLucid does {#what-archlucid-does}
 
@@ -31,7 +29,7 @@ Three layers of protection govern tenant isolation — database-per-tenant is th
 3. **Data layer** — Each customer tenant uses a dedicated database catalog. That catalog boundary is the primary isolation mechanism for paying-client data. Where any shared platform tables exist, they are classified and must not hold another tenant's review content as a substitute for catalog isolation. SQL row-level security is not the production isolation boundary.
 4. **What a single-layer compromise does not give an attacker** — A bug that omits a within-tenant filter does not cross paying-client catalogs when routing is correct. Possession of one tenant's database credentials does not unlock another tenant's catalog. Token theft is limited by claim-bound scope checks on subsequent requests.
 
-Tenant identity is decided at the host boundary, and API requests carry a tenant scope that the data layer enforces on tenant-facing queries — that is the standard customer path, not a claim that every staff or platform surface is free of cross-tenant aggregation. For isolation and assurance detail, see [Security and trust](/help/security-trust). Append-only audit logging records every governed action within your tenant. Layered overview for procurement: [Tenant isolation (buyer)](../../go-to-market/TENANT_ISOLATION.md).
+Tenant identity is decided at the host boundary, and API requests carry a tenant scope that the data layer enforces on tenant-facing queries — that is the standard customer path, not a claim that every staff or platform surface is free of cross-tenant aggregation. For isolation and assurance detail, see [Security and trust](/help/security-trust). Append-only audit logging records every governed action within your tenant.
 
 ## Audit trail {#audit-trail}
 

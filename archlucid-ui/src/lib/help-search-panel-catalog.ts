@@ -241,7 +241,7 @@ const SETUP_TOPICS: readonly HelpSearchPanelTopic[] = [
   },
   {
     id: "data-handling-help",
-    title: "What ArchLucid does with your data",
+    title: "Data handling and tenant isolation",
     description: "Data flow, tenant isolation, audit trail, AI provider handling, and portability.",
     keywords: ["data handling", "privacy", "isolation", "tenant", "ai provider", "portability", "deletion"],
     action: { kind: "route", href: "/help/data-handling", helpSlug: "data-handling" },

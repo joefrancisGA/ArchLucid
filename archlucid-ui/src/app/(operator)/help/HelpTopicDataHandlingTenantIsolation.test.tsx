@@ -15,10 +15,15 @@ vi.mock("next/navigation", () => ({
 
 import { HelpDataHandlingTenantIsolationGuideView } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationGuideView";
 import {
+  DATA_HANDLING_TENANT_ISOLATION_HELP_ACTION_PANEL_TITLE,
+  DATA_HANDLING_TENANT_ISOLATION_HELP_BREADCRUMB_HELP_CENTER_LABEL,
+  DATA_HANDLING_TENANT_ISOLATION_HELP_BREADCRUMB_SECURITY_TRUST_LABEL,
+  DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CROSS_CHECK_LINKS,
   DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_TITLE,
   DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_ACTIONS,
   DATA_HANDLING_TENANT_ISOLATION_HELP_RESIDENCY_HEADING,
 } from "@/lib/data-handling-tenant-isolation-help-guide-content";
+import { DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES } from "@/lib/data-handling-tenant-isolation-help-evidence-copy";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
@@ -28,7 +33,7 @@ describe("HelpDataHandlingTenantIsolationGuideView", () => {
 
   it("loads tenant-isolation help from the monorepo", () => {
     expect(loaded).not.toBeNull();
-    expect(loaded?.entry.title).toBe("What ArchLucid does with your data");
+    expect(loaded?.entry.title).toBe(DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_TITLE);
   });
 
   it("registers provenance metadata for the data-handling topic", () => {
@@ -68,14 +73,37 @@ describe("HelpDataHandlingTenantIsolationGuideView", () => {
     expect(screen.getByTestId("help-topic-download-pdf")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-print-pdf")).toBeNull();
 
-    const overview = screen.getByTestId("help-data-handling-tenant-isolation-overview");
+    const breadcrumb = screen.getByTestId("help-data-handling-tenant-isolation-breadcrumb");
+    expect(within(breadcrumb).getByRole("link", { name: DATA_HANDLING_TENANT_ISOLATION_HELP_BREADCRUMB_HELP_CENTER_LABEL })).toHaveAttribute(
+      "href",
+      "/help",
+    );
+    expect(
+      within(breadcrumb).getByRole("link", { name: DATA_HANDLING_TENANT_ISOLATION_HELP_BREADCRUMB_SECURITY_TRUST_LABEL }),
+    ).toHaveAttribute("href", "/help/security-trust");
+    expect(within(breadcrumb).getByText(DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_TITLE)).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
 
+    const overview = screen.getByTestId("help-data-handling-tenant-isolation-overview");
     expect(overview.textContent?.toLowerCase()).not.toContain("sources links below");
 
-    const actionPanel = screen.getByTestId("help-data-handling-tenant-isolation-action-panel");
+    for (const [index, link] of DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CROSS_CHECK_LINKS.entries()) {
+      expect(
+        within(overview).getByTestId(`help-data-handling-tenant-isolation-overview-link-${index}`),
+      ).toHaveAttribute("href", link.href);
+    }
 
+    const claimDiscipline = screen.getByTestId("help-data-handling-tenant-isolation-claim-discipline");
+    expect(claimDiscipline.className).toMatch(/callout|warn|amber|border/i);
+    expect(claimDiscipline).toHaveTextContent("not a countersigned DPA");
+
+    const actionPanel = screen.getByTestId("help-data-handling-tenant-isolation-action-panel");
     expect(actionPanel.className).not.toMatch(/bg-teal/);
-    expect(screen.getByRole("heading", { level: 2, name: "Continue diligence" })).toBeInTheDocument();
+    expect(actionPanel.className).toMatch(/w-full/);
+    expect(screen.queryByRole("heading", { name: DATA_HANDLING_TENANT_ISOLATION_HELP_ACTION_PANEL_TITLE })).toBeNull();
+    expect(screen.getByText(DATA_HANDLING_TENANT_ISOLATION_HELP_ACTION_PANEL_TITLE)).toBeInTheDocument();
     expect(
       within(actionPanel).getByRole("link", {
         name: DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_ACTIONS.openTrustCenter.label,
@@ -92,19 +120,26 @@ describe("HelpDataHandlingTenantIsolationGuideView", () => {
       }),
     ).toBeNull();
 
+    const auditSentence = screen.getByTestId("help-data-handling-tenant-isolation-audit-trail-sentence");
+    expect(auditSentence).toHaveTextContent("Open the audit trail in your tenant governance workspace.");
     expect(screen.getByTestId("help-data-handling-tenant-isolation-audit-trail-link")).toHaveAttribute(
       "href",
       DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_ACTIONS.openAuditTrail.href,
     );
 
+    const sources = screen.getByTestId("help-data-handling-tenant-isolation-sources");
+    expect(sources).toHaveTextContent("Sources for follow-up");
+    for (const link of DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES) {
+      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+    }
+
     expect(
-      screen.getByRole("heading", { level: 3, name: DATA_HANDLING_TENANT_ISOLATION_HELP_RESIDENCY_HEADING }),
+      screen.getByRole("heading", { level: 2, name: DATA_HANDLING_TENANT_ISOLATION_HELP_RESIDENCY_HEADING }),
     ).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-toc")).toHaveTextContent(
       DATA_HANDLING_TENANT_ISOLATION_HELP_RESIDENCY_HEADING,
     );
 
-    expect(screen.queryByTestId("help-data-handling-tenant-isolation-sources")).toBeNull();
     expect(screen.getAllByRole("link", { name: /security and trust/i }).length).toBeGreaterThan(0);
     expect(screen.queryByRole("link", { name: /^data handling$/i })).toBeNull();
   });

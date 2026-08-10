@@ -238,7 +238,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "data-handling",
-    title: "What ArchLucid does with your data",
+    title: "Data handling and tenant isolation",
     summary:
       "Data flow, tenant isolation, audit trail, and portability for architecture review evidence.",
     audience: "buyer",
