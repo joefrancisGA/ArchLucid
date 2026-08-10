@@ -5,6 +5,7 @@
 import { ARCHITECTURE_DRAFTS_LIST_LABEL, CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY, BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer-polish-copy";
+import { EVIDENCE_TRAIL_SEARCH } from "@/lib/search-surface-disambiguation";
 
 // Canonical definitions live in the dependency-free leaf module `pipeline-status-labels.ts`
 // (see rationale there); re-exported here so existing `@/lib/i18n` imports keep working.
@@ -157,7 +158,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   /** Ask review questions (`/insights/ask-review-questions`). */
   askReview: "Ask review questions",
   /** Search review evidence (`/insights/search-review-evidence`). */
-  searchEvidence: "Search review evidence",
+  searchEvidence: EVIDENCE_TRAIL_SEARCH.title,
   architectureAdvisory: "Advisory scans",
   recommendationTuning: "Recommendation learning",
   pilotFeedback: BUYER_TERMINOLOGY.evaluationFeedback,

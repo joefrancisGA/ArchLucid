@@ -1,9 +1,15 @@
-/** Search page subtitle — tenant-scoped retrieval over signed review records and evidence. */
-export const SEARCH_PAGE_SUBTITLE =
-  "Find evidence, findings, decisions, and signed review records across this workspace.";
+import { EVIDENCE_TRAIL_SEARCH } from "@/lib/search-surface-disambiguation";
 
-export const SEARCH_QUERY_PLACEHOLDER =
-  "Search for a finding, decision, policy, component, or evidence phrase…";
+/** Search page H1 when no review filter is set (TB-2196). */
+export const SEARCH_PAGE_TITLE = EVIDENCE_TRAIL_SEARCH.title;
+
+/** Search page subtitle — tenant-scoped retrieval over signed review records and the evidence trail. */
+export const SEARCH_PAGE_SUBTITLE = EVIDENCE_TRAIL_SEARCH.pageSubtitle;
+
+export const SEARCH_QUERY_PLACEHOLDER = EVIDENCE_TRAIL_SEARCH.queryPlaceholder;
+
+/** Visible label above the evidence query field (TB-2196). */
+export const SEARCH_QUERY_FIELD_LABEL = EVIDENCE_TRAIL_SEARCH.queryFieldLabel;
 
 export const SEARCH_REVIEW_FILTER_LABEL = "Limit to review (optional)";
 

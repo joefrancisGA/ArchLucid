@@ -15,23 +15,27 @@ import { SEARCH_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-prese
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
+import { EVIDENCE_TRAIL_SEARCH } from "@/lib/search-surface-disambiguation";
 
 import type { SearchPageViewModel } from "./search-page-view-model";
 import {
   SEARCH_EXAMPLE_QUERIES_LINE,
   SEARCH_PAGE_SUBTITLE,
+  SEARCH_PAGE_TITLE,
+  SEARCH_QUERY_FIELD_LABEL,
   SEARCH_QUERY_PLACEHOLDER,
   SEARCH_REVIEW_FILTER_LABEL,
   SEARCH_REVIEW_FILTER_PLACEHOLDER,
 } from "./search-page-copy";
 import { SearchRetrievalHitCard } from "./SearchRetrievalHitCard";
 import { SearchReviewEvidenceCiteStrip } from "./SearchReviewEvidenceCiteStrip";
+
 type SearchPageViewProps = {
   model: SearchPageViewModel;
 };
 
 function searchPageTitle(runId: string): string {
-  return runId.trim().length > 0 ? "Search this review's evidence" : "Search review evidence";
+  return runId.trim().length > 0 ? EVIDENCE_TRAIL_SEARCH.scopedTitle : SEARCH_PAGE_TITLE;
 }
 
 function searchEmptyStateActions(scopedRunId: string) {
@@ -73,7 +77,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
         />
 <DemoWorkspaceCapabilityUnavailablePanel
           layout="embedded"
-          capability="Search review evidence"
+          capability={SEARCH_PAGE_TITLE}
           description="In a connected tenant, architects search findings, decisions, and signed review records across the workspace evidence index."
         />
       </div>
@@ -94,7 +98,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
       <Card className="mb-6 max-w-xl border-neutral-200 dark:border-neutral-700">
         <CardContent className="grid gap-4 p-4">
           <div className="space-y-2">
-            <Label htmlFor="semantic-search-query">Search</Label>
+            <Label htmlFor="semantic-search-query">{SEARCH_QUERY_FIELD_LABEL}</Label>
             <Input
               id="semantic-search-query"
               value={query}

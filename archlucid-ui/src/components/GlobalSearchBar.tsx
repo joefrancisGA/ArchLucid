@@ -13,6 +13,7 @@ import {
   GLOBAL_SEARCH_PLACEHOLDER,
   globalSearchInputTitle,
 } from "@/lib/keyboard-shortcut-display";
+import { GLOBAL_FIND_PAGE_SEARCH } from "@/lib/search-surface-disambiguation";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { searchHelpTopics } from "@/lib/usability/search-help-topics";
@@ -119,6 +120,9 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
       <label htmlFor={inputId} className="sr-only">
         {GLOBAL_SEARCH_ARIA_LABEL}
       </label>
+      <p id={`${inputId}-helper`} className="sr-only">
+        {GLOBAL_FIND_PAGE_SEARCH.helper}
+      </p>
 
       <Input
         ref={inputRef}
@@ -138,6 +142,7 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
         aria-expanded={resultsPanelOpen}
         aria-controls={resultsPanelOpen ? `${inputId}-results` : undefined}
         aria-label={GLOBAL_SEARCH_ARIA_LABEL}
+        aria-describedby={`${inputId}-helper`}
         aria-keyshortcuts={COMMAND_PALETTE_ARIA_KEYSHORTCUTS}
         autoComplete="off"
         className="h-8 border-neutral-300 bg-white text-al-text-primary placeholder:text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900 dark:placeholder:text-neutral-400"

@@ -5,6 +5,8 @@
  * **Behavior** for the command palette still accepts `metaKey` on macOS (see `CommandPalette.tsx`).
  */
 
+import { GLOBAL_FIND_PAGE_SEARCH } from "@/lib/search-surface-disambiguation";
+
 /** Visible chip / tooltip text for the command palette trigger. */
 export const COMMAND_PALETTE_DISPLAY_SHORTCUT = "Ctrl+K";
 
@@ -17,11 +19,11 @@ export const OPERATOR_HELP_TOOLTIP = "Help (F1)";
 /** WAI-ARIA `aria-keyshortcuts` for help — F1 and Shift+/. */
 export const OPERATOR_HELP_ARIA_KEYSHORTCUTS = "F1 Shift+?";
 
-/** Accessible name for the global entity search input in the operator header. */
-export const GLOBAL_SEARCH_ARIA_LABEL = "Search reviews, findings, and evidence";
+/** Accessible name for the global find-a-page input in the operator header (TB-2196). */
+export const GLOBAL_SEARCH_ARIA_LABEL = GLOBAL_FIND_PAGE_SEARCH.ariaLabel;
 
-/** Placeholder for the operator header global search input. */
-export const GLOBAL_SEARCH_PLACEHOLDER = "Search ArchLucid";
+/** Placeholder for the operator header global find-a-page input (TB-2196). */
+export const GLOBAL_SEARCH_PLACEHOLDER = GLOBAL_FIND_PAGE_SEARCH.placeholder;
 
 /**
  * WAI-ARIA `aria-keyshortcuts` for the command palette — both Control and Meta so macOS Cmd+K is exposed.
@@ -38,9 +40,9 @@ export function resolveCommandPaletteDisplayShortcut(): string {
   return COMMAND_PALETTE_DISPLAY_SHORTCUT;
 }
 
-/** Native tooltip for the header global search input (includes palette shortcut). */
+/** Native tooltip for the header global search input (helper + palette shortcut). */
 export function globalSearchInputTitle(): string {
-  return `${GLOBAL_SEARCH_PLACEHOLDER} — ${resolveCommandPaletteDisplayShortcut()}`;
+  return `${GLOBAL_FIND_PAGE_SEARCH.helper} — ${resolveCommandPaletteDisplayShortcut()}`;
 }
 
 /** Tooltip line suffix for palette triggers. */

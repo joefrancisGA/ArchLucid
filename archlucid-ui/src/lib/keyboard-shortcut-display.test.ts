@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   COMMAND_PALETTE_ARIA_KEYSHORTCUTS,
   COMMAND_PALETTE_DISPLAY_SHORTCUT,
+  GLOBAL_SEARCH_ARIA_LABEL,
   GLOBAL_SEARCH_PLACEHOLDER,
   OPERATOR_HELP_ARIA_KEYSHORTCUTS,
   OPERATOR_HELP_ARIA_LABEL,
@@ -11,6 +12,7 @@ import {
   globalSearchInputTitle,
   resolveCommandPaletteDisplayShortcut,
 } from "@/lib/keyboard-shortcut-display";
+import { GLOBAL_FIND_PAGE_SEARCH } from "@/lib/search-surface-disambiguation";
 
 describe("keyboard-shortcut-display", () => {
   it("uses Ctrl text for visible palette shortcut labels", () => {
@@ -22,9 +24,10 @@ describe("keyboard-shortcut-display", () => {
     expect(COMMAND_PALETTE_ARIA_KEYSHORTCUTS).toBe("Control+K Meta+K");
   });
 
-  it("exposes global search placeholder and tooltip title", () => {
-    expect(GLOBAL_SEARCH_PLACEHOLDER).toBe("Search ArchLucid");
-    expect(globalSearchInputTitle()).toContain(GLOBAL_SEARCH_PLACEHOLDER);
+  it("exposes global find-a-page placeholder and tooltip title (TB-2196)", () => {
+    expect(GLOBAL_SEARCH_PLACEHOLDER).toBe(GLOBAL_FIND_PAGE_SEARCH.placeholder);
+    expect(GLOBAL_SEARCH_ARIA_LABEL).toBe(GLOBAL_FIND_PAGE_SEARCH.ariaLabel);
+    expect(globalSearchInputTitle()).toContain(GLOBAL_FIND_PAGE_SEARCH.helper);
     expect(globalSearchInputTitle()).toContain(resolveCommandPaletteDisplayShortcut());
   });
 

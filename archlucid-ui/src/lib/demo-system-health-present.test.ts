@@ -26,7 +26,7 @@ describe("demo-system-health-present", () => {
       "Application shell",
       "Review navigation",
       "Evidence graph",
-      "Search",
+      "Search evidence",
       "AI budget guardrails",
       "Background job queue",
       "Digest delivery",

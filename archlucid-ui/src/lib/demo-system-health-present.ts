@@ -1,4 +1,5 @@
 import type { HealthDisplaySeverity } from "@/lib/health-readiness-presentation";
+import { EVIDENCE_TRAIL_SEARCH } from "@/lib/search-surface-disambiguation";
 
 export type DemoSystemHealthStatus =
   | "Healthy"
@@ -121,9 +122,9 @@ export function buildDemoOperationalChecks(): DemoOperationalCheck[] {
     },
     {
       id: "search",
-      label: "Search",
+      label: EVIDENCE_TRAIL_SEARCH.shortNavLabel,
       status: "Sample scope",
-      explanation: "Search runs against sample evidence in this evaluation workspace.",
+      explanation: "Evidence search runs against sample evidence in this evaluation workspace.",
     },
     {
       id: "ai-budget-guardrails",

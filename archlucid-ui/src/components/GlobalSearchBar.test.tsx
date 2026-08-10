@@ -8,6 +8,7 @@ import {
   GLOBAL_SEARCH_PLACEHOLDER,
   globalSearchInputTitle,
 } from "@/lib/keyboard-shortcut-display";
+import { GLOBAL_FIND_PAGE_SEARCH } from "@/lib/search-surface-disambiguation";
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
@@ -44,6 +45,8 @@ describe("GlobalSearchBar", () => {
     expect(screen.getByPlaceholderText(GLOBAL_SEARCH_PLACEHOLDER)).toBe(input);
     expect(input).toHaveAttribute("title", globalSearchInputTitle());
     expect(input).toHaveAttribute("aria-keyshortcuts", COMMAND_PALETTE_ARIA_KEYSHORTCUTS);
+    expect(input).toHaveAttribute("aria-describedby");
+    expect(screen.getByText(GLOBAL_FIND_PAGE_SEARCH.helper)).toBeInTheDocument();
     expect(screen.queryByTestId("global-search-command-palette-hint")).toBeNull();
     expect(screen.queryByText("Ctrl+K")).toBeNull();
   });

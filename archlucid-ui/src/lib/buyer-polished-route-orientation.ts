@@ -15,6 +15,7 @@ import {
   BUYER_SURFACE_VOCABULARY,
   BUYER_TERMINOLOGY,
 } from "@/lib/buyer-surface-vocabulary";
+import { EVIDENCE_TRAIL_SEARCH } from "@/lib/search-surface-disambiguation";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import {
   GOVERNANCE_OVERVIEW_PAGE_LEAD,
@@ -238,7 +239,7 @@ export function buyerPolishedRouteOrientation(
 
     if (searchRunId.length > 0) {
       return {
-        label: "Search this review's evidence",
+        label: EVIDENCE_TRAIL_SEARCH.scopedTitle,
         line: "Find language across this review's summaries, signed review record, and linked metadata.",
       };
     }
