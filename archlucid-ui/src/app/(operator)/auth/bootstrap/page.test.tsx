@@ -26,5 +26,6 @@ describe("PostAuthBootstrapPage (TB-1465)", () => {
 
     expect(screen.getByTestId("auth-flow-shell")).toBeInTheDocument();
     expect(screen.getByTestId("post-auth-bootstrap-loading")).toBeInTheDocument();
+    expect(screen.getByTestId("post-auth-bootstrap-loading-skeleton-card")).toBeInTheDocument();
   });
 });

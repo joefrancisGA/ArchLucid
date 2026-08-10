@@ -17,3 +17,12 @@ describe("PostAuthBootstrapLoadingView (TB-1465)", () => {
     expect(screen.queryByText(/Preparing your ArchLucid workspace/i)).not.toBeInTheDocument();
   });
 });
+
+describe("PostAuthBootstrapLoadingView (TB-1466)", () => {
+  it("renders structured skeleton placeholders matching bootstrap card width", () => {
+    render(<PostAuthBootstrapLoadingView />);
+
+    expect(screen.getByTestId("post-auth-bootstrap-loading-lead-skeleton")).toBeInTheDocument();
+    expect(screen.getByTestId("post-auth-bootstrap-loading-skeleton-card")).toBeInTheDocument();
+  });
+});
