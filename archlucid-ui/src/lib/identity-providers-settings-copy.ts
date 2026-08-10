@@ -94,6 +94,8 @@ export const IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES = [
 export const IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_TITLE = "Identity diagnostics";
 export const IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_INTRO =
   "Technical validation, health checks, and support tooling for identity configuration.";
+export const IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_SUBTITLE =
+  "Validate identity configuration, review health probes, and run support tooling before enabling SSO for all users.";
 
 export const IDENTITY_PROVIDERS_DIAGNOSTICS_TECHNICAL_TITLE = "Technical details";
 export const IDENTITY_PROVIDERS_DIAGNOSTICS_TECHNICAL_DESCRIPTION =

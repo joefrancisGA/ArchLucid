@@ -2,6 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import {
   BUYER_IDENTITY_PROVIDERS_PAGE_SUBTITLE,
+  IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_INTRO,
+  IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_SUBTITLE,
+  IDENTITY_PROVIDERS_PAGE_INTRO,
   IDENTITY_PROVIDERS_PAGE_SUBTITLE,
   IDENTITY_PROVIDERS_SAML_PAGE_INTRO,
   IDENTITY_PROVIDERS_SAML_PAGE_SUBTITLE,
@@ -20,5 +23,13 @@ describe("identity-providers-settings-copy", () => {
   it("uses a distinct SAML shell subtitle instead of repeating the legacy page intro (TB-1923)", () => {
     expect(IDENTITY_PROVIDERS_SAML_PAGE_SUBTITLE).not.toBe(IDENTITY_PROVIDERS_SAML_PAGE_INTRO);
     expect(IDENTITY_PROVIDERS_SAML_PAGE_SUBTITLE.toLowerCase()).not.toContain("configure saml");
+  });
+
+  it("uses a distinct diagnostics shell subtitle instead of configure workspace intro (TB-1906)", () => {
+    expect(IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_SUBTITLE).not.toBe(IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_INTRO);
+    expect(IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_SUBTITLE).not.toBe(IDENTITY_PROVIDERS_PAGE_SUBTITLE);
+    expect(IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_SUBTITLE).not.toBe(IDENTITY_PROVIDERS_PAGE_INTRO);
+    expect(IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_SUBTITLE.toLowerCase()).not.toContain("configure workspace");
+    expect(IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_SUBTITLE.toLowerCase()).not.toContain("configure sign-in");
   });
 });

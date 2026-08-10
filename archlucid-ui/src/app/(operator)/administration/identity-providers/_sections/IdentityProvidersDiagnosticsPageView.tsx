@@ -5,7 +5,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
 import {
-  IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_INTRO,
+  IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_SUBTITLE,
   IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_TITLE,
   IDENTITY_PROVIDERS_DIAGNOSTICS_TECHNICAL_DESCRIPTION,
   IDENTITY_PROVIDERS_DIAGNOSTICS_TECHNICAL_TITLE,
@@ -35,20 +35,11 @@ export function IdentityProvidersDiagnosticsPageView(
   return (
     <IdentityProvidersSettingsShell
       pageTitle={IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_TITLE}
-      pageIntro={IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_INTRO}
+      pageSubtitle={IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_SUBTITLE}
       refreshing={props.model.refreshing}
       lastRefreshedAt={props.model.lastRefreshedAt}
       onRefresh={() => void props.model.refresh()}
     >
-<Card data-testid="identity-providers-diagnostics-intro">
-        <CardContent className={cn("py-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          <p className="m-0">
-            Use diagnostics to validate identity configuration, review health probes, and run support tooling before
-            enabling SSO for all users.
-          </p>
-        </CardContent>
-      </Card>
-
       {props.model.identityProviderDiagnosticsLoaded ? (
         <IdentityProviderHealthStrip
           payload={props.model.identityProviderDiagnostics}
