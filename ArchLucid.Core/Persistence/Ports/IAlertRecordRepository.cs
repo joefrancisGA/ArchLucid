@@ -62,6 +62,21 @@ public interface IAlertRecordRepository
         CancellationToken ct = default);
 
     /// <summary>
+    ///     Keyset listing ordered by <c>CreatedUtc DESC, AlertId DESC</c>. When both cursor values are set, returns rows
+    ///     strictly after that position; fetches <paramref name="take" />+1 to set <c>HasMore</c>.
+    /// </summary>
+    Task<(IReadOnlyList<AlertRecord> Items, bool HasMore)> ListByScopeKeysetAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        string? status,
+        DateTime? cursorCreatedUtc,
+        Guid? cursorAlertId,
+        int take,
+        bool includeArchived = false,
+        CancellationToken ct = default);
+
+    /// <summary>
     ///     Inbox summary card aggregates for the scope (status counts + blocking + last evaluation), excluding archived.
     /// </summary>
     Task<AlertsInboxSummaryDto> GetInboxSummaryByScopeAsync(

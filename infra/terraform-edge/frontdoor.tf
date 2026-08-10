@@ -1,4 +1,6 @@
 # Profile: top-level Front Door Standard/Premium container in Azure (one per environment).
+# HTTP/3 (QUIC): Azure Front Door enables HTTP/3 by platform default for Standard/Premium.
+# azurerm_cdn_frontdoor_profile has no http3 / enable_http3 argument — do not invent an IaC toggle.
 resource "azurerm_cdn_frontdoor_profile" "main" {
   count = local.fd_enabled ? 1 : 0
 

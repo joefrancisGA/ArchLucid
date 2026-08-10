@@ -152,6 +152,11 @@ export async function askArchLucidStream(
   await consumeSseStream(
     response.body,
     (eventName, data) => {
+      if (eventName === "ack") {
+        // Early stream open — ignore; tokens follow after server context prepare.
+        return;
+      }
+
       if (eventName === "token") {
         try {
           const parsed = JSON.parse(data) as { text?: string };

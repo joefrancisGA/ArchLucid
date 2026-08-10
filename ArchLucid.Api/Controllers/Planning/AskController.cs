@@ -105,6 +105,13 @@ public sealed class AskController(
 
         try
         {
+            // Early ack so clients leave the pre-stream hold before PrepareAskContextAsync work.
+            await SseEventWriter.WriteAsync(
+                Response.Body,
+                "ack",
+                JsonSerializer.Serialize(new { status = "started" }, StreamSerializerOptions),
+                ct);
+
             ScopeContext scope = scopeProvider.GetCurrentScope();
 
             AskResponse result = await ask.AskStreamAsync(

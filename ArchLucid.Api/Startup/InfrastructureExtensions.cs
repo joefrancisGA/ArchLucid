@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.IO.Compression;
 using System.Security.Claims;
 using System.Threading.RateLimiting;
 
@@ -13,6 +14,7 @@ using ArchLucid.Host.Core.Startup;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 
@@ -361,10 +363,21 @@ internal static class InfrastructureExtensions
     /// <summary>Enables Brotli/Gzip for HTTPS responses (default MIME types include JSON).</summary>
     public static IServiceCollection AddArchLucidResponseCompression(this IServiceCollection services)
     {
+        services.Configure<BrotliCompressionProviderOptions>(options =>
+        {
+            options.Level = CompressionLevel.Fastest;
+        });
+        services.Configure<GzipCompressionProviderOptions>(options =>
+        {
+            options.Level = CompressionLevel.Fastest;
+        });
         services.AddResponseCompression(options =>
         {
             options.EnableForHttps = true;
+            options.Providers.Add<BrotliCompressionProvider>();
+            options.Providers.Add<GzipCompressionProvider>();
         });
+
         return services;
     }
 

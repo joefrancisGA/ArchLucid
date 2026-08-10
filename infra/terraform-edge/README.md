@@ -5,6 +5,7 @@ Optional Terraform root for a **public edge** in front of your API or **API Mana
 ## What customers get
 
 - **WAF policy** in **Prevention** mode with **custom rules only** on **Standard** SKU (**TB-903** — managed rule sets require Premium and are not applied here).
+- **HTTP/3** at the edge — Azure Front Door **Standard/Premium** enables HTTP/3 by **platform default**. The `azurerm` provider exposes **no** `http3` / `enable_http3` flag on `azurerm_cdn_frontdoor_profile`; confirm in the Azure portal / metrics if a subscription policy disables it. Do not invent a Terraform attribute.
 - **HTTPS** at the edge with redirect; origin traffic uses the hostname you configure.
 - **Primary origin** — point `backend_hostname` at **APIM** (`*.azure-api.net`) or a direct **App Service** hostname.
 - **Optional secondary origin** — set `secondary_backend_hostname` (and optional `secondary_origin_host_header`) for a passive standby in another region; Front Door uses priority/weight (1/1000 vs 2/500) and health probes for failover.

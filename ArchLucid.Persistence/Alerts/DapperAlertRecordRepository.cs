@@ -244,6 +244,77 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
     }
 
     /// <inheritdoc />
+    public async Task<(IReadOnlyList<AlertRecord> Items, bool HasMore)> ListByScopeKeysetAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        string? status,
+        DateTime? cursorCreatedUtc,
+        Guid? cursorAlertId,
+        int take,
+        bool includeArchived = false,
+        CancellationToken ct = default)
+    {
+        ValidateAlertKeysetCursor(cursorCreatedUtc, cursorAlertId);
+
+        int safeTake = Math.Clamp(take, 1, PaginationDefaults.MaxPageSize);
+        int fetch = safeTake + 1;
+
+        const string sql = $"""
+            SELECT {SelectColumns}
+            FROM dbo.AlertRecords
+            WHERE TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId
+              AND (@Status IS NULL OR Status = @Status)
+              AND (@IncludeArchived = 1 OR IsArchived = 0)
+              AND (
+                    (@CursorAlertId IS NULL AND @CursorCreatedUtc IS NULL)
+                    OR (
+                        AlertId <> @CursorAlertId
+                        AND (
+                            CreatedUtc < @CursorCreatedUtc
+                            OR (CreatedUtc = @CursorCreatedUtc AND AlertId < @CursorAlertId)
+                        )
+                    )
+                  )
+            ORDER BY CreatedUtc DESC, AlertId DESC
+            OFFSET 0 ROWS FETCH NEXT @Fetch ROWS ONLY;
+            """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<AlertRecord> rowsEnumerable = await connection.QueryAsync<AlertRecord>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
+                    Status = status,
+                    CursorCreatedUtc = cursorCreatedUtc,
+                    CursorAlertId = cursorAlertId,
+                    Fetch = fetch,
+                    IncludeArchived = includeArchived ? 1 : 0,
+                },
+                cancellationToken: ct));
+
+        List<AlertRecord> rows = rowsEnumerable.ToList();
+        bool hasMore = rows.Count > safeTake;
+
+        if (hasMore)
+            rows.RemoveAt(rows.Count - 1);
+
+        return (rows, hasMore);
+    }
+
+    private static void ValidateAlertKeysetCursor(DateTime? cursorCreatedUtc, Guid? cursorAlertId)
+    {
+        if (cursorCreatedUtc.HasValue != cursorAlertId.HasValue)
+            throw new ArgumentException("cursorCreatedUtc and cursorAlertId must both be null or both be set.");
+    }
+
+    /// <inheritdoc />
     public async Task<AlertsInboxSummaryDto> GetInboxSummaryByScopeAsync(
         Guid tenantId,
         Guid workspaceId,

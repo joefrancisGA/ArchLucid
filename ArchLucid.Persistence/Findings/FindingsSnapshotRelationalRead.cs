@@ -318,16 +318,18 @@ internal static class FindingsSnapshotRelationalRead
                            ORDER BY SliceKind, FindingRecordId, SortOrder;
                            """;
 
-        List<FindingChildSliceRow> rows = (await connection.QueryAsync<FindingChildSliceRow>(
+        // Unbuffered: fold rows as they arrive so fat child pages do not materialize a second List.
+        IEnumerable<FindingChildSliceRow> rows = await connection.QueryAsync<FindingChildSliceRow>(
             new CommandDefinition(
                 sql,
                 new { Ids = recordIds },
-                cancellationToken: ct))).ToList();
+                flags: CommandFlags.None,
+                cancellationToken: ct));
 
         return FoldChildRelationalSlices(rows);
     }
 
-    private static ChildRelationalSlices FoldChildRelationalSlices(IReadOnlyList<FindingChildSliceRow> rows)
+    private static ChildRelationalSlices FoldChildRelationalSlices(IEnumerable<FindingChildSliceRow> rows)
     {
         Dictionary<Guid, List<string>> related = new();
         Dictionary<Guid, List<string>> actions = new();

@@ -1,3 +1,5 @@
+using System.Buffers;
+
 using MessagePack;
 using MessagePack.Resolvers;
 
@@ -24,13 +26,24 @@ public static class GraphSnapshotMessagePackSerialization
         if (bytes.Length == 0)
             return null;
 
+        // Rent a buffer so we can pass ReadOnlyMemory without a lasting ToArray allocation.
+        byte[] rented = ArrayPool<byte>.Shared.Rent(bytes.Length);
+
         try
         {
-            return MessagePackSerializer.Deserialize<GraphSnapshot>(bytes.ToArray(), SerializerOptions);
+            bytes.CopyTo(rented);
+
+            return MessagePackSerializer.Deserialize<GraphSnapshot>(
+                rented.AsMemory(0, bytes.Length),
+                SerializerOptions);
         }
         catch (MessagePackSerializationException)
         {
             return null;
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(rented);
         }
     }
 }

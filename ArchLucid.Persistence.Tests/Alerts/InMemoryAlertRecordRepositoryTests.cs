@@ -226,6 +226,73 @@ public sealed class InMemoryAlertRecordRepositoryTests
     }
 
     [SkippableFact]
+    public async Task ListByScopeKeysetAsync_pages_newest_first_and_sets_HasMore()
+    {
+        InMemoryAlertRecordRepository repo = new();
+
+        Guid idA = Guid.Parse("33000000-0000-0000-0000-00000000000a");
+        Guid idB = Guid.Parse("33000000-0000-0000-0000-00000000000b");
+        Guid idC = Guid.Parse("33000000-0000-0000-0000-00000000000c");
+        Guid idD = Guid.Parse("33000000-0000-0000-0000-00000000000d");
+
+        // Same CreatedUtc for B/C so AlertId DESC is the tie-break.
+        DateTime sharedUtc = BaseUtc.AddHours(1);
+
+        await repo.CreateAsync(BuildAlert(idA, AlertStatus.Open, BaseUtc, "a"), CancellationToken.None);
+        await repo.CreateAsync(BuildAlert(idB, AlertStatus.Open, sharedUtc, "b"), CancellationToken.None);
+        await repo.CreateAsync(BuildAlert(idC, AlertStatus.Open, sharedUtc, "c"), CancellationToken.None);
+        await repo.CreateAsync(BuildAlert(idD, AlertStatus.Open, BaseUtc.AddHours(2), "d"), CancellationToken.None);
+
+        (IReadOnlyList<AlertRecord> firstPage, bool firstHasMore) = await repo.ListByScopeKeysetAsync(
+            TenantId,
+            WorkspaceId,
+            ProjectId,
+            null,
+            null,
+            null,
+            2,
+            ct: CancellationToken.None);
+
+        firstHasMore.Should().BeTrue();
+        firstPage.Should().HaveCount(2);
+        firstPage[0].AlertId.Should().Be(idD);
+        firstPage[1].AlertId.Should().Be(idC);
+
+        (IReadOnlyList<AlertRecord> secondPage, bool secondHasMore) = await repo.ListByScopeKeysetAsync(
+            TenantId,
+            WorkspaceId,
+            ProjectId,
+            null,
+            firstPage[^1].CreatedUtc,
+            firstPage[^1].AlertId,
+            2,
+            ct: CancellationToken.None);
+
+        secondHasMore.Should().BeFalse();
+        secondPage.Should().HaveCount(2);
+        secondPage[0].AlertId.Should().Be(idB);
+        secondPage[1].AlertId.Should().Be(idA);
+    }
+
+    [SkippableFact]
+    public async Task ListByScopeKeysetAsync_throws_when_cursor_halves_are_mismatched()
+    {
+        InMemoryAlertRecordRepository repo = new();
+
+        Func<Task> act = async () => await repo.ListByScopeKeysetAsync(
+            TenantId,
+            WorkspaceId,
+            ProjectId,
+            null,
+            BaseUtc,
+            null,
+            10,
+            ct: CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>();
+    }
+
+    [SkippableFact]
     public async Task GetInboxSummaryByScopeAsync_aggregates_status_blocking_and_last_evaluated()
     {
         InMemoryAlertRecordRepository repo = new();

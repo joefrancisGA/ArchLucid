@@ -72,10 +72,16 @@ public sealed class AlertsController(
     /// <param name="take">Max rows (capped by repository). Used when <paramref name="page" /> is not set.</param>
     /// <param name="page">One-based page number. When provided, the response is a <see cref="PagedResponse{T}" />.</param>
     /// <param name="pageSize">Items per page (clamped 1–200; default 50). Only used when <paramref name="page" /> is set.</param>
+    /// <param name="cursor">
+    ///     Opaque keyset token (<c>utcTicks:alertId</c>). When present (including empty for the first page), the response is
+    ///     a <see cref="CursorPagedResponse{T}" />; otherwise OFFSET <paramref name="page" /> / total is used.
+    /// </param>
     /// <param name="ct">Cancellation token.</param>
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<AlertRecord>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(PagedResponse<AlertRecord>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(CursorPagedResponse<AlertRecord>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> List(
@@ -84,9 +90,54 @@ public sealed class AlertsController(
         [FromQuery] int? page = null,
         [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
         [FromQuery] bool includeArchived = false,
+        [FromQuery] string? cursor = null,
         CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        if (Request.Query.ContainsKey("cursor"))
+        {
+            if (!ApiPaging.TryParseUtcTicksIdCursor(cursor, out DateTime? cursorCreatedUtc, out string? cursorId,
+                    out string? cursorError))
+                return this.BadRequestProblem(cursorError!, ProblemTypes.ValidationFailed);
+
+            Guid? cursorAlertId = null;
+
+            if (!string.IsNullOrWhiteSpace(cursorId))
+            {
+                if (!Guid.TryParse(cursorId, out Guid parsedAlertId))
+                    return this.BadRequestProblem(
+                        "cursor alert id must be a GUID.",
+                        ProblemTypes.ValidationFailed);
+
+                cursorAlertId = parsedAlertId;
+            }
+
+            int safeTake = Math.Clamp(take, 1, PaginationDefaults.MaxPageSize);
+            (IReadOnlyList<AlertRecord> keysetItems, bool hasMore) = await alertRepository.ListByScopeKeysetAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                status,
+                cursorCreatedUtc,
+                cursorAlertId,
+                safeTake,
+                includeArchived,
+                ct);
+
+            string? nextCursor = hasMore && keysetItems.Count > 0
+                ? $"{keysetItems[^1].CreatedUtc.Ticks}:{keysetItems[^1].AlertId}"
+                : null;
+
+            return Ok(
+                new CursorPagedResponse<AlertRecord>
+                {
+                    Items = keysetItems,
+                    NextCursor = nextCursor,
+                    HasMore = hasMore,
+                    RequestedTake = safeTake,
+                });
+        }
 
         if (page.HasValue)
         {

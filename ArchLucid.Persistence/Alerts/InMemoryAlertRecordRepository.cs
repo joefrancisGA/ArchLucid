@@ -149,6 +149,67 @@ public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
     }
 
     /// <inheritdoc />
+    public Task<(IReadOnlyList<AlertRecord> Items, bool HasMore)> ListByScopeKeysetAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        string? status,
+        DateTime? cursorCreatedUtc,
+        Guid? cursorAlertId,
+        int take,
+        bool includeArchived = false,
+        CancellationToken ct = default)
+    {
+        ct.ThrowIfCancellationRequested();
+        ValidateAlertKeysetCursor(cursorCreatedUtc, cursorAlertId);
+
+        int safeTake = Math.Clamp(take, 1, PaginationDefaults.MaxPageSize);
+        int fetch = safeTake + 1;
+
+        lock (_gate)
+        {
+            IEnumerable<AlertRecord> q = _items.Where(x =>
+                x.TenantId == tenantId && x.WorkspaceId == workspaceId && x.ProjectId == projectId);
+
+            if (!includeArchived)
+                q = q.Where(x => !x.IsArchived);
+
+            if (!string.IsNullOrWhiteSpace(status))
+                q = q.Where(x => string.Equals(x.Status, status, StringComparison.OrdinalIgnoreCase));
+
+            if (cursorAlertId.HasValue)
+            {
+                DateTime cursorUtc = cursorCreatedUtc!.Value;
+                Guid cursorId = cursorAlertId.Value;
+
+                q = q.Where(x =>
+                    x.AlertId != cursorId
+                    && (x.CreatedUtc < cursorUtc
+                        || (x.CreatedUtc == cursorUtc && x.AlertId.CompareTo(cursorId) < 0)));
+            }
+
+            List<AlertRecord> rows = q
+                .OrderByDescending(x => x.CreatedUtc)
+                .ThenByDescending(x => x.AlertId)
+                .Take(fetch)
+                .ToList();
+
+            bool hasMore = rows.Count > safeTake;
+
+            if (hasMore)
+                rows.RemoveAt(rows.Count - 1);
+
+            return Task.FromResult<(IReadOnlyList<AlertRecord>, bool)>((rows, hasMore));
+        }
+    }
+
+    private static void ValidateAlertKeysetCursor(DateTime? cursorCreatedUtc, Guid? cursorAlertId)
+    {
+        if (cursorCreatedUtc.HasValue != cursorAlertId.HasValue)
+            throw new ArgumentException("cursorCreatedUtc and cursorAlertId must both be null or both be set.");
+    }
+
+    /// <inheritdoc />
     public Task<AlertsInboxSummaryDto> GetInboxSummaryByScopeAsync(
         Guid tenantId,
         Guid workspaceId,

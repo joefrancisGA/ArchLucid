@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Buffers;
+using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 
 using ArchLucid.Contracts.Persistence.Graph;
@@ -38,7 +39,14 @@ public static class GraphJsonSerialization
     {
         ArgumentNullException.ThrowIfNull(snapshot);
 
-        return JsonSerializer.SerializeToUtf8Bytes(snapshot, SnapshotProjectionOptions);
+        // ArrayBufferWriter grows via ArrayPool-backed segments; final ToArray is the owned cache payload.
+        ArrayBufferWriter<byte> buffer = new(1024);
+        using (Utf8JsonWriter writer = new(buffer))
+        {
+            JsonSerializer.Serialize(writer, snapshot, SnapshotProjectionOptions);
+        }
+
+        return buffer.WrittenSpan.ToArray();
     }
 
     public static GraphSnapshot? DeserializeSnapshot(ReadOnlySpan<byte> utf8Json)

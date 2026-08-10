@@ -16,7 +16,10 @@ variable "service_name" {
 
 variable "sku" {
   type        = string
-  description = "Search SKU (owner default S0 / standard)."
+  # Module default standard for create-mode labs. Hosted prod tfvars often override to "basic"
+  # (see infra/terraform/prod/variables.tf + docs/library/AI_SEARCH_SKU_GUIDANCE.md).
+  # HNSW knobs live on the Search index JSON, not this service SKU.
+  description = "Azure AI Search SKU (basic|standard|…). Prod cost default is often basic; raise to standard under load."
   default     = "standard"
 }
 

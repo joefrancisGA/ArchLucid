@@ -1,48 +1,15 @@
 import type { Metadata } from "next";
+import dynamic from "next/dynamic";
 import { headers } from "next/headers";
 import { notFound, permanentRedirect } from "next/navigation";
 
 import { HelpTopicMarkdownView } from "../HelpTopicMarkdownView";
 import { CaiqSigResponseHelpEvidenceOrientationStrip } from "@/components/help/CaiqSigResponseHelpEvidenceOrientationStrip";
 import { EnterpriseOnboardingHelpEvidenceOrientationStrip } from "@/components/help/EnterpriseOnboardingHelpEvidenceOrientationStrip";
-import { HelpAcceleratorChooserGuideView } from "../_sections/HelpAcceleratorChooserGuideView";
-import { HelpAlertsGuideView } from "../_sections/HelpAlertsGuideView";
-import { HelpDigestsGuideView } from "../_sections/HelpDigestsGuideView";
-import { HelpAdminDiagnosticsGuideView } from "../_sections/HelpAdminDiagnosticsGuideView";
-import { HelpApiContractsGuideView } from "../_sections/HelpApiContractsGuideView";
-import { HelpBillingAndPlansGuideView } from "../_sections/HelpBillingAndPlansGuideView";
-import { HelpExecutiveSummaryGuideView } from "../_sections/HelpExecutiveSummaryGuideView";
-import { HelpFindingsGuideView } from "../_sections/HelpFindingsGuideView";
-import { HelpGlossaryPageView } from "../_sections/HelpGlossaryPageView";
-import { HelpUsersAndRolesGuideView } from "../_sections/HelpUsersAndRolesGuideView";
-import { HelpCliUsageTechnicalReferenceView } from "../_sections/HelpCliUsageTechnicalReferenceView";
-import { HelpGovernanceApprovalGuideView } from "../_sections/HelpGovernanceApprovalGuideView";
-import { HelpAzurePermissionsGuideView } from "../_sections/HelpAzurePermissionsGuideView";
-import { HelpAuditTrailGuideView } from "../_sections/HelpAuditTrailGuideView";
-import { HelpReviewPackagesGuideView } from "../_sections/HelpReviewPackagesGuideView";
-import { HelpReviewGuideView } from "../_sections/HelpReviewGuideView";
-import { HelpPilotGuideView } from "../_sections/HelpPilotGuideView";
-import { HelpConfigurationReferenceGuideView } from "../_sections/HelpConfigurationReferenceGuideView";
-import { HelpDataHandlingTenantIsolationGuideView } from "../_sections/HelpDataHandlingTenantIsolationGuideView";
-import { HelpDpaTemplateGuideView } from "../_sections/HelpDpaTemplateGuideView";
-import { HelpSoc2SelfAssessmentGuideView } from "../_sections/HelpSoc2SelfAssessmentGuideView";
-import { HelpEngineeringTroubleshootingGuideView } from "../_sections/HelpEngineeringTroubleshootingGuideView";
-import { HelpFirstReviewEvidenceChecklistGuideView } from "../_sections/HelpFirstReviewEvidenceChecklistGuideView";
-import { HelpFirstValue20GuideView } from "../_sections/HelpFirstValue20GuideView";
-import { HelpPolicyPackDeltaDemoGuideView } from "../_sections/HelpPolicyPackDeltaDemoGuideView";
-import { HelpConnectAzureSecurelyGuideView } from "../_sections/HelpConnectAzureSecurelyGuideView";
-import { HelpConnectGcpSecurelyGuideView } from "../_sections/HelpConnectGcpSecurelyGuideView";
-import { HelpCorePilotGuideView } from "../_sections/HelpCorePilotGuideView";
-import { HelpComparisonReplayGuideView } from "../_sections/HelpComparisonReplayGuideView";
-import { HelpRepeatReviewLoopGuideView } from "../_sections/HelpRepeatReviewLoopGuideView";
-import { HelpSpecialtyWalkthroughTemplatesView } from "../_sections/HelpSpecialtyWalkthroughTemplatesView";
-import { HelpGettingStartedGuideView } from "../_sections/HelpGettingStartedGuideView";
-import { HelpCloudConnectionsGuideView } from "../_sections/HelpCloudConnectionsGuideView";
-import { HelpAzureBoardsGuideView } from "../_sections/HelpAzureBoardsGuideView";
+import { AuthenticationSignInHelpEvidenceOrientationStrip } from "@/components/help/AuthenticationSignInHelpEvidenceOrientationStrip";
 import { HelpTopicAuthorityGate } from "../_sections/HelpTopicAuthorityGate";
 import { HelpTopicMarkdownClient } from "../_sections/HelpTopicMarkdownClient";
 import { HelpTopicNotFoundView } from "../_sections/HelpTopicNotFoundView";
-import { HelpTroubleshootingGuideView } from "../_sections/HelpTroubleshootingGuideView";
 import { principalCanAccessHelpTopic } from "@/lib/product-documentation-access";
 import { BILLING_AND_PLANS_HELP_ROUTE_METADATA } from "@/lib/billing-and-plans-help-route-metadata";
 import { EXECUTIVE_SUMMARY_HELP_ROUTE_METADATA } from "@/lib/executive-summary-help-route-metadata";
@@ -68,7 +35,125 @@ import { getInboundAuthenticatedServerPrincipal } from "@/lib/server-current-pri
 import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-redirects";
 import { resolveInternalRunbookHelpRouteMetadata } from "@/lib/resolve-internal-runbook-help-route-metadata";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
+
+const HelpAcceleratorChooserGuideView = dynamic(() =>
+  import("../_sections/HelpAcceleratorChooserGuideView").then((module) => module.HelpAcceleratorChooserGuideView),
+);
+const HelpAlertsGuideView = dynamic(() =>
+  import("../_sections/HelpAlertsGuideView").then((module) => module.HelpAlertsGuideView),
+);
+const HelpDigestsGuideView = dynamic(() =>
+  import("../_sections/HelpDigestsGuideView").then((module) => module.HelpDigestsGuideView),
+);
+const HelpAdminDiagnosticsGuideView = dynamic(() =>
+  import("../_sections/HelpAdminDiagnosticsGuideView").then((module) => module.HelpAdminDiagnosticsGuideView),
+);
+const HelpApiContractsGuideView = dynamic(() =>
+  import("../_sections/HelpApiContractsGuideView").then((module) => module.HelpApiContractsGuideView),
+);
+const HelpBillingAndPlansGuideView = dynamic(() =>
+  import("../_sections/HelpBillingAndPlansGuideView").then((module) => module.HelpBillingAndPlansGuideView),
+);
+const HelpExecutiveSummaryGuideView = dynamic(() =>
+  import("../_sections/HelpExecutiveSummaryGuideView").then((module) => module.HelpExecutiveSummaryGuideView),
+);
+const HelpFindingsGuideView = dynamic(() =>
+  import("../_sections/HelpFindingsGuideView").then((module) => module.HelpFindingsGuideView),
+);
+const HelpGlossaryPageView = dynamic(() =>
+  import("../_sections/HelpGlossaryPageView").then((module) => module.HelpGlossaryPageView),
+);
+const HelpUsersAndRolesGuideView = dynamic(() =>
+  import("../_sections/HelpUsersAndRolesGuideView").then((module) => module.HelpUsersAndRolesGuideView),
+);
+const HelpCliUsageTechnicalReferenceView = dynamic(() =>
+  import("../_sections/HelpCliUsageTechnicalReferenceView").then(
+    (module) => module.HelpCliUsageTechnicalReferenceView,
+  ),
+);
+const HelpGovernanceApprovalGuideView = dynamic(() =>
+  import("../_sections/HelpGovernanceApprovalGuideView").then((module) => module.HelpGovernanceApprovalGuideView),
+);
+const HelpAzurePermissionsGuideView = dynamic(() =>
+  import("../_sections/HelpAzurePermissionsGuideView").then((module) => module.HelpAzurePermissionsGuideView),
+);
+const HelpAuditTrailGuideView = dynamic(() =>
+  import("../_sections/HelpAuditTrailGuideView").then((module) => module.HelpAuditTrailGuideView),
+);
+const HelpReviewPackagesGuideView = dynamic(() =>
+  import("../_sections/HelpReviewPackagesGuideView").then((module) => module.HelpReviewPackagesGuideView),
+);
+const HelpReviewGuideView = dynamic(() =>
+  import("../_sections/HelpReviewGuideView").then((module) => module.HelpReviewGuideView),
+);
+const HelpPilotGuideView = dynamic(() =>
+  import("../_sections/HelpPilotGuideView").then((module) => module.HelpPilotGuideView),
+);
+const HelpConfigurationReferenceGuideView = dynamic(() =>
+  import("../_sections/HelpConfigurationReferenceGuideView").then(
+    (module) => module.HelpConfigurationReferenceGuideView,
+  ),
+);
+const HelpDataHandlingTenantIsolationGuideView = dynamic(() =>
+  import("../_sections/HelpDataHandlingTenantIsolationGuideView").then(
+    (module) => module.HelpDataHandlingTenantIsolationGuideView,
+  ),
+);
+const HelpDpaTemplateGuideView = dynamic(() =>
+  import("../_sections/HelpDpaTemplateGuideView").then((module) => module.HelpDpaTemplateGuideView),
+);
+const HelpSoc2SelfAssessmentGuideView = dynamic(() =>
+  import("../_sections/HelpSoc2SelfAssessmentGuideView").then((module) => module.HelpSoc2SelfAssessmentGuideView),
+);
+const HelpEngineeringTroubleshootingGuideView = dynamic(() =>
+  import("../_sections/HelpEngineeringTroubleshootingGuideView").then(
+    (module) => module.HelpEngineeringTroubleshootingGuideView,
+  ),
+);
+const HelpFirstReviewEvidenceChecklistGuideView = dynamic(() =>
+  import("../_sections/HelpFirstReviewEvidenceChecklistGuideView").then(
+    (module) => module.HelpFirstReviewEvidenceChecklistGuideView,
+  ),
+);
+const HelpFirstValue20GuideView = dynamic(() =>
+  import("../_sections/HelpFirstValue20GuideView").then((module) => module.HelpFirstValue20GuideView),
+);
+const HelpPolicyPackDeltaDemoGuideView = dynamic(() =>
+  import("../_sections/HelpPolicyPackDeltaDemoGuideView").then((module) => module.HelpPolicyPackDeltaDemoGuideView),
+);
+const HelpConnectAzureSecurelyGuideView = dynamic(() =>
+  import("../_sections/HelpConnectAzureSecurelyGuideView").then((module) => module.HelpConnectAzureSecurelyGuideView),
+);
+const HelpConnectGcpSecurelyGuideView = dynamic(() =>
+  import("../_sections/HelpConnectGcpSecurelyGuideView").then((module) => module.HelpConnectGcpSecurelyGuideView),
+);
+const HelpCorePilotGuideView = dynamic(() =>
+  import("../_sections/HelpCorePilotGuideView").then((module) => module.HelpCorePilotGuideView),
+);
+const HelpComparisonReplayGuideView = dynamic(() =>
+  import("../_sections/HelpComparisonReplayGuideView").then((module) => module.HelpComparisonReplayGuideView),
+);
+const HelpRepeatReviewLoopGuideView = dynamic(() =>
+  import("../_sections/HelpRepeatReviewLoopGuideView").then((module) => module.HelpRepeatReviewLoopGuideView),
+);
+const HelpSpecialtyWalkthroughTemplatesView = dynamic(() =>
+  import("../_sections/HelpSpecialtyWalkthroughTemplatesView").then(
+    (module) => module.HelpSpecialtyWalkthroughTemplatesView,
+  ),
+);
+const HelpGettingStartedGuideView = dynamic(() =>
+  import("../_sections/HelpGettingStartedGuideView").then((module) => module.HelpGettingStartedGuideView),
+);
+const HelpCloudConnectionsGuideView = dynamic(() =>
+  import("../_sections/HelpCloudConnectionsGuideView").then((module) => module.HelpCloudConnectionsGuideView),
+);
+const HelpAzureBoardsGuideView = dynamic(() =>
+  import("../_sections/HelpAzureBoardsGuideView").then((module) => module.HelpAzureBoardsGuideView),
+);
+const HelpTroubleshootingGuideView = dynamic(() =>
+  import("../_sections/HelpTroubleshootingGuideView").then((module) => module.HelpTroubleshootingGuideView),
+);
 
 type HelpTopicPageProps = {
   params: Promise<{ topic: string[] }>;
@@ -295,6 +380,7 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
+        evidenceOrientation={<AuthenticationSignInHelpEvidenceOrientationStrip />}
       />
     );
   }

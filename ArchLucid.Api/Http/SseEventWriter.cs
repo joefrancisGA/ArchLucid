@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Text;
 
 namespace ArchLucid.Api.Http;
@@ -24,12 +25,26 @@ public static class SseEventWriter
         sb.Append("data: ");
 
         foreach (string line in (data ?? string.Empty).Replace("\r\n", "\n").Replace('\r', '\n').Split('\n'))
-
+        {
             sb.Append(line).Append('\n');
+        }
 
         sb.Append('\n');
-        byte[] bytes = Encoding.UTF8.GetBytes(sb.ToString());
-        await body.WriteAsync(bytes, cancellationToken).ConfigureAwait(false);
-        await body.FlushAsync(cancellationToken).ConfigureAwait(false);
+
+        // Rent UTF-8 buffer for the frame write; avoid a lasting byte[] allocation per SSE event.
+        string frame = sb.ToString();
+        int byteCount = Encoding.UTF8.GetByteCount(frame);
+        byte[] rented = ArrayPool<byte>.Shared.Rent(byteCount);
+
+        try
+        {
+            int written = Encoding.UTF8.GetBytes(frame, 0, frame.Length, rented, 0);
+            await body.WriteAsync(rented.AsMemory(0, written), cancellationToken).ConfigureAwait(false);
+            await body.FlushAsync(cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(rented);
+        }
     }
 }

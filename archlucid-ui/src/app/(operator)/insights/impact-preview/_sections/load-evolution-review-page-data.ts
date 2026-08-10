@@ -20,12 +20,26 @@ export type EvolutionReviewLiveLoad = {
 
 export type EvolutionReviewPageServerLoad = EvolutionReviewDemoLoad | EvolutionReviewLiveLoad;
 
-/** Lists candidates and first-row simulation detail on the server in live mode (demo short-circuits). */
-export async function loadEvolutionReviewPageData(): Promise<EvolutionReviewPageServerLoad> {
+export type EvolutionReviewPageLoadOptions = {
+  /** When known (deep-link), list + detail fetch in parallel instead of list→detail waterfall. */
+  readonly candidateId?: string | null;
+};
+
+/** Lists candidates and first-row (or deep-linked) simulation detail on the server in live mode. */
+export async function loadEvolutionReviewPageData(
+  options?: EvolutionReviewPageLoadOptions,
+): Promise<EvolutionReviewPageServerLoad> {
   const isDemo = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
 
   if (isDemo) {
     return { mode: "demo" };
+  }
+
+  const preferredCandidateId = options?.candidateId?.trim() ?? "";
+
+  // Deep-link: both endpoints are independent — collapse the list→detail waterfall.
+  if (preferredCandidateId.length > 0) {
+    return loadEvolutionReviewWithKnownCandidate(preferredCandidateId);
   }
 
   try {
@@ -75,4 +89,39 @@ export async function loadEvolutionReviewPageData(): Promise<EvolutionReviewPage
       detailFailure: null,
     };
   }
+}
+
+async function loadEvolutionReviewWithKnownCandidate(
+  candidateId: string,
+): Promise<EvolutionReviewLiveLoad> {
+  const [listOutcome, detailOutcome] = await Promise.all([
+    fetchEvolutionCandidates(100)
+      .then((body) => ({ ok: true as const, body }))
+      .catch((e: unknown) => ({ ok: false as const, error: e })),
+    fetchEvolutionResults(candidateId)
+      .then((detail) => ({ ok: true as const, detail }))
+      .catch((e: unknown) => ({ ok: false as const, error: e })),
+  ]);
+
+  if (!listOutcome.ok) {
+    return {
+      mode: "live",
+      candidates: [],
+      selectedId: candidateId,
+      detail: detailOutcome.ok ? detailOutcome.detail : null,
+      listFailure: toApiLoadFailure(listOutcome.error),
+      detailFailure: detailOutcome.ok ? null : toApiLoadFailure(detailOutcome.error),
+    };
+  }
+
+  const rows = listOutcome.body.candidates ?? [];
+
+  return {
+    mode: "live",
+    candidates: rows,
+    selectedId: candidateId,
+    detail: detailOutcome.ok ? detailOutcome.detail : null,
+    listFailure: null,
+    detailFailure: detailOutcome.ok ? null : toApiLoadFailure(detailOutcome.error),
+  };
 }
