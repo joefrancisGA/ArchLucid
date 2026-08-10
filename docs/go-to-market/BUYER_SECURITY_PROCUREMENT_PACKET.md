@@ -2993,7 +2993,7 @@ Do not call TB-683 “live real-mode monitoring,” claim nightly eval catches A
 
 ### Residuals (honest)
 
-- **TB-1506** **Done** (2026-08-10) — engineering map [`../library/LIVE_VS_NIGHTLY_FINDING_QUALITY_TRIPWIRE_MAP.md`](../library/LIVE_VS_NIGHTLY_FINDING_QUALITY_TRIPWIRE_MAP.md). **TB-1507** owns language guards CI.
+- **TB-1506** **Done** (2026-08-10) — engineering map [`../library/LIVE_VS_NIGHTLY_FINDING_QUALITY_TRIPWIRE_MAP.md`](../library/LIVE_VS_NIGHTLY_FINDING_QUALITY_TRIPWIRE_MAP.md). **TB-1507** **Done** (2026-08-10) — language guards CI (`check_live_vs_nightly_tripwire_honesty.py`).
 - Optional canary + ModelVersion alert remain follow-ons; **TB-688** stays V2 cadence.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
 

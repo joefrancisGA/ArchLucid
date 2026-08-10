@@ -4,7 +4,7 @@
 
 **Audience:** Engineering, SRE, principal-architect diligence. Not a buyer brochure.
 
-**Status:** **Done** (**TB-1506**, 2026-08-10). GTM **M-275** / **M-276**. Pair honesty CI **TB-1507** / **M-275**.
+**Status:** **Done** (**TB-1506**, 2026-08-10). GTM **M-275** / **M-276**. Honesty CI **TB-1507** **Done** (2026-08-10) / **M-275**.
 
 **Buyer / PA one-pager:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#live-vs-nightly-finding-quality-tripwire-m-276`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#live-vs-nightly-finding-quality-tripwire-m-276) (GTM **M-276**).  
 **Claim honesty:** [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) (GTM **M-275**).
@@ -79,7 +79,7 @@ There is **no** first-class job: “every N hours, execute fixed canary architec
 | **TB-1228** / **M-209** | Scoring lane positioning |
 | **TB-1499** / **M-273** | Retirement vs repro claims |
 | **TB-688** | Per-tier model refresh cadence (**V2**) |
-| **TB-1507** / **M-275** | Honesty CI follow-on |
+| **TB-1507** / **M-275** | Honesty CI **Done** (2026-08-10) |
 
 ---
 
