@@ -4,10 +4,30 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { RunSummary } from "@/types/authority";
 
 const listArchitectureDraftRegistryEntries = vi.fn();
+const readOperatorScopeFromStorage = vi.fn();
 
-vi.mock("@/lib/architecture-draft-registry", () => ({
-  listArchitectureDraftRegistryEntries: () => listArchitectureDraftRegistryEntries(),
-}));
+vi.mock("@/lib/architecture-draft-registry", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/architecture-draft-registry")>();
+
+  return {
+    ...actual,
+    listArchitectureDraftRegistryEntries: () => listArchitectureDraftRegistryEntries(),
+    getArchitectureDraftRegistrySnapshot: () => listArchitectureDraftRegistryEntries(),
+    getArchitectureDraftRegistryServerSnapshot: () => [],
+    subscribeArchitectureDraftRegistry: () => () => undefined,
+  };
+});
+
+vi.mock("@/lib/operator-scope-storage", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/operator-scope-storage")>(
+    "@/lib/operator-scope-storage",
+  );
+
+  return {
+    ...actual,
+    readOperatorScopeFromStorage: () => readOperatorScopeFromStorage(),
+  };
+});
 
 vi.mock("next/link", () => ({
   default: ({
@@ -30,6 +50,8 @@ import { ReviewsHubReviewInventory } from "./ReviewsHubReviewInventory";
 beforeEach(() => {
   listArchitectureDraftRegistryEntries.mockReset();
   listArchitectureDraftRegistryEntries.mockReturnValue([]);
+  readOperatorScopeFromStorage.mockReset();
+  readOperatorScopeFromStorage.mockReturnValue(null);
 });
 
 describe("ReviewsHubReviewInventory", () => {
@@ -44,6 +66,24 @@ describe("ReviewsHubReviewInventory", () => {
     );
     expect(screen.getByRole("link", { name: "Explore the sample review" })).toBeInTheDocument();
     expect(screen.queryByTestId("reviews-hub-recent-empty-help-link")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("workspace-scope-empty-teaching")).not.toBeInTheDocument();
+  });
+
+  it("teaches workspace/project switcher when empty under a specific scope selection", () => {
+    readOperatorScopeFromStorage.mockReturnValue({
+      tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      workspaceId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      projectId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+      workspaceLabel: "Acme Workspace",
+      projectLabel: "Payments",
+    });
+
+    render(<ReviewsHubReviewInventory runs={[]} />);
+
+    expect(screen.getByTestId("workspace-scope-empty-teaching")).toBeInTheDocument();
+    expect(screen.getByText("No reviews in Payments")).toBeInTheDocument();
+    expect(screen.getByText("Switch workspace/project to see other work.")).toBeInTheDocument();
+    expect(screen.queryByTestId("reviews-hub-recent-empty")).not.toBeInTheDocument();
   });
 
   it("keeps rich empty CTAs when drafts exist", () => {

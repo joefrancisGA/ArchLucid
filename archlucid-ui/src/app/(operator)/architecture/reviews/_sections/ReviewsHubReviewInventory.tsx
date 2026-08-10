@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import type { CSSProperties } from "react";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { cn } from "@/lib/utils";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
 import { FilterChip } from "@/components/ui/filter-chip";
 import {
   EnterpriseTable,
@@ -24,7 +25,16 @@ import { showcaseSampleReviewPackageHref } from "@/lib/showcase-sample-review-re
 import { buyerFilterChipClass } from "@/lib/buyer-shell-home-present";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
+import {
+  ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT,
+  readOperatorScopeFromStorage,
+  type OperatorScopeRecord,
+} from "@/lib/operator-scope-storage";
 import { reviewPackageOwnerLabel } from "@/lib/review-package-validation-picker";
+import {
+  buildReviewsHubWorkspaceScopeEmptyTeaching,
+  shouldShowWorkspaceScopeEmptyTeaching,
+} from "@/lib/workspace-scope-empty-teaching";
 import type { RunSummary } from "@/types/authority";
 
 import {
@@ -52,6 +62,22 @@ import {
 type ReviewsHubReviewInventoryProps = {
   readonly runs: readonly RunSummary[];
 };
+
+function subscribeOperatorScopeRecord(onStoreChange: () => void): () => void {
+  if (typeof window === "undefined") {
+    return () => undefined;
+  }
+
+  window.addEventListener(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT, onStoreChange);
+
+  return () => {
+    window.removeEventListener(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT, onStoreChange);
+  };
+}
+
+function getServerOperatorScopeRecordSnapshot(): OperatorScopeRecord | null {
+  return null;
+}
 
 type ReviewFilterId =
   | "all"
@@ -251,28 +277,48 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
   });
 
   const sampleHref = showcaseSampleReviewPackageHref();
+  const scopeRecord = useSyncExternalStore(
+    subscribeOperatorScopeRecord,
+    readOperatorScopeFromStorage,
+    getServerOperatorScopeRecordSnapshot,
+  );
+  const showWorkspaceScopeTeaching = shouldShowWorkspaceScopeEmptyTeaching({
+    listEmpty: rows.length === 0,
+    scopeRecord,
+  });
+  const workspaceScopeTeaching = showWorkspaceScopeTeaching
+    ? buildReviewsHubWorkspaceScopeEmptyTeaching(scopeRecord)
+    : null;
 
   return (
     <section className="mt-8" data-testid="reviews-hub-recent-packages">
       {rows.length === 0 ? (
         <div data-has-architecture-drafts={hasDrafts ? "true" : "false"}>
-          <EnterpriseCompactEmptyState
-            testId="reviews-hub-recent-empty"
-            title={hasDrafts ? REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE : REVIEWS_HUB_RECENT_EMPTY_TITLE}
-            description={emptyInventoryDescription(draftCount)}
-            actions={[
-              {
-                label: REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL,
-                href: "/architecture/reviews/new",
-                variant: "primary",
-              },
-              {
-                label: REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL,
-                href: sampleHref,
-                variant: "outline",
-              },
-            ]}
-          />
+          {workspaceScopeTeaching !== null ? (
+            <WorkspaceScopeEmptyTeaching
+              title={workspaceScopeTeaching.title}
+              body={workspaceScopeTeaching.body}
+              ctaLabel={workspaceScopeTeaching.ctaLabel}
+            />
+          ) : (
+            <EnterpriseCompactEmptyState
+              testId="reviews-hub-recent-empty"
+              title={hasDrafts ? REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE : REVIEWS_HUB_RECENT_EMPTY_TITLE}
+              description={emptyInventoryDescription(draftCount)}
+              actions={[
+                {
+                  label: REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL,
+                  href: "/architecture/reviews/new",
+                  variant: "primary",
+                },
+                {
+                  label: REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL,
+                  href: sampleHref,
+                  variant: "outline",
+                },
+              ]}
+            />
+          )}
         </div>
       ) : (
         <>
