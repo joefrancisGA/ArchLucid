@@ -1507,6 +1507,56 @@ Do not say appsettings.json is deployment SoT, Terraform state is Container Apps
 
 **Related:** [TB-881 ship-blocker class (M-250)](#tb881-org-registration-race-ship-blocker-m-250) Â· [Container Apps Terraform authority (M-234)](#container-apps-terraform-authority-m-234) Â· [`../library/CONFIGURATION_REFERENCE.md#host-configuration-precedence-api`](../library/CONFIGURATION_REFERENCE.md#host-configuration-precedence-api) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
+## Mid-run authority revocation (M-283) {#mid-run-authority-revocation-m-283}
+
+Former standalone body: `docs/go-to-market/MID_RUN_AUTHORITY_REVOCATION_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-282** / **M-283** / **TB-1537**). Engineering map: [`../library/MID_RUN_AUTHORITY_REVOCATION_CLAIM_MAP.md`](../library/MID_RUN_AUTHORITY_REVOCATION_CLAIM_MAP.md). Complements open **TB-1523**/**M-277** (crash recovery) and **TB-1530**/**M-280** (ITSM/outbox delivery) without conflating delivery guarantees with actor revoke. Does not claim Entra CAE, token introspection, or cooperative in-flight cancel. Not an assurance attestation.
+
+**Path-stable alias:** [`MID_RUN_AUTHORITY_REVOCATION_PA_ONE_PAGER.md`](MID_RUN_AUTHORITY_REVOCATION_PA_ONE_PAGER.md).
+
+**Audience:** Principal architects, identity/IAM reviewers, and security reviewers evaluating role downgrade, API key revoke, SCIM deprovision, and background work timing.
+
+**Decision:** Authority for **new HTTP** stops at the **next** authz boundary (structural per request). **In-flight** sync execute/commit and **already-queued** Worker/outbox/ITSM/webhook work continue under **tenant scope**, not a live principal — eventual, not instant global stop.
+
+### Structural vs eventual (buyer summary)
+
+| Surface | When authority stops | Structural or eventual? |
+| --- | --- | --- |
+| New authenticated API calls (`execute`, `commit`, other `[Authorize]`) | Next request after policy sees downgrade | **Structural** (per-request) |
+| In-flight sync execute/commit (already inside action) | Does **not** stop mid-pipeline | **Eventual** (request completion) |
+| Worker outbox / retrieval / post-commit jobs | No initiator re-check; ambient tenant scope | **Eventual** (queue drain) |
+| ITSM create job already `202` enqueued | No principal re-check at worker | **Eventual** |
+| Integration outbox → Service Bus / webhooks already queued | Connector/HMAC identity, not architect | **Eventual** |
+| API key removed / expired in config | Next `X-Api-Key` authenticate after config reload | **Structural** after reload |
+| ArchLucid-issued JWT + AuthVersion rotate | Next Bearer validate fails | **Structural** |
+| Entra workforce JWT role downgrade | Until IdP issues new token / `exp` | **Eventual** |
+| SCIM `Active=false` only (no directory removal) | JWT roles largely unchanged | **Eventual** / weak |
+| UI `/me` proxy cache (~60s) + sessionStorage | Nav/UI lag only | **Eventual** (server still enforces) |
+
+### Claim boundary
+
+| Do not promise | Do promise |
+| --- | --- |
+| “Revoke instantly stops in-flight LLM execute” | Stops **new** HTTP; in-flight continues until request end |
+| “SCIM disable instantly kills Entra JWT roles” | `Active=false` alone does not; Entra roles until new token |
+| “Queued webhooks/ITSM re-check architect before delivery” | Tenant-scoped at-least-once delivery; no principal re-check |
+| “API keys stay valid for minutes after revoke” | Live config read — next request fail-closed after reload |
+| “AuthVersion covers Entra tokens” | AuthVersion applies to ArchLucid-issued JWT path only |
+
+### PA diligence prompts
+
+1. Ask which surfaces are **structural** (next HTTP / next key authenticate) vs **eventual** (in-flight + queued).
+2. Separate **actor revoke** from **ITSM/outbox delivery** and from **crash recovery** — do not sell one as the other.
+3. For compromised API keys, pair with [Paying-tenant spend storm (M-295)](#paying-tenant-llm-spend-storm-m-295): tenant headroom until key removed; not per-key spend isolation.
+
+### Residuals (honest)
+
+- **TB-1538** owns honesty CI for instant-global-revoke overclaims.
+- Open **TB-1523** / **TB-1530** own crash and ITSM delivery matrices — cite without conflating.
+- Optional product follow-ons: SCIM `active=false` vs `DirectoryRemovedUtc` gap, cooperative execute cancel — not claimed as shipped.
+- This handout does not claim CPA SOC 2 or a published third-party penetration test.
+
+**Related:** [`CRASH_RECOVERY_LONG_RUNNING_REVIEW_CLAIM_MAP.md`](../library/CRASH_RECOVERY_LONG_RUNNING_REVIEW_CLAIM_MAP.md) (**TB-1523** / **M-277**) Â· [`ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md`](../library/ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md) (**TB-1530** / **M-280**) Â· [Paying-tenant spend storm (M-295)](#paying-tenant-llm-spend-storm-m-295) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+
 ## Azure workload privilege-escalation seam (M-216) {#azure-workload-privilege-escalation-seam-m-216}
 
 Former standalone body: `docs/go-to-market/AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-215** / **M-216** / **TB-1244**). Contributor contract: [`AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md`](../library/AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md) (**TB-1244** **Done**). Complements [Container Apps Terraform authority (M-234)](#container-apps-terraform-authority-m-234) and [Tenant DiD erosion (M-214)](#tenant-did-erosion-beyond-predicates-m-214). Does not reopen Done **TB-080** / **TB-091** / **TB-092**. Not an assurance attestation.
@@ -3023,7 +3073,7 @@ Former standalone body: `docs/go-to-market/PAYING_TENANT_LLM_SPEND_STORM_PA_ONE_
 | Azure RG consumption budget (TF) | Resource group AOAI | **Email notify** | Does **not** hard-stop product LLM |
 | Quick Scan global USD reserve | Anonymous marketing | Fail-closed | **Different plane** |
 
-**Compromised API key:** Full tenant principal until removed from config (next request fail-closed after reload; requests already in progress may still complete — **M-282**). Can spend up to **tenant** quotas/budgets (and AOAI TPM). **Not** unbounded forever; **not** per-key spend isolation.
+**Compromised API key:** Full tenant principal until removed from config (next request fail-closed after reload; requests already in progress may still complete — [Mid-run authority revocation (M-283)](#mid-run-authority-revocation-m-283)). Can spend up to **tenant** quotas/budgets (and AOAI TPM). **Not** unbounded forever; **not** per-key spend isolation.
 
 ### Metering vs Azure OpenAI billing
 

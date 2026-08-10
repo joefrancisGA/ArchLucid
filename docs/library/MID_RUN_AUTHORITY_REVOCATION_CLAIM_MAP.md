@@ -4,7 +4,10 @@
 
 **Audience:** Engineering, security reviewers, principal-architect diligence. Not a buyer brochure.
 
-**Status:** Working contract for **TB-1537** / GTM **M-282**. Pair honesty CI **TB-1538** / **M-282**.
+**Status:** **Done** (**TB-1537**, 2026-08-10). GTM **M-282** / **M-283**. Pair honesty CI **TB-1538** / **M-282**.
+
+**Buyer / PA one-pager:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#mid-run-authority-revocation-m-283`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#mid-run-authority-revocation-m-283) (GTM **M-283**).  
+**Claim honesty:** [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) (GTM **M-282**).
 
 **Verdict (one line):** Authority for **new HTTP** calls stops at the next authz boundary; **in-flight** sync execute/commit and **already-queued** Worker/outbox/ITSM/webhook work continue under **tenant scope**, not a live principal — API keys fail closed on the **next request** after config reload (no validation cache); **Entra JWT roles ride until token expiry** (AuthVersion is ArchLucid-issued only); SCIM `Active=false` alone is **not** structural role strip.
 
@@ -53,16 +56,18 @@
 
 ---
 
-## 4. Related owners
+## 4. Related owners (do not conflate delivery with actor revoke)
 
 | ID | Role |
 |----|------|
 | INV-001 / ADR 0037 | Decide-once scope; jobs use ambient scope |
 | Open **TB-999** / **M-150** | Single-derivation honesty |
-| Open **TB-1523** / **M-277** | Mid-run crash (in-flight continues theme) |
-| Open **TB-1530** / **M-280** | ITSM delivery ≠ actor revoke |
+| Open **TB-1523** / **M-277** | Mid-run crash — in-flight sync continues until request end; see [`CRASH_RECOVERY_LONG_RUNNING_REVIEW_CLAIM_MAP.md`](CRASH_RECOVERY_LONG_RUNNING_REVIEW_CLAIM_MAP.md) |
+| Open **TB-1530** / **M-280** | ITSM/outbox delivery is tenant-scoped at-least-once — **no** principal re-check at worker; see [`ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md`](ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md) |
 | ADR 0059 | SPA Bearer / AuthVersion residual |
-| **TB-1537** / **M-282** | This revocation claim map |
+| Done **TB-1537** / **M-282** | This revocation claim map |
+| Open **TB-1538** / **M-282** | Honesty CI follow-on |
+| Done **TB-1570** / **M-294** | Compromised API key spend until revoke — [`PAYING_TENANT_LLM_SPEND_STORM_AND_BILLING_DISPUTE_CLAIM_MAP.md`](PAYING_TENANT_LLM_SPEND_STORM_AND_BILLING_DISPUTE_CLAIM_MAP.md) |
 
 ---
 

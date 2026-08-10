@@ -68,7 +68,7 @@
 | Open **TB-1020**–**TB-1021**, **M-170** / **M-171** | Process vs provider billing / rebill |
 | Open **TB-1299**–**TB-1300**, **M-229** / **M-230** | AOAI 429 execute policy (adjacent) |
 | Done **TB-892**–**TB-896** | Anonymous Quick Scan — **contrast only** |
-| Open **TB-1537** / **M-282** | API key revoke timing |
+| Done **TB-1537** / **M-282** | API key revoke timing — [`MID_RUN_AUTHORITY_REVOCATION_CLAIM_MAP.md`](MID_RUN_AUTHORITY_REVOCATION_CLAIM_MAP.md) |
 | **TB-1570** / **M-294** | This paying-tenant spend-storm + dispute claim map |
 
 ---
