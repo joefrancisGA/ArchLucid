@@ -61,6 +61,7 @@ const bannedStaticImports = [
   './RunDetailWorkspaceChrome"',
   './RunDetailWorkspaceStickyActions"',
   './ReviewPackagePrimaryAction"',
+  './ReviewPackageDoThisNextStrip"',
   './RunDetailExecutiveBottomLine"',
   './RunDetailManifestSummarySection"',
   './RunDetailSubmittedArchitectureSection"',
@@ -102,8 +103,9 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(pageViewSource).toContain("RunDetailWorkspaceHeaderDeferred");
     expect(pageViewSource).toContain("RunDetailWorkspaceSummaryStripDeferred");
     expect(pageViewSource).toContain("RunDetailWorkspaceBlockingBannerDeferred");
-    expect(pageViewSource).toContain("RunDetailWorkspaceStickyActionsDeferred");
-    expect(pageViewSource).toContain("ReviewPackagePrimaryActionDeferred");
+    expect(pageViewSource).toContain("ReviewPackageDoThisNextStripDeferred");
+    expect(pageViewSource).not.toContain("RunDetailWorkspaceStickyActionsDeferred");
+    expect(pageViewSource).not.toContain("ReviewPackagePrimaryActionDeferred");
     expect(pageViewSource).toContain("RunDetailExecutiveBottomLineDeferred");
     expect(pageViewSource).toContain("RunDetailSectionNavDeferred");
     expect(pageViewSource).not.toContain("RunDetailTabbedSectionNavDeferred");
@@ -154,6 +156,8 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(deferredChunksSource).toContain("RunDetailWorkspaceHeaderDeferred");
     expect(deferredChunksSource).toContain("RunDetailWorkspaceSummaryStripDeferred");
     expect(deferredChunksSource).toContain("RunDetailWorkspaceBlockingBannerDeferred");
+    expect(deferredChunksSource).toContain("ReviewPackageDoThisNextStripDeferred");
+    expect(deferredChunksSource).toContain('import("./ReviewPackageDoThisNextStrip")');
     expect(deferredChunksSource).toContain("RunDetailWorkspaceStickyActionsDeferred");
     expect(deferredChunksSource).toContain("ReviewPackagePrimaryActionDeferred");
     expect(deferredChunksSource).toContain("RunDetailExecutiveBottomLineDeferred");
@@ -199,6 +203,10 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
       'import("./RunDetailOperatorTechnicalForensicsPanel")',
     );
     expect(deferredChunksSource).toContain('import("./RunDetailArtifactsExportsSection")');
+    expect(deferredChunksSource).toContain("GoldenSponsorPackageWalkthroughDestinationDeferred");
+    expect(deferredChunksSource).toContain(
+      'import("@/components/golden-walkthrough/GoldenSponsorPackageWalkthroughDestination")',
+    );
   });
 
   it("dynamic-imports findings/explanation client leaves (TB-2021)", () => {

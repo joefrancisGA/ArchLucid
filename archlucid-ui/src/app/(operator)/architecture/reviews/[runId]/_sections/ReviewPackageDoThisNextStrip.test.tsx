@@ -1,7 +1,11 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { ReviewPackageDoThisNextStrip } from "./ReviewPackageDoThisNextStrip";
+
+vi.mock("@/components/CommitRunButton", () => ({
+  CommitRunButton: () => <button type="button">Finalize review</button>,
+}));
 
 describe("ReviewPackageDoThisNextStrip", () => {
   it("renders sentence and link CTA", () => {
