@@ -29,6 +29,7 @@ import { ReviewsNewMoreWaysToStart } from "./ReviewsNewMoreWaysToStart";
 import { ReviewsNewJobChooserSection } from "./ReviewsNewJobChooserSection";
 import { ReviewsNewOwnEvidenceStart } from "./ReviewsNewOwnEvidenceStart";
 import {
+  buildReviewsNewPathHref,
   persistActivePath,
   resolveInitialReviewsNewActivePath,
   type ReviewsNewActivePath,
@@ -68,15 +69,6 @@ function reviewsNewPathTabTestId(path: ReviewsNewActivePath): string {
       return exhaustive;
     }
   }
-}
-
-function reviewsNewPathHref(pathname: string, path: ReviewsNewActivePath, searchParams: URLSearchParams): string {
-  const next = new URLSearchParams(searchParams.toString());
-  next.set("path", path);
-
-  const query = next.toString();
-
-  return query.length > 0 ? `${pathname}?${query}` : pathname;
 }
 
 function ReviewsNewActiveWizard(props: { readonly activePath: ReviewsNewActivePath }): React.JSX.Element {
@@ -163,7 +155,7 @@ export function ReviewsNewPathSwitcher() {
       params.delete("template");
     }
 
-    router.replace(reviewsNewPathHref(pathname, path, params), { scroll: false });
+    router.replace(buildReviewsNewPathHref(pathname, path, params), { scroll: false });
   };
 
   return (

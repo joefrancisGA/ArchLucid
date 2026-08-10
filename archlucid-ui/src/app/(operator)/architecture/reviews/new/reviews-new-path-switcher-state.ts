@@ -135,3 +135,17 @@ export function persistActivePath(path: ReviewsNewActivePath): void {
   persistPathMode("full-guided");
   persistFullGuidedSubMode(path === "detailed" ? "detailed" : "guided-intake");
 }
+
+/** Rewrites `path` while preserving unrelated query keys (TB-1867). */
+export function buildReviewsNewPathHref(
+  pathname: string,
+  path: ReviewsNewActivePath,
+  searchParams: URLSearchParams,
+): string {
+  const next = new URLSearchParams(searchParams.toString());
+  next.set("path", path);
+
+  const query = next.toString();
+
+  return query.length > 0 ? `${pathname}?${query}` : pathname;
+}

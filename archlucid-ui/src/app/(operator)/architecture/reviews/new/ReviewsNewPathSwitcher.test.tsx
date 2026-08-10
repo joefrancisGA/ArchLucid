@@ -115,6 +115,25 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
     );
   });
 
+  it("opens templates and imports from the disclosure and syncs path=detailed (TB-1867)", async () => {
+    render(<ReviewsNewPathSwitcher />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("reviews-new-more-path-detailed")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("reviews-new-more-path-detailed"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("new-run-wizard-stub")).toBeTruthy();
+    });
+
+    expect(replace).toHaveBeenCalledWith(
+      "/architecture/reviews/new?path=detailed",
+      expect.objectContaining({ scroll: false }),
+    );
+  });
+
   it("opens guided intake when path=guided-intake is in the query string", async () => {
     useSearchParams.mockReturnValue(new URLSearchParams("path=guided-intake"));
 
@@ -223,6 +242,59 @@ describe("ReviewsNewPathSwitcher (returning tenant)", () => {
     );
   });
 
+  it("syncs path=detailed when the Templates and imports tab is selected (TB-1867)", async () => {
+    render(<ReviewsNewPathSwitcher />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("first-pilot-intake-wizard-stub")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByRole("tab", { name: "Templates and imports" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("new-run-wizard-stub")).toBeTruthy();
+    });
+
+    expect(screen.getByRole("tab", { name: "Templates and imports" })).toHaveAttribute("aria-selected", "true");
+    expect(replace).toHaveBeenCalledWith(
+      "/architecture/reviews/new?path=detailed",
+      expect.objectContaining({ scroll: false }),
+    );
+  });
+
+  it("preserves unrelated query keys when switching path tabs (TB-1867)", async () => {
+    useSearchParams.mockReturnValue(new URLSearchParams("intent=create-architecture"));
+
+    render(<ReviewsNewPathSwitcher />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("first-pilot-intake-wizard-stub")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByRole("tab", { name: "Guided questions" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("socratic-intake-wizard-stub")).toBeTruthy();
+    });
+
+    expect(replace).toHaveBeenCalledWith(
+      "/architecture/reviews/new?intent=create-architecture&path=guided-intake",
+      expect.objectContaining({ scroll: false }),
+    );
+  });
+
+  it("opens templates wizard when path=detailed is in the query string (TB-1867)", async () => {
+    useSearchParams.mockReturnValue(new URLSearchParams("path=detailed"));
+
+    render(<ReviewsNewPathSwitcher />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("new-run-wizard-stub")).toBeTruthy();
+    });
+
+    expect(screen.getByRole("tab", { name: "Templates and imports" })).toHaveAttribute("aria-selected", "true");
+  });
+
   it("syncs path=quick-review when the Quick start tab is selected (TB-1872)", async () => {
     render(<ReviewsNewPathSwitcher />);
 
@@ -281,6 +353,10 @@ describe("ReviewsNewPathSwitcher (returning tenant)", () => {
     });
 
     expect(screen.getByRole("tab", { name: "Guided questions" })).toHaveAttribute("aria-selected", "true");
+    expect(replace).toHaveBeenCalledWith(
+      "/architecture/reviews/new?path=guided-intake",
+      expect.objectContaining({ scroll: false }),
+    );
   });
 
   it("prevents vertical overflow scrollbars on the path tab row", async () => {
