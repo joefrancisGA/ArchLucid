@@ -6,9 +6,10 @@ import {
   COMPARISON_REPLAY_HELP_SOURCES_INTRO,
 } from "@/lib/comparison-replay-help-evidence-copy";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help-diligence-artifact-index";
 import { cn } from "@/lib/utils";
 
-/** Claim discipline + Sources orientation for `/help/comparison-replay`. */
+/** Claim discipline + diligence artifact index for `/help/comparison-replay`. */
 export function ComparisonReplayHelpEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <div className="space-y-3" data-testid="comparison-replay-help-orientation">
@@ -28,15 +29,18 @@ export function ComparisonReplayHelpEvidenceOrientationStrip(): React.JSX.Elemen
           id="comparison-replay-help-sources-heading"
           className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
         >
-          Sources for follow-up
+          {HELP_DILIGENCE_ARTIFACT_INDEX_TITLE}
         </h2>
         <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {COMPARISON_REPLAY_HELP_SOURCES_INTRO}
         </p>
-        <ul className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>
+        <ul className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.body)}>
           {COMPARISON_REPLAY_HELP_SOURCES.map((link) => (
             <li key={`${link.href}-${link.label}`}>
-              <Link className={cn(OPERATOR_LINK.inline, "font-medium")} href={link.href}>
+              <Link
+                className={cn(OPERATOR_LINK.inline, "inline-flex min-h-6 items-center py-1 font-medium")}
+                href={link.href}
+              >
                 {link.label}
               </Link>
             </li>
