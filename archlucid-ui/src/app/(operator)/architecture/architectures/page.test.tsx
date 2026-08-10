@@ -5,10 +5,6 @@ vi.mock("@/components/architecture/ArchitectureDraftListClient", () => ({
   ArchitectureDraftListClient: () => <div data-testid="architecture-draft-list" />,
 }));
 
-vi.mock("@/components/architecture/ArchitectureDraftGuidanceDisclosure", () => ({
-  ArchitectureDraftGuidanceDisclosure: () => null,
-}));
-
 vi.mock("./_sections/ArchitecturesHubHeaderActions", () => ({
   ArchitecturesHubHeaderActions: () => null,
 }));

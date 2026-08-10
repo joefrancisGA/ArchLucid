@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { ArchitectureDraftGuidanceDisclosure } from "@/components/architecture/ArchitectureDraftGuidanceDisclosure";
 import { Button } from "@/components/ui/button";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { Input } from "@/components/ui/input";
@@ -35,7 +36,6 @@ import {
   ARCHITECTURES_HUB_FILTER_NO_REVIEW_LABEL,
   ARCHITECTURES_HUB_FILTER_READY_LABEL,
   ARCHITECTURES_HUB_FILTER_SEARCH_PLACEHOLDER,
-  ARCHITECTURES_HUB_LIST_SCOPE_NOTE,
   ARCHITECTURES_HUB_SORT_NAME_ASC_LABEL,
   ARCHITECTURES_HUB_SORT_NAME_DESC_LABEL,
   ARCHITECTURES_HUB_SORT_UPDATED_ASC_LABEL,
@@ -199,12 +199,7 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
 
   return (
     <div className="mt-4 space-y-4" data-testid="architecture-draft-list">
-      <p
-        className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
-        data-testid="architecture-draft-list-scope-note"
-      >
-        {ARCHITECTURES_HUB_LIST_SCOPE_NOTE}
-      </p>
+      <ArchitectureDraftGuidanceDisclosure />
       <div
         className="flex flex-col gap-2 lg:flex-row lg:flex-wrap lg:items-center"
         data-testid="architecture-draft-list-toolbar"

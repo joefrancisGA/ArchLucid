@@ -4,11 +4,7 @@ import { ARCHITECTURE_DRAFTS_LIST_LABEL } from "@/lib/architecture-workflow-labe
 export const ARCHITECTURES_HUB_PAGE_TITLE = ARCHITECTURE_DRAFTS_LIST_LABEL;
 
 export const ARCHITECTURES_HUB_PAGE_SUBTITLE =
-  "Architecture drafts saved in this browser only — not a tenant-wide server inventory or review package list. Start a review when a draft is ready." as const;
-
-/** Shown above the draft list when entries exist — local registry scope honesty (TB-1448). */
-export const ARCHITECTURES_HUB_LIST_SCOPE_NOTE =
-  "Listed drafts are saved in this browser only — not a tenant-wide inventory." as const;
+  "Architecture drafts saved in this browser only — not a tenant-wide inventory." as const;
 
 export const ARCHITECTURES_HUB_FILTER_SEARCH_PLACEHOLDER = "Search drafts" as const;
 
@@ -33,7 +29,7 @@ export const ARCHITECTURES_HUB_SORT_NAME_DESC_LABEL = "Name (Z–A)" as const;
 export const ARCHITECTURES_HUB_EMPTY_TITLE = "No architecture drafts yet" as const;
 
 export const ARCHITECTURES_HUB_EMPTY_BODY =
-  "No drafts are saved in this browser yet. Create an architecture draft here, refine it on this device, then start a governance review when you are ready. Drafts on other browsers or devices are not listed here." as const;
+  "Create a draft here, then start an architecture review when it is ready." as const;
 
 export const ARCHITECTURES_HUB_EMPTY_FILTER_TITLE = "No drafts match your filters" as const;
 

@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ArchitectureDraftListClient } from "@/components/architecture/ArchitectureDraftListClient";
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture-draft-registry";
+import { ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY } from "@/lib/architecture-draft-guidance-dismiss";
 
 const listArchitectureDraftRegistryEntries = vi.fn();
 
@@ -34,6 +35,7 @@ function entry(
 describe("ArchitectureDraftListClient", () => {
   beforeEach(() => {
     listArchitectureDraftRegistryEntries.mockReset();
+    window.localStorage.removeItem(ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY);
   });
 
   it("shows filter chip counts from the full registry", async () => {
@@ -92,7 +94,7 @@ describe("ArchitectureDraftListClient", () => {
     expect(updated.textContent ?? "").toMatch(/Updated .+ · /);
   });
 
-  it("shows browser-local scope honesty when the registry is empty", async () => {
+  it("keeps the empty first viewport action-oriented without stacked intro blocks (TB-1449)", async () => {
     listArchitectureDraftRegistryEntries.mockReturnValue([]);
 
     render(<ArchitectureDraftListClient />);
@@ -101,22 +103,21 @@ describe("ArchitectureDraftListClient", () => {
       expect(screen.getByTestId("architecture-draft-list-empty")).toBeInTheDocument();
     });
 
-    expect(screen.getByText(/this browser/i)).toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-draft-guidance-disclosure")).not.toBeInTheDocument();
     expect(screen.queryByTestId("architecture-draft-list-scope-note")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Create architecture" })).toBeInTheDocument();
   });
 
-  it("shows browser-local scope honesty above the list when drafts exist", async () => {
+  it("shows draft-vs-review disclosure only when drafts exist (TB-1449)", async () => {
     listArchitectureDraftRegistryEntries.mockReturnValue([entry({ architectureId: "a1" })]);
 
     render(<ArchitectureDraftListClient />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("architecture-draft-list-scope-note")).toBeInTheDocument();
+      expect(screen.getByTestId("architecture-draft-guidance-disclosure")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("architecture-draft-list-scope-note").textContent?.toLowerCase()).toContain(
-      "this browser",
-    );
+    expect(screen.queryByTestId("architecture-draft-list-scope-note")).not.toBeInTheDocument();
   });
 
   it("keeps search, filters, and sort in one toolbar", async () => {

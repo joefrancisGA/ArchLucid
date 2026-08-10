@@ -6,7 +6,6 @@ import {
   ARCHITECTURES_HUB_EMPTY_FILTER_BODY,
   ARCHITECTURES_HUB_EMPTY_FILTER_TITLE,
   ARCHITECTURES_HUB_EMPTY_TITLE,
-  ARCHITECTURES_HUB_LIST_SCOPE_NOTE,
   ARCHITECTURES_HUB_PAGE_SUBTITLE,
   ARCHITECTURES_HUB_PAGE_TITLE,
 } from "@/lib/architectures-hub-copy";
@@ -18,12 +17,13 @@ describe("architectures-hub-copy", () => {
     expect(ARCHITECTURES_HUB_PAGE_SUBTITLE.toLowerCase()).toContain("draft");
     expect(ARCHITECTURES_HUB_PAGE_SUBTITLE.toLowerCase()).toContain("this browser");
     expect(ARCHITECTURES_HUB_PAGE_SUBTITLE.toLowerCase()).toContain("not a tenant-wide");
-    expect(ARCHITECTURES_HUB_PAGE_SUBTITLE.toLowerCase()).toContain("review package");
   });
 
-  it("discloses browser-local registry scope in list and empty copy", () => {
-    expect(ARCHITECTURES_HUB_LIST_SCOPE_NOTE.toLowerCase()).toContain("this browser");
-    expect(ARCHITECTURES_HUB_EMPTY_BODY.toLowerCase()).toContain("this browser");
-    expect(ARCHITECTURES_HUB_EMPTY_BODY.toLowerCase()).toContain("other browsers");
+  it("keeps empty-state copy action-oriented without repeating scope prose", () => {
+    expect(ARCHITECTURES_HUB_EMPTY_BODY.toLowerCase()).toContain("create");
+    expect(ARCHITECTURES_HUB_EMPTY_BODY.toLowerCase()).not.toContain("other browsers");
+    expect(ARCHITECTURES_HUB_EMPTY_FILTER_TITLE).toBeTruthy();
+    expect(ARCHITECTURES_HUB_EMPTY_FILTER_BODY).toBeTruthy();
+    expect(ARCHITECTURES_HUB_EMPTY_TITLE.toLowerCase()).toContain("draft");
   });
 });
