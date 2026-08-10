@@ -11,6 +11,12 @@ export const REVIEWS_NEW_GUIDED_INTAKE_HREF = "/architecture/reviews/new?path=gu
 /** Deep link for templates / imports detailed wizard path. */
 export const REVIEWS_NEW_DETAILED_HREF = "/architecture/reviews/new?path=detailed" as const;
 
+/** Product tab label on `/architecture/reviews/new` path switcher (path query token: `detailed`). */
+export const REVIEWS_NEW_TEMPLATES_AND_IMPORTS_TAB_LABEL = "Templates and imports";
+
+/** URL path query token for the Templates and imports tab (product label: {@link REVIEWS_NEW_TEMPLATES_AND_IMPORTS_TAB_LABEL}). */
+export const REVIEWS_NEW_DETAILED_PATH_TOKEN = "detailed";
+
 /** Product tab label on `/architecture/reviews/new` path switcher (path query token: `quick-review`). */
 export const REVIEWS_NEW_QUICK_START_TAB_LABEL = "Quick start";
 
