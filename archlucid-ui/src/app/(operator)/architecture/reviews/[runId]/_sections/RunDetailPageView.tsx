@@ -4,6 +4,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_PAGE_CONTAINER, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
+import { GoldenSponsorPackageWalkthroughDestination } from "@/components/golden-walkthrough/GoldenSponsorPackageWalkthroughDestination";
 import { GovernanceModePresentationGate } from "@/components/GovernanceModePresentationGate";
 import { detectStalledReview } from "@/lib/usability/stalled-review-detection";
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
@@ -19,6 +20,7 @@ import {
 import type { BuildArchitectureCreatedHomeModelInput } from "@/lib/architecture-created-home-model";
 import { buildArchitectureCreatedHomeModel } from "@/lib/architecture-created-home-model";
 import { deriveArchitectureGapBaselineFromSubmittedText } from "@/lib/derive-architecture-gap-baseline";
+import { deriveEvidencePresenceFromInventoryKinds } from "@/lib/evidence-gap-forecast";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import {
   countFindingsBySeverity,
@@ -59,6 +61,7 @@ import {
 
 import { RunDetailCreateHomeEvidencePanel } from "./RunDetailCreateHomeEvidencePanel";
 import { resolveReviewPackagePrimaryAction } from "./resolve-review-package-primary-action";
+import { resolveReviewPackageDoThisNext } from "./resolve-review-package-do-this-next";
 import {
   RunDetailWorkspaceDisclosureControls,
   RunDetailWorkspaceDisclosureProvider,
@@ -87,9 +90,8 @@ import {
   RunDetailSubmittedArchitectureSectionDeferred,
   RunDetailWorkspaceHeaderDeferred,
   RunDetailWorkspaceBlockingBannerDeferred,
-  RunDetailWorkspaceStickyActionsDeferred,
   RunDetailWorkspaceSummaryStripDeferred,
-  ReviewPackagePrimaryActionDeferred,
+  ReviewPackageDoThisNextStripDeferred,
   ReviewPackageSponsorHandoffStripDeferred,
   RunDetailArchitectureCreateWorkItemSectionDeferred,
   RunDetailArchitectureCreatedWorkspaceDeferred,
@@ -119,7 +121,6 @@ import {
   HelpPageSituationRegistrarDeferred,
   ReviewGenerationCreatedNoticeDeferred,
   RunDetailBelowFoldSectionsDeferred,
-  GoldenSponsorPackageWalkthroughDestinationDeferred,
 } from "./run-detail-page-view-deferred-chunks";
 import { resolveRunDetailSponsorBriefingSection } from "./RunDetailSponsorBriefingSection";
 import { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
@@ -408,6 +409,10 @@ export function RunDetailPageView(props: {
     submittedArchitecturePresent: hasSubmittedArchitecture,
   });
   const evidenceInventoryCount = countRunDetailEvidenceInventoryItems(evidenceInventoryItems);
+  const evidencePresence = deriveEvidencePresenceFromInventoryKinds({
+    inventoryKinds: evidenceInventoryItems.map((item) => item.kind),
+    submittedArchitecturePresent: hasSubmittedArchitecture,
+  });
   const evidenceReviewDateLabel =
     formatInstantForLocale(m.resolvedDetail.run.completedUtc ?? m.resolvedDetail.run.createdUtc) || m.createdLabel;
   const primaryConcernFinding = derivePrimaryConcernFinding(quickDecisionFindings);
@@ -767,6 +772,17 @@ export function RunDetailPageView(props: {
     gapAssertion: derivedGapBaseline.gapAssertion,
     gapSourceCapturedAtUtc: null,
   };
+  const architectureCreatedHomeModel = showArchitectureCreatedHome
+    ? buildArchitectureCreatedHomeModel(architectureCreatedBaseline)
+    : null;
+  const reviewPackageDoThisNext = resolveReviewPackageDoThisNext({
+    ...reviewPackagePrimaryActionContext,
+    nextAction: reviewStatusSummary.nextAction,
+    showProgressTracker: m.showProgressTracker,
+    openClarificationGapCount: architectureCreatedHomeModel?.clarificationGaps.length ?? 0,
+    correctionHref: architectureCorrectionHref,
+    useCreateHomeWorkspaceTabs: showArchitectureCreatedHome,
+  });
 
   const runDetailBody = (
     <div
@@ -806,6 +822,12 @@ export function RunDetailPageView(props: {
             <>
               {showArchitectureCreatedHome ? (
                 <>
+                  <ReviewPackageDoThisNextStripDeferred
+                    next={reviewPackageDoThisNext}
+                    runId={m.resolvedDetail.run.runId}
+                    hasGoldenManifest={Boolean(m.manifestId)}
+                    commitBlockedReason={commitBlockedReason}
+                  />
                   <RunDetailWorkspaceDisclosureControls />
                   <Suspense fallback={<RunDetailExplanationSkeleton />}>
                   <RunDetailArchitectureCreatedWorkspaceDeferred
@@ -980,6 +1002,13 @@ export function RunDetailPageView(props: {
                     workspaceStatus={workspaceStatus}
                   />
 
+                  <ReviewPackageDoThisNextStripDeferred
+                    next={reviewPackageDoThisNext}
+                    runId={m.resolvedDetail.run.runId}
+                    hasGoldenManifest={Boolean(m.manifestId)}
+                    commitBlockedReason={commitBlockedReason}
+                  />
+
                   {blockingApprovalCount > 0 ? (
                     <RunDetailWorkspaceBlockingBannerDeferred
                       blockingCount={blockingApprovalCount}
@@ -1007,32 +1036,10 @@ export function RunDetailPageView(props: {
                     materialSeverityLine={materialSeverityLine}
                   />
 
-                  <div className="hidden lg:block">
-                    <RunDetailWorkspaceStickyActionsDeferred
-                      runId={m.resolvedDetail.run.runId}
-                      primaryAction={reviewPackagePrimaryAction}
-                      primaryActionContext={reviewPackagePrimaryActionContext}
-                      commitBlockedReason={commitBlockedReason}
-                      commitBlockedTechnicalDetail={commitBlockedTechnicalDetail}
-                      showProgressTracker={m.showProgressTracker}
-                      manifestId={m.manifestId}
-                    />
-                  </div>
-
-                  <div className="lg:hidden">
-                    <ReviewPackagePrimaryActionDeferred
-                      action={reviewPackagePrimaryAction}
-                      primaryActionContext={reviewPackagePrimaryActionContext}
-                      runId={m.resolvedDetail.run.runId}
-                      hasGoldenManifest={Boolean(m.manifestId)}
-                      commitBlockedReason={commitBlockedReason}
-                    />
-                  </div>
-
                   {reviewPackagePrimaryAction.kind === "send-to-sponsor" && m.manifestId ? (
                     <>
                       <Suspense fallback={null}>
-                        <GoldenSponsorPackageWalkthroughDestinationDeferred
+                        <GoldenSponsorPackageWalkthroughDestination
                           showSampleWalkthroughDestination={
                             m.usedStaticDemoRun ||
                             isShowcaseStaticDemoRunId(m.resolvedDetail.run.runId)

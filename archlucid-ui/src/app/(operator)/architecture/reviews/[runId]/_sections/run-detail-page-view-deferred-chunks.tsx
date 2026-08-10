@@ -397,6 +397,11 @@ export const ReviewPackageSponsorHandoffStripDeferred = dynamic(
   { ssr: false, loading: () => null },
 );
 
+export const ReviewPackageDoThisNextStripDeferred = dynamic(
+  () => import("./ReviewPackageDoThisNextStrip").then((module) => module.ReviewPackageDoThisNextStrip),
+  { ssr: false, loading: () => null },
+);
+
 export const RunDetailGovernanceDecisionSectionDeferred = dynamic(
   () =>
     import("./RunDetailGovernanceDecisionSection").then((module) => module.RunDetailGovernanceDecisionSection),

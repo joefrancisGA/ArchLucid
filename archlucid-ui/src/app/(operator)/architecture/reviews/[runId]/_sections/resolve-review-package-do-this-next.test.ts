@@ -26,6 +26,17 @@ describe("resolveReviewPackageDoThisNext", () => {
     expect(next.href).toContain("reviewTab=evidence");
   });
 
+  it("uses create-home activity tab href when assessment is in progress on create-home", () => {
+    const next = resolveReviewPackageDoThisNext({
+      ...baseInput,
+      showProgressTracker: true,
+      useCreateHomeWorkspaceTabs: true,
+    });
+
+    expect(next.kind).toBe("view-assessment-progress");
+    expect(next.href).toContain("archTab=activity");
+  });
+
   it("surfaces assessment-in-progress guidance before other CTAs", () => {
     const next = resolveReviewPackageDoThisNext({
       ...baseInput,
