@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { AuthFlowShell } from "@/components/auth/AuthFlowShell";
 import { CreateWorkspaceForm } from "@/app/(operator)/auth/bootstrap/CreateWorkspaceForm";
+import { PostAuthBootstrapExitActions } from "@/app/(operator)/auth/bootstrap/PostAuthBootstrapExitActions";
 import { PostAuthBootstrapLoadingView } from "@/app/(operator)/auth/bootstrap/PostAuthBootstrapLoadingView";
 import { CREATE_WORKSPACE_COPY } from "@/lib/auth/create-workspace-schema";
 import type { CreateWorkspaceFormValues } from "@/lib/auth/create-workspace-schema";
@@ -27,6 +28,7 @@ import {
   POST_AUTH_BOOTSTRAP_COPY,
   resolvePostAuthBootstrapDenialMessage,
 } from "@/lib/auth/post-auth-bootstrap-denial-copy";
+import { POST_AUTH_BOOTSTRAP_LOAD_ERROR_MESSAGE, POST_AUTH_BOOTSTRAP_LOAD_ERROR_TITLE } from "@/lib/auth/post-auth-bootstrap-exit-copy";
 
 function applyBootstrapSession(session: {
   accessToken: string;
@@ -75,7 +77,7 @@ export function PostAuthBootstrapClient() {
         window.location.replace(resume);
       }
     } catch {
-      setErrorMessage("We could not determine your next step. Try signing in again.");
+      setErrorMessage(POST_AUTH_BOOTSTRAP_LOAD_ERROR_MESSAGE);
     } finally {
       setLoading(false);
     }
@@ -170,8 +172,20 @@ export function PostAuthBootstrapClient() {
     </AuthFlowShell>
   );
 
-  if (loading || status === null) {
+  if (loading) {
     return bootstrapChrome(<PostAuthBootstrapLoadingView />);
+  }
+
+  if (status === null) {
+    return bootstrapChrome(
+        <div className="max-w-[560px]" data-testid="bootstrap-load-error-step">
+          <h1 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{POST_AUTH_BOOTSTRAP_LOAD_ERROR_TITLE}</h1>
+          <p role="alert" className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {errorMessage ?? POST_AUTH_BOOTSTRAP_LOAD_ERROR_MESSAGE}
+          </p>
+          <PostAuthBootstrapExitActions />
+        </div>
+    );
   }
 
   if (status.destination === "AcceptInvitation") {
@@ -299,6 +313,7 @@ export function PostAuthBootstrapClient() {
             {CREATE_WORKSPACE_COPY.accessRequest}
           </Button>
         )}
+        <PostAuthBootstrapExitActions />
       </div>
   );
 }

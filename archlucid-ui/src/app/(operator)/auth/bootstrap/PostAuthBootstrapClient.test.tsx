@@ -85,3 +85,44 @@ describe("PostAuthBootstrapClient (TB-1468)", () => {
     expect(screen.getByRole("button", { name: /Request access/i })).toBeInTheDocument();
   });
 });
+
+describe("PostAuthBootstrapClient (TB-1469)", () => {
+  beforeEach(() => {
+    fetchPostAuthBootstrapStatus.mockReset();
+  });
+
+  it("exposes safe secondary exits when bootstrap status cannot be loaded", async () => {
+    fetchPostAuthBootstrapStatus.mockRejectedValue(new Error("network"));
+
+    render(<PostAuthBootstrapClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("bootstrap-load-error-step")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("bootstrap-secondary-exit")).toBeInTheDocument();
+    expect(screen.getByTestId("bootstrap-sign-in-again")).toBeInTheDocument();
+    expect(screen.getByTestId("bootstrap-public-exit")).toHaveAttribute("href", "/welcome");
+    expect(screen.getByTestId("bootstrap-public-exit")).not.toHaveAttribute("href", "/");
+  });
+
+  it("exposes safe secondary exits on the no-access step", async () => {
+    fetchPostAuthBootstrapStatus.mockResolvedValue({
+      destination: "NoAccess",
+      pendingInvitations: [],
+      workspaces: [],
+      canCreateWorkspace: false,
+      denialReason: null,
+    });
+
+    render(<PostAuthBootstrapClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("bootstrap-no-access-step")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("bootstrap-secondary-exit")).toBeInTheDocument();
+    expect(screen.getByTestId("bootstrap-use-different-account")).toBeInTheDocument();
+    expect(screen.getByTestId("bootstrap-public-exit")).toHaveAttribute("href", "/welcome");
+  });
+});
