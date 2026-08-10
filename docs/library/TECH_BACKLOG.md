@@ -20,7 +20,7 @@ Regenerate after opening or closing summary-table rows:
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
 | Explainability | 1 |
-| Trustworthiness | 117 |
+| Trustworthiness | 115 |
 | Maintainability | 9 |
 | Traceability | 3 |
 | Interoperability | 4 |
@@ -35,9 +35,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **698** |
+| **Total (unique open)** | **696** |
 
-**By priority band:** P0 **3** | P1 **565** | P2 **113** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **3** | P1 **563** | P2 **113** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -754,7 +754,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1503 | **Done** (2026-08-10) — Digests browse Coverage column honesty (review refs, not Compared/Current); see ## TB-1503 below | Trustworthiness P1 ? **V1**; with **TB-1501** | S |
 | TB-1504 | **Done** (2026-08-10) — Digests browse export `.md` honesty + delivery attempt sanitize; see ## TB-1504 below | Trustworthiness P1 ? **V1**; with **TB-1501** | S |
 | TB-1506 | **Done** (2026-08-10) — Live finding-quality tripwire vs nightly eval coverage map; see `## TB-1506` below | Trustworthiness P1 ? **V1**; PA silent AOAI minor-rev Q; GTM **M-275**/**M-276**; see `LIVE_VS_NIGHTLY_FINDING_QUALITY_TRIPWIRE_MAP.md` | S |
-| TB-1525 | `/executive/dashboard` ? resolve redirect vs App Router product dual-SoT (TB-608 regression); see ## TB-1525 below | Trustworthiness P1 ? **V1**; owner review ~44/100 2026-07-27; traffic **EDA**; pairs Done **TB-608**/**TB-267** | S |
+| TB-1525 | **Done** (2026-08-10) — `/executive/dashboard` resolve redirect vs App Router dual-SoT; canonical `/architecture/executive-dashboard`; legacy bookmarks hard-retired; see ## TB-1525 below | Trustworthiness P1 ? **V1**; owner review ~44/100 2026-07-27; traffic **EDA**; pairs Done **TB-608**/**TB-267** | S |
 | TB-1529 | Sponsor redirect / scorecard CTAs ? align Dashboard targets with canonical; see ## TB-1529 below | Trustworthiness P1 ? **V1**; with **TB-1525**/**TB-1526** | S |
 | TB-1533 | Executive scorecard ? always buyer-safe lead + window help (not env-gated only); see ## TB-1533 below | Trustworthiness P1 ? **V1**; with **TB-1532**; pairs BDA-078 | S |
 | TB-1535 | Executive scorecard ? About-metrics + unauthorized CTAs demote eng/API leaks; see ## TB-1535 below | Trustworthiness P1 ? **V1**; with **TB-1532**; pairs BDA-016/079 | S |
@@ -780,7 +780,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1767 | Azure cloud detail ? collapse or wire Validate + Recent activity stubs; see ## TB-1767 below | Trustworthiness P1 ? **V1**; with **TB-1766**; pairs **TB-1762** | S |
 | TB-1773 | GCP cloud detail ? live Validate + Recent activity (or collapse stubs); see ## TB-1773 below | Trustworthiness P1 ? **V1**; with **TB-1771**; pairs **TB-1762**/**TB-1767** | M |
 | TB-1774 | **Done** (2026-08-10) — GCP cloud detail Tier 2 / hosted-poll jargon purge; `gcp-cloud-connection-copy.ts`; Vitest; see ## TB-1774 below | Trustworthiness P1 ? **V1**; with **TB-1771**; pairs **TB-1235**/**TB-1763** | S |
-| TB-1775 | GCP cloud detail ? copyable WIF pool-provider starter; see ## TB-1775 below | Trustworthiness P1 ? **V1**; with **TB-1771**; pairs **TB-1242**/**TB-1765** | M |
+| TB-1775 | **Done** (2026-08-10) — GCP cloud detail copyable WIF pool-provider starter; `gcp-cloud-connection-wif-starter.ts` + `GcpWifStarterPanel`; Vitest; see ## TB-1775 below | Trustworthiness P1 ? **V1**; with **TB-1771**; pairs **TB-1242**/**TB-1765** | M |
 | TB-1780 | ITSM legacy ? canonicalize product deep-links to readiness / jira / servicenow; see ## TB-1780 below | Trustworthiness P1 ? **V1**; with **TB-1776**; pairs **TB-1445** | S |
 | TB-1784 | Atlassian OAuth callback ? error copy honesty (no raw IdP/engine dump); see ## TB-1784 below | Trustworthiness P1 ? **V1**; with **TB-1781** | S |
 | TB-1786 | INR traffic/SEO honesty ? Internal Ops not Marketing; see ## TB-1786 below | Trustworthiness P1 ? **V1**; owner review ~52/100 2026-07-27; traffic **INR** | S |
