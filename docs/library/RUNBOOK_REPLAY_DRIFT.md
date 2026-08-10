@@ -7,6 +7,8 @@
 
 Audience: internal engineers who need to understand or debug comparison replay / drift verification.
 
+**AOAI model retirement:** stored-source `artifact` / `regenerate` / `verify` replay does **not** re-call Azure OpenAI — retirement affects **Real re-execute** and live cohort gates, not persisted-byte replay. See [`AOAI_MODEL_RETIREMENT_REPRO_CLAIM_MAP.md`](./AOAI_MODEL_RETIREMENT_REPRO_CLAIM_MAP.md) (**TB-1499** Done).
+
 ---
 
 ### 1. Confirm the comparison record exists and is valid

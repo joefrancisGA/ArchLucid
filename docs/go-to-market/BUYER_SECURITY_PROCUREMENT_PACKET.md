@@ -2958,7 +2958,7 @@ Do not sell golden cohort as perpetual model reproducibility, claim “replay al
 
 ### Residuals (honest)
 
-- **TB-1499** / **TB-1500** own the claim map and language guards.
+- **TB-1499** **Done** (2026-08-10) — engineering claim map [`../library/AOAI_MODEL_RETIREMENT_REPRO_CLAIM_MAP.md`](../library/AOAI_MODEL_RETIREMENT_REPRO_CLAIM_MAP.md). **TB-1500** owns language guards CI.
 - Complements **M-174** / **M-198** / **M-201** / **M-209** / **M-227**; **TB-688** stays V2 cadence.
 - Cite [`../library/RUNBOOK_REPLAY_DRIFT.md`](../library/RUNBOOK_REPLAY_DRIFT.md).
 - Does not reopen Done **TB-307** / **TB-594**.

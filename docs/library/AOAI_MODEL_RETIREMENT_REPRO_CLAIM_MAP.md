@@ -4,7 +4,10 @@
 
 **Audience:** Engineering, SRE, principal-architect diligence. Not a buyer brochure.
 
-**Status:** Working contract for **TB-1499** / GTM **M-273**. Pair honesty CI **TB-1500** / **M-273**.
+**Status:** **Done** (**TB-1499**, 2026-08-10). GTM **M-273** / **M-274**. Pair honesty CI **TB-1500** / **M-273**.
+
+**Buyer / PA one-pager:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#aoai-model-retirement-repro-m-274`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#aoai-model-retirement-repro-m-274) (GTM **M-274**).  
+**Claim honesty:** [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) (GTM **M-273**).
 
 **Verdict (one line):** Committed packages and comparison **artifact / stored-source** replay stay true after Microsoft retires a model version; claims that imply **re-running Real agents on the same pin** (or live Real golden-cohort gates on that pin) become false or fail — silently if the deployment **auto-upgrades** without a deliberate baseline ritual.
 
@@ -25,14 +28,14 @@ ArchLucid typically addresses a **deployment name** in config; the underlying **
 
 ## 2. Claim survival matrix
 
-| Claim / capability | Survives pinned-version disappearance? | Why |
-|--------------------|----------------------------------------|-----|
-| **Committed golden manifest + `ManifestHash`** | **Yes** | Hash over sealed content; no LLM call |
-| **Export lineage / file checksums / `/export/verify`** | **Yes** | SQL + stored manifest; ADR 0040 / Done **TB-307** |
-| **Comparison replay `artifact`** | **Yes** | Re-exports stored `ComparisonRecords.PayloadJson` |
-| **Comparison `regenerate` / `verify` (drift)** | **Yes** (for stored sources) | Rebuilds from persisted runs/manifests/`AgentResults` — **does not** re-call AOAI (`ComparisonReplayService` / `EndToEndReplayComparisonService`) |
+| Claim / capability | Survives pinned-version disappearance? | Code / doc anchor |
+|--------------------|----------------------------------------|-------------------|
+| **Committed golden manifest + `ManifestHash`** | **Yes** | Hash over sealed content; no LLM call; Done **TB-307** |
+| **Export lineage / file checksums / `/export/verify`** | **Yes** | SQL + stored manifest; ADR 0040 |
+| **Comparison replay `artifact`** | **Yes** | Rehydrates stored `ComparisonRecords.PayloadJson` — `ComparisonReplayService` |
+| **Comparison `regenerate` / `verify` (drift)** | **Yes** (for stored sources) | Rebuilds from persisted runs/manifests/`AgentResults` — **does not** re-call AOAI |
 | **Simulator / offline golden-cohort baselines** | **Yes** | Fixtures + content fingerprints; no live pin |
-| **Hasher / cohort SHA re-lock ritual** (**TB-1156** / **TB-1172**) | **Yes as process** | About intentional content/hasher change — **not** a substitute for model migration |
+| **Hasher / cohort SHA re-lock ritual** (**TB-1156** / **TB-1172**) | **Yes as process** | Intentional content/hasher change — **not** model migration substitute |
 | **“Re-execute Real agents → same ManifestHash”** | **No** | New completions ≠ historical pin; auto-upgrade makes this **quietly** false |
 | **Live Real-LLM golden-cohort gate on retired pin** | **No** | Hard fail (410) or **silent score drift** after auto-upgrade |
 | **Fine-tuned deployment on retired base** | **No** (FT has its own retirement schedule) | Done **TB-594** / **TB-1292** promotion path still needs migration |
@@ -81,8 +84,21 @@ ArchLucid typically addresses a **deployment name** in config; the underlying **
 
 ---
 
-## 7. Optional engineering follow-ons
+## 7. Engineering follow-ons (optional)
 
 1. Ops checklist: inventory deployment upgrade policies + retirement dates; alert before pin expiry.
 2. Fail closed or warn when Real execute targets a deployment whose reported model version ≠ last-known pin (if Azure exposes it).
 3. Label UI/docs: “Replay (stored)” vs “Re-execute (new LLM call).”
+
+---
+
+## 8. Code entry points (verification)
+
+| Concern | Primary file |
+|---------|--------------|
+| Comparison replay modes (`artifact` / `regenerate` / `verify`) | `ArchLucid.Application/Analysis/ComparisonReplayService.cs` |
+| End-to-end stored-source regenerate | `ArchLucid.Application/Analysis/EndToEndReplayComparisonService.cs` |
+| Export verify (no LLM) | `ArchLucid.Application/Analysis/RunExportLineageVerifier.cs` |
+| Canonical ManifestHash | `ArchLucid.Decisioning/Services/ManifestHashService.cs` |
+| Replay / drift runbook | [`RUNBOOK_REPLAY_DRIFT.md`](RUNBOOK_REPLAY_DRIFT.md) |
+| Comparison snapshot contract | [`COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md`](COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md) |
