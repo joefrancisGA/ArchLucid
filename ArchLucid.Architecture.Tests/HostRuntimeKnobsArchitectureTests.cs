@@ -17,7 +17,7 @@ public sealed class HostRuntimeKnobsArchitectureTests
     ];
 
     [Fact]
-    public void Tb2161_host_runtime_props_declares_server_gc_tiered_pgo_and_invariant_globalization()
+    public void Tb2161_host_runtime_props_declares_server_gc_tiered_pgo_and_full_globalization()
     {
         string propsPath = Path.Combine(RepoRoot, "ArchLucid.Host.Runtime.props");
 
@@ -27,7 +27,8 @@ public sealed class HostRuntimeKnobsArchitectureTests
 
         propsText.Should().Contain("<ServerGarbageCollection>true</ServerGarbageCollection>");
         propsText.Should().Contain("<TieredPGO>true</TieredPGO>");
-        propsText.Should().Contain("<InvariantGlobalization>true</InvariantGlobalization>");
+        // SqlClient cannot open connections when System.Globalization.Invariant is true.
+        propsText.Should().Contain("<InvariantGlobalization>false</InvariantGlobalization>");
         propsText.Should().Contain("<GCConserveMemory>1</GCConserveMemory>");
     }
 
@@ -46,14 +47,14 @@ public sealed class HostRuntimeKnobsArchitectureTests
     }
 
     [Fact]
-    public void Tb2161_api_dockerfile_drops_icu_and_sets_invariant_globalization()
+    public void Tb2161_api_dockerfile_keeps_icu_and_disables_invariant_globalization()
     {
         string dockerfilePath = Path.Combine(RepoRoot, "ArchLucid.Api", "Dockerfile");
         string dockerfileText = File.ReadAllText(dockerfilePath);
 
         dockerfileText.Should().Contain("ArchLucid.Host.Runtime.props");
-        dockerfileText.Should().Contain("DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true");
-        dockerfileText.Should().NotContain("icu-libs");
+        dockerfileText.Should().Contain("DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false");
+        dockerfileText.Should().Contain("icu-libs");
     }
 
     private static string FindRepoRoot()

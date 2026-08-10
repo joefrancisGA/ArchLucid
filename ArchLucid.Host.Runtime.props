@@ -3,8 +3,10 @@
   <PropertyGroup>
     <ServerGarbageCollection>true</ServerGarbageCollection>
     <TieredPGO>true</TieredPGO>
-    <InvariantGlobalization>true</InvariantGlobalization>
+    <!-- Declined: Microsoft.Data.SqlClient throws NotSupportedException under invariant globalization. -->
+    <InvariantGlobalization>false</InvariantGlobalization>
     <!-- Softens Server GC heap floor on 1.0 Gi ACA API replicas. -->
     <GCConserveMemory>1</GCConserveMemory>
   </PropertyGroup>
 </Project>
+

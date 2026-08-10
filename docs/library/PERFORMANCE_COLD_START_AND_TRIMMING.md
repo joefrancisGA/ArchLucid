@@ -82,7 +82,7 @@ Shipped **2026-08-10** via shared [`ArchLucid.Host.Runtime.props`](../../ArchLuc
 |------|---------|--------|------------|
 | **Server GC** | `ServerGarbageCollection=true` + `GCConserveMemory=1` | Parallel collections under concurrent JSON/SQL load on multi-core ACA replicas; conserve memory on **1.0 Gi** floor | **$0** |
 | **Tiered PGO** | `TieredPGO=true` | Steady-state throughput after warm-up | **$0** |
-| **Invariant globalization** | `InvariantGlobalization=true`; Dockerfile drops `icu-libs` and sets `DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true` | Smaller image + faster startup; buyer currency uses explicit `en-US` (`ExecutiveRoiBoardPackMarkdownBuilder`, CLI cost estimate) | **$0** |
+| **Invariant globalization** | **Declined** — `InvariantGlobalization=false`; Dockerfile keeps `icu-libs` and `DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false` | `Microsoft.Data.SqlClient` throws `NotSupportedException: Globalization Invariant Mode is not supported` on first SQL open (local + ACA). Server GC + Tiered PGO remain. | **$0** |
 
 **Measurement:** Re-capture Phase **A**/**B** on the next dev/staging CD and append a row to [`cold-start-baselines/`](../operations/cold-start-baselines/README.md). Decline Server GC if working set breaches the **1.0 Gi** limit after deploy.
 

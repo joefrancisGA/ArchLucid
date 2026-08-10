@@ -136,16 +136,17 @@ ARG DEPLOY_ENV=""
 ENV ARCHLUCID_BUILD_COMMIT_SHA=${BUILD_SHA}
 ENV ARCHLUCID_BUILD_TIMESTAMP=${BUILD_TIMESTAMP}
 
-# ICU not required: host projects publish with InvariantGlobalization (TB-2161).
+# ICU required: Microsoft.Data.SqlClient rejects invariant globalization (TB-2161 decline).
 # apk upgrade + explicit OpenSSL floor (CVE-2026-28390) so cached layers cannot keep 3.5.5-r0.
 RUN apk update --no-cache \
     && apk upgrade --no-cache \
     && apk add --no-cache --upgrade \
          "openssl>=3.5.6-r0" \
          "libssl3>=3.5.6-r0" \
-         "libcrypto3>=3.5.6-r0"
+         "libcrypto3>=3.5.6-r0" \
+    && apk add --no-cache icu-libs
 
-ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 
 WORKDIR /app
 
