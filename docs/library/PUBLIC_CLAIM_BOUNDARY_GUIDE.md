@@ -204,7 +204,7 @@ Former standalone body: `docs/go-to-market/PA_CLAIM_HONESTY_BULLETS_BATCH_B.md` 
 
 | Do not promise | Do promise |
 | --- | --- |
-| Customer-realized $ from Simulator, demo, or HOLD baselines; “saved $X,” “customer ROI,” or “proven savings” from non-Real runs. | Execution mode ≠ ROI source; Simulator → illustrative estimate only; Real + COMPLETE baselines → estimated from tenant baselines with source label; external send requires Real + COMPLETE. |
+| Customer-realized $ from Simulator, demo, or HOLD baselines; “saved $X,” “customer ROI,” or “proven savings” from non-Real runs. | Execution mode ≠ ROI source; Simulator → illustrative estimate only; Real + COMPLETE baselines → estimated from tenant baselines with source label; external send requires Real + COMPLETE. Engineering matrix: [`SIMULATOR_ROI_SPONSOR_FORBID_CONTRACT.md`](SIMULATOR_ROI_SPONSOR_FORBID_CONTRACT.md) (**TB-983**). Follow-on enforcement: **TB-984**; honesty CI: **TB-985**. |
 
 #### M-140 — Finding concurrent disposition
 
