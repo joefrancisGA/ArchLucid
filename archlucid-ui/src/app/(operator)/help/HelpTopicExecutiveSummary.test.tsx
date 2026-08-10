@@ -68,7 +68,8 @@ describe("HelpTopicExecutiveSummary", () => {
       SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
     );
 
-    const pageHeadings = screen.getAllByRole("heading", { level: 2, name: "Executive summary" });
+    // Page chrome uses H1; prepared markdown no longer duplicates an "Executive summary" H2.
+    const pageHeadings = screen.getAllByRole("heading", { level: 1, name: "Executive summary" });
     expect(pageHeadings).toHaveLength(1);
     expect(screen.queryByText(/frequently asked questions/i)).toBeNull();
   });

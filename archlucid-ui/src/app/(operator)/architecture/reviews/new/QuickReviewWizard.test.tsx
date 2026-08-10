@@ -66,8 +66,6 @@ import {
   CONTOSO_RETAIL_SAMPLE_BRIEF,
   QuickReviewWizard,
 } from "./QuickReviewWizard";
-import { ReviewsNewPathSwitcher } from "./ReviewsNewPathSwitcher";
-import { REVIEWS_NEW_PATH_HINTS } from "@/lib/reviews-new-path-copy";
 
 describe("QuickReviewWizard", () => {
   beforeEach(() => {
@@ -149,71 +147,5 @@ describe("QuickReviewWizard", () => {
       );
     });
     expect(showError).not.toHaveBeenCalled();
-  });
-});
-
-describe("ReviewsNewPathSwitcher", () => {
-  it("defaults to quick start path and toggles to Detailed wizard stub", async () => {
-    localStorage.clear();
-    render(<ReviewsNewPathSwitcher />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId("reviews-new-path-toggle")).toBeTruthy();
-    });
-
-    expect(screen.getByTestId("first-pilot-intake-wizard")).toBeInTheDocument();
-    expect(screen.queryByTestId("guided-intake-stub")).not.toBeInTheDocument();
-
-    fireEvent.click(screen.getByTestId("reviews-new-path-guided-intake"));
-    await waitFor(() => {
-      expect(screen.getByTestId("guided-intake-stub")).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByTestId("reviews-new-path-detailed"));
-    await waitFor(() => {
-      expect(screen.getByTestId("detailed-wizard-stub")).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByTestId("reviews-new-path-quick"));
-    await waitFor(() => {
-      expect(screen.getByTestId("first-pilot-intake-wizard")).toBeInTheDocument();
-    });
-  });
-
-  it("shows exactly one creation path at a time (TB-270)", async () => {
-    localStorage.clear();
-    render(<ReviewsNewPathSwitcher />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId("reviews-new-path-hint")).toBeInTheDocument();
-    });
-
-    const visiblePaths = [
-      screen.queryByTestId("first-pilot-intake-wizard"),
-      screen.queryByTestId("guided-intake-stub"),
-      screen.queryByTestId("detailed-wizard-stub"),
-    ].filter((node) => node !== null);
-
-    expect(visiblePaths).toHaveLength(1);
-    expect(screen.getByTestId("first-pilot-intake-wizard")).toBeInTheDocument();
-  });
-
-  it("shows mode-specific path hint copy", async () => {
-    localStorage.clear();
-    render(<ReviewsNewPathSwitcher />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId("reviews-new-path-hint")).toHaveTextContent(REVIEWS_NEW_PATH_HINTS["quick-review"]);
-    });
-
-    fireEvent.click(screen.getByTestId("reviews-new-path-guided-intake"));
-    await waitFor(() => {
-      expect(screen.getByTestId("reviews-new-path-hint")).toHaveTextContent(REVIEWS_NEW_PATH_HINTS["guided-intake"]);
-    });
-
-    fireEvent.click(screen.getByTestId("reviews-new-path-detailed"));
-    await waitFor(() => {
-      expect(screen.getByTestId("reviews-new-path-hint")).toHaveTextContent(REVIEWS_NEW_PATH_HINTS.detailed);
-    });
   });
 });

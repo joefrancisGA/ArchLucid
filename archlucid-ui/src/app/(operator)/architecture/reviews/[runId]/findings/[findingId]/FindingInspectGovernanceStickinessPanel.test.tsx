@@ -41,8 +41,8 @@ describe("FindingInspectGovernanceStickinessPanel", () => {
     const dispositionSave = screen.getByTestId("finding-disposition-save");
     const markRemediated = screen.getByTestId("finding-mark-remediated");
 
-    expect(remediationSave.className).toContain("bg-neutral-900");
-    expect(dispositionSave.className).toContain("bg-neutral-900");
+    expect(remediationSave.className).toContain("bg-neutral-200");
+    expect(dispositionSave.className).toContain("bg-neutral-200");
     expect(markRemediated.className).not.toContain("bg-teal");
     expect(screen.getByLabelText(/Remediation owner/i)).toBeTruthy();
   });

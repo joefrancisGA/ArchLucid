@@ -1,3 +1,4 @@
+import { USERS_AND_ROLES_HELP_CANONICAL_PATH } from "@/lib/users-and-roles-help-evidence-copy";
 import { REVIEW_GUIDE_HELP_TRAFFIC_PATH } from "@/lib/ui-route-traffic-review-guide-help";
 
 /**
@@ -6,6 +7,7 @@ import { REVIEW_GUIDE_HELP_TRAFFIC_PATH } from "@/lib/ui-route-traffic-review-gu
  */
 export const HELP_TOPIC_PERMANENT_REDIRECTS: Readonly<Record<string, string>> = {
   "creating-runs": REVIEW_GUIDE_HELP_TRAFFIC_PATH,
+  "operator-auth-roles": USERS_AND_ROLES_HELP_CANONICAL_PATH,
 };
 
 export function resolveHelpTopicPermanentRedirect(slug: string): string | null {

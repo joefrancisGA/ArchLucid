@@ -12,6 +12,6 @@ describe("tabs-pill-styles", () => {
     expect(tabsPillTriggerClass(true)).toMatch(/rounded-full/);
     expect(tabsPillTriggerClass(true)).toMatch(/bg-neutral-100/);
     expect(tabsPillTriggerClass(false)).toMatch(/rounded-full/);
-    expect(tabsPillTriggerClass(false)).toMatch(/bg-white/);
+    expect(tabsPillTriggerClass(false)).toMatch(/bg-neutral-100/);
   });
 });
