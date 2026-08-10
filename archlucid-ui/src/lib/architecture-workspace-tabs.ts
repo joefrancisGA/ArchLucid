@@ -1,3 +1,7 @@
+/**
+ * Create-home ArchitectureCreatedWorkspace tabs use `?archTab=`; committed review packages
+ * use `?reviewTab=` on ReviewDetailWorkspace instead — `archTab` is ignored there (TB-1831).
+ */
 export const ARCHITECTURE_WORKSPACE_TAB_PARAM = "archTab" as const;
 
 export const ARCHITECTURE_WORKSPACE_TAB_IDS = [

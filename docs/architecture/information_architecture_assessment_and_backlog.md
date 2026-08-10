@@ -182,7 +182,8 @@ Notation — **Nav:** P = primary sidebar (when gates pass), S = secondary/in-pa
 
 | Route | Purpose | Disposition |
 |---|---|---|
-| `/welcome` (canonical public home), `/signup`, `/signup/verify`, `/get-started`, `/quick-start`, `/try`, `/see-it`, `/pricing`, `/faq`, `/trust`, `/security-trust`, `/privacy`, `/accessibility`, `/why`, `/compliance-journey` | Public acquisition and procurement surface | Retain as-is (separately grouped; consistent) |
+| `/welcome` (canonical public home), `/signup`, `/signup/verify`, `/get-started`, `/try`, `/see-it`, `/pricing`, `/faq`, `/trust`, `/security-trust`, `/privacy`, `/accessibility`, `/why`, `/compliance-journey` | Public acquisition and procurement surface | Retain as-is (separately grouped; consistent) |
+| `/quick-start` | Legacy marketing bookmark (retired) | Canonical buyer URL is `/get-started`; no competing marketing page (TB-1818/TB-1819) |
 | `/quick-scan` | No-sign-in ephemeral scan | Retain as-is |
 | `/demo/preview`, `/live-demo`, `/showcase/[runId]` | Read-only demo walkthroughs | Retain as-is (well-differentiated with sample badges) |
 | `/demo` | CTO demo tour redirect | Retain as-is |

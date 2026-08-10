@@ -20,7 +20,7 @@ Regenerate after opening or closing summary-table rows:
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
 | Explainability | 1 |
-| Trustworthiness | 107 |
+| Trustworthiness | 102 |
 | Maintainability | 9 |
 | Traceability | 3 |
 | Interoperability | 4 |
@@ -35,9 +35,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **687** |
+| **Total (unique open)** | **682** |
 
-**By priority band:** P0 **3** | P1 **554** | P2 **113** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **3** | P1 **549** | P2 **113** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -795,9 +795,9 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1809 | Canonicalize inbound `/operate/architecture-graph` ? `/graph`; see ## TB-1809 below | Trustworthiness P1 ? **V1**; with **TB-1806** | S |
 | TB-1811 | `/patterns/[patternKey]` detail provenance parity with library hub; see ## TB-1811 below | Trustworthiness P1 ? **V1**; owner review ~48/100 2026-07-27; traffic **PAP**; do not reopen **TB-880** | M |
 | TB-1813 | `/patterns/[patternKey]` ? related policy rules honesty / deep links; see ## TB-1813 below | Trustworthiness P1 ? **V1**; with **TB-1811** | M |
-| TB-1818 | `/quick-start` ? robots/noindex honesty if shim page retained; see ## TB-1818 below | Trustworthiness P1 ? **V1**; with **TB-1816** | XS |
-| TB-1819 | Drop residual `/quick-start` product/docs pointers (API demos OK); see ## TB-1819 below | Trustworthiness P1 ? **V1**; with **TB-1816** | S |
-| TB-1831 | Traffic honesty ? `archTab=activity` is create-home only (not `reviewTab`); see ## TB-1831 below | Trustworthiness P1 ? **V1**; owner review ~42/100 2026-07-27; traffic **REA** | S |
+| TB-1818 | ~~`/quick-start` — robots/noindex honesty if shim page retained~~ **Done** 2026-08-10 — `LEGACY_QUICK_START_ROUTE_METADATA` noindex + Vitest; see ## TB-1818 below | Trustworthiness P1 — **V1**; with **TB-1816** | XS |
+| TB-1819 | ~~Drop residual `/quick-start` product/docs pointers (API demos OK)~~ **Done** 2026-08-10 — contributor doc guard + canonical `/get-started`; see ## TB-1819 below | Trustworthiness P1 — **V1**; with **TB-1816** | S |
+| TB-1831 | ~~Traffic honesty — `archTab=activity` is create-home only (not `reviewTab`)~~ **Done** 2026-08-10 — REA create-home-only notes + Vitest; see ## TB-1831 below | Trustworthiness P1 — **V1**; owner review ~42/100 2026-07-27; traffic **REA** | S |
 | TB-1833 | `buildArchitectureWorkspaceTabHref` must not force create-intent query; see ## TB-1833 below | Trustworthiness P1 ? **V1**; with **TB-1831**; siblings **REC**?**REO** | S |
 | TB-1836 | Traffic honesty ? `archTab=clarifications` create-home only; see ## TB-1836 below | Trustworthiness P1 ? **V1**; owner review ~44/100 2026-07-27; traffic **REC**; pairs **TB-1831** | S |
 | TB-1841 | Traffic honesty ? `archTab=diagram` create-home only; see ## TB-1841 below | Trustworthiness P1 ? **V1**; owner review ~50/100 2026-07-27; traffic **RED**; pairs **TB-1831** | S |
@@ -43584,25 +43584,29 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ---
 
-## TB-1818 ? `/quick-start` ? robots/noindex honesty if shim page retained (P0)
+## TB-1818 — `/quick-start` — robots/noindex honesty if shim page retained (P0)
 
-**Window:** V1 ? Trustworthiness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 — Trustworthiness. **Status:** **Done** (2026-08-10) — `LEGACY_QUICK_START_ROUTE_METADATA` sets `robots: { index: false, follow: false }` with redirect-only title/description; Vitest `legacy-quick-start-route-metadata.test.ts`. **Priority:** P0.
 
-**Problem:** Orphan page metadata still sets `robots: { index: true, follow: true }` titled ?Quick start?.
+**Problem:** Orphan page metadata still sets `robots: { index: true, follow: true }` titled “Quick start”.
 
 **Approach:** If any shim page must remain temporarily, force noindex + redirect-only copy; prefer delete per **TB-1817**. Vitest: no indexable Quick start metadata.
+
+**Shipped:** Metadata constant documents redirect-only shim (no competing marketing page per **TB-1817** hygiene); Vitest asserts noindex and non-product title.
 
 **Acceptance:** Retired URL cannot be indexed as a competing start page. **Size estimate:** XS.
 
 ---
 
-## TB-1819 ? Drop residual `/quick-start` product/docs pointers (API demos OK) (P0)
+## TB-1819 — Drop residual `/quick-start` product/docs pointers (API demos OK) (P0)
 
-**Window:** V1 ? Trustworthiness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 — Trustworthiness. **Status:** **Done** (2026-08-10) — contributor docs canonicalize `/get-started`; Vitest `legacy-quick-start-route-doc-guard.test.ts`. **Priority:** P0.
 
 **Problem:** Product/docs/terminology inventories may still teach `/quick-start` as a buyer URL.
 
 **Approach:** Canonicalize inbound links to `/get-started`; allow API path `/v1/demo/quickstart` and help section ids that are not the marketing route. Vitest/docs grep.
+
+**Shipped:** IA assessment, cloud-neutrality assessment, showcase strategy, and REA traffic template updated; doc guard fails on unlabeled `/quick-start` path references in contributor docs.
 
 **Acceptance:** Buyer-facing links use `/get-started`. **Size estimate:** S.
 
@@ -43748,15 +43752,15 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ---
 
-## TB-1831 ? Traffic honesty ? `archTab=activity` is create-home only (not `reviewTab`) (P0)
+## TB-1831 — Traffic honesty — `archTab=activity` is create-home only (not `reviewTab`) (P0)
 
-**Window:** V1 ? Trustworthiness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 — Trustworthiness. **Status:** **Done** (2026-08-10) — REA workbook/template notes create-home-only + twin `reviewTab=activity`; `architecture-workspace-tabs.ts` dual-param comment; Vitest traffic note guard. **Priority:** P0.
 
 **Source:** Owner REA ~42/100 2026-07-27.
 
 **Problem:** Workbook **REA** implies a Core review Activity deep link, but `archTab` is ignored on review-package `ReviewDetailWorkspace` (`reviewTab`). Operators pasting `?archTab=activity` on a committed package land on Overview.
 
-**Approach:** Notes create-home-only; document dual SoT (`archTab` vs `reviewTab`); optional alias map `archTab`?`reviewTab` when create-home is false. Apply same honesty when scoring **REC**?**REO**.
+**Approach:** Notes create-home-only; document dual SoT (`archTab` vs `reviewTab`); optional alias map `archTab`→`reviewTab` when create-home is false. Apply same honesty when scoring **REC**–**REO**.
 
 **Acceptance:** Workbook/docs cannot imply `archTab` selects review-package tabs. **Size estimate:** S.
 

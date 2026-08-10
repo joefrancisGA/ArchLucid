@@ -44,7 +44,7 @@ This partially confirms and partially corrects the expected outcome ("generic pr
 | Demo preview | `/demo/preview` | API `GET /v1/demo/preview` (Contoso) or `public/demo-preview-snapshot.json` |
 | Frictionless trial | `/try` | Session flag ΓåÆ `/reviews/claims-intake-modernization` |
 | Get started | `/get-started` | Healthcare vertical ΓåÆ showcase; other verticals ΓåÆ `/demo/preview` |
-| Quick start | `/quick-start` | 301 ΓåÆ `/get-started` |
+| Quick start | `/get-started` (legacy `/quick-start` retired bookmark) | Canonical marketing first-run surface |
 | Quick Scan | `/quick-scan` | Separate product; example form is claims-flavored |
 | Review workspace | `/reviews/claims-intake-modernization` | `operator-static-demo.ts` fallback / demo env |
 | Primary finding | `ΓÇª/findings/phi-minimization-risk` (+ `/inspect`, `/evidence-trace`) | Static |

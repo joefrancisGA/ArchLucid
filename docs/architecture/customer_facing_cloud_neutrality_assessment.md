@@ -34,7 +34,8 @@ However, **Azure, AWS, and Google Cloud are not currently presented as first-cla
 | `/pricing` | `(marketing)/pricing/page.tsx` | Public | Quote placeholder mentions “private Azure” |
 | `/faq` | `(marketing)/faq/page.tsx` | Public | Multi-cloud FAQ (`marketing-faq.ts`) — **aligned** |
 | `/try` | `(marketing)/try/page.tsx` | Public | “no Azure setup, no Entra ID” — negated but Entra-forward |
-| `/quick-start`, `/quick-scan` | marketing clients | Public | Azure-heavy placeholders |
+| `/quick-scan` | marketing clients | Public | Azure-heavy placeholders |
+| `/quick-start` | retired legacy bookmark (canonical `/get-started`) | Public | Not a live marketing surface; metadata noindex only (TB-1818) |
 | `/get-started` | `(marketing)/get-started/page.tsx` | Public | Entra-first auth copy |
 | `/trust`, `/security-trust`, `/privacy`, `/compliance-journey` | marketing | Public | Trust/procurement — Azure hosting truth OK |
 | `/see-it`, `/demo/preview`, `/live-demo`, `/showcase/[runId]` | marketing | Public | Demo entry |
