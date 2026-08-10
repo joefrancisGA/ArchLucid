@@ -16,6 +16,10 @@ vi.mock("@/components/provenance/ProvenanceWayfinding", () => ({
   ProvenanceWayfinding: () => <div data-testid="provenance-wayfinding" />,
 }));
 
+vi.mock("@/components/OperatorDemoStaticBanner", () => ({
+  OperatorDemoStaticBanner: () => <div data-testid="operator-demo-static-banner" />,
+}));
+
 const graph: ArchitectureRunProvenanceGraph = {
   runId: "demo-run",
   traceabilityGaps: [],
@@ -104,7 +108,7 @@ describe("ProvenancePageWorkspace", () => {
     fireEvent.click(screen.getByRole("tab", { name: "Tables" }));
     const row = document.getElementById("prov-node-row-n-find");
 
-    expect(row?.className).toMatch(/bg-teal-50/);
+    expect(row?.className).toMatch(/color-mix/);
   });
 
   it("switches between graph, timeline, and table views", () => {
@@ -122,6 +126,31 @@ describe("ProvenancePageWorkspace", () => {
     expect(screen.getByTestId("provenance-timeline-table")).toBeInTheDocument();
     expect(screen.getByTestId("provenance-nodes-table")).toBeInTheDocument();
     expect(screen.getByTestId("provenance-edges-table")).toBeInTheDocument();
+  });
+
+  it("shows sample data banner when dataOrigin is sample", () => {
+    render(
+      <ProvenancePageWorkspace runId="demo-run" graph={graph} provenanceTraceId={null} dataOrigin="sample" />,
+    );
+
+    expect(screen.getByTestId("operator-demo-static-banner")).toBeInTheDocument();
+  });
+
+  it("hides graph filters outside graph view", () => {
+    render(<ProvenancePageWorkspace runId="demo-run" graph={graph} provenanceTraceId={null} />);
+
+    fireEvent.click(screen.getByRole("tab", { name: "Timeline" }));
+    expect(screen.queryByTestId("provenance-graph-filters")).not.toBeInTheDocument();
+  });
+
+  it("supports arrow-key navigation on view tabs", () => {
+    render(<ProvenancePageWorkspace runId="demo-run" graph={graph} provenanceTraceId={null} />);
+
+    const timelineTab = screen.getByRole("tab", { name: "Timeline" });
+    timelineTab.focus();
+    fireEvent.keyDown(timelineTab, { key: "ArrowRight" });
+
+    expect(screen.getByRole("tab", { name: "Tables" })).toHaveAttribute("aria-selected", "true");
   });
 
   it("shows filter notice without removing table data", () => {
@@ -155,6 +184,6 @@ describe("ProvenancePageWorkspace", () => {
 
     const highlightedRow = within(edgesTable).getByText(/Reviewed source context → PHI minimization risk/).closest("tr");
 
-    expect(highlightedRow?.className).toMatch(/bg-teal-50/);
+    expect(highlightedRow?.className).toMatch(/color-mix/);
   });
 });

@@ -1029,11 +1029,45 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
 
   const chain = d.authorityChain;
 
+  const ctxReferenceId = chain.contextSnapshotId ?? "ctx-demo";
+  const graphReferenceId = chain.graphSnapshotId ?? "graph-demo";
+  const findingsReferenceId = chain.findingsSnapshotId ?? "find-demo";
+  const bundleReferenceId = chain.artifactBundleId ?? "bundle-demo";
+  const manifestReferenceId = manifest.manifestId;
+
+  const timelineReferenceIdForEvent = (eventType: string): string | null => {
+    switch (eventType) {
+      case "RunStarted":
+        return rid;
+
+      case "context.snapshot.created":
+        return ctxReferenceId;
+
+      case "graph.snapshot.created":
+        return graphReferenceId;
+
+      case "findings.snapshot.created":
+        return findingsReferenceId;
+
+      case "finalize.run":
+        return manifestReferenceId;
+
+      case "com.archlucid.governance.approval.recorded":
+        return "audit-claims-intake-001";
+
+      case "artifact.bundle.created":
+        return bundleReferenceId;
+
+      default:
+        return null;
+    }
+  };
+
   const timeline = d.pipelineTimeline.map((row) => ({
     timestampUtc: row.occurredUtc,
     kind: row.eventType,
     label: pipelineEventTypeFriendlyLabel(row.eventType),
-    referenceId: row.correlationId ?? null,
+    referenceId: timelineReferenceIdForEvent(row.eventType),
   }));
 
   return {

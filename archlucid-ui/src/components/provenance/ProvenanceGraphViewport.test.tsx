@@ -172,4 +172,26 @@ describe("ProvenanceGraphViewport", () => {
     fireEvent.click(screen.getByRole("button", { name: "Retry graph" }));
     expect(onRetry).toHaveBeenCalled();
   });
+
+  it("offers tables view from the render-failed fallback", () => {
+    const onOpenTables = vi.fn();
+
+    render(
+      <ProvenanceGraphViewport
+        nodes={nodes}
+        edges={edges}
+        selectedNodeId={null}
+        highlightedEdgeId={null}
+        activeFilters={new Set()}
+        layoutSeed={0}
+        onSelectNode={vi.fn()}
+        onHighlightEdge={vi.fn()}
+        renderFailed
+        onOpenTablesView={onOpenTables}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Open Tables view" }));
+    expect(onOpenTables).toHaveBeenCalled();
+  });
 });

@@ -36,6 +36,12 @@ describe("provenanceReferenceHref", () => {
     );
   });
 
+  it("returns null for unresolved guid references", () => {
+    expect(
+      provenanceReferenceHref("claims-intake-modernization", "00000000-0000-0000-0000-000000000099", nodes),
+    ).toBeNull();
+  });
+
   it("returns null for empty references", () => {
     expect(provenanceReferenceHref("claims-intake-modernization", null, nodes)).toBeNull();
   });

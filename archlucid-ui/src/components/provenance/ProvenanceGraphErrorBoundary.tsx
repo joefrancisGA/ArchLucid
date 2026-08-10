@@ -5,6 +5,7 @@ import { Component, type ReactNode } from "react";
 type Props = {
   readonly children: ReactNode;
   readonly fallback: ReactNode;
+  readonly onRenderFailed?: () => void;
 };
 
 type State = {
@@ -20,7 +21,7 @@ export class ProvenanceGraphErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(): void {
-    // Intentionally avoid surfacing library diagnostics to reviewers.
+    this.props.onRenderFailed?.();
   }
 
   render(): ReactNode {

@@ -95,12 +95,8 @@ export function provenanceReferenceHref(
     return nodeHref(runId, byId, nodes, manifestId);
   }
 
-  if (GUID_RE.test(ref)) {
-    if (manifestId === ref) {
-      return signedRecordDetailPath(ref);
-    }
-
-    return getFindingEvidenceTraceHref(runId, ref);
+  if (GUID_RE.test(ref) && manifestId === ref) {
+    return signedRecordDetailPath(ref);
   }
 
   return null;

@@ -28,6 +28,7 @@ export default async function RunProvenancePage({
   let loadFailure: ApiLoadFailureState | null = null;
   let provenanceResponse: ApiResponseWithTrace<ArchitectureRunProvenanceGraph> | null = null;
   let reviewContext: ProvenanceReviewContext | null = null;
+  let dataOrigin: "live" | "sample" = "live";
 
   const reviewSummaryPromise = getRunSummary(runId).catch(() => null);
 
@@ -49,6 +50,7 @@ export default async function RunProvenancePage({
     if (demoGraph !== null) {
       provenanceResponse = { data: demoGraph, traceId: null };
       loadFailure = null;
+      dataOrigin = "sample";
     }
   }
 
@@ -61,6 +63,7 @@ export default async function RunProvenancePage({
       if (demoGraph !== null && demoGraph.nodes.length > 0) {
         provenanceResponse = { data: demoGraph, traceId: provenanceResponse.traceId };
         loadFailure = null;
+        dataOrigin = "sample";
       }
     }
   }
@@ -96,6 +99,7 @@ export default async function RunProvenancePage({
       graph={provenanceResponse.data}
       provenanceTraceId={provenanceResponse.traceId}
       reviewContext={reviewContext}
+      dataOrigin={dataOrigin}
     />
   );
 }

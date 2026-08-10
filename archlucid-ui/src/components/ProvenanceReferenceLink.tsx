@@ -27,7 +27,7 @@ function resolveReferenceLabel(
     return provenanceNodeDisplayName(node);
   }
 
-  return "Linked item";
+  return "Correlation reference — no linked record";
 }
 
 export function ProvenanceReferenceLink(props: {

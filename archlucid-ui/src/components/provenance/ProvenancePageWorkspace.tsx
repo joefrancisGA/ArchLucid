@@ -9,8 +9,14 @@ import { ProvenanceGraphViewport } from "@/components/provenance/ProvenanceGraph
 import { ProvenanceGraphErrorBoundary } from "@/components/provenance/ProvenanceGraphErrorBoundary";
 import { ProvenanceSectionNav, type ProvenanceSection } from "@/components/provenance/ProvenanceSectionNav";
 import { ProvenanceWayfinding } from "@/components/provenance/ProvenanceWayfinding";
+import {
+  ProvenanceViewModeTabs,
+  provenanceViewPanelProps,
+  type ProvenanceViewMode,
+} from "@/components/provenance/ProvenanceViewModeTabs";
 import { ProvenanceNodeExplainCell } from "@/components/ProvenanceNodeExplainCell";
 import { ProvenanceReferenceLink } from "@/components/ProvenanceReferenceLink";
+import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
 import { RunTraceViewerLink } from "@/components/RunTraceViewerLink";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,6 +45,7 @@ import {
 } from "@/lib/provenance-node-presentation";
 import {
   provenanceTimelinePrimaryLabel,
+  provenanceTimelineShowsTechnicalKind,
   provenanceTimelineTechnicalKind,
 } from "@/lib/provenance-timeline-presentation";
 import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
@@ -54,9 +61,8 @@ export type ProvenancePageWorkspaceProps = {
   readonly graph: ArchitectureRunProvenanceGraph;
   readonly provenanceTraceId: string | null;
   readonly reviewContext?: ProvenanceReviewContext | null;
+  readonly dataOrigin?: "live" | "sample";
 };
-
-type ProvenanceViewMode = "graph" | "timeline" | "table";
 
 const VIEW_MODE_OPTIONS: ReadonlyArray<{ id: ProvenanceViewMode; label: string }> = [
   { id: "graph", label: PROVENANCE_VIEW_GRAPH_LABEL },
@@ -98,7 +104,7 @@ function flashNodeRow(nodeId: string): void {
 }
 
 export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): React.JSX.Element {
-  const { runId, provenanceTraceId, reviewContext } = props;
+  const { runId, provenanceTraceId, reviewContext, dataOrigin = "live" } = props;
   // OpenAPI may omit optional arrays; normalize before .length / .map so SSR/demo payloads cannot crash.
   const graph: ArchitectureRunProvenanceGraph = {
     ...props.graph,
@@ -261,6 +267,18 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
     return graph.nodes.filter((node) => provenanceNodeMatchesFilter(node, activeFilters)).length;
   }, [activeFilters, graph.nodes]);
 
+  const onGraphRenderFailed = useCallback(() => {
+    setViewMode("table");
+  }, []);
+
+  const openTablesView = useCallback(() => {
+    setViewMode("table");
+  }, []);
+
+  const retryGraphLayout = useCallback(() => {
+    setLayoutSeed((value) => value + 1);
+  }, []);
+
   const reviewTitle = reviewContext?.reviewTitle?.trim() ?? "";
   const reviewHref = reviewDetailPath(runId);
 
@@ -293,6 +311,8 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
         <article className="min-w-0 flex-1 space-y-6 text-neutral-800 dark:text-neutral-200">
           <ProvenanceSectionNav sections={sections} placement="inline-top" />
 
+          {dataOrigin === "sample" ? <OperatorDemoStaticBanner emphasizeSampleData /> : null}
+
           <header className="space-y-2">
             <ProvenanceWayfinding reviewPackageHref={reviewHref} />
             <div className="flex flex-wrap items-center gap-2">
@@ -312,7 +332,9 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
               </p>
             ) : null}
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-              {graph.nodes.length} nodes, {graph.edges.length} edges, {graph.timeline.length} timeline events.
+              {graph.nodes.length} {PROVENANCE_SECTION_LINKAGE_POINTS_LABEL.toLowerCase()},{" "}
+              {graph.edges.length} {PROVENANCE_SECTION_RELATIONSHIPS_LABEL.toLowerCase()},{" "}
+              {graph.timeline.length} recorded events.
             </p>
             <details className="rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-700">
               <summary className={cn("cursor-pointer text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.micro)}>
@@ -360,59 +382,51 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
           ) : null}
 
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-            <div className="inline-flex rounded-md border border-neutral-200 p-0.5 dark:border-neutral-700" role="tablist" aria-label="Provenance view">
-              {VIEW_MODE_OPTIONS.map((option) => (
-                <button
-                  key={option.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={viewMode === option.id}
-                  className={cn(
-                    "rounded px-3 py-1.5 text-sm",
-                    viewMode === option.id
-                      ? "bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900"
-                      : "text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800",
-                  )}
-                  onClick={() => setViewMode(option.id)}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
+            <ProvenanceViewModeTabs
+              options={VIEW_MODE_OPTIONS}
+              viewMode={viewMode}
+              onViewModeChange={setViewMode}
+            />
 
-            <div className="flex flex-wrap gap-1.5" data-testid="provenance-graph-filters">
-              {FILTER_OPTIONS.map((option) => {
-                const active = activeFilters.has(option.id);
-                const count = filterCounts.get(option.id) ?? 0;
-                const disabled = count === 0;
+            {viewMode === "graph" ? (
+              <div className="flex flex-wrap gap-1.5" data-testid="provenance-graph-filters">
+                {FILTER_OPTIONS.map((option) => {
+                  const active = activeFilters.has(option.id);
+                  const count = filterCounts.get(option.id) ?? 0;
+                  const zeroCount = count === 0;
 
-                return (
-                  <Button
-                    key={option.id}
-                    type="button"
-                    size="sm"
-                    variant={active ? "default" : "outline"}
-                    className="h-8"
-                    aria-pressed={active}
-                    disabled={disabled}
-                    onClick={() => toggleFilter(option.id)}
-                  >
-                    {option.label} ({count})
-                  </Button>
-                );
-              })}
-            </div>
+                  return (
+                    <Button
+                      key={option.id}
+                      type="button"
+                      size="sm"
+                      variant={active ? "default" : "outline"}
+                      className="h-8"
+                      aria-pressed={active}
+                      aria-disabled={zeroCount}
+                      tabIndex={zeroCount ? -1 : undefined}
+                      onClick={() => toggleFilter(option.id)}
+                    >
+                      {option.label} ({count})
+                    </Button>
+                  );
+                })}
+              </div>
+            ) : null}
           </div>
 
-          {activeFilters.size > 0 ? (
+          {viewMode === "graph" && activeFilters.size > 0 ? (
             <p className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.micro)} role="status">
-              Filters hide graph elements for focus only — all provenance data remains available in the tables below.
+              Filters hide graph elements for focus only — all provenance data remains available in the tables view.
               Showing {graphVisibleNodeCount} of {graph.nodes.length} nodes in the graph.
             </p>
           ) : null}
 
           {showGraph ? (
-            <section id="prov-graph" aria-labelledby="prov-graph-heading" className="scroll-mt-28">
+            <section
+              className="scroll-mt-28"
+              {...provenanceViewPanelProps("graph", true)}
+            >
               <h3 id="prov-graph-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
                 {PROVENANCE_SECTION_GRAPH_LABEL}
               </h3>
@@ -422,6 +436,7 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
               <div className="mt-3 w-full min-w-0">
                 <ProvenanceGraphErrorBoundary
                   key={layoutSeed}
+                  onRenderFailed={onGraphRenderFailed}
                   fallback={
                     <ProvenanceGraphViewport
                       nodes={graph.nodes}
@@ -433,7 +448,8 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
                       onSelectNode={onSelectNode}
                       onHighlightEdge={setHighlightedEdgeId}
                       renderFailed
-                      onRetryRender={() => setLayoutSeed((value) => value + 1)}
+                      onRetryRender={retryGraphLayout}
+                      onOpenTablesView={openTablesView}
                     />
                   }
                 >
@@ -446,6 +462,8 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
                     layoutSeed={layoutSeed}
                     onSelectNode={onSelectNode}
                     onHighlightEdge={setHighlightedEdgeId}
+                    onRetryRender={retryGraphLayout}
+                    onOpenTablesView={openTablesView}
                   />
                 </ProvenanceGraphErrorBoundary>
               </div>
@@ -537,7 +555,12 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
           ) : null}
 
           {showTimeline ? (
-            <section id="prov-timeline" aria-labelledby="prov-timeline-heading" className="scroll-mt-28">
+            <section
+              className="scroll-mt-28"
+              {...(viewMode === "timeline"
+                ? provenanceViewPanelProps("timeline", true)
+                : { id: "prov-timeline", "aria-labelledby": "prov-timeline-heading" })}
+            >
               <h3 id="prov-timeline-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
                 {PROVENANCE_SECTION_TRACE_TIMELINE_LABEL}
               </h3>
@@ -545,52 +568,91 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
                 Ordered events from review lifecycle and finalized decisions.
               </p>
               <div className="overflow-x-auto">
-                <table className={cn("w-full border-collapse", OPERATOR_TYPOGRAPHY.body)} data-testid="provenance-timeline-table">
+                <table
+                  className={cn("w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}
+                  data-testid="provenance-timeline-table"
+                >
+                  <caption className="sr-only">{PROVENANCE_SECTION_TRACE_TIMELINE_LABEL}</caption>
                   <thead>
                     <tr className="border-b-2 border-neutral-300 dark:border-neutral-600">
-                      <th className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50">Time (UTC)</th>
-                      <th className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50">Event</th>
-                      <th className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50">Reference</th>
+                      <th
+                        scope="col"
+                        className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50"
+                      >
+                        Time (UTC)
+                      </th>
+                      <th
+                        scope="col"
+                        className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50"
+                      >
+                        Event
+                      </th>
+                      <th
+                        scope="col"
+                        className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50"
+                      >
+                        Reference
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {graph.timeline.map((row) => {
-                      const relatedNode = graph.nodes.find((node) => node.referenceId === row.referenceId);
-
-                      return (
-                        <tr
-                          key={`${row.timestampUtc}-${row.kind}-${row.referenceId ?? row.label}`}
-                          className="transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-900/40"
+                    {graph.timeline.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={3}
+                          className="border-b border-neutral-100 p-3 text-neutral-500 dark:border-neutral-800 dark:text-neutral-400"
                         >
-                          <td className="border-b border-neutral-100 p-3 align-top whitespace-nowrap dark:border-neutral-800">
-                            <time dateTime={row.timestampUtc}>{formatUtc(row.timestampUtc)}</time>
-                          </td>
-                          <td className="border-b border-neutral-100 p-3 align-top dark:border-neutral-800">
-                            <button
-                              type="button"
-                              className="text-left font-medium text-neutral-900 underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 dark:text-neutral-100"
-                              disabled={relatedNode === undefined}
-                              onClick={() => {
-                                if (relatedNode !== undefined) {
-                                  onSelectNode(relatedNode.id);
-                                }
-                              }}
-                            >
-                              {provenanceTimelinePrimaryLabel(row)}
-                            </button>
-                            <span
-                              className={cn("mt-0.5 block text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.micro)}
-                              title={provenanceTimelineTechnicalKind(row)}
-                            >
-                              {provenanceTimelineTechnicalKind(row)}
-                            </span>
-                          </td>
-                          <td className="break-all border-b border-neutral-100 p-3 align-top dark:border-neutral-800">
-                            <ProvenanceReferenceLink runId={runId} referenceId={row.referenceId} nodes={graph.nodes} />
-                          </td>
-                        </tr>
-                      );
-                    })}
+                          No recorded events for this review.
+                        </td>
+                      </tr>
+                    ) : (
+                      graph.timeline.map((row) => {
+                        const relatedNode = graph.nodes.find((node) => node.referenceId === row.referenceId);
+                        const primaryLabel = provenanceTimelinePrimaryLabel(row);
+
+                        return (
+                          <tr
+                            key={`${row.timestampUtc}-${row.kind}-${row.referenceId ?? row.label}`}
+                            className="transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-900/40"
+                          >
+                            <td className="border-b border-neutral-100 p-3 align-top whitespace-nowrap dark:border-neutral-800">
+                              <time dateTime={row.timestampUtc}>{formatUtc(row.timestampUtc)}</time>
+                            </td>
+                            <td className="border-b border-neutral-100 p-3 align-top dark:border-neutral-800">
+                              {relatedNode !== undefined ? (
+                                <button
+                                  type="button"
+                                  className="text-left font-medium text-neutral-900 underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 dark:text-neutral-100"
+                                  onClick={() => onSelectNode(relatedNode.id)}
+                                >
+                                  {primaryLabel}
+                                </button>
+                              ) : (
+                                <span className="font-medium text-neutral-900 dark:text-neutral-100">{primaryLabel}</span>
+                              )}
+                              {provenanceTimelineShowsTechnicalKind(row) ? (
+                                <details className="mt-1">
+                                  <summary
+                                    className={cn(
+                                      "cursor-pointer text-neutral-600 dark:text-neutral-400",
+                                      OPERATOR_TYPOGRAPHY.micro,
+                                    )}
+                                  >
+                                    Technical event kind
+                                  </summary>
+                                  <p className={cn("m-0 mt-1 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.micro)}>
+                                    {provenanceTimelineTechnicalKind(row)}
+                                  </p>
+                                </details>
+                              ) : null}
+                            </td>
+                            <td className="break-all border-b border-neutral-100 p-3 align-top dark:border-neutral-800">
+                              <ProvenanceReferenceLink runId={runId} referenceId={row.referenceId} nodes={graph.nodes} />
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -598,7 +660,10 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
           ) : null}
 
           {showTables ? (
-            <section id="prov-nodes" aria-labelledby="prov-nodes-heading" className="scroll-mt-28">
+            <section
+              className="scroll-mt-28"
+              {...provenanceViewPanelProps("table", true)}
+            >
               <h3 id="prov-nodes-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
                 {PROVENANCE_SECTION_LINKAGE_POINTS_LABEL}
               </h3>
@@ -634,29 +699,48 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
               ) : null}
               <div className="mt-3 overflow-x-auto">
                 <table className={cn("w-full border-collapse", OPERATOR_TYPOGRAPHY.body)} data-testid="provenance-nodes-table">
+                  <caption className="sr-only">{PROVENANCE_SECTION_LINKAGE_POINTS_LABEL}</caption>
                   <thead>
                     <tr className="border-b-2 border-neutral-300 dark:border-neutral-600">
-                      <th className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50">Name</th>
-                      <th className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50">Type</th>
-                      <th className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50">Reference</th>
-                      <th className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50">
+                      <th scope="col" className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50">
+                        Name
+                      </th>
+                      <th scope="col" className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50">
+                        Type
+                      </th>
+                      <th scope="col" className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50">
+                        Reference
+                      </th>
+                      <th scope="col" className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50">
                         <span className="sr-only">Explain</span>
                       </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredNodesForTable.map((node) => {
-                      const selected = selectedNodeId === node.id;
-
-                      return (
-                        <tr
-                          key={node.id}
-                          id={`prov-node-row-${node.id}`}
-                          className={cn(
-                            "transition-colors",
-                            selected ? "bg-teal-50/80 dark:bg-teal-950/30" : "",
-                          )}
+                    {filteredNodesForTable.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={4}
+                          className="border-b border-neutral-100 p-3 text-neutral-500 dark:border-neutral-800 dark:text-neutral-400"
                         >
+                          {graph.nodes.length === 0
+                            ? "No linkage points recorded for this review."
+                            : "No linkage points match your search or type filter."}
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredNodesForTable.map((node) => {
+                        const selected = selectedNodeId === node.id;
+
+                        return (
+                          <tr
+                            key={node.id}
+                            id={`prov-node-row-${node.id}`}
+                            className={cn(
+                              "transition-colors",
+                              selected ? "bg-[color-mix(in_srgb,var(--al-accent-interactive)_12%,transparent)]" : "",
+                            )}
+                          >
                           <td className="border-b border-neutral-100 p-3 align-top font-medium dark:border-neutral-800">
                             <button
                               type="button"
@@ -689,7 +773,8 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
                           </td>
                         </tr>
                       );
-                    })}
+                    })
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -729,34 +814,54 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
                   ) : null}
                   <div className="mt-3 overflow-x-auto">
                     <table className={cn("w-full border-collapse", OPERATOR_TYPOGRAPHY.body)} data-testid="provenance-edges-table">
+                      <caption className="sr-only">{PROVENANCE_SECTION_RELATIONSHIPS_LABEL}</caption>
                       <thead>
                         <tr className="border-b-2 border-neutral-300 dark:border-neutral-600">
-                          <th className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50">Relationship</th>
-                          <th className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50">Type</th>
+                          <th scope="col" className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50">
+                            Relationship
+                          </th>
+                          <th scope="col" className="bg-neutral-50/90 p-3 text-left font-semibold dark:bg-neutral-900/50">
+                            Type
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
-                        {filteredEdgesForTable.map((edge) => {
-                          const highlighted = highlightedEdgeId === edge.id;
-
-                          return (
-                            <tr
-                              key={edge.id}
-                              className={cn(
-                                "cursor-pointer transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-900/40",
-                                highlighted ? "bg-teal-50/80 dark:bg-teal-950/30" : "",
-                              )}
-                              onClick={() => onSelectEdge(edge.id)}
+                        {filteredEdgesForTable.length === 0 ? (
+                          <tr>
+                            <td
+                              colSpan={2}
+                              className="border-b border-neutral-100 p-3 text-neutral-500 dark:border-neutral-800 dark:text-neutral-400"
                             >
-                              <td className="border-b border-neutral-100 p-3 align-top dark:border-neutral-800">
-                                {provenanceEdgeDisplayLabel(edge, nodeById)}
-                              </td>
-                              <td className="border-b border-neutral-100 p-3 align-top text-neutral-600 dark:border-neutral-800 dark:text-neutral-400">
-                                {buyerTrailEdgeDisplayPhrase(edge.type)}
-                              </td>
-                            </tr>
-                          );
-                        })}
+                              {graph.edges.length === 0
+                                ? "No relationships recorded for this review."
+                                : "No relationships match your search."}
+                            </td>
+                          </tr>
+                        ) : (
+                          filteredEdgesForTable.map((edge) => {
+                            const highlighted = highlightedEdgeId === edge.id;
+
+                            return (
+                              <tr
+                                key={edge.id}
+                                className={cn(
+                                  "cursor-pointer transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-900/40",
+                                  highlighted
+                                    ? "bg-[color-mix(in_srgb,var(--al-accent-interactive)_12%,transparent)]"
+                                    : "",
+                                )}
+                                onClick={() => onSelectEdge(edge.id)}
+                              >
+                                <td className="border-b border-neutral-100 p-3 align-top dark:border-neutral-800">
+                                  {provenanceEdgeDisplayLabel(edge, nodeById)}
+                                </td>
+                                <td className="border-b border-neutral-100 p-3 align-top text-neutral-600 dark:border-neutral-800 dark:text-neutral-400">
+                                  {buyerTrailEdgeDisplayPhrase(edge.type)}
+                                </td>
+                              </tr>
+                            );
+                          })
+                        )}
                       </tbody>
                     </table>
                   </div>

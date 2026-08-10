@@ -55,6 +55,7 @@ export type ProvenanceGraphViewportProps = {
   readonly onHighlightEdge: (edgeId: string | null) => void;
   readonly renderFailed?: boolean;
   readonly onRetryRender?: () => void;
+  readonly onOpenTablesView?: () => void;
 };
 
 function prefersReducedMotion(): boolean {
@@ -73,9 +74,12 @@ function ProvenanceNodeShape(props: {
 }): React.JSX.Element {
   const { node, selected, dimmed, connected } = props;
   const r = selected ? node.radius + 4 : node.radius;
-  const stroke = selected ? "#0f172a" : connected ? node.stroke : node.stroke;
+  const stroke = selected
+    ? "var(--al-accent-interactive)"
+    : connected
+      ? "var(--al-accent-border-focus)"
+      : node.stroke;
   const strokeWidth = selected ? 2.5 : connected ? 2 : 1.25;
-  const opacity = dimmed ? 0.28 : 1;
 
   if (node.shape === "square") {
     return (
@@ -88,7 +92,7 @@ function ProvenanceNodeShape(props: {
         fill={node.fill}
         stroke={stroke}
         strokeWidth={strokeWidth}
-        opacity={opacity}
+        className={dimmed ? "prov-graph-node-dimmed" : undefined}
       />
     );
   }
@@ -100,7 +104,7 @@ function ProvenanceNodeShape(props: {
         fill={node.fill}
         stroke={stroke}
         strokeWidth={strokeWidth}
-        opacity={opacity}
+        className={dimmed ? "prov-graph-node-dimmed" : undefined}
       />
     );
   }
@@ -113,7 +117,7 @@ function ProvenanceNodeShape(props: {
       fill={node.fill}
       stroke={stroke}
       strokeWidth={strokeWidth}
-      opacity={opacity}
+      className={dimmed ? "prov-graph-node-dimmed" : undefined}
     />
   );
 }
@@ -155,7 +159,11 @@ export function ProvenanceGraphViewport(props: ProvenanceGraphViewportProps): Re
   );
 
   const layoutKey = `${props.layoutSeed}:${visibleNodes.length}:${visibleEdges.length}`;
-  const { result: offloadedLayout } = useInpOffloadTask("provenanceLayout", layoutPayload, layoutKey);
+  const { result: offloadedLayout, pending: layoutPending, error: layoutError } = useInpOffloadTask(
+    "provenanceLayout",
+    layoutPayload,
+    layoutKey,
+  );
 
   const emptyLayout = useMemo(() => computeProvenanceGraphLayout([], []), []);
 
@@ -400,22 +408,61 @@ export function ProvenanceGraphViewport(props: ProvenanceGraphViewportProps): Re
         data-testid="provenance-graph-fallback"
       >
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-          The provenance graph could not be rendered. Timeline and table views remain available below.
+          The provenance graph could not be rendered. Open Timeline or Tables to inspect linkage points and recorded
+          events.
         </p>
-        {props.onRetryRender !== undefined ? (
-          <Button type="button" variant="outline" size="sm" className="mt-3 h-8" onClick={props.onRetryRender}>
-            Retry graph
-          </Button>
-        ) : null}
+        <div className="mt-3 flex flex-wrap gap-2">
+          {props.onOpenTablesView !== undefined ? (
+            <Button type="button" variant="default" size="sm" className="h-8" onClick={props.onOpenTablesView}>
+              Open Tables view
+            </Button>
+          ) : null}
+          {props.onRetryRender !== undefined ? (
+            <Button type="button" variant="outline" size="sm" className="h-8" onClick={props.onRetryRender}>
+              Retry graph
+            </Button>
+          ) : null}
+        </div>
       </div>
+    );
+  }
+
+  if (props.nodes.length === 0) {
+    return (
+      <p
+        className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
+        data-testid="provenance-graph-empty"
+      >
+        No provenance linkage points recorded for this review.
+      </p>
     );
   }
 
   if (visibleNodes.length === 0) {
     return (
-      <p className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} data-testid="provenance-graph-empty">
+      <p
+        className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
+        data-testid="provenance-graph-empty"
+      >
         No graph nodes match the current filters.
       </p>
+    );
+  }
+
+  if (layoutError !== null) {
+    return (
+      <div
+        className="rounded-md border border-amber-600/40 bg-al-surface-raised p-4 text-al-text-primary dark:border-amber-700/50"
+        data-testid="provenance-graph-layout-error"
+      >
+        <h4 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Graph layout failed</h4>
+        <p className={cn("mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{layoutError}</p>
+        {props.onRetryRender !== undefined ? (
+          <Button type="button" variant="outline" size="sm" className="mt-3 h-8" onClick={props.onRetryRender}>
+            Retry layout
+          </Button>
+        ) : null}
+      </div>
     );
   }
 
@@ -427,6 +474,7 @@ export function ProvenanceGraphViewport(props: ProvenanceGraphViewportProps): Re
   const viewportHeight = expanded ? "100vh" : `${Math.max(PROVENANCE_GRAPH_MIN_HEIGHT_PX, containerSize.height)}px`;
   const graphSummaryLabel = `Provenance graph with ${visibleNodes.length} nodes and ${visibleEdges.length} relationships`;
   const labelFontSize = PROVENANCE_GRAPH_MIN_LABEL_FONT_PX / Math.max(transform.scale, 0.01);
+  const graphReady = layoutReady && !layoutPending && layoutError === null;
 
   return (
     <div className={shellClass} data-testid="provenance-graph-viewport" data-expanded={expanded ? "true" : "false"}>
@@ -434,7 +482,6 @@ export function ProvenanceGraphViewport(props: ProvenanceGraphViewportProps): Re
         ref={containerRef}
         className={cn("relative w-full touch-none select-none", isPanning ? "cursor-grabbing" : "cursor-grab")}
         style={{ height: viewportHeight, minHeight: PROVENANCE_GRAPH_MIN_HEIGHT_PX }}
-        role="application"
         aria-label="Provenance graph viewport"
         onWheel={onWheel}
         onPointerDown={onPointerDown}
@@ -443,7 +490,7 @@ export function ProvenanceGraphViewport(props: ProvenanceGraphViewportProps): Re
         onPointerCancel={onPointerUp}
         data-testid="provenance-graph-container"
       >
-        {!layoutReady ? (
+        {layoutPending || !graphReady ? (
           <div
             className="absolute inset-0 animate-pulse bg-neutral-100 dark:bg-neutral-900"
             data-testid="provenance-graph-skeleton"
@@ -455,7 +502,7 @@ export function ProvenanceGraphViewport(props: ProvenanceGraphViewportProps): Re
           ref={svgRef}
           width="100%"
           height="100%"
-          className={cn("block", layoutReady ? "opacity-100" : "opacity-0")}
+          className={cn("block", graphReady ? "opacity-100" : "opacity-0")}
           role="group"
           aria-label={graphSummaryLabel}
           data-testid="provenance-graph-svg"
@@ -490,10 +537,10 @@ export function ProvenanceGraphViewport(props: ProvenanceGraphViewportProps): Re
                     y1={from.y}
                     x2={to.x}
                     y2={to.y}
-                    stroke={highlighted || selected ? "#2563eb" : "#94a3b8"}
+                    stroke={highlighted || selected ? "var(--al-accent-interactive)" : "#94a3b8"}
                     strokeWidth={highlighted ? 2.5 : selected ? 2 : 1.25}
                     markerEnd={`url(#${markerId})`}
-                    opacity={dimmed ? 0.2 : 1}
+                    className={dimmed ? "prov-graph-edge-dimmed" : undefined}
                   />
                   <title>{`${edge.type}: ${from.fullLabel} → ${to.fullLabel}`}</title>
                 </g>
@@ -533,14 +580,14 @@ export function ProvenanceGraphViewport(props: ProvenanceGraphViewportProps): Re
                   }}
                 >
                   <rect
-                    className="prov-node-focus-indicator opacity-0"
+                    className={cn("prov-node-focus-indicator opacity-0", selected ? "opacity-100" : undefined)}
                     x={node.x - nodeRadius - 6}
                     y={node.y - nodeRadius - 6}
                     width={(nodeRadius + 6) * 2}
                     height={(nodeRadius + 6) * 2 + node.labelHeight + 12}
                     rx={8}
                     fill="none"
-                    stroke="#0f766e"
+                    stroke="var(--al-accent-interactive)"
                     strokeWidth={2}
                     pointerEvents="none"
                   />
@@ -550,8 +597,8 @@ export function ProvenanceGraphViewport(props: ProvenanceGraphViewportProps): Re
                     y={node.y + node.radius + 16}
                     textAnchor="middle"
                     fontSize={labelFontSize}
-                    fill={dimmed ? "#94a3b8" : "#334155"}
-                    className="pointer-events-none dark:fill-neutral-300"
+                    fill={dimmed ? "var(--al-text-disabled)" : "var(--al-text-secondary)"}
+                    className="pointer-events-none"
                   >
                     {node.labelLines.map((line, index) => (
                       <tspan key={`${node.id}-${index}`} x={node.x} dy={index === 0 ? 0 : PROVENANCE_LABEL_LINE_HEIGHT}>
@@ -671,6 +718,11 @@ export function ProvenanceGraphViewport(props: ProvenanceGraphViewportProps): Re
         Drag to pan. Ctrl + scroll to zoom. Tab to select nodes; Enter opens node details.
       </p>
       <style>{`
+        .prov-graph-node-dimmed,
+        .prov-graph-edge-dimmed {
+          opacity: 0.28;
+        }
+
         [data-provenance-node="true"]:focus-visible .prov-node-focus-indicator {
           opacity: 1;
         }
