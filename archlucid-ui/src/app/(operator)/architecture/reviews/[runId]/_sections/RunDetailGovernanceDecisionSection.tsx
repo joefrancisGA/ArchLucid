@@ -11,10 +11,7 @@ import {
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_SECONDARY_CTA,
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_TITLE,
 } from "@/lib/run-detail-governance-pre-commit-copy";
-import {
-  RUN_DETAIL_GOVERNANCE_PRE_COMMIT_CLAIM_DISCIPLINE,
-  RUN_DETAIL_GOVERNANCE_PRE_COMMIT_SOURCES,
-} from "@/lib/run-detail-governance-sources";
+import { RUN_DETAIL_GOVERNANCE_PRE_COMMIT_CLAIM_DISCIPLINE } from "@/lib/run-detail-governance-sources";
 import { shouldShowRunDetailGovernanceCta, runDetailGovernanceWorkflowHref } from "@/lib/run-detail-governance-cta-visibility";
 
 export type RunDetailGovernanceDecisionSectionProps = {
@@ -77,32 +74,6 @@ export function RunDetailGovernanceDecisionSection(
             </Link>
           </div>
         </div>
-
-        <section
-          className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
-          aria-labelledby="run-detail-governance-sources-heading"
-          data-testid="run-detail-governance-sources"
-        >
-          <h3
-            id="run-detail-governance-sources-heading"
-            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
-          >
-            Sources for governance proof
-          </h3>
-          <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Open findings and governance help before treating this create-home tab as a decision or approval record.
-            After finalize, use the committed decisions surface instead.
-          </p>
-          <ul className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>
-            {RUN_DETAIL_GOVERNANCE_PRE_COMMIT_SOURCES.map((link) => (
-              <li key={`${link.href}-${link.label}`}>
-                <Link className={cn(OPERATOR_LINK.inline, "font-medium")} href={link.href}>
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
 
         <aside
           className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
