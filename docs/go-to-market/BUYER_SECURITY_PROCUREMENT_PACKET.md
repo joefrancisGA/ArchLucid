@@ -1612,6 +1612,79 @@ Former standalone body: `docs/go-to-market/EVIDENCE_AUDIT_ORDERING_CAUSALITY_PA_
 
 **Related:** [`APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md`](../library/APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md) (**TB-1009** / **M-160**) Â· [`GDPR_ERASURE_VS_APPEND_ONLY_MAP.md`](../library/GDPR_ERASURE_VS_APPEND_ONLY_MAP.md) (**TB-1470** / **M-265**) Â· [`EVIDENCE_BACKUP_RESTORE_INVARIANT_MAP.md`](../library/EVIDENCE_BACKUP_RESTORE_INVARIANT_MAP.md) (**TB-1490** / **M-269**) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
+## Zero-downtime SQL migration (M-287) {#zero-downtime-sql-migration-m-287}
+
+Former standalone body: `docs/go-to-market/ZERO_DOWNTIME_SQL_MIGRATION_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-286** / **M-287** / **TB-1557**). Engineering map: [`../library/ZERO_DOWNTIME_SQL_MIGRATION_CLAIM_MAP.md`](../library/ZERO_DOWNTIME_SQL_MIGRATION_CLAIM_MAP.md). Complements open **TB-1244**/**M-215** (bootstrap vs runtime SQL MI) without duplicating its PE matrix. Does not claim a dedicated migrator job, automatic rolling ZDT for all DDL, or DbUp down migrations. Not an assurance attestation.
+
+**Path-stable alias:** [`ZERO_DOWNTIME_SQL_MIGRATION_PA_ONE_PAGER.md`](ZERO_DOWNTIME_SQL_MIGRATION_PA_ONE_PAGER.md).
+
+**Audience:** Principal architects, platform/SRE reviewers, and security reviewers evaluating DDL execution model, SQL identity, and rolling-deploy schema risk.
+
+**Decision:** Production brownfield DDL is **DbUp on API/Worker (and Jobs.Cli) process startup** — **not** a separate CD/SQL migrator job. Consolidated `ArchLucid.sql` / `ArchLucid.System.sql` are the **single-file reference + bootstrap** per logical database; brownfield evolves via ordered DbUp scripts. Zero-downtime is **expand/contract discipline + CI lint**, not automatic. SQL identity today is still **bootstrap/`db_owner`-equivalent on the API managed identity** unless operators opt into an unwired runtime split.
+
+### DDL source of truth vs production apply
+
+| Plane | Consolidated file | Brownfield upgrades |
+| --- | --- | --- |
+| Tenant / product | `ArchLucid.sql` | `Migrations/NNN_*.sql` via DbUp |
+| System / control | `ArchLucid.System.sql` | `Migrations/System/*.sql` via DbUp |
+| IaC snapshot | `ArchLucid_Unified_Schema.sql` (generated) | **Not** applied by DbUp |
+
+**Order:** DbUp first → then `SqlSchemaBootstrapper` (idempotent IF NOT EXISTS). Greenfield may baseline-stamp early scripts then DbUp **051+**.
+
+### Who executes DDL (and with what identity)
+
+| Actor | Role |
+| --- | --- |
+| API / Worker / Jobs.Cli startup | `ArchLucidPersistenceStartup` → `DatabaseMigrator` (DbUp) → `SqlSchemaBootstrapper` |
+| Tenant provision / warm pool | `SqlTenantSqlCatalogProvisioner` when upgrade required |
+| CI verify | `ArchLucid.Persistence.MigrateVerify` (+ sentinel drift) |
+| GitHub Actions / Azure Pipeline / Terraform | Deploy images/infra — **do not** apply schema |
+
+| Identity | Reality |
+| --- | --- |
+| Intended query role | Database role `[ArchLucidApp]` (least-privilege DML + DENYs) |
+| Default production bootstrap | API **system-assigned MI** treated as **`db_owner`-equivalent** for schema |
+| Optional split | `enable_api_sql_runtime_identity` + `ArchLucidRuntime` connection — **not app-wired by default** (**TB-1244**) |
+
+### Old code × new schema (rolling deploy)
+
+| Machine | Behavior |
+| --- | --- |
+| **A — Expand** (nullable / new table) | Old pods ignore new objects; safe mid-roll |
+| **B — Contract too early** (`NOT NULL` / CHECK / UNIQUE) | Old writers fail until scaled off — **coordinated** |
+| **C — New revision starts** | That process runs DbUp before readiness; schema advances while old revisions still traffic |
+| **D — Migration failure** | New revision fails ready (unless break-glass degraded-startup) |
+| **E — App rollback after non-additive DDL** | CD schema gate **blocks** automatic revision rollback; DB rollback = PITR / forward-fix |
+
+There is **no** “migration job completes before any pod starts” gate in the default CD path.
+
+### Claim boundary
+
+| Do not promise | Do promise |
+| --- | --- |
+| “Single SQL file is the only production schema mechanism” | Consolidated reference + DbUp deltas |
+| “Migrations run in a separate least-privilege CD/SQL job” | In-process DbUp on API/Worker startup |
+| “Production API SQL is least-privilege / non-db_owner” | Only if runtime UAMI split is **on and wired** |
+| “Rolling deploys are always zero-downtime for schema” | Expand/contract required; some migrations coordinated |
+| “DbUp has automatic down migrations” | Forward-only; PITR / forward-fix / manual Rollback scripts |
+| “Terraform applies schema” | Explicitly false |
+
+### PA diligence prompts
+
+1. Ask **who** runs DDL (process startup, not CD SQL job) and **as which identity** (bootstrap MI vs wired runtime split).
+2. Separate **single-file DDL hygiene** (Done **TB-359**) from **rolling ZDT** — expand/contract is discipline, not automatic.
+3. For rollback questions, pair with [`MIGRATION_ROLLBACK.md`](../library/MIGRATION_ROLLBACK.md) — app rollback after non-additive DDL is gated.
+
+### Residuals (honest)
+
+- **TB-1558** owns honesty CI for separate-migrator / always-ZDT / least-privilege-while-bootstrap overclaims.
+- Open **TB-1244** owns bootstrap vs runtime SQL MI seam — cite without duplicating.
+- Optional product follow-ons: dedicated migrator job, wire `ArchLucidRuntime` — not claimed as shipped.
+- This handout does not claim CPA SOC 2 or a published third-party penetration test.
+
+**Related:** [Azure workload privilege seam (M-216)](#azure-workload-privilege-escalation-seam-m-216) Â· [`MIGRATION_ROLLBACK.md`](../library/MIGRATION_ROLLBACK.md) Â· [`DEPLOYMENT_CD_PIPELINE.md`](../library/DEPLOYMENT_CD_PIPELINE.md) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+
 ## Azure workload privilege-escalation seam (M-216) {#azure-workload-privilege-escalation-seam-m-216}
 
 Former standalone body: `docs/go-to-market/AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-215** / **M-216** / **TB-1244**). Contributor contract: [`AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md`](../library/AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md) (**TB-1244** **Done**). Complements [Container Apps Terraform authority (M-234)](#container-apps-terraform-authority-m-234) and [Tenant DiD erosion (M-214)](#tenant-did-erosion-beyond-predicates-m-214). Does not reopen Done **TB-080** / **TB-091** / **TB-092**. Not an assurance attestation.

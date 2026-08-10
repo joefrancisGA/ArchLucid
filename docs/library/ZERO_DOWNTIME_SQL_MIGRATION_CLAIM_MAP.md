@@ -4,7 +4,10 @@
 
 **Audience:** Engineering, security reviewers, principal-architect diligence. Not a buyer brochure.
 
-**Status:** Working contract for **TB-1557** / GTM **M-286**. Pair honesty CI **TB-1558** / **M-286**.
+**Status:** **Done** (**TB-1557**, 2026-08-10). GTM **M-286** / **M-287**. Pair honesty CI **TB-1558** / **M-286**.
+
+**Buyer / PA one-pager:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#zero-downtime-sql-migration-m-287`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#zero-downtime-sql-migration-m-287) (GTM **M-287**).  
+**Claim honesty:** [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) (GTM **M-286**).
 
 **Verdict (one line):** Production brownfield DDL is **DbUp on API/Worker (and Jobs.Cli) process startup** — **not** a separate CD/SQL migrator job; consolidated `ArchLucid.sql` / `ArchLucid.System.sql` are the **single-file reference + bootstrap** per logical DB. Zero-downtime is an **expand/contract discipline + CI lint**, not automatic. SQL identity today is still **bootstrap/`db_owner`-equivalent on the API managed identity** unless operators opt into an unwired runtime split.
 
@@ -74,11 +77,12 @@ There is **no** “migration job completes before any pod starts” gate in the 
 | ID | Role |
 |----|------|
 | Done **TB-064**–**TB-070**, **TB-359** | DDL hygiene, rolling lint, single-file CI |
-| Open **TB-1244** / **M-215** | Bootstrap MI co-located PE seam |
+| Open **TB-1244** / **M-215** | Bootstrap MI co-located PE seam — [`AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md`](AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md); identity split affects “least-privilege SQL” claims |
 | Open **TB-903** | Broader CA production posture (not DDL executor) |
-| `MIGRATION_ROLLBACK.md` § Rolling deploy | Expand/contract + coordinated list |
-| `check_migration_rolling_deploy_patterns.py` | **TB-068** CI lint |
-| **TB-1557** / **M-286** | This migration-model claim map |
+| [`MIGRATION_ROLLBACK.md`](MIGRATION_ROLLBACK.md) § Rolling deploy | Expand/contract + coordinated list |
+| `check_migration_rolling_deploy_patterns.py` | Done **TB-068** CI lint |
+| Done **TB-1557** / **M-286** | This migration-model claim map |
+| Open **TB-1558** / **M-286** | Honesty CI follow-on |
 
 ---
 
