@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { applyFocusedPilotModePolicyReferences } from "@/lib/focused-pilot-mode-policy-packs";
 import { createArchitectureRun, type CreateArchitectureRunRequestPayload } from "@/lib/api";
+import { isApiRequestError } from "@/lib/api-request-error";
 import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { useReviewCreationProgress } from "@/hooks/use-review-creation-progress";
@@ -23,6 +24,7 @@ import { QUICK_REVIEW_SAMPLE_BRIEF_CAPTION } from "@/lib/buyer-polish-copy";
 import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
 import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
 import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
+import { ReviewStartUnresolvedNotice } from "@/components/review-intake/ReviewStartUnresolvedNotice";
 import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
 
 import { ReviewPathTimeEstimateBanner } from "@/components/ReviewPathTimeEstimateBanner";
@@ -304,6 +306,10 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
       creationProgress.markPreparingQuestions();
       creationProgress.markOpeningReview();
 
+      // Disarm the watchdog now that the server owns the work; a slow client navigation must not
+      // be reported as a create problem.
+      creationProgress.succeed();
+
       if (onRunCreatedNavigate !== undefined) {
         onRunCreatedNavigate(id);
         creationProgress.reset();
@@ -312,8 +318,12 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
       }
 
       router.push(buildReviewGenerationRedirect(id, "quick-review"));
-    } catch {
-      creationProgress.fail(REVIEW_START_CREATION_FAILED_MESSAGE);
+    } catch (error) {
+      const message =
+        isApiRequestError(error) && error.message.trim().length > 0
+          ? error.message
+          : REVIEW_START_CREATION_FAILED_MESSAGE;
+      creationProgress.fail(message);
     }
   };
 
@@ -480,11 +490,24 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
                 stages={creationProgress.stages}
                 activeStageId={creationProgress.activeStageId}
                 headline={REVIEW_START_PREPARING_LABEL}
+                detail={creationProgress.waitCopy?.detail ?? null}
                 testId="quick-review-start-progress"
               />
             ) : null}
-            {creationProgress.error !== null ? (
-              <ReviewStartInlineError message={creationProgress.error} testId="quick-review-submit-error" />
+            {creationProgress.outcome?.kind === "failed" ? (
+              <ReviewStartInlineError
+                message={creationProgress.outcome.message}
+                testId="quick-review-submit-error"
+              />
+            ) : null}
+            {creationProgress.outcome?.kind === "unresolved" ? (
+              <ReviewStartUnresolvedNotice
+                onRecheck={() => {
+                  void submitRun();
+                }}
+                isRechecking={creationProgress.isActive}
+                testId="quick-review-submit-unresolved"
+              />
             ) : null}
           </CardContent>
         </Card>

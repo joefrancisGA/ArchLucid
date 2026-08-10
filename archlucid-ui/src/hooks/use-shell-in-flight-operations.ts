@@ -6,7 +6,9 @@ import { toast } from "sonner";
 
 import { getOperation } from "@/lib/api/operations-api";
 import {
+  clearInFlightOperations,
   getInFlightOperations,
+  hydrateInFlightOperationsFromStorage,
   patchInFlightOperation,
   removeInFlightOperation,
   subscribeInFlightOperations,
@@ -14,6 +16,7 @@ import {
 } from "@/lib/operations/in-flight-operations-store";
 import { resolveOperationDetailHref } from "@/lib/operations/operation-location";
 import { isTerminalOperationState } from "@/lib/operations/operation-state";
+import { ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT } from "@/lib/operator-scope-storage";
 
 export const SHELL_IN_FLIGHT_POLL_MS = 2000;
 export const SHELL_IN_FLIGHT_TERMINAL_HOLD_MS = 8000;
@@ -108,6 +111,23 @@ export function useShellInFlightOperations(): readonly TrackedInFlightOperation[
   );
   const pathnameRef = useRef(pathname);
   pathnameRef.current = pathname;
+
+  // Hydration runs in an effect (not during render) so the server and first client snapshots match.
+  useEffect(() => {
+    hydrateInFlightOperationsFromStorage();
+  }, []);
+
+  useEffect(() => {
+    function handleScopeChanged(): void {
+      clearInFlightOperations();
+    }
+
+    window.addEventListener(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT, handleScopeChanged);
+
+    return () => {
+      window.removeEventListener(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT, handleScopeChanged);
+    };
+  }, []);
 
   const activeOperationIdsKey = useMemo(
     () =>

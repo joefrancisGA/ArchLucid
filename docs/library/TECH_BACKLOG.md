@@ -21,7 +21,7 @@ Regenerate after opening or closing summary-table rows:
 | Cutting-edge AI | 3 |
 | Explainability | 1 |
 | Proof-of-ROI / executive value | 2 |
-| Trustworthiness | 143 |
+| Trustworthiness | 142 |
 | Maintainability | 9 |
 | Traceability | 3 |
 | Interoperability | 4 |
@@ -36,9 +36,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **746** |
+| **Total (unique open)** | **745** |
 
-**By priority band:** P0 **3** | P1 **613** | P2 **113** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **3** | P1 **612** | P2 **113** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -721,7 +721,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1427 | **Done** (2026-08-09) — `/live-demo` vs `/see-it` safe ladder + claim-honesty contract; see `## TB-1427` below | Trustworthiness P1 ? **V1**; PA live-demo honesty Q; GTM **M-259**/**M-260**; see `LIVE_DEMO_SEE_IT_LADDER_HONESTY.md` | S |
 | TB-1447 | **Done** (2026-08-09) — Architectures list drafts vs packages title hierarchy honesty; see ## TB-1447 below | Trustworthiness P1 ? **V1**; with **TB-1446**; pairs **TB-1026**/**TB-1400** | S |
 | TB-1448 | **Done** (2026-08-09) — Architectures list browser-local registry honesty; see ## TB-1448 below | Trustworthiness P1 ? **V1**; with **TB-1446** | S |
-| TB-1452 | Architecture draft workspace ? StatusTag honesty (not always Status: draft); see ## TB-1452 below | Trustworthiness P1 ? **V1**; with **TB-1451**; pairs **TB-116** | S |
+| TB-1452 | **Done** (2026-08-09) — Architecture draft workspace StatusTag honesty; see ## TB-1452 below | Trustworthiness P1 ? **V1**; with **TB-1451**; pairs **TB-116** | S |
 | TB-1455 | Architecture draft workspace ? Save vs autosave CTA hierarchy honesty; see ## TB-1455 below | Trustworthiness P1 ? **V1**; with **TB-1451** | S |
 | TB-1456 | Bake-off loser + 15-minute proof sequence (manual ARB first); see `## TB-1456` below | Trustworthiness P1 ? **V1**; PA bake-off Q; GTM **M-261**/**M-262**; see `BAKEOFF_15MIN_LOSER_SEQUENCE.md` | S |
 | TB-1459 | Architecture creation bootstrap ? browser-local recent-drafts honesty; see ## TB-1459 below | Trustworthiness P1 ? **V1**; with **TB-1458**; pairs **TB-1448** | S |
@@ -37095,7 +37095,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Trustworthiness.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-09) ? `resolveArchitectureDraftCustomerStatus` + workspace `StatusTag` derived from linked review/readiness; Vitest `architecture-draft-status.test.ts` + `ArchitectureDraftWorkspace.test.tsx`.
 
 **Priority:** P0.
 

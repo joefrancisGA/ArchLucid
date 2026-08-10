@@ -15,6 +15,7 @@ import { DraftIntakeReasoningPanel } from "@/components/draft-intake/DraftIntake
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { StatusTag } from "@/components/ui/status-tag";
 import { useArchitectureDraftAutosave, type ArchitectureDraftSaveState } from "@/hooks/use-architecture-draft-autosave";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { SOFT_NAVIGATION_TIMEOUT_MS } from "@/hooks/use-soft-navigation-loading";
@@ -32,7 +33,9 @@ import {
 } from "@/lib/architecture-draft-handoff-gate";
 import {
   ARCHITECTURE_DRAFT_STATUS_LABELS,
+  architectureDraftCustomerStatusTagKind,
   architectureDraftDisplayName,
+  resolveArchitectureDraftCustomerStatus,
 } from "@/lib/architecture-draft-status";
 import {
   buildArchitectureDraftRegistryEntry,
@@ -117,6 +120,15 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   );
 
   const reviewReadiness = useMemo(() => validateArchitectureReviewReadiness(fields), [fields]);
+
+  const customerStatus = useMemo(
+    () =>
+      resolveArchitectureDraftCustomerStatus({
+        linkedReviewId,
+        reviewReadinessValid: reviewReadiness.isValid,
+      }),
+    [linkedReviewId, reviewReadiness.isValid],
+  );
 
   const loadDraft = useCallback(async () => {
     if (isNewDraft) {
@@ -317,17 +329,21 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
           <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-draft-workspace-lead">
             {ARCHITECTURE_DRAFT_WORKSPACE_LEAD}
           </p>
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>
-            Status: {ARCHITECTURE_DRAFT_STATUS_LABELS.draft}
+          <div className="flex flex-wrap items-center gap-2">
+            <StatusTag
+              kind={architectureDraftCustomerStatusTagKind(customerStatus)}
+              label={ARCHITECTURE_DRAFT_STATUS_LABELS[customerStatus]}
+              data-testid="architecture-draft-workspace-status-tag"
+            />
             {linkedReviewId !== null ? (
-              <>
-                {" · "}
-                <Link href={reviewDetailPath(linkedReviewId)} className="font-medium text-teal-800 underline dark:text-teal-300">
-                  Open linked review
-                </Link>
-              </>
+              <Link
+                href={reviewDetailPath(linkedReviewId)}
+                className={cn(OPERATOR_TYPOGRAPHY.helper, "font-medium text-teal-800 underline dark:text-teal-300")}
+              >
+                Open linked review
+              </Link>
             ) : null}
-          </p>
+          </div>
         </div>
         <ArchitectureDraftSaveStatus saveState={saveState} lastSavedUtc={lastSavedUtc} />
       </div>
