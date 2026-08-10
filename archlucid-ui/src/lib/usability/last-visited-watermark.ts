@@ -5,11 +5,13 @@ const STORAGE_PREFIX = "archlucid:last-visited:v1:";
 export type ReviewTabWatermarkKey = `review-tab:${string}:${ReviewDetailTabId}`;
 export type ReviewFindingWatermarkKey = `review-finding:${string}:${string}`;
 export type GovernanceQueueRowWatermarkKey = `governance-row:${string}:${string}`;
+export type ColdSharedLinkUnpackWatermarkKey = `cold-unpack:${string}`;
 
 export type LastVisitedWatermarkKey =
   | ReviewTabWatermarkKey
   | ReviewFindingWatermarkKey
-  | GovernanceQueueRowWatermarkKey;
+  | GovernanceQueueRowWatermarkKey
+  | ColdSharedLinkUnpackWatermarkKey;
 
 export function reviewTabWatermarkKey(runId: string, tabId: ReviewDetailTabId): ReviewTabWatermarkKey {
   return `review-tab:${runId.trim()}:${tabId}`;
@@ -21,6 +23,18 @@ export function reviewFindingWatermarkKey(runId: string, findingId: string): Rev
 
 export function governanceQueueRowWatermarkKey(runId: string, findingId: string): GovernanceQueueRowWatermarkKey {
   return `governance-row:${runId.trim()}:${findingId.trim()}`;
+}
+
+export function coldSharedLinkUnpackWatermarkKey(runId: string): ColdSharedLinkUnpackWatermarkKey {
+  return `cold-unpack:${runId.trim()}`;
+}
+
+export function hasColdSharedLinkUnpackWatermark(runId: string): boolean {
+  return readLastVisitedWatermark(coldSharedLinkUnpackWatermarkKey(runId)) !== null;
+}
+
+export function markColdSharedLinkUnpackSeen(runId: string): void {
+  markLastVisitedNow(coldSharedLinkUnpackWatermarkKey(runId));
 }
 
 function storageKey(key: LastVisitedWatermarkKey): string {

@@ -138,6 +138,14 @@ export const RunDetailFirstWeekRouteGuidanceDeferred = dynamic(
   { ssr: false, loading: () => null },
 );
 
+export const RunDetailColdOpenOrientationDeferred = dynamic(
+  () =>
+    import("@/components/reviews/RunDetailColdOpenOrientationClient").then(
+      (module) => module.RunDetailColdOpenOrientationClient,
+    ),
+  { ssr: false, loading: () => null },
+);
+
 export const RunDetailExplanationConfidenceBannerDeferred = dynamic(
   () =>
     import("@/components/RunExplanationConfidenceBanner").then(

@@ -3,6 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
+import { useInviteeReviewerContext } from "@/hooks/use-invitee-reviewer-context";
 import {
   GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_DESTINATION_CALLOUT,
   GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_HASH,
@@ -36,9 +37,11 @@ function scrollToSponsorHandoffAnchor(): boolean {
 export function GoldenSponsorPackageWalkthroughDestination(
   props: GoldenSponsorPackageWalkthroughDestinationProps,
 ): React.JSX.Element | null {
+  const { isInviteeReviewer } = useInviteeReviewerContext();
   const searchParams = useSearchParams();
   const walkthroughParam = searchParams?.get(GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_QUERY) ?? null;
   const active =
+    !isInviteeReviewer &&
     props.showSampleWalkthroughDestination &&
     isGoldenSponsorPackageWalkthroughIntent(walkthroughParam);
 

@@ -1,11 +1,12 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { DispositionExportImpactNotice } from "@/components/operator/DispositionExportImpactNotice";
+import { SponsorStorySynopsisFromCounts } from "@/components/operator/SponsorStorySynopsisPanel";
 import {
   createRiskException,
   defaultRiskExceptionExpiresAtUtc,
@@ -39,6 +40,7 @@ import {
   REMEDIATION_OWNER_LABEL,
   validateRemediationOwnerInput,
 } from "@/lib/finding-governance-action-copy";
+import { buildSponsorStoryDispositionCountsFromRows } from "@/lib/sponsor-story-synopsis";
 
 const DISPOSITION_OPTIONS: FindingDispositionKind[] = [
   "Accepted",
@@ -61,6 +63,7 @@ type PendingDispositionConfirm = "disposition" | "mark-remediated";
 export type FindingInspectGovernanceStickinessPanelProps = {
   readonly findingId: string;
   readonly runId: string;
+  readonly packageTitle?: string | null;
   readonly initialAssignedToUserId?: string | null;
   readonly initialRemediationDueUtc?: string | null;
 };
@@ -77,6 +80,7 @@ function latestDispositionLabel(history: readonly FindingDispositionEvent[]): st
 export function FindingInspectGovernanceStickinessPanel({
   findingId,
   runId,
+  packageTitle = null,
   initialAssignedToUserId = null,
   initialRemediationDueUtc = null,
 }: FindingInspectGovernanceStickinessPanelProps) {
@@ -303,9 +307,23 @@ export function FindingInspectGovernanceStickinessPanel({
   const mutateDisabledTitle = canMutate ? undefined : enterpriseMutationControlDisabledTitle;
   const pendingDispositionKind: FindingDispositionKind =
     pendingDispositionConfirm === "mark-remediated" ? "Remediated" : disposition;
+  const sponsorSynopsisCounts = useMemo(
+    () =>
+      buildSponsorStoryDispositionCountsFromRows([
+        { latestDisposition: history[0]?.disposition ?? null },
+      ]),
+    [history],
+  );
+  const sponsorSynopsisPackageTitle =
+    packageTitle !== null && packageTitle.trim().length > 0 ? packageTitle.trim() : runId;
 
   return (
     <div className={cn("space-y-6 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950/40", OPERATOR_TYPOGRAPHY.body)}>
+      <SponsorStorySynopsisFromCounts
+        packageTitle={sponsorSynopsisPackageTitle}
+        counts={sponsorSynopsisCounts}
+        sponsorHandoffHref={`/architecture/reviews/${encodeURIComponent(runId)}?reviewTab=review-package`}
+      />
       {statusMessage ? (
         <p className="m-0 text-teal-800 dark:text-teal-300" role="status" aria-live="polite">
           {statusMessage}

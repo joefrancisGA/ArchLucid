@@ -1,7 +1,10 @@
 import { describe, expect, it, beforeEach } from "vitest";
 
 import {
+  coldSharedLinkUnpackWatermarkKey,
+  hasColdSharedLinkUnpackWatermark,
   isActivityNewSinceLastVisit,
+  markColdSharedLinkUnpackSeen,
   markLastVisitedNow,
   readLastVisitedWatermark,
   reviewTabWatermarkKey,
@@ -34,5 +37,12 @@ describe("last-visited-watermark", () => {
     markLastVisitedNow(key, "2026-08-09T10:00:00.000Z");
 
     expect(readLastVisitedWatermark(key)).toBe("2026-08-09T10:00:00.000Z");
+  });
+
+  it("persists cold shared-link unpack dismiss watermark (TB-2181)", () => {
+    expect(hasColdSharedLinkUnpackWatermark("run-cold")).toBe(false);
+    markColdSharedLinkUnpackSeen("run-cold");
+    expect(hasColdSharedLinkUnpackWatermark("run-cold")).toBe(true);
+    expect(readLastVisitedWatermark(coldSharedLinkUnpackWatermarkKey("run-cold"))).not.toBeNull();
   });
 });

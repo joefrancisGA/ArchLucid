@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
@@ -14,6 +16,7 @@ import {
   FIRST_WEEK_ROUTE_GUIDANCE_REVIEW_DETAIL_COMMITTED_COLLAPSED_SUMMARY,
   type FirstWeekRouteGuidanceVariant,
 } from "@/lib/first-week-route-guidance";
+import { useInviteeReviewerContext } from "@/hooks/use-invitee-reviewer-context";
 
 export type FirstWeekRouteGuidanceProps = {
   readonly variant: FirstWeekRouteGuidanceVariant;
@@ -59,6 +62,12 @@ function GuidanceBody(props: {
  * Used on Home, Onboarding, New review, Reviews, and review detail before broad Operate exploration.
  */
 export function FirstWeekRouteGuidance(props: FirstWeekRouteGuidanceProps) {
+  const { isInviteeReviewer } = useInviteeReviewerContext();
+
+  if (isInviteeReviewer) {
+    return null;
+  }
+
   const config = resolveFirstWeekRouteGuidanceForShell(props.variant, isBuyerPolishedOperatorShellEnv());
 
   if (props.variant === "onboarding") {

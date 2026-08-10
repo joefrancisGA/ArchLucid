@@ -10,6 +10,7 @@ import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { GovernanceFindingsFilterBar } from "@/components/governance/findings/GovernanceFindingsFilterBar";
 import { GovernanceFindingsList } from "@/components/governance/findings/GovernanceFindingsList";
+import { SponsorStorySynopsisFromCounts } from "@/components/operator/SponsorStorySynopsisPanel";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { useGovernanceFindingsFilter } from "@/components/governance/findings/use-governance-findings-filter";
 import { useGovernanceFindingsQuery } from "@/components/governance/findings/use-governance-findings-query";
@@ -34,6 +35,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { governanceRegisterMetricPresentation } from "@/lib/metric-count-presentation";
+import { buildSponsorStoryDispositionCountsFromRows } from "@/lib/sponsor-story-synopsis";
 import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import { secondaryViewFromGovernanceQueueRow } from "@/lib/canonical-object-home-registry";
@@ -81,6 +83,17 @@ export default function GovernanceFindingsQueueClient() {
     : ARCHITECTURE_RISK_REGISTER_PAGE_SUBTITLE;
   const secondaryViewPresentation =
     displayedRows.length > 0 ? secondaryViewFromGovernanceQueueRow(displayedRows[0]) : null;
+  const sponsorSynopsisPackageTitle =
+    displayedRows.find((row) => row.recordKind === "finding")?.runLabel ??
+    (scopedRunId !== null && scopedRunId.length > 0 ? scopedRunId : "this review");
+  const sponsorSynopsisCounts = useMemo(
+    () => buildSponsorStoryDispositionCountsFromRows(displayedRows.filter((row) => row.recordKind === "finding")),
+    [displayedRows],
+  );
+  const sponsorHandoffHref =
+    scopedRunId !== null && scopedRunId.length > 0
+      ? `/architecture/reviews/${encodeURIComponent(scopedRunId)}?reviewTab=review-package`
+      : null;
 
   return (
     <div className="w-full max-w-[1440px]">
@@ -191,17 +204,24 @@ export default function GovernanceFindingsQueueClient() {
         ) : null}
 
         {!loading && displayedRows.length > 0 ? (
-          <GovernanceFindingsList
-            displayedRows={displayedRows}
-            buyerPolishedShell={buyerPolishedShell}
-            groupByResource={groupByResource}
-            selectedFindingIds={selectedFindingIds}
-            onSelectionChange={setSelectedFindingIds}
-            onBulkApplied={() => {
-              setSelectedFindingIds(new Set());
-              refresh();
-            }}
-          />
+          <>
+            <SponsorStorySynopsisFromCounts
+              packageTitle={sponsorSynopsisPackageTitle}
+              counts={sponsorSynopsisCounts}
+              sponsorHandoffHref={sponsorHandoffHref}
+            />
+            <GovernanceFindingsList
+              displayedRows={displayedRows}
+              buyerPolishedShell={buyerPolishedShell}
+              groupByResource={groupByResource}
+              selectedFindingIds={selectedFindingIds}
+              onSelectionChange={setSelectedFindingIds}
+              onBulkApplied={() => {
+                setSelectedFindingIds(new Set());
+                refresh();
+              }}
+            />
+          </>
         ) : null}
 
         {!loading && rows.length === 0 ? (

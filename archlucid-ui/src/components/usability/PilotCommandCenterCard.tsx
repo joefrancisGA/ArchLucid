@@ -11,6 +11,7 @@ import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAutho
 import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
 import { OperatorHomeDoThisNextCard } from "@/components/operator-home/OperatorHomeDoThisNextCard";
 import { GoldenSponsorPackageWalkthroughPanel } from "@/components/golden-walkthrough/GoldenSponsorPackageWalkthroughPanel";
+import { InviteeFirstOrientationPanel } from "@/components/operator/InviteeFirstOrientationPanel";
 import { OperatorHomeDualPathCards } from "@/components/operator-home/OperatorHomeDualPathCards";
 import { OperatorHomeResumeDraftCallout } from "@/components/operator-home/OperatorHomeResumeDraftCallout";
 import { OperatorHomeWorkspaceMetricsSummary } from "@/components/operator-home/OperatorHomeWorkspaceMetricsSummary";
@@ -38,6 +39,8 @@ import {
   GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA,
   buildGoldenSponsorPackageWalkthroughHref,
 } from "@/lib/golden-sponsor-package-walkthrough";
+import { resolveInviteeHomeOrientationCopy } from "@/lib/invitee-first-orientation";
+import { useInviteeReviewerContext } from "@/hooks/use-invitee-reviewer-context";
 
 const heroCtaButtonClass = "h-8";
 
@@ -69,6 +72,7 @@ type PilotCommandCenterCardProps = {
  */
 export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}): React.JSX.Element {
   const cardTestId = props.embedded === true ? "pilot-command-center-card-embedded" : "pilot-command-center-card";
+  const { isInviteeReviewer } = useInviteeReviewerContext();
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const workspaceActivity = useOperatorHomeWorkspaceActivity();
   const draftEntries = useArchitectureDraftRegistryEntries();
@@ -186,7 +190,11 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
 
       {workspacePhase === "eval-empty" ? (
         <div className={cn("space-y-4", OPERATOR_LAYOUT.inlineGap)}>
-          <GoldenSponsorPackageWalkthroughPanel />
+          {isInviteeReviewer ? (
+            <InviteeFirstOrientationPanel copy={resolveInviteeHomeOrientationCopy()} />
+          ) : (
+            <GoldenSponsorPackageWalkthroughPanel />
+          )}
           <OperatorHomeDoThisNextCard />
         </div>
       ) : null}

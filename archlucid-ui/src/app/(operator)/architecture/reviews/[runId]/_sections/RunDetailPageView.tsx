@@ -100,6 +100,7 @@ import {
   RunDetailCtoDemoReviewRouteGuardDeferred,
   RunDetailExplanationConfidenceBannerDeferred,
   RunDetailFirstWeekRouteGuidanceDeferred,
+  RunDetailColdOpenOrientationDeferred,
   RunDetailGenerateAdrFromRunModal,
   RunDetailGovernanceAlertsDeferred,
   RunDetailHolisticCriticPanelDeferred,
@@ -969,6 +970,13 @@ export function RunDetailPageView(props: {
                     templateLabel={deriveReviewTemplateLabel(m.manifestSummaryForUi)}
                     finalizedAtLabel={finalizedAtLabel}
                     packageVersionLabel={packageVersionLabel}
+                  />
+
+                  <RunDetailColdOpenOrientationDeferred
+                    runId={m.resolvedDetail.run.runId}
+                    packageTitle={reviewDisplayTitle}
+                    packageOwnerLabel={deriveReviewOwnerLabel(m.resolvedDetail.run)}
+                    workspaceStatus={workspaceStatus}
                   />
 
                   {blockingApprovalCount > 0 ? (
