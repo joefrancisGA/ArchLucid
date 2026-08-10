@@ -59,13 +59,13 @@ Choose **one** workforce authentication path for the tenant (many customers run 
 
 | Step | Owner | Definition of done |
 |------|-------|--------------------|
-| Decide IdP path: **SAML 2.0 SP** or **OIDC JwtBearer** | Joint | Documented in tenant runbook |
-| Pre-flight SAML metadata + claim mapping (if SAML) | Customer IT + ArchLucid | SAML validation passes with zero failures |
+| Decide IdP path: **SAML 2.0 SP** or **OIDC JwtBearer** | Joint (customer IT + ArchLucid) | Documented in tenant runbook |
+| Pre-flight SAML metadata + claim mapping (if SAML) | Customer IT + tenant admin | SAML validation passes with zero failures |
 | Configure ArchLucid auth mode + endpoints | ArchLucid | Keys documented for your tenant runbook |
-| Map IdP groups → ArchLucid roles (Admin, Architect, Reader, Auditor) | Joint | At least one Admin can sign in — see **[SAML claim-mapping reference](#saml-claim-mapping-reference)** |
-| Smoke test: Admin + Architect login | Customer admin | Both roles reach expected UI surfaces |
+| Map IdP groups → ArchLucid roles (Admin, Architect, Reader, Auditor) | Joint (customer IT + ArchLucid) | At least one Admin can sign in — see **[SAML claim-mapping reference](#saml-claim-mapping-reference)** |
+| Smoke test: Admin + Architect login | Tenant admin | Both roles reach expected UI surfaces |
 
-**Workspace settings:** [`/administration/settings/identity-providers`](/settings/identity-providers) (read-only catalog) · [`/administration/settings/identity/sso-wizard`](/settings/identity/sso-wizard) (guided tenant row — **not** a claim-mapping wizard).
+**Workspace settings:** [Identity providers](/administration/identity-providers) (read-only catalog) · [SSO wizard](/administration/identity/sso-wizard) (guided tenant row — **not** a claim-mapping wizard).
 
 ### SAML claim-mapping reference {#saml-claim-mapping-reference}
 
@@ -219,9 +219,9 @@ Use **`customGroupClaimRegex`** only when Ping emits full DNs but you prefer to 
 
 | Step | Owner | Definition of done |
 |------|-------|--------------------|
-| Review bundled baseline policy packs | Joint | Customer selects baseline packs for pilot systems |
-| Assign packs to workspace/project scope | Customer admin | Governance UI shows active packs |
-| Validate one finalized architecture package using assigned policy packs | Joint | Findings reference expected policy rules |
+| Review bundled baseline policy packs | Joint (customer IT + ArchLucid) | Customer selects baseline packs for pilot systems |
+| Assign packs to workspace/project scope | Tenant admin | Governance UI shows active packs |
+| Validate one finalized architecture package using assigned policy packs | Joint (customer IT + ArchLucid) | Findings reference expected policy rules |
 | Escalate custom-pack gaps to professional services if needed | ArchLucid Customer Success | Professional services scope agreed when needed |
 
 ---
@@ -230,10 +230,10 @@ Use **`customGroupClaimRegex`** only when Ping emits full DNs but you prefer to 
 
 | Step | Owner | Definition of done |
 |------|-------|--------------------|
-| Enable approval workflows | Customer admin | At least one workflow template active |
-| Enable pre-commit governance gate (if contracted) | Customer admin | Block/warn behavior matches order form |
-| Segregation-of-duties review | Customer security | Approver ≠ sole committer for production paths |
-| Complete one end-to-end approval + finalize | Joint | Audit trail shows approval and finalized architecture package |
+| Enable approval workflows | Tenant admin | At least one workflow template active |
+| Enable pre-commit governance gate (if contracted) | Tenant admin | Block/warn behavior matches order form |
+| Segregation-of-duties review | Procurement + security reviewer | Approver ≠ sole committer for production paths |
+| Complete one end-to-end approval + finalize | Joint (customer IT + ArchLucid) | Audit trail shows approval and finalized architecture package |
 
 ---
 
@@ -241,10 +241,10 @@ Use **`customGroupClaimRegex`** only when Ping emits full DNs but you prefer to 
 
 | Step | Owner | Definition of done |
 |------|-------|--------------------|
-| Confirm tier retention defaults | Joint | Team 90d · Professional 1y · Enterprise custom |
+| Confirm tier retention defaults | Joint (customer IT + ArchLucid) | Team 90d · Professional 1y · Enterprise custom |
 | Document extended retention (if purchased) | ArchLucid | Extended retention attached to order |
-| Schedule periodic CSV export to customer blob (if required) | Customer IT | Audit export automation documented |
-| Auditor spot-check: sample export opens in Excel | Customer admin | CSV header + row cap understood |
+| Schedule periodic CSV export to customer blob (if required) | Tenant admin | Audit export automation documented |
+| Auditor spot-check: sample export opens in Excel | Tenant admin | CSV header + row cap understood |
 
 ---
 
@@ -252,10 +252,10 @@ Use **`customGroupClaimRegex`** only when Ping emits full DNs but you prefer to 
 
 | Step | Owner | Definition of done |
 |------|-------|--------------------|
-| Agree minimum / target / stretch metrics | Joint | Evaluation scorecard completed |
-| Baseline hours + ROI model inputs captured | Customer admin | ROI model populated |
-| Executive ROI dashboard reviewed | Customer sponsor | Executive summary or Home panel validated |
-| Go/no-go review scheduled (week 6) | ArchLucid Customer Success | Calendar hold with economic buyer |
+| Agree minimum / target / stretch metrics | Joint (customer IT + ArchLucid) | Evaluation scorecard completed |
+| Baseline hours + ROI model inputs captured | Tenant admin | ROI model populated |
+| Executive ROI dashboard reviewed | Architect | Executive summary or Home panel validated |
+| Go/no-go review scheduled (week 6) | Procurement + security reviewer | Calendar hold with economic buyer |
 
 ---
 
@@ -277,13 +277,13 @@ Use this section only when the customer wants ArchLucid to use Azure metadata an
 
 | Step | Owner | Definition of done |
 |------|-------|--------------------|
-| Complete in-product wizard (`Settings → Cloud connections`) | Customer admin + ArchLucid Customer Success | RBAC checklist signed off; Reader + Cost Management Reader only; no client secrets stored in ArchLucid |
-| Provision customer SP + federated credential (CLI, Terraform, or Bicep) | Customer IT | Application and tenant IDs recorded; federation trusts ArchLucid published managed identity |
-| Save connection identifiers in ArchLucid | Customer admin | Connection save succeeds; audit event recorded |
-| Run hosted validation pull | Customer admin or ArchLucid | Validation pull accepted for first subscription scope |
-| Document security review evidence | Customer security | **[Connect Azure securely](/help/cloud-connections/azure)** · **[Procurement FAQ](/help/procurement)** · **[Security and trust](/help/security-trust)** attached to tenant runbook |
+| Complete in-product wizard (Cloud connections) | Customer cloud admin | RBAC checklist signed off; Reader + Cost Management Reader only; no client secrets stored in ArchLucid |
+| Provision customer SP + federated credential (CLI, Terraform, or Bicep) | Customer IT + tenant admin | Application and tenant IDs recorded; federation trusts ArchLucid published managed identity |
+| Save connection identifiers in ArchLucid | Tenant admin | Connection save succeeds; audit event recorded |
+| Run hosted validation pull | Customer cloud admin | Validation pull accepted for first subscription scope |
+| Document security review evidence | Procurement + security reviewer | **[Connect Azure securely](/help/cloud-connections/azure)** · **[Procurement FAQ](/help/procurement)** · **[Security and trust](/help/security-trust)** attached to tenant runbook |
 
-**UI entry:** [`/settings/cloud-connections`](/settings/cloud-connections) guided wizard.
+**UI entry:** [Cloud connections](/integrations/cloud-connections) guided wizard.
 
 ---
 

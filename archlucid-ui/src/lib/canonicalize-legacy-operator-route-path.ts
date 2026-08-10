@@ -54,6 +54,10 @@ import {
 
 const LEGACY_ALERT_RULES_PATH = "/alert-rules";
 const LEGACY_CLOUD_CONNECTIONS_PATH = "/settings/cloud-connections";
+const LEGACY_IDENTITY_PROVIDERS_PATH = "/settings/identity-providers";
+const LEGACY_IDENTITY_SSO_WIZARD_PATH = "/settings/identity/sso-wizard";
+const ADMINISTRATION_IDENTITY_PROVIDERS_PATH = "/administration/identity-providers";
+const ADMINISTRATION_IDENTITY_SSO_WIZARD_PATH = "/administration/identity/sso-wizard";
 const LEGACY_DIGEST_SUBSCRIPTIONS_PATH = "/digest-subscriptions";
 const LEGACY_MANIFESTS_PATH = "/manifests";
 const LEGACY_SETTINGS_ROLES_PATH = "/settings/roles";
@@ -123,6 +127,14 @@ export function canonicalizeLegacyOperatorRoutePath(pathname: string): string {
 
   if (pathMatchesRoutePrefix(normalized, LEGACY_CLOUD_CONNECTIONS_PATH)) {
     return normalized.replace(LEGACY_CLOUD_CONNECTIONS_PATH, CLOUD_CONNECTIONS_PATH);
+  }
+
+  if (pathMatchesRoutePrefix(normalized, LEGACY_IDENTITY_SSO_WIZARD_PATH)) {
+    return normalized.replace(LEGACY_IDENTITY_SSO_WIZARD_PATH, ADMINISTRATION_IDENTITY_SSO_WIZARD_PATH);
+  }
+
+  if (pathMatchesRoutePrefix(normalized, LEGACY_IDENTITY_PROVIDERS_PATH)) {
+    return normalized.replace(LEGACY_IDENTITY_PROVIDERS_PATH, ADMINISTRATION_IDENTITY_PROVIDERS_PATH);
   }
 
   if (pathMatchesRoutePrefix(normalized, LEGACY_DIGESTS_HUB_PATH)) {

@@ -204,6 +204,24 @@ describe("help-markdown-presentation", () => {
     expect(prepared).toContain("## Sign-in models");
   });
 
+  it("omits sign-off section from enterprise onboarding presentation", () => {
+    const source = [
+      "## Azure cloud evidence connection {#azure-cloud-evidence-connection}",
+      "",
+      "Body.",
+      "",
+      "## Sign-off {#sign-off}",
+      "",
+      "| Role | Name | Date | Signature |",
+      "| Customer technical owner | | | |",
+    ].join("\n");
+
+    const prepared = stripEnterpriseOnboardingContributorSections(source);
+
+    expect(prepared.toLowerCase()).not.toContain("sign-off");
+    expect(prepared).toContain("## Azure cloud evidence connection");
+  });
+
   it("strips CLI collectors and eng jargon from evaluator workbook (TB-1346)", () => {
     const source = [
       "Evidence | Tier-1 cloud inventory ZIP",

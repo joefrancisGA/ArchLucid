@@ -19,6 +19,7 @@ import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownVi
 import { EnterpriseOnboardingHelpEvidenceOrientationStrip } from "@/components/help/EnterpriseOnboardingHelpEvidenceOrientationStrip";
 import {
   ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE,
+  ENTERPRISE_ONBOARDING_HELP_RELATED_PAGES_TITLE,
   ENTERPRISE_ONBOARDING_HELP_SOURCES,
 } from "@/lib/enterprise-onboarding-help-evidence-copy";
 import {
@@ -26,6 +27,7 @@ import {
   ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION,
 } from "@/lib/enterprise-onboarding-help-copy";
 import { ENTERPRISE_ONBOARDING_HUB_STEPS } from "@/lib/enterprise-onboarding-hub-steps";
+import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
 import { getHelpCenterDisplay, getHelpCenterTier } from "@/lib/help-center-catalog";
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
@@ -49,7 +51,6 @@ const TOC_SECTION_IDS = [
   "evaluation-success-criteria",
   "integration-bridges",
   "azure-cloud-evidence-connection",
-  "sign-off",
 ] as const;
 
 const ENTERPRISE_ONBOARDING_HELP_BANNED_SUBSTRINGS = [
@@ -92,6 +93,13 @@ function linksBeforeHeading(heading: HTMLElement): readonly HTMLAnchorElement[] 
   );
 }
 
+function contentOrderIndex(testId: string): number {
+  const content = screen.getByTestId("help-topic-content");
+  const nodes = Array.from(content.children);
+
+  return nodes.findIndex((node) => node.getAttribute("data-testid") === testId);
+}
+
 describe("HelpTopicMarkdownView enterprise onboarding checklist", () => {
   const loaded = tryLoadProductDocumentation("enterprise-onboarding");
 
@@ -126,11 +134,21 @@ describe("HelpTopicMarkdownView enterprise onboarding checklist", () => {
     expect(preparedMarkdown.trimStart().startsWith("# ")).toBe(false);
   });
 
-  it("renders evidence orientation, breadcrumb, provenance, and identity providers CTA", () => {
+  it("renders evidence orientation after the hub with related setup pages title", () => {
     renderEnterpriseOnboardingView();
+
+    expect(contentOrderIndex("enterprise-onboarding-hub-steps")).toBeGreaterThanOrEqual(0);
+    expect(contentOrderIndex("enterprise-onboarding-help-orientation")).toBeGreaterThan(
+      contentOrderIndex("enterprise-onboarding-hub-steps"),
+    );
 
     expect(screen.getByTestId("enterprise-onboarding-help-claim-discipline")).toHaveTextContent(
       ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE,
+    );
+    expect(screen.queryByText(/Sources package/i)).toBeNull();
+    expect(screen.queryByText(/Diligence artifact/i)).toBeNull();
+    expect(screen.getByTestId("enterprise-onboarding-help-sources")).toHaveTextContent(
+      ENTERPRISE_ONBOARDING_HELP_RELATED_PAGES_TITLE,
     );
 
     const sources = screen.getByTestId("enterprise-onboarding-help-sources");
@@ -150,20 +168,28 @@ describe("HelpTopicMarkdownView enterprise onboarding checklist", () => {
     expect(screen.getByTestId("help-topic-download-pdf")).toBeInTheDocument();
   });
 
-  it("renders every onboarding hub step with owner, status, and deep link", () => {
+  it("renders every onboarding hub step with owner and deep link", () => {
     renderEnterpriseOnboardingView();
 
     const hub = screen.getByTestId("enterprise-onboarding-hub-steps");
+
+    expect(screen.queryByTestId("enterprise-onboarding-hub-progress")).toBeNull();
+    expect(within(hub).getByTestId("enterprise-onboarding-hub-recommended-next")).toHaveTextContent(
+      "Recommended next",
+    );
 
     for (const [index, step] of ENTERPRISE_ONBOARDING_HUB_STEPS.entries()) {
       const row = within(hub).getByTestId(`enterprise-onboarding-hub-step-${index + 1}`);
 
       expect(row).toHaveTextContent(step.owner);
-      expect(row).toHaveTextContent("Tracked outside ArchLucid");
-      expect(within(row).getByRole("link", { name: step.primaryLink.label })).toHaveAttribute(
-        "href",
-        step.primaryLink.href,
-      );
+      expect(row).not.toHaveTextContent("Tracked outside ArchLucid");
+
+      if (!(step.primaryLink.href.startsWith("#") && step.primaryLink.label === step.title)) {
+        expect(within(row).getByRole("link", { name: step.primaryLink.label })).toHaveAttribute(
+          "href",
+          step.primaryLink.href,
+        );
+      }
     }
   });
 
@@ -182,7 +208,9 @@ describe("HelpTopicMarkdownView enterprise onboarding checklist", () => {
     renderEnterpriseOnboardingView();
 
     const signInModelsHeading = screen.getByRole("heading", { level: 2, name: "Sign-in models" });
-    const linksAboveSignInModels = linksBeforeHeading(signInModelsHeading);
+    const linksAboveSignInModels = linksBeforeHeading(signInModelsHeading).filter(
+      (link) => link.closest('[data-testid="enterprise-onboarding-help-orientation"]') === null,
+    );
 
     for (const label of HUB_STEP_LABELS) {
       const matches = linksAboveSignInModels.filter((link) => link.textContent?.trim() === label);
@@ -219,6 +247,48 @@ describe("HelpTopicMarkdownView enterprise onboarding checklist", () => {
 
     for (const sectionId of TOC_SECTION_IDS) {
       expect(document.getElementById(sectionId)).not.toBeNull();
+    }
+  });
+
+  it("omits blank sign-off table from on-screen checklist body", () => {
+    renderEnterpriseOnboardingView();
+
+    expect(screen.queryByRole("heading", { name: "Sign-off" })).toBeNull();
+    expect(screen.queryByText("Customer technical owner")).toBeNull();
+  });
+
+  it("rewrites legacy identity and cloud settings links to canonical operator routes", () => {
+    renderEnterpriseOnboardingView();
+
+    const content = screen.getByTestId("help-topic-content");
+    const hrefs = Array.from(content.querySelectorAll("a"))
+      .map((link) => link.getAttribute("href"))
+      .filter((href): href is string => href !== null);
+
+    for (const href of hrefs) {
+      expect(href).not.toMatch(/\/settings\/identity/i);
+      expect(href).not.toBe("/settings/cloud-connections");
+    }
+
+    const identityProviderLinks = within(content).getAllByRole("link", { name: "Identity providers" });
+
+    expect(identityProviderLinks.some((link) => link.getAttribute("href") === "/administration/identity-providers")).toBe(
+      true,
+    );
+    expect(within(content).getByRole("link", { name: "SSO wizard" })).toHaveAttribute(
+      "href",
+      "/administration/identity/sso-wizard",
+    );
+    const cloudConnectionLinks = within(content).getAllByRole("link", { name: "Cloud connections" });
+
+    expect(cloudConnectionLinks.some((link) => link.getAttribute("href") === "/integrations/cloud-connections")).toBe(
+      true,
+    );
+
+    for (const href of hrefs) {
+      if (!href.startsWith("#") && !href.startsWith("http")) {
+        expect(canonicalizeLegacyOperatorRoutePath(href.split("#")[0] ?? href)).toBe(href.split("#")[0] ?? href);
+      }
     }
   });
 

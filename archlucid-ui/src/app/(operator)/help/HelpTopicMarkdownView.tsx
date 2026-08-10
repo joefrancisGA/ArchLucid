@@ -1,139 +1,272 @@
-import Link from "next/link";
-import type { ReactNode } from "react";
-
-import { HelpTopicMarkdownPageHeader } from "@/app/(operator)/help/_sections/HelpTopicMarkdownPageHeader";
-import { EnterpriseOnboardingHubSteps } from "@/components/help/EnterpriseOnboardingHubSteps";
-import { CaiqSigResponseHelpPostureSummary } from "@/components/help/CaiqSigResponseHelpPostureSummary";
-import { HelpTopicExportClaimDiscipline } from "@/components/help/HelpTopicExportClaimDiscipline";
-import { HelpTopicSignInFailureTriageLine } from "@/components/help/HelpTopicSignInFailureTriageLine";
-import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
-import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
-import {
-  buildCaiqSigResponseTocGroups,
-  computeCaiqSigResponsePostureCounts,
-  isCaiqSigResponseHelpTopic,
-  prepareCaiqSigResponseHelpMarkdown,
-  type HelpTopicTocGroup,
-} from "@/lib/caiq-sig-response-help-presentation";
-import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import Link from "next/link";
+
+import type { ReactNode } from "react";
+
+
+
+import { HelpTopicMarkdownPageHeader } from "@/app/(operator)/help/_sections/HelpTopicMarkdownPageHeader";
+
+import { EnterpriseOnboardingHubSteps } from "@/components/help/EnterpriseOnboardingHubSteps";
+
+import { CaiqSigResponseHelpPostureSummary } from "@/components/help/CaiqSigResponseHelpPostureSummary";
+
+import { HelpTopicExportClaimDiscipline } from "@/components/help/HelpTopicExportClaimDiscipline";
+
+import { HelpTopicSignInFailureTriageLine } from "@/components/help/HelpTopicSignInFailureTriageLine";
+
+import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+
+import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
+
+import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
+
+import {
+
+  buildCaiqSigResponseTocGroups,
+
+  computeCaiqSigResponsePostureCounts,
+
+  isCaiqSigResponseHelpTopic,
+
+  prepareCaiqSigResponseHelpMarkdown,
+
+  type HelpTopicTocGroup,
+
+} from "@/lib/caiq-sig-response-help-presentation";
+
+import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+
 import { AUTHENTICATION_SIGN_IN_HELP_PRIMARY_ACTION } from "@/lib/authentication-sign-in-help-copy";
-import { ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION } from "@/lib/enterprise-onboarding-help-copy";
-import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
-import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
-import { inAppHelpHref } from "@/lib/product-documentation-registry";
-import { cn } from "@/lib/utils";
-
-type HelpTopicMarkdownViewProps = {
-  entry: ProductDocumentationEntry;
-  markdown: string;
-  /** Optional Evidence orientation strip (Sources + claim discipline). */
-  readonly evidenceOrientation?: ReactNode;
-  /** When true, show Category-1 PageContextualHelpButton in the header actions. */
-  readonly showContextualHelp?: boolean;
-  /** Optional grouped TOC parents (for example CAIQ Lite vs SIG Core). */
-  readonly tocGroups?: readonly HelpTopicTocGroup[];
-  /** Wider technical-reference grid for dense questionnaire tables. */
-  readonly layoutVariant?: "default" | "technicalReference";
-  /** When true, render export claim discipline near PDF / print actions. */
-  readonly showExportClaimDiscipline?: boolean;
-};
-
-/** Renders curated repo markdown inside the operator help shell (no GitHub chrome). */
-export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.ReactElement {
-  const {
-    entry,
-    markdown,
-    evidenceOrientation,
-    showContextualHelp,
-    tocGroups,
-    layoutVariant = "default",
-    showExportClaimDiscipline = false,
-  } = props;
-  const sourceDocPath = entry.sourcePaths[0] ?? "";
-  const preserveMaintenanceMetadata = entry.audience === "developer";
-  const isCaiqSigResponse = isCaiqSigResponseHelpTopic(entry.slug);
-  const isEnterpriseOnboarding = entry.slug === "enterprise-onboarding";
-  const preparedMarkdown = isCaiqSigResponse
-    ? prepareCaiqSigResponseHelpMarkdown(markdown, sourceDocPath)
-    : prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
-        preserveMaintenanceMetadata,
-        helpTopicSlug: entry.slug,
-      });
-  const extractedHeadings = extractHelpMarkdownHeadings(preparedMarkdown);
-  const headings =
-    isEnterpriseOnboarding
-      ? [{ id: "onboarding-hub", title: "Onboarding hub", level: 2 as const }, ...extractedHeadings]
-      : extractedHeadings;
-  const resolvedTocGroups =
-    tocGroups ?? (isCaiqSigResponse ? buildCaiqSigResponseTocGroups(headings) : undefined);
-  const postureCounts = isCaiqSigResponse ? computeCaiqSigResponsePostureCounts(preparedMarkdown) : null;
-  const isAuthenticationSignInHelp = entry.slug === "authentication-sign-in";
-  const isTechnicalReferenceLayout = layoutVariant === "technicalReference";
-  const contentGridClass = isTechnicalReferenceLayout
-    ? HELP_PAGE_LAYOUT.technicalReferenceGrid
-    : HELP_PAGE_LAYOUT.contentGrid;
-  const contentColumnClass = isTechnicalReferenceLayout
-    ? HELP_PAGE_LAYOUT.technicalReferenceColumn
-    : HELP_PAGE_LAYOUT.contentColumn;
-
-  return (
-    <article
-      className={cn(
-        OPERATOR_LAYOUT.majorSectionGap,
-        isTechnicalReferenceLayout ? HELP_PAGE_LAYOUT.technicalReferenceArticle : undefined,
-      )}
-      data-testid={isCaiqSigResponse ? "help-caiq-sig-response-topic" : undefined}
-    >
-      <HelpTopicHashScroll />
-      <HelpTopicMarkdownPageHeader
-        entry={entry}
-        showContextualHelp={showContextualHelp}
-        showExportClaimDiscipline={showExportClaimDiscipline}
-        exportClaimDiscipline={showExportClaimDiscipline ? <HelpTopicExportClaimDiscipline /> : undefined}
-        signInFailureTriageLine={isAuthenticationSignInHelp ? <HelpTopicSignInFailureTriageLine /> : undefined}
+import { ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION } from "@/lib/enterprise-onboarding-help-copy";
+
+import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
+
+import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+
+import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+
+import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
+
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+
+import { cn } from "@/lib/utils";
+
+
+
+type HelpTopicMarkdownViewProps = {
+
+  entry: ProductDocumentationEntry;
+
+  markdown: string;
+
+  /** Optional Evidence orientation strip (Sources + claim discipline). */
+
+  readonly evidenceOrientation?: ReactNode;
+
+  /** When true, show Category-1 PageContextualHelpButton in the header actions. */
+
+  readonly showContextualHelp?: boolean;
+
+  /** Optional grouped TOC parents (for example CAIQ Lite vs SIG Core). */
+
+  readonly tocGroups?: readonly HelpTopicTocGroup[];
+
+  /** Wider technical-reference grid for dense questionnaire tables. */
+
+  readonly layoutVariant?: "default" | "technicalReference";
+
+  /** When true, render export claim discipline near PDF / print actions. */
+
+  readonly showExportClaimDiscipline?: boolean;
+
+};
+
+
+
+/** Renders curated repo markdown inside the operator help shell (no GitHub chrome). */
+
+export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.ReactElement {
+
+  const {
+
+    entry,
+
+    markdown,
+
+    evidenceOrientation,
+
+    showContextualHelp,
+
+    tocGroups,
+
+    layoutVariant = "default",
+
+    showExportClaimDiscipline = false,
+
+  } = props;
+
+  const sourceDocPath = entry.sourcePaths[0] ?? "";
+
+  const preserveMaintenanceMetadata = entry.audience === "developer";
+
+  const isCaiqSigResponse = isCaiqSigResponseHelpTopic(entry.slug);
+
+  const isEnterpriseOnboarding = entry.slug === "enterprise-onboarding";
+
+  const preparedMarkdown = isCaiqSigResponse
+
+    ? prepareCaiqSigResponseHelpMarkdown(markdown, sourceDocPath)
+
+    : prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
+
+        preserveMaintenanceMetadata,
+
+        helpTopicSlug: entry.slug,
+
+      });
+
+  const extractedHeadings = extractHelpMarkdownHeadings(preparedMarkdown);
+
+  const headings =
+
+    isEnterpriseOnboarding
+
+      ? [{ id: "onboarding-hub", title: "Onboarding hub", level: 2 as const }, ...extractedHeadings]
+
+      : extractedHeadings;
+
+  const resolvedTocGroups =
+
+    tocGroups ?? (isCaiqSigResponse ? buildCaiqSigResponseTocGroups(headings) : undefined);
+
+  const postureCounts = isCaiqSigResponse ? computeCaiqSigResponsePostureCounts(preparedMarkdown) : null;
+
+  const isAuthenticationSignInHelp = entry.slug === "authentication-sign-in";
+
+  const isTechnicalReferenceLayout = layoutVariant === "technicalReference";
+
+  const contentGridClass = isTechnicalReferenceLayout
+
+    ? HELP_PAGE_LAYOUT.technicalReferenceGrid
+
+    : HELP_PAGE_LAYOUT.contentGrid;
+
+  const contentColumnClass = isTechnicalReferenceLayout
+
+    ? HELP_PAGE_LAYOUT.technicalReferenceColumn
+
+    : HELP_PAGE_LAYOUT.contentColumn;
+
+
+
+  return (
+
+    <article
+
+      className={cn(
+
+        OPERATOR_LAYOUT.majorSectionGap,
+
+        isTechnicalReferenceLayout ? HELP_PAGE_LAYOUT.technicalReferenceArticle : undefined,
+
+      )}
+
+      data-testid={isCaiqSigResponse ? "help-caiq-sig-response-topic" : undefined}
+
+    >
+
+      <HelpTopicHashScroll />
+
+      <HelpTopicMarkdownPageHeader
+
+        entry={entry}
+
+        showContextualHelp={showContextualHelp}
+
+        showExportClaimDiscipline={showExportClaimDiscipline}
+
+        exportClaimDiscipline={showExportClaimDiscipline ? <HelpTopicExportClaimDiscipline /> : undefined}
+
+        signInFailureTriageLine={isAuthenticationSignInHelp ? <HelpTopicSignInFailureTriageLine /> : undefined}
+
         primaryAction={
           isEnterpriseOnboarding
             ? ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION
             : isAuthenticationSignInHelp
               ? AUTHENTICATION_SIGN_IN_HELP_PRIMARY_ACTION
               : undefined
-        }
-      />
-
-      {entry.audience === "developer" ? (
-        <p className={`m-0 max-w-3xl ${OPERATOR_TYPOGRAPHY.label}`}>
-          Engineering runbook — CLI commands, environment variables, and log detail. For symptom-first operator help,
-          open{" "}
-          <Link href={inAppHelpHref("troubleshooting")} className={`underline-offset-2 hover:underline ${DESIGN_TOKENS.accent.link}`}>
-            Troubleshooting
-          </Link>
-          .
-        </p>
-      ) : null}
-
-      {evidenceOrientation}
-
-      {postureCounts !== null ? <CaiqSigResponseHelpPostureSummary counts={postureCounts} /> : null}
-
-      <div className={contentGridClass}>
-        <div className={contentColumnClass} data-testid="help-topic-content">
-          {isEnterpriseOnboarding ? <EnterpriseOnboardingHubSteps /> : null}
-          <MarketingAccessibilityMarkdownFragment
-            markdownBody={markdown}
-            tableCaption={`${entry.title} reference table`}
-            presentation="help"
-            sourceDocPath={entry.sourcePaths[0]}
-            helpTopicSlug={entry.slug}
-            preserveMaintenanceMetadata={preserveMaintenanceMetadata}
-            preparedMarkdownOverride={preparedMarkdown}
-          />
-        </div>
-        <HelpTopicTableOfContents headings={headings} groups={resolvedTocGroups} enableScrollSpy />
-      </div>
-    </article>
-  );
-}
-
+        }
+
+      />
+
+
+
+      {entry.audience === "developer" ? (
+
+        <p className={`m-0 max-w-3xl ${OPERATOR_TYPOGRAPHY.label}`}>
+
+          Engineering runbook — CLI commands, environment variables, and log detail. For symptom-first operator help,
+
+          open{" "}
+
+          <Link href={inAppHelpHref("troubleshooting")} className={`underline-offset-2 hover:underline ${DESIGN_TOKENS.accent.link}`}>
+
+            Troubleshooting
+
+          </Link>
+
+          .
+
+        </p>
+
+      ) : null}
+
+
+
+      {!isEnterpriseOnboarding ? evidenceOrientation : null}
+
+
+
+      {postureCounts !== null ? <CaiqSigResponseHelpPostureSummary counts={postureCounts} /> : null}
+
+
+
+      <div className={contentGridClass}>
+
+        <div className={contentColumnClass} data-testid="help-topic-content">
+
+          {isEnterpriseOnboarding ? <EnterpriseOnboardingHubSteps /> : null}
+
+          {isEnterpriseOnboarding ? evidenceOrientation : null}
+
+          <MarketingAccessibilityMarkdownFragment
+
+            markdownBody={markdown}
+
+            tableCaption={`${entry.title} reference table`}
+
+            presentation="help"
+
+            sourceDocPath={entry.sourcePaths[0]}
+
+            helpTopicSlug={entry.slug}
+
+            preserveMaintenanceMetadata={preserveMaintenanceMetadata}
+
+            preparedMarkdownOverride={preparedMarkdown}
+
+          />
+
+        </div>
+
+        <HelpTopicTableOfContents headings={headings} groups={resolvedTocGroups} enableScrollSpy />
+
+      </div>
+
+    </article>
+
+  );
+
+}
+
+

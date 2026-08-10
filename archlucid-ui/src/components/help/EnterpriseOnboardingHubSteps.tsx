@@ -2,42 +2,95 @@
 
 import Link from "next/link";
 
-import { StatusTag } from "@/components/ui/status-tag";
 import {
   ENTERPRISE_ONBOARDING_HUB_STEPS,
+  isEnterpriseOnboardingInPageAnchorHref,
   type EnterpriseOnboardingHubStepLink,
 } from "@/lib/enterprise-onboarding-hub-steps";
-import { enterpriseOnboardingStepStatusTag } from "@/lib/enterprise-onboarding-step-status";
-import { useEnterpriseOnboardingDerivedStepStatus } from "@/lib/use-enterprise-onboarding-derived-step-status";
 import { OPERATOR_LINK, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-function HubStepLinks(props: {
-  readonly primaryLink: EnterpriseOnboardingHubStepLink;
-  readonly secondaryLinks?: readonly EnterpriseOnboardingHubStepLink[];
-}): React.JSX.Element {
-  return (
-    <div className="flex flex-wrap items-center gap-2">
-      <Link className={cn(OPERATOR_LINK.stepPill, "no-underline")} href={props.primaryLink.href}>
-        {props.primaryLink.label}
+function HubStepLink(props: {
+  readonly link: EnterpriseOnboardingHubStepLink;
+  readonly stepTitle: string;
+  readonly emphasizeRecommended: boolean;
+}): React.JSX.Element | null {
+  const { link, stepTitle, emphasizeRecommended } = props;
+
+  // Title already deep-links when the primary anchor label duplicates the step title.
+  if (isEnterpriseOnboardingInPageAnchorHref(link.href) && link.label === stepTitle) {
+    return null;
+  }
+
+  if (isEnterpriseOnboardingInPageAnchorHref(link.href)) {
+    return (
+      <Link className={cn(OPERATOR_LINK.step, "no-underline")} href={link.href}>
+        {link.label}
       </Link>
-      {props.secondaryLinks?.map((link) => (
-        <Link
-          key={`${link.href}-${link.label}`}
-          className={cn(OPERATOR_LINK.stepPill, "no-underline")}
-          href={link.href}
-        >
-          {link.label}
-        </Link>
-      ))}
-    </div>
+    );
+  }
+
+  return (
+    <Link
+      className={cn(
+        OPERATOR_LINK.stepPill,
+        emphasizeRecommended ? OPERATOR_LINK.stepPillRecommended : undefined,
+        "no-underline",
+      )}
+      href={link.href}
+    >
+      {link.label}
+    </Link>
   );
 }
 
-/** Tracked onboarding hub for `/help/enterprise-onboarding` — status is not derived from tenant APIs yet. */
-export function EnterpriseOnboardingHubSteps(): React.JSX.Element {
-  const { statuses, progress } = useEnterpriseOnboardingDerivedStepStatus();
+function HubStepLinks(props: {
+  readonly stepTitle: string;
+  readonly primaryLink: EnterpriseOnboardingHubStepLink;
+  readonly secondaryLinks?: readonly EnterpriseOnboardingHubStepLink[];
+  readonly emphasizeRecommended: boolean;
+}): React.JSX.Element | null {
+  const links = [props.primaryLink, ...(props.secondaryLinks ?? [])].map((link) => (
+    <HubStepLink
+      key={`${link.href}-${link.label}`}
+      link={link}
+      stepTitle={props.stepTitle}
+      emphasizeRecommended={props.emphasizeRecommended && !isEnterpriseOnboardingInPageAnchorHref(link.href)}
+    />
+  ));
 
+  const visibleLinks = links.filter((link) => link !== null);
+
+  if (visibleLinks.length === 0) {
+    return null;
+  }
+
+  return <div className="flex flex-wrap items-center gap-2">{visibleLinks}</div>;
+}
+
+function HubStepTitle(props: {
+  readonly index: number;
+  readonly title: string;
+  readonly primaryLink: EnterpriseOnboardingHubStepLink;
+}): React.JSX.Element {
+  const titleText = `${props.index + 1}. ${props.title}`;
+
+  if (isEnterpriseOnboardingInPageAnchorHref(props.primaryLink.href)) {
+    return (
+      <Link
+        className={cn("font-semibold text-al-text-primary no-underline hover:underline", OPERATOR_TYPOGRAPHY.body)}
+        href={props.primaryLink.href}
+      >
+        {titleText}
+      </Link>
+    );
+  }
+
+  return <span className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{titleText}</span>;
+}
+
+/** Eight-step onboarding index for `/help/enterprise-onboarding`. */
+export function EnterpriseOnboardingHubSteps(): React.JSX.Element {
   return (
     <section
       id="onboarding-hub"
@@ -47,38 +100,42 @@ export function EnterpriseOnboardingHubSteps(): React.JSX.Element {
       <div className="space-y-1">
         <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>Onboarding hub</h2>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          Use this checklist to track hosted SaaS enterprise onboarding. For task-specific guidance, open each step.
-        </p>
-        <p
-          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.label)}
-          data-testid="enterprise-onboarding-hub-progress"
-        >
-          {progress.completedCount} of {progress.totalCount} steps tracked in ArchLucid
+          Use this checklist for hosted SaaS enterprise onboarding. Open each step for task-specific guidance.
         </p>
       </div>
 
       <ol className="m-0 list-none space-y-4 p-0">
         {ENTERPRISE_ONBOARDING_HUB_STEPS.map((step, index) => {
-          const stepStatus = statuses[index] ?? "not-tracked";
-          const statusTag = enterpriseOnboardingStepStatusTag(stepStatus);
+          const recommendedNext = index === 0;
 
           return (
             <li
               key={step.title}
               className="border-b border-neutral-100 pb-4 last:border-b-0 last:pb-0 dark:border-neutral-800"
               data-testid={`enterprise-onboarding-hub-step-${index + 1}`}
+              data-recommended-next={recommendedNext ? "true" : undefined}
             >
               <div className="flex flex-wrap items-start gap-2">
-                <span className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                  {index + 1}. {step.title}
-                </span>
-                <StatusTag kind={statusTag.kind} label={statusTag.label} />
+                <HubStepTitle index={index} title={step.title} primaryLink={step.primaryLink} />
+                {recommendedNext ? (
+                  <span
+                    className={cn("font-medium text-teal-900 dark:text-teal-200", OPERATOR_TYPOGRAPHY.micro)}
+                    data-testid="enterprise-onboarding-hub-recommended-next"
+                  >
+                    Recommended next
+                  </span>
+                ) : null}
               </div>
               <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.label)}>
                 Owner: {step.owner}
               </p>
               <div className="mt-2">
-                <HubStepLinks primaryLink={step.primaryLink} secondaryLinks={step.secondaryLinks} />
+                <HubStepLinks
+                  stepTitle={step.title}
+                  primaryLink={step.primaryLink}
+                  secondaryLinks={step.secondaryLinks}
+                  emphasizeRecommended={recommendedNext}
+                />
               </div>
             </li>
           );

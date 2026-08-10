@@ -1,3 +1,4 @@
+import { ENTERPRISE_ONBOARDING_HUB_STEP_OWNERS } from "@/lib/enterprise-onboarding-hub-step-owners";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export type EnterpriseOnboardingHubStepLink = {
@@ -7,53 +8,57 @@ export type EnterpriseOnboardingHubStepLink = {
 
 export type EnterpriseOnboardingHubStep = {
   readonly title: string;
-  readonly owner: string;
+  readonly owner: (typeof ENTERPRISE_ONBOARDING_HUB_STEP_OWNERS)[keyof typeof ENTERPRISE_ONBOARDING_HUB_STEP_OWNERS];
   readonly primaryLink: EnterpriseOnboardingHubStepLink;
   readonly secondaryLinks?: readonly EnterpriseOnboardingHubStepLink[];
 };
 
 export const ENTERPRISE_ONBOARDING_HUB_STEP_COUNT = 8;
 
+export function isEnterpriseOnboardingInPageAnchorHref(href: string): boolean {
+  return href.startsWith("#");
+}
+
 export const ENTERPRISE_ONBOARDING_HUB_STEPS: readonly EnterpriseOnboardingHubStep[] = [
   {
     title: "Configure SSO",
-    owner: "Customer IT + tenant admin",
+    owner: ENTERPRISE_ONBOARDING_HUB_STEP_OWNERS.customerItTenantAdmin,
     primaryLink: { label: "Configure SSO", href: "#workforce-sso" },
   },
   {
     title: "Map roles and groups",
-    owner: "Joint (customer IT + ArchLucid)",
+    owner: ENTERPRISE_ONBOARDING_HUB_STEP_OWNERS.joint,
     primaryLink: { label: "Map roles and groups", href: "#saml-claim-mapping-reference" },
     secondaryLinks: [{ label: "Users and roles", href: inAppHelpHref("users-and-roles") }],
   },
   {
     title: "Assign policy packs",
-    owner: "Tenant admin",
+    owner: ENTERPRISE_ONBOARDING_HUB_STEP_OWNERS.tenantAdmin,
     primaryLink: { label: "Assign policy packs", href: "#default-policy-packs" },
   },
   {
     title: "Enable governance workflow",
-    owner: "Tenant admin",
+    owner: ENTERPRISE_ONBOARDING_HUB_STEP_OWNERS.tenantAdmin,
     primaryLink: { label: "Enable governance workflow", href: "#governance-enablement" },
   },
   {
     title: "Configure audit export",
-    owner: "Tenant admin",
+    owner: ENTERPRISE_ONBOARDING_HUB_STEP_OWNERS.tenantAdmin,
     primaryLink: { label: "Configure audit export", href: "#audit-export" },
   },
   {
     title: "Connect Azure securely",
-    owner: "Customer cloud admin",
+    owner: ENTERPRISE_ONBOARDING_HUB_STEP_OWNERS.customerCloudAdmin,
     primaryLink: { label: "Connect Azure securely", href: inAppHelpHref("cloud-connections-azure") },
   },
   {
     title: "Validate first architecture review",
-    owner: "Architect",
+    owner: ENTERPRISE_ONBOARDING_HUB_STEP_OWNERS.architect,
     primaryLink: { label: "Validate first architecture review", href: inAppHelpHref("pilot-guide") },
   },
   {
     title: "Prepare procurement/trust review",
-    owner: "Procurement + security reviewer",
+    owner: ENTERPRISE_ONBOARDING_HUB_STEP_OWNERS.procurementSecurity,
     primaryLink: { label: "Prepare procurement/trust review", href: inAppHelpHref("procurement") },
     secondaryLinks: [{ label: "Security and trust", href: inAppHelpHref("security-trust") }],
   },

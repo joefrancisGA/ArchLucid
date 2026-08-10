@@ -570,7 +570,11 @@ export function stripConfigurationReferenceContributorSections(markdown: string)
 }
 
 /** H2 sections omitted from in-app enterprise onboarding (ArchLucid CS / ops theater). */
-const ENTERPRISE_ONBOARDING_OMITTED_SECTION_PREFIXES = ["tenant provisioning", "onboarding hub"] as const;
+const ENTERPRISE_ONBOARDING_OMITTED_SECTION_PREFIXES = [
+  "tenant provisioning",
+  "onboarding hub",
+  "sign-off",
+] as const;
 
 /**
  * Removes the duplicate Quick links blockquote — the interactive hub step list replaces it in-app.

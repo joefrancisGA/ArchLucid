@@ -46,5 +46,11 @@ describe("canonicalizeLegacyOperatorRoutePath", () => {
     expect(canonicalizeLegacyOperatorRoutePath("/settings/cloud-connections")).toBe(
       "/integrations/cloud-connections",
     );
+    expect(canonicalizeLegacyOperatorRoutePath("/settings/identity-providers")).toBe(
+      "/administration/identity-providers",
+    );
+    expect(canonicalizeLegacyOperatorRoutePath("/settings/identity/sso-wizard")).toBe(
+      "/administration/identity/sso-wizard",
+    );
   });
 });

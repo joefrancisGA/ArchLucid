@@ -2,14 +2,14 @@ import Link from "next/link";
 
 import {
   ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE,
+  ENTERPRISE_ONBOARDING_HELP_RELATED_PAGES_TITLE,
   ENTERPRISE_ONBOARDING_HELP_SOURCES,
   ENTERPRISE_ONBOARDING_HELP_SOURCES_INTRO,
 } from "@/lib/enterprise-onboarding-help-evidence-copy";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help-diligence-artifact-index";
 import { cn } from "@/lib/utils";
 
-/** Claim discipline + diligence artifact index for `/help/enterprise-onboarding`. */
+/** Claim discipline + related setup pages for `/help/enterprise-onboarding`. */
 export function EnterpriseOnboardingHelpEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <div className="space-y-3" data-testid="enterprise-onboarding-help-orientation">
@@ -29,7 +29,7 @@ export function EnterpriseOnboardingHelpEvidenceOrientationStrip(): React.JSX.El
           id="enterprise-onboarding-help-sources-heading"
           className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
         >
-          {HELP_DILIGENCE_ARTIFACT_INDEX_TITLE}
+          {ENTERPRISE_ONBOARDING_HELP_RELATED_PAGES_TITLE}
         </h2>
         <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {ENTERPRISE_ONBOARDING_HELP_SOURCES_INTRO}
