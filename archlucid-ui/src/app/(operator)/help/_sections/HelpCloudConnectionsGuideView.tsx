@@ -10,29 +10,39 @@ import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfCont
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { OperatorPageBreadcrumb } from "@/components/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
+  CLOUD_CONNECTIONS_HELP_ACTION_PANEL_ID,
   CLOUD_CONNECTIONS_HELP_ACTION_PANEL_INTRO,
   CLOUD_CONNECTIONS_HELP_ACTION_PANEL_TITLE,
+  CLOUD_CONNECTIONS_HELP_CHOOSE_PLATFORM_TITLE,
+  CLOUD_CONNECTIONS_HELP_ORIENTATION_ID,
+  CLOUD_CONNECTIONS_HELP_ORIENTATION_TITLE,
   CLOUD_CONNECTIONS_HELP_PAGE_INTRO,
   CLOUD_CONNECTIONS_HELP_PAGE_SUBTITLE,
   CLOUD_CONNECTIONS_HELP_PAGE_TITLE,
   CLOUD_CONNECTIONS_HELP_PATH,
-  CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS,
+  CLOUD_CONNECTIONS_HELP_RELATED_TOPICS_HEADING,
 } from "@/lib/cloud-connections-help-guide-content";
 import {
   DESIGN_TOKENS,
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
+  OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
-import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
 import { extractMarkdownSectionsByAnchor } from "@/lib/help-markdown-sections";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
+
+const CLOUD_CONNECTIONS_HELP_TOC_HEADINGS: readonly HelpMarkdownHeading[] = [
+  { id: CLOUD_CONNECTIONS_HELP_ORIENTATION_ID, title: CLOUD_CONNECTIONS_HELP_ORIENTATION_TITLE, level: 2 },
+  { id: "choose-your-cloud-platform", title: CLOUD_CONNECTIONS_HELP_CHOOSE_PLATFORM_TITLE, level: 2 },
+  { id: CLOUD_CONNECTIONS_HELP_ACTION_PANEL_ID, title: CLOUD_CONNECTIONS_HELP_ACTION_PANEL_TITLE, level: 2 },
+  { id: "related-topics", title: CLOUD_CONNECTIONS_HELP_RELATED_TOPICS_HEADING, level: 2 },
+];
 
 type HelpCloudConnectionsGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -45,12 +55,9 @@ export function HelpCloudConnectionsGuideView(
 ): React.ReactElement {
   const { entry, markdown } = props;
   const sourceDocPath = entry.sourcePaths[0] ?? "";
-  // Registry PDF load keeps choose-your-cloud-platform; in-app React owns that section.
-  const markdownBody = extractMarkdownSectionsByAnchor(markdown, ["related-topics"], true);
-  const preparedMarkdown = prepareHelpMarkdownForPresentation(markdownBody, sourceDocPath, {
-    helpTopicSlug: entry.slug,
-  });
-  const headings = extractHelpMarkdownHeadings(preparedMarkdown);
+  // Related topics only — React owns intro/tiers/next-actions (avoids duplicate doc intro).
+  const markdownBody = extractMarkdownSectionsByAnchor(markdown, ["related-topics"], false);
+  const contentGridClass = resolveHelpPageContentGridClass(CLOUD_CONNECTIONS_HELP_TOC_HEADINGS.length);
 
   return (
     <article
@@ -77,8 +84,6 @@ export function HelpCloudConnectionsGuideView(
         actions={<HelpCloudConnectionsHeaderActions entry={entry} />}
       />
 
-      <HelpCloudConnectionsClaimDisciplineCallout />
-
       <p
         className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
         data-testid="help-cloud-connections-intro"
@@ -86,43 +91,46 @@ export function HelpCloudConnectionsGuideView(
         {CLOUD_CONNECTIONS_HELP_PAGE_INTRO}
       </p>
 
-      <HelpCloudConnectionsProviderScopeSection />
+      <div className={contentGridClass}>
+        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
+          <HelpCloudConnectionsClaimDisciplineCallout />
 
-      <Card
-        className={DESIGN_TOKENS.surface.card}
-        data-testid="help-cloud-connections-action-panel"
-      >
-        <CardHeader className={OPERATOR_CARD.header}>
-          <h2 className={cn("m-0 text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-            {CLOUD_CONNECTIONS_HELP_ACTION_PANEL_TITLE}
-          </h2>
-          <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            {CLOUD_CONNECTIONS_HELP_ACTION_PANEL_INTRO}
-          </p>
-        </CardHeader>
-        <CardContent className={cn(OPERATOR_CARD.content, "space-y-3")}>
-          <div className="flex flex-wrap items-center gap-2">
-            <Button asChild size="sm" variant="primary">
-              <Link href={CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.openHub.href}>
-                {CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.openHub.label}
-              </Link>
-            </Button>
+          <HelpCloudConnectionsProviderScopeSection />
+
+          <Card
+            id={CLOUD_CONNECTIONS_HELP_ACTION_PANEL_ID}
+            className={cn(
+              DESIGN_TOKENS.surface.card,
+              OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
+              "scroll-mt-24",
+            )}
+            data-testid="help-cloud-connections-action-panel"
+          >
+            <CardHeader className={OPERATOR_CARD.header}>
+              <h2 className={cn("m-0 text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+                {CLOUD_CONNECTIONS_HELP_ACTION_PANEL_TITLE}
+              </h2>
+              <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {CLOUD_CONNECTIONS_HELP_ACTION_PANEL_INTRO}
+              </p>
+            </CardHeader>
+            <CardContent className={cn(OPERATOR_CARD.content, "space-y-3")}>
+              <HelpCloudConnectionsFollowUpLinks />
+            </CardContent>
+          </Card>
+
+          <div data-testid="help-cloud-connections-content">
+            <MarketingAccessibilityMarkdownFragment
+              markdownBody={markdownBody}
+              tableCaption={`${entry.title} reference table`}
+              presentation="help"
+              sourceDocPath={sourceDocPath}
+              helpTopicSlug={entry.slug}
+            />
           </div>
-          <HelpCloudConnectionsFollowUpLinks />
-        </CardContent>
-      </Card>
-
-      <div className={HELP_PAGE_LAYOUT.contentGrid}>
-        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")} data-testid="help-cloud-connections-content">
-          <MarketingAccessibilityMarkdownFragment
-            markdownBody={markdownBody}
-            tableCaption={`${entry.title} reference table`}
-            presentation="help"
-            sourceDocPath={sourceDocPath}
-            helpTopicSlug={entry.slug}
-          />
         </div>
-        <HelpTopicTableOfContents headings={headings} />
+
+        <HelpTopicTableOfContents headings={CLOUD_CONNECTIONS_HELP_TOC_HEADINGS} enableScrollSpy />
       </div>
     </article>
   );

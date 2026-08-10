@@ -1,3 +1,4 @@
+import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help-diligence-artifact-index";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const CLOUD_CONNECTIONS_HELP_PATH = "/help/cloud-connections" as const;
@@ -10,35 +11,42 @@ export const CLOUD_CONNECTIONS_HELP_PAGE_SUBTITLE =
 export const CLOUD_CONNECTIONS_HELP_PAGE_INTRO =
   "Cloud connectors are optional and read-only. Pick a tier below when you need provider inventory in a review — or skip connectors entirely and attach other evidence.";
 
-export const CLOUD_CONNECTIONS_HELP_CLAIM_DISCIPLINE_LEAD =
-  "This guide explains how cloud connectors supply inventory evidence for reviews — it is not a signed-review diligence Sources package.";
-
-export const CLOUD_CONNECTIONS_HELP_CLAIM_DISCIPLINE_TRAIL =
-  "before treating setup guidance as assurance evidence.";
-
-export const CLOUD_CONNECTIONS_HELP_CLAIM_DISCIPLINE_STATUS_LABEL = "Orientation" as const;
+export const CLOUD_CONNECTIONS_HELP_ORIENTATION_ID = "about-this-guide" as const;
 
 export const CLOUD_CONNECTIONS_HELP_ORIENTATION_TITLE = "About this guide" as const;
+
+export const CLOUD_CONNECTIONS_HELP_ORIENTATION_LEAD =
+  "This guide explains optional read-only cloud connectors and how to pick an evidence tier for architecture reviews.";
+
+export const CLOUD_CONNECTIONS_HELP_ORIENTATION_BOUNDARY_BEFORE_LINKS =
+  `It is not the ${HELP_DILIGENCE_ARTIFACT_INDEX_TITLE} for a signed review record. Open`;
+
+export const CLOUD_CONNECTIONS_HELP_ORIENTATION_BOUNDARY_AFTER_LINKS =
+  "before treating setup guidance as assurance evidence.";
+
+export const CLOUD_CONNECTIONS_HELP_ACTION_PANEL_ID = "where-to-go-next" as const;
 
 export const CLOUD_CONNECTIONS_HELP_ACTION_PANEL_TITLE = "Where to go next" as const;
 
 export const CLOUD_CONNECTIONS_HELP_ACTION_PANEL_INTRO =
-  "Use these follow-ups when connector setup needs the live hub, provider-specific secure-connect help, or assurance cites.";
+  "Use these follow-ups when connector setup needs the live hub, a provider secure-connect guide, or assurance status.";
+
+export const CLOUD_CONNECTIONS_HELP_RELATED_TOPICS_HEADING = "Related topics" as const;
 
 export const CLOUD_CONNECTIONS_HELP_CHOOSE_PLATFORM_TITLE = "Choose your cloud platform" as const;
 
 export const CLOUD_CONNECTIONS_HELP_TIER_1 = {
   title: "Tier 1 · Upload inventory",
-  statusLabel: "Default",
+  eyebrow: "Recommended",
   useWhen:
     "Run packaging scripts from your ArchLucid distribution, then upload the inventory ZIP from the New architecture review wizard. ArchLucid never receives long-lived credentials in your cloud account.",
 } as const;
 
 export const CLOUD_CONNECTIONS_HELP_TIER_2 = {
   title: "Tier 2 · Cloud-connected pull",
-  statusLabel: "Optional",
+  eyebrow: "Optional",
   useWhen:
-    "Federated read-only roles in Azure, AWS, or GCP when you want ArchLucid to poll inventory on a schedule without storing access keys in tenant configuration.",
+    "Federated read-only roles in Azure, AWS, or GCP when you want ArchLucid to poll inventory on a schedule without storing access keys in tenant configuration on the primary federated path.",
 } as const;
 
 export const CLOUD_CONNECTIONS_HELP_PACKAGING_SCRIPTS = [
@@ -93,15 +101,27 @@ export type CloudConnectionsHelpFollowUpLink = {
   readonly kind: "product" | "help";
 };
 
-export const CLOUD_CONNECTIONS_HELP_FOLLOW_UP_LINKS: readonly CloudConnectionsHelpFollowUpLink[] = [
-  { label: "Assurance status", href: "/security-trust", kind: "product" },
-  { label: "Getting started", href: inAppHelpHref("getting-started"), kind: "help" },
-  {
-    label: "How ArchLucid works",
-    href: inAppHelpHref("getting-started", "how-archlucid-works"),
-    kind: "help",
+export const CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS = {
+  startEvidenceOnlyReview: {
+    label: "New architecture review",
+    href: "/architecture/reviews/new",
   },
-] as const;
+  openHub: { label: "Open cloud connections", href: "/integrations/cloud-connections" },
+} as const;
+
+export const CLOUD_CONNECTIONS_HELP_FOLLOW_UP_LINKS: readonly CloudConnectionsHelpFollowUpLink[] = [
+  {
+    label: CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.openHub.label,
+    href: CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.openHub.href,
+    kind: "product",
+  },
+  ...CLOUD_CONNECTIONS_HELP_PROVIDER_SCOPE_ROWS.map((row) => ({
+    label: row.guideLabel,
+    href: row.guideHref,
+    kind: "help" as const,
+  })),
+  { label: "Assurance status", href: "/security-trust", kind: "product" },
+];
 
 /** Operator Sources — no self-href to `/help/cloud-connections`. */
 export const CLOUD_CONNECTIONS_HELP_SOURCES: readonly CloudConnectionsHelpFollowUpLink[] = [
@@ -116,11 +136,3 @@ export const CLOUD_CONNECTIONS_HELP_SOURCES: readonly CloudConnectionsHelpFollow
 ] as const;
 
 export const CLOUD_CONNECTIONS_HELP_SOURCES_INTRO = CLOUD_CONNECTIONS_HELP_ACTION_PANEL_INTRO;
-
-export const CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS = {
-  startEvidenceOnlyReview: {
-    label: "New architecture review",
-    href: "/architecture/reviews/new",
-  },
-  openHub: { label: "Open cloud connections", href: "/integrations/cloud-connections" },
-} as const;

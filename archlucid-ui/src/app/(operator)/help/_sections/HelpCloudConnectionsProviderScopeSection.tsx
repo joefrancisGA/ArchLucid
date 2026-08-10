@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { StatusTag } from "@/components/ui/status-tag";
 import {
   CLOUD_CONNECTIONS_HELP_CHOOSE_PLATFORM_TITLE,
   CLOUD_CONNECTIONS_HELP_PACKAGING_SCRIPTS,
@@ -13,6 +12,7 @@ import {
 } from "@/lib/cloud-connections-help-guide-content";
 import {
   DESIGN_TOKENS,
+  OPERATOR_CARD,
   OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
@@ -24,6 +24,14 @@ function helpScrollableTableRegionLabel(sectionTitle: string, tableOrdinal: numb
   const base = sectionTitle.length > 0 ? sectionTitle : "Reference";
 
   return `Scrollable ${base} table ${tableOrdinal}`;
+}
+
+function TierCardEyebrow(props: { readonly children: string }): React.ReactElement {
+  return (
+    <p className={cn("m-0 uppercase tracking-wide text-al-text-secondary", OPERATOR_TYPOGRAPHY.label)}>
+      {props.children}
+    </p>
+  );
 }
 
 /** Evidence tiers and provider permission scope for `/help/cloud-connections` (HCE). */
@@ -46,11 +54,16 @@ export function HelpCloudConnectionsProviderScopeSection(): React.ReactElement {
       </h2>
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2" data-testid="help-cloud-connections-tier-decision">
-        <div className={cn(DESIGN_TOKENS.surface.card, "space-y-3 p-4")} data-testid="help-cloud-connections-tier-1-card">
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{CLOUD_CONNECTIONS_HELP_TIER_1.title}</h3>
-            <StatusTag kind="neutral" label={CLOUD_CONNECTIONS_HELP_TIER_1.statusLabel} />
-          </div>
+        <div
+          className={cn(
+            DESIGN_TOKENS.surface.card,
+            OPERATOR_CARD.lifecycleEmphasized,
+            "space-y-3 p-4",
+          )}
+          data-testid="help-cloud-connections-tier-1-card"
+        >
+          <TierCardEyebrow>{CLOUD_CONNECTIONS_HELP_TIER_1.eyebrow}</TierCardEyebrow>
+          <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{CLOUD_CONNECTIONS_HELP_TIER_1.title}</h3>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             {CLOUD_CONNECTIONS_HELP_TIER_1.useWhen}
           </p>
@@ -77,7 +90,7 @@ export function HelpCloudConnectionsProviderScopeSection(): React.ReactElement {
             </p>
           </details>
           <div className="flex flex-wrap items-center gap-2">
-            <Button asChild size="sm" variant="primary">
+            <Button asChild size="sm" variant="primary" data-testid="help-cloud-connections-primary-cta">
               <Link href={CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.startEvidenceOnlyReview.href}>
                 {CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.startEvidenceOnlyReview.label}
               </Link>
@@ -86,15 +99,13 @@ export function HelpCloudConnectionsProviderScopeSection(): React.ReactElement {
         </div>
 
         <div className={cn(DESIGN_TOKENS.surface.card, "space-y-3 p-4")} data-testid="help-cloud-connections-tier-2-card">
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{CLOUD_CONNECTIONS_HELP_TIER_2.title}</h3>
-            <StatusTag kind="neutral" label={CLOUD_CONNECTIONS_HELP_TIER_2.statusLabel} />
-          </div>
+          <TierCardEyebrow>{CLOUD_CONNECTIONS_HELP_TIER_2.eyebrow}</TierCardEyebrow>
+          <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{CLOUD_CONNECTIONS_HELP_TIER_2.title}</h3>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             {CLOUD_CONNECTIONS_HELP_TIER_2.useWhen}
           </p>
           <div className="flex flex-wrap items-center gap-2">
-            <Button asChild size="sm" variant="primary">
+            <Button asChild size="sm" variant="outline">
               <Link href={CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.openHub.href}>
                 {CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.openHub.label}
               </Link>
