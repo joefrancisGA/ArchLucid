@@ -1,8 +1,8 @@
 "use client";
 
-import { AlertsInboxActionLoopDialog, AlertsInboxTriageActionDialog } from "@/components/alerts/AlertsInboxDialogs";
 import { AlertsInboxAlertListSection } from "@/components/alerts/AlertsInboxAlertListSection";
 import { AlertsInboxControls } from "@/components/alerts/AlertsInboxControls";
+import { AlertsInboxDialogsDeferred } from "@/components/alerts/alerts-inbox-deferred-chunks";
 import { AlertsInboxPageIntro } from "@/components/alerts/AlertsInboxPageIntro";
 import { AlertsInboxSummaryRow } from "@/components/alerts/AlertsInboxSummaryRow";
 import { useAlertsInboxController } from "@/components/alerts/use-alerts-inbox-controller";
@@ -58,25 +58,26 @@ export function AlertsInboxInteractiveClient({ initialModel = null }: AlertsInbo
 
       <AlertsInboxAlertListSection controller={controller} emptyFilteredProps={controller.emptyFilteredProps} />
 
-      <AlertsInboxTriageActionDialog
-        pendingAction={controller.pendingAction}
-        actionComment={controller.actionComment}
-        actionBusy={controller.actionBusy}
-        canMutateAlertInbox={controller.canMutateAlertInbox}
-        onActionCommentChange={controller.setActionComment}
-        onClose={controller.clearPendingAction}
-        onConfirm={() => {
-          void controller.onConfirmActionDialog();
+      <AlertsInboxDialogsDeferred
+        triage={{
+          pendingAction: controller.pendingAction,
+          actionComment: controller.actionComment,
+          actionBusy: controller.actionBusy,
+          canMutateAlertInbox: controller.canMutateAlertInbox,
+          onActionCommentChange: controller.setActionComment,
+          onClose: controller.clearPendingAction,
+          onConfirm: () => {
+            void controller.onConfirmActionDialog();
+          },
         }}
-      />
-
-      <AlertsInboxActionLoopDialog
-        actionLoopAlertId={controller.actionLoopAlertId}
-        actionLoopFindingHref={controller.actionLoopFindingHref}
-        actionLoopData={controller.actionLoopData}
-        actionLoopLoading={controller.actionLoopLoading}
-        actionLoopError={controller.actionLoopError}
-        onClose={controller.closeActionLoopDialog}
+        actionLoop={{
+          actionLoopAlertId: controller.actionLoopAlertId,
+          actionLoopFindingHref: controller.actionLoopFindingHref,
+          actionLoopData: controller.actionLoopData,
+          actionLoopLoading: controller.actionLoopLoading,
+          actionLoopError: controller.actionLoopError,
+          onClose: controller.closeActionLoopDialog,
+        }}
       />
     </div>
   );

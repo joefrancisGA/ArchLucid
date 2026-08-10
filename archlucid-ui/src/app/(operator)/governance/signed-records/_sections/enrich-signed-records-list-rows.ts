@@ -7,9 +7,13 @@ import type { SignedRecordsListRow } from "./signed-records-list-row";
 import { SIGNED_RECORDS_LIST_VERSION_UNKNOWN } from "./signed-records-list-copy";
 
 async function enrichSignedRecordsListRow(row: SignedRecordsListRow): Promise<SignedRecordsListRow> {
-  const manifestId = await resolveGoldenManifestIdForRun(row.runId);
+  const existingManifestId = row.manifestId?.trim() ?? "";
+  const manifestId =
+    existingManifestId.length > 0
+      ? existingManifestId
+      : await resolveGoldenManifestIdForRun(row.runId);
 
-  if (manifestId === null) {
+  if (manifestId === null || manifestId.length === 0) {
     return row;
   }
 

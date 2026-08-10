@@ -259,6 +259,51 @@ public sealed class SqlRunRepository(
         }
     }
 
+    /// <inheritdoc />
+    public async Task<Guid?> GetLatestCommittedRunIdByManifestCreatedUtcAsync(
+        ScopeContext scope,
+        string projectId,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(projectId);
+        ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
+
+        const string sql = """
+                           SELECT TOP (1) r.RunId
+                           FROM dbo.Runs r WITH (NOLOCK)
+                           INNER JOIN dbo.GoldenManifests gm WITH (NOLOCK)
+                               ON gm.ManifestId = r.GoldenManifestId
+                           WHERE r.TenantId = @TenantId
+                             AND r.WorkspaceId = @WorkspaceId
+                             AND r.ScopeProjectId = @ScopeProjectId
+                             AND r.ProjectId = @AuthorityProjectSlug
+                             AND r.ArchivedUtc IS NULL
+                             AND gm.ArchivedUtc IS NULL
+                             AND (
+                                  r.LegacyRunStatus = @CommittedStatus
+                                  OR NULLIF(LTRIM(RTRIM(r.CurrentManifestVersion)), N'') IS NOT NULL
+                                  OR r.GoldenManifestId IS NOT NULL
+                             )
+                           ORDER BY gm.CreatedUtc DESC, r.RunId DESC;
+                           """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+
+        return await connection.QuerySingleOrDefaultAsync<Guid?>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    AuthorityProjectSlug = projectId,
+                    CommittedStatus = nameof(ArchitectureRunStatus.Committed)
+                },
+                cancellationToken: ct)).ConfigureAwait(false);
+    }
+
     public async Task<IReadOnlyList<RunRecord>> ListByProjectAsync(
         ScopeContext scope,
         string projectId,

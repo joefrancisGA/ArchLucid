@@ -48,10 +48,20 @@ export async function getPolicyPackCatalogEntry(
   );
 }
 
-/** Lists published versions for a policy pack. */
+/** Lists published versions for a policy pack (metadata only; ContentJson is empty). */
 export async function listPolicyPackVersions(policyPackId: string): Promise<PolicyPackVersion[]> {
   return apiGet<PolicyPackVersion[]>(
     `/${ApiV1Routes.policyPacks}/${encodeURIComponent(policyPackId)}/versions`,
+  );
+}
+
+/** Reads one policy pack version including full ContentJson. */
+export async function getPolicyPackVersion(
+  policyPackId: string,
+  version: string,
+): Promise<PolicyPackVersion> {
+  return apiGet<PolicyPackVersion>(
+    `/${ApiV1Routes.policyPacks}/${encodeURIComponent(policyPackId)}/versions/${encodeURIComponent(version)}`,
   );
 }
 

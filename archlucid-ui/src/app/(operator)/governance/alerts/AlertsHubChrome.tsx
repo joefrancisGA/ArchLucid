@@ -2,7 +2,7 @@
 
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { LayerHeader } from "@/components/LayerHeader";
-import { AlertsGovernanceContextPanel } from "@/components/alerts/AlertsGovernanceContextPanel";
+import { AlertsGovernanceContextPanelDeferred } from "@/components/alerts/alerts-inbox-deferred-chunks";
 import {
   AlertsHubHeaderConfigureLinkProvider,
   useAlertsHubHeaderConfigureLinkVisibility,
@@ -69,7 +69,9 @@ function AlertsHubChromeInner({
           </div>
         }
       >
-        {!buyerPolishedShell ? <AlertsGovernanceContextPanel canMutateAlertInbox={canMutateAlertInbox} /> : null}
+        {!buyerPolishedShell ? (
+          <AlertsGovernanceContextPanelDeferred canMutateAlertInbox={canMutateAlertInbox} />
+        ) : null}
       </OperatorPageHeader>
       <div className="min-w-0" data-testid="alert-hub-panel" aria-label="Alert inbox">
         {children}

@@ -1,4 +1,5 @@
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
+import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import type { RunSummary } from "@/types/authority";
 
 export type SignedRecordsListRow = {
@@ -21,15 +22,17 @@ export function buildSignedRecordsListRowsFromRuns(runs: readonly RunSummary[]):
     .map((run): SignedRecordsListRow => {
       const runId = run.runId.trim();
       const reviewHref = `/architecture/reviews/${encodeURIComponent(runId)}`;
+      const goldenManifestId = run.goldenManifestId?.trim() ?? "";
+      const hasManifestId = goldenManifestId.length > 0;
 
       return {
         runId,
         reviewTitle: buyerFacingReviewTitleFromSummary(run),
         committedUtc: run.createdUtc,
         manifestVersion: "—",
-        manifestId: null,
+        manifestId: hasManifestId ? goldenManifestId : null,
         reviewHref,
-        signedRecordHref: null,
+        signedRecordHref: hasManifestId ? signedRecordDetailPath(goldenManifestId) : null,
       };
     });
 }

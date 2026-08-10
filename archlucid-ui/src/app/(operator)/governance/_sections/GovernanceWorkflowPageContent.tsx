@@ -77,7 +77,6 @@ import type {
   GovernancePromotionRecord,
 } from "@/types/governance-workflow";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
-import { GovernanceOverviewPanel } from "./GovernanceOverviewPanel";
 import { deriveGovernanceApprovalWorkflowState } from "./governance-approval-workflow-state";
 import { GovernanceReviewContextBar } from "./GovernanceReviewContextBar";
 import {
@@ -85,11 +84,12 @@ import {
   CtoDemoGovernancePreviewHintDeferred,
   CtoDemoSegregationCalloutDeferred,
   GovernanceInteractiveQuickstartContentDeferred,
+  GovernanceOverviewPanelDeferred,
   GovernanceWorkflowApprovalsListDeferred,
   GovernanceWorkflowDialogsDeferred,
   GovernanceWorkflowPromotionsActivationsSectionDeferred,
+  GovernanceWorkflowSubmitSectionDeferred,
 } from "./governance-workflow-deferred-chunks";
-import { GovernanceWorkflowSubmitSection } from "./GovernanceWorkflowSubmitSection";
 import {
   sortGovernanceActivations,
   sortGovernancePromotions,
@@ -673,7 +673,7 @@ export function GovernanceWorkflowPageContent() {
       ) : null}
 
       {!isReviewContext ? (
-        <GovernanceOverviewPanel
+        <GovernanceOverviewPanelDeferred
           buyerPolishedShell={buyerPolishedShell}
           canMutateWorkflow={canMutateWorkflow}
           queryRunId={queryRunId}
@@ -753,7 +753,7 @@ export function GovernanceWorkflowPageContent() {
             data-testid="governance-workflow-review-context-stack"
           >
           <div ref={submitSectionRef}>
-            <GovernanceWorkflowSubmitSection
+            <GovernanceWorkflowSubmitSectionDeferred
               buyerPolishedShell={buyerPolishedShell}
               buyerSuppressGovernanceSubmitChrome={buyerSuppressGovernanceSubmitChrome}
               canMutateWorkflow={canMutateWorkflow}

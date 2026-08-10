@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import type { ExecutiveComplianceDriftTrendSectionProps } from "./ExecutiveComplianceDriftTrendSection";
+import type { ExecutiveDashboardNextActionSectionProps } from "./ExecutiveDashboardNextActionSection";
+import type { ExecutiveDashboardPrimaryMetricsSectionProps } from "./ExecutiveDashboardPrimaryMetricsSection";
 import type { ExecutiveDashboardSupportingMetricsSectionProps } from "./ExecutiveDashboardSupportingMetricsSection";
 import type { ExecutiveRoiTrendSectionProps } from "./ExecutiveRoiTrendSection";
 import type { ExecutiveRoiSummarySectionProps } from "./ExecutiveRoiSummarySection";
@@ -39,6 +41,30 @@ export const OperatorWelcomeOnboardingDeferred: ComponentType = dynamic(
     loading: () => <ExecutiveDashboardDeferredSectionLoading label="Loading welcome guidance" />,
   },
 );
+
+export const ExecutiveDashboardNextActionSectionDeferred: ComponentType<ExecutiveDashboardNextActionSectionProps> =
+  dynamic(
+    () =>
+      import("./ExecutiveDashboardNextActionSection").then(
+        (module) => module.ExecutiveDashboardNextActionSection,
+      ),
+    {
+      ssr: false,
+      loading: () => <ExecutiveDashboardDeferredSectionLoading label="Loading next action" />,
+    },
+  );
+
+export const ExecutiveDashboardPrimaryMetricsSectionDeferred: ComponentType<ExecutiveDashboardPrimaryMetricsSectionProps> =
+  dynamic(
+    () =>
+      import("./ExecutiveDashboardPrimaryMetricsSection").then(
+        (module) => module.ExecutiveDashboardPrimaryMetricsSection,
+      ),
+    {
+      ssr: false,
+      loading: () => <ExecutiveDashboardDeferredSectionLoading label="Loading primary metrics" />,
+    },
+  );
 
 export const ExecutiveDashboardHowItWorksDeferred: ComponentType = dynamic(
   () =>

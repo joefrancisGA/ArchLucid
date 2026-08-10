@@ -3,6 +3,7 @@ using ArchLucid.Application.Operations;
 using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Persistence.Data.Repositories;
 
 using Azure.Storage.Queues;
@@ -25,14 +26,18 @@ public sealed class BackgroundJobQueueProcessorHostedService(
     {
         BackgroundJobsOptions snapshot = options.Value;
         TimeSpan visibility = TimeSpan.FromMinutes(Math.Clamp(snapshot.ProcessorVisibilityMinutes, 1, 120));
-        int idleMs = Math.Clamp(snapshot.ProcessorIdlePollMilliseconds, 100, 60_000);
+        int baseIdleMs = Math.Clamp(snapshot.ProcessorIdlePollMilliseconds, 100, 60_000);
+        int maxIdleMs = ResolveMaxIdlePollMilliseconds(snapshot.ProcessorMaxIdlePollMilliseconds, baseIdleMs);
         int batchSize = Math.Clamp(snapshot.ProcessorReceiveBatchSize, 1, 32);
         int maxConcurrentJobs = Math.Clamp(snapshot.ProcessorMaxConcurrentJobs, 1, 16);
+        AdaptiveOutboxIdleBackoff idleBackoff = new(
+            TimeSpan.FromMilliseconds(baseIdleMs),
+            TimeSpan.FromMilliseconds(maxIdleMs));
 
         await queueClient.CreateIfNotExistsAsync(cancellationToken: stoppingToken);
 
         while (!stoppingToken.IsCancellationRequested)
-
+        {
             try
             {
                 QueueMessage[] messages = await queueClient.ReceiveMessagesAsync(
@@ -40,9 +45,11 @@ public sealed class BackgroundJobQueueProcessorHostedService(
                     visibilityTimeout: visibility,
                     cancellationToken: stoppingToken);
 
+                TimeSpan idleDelay = idleBackoff.NextDelay(messages.Length);
+
                 if (messages.Length == 0)
                 {
-                    await Task.Delay(idleMs, stoppingToken);
+                    await Task.Delay(idleDelay, stoppingToken);
 
                     continue;
                 }
@@ -74,8 +81,21 @@ public sealed class BackgroundJobQueueProcessorHostedService(
             catch (Exception ex)
             {
                 logger.LogError(ex, "Background job queue processor loop failed; backing off.");
-                await Task.Delay(idleMs, stoppingToken);
+                TimeSpan faultDelay = idleBackoff.NextDelay(dequeuedCount: 0);
+                await Task.Delay(faultDelay, stoppingToken);
             }
+        }
+    }
+
+    /// <summary>Clamps optional max idle to at least the base idle and at most 60 s.</summary>
+    internal static int ResolveMaxIdlePollMilliseconds(int? configuredMaxIdleMs, int baseIdleMs)
+    {
+        int defaultMaxMs = (int)AdaptiveOutboxIdleBackoff.MaxIdleDelay.TotalMilliseconds;
+
+        if (configuredMaxIdleMs is null)
+            return Math.Max(baseIdleMs, defaultMaxMs);
+
+        return Math.Clamp(configuredMaxIdleMs.Value, baseIdleMs, 60_000);
     }
 
     private async Task ProcessOneMessageAsync(string jobId, QueueMessage message, CancellationToken stoppingToken)

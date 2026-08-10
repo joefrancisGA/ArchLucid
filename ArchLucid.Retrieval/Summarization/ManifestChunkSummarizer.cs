@@ -1,3 +1,4 @@
+using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Retrieval;
 using ArchLucid.Retrieval.Chunking;
@@ -37,34 +38,101 @@ public sealed class ManifestChunkSummarizer(
             return hits;
 
         List<RetrievalHit> mutableHits = hits.ToList();
-        List<RetrievalHit> manifestHits = mutableHits
+        List<RetrievalHit> remainingCandidates = mutableHits
             .Where(static hit => IsManifestCorpus(hit.CorpusKind))
             .OrderBy(static hit => hit.Score)
             .ToList();
 
-        if (manifestHits.Count == 0)
+        if (remainingCandidates.Count == 0)
             return hits;
 
-        foreach (RetrievalHit candidate in manifestHits)
+        int maxConcurrent = Math.Clamp(options.MaxConcurrentSummaries, 1, 32);
+
+        // Select a prefix needed to clear the overage (optimistic: treat summarized text as 0 tokens),
+        // then parallelize that prefix. Repeat if summaries still leave the batch over budget.
+        while (remainingCandidates.Count > 0)
         {
             estimatedTokens = EstimateTotalTokens(mutableHits);
 
             if (estimatedTokens <= options.SafeTokenLimit)
                 break;
 
-            int index = mutableHits.FindIndex(hit => string.Equals(hit.ChunkId, candidate.ChunkId, StringComparison.Ordinal));
+            IReadOnlyList<RetrievalHit> prefix =
+                SelectSummarizationPrefix(remainingCandidates, estimatedTokens, options.SafeTokenLimit);
 
-            if (index < 0)
-                continue;
+            if (prefix.Count == 0)
+                break;
 
-            string summary = await _summaryCompletionClient
-                .SummarizeChunkAsync(candidate.Text, cancellationToken)
-                .ConfigureAwait(false);
+            Dictionary<string, string> summariesByChunkId = new(StringComparer.Ordinal);
 
-            mutableHits[index] = CloneWithSummarizedText(candidate, summary);
+            await BoundedBatchParallelism.ForEachAsync(
+                prefix,
+                maxConcurrent,
+                async (candidate, ct) =>
+                {
+                    string summary = await _summaryCompletionClient
+                        .SummarizeChunkAsync(candidate.Text, ct)
+                        .ConfigureAwait(false);
+
+                    lock (summariesByChunkId)
+                    {
+                        summariesByChunkId[candidate.ChunkId] = summary;
+                    }
+                },
+                cancellationToken).ConfigureAwait(false);
+
+            foreach (RetrievalHit candidate in prefix)
+            {
+                if (!summariesByChunkId.TryGetValue(candidate.ChunkId, out string? summary))
+                    continue;
+
+                int index = mutableHits.FindIndex(
+                    hit => string.Equals(hit.ChunkId, candidate.ChunkId, StringComparison.Ordinal));
+
+                if (index < 0)
+                    continue;
+
+                mutableHits[index] = CloneWithSummarizedText(candidate, summary);
+            }
+
+            HashSet<string> summarizedChunkIds = prefix
+                .Select(static hit => hit.ChunkId)
+                .ToHashSet(StringComparer.Ordinal);
+            remainingCandidates = remainingCandidates
+                .Where(hit => !summarizedChunkIds.Contains(hit.ChunkId))
+                .ToList();
         }
 
         return mutableHits;
+    }
+
+    /// <summary>
+    ///     Greedy lowest-score prefix whose original token weight covers the overage when treated as fully removed.
+    /// </summary>
+    internal static IReadOnlyList<RetrievalHit> SelectSummarizationPrefix(
+        IReadOnlyList<RetrievalHit> orderedCandidates,
+        int estimatedTokens,
+        int safeTokenLimit)
+    {
+        if (orderedCandidates is null || orderedCandidates.Count == 0)
+            return [];
+
+        if (estimatedTokens <= safeTokenLimit)
+            return [];
+
+        int remainingOverage = estimatedTokens - safeTokenLimit;
+        List<RetrievalHit> prefix = [];
+
+        foreach (RetrievalHit candidate in orderedCandidates)
+        {
+            if (remainingOverage <= 0)
+                break;
+
+            prefix.Add(candidate);
+            remainingOverage -= TokenAwareContextBudget.EstimateTokenCount(candidate.Text ?? string.Empty);
+        }
+
+        return prefix;
     }
 
     internal static bool IsManifestCorpus(string? corpusKind)

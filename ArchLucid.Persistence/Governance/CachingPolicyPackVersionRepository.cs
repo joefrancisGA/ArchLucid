@@ -83,6 +83,10 @@ public sealed class CachingPolicyPackVersionRepository(
     }
 
     /// <inheritdoc />
+    /// <remarks>
+    ///     Caches metadata-only rows (empty <c>ContentJson</c>). Full bodies stay on the
+    ///     <see cref="GetByPackAndVersionAsync" /> cache key.
+    /// </remarks>
     public async Task<IReadOnlyList<PolicyPackVersion>> ListByPackAsync(Guid policyPackId, CancellationToken ct)
     {
         CachedPolicyPackVersionList? cached = await _hotPathReadCache.GetOrCreateAsync(
@@ -91,7 +95,19 @@ public sealed class CachingPolicyPackVersionRepository(
             {
                 IReadOnlyList<PolicyPackVersion> rows = await _inner.ListByPackAsync(policyPackId, innerCt);
 
-                return new CachedPolicyPackVersionList { Items = rows.ToList() };
+                List<PolicyPackVersion> slim = rows
+                    .Select(static row => new PolicyPackVersion
+                    {
+                        PolicyPackVersionId = row.PolicyPackVersionId,
+                        PolicyPackId = row.PolicyPackId,
+                        Version = row.Version,
+                        ContentJson = string.Empty,
+                        CreatedUtc = row.CreatedUtc,
+                        IsPublished = row.IsPublished,
+                    })
+                    .ToList();
+
+                return new CachedPolicyPackVersionList { Items = slim };
             },
             ct,
             absoluteExpirationSecondsOverride: VersionAbsoluteExpirationSeconds);

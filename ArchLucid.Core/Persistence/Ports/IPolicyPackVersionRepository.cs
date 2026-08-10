@@ -26,6 +26,10 @@ public interface IPolicyPackVersionRepository
         string contentJson,
         CancellationToken ct);
 
+    /// <summary>
+    ///     Lists version metadata for a pack (newest first). Implementations omit <c>ContentJson</c>
+    ///     (empty string); use <see cref="GetByPackAndVersionAsync" /> for the full body.
+    /// </summary>
     Task<IReadOnlyList<PolicyPackVersion>> ListByPackAsync(
         Guid policyPackId,
         CancellationToken ct);

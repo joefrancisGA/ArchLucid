@@ -12,6 +12,8 @@ const pageContentSource = readFileSync(join(sectionsDir, "GovernanceWorkflowPage
 const deferredSource = readFileSync(join(sectionsDir, "governance-workflow-deferred-chunks.tsx"), "utf8");
 
 const bannedStaticImports = [
+  './GovernanceOverviewPanel"',
+  './GovernanceWorkflowSubmitSection"',
   './GovernanceWorkflowApprovalsList"',
   './GovernanceWorkflowPromotionsActivationsSection"',
   './GovernanceWorkflowDialogs"',
@@ -37,6 +39,8 @@ describe("governance approval-queue deferred imports (TB-934 / wave 10)", () => 
     }
 
     expect(pageContentSource).toContain("governance-workflow-deferred-chunks");
+    expect(pageContentSource).toContain("GovernanceOverviewPanelDeferred");
+    expect(pageContentSource).toContain("GovernanceWorkflowSubmitSectionDeferred");
     expect(pageContentSource).toContain("GovernanceWorkflowApprovalsListDeferred");
     expect(pageContentSource).toContain("GovernanceWorkflowPromotionsActivationsSectionDeferred");
     expect(pageContentSource).toContain("GovernanceWorkflowDialogsDeferred");
@@ -48,6 +52,8 @@ describe("governance approval-queue deferred imports (TB-934 / wave 10)", () => 
 
   it("dynamic-imports each deferred governance workflow panel", () => {
     expect(deferredSource).toContain("next/dynamic");
+    expect(deferredSource).toContain('import("./GovernanceOverviewPanel")');
+    expect(deferredSource).toContain('import("./GovernanceWorkflowSubmitSection")');
     expect(deferredSource).toContain('import("./GovernanceWorkflowApprovalsList")');
     expect(deferredSource).toContain('import("./GovernanceWorkflowPromotionsActivationsSection")');
     expect(deferredSource).toContain('import("./GovernanceWorkflowDialogs")');

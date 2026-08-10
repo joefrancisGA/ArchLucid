@@ -36,7 +36,7 @@ import {
 } from "@/lib/governance-workflow-release-copy";
 import { GOVERNANCE_ENV_OPTIONS } from "./governance-workflow-helpers";
 
-type GovernanceWorkflowSubmitSectionProps = {
+export type GovernanceWorkflowSubmitSectionProps = {
   buyerPolishedShell: boolean;
   buyerSuppressGovernanceSubmitChrome: boolean;
   canMutateWorkflow: boolean;

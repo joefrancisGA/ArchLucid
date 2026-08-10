@@ -94,6 +94,8 @@ public sealed class HostCoreNoOpAndOptionsCoverageTestsBatch
         options.QueueName.Should().Be("archlucid-export-jobs");
         options.MaxPendingJobs.Should().Be(500);
         options.ProcessorReceiveBatchSize.Should().Be(16);
+        options.ProcessorIdlePollMilliseconds.Should().Be(750);
+        options.ProcessorMaxIdlePollMilliseconds.Should().BeNull();
     }
 
     [Fact]

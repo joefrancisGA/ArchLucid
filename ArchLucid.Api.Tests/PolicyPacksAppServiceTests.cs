@@ -132,4 +132,87 @@ public sealed class PolicyPacksAppServiceTests
             x => x.PublishVersionAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
+
+    [SkippableFact]
+    public async Task TryDuplicatePackAsync_loads_content_via_get_after_list_omits_body()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid packId = Guid.NewGuid();
+        const string body = """{"complianceRuleKeys":["a"]}""";
+
+        Mock<IPolicyPackRepository> packs = new();
+        packs
+            .Setup(p => p.GetByIdAsync(packId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new PolicyPack
+                {
+                    PolicyPackId = packId,
+                    TenantId = tenantId,
+                    Name = "Source",
+                    Description = "d",
+                    PackType = PolicyPackType.ProjectCustom,
+                    IsDeleted = false,
+                });
+
+        Mock<IPolicyPackVersionRepository> versions = new();
+        versions
+            .Setup(v => v.ListByPackAsync(packId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new PolicyPackVersion
+                {
+                    PolicyPackId = packId,
+                    Version = "1.2.0",
+                    ContentJson = string.Empty,
+                    IsPublished = true,
+                },
+            ]);
+        versions
+            .Setup(v => v.GetByPackAndVersionAsync(packId, "1.2.0", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new PolicyPackVersion
+                {
+                    PolicyPackId = packId,
+                    Version = "1.2.0",
+                    ContentJson = body,
+                    IsPublished = true,
+                });
+
+        PolicyPack created = new() { PolicyPackId = Guid.NewGuid(), Name = "Source (Copy)" };
+        Mock<IPolicyPackManagementService> management = new();
+        management
+            .Setup(m => m.CreatePackAsync(
+                tenantId,
+                workspaceId,
+                projectId,
+                "Source (Copy)",
+                "d",
+                PolicyPackType.ProjectCustom,
+                body,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(created);
+
+        Mock<IAuditService> audit = new();
+        audit.Setup(x => x.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        PolicyPacksAppService sut = new(management.Object, packs.Object, versions.Object, audit.Object);
+
+        PolicyPack? result = await sut.TryDuplicatePackAsync(tenantId, workspaceId, projectId, packId, CancellationToken.None);
+
+        result.Should().BeSameAs(created);
+        versions.Verify(v => v.GetByPackAndVersionAsync(packId, "1.2.0", It.IsAny<CancellationToken>()), Times.Once);
+        management.Verify(
+            m => m.CreatePackAsync(
+                tenantId,
+                workspaceId,
+                projectId,
+                "Source (Copy)",
+                "d",
+                PolicyPackType.ProjectCustom,
+                body,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
 }

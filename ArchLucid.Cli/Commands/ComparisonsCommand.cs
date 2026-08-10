@@ -69,7 +69,8 @@ internal static class ComparisonsCommand
         string? label = null;
         string? tag = null;
         string? tags = null;
-        string? cursor = null;
+        // Empty string keeps the `cursor` query key present so the API takes the keyset path (not offset/skip).
+        string cursor = "";
         string sortBy = "createdUtc";
         string sortDir = "desc";
         int skip = 0;

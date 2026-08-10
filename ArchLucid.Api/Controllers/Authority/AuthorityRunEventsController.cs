@@ -122,6 +122,7 @@ public sealed class AuthorityRunEventsController(
             HasGraphSnapshot = x.HasGraphSnapshot,
             HasFindingsSnapshot = x.HasFindingsSnapshot,
             HasGoldenManifest = x.HasGoldenManifest,
+            GoldenManifestId = x.GoldenManifestId,
             HasDecisionTrace = x.HasDecisionTrace,
             HasArtifactBundle = x.HasArtifactBundle,
             HasWarnings = x.HasWarnings,

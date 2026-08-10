@@ -373,7 +373,15 @@ public sealed class PolicyPacksIntegrationTests
                 await list.Content.ReadFromJsonAsync<List<PolicyPackVersionResponse>>(JsonOptions);
             versions.Should().NotBeNull();
             versions.Count(x => x.Version == "1.0.0").Should().Be(1);
-            versions.Single(x => x.Version == "1.0.0").ContentJson.Should().Contain("\"k\":\"b\"");
+            versions.Single(x => x.Version == "1.0.0").ContentJson.Should().BeNullOrEmpty();
+
+            HttpResponseMessage detailResponse =
+                await client.GetAsync($"/v1/policy-packs/{packId}/versions/1.0.0");
+            detailResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            PolicyPackVersionResponse? detail =
+                await detailResponse.Content.ReadFromJsonAsync<PolicyPackVersionResponse>(JsonOptions);
+            detail.Should().NotBeNull();
+            detail!.ContentJson.Should().Contain("\"k\":\"b\"");
         });
     }
 

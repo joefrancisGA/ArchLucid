@@ -292,7 +292,10 @@ export function shouldListReviewsAcrossProjectSlugs(projectId: string | null | u
   return trimmed.length === 0 || trimmed.toLowerCase() === "default";
 }
 
-/** Paged runs for a project (GET — legacy `page`/`pageSize` on page 1, or `cursor`+`take` for keyset pages). */
+/**
+ * Paged runs for a project (GET — always Authority keyset `cursor`+`take`; do not send page/pageSize).
+ * `page` remains in the signature for call-site compatibility; only `pageSize` maps to `take`.
+ */
 export async function listRunsByProjectPaged(
   projectId: string,
   page: number,
@@ -302,15 +305,10 @@ export async function listRunsByProjectPaged(
     readonly scopeHeaders?: Record<string, string>;
   },
 ): Promise<PagedResponse<RunSummary>> {
+  void page;
   const q = new URLSearchParams();
-
-  if (options?.cursor) {
-    q.set("cursor", options.cursor);
-    q.set("take", String(pageSize));
-  } else {
-    q.set("page", String(page));
-    q.set("pageSize", String(pageSize));
-  }
+  q.set("take", String(pageSize));
+  q.set("cursor", options?.cursor ?? "");
 
   // Do not send includeArchived: GET /v1/authority/projects/{id}/reviews does not declare it.
   // OpenApiUndeclaredQueryParameterFilter returns 400 "Unknown query parameter 'includeArchived'".
@@ -324,7 +322,7 @@ export async function listRunsByProjectPaged(
 
 /**
  * Paged runs across all authority project slugs in the current scope
- * (`GET /v1/authority/reviews` — same envelope as project-scoped list).
+ * (`GET /v1/authority/reviews` — always keyset `cursor`+`take`, same envelope as project-scoped list).
  */
 export async function listRunsInScopePaged(
   page: number,
@@ -334,15 +332,10 @@ export async function listRunsInScopePaged(
     readonly scopeHeaders?: Record<string, string>;
   },
 ): Promise<PagedResponse<RunSummary>> {
+  void page;
   const q = new URLSearchParams();
-
-  if (options?.cursor) {
-    q.set("cursor", options.cursor);
-    q.set("take", String(pageSize));
-  } else {
-    q.set("page", String(page));
-    q.set("pageSize", String(pageSize));
-  }
+  q.set("take", String(pageSize));
+  q.set("cursor", options?.cursor ?? "");
 
   return apiGet<PagedResponse<RunSummary>>(
     `/v1/authority/reviews?${q}`,

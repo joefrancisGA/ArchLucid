@@ -1,7 +1,13 @@
-import { getRunDetail } from "@/lib/api";
+import { getRunDetail, getRunSummary } from "@/lib/api";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { coerceRunDetail } from "@/lib/operator-response-guards";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "@/lib/showcase-static-demo";
+
+function trimManifestId(value: string | null | undefined): string | null {
+  const trimmed = value?.trim() ?? "";
+
+  return trimmed.length > 0 ? trimmed : null;
+}
 
 /** Resolves the signed-record manifest id for a finalized review run. */
 export async function resolveGoldenManifestIdForRun(runId: string): Promise<string | null> {
@@ -16,6 +22,17 @@ export async function resolveGoldenManifestIdForRun(runId: string): Promise<stri
   }
 
   try {
+    const summary = await getRunSummary(trimmedRunId);
+    const fromSummary = trimManifestId(summary.goldenManifestId);
+
+    if (fromSummary !== null) {
+      return fromSummary;
+    }
+  } catch {
+    // Fall through to run detail when summary is unavailable or omits the id.
+  }
+
+  try {
     const detailEnvelope = await getRunDetail(trimmedRunId);
     const coercedDetail = coerceRunDetail(detailEnvelope.data);
 
@@ -23,13 +40,7 @@ export async function resolveGoldenManifestIdForRun(runId: string): Promise<stri
       return null;
     }
 
-    const manifestId = coercedDetail.value.run.goldenManifestId?.trim() ?? "";
-
-    if (manifestId.length === 0) {
-      return null;
-    }
-
-    return manifestId;
+    return trimManifestId(coercedDetail.value.run.goldenManifestId);
   } catch {
     return null;
   }

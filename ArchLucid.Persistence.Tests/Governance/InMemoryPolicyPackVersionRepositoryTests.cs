@@ -113,5 +113,32 @@ public sealed class InMemoryPolicyPackVersionRepositoryTests
 
         list[0].Version.Should().Be("1.0.0");
         list[1].Version.Should().Be("0.9.0");
+        list.Should().OnlyContain(v => v.ContentJson == string.Empty);
+    }
+
+    [SkippableFact]
+    public async Task ListByPackAsync_omits_content_json_while_get_returns_body()
+    {
+        InMemoryPolicyPackVersionRepository sut = new();
+        Guid packId = Guid.NewGuid();
+        const string body = """{"metadata":{"k":1}}""";
+
+        await sut.CreateAsync(
+            new PolicyPackVersion
+            {
+                PolicyPackId = packId,
+                Version = "1.0.0",
+                ContentJson = body,
+                IsPublished = true,
+            },
+            CancellationToken.None);
+
+        IReadOnlyList<PolicyPackVersion> list = await sut.ListByPackAsync(packId, CancellationToken.None);
+        PolicyPackVersion? detail = await sut.GetByPackAndVersionAsync(packId, "1.0.0", CancellationToken.None);
+
+        list.Should().ContainSingle();
+        list[0].ContentJson.Should().BeEmpty();
+        detail.Should().NotBeNull();
+        detail!.ContentJson.Should().Be(body);
     }
 }

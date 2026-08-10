@@ -51,6 +51,16 @@ public sealed class BackgroundJobsOptions
         set;
     } = 750;
 
+    /// <summary>
+    ///     Optional ceiling for adaptive idle backoff when the queue is empty (milliseconds).
+    ///     When unset, uses a 10 s ceiling (same as outbox adaptive idle max).
+    /// </summary>
+    public int? ProcessorMaxIdlePollMilliseconds
+    {
+        get;
+        set;
+    }
+
     /// <summary>Azure Storage Queue receive batch size per poll (1–32). Larger batches improve throughput when multiple workers scale out.</summary>
     public int ProcessorReceiveBatchSize
     {

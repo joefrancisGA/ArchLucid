@@ -43,7 +43,7 @@ import {
 } from "./governance-overview-summary";
 import { GovernanceOverviewWorkflowStrip } from "./GovernanceOverviewWorkflowStrip";
 
-type GovernanceOverviewPanelProps = {
+export type GovernanceOverviewPanelProps = {
   readonly buyerPolishedShell: boolean;
   readonly canMutateWorkflow: boolean;
   readonly queryRunId: string;

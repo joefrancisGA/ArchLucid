@@ -111,6 +111,62 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         return Task.FromResult(best);
     }
 
+    /// <inheritdoc />
+    public Task<Guid?> GetLatestCommittedRunIdByManifestCreatedUtcAsync(
+        ScopeContext scope,
+        string projectId,
+        CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(projectId);
+
+        Guid? bestRunId = null;
+        DateTime? bestUtc = null;
+
+        foreach (RunRecord candidate in _store.Values)
+        {
+            if (!MatchesScope(candidate, scope))
+                continue;
+
+            if (candidate.ArchivedUtc.HasValue)
+                continue;
+
+            if (!string.Equals(candidate.ProjectId, projectId, StringComparison.Ordinal))
+                continue;
+
+            if (!candidate.GoldenManifestId.HasValue)
+                continue;
+
+            if (!IsCommittedRun(candidate))
+                continue;
+
+            // In-memory has no GoldenManifests join; CompletedUtc is the commit-time stand-in.
+            DateTime orderUtc = candidate.CompletedUtc ?? candidate.CreatedUtc;
+
+            if (bestUtc is not null
+                && (orderUtc < bestUtc.Value
+                    || (orderUtc == bestUtc.Value && candidate.RunId.CompareTo(bestRunId!.Value) <= 0)))
+                continue;
+
+            bestUtc = orderUtc;
+            bestRunId = candidate.RunId;
+        }
+
+        return Task.FromResult(bestRunId);
+    }
+
+    private static bool IsCommittedRun(RunRecord run)
+    {
+        if (string.Equals(run.LegacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (!string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
+            return true;
+
+        return run.GoldenManifestId.HasValue;
+    }
+
     public Task<IReadOnlyList<RunRecord>> ListByProjectAsync(ScopeContext scope, string projectId, int take,
         CancellationToken ct)
     {

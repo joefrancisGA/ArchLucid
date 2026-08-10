@@ -100,6 +100,13 @@ public class RunSummaryResponse
         set;
     }
 
+    /// <inheritdoc cref="ArchLucid.Persistence.Queries.RunSummaryDto.GoldenManifestId" />
+    public Guid? GoldenManifestId
+    {
+        get;
+        set;
+    }
+
     /// <inheritdoc cref="ArchLucid.Persistence.Queries.RunSummaryDto.HasDecisionTrace" />
     public bool HasDecisionTrace
     {

@@ -33,6 +33,7 @@ export async function loadOperatorHomeRunsDashboardModel(): Promise<OperatorHome
 
   try {
     const raw: unknown = await listRunsByProjectPaged(projectId, page, pageSize, {
+      cursor: "",
       scopeHeaders,
     });
     const coerced = coerceRunSummaryPaged(raw, { page });

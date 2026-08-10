@@ -91,10 +91,10 @@ public sealed class PilotValueReportServiceTests
         runs.SetupSequence(r => r.ListRunSummariesKeysetAsync("c1", 100, It.IsAny<CancellationToken>()))
             .ReturnsAsync(([], false, null));
 
-        runs.Setup(r => r.GetRunDetailAsync(RunA, It.IsAny<CancellationToken>()))
+        runs.Setup(r => r.GetRunDetailForRoiAsync(RunA, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Detail(RunA, from.AddDays(1), committedUtc: from.AddDays(1).AddMinutes(30), findings: []));
 
-        runs.Setup(r => r.GetRunDetailAsync(RunB, It.IsAny<CancellationToken>()))
+        runs.Setup(r => r.GetRunDetailForRoiAsync(RunB, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
                 DetailTwoAgents(
                     RunB,
@@ -160,7 +160,7 @@ public sealed class PilotValueReportServiceTests
         runs.SetupSequence(r => r.ListRunSummariesKeysetAsync(null, 100, It.IsAny<CancellationToken>()))
             .ReturnsAsync(([inside, old], false, null));
 
-        runs.Setup(r => r.GetRunDetailAsync(RunIn, It.IsAny<CancellationToken>()))
+        runs.Setup(r => r.GetRunDetailForRoiAsync(RunIn, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Detail(RunIn, inside.CreatedUtc, inside.CreatedUtc.AddMinutes(5), []));
 
         Mock<IAuditRepository> audit = new();
@@ -173,7 +173,7 @@ public sealed class PilotValueReportServiceTests
 
         r.Should().NotBeNull();
         r.TotalRunsCommitted.Should().Be(1);
-        runs.Verify(x => x.GetRunDetailAsync(RunOld, It.IsAny<CancellationToken>()), Times.Never);
+        runs.Verify(x => x.GetRunDetailForRoiAsync(RunOld, It.IsAny<CancellationToken>()), Times.Never);
     }
 
     private static TenantRecord Tenant(DateTimeOffset created) =>

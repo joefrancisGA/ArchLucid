@@ -404,7 +404,10 @@ public sealed class PolicyPacksController(
         return NoContent();
     }
 
-    /// <summary>Lists all version rows for a pack (newest first by repository ordering).</summary>
+    /// <summary>
+    ///     Lists version metadata for a pack (newest first). <c>ContentJson</c> is empty on list rows;
+    ///     use <see cref="GetVersion" /> for the full body.
+    /// </summary>
     /// <returns>Version list, or 404 when the pack does not exist in the current scope.</returns>
     [HttpGet("{policyPackId:guid}/versions")]
     [ProducesResponseType(typeof(IReadOnlyList<PolicyPackVersion>), StatusCodes.Status200OK)]
@@ -427,6 +430,41 @@ public sealed class PolicyPacksController(
 
         IReadOnlyList<PolicyPackVersion> versions = await versionRepository.ListByPackAsync(policyPackId, ct);
         return Ok(versions);
+    }
+
+    /// <summary>Reads one version including full <c>ContentJson</c>.</summary>
+    /// <returns>404 when the pack or version is missing in the current scope.</returns>
+    [HttpGet("{policyPackId:guid}/versions/{version}")]
+    [ProducesResponseType(typeof(PolicyPackVersion), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetVersion(
+        Guid policyPackId,
+        string version,
+        CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(version))
+            return this.BadRequestProblem("Version is required.", ProblemTypes.ValidationFailed);
+
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        PolicyPack? pack = await packRepository.GetByIdAsync(policyPackId, ct);
+
+        if (pack is null ||
+            pack.TenantId != scope.TenantId ||
+            pack.WorkspaceId != scope.WorkspaceId ||
+            pack.ProjectId != scope.ProjectId)
+            return this.NotFoundProblem(
+                $"Policy pack '{policyPackId}' was not found in the current scope.",
+                ProblemTypes.ResourceNotFound);
+
+        string versionKey = version.Trim();
+        PolicyPackVersion? row = await versionRepository.GetByPackAndVersionAsync(policyPackId, versionKey, ct);
+
+        if (row is null)
+            return this.NotFoundProblem(
+                $"Policy pack version '{versionKey}' was not found for pack '{policyPackId}'.",
+                ProblemTypes.PolicyPackVersionNotFound);
+
+        return Ok(row);
     }
 
     /// <summary>
@@ -601,11 +639,18 @@ public sealed class PolicyPacksController(
 
         if (versionRow is null)
         {
-            IReadOnlyList<PolicyPackVersion> versions = await versionRepository.ListByPackAsync(policyPackId, cancellationToken);
-            versionRow = versions.FirstOrDefault();
+            IReadOnlyList<PolicyPackVersion> versions =
+                await versionRepository.ListByPackAsync(policyPackId, cancellationToken);
+            PolicyPackVersion? latestMeta = versions.FirstOrDefault();
+
+            if (latestMeta is not null)
+                versionRow = await versionRepository.GetByPackAndVersionAsync(
+                    policyPackId,
+                    latestMeta.Version,
+                    cancellationToken);
         }
 
-        if (versionRow is null)
+        if (versionRow is null || string.IsNullOrWhiteSpace(versionRow.ContentJson))
             return this.NotFoundProblem(
                 $"Policy pack '{policyPackId}' has no versions to simulate.",
                 ProblemTypes.ResourceNotFound);

@@ -118,7 +118,7 @@ public sealed class RecentPilotRunDeltasServiceTests
 
         StubDetailAndDelta(queryService, deltaComputer, good, findingsCount: 1, secondsToCommit: 30);
         queryService
-            .Setup(q => q.GetRunDetailAsync(missing.RunId, It.IsAny<CancellationToken>()))
+            .Setup(q => q.GetRunDetailForRoiAsync(missing.RunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((ArchitectureRunDetail?)null);
 
         RecentPilotRunDeltasService sut = BuildSut(queryService, deltaComputer);
@@ -143,7 +143,7 @@ public sealed class RecentPilotRunDeltasServiceTests
 
         StubDetailAndDelta(queryService, deltaComputer, good, findingsCount: 1, secondsToCommit: 30);
         ArchitectureRunDetail failsDetail = BuildDetail(fails);
-        queryService.Setup(q => q.GetRunDetailAsync(fails.RunId, It.IsAny<CancellationToken>())).ReturnsAsync(failsDetail);
+        queryService.Setup(q => q.GetRunDetailForRoiAsync(fails.RunId, It.IsAny<CancellationToken>())).ReturnsAsync(failsDetail);
         deltaComputer
             .Setup(d => d.ComputeAsync(failsDetail, It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("delta computer offline"));
@@ -209,7 +209,7 @@ public sealed class RecentPilotRunDeltasServiceTests
         ArchitectureRunDetail detail = BuildDetail(summary);
 
         queryService
-            .Setup(q => q.GetRunDetailAsync(summary.RunId, It.IsAny<CancellationToken>()))
+            .Setup(q => q.GetRunDetailForRoiAsync(summary.RunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
 
         DateTime committed = detail.Run.CreatedUtc.AddSeconds(secondsToCommit);

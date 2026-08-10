@@ -63,7 +63,9 @@ public sealed class RecentPilotRunDeltasService(
     {
         try
         {
-            ArchitectureRunDetail? detail = await _runDetailQueryService.GetRunDetailAsync(summary.RunId, cancellationToken);
+            ArchitectureRunDetail? detail =
+                await _runDetailQueryService.GetRunDetailForRoiAsync(summary.RunId, cancellationToken);
+
             if (detail is null)
                 return null;
             PilotRunDeltas deltas = await _pilotRunDeltaComputer.ComputeAsync(detail, cancellationToken);

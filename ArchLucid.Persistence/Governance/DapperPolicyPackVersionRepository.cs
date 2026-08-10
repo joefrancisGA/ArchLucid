@@ -233,10 +233,15 @@ public sealed class DapperPolicyPackVersionRepository(
     }
 
     /// <inheritdoc />
+    /// <remarks>
+    ///     Omits version body on list (empty <c>ContentJson</c>) so large JSON is not loaded for every row.
+    ///     Callers that need the body use <see cref="GetByPackAndVersionAsync" />.
+    /// </remarks>
     public async Task<IReadOnlyList<PolicyPackVersion>> ListByPackAsync(Guid policyPackId, CancellationToken ct)
     {
         const string sql = """
-                           SELECT TOP 200 PolicyPackVersionId, PolicyPackId, [Version] AS Version, ContentJson, CreatedUtc, IsPublished
+                           SELECT TOP 200 PolicyPackVersionId, PolicyPackId, [Version] AS Version,
+                                  CAST('' AS nvarchar(max)) AS ContentJson, CreatedUtc, IsPublished
                            FROM dbo.PolicyPackVersions WITH (NOLOCK)
                            WHERE PolicyPackId = @PolicyPackId
                            ORDER BY CreatedUtc DESC;

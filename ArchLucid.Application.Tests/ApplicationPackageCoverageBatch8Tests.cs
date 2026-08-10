@@ -1,13 +1,8 @@
-using ArchLucid.Application;
 using ArchLucid.Application.Configuration;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Application.WeeklyExecutiveSummary;
-using ArchLucid.Contracts.Architecture;
-using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Manifest;
-using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -103,7 +98,6 @@ public sealed class ApplicationPackageCoverageBatch8Tests
             weekly.Object,
             Mock.Of<ITenantRepository>(),
             Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IRunDetailQueryService>(),
             Mock.Of<IRunSummaryOnePagerExportService>(),
             Mock.Of<IExecutiveSummaryRecipientLookup>(),
             Mock.Of<IWeeklyExecutiveSummaryEmailDispatcher>());
@@ -140,34 +134,11 @@ public sealed class ApplicationPackageCoverageBatch8Tests
             });
 
         Mock<IAuthorityQueryService> authority = new();
-        authority.Setup(a => a.ListRunsByProjectAsync(
+        authority.Setup(a => a.GetLatestCommittedRunIdByManifestCreatedUtcAsync(
                 It.IsAny<ScopeContext>(),
                 "default",
-                It.IsAny<int>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new RunSummaryDto { RunId = runId, GoldenManifestId = Guid.NewGuid() },
-            ]);
-
-        Mock<IRunDetailQueryService> details = new();
-        details.Setup(d => d.GetRunDetailAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                new ArchitectureRunDetail
-                {
-                    Run = new ArchitectureRun
-                    {
-                        RunId = runId.ToString("N"),
-                        Status = ArchitectureRunStatus.Committed,
-                    },
-                    Manifest = new GoldenManifest
-                    {
-                        Metadata = new ManifestMetadata
-                        {
-                            CreatedUtc = dueUtc.UtcDateTime,
-                        },
-                    },
-                });
+            .ReturnsAsync(runId);
 
         Mock<IRunSummaryOnePagerExportService> export = new();
         export.Setup(e => e.GenerateMarkdownAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
@@ -196,7 +167,6 @@ public sealed class ApplicationPackageCoverageBatch8Tests
             weekly.Object,
             tenants.Object,
             authority.Object,
-            details.Object,
             export.Object,
             recipients.Object,
             dispatcher.Object);
@@ -220,7 +190,6 @@ public sealed class ApplicationPackageCoverageBatch8Tests
         IOptionsMonitor<WeeklyExecutiveSummaryOptions> weekly,
         ITenantRepository tenants,
         IAuthorityQueryService authority,
-        IRunDetailQueryService details,
         IRunSummaryOnePagerExportService export,
         IExecutiveSummaryRecipientLookup recipients,
         IWeeklyExecutiveSummaryEmailDispatcher dispatcher)
@@ -231,7 +200,6 @@ public sealed class ApplicationPackageCoverageBatch8Tests
         return new WeeklyExecutiveSummaryDeliveryScanner(
             tenants,
             authority,
-            details,
             export,
             recipients,
             dispatcher,

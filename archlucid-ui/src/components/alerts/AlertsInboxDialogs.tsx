@@ -110,6 +110,21 @@ export type AlertsInboxActionLoopDialogProps = {
   readonly onClose: () => void;
 };
 
+export type AlertsInboxDialogsProps = {
+  readonly triage: AlertsInboxTriageActionDialogProps;
+  readonly actionLoop: AlertsInboxActionLoopDialogProps;
+};
+
+/** Combined triage + action-loop dialogs for a single deferred chunk import. */
+export function AlertsInboxDialogs(props: AlertsInboxDialogsProps): React.JSX.Element {
+  return (
+    <>
+      <AlertsInboxTriageActionDialog {...props.triage} />
+      <AlertsInboxActionLoopDialog {...props.actionLoop} />
+    </>
+  );
+}
+
 export function AlertsInboxActionLoopDialog(props: AlertsInboxActionLoopDialogProps) {
   return (
     <Dialog

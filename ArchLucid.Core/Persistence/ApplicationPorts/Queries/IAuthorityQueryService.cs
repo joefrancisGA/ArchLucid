@@ -57,6 +57,16 @@ public interface IAuthorityQueryService
         int take,
         CancellationToken ct);
 
+    /// <summary>
+    ///     Latest non-archived committed run for <paramref name="projectId" /> within <paramref name="scope" />,
+    ///     ordered by linked golden-manifest <c>CreatedUtc</c> descending (SQL <c>TOP 1</c> join on the Dapper path).
+    /// </summary>
+    /// <returns>The run id, or <see langword="null" /> when no committed run with a golden manifest exists.</returns>
+    Task<Guid?> GetLatestCommittedRunIdByManifestCreatedUtcAsync(
+        ScopeContext scope,
+        string projectId,
+        CancellationToken ct);
+
     /// <summary>Loads a single run’s summary by id within <paramref name="scope" />.</summary>
     /// <returns>The summary, or <see langword="null" /> when the run is missing or out of scope.</returns>
     Task<RunSummaryDto?> GetRunSummaryAsync(

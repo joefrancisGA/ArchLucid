@@ -41,6 +41,34 @@ public sealed class CachingSecondaryReferenceDataRepositoryTests
     }
 
     [Fact]
+    public async Task PolicyPackVersion_ListByPackAsync_omits_content_json()
+    {
+        HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
+        HybridHotPathReadCache hotPath = HybridHotPathCacheTestFactory.Create(options);
+        InMemoryPolicyPackVersionRepository inner = new();
+        CachingPolicyPackVersionRepository repo = new(inner, hotPath);
+
+        Guid packId = Guid.NewGuid();
+        await inner.CreateAsync(
+            new PolicyPackVersion
+            {
+                PolicyPackId = packId,
+                Version = "1.0.0",
+                ContentJson = """{"k":1}""",
+                IsPublished = true,
+            },
+            CancellationToken.None);
+
+        IReadOnlyList<PolicyPackVersion> list = await repo.ListByPackAsync(packId, CancellationToken.None);
+        PolicyPackVersion? detail = await repo.GetByPackAndVersionAsync(packId, "1.0.0", CancellationToken.None);
+
+        list.Should().ContainSingle();
+        list[0].ContentJson.Should().BeEmpty();
+        detail.Should().NotBeNull();
+        detail!.ContentJson.Should().Be("""{"k":1}""");
+    }
+
+    [Fact]
     public async Task PolicyPackCatalog_ListPromotedAsync_invalidates_on_demote()
     {
         HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };

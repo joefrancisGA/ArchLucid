@@ -3,8 +3,6 @@ using System.Text;
 
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Notifications.Email;
-using ArchLucid.Contracts.Architecture;
-using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -22,7 +20,6 @@ namespace ArchLucid.Application.WeeklyExecutiveSummary;
 public sealed class WeeklyExecutiveSummaryDeliveryScanner(
     ITenantRepository tenantRepository,
     IAuthorityQueryService authorityQueryService,
-    IRunDetailQueryService runDetailQueryService,
     IRunSummaryOnePagerExportService runSummaryOnePagerExportService,
     IExecutiveSummaryRecipientLookup recipientLookup,
     IWeeklyExecutiveSummaryEmailDispatcher emailDispatcher,
@@ -30,9 +27,6 @@ public sealed class WeeklyExecutiveSummaryDeliveryScanner(
     IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor,
     ILogger<WeeklyExecutiveSummaryDeliveryScanner> logger)
 {
-    private const int MaxListRuns = 200;
-    private const int MaxRunDetailLookups = 40;
-
     private readonly IAuthorityQueryService _authorityQueryService =
         authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
 
@@ -50,9 +44,6 @@ public sealed class WeeklyExecutiveSummaryDeliveryScanner(
 
     private readonly IExecutiveSummaryRecipientLookup _recipientLookup =
         recipientLookup ?? throw new ArgumentNullException(nameof(recipientLookup));
-
-    private readonly IRunDetailQueryService _runDetailQueryService =
-        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
 
     private readonly IRunSummaryOnePagerExportService _runSummaryOnePagerExportService =
         runSummaryOnePagerExportService ?? throw new ArgumentNullException(nameof(runSummaryOnePagerExportService));
@@ -163,44 +154,14 @@ public sealed class WeeklyExecutiveSummaryDeliveryScanner(
 
     private async Task<string?> TryResolveLatestCommittedRunHexAsync(ScopeContext authorityScope, CancellationToken cancellationToken)
     {
-        IReadOnlyList<RunSummaryDto> summaries =
-            await _authorityQueryService.ListRunsByProjectAsync(authorityScope, "default", MaxListRuns, cancellationToken)
-                .ConfigureAwait(false);
+        Guid? latestRunId = await _authorityQueryService
+            .GetLatestCommittedRunIdByManifestCreatedUtcAsync(authorityScope, "default", cancellationToken)
+            .ConfigureAwait(false);
 
-        List<Guid> candidateRunIds = summaries
-            .Where(static s => s.HasGoldenManifest)
-            .Select(static s => s.RunId)
-            .Distinct()
-            .Take(MaxRunDetailLookups)
-            .ToList();
+        if (latestRunId is null)
+            return null;
 
-        DateTime? latestCommittedUtc = null;
-        string? latestHex = null;
-
-        foreach (Guid runId in candidateRunIds)
-        {
-            string runHex = runId.ToString("N");
-            ArchitectureRunDetail? detail = await _runDetailQueryService.GetRunDetailAsync(runHex, cancellationToken).ConfigureAwait(false);
-
-            if (detail is null)
-                continue;
-
-            if (detail.Run.Status is not ArchitectureRunStatus.Committed)
-                continue;
-
-            DateTime? committedUtc = detail.Manifest?.Metadata.CreatedUtc;
-
-            if (committedUtc is null)
-                continue;
-
-            if (latestCommittedUtc is not null && committedUtc <= latestCommittedUtc)
-                continue;
-
-            latestCommittedUtc = committedUtc;
-            latestHex = runHex;
-        }
-
-        return latestHex;
+        return latestRunId.Value.ToString("N");
     }
 
     private static bool IsScheduledLocalHour(DateTimeOffset utcNow, WeeklyExecutiveSummaryOptions options)

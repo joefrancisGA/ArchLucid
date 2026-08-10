@@ -153,6 +153,7 @@ export function RunsDashboardPanelClient({
     try {
       // showArchived is client-side filter only until runs list declares includeArchived (avoids 400).
       const raw: unknown = await listRunsByProjectPaged(projectId, 1, pageSize, {
+        cursor: "",
         scopeHeaders: getEffectiveBrowserProxyScopeHeaders(),
       });
       const coerced = coerceRunSummaryPaged(raw, { page: 1 });

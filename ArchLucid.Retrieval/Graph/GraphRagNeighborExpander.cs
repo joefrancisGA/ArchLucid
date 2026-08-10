@@ -63,27 +63,33 @@ public sealed class GraphRagNeighborExpander(
             ProjectId = query.ProjectId,
         };
 
+        // One GetByIdAsync per distinct snapshot id for this expand request (N seeds → 1 fetch).
+        Dictionary<Guid, GraphSnapshot?> snapshotById = new();
+
         foreach (RetrievalHit seed in graphHits)
         {
             if (!KnowledgeGraphNodeEmbeddingTextComposer.TryParseGraphSnapshotId(seed.DocumentId, out Guid graphSnapshotId))
                 continue;
 
-            GraphSnapshot? snapshot;
-
-            try
+            if (!snapshotById.TryGetValue(graphSnapshotId, out GraphSnapshot? snapshot))
             {
-                snapshot = await _graphSnapshotRepository
-                    .GetByIdAsync(scope, graphSnapshotId, cancellationToken)
-                    .ConfigureAwait(false);
-            }
-            catch (Exception ex) when (ex is not OperationCanceledException)
-            {
-                _logger.LogWarning(
-                    ex,
-                    "Graph-RAG neighbor expansion skipped for snapshot {GraphSnapshotId}.",
-                    graphSnapshotId);
+                try
+                {
+                    snapshot = await _graphSnapshotRepository
+                        .GetByIdAsync(scope, graphSnapshotId, cancellationToken)
+                        .ConfigureAwait(false);
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    _logger.LogWarning(
+                        ex,
+                        "Graph-RAG neighbor expansion skipped for snapshot {GraphSnapshotId}.",
+                        graphSnapshotId);
 
-                continue;
+                    snapshot = null;
+                }
+
+                snapshotById[graphSnapshotId] = snapshot;
             }
 
             if (snapshot is null)

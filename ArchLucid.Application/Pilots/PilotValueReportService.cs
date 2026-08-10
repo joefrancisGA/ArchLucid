@@ -114,7 +114,9 @@ public sealed class PilotValueReportService(
         List<PilotValueReportRunTimelinePoint> timeline = [];
         foreach (CommittedRunRef runRef in runsForDetails)
         {
-            ArchitectureRunDetail? detail = await _runDetailQuery.GetRunDetailAsync(runRef.RunId, cancellationToken).ConfigureAwait(false);
+            ArchitectureRunDetail? detail =
+                await _runDetailQuery.GetRunDetailForRoiAsync(runRef.RunId, cancellationToken).ConfigureAwait(false);
+
             if (detail is null)
                 continue;
             AddFindings(detail, severities);

@@ -110,9 +110,19 @@ public sealed class InMemoryPolicyPackVersionRepository : IPolicyPackVersionRepo
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
+            // List omits body (empty ContentJson); GetByPackAndVersionAsync returns the full row.
             List<PolicyPackVersion> result = _items
                 .Where(x => x.PolicyPackId == policyPackId)
                 .OrderByDescending(x => x.CreatedUtc)
+                .Select(static x => new PolicyPackVersion
+                {
+                    PolicyPackVersionId = x.PolicyPackVersionId,
+                    PolicyPackId = x.PolicyPackId,
+                    Version = x.Version,
+                    ContentJson = string.Empty,
+                    CreatedUtc = x.CreatedUtc,
+                    IsPublished = x.IsPublished,
+                })
                 .ToList();
             return Task.FromResult<IReadOnlyList<PolicyPackVersion>>(result);
         }

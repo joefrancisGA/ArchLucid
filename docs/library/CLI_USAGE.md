@@ -304,10 +304,10 @@ Supported flags:
 - `--label <label>`
 - `--tag <tag>` (single tag)
 - `--tags <t1,t2,...>` (multi-tag match)
-- `--cursor <cursor>` to use cursor-based paging (API `cursor` query param)
+- `--cursor <cursor>` for keyset paging (API `cursor` query param). When omitted, the CLI still sends `cursor=` so the API uses the keyset path; pass a prior `nextCursor` to continue.
 - `--sort-by <createdUtc|type|label|leftRunId|rightRunId>` (defaults to `createdUtc`)
 - `--sort <asc|desc>` (defaults to `desc`, maps to API `sortDir`)
-- `--skip <n>` and `--limit <n>` for paging
+- `--skip <n>` and `--limit <n>` for paging (offset path is unused when `cursor` is present)
 - `--json` to output machine-readable JSON
 - `--table` to output an aligned table
 

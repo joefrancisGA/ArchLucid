@@ -19,12 +19,12 @@ import {
 import { EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_SECTION_ID } from "@/lib/executive-dashboard-route";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { ExecutiveDashboardBaselineWarningBanner } from "./ExecutiveDashboardBaselineWarningBanner";
-import { ExecutiveDashboardNextActionSection } from "./ExecutiveDashboardNextActionSection";
-import { ExecutiveDashboardPrimaryMetricsSection } from "./ExecutiveDashboardPrimaryMetricsSection";
 import {
   BusinessImpactSummaryWidgetDeferred,
   ExecutiveComplianceDriftTrendSectionDeferred,
   ExecutiveDashboardHowItWorksDeferred,
+  ExecutiveDashboardNextActionSectionDeferred,
+  ExecutiveDashboardPrimaryMetricsSectionDeferred,
   ExecutiveDashboardSupportingMetricsSectionDeferred,
   ExecutiveRoiEnvironmentSavingsSectionDeferred,
   ExecutiveRoiSummarySectionDeferred,
@@ -81,12 +81,12 @@ function ExecutiveRoiDashboardPortfolioSections({
         </>
       ) : (
         <>
-          <ExecutiveDashboardNextActionSection
+          <ExecutiveDashboardNextActionSectionDeferred
             timeRange={defaultTrendRange}
             summary={summary ?? null}
             loading={summaryLoading ?? false}
           />
-          <ExecutiveDashboardPrimaryMetricsSection summary={summary ?? null} loading={summaryLoading ?? false} />
+          <ExecutiveDashboardPrimaryMetricsSectionDeferred summary={summary ?? null} loading={summaryLoading ?? false} />
         </>
       )}
 

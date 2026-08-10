@@ -86,6 +86,13 @@ public sealed class InMemoryAuthorityQueryService(
         return (summaries, page.HasMore);
     }
 
+    /// <inheritdoc />
+    public Task<Guid?> GetLatestCommittedRunIdByManifestCreatedUtcAsync(
+        ScopeContext scope,
+        string projectId,
+        CancellationToken ct)
+        => runRepository.GetLatestCommittedRunIdByManifestCreatedUtcAsync(scope, projectId, ct);
+
     public async Task<RunSummaryDto?> GetRunSummaryAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
         RunRecord? run = await runRepository.GetByIdAsync(scope, runId, ct);

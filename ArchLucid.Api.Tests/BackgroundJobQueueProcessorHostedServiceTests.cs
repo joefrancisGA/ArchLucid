@@ -348,4 +348,21 @@ public sealed class BackgroundJobQueueProcessorHostedServiceTests
 
         await sut.StopAsync(CancellationToken.None);
     }
+
+    [Theory]
+    [InlineData(null, 750, 10_000)]
+    [InlineData(5_000, 750, 5_000)]
+    [InlineData(100, 750, 750)]
+    [InlineData(120_000, 750, 60_000)]
+    public void ResolveMaxIdlePollMilliseconds_clamps_optional_ceiling(
+        int? configuredMax,
+        int baseIdleMs,
+        int expected)
+    {
+        int actual = BackgroundJobQueueProcessorHostedService.ResolveMaxIdlePollMilliseconds(
+            configuredMax,
+            baseIdleMs);
+
+        actual.Should().Be(expected);
+    }
 }

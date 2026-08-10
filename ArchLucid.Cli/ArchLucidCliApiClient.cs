@@ -895,9 +895,9 @@ public sealed class ArchLucidApiClient
         string? tags,
         string? sortBy,
         string? sortDir,
-        string? cursor,
-        int skip,
-        int limit,
+        string? cursor = "",
+        int skip = 0,
+        int limit = 20,
         CancellationToken ct = default)
     {
         try
@@ -905,6 +905,9 @@ public sealed class ArchLucidApiClient
             string[]? tagsArray = string.IsNullOrWhiteSpace(tags)
                 ? null
                 : tags.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+            // Null would omit the query key in some generated clients; empty string forces keyset paging.
+            string cursorQuery = cursor ?? "";
 
             Gen.ComparisonHistoryResponse history = await _api.ComparisonsGETAsync(
                 comparisonType,
@@ -919,7 +922,7 @@ public sealed class ArchLucidApiClient
                 tagsArray,
                 sortBy,
                 sortDir,
-                cursor,
+                cursorQuery,
                 skip,
                 limit,
                 ct);

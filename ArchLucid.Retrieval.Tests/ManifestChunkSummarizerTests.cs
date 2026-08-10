@@ -1,6 +1,7 @@
 using ArchLucid.Core.Billing;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Retrieval;
+using ArchLucid.Retrieval.Chunking;
 using ArchLucid.Retrieval.Models;
 using ArchLucid.Retrieval.Summarization;
 
@@ -142,6 +143,84 @@ public sealed class ManifestChunkSummarizerTests
             Times.Never);
     }
 
+    [Fact]
+    public async Task MaybeSummarizeAsync_summarizes_selected_prefix_in_parallel()
+    {
+        int inFlight = 0;
+        int maxInFlight = 0;
+        object gate = new();
+
+        Mock<IManifestChunkSummaryCompletionClient> summaryClient = new();
+        summaryClient
+            .Setup(c => c.SummarizeChunkAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(async (string _, CancellationToken ct) =>
+            {
+                lock (gate)
+                {
+                    inFlight++;
+                    maxInFlight = Math.Max(maxInFlight, inFlight);
+                }
+
+                await Task.Delay(40, ct);
+
+                lock (gate)
+                {
+                    inFlight--;
+                }
+
+                return "summary";
+            });
+
+        IOptionsMonitor<ManifestChunkSummarizationOptions> options =
+            new MockOptionsMonitor<ManifestChunkSummarizationOptions>(
+                new ManifestChunkSummarizationOptions
+                {
+                    Enabled = true,
+                    SafeTokenLimit = 50,
+                    MaxConcurrentSummaries = 4,
+                });
+
+        ManifestChunkSummarizer sut = new(summaryClient.Object, options);
+
+        string heavyText = new('x', 400);
+        IReadOnlyList<RetrievalHit> hits =
+        [
+            CreateManifestHit("a", score: 0.10, text: heavyText),
+            CreateManifestHit("b", score: 0.20, text: heavyText),
+            CreateManifestHit("c", score: 0.30, text: heavyText),
+            CreateManifestHit("d", score: 0.40, text: heavyText),
+        ];
+
+        IReadOnlyList<RetrievalHit> result = await sut.MaybeSummarizeAsync(hits, CancellationToken.None);
+
+        result.Should().HaveCount(4);
+        result.Should().OnlyContain(hit => hit.Text!.StartsWith("[Summarized manifest chunk]", StringComparison.Ordinal));
+        summaryClient.Verify(
+            c => c.SummarizeChunkAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Exactly(4));
+        maxInFlight.Should().BeGreaterThan(1);
+    }
+
+    [Fact]
+    public void SelectSummarizationPrefix_stops_once_overage_is_covered()
+    {
+        string heavyText = new('x', 400);
+        List<RetrievalHit> candidates =
+        [
+            CreateManifestHit("low", score: 0.1, text: heavyText),
+            CreateManifestHit("mid", score: 0.5, text: heavyText),
+            CreateManifestHit("high", score: 0.9, text: heavyText),
+        ];
+
+        int estimated = ManifestChunkSummarizer.EstimateTotalTokens(candidates);
+        int safeLimit = estimated - TokenAwareContextBudget.EstimateTokenCount(heavyText) + 1;
+
+        IReadOnlyList<RetrievalHit> prefix =
+            ManifestChunkSummarizer.SelectSummarizationPrefix(candidates, estimated, safeLimit);
+
+        prefix.Should().ContainSingle().Which.ChunkId.Should().Be("low");
+    }
+
     private static ManifestChunkSummarizer CreateSummarizer(
         IManifestChunkSummaryCompletionClient summaryClient,
         int safeTokenLimit)
@@ -152,6 +231,7 @@ public sealed class ManifestChunkSummarizerTests
                 {
                     Enabled = true,
                     SafeTokenLimit = safeTokenLimit,
+                    MaxConcurrentSummaries = 4,
                 });
 
         return new ManifestChunkSummarizer(summaryClient, options);

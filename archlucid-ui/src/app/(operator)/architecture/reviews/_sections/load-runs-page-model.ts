@@ -35,14 +35,14 @@ export async function fetchReviewsHubPagedInventory(params: {
 }): Promise<unknown> {
   if (!params.listAcrossProjectSlugs) {
     return listRunsByProjectPaged(params.projectId, params.page, params.pageSize, {
-      cursor: params.cursor,
+      cursor: params.cursor ?? "",
       scopeHeaders: params.scopeHeaders,
     });
   }
 
   try {
     return await listRunsInScopePaged(params.page, params.pageSize, {
-      cursor: params.cursor,
+      cursor: params.cursor ?? "",
       scopeHeaders: params.scopeHeaders,
     });
   } catch (error) {
@@ -53,7 +53,7 @@ export async function fetchReviewsHubPagedInventory(params: {
     }
 
     return listRunsByProjectPaged(params.projectId, params.page, params.pageSize, {
-      cursor: params.cursor,
+      cursor: params.cursor ?? "",
       scopeHeaders: params.scopeHeaders,
     });
   }

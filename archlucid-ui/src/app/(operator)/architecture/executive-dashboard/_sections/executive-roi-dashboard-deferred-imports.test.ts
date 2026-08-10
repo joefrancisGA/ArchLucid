@@ -17,6 +17,8 @@ const deferredSource = readFileSync(
 const bannedStaticImports = [
   '@/components/OperatorWelcomeOnboarding"',
   '@/components/executive/ExecutiveDashboardHowItWorks"',
+  './ExecutiveDashboardNextActionSection"',
+  './ExecutiveDashboardPrimaryMetricsSection"',
   './SponsorExportsSection"',
   './BusinessImpactSummaryWidget"',
   './ExecutiveRoiSummarySection"',
@@ -44,6 +46,8 @@ describe("executive dashboard deferred imports (TB-2061 / wave 10)", () => {
     expect(pageViewSource).toContain("executive-roi-dashboard-deferred-chunks");
     expect(pageViewSource).toContain("OperatorWelcomeOnboardingDeferred");
     expect(pageViewSource).toContain("ExecutiveDashboardHowItWorksDeferred");
+    expect(pageViewSource).toContain("ExecutiveDashboardNextActionSectionDeferred");
+    expect(pageViewSource).toContain("ExecutiveDashboardPrimaryMetricsSectionDeferred");
     expect(pageViewSource).toContain("SponsorExportsSectionDeferred");
     expect(pageViewSource).toContain("BusinessImpactSummaryWidgetDeferred");
     expect(pageViewSource).toContain("ExecutiveRoiSummarySectionDeferred");
@@ -56,6 +60,8 @@ describe("executive dashboard deferred imports (TB-2061 / wave 10)", () => {
   it("dynamic-imports each deferred executive dashboard panel", () => {
     expect(deferredSource).toContain('import("@/components/OperatorWelcomeOnboarding")');
     expect(deferredSource).toContain('import("@/components/executive/ExecutiveDashboardHowItWorks")');
+    expect(deferredSource).toContain('import("./ExecutiveDashboardNextActionSection")');
+    expect(deferredSource).toContain('import("./ExecutiveDashboardPrimaryMetricsSection")');
     expect(deferredSource).toContain('import("./SponsorExportsSection")');
     expect(deferredSource).toContain('import("./BusinessImpactSummaryWidget")');
     expect(deferredSource).toContain('import("./ExecutiveRoiSummarySection")');

@@ -1,9 +1,13 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import type { ComponentType } from "react";
 
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+
+import type { GovernanceOverviewPanelProps } from "./GovernanceOverviewPanel";
+import type { GovernanceWorkflowSubmitSectionProps } from "./GovernanceWorkflowSubmitSection";
 
 function GovernanceWorkflowDeferredLoading(props: { readonly label: string }): React.JSX.Element {
   return (
@@ -18,6 +22,27 @@ function GovernanceWorkflowDeferredLoading(props: { readonly label: string }): R
     />
   );
 }
+
+/** Overview panel — deferred so approval-queue chrome paints first (wave 11 hub First Load). */
+export const GovernanceOverviewPanelDeferred: ComponentType<GovernanceOverviewPanelProps> = dynamic(
+  () => import("./GovernanceOverviewPanel").then((module) => module.GovernanceOverviewPanel),
+  {
+    ssr: false,
+    loading: () => <GovernanceWorkflowDeferredLoading label="Loading governance overview" />,
+  },
+);
+
+export const GovernanceWorkflowSubmitSectionDeferred: ComponentType<GovernanceWorkflowSubmitSectionProps> =
+  dynamic(
+    () =>
+      import("./GovernanceWorkflowSubmitSection").then(
+        (module) => module.GovernanceWorkflowSubmitSection,
+      ),
+    {
+      ssr: false,
+      loading: () => <GovernanceWorkflowDeferredLoading label="Loading approval submit" />,
+    },
+  );
 
 /** Approvals list — below-fold relative to overview/header (wave 10 hub First Load). */
 export const GovernanceWorkflowApprovalsListDeferred = dynamic(

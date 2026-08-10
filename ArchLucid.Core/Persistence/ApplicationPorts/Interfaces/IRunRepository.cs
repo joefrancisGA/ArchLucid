@@ -61,6 +61,16 @@ public interface IRunRepository
         CancellationToken ct);
 
     /// <summary>
+    ///     Latest non-archived committed run for <paramref name="projectId" /> within <paramref name="scope" />,
+    ///     ordered by linked golden-manifest <c>CreatedUtc</c> descending (SQL <c>TOP 1</c> join).
+    ///     In-memory approximates with <see cref="RunRecord.CompletedUtc"/> when a golden manifest id is present.
+    /// </summary>
+    Task<Guid?> GetLatestCommittedRunIdByManifestCreatedUtcAsync(
+        ScopeContext scope,
+        string projectId,
+        CancellationToken ct);
+
+    /// <summary>
     ///     Returns up to <paramref name="take" /> runs for <paramref name="projectId" /> within
     ///     <paramref name="scope" />, ordered by <c>CreatedUtc</c> descending (newest first).
     /// </summary>

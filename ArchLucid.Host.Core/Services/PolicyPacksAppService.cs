@@ -169,9 +169,16 @@ public sealed class PolicyPacksAppService(
             return null;
 
         IReadOnlyList<PolicyPackVersion> versions = await versionRepository.ListByPackAsync(policyPackId, ct);
-        PolicyPackVersion? latestVersion = versions.FirstOrDefault();
+        PolicyPackVersion? latestMeta = versions.FirstOrDefault();
 
-        if (latestVersion is null)
+        if (latestMeta is null)
+            return null;
+
+        // List omits ContentJson; load the full body for the latest version label.
+        PolicyPackVersion? latestVersion =
+            await versionRepository.GetByPackAndVersionAsync(policyPackId, latestMeta.Version, ct);
+
+        if (latestVersion is null || string.IsNullOrWhiteSpace(latestVersion.ContentJson))
             return null;
 
         string copyName = sourcePack.Name.TrimEnd() + " (Copy)";

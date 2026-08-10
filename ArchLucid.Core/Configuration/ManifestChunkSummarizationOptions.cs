@@ -17,4 +17,13 @@ public sealed class ManifestChunkSummarizationOptions
         get;
         set;
     } = 12_000;
+
+    /// <summary>
+    ///     Max concurrent LLM summary calls for the selected candidate prefix (1–32). Default 4.
+    /// </summary>
+    public int MaxConcurrentSummaries
+    {
+        get;
+        set;
+    } = 4;
 }

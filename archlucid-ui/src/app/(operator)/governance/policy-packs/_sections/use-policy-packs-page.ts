@@ -11,6 +11,7 @@ import {
   getEffectivePolicyContent,
   getEffectivePolicyPacks,
   getPolicyPackCatalogEntry,
+  getPolicyPackVersion,
   listPolicyPackCatalog,
   listPolicyPackVersions,
   listPolicyPacks,
@@ -101,6 +102,8 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
   const [assignPinned, setAssignPinned] = useState(false);
 
   const [packVersions, setPackVersions] = useState<PolicyPackVersion[]>([]);
+  const [compareLeftDetail, setCompareLeftDetail] = useState<PolicyPackVersion | null>(null);
+  const [compareRightDetail, setCompareRightDetail] = useState<PolicyPackVersion | null>(null);
   const [compareLeftId, setCompareLeftId] = useState("");
   const [compareRightId, setCompareRightId] = useState("");
   const [showVersionDiff, setShowVersionDiff] = useState(false);
@@ -236,6 +239,8 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
       setPackVersions([]);
       setCompareLeftId("");
       setCompareRightId("");
+      setCompareLeftDetail(null);
+      setCompareRightDetail(null);
       setShowVersionDiff(false);
 
       return;
@@ -250,8 +255,14 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
 
         if (latest) {
           setPublishVersion(latest.version);
-          setPublishJson(latest.contentJson || DEFAULT_CONTENT);
           setAssignVersion(latest.version);
+
+          try {
+            const detail = await getPolicyPackVersion(selectedPackId, latest.version);
+            setPublishJson(detail.contentJson || DEFAULT_CONTENT);
+          } catch {
+            setPublishJson(DEFAULT_CONTENT);
+          }
         }
 
         if (versions.length >= 2) {
@@ -266,14 +277,62 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
         }
 
         setShowVersionDiff(false);
+        setCompareLeftDetail(null);
+        setCompareRightDetail(null);
       } catch {
         setPackVersions([]);
         setCompareLeftId("");
         setCompareRightId("");
+        setCompareLeftDetail(null);
+        setCompareRightDetail(null);
         setShowVersionDiff(false);
       }
     })();
   }, [selectedPackId]);
+
+  useEffect(() => {
+    if (!showVersionDiff || !selectedPackId) {
+      setCompareLeftDetail(null);
+      setCompareRightDetail(null);
+
+      return;
+    }
+
+    const leftMeta = packVersions.find((v) => v.policyPackVersionId === compareLeftId);
+    const rightMeta = packVersions.find((v) => v.policyPackVersionId === compareRightId);
+
+    if (!leftMeta || !rightMeta || compareLeftId === compareRightId) {
+      setCompareLeftDetail(null);
+      setCompareRightDetail(null);
+
+      return;
+    }
+
+    let cancelled = false;
+
+    void (async () => {
+      try {
+        const [left, right] = await Promise.all([
+          getPolicyPackVersion(selectedPackId, leftMeta.version),
+          getPolicyPackVersion(selectedPackId, rightMeta.version),
+        ]);
+
+        if (!cancelled) {
+          setCompareLeftDetail(left);
+          setCompareRightDetail(right);
+        }
+      } catch {
+        if (!cancelled) {
+          setCompareLeftDetail(null);
+          setCompareRightDetail(null);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [showVersionDiff, selectedPackId, compareLeftId, compareRightId, packVersions]);
 
   const importVerticalPolicyPack = useCallback(async (slug: string, label: string) => {
     setFailure(null);
@@ -431,8 +490,8 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
     }
   }, [assignPinned, assignScopeLevel, assignVersion, canMutatePacks, load, selectedPackId]);
 
-  const compareLeftVersion = packVersions.find((v) => v.policyPackVersionId === compareLeftId);
-  const compareRightVersion = packVersions.find((v) => v.policyPackVersionId === compareRightId);
+  const compareLeftVersion = compareLeftDetail ?? packVersions.find((v) => v.policyPackVersionId === compareLeftId);
+  const compareRightVersion = compareRightDetail ?? packVersions.find((v) => v.policyPackVersionId === compareRightId);
   const selectedPackSummary = packs.find((p) => p.policyPackId === selectedPackId);
 
   const bundledPublishBlocked =

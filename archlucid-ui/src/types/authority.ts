@@ -6,6 +6,8 @@ import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
  * Optional list enrichments not yet on OpenAPI `RunSummaryResponse` but returned by some endpoints.
  */
 type RunSummaryWireExtensions = {
+  /** Golden manifest id when list/summary already resolved it (avoids N× getRunDetail). */
+  goldenManifestId?: string | null;
   findingCount?: number | null;
   warningCount?: number | null;
   artifactCount?: number | null;
