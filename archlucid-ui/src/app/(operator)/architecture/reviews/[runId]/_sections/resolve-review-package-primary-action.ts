@@ -102,15 +102,15 @@ function applyNextActionLabelForFindings(
     return action;
   }
 
-  const trimmed = (nextAction ?? "").trim();
+  const shortened = shortenNextActionForPrimaryCta(nextAction ?? "");
 
-  if (trimmed.length === 0) {
+  if (shortened === null) {
     return action;
   }
 
   return {
     ...action,
-    label: shortenNextActionForPrimaryCta(trimmed),
+    label: shortened,
   };
 }
 

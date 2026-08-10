@@ -883,16 +883,25 @@ export function deriveEvidenceCoverageSummary(
   };
 }
 
-/** Short label for the sticky primary CTA — imperative, ≤24 chars for first-viewport scanability. */
-export function shortenNextActionForPrimaryCta(nextAction: string): string {
+/**
+ * Primary CTAs need short imperative labels, not truncated prose.
+ * Prefer the verb phrase before an em dash when it already fits a button;
+ * otherwise return null so callers keep their fixed label (e.g. "Review findings").
+ */
+export function shortenNextActionForPrimaryCta(nextAction: string): string | null {
   const trimmed = nextAction.trim();
-  const primarySegment = trimmed.split(" — ")[0]?.trim() ?? trimmed;
 
-  if (primarySegment.length <= 24) {
-    return primarySegment;
+  if (trimmed.length === 0) {
+    return null;
   }
 
-  return `${primarySegment.slice(0, 21).trimEnd()}…`;
+  const primarySegment = trimmed.split(" — ")[0]?.trim() ?? trimmed;
+
+  if (primarySegment.length === 0 || primarySegment.length > 24) {
+    return null;
+  }
+
+  return primarySegment;
 }
 
 export function deriveBlockingFindingHref(

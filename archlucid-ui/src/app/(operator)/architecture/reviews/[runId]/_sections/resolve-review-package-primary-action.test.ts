@@ -112,4 +112,15 @@ describe("resolveReviewPackagePrimaryAction", () => {
     expect(action.kind).toBe("open-governance-decision");
     expect(action.label).not.toContain("Confirm evidence");
   });
+
+  it("falls back to Review findings when next-action copy is too long for a button", () => {
+    const action = resolveReviewPackagePrimaryAction({
+      ...baseInput,
+      hasCommitBlockingFailures: true,
+      nextAction: "Confirm evidence and remediation ownership for the open medium-severity finding",
+    });
+
+    expect(action.kind).toBe("review-findings");
+    expect(action.label).toBe("Review findings");
+  });
 });
