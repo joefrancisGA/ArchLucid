@@ -1,6 +1,7 @@
 /*
-  298: Fix archival cascade COL_LENGTH for ADR 0064 synonyms.
+  300: Fix archival cascade COL_LENGTH for ADR 0064 synonyms.
   COL_LENGTH on synonym names returns NULL; prefer SignedReviewRecords.
+  Greenfield parity: ArchLucid.sql CREATE OR ALTER PROCEDURE dbo.Archival_CascadeFromArchivedRuns.
 */
 CREATE OR ALTER PROCEDURE dbo.Archival_CascadeFromArchivedRuns
     @Archived dbo.ArchivedRunIdList READONLY
