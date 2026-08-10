@@ -33,13 +33,11 @@ const EXPECTED_MAJOR_SECTION_IDS = [
   "first-value-onboarding-product-cli",
   "archlucid-trial-smoke",
   "archlucid-roi-bulletin",
-  "archlucid-marketplace-preflight",
   "shell-completion",
   "comparisons",
   "archlucidjson",
-  "proof-packet-gtm-guardrails-ci",
   "environment",
-  "exit-codes-4",
+  "exit-codes-3",
   "rest-integration-starter-fixtures",
 ] as const;
 
@@ -63,6 +61,7 @@ describe("HelpCliUsageTechnicalReferenceView", () => {
 
     const preparedMarkdown = prepareHelpMarkdownForPresentation(loaded.markdown, CLI_USAGE_SOURCE, {
       preserveMaintenanceMetadata: true,
+      helpTopicSlug: "cli-usage",
     });
     const majorSectionIds = extractHelpMarkdownHeadings(preparedMarkdown)
       .filter((heading) => heading.level === 2)
@@ -114,5 +113,23 @@ describe("HelpCliUsageTechnicalReferenceView", () => {
     const desktopNav = screen.getByTestId("help-technical-reference-toc");
 
     expect(within(desktopNav).getByTestId("help-section-copy-link-commands")).toBeInTheDocument();
+  });
+
+  it("renders customer-safe CLI examples and scrollable command tables", () => {
+    if (loaded === null || entry === undefined) {
+      throw new Error("Expected cli-usage documentation to load.");
+    }
+
+    render(<HelpCliUsageTechnicalReferenceView entry={entry} markdown={loaded.markdown} />);
+
+    const visibleText = document.body.textContent ?? "";
+
+    expect(visibleText).not.toContain("staging.archlucid.net");
+    expect(visibleText).toContain("creates a new tenant");
+    expect(visibleText).toContain("Set up");
+    expect(visibleText).toContain("ReadAuthority");
+    expect(screen.getAllByRole("region").length).toBeGreaterThan(0);
+    expect(document.querySelectorAll("pre code").length).toBeGreaterThan(0);
+    expect(visibleText.match(/dotnet run --project ArchLucid\.Cli/g)?.length ?? 0).toBeLessThanOrEqual(1);
   });
 });

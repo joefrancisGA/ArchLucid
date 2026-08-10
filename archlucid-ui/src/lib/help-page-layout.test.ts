@@ -16,11 +16,18 @@ describe("help-page-layout", () => {
   });
 
   it("constrains help content to the reading-width column", () => {
-    expect(HELP_PAGE_LAYOUT.contentColumn).toContain("max-w-3xl");
+    expect(HELP_PAGE_LAYOUT.contentColumn).toContain("max-w-[40rem]");
     expect(HELP_PAGE_LAYOUT.contentGrid).toContain("gap-10");
     expect(HELP_PAGE_LAYOUT.contentGrid).toContain("max-w-[72rem]");
-    expect(HELP_PAGE_LAYOUT.contentGrid).toContain("48rem");
-    expect(HELP_PAGE_LAYOUT.contentGrid).toContain("52rem");
+    expect(HELP_PAGE_LAYOUT.contentGrid).toContain("40rem");
+    expect(HELP_PAGE_LAYOUT.contentGrid).not.toContain("52rem");
+  });
+
+  it("uses long-form reading typography for help body copy", () => {
+    expect(HELP_PAGE_LAYOUT.readingBody).toContain("text-[15px]");
+    expect(HELP_PAGE_LAYOUT.readingBody).toContain("leading-6");
+    expect(HELP_PAGE_LAYOUT.paragraph).toContain("text-[15px]");
+    expect(HELP_PAGE_LAYOUT.bulletList).toContain("text-[15px]");
   });
 
   it("styles the on-this-page heading with stronger hierarchy", () => {

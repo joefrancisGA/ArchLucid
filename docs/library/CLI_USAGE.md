@@ -9,17 +9,22 @@ Reference for the ArchLucid CLI: commands, configuration, and API URL behavior.
 
 ## Running the CLI
 
-From the solution root:
+Install the global .NET tool (after `dotnet pack` or from your distribution channel):
+
+```bash
+archlucid <command> [options]
+```
+
+<details>
+<summary>Building from source (contributor checkout)</summary>
+
+From the solution root when you have the ArchLucid repository checked out:
 
 ```bash
 dotnet run --project ArchLucid.Cli -- <command> [options]
 ```
 
-Or install as a global .NET tool (after `dotnet pack`):
-
-```bash
-archlucid <command> [options]
-```
+</details>
 
 ### Global `--json`
 
@@ -39,9 +44,9 @@ The CLI talks to the ArchLucid API over HTTP. Resolution order:
 
 1. **`apiUrl`** in `archlucid.json` (if set)
 2. **`ARCHLUCID_API_URL`** environment variable
-3. **No default** — when both are unset, commands that need an API base URL exit with configuration error **2** until you set one (example: `https://staging.archlucid.net`).
+3. **No default** — when both are unset, commands that need an API base URL exit with configuration error **2** until you set one (example: `https://<your-archlucid-host>`).
 
-A trailing slash is trimmed (e.g. `https://staging.archlucid.net/` → `https://staging.archlucid.net`).
+A trailing slash is trimmed (e.g. `https://<your-archlucid-host>/` → `https://<your-archlucid-host>`).
 
 The API must be reachable for `run`, `status`, `trace`, `run-support-packet`, `submit`, `commit`, `artifacts`, `first-value-report`, `reference-evidence` (alias **`proof-pack`**), `graph export`, `health`, `doctor` / `check`, and **`support-bundle`**. Use `health` for a quick ping (`GET /health`); use **`doctor`** (alias **`check`**) for liveness + readiness JSON and local project checks (`GET /health/live`, `GET /health/ready`).
 
@@ -60,40 +65,61 @@ curl -sS -X POST "$ARCHLUCID_API_URL/v1/pilots/board-pack.pdf" \
 
 ## Commands
 
-| Command | Description |
-|--------|-------------|
-| `second-run <SECOND_RUN.toml|json> [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--commit-deadline <secs>]` | Adoption path from demo to a real committed run using a one-page TOML/JSON file. See **`second-run`** workflow in product onboarding docs. |
-| `trial smoke --org <name> --email <email> [--display-name <name>] [--baseline-hours <n>] [--baseline-source <text>] [--api-base-url <url>] [--staging] [--skip-pilot-run-deltas]` | Pure-HTTP smoke loop for the **public trial signup funnel** against any hosted API (example staging: `https://staging.archlucid.net`). Calls **`POST /v1/register`** → **`GET /v1/tenant/trial-status`** → optional pilot-run deltas. **No Docker on your laptop.** Honours global **`--json`**. See **[archlucid trial smoke](#archlucid-trial-smoke)**. |
-| `new <projectName>` | Create a new project: `archlucid.json`, `inputs/brief.md`, `outputs/`, `plugins/plugin-lock.json`, optional Terraform stubs, `docs/README.md`. Set `apiUrl` or `ARCHLUCID_API_URL` before API commands. |
-| `run` | Submit an architecture request. Reads `archlucid.json` and `inputs/brief.md` from current directory. Optional **`--idempotency-key <uuid>`** sends the **`Idempotency-Key`** header on **`POST /v1/architecture/request`** (200 replay returns **`X-Idempotency-Replayed: true`** — same semantics as the architect workspace wizard). |
-| `roi-bulletin --quarter <Q-YYYY> [--min-tenants <n>] [--out <file.md>] [--synthetic] [--explain]` | **AdminAuthority** draft of the **quarterly aggregate ROI bulletin** (mean / p50 / p90 of tenant-supplied baseline hours only) via **`GET /v1/admin/roi-bulletin-preview`**, **or** **`--synthetic`** local sample (no API; illustrative constants). Exits **`UsageError`** on sub-threshold SQL drafts. See **[archlucid roi-bulletin](#archlucid-roi-bulletin)** and [`ROI_MODEL.md#aggregate-roi-bulletin-template`](../go-to-market/ROI_MODEL.md#aggregate-roi-bulletin-template) (`AGGREGATE_ROI_BULLETIN_TEMPLATE.md` alias). |
-| `marketplace preflight [--repo <dir>]` | **Repo-local** Azure Marketplace publication checks (doc markers, tier naming vs [`PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md), `appsettings` keys). Prints **PASS/FAIL** per check; exits **`OperationFailed`** if any automated check fails. Does **not** call Partner Center or hold secrets — see **[archlucid marketplace preflight](#archlucid-marketplace-preflight)** and [`docs/go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md`](../go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md#publication-checklist-gtm). |
-| `status <runId>` | Show run status, tasks, and submitted results. |
-| `trace <runId>` | Look up the persisted OpenTelemetry trace ID for the run and print the trace viewer URL (or open it in the default browser when **`ARCHLUCID_TRACE_OPEN_BROWSER`** is `1` / `true`). Set **`ARCHLUCID_TRACE_VIEWER_URL_TEMPLATE`** with a **`{traceId}`** placeholder (e.g. Grafana explore) to enable links; otherwise the CLI prints the raw trace ID and setup instructions. |
-| `run-support-packet <runId>` | Emit a paste-ready **support packet**: API base, status, request id, timestamps, manifest version (if committed), submitted-results count, OpenTelemetry trace id, simulator-substitution flag, one-line **`GET /version`** JSON, next-step hint, and canonical CLI/HTTP follow-ups. Honors leading **`--json`** (machine-readable line on stdout). |
-| `submit <runId> <result.json>` | Submit an agent result for a run (JSON must match `AgentResult` schema). |
-| `commit <runId>` | **Finalize** the architecture package (API verb remains `commit`) — merge results and produce a versioned package/manifest. |
-| `artifacts <runId>` | Fetch and display the finalized architecture package (committed manifest). |
-| `artifacts <runId> --save` | Same, and save manifest to `outputs/manifest-{version}.json` (requires project dir). |
-| `first-value-report <runId> [--save]` | Downloads sponsor Markdown from **`GET /v1/pilots/runs/{runId}/first-value-report`** (`text/markdown`). Prints to stdout, or writes `first-value-{runId}.md` in the current directory with **`--save`**. Uses **`ARCHLUCID_API_URL`** / **`ARCHLUCID_API_KEY`** like other CLI commands. |
-| `reference-evidence --run <runId> [--out <dir>] [--include-demo]` | Writes a **reference-evidence** folder: **`pilot-run-deltas.json`** (`GET /v1/pilots/runs/{runId}/pilot-run-deltas`), **`first-value-report.md`**, **`first-value-report.pdf`**, **`sponsor-one-pager.pdf`** when endpoints succeed. Refuses Contoso demo runs unless **`--include-demo`**. Default output: **`./reference-evidence/<runId>/`**. **Alias:** `proof-pack` (same flags). |
-| `reference-evidence --tenant <tenantId> [--out <dir>] [--include-demo]` | **AdminAuthority** only: downloads **`GET /v1/admin/tenants/{tenantId}/reference-evidence`** as **`reference-evidence-{tenantId}.zip`** (default directory **`./reference-evidence/tenant-{tenantId}/`**). **Alias:** `proof-pack`. |
-| `health` | Check API connectivity (`GET /health`). Exit **0** if OK; **3** if unreachable; **2** if the API base URL is invalid. With global `--json`, prints one JSON object per line (stderr on failure, stdout on success). |
-| `webhooks test` | POST a **sample CloudEvents-shaped JSON** probe to any HTTPS receiver (integration smoke). Optional `--secret` / `ARCHLUCID_WEBHOOK_TEST_SECRET` adds `X-ArchLucid-Webhook-Signature: sha256=…` over the UTF-8 body (matches outbound digest/alert webhook signing). `--payload <file.json>` replaces the embedded sample. Exit **0** on HTTP 2xx, **4** on transport/HTTP failure, **1** on usage errors. |
-| `saml test-config` | **Offline** SAML 2.0 SP configuration validation from merged `appsettings` / env (`ArchLucidAuth:Saml2`): issuer, optional signing PFX, IdP metadata HTTPS URL fetch, and certificate/metadata expiry signals. Prints **Pass/Fail/Warn/Info** per component; does **not** run a SAML login. No API required. Honors global **`--json`**. Exit **4** when any component **Fail**s. |
-| `doctor` / `check` | Readiness diagnostics: CLI build info, local `archlucid.json` (brief, writable outputs dir), API `GET /version` (build identity), then API `/health/live`, `/health/ready`, and `/health`. Exit 1 if readiness or combined `/health` is not 2xx. |
-| `support-bundle` | Writes a **pilot/support** folder (and optional **`--zip`**): **`README.txt`** (triage order), **`manifest.json`** (format **1.4**, `triageReadOrder`, `redactionManifestPath`; includes **`redactionRulesApplied`**), **`redaction-manifest.json`** (redaction status, rules, covered files, omitted secret-bearing categories, and sharing caveats), **`build.json`**, **`health.json`** (**`attemptedHealthRelativePaths`** + `/health/*` probes), **`api-contract.json`** (bounded **`GET /openapi/v1.json`**), **`config-summary.json`** (storage/auth summaries; **`validate-config`** Warning/Error names — **never connection strings**), **`environment.json`**, **`workspace.json`**, **`references.json`** (**`correlationTraceGuidance`**), **`logs.json`**. Review before external upload — checklist: [TROUBLESHOOTING.md](../runbooks/TROUBLESHOOTING.md#support-bundle-attach-to-tickets). Default folder `support-bundle-<utc-timestamp>Z`. Flags: `--output <dir>`, **`--zip`**. |
-| `comparisons list` | List/search persisted comparison records (supports paging and filters). |
-| `comparisons replay <comparisonRecordId>` | Replay a saved comparison record and export it again to a file (Markdown/HTML/DOCX/PDF depending on type). |
-| `comparisons replay-batch <id1,id2,...>` | Replay multiple comparison records and download a ZIP of the exported artifacts. |
-| `comparisons summary <comparisonRecordId>` | Get the stored summary (or regenerated markdown) for a comparison record. |
-| `comparisons drift <comparisonRecordId>` | Run drift analysis for a saved comparison record. |
-| `comparisons diagnostics` | Show recent replay activity (requires replay diagnostics permission). |
-| `comparisons tag <comparisonRecordId>` | Update label and tags on a comparison record. |
-| `graph export <runId> [--format mermaid\|graphml] [--decision <key>] [--out <path>]` | Fetch the provenance knowledge graph from **`GET /v1/authority/runs/{runId}/graph`** (or **`…/graph/decision/{decisionKey}`** when **`--decision`** is set) and emit **Mermaid** flowchart (default) or **GraphML** XML. GraphML uses the standard GraphML namespace and schema location for tools such as Gephi. Writes to stdout (GraphML is raw XML; Mermaid is a fenced-free diagram block) or **`--out`**. Requires **`ReadAuthority`** scope and a GUID **`runId`**. |
-| `completions bash` \| `zsh` \| `powershell` | Print a shell completion script to stdout (source from your profile). |
+### Set up
 
-**Before sending a support bundle:** open every generated file once; confirm **`redaction-manifest.json`** shows **`status=PASS`**; put **correlation** (**`X-Correlation-ID`** / **`correlationId`**) and **run id** in the ticket text; never attach raw **`.env`** or Key Vault dumps; expect **LLM prompt bodies to be truncated** in **`logs.json`** by design; if you used **`--zip`**, unzip and re-scan for literals your policy forbids. Full checklist: [TROUBLESHOOTING.md](../runbooks/TROUBLESHOOTING.md#support-bundle-attach-to-tickets).
+| Command | Scope | Description |
+|--------|-------|-------------|
+| `completions bash` \| `zsh` \| `powershell` | — | Print a shell completion script to stdout (source from your profile). |
+| `new <projectName>` | — | Create a new project: `archlucid.json`, `inputs/brief.md`, `outputs/`, `plugins/plugin-lock.json`, optional Terraform stubs, `docs/README.md`. Set `apiUrl` or `ARCHLUCID_API_URL` before API commands. |
+| `second-run <SECOND_RUN.toml\|json> [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--commit-deadline <secs>]` | ExecuteAuthority | Adoption path from demo to a real committed run using a one-page TOML/JSON file. See **`second-run`** workflow in product onboarding docs. |
+| `trial smoke --org <name> --email <email> [--display-name <name>] [--baseline-hours <n>] [--baseline-source <text>] [--api-base-url <url>] [--skip-pilot-run-deltas]` | — | Pure-HTTP smoke loop for the **public trial signup funnel** against any hosted API. Calls **`POST /v1/register`** → **`GET /v1/tenant/trial-status`** → optional pilot-run deltas. **No Docker on your laptop.** Honours global **`--json`**. See **[archlucid trial smoke](#archlucid-trial-smoke)**. |
+
+### Run a review
+
+| Command | Scope | Description |
+|--------|-------|-------------|
+| `commit <runId>` | ExecuteAuthority | **Finalize** the architecture package (API verb remains `commit`) — merge results and produce a versioned package/manifest. |
+| `run` | ExecuteAuthority | Submit an architecture request. Reads `archlucid.json` and `inputs/brief.md` from current directory. Optional **`--idempotency-key <uuid>`** sends the **`Idempotency-Key`** header on **`POST /v1/architecture/request`** (200 replay returns **`X-Idempotency-Replayed: true`** — same semantics as the architect workspace wizard). |
+| `status <runId>` | ReadAuthority | Show run status, tasks, and submitted results. |
+| `submit <runId> <result.json>` | ExecuteAuthority | Submit an agent result for a run (JSON must match `AgentResult` schema). |
+
+### Retrieve evidence
+
+| Command | Scope | Description |
+|--------|-------|-------------|
+| `artifacts <runId>` | ReadAuthority | Fetch and display the finalized architecture package (committed manifest). |
+| `artifacts <runId> --save` | ReadAuthority | Same, and save manifest to `outputs/manifest-{version}.json` (requires project dir). |
+| `comparisons diagnostics` | ReadAuthority | Show recent replay activity (requires replay diagnostics permission). |
+| `comparisons drift <comparisonRecordId>` | ReadAuthority | Run drift analysis for a saved comparison record. |
+| `comparisons list` | ReadAuthority | List/search persisted comparison records (supports paging and filters). |
+| `comparisons replay <comparisonRecordId>` | ReadAuthority | Replay a saved comparison record and export it again to a file (Markdown/HTML/DOCX/PDF depending on type). |
+| `comparisons replay-batch <id1,id2,...>` | ReadAuthority | Replay multiple comparison records and download a ZIP of the exported artifacts. |
+| `comparisons summary <comparisonRecordId>` | ReadAuthority | Get the stored summary (or regenerated markdown) for a comparison record. |
+| `comparisons tag <comparisonRecordId>` | ReadAuthority | Update label and tags on a comparison record. |
+| `first-value-report <runId> [--save]` | ReadAuthority | Downloads sponsor Markdown from **`GET /v1/pilots/runs/{runId}/first-value-report`** (`text/markdown`). Prints to stdout, or writes `first-value-{runId}.md` in the current directory with **`--save`**. Uses **`ARCHLUCID_API_URL`** / **`ARCHLUCID_API_KEY`** like other CLI commands. |
+| `graph export <runId> [--format mermaid\|graphml] [--decision <key>] [--out <path>]` | ReadAuthority | Fetch the provenance knowledge graph from **`GET /v1/authority/runs/{runId}/graph`** (or **`…/graph/decision/{decisionKey}`** when **`--decision`** is set) and emit **Mermaid** flowchart (default) or **GraphML** XML. Writes to stdout or **`--out`**. Requires a GUID **`runId`**. |
+| `reference-evidence --run <runId> [--out <dir>] [--include-demo]` | ReadAuthority | Writes a **reference-evidence** folder: **`pilot-run-deltas.json`**, **`first-value-report.md`**, **`first-value-report.pdf`**, **`sponsor-one-pager.pdf`** when endpoints succeed. Refuses Contoso demo runs unless **`--include-demo`**. Default output: **`./reference-evidence/<runId>/`**. **Alias:** `proof-pack`. |
+| `reference-evidence --tenant <tenantId> [--out <dir>] [--include-demo]` | AdminAuthority | Downloads **`GET /v1/admin/tenants/{tenantId}/reference-evidence`** as **`reference-evidence-{tenantId}.zip`**. **Alias:** `proof-pack`. |
+
+### Diagnose
+
+| Command | Scope | Description |
+|--------|-------|-------------|
+| `doctor` / `check` | — | Readiness diagnostics: CLI build info, local `archlucid.json` (brief, writable outputs dir), API `GET /version` (build identity), then API `/health/live`, `/health/ready`, and `/health`. Exit 1 if readiness or combined `/health` is not 2xx. |
+| `health` | — | Check API connectivity (`GET /health`). Exit **0** if OK; **3** if unreachable; **2** if the API base URL is invalid. With global `--json`, prints one JSON object per line (stderr on failure, stdout on success). |
+| `run-support-packet <runId>` | ReadAuthority | Emit a paste-ready **support packet**: API base, status, request id, timestamps, manifest version (if committed), submitted-results count, OpenTelemetry trace id, simulator-substitution flag, one-line **`GET /version`** JSON, next-step hint, and canonical CLI/HTTP follow-ups. Honors leading **`--json`**. |
+| `saml test-config` | — | **Offline** SAML 2.0 SP configuration validation from merged `appsettings` / env. Prints **Pass/Fail/Warn/Info** per component; does **not** run a SAML login. No API required. Honors global **`--json`**. Exit **4** when any component **Fail**s. |
+| `support-bundle` | ReadAuthority | Writes a **pilot/support** folder (and optional **`--zip`**): **`README.txt`**, **`manifest.json`**, **`redaction-manifest.json`**, **`build.json`**, **`health.json`**, **`api-contract.json`**, **`config-summary.json`**, **`environment.json`**, **`workspace.json`**, **`references.json`**, **`logs.json`**. Review before external upload. Default folder `support-bundle-<utc-timestamp>Z`. Flags: `--output <dir>`, **`--zip`**. See [Developer troubleshooting](/help/developer-troubleshooting). |
+| `trace <runId>` | ReadAuthority | Look up the persisted OpenTelemetry trace ID for the run and print the trace viewer URL (or open it in the default browser when **`ARCHLUCID_TRACE_OPEN_BROWSER`** is `1` / `true`). Set **`ARCHLUCID_TRACE_VIEWER_URL_TEMPLATE`** with a **`{traceId}`** placeholder to enable links. |
+| `webhooks test` | — | POST a **sample CloudEvents-shaped JSON** probe to any HTTPS receiver (integration smoke). Optional `--secret` / `ARCHLUCID_WEBHOOK_TEST_SECRET` adds `X-ArchLucid-Webhook-Signature: sha256=…`. Exit **0** on HTTP 2xx, **4** on transport/HTTP failure, **1** on usage errors. |
+
+### Admin
+
+| Command | Scope | Description |
+|--------|-------|-------------|
+| `roi-bulletin --quarter <Q-YYYY> [--min-tenants <n>] [--out <file.md>] [--synthetic] [--explain]` | AdminAuthority | Draft of the **quarterly aggregate ROI bulletin** via **`GET /v1/admin/roi-bulletin-preview`**, **or** **`--synthetic`** local sample (no API). See **[archlucid roi-bulletin](#archlucid-roi-bulletin)** and [Pilot ROI model](/help/pilot-roi-model). |
+
+**Before sending a support bundle:** open every generated file once; confirm **`redaction-manifest.json`** shows **`status=PASS`**; put **correlation** (**`X-Correlation-ID`** / **`correlationId`**) and **run id** in the ticket text; never attach raw **`.env`** or Key Vault dumps; expect **LLM prompt bodies to be truncated** in **`logs.json`** by design; if you used **`--zip`**, unzip and re-scan for literals your policy forbids. See [Developer troubleshooting](/help/developer-troubleshooting).
 
 ---
 
@@ -101,7 +127,7 @@ curl -sS -X POST "$ARCHLUCID_API_URL/v1/pilots/board-pack.pdf" \
 
 For hosted evaluation, start with:
 
-- **`archlucid trial smoke`** — validates the public trial signup funnel against a hosted API (`--staging` targets `https://staging.archlucid.net`). See **[archlucid trial smoke](#archlucid-trial-smoke)**.
+- **`archlucid trial smoke`** — validates the public trial signup funnel against a hosted API. See **[archlucid trial smoke](#archlucid-trial-smoke)**.
 - **`archlucid second-run <file>`** — runs your architecture brief through create → execute → commit on a configured API. See product onboarding docs for `SECOND_RUN.toml` examples.
 
 Set **`ARCHLUCID_API_URL`** (or `apiUrl` in `archlucid.json`) before either command.
@@ -114,11 +140,11 @@ These commands are **not** dispatched by `archlucid` in the product CLI surface.
 
 ## archlucid trial smoke
 
-`archlucid trial smoke` is the **primary first-value smoke** for hosted SaaS: it proves the **public trial signup funnel** is healthy against a target API base URL — including staging in **Stripe TEST mode** — without standing up Docker or SQL locally.
+`archlucid trial smoke` is the **primary first-value smoke** for hosted SaaS: it proves the **public trial signup funnel** is healthy against a target API base URL without standing up Docker or SQL locally.
 
 ### What it does, in order
 
-1. **`POST /v1/register`** — creates a fresh tenant from the supplied `--org` / `--email` (anonymous endpoint, rate-limited by the `registration` policy on the API). Forwards `--baseline-hours` / `--baseline-source` when supplied so the same baseline-capture path the marketing form uses gets exercised. Expects **201 Created** with a `tenantId` body.
+1. **`POST /v1/register`** — creates a fresh tenant from the supplied `--org` / `--email` (anonymous endpoint, rate-limited by the `registration` policy on the API). Forwards `--baseline-hours` / `--baseline-source` when supplied. Expects **201 Created** with a `tenantId` body.
 2. **`GET /v1/tenant/trial-status`** — using the registration scope headers (`X-Tenant-Id`, `X-Workspace-Id`, `X-Project-Id`) returned by step 1. Expects **200 OK**, with `trialWelcomeRunId` populated by the bootstrap path.
 3. **`GET /v1/pilots/runs/{trialWelcomeRunId}/pilot-run-deltas`** — confirms the seeded sample run is queryable for time-to-committed-manifest and findings counts. Skipped automatically when the trial-status response has no welcome run, or explicitly with **`--skip-pilot-run-deltas`**.
 
@@ -129,12 +155,12 @@ Each step prints **`PASS` / `FAIL`** with the underlying HTTP detail. Failures i
 | Flag | Default | Purpose |
 |------|---------|---------|
 | `--org <name>` | — (required) | Organization name for the smoke tenant. Use a timestamped value so reruns do not collide on the org slug. |
-| `--email <email>` | — (required) | Administrator email for the smoke tenant. Use an `*.invalid` domain for staging to avoid sending real verification mail. |
+| `--email <email>` | — (required) | Administrator email for the smoke tenant. Use an `*.invalid` domain for non-production to avoid sending real verification mail. |
 | `--display-name <name>` | `Trial Smoke User` | Display name on the admin role assignment. |
 | `--baseline-hours <n>` | (none) | When supplied, exercises the optional baseline review-cycle capture path on `POST /v1/register`. |
 | `--baseline-source <text>` | (none) | Free-text provenance note for `--baseline-hours`. Requires `--baseline-hours`. |
 | `--api-base-url <url>` | resolved from `archlucid.json` / `ARCHLUCID_API_URL` | Override the API base URL for this single invocation. |
-| `--skip-pilot-run-deltas` | (off) | Stop after step 2. Useful when the staging tenant has not committed a run yet. |
+| `--skip-pilot-run-deltas` | (off) | Stop after step 2. Useful when the target tenant has not committed a run yet. |
 
 ### Exit codes
 
@@ -142,11 +168,13 @@ Each step prints **`PASS` / `FAIL`** with the underlying HTTP detail. Failures i
 - **1** Usage error — missing `--org` / `--email`, invalid `--baseline-hours`, or unknown flag.
 - **4** Operation failed — at least one step did not return the expected status (see PASS/FAIL output for the failing step).
 
-### Local quick-start (Stripe TEST mode against staging)
+### Local quick-start
+
+> **Warning:** `trial smoke` calls **`POST /v1/register`** and **creates a new tenant** in the target environment. Use a disposable org name and an `*.invalid` email domain in non-production.
 
 ```bash
-export ARCHLUCID_API_URL=https://staging.archlucid.net
-dotnet run --project ArchLucid.Cli -- trial smoke \
+export ARCHLUCID_API_URL=https://<your-archlucid-host>
+archlucid trial smoke \
   --org "TrialSmoke-$(date +%s)" \
   --email "trial-smoke@example.invalid" \
   --baseline-hours 16 \
@@ -156,8 +184,8 @@ dotnet run --project ArchLucid.Cli -- trial smoke \
 PowerShell (Windows):
 
 ```powershell
-$env:ARCHLUCID_API_URL = "https://staging.archlucid.net"
-dotnet run --project ArchLucid.Cli -- trial smoke `
+$env:ARCHLUCID_API_URL = "https://<your-archlucid-host>"
+archlucid trial smoke `
   --org "TrialSmoke-$([int][double]::Parse((Get-Date -UFormat %s)))" `
   --email "trial-smoke@example.invalid" `
   --baseline-hours 16
@@ -166,20 +194,20 @@ dotnet run --project ArchLucid.Cli -- trial smoke `
 For machine-readable output (CI smoke gates) place the global `--json` flag **before** the subcommand:
 
 ```bash
-dotnet run --project ArchLucid.Cli -- --json trial smoke --org Acme --email ops@example.invalid
+archlucid --json trial smoke --org Acme --email ops@example.invalid
 ```
 
-The companion **end-to-end runbook** for the funnel — the full happy path, audit chain, owner-only blockers, and Playwright mock spec — lives at [`docs/runbooks/TRIAL_FUNNEL_END_TO_END.md`](../runbooks/TRIAL_FUNNEL_END_TO_END.md).
+The companion **end-to-end runbook** for the funnel lives in [Developer troubleshooting](/help/developer-troubleshooting).
 
 ---
 
 ## archlucid roi-bulletin
 
-`archlucid roi-bulletin` downloads an **internal Markdown draft** of the quarterly **aggregate** bulletin described in [`ROI_MODEL.md#aggregate-roi-bulletin-template`](../go-to-market/ROI_MODEL.md#aggregate-roi-bulletin-template) (`AGGREGATE_ROI_BULLETIN_TEMPLATE.md` alias). It never emits per-tenant rows — only **N**, **mean**, **median (p50)**, and **p90** for tenants that supplied `BaselineReviewCycleHours` during the calendar quarter window.
+`archlucid roi-bulletin` downloads an **internal Markdown draft** of the quarterly **aggregate** bulletin described in [Pilot ROI model](/help/pilot-roi-model). It never emits per-tenant rows — only **N**, **mean**, **median (p50)**, and **p90** for tenants that supplied `BaselineReviewCycleHours` during the calendar quarter window.
 
 ### Synthetic sample (`--synthetic`)
 
-Use **`--synthetic`** to print a **non-SQL** Markdown sample (fixed illustrative numbers on `SyntheticAggregateRoiBulletinSample` in `ArchLucid.Core`, stamped per row). **No** `ARCHLUCID_API_KEY` and **no** API reachability are required. **`--explain`** adds a short provenance note (aggregate vs `PilotRunDeltaComputer` per-run deltas). Public shape also lives at [`docs/go-to-market/SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md`](../go-to-market/SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md) and `/example-roi-bulletin` in the marketing UI.
+Use **`--synthetic`** to print a **non-SQL** Markdown sample (fixed illustrative numbers, stamped per row). **No** `ARCHLUCID_API_KEY` and **no** API reachability are required. **`--explain`** adds a short provenance note.
 
 ### Prerequisites (SQL-backed draft only)
 
@@ -196,33 +224,33 @@ Use **`--synthetic`** to print a **non-SQL** Markdown sample (fixed illustrative
 ### Example
 
 ```bash
-export ARCHLUCID_API_URL=https://staging.archlucid.net
+export ARCHLUCID_API_URL=https://<your-archlucid-host>
 export ARCHLUCID_API_KEY='<admin key>'
-dotnet run --project ArchLucid.Cli -- roi-bulletin --quarter Q1-2026 --min-tenants 5 --out ./roi-bulletin-Q1-2026-draft.md
+archlucid roi-bulletin --quarter Q1-2026 --min-tenants 5 --out ./roi-bulletin-Q1-2026-draft.md
 ```
 
 Synthetic (local only):
 
 ```bash
-dotnet run --project ArchLucid.Cli -- roi-bulletin --quarter Q1-2026 --synthetic --explain --out ./roi-bulletin-Q1-2026-synthetic.md
+archlucid roi-bulletin --quarter Q1-2026 --synthetic --explain --out ./roi-bulletin-Q1-2026-synthetic.md
 ```
 
 ---
 
 ## archlucid marketplace preflight
 
-`archlucid marketplace preflight` runs **deterministic repository checks** aligned with the automated parts of [`docs/go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md`](../go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md#publication-checklist-gtm): pricing tier naming consistency, presence of billing webhook routes in [`docs/BILLING.md`](BILLING.md), and that `ArchLucid.Api/appsettings.json` includes `Billing:AzureMarketplace:MarketplaceOfferId`. It does **not** validate Partner Center seller verification, tax, payout, or TLS — those remain owner checklist items.
+`archlucid marketplace preflight` runs **deterministic repository checks** aligned with [`docs/go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md`](../go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md#publication-checklist-gtm): pricing tier naming consistency, presence of billing webhook routes in [`docs/BILLING.md`](BILLING.md), and that `ArchLucid.Api/appsettings.json` includes `Billing:AzureMarketplace:MarketplaceOfferId`. It does **not** validate Partner Center seller verification, tax, payout, or TLS — those remain owner checklist items.
 
 ### Usage
 
 ```bash
-dotnet run --project ArchLucid.Cli -- marketplace preflight
+archlucid marketplace preflight
 ```
 
 From outside the repo tree, pass the repository root:
 
 ```bash
-dotnet run --project ArchLucid.Cli -- marketplace preflight --repo C:\ArchLucid\ArchLucid
+archlucid marketplace preflight --repo C:\ArchLucid\ArchLucid
 ```
 
 ### Exit codes
@@ -239,22 +267,20 @@ Install once per machine (examples):
 
 ```bash
 # Bash — append to ~/.bashrc
-dotnet run --project ArchLucid.Cli -- completions bash >> ~/.bash_completion_archlucid
+archlucid completions bash >> ~/.bash_completion_archlucid
 echo 'source ~/.bash_completion_archlucid' >> ~/.bashrc
 ```
 
 ```bash
 # zsh — save under a path on your fpath or source directly
-dotnet run --project ArchLucid.Cli -- completions zsh > ~/.archlucid-completions.zsh
+archlucid completions zsh > ~/.archlucid-completions.zsh
 echo 'source ~/.archlucid-completions.zsh' >> ~/.zshrc
 ```
 
 ```powershell
 # PowerShell — add to your profile
-dotnet run --project ArchLucid.Cli -- completions powershell | Out-File -Encoding utf8 $PROFILE.CurrentUserAllHosts -Append
+archlucid completions powershell | Out-File -Encoding utf8 $PROFILE.CurrentUserAllHosts -Append
 ```
-
-After `dotnet tool install -g ArchLucid.Cli`, use `archlucid completions …` instead of `dotnet run --project …`.
 
 ---
 
@@ -406,7 +432,7 @@ Use `--enforce` to fail CI when a generated sponsor artifact contains forbidden 
 
 | Variable | Description |
 |----------|-------------|
-| `ARCHLUCID_API_URL` | API base URL when not set in `archlucid.json`. **No localhost default** — required for API commands when `apiUrl` is unset (example: `https://staging.archlucid.net`). |
+| `ARCHLUCID_API_URL` | API base URL when not set in `archlucid.json`. **No localhost default** — required for API commands when `apiUrl` is unset (example: `https://<your-archlucid-host>`). |
 
 ---
 
@@ -426,7 +452,4 @@ Automation can combine exit codes with leading **`--json`** for structured stder
 
 ## REST integration starter fixtures
 
-For HTTP automation against the documented buyer integration path (create → execute → commit → export → compare → ROI), use the sanitized workflow contracts validated in CI:
-
-- [`scripts/ci/data/v1_integration_starter_contracts.v1.json`](../../scripts/ci/data/v1_integration_starter_contracts.v1.json)
-- Companion narrative: [`API_CONTRACTS.md`](API_CONTRACTS.md), [`LIVE_E2E_HAPPY_PATH.md`](LIVE_E2E_HAPPY_PATH.md)
+For HTTP automation against the documented buyer integration path (create → execute → commit → export → compare → ROI), see [Governance API contracts](/help/governance-api-contracts) and [Developer troubleshooting](/help/developer-troubleshooting).

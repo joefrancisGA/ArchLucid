@@ -365,15 +365,131 @@ export function stripInternalBuyerHelpSections(markdown: string): string {
   return result.join("\n");
 }
 
-/** Removes internal enablement preamble lines from buyer FAQ sources. */
+const INTERNAL_BUYER_HELP_LINE_PATTERNS: ReadonlyArray<RegExp> = [
+  /\*\*Canonical assurance wording:\*\*/i,
+  /\*\*SIG \/ CAIQ row acceleration:\*\*/i,
+  /scripts\/ci\//i,
+  /Tenant\.DataRegion/i,
+];
+
+function shouldStripInternalBuyerHelpLine(line: string): boolean {
+  return INTERNAL_BUYER_HELP_LINE_PATTERNS.some((pattern) => pattern.test(line));
+}
+
+/** Drops empty fenced code blocks left after line-level stripping. */
+export function removeEmptyFencedCodeBlocks(markdown: string): string {
+  const lines = markdown.split("\n");
+  const result: string[] = [];
+  let inFence = false;
+  let fenceBuffer: string[] = [];
+
+  const flushFence = (): void => {
+    if (fenceBuffer.length === 0) {
+      return;
+    }
+
+    const hasBody = fenceBuffer.slice(1).some((bufferedLine) => bufferedLine.trim().length > 0);
+
+    if (hasBody) {
+      for (const bufferedLine of fenceBuffer) {
+        result.push(bufferedLine);
+      }
+    }
+
+    fenceBuffer = [];
+  };
+
+  for (const line of lines) {
+    const trimmedStart = line.trimStart();
+
+    if (trimmedStart.startsWith("```")) {
+      if (inFence) {
+        fenceBuffer.push(line);
+        flushFence();
+        inFence = false;
+        continue;
+      }
+
+      inFence = true;
+      fenceBuffer = [line];
+      continue;
+    }
+
+    if (inFence) {
+      fenceBuffer.push(line);
+      continue;
+    }
+
+    result.push(line);
+  }
+
+  if (inFence) {
+    flushFence();
+  }
+
+  return result.join("\n").replace(/\n{3,}/g, "\n\n");
+}
+
+/** Removes internal enablement preamble lines from buyer FAQ sources (fence-aware). */
 export function stripInternalBuyerHelpPreamble(markdown: string): string {
-  return markdown
-    .split("\n")
-    .filter((line) => !/\*\*Canonical assurance wording:\*\*/i.test(line))
-    .filter((line) => !/\*\*SIG \/ CAIQ row acceleration:\*\*/i.test(line))
-    .filter((line) => !/scripts\/ci\//i.test(line))
-    .filter((line) => !/Tenant\.DataRegion/i.test(line))
-    .join("\n");
+  const lines = markdown.split("\n");
+  const result: string[] = [];
+  let inFence = false;
+  let fenceBuffer: string[] = [];
+  let omitFence = false;
+
+  const flushFence = (): void => {
+    if (fenceBuffer.length === 0) {
+      return;
+    }
+
+    if (!omitFence) {
+      for (const bufferedLine of fenceBuffer) {
+        result.push(bufferedLine);
+      }
+    }
+
+    fenceBuffer = [];
+    omitFence = false;
+  };
+
+  for (const line of lines) {
+    const trimmedStart = line.trimStart();
+
+    if (trimmedStart.startsWith("```")) {
+      if (inFence) {
+        fenceBuffer.push(line);
+        flushFence();
+        inFence = false;
+        continue;
+      }
+
+      inFence = true;
+      fenceBuffer = [line];
+      omitFence = shouldStripInternalBuyerHelpLine(line);
+      continue;
+    }
+
+    if (inFence) {
+      fenceBuffer.push(line);
+
+      if (shouldStripInternalBuyerHelpLine(line)) {
+        omitFence = true;
+      }
+
+      continue;
+    }
+
+    if (!shouldStripInternalBuyerHelpLine(line)) {
+      result.push(line);
+    }
+  }
+
+  if (inFence) {
+    flushFence();
+  }
+
+  return removeEmptyFencedCodeBlocks(result.join("\n"));
 }
 
 /** Strips inline CI and backlog references from buyer help copy. */
@@ -1186,6 +1302,11 @@ export function stripAcceleratorChooserIntroAndTable(markdown: string): string {
       inTable = false;
     }
 
+    // GTM/V1.1 roadmap caveats stay in DEMO_QUICKSTART — not in-app buyer help.
+    if (line.startsWith("**Out of scope")) {
+      continue;
+    }
+
     if (!pastChooserBody) {
       if (line.startsWith("## ") && !line.startsWith("###")) {
         continue;
@@ -1273,8 +1394,9 @@ export function stripAcceleratorChooserContributorSections(markdown: string): st
   let omitSection = false;
 
   for (const line of lines) {
+    // Buyer help must not surface GTM deferred-scope / V1.1 roadmap inventory.
     if (line.startsWith("**Out of scope")) {
-      omitSection = false;
+      continue;
     }
 
     if (line.startsWith("## ") && !line.startsWith("###")) {
@@ -1888,6 +2010,68 @@ export function stripFirstReviewEvidenceChecklistContributorLeakage(markdown: st
     .replace(/collect-first-pilot-proof\.ps1/gi, "admin automation script")
     .replace(/deploy\/customer-templates\/[^\s)`]*/gi, "customer WIF templates")
     .replace(/python scripts\/[^\s)`]*/gi, "admin automation script")
+    .replace(/\n{3,}/g, "\n\n")
+    .trimEnd();
+}
+
+/** H2 sections omitted from in-app CLI usage help (vendor-internal / GTM). */
+const CLI_USAGE_OMITTED_SECTION_PREFIXES = [
+  "proof-packet gtm guardrails",
+  "archlucid marketplace preflight",
+] as const;
+
+/**
+ * HCX — drops GTM guardrails and marketplace preflight sections from `/help/cli-usage`.
+ */
+export function stripCliUsageContributorSections(markdown: string): string {
+  const lines = markdown.split("\n");
+  const result: string[] = [];
+  let omitSection = false;
+
+  for (const line of lines) {
+    if (line.startsWith("## ") && !line.startsWith("###")) {
+      const title = line.slice(3).replace(/\s*\{#[^}]+\}\s*$/, "").trim().toLowerCase();
+      omitSection = CLI_USAGE_OMITTED_SECTION_PREFIXES.some((prefix) => title.startsWith(prefix));
+    }
+
+    if (!omitSection) {
+      result.push(line);
+    }
+  }
+
+  return result.join("\n");
+}
+
+/**
+ * HCX — vendor-internal leakage strip for `/help/cli-usage` (staging hosts, GTM paths, eng DB names).
+ */
+export function stripCliUsageContributorLeakage(markdown: string): string {
+  return stripCliUsageContributorSections(markdown)
+    .replace(/https:\/\/staging\.archlucid\.net/gi, "https://<your-archlucid-host>")
+    .replace(/\[([^\]]*)\]\(\.\.\/runbooks\/TROUBLESHOOTING\.md[^)]*\)/gi, "[Developer troubleshooting](/help/developer-troubleshooting)")
+    .replace(/\[([^\]]*)\]\(\.\.\/library\/TROUBLESHOOTING\.md[^)]*\)/gi, "[Developer troubleshooting](/help/developer-troubleshooting)")
+    .replace(/\[([^\]]*)\]\(TROUBLESHOOTING\.md[^)]*\)/gi, "[Developer troubleshooting](/help/developer-troubleshooting)")
+    .replace(/\[([^\]]*)\]\(\.\.\/runbooks\/TRIAL_FUNNEL_END_TO_END\.md[^)]*\)/gi, "[Developer troubleshooting](/help/developer-troubleshooting)")
+    .replace(/\[([^\]]*)\]\(\.\.\/go-to-market\/ROI_MODEL\.md[^)]*\)/gi, "[Pilot ROI model](/help/pilot-roi-model)")
+    .replace(/\[([^\]]*)\]\(\.\.\/go-to-market\/SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC\.md[^)]*\)/gi, "[Pilot ROI model](/help/pilot-roi-model)")
+    .replace(/\[([^\]]*)\]\(\.\.\/go-to-market\/PRICING_PHILOSOPHY\.md[^)]*\)/gi, "[Procurement](/help/procurement)")
+    .replace(/\[([^\]]*)\]\(\.\.\/go-to-market\/AZURE_MARKETPLACE_SAAS_OFFER\.md[^)]*\)/gi, "")
+    .replace(/\[([^\]]*)\]\(\.\.\/go-to-market\/[^)]+\)/gi, "")
+    .replace(/`dbo\.AuditEvents`/gi, "audit trail")
+    .replace(/dbo\.AuditEvents/gi, "audit trail")
+    .replace(/without owner approval/gi, "without lowering the configured gate")
+    .replace(/`--staging`/gi, "")
+    .replace(/\s*\[--staging\]/gi, "")
+    .replace(/\(--staging[^)]*\)/gi, "")
+    .replace(/\s+--staging\b/gi, "")
+    .replace(/C:\\ArchLucid[^\s)`]*/gi, "")
+    .replace(/Partner Center/gi, "")
+    .replace(/\bpayout\b/gi, "")
+    .replace(/\btax\b/gi, "")
+    .replace(/forbidden sales promises/gi, "")
+    .replace(/Full checklist:\s*Developer [Tt]roubleshooting(?:\s*\([^)]*\))?\.?/g, "")
+    .replace(/Full checklist:\s*Troubleshooting(?:\s*\([^)]*\))?\.?/g, "")
+    .replace(/see \[[^\]]+\]\([^)]+\) and \[([^\]]+)\]\(\)/g, "see [$1](/help/developer-troubleshooting)")
     .replace(/\n{3,}/g, "\n\n")
     .trimEnd();
 }
@@ -3204,6 +3388,8 @@ export function prepareHelpMarkdownForPresentation(
     options?.helpTopicSlug === "first-review" ||
     normalizedSourcePath.includes("first_run_evidence_checklist.md");
   const isDeveloperTroubleshooting = options?.helpTopicSlug === "developer-troubleshooting";
+  const isCliUsage =
+    options?.helpTopicSlug === "cli-usage" || normalizedSourcePath.includes("cli_usage.md");
   const isEnterpriseOnboarding = normalizedSourcePath.includes(
     "hosted_enterprise_onboarding_checklist.md",
   );
@@ -3236,7 +3422,9 @@ export function prepareHelpMarkdownForPresentation(
               ? stripRepeatReviewLoopContributorSections(afterEvaluatorWorkbookStrip)
               : isAcceleratorChooser
                 ? stripAcceleratorChooserContributorSections(afterEvaluatorWorkbookStrip)
-                : afterEvaluatorWorkbookStrip;
+                : isCliUsage
+                  ? stripCliUsageContributorSections(afterEvaluatorWorkbookStrip)
+                  : afterEvaluatorWorkbookStrip;
   const rewrittenLinks = rewriteHelpMarkdownDocLinks(beforeLinkRewrite, sourceDocPath);
   const sanitized = sanitizeBareMarkdownFileReferences(rewrittenLinks);
   // Audience-specific strips — do not apply procurement/config rewrites to unrelated topics.
@@ -3250,6 +3438,8 @@ export function prepareHelpMarkdownForPresentation(
     afterAudienceStrip = stripFirstReviewEvidenceChecklistContributorLeakage(sanitized);
   } else if (isDeveloperTroubleshooting) {
     afterAudienceStrip = stripDeveloperTroubleshootingContributorLeakage(sanitized);
+  } else if (isCliUsage) {
+    afterAudienceStrip = stripCliUsageContributorLeakage(sanitized);
   } else if (isEnterpriseOnboarding) {
     afterAudienceStrip = stripEnterpriseOnboardingContributorLeakage(sanitized);
   } else if (isGovernanceApiContracts) {

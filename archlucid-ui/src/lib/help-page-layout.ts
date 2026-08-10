@@ -2,9 +2,9 @@ import { cn } from "@/lib/utils";
 
 import {
   OPERATOR_LAYOUT,
-  OPERATOR_PAGE_CONTAINER,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_SHELL_STICKY_TOP_CLASS,
+  OPERATOR_TYPE_SCALE,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 
@@ -18,10 +18,11 @@ export const HELP_PAGE_LAYOUT = {
     OPERATOR_LAYOUT.sectionHeadingStack,
   ),
   contentGrid:
-    "mx-auto grid w-full max-w-[72rem] grid-cols-1 gap-10 lg:grid-cols-[minmax(0,48rem)_12.5rem] xl:grid-cols-[minmax(0,52rem)_16.5rem] lg:items-start",
+    "mx-auto grid w-full max-w-[72rem] grid-cols-1 gap-10 lg:grid-cols-[minmax(0,40rem)_12.5rem] xl:grid-cols-[minmax(0,40rem)_16.5rem] lg:items-start",
   technicalReferenceGrid:
     "grid grid-cols-1 justify-start gap-10 lg:grid-cols-[minmax(0,52rem)_16.5rem] lg:items-start",
-  contentColumn: cn("min-w-0", OPERATOR_PAGE_CONTAINER.variant.reading),
+  contentColumn: "min-w-0 w-full max-w-[40rem]",
+  readingBody: OPERATOR_TYPE_SCALE.helpReadingBody,
   technicalReferenceArticle: "w-full max-w-[72rem]",
   technicalReferenceColumn: "min-w-0 w-full max-w-none lg:max-w-[52rem]",
   technicalReferenceSkipLink: cn(
@@ -32,9 +33,9 @@ export const HELP_PAGE_LAYOUT = {
   sectionH2: cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, "mt-10 first:mt-0", OPERATOR_TYPOGRAPHY.sectionTitle),
   compactSectionH2: cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, "mt-6 first:mt-0", OPERATOR_TYPOGRAPHY.sectionTitle),
   sectionH3: cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, "mt-7", OPERATOR_TYPOGRAPHY.cardTitle),
-  paragraph: cn("my-3 leading-relaxed", OPERATOR_TYPOGRAPHY.body),
-  bulletList: cn("my-4 list-disc space-y-1.5 pl-6", OPERATOR_TYPOGRAPHY.body),
-  orderedList: cn("my-4 list-decimal space-y-1.5 pl-6", OPERATOR_TYPOGRAPHY.body),
+  paragraph: cn("my-3", OPERATOR_TYPE_SCALE.helpReadingBody),
+  bulletList: cn("my-4 list-disc space-y-1.5 pl-6", OPERATOR_TYPE_SCALE.helpReadingBody),
+  orderedList: cn("my-4 list-decimal space-y-1.5 pl-6", OPERATOR_TYPE_SCALE.helpReadingBody),
   tableWrap: "my-5 mb-6 overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-800",
   compactTableWrap: "my-3 mb-4 overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-800",
   table: cn("w-full min-w-[32rem] border-collapse text-left", OPERATOR_TYPOGRAPHY.body),
@@ -45,7 +46,7 @@ export const HELP_PAGE_LAYOUT = {
   tableRowEven: "bg-neutral-50/80 dark:bg-neutral-900/50",
   blockquote: cn(
     "my-5 border-l-4 border-neutral-300 pl-4 italic text-al-text-secondary dark:border-neutral-600",
-    OPERATOR_TYPOGRAPHY.body,
+    OPERATOR_TYPE_SCALE.helpReadingBody,
   ),
   details:
     "my-5 rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-950/40",

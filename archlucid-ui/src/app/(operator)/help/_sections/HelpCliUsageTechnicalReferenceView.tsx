@@ -31,6 +31,7 @@ export function HelpCliUsageTechnicalReferenceView(
   const preserveMaintenanceMetadata = entry.audience === "developer";
   const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
     preserveMaintenanceMetadata,
+    helpTopicSlug: entry.slug,
   });
   const headings = extractHelpMarkdownHeadings(preparedMarkdown);
   const headingGroups = groupHelpMarkdownHeadings(headings);
@@ -124,6 +125,7 @@ export function HelpCliUsageTechnicalReferenceView(
             tableCaption={`${entry.title} reference table`}
             presentation="help"
             sourceDocPath={sourceDocPath}
+            helpTopicSlug={entry.slug}
             preserveMaintenanceMetadata={preserveMaintenanceMetadata}
           />
         </div>

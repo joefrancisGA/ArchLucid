@@ -46,6 +46,7 @@ import {
   stripPilotRoiModelContributorSections,
   stripRepeatReviewLoopContributorLeakage,
   stripRepeatReviewLoopContributorSections,
+  stripInternalBuyerHelpPreamble,
 } from "@/lib/help-markdown-presentation";
 import { HELP_TOPIC_BANNED_COPY_PATTERNS } from "@/lib/help-product-language";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
@@ -418,11 +419,11 @@ describe("help-markdown-presentation", () => {
     expect(prepared.toLowerCase()).not.toContain("## policy packs");
     expect(prepared.toLowerCase()).not.toContain("## canonical references");
     expect(prepared).toContain("## How to start in the architect workspace");
-    expect(prepared).toContain("**Out of scope for all V1-ready packs:**");
+    expect(prepared).not.toContain("**Out of scope for all V1-ready packs:**");
     expect(prepared).not.toContain("POLICY_PACK_DRY_RUN_INDEX");
   });
 
-  it("preserves out-of-scope copy after canonical reference section omission (TB-1606)", () => {
+  it("omits GTM out-of-scope roadmap copy from accelerator chooser help presentation", () => {
     const source = [
       "## Canonical references",
       "",
@@ -433,7 +434,8 @@ describe("help-markdown-presentation", () => {
 
     const prepared = stripAcceleratorChooserContributorSections(source);
 
-    expect(prepared).toContain("**Out of scope for all V1-ready packs:**");
+    expect(prepared).not.toContain("**Out of scope for all V1-ready packs:**");
+    expect(prepared).not.toContain("live Stripe checkout");
     expect(prepared).not.toContain("STARTER_PROOF_PACK_CHOOSER");
   });
 
@@ -455,21 +457,27 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toContain("POLICY_PACK_");
     expect(prepared).not.toContain("walkthroughs/");
     expect(prepared).not.toContain("starter-pack.json");
-    expect(prepared).toContain("in-product starter proof packs");
+    expect(prepared).toContain("in-product accelerator packs");
     expect(prepared).toContain("pack manifest");
   });
 
-  it("keeps starter-pack table rows while redacting template paths (TB-1606)", () => {
+  it("drops starter-pack markdown tables from accelerator chooser presentation (specialty grid owns packs)", () => {
     const source = [
       "| Buyer job | Starter pack |",
       "| --- | --- |",
       "| Regulated SaaS | [`regulated-saas-soc-procurement`](../../templates/starter-proof-packs/regulated-saas-soc-procurement/) |",
+      "",
+      "### How to start in the architect workspace",
+      "",
+      "1. Confirm a Core Pilot finalize exists.",
     ].join("\n");
 
-    const prepared = prepareHelpMarkdownForPresentation(source, "docs/library/ACCELERATOR_CHOOSER.md");
+    const prepared = prepareHelpMarkdownForPresentation(source, "docs/library/ACCELERATOR_CHOOSER.md", {
+      helpTopicSlug: "accelerator-chooser",
+    });
 
-    expect(prepared).toContain("Regulated SaaS");
-    expect(prepared).toContain("regulated-saas-soc-procurement");
+    expect(prepared).toContain("Confirm a Core Pilot finalize exists");
+    expect(prepared).not.toContain("Regulated SaaS");
     expect(prepared.toLowerCase()).not.toContain("templates/starter-proof-packs");
   });
 
@@ -492,8 +500,10 @@ describe("help-markdown-presentation", () => {
     expect(prepared.toLowerCase()).not.toContain("## policy packs");
     expect(prepared.toLowerCase()).not.toContain("## canonical references");
     expect(prepared).toContain("/help/first-architecture-review");
-    expect(prepared).toContain("regulated-saas-soc-procurement");
-    expect(prepared).toContain("**Out of scope for all V1-ready packs:**");
+    expect(prepared).not.toContain("**Out of scope for all V1-ready packs:**");
+    expect(prepared.toLowerCase()).not.toContain("live stripe");
+    expect(prepared.toLowerCase()).not.toContain("v1.1 unless separately promoted");
+    expect(prepared.toLowerCase()).not.toContain("marketplace checkout");
   });
 
   it("drops administrator smoke-validation disclosure from Azure Boards help (TB-1621)", () => {
@@ -1271,9 +1281,72 @@ describe("help-markdown-presentation", () => {
     const source = "**Last reviewed:** 2026-06-06\n\nEngineering notes.";
     const prepared = prepareHelpMarkdownForPresentation(source, "docs/library/CLI_USAGE.md", {
       preserveMaintenanceMetadata: true,
+      helpTopicSlug: "cli-usage",
     });
 
     expect(prepared).toContain("**Last reviewed:** 2026-06-06");
+  });
+
+  it("stripInternalBuyerHelpPreamble drops scripts/ci fences whole-block without empty fences", () => {
+    const source = [
+      "Lead-in before fence.",
+      "",
+      "```bash",
+      "python scripts/ci/check_proof_summary_promise_language.py sample.md",
+      "```",
+      "",
+      "```bash",
+      "archlucid health",
+      "```",
+      "",
+      "Trailing copy.",
+    ].join("\n");
+
+    const stripped = stripInternalBuyerHelpPreamble(source);
+
+    expect(stripped).not.toContain("scripts/ci/");
+    expect(stripped).not.toMatch(/```[^\n]*\n```/);
+    expect(stripped).toContain("archlucid health");
+    expect(stripped).toContain("Trailing copy.");
+  });
+
+  it("cli-usage presentation strips vendor-internal leakage and staging hosts", () => {
+    const loaded = tryLoadProductDocumentation("cli-usage");
+
+    expect(loaded).not.toBeNull();
+
+    const prepared = prepareHelpMarkdownForPresentation(loaded!.markdown, "docs/library/CLI_USAGE.md", {
+      helpTopicSlug: "cli-usage",
+      preserveMaintenanceMetadata: true,
+    });
+
+    expect(prepared.toLowerCase()).not.toContain("staging.archlucid.net");
+    expect(prepared).not.toContain("Partner Center");
+    expect(prepared).not.toContain("dbo.");
+    expect(prepared).not.toContain("C:\\ArchLucid");
+    expect(prepared.toLowerCase()).not.toContain("owner approval");
+    expect(prepared).not.toContain("proof-packet gtm guardrails");
+    expect(prepared.toLowerCase()).not.toContain("marketplace preflight");
+    expect(prepared).toMatch(/https:\/\/<your-archlucid-host>/);
+    expect(prepared).toContain("creates a new tenant");
+    expect(prepared).not.toMatch(/```[^\n]*\n```/);
+  });
+
+  it("help topics do not retain empty fenced code blocks after presentation prep", () => {
+    for (const topic of HELP_TOPICS) {
+      const loaded = tryLoadProductDocumentation(topic.id);
+
+      if (loaded === null) {
+        continue;
+      }
+
+      const sourcePath = loaded.entry.sourcePaths[0] ?? "";
+      const prepared = prepareHelpMarkdownForPresentation(loaded.markdown, sourcePath, {
+        helpTopicSlug: topic.id,
+      });
+
+      expect(prepared, topic.id).not.toMatch(/```[^\n]*\n```/);
+    }
   });
 
   it("stripDocumentationMaintenanceMetadata leaves fenced code unchanged", () => {
@@ -1467,6 +1540,35 @@ Body copy.`}
       "href",
       "/integrations/cloud-connections",
     );
+  });
+
+  it("gives each scrollable help table region a unique landmark name", () => {
+    const markdownBody = [
+      "## Commands",
+      "",
+      "| Command | Scope |",
+      "| --- | --- |",
+      "| run | ExecuteAuthority |",
+      "",
+      "### Diagnose",
+      "",
+      "| Command | Scope |",
+      "| --- | --- |",
+      "| health | — |",
+    ].join("\n");
+
+    render(
+      <MarketingAccessibilityMarkdownFragment
+        markdownBody={markdownBody}
+        tableCaption="CLI usage reference table"
+        presentation="help"
+        sourceDocPath="docs/library/CLI_USAGE.md"
+        helpTopicSlug="cli-usage"
+      />,
+    );
+
+    expect(screen.getByRole("region", { name: "Scrollable Commands table 1" })).toHaveAttribute("tabindex", "0");
+    expect(screen.getByRole("region", { name: "Scrollable Diagnose table 2" })).toHaveAttribute("tabindex", "0");
   });
 });
 

@@ -28,6 +28,11 @@ function privacyScrollableTableRegionLabel(tableOrdinal: number): string {
   return `Scrollable comparison table ${tableOrdinal}`;
 }
 
+function helpScrollableTableRegionLabel(sectionTitle: string, tableOrdinal: number): string {
+  const base = sectionTitle.length > 0 ? sectionTitle : "Reference";
+  return `Scrollable ${base} table ${tableOrdinal}`;
+}
+
 function renderInline(text: string, keyPrefix: string, options: RenderInlineOptions): ReactNode[] {
   const nodes: ReactNode[] = [];
   let remaining = text;
@@ -286,6 +291,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
   let helpTableOrdinal = 0;
   let currentPartLabel = "";
   let currentSectionTitle = "";
+  let currentSubsectionTitle = "";
   const allocateSectionSlug = createHelpHeadingSlugAllocator();
   let skippedDuplicateHelpTitle = !isHelp;
 
@@ -397,6 +403,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
         currentSectionTitle = title;
       } else {
         currentSectionTitle = title;
+        currentSubsectionTitle = "";
       }
 
       blocks.push(
@@ -437,6 +444,8 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
 
       if (isCaiqSigResponse) {
         currentSectionTitle = title;
+      } else if (isHelp) {
+        currentSubsectionTitle = title;
       }
 
       blocks.push(
@@ -509,11 +518,16 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
 
       if (isPrivacy) {
         privacyTableOrdinal++;
-      }
-
-      if (isCaiqSigResponse) {
+      } else if (isHelp) {
         helpTableOrdinal++;
       }
+
+      const nearestTableHeading =
+        currentSubsectionTitle.length > 0
+          ? currentSubsectionTitle
+          : currentSectionTitle.length > 0
+            ? currentSectionTitle
+            : props.tableCaption;
 
       const tableCaption = isPrivacy
         ? `${props.tableCaption} ${privacyTableOrdinal}`
@@ -522,7 +536,9 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
               currentPartLabel.length > 0 ? currentPartLabel : "Questionnaire",
               currentSectionTitle.length > 0 ? currentSectionTitle : `Section ${helpTableOrdinal}`,
             ) + ` (${helpTableOrdinal})`
-          : props.tableCaption;
+          : isHelp
+            ? helpScrollableTableRegionLabel(nearestTableHeading, helpTableOrdinal)
+            : props.tableCaption;
 
       const statusColumnIndex = headerCells.findIndex((cell) => /^status$/i.test(cell));
       const responseColumnIndex = headerCells.findIndex((cell) => /^response$/i.test(cell));
@@ -546,7 +562,13 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
                 role: "region" as const,
                 "aria-label": privacyScrollableTableRegionLabel(privacyTableOrdinal),
               }
-            : {})}
+            : isHelp
+              ? {
+                  tabIndex: 0 as const,
+                  role: "region" as const,
+                  "aria-label": helpScrollableTableRegionLabel(nearestTableHeading, helpTableOrdinal),
+                }
+              : {})}
         >
           <table
             className={
