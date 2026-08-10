@@ -310,6 +310,7 @@ public static partial class ServiceCollectionExtensions
         services.AddHttpClient(
             AzureDevOpsCommitStatusPublisher.HttpClientName,
             static client => client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.DevOpsIntegration))
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration)
             .AddOutboundExternalHttpResilience();
         services.AddScoped<IAzureDevOpsCommitStatusPublisher, AzureDevOpsCommitStatusPublisher>();
     }
@@ -327,6 +328,7 @@ public static partial class ServiceCollectionExtensions
         services.AddHttpClient(
             AzureDevOpsPullRequestDecorator.HttpClientName,
             static client => client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.DevOpsIntegration))
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration)
             .AddOutboundExternalHttpResilience();
         services.AddSingleton<IAzureDevOpsPullRequestDecoratorFactory, AzureDevOpsPullRequestDecoratorFactory>();
         services.AddSingleton<IIntegrationEventHandler, AuthorityRunCompletedAzureDevOpsIntegrationEventHandler>();
@@ -391,6 +393,7 @@ public static partial class ServiceCollectionExtensions
             .AddHttpClient(
                 HttpWebhookPoster.WebhookHttpClientName,
                 static client => client.Timeout = TimeSpan.FromSeconds(60))
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration)
             .AddOutboundExternalHttpResilience();
         services.AddSingleton<HttpWebhookPoster>();
         services.AddSingleton<FakeWebhookPoster>();

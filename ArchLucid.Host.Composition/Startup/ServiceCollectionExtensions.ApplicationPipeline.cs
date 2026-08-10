@@ -149,7 +149,8 @@ public static partial class ServiceCollectionExtensions
         services.AddHttpClient(RunExportBlobPushService.HttpClientName, static client =>
         {
             client.Timeout = TimeSpan.FromMinutes(5);
-        });
+        })
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration);
         services.AddScoped<IRunExportBlobPushService, RunExportBlobPushService>();
         services.AddScoped<IRunExportAuthorityMaterialLoader, RunExportAuthorityMaterialLoader>();
         services.AddScoped<IRunExportPackageBuilder, RunExportPackageBuilder>();
@@ -160,7 +161,8 @@ public static partial class ServiceCollectionExtensions
         {
             client.BaseAddress = new Uri("https://api.github.com/");
             client.Timeout = TimeSpan.FromSeconds(60);
-        });
+        })
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration);
         services.AddScoped<ITerraformGitHubPrService, TerraformGitHubPrService>();
     }
 
@@ -315,6 +317,7 @@ public static partial class ServiceCollectionExtensions
         services
             .AddHttpClient<IPublisherConnector, ConfluenceCloudPublisherConnector>(
                 static client => client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.ExternalIntegration))
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration)
             .AddOutboundExternalHttpResilience();
         services.AddScoped<IConfluencePublishingHttpAuthenticator, ConfluencePublishingHttpAuthenticator>();
         services.AddScoped<IConfluenceFirstValueReportPublisher, ConfluenceFirstValueReportPublisher>();
@@ -372,7 +375,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IExportReplayService, ExportReplayService>();
         services.AddScoped<IArchitectureRequestDraftService, ArchitectureRequestDraftService>();
         services.AddScoped<IChatIntakeParserService, ChatIntakeParserService>();
-        services.AddHttpClient(GitTerraformContentFetcher.HttpClientName);
+        services.AddHttpClient(GitTerraformContentFetcher.HttpClientName)
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration);
         services.AddScoped<IGitTerraformContentFetcher, GitTerraformContentFetcher>();
         services.AddScoped<IConnectorIntakeParserService, ConnectorIntakeParserService>();
         services.AddScoped<IPolicyPackDraftService, PolicyPackDraftService>();

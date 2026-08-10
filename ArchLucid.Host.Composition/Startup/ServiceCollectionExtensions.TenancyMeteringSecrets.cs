@@ -14,6 +14,7 @@ using ArchLucid.Core.IntegrationSecrets;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Host.Core.Configuration.IntegrationSecrets;
 using ArchLucid.Host.Core.Configuration.Secrets;
+using ArchLucid.Host.Core.Http;
 using ArchLucid.Host.Core.Tenancy;
 using ArchLucid.Host.Composition.Metering;
 using ArchLucid.Persistence.Metering;
@@ -59,7 +60,8 @@ public static partial class ServiceCollectionExtensions
                 client.BaseAddress = new Uri("https://api.pwnedpasswords.com/");
                 client.DefaultRequestHeaders.TryAddWithoutValidation("Add-Padding", "true");
                 client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.ExternalIntegration);
-            });
+            })
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration);
         services.AddScoped<ITrialLocalIdentityAccountExistsNotifier, TrialLocalIdentityAccountExistsEmailNotifier>();
         services.AddScoped<ITrialLocalIdentityService, TrialLocalIdentityService>();
         services.AddScoped<IPlatformIdentityService, PlatformIdentityService>();
@@ -70,7 +72,8 @@ public static partial class ServiceCollectionExtensions
             static client =>
             {
                 client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.ExternalIntegration);
-            });
+            })
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration);
         services.AddScoped<TurnstileEmailOtpBotChallengeVerifier>();
         services.AddScoped<IEmailOtpBotChallengeVerifier, EmailOtpBotChallengeVerifier>();
         services.AddScoped<ISelfServiceTrialAbusePolicy, SelfServiceTrialAbusePolicy>();
@@ -88,7 +91,8 @@ public static partial class ServiceCollectionExtensions
         services.AddHttpClient<CloudflareDnsTxtRecordLookup>(static client =>
         {
             client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.ExternalIntegration);
-        });
+        })
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration);
         services.AddScoped<IDnsTxtRecordLookup>(static sp =>
             sp.GetRequiredService<CloudflareDnsTxtRecordLookup>());
         services.AddScoped<IEmailOtpEmailNotifier, EmailOtpEmailNotifier>();

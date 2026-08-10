@@ -17,6 +17,7 @@ public static partial class ServiceCollectionExtensions
                     http.Timeout = TimeSpan.FromMinutes(5);
                     http.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "application/json");
                 })
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.CloudControlPlane)
             .AddLongLivedPolicyHandler(static serviceProvider =>
                 AzureRetailPricesHttpResiliencePolicy.Create(
                     serviceProvider
@@ -32,6 +33,7 @@ public static partial class ServiceCollectionExtensions
                     http.Timeout = TimeSpan.FromMinutes(5);
                     http.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "application/json");
                 })
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.CloudControlPlane)
             .AddLongLivedPolicyHandler(static serviceProvider =>
                 AzureRetailPricesHttpResiliencePolicy.Create(
                     serviceProvider

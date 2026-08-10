@@ -54,7 +54,8 @@ public static partial class ServiceCollectionExtensions
         services.AddHttpClient(nameof(ConfigurationHealthProbe), static client =>
         {
             client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.InternalLoopbackProbe);
-        });
+        })
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.InternalLoopback);
         services.AddScoped<IConfigurationHealthProbe>(sp =>
             new ConfigurationHealthProbe(
                 sp.GetRequiredService<IConfiguration>(),
@@ -177,10 +178,13 @@ public static partial class ServiceCollectionExtensions
         services.Configure<ConfluencePublishingOptions>(
             configuration.GetSection(ConfluencePublishingOptions.SectionName));
         services.AddHttpClient<JiraOutboundIssueClient>(static client => client.Timeout = TimeSpan.FromSeconds(60))
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration)
             .AddOutboundExternalHttpResilience();
         services.AddHttpClient<ServiceNowOutboundIncidentClient>(static client => client.Timeout = TimeSpan.FromSeconds(60))
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration)
             .AddOutboundExternalHttpResilience();
         services.AddHttpClient<AzureBoardsOutboundIssueClient>(static client => client.Timeout = TimeSpan.FromSeconds(60))
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration)
             .AddOutboundExternalHttpResilience();
         services.AddScoped<JiraExternalTicketConnector>();
         services.AddScoped<ServiceNowExternalTicketConnector>();
@@ -196,6 +200,7 @@ public static partial class ServiceCollectionExtensions
             .AddHttpClient(
                 ItsmOutboundIntegrationHealthLimits.HttpClientName,
                 static client => client.Timeout = TimeSpan.FromSeconds(ItsmOutboundIntegrationHealthLimits.NetworkTimeoutSeconds))
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration)
             .AddOutboundExternalHttpResilience();
         services.AddScoped<IItsmOutboundIntegrationHealthService, ItsmOutboundIntegrationHealthService>();
         services.AddScoped<ITenantItsmOutboundSettingsService, TenantItsmOutboundSettingsService>();
@@ -205,6 +210,7 @@ public static partial class ServiceCollectionExtensions
         services
             .AddHttpClient<IItsmConnectorOAuthTokenExchanger, ItsmConnectorOAuthTokenExchanger>(
                 static client => client.Timeout = TimeSpan.FromSeconds(30))
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration)
             .AddOutboundExternalHttpResilience();
         services.AddScoped<IItsmAtlassianOAuthConsentService, ItsmAtlassianOAuthConsentService>();
         services.AddScoped<IItsmOutboundHttpAuthenticator, ItsmOutboundHttpAuthenticator>();

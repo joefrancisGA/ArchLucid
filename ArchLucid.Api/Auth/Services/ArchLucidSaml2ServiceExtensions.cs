@@ -4,6 +4,8 @@ using ArchLucid.Api.Configuration;
 
 using ArchLucid.Core.Http;
 
+using ArchLucid.Host.Core.Http;
+
 using ITfoxtec.Identity.Saml2;
 using ITfoxtec.Identity.Saml2.MvcCore.Configuration;
 using ITfoxtec.Identity.Saml2.Schemas;
@@ -50,7 +52,8 @@ public static class ArchLucidSaml2ServiceExtensions
             static client =>
             {
                 client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.InternalDiagnostics);
-            });
+            })
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.InternalLoopback);
 
         services.AddOptions<Saml2Configuration>()
             .Bind(configuration.GetSection(ArchLucidSamlAuthOptions.ConfigurationSectionPath))

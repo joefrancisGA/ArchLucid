@@ -1,6 +1,7 @@
 using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Contracts.Abstractions.Integrations;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Http;
 using ArchLucid.Host.Core.Http;
 using ArchLucid.Integrations.AzureExtractor;
 
@@ -28,6 +29,7 @@ public static partial class ServiceCollectionExtensions
             {
                 client.Timeout = TimeSpan.FromMinutes(5);
             })
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.CloudControlPlane)
             .AddLongLivedPolicyHandler(static serviceProvider =>
                 ArchLucid.Core.Http.AzureRmAndRetailPricesHttpRetryPolicy.Create(
                     serviceProvider

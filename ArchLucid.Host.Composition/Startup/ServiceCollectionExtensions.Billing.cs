@@ -22,6 +22,7 @@ public static partial class ServiceCollectionExtensions
             .AddHttpClient(
                 nameof(AzureMarketplaceBillingProvider),
                 static client => client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.ExternalIntegration))
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration)
             .AddOutboundExternalHttpResilience();
         services.AddScoped<BillingWebhookTrialActivator>();
         services.AddScoped<StripeBillingSubscriptionWebhookProcessor>();

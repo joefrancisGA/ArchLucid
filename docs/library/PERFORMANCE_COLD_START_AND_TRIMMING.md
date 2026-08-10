@@ -102,6 +102,21 @@ Wire-format parity is guarded by `ArchLucidApiJsonSourceGenerationTests` (reflec
 
 **Measurement:** Pair with **TB-2146** Phase B capture on next CD; append row to [`cold-start-baselines/`](../operations/cold-start-baselines/README.md).
 
+## Outbound HTTP sockets pooling (**TB-2163**)
+
+Shipped **2026-08-10** — tuned `SocketsHttpHandler` pools on every product `AddHttpClient` registration via `ConfigureArchLucidOutboundSocketsHandler` and the existing `AddOutboundExternalHttpResilience` / `AddLongLivedPolicyHandler` chains:
+
+| Profile | Typical clients | `PooledConnectionLifetime` | `MaxConnectionsPerServer` |
+|---------|-----------------|----------------------------|---------------------------|
+| **InternalLoopback** | Config health probe, trial funnel probe, SAML metadata fetch | 2 min | 4 |
+| **ExternalIntegration** | ITSM, webhooks, OAuth, Turnstile, DNS, GitHub | 5 min | 20 |
+| **CloudControlPlane** | ARM, retail prices, multi-cloud pricing | 5 min | 50 |
+| **LlmCompletion** | Azure OpenAI batch transport | 10 min | 20 |
+
+Handler factory lifetime is `Timeout.InfiniteTimeSpan` so `PooledConnectionLifetime` owns TCP/TLS recycling (avoids fighting the default 2-minute `IHttpClientFactory` handler rotation). Polly resilience wiring is unchanged.
+
+**Measurement:** ARM + Azure OpenAI wall-clock before/after on next staging pass (**TB-2146** Phase B).
+
 ## See also
 
 - Sustained throughput and p50/p95/p99 baselines: `docs/LOAD_TEST_BASELINE.md` (k6 against Compose `full-stack`, plus scaling thresholds).

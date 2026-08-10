@@ -1,3 +1,4 @@
+using ArchLucid.Core.Http;
 using ArchLucid.Host.Core.Http;
 
 namespace ArchLucid.Host.Composition.Startup;
@@ -18,6 +19,7 @@ public static partial class ServiceCollectionExtensions
                     http.Timeout = TimeSpan.FromMinutes(5);
                     http.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "application/json");
                 })
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.CloudControlPlane)
             .AddLongLivedPolicyHandler(static serviceProvider =>
                 ArchLucid.Core.Http.AzureRmAndRetailPricesHttpRetryPolicy.Create(
                     serviceProvider
@@ -33,6 +35,7 @@ public static partial class ServiceCollectionExtensions
                     http.Timeout = TimeSpan.FromMinutes(5);
                     http.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "application/json");
                 })
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.CloudControlPlane)
             .AddLongLivedPolicyHandler(static serviceProvider =>
                 AzureRetailPricesHttpResiliencePolicy.Create(
                     serviceProvider

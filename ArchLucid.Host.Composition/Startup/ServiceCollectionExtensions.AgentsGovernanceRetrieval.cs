@@ -52,6 +52,7 @@ using ArchLucid.Host.Composition.AzureOpenAI;
 using ArchLucid.Host.Composition.Caching;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Diagnostics;
+using ArchLucid.Host.Core.Http;
 using ArchLucid.Host.Core.Resilience;
 using ArchLucid.Host.Core.Services;
 using ArchLucid.Host.Core.Startup;
@@ -683,7 +684,8 @@ public static partial class ServiceCollectionExtensions
             static client =>
             {
                 client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.ExternalIntegration);
-            });
+            })
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration);
         services.AddSingleton<IQuickScanBotChallengeVerifier, TurnstileQuickScanBotChallengeVerifier>();
         // Scoped: orchestrator is scoped; store + Turnstile verifier remain singleton-safe.
         services.AddScoped<IQuickScanIdentityAbuseService, QuickScanIdentityAbuseService>();
@@ -925,7 +927,8 @@ public static partial class ServiceCollectionExtensions
 
         services.AddHttpClient(
             ApprovalSlaMonitor.SlaEscalationHttpClientName,
-            static client => client.Timeout = TimeSpan.FromMinutes(2));
+            static client => client.Timeout = TimeSpan.FromMinutes(2))
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration);
     }
 
     private static void RegisterGovernanceDashboardService(IServiceCollection services, IConfiguration configuration)
@@ -1434,7 +1437,8 @@ public static partial class ServiceCollectionExtensions
                     client.DefaultRequestHeaders.Add("api-key", apiKey);
 
                 client.Timeout = TimeSpan.FromHours(3);
-            });
+            })
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.LlmCompletion);
         services.AddSingleton<IBatchAgentCompletionClient>(static sp =>
         {
             IConfiguration config = sp.GetRequiredService<IConfiguration>();

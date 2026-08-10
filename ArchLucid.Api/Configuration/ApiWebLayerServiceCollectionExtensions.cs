@@ -19,8 +19,10 @@ using ArchLucid.Mcp.Tools;
 using ArchLucid.Application.Import;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Http;
 using ArchLucid.Host.Composition.Startup;
 using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Http;
 using ArchLucid.Host.Core.Services.Governance;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
@@ -72,15 +74,18 @@ public static class ApiWebLayerServiceCollectionExtensions
         services.AddHttpClient<IOidcWellKnownDiagnosticsService, OidcWellKnownDiagnosticsService>(static client =>
         {
             client.Timeout = TimeSpan.FromSeconds(10);
-        });
+        })
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration);
         services.AddHttpClient<ISamlOperationalDiagnosticsService, SamlOperationalDiagnosticsService>(static client =>
         {
             client.Timeout = TimeSpan.FromSeconds(10);
-        });
+        })
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration);
         services.AddHttpClient<IIdentityProviderDiscoveryService, IdentityProviderDiscoveryService>(static client =>
         {
             client.Timeout = TimeSpan.FromSeconds(15);
-        });
+        })
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration);
         services.AddScoped<ISsoWizardTestLoginService, SsoWizardTestLoginService>();
         services.AddScoped<IIdentityProviderActivationService, IdentityProviderActivationService>();
         services.AddScoped<ApiRequestMeteringMiddleware>();
@@ -105,7 +110,8 @@ public static class ApiWebLayerServiceCollectionExtensions
         services.AddHttpClient<IOutboundWebhookDryRunService, OutboundWebhookDryRunService>(static client =>
         {
             client.Timeout = TimeSpan.FromSeconds(30);
-        });
+        })
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration);
 
         services.AddScoped<IWebhookSubscriptionTestService, WebhookSubscriptionTestService>();
         services.AddScoped<ITeamsIncomingWebhookConnectionProbeService, TeamsIncomingWebhookConnectionProbeService>();
