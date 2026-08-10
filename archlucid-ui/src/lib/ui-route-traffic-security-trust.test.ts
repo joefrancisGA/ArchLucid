@@ -66,6 +66,6 @@ describe("ui-route-traffic-security-trust (SEC)", () => {
     expect(row?.notes).toBe(SECURITY_TRUST_TRAFFIC_NOTE);
     expect(row?.notes).toContain("MarketingSecurityTrustView");
     expect(row?.notes).toContain("Sources");
-    expect(.notes).toContain("cannot improve further toward 80");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

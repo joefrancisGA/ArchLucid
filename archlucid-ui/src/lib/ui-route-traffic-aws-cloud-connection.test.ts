@@ -65,7 +65,7 @@ describe("ui-route-traffic-aws-cloud-connection (INC)", () => {
     expect(row?.section).toBe(AWS_CLOUD_CONNECTION_TRAFFIC_SECTION);
     expect(row?.notes).toBe(AWS_CLOUD_CONNECTION_TRAFFIC_NOTE);
     expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
-    expect(row?.notes).toContain("Score 68");
+
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

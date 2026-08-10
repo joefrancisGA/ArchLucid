@@ -34,10 +34,7 @@ vi.mock("@/lib/api", () => ({
 
 import { DigestsHubClient } from "@/components/digests/DigestsHubClient";
 import { fetchWeeklyDigestHealth, getExecDigestPreferences, listArchitectureDigests } from "@/lib/api";
-import {
-  DIGESTS_BROWSE_PAGE_SUBTITLE_BUYER,
-  DIGESTS_PRIVACY_DETAILS_TRIGGER,
-} from "@/lib/digests-browse-copy";
+import { DIGESTS_BROWSE_PAGE_SUBTITLE_BUYER } from "@/lib/digests-browse-copy";
 
 describe("DigestsHubClient buyer-polished shell", () => {
   beforeEach(() => {
@@ -83,8 +80,7 @@ describe("DigestsHubClient buyer-polished shell", () => {
         "Send scheduled summaries of review activity, governance signals, findings, and advisory scans.",
       ),
     ).not.toBeInTheDocument();
-    expect(screen.queryByTestId("digests-privacy-note")).not.toBeInTheDocument();
-    expect(screen.getByText(DIGESTS_PRIVACY_DETAILS_TRIGGER)).toBeInTheDocument();
+    expect(screen.getByTestId("digests-privacy-note")).toBeInTheDocument();
 
     await waitFor(() => {
       expect(screen.getByTestId("digests-header-actions")).toBeInTheDocument();

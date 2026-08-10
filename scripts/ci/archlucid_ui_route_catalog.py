@@ -55,8 +55,13 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/help/cloud-connections-azure": "/help/cloud-connections/azure",
     "/help/cloud-connections-aws": "/help/cloud-connections/aws",
     "/help/cloud-connections-gcp": "/help/cloud-connections/gcp",
+    # TB-2050 retired help aliases (removed from HELP_TOPIC_SLUG_ALIASES) — fold Hit% into canons.
+    # Do not re-add these to the catalog; FIR `/help/first-pilot-path` stays via TRAFFIC_TRACKED only.
     "/help/api-contracts": "/help/governance-api-contracts",
     "/help/creating-runs": "/help/review-guide",
+    "/help/evaluator-workbook": "/help/path-chooser",
+    "/help/first-hour-operator-path": "/help/first-architecture-review",
+    "/help/operator-auth-roles": "/help/users-and-roles",
     "/manifests": "/governance/signed-records",
     "/manifests/[manifestId]": "/governance/signed-records/[manifestId]",
     "/manifests/[manifestId]/artifacts/[artifactId]": (
@@ -83,6 +88,7 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     # TB-1902 / TB-1901: /settings/exec-digest is next.config-only → Digests Schedule tab.
     "/settings/exec-digest": "/architecture/digests?tab=schedule",
     "/health": "/administration/system-health",
+    # Folded alias still present in HELP_TOPIC_SLUG_ALIASES; migrate out of workbook/catalog.
     "/help/core-pilot": "/help/first-architecture-review",
     "/dashboard": "/architecture/executive-dashboard",
     "/executive/dashboard": "/architecture/executive-dashboard",
@@ -150,7 +156,8 @@ REDIRECT_ONLY_APP_PATHS = frozenset(
 # /settings/exec-digest retired from the workbook (EEX removed); migration still maps to DIS.
 # /help/core-pilot retired from the workbook (ECO removed, TB-2050) — no App Router page or
 # redirect remains; do not re-add via this set.
-TRAFFIC_TRACKED_REDIRECT_BOOKMARKS = frozenset()
+# FIR `/help/first-pilot-path` stays as a scored redirect bookmark (alias retired TB-2050; COR canonical).
+TRAFFIC_TRACKED_REDIRECT_BOOKMARKS = frozenset({"/help/first-pilot-path"})
 
 # Operator-shell overlays scored in the workbook but not App Router pages.
 SHELL_OVERLAY_TRAFFIC_ENTRIES: dict[str, str] = {

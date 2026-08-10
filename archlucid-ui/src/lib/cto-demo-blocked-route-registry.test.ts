@@ -4,7 +4,7 @@ import { findBlockedRouteEntry, resolveDemoBlockedRoutePanel } from "@/lib/cto-d
 
 describe("cto-demo-blocked-route-registry", () => {
   it("finds admin and nested admin routes", () => {
-    expect(findBlockedRouteEntry("/admin")?.label).toBe("Admin console");
+    expect(findBlockedRouteEntry("/internal")?.label).toBe("Admin console");
     expect(findBlockedRouteEntry("/internal/health")?.label).toBe("Admin console");
   });
 

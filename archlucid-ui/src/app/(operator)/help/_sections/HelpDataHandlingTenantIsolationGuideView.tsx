@@ -16,14 +16,12 @@ import {
   DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_TITLE,
   DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_ACTIONS,
   DATA_HANDLING_TENANT_ISOLATION_HELP_RESIDENCY,
-  DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES,
 } from "@/lib/data-handling-tenant-isolation-help-guide-content";
 import { DATA_HANDLING_TENANT_ISOLATION_HELP_PATH } from "@/lib/data-handling-tenant-isolation-help-route";
 import {
   DESIGN_TOKENS,
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
-  OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
@@ -105,32 +103,6 @@ export function HelpDataHandlingTenantIsolationGuideView(
             </Link>
           </CardContent>
         </Card>
-
-        <section
-          className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
-          aria-labelledby="help-data-handling-tenant-isolation-sources-heading"
-          data-testid="help-data-handling-tenant-isolation-sources"
-        >
-          <h2
-            id="help-data-handling-tenant-isolation-sources-heading"
-            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
-          >
-            Sources for diligence
-          </h2>
-          <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Open Trust Center artifacts, security-trust assurance language, audit coverage, and related contracts before
-            briefing sponsors.
-          </p>
-          <ul className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>
-            {DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES.map((link) => (
-              <li key={link.href}>
-                <Link className={cn(OPERATOR_LINK.inline, "font-medium")} href={link.href}>
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
 
         <p
           className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}

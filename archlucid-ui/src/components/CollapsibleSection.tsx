@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 
 type CollapsibleSectionProps = {
   title: string;
@@ -29,6 +29,9 @@ type CollapsibleSectionProps = {
 /**
  * Progressive disclosure using native <details>; avoids extra Radix dependency.
  * Prefer for long run-detail sections (explanation, artifacts).
+ *
+ * Open state is React-controlled from `defaultOpen` so toggles stick (a constant
+ * `open={defaultOpen}` prop would lock closed sections shut).
  */
 export function CollapsibleSection({
   title,
@@ -41,15 +44,20 @@ export function CollapsibleSection({
   onToggle,
   children,
 }: CollapsibleSectionProps) {
+  const [open, setOpen] = useState(defaultOpen);
+
   return (
     <details
       className="mb-6 rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
       data-testid={sectionTestId}
       data-workspace-disclosure
-      open={defaultOpen}
+      open={open}
       onToggle={(event) => {
+        const nextOpen = (event.currentTarget as HTMLDetailsElement).open;
+        setOpen(nextOpen);
+
         if (onToggle !== undefined) {
-          onToggle((event.currentTarget as HTMLDetailsElement).open);
+          onToggle(nextOpen);
         }
       }}
     >

@@ -71,25 +71,6 @@ vi.mock("@/components/usability/PilotCommandCenterCard", () => ({
   PilotCommandCenterCard: () => <div data-testid="home-block-pilot-command-center" />,
 }));
 
-vi.mock("./operator-home-page-view-deferred-chunks", () => ({
-  PilotCommandCenterCardDeferred: () => <div data-testid="home-block-pilot-command-center" />,
-  OperatorHomeExecutiveRoiStripDeferred: () => <div data-testid="home-block-executive-roi" />,
-  OperatorHomeBelowFoldPanelsDeferred: ({
-    buyerPolishedShell,
-  }: {
-    buyerPolishedShell: boolean;
-  }) => (
-    <>
-      <div data-testid="home-block-explore-sample" />
-      <div data-testid="home-block-workspace-context">
-        <div data-testid="operator-home-workspace-metrics-summary" />
-        {buyerPolishedShell ? null : <div data-testid="home-block-workspace-status" />}
-      </div>
-      {buyerPolishedShell ? null : <div data-testid="home-block-advanced-guidance" />}
-    </>
-  ),
-}));
-
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 
@@ -154,6 +135,7 @@ describe("OperatorHomePageView", () => {
 
     expect(screen.getByTestId("operator-home-page-title")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.queryByTestId("operator-home-scope-details")).toBeNull(); // TB-2093
   });
 
   it("renders an elevated Recent reviews section heading in buyer-polished home (TB-347)", () => {

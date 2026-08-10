@@ -8,7 +8,7 @@ describe("page-help-topic-map — policy packs", () => {
     expect(pageHelpTopicForPathname("/governance/policy-packs")?.label).toBe("Policy packs");
     expect(pageHelpTopicForPathname("/governance/policy-packs/pack-1")?.slug).toBe("policy-packs");
     expect(pageHelpTopicForPathname("/governance/standards-and-rules")?.slug).toBe("policy-packs");
-    // Legacy /policy-packs bookmark is not help-mapped; use /governance/policy-packs.
-    expect(pageHelpTopicForPathname("/policy-packs")?.slug).toBeUndefined();
+    // Legacy /policy-packs bookmark canonicalizes to /governance/policy-packs (same help topic).
+    expect(pageHelpTopicForPathname("/policy-packs")?.slug).toBe("policy-packs");
   });
 });

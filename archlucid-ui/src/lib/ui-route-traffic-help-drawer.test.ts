@@ -4,11 +4,11 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
-  HELP_DRAWER_TRAFFIC_NOTE,
-  HELP_DRAWER_TRAFFIC_PATH,
-  HELP_DRAWER_TRAFFIC_ROW_ID,
-  HELP_DRAWER_TRAFFIC_SECTION,
-} from "@/lib/ui-route-traffic-help-drawer";
+  DEMO_ENTRY_TRAFFIC_NOTE,
+  DEMO_ENTRY_TRAFFIC_PATH,
+  DEMO_ENTRY_TRAFFIC_ROW_ID,
+  DEMO_ENTRY_TRAFFIC_SECTION,
+} from "@/lib/ui-route-traffic-demo-entry";
 
 const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md";
 
@@ -45,26 +45,27 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
     }
 
     rows.push({
-      id: cells[1],
-      path: cells[2].replace(/^`|`$/g, ""),
-      section: cells[7],
-      notes: cells[8],
+      id: cells[1] ?? "",
+      path: (cells[2] ?? "").replace(/^`|`$/g, ""),
+      section: cells[7] ?? "",
+      notes: cells[8] ?? "",
     });
   }
 
   return rows;
 }
 
-describe("ui-route-traffic-help-drawer (HCD)", () => {
-  it("tracks contextual help drawer shell overlay with al-ui-rate Help drawer UX notes", () => {
+describe("ui-route-traffic-demo-entry (DXX)", () => {
+  it("tracks demo entry redirect with honest workbook notes", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
-    const row = rows.find((candidate) => candidate.id === HELP_DRAWER_TRAFFIC_ROW_ID);
+    const row = rows.find((candidate) => candidate.id === DEMO_ENTRY_TRAFFIC_ROW_ID);
 
     expect(row).toBeDefined();
-    expect(row?.path).toBe(HELP_DRAWER_TRAFFIC_PATH);
-    expect(row?.section).toBe(HELP_DRAWER_TRAFFIC_SECTION);
-    expect(row?.notes).toBe(HELP_DRAWER_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("HelpSearchPanel");
-    expect(row?.notes).toContain("UX 84");
+    expect(row?.path).toBe(DEMO_ENTRY_TRAFFIC_PATH);
+    expect(row?.section).toBe(DEMO_ENTRY_TRAFFIC_SECTION);
+    expect(row?.notes).toBe(DEMO_ENTRY_TRAFFIC_NOTE);
+    expect(row?.notes).toContain("DemoEntryRedirect");
+    expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

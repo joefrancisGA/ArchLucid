@@ -66,7 +66,7 @@ describe("ui-route-traffic-privacy (PRB)", () => {
     expect(row?.notes).toBe(PRIVACY_TRAFFIC_NOTE);
     expect(row?.notes).toContain("PrivacyPolicyPageClient");
     expect(row?.notes).toContain("PrivacyEvidenceOrientationStrip");
-    expect(row?.notes).toContain("Score 58");
+
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

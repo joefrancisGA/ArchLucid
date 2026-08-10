@@ -23,7 +23,6 @@ import { SignedRecordArtifactPageView } from "./_sections/SignedRecordArtifactPa
 import {
   BUYER_SIGNED_RECORD_ARTIFACT_PAGE_SUBTITLE,
   SIGNED_RECORD_ARTIFACT_PAGE_SUBTITLE,
-  SIGNED_RECORD_ARTIFACT_SCOPE_OVERVIEW,
 } from "@/lib/signed-record-artifact-page-copy";
 import type { SignedRecordArtifactPageSuccessModel } from "./_sections/signed-record-artifact-page-model";
 
@@ -56,7 +55,7 @@ const model: SignedRecordArtifactPageSuccessModel = {
 };
 
 describe("SignedRecordArtifactPageView buyer-polished shell", () => {
-  it("uses buyer subtitle, refresh, orientation strip, and collapsed scope copy", () => {
+  it("uses buyer subtitle, refresh, and contextual help without Sources or About-scope chrome", () => {
     render(<SignedRecordArtifactPageView model={model} />);
 
     expect(screen.getByText(BUYER_SIGNED_RECORD_ARTIFACT_PAGE_SUBTITLE)).toBeInTheDocument();
@@ -64,9 +63,6 @@ describe("SignedRecordArtifactPageView buyer-polished shell", () => {
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.queryByTestId("signed-record-orientation")).toBeNull(); // TB-2092
     expect(screen.getByTestId("signed-record-artifact-refresh-button")).toBeInTheDocument();
-    expect(screen.getByTestId("signed-record-artifact-scope-details")).toBeInTheDocument();
-    expect(screen.getByTestId("signed-record-artifact-scope-overview")).toHaveTextContent(
-      SIGNED_RECORD_ARTIFACT_SCOPE_OVERVIEW,
-    );
+    expect(screen.queryByTestId("signed-record-artifact-scope-details")).toBeNull(); // TB-2093
   });
 });

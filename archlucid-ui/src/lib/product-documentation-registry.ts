@@ -41,32 +41,24 @@ type ProductDocumentationRegistryInput = Omit<ProductDocumentationEntry, "pdfSta
 };
 
 /** Slug aliases for contextual deep links (`/help/{slug}`). */
+/** Path-style + folded-topic aliases. TB-2050 retires only the hyphen twins listed in help-center-catalog. */
 export const HELP_TOPIC_SLUG_ALIASES: Readonly<Record<string, string>> = {
   "cloud-connections/azure": "cloud-connections-azure",
   "cloud-connections/aws": "cloud-connections-aws",
   "cloud-connections/gcp": "cloud-connections-gcp",
   "integrations/azure-boards": "azure-boards",
   "users-and-roles": "users-and-roles",
-  "operator-auth-roles": "users-and-roles",
   "core-pilot": "first-architecture-review",
-  /** TB-1386 — honest API-contracts URL; canonical slug stays governance-api-contracts. */
-  "api-contracts": "governance-api-contracts",
-  /** Evaluator workbook body folded into buyer orientation / path-chooser (2026-08-03). */
-  "evaluator-workbook": "path-chooser",
-  /** First-hour / first-review guide folded into Core Pilot (2026-08-03; TB-1374). */
-  "first-hour-operator-path": "first-architecture-review",
-  /** Complete review workflow folded into Core Pilot (2026-08-03; TB-1379). */
-  "first-pilot-path": "first-architecture-review",
-  /** Starting reviews / creating-runs twins folded into review-guide (2026-08-03; TB-1258 / TB-1643). */
+  /** Starting reviews / creating-runs twins folded into review-guide (TB-1258 / TB-1643). */
   "starting-reviews": "review-guide",
   "creating-runs": "review-guide",
-  /** Data-handling + tenant-isolation twin folded into data-handling (2026-08-03; TB-1652 / TB-1658). */
+  /** Data-handling + tenant-isolation twin folded into data-handling (TB-1652 / TB-1658). */
   "data-handling-tenant-isolation": "data-handling",
-  /** Evidence-only CORE_PILOT section twin folded into first-architecture-review (2026-08-03; TB-1683). */
+  /** Evidence-only CORE_PILOT section twin folded into first-architecture-review (TB-1683). */
   "evidence-only-review": "first-architecture-review",
-  /** Product-overview twin folded into executive-summary (2026-08-04; TB-1739). */
+  /** Product-overview twin folded into executive-summary (TB-1739). */
   "product-overview": "executive-summary",
-  /** How-it-works twin folded into getting-started (2026-08-04). Prefer #how-archlucid-works. */
+  /** How-it-works twin folded into getting-started. Prefer #how-archlucid-works. */
   "how-it-works": "getting-started",
 };
 

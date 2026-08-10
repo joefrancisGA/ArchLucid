@@ -1,7 +1,5 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-
-import { RUN_DETAIL_GOVERNANCE_PRE_COMMIT_SOURCES } from "@/lib/run-detail-governance-sources";
 
 import { RunDetailGovernanceDecisionSection } from "./RunDetailGovernanceDecisionSection";
 
@@ -19,7 +17,7 @@ const baseProps = {
 };
 
 describe("RunDetailGovernanceDecisionSection", () => {
-  it("shows pre-commit honesty, one primary CTA, Sources, and claim discipline (TB-1857 / TB-1859 / TB-1860)", () => {
+  it("shows pre-commit honesty, one primary CTA, and claim discipline without Sources (TB-1857 / TB-1859 / TB-1860 / TB-2092)", () => {
     render(<RunDetailGovernanceDecisionSection {...baseProps} manifestId={null} />);
 
     expect(screen.getByTestId("run-detail-governance-decision")).toHaveAttribute("data-package-committed", "false");
@@ -39,7 +37,7 @@ describe("RunDetailGovernanceDecisionSection", () => {
     expect(screen.queryByRole("button", { name: "View assessment activity" })).not.toBeInTheDocument();
 
     expect(screen.queryByTestId("run-detail-governance-sources")).toBeNull(); // TB-2092
-expect(screen.getByTestId("run-detail-governance-claim-discipline")).toHaveTextContent(/not the committed/i);
+    expect(screen.getByTestId("run-detail-governance-claim-discipline")).toHaveTextContent(/not the committed/i);
   });
 
   it("shows post-commit governance decision chrome when manifest exists", () => {

@@ -32,7 +32,6 @@ import {
   alignSubprocessorsResidencyHonesty,
   stripAcceleratorChooserContributorLeakage,
   stripAcceleratorChooserContributorSections,
-  stripAcceleratorChooserIntroAndTable,
   stripAzureBoardsContributorLeakage,
   stripCaiqSigContributorLeakage,
   stripConfigurationReferenceContributorLeakage,
@@ -85,7 +84,6 @@ describe("help-markdown-presentation", () => {
       "- **[Configure SSO](#workforce-sso)**",
       "- **[Connect Azure securely](/help/cloud-connections/azure)**",
       "- [`/integrations/cloud-connections`](/integrations/cloud-connections)",
-      "- **[Start review](/reviews/new)**",
     ].join("\n");
     const rewritten = rewriteHelpMarkdownDocLinks(
       source,
@@ -95,7 +93,6 @@ describe("help-markdown-presentation", () => {
     expect(rewritten).toContain("[Configure SSO](#workforce-sso)");
     expect(rewritten).toContain("[Connect Azure securely](/help/cloud-connections/azure)");
     expect(rewritten).toContain("[Cloud Connections](/integrations/cloud-connections)");
-    expect(rewritten).toContain("[Start review](/architecture/reviews/new)");
   });
 
   it("drops unmapped markdown links to plain labels", () => {
@@ -458,7 +455,7 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toContain("POLICY_PACK_");
     expect(prepared).not.toContain("walkthroughs/");
     expect(prepared).not.toContain("starter-pack.json");
-    expect(prepared).toContain("in-product accelerator packs");
+    expect(prepared).toContain("in-product starter proof packs");
     expect(prepared).toContain("pack manifest");
   });
 
@@ -469,7 +466,7 @@ describe("help-markdown-presentation", () => {
       "| Regulated SaaS | [`regulated-saas-soc-procurement`](../../templates/starter-proof-packs/regulated-saas-soc-procurement/) |",
     ].join("\n");
 
-    const prepared = stripAcceleratorChooserContributorLeakage(source);
+    const prepared = prepareHelpMarkdownForPresentation(source, "docs/library/ACCELERATOR_CHOOSER.md");
 
     expect(prepared).toContain("Regulated SaaS");
     expect(prepared).toContain("regulated-saas-soc-procurement");
@@ -494,34 +491,8 @@ describe("help-markdown-presentation", () => {
     expect(prepared.toLowerCase()).not.toContain("walkthroughs/");
     expect(prepared.toLowerCase()).not.toContain("## policy packs");
     expect(prepared.toLowerCase()).not.toContain("## canonical references");
-    expect(prepared.toLowerCase()).not.toContain("former standalone body");
-    expect(prepared.toLowerCase()).not.toContain("path-stable alias");
-    expect(prepared).not.toContain("regulated-saas-soc-procurement");
-    expect(prepared).toContain("**Out of scope for all V1-ready packs:**");
-  });
-
-  it("strips accelerator chooser intro and markdown table for specialty view appendix (TB-1604)", () => {
-    const source = [
-      "## Accelerator chooser {#accelerator-chooser}",
-      "",
-      "Former standalone body: `docs/library/ACCELERATOR_CHOOSER.md`",
-      "",
-      "| Buyer job | Starter pack |",
-      "| --- | --- |",
-      "| Regulated SaaS | regulated-saas-soc-procurement |",
-      "",
-      "### How to start in the architect workspace",
-      "",
-      "1. Confirm finalize.",
-      "",
-      "**Out of scope for all V1-ready packs:** live Stripe checkout.",
-    ].join("\n");
-
-    const prepared = stripAcceleratorChooserIntroAndTable(source);
-
-    expect(prepared.toLowerCase()).not.toContain("former standalone");
-    expect(prepared).not.toContain("regulated-saas-soc-procurement");
-    expect(prepared).not.toContain("### How to start");
+    expect(prepared).toContain("/help/first-architecture-review");
+    expect(prepared).toContain("regulated-saas-soc-procurement");
     expect(prepared).toContain("**Out of scope for all V1-ready packs:**");
   });
 
@@ -700,6 +671,7 @@ describe("help-markdown-presentation", () => {
     const loaded = tryLoadProductDocumentation("data-handling");
 
     expect(loaded).not.toBeNull();
+    // Folded alias still resolves to the canonical data-handling entry (not a separate topic page).
     expect(tryLoadProductDocumentation("data-handling-tenant-isolation")?.entry.slug).toBe("data-handling");
 
     const sourcePath = loaded!.entry.sourcePaths[0] ?? "";

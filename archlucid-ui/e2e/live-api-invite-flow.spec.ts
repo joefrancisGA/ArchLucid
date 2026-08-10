@@ -38,6 +38,12 @@ test.describe("live-api-invite-flow", { tag: ["@founder"] }, () => {
     await page.goto("/administration/users", { waitUntil: "domcontentloaded" });
 
     await expect(page.getByTestId("settings-roles-page")).toBeVisible({ timeout: 60_000 });
+
+    // Invite form lives in a closed <details> section (defaultOpen=false).
+    const inviteSection = page.getByTestId("settings-roles-invite-section");
+    await expect(inviteSection).toBeVisible({ timeout: 60_000 });
+    await inviteSection.locator("summary").click();
+
     await expect(page.getByTestId("settings-roles-invite-form")).toBeVisible({ timeout: 60_000 });
 
     await page.getByTestId("settings-roles-invite-email").fill(inviteEmail);

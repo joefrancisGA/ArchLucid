@@ -25,29 +25,33 @@ public sealed class ContractsPackageCoverageBatchRc26Tests
         {
             RunId = "run-42",
             EvaluatedAtUtc = evaluatedUtc,
-            Scores =
-            [
-                new AgentOutputEvaluationScore
-                {
-                    TraceId = "trace-1",
-                    StructuralCompletenessRatio = 0.9,
-                    MissingKeys = ["summary"],
-                    QualityWarning = true,
-                },
-            ],
-            TracesSkippedCount = 2,
-            AverageStructuralCompletenessRatio = 0.9,
-            AverageSemanticScore = 0.8,
-            AggregateQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+            AdvisoryCurrent = new AgentOutputEvaluationPerspective
+            {
+                Authority = "advisoryCurrent",
+                Scores =
+                [
+                    new AgentOutputEvaluationScore
+                    {
+                        TraceId = "trace-1",
+                        StructuralCompletenessRatio = 0.9,
+                        MissingKeys = ["summary"],
+                        QualityWarning = true,
+                    },
+                ],
+                TracesSkippedCount = 2,
+                AverageStructuralCompletenessRatio = 0.9,
+                AverageSemanticScore = 0.8,
+                AggregateQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+            },
         };
 
         summary.RunId.Should().Be("run-42");
         summary.EvaluatedAtUtc.Should().Be(evaluatedUtc);
-        summary.Scores.Should().ContainSingle();
-        summary.TracesSkippedCount.Should().Be(2);
-        summary.AverageStructuralCompletenessRatio.Should().Be(0.9);
-        summary.AverageSemanticScore.Should().Be(0.8);
-        summary.AggregateQualityGateOutcome.Should().Be(AgentOutputQualityGateOutcome.Accepted);
+        summary.AdvisoryCurrent.Scores.Should().ContainSingle();
+        summary.AdvisoryCurrent.TracesSkippedCount.Should().Be(2);
+        summary.AdvisoryCurrent.AverageStructuralCompletenessRatio.Should().Be(0.9);
+        summary.AdvisoryCurrent.AverageSemanticScore.Should().Be(0.8);
+        summary.AdvisoryCurrent.AggregateQualityGateOutcome.Should().Be(AgentOutputQualityGateOutcome.Accepted);
     }
 
     [Fact]

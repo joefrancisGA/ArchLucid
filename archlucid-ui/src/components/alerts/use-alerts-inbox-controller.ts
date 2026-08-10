@@ -97,7 +97,15 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
   }, [page, totalCount, totalPages]);
 
   useEffect(() => {
-    setSelectedAlertIds((prev) => prev.filter((id) => alerts.some((row) => row.alertId === id)));
+    setSelectedAlertIds((prev) => {
+      const next = prev.filter((id) => alerts.some((row) => row.alertId === id));
+
+      if (next.length === prev.length && next.every((id, index) => id === prev[index])) {
+        return prev;
+      }
+
+      return next;
+    });
   }, [alerts]);
 
   const refreshInbox = useCallback(

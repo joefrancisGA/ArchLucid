@@ -156,30 +156,19 @@ test.describe("executive ROI dashboard — operator /architecture/executive-dash
 
 
 
-  test("retired /executive/dashboard route redirects to executive dashboard @executive-roi-dashboard", async ({ page }) => {
-
+  test("retired /executive/dashboard route surfaces branded not-found @executive-roi-dashboard", async ({ page }) => {
     await page.goto(EXECUTIVE_ROI_DASHBOARD_PATHS.legacyExecutive);
 
-
-
-    await expect(page).toHaveURL(/\/architecture\/executive-dashboard$/);
-
-    await expectExecutiveRoiDashboardShell(page);
-
+    await expect(page).toHaveURL(/\/executive\/dashboard$/);
+    await expect(page.getByTestId("branded-not-found")).toBeVisible();
   });
 
-  test("retired /portfolio route redirects to executive dashboard @executive-roi-dashboard", async ({ page }) => {
-
+  test("retired /portfolio route surfaces branded not-found @executive-roi-dashboard", async ({ page }) => {
     await page.goto(EXECUTIVE_ROI_DASHBOARD_PATHS.legacyPortfolio);
 
-
-
-    await expect(page).toHaveURL(/\/architecture\/executive-dashboard$/);
-
-    await expectExecutiveRoiDashboardShell(page);
-
+    await expect(page).toHaveURL(/\/portfolio$/);
+    await expect(page.getByTestId("branded-not-found")).toBeVisible();
   });
-
   test("retired /executive/reviews route redirects to /reviews @executive-roi-dashboard", async ({ page }) => {
 
     await page.goto(EXECUTIVE_ROI_DASHBOARD_PATHS.legacyExecutiveReviews);

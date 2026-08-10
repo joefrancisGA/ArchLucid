@@ -31,8 +31,11 @@ describe("PolicyPacksPageHeader", () => {
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("policy-packs-header-actions")).toBeInTheDocument();
     expect(screen.getByTestId("policy-packs-refresh-button")).toBeInTheDocument();
-    expect(screen.queryByTestId("policy-packs-resolution-link")).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: /How conflicts are resolved/i })).not.toBeInTheDocument();
+    expect(screen.getByTestId("policy-packs-resolution-link")).toHaveAttribute(
+      "href",
+      "/help/policy-packs#how-conflicts-are-resolved",
+    );
+    expect(screen.getByRole("link", { name: /How conflicts are resolved/i })).toBeInTheDocument();
     expect(screen.getByTestId("policy-packs-last-refreshed")).toHaveTextContent(/Last refreshed:/i);
 
     fireEvent.click(screen.getByTestId("policy-packs-refresh-button"));

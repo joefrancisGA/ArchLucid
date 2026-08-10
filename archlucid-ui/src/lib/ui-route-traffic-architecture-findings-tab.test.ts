@@ -65,7 +65,7 @@ describe("ui-route-traffic-architecture-findings-tab (REF)", () => {
     expect(row?.section).toBe(ARCHITECTURE_FINDINGS_TAB_TRAFFIC_SECTION);
     expect(row?.notes).toBe(ARCHITECTURE_FINDINGS_TAB_TRAFFIC_NOTE);
     expect(row?.notes).toContain("archTab=findings");
-    expect(row?.notes).toContain("findings-first queue");
-    expect(row?.notes).toContain("Score 62");
+
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

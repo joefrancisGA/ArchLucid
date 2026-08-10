@@ -28,6 +28,16 @@ public sealed class OperationQueryServiceTests
     [Theory]
     [InlineData("")]
     [InlineData("   ")]
+    public async Task GetAsync_null_or_whitespace_operation_id_throws(string operationId)
+    {
+        OperationQueryService sut = CreateSut();
+
+        Func<Task> act = async () => await sut.GetAsync(operationId, DefaultScope, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>();
+    }
+
+    [Theory]
     [InlineData("not-prefixed")]
     public async Task GetAsync_invalid_operation_id_returns_null(string operationId)
     {

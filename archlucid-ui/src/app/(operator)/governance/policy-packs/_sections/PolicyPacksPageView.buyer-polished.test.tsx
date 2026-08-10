@@ -10,7 +10,6 @@ import type { PolicyPacksPageViewModel } from "./policy-packs-page-view-model";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import {
   BUYER_POLICY_PACKS_PAGE_SUBTITLE,
-  POLICY_PACKS_VIEW_EXPLANATION_SUMMARY,
 } from "@/lib/policy-packs-page";
 import type { EffectivePolicyPackSet, PolicyPack, PolicyPackContentDocument } from "@/types/policy-packs";
 
@@ -151,10 +150,7 @@ describe("PolicyPacksPageView buyer-polished shell", () => {
     expect(screen.getByText(BUYER_POLICY_PACKS_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("policy-packs-refresh-button")).toBeInTheDocument();
-    expect(screen.getByTestId("policy-packs-scope-details")).toBeInTheDocument();
-    expect(screen.getByTestId("policy-packs-scope-overview")).toHaveTextContent(
-      POLICY_PACKS_VIEW_EXPLANATION_SUMMARY,
-    );
+    expect(screen.queryByTestId("policy-packs-scope-details")).toBeNull(); // TB-2093
     expect(screen.getByTestId("policy-packs-active-pack-summary")).toBeInTheDocument();
     expect(screen.getByTestId("policy-packs-enforced-rules-table")).toBeInTheDocument();
     expect(screen.getByText("PHI minimization on intake APIs")).toBeInTheDocument();

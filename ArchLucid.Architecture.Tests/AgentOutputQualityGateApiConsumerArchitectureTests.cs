@@ -27,6 +27,7 @@ public sealed class AgentOutputQualityGateApiConsumerArchitectureTests
     private static readonly Type[] AllowedQualityGateOptionsInjectionTypes =
     [
         typeof(AdminQualityGateDiagnosticsController),
+        typeof(RunAgentEvaluationController),
     ];
 
     [Fact]

@@ -87,5 +87,5 @@ Run `StructuralExecutionMode` is derived from the **final persisted** per-`(RunI
 ## Related
 
 - [`EXECUTION_MODE_HONESTY_ONE_PAGER.md`](../go-to-market/EXECUTION_MODE_HONESTY_ONE_PAGER.md) · GTM **M-127** / **M-128**
-- [`REAL_MODE_FAITHFULNESS_ROLLUP.md`](REAL_MODE_FAITHFULNESS_ROLLUP.md) · Done **TB-239**
+- [`REAL_MODE_FAITHFULNESS_ROLLUP.md`](../quality/REAL_MODE_FAITHFULNESS_ROLLUP.md) · Done **TB-239**
 - [`TECH_BACKLOG.md`](TECH_BACKLOG.md) **TB-969**–**TB-971**

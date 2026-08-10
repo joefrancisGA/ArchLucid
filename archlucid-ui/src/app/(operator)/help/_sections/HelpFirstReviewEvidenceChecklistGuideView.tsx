@@ -16,14 +16,12 @@ import {
   FIRST_REVIEW_HELP_PAGE_SUBTITLE,
   FIRST_REVIEW_HELP_PAGE_TITLE,
   FIRST_REVIEW_HELP_PRIMARY_ACTIONS,
-  FIRST_REVIEW_HELP_SOURCES,
 } from "@/lib/first-review-help-guide-content";
 import { FIRST_REVIEW_HELP_PATH } from "@/lib/first-review-help-route";
 import {
   DESIGN_TOKENS,
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
-  OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
@@ -102,32 +100,6 @@ export function HelpFirstReviewEvidenceChecklistGuideView(
             </Link>
           </CardContent>
         </Card>
-
-        <section
-          className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
-          aria-labelledby="help-first-review-sources-heading"
-          data-testid="help-first-review-sources"
-        >
-          <h2
-            id="help-first-review-sources-heading"
-            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
-          >
-            Sources for first-run proof
-          </h2>
-          <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Prefer buyer first-review help and product surfaces before treating this printable SE checklist as customer
-            orientation.
-          </p>
-          <ul className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>
-            {FIRST_REVIEW_HELP_SOURCES.map((link) => (
-              <li key={`${link.href}-${link.label}`}>
-                <Link className={cn(OPERATOR_LINK.inline, "font-medium")} href={link.href}>
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
       </div>
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>

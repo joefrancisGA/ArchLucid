@@ -4,11 +4,9 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
-  EVALUATOR_WORKBOOK_HELP_ALIAS_CANONICAL_PATH,
-  EVALUATOR_WORKBOOK_HELP_ALIAS_TRAFFIC_NOTE,
-  EVALUATOR_WORKBOOK_HELP_ALIAS_TRAFFIC_PATH,
-  EVALUATOR_WORKBOOK_HELP_ALIAS_TRAFFIC_ROW_ID,
-  EVALUATOR_WORKBOOK_HELP_ALIAS_TRAFFIC_SECTION,
+  CANONICAL_PATH_CHOOSER_HELP_TRAFFIC_PATH,
+  REMOVED_EVALUATOR_WORKBOOK_HELP_ALIAS_TRAFFIC_ROW_ID,
+  RETIRED_EVALUATOR_WORKBOOK_HELP_ALIAS_TRAFFIC_PATH,
 } from "@/lib/ui-route-traffic-evaluator-workbook-help-alias";
 
 const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md";
@@ -16,8 +14,6 @@ const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md"
 type TrafficWorkbookRow = {
   id: string;
   path: string;
-  section: string;
-  notes: string;
 };
 
 function readTemplateMarkdown(): string {
@@ -46,30 +42,26 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
     }
 
     rows.push({
-      id: cells[1],
-      path: cells[2].replace(/^`|`$/g, ""),
-      section: cells[7],
-      notes: cells[8],
+      id: cells[1] ?? "",
+      path: (cells[2] ?? "").replace(/^`|`$/g, ""),
     });
   }
 
   return rows;
 }
 
-function findTrafficRowById(rows: TrafficWorkbookRow[], rowId: string): TrafficWorkbookRow | undefined {
-  return rows.find((row) => row.id === rowId);
-}
-
-describe("ui-route-traffic-evaluator-workbook-help-alias (HEE)", () => {
-  it("tracks the legacy evaluator-workbook bookmark as a Help alias onto HPX", () => {
+describe("ui-route-traffic evaluator-workbook alias retirement (HEE merged into HPX)", () => {
+  it("does not track retired HEE; path-chooser help stays on HPX only", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
-    const row = findTrafficRowById(rows, EVALUATOR_WORKBOOK_HELP_ALIAS_TRAFFIC_ROW_ID);
+    const heeRow = rows.find((row) => row.id === REMOVED_EVALUATOR_WORKBOOK_HELP_ALIAS_TRAFFIC_ROW_ID);
+    const retiredPathRows = rows.filter(
+      (row) => row.path === RETIRED_EVALUATOR_WORKBOOK_HELP_ALIAS_TRAFFIC_PATH,
+    );
+    const canonicalRows = rows.filter((row) => row.path === CANONICAL_PATH_CHOOSER_HELP_TRAFFIC_PATH);
 
-    expect(row).toBeDefined();
-    expect(row?.path).toBe(EVALUATOR_WORKBOOK_HELP_ALIAS_TRAFFIC_PATH);
-    expect(row?.section).toBe(EVALUATOR_WORKBOOK_HELP_ALIAS_TRAFFIC_SECTION);
-    expect(row?.notes).toBe(EVALUATOR_WORKBOOK_HELP_ALIAS_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("HPX");
-    expect(EVALUATOR_WORKBOOK_HELP_ALIAS_CANONICAL_PATH).toBe("/help/path-chooser");
+    expect(heeRow).toBeUndefined();
+    expect(retiredPathRows).toHaveLength(0);
+    expect(canonicalRows).toHaveLength(1);
+    expect(canonicalRows[0]?.id).toBe("HPX");
   });
 });

@@ -64,6 +64,7 @@ public sealed class OperationsController(
   }
 
   /// <summary>Requests cooperative cancel for a long-running operation (TB-2076).</summary>
+  // idempotency-posture: operator-documented-safe-retry
   [HttpPost("{operationId}/cancel")]
   [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
   [ProducesResponseType(typeof(OperationResponse), StatusCodes.Status200OK)]

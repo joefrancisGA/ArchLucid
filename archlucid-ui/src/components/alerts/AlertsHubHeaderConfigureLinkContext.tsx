@@ -32,7 +32,7 @@ export function AlertsHubHeaderConfigureLinkProvider({
   const [showHeaderConfigureLink, setShowHeaderConfigureLinkState] = useState(initialShow);
 
   const setShowHeaderConfigureLink = useCallback((show: boolean): void => {
-    setShowHeaderConfigureLinkState(show);
+    setShowHeaderConfigureLinkState((previous) => (previous === show ? previous : show));
   }, []);
 
   const value = useMemo(
@@ -60,14 +60,19 @@ export function useAlertsHubHeaderConfigureLinkVisibility(): boolean {
 export function useSyncAlertsHubHeaderConfigureLink(show: boolean): void {
   const ctx = useContext(AlertsHubHeaderConfigureLinkContext);
   const setShowHeaderConfigureLink = ctx?.setShowHeaderConfigureLink;
+  const currentShow = ctx?.showHeaderConfigureLink;
 
   useEffect(() => {
     if (setShowHeaderConfigureLink === undefined) {
       return;
     }
 
+    if (currentShow === show) {
+      return;
+    }
+
     setShowHeaderConfigureLink(show);
-  }, [setShowHeaderConfigureLink, show]);
+  }, [currentShow, setShowHeaderConfigureLink, show]);
 
   useEffect(() => {
     return () => {

@@ -8,7 +8,6 @@ export type BlockedRouteEntry = { readonly prefix: string; readonly label: strin
 export const DEMO_ALLOWED_SETTINGS_PATHS = new Set<string>([`${SETTINGS_ROOT_PATH}/extract-upload`]);
 
 export const CTO_DEMO_BLOCKED_ROUTES: readonly BlockedRouteEntry[] = [
-  { prefix: "/admin", label: "Admin console", description: "Tenant configuration, user management, and system health monitoring." },
   { prefix: SETTINGS_ROOT_PATH, label: "Settings", description: "Workspace preferences, API keys, and integration configuration." },
   { prefix: "/insights/search-review-evidence", label: "Search", description: "Full-text search across all reviews, findings, and decisions." },
   { prefix: "/internal/replay", label: "Validate review", description: "Check whether stored review output for a finalized package still validates." },
@@ -19,6 +18,7 @@ export const CTO_DEMO_BLOCKED_ROUTES: readonly BlockedRouteEntry[] = [
   { prefix: "/governance/advisory-scans", label: "Advisory scans", description: "Scheduled advisory scans and improvement recommendations." },
   { prefix: "/internal/product-learning", label: "Pilot feedback", description: "Feedback on review outputs and recurring improvement opportunities." },
   { prefix: "/internal/recommendation-learning", label: "Recommendation learning", description: "Inspect and rebuild recommendation-ranking profiles from historical review outcomes." },
+  { prefix: "/internal", label: "Admin console", description: "Tenant configuration, user management, and system health monitoring." },
   { prefix: "/demo/explain", label: "Demo explain", description: "Internal demo explanation surfaces for engineering audiences." },
   { prefix: "/insights/compare-two-reviews", label: "Compare", description: "Side-by-side diff of two finalized reviews." },
   { prefix: "/users", label: "Users & roles", description: "Role-based access control and authority assignment." },

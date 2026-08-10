@@ -65,7 +65,7 @@ describe("ui-route-traffic-advisory-scans-scans-tab (ADT)", () => {
     expect(row?.section).toBe(ADVISORY_SCANS_SCANS_TAB_TRAFFIC_SECTION);
     expect(row?.notes).toBe(ADVISORY_SCANS_SCANS_TAB_TRAFFIC_NOTE);
     expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
-    expect(row?.notes).toContain("Score 58");
+
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

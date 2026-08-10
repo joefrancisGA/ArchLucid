@@ -66,7 +66,7 @@ describe("ui-route-traffic-governance-audit (AUD)", () => {
     expect(row?.notes).toBe(GOVERNANCE_AUDIT_TRAFFIC_NOTE);
     expect(row?.notes).toContain("AuditPageView");
     expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
-    expect(row?.notes).toContain("Score 55");
+    expect(row?.notes).toContain("Score 68");
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

@@ -38,7 +38,7 @@ graph_has_nodes_and_edges() {
   local body_file
   body_file="$(mktemp)"
   curl -sS -o "${body_file}" \
-    "${API_URL}/v1/graph/runs/${GRAPH_RUN_SEGMENT}" \
+    "${API_URL}/v1/evidence-graph/reviews/${GRAPH_RUN_SEGMENT}" \
     -H "Accept: application/json" || true
   local node_count edge_count
   node_count="$(jq -r '(.nodes // []) | length' "${body_file}" 2>/dev/null || echo 0)"
@@ -78,8 +78,8 @@ trusted_baseline_preflight_ready() {
     return 1
   fi
 
-  probe_http "trusted baseline manifest summary" \
-    "${API_URL}/v1/authority/manifests/${golden_manifest_id}/summary"
+  probe_http "trusted baseline signed-review-record summary" \
+    "${API_URL}/v1/authority/signed-review-records/${golden_manifest_id}/summary"
   if [ "${last_status}" != "200" ]; then
     return 1
   fi

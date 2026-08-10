@@ -75,7 +75,7 @@ test.describe("Core pilot path (mock API, buyer-polished shell)", () => {
     await expect(manifestLink).toBeVisible({ timeout: 60_000 });
     await expect(manifestLink).toContainText(/Finalized/i);
 
-    await page.goto(BUYER_GOLDEN_PATH_HREFS.signedManifestFriendly);
+    await page.goto(BUYER_GOLDEN_PATH_HREFS.signedManifestCanonical);
 
     await expect(page).toHaveURL(showcaseSignedManifestBrowserUrlPattern());
     await expect(

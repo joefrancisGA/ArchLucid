@@ -179,14 +179,22 @@ public static partial class ServiceCollectionExtensions
 
         if (hostingRole == ArchLucidHostingRole.Worker)
         {
+            // Queue-backed info/work-unit accessors are registered above for all roles; Worker must
+            // still resolve IBackgroundJobQueue (in-memory or durable) so host composition validates.
+
             if (!durable)
             {
+                services.AddSingleton<IBackgroundJobQueue, InMemoryBackgroundJobQueue>();
+                services.AddHostedService(static sp =>
+                    (InMemoryBackgroundJobQueue)sp.GetRequiredService<IBackgroundJobQueue>());
                 services.AddScoped<IBackgroundJobCancellationWriter, NoOpBackgroundJobCancellationWriter>();
 
                 return;
             }
 
             RegisterDurableBackgroundJobInfrastructure(services);
+            services.AddSingleton<IBackgroundJobQueueNotifySender, AzureStorageQueueBackgroundJobNotifySender>();
+            services.AddSingleton<IBackgroundJobQueue, DurableBackgroundJobQueue>();
             services.AddHostedService<BackgroundJobQueueProcessorHostedService>();
             services.AddScoped<IBackgroundJobCancellationWriter, BackgroundJobRepositoryCancellationWriter>();
 

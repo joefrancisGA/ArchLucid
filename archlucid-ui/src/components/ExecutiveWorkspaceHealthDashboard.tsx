@@ -197,7 +197,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
     <LayerHeader
       pageKey="governance-dashboard"
       density={buyerPolishedShell ? "compact" : "default"}
-/>
+    />
   );
 
   if (state.status === "loading" || state.status === "idle") {

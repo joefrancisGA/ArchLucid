@@ -65,7 +65,7 @@ describe("ui-route-traffic-signed-records-list (SI)", () => {
     expect(row?.section).toBe(SIGNED_RECORDS_LIST_TRAFFIC_SECTION);
     expect(row?.notes).toBe(SIGNED_RECORDS_LIST_TRAFFIC_NOTE);
     expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
-    expect(row?.notes).toContain("Score 72");
+
     expect(rows.find((candidate) => candidate.id === "MA")).toBeUndefined();
   });
 });

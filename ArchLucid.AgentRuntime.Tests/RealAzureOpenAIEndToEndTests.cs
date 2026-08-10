@@ -156,7 +156,8 @@ public sealed class RealAzureOpenAIEndToEndTests
             new NoOpAgentExecutionTraceRecorder(),
             TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
             RealAgentExecutorTestHosting.DevelopmentEnvironment,
-            RealAgentExecutorTestHosting.EmptyConfiguration);
+            RealAgentExecutorTestHosting.EmptyConfiguration,
+            new FixedValueOptionsMonitor<AgentExecutionOptions>(new AgentExecutionOptions { Mode = "Real" }));
 
         ArchitectureRequest request = new()
         {

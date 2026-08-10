@@ -41,6 +41,7 @@ export const MARKETING_ROBOTS_DISALLOW_PREFIXES: readonly string[] = [
   "/executive/",
   "/alerts/",
   "/admin/",
+  "/internal/",
   "/administration/",
   EVIDENCE_GRAPH_PATH,
   LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH,

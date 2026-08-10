@@ -66,6 +66,6 @@ describe("ui-route-traffic-trust-center (TXX)", () => {
     expect(row?.notes).toBe(TRUST_CENTER_TRAFFIC_NOTE);
     expect(row?.notes).toContain("MarketingTrustCenterBuyerBody");
     expect(row?.notes).toContain("Sources");
-    expect(.notes).toContain("cannot improve further toward 80");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

@@ -30,9 +30,15 @@ public sealed class JobsControllerTests
         Mock<IScopeContextProvider>? scopeProvider = null)
     {
         Mock<IBackgroundJobTenantAccessVerifier> access = tenantAccess ?? new Mock<IBackgroundJobTenantAccessVerifier>();
-        access
-            .Setup(v => v.IsAccessibleAsync(It.IsAny<string>(), It.IsAny<ScopeContext>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
+
+        // Only default to accessible when the caller did not supply a verifier with its own setups.
+
+        if (tenantAccess is null)
+        {
+            access
+                .Setup(v => v.IsAccessibleAsync(It.IsAny<string>(), It.IsAny<ScopeContext>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
+        }
 
         Mock<IScopeContextProvider> scope = scopeProvider ?? new Mock<IScopeContextProvider>();
         scope.Setup(p => p.GetCurrentScope()).Returns(DefaultScope);

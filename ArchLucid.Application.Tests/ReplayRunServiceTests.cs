@@ -78,15 +78,59 @@ public sealed class ReplayRunServiceTests
 
     private static IAgentTaskRepository NoOpTaskRepository()
     {
+        return CapturingTaskRepository(out _).Object;
+    }
+
+    /// <summary>
+    /// Captures tasks persisted during PrepareReplayRunAsync so GetRunDetailAsync can return them for the replay run id.
+    /// </summary>
+    private static Mock<IAgentTaskRepository> CapturingTaskRepository(out List<AgentTask> capturedTasks)
+    {
+        List<AgentTask> sink = [];
+        capturedTasks = sink;
+
         Mock<IAgentTaskRepository> tasks = new();
         tasks.Setup(x => x.CreateManyAsync(
                 It.IsAny<IEnumerable<AgentTask>>(),
                 It.IsAny<CancellationToken>(),
                 It.IsAny<IDbConnection?>(),
                 It.IsAny<IDbTransaction?>()))
+            .Callback<IEnumerable<AgentTask>, CancellationToken, IDbConnection?, IDbTransaction?>(
+                (rows, _, _, _) =>
+                {
+                    sink.Clear();
+                    sink.AddRange(rows);
+                })
             .Returns(Task.CompletedTask);
 
-        return tasks.Object;
+        return tasks;
+    }
+
+    private static void StubRunDetailForOriginalAndPreparedReplay(
+        Mock<IRunDetailQueryService> detail,
+        string originalRunId,
+        ArchitectureRunDetail originalDetail,
+        IReadOnlyList<AgentTask> preparedReplayTasks)
+    {
+        detail.Setup(x => x.GetRunDetailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string runId, CancellationToken _) =>
+            {
+                if (string.Equals(runId, originalRunId, StringComparison.Ordinal))
+                    return originalDetail;
+
+                return new ArchitectureRunDetail
+                {
+                    Run = new ArchitectureRun
+                    {
+                        RunId = runId,
+                        RequestId = originalDetail.Run.RequestId,
+                        Status = ArchitectureRunStatus.WaitingForResults,
+                        CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                        CurrentManifestVersion = originalDetail.Run.CurrentManifestVersion,
+                    },
+                    Tasks = preparedReplayTasks.ToList(),
+                };
+            });
     }
 
     private static Mock<IAuthorityCommittedManifestChainWriter> CreateAuthorityChainWriterMock()
@@ -194,8 +238,8 @@ public sealed class ReplayRunServiceTests
         ArchitectureRunDetail detailDto = new() { Run = originalRun, Tasks = [task], };
 
         Mock<IRunDetailQueryService> detail = new();
-        detail.Setup(x => x.GetRunDetailAsync(originalRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(detailDto);
+        Mock<IAgentTaskRepository> taskRepo = CapturingTaskRepository(out List<AgentTask> preparedTasks);
+        StubRunDetailForOriginalAndPreparedReplay(detail, originalRunId, detailDto, preparedTasks);
 
         ArchitectureRequest request = new()
         {
@@ -266,7 +310,7 @@ public sealed class ReplayRunServiceTests
             scopeProvider.Object,
             CreateAuthorityChainWriterMock().Object,
             evidenceRepo.Object,
-            NoOpTaskRepository(),
+            taskRepo.Object,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IAuditService>(),
             UnitTestActor(),
@@ -323,8 +367,8 @@ public sealed class ReplayRunServiceTests
         ArchitectureRunDetail detailDto = new() { Run = originalRun, Tasks = [task], };
 
         Mock<IRunDetailQueryService> detail = new();
-        detail.Setup(x => x.GetRunDetailAsync(originalRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(detailDto);
+        Mock<IAgentTaskRepository> taskRepo = CapturingTaskRepository(out List<AgentTask> preparedTasks);
+        StubRunDetailForOriginalAndPreparedReplay(detail, originalRunId, detailDto, preparedTasks);
 
         ArchitectureRequest request = new()
         {
@@ -452,7 +496,7 @@ public sealed class ReplayRunServiceTests
             scopeProvider.Object,
             chainWriter.Object,
             evidenceRepo.Object,
-            NoOpTaskRepository(),
+            taskRepo.Object,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IAuditService>(),
             UnitTestActor(),
@@ -538,8 +582,8 @@ public sealed class ReplayRunServiceTests
         ArchitectureRunDetail detailDto = new() { Run = originalRun, Tasks = [task], };
 
         Mock<IRunDetailQueryService> detail = new();
-        detail.Setup(x => x.GetRunDetailAsync(originalRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(detailDto);
+        Mock<IAgentTaskRepository> taskRepo = CapturingTaskRepository(out List<AgentTask> preparedTasks);
+        StubRunDetailForOriginalAndPreparedReplay(detail, originalRunId, detailDto, preparedTasks);
 
         ArchitectureRequest request = new()
         {
@@ -588,14 +632,6 @@ public sealed class ReplayRunServiceTests
 
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(p => p.GetCurrentScope()).Returns(TestScope());
-
-        Mock<IAgentTaskRepository> taskRepo = new();
-        taskRepo.Setup(x => x.CreateManyAsync(
-                It.IsAny<IEnumerable<AgentTask>>(),
-                It.IsAny<CancellationToken>(),
-                It.IsAny<IDbConnection?>(),
-                It.IsAny<IDbTransaction?>()))
-            .Returns(Task.CompletedTask);
 
         ReplayRunService sut = new(
             resolver.Object,

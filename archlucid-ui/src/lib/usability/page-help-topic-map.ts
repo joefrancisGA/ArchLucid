@@ -249,6 +249,23 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/sponsor-report/pilot-outcomes",
     topic: { slug: "executive-summary", label: "Pilot outcomes" },
   },
+  {
+    prefix: "/insights/roi-summary",
+    topic: { slug: "pilot-roi-model", label: "View ROI methodology" },
+  },
+  {
+    prefix: "/insights/pilot-outcomes",
+    topic: { slug: "executive-summary", label: "Pilot outcomes" },
+  },
+  {
+    prefix: "/insights/executive-summary",
+    topic: { slug: "executive-summary", label: "Executive summary" },
+  },
+  {
+    prefix: "/insights/architecture-scorecard",
+    topic: { slug: "pilot-roi-model", label: "View ROI methodology" },
+  },
+  { prefix: "/sponsor-report", topic: { slug: "executive-summary", label: "Executive summary" } },
   { prefix: "/sponsor-report", topic: { slug: "executive-summary", label: "Executive summary" } },
   { prefix: "/architecture/digests", topic: { slug: "digests", label: "Architecture digests" } },
   { prefix: "/digests", topic: { slug: "digests", label: "Architecture digests" } },
@@ -256,7 +273,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/help/digests", topic: { slug: "digests", label: "Architecture digests" } },
   {
     // Secondary hub — no planning specialty; omit Learn more (TB-2050).
-    prefix: "/insights/planning",
+    prefix: "/insights/improvement-planning",
     topic: { label: "Improvement planning" },
   },
   {

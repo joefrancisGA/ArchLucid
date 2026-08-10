@@ -177,7 +177,6 @@ describe("product-documentation-registry", () => {
   it("maps initial PDF strategy slugs to expected pdfStatus (TB-722)", () => {
     const expected: Readonly<Record<string, ProductDocumentationEntry["pdfStatus"]>> = {
       "first-architecture-review": "public",
-      "first-hour-operator-path": "public",
       "how-it-works": "public",
       "data-handling": "public",
       "data-handling-tenant-isolation": "public",

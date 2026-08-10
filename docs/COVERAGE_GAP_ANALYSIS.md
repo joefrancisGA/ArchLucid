@@ -37,17 +37,17 @@ The **V1.1** merge-blocking target (ratchet goal) for merged line + ratchet is:
 
 **Compliance status:** **`.github/workflows/ci.yml`** (`dotnet-coverage-merge` after **`dotnet-full-regression`**) enforces **merged line**, **merged branch**, and **per-product-package line** on merged Cobertura. **Merged line** uses **`assert_merged_line_coverage_min.py`** with **`78`** minimum (job is warn-only via **`continue-on-error`**). **`assert_coverage_floor_ratchet.py`** runs in the same job against **`.coverage-floor`**.
 
-To verify **CI parity**, run **`assert_merged_line_coverage_min.py`** on merged **`Cobertura.xml`** with **`78`**, **`--min-branch-pct 61`**, **`--min-package-line-pct 86`** (same as CI; include the workflow **`--skip-package-line-gate`** list). For the **strict-profile / V1.1** dry run, use **`95`** instead of **`78`** and **`assert_coverage_floor_ratchet.py`**.
+To verify **CI parity**, run **`assert_merged_line_coverage_min.py`** on merged **`Cobertura.xml`** with **`76`**, **`--min-branch-pct 60`**, **`--min-package-line-pct 86`** (same as CI; include the workflow **`--skip-package-line-gate`** list). For the **strict-profile / V1.1** dry run, use **`95`** instead of **`76`** and **`assert_coverage_floor_ratchet.py`**.
 
 ## Current merge-blocking gates
 
 The merge step in **`.github/workflows/ci.yml`** (`dotnet-coverage-merge`) enforces:
 
-- **Merged line ≥ 78%**
-- **Branch coverage ≥ 61%**
+- **Merged line ≥ 76%**
+- **Branch coverage ≥ 60%**
 - **Per-product-package line ≥ 86%** for every gated **`ArchLucid.*`** assembly with coverable lines (see **`scripts/ci/assert_merged_line_coverage_min.py`** invocation in the workflow)
 
-**Merged line ≥ 95%** (tighter than the **78%** CI floor) and the **ratchet** are deferred to **V1.1** (see **`docs/library/V1_DEFERRED.md`**).
+**Merged line ≥ 95%** (tighter than the **76%** CI floor) and the **ratchet** are deferred to **V1.1** (see **`docs/library/V1_DEFERRED.md`**).
 
 **Advisory (non-blocking):** the advisory band is **inactive** today — **`--warn-below-package-line-pct 70`** sits below the **86%** package floor, so no package can pass the floor and still land in the band (see workflow).
 

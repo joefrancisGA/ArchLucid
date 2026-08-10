@@ -34,8 +34,19 @@ describe("report-problem-surfaces (TB-782)", () => {
     expect(pathnameMatchesReportProblemRoute("/architecture/reviews/[runId]", "/architecture/reviews/abc-123")).toBe(true);
     expect(pathnameMatchesReportProblemRoute("/architecture/reviews/[runId]", "/architecture/reviews/new")).toBe(false);
     expect(
-      pathnameMatchesReportProblemRoute("/insights/executive-summary", "/insights/pilot-outcomes", "exact-or-child"),
+      pathnameMatchesReportProblemRoute(
+        "/insights/executive-summary",
+        "/insights/executive-summary/print",
+        "exact-or-child",
+      ),
     ).toBe(true);
+    expect(
+      pathnameMatchesReportProblemRoute(
+        "/insights/executive-summary",
+        "/insights/pilot-outcomes",
+        "exact-or-child",
+      ),
+    ).toBe(false);
   });
 
   it("returns route-scoped surfaces plus global component surfaces", () => {

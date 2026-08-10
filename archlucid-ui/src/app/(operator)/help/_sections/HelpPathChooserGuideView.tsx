@@ -16,7 +16,6 @@ import {
   PATH_CHOOSER_HELP_PAGE_SUBTITLE,
   PATH_CHOOSER_HELP_PAGE_TITLE,
   PATH_CHOOSER_HELP_PRIMARY_ACTIONS,
-  PATH_CHOOSER_HELP_SOURCES,
 } from "@/lib/path-chooser-help-guide-content";
 import { PATH_CHOOSER_HELP_PATH } from "@/lib/path-chooser-help-route";
 import {
@@ -131,31 +130,6 @@ export function HelpPathChooserGuideView(props: HelpPathChooserGuideViewProps): 
                     Fallback: {branch.fallback.label}
                   </Link>
                 </p>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <section
-          className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
-          aria-labelledby="help-path-chooser-sources-heading"
-          data-testid="help-path-chooser-sources"
-        >
-          <h2
-            id="help-path-chooser-sources-heading"
-            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
-          >
-            Sources for diligence
-          </h2>
-          <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Orientation copy is not an attestation. Open these cites when you need sponsor-safe evidence of posture.
-          </p>
-          <ul className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>
-            {PATH_CHOOSER_HELP_SOURCES.map((link) => (
-              <li key={link.href}>
-                <Link className={cn(OPERATOR_LINK.inline, "font-medium")} href={link.href}>
-                  {link.label}
-                </Link>
               </li>
             ))}
           </ul>

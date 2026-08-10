@@ -207,19 +207,26 @@ describe("authority-shaped layout regression", () => {
     mutateCapability.current = false;
     const { container } = render(<GovernanceWorkflowPage />);
 
-    await waitFor(() => {
-      expect(screen.getByRole("heading", { name: GOVERNANCE_OVERVIEW_PAGE_TITLE })).toBeInTheDocument();
-    });
+    // Dynamic chunk can lag under parallel Vitest workers (same timeout as operate-authority shaping).
+    await waitFor(
+      () => {
+        expect(screen.getByRole("heading", { name: GOVERNANCE_OVERVIEW_PAGE_TITLE })).toBeInTheDocument();
+      },
+      { timeout: 8000 },
+    );
 
     fireEvent.change(screen.getByLabelText("Review"), { target: { value: "gov-layout-run" } });
     fireEvent.click(screen.getByTestId("governance-overview-load-review"));
 
-    await waitFor(() => {
-      const stack = container.querySelector("[data-testid='governance-workflow-review-context-stack']");
+    await waitFor(
+      () => {
+        const stack = container.querySelector("[data-testid='governance-workflow-review-context-stack']");
 
-      expect(stack).not.toBeNull();
-      expect(stack?.className).toContain("flex-col-reverse");
-    });
+        expect(stack).not.toBeNull();
+        expect(stack?.className).toContain("flex-col-reverse");
+      },
+      { timeout: 8000 },
+    );
   });
 
   /** Same inspect-first contract as workflow: current packs + JSON before lifecycle when reads cannot mutate. */
