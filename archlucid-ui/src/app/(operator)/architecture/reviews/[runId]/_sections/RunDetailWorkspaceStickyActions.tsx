@@ -6,13 +6,16 @@ import { useSearchParams } from "next/navigation";
 import { OPERATOR_LINK, OPERATOR_SHELL_STICKY_TOP_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   REVIEW_DETAIL_TAB_PARAM,
-  buildReviewDetailTabHref,
   resolveReviewDetailTab,
 } from "@/lib/review-detail-workspace-tabs";
 import { cn } from "@/lib/utils";
 
 import { contextualizeReviewPackagePrimaryActionForActiveTab } from "./contextualize-review-package-primary-action";
 import { ReviewPackagePrimaryAction } from "./ReviewPackagePrimaryAction";
+import {
+  resolveReviewPackageApprovalBlockerKind,
+  resolveReviewPackageBlockerHelperText,
+} from "./resolve-review-package-approval-blocker";
 import type { ResolveReviewPackagePrimaryActionInput } from "./resolve-review-package-primary-action";
 import type { ReviewPackagePrimaryAction as ReviewPackagePrimaryActionModel } from "./resolve-review-package-primary-action";
 
@@ -21,6 +24,7 @@ export type RunDetailWorkspaceStickyActionsProps = {
   readonly primaryAction: ReviewPackagePrimaryActionModel;
   readonly primaryActionContext: ResolveReviewPackagePrimaryActionInput;
   readonly commitBlockedReason: string | null;
+  readonly commitBlockedTechnicalDetail?: string | null;
   readonly showProgressTracker: boolean;
   readonly manifestId: string | null | undefined;
 };
@@ -36,21 +40,27 @@ export function RunDetailWorkspaceStickyActions(
 ): React.JSX.Element {
   const searchParams = useSearchParams();
   const activeTab = resolveReviewDetailTab(searchParams.get(REVIEW_DETAIL_TAB_PARAM));
+  const blockerKind = resolveReviewPackageApprovalBlockerKind({
+    ...props.primaryActionContext,
+    commitBlockedReason: props.commitBlockedReason,
+  });
   const contextualPrimaryAction = contextualizeReviewPackagePrimaryActionForActiveTab(
     props.primaryAction,
     activeTab,
-    props.primaryActionContext,
+    {
+      ...props.primaryActionContext,
+      commitBlockedReason: props.commitBlockedReason,
+    },
   );
-  const approvalBlocked =
-    props.commitBlockedReason !== null || props.primaryActionContext.blockingFindingCount > 0;
-  const blockingHelperText =
-    props.commitBlockedReason ??
-    (props.primaryActionContext.blockingFindingCount > 0
-      ? `${props.primaryActionContext.blockingFindingCount} unresolved finding${
-          props.primaryActionContext.blockingFindingCount === 1 ? "" : "s"
-        } currently block approval.`
-      : null);
-  const findingsHref = buildReviewDetailTabHref(props.runId, "findings");
+  const blockingHelperText = resolveReviewPackageBlockerHelperText(blockerKind, {
+    blockingFindingCount: props.primaryActionContext.blockingFindingCount,
+    commitBlockedSummary: props.commitBlockedReason,
+  });
+  const technicalDetail = props.commitBlockedTechnicalDetail?.trim() ?? "";
+  const stickyCommitBlockedReason =
+    contextualPrimaryAction.kind === "finalize-package"
+      ? props.commitBlockedReason ?? (blockerKind !== "none" ? blockingHelperText : null)
+      : props.commitBlockedReason;
 
   return (
     <div
@@ -61,13 +71,18 @@ export function RunDetailWorkspaceStickyActions(
       data-testid="run-detail-sticky-actions"
     >
       <div className="min-w-0 flex-1 space-y-1">
-        {approvalBlocked && blockingHelperText !== null ? (
-          <p className={cn("m-0 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)}>
-            {blockingHelperText}{" "}
-            <Link className={OPERATOR_LINK.nav} href={findingsHref}>
-              Resolve blocking finding first
-            </Link>
-          </p>
+        {blockerKind !== "none" && blockingHelperText !== null ? (
+          <div className="space-y-1">
+            <p className={cn("m-0 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)}>
+              {blockingHelperText}
+            </p>
+            {technicalDetail.length > 0 ? (
+              <details className={cn("text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+                <summary className="cursor-pointer font-medium">Technical detail</summary>
+                <p className="m-0 mt-1">{technicalDetail}</p>
+              </details>
+            ) : null}
+          </div>
         ) : props.manifestId && activeTab !== "decisions-remediation" ? (
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Ready to record a governance decision?{" "}
@@ -84,7 +99,7 @@ export function RunDetailWorkspaceStickyActions(
         action={contextualPrimaryAction}
         runId={props.runId}
         hasGoldenManifest={Boolean(props.manifestId)}
-        commitBlockedReason={props.commitBlockedReason}
+        commitBlockedReason={stickyCommitBlockedReason}
       />
     </div>
   );

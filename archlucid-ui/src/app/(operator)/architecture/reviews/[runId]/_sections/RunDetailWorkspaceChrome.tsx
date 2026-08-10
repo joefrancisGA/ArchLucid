@@ -172,7 +172,6 @@ export function RunDetailWorkspaceSummaryStrip(
 
 export type RunDetailWorkspaceBlockingBannerProps = {
   readonly blockingCount: number;
-  readonly findingsTabHref: string;
 };
 
 export function RunDetailWorkspaceBlockingBanner(
@@ -191,17 +190,9 @@ export function RunDetailWorkspaceBlockingBanner(
       data-testid="run-detail-blocking-approval-banner"
       role="status"
     >
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-          {label}
-        </p>
-        <Link
-          className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
-          href={props.findingsTabHref}
-        >
-          Review blocking finding
-        </Link>
-      </div>
+      <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+        {label}
+      </p>
     </div>
   );
 }

@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  applyFindingsConfidenceVisibility,
+  isApprovalBlockingFinding,
   isLowConfidenceFinding,
   partitionQuickDecisionFindingsByConfidence,
 } from "@/lib/finding-confidence-filter";
@@ -39,10 +41,34 @@ describe("finding-confidence-filter", () => {
   it("partitionQuickDecisionFindingsByConfidence splits trusted and low-confidence rows", () => {
     const partition = partitionQuickDecisionFindingsByConfidence([
       finding({ findingId: "trusted", confidenceLevel: "High" }),
-      finding({ findingId: "low", confidenceLevel: "Low" }),
+      finding({ findingId: "low", confidenceLevel: "Low", enforcementTier: "Advisory" }),
     ]);
 
     expect(partition.trustedFindings.map((row) => row.findingId)).toEqual(["trusted"]);
     expect(partition.lowConfidenceFindings.map((row) => row.findingId)).toEqual(["low"]);
+  });
+
+  it("keeps approval-blocking low-confidence findings in the trusted partition", () => {
+    const partition = partitionQuickDecisionFindingsByConfidence([
+      finding({ findingId: "blocking-low", confidenceLevel: "Low", enforcementTier: "PolicyViolation" }),
+      finding({ findingId: "noise-low", confidenceLevel: "Low", enforcementTier: "Advisory" }),
+    ]);
+
+    expect(partition.trustedFindings.map((row) => row.findingId)).toEqual(["blocking-low"]);
+    expect(partition.lowConfidenceFindings.map((row) => row.findingId)).toEqual(["noise-low"]);
+    expect(isApprovalBlockingFinding(finding({ confidenceLevel: "Low", enforcementTier: "PolicyViolation" }))).toBe(
+      true,
+    );
+  });
+
+  it("applyFindingsConfidenceVisibility retains blocking findings while hiding other low-confidence rows", () => {
+    const rows = [
+      finding({ findingId: "blocking-low", confidenceLevel: "Low", enforcementTier: "PolicyViolation" }),
+      finding({ findingId: "noise-low", confidenceLevel: "Low", enforcementTier: "Advisory" }),
+    ];
+    const visibility = applyFindingsConfidenceVisibility(rows, false);
+
+    expect(visibility.visibleFindings.map((row) => row.findingId)).toEqual(["blocking-low"]);
+    expect(visibility.hiddenByConfidenceCount).toBe(1);
   });
 });

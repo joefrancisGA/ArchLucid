@@ -5,12 +5,13 @@ import { contextualizeReviewPackagePrimaryActionForActiveTab } from "./contextua
 const baseInput = {
   runId: "run-abc",
   manifestId: "manifest-1" as string | null,
-  hasCommitBlockingFailures: true,
+  hasCommitBlockingFailures: false,
   blockingFindingCount: 2,
   buyerPolishedArtifactTable: true,
   operatorGovernanceDecision: null as string | null,
   manifestStatus: "Draft" as string | null,
   runCompleted: true,
+  commitBlockedReason: null as string | null,
 };
 
 describe("contextualizeReviewPackagePrimaryActionForActiveTab", () => {
@@ -27,6 +28,26 @@ describe("contextualizeReviewPackagePrimaryActionForActiveTab", () => {
 
     expect(action.label).toBe("Disposition blocking findings");
     expect(action.href).toContain("#run-detail-findings-workspace");
+  });
+
+  it("routes incomplete assessment blockers to re-run review", () => {
+    const action = contextualizeReviewPackagePrimaryActionForActiveTab(
+      {
+        kind: "review-findings",
+        label: "Review findings",
+        href: "/architecture/reviews/run-abc?reviewTab=findings",
+      },
+      "findings",
+      {
+        ...baseInput,
+        blockingFindingCount: 0,
+        commitBlockedReason:
+          "Assessment coverage is incomplete for topology, cost, compliance, and quality review. Re-run the review before finalizing.",
+      },
+    );
+
+    expect(action.label).toBe("Re-run review");
+    expect(action.href).toContain("rerun=run-abc");
   });
 
   it("leaves actions unchanged on other tabs", () => {

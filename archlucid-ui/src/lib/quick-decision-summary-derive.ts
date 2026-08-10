@@ -677,3 +677,23 @@ export function partitionQuickDecisionFindings(findings: readonly QuickDecisionF
 
   return { policyViolations, advisoryNotes };
 }
+
+/** Findings rendered as workspace cards (excludes collapsed advisory notes by default). */
+export function buildWorkspaceCardRenderedFindings(
+  findings: readonly QuickDecisionFinding[],
+  options: {
+    readonly showAdvisory: boolean;
+    readonly showMuted: boolean;
+  },
+): QuickDecisionFinding[] {
+  const sorted = sortQuickDecisionFindings(findings);
+  const afterMuteFilter = options.showMuted ? sorted : sorted.filter((finding) => !finding.isMuted);
+  const { policyViolations, advisoryNotes } = partitionQuickDecisionFindings(afterMuteFilter);
+  const combined: QuickDecisionFinding[] = [...policyViolations];
+
+  if (options.showAdvisory) {
+    combined.push(...advisoryNotes);
+  }
+
+  return sortQuickDecisionFindings(combined);
+}

@@ -6,36 +6,75 @@ import { FileJson, FileSpreadsheet } from "lucide-react";
 import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { downloadRunFindingsCsv } from "@/lib/api";
-import { downloadRunFindingsItsmJsonExport } from "@/lib/run-findings-itsm-export";
+import {
+  downloadQuickDecisionFindingsCsv,
+  downloadRunFindingsItsmJsonExport,
+} from "@/lib/run-findings-itsm-export";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 export type FindingsItsmExportToolbarProps = {
   runId: string;
   findings: readonly QuickDecisionFinding[];
+  /** When filters hide rows, total before the confidence gate (for scope labels). */
+  totalFindingCount?: number;
   /** Compact toolbar row for the findings workspace header. */
   compact?: boolean;
 };
 
+function resolveExportScopeLabel(
+  shownCount: number,
+  totalCount: number | undefined,
+  hiddenAdvisoryCount: number,
+): string | null {
+  if (hiddenAdvisoryCount > 0) {
+    return `Exporting ${shownCount} rendered card${shownCount === 1 ? "" : "s"} — ${hiddenAdvisoryCount} advisory note${hiddenAdvisoryCount === 1 ? "" : "s"} collapsed`;
+  }
+
+  if (totalCount === undefined || totalCount <= shownCount) {
+    return null;
+  }
+
+  return `Exporting ${shownCount} shown of ${totalCount} matching findings`;
+}
+
 /**
  * Prominent CSV + JSON export seam for Jira/ServiceNow workflows until native connectors ship.
  */
-export function FindingsItsmExportToolbar({ runId, findings, compact = false }: FindingsItsmExportToolbarProps) {
+export function FindingsItsmExportToolbar({
+  runId,
+  findings,
+  totalFindingCount,
+  compact = false,
+}: FindingsItsmExportToolbarProps) {
   const [exportingCsv, setExportingCsv] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
+  const hiddenAdvisoryCount = Math.max(0, (totalFindingCount ?? findings.length) - findings.length);
+  const scopeLabel = resolveExportScopeLabel(findings.length, totalFindingCount, hiddenAdvisoryCount);
+  const csvLabel =
+    hiddenAdvisoryCount > 0
+      ? `Export ${findings.length} rendered CSV`
+      : totalFindingCount !== undefined && totalFindingCount > findings.length
+        ? `Export ${findings.length} shown CSV`
+        : `Export ${findings.length} CSV`;
+  const jsonLabel =
+    hiddenAdvisoryCount > 0
+      ? `Export ${findings.length} rendered JSON`
+      : totalFindingCount !== undefined && totalFindingCount > findings.length
+        ? `Export ${findings.length} shown JSON`
+        : `Export ${findings.length} JSON`;
 
-  const onExportCsv = useCallback(async () => {
+  const onExportCsv = useCallback(() => {
     setExportingCsv(true);
     setExportError(null);
 
     try {
-      await downloadRunFindingsCsv(runId);
+      downloadQuickDecisionFindingsCsv(runId, findings);
     } catch (error) {
       setExportError(error instanceof Error ? error.message : "CSV export failed.");
     } finally {
       setExportingCsv(false);
     }
-  }, [runId]);
+  }, [findings, runId]);
 
   const onExportJson = useCallback(() => {
     setExportError(null);
@@ -60,6 +99,11 @@ export function FindingsItsmExportToolbar({ runId, findings, compact = false }: 
         role="group"
         aria-label="Export findings"
       >
+        {scopeLabel !== null ? (
+          <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            {scopeLabel}
+          </span>
+        ) : null}
         <Button
           type="button"
           variant="outline"
@@ -67,12 +111,10 @@ export function FindingsItsmExportToolbar({ runId, findings, compact = false }: 
           className={cn("h-8 gap-1.5", OPERATOR_TYPOGRAPHY.helper)}
           disabled={exportingCsv}
           data-testid="findings-export-csv-button"
-          onClick={() => {
-            void onExportCsv();
-          }}
+          onClick={onExportCsv}
         >
           <FileSpreadsheet className="size-3.5" aria-hidden />
-          {exportingCsv ? "Exporting…" : "Export CSV"}
+          {exportingCsv ? "Exporting…" : csvLabel}
         </Button>
         <Button
           type="button"
@@ -83,7 +125,7 @@ export function FindingsItsmExportToolbar({ runId, findings, compact = false }: 
           onClick={onExportJson}
         >
           <FileJson className="size-3.5" aria-hidden />
-          Export JSON
+          {jsonLabel}
         </Button>
         {exportError !== null ? (
           <p className={cn("m-0 w-full text-right text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.helper)} role="alert">
@@ -103,7 +145,12 @@ export function FindingsItsmExportToolbar({ runId, findings, compact = false }: 
         Export for Jira / ServiceNow
       </p>
       <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-        Download all findings, or use <strong>Copy for Jira</strong> on each row for one-click paste into a ticket.
+        {scopeLabel ?? `Download ${findings.length} finding${findings.length === 1 ? "" : "s"}, or use `}
+        {scopeLabel === null ? (
+          <>
+            <strong>Copy for Jira</strong> on each row for one-click paste into a ticket.
+          </>
+        ) : null}
       </p>
       <div className="mt-2 flex flex-wrap items-center gap-2">
         <Button
@@ -113,12 +160,10 @@ export function FindingsItsmExportToolbar({ runId, findings, compact = false }: 
           className={cn("h-8 gap-1.5", OPERATOR_TYPOGRAPHY.helper)}
           disabled={exportingCsv}
           data-testid="findings-export-csv-button"
-          onClick={() => {
-            void onExportCsv();
-          }}
+          onClick={onExportCsv}
         >
           <FileSpreadsheet className="size-3.5" aria-hidden />
-          {exportingCsv ? "Exporting…" : "Export CSV"}
+          {exportingCsv ? "Exporting…" : csvLabel}
         </Button>
         <Button
           type="button"
@@ -129,7 +174,7 @@ export function FindingsItsmExportToolbar({ runId, findings, compact = false }: 
           onClick={onExportJson}
         >
           <FileJson className="size-3.5" aria-hidden />
-          Export JSON (work items)
+          {jsonLabel}
         </Button>
       </div>
       {exportError !== null ? (

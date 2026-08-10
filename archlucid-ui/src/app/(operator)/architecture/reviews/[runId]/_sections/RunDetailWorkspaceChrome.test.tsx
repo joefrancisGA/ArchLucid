@@ -32,8 +32,19 @@ vi.mock("@/components/CopyIdButton", () => ({
 }));
 
 vi.mock("./ReviewPackagePrimaryAction", () => ({
-  ReviewPackagePrimaryAction: ({ action }: { action: { label: string } }) => (
-    <button type="button">{action.label}</button>
+  ReviewPackagePrimaryAction: ({
+    action,
+    commitBlockedReason,
+  }: {
+    action: { label: string; kind: string };
+    commitBlockedReason?: string | null;
+  }) => (
+    <div>
+      <button type="button">{action.label}</button>
+      {commitBlockedReason !== null && commitBlockedReason !== undefined && commitBlockedReason.length > 0 ? (
+        <div data-testid="commit-blocked-reason">{commitBlockedReason}</div>
+      ) : null}
+    </div>
   ),
 }));
 
@@ -77,31 +88,23 @@ describe("RunDetailWorkspaceHeader", () => {
 });
 
 describe("RunDetailWorkspaceBlockingBanner", () => {
-  it("renders blocked callout with deep link to the blocking finding", () => {
-    render(
-      <RunDetailWorkspaceBlockingBanner
-        blockingCount={1}
-        findingsTabHref="/architecture/reviews/run-1?reviewTab=findings#finding-workspace-card-f-1"
-      />,
-    );
+  it("renders blocked callout without a duplicate next-step link", () => {
+    render(<RunDetailWorkspaceBlockingBanner blockingCount={1} />);
 
     expect(screen.getByTestId("run-detail-blocking-approval-banner")).toBeInTheDocument();
     expect(screen.getByText(/1 unresolved finding currently blocks approval/)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Review blocking finding" })).toHaveAttribute(
-      "href",
-      "/architecture/reviews/run-1?reviewTab=findings#finding-workspace-card-f-1",
-    );
+    expect(screen.queryByRole("link", { name: "Review blocking finding" })).not.toBeInTheDocument();
   });
 });
 
 describe("RunDetailWorkspaceStickyActions", () => {
-  it("shows blocking helper text instead of a record-decision shortcut", () => {
+  it("shows blocking helper text and a single primary action", () => {
     render(
       <RunDetailWorkspaceStickyActions
         runId="run-1"
         primaryAction={{
           kind: "review-findings",
-          label: "Confirm evidence and remediation ownership",
+          label: "Disposition blocking findings",
           href: "/architecture/reviews/run-1?reviewTab=findings",
         }}
         primaryActionContext={{
@@ -120,8 +123,39 @@ describe("RunDetailWorkspaceStickyActions", () => {
       />,
     );
 
-    expect(screen.getByText(/Resolve blocking finding first/)).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Record decision" })).toBeNull();
-    expect(screen.getByRole("button", { name: "Confirm evidence and remediation ownership" })).toBeInTheDocument();
+    expect(screen.getByText(/1 unresolved finding currently blocks approval/)).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Resolve blocking finding first" })).toBeNull();
+    expect(screen.getByRole("button", { name: "Disposition blocking findings" })).toBeInTheDocument();
+  });
+
+  it("passes commitBlockedReason through when assessment coverage blocks finalize", () => {
+    render(
+      <RunDetailWorkspaceStickyActions
+        runId="run-1"
+        primaryAction={{
+          kind: "finalize-package",
+          label: "Finalize review",
+          href: null,
+        }}
+        primaryActionContext={{
+          runId: "run-1",
+          manifestId: null,
+          hasCommitBlockingFailures: false,
+          blockingFindingCount: 0,
+          buyerPolishedArtifactTable: false,
+          operatorGovernanceDecision: null,
+          manifestStatus: "Draft",
+          runCompleted: true,
+        }}
+        commitBlockedReason="Assessment coverage is incomplete for topology. Re-run the review before finalizing."
+        showProgressTracker={false}
+        manifestId={null}
+      />,
+    );
+
+    expect(screen.getByTestId("commit-blocked-reason")).toHaveTextContent(
+      "Assessment coverage is incomplete for topology. Re-run the review before finalizing.",
+    );
+    expect(screen.getByRole("button", { name: "Finalize review" })).toBeInTheDocument();
   });
 });

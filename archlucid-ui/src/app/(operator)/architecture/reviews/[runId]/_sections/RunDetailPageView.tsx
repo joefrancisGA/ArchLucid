@@ -27,7 +27,6 @@ import {
   countFindingsBySeverity,
   deriveArchitectureSystemName,
   deriveBlockingApprovalCount,
-  deriveBlockingFindingHref,
   deriveEvidenceCoverageSummary,
   deriveExecutiveBottomLineContent,
   deriveHighestFindingSeverityLabel,
@@ -49,7 +48,7 @@ import {
   formatDecisionSnapshotGovernanceOutcome,
 } from "@/lib/run-detail-workspace-derive";
 import { RunDetailActivityTabSectionNav } from "@/components/RunDetailActivityTabSectionNav";
-import { resolvePartialRunCommitBlockedReason } from "@/lib/run-detail-partial-run-commit-block";
+import { resolvePartialRunCommitBlockPresentation } from "@/lib/run-detail-partial-run-commit-block";
 import {
   countRunDetailEvidenceInventoryItems,
   deriveRunDetailEvidenceInventory,
@@ -182,13 +181,17 @@ export function RunDetailPageView(props: {
               : "one or more required finding engines"
           }.`
       : null;
+  const partialRunCommitBlock =
+    findingCoverageCommitBlockedReason === null
+      ? resolvePartialRunCommitBlockPresentation({
+          legacyRunStatus: m.resolvedDetail.run.legacyRunStatus ?? null,
+          agentExecutionOutcomes: m.resolvedDetail.agentExecutionOutcomes ?? null,
+          findingCoverageAlreadyBlocking: findingCoverageSummary?.hasCommitBlockingFailures === true,
+        })
+      : null;
   const commitBlockedReason =
-    findingCoverageCommitBlockedReason ??
-    resolvePartialRunCommitBlockedReason({
-      legacyRunStatus: m.resolvedDetail.run.legacyRunStatus ?? null,
-      agentExecutionOutcomes: m.resolvedDetail.agentExecutionOutcomes ?? null,
-      findingCoverageAlreadyBlocking: false,
-    });
+    findingCoverageCommitBlockedReason ?? partialRunCommitBlock?.summary ?? null;
+  const commitBlockedTechnicalDetail = partialRunCommitBlock?.technicalDetail ?? null;
 
   const governanceAlertsEl = (
     <GovernanceModePresentationGate>
@@ -367,10 +370,6 @@ export function RunDetailPageView(props: {
   );
   const finalizedAtLabel =
     finalizedAtUtc !== null ? formatInstantForLocale(finalizedAtUtc) : null;
-  const blockingFindingsHref = deriveBlockingFindingHref(
-    m.resolvedDetail.run.runId,
-    quickDecisionFindings,
-  );
   const submittedArchitectureText = deriveSubmittedArchitectureText(runSummaryForBadge, reviewDisplayTitle);
   const hasSubmittedArchitecture = submittedArchitectureText !== null;
   const evidenceInventoryItems = deriveRunDetailEvidenceInventory({
@@ -727,7 +726,11 @@ export function RunDetailPageView(props: {
 
       {!showArchitectureCreatedHome ? (
         <Suspense fallback={null}>
-          <ReviewGenerationCreatedNoticeDeferred analysisInProgress={m.showProgressTracker} />
+          <ReviewGenerationCreatedNoticeDeferred
+            analysisInProgress={m.showProgressTracker}
+            approvalBlocked={blockingApprovalCount > 0 || commitBlockedReason !== null}
+            packageFinalized={Boolean(m.manifestId)}
+          />
         </Suspense>
       ) : null}
 
@@ -894,7 +897,6 @@ export function RunDetailPageView(props: {
                   {blockingApprovalCount > 0 ? (
                     <RunDetailWorkspaceBlockingBannerDeferred
                       blockingCount={blockingApprovalCount}
-                      findingsTabHref={blockingFindingsHref}
                     />
                   ) : null}
 
@@ -925,6 +927,7 @@ export function RunDetailPageView(props: {
                       primaryAction={reviewPackagePrimaryAction}
                       primaryActionContext={reviewPackagePrimaryActionContext}
                       commitBlockedReason={commitBlockedReason}
+                      commitBlockedTechnicalDetail={commitBlockedTechnicalDetail}
                       showProgressTracker={m.showProgressTracker}
                       manifestId={m.manifestId}
                     />

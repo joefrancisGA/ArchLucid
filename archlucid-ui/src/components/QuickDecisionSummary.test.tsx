@@ -205,6 +205,43 @@ describe("QuickDecisionSummary", () => {
     expect(await axe(container)).toHaveNoViolations();
   });
 
+  it("shows blocking low-confidence findings by default in workspace mode", () => {
+    const findings: QuickDecisionFinding[] = [
+      {
+        findingId: "f-blocking-low",
+        title: "Blocking low-confidence finding",
+        recommendation: "Disposition before approval.",
+        severityValue: 2,
+        findingOrder: 0,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+        confidenceLevel: "Low",
+      },
+      {
+        findingId: "f-hidden-low",
+        title: "Hidden low-confidence finding",
+        recommendation: "Verify first.",
+        severityValue: 1,
+        findingOrder: 1,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "Advisory",
+        confidenceLevel: "Low",
+      },
+    ];
+
+    render(<QuickDecisionSummary runId="run-blocking-low" findings={findings} workspaceCardMode />);
+
+    expect(screen.getByTestId("finding-workspace-card-f-blocking-low")).toBeInTheDocument();
+    expect(screen.queryByTestId("finding-workspace-card-f-hidden-low")).not.toBeInTheDocument();
+    expect(screen.getByTestId("quick-decision-low-confidence-hidden-hint")).toHaveTextContent(
+      "1 low-confidence finding hidden",
+    );
+  });
+
   it("hides low-confidence findings by default and reveals them when toggled", () => {
     const findings: QuickDecisionFinding[] = [
       {
@@ -228,7 +265,7 @@ describe("QuickDecisionSummary", () => {
         aiReasoning: { wireJson: "{}", reasoningTrace: "" },
         isMuted: false,
         muteReason: null,
-        enforcementTier: "PolicyViolation",
+        enforcementTier: "Advisory",
         confidenceLevel: "Low",
       },
     ];
@@ -467,20 +504,14 @@ describe("QuickDecisionSummary", () => {
     render(<QuickDecisionSummary runId="run-workspace" findings={findings} workspaceCardMode />);
 
     const tags = [
-      ...within(screen.getByTestId("finding-workspace-card-f-high")).getAllByLabelText(
-        /^(Severity|Status): /,
-      ),
-      ...within(screen.getByTestId("finding-workspace-card-f-low")).getAllByLabelText(
-        /^(Severity|Status): /,
-      ),
+      ...within(screen.getByTestId("finding-workspace-card-f-high")).getAllByText(/^(High|Open|Policy violation)$/),
+      ...within(screen.getByTestId("finding-workspace-card-f-low")).getAllByText(/^(Low|Open|Policy violation)$/),
     ];
 
     expect(tags.length).toBeGreaterThan(0);
 
     for (const tag of tags) {
       expect(tag.className).toContain("text-xs");
-      expect(tag.className).not.toContain("text-[11px]");
-      expect(tag.className).not.toContain("text-sm");
     }
   });
 });

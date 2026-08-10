@@ -52,6 +52,7 @@ import {
 } from "@/lib/finding-source-evidence-links";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import {
+  buildWorkspaceCardRenderedFindings,
   findingHasNoSourceEvidence,
   firstRecommendationSentence,
   humanReviewStatusDisplay,
@@ -80,6 +81,19 @@ import {
 } from "@/lib/design-tokens";
 import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
 
+export type QuickDecisionSummaryConfidenceVisibility = {
+  readonly showLowConfidence: boolean;
+  readonly onShowLowConfidenceChange: (value: boolean) => void;
+  readonly hiddenByConfidenceCount: number;
+  readonly managedExternally: true;
+};
+
+export type QuickDecisionSummaryAdvisoryVisibility = {
+  readonly showAdvisory: boolean;
+  readonly onShowAdvisoryChange: (value: boolean) => void;
+  readonly managedExternally: true;
+};
+
 export type QuickDecisionSummaryProps = {
   readonly runId: string;
   readonly findings: readonly QuickDecisionFinding[];
@@ -103,6 +117,10 @@ export type QuickDecisionSummaryProps = {
   } | null;
   /** When false, hide work-item / ITSM integration chrome until a committed manifest exists (TB-1854). */
   readonly packageCommitted?: boolean;
+  /** When set, confidence filtering is owned by the parent (review detail findings workspace). */
+  readonly confidenceVisibility?: QuickDecisionSummaryConfidenceVisibility;
+  /** When set, advisory-note expansion is owned by the parent (review detail findings workspace). */
+  readonly advisoryVisibility?: QuickDecisionSummaryAdvisoryVisibility;
 };
 
 /** Top severity-ranked actionable findings from run detail agent results (no extra API calls). */
@@ -110,15 +128,43 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
   const router = useRouter();
   const canMutate = useOperateCapability();
   const sorted = sortQuickDecisionFindings(props.findings);
+  const confidenceManagedExternally = props.confidenceVisibility?.managedExternally === true;
   const [showMuted, setShowMuted] = useState(false);
-  const [showLowConfidence, setShowLowConfidence] = useState(false);
-  const [showAdvisory, setShowAdvisory] = useState(false);
+  const [internalShowLowConfidence, setInternalShowLowConfidence] = useState(false);
+  const showLowConfidence = confidenceManagedExternally
+    ? props.confidenceVisibility?.showLowConfidence === true
+    : internalShowLowConfidence;
+  const setShowLowConfidence = confidenceManagedExternally
+    ? (value: boolean) => {
+        props.confidenceVisibility?.onShowLowConfidenceChange(value);
+      }
+    : setInternalShowLowConfidence;
+  const [showAdvisoryInternal, setShowAdvisoryInternal] = useState(false);
+  const advisoryManagedExternally = props.advisoryVisibility?.managedExternally === true;
+  const showAdvisory = advisoryManagedExternally
+    ? props.advisoryVisibility?.showAdvisory === true
+    : showAdvisoryInternal;
+  const setShowAdvisory = advisoryManagedExternally
+    ? (value: boolean) => {
+        props.advisoryVisibility?.onShowAdvisoryChange(value);
+      }
+    : setShowAdvisoryInternal;
   const [openWorkspaceIntegrationsByFindingId, setOpenWorkspaceIntegrationsByFindingId] = useState<
     Readonly<Record<string, boolean>>
   >({});
   const afterMuteFilter = showMuted ? sorted : sorted.filter((f) => !f.isMuted);
-  const { trustedFindings, lowConfidenceFindings } = partitionQuickDecisionFindingsByConfidence(afterMuteFilter);
-  const hiddenLowConfidenceCount = showLowConfidence ? 0 : lowConfidenceFindings.length;
+  const confidencePartition = confidenceManagedExternally
+    ? {
+        trustedFindings: afterMuteFilter,
+        lowConfidenceFindings: [] as QuickDecisionFinding[],
+      }
+    : partitionQuickDecisionFindingsByConfidence(afterMuteFilter);
+  const { trustedFindings, lowConfidenceFindings } = confidencePartition;
+  const hiddenLowConfidenceCount = confidenceManagedExternally
+    ? (props.confidenceVisibility?.hiddenByConfidenceCount ?? 0)
+    : showLowConfidence
+      ? 0
+      : lowConfidenceFindings.length;
   const hiddenLowConfidenceHint = formatHiddenLowConfidenceHint(hiddenLowConfidenceCount);
   const { policyViolations, advisoryNotes } = partitionQuickDecisionFindings(trustedFindings);
   const {
@@ -442,18 +488,17 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
   }
 
   function buildWorkspaceVisibleFindings(): QuickDecisionFinding[] {
-    const { policyViolations, advisoryNotes } = partitionQuickDecisionFindings(trustedFindings);
-    const combined: QuickDecisionFinding[] = [...policyViolations];
+    const sourceFindings = confidenceManagedExternally ? afterMuteFilter : trustedFindings;
+    const rendered = buildWorkspaceCardRenderedFindings(sourceFindings, {
+      showAdvisory,
+      showMuted: false,
+    });
 
-    if (showAdvisory) {
-      combined.push(...advisoryNotes);
+    if (!confidenceManagedExternally && showLowConfidence) {
+      return sortQuickDecisionFindings([...rendered, ...lowConfidenceFindings]);
     }
 
-    if (showLowConfidence) {
-      combined.push(...lowConfidenceFindings);
-    }
-
-    return sortQuickDecisionFindings(combined);
+    return rendered;
   }
 
   function renderWorkspaceIntegrations(f: QuickDecisionFinding): ReactElement | null {
@@ -933,7 +978,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
             <p className="m-0 text-neutral-600 dark:text-neutral-400">
               All findings are currently muted. Enable <strong>Show muted findings</strong> to review them.
             </p>
-          ) : trustedFindings.length === 0 && lowConfidenceFindings.length > 0 && !showLowConfidence ? (
+          ) : trustedFindings.length === 0 && lowConfidenceFindings.length > 0 && !showLowConfidence && !confidenceManagedExternally ? (
             <p className="m-0 text-neutral-600 dark:text-neutral-400" data-testid="quick-decision-low-confidence-only">
               Low-confidence findings are hidden to reduce noise. Enable <strong>Show low-confidence findings</strong>{" "}
               to review unverified items.
@@ -1085,7 +1130,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
             <p className="m-0 text-neutral-600 dark:text-neutral-400">
               All findings are currently muted. Enable <strong>Show muted findings</strong> to review them.
             </p>
-          ) : trustedFindings.length === 0 && lowConfidenceFindings.length > 0 && !showLowConfidence ? (
+          ) : trustedFindings.length === 0 && lowConfidenceFindings.length > 0 && !showLowConfidence && !confidenceManagedExternally ? (
             <p className="m-0 text-neutral-600 dark:text-neutral-400" data-testid="quick-decision-low-confidence-only">
               Low-confidence findings are hidden to reduce noise. Enable <strong>Show low-confidence findings</strong>{" "}
               to review unverified items.
@@ -1138,7 +1183,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
                       variant="outline"
                       size="sm"
                       onClick={() => {
-                        setShowAdvisory((current) => !current);
+                        setShowAdvisory(!showAdvisory);
                       }}
                       aria-expanded={showAdvisory}
                     >

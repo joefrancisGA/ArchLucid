@@ -25,7 +25,10 @@ export function ReviewPackagePrimaryActionTabAware(
   const contextualAction = contextualizeReviewPackagePrimaryActionForActiveTab(
     props.action,
     activeTab,
-    props.primaryActionContext,
+    {
+      ...props.primaryActionContext,
+      commitBlockedReason: props.commitBlockedReason ?? null,
+    },
   );
 
   return (
