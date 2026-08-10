@@ -18,7 +18,7 @@ exports[`ArchitectureNarrativeMarkdownView > renders headings, paragraphs, lists
         </span>
       </h2>
       <p
-        class="my-3 text-[13px] font-normal leading-5 text-al-text-primary"
+        class="my-3 text-[15px] font-normal leading-6 text-al-text-primary"
       >
         <span>
           Governed claims intake for enterprise analysts.
@@ -33,7 +33,10 @@ exports[`ArchitectureNarrativeMarkdownView > renders headings, paragraphs, lists
         </span>
       </h2>
       <div
+        aria-label="Scrollable Systems and services table 1"
         class="my-5 mb-6 overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-800"
+        role="region"
+        tabindex="0"
       >
         <table
           class="w-full min-w-[32rem] border-collapse text-left text-[13px] font-normal leading-5 text-al-text-primary"
@@ -41,7 +44,7 @@ exports[`ArchitectureNarrativeMarkdownView > renders headings, paragraphs, lists
           <caption
             class="sr-only"
           >
-            Architecture narrative table
+            Scrollable Systems and services table 1
           </caption>
           <thead>
             <tr>
@@ -112,7 +115,7 @@ exports[`ArchitectureNarrativeMarkdownView > renders headings, paragraphs, lists
         </span>
       </h2>
       <ul
-        class="my-4 list-disc space-y-1.5 pl-6 text-[13px] font-normal leading-5 text-al-text-primary"
+        class="my-4 list-disc space-y-1.5 pl-6 text-[15px] font-normal leading-6 text-al-text-primary"
       >
         <li>
           <span>
@@ -133,7 +136,7 @@ exports[`ArchitectureNarrativeMarkdownView > renders headings, paragraphs, lists
       >
         <button
           aria-label="Copy code"
-          class="inline-flex items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-neutral-100 hover:text-[color:var(--al-text-primary)] dark:hover:bg-neutral-800 rounded-md absolute right-2 top-2 h-7 gap-1 px-2 dark:text-neutral-300 text-xs font-normal leading-[18px] text-al-text-secondary"
+          class="inline-flex items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-neutral-300 bg-white hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:hover:bg-neutral-800 rounded-md absolute right-2 top-2 h-7 gap-1 px-2 dark:text-neutral-300 text-xs font-normal leading-[18px] text-al-text-secondary"
           type="button"
         >
           <svg
@@ -180,7 +183,7 @@ const endpoint = "https://claims.example.internal/v1/intake";
         </span>
       </div>
       <p
-        class="my-3 text-[13px] font-normal leading-5 text-al-text-primary"
+        class="my-3 text-[15px] font-normal leading-6 text-al-text-primary"
       >
         <span>
           See 

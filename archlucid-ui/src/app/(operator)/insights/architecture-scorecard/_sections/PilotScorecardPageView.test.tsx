@@ -87,8 +87,9 @@ describe("PilotScorecardPageView", () => {
   it("renders Sources strip and directional claim discipline (SCX Evidence)", () => {
     render(<PilotScorecardPageView model={buildModel()} />);
 
-    expect(screen.queryByTestId("architecture-scorecard-sources")).toBeNull(); // TB-2092
-    expect(screen.queryByTestId("architecture-scorecard-claim-discipline")).toBeNull(); // TB-2092
+    expect(screen.getByTestId("architecture-scorecard-sources")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Sources" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Sources for follow-up" })).toBeNull();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
   });
 
