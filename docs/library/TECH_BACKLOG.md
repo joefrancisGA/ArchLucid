@@ -15,7 +15,7 @@ Regenerate after opening or closing summary-table rows:
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
 | Architectural integrity | 11 |
-| Adoption friction | 357 |
+| Adoption friction | 363 |
 | Commercial / marketability | 9 |
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
@@ -36,15 +36,15 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **751** |
+| **Total (unique open)** | **757** |
 
-**By priority band:** P0 **23** | P1 **598** | P2 **113** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **30** | P1 **597** | P2 **113** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
-**Updated:** 2026-08-09 (**TB-1454** **Done** — architecture draft workspace first-viewport density: short lead, alternatives folded into guidance disclosure; Vitest). Prior: 2026-08-09 (**TB-1453** **Done** — architecture draft workspace loading skeleton + Back to Architecture drafts wayfinding on edit routes; Vitest). Prior: 2026-08-09 (**TB-1451** **Done** — `/architectures/[id]` scoped `generateMetadata` draft title + edit workspace H1; Vitest). Prior: 2026-08-09 (**TB-1450** **Done** — `/architectures` list `useSyncExternalStore` hydration + loading gate; `EnterpriseTable` draft rows; Vitest). Prior: 2026-08-09 (**TB-1449** **Done** — `/architectures` first-viewport density: short scope subtitle, disclosure only when drafts exist, action-oriented empty copy; Vitest). Prior: 2026-08-09 (**TB-1446** **Done** — `/architectures` `OperatorPageHeader` H1 + always-visible primary Create architecture header CTA; Vitest). Prior: 2026-08-09 (**TB-1462** **Done** — `/architectures/new` resume-first page subtitle + workspace lead when browser-local drafts exist; Continue draft is primary; Vitest). Prior: 2026-08-09 (**TB-1461** **Done** — `/architectures/new` page subtitle + distinct resume/new-draft section titles; form h2 uses `New architecture draft` instead of Untitled architecture; Vitest). Prior: 2026-08-09 (**TB-1458** **Done** — `/architectures/new` `OperatorPageHeader` H1 + header `PageContextualHelpButton`; workspace body help deduped on `/new`; Vitest). Prior: 2026-08-09 (**TB-1460** **Done** — architecture draft autosave reassurance gated on `hasPersistedDraft`; `/new` no longer claims active autosave before first save; Vitest). Prior: 2026-08-09 (**TB-1459** **Done** — `/architectures/new` browser-local recent-drafts honesty: `ArchitectureCreationLocalDraftsPanel` resume/empty guidance + view-all label; Vitest; pairs **TB-1448**). Prior: 2026-08-09 (**TB-1457** **Done** — bake-off 15-min loser-sequence honesty CI: EA-fake-loss / smarter-than-GPT / unmeasured-kill-rate guards + contract anchors; pairs **M-261**). Prior: 2026-08-09 (**TB-1456** **Done** — fused bake-off loser-order + 15-minute proof sequence contract; GTM M-261/M-262 cross-links in competitive positioning). Prior: 2026-08-09 (**TB-2158**–**TB-2167** **opened** — owner ask: create P0s for ten quantified performance levers verified absent in tree — Performance wave 7; see cluster note below). Prior: 2026-08-09 (**TB-2148**–**TB-2157** **opened** — owner ask: create P0s for ten untracked confusion-reduction levers; see cluster note below). Prior: 2026-08-09 (**TB-1455** **Done** — architecture draft workspace autosave reassurance on save status; removed redundant disabled Save draft; Save now retry on error/offline only; Save and exit retained; Vitest). Prior: 2026-08-09 (**TB-1426** **Done** — deployment status external-link new-tab honesty + softened page lead without BUILD_ID jargon; Vitest). Prior: 2026-08-09 (**TB-1423** **Done** — deployment status overall `StatusTag` with human `overallStatusLabel` aria; Vitest). Prior: 2026-08-09 (**TB-1412** **Done** — demo readiness admin Recheck primary in PageHeading; diagnostics text link; authority loading skeleton; Vitest). Prior: 2026-08-09 (**TB-1416** **Done** — fused INV-001 / decide-once / committed-manifest PA triad challenge matrix in `INV001_DECIDE_ONCE_COMMITTED_MANIFEST_PA_TRIAD_CHALLENGE_MATRIX.md`; GTM M-254 residuals). Prior: 2026-08-09 (**TB-1413** **Done** — Demo readiness check rows use Pass/Warn/Fail StatusTag labels with adjacent check titles; Vitest). Prior: 2026-08-09 (**TB-1411** **Done** — Demo readiness admin tooling-disabled empty state with diagnostics/System health CTAs; Vitest). Prior: 2026-08-09 (**TB-1409** **Done** — Demo readiness admin PageHeading + Internal Operations eyebrow; single H1; panel duplicate H2 suppressed; Vitest). Prior: 2026-08-09 (**TB-1380** **Done** — first-architecture-review title honesty across registry/help center/home banner/Ctrl+K search; Vitest pilot/commit jargon guards). Prior: 2026-08-09 (**TB-1341** **Done** — enterprise-onboarding title/audience honesty: canonical `ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE`; registry `operator` + help-center `admin` tier; Vitest). Prior: 2026-08-09 (**TB-2145** **Done** — home `/` First Load JS **1646.1 → 1587.2 kB** (−58.9 kB); deferred pilot command center, executive ROI strip, below-fold panels, and CTO demo redirect; Vitest import guards + baseline refresh). Prior: 2026-08-09 (**TB-2144** **Done** — billing past-due banner + alerts nav badge → TanStack Query; `useBillingSubscriptionStatusQuery` + shared `alertsInboxSummary` cache; SSR inbox hydration guard; Vitest remount/freshness). Prior: 2026-08-09 (**TB-2143** **Done** — insights operator layouts (**8**) migrated off blanket `force-dynamic` to `OperatorClientDrivenRouteLayout`; remaining operator `force-dynamic` layouts **~22** (was **~29**); Vitest import guards + `UI_ARCHITECTURE_V1_1.md` §4). Prior: 2026-08-09 (**TB-2142** **Done** — run detail First Load JS **2150.6 → 1879.1 kB** (−271.5 kB); deferred evidence tab, share row, demo chrome, manifest alerts, run actions, help registrar; Vitest import guards + baseline refresh). Prior: 2026-08-09 (**TB-2139** **Done** — `role-shaped-nav-density` persona defaults for architect/governance/admin; sidebar “Show all destinations” + command palette parity; Vitest). Prior: 2026-08-09 (**TB-2138** **Done** — unified golden sponsor-package walkthrough: `golden-sponsor-package-walkthrough` SoT, checklist panel on home/help/demo explain, destination scroll to `#sponsor-handoff` gated on sample runs; Vitest). Prior: 2026-08-09 (**TB-2137** **Done** — golden-path empty/error recovery: `operator-branded-not-found-copy`, reviews hub not-found vs outage try-next, `isApiNotFoundFailure` error codes, buyer `RESOURCE_NOT_FOUND` headings; Vitest). Prior: 2026-08-09 (**TB-2136** **Done** — job → pack chooser primary on first-run `/architecture/reviews/new`; `AcceleratorJobChooserList` + expected-output buyer nouns; home `AcceleratorChooserCard` after first commit; Vitest). Prior: 2026-08-09 (**TB-2135** **Done** — `finding-trust-presentation` contract shared by inspect, compare decision-delta chips, and export footers; inferred `DeterministicRule` parity when wire label absent; Vitest cross-surface fixtures). Prior: 2026-08-09 (**TB-2134** **Done** — `InlineGlossaryChip` + `golden-path-glossary-nouns` SoT from customer glossary; chips on home empty, new review, review detail, post-finalize sponsor strip; Vitest). Prior: 2026-08-09 (**TB-2133** **Done** — restored pre-commit progressive disclosure: `filterNavLinksByCommittedArchitectureReviewGate` + shell/palette wiring; Operate/diagnostics hidden until first finalize; Vitest pre/post-commit snapshots). Prior: 2026-08-09 (**TB-2130**–**TB-2139** **opened** — owner ask: create P0s for ten easier-to-use / easier-to-understand levers; see cluster note below). Prior: 2026-08-09 (**TB-1323** **Done** — `/demo/explain` conversion CTA auth honesty: anonymous viewers get sign-in + `/see-it` ladder; signed-in keeps wizard preset; Vitest guards). Prior: 2026-08-09 (**TB-1320** **Done** — `/demo/explain` status banner uses `StatusTag` + human generated time; review id/manifest version/ISO behind Technical details; Vitest guards). Prior: 2026-08-09 (**TB-1316** **Done** — session-expired OIDC errors use **Sign-in could not start** + in-place Try again preserving `returnUrl`). Prior: 2026-08-09 (**TB-1315** **Done** — `/auth/session-expired` secondary exit to `/welcome`; Vitest forbids auth-bounce `/`). Prior: 2026-08-09 (**TB-1308** **Done** — `/why-archlucid` operator counter copy + in-app footer; Vitest forbids eng metric/repo path leakage).
+**Updated:** 2026-08-09 (**TB-1465** **Done** — `/auth/bootstrap` document metadata + `AuthFlowShell` + Suspense loading fallback; Vitest). Prior: 2026-08-09 (**TB-2168**–**TB-2174** **opened** — owner ask: eliminate ghost / borderless `Button` variants — **102** `variant="ghost"` sites in **72** files + **4** `variant="link"`; P0 button-border contract + sweeps + CI guard; see cluster note below). Prior: 2026-08-09 (**TB-1454** **Done** — architecture draft workspace first-viewport density: short lead, alternatives folded into guidance disclosure; Vitest). Prior: 2026-08-09 (**TB-1453** **Done** — architecture draft workspace loading skeleton + Back to Architecture drafts wayfinding on edit routes; Vitest). Prior: 2026-08-09 (**TB-1451** **Done** — `/architectures/[id]` scoped `generateMetadata` draft title + edit workspace H1; Vitest). Prior: 2026-08-09 (**TB-1450** **Done** — `/architectures` list `useSyncExternalStore` hydration + loading gate; `EnterpriseTable` draft rows; Vitest). Prior: 2026-08-09 (**TB-1449** **Done** — `/architectures` first-viewport density: short scope subtitle, disclosure only when drafts exist, action-oriented empty copy; Vitest). Prior: 2026-08-09 (**TB-1446** **Done** — `/architectures` `OperatorPageHeader` H1 + always-visible primary Create architecture header CTA; Vitest). Prior: 2026-08-09 (**TB-1462** **Done** — `/architectures/new` resume-first page subtitle + workspace lead when browser-local drafts exist; Continue draft is primary; Vitest). Prior: 2026-08-09 (**TB-1461** **Done** — `/architectures/new` page subtitle + distinct resume/new-draft section titles; form h2 uses `New architecture draft` instead of Untitled architecture; Vitest). Prior: 2026-08-09 (**TB-1458** **Done** — `/architectures/new` `OperatorPageHeader` H1 + header `PageContextualHelpButton`; workspace body help deduped on `/new`; Vitest). Prior: 2026-08-09 (**TB-1460** **Done** — architecture draft autosave reassurance gated on `hasPersistedDraft`; `/new` no longer claims active autosave before first save; Vitest). Prior: 2026-08-09 (**TB-1459** **Done** — `/architectures/new` browser-local recent-drafts honesty: `ArchitectureCreationLocalDraftsPanel` resume/empty guidance + view-all label; Vitest; pairs **TB-1448**). Prior: 2026-08-09 (**TB-1457** **Done** — bake-off 15-min loser-sequence honesty CI: EA-fake-loss / smarter-than-GPT / unmeasured-kill-rate guards + contract anchors; pairs **M-261**). Prior: 2026-08-09 (**TB-1456** **Done** — fused bake-off loser-order + 15-minute proof sequence contract; GTM M-261/M-262 cross-links in competitive positioning). Prior: 2026-08-09 (**TB-2158**–**TB-2167** **opened** — owner ask: create P0s for ten quantified performance levers verified absent in tree — Performance wave 7; see cluster note below). Prior: 2026-08-09 (**TB-2148**–**TB-2157** **opened** — owner ask: create P0s for ten untracked confusion-reduction levers; see cluster note below). Prior: 2026-08-09 (**TB-1455** **Done** — architecture draft workspace autosave reassurance on save status; removed redundant disabled Save draft; Save now retry on error/offline only; Save and exit retained; Vitest). Prior: 2026-08-09 (**TB-1426** **Done** — deployment status external-link new-tab honesty + softened page lead without BUILD_ID jargon; Vitest). Prior: 2026-08-09 (**TB-1423** **Done** — deployment status overall `StatusTag` with human `overallStatusLabel` aria; Vitest). Prior: 2026-08-09 (**TB-1412** **Done** — demo readiness admin Recheck primary in PageHeading; diagnostics text link; authority loading skeleton; Vitest). Prior: 2026-08-09 (**TB-1416** **Done** — fused INV-001 / decide-once / committed-manifest PA triad challenge matrix in `INV001_DECIDE_ONCE_COMMITTED_MANIFEST_PA_TRIAD_CHALLENGE_MATRIX.md`; GTM M-254 residuals). Prior: 2026-08-09 (**TB-1413** **Done** — Demo readiness check rows use Pass/Warn/Fail StatusTag labels with adjacent check titles; Vitest). Prior: 2026-08-09 (**TB-1411** **Done** — Demo readiness admin tooling-disabled empty state with diagnostics/System health CTAs; Vitest). Prior: 2026-08-09 (**TB-1409** **Done** — Demo readiness admin PageHeading + Internal Operations eyebrow; single H1; panel duplicate H2 suppressed; Vitest). Prior: 2026-08-09 (**TB-1380** **Done** — first-architecture-review title honesty across registry/help center/home banner/Ctrl+K search; Vitest pilot/commit jargon guards). Prior: 2026-08-09 (**TB-1341** **Done** — enterprise-onboarding title/audience honesty: canonical `ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE`; registry `operator` + help-center `admin` tier; Vitest). Prior: 2026-08-09 (**TB-2145** **Done** — home `/` First Load JS **1646.1 → 1587.2 kB** (−58.9 kB); deferred pilot command center, executive ROI strip, below-fold panels, and CTO demo redirect; Vitest import guards + baseline refresh). Prior: 2026-08-09 (**TB-2144** **Done** — billing past-due banner + alerts nav badge → TanStack Query; `useBillingSubscriptionStatusQuery` + shared `alertsInboxSummary` cache; SSR inbox hydration guard; Vitest remount/freshness). Prior: 2026-08-09 (**TB-2143** **Done** — insights operator layouts (**8**) migrated off blanket `force-dynamic` to `OperatorClientDrivenRouteLayout`; remaining operator `force-dynamic` layouts **~22** (was **~29**); Vitest import guards + `UI_ARCHITECTURE_V1_1.md` §4). Prior: 2026-08-09 (**TB-2142** **Done** — run detail First Load JS **2150.6 → 1879.1 kB** (−271.5 kB); deferred evidence tab, share row, demo chrome, manifest alerts, run actions, help registrar; Vitest import guards + baseline refresh). Prior: 2026-08-09 (**TB-2139** **Done** — `role-shaped-nav-density` persona defaults for architect/governance/admin; sidebar “Show all destinations” + command palette parity; Vitest). Prior: 2026-08-09 (**TB-2138** **Done** — unified golden sponsor-package walkthrough: `golden-sponsor-package-walkthrough` SoT, checklist panel on home/help/demo explain, destination scroll to `#sponsor-handoff` gated on sample runs; Vitest). Prior: 2026-08-09 (**TB-2137** **Done** — golden-path empty/error recovery: `operator-branded-not-found-copy`, reviews hub not-found vs outage try-next, `isApiNotFoundFailure` error codes, buyer `RESOURCE_NOT_FOUND` headings; Vitest). Prior: 2026-08-09 (**TB-2136** **Done** — job → pack chooser primary on first-run `/architecture/reviews/new`; `AcceleratorJobChooserList` + expected-output buyer nouns; home `AcceleratorChooserCard` after first commit; Vitest). Prior: 2026-08-09 (**TB-2135** **Done** — `finding-trust-presentation` contract shared by inspect, compare decision-delta chips, and export footers; inferred `DeterministicRule` parity when wire label absent; Vitest cross-surface fixtures). Prior: 2026-08-09 (**TB-2134** **Done** — `InlineGlossaryChip` + `golden-path-glossary-nouns` SoT from customer glossary; chips on home empty, new review, review detail, post-finalize sponsor strip; Vitest). Prior: 2026-08-09 (**TB-2133** **Done** — restored pre-commit progressive disclosure: `filterNavLinksByCommittedArchitectureReviewGate` + shell/palette wiring; Operate/diagnostics hidden until first finalize; Vitest pre/post-commit snapshots). Prior: 2026-08-09 (**TB-2130**–**TB-2139** **opened** — owner ask: create P0s for ten easier-to-use / easier-to-understand levers; see cluster note below). Prior: 2026-08-09 (**TB-1323** **Done** — `/demo/explain` conversion CTA auth honesty: anonymous viewers get sign-in + `/see-it` ladder; signed-in keeps wizard preset; Vitest guards). Prior: 2026-08-09 (**TB-1320** **Done** — `/demo/explain` status banner uses `StatusTag` + human generated time; review id/manifest version/ISO behind Technical details; Vitest guards). Prior: 2026-08-09 (**TB-1316** **Done** — session-expired OIDC errors use **Sign-in could not start** + in-place Try again preserving `returnUrl`). Prior: 2026-08-09 (**TB-1315** **Done** — `/auth/session-expired` secondary exit to `/welcome`; Vitest forbids auth-bounce `/`). Prior: 2026-08-09 (**TB-1308** **Done** — `/why-archlucid` operator counter copy + in-app footer; Vitest forbids eng metric/repo path leakage).
 
 **BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **TB-386?397 Done** (2026-06-22 through 2026-06-27). **First-party connector V1.1?åÆV1 GA promotion (2026-07-03):** Jira/ServiceNow/Confluence/Slack/Microsoft Teams moved to **V1 GA** (`V1_DEFERRED.md` ?º6/?º6a); **TB-599?ÇôTB-602** track the resulting tightening work (native-create default posture, OAuth upgrade, live-validation parity, buyer-copy sweep). **Next recommended batch:** **TB-398** (full enterprise ITSM connector ?Çö **V2** ITSM cluster; out of V1/V1.1 unless owner promotes) remains separate and unaffected by the promotion. Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
@@ -198,6 +198,8 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 **TB-2140 — TB-2146** were added 2026-08-09 from the owner ask to **file P0s** for the next quantified performance opportunities after Done **TB-2117**–**TB-2124** (wave 5). All **P0** **V1**: Critic phase overlap / tighter admission after measured phases (**TB-2140**; residual of Done **TB-2121** instrumentation); Production Redis L2 beyond DEV (**TB-2141**); further `/architecture/reviews/[runId]` First Load JS cut (**TB-2142**, baseline **2150.6 kB**); narrow remaining operator `force-dynamic` (~**29** layouts) (**TB-2143**); alerts inbox + billing banners → TanStack Query (**TB-2144**); shared shell / home First Load residual (**TB-2145**); cold-start staging Phase B + paid-lever reopen gate (**TB-2146**). Same pass **promotes** open peers to **P0**: scale micro-drill harness (**TB-946**), compliance-journey ISR (**TB-1484**), example ROI bulletin ISR (**TB-1517**). Does **not** reopen Done **TB-560**–**TB-593** / **TB-754**–**TB-759** / **TB-915**/**TB-947**/**TB-932** / **TB-929**–**TB-935** / **TB-2021**–**TB-2032** / **TB-2053**–**TB-2062** / **TB-2117**–**TB-2124**.
 
 **TB-2148 — TB-2157** were added 2026-08-09 from the owner ask to **create P0s** for ten **untracked confusion-reduction** levers (adoption friction, trustworthiness, explainability). All **P0** **V1** — residual after Done **TB-2130**–**TB-2139** easier-to-use wave and open **TB-1667**–**TB-1670** contextual-help mounts; **do not reopen** Done **TB-2113**–**TB-2116** (durable mutation outcomes) or **TB-1026** (nav collapse contract — **TB-2153** enforces canonical-home labeling only). **TB-2148** mutation reversibility classification + undo window. **TB-2149** review execution background-safety + duration estimate + completion notify. **TB-2150** per-user “new since last visit” change markers. **TB-2151** specimen deliverable preview before intake commitment. **TB-2152** self-describing clickable count parity. **TB-2153** canonical object home + secondary-view labeling. **TB-2154** one-sentence finding derivation on card. **TB-2155** error recovery contract (what failed / what's intact / next step) + Vitest guard. **TB-2156** admin prerequisites readiness board. **TB-2157** multi-step wizard session persistence. No new GTM IDs.
+
+**TB-2168 — TB-2174** were added 2026-08-09 from the owner ask to **eliminate ghost buttons and require borders on every `Button`**. Inventory (2026-08-09, `archlucid-ui/src`): **102** render sites with `variant="ghost"` (including **1** `buttonVariants({ variant: "ghost" })`) across **72** files; **4** `variant="link"` button-styled controls; **~21** `DismissControl` call sites defaulting to ghost; **5** conditional branches that still select ghost at runtime (`HelpTopicMarkdownView`, `ScopeSwitcherProjectOptionButton`, `ProductLearningFeedbackControls`, `AskThreadHistoryPanel`, `PolicyPacksRefreshToolbar`); **342** explicit `default`/`secondary`/`primary`/`destructive` usages also lack borders today. All **P0** **V1**: bordered button contract + design-system rule (**TB-2168**); shared wrappers and runtime ghost branches (**TB-2169**); shell / auth / marketing sweep (**TB-2170**); CTO demo & tour overlay sweep (**TB-2171**); governance / reviews / insights sweep (**TB-2172**); administration / help / integrations / dense tertiary controls sweep (**TB-2173**); Vitest + ESLint drift guard (**TB-2174**). Does **not** reopen Done **TB-114**–**TB-120** token/surface work — this cluster tightens **button affordance** only. Peers: open **TB-1127** (disposition button affordance), **TB-1671**–**TB-1675** (unstyled links). No new GTM IDs.
 
 **TB-2158 — TB-2167** were added 2026-08-09 from the owner ask to **create P0s** for ten quantified performance levers **verified absent in tree** after Done **TB-2142**–**TB-2145** (wave 6 partial). All **P0** **V1**: conditional GET / ETag on hot operator reads (**TB-2158**); Azure OpenAI prompt-cache prefix stability + `cached_tokens` telemetry (**TB-2159**); single-flight coalescing in `HybridHotPathReadCache` (**TB-2160**); zero-cost runtime knobs — Server GC / TieredPGO / invariant globalization (**TB-2161**); `System.Text.Json` source-generated contexts for API DTOs (**TB-2162**); outbound `SocketsHttpHandler` tuning (**TB-2163**); table-valued parameters for findings child inserts (**TB-2164**); TanStack Query cache persistence (**TB-2165**); Web Worker offload for INP (**TB-2166**); leader election for hosted background services (**TB-2167**). **Verified already shipped — do not refile:** read-committed snapshot isolation (migration **091**), Query Store hot-path script + `infra/terraform-sql-failover/automatic_tuning.tf`, `SqlConnectionStringPoolNormalizer` pool sizing, and Brotli/gzip `AddArchLucidResponseCompression`. **Deliberately excluded:** payload compression and streaming-export work — Done **TB-932** measured DEV evidence at max ~**30 KB** with **0%** ≥ 1 MB, so the gain is near zero. Does **not** reopen Done **TB-560**–**TB-593** / **TB-754**–**TB-759** / **TB-929**–**TB-935** / **TB-2021**–**TB-2032** / **TB-2053**–**TB-2062** / **TB-2117**–**TB-2124** / **TB-2142**–**TB-2145**. Open peers not duplicated: **TB-2140** (Critic overlap), **TB-2141** (Redis L2 beyond DEV), **TB-2146** (cold-start Phase B). No new GTM IDs.
 
@@ -994,7 +996,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | ~~TB-1458~~ | ~~`/architectures/new` ? PageHeading H1 + PageContextualHelpButton~~ **Done** 2026-08-09; see `## TB-1458` below | Adoption friction P1 ? **V1**; owner review ~58/100 2026-07-27; traffic **ARN**; after Done **TB-747**/**TB-766**; pairs **TB-1446**/**TB-1451** | S |
 | ~~TB-1461~~ | ~~Architecture creation bootstrap ? Create vs Start new / resume title hierarchy~~ **Done** 2026-08-09; see `## TB-1461` below | Adoption friction P1 ? **V1**; with **TB-1458**; pairs **TB-1447** | S |
 | ~~TB-1462~~ | ~~Architecture creation bootstrap ? resume-first viewport when drafts exist~~ **Done** 2026-08-09; see `## TB-1462` below | Adoption friction P1 ? **V1**; with **TB-1458** | S |
-| TB-1465 | `/auth/bootstrap` ? brand + document metadata + Suspense (session-expired parity); see ## TB-1465 below | Adoption friction P1 ? **V1**; owner review ~52/100 2026-07-27; traffic **AUB**; pairs **TB-1313**/**TB-1314** | S |
+| ~~TB-1465~~ | ~~`/auth/bootstrap` ? brand + document metadata + Suspense (session-expired parity)~~ **Done** 2026-08-09; see `## TB-1465` below | Adoption friction P1 ? **V1**; owner review ~52/100 2026-07-27; traffic **AUB**; pairs **TB-1313**/**TB-1314** | S |
 | TB-1466 | Post-auth bootstrap ? loading skeleton (not prose-only Preparing?); see ## TB-1466 below | Adoption friction P1 ? **V1**; with **TB-1465** | S |
 | TB-1469 | Bootstrap auth chrome ? safe secondary exit / sign-in again path; see ## TB-1469 below | Adoption friction P1 ? **V1**; with **TB-1465**; pairs **TB-1315** | S |
 | TB-1472 | `/auth/invite` ? brand + document metadata + Suspense (auth parity); see ## TB-1472 below | Adoption friction P1 ? **V1**; owner review ~51/100 2026-07-27; traffic **AUI**; pairs **TB-1465**/**TB-1313**/**TB-1314** | S |
@@ -1247,6 +1249,13 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-2165 | TanStack Query cache persistence across navigation / reload; see ## TB-2165 below | Performance P0 — **V1**; owner perf wave 7 2026-08-09; residual after Done **TB-2123**/**TB-2144** | S |
 | TB-2166 | Web Worker offload for INP on evidence graph + compare views; see ## TB-2166 below | Performance P0 — **V1**; owner perf wave 7 2026-08-09; INP not addressed by bundle cuts; after Done **TB-2031** | M |
 | TB-2167 | Leader election for hosted background services — unblocks `min_replicas` lever; see ## TB-2167 below | Performance P0 — **V1**; owner perf wave 7 2026-08-09; reliability lever too; blocker named in **TB-2124** matrix | L |
+| TB-2168 | Bordered `Button` contract — remove `ghost`/`link` variants; add neutral border to all variants; see ## TB-2168 below | Adoption friction P0 — **V1**; owner button-border ask 2026-08-09; foundation for **TB-2169**–**TB-2174** | M |
+| TB-2169 | Shared button wrappers — `DismissControl`, `HelpTopicPdfDownloadButton`, `OptInTourLauncher`, runtime ghost branches; see ## TB-2169 below | Adoption friction P0 — **V1**; owner button-border ask 2026-08-09; after **TB-2168** | S |
+| TB-2170 | Shell / auth / marketing ghost-button sweep (~25 sites); see ## TB-2170 below | Adoption friction P0 — **V1**; owner button-border ask 2026-08-09; after **TB-2168** | M |
+| TB-2171 | CTO demo & tour overlay ghost-button sweep (~13 sites); see ## TB-2171 below | Adoption friction P0 — **V1**; owner button-border ask 2026-08-09; after **TB-2168** | S |
+| TB-2172 | Governance / reviews / insights ghost-button sweep (~30 sites); see ## TB-2172 below | Adoption friction P0 — **V1**; owner button-border ask 2026-08-09; after **TB-2168** | M |
+| TB-2173 | Administration / help / integrations / dense tertiary ghost-button sweep (~35 sites); see ## TB-2173 below | Adoption friction P0 — **V1**; owner button-border ask 2026-08-09; after **TB-2168** | M |
+| TB-2174 | CI drift guard — forbid `variant="ghost"` / `variant="link"` in `archlucid-ui/src`; see ## TB-2174 below | Adoption friction P0 — **V1**; owner button-border ask 2026-08-09; after **TB-2170**–**TB-2173** | S |
 | TB-932 | **Done** (2026-08-09) — **Won't do** — Offload large JSON payloads to blob storage; DEV LOB evidence max ~30 KB / 0% ≥1 MB; see ## TB-932 below | Performance P0 — **V1** (promoted P0 + V1 2026-08-08 with perf wave 5; evidence-gated; was P3 V2); after **TB-929**–**TB-931**; peers **TB-2119** | L |
 | TB-2103 | Operator-maintained model catalog — DDL-backed `IAgentModelAliasRegistry` replacing `ConfigAgentModelAliasRegistry`; internal-only admin surface; lifecycle + audit on every mutation; see ## TB-2103 below | Maintainability P1 — **V1.1**; ADR 0065 D2′; today curation needs a code change + deploy | L |
 | TB-2104 | Structured-output capability ladder (`StrictJsonSchema` \| `JsonObject` \| `DegradedTextParse`) per catalog row + per-task minimum, fail-closed routing; see ## TB-2104 below | Correctness P1 — **V1.1**; ADR 0065 D4′; the **only** quality-adjacent fail-closed control — function, not quality judgment | M |
@@ -37490,7 +37499,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-09) — `metadata` title/description via `auth-bootstrap-page-copy.ts`; `Suspense` + branded `AuthFlowShell` loading fallback on `page.tsx`; client wrapped in `AuthFlowShell` with shared `PostAuthBootstrapLoadingView`; Vitest `page.test.tsx`, `PostAuthBootstrapClient.test.tsx`, `PostAuthBootstrapLoadingView.test.tsx`.
 
 **Priority:** P0.
 
@@ -51064,5 +51073,206 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 **Out of scope:** Splitting the worker into a separate deployment (V1.1); raising `min_replicas` in this row — that stays owner-gated under **TB-2146**.
 
 **Size estimate:** L.
+
+---
+
+## TB-2168 — Bordered `Button` contract — remove ghost/link variants (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner button-border ask 2026-08-09; inventory shows **102** `variant="ghost"` render sites in **72** files plus **4** `variant="link"` and **342** explicit filled variants (`default`/`secondary`/`primary`/`destructive`) that also lack borders.
+
+**Why:** Ghost and link `Button` variants render as borderless text controls — they fail the enterprise affordance bar (operators cannot distinguish clickable buttons from body copy at a glance). The owner standard is: **no ghost buttons; every `Button` has a visible neutral border** (teal reserved for primary commit actions and focus rings per `UI_DESIGN_SYSTEM.md`).
+
+**Approach:**
+
+1. Update `archlucid-ui/src/components/ui/button.tsx`: remove `ghost` and `link` from `buttonVariants`; add `border border-neutral-300` (dark-mode parity) to `default`, `secondary`, `primary`, and `destructive` while preserving existing fill/hover semantics.
+2. Document the rule in `docs/library/UI_DESIGN_SYSTEM.md` § *Tabs vs buttons* — tertiary/dismiss/cancel actions use `outline` or `secondary`, never ghost; navigation actions that look like links use `OPERATOR_LINK` / `<Link>` styling, not `Button variant="link"`.
+3. Update `.cursor/rules/UI-Enterprise-Design-Standard.mdc` one-liner so agents stop introducing ghost.
+4. Fix compile breaks from removed variants in follow-on rows **TB-2169**–**TB-2173** (this row may land with a temporary type alias only if needed for incremental migration — prefer one PR).
+
+**Acceptance:** `button.tsx` exports no `ghost` or `link` variant; all shipped `Button` variants include a visible border; design-system doc states the rule; Vitest snapshot or class assertion on `buttonVariants` covers border presence.
+
+**Affected files:** `archlucid-ui/src/components/ui/button.tsx`, `docs/library/UI_DESIGN_SYSTEM.md`, `.cursor/rules/UI-Enterprise-Design-Standard.mdc`.
+
+**Peers:** **TB-2169**–**TB-2174**; open **TB-1127** (disposition affordance), **TB-1671**–**TB-1675** (bare links).
+
+**Out of scope:** `FilterChip`, `Tabs`, or segmented controls — buttons only.
+
+**Size estimate:** M.
+
+---
+
+## TB-2169 — Shared button wrappers — eliminate ghost defaults (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner button-border ask 2026-08-09; shared abstractions propagate ghost after **TB-2168** removes the variant.
+
+**Why:** Even after call-site sweeps, wrappers that default to `ghost` reintroduce borderless buttons: `DismissControl` (~**21** production mounts), `HelpTopicPdfDownloadButton` (`variant?: "outline" | "ghost"`), `OptInTourLauncher` (`buttonVariant?: "outline" | "ghost"`), and runtime branches in `HelpTopicMarkdownView`, `ScopeSwitcherProjectOptionButton`, `ProductLearningFeedbackControls`, `AskThreadHistoryPanel`, `PolicyPacksRefreshToolbar`.
+
+**Approach:**
+
+1. `DismissControl`: default `variant` → `outline`; remove `ghost` from the prop union; update `DismissControl.test.tsx`.
+2. `HelpTopicPdfDownloadButton`: drop `ghost` from props; always `outline`.
+3. `OptInTourLauncher` / `CompareSampleComparisonAction`: drop `ghost` option; document `outline` as the tertiary tour launcher.
+4. Replace conditional ghost branches listed above with `outline` or `secondary` per surface density.
+5. Vitest: no `ghost` string in these modules; dismiss controls render bordered.
+
+**Acceptance:** Shared wrappers cannot emit ghost; conditional branches updated; tests green.
+
+**Affected files:** `DismissControl.tsx`, `HelpTopicPdfDownloadButton.tsx`, `OptInTourLauncher.tsx`, `HelpTopicMarkdownView.tsx`, `ScopeSwitcherProjectOptionButton.tsx`, `ProductLearningFeedbackControls.tsx`, `AskThreadHistoryPanel.tsx`, `PolicyPacksRefreshToolbar.tsx`, related tests.
+
+**Peers:** **TB-2168** (prerequisite), **TB-2174** (guard).
+
+**Size estimate:** S.
+
+---
+
+## TB-2170 — Shell / auth / marketing ghost-button sweep (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner button-border ask 2026-08-09; **~25** ghost sites across shell chrome and entry/auth/marketing surfaces.
+
+**Why:** First-impression surfaces (shell top bar, mobile nav, sign-in steps, welcome modal, marketing header/CTAs) still use ghost for logo-adjacent links, back/cancel, and secondary CTAs — the highest-traffic violation of the bordered-button rule.
+
+**Approach:**
+
+1. Replace every `variant="ghost"` in: `ExecutiveShellFrame`, `AppShellClient`, `OperatorShellTopBar`, `OperatorShellTopBarMoreMenu`, `MobileNavDrawer`, `ScopeSwitcher`, `AccountSettingsMenu`, `MarketingPublicHeader`, `SidebarNavLayoutSettingsPanel`, `NavPinnedLinksPanel`, `SignInEmailStep`, `SignInCodeStep`, `SignInSsoRequiredStep`, `AuthCallbackAccessPanel`, `welcome-modal`, `HeroEarlyAccessCta`, `LiveDemoConversionCta`.
+2. Map cancel/back → `outline`; dense icon-only shell controls → `outline` `size="sm"` or `icon` with border; marketing secondary CTAs → `outline`.
+3. Vitest/a11y: existing stable selectors preserved; axe on sign-in + welcome smoke paths.
+
+**Acceptance:** Zero `variant="ghost"` in the listed files; bordered affordance on every replaced control.
+
+**Affected files:** shell components above, auth sign-in/callback routes, marketing CTAs, related tests.
+
+**Peers:** **TB-2168**, **TB-2174**.
+
+**Size estimate:** M.
+
+---
+
+## TB-2171 — CTO demo & tour overlay ghost-button sweep (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner button-border ask 2026-08-09; `BuyerCtoDemoTourOverlay` alone ships **10** ghost buttons plus `OnboardingTour`, `CtoDemoHowItWorksTrigger`, `CtoDemoSoftRestartButton`.
+
+**Why:** Buyer-polished demo/tour chrome is a golden-path surface; ghost dismiss/toggle controls read as inactive text during live sponsor walkthroughs.
+
+**Approach:**
+
+1. Replace all ghost variants in `BuyerCtoDemoTourOverlay.tsx`, `OnboardingTour.tsx`, `CtoDemoHowItWorksTrigger.tsx`, `CtoDemoSoftRestartButton.tsx`.
+2. Presenter-layer toggles and tour dismiss → `outline` `size="sm"`; end-tour → `outline` with explicit label (not text-only).
+3. Update `cto-demo` Vitest stable selectors if class names shift.
+
+**Acceptance:** Zero ghost in demo/tour modules; tour e2e/mock specs pass.
+
+**Affected files:** `BuyerCtoDemoTourOverlay.tsx`, `OnboardingTour.tsx`, `cto-demo/*`, related tests.
+
+**Peers:** **TB-2168**, Done **TB-1323** (demo CTA honesty).
+
+**Size estimate:** S.
+
+---
+
+## TB-2172 — Governance / reviews / insights ghost-button sweep (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner button-border ask 2026-08-09; **~30** ghost sites on governance, review detail, and insights routes.
+
+**Why:** High-stakes operator workflows (audit filters, signed records, findings explainability, export modals, evidence graph errors, compare/ask panels) hide tertiary actions as ghost — undermining trust next to commit buttons.
+
+**Approach:**
+
+1. Sweep ghost in: `AuditPageView`, `AuditActiveFilterChips`, `SignedRecordsListClient`, `GovernanceFindingsFilterBar`, `ReviewPackageSponsorHandoffStrip`, `RunDetailArtifactsExportsSection`, `RunFindingExplainabilityTable`, `GenerateAdrFromRunModal`, `TechnologyBaselinePanel`, `ReviewBoardWhitelabelConsultingExportButton`, `EvidenceTrailBuyerTraceTable`, `GraphBuyerEvidenceTrailError`, `AskThreadHistoryPanel`, `AskCompareReviewsCollapsible`, `RunTraceViewerLink`, `ReasoningTraceReadMore`, internal ops tables (`PricingQuoteAgingPageView`, `TrialFunnelOpsPageClient`, `IntegrationEventsDlqPageClient`, `RecommendationLearningOpsPageClient`).
+2. Clear-filter / cancel-in-dialog / “more” menus → `outline`; table row micro-actions → `outline` `size="sm"`.
+3. Vitest on affected buyer-polished fixtures.
+
+**Acceptance:** Zero ghost in listed governance/reviews/insights modules.
+
+**Affected files:** modules above + tests.
+
+**Peers:** **TB-2168**, **TB-2169**, open **TB-2148** (mutation dialogs — use bordered cancel consistently).
+
+**Size estimate:** M.
+
+---
+
+## TB-2173 — Administration / help / integrations / dense tertiary ghost-button sweep (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner button-border ask 2026-08-09; **~35** ghost sites across administration, help, integrations, wizard, and usability-dense controls.
+
+**Why:** Settings/admin routes and help surfaces still use ghost for remove/clear/help/export/copy-id affordances — the same borderless pattern the owner banned globally.
+
+**Approach:**
+
+1. Sweep ghost in: `AuthDomainsPageClient`, `SettingsRolesInvitePanel`, `InviteReviewerPageView`, `SettingsRolesMatrixSection`, `PendingInvitationsPanel`, `AccountSecurityPageClient`, `ModelGovernanceSettingsCard`, `TenantQualityGatesCard`, `TeamsNotificationsSelector`, `SlackDestinationsPanel`, `AlertRoutingContent`, `HelpSearchPanel`, `HelpMarkdownCodeBlock`, `HelpSpecialtyWalkthroughTemplatesClient`, `PageContextualHelpButton`, `PageScopedContextualHelpPanel`, `TechnicalIdDisclosure`, `ProductConceptsGlossaryDialog`, `UsabilityFeedbackWidget`, `RunsListCompareSelectionBar`, `OperatorHomeDisclosureSection`, `OperatorHomeWorkspaceContextDisclosure`, `AdvancedOptionsAccordion`, `CopyIdButton`, `InspectorPanel`, `OperatorRouteDiagnosticsPanel`, `PilotBaselineWizard`, `PilotModePolicyPackToggle`, `WizardStepConstraints`, `WizardStepAdvanced`, `ArchitectureDiagramEditor`.
+2. Help copy/export/remove → `outline`; wizard optional rows → `outline` or `secondary`.
+3. Update `HelpTopicAuthentication.test.tsx` expectation that referenced a ghost export control.
+
+**Acceptance:** Zero ghost in listed administration/help/integrations/usability modules.
+
+**Affected files:** modules above + tests.
+
+**Peers:** **TB-2168**, **TB-2169**, Done **TB-143**–**TB-148** (help presentation).
+
+**Size estimate:** M.
+
+---
+
+## TB-2174 — CI drift guard — forbid ghost/link `Button` variants (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner button-border ask 2026-08-09; prevent regression after **TB-2168**–**TB-2173**.
+
+**Why:** Without a guard, agents and contributors will reintroduce `variant="ghost"` via shadcn habit — undoing the bordered-button standard within weeks.
+
+**Approach:**
+
+1. Add ESLint rule or `scripts/` Vitest inventory (pattern: `variant="ghost"`, `variant="link"`, `buttonVariants({ variant: "ghost"`)`) scoped to `archlucid-ui/src/**/*.tsx` with allowlist empty after sweeps land.
+2. Fail CI when count > 0; message points to `UI_DESIGN_SYSTEM.md` and **TB-2168**.
+3. Optional: extend `button.tsx` unit test asserting `buttonVariants` keys exclude `ghost` and `link`.
+
+**Acceptance:** CI fails on new ghost/link button usage; repo reaches **0** violations before marking **Done**.
+
+**Affected files:** new drift guard test/script, `package.json` CI script hook if needed, `button.test.tsx` if added.
+
+**Peers:** **TB-2168**–**TB-2173** (execute after sweeps).
+
+**Size estimate:** S.
 
 ---

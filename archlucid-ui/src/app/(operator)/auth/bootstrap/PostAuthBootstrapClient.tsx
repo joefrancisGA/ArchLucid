@@ -1,11 +1,13 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import { AuthFlowShell } from "@/components/auth/AuthFlowShell";
 import { CreateWorkspaceForm } from "@/app/(operator)/auth/bootstrap/CreateWorkspaceForm";
+import { PostAuthBootstrapLoadingView } from "@/app/(operator)/auth/bootstrap/PostAuthBootstrapLoadingView";
 import { CREATE_WORKSPACE_COPY } from "@/lib/auth/create-workspace-schema";
 import type { CreateWorkspaceFormValues } from "@/lib/auth/create-workspace-schema";
 import { readInvitationToken } from "@/lib/auth/email-otp-session";
@@ -158,19 +160,18 @@ export function PostAuthBootstrapClient() {
     }
   };
 
+  const bootstrapChrome = (content: ReactNode) => (
+    <AuthFlowShell showEvaluationSignupLink={false}>
+      {content}
+    </AuthFlowShell>
+  );
+
   if (loading || status === null) {
-    return (
-      <div className="max-w-[560px]">
-        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role="status">
-          Preparing your ArchLucid workspace…
-        </p>
-      </div>
-    );
+    return bootstrapChrome(<PostAuthBootstrapLoadingView />);
   }
 
   if (status.destination === "AcceptInvitation") {
-    return (
-      <>
+    return bootstrapChrome(
         <div className="max-w-[560px]" data-testid="bootstrap-invitation-step">
           <h1 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{CREATE_WORKSPACE_COPY.invitationTitle}</h1>
           <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
@@ -212,13 +213,11 @@ export function PostAuthBootstrapClient() {
             </p>
           ) : null}
         </div>
-</>
     );
   }
 
   if (status.destination === "SelectWorkspace") {
-    return (
-      <>
+    return bootstrapChrome(
         <div className="max-w-[560px]" data-testid="bootstrap-select-workspace-step">
           <h1 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{CREATE_WORKSPACE_COPY.selectWorkspaceTitle}</h1>
           <div className="mt-6 flex flex-col gap-3">
@@ -244,14 +243,12 @@ export function PostAuthBootstrapClient() {
             </p>
           ) : null}
         </div>
-</>
     );
   }
 
   if (status.destination === "CreateWorkspace" && status.canCreateWorkspace) {
-    return (
-      <>
-        <CreateWorkspaceForm
+    return bootstrapChrome(
+      <CreateWorkspaceForm
           pending={pending}
           errorMessage={errorMessage}
           showAccessRequest={status.duplicateOrganization?.accessRequestRecommended === true}
@@ -262,12 +259,10 @@ export function PostAuthBootstrapClient() {
             void handleAccessRequest();
           }}
         />
-</>
     );
   }
 
-  return (
-    <>
+  return bootstrapChrome(
       <div className="max-w-[560px]" data-testid="bootstrap-no-access-step">
         <h1 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{CREATE_WORKSPACE_COPY.noAccessTitle}</h1>
         <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
@@ -283,6 +278,5 @@ export function PostAuthBootstrapClient() {
           </Button>
         )}
       </div>
-</>
   );
 }
