@@ -1608,7 +1608,8 @@ export function stripAzureBoardsContributorLeakage(markdown: string): string {
  * TB-1632 — removes contributor repo-tree framing from in-app CAIQ/SIG questionnaire help.
  */
 export function stripCaiqSigContributorLeakage(markdown: string): string {
-  return markdown
+  const substituted = markdown
+    .replace(/\|\s*Response \(summary\)\s*\|/gi, "| Response |")
     .replace(/\|\s*Evidence in repo\s*\|/gi, "| Evidence |")
     .replace(/Evidence in repo/gi, "Evidence")
     .replace(/`?\.github\/[^`\s)]+`?/gi, "automated security testing in CI")
@@ -1623,6 +1624,15 @@ export function stripCaiqSigContributorLeakage(markdown: string): string {
     .replace(/pen-test-summaries\/[^\s`)]+/gi, "penetration test program documentation")
     .replace(/\n{3,}/g, "\n\n")
     .trimEnd();
+
+  return dedupeConsecutiveCaiqSigPhrase(substituted, "automated security testing in CI");
+}
+
+function dedupeConsecutiveCaiqSigPhrase(text: string, phrase: string): string {
+  const escapedPhrase = phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const pattern = new RegExp(`(${escapedPhrase})(?:\\s*,?\\s*\\1)+`, "gi");
+
+  return text.replace(pattern, "$1");
 }
 
 const SUBPROCESSORS_OMITTED_SECTION_PREFIXES = ["related documents"] as const;

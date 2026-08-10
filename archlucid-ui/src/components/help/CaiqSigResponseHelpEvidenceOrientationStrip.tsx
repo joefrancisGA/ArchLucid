@@ -1,7 +1,10 @@
 import Link from "next/link";
 
 import {
-  CAIQ_SIG_RESPONSE_HELP_CLAIM_DISCIPLINE,
+  CAIQ_SIG_RESPONSE_HELP_CLAIM_HEADING,
+  CAIQ_SIG_RESPONSE_HELP_CLAIM_NOT_THIS,
+  CAIQ_SIG_RESPONSE_HELP_CLAIM_SCOPE,
+  CAIQ_SIG_RESPONSE_HELP_LEAD,
   CAIQ_SIG_RESPONSE_HELP_SOURCES,
   CAIQ_SIG_RESPONSE_HELP_SOURCES_INTRO,
 } from "@/lib/caiq-sig-response-help-evidence-copy";
@@ -13,11 +16,27 @@ import { cn } from "@/lib/utils";
 export function CaiqSigResponseHelpEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <div className="space-y-3" data-testid="caiq-sig-response-help-orientation">
+      <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="caiq-sig-response-help-lead">
+        {CAIQ_SIG_RESPONSE_HELP_LEAD}
+      </p>
+
       <aside
         className={cn(DESIGN_TOKENS.callout.warn, "p-3")}
         data-testid="caiq-sig-response-help-claim-discipline"
+        aria-labelledby="caiq-sig-response-help-claim-heading"
       >
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{CAIQ_SIG_RESPONSE_HELP_CLAIM_DISCIPLINE}</p>
+        <h2
+          id="caiq-sig-response-help-claim-heading"
+          className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+        >
+          {CAIQ_SIG_RESPONSE_HELP_CLAIM_HEADING}
+        </h2>
+        <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>{CAIQ_SIG_RESPONSE_HELP_CLAIM_SCOPE}</p>
+        <ul className={cn("m-0 mt-2 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.helper)}>
+          {CAIQ_SIG_RESPONSE_HELP_CLAIM_NOT_THIS.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
       </aside>
 
       <section
@@ -34,7 +53,7 @@ export function CaiqSigResponseHelpEvidenceOrientationStrip(): React.JSX.Element
         <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {CAIQ_SIG_RESPONSE_HELP_SOURCES_INTRO}
         </p>
-        <ul className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.body)}>
+        <ul className={cn("m-0 mt-2 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body)}>
           {CAIQ_SIG_RESPONSE_HELP_SOURCES.map((link) => (
             <li key={`${link.href}-${link.label}`}>
               <Link
@@ -43,6 +62,7 @@ export function CaiqSigResponseHelpEvidenceOrientationStrip(): React.JSX.Element
               >
                 {link.label}
               </Link>
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{link.when}</p>
             </li>
           ))}
         </ul>

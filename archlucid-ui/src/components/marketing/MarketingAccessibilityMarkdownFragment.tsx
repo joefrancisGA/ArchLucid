@@ -641,11 +641,17 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
                         }
                       >
                         {isCaiqSigResponse && cIdx === statusColumnIndex && statusColumnIndex >= 0 ? (
-                          <CaiqSigResponseHelpStatusCell statusLabel={c} />
+                          <CaiqSigResponseHelpStatusCell
+                            statusLabel={c}
+                            renderInline={(text, keyPrefix) => renderInline(text, keyPrefix, renderOptions)}
+                          />
                         ) : isCaiqSigResponse &&
                           cIdx === responseColumnIndex &&
                           responseColumnIndex >= 0 ? (
-                          <CaiqSigResponseHelpStatusCell statusLabel={c} />
+                          <CaiqSigResponseHelpStatusCell
+                            statusLabel={c}
+                            renderInline={(text, keyPrefix) => renderInline(text, keyPrefix, renderOptions)}
+                          />
                         ) : isCaiqSigResponse && cIdx === evidenceColumnIndex && evidenceColumnIndex >= 0 ? (
                           <CaiqSigResponseHelpEvidenceCell
                             evidenceMarkdown={c}

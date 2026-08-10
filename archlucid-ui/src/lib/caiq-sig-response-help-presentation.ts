@@ -13,7 +13,7 @@ export const CAIQ_SIG_RESPONSE_LITE_SCOPE =
 export const CAIQ_SIG_RESPONSE_SIG_SCOPE =
   "SIG Core control families summarized for RFP appendix drafts — not a complete SIG row checklist." as const;
 
-export type CaiqSigPostureStatus = "Strong" | "Partial" | "Planned" | "Inherited";
+export type CaiqSigPostureStatus = "Affirmative" | "Strong" | "Partial" | "Planned" | "Inherited";
 
 export type CaiqSigResponsePostureCounts = Readonly<Record<CaiqSigPostureStatus, number>>;
 
@@ -35,11 +35,21 @@ const CAIQ_SECTION_PREFIXES = ["Governance", "Human resources", "Information man
 const SIG_FAMILY_HEADING_PREFIX = "Control family ";
 
 const EMPTY_POSTURE_COUNTS: CaiqSigResponsePostureCounts = {
+  Affirmative: 0,
   Strong: 0,
   Partial: 0,
   Planned: 0,
   Inherited: 0,
 };
+
+export type CaiqSigEvidenceSegmentKind = "evidence" | "gap" | "body";
+
+export type CaiqSigEvidenceSegment = {
+  readonly kind: CaiqSigEvidenceSegmentKind;
+  readonly text: string;
+};
+
+export const CAIQ_SIG_EVIDENCE_DISCLOSURE_WORD_LIMIT = 40 as const;
 
 export function isCaiqSigResponseHelpTopic(helpTopicSlug: string | undefined): boolean {
   return helpTopicSlug === "caiq-sig-response";
@@ -139,7 +149,7 @@ function normalizeSigStatusCell(statusCell: string): string {
     return "Partial";
   }
 
-  return trimmed.replace(/\s*\(engineering\)\s*$/i, "").trim();
+  return trimmed;
 }
 
 function normalizeSigTableRow(row: string): string {
@@ -402,7 +412,11 @@ function countPostureInTableRow(
   if (responseColumnIndex !== null && responseColumnIndex >= 0 && cells[responseColumnIndex] !== undefined) {
     const response = cells[responseColumnIndex] ?? "";
 
-    // CAIQ Lite Response cells may say Partial; Yes/No stay out of Strong/Planned/Inherited.
+    if (/^yes\b/i.test(response)) {
+      return "Affirmative";
+    }
+
+    // CAIQ Lite Response cells may say Partial; No stays out of Strong/Planned/Inherited.
     if (/^partial\b/i.test(response)) {
       return "Partial";
     }
@@ -437,7 +451,7 @@ export function computeCaiqSigResponsePostureCounts(preparedMarkdown: string): C
 
     if (!inTable) {
       statusColumnIndex = cells.findIndex((cell) => /^status$/i.test(cell));
-      responseColumnIndex = cells.findIndex((cell) => /^response/i.test(cell));
+      responseColumnIndex = cells.findIndex((cell) => /^response$/i.test(cell));
       inTable = true;
       continue;
     }
@@ -450,6 +464,89 @@ export function computeCaiqSigResponsePostureCounts(preparedMarkdown: string): C
   }
 
   return counts;
+}
+
+export function countCaiqSigResponseTableRows(preparedMarkdown: string): number {
+  let rowCount = 0;
+  const lines = preparedMarkdown.split("\n");
+  let statusColumnIndex: number | null = null;
+  let responseColumnIndex: number | null = null;
+  let inTable = false;
+
+  for (const line of lines) {
+    if (!line.trimStart().startsWith("|")) {
+      inTable = false;
+      statusColumnIndex = null;
+      responseColumnIndex = null;
+      continue;
+    }
+
+    if (/^[\s|:-]+$/.test(line.trim())) {
+      continue;
+    }
+
+    const cells = line
+      .split("|")
+      .map((cell) => cell.trim())
+      .filter((cell) => cell.length > 0);
+
+    if (!inTable) {
+      statusColumnIndex = cells.findIndex((cell) => /^status$/i.test(cell));
+      responseColumnIndex = cells.findIndex((cell) => /^response$/i.test(cell));
+      inTable = true;
+      continue;
+    }
+
+    if (statusColumnIndex !== null || responseColumnIndex !== null) {
+      rowCount += 1;
+    }
+  }
+
+  return rowCount;
+}
+
+export function sumCaiqSigResponsePostureCounts(counts: CaiqSigResponsePostureCounts): number {
+  return counts.Affirmative + counts.Strong + counts.Partial + counts.Planned + counts.Inherited;
+}
+
+export function resolveCaiqSigStatusQualifier(statusLabel: string): string | null {
+  const trimmed = statusLabel.trim();
+
+  if (/^planned\b/i.test(trimmed) && /not yet scheduled/i.test(trimmed)) {
+    return "not yet scheduled";
+  }
+
+  if (/\(engineering\)/i.test(trimmed)) {
+    return "Engineering-asserted";
+  }
+
+  return null;
+}
+
+export function resolveCaiqSigStatusNarrative(statusLabel: string): string | null {
+  const trimmed = statusLabel.trim();
+
+  const yesMatch = /^yes\s*[—–-]\s*(.+)/i.exec(trimmed);
+
+  if (yesMatch?.[1] !== undefined && yesMatch[1].trim().length > 0) {
+    return yesMatch[1].trim();
+  }
+
+  const noMatch = /^no\s*[—–-]\s*(.+)/i.exec(trimmed);
+
+  if (noMatch?.[1] !== undefined && noMatch[1].trim().length > 0) {
+    return noMatch[1].trim();
+  }
+
+  if (/^partial\s*[—–-]/i.test(trimmed)) {
+    const narrative = trimmed.replace(/^partial\s*[—–-]\s*/i, "").trim();
+
+    if (narrative.length > 0) {
+      return narrative;
+    }
+  }
+
+  return null;
 }
 
 export function mapCaiqSigStatusLabelToTagKind(statusLabel: string): EnterpriseStatusKind {
@@ -498,7 +595,73 @@ export function resolveCaiqSigStatusTagLabel(statusLabel: string): string {
   return trimmed;
 }
 
-const MARKDOWN_LINK_PATTERN = /\[[^\]]+\]\(([^)]+)\)/;
+function hasLinkedArtifactHref(text: string): boolean {
+  const linkTargets = [...text.matchAll(/\[[^\]]+\]\(([^)]+)\)/g)].map((match) => match[1] ?? "");
+
+  return linkTargets.some(
+    (target) =>
+      /\/help\//i.test(target) ||
+      /\/trust\b/i.test(target) ||
+      /^https?:\/\//i.test(target),
+  );
+}
+
+export function countWordsInCaiqSigEvidenceText(text: string): number {
+  return text
+    .trim()
+    .split(/\s+/)
+    .filter((word) => word.length > 0).length;
+}
+
+export function parseCaiqSigEvidenceSegments(evidenceMarkdown: string): readonly CaiqSigEvidenceSegment[] {
+  const trimmed = evidenceMarkdown.trim();
+
+  if (trimmed.length === 0) {
+    return [];
+  }
+
+  const gapMarker = /\*\*Gap\s*\/\s*next step:\*\*/i;
+  const evidenceMarker = /\*\*Evidence:\*\*/i;
+
+  if (!gapMarker.test(trimmed) && !evidenceMarker.test(trimmed)) {
+    return [{ kind: "body", text: trimmed }];
+  }
+
+  const segments: CaiqSigEvidenceSegment[] = [];
+  let remainder = trimmed;
+
+  const evidenceSplit = remainder.split(evidenceMarker);
+
+  if (evidenceSplit.length > 1) {
+    const beforeEvidence = evidenceSplit[0]?.trim() ?? "";
+
+    if (beforeEvidence.length > 0) {
+      segments.push({ kind: "body", text: beforeEvidence });
+    }
+
+    remainder = evidenceSplit.slice(1).join("**Evidence:**").trim();
+  }
+
+  const gapSplit = remainder.split(gapMarker);
+
+  if (gapSplit.length > 1) {
+    const evidenceBody = gapSplit[0]?.trim() ?? "";
+
+    if (evidenceBody.length > 0) {
+      segments.push({ kind: "evidence", text: evidenceBody });
+    }
+
+    const gapBody = gapSplit.slice(1).join("**Gap / next step:**").trim();
+
+    if (gapBody.length > 0) {
+      segments.push({ kind: "gap", text: gapBody });
+    }
+  } else if (remainder.length > 0) {
+    segments.push({ kind: evidenceMarker.test(trimmed) ? "evidence" : "body", text: remainder });
+  }
+
+  return segments.length > 0 ? segments : [{ kind: "body", text: trimmed }];
+}
 
 export function resolveCaiqSigEvidenceAffordance(
   evidenceCell: string,
@@ -521,14 +684,7 @@ export function resolveCaiqSigEvidenceAffordance(
     };
   }
 
-  if (MARKDOWN_LINK_PATTERN.test(trimmed) || /^\[[^\]]+\]\(\/help\//.test(trimmed) || /\/help\//.test(trimmed)) {
-    return {
-      kind: "linked-artifact",
-      qualifier: "Linked in-app artifact",
-    };
-  }
-
-  if (/^links?$/i.test(trimmed) || /^iac$/i.test(trimmed) || /in-repo api test suite/i.test(trimmed)) {
+  if (hasLinkedArtifactHref(trimmed)) {
     return {
       kind: "linked-artifact",
       qualifier: "Linked in-app artifact",

@@ -1,23 +1,28 @@
 import { StatusTag } from "@/components/StatusTag";
 import type { CaiqSigResponsePostureCounts } from "@/lib/caiq-sig-response-help-presentation";
+import { sumCaiqSigResponsePostureCounts } from "@/lib/caiq-sig-response-help-presentation";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 type CaiqSigResponseHelpPostureSummaryProps = {
   readonly counts: CaiqSigResponsePostureCounts;
+  readonly tableRowTotal: number;
 };
 
 const POSTURE_ROWS = [
-  { key: "Strong" as const, kind: "ready" as const },
-  { key: "Partial" as const, kind: "needs-attention" as const },
-  { key: "Planned" as const, kind: "in-progress" as const },
-  { key: "Inherited" as const, kind: "approved-with-monitoring" as const },
+  { key: "Affirmative" as const, kind: "ready" as const, label: "Yes" },
+  { key: "Strong" as const, kind: "ready" as const, label: "Strong" },
+  { key: "Partial" as const, kind: "needs-attention" as const, label: "Partial" },
+  { key: "Planned" as const, kind: "in-progress" as const, label: "Planned" },
+  { key: "Inherited" as const, kind: "approved-with-monitoring" as const, label: "Inherited" },
 ];
 
 /** Compact posture rollup for CAIQ Lite + SIG Core questionnaire rows. */
 export function CaiqSigResponseHelpPostureSummary(
   props: CaiqSigResponseHelpPostureSummaryProps,
 ): React.JSX.Element {
+  const classifiedTotal = sumCaiqSigResponsePostureCounts(props.counts);
+
   return (
     <section
       aria-labelledby="caiq-sig-response-help-posture-heading"
@@ -31,12 +36,13 @@ export function CaiqSigResponseHelpPostureSummary(
         Posture summary
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        SIG Core Status counts, plus CAIQ Lite Response rows marked Partial. Yes/No stay on Response cells.
+        Counts reconcile with Status and Response chips in the tables below ({classifiedTotal} of{" "}
+        {props.tableRowTotal} rows).
       </p>
       <ul className={cn("m-0 mt-2 flex list-none flex-wrap gap-2 p-0", OPERATOR_TYPOGRAPHY.body)}>
         {POSTURE_ROWS.map((row) => (
           <li key={row.key} className="inline-flex items-center gap-1.5">
-            <StatusTag kind={row.kind} label={row.key} />
+            <StatusTag kind={row.kind} label={row.label} />
             <span className="text-al-text-secondary" data-testid={`caiq-sig-posture-count-${row.key.toLowerCase()}`}>
               {props.counts[row.key]}
             </span>

@@ -8,14 +8,19 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownView";
 import { CaiqSigResponseHelpEvidenceOrientationStrip } from "@/components/help/CaiqSigResponseHelpEvidenceOrientationStrip";
 import {
-  CAIQ_SIG_RESPONSE_HELP_CLAIM_DISCIPLINE,
+  CAIQ_SIG_RESPONSE_HELP_CLAIM_HEADING,
+  CAIQ_SIG_RESPONSE_HELP_CLAIM_SCOPE,
+  CAIQ_SIG_RESPONSE_HELP_LEAD,
+  CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTION,
   CAIQ_SIG_RESPONSE_HELP_SOURCES,
 } from "@/lib/caiq-sig-response-help-evidence-copy";
 import {
   CAIQ_SIG_RESPONSE_LITE_PART_HEADING,
   CAIQ_SIG_RESPONSE_SIG_PART_HEADING,
   computeCaiqSigResponsePostureCounts,
+  countCaiqSigResponseTableRows,
   prepareCaiqSigResponseHelpMarkdown,
+  sumCaiqSigResponsePostureCounts,
 } from "@/lib/caiq-sig-response-help-presentation";
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
@@ -27,7 +32,7 @@ describe("HelpTopicMarkdownView caiq-sig-response", () => {
     expect(loaded).not.toBeNull();
   });
 
-  it("renders claim discipline, Sources links, posture summary, and export caveat", () => {
+  it("renders lead strip, claim discipline once, Sources links, posture summary, and primary CTA", () => {
     if (loaded === null) {
       throw new Error("Expected caiq-sig-response documentation to load.");
     }
@@ -43,18 +48,22 @@ describe("HelpTopicMarkdownView caiq-sig-response", () => {
       />,
     );
 
+    expect(screen.getByTestId("caiq-sig-response-help-lead")).toHaveTextContent(CAIQ_SIG_RESPONSE_HELP_LEAD);
+    expect(screen.getByRole("heading", { name: CAIQ_SIG_RESPONSE_HELP_CLAIM_HEADING })).toBeInTheDocument();
     expect(screen.getByTestId("caiq-sig-response-help-claim-discipline")).toHaveTextContent(
-      CAIQ_SIG_RESPONSE_HELP_CLAIM_DISCIPLINE,
+      CAIQ_SIG_RESPONSE_HELP_CLAIM_SCOPE,
     );
-    expect(screen.getByTestId("help-topic-export-claim-discipline")).toHaveTextContent(
-      "not a CPA SOC 2 attestation",
-    );
+    expect(screen.getAllByRole("heading", { name: CAIQ_SIG_RESPONSE_HELP_CLAIM_HEADING })).toHaveLength(1);
+
+    const primaryAction = screen.getByTestId(CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTION.testId);
+    expect(primaryAction).toHaveAttribute("href", CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTION.href);
 
     for (const link of CAIQ_SIG_RESPONSE_HELP_SOURCES) {
-      expect(within(screen.getByTestId("caiq-sig-response-help-sources")).getByRole("link", { name: link.label })).toHaveAttribute(
-        "href",
-        link.href,
-      );
+      const sourceLink = within(screen.getByTestId("caiq-sig-response-help-sources")).getByRole("link", {
+        name: link.label,
+      });
+      expect(sourceLink).toHaveAttribute("href", link.href);
+      expect(screen.getByText(link.when)).toBeInTheDocument();
     }
 
     expect(screen.getByTestId("caiq-sig-response-help-posture-summary")).toBeInTheDocument();
@@ -90,7 +99,7 @@ describe("HelpTopicMarkdownView caiq-sig-response", () => {
     expect(within(toc).getByRole("link", { name: "SIG Core control families" })).toBeInTheDocument();
   });
 
-  it("renders distinct accessible table captions and StatusTag cells", () => {
+  it("renders distinct accessible table captions, StatusTag cells, and CAIQ answer narratives", () => {
     if (loaded === null) {
       throw new Error("Expected caiq-sig-response documentation to load.");
     }
@@ -110,11 +119,17 @@ describe("HelpTopicMarkdownView caiq-sig-response", () => {
     expect(screen.getAllByText("Strong").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Planned").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Inherited").length).toBeGreaterThan(0);
+    expect(screen.getByText(/TLS to API/i)).toBeInTheDocument();
+    expect(screen.getByText(/annual engineering briefing/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/CodeQL/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/policy-based/i)).toBeInTheDocument();
     expect(screen.getAllByText("Available under NDA on request").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Inherited from cloud provider").length).toBeGreaterThan(0);
+    expect(screen.getByText("not yet scheduled")).toBeInTheDocument();
+    expect(screen.getAllByText("Engineering-asserted").length).toBeGreaterThan(0);
   });
 
-  it("reconciles posture summary Strong count with rendered Strong StatusTags outside the summary", () => {
+  it("reconciles posture summary counts with rendered chips outside the summary", () => {
     if (loaded === null) {
       throw new Error("Expected caiq-sig-response documentation to load.");
     }
@@ -122,20 +137,31 @@ describe("HelpTopicMarkdownView caiq-sig-response", () => {
     const sourcePath = loaded.entry.sourcePaths[0] ?? "";
     const prepared = prepareCaiqSigResponseHelpMarkdown(loaded.markdown, sourcePath);
     const counts = computeCaiqSigResponsePostureCounts(prepared);
+    const tableRowTotal = countCaiqSigResponseTableRows(prepared);
 
     render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} layoutVariant="technicalReference" />);
 
+    expect(screen.getByTestId("caiq-sig-posture-count-affirmative")).toHaveTextContent(String(counts.Affirmative));
     expect(screen.getByTestId("caiq-sig-posture-count-strong")).toHaveTextContent(String(counts.Strong));
     expect(screen.getByTestId("caiq-sig-posture-count-partial")).toHaveTextContent(String(counts.Partial));
     expect(screen.getByTestId("caiq-sig-posture-count-planned")).toHaveTextContent(String(counts.Planned));
     expect(screen.getByTestId("caiq-sig-posture-count-inherited")).toHaveTextContent(String(counts.Inherited));
+    expect(sumCaiqSigResponsePostureCounts(counts)).toBe(tableRowTotal);
 
     const summary = screen.getByTestId("caiq-sig-response-help-posture-summary");
-    const strongOutsideSummary = screen
-      .getAllByText("Strong")
-      .filter((node) => !summary.contains(node));
 
-    expect(strongOutsideSummary).toHaveLength(counts.Strong);
+    const chipLabels = [
+      { count: counts.Affirmative, label: "Yes" },
+      { count: counts.Strong, label: "Strong" },
+      { count: counts.Partial, label: "Partial" },
+      { count: counts.Planned, label: "Planned" },
+      { count: counts.Inherited, label: "Inherited" },
+    ] as const;
+
+    for (const chip of chipLabels) {
+      const outsideSummary = screen.getAllByText(chip.label).filter((node) => !summary.contains(node));
+      expect(outsideSummary).toHaveLength(chip.count);
+    }
   });
 
   it("uses the technical reference layout grid for dense questionnaire tables", () => {

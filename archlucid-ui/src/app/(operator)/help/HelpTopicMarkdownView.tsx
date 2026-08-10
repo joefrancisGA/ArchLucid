@@ -26,6 +26,8 @@ import {
 
   computeCaiqSigResponsePostureCounts,
 
+  countCaiqSigResponseTableRows,
+
   isCaiqSigResponseHelpTopic,
 
   prepareCaiqSigResponseHelpMarkdown,
@@ -37,6 +39,7 @@ import {
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { AUTHENTICATION_SIGN_IN_HELP_PRIMARY_ACTION } from "@/lib/authentication-sign-in-help-copy";
+import { CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTION } from "@/lib/caiq-sig-response-help-evidence-copy";
 import { ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION } from "@/lib/enterprise-onboarding-help-copy";
 
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
@@ -140,6 +143,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
     tocGroups ?? (isCaiqSigResponse ? buildCaiqSigResponseTocGroups(headings) : undefined);
 
   const postureCounts = isCaiqSigResponse ? computeCaiqSigResponsePostureCounts(preparedMarkdown) : null;
+  const postureTableRowTotal = isCaiqSigResponse ? countCaiqSigResponseTableRows(preparedMarkdown) : 0;
 
   const isAuthenticationSignInHelp = entry.slug === "authentication-sign-in";
 
@@ -194,7 +198,9 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
             ? ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION
             : isAuthenticationSignInHelp
               ? AUTHENTICATION_SIGN_IN_HELP_PRIMARY_ACTION
-              : undefined
+              : isCaiqSigResponse
+                ? CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTION
+                : undefined
         }
 
       />
@@ -227,7 +233,9 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
 
 
-      {postureCounts !== null ? <CaiqSigResponseHelpPostureSummary counts={postureCounts} /> : null}
+      {postureCounts !== null ? (
+        <CaiqSigResponseHelpPostureSummary counts={postureCounts} tableRowTotal={postureTableRowTotal} />
+      ) : null}
 
 
 

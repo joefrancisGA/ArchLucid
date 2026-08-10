@@ -6,7 +6,10 @@ import { cn } from "@/lib/utils";
 export function HelpTopicExportClaimDiscipline(): React.JSX.Element {
   return (
     <p
-      className={cn("m-0 max-w-3xl text-al-text-secondary print:text-black", OPERATOR_TYPOGRAPHY.helper)}
+      className={cn(
+        "m-0 max-w-3xl text-al-text-secondary print:text-black hidden print:block",
+        OPERATOR_TYPOGRAPHY.helper,
+      )}
       data-testid="help-topic-export-claim-discipline"
     >
       {CAIQ_SIG_RESPONSE_HELP_CLAIM_DISCIPLINE}
