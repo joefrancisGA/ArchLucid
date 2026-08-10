@@ -367,7 +367,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1578 | Anti-fair-share-TPM / anti-replicas-isolate-LLM / anti-silent-starvation honesty CI | Testability P1 **V1** — after **TB-1577**; pairs **M-296** |
 | TB-1579 | Alert rules Composite tab — demote secondary h2 under hub | Adoption friction P1 **V1** — GOC ~43/100 |
 | TB-1580 | Composite alert rules — design-system fields + Create Button | Adoption friction P1 **V1** — with **TB-1579** |
-| TB-1581 | Composite alert rules — enum/join/enabled honesty | Trustworthiness P1 **V1** — with **TB-1579** |
 | TB-1582 | Composite alert rules — empty/form first-viewport | Adoption friction P1 **V1** — with **TB-1579** |
 | TB-1583 | Composite alert rules — hide reserved reopen-delta + loading skeleton | Trustworthiness/adoption P1 **V1** — with **TB-1579** |
 | TB-1584 | Alert rules Conditions tab — demote secondary h2 under hub | Adoption friction P1 **V1** — GLR ~50/100 |

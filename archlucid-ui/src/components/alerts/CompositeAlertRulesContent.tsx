@@ -6,6 +6,7 @@ import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsCont
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
+import { StatusTag } from "@/components/ui/status-tag";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useOptionalAlertRulesHubRefresh } from "@/lib/alerts-hub-refresh-context";
 import { createCompositeAlertRule, listCompositeAlertRules } from "@/lib/api";
@@ -31,38 +32,20 @@ import {
   compositeRulesEmptyGettingStartedOperator,
   compositeRulesEmptyGettingStartedReader,
 } from "@/lib/alerts-hub-empty-guidance";
+import {
+  COMPOSITE_ALERT_CONDITION_OPERATOR_OPTIONS,
+  COMPOSITE_ALERT_DEDUPE_SCOPE_OPTIONS,
+  COMPOSITE_ALERT_JOIN_OPERATOR_OPTIONS,
+  COMPOSITE_ALERT_METRIC_OPTIONS,
+  compositeAlertRuleStatusKind,
+  compositeAlertRuleStatusLabel,
+  formatCompositeAlertConditionSummary,
+  formatCompositeAlertRuleSummary,
+} from "@/lib/composite-alert-rules-labels";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { CompositeAlertRule } from "@/types/composite-alert-rules";
 
-const METRICS = [
-  { value: "CriticalRecommendationCount", label: "Critical/high recommendation count" },
-  { value: "NewComplianceGapCount", label: "New compliance gap count (security deltas)" },
-  { value: "CostIncreasePercent", label: "Cost increase %" },
-  { value: "DeferredHighPriorityRecommendationCount", label: "Deferred high-priority count" },
-  { value: "RejectedSecurityRecommendationCount", label: "Rejected security recommendations" },
-  { value: "AcceptanceRatePercent", label: "Acceptance rate %" },
-];
-
-const COND_OPS = [
-  { value: "GreaterThanOrEqual", label: "≥" },
-  { value: "GreaterThan", label: ">" },
-  { value: "LessThanOrEqual", label: "≤" },
-  { value: "LessThan", label: "<" },
-  { value: "Equal", label: "=" },
-  { value: "NotEqual", label: "≠" },
-];
-
 const SEVERITIES = ["Info", "Warning", "High", "Critical"];
-const JOIN_OPS = [
-  { value: "And", label: "All conditions (AND)" },
-  { value: "Or", label: "Any condition (OR)" },
-];
-
-const DEDUPE = [
-  { value: "RuleOnly", label: "Rule only" },
-  { value: "RuleAndRun", label: "Rule + review" },
-  { value: "RuleAndComparison", label: "Rule + review + comparison" },
-];
 
 export function CompositeAlertRulesContent() {
   const canMutateComposite = useOperateCapability();
@@ -199,28 +182,31 @@ export function CompositeAlertRulesContent() {
               </div>
             ) : (
               items.map((r) => (
-                <div
+                <article
                   key={r.compositeRuleId}
                   className="rounded-lg border border-neutral-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-950"
+                  aria-label={`Composite alert rule ${r.name}`}
+                  data-testid={`composite-alert-rule-row-${r.compositeRuleId}`}
                 >
-                  <strong>{r.name}</strong>
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <strong>{r.name}</strong>
+                    <StatusTag
+                      kind={compositeAlertRuleStatusKind(r.isEnabled)}
+                      label={compositeAlertRuleStatusLabel(r.isEnabled)}
+                      data-testid={`composite-alert-rule-status-${r.compositeRuleId}`}
+                    />
+                  </div>
                   <div className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
-                    <div>
-                      Join: {r.operator} · Severity: {r.severity} · Enabled: {String(r.isEnabled)}
-                    </div>
-                    <div>
-                      Suppression: {r.suppressionWindowMinutes} min · Cooldown: {r.cooldownMinutes} min · Dedupe:{" "}
-                      {r.dedupeScope}
-                    </div>
+                    <p className="mb-2 text-neutral-600 dark:text-neutral-400">{formatCompositeAlertRuleSummary(r)}</p>
                     <ul className="mt-2">
                       {(r.conditions ?? []).map((c) => (
                         <li key={c.conditionId ?? `${c.metricType}-${c.thresholdValue}`}>
-                          {c.metricType} {c.operator} {c.thresholdValue}
+                          {formatCompositeAlertConditionSummary(c)}
                         </li>
                       ))}
                     </ul>
                   </div>
-                </div>
+                </article>
               ))
             )}
           </div>
@@ -274,7 +260,7 @@ export function CompositeAlertRulesContent() {
             onChange={(e) => setJoinOperator(e.target.value)}
             className="mt-1 block w-full p-2"
           >
-            {JOIN_OPS.map((j) => (
+            {COMPOSITE_ALERT_JOIN_OPERATOR_OPTIONS.map((j) => (
               <option key={j.value} value={j.value}>
                 {j.label}
               </option>
@@ -292,7 +278,7 @@ export function CompositeAlertRulesContent() {
                 onChange={(e) => setM1(e.target.value)}
                 className="mt-1 block w-full p-2"
               >
-                {METRICS.map((x) => (
+                {COMPOSITE_ALERT_METRIC_OPTIONS.map((x) => (
                   <option key={x.value} value={x.value}>
                     {x.label}
                   </option>
@@ -306,9 +292,9 @@ export function CompositeAlertRulesContent() {
                 onChange={(e) => setO1(e.target.value)}
                 className="mt-1 block w-full p-2"
               >
-                {COND_OPS.map((x) => (
+                {COMPOSITE_ALERT_CONDITION_OPERATOR_OPTIONS.map((x) => (
                   <option key={x.value} value={x.value}>
-                    {x.label} {x.value}
+                    {x.label}
                   </option>
                 ))}
               </select>
@@ -336,7 +322,7 @@ export function CompositeAlertRulesContent() {
                 onChange={(e) => setM2(e.target.value)}
                 className="mt-1 block w-full p-2"
               >
-                {METRICS.map((x) => (
+                {COMPOSITE_ALERT_METRIC_OPTIONS.map((x) => (
                   <option key={x.value} value={x.value}>
                     {x.label}
                   </option>
@@ -350,9 +336,9 @@ export function CompositeAlertRulesContent() {
                 onChange={(e) => setO2(e.target.value)}
                 className="mt-1 block w-full p-2"
               >
-                {COND_OPS.map((x) => (
+                {COMPOSITE_ALERT_CONDITION_OPERATOR_OPTIONS.map((x) => (
                   <option key={x.value} value={x.value}>
-                    {x.label} {x.value}
+                    {x.label}
                   </option>
                 ))}
               </select>
@@ -405,7 +391,7 @@ export function CompositeAlertRulesContent() {
             onChange={(e) => setDedupeScope(e.target.value)}
             className="mt-1 block w-full p-2"
           >
-            {DEDUPE.map((d) => (
+            {COMPOSITE_ALERT_DEDUPE_SCOPE_OPTIONS.map((d) => (
               <option key={d.value} value={d.value}>
                 {d.label}
               </option>
