@@ -82,14 +82,41 @@ describe("ArchitectureDraftListClient", () => {
     });
 
     const row = screen.getByTestId("architecture-draft-row-a1");
-    const status = within(row).getByLabelText("Status: Ready for review");
+    const status = within(row).getByText("Ready for review");
 
-    expect(status.className).toMatch(/blue/i);
+    expect(status.className).toMatch(/sky/i);
 
     const updated = within(row).getByText(/Updated/i);
 
     expect(updated.getAttribute("title")).toMatch(/2026/);
     expect(updated.textContent ?? "").toMatch(/Updated .+ · /);
+  });
+
+  it("shows browser-local scope honesty when the registry is empty", async () => {
+    listArchitectureDraftRegistryEntries.mockReturnValue([]);
+
+    render(<ArchitectureDraftListClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-list-empty")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText(/this browser/i)).toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-draft-list-scope-note")).not.toBeInTheDocument();
+  });
+
+  it("shows browser-local scope honesty above the list when drafts exist", async () => {
+    listArchitectureDraftRegistryEntries.mockReturnValue([entry({ architectureId: "a1" })]);
+
+    render(<ArchitectureDraftListClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-list-scope-note")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("architecture-draft-list-scope-note").textContent?.toLowerCase()).toContain(
+      "this browser",
+    );
   });
 
   it("keeps search, filters, and sort in one toolbar", async () => {
