@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 
 import { OperatorHomeExploreSampleSection } from "@/components/operator-home/OperatorHomeExploreSampleSection";
 import {
@@ -13,6 +14,15 @@ const committedReviewMock = vi.hoisted(() => ({ value: false }));
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: () => committedReviewMock.value,
+  useOperatorNavAuthority: () => ({
+    currentPrincipal: {
+      ...operatorNavOutsideProviderPrincipal,
+      authorityRank: 3,
+      hasCommittedArchitectureReview: committedReviewMock.value,
+    },
+    callerAuthorityRank: 3,
+    isAuthorityLoading: false,
+  }),
 }));
 
 vi.mock("@/components/operator-home/operator-home-workspace-activity-context", () => ({

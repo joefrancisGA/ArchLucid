@@ -1,3 +1,5 @@
+import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
+
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
@@ -13,7 +15,16 @@ vi.mock("@/components/OperatorNavAuthorityProvider", async () => {
 
   return {
     useNavCallerAuthorityRank: (): number => AUTHORITY_RANK.ReadAuthority,
-  };
+    useOperatorNavAuthority: () => ({
+    currentPrincipal: {
+      ...operatorNavOutsideProviderPrincipal,
+      authorityRank: 3,
+      hasCommittedArchitectureReview: false,
+    },
+    callerAuthorityRank: 3,
+    isAuthorityLoading: false,
+  }),
+};
 });
 
 import {

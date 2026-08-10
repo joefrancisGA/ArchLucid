@@ -77,8 +77,9 @@ vi.mock("@/components/OperatorPageHeader", () => ({
   ),
 }));
 
-vi.mock("@/lib/architecture-draft-registry", () => ({
-  listArchitectureDraftRegistryEntries: () => [],
+vi.mock("@/hooks/use-architecture-draft-registry-entries", () => ({
+  useArchitectureDraftRegistryEntries: () => [],
+  useArchitectureDraftRegistryHydrated: () => true,
 }));
 
 vi.mock("@/components/OperatorWelcomeOnboarding", () => ({

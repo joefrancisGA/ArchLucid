@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 
 import { PilotCommandCenterCard } from "./PilotCommandCenterCard";
 import { OperatorHomeContinueSetupCard } from "@/components/operator-home/OperatorHomeContinueSetupCard";
@@ -13,7 +14,15 @@ import {
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
   useNavCallerAuthorityRank: () => 100,
-}));
+  useOperatorNavAuthority: () => ({
+    currentPrincipal: {
+      ...operatorNavOutsideProviderPrincipal,
+      authorityRank: 100,
+      hasCommittedArchitectureReview: false,
+    },
+    callerAuthorityRank: 100,
+    isAuthorityLoading: false,
+  }),}));
 
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => true,

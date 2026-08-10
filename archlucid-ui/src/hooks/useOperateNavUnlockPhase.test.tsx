@@ -1,5 +1,6 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 
 import { useOperateNavUnlockPhase } from "@/hooks/useOperateNavUnlockPhase";
 import {
@@ -10,6 +11,15 @@ import {
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
+  useOperatorNavAuthority: () => ({
+    currentPrincipal: {
+      ...operatorNavOutsideProviderPrincipal,
+      authorityRank: 3,
+      hasCommittedArchitectureReview: false,
+    },
+    callerAuthorityRank: 3,
+    isAuthorityLoading: false,
+  }),
 }));
 
 import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";

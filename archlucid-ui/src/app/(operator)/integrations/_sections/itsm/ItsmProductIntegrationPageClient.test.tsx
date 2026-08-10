@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 
 const mockFetchHealth = vi.fn();
 const mockFetchSettings = vi.fn();
@@ -11,6 +12,15 @@ vi.mock("@/hooks/use-operate-capability", () => ({
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => mockCallerAuthorityRank(),
+  useOperatorNavAuthority: () => ({
+    currentPrincipal: {
+      ...operatorNavOutsideProviderPrincipal,
+      authorityRank: mockCallerAuthorityRank,
+      hasCommittedArchitectureReview: false,
+    },
+    callerAuthorityRank: mockCallerAuthorityRank,
+    isAuthorityLoading: false,
+  }),
 }));
 
 vi.mock("@/lib/api/itsm-outbound-api", () => ({

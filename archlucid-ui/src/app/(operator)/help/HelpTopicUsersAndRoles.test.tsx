@@ -1,5 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 
 const useNavCallerAuthorityRank = vi.hoisted(() => vi.fn(() => 1));
 
@@ -9,6 +10,15 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => useNavCallerAuthorityRank(),
+  useOperatorNavAuthority: () => ({
+    currentPrincipal: {
+      ...operatorNavOutsideProviderPrincipal,
+      authorityRank: useNavCallerAuthorityRank,
+      hasCommittedArchitectureReview: false,
+    },
+    callerAuthorityRank: useNavCallerAuthorityRank,
+    isAuthorityLoading: false,
+  }),
 }));
 
 import { HelpUsersAndRolesGuideView } from "@/app/(operator)/help/_sections/HelpUsersAndRolesGuideView";

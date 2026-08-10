@@ -1,11 +1,21 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 
 const useNavCallerAuthorityRank = vi.hoisted(() => vi.fn(() => 100));
 const validateTier2ConnectionHostedRun = vi.hoisted(() => vi.fn());
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => useNavCallerAuthorityRank(),
+  useOperatorNavAuthority: () => ({
+    currentPrincipal: {
+      ...operatorNavOutsideProviderPrincipal,
+      authorityRank: useNavCallerAuthorityRank,
+      hasCommittedArchitectureReview: false,
+    },
+    callerAuthorityRank: useNavCallerAuthorityRank,
+    isAuthorityLoading: false,
+  }),
 }));
 
 vi.mock("@/lib/api/cloud-connections-api", () => ({

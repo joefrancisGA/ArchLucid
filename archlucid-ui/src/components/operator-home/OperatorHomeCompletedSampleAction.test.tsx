@@ -1,11 +1,21 @@
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 
 const useNavCallerAuthorityRank = vi.fn(() => 3);
 const useFeaturedCompletedSampleQuery = vi.fn();
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => useNavCallerAuthorityRank(),
+  useOperatorNavAuthority: () => ({
+    currentPrincipal: {
+      ...operatorNavOutsideProviderPrincipal,
+      authorityRank: useNavCallerAuthorityRank,
+      hasCommittedArchitectureReview: false,
+    },
+    callerAuthorityRank: useNavCallerAuthorityRank,
+    isAuthorityLoading: false,
+  }),
 }));
 
 vi.mock("@/hooks/use-featured-completed-sample-query", () => ({

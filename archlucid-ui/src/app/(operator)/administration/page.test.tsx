@@ -33,6 +33,7 @@ vi.mock("@/lib/operator-scope-storage", () => ({
     workspaceLabel: "Contoso",
     projectLabel: "Pilot",
   }),
+  getEffectiveBrowserProxyScopeHeaders: () => ({}),
 }));
 
 vi.mock("next/link", () => ({

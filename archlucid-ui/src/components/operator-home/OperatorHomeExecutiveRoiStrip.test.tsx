@@ -1,5 +1,6 @@
 import { screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 
 import { OperatorHomeExecutiveRoiStrip } from "@/components/operator-home/OperatorHomeExecutiveRoiStrip";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,6 +8,15 @@ import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
+  useOperatorNavAuthority: () => ({
+    currentPrincipal: {
+      ...operatorNavOutsideProviderPrincipal,
+      authorityRank: 3,
+      hasCommittedArchitectureReview: false,
+    },
+    callerAuthorityRank: 3,
+    isAuthorityLoading: false,
+  }),
 }));
 
 vi.mock("@/lib/fetch-executive-roi-summary-client", () => ({

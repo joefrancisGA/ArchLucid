@@ -60,10 +60,16 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
-  useNavCallerAuthorityRank: (): number => 3,
-  useNavCommittedArchitectureReview: (): boolean => true,
-}));
+vi.mock("@/components/OperatorNavAuthorityProvider", async () => {
+  const { createOperatorNavAuthorityVitestMock } = await import(
+    "@/testing/operator-nav-authority-vitest-mock"
+  );
+
+  return createOperatorNavAuthorityVitestMock({
+    callerAuthorityRank: 3,
+    hasCommittedArchitectureReview: true,
+  });
+});
 
 vi.mock("next/link", () => ({
   default: ({

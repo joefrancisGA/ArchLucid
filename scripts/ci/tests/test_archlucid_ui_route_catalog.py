@@ -148,9 +148,10 @@ def test_build_catalog_skips_rer_run_artifact_preview_redirect_page() -> None:
     assert "/architecture/reviews/[runId]/artifacts/[artifactId]" not in catalog
 
 
-def test_build_catalog_skips_demo_entry_redirect_page() -> None:
+def test_build_catalog_tracks_demo_entry_redirect_bookmark() -> None:
     catalog = build_catalog()
-    assert "/demo" not in catalog
+    assert "/demo" in catalog
+    assert catalog["/demo"].source == "redirect_bookmark"
     assert "/demo/explain" in catalog
     assert "/demo/preview" in catalog
 

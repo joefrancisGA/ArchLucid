@@ -15,4 +15,4 @@ export const ADMIN_CONFIGURATION_TRAFFIC_SECTION = "Admin";
  * ASCII-only for Windows console note scripts.
  */
 export const ADMIN_CONFIGURATION_TRAFFIC_NOTE =
- "Configuration summary (Admin) - AdminConfigurationPageView with PageContextualHelpButton (topic map configuration-reference; Category-1 registry), search/filters/lint. Sibling AHX = diagnostics; ADY = system-health. Not a signed-record Sources trail. Score 62/100 (2026-08-08) - admin config browse hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
+  "Configuration summary (Admin) - AdminConfigurationPageView with PageContextualHelpButton (topic map configuration-reference; Category-1 registry), search/filters/lint. Sibling AHX = diagnostics; ADY = system-health. Not a signed-record Sources trail. Score 62/100 (2026-08-08) - admin config browse hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";

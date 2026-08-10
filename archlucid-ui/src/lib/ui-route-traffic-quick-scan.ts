@@ -14,4 +14,5 @@ export const QUICK_SCAN_TRAFFIC_SECTION = "Marketing";
  * Owner workbook Notes for QXX - documents Evidence chrome on Quick scan.
  * ASCII-only for Windows console note scripts.
  */
-export const QUICK_SCAN_TRAFFIC_NOTE =  "Quick scan (Marketing) - QuickScanMarketingPage with QuickScanEvidenceOrientationStrip (evaluation Sources + claim-discipline: sample scan only). Not an operator PageContextualHelp surface.marketing/learning ceiling below operator Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
+export const QUICK_SCAN_TRAFFIC_NOTE =
+  "Quick scan (Marketing) - QuickScanMarketingPage with QuickScanEvidenceOrientationStrip (evaluation Sources + claim-discipline: sample scan only). Not an operator PageContextualHelp surface.marketing/learning ceiling below operator Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";

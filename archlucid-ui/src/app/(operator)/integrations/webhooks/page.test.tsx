@@ -3,6 +3,7 @@
  */
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 
 const apiMocks = vi.hoisted(() => ({
   list: vi.fn(),
@@ -20,7 +21,15 @@ vi.mock("@/hooks/use-operate-capability", () => ({
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => 2,
   useNavCommittedArchitectureReview: () => true,
-}));
+  useOperatorNavAuthority: () => ({
+    currentPrincipal: {
+      ...operatorNavOutsideProviderPrincipal,
+      authorityRank: 2,
+      hasCommittedArchitectureReview: true,
+    },
+    callerAuthorityRank: 2,
+    isAuthorityLoading: false,
+  }),}));
 
 vi.mock("@/lib/toast", () => ({
   showSuccess: vi.fn(),

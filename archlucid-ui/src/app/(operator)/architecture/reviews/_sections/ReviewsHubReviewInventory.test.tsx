@@ -3,10 +3,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { RunSummary } from "@/types/authority";
 
-const listArchitectureDraftRegistryEntries = vi.fn();
+const useArchitectureDraftRegistryEntries = vi.fn();
 
-vi.mock("@/lib/architecture-draft-registry", () => ({
-  listArchitectureDraftRegistryEntries: () => listArchitectureDraftRegistryEntries(),
+vi.mock("@/hooks/use-architecture-draft-registry-entries", () => ({
+  useArchitectureDraftRegistryEntries: () => useArchitectureDraftRegistryEntries(),
+  useArchitectureDraftRegistryHydrated: () => true,
 }));
 
 vi.mock("next/link", () => ({
@@ -28,8 +29,8 @@ vi.mock("next/link", () => ({
 import { ReviewsHubReviewInventory } from "./ReviewsHubReviewInventory";
 
 beforeEach(() => {
-  listArchitectureDraftRegistryEntries.mockReset();
-  listArchitectureDraftRegistryEntries.mockReturnValue([]);
+  useArchitectureDraftRegistryEntries.mockReset();
+  useArchitectureDraftRegistryEntries.mockReturnValue([]);
 });
 
 describe("ReviewsHubReviewInventory", () => {
@@ -47,7 +48,7 @@ describe("ReviewsHubReviewInventory", () => {
   });
 
   it("keeps rich empty CTAs when drafts exist", () => {
-    listArchitectureDraftRegistryEntries.mockReturnValue([
+    useArchitectureDraftRegistryEntries.mockReturnValue([
       {
         architectureId: "draft-001",
         displayName: "Payments platform draft",

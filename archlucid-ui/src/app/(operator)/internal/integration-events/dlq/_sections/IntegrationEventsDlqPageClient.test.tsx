@@ -1,10 +1,20 @@
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 
 const nav = vi.hoisted(() => ({ callerAuthorityRank: 3 }));
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => nav.callerAuthorityRank,
+  useOperatorNavAuthority: () => ({
+    currentPrincipal: {
+      ...operatorNavOutsideProviderPrincipal,
+      authorityRank: nav.callerAuthorityRank,
+      hasCommittedArchitectureReview: false,
+    },
+    callerAuthorityRank: nav.callerAuthorityRank,
+    isAuthorityLoading: false,
+  }),
 }));
 
 import { IntegrationEventsDlqPageClient } from "./IntegrationEventsDlqPageClient";

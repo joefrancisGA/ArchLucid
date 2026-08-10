@@ -15,4 +15,4 @@ export const GOVERNANCE_SETUP_TRAFFIC_SECTION = "Alerts/gov";
  * ASCII-only for Windows console note scripts.
  */
 export const GOVERNANCE_SETUP_TRAFFIC_NOTE =
- "Governance setup guide (Alerts/gov) - GovernanceSetupGuidePageView with PageContextualHelpButton (topic map governance-approval; Category-1 registry), outcome-framed steps and progress coach. Links into audited config workspaces. Not a signed-record Sources trail. Score 62/100 (2026-08-08) - setup checklist hard-caps without live config depth. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
+  "Governance setup guide (Alerts/gov) - GovernanceSetupGuidePageView with PageContextualHelpButton (topic map governance-approval; Category-1 registry), outcome-framed steps and progress coach. Links into audited config workspaces. Not a signed-record Sources trail. Score 62/100 (2026-08-08) - setup checklist hard-caps without live config depth. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";

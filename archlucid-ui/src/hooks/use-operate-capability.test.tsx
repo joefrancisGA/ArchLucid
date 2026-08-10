@@ -1,5 +1,6 @@
 import { renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
@@ -8,6 +9,15 @@ const navCallerAuthorityRank = vi.hoisted(() => ({ current: 1 }));
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: (): number => navCallerAuthorityRank.current,
+  useOperatorNavAuthority: () => ({
+    currentPrincipal: {
+      ...operatorNavOutsideProviderPrincipal,
+      authorityRank: navCallerAuthorityRank.current,
+      hasCommittedArchitectureReview: false,
+    },
+    callerAuthorityRank: navCallerAuthorityRank.current,
+    isAuthorityLoading: false,
+  }),
 }));
 
 import { useOperateCapability } from "@/hooks/use-operate-capability";

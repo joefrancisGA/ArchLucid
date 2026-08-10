@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 
 import { FindingExplainPanel } from "@/components/FindingExplainPanel";
 import * as api from "@/lib/api";
@@ -8,6 +9,15 @@ import type { FindingLlmAudit } from "@/types/explanation";
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: (): number => AUTHORITY_RANK.ExecuteAuthority,
+  useOperatorNavAuthority: () => ({
+    currentPrincipal: {
+      ...operatorNavOutsideProviderPrincipal,
+      authorityRank: AUTHORITY_RANK.ExecuteAuthority,
+      hasCommittedArchitectureReview: false,
+    },
+    callerAuthorityRank: AUTHORITY_RANK.ExecuteAuthority,
+    isAuthorityLoading: false,
+  }),
 }));
 
 describe("FindingExplainPanel", () => {

@@ -1,5 +1,6 @@
 import { fireEvent, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 
 import { AdvisoryScansContent } from "@/components/advisory/AdvisoryScansContent";
 import { renderWithOperatorQuery } from "@/testing/operator-query-test-helpers";
@@ -15,7 +16,15 @@ import {
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => 0,
-}));
+  useOperatorNavAuthority: () => ({
+    currentPrincipal: {
+      ...operatorNavOutsideProviderPrincipal,
+      authorityRank: 0,
+      hasCommittedArchitectureReview: false,
+    },
+    callerAuthorityRank: 0,
+    isAuthorityLoading: false,
+  }),}));
 
 vi.mock("@/components/RunIdPicker", () => ({
   RunIdPicker: (props: {

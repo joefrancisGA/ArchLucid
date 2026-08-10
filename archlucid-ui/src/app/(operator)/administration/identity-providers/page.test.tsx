@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 
 const hoistedIdentityProvidersLoad = vi.hoisted(() => ({ demo: false }));
 
@@ -22,7 +23,15 @@ vi.mock("@/lib/proxy-fetch-registration-scope", () => ({
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => 100,
   useNavCommittedArchitectureReview: () => false,
-}));
+  useOperatorNavAuthority: () => ({
+    currentPrincipal: {
+      ...operatorNavOutsideProviderPrincipal,
+      authorityRank: 100,
+      hasCommittedArchitectureReview: false,
+    },
+    callerAuthorityRank: 100,
+    isAuthorityLoading: false,
+  }),}));
 
 import IdentityProvidersSettingsPage from "./page";
 import { IDENTITY_PROVIDERS_PAGE_TITLE } from "@/lib/identity-providers-settings-copy";

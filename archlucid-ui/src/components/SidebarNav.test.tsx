@@ -31,10 +31,16 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
-  useNavCallerAuthorityRank: () => 1,
-  useNavCommittedArchitectureReview: () => committedReviewMock.value,
-}));
+vi.mock("@/components/OperatorNavAuthorityProvider", async () => {
+  const { createOperatorNavAuthorityVitestMock } = await import(
+    "@/testing/operator-nav-authority-vitest-mock"
+  );
+
+  return createOperatorNavAuthorityVitestMock({
+    callerAuthorityRank: 1,
+    hasCommittedArchitectureReview: committedReviewMock.value,
+  });
+});
 
 vi.mock("@/hooks/use-governance-mode", () => ({
   useGovernanceMode: () => ({

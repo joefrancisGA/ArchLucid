@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 
 import { CreateWorkItemDialog } from "./CreateWorkItemDialog";
 import type { ArchitectureWorkItemPreview } from "@/lib/architecture-work-item-model";
@@ -29,6 +30,15 @@ vi.mock("@/lib/copy-finding-as-work-item", () => ({
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => useNavCallerAuthorityRank(),
+  useOperatorNavAuthority: () => ({
+    currentPrincipal: {
+      ...operatorNavOutsideProviderPrincipal,
+      authorityRank: useNavCallerAuthorityRank,
+      hasCommittedArchitectureReview: false,
+    },
+    callerAuthorityRank: useNavCallerAuthorityRank,
+    isAuthorityLoading: false,
+  }),
 }));
 
 const preview: ArchitectureWorkItemPreview = {

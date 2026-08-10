@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 
 vi.mock("@/lib/toast", () => ({
   showError: vi.fn(),
@@ -12,7 +13,15 @@ vi.mock("@/hooks/use-operate-capability", () => ({
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => 100,
-}));
+  useOperatorNavAuthority: () => ({
+    currentPrincipal: {
+      ...operatorNavOutsideProviderPrincipal,
+      authorityRank: 100,
+      hasCommittedArchitectureReview: false,
+    },
+    callerAuthorityRank: 100,
+    isAuthorityLoading: false,
+  }),}));
 
 vi.mock("@/lib/api/cloud-connections-api", () => ({
   configureTier2Connection: vi.fn(),

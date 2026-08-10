@@ -19,6 +19,10 @@ DEFAULT_NEW_HIT_PCT = "0.02%"
 # values unique 3-letter uppercase IDs (guarded by tests/test_archlucid_ui_route_catalog.py).
 PREFERRED_NEW_ROW_IDS: dict[str, str] = {
     "/shell/contextual-help-drawer": "HCD",
+    "/demo": "DXX",
+    "/governance/alert-rules?tab=advanced-rules": "GOC",
+    "/governance/alert-rules?tab=notifications": "ALE",
+    "/governance/alert-rules?tab=test-alerts": "GOS",
 }
 
 # Admin internal-runbook help topics excluded from buyer UX scoring (/al-ui-lowest).
@@ -157,7 +161,7 @@ REDIRECT_ONLY_APP_PATHS = frozenset(
 # /help/core-pilot retired from the workbook (ECO removed, TB-2050) — no App Router page or
 # redirect remains; do not re-add via this set.
 # FIR `/help/first-pilot-path` stays as a scored redirect bookmark (alias retired TB-2050; COR canonical).
-TRAFFIC_TRACKED_REDIRECT_BOOKMARKS = frozenset({"/help/first-pilot-path"})
+TRAFFIC_TRACKED_REDIRECT_BOOKMARKS = frozenset({"/help/first-pilot-path", "/demo"})
 
 # Operator-shell overlays scored in the workbook but not App Router pages.
 SHELL_OVERLAY_TRAFFIC_ENTRIES: dict[str, str] = {
