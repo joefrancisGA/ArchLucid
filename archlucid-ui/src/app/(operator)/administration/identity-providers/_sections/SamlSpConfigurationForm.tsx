@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -24,21 +24,21 @@ import {
   type SamlSpConfigurationFormValues,
 } from "@/lib/saml-sp-configuration-form-state";
 import {
+  IDENTITY_PROVIDERS_ACTION_FETCH_IDP_METADATA,
   IDENTITY_PROVIDERS_ACTION_SAVE,
-  IDENTITY_PROVIDERS_ACTION_VALIDATE,
   IDENTITY_PROVIDERS_ROLE_MAPPING_HELPER,
   IDENTITY_PROVIDERS_SAML_GROUP_REGEX_LABEL,
   IDENTITY_PROVIDERS_SAML_ISSUER_LABEL,
   IDENTITY_PROVIDERS_SAML_METADATA_URL_LABEL,
   IDENTITY_PROVIDERS_SAML_ROLE_CLAIM_LABEL,
-  IDENTITY_PROVIDERS_SAVE_CONFIRM_DESCRIPTION,
-  IDENTITY_PROVIDERS_SAVE_CONFIRM_TITLE,
   IDENTITY_PROVIDERS_TEST_BEFORE_ENABLE_NOTICE,
 } from "@/lib/identity-providers-settings-copy";
 import {
   SAML_CONFIGURATION_SAVED_SUCCESS_MESSAGE,
   SAML_METADATA_FETCHED_SUCCESS_MESSAGE,
 } from "@/lib/admin-integration-mutation-outcome-copy";
+
+import { IdentityProvidersSaveConfirmDialog } from "./IdentityProvidersSaveConfirmDialog";
 
 const ARCHLUCID_ROLES = ["Admin", "Operator", "Reader", "Auditor"] as const;
 
@@ -51,6 +51,7 @@ export function SamlSpConfigurationForm() {
   const [savedUtc, setSavedUtc] = useState<string | null>(null);
   const [discoveredClaimNames, setDiscoveredClaimNames] = useState<string[]>([]);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [saveConfirmOpen, setSaveConfirmOpen] = useState(false);
 
   const loadConfiguration = useCallback(async () => {
     setLoading(true);
@@ -106,19 +107,7 @@ export function SamlSpConfigurationForm() {
     }
   }, [values.idpMetadataUrl]);
 
-  const saveConfiguration = useCallback(async () => {
-    const validationError = resolveSamlSpConfigurationValidationError(values);
-
-    if (validationError !== null) {
-      setError(validationError);
-
-      return;
-    }
-
-    if (!globalThis.confirm(`${IDENTITY_PROVIDERS_SAVE_CONFIRM_TITLE}\n\n${IDENTITY_PROVIDERS_SAVE_CONFIRM_DESCRIPTION}`)) {
-      return;
-    }
-
+  const persistConfiguration = useCallback(async () => {
     setBusy(true);
     setError(null);
     setSuccessMessage(null);
@@ -128,6 +117,7 @@ export function SamlSpConfigurationForm() {
 
       setSavedUtc(response.updatedUtc ?? new Date().toISOString());
       setSuccessMessage(SAML_CONFIGURATION_SAVED_SUCCESS_MESSAGE);
+      setSaveConfirmOpen(false);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -135,12 +125,23 @@ export function SamlSpConfigurationForm() {
     }
   }, [values]);
 
+  const requestSaveConfiguration = useCallback(() => {
+    const validationError = resolveSamlSpConfigurationValidationError(values);
+
+    if (validationError !== null) {
+      setError(validationError);
+
+      return;
+    }
+
+    setSaveConfirmOpen(true);
+  }, [values]);
+
   const canSave = isSamlSpConfigurationFormValid(values) && !busy && !loading;
 
   return (
     <Card data-testid="saml-sp-configuration-form">
       <CardHeader>
-        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>SAML configuration</CardTitle>
         <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {IDENTITY_PROVIDERS_TEST_BEFORE_ENABLE_NOTICE}
         </p>
@@ -182,7 +183,7 @@ export function SamlSpConfigurationForm() {
                   onClick={() => void runDiscover()}
                   data-testid="saml-fetch-metadata-button"
                 >
-                  {IDENTITY_PROVIDERS_ACTION_VALIDATE}
+                  {IDENTITY_PROVIDERS_ACTION_FETCH_IDP_METADATA}
                 </Button>
               </div>
             </div>
@@ -300,7 +301,7 @@ export function SamlSpConfigurationForm() {
               <Button
                 type="button"
                 disabled={!canSave}
-                onClick={() => void saveConfiguration()}
+                onClick={() => requestSaveConfiguration()}
                 data-testid="saml-save-configuration-button"
               >
                 {busy ? "Saving…" : IDENTITY_PROVIDERS_ACTION_SAVE}
@@ -314,6 +315,12 @@ export function SamlSpConfigurationForm() {
           </>
         )}
       </CardContent>
+      <IdentityProvidersSaveConfirmDialog
+        open={saveConfirmOpen}
+        busy={busy}
+        onCancel={() => setSaveConfirmOpen(false)}
+        onConfirm={() => void persistConfiguration()}
+      />
     </Card>
   );
 }

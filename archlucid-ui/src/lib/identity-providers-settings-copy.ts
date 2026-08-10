@@ -70,6 +70,8 @@ export const IDENTITY_PROVIDERS_OVERVIEW_CONFIGURE_LINKS_TITLE = "Configuration 
 export const IDENTITY_PROVIDERS_SAML_PAGE_TITLE = "SAML configuration";
 export const IDENTITY_PROVIDERS_SAML_PAGE_INTRO =
   "Configure SAML single sign-on, identity provider metadata, and group-to-role mapping for this workspace.";
+export const IDENTITY_PROVIDERS_SAML_PAGE_SUBTITLE =
+  "Set identity provider metadata and map groups to workspace roles before enabling SAML sign-in for all users.";
 
 export const IDENTITY_PROVIDERS_OIDC_PAGE_TITLE = "OIDC/JWT configuration";
 export const IDENTITY_PROVIDERS_OIDC_PAGE_INTRO =
@@ -108,6 +110,7 @@ export const IDENTITY_PROVIDERS_SAML_GROUP_REGEX_LABEL = "Optional custom group 
 
 export const IDENTITY_PROVIDERS_ACTION_SAVE = "Save configuration";
 export const IDENTITY_PROVIDERS_ACTION_VALIDATE = "Validate configuration";
+export const IDENTITY_PROVIDERS_ACTION_FETCH_IDP_METADATA = "Fetch IdP metadata";
 export const IDENTITY_PROVIDERS_ACTION_TEST_ROLE_MAPPING = "Test role mapping";
 
 export const IDENTITY_PROVIDERS_SAVE_CONFIRM_TITLE = "Save identity configuration?";

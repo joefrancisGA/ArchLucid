@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   BUYER_IDENTITY_PROVIDERS_PAGE_SUBTITLE,
   IDENTITY_PROVIDERS_PAGE_SUBTITLE,
+  IDENTITY_PROVIDERS_SAML_PAGE_INTRO,
+  IDENTITY_PROVIDERS_SAML_PAGE_SUBTITLE,
   identityProvidersPageSubtitle,
 } from "@/lib/identity-providers-settings-copy";
 
@@ -13,5 +15,10 @@ describe("identity-providers-settings-copy", () => {
     expect(BUYER_IDENTITY_PROVIDERS_PAGE_SUBTITLE.length).toBeLessThan(
       IDENTITY_PROVIDERS_PAGE_SUBTITLE.length,
     );
+  });
+
+  it("uses a distinct SAML shell subtitle instead of repeating the legacy page intro (TB-1923)", () => {
+    expect(IDENTITY_PROVIDERS_SAML_PAGE_SUBTITLE).not.toBe(IDENTITY_PROVIDERS_SAML_PAGE_INTRO);
+    expect(IDENTITY_PROVIDERS_SAML_PAGE_SUBTITLE.toLowerCase()).not.toContain("configure saml");
   });
 });

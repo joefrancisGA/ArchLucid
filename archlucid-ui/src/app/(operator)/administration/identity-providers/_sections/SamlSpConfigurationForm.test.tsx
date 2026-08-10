@@ -1,5 +1,21 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/administration/identity-providers/saml",
+}));
+
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+}));
+
+vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+  useNavCallerAuthorityRank: () => 100,
+  useNavCommittedArchitectureReview: () => false,
+}));
 
 vi.mock("@/lib/proxy-fetch-registration-scope", () => ({
   mergeRegistrationScopeForProxy: (init: RequestInit) => init,
@@ -10,44 +26,136 @@ vi.mock("@/lib/toast", () => ({
   showError: vi.fn(),
 }));
 
+import { IdentityProvidersSamlPageClient } from "./IdentityProvidersSamlPageClient";
 import { SamlSpConfigurationForm } from "./SamlSpConfigurationForm";
 import { SAML_CONFIGURATION_SAVED_SUCCESS_MESSAGE } from "@/lib/admin-integration-mutation-outcome-copy";
+import {
+  IDENTITY_PROVIDERS_ACTION_FETCH_IDP_METADATA,
+  IDENTITY_PROVIDERS_ACTION_VALIDATE,
+  IDENTITY_PROVIDERS_SAML_PAGE_SUBTITLE,
+  IDENTITY_PROVIDERS_SAML_PAGE_TITLE,
+  IDENTITY_PROVIDERS_SAVE_CONFIRM_TITLE,
+} from "@/lib/identity-providers-settings-copy";
 import { showSuccess } from "@/lib/toast";
+
+const loaded = {
+  demo: false,
+};
+
+function stubIdentityFetch(): void {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = typeof input === "string" ? input : input instanceof Request ? input.url : String(input);
+
+      if (url.includes("/admin/config/summary")) {
+        return new Response(JSON.stringify({ keys: [] }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      if (url.includes("/diagnostics/identity-providers")) {
+        return new Response(
+          JSON.stringify({
+            oidc: { status: "Healthy", summary: "OIDC configured." },
+            saml: { status: "NotApplicable", summary: "SAML disabled." },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
+      if (url.includes("/auth/configuration-diagnostics")) {
+        return new Response(
+          JSON.stringify({
+            authMode: "JwtBearer",
+            audienceConfigured: true,
+            issuerOrAuthorityConfigured: true,
+            openIdDiscoverySucceeded: true,
+            saml2Enabled: false,
+            tenantClaimMappingConfigured: false,
+            roleClaimNameConfigured: false,
+            misconfigurationHints: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      if (url.includes("/auth/oidc-diagnostics")) {
+        return new Response(
+          JSON.stringify({
+            authMode: "JwtBearer",
+            configuredAuthority: "https://login.example.com/",
+            configuredAudience: "api://demo",
+            discoveryAttempted: true,
+            discoverySucceeded: true,
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
+      if (url.includes("/auth/saml-operational-health")) {
+        return new Response(JSON.stringify({ status: "NotApplicable" }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      if (url.includes("/admin/identity/configuration")) {
+        return new Response(null, { status: 404 });
+      }
+
+      if (url.includes("/admin/identity/discover")) {
+        return new Response(
+          JSON.stringify({
+            discoverySucceeded: true,
+            issuerUri: "https://idp.example.com/",
+            availableClaimNames: ["groups"],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
+      if (url.includes("/admin/identity/activate") && init?.method === "POST") {
+        return new Response(JSON.stringify({ isActive: true, updatedUtc: "2026-06-26T12:00:00Z" }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      return new Response("unexpected", { status: 500 });
+    }),
+  );
+}
+
+async function completeMinimalSamlForm(): Promise<void> {
+  await waitFor(() => {
+    expect(screen.getByTestId("saml-idp-metadata-url")).toBeInTheDocument();
+  });
+
+  fireEvent.change(screen.getByTestId("saml-idp-metadata-url"), {
+    target: { value: "https://idp.example.com/metadata" },
+  });
+  fireEvent.click(screen.getByTestId("saml-fetch-metadata-button"));
+
+  await waitFor(() => {
+    expect(screen.getByTestId("saml-sp-issuer")).toHaveValue("https://idp.example.com/");
+  });
+
+  fireEvent.change(screen.getByTestId("saml-mapping-idp-Admin"), {
+    target: { value: "archlucid-admins" },
+  });
+
+  await waitFor(() => {
+    expect(screen.getByTestId("saml-save-configuration-button")).not.toBeDisabled();
+  });
+}
 
 describe("SamlSpConfigurationForm", () => {
   beforeEach(() => {
     vi.stubGlobal("confirm", vi.fn(() => true));
-
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
-        const url = typeof input === "string" ? input : input instanceof Request ? input.url : String(input);
-
-        if (url.includes("/admin/identity/configuration")) {
-          return new Response(null, { status: 404 });
-        }
-
-        if (url.includes("/admin/identity/discover")) {
-          return new Response(
-            JSON.stringify({
-              discoverySucceeded: true,
-              issuerUri: "https://idp.example.com/",
-              availableClaimNames: ["groups"],
-            }),
-            { status: 200, headers: { "Content-Type": "application/json" } },
-          );
-        }
-
-        if (url.includes("/admin/identity/activate") && init?.method === "POST") {
-          return new Response(JSON.stringify({ isActive: true, updatedUtc: "2026-06-26T12:00:00Z" }), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-          });
-        }
-
-        return new Response("unexpected", { status: 500 });
-      }),
-    );
+    stubIdentityFetch();
   });
 
   afterEach(() => {
@@ -57,28 +165,11 @@ describe("SamlSpConfigurationForm", () => {
   it("saves SAML configuration through POST /v1/admin/identity/activate", async () => {
     render(<SamlSpConfigurationForm />);
 
-    await waitFor(() => {
-      expect(screen.getByTestId("saml-idp-metadata-url")).toBeInTheDocument();
-    });
-
-    fireEvent.change(screen.getByTestId("saml-idp-metadata-url"), {
-      target: { value: "https://idp.example.com/metadata" },
-    });
-    fireEvent.click(screen.getByTestId("saml-fetch-metadata-button"));
-
-    await waitFor(() => {
-      expect(screen.getByTestId("saml-sp-issuer")).toHaveValue("https://idp.example.com/");
-    });
-
-    fireEvent.change(screen.getByTestId("saml-mapping-idp-Admin"), {
-      target: { value: "archlucid-admins" },
-    });
-
-    await waitFor(() => {
-      expect(screen.getByTestId("saml-save-configuration-button")).not.toBeDisabled();
-    });
-
+    await completeMinimalSamlForm();
     fireEvent.click(screen.getByTestId("saml-save-configuration-button"));
+
+    const dialog = await screen.findByTestId("identity-providers-save-confirm-dialog");
+    fireEvent.click(within(dialog).getByTestId("identity-providers-save-confirm-confirm"));
 
     await waitFor(() => {
       expect(vi.mocked(fetch)).toHaveBeenCalledWith(
@@ -105,5 +196,85 @@ describe("SamlSpConfigurationForm", () => {
       SAML_CONFIGURATION_SAVED_SUCCESS_MESSAGE,
     );
     expect(showSuccess).not.toHaveBeenCalled();
+    expect(globalThis.confirm).not.toHaveBeenCalled();
+  });
+
+  it("labels metadata discovery as Fetch IdP metadata, not Validate configuration (TB-1921)", async () => {
+    render(<SamlSpConfigurationForm />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("saml-fetch-metadata-button")).toHaveTextContent(
+        IDENTITY_PROVIDERS_ACTION_FETCH_IDP_METADATA,
+      );
+    });
+
+    expect(screen.getByTestId("saml-fetch-metadata-button")).not.toHaveTextContent(
+      IDENTITY_PROVIDERS_ACTION_VALIDATE,
+    );
+  });
+
+  it("uses in-page save confirmation instead of window.confirm (TB-1922)", async () => {
+    render(<SamlSpConfigurationForm />);
+
+    await completeMinimalSamlForm();
+    fireEvent.click(screen.getByTestId("saml-save-configuration-button"));
+
+    const dialog = await screen.findByTestId("identity-providers-save-confirm-dialog");
+    expect(within(dialog).getByText(IDENTITY_PROVIDERS_SAVE_CONFIRM_TITLE)).toBeInTheDocument();
+    expect(globalThis.confirm).not.toHaveBeenCalled();
+
+    fireEvent.click(within(dialog).getByTestId("identity-providers-save-confirm-cancel"));
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("identity-providers-save-confirm-dialog")).not.toBeInTheDocument();
+    });
+
+    expect(vi.mocked(fetch)).not.toHaveBeenCalledWith(
+      "/api/proxy/v1/admin/identity/activate",
+      expect.objectContaining({ method: "POST" }),
+    );
+  });
+
+  it("does not repeat SAML configuration as a card title (TB-1923)", async () => {
+    render(<SamlSpConfigurationForm />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("saml-sp-configuration-form")).toBeInTheDocument();
+    });
+
+    const form = screen.getByTestId("saml-sp-configuration-form");
+    expect(within(form).queryByRole("heading", { name: IDENTITY_PROVIDERS_SAML_PAGE_TITLE })).toBeNull();
+  });
+});
+
+describe("IdentityProvidersSamlPageClient", () => {
+  beforeEach(() => {
+    stubIdentityFetch();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("uses SAML-specific shell subtitle instead of generic configure intro (TB-1923)", async () => {
+    render(<IdentityProvidersSamlPageClient loaded={loaded} />);
+
+    expect(await screen.findByText(IDENTITY_PROVIDERS_SAML_PAGE_SUBTITLE)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: IDENTITY_PROVIDERS_SAML_PAGE_TITLE })).toBeInTheDocument();
+  });
+});
+
+describe("SamlSpConfigurationForm source guards (TB-1921–TB-1923)", () => {
+  it("does not call window.confirm for SAML save", () => {
+    const source = readFileSync(
+      join(process.cwd(), "src/app/(operator)/administration/identity-providers/_sections/SamlSpConfigurationForm.tsx"),
+      "utf8",
+    );
+
+    expect(source).not.toContain("globalThis.confirm");
+    expect(source).not.toContain("window.confirm");
+    expect(source).toContain("IdentityProvidersSaveConfirmDialog");
+    expect(source).toContain("IDENTITY_PROVIDERS_ACTION_FETCH_IDP_METADATA");
+    expect(source).not.toContain("IDENTITY_PROVIDERS_ACTION_VALIDATE");
   });
 });

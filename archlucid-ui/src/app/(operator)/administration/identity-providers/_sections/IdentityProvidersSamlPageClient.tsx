@@ -1,6 +1,9 @@
 "use client";
 
-import { IDENTITY_PROVIDERS_SAML_PAGE_INTRO, IDENTITY_PROVIDERS_SAML_PAGE_TITLE } from "@/lib/identity-providers-settings-copy";
+import {
+  IDENTITY_PROVIDERS_SAML_PAGE_SUBTITLE,
+  IDENTITY_PROVIDERS_SAML_PAGE_TITLE,
+} from "@/lib/identity-providers-settings-copy";
 
 import { IdentityProvidersSettingsGate } from "./IdentityProvidersSettingsGate";
 import { IdentityProvidersSettingsShell } from "./IdentityProvidersSettingsShell";
@@ -17,12 +20,12 @@ export function IdentityProvidersSamlPageClient(props: Props): React.JSX.Element
       {(model) => (
         <IdentityProvidersSettingsShell
           pageTitle={IDENTITY_PROVIDERS_SAML_PAGE_TITLE}
-          pageIntro={IDENTITY_PROVIDERS_SAML_PAGE_INTRO}
+          pageSubtitle={IDENTITY_PROVIDERS_SAML_PAGE_SUBTITLE}
           refreshing={model.refreshing}
           lastRefreshedAt={model.lastRefreshedAt}
           onRefresh={() => void model.refresh()}
         >
-<SamlSpConfigurationForm />
+          <SamlSpConfigurationForm />
         </IdentityProvidersSettingsShell>
       )}
     </IdentityProvidersSettingsGate>
