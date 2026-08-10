@@ -12,11 +12,23 @@ vi.mock("@/lib/api/architecture-runs", () => ({
   getRunStageTimeline: vi.fn(),
 }));
 
+vi.mock("@/hooks/use-workspace-review-duration-estimate", () => ({
+  useWorkspaceReviewDurationEstimate: vi.fn(() => ({ estimate: null, loading: false })),
+}));
+
+vi.mock("@/hooks/use-review-completion-notification", () => ({
+  useReviewCompletionNotification: vi.fn(),
+  canPromptForDesktopNotifications: vi.fn(() => false),
+}));
+
 import { getRunSummary } from "@/lib/api";
 import { getRunStageTimeline } from "@/lib/api/architecture-runs";
+import { useWorkspaceReviewDurationEstimate } from "@/hooks/use-workspace-review-duration-estimate";
+import { REVIEW_PIPELINE_BACKGROUND_SAFETY_MESSAGE } from "@/lib/review-execution-background-safety-copy";
 
 const mockGetRunSummary = vi.mocked(getRunSummary);
 const mockGetRunStageTimeline = vi.mocked(getRunStageTimeline);
+const mockUseWorkspaceReviewDurationEstimate = vi.mocked(useWorkspaceReviewDurationEstimate);
 
 const baseSummary: RunSummary = {
   runId: "run-progress-1",
@@ -39,6 +51,7 @@ describe("RunProgressTracker", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockGetRunStageTimeline.mockResolvedValue([]);
+    mockUseWorkspaceReviewDurationEstimate.mockReturnValue({ estimate: null, loading: false });
 
     // jsdom EventSource is unreliable; force the hook onto HTTP polling so `getRunSummary` timing is deterministic.
     vi.stubGlobal(
@@ -250,5 +263,79 @@ describe("RunProgressTracker", () => {
     expect(screen.getByTestId("run-progress-current-stage")).toHaveTextContent(
       /Currently: Analyzing security and cost/i,
     );
+  });
+
+  it("shows background-safety and duration estimate when workspace samples exist", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    mockUseWorkspaceReviewDurationEstimate.mockReturnValue({
+      estimate: { p50Seconds: 180, p90Seconds: 420, sampleSize: 4 },
+      loading: false,
+    });
+    mockGetRunSummary.mockResolvedValue({
+      ...baseSummary,
+      runId: "estimate-1",
+      hasContextSnapshot: true,
+    });
+
+    render(
+      <RunProgressTracker
+        runId="estimate-1"
+        initialSummary={{
+          ...baseSummary,
+          runId: "estimate-1",
+        }}
+      />,
+    );
+
+    await act(async () => {
+      await new Promise<void>((resolve) => queueMicrotask(resolve));
+    });
+
+    expect(screen.getByTestId("run-progress-background-safety")).toHaveTextContent(
+      REVIEW_PIPELINE_BACKGROUND_SAFETY_MESSAGE,
+    );
+    expect(screen.getByTestId("run-progress-duration-estimate")).toHaveTextContent(
+      /Recent reviews in this workspace typically take/i,
+    );
+  });
+
+  it("shows extended timeout copy when tenant p90 exceeds three minutes", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    mockUseWorkspaceReviewDurationEstimate.mockReturnValue({
+      estimate: { p50Seconds: 240, p90Seconds: 420, sampleSize: 5 },
+      loading: false,
+    });
+    mockGetRunSummary.mockResolvedValue({
+      ...baseSummary,
+      runId: "slow-tenant-1",
+      hasContextSnapshot: true,
+    });
+
+    render(
+      <RunProgressTracker
+        runId="slow-tenant-1"
+        initialSummary={{
+          ...baseSummary,
+          runId: "slow-tenant-1",
+        }}
+      />,
+    );
+
+    await act(async () => {
+      await vi.runOnlyPendingTimersAsync();
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(483_000);
+    });
+
+    await act(async () => {
+      await vi.runOnlyPendingTimersAsync();
+    });
+
+    expect(screen.queryByText(/We're preparing this review; this can take a moment/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/often take longer than a few minutes/i)).toBeInTheDocument();
   });
 });

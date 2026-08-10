@@ -1,4 +1,9 @@
 import type { RecentPilotRunDeltasPayload } from "@/components/BeforeAfterDelta/types";
+import type { OperatorScopeQueryKey } from "@/lib/operator-scope-query-key";
+import {
+  getOperatorScopeQueryKeySnapshot,
+  parseOperatorScopeQueryKey,
+} from "@/lib/operator-scope-query-key";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
@@ -36,10 +41,11 @@ export async function fetchPilotRecentDeltas(count: number): Promise<RecentPilot
 /** Imperative read through the shared TanStack Query cache. */
 export async function fetchPilotRecentDeltasCached(
   count: number,
-  options?: { force?: boolean },
+  options?: { force?: boolean; scope?: OperatorScopeQueryKey },
 ): Promise<RecentPilotRunDeltasPayload | null> {
   const queryClient = getOperatorQueryClient();
-  const queryKey = operatorQueryKeys.pilotRecentDeltas(count);
+  const scope = options?.scope ?? parseOperatorScopeQueryKey(getOperatorScopeQueryKeySnapshot());
+  const queryKey = operatorQueryKeys.pilotRecentDeltas(scope, count);
 
   if (options?.force === true) {
     await queryClient.invalidateQueries({ queryKey });

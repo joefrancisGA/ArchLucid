@@ -2,10 +2,12 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import {
+  REVIEW_CREATED_ANALYSIS_IN_PROGRESS_MESSAGE,
   REVIEW_CREATED_SUCCESS_MESSAGE,
   ReviewGenerationCreatedNotice,
 } from "@/components/review-intake/ReviewGenerationCreatedNotice";
 import { FROM_GENERATION_QUERY_KEY } from "@/lib/review-generation-handoff";
+import { REVIEW_PIPELINE_BACKGROUND_SAFETY_MESSAGE } from "@/lib/review-execution-background-safety-copy";
 
 const searchParamsGet = vi.fn();
 
@@ -45,5 +47,18 @@ describe("ReviewGenerationCreatedNotice", () => {
     rerender(<ReviewGenerationCreatedNotice approvalBlocked={false} packageFinalized />);
 
     expect(screen.queryByTestId("review-generation-created-notice")).not.toBeInTheDocument();
+  });
+
+  it("shows background-safety copy while analysis is still in progress", () => {
+    searchParamsGet.mockImplementation((key: string) => (key === FROM_GENERATION_QUERY_KEY ? "1" : null));
+
+    render(<ReviewGenerationCreatedNotice analysisInProgress />);
+
+    expect(screen.getByTestId("review-generation-created-notice")).toHaveTextContent(
+      REVIEW_CREATED_ANALYSIS_IN_PROGRESS_MESSAGE,
+    );
+    expect(screen.getByTestId("review-generation-background-safety")).toHaveTextContent(
+      REVIEW_PIPELINE_BACKGROUND_SAFETY_MESSAGE,
+    );
   });
 });

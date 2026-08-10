@@ -1,17 +1,37 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { StatusTag } from "@/components/ui/status-tag";
+import {
+  canPromptForDesktopNotifications,
+  useReviewCompletionNotification,
+} from "@/hooks/use-review-completion-notification";
+import { useWorkspaceReviewDurationEstimate } from "@/hooks/use-workspace-review-duration-estimate";
 import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
 import { getRunStageTimeline } from "@/lib/api/architecture-runs";
+import {
+  getDesktopNotificationPermission,
+  requestDesktopNotificationPermission,
+} from "@/lib/browser-desktop-notification";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import {
+  REVIEW_PIPELINE_BACKGROUND_SAFETY_MESSAGE,
+  REVIEW_PIPELINE_DURATION_ESTIMATE_DISCLAIMER,
+  REVIEW_PIPELINE_ENABLE_NOTIFICATIONS_LABEL,
+  REVIEW_PIPELINE_NOTIFICATIONS_ENABLED_LABEL,
+  resolveReviewPipelineBackgroundSafetyMessage,
+  resolveReviewPipelinePollMaxMs,
+  resolveReviewPipelineTimeoutMessage,
+  shouldShowReviewPipelineBackgroundSafety,
+} from "@/lib/review-execution-background-safety-copy";
 import { resolveCurrentPipelineStageLabel } from "@/lib/resolve-active-pipeline-stage";
+import { formatWorkspaceReviewDurationBand } from "@/lib/workspace-review-duration-estimate";
 import type { RunSummary } from "@/types/authority";
 import type { StageTimelineSummary } from "@/types/stage-timeline";
 
@@ -37,8 +57,6 @@ function allStagesReady(s: RunSummary | null): boolean {
   );
 }
 
-const POLL_MAX_MS = 180_000;
-
 export function RunProgressTracker({ runId, initialSummary }: RunProgressTrackerProps) {
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
   const pollEnabled = !allStagesReady(initialSummary);
@@ -48,6 +66,15 @@ export function RunProgressTracker({ runId, initialSummary }: RunProgressTracker
     allStagesReady(initialSummary) ? "complete" : "polling",
   );
   const [stageTimeline, setStageTimeline] = useState<StageTimelineSummary[]>([]);
+  const [notificationPermission, setNotificationPermission] = useState(() => getDesktopNotificationPermission());
+
+  const { estimate: durationEstimate, loading: durationLoading } = useWorkspaceReviewDurationEstimate(
+    pollEnabled && clientPhase === "polling",
+  );
+  const pollMaxMs = useMemo(
+    () => resolveReviewPipelinePollMaxMs(durationEstimate?.p90Seconds),
+    [durationEstimate?.p90Seconds],
+  );
 
   const { summary, streamPhase, sseConnected } = useRunSummaryStream(runId, {
     enabled: pollEnabled && clientPhase === "polling",
@@ -55,19 +82,42 @@ export function RunProgressTracker({ runId, initialSummary }: RunProgressTracker
     retryToken: pollSession,
   });
 
+  const backgroundSafetyMessage = useMemo(() => {
+    if (!shouldShowReviewPipelineBackgroundSafety(summary?.structuralExecutionMode)) {
+      return null;
+    }
+
+    return resolveReviewPipelineBackgroundSafetyMessage(summary?.structuralExecutionMode);
+  }, [summary?.structuralExecutionMode]);
+
+  const durationBandMessage = useMemo(() => {
+    if (durationEstimate === null) {
+      return null;
+    }
+
+    return formatWorkspaceReviewDurationBand(durationEstimate);
+  }, [durationEstimate]);
+
+  useReviewCompletionNotification({
+    runId,
+    enabled: pollEnabled,
+    isComplete: clientPhase === "complete",
+    reviewLabel: summary?.displayName ?? summary?.description ?? null,
+  });
+
   useEffect(() => {
-    if (!pollEnabled || clientPhase !== "polling") {
+    if (!pollEnabled || clientPhase !== "polling" || durationLoading) {
       return;
     }
 
     const timeoutId = window.setTimeout(() => {
       setClientPhase("timeout");
-    }, POLL_MAX_MS);
+    }, pollMaxMs);
 
     return () => {
       window.clearTimeout(timeoutId);
     };
-  }, [pollEnabled, clientPhase, pollSession]);
+  }, [durationLoading, pollEnabled, clientPhase, pollSession, pollMaxMs]);
 
   useEffect(() => {
     if (allStagesReady(summary) || streamPhase === "complete") {
@@ -101,6 +151,11 @@ export function RunProgressTracker({ runId, initialSummary }: RunProgressTracker
     };
   }, [clientPhase, pollEnabled, pollSession, runId, summary]);
 
+  const handleEnableNotifications = useCallback(async () => {
+    const next = await requestDesktopNotificationPermission();
+    setNotificationPermission(next);
+  }, []);
+
   const ctx = stageDone(summary?.hasContextSnapshot);
   const graph = stageDone(summary?.hasGraphSnapshot);
   const findings = stageDone(summary?.hasFindingsSnapshot);
@@ -120,21 +175,25 @@ export function RunProgressTracker({ runId, initialSummary }: RunProgressTracker
     }
 
     if (clientPhase === "timeout") {
-      if (buyerPolished) {
-        return "We're preparing this review; this can take a moment. Use Retry or refresh the page.";
-      }
-
-      return `Pipeline may still be running server-side (review ${runId}). Use Retry to watch for up to ~3 minutes, refresh this page, or check GET /health/ready on the API.`;
+      return resolveReviewPipelineTimeoutMessage({
+        buyerPolished,
+        runId,
+        p90Seconds: durationEstimate?.p90Seconds,
+      });
     }
 
     const transport = sseConnected ? "live stream" : "polling";
 
     return `${completedStages} of 4 review pipeline stages complete (${transport}).`;
-  }, [buyerPolished, clientPhase, completedStages, runId, sseConnected]);
+  }, [buyerPolished, clientPhase, completedStages, durationEstimate?.p90Seconds, runId, sseConnected]);
 
   if (!pollEnabled) {
     return null;
   }
+
+  const showNotificationOptIn =
+    canPromptForDesktopNotifications() && notificationPermission === "default";
+  const showNotificationEnabled = notificationPermission === "granted";
 
   return (
     <section
@@ -151,6 +210,25 @@ export function RunProgressTracker({ runId, initialSummary }: RunProgressTracker
         </p>
       )}
 
+      {backgroundSafetyMessage ? (
+        <p
+          className={cn("mt-3 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="run-progress-background-safety"
+        >
+          {backgroundSafetyMessage}
+        </p>
+      ) : null}
+
+      {durationBandMessage ? (
+        <p
+          className={cn("mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="run-progress-duration-estimate"
+        >
+          {durationBandMessage}{" "}
+          <span className="text-neutral-500 dark:text-neutral-400">{REVIEW_PIPELINE_DURATION_ESTIMATE_DISCLAIMER}</span>
+        </p>
+      ) : null}
+
       {clientPhase === "polling" ? (
         <p
           className={cn("mt-3 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}
@@ -163,6 +241,23 @@ export function RunProgressTracker({ runId, initialSummary }: RunProgressTracker
       <div aria-live="polite" aria-atomic="true" className={cn("mt-3 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
         {liveStatus}
       </div>
+
+      {showNotificationOptIn ? (
+        <div className="mt-3">
+          <Button type="button" variant="outline" size="sm" onClick={() => void handleEnableNotifications()}>
+            {REVIEW_PIPELINE_ENABLE_NOTIFICATIONS_LABEL}
+          </Button>
+        </div>
+      ) : null}
+
+      {showNotificationEnabled ? (
+        <p
+          className={cn("mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="run-progress-notifications-enabled"
+        >
+          {REVIEW_PIPELINE_NOTIFICATIONS_ENABLED_LABEL}
+        </p>
+      ) : null}
 
       {clientPhase === "timeout" ? (
         <div className="mt-3">

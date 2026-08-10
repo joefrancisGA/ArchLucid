@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { DESIGN_TOKENS } from "@/lib/design-tokens";
+import { REVIEW_PIPELINE_BACKGROUND_SAFETY_MESSAGE } from "@/lib/review-execution-background-safety-copy";
 import {
   REVIEW_START_CREATED_CONFIRMATION,
 } from "@/lib/review-start-progress-copy";
@@ -72,6 +73,14 @@ export function ReviewGenerationCreatedNotice(
       aria-live="polite"
     >
       <p className="m-0 text-sm text-al-text-primary">{label}</p>
+      {analysisInProgress ? (
+        <p
+          className="m-0 mt-2 text-sm text-al-text-primary"
+          data-testid="review-generation-background-safety"
+        >
+          {REVIEW_PIPELINE_BACKGROUND_SAFETY_MESSAGE}
+        </p>
+      ) : null}
     </div>
   );
 }

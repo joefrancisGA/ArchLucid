@@ -22,7 +22,8 @@ export const operatorQueryKeys = {
   ) =>
     ["operator", "governance", "findings-queue", scope, { useCuratedDemoSpine }] as const,
   corePilotCommitContext: ["operator", "core-pilot", "commit-context"] as const,
-  pilotRecentDeltas: (count: number) => ["operator", "pilots", "recent-deltas", { count }] as const,
+  pilotRecentDeltas: (scope: OperatorScopeQueryKey, count: number) =>
+    ["operator", "pilots", "recent-deltas", scope, { count }] as const,
   runsByProjectPaged: (params: RunsByProjectPagedParams) => ["operator", "runs", "paged", params] as const,
   askProjectRuns: (projectId: string) => ["operator", "ask", "project-runs", projectId] as const,
   architectureDigestsBrowse: (scope: OperatorScopeQueryKey, take: number) =>

@@ -16,6 +16,7 @@ import {
 } from "@/lib/operations/in-flight-operations-store";
 import { resolveOperationDetailHref } from "@/lib/operations/operation-location";
 import { isTerminalOperationState } from "@/lib/operations/operation-state";
+import { markReviewPipelineCompletionNotified } from "@/lib/review-pipeline-completion-notify-dedupe";
 import { ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT } from "@/lib/operator-scope-storage";
 
 export const SHELL_IN_FLIGHT_POLL_MS = 2000;
@@ -58,6 +59,10 @@ function notifyTerminalIfElsewhere(
   }
 
   patchInFlightOperation(operation.operationId, { terminalToastShown: true });
+
+  if (operation.runId !== null) {
+    markReviewPipelineCompletionNotified(operation.runId);
+  }
 
   const href = operation.href;
   const description = operation.stepLabel;
