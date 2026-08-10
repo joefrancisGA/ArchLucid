@@ -32,6 +32,14 @@ function openSectionDetails(element: HTMLElement): void {
   }
 }
 
+function focusHashTarget(target: HTMLElement): void {
+  if (!target.hasAttribute("tabindex")) {
+    target.setAttribute("tabindex", "-1");
+  }
+
+  target.focus({ preventScroll: true });
+}
+
 function scrollToHashFragment(): void {
   const hash = typeof window !== "undefined" ? window.location.hash.replace(/^#/, "").trim() : "";
 
@@ -50,6 +58,7 @@ function scrollToHashFragment(): void {
 
   requestAnimationFrame(() => {
     target.scrollIntoView({ behavior: "smooth", block: "start" });
+    focusHashTarget(target);
   });
 }
 

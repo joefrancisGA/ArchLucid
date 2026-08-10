@@ -1,4 +1,4 @@
-import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { TROUBLESHOOTING_EMAIL_SUPPORT_LINK } from "@/lib/troubleshooting-help-guide-content";
 
 export const AUTHENTICATION_SIGN_IN_COMMON_ISSUES_ANCHOR = "common-sign-in-issues" as const;
 export const AUTHENTICATION_SIGN_IN_ACCOUNT_RECOVERY_ANCHOR = "account-recovery" as const;
@@ -15,7 +15,7 @@ export const AUTHENTICATION_SIGN_IN_FAILURE_TRIAGE_LINKS = [
     href: `#${AUTHENTICATION_SIGN_IN_ACCOUNT_RECOVERY_ANCHOR}`,
   },
   {
-    label: "Report a problem",
-    href: inAppHelpHref("report-a-problem"),
+    label: TROUBLESHOOTING_EMAIL_SUPPORT_LINK.label,
+    href: TROUBLESHOOTING_EMAIL_SUPPORT_LINK.href,
   },
 ] as const;

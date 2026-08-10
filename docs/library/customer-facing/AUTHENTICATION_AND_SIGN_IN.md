@@ -26,10 +26,11 @@ When both options are available, choose the method that fits your organization. 
 - **Email-code users:** use a new one-time code sent to your email. Rate limits apply to protect your account.
 - **Work or school users:** add an approved secondary sign-in method from account security settings when your organization allows it.
 - **SSO-enforced tenants:** contact your workspace administrator or designated recovery administrator. Platform-assisted recovery is available only through authorized support with audit records.
+- **When you cannot reach your administrator:** email [ArchLucid support](mailto:support@archlucid.net) from the address on your invitation or evaluation request. Include your organization name and the email you used to sign in.
 
 ## Starting an evaluation workspace
 
-From **Start your evaluation** (`/signup`), submit your organization details. After verification, return to ArchLucid and sign in with a work or school account or an email one-time code to open your evaluation workspace. No sales call is required for the self-serve evaluation path.
+From **[Start your evaluation](/signup)**, submit your organization details. After verification, return to ArchLucid and sign in with a work or school account or an email one-time code to open your evaluation workspace. No sales call is required for the self-serve evaluation path.
 
 ## Accepting an invitation
 
@@ -42,11 +43,17 @@ If the invitation email does not match the account you used to sign in, ArchLuci
 
 ## Enterprise SSO (optional and enforced)
 
-**Optional SSO:** Organizations can configure SAML or OpenID Connect so members sign in through the company identity provider.
+This section covers hosted SaaS enterprise identity — not on-premises or air-gapped deployments.
+
+**Optional SSO:** Organizations can configure SAML or OpenID Connect so members sign in through the company identity provider. Setup steps and claim mapping live in [Enterprise onboarding](/help/enterprise-onboarding).
 
 **Tenant-enforced SSO:** After a verified email domain is configured and enforcement is enabled, members with that domain must use the organization's identity provider for routine sign-in.
 
+**MFA and conditional access:** Multi-factor authentication and conditional access policies for SSO sign-in are enforced by your organization's identity provider. ArchLucid delegates authentication to your IdP and does not maintain a separate product password or MFA stack for enterprise SSO.
+
 Email-code sign-in is not available as a routine bypass when SSO is enforced for your domain. Designated recovery paths exist for administrators; contact your workspace administrator if you are locked out.
+
+To confirm which sign-in methods are enabled for your workspace, ask your administrator or review [Users and roles](/help/users-and-roles).
 
 ## Security and privacy
 

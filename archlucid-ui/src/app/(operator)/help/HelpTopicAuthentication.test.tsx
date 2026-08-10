@@ -13,7 +13,9 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 
 import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownView";
 import { findCustomerAuthBannedPhrases } from "@/lib/auth/customer-auth-messaging";
+import { AUTHENTICATION_SIGN_IN_HELP_PRIMARY_ACTION } from "@/lib/authentication-sign-in-help-copy";
 import { AUTHENTICATION_SIGN_IN_COMMON_ISSUES_ANCHOR } from "@/lib/authentication-sign-in-help-triage";
+import { TROUBLESHOOTING_EMAIL_SUPPORT_LINK } from "@/lib/troubleshooting-help-guide-content";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
 describe("HelpTopicMarkdownView authentication and sign-in", () => {
@@ -58,8 +60,17 @@ describe("HelpTopicMarkdownView authentication and sign-in", () => {
       "href",
       `#${AUTHENTICATION_SIGN_IN_COMMON_ISSUES_ANCHOR}`,
     );
+    expect(within(triage).getByRole("link", { name: TROUBLESHOOTING_EMAIL_SUPPORT_LINK.label })).toHaveAttribute(
+      "href",
+      TROUBLESHOOTING_EMAIL_SUPPORT_LINK.href,
+    );
+    expect(screen.getByRole("link", { name: AUTHENTICATION_SIGN_IN_HELP_PRIMARY_ACTION.label })).toHaveAttribute(
+      "href",
+      AUTHENTICATION_SIGN_IN_HELP_PRIMARY_ACTION.href,
+    );
+    expect(screen.getByRole("link", { name: "Start your evaluation" })).toHaveAttribute("href", "/signup");
     expect(screen.getByRole("link", { name: "audit trail" })).toHaveAttribute("href", "/help/audit-trail");
-    expect(screen.getAllByTestId("help-topic-export-actions")[0]?.querySelectorAll("button, a")).toHaveLength(1);
+    expect(screen.getAllByTestId("help-topic-export-actions")[0]?.querySelectorAll("button, a")).toHaveLength(2);
     expect(screen.getByTestId("help-topic-download-pdf")).toHaveTextContent("Download PDF");
     expect(screen.queryByTestId("help-topic-print-pdf")).not.toBeInTheDocument();
   });

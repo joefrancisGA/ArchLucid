@@ -17,6 +17,7 @@ import {
   type HelpTopicTocGroup,
 } from "@/lib/caiq-sig-response-help-presentation";
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { AUTHENTICATION_SIGN_IN_HELP_PRIMARY_ACTION } from "@/lib/authentication-sign-in-help-copy";
 import { ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION } from "@/lib/enterprise-onboarding-help-copy";
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
@@ -93,7 +94,13 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
         showExportClaimDiscipline={showExportClaimDiscipline}
         exportClaimDiscipline={showExportClaimDiscipline ? <HelpTopicExportClaimDiscipline /> : undefined}
         signInFailureTriageLine={isAuthenticationSignInHelp ? <HelpTopicSignInFailureTriageLine /> : undefined}
-        primaryAction={isEnterpriseOnboarding ? ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION : undefined}
+        primaryAction={
+          isEnterpriseOnboarding
+            ? ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION
+            : isAuthenticationSignInHelp
+              ? AUTHENTICATION_SIGN_IN_HELP_PRIMARY_ACTION
+              : undefined
+        }
       />
 
       {entry.audience === "developer" ? (

@@ -226,6 +226,8 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "buyer",
     sourcePaths: ["docs/library/customer-facing/AUTHENTICATION_AND_SIGN_IN.md"],
     pdfStatus: "public",
+    lastReviewed: "2026-08-04",
+    releaseApplicability: "Applies to hosted SaaS sign-in, invitations, and SSO-enforced tenants",
   },
   {
     slug: "report-a-problem",

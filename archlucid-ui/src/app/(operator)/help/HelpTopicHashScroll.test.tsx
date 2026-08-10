@@ -13,14 +13,16 @@ describe("HelpTopicHashScroll", () => {
     document.body.innerHTML = "";
   });
 
-  it("opens section details before scrolling to a hash target (TB-1043)", async () => {
+  it("opens section details and moves focus before scrolling to a hash target (TB-1043)", async () => {
     const scrollIntoView = vi.fn();
+    const focus = vi.fn();
     window.location.hash = "#cloud-connectors-optional";
 
     const section = document.createElement("section");
     const heading = document.createElement("h2");
     heading.id = "cloud-connectors-optional";
     heading.scrollIntoView = scrollIntoView;
+    heading.focus = focus;
     const details = document.createElement("details");
     details.open = false;
     details.appendChild(document.createElement("summary"));
@@ -33,6 +35,8 @@ describe("HelpTopicHashScroll", () => {
     await vi.waitFor(() => {
       expect(details.open).toBe(true);
       expect(scrollIntoView).toHaveBeenCalled();
+      expect(heading.getAttribute("tabindex")).toBe("-1");
+      expect(focus).toHaveBeenCalledWith({ preventScroll: true });
     });
   });
 });
