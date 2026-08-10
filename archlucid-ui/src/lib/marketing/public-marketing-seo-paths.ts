@@ -1,6 +1,7 @@
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import { LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH } from "@/lib/legacy-architecture-graph-route";
+import { LEGACY_LOGIN_PATH } from "@/lib/legacy-login-route";
 import { LEGACY_ONBOARD_PATH } from "@/lib/legacy-onboard-route";
 import { LEGACY_ONBOARDING_START_PATH } from "@/lib/legacy-onboarding-start-route";
 import { LEGACY_QUICK_START_PATH } from "@/lib/legacy-quick-start-route";
@@ -47,6 +48,7 @@ export const MARKETING_ROBOTS_DISALLOW_PREFIXES: readonly string[] = [
   LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH,
   "/governance/",
   "/governance/standards-and-rules/",
+  LEGACY_LOGIN_PATH,
   LEGACY_ONBOARD_PATH,
   LEGACY_ONBOARDING_START_PATH,
   LEGACY_QUICK_START_PATH,

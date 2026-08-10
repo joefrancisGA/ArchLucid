@@ -63,8 +63,11 @@ describe("ui-route-traffic-recommendation-learning (INE)", () => {
     expect(row).toBeDefined();
     expect(row?.path).toBe(RECOMMENDATION_LEARNING_TRAFFIC_PATH);
     expect(row?.section).toBe(RECOMMENDATION_LEARNING_TRAFFIC_SECTION);
+    expect(row?.section).not.toBe("Marketing");
     expect(row?.notes).toBe(RECOMMENDATION_LEARNING_TRAFFIC_NOTE);
     expect(row?.notes).toContain("RecommendationLearningOpsPageClient");
+    expect(row?.notes).toContain("Internal Ops");
+    expect(row?.notes).toContain("not Marketing");
     expect(row?.notes).toContain("Sources");
 
     expect(row?.notes).toContain("cannot improve further toward 80");
