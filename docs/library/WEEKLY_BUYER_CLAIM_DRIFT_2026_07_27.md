@@ -2,7 +2,8 @@
 
 # Weekly buyer-claim drift — SEND vs rewrite (2026-07-27)
 
-**Status:** Inventory for **TB-1463** / **M-263**/**M-264**.  
+**Status:** **Done** inventory contract for **TB-1463** / GTM **M-263**/**M-264** (closed 2026-08-10). Honesty CI follow-on: **TB-1464**.  
+**PA triage:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#weekly-buyer-claim-drift-m-264`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#weekly-buyer-claim-drift-m-264) (path-stable alias: [`WEEKLY_BUYER_CLAIM_DRIFT_PA_ONE_PAGER.md`](../go-to-market/WEEKLY_BUYER_CLAIM_DRIFT_PA_ONE_PAGER.md)).  
 **Method:** Git history on `docs/` + `archlucid-ui/` since 2026-07-21; cross-check against [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md) (includes folded WNTP), [`QUOTE_TO_PROOF_PACKET.md#roi-baseline-send-policy`](../go-to-market/QUOTE_TO_PROOF_PACKET.md#roi-baseline-send-policy), and open honesty clusters.
 
 **Legend**
@@ -16,11 +17,26 @@
 
 ---
 
+## Closure snapshot (TB-1463 — 2026-08-10)
+
+| # | Drift class | Inventory status | Living owner (rewrite if still open) |
+|---|---|---|---|
+| **C1** | Stale connector V1.1 row vs `V1_SCOPE` GA | **OPEN** — `PUBLIC_CLAIM_BOUNDARY_GUIDE.md` GTM table still labels native connectors V1.1 | **TB-1343** / **TB-1367**; empty UX **TB-1420** |
+| **C2** | SOC row cites open **TB-135** | **OPEN** — Never-imply table still says “TB-135 V1.1 backlog” | **TB-1343** / **M-190** (**G-REAL-05**) |
+| **C3** | Unguarded “two weeks → two hours” | **SHIPPED** — brief forbids without measured baseline (**M-245**) | **TB-1367** (elevator audit body) |
+| **C4** | `/live-demo` as live product + integrity overclaim | **SHIPPED** — honest sample-walkthrough title + ladder (**TB-1265**, **TB-1427**) | — |
+| **C5** | See-it “30 seconds” / “evidence bundle” PDF lie | **SHIPPED** — honest titles + marketing PDF label (**TB-1280**, **TB-1283**) | — |
+| **C6** | Contoso under Claims chrome | **SHIPPED** — fail-closed universe banner (**TB-1279**, **TB-1028**) | — |
+
+**SEND gate:** Do not SEND sponsor/procurement packets until **C1** and **C2** are rewritten in [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md). **C3–C6** UI/marketing surfaces are closed; residual quantified ROI audit lives on **TB-1367** / **M-245**.
+
+---
+
 ## Critical — rewrite this week
 
 | # | Surface | Claim / language | Action | Owner |
 |---|---|---|---|---|
-| **C1** | [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md) GTM table | Still treats **native Jira/Teams/ServiceNow as V1.1 / “do not promise GA in V1”** while `V1_SCOPE` §2.13–§2.15 commits GA connectors | **REWRITE** — flip row to shipped-GA + honest maturity (empty-state / credential caveats) | **TB-1367** / **TB-1343**; empty UX **TB-1420** |
+| **C1** | [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md) GTM table | Still treats **native Jira/Teams/ServiceNow as V1.1 / “do not promise GA in V1”** while `V1_SCOPE` §2.13–§2.15 commits GA connectors | **REWRITE** — flip row to shipped-GA + honest maturity (empty-state / credential caveats) | **TB-1343** / **TB-1367**; empty UX **TB-1420** |
 | **C2** | Same guide § Never imply | “SOC 2 certified… **TB-135 V1.1 backlog**” | **REWRITE** — tech **TB-135** Done; owner CPA remains **G-REAL-05** | **TB-1343** / **M-190** |
 | **C3** | [`EXECUTIVE_SPONSOR_BRIEF.md`](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) §4 | “Reviews that took **two weeks** now take **two hours**” | **REWRITE** (unguarded quantified ROI) or **SEND** only with measured Real cohort + basis label | **TB-1367** / **M-245** |
 | **C4** | `/live-demo` UI (`live-demo-page-copy.ts`) | H1/nav **“Live demo”** + Review integrity “immutable… suitable for sponsor and governance review” on fabricated/offline sample | **REWRITE** | **TB-1265**, **TB-1427** |
@@ -67,4 +83,12 @@
 
 ## Orchestration
 
-Do **not** reopen Done **TB-135**/**TB-136**. Per-surface UI/docs work stays on cited TB/M rows. This inventory is the fused weekly pass; **TB-1463** owns keeping it current; **TB-1464** owns CI against reintroducing C1–C6 class phrases on scanned paths.
+Do **not** reopen Done **TB-135**/**TB-136**. Per-surface UI/docs work stays on cited TB/M rows. This inventory is the fused weekly pass; **TB-1463** owned publication and closure snapshot; **TB-1464** owns CI against reintroducing C1–C6 class phrases on scanned paths.
+
+**Related owners (open rewrite work from closure snapshot):**
+
+| ID | Role |
+|----|------|
+| **TB-1343** | WNTP UI/copy matrix + claim-boundary table rewrites (**C1**, **C2**) |
+| **TB-1367** | Elevator pitch / quantified ROI audit (**C3**, **M-245**) |
+| **TB-1464** | Honesty CI guards after this inventory (**M-263**) |

@@ -965,6 +965,14 @@ jobs:
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_bakeoff_15min_honesty.py"
 
+      - name: Weekly buyer-claim drift inventory guard (TB-1463 / M-263)
+        continue-on-error: true
+        run: python scripts/ci/check_weekly_buyer_claim_drift_inventory.py
+
+      - name: Weekly buyer-claim drift inventory guard unit tests
+        continue-on-error: true
+        run: python -m unittest discover -s scripts/ci/tests -p "test_check_weekly_buyer_claim_drift_inventory.py"
+
       - name: Buyer-surface strict claim guards (blocking when buyer paths changed)
         if: steps.buyer-surface-detect.outputs.changed == 'true'
         run: |
