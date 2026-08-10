@@ -38,4 +38,17 @@ describe("GcpCloudConnectionDetailClient", () => {
       expect(text.toLowerCase()).not.toContain(banned.toLowerCase());
     }
   });
+
+  it("exposes federation identifiers and a copyable WIF pool-provider starter (TB-1775)", () => {
+    render(<GcpCloudConnectionDetailClient />);
+
+    expect(screen.getByTestId("gcp-wif-starter-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("gcp-wif-starter-federation-identifiers")).toBeInTheDocument();
+    expect(screen.getByText("api://AzureADTokenExchange")).toBeInTheDocument();
+
+    const scriptTemplate = screen.getByTestId("gcp-wif-starter-script-template");
+    expect(scriptTemplate).toHaveTextContent("workload-identity-pools providers create-oidc");
+    expect(scriptTemplate).toHaveTextContent("YOUR_ARCHLUCID_MANAGED_IDENTITY_OBJECT_ID");
+    expect(screen.getByTestId("gcp-wif-starter-script-copy")).toBeInTheDocument();
+  });
 });

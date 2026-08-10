@@ -5,6 +5,7 @@ import {
   GCP_CONNECTION_RECENT_ACTIVITY_INSTRUCTIONS,
   GCP_CONNECTION_VALIDATE_INSTRUCTIONS,
 } from "@/lib/gcp-cloud-connection-copy";
+import { GCP_WIF_STARTER_IDENTITY_INTRO } from "@/lib/gcp-cloud-connection-wif-starter";
 import { cloudSecurityPreflightTopics } from "@/lib/cloud-security-preflight-topics";
 
 import { CloudConnectionsProviderHeader } from "./CloudConnectionsProviderHeader";
@@ -14,6 +15,7 @@ import {
   CloudSecurityPreflightTechnicalDetails,
 } from "./CloudSecurityPreflightPanel";
 import { GcpConnectionSection } from "./GcpConnectionSection";
+import { GcpWifStarterPanel } from "./GcpWifStarterPanel";
 
 export function GcpCloudConnectionDetailClient() {
   return (
@@ -32,10 +34,10 @@ export function GcpCloudConnectionDetailClient() {
         }
         securityPreflight={<CloudSecurityPreflightPanel topics={cloudSecurityPreflightTopics("gcp")} providerLabel="GCP" />}
         identitySetup={
-          <p className={OPERATOR_TYPOGRAPHY.body}>
-            Configure Workload Identity Federation to let ArchLucid impersonate a read-only service account. Record the
-            pool provider resource name and service account email for connection setup.
-          </p>
+          <div className="space-y-4">
+            <p className={OPERATOR_TYPOGRAPHY.body}>{GCP_WIF_STARTER_IDENTITY_INTRO}</p>
+            <GcpWifStarterPanel />
+          </div>
         }
         connectionDetails={<GcpConnectionSection embedded />}
         validateConnection={
