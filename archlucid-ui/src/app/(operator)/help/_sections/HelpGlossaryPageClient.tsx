@@ -1,15 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
+import { FilterChip } from "@/components/ui/filter-chip";
 import { Input } from "@/components/ui/input";
+import { buyerFilterChipClass } from "@/lib/buyer-shell-home-present";
 import {
   CUSTOMER_GLOSSARY_ALL_TERMS_FILTER,
   CUSTOMER_GLOSSARY_DEPRECATED_LABEL,
   CUSTOMER_GLOSSARY_EMPTY_STATE,
   CUSTOMER_GLOSSARY_RELATED_TERMS_LABEL,
+  CUSTOMER_GLOSSARY_SEARCH_BROWSE_HEADING,
   CUSTOMER_GLOSSARY_SEARCH_LABEL,
   CUSTOMER_GLOSSARY_SEARCH_PLACEHOLDER,
 } from "@/lib/customer-glossary-copy";
@@ -32,18 +35,17 @@ import { cn } from "@/lib/utils";
 const CUSTOMER_TERMS = listCustomerFacingGlossaryTerms();
 const TERM_LABEL_INDEX = buildGlossaryTermLabelIndex(CUSTOMER_TERMS);
 
-const GLOSSARY_TOC_HEADINGS: readonly HelpMarkdownHeading[] = [
-  { id: "glossary-search", title: "Search and browse", level: 2 },
-  ...CUSTOMER_GLOSSARY_CATEGORY_ORDER.map((categoryId) => ({
-    id: `category-${categoryId}`,
-    title: CUSTOMER_GLOSSARY_CATEGORY_LABELS[categoryId],
-    level: 2 as const,
-  })),
-];
+const FILTER_CHIP_CLASS = "min-h-8 px-3";
 
 type CategoryFilter = CustomerGlossaryCategoryId | "all";
 
-function GlossaryTermEntry(props: { readonly term: CustomerGlossaryTerm }): React.ReactElement {
+type GlossaryTermEntryProps = {
+  readonly term: CustomerGlossaryTerm;
+  readonly visibleTermIds: ReadonlySet<string>;
+  readonly onRelatedTermNavigate: (relatedId: string) => void;
+};
+
+function GlossaryTermEntry(props: GlossaryTermEntryProps): React.ReactElement {
   return (
     <article
       id={`term-${props.term.id}`}
@@ -76,13 +78,24 @@ function GlossaryTermEntry(props: { readonly term: CustomerGlossaryTerm }): Reac
           {CUSTOMER_GLOSSARY_RELATED_TERMS_LABEL}:{" "}
           {props.term.relatedTermIds.map((relatedId, index) => {
             const label = TERM_LABEL_INDEX[relatedId] ?? relatedId;
+            const isVisible = props.visibleTermIds.has(relatedId);
 
             return (
               <span key={relatedId}>
                 {index > 0 ? ", " : ""}
-                <Link href={`#term-${relatedId}`} className="text-teal-700 underline dark:text-teal-400">
-                  {label}
-                </Link>
+                {isVisible ? (
+                  <Link href={`#term-${relatedId}`} className="text-teal-700 underline dark:text-teal-400">
+                    {label}
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    className="text-teal-700 underline dark:text-teal-400"
+                    onClick={() => props.onRelatedTermNavigate(relatedId)}
+                  >
+                    {label}
+                  </button>
+                )}
               </span>
             );
           })}
@@ -102,6 +115,8 @@ export function HelpGlossaryPageClient(): React.ReactElement {
     return filterGlossaryTermsByQuery(categoryTerms, query, TERM_LABEL_INDEX);
   }, [category, query]);
 
+  const visibleTermIds = useMemo(() => new Set(filteredTerms.map((term) => term.id)), [filteredTerms]);
+
   const availableLetters = useMemo(() => lettersWithGlossaryTerms(filteredTerms), [filteredTerms]);
 
   const groupedByCategory = useMemo(() => {
@@ -114,6 +129,33 @@ export function HelpGlossaryPageClient(): React.ReactElement {
       terms: filteredTerms.filter((term) => term.category === categoryId),
     })).filter((group) => group.terms.length > 0);
   }, [category, filteredTerms]);
+
+  const tocHeadings = useMemo((): readonly HelpMarkdownHeading[] => {
+    return [
+      { id: "glossary-search", title: CUSTOMER_GLOSSARY_SEARCH_BROWSE_HEADING, level: 2 },
+      ...groupedByCategory.map((group) => ({
+        id: `category-${group.categoryId}`,
+        title: CUSTOMER_GLOSSARY_CATEGORY_LABELS[group.categoryId],
+        level: 2 as const,
+      })),
+    ];
+  }, [groupedByCategory]);
+
+  const handleRelatedTermNavigate = useCallback((relatedId: string) => {
+    setQuery("");
+    setCategory("all");
+
+    requestAnimationFrame(() => {
+      const target = document.getElementById(`term-${relatedId}`);
+
+      if (target === null) {
+        return;
+      }
+
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+      window.history.replaceState(null, "", `#term-${relatedId}`);
+    });
+  }, []);
 
   return (
     <div className={HELP_PAGE_LAYOUT.contentGrid}>
@@ -136,66 +178,52 @@ export function HelpGlossaryPageClient(): React.ReactElement {
             {filteredTerms.length} {filteredTerms.length === 1 ? "term" : "terms"}
           </p>
           <div className="flex flex-wrap gap-2" data-testid="glossary-category-filters" role="group" aria-label="Glossary categories">
-            <button
-              type="button"
-              className={cn(
-                "rounded-full border px-3 py-1 text-sm",
-                category === "all"
-                  ? "border-teal-700 bg-teal-50 text-teal-900 dark:border-teal-500 dark:bg-teal-950/40 dark:text-teal-100"
-                  : "border-neutral-300 bg-white text-al-text-secondary dark:border-neutral-700 dark:bg-neutral-950",
-              )}
+            <FilterChip
+              className={cn(buyerFilterChipClass(category === "all", false), FILTER_CHIP_CLASS)}
               aria-pressed={category === "all"}
               onClick={() => setCategory("all")}
             >
               {CUSTOMER_GLOSSARY_ALL_TERMS_FILTER}
-            </button>
+            </FilterChip>
             {CUSTOMER_GLOSSARY_CATEGORY_ORDER.map((categoryId) => (
-              <button
+              <FilterChip
                 key={categoryId}
-                type="button"
-                className={cn(
-                  "rounded-full border px-3 py-1 text-sm",
-                  category === categoryId
-                    ? "border-teal-700 bg-teal-50 text-teal-900 dark:border-teal-500 dark:bg-teal-950/40 dark:text-teal-100"
-                    : "border-neutral-300 bg-white text-al-text-secondary dark:border-neutral-700 dark:bg-neutral-950",
-                )}
+                className={cn(buyerFilterChipClass(category === categoryId, false), FILTER_CHIP_CLASS)}
                 aria-pressed={category === categoryId}
                 onClick={() => setCategory(categoryId)}
               >
                 {CUSTOMER_GLOSSARY_CATEGORY_LABELS[categoryId]}
-              </button>
+              </FilterChip>
             ))}
           </div>
-          <nav aria-label="Alphabetical glossary index" data-testid="glossary-letter-index">
-            <ul className="m-0 flex flex-wrap gap-2 p-0 list-none">
-              {"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").map((letter) => {
-                const enabled = availableLetters.includes(letter);
-                const firstTerm = enabled
-                  ? filteredTerms.find((term) => term.label.toUpperCase().startsWith(letter))
-                  : undefined;
+          {availableLetters.length > 0 ? (
+            <nav aria-label="Alphabetical glossary index" data-testid="glossary-letter-index">
+              <p className={cn("m-0 mb-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                Terms are grouped by category below. Jump to a letter:
+              </p>
+              <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
+                {availableLetters.map((letter) => {
+                  const firstTerm = filteredTerms.find((term) => term.label.toUpperCase().startsWith(letter));
 
-                return (
-                  <li key={letter}>
-                    {enabled && firstTerm !== undefined ? (
-                      <a
+                  if (firstTerm === undefined) {
+                    return null;
+                  }
+
+                  return (
+                    <li key={letter}>
+                      <FilterChip
                         href={`#term-${firstTerm.id}`}
-                        className="inline-flex min-w-7 justify-center rounded border border-neutral-300 px-2 py-1 text-sm font-medium text-teal-800 underline-offset-2 hover:underline dark:border-neutral-700 dark:text-teal-300"
+                        className={cn(buyerFilterChipClass(false, false), FILTER_CHIP_CLASS)}
+                        aria-label={`Jump to terms starting with ${letter}`}
                       >
                         {letter}
-                      </a>
-                    ) : (
-                      <span
-                        aria-hidden
-                        className="inline-flex min-w-7 justify-center rounded border border-neutral-200 px-2 py-1 text-sm text-neutral-400 dark:border-neutral-800 dark:text-neutral-600"
-                      >
-                        {letter}
-                      </span>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
+                      </FilterChip>
+                    </li>
+                  );
+                })}
+              </ul>
+            </nav>
+          ) : null}
         </section>
 
         {filteredTerms.length === 0 ? (
@@ -215,14 +243,19 @@ export function HelpGlossaryPageClient(): React.ReactElement {
               </h2>
               <div className="mt-3">
                 {group.terms.map((term) => (
-                  <GlossaryTermEntry key={term.id} term={term} />
+                  <GlossaryTermEntry
+                    key={term.id}
+                    term={term}
+                    visibleTermIds={visibleTermIds}
+                    onRelatedTermNavigate={handleRelatedTermNavigate}
+                  />
                 ))}
               </div>
             </section>
           ))
         )}
       </div>
-      <HelpTopicTableOfContents headings={GLOSSARY_TOC_HEADINGS} enableScrollSpy />
+      <HelpTopicTableOfContents headings={tocHeadings} enableScrollSpy />
     </div>
   );
 }

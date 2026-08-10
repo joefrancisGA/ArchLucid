@@ -5,6 +5,18 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+}));
+
+vi.mock("@/components/help/HelpTopicPdfDownloadButton", () => ({
+  HelpTopicPdfDownloadButton: () => null,
+}));
+
+vi.mock("@/components/help/HelpTopicPrintButton", () => ({
+  HelpTopicPrintButton: () => null,
+}));
+
 import { HelpGlossaryPageView } from "@/app/(operator)/help/_sections/HelpGlossaryPageView";
 import {
   CUSTOMER_GLOSSARY_EMPTY_STATE,
@@ -12,7 +24,10 @@ import {
   CUSTOMER_GLOSSARY_PAGE_TITLE,
   CUSTOMER_GLOSSARY_SEARCH_LABEL,
 } from "@/lib/customer-glossary-copy";
+import { CUSTOMER_GLOSSARY_CONTRACT_VERSION } from "@/lib/customer-glossary-manifest";
+import { GLOSSARY_HELP_CLAIM_DISCIPLINE } from "@/lib/glossary-help-evidence-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 
 const BANNED_INTERNAL_COPY = [
   "Record-type field taxonomy",
@@ -26,12 +41,54 @@ const BANNED_INTERNAL_COPY = [
   "TenantId",
 ] as const;
 
+function collectInPageAnchorIds(container: HTMLElement): string[] {
+  const anchors = within(container).queryAllByRole("link");
+  const ids: string[] = [];
+
+  for (const anchor of anchors) {
+    const href = anchor.getAttribute("href");
+
+    if (href === null || !href.startsWith("#") || href.length <= 1) {
+      continue;
+    }
+
+    ids.push(href.slice(1));
+  }
+
+  return ids;
+}
+
 describe("HelpGlossaryPageView", () => {
   const entry = getProductDocumentationEntry("glossary");
 
   it("registers the glossary help entry", () => {
     expect(entry?.slug).toBe("glossary");
     expect(entry?.title).toBe(CUSTOMER_GLOSSARY_PAGE_TITLE);
+    expect(entry?.lastReviewed).toBe(CUSTOMER_GLOSSARY_CONTRACT_VERSION);
+  });
+
+  it("renders help-topic header chrome and claim-discipline orientation", () => {
+    if (entry === undefined) {
+      throw new Error("Expected glossary documentation entry.");
+    }
+
+    render(<HelpGlossaryPageView entry={entry} />);
+
+    expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent("Help");
+    expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent("Glossary");
+    expect(screen.getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
+    expect(screen.getByTestId("help-topic-document-status")).toHaveTextContent("Current");
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
+      `Last reviewed ${CUSTOMER_GLOSSARY_CONTRACT_VERSION}`,
+    );
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("V1 GA");
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.getByTestId("glossary-help-claim-discipline")).toHaveTextContent(GLOSSARY_HELP_CLAIM_DISCIPLINE);
+
+    const helpTopic = pageHelpTopicForPathname("/help/glossary");
+
+    expect(helpTopic).not.toBeNull();
+    expect(helpTopic?.slug).toBe("glossary");
   });
 
   it("renders one H1 and customer intro copy without internal schema sections", () => {
@@ -87,6 +144,28 @@ describe("HelpGlossaryPageView", () => {
     expect(within(toc).getByRole("link", { name: "Search and browse" })).toHaveAttribute("href", "#glossary-search");
     expect(within(toc).getByRole("link", { name: "Review process" })).toHaveAttribute("href", "#category-review-process");
     expect(within(toc).queryByRole("link", { name: /Finding fields/i })).toBeNull();
+  });
+
+  it("keeps in-page anchor targets present when the Evidence filter is active", () => {
+    if (entry === undefined) {
+      throw new Error("Expected glossary documentation entry.");
+    }
+
+    render(<HelpGlossaryPageView entry={entry} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Evidence" }));
+
+    const primary = screen.getByTestId("help-glossary-primary");
+    const toc = screen.queryByTestId("help-topic-toc") ?? screen.queryByTestId("help-topic-toc-mobile");
+    const anchorIds = [...collectInPageAnchorIds(primary), ...(toc !== null ? collectInPageAnchorIds(toc) : [])];
+
+    expect(anchorIds.length).toBeGreaterThan(0);
+
+    for (const anchorId of anchorIds) {
+      expect(document.getElementById(anchorId)).not.toBeNull();
+    }
+
+    expect(screen.queryByTestId("glossary-letter-index")).not.toHaveTextContent("M");
   });
 
   it("shows deprecated aliases for signed review record without using Signed manifest as the label", () => {
