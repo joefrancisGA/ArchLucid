@@ -11,6 +11,9 @@ import {
 } from "@/lib/sign-in-methods-api";
 import { SignInMethodsApiError } from "@/lib/sign-in-methods-problem";
 import { ACCOUNT_SECURITY_AUTH_GATE_MESSAGE } from "@/lib/account-security-page-copy";
+import {
+  SIGN_IN_METHOD_LAST_REMAINING_BLOCKED_REASON,
+} from "@/lib/sign-in-method-remove-blocked-copy";
 
 const frictionlessMock = vi.hoisted(() => ({
   enabled: false,
@@ -170,6 +173,20 @@ describe("AccountSecurityPageClient", () => {
     await waitFor(() => {
       expect(confirmSignInMethodLinkProposal).toHaveBeenCalledTimes(1);
     });
+  });
+
+  it("shows blocked-remove reason without a Remove button", async () => {
+    vi.mocked(fetchSignInMethods).mockResolvedValue([
+      {
+        ...activeMethod,
+        canRemove: false,
+      },
+    ]);
+
+    render(<AccountSecurityPageClient />);
+
+    expect(await screen.findByText(SIGN_IN_METHOD_LAST_REMAINING_BLOCKED_REASON)).toBeInTheDocument();
+    expect(screen.queryByTestId("sign-in-method-remove-id-1")).not.toBeInTheDocument();
   });
 
   it("opens AlertDialog for remove and never calls window.confirm", async () => {

@@ -20,7 +20,7 @@ Regenerate after opening or closing summary-table rows:
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
 | Explainability | 1 |
-| Trustworthiness | 63 |
+| Trustworthiness | 60 |
 | Maintainability | 9 |
 | Traceability | 3 |
 | Interoperability | 4 |
@@ -35,9 +35,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **638** |
+| **Total (unique open)** | **635** |
 
-**By priority band:** P0 **3** | P1 **507** | P2 **111** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **3** | P1 **504** | P2 **111** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -817,7 +817,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1877 | **Done** (2026-08-10) — guided intake Guided questions tab syncs `?path=guided-intake`; Vitest TB-1877; see ## TB-1877 below | Trustworthiness P1 ? **V1**; with **TB-1876**; do not reopen **TB-1867** | S |
 | TB-1878 | **Done** (2026-08-10) — guided intake buyer chrome purges admission/Socratic jargon; Vitest; see ## TB-1878 below | Trustworthiness P1 ? **V1**; with **TB-1876** | S |
 | TB-1881 | **Done** (2026-08-10) — Sign-in methods title/scope honesty (not SSO suite); see `## TB-1881` below | Trustworthiness P1 ? **V1**; owner review ~52/100 2026-07-27; traffic **SEA**; pairs **TB-1614** | S |
-| TB-1883 | Account security ? in-page remove confirm + blocked-remove reason; see ## TB-1883 below | Trustworthiness P1 ? **V1**; with **TB-1881** | S |
+| TB-1883 | **Done** (2026-08-10) — Sign-in methods in-page remove confirm + blocked-remove reason; see `## TB-1883` below | Trustworthiness P1 ? **V1**; with **TB-1881** | S |
 | TB-1886 | **Done** (2026-08-01) ? retired `/settings/alerts` (SEL) pre-release; Alert rules on GOA only; Vitest; see `## TB-1886` below | Trustworthiness P1 ? **V1**; owner review ~12/100 2026-07-27; traffic **SEL** retired; pairs **TB-1443**/**TB-1441** | XS |
 | TB-1888 | **Done** (2026-08-01) ? `/settings/alerts` removed from readiness/nav as live Settings; see `## TB-1888` below | Trustworthiness P1 ? **V1**; with **TB-1886**; pairs **TB-1405** | S |
 | TB-1889 | **Done** (2026-08-01) ? canonicalize Alert rules docs; drop retired `/settings/alerts`; see `## TB-1889` below | Trustworthiness P1 ? **V1**; with **TB-1886**; do not reopen **TB-1445**/**TB-936** | S |
@@ -44451,11 +44451,9 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1883 ? Account security ? in-page remove confirm + blocked-remove reason (P0)
 
-**Window:** V1 ? Trustworthiness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Trustworthiness. **Status:** **Done** (2026-08-10). **Priority:** P0.
 
-**Problem:** Remove uses browser `window.confirm`. Methods with `canRemove=false` hide Remove with no explanation (SSO policy / last method).
-
-**Approach:** In-page confirm panel reusing `REMOVE_WARNING`; when blocked, show short reason from API or honest fallback. Vitest: no `window.confirm` path; blocked method shows reason.
+**Shipped:** `AccountSecurityRemoveDialog` AlertDialog (no `window.confirm`); `sign-in-method-remove-blocked-copy.ts` resolves honest blocked-remove reasons aligned with removal policy; list rows show **Cannot remove** + reason when `canRemove` is false; Vitest (`AccountSecurityPageClient.test.tsx`, `sign-in-method-remove-blocked-copy.test.ts`).
 
 **Acceptance:** Destructive remove is in-page; blocked methods explain why. **Size estimate:** S.
 

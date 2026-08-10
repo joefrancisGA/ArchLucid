@@ -39,6 +39,7 @@ import {
   type SignInMethodsProblem,
 } from "@/lib/sign-in-methods-problem";
 import { appSiteHref } from "@/lib/site-urls";
+import { resolveSignInMethodRemoveBlockedReason } from "@/lib/sign-in-method-remove-blocked-copy";
 import { cn } from "@/lib/utils";
 
 import {
@@ -426,9 +427,9 @@ export function AccountSecurityPageClient() {
                     </p>
                     {!method.canRemove ? (
                       <div className="pt-1">
-                        <StatusTag kind="neutral" label="Required" />
+                        <StatusTag kind="neutral" label="Cannot remove" />
                         <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                          {ACCOUNT_SECURITY_REMOVE_WARNING}
+                          {resolveSignInMethodRemoveBlockedReason(method, methods)}
                         </p>
                       </div>
                     ) : null}
