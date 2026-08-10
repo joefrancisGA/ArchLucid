@@ -29,7 +29,7 @@ export function retrievalHitSourceTypeLabel(sourceType: string | undefined): str
     case "Manifest":
       return SIGNED_MANIFEST_LABEL;
     case "ManifestTopology":
-      return "Architecture topology";
+      return "Architecture structure";
     case "ProvenanceGraph":
       return "Evidence trail";
     case "Artifact":

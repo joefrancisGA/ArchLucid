@@ -30,3 +30,17 @@ export const ARCHITECTURE_REVIEW_LABEL = "Architecture review";
 
 /** Evidence lineage graph surface label. */
 export const EVIDENCE_TRAIL_LABEL = "Evidence graph";
+
+/**
+ * Buyer noun for the Topology assessment dimension (wire id / agent type stays Topology).
+ * Prefer this over "topology" in PA-facing UI — many architects do not use that term.
+ */
+export const ARCHITECTURE_STRUCTURE_BUYER_LABEL = "Architecture structure";
+
+/** Mid-sentence / lowercase form of {@link ARCHITECTURE_STRUCTURE_BUYER_LABEL}. */
+export const ARCHITECTURE_STRUCTURE_BUYER_LABEL_LOWER = "architecture structure";
+
+/**
+ * Free-text intake hints for components and connections (API field remains `topologyHints`).
+ */
+export const ARCHITECTURE_HINTS_BUYER_LABEL = "Architecture hints";

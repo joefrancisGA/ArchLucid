@@ -195,7 +195,7 @@ describe("run-detail-workspace-derive", () => {
       finding(1, { title: "No topology resources were found" }),
     ]);
 
-    expect(label).toBe("Evidence did not surface topology resources");
+    expect(label).toBe("Evidence did not surface architecture components");
   });
 
   it("qualifies the governance snapshot line when findings block approval", () => {
@@ -356,6 +356,14 @@ describe("run-detail-workspace-derive", () => {
         "Review findings — 1 unresolved finding currently blocks approval or finalization.",
       ),
     ).toBe("Review findings");
+  });
+
+  it("does not ellipsis-truncate long next-action prose for primary CTAs", () => {
+    expect(
+      shortenNextActionForPrimaryCta(
+        "Confirm evidence and remediation ownership for the open medium-severity finding",
+      ),
+    ).toBeNull();
   });
 
   it("omits Finalized at when the package is not finalized", () => {

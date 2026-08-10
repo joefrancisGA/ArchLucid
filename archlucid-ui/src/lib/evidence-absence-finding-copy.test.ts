@@ -22,7 +22,7 @@ describe("isEvidenceAbsenceFindingTitle", () => {
 describe("evidenceAbsenceFindingLabel", () => {
   it("restates the absence finding as what the evidence did", () => {
     expect(evidenceAbsenceFindingLabel("No topology resources were found")).toBe(
-      "Evidence did not surface topology resources",
+      "Evidence did not surface architecture components",
     );
   });
 

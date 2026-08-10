@@ -403,7 +403,7 @@ function formatManifestDocumentShape(m: Record<string, unknown>): string {
   }
 
   if (topology !== null) {
-    lines.push("### Topology");
+    lines.push("### Architecture structure");
     lines.push("");
     pushBulletLines(lines, topology.selectedPatterns, undefined);
     pushBulletLines(lines, topology.resources, undefined);

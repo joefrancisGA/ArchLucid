@@ -36,12 +36,12 @@ export function RunRetrievalExemplarStylePriorStrip(
       data-testid="run-retrieval-exemplar-style-prior"
       id="run-retrieval-exemplar-style-prior"
     >
-      <p className="m-0 font-medium text-al-text-primary">Reference architecture style prior (Topology)</p>
+      <p className="m-0 font-medium text-al-text-primary">Reference architecture style prior (Architecture structure)</p>
 
       {exemplarMissing ? (
         <p className="m-0 mt-2 text-neutral-600 dark:text-neutral-300">
-          No reference architecture exemplar matched. Topology derived structure from request context only (fail-open by
-          design).
+          No reference architecture exemplar matched. Architecture structure was derived from request context only
+          (fail-open by design).
         </p>
       ) : (
         <>
@@ -57,7 +57,7 @@ export function RunRetrievalExemplarStylePriorStrip(
             </dd>
           </dl>
           <p className="m-0 mt-2 text-neutral-600 dark:text-neutral-300">
-            Style prior only — not cited in findings. Exemplars guide Topology structure; compliance and evidence
+            Style prior only — not cited in findings. Exemplars guide architecture structure; compliance and evidence
             citations use separate corpora.
           </p>
         </>

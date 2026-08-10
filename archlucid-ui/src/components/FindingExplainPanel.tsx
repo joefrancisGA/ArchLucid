@@ -12,6 +12,7 @@ import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProv
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { getFindingEvidenceChain, getFindingLlmAudit, postFindingFeedback } from "@/lib/api";
+import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
 import { BUYER_EVIDENCE_CHAIN_SOURCE_LINE } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
@@ -256,7 +257,7 @@ export function FindingExplainPanel({
                   {audit.rawResponseRedacted.trim().length > 0 ? audit.rawResponseRedacted : "(empty)"}
                 </pre>
                 <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                  Model: {audit.modelDeploymentName ?? "—"} Â· Agent: {audit.agentType}
+                  Model: {audit.modelDeploymentName ?? "—"} · Agent: {buyerLabelForAgentType(audit.agentType)}
                 </p>
               </div>
             </DocumentLayout>

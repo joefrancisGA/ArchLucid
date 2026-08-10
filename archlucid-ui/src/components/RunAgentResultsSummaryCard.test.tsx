@@ -32,7 +32,7 @@ describe("RunAgentResultsSummaryCard", () => {
     );
 
     expect(screen.getByTestId("run-agent-results-summary-card")).toBeInTheDocument();
-    expect(screen.getByTestId("run-agent-result-row-result-1")).toHaveTextContent("Topology");
+    expect(screen.getByTestId("run-agent-result-row-result-1")).toHaveTextContent("Architecture structure");
     expect(screen.getByTestId("run-agent-result-row-result-1")).toHaveTextContent("1 claim");
     expect(screen.getByTestId("run-agent-result-row-result-1")).toHaveTextContent("1 finding");
     expect(screen.getByTestId("run-agent-result-row-result-1")).toHaveTextContent("2 evidence refs");

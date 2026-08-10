@@ -12,7 +12,7 @@ describe("buildPlainLanguageQualityBlockSummary", () => {
       {
         traceId: "t1",
         agentType: "Topology",
-        agentLabel: "Topology",
+        agentLabel: "Architecture structure",
         status: "warned",
         structuralCompletenessRatio: 0.8,
         semanticScore: 0.6,

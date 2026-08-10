@@ -1,3 +1,8 @@
+import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
+import {
+  ARCHITECTURE_STRUCTURE_BUYER_LABEL,
+} from "@/lib/usability/canonical-product-terms";
+
 /** Buyer-visible labels for model-governance catalog agent roles. */
 export function modelGovernanceAgentTypeLabel(agentType: string): string {
   const trimmed = agentType.trim();
@@ -8,13 +13,11 @@ export function modelGovernanceAgentTypeLabel(agentType: string): string {
 
   switch (trimmed) {
     case "Topology":
-      return "Topology";
+      return ARCHITECTURE_STRUCTURE_BUYER_LABEL;
     case "Cost":
-      return "Cost";
     case "Compliance":
-      return "Compliance";
     case "Critic":
-      return "Critic";
+      return buyerLabelForAgentType(trimmed);
     default: {
       const spaced = trimmed.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/_/g, " ");
 

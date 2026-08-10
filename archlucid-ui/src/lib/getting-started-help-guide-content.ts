@@ -214,7 +214,7 @@ export const GETTING_STARTED_HELP_TECHNICAL_TERMS: readonly GettingStartedPlainL
   },
   {
     term: "Authority orchestration",
-    definition: "Server-side pipeline that coordinates topology, cost, compliance, and critic agents.",
+    definition: "Server-side pipeline that coordinates architecture structure, cost, compliance, and critic agents.",
   },
   {
     term: "Explainability trace",

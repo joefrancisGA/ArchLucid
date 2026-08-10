@@ -13,7 +13,7 @@ export type ReviewSubmitPhaseProgressProps = {
 };
 
 const PHASES: readonly { id: ReviewSubmitPhaseId; label: string }[] = [
-  { id: "mapping", label: "Mapping topology" },
+  { id: "mapping", label: "Mapping architecture structure" },
   { id: "policy", label: "Checking policy" },
   { id: "findings", label: "Drafting findings" },
 ];

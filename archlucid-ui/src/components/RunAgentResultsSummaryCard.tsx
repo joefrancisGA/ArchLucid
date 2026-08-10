@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState, type ReactElement } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
 import { executeArchitectureRunSelective } from "@/lib/api/architecture-runs";
 import { resolveFailedAgentTypesForSelectiveRetry } from "@/lib/run-detail-selective-agent-retry";
 import type { RunDetailAgentResult, RunRetrievalGroundingSummary } from "@/types/authority";
@@ -16,21 +17,6 @@ export type AgentExecutionOutcomeRow = {
   readonly taskId?: string | null;
   readonly degradationReasonCode?: string | null;
 };
-
-function agentTypeLabel(agentType: string | null | undefined): string {
-  switch (agentType) {
-    case "Topology":
-      return "Topology";
-    case "Cost":
-      return "Cost";
-    case "Compliance":
-      return "Compliance";
-    case "Critic":
-      return "Critic";
-    default:
-      return `Agent (${String(agentType ?? "unknown")})`;
-  }
-}
 
 function countArray(value: readonly unknown[] | null | undefined): number {
   return Array.isArray(value) ? value.length : 0;
@@ -127,7 +113,7 @@ export function RunAgentResultsSummaryCard(props: {
                   data-testid={`run-agent-outcome-row-${agentKey}`}
                 >
                   <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
-                    {agentTypeLabel(outcome.agentType)}
+                    {buyerLabelForAgentType(outcome.agentType)}
                   </p>
                   <p className="m-0 mt-1 text-neutral-600 dark:text-neutral-400">
                     Outcome: {outcomeLabel}
@@ -160,7 +146,7 @@ export function RunAgentResultsSummaryCard(props: {
                   data-testid={`run-agent-result-row-${result.resultId}`}
                 >
                   <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
-                    {agentTypeLabel(result.agentType)}
+                    {buyerLabelForAgentType(result.agentType)}
                   </p>
                   <p className="m-0 mt-1 text-neutral-600 dark:text-neutral-400">
                     {claims} claim{claims === 1 ? "" : "s"}

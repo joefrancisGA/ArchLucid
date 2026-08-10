@@ -206,7 +206,7 @@ describe("RunTrustEvidenceCardSection", () => {
 
     const step = screen.getByTestId("proof-chain-step-2");
 
-    expect(within(step).getByText("Evidence did not surface topology resources")).toBeInTheDocument();
+    expect(within(step).getByText("Evidence did not surface architecture components")).toBeInTheDocument();
     expect(within(step).getByText("Recorded")).toBeInTheDocument();
     expect(within(step).queryByText("Available")).not.toBeInTheDocument();
     expect(within(step).queryByText(/graph nodes: 0/)).not.toBeInTheDocument();

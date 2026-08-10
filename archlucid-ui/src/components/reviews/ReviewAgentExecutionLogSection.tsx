@@ -4,6 +4,7 @@ import type { ReactElement } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
 import type { RunDetailAgentResult } from "@/types/authority";
 
 import { runDetailSectionHeadingClass } from "@/app/(operator)/architecture/reviews/[runId]/_sections/run-detail-section-heading";
@@ -22,20 +23,6 @@ function confidenceLabel(confidence: number | string | null | undefined): string
   return `${Math.round(n * 100)}%`;
 }
 
-function agentTypeLabel(agentType: RunDetailAgentResult["agentType"]): string {
-  switch (agentType) {
-    case "Topology":
-      return "Topology";
-    case "Cost":
-      return "Cost";
-    case "Compliance":
-      return "Compliance";
-    case "Critic":
-      return "Critic";
-    default:
-      return `Agent (${String(agentType)})`;
-  }
-}
 
 /**
  * Collapsed execution log for each agent that ran in this review.
@@ -85,7 +72,7 @@ export function ReviewAgentExecutionLogSection({
                       key={result.resultId}
                       className="border-b border-neutral-100 last:border-0 dark:border-neutral-800"
                     >
-                      <td className="py-1.5 pr-3 font-mono">{agentTypeLabel(result.agentType)}</td>
+                      <td className="py-1.5 pr-3 font-mono">{buyerLabelForAgentType(result.agentType)}</td>
                       <td className="py-1.5 pr-3 tabular-nums">
                         {confidenceLabel(result.calibratedConfidence ?? result.confidence)}
                       </td>

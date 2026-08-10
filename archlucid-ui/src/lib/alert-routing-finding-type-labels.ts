@@ -30,8 +30,8 @@ export const ALERT_ROUTING_FINDING_TYPE_PRESENTATION: readonly AlertRoutingFindi
   },
   {
     value: "TopologyGap",
-    label: "Architecture topology gap",
-    description: "Expected connectivity or dependency is missing in the diagram.",
+    label: "Architecture structure gap",
+    description: "Expected connectivity or dependency is missing in the architecture structure.",
     tier: "advanced",
   },
   {

@@ -9,6 +9,7 @@ import { useFormContext } from "react-hook-form";
 import { Separator } from "@/components/ui/separator";
 import { RunWizardCostPreviewCard } from "@/components/wizard/RunWizardCostPreviewCard";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
+import { ARCHITECTURE_HINTS_BUYER_LABEL } from "@/lib/usability/canonical-product-terms";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
 function ErrorList({ errors }: { errors: FieldErrors<WizardFormValues> }) {
@@ -145,7 +146,7 @@ export function WizardStepReview() {
         <ReadOnlyBlock title="Advanced">
           <p className={cn("m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Policy references</p>
           <p className="m-0">{(v.policyReferences ?? []).join(", ") || "—"}</p>
-          <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Topology hints</p>
+          <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>{ARCHITECTURE_HINTS_BUYER_LABEL}</p>
           <p className="m-0">{(v.topologyHints ?? []).join(", ") || "—"}</p>
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Security baseline hints</p>
           <p className="m-0">{(v.securityBaselineHints ?? []).join(", ") || "—"}</p>

@@ -45,7 +45,7 @@ export function tryStaticDemoTechnologyLedger(runId: string): TechnologyLedgerLi
         status: "Assumed",
         source: "AgentProposed",
         evidenceRef: "agentTopologyProposal:demo:ds-1",
-        rationale: "Proposed by Topology agent.",
+        rationale: "Proposed by the architecture-structure assessment.",
         isLocked: false,
         createdUtc: "2026-01-01T00:00:00.000Z",
         updatedUtc: "2026-01-01T00:00:00.000Z",

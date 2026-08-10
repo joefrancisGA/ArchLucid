@@ -45,7 +45,7 @@ export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, Fi
   home: {
     useWhen: "You are in your first pilot session and need the shortest path to a committed review.",
     bridgeCopy:
-      "Each architecture review is tracked as one review — the same object from capture through signed review record and export. Start with briefs, diagrams, or IaC only (evidence-only); cloud inventory ZIP (AWS, Azure, or GCP) is optional when you need live topology or cost grounding.",
+      "Each architecture review is tracked as one review — the same object from capture through signed review record and export. Start with briefs, diagrams, or IaC only (evidence-only); cloud inventory ZIP (AWS, Azure, or GCP) is optional when you need live architecture structure or cost grounding.",
     primaryAction: { label: CREATE_ARCHITECTURE_LABEL, href: ARCHITECTURES_NEW_PATH },
     operateDeferralNote:
       "Graph, Compare, and heavy governance surfaces stay out of the sidebar until after your first committed package.",

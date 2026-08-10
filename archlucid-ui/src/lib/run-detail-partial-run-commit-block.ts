@@ -18,8 +18,10 @@ export type PartialRunCommitBlockPresentation = {
   readonly technicalDetail: string | null;
 };
 
+import { ARCHITECTURE_STRUCTURE_BUYER_LABEL_LOWER } from "@/lib/usability/canonical-product-terms";
+
 const ASSESSMENT_DIMENSION_LABELS: Readonly<Record<string, string>> = {
-  Topology: "topology",
+  Topology: ARCHITECTURE_STRUCTURE_BUYER_LABEL_LOWER,
   Cost: "cost",
   Compliance: "compliance",
   Critic: "quality review",

@@ -5,7 +5,7 @@ export const CTO_DEMO_FAST_CREATE_TOTAL_MS = 15_000;
 
 export const CTO_DEMO_FAST_CREATE_STAGE_LABELS = [
   "Capturing your architecture brief",
-  "Mapping topology and dependencies",
+  "Mapping architecture structure and dependencies",
   "Finding architecture risks",
   "Writing recommendations",
   "Preparing your review",

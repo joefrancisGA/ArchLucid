@@ -39,6 +39,6 @@ describe("alert-routing-criteria", () => {
         findingTypes: ["TopologyGap"],
         tags: ["PHI"],
       }),
-    ).toContain("Architecture topology gap");
+    ).toContain("Architecture structure gap");
   });
 });

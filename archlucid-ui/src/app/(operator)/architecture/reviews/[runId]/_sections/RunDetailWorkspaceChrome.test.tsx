@@ -148,14 +148,14 @@ describe("RunDetailWorkspaceStickyActions", () => {
           manifestStatus: "Draft",
           runCompleted: true,
         }}
-        commitBlockedReason="Assessment coverage is incomplete for topology. Re-run the review before finalizing."
+        commitBlockedReason="Assessment coverage is incomplete for architecture structure. Re-run the review before finalizing."
         showProgressTracker={false}
         manifestId={null}
       />,
     );
 
     expect(screen.getByTestId("commit-blocked-reason")).toHaveTextContent(
-      "Assessment coverage is incomplete for topology. Re-run the review before finalizing.",
+      "Assessment coverage is incomplete for architecture structure. Re-run the review before finalizing.",
     );
     expect(screen.getByRole("button", { name: "Finalize review" })).toBeInTheDocument();
   });

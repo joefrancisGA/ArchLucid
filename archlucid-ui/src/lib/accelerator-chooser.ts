@@ -117,7 +117,7 @@ export const ACCELERATOR_CHOOSER_ENTRIES: readonly AcceleratorChooserEntry[] = [
     id: "greenfield-web-app",
     buyerJob: "Multi-tier web architecture (greenfield)",
     packLabel: "Greenfield web app wizard preset",
-    summary: "Topology and compliance findings on your architecture inputs via the new-review wizard.",
+    summary: "Architecture structure and compliance findings on your architecture inputs via the new-review wizard.",
     requiredInputs: "Architecture request via new-review wizard",
     expectedOutputs: "Architecture package and findings on your inputs",
     doNotUseWhen: "Buyer needs a specialty accelerator pack instead",

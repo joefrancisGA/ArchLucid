@@ -175,7 +175,7 @@ export const AZURE_EXTRACTOR_DEMO_SCENARIOS: ReadonlyArray<AzureExtractorDemoSce
     systemName: "SaaSPlatformPrimary",
     wizardBrief:
       "Demo Azure extractor package — multi-region SaaS platform spanning eastus and westus2. " +
-      "Stress-tests topology and resilience findings without running the live extractor script.",
+      "Stress-tests architecture structure and resilience findings without running the live extractor script.",
     manifest: {
       schemaVersion: 1,
       scriptVersion: "0.2.0-demo-saas",

@@ -26,7 +26,7 @@ type WelcomePillar = {
 const PILLARS: readonly WelcomePillar[] = [
   {
     title: "AI-native architecture analysis",
-    body: "Specialized agents analyze topology, cost, compliance, and design quality, then produce a versioned review with structured findings — not a chat thread that disappears.",
+    body: "Specialized agents analyze architecture structure, cost, compliance, and design quality, then produce a versioned review with structured findings — not a chat thread that disappears.",
     verifyLabel: WELCOME_SEE_IT_CTA_LABEL,
     verifyHref: WELCOME_PROOF_LADDER_PRIMARY_HREF,
   },

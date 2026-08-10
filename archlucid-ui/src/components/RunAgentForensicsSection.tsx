@@ -1,4 +1,5 @@
 import { diagnosticAgentEvaluationPerspective } from "@/lib/agent-evaluation-perspective";
+import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AgentEvidenceFaithfulnessBadge } from "@/components/AgentEvidenceFaithfulnessBadge";
@@ -17,26 +18,6 @@ import type {
   AgentOutputEvaluationSummaryPayload,
   RunToolInvocationForensicsPayload,
 } from "@/types/agent-forensics";
-
-/** OpenAPI emits string AgentType; accept legacy numeric wire values during UI/API rollout. */
-function agentTypeLabel(agentType: string | number): string {
-  switch (agentType) {
-    case "Topology":
-    case 1:
-      return "Topology";
-    case "Cost":
-    case 2:
-      return "Cost";
-    case "Compliance":
-    case 3:
-      return "Compliance";
-    case "Critic":
-    case 4:
-      return "Critic";
-    default:
-      return `AgentType(${String(agentType)})`;
-  }
-}
 
 function scoreForTrace(
   scores: AgentOutputEvaluationScoreRow[] | undefined,
@@ -312,7 +293,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
 
                 return (
                   <tr key={t.traceId} className="border-b border-neutral-100 dark:border-neutral-800">
-                    <td className="whitespace-nowrap px-1.5 py-2">{agentTypeLabel(t.agentType)}</td>
+                    <td className="whitespace-nowrap px-1.5 py-2">{buyerLabelForAgentType(t.agentType)}</td>
                     <td className="whitespace-nowrap px-1.5 py-2 font-mono text-neutral-600 dark:text-neutral-400">
                       {t.modelAlias?.trim() ? t.modelAlias : "—"}
                     </td>

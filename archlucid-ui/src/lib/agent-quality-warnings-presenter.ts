@@ -1,3 +1,4 @@
+import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
 import type {
   AgentExecutionTraceRow,
   AgentOutputEvaluationSummaryPayload,
@@ -21,26 +22,6 @@ export type AgentQualityConcernRow = {
   semanticScore: number | null;
   breachedThresholds: string[];
 };
-
-/** OpenAPI emits string AgentType; accept legacy numeric wire values during UI/API rollout. */
-function agentTypeLabel(agentType: string | number): string {
-  switch (agentType) {
-    case "Topology":
-    case 1:
-      return "Topology";
-    case "Cost":
-    case 2:
-      return "Cost";
-    case "Compliance":
-    case 3:
-      return "Compliance";
-    case "Critic":
-    case 4:
-      return "Critic";
-    default:
-      return `AgentType(${String(agentType)})`;
-  }
-}
 
 function resolveBreachedThresholds(
   structural: number,
@@ -100,7 +81,7 @@ export function buildAgentQualityConcernRows(
     rows.push({
       traceId: score.traceId,
       agentType: score.agentType,
-      agentLabel: agentTypeLabel(score.agentType),
+      agentLabel: buyerLabelForAgentType(score.agentType),
       status,
       structuralCompletenessRatio: structural,
       semanticScore: semantic,

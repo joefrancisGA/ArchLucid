@@ -33,7 +33,7 @@ export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
     title: "Execute the review",
     shortBody: "Execute the review until it reaches ready-to-finalize — watch progress on review detail.",
     detail:
-      "The assessment fills topology and findings. If execution fails, capture the correlation id from troubleshooting before retrying.",
+      "The assessment fills architecture structure and findings. If execution fails, capture the correlation id from troubleshooting before retrying.",
     primaryHref: "/architecture/reviews",
     primaryLabel: "Open review detail",
   },

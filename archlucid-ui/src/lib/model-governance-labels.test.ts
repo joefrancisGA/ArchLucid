@@ -4,7 +4,7 @@ import { modelGovernanceAgentTypeLabel } from "@/lib/model-governance-labels";
 
 describe("modelGovernanceAgentTypeLabel", () => {
   it("maps known agent roles", () => {
-    expect(modelGovernanceAgentTypeLabel("Topology")).toBe("Topology");
+    expect(modelGovernanceAgentTypeLabel("Topology")).toBe("Architecture structure");
     expect(modelGovernanceAgentTypeLabel("Cost")).toBe("Cost");
     expect(modelGovernanceAgentTypeLabel("Compliance")).toBe("Compliance");
     expect(modelGovernanceAgentTypeLabel("Critic")).toBe("Critic");

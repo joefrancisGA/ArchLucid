@@ -10,7 +10,7 @@ type WizardPackagePreviewProps = {
 /** Live preview of what the review will include. */
 export function WizardPackagePreview(props: WizardPackagePreviewProps) {
   const items = [
-    "Topology analysis findings",
+    "Architecture structure findings",
     "Cost posture summary",
     "Compliance checks against policy packs",
     "Critic review and explainability trace",

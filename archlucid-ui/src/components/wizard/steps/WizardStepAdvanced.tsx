@@ -23,6 +23,7 @@ import { WizardFieldError } from "@/components/wizard/WizardFieldError";
 import { WizardFieldHint } from "@/components/wizard/WizardFieldHint";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
 import { modelExecutionProfileLabel } from "@/lib/model-execution-profile";
+import { ARCHITECTURE_HINTS_BUYER_LABEL } from "@/lib/usability/canonical-product-terms";
 import { useWizardAiSuggestedFields, type WizardAiSuggestedFieldName } from "@/lib/wizard-ai-suggested-fields";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
@@ -143,7 +144,7 @@ function CollapsibleSection(props: {
 }
 
 /**
- * Step 5: optional policy hints, topology, security, documents, infrastructure declarations.
+ * Step 5: optional policy hints, architecture structure, security, documents, infrastructure declarations.
  */
 export function WizardStepAdvanced() {
   const { control, watch, register, formState, clearErrors } = useFormContext<WizardFormValues>();
@@ -169,7 +170,7 @@ export function WizardStepAdvanced() {
   return (
     <WizardStepPanel
       title="Advanced inputs (optional)"
-      description="Policy references, topology and security hints, attached documents, and infrastructure declarations."
+      description="Policy references, architecture and security hints, attached documents, and infrastructure declarations."
     >
       <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         Most reviews only need earlier steps. Open Advanced Options when you want custom policy overrides, structured
@@ -210,11 +211,11 @@ export function WizardStepAdvanced() {
           />
         </CollapsibleSection>
 
-        <CollapsibleSection title="Topology hints" count={topologyHints.length}>
+        <CollapsibleSection title={ARCHITECTURE_HINTS_BUYER_LABEL} count={topologyHints.length}>
           <AdvancedChipList
             fieldName="topologyHints"
-            title="Topology hints"
-            hint="Optional patterns to prefer or avoid (for example hub-spoke, strangler, regional pairs) to steer topology agents."
+            title={ARCHITECTURE_HINTS_BUYER_LABEL}
+            hint="Optional patterns to prefer or avoid (for example hub-spoke, strangler, regional pairs) to steer architecture-structure analysis."
             inputId="wizard-topology-draft"
           />
         </CollapsibleSection>

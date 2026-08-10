@@ -51,7 +51,7 @@ function BaselineStepHeading(props: { step: number; title: string; description: 
 
 /**
  * Client-side unpack of the read-only Azure packager ZIP to read `manifest.json` and prefill wizard fields
- * that map to the architecture review create payload (description, optional system name, topology hints).
+ * that map to the architecture review create payload (description, optional system name, architecture hints).
  *
  * Azure-only: applying a ZIP through this field sets `cloudProvider` to `"Azure"`. Do not embed this component
  * on AWS/GCP evidence paths — use `Tier1InventoryZipUploadPanel` or a future multi-cloud variant instead.

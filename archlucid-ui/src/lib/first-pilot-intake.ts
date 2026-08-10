@@ -43,7 +43,7 @@ export function buildEvidenceBackedIntakeBrief(title: string, files: readonly Fi
 
   const summary = [
     `Architecture review intake for "${reviewTitle}".`,
-    "Evaluate the attached materials for topology, cost, compliance, security, and policy-pack violations.",
+    "Evaluate the attached materials for architecture structure, cost, compliance, security, and policy-pack violations.",
     "Treat each upload as architecture evidence unless a more specific category was supplied.",
   ].join(" ");
 

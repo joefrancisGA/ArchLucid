@@ -42,7 +42,7 @@ describe("contextualizeReviewPackagePrimaryActionForActiveTab", () => {
         ...baseInput,
         blockingFindingCount: 0,
         commitBlockedReason:
-          "Assessment coverage is incomplete for topology, cost, compliance, and quality review. Re-run the review before finalizing.",
+          "Assessment coverage is incomplete for architecture structure, cost, compliance, and quality review. Re-run the review before finalizing.",
       },
     );
 

@@ -59,11 +59,25 @@ describe("resolvePartialRunCommitBlockedReason (TB-937)", () => {
 
     expect(presentation?.summary).toContain("Assessment coverage is incomplete");
     expect(presentation?.summary).toContain("quality review");
+    expect(presentation?.summary).toContain("cost");
+    expect(presentation?.summary).not.toContain("topology");
     expect(presentation?.summary).toContain("Re-run the review");
     expect(presentation?.summary).not.toContain("Critic");
     expect(presentation?.summary).not.toContain("Missing");
     expect(presentation?.summary?.toLowerCase()).not.toContain("re-execute");
     expect(presentation?.technicalDetail).toContain("Cost (Missing)");
     expect(presentation?.technicalDetail).toContain("Critic (Missing)");
+  });
+
+  it("uses architecture structure instead of topology for Topology agent gaps", () => {
+    const presentation = resolvePartialRunCommitBlockPresentation({
+      legacyRunStatus: "ReadyForCommit",
+      findingCoverageAlreadyBlocking: false,
+      agentExecutionOutcomes: [{ agentType: "Topology", outcome: "Missing" }],
+    });
+
+    expect(presentation?.summary).toContain("architecture structure");
+    expect(presentation?.summary?.toLowerCase()).not.toContain("topology");
+    expect(presentation?.technicalDetail).toContain("Topology (Missing)");
   });
 });

@@ -42,7 +42,7 @@ Target landing zone uses Azure App Service for the API tier (Linux containers or
 
 Non-functional goals: RPO under 15 minutes for relational data during cutover, ability to roll back to on-premises for two release cycles, and observability via Application Insights with correlation from HTTP to SQL. Integrations include a partner file drop (SFTP today) and an internal SOAP endpoint that will become a private REST call over a VNet-integrated App Service.
 
-Please assess topology, security boundaries (public vs private endpoints), identity flow (managed identity vs user-delegated), operational runbooks gaps, and cost posture for dev/test vs production SKUs. Highlight risks around connection string migration, firewall rules, and data residency for the primary database region.`,
+Please assess architecture structure, security boundaries (public vs private endpoints), identity flow (managed identity vs user-delegated), operational runbooks gaps, and cost posture for dev/test vs production SKUs. Highlight risks around connection string migration, firewall rules, and data residency for the primary database region.`,
   },
   {
     id: "microservices-architecture-review",

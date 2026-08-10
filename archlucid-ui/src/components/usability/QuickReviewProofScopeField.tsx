@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { ARCHITECTURE_STRUCTURE_BUYER_LABEL } from "@/lib/usability/canonical-product-terms";
 
 export type QuickReviewProofScopeId = "cost" | "compliance" | "topology";
 
@@ -14,7 +15,7 @@ export type QuickReviewProofScopeFieldProps = {
 const PROOF_SCOPE_OPTIONS: readonly { id: QuickReviewProofScopeId; label: string; capability: string }[] = [
   { id: "cost", label: "Cost", capability: "cost-estimation" },
   { id: "compliance", label: "Compliance", capability: "policy-compliance" },
-  { id: "topology", label: "Topology", capability: "architecture-topology" },
+  { id: "topology", label: ARCHITECTURE_STRUCTURE_BUYER_LABEL, capability: "architecture-topology" },
 ];
 
 export function proofScopeToRequiredCapabilities(selected: readonly QuickReviewProofScopeId[]): string[] {

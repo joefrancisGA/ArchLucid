@@ -8,6 +8,7 @@ import { DocumentLayout, type DocumentTocItem } from "@/components/DocumentLayou
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { Progress } from "@/components/ui/progress";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
 import type { ExplanationResult, RunExplanationSummary } from "@/types/explanation";
 import { enterpriseStatusTagClass, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isDeterministicExplanationFallback, normalizeFiniteRatio, traceCompletenessPercent } from "@/types/explanation";
@@ -397,7 +398,7 @@ export function RunExplanationSection({
           </summary>
           <dl className="m-0 mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5">
             <dt>Agent type</dt>
-            <dd className="m-0">{prov.agentType}</dd>
+            <dd className="m-0">{buyerLabelForAgentType(prov.agentType)}</dd>
             <dt>Model ID</dt>
             <dd className="m-0">{prov.modelId}</dd>
             <dt>Prompt template</dt>

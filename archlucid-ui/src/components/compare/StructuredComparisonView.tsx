@@ -166,7 +166,7 @@ export function StructuredComparisonView(props: {
           <strong className="font-semibold">No other material changes</strong>
           <span className="text-neutral-600 dark:text-neutral-400">
             {" "}
-            — no decision, requirement, security posture, topology, or modeled cost changes in this comparison payload.
+            — no decision, requirement, security posture, architecture structure, or modeled cost changes in this comparison payload.
           </span>
         </div>
       ) : (
@@ -257,7 +257,7 @@ export function StructuredComparisonView(props: {
 
           {golden.topologyChanges.length > 0 ? (
             <ComparisonFoldSection
-              title="Topology / footprint"
+              title="Architecture structure / footprint"
               countBadge={golden.topologyChanges.length}
               defaultOpen={foldDefaultOpen}
             >

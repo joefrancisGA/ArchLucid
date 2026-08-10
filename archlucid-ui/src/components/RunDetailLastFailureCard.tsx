@@ -4,6 +4,7 @@ import type { ReactElement } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
+import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
 import { resolveLastFailureCardCopy } from "@/lib/execution-vs-quality-outcome-copy";
 
 export {
@@ -22,14 +23,15 @@ export function RunDetailLastFailureCard(props: {
     return null;
   }
 
-  const agentLabel =
+  const rawAgentType =
     (typeof summary.agentType === "string" && summary.agentType.length > 0
       ? summary.agentType
       : null) ??
     (typeof summary.agentTypeKey === "string" && summary.agentTypeKey.length > 0
       ? summary.agentTypeKey
-      : null) ??
-    "Unknown agent";
+      : null);
+
+  const agentLabel = rawAgentType !== null ? buyerLabelForAgentType(rawAgentType) : "Unknown agent";
 
   const copy = resolveLastFailureCardCopy({
     failureClass: summary.failureClass,

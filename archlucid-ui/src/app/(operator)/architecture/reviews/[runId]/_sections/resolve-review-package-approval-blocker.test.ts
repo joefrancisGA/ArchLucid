@@ -54,9 +54,9 @@ describe("resolveReviewPackageBlockerHelperText", () => {
     expect(
       resolveReviewPackageBlockerHelperText("incomplete-assessment", {
         blockingFindingCount: 0,
-        commitBlockedSummary: "Assessment coverage is incomplete for topology. Re-run the review before finalizing.",
+        commitBlockedSummary: "Assessment coverage is incomplete for architecture structure. Re-run the review before finalizing.",
       }),
-    ).toContain("topology");
+    ).toContain("architecture structure");
   });
 
   it("returns the unresolved finding count for finding blockers", () => {

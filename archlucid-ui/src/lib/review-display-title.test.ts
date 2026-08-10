@@ -9,7 +9,7 @@ import {
 /** Shape produced by `buildEvidenceBackedIntakeBrief` and stored as the run description. */
 const GENERATED_BRIEF = [
   'Architecture review intake for "Claims Intake Modernization".',
-  "Evaluate the attached materials for topology, cost, compliance, security, and policy-pack violations.",
+  "Evaluate the attached materials for architecture structure, cost, compliance, security, and policy-pack violations.",
   "Treat each upload as architecture evidence unless a more specific category was supplied.",
 ].join(" ") + "\n\nAttached architecture evidence:\n- HANDBOOK.docx (Architecture evidence)";
 

@@ -74,7 +74,7 @@ describe("ModelGovernanceSettingsCard", () => {
     expect(screen.getByTestId("model-governance-registry")).toHaveTextContent("balanced-default");
     expect(screen.getByTestId("model-execution-profile-controls")).toHaveTextContent("Effective profile: Balanced");
     expect(screen.getByTestId("model-execution-profile-controls")).not.toHaveTextContent("HighAssurance");
-    expect(screen.getByTestId("model-governance-profile-mappings")).toHaveTextContent("Topology:");
+    expect(screen.getByTestId("model-governance-profile-mappings")).toHaveTextContent("Architecture structure:");
     expect(screen.getByTestId("model-governance-profile-mappings").querySelector('[data-agent-type="Topology"]')).not.toBeNull();
   });
 

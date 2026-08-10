@@ -7,7 +7,7 @@ import {
 
 describe("alert-routing-finding-type-labels", () => {
   it("maps internal finding types to readable labels", () => {
-    expect(labelForAlertRoutingFindingType("TopologyGap")).toBe("Architecture topology gap");
+    expect(labelForAlertRoutingFindingType("TopologyGap")).toBe("Architecture structure gap");
     expect(labelForAlertRoutingFindingType("CompositeAlert")).toBe("Combined alert");
   });
 

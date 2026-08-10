@@ -96,7 +96,7 @@ export const WELCOME_WORKFLOW_STEPS: readonly WelcomeWorkflowStep[] = [
   {
     id: "capture",
     label: "Capture",
-    summary: "Architecture requests, topology, and supporting artifacts.",
+    summary: "Architecture requests, structure hints, and supporting artifacts.",
   },
   {
     id: "evidence",
