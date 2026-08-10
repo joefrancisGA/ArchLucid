@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
+import { OperateExecutePageHint } from "@/components/OperateCapabilityHints";
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { AlertRoutingCriteriaFields } from "@/components/alerts/AlertRoutingCriteriaFields";
@@ -45,9 +46,15 @@ import {
 import {
   ALERT_ROUTING_DESTINATION_NAME_PLACEHOLDER,
   formatAlertRoutingConfigProvenanceLine,
-  latestAlertRoutingConfigRecordedUtc,
   summarizeAlertRoutingDeliveryHealth,
 } from "@/lib/alert-routing-presentation";
+import { latestAlertRoutingConfigChange } from "@/lib/alert-routing-config-change";
+import {
+  ALERT_RULES_SAMPLE_MODE_BANNER,
+  ALERT_RULES_SAMPLE_MODE_CTA_HREF,
+  ALERT_RULES_SAMPLE_MODE_CTA_LABEL,
+} from "@/lib/alert-rule-conditions-copy";
+import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { GOVERNANCE_AUDIT_PATH, governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
 import {
@@ -65,6 +72,9 @@ import type { AlertRoutingDeliveryAttempt, AlertRoutingSubscription } from "@/ty
 
 export function AlertRoutingContent() {
   const canMutateRouting = useOperateCapability();
+  const sampleModeBlocked: boolean =
+    isBuyerPolishedOperatorShellEnv() && !isOperatorExperienceFullShellEnv();
+  const canEditRouting: boolean = canMutateRouting && !sampleModeBlocked;
   const refreshContext = useOptionalAlertRulesHubRefresh();
   // Keep reportTabLoaded off the load() dependency list — stamping freshness recreates
   // the context value and would otherwise retrigger the mount load in a loop.
@@ -109,7 +119,13 @@ export function AlertRoutingContent() {
   const deliveryHealth = useMemo(() => summarizeAlertRoutingDeliveryHealth(items), [items]);
 
   const configProvenanceLabel = useMemo(() => {
-    return formatAlertRoutingConfigProvenanceLine(latestAlertRoutingConfigRecordedUtc(items));
+    const change = latestAlertRoutingConfigChange(items);
+
+    if (change === null) {
+      return null;
+    }
+
+    return formatAlertRoutingConfigProvenanceLine(change.recordedUtc, change.actor);
   }, [items]);
 
   const load = useCallback(async () => {
@@ -162,7 +178,7 @@ export function AlertRoutingContent() {
   }
 
   async function onCreate(sendTestAfterSave: boolean) {
-    if (!canMutateRouting || creating) {
+    if (!canEditRouting || creating) {
       return;
     }
 
@@ -211,7 +227,7 @@ export function AlertRoutingContent() {
   }
 
   async function onToggle(id: string) {
-    if (!canMutateRouting) {
+    if (!canEditRouting) {
       return;
     }
 
@@ -265,6 +281,19 @@ export function AlertRoutingContent() {
         <p className={cn("m-0 max-w-prose leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           {pageLead}
         </p>
+        {sampleModeBlocked ? (
+          <div
+            role="status"
+            className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-950 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-100"
+            data-testid="alert-routing-sample-mode-banner"
+          >
+            <p className={cn("mb-2", OPERATOR_TYPOGRAPHY.body)}>{ALERT_RULES_SAMPLE_MODE_BANNER}</p>
+            <Link href={ALERT_RULES_SAMPLE_MODE_CTA_HREF} className="font-medium underline underline-offset-2">
+              {ALERT_RULES_SAMPLE_MODE_CTA_LABEL}
+            </Link>
+          </div>
+        ) : null}
+        {!canEditRouting && !sampleModeBlocked ? <OperateExecutePageHint /> : null}
         {configProvenanceLabel !== null ? (
           <p
             className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
@@ -300,10 +329,8 @@ export function AlertRoutingContent() {
         <AlertRoutingDestinationList
           items={items}
           attemptsBySub={attemptsBySub}
-          canMutateRouting={canMutateRouting}
+          canMutateRouting={canEditRouting}
           testingId={testingId}
-          loading={loading}
-          onRefresh={() => void load()}
           onAddDestination={scrollToForm}
           onToggle={(id) => void onToggle(id)}
           onLoadAttempts={(id) => void loadAttempts(id)}
@@ -315,21 +342,20 @@ export function AlertRoutingContent() {
         ref={formSectionRef}
         tabIndex={-1}
         aria-labelledby="alert-routing-form-heading"
-        className={cn("space-y-6 rounded-lg border border-neutral-200 bg-white p-5 dark:border-neutral-700 dark:bg-neutral-950", !canMutateRouting && "opacity-90")}
+        className={cn("space-y-6 rounded-lg border border-neutral-200 bg-white p-5 dark:border-neutral-700 dark:bg-neutral-950", !canEditRouting && "opacity-90")}
       >
         <h3 id="alert-routing-form-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
           {items.length === 0 ? "Destination details" : "Add another destination"}
         </h3>
 
-        <fieldset className="space-y-4 border-0 p-0" disabled={!canMutateRouting}>
+        <fieldset className="space-y-4 border-0 p-0" disabled={!canEditRouting}>
           <label className={cn("block text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
             Destination name
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={ALERT_ROUTING_DESTINATION_NAME_PLACEHOLDER}
-              disabled={!canMutateRouting || creating}
-              title={canMutateRouting ? undefined : enterpriseMutationControlDisabledTitle}
+              disabled={!canEditRouting || creating}
               aria-invalid={fieldErrors.name !== undefined}
               aria-describedby={fieldErrors.name ? "alert-routing-name-error" : undefined}
               className="mt-1 block min-h-11 w-full rounded-md border border-neutral-300 p-2 dark:border-neutral-600"
@@ -349,8 +375,7 @@ export function AlertRoutingContent() {
                 setDestination("");
                 setFieldErrors((prev) => ({ ...prev, destination: undefined }));
               }}
-              disabled={!canMutateRouting || creating}
-              title={canMutateRouting ? undefined : enterpriseMutationControlDisabledTitle}
+              disabled={!canEditRouting || creating}
               className="mt-1 block min-h-11 w-full rounded-md border border-neutral-300 p-2 dark:border-neutral-600"
             >
               <option value="Email">Email</option>
@@ -365,8 +390,7 @@ export function AlertRoutingContent() {
               value={destination}
               onChange={(e) => setDestination(e.target.value)}
               placeholder={destinationFieldPlaceholder(channelType)}
-              disabled={!canMutateRouting || creating}
-              title={canMutateRouting ? undefined : enterpriseMutationControlDisabledTitle}
+              disabled={!canEditRouting || creating}
               aria-invalid={fieldErrors.destination !== undefined}
               aria-describedby={fieldErrors.destination ? "alert-routing-destination-error" : "alert-routing-destination-help"}
               className={cn(
@@ -386,7 +410,7 @@ export function AlertRoutingContent() {
           </label>
         </fieldset>
 
-        <fieldset className="space-y-3 border-0 p-0" disabled={!canMutateRouting}>
+        <fieldset className="space-y-3 border-0 p-0" disabled={!canEditRouting}>
           <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
             Alert threshold
           </p>
@@ -395,8 +419,7 @@ export function AlertRoutingContent() {
             <select
               value={minimumSeverity}
               onChange={(e) => setMinimumSeverity(e.target.value)}
-              disabled={!canMutateRouting || creating}
-              title={canMutateRouting ? undefined : enterpriseMutationControlDisabledTitle}
+              disabled={!canEditRouting || creating}
               className="mt-1 block min-h-11 w-full rounded-md border border-neutral-300 p-2 dark:border-neutral-600"
               data-testid="alert-routing-minimum-severity"
             >
@@ -426,8 +449,8 @@ export function AlertRoutingContent() {
         <AlertRoutingCriteriaFields
           criteria={routingCriteria}
           onChange={setRoutingCriteria}
-          disabled={!canMutateRouting || creating}
-          disabledTitle={enterpriseMutationControlDisabledTitle}
+          disabled={!canEditRouting || creating}
+          disabledTitle={canEditRouting ? undefined : enterpriseMutationControlDisabledTitle}
         />
 
         <div className="flex flex-wrap items-center gap-3 border-t border-neutral-200 pt-4 dark:border-neutral-700">
@@ -435,8 +458,7 @@ export function AlertRoutingContent() {
             type="button"
             variant="primary"
             onClick={() => void onCreate(false)}
-            disabled={!canMutateRouting || creating || !formValid}
-            title={canMutateRouting ? undefined : enterpriseMutationControlDisabledTitle}
+            disabled={!canEditRouting || creating || !formValid}
             data-testid="alert-routing-create-destination"
           >
             {creating ? "Creating destination…" : canMutateRouting ? "Create notification destination" : alertRoutingCreateSubscriptionButtonLabelReaderRank}
@@ -446,8 +468,7 @@ export function AlertRoutingContent() {
               type="button"
               variant="outline"
               onClick={() => void onCreate(true)}
-              disabled={!canMutateRouting || creating || !formValid}
-              title={canMutateRouting ? undefined : enterpriseMutationControlDisabledTitle}
+              disabled={!canEditRouting || creating || !formValid}
             >
               {creating ? "Working…" : "Send test notification"}
             </Button>

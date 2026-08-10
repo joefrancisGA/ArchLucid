@@ -8,7 +8,7 @@ import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { OperatorPageBreadcrumb } from "@/components/OperatorPageBreadcrumb";
 import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   operatorFreshnessMetadataLabel,
   operatorLastRefreshedExactLabel,
@@ -69,13 +69,15 @@ export function AlertRulesPageHeader(props: AlertRulesPageHeaderProps): React.JS
           >
             {props.refreshing ? ALERTS_CONFIGURATION_ACTION_REFRESHING : ALERTS_CONFIGURATION_ACTION_REFRESH}
           </Button>
-          <Link
-            href={ALERTS_OPEN_INBOX_LINK_HREF}
-            className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.micro)}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            asChild
             data-testid="alert-rules-open-inbox-link"
           >
-            {ALERTS_OPEN_INBOX_LINK_LABEL}
-          </Link>
+            <Link href={ALERTS_OPEN_INBOX_LINK_HREF}>{ALERTS_OPEN_INBOX_LINK_LABEL}</Link>
+          </Button>
         </div>
       }
       metadata={

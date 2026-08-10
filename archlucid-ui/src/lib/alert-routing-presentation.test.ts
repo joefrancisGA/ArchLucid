@@ -72,13 +72,16 @@ describe("alert-routing-presentation", () => {
     });
   });
 
-  it("formats configuration provenance from the latest createdUtc", () => {
+  it("formats configuration provenance from the latest change", () => {
     expect(
       latestAlertRoutingConfigRecordedUtc([
         subscription({ createdUtc: "2026-01-01T00:00:00.000Z" }),
         subscription({ routingSubscriptionId: "sub-2", createdUtc: "2026-02-01T00:00:00.000Z" }),
       ]),
     ).toBe("2026-02-01T00:00:00.000Z");
+    expect(formatAlertRoutingConfigProvenanceLine("2026-02-01T00:00:00.000Z", "alex@contoso.com")).toMatch(
+      /Configuration last changed by alex@contoso.com/i,
+    );
     expect(formatAlertRoutingConfigProvenanceLine("2026-02-01T00:00:00.000Z")).toMatch(
       /Configuration last recorded/i,
     );

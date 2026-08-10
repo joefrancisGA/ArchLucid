@@ -3,6 +3,15 @@
 import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   alertRoutingDeliveryAttemptsButtonLabelReaderRank,
@@ -10,7 +19,6 @@ import {
   alertRoutingDeliveryAttemptsButtonTitleReader,
   alertRoutingToggleToDisabledReaderRank,
   alertRoutingToggleToEnabledReaderRank,
-  enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
 import {
   channelDisplayLabel,
@@ -28,8 +36,6 @@ export type AlertRoutingDestinationListProps = {
   attemptsBySub: Record<string, AlertRoutingDeliveryAttempt[]>;
   canMutateRouting: boolean;
   testingId: string | null;
-  onRefresh: () => void;
-  loading: boolean;
   onAddDestination: () => void;
   onToggle: (id: string) => void;
   onLoadAttempts: (id: string) => void;
@@ -41,8 +47,6 @@ export function AlertRoutingDestinationList({
   attemptsBySub,
   canMutateRouting,
   testingId,
-  onRefresh,
-  loading,
   onAddDestination,
   onToggle,
   onLoadAttempts,
@@ -58,7 +62,7 @@ export function AlertRoutingDestinationList({
           No notification destinations configured
         </h4>
         <p className={cn("mt-2 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          Create a destination to receive email, webhook, Teams, or Slack notifications when alert conditions are met.
+          Create a destination to receive email, webhook, Teams, or Slack notifications when qualifying findings meet your severity threshold.
         </p>
         {canMutateRouting ? (
           <Button type="button" variant="outline" className="mt-4" onClick={onAddDestination}>
@@ -71,117 +75,108 @@ export function AlertRoutingDestinationList({
 
   return (
     <div className="space-y-3" data-testid="alert-routing-destination-list">
-      <div className="flex items-center justify-end">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={onRefresh}
-          disabled={loading}
-          aria-label="Refresh notification destinations"
-          title="Refresh notification destinations"
-        >
-          {loading ? "Refreshing…" : "↻"}
-        </Button>
-      </div>
-      <div className="overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-700">
-        <table className="min-w-full border-collapse text-left">
-          <thead className="bg-neutral-50 dark:bg-neutral-900/60">
-            <tr>
-              {["Name", "Channel", "Destination", "Threshold", "Filters", "Delivery", "Actions"].map((heading) => (
-                <th key={heading} scope="col" className={cn("px-3 py-2 font-medium text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.badge)}>
-                  {heading}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((item) => {
-              const criteria = parseAlertRoutingCriteriaFromMetadata(item.metadataJson);
-              const deliveryStatus = alertRoutingRowDeliveryStatus(item);
+      <EnterpriseTable ariaLabel="Notification destinations">
+        <EnterpriseTableHead>
+          <EnterpriseTableHeadRow>
+            {["Name", "Channel", "Destination", "Threshold", "Filters", "Delivery", "Actions"].map((heading) => (
+              <EnterpriseTableHeaderCell key={heading}>{heading}</EnterpriseTableHeaderCell>
+            ))}
+          </EnterpriseTableHeadRow>
+        </EnterpriseTableHead>
+        <EnterpriseTableBody>
+          {items.map((item) => {
+            const criteria = parseAlertRoutingCriteriaFromMetadata(item.metadataJson);
+            const deliveryStatus = alertRoutingRowDeliveryStatus(item);
+            const attempts = attemptsBySub[item.routingSubscriptionId] ?? [];
 
-              return (
-                <tr key={item.routingSubscriptionId} className="border-t border-neutral-200 dark:border-neutral-700">
-                  <td className={cn("px-3 py-3 align-top", OPERATOR_TYPOGRAPHY.body)}>{item.name}</td>
-                  <td className={cn("px-3 py-3 align-top", OPERATOR_TYPOGRAPHY.body)}>{channelDisplayLabel(item.channelType)}</td>
-                  <td className={cn("max-w-xs break-all px-3 py-3 align-top font-mono", OPERATOR_TYPOGRAPHY.badge)}>
-                    {item.destination}
-                  </td>
-                  <td className={cn("px-3 py-3 align-top", OPERATOR_TYPOGRAPHY.body)}>{item.minimumSeverity}</td>
-                  <td className={cn("max-w-xs px-3 py-3 align-top", OPERATOR_TYPOGRAPHY.helper)}>
-                    {formatAlertRoutingFiltersSummary({
-                      minimumSeverity: item.minimumSeverity,
-                      severities: criteria.severities,
-                      findingTypes: criteria.findingTypes,
-                      tags: criteria.tags,
-                    })}
-                  </td>
-                  <td className={cn("px-3 py-3 align-top", OPERATOR_TYPOGRAPHY.body)}>
-                    <StatusTag
-                      kind={deliveryStatus.kind}
-                      label={deliveryStatus.label}
-                      data-testid={`alert-routing-delivery-status-${item.routingSubscriptionId}`}
-                    />
-                    <div className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-                      Last success:{" "}
-                      {item.lastDeliveredUtc ? formatInstantForLocale(item.lastDeliveredUtc) : "Not yet"}
-                    </div>
-                  </td>
-                  <td className={cn("px-3 py-3 align-top", OPERATOR_TYPOGRAPHY.body)}>
-                    <div className="flex flex-wrap gap-2">
-                      <button
+            return (
+              <EnterpriseTableRow key={item.routingSubscriptionId}>
+                <EnterpriseTableCell className={OPERATOR_TYPOGRAPHY.body}>{item.name}</EnterpriseTableCell>
+                <EnterpriseTableCell className={OPERATOR_TYPOGRAPHY.body}>
+                  {channelDisplayLabel(item.channelType)}
+                </EnterpriseTableCell>
+                <EnterpriseTableCell className={cn("max-w-xs break-all font-mono", OPERATOR_TYPOGRAPHY.badge)}>
+                  {item.destination}
+                </EnterpriseTableCell>
+                <EnterpriseTableCell className={OPERATOR_TYPOGRAPHY.body}>{item.minimumSeverity}</EnterpriseTableCell>
+                <EnterpriseTableCell className={cn("max-w-xs", OPERATOR_TYPOGRAPHY.helper)}>
+                  {formatAlertRoutingFiltersSummary({
+                    minimumSeverity: item.minimumSeverity,
+                    severities: criteria.severities,
+                    findingTypes: criteria.findingTypes,
+                    tags: criteria.tags,
+                  })}
+                </EnterpriseTableCell>
+                <EnterpriseTableCell>
+                  <StatusTag
+                    kind={deliveryStatus.kind}
+                    label={deliveryStatus.label}
+                    data-testid={`alert-routing-delivery-status-${item.routingSubscriptionId}`}
+                  />
+                  <div className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+                    Last success:{" "}
+                    {item.lastDeliveredUtc ? formatInstantForLocale(item.lastDeliveredUtc) : "Not yet"}
+                  </div>
+                </EnterpriseTableCell>
+                <EnterpriseTableCell>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onLoadAttempts(item.routingSubscriptionId)}
+                      title={
+                        canMutateRouting
+                          ? alertRoutingDeliveryAttemptsButtonTitleOperator
+                          : alertRoutingDeliveryAttemptsButtonTitleReader
+                      }
+                    >
+                      {canMutateRouting ? "Delivery history" : alertRoutingDeliveryAttemptsButtonLabelReaderRank}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onToggle(item.routingSubscriptionId)}
+                      disabled={!canMutateRouting}
+                    >
+                      {canMutateRouting
+                        ? item.isEnabled
+                          ? "Disable"
+                          : "Enable"
+                        : item.isEnabled
+                          ? alertRoutingToggleToDisabledReaderRank
+                          : alertRoutingToggleToEnabledReaderRank}
+                    </Button>
+                    {isWebhookChannelType(item.channelType) ? (
+                      <Button
                         type="button"
-                        onClick={() => onLoadAttempts(item.routingSubscriptionId)}
-                        title={
-                          canMutateRouting
-                            ? alertRoutingDeliveryAttemptsButtonTitleOperator
-                            : alertRoutingDeliveryAttemptsButtonTitleReader
-                        }
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onTest(item.routingSubscriptionId)}
+                        disabled={testingId !== null}
+                        data-testid={`webhook-test-${item.routingSubscriptionId}`}
                       >
-                        {canMutateRouting ? "Delivery history" : alertRoutingDeliveryAttemptsButtonLabelReaderRank}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => onToggle(item.routingSubscriptionId)}
-                        disabled={!canMutateRouting}
-                        title={canMutateRouting ? undefined : enterpriseMutationControlDisabledTitle}
-                      >
-                        {canMutateRouting
-                          ? item.isEnabled
-                            ? "Disable"
-                            : "Enable"
-                          : item.isEnabled
-                            ? alertRoutingToggleToDisabledReaderRank
-                            : alertRoutingToggleToEnabledReaderRank}
-                      </button>
-                      {isWebhookChannelType(item.channelType) ? (
-                        <button
-                          type="button"
-                          onClick={() => onTest(item.routingSubscriptionId)}
-                          disabled={testingId !== null}
-                          data-testid={`webhook-test-${item.routingSubscriptionId}`}
-                        >
-                          {testingId === item.routingSubscriptionId ? "Testing…" : "Test"}
-                        </button>
-                      ) : null}
-                    </div>
-                    {attemptsBySub[item.routingSubscriptionId]?.length ? (
-                      <ul className={cn("mt-2 pl-4", OPERATOR_TYPOGRAPHY.helper)}>
-                        {attemptsBySub[item.routingSubscriptionId].map((attempt) => (
-                          <li key={attempt.alertDeliveryAttemptId}>
-                            {attempt.status} — {new Date(attempt.attemptedUtc).toLocaleString()}
-                            {attempt.errorMessage ? ` — ${attempt.errorMessage}` : null}
-                          </li>
-                        ))}
-                      </ul>
+                        {testingId === item.routingSubscriptionId ? "Testing…" : "Test"}
+                      </Button>
                     ) : null}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+                  </div>
+                  {attempts.length > 0 ? (
+                    <ul className={cn("mt-2 list-disc pl-4", OPERATOR_TYPOGRAPHY.helper)}>
+                      {attempts.map((attempt) => (
+                        <li key={attempt.alertDeliveryAttemptId}>
+                          {attempt.status} — {new Date(attempt.attemptedUtc).toLocaleString()}
+                          {attempt.errorMessage ? ` — ${attempt.errorMessage}` : null}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </EnterpriseTableCell>
+              </EnterpriseTableRow>
+            );
+          })}
+        </EnterpriseTableBody>
+      </EnterpriseTable>
     </div>
   );
 }

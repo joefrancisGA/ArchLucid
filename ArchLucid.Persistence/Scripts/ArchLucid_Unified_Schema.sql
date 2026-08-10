@@ -2895,6 +2895,9 @@ BEGIN
         MinimumSeverity NVARCHAR(50) NOT NULL,
         IsEnabled BIT NOT NULL,
         CreatedUtc DATETIME2 NOT NULL,
+        CreatedByActor NVARCHAR(300) NULL,
+        LastModifiedByActor NVARCHAR(300) NULL,
+        LastModifiedUtc DATETIME2(7) NULL,
         LastDeliveredUtc DATETIME2 NULL,
         MetadataJson NVARCHAR(MAX) NOT NULL,
         INDEX IX_AlertRoutingSubscriptions_Scope_Enabled NONCLUSTERED (TenantId, WorkspaceId, ProjectId, IsEnabled, CreatedUtc DESC)

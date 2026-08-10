@@ -10,6 +10,9 @@ export type AlertRoutingSubscription = {
   minimumSeverity: string;
   isEnabled: boolean;
   createdUtc: string;
+  createdByActor?: string | null;
+  lastModifiedByActor?: string | null;
+  lastModifiedUtc?: string | null;
   lastDeliveredUtc?: string | null;
   metadataJson: string;
 };

@@ -22,13 +22,15 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
             (
                 RoutingSubscriptionId, TenantId, WorkspaceId, ProjectId,
                 Name, ChannelType, Destination, MinimumSeverity, IsEnabled,
-                CreatedUtc, LastDeliveredUtc, MetadataJson
+                CreatedUtc, CreatedByActor, LastModifiedByActor, LastModifiedUtc,
+                LastDeliveredUtc, MetadataJson
             )
             VALUES
             (
                 @RoutingSubscriptionId, @TenantId, @WorkspaceId, @ProjectId,
                 @Name, @ChannelType, @Destination, @MinimumSeverity, @IsEnabled,
-                @CreatedUtc, @LastDeliveredUtc, @MetadataJson
+                @CreatedUtc, @CreatedByActor, @LastModifiedByActor, @LastModifiedUtc,
+                @LastDeliveredUtc, @MetadataJson
             );
             """;
 
@@ -47,6 +49,8 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
                 Destination = @Destination,
                 MinimumSeverity = @MinimumSeverity,
                 IsEnabled = @IsEnabled,
+                LastModifiedByActor = @LastModifiedByActor,
+                LastModifiedUtc = @LastModifiedUtc,
                 LastDeliveredUtc = @LastDeliveredUtc,
                 MetadataJson = @MetadataJson
             WHERE RoutingSubscriptionId = @RoutingSubscriptionId;
@@ -63,7 +67,8 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
             SELECT
                 RoutingSubscriptionId, TenantId, WorkspaceId, ProjectId,
                 Name, ChannelType, Destination, MinimumSeverity, IsEnabled,
-                CreatedUtc, LastDeliveredUtc, MetadataJson
+                CreatedUtc, CreatedByActor, LastModifiedByActor, LastModifiedUtc,
+                LastDeliveredUtc, MetadataJson
             FROM dbo.AlertRoutingSubscriptions
             WHERE RoutingSubscriptionId = @RoutingSubscriptionId;
             """;
@@ -86,7 +91,8 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
             SELECT TOP 200
                 RoutingSubscriptionId, TenantId, WorkspaceId, ProjectId,
                 Name, ChannelType, Destination, MinimumSeverity, IsEnabled,
-                CreatedUtc, LastDeliveredUtc, MetadataJson
+                CreatedUtc, CreatedByActor, LastModifiedByActor, LastModifiedUtc,
+                LastDeliveredUtc, MetadataJson
             FROM dbo.AlertRoutingSubscriptions
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
@@ -119,7 +125,8 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
             SELECT TOP 200
                 RoutingSubscriptionId, TenantId, WorkspaceId, ProjectId,
                 Name, ChannelType, Destination, MinimumSeverity, IsEnabled,
-                CreatedUtc, LastDeliveredUtc, MetadataJson
+                CreatedUtc, CreatedByActor, LastModifiedByActor, LastModifiedUtc,
+                LastDeliveredUtc, MetadataJson
             FROM dbo.AlertRoutingSubscriptions
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId

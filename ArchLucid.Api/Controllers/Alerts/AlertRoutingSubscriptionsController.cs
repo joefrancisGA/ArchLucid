@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models.Alerts;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Alerts.Delivery;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -39,7 +40,8 @@ public sealed class AlertRoutingSubscriptionsController(
     IScopeContextProvider scopeProvider,
     IAlertRoutingSubscriptionRepository subscriptionRepository,
     IAlertDeliveryAttemptRepository attemptRepository,
-    IAuditService auditService)
+    IAuditService auditService,
+    IActorContext actorContext)
     : ControllerBase
 {
     /// <summary>Creates a routing subscription bound to the current tenant/workspace/project.</summary>
@@ -87,6 +89,7 @@ public sealed class AlertRoutingSubscriptionsController(
                 : request.MinimumSeverity.Trim(),
             IsEnabled = request.IsEnabled,
             CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            CreatedByActor = actorContext.GetActor(),
             MetadataJson = AlertRoutingCriteriaMetadata.MergeIntoMetadata(request.MetadataJson, request.RoutingCriteria),
         };
 
@@ -148,6 +151,8 @@ public sealed class AlertRoutingSubscriptionsController(
                 ProblemTypes.ResourceNotFound);
 
         subscription.IsEnabled = !subscription.IsEnabled;
+        subscription.LastModifiedUtc = TimeProvider.System.UtcNowDateTime();
+        subscription.LastModifiedByActor = actorContext.GetActor();
         await subscriptionRepository.UpdateAsync(subscription, ct);
 
         await auditService.LogAsync(

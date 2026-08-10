@@ -200,6 +200,7 @@ describe("AlertRoutingContent", () => {
         minimumSeverity: "High",
         isEnabled: true,
         createdUtc: "2026-01-15T12:00:00.000Z",
+        createdByActor: "alex@contoso.com",
         lastDeliveredUtc: "2026-01-16T12:00:00.000Z",
         metadataJson: "{}",
       },
@@ -208,7 +209,7 @@ describe("AlertRoutingContent", () => {
     renderWithHub(<AlertRoutingContent />);
 
     expect(await screen.findByTestId("alert-routing-config-provenance")).toHaveTextContent(
-      /Configuration last recorded/i,
+      /Configuration last changed by alex@contoso.com/i,
     );
     expect(screen.getByRole("link", { name: "View audit trail" })).toHaveAttribute("href", "/governance/audit");
     expect(screen.getByTestId("alert-routing-delivery-health")).toHaveTextContent("1 of 1 delivering");

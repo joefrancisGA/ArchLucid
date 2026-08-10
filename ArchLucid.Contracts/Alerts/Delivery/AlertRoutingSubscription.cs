@@ -79,6 +79,27 @@ public class AlertRoutingSubscription
         set;
     } = TimeProvider.System.GetUtcNow().UtcDateTime;
 
+    /// <summary>Display identity of the principal that created this destination.</summary>
+    public string? CreatedByActor
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Display identity of the principal that last toggled enablement.</summary>
+    public string? LastModifiedByActor
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Last enablement toggle time (UTC).</summary>
+    public DateTime? LastModifiedUtc
+    {
+        get;
+        set;
+    }
+
     /// <summary>Last successful delivery timestamp; updated by the dispatcher.</summary>
     public DateTime? LastDeliveredUtc
     {
