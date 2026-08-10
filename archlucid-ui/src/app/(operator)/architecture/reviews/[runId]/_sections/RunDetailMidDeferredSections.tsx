@@ -1,5 +1,7 @@
-import { ChangesSinceLastReviewBanner } from "@/components/ChangesSinceLastReviewBanner";
-import { RunSavingsSummary } from "@/components/RunSavingsSummary";
+import {
+  ChangesSinceLastReviewBannerDeferred,
+  RunSavingsSummaryDeferred,
+} from "./run-detail-page-view-deferred-chunks";
 
 import { loadRunDetailMidDeferredModel } from "./load-run-detail-deferred-model";
 import type { RunDetailDeferredSectionContext } from "./run-detail-page-model";
@@ -23,7 +25,7 @@ export async function RunDetailMidDeferredSections(
   return (
     <>
       {deferred.changesSinceLastReviewBanner !== null ? (
-        <ChangesSinceLastReviewBanner
+        <ChangesSinceLastReviewBannerDeferred
           priorReviewDateLabel={deferred.changesSinceLastReviewBanner.priorReviewDateLabel}
           priorRunId={deferred.changesSinceLastReviewBanner.priorRunId}
           currentRunId={deferred.changesSinceLastReviewBanner.currentRunId}
@@ -31,7 +33,7 @@ export async function RunDetailMidDeferredSections(
         />
       ) : null}
       {includeSavingsSummary && deferred.savingsSummary !== null ? (
-        <RunSavingsSummary model={deferred.savingsSummary} />
+        <RunSavingsSummaryDeferred model={deferred.savingsSummary} />
       ) : null}
     </>
   );

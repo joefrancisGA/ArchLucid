@@ -26,7 +26,6 @@ import { formatRelativeTime } from "@/lib/relative-time";
 export type AlertsInboxControlsProps = {
   readonly status: string;
   readonly page: number;
-  readonly totalPages: number;
   readonly loading: boolean;
   readonly buyerPolishedShell: boolean;
   readonly canMutateAlertInbox: boolean;
@@ -136,7 +135,7 @@ export function AlertsInboxControls(props: AlertsInboxControlsProps) {
 
       {props.pageMixSummary !== null && props.status === ALERTS_INBOX_ALL_STATUSES_VALUE && !props.hasLoadFailure ? (
         <p className={cn("m-0 mb-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)} data-testid="alerts-inbox-page-mix">
-          Page {props.page} of {props.totalPages}: {props.pageMixSummary}.
+          Page {props.page}: {props.pageMixSummary}.
         </p>
       ) : null}
 

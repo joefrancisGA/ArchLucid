@@ -12,6 +12,7 @@ using ArchLucid.Host.Core.ProblemDetails;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 
@@ -66,6 +67,7 @@ public sealed class MarketingQuickScanController(
 
     /// <summary>Returns a static sample result that does not invoke AI.</summary>
     [HttpGet("sample")]
+    [OutputCache(PolicyName = "MarketingArtifact")]
     [ProducesResponseType(typeof(ArchitectureQuickScanResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetQuickScanSampleAsync(
         [FromQuery] string? sourceState,

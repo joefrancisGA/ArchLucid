@@ -51,6 +51,38 @@ public sealed class InMemoryDigestDeliveryAttemptRepository : IDigestDeliveryAtt
         }
     }
 
+    public Task<IReadOnlyList<DigestDeliveryAttempt>> ListByDigestIdsAsync(
+        IReadOnlyCollection<Guid> digestIds,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(digestIds);
+        ct.ThrowIfCancellationRequested();
+
+        if (digestIds.Count == 0)
+            return Task.FromResult<IReadOnlyList<DigestDeliveryAttempt>>([]);
+
+        HashSet<Guid> idSet = digestIds as HashSet<Guid> ?? digestIds.ToHashSet();
+
+        lock (_gate)
+        {
+            List<DigestDeliveryAttempt> result = _items
+                .Where(x =>
+                    idSet.Contains(x.DigestId) &&
+                    x.TenantId == tenantId &&
+                    x.WorkspaceId == workspaceId &&
+                    x.ProjectId == projectId)
+                .GroupBy(x => x.DigestId)
+                .SelectMany(static g => g.OrderByDescending(x => x.AttemptedUtc).Take(ListByDigestCap))
+                .OrderByDescending(x => x.AttemptedUtc)
+                .ToList();
+
+            return Task.FromResult<IReadOnlyList<DigestDeliveryAttempt>>(result);
+        }
+    }
+
     public Task<IReadOnlyList<DigestDeliveryAttempt>> ListBySubscriptionAsync(
         Guid subscriptionId,
         int take,

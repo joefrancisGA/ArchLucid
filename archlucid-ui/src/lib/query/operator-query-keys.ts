@@ -38,7 +38,7 @@ export const operatorQueryKeys = {
   patternLibraryInsightCards: ["operator", "analytics", "pattern-insight-cards"] as const,
   alertsInboxPage: (
     scope: OperatorScopeQueryKey,
-    params: { readonly statusFilter: string | null; readonly page: number },
+    params: { readonly statusFilter: string | null; readonly cursor: string },
   ) => ["operator", "alerts", "inbox-page", scope, params] as const,
   alertsInboxSummary: (scope: OperatorScopeQueryKey) =>
     ["operator", "alerts", "inbox-summary", scope] as const,

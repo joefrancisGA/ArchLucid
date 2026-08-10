@@ -5,13 +5,13 @@ import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 describe("operatorQueryKeys alerts inbox (TB-935)", () => {
   const scope = { tenantId: "t1", workspaceId: "w1", projectId: "default" };
 
-  it("scopes inbox page queries by status filter and page", () => {
-    expect(operatorQueryKeys.alertsInboxPage(scope, { statusFilter: "Open", page: 2 })).toEqual([
+  it("scopes inbox page queries by status filter and cursor", () => {
+    expect(operatorQueryKeys.alertsInboxPage(scope, { statusFilter: "Open", cursor: "abc" })).toEqual([
       "operator",
       "alerts",
       "inbox-page",
       scope,
-      { statusFilter: "Open", page: 2 },
+      { statusFilter: "Open", cursor: "abc" },
     ]);
   });
 

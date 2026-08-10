@@ -20,6 +20,18 @@ const explanationCollapsibleSource = readFileSync(
 
 const belowFoldSource = readFileSync(join(sectionsDir, "RunDetailBelowFoldSections.tsx"), "utf8");
 
+const midDeferredSource = readFileSync(join(sectionsDir, "RunDetailMidDeferredSections.tsx"), "utf8");
+
+const decisionDeltaDeferredSource = readFileSync(
+  join(sectionsDir, "RunDetailDecisionDeltaDeferred.tsx"),
+  "utf8",
+);
+
+const explanationDeferredSource = readFileSync(
+  join(sectionsDir, "RunDetailExplanationDeferred.tsx"),
+  "utf8",
+);
+
 const bannedStaticImports = [
   '@/components/RunEstimatedLlmCostCard"',
   '@/components/RunAgentResultsSummaryCard"',
@@ -74,6 +86,10 @@ const bannedStaticImports = [
   './RunDetailReviewPackageShareRow"',
   './RunDetailDemoMarketingChrome"',
   './RunDetailBelowFoldSections"',
+  '@/components/ChangesSinceLastReviewBanner"',
+  '@/components/RunSavingsSummary"',
+  './RunDetailDecisionDeltaPanel"',
+  './RunDetailRunExplanationCollapsible"',
 ] as const;
 
 describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-2117 / TB-2142)", () => {
@@ -224,6 +240,31 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     );
     expect(belowFoldSource).toContain('import("./RunDetailAuthorityChainSection")');
     expect(belowFoldSource).toContain('import("./RunDetailRetrievalGroundingSection")');
+  });
+
+  it("dynamic-imports mid/decision-delta/explanation leaves (wave 10)", () => {
+    expect(midDeferredSource).not.toContain('@/components/ChangesSinceLastReviewBanner"');
+    expect(midDeferredSource).not.toContain('@/components/RunSavingsSummary"');
+    expect(midDeferredSource).toContain("ChangesSinceLastReviewBannerDeferred");
+    expect(midDeferredSource).toContain("RunSavingsSummaryDeferred");
+    expect(midDeferredSource).toContain("run-detail-page-view-deferred-chunks");
+
+    expect(decisionDeltaDeferredSource).not.toContain('./RunDetailDecisionDeltaPanel"');
+    expect(decisionDeltaDeferredSource).toContain("RunDetailDecisionDeltaPanelDeferred");
+    expect(decisionDeltaDeferredSource).toContain("run-detail-page-view-deferred-chunks");
+
+    expect(explanationDeferredSource).not.toContain('./RunDetailRunExplanationCollapsible"');
+    expect(explanationDeferredSource).toContain("RunDetailRunExplanationCollapsibleDeferred");
+    expect(explanationDeferredSource).toContain("run-detail-page-view-deferred-chunks");
+
+    expect(deferredChunksSource).toContain("ChangesSinceLastReviewBannerDeferred");
+    expect(deferredChunksSource).toContain("RunSavingsSummaryDeferred");
+    expect(deferredChunksSource).toContain("RunDetailDecisionDeltaPanelDeferred");
+    expect(deferredChunksSource).toContain("RunDetailRunExplanationCollapsibleDeferred");
+    expect(deferredChunksSource).toContain('import("@/components/ChangesSinceLastReviewBanner")');
+    expect(deferredChunksSource).toContain('import("@/components/RunSavingsSummary")');
+    expect(deferredChunksSource).toContain('import("./RunDetailDecisionDeltaPanel")');
+    expect(deferredChunksSource).toContain('import("./RunDetailRunExplanationCollapsible")');
   });
 
   it("splits below-fold into nested Suspense boundaries (TB-2026)", () => {

@@ -8,6 +8,7 @@ using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers.Marketing;
@@ -33,6 +34,7 @@ public sealed class EnterpriseComparisonMarketingController(
 
     /// <summary>Returns a single-page PDF sourced from the repository Markdown file (read-only file IO).</summary>
     [HttpGet("enterprise-comparison.pdf")]
+    [OutputCache(PolicyName = "MarketingArtifact")]
     [Produces("application/pdf")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]

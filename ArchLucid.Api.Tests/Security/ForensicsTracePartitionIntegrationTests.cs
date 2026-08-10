@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
-using System.Text.Json;
 
 using ArchLucid.Api.Models;
 
@@ -70,7 +69,7 @@ public sealed class ForensicsTracePartitionIntegrationTests(ForensicsTracePartit
     }
 
     [SkippableFact]
-    public async Task Operator_can_read_internal_trace_forensics_with_prompt_fields_when_present()
+    public async Task Operator_can_read_internal_trace_forensics_list_and_full_trace_by_id()
     {
         Skip.If(seed.ShardWarmupTimedOut, GreenfieldSqlIntegrationWarmup.ShardOverloadSkipReason);
         Skip.IfNot(seed.SqlReachable, SqlExplicitUnavailable);
@@ -81,13 +80,26 @@ public sealed class ForensicsTracePartitionIntegrationTests(ForensicsTracePartit
         using HttpClient operatorClient = operatorFactory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(operatorClient);
 
-        HttpResponseMessage response =
+        HttpResponseMessage listResponse =
             await operatorClient.GetAsync($"/v1/internal/architecture/review/{runId}/traces/forensics");
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        listResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        using JsonDocument doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-        JsonElement traces = doc.RootElement.GetProperty("traces");
-        traces.GetArrayLength().Should().BeGreaterThan(0);
+        AgentExecutionTraceForensicsPageResponse? page =
+            await listResponse.Content.ReadFromJsonAsync<AgentExecutionTraceForensicsPageResponse>(
+                IntegrationTestTraceJson.Options);
+        page.Should().NotBeNull();
+        page!.Traces.Should().NotBeEmpty();
+
+        string traceId = page.Traces[0].TraceId;
+        traceId.Should().NotBeNullOrWhiteSpace();
+
+        HttpResponseMessage detailResponse =
+            await operatorClient.GetAsync($"/v1/internal/architecture/traces/forensics/{traceId}");
+
+        detailResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        string detailJson = await detailResponse.Content.ReadAsStringAsync();
+        detailJson.Should().Contain("traceId", "full forensics payload includes trace identity.");
     }
 }

@@ -71,20 +71,30 @@ public sealed class RetrievalQueryService(
         budgetSource.CancelAfter(_queryBudgetOptions.CurrentValue.GetEffectiveOverallTimeout());
         CancellationToken budgetCt = budgetSource.Token;
 
-        if (query.IncludePlatformCorpora && query.AllowedPolicyPackRulePackIds is null)
-        {
-            HashSet<string> assigned = await _assignedPolicyPackRulePackIdResolver
-                .ResolveAsync(query.TenantId, query.WorkspaceId, query.ProjectId, budgetCt)
-                .ConfigureAwait(false);
-
-            query.AllowedPolicyPackRulePackIds = assigned;
-        }
-
         long startTicks = Stopwatch.GetTimestamp();
 
-        AgenticRetrievalQueryPlan queryPlan = await _agenticRetrievalQueryExpander
-            .ExpandAsync(query.QueryText, budgetCt)
-            .ConfigureAwait(false);
+        // Policy-pack resolve and query expansion are independent; overlap them when both are needed.
+        // Do not parallelize rewrite+HyDE inside the expander — that stays sequential by design.
+        AgenticRetrievalQueryPlan queryPlan;
+
+        if (query.IncludePlatformCorpora && query.AllowedPolicyPackRulePackIds is null)
+        {
+            Task<HashSet<string>> resolveTask = _assignedPolicyPackRulePackIdResolver
+                .ResolveAsync(query.TenantId, query.WorkspaceId, query.ProjectId, budgetCt);
+            Task<AgenticRetrievalQueryPlan> expandTask = _agenticRetrievalQueryExpander
+                .ExpandAsync(query.QueryText, budgetCt);
+
+            await Task.WhenAll(resolveTask, expandTask).ConfigureAwait(false);
+
+            query.AllowedPolicyPackRulePackIds = await resolveTask.ConfigureAwait(false);
+            queryPlan = await expandTask.ConfigureAwait(false);
+        }
+        else
+        {
+            queryPlan = await _agenticRetrievalQueryExpander
+                .ExpandAsync(query.QueryText, budgetCt)
+                .ConfigureAwait(false);
+        }
 
         int finalTopK = Math.Clamp(query.TopK, 1, 25);
         RetrievalRerankingOptions rerankOptions = _rerankingOptions.CurrentValue;

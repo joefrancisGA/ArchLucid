@@ -8,13 +8,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
-import { CtoDemoSegregationCallout } from "@/components/cto-demo/CtoDemoSegregationCallout";
-import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { MutationErrorBoundary } from "@/components/MutationErrorBoundary";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Separator } from "@/components/ui/separator";
-import { GovernanceInteractiveQuickstartContent } from "@/components/GovernanceInteractiveQuickstartContent";
 import { GovernanceApprovalStoryCard } from "@/components/GovernanceApprovalStoryCard";
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
@@ -34,7 +31,6 @@ import {
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
-import { CtoDemoGovernancePreviewHint } from "@/components/OperateCapabilityHints";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
@@ -84,9 +80,15 @@ import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { GovernanceOverviewPanel } from "./GovernanceOverviewPanel";
 import { deriveGovernanceApprovalWorkflowState } from "./governance-approval-workflow-state";
 import { GovernanceReviewContextBar } from "./GovernanceReviewContextBar";
-import { GovernanceWorkflowApprovalsList } from "./GovernanceWorkflowApprovalsList";
-import { GovernanceWorkflowDialogs } from "./GovernanceWorkflowDialogs";
-import { GovernanceWorkflowPromotionsActivationsSection } from "./GovernanceWorkflowPromotionsActivationsSection";
+import {
+  CtoDemoBuyerValueStripDeferred,
+  CtoDemoGovernancePreviewHintDeferred,
+  CtoDemoSegregationCalloutDeferred,
+  GovernanceInteractiveQuickstartContentDeferred,
+  GovernanceWorkflowApprovalsListDeferred,
+  GovernanceWorkflowDialogsDeferred,
+  GovernanceWorkflowPromotionsActivationsSectionDeferred,
+} from "./governance-workflow-deferred-chunks";
 import { GovernanceWorkflowSubmitSection } from "./GovernanceWorkflowSubmitSection";
 import {
   sortGovernanceActivations,
@@ -625,13 +627,13 @@ export function GovernanceWorkflowPageContent() {
         collapsibleGuidance={GOVERNANCE_OVERVIEW_HOW_IT_WORKS_TRIGGER}
         collapsibleChildren={
           !isReviewContext ? (
-            <GovernanceInteractiveQuickstartContent hideFirst30DaysLink={buyerPolishedShell} />
+            <GovernanceInteractiveQuickstartContentDeferred hideFirst30DaysLink={buyerPolishedShell} />
           ) : undefined
         }
       />
-      {isReviewContext ? <CtoDemoBuyerValueStrip stepIndex={3} /> : null}
-      {isReviewContext ? <CtoDemoSegregationCallout /> : null}
-      {isReviewContext ? <CtoDemoGovernancePreviewHint /> : null}
+      {isReviewContext ? <CtoDemoBuyerValueStripDeferred stepIndex={3} /> : null}
+      {isReviewContext ? <CtoDemoSegregationCalloutDeferred /> : null}
+      {isReviewContext ? <CtoDemoGovernancePreviewHintDeferred /> : null}
       <OperatorPageHeader
         navHref="/governance/approval-queue"
         title={pageTitle}
@@ -800,7 +802,7 @@ export function GovernanceWorkflowPageContent() {
                 ? GOVERNANCE_APPROVAL_REQUESTS_COMPACT_SECTION_LEAD
                 : GOVERNANCE_APPROVAL_REQUESTS_SECTION_LEAD}
             </p>
-            <GovernanceWorkflowApprovalsList
+            <GovernanceWorkflowApprovalsListDeferred
               buyerPolishedShell={buyerPolishedShell}
               canMutateWorkflow={canMutateWorkflow}
               listsLoading={listsLoading}
@@ -831,7 +833,7 @@ export function GovernanceWorkflowPageContent() {
 
               <div data-testid="governance-workflow-advanced-options">
                 <AdvancedOptionsAccordion triggerLabel={GOVERNANCE_WORKFLOW_ENVIRONMENT_RELEASES_ACCORDION_LABEL} className="mb-10">
-                  <GovernanceWorkflowPromotionsActivationsSection
+                  <GovernanceWorkflowPromotionsActivationsSectionDeferred
                     canMutateWorkflow={canMutateWorkflow}
                     listsLoading={listsLoading}
                     activeRunId={activeRunId}
@@ -852,7 +854,7 @@ export function GovernanceWorkflowPageContent() {
         </>
       ) : null}
 
-      <GovernanceWorkflowDialogs
+      <GovernanceWorkflowDialogsDeferred
         pendingPromote={pendingPromote}
         setPendingPromote={setPendingPromote}
         pendingPromoteRequestRef={pendingPromoteRequestRef}

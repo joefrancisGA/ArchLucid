@@ -27,6 +27,7 @@ vi.mock("@/lib/api", () => ({
   listArchitectureDigests: vi.fn(),
   getArchitectureDigest: vi.fn(),
   listDigestDeliveryAttempts: vi.fn(),
+  listDigestDeliveryAttemptsBatch: vi.fn(async () => []),
   listDigestSubscriptions: vi.fn(),
   getExecDigestPreferences: vi.fn(),
   saveExecDigestPreferences: vi.fn(),

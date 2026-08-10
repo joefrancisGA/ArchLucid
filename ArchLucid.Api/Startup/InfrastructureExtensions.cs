@@ -398,6 +398,12 @@ internal static class InfrastructureExtensions
                     .Expire(TimeSpan.FromSeconds(300))
                     .SetVaryByRouteValue("runKey")
                     .SetVaryByHeader("Accept"));
+
+            options.AddPolicy(
+                "MarketingArtifact",
+                builder => builder
+                    .Expire(TimeSpan.FromSeconds(300))
+                    .SetVaryByHeader("Accept"));
         });
 
         return services;

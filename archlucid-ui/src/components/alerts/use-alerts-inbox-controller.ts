@@ -21,7 +21,6 @@ import {
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
-  ALERTS_INBOX_DEFAULT_PROJECT_ID,
   shouldShowAlertsHeaderConfigureRulesLink,
 } from "@/lib/alerts-inbox-workspace-context";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -30,10 +29,8 @@ import { useNavSurface } from "@/lib/use-nav-surface";
 import type { AlertsInboxPageModel } from "@/app/(operator)/governance/alerts/_sections/alerts-inbox-page-model";
 import {
   ALERTS_INBOX_ALL_STATUSES_VALUE,
-  ALERTS_INBOX_PAGE_SIZE,
 } from "@/app/(operator)/governance/alerts/_sections/load-alerts-inbox-page-model";
 import type { AlertActionLoopDto } from "@/types/operate-rhythm";
-import type { AlertRecord } from "@/types/alerts";
 import { useSyncAlertsHubHeaderConfigureLink } from "@/components/alerts/AlertsHubHeaderConfigureLinkContext";
 
 type PendingActionState = {
@@ -41,13 +38,25 @@ type PendingActionState = {
   action: AlertActionKind;
 };
 
+/** Cursor stack: index 0 is always `""` (first page). Later entries are prior `nextCursor` values. */
+function initialCursorStack(initialModel: AlertsInboxPageModel | null): string[] {
+  const cursor = initialModel?.cursor ?? "";
+
+  if (cursor.length === 0) {
+    return [""];
+  }
+
+  // Deep-linked mid-page: treat as a one-entry stack (Previous returns to first page).
+  return ["", cursor];
+}
+
 export function useAlertsInboxController(initialModel: AlertsInboxPageModel | null) {
   const queryClient = useQueryClient();
   const scope = useOperatorScopeQueryKey();
   const canMutateAlertInbox = useNavSurface("alerts").mutationCapability;
   const buyerPolishedShell = initialModel?.buyerPolishedShell ?? isBuyerPolishedOperatorShellEnv();
   const [status, setStatus] = useState<string>(initialModel?.status ?? "Open");
-  const [page, setPage] = useState(initialModel?.page ?? 1);
+  const [cursorStack, setCursorStack] = useState<string[]>(() => initialCursorStack(initialModel));
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(initialModel?.loadFailure ?? null);
   const [pendingAction, setPendingAction] = useState<PendingActionState | null>(null);
   const [actionComment, setActionComment] = useState("");
@@ -63,18 +72,23 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
   const [lastRefreshedUtc, setLastRefreshedUtc] = useState<string | null>(null);
 
   const statusFilter = status === ALERTS_INBOX_ALL_STATUSES_VALUE ? null : status;
-  const pageQuery = useAlertsInboxPageQuery({ status, page, initialModel });
+  const cursor = cursorStack[cursorStack.length - 1] ?? "";
+  const page = cursorStack.length;
+  const pageQuery = useAlertsInboxPageQuery({ status, cursor, initialModel });
   const summaryQuery = useAlertsInboxSummaryQuery({ initialModel });
   const workspaceQuery = useAlertsInboxWorkspaceContextQuery();
 
   const alerts = pageQuery.items;
-  const totalCount = pageQuery.totalCount;
+  const hasMore = pageQuery.hasMore;
+  const nextCursor = pageQuery.nextCursor;
   const loading = pageQuery.loading;
   const summaryCounts = summaryQuery.summary;
   const summaryLoading = summaryQuery.loading;
   const workspaceContext = workspaceQuery.workspaceContext;
 
-  const totalPages = Math.max(1, Math.ceil(totalCount / ALERTS_INBOX_PAGE_SIZE));
+  const canGoPrevious = cursorStack.length > 1;
+  const canGoNext =
+    hasMore && nextCursor !== null && nextCursor !== undefined && nextCursor.length > 0;
 
   useEffect(() => {
     if (pageQuery.loadFailure !== null) {
@@ -88,13 +102,7 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
     if (!pageQuery.loading && pageQuery.loadFailure === null) {
       setLastRefreshedUtc(new Date().toISOString());
     }
-  }, [pageQuery.loading, pageQuery.loadFailure, pageQuery.items, pageQuery.totalCount]);
-
-  useEffect(() => {
-    if (totalCount > 0 && page > totalPages) {
-      setPage(totalPages);
-    }
-  }, [page, totalCount, totalPages]);
+  }, [pageQuery.loading, pageQuery.loadFailure, pageQuery.items, pageQuery.hasMore]);
 
   useEffect(() => {
     setSelectedAlertIds((prev) => {
@@ -113,7 +121,7 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
       const statusFilterValue = status === ALERTS_INBOX_ALL_STATUSES_VALUE ? null : status;
 
       await queryClient.invalidateQueries({
-        queryKey: operatorQueryKeys.alertsInboxPage(scope, { statusFilter: statusFilterValue, page }),
+        queryKey: operatorQueryKeys.alertsInboxPage(scope, { statusFilter: statusFilterValue, cursor }),
       });
 
       if (options?.refreshSummary === true) {
@@ -122,7 +130,7 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
         });
       }
     },
-    [page, queryClient, scope, status],
+    [cursor, queryClient, scope, status],
   );
 
   const visibleAlerts = useMemo(
@@ -292,7 +300,29 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
 
   function changeStatusFilter(value: string): void {
     setStatus(value);
-    setPage(1);
+    setCursorStack([""]);
+  }
+
+  function goNextPage(): void {
+    if (!canGoNext || nextCursor === null || nextCursor === undefined) {
+      return;
+    }
+
+    setCursorStack((prev) => [...prev, nextCursor]);
+  }
+
+  function goPreviousPage(): void {
+    if (!canGoPrevious) {
+      return;
+    }
+
+    setCursorStack((prev) => {
+      if (prev.length <= 1) {
+        return prev;
+      }
+
+      return prev.slice(0, -1);
+    });
   }
 
   function clearPendingAction(): void {
@@ -325,12 +355,17 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
     archiveBusyAlertId,
     batchAckBusy,
     buyerPolishedShell,
+    canGoNext,
+    canGoPrevious,
     canMutateAlertInbox,
     changeStatusFilter,
     clearPendingAction,
     closeActionLoopDialog,
     emptyFilteredProps,
     failure,
+    goNextPage,
+    goPreviousPage,
+    hasMore,
     lastRefreshedUtc,
     loading,
     onAcknowledgeSelected,
@@ -343,14 +378,11 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
     queuePendingAction,
     selectedAlertIds,
     setActionComment,
-    setPage,
     status,
     summaryCounts,
     summaryLoading,
     toggleAlertSelected,
     toggleSelectAllVisible,
-    totalCount,
-    totalPages,
     visibleAlerts,
     workspaceContext,
     load: refreshInbox,

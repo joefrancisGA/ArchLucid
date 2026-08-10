@@ -4,11 +4,13 @@ using ArchLucid.Contracts.Agents;
 
 namespace ArchLucid.Api.Models;
 
-/// <summary>Operator/internal paginated full LLM trace forensics (TB-287).</summary>
+/// <summary>
+///     Operator/internal paginated LLM trace forensics list (summaries only; full TraceJson via by-id route).
+/// </summary>
 [ExcludeFromCodeCoverage(Justification = "API response DTO; no business logic.")]
 public sealed class AgentExecutionTraceForensicsPageResponse
 {
-    public List<AgentExecutionTrace> Traces
+    public List<AgentExecutionTraceSummary> Traces
     {
         get;
         set;

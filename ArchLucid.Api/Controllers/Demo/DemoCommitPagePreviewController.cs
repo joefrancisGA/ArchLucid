@@ -13,6 +13,7 @@ using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
@@ -68,6 +69,7 @@ public sealed class DemoCommitPagePreviewController(
 
     /// <summary>Public procurement alias — identical payload to <c>GET preview</c> (rate limit + demo gate apply).</summary>
     [HttpGet("/v{version:apiVersion}/public/demo/sample-run")]
+    [OutputCache(PolicyName = "MarketingArtifact")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(DemoCommitPagePreviewResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
@@ -79,6 +81,7 @@ public sealed class DemoCommitPagePreviewController(
 
     /// <summary>Returns the bundled commit-page preview JSON for the latest committed demo-seed run.</summary>
     [HttpGet("preview")]
+    [OutputCache(PolicyName = "MarketingArtifact")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(DemoCommitPagePreviewResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]

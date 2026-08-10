@@ -202,8 +202,9 @@ public sealed class ComparisonsController(
         string sortDir = query.SortDir ?? "desc";
 
         IReadOnlyList<ComparisonRecord> records;
-        if (!string.IsNullOrWhiteSpace(query.Cursor))
 
+        if (Request.Query.ContainsKey("cursor"))
+        {
             records = await comparisonRecordRepository.SearchByCursorAsync(
                 normalizedType,
                 query.LeftRunId,
@@ -220,9 +221,9 @@ public sealed class ComparisonsController(
                 cursorId,
                 limit,
                 cancellationToken);
-
+        }
         else
-
+        {
             records = await comparisonRecordRepository.SearchAsync(
                 normalizedType,
                 query.LeftRunId,
@@ -238,6 +239,7 @@ public sealed class ComparisonsController(
                 query.Skip,
                 limit,
                 cancellationToken);
+        }
 
         string? nextCursor =
             records.Count > 0 && string.Equals(sortBy, "createdUtc", StringComparison.OrdinalIgnoreCase)

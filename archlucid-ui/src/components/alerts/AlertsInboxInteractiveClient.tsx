@@ -34,7 +34,6 @@ export function AlertsInboxInteractiveClient({ initialModel = null }: AlertsInbo
       <AlertsInboxControls
         status={controller.status}
         page={controller.page}
-        totalPages={controller.totalPages}
         loading={controller.loading}
         buyerPolishedShell={controller.buyerPolishedShell}
         canMutateAlertInbox={controller.canMutateAlertInbox}

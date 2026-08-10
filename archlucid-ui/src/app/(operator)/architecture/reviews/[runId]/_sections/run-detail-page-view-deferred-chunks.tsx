@@ -502,3 +502,64 @@ export const RunDetailBelowFoldSectionsDeferred = dynamic(
     ),
   },
 );
+
+const midBannerLoading = (
+  <div
+    className="h-16 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
+    role="status"
+    aria-label="Loading review changes banner"
+  />
+);
+
+const savingsSummaryLoading = (
+  <div
+    className="h-24 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
+    role="status"
+    aria-label="Loading savings summary"
+  />
+);
+
+const decisionDeltaLoading = (
+  <div
+    className="h-36 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
+    role="status"
+    aria-label="Loading decision delta"
+  />
+);
+
+const explanationCollapsibleLoading = (
+  <div
+    className="h-48 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
+    role="status"
+    aria-label="Loading review explanation"
+  />
+);
+
+/** Perf wave 10 — mid-band compare/savings leaves off sync First Load JS. */
+export const ChangesSinceLastReviewBannerDeferred = dynamic(
+  () =>
+    import("@/components/ChangesSinceLastReviewBanner").then(
+      (module) => module.ChangesSinceLastReviewBanner,
+    ),
+  { ssr: false, loading: () => midBannerLoading },
+);
+
+export const RunSavingsSummaryDeferred = dynamic(
+  () => import("@/components/RunSavingsSummary").then((module) => module.RunSavingsSummary),
+  { ssr: false, loading: () => savingsSummaryLoading },
+);
+
+/** Perf wave 10 — decision-delta panel off sync First Load JS. */
+export const RunDetailDecisionDeltaPanelDeferred = dynamic(
+  () => import("./RunDetailDecisionDeltaPanel").then((module) => module.RunDetailDecisionDeltaPanel),
+  { ssr: false, loading: () => decisionDeltaLoading },
+);
+
+/** Perf wave 10 — findings/explanation collapsible off sync First Load JS. */
+export const RunDetailRunExplanationCollapsibleDeferred = dynamic(
+  () =>
+    import("./RunDetailRunExplanationCollapsible").then(
+      (module) => module.RunDetailRunExplanationCollapsible,
+    ),
+  { ssr: false, loading: () => explanationCollapsibleLoading },
+);

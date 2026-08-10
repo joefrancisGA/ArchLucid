@@ -23,12 +23,14 @@ vi.mock("@/lib/api", () => ({
   listArchitectureDigests: vi.fn(),
   getArchitectureDigest: vi.fn(),
   listDigestDeliveryAttempts: vi.fn(),
+  listDigestDeliveryAttemptsBatch: vi.fn(),
 }));
 
 import {
   getArchitectureDigest,
   listArchitectureDigests,
   listDigestDeliveryAttempts,
+  listDigestDeliveryAttemptsBatch,
 } from "@/lib/api";
 
 const healthSnap: WeeklyDigestHealthDto = {
@@ -68,7 +70,9 @@ describe("DigestsBrowseContent", () => {
   beforeEach(() => {
     vi.mocked(listArchitectureDigests).mockReset();
     vi.mocked(listDigestDeliveryAttempts).mockReset();
+    vi.mocked(listDigestDeliveryAttemptsBatch).mockReset();
     vi.mocked(getArchitectureDigest).mockReset();
+    vi.mocked(listDigestDeliveryAttemptsBatch).mockResolvedValue([]);
     window.location.hash = "";
   });
 
@@ -133,7 +137,7 @@ describe("DigestsBrowseContent", () => {
 
   it("renders honest coverage instead of Compared/Current labels (TB-1503)", async () => {
     vi.mocked(listArchitectureDigests).mockResolvedValue([digestRow]);
-    vi.mocked(listDigestDeliveryAttempts).mockResolvedValue([]);
+    vi.mocked(listDigestDeliveryAttemptsBatch).mockResolvedValue([{ digestId: "d1", attempts: [] }]);
 
     renderWithOperatorQuery(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
 
@@ -149,7 +153,7 @@ describe("DigestsBrowseContent", () => {
 
   it("gives each history row a stable id for the #digest hash target (TB-1501)", async () => {
     vi.mocked(listArchitectureDigests).mockResolvedValue([digestRow]);
-    vi.mocked(listDigestDeliveryAttempts).mockResolvedValue([]);
+    vi.mocked(listDigestDeliveryAttemptsBatch).mockResolvedValue([{ digestId: "d1", attempts: [] }]);
 
     renderWithOperatorQuery(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
 
@@ -161,6 +165,7 @@ describe("DigestsBrowseContent", () => {
   it("auto-selects the digest named in the location hash (TB-1501)", async () => {
     window.location.hash = "#digest-d1";
     vi.mocked(listArchitectureDigests).mockResolvedValue([digestRow]);
+    vi.mocked(listDigestDeliveryAttemptsBatch).mockResolvedValue([{ digestId: "d1", attempts: [] }]);
     vi.mocked(listDigestDeliveryAttempts).mockResolvedValue([]);
     vi.mocked(getArchitectureDigest).mockResolvedValue(digestRow);
 
@@ -177,7 +182,7 @@ describe("DigestsBrowseContent", () => {
   it("ignores a hash that does not match a listed digest", async () => {
     window.location.hash = "#digest-missing";
     vi.mocked(listArchitectureDigests).mockResolvedValue([digestRow]);
-    vi.mocked(listDigestDeliveryAttempts).mockResolvedValue([]);
+    vi.mocked(listDigestDeliveryAttemptsBatch).mockResolvedValue([{ digestId: "d1", attempts: [] }]);
 
     renderWithOperatorQuery(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
 
@@ -199,6 +204,9 @@ describe("DigestsBrowseContent", () => {
     };
 
     vi.mocked(listArchitectureDigests).mockResolvedValue([digestRow]);
+    vi.mocked(listDigestDeliveryAttemptsBatch).mockResolvedValue([
+      { digestId: "d1", attempts: [failedAttempt] },
+    ]);
     vi.mocked(listDigestDeliveryAttempts).mockResolvedValue([failedAttempt]);
     vi.mocked(getArchitectureDigest).mockResolvedValue(digestRow);
 
@@ -219,17 +227,18 @@ describe("DigestsBrowseContent", () => {
   });
 
   it("renders the digest history table when digests exist", async () => {
+    const succeededAttempt = {
+      attemptId: "a1",
+      digestId: "d1",
+      subscriptionId: "s1",
+      attemptedUtc: "2026-07-08T12:05:00Z",
+      status: "Succeeded",
+      channelType: "Email",
+      destination: "ops@example.com",
+    };
     vi.mocked(listArchitectureDigests).mockResolvedValue([digestRow]);
-    vi.mocked(listDigestDeliveryAttempts).mockResolvedValue([
-      {
-        attemptId: "a1",
-        digestId: "d1",
-        subscriptionId: "s1",
-        attemptedUtc: "2026-07-08T12:05:00Z",
-        status: "Succeeded",
-        channelType: "Email",
-        destination: "ops@example.com",
-      },
+    vi.mocked(listDigestDeliveryAttemptsBatch).mockResolvedValue([
+      { digestId: "d1", attempts: [succeededAttempt] },
     ]);
 
     renderWithOperatorQuery(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);

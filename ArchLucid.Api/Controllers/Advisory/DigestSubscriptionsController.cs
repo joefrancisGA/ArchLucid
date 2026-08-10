@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
+using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -170,8 +171,10 @@ public sealed class DigestSubscriptionsController(
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
         ArchitectureDigest? digest = await digestRepository.GetByIdAsync(digestId, ct);
+
         if (digest is null)
             return this.NotFoundProblem($"Digest '{digestId}' was not found.", ProblemTypes.ResourceNotFound);
+
         if (digest.TenantId != scope.TenantId ||
             digest.WorkspaceId != scope.WorkspaceId ||
             digest.ProjectId != scope.ProjectId)
@@ -180,6 +183,96 @@ public sealed class DigestSubscriptionsController(
 
         IReadOnlyList<DigestDeliveryAttempt> attempts = await attemptRepository.ListByDigestAsync(digestId, ct);
         return Ok(attempts);
+    }
+
+    /// <summary>
+    ///     Batch delivery attempts for many digests in the current scope
+    ///     (<c>?digestIds=guid,guid</c>). Digests outside scope yield empty attempt lists.
+    /// </summary>
+    [HttpGet("digests/attempts")]
+    [ProducesResponseType(typeof(DigestDeliveryAttemptsBatchResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetAttemptsForDigestsBatch(
+        [FromQuery] string? digestIds = null,
+        CancellationToken ct = default)
+    {
+        if (!TryParseDigestIds(digestIds, out List<Guid> parsedIds, out string? parseError))
+            return this.BadRequestProblem(parseError!, ProblemTypes.ValidationFailed);
+
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        IReadOnlyList<DigestDeliveryAttempt> attempts =
+            await attemptRepository.ListByDigestIdsAsync(
+                parsedIds,
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                ct);
+
+        Dictionary<Guid, List<DigestDeliveryAttempt>> byDigest = attempts
+            .GroupBy(a => a.DigestId)
+            .ToDictionary(
+                g => g.Key,
+                g => g.OrderByDescending(x => x.AttemptedUtc).ToList());
+
+        List<DigestDeliveryAttemptsForDigestResponse> items = [];
+
+        foreach (Guid digestId in parsedIds.Distinct())
+        {
+            List<DigestDeliveryAttempt> forDigest =
+                byDigest.TryGetValue(digestId, out List<DigestDeliveryAttempt>? list)
+                    ? list
+                    : [];
+
+            items.Add(new DigestDeliveryAttemptsForDigestResponse
+            {
+                DigestId = digestId,
+                Attempts = forDigest
+            });
+        }
+
+        return Ok(new DigestDeliveryAttemptsBatchResponse { Items = items });
+    }
+
+    private static bool TryParseDigestIds(
+        string? raw,
+        out List<Guid> ids,
+        out string? error)
+    {
+        ids = [];
+        error = null;
+
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            error = "digestIds is required (comma-separated GUIDs).";
+            return false;
+        }
+
+        string[] parts = raw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        if (parts.Length > PaginationDefaults.MaxPageSize)
+        {
+            error = $"digestIds must contain at most {PaginationDefaults.MaxPageSize} ids.";
+            return false;
+        }
+
+        foreach (string part in parts)
+        {
+            if (!Guid.TryParse(part, out Guid digestId))
+            {
+                error = $"digestIds contains an invalid GUID: '{part}'.";
+                return false;
+            }
+
+            ids.Add(digestId);
+        }
+
+        if (ids.Count == 0)
+        {
+            error = "digestIds is required (comma-separated GUIDs).";
+            return false;
+        }
+
+        return true;
     }
 
     private static bool MatchesScope(DigestSubscription subscription, ScopeContext scope)

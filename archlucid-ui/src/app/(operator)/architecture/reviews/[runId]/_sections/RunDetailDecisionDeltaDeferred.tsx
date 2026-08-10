@@ -3,7 +3,7 @@ import { resolveRunDetailDecisionDeltaView } from "@/lib/run-detail-decision-del
 import type { RunDetail } from "@/types/authority";
 import type { RunExplanationSummary } from "@/types/explanation";
 
-import { RunDetailDecisionDeltaPanel } from "./RunDetailDecisionDeltaPanel";
+import { RunDetailDecisionDeltaPanelDeferred } from "./run-detail-page-view-deferred-chunks";
 
 type RunDetailDecisionDeltaDeferredProps = {
   readonly runId: string;
@@ -32,5 +32,5 @@ export async function RunDetailDecisionDeltaDeferred(
     return null;
   }
 
-  return <RunDetailDecisionDeltaPanel runId={runId} view={view} />;
+  return <RunDetailDecisionDeltaPanelDeferred runId={runId} view={view} />;
 }

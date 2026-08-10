@@ -42,8 +42,10 @@ describe("useAlertsInboxPageQuery SSR hydration (TB-2144)", () => {
     status: "Open",
     page: 1,
     pageSize: 25,
+    cursor: "",
     items: [],
-    totalCount: 0,
+    nextCursor: null,
+    hasMore: false,
     loadFailure: null,
     buyerPolishedShell: false,
     usedDemoSample: false,
@@ -53,7 +55,8 @@ describe("useAlertsInboxPageQuery SSR hydration (TB-2144)", () => {
     fetchAlertsInboxPageMock.mockReset();
     fetchAlertsInboxPageMock.mockResolvedValue({
       items: [],
-      totalCount: 0,
+      nextCursor: null,
+      hasMore: false,
       loadFailure: null,
     });
   });
@@ -66,7 +69,7 @@ describe("useAlertsInboxPageQuery SSR hydration (TB-2144)", () => {
     );
 
     const { unmount } = renderHook(
-      () => useAlertsInboxPageQuery({ status: "Open", page: 1, initialModel }),
+      () => useAlertsInboxPageQuery({ status: "Open", cursor: "", initialModel }),
       { wrapper },
     );
 
@@ -76,7 +79,7 @@ describe("useAlertsInboxPageQuery SSR hydration (TB-2144)", () => {
 
     unmount();
 
-    renderHook(() => useAlertsInboxPageQuery({ status: "Open", page: 1, initialModel }), { wrapper });
+    renderHook(() => useAlertsInboxPageQuery({ status: "Open", cursor: "", initialModel }), { wrapper });
 
     expect(fetchAlertsInboxPageMock).not.toHaveBeenCalled();
   });

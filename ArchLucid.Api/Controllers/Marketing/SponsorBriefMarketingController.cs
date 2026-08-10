@@ -8,6 +8,7 @@ using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers.Marketing;
@@ -33,6 +34,7 @@ public sealed class SponsorBriefMarketingController(
 
     /// <summary>Returns the sponsor brief as PDF — content matches <c>docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md</c> on disk.</summary>
     [HttpGet("sponsor-brief.pdf")]
+    [OutputCache(PolicyName = "MarketingArtifact")]
     [Produces("application/pdf")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]

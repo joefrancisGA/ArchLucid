@@ -1,7 +1,6 @@
 using System.Data;
 
 using ArchLucid.Contracts.Persistence.Context;
-using ArchLucid.Persistence.RelationalRead;
 
 using Dapper;
 
@@ -21,39 +20,13 @@ internal static class ContextSnapshotRelationalRead
     {
         Guid snapshotId = row.SnapshotId;
 
-        int canonicalCount = await SqlRelationalScalarCount.ExecuteAsync(
-            connection,
-            transaction,
-            "SELECT COUNT(1) FROM dbo.ContextSnapshotCanonicalObjects WHERE SnapshotId = @SnapshotId",
-            new { SnapshotId = snapshotId },
-            ct);
+        SlicePresenceFlags presence = await LoadSlicePresenceFlagsAsync(connection, transaction, snapshotId, ct);
 
-        int warningsCount = await SqlRelationalScalarCount.ExecuteAsync(
-            connection,
-            transaction,
-            "SELECT COUNT(1) FROM dbo.ContextSnapshotWarnings WHERE SnapshotId = @SnapshotId",
-            new { SnapshotId = snapshotId },
-            ct);
-
-        int errorsCount = await SqlRelationalScalarCount.ExecuteAsync(
-            connection,
-            transaction,
-            "SELECT COUNT(1) FROM dbo.ContextSnapshotErrors WHERE SnapshotId = @SnapshotId",
-            new { SnapshotId = snapshotId },
-            ct);
-
-        int hashesCount = await SqlRelationalScalarCount.ExecuteAsync(
-            connection,
-            transaction,
-            "SELECT COUNT(1) FROM dbo.ContextSnapshotSourceHashes WHERE SnapshotId = @SnapshotId",
-            new { SnapshotId = snapshotId },
-            ct);
-
-        List<CanonicalObject> canonicalObjects = canonicalCount > 0
+        List<CanonicalObject> canonicalObjects = presence.HasCanonicalObjects
             ? await LoadCanonicalObjectsRelationalAsync(connection, transaction, snapshotId, ct)
             : ContextSnapshotLegacyJsonReader.DeserializeCanonicalObjects(row.CanonicalObjectsJson);
 
-        List<string> warnings = warningsCount > 0
+        List<string> warnings = presence.HasWarnings
             ? await LoadStringColumnRelationalAsync(
                 connection,
                 transaction,
@@ -67,7 +40,7 @@ internal static class ContextSnapshotRelationalRead
                 ct)
             : ContextSnapshotLegacyJsonReader.DeserializeStringList(row.WarningsJson);
 
-        List<string> errors = errorsCount > 0
+        List<string> errors = presence.HasErrors
             ? await LoadStringColumnRelationalAsync(
                 connection,
                 transaction,
@@ -81,7 +54,7 @@ internal static class ContextSnapshotRelationalRead
                 ct)
             : ContextSnapshotLegacyJsonReader.DeserializeStringList(row.ErrorsJson);
 
-        Dictionary<string, string> sourceHashes = hashesCount > 0
+        Dictionary<string, string> sourceHashes = presence.HasSourceHashes
             ? await LoadSourceHashesRelationalAsync(connection, transaction, snapshotId, ct)
             : ContextSnapshotLegacyJsonReader.DeserializeSourceHashes(row.SourceHashesJson);
 
@@ -97,6 +70,39 @@ internal static class ContextSnapshotRelationalRead
             Errors = errors,
             SourceHashes = sourceHashes
         };
+    }
+
+    private static async Task<SlicePresenceFlags> LoadSlicePresenceFlagsAsync(
+        IDbConnection connection,
+        IDbTransaction? transaction,
+        Guid snapshotId,
+        CancellationToken ct)
+    {
+        // One round-trip: four EXISTS flags instead of four sequential COUNT(1) probes.
+        const string sql = """
+                           SELECT
+                               CASE WHEN EXISTS (
+                                   SELECT 1 FROM dbo.ContextSnapshotCanonicalObjects WHERE SnapshotId = @SnapshotId)
+                                   THEN CAST(1 AS bit) ELSE CAST(0 AS bit) END AS HasCanonicalObjects,
+                               CASE WHEN EXISTS (
+                                   SELECT 1 FROM dbo.ContextSnapshotWarnings WHERE SnapshotId = @SnapshotId)
+                                   THEN CAST(1 AS bit) ELSE CAST(0 AS bit) END AS HasWarnings,
+                               CASE WHEN EXISTS (
+                                   SELECT 1 FROM dbo.ContextSnapshotErrors WHERE SnapshotId = @SnapshotId)
+                                   THEN CAST(1 AS bit) ELSE CAST(0 AS bit) END AS HasErrors,
+                               CASE WHEN EXISTS (
+                                   SELECT 1 FROM dbo.ContextSnapshotSourceHashes WHERE SnapshotId = @SnapshotId)
+                                   THEN CAST(1 AS bit) ELSE CAST(0 AS bit) END AS HasSourceHashes;
+                           """;
+
+        SlicePresenceFlags? flags = await connection.QuerySingleAsync<SlicePresenceFlags>(
+            new CommandDefinition(
+                sql,
+                new { SnapshotId = snapshotId },
+                transaction,
+                cancellationToken: ct));
+
+        return flags ?? new SlicePresenceFlags();
     }
 
     private static async Task<Dictionary<string, string>> LoadSourceHashesRelationalAsync(
@@ -212,6 +218,33 @@ internal static class ContextSnapshotRelationalRead
         }
 
         return result;
+    }
+
+    private sealed class SlicePresenceFlags
+    {
+        public bool HasCanonicalObjects
+        {
+            get;
+            init;
+        }
+
+        public bool HasWarnings
+        {
+            get;
+            init;
+        }
+
+        public bool HasErrors
+        {
+            get;
+            init;
+        }
+
+        public bool HasSourceHashes
+        {
+            get;
+            init;
+        }
     }
 
     private sealed class CanonicalObjectRow

@@ -245,23 +245,116 @@ public sealed class RetrievalQueryServiceTests
         capturedQuery!.AllowedPolicyPackRulePackIds.Should().BeEquivalentTo(assigned);
     }
 
+    [Fact]
+    public async Task SearchAsync_IncludePlatformCorpora_OverlapsPolicyPackResolveWithQueryExpand()
+    {
+        TaskCompletionSource resolveGate = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        TaskCompletionSource expandGate = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        TaskCompletionSource bothStarted = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        int inFlight = 0;
+
+        Mock<IPolicyPackResolver> policyPackResolver = new();
+        policyPackResolver
+            .Setup(r => r.ResolveAsync(TenantId, WorkspaceId, ProjectId, It.IsAny<CancellationToken>()))
+            .Returns(async (Guid _, Guid _, Guid _, CancellationToken ct) =>
+            {
+                if (Interlocked.Increment(ref inFlight) == 2)
+                    bothStarted.TrySetResult();
+
+                await resolveGate.Task.WaitAsync(ct);
+                Interlocked.Decrement(ref inFlight);
+
+                return BuildEffectivePackSet(["pack-a"]);
+            });
+
+        Mock<IAgenticRetrievalQueryExpander> expander = new();
+        expander
+            .Setup(e => e.ExpandAsync("policy", It.IsAny<CancellationToken>()))
+            .Returns(async (string queryText, CancellationToken ct) =>
+            {
+                if (Interlocked.Increment(ref inFlight) == 2)
+                    bothStarted.TrySetResult();
+
+                await expandGate.Task.WaitAsync(ct);
+                Interlocked.Decrement(ref inFlight);
+
+                return new AgenticRetrievalQueryPlan
+                {
+                    OriginalQueryText = queryText,
+                    RerankQueryText = queryText,
+                    EmbedText = queryText,
+                };
+            });
+
+        Mock<IEmbeddingService> embeddings = new();
+        float[] queryVector = [1f, 0f, 0f];
+        embeddings.Setup(e => e.EmbedAsync("policy", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(queryVector);
+
+        Mock<IVectorIndex> index = new();
+        index.Setup(i => i.SearchAsync(It.IsAny<RetrievalQuery>(), queryVector, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        RetrievalQueryService sut = CreateService(
+            embeddings.Object,
+            index.Object,
+            policyPackResolver: policyPackResolver.Object,
+            queryExpander: expander.Object);
+
+        Task<IReadOnlyList<RetrievalHit>> searchTask = sut.SearchAsync(
+            new RetrievalQuery
+            {
+                TenantId = TenantId,
+                WorkspaceId = WorkspaceId,
+                ProjectId = ProjectId,
+                QueryText = "policy",
+                IncludePlatformCorpora = true,
+            },
+            CancellationToken.None);
+
+        await bothStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
+
+        resolveGate.TrySetResult();
+        expandGate.TrySetResult();
+
+        IReadOnlyList<RetrievalHit> hits = await searchTask.WaitAsync(TimeSpan.FromSeconds(5));
+        hits.Should().BeEmpty();
+
+        policyPackResolver.Verify(
+            r => r.ResolveAsync(TenantId, WorkspaceId, ProjectId, It.IsAny<CancellationToken>()),
+            Times.Once);
+        expander.Verify(e => e.ExpandAsync("policy", It.IsAny<CancellationToken>()), Times.Once);
+    }
+
     private static RetrievalQueryService CreateService(
         IEmbeddingService embeddingService,
         IVectorIndex vectorIndex,
         HashSet<string>? assignedRulePackIds = null,
         bool recordPerTenantTags = false,
-        RetrievalQueryBudgetOptions? queryBudget = null)
+        RetrievalQueryBudgetOptions? queryBudget = null,
+        IPolicyPackResolver? policyPackResolver = null,
+        IAgenticRetrievalQueryExpander? queryExpander = null)
     {
-        Mock<IPolicyPackResolver> policyPackResolver = new();
-        policyPackResolver
-            .Setup(r => r.ResolveAsync(TenantId, WorkspaceId, ProjectId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(BuildEffectivePackSet(assignedRulePackIds ?? []));
+        IPolicyPackResolver resolvedPolicyPackResolver;
+
+        if (policyPackResolver is null)
+        {
+            Mock<IPolicyPackResolver> policyPackResolverMock = new();
+            policyPackResolverMock
+                .Setup(r => r.ResolveAsync(TenantId, WorkspaceId, ProjectId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(BuildEffectivePackSet(assignedRulePackIds ?? []));
+            resolvedPolicyPackResolver = policyPackResolverMock.Object;
+        }
+        else
+        {
+            resolvedPolicyPackResolver = policyPackResolver;
+        }
 
         IOptionsMonitor<PolicyPackCorpusIndexerOptions> options =
             new MockOptionsMonitor<PolicyPackCorpusIndexerOptions>(new PolicyPackCorpusIndexerOptions());
 
         AssignedPolicyPackRulePackIdResolver assignedResolver =
-            new(policyPackResolver.Object, options);
+            new(resolvedPolicyPackResolver, options);
 
         IOptionsMonitor<RetrievalTelemetryOptions> telemetryOptions =
             new MockOptionsMonitor<RetrievalTelemetryOptions>(
@@ -271,11 +364,21 @@ public sealed class RetrievalQueryServiceTests
             new MockOptionsMonitor<RetrievalRerankingOptions>(new RetrievalRerankingOptions { Enabled = false });
 
         PassThroughRetrievalReranker passThrough = new();
-        HeuristicAgenticRetrievalCompletionClient completionClient = new();
-        AgenticRetrievalQueryExpander queryExpander = new(
-            completionClient,
-            new MockOptionsMonitor<AdvancedRetrievalOptions>(new AdvancedRetrievalOptions { Enabled = false }),
-            Mock.Of<Microsoft.Extensions.Logging.ILogger<AgenticRetrievalQueryExpander>>());
+        IAgenticRetrievalQueryExpander resolvedExpander;
+
+        if (queryExpander is null)
+        {
+            HeuristicAgenticRetrievalCompletionClient completionClient = new();
+            resolvedExpander = new AgenticRetrievalQueryExpander(
+                completionClient,
+                new MockOptionsMonitor<AdvancedRetrievalOptions>(new AdvancedRetrievalOptions { Enabled = false }),
+                Mock.Of<Microsoft.Extensions.Logging.ILogger<AgenticRetrievalQueryExpander>>());
+        }
+        else
+        {
+            resolvedExpander = queryExpander;
+        }
+
         NullGraphRagNeighborExpander graphExpander = new();
 
         return new RetrievalQueryService(
@@ -284,7 +387,7 @@ public sealed class RetrievalQueryServiceTests
             passThrough,
             assignedResolver,
             new NoOpManifestChunkSummarizer(),
-            queryExpander,
+            resolvedExpander,
             graphExpander,
             telemetryOptions,
             rerankingOptions,

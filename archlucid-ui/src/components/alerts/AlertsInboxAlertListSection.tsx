@@ -18,20 +18,27 @@ export function AlertsInboxAlertListSection({ controller, emptyFilteredProps }: 
     alerts,
     archiveBusyAlertId,
     buyerPolishedShell,
+    canGoNext,
+    canGoPrevious,
     canMutateAlertInbox,
     failure,
+    goNextPage,
+    goPreviousPage,
+    hasMore,
     loading,
     onArchiveAlert,
     openRoutingDelivery,
     page,
     queuePendingAction,
     selectedAlertIds,
-    setPage,
     toggleAlertSelected,
-    totalCount,
-    totalPages,
     visibleAlerts,
   } = controller;
+
+  const showPagination =
+    !loading &&
+    failure === null &&
+    (visibleAlerts.length > 0 || canGoPrevious || hasMore);
 
   return (
     <div className="grid gap-3">
@@ -78,18 +85,16 @@ export function AlertsInboxAlertListSection({ controller, emptyFilteredProps }: 
           ))
         : null}
 
-      {!loading && failure === null && totalCount > 0 ? (
+      {showPagination ? (
         <AlertsInboxPagination
           page={page}
-          totalPages={totalPages}
-          totalCount={totalCount}
+          shownCount={visibleAlerts.length}
+          hasMore={hasMore}
+          canGoPrevious={canGoPrevious}
+          canGoNext={canGoNext}
           canMutateAlertInbox={canMutateAlertInbox}
-          onPrevious={() => {
-            setPage((p) => Math.max(1, p - 1));
-          }}
-          onNext={() => {
-            setPage((p) => Math.min(totalPages, p + 1));
-          }}
+          onPrevious={goPreviousPage}
+          onNext={goNextPage}
         />
       ) : null}
     </div>

@@ -12,7 +12,7 @@ import type { RunExplanationSummary } from "@/types/explanation";
 
 import { loadRunDetailExplanationSummary } from "./load-run-detail-explanation-summary";
 import { tryStaticDemoExplanationSummary } from "@/lib/operator-static-demo";
-import { RunDetailRunExplanationCollapsible } from "./RunDetailRunExplanationCollapsible";
+import { RunDetailRunExplanationCollapsibleDeferred } from "./run-detail-page-view-deferred-chunks";
 
 type RunDetailExplanationDeferredProps = {
   readonly runId: string;
@@ -100,7 +100,7 @@ export async function RunDetailExplanationDeferred(
   const decisionExplainability = resolveRunDecisionExplainabilityFromDetail(resolvedDetail);
 
   return (
-    <RunDetailRunExplanationCollapsible
+    <RunDetailRunExplanationCollapsibleDeferred
       runId={runId}
       buyerPolishedArtifactTable={buyerPolishedArtifactTable}
       quickDecisionFindings={quickDecisionFindings}

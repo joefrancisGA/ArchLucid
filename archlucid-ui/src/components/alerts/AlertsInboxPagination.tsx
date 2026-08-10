@@ -6,12 +6,29 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type AlertsInboxPaginationProps = {
   readonly page: number;
-  readonly totalPages: number;
-  readonly totalCount: number;
+  readonly shownCount: number;
+  readonly hasMore: boolean;
+  readonly canGoPrevious: boolean;
+  readonly canGoNext: boolean;
   readonly canMutateAlertInbox: boolean;
   readonly onPrevious: () => void;
   readonly onNext: () => void;
 };
+
+function formatAlertsInboxPaginationSummary(
+  page: number,
+  shownCount: number,
+  hasMore: boolean,
+): string {
+  const alertWord = shownCount === 1 ? "alert" : "alerts";
+  const shown = `Showing ${shownCount} ${alertWord}`;
+
+  if (hasMore) {
+    return `Page ${page} · ${shown} · more available`;
+  }
+
+  return `Page ${page} · ${shown}`;
+}
 
 export function AlertsInboxPagination(props: AlertsInboxPaginationProps) {
   return (
@@ -21,13 +38,13 @@ export function AlertsInboxPagination(props: AlertsInboxPaginationProps) {
       title={props.canMutateAlertInbox ? undefined : alertsPaginationNavTitleReaderRank}
     >
       <span>
-        Page {props.page} of {props.totalPages} · {props.totalCount} alert{props.totalCount === 1 ? "" : "s"} total
+        {formatAlertsInboxPaginationSummary(props.page, props.shownCount, props.hasMore)}
       </span>
       <Button
         type="button"
         variant="outline"
         size="sm"
-        disabled={props.page <= 1}
+        disabled={!props.canGoPrevious}
         title={props.canMutateAlertInbox ? undefined : alertsPaginationNavTitleReaderRank}
         onClick={props.onPrevious}
       >
@@ -37,7 +54,7 @@ export function AlertsInboxPagination(props: AlertsInboxPaginationProps) {
         type="button"
         variant="outline"
         size="sm"
-        disabled={props.page >= props.totalPages}
+        disabled={!props.canGoNext}
         title={props.canMutateAlertInbox ? undefined : alertsPaginationNavTitleReaderRank}
         onClick={props.onNext}
       >

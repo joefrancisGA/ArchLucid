@@ -51,7 +51,8 @@ public sealed class HostedRetrievalPromotionAppsettingsTests
 
         advanced.Enabled.Should().BeTrue();
         advanced.EnableQueryRewrite.Should().BeTrue();
-        advanced.EnableHyde.Should().BeTrue();
+        // HyDE stays off in Staging to avoid an extra LLM round-trip on the Ask expand path (rewrite + GraphRAG remain on).
+        advanced.EnableHyde.Should().BeFalse();
         advanced.EnableGraphRag.Should().BeTrue();
     }
 

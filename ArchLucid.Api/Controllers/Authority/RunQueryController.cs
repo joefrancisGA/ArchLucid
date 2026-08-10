@@ -575,7 +575,7 @@ public sealed class RunQueryController(
 
     /// <summary>
     ///     Returns a page of <see cref="AgentExecutionTraceSummary" /> rows for <paramref name="runId" /> (no prompts or
-    ///     raw model output — use <c>GET /v1/internal/architecture/review/{runId}/traces/forensics</c> for operator forensics).
+    ///     raw model output — use <c>GET /v1/internal/architecture/traces/forensics/{traceId}</c> for full TraceJson).
     /// </summary>
     [HttpGet("review/{runId}/traces")]
     [ProducesResponseType(typeof(AgentExecutionTraceResponse), StatusCodes.Status200OK)]

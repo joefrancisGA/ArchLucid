@@ -6,6 +6,7 @@ using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers.Demo;
@@ -57,6 +58,7 @@ public sealed class DemoExplainController(IDemoReadModelClient demoReadModelClie
     ///     Returns <c>404</c> when the demo seed has not been applied yet (no committed demo run in scope).
     /// </summary>
     [HttpGet("explain")]
+    [OutputCache(PolicyName = "MarketingArtifact")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(DemoExplainResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]

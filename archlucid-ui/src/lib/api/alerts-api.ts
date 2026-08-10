@@ -5,6 +5,7 @@ import type { CompositeAlertRule } from "@/types/composite-alert-rules";
 import type { RuleCandidateComparisonResult, RuleSimulationResult } from "@/types/alert-simulation";
 import type { ThresholdRecommendationResult } from "@/types/alert-tuning";
 import type { PagedResponse } from "@/types/pagination";
+import type { CursorPagedResponse } from "./audit-api";
 import { apiGet, apiPatchJson, apiPostJson } from "./http";
 
 export type AlertsAcknowledgeBatchItemResult = {
@@ -63,6 +64,27 @@ export async function listAlertsPaged(
   q.set("pageSize", String(pageSize));
 
   return apiGet<PagedResponse<AlertRecord>>(`/v1/alerts?${q}`);
+}
+
+/**
+ * Keyset-paged alerts (GET with `cursor` + `take` — returns CursorPagedResponse).
+ * Pass `cursor: ""` (or omit) for the first page; API selects keyset when the `cursor` query key is present.
+ */
+export async function listAlertsCursor(
+  status: string | null,
+  take: number,
+  cursor?: string | null,
+): Promise<CursorPagedResponse<AlertRecord>> {
+  const q = new URLSearchParams();
+
+  if (status) {
+    q.set("status", status);
+  }
+
+  q.set("take", String(take));
+  q.set("cursor", cursor ?? "");
+
+  return apiGet<CursorPagedResponse<AlertRecord>>(`/v1/alerts?${q}`);
 }
 
 /** Wire shape for GET /v1/alerts/inbox-summary (TB-2023). */

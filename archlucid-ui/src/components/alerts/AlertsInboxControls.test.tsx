@@ -9,7 +9,6 @@ import {
 const baseProps = {
   status: "Open",
   page: 1,
-  totalPages: 1,
   loading: false,
   buyerPolishedShell: true,
   canMutateAlertInbox: true,

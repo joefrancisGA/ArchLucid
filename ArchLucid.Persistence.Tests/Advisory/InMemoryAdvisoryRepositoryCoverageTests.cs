@@ -98,6 +98,17 @@ public sealed class InMemoryAdvisoryRepositoryCoverageTests
         byDigest.Should().HaveCount(2);
         byDigest[0].AttemptId.Should().Be(second.AttemptId);
 
+        IReadOnlyList<DigestDeliveryAttempt> byDigestIds =
+            await sut.ListByDigestIdsAsync(
+                [digestId, Guid.NewGuid()],
+                tenantId: Guid.Empty,
+                workspaceId: Guid.Empty,
+                projectId: Guid.Empty,
+                CancellationToken.None);
+
+        byDigestIds.Should().HaveCount(2);
+        byDigestIds.Select(a => a.AttemptId).Should().BeEquivalentTo(byDigest.Select(a => a.AttemptId));
+
         IReadOnlyList<DigestDeliveryAttempt> bySubscription =
             await sut.ListBySubscriptionAsync(subscriptionId, take: 10, CancellationToken.None);
 

@@ -65,6 +65,27 @@ vi.mock("next/link", () => ({
   default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a>,
 }));
 
+vi.mock("./governance-workflow-deferred-chunks", async () => {
+  const approvals = await import("./GovernanceWorkflowApprovalsList");
+  const promotions = await import("./GovernanceWorkflowPromotionsActivationsSection");
+  const dialogs = await import("./GovernanceWorkflowDialogs");
+  const buyerStrip = await import("@/components/cto-demo/CtoDemoBuyerValueStrip");
+  const segregation = await import("@/components/cto-demo/CtoDemoSegregationCallout");
+  const previewHint = await import("@/components/OperateCapabilityHints");
+  const quickstart = await import("@/components/GovernanceInteractiveQuickstartContent");
+
+  return {
+    GovernanceWorkflowApprovalsListDeferred: approvals.GovernanceWorkflowApprovalsList,
+    GovernanceWorkflowPromotionsActivationsSectionDeferred:
+      promotions.GovernanceWorkflowPromotionsActivationsSection,
+    GovernanceWorkflowDialogsDeferred: dialogs.GovernanceWorkflowDialogs,
+    CtoDemoBuyerValueStripDeferred: buyerStrip.CtoDemoBuyerValueStrip,
+    CtoDemoSegregationCalloutDeferred: segregation.CtoDemoSegregationCallout,
+    CtoDemoGovernancePreviewHintDeferred: previewHint.CtoDemoGovernancePreviewHint,
+    GovernanceInteractiveQuickstartContentDeferred: quickstart.GovernanceInteractiveQuickstartContent,
+  };
+});
+
 import { GovernanceWorkflowPageContent } from "./GovernanceWorkflowPageContent";
 
 const approvedRequest: GovernanceApprovalRequest = {

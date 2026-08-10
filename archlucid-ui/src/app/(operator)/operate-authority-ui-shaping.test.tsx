@@ -76,6 +76,7 @@ const apiHoisted = vi.hoisted(() => ({
   getEffectivePolicyContent: vi.fn(),
   listPolicyPackVersions: vi.fn(),
   listAlertsPaged: vi.fn(),
+  listAlertsCursor: vi.fn(),
   listAlertRules: vi.fn(),
   listAlertRoutingSubscriptions: vi.fn(),
   listCompositeAlertRules: vi.fn(),
@@ -115,6 +116,7 @@ vi.mock("@/lib/api", async (importOriginal) => {
     getEffectivePolicyContent: apiHoisted.getEffectivePolicyContent,
     listPolicyPackVersions: apiHoisted.listPolicyPackVersions,
     listAlertsPaged: apiHoisted.listAlertsPaged,
+    listAlertsCursor: apiHoisted.listAlertsCursor,
     listAlertRules: apiHoisted.listAlertRules,
     listAlertRoutingSubscriptions: apiHoisted.listAlertRoutingSubscriptions,
     listCompositeAlertRules: apiHoisted.listCompositeAlertRules,
@@ -241,6 +243,12 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     });
     apiHoisted.listPolicyPackVersions.mockResolvedValue([]);
     apiHoisted.listAlertsPaged.mockResolvedValue({ items: [sampleAlert], totalCount: 1 });
+    apiHoisted.listAlertsCursor.mockResolvedValue({
+      items: [sampleAlert],
+      nextCursor: null,
+      hasMore: false,
+      requestedTake: 25,
+    });
     apiHoisted.listAlertRules.mockResolvedValue([]);
     apiHoisted.listAlertRoutingSubscriptions.mockResolvedValue([]);
     apiHoisted.listCompositeAlertRules.mockResolvedValue([]);

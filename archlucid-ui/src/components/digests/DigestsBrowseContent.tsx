@@ -59,6 +59,7 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   getArchitectureDigest,
   listDigestDeliveryAttempts,
+  listDigestDeliveryAttemptsBatch,
 } from "@/lib/api";
 import type { ArchitectureDigest } from "@/types/advisory-scheduling";
 import type { DigestDeliveryAttempt } from "@/types/digest-subscriptions";
@@ -179,24 +180,24 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
     let cancelled = false;
 
     void (async () => {
-      const attemptEntries = await Promise.all(
-        digests.map(async (digest) => {
-          try {
-            const attempts = await listDigestDeliveryAttempts(digest.digestId);
-            return [digest.digestId, attempts] as const;
-          } catch {
-            return [digest.digestId, [] as DigestDeliveryAttempt[]] as const;
-          }
-        }),
-      );
       const nextAttempts: Record<string, DigestDeliveryAttempt[]> = {};
+
+      try {
+        const batch = await listDigestDeliveryAttemptsBatch(
+          digests.map((digest) => digest.digestId),
+        );
+
+        for (const item of batch) {
+          nextAttempts[item.digestId] = item.attempts ?? [];
+        }
+      } catch {
+        for (const digest of digests) {
+          nextAttempts[digest.digestId] = [];
+        }
+      }
 
       if (cancelled) {
         return;
-      }
-
-      for (const [digestId, attempts] of attemptEntries) {
-        nextAttempts[digestId] = attempts;
       }
 
       setRowAttempts(nextAttempts);

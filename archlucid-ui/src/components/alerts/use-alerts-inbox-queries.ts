@@ -39,7 +39,7 @@ const EMPTY_WORKSPACE_CONTEXT: AlertsInboxWorkspaceContext = {
 
 export function useAlertsInboxPageQuery(args: {
   readonly status: string;
-  readonly page: number;
+  readonly cursor: string;
   readonly initialModel: AlertsInboxPageModel | null;
 }) {
   const scope = useOperatorScopeQueryKey();
@@ -47,16 +47,17 @@ export function useAlertsInboxPageQuery(args: {
   const matchesInitialSnapshot =
     args.initialModel !== null &&
     args.status === args.initialModel.status &&
-    args.page === args.initialModel.page;
+    args.cursor === args.initialModel.cursor;
 
   const query = useQuery({
-    queryKey: operatorQueryKeys.alertsInboxPage(scope, { statusFilter, page: args.page }),
-    queryFn: () => fetchAlertsInboxPage(statusFilter, args.page),
+    queryKey: operatorQueryKeys.alertsInboxPage(scope, { statusFilter, cursor: args.cursor }),
+    queryFn: () => fetchAlertsInboxPage(statusFilter, args.cursor),
     initialData:
       matchesInitialSnapshot && args.initialModel !== null
         ? {
             items: args.initialModel.items,
-            totalCount: args.initialModel.totalCount,
+            nextCursor: args.initialModel.nextCursor,
+            hasMore: args.initialModel.hasMore,
             loadFailure: args.initialModel.loadFailure,
           }
         : undefined,
@@ -70,7 +71,8 @@ export function useAlertsInboxPageQuery(args: {
 
   return {
     items: query.data?.items ?? EMPTY_ALERT_ITEMS,
-    totalCount: query.data?.totalCount ?? 0,
+    nextCursor: query.data?.nextCursor ?? null,
+    hasMore: query.data?.hasMore ?? false,
     loadFailure: query.data?.loadFailure ?? null,
     loading: query.isPending || query.isFetching,
     refresh,
@@ -88,7 +90,7 @@ export function useAlertsInboxSummaryQuery(args: {
     placeholderData:
       args.initialModel !== null
         ? {
-            open: args.initialModel.status === "Open" ? args.initialModel.totalCount : 0,
+            open: args.initialModel.status === "Open" ? args.initialModel.items.length : 0,
             acknowledged: 0,
             resolved: 0,
             blocking: 0,

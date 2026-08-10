@@ -83,6 +83,58 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
     }
 
     /// <inheritdoc />
+    public async Task<IReadOnlyList<DigestDeliveryAttempt>> ListByDigestIdsAsync(
+        IReadOnlyCollection<Guid> digestIds,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(digestIds);
+
+        if (digestIds.Count == 0)
+            return [];
+
+        Guid[] ids = digestIds as Guid[] ?? digestIds.ToArray();
+
+        const string sql = """
+            SELECT
+                AttemptId, DigestId, SubscriptionId,
+                TenantId, WorkspaceId, ProjectId,
+                AttemptedUtc, Status, ErrorMessage,
+                ChannelType, Destination
+            FROM (
+                SELECT
+                    AttemptId, DigestId, SubscriptionId,
+                    TenantId, WorkspaceId, ProjectId,
+                    AttemptedUtc, Status, ErrorMessage,
+                    ChannelType, Destination,
+                    ROW_NUMBER() OVER (PARTITION BY DigestId ORDER BY AttemptedUtc DESC) AS RowNum
+                FROM dbo.DigestDeliveryAttempts
+                WHERE DigestId IN @DigestIds
+                  AND TenantId = @TenantId
+                  AND WorkspaceId = @WorkspaceId
+                  AND ProjectId = @ProjectId
+            ) ranked
+            WHERE RowNum <= @Cap
+            ORDER BY AttemptedUtc DESC;
+            """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<DigestDeliveryAttempt> result = await connection.QueryAsync<DigestDeliveryAttempt>(
+            new CommandDefinition(sql, new
+            {
+                Cap = ListByDigestCap,
+                DigestIds = ids,
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId
+            }, cancellationToken: ct));
+
+        return result.ToList();
+    }
+
+    /// <inheritdoc />
     public async Task<IReadOnlyList<DigestDeliveryAttempt>> ListBySubscriptionAsync(
         Guid subscriptionId,
         int take,

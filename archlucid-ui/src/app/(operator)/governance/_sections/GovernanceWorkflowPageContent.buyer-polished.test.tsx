@@ -64,6 +64,27 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 
+vi.mock("./governance-workflow-deferred-chunks", async () => {
+  const approvals = await import("./GovernanceWorkflowApprovalsList");
+  const promotions = await import("./GovernanceWorkflowPromotionsActivationsSection");
+  const dialogs = await import("./GovernanceWorkflowDialogs");
+  const buyerStrip = await import("@/components/cto-demo/CtoDemoBuyerValueStrip");
+  const segregation = await import("@/components/cto-demo/CtoDemoSegregationCallout");
+  const previewHint = await import("@/components/OperateCapabilityHints");
+  const quickstart = await import("@/components/GovernanceInteractiveQuickstartContent");
+
+  return {
+    GovernanceWorkflowApprovalsListDeferred: approvals.GovernanceWorkflowApprovalsList,
+    GovernanceWorkflowPromotionsActivationsSectionDeferred:
+      promotions.GovernanceWorkflowPromotionsActivationsSection,
+    GovernanceWorkflowDialogsDeferred: dialogs.GovernanceWorkflowDialogs,
+    CtoDemoBuyerValueStripDeferred: buyerStrip.CtoDemoBuyerValueStrip,
+    CtoDemoSegregationCalloutDeferred: segregation.CtoDemoSegregationCallout,
+    CtoDemoGovernancePreviewHintDeferred: previewHint.CtoDemoGovernancePreviewHint,
+    GovernanceInteractiveQuickstartContentDeferred: quickstart.GovernanceInteractiveQuickstartContent,
+  };
+});
+
 vi.mock("@/lib/use-nav-surface", () => ({
   useNavSurface: () => ({
     links: [],

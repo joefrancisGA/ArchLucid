@@ -5,7 +5,7 @@ import { loadAlertsInboxPageModel } from "./load-alerts-inbox-page-model";
 
 type AlertsInboxStreamingBodyProps = {
   readonly status?: string;
-  readonly page?: string;
+  readonly cursor?: string;
 };
 
 /** Async RSC: loads inbox page model then hydrates the interactive inbox (TB-2026). */
@@ -14,7 +14,7 @@ export async function AlertsInboxStreamingBody(
 ): Promise<React.JSX.Element> {
   const search: AlertsInboxSearchParams = {
     status: props.status,
-    page: props.page,
+    cursor: props.cursor,
   };
   const initialInboxModel = await loadAlertsInboxPageModel(search);
 

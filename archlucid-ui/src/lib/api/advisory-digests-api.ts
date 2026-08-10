@@ -181,6 +181,28 @@ export async function listDigestDeliveryAttempts(digestId: string): Promise<Dige
   );
 }
 
+/** One digest’s attempts within a batch delivery-attempt response. */
+export type DigestDeliveryAttemptsBatchItem = {
+  digestId: string;
+  attempts: DigestDeliveryAttempt[];
+};
+
+/** Batch delivery attempts for many digests (`?digestIds=guid,guid`). */
+export async function listDigestDeliveryAttemptsBatch(
+  digestIds: readonly string[],
+): Promise<DigestDeliveryAttemptsBatchItem[]> {
+  if (digestIds.length === 0) {
+    return [];
+  }
+
+  const qs = digestIds.map((id) => encodeURIComponent(id)).join(",");
+  const payload = await apiGet<{ items: DigestDeliveryAttemptsBatchItem[] }>(
+    `/${ApiV1Routes.digestSubscriptions}/digests/attempts?digestIds=${qs}`,
+  );
+
+  return payload.items ?? [];
+}
+
 /** Fetches a single architecture digest by ID. */
 export async function getArchitectureDigest(digestId: string): Promise<ArchitectureDigest> {
   return apiGet<ArchitectureDigest>(

@@ -311,6 +311,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<ISqlConnectionFactory>(static sp =>
             sp.GetRequiredService<ResilientSqlConnectionFactory>());
 
+        // Empty ArchLucid:Persistence:ReadOnlyConnectionStringTemplate → ReadOnlyDbConnectionFactory uses primary.
         services.AddScoped<IReadOnlyDbConnectionFactory>(sp => new ReadOnlyDbConnectionFactory(
             sp.GetRequiredService<ResilientSqlConnectionFactory>(),
             sp.GetRequiredService<ITenantDatabaseResolver>(),

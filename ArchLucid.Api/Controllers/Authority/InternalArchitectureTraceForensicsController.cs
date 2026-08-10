@@ -32,7 +32,8 @@ public sealed class InternalArchitectureTraceForensicsController(
     : ControllerBase
 {
     /// <summary>
-    ///     Returns full <see cref="AgentExecutionTrace" /> rows including prompts and raw model output for operator forensics.
+    ///     Returns a page of <see cref="AgentExecutionTraceSummary" /> rows for operator forensics lists
+    ///     (no prompts or raw model output — use <see cref="GetTraceForensicsByTraceId" /> for full TraceJson).
     /// </summary>
     [HttpGet("run/{runId}/traces/forensics")]
     [HttpGet("review/{runId}/traces/forensics")]
@@ -64,8 +65,8 @@ public sealed class InternalArchitectureTraceForensicsController(
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
 
-        (IReadOnlyList<AgentExecutionTrace> pagedTraces, int totalCount) =
-            await agentExecutionTraceRepository.GetPagedByRunIdAsync(
+        (IReadOnlyList<AgentExecutionTraceSummary> summaries, int totalCount) =
+            await agentExecutionTraceRepository.GetPagedSummariesByRunIdAsync(
                 scope,
                 runId,
                 skip,
@@ -74,11 +75,36 @@ public sealed class InternalArchitectureTraceForensicsController(
 
         return Ok(new AgentExecutionTraceForensicsPageResponse
         {
-            Traces = pagedTraces.ToList(),
+            Traces = summaries.ToList(),
             TotalCount = totalCount,
             PageNumber = paging.PageNumber,
             PageSize = paging.PageSize
         });
+    }
+
+    /// <summary>
+    ///     Returns the full <see cref="AgentExecutionTrace" /> (prompts and raw model output) for operator forensics.
+    /// </summary>
+    [HttpGet("traces/forensics/{traceId}")]
+    [ProducesResponseType(typeof(AgentExecutionTrace), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetTraceForensicsByTraceId(
+        [FromRoute] string traceId,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(traceId))
+            return this.BadRequestProblem("traceId is required.", ProblemTypes.ValidationFailed);
+
+        AgentExecutionTrace? trace =
+            await agentExecutionTraceRepository.GetByTraceIdAsync(traceId.Trim(), cancellationToken);
+
+        if (trace is null)
+            return this.NotFoundProblem($"Trace '{traceId}' was not found.", ProblemTypes.ResourceNotFound);
+
+        if (!await RunExistsInScopeAsync(trace.RunId, cancellationToken))
+            return this.NotFoundProblem($"Trace '{traceId}' was not found.", ProblemTypes.ResourceNotFound);
+
+        return Ok(trace);
     }
 
     private async Task<bool> RunExistsInScopeAsync(string runId, CancellationToken cancellationToken)

@@ -38,12 +38,12 @@ export default async function AlertsPage(props: AlertsPageProps) {
   }
 
   const status = readSearchParam(resolved, "status");
-  const page = readSearchParam(resolved, "page");
+  const cursor = readSearchParam(resolved, "cursor");
 
   return (
     <AlertsHubChrome>
       <Suspense fallback={<AlertsInboxPanelSkeleton />}>
-        <AlertsInboxStreamingBody status={status} page={page} />
+        <AlertsInboxStreamingBody status={status} cursor={cursor} />
       </Suspense>
     </AlertsHubChrome>
   );

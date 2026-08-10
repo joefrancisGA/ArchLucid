@@ -1,7 +1,7 @@
 import {
   getAlertsInboxSummary,
   listAlertRules,
-  listAlertsPaged,
+  listAlertsCursor,
 } from "@/lib/api";
 import { listRunsByProjectPaged } from "@/lib/api/architecture-runs";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -19,41 +19,44 @@ import type { AlertRecord } from "@/types/alerts";
 
 export type AlertsInboxPageQueryResult = {
   readonly items: AlertRecord[];
-  readonly totalCount: number;
+  readonly nextCursor: string | null;
+  readonly hasMore: boolean;
   readonly loadFailure: ApiLoadFailureState | null;
 };
 
 export async function fetchAlertsInboxPage(
   statusFilter: string | null,
-  page: number,
+  cursor: string | null,
 ): Promise<AlertsInboxPageQueryResult> {
   try {
-    const data = await listAlertsPaged(statusFilter, page, ALERTS_INBOX_PAGE_SIZE);
+    const data = await listAlertsCursor(statusFilter, ALERTS_INBOX_PAGE_SIZE, cursor);
     let items = data.items;
-    let totalCount = data.totalCount;
+    let nextCursor = data.nextCursor;
+    let hasMore = data.hasMore;
 
     if (shouldMergeOperatorDemoAlertSample() && items.length === 0) {
       const demoRow = tryStaticDemoAlertInboxRow();
 
       if (statusFilter === null || statusFilter === "Open") {
         items = [demoRow];
-        totalCount = 1;
+        nextCursor = null;
+        hasMore = false;
       }
     }
 
-    return { items, totalCount, loadFailure: null };
+    return { items, nextCursor, hasMore, loadFailure: null };
   } catch (error) {
     if (shouldMergeOperatorDemoAlertSample()) {
       const demoRow = tryStaticDemoAlertInboxRow();
 
       if (statusFilter === null || statusFilter === "Open") {
-        return { items: [demoRow], totalCount: 1, loadFailure: null };
+        return { items: [demoRow], nextCursor: null, hasMore: false, loadFailure: null };
       }
 
-      return { items: [], totalCount: 0, loadFailure: null };
+      return { items: [], nextCursor: null, hasMore: false, loadFailure: null };
     }
 
-    return { items: [], totalCount: 0, loadFailure: toApiLoadFailure(error) };
+    return { items: [], nextCursor: null, hasMore: false, loadFailure: toApiLoadFailure(error) };
   }
 }
 

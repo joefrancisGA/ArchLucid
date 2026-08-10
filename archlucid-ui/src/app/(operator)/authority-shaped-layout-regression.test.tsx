@@ -62,6 +62,7 @@ const apiHoisted = vi.hoisted(() => ({
   getEffectivePolicyContent: vi.fn(),
   listPolicyPackVersions: vi.fn(),
   listAlertsPaged: vi.fn(),
+  listAlertsCursor: vi.fn(),
   listApprovalRequests: vi.fn(),
   listPromotions: vi.fn(),
   listActivations: vi.fn(),
@@ -81,6 +82,7 @@ vi.mock("@/lib/api", async (importOriginal) => {
     getEffectivePolicyContent: apiHoisted.getEffectivePolicyContent,
     listPolicyPackVersions: apiHoisted.listPolicyPackVersions,
     listAlertsPaged: apiHoisted.listAlertsPaged,
+    listAlertsCursor: apiHoisted.listAlertsCursor,
     listApprovalRequests: apiHoisted.listApprovalRequests,
     listPromotions: apiHoisted.listPromotions,
     listActivations: apiHoisted.listActivations,
@@ -157,6 +159,12 @@ describe("authority-shaped layout regression", () => {
     });
     apiHoisted.listPolicyPackVersions.mockResolvedValue([]);
     apiHoisted.listAlertsPaged.mockResolvedValue({ items: [sampleAlert], totalCount: 1 });
+    apiHoisted.listAlertsCursor.mockResolvedValue({
+      items: [sampleAlert],
+      nextCursor: null,
+      hasMore: false,
+      requestedTake: 25,
+    });
     apiHoisted.listApprovalRequests.mockResolvedValue([]);
     apiHoisted.listPromotions.mockResolvedValue([]);
     apiHoisted.listActivations.mockResolvedValue([]);
