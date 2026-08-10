@@ -102,14 +102,6 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "first-architecture-review", label: "Your first architecture review" },
   },
   {
-    prefix: "/help/first-pilot-path",
-    topic: { slug: "first-architecture-review", label: "Your first architecture review" },
-  },
-  {
-    prefix: "/help/first-hour-operator-path",
-    topic: { slug: "first-architecture-review", label: "Your first architecture review" },
-  },
-  {
     prefix: "/help/cloud-connections/azure",
     topic: { slug: "cloud-connections-azure", label: "Connect Azure securely" },
   },
@@ -132,10 +124,6 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   {
     prefix: "/help/cloud-connections",
     topic: { slug: "cloud-connections", label: "Cloud connections" },
-  },
-  {
-    prefix: "/help/operator-auth-roles",
-    topic: { slug: "users-and-roles", label: "Users and roles" },
   },
   {
     prefix: "/help/users-and-roles",
@@ -166,7 +154,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/insights/patterns",
     topic: { label: "Pattern library" },
   },
-  { prefix: "/replay", topic: { slug: "comparison-replay", label: "Validate review" } },
+  { prefix: "/replay", topic: { slug: "comparison-replay", label: "Compare and replay" } },
   { prefix: "/governance/findings", topic: { slug: "governance-approval", label: OPERATOR_NAV_LINK_LABELS.findings } },
   {
     prefix: "/governance/approval-queue",
@@ -314,10 +302,6 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "path-chooser", label: "Choose your next step" },
   },
   {
-    prefix: "/help/evaluator-workbook",
-    topic: { slug: "path-chooser", label: "Choose your next step" },
-  },
-  {
     prefix: "/help/enterprise-onboarding",
     topic: { slug: "enterprise-onboarding", label: "Enterprise onboarding checklist" },
   },
@@ -363,10 +347,6 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/help/governance-api-contracts",
-    topic: { slug: "governance-api-contracts", label: "API contracts (technical reference)" },
-  },
-  {
-    prefix: "/help/api-contracts",
     topic: { slug: "governance-api-contracts", label: "API contracts (technical reference)" },
   },
   {

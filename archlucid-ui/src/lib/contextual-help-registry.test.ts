@@ -57,7 +57,6 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/dpa-template",
       "/help/soc2-self-assessment",
       "/help/path-chooser",
-      "/help/evaluator-workbook",
       "/help/enterprise-onboarding",
       "/help/pilot-roi-model",
       "/help/pilot-feedback",
@@ -129,14 +128,11 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/repeat-review-loop",
       "/help/pilot-guide",
       "/help/first-architecture-review",
-      "/help/first-pilot-path",
-      "/help/first-hour-operator-path",
       "/help/cloud-connections/azure",
       "/help/cloud-connections/aws",
       "/help/cloud-connections/gcp",
       "/help/azure-permissions",
       "/help/glossary",
-      "/help/operator-auth-roles",
       "/help/users-and-roles",
       "/help/cloud-connections",
       "/administration/users/invite-reviewer",
@@ -541,18 +537,6 @@ describe("contextual-help-registry (TB-733)", () => {
     );
   });
 
-  it("resolves first-pilot-path help alias Category-1 help (FIR)", () => {
-    expect(contextualHelpForPathname("/help/first-pilot-path")?.whatIsThisPage).toContain(
-      "Your first architecture review",
-    );
-  });
-
-  it("resolves evaluator-workbook help alias Category-1 help (HEE)", () => {
-    expect(contextualHelpForPathname("/help/evaluator-workbook")?.whatIsThisPage).toContain(
-      "primary next action",
-    );
-  });
-
   it("resolves enterprise onboarding help Category-1 help (HEX)", () => {
     expect(contextualHelpForPathname("/help/enterprise-onboarding")?.whatIsThisPage).toContain(
       "Enterprise onboarding",
@@ -568,12 +552,6 @@ describe("contextual-help-registry (TB-733)", () => {
     );
     expect(contextualHelpForPathname("/help/pilot-roi-model")?.whatToDoNext).toContain(
       "Architecture scorecard",
-    );
-  });
-
-  it("resolves first-hour-operator-path help alias Category-1 help (HFE)", () => {
-    expect(contextualHelpForPathname("/help/first-hour-operator-path")?.whatIsThisPage).toContain(
-      "Your first architecture review",
     );
   });
 

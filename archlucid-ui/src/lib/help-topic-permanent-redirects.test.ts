@@ -41,6 +41,17 @@ describe("help-topic-permanent-redirects", () => {
     expect(resolveHelpTopicPermanentRedirect("core-pilot")).toBe("/help/first-architecture-review");
   });
 
+  it("redirects Batch C retired help aliases to canonical topics", () => {
+    expect(HELP_TOPIC_PERMANENT_REDIRECTS["api-contracts"]).toBe("/help/governance-api-contracts");
+    expect(HELP_TOPIC_PERMANENT_REDIRECTS["evaluator-workbook"]).toBe("/help/path-chooser");
+    expect(HELP_TOPIC_PERMANENT_REDIRECTS["first-hour-operator-path"]).toBe("/help/first-architecture-review");
+    expect(HELP_TOPIC_PERMANENT_REDIRECTS["first-pilot-path"]).toBe("/help/first-architecture-review");
+    expect(resolveHelpTopicPermanentRedirect("api-contracts")).toBe("/help/governance-api-contracts");
+    expect(resolveHelpTopicPermanentRedirect("evaluator-workbook")).toBe("/help/path-chooser");
+    expect(resolveHelpTopicPermanentRedirect("first-hour-operator-path")).toBe("/help/first-architecture-review");
+    expect(resolveHelpTopicPermanentRedirect("first-pilot-path")).toBe("/help/first-architecture-review");
+  });
+
   it("redirects how-it-works alias to getting-started How ArchLucid works anchor", () => {
     expect(HELP_TOPIC_PERMANENT_REDIRECTS["how-it-works"]).toBe("/help/getting-started#how-archlucid-works");
     expect(resolveHelpTopicPermanentRedirect("how-it-works")).toBe("/help/getting-started#how-archlucid-works");

@@ -55,8 +55,7 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/help/cloud-connections-azure": "/help/cloud-connections/azure",
     "/help/cloud-connections-aws": "/help/cloud-connections/aws",
     "/help/cloud-connections-gcp": "/help/cloud-connections/gcp",
-    # TB-2050 retired help aliases (removed from HELP_TOPIC_SLUG_ALIASES) — fold Hit% into canons.
-    # Do not re-add these to the catalog; FIR `/help/first-pilot-path` stays via TRAFFIC_TRACKED only.
+    # TB-2050 / Batch C retired help aliases (removed from HELP_TOPIC_SLUG_ALIASES) — fold Hit% into canons.
     "/help/api-contracts": "/help/governance-api-contracts",
     "/help/creating-runs": "/help/review-guide",
     "/help/data-handling-tenant-isolation": "/help/data-handling",
@@ -67,6 +66,7 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/help/starting-reviews": "/help/review-guide",
     "/help/evaluator-workbook": "/help/path-chooser",
     "/help/first-hour-operator-path": "/help/first-architecture-review",
+    "/help/first-pilot-path": "/help/first-architecture-review",
     "/help/operator-auth-roles": "/help/users-and-roles",
     "/manifests": "/governance/signed-records",
     "/manifests/[manifestId]": "/governance/signed-records/[manifestId]",
@@ -160,10 +160,8 @@ REDIRECT_ONLY_APP_PATHS = frozenset(
 # Next.config-only redirect bookmarks that stay in the owner traffic workbook.
 # /settings/alerts retired from the workbook (SEA removed, TB-1886–TB-1890); migration still maps to SAX.
 # /settings/exec-digest retired from the workbook (EEX removed); migration still maps to DIS.
-# /help/core-pilot retired from the workbook (ECO removed, TB-2050) — no App Router page or
-# redirect remains; do not re-add via this set.
-# FIR `/help/first-pilot-path` stays as a scored redirect bookmark (alias retired TB-2050; COR canonical).
-TRAFFIC_TRACKED_REDIRECT_BOOKMARKS = frozenset({"/help/first-pilot-path"})
+# Batch C folded FIR `/help/first-pilot-path` into COR — permanent redirect only (no traffic-tracked bookmark).
+TRAFFIC_TRACKED_REDIRECT_BOOKMARKS: frozenset[str] = frozenset()
 
 # Operator-shell overlays scored in the workbook but not App Router pages.
 SHELL_OVERLAY_TRAFFIC_ENTRIES: dict[str, str] = {

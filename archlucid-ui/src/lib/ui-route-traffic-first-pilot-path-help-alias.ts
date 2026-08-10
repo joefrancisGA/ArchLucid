@@ -1,22 +1,14 @@
-﻿import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
+﻿import { FIRST_ARCHITECTURE_REVIEW_HELP_TRAFFIC_PATH } from "@/lib/ui-route-traffic-first-architecture-review-help";
 
 /**
- * Traffic workbook row ID for the legacy first-pilot-path help bookmark.
- * Owner backlog shorthand: FIR.
+ * Removed traffic workbook row ID for the retired `/help/first-pilot-path` alias (merged into COR).
+ * Do not reintroduce — first-architecture-review help is scored only on COR.
  */
-export const FIRST_PILOT_PATH_HELP_ALIAS_TRAFFIC_ROW_ID = "FIR";
+export const REMOVED_FIRST_PILOT_PATH_HELP_ALIAS_TRAFFIC_ROW_ID = "FIR";
 
-/** Legacy alias path tracked on the FIR workbook row. */
-export const FIRST_PILOT_PATH_HELP_ALIAS_TRAFFIC_PATH = "/help/first-pilot-path";
+/** Retired alias bookmark — not a standalone traffic row. */
+export const RETIRED_FIRST_PILOT_PATH_HELP_ALIAS_TRAFFIC_PATH = "/help/first-pilot-path";
 
-/** Canonical first-review help path that FIR resolves to (workbook row COR). */
-export const FIRST_PILOT_PATH_HELP_ALIAS_CANONICAL_PATH = FIRST_ARCHITECTURE_REVIEW_HELP_PATH;
-
-/** Workbook Section column value — still tracked; template Section is Help topic. */
-export const FIRST_PILOT_PATH_HELP_ALIAS_TRAFFIC_SECTION = "Help topic";
-
-/**
- * Owner workbook Notes for FIR — documents the legacy slug alias bookmark.
- */
-export const FIRST_PILOT_PATH_HELP_ALIAS_TRAFFIC_NOTE =
-  "Deprecated first-pilot-path help alias (Help alias) - slug alias first-pilot-path -> first-architecture-review; renders HelpCorePilotGuideView Evidence chrome (Sources strip + PageContextualHelp + Category-1 on alias path). Canon COR = /help/first-architecture-review. Body lives in CORE_PILOT.md#complete-review-workflow (TB-1379). Score 58/100 (2026-08-05) - help-topic orientation hard-caps higher Evidence (alias inherits COR). Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
+/** Canonical first-architecture-review help scored on traffic row COR. */
+export const CANONICAL_FIRST_ARCHITECTURE_REVIEW_HELP_TRAFFIC_PATH_FROM_FIRST_PILOT_PATH =
+  FIRST_ARCHITECTURE_REVIEW_HELP_TRAFFIC_PATH;

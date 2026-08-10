@@ -12,7 +12,8 @@ import {
   HELP_BROWSE_GUIDE_LABEL,
   resolveHelpTopicBrowseLabel,
 } from "@/lib/help-center-browse-labels";
-import { getProductDocumentationEntry, normalizeHelpTopicSlug } from "@/lib/product-documentation-registry";
+import { getProductDocumentationEntry, inAppHelpHref, normalizeHelpTopicSlug } from "@/lib/product-documentation-registry";
+import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-redirects";
 
 describe("help-center-catalog", () => {
   it("keeps the default landing grid to fourteen featured topics", () => {
@@ -119,7 +120,9 @@ describe("help topic slug aliases", () => {
     expect(getProductDocumentationEntry("api-contracts")).toBeNull();
     expect(getProductDocumentationEntry("evaluator-workbook")).toBeNull();
     expect(getProductDocumentationEntry("first-hour-operator-path")).toBeNull();
-    expect(getProductDocumentationEntry("first-pilot-path")?.slug).toBe("first-architecture-review");
+    expect(getProductDocumentationEntry("first-pilot-path")).toBeNull();
+    expect(resolveHelpTopicPermanentRedirect("first-pilot-path")).toBe("/help/first-architecture-review");
+    expect(inAppHelpHref("first-pilot-path")).toBe("/help/first-architecture-review");
   });
 });
 

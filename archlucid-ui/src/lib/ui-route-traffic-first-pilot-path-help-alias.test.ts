@@ -4,11 +4,9 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
-  FIRST_PILOT_PATH_HELP_ALIAS_CANONICAL_PATH,
-  FIRST_PILOT_PATH_HELP_ALIAS_TRAFFIC_NOTE,
-  FIRST_PILOT_PATH_HELP_ALIAS_TRAFFIC_PATH,
-  FIRST_PILOT_PATH_HELP_ALIAS_TRAFFIC_ROW_ID,
-  FIRST_PILOT_PATH_HELP_ALIAS_TRAFFIC_SECTION,
+  CANONICAL_FIRST_ARCHITECTURE_REVIEW_HELP_TRAFFIC_PATH_FROM_FIRST_PILOT_PATH,
+  REMOVED_FIRST_PILOT_PATH_HELP_ALIAS_TRAFFIC_ROW_ID,
+  RETIRED_FIRST_PILOT_PATH_HELP_ALIAS_TRAFFIC_PATH,
 } from "@/lib/ui-route-traffic-first-pilot-path-help-alias";
 
 const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md";
@@ -16,8 +14,6 @@ const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md"
 type TrafficWorkbookRow = {
   id: string;
   path: string;
-  section: string;
-  notes: string;
 };
 
 function readTemplateMarkdown(): string {
@@ -46,31 +42,26 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
     }
 
     rows.push({
-      id: cells[1],
-      path: cells[2].replace(/^`|`$/g, ""),
-      section: cells[7],
-      notes: cells[8],
+      id: cells[1] ?? "",
+      path: (cells[2] ?? "").replace(/^`|`$/g, ""),
     });
   }
 
   return rows;
 }
 
-function findTrafficRowById(rows: TrafficWorkbookRow[], rowId: string): TrafficWorkbookRow | undefined {
-  return rows.find((row) => row.id === rowId);
-}
-
-describe("ui-route-traffic-first-pilot-path-help-alias (FIR)", () => {
-  it("tracks the first-pilot-path bookmark under Help topic onto COR", () => {
+describe("ui-route-traffic first-pilot-path alias retirement (FIR merged into COR)", () => {
+  it("does not track retired FIR; first-architecture-review help stays on COR only", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
-    const row = findTrafficRowById(rows, FIRST_PILOT_PATH_HELP_ALIAS_TRAFFIC_ROW_ID);
+    const firRow = rows.find((row) => row.id === REMOVED_FIRST_PILOT_PATH_HELP_ALIAS_TRAFFIC_ROW_ID);
+    const retiredPathRows = rows.filter((row) => row.path === RETIRED_FIRST_PILOT_PATH_HELP_ALIAS_TRAFFIC_PATH);
+    const canonicalRows = rows.filter(
+      (row) => row.path === CANONICAL_FIRST_ARCHITECTURE_REVIEW_HELP_TRAFFIC_PATH_FROM_FIRST_PILOT_PATH,
+    );
 
-    expect(row).toBeDefined();
-    expect(row?.path).toBe(FIRST_PILOT_PATH_HELP_ALIAS_TRAFFIC_PATH);
-    expect(row?.section).toBe(FIRST_PILOT_PATH_HELP_ALIAS_TRAFFIC_SECTION);
-    expect(row?.section).toBe("Help topic");
-    expect(row?.notes).toBe(FIRST_PILOT_PATH_HELP_ALIAS_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("COR");
-    expect(FIRST_PILOT_PATH_HELP_ALIAS_CANONICAL_PATH).toBe("/help/first-architecture-review");
+    expect(firRow).toBeUndefined();
+    expect(retiredPathRows).toHaveLength(0);
+    expect(canonicalRows).toHaveLength(1);
+    expect(canonicalRows[0]?.id).toBe("COR");
   });
 });

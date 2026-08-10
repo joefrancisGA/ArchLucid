@@ -244,17 +244,6 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/help/evaluator-workbook",
-    entry: {
-      whatIsThisPage:
-        "Map your current goal to one primary next action for evaluate, pilot, procurement, sponsor, or engineering support.",
-      whatToDoNext:
-        "Pick the matching goal branch, open the primary cite, then use Sources before treating orientation as diligence.",
-      whyEmpty: "Branches always appear when this help topic loads.",
-      whereToConfigurePrerequisite: "Start or finalize a review when your goal needs product evidence, not just orientation.",
-    },
-  },
-  {
     prefix: "/help/enterprise-onboarding",
     entry: {
       whatIsThisPage:
@@ -1215,30 +1204,6 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/help/first-pilot-path",
-    entry: {
-      whatIsThisPage:
-        "Your first architecture review — guided path from evidence intake to a finalized package and sponsor-ready exports.",
-      whatToDoNext:
-        "Start an architecture review from the hero CTA, or open the sample review when you want a completed outcome first.",
-      whyEmpty: "This guide is always available; live architecture reviews appear after you create them.",
-      whereToConfigurePrerequisite:
-        "Creating reviews needs a role that can start architecture reviews in this workspace.",
-    },
-  },
-  {
-    prefix: "/help/first-hour-operator-path",
-    entry: {
-      whatIsThisPage:
-        "Your first architecture review — guided path from evidence intake to a finalized package and sponsor-ready exports.",
-      whatToDoNext:
-        "Start an architecture review from the hero CTA, or open the sample review when you want a completed outcome first.",
-      whyEmpty: "This guide is always available; live architecture reviews appear after you create them.",
-      whereToConfigurePrerequisite:
-        "Creating reviews needs a role that can start architecture reviews in this workspace.",
-    },
-  },
-  {
     prefix: "/help/cloud-connections/azure",
     entry: {
       whatIsThisPage:
@@ -1312,18 +1277,6 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "Glossary terms are always listed; search filters the catalog without needing a live review.",
       whereToConfigurePrerequisite:
         "No configuration is required — this page is orientation vocabulary only.",
-    },
-  },
-  {
-    prefix: "/help/operator-auth-roles",
-    entry: {
-      whatIsThisPage:
-        "Users and roles — ArchLucid app roles, capabilities, and how architects invite teammates (alias of users-and-roles).",
-      whatToDoNext:
-        "Open Users settings to invite or assign roles, or Assurance status when you need assurance orientation.",
-      whyEmpty: "This guide is always available; live directory rows appear after users are invited or provisioned.",
-      whereToConfigurePrerequisite:
-        "Managing users needs Admin authority; SSO may be required before invited users can sign in.",
     },
   },
   {
