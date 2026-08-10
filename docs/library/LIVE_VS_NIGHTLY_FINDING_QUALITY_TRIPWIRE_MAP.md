@@ -4,7 +4,10 @@
 
 **Audience:** Engineering, SRE, principal-architect diligence. Not a buyer brochure.
 
-**Status:** Working contract for **TB-1506** / GTM **M-275**. Pair honesty CI **TB-1507** / **M-275**.
+**Status:** **Done** (**TB-1506**, 2026-08-10). GTM **M-275** / **M-276**. Pair honesty CI **TB-1507** / **M-275**.
+
+**Buyer / PA one-pager:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#live-vs-nightly-finding-quality-tripwire-m-276`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#live-vs-nightly-finding-quality-tripwire-m-276) (GTM **M-276**).  
+**Claim honesty:** [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) (GTM **M-275**).
 
 **Verdict (one line):** Nothing in production today is a **scheduled live canary** that proves Azure silently revved the model and finding quality dropped last Tuesday before a customer notices — **TB-683 nightly “real-mode” eval scores frozen `*.real.json` exemplars offline** (not production AOAI); the closest live signals are **per-execute quality/faithfulness gates + Prometheus rate alerts**, which are traffic-dependent and easy to miss for gradual degradation.
 
@@ -49,7 +52,7 @@ There is **no** first-class job: “every N hours, execute fixed canary architec
 
 ---
 
-## 4. Safe pin
+## 4. Safe pin (buyer / PA)
 
 > Per-execute quality and faithfulness gates plus optional Prometheus alerts are the live defense-in-depth on customer traffic. Nightly real-mode eval (**TB-683**) does **not** call Azure OpenAI — it re-scores committed exemplars. Detecting silent Azure minor-version quality drops **before** customers requires an explicit **live canary + baseline compare + alert** (not shipped as a closed loop today). Do not sell nightly corpus jobs as that tripwire.
 
@@ -66,7 +69,7 @@ There is **no** first-class job: “every N hours, execute fixed canary architec
 
 ---
 
-## 6. Related owners
+## 6. Related owners (orchestrate, do not reopen Done)
 
 | ID | Role |
 |----|------|
@@ -76,7 +79,7 @@ There is **no** first-class job: “every N hours, execute fixed canary architec
 | **TB-1228** / **M-209** | Scoring lane positioning |
 | **TB-1499** / **M-273** | Retirement vs repro claims |
 | **TB-688** | Per-tier model refresh cadence (**V2**) |
-| **TB-1506** / **M-275** | This map + claim honesty; optional canary follow-on |
+| **TB-1507** / **M-275** | Honesty CI follow-on |
 
 ---
 
@@ -85,3 +88,18 @@ There is **no** first-class job: “every N hours, execute fixed canary architec
 1. Scheduled canary: fixed tenant/scenario → Real execute → score vs locked baseline → alert on drop or unexpected `ModelVersion`.
 2. Metric: `ModelVersion` / deployment fingerprint change event → page ops.
 3. Docs: rename TB-683 talk-track from “live real-mode monitoring” to “offline real-labeled exemplar scoring.”
+
+---
+
+## 8. Code entry points (verification)
+
+| Concern | Primary file |
+|---------|--------------|
+| Nightly real-mode fixture scoring | `.github/workflows/real-mode-eval-nightly.yml` |
+| Corpus eval CLI | `scripts/ci/eval_agent_corpus.py` |
+| Consecutive-night regression warn | `scripts/ci/assert_real_mode_eval_consecutive_regression.py` |
+| Per-execute quality gate | `ArchLucid.AgentRuntime/Evaluation/` (QualityGate pipeline) |
+| Phase B faithfulness enforcement | `ArchLucid.Api/appsettings.Production.json` (`EnforcePhaseB`) |
+| Agent-output Prometheus rules | `infra/terraform-monitoring/prometheus_agent_output_rules.tf` |
+| Nightly vs live honesty (this map) | [`AGENT_EVAL_CORPUS.md`](AGENT_EVAL_CORPUS.md) |
+| AOAI retirement (related) | [`AOAI_MODEL_RETIREMENT_REPRO_CLAIM_MAP.md`](AOAI_MODEL_RETIREMENT_REPRO_CLAIM_MAP.md) (**TB-1499**) |

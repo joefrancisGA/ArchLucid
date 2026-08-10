@@ -78,6 +78,7 @@ ArchLucid typically addresses a **deployment name** in config; the underlying **
 | **TB-1156**–**TB-1157** / **M-198** | Dual hasher / production re-lock CI |
 | **TB-1172**–**TB-1173** / **M-201** | Cohort re-lock vs rubber stamp |
 | **TB-1228** / **M-209** | Faithfulness scoring lanes (promotion vs commit) |
+| **TB-1506** / **M-276** | Nightly vs live tripwire honesty |
 | **TB-1292** / **M-227** | FT promotion decision record |
 | **TB-688** | Per-tier model refresh cadence (**V2**) |
 | Done **TB-307**, **TB-594** | Export verify; FT plumbing |

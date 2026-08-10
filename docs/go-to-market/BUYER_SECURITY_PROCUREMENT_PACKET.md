@@ -2964,7 +2964,40 @@ Do not sell golden cohort as perpetual model reproducibility, claim “replay al
 - Does not reopen Done **TB-307** / **TB-594**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
 
-**Related:** [Project soft-delete residue (M-272)](#project-soft-delete-sealed-evidence-m-272) Â· [Paying-tenant spend storm (M-295)](#paying-tenant-llm-spend-storm-m-295) Â· [Real-execute AOAI throttle (M-230)](#real-execute-aoai-throttle-m-230) Â· [Fine-tuning promotion (M-228)](#ft-promotion-decision-record-m-228) Â· [`../library/AOAI_MODEL_RETIREMENT_REPRO_CLAIM_MAP.md`](../library/AOAI_MODEL_RETIREMENT_REPRO_CLAIM_MAP.md) Â· [`../library/RUNBOOK_REPLAY_DRIFT.md`](../library/RUNBOOK_REPLAY_DRIFT.md) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+**Related:** [Project soft-delete residue (M-272)](#project-soft-delete-sealed-evidence-m-272) · [Live vs nightly tripwire (M-276)](#live-vs-nightly-finding-quality-tripwire-m-276) · [Paying-tenant spend storm (M-295)](#paying-tenant-llm-spend-storm-m-295) · [Real-execute AOAI throttle (M-230)](#real-execute-aoai-throttle-m-230) · [Fine-tuning promotion (M-228)](#ft-promotion-decision-record-m-228) · [`../library/AOAI_MODEL_RETIREMENT_REPRO_CLAIM_MAP.md`](../library/AOAI_MODEL_RETIREMENT_REPRO_CLAIM_MAP.md) · [`../library/RUNBOOK_REPLAY_DRIFT.md`](../library/RUNBOOK_REPLAY_DRIFT.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+
+## Live vs nightly finding-quality tripwire (M-276) {#live-vs-nightly-finding-quality-tripwire-m-276}
+
+Former standalone body: `docs/go-to-market/LIVE_VS_NIGHTLY_FINDING_QUALITY_TRIPWIRE_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-275** / **M-276** / **TB-1506**). Engineering map: [`../library/LIVE_VS_NIGHTLY_FINDING_QUALITY_TRIPWIRE_MAP.md`](../library/LIVE_VS_NIGHTLY_FINDING_QUALITY_TRIPWIRE_MAP.md). Complements [AOAI model retirement (M-274)](#aoai-model-retirement-repro-m-274) and [Faithfulness scoring lanes (M-208)](#decision-grade-finding-provenance-m-208). Does not reopen Done **TB-683** as broken — clarifies scope. Not an assurance attestation.
+
+**Audience:** Principal architects, SRE, and buyer diligence on silent Azure model revs.
+
+**Decision:** **TB-683 nightly** re-scores frozen `*.real.json` exemplars in CI — it does **not** call production Azure OpenAI. Live defense is **per-execute quality/faithfulness gates + optional Prometheus rate alerts** on customer traffic. There is **no** shipped scheduled live canary that detects quality degradation before customers.
+
+### Nightly vs live (one table)
+
+| Signal | Calls prod AOAI? | Catches silent minor rev before customers? |
+| --- | --- | --- |
+| `real-mode-eval-nightly` (**TB-683**) | **No** | **No** — fixture corpus / scorer regression |
+| QualityGate + Phase B faithfulness | On Real execute | **During** customer traffic, not a fixed canary clock |
+| Prometheus agent-output alerts | When monitoring applied | Rate shifts after traffic; no ModelVersion tripwire |
+| G-REAL-01 / release gate | When owner runs | Point-in-time, not 24×7 |
+
+### Claim boundary
+
+Do not call TB-683 “live real-mode monitoring,” claim nightly eval catches Azure model revs, or say Prometheus alone proves degradation before customers. Say: nightly is offline exemplar scoring; live gates defend customer traffic; pre-customer canary is a documented gap.
+
+### Safe pin
+
+> Per-execute quality and faithfulness gates plus optional Prometheus alerts defend live customer traffic. Nightly real-mode eval does **not** call Azure OpenAI — it re-scores committed exemplars. Detecting silent model quality drops **before** customers requires an explicit live canary loop (not shipped today).
+
+### Residuals (honest)
+
+- **TB-1506** **Done** (2026-08-10) — engineering map [`../library/LIVE_VS_NIGHTLY_FINDING_QUALITY_TRIPWIRE_MAP.md`](../library/LIVE_VS_NIGHTLY_FINDING_QUALITY_TRIPWIRE_MAP.md). **TB-1507** owns language guards CI.
+- Optional canary + ModelVersion alert remain follow-ons; **TB-688** stays V2 cadence.
+- This handout does not claim CPA SOC 2 or a published third-party penetration test.
+
+**Related:** [AOAI retirement (M-274)](#aoai-model-retirement-repro-m-274) · [Faithfulness scoring lanes (M-208)](#decision-grade-finding-provenance-m-208) · [`../library/AGENT_EVAL_CORPUS.md`](../library/AGENT_EVAL_CORPUS.md) · [`../library/AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Paying-tenant spend storm + metering reconciliation (M-295) {#paying-tenant-llm-spend-storm-m-295}
 
@@ -4327,6 +4360,7 @@ Companion one-pagers and full do-not/do-promise table: [`PA_CLAIM_HONESTY_INDEX.
 | Evidence backup/restore (M-269/M-270) | Controlled discontinuity; external anchors distinguish | “Append-only means backups can’t rewrite” / “SQL alone proves restoreâ‰ tamper” | [`#evidence-backup-restore-invariant-m-270`](#evidence-backup-restore-invariant-m-270) |
 | Project soft-delete residue (M-271/M-272) | Project row only; sealed evidence + audit remain | “Delete project deletes all evidence” / “Purge = GDPR erasure” / “No trace” | [`#project-soft-delete-sealed-evidence-m-272`](#project-soft-delete-sealed-evidence-m-272) |
 | AOAI model retirement (M-273/M-274) | Committed packages + stored-source replay survive; Real re-exec on retired pin does not | “Bit-identical Real re-execution forever” / “Auto-upgrade preserves ManifestHash identity” | [`#aoai-model-retirement-repro-m-274`](#aoai-model-retirement-repro-m-274) |
+| Live vs nightly tripwire (M-275/M-276) | Nightly TB-683 scores frozen exemplars offline; live gates on customer traffic | “Nightly eval catches Azure model revs” / “We always detect degradation before customers” | [`#live-vs-nightly-finding-quality-tripwire-m-276`](#live-vs-nightly-finding-quality-tripwire-m-276) |
 | Configuration architecture (M-290/M-291) | Layered IConfiguration; env wins over Advanced/SaaS; selective fail-fast; fragmented drift proof | “appsettings is deployment SoT” / “TF state is CA config SoT” / “startup validates all config” / “IOptionsMonitor = prod hot-reload” / “TB-881 blocks pilots” | [`#configuration-architecture-precedence-validation-drift-m-291`](#configuration-architecture-precedence-validation-drift-m-291) |
 | Paying-tenant spend storm (M-294/M-295) | Tenant gates fail-closed; metering â‰  Azure invoice; stolen key burns headroom | “Metering reconciles to Azure invoice” / “Per-key spend isolation” | [`#paying-tenant-llm-spend-storm-m-295`](#paying-tenant-llm-spend-storm-m-295) |
 | Shared TPM fairness (M-296/M-297) | No cross-tenant TPM fair share; neighbor can drive 429/breaker | “Fair shared AOAI TPM across tenants” | [`#shared-aoai-tpm-noisy-neighbor-m-297`](#shared-aoai-tpm-noisy-neighbor-m-297) |
