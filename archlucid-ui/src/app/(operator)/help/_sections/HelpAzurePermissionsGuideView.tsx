@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { Suspense } from "react";
 
+import { AzureCloudConnectionRolesTable } from "@/components/help/AzureCloudConnectionRolesTable";
 import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpAzurePermissionsConnectionContext } from "@/app/(operator)/help/_sections/HelpAzurePermissionsConnectionContext";
@@ -18,7 +19,6 @@ import {
   AZURE_CLOUD_CONNECTION_FORBIDDEN_ROLES,
   AZURE_CLOUD_CONNECTION_PERMISSIONS_CONTRACT_VERSION,
   AZURE_CLOUD_CONNECTION_RELATED_HELP,
-  AZURE_CLOUD_CONNECTION_ROLE_ROWS,
   AZURE_CLOUD_CONNECTION_SCOPE_GUIDANCE,
   AZURE_CLOUD_CONNECTION_TROUBLESHOOTING_ITEMS,
   formatAzurePermissionRequirementLabel,
@@ -82,88 +82,6 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
     >
       {props.children}
     </h2>
-  );
-}
-
-function PermissionsMatrixTable(): React.ReactElement {
-  return (
-    <div className={HELP_PAGE_LAYOUT.tableWrap} data-testid="azure-permissions-matrix-table">
-      <table className={HELP_PAGE_LAYOUT.table}>
-        <caption className="sr-only">Azure roles for cloud connections</caption>
-        <thead>
-          <tr>
-            <th scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
-              Azure role
-            </th>
-            <th scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
-              Requirement
-            </th>
-            <th scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
-              Purpose
-            </th>
-            <th scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
-              Recommended scope
-            </th>
-            <th scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
-              Write access
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {AZURE_CLOUD_CONNECTION_ROLE_ROWS.map((row, index) => (
-            <tr
-              key={row.azureRole}
-              className={index % 2 === 0 ? HELP_PAGE_LAYOUT.tableRowOdd : HELP_PAGE_LAYOUT.tableRowEven}
-            >
-              <th scope="row" className={HELP_PAGE_LAYOUT.tableBodyCell}>
-                {row.azureRole}
-              </th>
-              <td className={HELP_PAGE_LAYOUT.tableBodyCell}>
-                <span className="font-semibold">{formatAzurePermissionRequirementLabel(row.requirement)}</span>
-              </td>
-              <td className={HELP_PAGE_LAYOUT.tableBodyCell}>{row.purpose}</td>
-              <td className={HELP_PAGE_LAYOUT.tableBodyCell}>{row.recommendedScope}</td>
-              <td className={HELP_PAGE_LAYOUT.tableBodyCell}>No</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div className="space-y-3 border-t border-neutral-200 p-4 dark:border-neutral-800">
-        {AZURE_CLOUD_CONNECTION_ROLE_ROWS.map((row) => (
-          <details key={`${row.azureRole}-details`} className={HELP_PAGE_LAYOUT.details}>
-            <summary className="cursor-pointer font-medium">
-              {row.azureRole} — {formatAzurePermissionRequirementLabel(row.requirement)}
-            </summary>
-            <div className={HELP_PAGE_LAYOUT.detailsBody}>
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{row.expandedDetails}</p>
-              <p className={cn("m-0 mt-2 font-medium", OPERATOR_TYPOGRAPHY.label)}>Capabilities enabled</p>
-              <ul className={HELP_PAGE_LAYOUT.bulletList}>
-                {row.enabledCapabilities.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-              <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.label)}>Data categories</p>
-              <ul className={HELP_PAGE_LAYOUT.bulletList}>
-                {row.dataCategories.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-              <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.label)}>Supported assignment scopes</p>
-              <ul className={HELP_PAGE_LAYOUT.bulletList}>
-                {row.supportedScopes.map((item) => (
-                  <li key={item}>
-                    <code className="break-all">{item}</code>
-                  </li>
-                ))}
-              </ul>
-              {row.omittedImpact !== null ? (
-                <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{row.omittedImpact}</p>
-              ) : null}
-            </div>
-          </details>
-        ))}
-      </div>
-    </div>
   );
 }
 
@@ -245,7 +163,7 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
         <div className="min-w-0 space-y-8" data-testid="help-azure-permissions-primary">
           <section aria-labelledby="permissions-matrix" className="space-y-3">
             <HelpSectionHeading id="permissions-matrix">{AZURE_PERMISSIONS_MATRIX_HEADING}</HelpSectionHeading>
-            <PermissionsMatrixTable />
+            <AzureCloudConnectionRolesTable expandedDetails testId="azure-permissions-matrix-table" />
           </section>
 
           <section aria-labelledby="read-only-summary" className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800">

@@ -2,16 +2,35 @@
  * Customer-facing copy for `/help/cloud-connections/azure`.
  * Role requirements reuse `azure-cloud-connection-permissions-manifest.ts`.
  */
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+
 export const CONNECT_AZURE_SECURELY_PAGE_TITLE = "Connect Azure securely";
 
-export const CONNECT_AZURE_SECURELY_PAGE_INTRO =
-  "ArchLucid can use Azure metadata and cost evidence when you connect selected subscriptions. The Azure connection is optional; reviews can also use briefs, diagrams, documents, and uploaded evidence.";
+export const CONNECT_AZURE_SECURELY_PAGE_LEAD =
+  "Connecting Azure adds current resource and cost evidence to architecture reviews. The connection is optional — ArchLucid can still review uploaded documents, briefs, and diagrams without cloud access.";
 
-export const CONNECT_AZURE_SECURELY_CONNECTION_VALUE =
-  "Connecting Azure adds current resource and cost evidence to reviews. ArchLucid can still review uploaded documents and diagrams without a cloud connection.";
+export const CONNECT_AZURE_SECURELY_WITHOUT_CONNECTION_NOTE =
+  "Reviews can proceed with briefs, diagrams, documents, and uploaded evidence when you choose not to connect.";
 
 export const CONNECT_AZURE_SECURELY_CLAIM_DISCIPLINE =
-  "This topic is setup orientation for Azure federated trust and read-only role assignment — it is not an evidence trail or signed review record. Open Assurance status or the live Cloud connections hub before treating setup guidance as assurance evidence.";
+  "This topic is setup orientation for Azure federated trust and read-only role assignment — not an evidence trail or signed review record. Open Assurance status or the Cloud connections hub before treating setup guidance as assurance evidence.";
+
+export const CONNECT_AZURE_SECURELY_SOURCES_INTRO =
+  "Use these follow-ups when Azure setup needs the live hub, permissions detail, or assurance cites.";
+
+export type ConnectAzureSecurelySourceLink = {
+  readonly label: string;
+  readonly href: string;
+};
+
+/** Operator diligence index — no self-href to `/help/cloud-connections/azure`. */
+export const CONNECT_AZURE_SECURELY_SOURCES: readonly ConnectAzureSecurelySourceLink[] = [
+  { label: "Cloud connections hub", href: "/integrations/cloud-connections" },
+  { label: "Cloud connections help", href: inAppHelpHref("cloud-connections") },
+  { label: "Azure permissions guide", href: inAppHelpHref("azure-permissions") },
+  { label: "Assurance status", href: "/security-trust" },
+  { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
+] as const;
 
 export const CONNECT_AZURE_SECURELY_BACK_TO_CONNECTIONS = "Back to cloud connections";
 
@@ -76,8 +95,8 @@ export const CONNECT_AZURE_SECURELY_SETUP_STEPS = [
 
 export const CONNECT_AZURE_SECURELY_ROLES_HEADING = "Azure roles";
 
-export const CONNECT_AZURE_SECURELY_COST_OPTIONAL_NOTE =
-  "Without Cost Management Reader, ArchLucid can still collect supported architecture metadata, but cost evidence and cost-related analysis will be unavailable.";
+export const CONNECT_AZURE_SECURELY_PERMISSIONS_AUTHORITY_NOTE =
+  "The Azure permissions guide is the authoritative reference for role assignments, scope limits, collected data categories, and troubleshooting.";
 
 export const CONNECT_AZURE_SECURELY_FORBIDDEN_ROLES_HEADING = "Do not assign broad write-enabled roles";
 
@@ -85,8 +104,6 @@ export const CONNECT_AZURE_SECURELY_FORBIDDEN_ROLES_STATUS_LABEL = "Restricted r
 
 export const CONNECT_AZURE_SECURELY_FORBIDDEN_ROLES_BODY =
   "ArchLucid does not require Owner, Contributor, User Access Administrator, or tenant-wide directory roles for an Azure cloud connection.";
-
-export const CONNECT_AZURE_SECURELY_RETAINED_HEADING = "Information retained by ArchLucid";
 
 export const CONNECT_AZURE_SECURELY_RETAINED_ITEMS = [
   "Azure tenant ID",
@@ -96,15 +113,11 @@ export const CONNECT_AZURE_SECURELY_RETAINED_ITEMS = [
   "Last validation time",
 ] as const;
 
-export const CONNECT_AZURE_SECURELY_CREDENTIALS_HEADING = "Credentials ArchLucid does not retain";
-
 export const CONNECT_AZURE_SECURELY_CREDENTIALS_ITEMS = [
   "Client secrets",
   "Azure access tokens beyond their required runtime lifecycle",
   "Private keys",
 ] as const;
-
-export const CONNECT_AZURE_SECURELY_PERMISSIONS_HEADING = "Permissions ArchLucid does not require";
 
 export const CONNECT_AZURE_SECURELY_PERMISSIONS_ITEMS = [
   "Owner",
@@ -113,19 +126,45 @@ export const CONNECT_AZURE_SECURELY_PERMISSIONS_ITEMS = [
   "Tenant-wide Global Reader or other broad directory roles",
 ] as const;
 
-export const CONNECT_AZURE_SECURELY_DATA_NOT_COLLECTED_HEADING = "Customer data not collected";
-
 export const CONNECT_AZURE_SECURELY_VERIFICATION_HEADING = "What verification confirms";
 
-export const CONNECT_AZURE_SECURELY_VERIFICATION_CHECKS_LABEL = "Confirmed by hosted verification";
+export const CONNECT_AZURE_SECURELY_VERIFICATION_CHECKS_LABEL = "Confirmed by connection verification";
 
-export const CONNECT_AZURE_SECURELY_VERIFICATION_DOES_NOT_VERIFY_LABEL = "Not confirmed by hosted verification";
+export const CONNECT_AZURE_SECURELY_VERIFICATION_DOES_NOT_VERIFY_LABEL = "Not confirmed by connection verification";
 
-export const CONNECT_AZURE_SECURELY_VERIFY_STEP_TEXT = "Return to ArchLucid and verify the connection";
+export const CONNECT_AZURE_SECURELY_VERIFICATION_CHECKS: readonly string[] = [
+  "Workload identity federation",
+  "Reader access to list subscription resources",
+  "Inventory import into the workspace",
+];
+
+export const CONNECT_AZURE_SECURELY_VERIFICATION_DOES_NOT_VERIFY: readonly string[] = [
+  "Cost Management Reader assignment",
+  "Policy compliance read permissions",
+];
+
+export const CONNECT_AZURE_SECURELY_VERIFY_STEP_TEXT = "verify the connection";
 
 export const CONNECT_AZURE_SECURELY_CONFIGURE_HREF = "/integrations/cloud-connections/azure";
 
 export const CONNECT_AZURE_SECURELY_PERMISSIONS_GUIDE_HREF = "/help/azure-permissions";
 
-export const CONNECT_AZURE_SECURELY_VERIFY_HREF =
-  "/help/azure-permissions#azure-permissions-verify-heading";
+export const CONNECT_AZURE_SECURELY_CONNECTION_STATUS_HREF = "/administration/connection-status";
+
+export const CONNECT_AZURE_SECURELY_CONNECTION_STATUS_LINK_LABEL = "Connection status";
+
+export const CONNECT_AZURE_SECURELY_VERIFY_SECTION_ID = "validate-connection";
+
+export function buildConnectAzureSecurelyVerifyHref(returnHref?: string): string {
+  const trimmed = returnHref?.trim() ?? "";
+  const basePath = (trimmed.split("#")[0] ?? "").split("?")[0] ?? "";
+
+  if (
+    basePath === CONNECT_AZURE_SECURELY_CONFIGURE_HREF ||
+    basePath.startsWith(`${CONNECT_AZURE_SECURELY_CONFIGURE_HREF}/`)
+  ) {
+    return `${basePath}#${CONNECT_AZURE_SECURELY_VERIFY_SECTION_ID}`;
+  }
+
+  return `${CONNECT_AZURE_SECURELY_CONFIGURE_HREF}#${CONNECT_AZURE_SECURELY_VERIFY_SECTION_ID}`;
+}

@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import { AlertTriangle } from "lucide-react";
 
+import { AzureCloudConnectionRolesTable } from "@/components/help/AzureCloudConnectionRolesTable";
+import { ConnectAzureSecurelyHelpEvidenceOrientationStrip } from "@/components/help/ConnectAzureSecurelyHelpEvidenceOrientationStrip";
 import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
@@ -10,33 +12,21 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
-  AZURE_CLOUD_CONNECTION_CANNOT_DO,
-  AZURE_CLOUD_CONNECTION_DATA_NOT_COLLECTED,
-  AZURE_CLOUD_CONNECTION_PERMISSIONS_CONTRACT_VERSION,
-  AZURE_CLOUD_CONNECTION_ROLE_ROWS,
-  AZURE_CLOUD_CONNECTION_VERIFICATION_BEHAVIOR,
-  formatAzurePermissionRequirementLabel,
+  AZURE_CLOUD_CONNECTION_SCOPE_GUIDANCE,
+  AZURE_CLOUD_CONNECTION_TROUBLESHOOTING_ITEMS,
 } from "@/lib/azure-cloud-connection-permissions-manifest";
-import {
-  AZURE_PERMISSIONS_CANNOT_DO_HEADING,
-  AZURE_PERMISSIONS_CANNOT_DO_INTRO,
-  AZURE_PERMISSIONS_REVISION_NOTE,
-} from "@/lib/azure-cloud-connection-permissions-copy";
+import { AZURE_PERMISSIONS_SCOPE_HEADING, AZURE_PERMISSIONS_TROUBLESHOOT_HEADING } from "@/lib/azure-cloud-connection-permissions-copy";
 import {
   CONNECT_AZURE_SECURELY_BACK_TO_CONNECTIONS,
-  CONNECT_AZURE_SECURELY_CLAIM_DISCIPLINE,
   CONNECT_AZURE_SECURELY_CONFIGURE_ACTION,
   CONNECT_AZURE_SECURELY_CONFIGURE_HREF,
-  CONNECT_AZURE_SECURELY_CONNECTION_VALUE,
-  CONNECT_AZURE_SECURELY_COST_OPTIONAL_NOTE,
-  CONNECT_AZURE_SECURELY_CREDENTIALS_ITEMS,
-  CONNECT_AZURE_SECURELY_DATA_NOT_COLLECTED_HEADING,
   CONNECT_AZURE_SECURELY_DETAILED_SETUP_LINK,
   CONNECT_AZURE_SECURELY_FORBIDDEN_ROLES_BODY,
   CONNECT_AZURE_SECURELY_FORBIDDEN_ROLES_HEADING,
   CONNECT_AZURE_SECURELY_FORBIDDEN_ROLES_STATUS_LABEL,
-  CONNECT_AZURE_SECURELY_PAGE_INTRO,
+  CONNECT_AZURE_SECURELY_PAGE_LEAD,
   CONNECT_AZURE_SECURELY_PAGE_TITLE,
+  CONNECT_AZURE_SECURELY_PERMISSIONS_AUTHORITY_NOTE,
   CONNECT_AZURE_SECURELY_PERMISSIONS_GUIDE_HREF,
   CONNECT_AZURE_SECURELY_PERMISSIONS_ITEMS,
   CONNECT_AZURE_SECURELY_RETAINED_ITEMS,
@@ -46,11 +36,16 @@ import {
   CONNECT_AZURE_SECURELY_SETUP_HEADING,
   CONNECT_AZURE_SECURELY_SETUP_STEPS,
   CONNECT_AZURE_SECURELY_STEP_AZURE_CONNECTION_SETTINGS_LINK,
+  CONNECT_AZURE_SECURELY_VERIFICATION_CHECKS,
   CONNECT_AZURE_SECURELY_VERIFICATION_CHECKS_LABEL,
+  CONNECT_AZURE_SECURELY_VERIFICATION_DOES_NOT_VERIFY,
   CONNECT_AZURE_SECURELY_VERIFICATION_DOES_NOT_VERIFY_LABEL,
   CONNECT_AZURE_SECURELY_VERIFICATION_HEADING,
-  CONNECT_AZURE_SECURELY_VERIFY_HREF,
-  CONNECT_AZURE_SECURELY_VERIFY_STEP_TEXT,
+  CONNECT_AZURE_SECURELY_WITHOUT_CONNECTION_NOTE,
+  CONNECT_AZURE_SECURELY_CONNECTION_STATUS_HREF,
+  CONNECT_AZURE_SECURELY_CONNECTION_STATUS_LINK_LABEL,
+  CONNECT_AZURE_SECURELY_CREDENTIALS_ITEMS,
+  buildConnectAzureSecurelyVerifyHref,
 } from "@/lib/connect-azure-securely-help-content";
 import {
   DESIGN_TOKENS,
@@ -71,8 +66,7 @@ const CONNECT_AZURE_SECURELY_TOC_HEADINGS: readonly HelpMarkdownHeading[] = [
   { id: "information-retained", title: "Information retained", level: 2 },
   { id: "credentials-not-retained", title: "Credentials not retained", level: 2 },
   { id: "permissions-not-required", title: "Permissions not required", level: 2 },
-  { id: "data-not-collected", title: CONNECT_AZURE_SECURELY_DATA_NOT_COLLECTED_HEADING, level: 2 },
-  { id: "cannot-do", title: AZURE_PERMISSIONS_CANNOT_DO_HEADING, level: 2 },
+  { id: "troubleshoot", title: AZURE_PERMISSIONS_TROUBLESHOOT_HEADING, level: 2 },
 ];
 
 type HelpConnectAzureSecurelyGuideViewProps = {
@@ -91,53 +85,6 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
   );
 }
 
-function AzureRolesTable(): React.ReactElement {
-  return (
-    <div className={HELP_PAGE_LAYOUT.tableWrap} data-testid="connect-azure-securely-roles-table">
-      <table className={HELP_PAGE_LAYOUT.table}>
-        <caption className="sr-only">Azure roles for cloud connections</caption>
-        <thead>
-          <tr>
-            <th scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
-              Azure role
-            </th>
-            <th scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
-              Requirement
-            </th>
-            <th scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
-              Purpose
-            </th>
-            <th scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
-              Recommended scope
-            </th>
-            <th scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
-              Write access
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {AZURE_CLOUD_CONNECTION_ROLE_ROWS.map((row, index) => (
-            <tr
-              key={row.azureRole}
-              className={index % 2 === 0 ? HELP_PAGE_LAYOUT.tableRowOdd : HELP_PAGE_LAYOUT.tableRowEven}
-            >
-              <th scope="row" className={HELP_PAGE_LAYOUT.tableBodyCell}>
-                {row.azureRole}
-              </th>
-              <td className={HELP_PAGE_LAYOUT.tableBodyCell}>
-                <span className="font-semibold">{formatAzurePermissionRequirementLabel(row.requirement)}</span>
-              </td>
-              <td className={HELP_PAGE_LAYOUT.tableBodyCell}>{row.purpose}</td>
-              <td className={HELP_PAGE_LAYOUT.tableBodyCell}>{row.recommendedScope}</td>
-              <td className={HELP_PAGE_LAYOUT.tableBodyCell}>No</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
 function ClassificationList(props: { readonly items: readonly string[] }): React.ReactElement {
   return (
     <ul className={cn("m-0 list-disc space-y-1.5 pl-5", OPERATOR_TYPOGRAPHY.body)}>
@@ -152,6 +99,7 @@ function ClassificationList(props: { readonly items: readonly string[] }): React
 export function HelpConnectAzureSecurelyGuideView(props: HelpConnectAzureSecurelyGuideViewProps): React.ReactElement {
   const { entry } = props;
   const returnHref = props.returnHref ?? "/integrations/cloud-connections";
+  const verifyHref = buildConnectAzureSecurelyVerifyHref(returnHref);
 
   return (
     <article
@@ -159,39 +107,39 @@ export function HelpConnectAzureSecurelyGuideView(props: HelpConnectAzureSecurel
       data-testid="help-connect-azure-securely-guide"
     >
       <HelpTopicHashScroll />
+      <header className={cn(HELP_PAGE_LAYOUT.articleHeader, "space-y-3 pb-4")}>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0 space-y-3">
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+              <Link href={returnHref} className="text-teal-700 underline dark:text-teal-400">
+                ← {CONNECT_AZURE_SECURELY_BACK_TO_CONNECTIONS}
+              </Link>
+              <span aria-hidden="true"> · </span>
+              <a href="#troubleshoot" className="text-teal-700 underline dark:text-teal-400">
+                Fix a failed permission check
+              </a>
+            </p>
+            <HelpTopicTitleRow title={CONNECT_AZURE_SECURELY_PAGE_TITLE} />
+            <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+              {CONNECT_AZURE_SECURELY_PAGE_LEAD}
+            </p>
+            <HelpTopicRegistryProvenanceLine entry={entry} />
+          </div>
+          <div className="flex min-w-0 flex-col items-start gap-2">
+            <Button asChild size="sm" variant="primary" data-testid="connect-azure-configure-action">
+              <Link href={CONNECT_AZURE_SECURELY_CONFIGURE_HREF}>{CONNECT_AZURE_SECURELY_CONFIGURE_ACTION}</Link>
+            </Button>
+            <p className={cn("m-0 max-w-xs text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
+              {CONNECT_AZURE_SECURELY_WITHOUT_CONNECTION_NOTE}
+            </p>
+          </div>
+        </div>
+      </header>
+
+      <ConnectAzureSecurelyHelpEvidenceOrientationStrip />
+
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className="min-w-0 space-y-8" data-testid="help-connect-azure-securely-primary">
-          <header className={cn(HELP_PAGE_LAYOUT.articleHeader, "space-y-3 pb-4")}>
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div className="min-w-0 space-y-3">
-                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-                  <Link href={returnHref} className="text-teal-700 underline dark:text-teal-400">
-                    ← {CONNECT_AZURE_SECURELY_BACK_TO_CONNECTIONS}
-                  </Link>
-                </p>
-                <HelpTopicTitleRow title={CONNECT_AZURE_SECURELY_PAGE_TITLE} />
-                <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                  {CONNECT_AZURE_SECURELY_PAGE_INTRO}
-                </p>
-                <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                  {CONNECT_AZURE_SECURELY_CONNECTION_VALUE}
-                </p>
-                <p
-                  className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-                  data-testid="connect-azure-securely-claim-discipline"
-                >
-                  {CONNECT_AZURE_SECURELY_CLAIM_DISCIPLINE}
-                </p>
-                <HelpTopicRegistryProvenanceLine entry={entry} />
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <Button asChild size="sm" variant="primary" data-testid="connect-azure-configure-action">
-                  <Link href={CONNECT_AZURE_SECURELY_CONFIGURE_HREF}>{CONNECT_AZURE_SECURELY_CONFIGURE_ACTION}</Link>
-                </Button>
-              </div>
-            </div>
-          </header>
-
           <section aria-labelledby="security-model" className="space-y-3">
             <HelpSectionHeading id="security-model">{CONNECT_AZURE_SECURELY_SECURITY_HEADING}</HelpSectionHeading>
             <Card className={DESIGN_TOKENS.surface.card} data-testid="connect-azure-securely-security-panel">
@@ -232,9 +180,21 @@ export function HelpConnectAzureSecurelyGuideView(props: HelpConnectAzureSecurel
                         and begin an Azure connection.
                       </>
                     ) : step.id === "verify" ? (
-                      <Link href={CONNECT_AZURE_SECURELY_VERIFY_HREF} className={OPERATOR_LINK.nav}>
-                        {CONNECT_AZURE_SECURELY_VERIFY_STEP_TEXT}
-                      </Link>
+                      <>
+                        Return to ArchLucid and{" "}
+                        <Link href={verifyHref} className={OPERATOR_LINK.nav}>
+                          verify the connection
+                        </Link>
+                        . See{" "}
+                        <a href="#connect-azure-securely-verification-callout" className={OPERATOR_LINK.nav}>
+                          {CONNECT_AZURE_SECURELY_VERIFICATION_HEADING}
+                        </a>{" "}
+                        below. Review{" "}
+                        <Link href={CONNECT_AZURE_SECURELY_CONNECTION_STATUS_HREF} className={OPERATOR_LINK.nav}>
+                          {CONNECT_AZURE_SECURELY_CONNECTION_STATUS_LINK_LABEL}
+                        </Link>{" "}
+                        for workspace-wide integration health.
+                      </>
                     ) : (
                       step.text
                     )}
@@ -250,7 +210,8 @@ export function HelpConnectAzureSecurelyGuideView(props: HelpConnectAzureSecurel
               </Link>
             </div>
             <div
-              className={cn(DESIGN_TOKENS.callout.info, "space-y-3")}
+              id="connect-azure-securely-verification-callout"
+              className={cn(DESIGN_TOKENS.callout.info, "space-y-3 scroll-mt-24")}
               data-testid="connect-azure-securely-verification-callout"
             >
               <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{CONNECT_AZURE_SECURELY_VERIFICATION_HEADING}</h3>
@@ -259,7 +220,7 @@ export function HelpConnectAzureSecurelyGuideView(props: HelpConnectAzureSecurel
                   {CONNECT_AZURE_SECURELY_VERIFICATION_CHECKS_LABEL}
                 </p>
                 <ul className={cn("m-0 list-disc space-y-1 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                  {AZURE_CLOUD_CONNECTION_VERIFICATION_BEHAVIOR.checks.map((item) => (
+                  {CONNECT_AZURE_SECURELY_VERIFICATION_CHECKS.map((item) => (
                     <li key={item}>{item}</li>
                   ))}
                 </ul>
@@ -269,7 +230,7 @@ export function HelpConnectAzureSecurelyGuideView(props: HelpConnectAzureSecurel
                   {CONNECT_AZURE_SECURELY_VERIFICATION_DOES_NOT_VERIFY_LABEL}
                 </p>
                 <ul className={cn("m-0 list-disc space-y-1 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                  {AZURE_CLOUD_CONNECTION_VERIFICATION_BEHAVIOR.doesNotVerify.map((item) => (
+                  {CONNECT_AZURE_SECURELY_VERIFICATION_DOES_NOT_VERIFY.map((item) => (
                     <li key={item}>{item}</li>
                   ))}
                 </ul>
@@ -280,15 +241,29 @@ export function HelpConnectAzureSecurelyGuideView(props: HelpConnectAzureSecurel
           <section
             aria-labelledby="azure-roles"
             className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+            data-testid="connect-azure-securely-roles-section"
           >
             <HelpSectionHeading id="azure-roles">{CONNECT_AZURE_SECURELY_ROLES_HEADING}</HelpSectionHeading>
-            <AzureRolesTable />
             <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              {AZURE_PERMISSIONS_REVISION_NOTE(AZURE_CLOUD_CONNECTION_PERMISSIONS_CONTRACT_VERSION)}
+              {CONNECT_AZURE_SECURELY_PERMISSIONS_AUTHORITY_NOTE}{" "}
+              <Link href={CONNECT_AZURE_SECURELY_PERMISSIONS_GUIDE_HREF} className={OPERATOR_LINK.nav}>
+                Azure permissions guide
+              </Link>
+              .
             </p>
-            <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              {CONNECT_AZURE_SECURELY_COST_OPTIONAL_NOTE}
-            </p>
+            <AzureCloudConnectionRolesTable expandedDetails={false} testId="connect-azure-securely-roles-table" />
+            <div className="space-y-3" data-testid="connect-azure-securely-scope-guidance">
+              <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{AZURE_PERMISSIONS_SCOPE_HEADING}</h3>
+              <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                {AZURE_CLOUD_CONNECTION_SCOPE_GUIDANCE.recommendedTier2}
+              </p>
+              <ul className={HELP_PAGE_LAYOUT.bulletList}>
+                <li>{AZURE_CLOUD_CONNECTION_SCOPE_GUIDANCE.multipleSubscriptions}</li>
+                <li>{AZURE_CLOUD_CONNECTION_SCOPE_GUIDANCE.resourceGroupLimitation}</li>
+                <li>{AZURE_CLOUD_CONNECTION_SCOPE_GUIDANCE.managementGroupLimitation}</li>
+                <li>{AZURE_CLOUD_CONNECTION_SCOPE_GUIDANCE.billingScope}</li>
+              </ul>
+            </div>
             <aside
               className={cn(DESIGN_TOKENS.callout.warn, "flex gap-3")}
               data-testid="connect-azure-securely-forbidden-roles-callout"
@@ -334,17 +309,19 @@ export function HelpConnectAzureSecurelyGuideView(props: HelpConnectAzureSecurel
               <HelpSectionHeading id="permissions-not-required">Permissions not required</HelpSectionHeading>
               <ClassificationList items={CONNECT_AZURE_SECURELY_PERMISSIONS_ITEMS} />
             </div>
-            <div className="mt-6 space-y-3">
-              <HelpSectionHeading id="data-not-collected">{CONNECT_AZURE_SECURELY_DATA_NOT_COLLECTED_HEADING}</HelpSectionHeading>
-              <ClassificationList items={AZURE_CLOUD_CONNECTION_DATA_NOT_COLLECTED} />
-            </div>
-            <div className="mt-6 space-y-3" data-testid="connect-azure-securely-cannot-do-section">
-              <HelpSectionHeading id="cannot-do">{AZURE_PERMISSIONS_CANNOT_DO_HEADING}</HelpSectionHeading>
-              <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                {AZURE_PERMISSIONS_CANNOT_DO_INTRO}
-              </p>
-              <ClassificationList items={AZURE_CLOUD_CONNECTION_CANNOT_DO} />
-            </div>
+          </section>
+
+          <section
+            aria-labelledby="troubleshoot"
+            className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+            data-testid="connect-azure-securely-troubleshoot-section"
+          >
+            <HelpSectionHeading id="troubleshoot">{AZURE_PERMISSIONS_TROUBLESHOOT_HEADING}</HelpSectionHeading>
+            <ul className={HELP_PAGE_LAYOUT.bulletList} data-testid="connect-azure-securely-troubleshoot-list">
+              {AZURE_CLOUD_CONNECTION_TROUBLESHOOTING_ITEMS.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
           </section>
 
           <div className="border-t border-neutral-200 pt-6 dark:border-neutral-800">

@@ -9,30 +9,40 @@ import { HelpConnectAzureSecurelyGuideView } from "@/app/(operator)/help/_sectio
 import {
   AZURE_CLOUD_CONNECTION_CANNOT_DO,
   AZURE_CLOUD_CONNECTION_DATA_NOT_COLLECTED,
-  AZURE_CLOUD_CONNECTION_PERMISSIONS_CONTRACT_VERSION,
-  AZURE_CLOUD_CONNECTION_VERIFICATION_BEHAVIOR,
+  AZURE_CLOUD_CONNECTION_TROUBLESHOOTING_ITEMS,
   formatAzurePermissionRequirementLabel,
 } from "@/lib/azure-cloud-connection-permissions-manifest";
-import { AZURE_PERMISSIONS_REVISION_NOTE } from "@/lib/azure-cloud-connection-permissions-copy";
+import { AZURE_PERMISSIONS_TROUBLESHOOT_HEADING } from "@/lib/azure-cloud-connection-permissions-copy";
 import {
   CONNECT_AZURE_SECURELY_CLAIM_DISCIPLINE,
-  CONNECT_AZURE_SECURELY_CONNECTION_VALUE,
-  CONNECT_AZURE_SECURELY_COST_OPTIONAL_NOTE,
-  CONNECT_AZURE_SECURELY_DATA_NOT_COLLECTED_HEADING,
+  CONNECT_AZURE_SECURELY_CONNECTION_STATUS_HREF,
+  CONNECT_AZURE_SECURELY_CONNECTION_STATUS_LINK_LABEL,
   CONNECT_AZURE_SECURELY_DETAILED_SETUP_LINK,
   CONNECT_AZURE_SECURELY_FORBIDDEN_ROLES_BODY,
   CONNECT_AZURE_SECURELY_FORBIDDEN_ROLES_HEADING,
-  CONNECT_AZURE_SECURELY_PAGE_INTRO,
+  CONNECT_AZURE_SECURELY_PAGE_LEAD,
   CONNECT_AZURE_SECURELY_PAGE_TITLE,
+  CONNECT_AZURE_SECURELY_PERMISSIONS_AUTHORITY_NOTE,
   CONNECT_AZURE_SECURELY_SECURITY_HEADING,
+  CONNECT_AZURE_SECURELY_SOURCES,
   CONNECT_AZURE_SECURELY_STEP_AZURE_CONNECTION_SETTINGS_LINK,
+  CONNECT_AZURE_SECURELY_VERIFICATION_CHECKS,
+  CONNECT_AZURE_SECURELY_VERIFICATION_DOES_NOT_VERIFY,
   CONNECT_AZURE_SECURELY_VERIFICATION_HEADING,
-  CONNECT_AZURE_SECURELY_VERIFY_HREF,
-  CONNECT_AZURE_SECURELY_VERIFY_STEP_TEXT,
+  buildConnectAzureSecurelyVerifyHref,
 } from "@/lib/connect-azure-securely-help-content";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
-const BANNED_COPY = ["Evidence tier", "hosted pull", "published managed identity", "validation pull"] as const;
+const BANNED_COPY = [
+  "Evidence tier",
+  "hosted pull",
+  "published managed identity",
+  "validation pull",
+  "POST",
+  "hosted collector",
+  "hosted path",
+  "cost APIs",
+] as const;
 
 describe("HelpConnectAzureSecurelyGuideView", () => {
   const entry = getProductDocumentationEntry("cloud-connections-azure");
@@ -53,9 +63,8 @@ describe("HelpConnectAzureSecurelyGuideView", () => {
 
     expect(screen.getAllByRole("heading", { level: 1, name: CONNECT_AZURE_SECURELY_PAGE_TITLE })).toHaveLength(1);
     expect(screen.queryByRole("heading", { level: 2, name: CONNECT_AZURE_SECURELY_PAGE_TITLE })).toBeNull();
-    expect(screen.getByText(CONNECT_AZURE_SECURELY_PAGE_INTRO)).toBeInTheDocument();
-    expect(screen.getByText(CONNECT_AZURE_SECURELY_CONNECTION_VALUE)).toBeInTheDocument();
-    expect(screen.getByTestId("connect-azure-securely-claim-discipline")).toHaveTextContent(
+    expect(screen.getByText(CONNECT_AZURE_SECURELY_PAGE_LEAD)).toBeInTheDocument();
+    expect(screen.getByTestId("connect-azure-securely-help-claim-discipline")).toHaveTextContent(
       CONNECT_AZURE_SECURELY_CLAIM_DISCIPLINE,
     );
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-09");
@@ -69,7 +78,7 @@ describe("HelpConnectAzureSecurelyGuideView", () => {
     expect(within(toc).queryByRole("link", { name: CONNECT_AZURE_SECURELY_PAGE_TITLE })).toBeNull();
   });
 
-  it("shows role requirements, contract revision note, scope, and separated data classifications", () => {
+  it("shows summary roles, authority pointer, scope guidance, and classification sections", () => {
     if (entry === undefined) {
       throw new Error("Expected cloud-connections-azure documentation entry.");
     }
@@ -79,59 +88,75 @@ describe("HelpConnectAzureSecurelyGuideView", () => {
     const rolesTable = screen.getByTestId("connect-azure-securely-roles-table");
     expect(within(rolesTable).getByText(formatAzurePermissionRequirementLabel("required"))).toBeInTheDocument();
     expect(within(rolesTable).getByText(formatAzurePermissionRequirementLabel("conditional"))).toBeInTheDocument();
-    expect(
-      screen.getByText(AZURE_PERMISSIONS_REVISION_NOTE(AZURE_CLOUD_CONNECTION_PERMISSIONS_CONTRACT_VERSION)),
-    ).toBeInTheDocument();
-    expect(screen.getByText(CONNECT_AZURE_SECURELY_COST_OPTIONAL_NOTE)).toBeInTheDocument();
+    expect(within(rolesTable).queryByText(/Capabilities enabled/i)).toBeNull();
+    expect(screen.getByText(new RegExp(CONNECT_AZURE_SECURELY_PERMISSIONS_AUTHORITY_NOTE))).toBeInTheDocument();
+    expect(screen.getByTestId("connect-azure-securely-scope-guidance")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 3, name: CONNECT_AZURE_SECURELY_FORBIDDEN_ROLES_HEADING })).toBeInTheDocument();
     expect(screen.getByText(CONNECT_AZURE_SECURELY_FORBIDDEN_ROLES_BODY)).toBeInTheDocument();
 
     expect(screen.getByRole("heading", { level: 2, name: "Information retained" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: "Credentials not retained" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: "Permissions not required" })).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { level: 2, name: CONNECT_AZURE_SECURELY_DATA_NOT_COLLECTED_HEADING }),
-    ).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 2, name: "Actions these permissions do not allow" })).toBeInTheDocument();
-    expect(screen.queryByText(/Owner or Contributor privileges/i)).toBeNull();
+    expect(screen.queryByRole("heading", { level: 2, name: "Customer data not collected" })).toBeNull();
+    expect(screen.queryByRole("heading", { level: 2, name: "Actions these permissions do not allow" })).toBeNull();
 
     for (const item of AZURE_CLOUD_CONNECTION_DATA_NOT_COLLECTED) {
-      expect(screen.getByText(item)).toBeInTheDocument();
+      expect(screen.queryByText(item)).toBeNull();
     }
 
     for (const item of AZURE_CLOUD_CONNECTION_CANNOT_DO) {
-      expect(screen.getByText(item)).toBeInTheDocument();
+      expect(screen.queryByText(item)).toBeNull();
     }
   });
 
-  it("discloses hosted verification scope and links step five to the verification panel", () => {
+  it("discloses customer-facing verification scope and routes step five to the product validate panel", () => {
     if (entry === undefined) {
       throw new Error("Expected cloud-connections-azure documentation entry.");
     }
 
     render(<HelpConnectAzureSecurelyGuideView entry={entry} />);
 
-    expect(screen.getByText(CONNECT_AZURE_SECURELY_VERIFICATION_HEADING)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 3, name: CONNECT_AZURE_SECURELY_VERIFICATION_HEADING })).toBeInTheDocument();
 
-    for (const item of AZURE_CLOUD_CONNECTION_VERIFICATION_BEHAVIOR.checks) {
+    for (const item of CONNECT_AZURE_SECURELY_VERIFICATION_CHECKS) {
       expect(screen.getByText(item)).toBeInTheDocument();
     }
 
     const doesNotVerify = screen.getByTestId("connect-azure-securely-does-not-verify");
 
-    for (const item of AZURE_CLOUD_CONNECTION_VERIFICATION_BEHAVIOR.doesNotVerify) {
+    for (const item of CONNECT_AZURE_SECURELY_VERIFICATION_DOES_NOT_VERIFY) {
       expect(within(doesNotVerify).getByText(item)).toBeInTheDocument();
     }
 
     expect(within(doesNotVerify).getByText(/Cost Management Reader assignment/i)).toBeInTheDocument();
 
-    expect(screen.getByRole("link", { name: CONNECT_AZURE_SECURELY_VERIFY_STEP_TEXT })).toHaveAttribute(
+    // Hub returnHref must still land on the Azure detail validate panel (anchor is not on the hub).
+    const verifyHref = buildConnectAzureSecurelyVerifyHref("/integrations/cloud-connections");
+    expect(verifyHref).toBe("/integrations/cloud-connections/azure#validate-connection");
+    expect(screen.getAllByRole("link", { name: "verify the connection" })[0]).toHaveAttribute("href", verifyHref);
+    expect(screen.getByRole("link", { name: CONNECT_AZURE_SECURELY_CONNECTION_STATUS_LINK_LABEL })).toHaveAttribute(
       "href",
-      CONNECT_AZURE_SECURELY_VERIFY_HREF,
+      CONNECT_AZURE_SECURELY_CONNECTION_STATUS_HREF,
     );
+
+    for (const link of screen.getAllByRole("link", { name: /verify the connection/i })) {
+      expect(link.getAttribute("href")).not.toContain("/help/");
+    }
   });
 
-  it("provides workflow navigation actions without duplicate link labels", () => {
+  it("preserves returnTo on verify links and exposes troubleshooting from the header", () => {
+    if (entry === undefined) {
+      throw new Error("Expected cloud-connections-azure documentation entry.");
+    }
+
+    render(<HelpConnectAzureSecurelyGuideView entry={entry} returnHref="/integrations/cloud-connections/azure" />);
+
+    const verifyHref = buildConnectAzureSecurelyVerifyHref("/integrations/cloud-connections/azure");
+    expect(screen.getAllByRole("link", { name: "verify the connection" })[0]).toHaveAttribute("href", verifyHref);
+    expect(screen.getByRole("link", { name: /Fix a failed permission check/i })).toHaveAttribute("href", "#troubleshoot");
+  });
+
+  it("provides workflow navigation actions, diligence links, and troubleshooting in the TOC", () => {
     if (entry === undefined) {
       throw new Error("Expected cloud-connections-azure documentation entry.");
     }
@@ -153,30 +178,28 @@ describe("HelpConnectAzureSecurelyGuideView", () => {
     expect(screen.getByTestId("connect-azure-securely-detailed-setup-link")).toHaveTextContent(
       CONNECT_AZURE_SECURELY_DETAILED_SETUP_LINK,
     );
-    expect(screen.getByRole("link", { name: CONNECT_AZURE_SECURELY_STEP_AZURE_CONNECTION_SETTINGS_LINK })).toHaveAttribute(
+    expect(screen.getAllByRole("link", { name: CONNECT_AZURE_SECURELY_STEP_AZURE_CONNECTION_SETTINGS_LINK })[0]).toHaveAttribute(
       "href",
       "/integrations/cloud-connections/azure",
     );
     expect(screen.queryByRole("button", { name: /contextual help/i })).toBeNull();
     expect(screen.queryByText("Sources for follow-up")).toBeNull();
-  });
 
-  it("lists new disclosure sections in the on-page rail", () => {
-    if (entry === undefined) {
-      throw new Error("Expected cloud-connections-azure documentation entry.");
+    const sources = screen.getByTestId("connect-azure-securely-help-sources");
+
+    for (const source of CONNECT_AZURE_SECURELY_SOURCES) {
+      expect(within(sources).getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
     }
 
-    render(<HelpConnectAzureSecurelyGuideView entry={entry} />);
-
     const toc = screen.getByTestId("help-topic-toc");
-    expect(within(toc).getByRole("link", { name: CONNECT_AZURE_SECURELY_DATA_NOT_COLLECTED_HEADING })).toHaveAttribute(
+    expect(within(toc).getByRole("link", { name: AZURE_PERMISSIONS_TROUBLESHOOT_HEADING })).toHaveAttribute(
       "href",
-      "#data-not-collected",
+      "#troubleshoot",
     );
-    expect(within(toc).getByRole("link", { name: "Actions these permissions do not allow" })).toHaveAttribute(
-      "href",
-      "#cannot-do",
-    );
+
+    for (const item of AZURE_CLOUD_CONNECTION_TROUBLESHOOTING_ITEMS) {
+      expect(screen.getByText(item)).toBeInTheDocument();
+    }
   });
 
   it("avoids internal taxonomy and jargon in primary copy", () => {
@@ -192,5 +215,18 @@ describe("HelpConnectAzureSecurelyGuideView", () => {
     for (const banned of BANNED_COPY) {
       expect(text).not.toContain(banned.toLowerCase());
     }
+  });
+
+  it("mentions optional connection only once in the header lead", () => {
+    if (entry === undefined) {
+      throw new Error("Expected cloud-connections-azure documentation entry.");
+    }
+
+    render(<HelpConnectAzureSecurelyGuideView entry={entry} />);
+
+    const leadText = screen.getByText(CONNECT_AZURE_SECURELY_PAGE_LEAD).textContent?.toLowerCase() ?? "";
+    const optionalMatches = leadText.match(/optional/g) ?? [];
+
+    expect(optionalMatches).toHaveLength(1);
   });
 });
