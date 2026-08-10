@@ -43,7 +43,12 @@ export function AlertRuleNotificationReadinessPanel(
         {ALERT_RULES_NOTIFICATION_READINESS_HEADING}
       </h3>
       <h4 className={cn("mb-1 mt-0", OPERATOR_TYPOGRAPHY.body)}>{ALERT_RULES_SCOPE_HEADING}</h4>
-      <p className={cn("mb-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{scopeCopy}</p>
+      <p
+        className={cn("mb-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="alert-rule-scope-preview"
+      >
+        {scopeCopy}
+      </p>
       <ul className={cn("mb-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
         <li data-testid="alert-rule-readiness-in-app">
           {readiness.inAppAlertsEnabled

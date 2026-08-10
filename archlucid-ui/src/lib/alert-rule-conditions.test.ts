@@ -10,6 +10,7 @@ import {
   isAlertRuleFormValid,
   labelForAlertRuleType,
   resolveAlertRuleNotificationReadiness,
+  resolveAlertRuleScopePreviewProjectId,
   validateAlertRuleForm,
 } from "@/lib/alert-rule-conditions";
 import type { AlertRule } from "@/types/alerts";
@@ -106,6 +107,21 @@ describe("alert-rule-conditions", () => {
 
   it("describes workspace scope for default project", () => {
     expect(describeAlertRuleScope(sampleRule)).toContain("workspace");
+  });
+
+  it("omits invented default when persisted and session project ids are absent", () => {
+    expect(resolveAlertRuleScopePreviewProjectId(undefined, undefined)).toBe("");
+    expect(resolveAlertRuleScopePreviewProjectId("  ", null)).toBe("");
+    expect(describeAlertRuleScope({ projectId: "" })).toContain("workspace");
+  });
+
+  it("prefers persisted projectId over session for scope preview", () => {
+    expect(resolveAlertRuleScopePreviewProjectId("persisted-proj", "session-proj")).toBe("persisted-proj");
+  });
+
+  it("uses session projectId when the rules list has no persisted project", () => {
+    expect(resolveAlertRuleScopePreviewProjectId(undefined, "session-proj")).toBe("session-proj");
+    expect(describeAlertRuleScope({ projectId: "session-proj" })).toContain("project scope");
   });
 
   it("resolves notification readiness from routing subscriptions", () => {

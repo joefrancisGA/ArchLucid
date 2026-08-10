@@ -23,6 +23,7 @@ import {
   ALERT_RULE_TYPE_OPTIONS,
   describeThresholdComparison,
   isAlertRuleFormValid,
+  resolveAlertRuleScopePreviewProjectId,
   usesIntegerThreshold,
   validateAlertRuleForm,
   type AlertRuleFormInput,
@@ -58,6 +59,7 @@ import {
   alertRulesCreateButtonLabelReaderRank,
   enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
+import { readOperatorScopeFromStorage } from "@/lib/operator-scope-storage";
 import type { AlertRule } from "@/types/alerts";
 import type { AlertRoutingSubscription } from "@/types/alert-routing";
 
@@ -67,8 +69,6 @@ const DEFAULT_FORM: AlertRuleFormInput = {
   alertPriority: "Warning",
   thresholdValue: 3,
 };
-
-const SCOPE_PREVIEW_RULE: Pick<AlertRule, "projectId"> = { projectId: "default" };
 
 export function AlertRulesContent() {
   const canMutateAlertRules = useOperateCapability();
@@ -87,10 +87,11 @@ export function AlertRulesContent() {
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [simulateForRule, setSimulateForRule] = useState<AlertRule | null>(null);
 
-  // Server render has no storage; the stored workspace label is adopted after mount to avoid a hydration mismatch.
+  // Server render has no storage; the stored workspace label / project id are adopted after mount to avoid a hydration mismatch.
   const [workspaceScopeLabel, setWorkspaceScopeLabel] = useState<string>(() =>
     resolveWorkspaceScopeLabelFromRecord(null),
   );
+  const [sessionProjectId, setSessionProjectId] = useState<string | undefined>(undefined);
 
   const [name, setName] = useState(DEFAULT_FORM.name);
   const [ruleType, setRuleType] = useState(DEFAULT_FORM.ruleType);
@@ -139,6 +140,7 @@ export function AlertRulesContent() {
 
   useEffect(() => {
     setWorkspaceScopeLabel(readActiveWorkspaceScopeLabel());
+    setSessionProjectId(readOperatorScopeFromStorage()?.projectId);
   }, []);
 
   useEffect(() => {
@@ -188,8 +190,10 @@ export function AlertRulesContent() {
   }
 
   const scopePreviewRule: Pick<AlertRule, "projectId"> = useMemo(
-    () => ({ projectId: items[0]?.projectId ?? SCOPE_PREVIEW_RULE.projectId }),
-    [items],
+    () => ({
+      projectId: resolveAlertRuleScopePreviewProjectId(items[0]?.projectId, sessionProjectId),
+    }),
+    [items, sessionProjectId],
   );
 
   const draftReadinessRule = useMemo(() => ({ isEnabled: true }), []);

@@ -11,6 +11,10 @@ import {
   ALERT_RULES_PREVIEW_DRAFT_STATUS_LABEL,
 } from "@/lib/alert-rule-conditions-copy";
 import { alertRulesCreateButtonLabelReaderRank } from "@/lib/enterprise-controls-context-copy";
+import {
+  clearOperatorScopeStorage,
+  writeOperatorScopeToStorage,
+} from "@/lib/operator-scope-storage";
 
 const mutateCapability = vi.hoisted(() => ({ current: true }));
 
@@ -57,6 +61,7 @@ const sampleRule = {
 describe("AlertRulesContent", () => {
   beforeEach(() => {
     mutateCapability.current = true;
+    clearOperatorScopeStorage();
     apiHoisted.listAlertRules.mockReset();
     apiHoisted.listAlertRoutingSubscriptions.mockReset();
     apiHoisted.createAlertRule.mockReset();
@@ -175,5 +180,32 @@ describe("AlertRulesContent", () => {
     });
 
     expect(screen.getByText(/raises a High alert when critical and high-severity finding count reaches at least 2/i)).toBeInTheDocument();
+  });
+
+  it("omits silent projectId=default when the rules list is empty and session has no project", async () => {
+    render(<AlertRulesContent />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("alert-rule-scope-preview")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("alert-rule-scope-preview")).toHaveTextContent(/current workspace/i);
+    expect(screen.getByTestId("alert-rule-scope-preview").textContent?.toLowerCase()).not.toContain("default");
+  });
+
+  it("uses session project scope for empty-list preview instead of inventing default", async () => {
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-1",
+      workspaceId: "workspace-1",
+      projectId: "tenant-proj",
+      workspaceLabel: "Claims Intake Workspace",
+      projectLabel: "Tenant project",
+    });
+
+    render(<AlertRulesContent />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("alert-rule-scope-preview")).toHaveTextContent(/current project scope/i);
+    });
   });
 });

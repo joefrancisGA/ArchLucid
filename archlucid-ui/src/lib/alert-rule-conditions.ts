@@ -64,6 +64,29 @@ export function describeAlertRuleScope(rule: Pick<AlertRule, "projectId">): stri
   return "This rule applies to eligible reviews in the current workspace.";
 }
 
+/**
+ * Resolves Conditions scope-preview projectId without inventing `default` (TB-1587).
+ * Prefer a persisted rule's projectId; else the operator session selection; else omit (empty).
+ */
+export function resolveAlertRuleScopePreviewProjectId(
+  persistedProjectId: string | null | undefined,
+  sessionProjectId: string | null | undefined,
+): string {
+  const fromPersisted = persistedProjectId?.trim() ?? "";
+
+  if (fromPersisted.length > 0) {
+    return fromPersisted;
+  }
+
+  const fromSession = sessionProjectId?.trim() ?? "";
+
+  if (fromSession.length > 0) {
+    return fromSession;
+  }
+
+  return "";
+}
+
 export function describeThresholdComparison(ruleType: string): string {
   switch (ruleType) {
     case "AcceptanceRateDrop":
