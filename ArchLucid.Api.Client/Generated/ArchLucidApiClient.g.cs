@@ -136140,6 +136140,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("channelType")]
         public string? ChannelType { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("createdByActor")]
+        public string? CreatedByActor { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
         public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
@@ -136151,6 +136154,12 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("lastDeliveredUtc")]
         public System.DateTimeOffset? LastDeliveredUtc { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("lastModifiedByActor")]
+        public string? LastModifiedByActor { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("lastModifiedUtc")]
+        public System.DateTimeOffset? LastModifiedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("metadataJson")]
         public string? MetadataJson { get; set; } = default!;

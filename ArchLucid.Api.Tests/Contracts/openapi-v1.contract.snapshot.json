@@ -2856,6 +2856,12 @@
           "channelType": {
             "type": "string"
           },
+          "createdByActor": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "createdUtc": {
             "format": "date-time",
             "type": "string"
@@ -2867,6 +2873,19 @@
             "type": "boolean"
           },
           "lastDeliveredUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lastModifiedByActor": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lastModifiedUtc": {
             "format": "date-time",
             "type": [
               "null",

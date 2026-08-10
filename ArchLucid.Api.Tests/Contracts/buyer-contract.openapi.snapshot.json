@@ -2856,15 +2856,15 @@
           "channelType": {
             "type": "string"
           },
-          "createdUtc": {
-            "format": "date-time",
-            "type": "string"
-          },
           "createdByActor": {
             "type": [
               "null",
               "string"
             ]
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
           },
           "destination": {
             "type": "string"
