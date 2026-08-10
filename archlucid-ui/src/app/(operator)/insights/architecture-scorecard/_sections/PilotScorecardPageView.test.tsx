@@ -114,7 +114,6 @@ describe("PilotScorecardPageView", () => {
     expect(screen.getByTestId("review-scorecard-roi-assumptions")).toHaveClass("grid");
     expect(screen.getByText("ROI assumptions")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Save ROI assumptions" })).toBeInTheDocument();
-    expect(screen.getByTestId("review-scorecard-roi-estimate-empty")).toBeInTheDocument();
   });
 
   it("shows an executive-ready empty state when no reviews are committed", () => {

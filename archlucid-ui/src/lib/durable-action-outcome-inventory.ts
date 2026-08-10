@@ -159,7 +159,7 @@ export const DURABLE_ACTION_OUTCOME_GUARDED_SURFACES: readonly DurableActionOutc
       "components/usability/GovernanceFindingsBulkActions.tsx",
       "components/governance/findings/GovernanceFindingsList.tsx",
     ],
-    requiredDurableMarkers: ["OperatorSuccessCallout", "OperatorMutationInlineError"],
+    requiredDurableMarkers: ["ReversibleMutationSuccessCallout", "OperatorMutationInlineError"],
   },
   {
     id: "governance-workflow",

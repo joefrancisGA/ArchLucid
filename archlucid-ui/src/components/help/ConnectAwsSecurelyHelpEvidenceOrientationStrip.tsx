@@ -28,7 +28,7 @@ export function ConnectAwsSecurelyHelpEvidenceOrientationStrip(): React.JSX.Elem
           id="connect-aws-securely-help-sources-heading"
           className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
         >
-          Sources for follow-up
+          Related guides
         </h2>
         <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {CONNECT_AWS_SECURELY_SOURCES_INTRO}

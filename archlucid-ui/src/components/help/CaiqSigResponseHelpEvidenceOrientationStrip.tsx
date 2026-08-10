@@ -28,7 +28,7 @@ export function CaiqSigResponseHelpEvidenceOrientationStrip(): React.JSX.Element
           id="caiq-sig-response-help-sources-heading"
           className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
         >
-          Sources for follow-up
+          Related guides
         </h2>
         <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {CAIQ_SIG_RESPONSE_HELP_SOURCES_INTRO}
