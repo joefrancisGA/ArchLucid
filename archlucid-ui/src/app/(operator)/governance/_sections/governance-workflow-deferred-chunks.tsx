@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import type { GovernanceOverviewPanelProps } from "./GovernanceOverviewPanel";
+import type { GovernanceReviewContextBarProps } from "./GovernanceReviewContextBar";
 import type { GovernanceWorkflowSubmitSectionProps } from "./GovernanceWorkflowSubmitSection";
 
 function GovernanceWorkflowDeferredLoading(props: { readonly label: string }): React.JSX.Element {
@@ -29,6 +30,15 @@ export const GovernanceOverviewPanelDeferred: ComponentType<GovernanceOverviewPa
   {
     ssr: false,
     loading: () => <GovernanceWorkflowDeferredLoading label="Loading governance overview" />,
+  },
+);
+
+/** Review context bar — deferred so approval-queue header paints first (wave 14 First Load). */
+export const GovernanceReviewContextBarDeferred: ComponentType<GovernanceReviewContextBarProps> = dynamic(
+  () => import("./GovernanceReviewContextBar").then((module) => module.GovernanceReviewContextBar),
+  {
+    ssr: false,
+    loading: () => <GovernanceWorkflowDeferredLoading label="Loading review context" />,
   },
 );
 

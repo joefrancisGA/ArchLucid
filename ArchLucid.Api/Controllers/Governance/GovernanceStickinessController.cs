@@ -1,10 +1,13 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Controllers.Authority;
+using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.FindingDisposition;
+using ArchLucid.Application.Http;
 using ArchLucid.Application.Roi;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Audit;
@@ -64,17 +67,23 @@ public sealed class GovernanceStickinessController(
 
     [HttpGet("reviews-awaiting-action")]
     [ProducesResponseType(typeof(GovernanceReviewsAwaitingActionResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
     public async Task<IActionResult> GetReviewsAwaitingAction(CancellationToken cancellationToken = default)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         GovernanceReviewsAwaitingActionResponse response =
             await reviewsAwaitingActionQueryService.ListAsync(scope, cancellationToken);
 
-        return Ok(response);
+        string etag = ConditionalGetNegotiation.ComputeJsonResponseEtag(
+            response,
+            ContractJson.CamelCaseIgnoreNullCompact);
+
+        return this.OkWithConditionalEtag(response, etag);
     }
 
     [HttpGet("decisions-needed-summary")]
     [ProducesResponseType(typeof(GovernanceDecisionsNeededSummaryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
     public async Task<IActionResult> GetDecisionsNeededSummary(
         [FromQuery] Guid? projectId,
         CancellationToken cancellationToken = default)
@@ -85,7 +94,13 @@ public sealed class GovernanceStickinessController(
             projectId ?? scope.ProjectId,
             cancellationToken);
 
-        return Ok(response);
+        string fingerprint = $"decisions-needed|project={projectId ?? scope.ProjectId}";
+        string etag = ConditionalGetNegotiation.ComputeJsonResponseEtag(
+            response,
+            ContractJson.CamelCaseIgnoreNullCompact,
+            fingerprint);
+
+        return this.OkWithConditionalEtag(response, etag);
     }
 
     [HttpGet("decision-register")]

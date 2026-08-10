@@ -46,4 +46,16 @@ describe("buildSignedRecordsListRowsFromRuns", () => {
     );
     expect(isSignedRecordsListRowOpenable(rows[0]!)).toBe(true);
   });
+
+  it("maps manifestVersion from currentManifestVersion when present", () => {
+    const withVersion: RunSummary = {
+      ...finalizedRun,
+      goldenManifestId: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      currentManifestVersion: "2.1.0",
+    };
+
+    const rows = buildSignedRecordsListRowsFromRuns([withVersion]);
+
+    expect(rows[0]?.manifestVersion).toBe("2.1.0");
+  });
 });

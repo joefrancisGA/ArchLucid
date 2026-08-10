@@ -19,6 +19,7 @@ namespace ArchLucid.Host.Core.Hosted;
 /// </summary>
 public sealed class LlmTenantBudgetUtilizationMetricsHostedService(
     IServiceScopeFactory scopeFactory,
+    HostLeaderElectionCoordinator electionCoordinator,
     IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> budgetOptionsMonitor,
     ILogger<LlmTenantBudgetUtilizationMetricsHostedService> logger,
     TimeProvider timeProvider) : BackgroundService
@@ -29,6 +30,9 @@ public sealed class LlmTenantBudgetUtilizationMetricsHostedService(
 
     private readonly IServiceScopeFactory _scopeFactory =
         scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
+
+    private readonly HostLeaderElectionCoordinator _electionCoordinator =
+        electionCoordinator ?? throw new ArgumentNullException(nameof(electionCoordinator));
 
     private readonly IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> _budgetOptionsMonitor =
         budgetOptionsMonitor ?? throw new ArgumentNullException(nameof(budgetOptionsMonitor));
@@ -51,15 +55,23 @@ public sealed class LlmTenantBudgetUtilizationMetricsHostedService(
     public static LlmTenantBudgetRemainingGaugeState RemainingGaugeState { get; } = new();
 
     /// <inheritdoc />
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        return _electionCoordinator.RunLeaderWorkAsync(
+            HostElectionLeaseNames.LlmTenantBudgetUtilizationMetrics,
+            CollectLoopAsync,
+            stoppingToken);
+    }
+
+    private async Task CollectLoopAsync(CancellationToken leaderToken)
+    {
+        while (!leaderToken.IsCancellationRequested)
         {
             try
             {
-                await CollectOnceAsync(stoppingToken);
+                await CollectOnceAsync(leaderToken);
             }
-            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
             {
                 break;
             }
@@ -72,9 +84,9 @@ public sealed class LlmTenantBudgetUtilizationMetricsHostedService(
 
             try
             {
-                await Task.Delay(RepoSnapshotInterval, stoppingToken);
+                await Task.Delay(RepoSnapshotInterval, leaderToken);
             }
-            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
             {
                 break;
             }

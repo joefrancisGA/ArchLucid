@@ -10,6 +10,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Persistence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Infrastructure;
+using ArchLucid.Persistence.Serialization;
 using ArchLucid.Persistence.Sql;
 
 using Dapper;
@@ -349,7 +350,7 @@ public sealed class AgentResultRepository(
             AgentResult? result;
             try
             {
-                result = JsonSerializer.Deserialize<AgentResult>(json, ContractJson.Default);
+                result = JsonSerializer.Deserialize<AgentResult>(json, AgentResultJsonSerialization.DeserializeOptions);
             }
             catch (JsonException ex)
             {
@@ -536,7 +537,9 @@ public sealed class AgentResultRepository(
 
                 try
                 {
-                    enriched = JsonSerializer.Deserialize<AgentResult>(enrichment.EnrichedResultJson, ContractJson.Default);
+                    enriched = JsonSerializer.Deserialize<AgentResult>(
+                        enrichment.EnrichedResultJson,
+                        AgentResultJsonSerialization.DeserializeOptions);
                 }
                 catch (JsonException ex)
                 {
@@ -570,7 +573,7 @@ public sealed class AgentResultRepository(
             // Route through AgentResult so AgentResultClaimListJsonConverter accepts legacy claim shapes.
             AgentResult? shell = JsonSerializer.Deserialize<AgentResult>(
                 $"{{\"claims\":{claimsJson}}}",
-                ContractJson.Default);
+                AgentResultJsonSerialization.DeserializeOptions);
 
             return shell?.Claims ?? [];
         }
@@ -588,7 +591,7 @@ public sealed class AgentResultRepository(
 
         try
         {
-            return JsonSerializer.Deserialize<List<string>>(json, ContractJson.Default) ?? [];
+            return JsonSerializer.Deserialize<List<string>>(json, AgentResultJsonSerialization.DeserializeOptions) ?? [];
         }
         catch (JsonException ex)
         {
@@ -604,7 +607,7 @@ public sealed class AgentResultRepository(
 
         try
         {
-            return JsonSerializer.Deserialize<List<ArchitectureFinding>>(findingsJson, ContractJson.Default) ?? [];
+            return JsonSerializer.Deserialize<List<ArchitectureFinding>>(findingsJson, AgentResultJsonSerialization.DeserializeOptions) ?? [];
         }
         catch (JsonException ex)
         {

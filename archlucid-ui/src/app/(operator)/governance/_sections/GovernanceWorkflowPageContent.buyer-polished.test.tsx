@@ -65,6 +65,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 }));
 
 vi.mock("./governance-workflow-deferred-chunks", async () => {
+  const contextBar = await import("./GovernanceReviewContextBar");
   const overview = await import("./GovernanceOverviewPanel");
   const submit = await import("./GovernanceWorkflowSubmitSection");
   const approvals = await import("./GovernanceWorkflowApprovalsList");
@@ -79,6 +80,7 @@ vi.mock("./governance-workflow-deferred-chunks", async () => {
 
   return {
     GovernanceOverviewPanelDeferred: overview.GovernanceOverviewPanel,
+    GovernanceReviewContextBarDeferred: contextBar.GovernanceReviewContextBar,
     GovernanceWorkflowSubmitSectionDeferred: submit.GovernanceWorkflowSubmitSection,
     GovernanceWorkflowApprovalsListDeferred: approvals.GovernanceWorkflowApprovalsList,
     GovernanceWorkflowPromotionsActivationsSectionDeferred:

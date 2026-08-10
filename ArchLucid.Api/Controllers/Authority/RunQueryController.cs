@@ -738,7 +738,9 @@ public sealed class RunQueryController(
                 CompletedUtc = r.CompletedUtc,
                 CurrentManifestVersion = r.CurrentManifestVersion,
                 SystemName = r.SystemName,
-                PackageOrigin = r.PackageOrigin
+                PackageOrigin = r.PackageOrigin,
+                GoldenManifestId = r.GoldenManifestId,
+                HasGoldenManifest = r.GoldenManifestId.HasValue
             })
             .ToList();
 

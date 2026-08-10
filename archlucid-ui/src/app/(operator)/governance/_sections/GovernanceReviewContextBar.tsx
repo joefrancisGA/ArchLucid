@@ -21,7 +21,7 @@ import {
 } from "@/lib/governance-workflow-release-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-type GovernanceReviewContextBarProps = {
+export type GovernanceReviewContextBarProps = {
   readonly activeRunId: string;
   /** Resolved buyer-facing title; falls back to the run id when null/empty. */
   readonly reviewDisplayTitle?: string | null;

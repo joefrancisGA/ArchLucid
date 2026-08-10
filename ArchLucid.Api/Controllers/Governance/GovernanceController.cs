@@ -8,6 +8,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Http;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
@@ -22,6 +23,7 @@ using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Primitives;
 
@@ -448,6 +450,7 @@ public sealed class GovernanceController(
     ///     <c>PolicyPackContentDocument</c> JSON Schema for dynamic policy pack form builders.
     /// </summary>
     [HttpGet("schema-keys")]
+    [OutputCache(PolicyName = "ImmutableShort")]
     [ProducesResponseType(typeof(PolicyPackSchemaKeysResponse), StatusCodes.Status200OK)]
     public IActionResult GetPolicyPackSchemaKeys()
     {
@@ -459,6 +462,7 @@ public sealed class GovernanceController(
     ///     Returns the registered <c>PolicyPackContentDocument</c> JSON Schema for real-time policy pack editor validation.
     /// </summary>
     [HttpGet("policy-pack-content-schema")]
+    [OutputCache(PolicyName = "ImmutableShort")]
     [ProducesResponseType(typeof(PolicyPackContentDocumentJsonSchemaResponse), StatusCodes.Status200OK)]
     public IActionResult GetPolicyPackContentDocumentJsonSchema()
     {
@@ -470,6 +474,7 @@ public sealed class GovernanceController(
 
     [HttpGet("dashboard")]
     [ProducesResponseType(typeof(GovernanceDashboardSummary), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
     public async Task<IActionResult> GetDashboard(
         [FromQuery] int maxPending = 20,
         [FromQuery] int maxDecisions = 20,
@@ -485,7 +490,13 @@ public sealed class GovernanceController(
             maxChanges,
             cancellationToken);
 
-        return Ok(summary);
+        string fingerprint = $"dashboard|pending={maxPending}|decisions={maxDecisions}|changes={maxChanges}";
+        string etag = ConditionalGetNegotiation.ComputeJsonResponseEtag(
+            summary,
+            ContractJson.CamelCaseIgnoreNullCompact,
+            fingerprint);
+
+        return this.OkWithConditionalEtag(summary, etag);
     }
 
     [HttpGet("compliance-drift-trend")]

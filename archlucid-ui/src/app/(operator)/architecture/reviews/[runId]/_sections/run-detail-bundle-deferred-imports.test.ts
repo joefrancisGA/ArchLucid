@@ -91,6 +91,10 @@ const bannedStaticImports = [
   '@/components/RunSavingsSummary"',
   './RunDetailDecisionDeltaPanel"',
   './RunDetailRunExplanationCollapsible"',
+  './RunDetailCreateHomeEvidencePanel"',
+  './RunDetailActivitySourcesPanel"',
+  './resolve-review-package-primary-action"',
+  './resolve-review-package-do-this-next"',
   '@/components/golden-walkthrough/GoldenSponsorPackageWalkthroughDestination"',
 ] as const;
 
@@ -103,7 +107,11 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(pageViewSource).toContain("RunDetailWorkspaceHeaderDeferred");
     expect(pageViewSource).toContain("RunDetailWorkspaceSummaryStripDeferred");
     expect(pageViewSource).toContain("RunDetailWorkspaceBlockingBannerDeferred");
-    expect(pageViewSource).toContain("ReviewPackageDoThisNextStripDeferred");
+    expect(pageViewSource).toContain("RunDetailReviewPackageDoThisNextResolvedDeferred");
+    expect(pageViewSource).toContain("RunDetailReviewPackageSponsorHandoffGateDeferred");
+    expect(pageViewSource).toContain("RunDetailCreateHomeEvidencePanelDeferred");
+    expect(pageViewSource).toContain("RunDetailActivitySourcesPanelDeferred");
+    expect(pageViewSource).not.toContain("ReviewPackageDoThisNextStripDeferred");
     expect(pageViewSource).not.toContain("RunDetailWorkspaceStickyActionsDeferred");
     expect(pageViewSource).not.toContain("ReviewPackagePrimaryActionDeferred");
     expect(pageViewSource).toContain("RunDetailExecutiveBottomLineDeferred");
@@ -126,7 +134,7 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(pageViewSource).toContain("HelpPageSituationRegistrarDeferred");
     expect(pageViewSource).toContain("ReviewGenerationCreatedNoticeDeferred");
     expect(pageViewSource).toContain("RunDetailBelowFoldSectionsDeferred");
-    expect(pageViewSource).toContain("GoldenSponsorPackageWalkthroughDestinationDeferred");
+    expect(pageViewSource).not.toContain("GoldenSponsorPackageWalkthroughDestinationDeferred");
     expect(deferredChunksSource).toContain(
       'import("@/components/golden-walkthrough/GoldenSponsorPackageWalkthroughDestination")',
     );
@@ -203,6 +211,14 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
       'import("./RunDetailOperatorTechnicalForensicsPanel")',
     );
     expect(deferredChunksSource).toContain('import("./RunDetailArtifactsExportsSection")');
+    expect(deferredChunksSource).toContain("RunDetailReviewPackageDoThisNextResolvedDeferred");
+    expect(deferredChunksSource).toContain('import("./RunDetailReviewPackageDoThisNextResolved")');
+    expect(deferredChunksSource).toContain("RunDetailReviewPackageSponsorHandoffGateDeferred");
+    expect(deferredChunksSource).toContain('import("./RunDetailReviewPackageSponsorHandoffGate")');
+    expect(deferredChunksSource).toContain("RunDetailCreateHomeEvidencePanelDeferred");
+    expect(deferredChunksSource).toContain('import("./RunDetailCreateHomeEvidencePanel")');
+    expect(deferredChunksSource).toContain("RunDetailActivitySourcesPanelDeferred");
+    expect(deferredChunksSource).toContain('import("./RunDetailActivitySourcesPanel")');
     expect(deferredChunksSource).toContain("GoldenSponsorPackageWalkthroughDestinationDeferred");
     expect(deferredChunksSource).toContain(
       'import("@/components/golden-walkthrough/GoldenSponsorPackageWalkthroughDestination")',

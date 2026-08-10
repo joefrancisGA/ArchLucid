@@ -13,6 +13,7 @@ const deferredSource = readFileSync(join(sectionsDir, "governance-workflow-defer
 
 const bannedStaticImports = [
   './GovernanceOverviewPanel"',
+  './GovernanceReviewContextBar"',
   './GovernanceWorkflowSubmitSection"',
   './GovernanceWorkflowApprovalsList"',
   './GovernanceWorkflowPromotionsActivationsSection"',
@@ -42,6 +43,7 @@ describe("governance approval-queue deferred imports (TB-934 / wave 10)", () => 
 
     expect(pageContentSource).toContain("governance-workflow-deferred-chunks");
     expect(pageContentSource).toContain("GovernanceOverviewPanelDeferred");
+    expect(pageContentSource).toContain("GovernanceReviewContextBarDeferred");
     expect(pageContentSource).toContain("GovernanceWorkflowSubmitSectionDeferred");
     expect(pageContentSource).toContain("GovernanceWorkflowApprovalsListDeferred");
     expect(pageContentSource).toContain("GovernanceWorkflowPromotionsActivationsSectionDeferred");
@@ -57,6 +59,7 @@ describe("governance approval-queue deferred imports (TB-934 / wave 10)", () => 
   it("dynamic-imports each deferred governance workflow panel", () => {
     expect(deferredSource).toContain("next/dynamic");
     expect(deferredSource).toContain('import("./GovernanceOverviewPanel")');
+    expect(deferredSource).toContain('import("./GovernanceReviewContextBar")');
     expect(deferredSource).toContain('import("./GovernanceWorkflowSubmitSection")');
     expect(deferredSource).toContain('import("./GovernanceWorkflowApprovalsList")');
     expect(deferredSource).toContain('import("./GovernanceWorkflowPromotionsActivationsSection")');
@@ -68,6 +71,7 @@ describe("governance approval-queue deferred imports (TB-934 / wave 10)", () => 
     expect(deferredSource).toContain('import("@/components/GovernanceApprovalStoryCard")');
     expect(deferredSource).toContain('import("@/components/AdvancedOptionsAccordion")');
     expect(deferredSource).toContain("GovernanceApprovalStoryCardDeferred");
+    expect(deferredSource).toContain("GovernanceReviewContextBarDeferred");
     expect(deferredSource).toContain("AdvancedOptionsAccordionDeferred");
   });
 });

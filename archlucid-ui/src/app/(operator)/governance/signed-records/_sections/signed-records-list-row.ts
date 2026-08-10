@@ -2,6 +2,8 @@ import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-tit
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import type { RunSummary } from "@/types/authority";
 
+import { SIGNED_RECORDS_LIST_VERSION_UNKNOWN } from "./signed-records-list-copy";
+
 export type SignedRecordsListRow = {
   readonly runId: string;
   readonly reviewTitle: string;
@@ -14,6 +16,16 @@ export type SignedRecordsListRow = {
 
 export function isSignedRecordsListRowOpenable(row: SignedRecordsListRow): boolean {
   return row.signedRecordHref !== null;
+}
+
+function manifestVersionFromRun(run: RunSummary): string {
+  const version = run.currentManifestVersion?.trim() ?? "";
+
+  if (version.length > 0) {
+    return version;
+  }
+
+  return SIGNED_RECORDS_LIST_VERSION_UNKNOWN;
 }
 
 export function buildSignedRecordsListRowsFromRuns(runs: readonly RunSummary[]): SignedRecordsListRow[] {
@@ -29,7 +41,7 @@ export function buildSignedRecordsListRowsFromRuns(runs: readonly RunSummary[]):
         runId,
         reviewTitle: buyerFacingReviewTitleFromSummary(run),
         committedUtc: run.createdUtc,
-        manifestVersion: "—",
+        manifestVersion: manifestVersionFromRun(run),
         manifestId: hasManifestId ? goldenManifestId : null,
         reviewHref,
         signedRecordHref: hasManifestId ? signedRecordDetailPath(goldenManifestId) : null,

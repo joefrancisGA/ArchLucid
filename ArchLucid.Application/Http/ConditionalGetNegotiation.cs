@@ -1,6 +1,7 @@
 using System.Buffers.Binary;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 
 using ArchLucid.Core.Audit;
 using ArchLucid.Persistence.Models;
@@ -101,6 +102,36 @@ public static class ConditionalGetNegotiation
         }
 
         return QuoteStrongEtag(hash.GetHashAndReset());
+    }
+
+    /// <summary>Stable strong ETag from a UTF-8 payload (typically canonical JSON).</summary>
+    public static string ComputeSha256EtagFromUtf8(string payload)
+    {
+        ArgumentNullException.ThrowIfNull(payload);
+
+        byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(payload));
+
+        return QuoteStrongEtag(hash);
+    }
+
+    /// <summary>Serializes <paramref name="value" /> and derives a stable strong ETag.</summary>
+    public static string ComputeJsonResponseEtag<T>(T value, JsonSerializerOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+
+        string json = JsonSerializer.Serialize(value, options);
+
+        return ComputeSha256EtagFromUtf8(json);
+    }
+
+    /// <summary>Serializes <paramref name="value" /> with a request fingerprint for stable list/filter ETags.</summary>
+    public static string ComputeJsonResponseEtag<T>(T value, JsonSerializerOptions options, string requestFingerprint)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+
+        string json = JsonSerializer.Serialize(value, options);
+
+        return ComputeSha256EtagFromUtf8($"{requestFingerprint}|{json}");
     }
 
     /// <summary>Returns <see langword="true" /> when any supplied <c>If-None-Match</c> value matches <paramref name="etag" />.</summary>

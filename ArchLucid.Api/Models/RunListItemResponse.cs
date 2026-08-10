@@ -54,4 +54,18 @@ public sealed class RunListItemResponse
         get;
         set;
     }
+
+    /// <summary>Golden manifest id when the run has a committed signed record.</summary>
+    public Guid? GoldenManifestId
+    {
+        get;
+        set;
+    }
+
+    /// <summary><see langword="true" /> when <see cref="GoldenManifestId" /> is set.</summary>
+    public bool HasGoldenManifest
+    {
+        get;
+        set;
+    }
 }

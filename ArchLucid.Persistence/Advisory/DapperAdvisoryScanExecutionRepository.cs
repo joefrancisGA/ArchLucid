@@ -64,20 +64,91 @@ public sealed class DapperAdvisoryScanExecutionRepository(ISqlConnectionFactory 
         const string sql = """
             SELECT TOP (@Take)
                 ExecutionId, ScheduleId, TenantId, WorkspaceId, ProjectId,
-                StartedUtc, CompletedUtc, Status, ResultJson, ErrorMessage
+                StartedUtc, CompletedUtc, Status, ErrorMessage
             FROM dbo.AdvisoryScanExecutions
             WHERE ScheduleId = @ScheduleId
             ORDER BY StartedUtc DESC;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        IEnumerable<AdvisoryScanExecution> result = await connection.QueryAsync<AdvisoryScanExecution>(
+        IEnumerable<AdvisoryScanExecutionListRow> result = await connection.QueryAsync<AdvisoryScanExecutionListRow>(
             new CommandDefinition(sql, new
             {
                 ScheduleId = scheduleId,
                 Take = Math.Clamp(take, 1, 200)
             }, cancellationToken: ct));
 
-        return result.ToList();
+        return result
+            .Select(static row => new AdvisoryScanExecution
+            {
+                ExecutionId = row.ExecutionId,
+                ScheduleId = row.ScheduleId,
+                TenantId = row.TenantId,
+                WorkspaceId = row.WorkspaceId,
+                ProjectId = row.ProjectId,
+                StartedUtc = row.StartedUtc,
+                CompletedUtc = row.CompletedUtc,
+                Status = row.Status,
+                ErrorMessage = row.ErrorMessage,
+                ResultJson = string.Empty,
+            })
+            .ToList();
+    }
+
+    private sealed class AdvisoryScanExecutionListRow
+    {
+        public Guid ExecutionId
+        {
+            get;
+            init;
+        }
+
+        public Guid ScheduleId
+        {
+            get;
+            init;
+        }
+
+        public Guid TenantId
+        {
+            get;
+            init;
+        }
+
+        public Guid WorkspaceId
+        {
+            get;
+            init;
+        }
+
+        public Guid ProjectId
+        {
+            get;
+            init;
+        }
+
+        public DateTime StartedUtc
+        {
+            get;
+            init;
+        }
+
+        public DateTime? CompletedUtc
+        {
+            get;
+            init;
+        }
+
+        public string Status
+        {
+            get;
+            init;
+        } = "Started";
+
+        public string? ErrorMessage
+        {
+            get;
+            init;
+        }
     }
 }

@@ -80,4 +80,8 @@ public static class HostElectionLeaseNames
     public const string OutboxOperationalMetrics = "hosted:outbox-operational-metrics";
 
     public const string StaleInFlightRunMetrics = "hosted:stale-in-flight-run-metrics";
+
+    public const string LlmTenantBudgetUtilizationMetrics = "hosted:llm-tenant-budget-utilization-metrics";
+
+    public const string MarketingPricingQuoteAgingMetrics = "hosted:marketing-pricing-quote-aging-metrics";
 }

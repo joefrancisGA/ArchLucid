@@ -585,3 +585,58 @@ export const GoldenSponsorPackageWalkthroughDestinationDeferred = dynamic(
     ),
   { ssr: false, loading: () => null },
 );
+
+const createHomeEvidenceLoading = (
+  <div
+    className="h-48 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
+    role="status"
+    aria-label="Loading evidence panel"
+  />
+);
+
+/** Perf wave 14 — create-home evidence archTab off sync First Load JS. */
+export const RunDetailCreateHomeEvidencePanelDeferred = dynamic(
+  () =>
+    import("./RunDetailCreateHomeEvidencePanel").then((module) => module.RunDetailCreateHomeEvidencePanel),
+  { ssr: false, loading: () => createHomeEvidenceLoading },
+);
+
+const activitySourcesLoading = (
+  <div
+    className="h-32 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
+    role="status"
+    aria-label="Loading activity sources"
+  />
+);
+
+/** Perf wave 14 — activity-tab sources panel off sync First Load JS. */
+export const RunDetailActivitySourcesPanelDeferred = dynamic(
+  () => import("./RunDetailActivitySourcesPanel").then((module) => module.RunDetailActivitySourcesPanel),
+  { ssr: false, loading: () => activitySourcesLoading },
+);
+
+const doThisNextResolvedLoading = (
+  <div
+    className="h-20 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
+    role="status"
+    aria-label="Loading next step"
+  />
+);
+
+/** Perf wave 14 — review-package next-step resolver off sync First Load JS. */
+export const RunDetailReviewPackageDoThisNextResolvedDeferred = dynamic(
+  () =>
+    import("./RunDetailReviewPackageDoThisNextResolved").then(
+      (module) => module.RunDetailReviewPackageDoThisNextResolved,
+    ),
+  { ssr: false, loading: () => doThisNextResolvedLoading },
+);
+
+/** Perf wave 14 — sponsor handoff gate off sync First Load JS. */
+export const RunDetailReviewPackageSponsorHandoffGateDeferred = dynamic(
+  () =>
+    import("./RunDetailReviewPackageSponsorHandoffGate").then(
+      (module) => module.RunDetailReviewPackageSponsorHandoffGate,
+    ),
+  { ssr: false, loading: () => null },
+);

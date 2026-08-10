@@ -8,6 +8,8 @@ import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 type RunSummaryWireExtensions = {
   /** Golden manifest id when list/summary already resolved it (avoids N× getRunDetail). */
   goldenManifestId?: string | null;
+  /** Manifest rule-set version when list endpoints already resolved it (avoids N× getManifestSummary). */
+  currentManifestVersion?: string | null;
   findingCount?: number | null;
   warningCount?: number | null;
   artifactCount?: number | null;

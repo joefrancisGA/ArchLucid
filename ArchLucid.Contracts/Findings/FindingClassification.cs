@@ -5,7 +5,7 @@ namespace ArchLucid.Contracts.Findings;
 /// <summary>
 ///     Separates decision-grade review findings from basic hygiene checklist coverage (TB-384).
 /// </summary>
-[JsonConverter(typeof(JsonStringEnumConverter))]
+[JsonConverter(typeof(JsonStringEnumConverter<FindingClassification>))]
 public enum FindingClassification
 {
     /// <summary>Governance-relevant, evidence-bound insight suitable for the Findings list.</summary>

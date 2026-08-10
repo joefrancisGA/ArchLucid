@@ -279,6 +279,7 @@ public sealed class RunDetailQueryService(
             SystemName = r.ProjectId,
             IsDeadLettered = RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(r),
             PackageOrigin = r.PackageOrigin,
+            GoldenManifestId = r.GoldenManifestId,
             RowVersion = r.RowVersion
         }).ToList();
     }
@@ -309,6 +310,7 @@ public sealed class RunDetailQueryService(
             SystemName = r.ProjectId,
             IsDeadLettered = RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(r),
             PackageOrigin = r.PackageOrigin,
+            GoldenManifestId = r.GoldenManifestId,
             RowVersion = r.RowVersion
         }).ToList();
         string? next = null;
@@ -342,6 +344,7 @@ public sealed class RunDetailQueryService(
             SystemName = r.ProjectId,
             IsDeadLettered = RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(r),
             PackageOrigin = r.PackageOrigin,
+            GoldenManifestId = r.GoldenManifestId,
             RowVersion = r.RowVersion
         }).ToList();
 

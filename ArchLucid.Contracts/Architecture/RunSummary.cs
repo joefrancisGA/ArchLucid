@@ -67,6 +67,16 @@ public sealed class RunSummary
         set;
     }
 
+    /// <summary>Golden manifest id when the run has a committed signed record.</summary>
+    public Guid? GoldenManifestId
+    {
+        get;
+        set;
+    }
+
+    /// <summary><see langword="true" /> when <see cref="GoldenManifestId" /> is set.</summary>
+    public bool HasGoldenManifest => GoldenManifestId.HasValue;
+
     /// <summary>SQL <c>ROWVERSION</c> for conditional GET; not exposed in list API payloads.</summary>
     [JsonIgnore]
     public byte[]? RowVersion

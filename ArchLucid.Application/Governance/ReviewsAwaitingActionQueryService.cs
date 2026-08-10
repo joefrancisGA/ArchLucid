@@ -78,11 +78,19 @@ public sealed class ReviewsAwaitingActionQueryService(
                 string leftRunId = sourceRunId.Value.ToString("N");
                 string rightRunId = run.RunId.ToString("N");
 
+                Task<IReadOnlyList<ArchLucid.Contracts.Agents.AgentResult>> leftTask =
+                    _agentResultRepository.GetRollupProjectionByRunIdAsync(scope, leftRunId, cancellationToken);
+
+                Task<IReadOnlyList<ArchLucid.Contracts.Agents.AgentResult>> rightTask =
+                    _agentResultRepository.GetRollupProjectionByRunIdAsync(scope, rightRunId, cancellationToken);
+
+                await Task.WhenAll(leftTask, rightTask).ConfigureAwait(false);
+
                 IReadOnlyList<ArchLucid.Contracts.Agents.AgentResult> leftResults =
-                    await _agentResultRepository.GetByRunIdAsync(scope, leftRunId, cancellationToken).ConfigureAwait(false);
+                    await leftTask.ConfigureAwait(false);
 
                 IReadOnlyList<ArchLucid.Contracts.Agents.AgentResult> rightResults =
-                    await _agentResultRepository.GetByRunIdAsync(scope, rightRunId, cancellationToken).ConfigureAwait(false);
+                    await rightTask.ConfigureAwait(false);
 
                 AgentResultDiffResult diff = _agentResultDiffService.Compare(leftRunId, leftResults, rightRunId, rightResults);
                 (newFindingCount, _) = RecurrenceFindingDeltaCalculator.CountFindingDelta(diff);

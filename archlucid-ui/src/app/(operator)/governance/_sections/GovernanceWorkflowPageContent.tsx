@@ -17,14 +17,9 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LayerHeader } from "@/components/LayerHeader";
 import {
-  activateEnvironment,
-  approveRequest,
   listActivations,
   listApprovalRequests,
   listPromotions,
-  promoteManifest,
-  rejectRequest,
-  submitApprovalRequest,
 } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -76,7 +71,6 @@ import type {
 } from "@/types/governance-workflow";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { deriveGovernanceApprovalWorkflowState } from "./governance-approval-workflow-state";
-import { GovernanceReviewContextBar } from "./GovernanceReviewContextBar";
 import {
   AdvancedOptionsAccordionDeferred,
   CtoDemoBuyerValueStripDeferred,
@@ -85,6 +79,7 @@ import {
   GovernanceApprovalStoryCardDeferred,
   GovernanceInteractiveQuickstartContentDeferred,
   GovernanceOverviewPanelDeferred,
+  GovernanceReviewContextBarDeferred,
   GovernanceWorkflowApprovalsListDeferred,
   GovernanceWorkflowDialogsDeferred,
   GovernanceWorkflowPromotionsActivationsSectionDeferred,
@@ -430,6 +425,7 @@ export function GovernanceWorkflowPageContent() {
     setSubmitBusy(true);
 
     try {
+      const { submitApprovalRequest } = await import("@/lib/api");
       await submitApprovalRequest({
         runId,
         manifestVersion: submitManifestVersion.trim(),
@@ -472,6 +468,8 @@ export function GovernanceWorkflowPageContent() {
     setReviewBusy(true);
 
     try {
+      const { approveRequest, rejectRequest } = await import("@/lib/api");
+
       if (pendingReview.mode === "approve") {
         await approveRequest(pendingReview.approvalRequestId, {
           reviewedBy: reviewedBy.trim(),
@@ -524,6 +522,7 @@ export function GovernanceWorkflowPageContent() {
     setPromoteBusy(true);
 
     try {
+      const { promoteManifest } = await import("@/lib/api");
       await promoteManifest({
         runId: promoteFor.runId,
         manifestVersion: promoteFor.manifestVersion,
@@ -569,6 +568,7 @@ export function GovernanceWorkflowPageContent() {
     setActivateBusyId(row.promotionRecordId);
 
     try {
+      const { activateEnvironment } = await import("@/lib/api");
       await activateEnvironment({
         runId: row.runId,
         manifestVersion: row.manifestVersion,
@@ -699,7 +699,7 @@ export function GovernanceWorkflowPageContent() {
             </p>
           ) : null}
 
-          <GovernanceReviewContextBar
+          <GovernanceReviewContextBarDeferred
             activeRunId={activeRunId}
             reviewDisplayTitle={activeReviewDisplayTitle}
             buyerPolishedShell={buyerPolishedShell}

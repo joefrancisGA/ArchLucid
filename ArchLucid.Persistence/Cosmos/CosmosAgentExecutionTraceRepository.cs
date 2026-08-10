@@ -307,9 +307,24 @@ public sealed class CosmosAgentExecutionTraceRepository(
         string runId,
         CancellationToken cancellationToken = default)
     {
-        (_, int total) = await GetPagedByRunIdAsync(scope, runId, 0, 1, cancellationToken);
+        _ = scope;
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
-        return total;
+        Container container = await _clientFactory.GetContainerAsync(ContainerId, cancellationToken);
+
+        QueryDefinition countQuery = new QueryDefinition("SELECT VALUE COUNT(1) FROM c WHERE c.runId = @runId")
+            .WithParameter("@runId", runId);
+
+        using FeedIterator<int> countIt = container.GetItemQueryIterator<int>(
+            countQuery,
+            requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(runId) });
+
+        if (!countIt.HasMoreResults)
+            return 0;
+
+        FeedResponse<int> countPage = await countIt.ReadNextAsync(cancellationToken);
+
+        return countPage.Resource.FirstOrDefault();
     }
 
     /// <inheritdoc />
@@ -342,9 +357,11 @@ public sealed class CosmosAgentExecutionTraceRepository(
         string runId,
         CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<AgentExecutionTrace> traces = await GetByRunIdAsync(scope, runId, cancellationToken);
+        _ = scope;
+        IReadOnlyList<AgentTypeDeploymentProjection> rows =
+            await QueryAgentTypeDeploymentProjectionsByRunIdAsync(runId, cancellationToken);
 
-        return AgentExecutionTraceDegradationProbe.DistinctOrderedAgentTypeNames(traces);
+        return DistinctFallbackAgentTypes(rows);
     }
 
     /// <inheritdoc />
@@ -365,11 +382,72 @@ public sealed class CosmosAgentExecutionTraceRepository(
 
         foreach (string rid in normalized)
         {
-            IReadOnlyList<AgentExecutionTrace> traces = await GetByRunIdAsync(scope, rid, cancellationToken);
-            map[rid] = AgentExecutionTraceDegradationProbe.DistinctOrderedAgentTypeNames(traces);
+            IReadOnlyList<AgentTypeDeploymentProjection> rows =
+                await QueryAgentTypeDeploymentProjectionsByRunIdAsync(rid, cancellationToken);
+            map[rid] = DistinctFallbackAgentTypes(rows);
         }
 
         return map;
+    }
+
+    private static IReadOnlyList<string> DistinctFallbackAgentTypes(IReadOnlyList<AgentTypeDeploymentProjection> rows)
+    {
+        return rows
+            .Where(static row => AgentExecutionTraceDegradationProbe.LlmResourceFallbackModelDeployment(row.ModelDeploymentName))
+            .Select(static row => row.AgentType)
+            .Where(static agentType => !string.IsNullOrWhiteSpace(agentType))
+            .Select(static agentType => agentType!)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(static agentType => agentType, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+    }
+
+    private async Task<IReadOnlyList<AgentTypeDeploymentProjection>> QueryAgentTypeDeploymentProjectionsByRunIdAsync(
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        Container container = await _clientFactory.GetContainerAsync(ContainerId, cancellationToken);
+
+        QueryDefinition query = new QueryDefinition(
+                """
+                SELECT c.agentType, c.modelDeploymentName
+                FROM c
+                WHERE c.runId = @runId
+                """)
+            .WithParameter("@runId", runId);
+
+        using FeedIterator<AgentTypeDeploymentProjection> iterator =
+            container.GetItemQueryIterator<AgentTypeDeploymentProjection>(
+                query,
+                requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(runId) });
+
+        List<AgentTypeDeploymentProjection> rows = [];
+
+        while (iterator.HasMoreResults)
+        {
+            FeedResponse<AgentTypeDeploymentProjection> page = await iterator.ReadNextAsync(cancellationToken);
+
+            rows.AddRange(page);
+        }
+
+        return rows;
+    }
+
+    private sealed class AgentTypeDeploymentProjection
+    {
+        public string? AgentType
+        {
+            get;
+            init;
+        }
+
+        public string? ModelDeploymentName
+        {
+            get;
+            init;
+        }
     }
 
     private async Task<(IReadOnlyList<AgentExecutionTrace> Traces, int TotalCount)> QueryRunPageAsync(

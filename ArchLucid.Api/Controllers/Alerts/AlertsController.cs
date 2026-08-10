@@ -2,10 +2,13 @@ using System.Security.Claims;
 using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
+using ArchLucid.Api.Http;
 using ArchLucid.Api.Models.Alerts;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Alerts;
+using ArchLucid.Application.Http;
 using ArchLucid.Contracts.Alerts;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
@@ -53,6 +56,7 @@ public sealed class AlertsController(
     /// </summary>
     [HttpGet("inbox-summary")]
     [ProducesResponseType(typeof(AlertsInboxSummaryDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetInboxSummary(CancellationToken ct = default)
@@ -64,7 +68,14 @@ public sealed class AlertsController(
             scope.ProjectId,
             ct);
 
-        return Ok(summary);
+        string fingerprint =
+            $"inbox-summary|tenant={scope.TenantId}|workspace={scope.WorkspaceId}|project={scope.ProjectId}";
+        string etag = ConditionalGetNegotiation.ComputeJsonResponseEtag(
+            summary,
+            ContractJson.CamelCaseIgnoreNullCompact,
+            fingerprint);
+
+        return this.OkWithConditionalEtag(summary, etag);
     }
 
     /// <summary>Lists recent alerts for the current scope, optionally filtered by status.</summary>

@@ -10,6 +10,7 @@ namespace ArchLucid.Host.Core.Hosted;
 /// </summary>
 public sealed class MarketingPricingQuoteAgingMetricsHostedService(
     IServiceScopeFactory scopeFactory,
+    HostLeaderElectionCoordinator electionCoordinator,
     ILogger<MarketingPricingQuoteAgingMetricsHostedService> logger) : BackgroundService
 {
     private static readonly TimeSpan Interval = TimeSpan.FromMinutes(5);
@@ -17,19 +18,30 @@ public sealed class MarketingPricingQuoteAgingMetricsHostedService(
     private readonly IServiceScopeFactory _scopeFactory =
         scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
 
+    private readonly HostLeaderElectionCoordinator _electionCoordinator =
+        electionCoordinator ?? throw new ArgumentNullException(nameof(electionCoordinator));
+
     private readonly ILogger<MarketingPricingQuoteAgingMetricsHostedService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <inheritdoc />
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        return _electionCoordinator.RunLeaderWorkAsync(
+            HostElectionLeaseNames.MarketingPricingQuoteAgingMetrics,
+            CollectLoopAsync,
+            stoppingToken);
+    }
+
+    private async Task CollectLoopAsync(CancellationToken leaderToken)
+    {
+        while (!leaderToken.IsCancellationRequested)
         {
             try
             {
-                await CollectOnceAsync(stoppingToken).ConfigureAwait(false);
+                await CollectOnceAsync(leaderToken).ConfigureAwait(false);
             }
-            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
             {
                 break;
             }
@@ -40,9 +52,9 @@ public sealed class MarketingPricingQuoteAgingMetricsHostedService(
 
             try
             {
-                await Task.Delay(Interval, stoppingToken).ConfigureAwait(false);
+                await Task.Delay(Interval, leaderToken).ConfigureAwait(false);
             }
-            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
             {
                 break;
             }
