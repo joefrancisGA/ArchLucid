@@ -8324,6 +8324,30 @@
         ],
         "type": "object"
       },
+      "CursorPagedResponseOfAlertRecord": {
+        "properties": {
+          "hasMore": {
+            "type": "boolean"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AlertRecord"
+            },
+            "type": "array"
+          },
+          "nextCursor": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "requestedTake": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "CursorPagedResponseOfAuditEvent": {
         "properties": {
           "hasMore": {
@@ -17676,32 +17700,6 @@
           },
           "transportSucceeded": {
             "type": "boolean"
-          }
-        },
-        "type": "object"
-      },
-      "PagedResponseOfAlertRecord": {
-        "properties": {
-          "hasMore": {
-            "type": "boolean"
-          },
-          "items": {
-            "items": {
-              "$ref": "#/components/schemas/AlertRecord"
-            },
-            "type": "array"
-          },
-          "page": {
-            "format": "int32",
-            "type": "integer"
-          },
-          "pageSize": {
-            "format": "int32",
-            "type": "integer"
-          },
-          "totalCount": {
-            "format": "int32",
-            "type": "integer"
           }
         },
         "type": "object"
