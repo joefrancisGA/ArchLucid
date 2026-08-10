@@ -516,7 +516,7 @@ export function AccountSecurityPageClient() {
                     </Button>
                     <Button
                       type="button"
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
                       disabled={busy}
                       data-testid="account-security-different-email"

@@ -32,7 +32,7 @@ export function SignInSsoRequiredStep({
         >
           {SIGN_IN_PAGE_COPY.ssoPrimary}
         </Button>
-        <Button type="button" variant="ghost" onClick={onUseAnotherEmail} data-testid="sign-in-sso-another-email">
+        <Button type="button" variant="outline" onClick={onUseAnotherEmail} data-testid="sign-in-sso-another-email">
           {SIGN_IN_PAGE_COPY.ssoUseAnotherEmail}
         </Button>
       </div>

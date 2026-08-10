@@ -97,7 +97,7 @@ export function OperatorHomeWorkspaceContextDisclosure(
           <CollapsibleTrigger asChild>
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               size="sm"
               className={cn(
                 "mt-1 h-auto gap-1 px-0 py-1 hover:bg-transparent",

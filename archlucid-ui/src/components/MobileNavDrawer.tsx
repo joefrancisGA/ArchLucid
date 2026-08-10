@@ -79,7 +79,7 @@ export function MobileNavDrawer() {
     <>
       <Button
         type="button"
-        variant="ghost"
+        variant="outline"
         size="sm"
         className="inline-flex h-8 w-8 items-center justify-center p-0 lg:hidden"
         data-testid="mobile-nav-drawer-trigger"

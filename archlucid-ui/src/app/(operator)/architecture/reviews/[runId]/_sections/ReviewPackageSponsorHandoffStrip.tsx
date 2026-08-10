@@ -70,7 +70,7 @@ export function ReviewPackageSponsorHandoffStrip(
           </Button>
         )}
         {props.showExtendedSponsorBriefing ? (
-          <Button variant="ghost" size="sm" asChild data-testid="review-package-sponsor-handoff-more">
+          <Button variant="outline" size="sm" asChild data-testid="review-package-sponsor-handoff-more">
             <Link href={buildReviewDetailTabHref(props.runId, "review-package", { hash: "sponsor-handoff-extended" })}>
               {RUN_DETAIL_SPONSOR_HANDOFF_MORE_EXPORTS_LABEL}
             </Link>

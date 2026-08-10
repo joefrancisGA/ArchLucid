@@ -64,7 +64,7 @@ export function AskThreadHistoryPanel(props: AskThreadHistoryPanelProps) {
       <CardContent className="space-y-3 p-4 pt-0">
         <Button
           type="button"
-          variant={buyerPolishedShell ? "ghost" : "outline"}
+          variant={buyerPolishedShell ? "outline" : "outline"}
           className={
             buyerPolishedShell
               ? cn(
@@ -91,7 +91,7 @@ export function AskThreadHistoryPanel(props: AskThreadHistoryPanelProps) {
                 <li key={thread.threadId}>
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant="outline"
                     className={cn(
                       "h-auto w-full justify-start whitespace-normal py-2 text-left",
                       OPERATOR_TYPOGRAPHY.body,

@@ -448,7 +448,7 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
               <div className="flex shrink-0 items-center gap-2 border-b border-neutral-200 px-3 py-2.5 dark:border-neutral-800">
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
                   className={cn("h-7 gap-1.5 px-2", OPERATOR_TYPOGRAPHY.button)}
                   onClick={backToSearch}

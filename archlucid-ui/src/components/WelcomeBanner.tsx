@@ -176,7 +176,7 @@ export function WelcomeBanner() {
           <p className={cn("mb-3", OPERATOR_TYPOGRAPHY.body, "text-neutral-700 dark:text-neutral-300")}>
             Take a quick 6-step tour to see how a review goes from upload to architecture snapshot.
           </p>
-          <OptInTourLauncher buttonVariant="outline" />
+          <OptInTourLauncher />
         </div>
       </div>
     );

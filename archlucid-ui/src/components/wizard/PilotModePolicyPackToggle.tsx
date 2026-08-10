@@ -94,7 +94,7 @@ function FocusedPilotModeScopeCard(props: PilotModePolicyPackToggleProps): React
           <Button
             type="button"
             size="sm"
-            variant="ghost"
+            variant="outline"
             className="h-auto px-2 py-1"
             data-testid={`${testId}-change-focus`}
             onClick={() => {

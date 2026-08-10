@@ -229,7 +229,7 @@ function RolesMatrixCommandBar(props: RolesMatrixCommandBarProps) {
               <Button
                 type="button"
                 size="sm"
-                variant="ghost"
+                variant="outline"
                 aria-label={`Discard unsaved changes to ${displayName}`}
                 onClick={() => onDiscardRole(roleKey)}
               >

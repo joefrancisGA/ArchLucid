@@ -546,7 +546,7 @@ export function TrialFunnelOpsPageClient(): ReactElement {
                 <option value="estimatedFirstReviewCostUsd">First-review AI cost</option>
               </select>
             </label>
-            <Button type="button" variant="ghost" size="sm" onClick={() => setSortAsc((value) => !value)}>
+            <Button type="button" variant="outline" size="sm" onClick={() => setSortAsc((value) => !value)}>
               {sortAsc ? "Ascending" : "Descending"}
             </Button>
           </div>

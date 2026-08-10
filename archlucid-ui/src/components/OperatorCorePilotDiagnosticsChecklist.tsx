@@ -204,7 +204,7 @@ export function OperatorCorePilotDiagnosticsChecklist() {
         </p>
 
         <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-neutral-200 pt-3 dark:border-neutral-700">
-          <OptInTourLauncher buttonVariant="outline" />
+          <OptInTourLauncher />
 
           <Link
             href="/architecture/reviews/new"

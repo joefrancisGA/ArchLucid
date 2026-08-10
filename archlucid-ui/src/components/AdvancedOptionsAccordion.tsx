@@ -56,7 +56,7 @@ export function AdvancedOptionsAccordion({
       <CollapsibleTrigger asChild>
         <Button
           type="button"
-          variant="ghost"
+          variant="outline"
           className={cn(
             "h-auto w-full justify-between gap-2 px-4 py-3 text-left hover:bg-neutral-100/80 dark:hover:bg-neutral-800/60",
             OPERATOR_DISCLOSURE_TRIGGER_CLASS,

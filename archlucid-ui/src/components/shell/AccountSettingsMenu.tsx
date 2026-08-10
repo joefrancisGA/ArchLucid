@@ -176,7 +176,7 @@ export function AccountSettingsMenu(): React.JSX.Element {
       <Button
         ref={triggerRef}
         type="button"
-        variant="ghost"
+        variant="outline"
         size="sm"
         className="inline-flex h-7 w-7 items-center justify-center p-0"
         data-testid="account-settings-menu-trigger"

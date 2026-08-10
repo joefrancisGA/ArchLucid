@@ -36,7 +36,7 @@ export function MarketingPublicHeader(props: MarketingPublicHeaderProps): React.
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:gap-4">
         <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
-          <Button variant="ghost" className="h-auto shrink-0 p-0" asChild>
+          <Button variant="outline" className="h-auto shrink-0 p-0" asChild>
             <ArchLucidWordmarkLink href="/welcome" aria-label="ArchLucid — welcome" variant="marketing" />
           </Button>
           {focusAuth ? null : (

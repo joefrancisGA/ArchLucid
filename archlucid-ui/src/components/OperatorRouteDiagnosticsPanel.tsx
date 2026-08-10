@@ -119,7 +119,7 @@ export function OperatorRouteDiagnosticsPanel(props: OperatorRouteDiagnosticsPan
     <Collapsible open={open} onOpenChange={setOpen} className="mt-4 rounded-md border border-neutral-200 dark:border-neutral-700">
       <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2">
         <CollapsibleTrigger asChild>
-          <Button type="button" variant="ghost" size="sm" data-testid="open-diagnostics">
+          <Button type="button" variant="outline" size="sm" data-testid="open-diagnostics">
             {open ? "Hide error details" : "Open diagnostics"}
           </Button>
         </CollapsibleTrigger>

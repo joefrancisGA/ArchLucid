@@ -47,7 +47,7 @@ export function RunsListCompareSelectionBar(props: RunsListCompareSelectionBarPr
           </Link>
         </Button>
       ) : null}
-      <Button type="button" size="sm" variant="ghost" onClick={props.onClear}>
+      <Button type="button" size="sm" variant="outline" onClick={props.onClear}>
         Clear selection
       </Button>
     </div>

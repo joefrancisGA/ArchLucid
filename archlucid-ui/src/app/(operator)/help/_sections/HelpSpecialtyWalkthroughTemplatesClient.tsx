@@ -275,7 +275,7 @@ function SelectedTemplateBanner(props: {
         <Button type="button" size="sm" variant="outline" onClick={props.onChange} disabled={props.isContinuing}>
           Change template
         </Button>
-        <Button type="button" size="sm" variant="ghost" onClick={props.onRemove} disabled={props.isContinuing}>
+        <Button type="button" size="sm" variant="outline" onClick={props.onRemove} disabled={props.isContinuing}>
           Remove template
         </Button>
       </div>

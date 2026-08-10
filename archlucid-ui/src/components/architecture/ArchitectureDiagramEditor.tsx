@@ -87,7 +87,7 @@ export function ArchitectureDiagramEditor(props: ArchitectureDiagramEditorProps)
                         <Button
                           type="button"
                           size="sm"
-                          variant="ghost"
+                          variant="outline"
                           data-testid={`architecture-diagram-remove-${node.id}`}
                           onClick={() => {
                             const next = props.model.nodes.map((entry) =>

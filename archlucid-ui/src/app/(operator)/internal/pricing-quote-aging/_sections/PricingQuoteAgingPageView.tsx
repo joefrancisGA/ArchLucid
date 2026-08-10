@@ -146,7 +146,7 @@ function PricingQuoteFollowUpRowActions(props: PricingQuoteFollowUpRowActionsPro
       <Button
         type="button"
         size="sm"
-        variant="ghost"
+        variant="outline"
         disabled={busy}
         onClick={() => {
           void copyWorkEmail(props.row.workEmail).then(() => {
@@ -157,13 +157,13 @@ function PricingQuoteFollowUpRowActions(props: PricingQuoteFollowUpRowActionsPro
       >
         {copied ? "Copied" : "Copy email"}
       </Button>
-      <Button type="button" size="sm" variant="ghost" disabled={busy} asChild>
+      <Button type="button" size="sm" variant="outline" disabled={busy} asChild>
         <a href={`mailto:${encodeURIComponent(props.row.workEmail)}`}>Open request</a>
       </Button>
       <Button
         type="button"
         size="sm"
-        variant="ghost"
+        variant="outline"
         disabled={busy}
         onClick={() => void runAction(() => closePricingQuoteRequest(props.row.id))}
       >

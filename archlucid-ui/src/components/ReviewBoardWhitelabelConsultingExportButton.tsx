@@ -196,7 +196,7 @@ export function ReviewBoardWhitelabelConsultingExportButton(
             </div>
           </div>
           <DialogFooter className="gap-2 sm:gap-0">
-            <Button type="button" variant="ghost" disabled={busy} onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" disabled={busy} onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
             <Button

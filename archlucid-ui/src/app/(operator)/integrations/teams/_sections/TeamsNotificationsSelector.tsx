@@ -42,7 +42,7 @@ export function TeamsNotificationsSelector(props: TeamsNotificationsSelectorProp
         <Button
           type="button"
           size="sm"
-          variant="ghost"
+          variant="outline"
           disabled={!props.canMutate || props.saving}
           title={props.canMutate ? undefined : enterpriseMutationControlDisabledTitle}
           onClick={props.onSelectRecommended}
@@ -52,7 +52,7 @@ export function TeamsNotificationsSelector(props: TeamsNotificationsSelectorProp
         <Button
           type="button"
           size="sm"
-          variant="ghost"
+          variant="outline"
           disabled={!props.canMutate || props.saving}
           onClick={props.onSelectAll}
         >
@@ -61,7 +61,7 @@ export function TeamsNotificationsSelector(props: TeamsNotificationsSelectorProp
         <Button
           type="button"
           size="sm"
-          variant="ghost"
+          variant="outline"
           disabled={!props.canMutate || props.saving}
           onClick={props.onClearAll}
         >
@@ -87,7 +87,7 @@ export function TeamsNotificationsSelector(props: TeamsNotificationsSelectorProp
                   <Button
                     type="button"
                     size="sm"
-                    variant="ghost"
+                    variant="outline"
                     aria-expanded={!collapsed}
                     onClick={() =>
                       setCollapsedGroups((prev) => {

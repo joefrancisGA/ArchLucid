@@ -104,7 +104,7 @@ function AdvancedChipList(props: {
                 ) : null}
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
                   className="h-6 px-1"
                   onClick={() => removeItem(index)}

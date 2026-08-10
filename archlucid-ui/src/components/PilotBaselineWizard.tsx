@@ -401,7 +401,7 @@ export function PilotBaselineWizard({ open, onOpenChange, onSaved }: PilotBaseli
           <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               disabled={saving || demoMode}
               data-testid="pilot-baseline-wizard-skip"
               onClick={skipForNow}

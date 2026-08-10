@@ -584,7 +584,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
             </p>
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               size="sm"
               className="h-8 shrink-0 px-2 text-neutral-600 dark:text-neutral-400"
               aria-label={BUYER_CTO_DEMO_TOUR_COLLAPSE_CTA}
@@ -613,7 +613,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
             }}
           />
           <div className="mt-3">
-            <Button type="button" variant="ghost" size="sm" className="text-neutral-600 dark:text-neutral-400" onClick={endTour}>
+            <Button type="button" variant="outline" size="sm" className="text-neutral-600 dark:text-neutral-400" onClick={endTour}>
               {BUYER_CTO_DEMO_TOUR_END_CTA}
             </Button>
           </div>
@@ -672,15 +672,15 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
           <div className="flex shrink-0 flex-wrap items-center gap-1">
             <CtoDemoHowItWorksTrigger />
-            <Button type="button" variant="ghost" size="sm" className="h-8 px-2" data-testid="cto-demo-explore-toggle" onClick={toggleExploreMode}>
+            <Button type="button" variant="outline" size="sm" className="h-8 px-2" data-testid="cto-demo-explore-toggle" onClick={toggleExploreMode}>
               Explore
             </Button>
-            <Button type="button" variant="ghost" size="sm" className="h-8 px-2" data-testid="cto-demo-presenter-layer-toggle" onClick={togglePresenterLayer}>
+            <Button type="button" variant="outline" size="sm" className="h-8 px-2" data-testid="cto-demo-presenter-layer-toggle" onClick={togglePresenterLayer}>
               {presenterLayerVisible ? "Audience view" : "Presenter"}
             </Button>
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               size="sm"
               className="h-8 shrink-0 px-2 text-neutral-600 dark:text-neutral-400"
               aria-label={BUYER_CTO_DEMO_TOUR_COLLAPSE_CTA}
@@ -884,7 +884,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
             type="button"
 
-            variant="ghost"
+            variant="outline"
 
             size="sm"
 
@@ -914,7 +914,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
               type="button"
 
-              variant="ghost"
+              variant="outline"
 
               size="sm"
 
@@ -944,7 +944,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
             type="button"
 
-            variant="ghost"
+            variant="outline"
 
             size="sm"
 
@@ -968,7 +968,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
             type="button"
 
-            variant="ghost"
+            variant="outline"
 
             size="sm"
 
@@ -1127,7 +1127,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
         <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
 
-          <Button type="button" variant="ghost" size="sm" className="text-neutral-600 dark:text-neutral-400" onClick={endTour}>
+          <Button type="button" variant="outline" size="sm" className="text-neutral-600 dark:text-neutral-400" onClick={endTour}>
 
             {BUYER_CTO_DEMO_TOUR_END_CTA}
 

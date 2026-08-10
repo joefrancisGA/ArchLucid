@@ -100,10 +100,10 @@ export function SettingsRolesInvitePanel({ directoryUnavailable, onRetry, onInvi
             <Button type="button" variant="secondary" size="sm" onClick={onRetry}>
               Retry directory
             </Button>
-            <Button type="button" variant="ghost" size="sm" asChild>
+            <Button type="button" variant="outline" size="sm" asChild>
               <a href="/internal/health">System health</a>
             </Button>
-            <Button type="button" variant="ghost" size="sm" asChild>
+            <Button type="button" variant="outline" size="sm" asChild>
               <Link href="/help/troubleshooting#permissions-or-sign-in-issue">Open troubleshooting</Link>
             </Button>
           </div>
@@ -176,7 +176,7 @@ export function SettingsRolesInvitePanel({ directoryUnavailable, onRetry, onInvi
           </Button>
           <Button
             type="button"
-            variant="ghost"
+            variant="outline"
             size="sm"
             disabled={sending}
             onClick={handleCancel}

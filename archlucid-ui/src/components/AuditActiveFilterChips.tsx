@@ -42,7 +42,7 @@ export function AuditActiveFilterChips(props: AuditActiveFilterChipsProps): Reac
           <span aria-hidden>×</span>
         </Button>
       ))}
-      <Button type="button" variant="ghost" size="sm" className={cn("h-7", OPERATOR_TYPOGRAPHY.helper)} onClick={onClearAll}>
+      <Button type="button" variant="outline" size="sm" className={cn("h-7", OPERATOR_TYPOGRAPHY.helper)} onClick={onClearAll}>
         {AUDIT_TRAIL_ACTIVE_FILTER_CLEAR}
       </Button>
     </div>

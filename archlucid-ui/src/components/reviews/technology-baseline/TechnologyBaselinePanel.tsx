@@ -178,7 +178,7 @@ export function TechnologyBaselinePanel({
           </Button>
           <Button
             type="button"
-            variant="ghost"
+            variant="outline"
             size="sm"
             disabled={busy}
             onClick={() => {

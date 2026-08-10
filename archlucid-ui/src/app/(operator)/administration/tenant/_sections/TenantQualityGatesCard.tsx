@@ -107,7 +107,7 @@ function QualityGateModeControlsSection(
           {STRICT_AI_QUALITY_MODE_BUYER_LABEL}
         </Button>
         {usingOverride ? (
-          <Button type="button" size="sm" variant="ghost" disabled={saving} onClick={() => void onClearOverride()}>
+          <Button type="button" size="sm" variant="outline" disabled={saving} onClick={() => void onClearOverride()}>
             Use host default
           </Button>
         ) : null}

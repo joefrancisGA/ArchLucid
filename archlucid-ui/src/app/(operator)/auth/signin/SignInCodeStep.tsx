@@ -122,7 +122,7 @@ export function SignInCodeStep({
             </Button>
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               size="sm"
               onClick={onDifferentEmail}
               disabled={pending}

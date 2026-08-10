@@ -312,7 +312,7 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
               <Button
                 type="button"
                 size="sm"
-                variant="ghost"
+                variant="outline"
                 disabled={panelDisabled}
                 data-testid={`draft-intake-actor-remove-${index}`}
                 onClick={() => {

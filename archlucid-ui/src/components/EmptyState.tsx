@@ -11,7 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 export type EmptyStateAction = {
   label: string;
   href: string;
-  variant?: "primary" | "default" | "secondary" | "outline" | "ghost" | "destructive" | "link";
+  variant?: "primary" | "default" | "secondary" | "outline" | "destructive";
 };
 
 export type EmptyStateGettingStarted = {

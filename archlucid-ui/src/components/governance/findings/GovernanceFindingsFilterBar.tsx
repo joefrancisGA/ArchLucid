@@ -77,7 +77,7 @@ function GovernanceFindingsFilterBarComponent(props: GovernanceFindingsFilterBar
           <Button
             type="button"
             size="sm"
-            variant="ghost"
+            variant="outline"
             className={cn("h-7 gap-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
             title="Save this filter as a named preset for quick access"
             onClick={onSaveCurrentFilterAsPreset}

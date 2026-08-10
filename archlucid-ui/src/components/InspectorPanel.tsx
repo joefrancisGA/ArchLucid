@@ -66,7 +66,7 @@ export function InspectorPanel({
         </h2>
         <Button
           type="button"
-          variant="ghost"
+          variant="outline"
           size="icon"
           className="shrink-0"
           aria-label="Close inspector"

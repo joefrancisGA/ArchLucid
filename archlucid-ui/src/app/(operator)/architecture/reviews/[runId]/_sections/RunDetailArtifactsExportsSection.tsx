@@ -315,7 +315,7 @@ export function RunDetailArtifactsExportsSection(
                   Compare with another review
                 </Link>
                 <Link
-                  className={cn(buttonVariants({ variant: "ghost", size: "sm" }), OPERATOR_LINK.nav)}
+                  className={cn(buttonVariants({ variant: "outline", size: "sm" }), OPERATOR_LINK.nav)}
                   href={`/insights/ask-review-questions?runId=${encodeURIComponent(runId)}`}
                 >
                   Ask about this review

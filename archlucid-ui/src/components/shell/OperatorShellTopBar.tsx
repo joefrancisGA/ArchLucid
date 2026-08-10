@@ -71,7 +71,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
         >
           <MobileNavDrawerDeferred />
           <h1 className="m-0">
-            <Button variant="ghost" className="h-auto p-0" asChild>
+            <Button variant="outline" className="h-auto p-0" asChild>
               <ArchLucidWordmarkLink href="/" aria-label={PERSONA_SHELL_WORDMARK_ARIA_LABEL} variant="operator" />
             </Button>
           </h1>
@@ -107,7 +107,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
               >
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
                   className="inline-flex h-8 items-center gap-1.5 px-2"
                   data-testid="operator-shell-help-trigger"

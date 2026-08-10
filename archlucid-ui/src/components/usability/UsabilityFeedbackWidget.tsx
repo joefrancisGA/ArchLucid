@@ -73,7 +73,7 @@ export function UsabilityFeedbackWidget(props: UsabilityFeedbackWidgetProps) {
         <DialogTrigger asChild>
           <Button
             type="button"
-            variant="ghost"
+            variant="outline"
             size="sm"
             className={cn("h-8 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
             data-testid="usability-feedback-trigger"

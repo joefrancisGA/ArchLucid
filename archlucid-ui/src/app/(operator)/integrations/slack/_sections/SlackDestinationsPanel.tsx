@@ -73,7 +73,7 @@ export function SlackDestinationsPanel(props: SlackDestinationsPanelProps): Reac
         </div>
         <Button
           type="button"
-          variant="ghost"
+          variant="outline"
           size="sm"
           className="shrink-0 px-2"
           onClick={onRefresh}

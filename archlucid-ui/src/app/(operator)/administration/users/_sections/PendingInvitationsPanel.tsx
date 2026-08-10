@@ -170,7 +170,7 @@ export function PendingInvitationsPanel({ refreshKey, onCountChange }: Props) {
                   ) : null}
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
                     data-testid={`settings-roles-copy-invitation-reference-${invitation.id}`}
                     aria-label={`Copy invitation reference for ${invitation.email}`}

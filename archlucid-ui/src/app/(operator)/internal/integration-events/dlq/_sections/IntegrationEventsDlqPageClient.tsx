@@ -374,7 +374,7 @@ export function IntegrationEventsDlqPageClient() {
                           <Button
                             type="button"
                             size="sm"
-                            variant="ghost"
+                            variant="outline"
                             onClick={() => {
                               if (row.outboxId === undefined || row.outboxId === null) {
                                 return;

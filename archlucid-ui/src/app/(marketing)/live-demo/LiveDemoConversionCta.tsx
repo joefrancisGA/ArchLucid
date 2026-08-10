@@ -55,7 +55,7 @@ export function LiveDemoConversionCta(props: LiveDemoConversionCtaProps) {
             {LIVE_DEMO_CTA_SECONDARY}
           </LiveDemoTrackedLink>
         </Button>
-        <Button asChild variant="ghost" data-testid="live-demo-cta-explore">
+        <Button asChild variant="outline" data-testid="live-demo-cta-explore">
           <LiveDemoTrackedLink href={fullReviewHref} trackKind="conversion" trackValue="full-review">
             {LIVE_DEMO_CTA_EXPLORE}
           </LiveDemoTrackedLink>

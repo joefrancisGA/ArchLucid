@@ -110,7 +110,7 @@ export function ShellInFlightOperationsAffordance(): React.JSX.Element | null {
                       <span className="text-al-text-secondary/80"> · {elapsed}</span>
                     </p>
                   </div>
-                  <Button variant="link" className="h-auto shrink-0 p-0" asChild>
+                  <Button variant="outline" className="h-auto shrink-0 p-0" asChild>
                     <Link href={operation.href} onClick={() => setOpen(false)}>
                       Open
                     </Link>

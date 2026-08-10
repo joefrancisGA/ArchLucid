@@ -203,7 +203,7 @@ export default function SignedRecordsListClient() {
                         />
                         <Button
                           type="button"
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
                           disabled={retryingRunId === row.runId}
                           onClick={() => void retryRow(row.runId)}

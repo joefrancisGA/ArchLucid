@@ -38,7 +38,7 @@ export function CopyIdButton({ value, "aria-label": ariaLabel }: CopyIdButtonPro
   return (
     <Button
       type="button"
-      variant="ghost"
+      variant="outline"
       size="icon"
       className="h-7 w-7 shrink-0 text-neutral-600 dark:text-neutral-400"
       aria-label={ariaLabel ?? "Copy identifier"}

@@ -296,7 +296,7 @@ export function RunFindingExplainabilityTable({
                     >
                       View AI reasoning
                     </Button>
-                    <Button type="button" size="sm" variant="ghost" className={cn("h-7 px-2", OPERATOR_TYPOGRAPHY.button)} asChild>
+                    <Button type="button" size="sm" variant="outline" className={cn("h-7 px-2", OPERATOR_TYPOGRAPHY.button)} asChild>
                       <Link
                         href={getFindingEvidenceTraceHref(runId, row.findingId)}
                         prefetch={false}
@@ -304,7 +304,7 @@ export function RunFindingExplainabilityTable({
                         Why?
                       </Link>
                     </Button>
-                    <Button type="button" size="sm" variant="ghost" className={cn("h-7 px-2", OPERATOR_TYPOGRAPHY.button)} asChild>
+                    <Button type="button" size="sm" variant="outline" className={cn("h-7 px-2", OPERATOR_TYPOGRAPHY.button)} asChild>
                       <Link
                         href={`/architecture/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(row.findingId)}`}
                         prefetch={false}

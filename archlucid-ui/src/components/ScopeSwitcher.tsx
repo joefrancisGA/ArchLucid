@@ -566,7 +566,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
                 <Label className={cn("text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Override</Label>
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
                   className="h-8 w-full"
                   onClick={() => {
@@ -592,7 +592,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
           <Button
             ref={triggerRef}
             type="button"
-            variant="ghost"
+            variant="outline"
             className={cn(
               "inline-flex h-auto min-w-0 shrink cursor-pointer items-center gap-2 p-0 font-normal hover:bg-transparent",
               polishedMaxWidthClass,

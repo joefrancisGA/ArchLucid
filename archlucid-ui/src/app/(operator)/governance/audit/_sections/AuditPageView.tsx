@@ -125,7 +125,7 @@ export function AuditPageView(props: AuditPageViewProps) {
           )}
         >
           <p className="m-0">{BUYER_CTO_DEMO_AUDIT_DEMO_FILTER_BANNER}</p>
-          <Button type="button" variant="ghost" size="sm" className="h-8" onClick={props.onClearCtoDemoAuditFilter}>
+          <Button type="button" variant="outline" size="sm" className="h-8" onClick={props.onClearCtoDemoAuditFilter}>
             {BUYER_CTO_DEMO_AUDIT_SHOW_ALL_EVENTS_CTA}
           </Button>
         </div>

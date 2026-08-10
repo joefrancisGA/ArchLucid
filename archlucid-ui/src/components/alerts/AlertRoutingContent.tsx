@@ -431,7 +431,7 @@ export function AlertRoutingContent() {
           ) : null}
           <Button
             type="button"
-            variant="ghost"
+            variant="outline"
             onClick={() => {
               setName(DEFAULT_DESTINATION_NAME);
               setChannelType("Email");

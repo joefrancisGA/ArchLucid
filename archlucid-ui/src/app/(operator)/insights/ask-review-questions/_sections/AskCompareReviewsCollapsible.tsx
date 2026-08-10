@@ -35,7 +35,7 @@ export function AskCompareReviewsCollapsible(props: AskCompareReviewsCollapsible
         <CollapsibleTrigger asChild>
           <Button
             type="button"
-            variant="ghost"
+            variant="outline"
             className="h-auto w-full justify-between gap-2 p-0 font-medium text-neutral-900 hover:bg-transparent dark:text-neutral-100"
             aria-expanded={compareOpen}
           >

@@ -30,7 +30,7 @@ export function HelpMarkdownCodeBlock(props: HelpMarkdownCodeBlockProps): React.
     <div className="relative my-4">
       <Button
         type="button"
-        variant="ghost"
+        variant="outline"
         size="sm"
         className={cn("absolute right-2 top-2 h-7 gap-1 px-2 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}
         onClick={() => {

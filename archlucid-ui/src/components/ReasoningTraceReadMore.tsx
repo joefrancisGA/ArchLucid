@@ -29,7 +29,7 @@ export function ReasoningTraceReadMore({ heading, trace }: { heading: string; tr
       {needsTruncate ? (
         <Button
           type="button"
-          variant="ghost"
+          variant="outline"
           size="sm"
           className={cn("h-8 px-2", OPERATOR_TYPOGRAPHY.helper)}
           onClick={() => setExpanded((v) => !v)}

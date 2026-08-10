@@ -67,7 +67,6 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
     tocGroups ?? (isCaiqSigResponse ? buildCaiqSigResponseTocGroups(headings) : undefined);
   const postureCounts = isCaiqSigResponse ? computeCaiqSigResponsePostureCounts(preparedMarkdown) : null;
   const isAuthenticationSignInHelp = entry.slug === "authentication-sign-in";
-  const exportButtonVariant = isAuthenticationSignInHelp ? "ghost" : "outline";
   const isTechnicalReferenceLayout = layoutVariant === "technicalReference";
   const contentGridClass = isTechnicalReferenceLayout
     ? HELP_PAGE_LAYOUT.technicalReferenceGrid
@@ -96,7 +95,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
           </div>
           <div className="flex flex-wrap items-center gap-2" data-testid="help-topic-export-actions">
             {showContextualHelp ? <PageContextualHelpButton /> : null}
-            <HelpTopicPdfDownloadButton entry={entry} variant={exportButtonVariant} />
+            <HelpTopicPdfDownloadButton entry={entry} />
             {isAuthenticationSignInHelp ? null : <HelpTopicPrintButton entry={entry} />}
           </div>
         </div>

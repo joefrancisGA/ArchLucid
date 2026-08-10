@@ -54,7 +54,7 @@ export function RunTraceViewerLink({ traceId }: RunTraceViewerLinkProps) {
         </span>
         <Button
           type="button"
-          variant="ghost"
+          variant="outline"
           size="sm"
           className="h-7 px-2 text-neutral-600 dark:text-neutral-400"
           onClick={handleCopy}
@@ -91,7 +91,7 @@ export function RunTraceViewerLink({ traceId }: RunTraceViewerLinkProps) {
       </span>
       <Button
         type="button"
-        variant="ghost"
+        variant="outline"
         size="sm"
         className="h-7 px-2 text-neutral-600 dark:text-neutral-400"
         onClick={handleCopy}

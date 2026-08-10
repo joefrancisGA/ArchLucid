@@ -21,7 +21,7 @@ export function ScopeSwitcherProjectOptionButton(
   return (
     <Button
       type="button"
-      variant={selected ? "secondary" : "ghost"}
+      variant={selected ? "secondary" : "outline"}
       size="sm"
       className={cn(
         "h-auto min-h-8 w-full justify-start gap-2 px-2 py-1.5 text-left",

@@ -57,7 +57,7 @@ function FieldRow(props: { readonly label: string; readonly value: string; reado
         {props.copyable ? (
           <Button
             type="button"
-            variant="ghost"
+            variant="outline"
             size="sm"
             className="ml-2 h-7 px-2"
             onClick={() => void copyOperationalIdentifier(props.value)}

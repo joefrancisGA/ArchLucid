@@ -59,7 +59,7 @@ export function InviteReviewerPageView(props: Props) {
               <Button type="button" variant="secondary" size="sm" asChild>
                 <Link href={INVITE_REVIEWER_BACK_TO_REVIEW_HREF}>{INVITE_REVIEWER_BACK_LABEL}</Link>
               </Button>
-              <Button type="button" variant="ghost" size="sm" asChild>
+              <Button type="button" variant="outline" size="sm" asChild>
                 <Link href={SETTINGS_ROLES_USERS_TAB_PATH}>Open Users and roles</Link>
               </Button>
             </div>
@@ -101,7 +101,7 @@ function InviteReviewerPageHeader(): React.JSX.Element {
   return (
     <header className="space-y-2">
       <div className="flex flex-wrap items-start justify-between gap-2">
-        <Button type="button" variant="ghost" size="sm" className="-ml-2 h-8 px-2" asChild>
+        <Button type="button" variant="outline" size="sm" className="-ml-2 h-8 px-2" asChild>
           <Link href={INVITE_REVIEWER_BACK_TO_REVIEW_HREF}>{INVITE_REVIEWER_BACK_LABEL}</Link>
         </Button>
         <PageContextualHelpButton />

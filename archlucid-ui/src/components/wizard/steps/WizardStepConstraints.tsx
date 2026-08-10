@@ -94,7 +94,7 @@ function ChipListBlock(props: {
                 ) : null}
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
                   className="h-6 px-1 text-neutral-600"
                   onClick={() => removeItem(index)}

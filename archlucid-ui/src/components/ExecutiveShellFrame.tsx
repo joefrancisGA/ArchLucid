@@ -63,7 +63,7 @@ export function ExecutiveShellFrame({ children }: ExecutiveShellFrameProps) {
         >
           <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_SHELL_CONTENT_PADDING_X_CLASS, "flex flex-wrap items-center justify-between gap-3 py-2.5")}>
             <div className="flex min-w-0 flex-wrap items-center gap-2">
-              <Button variant="ghost" className="h-auto shrink-0 p-0" asChild>
+              <Button variant="outline" className="h-auto shrink-0 p-0" asChild>
                 <ArchLucidWordmarkLink
                   href={EXECUTIVE_DASHBOARD_HREF}
                   aria-label="ArchLucid — executive dashboard"
@@ -72,7 +72,7 @@ export function ExecutiveShellFrame({ children }: ExecutiveShellFrameProps) {
               </Button>
               <Button
                 asChild
-                variant="ghost"
+                variant="outline"
                 size="sm"
                 className={executiveNavLinkClassName(isExecutiveDashboardNavActive(pathname))}
               >
@@ -85,7 +85,7 @@ export function ExecutiveShellFrame({ children }: ExecutiveShellFrameProps) {
               data-testid="executive-shell-topbar-session"
               className="flex min-w-0 flex-wrap items-center justify-end gap-2"
             >
-              <Button asChild variant="ghost" size="sm" className="shrink-0 text-neutral-700 dark:text-neutral-300">
+              <Button asChild variant="outline" size="sm" className="shrink-0 text-neutral-700 dark:text-neutral-300">
                 <Link href="/" data-testid="executive-shell-architect-workspace-link">
                   {PERSONA_SHELL_WORKSPACE_LABEL}
                 </Link>

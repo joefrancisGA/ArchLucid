@@ -66,7 +66,7 @@ export function PageScopedContextualHelpPanel({
       <HelpPopoverTrigger asChild>
         <Button
           type="button"
-          variant="ghost"
+          variant="outline"
           size="sm"
           className="h-8 gap-1.5 px-2 text-neutral-700 dark:text-neutral-300"
           data-testid="page-contextual-help-button"

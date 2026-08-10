@@ -135,7 +135,7 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
 
         <Button
           type="button"
-          variant="ghost"
+          variant="outline"
           size="icon"
           className={cn(
             "shrink-0 text-neutral-400 hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-200",

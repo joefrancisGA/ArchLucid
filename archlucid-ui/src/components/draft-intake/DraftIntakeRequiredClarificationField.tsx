@@ -127,7 +127,7 @@ export function DraftIntakeRequiredClarificationField(
         <Button
           type="button"
           size={actionSize}
-          variant="link"
+          variant="outline"
           disabled={props.busy}
           onClick={() => {
             props.onSkip(props.question.questionKey);

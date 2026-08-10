@@ -89,7 +89,7 @@ export function EvidenceTrailBuyerTraceTable(props: EvidenceTrailBuyerTraceTable
               >
                 {truncateForList(titleFull, 120)}
               </div>
-              <Button type="button" variant="ghost" size="sm" className={cn("mt-1 h-7 px-2", OPERATOR_TYPOGRAPHY.helper)} asChild>
+              <Button type="button" variant="outline" size="sm" className={cn("mt-1 h-7 px-2", OPERATOR_TYPOGRAPHY.helper)} asChild>
                 <Link href={getFindingEvidenceTraceHref(runTrim, row.findingId)}>
                   Open finding
                 </Link>

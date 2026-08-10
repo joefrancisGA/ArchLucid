@@ -46,7 +46,7 @@ export function NavPinnedLinksPanel() {
         <span className={cn("font-semibold uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Pinned</span>
         <Button
           type="button"
-          variant="ghost"
+          variant="outline"
           size="sm"
           className={cn("h-7 gap-1 px-2", OPERATOR_TYPOGRAPHY.helper)}
           onClick={pinCurrent}

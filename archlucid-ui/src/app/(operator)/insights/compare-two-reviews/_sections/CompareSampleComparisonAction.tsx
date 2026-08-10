@@ -9,7 +9,7 @@ import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 
 export type CompareSampleComparisonActionProps = {
   readonly onLoadSampleComparison?: () => void;
-  readonly variant?: "outline" | "ghost";
+  readonly variant?: "outline";
   readonly size?: "sm" | "default";
 };
 

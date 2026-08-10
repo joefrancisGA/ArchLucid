@@ -30,6 +30,7 @@ Specific rules:
 - Product language: architecture package, finding, residual risk, evidence trail, signed review record, decision, governance approval, audit trail. Never call the package a signed decision record; ADR remains Architecture Decision Record for ADR export wording.
 - Form validation affordances (**TB-2005**): disable primary submit/continue until hard client validation passes; show errors on the form; reserve `showError` toasts for system/async failures — see `UI_DESIGN_SYSTEM.md` § Form validation affordances and `.cursor/rules/UI-Form-Validation-Affordances.mdc`.
 - Button / CTA width: prefer `CTA_WIDTH.content` (`w-fit`) for card footers, heroes, and short-label actions. Do not stretch short labels with `w-full` across wide cards or heroes. Use `CTA_WIDTH.formMatch` only for narrow form/auth columns; `CTA_WIDTH.listRow` only for constrained rail/list hit-targets.
+- Visible-boundary `Button` contract (**TB-2168**): every `Button` needs a border (`outline`) or solid fill (`primary` / `default` / `secondary` / `destructive`). **Never** use `ghost` or `link` variants — they are removed from `button.tsx`. Tertiary/dismiss/cancel → `outline`. Text navigation → `OPERATOR_LINK` / `<Link>`, not ghost `Button asChild`.
 
 ## Do not
 

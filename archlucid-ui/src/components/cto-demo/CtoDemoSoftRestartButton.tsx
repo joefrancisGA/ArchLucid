@@ -23,7 +23,7 @@ export function CtoDemoSoftRestartButton(): React.JSX.Element {
   return (
     <Button
       type="button"
-      variant="ghost"
+      variant="outline"
       size="sm"
       className="text-neutral-600 dark:text-neutral-400"
       disabled={busy}

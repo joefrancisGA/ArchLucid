@@ -9,11 +9,10 @@ import type { ProductDocumentationEntry } from "@/lib/product-documentation-regi
 
 type HelpTopicPdfDownloadButtonProps = {
   readonly entry: ProductDocumentationEntry;
-  readonly variant?: "outline" | "ghost";
 };
 
 export function HelpTopicPdfDownloadButton(props: HelpTopicPdfDownloadButtonProps): React.ReactElement | null {
-  const { entry, variant = "outline" } = props;
+  const { entry } = props;
 
   if (entry.pdfStatus === null) {
     return null;
@@ -21,7 +20,7 @@ export function HelpTopicPdfDownloadButton(props: HelpTopicPdfDownloadButtonProp
 
   if (entry.pdfStatus === "public") {
     return (
-      <Button type="button" variant={variant} size="sm" asChild data-testid="help-topic-download-pdf">
+      <Button type="button" variant="outline" size="sm" asChild data-testid="help-topic-download-pdf">
         <a href={resolvePublicHelpTopicPdfHref(entry.slug)} download>
           Download PDF
         </a>
@@ -33,16 +32,15 @@ export function HelpTopicPdfDownloadButton(props: HelpTopicPdfDownloadButtonProp
     return null;
   }
 
-  return <HelpTopicCustomerPdfDownloadButton slug={entry.slug} variant={variant} />;
+  return <HelpTopicCustomerPdfDownloadButton slug={entry.slug} />;
 }
 
 type HelpTopicCustomerPdfDownloadButtonProps = {
   readonly slug: string;
-  readonly variant: "outline" | "ghost";
 };
 
 function HelpTopicCustomerPdfDownloadButton(props: HelpTopicCustomerPdfDownloadButtonProps): React.ReactElement {
-  const { slug, variant } = props;
+  const { slug } = props;
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,7 +48,7 @@ function HelpTopicCustomerPdfDownloadButton(props: HelpTopicCustomerPdfDownloadB
     <div className="flex flex-wrap items-center gap-2">
       <Button
         type="button"
-        variant={variant}
+        variant="outline"
         size="sm"
         disabled={busy}
         data-testid="help-topic-download-pdf"

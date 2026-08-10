@@ -40,7 +40,7 @@ describe("HelpTopicMarkdownView authentication and sign-in", () => {
     expect(text).toMatch(/not available as a routine bypass/i);
   });
 
-  it("shows registry provenance, sign-in triage, and a single ghost export control", () => {
+  it("shows registry provenance, sign-in triage, and a single bordered export control", () => {
     if (loaded === null) {
       throw new Error("Expected authentication documentation to load.");
     }

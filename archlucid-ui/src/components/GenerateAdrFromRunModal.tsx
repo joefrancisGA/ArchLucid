@@ -102,7 +102,7 @@ export function GenerateAdrFromRunModal({ input, buyerPolished = false }: Genera
             />
           </div>
           <DialogFooter className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:gap-2">
-            <Button type="button" variant="ghost" onClick={seedFromInput} title="Discard edits and rebuild from run data">
+            <Button type="button" variant="outline" onClick={seedFromInput} title="Discard edits and rebuild from run data">
               Reset to template
             </Button>
             <div className="flex flex-wrap gap-2 sm:justify-end">

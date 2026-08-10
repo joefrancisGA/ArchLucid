@@ -326,6 +326,16 @@ Product separator is a colon (`Label: value`), not a comma.
 | **`FilterChip`** | Optional filters, drill-down links, compact toggles outside a tab strip | `button` or `link` | Mutually exclusive page sections with dedicated panels |
 | **Segmented control** (`aria-pressed` / radiogroup) | 2–4 compact modes on one dataset where tab panels are not used (graph scope pills) | `aria-pressed` or `radiogroup` | Multi-panel layouts needing `tabpanel` linkage — use **`Tabs variant="pill"`** instead |
 
+### Visible-boundary `Button` contract (**TB-2168**)
+
+Every `Button` must have a **visible boundary** — a **border** or a **solid fill**. Tertiary, dismiss, cancel, and dense row actions use **`variant="outline"`** (border). Primary commit actions use **`primary`**; quiet filled actions use **`default`** / **`secondary`**; destructive actions use **`destructive`**.
+
+**Banned:** `ghost` and `link` variants — they render with neither border nor fill and are indistinguishable from body copy on dense governance surfaces.
+
+**Text-styled navigation** (wordmarks, inline “learn more”, help deep-links) uses **`OPERATOR_LINK`** / `<Link>` styling — not `Button variant="link"` or ghost `Button asChild` wrappers. Link-as-button carve-outs are tracked in **TB-1671**–**TB-1675**.
+
+**Borderless fills are intentional:** `primary`, `secondary`, `default`, and `destructive` stay **without** an extra neutral ring. Adding borders to filled variants would (a) read as a halo on teal/red fills, (b) need per-theme border tokens across four theme permutations, (c) contradict § *Color and surface* (“borders communicate state, not decorate”), and (d) converge button chrome with `Tabs variant="pill"` / `FilterChip` (**TB-665**). IBM Carbon Primary/Secondary/Danger buttons are borderless fills — ArchLucid follows that pattern for filled variants.
+
 ### Button / CTA width
 
 Prefer **content-sized** buttons (`CTA_WIDTH.content` → `w-fit max-w-full`). Do not stretch short labels across a hero, pricing card, or wide card footer.

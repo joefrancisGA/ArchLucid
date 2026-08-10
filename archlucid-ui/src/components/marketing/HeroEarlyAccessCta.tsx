@@ -117,7 +117,7 @@ export function HeroEarlyAccessCta(props: HeroEarlyAccessCtaProps) {
       {open ? null : (
         <Button
           type="button"
-          variant="ghost"
+          variant="outline"
           size="sm"
           className={cn("font-medium text-teal-800 dark:text-teal-200", OPERATOR_TYPOGRAPHY.body)}
           onClick={() => setOpen(true)}
@@ -187,7 +187,7 @@ export function HeroEarlyAccessCta(props: HeroEarlyAccessCtaProps) {
               {busy ? "Sending…" : submitLabel}
             </Button>
             {canCancel ? (
-              <Button type="button" variant="ghost" size="sm" disabled={busy} onClick={() => setOpen(false)}>
+              <Button type="button" variant="outline" size="sm" disabled={busy} onClick={() => setOpen(false)}>
                 Cancel
               </Button>
             ) : null}

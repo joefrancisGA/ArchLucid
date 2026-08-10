@@ -143,7 +143,7 @@ export function OperatorShellTopBarMoreMenu(props: OperatorShellTopBarMoreMenuPr
       <Button
         ref={triggerRef}
         type="button"
-        variant="ghost"
+        variant="outline"
         size="sm"
         className="inline-flex h-7 w-7 items-center justify-center p-0"
         data-testid="operator-shell-topbar-more-trigger"

@@ -61,7 +61,7 @@ export function GraphBuyerEvidenceTrailError(props: GraphBuyerEvidenceTrailError
         <Button type="button" variant="outline" size="sm" asChild>
           <Link href={troubleshootingHref}>Open troubleshooting</Link>
         </Button>
-        <Button type="button" variant="ghost" size="sm" asChild>
+        <Button type="button" variant="outline" size="sm" asChild>
           <Link href="/administration/system-health">System health</Link>
         </Button>
       </div>

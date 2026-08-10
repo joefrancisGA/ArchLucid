@@ -223,7 +223,7 @@ export function WelcomeModal(props: WelcomeModalProps) {
               </div>
 
               {stepIndex > 0 ? (
-                <Button type="button" variant="ghost" className={cn("self-center", OPERATOR_TYPOGRAPHY.body)} onClick={goBack}>
+                <Button type="button" variant="outline" className={cn("self-center", OPERATOR_TYPOGRAPHY.body)} onClick={goBack}>
                   Back
                 </Button>
               ) : null}
@@ -247,10 +247,10 @@ export function WelcomeModal(props: WelcomeModalProps) {
               </div>
 
               <div className="flex w-full flex-wrap justify-center gap-2">
-                <Button type="button" variant="ghost" className={OPERATOR_TYPOGRAPHY.body} onClick={goBack}>
+                <Button type="button" variant="outline" className={OPERATOR_TYPOGRAPHY.body} onClick={goBack}>
                   Back
                 </Button>
-                <Button type="button" variant="ghost" className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} asChild>
+                <Button type="button" variant="outline" className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} asChild>
                   <Link href="/architecture/reviews" onClick={onDismiss}>
                     Browse reviews
                   </Link>

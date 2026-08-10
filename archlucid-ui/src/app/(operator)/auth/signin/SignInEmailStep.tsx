@@ -88,7 +88,7 @@ export function SignInEmailStep({
           <Button type="submit" variant="primary" disabled={pending} data-testid="sign-in-send-code">
             {pending ? SIGN_IN_PAGE_COPY.sendingCode : SIGN_IN_PAGE_COPY.sendCode}
           </Button>
-          <Button type="button" variant="ghost" onClick={onBack} disabled={pending} data-testid="sign-in-email-back">
+          <Button type="button" variant="outline" onClick={onBack} disabled={pending} data-testid="sign-in-email-back">
             {SIGN_IN_PAGE_COPY.backToOptions}
           </Button>
         </div>

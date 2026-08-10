@@ -41,7 +41,7 @@ export function SidebarNavLayoutSettingsPanel(
       <div className="mt-2 border-t border-neutral-200 pt-3 dark:border-neutral-700">
         <Button
           type="button"
-          variant="ghost"
+          variant="outline"
           size="sm"
           className={cn("sidebar-disclosure-trigger w-full justify-start gap-2 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}
           data-onboarding="tour-nav-settings"

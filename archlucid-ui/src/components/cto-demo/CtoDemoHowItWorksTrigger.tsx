@@ -42,7 +42,7 @@ export function CtoDemoHowItWorksTrigger(props: CtoDemoHowItWorksTriggerProps): 
         How we handle your data →
       </button>
     ) : (
-      <Button type="button" variant="ghost" size="sm" className="h-8 px-2" data-testid="cto-demo-how-it-works-trigger">
+      <Button type="button" variant="outline" size="sm" className="h-8 px-2" data-testid="cto-demo-how-it-works-trigger">
         <Shield className="mr-1 h-3.5 w-3.5" aria-hidden />
         How it works
       </Button>

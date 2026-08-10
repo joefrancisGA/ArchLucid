@@ -490,7 +490,7 @@ export function AuthDomainsPageClient() {
               <div className="flex flex-wrap gap-2">
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="outline"
                   disabled={busy}
                   data-testid="auth-domains-enforcement-optional"
                   onClick={() =>
@@ -503,7 +503,7 @@ export function AuthDomainsPageClient() {
                 </Button>
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="outline"
                   disabled={busy}
                   data-testid="auth-domains-enforcement-required"
                   onClick={() =>
@@ -516,7 +516,7 @@ export function AuthDomainsPageClient() {
                 </Button>
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="outline"
                   disabled={busy}
                   data-testid="auth-domains-enforcement-recovery"
                   onClick={() =>
@@ -555,7 +555,7 @@ export function AuthDomainsPageClient() {
                       {row.authenticationVerifiedUtc ? " · verified" : " · not verified"}
                       <Button
                         type="button"
-                        variant="ghost"
+                        variant="outline"
                         className="ml-2"
                         disabled={busy}
                         data-testid={`auth-domains-remove-recovery-${row.normalizedRecoveryAdminEmail}`}

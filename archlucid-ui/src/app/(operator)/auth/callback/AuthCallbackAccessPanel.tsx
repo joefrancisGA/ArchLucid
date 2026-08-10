@@ -257,7 +257,7 @@ export function AuthCallbackAccessPanel({ technicalDetail }: AuthCallbackAccessP
             </Button>
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               size="sm"
               disabled={submitting}
               onClick={() => {
