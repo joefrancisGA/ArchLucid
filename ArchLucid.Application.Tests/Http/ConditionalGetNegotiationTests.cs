@@ -5,6 +5,8 @@ using FluentAssertions;
 
 namespace ArchLucid.Application.Tests.Http;
 
+[Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
 public sealed class ConditionalGetNegotiationTests
 {
     [Fact]
