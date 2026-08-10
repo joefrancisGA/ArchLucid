@@ -13,13 +13,22 @@ export function HelpTopicSignInFailureTriageLine(): React.ReactElement {
       data-testid="help-topic-sign-in-failure-triage"
     >
       <span className="font-medium">{AUTHENTICATION_SIGN_IN_FAILURE_TRIAGE_PROMPT}</span>
-      {" → "}
+      <span aria-hidden="true"> → </span>
       {AUTHENTICATION_SIGN_IN_FAILURE_TRIAGE_LINKS.map((link, index) => (
         <span key={link.href}>
-          {index > 0 ? <span className="text-al-text-secondary"> · </span> : null}
+          {index > 0 ? (
+            <span aria-hidden="true" className="text-al-text-secondary">
+              {" "}
+              ·{" "}
+            </span>
+          ) : null}
           <Link
             href={link.href}
-            className={cn("font-medium underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
+            className={cn(
+              "inline-flex min-h-6 items-center py-1 font-medium underline-offset-2 hover:underline",
+              DESIGN_TOKENS.accent.link,
+              DESIGN_TOKENS.accent.focusRing,
+            )}
           >
             {link.label}
           </Link>
