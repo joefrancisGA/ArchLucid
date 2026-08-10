@@ -76,6 +76,7 @@ describe("RunDetailWorkspaceHeader", () => {
       />,
     );
 
+    expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1, name: "Claims API" })).toBeInTheDocument();
     expect(screen.getByText("Claims platform review")).toBeInTheDocument();
     expect(screen.getByText("Review ID")).toBeInTheDocument();

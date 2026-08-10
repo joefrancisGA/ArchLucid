@@ -52,7 +52,12 @@ export function PolicyPackGenericDetail(props: PolicyPackGenericDetailProps): Re
 
   return (
     <div className="w-full max-w-[1200px] space-y-6 p-4" data-testid="policy-pack-generic-detail">
-      <OperatorPageHeader title={packName} subtitle={description} titleTestId="policy-pack-detail-title" />
+      <OperatorPageHeader
+        navHref={GOVERNANCE_POLICY_PACKS_PATH}
+        title={packName}
+        subtitle={description}
+        titleTestId="policy-pack-detail-title"
+      />
 
       <Card>
         <CardHeader className="flex flex-row flex-wrap items-center gap-2 space-y-0">

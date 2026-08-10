@@ -6,6 +6,7 @@ import Link from "next/link";
 import { getShowcaseWalkthroughHref } from "@/lib/buyer-safe-review-navigation";
 
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +18,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance-route-paths";
 import { formatInstantForBuyerGovernance } from "@/lib/locale-datetime";
 import {
   formatGovernanceLineageCompletenessPercent,
@@ -37,19 +39,21 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Approval lineage</h1>
-          <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{displayApprovalTitle}</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <PageContextualHelpButton />
-          {/* Returns to the curated showcase walkthrough, not the breadcrumb parent (approval request detail). */}
-          <Button variant="outline" size="sm" asChild>
-            <Link href={getShowcaseWalkthroughHref()}>Back to governance approval</Link>
-          </Button>
-        </div>
-      </div>
+      <OperatorPageHeader
+        navHref={GOVERNANCE_APPROVAL_QUEUE_PATH}
+        title="Approval lineage"
+        subtitle={displayApprovalTitle}
+        titleTestId="approval-lineage-page-title"
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <PageContextualHelpButton />
+            {/* Returns to the curated showcase walkthrough, not the breadcrumb parent (approval request detail). */}
+            <Button variant="outline" size="sm" asChild>
+              <Link href={getShowcaseWalkthroughHref()}>Back to governance approval</Link>
+            </Button>
+          </div>
+        }
+      />
 <Card>
         <CardHeader>
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Approval</CardTitle>

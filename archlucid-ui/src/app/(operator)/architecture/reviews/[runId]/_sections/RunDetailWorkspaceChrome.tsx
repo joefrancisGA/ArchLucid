@@ -3,11 +3,13 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { NavDerivedPageIcon } from "@/components/PageHeading";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { buttonVariants } from "@/components/ui/button";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
 
@@ -33,24 +35,27 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
       data-testid="run-detail-workspace-header"
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0 space-y-1">
-          <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            {props.eyebrowLabel}
-          </p>
-          <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>
-            {props.h1Title}
-          </h1>
-          <div
-            className={cn(
-              "flex flex-wrap items-center gap-x-3 gap-y-1 text-neutral-600 dark:text-neutral-400",
-              OPERATOR_TYPOGRAPHY.helper,
-            )}
-          >
-            <span className="inline-flex min-w-0 items-center gap-1">
-              <span className="font-medium text-neutral-700 dark:text-neutral-300">Review ID</span>
-              <code className="max-w-[14rem] truncate font-mono select-all">{props.reviewIdentifierLabel}</code>
-              <CopyIdButton value={props.runId} aria-label="Copy review ID" />
-            </span>
+        <div className="flex min-w-0 flex-1 items-start gap-3">
+          <NavDerivedPageIcon navHref={REVIEWS_LIST_PATH} />
+          <div className="min-w-0 flex-1 space-y-1">
+            <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              {props.eyebrowLabel}
+            </p>
+            <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>
+              {props.h1Title}
+            </h1>
+            <div
+              className={cn(
+                "flex flex-wrap items-center gap-x-3 gap-y-1 text-neutral-600 dark:text-neutral-400",
+                OPERATOR_TYPOGRAPHY.helper,
+              )}
+            >
+              <span className="inline-flex min-w-0 items-center gap-1">
+                <span className="font-medium text-neutral-700 dark:text-neutral-300">Review ID</span>
+                <code className="max-w-[14rem] truncate font-mono select-all">{props.reviewIdentifierLabel}</code>
+                <CopyIdButton value={props.runId} aria-label="Copy review ID" />
+              </span>
+            </div>
           </div>
         </div>
         <PageContextualHelpButton />

@@ -1,6 +1,9 @@
-import { CloudCog, Hash, Ticket, Users, Workflow } from "lucide-react";
+import { CloudCog, GitBranch, Hash, ListOrdered, Shield, Ticket, UserCog, Users, Workflow } from "lucide-react";
 import { describe, expect, it } from "vitest";
 
+import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
+import { SSO_WIZARD_CANONICAL_PATH } from "@/lib/sso-wizard-evidence-copy";
 import {
   CLOUD_CONNECTIONS_PATH,
   INTEGRATIONS_JIRA_PATH,
@@ -34,8 +37,22 @@ describe("resolveNavLinkForPathname", () => {
     expect(resolveNavIconForHref("/help/billing-and-plans")).toBeUndefined();
   });
 
-  it("does not assign primary nav icons to review detail routes without nav rows", () => {
-    expect(resolveNavIconForHref("/architecture/reviews/runs/00000000-0000-0000-0000-000000000001")).toBeUndefined();
+  it("inherits the reviews list nav icon on review package detail routes", () => {
+    expect(resolveNavIconForHref(REVIEWS_LIST_PATH)).toBe(ListOrdered);
+    expect(resolveNavIconForHref("/architecture/reviews/00000000-0000-0000-0000-000000000001")).toBe(ListOrdered);
+  });
+
+  it("inherits the policy packs nav icon on policy pack detail routes", () => {
+    expect(resolveNavIconForHref(GOVERNANCE_POLICY_PACKS_PATH)).toBe(Shield);
+    expect(resolveNavIconForHref("/governance/policy-packs/responsible-ai")).toBe(Shield);
+  });
+
+  it("resolves the SSO wizard nav icon on the wizard route", () => {
+    expect(resolveNavIconForHref(SSO_WIZARD_CANONICAL_PATH)).toBe(UserCog);
+  });
+
+  it("resolves the approval queue nav icon for governance approval workflow surfaces", () => {
+    expect(resolveNavIconForHref(GOVERNANCE_APPROVAL_QUEUE_PATH)).toBe(GitBranch);
   });
 
   it("keeps Microsoft Teams distinct from Users & roles", () => {

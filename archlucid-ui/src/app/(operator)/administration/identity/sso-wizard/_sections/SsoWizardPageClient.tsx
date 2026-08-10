@@ -41,6 +41,7 @@ import {
   SSO_WIZARD_TEST_LOGIN_SUCCESS_MESSAGE,
 } from "@/lib/admin-integration-mutation-outcome-copy";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SSO_WIZARD_CANONICAL_PATH } from "@/lib/sso-wizard-evidence-copy";
 
 import { SsoWizardFooter } from "./SsoWizardFooter";
 import { SsoWizardProtocolHelpDisclosure } from "./SsoWizardProtocolHelpDisclosure";
@@ -322,6 +323,7 @@ export function SsoWizardPageClient() {
         </p>
 
         <OperatorPageHeader
+          navHref={SSO_WIZARD_CANONICAL_PATH}
           title={SSO_WIZARD_PAGE_TITLE}
           subtitle={SSO_WIZARD_PAGE_INTRO}
           titleTestId="sso-wizard-page-title"
