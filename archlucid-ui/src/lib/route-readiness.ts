@@ -97,8 +97,8 @@ export function operatorRouteReadiness(href: string): RouteReadinessTier {
     return fromTable ?? "demo-ready";
   }
 
-  const trimmedPath = canonicalizeLegacyOperatorRoutePath(path.trim().length === 0 ? "/" : path).split("#")[0]
-    ?? path;
+  const canonicalPath = canonicalizeLegacyOperatorRoutePath(path.trim().length === 0 ? "/" : path);
+  const trimmedPath = readinessLookupPath(canonicalPath);
 
   if (trimmedPath.startsWith("/governance/approval-requests")) {
     return "admin-only";
@@ -111,6 +111,13 @@ export function operatorRouteReadiness(href: string): RouteReadinessTier {
   }
 
   return "demo-ready";
+}
+
+function readinessLookupPath(canonicalPath: string): string {
+  const withoutHash = canonicalPath.split("#")[0] ?? canonicalPath;
+  const withoutQuery = withoutHash.split("?")[0] ?? withoutHash;
+
+  return withoutQuery.length === 0 ? "/" : withoutQuery;
 }
 
 /**
@@ -162,8 +169,7 @@ const DEMO_MODE_EXPLICIT_NAV_HIDE = new Set<string>([
 
 function normalizeOperatorNavHrefForDemo(href: string): string {
   const [path, query] = href.split("?", 2);
-  const trimmed = canonicalizeLegacyOperatorRoutePath(path.trim().length === 0 ? "/" : path).split("#")[0]
-    ?? path;
+  const trimmed = readinessLookupPath(canonicalizeLegacyOperatorRoutePath(path.trim().length === 0 ? "/" : path));
 
   if (trimmed === "/architecture/reviews" && query !== undefined && query.includes("projectId=")) {
     return "/architecture/reviews";

@@ -25,6 +25,11 @@ describe("operatorRouteReadiness", () => {
       expect(operatorRouteReadiness(href)).toBe("advanced-only");
     }
   });
+
+  it("treats legacy /digest-subscriptions bookmark as advanced-only Digests hub (TB-1495)", () => {
+    expect(operatorRouteReadiness("/digest-subscriptions")).toBe("advanced-only");
+    expect(operatorRouteReadiness("/architecture/digests?tab=subscriptions")).toBe("advanced-only");
+  });
 });
 
 describe("presenter safe mode nav hiding", () => {
