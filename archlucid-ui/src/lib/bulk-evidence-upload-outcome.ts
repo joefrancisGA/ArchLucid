@@ -1,3 +1,8 @@
+import {
+  BULK_EVIDENCE_UPLOAD_EMPTY_FILE_REASON,
+  BULK_EVIDENCE_UPLOAD_FILE_NOT_STORED_REASON,
+} from "@/lib/bulk-evidence-upload-copy";
+
 /** Per-file row after a bulk evidence upload attempt. */
 export type BulkEvidenceFileOutcome = {
   fileName: string;
@@ -58,7 +63,7 @@ export function mapBulkEvidenceFileOutcomes(
       return {
         fileName,
         status: "failed",
-        reason: "Empty file (skipped by server)",
+        reason: BULK_EVIDENCE_UPLOAD_EMPTY_FILE_REASON,
       };
     }
 

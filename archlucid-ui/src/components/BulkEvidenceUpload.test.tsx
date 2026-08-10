@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 import * as bulkEvidenceUploadClient from "@/lib/bulk-evidence-upload-client";
+import { BULK_EVIDENCE_UPLOAD_MAX_FILES } from "@/lib/bulk-evidence-upload-copy";
 
 import { BulkEvidenceUpload } from "./BulkEvidenceUpload";
 
@@ -19,7 +20,7 @@ describe("BulkEvidenceUpload Component", () => {
 
   it("renders quota indicator '0 / 200'", () => {
     render(<BulkEvidenceUpload runId="test-run-id" />);
-    expect(screen.getByText("0 / 200 files")).toBeInTheDocument();
+    expect(screen.getByText(`0 / ${BULK_EVIDENCE_UPLOAD_MAX_FILES} files`)).toBeInTheDocument();
     expect(screen.getByText(/Upload up to 200 files per action/i)).toBeInTheDocument();
     expect(screen.getByText(/ZIP archives are expanded automatically/i)).toBeInTheDocument();
   });
@@ -32,7 +33,7 @@ describe("BulkEvidenceUpload Component", () => {
     const files = Array.from({ length: 5 }).map((_, i) => new File(["content"], `file${i}.txt`, { type: "text/plain" }));
     fireEvent.change(fileInput, { target: { files } });
 
-    expect(screen.getByText("5 / 200 files")).toBeInTheDocument();
+    expect(screen.getByText(`5 / ${BULK_EVIDENCE_UPLOAD_MAX_FILES} files`)).toBeInTheDocument();
   });
 
   it("selecting 201 files shows error and disables upload button", () => {
@@ -49,7 +50,7 @@ describe("BulkEvidenceUpload Component", () => {
       ),
     ).toBeInTheDocument();
 
-    const uploadButton = screen.getByRole("button", { name: "Upload Evidence" });
+    const uploadButton = screen.getByRole("button", { name: "Upload evidence" });
     expect(uploadButton).toBeDisabled();
   });
 
@@ -86,10 +87,11 @@ describe("BulkEvidenceUpload Component", () => {
       target: { files: [new File(["content"], "evidence.txt", { type: "text/plain" })] },
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Upload Evidence" }));
+    fireEvent.click(screen.getByRole("button", { name: "Upload evidence" }));
 
     expect(await screen.findByTestId("bulk-evidence-upload-progress")).toBeInTheDocument();
     expect(screen.getByText("50%")).toBeInTheDocument();
+    expect(screen.getByTestId("bulk-evidence-upload-cancel")).toBeInTheDocument();
 
     finishUpload?.({
       status: 200,
@@ -121,10 +123,95 @@ describe("BulkEvidenceUpload Component", () => {
       },
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Upload Evidence" }));
+    fireEvent.click(screen.getByRole("button", { name: "Upload evidence" }));
 
     await waitFor(() => {
       expect(screen.getByTestId("bulk-evidence-upload-file-outcomes")).toHaveTextContent("second.txt");
     });
+  });
+
+  it("enables retry after a failed upload when files remain selected", async () => {
+    postBulkEvidence.mockResolvedValue({
+      status: 500,
+      bodyText: JSON.stringify({ detail: "Internal storage failure" }),
+    });
+
+    render(<BulkEvidenceUpload runId="test-run-id" />);
+
+    const fileInput = screen.getByTestId("evidence-file-input");
+    fireEvent.change(fileInput, {
+      target: { files: [new File(["content"], "retry-me.txt", { type: "text/plain" })] },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Upload evidence" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("operator-error-recovery-what-failed")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("bulk-evidence-upload-error-diagnostics")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Retry upload" })).toBeEnabled();
+  });
+
+  it("cancels an in-flight upload", async () => {
+    let rejectUpload: ((error: DOMException) => void) | undefined;
+
+    postBulkEvidence.mockImplementation((_runId, _files, _onProgress, signal) => {
+      return new Promise((_resolve, reject) => {
+        rejectUpload = reject;
+
+        signal?.addEventListener("abort", () => {
+          reject(new DOMException("Upload aborted", "AbortError"));
+        });
+      });
+    });
+
+    render(<BulkEvidenceUpload runId="test-run-id" />);
+
+    const fileInput = screen.getByTestId("evidence-file-input");
+    fireEvent.change(fileInput, {
+      target: { files: [new File(["content"], "cancel-me.txt", { type: "text/plain" })] },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Upload evidence" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("bulk-evidence-upload-cancel")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("bulk-evidence-upload-cancel"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Upload cancelled.")).toBeInTheDocument();
+    });
+
+    expect(rejectUpload).toBeDefined();
+    expect(screen.getByTestId("operator-error-recovery-next-step")).toHaveTextContent(/submitted evidence inventory/i);
+  });
+
+  it("does not expose a focusable drop-zone button", () => {
+    render(<BulkEvidenceUpload runId="test-run-id" embedded />);
+
+    expect(screen.getByTestId("bulk-evidence-drop-zone")).not.toHaveAttribute("role", "button");
+    expect(screen.getByTestId("bulk-evidence-drop-zone")).not.toHaveAttribute("tabindex");
+    expect(screen.getByText("Select files")).toBeInTheDocument();
+    expect(screen.getByText("Select folder")).toBeInTheDocument();
+    expect(screen.getByTestId("evidence-file-input")).toBeInTheDocument();
+  });
+
+  it("shows full file names without title tooltips", () => {
+    render(<BulkEvidenceUpload runId="test-run-id" />);
+
+    const longName = "quarterly-architecture-brief-with-a-very-long-filename-for-wrapping.txt";
+    const fileInput = screen.getByTestId("evidence-file-input");
+
+    fireEvent.change(fileInput, {
+      target: { files: [new File(["content"], longName, { type: "text/plain" })] },
+    });
+
+    const nameEl = screen.getByText(longName);
+
+    expect(nameEl).toHaveClass("break-all");
+    expect(nameEl).not.toHaveAttribute("title");
   });
 });

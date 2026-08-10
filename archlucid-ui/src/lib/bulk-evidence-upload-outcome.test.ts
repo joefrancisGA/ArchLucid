@@ -5,6 +5,7 @@ import {
   mapBulkEvidenceFileOutcomes,
   parsePartialUploadCountFromDetail,
 } from "./bulk-evidence-upload-outcome";
+import { BULK_EVIDENCE_UPLOAD_EMPTY_FILE_REASON } from "@/lib/bulk-evidence-upload-copy";
 
 describe("bulk-evidence-upload-outcome", () => {
   it("parses partial upload count from API detail", () => {
@@ -21,13 +22,13 @@ describe("bulk-evidence-upload-outcome", () => {
       new File(["b"], "late.txt"),
     ];
 
-    const outcomes = mapBulkEvidenceFileOutcomes(files, 1, "Server error");
+    const outcomes = mapBulkEvidenceFileOutcomes(files, 1, "Upload failed");
 
     expect(outcomes[0]?.status).toBe("uploaded");
     expect(outcomes[1]?.status).toBe("failed");
-    expect(outcomes[1]?.reason).toContain("Empty");
+    expect(outcomes[1]?.reason).toBe(BULK_EVIDENCE_UPLOAD_EMPTY_FILE_REASON);
     expect(outcomes[2]?.status).toBe("failed");
-    expect(outcomes[2]?.reason).toBe("Server error");
+    expect(outcomes[2]?.reason).toBe("Upload failed");
   });
 
   it("builds partial summary when some files fail", () => {

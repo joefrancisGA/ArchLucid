@@ -3,6 +3,7 @@ import { tryParseApiProblemDetails } from "@/lib/api-problem";
 import { formatApiFailureMessage } from "@/lib/api-error";
 import { uploadAzureExtractorPackage } from "@/lib/upload-azure-extractor-package";
 import { postBulkEvidenceMultipartWithProgress } from "@/lib/bulk-evidence-upload-client";
+import { BULK_EVIDENCE_UPLOAD_FILE_NOT_STORED_REASON } from "@/lib/bulk-evidence-upload-copy";
 import {
   buildBulkEvidenceUploadSummary,
   parsePartialUploadCountFromDetail,
@@ -74,7 +75,7 @@ export async function uploadWizardPendingDocumentEvidence(
       const summary = buildBulkEvidenceUploadSummary(
         files,
         uploadedNonEmptyCount,
-        "Not stored by server",
+        BULK_EVIDENCE_UPLOAD_FILE_NOT_STORED_REASON,
         "Evidence successfully uploaded.",
       );
 

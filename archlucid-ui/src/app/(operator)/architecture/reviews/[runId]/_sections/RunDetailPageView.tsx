@@ -56,6 +56,7 @@ import {
   deriveRunDetailEvidenceInventory,
 } from "@/lib/run-detail-evidence-inventory";
 
+import { RunDetailCreateHomeEvidencePanel } from "./RunDetailCreateHomeEvidencePanel";
 import { resolveReviewPackagePrimaryAction } from "./resolve-review-package-primary-action";
 import {
   RunDetailWorkspaceDisclosureControls,
@@ -839,7 +840,14 @@ export function RunDetailPageView(props: {
                         />
                       ),
                       evidence: (
-                        <RunDetailCaptureEvidenceSectionDeferred
+                        <RunDetailCreateHomeEvidencePanel
+                          packageName={reviewDisplayTitle}
+                          reviewDateLabel={evidenceReviewDateLabel}
+                          deliverableCount={m.artifacts.length}
+                          evidenceCoverageSummaryLine={evidenceCoverageSummary.summaryLine}
+                          linkedFindingCount={evidenceCoverageSummary.linkedCount}
+                          openFindingCount={evidenceCoverageSummary.totalCount}
+                          items={evidenceInventoryItems}
                           runId={m.resolvedDetail.run.runId}
                           buyerPolished={m.buyerPolishedArtifactTable ?? false}
                         />
