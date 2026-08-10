@@ -3,7 +3,8 @@
 import { useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import { TABS_PILL_LIST_CLASS, tabsPillTriggerClass } from "@/components/ui/tabs-pill-styles";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   ALERT_RULES_HUB_TAB_IDS,
@@ -11,6 +12,7 @@ import {
   type AlertRulesHubTabId,
 } from "@/lib/alerts-hub-tab";
 import { alertsConfigurationPageSubtitle } from "@/lib/alerts-page-copy";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
 
 import { AlertRulesHubRefreshProvider, useAlertRulesHubRefresh } from "@/lib/alerts-hub-refresh-context";
@@ -66,6 +68,26 @@ function AlertRulesHubChrome(): React.JSX.Element {
   );
 }
 
+function AlertRulesHubTabPanel(props: {
+  readonly tabId: AlertRulesHubTabId;
+  readonly subtitle: string;
+}): React.JSX.Element {
+  return (
+    <>
+      <p
+        className={cn("m-0 mb-6 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+        data-testid={`alert-rules-hub-tab-lead-${props.tabId}`}
+      >
+        {props.subtitle}
+      </p>
+      {props.tabId === "rules" ? <AlertRulesContentDeferred /> : null}
+      {props.tabId === "notifications" ? <AlertRoutingContentDeferred /> : null}
+      {props.tabId === "advanced-rules" ? <CompositeAlertRulesContentDeferred /> : null}
+      {props.tabId === "test-alerts" ? <AlertSimulationTuningSectionDeferred /> : null}
+    </>
+  );
+}
+
 /**
  * Alert configuration hub — separate from the Alert inbox triage surface.
  */
@@ -80,7 +102,7 @@ export function AlertRulesHubClient() {
   );
 
   const onSelectTab = useCallback(
-    (id: AlertRulesHubTabId) => {
+    (id: string) => {
       router.push(governanceAlertRulesTabHref(id));
     },
     [router],
@@ -91,41 +113,30 @@ export function AlertRulesHubClient() {
       <div className="px-0">
         <AlertRulesHubChrome />
 
-        <nav className="mb-6" aria-label="Alerts configuration sections">
-          <div className={TABS_PILL_LIST_CLASS} role="tablist">
-            {ALERT_RULES_HUB_TAB_IDS.map((id) => {
-              const selected = activeTab === id;
+        <Tabs value={activeTab} onValueChange={onSelectTab} variant="line">
+          <TabsList aria-label="Alerts configuration sections" className="mb-0">
+            {ALERT_RULES_HUB_TAB_IDS.map((id) => (
+              <TabsTrigger
+                key={id}
+                value={id}
+                data-testid={`alert-rules-hub-tab-${id}`}
+              >
+                {TAB_CONFIG[id].label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
 
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  role="tab"
-                  aria-selected={selected}
-                  id={`alert-rules-hub-tab-${id}`}
-                  data-testid={`alert-rules-hub-tab-${id}`}
-                  title={TAB_CONFIG[id].subtitle}
-                  onClick={() => onSelectTab(id)}
-                  className={tabsPillTriggerClass(selected)}
-                >
-                  {TAB_CONFIG[id].label}
-                </button>
-              );
-            })}
-          </div>
-        </nav>
-
-        <div
-          className="min-w-0"
-          role="tabpanel"
-          aria-labelledby={`alert-rules-hub-tab-${activeTab}`}
-          data-testid="alert-rules-hub-panel"
-        >
-          {activeTab === "rules" ? <AlertRulesContentDeferred /> : null}
-          {activeTab === "notifications" ? <AlertRoutingContentDeferred /> : null}
-          {activeTab === "advanced-rules" ? <CompositeAlertRulesContentDeferred /> : null}
-          {activeTab === "test-alerts" ? <AlertSimulationTuningSectionDeferred /> : null}
-        </div>
+          {ALERT_RULES_HUB_TAB_IDS.map((id) => (
+            <TabsContent
+              key={id}
+              value={id}
+              className="min-w-0 pt-0"
+              data-testid="alert-rules-hub-panel"
+            >
+              <AlertRulesHubTabPanel tabId={id} subtitle={TAB_CONFIG[id].subtitle} />
+            </TabsContent>
+          ))}
+        </Tabs>
       </div>
     </AlertRulesHubRefreshProvider>
   );

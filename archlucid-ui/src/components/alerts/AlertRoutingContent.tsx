@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 
@@ -9,6 +10,7 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { AlertRoutingCriteriaFields } from "@/components/alerts/AlertRoutingCriteriaFields";
 import { AlertRoutingDestinationList } from "@/components/alerts/AlertRoutingDestinationList";
 import { Button } from "@/components/ui/button";
+import { StatusTag } from "@/components/ui/status-tag";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useOptionalAlertRulesHubRefresh } from "@/lib/alerts-hub-refresh-context";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -40,7 +42,14 @@ import {
   validateAlertRoutingDestination,
   validateAlertRoutingName,
 } from "@/lib/alert-routing-form";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  ALERT_ROUTING_DESTINATION_NAME_PLACEHOLDER,
+  formatAlertRoutingConfigProvenanceLine,
+  latestAlertRoutingConfigRecordedUtc,
+  summarizeAlertRoutingDeliveryHealth,
+} from "@/lib/alert-routing-presentation";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { GOVERNANCE_AUDIT_PATH, governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
 import {
   createAlertRoutingSubscription,
   listAlertRoutingDeliveryAttempts,
@@ -53,8 +62,6 @@ import {
   presentWebhookConnectionTestToasts,
 } from "@/lib/webhook-subscription-connection-test";
 import type { AlertRoutingDeliveryAttempt, AlertRoutingSubscription } from "@/types/alert-routing";
-
-const DEFAULT_DESTINATION_NAME = "Primary notification destination";
 
 export function AlertRoutingContent() {
   const canMutateRouting = useOperateCapability();
@@ -75,7 +82,7 @@ export function AlertRoutingContent() {
   const [fieldErrors, setFieldErrors] = useState<AlertRoutingFieldErrors>({});
   const [testingId, setTestingId] = useState<string | null>(null);
 
-  const [name, setName] = useState(DEFAULT_DESTINATION_NAME);
+  const [name, setName] = useState("");
   const [channelType, setChannelType] = useState("Email");
   const [destination, setDestination] = useState("");
   const [minimumSeverity, setMinimumSeverity] = useState("High");
@@ -98,6 +105,12 @@ export function AlertRoutingContent() {
 
     return canMutateRouting ? alertRoutingPageLeadOperator : alertRoutingPageLeadReader;
   }, [canMutateRouting, items.length]);
+
+  const deliveryHealth = useMemo(() => summarizeAlertRoutingDeliveryHealth(items), [items]);
+
+  const configProvenanceLabel = useMemo(() => {
+    return formatAlertRoutingConfigProvenanceLine(latestAlertRoutingConfigRecordedUtc(items));
+  }, [items]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -165,7 +178,7 @@ export function AlertRoutingContent() {
 
     try {
       const created = await createAlertRoutingSubscription({
-        name: name.trim() || DEFAULT_DESTINATION_NAME,
+        name: name.trim(),
         channelType,
         destination: destination.trim(),
         minimumSeverity,
@@ -184,7 +197,7 @@ export function AlertRoutingContent() {
 
       setRoutingCriteria({ ...EMPTY_ALERT_ROUTING_CRITERIA });
       setDestination("");
-      setName(DEFAULT_DESTINATION_NAME);
+      setName("");
       setMinimumSeverity("High");
       setFieldErrors({});
       setStatusMessage("Notification destination created.");
@@ -237,15 +250,32 @@ export function AlertRoutingContent() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-8">
-      <header>
-        <h2 className={cn("mt-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>Notification delivery</h2>
-        <p className={cn("mb-2 max-w-prose leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          Choose where qualifying alerts are sent and verify that delivery is working.
-        </p>
-        <p className={cn("max-w-prose text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+    <div className="space-y-8">
+      <header className="space-y-2">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Notification delivery</h2>
+          {deliveryHealth !== null ? (
+            <StatusTag
+              kind={deliveryHealth.kind}
+              label={deliveryHealth.label}
+              data-testid="alert-routing-delivery-health"
+            />
+          ) : null}
+        </div>
+        <p className={cn("m-0 max-w-prose leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           {pageLead}
         </p>
+        {configProvenanceLabel !== null ? (
+          <p
+            className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="alert-routing-config-provenance"
+          >
+            {configProvenanceLabel}{" "}
+            <Link href={GOVERNANCE_AUDIT_PATH} className={OPERATOR_LINK.inline}>
+              View audit trail
+            </Link>
+          </p>
+        ) : null}
         <AlertOperatorToolingRankCue />
       </header>
 
@@ -279,11 +309,6 @@ export function AlertRoutingContent() {
           onLoadAttempts={(id) => void loadAttempts(id)}
           onTest={(id) => void onTest(id)}
         />
-        {items.length === 0 ? (
-          <GettingStartedSteps
-            {...(canMutateRouting ? alertRoutingEmptyGettingStartedOperator : alertRoutingEmptyGettingStartedReader)}
-          />
-        ) : null}
       </section>
 
       <section
@@ -293,18 +318,16 @@ export function AlertRoutingContent() {
         className={cn("space-y-6 rounded-lg border border-neutral-200 bg-white p-5 dark:border-neutral-700 dark:bg-neutral-950", !canMutateRouting && "opacity-90")}
       >
         <h3 id="alert-routing-form-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          {items.length === 0 ? "Destination details" : "Set up alert delivery"}
+          {items.length === 0 ? "Destination details" : "Add another destination"}
         </h3>
 
         <fieldset className="space-y-4 border-0 p-0" disabled={!canMutateRouting}>
-          <legend className={cn("mb-2 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            Destination
-          </legend>
           <label className={cn("block text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
             Destination name
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
+              placeholder={ALERT_ROUTING_DESTINATION_NAME_PLACEHOLDER}
               disabled={!canMutateRouting || creating}
               title={canMutateRouting ? undefined : enterpriseMutationControlDisabledTitle}
               aria-invalid={fieldErrors.name !== undefined}
@@ -364,9 +387,9 @@ export function AlertRoutingContent() {
         </fieldset>
 
         <fieldset className="space-y-3 border-0 p-0" disabled={!canMutateRouting}>
-          <legend className={cn("mb-2 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
             Alert threshold
-          </legend>
+          </p>
           <label className={cn("block text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
             Minimum severity
             <select
@@ -433,7 +456,7 @@ export function AlertRoutingContent() {
             type="button"
             variant="outline"
             onClick={() => {
-              setName(DEFAULT_DESTINATION_NAME);
+              setName("");
               setChannelType("Email");
               setDestination("");
               setMinimumSeverity("High");
@@ -447,6 +470,22 @@ export function AlertRoutingContent() {
           </Button>
         </div>
       </section>
+
+      {items.length === 0 ? (
+        <GettingStartedSteps
+          {...(canMutateRouting ? alertRoutingEmptyGettingStartedOperator : alertRoutingEmptyGettingStartedReader)}
+          stepLinkByIndex={
+            canMutateRouting
+              ? {
+                  3: {
+                    href: governanceAlertRulesTabHref("test-alerts"),
+                    label: "Test alerts",
+                  },
+                }
+              : undefined
+          }
+        />
+      ) : null}
     </div>
   );
 }

@@ -4,13 +4,13 @@
  */
 /** Sidebar collapsed-pilot expand control — intent over feature count. */
 export const SIDEBAR_SHOW_ALL_FEATURES = {
-  show: "Show all destinations",
+  show: "Show all sidebar links",
   hide: "Fewer sidebar links",
-  title: "Show governance workflow, compare, replay, and deeper analysis destinations.",
+  title: "Show governance workflow, compare, replay, and deeper analysis links in the sidebar.",
 } as const;
 
 /**
- * Evaluator escape hatch: reveal destinations that stay hidden under progressive disclosure.
+ * Evaluator escape hatch: reveal sidebar links that stay hidden under progressive disclosure.
  * Default remains collapsed for first-run pilots; this control is the reveal-all affordance.
  */
 export const SHOW_ALL_DESTINATIONS = {

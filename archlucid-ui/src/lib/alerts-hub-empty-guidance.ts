@@ -45,7 +45,7 @@ export const alertRoutingEmptyGettingStartedOperator: EmptyStateGettingStarted =
     "Choose a notification channel and destination for this workspace.",
     "Set minimum severity to High so High and Critical findings notify your team by default.",
     "Optionally filter by finding category or review label, then create the destination.",
-    "Send a test notification for webhook channels or review delivery history after alerts fire.",
+    "Send a test notification for webhook channels or review outcomes on the",
   ],
 };
 

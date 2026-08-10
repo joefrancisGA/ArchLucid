@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const tabValue: { current: string | null } = { current: null };
@@ -110,14 +110,28 @@ describe("AlertRulesHubClient", () => {
     expect(screen.queryByTestId("layer-header-review-vocabulary")).toBeNull();
   });
 
-  it("keeps tab labels to a single line and moves the description to a tooltip", () => {
+  it("shows tab subtitles in the visible panel lead instead of title tooltips", () => {
     render(<AlertRulesHubClient />);
 
     const notificationsTab = screen.getByTestId("alert-rules-hub-tab-notifications");
 
     expect(notificationsTab).toHaveTextContent("Notifications");
-    expect(notificationsTab).not.toHaveTextContent("Where qualifying alerts are delivered");
-    expect(notificationsTab).toHaveAttribute("title", "Where qualifying alerts are delivered");
-    expect(screen.getByRole("tab", { name: "Notifications" })).toBe(notificationsTab);
+    expect(notificationsTab).not.toHaveAttribute("title");
+    expect(screen.getByTestId("alert-rules-hub-tab-lead-rules")).toHaveTextContent(
+      "When completed reviews should raise an alert",
+    );
+    expect(screen.getByRole("tab", { name: "Notifications" })).toHaveAttribute("aria-controls");
+  });
+
+  it("moves tab selection with ArrowRight keyboard navigation", () => {
+    render(<AlertRulesHubClient />);
+
+    const conditionsTab = screen.getByRole("tab", { name: "Conditions" });
+    conditionsTab.focus();
+
+    fireEvent.keyDown(screen.getByRole("tablist"), { key: "ArrowRight" });
+
+    expect(push).toHaveBeenCalledWith("/governance/alert-rules?tab=notifications");
+    expect(document.activeElement).toBe(screen.getByRole("tab", { name: "Notifications" }));
   });
 });

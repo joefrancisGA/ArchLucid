@@ -205,8 +205,8 @@ export function AlertTuningContent() {
   const recommendedLabel = result?.recommendedCandidate?.candidate.label;
 
   return (
-    <div className="max-w-4xl">
-      <h2 className="mt-0">Tune alert thresholds</h2>
+    <div>
+      <h2 className={cn("mt-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Tune alert thresholds</h2>
       <p className={cn("mb-2 max-w-prose leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{alertTuningPageLead}</p>
       <AlertOperatorToolingRankCue />
 

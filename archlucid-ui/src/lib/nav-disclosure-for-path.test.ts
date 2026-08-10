@@ -5,6 +5,7 @@ import { effectiveNavDisclosureForPathname } from "./nav-disclosure-for-path";
 import {
   NAV_DISCLOSURE,
   OPERATOR_ADVANCED_MODE,
+  SHOW_ALL_DESTINATIONS,
   SIDEBAR_ADMINISTRATION,
   SIDEBAR_SHOW_ALL_FEATURES,
 } from "./nav-disclosure-copy";
@@ -33,6 +34,21 @@ describe("nav disclosure copy", () => {
       .toLowerCase();
 
     expect(corpus).not.toMatch(/\boperator\b/);
+  });
+
+  it("does not use bare destination in sidebar expand-all chrome", () => {
+    const corpus = [
+      SHOW_ALL_DESTINATIONS.show,
+      SHOW_ALL_DESTINATIONS.hide,
+      SHOW_ALL_DESTINATIONS.title,
+      SIDEBAR_SHOW_ALL_FEATURES.show,
+      SIDEBAR_SHOW_ALL_FEATURES.hide,
+      SIDEBAR_SHOW_ALL_FEATURES.title,
+    ]
+      .join(" ")
+      .toLowerCase();
+
+    expect(corpus).not.toMatch(/\bdestination\b/);
   });
 });
 

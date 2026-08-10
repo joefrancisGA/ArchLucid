@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AlertRulesHubRefreshProvider, useAlertRulesHubRefresh } from "@/lib/alerts-hub-refresh-context";
+import { ALERT_ROUTING_DESTINATION_NAME_PLACEHOLDER } from "@/lib/alert-routing-presentation";
 import { OPERATOR_NOT_REFRESHED_LABEL } from "@/lib/operator-last-refreshed-label";
 
 import { AlertRoutingContent } from "./AlertRoutingContent";
@@ -43,6 +44,15 @@ function renderWithHub(ui: React.ReactElement): ReturnType<typeof render> {
       {ui}
     </AlertRulesHubRefreshProvider>,
   );
+}
+
+function fillValidDestinationForm(): void {
+  fireEvent.change(screen.getByLabelText(/destination name/i), {
+    target: { value: "Ops email" },
+  });
+  fireEvent.change(screen.getByTestId("alert-routing-destination-input"), {
+    target: { value: "ops@example.com" },
+  });
 }
 
 describe("AlertRoutingContent", () => {
@@ -88,9 +98,7 @@ describe("AlertRoutingContent", () => {
     const createButton = await screen.findByTestId("alert-routing-create-destination");
     expect(createButton).toBeDisabled();
 
-    fireEvent.change(screen.getByTestId("alert-routing-destination-input"), {
-      target: { value: "ops@example.com" },
-    });
+    fillValidDestinationForm();
 
     expect(createButton).toBeEnabled();
   });
@@ -100,6 +108,9 @@ describe("AlertRoutingContent", () => {
 
     const createButton = await screen.findByTestId("alert-routing-create-destination");
 
+    fireEvent.change(screen.getByLabelText(/destination name/i), {
+      target: { value: "Ops email" },
+    });
     fireEvent.change(screen.getByTestId("alert-routing-destination-input"), {
       target: { value: "not-an-email" },
     });
@@ -111,9 +122,7 @@ describe("AlertRoutingContent", () => {
   it("creates a destination with default minimum severity", async () => {
     renderWithHub(<AlertRoutingContent />);
 
-    fireEvent.change(screen.getByTestId("alert-routing-destination-input"), {
-      target: { value: "ops@example.com" },
-    });
+    fillValidDestinationForm();
     fireEvent.click(screen.getByTestId("alert-routing-create-destination"));
 
     await waitFor(() => {
@@ -121,18 +130,36 @@ describe("AlertRoutingContent", () => {
         expect.objectContaining({
           minimumSeverity: "High",
           destination: "ops@example.com",
+          name: "Ops email",
         }),
       );
     });
   });
 
-  it("shows one Set up alert delivery orientation block in the empty state", async () => {
+  it("starts with an empty destination name and placeholder guidance", async () => {
     renderWithHub(<AlertRoutingContent />);
 
     await screen.findByTestId("alert-routing-empty-state");
 
-    expect(screen.getAllByText("Set up alert delivery")).toHaveLength(1);
-    expect(screen.getByText("Destination details")).toBeInTheDocument();
+    const nameInput = screen.getByLabelText(/destination name/i);
+
+    expect(nameInput).toHaveValue("");
+    expect(nameInput).toHaveAttribute("placeholder", ALERT_ROUTING_DESTINATION_NAME_PLACEHOLDER);
+  });
+
+  it("places getting-started guidance below the form in the empty state", async () => {
+    renderWithHub(<AlertRoutingContent />);
+
+    await screen.findByTestId("alert-routing-empty-state");
+
+    const formHeading = screen.getByRole("heading", { name: "Destination details" });
+    const gettingStartedHeading = screen.getByText("Set up alert delivery");
+
+    expect(formHeading.compareDocumentPosition(gettingStartedHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Test alerts" })).toHaveAttribute(
+      "href",
+      "/governance/alert-rules?tab=test-alerts",
+    );
   });
 
   it("does not show subscription in visible copy", async () => {
@@ -158,5 +185,33 @@ describe("AlertRoutingContent", () => {
     expect(screen.getByTestId("alert-routing-threshold-critical-warning")).toHaveTextContent(
       /Critical alerts are excluded/i,
     );
+  });
+
+  it("shows provenance and aggregate delivery health when destinations exist", async () => {
+    apiHoisted.listAlertRoutingSubscriptions.mockResolvedValue([
+      {
+        routingSubscriptionId: "sub-1",
+        tenantId: "tenant-1",
+        workspaceId: "workspace-1",
+        projectId: "project-1",
+        name: "Ops email",
+        channelType: "Email",
+        destination: "ops@example.com",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-15T12:00:00.000Z",
+        lastDeliveredUtc: "2026-01-16T12:00:00.000Z",
+        metadataJson: "{}",
+      },
+    ]);
+
+    renderWithHub(<AlertRoutingContent />);
+
+    expect(await screen.findByTestId("alert-routing-config-provenance")).toHaveTextContent(
+      /Configuration last recorded/i,
+    );
+    expect(screen.getByRole("link", { name: "View audit trail" })).toHaveAttribute("href", "/governance/audit");
+    expect(screen.getByTestId("alert-routing-delivery-health")).toHaveTextContent("1 of 1 delivering");
+    expect(screen.getByTestId("alert-routing-delivery-status-sub-1")).toHaveTextContent("Delivering");
   });
 });

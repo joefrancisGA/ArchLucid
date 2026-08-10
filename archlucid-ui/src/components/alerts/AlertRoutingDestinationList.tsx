@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
+import { StatusTag } from "@/components/ui/status-tag";
 import {
   alertRoutingDeliveryAttemptsButtonLabelReaderRank,
   alertRoutingDeliveryAttemptsButtonTitleOperator,
@@ -16,7 +17,9 @@ import {
   formatAlertRoutingFiltersSummary,
   isWebhookChannelType,
 } from "@/lib/alert-routing-form";
+import { alertRoutingRowDeliveryStatus } from "@/lib/alert-routing-presentation";
 import { parseAlertRoutingCriteriaFromMetadata } from "@/lib/alert-routing-criteria";
+import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { AlertRoutingDeliveryAttempt, AlertRoutingSubscription } from "@/types/alert-routing";
 
@@ -51,15 +54,15 @@ export function AlertRoutingDestinationList({
         className="rounded-lg border border-dashed border-neutral-300 bg-neutral-50 p-6 dark:border-neutral-700 dark:bg-neutral-900/40"
         data-testid="alert-routing-empty-state"
       >
-        <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+        <h4 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           No notification destinations configured
-        </h3>
+        </h4>
         <p className={cn("mt-2 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           Create a destination to receive email, webhook, Teams, or Slack notifications when alert conditions are met.
         </p>
         {canMutateRouting ? (
-          <Button type="button" variant="primary" className="mt-4" onClick={onAddDestination}>
-            Create notification destination
+          <Button type="button" variant="outline" className="mt-4" onClick={onAddDestination}>
+            Go to destination form
           </Button>
         ) : null}
       </div>
@@ -95,6 +98,7 @@ export function AlertRoutingDestinationList({
           <tbody>
             {items.map((item) => {
               const criteria = parseAlertRoutingCriteriaFromMetadata(item.metadataJson);
+              const deliveryStatus = alertRoutingRowDeliveryStatus(item);
 
               return (
                 <tr key={item.routingSubscriptionId} className="border-t border-neutral-200 dark:border-neutral-700">
@@ -113,10 +117,14 @@ export function AlertRoutingDestinationList({
                     })}
                   </td>
                   <td className={cn("px-3 py-3 align-top", OPERATOR_TYPOGRAPHY.body)}>
-                    <div>{item.isEnabled ? "Enabled" : "Disabled"}</div>
-                    <div className={OPERATOR_TYPOGRAPHY.helper}>
+                    <StatusTag
+                      kind={deliveryStatus.kind}
+                      label={deliveryStatus.label}
+                      data-testid={`alert-routing-delivery-status-${item.routingSubscriptionId}`}
+                    />
+                    <div className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
                       Last success:{" "}
-                      {item.lastDeliveredUtc ? new Date(item.lastDeliveredUtc).toLocaleString() : "Not yet"}
+                      {item.lastDeliveredUtc ? formatInstantForLocale(item.lastDeliveredUtc) : "Not yet"}
                     </div>
                   </td>
                   <td className={cn("px-3 py-3 align-top", OPERATOR_TYPOGRAPHY.body)}>

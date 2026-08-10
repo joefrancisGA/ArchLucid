@@ -122,8 +122,8 @@ export function CompositeAlertRulesContent() {
   }
 
   return (
-    <div className="max-w-4xl">
-      <h2 className="mt-0">Advanced alert rules</h2>
+    <div>
+      <h2 className={cn("mt-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Advanced alert rules</h2>
       <p className={cn("mb-2 max-w-prose leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         {canMutateComposite ? compositeRulesPageLeadOperator : compositeRulesPageLeadReader}
       </p>
