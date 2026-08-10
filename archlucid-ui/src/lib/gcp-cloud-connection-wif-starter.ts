@@ -2,6 +2,7 @@
  * Copyable Workload Identity Federation starter for `/integrations/cloud-connections/gcp` (TB-1775).
  * Pairs with help **TB-1242** — share this module when the help page adds the same template.
  */
+import { GCP_FEDERATION_IDENTIFIER_SOURCING } from "@/lib/gcp-cloud-connection-federation-identity-source";
 
 export const GCP_WIF_STARTER_IDENTITY_INTRO =
   "Configure Workload Identity Federation so ArchLucid can impersonate a read-only service account. Use the federation identifiers and starter script below, then paste the pool provider resource name and service account email into Connection details.";
@@ -9,7 +10,7 @@ export const GCP_WIF_STARTER_IDENTITY_INTRO =
 export const GCP_WIF_STARTER_FEDERATION_HEADING = "Federation identifiers";
 
 export const GCP_WIF_STARTER_FEDERATION_INTRO =
-  "Bind your Workload Identity Pool OIDC provider to ArchLucid's hosted Azure user-assigned managed identity. Obtain the current tenant ID and managed identity object ID from Assurance status or the in-product security review when values are environment-specific.";
+  `Bind your Workload Identity Pool OIDC provider to ArchLucid's hosted Azure user-assigned managed identity. ${GCP_FEDERATION_IDENTIFIER_SOURCING}`;
 
 export type GcpWifStarterFederationIdentifier = {
   readonly id: string;

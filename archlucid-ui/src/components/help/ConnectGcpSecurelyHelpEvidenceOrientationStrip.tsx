@@ -9,14 +9,20 @@ import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-
 import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help-diligence-artifact-index";
 import { cn } from "@/lib/utils";
 
+export const CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE_HEADING = "Connector setup orientation";
+
 /** Claim discipline + diligence artifact index for `/help/cloud-connections/gcp`. */
 export function ConnectGcpSecurelyHelpEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <div className="space-y-3" data-testid="connect-gcp-securely-help-orientation">
       <aside
-        className={cn(DESIGN_TOKENS.callout.warn, "p-3")}
+        className={cn(DESIGN_TOKENS.callout.info, "p-3")}
         data-testid="connect-gcp-securely-help-claim-discipline"
+        aria-labelledby="connect-gcp-securely-help-claim-discipline-heading"
       >
+        <h2 id="connect-gcp-securely-help-claim-discipline-heading" className="sr-only">
+          {CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE_HEADING}
+        </h2>
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE}</p>
       </aside>
 

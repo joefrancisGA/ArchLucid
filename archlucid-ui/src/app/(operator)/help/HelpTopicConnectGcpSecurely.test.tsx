@@ -5,6 +5,14 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("@/components/help/HelpTopicPdfDownloadButton", () => ({
+  HelpTopicPdfDownloadButton: () => <div data-testid="help-topic-pdf-download-button" />,
+}));
+
+vi.mock("@/components/help/HelpTopicPrintButton", () => ({
+  HelpTopicPrintButton: () => <div data-testid="help-topic-print-button" />,
+}));
+
 import { HelpConnectGcpSecurelyGuideView } from "@/app/(operator)/help/_sections/HelpConnectGcpSecurelyGuideView";
 import {
   CONNECT_GCP_SECURELY_CANONICAL_PATH,
@@ -12,22 +20,38 @@ import {
   CONNECT_GCP_SECURELY_CONFIGURE_ACTION,
   CONNECT_GCP_SECURELY_SOURCES,
 } from "@/lib/connect-gcp-securely-help-evidence-copy";
-import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
+import {
+  CONNECT_GCP_SECURELY_FORBIDDEN_ROLES_BODY,
+  CONNECT_GCP_SECURELY_PAGE_LEAD,
+  CONNECT_GCP_SECURELY_SECURITY_HEADING,
+  CONNECT_GCP_SECURELY_VERIFICATION_CHECKS,
+  CONNECT_GCP_SECURELY_VERIFICATION_DOES_NOT_VERIFY,
+  CONNECT_GCP_SECURELY_VERIFICATION_HEADING,
+} from "@/lib/connect-gcp-securely-help-content";
+import { GCP_CLOUD_CONNECTION_BANNED_COPY } from "@/lib/gcp-cloud-connection-copy";
+import {
+  GCP_CLOUD_CONNECTION_TROUBLESHOOTING_ITEMS,
+  formatGcpPermissionRequirementLabel,
+} from "@/lib/gcp-cloud-connection-permissions-manifest";
+import { GCP_PERMISSIONS_TROUBLESHOOT_HEADING } from "@/lib/gcp-cloud-connection-permissions-copy";
+import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpConnectGcpSecurelyGuideView", () => {
-  const loaded = tryLoadProductDocumentation("cloud-connections-gcp");
+  const entry = getProductDocumentationEntry("cloud-connections-gcp");
 
-  it("loads connect GCP securely documentation from the monorepo", () => {
-    expect(loaded).not.toBeNull();
-    expect(loaded?.entry.slug).toBe("cloud-connections-gcp");
+  it("registers the connect GCP securely help guide entry with provenance metadata", () => {
+    expect(entry?.slug).toBe("cloud-connections-gcp");
+    expect(entry?.lastReviewed).toBe("2026-08-09");
+    expect(entry?.releaseApplicability).toContain("V1 GA");
+    expect(entry?.releaseApplicability).toContain("GCP Workload Identity Federation");
   });
 
   it("renders claim discipline, Sources links, and no self-href in Sources", () => {
-    if (loaded === null) {
-      throw new Error("Expected cloud-connections-gcp documentation to load.");
+    if (entry === undefined) {
+      throw new Error("Expected cloud-connections-gcp documentation entry.");
     }
 
-    render(<HelpConnectGcpSecurelyGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+    render(<HelpConnectGcpSecurelyGuideView entry={entry} />);
 
     expect(screen.getByTestId("connect-gcp-securely-help-claim-discipline")).toHaveTextContent(
       CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE,
@@ -42,26 +66,39 @@ describe("HelpConnectGcpSecurelyGuideView", () => {
   });
 
   it("renders one H1 and starts on-page navigation with Security model", () => {
-    if (loaded === null) {
-      throw new Error("Expected cloud-connections-gcp documentation to load.");
+    if (entry === undefined) {
+      throw new Error("Expected cloud-connections-gcp documentation entry.");
     }
 
-    render(<HelpConnectGcpSecurelyGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+    render(<HelpConnectGcpSecurelyGuideView entry={entry} />);
 
-    expect(screen.getAllByRole("heading", { level: 1, name: loaded.entry.title })).toHaveLength(1);
-    expect(screen.queryByRole("heading", { level: 2, name: loaded.entry.title })).toBeNull();
+    expect(screen.getAllByRole("heading", { level: 1, name: entry.title })).toHaveLength(1);
+    expect(screen.queryByRole("heading", { level: 2, name: entry.title })).toBeNull();
+    expect(screen.getByText(CONNECT_GCP_SECURELY_PAGE_LEAD)).toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-registry-provenance")).toBeInTheDocument();
 
     const toc = screen.getByTestId("help-topic-toc");
-    expect(within(toc).getByRole("link", { name: "Security model" })).toHaveAttribute("href", "#security-model");
-    expect(within(toc).queryByRole("link", { name: loaded.entry.title })).toBeNull();
+    expect(within(toc).getByRole("link", { name: CONNECT_GCP_SECURELY_SECURITY_HEADING })).toHaveAttribute(
+      "href",
+      "#security-model",
+    );
+    expect(within(toc).getByRole("link", { name: CONNECT_GCP_SECURELY_VERIFICATION_HEADING })).toHaveAttribute(
+      "href",
+      "#verification",
+    );
+    expect(within(toc).getByRole("link", { name: GCP_PERMISSIONS_TROUBLESHOOT_HEADING })).toHaveAttribute(
+      "href",
+      "#troubleshoot",
+    );
+    expect(within(toc).queryByRole("link", { name: entry.title })).toBeNull();
   });
 
   it("provides breadcrumb, sibling guides, and workflow navigation actions", () => {
-    if (loaded === null) {
-      throw new Error("Expected cloud-connections-gcp documentation to load.");
+    if (entry === undefined) {
+      throw new Error("Expected cloud-connections-gcp documentation entry.");
     }
 
-    render(<HelpConnectGcpSecurelyGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+    render(<HelpConnectGcpSecurelyGuideView entry={entry} />);
 
     const breadcrumb = screen.getByTestId("help-connect-gcp-securely-breadcrumb");
     expect(within(breadcrumb).getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
@@ -85,33 +122,81 @@ describe("HelpConnectGcpSecurelyGuideView", () => {
       "/integrations/cloud-connections/gcp",
     );
     expect(screen.getByTestId("connect-gcp-configure-action-footer")).toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-pdf-download-button")).toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-print-button")).toBeInTheDocument();
   });
 
-  it("keeps CLI script names and IAM role identifiers behind administrator disclosures", () => {
-    if (loaded === null) {
-      throw new Error("Expected cloud-connections-gcp documentation to load.");
+  it("shows roles table, forbidden-roles callout, WIF starter panel, and verification scope", () => {
+    if (entry === undefined) {
+      throw new Error("Expected cloud-connections-gcp documentation entry.");
     }
 
-    const { container } = render(
-      <HelpConnectGcpSecurelyGuideView entry={loaded.entry} markdown={loaded.markdown} />,
-    );
+    render(<HelpConnectGcpSecurelyGuideView entry={entry} />);
 
-    const tier1Disclosure = screen.getByText(/Administrator details — Tier 1 package script/i).closest("details");
-    const identityDisclosure = screen
-      .getByText(/ArchLucid federated identity — values for pool provider binding/i)
-      .closest("details");
-    const rolesDisclosure = screen.getByText(/Administrator details — IAM role identifiers/i).closest("details");
+    const rolesTable = screen.getByTestId("connect-gcp-securely-roles-table");
+    expect(within(rolesTable).getByText(/Cloud Asset Viewer/i)).toBeInTheDocument();
+    expect(within(rolesTable).getByText(/roles\/cloudasset\.viewer/)).toBeInTheDocument();
+    expect(within(rolesTable).getByText(formatGcpPermissionRequirementLabel("required"))).toBeInTheDocument();
+    expect(within(rolesTable).getAllByText("No")).toHaveLength(1);
 
-    expect(tier1Disclosure).not.toBeNull();
-    expect(identityDisclosure).not.toBeNull();
-    expect(rolesDisclosure).not.toBeNull();
-    expect(tier1Disclosure).not.toHaveAttribute("open");
-    expect(identityDisclosure).not.toHaveAttribute("open");
-    expect(rolesDisclosure).not.toHaveAttribute("open");
+    expect(screen.getByTestId("connect-gcp-securely-forbidden-roles-callout")).toBeInTheDocument();
+    expect(screen.getByText(CONNECT_GCP_SECURELY_FORBIDDEN_ROLES_BODY)).toBeInTheDocument();
 
-    expect(tier1Disclosure?.textContent).toContain("Get-ArchLucidGcpPackage.ps1");
-    expect(rolesDisclosure?.textContent).toContain("roles/cloudasset.viewer");
+    expect(screen.getByTestId("gcp-wif-starter-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("gcp-wif-starter-script-copy")).toBeInTheDocument();
+    expect(screen.getByText("api://AzureADTokenExchange")).toBeInTheDocument();
 
-    expect(container.querySelector('a[href="/security-trust"]')).not.toBeNull();
+    expect(screen.getByTestId("connect-gcp-securely-verification-callout")).toBeInTheDocument();
+
+    for (const item of CONNECT_GCP_SECURELY_VERIFICATION_CHECKS) {
+      expect(screen.getByText(item)).toBeInTheDocument();
+    }
+
+    const doesNotVerify = screen.getByTestId("connect-gcp-securely-does-not-verify");
+
+    for (const item of CONNECT_GCP_SECURELY_VERIFICATION_DOES_NOT_VERIFY) {
+      expect(within(doesNotVerify).getByText(item)).toBeInTheDocument();
+    }
+  });
+
+  it("exposes troubleshooting from the header and lists troubleshooting guidance", () => {
+    if (entry === undefined) {
+      throw new Error("Expected cloud-connections-gcp documentation entry.");
+    }
+
+    render(<HelpConnectGcpSecurelyGuideView entry={entry} />);
+
+    expect(screen.getByRole("link", { name: /Fix a failed permission check/i })).toHaveAttribute("href", "#troubleshoot");
+
+    for (const item of GCP_CLOUD_CONNECTION_TROUBLESHOOTING_ITEMS) {
+      expect(screen.getByText(item)).toBeInTheDocument();
+    }
+  });
+
+  it("shows separated data classifications", () => {
+    if (entry === undefined) {
+      throw new Error("Expected cloud-connections-gcp documentation entry.");
+    }
+
+    render(<HelpConnectGcpSecurelyGuideView entry={entry} />);
+
+    expect(screen.getByRole("heading", { level: 2, name: "Information retained" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Credentials not retained" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Permissions not required" })).toBeInTheDocument();
+  });
+
+  it("avoids internal taxonomy and jargon in primary copy", () => {
+    if (entry === undefined) {
+      throw new Error("Expected cloud-connections-gcp documentation entry.");
+    }
+
+    render(<HelpConnectGcpSecurelyGuideView entry={entry} />);
+
+    const primary = screen.getByTestId("help-connect-gcp-securely-primary");
+    const text = primary.textContent?.toLowerCase() ?? "";
+
+    for (const banned of GCP_CLOUD_CONNECTION_BANNED_COPY) {
+      expect(text).not.toContain(banned.toLowerCase());
+    }
   });
 });

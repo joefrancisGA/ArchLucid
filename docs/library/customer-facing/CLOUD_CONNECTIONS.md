@@ -45,26 +45,19 @@ The in-app guide at `/help/cloud-connections/aws` is the canonical setup referen
 
 ## Connect GCP securely {#connect-gcp-securely}
 
-ArchLucid can use GCP resource inventory when you connect a GCP project. The GCP connection is optional; reviews can also use briefs, diagrams, documents, and uploaded inventory ZIPs.
+ArchLucid can use GCP resource inventory when you connect a GCP project. The GCP connection is optional — reviews can also use briefs, diagrams, documents, and uploaded inventory packages.
 
-**Evidence tiers:**
+**Two ways to bring GCP inventory:**
 
-- **Tier 1 (default, no vendor credentials):** export a read-only inventory ZIP from your GCP project using your own operator credentials, then upload from the **New architecture review** wizard. ArchLucid never receives your service-account JSON keys.
-- **Tier 2 (optional):** cloud-connected scheduled inventory pull from Workload Identity Federation (see below).
-
-<details>
-<summary>Administrator details — Tier 1 package script</summary>
-
-Run `Get-ArchLucidGcpPackage.ps1` from your ArchLucid clone with read-only `gcloud` credentials, then upload the resulting ZIP from the wizard.
-
-</details>
+- **Upload a package:** export a read-only inventory ZIP from your GCP project with your own operator credentials (`Get-ArchLucidGcpPackage.ps1`), then upload from the **New architecture review** wizard. ArchLucid never receives your service-account JSON keys.
+- **Connect for scheduled collection:** configure Workload Identity Federation so ArchLucid can collect read-only Cloud Asset Inventory on a schedule — without storing JSON keys in your workspace.
 
 ### Security model
 
-- **Workload Identity Federation** — ArchLucid authenticates through a pool provider bound to ArchLucid's federated identity. Obtain issuer and subject values from **[Assurance status](/security-trust)** (see administrator disclosure below).
-- **No service-account JSON keys** — impersonation uses federated tokens at runtime on the primary path.
-- **Read-only inventory** — ArchLucid polls **Cloud Asset Inventory** for architecture evidence only.
-- **Project-scoped access** — you provision the pool provider and service account and can revoke bindings at any time.
+- **Workload Identity Federation** — ArchLucid authenticates through a pool provider bound to ArchLucid's federated identity. Impersonation uses federated tokens at runtime — no downloadable service-account JSON keys.
+- **Read-only inventory** — ArchLucid requests only Cloud Asset Inventory read APIs needed to collect architecture evidence.
+- **Project-scoped access** — you provision the pool provider and service account in your GCP project and can revoke bindings at any time.
+- **Customer-controlled access** — your GCP administrator controls the Workload Identity Pool, service account, and IAM bindings.
 
 <details>
 <summary>ArchLucid federated identity — values for pool provider binding</summary>
@@ -77,33 +70,40 @@ GCP Workload Identity Federation must trust ArchLucid's hosted **Azure user-assi
 | **Subject** | ArchLucid managed identity **object ID** (not the client ID) |
 | **Audience** | `api://AzureADTokenExchange` for Azure federated credentials; follow your provider's OIDC audience rules for GCP pool providers |
 
-Obtain the current **tenant ID** and **managed identity object ID** from **[Assurance status](/security-trust)** before creating your Workload Identity Pool provider.
+Obtain the current tenant ID and managed identity object ID from Assurance status or the in-product security review when values are environment-specific.
 
 </details>
 
 ### Setup steps
 
-1. Complete the in-product **security review** checklist from the [**GCP cloud connection**](/integrations/cloud-connections/gcp) page.
-2. Create a Workload Identity Pool provider that trusts ArchLucid's federated identity (values in the administrator disclosure above) and bind a read-only service account.
+1. Open [**GCP cloud connection**](/integrations/cloud-connections/gcp) and complete the in-product security review checklist.
+2. Create a Workload Identity Pool provider that trusts ArchLucid's federated identity (values above) and bind a read-only service account.
 3. Enter GCP project ID, Workload Identity Pool provider resource name, and service account email.
 4. Save the connection, then run **Re-poll now** to confirm federation and inventory access.
 
 ### Required roles
 
-Grant **read-only** Cloud Asset Viewer scope to the service account ArchLucid impersonates.
+| GCP role | Requirement | Purpose | Recommended scope | Write access |
+|----------|-------------|---------|-------------------|--------------|
+| **Cloud Asset Viewer** (`roles/cloudasset.viewer`) | Required | Project asset inventory for architecture evidence | Connected project | No |
 
-Do **not** assign roles that can modify your GCP infrastructure on your behalf.
+Do **not** assign Owner, Editor, `roles/iam.serviceAccountKeyAdmin`, or any role that can modify your GCP infrastructure on your behalf.
 
-<details>
-<summary>Administrator details — IAM role identifiers</summary>
+### What verification confirms
 
-| GCP role | Purpose | Write access |
-|----------|---------|--------------|
-| **Cloud Asset Viewer** (`roles/cloudasset.viewer`) | Project/folder asset inventory for architecture evidence | No |
+- Workload Identity Federation token exchange
+- Service account impersonation binding
+- Cloud Asset Viewer access to list project assets
+- Inventory import into the workspace
 
-Do **not** assign **Owner**, **Editor**, **roles/iam.serviceAccountKeyAdmin**, or any role that can modify your GCP infrastructure on your behalf.
+**Not confirmed by connection verification:** folder- or organization-wide inventory outside the connected project; billing or cost export permissions.
 
-</details>
+### Troubleshoot
+
+- Pool provider trust fails — confirm issuer, subject (managed identity object ID), and audience match Assurance status values.
+- Attribute mapping errors — align GCP attribute mapping with the subject claim ArchLucid presents.
+- Impersonation binding fails — grant the federated principal permission to impersonate the read-only service account.
+- Inventory empty or denied — enable the Cloud Asset Inventory API (`cloudasset.googleapis.com`) on the project and confirm Cloud Asset Viewer on the service account.
 
 ### What ArchLucid stores
 

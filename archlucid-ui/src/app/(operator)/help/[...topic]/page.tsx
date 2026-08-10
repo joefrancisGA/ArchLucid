@@ -283,12 +283,7 @@ function renderHelpTopicView(
   }
 
   if (loaded.entry.slug === "cloud-connections-gcp") {
-    return (
-      <HelpConnectGcpSecurelyGuideView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-      />
-    );
+    return <HelpConnectGcpSecurelyGuideView entry={loaded.entry} />;
   }
 
   if (loaded.entry.slug === "azure-permissions") {
