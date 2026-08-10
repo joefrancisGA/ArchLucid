@@ -1,3 +1,4 @@
+import { ARCHITECTURE_DRAFTS_LIST_LABEL } from "@/lib/architecture-workflow-labels";
 import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH, REVIEWS_NEW_PATH } from "@/lib/architecture-routes";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
@@ -16,7 +17,7 @@ export type ArchitecturesNewSourceLink = {
 
 /** Operator Sources - no self-href to `/architecture/architectures/new`. */
 export const ARCHITECTURES_NEW_SOURCES: readonly ArchitecturesNewSourceLink[] = [
-  { label: "Architectures", href: ARCHITECTURES_LIST_PATH },
+  { label: ARCHITECTURE_DRAFTS_LIST_LABEL, href: ARCHITECTURES_LIST_PATH },
   { label: "Start a review", href: REVIEWS_NEW_PATH },
   { label: "Your first architecture review", href: inAppHelpHref("first-architecture-review") },
   { label: "Evidence intake help", href: inAppHelpHref("evidence-intake") },

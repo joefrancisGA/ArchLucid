@@ -3,9 +3,9 @@
  */
 
 import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
-import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture-routes";
 import { ALERTS_HOW_ALERTS_WORK_LABEL } from "@/lib/alerts-page-copy";
-import { START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
+import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture-routes";
+import { ARCHITECTURE_DRAFTS_LIST_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 import {
   BUYER_ONBOARDING_PAGE_TITLE,
   OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_HEADING,
@@ -165,13 +165,13 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/help/users-and-roles",
     topic: { slug: "users-and-roles", label: "Users and roles" },
   },
-  { prefix: ARCHITECTURES_LIST_PATH, topic: { slug: "getting-started", label: "Architectures" } },
+  { prefix: ARCHITECTURES_LIST_PATH, topic: { slug: "getting-started", label: ARCHITECTURE_DRAFTS_LIST_LABEL } },
   { prefix: "/architecture/architectures/new", topic: { slug: "first-architecture-review", label: "Create architecture" } },
   {
     prefix: "/architecture/architecture-intelligence",
     topic: { slug: "evidence-trail", label: "Architecture intelligence" },
   },
-  { prefix: "/architectures", topic: { slug: "getting-started", label: "Architectures" } },
+  { prefix: "/architectures", topic: { slug: "getting-started", label: ARCHITECTURE_DRAFTS_LIST_LABEL } },
   { prefix: "/architecture/reviews/new", topic: { slug: "evidence-intake", label: START_REVIEW_LABEL } },
   { prefix: "/architecture/reviews", topic: { slug: "review-packages", label: "Reviews" } },
   {

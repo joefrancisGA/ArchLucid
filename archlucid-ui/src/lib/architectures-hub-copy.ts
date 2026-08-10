@@ -1,10 +1,12 @@
+import { ARCHITECTURE_DRAFTS_LIST_LABEL } from "@/lib/architecture-workflow-labels";
+
 /** Page chrome for `/architectures` — object-oriented architecture draft inventory. */
-export const ARCHITECTURES_HUB_PAGE_TITLE = "Architectures" as const;
+export const ARCHITECTURES_HUB_PAGE_TITLE = ARCHITECTURE_DRAFTS_LIST_LABEL;
 
 export const ARCHITECTURES_HUB_PAGE_SUBTITLE =
-  "Saved architecture drafts. Resume work anytime — saving a draft does not start a review." as const;
+  "Saved architecture drafts in this workspace. Not an architecture package or review inventory — start a review when you are ready." as const;
 
-export const ARCHITECTURES_HUB_FILTER_SEARCH_PLACEHOLDER = "Search architectures" as const;
+export const ARCHITECTURES_HUB_FILTER_SEARCH_PLACEHOLDER = "Search drafts" as const;
 
 export const ARCHITECTURES_HUB_FILTER_ALL_LABEL = "All" as const;
 
@@ -29,7 +31,7 @@ export const ARCHITECTURES_HUB_EMPTY_TITLE = "No architecture drafts yet" as con
 export const ARCHITECTURES_HUB_EMPTY_BODY =
   "Capture your system design as a long-lived draft. Create an architecture, refine it over multiple sessions, then start a governance review when you are ready." as const;
 
-export const ARCHITECTURES_HUB_EMPTY_FILTER_TITLE = "No architectures match your filters" as const;
+export const ARCHITECTURES_HUB_EMPTY_FILTER_TITLE = "No drafts match your filters" as const;
 
 export const ARCHITECTURES_HUB_EMPTY_FILTER_BODY =
   "Try clearing search or choosing a different filter." as const;

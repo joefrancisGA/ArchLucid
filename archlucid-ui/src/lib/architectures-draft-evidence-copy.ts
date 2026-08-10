@@ -1,4 +1,8 @@
 import {
+  ARCHITECTURE_DRAFTS_LIST_LABEL,
+  CREATE_ARCHITECTURE_LABEL,
+} from "@/lib/architecture-workflow-labels";
+import {
   ARCHITECTURES_LIST_PATH,
   ARCHITECTURES_NEW_PATH,
   REVIEWS_NEW_PATH,
@@ -19,8 +23,8 @@ export type ArchitecturesDraftSourceLink = {
 
 /** Operator Sources - no self-href to the open draft id. */
 export const ARCHITECTURES_DRAFT_SOURCES: readonly ArchitecturesDraftSourceLink[] = [
-  { label: "Architectures", href: ARCHITECTURES_LIST_PATH },
-  { label: "Create architecture", href: ARCHITECTURES_NEW_PATH },
+  { label: ARCHITECTURE_DRAFTS_LIST_LABEL, href: ARCHITECTURES_LIST_PATH },
+  { label: CREATE_ARCHITECTURE_LABEL, href: ARCHITECTURES_NEW_PATH },
   { label: "Start a review", href: REVIEWS_NEW_PATH },
   { label: "Your first architecture review", href: inAppHelpHref("first-architecture-review") },
   { label: "Getting started", href: inAppHelpHref("getting-started") },
