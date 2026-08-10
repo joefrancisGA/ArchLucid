@@ -202,9 +202,7 @@ export function applyArchitectureDiagramOverrides(
   const edgeOverrideMap = new Map(edgeOverrides.map((edge) => [edge.id, edge]));
 
   return {
-    nodes: model.nodes
-      .map((node) => nodeOverrideMap.get(node.id) ?? node)
-      .filter((node) => !node.removed),
+    nodes: model.nodes.map((node) => nodeOverrideMap.get(node.id) ?? node),
     edges: model.edges
       .map((edge) => edgeOverrideMap.get(edge.id) ?? edge)
       .filter((edge) => !edge.removed),

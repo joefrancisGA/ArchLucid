@@ -10,8 +10,11 @@ vi.mock("@/components/architecture/ArchitectureDiagramViewer", () => ({
 import { ArchitectureDiagramPanel } from "@/components/architecture/ArchitectureDiagramPanel";
 import {
   ARCHITECTURE_DIAGRAM_ADD_DETAILS_ACTION,
-  ARCHITECTURE_DIAGRAM_GENERATE_ACTION,
+  ARCHITECTURE_DIAGRAM_DRAFT_STATUS_LABEL,
+  ARCHITECTURE_DIAGRAM_RENDER_FAILURE,
+  ARCHITECTURE_DIAGRAM_RETRY_ACTION,
 } from "@/lib/architecture-diagram-copy";
+import * as generateModule from "@/lib/architecture-diagram-generate";
 
 const sufficientSource = `## Systems and services
 - Claims API
@@ -30,6 +33,7 @@ const assertions = {
 describe("ArchitectureDiagramPanel", () => {
   beforeEach(() => {
     window.localStorage.clear();
+    vi.restoreAllMocks();
   });
 
   it("renders a generated diagram when information is sufficient", async () => {
@@ -47,9 +51,12 @@ describe("ArchitectureDiagramPanel", () => {
       expect(screen.getByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
     });
     expect(screen.getByText(/Generated from the information provided/)).toBeInTheDocument();
+    expect(screen.getByText(ARCHITECTURE_DIAGRAM_DRAFT_STATUS_LABEL)).toBeInTheDocument();
   });
 
-  it("shows insufficient diagnostic state and add-details action", async () => {
+  it("shows insufficient diagnostic state and clarifications action without regenerate", async () => {
+    const onClarificationsNavigate = vi.fn();
+
     render(
       <ArchitectureDiagramPanel
         runId="run-empty"
@@ -57,6 +64,7 @@ describe("ArchitectureDiagramPanel", () => {
         sourceText="Too little detail."
         userAssertions={{ ...assertions, peopleAndSystems: [], architectureName: "" }}
         canEdit
+        onClarificationsNavigate={onClarificationsNavigate}
       />,
     );
 
@@ -64,8 +72,50 @@ describe("ArchitectureDiagramPanel", () => {
       expect(screen.getByTestId("architecture-diagram-insufficient")).toBeInTheDocument();
     });
     expect(screen.getByText("A diagram could not be generated yet.")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: ARCHITECTURE_DIAGRAM_ADD_DETAILS_ACTION })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: ARCHITECTURE_DIAGRAM_GENERATE_ACTION })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: ARCHITECTURE_DIAGRAM_ADD_DETAILS_ACTION }));
+    expect(onClarificationsNavigate).toHaveBeenCalled();
+    expect(screen.queryByRole("button", { name: "Generate architecture diagram" })).not.toBeInTheDocument();
+  });
+
+  it("shows generation failure with retry", async () => {
+    vi.spyOn(generateModule, "generateArchitectureDiagramAsync").mockRejectedValue(new Error("boom"));
+
+    render(
+      <ArchitectureDiagramPanel
+        runId="run-error"
+        architectureName="Claims platform"
+        sourceText={sufficientSource}
+        userAssertions={assertions}
+        canEdit
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-diagram-generation-failure")).toBeInTheDocument();
+    });
+    expect(screen.getByText(ARCHITECTURE_DIAGRAM_RENDER_FAILURE)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: ARCHITECTURE_DIAGRAM_RETRY_ACTION }));
+  });
+
+  it("preview variant shows draft caveat and clipped affordance", async () => {
+    render(
+      <ArchitectureDiagramPanel
+        runId="run-preview"
+        architectureName="Claims platform"
+        sourceText={sufficientSource}
+        userAssertions={assertions}
+        canEdit
+        variant="preview"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-diagram-preview")).toBeInTheDocument();
+      expect(screen.getByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
+    });
+    expect(screen.getByText(ARCHITECTURE_DIAGRAM_DRAFT_STATUS_LABEL)).toBeInTheDocument();
+    expect(screen.getByText(/Draft diagram — confirm or edit/)).toBeInTheDocument();
+    expect(screen.getByText(/Preview clipped/)).toBeInTheDocument();
   });
 
   it("supports explicit regeneration", async () => {
@@ -106,5 +156,29 @@ describe("ArchitectureDiagramPanel", () => {
     });
 
     expect(screen.queryByRole("button", { name: "Edit diagram" })).not.toBeInTheDocument();
+  });
+
+  it("reports unconfirmed inferred count changes", async () => {
+    const onCountChange = vi.fn();
+
+    render(
+      <ArchitectureDiagramPanel
+        runId="run-inferred-count"
+        architectureName="Claims platform"
+        sourceText={`## Systems and services
+- Inferred billing adapter
+## Users and stakeholders
+- Claims analyst
+## Data flows
+Claims analyst -> Inferred billing adapter`}
+        userAssertions={assertions}
+        canEdit
+        onUnconfirmedInferredCountChange={onCountChange}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(onCountChange).toHaveBeenCalledWith(expect.any(Number));
+    });
   });
 });

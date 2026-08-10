@@ -11,7 +11,6 @@ import {
 import type { ArchitectureCreatedHomeModel } from "@/lib/architecture-created-home-model";
 import type { ArchitectureCreationUserAssertions } from "@/lib/architecture-structured-content-types";
 import { readArchitectureWorkspaceTabFromHref, type ArchitectureWorkspaceTabId } from "@/lib/architecture-workspace-tabs";
-import { REVIEWS_NEW_CREATE_ARCHITECTURE_HREF } from "@/lib/reviews-new-path-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureCreatedCompactFirstViewportProps = {
@@ -22,6 +21,9 @@ export type ArchitectureCreatedCompactFirstViewportProps = {
   readonly canEditDiagram: boolean;
   readonly onNavigateTab: (tab: ArchitectureWorkspaceTabId) => void;
   readonly mode?: "full" | "context-bar";
+  readonly clarificationsTabHref?: string;
+  readonly onClarificationsNavigate?: () => void;
+  readonly onUnconfirmedInferredCountChange?: (count: number) => void;
 };
 
 function WorkspaceActionLink(props: {
@@ -127,11 +129,13 @@ export function ArchitectureCreatedCompactFirstViewport(
             sourceText={props.architectureSourceText}
             userAssertions={props.userAssertions}
             canEdit={props.canEditDiagram}
-            clarifyHref={REVIEWS_NEW_CREATE_ARCHITECTURE_HREF}
+            clarifyHref={props.clarificationsTabHref}
+            onClarificationsNavigate={props.onClarificationsNavigate}
             variant="preview"
             onOpenFull={() => {
               props.onNavigateTab("diagram");
             }}
+            onUnconfirmedInferredCountChange={props.onUnconfirmedInferredCountChange}
           />
         </div>
 

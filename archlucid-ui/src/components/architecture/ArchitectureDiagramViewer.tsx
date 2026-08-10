@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { SeverityTag } from "@/components/ui/severity-tag";
 import {
   ARCHITECTURE_DIAGRAM_FULLSCREEN_ACTION,
   ARCHITECTURE_DIAGRAM_RENDER_FAILURE,
@@ -20,35 +21,12 @@ import {
   ARCHITECTURE_DIAGRAM_ZOOM_OUT_LABEL,
 } from "@/lib/architecture-diagram-copy";
 import { sanitizeMermaidRenderId } from "@/lib/help-mermaid";
+import { useDocumentDarkMode } from "@/lib/use-document-dark-mode";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 const MIN_ZOOM = 0.5;
 const MAX_ZOOM = 2.5;
 const ZOOM_STEP = 0.25;
-
-function useDocumentDarkMode(): boolean {
-  const [dark, setDark] = useState(false);
-
-  useEffect(() => {
-    const readDark = (): void => {
-      setDark(document.documentElement.classList.contains("dark"));
-    };
-
-    readDark();
-
-    const observer = new MutationObserver(readDark);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
-
-    return (): void => {
-      observer.disconnect();
-    };
-  }, []);
-
-  return dark;
-}
 
 export type ArchitectureDiagramViewerProps = {
   readonly mermaidSource: string;
@@ -159,6 +137,7 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
     <>
       {renderError !== null ? (
         <div className="space-y-3" role="alert" data-testid="architecture-diagram-render-failure">
+          <SeverityTag severity="high" label="Diagram render error" />
           <p className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.body)}>{renderError}</p>
           {props.onRetry !== undefined ? (
             <Button type="button" variant="outline" size="sm" onClick={props.onRetry}>

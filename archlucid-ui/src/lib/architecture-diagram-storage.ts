@@ -12,6 +12,20 @@ function storageKey(runId: string): string {
   return `${STORAGE_PREFIX}${runId.trim()}`;
 }
 
+function tryPersistArchitectureDiagramCache(record: ArchitectureDiagramCacheRecord): boolean {
+  if (typeof window === "undefined") {
+    return true;
+  }
+
+  try {
+    window.localStorage.setItem(storageKey(record.runId), JSON.stringify(record));
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function createVersionId(): string {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
     return crypto.randomUUID();
@@ -55,11 +69,7 @@ export function writeArchitectureDiagramCache(record: ArchitectureDiagramCacheRe
     return;
   }
 
-  try {
-    window.localStorage.setItem(storageKey(record.runId), JSON.stringify(record));
-  } catch {
-    /* quota / private mode */
-  }
+  tryPersistArchitectureDiagramCache(record);
 }
 
 export function getActiveArchitectureDiagramVersion(
@@ -88,6 +98,11 @@ export function shouldRegenerateArchitectureDiagram(
   return cache.contentFingerprint !== contentFingerprint;
 }
 
+export type ArchitectureDiagramAppendResult = {
+  readonly record: ArchitectureDiagramCacheRecord;
+  readonly writeFailed: boolean;
+};
+
 export function appendArchitectureDiagramVersion(input: {
   readonly runId: string;
   readonly contentFingerprint: string;
@@ -96,7 +111,7 @@ export function appendArchitectureDiagramVersion(input: {
   readonly label: string;
   readonly nodeOverrides?: readonly ArchitectureDiagramNode[];
   readonly edgeOverrides?: readonly ArchitectureDiagramEdge[];
-}): ArchitectureDiagramCacheRecord {
+}): ArchitectureDiagramAppendResult {
   const existing = readArchitectureDiagramCache(input.runId);
   const versionId = createVersionId();
   const version: ArchitectureDiagramVersion = {
@@ -117,9 +132,13 @@ export function appendArchitectureDiagramVersion(input: {
     edgeOverrides: input.edgeOverrides ?? existing?.edgeOverrides ?? [],
   };
 
-  writeArchitectureDiagramCache(record);
+  let writeFailed = false;
 
-  return record;
+  if (typeof window !== "undefined") {
+    writeFailed = !tryPersistArchitectureDiagramCache(record);
+  }
+
+  return { record, writeFailed };
 }
 
 export function setArchitectureDiagramNodeOverrides(

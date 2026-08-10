@@ -2,27 +2,38 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { ArchitectureDiagramEditor } from "@/components/architecture/ArchitectureDiagramEditor";
+import { ArchitectureDiagramInferredPanel } from "@/components/architecture/ArchitectureDiagramInferredPanel";
+import { ArchitectureDiagramLegend } from "@/components/architecture/ArchitectureDiagramLegend";
 import { ArchitectureDiagramViewer } from "@/components/architecture/ArchitectureDiagramViewer";
 import { Button } from "@/components/ui/button";
+import { SeverityTag } from "@/components/ui/severity-tag";
+import { StatusTag } from "@/components/ui/status-tag";
 import {
   ARCHITECTURE_DIAGRAM_ADD_DETAILS_ACTION,
   ARCHITECTURE_DIAGRAM_COPY_MERMAID_ACTION,
   ARCHITECTURE_DIAGRAM_DOWNLOAD_ACTION,
   ARCHITECTURE_DIAGRAM_DRAFT_LABEL,
+  ARCHITECTURE_DIAGRAM_DRAFT_STATUS_LABEL,
   ARCHITECTURE_DIAGRAM_EDIT_ACTION,
   ARCHITECTURE_DIAGRAM_GENERATE_ACTION,
+  ARCHITECTURE_DIAGRAM_INFERRED_LOCKED_FOR_HAND_EDIT,
   ARCHITECTURE_DIAGRAM_INSUFFICIENT_HEADING,
   ARCHITECTURE_DIAGRAM_LOADING_LABEL,
   ARCHITECTURE_DIAGRAM_NOT_AUTHORITATIVE,
+  ARCHITECTURE_DIAGRAM_PREVIEW_CLIPPED_LABEL,
   ARCHITECTURE_DIAGRAM_REGENERATE_ACTION,
+  ARCHITECTURE_DIAGRAM_RENDER_FAILURE,
+  ARCHITECTURE_DIAGRAM_RETRY_ACTION,
   ARCHITECTURE_DIAGRAM_SECTION_HEADING,
+  ARCHITECTURE_DIAGRAM_STORAGE_WRITE_FAILURE,
   ARCHITECTURE_DIAGRAM_VIEW_MERMAID_ACTION,
 } from "@/lib/architecture-diagram-copy";
 import { generateArchitectureDiagramAsync } from "@/lib/architecture-diagram-generate";
-import { isValidMermaidArchitectureDiagram } from "@/lib/architecture-diagram-mermaid";
+import { architectureDiagramModelToMermaid, isValidMermaidArchitectureDiagram } from "@/lib/architecture-diagram-mermaid";
+import { summarizeArchitectureDiagramProvenance } from "@/lib/architecture-diagram-provenance";
 import { formatArchitectureDiagramMissingExplanation } from "@/lib/architecture-diagram-readiness";
 import {
   activateArchitectureDiagramVersion,
@@ -32,10 +43,10 @@ import {
   setArchitectureDiagramNodeOverrides,
   shouldRegenerateArchitectureDiagram,
 } from "@/lib/architecture-diagram-storage";
-import type { ArchitectureDiagramModel } from "@/lib/architecture-diagram-types";
+import type { ArchitectureDiagramModel, ArchitectureDiagramNode } from "@/lib/architecture-diagram-types";
 import type { ArchitectureCreationUserAssertions } from "@/lib/architecture-structured-content-types";
 import { downloadBrowserTextFile, safeGraphExportFilenameSegment } from "@/lib/graph-view-model-export";
-import { REVIEWS_NEW_CREATE_ARCHITECTURE_HREF } from "@/lib/reviews-new-path-copy";
+import { useDocumentDarkMode } from "@/lib/use-document-dark-mode";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureDiagramPanelProps = {
@@ -45,15 +56,16 @@ export type ArchitectureDiagramPanelProps = {
   readonly userAssertions: ArchitectureCreationUserAssertions | null;
   readonly canEdit: boolean;
   readonly clarifyHref?: string;
+  readonly onClarificationsNavigate?: () => void;
   readonly variant?: "full" | "preview";
   readonly onOpenFull?: () => void;
+  readonly onUnconfirmedInferredCountChange?: (count: number) => void;
 };
 
-type PanelPhase = "idle" | "loading" | "ready" | "insufficient" | "invalid";
+type PanelPhase = "idle" | "loading" | "ready" | "insufficient" | "invalid" | "error";
 
 /** Post-creation architecture diagram with async generation, caching, and edit controls. */
 export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): React.JSX.Element {
-  const clarifyHref = props.clarifyHref ?? REVIEWS_NEW_CREATE_ARCHITECTURE_HREF;
   const variant = props.variant ?? "full";
   const [phase, setPhase] = useState<PanelPhase>("idle");
   const [mermaidSource, setMermaidSource] = useState<string | null>(null);
@@ -63,11 +75,30 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
   const [diagramModel, setDiagramModel] = useState<ArchitectureDiagramModel | null>(null);
   const [editorOpen, setEditorOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [storageWriteFailed, setStorageWriteFailed] = useState(false);
+  const [liveModelSynced, setLiveModelSynced] = useState(true);
   const [, setCacheVersion] = useState(0);
   const autoStartedRef = useRef(false);
+  const dark = useDocumentDarkMode();
 
   const cache = readArchitectureDiagramCache(props.runId);
   const versions = cache?.versions ?? [];
+  const activeVersionId = cache?.activeVersionId ?? null;
+  const activeVersion = getActiveArchitectureDiagramVersion(cache);
+  const inferredReviewLocked = activeVersion?.source === "user-edit";
+
+  // History restore keeps mermaidSource; live generated views re-derive for theme-aware classDefs.
+  const displayMermaidSource = useMemo(() => {
+    if (mermaidSource === null) {
+      return null;
+    }
+
+    if (!liveModelSynced || inferredReviewLocked || diagramModel === null) {
+      return mermaidSource;
+    }
+
+    return architectureDiagramModelToMermaid(diagramModel, { dark });
+  }, [dark, diagramModel, inferredReviewLocked, liveModelSynced, mermaidSource]);
 
   const runGeneration = useCallback(
     async (forceRegenerate: boolean) => {
@@ -92,21 +123,22 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
           return;
         }
 
+        const cachedActive = getActiveArchitectureDiagramVersion(latestCache);
         const useCache =
           !forceRegenerate &&
           !shouldRegenerateArchitectureDiagram(latestCache, result.contentFingerprint, false) &&
-          getActiveArchitectureDiagramVersion(latestCache) !== null;
+          cachedActive !== null;
 
         if (useCache) {
-          const cached = getActiveArchitectureDiagramVersion(latestCache)!;
-          setMermaidSource(cached.mermaidSource);
+          setMermaidSource(cachedActive.mermaidSource);
           setTextAlternative(result.textAlternative);
           setDiagramModel(result.model);
-          setPhase(isValidMermaidArchitectureDiagram(cached.mermaidSource) ? "ready" : "invalid");
+          setLiveModelSynced(cachedActive.source !== "user-edit");
+          setPhase(isValidMermaidArchitectureDiagram(cachedActive.mermaidSource) ? "ready" : "invalid");
           return;
         }
 
-        appendArchitectureDiagramVersion({
+        const appendResult = appendArchitectureDiagramVersion({
           runId: props.runId,
           contentFingerprint: result.contentFingerprint,
           mermaidSource: result.mermaidSource,
@@ -115,13 +147,18 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
           nodeOverrides: latestCache?.nodeOverrides ?? [],
           edgeOverrides: latestCache?.edgeOverrides ?? [],
         });
+        setStorageWriteFailed(appendResult.writeFailed);
         setCacheVersion((current) => current + 1);
         setMermaidSource(result.mermaidSource);
         setTextAlternative(result.textAlternative);
         setDiagramModel(result.model);
+        setLiveModelSynced(true);
         setPhase(isValidMermaidArchitectureDiagram(result.mermaidSource) ? "ready" : "invalid");
       } catch {
-        setPhase("invalid");
+        setMermaidSource(null);
+        setDiagramModel(null);
+        setLiveModelSynced(true);
+        setPhase("error");
       }
     },
     [props.architectureName, props.runId, props.sourceText, props.userAssertions],
@@ -135,6 +172,12 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
     autoStartedRef.current = true;
     void runGeneration(false);
   }, [runGeneration]);
+
+  useEffect(() => {
+    props.onUnconfirmedInferredCountChange?.(
+      summarizeArchitectureDiagramProvenance(diagramModel).unconfirmedInferredCount,
+    );
+  }, [diagramModel, props.onUnconfirmedInferredCountChange]);
 
   const copyMermaid = useCallback(async () => {
     if (mermaidSource === null) {
@@ -162,6 +205,42 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
     );
   }, [mermaidSource, props.runId]);
 
+  const handleNodeOverride = useCallback(
+    (nodes: readonly ArchitectureDiagramNode[]) => {
+      // Hand-edited Mermaid stays authoritative until the architect regenerates or restores a generated version.
+      if (inferredReviewLocked) {
+        return;
+      }
+
+      const written = setArchitectureDiagramNodeOverrides(props.runId, nodes, cache?.edgeOverrides ?? []);
+
+      if (written === null) {
+        setStorageWriteFailed(true);
+        return;
+      }
+
+      setCacheVersion((current) => current + 1);
+      void runGeneration(true);
+    },
+    [cache?.edgeOverrides, inferredReviewLocked, props.runId, runGeneration],
+  );
+
+  const clarificationsAction =
+    props.onClarificationsNavigate !== undefined ? (
+      <Button
+        type="button"
+        variant="primary"
+        data-testid="architecture-diagram-add-details"
+        onClick={props.onClarificationsNavigate}
+      >
+        {ARCHITECTURE_DIAGRAM_ADD_DETAILS_ACTION}
+      </Button>
+    ) : props.clarifyHref !== undefined ? (
+      <Button type="button" variant="primary" asChild data-testid="architecture-diagram-add-details">
+        <Link href={props.clarifyHref}>{ARCHITECTURE_DIAGRAM_ADD_DETAILS_ACTION}</Link>
+      </Button>
+    ) : null;
+
   if (variant === "preview") {
     return (
       <div
@@ -169,9 +248,12 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
         data-testid="architecture-diagram-preview"
       >
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h3 className={cn("m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100")}>
-            {ARCHITECTURE_DIAGRAM_SECTION_HEADING}
-          </h3>
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className={cn("m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100")}>
+              {ARCHITECTURE_DIAGRAM_SECTION_HEADING}
+            </h3>
+            <StatusTag kind="neutral" label={ARCHITECTURE_DIAGRAM_DRAFT_STATUS_LABEL} />
+          </div>
           <Button
             type="button"
             variant="outline"
@@ -185,6 +267,10 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
           </Button>
         </div>
 
+        <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          {ARCHITECTURE_DIAGRAM_NOT_AUTHORITATIVE}
+        </p>
+
         {phase === "loading" ? (
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} aria-live="polite">
             {ARCHITECTURE_DIAGRAM_LOADING_LABEL}
@@ -192,18 +278,39 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
         ) : null}
 
         {phase === "insufficient" ? (
-          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} role="status">
             {missingExplanation || ARCHITECTURE_DIAGRAM_INSUFFICIENT_HEADING}
           </p>
         ) : null}
 
-        {phase === "ready" && mermaidSource !== null ? (
-          <div className="max-h-48 overflow-hidden rounded-md border border-neutral-200 dark:border-neutral-800">
-            <ArchitectureDiagramViewer
-              mermaidSource={mermaidSource}
-              textAlternative={textAlternative}
-              onRetry={() => void runGeneration(false)}
-            />
+        {phase === "error" || phase === "invalid" ? (
+          <div className="space-y-2" role="alert" data-testid="architecture-diagram-preview-failure">
+            <SeverityTag severity="high" label="Diagram unavailable" />
+            <p className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}>
+              {ARCHITECTURE_DIAGRAM_RENDER_FAILURE}
+            </p>
+            <Button type="button" variant="outline" size="sm" onClick={() => void runGeneration(false)}>
+              {ARCHITECTURE_DIAGRAM_RETRY_ACTION}
+            </Button>
+          </div>
+        ) : null}
+
+        {phase === "ready" && displayMermaidSource !== null ? (
+          <div className="space-y-1">
+            <div className="relative max-h-48 overflow-hidden rounded-md border border-neutral-200 dark:border-neutral-800">
+              <ArchitectureDiagramViewer
+                mermaidSource={displayMermaidSource}
+                textAlternative={textAlternative}
+                onRetry={() => void runGeneration(false)}
+              />
+              <div
+                className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-white to-transparent dark:from-neutral-950"
+                aria-hidden
+              />
+            </div>
+            <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              {ARCHITECTURE_DIAGRAM_PREVIEW_CLIPPED_LABEL}
+            </p>
           </div>
         ) : null}
 
@@ -224,12 +331,15 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
       aria-labelledby="architecture-diagram-heading"
     >
       <div className="space-y-1">
-        <h2 id="architecture-diagram-heading" className={cn("m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100")}>
-          {ARCHITECTURE_DIAGRAM_SECTION_HEADING}
-        </h2>
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 id="architecture-diagram-heading" className={cn("m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100")}>
+            {ARCHITECTURE_DIAGRAM_SECTION_HEADING}
+          </h2>
+          {phase === "ready" ? <StatusTag kind="neutral" label={ARCHITECTURE_DIAGRAM_DRAFT_STATUS_LABEL} /> : null}
+        </div>
         {phase === "ready" ? (
           <>
-            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} role="status">
               {ARCHITECTURE_DIAGRAM_DRAFT_LABEL}
             </p>
             <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
@@ -239,6 +349,16 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
         ) : null}
       </div>
 
+      {storageWriteFailed ? (
+        <p
+          className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.body)}
+          role="alert"
+          data-testid="architecture-diagram-storage-write-failure"
+        >
+          {ARCHITECTURE_DIAGRAM_STORAGE_WRITE_FAILURE}
+        </p>
+      ) : null}
+
       {phase === "loading" ? (
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} aria-live="polite" data-testid="architecture-diagram-loading">
           {ARCHITECTURE_DIAGRAM_LOADING_LABEL}
@@ -246,23 +366,31 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
       ) : null}
 
       {phase === "insufficient" ? (
-        <div className="space-y-3 rounded-md border border-dashed border-neutral-300 p-4 dark:border-neutral-700" data-testid="architecture-diagram-insufficient">
+        <div className="space-y-3 rounded-md border border-dashed border-neutral-300 p-4 dark:border-neutral-700" data-testid="architecture-diagram-insufficient" role="status">
           <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
             {ARCHITECTURE_DIAGRAM_INSUFFICIENT_HEADING}
           </p>
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{missingExplanation}</p>
-          <Button type="button" variant="primary" asChild data-testid="architecture-diagram-add-details">
-            <Link href={clarifyHref}>{ARCHITECTURE_DIAGRAM_ADD_DETAILS_ACTION}</Link>
-          </Button>
-          <Button type="button" variant="outline" size="sm" onClick={() => void runGeneration(false)} data-testid="architecture-diagram-generate">
-            {ARCHITECTURE_DIAGRAM_GENERATE_ACTION}
+          {clarificationsAction}
+        </div>
+      ) : null}
+
+      {phase === "error" ? (
+        <div className="space-y-3" data-testid="architecture-diagram-generation-failure" role="alert">
+          <SeverityTag severity="high" label="Diagram generation error" />
+          <p className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.body)}>
+            {ARCHITECTURE_DIAGRAM_RENDER_FAILURE}
+          </p>
+          <Button type="button" variant="outline" size="sm" onClick={() => void runGeneration(false)} data-testid="architecture-diagram-retry">
+            {ARCHITECTURE_DIAGRAM_RETRY_ACTION}
           </Button>
         </div>
       ) : null}
 
-      {phase === "invalid" && mermaidSource !== null ? (
-        <div className="space-y-3" data-testid="architecture-diagram-invalid">
-          <p className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.body)} role="alert">
+      {phase === "invalid" ? (
+        <div className="space-y-3" data-testid="architecture-diagram-invalid" role="alert">
+          <SeverityTag severity="medium" label="Invalid diagram source" />
+          <p className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.body)}>
             The diagram source is invalid. Edit the diagram or regenerate after updating your brief.
           </p>
           <Button type="button" variant="outline" size="sm" onClick={() => void runGeneration(true)}>
@@ -271,13 +399,34 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
         </div>
       ) : null}
 
-      {phase === "ready" && mermaidSource !== null ? (
+      {phase === "ready" && displayMermaidSource !== null ? (
         <>
-          <ArchitectureDiagramViewer
-            mermaidSource={mermaidSource}
-            textAlternative={textAlternative}
-            onRetry={() => void runGeneration(false)}
-          />
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,18rem)]">
+            <ArchitectureDiagramViewer
+              mermaidSource={displayMermaidSource}
+              textAlternative={textAlternative}
+              onRetry={() => void runGeneration(false)}
+            />
+            {diagramModel !== null ? (
+              <div className="space-y-2">
+                {inferredReviewLocked ? (
+                  <p
+                    className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+                    role="status"
+                    data-testid="architecture-diagram-inferred-locked"
+                  >
+                    {ARCHITECTURE_DIAGRAM_INFERRED_LOCKED_FOR_HAND_EDIT}
+                  </p>
+                ) : null}
+                <ArchitectureDiagramInferredPanel
+                  model={diagramModel}
+                  canEdit={props.canEdit && !inferredReviewLocked}
+                  onNodeOverride={handleNodeOverride}
+                />
+              </div>
+            ) : null}
+          </div>
+          <ArchitectureDiagramLegend model={diagramModel} />
           <div className="flex flex-wrap gap-2">
             {props.canEdit ? (
               <Button type="button" variant="outline" size="sm" onClick={() => setEditorOpen(true)}>
@@ -307,26 +456,24 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
         <ArchitectureDiagramEditor
           open={editorOpen}
           onOpenChange={setEditorOpen}
-          model={diagramModel}
           mermaidSource={mermaidSource}
           versions={versions}
+          activeVersionId={activeVersionId}
           canEdit={props.canEdit}
+          storageWriteFailed={storageWriteFailed}
           onSaveMermaid={(nextSource) => {
-            appendArchitectureDiagramVersion({
+            const appendResult = appendArchitectureDiagramVersion({
               runId: props.runId,
               contentFingerprint,
               mermaidSource: nextSource,
               source: "user-edit",
               label: "Edited diagram",
             });
+            setStorageWriteFailed(appendResult.writeFailed);
             setCacheVersion((current) => current + 1);
             setMermaidSource(nextSource);
+            setLiveModelSynced(false);
             setPhase(isValidMermaidArchitectureDiagram(nextSource) ? "ready" : "invalid");
-          }}
-          onNodeOverride={(nodes) => {
-            setArchitectureDiagramNodeOverrides(props.runId, nodes, cache?.edgeOverrides ?? []);
-            setCacheVersion((current) => current + 1);
-            void runGeneration(true);
           }}
           onActivateVersion={(versionId) => {
             activateArchitectureDiagramVersion(props.runId, versionId);
@@ -336,6 +483,7 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
 
             if (version !== undefined) {
               setMermaidSource(version.mermaidSource);
+              setLiveModelSynced(false);
               setPhase(isValidMermaidArchitectureDiagram(version.mermaidSource) ? "ready" : "invalid");
             }
           }}

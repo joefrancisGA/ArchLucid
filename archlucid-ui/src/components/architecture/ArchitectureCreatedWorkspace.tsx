@@ -24,6 +24,7 @@ import type { ArchitectureCreationUserAssertions } from "@/lib/architecture-stru
 import {
   ARCHITECTURE_WORKSPACE_TAB_LABELS,
   ARCHITECTURE_WORKSPACE_TAB_PARAM,
+  buildArchitectureWorkspaceTabHref,
   type ArchitectureWorkspaceTabId,
   resolveArchitectureWorkspaceTab,
   resolveArchitectureWorkspaceTabFromHash,
@@ -33,7 +34,6 @@ import {
   formatMetricCountHeadline,
 } from "@/lib/metric-count-presentation";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
-import { REVIEWS_NEW_CREATE_ARCHITECTURE_HREF } from "@/lib/reviews-new-path-copy";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -74,6 +74,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
   const [dismissedClarificationGapIds, setDismissedClarificationGapIds] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
+  const [diagramInferredCount, setDiagramInferredCount] = useState(0);
 
   const merged = useMemo(() => {
     const snapshot = readArchitectureCreationHandoff(props.baseline.runId);
@@ -137,6 +138,9 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
     clarificationsCount,
   );
   const clarificationsTabAriaLabel = formatMetricCountHeadline(clarificationsPresentation);
+  const clarificationsTabHref = buildArchitectureWorkspaceTabHref(props.baseline.runId, "clarifications");
+  const compactViewportMode =
+    activeTab === "clarifications" || activeTab === "diagram" ? "context-bar" : "full";
 
   return (
     <div className="space-y-5" data-testid="architecture-created-workspace">
@@ -149,7 +153,10 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
         userAssertions={userAssertions}
         canEditDiagram={props.canEditDiagram}
         onNavigateTab={navigateTab}
-        mode={activeTab === "clarifications" ? "context-bar" : "full"}
+        mode={compactViewportMode}
+        clarificationsTabHref={clarificationsTabHref}
+        onClarificationsNavigate={() => navigateTab("clarifications")}
+        onUnconfirmedInferredCountChange={setDiagramInferredCount}
       />
 
       <Tabs value={activeTab} onValueChange={(value) => navigateTab(resolveArchitectureWorkspaceTab(value))}>
@@ -159,9 +166,11 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
               const count =
                 tabId === "clarifications" && clarificationsCount > 0
                   ? clarificationsCount
-                  : tabId === "findings" && findingsCount > 0
-                    ? findingsCount
-                    : null;
+                  : tabId === "diagram" && diagramInferredCount > 0
+                    ? diagramInferredCount
+                    : tabId === "findings" && findingsCount > 0
+                      ? findingsCount
+                      : null;
 
               return (
                 <TabsTrigger
@@ -179,7 +188,11 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
                       )}
                       aria-label={tabId === "clarifications" ? clarificationsTabAriaLabel : undefined}
                       data-testid={
-                        tabId === "clarifications" ? "architecture-workspace-clarifications-count" : undefined
+                        tabId === "clarifications"
+                          ? "architecture-workspace-clarifications-count"
+                          : tabId === "diagram"
+                            ? "architecture-workspace-diagram-count"
+                            : undefined
                       }
                     >
                       {count}
@@ -213,7 +226,9 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
               sourceText={props.architectureSourceText}
               userAssertions={userAssertions}
               canEdit={props.canEditDiagram}
-              clarifyHref={REVIEWS_NEW_CREATE_ARCHITECTURE_HREF}
+              clarifyHref={clarificationsTabHref}
+              onClarificationsNavigate={() => navigateTab("clarifications")}
+              onUnconfirmedInferredCountChange={setDiagramInferredCount}
               variant="full"
             />
           </div>
