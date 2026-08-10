@@ -45,6 +45,7 @@ import {
   formatDecisionSnapshotGovernanceOutcome,
 } from "@/lib/run-detail-workspace-derive";
 import { deriveReviewDetailTabActivityAt } from "@/lib/review-detail-tab-activity";
+import { deriveRunDetailFindingsTriageCounts } from "@/lib/run-detail-findings-triage-counts";
 import {
   humanReviewStatusDisplay,
   resolveQuickDecisionFindingsForRunDetail,
@@ -311,6 +312,8 @@ export function RunDetailPageView(props: {
     m.resolvedDetail,
     m.explanationSummary,
   );
+  const findingsTriageCounts = deriveRunDetailFindingsTriageCounts(quickDecisionFindings);
+  const findingsTriageVisibleCount = findingsTriageCounts.triageVisibleCount;
   const severityCounts = countFindingsBySeverity(quickDecisionFindings);
   const reviewDisplayTitle = deriveReviewDisplayTitle(runSummaryForBadge, m.headline);
   const systemName = deriveArchitectureSystemName(runSummaryForBadge, reviewDisplayTitle);
@@ -808,6 +811,7 @@ export function RunDetailPageView(props: {
                     architectureSourceText={submittedArchitectureText ?? ""}
                     canEditDiagram={!m.manifestId}
                     findings={quickDecisionFindings}
+                    findingsTriageVisibleCount={findingsTriageVisibleCount}
                     correctionHref={
                       !m.manifestId
                         ? `/architecture/reviews/new?path=guided-intake&rerun=${encodeURIComponent(m.resolvedDetail.run.runId)}`
@@ -827,6 +831,8 @@ export function RunDetailPageView(props: {
                           manifestRuleSetId={m.manifestSummaryForUi?.ruleSetId ?? null}
                           manifestRuleSetVersion={m.manifestSummaryForUi?.ruleSetVersion ?? null}
                           packageCommitted={Boolean(m.manifestId)}
+                          analysisStagesComplete={createHomeAnalysisStagesComplete}
+                          triageVisibleCount={findingsTriageVisibleCount}
                           providerNeutralWorkItems={Boolean(m.manifestId)}
                           architectureWorkItemContext={
                             m.manifestId

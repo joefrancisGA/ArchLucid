@@ -35,6 +35,62 @@ describe("QuickDecisionSummary", () => {
     expect(screen.getByText("No findings to act on")).toBeInTheDocument();
   });
 
+  it("shows create-home in-progress empty state before stages complete", () => {
+    render(
+      <QuickDecisionSummary
+        runId="run-1"
+        findings={[]}
+        packageCommitted={false}
+        analysisStagesComplete={false}
+        workspaceCardMode
+      />,
+    );
+
+    expect(screen.getByTestId("quick-decision-create-home-in-progress-empty")).toBeInTheDocument();
+    expect(screen.queryByText("No findings to act on")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /View assessment progress on the Activity tab/i })).toHaveAttribute(
+      "href",
+      expect.stringContaining("archTab=activity"),
+    );
+  });
+
+  it("shows create-home finalize-eligible empty state when stages complete", () => {
+    render(
+      <QuickDecisionSummary
+        runId="run-1"
+        findings={[]}
+        packageCommitted={false}
+        analysisStagesComplete
+        workspaceCardMode
+      />,
+    );
+
+    expect(screen.getByTestId("quick-decision-create-home-finalize-empty")).toBeInTheDocument();
+    expect(screen.queryByText("No findings to act on")).not.toBeInTheDocument();
+  });
+
+  it("does not treat a filtered-empty list as create-home zero findings", () => {
+    render(
+      <QuickDecisionSummary
+        runId="run-1"
+        findings={[]}
+        sourceFindingsCount={2}
+        packageCommitted={false}
+        analysisStagesComplete={false}
+        workspaceCardMode
+        confidenceVisibility={{
+          showLowConfidence: false,
+          onShowLowConfidenceChange: () => undefined,
+          hiddenByConfidenceCount: 2,
+          managedExternally: true,
+        }}
+      />,
+    );
+
+    expect(screen.queryByTestId("quick-decision-create-home-in-progress-empty")).not.toBeInTheDocument();
+    expect(screen.getByText("No findings match the current filters.")).toBeInTheDocument();
+  });
+
   it("buyer-polished shell summarizes finalized posture when headline lists findings but quick rows are empty", () => {
     render(
       <QuickDecisionSummary

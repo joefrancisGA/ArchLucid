@@ -10,6 +10,7 @@ export type RunFindingsItsmJsonExportDocument = {
   runId: string;
   exportedAtUtc: string;
   findingCount: number;
+  recordStatus?: string;
   workItems: FindingWorkItemJsonDocument[];
 };
 
@@ -46,12 +47,30 @@ function escapeCsvCell(value: string): string {
   return value;
 }
 
+/** Pre-finalize marker stamped into exports when no signed review record exists yet. */
+export const PRE_FINALIZE_FINDINGS_EXPORT_MARKER =
+  "Pre-finalize assessment findings — not a signed review record";
+
+export type RunFindingsExportOptions = {
+  readonly packageCommitted?: boolean;
+};
+
+function resolveExportRecordStatus(options?: RunFindingsExportOptions): string {
+  if (options?.packageCommitted === false) {
+    return PRE_FINALIZE_FINDINGS_EXPORT_MARKER;
+  }
+
+  return "Open";
+}
+
 /** Builds a CSV export for the on-screen findings set (client-side; matches visible rows). */
 export function buildQuickDecisionFindingsCsv(
   runId: string,
   findings: readonly QuickDecisionFinding[],
+  options?: RunFindingsExportOptions,
 ): string {
-  const header = "FindingId,RunId,Severity,Title,Recommendation,Confidence,PolicyRuleId,Status";
+  const recordStatus = resolveExportRecordStatus(options);
+  const header = "FindingId,RunId,Severity,Title,Recommendation,Confidence,PolicyRuleId,Status,RecordStatus";
   const lines = findings.map((finding) =>
     [
       finding.findingId,
@@ -62,6 +81,7 @@ export function buildQuickDecisionFindingsCsv(
       finding.confidenceLevel ?? "",
       finding.policyRuleId ?? "",
       finding.isMuted ? "Muted" : "Open",
+      escapeCsvCell(recordStatus),
     ].join(","),
   );
 
@@ -71,8 +91,9 @@ export function buildQuickDecisionFindingsCsv(
 export function downloadQuickDecisionFindingsCsv(
   runId: string,
   findings: readonly QuickDecisionFinding[],
+  options?: RunFindingsExportOptions,
 ): void {
-  const csv = buildQuickDecisionFindingsCsv(runId, findings);
+  const csv = buildQuickDecisionFindingsCsv(runId, findings, options);
   triggerBinaryDownload(csv, "text/csv;charset=utf-8", `architecture-run-${runId}-findings.csv`);
 }
 
@@ -81,6 +102,7 @@ export function buildRunFindingsItsmJsonExportDocument(
   runId: string,
   findings: readonly QuickDecisionFinding[],
   siteOrigin: string,
+  options?: RunFindingsExportOptions,
 ): RunFindingsItsmJsonExportDocument {
   const workItems: FindingWorkItemJsonDocument[] = findings.map((finding) => {
     const jsonBody = buildTraceRowWorkItemBody("json", {
@@ -99,21 +121,31 @@ export function buildRunFindingsItsmJsonExportDocument(
     return JSON.parse(jsonBody) as FindingWorkItemJsonDocument;
   });
 
-  return {
+  const document: RunFindingsItsmJsonExportDocument = {
     schema: "archlucid.findings-export.v1",
     runId,
     exportedAtUtc: new Date().toISOString(),
     findingCount: workItems.length,
     workItems,
   };
+
+  if (options?.packageCommitted === false) {
+    return {
+      ...document,
+      recordStatus: PRE_FINALIZE_FINDINGS_EXPORT_MARKER,
+    };
+  }
+
+  return document;
 }
 
 export function downloadRunFindingsItsmJsonExport(
   runId: string,
   findings: readonly QuickDecisionFinding[],
   siteOrigin: string,
+  options?: RunFindingsExportOptions,
 ): void {
-  const document = buildRunFindingsItsmJsonExportDocument(runId, findings, siteOrigin);
+  const document = buildRunFindingsItsmJsonExportDocument(runId, findings, siteOrigin, options);
   const json = JSON.stringify(document, null, 2);
   triggerJsonDownload(json, `architecture-run-${runId}-findings-work-items.json`);
 }

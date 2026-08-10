@@ -22,3 +22,12 @@ export const ARCHITECTURE_CREATED_FINDINGS_SOURCES_INTRO =
 
 export const ARCHITECTURE_CREATED_FINDINGS_CLAIM_DISCIPLINE =
   "This create-home Findings tab lists assessment findings before finalize. It is not a signed-record Sources trail";
+
+export const ARCHITECTURE_CREATED_FINDINGS_IN_PROGRESS_EMPTY =
+  "Assessment in progress — findings appear as each stage completes.";
+
+export const ARCHITECTURE_CREATED_FINDINGS_IN_PROGRESS_ACTIVITY_LINK =
+  "View assessment progress on the Activity tab";
+
+export const ARCHITECTURE_CREATED_FINDINGS_FINALIZE_ELIGIBLE_EMPTY =
+  "Assessment stages are complete and no findings were surfaced. You can finalize when governance readiness checks pass.";

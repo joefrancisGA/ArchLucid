@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import {
   downloadQuickDecisionFindingsCsv,
   downloadRunFindingsItsmJsonExport,
+  PRE_FINALIZE_FINDINGS_EXPORT_MARKER,
 } from "@/lib/run-findings-itsm-export";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
@@ -19,6 +20,8 @@ export type FindingsItsmExportToolbarProps = {
   totalFindingCount?: number;
   /** Compact toolbar row for the findings workspace header. */
   compact?: boolean;
+  /** When false, demote export behind disclosure with pre-finalize qualifier. */
+  packageCommitted?: boolean;
 };
 
 function resolveExportScopeLabel(
@@ -45,11 +48,13 @@ export function FindingsItsmExportToolbar({
   findings,
   totalFindingCount,
   compact = false,
+  packageCommitted,
 }: FindingsItsmExportToolbarProps) {
   const [exportingCsv, setExportingCsv] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
   const hiddenAdvisoryCount = Math.max(0, (totalFindingCount ?? findings.length) - findings.length);
   const scopeLabel = resolveExportScopeLabel(findings.length, totalFindingCount, hiddenAdvisoryCount);
+  const exportOptions = packageCommitted === false ? { packageCommitted: false as const } : undefined;
   const csvLabel =
     hiddenAdvisoryCount > 0
       ? `Export ${findings.length} rendered CSV`
@@ -68,70 +73,93 @@ export function FindingsItsmExportToolbar({
     setExportError(null);
 
     try {
-      downloadQuickDecisionFindingsCsv(runId, findings);
+      downloadQuickDecisionFindingsCsv(runId, findings, exportOptions);
     } catch (error) {
       setExportError(error instanceof Error ? error.message : "CSV export failed.");
     } finally {
       setExportingCsv(false);
     }
-  }, [findings, runId]);
+  }, [exportOptions, findings, runId]);
 
   const onExportJson = useCallback(() => {
     setExportError(null);
 
     try {
       const siteOrigin = typeof window !== "undefined" ? window.location.origin : "";
-      downloadRunFindingsItsmJsonExport(runId, findings, siteOrigin);
+      downloadRunFindingsItsmJsonExport(runId, findings, siteOrigin, exportOptions);
     } catch (error) {
       setExportError(error instanceof Error ? error.message : "JSON export failed.");
     }
-  }, [findings, runId]);
+  }, [exportOptions, findings, runId]);
 
   if (findings.length === 0) {
     return null;
   }
 
+  const exportButtons = (
+    <div
+      className="flex flex-wrap items-center justify-end gap-2"
+      role="group"
+      aria-label="Export findings"
+    >
+      {scopeLabel !== null ? (
+        <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          {scopeLabel}
+        </span>
+      ) : null}
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className={cn("h-8 gap-1.5", OPERATOR_TYPOGRAPHY.helper)}
+        disabled={exportingCsv}
+        data-testid="findings-export-csv-button"
+        onClick={onExportCsv}
+      >
+        <FileSpreadsheet className="size-3.5" aria-hidden />
+        {exportingCsv ? "Exporting…" : csvLabel}
+      </Button>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className={cn("h-8 gap-1.5", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="findings-export-json-button"
+        onClick={onExportJson}
+      >
+        <FileJson className="size-3.5" aria-hidden />
+        {jsonLabel}
+      </Button>
+      {exportError !== null ? (
+        <p className={cn("m-0 w-full text-right text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.helper)} role="alert">
+          {exportError}
+        </p>
+      ) : null}
+    </div>
+  );
+
+  if (packageCommitted === false) {
+    return (
+      <details
+        className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
+        data-testid="findings-itsm-export-toolbar"
+        data-workspace-disclosure
+      >
+        <summary className={cn("cursor-pointer font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+          Export pre-finalize findings
+        </summary>
+        <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          {PRE_FINALIZE_FINDINGS_EXPORT_MARKER}
+        </p>
+        <div className="mt-2">{exportButtons}</div>
+      </details>
+    );
+  }
+
   if (compact) {
     return (
-      <div
-        className="flex flex-wrap items-center justify-end gap-2"
-        data-testid="findings-itsm-export-toolbar"
-        role="group"
-        aria-label="Export findings"
-      >
-        {scopeLabel !== null ? (
-          <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            {scopeLabel}
-          </span>
-        ) : null}
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className={cn("h-8 gap-1.5", OPERATOR_TYPOGRAPHY.helper)}
-          disabled={exportingCsv}
-          data-testid="findings-export-csv-button"
-          onClick={onExportCsv}
-        >
-          <FileSpreadsheet className="size-3.5" aria-hidden />
-          {exportingCsv ? "Exporting…" : csvLabel}
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className={cn("h-8 gap-1.5", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="findings-export-json-button"
-          onClick={onExportJson}
-        >
-          <FileJson className="size-3.5" aria-hidden />
-          {jsonLabel}
-        </Button>
-        {exportError !== null ? (
-          <p className={cn("m-0 w-full text-right text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.helper)} role="alert">
-            {exportError}
-          </p>
-        ) : null}
+      <div data-testid="findings-itsm-export-toolbar">
+        {exportButtons}
       </div>
     );
   }

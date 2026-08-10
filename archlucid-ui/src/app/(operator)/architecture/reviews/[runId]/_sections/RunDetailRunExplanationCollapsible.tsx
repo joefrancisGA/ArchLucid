@@ -80,6 +80,8 @@ type RunDetailRunExplanationCollapsibleProps = {
     readonly ownerLabel: string | null;
   } | null;
   readonly packageCommitted?: boolean;
+  readonly analysisStagesComplete?: boolean;
+  readonly triageVisibleCount?: number;
 };
 
 function buildFindingTitlesById(findings: readonly QuickDecisionFinding[]): Record<string, string> {
@@ -108,6 +110,8 @@ export function RunDetailRunExplanationCollapsible(
     providerNeutralWorkItems,
     architectureWorkItemContext,
     packageCommitted,
+    analysisStagesComplete,
+    triageVisibleCount,
   } = props;
   const findingTitlesById = buildFindingTitlesById(quickDecisionFindings);
   const showCoverageAndCuration = hasFindingsSnapshotInsightDensityContent(insightDensityView);
@@ -131,6 +135,8 @@ export function RunDetailRunExplanationCollapsible(
           providerNeutralWorkItems={providerNeutralWorkItems}
           architectureWorkItemContext={architectureWorkItemContext}
           packageCommitted={packageCommitted}
+          analysisStagesComplete={analysisStagesComplete}
+          triageVisibleCount={triageVisibleCount}
         />
 
         {showCoverageAndCuration ? (

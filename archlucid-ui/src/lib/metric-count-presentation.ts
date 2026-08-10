@@ -109,6 +109,18 @@ export function reviewFindingsCountPresentation(runId: string, count: number): M
   };
 }
 
+export function architectureAssessmentFindingsPresentation(
+  runId: string,
+  count: number,
+): MetricCountPresentation {
+  return {
+    count,
+    noun: count === 1 ? "assessment finding" : "assessment findings",
+    dimensions: [{ kind: "this-review" }, { kind: "findings-tab" }],
+    href: buildArchitectureWorkspaceTabHref(runId, "findings"),
+  };
+}
+
 export function reviewFindingsGovernanceQueuePresentation(
   runId: string,
   count: number,

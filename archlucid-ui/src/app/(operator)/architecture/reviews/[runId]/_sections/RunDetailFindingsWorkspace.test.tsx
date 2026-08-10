@@ -65,4 +65,28 @@ describe("RunDetailFindingsWorkspace", () => {
       "Showing 2 of 3 — 1 hidden by confidence filter",
     );
   });
+
+  it("renders create-home orientation strip and assessment metric without governance queue labels", () => {
+    const findings: QuickDecisionFinding[] = [
+      finding({ findingId: "f-medium-1", severityValue: 1, findingOrder: 0 }),
+    ];
+
+    render(
+      <RunDetailFindingsWorkspace
+        runId="run-1"
+        findings={findings}
+        packageCommitted={false}
+        analysisStagesComplete={false}
+        triageVisibleCount={1}
+      />,
+    );
+
+    expect(screen.getByTestId("architecture-findings-orientation")).toBeInTheDocument();
+    expect(screen.getByTestId("run-detail-findings-assessment-metric")).toBeInTheDocument();
+    expect(screen.queryByTestId("review-findings-secondary-view-strip")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Review package findings/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/governance queue/i)).not.toBeInTheDocument();
+    expect(screen.getByTestId("run-detail-findings-toolbar")).toHaveAttribute("data-testid", "run-detail-findings-toolbar");
+    expect(screen.getByTestId("quick-decision-summary-stub")).toBeInTheDocument();
+  });
 });

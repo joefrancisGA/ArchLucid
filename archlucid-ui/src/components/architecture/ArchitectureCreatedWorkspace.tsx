@@ -50,6 +50,7 @@ export type ArchitectureCreatedWorkspaceProps = {
   readonly architectureSourceText: string;
   readonly canEditDiagram: boolean;
   readonly findings: readonly QuickDecisionFinding[];
+  readonly findingsTriageVisibleCount?: number;
   readonly panels: ArchitectureCreatedWorkspacePanels;
   readonly correctionHref: string | null;
 };
@@ -127,7 +128,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
     setHashResolved(true);
   }, [hashResolved, pathname, router, searchParams]);
 
-  const findingsCount = props.findings.length;
+  const findingsCount = props.findingsTriageVisibleCount ?? props.findings.length;
   const visibleClarificationGaps = model.clarificationGaps.filter(
     (item) => !dismissedClarificationGapIds.has(item.id),
   );
@@ -140,11 +141,13 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
   const clarificationsTabAriaLabel = formatMetricCountHeadline(clarificationsPresentation);
   const clarificationsTabHref = buildArchitectureWorkspaceTabHref(props.baseline.runId, "clarifications");
   const compactViewportMode =
-    activeTab === "clarifications" || activeTab === "diagram" ? "context-bar" : "full";
+    activeTab === "clarifications" || activeTab === "diagram" || activeTab === "findings"
+      ? "context-bar"
+      : "full";
 
   return (
     <div className="space-y-5" data-testid="architecture-created-workspace">
-      <ArchitectureCreatedWorkspaceHeader model={model} onNavigateTab={navigateTab} />
+      <ArchitectureCreatedWorkspaceHeader model={model} activeTab={activeTab} onNavigateTab={navigateTab} />
 
       <ArchitectureCreatedCompactFirstViewport
         model={model}
@@ -171,6 +174,10 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
                     : tabId === "findings" && findingsCount > 0
                       ? findingsCount
                       : null;
+              const findingsTabAriaLabel =
+                tabId === "findings" && findingsCount > 0
+                  ? `${findingsCount} assessment finding${findingsCount === 1 ? "" : "s"} · this review · findings tab`
+                  : undefined;
 
               return (
                 <TabsTrigger
@@ -186,13 +193,15 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
                         "ml-2 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-neutral-200 px-1.5 py-0.5 text-xs font-semibold text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200",
                         OPERATOR_TYPOGRAPHY.helper,
                       )}
-                      aria-label={tabId === "clarifications" ? clarificationsTabAriaLabel : undefined}
+                      aria-label={tabId === "clarifications" ? clarificationsTabAriaLabel : findingsTabAriaLabel}
                       data-testid={
                         tabId === "clarifications"
                           ? "architecture-workspace-clarifications-count"
                           : tabId === "diagram"
                             ? "architecture-workspace-diagram-count"
-                            : undefined
+                            : tabId === "findings"
+                              ? "architecture-workspace-findings-count"
+                              : undefined
                       }
                     >
                       {count}

@@ -9,13 +9,14 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureCreatedWorkspaceHeaderProps = {
   readonly model: ArchitectureCreatedHomeModel;
+  readonly activeTab: ArchitectureWorkspaceTabId;
   readonly onNavigateTab: (tab: ArchitectureWorkspaceTabId) => void;
 };
 
 export function ArchitectureCreatedWorkspaceHeader(
   props: ArchitectureCreatedWorkspaceHeaderProps,
 ): React.JSX.Element {
-  const { model, onNavigateTab } = props;
+  const { model, activeTab, onNavigateTab } = props;
 
   return (
     <header
@@ -61,6 +62,7 @@ export function ArchitectureCreatedWorkspaceHeader(
           <ul className="m-0 list-none space-y-1 p-0">
             {model.overflowActions.map((action) => {
               const tab = readArchitectureWorkspaceTabFromHref(action.href);
+              const isCurrentTab = tab !== null && tab === activeTab;
 
               return (
                 <li key={`${action.label}-${action.href}`}>
@@ -68,14 +70,23 @@ export function ArchitectureCreatedWorkspaceHeader(
                     <button
                       type="button"
                       className={cn(
-                        "block w-full rounded px-2 py-1.5 text-left text-neutral-700 hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-900",
+                        "block w-full rounded px-2 py-1.5 text-left dark:hover:bg-neutral-900",
+                        isCurrentTab
+                          ? "cursor-default bg-neutral-100 font-semibold text-neutral-900 dark:bg-neutral-900 dark:text-neutral-100"
+                          : "text-neutral-700 hover:bg-neutral-100 dark:text-neutral-200",
                         OPERATOR_TYPOGRAPHY.helper,
                       )}
+                      aria-current={isCurrentTab ? "page" : undefined}
+                      disabled={isCurrentTab}
                       onClick={() => {
+                        if (isCurrentTab) {
+                          return;
+                        }
+
                         onNavigateTab(tab);
                       }}
                     >
-                      {action.label}
+                      {isCurrentTab ? `${action.label} (current)` : action.label}
                     </button>
                   ) : (
                     <Link

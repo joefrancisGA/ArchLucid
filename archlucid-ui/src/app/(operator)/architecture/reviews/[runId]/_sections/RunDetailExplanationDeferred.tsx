@@ -32,6 +32,8 @@ type RunDetailExplanationDeferredProps = {
     readonly ownerLabel: string | null;
   } | null;
   readonly packageCommitted?: boolean;
+  readonly analysisStagesComplete?: boolean;
+  readonly triageVisibleCount?: number;
 };
 
 /**
@@ -56,6 +58,8 @@ export async function RunDetailExplanationDeferred(
     providerNeutralWorkItems,
     architectureWorkItemContext,
     packageCommitted,
+    analysisStagesComplete,
+    triageVisibleCount,
   } = props;
 
   let explanationSummary = props.explanationSummary;
@@ -115,6 +119,8 @@ export async function RunDetailExplanationDeferred(
       providerNeutralWorkItems={providerNeutralWorkItems}
       architectureWorkItemContext={architectureWorkItemContext}
       packageCommitted={packageCommitted}
+      analysisStagesComplete={analysisStagesComplete}
+      triageVisibleCount={triageVisibleCount}
     />
   );
 }

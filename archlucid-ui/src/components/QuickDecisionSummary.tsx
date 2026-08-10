@@ -6,6 +6,13 @@ import { useRouter } from "next/navigation";
 import { useState, useMemo } from "react";
 import type { ReactElement } from "react";
 
+import {
+  ARCHITECTURE_CREATED_FINDINGS_FINALIZE_ELIGIBLE_EMPTY,
+  ARCHITECTURE_CREATED_FINDINGS_IN_PROGRESS_ACTIVITY_LINK,
+  ARCHITECTURE_CREATED_FINDINGS_IN_PROGRESS_EMPTY,
+} from "@/lib/architecture-created-findings-sources";
+import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture-workspace-tabs";
+
 import { FindingAiReasoningDialog } from "@/components/FindingAiReasoningDialog";
 import { AiOutputGovernanceLabel } from "@/components/AiOutputGovernanceLabel";
 import { FindingPolicyCitationProminentStrip } from "@/components/findings/FindingPolicyCitationProminentStrip";
@@ -131,6 +138,15 @@ export type QuickDecisionSummaryProps = {
   readonly confidenceVisibility?: QuickDecisionSummaryConfidenceVisibility;
   /** When set, advisory-note expansion is owned by the parent (review detail findings workspace). */
   readonly advisoryVisibility?: QuickDecisionSummaryAdvisoryVisibility;
+  /** Create-home: assessment pipeline stages finished (distinct from in-flight tracker). */
+  readonly analysisStagesComplete?: boolean;
+  /** Create-home: navigate to Activity tab from in-progress empty state. */
+  readonly onNavigateActivity?: () => void;
+  /**
+   * When the parent already applied toolbar/confidence filters to `findings`, pass the
+   * unfiltered source length so create-home empty states do not fire on filtered-empty lists.
+   */
+  readonly sourceFindingsCount?: number;
 };
 
 /** Top severity-ranked actionable findings from run detail agent results (no extra API calls). */
@@ -192,7 +208,10 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
     props.manifestRuleSetVersion,
   );
   const policyPackSummary = policyPackImpact.groups;
-  const hasSourceFindings = props.findings.length > 0;
+  const hasSourceFindings =
+    typeof props.sourceFindingsCount === "number"
+      ? props.sourceFindingsCount > 0
+      : props.findings.length > 0;
   const itsmFindingIds = useMemo(
     () => props.findings.map((finding) => finding.findingId),
     [props.findings],
@@ -246,6 +265,45 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
           {`This finalized review records ${n} finding${n === 1 ? "" : "s"} with no unresolved blocking issues.`}
           {warningPhrase}
         </p>
+      );
+    }
+
+    if (props.packageCommitted === false) {
+      if (props.analysisStagesComplete === true) {
+        return (
+          <p
+            className="m-0 text-neutral-600 dark:text-neutral-400"
+            data-testid="quick-decision-create-home-finalize-empty"
+          >
+            {ARCHITECTURE_CREATED_FINDINGS_FINALIZE_ELIGIBLE_EMPTY}
+          </p>
+        );
+      }
+
+      const activityHref = buildArchitectureWorkspaceTabHref(props.runId, "activity");
+
+      return (
+        <div
+          className="space-y-2"
+          data-testid="quick-decision-create-home-in-progress-empty"
+        >
+          <p className="m-0 text-neutral-600 dark:text-neutral-400">
+            {ARCHITECTURE_CREATED_FINDINGS_IN_PROGRESS_EMPTY}
+          </p>
+          {props.onNavigateActivity !== undefined ? (
+            <button
+              type="button"
+              className={cn("h-auto border-0 bg-transparent p-0", OPERATOR_LINK.nav)}
+              onClick={props.onNavigateActivity}
+            >
+              {ARCHITECTURE_CREATED_FINDINGS_IN_PROGRESS_ACTIVITY_LINK}
+            </button>
+          ) : (
+            <Link href={activityHref} className={OPERATOR_LINK.nav}>
+              {ARCHITECTURE_CREATED_FINDINGS_IN_PROGRESS_ACTIVITY_LINK}
+            </Link>
+          )}
+        </div>
       );
     }
 
@@ -1010,6 +1068,8 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
           ) : null}
           {!hasSourceFindings ? (
             renderEmptySummary()
+          ) : props.findings.length === 0 && confidenceManagedExternally ? (
+            <p className="m-0 text-neutral-600 dark:text-neutral-400">No findings match the current filters.</p>
           ) : afterMuteFilter.length === 0 ? (
             <p className="m-0 text-neutral-600 dark:text-neutral-400">
               All findings are currently muted. Enable <strong>Show muted findings</strong> to review them.
@@ -1162,6 +1222,8 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
           ) : null}
           {!hasSourceFindings ? (
             renderEmptySummary()
+          ) : props.findings.length === 0 && confidenceManagedExternally ? (
+            <p className="m-0 text-neutral-600 dark:text-neutral-400">No findings match the current filters.</p>
           ) : afterMuteFilter.length === 0 ? (
             <p className="m-0 text-neutral-600 dark:text-neutral-400">
               All findings are currently muted. Enable <strong>Show muted findings</strong> to review them.

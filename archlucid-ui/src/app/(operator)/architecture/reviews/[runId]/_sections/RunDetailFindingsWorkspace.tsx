@@ -3,6 +3,8 @@
 import { useState } from "react";
 import type { ReactElement } from "react";
 
+import { ArchitectureCreatedFindingsEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedFindingsEvidenceOrientationStrip";
+import { ArchitectureCreatedFindingsNextAction } from "@/components/architecture/ArchitectureCreatedFindingsNextAction";
 import { FindingsItsmExportToolbar } from "@/components/FindingsItsmExportToolbar";
 import { QuickDecisionSummary } from "@/components/QuickDecisionSummary";
 import {
@@ -12,7 +14,10 @@ import {
   useRunDetailFindingsToolbarState,
 } from "@/components/findings/RunDetailFindingsToolbar";
 import { applyFindingsConfidenceVisibility } from "@/lib/finding-confidence-filter";
-import { reviewFindingsGovernanceQueuePresentation } from "@/lib/metric-count-presentation";
+import {
+  architectureAssessmentFindingsPresentation,
+  reviewFindingsGovernanceQueuePresentation,
+} from "@/lib/metric-count-presentation";
 import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-registry";
@@ -20,6 +25,10 @@ import {
   buildWorkspaceCardRenderedFindings,
   type QuickDecisionFinding,
 } from "@/lib/quick-decision-summary-derive";
+import {
+  deriveRunDetailFindingsTriageCounts,
+  formatFindingsExcludedSummaryLine,
+} from "@/lib/run-detail-findings-triage-counts";
 
 export type RunDetailFindingsWorkspaceProps = {
   readonly runId: string;
@@ -37,6 +46,9 @@ export type RunDetailFindingsWorkspaceProps = {
     readonly ownerLabel: string | null;
   } | null;
   readonly packageCommitted?: boolean;
+  readonly analysisStagesComplete?: boolean;
+  readonly triageVisibleCount?: number;
+  readonly onNavigateActivity?: () => void;
 };
 
 /** Findings list with workspace toolbar filters for the review detail page. */
@@ -44,6 +56,10 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
   const toolbar = useRunDetailFindingsToolbarState();
   const [showLowConfidence, setShowLowConfidence] = useState(false);
   const [showAdvisory, setShowAdvisory] = useState(false);
+  const createHomeSurface = props.packageCommitted === false;
+  const triageCounts = deriveRunDetailFindingsTriageCounts(props.findings);
+  const triageVisibleCount = props.triageVisibleCount ?? triageCounts.triageVisibleCount;
+  const excludedSummaryLine = formatFindingsExcludedSummaryLine(triageCounts);
   const toolbarScopedFindings = filterFindingsForToolbar(
     props.findings,
     toolbar.filter,
@@ -72,15 +88,101 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
   });
   const firstListedFinding = listFindings[0];
   const findingsSecondaryViewPresentation =
-    firstListedFinding !== undefined
+    !createHomeSurface && firstListedFinding !== undefined
       ? buildCanonicalObjectSecondaryView("finding", "reviewPackageFindingsTab", {
           runId: props.runId,
           findingId: firstListedFinding.findingId,
         })
       : null;
+  const metricPresentation = createHomeSurface
+    ? architectureAssessmentFindingsPresentation(props.runId, triageVisibleCount)
+    : reviewFindingsGovernanceQueuePresentation(props.runId, triageVisibleCount);
+
+  const metricCountEl = (
+    <div className="mb-3" data-testid="run-detail-findings-metric-count">
+      <SelfDescribingMetricCount
+        presentation={metricPresentation}
+        testId={
+          createHomeSurface
+            ? "run-detail-findings-assessment-metric"
+            : "run-detail-findings-governance-metric"
+        }
+      />
+    </div>
+  );
+  const findingsSummaryEl = (
+    <QuickDecisionSummary
+      runId={props.runId}
+      findings={listFindings}
+      sourceFindingsCount={props.findings.length}
+      buyerPolishedShell={props.buyerPolishedShell}
+      headlineFindingCount={props.headlineFindingCount}
+      headlineWarningCount={props.headlineWarningCount}
+      usingExplanationFallback={props.usingExplanationFallback}
+      manifestRuleSetId={props.manifestRuleSetId}
+      manifestRuleSetVersion={props.manifestRuleSetVersion}
+      workspaceCardMode
+      defaultExpandLowSeverity={false}
+      providerNeutralWorkItems={props.providerNeutralWorkItems}
+      architectureWorkItemContext={props.architectureWorkItemContext}
+      packageCommitted={props.packageCommitted}
+      analysisStagesComplete={props.analysisStagesComplete}
+      onNavigateActivity={props.onNavigateActivity}
+      confidenceVisibility={{
+        showLowConfidence,
+        onShowLowConfidenceChange: setShowLowConfidence,
+        hiddenByConfidenceCount,
+        managedExternally: true,
+      }}
+      advisoryVisibility={{
+        showAdvisory,
+        onShowAdvisoryChange: setShowAdvisory,
+        managedExternally: true,
+      }}
+    />
+  );
+  const toolbarEl = (
+    <RunDetailFindingsToolbar
+      findings={confidenceGatedForCounts}
+      renderedFindingCount={listFindings.length}
+      toolbarFilteredCount={toolbarScopedFindings.length}
+      hiddenByConfidenceCount={hiddenByConfidenceCount}
+      excludedSummaryLine={excludedSummaryLine}
+      filter={toolbar.filter}
+      onFilterChange={toolbar.setFilter}
+      ownerFilter={toolbar.ownerFilter}
+      onOwnerFilterChange={toolbar.setOwnerFilter}
+      domainFilter={toolbar.domainFilter}
+      onDomainFilterChange={toolbar.setDomainFilter}
+      searchQuery={toolbar.searchQuery}
+      onSearchQueryChange={toolbar.setSearchQuery}
+      sort={toolbar.sort}
+      onSortChange={toolbar.setSort}
+      layout={createHomeSurface ? "compact" : "full"}
+      packageCommitted={props.packageCommitted}
+      exportSlot={
+        <FindingsItsmExportToolbar
+          runId={props.runId}
+          findings={exportFindings}
+          totalFindingCount={listFindings.length}
+          compact
+          packageCommitted={props.packageCommitted}
+        />
+      }
+    />
+  );
 
   return (
-    <div data-testid="run-detail-findings-workspace">
+    <div className="space-y-4" data-testid="run-detail-findings-workspace">
+      {createHomeSurface ? <ArchitectureCreatedFindingsEvidenceOrientationStrip /> : null}
+      {createHomeSurface ? (
+        <ArchitectureCreatedFindingsNextAction
+          runId={props.runId}
+          findings={props.findings}
+          analysisStagesComplete={props.analysisStagesComplete === true}
+          onNavigateActivity={props.onNavigateActivity}
+        />
+      ) : null}
       {findingsSecondaryViewPresentation !== null ? (
         <CanonicalObjectSecondaryViewStrip
           presentation={findingsSecondaryViewPresentation}
@@ -88,67 +190,18 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
           className="mb-3"
         />
       ) : null}
-      {props.headlineFindingCount !== null && props.headlineFindingCount !== undefined ? (
-        <div className="mb-3" data-testid="run-detail-findings-metric-count">
-          <SelfDescribingMetricCount
-            presentation={reviewFindingsGovernanceQueuePresentation(
-              props.runId,
-              props.headlineFindingCount,
-            )}
-            testId="run-detail-findings-governance-metric"
-          />
-        </div>
-      ) : null}
-      <RunDetailFindingsToolbar
-        findings={confidenceGatedForCounts}
-        renderedFindingCount={listFindings.length}
-        toolbarFilteredCount={toolbarScopedFindings.length}
-        hiddenByConfidenceCount={hiddenByConfidenceCount}
-        filter={toolbar.filter}
-        onFilterChange={toolbar.setFilter}
-        ownerFilter={toolbar.ownerFilter}
-        onOwnerFilterChange={toolbar.setOwnerFilter}
-        domainFilter={toolbar.domainFilter}
-        onDomainFilterChange={toolbar.setDomainFilter}
-        searchQuery={toolbar.searchQuery}
-        onSearchQueryChange={toolbar.setSearchQuery}
-        sort={toolbar.sort}
-        onSortChange={toolbar.setSort}
-        exportSlot={
-          <FindingsItsmExportToolbar
-            runId={props.runId}
-            findings={exportFindings}
-            totalFindingCount={listFindings.length}
-            compact
-          />
-        }
-      />
-      <QuickDecisionSummary
-        runId={props.runId}
-        findings={listFindings}
-        buyerPolishedShell={props.buyerPolishedShell}
-        headlineFindingCount={props.headlineFindingCount}
-        headlineWarningCount={props.headlineWarningCount}
-        usingExplanationFallback={props.usingExplanationFallback}
-        manifestRuleSetId={props.manifestRuleSetId}
-        manifestRuleSetVersion={props.manifestRuleSetVersion}
-        workspaceCardMode
-        defaultExpandLowSeverity={false}
-        providerNeutralWorkItems={props.providerNeutralWorkItems}
-        architectureWorkItemContext={props.architectureWorkItemContext}
-        packageCommitted={props.packageCommitted}
-        confidenceVisibility={{
-          showLowConfidence,
-          onShowLowConfidenceChange: setShowLowConfidence,
-          hiddenByConfidenceCount,
-          managedExternally: true,
-        }}
-        advisoryVisibility={{
-          showAdvisory,
-          onShowAdvisoryChange: setShowAdvisory,
-          managedExternally: true,
-        }}
-      />
+      {metricCountEl}
+      {createHomeSurface ? (
+        <>
+          {findingsSummaryEl}
+          {toolbarEl}
+        </>
+      ) : (
+        <>
+          {toolbarEl}
+          {findingsSummaryEl}
+        </>
+      )}
     </div>
   );
 }
