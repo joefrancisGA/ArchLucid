@@ -10,6 +10,8 @@ type CollapsibleSectionProps = {
   headingLevel?: 2 | 3 | 4;
   /** When true, section starts expanded. */
   defaultOpen?: boolean;
+  /** Controlled open state; when set, `defaultOpen` is only used for the initial render. */
+  open?: boolean;
   /** Optional one-line preview under the title in the summary row. */
   summaryLine?: string;
   /** Optional id for the `<summary>` (pairs with parent `aria-labelledby`). */
@@ -37,6 +39,7 @@ export function CollapsibleSection({
   title,
   headingLevel,
   defaultOpen = false,
+  open: controlledOpen,
   summaryLine,
   summaryId,
   summaryAriaLabel,
@@ -44,7 +47,9 @@ export function CollapsibleSection({
   onToggle,
   children,
 }: CollapsibleSectionProps) {
-  const [open, setOpen] = useState(defaultOpen);
+  const [internalOpen, setInternalOpen] = useState(defaultOpen);
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
 
   return (
     <details
@@ -54,7 +59,15 @@ export function CollapsibleSection({
       open={open}
       onToggle={(event) => {
         const nextOpen = (event.currentTarget as HTMLDetailsElement).open;
-        setOpen(nextOpen);
+
+        if (isControlled) {
+          event.preventDefault();
+          onToggle?.(!open);
+
+          return;
+        }
+
+        setInternalOpen(nextOpen);
 
         if (onToggle !== undefined) {
           onToggle(nextOpen);

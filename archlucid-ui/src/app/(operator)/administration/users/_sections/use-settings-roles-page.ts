@@ -13,7 +13,6 @@ import { isApiKeysSettingsSurfaceEnabled } from "@/lib/api-keys-settings-access"
 import type { ArchLucidAppRole } from "@/lib/current-principal";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
-import { showError, showSuccess } from "@/lib/toast";
 
 import type { SettingsRolesPageServerLoad } from "./load-settings-roles-page-data";
 import {
@@ -129,9 +128,9 @@ export function useSettingsRolesPage(loaded: SettingsRolesPageServerLoad): Setti
   }, [isAdmin, isDemo, load]);
 
   const onRoleChange = useCallback(
-    async (row: SettingsRolesAssignablePrincipalRow, nextRole: ArchLucidAppRole) => {
+    async (row: SettingsRolesAssignablePrincipalRow, nextRole: ArchLucidAppRole): Promise<"saved" | "rejected"> => {
       if (!isAdmin) {
-        return;
+        return "rejected";
       }
 
       let snapshot: SettingsRolesAssignablePrincipalRow[] = [];
@@ -145,13 +144,12 @@ export function useSettingsRolesPage(loaded: SettingsRolesPageServerLoad): Setti
       const outcome = await requestPrincipalAppRoleAssignment({ kind: row.kind, id: row.id }, nextRole);
 
       if (outcome === "saved") {
-        showSuccess("Role updated.");
-
-        return;
+        return "saved";
       }
 
       setRows(snapshot);
-      showError("Could not update role", "The server rejected the role change.");
+
+      return "rejected";
     },
     [isAdmin],
   );

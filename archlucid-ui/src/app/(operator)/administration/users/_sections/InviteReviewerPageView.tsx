@@ -69,20 +69,15 @@ export function InviteReviewerPageView(props: Props) {
     );
   }
 
-  const directoryUnavailable = !m.loading && m.note === "api_unavailable";
-
   return (
     <div className="w-full max-w-[720px] space-y-6" data-testid="invite-reviewer-page">
       <InviteReviewerPageHeader />
-<Card>
+      <Card>
         <CardHeader>
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Reviewer invitation</CardTitle>
         </CardHeader>
         <CardContent>
-          <SettingsRolesInvitePanel
-            directoryUnavailable={directoryUnavailable}
-            onRetry={() => void m.load()}
-          />
+          <SettingsRolesInvitePanel />
         </CardContent>
       </Card>
 

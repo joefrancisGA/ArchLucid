@@ -15,19 +15,11 @@ import { showError, showSuccess } from "@/lib/toast";
 
 import { SettingsRolesInvitePanel } from "./SettingsRolesInvitePanel";
 
-describe("SettingsRolesInvitePanel (TB-794)", () => {
-  it("keeps the invite form when the user directory is unavailable", () => {
-    render(<SettingsRolesInvitePanel directoryUnavailable onRetry={() => undefined} />);
-
-    expect(screen.getByTestId("settings-roles-invite-form")).toBeInTheDocument();
-    expect(screen.getByTestId("settings-roles-invite-directory-unavailable")).toBeInTheDocument();
-    expect(screen.getByTestId("settings-roles-invite-email")).toBeInTheDocument();
-  });
-
+describe("SettingsRolesInvitePanel (SSU P0)", () => {
   it("shows error toast when invite endpoint is missing", async () => {
     vi.mocked(sendAdminUserInvitation).mockResolvedValue({ ok: false, reason: "http_error" });
 
-    render(<SettingsRolesInvitePanel directoryUnavailable={false} onRetry={() => undefined} />);
+    render(<SettingsRolesInvitePanel />);
 
     fireEvent.change(screen.getByTestId("settings-roles-invite-email"), {
       target: { value: "reviewer@example.com" },
@@ -35,7 +27,7 @@ describe("SettingsRolesInvitePanel (TB-794)", () => {
 
     const hiddenSelect = screen.getByTestId("settings-roles-invite-role").parentElement?.querySelector("select");
 
-    if (hiddenSelect === null || hiddenSelect === undefined) {
+    if (hiddenSelect === null) {
       throw new Error("expected hidden role select");
     }
 
@@ -48,7 +40,7 @@ describe("SettingsRolesInvitePanel (TB-794)", () => {
     expect(showSuccess).not.toHaveBeenCalled();
   });
 
-  it("shows reference id on successful invite", async () => {
+  it("mentions accept-link copy when the API returns an accept URL", async () => {
     vi.mocked(sendAdminUserInvitation).mockResolvedValue({
       ok: true,
       invitation: {
@@ -62,18 +54,13 @@ describe("SettingsRolesInvitePanel (TB-794)", () => {
         message: null,
         createdUtc: "2026-07-15T00:00:00Z",
         expiresUtc: "2026-07-29T00:00:00Z",
+        acceptUrl: "https://example.test/accept/token",
       },
     });
 
     const onInviteSent = vi.fn();
 
-    render(
-      <SettingsRolesInvitePanel
-        directoryUnavailable={false}
-        onRetry={() => undefined}
-        onInviteSent={onInviteSent}
-      />,
-    );
+    render(<SettingsRolesInvitePanel onInviteSent={onInviteSent} />);
 
     fireEvent.change(screen.getByTestId("settings-roles-invite-email"), {
       target: { value: "reviewer@example.com" },
@@ -81,7 +68,7 @@ describe("SettingsRolesInvitePanel (TB-794)", () => {
 
     const hiddenSelect = screen.getByTestId("settings-roles-invite-role").parentElement?.querySelector("select");
 
-    if (hiddenSelect === null || hiddenSelect === undefined) {
+    if (hiddenSelect === null) {
       throw new Error("expected hidden role select");
     }
 
@@ -89,8 +76,15 @@ describe("SettingsRolesInvitePanel (TB-794)", () => {
     fireEvent.click(screen.getByTestId("settings-roles-invite-submit"));
 
     await waitFor(() => {
-      expect(showSuccess).toHaveBeenCalledWith("Invitation sent to reviewer@example.com.");
+      expect(showSuccess).toHaveBeenCalledWith(
+        "Invitation sent to reviewer@example.com. Copy the accept link from Pending invitations if you need to share it manually.",
+      );
     });
-    expect(onInviteSent).toHaveBeenCalled();
+    expect(onInviteSent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        acceptUrl: "https://example.test/accept/token",
+      }),
+    );
   });
 });

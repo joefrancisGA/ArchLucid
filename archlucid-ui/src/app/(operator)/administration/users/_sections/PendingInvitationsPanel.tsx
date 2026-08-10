@@ -1,9 +1,12 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+import { TechnicalIdDisclosure } from "@/components/usability/TechnicalIdDisclosure";
 import { Button } from "@/components/ui/button";
 import {
   EnterpriseTable,
@@ -20,60 +23,89 @@ import {
   revokeAdminUserInvitation,
   type AdminUserInvitationRow,
 } from "@/lib/admin-user-invitations";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { formatRelativeTime } from "@/lib/relative-time";
 import { showError, showSuccess } from "@/lib/toast";
 
 import { adminUserInvitationStatusKind } from "./admin-user-invitation-status";
+import {
+  countPendingAdminUserInvitations,
+  mergeAdminUserInvitationAcceptSecrets,
+  partitionAdminUserInvitations,
+  resolveAdminUserInvitationAcceptLink,
+} from "./settings-roles-pending-invitations";
+
+const EMPTY_SEEDED_INVITATIONS: readonly AdminUserInvitationRow[] = [];
 
 type Props = {
   /** Increment to reload the pending-invitations list after a new invite is sent. */
   readonly refreshKey: number;
-  readonly onCountChange?: (count: number) => void;
+  /** Create-response rows that still carry accept-link secrets the list API omits. */
+  readonly seededInvitations?: readonly AdminUserInvitationRow[];
+  readonly onCountChange?: (count: number | null) => void;
 };
 
-export function PendingInvitationsPanel({ refreshKey, onCountChange }: Props) {
+export function PendingInvitationsPanel({
+  refreshKey,
+  seededInvitations = EMPTY_SEEDED_INVITATIONS,
+  onCountChange,
+}: Props) {
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<AdminUserInvitationRow[]>([]);
   const [loadFailed, setLoadFailed] = useState(false);
+  const [showResolved, setShowResolved] = useState(false);
   const [revokingId, setRevokingId] = useState<string | null>(null);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [copiedReferenceId, setCopiedReferenceId] = useState<string | null>(null);
+  const [copiedAcceptLinkId, setCopiedAcceptLinkId] = useState<string | null>(null);
+  const [pendingRevoke, setPendingRevoke] = useState<AdminUserInvitationRow | null>(null);
+  const [revokeBusy, setRevokeBusy] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
     setLoadFailed(false);
+    onCountChange?.(null);
 
     const invitations = await fetchAdminUserInvitations();
 
     if (invitations === null) {
-      setRows([]);
+      setRows(mergeAdminUserInvitationAcceptSecrets([], seededInvitations));
       setLoadFailed(true);
       setLoading(false);
-      onCountChange?.(0);
+      onCountChange?.(null);
 
       return;
     }
 
-    setRows(invitations);
+    const merged = mergeAdminUserInvitationAcceptSecrets(invitations, seededInvitations);
+    setRows(merged);
     setLoading(false);
-    onCountChange?.(invitations.length);
-  }, [onCountChange]);
+    onCountChange?.(countPendingAdminUserInvitations(merged));
+  }, [onCountChange, seededInvitations]);
 
   useEffect(() => {
     void load();
   }, [load, refreshKey]);
 
-  async function handleRevoke(invitation: AdminUserInvitationRow) {
-    if (invitation.status !== "Pending") {
+  const { pending, resolved } = useMemo(() => partitionAdminUserInvitations(rows), [rows]);
+  const visibleRows = showResolved ? [...pending, ...resolved] : pending;
+
+  async function handleConfirmRevoke(): Promise<void> {
+    if (pendingRevoke === null) {
       return;
     }
 
+    const invitation = pendingRevoke;
+
+    setRevokeBusy(true);
     setRevokingId(invitation.id);
 
     const revoked = await revokeAdminUserInvitation(invitation.id);
 
     setRevokingId(null);
+    setRevokeBusy(false);
+    setPendingRevoke(null);
 
     if (!revoked) {
       showError("Could not revoke invitation", "The server rejected the revoke request. Refresh and try again.");
@@ -88,10 +120,26 @@ export function PendingInvitationsPanel({ refreshKey, onCountChange }: Props) {
   async function handleCopyReference(invitation: AdminUserInvitationRow) {
     try {
       await navigator.clipboard.writeText(invitation.id);
-      setCopiedId(invitation.id);
-      window.setTimeout(() => setCopiedId(null), 2000);
+      setCopiedReferenceId(invitation.id);
+      window.setTimeout(() => setCopiedReferenceId(null), 2000);
     } catch {
-      showError("Could not copy reference", "Your browser blocked clipboard access. Copy the reference manually.");
+      showError("Could not copy support reference ID", "Your browser blocked clipboard access. Copy the reference manually.");
+    }
+  }
+
+  async function handleCopyAcceptLink(invitation: AdminUserInvitationRow) {
+    const acceptLink = resolveAdminUserInvitationAcceptLink(invitation);
+
+    if (acceptLink === null) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(acceptLink);
+      setCopiedAcceptLinkId(invitation.id);
+      window.setTimeout(() => setCopiedAcceptLinkId(null), 2000);
+    } catch {
+      showError("Could not copy accept link", "Your browser blocked clipboard access. Copy the link manually.");
     }
   }
 
@@ -115,7 +163,7 @@ export function PendingInvitationsPanel({ refreshKey, onCountChange }: Props) {
     );
   }
 
-  if (rows.length === 0) {
+  if (pending.length === 0 && resolved.length === 0) {
     return (
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="settings-roles-pending-invitations-empty">
         No pending invitations.
@@ -124,66 +172,153 @@ export function PendingInvitationsPanel({ refreshKey, onCountChange }: Props) {
   }
 
   return (
-    <div data-testid="settings-roles-pending-invitations-table">
-      <EnterpriseTable ariaLabel="Pending user invitations">
-        <EnterpriseTableHead>
-          <EnterpriseTableHeadRow>
-            <EnterpriseTableHeaderCell>Email</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Role</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Expires</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
-          </EnterpriseTableHeadRow>
-        </EnterpriseTableHead>
-        <EnterpriseTableBody>
-          {rows.map((invitation) => (
-            <EnterpriseTableRow
-              key={invitation.id}
-              data-testid={`settings-roles-pending-invitation-${invitation.id}`}
-            >
-              <EnterpriseTableCell>
-                <span className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{invitation.email}</span>
-              </EnterpriseTableCell>
-              <EnterpriseTableCell>{invitation.appRole}</EnterpriseTableCell>
-              <EnterpriseTableCell>
-                <StatusTag kind={adminUserInvitationStatusKind(invitation.status)} label={invitation.status} />
-              </EnterpriseTableCell>
-              <EnterpriseTableCell>
-                <span className="block text-al-text-primary">{formatInstantForLocale(invitation.expiresUtc)}</span>
-                <span className={cn("block text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  {formatRelativeTime(invitation.expiresUtc)}
-                </span>
-              </EnterpriseTableCell>
-              <EnterpriseTableCell>
-                <div className="flex flex-wrap gap-2">
-                  {invitation.status === "Pending" ? (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      disabled={revokingId === invitation.id}
-                      data-testid={`settings-roles-revoke-invitation-${invitation.id}`}
-                      onClick={() => void handleRevoke(invitation)}
-                    >
-                      {revokingId === invitation.id ? "Revoking…" : "Revoke"}
-                    </Button>
-                  ) : null}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    data-testid={`settings-roles-copy-invitation-reference-${invitation.id}`}
-                    aria-label={`Copy invitation reference for ${invitation.email}`}
-                    onClick={() => void handleCopyReference(invitation)}
-                  >
-                    {copiedId === invitation.id ? "Copied" : "Copy reference"}
-                  </Button>
-                </div>
-              </EnterpriseTableCell>
-            </EnterpriseTableRow>
-          ))}
-        </EnterpriseTableBody>
-      </EnterpriseTable>
+    <div className="space-y-4" data-testid="settings-roles-pending-invitations-table">
+      {resolved.length > 0 ? (
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            data-testid="settings-roles-toggle-resolved-invitations"
+            onClick={() => setShowResolved((current) => !current)}
+          >
+            {showResolved ? "Hide resolved invitations" : "Show resolved invitations"}
+          </Button>
+          {!showResolved ? (
+            <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {resolved.length} accepted, revoked, or expired invitation{resolved.length === 1 ? "" : "s"} hidden.
+            </span>
+          ) : null}
+        </div>
+      ) : null}
+
+      {visibleRows.length === 0 ? (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="settings-roles-pending-invitations-empty">
+          No pending invitations.
+        </p>
+      ) : (
+        <EnterpriseTable ariaLabel="Pending user invitations">
+          <EnterpriseTableHead>
+            <EnterpriseTableHeadRow>
+              <EnterpriseTableHeaderCell>Email</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>Role</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>Invited by</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>Sent</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>Expires</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
+            </EnterpriseTableHeadRow>
+          </EnterpriseTableHead>
+          <EnterpriseTableBody>
+            {visibleRows.map((invitation) => {
+              const acceptLink = resolveAdminUserInvitationAcceptLink(invitation);
+
+              return (
+                <EnterpriseTableRow
+                  key={invitation.id}
+                  data-testid={`settings-roles-pending-invitation-${invitation.id}`}
+                >
+                  <EnterpriseTableCell>
+                    <span className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{invitation.email}</span>
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell>{invitation.appRole}</EnterpriseTableCell>
+                  <EnterpriseTableCell>
+                    <StatusTag kind={adminUserInvitationStatusKind(invitation.status)} label={invitation.status} />
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell>
+                    <TechnicalIdDisclosure label="Actor" value={invitation.invitedByActorId} />
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell>
+                    <span className="block text-al-text-primary">{formatInstantForLocale(invitation.createdUtc)}</span>
+                    <span className={cn("block text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                      {formatRelativeTime(invitation.createdUtc)}
+                    </span>
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell>
+                    <span className="block text-al-text-primary">{formatInstantForLocale(invitation.expiresUtc)}</span>
+                    <span className={cn("block text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                      {formatRelativeTime(invitation.expiresUtc)}
+                    </span>
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell>
+                    <div className="flex flex-wrap gap-2">
+                      {invitation.status === "Pending" ? (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={revokingId === invitation.id}
+                          data-testid={`settings-roles-revoke-invitation-${invitation.id}`}
+                          onClick={() => setPendingRevoke(invitation)}
+                        >
+                          {revokingId === invitation.id ? "Revoking…" : "Revoke"}
+                        </Button>
+                      ) : null}
+                      {acceptLink !== null ? (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          data-testid={`settings-roles-copy-accept-link-${invitation.id}`}
+                          aria-label={`Copy accept link for ${invitation.email}`}
+                          onClick={() => void handleCopyAcceptLink(invitation)}
+                        >
+                          {copiedAcceptLinkId === invitation.id ? "Copied" : "Copy accept link"}
+                        </Button>
+                      ) : null}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        data-testid={`settings-roles-copy-invitation-reference-${invitation.id}`}
+                        aria-label={`Copy support reference ID for ${invitation.email}`}
+                        onClick={() => void handleCopyReference(invitation)}
+                      >
+                        {copiedReferenceId === invitation.id ? "Copied" : "Copy support reference ID"}
+                      </Button>
+                      <Link
+                        href={GOVERNANCE_AUDIT_PATH}
+                        className={cn("inline-flex items-center self-center", OPERATOR_LINK.nav)}
+                        data-testid={`settings-roles-view-audit-trail-${invitation.id}`}
+                      >
+                        View in audit trail
+                      </Link>
+                    </div>
+                  </EnterpriseTableCell>
+                </EnterpriseTableRow>
+              );
+            })}
+          </EnterpriseTableBody>
+        </EnterpriseTable>
+      )}
+
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        Workspace membership changes are recorded in the{" "}
+        <Link href={GOVERNANCE_AUDIT_PATH} className={OPERATOR_LINK.nav}>
+          audit trail
+        </Link>
+        . Member role provenance is not shown in the directory until the API exposes grant metadata.
+      </p>
+
+      <ConfirmationDialog
+        open={pendingRevoke !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingRevoke(null);
+          }
+        }}
+        title="Revoke invitation"
+        description={
+          pendingRevoke === null
+            ? ""
+            : `Revoke the pending invitation for ${pendingRevoke.email}? They will no longer be able to accept it.`
+        }
+        confirmLabel="Revoke invitation"
+        busy={revokeBusy}
+        onConfirm={() => {
+          void handleConfirmRevoke();
+        }}
+      />
     </div>
   );
 }

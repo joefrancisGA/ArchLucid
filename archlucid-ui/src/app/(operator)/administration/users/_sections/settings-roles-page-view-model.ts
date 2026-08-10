@@ -12,5 +12,8 @@ export type SettingsRolesPageViewModel = {
   readonly sortedRows: SettingsRolesAssignablePrincipalRow[];
   readonly note: SettingsRolesPageNote | null;
   readonly load: () => Promise<void>;
-  readonly onRoleChange: (row: SettingsRolesAssignablePrincipalRow, nextRole: ArchLucidAppRole) => Promise<void>;
+  readonly onRoleChange: (
+    row: SettingsRolesAssignablePrincipalRow,
+    nextRole: ArchLucidAppRole,
+  ) => Promise<"saved" | "rejected">;
 };

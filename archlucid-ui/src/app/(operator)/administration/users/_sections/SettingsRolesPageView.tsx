@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { PageHeading } from "@/components/PageHeading";
@@ -10,28 +10,10 @@ import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorksp
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  EnterpriseTable,
-  EnterpriseTableBody,
-  EnterpriseTableCell,
-  EnterpriseTableHead,
-  EnterpriseTableHeadRow,
-  EnterpriseTableHeaderCell,
-  EnterpriseTableRow,
-} from "@/components/ui/enterprise-table";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import type { ArchLucidAppRole } from "@/lib/current-principal";
 import { isApiKeysSettingsSurfaceEnabled } from "@/lib/api-keys-settings-access";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { roleDisplayLabel } from "@/lib/role-display-labels";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE } from "@/lib/buyer-polish-copy";
@@ -41,9 +23,11 @@ import {
   type SettingsUsersTabId,
 } from "@/lib/settings-admin-route-paths";
 
+import type { AdminUserInvitationRow } from "@/lib/admin-user-invitations";
+
 import { SettingsRolesInvitePanel } from "./SettingsRolesInvitePanel";
 import { PendingInvitationsPanel } from "./PendingInvitationsPanel";
-import { SETTINGS_ROLES_ASSIGNABLE } from "./settings-roles-page-constants";
+import { SettingsRolesPrincipalTable } from "./SettingsRolesPrincipalTable";
 import { settingsRolesEmptyStateDescription, settingsRolesEmptyStateTitle } from "./settings-roles-page-empty-copy";
 import { SettingsRolesMatrixSection } from "./SettingsRolesMatrixSection";
 import { assignmentCountsByRoleName } from "./roles-matrix-assignment-counts";
@@ -55,9 +39,14 @@ const ALL_TABS: readonly { id: SettingsUsersTabId; label: string }[] = [
   { id: "keys", label: "API keys" },
 ] as const;
 
+const MEMBERS_HEADING_ID = "settings-roles-members-heading";
+const PENDING_INVITATIONS_HEADING_ID = "settings-roles-pending-invitations-heading";
+const INVITE_SECTION_SUMMARY_ID = "settings-roles-invite-section-summary";
+
 function visibleTabs(canManageApiKeys: boolean): readonly { id: SettingsUsersTabId; label: string }[] {
-  if (canManageApiKeys)
+  if (canManageApiKeys) {
     return ALL_TABS;
+  }
 
   return ALL_TABS.filter((tab) => tab.id !== "keys");
 }
@@ -72,7 +61,7 @@ export function SettingsRolesPageView(props: Props) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const callerAuthorityRank = useNavCallerAuthorityRank();
-  // Keys tab stays hidden while API key UI is parked (product maturity).
+  const inviteEmailInputRef = useRef<HTMLInputElement | null>(null);
   const canManageApiKeys =
     isApiKeysSettingsSurfaceEnabled() && callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const tabs = visibleTabs(canManageApiKeys);
@@ -80,7 +69,9 @@ export function SettingsRolesPageView(props: Props) {
   const urlTab = settingsUsersTabFromLocation(pathname, searchParams.get("tab"), canManageApiKeys);
   const [activeTab, setActiveTab] = useState<SettingsUsersTabId>(urlTab);
   const [invitationsRefreshKey, setInvitationsRefreshKey] = useState(0);
+  const [seededInvitations, setSeededInvitations] = useState<AdminUserInvitationRow[]>([]);
   const [pendingInvitationCount, setPendingInvitationCount] = useState<number | null>(null);
+  const [inviteSectionOpen, setInviteSectionOpen] = useState(false);
   const roleAssignmentCounts = useMemo(() => assignmentCountsByRoleName(m.sortedRows), [m.sortedRows]);
   const assignmentCountsReliable = !m.loading && m.note === null;
 
@@ -101,6 +92,16 @@ export function SettingsRolesPageView(props: Props) {
     };
   }, [canManageApiKeys]);
 
+  useEffect(() => {
+    if (!inviteSectionOpen) {
+      return;
+    }
+
+    window.setTimeout(() => {
+      inviteEmailInputRef.current?.focus();
+    }, 0);
+  }, [inviteSectionOpen]);
+
   const onSelectTab = useCallback(
     (id: string) => {
       const tabId = settingsUsersTabFromLocation(hubPathname, id, canManageApiKeys);
@@ -116,6 +117,10 @@ export function SettingsRolesPageView(props: Props) {
     },
     [canManageApiKeys, hubPathname, router],
   );
+
+  const openInviteSection = useCallback(() => {
+    setInviteSectionOpen(true);
+  }, []);
 
   if (m.surface === "demo") {
     return (
@@ -137,14 +142,17 @@ export function SettingsRolesPageView(props: Props) {
   if (m.surface === "forbidden") {
     return (
       <div className="w-full max-w-[1200px] space-y-6" data-testid="settings-roles-page">
-        <p className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)} role="alert" data-testid="settings-roles-forbidden">
+        <p
+          className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)}
+          role="alert"
+          data-testid="settings-roles-forbidden"
+        >
           {FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE}
         </p>
       </div>
     );
   }
 
-  const directoryUnavailable = !m.loading && m.note === "api_unavailable";
   const userRows = m.sortedRows.filter((r) => r.kind === "user");
   const apiKeyRows = m.sortedRows.filter((r) => r.kind === "api_key");
   const usersSectionTitle =
@@ -158,7 +166,19 @@ export function SettingsRolesPageView(props: Props) {
         navHref="/administration/users"
         title="Users and roles"
         description="Invite users, assign roles, and manage workspace access."
-        actions={<PageContextualHelpButton triggerText="Help" />}
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              size="sm"
+              data-testid="settings-roles-invite-primary-action"
+              onClick={openInviteSection}
+            >
+              Invite user
+            </Button>
+            <PageContextualHelpButton triggerText="Help" />
+          </div>
+        }
       />
       <Tabs value={activeTab} onValueChange={onSelectTab} className="space-y-6">
         <TabsList aria-label="Users and roles sections" data-testid="settings-roles-tablist">
@@ -171,45 +191,48 @@ export function SettingsRolesPageView(props: Props) {
 
         <TabsContent value="users" data-testid="settings-roles-tabpanel-users">
           <div className="space-y-6">
-            {!directoryUnavailable ? (
-              <Card>
-                <CardHeader>
-                  <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{usersSectionTitle}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {m.loading ? <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading…</p> : null}
-                  {!m.loading && m.note !== null && m.note !== "api_unavailable" ? (
-                    <div data-testid="settings-roles-api-note">
-                      <OperatorEmptyState
-                        title={settingsRolesEmptyStateTitle(m.note, "users")}
-                        description={settingsRolesEmptyStateDescription(m.note, "users")}
-                      />
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        <Button type="button" variant="secondary" size="sm" onClick={() => void m.load()}>
-                          Refresh
-                        </Button>
-                      </div>
-                    </div>
-                  ) : null}
-                  {!m.loading && userRows.length > 0 ? (
-                    <PrincipalTable rows={userRows} onRoleChange={m.onRoleChange} />
-                  ) : null}
-                  {!m.loading && m.note === null && userRows.length === 0 ? (
-                    <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                      No members yet. People appear here after they accept an invitation.
-                    </p>
-                  ) : null}
-                </CardContent>
-              </Card>
-            ) : null}
-
-            <Card>
+            <Card aria-labelledby={MEMBERS_HEADING_ID}>
               <CardHeader>
-                <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{pendingSectionTitle}</CardTitle>
+                <CardTitle id={MEMBERS_HEADING_ID} as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+                  {usersSectionTitle}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {m.loading ? <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading…</p> : null}
+                {!m.loading && m.note !== null ? (
+                  <div data-testid="settings-roles-api-note">
+                    <OperatorEmptyState
+                      title={settingsRolesEmptyStateTitle(m.note, "users")}
+                      description={settingsRolesEmptyStateDescription(m.note, "users")}
+                    />
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <Button type="button" variant="secondary" size="sm" onClick={() => void m.load()}>
+                        Refresh
+                      </Button>
+                    </div>
+                  </div>
+                ) : null}
+                {!m.loading && userRows.length > 0 ? (
+                  <SettingsRolesPrincipalTable rows={userRows} onRoleChange={m.onRoleChange} />
+                ) : null}
+                {!m.loading && m.note === null && userRows.length === 0 ? (
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                    No members yet. People appear here after they accept an invitation.
+                  </p>
+                ) : null}
+              </CardContent>
+            </Card>
+
+            <Card aria-labelledby={PENDING_INVITATIONS_HEADING_ID}>
+              <CardHeader>
+                <CardTitle id={PENDING_INVITATIONS_HEADING_ID} as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+                  {pendingSectionTitle}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <PendingInvitationsPanel
                   refreshKey={invitationsRefreshKey}
+                  seededInvitations={seededInvitations}
                   onCountChange={setPendingInvitationCount}
                 />
               </CardContent>
@@ -217,14 +240,24 @@ export function SettingsRolesPageView(props: Props) {
 
             <CollapsibleSection
               title="Invite user"
+              headingLevel={2}
               summaryLine="Send a workspace invitation by email."
+              summaryId={INVITE_SECTION_SUMMARY_ID}
               defaultOpen={false}
+              open={inviteSectionOpen}
+              onToggle={setInviteSectionOpen}
               sectionTestId="settings-roles-invite-section"
             >
               <SettingsRolesInvitePanel
-                directoryUnavailable={directoryUnavailable}
-                onRetry={() => void m.load()}
-                onInviteSent={() => setInvitationsRefreshKey((key) => key + 1)}
+                emailInputRef={inviteEmailInputRef}
+                onInviteSent={(invitation) => {
+                  setSeededInvitations((current) => {
+                    const without = current.filter((row) => row.id !== invitation.id);
+
+                    return [invitation, ...without];
+                  });
+                  setInvitationsRefreshKey((key) => key + 1);
+                }}
               />
             </CollapsibleSection>
           </div>
@@ -274,7 +307,7 @@ export function SettingsRolesPageView(props: Props) {
                   </div>
                 ) : null}
                 {!m.loading && apiKeyRows.length > 0 ? (
-                  <PrincipalTable rows={apiKeyRows} onRoleChange={m.onRoleChange} />
+                  <SettingsRolesPrincipalTable rows={apiKeyRows} onRoleChange={m.onRoleChange} />
                 ) : null}
                 {!m.loading && m.note === null && apiKeyRows.length === 0 ? (
                   <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No API keys found in this workspace.</p>
@@ -285,57 +318,5 @@ export function SettingsRolesPageView(props: Props) {
         ) : null}
       </Tabs>
     </div>
-  );
-}
-
-type PrincipalTableProps = {
-  readonly rows: SettingsRolesPageViewModel["sortedRows"];
-  readonly onRoleChange: SettingsRolesPageViewModel["onRoleChange"];
-};
-
-function PrincipalTable({ rows, onRoleChange }: PrincipalTableProps) {
-  return (
-    <EnterpriseTable ariaLabel="Workspace members">
-      <EnterpriseTableHead>
-        <EnterpriseTableHeadRow>
-          <EnterpriseTableHeaderCell>Name</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Email / hint</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Role</EnterpriseTableHeaderCell>
-        </EnterpriseTableHeadRow>
-      </EnterpriseTableHead>
-      <EnterpriseTableBody>
-        {rows.map((r) => (
-          <EnterpriseTableRow key={`${r.kind}:${r.id}`}>
-            <EnterpriseTableCell>
-              <span className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{r.name}</span>
-            </EnterpriseTableCell>
-            <EnterpriseTableCell>{r.detail}</EnterpriseTableCell>
-            <EnterpriseTableCell>
-              <Select
-                value={r.role}
-                onValueChange={(v) => {
-                  void onRoleChange(r, v as ArchLucidAppRole);
-                }}
-              >
-                <SelectTrigger
-                  className="h-9 w-[11rem]"
-                  aria-label={`Role for ${r.name}`}
-                  data-testid={`settings-roles-select-${r.kind}-${r.id}`}
-                >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {SETTINGS_ROLES_ASSIGNABLE.map((role) => (
-                    <SelectItem key={role} value={role}>
-                      {roleDisplayLabel(role)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </EnterpriseTableCell>
-          </EnterpriseTableRow>
-        ))}
-      </EnterpriseTableBody>
-    </EnterpriseTable>
   );
 }

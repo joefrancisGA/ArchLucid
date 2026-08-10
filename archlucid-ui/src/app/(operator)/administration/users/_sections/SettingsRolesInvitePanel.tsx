@@ -1,10 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import Link from "next/link";
-import { useState } from "react";
+import { useState, type RefObject } from "react";
 
-import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,11 +14,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { sendAdminUserInvitation } from "@/lib/admin-user-invitations";
+import {
+  sendAdminUserInvitation,
+  type AdminUserInvitationRow,
+} from "@/lib/admin-user-invitations";
 import { roleDisplayLabel } from "@/lib/role-display-labels";
 import { showError, showSuccess } from "@/lib/toast";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
+import { resolveAdminUserInvitationAcceptLink } from "./settings-roles-pending-invitations";
 import { SETTINGS_ROLES_ASSIGNABLE } from "./settings-roles-page-constants";
 
 type InviteFormState = {
@@ -32,16 +34,11 @@ type InviteFormState = {
 const EMPTY_FORM: InviteFormState = { email: "", role: "", message: "" };
 
 type Props = {
-  /**
-   * When true, show a non-blocking directory warning above the form.
-   * Invite send uses POST /v1/admin/users/invite and must stay available when GET /v1/admin/users is missing.
-   */
-  readonly directoryUnavailable: boolean;
-  readonly onRetry: () => void;
-  readonly onInviteSent?: () => void;
+  readonly emailInputRef?: RefObject<HTMLInputElement | null>;
+  readonly onInviteSent?: (invitation: AdminUserInvitationRow) => void;
 };
 
-export function SettingsRolesInvitePanel({ directoryUnavailable, onRetry, onInviteSent }: Props) {
+export function SettingsRolesInvitePanel({ emailInputRef, onInviteSent }: Props) {
   const [form, setForm] = useState<InviteFormState>(EMPTY_FORM);
   const [sending, setSending] = useState(false);
 
@@ -67,15 +64,15 @@ export function SettingsRolesInvitePanel({ directoryUnavailable, onRetry, onInvi
       return;
     }
 
+    const acceptLink = resolveAdminUserInvitationAcceptLink(result.invitation);
+
     showSuccess(
-      result.invitation.acceptUrl
+      acceptLink !== null
         ? `Invitation sent to ${form.email}. Copy the accept link from Pending invitations if you need to share it manually.`
-        : result.invitation.acceptPath
-          ? `Invitation sent to ${form.email}. The invitee can open ${result.invitation.acceptPath} to accept.`
-          : `Invitation sent to ${form.email}.`,
+        : `Invitation sent to ${form.email}.`,
     );
     setForm(EMPTY_FORM);
-    onInviteSent?.();
+    onInviteSent?.(result.invitation);
   }
 
   function handleCancel() {
@@ -90,29 +87,11 @@ export function SettingsRolesInvitePanel({ directoryUnavailable, onRetry, onInvi
       className="max-w-xl space-y-4"
       onSubmit={(event) => void handleSubmit(event)}
     >
-      {directoryUnavailable ? (
-        <div data-testid="settings-roles-invite-directory-unavailable" className="space-y-3">
-          <OperatorEmptyState
-            title="User directory unavailable"
-            description="The workspace user list could not be loaded. You can still send invitations; retry the directory if you need to review existing members."
-          />
-          <div className="flex flex-wrap gap-2">
-            <Button type="button" variant="secondary" size="sm" onClick={onRetry}>
-              Retry directory
-            </Button>
-            <Button type="button" variant="outline" size="sm" asChild>
-              <a href="/internal/health">System health</a>
-            </Button>
-            <Button type="button" variant="outline" size="sm" asChild>
-              <Link href="/help/troubleshooting#permissions-or-sign-in-issue">Open troubleshooting</Link>
-            </Button>
-          </div>
-        </div>
-      ) : null}
       <div className="space-y-1">
         <Label htmlFor="invite-email">Email address</Label>
         <Input
           id="invite-email"
+          ref={emailInputRef}
           type="email"
           placeholder="reviewer@example.com"
           value={form.email}
@@ -144,7 +123,6 @@ export function SettingsRolesInvitePanel({ directoryUnavailable, onRetry, onInvi
             ))}
           </SelectContent>
         </Select>
-        {/* Reviewers are typically assigned Reader (read-only review access) or Auditor (read + audit trail). */}
         <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           Reviewers are usually assigned the <strong>Reader</strong> or <strong>Auditor</strong> role.
         </p>
