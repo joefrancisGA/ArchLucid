@@ -1557,6 +1557,61 @@ Former standalone body: `docs/go-to-market/MID_RUN_AUTHORITY_REVOCATION_PA_ONE_P
 
 **Related:** [`CRASH_RECOVERY_LONG_RUNNING_REVIEW_CLAIM_MAP.md`](../library/CRASH_RECOVERY_LONG_RUNNING_REVIEW_CLAIM_MAP.md) (**TB-1523** / **M-277**) Â· [`ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md`](../library/ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md) (**TB-1530** / **M-280**) Â· [Paying-tenant spend storm (M-295)](#paying-tenant-llm-spend-storm-m-295) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
+## Evidence / audit ordering & causality (M-285) {#evidence-audit-ordering-causality-m-285}
+
+Former standalone body: `docs/go-to-market/EVIDENCE_AUDIT_ORDERING_CAUSALITY_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-284** / **M-285** / **TB-1550**). Engineering map: [`../library/EVIDENCE_AUDIT_ORDERING_CAUSALITY_CLAIM_MAP.md`](../library/EVIDENCE_AUDIT_ORDERING_CAUSALITY_CLAIM_MAP.md). Complements open **TB-1009**/**M-160** (append-only), Done **TB-953** (required audit durability), and Done **TB-1470**/**TB-1490** (erasure/backup planes) without conflating immutability with causal order. Does not claim Lamport clocks, SQL `SEQUENCE`, or per-row Merkle audit chains. Not an assurance attestation.
+
+**Path-stable alias:** [`EVIDENCE_AUDIT_ORDERING_CAUSALITY_PA_ONE_PAGER.md`](EVIDENCE_AUDIT_ORDERING_CAUSALITY_PA_ONE_PAGER.md).
+
+**Audience:** Principal architects, compliance reviewers, and security reviewers evaluating audit-trail ordering, temporal integrity, and procurement “was approval before or after evidence changed?” questions.
+
+**Decision:** List/export order is **application wall-clock `OccurredUtc`** with **`EventId` GUID tie-break** on primary paths — **not** database `IDENTITY`/`SEQUENCE`, commit LSN, or Lamport causality. Under clock skew, durable retries that preserve earlier stamps, dual trail/audit writes, and **buyer-polished lifecycle re-sort**, the presented trail **can misrepresent causality**. Append-only and sealed evidence are orthogonal guarantees.
+
+### Order keys (buyer summary)
+
+| Surface | Order key | Causal / sequence clock? |
+| --- | --- | --- |
+| `AuditEvents` list / filtered search | `OccurredUtc DESC, EventId DESC` | No — wall-clock + random GUID |
+| Filtered CSV/JSON export | `OccurredUtc ASC, EventId ASC` | Same |
+| Legacy range export | `OccurredUtc ASC` only | No `EventId` — unstable same-ms ties |
+| Run pipeline audit timeline API | `OccurredUtc`, then `EventId` | Same wall-clock model |
+| Finding review events | `OccurredAtUtc DESC` only | No event-id tie-break |
+| Buyer-polished audit UI | Lifecycle sort key first, then `occurredUtc` | **Narrative order can override timestamps** |
+| Outbox delivery queues | `CreatedUtc, OutboxId` | Delivery order ≠ audit causality |
+
+### What stamps the clock
+
+| Path | Generator |
+| --- | --- |
+| `AuditEvent.OccurredUtc` | `TimeProvider` at construct — **not** SQL `SYSUTCDATETIME()` for tenant audit |
+| Durable retry / drain queue | Retries preserve earlier stamp — late persist can invert perceived order |
+| Finding trail → `AuditEvents` dual-write | Trail and companion audit row stamps can **diverge** |
+
+### Claim boundary
+
+| Do not promise | Do promise |
+| --- | --- |
+| “Audit order is DB sequence / insert order / Lamport causality” | Best-effort wall-clock + GUID tie-break |
+| “Timestamps are SQL commit time for all tenant audit rows” | App `TimeProvider` stamps tenant audit |
+| “Retry/outbox cannot reorder relative causality” | Late persist with earlier stamp can invert perceived order |
+| “Buyer UI timeline = forensic chronological order” | Lifecycle re-sort may override timestamps |
+| “Append-only + DENY UPDATE/DELETE ⇒ causal / hash-chained audit rows” | Immutability ≠ causal order; package/export hash is ADR 0040 |
+
+### PA diligence prompts
+
+1. Ask which surfaces use **forensic time order** vs **lifecycle narrative order** (UI vs export).
+2. Separate **append-only immutability** (**TB-1009**) and **required audit durability** (**TB-953**) from **causal ordering** — do not sell one as the other.
+3. For “approval before evidence changed?” questions, pair with offline export verification (**M-267**) — ordering honesty is necessary but not sufficient.
+
+### Residuals (honest)
+
+- **TB-1551** owns honesty CI for DB-sequence/Lamport/UI-as-forensic overclaims.
+- Open **TB-1009** / **TB-956** own append-only and same-TX audit matrices.
+- Optional product follow-ons: forensic UI mode, legacy export `EventId` tie-break, commit-LSN column — not claimed as shipped.
+- This handout does not claim CPA SOC 2 or a published third-party penetration test.
+
+**Related:** [`APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md`](../library/APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md) (**TB-1009** / **M-160**) Â· [`GDPR_ERASURE_VS_APPEND_ONLY_MAP.md`](../library/GDPR_ERASURE_VS_APPEND_ONLY_MAP.md) (**TB-1470** / **M-265**) Â· [`EVIDENCE_BACKUP_RESTORE_INVARIANT_MAP.md`](../library/EVIDENCE_BACKUP_RESTORE_INVARIANT_MAP.md) (**TB-1490** / **M-269**) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+
 ## Azure workload privilege-escalation seam (M-216) {#azure-workload-privilege-escalation-seam-m-216}
 
 Former standalone body: `docs/go-to-market/AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-215** / **M-216** / **TB-1244**). Contributor contract: [`AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md`](../library/AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md) (**TB-1244** **Done**). Complements [Container Apps Terraform authority (M-234)](#container-apps-terraform-authority-m-234) and [Tenant DiD erosion (M-214)](#tenant-did-erosion-beyond-predicates-m-214). Does not reopen Done **TB-080** / **TB-091** / **TB-092**. Not an assurance attestation.

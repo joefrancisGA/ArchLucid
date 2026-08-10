@@ -4,7 +4,10 @@
 
 **Audience:** Engineering, security reviewers, principal-architect diligence. Not a buyer brochure.
 
-**Status:** Working contract for **TB-1550** / GTM **M-284**. Pair honesty CI **TB-1551** / **M-284**.
+**Status:** **Done** (**TB-1550**, 2026-08-10). GTM **M-284** / **M-285**. Pair honesty CI **TB-1551** / **M-284**.
+
+**Buyer / PA one-pager:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#evidence-audit-ordering-causality-m-285`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#evidence-audit-ordering-causality-m-285) (GTM **M-285**).  
+**Claim honesty:** [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) (GTM **M-284**).
 
 **Verdict (one line):** List/export order is **app wall-clock `OccurredUtc`** (plus **`EventId` GUID tie-break** on primary paths) — **not** a database `IDENTITY`/`SEQUENCE`, commit LSN, or Lamport clock. Under clock skew, retries that preserve earlier stamps, dual-write lag, and **buyer-polished lifecycle re-sort**, the presented trail **can misrepresent causality**. Append-only ≠ causal order.
 
@@ -69,15 +72,18 @@
 
 ---
 
-## 5. Related owners
+## 5. Related owners (immutability ≠ causality)
 
 | ID | Role |
 |----|------|
-| INV-003 / **TB-953** Done | Required vs informational durability — **not** ordering |
+| INV-003 / Done **TB-953** | Required vs informational durability — **not** ordering |
 | Open **TB-956** | Same-TX outbox — reduces lost/late writes, not Lamport |
-| Open **TB-1009** / **M-160** | Append-only / sealed inventory — immutability ≠ causality |
+| Open **TB-1009** / **M-160** | Append-only / sealed inventory — see [`APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md`](APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md); immutability ≠ causality |
+| Done **TB-1470** / **M-265** | GDPR erasure vs append-only — [`GDPR_ERASURE_VS_APPEND_ONLY_MAP.md`](GDPR_ERASURE_VS_APPEND_ONLY_MAP.md) |
+| Done **TB-1490** / **M-269** | Backup/restore vs append-only — [`EVIDENCE_BACKUP_RESTORE_INVARIANT_MAP.md`](EVIDENCE_BACKUP_RESTORE_INVARIANT_MAP.md) |
 | ADR 0039 / 0040 | Seal + export ManifestHash — not per-row audit Merkle |
-| **TB-1550** / **M-284** | This ordering / causality claim map |
+| Done **TB-1550** / **M-284** | This ordering / causality claim map |
+| Open **TB-1551** / **M-284** | Honesty CI follow-on |
 
 ---
 
