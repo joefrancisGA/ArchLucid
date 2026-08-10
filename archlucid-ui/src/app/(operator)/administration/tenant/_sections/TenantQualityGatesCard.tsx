@@ -316,19 +316,19 @@ export function TenantQualityGatesCard() {
                 <dd className="m-0 text-neutral-900 dark:text-neutral-100">{state.diagnostics.structuralRejectBelow}</dd>
                 <dt className="m-0 pt-2 text-neutral-500">SemanticRejectBelow</dt>
                 <dd className="m-0 pt-2 text-neutral-900 dark:text-neutral-100">{state.diagnostics.semanticRejectBelow}</dd>
-                <dt className="m-0 pt-2 text-neutral-500" title="PilotStrictMinStructuralCompleteness">
+                <dt className="m-0 pt-2 text-neutral-500">
                   Strict quality — min structural completeness
                 </dt>
                 <dd className="m-0 pt-2 text-neutral-900 dark:text-neutral-100">
                   {state.diagnostics.pilotStrictMinStructuralCompleteness}
                 </dd>
-                <dt className="m-0 pt-2 text-neutral-500" title="PilotStrictMinSemanticScore">
+                <dt className="m-0 pt-2 text-neutral-500">
                   Strict quality — min semantic score
                 </dt>
                 <dd className="m-0 pt-2 text-neutral-900 dark:text-neutral-100">
                   {state.diagnostics.pilotStrictMinSemanticScore}
                 </dd>
-                <dt className="m-0 pt-2 text-neutral-500" title="PilotStrictMinEvidenceRefCount">
+                <dt className="m-0 pt-2 text-neutral-500">
                   Strict quality — min evidence refs
                 </dt>
                 <dd className="m-0 pt-2 text-neutral-900 dark:text-neutral-100">

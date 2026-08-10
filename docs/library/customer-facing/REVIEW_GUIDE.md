@@ -35,7 +35,7 @@ By default, your first review is evaluated against six architecture-quality stan
 | Reliability and Resilience | Yes | Failure modes, recovery, and operational continuity. |
 | FinOps & Cloud Cost Optimization | Yes | Cost drivers, waste, and right-sizing opportunities. |
 | Performance and Scalability | Yes | Latency, throughput, and growth headroom. |
-| Operational Excellence | Yes | Operability, observability, and runbooks. |
+| Operational Excellence | Yes | Operability, observability, and operational procedures. |
 | Sustainability and Resource Efficiency | Yes | Resource efficiency and environmental impact of the design. |
 
 | Field | Required | What ArchLucid does with it | Common mistake |

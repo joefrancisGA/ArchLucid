@@ -115,6 +115,8 @@ export function SettingsRolesPageView(props: Props) {
     [canManageApiKeys, hubPathname, router],
   );
 
+  const roleAssignmentCounts = useMemo(() => assignmentCountsByRoleName(m.sortedRows), [m.sortedRows]);
+
   if (m.surface === "demo") {
     return (
       <DemoWorkspaceCapabilityUnavailablePanel
@@ -149,7 +151,6 @@ export function SettingsRolesPageView(props: Props) {
     m.loading || m.note !== null ? "Members" : `Members (${userRows.length})`;
   const pendingSectionTitle =
     pendingInvitationCount === null ? "Pending invitations" : `Pending invitations (${pendingInvitationCount})`;
-  const roleAssignmentCounts = useMemo(() => assignmentCountsByRoleName(m.sortedRows), [m.sortedRows]);
 
   return (
     <div className="w-full max-w-[1200px] space-y-6" data-testid="settings-roles-page">
