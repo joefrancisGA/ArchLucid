@@ -217,7 +217,8 @@ public sealed class GoldenManifestPayloadBlobEnvelope
             AssumptionsJson = envelope.AssumptionsJson,
             WarningsJson = envelope.WarningsJson,
             ProvenanceJson = envelope.ProvenanceJson,
-            ManifestPayloadBlobUri = row.ManifestPayloadBlobUri
+            ManifestPayloadBlobUri = row.ManifestPayloadBlobUri,
+            ContractManifestVersion = row.ContractManifestVersion
         };
     }
 }

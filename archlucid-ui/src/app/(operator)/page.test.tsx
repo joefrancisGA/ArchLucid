@@ -48,6 +48,49 @@ vi.mock("@/components/OperatorHomeGate", () => ({
   OperatorHomeGate: ({ children }: { children: import("react").ReactNode }) => <>{children}</>,
 }));
 
+vi.mock("./_sections/operator-home-page-view-deferred-chunks", async () => {
+  const Link = (await import("next/link")).default;
+  const { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } = await import("@/lib/architecture-workflow-labels");
+  const {
+    OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA,
+    OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA,
+  } = await import("@/lib/buyer-polish-copy");
+
+  function DualPathHeroMock() {
+    return (
+      <div data-testid="pilot-command-center-card">
+        <div data-testid="operator-home-dual-path-cards">
+          <button type="button">{CREATE_ARCHITECTURE_LABEL}</button>
+          <button type="button">{START_REVIEW_LABEL}</button>
+          <Link href="/architecture/reviews/claims-intake-modernization">{OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA}</Link>
+        </div>
+      </div>
+    );
+  }
+
+  return {
+    PilotCommandCenterCardDeferred: DualPathHeroMock,
+    BuyerPolishedHomeHeroSectionDeferred: () => (
+      <section data-testid="operator-home-hero-section">
+        <DualPathHeroMock />
+      </section>
+    ),
+    OperatorHomeExecutiveRoiStripDeferred: () => null,
+    OperatorHomeBelowFoldPanelsDeferred: () => (
+      <section data-testid="operator-home-explore-sample-section">
+        <Link
+          data-testid="operator-home-explore-run-sample-review"
+          href="/architecture/reviews/new?template=claims-intake-modernization"
+        >
+          {OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA}
+        </Link>
+      </section>
+    ),
+    OperatorHomeGateDeferred: ({ children }: { children: import("react").ReactNode }) => <>{children}</>,
+    CtoDemoExecutiveLandingRedirectDeferred: () => null,
+  };
+});
+
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: () => false,
   useNavCallerAuthorityRank: () => 3,
@@ -98,49 +141,6 @@ vi.mock("@/components/operator-home/OperatorHomeDeferredOnboarding", () => ({
 vi.mock("@/components/dev-testing/DevTestingQuickSwitchPanel", () => ({
   DevTestingQuickSwitchPanel: () => null,
 }));
-
-vi.mock("@/components/usability/PilotCommandCenterCard", async () => {
-  const Link = (await import("next/link")).default;
-  const { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } = await import("@/lib/architecture-workflow-labels");
-  const { OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA } = await import("@/lib/buyer-polish-copy");
-
-  return {
-    PilotCommandCenterCard: () => (
-      <div data-testid="pilot-command-center-card">
-        <div data-testid="operator-home-dual-path-cards">
-          <button type="button">{CREATE_ARCHITECTURE_LABEL}</button>
-          <button type="button">{START_REVIEW_LABEL}</button>
-          <Link href="/architecture/reviews/claims-intake-modernization">{OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA}</Link>
-        </div>
-      </div>
-    ),
-  };
-});
-
-vi.mock("@/components/operator-home/OperatorHomeExamplesPlacement", async () => {
-  const Link = (await import("next/link")).default;
-  const { OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA } = await import("@/lib/buyer-polish-copy");
-
-  return {
-    OperatorHomeExamplesPlacement: ({
-      afterWorkspaceContext,
-    }: {
-      afterWorkspaceContext?: import("react").ReactNode;
-    }) => (
-      <>
-        <section data-testid="operator-home-explore-sample-section">
-          <Link
-            data-testid="operator-home-explore-run-sample-review"
-            href="/architecture/reviews/new?template=claims-intake-modernization"
-          >
-            {OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA}
-          </Link>
-        </section>
-        {afterWorkspaceContext}
-      </>
-    ),
-  };
-});
 
 vi.mock("@/components/operator-home/OperatorHomeDeferredPanels", async () => {
   return {
@@ -226,8 +226,9 @@ vi.mock("./_sections/load-operator-home-runs-dashboard-model", () => ({
   loadOperatorHomeRunsDashboardModel: vi.fn(),
 }));
 
-import HomePage from "./page";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { loadOperatorHomeRunsDashboardModel } from "./_sections/load-operator-home-runs-dashboard-model";
+import { OperatorHomeRunsDashboardAsync } from "./_sections/OperatorHomeRunsDashboardAsync";
 import type { OperatorHomeRunsDashboardModel } from "./_sections/operator-home-runs-dashboard-model";
 import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 import {
@@ -286,7 +287,10 @@ function runsDashboardWithSampleRun(buyerPolishedShell = false): OperatorHomeRun
 }
 
 async function renderHomePage(): Promise<void> {
-  const page = await HomePage();
+  // Resolve the Suspense child directly — page.tsx streams this under Suspense for FCP.
+  const page = await OperatorHomeRunsDashboardAsync({
+    buyerPolishedShell: isBuyerPolishedOperatorShellEnv(),
+  });
 
   renderWithOperatorQuery(page);
 }

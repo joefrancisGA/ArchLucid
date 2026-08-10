@@ -66,6 +66,8 @@ vi.mock("next/link", () => ({
 }));
 
 vi.mock("./governance-workflow-deferred-chunks", async () => {
+  const overview = await import("./GovernanceOverviewPanel");
+  const submit = await import("./GovernanceWorkflowSubmitSection");
   const approvals = await import("./GovernanceWorkflowApprovalsList");
   const promotions = await import("./GovernanceWorkflowPromotionsActivationsSection");
   const dialogs = await import("./GovernanceWorkflowDialogs");
@@ -73,8 +75,12 @@ vi.mock("./governance-workflow-deferred-chunks", async () => {
   const segregation = await import("@/components/cto-demo/CtoDemoSegregationCallout");
   const previewHint = await import("@/components/OperateCapabilityHints");
   const quickstart = await import("@/components/GovernanceInteractiveQuickstartContent");
+  const storyCard = await import("@/components/GovernanceApprovalStoryCard");
+  const advancedOptions = await import("@/components/AdvancedOptionsAccordion");
 
   return {
+    GovernanceOverviewPanelDeferred: overview.GovernanceOverviewPanel,
+    GovernanceWorkflowSubmitSectionDeferred: submit.GovernanceWorkflowSubmitSection,
     GovernanceWorkflowApprovalsListDeferred: approvals.GovernanceWorkflowApprovalsList,
     GovernanceWorkflowPromotionsActivationsSectionDeferred:
       promotions.GovernanceWorkflowPromotionsActivationsSection,
@@ -83,6 +89,8 @@ vi.mock("./governance-workflow-deferred-chunks", async () => {
     CtoDemoSegregationCalloutDeferred: segregation.CtoDemoSegregationCallout,
     CtoDemoGovernancePreviewHintDeferred: previewHint.CtoDemoGovernancePreviewHint,
     GovernanceInteractiveQuickstartContentDeferred: quickstart.GovernanceInteractiveQuickstartContent,
+    GovernanceApprovalStoryCardDeferred: storyCard.GovernanceApprovalStoryCard,
+    AdvancedOptionsAccordionDeferred: advancedOptions.AdvancedOptionsAccordion,
   };
 });
 

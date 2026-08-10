@@ -1808,6 +1808,13 @@ IF NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_GoldenManif
 
 GO
 
+/* Brownfield: typed contract manifest version for version lookups (DbUp 302 parity). */
+IF OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.GoldenManifests', N'ContractManifestVersion') IS NULL
+    ALTER TABLE dbo.GoldenManifests ADD ContractManifestVersion NVARCHAR(128) NULL;
+
+GO
+
 -- Phase-1 relational slices for GoldenManifest (dual-write; other sections remain JSON on dbo.GoldenManifests).
 IF OBJECT_ID(N'dbo.GoldenManifestAssumptions', N'U') IS NULL
 BEGIN
@@ -2895,9 +2902,6 @@ BEGIN
         MinimumSeverity NVARCHAR(50) NOT NULL,
         IsEnabled BIT NOT NULL,
         CreatedUtc DATETIME2 NOT NULL,
-        CreatedByActor NVARCHAR(300) NULL,
-        LastModifiedByActor NVARCHAR(300) NULL,
-        LastModifiedUtc DATETIME2(7) NULL,
         LastDeliveredUtc DATETIME2 NULL,
         MetadataJson NVARCHAR(MAX) NOT NULL,
         INDEX IX_AlertRoutingSubscriptions_Scope_Enabled NONCLUSTERED (TenantId, WorkspaceId, ProjectId, IsEnabled, CreatedUtc DESC)
@@ -3274,6 +3278,7 @@ BEGIN
             QualityWarning,
             QualityRejected);
 END
+
 GO
 
 /* ---- DbUp 060 parity: broader query coverage indexes ---- */
@@ -6704,6 +6709,23 @@ BEGIN
     CREATE UNIQUE NONCLUSTERED INDEX UQ_GoldenManifests_RunId_Active
         ON dbo.GoldenManifests (RunId)
         WHERE ArchivedUtc IS NULL;
+END;
+
+GO
+
+/* DbUp 302 parity: typed ContractManifestVersion lookup (replaces JSON_VALUE MetadataJson $.Version). */
+IF OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.GoldenManifests', N'ContractManifestVersion') IS NOT NULL
+   AND NOT EXISTS (
+        SELECT 1
+        FROM sys.indexes
+        WHERE name = N'IX_GoldenManifests_Scope_ContractManifestVersion'
+          AND object_id = OBJECT_ID(N'dbo.GoldenManifests'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_GoldenManifests_Scope_ContractManifestVersion
+        ON dbo.GoldenManifests (TenantId, WorkspaceId, ProjectId, ContractManifestVersion)
+        WHERE ContractManifestVersion IS NOT NULL
+          AND ArchivedUtc IS NULL;
 END;
 
 GO

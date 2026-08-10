@@ -292,23 +292,49 @@ public sealed class AskService(
         IReadOnlyList<ConversationMessage> priorMessages = TrimCurrentUserTurn(historyWindow, question);
         string historyText = await BuildHistoryTextAsync(priorMessages, ct);
 
-        RunDetailDto? detail = await query.GetRunDetailAsync(scope, effectiveRunId.Value, ct);
-        if (detail?.GoldenManifest is null)
-
-            throw new InvalidOperationException(
-                "Run not found or has no ManifestDocument for the current scope.");
-
-        ManifestDocument manifest = detail.GoldenManifest;
-        GraphViewModel? graph = await provenanceQuery.GetFullGraphAsync(scope, effectiveRunId.Value, ct);
-
+        RunDetailDto? detail;
+        GraphViewModel? graph;
         ComparisonResult? comparisonResult = null;
+
         if (effectiveBaseRunId.HasValue && effectiveTargetRunId.HasValue)
         {
-            RunDetailDto? baseRun = await query.GetRunDetailAsync(scope, effectiveBaseRunId.Value, ct);
-            RunDetailDto? targetRun = await query.GetRunDetailAsync(scope, effectiveTargetRunId.Value, ct);
+            Task<RunDetailDto?> detailTask = query.GetRunDetailAsync(scope, effectiveRunId.Value, ct);
+            Task<GraphViewModel?> graphTask = provenanceQuery.GetFullGraphAsync(scope, effectiveRunId.Value, ct);
+            Task<RunDetailDto?> baseRunTask = query.GetRunDetailAsync(scope, effectiveBaseRunId.Value, ct);
+            Task<RunDetailDto?> targetRunTask = query.GetRunDetailAsync(scope, effectiveTargetRunId.Value, ct);
+
+            await Task.WhenAll(detailTask, graphTask, baseRunTask, targetRunTask);
+
+            detail = await detailTask;
+
+            if (detail?.GoldenManifest is null)
+                throw new InvalidOperationException(
+                    "Run not found or has no ManifestDocument for the current scope.");
+
+            graph = await graphTask;
+            RunDetailDto? baseRun = await baseRunTask;
+            RunDetailDto? targetRun = await targetRunTask;
+
             if (baseRun?.GoldenManifest is not null && targetRun?.GoldenManifest is not null)
                 comparisonResult = comparison.Compare(baseRun.GoldenManifest, targetRun.GoldenManifest);
         }
+        else
+        {
+            Task<RunDetailDto?> detailTask = query.GetRunDetailAsync(scope, effectiveRunId.Value, ct);
+            Task<GraphViewModel?> graphTask = provenanceQuery.GetFullGraphAsync(scope, effectiveRunId.Value, ct);
+
+            await Task.WhenAll(detailTask, graphTask);
+
+            detail = await detailTask;
+
+            if (detail?.GoldenManifest is null)
+                throw new InvalidOperationException(
+                    "Run not found or has no ManifestDocument for the current scope.");
+
+            graph = await graphTask;
+        }
+
+        ManifestDocument manifest = detail.GoldenManifest;
 
         object context = ContextBuilder.BuildContext(manifest, graph, comparisonResult);
         string contextJson = JsonSerializer.Serialize(context, ContractJson.CamelCaseIgnoreNullCompact);

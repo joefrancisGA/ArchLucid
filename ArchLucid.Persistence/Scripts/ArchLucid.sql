@@ -1749,6 +1749,12 @@ IF NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_GoldenManif
         CHECK (LifecycleStatus IN (N'Active', N'Superseded', N'Archived'));
 GO
 
+/* Brownfield: typed contract manifest version for version lookups (DbUp 302 parity). */
+IF OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.GoldenManifests', N'ContractManifestVersion') IS NULL
+    ALTER TABLE dbo.GoldenManifests ADD ContractManifestVersion NVARCHAR(128) NULL;
+GO
+
 -- Phase-1 relational slices for GoldenManifest (dual-write; other sections remain JSON on dbo.GoldenManifests).
 IF OBJECT_ID(N'dbo.GoldenManifestAssumptions', N'U') IS NULL
 BEGIN
@@ -7820,6 +7826,22 @@ BEGIN
     CREATE UNIQUE NONCLUSTERED INDEX UQ_GoldenManifests_RunId_Active
         ON dbo.GoldenManifests (RunId)
         WHERE ArchivedUtc IS NULL;
+END;
+GO
+
+/* DbUp 302 parity: typed ContractManifestVersion lookup (replaces JSON_VALUE MetadataJson $.Version). */
+IF OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.GoldenManifests', N'ContractManifestVersion') IS NOT NULL
+   AND NOT EXISTS (
+        SELECT 1
+        FROM sys.indexes
+        WHERE name = N'IX_GoldenManifests_Scope_ContractManifestVersion'
+          AND object_id = OBJECT_ID(N'dbo.GoldenManifests'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_GoldenManifests_Scope_ContractManifestVersion
+        ON dbo.GoldenManifests (TenantId, WorkspaceId, ProjectId, ContractManifestVersion)
+        WHERE ContractManifestVersion IS NOT NULL
+          AND ArchivedUtc IS NULL;
 END;
 GO
 

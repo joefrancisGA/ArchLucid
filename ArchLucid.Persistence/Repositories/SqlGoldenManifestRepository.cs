@@ -249,12 +249,12 @@ public sealed class SqlGoldenManifestRepository(
                                CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
                                MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
                                ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
-                               WarningsJson, ProvenanceJson, ManifestPayloadBlobUri
+                               WarningsJson, ProvenanceJson, ManifestPayloadBlobUri, ContractManifestVersion
                            FROM dbo.GoldenManifests
                            WHERE TenantId = @TenantId
                              AND WorkspaceId = @WorkspaceId
                              AND ProjectId = @ProjectId
-                             AND JSON_VALUE(MetadataJson, '$.Version') = @ManifestVersion
+                             AND ContractManifestVersion = @ManifestVersion
                            ORDER BY CreatedUtc DESC;
                            """;
 
@@ -293,14 +293,14 @@ public sealed class SqlGoldenManifestRepository(
         if (maxManifests <= 0)
             return Array.Empty<ManifestDocument>();
 
+        // Slim LOB projection: prior-retrieval indexing only needs Decisions + Topology (+ Metadata).
+        // Blob overlay still applies when ManifestPayloadBlobUri is set; unused relational COUNT queries are skipped.
         const string sql = """
                            SELECT TOP (@MaxManifests)
                                TenantId, WorkspaceId, ProjectId,
                                ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
                                CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
-                               MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
-                               ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
-                               WarningsJson, ProvenanceJson, ManifestPayloadBlobUri
+                               MetadataJson, TopologyJson, DecisionsJson, ManifestPayloadBlobUri, ContractManifestVersion
                            FROM dbo.GoldenManifests WITH (NOLOCK)
                            WHERE TenantId = @TenantId
                              AND WorkspaceId = @WorkspaceId
@@ -330,12 +330,9 @@ public sealed class SqlGoldenManifestRepository(
 
         foreach (GoldenManifestStorageRow row in rows)
         {
-            GoldenManifestStorageRow hydratedRow = await ApplyManifestBlobOverlayIfPresentAsync(row, cancellationToken).ConfigureAwait(false);
-            ManifestDocument? document =
-                await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, hydratedRow, cancellationToken).ConfigureAwait(false);
-
-            if (document is not null)
-                documents.Add(document);
+            GoldenManifestStorageRow hydratedRow =
+                await ApplyManifestBlobOverlayIfPresentAsync(row, cancellationToken).ConfigureAwait(false);
+            documents.Add(GoldenManifestPriorRetrievalRead.Hydrate(hydratedRow));
         }
 
         return documents;
@@ -355,7 +352,8 @@ public sealed class SqlGoldenManifestRepository(
                                CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
                                MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
                                ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
-                               WarningsJson, ProvenanceJson, ManifestPayloadBlobUri, LifecycleStatus
+                               WarningsJson, ProvenanceJson, ManifestPayloadBlobUri, LifecycleStatus,
+                               ContractManifestVersion
                            )
                            VALUES
                            (
@@ -364,7 +362,8 @@ public sealed class SqlGoldenManifestRepository(
                                @CreatedUtc, @ManifestHash, @RuleSetId, @RuleSetVersion, @RuleSetHash,
                                @MetadataJson, @RequirementsJson, @TopologyJson, @SecurityJson, @ComplianceJson, @CostJson,
                                @ConstraintsJson, @UnresolvedIssuesJson, @DecisionsJson, @AssumptionsJson,
-                               @WarningsJson, @ProvenanceJson, @ManifestPayloadBlobUri, @LifecycleStatus
+                               @WarningsJson, @ProvenanceJson, @ManifestPayloadBlobUri, @LifecycleStatus,
+                               @ContractManifestVersion
                            );
                            """;
 
@@ -420,6 +419,9 @@ public sealed class SqlGoldenManifestRepository(
                 ct);
         }
 
+        // Dual-write typed column (DbUp 302); JSON path parity is MetadataJson $.Version (PascalCase entity JSON).
+        string? contractManifestVersion = ResolveContractManifestVersion(manifest);
+
         object args = new
         {
             manifest.TenantId,
@@ -449,7 +451,8 @@ public sealed class SqlGoldenManifestRepository(
             WarningsJson = warningsJson,
             ProvenanceJson = provenanceJson,
             ManifestPayloadBlobUri = manifestBlobUri,
-            LifecycleStatus = nameof(GoldenManifestLifecycleStatus.Active)
+            LifecycleStatus = nameof(GoldenManifestLifecycleStatus.Active),
+            ContractManifestVersion = contractManifestVersion
         };
 
         await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct)).ConfigureAwait(false);
@@ -760,6 +763,30 @@ public sealed class SqlGoldenManifestRepository(
             return row;
 
         return GoldenManifestPayloadBlobEnvelope.MergeIntoRow(row, envelope);
+    }
+
+    /// <summary>
+    ///     Maps <see cref="ManifestMetadata.Version" /> to the typed <c>ContractManifestVersion</c> column
+    ///     (same value persisted at <c>MetadataJson</c> <c>$.Version</c>).
+    /// </summary>
+    private static string? ResolveContractManifestVersion(ManifestDocument manifest)
+    {
+        ArgumentNullException.ThrowIfNull(manifest);
+
+        if (manifest.Metadata is null)
+            return null;
+
+        string? version = manifest.Metadata.Version;
+
+        if (string.IsNullOrWhiteSpace(version))
+            return null;
+
+        string trimmed = version.Trim();
+
+        if (trimmed.Length > 128)
+            return trimmed[..128];
+
+        return trimmed;
     }
 
     /// <summary>

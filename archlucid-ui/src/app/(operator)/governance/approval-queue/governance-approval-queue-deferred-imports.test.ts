@@ -21,6 +21,8 @@ const bannedStaticImports = [
   '@/components/cto-demo/CtoDemoSegregationCallout"',
   '@/components/OperateCapabilityHints"',
   '@/components/GovernanceInteractiveQuickstartContent"',
+  '@/components/GovernanceApprovalStoryCard"',
+  '@/components/AdvancedOptionsAccordion"',
 ] as const;
 
 describe("governance approval-queue deferred imports (TB-934 / wave 10)", () => {
@@ -48,6 +50,8 @@ describe("governance approval-queue deferred imports (TB-934 / wave 10)", () => 
     expect(pageContentSource).toContain("CtoDemoSegregationCalloutDeferred");
     expect(pageContentSource).toContain("CtoDemoGovernancePreviewHintDeferred");
     expect(pageContentSource).toContain("GovernanceInteractiveQuickstartContentDeferred");
+    expect(pageContentSource).toContain("GovernanceApprovalStoryCardDeferred");
+    expect(pageContentSource).toContain("AdvancedOptionsAccordionDeferred");
   });
 
   it("dynamic-imports each deferred governance workflow panel", () => {
@@ -61,5 +65,9 @@ describe("governance approval-queue deferred imports (TB-934 / wave 10)", () => 
     expect(deferredSource).toContain('import("@/components/cto-demo/CtoDemoSegregationCallout")');
     expect(deferredSource).toContain('import("@/components/OperateCapabilityHints")');
     expect(deferredSource).toContain('import("@/components/GovernanceInteractiveQuickstartContent")');
+    expect(deferredSource).toContain('import("@/components/GovernanceApprovalStoryCard")');
+    expect(deferredSource).toContain('import("@/components/AdvancedOptionsAccordion")');
+    expect(deferredSource).toContain("GovernanceApprovalStoryCardDeferred");
+    expect(deferredSource).toContain("AdvancedOptionsAccordionDeferred");
   });
 });

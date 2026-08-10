@@ -60,8 +60,8 @@ public sealed class CosmosAuditRepository(CosmosClientFactory clientFactory) : I
         string pid = projectId.ToString("D");
 
         QueryDefinition query = new QueryDefinition(
-                """
-                SELECT * FROM c
+                $"""
+                {BuildListSelectClause(includeDataJson: false)}
                 WHERE c.workspaceId = @wid AND c.projectId = @pid
                 ORDER BY c.occurredUtc DESC, c.id DESC
                 """)
@@ -280,11 +280,30 @@ public sealed class CosmosAuditRepository(CosmosClientFactory clientFactory) : I
         }
     }
 
+    /// <summary>
+    /// List queries omit <c>dataJson</c> unless the caller needs payloads (SQL list path already projects without DataJson).
+    /// </summary>
+    private static string BuildListSelectClause(bool includeDataJson)
+    {
+        if (includeDataJson)
+            return "SELECT * FROM c";
+
+        // Scalar fields for ToEvent / AuditEventDocument — exclude dataJson to cut RU and payload size.
+        return """
+            SELECT c.id, c.tenantId, c.workspaceId, c.projectId, c.occurredUtc, c.eventType,
+                   c.actorUserId, c.actorUserName, c.explicitActor, c.runId, c.manifestId,
+                   c.artifactId, c.correlationId
+            FROM c
+            """;
+    }
+
     private static QueryDefinition BuildSelectFilteredQuery(string wid, string pid, AuditEventFilter filter)
     {
-        StringBuilder sql = new(
+        StringBuilder sql = new();
+        sql.Append(BuildListSelectClause(filter.IncludeDataJson));
+        sql.Append(
             """
-            SELECT * FROM c
+            
             WHERE c.workspaceId = @wid AND c.projectId = @pid
             """);
 

@@ -52,8 +52,25 @@ public sealed class GovernanceDigestDecisionNeededComposer(
         bool hasDecisionContent = false;
         bool hasFyiContent = false;
 
-        IReadOnlyList<GovernanceApprovalRequest> pending =
-            await _approvalRepository.GetPendingAsync(50, cancellationToken);
+        DateTimeOffset now = TimeProvider.System.UtcNowDateTime();
+        DateTimeOffset since = now.Subtract(TimeSpan.FromDays(30));
+
+        // Independent fan-in — approvals, risk register, review trail, and active waivers do not depend on each other.
+        Task<IReadOnlyList<GovernanceApprovalRequest>> pendingTask =
+            _approvalRepository.GetPendingAsync(50, cancellationToken);
+        Task<ArchitectureRiskRegisterResponse> registerTask =
+            _riskRegisterService.GetRegisterAsync(tenantId, projectId, 100, cancellationToken);
+        Task<IReadOnlyList<FindingReviewEventRecord>> recentTask =
+            _findingReviewTrailRepository.ListSinceUtcAsync(tenantId, since, cancellationToken);
+        Task<IReadOnlyList<RiskExceptionRecord>> activeWaiversTask =
+            _riskExceptionService.ListActiveAsync(tenantId, projectId, cancellationToken);
+
+        await Task.WhenAll(pendingTask, registerTask, recentTask, activeWaiversTask);
+
+        IReadOnlyList<GovernanceApprovalRequest> pending = await pendingTask;
+        ArchitectureRiskRegisterResponse register = await registerTask;
+        IReadOnlyList<FindingReviewEventRecord> recent = await recentTask;
+        IReadOnlyList<RiskExceptionRecord> activeWaivers = await activeWaiversTask;
 
         if (pending.Count > 0)
         {
@@ -63,9 +80,6 @@ public sealed class GovernanceDigestDecisionNeededComposer(
 
                 decisionNeeded.AppendLine($"- `{approval.ApprovalRequestId:N}` — run `{approval.RunId:N}` → {approval.TargetEnvironment}");
         }
-
-        ArchitectureRiskRegisterResponse register =
-            await _riskRegisterService.GetRegisterAsync(tenantId, projectId, 100, cancellationToken);
 
         List<ArchitectureRiskRegisterEntry> stale = register.Entries.Where(static e => e.IsStale).ToList();
 
@@ -95,11 +109,6 @@ public sealed class GovernanceDigestDecisionNeededComposer(
                 decisionNeeded.AppendLine($"- **{entry.Title}** — assign owner — [{entry.FindingId}]({entry.EvidenceHref})");
         }
 
-        DateTimeOffset now = TimeProvider.System.UtcNowDateTime();
-        DateTimeOffset since = now.Subtract(TimeSpan.FromDays(30));
-        IReadOnlyList<FindingReviewEventRecord> recent =
-            await _findingReviewTrailRepository.ListSinceUtcAsync(tenantId, since, cancellationToken);
-
         List<FindingReviewEventRecord> needsEvidence = recent
             .Where(e => e.Disposition == Disposition.NeedsEvidence)
             .GroupBy(static e => e.FindingId, StringComparer.OrdinalIgnoreCase)
@@ -116,9 +125,6 @@ public sealed class GovernanceDigestDecisionNeededComposer(
 
                 decisionNeeded.AppendLine($"- `{reviewEvent.FindingId}` — {reviewEvent.EvidenceRequestText ?? "Evidence requested"}");
         }
-
-        IReadOnlyList<RiskExceptionRecord> activeWaivers =
-            await _riskExceptionService.ListActiveAsync(tenantId, projectId, cancellationToken);
 
         AppendWaiverExpirySections(decisionNeeded, activeWaivers, now, ref hasDecisionContent);
 
@@ -210,20 +216,28 @@ public sealed class GovernanceDigestDecisionNeededComposer(
         if (tenantId == Guid.Empty)
             throw new ArgumentException("Tenant id is required.", nameof(tenantId));
 
-        IReadOnlyList<GovernanceApprovalRequest> pending =
-            await _approvalRepository.GetPendingAsync(50, cancellationToken);
+        DateTimeOffset now = TimeProvider.System.UtcNowDateTime();
+        DateTimeOffset since = now.Subtract(TimeSpan.FromDays(30));
 
-        ArchitectureRiskRegisterResponse register =
-            await _riskRegisterService.GetRegisterAsync(tenantId, projectId, 100, cancellationToken);
+        Task<IReadOnlyList<GovernanceApprovalRequest>> pendingTask =
+            _approvalRepository.GetPendingAsync(50, cancellationToken);
+        Task<ArchitectureRiskRegisterResponse> registerTask =
+            _riskRegisterService.GetRegisterAsync(tenantId, projectId, 100, cancellationToken);
+        Task<IReadOnlyList<FindingReviewEventRecord>> recentTask =
+            _findingReviewTrailRepository.ListSinceUtcAsync(tenantId, since, cancellationToken);
+        Task<IReadOnlyList<RiskExceptionRecord>> activeWaiversTask =
+            _riskExceptionService.ListActiveAsync(tenantId, projectId, cancellationToken);
+
+        await Task.WhenAll(pendingTask, registerTask, recentTask, activeWaiversTask);
+
+        IReadOnlyList<GovernanceApprovalRequest> pending = await pendingTask;
+        ArchitectureRiskRegisterResponse register = await registerTask;
+        IReadOnlyList<FindingReviewEventRecord> recent = await recentTask;
+        IReadOnlyList<RiskExceptionRecord> activeWaivers = await activeWaiversTask;
 
         int staleCount = StaleArchitectureRiskCountCalculator.CountStale(register);
         int unownedHighCount = register.Entries
             .Count(static e => string.IsNullOrWhiteSpace(e.OwnerUserId) && IsHighSeverity(e.Severity));
-
-        DateTimeOffset now = TimeProvider.System.UtcNowDateTime();
-        DateTimeOffset since = now.Subtract(TimeSpan.FromDays(30));
-        IReadOnlyList<FindingReviewEventRecord> recent =
-            await _findingReviewTrailRepository.ListSinceUtcAsync(tenantId, since, cancellationToken);
 
         int needsEvidenceCount = recent
             .Where(e => e.Disposition == Disposition.NeedsEvidence)
@@ -232,9 +246,6 @@ public sealed class GovernanceDigestDecisionNeededComposer(
 
         int deferredDueCount = recent
             .Count(e => e.Disposition == Disposition.Deferred && e.RevisitDueUtc is not null && e.RevisitDueUtc <= now);
-
-        IReadOnlyList<RiskExceptionRecord> activeWaivers =
-            await _riskExceptionService.ListActiveAsync(tenantId, projectId, cancellationToken);
 
         int waiversExpiringCount = GovernanceWaiverExpiryWindow.CountExpiringWithinDays(
             activeWaivers,

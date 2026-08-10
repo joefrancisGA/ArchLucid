@@ -336,7 +336,7 @@ internal static class GoldenManifestPhase1RelationalRead
     }
 
     /// <summary>Falls back to the legacy JSON column when no relational decision rows exist.</summary>
-    private static List<ResolvedArchitectureDecision> FallbackDeserializeDecisions(string? json)
+    internal static List<ResolvedArchitectureDecision> FallbackDeserializeDecisions(string? json)
     {
         if (string.IsNullOrWhiteSpace(json))
             return [];
@@ -366,7 +366,8 @@ internal static class GoldenManifestPhase1RelationalRead
         }
     }
 
-    private static T DeserializeOrNew<T>(string? json, Func<string, T> deserialize)
+    /// <summary>Shared JSON section deserialize used by full hydrate and prior-retrieval slim hydrate.</summary>
+    internal static T DeserializeOrNew<T>(string? json, Func<string, T> deserialize)
         where T : class, new()
     {
         if (string.IsNullOrWhiteSpace(json))

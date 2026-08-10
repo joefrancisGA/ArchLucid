@@ -8,11 +8,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
-import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { MutationErrorBoundary } from "@/components/MutationErrorBoundary";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Separator } from "@/components/ui/separator";
-import { GovernanceApprovalStoryCard } from "@/components/GovernanceApprovalStoryCard";
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -80,9 +78,11 @@ import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { deriveGovernanceApprovalWorkflowState } from "./governance-approval-workflow-state";
 import { GovernanceReviewContextBar } from "./GovernanceReviewContextBar";
 import {
+  AdvancedOptionsAccordionDeferred,
   CtoDemoBuyerValueStripDeferred,
   CtoDemoGovernancePreviewHintDeferred,
   CtoDemoSegregationCalloutDeferred,
+  GovernanceApprovalStoryCardDeferred,
   GovernanceInteractiveQuickstartContentDeferred,
   GovernanceOverviewPanelDeferred,
   GovernanceWorkflowApprovalsListDeferred,
@@ -732,7 +732,7 @@ export function GovernanceWorkflowPageContent() {
               >
                 {BUYER_GOVERNANCE_APPROVAL_RECORD_LEAD}
               </p>
-              <GovernanceApprovalStoryCard
+              <GovernanceApprovalStoryCardDeferred
                 row={approvalWorkflowState.primaryApprovedRequest!}
                 auditTrailHref={auditTrailNavHref(activeRunId)}
                 emphasizeComplete
@@ -832,7 +832,7 @@ export function GovernanceWorkflowPageContent() {
               <Separator className="mb-10" />
 
               <div data-testid="governance-workflow-advanced-options">
-                <AdvancedOptionsAccordion triggerLabel={GOVERNANCE_WORKFLOW_ENVIRONMENT_RELEASES_ACCORDION_LABEL} className="mb-10">
+                <AdvancedOptionsAccordionDeferred triggerLabel={GOVERNANCE_WORKFLOW_ENVIRONMENT_RELEASES_ACCORDION_LABEL} className="mb-10">
                   <GovernanceWorkflowPromotionsActivationsSectionDeferred
                     canMutateWorkflow={canMutateWorkflow}
                     listsLoading={listsLoading}
@@ -846,7 +846,7 @@ export function GovernanceWorkflowPageContent() {
                     pendingActivatePromotionRef={pendingActivatePromotionRef}
                     activateBusyId={activateBusyId}
                   />
-                </AdvancedOptionsAccordion>
+                </AdvancedOptionsAccordionDeferred>
               </div>
             </>
           )}

@@ -171,4 +171,14 @@ internal sealed class GoldenManifestStorageRow
         get;
         init;
     }
+
+    /// <summary>
+    ///     Typed dual-write of <c>MetadataJson</c> <c>$.Version</c> (PascalCase entity JSON) for
+    ///     <c>GetByContractManifestVersionAsync</c> lookups (DbUp 302).
+    /// </summary>
+    public string? ContractManifestVersion
+    {
+        get;
+        init;
+    }
 }

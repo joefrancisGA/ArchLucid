@@ -6,30 +6,42 @@ namespace ArchLucid.Host.Core.Hosted;
 
 /// <summary>
 /// Periodically reads SQL outbox depths and publishes them to <see cref="ArchLucidInstrumentation.OutboxDepthGauges"/>
-/// for Prometheus scrape (observable gauges read cached values).
+/// for Prometheus scrape (observable gauges read cached values). Leader-elected so only one replica scrapes storage.
 /// </summary>
 public sealed class OutboxOperationalMetricsHostedService(
     IServiceScopeFactory scopeFactory,
+    HostLeaderElectionCoordinator electionCoordinator,
     ILogger<OutboxOperationalMetricsHostedService> logger) : BackgroundService
 {
-    private static readonly TimeSpan Interval = TimeSpan.FromSeconds(30);
+    private static readonly TimeSpan Interval = TimeSpan.FromSeconds(60);
 
     private readonly IServiceScopeFactory _scopeFactory =
         scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
+
+    private readonly HostLeaderElectionCoordinator _electionCoordinator =
+        electionCoordinator ?? throw new ArgumentNullException(nameof(electionCoordinator));
 
     private readonly ILogger<OutboxOperationalMetricsHostedService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <inheritdoc />
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        return _electionCoordinator.RunLeaderWorkAsync(
+            HostElectionLeaseNames.OutboxOperationalMetrics,
+            PollLoopAsync,
+            stoppingToken);
+    }
+
+    private async Task PollLoopAsync(CancellationToken leaderToken)
+    {
+        while (!leaderToken.IsCancellationRequested)
         {
             try
             {
-                await CollectOnceAsync(stoppingToken);
+                await CollectOnceAsync(leaderToken);
             }
-            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
             {
                 break;
             }
@@ -40,9 +52,9 @@ public sealed class OutboxOperationalMetricsHostedService(
 
             try
             {
-                await Task.Delay(Interval, stoppingToken);
+                await Task.Delay(Interval, leaderToken);
             }
-            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
             {
                 break;
             }

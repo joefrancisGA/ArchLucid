@@ -104,3 +104,27 @@ export const GovernanceInteractiveQuickstartContentDeferred = dynamic(
     loading: () => <GovernanceWorkflowDeferredLoading label="Loading governance quickstart" />,
   },
 );
+
+/** Buyer approval narrative card — below-fold relative to workflow header (First Load split). */
+export const GovernanceApprovalStoryCardDeferred = dynamic(
+  () =>
+    import("@/components/GovernanceApprovalStoryCard").then(
+      (module) => module.GovernanceApprovalStoryCard,
+    ),
+  {
+    ssr: false,
+    loading: () => <GovernanceWorkflowDeferredLoading label="Loading approval decision record" />,
+  },
+);
+
+/** Environment releases accordion — advanced options, below primary approval path. */
+export const AdvancedOptionsAccordionDeferred = dynamic(
+  () =>
+    import("@/components/AdvancedOptionsAccordion").then(
+      (module) => module.AdvancedOptionsAccordion,
+    ),
+  {
+    ssr: false,
+    loading: () => <GovernanceWorkflowDeferredLoading label="Loading advanced options" />,
+  },
+);

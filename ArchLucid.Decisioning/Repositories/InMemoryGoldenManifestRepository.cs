@@ -161,6 +161,27 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
                     && x.RunId != excludeRunId)
                 .OrderByDescending(x => x.CreatedUtc)
                 .Take(maxManifests)
+                // Parity with SQL slim hydrate: prior-retrieval indexing only needs Decisions + Topology.
+                .Select(static x => new ManifestDocument
+                {
+                    TenantId = x.TenantId,
+                    WorkspaceId = x.WorkspaceId,
+                    ProjectId = x.ProjectId,
+                    ManifestId = x.ManifestId,
+                    RunId = x.RunId,
+                    ContextSnapshotId = x.ContextSnapshotId,
+                    GraphSnapshotId = x.GraphSnapshotId,
+                    FindingsSnapshotId = x.FindingsSnapshotId,
+                    DecisionTraceId = x.DecisionTraceId,
+                    CreatedUtc = x.CreatedUtc,
+                    ManifestHash = x.ManifestHash,
+                    RuleSetId = x.RuleSetId,
+                    RuleSetVersion = x.RuleSetVersion,
+                    RuleSetHash = x.RuleSetHash,
+                    Metadata = x.Metadata,
+                    Topology = x.Topology,
+                    Decisions = x.Decisions,
+                })
                 .ToList();
 
             return Task.FromResult<IReadOnlyList<ManifestDocument>>(matches);

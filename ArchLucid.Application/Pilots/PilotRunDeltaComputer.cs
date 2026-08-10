@@ -113,11 +113,21 @@ public sealed class PilotRunDeltaComputer(
                 cancellationToken).ConfigureAwait(false);
         }
 
-        (int auditCount, bool auditTruncated) = await TryCountAuditRowsAsync(runId, cancellationToken);
-        FindingEvidenceChainResponse? chain = topFinding is null ? null : await TryBuildEvidenceChainAsync(runId, topFinding.FindingId, cancellationToken);
+        Task<(int auditCount, bool auditTruncated)> auditTask = TryCountAuditRowsAsync(runId, cancellationToken);
+        Task<FindingEvidenceChainResponse?> chainTask = topFinding is null
+            ? Task.FromResult<FindingEvidenceChainResponse?>(null)
+            : TryBuildEvidenceChainAsync(runId, topFinding.FindingId, cancellationToken);
+        Task<(int? artifactCount, bool artifactResolved)> artifactsTask =
+            TryCountArtifactsAsync(run.GoldenManifestId, cancellationToken);
+        Task<decimal?> savingsTask = TryResolveEstimatedUsdSavingsAsync(run.FindingsSnapshotId, cancellationToken);
+
+        await Task.WhenAll(auditTask, chainTask, artifactsTask, savingsTask);
+
+        (int auditCount, bool auditTruncated) = await auditTask;
+        FindingEvidenceChainResponse? chain = await chainTask;
+        (int? artifactCount, bool artifactResolved) = await artifactsTask;
+        decimal? estimatedUsdSavings = await savingsTask;
         bool isDemo = ContosoRetailDemoIdentifiers.IsDemoRunId(runId) || ContosoRetailDemoIdentifiers.IsDemoRequestId(run.RequestId);
-        (int? artifactCount, bool artifactResolved) = await TryCountArtifactsAsync(run.GoldenManifestId, cancellationToken);
-        decimal? estimatedUsdSavings = await TryResolveEstimatedUsdSavingsAsync(run.FindingsSnapshotId, cancellationToken);
         return new PilotRunDeltas
         {
             RunCreatedUtc = run.CreatedUtc,

@@ -45,6 +45,13 @@ describe("operator home deferred imports (TB-2145)", () => {
     expect(homePageSource).toContain("CtoDemoExecutiveLandingRedirectDeferred");
   });
 
+  it("streams dashboard load under Suspense (no top-level dashboard await)", () => {
+    expect(homePageSource).toContain("<Suspense");
+    expect(homePageSource).toContain("OperatorHomeRunsDashboardAsync");
+    expect(homePageSource).toContain("OperatorHomePageSuspenseFallback");
+    expect(homePageSource).not.toContain("loadOperatorHomeRunsDashboardModel");
+  });
+
   it("dynamic-imports deferred home modules", () => {
     expect(deferredSource).toContain('import("@/components/usability/PilotCommandCenterCard")');
     expect(deferredSource).toContain('import("@/components/operator-home/OperatorHomeExecutiveRoiStrip")');

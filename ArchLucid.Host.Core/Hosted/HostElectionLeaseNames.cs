@@ -76,4 +76,8 @@ public static class HostElectionLeaseNames
     public const string DataConsistencyOrphanProbe = "hosted:data-consistency-orphan-probe";
 
     public const string RequiredAuditTrailOrphanProbe = "hosted:required-audit-trail-orphan-probe";
+
+    public const string OutboxOperationalMetrics = "hosted:outbox-operational-metrics";
+
+    public const string StaleInFlightRunMetrics = "hosted:stale-in-flight-run-metrics";
 }

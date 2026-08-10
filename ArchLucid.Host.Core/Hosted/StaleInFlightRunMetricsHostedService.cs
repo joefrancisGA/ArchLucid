@@ -5,29 +5,42 @@ namespace ArchLucid.Host.Core.Hosted;
 
 /// <summary>
 /// Publishes fleet-wide stale in-flight run gauges and logs triage samples (tenant/run ids) when count &gt; 0 (TB-958).
+/// Leader-elected so only one replica queries storage for the fleet snapshot.
 /// </summary>
 public sealed class StaleInFlightRunMetricsHostedService(
     IServiceScopeFactory scopeFactory,
+    HostLeaderElectionCoordinator electionCoordinator,
     ILogger<StaleInFlightRunMetricsHostedService> logger) : BackgroundService
 {
-    private static readonly TimeSpan Interval = TimeSpan.FromSeconds(60);
+    private static readonly TimeSpan Interval = TimeSpan.FromSeconds(120);
 
     private readonly IServiceScopeFactory _scopeFactory =
         scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
+
+    private readonly HostLeaderElectionCoordinator _electionCoordinator =
+        electionCoordinator ?? throw new ArgumentNullException(nameof(electionCoordinator));
 
     private readonly ILogger<StaleInFlightRunMetricsHostedService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <inheritdoc />
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        return _electionCoordinator.RunLeaderWorkAsync(
+            HostElectionLeaseNames.StaleInFlightRunMetrics,
+            PollLoopAsync,
+            stoppingToken);
+    }
+
+    private async Task PollLoopAsync(CancellationToken leaderToken)
+    {
+        while (!leaderToken.IsCancellationRequested)
         {
             try
             {
-                await CollectOnceAsync(stoppingToken);
+                await CollectOnceAsync(leaderToken);
             }
-            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
             {
                 break;
             }
@@ -38,9 +51,9 @@ public sealed class StaleInFlightRunMetricsHostedService(
 
             try
             {
-                await Task.Delay(Interval, stoppingToken);
+                await Task.Delay(Interval, leaderToken);
             }
-            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
             {
                 break;
             }
