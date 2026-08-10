@@ -73,4 +73,22 @@ public class RetrievalQuery
         get;
         set;
     }
+
+    /// <summary>
+    ///     When true, skip post-vector reranking for this query (Ask Staging cost gate).
+    /// </summary>
+    public bool SkipReranking
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     When true, skip agentic query rewrite / HyDE and embed the raw query text.
+    /// </summary>
+    public bool SkipQueryExpansion
+    {
+        get;
+        set;
+    }
 }

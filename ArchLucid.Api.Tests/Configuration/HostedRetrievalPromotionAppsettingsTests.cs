@@ -54,6 +54,12 @@ public sealed class HostedRetrievalPromotionAppsettingsTests
         // HyDE stays off in Staging to avoid an extra LLM round-trip on the Ask expand path (rewrite + GraphRAG remain on).
         advanced.EnableHyde.Should().BeFalse();
         advanced.EnableGraphRag.Should().BeTrue();
+
+        AskRetrievalOptions askRetrieval = configuration
+            .GetSection(AskRetrievalOptions.SectionPath)
+            .Get<AskRetrievalOptions>() ?? new AskRetrievalOptions();
+
+        askRetrieval.SkipExpensiveStages.Should().BeTrue();
     }
 
     [SkippableFact]
@@ -91,6 +97,12 @@ public sealed class HostedRetrievalPromotionAppsettingsTests
             .Get<AdvancedRetrievalOptions>() ?? new AdvancedRetrievalOptions();
 
         advanced.Enabled.Should().BeFalse();
+
+        AskRetrievalOptions askRetrieval = configuration
+            .GetSection(AskRetrievalOptions.SectionPath)
+            .Get<AskRetrievalOptions>() ?? new AskRetrievalOptions();
+
+        askRetrieval.SkipExpensiveStages.Should().BeFalse();
 
         AgentOutputLlmSemanticJudgeOptions? judge = configuration
             .GetSection(AgentOutputLlmSemanticJudgeOptions.SectionPath)

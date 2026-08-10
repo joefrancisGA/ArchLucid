@@ -22,6 +22,8 @@ const bannedStaticImports = [
   '@/components/operator-home/OperatorHomeExamplesPlacement"',
   '@/components/operator-home/OperatorHomeWorkspaceContextDisclosure"',
   '@/components/cto-demo/CtoDemoExecutiveLandingRedirect"',
+  '@/components/operator-home/BuyerPolishedHomeHeroSection"',
+  '@/components/OperatorHomeGate"',
 ] as const;
 
 describe("operator home deferred imports (TB-2145)", () => {
@@ -34,6 +36,8 @@ describe("operator home deferred imports (TB-2145)", () => {
     expect(homePageViewSource).toContain("PilotCommandCenterCardDeferred");
     expect(homePageViewSource).toContain("OperatorHomeExecutiveRoiStripDeferred");
     expect(homePageViewSource).toContain("OperatorHomeBelowFoldPanelsDeferred");
+    expect(homePageViewSource).toContain("BuyerPolishedHomeHeroSectionDeferred");
+    expect(homePageViewSource).toContain("OperatorHomeGateDeferred");
   });
 
   it("defers CTO demo redirect off the home page server graph", () => {
@@ -46,6 +50,8 @@ describe("operator home deferred imports (TB-2145)", () => {
     expect(deferredSource).toContain('import("@/components/operator-home/OperatorHomeExecutiveRoiStrip")');
     expect(deferredSource).toContain('import("@/app/(operator)/_sections/OperatorHomeBelowFoldPanels")');
     expect(deferredSource).toContain('import("@/components/cto-demo/CtoDemoExecutiveLandingRedirect")');
+    expect(deferredSource).toContain('import("@/components/operator-home/BuyerPolishedHomeHeroSection")');
+    expect(deferredSource).toContain('import("@/components/OperatorHomeGate")');
     expect(deferredSource).toContain("next/dynamic");
   });
 

@@ -172,6 +172,120 @@ public sealed class GraphRagNeighborExpanderTests
     }
 
     [Fact]
+    public async Task ExpandAsync_loads_distinct_snapshots_in_parallel_once_each()
+    {
+        Guid snapshotA = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid snapshotB = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        GraphSnapshot graphA = new()
+        {
+            GraphSnapshotId = snapshotA,
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+            Nodes =
+            [
+                new GraphNode { NodeId = "seed-a", NodeType = "TopologyResource", Label = "Seed A" },
+                new GraphNode { NodeId = "neighbor-a", NodeType = "PolicyControl", Label = "Neighbor A" },
+            ],
+            Edges =
+            [
+                new GraphEdge { FromNodeId = "seed-a", ToNodeId = "neighbor-a", EdgeType = "APPLIES_TO" },
+            ],
+        };
+        GraphSnapshot graphB = new()
+        {
+            GraphSnapshotId = snapshotB,
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+            Nodes =
+            [
+                new GraphNode { NodeId = "seed-b", NodeType = "TopologyResource", Label = "Seed B" },
+                new GraphNode { NodeId = "neighbor-b", NodeType = "PolicyControl", Label = "Neighbor B" },
+            ],
+            Edges =
+            [
+                new GraphEdge { FromNodeId = "seed-b", ToNodeId = "neighbor-b", EdgeType = "APPLIES_TO" },
+            ],
+        };
+
+        Mock<ArchLucid.Core.Persistence.Ports.IGraphSnapshotRepository> graphRepository = new();
+        graphRepository
+            .Setup(r => r.GetByIdAsync(
+                It.IsAny<ArchLucid.Core.Scoping.ScopeContext>(),
+                snapshotA,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(graphA);
+        graphRepository
+            .Setup(r => r.GetByIdAsync(
+                It.IsAny<ArchLucid.Core.Scoping.ScopeContext>(),
+                snapshotB,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(graphB);
+
+        GraphRagNeighborExpander sut = new(
+            graphRepository.Object,
+            new MockOptionsMonitor<AdvancedRetrievalOptions>(new AdvancedRetrievalOptions
+            {
+                Enabled = true,
+                EnableGraphRag = true,
+            }),
+            Mock.Of<ILogger<GraphRagNeighborExpander>>());
+
+        RetrievalQuery query = new()
+        {
+            TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            QueryText = "seeds",
+            TopK = 8,
+        };
+
+        IReadOnlyList<RetrievalHit> hits =
+        [
+            new RetrievalHit
+            {
+                ChunkId = KnowledgeGraphNodeEmbeddingTextComposer.BuildChunkId(snapshotA, "seed-a"),
+                DocumentId = KnowledgeGraphNodeEmbeddingTextComposer.BuildDocumentId(snapshotA, "seed-a"),
+                CorpusKind = nameof(CorpusKind.KnowledgeGraphNode),
+                SourceType = "KnowledgeGraphNode",
+                SourceId = "seed-a",
+                Title = "Seed A",
+                Text = "seed a text",
+                Score = 0.9,
+            },
+            new RetrievalHit
+            {
+                ChunkId = KnowledgeGraphNodeEmbeddingTextComposer.BuildChunkId(snapshotB, "seed-b"),
+                DocumentId = KnowledgeGraphNodeEmbeddingTextComposer.BuildDocumentId(snapshotB, "seed-b"),
+                CorpusKind = nameof(CorpusKind.KnowledgeGraphNode),
+                SourceType = "KnowledgeGraphNode",
+                SourceId = "seed-b",
+                Title = "Seed B",
+                Text = "seed b text",
+                Score = 0.8,
+            },
+        ];
+
+        IReadOnlyList<RetrievalHit> expanded = await sut.ExpandAsync(query, hits, CancellationToken.None);
+
+        expanded.Should().Contain(hit => hit.SourceId == "neighbor-a");
+        expanded.Should().Contain(hit => hit.SourceId == "neighbor-b");
+        graphRepository.Verify(
+            r => r.GetByIdAsync(
+                It.IsAny<ArchLucid.Core.Scoping.ScopeContext>(),
+                snapshotA,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        graphRepository.Verify(
+            r => r.GetByIdAsync(
+                It.IsAny<ArchLucid.Core.Scoping.ScopeContext>(),
+                snapshotB,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task ExpandAsync_appends_second_hop_neighbors_when_hop_budget_allows()
     {
         Guid snapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");

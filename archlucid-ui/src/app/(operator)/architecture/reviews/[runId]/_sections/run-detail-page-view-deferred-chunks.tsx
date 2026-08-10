@@ -571,3 +571,12 @@ export const RunDetailRunExplanationCollapsibleDeferred = dynamic(
     ),
   { ssr: false, loading: () => explanationCollapsibleLoading },
 );
+
+/** Perf wave 12 — sponsor walkthrough destination off sync First Load JS. */
+export const GoldenSponsorPackageWalkthroughDestinationDeferred = dynamic(
+  () =>
+    import("@/components/golden-walkthrough/GoldenSponsorPackageWalkthroughDestination").then(
+      (module) => module.GoldenSponsorPackageWalkthroughDestination,
+    ),
+  { ssr: false, loading: () => null },
+);

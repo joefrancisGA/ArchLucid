@@ -43,6 +43,7 @@ public sealed class AskService(
     IOptionsMonitor<AskComparisonNarrativeOptions> askComparisonNarrativeOptions,
     IConversationContextCompressor conversationContextCompressor,
     IOptionsMonitor<ConversationContextOptions> conversationContextOptions,
+    IOptionsMonitor<AskRetrievalOptions> askRetrievalOptions,
     ILogger<AskService> logger) : IAskService
 {
     private readonly IOptionsMonitor<AskComparisonNarrativeOptions> _askComparisonNarrativeOptions =
@@ -53,6 +54,9 @@ public sealed class AskService(
 
     private readonly IOptionsMonitor<ConversationContextOptions> _conversationContextOptions =
         conversationContextOptions ?? throw new ArgumentNullException(nameof(conversationContextOptions));
+
+    private readonly IOptionsMonitor<AskRetrievalOptions> _askRetrievalOptions =
+        askRetrievalOptions ?? throw new ArgumentNullException(nameof(askRetrievalOptions));
 
     private const int HistoryTake = 40;
 
@@ -328,6 +332,7 @@ public sealed class AskService(
             bool includePlatformDocs = AskRetrievalIntentDetector.DetectPlatformDocIntent(question);
             bool boostPriorManifest = AskRetrievalIntentDetector.DetectPriorManifestIntent(question);
             const int retrievalTopK = 8;
+            bool skipExpensiveStages = _askRetrievalOptions.CurrentValue.SkipExpensiveStages;
 
             IReadOnlyList<RetrievalHit> rawHits = await retrievalQuery.SearchAsync(
                 new RetrievalQuery
@@ -340,6 +345,8 @@ public sealed class AskService(
                     QueryText = question,
                     TopK = retrievalTopK,
                     IncludePlatformCorpora = includePolicyPacks || includePlatformDocs,
+                    SkipReranking = skipExpensiveStages,
+                    SkipQueryExpansion = skipExpensiveStages,
                 },
                 ct);
 

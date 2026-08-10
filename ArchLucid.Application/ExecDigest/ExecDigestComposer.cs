@@ -6,6 +6,7 @@ using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Queries;
 
@@ -24,6 +25,7 @@ public sealed class ExecDigestComposer(
 {
     private const int MaxListRuns = 200;
     private const int MaxRunDetailLookups = 40;
+    private const int RunDetailLookupMaxConcurrent = 6;
     private const int TopRunCount = 3;
     private readonly IAuthorityQueryService _authorityQueryService = authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
 
@@ -106,35 +108,66 @@ public sealed class ExecDigestComposer(
         {
             IReadOnlyList<RunSummaryDto> summaries =
                 await _authorityQueryService.ListRunsByProjectAsync(authorityScope, "default", MaxListRuns, cancellationToken);
-            List<Guid> candidateRunIds = summaries.Where(static s => s.HasGoldenManifest).Select(static s => s.RunId).Distinct().Take(MaxRunDetailLookups)
+            List<Guid> candidateRunIds = summaries
+                .Where(static s => s.HasGoldenManifest)
+                .Select(static s => s.RunId)
+                .Distinct()
+                .Take(MaxRunDetailLookups)
                 .ToList();
-            List<(Guid RunId, DateTime? CommittedUtc, int Score)> scored = [];
-            foreach (Guid runId in candidateRunIds)
-            {
-                if (scored.Count >= MaxRunDetailLookups)
-                    break;
-                string runHex = runId.ToString("N");
-                ArchitectureRunDetail? detail = await _runDetailQueryService.GetRunDetailForRollupAsync(runHex, cancellationToken);
-                if (detail is null)
-                    continue;
-                if (detail.Run.Status is not ArchitectureRunStatus.Committed)
-                    continue;
-                DateTime? committedUtc = detail.Manifest?.Metadata.CreatedUtc;
-                if (committedUtc is null)
-                    continue;
-                if (committedUtc < weekStartUtcInclusive || committedUtc >= weekEndUtcExclusive)
-                    continue;
-                PilotRunDeltas deltas = await _pilotRunDeltaComputer.ComputeAsync(detail, cancellationToken);
-                int score = deltas.FindingsBySeverity.Sum(static p => p.Value);
-                scored.Add((runId, committedUtc, score));
-            }
+
+            // Fan-out rollup detail + pilot score (degree 6) without exhausting the SQL pool; order preserved for stable filtering.
+            (Guid RunId, DateTime? CommittedUtc, int Score)?[] scoredSlots =
+                await BoundedParallelMap.MapAsync<Guid, (Guid RunId, DateTime? CommittedUtc, int Score)?>(
+                    candidateRunIds,
+                    RunDetailLookupMaxConcurrent,
+                    async (runId, ct) =>
+                    {
+                        ArchitectureRunDetail? detail =
+                            await _runDetailQueryService.GetRunDetailForRollupAsync(runId.ToString("N"), ct);
+
+                        if (detail is null)
+                            return null;
+
+                        if (detail.Run.Status is not ArchitectureRunStatus.Committed)
+                            return null;
+
+                        DateTime? committedUtc = detail.Manifest?.Metadata.CreatedUtc;
+
+                        if (committedUtc is null)
+                            return null;
+
+                        if (committedUtc < weekStartUtcInclusive || committedUtc >= weekEndUtcExclusive)
+                            return null;
+
+                        PilotRunDeltas deltas = await _pilotRunDeltaComputer.ComputeAsync(detail, ct);
+                        int score = deltas.FindingsBySeverity.Sum(static p => p.Value);
+
+                        return (runId, committedUtc, score);
+                    },
+                    cancellationToken);
+
+            List<(Guid RunId, DateTime? CommittedUtc, int Score)> scored = scoredSlots
+                .Where(static slot => slot is not null)
+                .Select(static slot => slot!.Value)
+                .ToList();
 
             int manifestCount = scored.Count;
-            List<ExecDigestHighlightedRun> highlights = scored.OrderByDescending(static x => x.Score).ThenByDescending(static x => x.CommittedUtc)
-                .Take(TopRunCount).Select(static x =>
-                    new ExecDigestHighlightedRun(x.RunId.ToString("N"), x.Score, x.CommittedUtc is { } c ? $"Committed {c:yyyy-MM-dd} UTC" : null)).ToList();
-            string? latestHex = scored.OrderByDescending(static x => x.CommittedUtc).Select(static x => x.RunId.ToString("N")).FirstOrDefault();
-            string? findingsDelta = await TryBuildFindingsDeltaAsync(scored, cancellationToken);
+            List<ExecDigestHighlightedRun> highlights = scored
+                .OrderByDescending(static x => x.Score)
+                .ThenByDescending(static x => x.CommittedUtc)
+                .Take(TopRunCount)
+                .Select(static x =>
+                    new ExecDigestHighlightedRun(
+                        x.RunId.ToString("N"),
+                        x.Score,
+                        x.CommittedUtc is { } c ? $"Committed {c:yyyy-MM-dd} UTC" : null))
+                .ToList();
+            string? latestHex = scored
+                .OrderByDescending(static x => x.CommittedUtc)
+                .Select(static x => x.RunId.ToString("N"))
+                .FirstOrDefault();
+            string? findingsDelta = TryBuildFindingsDelta(scored);
+
             return (manifestCount == 0 ? null : manifestCount, highlights, latestHex, findingsDelta);
         }
         catch (Exception ex)when (!cancellationToken.IsCancellationRequested)
@@ -145,32 +178,20 @@ public sealed class ExecDigestComposer(
         }
     }
 
-    private async Task<string?> TryBuildFindingsDeltaAsync(IReadOnlyList<(Guid RunId, DateTime? CommittedUtc, int Score)> scored,
-        CancellationToken cancellationToken)
+    /// <summary>
+    ///     Builds the earliest→latest findings line from already-computed scores (findings totals) —
+    ///     avoids a second pair of rollup fetches for the same runs.
+    /// </summary>
+    private static string? TryBuildFindingsDelta(IReadOnlyList<(Guid RunId, DateTime? CommittedUtc, int Score)> scored)
     {
         if (scored.Count < 2)
             return null;
+
         List<(Guid RunId, DateTime? CommittedUtc, int Score)> ordered = scored.OrderBy(static x => x.CommittedUtc).ToList();
-        (Guid olderId, _, _) = ordered[0];
-        (Guid newerId, _, _) = ordered[^1];
-        try
-        {
-            ArchitectureRunDetail? older = await _runDetailQueryService.GetRunDetailForRollupAsync(olderId.ToString("N"), cancellationToken);
-            ArchitectureRunDetail? newer = await _runDetailQueryService.GetRunDetailForRollupAsync(newerId.ToString("N"), cancellationToken);
-            if (older is null || newer is null)
-                return null;
-            PilotRunDeltas olderDeltas = await _pilotRunDeltaComputer.ComputeAsync(older, cancellationToken);
-            PilotRunDeltas newerDeltas = await _pilotRunDeltaComputer.ComputeAsync(newer, cancellationToken);
-            int olderTotal = olderDeltas.FindingsBySeverity.Sum(static p => p.Value);
-            int newerTotal = newerDeltas.FindingsBySeverity.Sum(static p => p.Value);
-            return $"Findings (total severities) moved from {olderTotal} → {newerTotal} between earliest and latest commits in this UTC window.";
-        }
-        catch (Exception ex)when (!cancellationToken.IsCancellationRequested)
-        {
-            if (_logger.IsEnabled(LogLevel.Debug))
-                _logger.LogDebug(ex, "Exec digest: findings delta omitted.");
-            return null;
-        }
+        int olderTotal = ordered[0].Score;
+        int newerTotal = ordered[^1].Score;
+
+        return $"Findings (total severities) moved from {olderTotal} → {newerTotal} between earliest and latest commits in this UTC window.";
     }
 
     private static string NormalizeBaseUrl(string operatorBaseUrl)

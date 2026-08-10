@@ -101,6 +101,8 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(AskComparisonNarrativeOptions.SectionPath));
         services.Configure<ConversationContextOptions>(
             configuration.GetSection(ConversationContextOptions.SectionPath));
+        services.Configure<AskRetrievalOptions>(
+            configuration.GetSection(AskRetrievalOptions.SectionPath));
         services.AddScoped<IConversationContextCompressor, ConversationContextCompressor>();
         services.AddScoped<IAskService, AskService>();
         services.AddScoped<IDraftIntakeReasoningService, DraftIntakeReasoningService>();

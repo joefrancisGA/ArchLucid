@@ -10,9 +10,9 @@
 | Run dashboard lists | `HotPathRelationalQueryShapes` + `RunListSql` | `EngineProvenanceJson` | TB-585 |
 | Audit timeline / search | `AuditEventListSql` + `HotPathRelationalQueryShapes` | `DataJson` unless `IncludeDataJson` | TB-577 |
 | Finding keyset list | `FindingRecordListSql` + `ListFindingRecordsKeysetAsync` | `PayloadJson` | metadata columns only (title/severity already columnar) |
-| Trace operator list | `AgentExecutionTraceListSql` + `GetPagedSummariesByRunIdAsync` | full `TraceJson` to app | typed hot scalars preferred (TB-931); `JSON_VALUE` COALESCE for rolling-deploy / pre-dual-write rows |
+| Trace operator list | `AgentExecutionTraceListSql` + `GetPagedSummariesByRunIdAsync` | full `TraceJson` to app | typed dual-write columns only (TB-931); covering index `IX_AgentExecutionTraces_RunId_CreatedUtc_Summary` |
 | Trace count | `CountByRunIdAsync` | `TraceJson` | trust card / totals |
-| LLM cost rollup | `AgentExecutionTraceLlmCostProjectionSql` | full `TraceJson` deserialize | typed token columns preferred (TB-931); `JSON_VALUE` COALESCE fallback |
+| LLM cost rollup | `AgentExecutionTraceLlmCostProjectionSql` | full `TraceJson` deserialize | typed token columns only (TB-931) |
 | Weekly critical findings sample | `DapperWeeklyArchitectureCriticalFindingSummaryRepository` | `PayloadJson` | title/category only |
 | Evidence proposals list | `AgentResultListSql.ListEvidenceProposalsSelectColumns` | `ResultJson` | needs `ProposedEvidenceJson` by purpose |
 | Rollup/compare agent results | `AgentResultListSql.GetByRunIdSelectRollupProjection` + `GetRollupProjectionByRunIdAsync` | bare full `ResultJson` | TB-2053 — JSON subpaths for claims/findings/controls only |
@@ -39,7 +39,7 @@
 - **Authority for nested forensics:** full `TraceJson` remains the source for prompts, response text, citations, and other nested fields not dual-written.
 - **Quality patches:** `PatchQualityWarningAsync` / `PatchQualityRejectedAsync` still RMW `TraceJson` for forensics consistency and dual-write `QualityWarning` / `QualityRejected` columns. Cost/list paths do **not** use that RMW.
 - **Finding `PayloadJson`:** list already uses columnar title/severity; no additional typed-column migration in this ship.
-- **Rolling deploy:** list/cost SQL prefer typed columns via `COALESCE`/`CASE` with `JSON_VALUE` fallback so older writers without dual-write do not under-report.
+- **Pre-dual-write rows:** list/cost SQL now read typed columns only; rows written before migration 294 / dual-write may show null token/cost/alias until backfilled or re-recorded.
 
 ## Drift guards
 
@@ -53,6 +53,7 @@ Qualitative expectation: operator trace list and trust-card count avoid shipping
 ## Files changed (TB-929 / TB-931)
 
 - `ArchLucid.Persistence/Migrations/294_AgentExecutionTraces_HotScalarColumns.sql` + `ArchLucid.sql` brownfield ALTERs
-- `AgentExecutionTraceListSql.cs` / `AgentExecutionTraceLlmCostProjectionSql.cs`
-- `AgentExecutionTraceRepository.cs` (Create dual-write; quality column dual-write)
+- `ArchLucid.Persistence/Migrations/301_AgentExecutionTraces_RunId_CreatedUtc_SummaryCoveringIndex.sql` + `ArchLucid.sql` / unified schema parity
+- `AgentExecutionTraceListSql.cs` / `AgentExecutionTraceLlmCostProjectionSql.cs` (typed columns only; no `JSON_VALUE`)
+- `AgentExecutionTraceRepository.cs` (Create dual-write; quality column dual-write; read-replica routing)
 - `HotPathRelationalQueryShapeTests` + inventory

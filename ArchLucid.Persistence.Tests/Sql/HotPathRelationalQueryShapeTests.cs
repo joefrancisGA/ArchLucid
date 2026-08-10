@@ -202,10 +202,11 @@ public sealed class HotPathRelationalQueryShapeTests
     {
         const string sql = AgentExecutionTraceListSql.SelectSummaryColumns;
 
-        // Prefer typed columns (TB-931); JSON_VALUE only as COALESCE/CASE fallback — never bare LOB.
+        // Typed dual-write columns only (TB-931) — no JSON_VALUE LOB touch on the list path.
         sql.Should().NotMatchRegex(@"(?m)^\s*t\.TraceJson\s*$");
         sql.Should().NotContain("AS TraceJson");
-        sql.Should().Contain("COALESCE(t.InputTokenCount");
+        sql.Should().NotContain("JSON_VALUE");
+        sql.Should().Contain("t.InputTokenCount");
         sql.Should().Contain("t.ModelDeploymentName");
         sql.Should().Contain("t.BlobUploadFailed");
         sql.Should().Contain("t.QualityWarning");
@@ -219,10 +220,11 @@ public sealed class HotPathRelationalQueryShapeTests
 
         sql.Should().NotContain("AS TraceJson");
         sql.Should().NotMatchRegex(@"(?m)^\s*t\.TraceJson\s*$");
+        sql.Should().NotContain("JSON_VALUE");
         sql.Should().Contain("t.ModelDeploymentName");
-        sql.Should().Contain("COALESCE(t.InputTokenCount");
-        sql.Should().Contain("COALESCE(t.OutputTokenCount");
-        sql.Should().Contain("COALESCE(t.ReasoningTokenCount");
+        sql.Should().Contain("t.InputTokenCount");
+        sql.Should().Contain("t.OutputTokenCount");
+        sql.Should().Contain("t.ReasoningTokenCount");
     }
 
     [SkippableFact]

@@ -30,10 +30,10 @@ namespace ArchLucid.Application.Pilots;
 
 /// <inheritdoc cref = "IPilotRunDeltaComputer"/>
 /// <remarks>
-///     Read-only by construction: makes one filtered audit query, one trace query, one artifact-descriptor list (when a
-///     golden manifest id exists), and at most one evidence-chain query per call. Failures in the audit / trace /
-///     artifact / evidence queries are swallowed (warning-logged) so a sponsor report still renders for runs whose
-///     ancillary stores are temporarily unavailable.
+///     Read-only by construction: makes one filtered audit query, one trace count (or full-trace list when PilotStrict
+///     needs <c>ParsedResultJson</c>), one artifact-descriptor list (when a golden manifest id exists), and at most one
+///     evidence-chain query per call. Failures in the audit / trace / artifact / evidence queries are swallowed
+///     (warning-logged) so a sponsor report still renders for runs whose ancillary stores are temporarily unavailable.
 /// </remarks>
 public sealed class PilotRunDeltaComputer(
     IFindingEvidenceChainService evidenceChainService,
@@ -92,12 +92,16 @@ public sealed class PilotRunDeltaComputer(
 
         GovernedFindingCoverageMetric governedCoverage = AggregateGovernedFindingCoverage(detail);
         ArchitectureFinding? topFinding = SelectTopSeverityFinding(detail);
-        (IReadOnlyList<AgentExecutionTrace> traces, int llmCallCount, bool tracesResolved) = await TryListExecutionTracesAsync(runId, cancellationToken);
         AgentOutputQualityGateOptions gateOpts = _gateOptionsResolver.Resolve(cancellationToken);
+        bool needsFullTraces = gateOpts is { Enabled: true, Mode: AgentOutputQualityGateMode.PilotStrict };
+        (IReadOnlyList<AgentExecutionTrace> traces, int llmCallCount, bool tracesResolved) =
+            await TryResolveExecutionTracesAsync(runId, needsFullTraces, cancellationToken);
         bool pilotStrictFails = false;
-        if (tracesResolved && gateOpts is { Enabled: true, Mode: AgentOutputQualityGateMode.PilotStrict })
+
+        if (tracesResolved && needsFullTraces)
         {
             RunExplanationSummary? summary = null;
+
             if (gateOpts.PilotStrictMinFaithfulnessSupportRatio.HasValue && TryParseRunGuid(runId, out Guid runGuid))
             {
                 summary = await _runExplanationSummaryService.GetSummaryAsync(scope, runGuid, cancellationToken);
@@ -140,19 +144,57 @@ public sealed class PilotRunDeltaComputer(
     private Task<decimal?> TryResolveEstimatedUsdSavingsAsync(Guid? findingsSnapshotId, CancellationToken cancellationToken) =>
         _tenantEstimatedUsdSavingsResolver.ResolveFromFindingsSnapshotIdAsync(findingsSnapshotId, cancellationToken);
 
-    private async Task<(IReadOnlyList<AgentExecutionTrace> traces, int count, bool resolved)> TryListExecutionTracesAsync(string runId,
+    /// <summary>
+    ///     Default path counts traces without loading <c>TraceJson</c>. PilotStrict loads full rows for quality evaluation.
+    /// </summary>
+    private Task<(IReadOnlyList<AgentExecutionTrace> traces, int count, bool resolved)> TryResolveExecutionTracesAsync(
+        string runId,
+        bool needsFullTraces,
+        CancellationToken cancellationToken)
+    {
+        if (needsFullTraces)
+            return TryListExecutionTracesAsync(runId, cancellationToken);
+
+        return TryCountExecutionTracesAsync(runId, cancellationToken);
+    }
+
+    private async Task<(IReadOnlyList<AgentExecutionTrace> traces, int count, bool resolved)> TryCountExecutionTracesAsync(
+        string runId,
         CancellationToken cancellationToken)
     {
         try
         {
             ScopeContext traceScope = _scopeContextProvider.GetCurrentScope();
-            IReadOnlyList<AgentExecutionTrace> list = await _agentExecutionTraceRepository.GetByRunIdAsync(traceScope, runId, cancellationToken);
+            int count = await _agentExecutionTraceRepository.CountByRunIdAsync(traceScope, runId, cancellationToken);
+
+            return ([], count, true);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogWarningWithSanitizedUserArg(ex,
+                "Pilot delta: execution trace count unavailable for run {RunId}; LLM counts not attested.", runId);
+
+            return ([], 0, false);
+        }
+    }
+
+    private async Task<(IReadOnlyList<AgentExecutionTrace> traces, int count, bool resolved)> TryListExecutionTracesAsync(
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            ScopeContext traceScope = _scopeContextProvider.GetCurrentScope();
+            IReadOnlyList<AgentExecutionTrace> list =
+                await _agentExecutionTraceRepository.GetByRunIdAsync(traceScope, runId, cancellationToken);
+
             return (list, list.Count, true);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarningWithSanitizedUserArg(ex,
                 "Pilot delta: execution traces unavailable for run {RunId}; LLM counts and PilotStrict gates not attested.", runId);
+
             return ([], 0, false);
         }
     }

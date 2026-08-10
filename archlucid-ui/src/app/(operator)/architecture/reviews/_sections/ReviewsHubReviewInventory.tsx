@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useVirtualizer } from "@tanstack/react-virtual";
+import type { CSSProperties } from "react";
+import { useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
@@ -42,6 +44,10 @@ import {
 } from "./reviews-hub-copy";
 import { toReviewsHubReviewRowDisplay } from "./reviews-hub-package-display";
 import { reviewsHubOverallStatusTagKind, type ReviewsHubOverallStatus } from "./reviews-hub-review-status";
+import {
+  REVIEWS_LIST_ROW_ESTIMATE_PX,
+  shouldVirtualizeReviewsList,
+} from "./reviews-list-virtualization";
 
 type ReviewsHubReviewInventoryProps = {
   readonly runs: readonly RunSummary[];
@@ -151,6 +157,75 @@ function emptyInventoryDescription(draftCount: number): string {
   return REVIEWS_HUB_RECENT_EMPTY_BODY;
 }
 
+type InventoryRowProps = {
+  readonly run: RunSummary;
+  readonly style?: CSSProperties;
+};
+
+function ReviewsHubInventoryRow(props: InventoryRowProps): React.JSX.Element {
+  const row = toReviewsHubReviewRowDisplay(props.run);
+
+  return (
+    <EnterpriseTableRow
+      data-testid={row.isSampleReview ? "reviews-hub-sample-row" : `reviews-hub-row-${row.runId}`}
+      style={props.style}
+    >
+      <EnterpriseTableCell>
+        <div className="min-w-[12rem]">
+          <Link
+            href={row.reviewHref}
+            className={cn(OPERATOR_LINK.nav, "font-medium")}
+            aria-label={`Open review ${row.reviewTitle}`}
+            data-testid={`reviews-hub-primary-action-${row.runId}`}
+          >
+            {row.reviewTitle}
+          </Link>
+          {row.isSampleReview ? (
+            <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              Sample review
+            </p>
+          ) : null}
+        </div>
+      </EnterpriseTableCell>
+      <EnterpriseTableCell>{row.architectureName}</EnterpriseTableCell>
+      <EnterpriseTableCell>
+        <StatusTag
+          kind={reviewsHubOverallStatusTagKind(row.overallStatus, row.needsAttention)}
+          label={row.overallStatus}
+        />
+      </EnterpriseTableCell>
+      <EnterpriseTableCell>{row.governanceState}</EnterpriseTableCell>
+      <EnterpriseTableCell>{row.lifecycleStage}</EnterpriseTableCell>
+      <EnterpriseTableCell>{reviewPackageOwnerLabel(props.run)}</EnterpriseTableCell>
+      <EnterpriseTableCell title={props.run.createdUtc}>{row.lastUpdated}</EnterpriseTableCell>
+      <EnterpriseTableCell className="text-right tabular-nums">
+        {finiteIntegerCountDisplay(row.findingsCount)}
+      </EnterpriseTableCell>
+      <EnterpriseTableCell className="text-right tabular-nums">
+        {finiteIntegerCountDisplay(row.riskCount)}
+      </EnterpriseTableCell>
+    </EnterpriseTableRow>
+  );
+}
+
+function ReviewsHubInventoryTableHead(): React.JSX.Element {
+  return (
+    <EnterpriseTableHead>
+      <EnterpriseTableHeadRow>
+        <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell>Architecture / system</EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell>Governance</EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell>Stage</EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell>Owner</EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell>Last updated</EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell className="text-right">Findings</EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell className="text-right">Risks</EnterpriseTableHeaderCell>
+      </EnterpriseTableHeadRow>
+    </EnterpriseTableHead>
+  );
+}
+
 /** Filterable review inventory for `/architecture/reviews`. */
 export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps): React.JSX.Element {
   const [searchQuery, setSearchQuery] = useState("");
@@ -160,10 +235,20 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
   const draftCount = draftEntries.length;
   const hasDrafts = draftCount > 0;
   const moreFilterSelected = MORE_FILTER_OPTIONS.some((option) => option.id === activeFilter);
+  const parentRef = useRef<HTMLDivElement>(null);
 
   const filteredRuns = useMemo(() => {
     return props.runs.filter((run) => matchesSearch(run, searchQuery) && matchesFilter(run, activeFilter));
   }, [activeFilter, props.runs, searchQuery]);
+
+  const useVirtualization = shouldVirtualizeReviewsList(filteredRuns.length);
+
+  const rowVirtualizer = useVirtualizer({
+    count: useVirtualization ? filteredRuns.length : 0,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => REVIEWS_LIST_ROW_ESTIMATE_PX,
+    overscan: 8,
+  });
 
   const sampleHref = showcaseSampleReviewPackageHref();
 
@@ -230,70 +315,53 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
             </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <EnterpriseTable ariaLabel={REVIEWS_HUB_PAGE_TITLE} data-testid="reviews-hub-packages-table">
-              <EnterpriseTableHead>
-                <EnterpriseTableHeadRow>
-                  <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Architecture / system</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Governance</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Stage</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Owner</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Last updated</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell className="text-right">Findings</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell className="text-right">Risks</EnterpriseTableHeaderCell>
-                </EnterpriseTableHeadRow>
-              </EnterpriseTableHead>
-              <EnterpriseTableBody>
-                {filteredRuns.map((run) => {
-                  const row = toReviewsHubReviewRowDisplay(run);
+          {useVirtualization ? (
+            <div
+              ref={parentRef}
+              className="mt-3 max-h-[min(32rem,70vh)] overflow-auto rounded-lg border border-neutral-200 dark:border-neutral-800"
+              data-testid="reviews-hub-packages-virtualized"
+            >
+              <EnterpriseTable
+                ariaLabel={REVIEWS_HUB_PAGE_TITLE}
+                data-testid="reviews-hub-packages-table"
+                className="border-0"
+              >
+                <ReviewsHubInventoryTableHead />
+                <EnterpriseTableBody
+                  style={{
+                    height: `${rowVirtualizer.getTotalSize()}px`,
+                    position: "relative",
+                  }}
+                >
+                  {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                    const run = filteredRuns[virtualRow.index];
+                    const rowStyle: CSSProperties = {
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      transform: `translateY(${virtualRow.start}px)`,
+                      display: "table",
+                      tableLayout: "fixed",
+                    };
 
-                  return (
-                    <EnterpriseTableRow
-                      key={row.runId}
-                      data-testid={row.isSampleReview ? "reviews-hub-sample-row" : `reviews-hub-row-${row.runId}`}
-                    >
-                      <EnterpriseTableCell>
-                        <div className="min-w-[12rem]">
-                          <Link
-                            href={row.reviewHref}
-                            className={cn(OPERATOR_LINK.nav, "font-medium")}
-                            aria-label={`Open review ${row.reviewTitle}`}
-                            data-testid={`reviews-hub-primary-action-${row.runId}`}
-                          >
-                            {row.reviewTitle}
-                          </Link>
-                          {row.isSampleReview ? (
-                            <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                              Sample review
-                            </p>
-                          ) : null}
-                        </div>
-                      </EnterpriseTableCell>
-                      <EnterpriseTableCell>{row.architectureName}</EnterpriseTableCell>
-                      <EnterpriseTableCell>
-                        <StatusTag
-                          kind={reviewsHubOverallStatusTagKind(row.overallStatus, row.needsAttention)}
-                          label={row.overallStatus}
-                        />
-                      </EnterpriseTableCell>
-                      <EnterpriseTableCell>{row.governanceState}</EnterpriseTableCell>
-                      <EnterpriseTableCell>{row.lifecycleStage}</EnterpriseTableCell>
-                      <EnterpriseTableCell>{reviewPackageOwnerLabel(run)}</EnterpriseTableCell>
-                      <EnterpriseTableCell title={run.createdUtc}>{row.lastUpdated}</EnterpriseTableCell>
-                      <EnterpriseTableCell className="text-right tabular-nums">
-                        {finiteIntegerCountDisplay(row.findingsCount)}
-                      </EnterpriseTableCell>
-                      <EnterpriseTableCell className="text-right tabular-nums">
-                        {finiteIntegerCountDisplay(row.riskCount)}
-                      </EnterpriseTableCell>
-                    </EnterpriseTableRow>
-                  );
-                })}
-              </EnterpriseTableBody>
-            </EnterpriseTable>
-          </div>
+                    return <ReviewsHubInventoryRow key={run.runId} run={run} style={rowStyle} />;
+                  })}
+                </EnterpriseTableBody>
+              </EnterpriseTable>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <EnterpriseTable ariaLabel={REVIEWS_HUB_PAGE_TITLE} data-testid="reviews-hub-packages-table">
+                <ReviewsHubInventoryTableHead />
+                <EnterpriseTableBody>
+                  {filteredRuns.map((run) => (
+                    <ReviewsHubInventoryRow key={run.runId} run={run} />
+                  ))}
+                </EnterpriseTableBody>
+              </EnterpriseTable>
+            </div>
+          )}
 
           {filteredRuns.length === 0 ? (
             <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">

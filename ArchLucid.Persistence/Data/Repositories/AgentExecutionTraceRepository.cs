@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Sql;
 
@@ -17,11 +18,20 @@ namespace ArchLucid.Persistence.Data.Repositories;
 ///     Dapper-backed persistence for <see cref="AgentExecutionTrace" /> entities.
 ///     <see cref="CreateAsync" /> delete-then-insert upserts on (RunId, TaskId, AgentType, AttemptIndex) — TB-044;
 ///     attempt 0 re-execute clears later attempt rows (TB-035).
+///     Read paths use <see cref="IReadOnlyDbConnectionFactory" /> (read replica when configured).
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectionFactory)
+public sealed class AgentExecutionTraceRepository(
+    IDbConnectionFactory connectionFactory,
+    IReadOnlyDbConnectionFactory readConnectionFactory)
     : IAgentExecutionTraceRepository
 {
+    private readonly IDbConnectionFactory _connectionFactory =
+        connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
+
+    private readonly IReadOnlyDbConnectionFactory _readConnectionFactory =
+        readConnectionFactory ?? throw new ArgumentNullException(nameof(readConnectionFactory));
+
     public async Task CreateAsync(
         AgentExecutionTrace trace,
         CancellationToken cancellationToken = default)
@@ -96,7 +106,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
 
         string json = JsonSerializer.Serialize(trace, ContractJson.Default);
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         object scopeArgs = new
         {
@@ -159,7 +169,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         const string selectSql = """
                                  SELECT TraceJson
@@ -232,7 +242,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
                            WHERE TraceId = @TraceId;
                            """;
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -255,7 +265,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         const string selectSql = """
                                  SELECT TraceJson
@@ -322,7 +332,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         const string selectSql = """
                                  SELECT TraceJson
@@ -375,7 +385,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         const string selectSql = """
                                  SELECT TraceJson
@@ -428,7 +438,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         const string selectSql = """
                                  SELECT TraceJson
@@ -487,7 +497,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
         ArgumentException.ThrowIfNullOrWhiteSpace(definitionContentHashSha256);
         ArgumentException.ThrowIfNullOrWhiteSpace(gateMode);
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         const string selectSql = """
                                  SELECT TraceJson, RecordedQualityGateOutcome
@@ -557,7 +567,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         const string sql = """
                            SELECT TraceJson
@@ -581,7 +591,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
     {
         RunChildRunScopeSql.RequireScope(scope);
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string sql = $"""
                       SELECT t.TraceJson
@@ -614,7 +624,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
     {
         RunChildRunScopeSql.RequireScope(scope);
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string sql = $"""
                       SELECT {AgentExecutionTraceLlmCostProjectionSql.SelectColumns}
@@ -671,7 +681,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
                       ORDER BY t.RunId, t.CreatedUtc;
                       """;
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         IEnumerable<LlmCostSliceRow> rows = await connection.QueryAsync<LlmCostSliceRow>(
             new CommandDefinition(
@@ -743,7 +753,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
         int clampedOffset = Math.Max(0, offset);
         int clampedLimit = Math.Clamp(limit, 1, 500);
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         IEnumerable<TracePageRow> rows = await connection.QueryAsync<TracePageRow>(new CommandDefinition(
             sql,
@@ -791,7 +801,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
         int clampedOffset = Math.Max(0, offset);
         int clampedLimit = Math.Clamp(limit, 1, 500);
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         IEnumerable<TraceSummaryPageRow> rows = await connection.QueryAsync<TraceSummaryPageRow>(new CommandDefinition(
             sql,
@@ -830,7 +840,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
                         AND {RunChildRunScopeSql.ScopeWhereClause};
                       """;
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         return await connection.ExecuteScalarAsync<int>(new CommandDefinition(
             sql,
@@ -848,7 +858,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
         string taskId,
         CancellationToken cancellationToken = default)
     {
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string sql = $"""
                       SELECT TraceJson
@@ -919,7 +929,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
                         AND t.ModelDeploymentName LIKE @PrefixPattern
                       """;
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         IEnumerable<LlmFallbackAgentTypeRow> rows = await connection.QueryAsync<LlmFallbackAgentTypeRow>(
             new CommandDefinition(sql, new
@@ -986,7 +996,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
                              AND ArchivedUtc < @ArchivedBeforeUtc;
                            """;
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         int deleted = await connection.ExecuteAsync(
             new CommandDefinition(

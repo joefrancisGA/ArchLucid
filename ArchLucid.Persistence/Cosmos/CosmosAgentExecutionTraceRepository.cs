@@ -37,15 +37,7 @@ public sealed class CosmosAgentExecutionTraceRepository(
         string json = JsonSerializer.Serialize(trace, ContractJson.Default);
         int? ttl = opts.AgentTraceTtlSeconds > 0 ? opts.AgentTraceTtlSeconds : null;
 
-        AgentTraceDocument doc = new()
-        {
-            Id = trace.TraceId,
-            RunId = trace.RunId,
-            TraceJson = json,
-            CreatedUtc = trace.CreatedUtc.ToUniversalTime().ToString("o", CultureInfo.InvariantCulture),
-            TaskId = trace.TaskId,
-            Ttl = ttl
-        };
+        AgentTraceDocument doc = BuildDocument(trace, json, ttl);
 
         await container.CreateItemAsync(doc, new PartitionKey(trace.RunId), cancellationToken: cancellationToken);
     }
@@ -255,10 +247,56 @@ public sealed class CosmosAgentExecutionTraceRepository(
         int limit,
         CancellationToken cancellationToken = default)
     {
-        (IReadOnlyList<AgentExecutionTrace> traces, int total) =
-            await GetPagedByRunIdAsync(scope, runId, offset, limit, cancellationToken);
+        _ = scope;
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
-        List<AgentExecutionTraceSummary> summaries = traces.Select(AgentExecutionTraceSummary.FromTrace).ToList();
+        Container container = await _clientFactory.GetContainerAsync(ContainerId, cancellationToken);
+        int clampedOffset = Math.Max(0, offset);
+        int clampedLimit = Math.Clamp(limit, 1, 500);
+
+        QueryDefinition countQuery = new QueryDefinition("SELECT VALUE COUNT(1) FROM c WHERE c.runId = @runId")
+            .WithParameter("@runId", runId);
+
+        int total = 0;
+        using FeedIterator<int> countIt = container.GetItemQueryIterator<int>(
+            countQuery,
+            requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(runId) });
+
+        if (countIt.HasMoreResults)
+        {
+            FeedResponse<int> countPage = await countIt.ReadNextAsync(cancellationToken);
+            total = countPage.Resource.FirstOrDefault();
+        }
+
+        // Project denormalized summary scalars only — do not SELECT TraceJson on the list path.
+        QueryDefinition pageQuery = new QueryDefinition(
+                """
+                SELECT c.id, c.runId, c.taskId, c.createdUtc, c.agentType, c.parseSucceeded,
+                       c.inputTokenCount, c.outputTokenCount, c.estimatedCostUsd,
+                       c.modelDeploymentName, c.modelAlias, c.qualityWarning, c.qualityRejected,
+                       c.blobUploadFailed
+                FROM c
+                WHERE c.runId = @runId
+                ORDER BY c.createdUtc
+                OFFSET @off LIMIT @lim
+                """)
+            .WithParameter("@runId", runId)
+            .WithParameter("@off", clampedOffset)
+            .WithParameter("@lim", clampedLimit);
+
+        using FeedIterator<AgentTraceSummaryProjection> iterator =
+            container.GetItemQueryIterator<AgentTraceSummaryProjection>(
+                pageQuery,
+                requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(runId) });
+
+        List<AgentExecutionTraceSummary> summaries = [];
+
+        while (iterator.HasMoreResults)
+        {
+            FeedResponse<AgentTraceSummaryProjection> page = await iterator.ReadNextAsync(cancellationToken);
+
+            summaries.AddRange(page.Select(MapSummaryProjection));
+        }
 
         return (summaries, total);
     }
@@ -387,21 +425,84 @@ public sealed class CosmosAgentExecutionTraceRepository(
 
     private async Task ReplaceTraceAsync(AgentExecutionTrace trace, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(trace);
+
         Container container = await _clientFactory.GetContainerAsync(ContainerId, ct);
         CosmosDbOptions opts = _optionsMonitor.CurrentValue;
         int? ttl = opts.AgentTraceTtlSeconds > 0 ? opts.AgentTraceTtlSeconds : null;
+        string json = JsonSerializer.Serialize(trace, ContractJson.Default);
+        AgentTraceDocument doc = BuildDocument(trace, json, ttl);
 
-        AgentTraceDocument doc = new()
+        await container.ReplaceItemAsync(doc, trace.TraceId, new PartitionKey(trace.RunId), cancellationToken: ct);
+    }
+
+    private static AgentTraceDocument BuildDocument(AgentExecutionTrace trace, string json, int? ttl)
+    {
+        ArgumentNullException.ThrowIfNull(trace);
+        ArgumentException.ThrowIfNullOrWhiteSpace(json);
+
+        return new AgentTraceDocument
         {
             Id = trace.TraceId,
             RunId = trace.RunId,
-            TraceJson = JsonSerializer.Serialize(trace, ContractJson.Default),
+            TraceJson = json,
             CreatedUtc = trace.CreatedUtc.ToUniversalTime().ToString("o", CultureInfo.InvariantCulture),
             TaskId = trace.TaskId,
-            Ttl = ttl
+            Ttl = ttl,
+            AgentType = trace.AgentType.ToString(),
+            ParseSucceeded = trace.ParseSucceeded,
+            InputTokenCount = trace.InputTokenCount,
+            OutputTokenCount = trace.OutputTokenCount,
+            EstimatedCostUsd = trace.EstimatedCostUsd,
+            ModelDeploymentName = trace.ModelDeploymentName,
+            ModelAlias = trace.ModelAlias,
+            QualityWarning = trace.QualityWarning,
+            QualityRejected = trace.QualityRejected,
+            BlobUploadFailed = trace.BlobUploadFailed,
         };
+    }
 
-        await container.ReplaceItemAsync(doc, trace.TraceId, new PartitionKey(trace.RunId), cancellationToken: ct);
+    private static AgentExecutionTraceSummary MapSummaryProjection(AgentTraceSummaryProjection row)
+    {
+        ArgumentNullException.ThrowIfNull(row);
+
+        AgentType agentType = default;
+
+        if (!string.IsNullOrWhiteSpace(row.AgentType)
+            && Enum.TryParse(row.AgentType, ignoreCase: true, out AgentType parsed))
+        {
+            agentType = parsed;
+        }
+
+        DateTime createdUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+
+        if (!string.IsNullOrWhiteSpace(row.CreatedUtc)
+            && DateTime.TryParse(
+                row.CreatedUtc,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.RoundtripKind,
+                out DateTime parsedCreated))
+        {
+            createdUtc = parsedCreated.ToUniversalTime();
+        }
+
+        return new AgentExecutionTraceSummary
+        {
+            TraceId = row.Id,
+            RunId = row.RunId,
+            TaskId = row.TaskId,
+            AgentType = agentType,
+            InputTokenCount = row.InputTokenCount,
+            OutputTokenCount = row.OutputTokenCount,
+            EstimatedCostUsd = row.EstimatedCostUsd,
+            ModelDeploymentName = row.ModelDeploymentName,
+            ModelAlias = row.ModelAlias,
+            ParseSucceeded = row.ParseSucceeded,
+            CreatedUtc = createdUtc,
+            QualityWarning = row.QualityWarning,
+            QualityRejected = row.QualityRejected,
+            BlobUploadFailed = row.BlobUploadFailed,
+        };
     }
 
     private async Task<AgentExecutionTrace?> LoadTraceAsync(string traceId, CancellationToken ct)

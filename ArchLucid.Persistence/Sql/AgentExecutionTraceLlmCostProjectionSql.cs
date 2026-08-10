@@ -6,12 +6,12 @@ namespace ArchLucid.Persistence.Sql;
 internal static class AgentExecutionTraceLlmCostProjectionSql
 {
     /// <summary>
-    ///     Prefer typed columns (TB-931); <c>JSON_VALUE</c> covers rows written before dual-write / during rolling deploy.
+    ///     Typed dual-write columns only (TB-931) — no <c>JSON_VALUE</c> LOB touch on the cost path.
     /// </summary>
     public const string SelectColumns = """
                                           t.ModelDeploymentName,
-                                          COALESCE(t.InputTokenCount, TRY_CAST(JSON_VALUE(t.TraceJson, '$.inputTokenCount') AS int)) AS InputTokenCount,
-                                          COALESCE(t.OutputTokenCount, TRY_CAST(JSON_VALUE(t.TraceJson, '$.outputTokenCount') AS int)) AS OutputTokenCount,
-                                          COALESCE(t.ReasoningTokenCount, TRY_CAST(JSON_VALUE(t.TraceJson, '$.reasoningTokenCount') AS int)) AS ReasoningTokenCount
+                                          t.InputTokenCount,
+                                          t.OutputTokenCount,
+                                          t.ReasoningTokenCount
                                           """;
 }

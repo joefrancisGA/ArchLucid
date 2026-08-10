@@ -326,6 +326,35 @@ public sealed class RetrievalQueryServiceTests
         expander.Verify(e => e.ExpandAsync("policy", It.IsAny<CancellationToken>()), Times.Once);
     }
 
+    [Fact]
+    public async Task SearchAsync_SkipQueryExpansion_DoesNotCallExpander()
+    {
+        Mock<IAgenticRetrievalQueryExpander> expander = new();
+        Mock<IEmbeddingService> embeddings = new();
+        float[] queryVector = [1f, 0f, 0f];
+        embeddings.Setup(e => e.EmbedAsync("hello", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(queryVector);
+
+        InMemoryVectorIndex index = new();
+        RetrievalQueryService sut = CreateService(embeddings.Object, index, queryExpander: expander.Object);
+
+        IReadOnlyList<RetrievalHit> hits = await sut.SearchAsync(
+            new RetrievalQuery
+            {
+                TenantId = TenantId,
+                WorkspaceId = WorkspaceId,
+                ProjectId = ProjectId,
+                QueryText = "hello",
+                TopK = 8,
+                SkipQueryExpansion = true,
+                SkipReranking = true,
+            },
+            CancellationToken.None);
+
+        hits.Should().BeEmpty();
+        expander.Verify(e => e.ExpandAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
     private static RetrievalQueryService CreateService(
         IEmbeddingService embeddingService,
         IVectorIndex vectorIndex,

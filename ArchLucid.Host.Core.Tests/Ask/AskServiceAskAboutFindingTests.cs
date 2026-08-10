@@ -90,6 +90,9 @@ public sealed class AskServiceAskAboutFindingTests
         Mock<IOptionsMonitor<ConversationContextOptions>> contextOptions = new();
         contextOptions.Setup(monitor => monitor.CurrentValue).Returns(new ConversationContextOptions());
 
+        Mock<IOptionsMonitor<AskRetrievalOptions>> askRetrievalOptions = new();
+        askRetrievalOptions.Setup(monitor => monitor.CurrentValue).Returns(new AskRetrievalOptions());
+
         AskService sut = new(
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IProvenanceQueryService>(),
@@ -103,6 +106,7 @@ public sealed class AskServiceAskAboutFindingTests
             askOptions.Object,
             Mock.Of<IConversationContextCompressor>(),
             contextOptions.Object,
+            askRetrievalOptions.Object,
             NullLogger<AskService>.Instance);
 
         AskResponse response = await sut.AskAboutFindingAsync(

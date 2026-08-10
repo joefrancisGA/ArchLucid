@@ -71,6 +71,50 @@ vi.mock("@/components/OperatorHomeGate", () => ({
   OperatorHomeGate: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
 
+vi.mock("@/app/(operator)/_sections/operator-home-page-view-deferred-chunks", async () => {
+  const { OperatorHomeGate } = await import("@/components/OperatorHomeGate");
+  const { PilotCommandCenterCard } = await import("@/components/usability/PilotCommandCenterCard");
+  const { OperatorHomeBelowFoldPanels } = await import(
+    "@/app/(operator)/_sections/OperatorHomeBelowFoldPanels"
+  );
+  const { OperatorHomeExecutiveRoiStrip } = await import(
+    "@/components/operator-home/OperatorHomeExecutiveRoiStrip"
+  );
+  const { deriveOperatorHomeWorkspaceMetrics } = await import("@/lib/operator-home-workspace-metrics");
+
+  function BuyerPolishedHomeHeroSectionDeferred(props: {
+    readonly runsDashboard: import("@/app/(operator)/_sections/operator-home-runs-dashboard-model").OperatorHomeRunsDashboardModel;
+  }) {
+    // Avoid importing BuyerPolishedHomeHeroSection (circular: it pulls this deferred module).
+    const workspaceMetrics = deriveOperatorHomeWorkspaceMetrics(
+      props.runsDashboard.items,
+      props.runsDashboard.totalCount,
+    );
+
+    return (
+      <section aria-label="Overview command center" data-testid="operator-home-hero-section">
+        <PilotCommandCenterCard
+          suppressLeadCopy
+          showContextualHelp={false}
+          runsDashboard={props.runsDashboard}
+          hasWorkspaceReviews={workspaceMetrics.hasReviews}
+          openFindingsCount={workspaceMetrics.openFindings}
+          governanceWarningsCount={workspaceMetrics.governanceWarnings}
+        />
+      </section>
+    );
+  }
+
+  return {
+    OperatorHomeGateDeferred: OperatorHomeGate,
+    BuyerPolishedHomeHeroSectionDeferred,
+    PilotCommandCenterCardDeferred: PilotCommandCenterCard,
+    OperatorHomeBelowFoldPanelsDeferred: OperatorHomeBelowFoldPanels,
+    OperatorHomeExecutiveRoiStripDeferred: OperatorHomeExecutiveRoiStrip,
+    CtoDemoExecutiveLandingRedirectDeferred: () => null,
+  };
+});
+
 vi.mock("@/components/operator-home/OperatorHomeDeferredOnboarding", () => ({
   OperatorHomeDeferredOnboarding: () => null,
   OperatorHomeFirstValueCallout: () => null,
@@ -101,6 +145,13 @@ vi.mock("@/components/dev-testing/DevTestingQuickSwitchPanel", () => ({
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
   useNavCallerAuthorityRank: () => 3,
+  useOperatorNavAuthority: () => ({
+    callerAuthorityRank: 3,
+    isAuthorityLoading: false,
+    currentPrincipal: {
+      hasCommittedArchitectureReview: false,
+    },
+  }),
 }));
 
 vi.mock("@/hooks/use-featured-completed-sample-query", () => ({

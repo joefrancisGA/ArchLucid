@@ -236,6 +236,9 @@ public sealed class AskServiceComparisonNarrativeTests
         Mock<IOptionsMonitor<ConversationContextOptions>> contextOptions = new();
         contextOptions.Setup(monitor => monitor.CurrentValue).Returns(new ConversationContextOptions());
 
+        Mock<IOptionsMonitor<AskRetrievalOptions>> askRetrievalOptions = new();
+        askRetrievalOptions.Setup(monitor => monitor.CurrentValue).Returns(new AskRetrievalOptions());
+
         AskService sut = new(
             authority.Object,
             provenance.Object,
@@ -249,6 +252,7 @@ public sealed class AskServiceComparisonNarrativeTests
             askOptions.Object,
             Mock.Of<IConversationContextCompressor>(),
             contextOptions.Object,
+            askRetrievalOptions.Object,
             NullLogger<AskService>.Instance);
 
         return (sut, llm, scope);

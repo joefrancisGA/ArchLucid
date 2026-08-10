@@ -15,7 +15,7 @@ describe("OperatorHomePageView progressive disclosure", () => {
     const buyerBodyEnd = source.indexOf("function OperatorHomePageBody");
     const buyerBody = source.slice(buyerBodyStart, buyerBodyEnd);
 
-    const heroIndex = buyerBody.indexOf("BuyerPolishedHomeHeroSection");
+    const heroIndex = buyerBody.indexOf("BuyerPolishedHomeHeroSectionDeferred");
     const reviewsIndex = buyerBody.indexOf("<HomeRecentReviewsSection");
     const examplesPlacementIndex = buyerBody.indexOf("OperatorHomeBelowFoldPanelsDeferred");
 

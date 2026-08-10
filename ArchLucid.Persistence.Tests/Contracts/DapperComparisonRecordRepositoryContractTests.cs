@@ -30,6 +30,7 @@ public sealed class DapperComparisonRecordRepositoryContractTests(SqlServerPersi
 
     protected override IComparisonRecordRepository CreateRepository()
     {
-        return new ComparisonRecordRepository(new TestSqlDbConnectionFactory(fixture.ConnectionString));
+        TestSqlDbConnectionFactory write = new(fixture.ConnectionString);
+        return new ComparisonRecordRepository(write, new TestReadOnlyDbConnectionFactory(write));
     }
 }

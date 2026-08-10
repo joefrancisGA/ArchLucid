@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Sql;
 
@@ -10,14 +11,22 @@ using Dapper;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
+/// <summary>
+///     Dapper persistence for comparison records. Read/search paths use
+///     <see cref="IReadOnlyDbConnectionFactory" /> (read replica when configured).
+/// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class ComparisonRecordRepository : IComparisonRecordRepository
 {
     private readonly IDbConnectionFactory _connectionFactory;
+    private readonly IReadOnlyDbConnectionFactory _readConnectionFactory;
 
-    public ComparisonRecordRepository(IDbConnectionFactory connectionFactory)
+    public ComparisonRecordRepository(
+        IDbConnectionFactory connectionFactory,
+        IReadOnlyDbConnectionFactory readConnectionFactory)
     {
-        _connectionFactory = connectionFactory;
+        _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
+        _readConnectionFactory = readConnectionFactory ?? throw new ArgumentNullException(nameof(readConnectionFactory));
         ListStringTypeHandler.Register();
     }
 
@@ -107,7 +116,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
                       WHERE ComparisonRecordId = @ComparisonRecordId;
                       """;
 
-        using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         ComparisonRecord? row = await connection.QuerySingleOrDefaultAsync<ComparisonRecord>(new CommandDefinition(
             sql,
@@ -121,7 +130,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         string runId,
         CancellationToken cancellationToken = default)
     {
-        using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         if (!Guid.TryParse(runId, out Guid runGuid))
             return [];
@@ -146,7 +155,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         string exportRecordId,
         CancellationToken cancellationToken = default)
     {
-        using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string sql = $"""
                       SELECT TOP 200
@@ -197,7 +206,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         parameters.Add("@Limit", safeLimit);
         parameters.Add("@Skip", safeSkip);
 
-        using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
         ComparisonRecordSearchPredicateBuilder.AppendFilters(
             conditions,
             parameters,
@@ -212,8 +221,8 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
             tags);
 
         string sql = baseSql;
-        if (conditions.Count > 0)
 
+        if (conditions.Count > 0)
             sql += " AND " + string.Join(" AND ", conditions);
 
         string orderColumn = ResolveOrderColumn(sortBy);
@@ -262,7 +271,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         int safeLimit = limit <= 0 ? 50 : Math.Min(limit, 500);
         parameters.Add("@Limit", safeLimit);
 
-        using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
         ComparisonRecordSearchPredicateBuilder.AppendFilters(
             conditions,
             parameters,
@@ -281,7 +290,6 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
 
         // Cursor paging: only supported for CreatedUtc ordering (plus ComparisonRecordId tiebreaker).
         if (!string.Equals(orderColumn, "CreatedUtc", StringComparison.OrdinalIgnoreCase))
-
             throw new InvalidOperationException("Cursor paging currently supports sortBy=createdUtc only.");
 
         if (cursorCreatedUtc is not null && !string.IsNullOrWhiteSpace(cursorComparisonRecordId))
@@ -296,8 +304,8 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         }
 
         string sql = baseSql;
-        if (conditions.Count > 0)
 
+        if (conditions.Count > 0)
             sql += " AND " + string.Join(" AND ", conditions);
 
         sql += sortDescending

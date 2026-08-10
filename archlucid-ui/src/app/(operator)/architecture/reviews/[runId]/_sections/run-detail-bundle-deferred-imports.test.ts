@@ -90,6 +90,7 @@ const bannedStaticImports = [
   '@/components/RunSavingsSummary"',
   './RunDetailDecisionDeltaPanel"',
   './RunDetailRunExplanationCollapsible"',
+  '@/components/golden-walkthrough/GoldenSponsorPackageWalkthroughDestination"',
 ] as const;
 
 describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-2117 / TB-2142)", () => {

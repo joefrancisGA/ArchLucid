@@ -119,6 +119,9 @@ public sealed class AskServiceConversationCompressionTests
         Mock<IOptionsMonitor<AskComparisonNarrativeOptions>> askOptions = new();
         askOptions.Setup(o => o.CurrentValue).Returns(new AskComparisonNarrativeOptions());
 
+        Mock<IOptionsMonitor<AskRetrievalOptions>> askRetrievalOptions = new();
+        askRetrievalOptions.Setup(o => o.CurrentValue).Returns(new AskRetrievalOptions());
+
         AskService sut = new(
             query.Object,
             Mock.Of<IProvenanceQueryService>(),
@@ -132,6 +135,7 @@ public sealed class AskServiceConversationCompressionTests
             askOptions.Object,
             compressor.Object,
             contextOptions.Object,
+            askRetrievalOptions.Object,
             NullLogger<AskService>.Instance);
 
         await sut.AskAsync(

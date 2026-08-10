@@ -19,7 +19,8 @@ public sealed class DapperAgentExecutionTraceRepositoryContractTests(SqlServerPe
 
     protected override IAgentExecutionTraceRepository CreateRepository()
     {
-        return new AgentExecutionTraceRepository(new TestSqlDbConnectionFactory(fixture.ConnectionString));
+        TestSqlDbConnectionFactory write = new(fixture.ConnectionString);
+        return new AgentExecutionTraceRepository(write, new TestReadOnlyDbConnectionFactory(write));
     }
 
     protected override async Task PrepareRunAndTaskAsync(string requestId, string runId, AgentTask task,

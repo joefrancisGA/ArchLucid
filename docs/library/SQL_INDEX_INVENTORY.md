@@ -18,6 +18,12 @@ This document lists every nonclustered index added by migrations 059–060 and t
 | `IX_AgentExecutionTraces_BlobUploadFailed` | `AgentExecutionTraces` | `RunId, CreatedUtc DESC` | **Filter:** `BlobUploadFailed = 1` | Operator diagnostic query to find traces where blob upload failed. Extremely sparse (failures are rare) so the filtered index is almost free to maintain. |
 | `IX_AgentExecutionTraces_InlineFallbackFailed` | `AgentExecutionTraces` | `RunId, CreatedUtc DESC` | **Filter:** `InlineFallbackFailed = 1` | Operator diagnostic query for traces where mandatory SQL inline fallback or forensic verification failed (migration **065**). Sparse like blob-failure index. |
 
+## Migration 301 — Trace summary covering index
+
+| Index | Table | Key Columns | Include / Filter | Query Pattern |
+|-------|-------|-------------|-----------------|---------------|
+| `IX_AgentExecutionTraces_RunId_CreatedUtc_Summary` | `AgentExecutionTraces` | `RunId, CreatedUtc` | **Include:** `TraceId, TaskId, AgentType, ParseSucceeded, ModelDeploymentName, BlobUploadFailed, InputTokenCount, OutputTokenCount, EstimatedCostUsd, ModelAlias, QualityWarning, QualityRejected` | `GetPagedSummariesByRunIdAsync` typed list projection — covering seek avoids `TraceJson` key lookup. |
+
 ## Migration 060 — Broader Query Coverage
 
 | Index | Table | Key Columns | Include / Filter | Query Pattern |

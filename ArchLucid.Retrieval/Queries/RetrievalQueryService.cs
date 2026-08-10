@@ -77,7 +77,26 @@ public sealed class RetrievalQueryService(
         // Do not parallelize rewrite+HyDE inside the expander — that stays sequential by design.
         AgenticRetrievalQueryPlan queryPlan;
 
-        if (query.IncludePlatformCorpora && query.AllowedPolicyPackRulePackIds is null)
+        if (query.SkipQueryExpansion)
+        {
+            if (query.IncludePlatformCorpora && query.AllowedPolicyPackRulePackIds is null)
+            {
+                query.AllowedPolicyPackRulePackIds = await _assignedPolicyPackRulePackIdResolver
+                    .ResolveAsync(query.TenantId, query.WorkspaceId, query.ProjectId, budgetCt)
+                    .ConfigureAwait(false);
+            }
+
+            string trimmedQuery = query.QueryText.Trim();
+            queryPlan = new AgenticRetrievalQueryPlan
+            {
+                OriginalQueryText = query.QueryText,
+                RerankQueryText = trimmedQuery,
+                EmbedText = trimmedQuery,
+                UsedHyde = false,
+                UsedQueryRewrite = false,
+            };
+        }
+        else if (query.IncludePlatformCorpora && query.AllowedPolicyPackRulePackIds is null)
         {
             Task<HashSet<string>> resolveTask = _assignedPolicyPackRulePackIdResolver
                 .ResolveAsync(query.TenantId, query.WorkspaceId, query.ProjectId, budgetCt);
@@ -98,7 +117,8 @@ public sealed class RetrievalQueryService(
 
         int finalTopK = Math.Clamp(query.TopK, 1, 25);
         RetrievalRerankingOptions rerankOptions = _rerankingOptions.CurrentValue;
-        int candidateTopK = rerankOptions.Enabled
+        bool applyRerank = rerankOptions.Enabled && !query.SkipReranking;
+        int candidateTopK = applyRerank
             ? Math.Max(finalTopK, rerankOptions.GetEffectiveMaxCandidates())
             : finalTopK;
 
@@ -109,7 +129,7 @@ public sealed class RetrievalQueryService(
 
         string rerankQueryText = queryPlan.RerankQueryText;
 
-        if (rerankOptions.Enabled && hits.Count > 0)
+        if (applyRerank && hits.Count > 0)
         {
             hits = await _retrievalReranker
                 .RerankAsync(rerankQueryText, hits, finalTopK, budgetCt)
@@ -165,7 +185,9 @@ public sealed class RetrievalQueryService(
             QueryText = query.QueryText,
             TopK = topK,
             IncludePlatformCorpora = query.IncludePlatformCorpora,
-            AllowedPolicyPackRulePackIds = query.AllowedPolicyPackRulePackIds
+            AllowedPolicyPackRulePackIds = query.AllowedPolicyPackRulePackIds,
+            SkipReranking = query.SkipReranking,
+            SkipQueryExpansion = query.SkipQueryExpansion
         };
     }
 }

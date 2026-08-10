@@ -1,6 +1,7 @@
 using System.Diagnostics;
 
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Persistence.Ports;
@@ -20,6 +21,7 @@ public sealed class GraphRagNeighborExpander(
     ILogger<GraphRagNeighborExpander> logger) : IGraphRagNeighborExpander
 {
     private const double NeighborScoreFactor = 0.85;
+    private const int SnapshotLoadMaxConcurrent = 6;
 
     private readonly IGraphSnapshotRepository _graphSnapshotRepository =
         graphSnapshotRepository ?? throw new ArgumentNullException(nameof(graphSnapshotRepository));
@@ -63,36 +65,16 @@ public sealed class GraphRagNeighborExpander(
             ProjectId = query.ProjectId,
         };
 
-        // One GetByIdAsync per distinct snapshot id for this expand request (N seeds → 1 fetch).
-        Dictionary<Guid, GraphSnapshot?> snapshotById = new();
+        List<Guid> uniqueSnapshotIds = CollectDistinctSnapshotIds(graphHits);
+        Dictionary<Guid, GraphSnapshot?> snapshotById =
+            await LoadSnapshotsAsync(scope, uniqueSnapshotIds, cancellationToken);
 
         foreach (RetrievalHit seed in graphHits)
         {
             if (!KnowledgeGraphNodeEmbeddingTextComposer.TryParseGraphSnapshotId(seed.DocumentId, out Guid graphSnapshotId))
                 continue;
 
-            if (!snapshotById.TryGetValue(graphSnapshotId, out GraphSnapshot? snapshot))
-            {
-                try
-                {
-                    snapshot = await _graphSnapshotRepository
-                        .GetByIdAsync(scope, graphSnapshotId, cancellationToken)
-                        .ConfigureAwait(false);
-                }
-                catch (Exception ex) when (ex is not OperationCanceledException)
-                {
-                    _logger.LogWarning(
-                        ex,
-                        "Graph-RAG neighbor expansion skipped for snapshot {GraphSnapshotId}.",
-                        graphSnapshotId);
-
-                    snapshot = null;
-                }
-
-                snapshotById[graphSnapshotId] = snapshot;
-            }
-
-            if (snapshot is null)
+            if (!snapshotById.TryGetValue(graphSnapshotId, out GraphSnapshot? snapshot) || snapshot is null)
                 continue;
 
             IReadOnlyList<GraphRagNeighborHop> neighbors = GraphRagBoundedNeighborCollector.Collect(
@@ -134,5 +116,63 @@ public sealed class GraphRagNeighborExpander(
         ArchLucidInstrumentation.RecordGraphRagExpansion(neighborsAdded, expansionLatencyMilliseconds);
 
         return ordered;
+    }
+
+    private static List<Guid> CollectDistinctSnapshotIds(IReadOnlyList<RetrievalHit> graphHits)
+    {
+        HashSet<Guid> seen = [];
+        List<Guid> uniqueIds = [];
+
+        foreach (RetrievalHit seed in graphHits)
+        {
+            if (!KnowledgeGraphNodeEmbeddingTextComposer.TryParseGraphSnapshotId(seed.DocumentId, out Guid graphSnapshotId))
+                continue;
+
+            if (!seen.Add(graphSnapshotId))
+                continue;
+
+            uniqueIds.Add(graphSnapshotId);
+        }
+
+        return uniqueIds;
+    }
+
+    private async Task<Dictionary<Guid, GraphSnapshot?>> LoadSnapshotsAsync(
+        ScopeContext scope,
+        IReadOnlyList<Guid> uniqueSnapshotIds,
+        CancellationToken cancellationToken)
+    {
+        if (uniqueSnapshotIds.Count == 0)
+            return new Dictionary<Guid, GraphSnapshot?>();
+
+        GraphSnapshot?[] snapshots = await BoundedParallelMap.MapAsync(
+            uniqueSnapshotIds,
+            SnapshotLoadMaxConcurrent,
+            async (graphSnapshotId, ct) =>
+            {
+                try
+                {
+                    return await _graphSnapshotRepository
+                        .GetByIdAsync(scope, graphSnapshotId, ct)
+                        .ConfigureAwait(false);
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    _logger.LogWarning(
+                        ex,
+                        "Graph-RAG neighbor expansion skipped for snapshot {GraphSnapshotId}.",
+                        graphSnapshotId);
+
+                    return null;
+                }
+            },
+            cancellationToken).ConfigureAwait(false);
+
+        Dictionary<Guid, GraphSnapshot?> snapshotById = new(uniqueSnapshotIds.Count);
+
+        for (int index = 0; index < uniqueSnapshotIds.Count; index++)
+            snapshotById[uniqueSnapshotIds[index]] = snapshots[index];
+
+        return snapshotById;
     }
 }

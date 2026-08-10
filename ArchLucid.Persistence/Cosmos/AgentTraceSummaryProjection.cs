@@ -2,8 +2,10 @@ using System.Text.Json.Serialization;
 
 namespace ArchLucid.Persistence.Cosmos;
 
-/// <summary>Cosmos document for agent execution traces (partition: <c>/runId</c>).</summary>
-public sealed class AgentTraceDocument
+/// <summary>
+///     Cosmos projection for operator trace summaries — omits fat <c>traceJson</c> (wave 12 item 6).
+/// </summary>
+public sealed class AgentTraceSummaryProjection
 {
     [JsonPropertyName("id")]
     public string Id
@@ -32,24 +34,6 @@ public sealed class AgentTraceDocument
         get;
         set;
     } = string.Empty;
-
-    /// <summary>Serialized <see cref="ArchLucid.Contracts.Agents.AgentExecutionTrace" /> (same shape as SQL <c>TraceJson</c>).</summary>
-    [JsonPropertyName("traceJson")]
-    public string TraceJson
-    {
-        get;
-        set;
-    } = "{}";
-
-    /// <summary>Optional Cosmos TTL in seconds (container default may also apply).</summary>
-    [JsonPropertyName("ttl")]
-    public int? Ttl
-    {
-        get;
-        set;
-    }
-
-    // Denormalized summary scalars (wave 12 item 6) — list path projects these without loading TraceJson.
 
     [JsonPropertyName("agentType")]
     public string? AgentType

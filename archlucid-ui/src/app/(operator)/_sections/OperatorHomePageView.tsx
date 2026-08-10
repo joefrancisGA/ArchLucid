@@ -5,7 +5,6 @@ import {
   OperatorHomeRunsPanel,
 } from "@/components/operator-home/OperatorHomeDeferredPanels";
 import { OperatorHomeWorkspaceActivityProvider } from "@/components/operator-home/operator-home-workspace-activity-context";
-import { OperatorHomeGate } from "@/components/OperatorHomeGate";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import {
   OPERATOR_HOME_PRIMARY_SECTION_HEADING,
@@ -15,13 +14,14 @@ import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator-home-workspac
 import { OperatorHomeRefreshProvider } from "@/lib/operator-home-refresh-context";
 import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator-home-recent-reviews-heading";
 import {
+  BuyerPolishedHomeHeroSectionDeferred,
   OperatorHomeBelowFoldPanelsDeferred,
   OperatorHomeExecutiveRoiStripDeferred,
+  OperatorHomeGateDeferred,
   PilotCommandCenterCardDeferred,
 } from "./operator-home-page-view-deferred-chunks";
 import { OperatorHomePageHeader } from "./OperatorHomePageHeader";
 import type { OperatorHomePageViewModel } from "./operator-home-page-view-model";
-import { BuyerPolishedHomeHeroSection } from "@/components/operator-home/BuyerPolishedHomeHeroSection";
 import {
   operatorHomePageSubtitle,
 } from "@/lib/operator-home-page-copy";
@@ -63,7 +63,7 @@ function BuyerPolishedHomePageBody(props: { readonly model: OperatorHomePageView
 
     <OperatorHomeWorkspaceActivityProvider initialHasReviews={initialHasReviews}>
 
-      <BuyerPolishedHomeHeroSection runsDashboard={props.model.runsDashboard} />
+      <BuyerPolishedHomeHeroSectionDeferred runsDashboard={props.model.runsDashboard} />
 
       <HomeRecentReviewsSection model={props.model} />
 
@@ -122,7 +122,7 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
   const buyerPolishedShell = model.buyerPolishedShell;
 
   return (
-    <OperatorHomeGate>
+    <OperatorHomeGateDeferred>
       <OperatorHomeRefreshProvider>
         <OperatorHomeDeferredOnboarding />
         <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.majorSectionGap}>
@@ -130,6 +130,6 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
 {buyerPolishedShell ? <BuyerPolishedHomePageBody model={model} /> : <OperatorHomePageBody model={model} />}
         </OperatorPageContainer>
       </OperatorHomeRefreshProvider>
-    </OperatorHomeGate>
+    </OperatorHomeGateDeferred>
   );
 }

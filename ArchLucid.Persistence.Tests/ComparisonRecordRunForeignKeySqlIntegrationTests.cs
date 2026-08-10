@@ -16,7 +16,8 @@ public sealed class ComparisonRecordRunForeignKeySqlIntegrationTests(SqlServerPe
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
-        ComparisonRecordRepository repo = new(new TestSqlDbConnectionFactory(fixture.ConnectionString));
+        TestSqlDbConnectionFactory write = new(fixture.ConnectionString);
+        ComparisonRecordRepository repo = new(write, new TestReadOnlyDbConnectionFactory(write));
         Guid missingRun = Guid.NewGuid();
         ComparisonRecord row = new()
         {

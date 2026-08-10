@@ -4,7 +4,6 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_PAGE_CONTAINER, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { GoldenSponsorPackageWalkthroughDestination } from "@/components/golden-walkthrough/GoldenSponsorPackageWalkthroughDestination";
 import { GovernanceModePresentationGate } from "@/components/GovernanceModePresentationGate";
 import { detectStalledReview } from "@/lib/usability/stalled-review-detection";
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
@@ -119,6 +118,7 @@ import {
   HelpPageSituationRegistrarDeferred,
   ReviewGenerationCreatedNoticeDeferred,
   RunDetailBelowFoldSectionsDeferred,
+  GoldenSponsorPackageWalkthroughDestinationDeferred,
 } from "./run-detail-page-view-deferred-chunks";
 import { resolveRunDetailSponsorBriefingSection } from "./RunDetailSponsorBriefingSection";
 import { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
@@ -1031,7 +1031,7 @@ export function RunDetailPageView(props: {
                   {reviewPackagePrimaryAction.kind === "send-to-sponsor" && m.manifestId ? (
                     <>
                       <Suspense fallback={null}>
-                        <GoldenSponsorPackageWalkthroughDestination
+                        <GoldenSponsorPackageWalkthroughDestinationDeferred
                           showSampleWalkthroughDestination={
                             m.usedStaticDemoRun ||
                             isShowcaseStaticDemoRunId(m.resolvedDetail.run.runId)

@@ -45,3 +45,35 @@ export const CtoDemoExecutiveLandingRedirectDeferred = dynamic(
     ),
   { ssr: false, loading: () => null },
 );
+
+const buyerPolishedHeroLoading = (
+  <div
+    className={cn(OPERATOR_SURFACE_CARD_CLASS, "h-56 animate-pulse p-4")}
+    role="status"
+    aria-label="Loading overview hero"
+  />
+);
+
+/** Perf wave 12 — buyer-polished home hero off sync First Load JS. */
+export const BuyerPolishedHomeHeroSectionDeferred = dynamic(
+  () =>
+    import("@/components/operator-home/BuyerPolishedHomeHeroSection").then(
+      (module) => module.BuyerPolishedHomeHeroSection,
+    ),
+  { ssr: false, loading: () => buyerPolishedHeroLoading },
+);
+
+/** Perf wave 12 — JWT home access gate off sync First Load JS. */
+export const OperatorHomeGateDeferred = dynamic(
+  () => import("@/components/OperatorHomeGate").then((module) => module.OperatorHomeGate),
+  {
+    ssr: false,
+    loading: () => (
+      <div
+        className="flex min-h-[12rem] items-center justify-center"
+        role="status"
+        aria-label="Checking workspace access"
+      />
+    ),
+  },
+);

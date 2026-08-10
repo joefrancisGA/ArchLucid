@@ -5,70 +5,33 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/",
 }));
 
-vi.mock("@/components/usability/PageContextualHelpButton", () => ({
-  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button">Help</div>,
-}));
-
-vi.mock("@/components/operator-home/BuyerPolishedHomeHeroSection", () => ({
-  BuyerPolishedHomeHeroSection: () => (
+vi.mock("./operator-home-page-view-deferred-chunks", () => ({
+  PilotCommandCenterCardDeferred: () => <div data-testid="home-block-pilot-command-center" />,
+  OperatorHomeExecutiveRoiStripDeferred: () => <div data-testid="home-block-executive-roi" />,
+  OperatorHomeBelowFoldPanelsDeferred: (props: {
+    readonly buyerPolishedShell?: boolean;
+    readonly showFirstValueCallout?: boolean;
+  }) => (
+    <>
+      <div data-testid="home-block-explore-sample" />
+      {props.buyerPolishedShell === true ? null : (
+        <>
+          <div data-testid="home-block-workspace-context">
+            <div data-testid="operator-home-workspace-metrics-summary" />
+            <div data-testid="home-block-workspace-status" />
+          </div>
+          <div data-testid="home-block-advanced-guidance" />
+        </>
+      )}
+    </>
+  ),
+  BuyerPolishedHomeHeroSectionDeferred: () => (
     <section data-testid="operator-home-hero-section">
       <div data-testid="home-block-pilot-command-center" />
     </section>
   ),
-}));
-
-vi.mock("@/components/operator-home/OperatorHomeExecutiveRoiStrip", () => ({
-  OperatorHomeExecutiveRoiStrip: () => <div data-testid="home-block-executive-roi" />,
-}));
-
-vi.mock("@/components/operator-home/OperatorHomeDeferredPanels", () => ({
-  OperatorHomeDeltaPanel: () => <div data-testid="home-block-delta-panel" />,
-  OperatorHomeRunsPanel: () => <div data-testid="home-block-runs-dashboard" />,
-  OperatorHomeWorkspaceStatusPanel: () => <div data-testid="home-block-workspace-status" />,
-}));
-
-vi.mock("@/components/operator-home/OperatorHomeExamplesPlacement", () => ({
-  OperatorHomeExamplesPlacement: ({
-    afterWorkspaceContext,
-  }: {
-    afterWorkspaceContext: React.ReactNode;
-  }) => (
-    <>
-      <div data-testid="home-block-explore-sample" />
-      {afterWorkspaceContext}
-    </>
-  ),
-}));
-
-vi.mock("@/components/operator-home/OperatorHomeExploreSampleSection", () => ({
-  OperatorHomeExploreSampleSection: () => <div data-testid="home-block-explore-sample" />,
-}));
-
-vi.mock("@/components/operator-home/OperatorHomeAdvancedGuidancePanel", () => ({
-  OperatorHomeAdvancedGuidancePanel: (props: { readonly buyerPolishedShell?: boolean }) =>
-    props.buyerPolishedShell === true ? null : <div data-testid="home-block-advanced-guidance" />,
-}));
-
-vi.mock("@/components/operator-home/OperatorHomeDeferredOnboarding", () => ({
-  OperatorHomeDeferredOnboarding: () => null,
-  OperatorHomeFirstValueCallout: () => null,
-}));
-
-vi.mock("@/components/operator-home/OperatorHomeWorkspaceContextDisclosure", () => ({
-  OperatorHomeWorkspaceContextDisclosure: ({
-    showWorkspaceStatus,
-  }: {
-    showWorkspaceStatus: boolean;
-  }) => (
-    <div data-testid="home-block-workspace-context">
-      <div data-testid="operator-home-workspace-metrics-summary" />
-      {showWorkspaceStatus ? <div data-testid="home-block-workspace-status" /> : null}
-    </div>
-  ),
-}));
-
-vi.mock("@/components/usability/PilotCommandCenterCard", () => ({
-  PilotCommandCenterCard: () => <div data-testid="home-block-pilot-command-center" />,
+  OperatorHomeGateDeferred: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  CtoDemoExecutiveLandingRedirectDeferred: () => null,
 }));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
@@ -80,10 +43,6 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
-vi.mock("@/components/OperatorHomeGate", () => ({
-  OperatorHomeGate: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-}));
-
 // Keep the real view under test, but stub shell chrome that pulls large client graphs (CI heap OOM on app-operator-e).
 vi.mock("@/components/OperatorPageContainer", () => ({
   OperatorPageContainer: ({ children }: { children: React.ReactNode }) => <div data-testid="operator-page-container">{children}</div>,
@@ -93,8 +52,19 @@ vi.mock("@/components/operator-home/operator-home-workspace-activity-context", (
   OperatorHomeWorkspaceActivityProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
-vi.mock("@/components/dev-testing/DevTestingQuickSwitchPanel", () => ({
-  DevTestingQuickSwitchPanel: () => null,
+vi.mock("@/components/operator-home/OperatorHomeDeferredPanels", () => ({
+  OperatorHomeDeltaPanel: () => <div data-testid="home-block-delta-panel" />,
+  OperatorHomeRunsPanel: () => <div data-testid="home-block-runs-dashboard" />,
+  OperatorHomeWorkspaceStatusPanel: () => <div data-testid="home-block-workspace-status" />,
+}));
+
+vi.mock("@/components/operator-home/OperatorHomeDeferredOnboarding", () => ({
+  OperatorHomeDeferredOnboarding: () => null,
+  OperatorHomeFirstValueCallout: () => null,
+}));
+
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button">Help</div>,
 }));
 
 import { OperatorHomePageView } from "./OperatorHomePageView";
