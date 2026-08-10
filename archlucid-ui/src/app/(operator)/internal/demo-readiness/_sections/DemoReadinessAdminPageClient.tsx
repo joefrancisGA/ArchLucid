@@ -23,7 +23,7 @@ import {
   INTERNAL_DEMO_READINESS_PAGE_TITLE,
   INTERNAL_OPERATIONS_NAV_EYEBROW,
 } from "@/lib/demo-readiness-evidence-copy";
-import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { INTERNAL_DEMO_READINESS_PATH, INTERNAL_HEALTH_PATH } from "@/lib/internal-ops-route-paths";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { isCtoDemoOperatorToolingEnv } from "@/lib/cto-demo-presenter-pack";
@@ -65,7 +65,7 @@ export function DemoReadinessAdminPageClient(): React.JSX.Element {
         title={INTERNAL_DEMO_READINESS_PAGE_TITLE}
         titleTestId="demo-readiness-admin-page-title"
         metadata={
-          <p className={cn("m-0", OPERATOR_TYPE_SCALE.eyebrow)} data-testid="demo-readiness-admin-ops-eyebrow">
+          <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)} data-testid="demo-readiness-admin-ops-eyebrow">
             {INTERNAL_OPERATIONS_NAV_EYEBROW}
           </p>
         }
