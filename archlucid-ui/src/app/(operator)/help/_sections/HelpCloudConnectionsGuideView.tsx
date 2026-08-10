@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   CLOUD_CONNECTIONS_HELP_ACTION_PANEL_INTRO,
   CLOUD_CONNECTIONS_HELP_ACTION_PANEL_TITLE,
+  CLOUD_CONNECTIONS_HELP_PAGE_INTRO,
   CLOUD_CONNECTIONS_HELP_PAGE_SUBTITLE,
   CLOUD_CONNECTIONS_HELP_PAGE_TITLE,
   CLOUD_CONNECTIONS_HELP_PATH,
@@ -29,7 +30,7 @@ import {
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
 import { extractMarkdownSectionsByAnchor } from "@/lib/help-markdown-sections";
-import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help-page-layout";
+import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 
@@ -50,7 +51,6 @@ export function HelpCloudConnectionsGuideView(
     helpTopicSlug: entry.slug,
   });
   const headings = extractHelpMarkdownHeadings(preparedMarkdown);
-  const contentGridClass = resolveHelpPageContentGridClass(headings.length);
 
   return (
     <article
@@ -79,6 +79,15 @@ export function HelpCloudConnectionsGuideView(
 
       <HelpCloudConnectionsClaimDisciplineCallout />
 
+      <p
+        className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+        data-testid="help-cloud-connections-intro"
+      >
+        {CLOUD_CONNECTIONS_HELP_PAGE_INTRO}
+      </p>
+
+      <HelpCloudConnectionsProviderScopeSection />
+
       <Card
         className={DESIGN_TOKENS.surface.card}
         data-testid="help-cloud-connections-action-panel"
@@ -103,18 +112,15 @@ export function HelpCloudConnectionsGuideView(
         </CardContent>
       </Card>
 
-      <div className={contentGridClass}>
-        <div className={cn("min-w-0 space-y-6", headings.length >= 4 ? "max-w-[42rem] lg:max-w-none" : undefined)}>
-          <div className={HELP_PAGE_LAYOUT.contentColumn} data-testid="help-cloud-connections-content">
-            <HelpCloudConnectionsProviderScopeSection />
-            <MarketingAccessibilityMarkdownFragment
-              markdownBody={markdownBody}
-              tableCaption={`${entry.title} reference table`}
-              presentation="help"
-              sourceDocPath={sourceDocPath}
-              helpTopicSlug={entry.slug}
-            />
-          </div>
+      <div className={HELP_PAGE_LAYOUT.contentGrid}>
+        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")} data-testid="help-cloud-connections-content">
+          <MarketingAccessibilityMarkdownFragment
+            markdownBody={markdownBody}
+            tableCaption={`${entry.title} reference table`}
+            presentation="help"
+            sourceDocPath={sourceDocPath}
+            helpTopicSlug={entry.slug}
+          />
         </div>
         <HelpTopicTableOfContents headings={headings} />
       </div>

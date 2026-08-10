@@ -1,15 +1,30 @@
 import Link from "next/link";
 
-import { HelpCenterDocumentationBadge } from "@/components/help/HelpCenterDocumentationBadge";
+import { Button } from "@/components/ui/button";
+import { StatusTag } from "@/components/ui/status-tag";
 import {
   CLOUD_CONNECTIONS_HELP_CHOOSE_PLATFORM_TITLE,
+  CLOUD_CONNECTIONS_HELP_PACKAGING_SCRIPTS,
+  CLOUD_CONNECTIONS_HELP_PACKAGING_SCRIPTS_HINT,
+  CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS,
   CLOUD_CONNECTIONS_HELP_PROVIDER_SCOPE_ROWS,
-  CLOUD_CONNECTIONS_HELP_TIER_1_DEFINITION,
-  CLOUD_CONNECTIONS_HELP_TIER_2_DEFINITION,
+  CLOUD_CONNECTIONS_HELP_TIER_1,
+  CLOUD_CONNECTIONS_HELP_TIER_2,
 } from "@/lib/cloud-connections-help-guide-content";
-import { OPERATOR_LINK, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  DESIGN_TOKENS,
+  OPERATOR_LINK,
+  OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
 import { cn } from "@/lib/utils";
+
+function helpScrollableTableRegionLabel(sectionTitle: string, tableOrdinal: number): string {
+  const base = sectionTitle.length > 0 ? sectionTitle : "Reference";
+
+  return `Scrollable ${base} table ${tableOrdinal}`;
+}
 
 /** Evidence tiers and provider permission scope for `/help/cloud-connections` (HCE). */
 export function HelpCloudConnectionsProviderScopeSection(): React.ReactElement {
@@ -29,16 +44,70 @@ export function HelpCloudConnectionsProviderScopeSection(): React.ReactElement {
       >
         {CLOUD_CONNECTIONS_HELP_CHOOSE_PLATFORM_TITLE}
       </h2>
-      <div className="mt-3 space-y-3">
-        <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          {CLOUD_CONNECTIONS_HELP_TIER_1_DEFINITION}
-        </p>
-        <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          {CLOUD_CONNECTIONS_HELP_TIER_2_DEFINITION}
-        </p>
+
+      <div className="mt-4 grid gap-4 sm:grid-cols-2" data-testid="help-cloud-connections-tier-decision">
+        <div className={cn(DESIGN_TOKENS.surface.card, "space-y-3 p-4")} data-testid="help-cloud-connections-tier-1-card">
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{CLOUD_CONNECTIONS_HELP_TIER_1.title}</h3>
+            <StatusTag kind="neutral" label={CLOUD_CONNECTIONS_HELP_TIER_1.statusLabel} />
+          </div>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {CLOUD_CONNECTIONS_HELP_TIER_1.useWhen}
+          </p>
+          <details className="rounded-md border border-neutral-200 bg-neutral-50/60 p-3 dark:border-neutral-800 dark:bg-neutral-900/30">
+            <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.label)}>
+              Packaging scripts
+            </summary>
+            <ul className={cn("m-0 mt-2 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.helper)}>
+              {CLOUD_CONNECTIONS_HELP_PACKAGING_SCRIPTS.map((script) => (
+                <li key={script}>
+                  <code>{script}</code>
+                </li>
+              ))}
+            </ul>
+            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
+              {CLOUD_CONNECTIONS_HELP_PACKAGING_SCRIPTS_HINT}{" "}
+              <Link
+                href={CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.startEvidenceOnlyReview.href}
+                className={OPERATOR_LINK.inline}
+              >
+                {CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.startEvidenceOnlyReview.label}
+              </Link>
+              .
+            </p>
+          </details>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button asChild size="sm" variant="primary">
+              <Link href={CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.startEvidenceOnlyReview.href}>
+                {CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.startEvidenceOnlyReview.label}
+              </Link>
+            </Button>
+          </div>
+        </div>
+
+        <div className={cn(DESIGN_TOKENS.surface.card, "space-y-3 p-4")} data-testid="help-cloud-connections-tier-2-card">
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{CLOUD_CONNECTIONS_HELP_TIER_2.title}</h3>
+            <StatusTag kind="neutral" label={CLOUD_CONNECTIONS_HELP_TIER_2.statusLabel} />
+          </div>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {CLOUD_CONNECTIONS_HELP_TIER_2.useWhen}
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button asChild size="sm" variant="primary">
+              <Link href={CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.openHub.href}>
+                {CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.openHub.label}
+              </Link>
+            </Button>
+          </div>
+        </div>
       </div>
+
       <div
         className={HELP_PAGE_LAYOUT.tableWrap}
+        tabIndex={0}
+        role="region"
+        aria-label={helpScrollableTableRegionLabel(CLOUD_CONNECTIONS_HELP_CHOOSE_PLATFORM_TITLE, 1)}
         data-testid="help-cloud-connections-provider-scope-table"
       >
         <table className={HELP_PAGE_LAYOUT.table}>
@@ -58,17 +127,19 @@ export function HelpCloudConnectionsProviderScopeSection(): React.ReactElement {
                 key={row.platform}
                 className={index % 2 === 0 ? HELP_PAGE_LAYOUT.tableRowOdd : HELP_PAGE_LAYOUT.tableRowEven}
               >
-                <td className={HELP_PAGE_LAYOUT.tableBodyCell}>{row.platform}</td>
+                <th scope="row" className={HELP_PAGE_LAYOUT.tableBodyCell}>
+                  {row.platform}
+                </th>
                 <td className={HELP_PAGE_LAYOUT.tableBodyCell}>{row.identityModel}</td>
                 <td className={HELP_PAGE_LAYOUT.tableBodyCell}>{row.roleOrScope}</td>
                 <td className={HELP_PAGE_LAYOUT.tableBodyCell}>{row.scopeUnit}</td>
                 <td className={HELP_PAGE_LAYOUT.tableBodyCell}>
-                  <span className="inline-flex flex-wrap items-center gap-2">
-                    <HelpCenterDocumentationBadge />
-                    <Link href={row.guideHref} className={cn(OPERATOR_LINK.inline, "font-medium")}>
-                      {row.guideLabel}
-                    </Link>
-                  </span>
+                  <Link
+                    href={row.guideHref}
+                    className={cn(OPERATOR_LINK.stepPill, "no-underline")}
+                  >
+                    {row.guideLabel}
+                  </Link>
                 </td>
               </tr>
             ))}

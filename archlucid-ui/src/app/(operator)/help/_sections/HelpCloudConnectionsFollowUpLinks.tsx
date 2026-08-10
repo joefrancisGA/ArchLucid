@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { HelpCenterDocumentationBadge } from "@/components/help/HelpCenterDocumentationBadge";
 import {
   CLOUD_CONNECTIONS_HELP_FOLLOW_UP_LINKS,
   type CloudConnectionsHelpFollowUpLink,
@@ -11,22 +10,12 @@ import { cn } from "@/lib/utils";
 function HelpCloudConnectionsFollowUpLinkItem(props: { readonly link: CloudConnectionsHelpFollowUpLink }): React.ReactElement {
   const { link } = props;
 
-  if (link.kind === "help") {
-    return (
-      <li>
-        <span className="inline-flex flex-wrap items-center gap-2">
-          <HelpCenterDocumentationBadge />
-          <Link href={link.href} className={cn(OPERATOR_LINK.inline, "font-medium")}>
-            {link.label}
-          </Link>
-        </span>
-      </li>
-    );
-  }
-
   return (
     <li>
-      <Link href={link.href} className={cn(OPERATOR_LINK.inline, "font-medium")}>
+      <Link
+        href={link.href}
+        className={cn(OPERATOR_LINK.nav, "inline-flex min-h-6 items-center py-1.5 text-[13px]")}
+      >
         {link.label}
       </Link>
     </li>
