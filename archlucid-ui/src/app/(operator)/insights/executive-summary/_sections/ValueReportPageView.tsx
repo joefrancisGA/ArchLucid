@@ -11,6 +11,8 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
+import { firstWhyDisabledCtaReason, type WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 import {
   BUYER_VALUE_REPORT_DEMO_SAMPLE_NOTE,
   BUYER_VALUE_REPORT_EXPORT_DISABLED_HELP,
@@ -34,17 +36,31 @@ type ValueReportPageViewProps = {
   model: UseValueReportPageModel;
 };
 
-function exportDisabledReason(canMutate: boolean, hasReportData: boolean, previewBusy: boolean): string | undefined {
-  if (!canMutate)
-    return "Elevated workspace permissions required to generate sponsor reports.";
-
-  if (!hasReportData && !previewBusy)
-    return BUYER_VALUE_REPORT_EXPORT_DISABLED_HELP;
-
-  if (previewBusy)
-    return "Refresh the preview after updating the report period.";
-
-  return undefined;
+function exportDisabledReason(
+  canMutate: boolean,
+  hasReportData: boolean,
+  previewBusy: boolean,
+): WhyDisabledCtaReason | null {
+  return firstWhyDisabledCtaReason([
+    canMutate
+      ? null
+      : {
+          kind: "role",
+          message: "Elevated workspace permissions required to generate sponsor reports.",
+        },
+    !hasReportData && !previewBusy
+      ? {
+          kind: "prerequisite",
+          message: BUYER_VALUE_REPORT_EXPORT_DISABLED_HELP,
+        }
+      : null,
+    previewBusy
+      ? {
+          kind: "lifecycle",
+          message: "Refresh the preview after updating the report period.",
+        }
+      : null,
+  ]);
 }
 
 export function ValueReportPageView({ model }: ValueReportPageViewProps) {
@@ -67,6 +83,7 @@ export function ValueReportPageView({ model }: ValueReportPageViewProps) {
   } = model;
 
   const disabledReason = exportDisabledReason(canMutate, hasReportData, previewBusy);
+  const disabledReasonMessage = disabledReason?.message;
   const showDemoSampleNote = isNextPublicDemoMode();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
@@ -153,7 +170,7 @@ export function ValueReportPageView({ model }: ValueReportPageViewProps) {
               <Button
                 type="button"
                 disabled={!canDownload || busy}
-                title={!canDownload ? disabledReason : undefined}
+                title={!canDownload ? disabledReasonMessage : undefined}
                 onClick={() => void onGenerate()}
               >
                 {busy ? "Generating…" : "Export sponsor report (.docx)"}
@@ -162,19 +179,14 @@ export function ValueReportPageView({ model }: ValueReportPageViewProps) {
                 type="button"
                 variant="outline"
                 disabled={!canDownload || boardBusy}
-                title={!canDownload ? disabledReason : "Uses the current calendar quarter"}
+                title={!canDownload ? disabledReasonMessage : "Uses the current calendar quarter"}
                 onClick={() => void onBoardPack()}
               >
                 {boardBusy ? "Generating…" : "Export board pack (.pdf)"}
               </Button>
             </div>
           </fieldset>
-
-          {disabledReason ? (
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
-              {disabledReason}
-            </p>
-          ) : null}
+          <WhyDisabledCtaHint reason={disabledReason} testId="value-report-export-disabled-reason" />
         </section>
 
         {showDemoSampleNote ? (

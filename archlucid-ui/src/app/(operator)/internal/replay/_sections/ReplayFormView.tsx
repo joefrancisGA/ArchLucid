@@ -15,6 +15,12 @@ import { ReplayValidationResultPanel } from "@/components/replay/ReplayValidatio
 import { ReviewPackageValidationPicker } from "@/components/replay/ReviewPackageValidationPicker";
 import { OperatorLoadingNotice, OperatorMalformedCallout, OperatorTryNext } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
+import {
+  firstWhyDisabledCtaReason,
+  whyDisabledBusy,
+  type WhyDisabledCtaReason,
+} from "@/lib/why-disabled-cta";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   REPLAY_COMPARE_LINK_LABEL,
@@ -34,6 +40,17 @@ export function ReplayFormView(props: Props) {
   const modeDefinition = replayValidationModeDefinition(m.mode);
   const lastValidationOutcome = m.runIdTrimmed.length > 0 ? m.lastValidationByRunId[m.runIdTrimmed] ?? null : null;
   const actionDisabled = m.loading || m.actionDisabledReason !== null;
+  const prerequisiteReason: WhyDisabledCtaReason | null =
+    m.actionDisabledReason !== null && m.actionDisabledReason.trim().length > 0
+      ? {
+          kind: "prerequisite",
+          message: m.actionDisabledReason,
+        }
+      : null;
+  const replayDisabledReason = firstWhyDisabledCtaReason([
+    m.loading ? whyDisabledBusy("Validation") : null,
+    prerequisiteReason,
+  ]);
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6" data-testid="replay-validation-workspace">
@@ -77,21 +94,17 @@ export function ReplayFormView(props: Props) {
               type="button"
               size="sm"
               disabled={actionDisabled}
-              aria-describedby={m.actionDisabledReason ? "replay-action-disabled-reason" : undefined}
+              aria-describedby={replayDisabledReason !== null ? "replay-action-disabled-reason" : undefined}
               onClick={() => void m.onReplay()}
               data-testid="replay-validation-primary-action"
             >
               {replayValidationActionLabel(m.mode, m.loading)}
             </Button>
-            {m.actionDisabledReason ? (
-              <p
-                id="replay-action-disabled-reason"
-                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="replay-action-disabled-reason"
-              >
-                {m.actionDisabledReason}
-              </p>
-            ) : null}
+            <WhyDisabledCtaHint
+              reason={replayDisabledReason}
+              id="replay-action-disabled-reason"
+              testId="replay-action-disabled-reason"
+            />
           </div>
         </div>
 

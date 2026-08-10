@@ -8,6 +8,8 @@ import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
+import type { WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 import { useFirstReviewGuideState } from "@/hooks/use-first-review-guide-state";
 import {
   BUYER_ONBOARDING_PAGE_LEAD,
@@ -50,6 +52,14 @@ function readinessStatusKind(
 export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClientProps) {
   const guide = useFirstReviewGuideState();
   const nextStep = guide.steps.find((step) => step.isNextStep) ?? null;
+  const primaryDisabledReason: WhyDisabledCtaReason | null =
+    guide.headerActions.primaryDisabledReason !== null &&
+    guide.headerActions.primaryDisabledReason.trim().length > 0
+      ? {
+          kind: "role",
+          message: guide.headerActions.primaryDisabledReason,
+        }
+      : null;
 
   return (
     <OperatorPageContainer variant="reading" className="mx-auto max-w-[1100px] space-y-8">
@@ -74,7 +84,7 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
         <FirstReviewGuideRequiredSetupPanel blockers={guide.requiredBlockers} />
         <div className="flex flex-wrap items-center gap-2">
           {guide.headerActions.primaryDisabled ? (
-            <Button size="sm" variant="default" disabled title={guide.headerActions.primaryDisabledReason ?? undefined}>
+            <Button size="sm" variant="default" disabled title={primaryDisabledReason?.message}>
               {guide.headerActions.primaryLabel}
             </Button>
           ) : (
@@ -86,9 +96,7 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
             <Link href={guide.headerActions.secondaryHref}>{guide.headerActions.secondaryLabel}</Link>
           </Button>
         </div>
-        {guide.headerActions.primaryDisabledReason !== null ? (
-          <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.helper)}>{guide.headerActions.primaryDisabledReason}</p>
-        ) : null}
+        <WhyDisabledCtaHint reason={primaryDisabledReason} className="max-w-prose" />
       </header>
 
       {model.fromRegistration ? <GettingStartedTrialSection fromRegistrationQuery={model.fromRegistration} /> : null}
