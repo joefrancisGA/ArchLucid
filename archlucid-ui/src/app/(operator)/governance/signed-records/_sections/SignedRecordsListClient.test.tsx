@@ -118,5 +118,9 @@ describe("SignedRecordsListClient", () => {
     await waitFor(() => {
       expect(screen.getByText("No signed review records yet")).toBeInTheDocument();
     });
+
+    const browseReviewsLink = screen.getByRole("link", { name: "Browse reviews" });
+    expect(browseReviewsLink).toHaveAttribute("href", "/architecture/reviews");
+    expect(browseReviewsLink.getAttribute("href")).not.toMatch(/projectId=/i);
   });
 });

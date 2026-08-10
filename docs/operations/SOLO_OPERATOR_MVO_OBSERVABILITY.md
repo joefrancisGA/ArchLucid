@@ -1,7 +1,7 @@
 # Solo-operator MVO observability (P0 page path)
 
 **Audience:** Founder / solo operator of a multi-tenant ArchLucid deployment  
-**Backlog:** [`TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) **TB-957** (enablement) · **TB-958** / **TB-959** (shipped follow-ons)  
+**Backlog:** [`TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) **TB-957** (enablement) · **TB-958** / **TB-959** (open follow-ons until summary rows close)  
 **GTM:** [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) **M-119** (claim honesty) · **M-120** (founder drill cadence)  
 **IaC:** [`infra/terraform-monitoring`](../../infra/terraform-monitoring/README.md) · P0 rules in `prometheus_p0_rules.tf`
 
@@ -76,6 +76,7 @@ pwsh ../../scripts/ops/verify-amw-p0-metrics.ps1
 | Fleet P0s catch platform-wide failures | Unbounded per-tenant Prom series for every stuck run |
 | Cardinality-safe stale-run P0 (**TB-958**) with tenant/run in **logs** | Instant page the second a run crosses 1h (15m `for` dampens flaps) |
 | Create→execute→commit canary that can page (**TB-959**) when enabled | That the canary is on until `ARCHLUCID_REVIEW_PATH_CANARY_ENABLED=true` + paging secret |
+| Report Problem routes to support inbox by design (**TB-788**) | That every tenant failure pages the founder before a customer ticket |
 
 ### Follow-on enablement (TB-958 / TB-959)
 
@@ -89,3 +90,7 @@ pwsh ../../scripts/ops/verify-amw-p0-metrics.ps1
 - Self-hosted alert YAML: `infra/prometheus/archlucid-alerts.yml` (`tier: p0`)
 - SLO / Grafana: [`SLO_PROMETHEUS_GRAFANA.md`](../runbooks/SLO_PROMETHEUS_GRAFANA.md)
 - Founder UI acceptance (product lane): [`FOUNDER_UI_ACCEPTANCE_ROUTINE.md`](../architecture/FOUNDER_UI_ACCEPTANCE_ROUTINE.md) — ops page-path drill is **M-120**, linked from that doc’s ops note
+
+## Verification (TB-991)
+
+CI guard: `scripts/ci/check_solo_ops_mvo_honesty.py` — retains honesty anchors in this doc, forbids affirmative per-tenant paging copy while **TB-958**/**TB-959** remain open, and asserts P0 Terraform rules route to `azurerm_monitor_action_group.critical` (not `ops`).

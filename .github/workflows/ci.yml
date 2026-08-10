@@ -965,6 +965,14 @@ jobs:
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_bakeoff_15min_honesty.py"
 
+      - name: Solo-ops MVO honesty guard (TB-991 / M-142)
+        continue-on-error: true
+        run: python scripts/ci/check_solo_ops_mvo_honesty.py
+
+      - name: Solo-ops MVO honesty guard unit tests
+        continue-on-error: true
+        run: python -m unittest discover -s scripts/ci/tests -p "test_check_solo_ops_mvo_honesty.py"
+
       - name: Weekly buyer-claim drift inventory guard (TB-1463 / M-263)
         continue-on-error: true
         run: python scripts/ci/check_weekly_buyer_claim_drift_inventory.py
