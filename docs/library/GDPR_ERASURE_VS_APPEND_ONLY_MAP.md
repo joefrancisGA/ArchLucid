@@ -64,7 +64,7 @@ Orchestration: `TenantDeletionService` → (1) blob prefixes → (2) `ITenantHar
 |----|------|
 | **TB-1009** / **TB-1010** / **M-160** / **M-161** | Append-only / sealed inventory + honesty CI |
 | **TB-506** | Retention/deletion copy on security-trust |
-| **TB-1180** | Project recycle retention transparency |
+| **TB-1180** | Project recycle retention transparency — purge ≠ evidence erase ([`PROJECT_SOFT_DELETE_SEALED_EVIDENCE_MAP.md`](PROJECT_SOFT_DELETE_SEALED_EVIDENCE_MAP.md) **TB-1497** Done) |
 | Done **TB-303** / ADR 0039+ | App DENY on sealed tables |
 | Done **TB-071** | Search tenant filter on query/delete (not tenant hard purge) |
 | `DSAR_PROCESS.md`, `DPA_TEMPLATE.md`, trust-center DSAR link | Buyer/operator process |

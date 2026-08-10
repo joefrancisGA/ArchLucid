@@ -2893,7 +2893,7 @@ Do not sell “delete project deletes all its evidence,” equate recycle-bin pu
 
 ### Residuals (honest)
 
-- **TB-1497** / **TB-1498** own the residue map and language guards.
+- **TB-1497** **Done** (2026-08-10) — engineering residue map [`../library/PROJECT_SOFT_DELETE_SEALED_EVIDENCE_MAP.md`](../library/PROJECT_SOFT_DELETE_SEALED_EVIDENCE_MAP.md). **TB-1498** owns language guards CI.
 - UX / transparency gaps remain open (**TB-1179**–**TB-1182**, **TB-1289**–**TB-1291**) — this handout is semantics, not UX ship status.
 - Complements **M-160** / **M-265**; does not reopen Done **TB-303**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.

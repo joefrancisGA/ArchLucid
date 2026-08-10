@@ -4,7 +4,10 @@
 
 **Audience:** Engineering, privacy/procurement, principal-architect diligence. Not a buyer brochure.
 
-**Status:** Working contract for **TB-1497** / GTM **M-271**. Pair honesty CI **TB-1498** / **M-271**.
+**Status:** **Done** (**TB-1497**, 2026-08-10). GTM **M-271** / **M-272**. Pair honesty CI **TB-1498** / **M-271**.
+
+**Buyer / PA one-pager:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#project-soft-delete-sealed-evidence-m-272`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#project-soft-delete-sealed-evidence-m-272) (GTM **M-272**).  
+**Claim honesty:** [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) (GTM **M-271**).
 
 **Verdict (one line):** Soft-delete + retention purge removes the **`dbo.Projects` row** (and emits audit events); it does **not** cascade into sealed runs, golden manifests, artifact blobs, or historical audit — those remain as **permanent residue** keyed by `ProjectId` unless a separate tenant hard purge / future cascade ships.
 
@@ -12,11 +15,11 @@
 
 ## 1. Lifecycle (shipped)
 
-| Stage | What happens | Code / config |
-|-------|--------------|---------------|
-| **Soft delete** | `Projects.IsDeleted = 1`, `DeletedUtc` set; workspace default project blocked | `TrySoftDeleteAsync`; `DELETE /v1/tenant/workspaces/{ws}/projects/{id}` |
+| Stage | What happens | Code anchor |
+|-------|--------------|-------------|
+| **Soft delete** | `Projects.IsDeleted = 1`, `DeletedUtc` set; workspace default project blocked | `DapperArchitectureProjectRepository.TrySoftDeleteAsync`; `DELETE …/projects/{id}` on `TenantWorkspacesController` |
 | **Audit (soft)** | Append `ArchitectureProjectSoftDeleted` | `TenantWorkspacesController` |
-| **Recycle bin** | Lists soft-deleted projects; restore clears `IsDeleted` / `DeletedUtc` (name conflict → 409) | `ListSoftDeletedByTenantAsync` / restore endpoint |
+| **Recycle bin** | Lists soft-deleted projects; restore clears `IsDeleted` / `DeletedUtc` (name conflict → 409) | `ListSoftDeletedByTenantAsync` / `TryRestoreAsync` |
 | **Hard purge** | After `ArchitectureProjectRetention:RetentionDays` (default **30**), `DELETE FROM dbo.Projects` where soft-deleted and not workspace default | `SqlArchitectureProjectRetentionPurgeService` |
 | **Audit (hard)** | Append `ArchitectureProjectHardPurgedRetention` (system actor) | `ArchitectureProjectRetentionPurgeBackgroundWork` |
 
@@ -35,7 +38,7 @@ UI affordance / retention transparency gaps remain open (**TB-1179**–**TB-1182
 | **Historical `AuditEvents`** (incl. soft-delete event) | Soft-delete **adds** a row | Hard purge **adds** a row; prior events **kept** (append-only for app; not purged by project retention) |
 | **Tenant hard purge** (`TenantDeletionService`) | N/A | Separate path — deletes tenant-scoped evidence/audit when offboarding (see [`GDPR_ERASURE_VS_APPEND_ONLY_MAP.md`](GDPR_ERASURE_VS_APPEND_ONLY_MAP.md)) |
 
-Sealed-evidence DENY (Done **TB-303**) means the recycle-bin worker **must not** UPDATE sealed rows; today’s purge also **does not** DELETE them. Result: **orphan evidence** still scoped by tenant/workspace/`ProjectId` GUID after the project catalog row is gone.
+Sealed-evidence DENY (Done **TB-303**) means the recycle-bin worker **must not** UPDATE sealed rows; today's purge also **does not** DELETE them. Result: **orphan evidence** still scoped by tenant/workspace/`ProjectId` GUID after the project catalog row is gone.
 
 ---
 
@@ -61,7 +64,7 @@ Sealed-evidence DENY (Done **TB-303**) means the recycle-bin worker **must not**
 | ID | Role |
 |----|------|
 | **TB-1179**–**TB-1182**, **TB-1289**–**TB-1291** | Delete UI, retention transparency, discoverability, polish |
-| **TB-1180** | Must not imply purge erases evidence when exposing purge dates |
+| Done **TB-1180** | Must not imply purge erases evidence when exposing purge dates |
 | **TB-1009** / **M-160** | Append-only / sealed inventory |
 | **TB-1470** / **M-265** | Tenant erasure vs sealed |
 | Done **TB-303** | App DENY on sealed evidence |
@@ -73,3 +76,17 @@ Sealed-evidence DENY (Done **TB-303**) means the recycle-bin worker **must not**
 1. Buyer/help copy on recycle bin: “Project record only — packages remain until tenant offboard.”
 2. Admin dry-run / counts: runs+manifests still keyed to purged `ProjectId` (orphan inventory).
 3. Explicit product decision later: evidence cascade on project purge (high risk vs seals) — **not** implied by V1 recycle bin.
+
+---
+
+## 7. Code entry points (verification)
+
+| Concern | Primary file |
+|---------|--------------|
+| Soft delete API | `ArchLucid.Api/Controllers/Tenancy/TenantWorkspacesController.cs` |
+| Soft delete persistence | `ArchLucid.Persistence/Tenancy/DapperArchitectureProjectRepository.cs` (`TrySoftDeleteAsync`, `TryRestoreAsync`) |
+| Retention hard purge | `ArchLucid.Persistence/Tenancy/SqlArchitectureProjectRetentionPurgeService.cs` |
+| Purge background worker | `ArchLucid.Host.Core/Hosted/ArchitectureProjectRetentionPurgeBackgroundWork.cs` |
+| Retention options | `ArchLucid.Core/Configuration/ArchitectureProjectRetentionPurgeOptions.cs` |
+| Audit event types | `ArchLucid.Core/Audit/AuditEventTypes.cs` (`ArchitectureProjectSoftDeleted`, `ArchitectureProjectHardPurgedRetention`) |
+| Sealed evidence DENY | `ArchLucid.Host.Core/Startup/Validation/Rules/SqlSealedEvidenceImmutabilityRules.cs` |
