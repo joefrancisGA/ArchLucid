@@ -112,6 +112,20 @@ Operator and buyer forms must make hard validation visible on the form and hones
 
 **Open apply / cleanup:** **TB-2006**–**TB-2011** in `TECH_BACKLOG.md`. Cursor enforcement: `.cursor/rules/UI-Form-Validation-Affordances.mdc`.
 
+### Error recovery contract (**TB-2155** — done 2026-08-10)
+
+Golden-path operator error surfaces must help operators self-rescue before they open Report Problem. Every guarded failure root renders `OperatorErrorRecoveryContract` inline with three labeled lines:
+
+| Line | Required content |
+|------|------------------|
+| **What failed** | Plain-language description of the failed action or load (may include API heading). |
+| **What's intact** | Reassurance about drafts, committed records, or sibling workspace data that were not lost. |
+| **Next step** | One concrete action — retry, switch workspace, open troubleshooting, or resubmit the form. |
+
+Report Problem and correlation IDs remain for async/system escalation; recovery copy is **inline**, not toast-only. Vitest inventory: `error-recovery-contract-inventory.ts` + `error-recovery-contract-guard.test.ts`.
+
+**Guarded roots (V1):** `ReviewPackageLoadFailureView`, `OperatorApiProblem`, `OperatorLayeredConnectivityError`, `OperatorMutationInlineError`.
+
 ### Operator page contextual help — mount + interaction contract (**TB-1666** — done 2026-08-09)
 
 Every navigable operator surface must teach its own job in place. The shell top-bar Help Center is a global escape hatch, **not** a substitute for page-scoped help: an operator who does not already know the vocabulary cannot search for it.

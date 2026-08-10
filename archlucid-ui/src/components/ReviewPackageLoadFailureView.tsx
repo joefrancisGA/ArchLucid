@@ -11,11 +11,13 @@ import {
   type OperatorRouteDiagnosticsPayload,
 } from "@/components/OperatorRouteDiagnosticsPanel";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { getRunDetail } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { readOperatorScopeFromStorage } from "@/lib/operator-scope-storage";
 import {
   clearReviewGenerationHandoff,
@@ -221,10 +223,13 @@ export function ReviewPackageLoadFailureView(props: ReviewPackageLoadFailureView
 
   const guidance =
     "Retry first. If the problem continues, open diagnostics or copy the error details.";
+  const recoveryScenario =
+    notFoundReason === "workspace-mismatch" ? "review-package-workspace-mismatch" : "review-package-load";
 
   return (
     <OperatorEmptyState title={title}>
       <p className={cn("m-0 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{bodyParagraph}</p>
+      <OperatorErrorRecoveryContract presentation={errorRecoveryContractForScenario(recoveryScenario)} />
       <p className={cn("m-0 mt-3 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{guidance}</p>
       {lastRetryMessage !== null ? (
         <p className={cn("m-0 mt-3 text-rose-800 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)} data-testid="retry-failure-message">

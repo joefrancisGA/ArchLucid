@@ -74,6 +74,7 @@ describe("ReviewPackageLoadFailureView", () => {
     expect(screen.getByText("We could not open the review that was just generated")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Retry loading review" })).toBeInTheDocument();
     expect(screen.getByTestId("copy-diagnostics")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-error-recovery-contract")).toBeInTheDocument();
     expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Open sample review" })).not.toBeInTheDocument();
   });

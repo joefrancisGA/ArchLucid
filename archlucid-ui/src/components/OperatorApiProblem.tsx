@@ -15,7 +15,9 @@ import { OperatorErrorUiReferenceLine } from "@/components/OperatorErrorUiRefere
 import { OperatorLayeredConnectivityError } from "@/components/OperatorLayeredConnectivityError";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { OperatorErrorRecoveryActions } from "@/components/usability/OperatorErrorRecoveryActions";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { OperatorReportProblemAction } from "@/components/support/OperatorReportProblemAction";
+import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { ensureCorrelationId } from "@/lib/usability/ensure-correlation-id";
 import { isReportProblemEnabledForApiProblemFailure } from "@/lib/report-problem-surfaces";
 
@@ -119,6 +121,9 @@ export function OperatorApiProblem(props: OperatorApiProblemProps) {
       {hint ? (
         <p className={cn("mt-2.5 leading-normal", OPERATOR_TYPOGRAPHY.body)}>{hint}</p>
       ) : null}
+      <OperatorErrorRecoveryContract
+        presentation={errorRecoveryContractForScenario("api-problem", { failureSummary: heading })}
+      />
       <OperatorErrorUiReferenceLine />
       <div className="mt-2.5 flex flex-wrap items-center gap-2">
         <p className={cn("m-0 flex min-w-0 flex-1 flex-wrap items-center gap-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>

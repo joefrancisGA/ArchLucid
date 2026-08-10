@@ -6,7 +6,9 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { OperatorWarningCallout } from "@/components/OperatorShellMessage";
 import { OperatorErrorUiReferenceLine } from "@/components/OperatorErrorUiReferenceLine";
 import { OperatorErrorRecoveryActions } from "@/components/usability/OperatorErrorRecoveryActions";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { OperatorReportProblemAction } from "@/components/support/OperatorReportProblemAction";
+import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
@@ -47,6 +49,7 @@ export function OperatorLayeredConnectivityError(props: OperatorLayeredConnectiv
       <div data-testid="operator-connectivity-primary">
         <strong>{OPERATOR_CONNECTIVITY_ERROR_PRIMARY_HEADING}</strong>
         <p className="mt-2">{OPERATOR_CONNECTIVITY_ERROR_PRIMARY_BODY}</p>
+        <OperatorErrorRecoveryContract presentation={errorRecoveryContractForScenario("connectivity")} />
         <OperatorErrorRecoveryActions helpSlug="troubleshooting" helpHashFragment="overview-workspace-empty" showSystemHealth />
         <div className="mt-3">
           <OperatorReportProblemAction

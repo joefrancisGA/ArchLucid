@@ -72,6 +72,8 @@ describe("OperatorLayeredConnectivityError", () => {
   it("renders recovery actions including system health", () => {
     render(<OperatorLayeredConnectivityError {...upstreamFailure} />);
 
+    expect(screen.getByTestId("operator-error-recovery-contract")).toBeInTheDocument();
+
     expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open troubleshooting" })).toHaveAttribute(
       "href",
