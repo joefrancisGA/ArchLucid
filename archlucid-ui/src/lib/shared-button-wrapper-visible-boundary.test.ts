@@ -3,6 +3,8 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+import { findButtonVisibleBoundaryViolations } from "@/lib/button-visible-boundary-source-patterns";
+
 const REPO_ROOT = join(process.cwd());
 
 /** Shared wrappers that must not reintroduce ghost/link Button variants after TB-2168. */
@@ -18,21 +20,11 @@ const SHARED_BUTTON_WRAPPER_PATHS = [
   "src/app/(operator)/insights/compare-two-reviews/_sections/CompareSampleComparisonAction.tsx",
 ] as const;
 
-const ghostButtonPatterns = [
-  /variant=["']ghost["']/,
-  /variant:\s*["']ghost["']/,
-  /buttonVariants\(\{\s*variant:\s*["']ghost["']/,
-  /variant=["']link["']/,
-  /variant:\s*["']link["']/,
-  /buttonVariants\(\{\s*variant:\s*["']link["']/,
-] as const;
-
 describe("shared button wrappers visible-boundary guard (TB-2169)", () => {
   it.each(SHARED_BUTTON_WRAPPER_PATHS)("does not emit ghost/link Button variants in %s", (relativePath) => {
     const source = readFileSync(join(REPO_ROOT, relativePath), "utf8");
+    const violations = findButtonVisibleBoundaryViolations(source);
 
-    for (const pattern of ghostButtonPatterns) {
-      expect(source, `${relativePath} matched ${pattern}`).not.toMatch(pattern);
-    }
+    expect(violations, `${relativePath}: use outline per UI_DESIGN_SYSTEM.md § TB-2168`).toEqual([]);
   });
 });
