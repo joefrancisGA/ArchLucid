@@ -34,6 +34,16 @@ describe("useReviewCreationProgress", () => {
     expect(result.current.outcome).toEqual({ kind: "unresolved" });
   });
 
+  it("shows staged progress immediately when begin is called", () => {
+    const { result } = renderHook(() => useReviewCreationProgress());
+
+    act(() => {
+      result.current.begin({ hasTemplate: false });
+    });
+
+    expect(result.current.showStagedPanel).toBe(true);
+  });
+
   it("reports a failed outcome carrying the server message", () => {
     const { result } = renderHook(() => useReviewCreationProgress());
 

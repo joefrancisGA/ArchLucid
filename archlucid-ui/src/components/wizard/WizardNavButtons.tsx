@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { ReviewStartInlineSpinner } from "@/components/review-intake/ReviewStartInlineSpinner";
 
 export type WizardNavButtonsProps = {
   onBack?: () => void;
@@ -70,8 +71,15 @@ export function WizardNavButtons({
           </Button>
         ) : null}
         {showSubmit ? (
-          <Button type="button" variant="primary" disabled={submitDisabled} onClick={onSubmit}>
-            {submitting ? submittingLabel : submitLabel}
+          <Button type="button" variant="primary" disabled={submitDisabled} onClick={onSubmit} aria-busy={submitting}>
+            {submitting ? (
+              <>
+                <ReviewStartInlineSpinner />
+                <span>{submittingLabel}</span>
+              </>
+            ) : (
+              submitLabel
+            )}
           </Button>
         ) : null}
         {showNext ? (

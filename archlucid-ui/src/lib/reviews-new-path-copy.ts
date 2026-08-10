@@ -1,3 +1,8 @@
+import {
+  CLOUD_CONNECTIONS_HELP_PATH,
+  CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS,
+} from "@/lib/cloud-connections-help-guide-content";
+
 export type ReviewsNewPathMode = "quick-review" | "guided-intake" | "detailed";
 
 /** Deep link for born-governed creation intake (guided clarifying questions). */
@@ -36,6 +41,22 @@ export const REVIEWS_NEW_MORE_WAYS_TO_START_SUMMARY =
   "Guided questions or templates and imports when you need more control.";
 
 export const REVIEWS_NEW_BACK_TO_QUICK_START_CTA = "Back to quick start";
+
+/**
+ * Actionable follow-up when the page lead notes cloud connections are optional.
+ * Help covers Tier 1 inventory ZIP upload and Tier 2 hosted connectors; hub is where connectors are created.
+ */
+export const REVIEWS_NEW_OPTIONAL_CLOUD_LEAD =
+  "For read-only Azure, AWS, or GCP inventory, connect a cloud environment or upload an inventory ZIP when you attach evidence — you can also add cloud evidence from the review detail page after the review starts.";
+
+export const REVIEWS_NEW_CLOUD_CONNECTIONS_HELP_LINK_LABEL = "How cloud connections work";
+
+export const REVIEWS_NEW_CLOUD_CONNECTIONS_HUB_LINK_LABEL =
+  CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.openHub.label;
+
+export const REVIEWS_NEW_CLOUD_CONNECTIONS_HELP_HREF = CLOUD_CONNECTIONS_HELP_PATH;
+
+export const REVIEWS_NEW_CLOUD_CONNECTIONS_HUB_HREF = CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.openHub.href;
 
 /** Proof collection reminder after finalize (technical script path retained). */
 export const REVIEWS_NEW_PROOF_COLLECTION_HINT =

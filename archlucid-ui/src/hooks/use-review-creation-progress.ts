@@ -11,7 +11,6 @@ import {
   REVIEW_START_CREATION_FAILED_MESSAGE,
   REVIEW_START_OPENING_LABEL,
   REVIEW_START_PREPARING_LABEL,
-  REVIEW_START_STAGED_PANEL_DELAY_MS,
   REVIEW_START_WAIT_OPERATION_LABEL,
 } from "@/lib/review-start-progress-copy";
 import {
@@ -102,7 +101,7 @@ export function useReviewCreationProgress() {
       setIsActive(true);
       setHasTemplate(input.hasTemplate);
       setActiveStageId("creating-workspace");
-      setShowStagedPanel(false);
+      setShowStagedPanel(true);
 
       const timeoutMs = input.timeoutMs ?? REVIEW_CREATION_PROGRESS_TIMEOUT_MS;
       const startedAtMs = Date.now();
@@ -117,12 +116,6 @@ export function useReviewCreationProgress() {
         settle();
         setOutcome({ kind: "unresolved" });
       }, timeoutMs);
-
-      timerIdsRef.current.push(
-        window.setTimeout(() => {
-          setShowStagedPanel(true);
-        }, REVIEW_START_STAGED_PANEL_DELAY_MS),
-      );
 
       if (input.hasTemplate) {
         timerIdsRef.current.push(

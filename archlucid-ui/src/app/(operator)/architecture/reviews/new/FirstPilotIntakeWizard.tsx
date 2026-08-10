@@ -385,7 +385,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
             <ReviewStartLoadingButton
               type="button"
               variant="primary"
-              disabled={!canStart}
+              disabled={creationProgress.isActive || blocksLlmExecution}
               onClick={() => {
                 void submitRun();
               }}

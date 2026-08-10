@@ -11,8 +11,7 @@ import { DraftIntakeClaimLabel } from "@/components/draft-intake/DraftIntakeClai
 import { DraftIntakeRequiredClarificationField } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
 import { InlineMetadataLabel } from "@/components/InlineMetadataLabel";
 import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { Button } from "@/components/ui/button";
+import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -44,7 +43,7 @@ import {
 } from "@/lib/architecture-workflow-intent";
 import { writeArchitectureCreationDraftId } from "@/lib/architecture-creation-session";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
-import { CREATE_ARCHITECTURE_STARTING_LABEL } from "@/lib/review-start-progress-copy";
+import { CREATE_ARCHITECTURE_STARTING_LABEL, REVIEW_START_LOADING_LABEL } from "@/lib/review-start-progress-copy";
 import { runDetailHrefWithParentRun } from "@/lib/draft-branch-compare-navigation";
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
 import { recordArchitectureCreationHandoff } from "@/lib/architecture-creation-handoff";
@@ -989,16 +988,17 @@ export function SocraticIntakeWizard() {
               <Button type="button" variant="outline" disabled={busy} onClick={() => setStep(1)}>
                 Back to questions
               </Button>
-              <Button
+              <ReviewStartLoadingButton
                 type="button"
                 disabled={!canSubmit}
+                isLoading={busy}
+                idleLabel={BUYER_START_ARCHITECTURE_REVIEW_CTA}
+                loadingLabel={REVIEW_START_LOADING_LABEL}
                 onClick={() => {
                   void submitDraft();
                 }}
                 data-testid="socratic-submit"
-              >
-                {busy ? "Starting review…" : BUYER_START_ARCHITECTURE_REVIEW_CTA}
-              </Button>
+              />
             </div>
           </CardContent>
         </Card>

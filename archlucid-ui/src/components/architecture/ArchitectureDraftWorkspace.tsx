@@ -17,6 +17,7 @@ import { DraftIntakeAdvancedSection } from "@/components/draft-intake/DraftIntak
 import { DraftIntakeReasoningPanel } from "@/components/draft-intake/DraftIntakeReasoningPanel";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
+import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
@@ -61,6 +62,7 @@ import { getDraftRequest } from "@/lib/api/draft-intake-api";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+import { REVIEW_START_PREPARING_LABEL } from "@/lib/review-start-progress-copy";
 import {
   ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE,
   ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD,
@@ -90,11 +92,13 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   });
   const [actorSet, setActorSet] = useState<ActorSet>(() => architectureCreationDefaultActorSet());
   const [exitPending, setExitPending] = useState(false);
+  const [startReviewPending, setStartReviewPending] = useState(false);
   const [handoffAcknowledged, setHandoffAcknowledged] = useState(false);
   const [linkedReviewTitle, setLinkedReviewTitle] = useState("Untitled review");
   const [registryHydrated, setRegistryHydrated] = useState(false);
   const previousSaveStateRef = useRef<ArchitectureDraftSaveState>("saved");
   const exitTimeoutIdRef = useRef<number | null>(null);
+  const startReviewTimeoutIdRef = useRef<number | null>(null);
 
   const linkedReviewId = architectureDraftSpawnedRunId(draft);
   const handoffEditorLocked = linkedReviewId !== null && !handoffAcknowledged;
@@ -286,6 +290,10 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   }, [fields, hasPersistedDraft, isNewDraft, router, saveDraft]);
 
   const handleStartReview = useCallback(async () => {
+    if (startReviewPending) {
+      return;
+    }
+
     if (isNewDraft && !hasPersistedDraft) {
       showError("Start architecture review", "Save the architecture draft before starting a review.");
 
@@ -301,23 +309,61 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       return;
     }
 
-    const saved = await saveDraft();
-
-    if (!saved) {
-      showError("Start architecture review", "Save the architecture draft before starting a review.");
-
-      return;
+    if (startReviewTimeoutIdRef.current !== null) {
+      window.clearTimeout(startReviewTimeoutIdRef.current);
     }
 
-    upsertArchitectureDraftRegistryEntry(
-      buildArchitectureDraftRegistryEntry(draft!, {
-        customerStatus: "ready-for-review",
-        linkedReviewId,
-      }),
-    );
+    setStartReviewPending(true);
 
-    router.push(startReviewFromArchitectureHref(props.architectureId));
-  }, [draft, hasPersistedDraft, isNewDraft, linkedReviewId, props.architectureId, reviewReadiness, router, saveDraft]);
+    // Soft-nav stall must not leave Start review depressed forever.
+    startReviewTimeoutIdRef.current = window.setTimeout(() => {
+      setStartReviewPending(false);
+      startReviewTimeoutIdRef.current = null;
+    }, SOFT_NAVIGATION_TIMEOUT_MS);
+
+    try {
+      const saved = await saveDraft();
+
+      if (!saved) {
+        if (startReviewTimeoutIdRef.current !== null) {
+          window.clearTimeout(startReviewTimeoutIdRef.current);
+          startReviewTimeoutIdRef.current = null;
+        }
+
+        setStartReviewPending(false);
+        showError("Start architecture review", "Save the architecture draft before starting a review.");
+
+        return;
+      }
+
+      upsertArchitectureDraftRegistryEntry(
+        buildArchitectureDraftRegistryEntry(draft!, {
+          customerStatus: "ready-for-review",
+          linkedReviewId,
+        }),
+      );
+
+      router.push(startReviewFromArchitectureHref(props.architectureId));
+    } catch {
+      if (startReviewTimeoutIdRef.current !== null) {
+        window.clearTimeout(startReviewTimeoutIdRef.current);
+        startReviewTimeoutIdRef.current = null;
+      }
+
+      setStartReviewPending(false);
+      showError("Start architecture review", "Could not start the architecture review. Try again.");
+    }
+  }, [
+    draft,
+    hasPersistedDraft,
+    isNewDraft,
+    linkedReviewId,
+    props.architectureId,
+    reviewReadiness,
+    router,
+    saveDraft,
+    startReviewPending,
+  ]);
 
   const handleAcknowledgeHandoff = useCallback(() => {
     if (linkedReviewId === null) {
@@ -459,18 +505,19 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
             <Link href={reviewDetailPath(linkedReviewId)}>Continue in review</Link>
           </Button>
         ) : (
-          <Button
+          <ReviewStartLoadingButton
             type="button"
             variant="primary"
             size="sm"
             disabled={saveState === "saving" || (isNewDraft && !hasPersistedDraft)}
+            isLoading={startReviewPending}
+            idleLabel={BUYER_START_ARCHITECTURE_REVIEW_CTA}
+            loadingLabel={REVIEW_START_PREPARING_LABEL}
             onClick={() => {
               void handleStartReview();
             }}
             data-testid="architecture-start-review"
-          >
-            {BUYER_START_ARCHITECTURE_REVIEW_CTA}
-          </Button>
+          />
         )}
         {saveState === "error" || saveState === "offline" ? (
           <Button

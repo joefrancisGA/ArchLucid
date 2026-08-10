@@ -21,6 +21,15 @@ describe("Start review page", () => {
 
     expect(screen.getByTestId("reviews-new-page-title")).toHaveTextContent(START_REVIEW_LABEL);
     expect(screen.getByTestId("reviews-new-page-lead")).toHaveTextContent(REVIEWS_NEW_PAGE_LEAD);
+    expect(screen.getByTestId("reviews-new-optional-cloud-hint")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "How cloud connections work" })).toHaveAttribute(
+      "href",
+      "/help/cloud-connections",
+    );
+    expect(screen.getByRole("link", { name: "Open cloud connections" })).toHaveAttribute(
+      "href",
+      "/integrations/cloud-connections",
+    );
     expect(screen.queryByTestId("reviews-new-sources")).toBeNull(); // TB-2092
     expect(screen.queryByTestId("reviews-new-claim-discipline")).toBeNull(); // TB-2092
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
