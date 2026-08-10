@@ -106,6 +106,8 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
       "Create an architecture review: name the review, upload evidence, add context, confirm scope, and finalize the review.",
     audience: "buyer",
     sourcePaths: ["docs/library/customer-facing/REVIEW_GUIDE.md"],
+    lastReviewed: "2026-08-09",
+    pdfStatus: "public",
   },
   {
     slug: "pilot-guide",

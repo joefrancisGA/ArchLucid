@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 
 import { HelpTopicMarkdownView } from "../HelpTopicMarkdownView";
 import { CaiqSigResponseHelpEvidenceOrientationStrip } from "@/components/help/CaiqSigResponseHelpEvidenceOrientationStrip";
@@ -64,6 +64,7 @@ import {
   listProductDocumentationEntries,
 } from "@/lib/product-documentation-registry";
 import { getInboundAuthenticatedServerPrincipal } from "@/lib/server-current-principal";
+import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-redirects";
 
 export const dynamic = "force-dynamic";
 
@@ -534,6 +535,12 @@ export default async function HelpTopicPage(props: HelpTopicPageProps): Promise<
   const { topic } = await props.params;
   const resolvedSearchParams = props.searchParams !== undefined ? await props.searchParams : undefined;
   const slug = helpSlugFromTopicSegments(topic);
+  const permanentRedirectTarget = resolveHelpTopicPermanentRedirect(slug);
+
+  if (permanentRedirectTarget !== null) {
+    permanentRedirect(permanentRedirectTarget);
+  }
+
   const entry = getProductDocumentationEntry(slug);
 
   if (entry === null) {

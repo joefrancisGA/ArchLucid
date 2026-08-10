@@ -4,10 +4,9 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
-  CREATING_RUNS_HELP_ALIAS_TRAFFIC_NOTE,
-  CREATING_RUNS_HELP_ALIAS_TRAFFIC_PATH,
-  CREATING_RUNS_HELP_ALIAS_TRAFFIC_ROW_ID,
-  CREATING_RUNS_HELP_ALIAS_TRAFFIC_SECTION,
+  CANONICAL_REVIEW_GUIDE_HELP_TRAFFIC_PATH,
+  REMOVED_CREATING_RUNS_HELP_ALIAS_TRAFFIC_ROW_ID,
+  RETIRED_CREATING_RUNS_HELP_ALIAS_TRAFFIC_PATH,
 } from "@/lib/ui-route-traffic-creating-runs-help-alias";
 
 const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md";
@@ -15,8 +14,6 @@ const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md"
 type TrafficWorkbookRow = {
   id: string;
   path: string;
-  section: string;
-  notes: string;
 };
 
 function readTemplateMarkdown(): string {
@@ -47,25 +44,22 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
     rows.push({
       id: cells[1] ?? "",
       path: (cells[2] ?? "").replace(/^`|`$/g, ""),
-      section: cells[7] ?? "",
-      notes: cells[8] ?? "",
     });
   }
 
   return rows;
 }
 
-describe("ui-route-traffic-creating-runs-help-alias (HER)", () => {
-  it("tracks creating-runs help alias with honest workbook notes", () => {
+describe("ui-route-traffic creating-runs alias retirement (HER merged into HR)", () => {
+  it("does not track retired HER; review guide help stays on HR only", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
-    const row = rows.find((candidate) => candidate.id === CREATING_RUNS_HELP_ALIAS_TRAFFIC_ROW_ID);
+    const herRow = rows.find((row) => row.id === REMOVED_CREATING_RUNS_HELP_ALIAS_TRAFFIC_ROW_ID);
+    const retiredPathRows = rows.filter((row) => row.path === RETIRED_CREATING_RUNS_HELP_ALIAS_TRAFFIC_PATH);
+    const canonicalRows = rows.filter((row) => row.path === CANONICAL_REVIEW_GUIDE_HELP_TRAFFIC_PATH);
 
-    expect(row).toBeDefined();
-    expect(row?.path).toBe(CREATING_RUNS_HELP_ALIAS_TRAFFIC_PATH);
-    expect(row?.section).toBe(CREATING_RUNS_HELP_ALIAS_TRAFFIC_SECTION);
-    expect(row?.notes).toBe(CREATING_RUNS_HELP_ALIAS_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("HelpReviewGuideView");
-    expect(row?.notes).toContain("Score 58");
-    expect(row?.notes).toContain("cannot improve further toward 80");
+    expect(herRow).toBeUndefined();
+    expect(retiredPathRows).toHaveLength(0);
+    expect(canonicalRows).toHaveLength(1);
+    expect(canonicalRows[0]?.id).toBe("HR");
   });
 });

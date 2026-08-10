@@ -6,6 +6,8 @@ import re
 import shutil
 from pathlib import Path
 
+from archlucid_ui_route_catalog import INTERNAL_UX_RANKING_HELP_PATHS
+
 BACKTICK = chr(96)
 REPO_ROOT = Path(__file__).resolve().parents[2]
 OWNER_DOC = REPO_ROOT / ".local/owner/ui_route_traffic_estimates.md"
@@ -114,9 +116,29 @@ def is_internal_path(path: str) -> bool:
     return bare == INTERNAL_PATH_PREFIX or bare.startswith(f"{INTERNAL_PATH_PREFIX}/")
 
 
+def is_internal_ux_ranking_path(path: str) -> bool:
+    """True when a route is excluded from buyer UX scoring despite living outside `/internal`."""
+    bare = path.split("?", 1)[0]
+
+    if is_internal_path(path):
+        return True
+
+    return bare in INTERNAL_UX_RANKING_HELP_PATHS
+
+
+def is_internal_ux_section(section: str) -> bool:
+    return section.strip().casefold() == "internal"
+
+
 def is_buyer_facing_ux_row(row: dict[str, str]) -> bool:
     """Buyer-facing rows with a scored UX dimension (position 2 > 0)."""
-    return not is_internal_path(row.get("path", "")) and parse_ux_score(row) > 0
+    if is_internal_ux_ranking_path(row.get("path", "")):
+        return False
+
+    if is_internal_ux_section(row.get("section", "")):
+        return False
+
+    return parse_ux_score(row) > 0
 
 
 def lowest_ux_buyer_rows(rows: list[dict[str, str]], *, limit: int = 20) -> list[dict[str, str]]:

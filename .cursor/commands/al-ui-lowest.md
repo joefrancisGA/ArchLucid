@@ -51,7 +51,8 @@ python .\scripts\ci\list-archlucid-ui-route-lowest-ux.py --limit 10
 The script:
 
 - Reads the owner workbook master table
-- Keeps rows where the path is **not** under `/internal` (including `?tab=` surfaces)
+- Keeps rows where the path is **not** under `/internal` and the section is **not** `Internal`
+- Drops **internal-runbook help** paths in `INTERNAL_UX_RANKING_HELP_PATHS` (e.g. CON)
 - Drops rows with **UX score 0** (unscored — not the same as a bad score)
 - Sorts **UX ascending**, then **path A→Z** on ties
 - Prints a markdown table to stdout
@@ -78,7 +79,8 @@ shells, or a single high-traffic outlier like SCX).
 |----------|----------|
 | Any route not under `/internal` | `/internal` and `/internal/*` |
 | UX score **1–100** in Scores position 2 | UX **0** (unscored) |
-| Tab surfaces (`?tab=`, `?archTab=`) on buyer routes | — |
+| Tab surfaces (`?tab=`, `?archTab=`) on buyer routes | Section **Internal** |
+| — | Internal-runbook help paths (e.g. `/help/configuration-reference`) |
 
 **Evidence** (Scores position 1) is shown only indirectly via row notes if the user asks;
 this command ranks on **UX only**.
@@ -95,7 +97,8 @@ this command ranks on **UX only**.
 
 - `.local/owner/ui_route_traffic_estimates.md` — live master table (gitignored)
 - `scripts/ci/list-archlucid-ui-route-lowest-ux.py` — list helper (this command)
-- `scripts/ci/archlucid_ui_route_traffic_table.py` — `lowest_ux_buyer_rows()`, `is_internal_path()`
+- `scripts/ci/archlucid_ui_route_traffic_table.py` — `lowest_ux_buyer_rows()`, `is_buyer_facing_ux_row()`
+- `scripts/ci/archlucid_ui_route_catalog.py` — `INTERNAL_UX_RANKING_HELP_PATHS`
 - `docs/library/UI_UX_SCORING_RUBRIC.md` — UX dimension rubric
 - `docs/architecture/UI_ROUTE_TRAFFIC_ESTIMATES_OWNER.md` — workbook location + guards
 

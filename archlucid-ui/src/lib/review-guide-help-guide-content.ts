@@ -12,13 +12,17 @@ export const REVIEW_GUIDE_HELP_PAGE_SUBTITLE =
 export const REVIEW_GUIDE_HELP_OVERVIEW =
   "Use this guide while you create or finish an architecture review. It complements the First review guide walkthrough with the field-level steps architects follow in the wizard.";
 
+/** Pins the export-claim sentence in REVIEW_GUIDE.md so it also reaches the generated PDF, not just the page. */
+export const REVIEW_GUIDE_HELP_CLAIM_DISCIPLINE =
+  "This field reference describes the New architecture review wizard — it is product help, not a signed review record or a finalized architecture package export. Match labels and requirements to the live wizard before treating a printed copy as procurement evidence.";
+
 export const REVIEW_GUIDE_HELP_PRIMARY_ACTIONS = {
   startReview: {
     label: "Start an architecture review",
     href: REVIEWS_NEW_PATH,
   },
   firstReviewGuide: {
-    label: "Open first review guide",
+    label: "Your first architecture review",
     href: FIRST_REVIEW_GUIDE_PATH,
   },
   findingsGuide: {

@@ -9,6 +9,7 @@ import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExc
 import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
 import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
 import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
+import { ReviewStartUnresolvedNotice } from "@/components/review-intake/ReviewStartUnresolvedNotice";
 import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
 import { ReviewPathTimeEstimateBanner } from "@/components/ReviewPathTimeEstimateBanner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -237,6 +238,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       recordFirstTenantFunnelEvent("first_run_started");
       creationProgress.markPreparingQuestions();
       creationProgress.markOpeningReview();
+      creationProgress.succeed();
 
       if (onRunCreatedNavigate !== undefined) {
         onRunCreatedNavigate(id);
@@ -335,6 +337,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
               stages={creationProgress.stages}
               activeStageId={creationProgress.activeStageId}
               headline={REVIEW_START_PREPARING_LABEL}
+              detail={creationProgress.waitCopy?.detail ?? null}
               testId="first-pilot-review-start-progress"
             />
           ) : null}
@@ -343,8 +346,21 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
             <ReviewStartInlineError message={clientValidationMessage} testId="first-pilot-validation-error" />
           ) : null}
 
-          {creationProgress.error !== null ? (
-            <ReviewStartInlineError message={creationProgress.error} testId="first-pilot-submit-error" />
+          {creationProgress.outcome?.kind === "failed" ? (
+            <ReviewStartInlineError
+              message={creationProgress.outcome.message}
+              testId="first-pilot-submit-error"
+            />
+          ) : null}
+
+          {creationProgress.outcome?.kind === "unresolved" ? (
+            <ReviewStartUnresolvedNotice
+              onRecheck={() => {
+                void submitRun();
+              }}
+              isRechecking={creationProgress.isActive}
+              testId="first-pilot-unresolved-notice"
+            />
           ) : null}
 
           {intakeGap !== null ? (

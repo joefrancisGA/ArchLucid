@@ -3,15 +3,13 @@ import Link from "next/link";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
+import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   DESIGN_TOKENS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
@@ -54,28 +52,12 @@ export function HelpReviewGuideView(props: HelpReviewGuideViewProps): React.Reac
         titleTestId="help-review-guide-page-title"
         subtitle={REVIEW_GUIDE_HELP_PAGE_SUBTITLE}
         navHref={REVIEW_GUIDE_HELP_PATH}
+        headingLevel="h1"
+        metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
         actions={
           <div className="flex flex-wrap items-center gap-2" data-testid="help-review-guide-header-actions">
-            <PageContextualHelpButton />
-            <HelpTopicPdfDownloadButton entry={entry} />
-            <HelpTopicPrintButton entry={entry} />
-          </div>
-        }
-      />
-<div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <Card
-          className="border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20"
-          data-testid="help-review-guide-action-panel"
-        >
-          <CardHeader className={OPERATOR_CARD.header}>
-            <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>Start or continue a review</CardTitle>
-          </CardHeader>
-          <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
-            <Button asChild size="sm" variant="primary">
-              <Link
-                href={REVIEW_GUIDE_HELP_PRIMARY_ACTIONS.startReview.href}
-                data-testid="help-review-guide-start-review"
-              >
+            <Button asChild size="sm" variant="primary" data-testid="help-review-guide-start-review">
+              <Link href={REVIEW_GUIDE_HELP_PRIMARY_ACTIONS.startReview.href}>
                 {REVIEW_GUIDE_HELP_PRIMARY_ACTIONS.startReview.label}
               </Link>
             </Button>
@@ -94,9 +76,11 @@ export function HelpReviewGuideView(props: HelpReviewGuideViewProps): React.Reac
             >
               {REVIEW_GUIDE_HELP_PRIMARY_ACTIONS.findingsGuide.label}
             </Link>
-          </CardContent>
-        </Card>
-      </div>
+            <HelpTopicPdfDownloadButton entry={entry} />
+            <HelpTopicPrintButton entry={entry} />
+          </div>
+        }
+      />
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className={cn("min-w-0 space-y-6", "max-w-[42rem] lg:max-w-none")}>

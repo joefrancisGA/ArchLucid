@@ -53,7 +53,7 @@ Update this table when routes change. Tiers are **product contract**, not k6 tag
 |---------|-----------------|------|----------------|---------------------|
 | Health live/ready | `GET /health/live`, `GET /health/ready` | A | N/A | Keep sync |
 | List / get run | `GET /v1/architecture/reviews`, `GET /v1/architecture/review/{runId}` | A–B | Run DTO flags | Keep sync |
-| Create request | `POST /v1/architecture/request` | B–C | Run created | Sync OK for Simulator; Real may stay sync if fast path |
+| Create request | `POST /v1/architecture/request` | B–C | Run created | Sync OK for Simulator; Real relies on `AsyncAuthorityPipeline` queue mode (ADR 0038) to keep the accept fast. Client must treat a create wait ceiling as **unresolved**, never failed — see § 11 |
 | Execute (sync) | `POST /v1/architecture/review/{runId}/execute` | C in Real | Blocks until agents complete | Keep for Simulator/CI |
 | Execute (async) | `POST /v1/architecture/review/{runId}/execute/async` | C | **202** + `Location: /v1/operations/run:{runId}` | **Done** (**TB-2075** 2026-08-08) |
 | Finalize / commit | `POST .../finalize` (and commit aliases) | B–C | Run status | Prefer sync when short; watch edge ceilings |
@@ -126,6 +126,7 @@ Client surfaces that routinely exceed ~4s should use `LongOperationWaitNotice` /
 
 | Surface | Route / entry | Wait component | Notes |
 |---------|---------------|----------------|-------|
+| Start a review (create) | `/architecture/reviews/new` → `POST /v1/architecture/request` | `ReviewStartStagedProgress` (named stages + escalating `detail`) then `ReviewStartUnresolvedNotice` | Watchdog is **unresolved**, not failed; recovery replays the wizard idempotency key |
 | Finalize / commit | `CommitRunButton` → `POST .../finalize` | `LongOperationWaitNotice` | Tier B–C boundary; keep sync |
 | Ask (sync hold) | `/insights/ask-review-questions` | `LongOperationWaitNotice` while `loading && streamingAssistantContent === null` | Pre-stream hold only; hide once SSE tokens arrive |
 | Sponsor DOCX export | `GenerateSponsorValueReportButton` | `LongOperationWaitNotice` | Download may hit Tier B/D |
@@ -165,3 +166,28 @@ Documented stack limits that sit **below** long Real-mode handler work. Values a
 ### Job poll tenant scope (TB-2073)
 
 `GET /v1/jobs/{jobId}` and `GET /v1/jobs/{jobId}/file` enforce tenant/workspace scope via `IBackgroundJobTenantAccessVerifier` (work-unit resolution + scoped run lookup). Cross-tenant probes receive **404** (not 403) to avoid job-id existence leaks.
+
+---
+
+## 11. Client wait ceilings are not failures
+
+A browser that stops waiting has **not** cancelled the server. Treating a client-side ceiling as a failure is what produces duplicate submissions, so long-operation clients follow three rules.
+
+| Rule | Implementation |
+|------|----------------|
+| A wait ceiling reports **unresolved**, not failed | `useReviewCreationProgress` returns `outcome: { kind: "unresolved" }`; only a thrown API error yields `{ kind: "failed" }` |
+| Recovery must be **idempotent** | The unresolved CTA re-POSTs with the *same* wizard `Idempotency-Key` (`wizard-idempotency-key.ts`), so the server replays the original run rather than creating a second one |
+| Accepted work **disarms** the client watchdog | Callers invoke `succeed()` before navigating, so a slow client-side navigation cannot fire the watchdog after the server already accepted |
+
+**Never** leave a mutation CTA re-enabled with no visible outcome. Every terminal state renders a durable inline surface (`ReviewStartInlineError` or `ReviewStartUnresolvedNotice`) — see `.cursor/rules/UI-Form-Validation-Affordances.mdc` and `durable-action-outcome-inventory.ts`.
+
+### Shell operation persistence
+
+`in-flight-operations-store.ts` persists tracked operations to `sessionStorage` via `in-flight-operations-persistence.ts` so a reload does not lose an in-flight review.
+
+| Concern | Rule |
+|---------|------|
+| Scope isolation | Keys are namespaced by `x-tenant-id` / `x-workspace-id` / `x-project-id`; `clearInFlightOperations()` runs on `archlucid:operator-scope-changed` (fired by scope switch, sign-out, and idle timeout) |
+| Untrusted input | Persisted rows are re-validated on read; non-relative `href` values are rejected so a tampered entry cannot become an open redirect |
+| Staleness | Rows older than `IN_FLIGHT_OPERATION_MAX_PERSISTED_AGE_MS` (12h) are dropped rather than polled against a dead handle |
+| Hydration | `hydrateInFlightOperationsFromStorage()` runs in a client effect, never during render, so the `useSyncExternalStore` server and first client snapshots match |

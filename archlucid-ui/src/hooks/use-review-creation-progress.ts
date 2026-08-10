@@ -4,10 +4,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { SOFT_NAVIGATION_TIMEOUT_MS } from "@/hooks/use-soft-navigation-loading";
 import {
+  buildLongOperationWaitCopy,
+  type LongOperationWaitCopy,
+} from "@/lib/operations/long-operation-wait-copy";
+import {
   REVIEW_START_CREATION_FAILED_MESSAGE,
   REVIEW_START_OPENING_LABEL,
   REVIEW_START_PREPARING_LABEL,
   REVIEW_START_STAGED_PANEL_DELAY_MS,
+  REVIEW_START_WAIT_OPERATION_LABEL,
 } from "@/lib/review-start-progress-copy";
 import {
   resolveReviewStartStages,
@@ -16,6 +21,18 @@ import {
 
 /** Create-run API + soft-nav can exceed pure soft-nav budget; keep CTA recoverable. */
 export const REVIEW_CREATION_PROGRESS_TIMEOUT_MS = SOFT_NAVIGATION_TIMEOUT_MS + 45_000;
+
+/** Drives escalating elapsed-time copy; not a progress percentage. */
+export const REVIEW_CREATION_ELAPSED_TICK_MS = 1_000;
+
+/**
+ * `failed` means the server told us it went wrong. `unresolved` means only that the browser
+ * stopped waiting — the create may still be running. Collapsing the two is what drove
+ * duplicate submissions, so callers must render them differently.
+ */
+export type ReviewCreationOutcome =
+  | { readonly kind: "failed"; readonly message: string }
+  | { readonly kind: "unresolved" };
 
 export type ReviewCreationProgressBeginInput = {
   readonly hasTemplate: boolean;
@@ -28,9 +45,11 @@ export function useReviewCreationProgress() {
   const [hasTemplate, setHasTemplate] = useState(false);
   const [activeStageId, setActiveStageId] = useState<ReviewStartStageId | null>(null);
   const [showStagedPanel, setShowStagedPanel] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [outcome, setOutcome] = useState<ReviewCreationOutcome | null>(null);
+  const [elapsedMs, setElapsedMs] = useState(0);
   const timerIdsRef = useRef<number[]>([]);
   const activityTimeoutIdRef = useRef<number | null>(null);
+  const elapsedIntervalIdRef = useRef<number | null>(null);
 
   const clearTimers = useCallback(() => {
     for (const timerId of timerIdsRef.current) {
@@ -43,16 +62,27 @@ export function useReviewCreationProgress() {
       window.clearTimeout(activityTimeoutIdRef.current);
       activityTimeoutIdRef.current = null;
     }
+
+    if (elapsedIntervalIdRef.current !== null) {
+      window.clearInterval(elapsedIntervalIdRef.current);
+      elapsedIntervalIdRef.current = null;
+    }
   }, []);
 
-  const reset = useCallback(() => {
+  /** Tear down the in-progress chrome without deciding what the outcome was. */
+  const settle = useCallback(() => {
     clearTimers();
     setIsActive(false);
     setHasTemplate(false);
     setActiveStageId(null);
     setShowStagedPanel(false);
-    setError(null);
   }, [clearTimers]);
+
+  const reset = useCallback(() => {
+    settle();
+    setOutcome(null);
+    setElapsedMs(0);
+  }, [settle]);
 
   useEffect(() => {
     return () => {
@@ -67,22 +97,25 @@ export function useReviewCreationProgress() {
       }
 
       clearTimers();
-      setError(null);
+      setOutcome(null);
+      setElapsedMs(0);
       setIsActive(true);
       setHasTemplate(input.hasTemplate);
       setActiveStageId("creating-workspace");
       setShowStagedPanel(false);
 
       const timeoutMs = input.timeoutMs ?? REVIEW_CREATION_PROGRESS_TIMEOUT_MS;
+      const startedAtMs = Date.now();
 
+      elapsedIntervalIdRef.current = window.setInterval(() => {
+        setElapsedMs(Date.now() - startedAtMs);
+      }, REVIEW_CREATION_ELAPSED_TICK_MS);
+
+      // Hitting this ceiling means we gave up waiting, not that the server failed.
       activityTimeoutIdRef.current = window.setTimeout(() => {
-        clearTimers();
-        setIsActive(false);
-        setHasTemplate(false);
-        setActiveStageId(null);
-        setShowStagedPanel(false);
-        setError(REVIEW_START_CREATION_FAILED_MESSAGE);
         activityTimeoutIdRef.current = null;
+        settle();
+        setOutcome({ kind: "unresolved" });
       }, timeoutMs);
 
       timerIdsRef.current.push(
@@ -99,7 +132,7 @@ export function useReviewCreationProgress() {
         );
       }
     },
-    [clearTimers, isActive],
+    [clearTimers, isActive, settle],
   );
 
   const markPreparingQuestions = useCallback(() => {
@@ -110,16 +143,21 @@ export function useReviewCreationProgress() {
     setActiveStageId("opening-review");
   }, []);
 
+  /**
+   * The server accepted the work. Disarm the watchdog but keep the progress chrome up: a slow
+   * navigation must not trip the ceiling and report an already-created review as unresolved.
+   */
+  const succeed = useCallback(() => {
+    clearTimers();
+    setOutcome(null);
+  }, [clearTimers]);
+
   const fail = useCallback(
     (message?: string) => {
-      clearTimers();
-      setIsActive(false);
-      setHasTemplate(false);
-      setActiveStageId(null);
-      setShowStagedPanel(false);
-      setError(message ?? REVIEW_START_CREATION_FAILED_MESSAGE);
+      settle();
+      setOutcome({ kind: "failed", message: message ?? REVIEW_START_CREATION_FAILED_MESSAGE });
     },
-    [clearTimers],
+    [settle],
   );
 
   const stages = useMemo(() => resolveReviewStartStages(hasTemplate), [hasTemplate]);
@@ -136,10 +174,23 @@ export function useReviewCreationProgress() {
     return REVIEW_START_PREPARING_LABEL;
   }, [activeStageId]);
 
+  const waitCopy: LongOperationWaitCopy | null = useMemo(() => {
+    if (!isActive) {
+      return null;
+    }
+
+    return buildLongOperationWaitCopy({
+      operationLabel: REVIEW_START_WAIT_OPERATION_LABEL,
+      stageLabel: loadingLabel,
+      elapsedMs,
+    });
+  }, [elapsedMs, isActive, loadingLabel]);
+
   return {
     begin,
     markPreparingQuestions,
     markOpeningReview,
+    succeed,
     fail,
     reset,
     isActive,
@@ -147,6 +198,8 @@ export function useReviewCreationProgress() {
     showStagedPanel: showStagedPanel && isActive,
     stages,
     loadingLabel,
-    error,
+    outcome,
+    elapsedMs,
+    waitCopy,
   };
 }

@@ -45,11 +45,10 @@ describe("enterprise Tabs primitive drift guard (TB-665)", () => {
     const settingsRoles = readRepoFile(
       "archlucid-ui/src/app/(operator)/administration/users/_sections/SettingsRolesPageView.tsx",
     );
-    const deliverables = readRepoFile("archlucid-ui/src/components/BuyerDeliverablesArtifactTabs.tsx");
 
     expect(advisoryHub).toContain('@/components/ui/tabs');
+    expect(advisoryHub).toContain("TabsContent");
     expect(settingsRoles).toContain("settingsUsersTabFromLocation");
     expect(settingsRoles).toContain("onValueChange={onSelectTab}");
-    expect(deliverables).toContain("TabsContent");
   });
 });

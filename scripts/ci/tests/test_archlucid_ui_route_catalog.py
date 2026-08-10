@@ -71,6 +71,10 @@ def test_migrate_workbook_path_maps_retired_api_contracts_help_alias() -> None:
     assert migrate_workbook_path("/help/api-contracts") == "/help/governance-api-contracts"
 
 
+def test_migrate_workbook_path_maps_retired_creating_runs_help_alias() -> None:
+    assert migrate_workbook_path("/help/creating-runs") == "/help/review-guide"
+
+
 def test_migrate_workbook_path_maps_legacy_alerts() -> None:
     assert migrate_workbook_path("/alerts") == "/governance/alerts"
 
@@ -189,6 +193,7 @@ def test_infer_section_maps_internal_and_insights_sponsor_paths() -> None:
     assert catalog["/internal/integration-events/dlq"].section == "Advisory"
     assert catalog["/insights/roi-summary"].section == "Sponsor report"
     assert catalog["/insights/pilot-outcomes"].section == "Sponsor report"
+    assert catalog["/help/configuration-reference"].section == "Internal"
 
 
 def test_build_catalog_tracks_evidence_graph_as_planning() -> None:

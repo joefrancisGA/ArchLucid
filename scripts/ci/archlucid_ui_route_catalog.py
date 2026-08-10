@@ -21,6 +21,13 @@ PREFERRED_NEW_ROW_IDS: dict[str, str] = {
     "/shell/contextual-help-drawer": "HCD",
 }
 
+# Admin internal-runbook help topics excluded from buyer UX scoring (/al-ui-lowest).
+INTERNAL_UX_RANKING_HELP_PATHS: frozenset[str] = frozenset(
+    {
+        "/help/configuration-reference",
+    }
+)
+
 # Legacy workbook paths → canonical catalog paths (scores and Hit% merge on collision).
 WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/alerts": "/governance/alerts",
@@ -49,6 +56,7 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/help/cloud-connections-aws": "/help/cloud-connections/aws",
     "/help/cloud-connections-gcp": "/help/cloud-connections/gcp",
     "/help/api-contracts": "/help/governance-api-contracts",
+    "/help/creating-runs": "/help/review-guide",
     "/manifests": "/governance/signed-records",
     "/manifests/[manifestId]": "/governance/signed-records/[manifestId]",
     "/manifests/[manifestId]/artifacts/[artifactId]": (
@@ -300,6 +308,8 @@ def infer_section(path: str, *, help_alias_paths: set[str]) -> str:
     if path == "/help":
         return "Help hub"
     if path.startswith("/help/"):
+        if path in INTERNAL_UX_RANKING_HELP_PATHS:
+            return "Internal"
         if path in help_alias_paths:
             return "Help alias"
         return "Help topic"

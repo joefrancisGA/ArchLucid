@@ -15,13 +15,13 @@ Regenerate after opening or closing summary-table rows:
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
 | Architectural integrity | 11 |
-| Adoption friction | 359 |
+| Adoption friction | 366 |
 | Commercial / marketability | 9 |
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
-| Explainability | 1 |
+| Explainability | 2 |
 | Proof-of-ROI / executive value | 2 |
-| Trustworthiness | 141 |
+| Trustworthiness | 143 |
 | Maintainability | 9 |
 | Traceability | 3 |
 | Interoperability | 4 |
@@ -36,15 +36,15 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **744** |
+| **Total (unique open)** | **754** |
 
-**By priority band:** P0 **3** | P1 **611** | P2 **113** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **13** | P1 **611** | P2 **113** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
-**Updated:** 2026-08-09 (**TB-1455** **Done** — architecture draft workspace autosave reassurance on save status; removed redundant disabled Save draft; Save now retry on error/offline only; Save and exit retained; Vitest). Prior: 2026-08-09 (**TB-1426** **Done** — deployment status external-link new-tab honesty + softened page lead without BUILD_ID jargon; Vitest). Prior: 2026-08-09 (**TB-1423** **Done** — deployment status overall `StatusTag` with human `overallStatusLabel` aria; Vitest). Prior: 2026-08-09 (**TB-1412** **Done** — demo readiness admin Recheck primary in PageHeading; diagnostics text link; authority loading skeleton; Vitest). Prior: 2026-08-09 (**TB-1416** **Done** — fused INV-001 / decide-once / committed-manifest PA triad challenge matrix in `INV001_DECIDE_ONCE_COMMITTED_MANIFEST_PA_TRIAD_CHALLENGE_MATRIX.md`; GTM M-254 residuals). Prior: 2026-08-09 (**TB-1413** **Done** — Demo readiness check rows use Pass/Warn/Fail StatusTag labels with adjacent check titles; Vitest). Prior: 2026-08-09 (**TB-1411** **Done** — Demo readiness admin tooling-disabled empty state with diagnostics/System health CTAs; Vitest). Prior: 2026-08-09 (**TB-1409** **Done** — Demo readiness admin PageHeading + Internal Operations eyebrow; single H1; panel duplicate H2 suppressed; Vitest). Prior: 2026-08-09 (**TB-1380** **Done** — first-architecture-review title honesty across registry/help center/home banner/Ctrl+K search; Vitest pilot/commit jargon guards). Prior: 2026-08-09 (**TB-1341** **Done** — enterprise-onboarding title/audience honesty: canonical `ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE`; registry `operator` + help-center `admin` tier; Vitest). Prior: 2026-08-09 (**TB-2145** **Done** — home `/` First Load JS **1646.1 → 1587.2 kB** (−58.9 kB); deferred pilot command center, executive ROI strip, below-fold panels, and CTO demo redirect; Vitest import guards + baseline refresh). Prior: 2026-08-09 (**TB-2144** **Done** — billing past-due banner + alerts nav badge → TanStack Query; `useBillingSubscriptionStatusQuery` + shared `alertsInboxSummary` cache; SSR inbox hydration guard; Vitest remount/freshness). Prior: 2026-08-09 (**TB-2143** **Done** — insights operator layouts (**8**) migrated off blanket `force-dynamic` to `OperatorClientDrivenRouteLayout`; remaining operator `force-dynamic` layouts **~22** (was **~29**); Vitest import guards + `UI_ARCHITECTURE_V1_1.md` §4). Prior: 2026-08-09 (**TB-2142** **Done** — run detail First Load JS **2150.6 → 1879.1 kB** (−271.5 kB); deferred evidence tab, share row, demo chrome, manifest alerts, run actions, help registrar; Vitest import guards + baseline refresh). Prior: 2026-08-09 (**TB-2139** **Done** — `role-shaped-nav-density` persona defaults for architect/governance/admin; sidebar “Show all destinations” + command palette parity; Vitest). Prior: 2026-08-09 (**TB-2138** **Done** — unified golden sponsor-package walkthrough: `golden-sponsor-package-walkthrough` SoT, checklist panel on home/help/demo explain, destination scroll to `#sponsor-handoff` gated on sample runs; Vitest). Prior: 2026-08-09 (**TB-2137** **Done** — golden-path empty/error recovery: `operator-branded-not-found-copy`, reviews hub not-found vs outage try-next, `isApiNotFoundFailure` error codes, buyer `RESOURCE_NOT_FOUND` headings; Vitest). Prior: 2026-08-09 (**TB-2136** **Done** — job → pack chooser primary on first-run `/architecture/reviews/new`; `AcceleratorJobChooserList` + expected-output buyer nouns; home `AcceleratorChooserCard` after first commit; Vitest). Prior: 2026-08-09 (**TB-2135** **Done** — `finding-trust-presentation` contract shared by inspect, compare decision-delta chips, and export footers; inferred `DeterministicRule` parity when wire label absent; Vitest cross-surface fixtures). Prior: 2026-08-09 (**TB-2134** **Done** — `InlineGlossaryChip` + `golden-path-glossary-nouns` SoT from customer glossary; chips on home empty, new review, review detail, post-finalize sponsor strip; Vitest). Prior: 2026-08-09 (**TB-2133** **Done** — restored pre-commit progressive disclosure: `filterNavLinksByCommittedArchitectureReviewGate` + shell/palette wiring; Operate/diagnostics hidden until first finalize; Vitest pre/post-commit snapshots). Prior: 2026-08-09 (**TB-2130**–**TB-2139** **opened** — owner ask: create P0s for ten easier-to-use / easier-to-understand levers; see cluster note below). Prior: 2026-08-09 (**TB-1323** **Done** — `/demo/explain` conversion CTA auth honesty: anonymous viewers get sign-in + `/see-it` ladder; signed-in keeps wizard preset; Vitest guards). Prior: 2026-08-09 (**TB-1320** **Done** — `/demo/explain` status banner uses `StatusTag` + human generated time; review id/manifest version/ISO behind Technical details; Vitest guards). Prior: 2026-08-09 (**TB-1316** **Done** — session-expired OIDC errors use **Sign-in could not start** + in-place Try again preserving `returnUrl`). Prior: 2026-08-09 (**TB-1315** **Done** — `/auth/session-expired` secondary exit to `/welcome`; Vitest forbids auth-bounce `/`). Prior: 2026-08-09 (**TB-1308** **Done** — `/why-archlucid` operator counter copy + in-app footer; Vitest forbids eng metric/repo path leakage).
+**Updated:** 2026-08-09 (**TB-2158**–**TB-2167** **opened** — owner ask: create P0s for ten quantified performance levers verified absent in tree — Performance wave 7; see cluster note below). Prior: 2026-08-09 (**TB-2148**–**TB-2157** **opened** — owner ask: create P0s for ten untracked confusion-reduction levers; see cluster note below). Prior: 2026-08-09 (**TB-1455** **Done** — architecture draft workspace autosave reassurance on save status; removed redundant disabled Save draft; Save now retry on error/offline only; Save and exit retained; Vitest). Prior: 2026-08-09 (**TB-1426** **Done** — deployment status external-link new-tab honesty + softened page lead without BUILD_ID jargon; Vitest). Prior: 2026-08-09 (**TB-1423** **Done** — deployment status overall `StatusTag` with human `overallStatusLabel` aria; Vitest). Prior: 2026-08-09 (**TB-1412** **Done** — demo readiness admin Recheck primary in PageHeading; diagnostics text link; authority loading skeleton; Vitest). Prior: 2026-08-09 (**TB-1416** **Done** — fused INV-001 / decide-once / committed-manifest PA triad challenge matrix in `INV001_DECIDE_ONCE_COMMITTED_MANIFEST_PA_TRIAD_CHALLENGE_MATRIX.md`; GTM M-254 residuals). Prior: 2026-08-09 (**TB-1413** **Done** — Demo readiness check rows use Pass/Warn/Fail StatusTag labels with adjacent check titles; Vitest). Prior: 2026-08-09 (**TB-1411** **Done** — Demo readiness admin tooling-disabled empty state with diagnostics/System health CTAs; Vitest). Prior: 2026-08-09 (**TB-1409** **Done** — Demo readiness admin PageHeading + Internal Operations eyebrow; single H1; panel duplicate H2 suppressed; Vitest). Prior: 2026-08-09 (**TB-1380** **Done** — first-architecture-review title honesty across registry/help center/home banner/Ctrl+K search; Vitest pilot/commit jargon guards). Prior: 2026-08-09 (**TB-1341** **Done** — enterprise-onboarding title/audience honesty: canonical `ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE`; registry `operator` + help-center `admin` tier; Vitest). Prior: 2026-08-09 (**TB-2145** **Done** — home `/` First Load JS **1646.1 → 1587.2 kB** (−58.9 kB); deferred pilot command center, executive ROI strip, below-fold panels, and CTO demo redirect; Vitest import guards + baseline refresh). Prior: 2026-08-09 (**TB-2144** **Done** — billing past-due banner + alerts nav badge → TanStack Query; `useBillingSubscriptionStatusQuery` + shared `alertsInboxSummary` cache; SSR inbox hydration guard; Vitest remount/freshness). Prior: 2026-08-09 (**TB-2143** **Done** — insights operator layouts (**8**) migrated off blanket `force-dynamic` to `OperatorClientDrivenRouteLayout`; remaining operator `force-dynamic` layouts **~22** (was **~29**); Vitest import guards + `UI_ARCHITECTURE_V1_1.md` §4). Prior: 2026-08-09 (**TB-2142** **Done** — run detail First Load JS **2150.6 → 1879.1 kB** (−271.5 kB); deferred evidence tab, share row, demo chrome, manifest alerts, run actions, help registrar; Vitest import guards + baseline refresh). Prior: 2026-08-09 (**TB-2139** **Done** — `role-shaped-nav-density` persona defaults for architect/governance/admin; sidebar “Show all destinations” + command palette parity; Vitest). Prior: 2026-08-09 (**TB-2138** **Done** — unified golden sponsor-package walkthrough: `golden-sponsor-package-walkthrough` SoT, checklist panel on home/help/demo explain, destination scroll to `#sponsor-handoff` gated on sample runs; Vitest). Prior: 2026-08-09 (**TB-2137** **Done** — golden-path empty/error recovery: `operator-branded-not-found-copy`, reviews hub not-found vs outage try-next, `isApiNotFoundFailure` error codes, buyer `RESOURCE_NOT_FOUND` headings; Vitest). Prior: 2026-08-09 (**TB-2136** **Done** — job → pack chooser primary on first-run `/architecture/reviews/new`; `AcceleratorJobChooserList` + expected-output buyer nouns; home `AcceleratorChooserCard` after first commit; Vitest). Prior: 2026-08-09 (**TB-2135** **Done** — `finding-trust-presentation` contract shared by inspect, compare decision-delta chips, and export footers; inferred `DeterministicRule` parity when wire label absent; Vitest cross-surface fixtures). Prior: 2026-08-09 (**TB-2134** **Done** — `InlineGlossaryChip` + `golden-path-glossary-nouns` SoT from customer glossary; chips on home empty, new review, review detail, post-finalize sponsor strip; Vitest). Prior: 2026-08-09 (**TB-2133** **Done** — restored pre-commit progressive disclosure: `filterNavLinksByCommittedArchitectureReviewGate` + shell/palette wiring; Operate/diagnostics hidden until first finalize; Vitest pre/post-commit snapshots). Prior: 2026-08-09 (**TB-2130**–**TB-2139** **opened** — owner ask: create P0s for ten easier-to-use / easier-to-understand levers; see cluster note below). Prior: 2026-08-09 (**TB-1323** **Done** — `/demo/explain` conversion CTA auth honesty: anonymous viewers get sign-in + `/see-it` ladder; signed-in keeps wizard preset; Vitest guards). Prior: 2026-08-09 (**TB-1320** **Done** — `/demo/explain` status banner uses `StatusTag` + human generated time; review id/manifest version/ISO behind Technical details; Vitest guards). Prior: 2026-08-09 (**TB-1316** **Done** — session-expired OIDC errors use **Sign-in could not start** + in-place Try again preserving `returnUrl`). Prior: 2026-08-09 (**TB-1315** **Done** — `/auth/session-expired` secondary exit to `/welcome`; Vitest forbids auth-bounce `/`). Prior: 2026-08-09 (**TB-1308** **Done** — `/why-archlucid` operator counter copy + in-app footer; Vitest forbids eng metric/repo path leakage).
 
 **BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **TB-386?397 Done** (2026-06-22 through 2026-06-27). **First-party connector V1.1?åÆV1 GA promotion (2026-07-03):** Jira/ServiceNow/Confluence/Slack/Microsoft Teams moved to **V1 GA** (`V1_DEFERRED.md` ?º6/?º6a); **TB-599?ÇôTB-602** track the resulting tightening work (native-create default posture, OAuth upgrade, live-validation parity, buyer-copy sweep). **Next recommended batch:** **TB-398** (full enterprise ITSM connector ?Çö **V2** ITSM cluster; out of V1/V1.1 unless owner promotes) remains separate and unaffected by the promotion. Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
@@ -196,6 +196,10 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 **TB-2130 — TB-2139** were added 2026-08-09 from the owner ask to **create P0s** for ten **easier-to-use / easier-to-understand** levers (first-session cognitive load + adoption friction). All **P0** **V1** — residual product-led gaps after earlier Done waves; **do not reopen** Done **TB-169** / **TB-170** / **TB-174** / **TB-270** / **TB-353** / **TB-431**–**TB-455** / **TB-666** / **TB-2044** / **TB-2063**–**TB-2071**. **TB-2130** single primary review-creation path (beyond tabs/relabel). **TB-2131** buyer-noun enforcement on golden-path surfaces. **TB-2132** post-finalize sponsor export above the fold. **TB-2133** stricter pre-commit progressive disclosure. **TB-2134** first-encounter inline glossary for product nouns. **TB-2135** cross-surface trust-label parity (inspect / compare / export). **TB-2136** job → pack → expected-output chooser prominence. **TB-2137** empty/error states teach next step + support path. **TB-2138** one in-product golden walkthrough ending in sponsor-ready package. **TB-2139** role-shaped default nav density. Grounding: [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](../go-to-market/FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md) (H3/H5), [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md) product language. No new GTM IDs (cohort execution stays GTM **M-44** / **M-90**).
 
 **TB-2140 — TB-2146** were added 2026-08-09 from the owner ask to **file P0s** for the next quantified performance opportunities after Done **TB-2117**–**TB-2124** (wave 5). All **P0** **V1**: Critic phase overlap / tighter admission after measured phases (**TB-2140**; residual of Done **TB-2121** instrumentation); Production Redis L2 beyond DEV (**TB-2141**); further `/architecture/reviews/[runId]` First Load JS cut (**TB-2142**, baseline **2150.6 kB**); narrow remaining operator `force-dynamic` (~**29** layouts) (**TB-2143**); alerts inbox + billing banners → TanStack Query (**TB-2144**); shared shell / home First Load residual (**TB-2145**); cold-start staging Phase B + paid-lever reopen gate (**TB-2146**). Same pass **promotes** open peers to **P0**: scale micro-drill harness (**TB-946**), compliance-journey ISR (**TB-1484**), example ROI bulletin ISR (**TB-1517**). Does **not** reopen Done **TB-560**–**TB-593** / **TB-754**–**TB-759** / **TB-915**/**TB-947**/**TB-932** / **TB-929**–**TB-935** / **TB-2021**–**TB-2032** / **TB-2053**–**TB-2062** / **TB-2117**–**TB-2124**.
+
+**TB-2148 — TB-2157** were added 2026-08-09 from the owner ask to **create P0s** for ten **untracked confusion-reduction** levers (adoption friction, trustworthiness, explainability). All **P0** **V1** — residual after Done **TB-2130**–**TB-2139** easier-to-use wave and open **TB-1667**–**TB-1670** contextual-help mounts; **do not reopen** Done **TB-2113**–**TB-2116** (durable mutation outcomes) or **TB-1026** (nav collapse contract — **TB-2153** enforces canonical-home labeling only). **TB-2148** mutation reversibility classification + undo window. **TB-2149** review execution background-safety + duration estimate + completion notify. **TB-2150** per-user “new since last visit” change markers. **TB-2151** specimen deliverable preview before intake commitment. **TB-2152** self-describing clickable count parity. **TB-2153** canonical object home + secondary-view labeling. **TB-2154** one-sentence finding derivation on card. **TB-2155** error recovery contract (what failed / what's intact / next step) + Vitest guard. **TB-2156** admin prerequisites readiness board. **TB-2157** multi-step wizard session persistence. No new GTM IDs.
+
+**TB-2158 — TB-2167** were added 2026-08-09 from the owner ask to **create P0s** for ten quantified performance levers **verified absent in tree** after Done **TB-2142**–**TB-2145** (wave 6 partial). All **P0** **V1**: conditional GET / ETag on hot operator reads (**TB-2158**); Azure OpenAI prompt-cache prefix stability + `cached_tokens` telemetry (**TB-2159**); single-flight coalescing in `HybridHotPathReadCache` (**TB-2160**); zero-cost runtime knobs — Server GC / TieredPGO / invariant globalization (**TB-2161**); `System.Text.Json` source-generated contexts for API DTOs (**TB-2162**); outbound `SocketsHttpHandler` tuning (**TB-2163**); table-valued parameters for findings child inserts (**TB-2164**); TanStack Query cache persistence (**TB-2165**); Web Worker offload for INP (**TB-2166**); leader election for hosted background services (**TB-2167**). **Verified already shipped — do not refile:** read-committed snapshot isolation (migration **091**), Query Store hot-path script + `infra/terraform-sql-failover/automatic_tuning.tf`, `SqlConnectionStringPoolNormalizer` pool sizing, and Brotli/gzip `AddArchLucidResponseCompression`. **Deliberately excluded:** payload compression and streaming-export work — Done **TB-932** measured DEV evidence at max ~**30 KB** with **0%** ≥ 1 MB, so the gain is near zero. Does **not** reopen Done **TB-560**–**TB-593** / **TB-754**–**TB-759** / **TB-929**–**TB-935** / **TB-2021**–**TB-2032** / **TB-2053**–**TB-2062** / **TB-2117**–**TB-2124** / **TB-2142**–**TB-2145**. Open peers not duplicated: **TB-2140** (Critic overlap), **TB-2141** (Redis L2 beyond DEV), **TB-2146** (cold-start Phase B). No new GTM IDs.
 
 **TB-2117 — TB-2124** were added 2026-08-08 from the owner ask to **create P0s** for the next quantified performance opportunities after Done **TB-2053**–**TB-2062**. All **P0** **V1**: further `/architecture/reviews/[runId]` First Load JS cut (**TB-2117**, baseline **2237.5 kB**); shared operator-shell First Load JS tax on hubs (**TB-2118**); slim operator `GetRunDetailAsync` off full `ResultJson` (**TB-2119**); Production Redis L2 + replica-count enablement (**TB-2120**); Real-mode Critic/bulkhead wall-time (**TB-2121**); outbox idle-poll floors (**TB-2122**); narrow `force-dynamic` + TanStack Query remainder (**TB-2123**); cold-start paid-lever decision pack (**TB-2124**). Same pass **promotes** open peers to **P0**: Container Apps HTTP+CPU scale mix (**TB-915**), API max-replicas vs TPM checklist (**TB-947**), measured JSON LOB → blob offload (**TB-932**, evidence-gated). Does **not** reopen Done **TB-560**–**TB-593** / **TB-929**–**TB-935** / **TB-2021**–**TB-2032** / **TB-2053**–**TB-2062**.
 
@@ -1223,6 +1227,26 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-2145 | ~~Shared shell / home First Load residual~~ **Done** 2026-08-09 — `/` **1646.1 → 1587.2 kB** (−58.9 kB); deferred command center, ROI strip, below-fold panels; Vitest + baseline; see ## TB-2145 below | Performance P0 — **V1**; owner perf wave 6 2026-08-09; after **TB-2118**/**TB-2061** | L |
 | TB-2146 | Cold-start staging Phase B + paid-lever reopen gate; see ## TB-2146 below | Performance P0 — **V1**; owner perf wave 6 2026-08-09; residual of Done **TB-2124** | S |
 | TB-2147 | Sweep baselined `title`-attribute help — 135 sites / 92 files (fake tooltips, disabled reasons, truncation reveal); see ## TB-2147 below | Accessibility P1 — **V1**; filed from **TB-1666** 2026-08-09; shrink `eslint-rules/title-attribute-legacy-surfaces.mjs` to empty | L |
+| TB-2148 | Mutation reversibility classification + undo window for reversible governance actions; see ## TB-2148 below | Trustworthiness P0 — **V1**; owner confusion-reduction ask 2026-08-09; complements Done **TB-2114** | M |
+| TB-2149 | Review execution background-safety copy + tenant duration estimate + completion notification; see ## TB-2149 below | Adoption friction P0 — **V1**; owner confusion-reduction ask 2026-08-09; peers **TB-2077**/**TB-2121** | M |
+| TB-2150 | Per-user "new since last visit" markers on review tabs, findings, governance surfaces; see ## TB-2150 below | Adoption friction P0 — **V1**; owner confusion-reduction ask 2026-08-09 | M |
+| TB-2151 | Specimen signed-review-record + findings preview before intake commitment; see ## TB-2151 below | Adoption friction P0 — **V1**; owner confusion-reduction ask 2026-08-09; complements Done **TB-2136**/**TB-353** | S |
+| TB-2152 | Self-describing clickable metric counts with enforced cross-surface parity; see ## TB-2152 below | Trustworthiness P0 — **V1**; owner confusion-reduction ask 2026-08-09 | M |
+| TB-2153 | Canonical object home routes + "viewing from …" labels on secondary appearances; see ## TB-2153 below | Adoption friction P0 — **V1**; owner confusion-reduction ask 2026-08-09; complements Done **TB-1026**; does not reopen **TB-401** | M |
+| TB-2154 | One-sentence finding derivation line on card (+ expand into evidence trail); see ## TB-2154 below | Explainability P0 — **V1**; owner confusion-reduction ask 2026-08-09; lighter than **TB-184**/**TB-185** | M |
+| TB-2155 | Error recovery contract — what failed / what's intact / next step + Vitest guard; see ## TB-2155 below | Adoption friction P0 — **V1**; owner confusion-reduction ask 2026-08-09; extends Done **TB-2137**/**TB-782** | M |
+| TB-2156 | Admin prerequisites readiness board — unmet setup only, dependency order; see ## TB-2156 below | Adoption friction P0 — **V1**; owner confusion-reduction ask 2026-08-09; extends Done **TB-210** | M |
+| TB-2157 | Multi-step wizard session persistence (intake, baseline, SSO) — resume anytime; see ## TB-2157 below | Adoption friction P0 — **V1**; owner confusion-reduction ask 2026-08-09; extends Done **TB-1455** draft autosave | M |
+| TB-2158 | Conditional GET (ETag / `If-None-Match`) on hot operator reads — `RowVersion` already the cache key; see ## TB-2158 below | Performance P0 — **V1**; owner perf wave 7 2026-08-09; ETag exists only on evidence pack / demo preview | M |
+| TB-2159 | Azure OpenAI prompt-cache prefix stability + `cached_tokens` telemetry; see ## TB-2159 below | Performance/cost P0 — **V1**; owner perf wave 7 2026-08-09; `cached_tokens` absent from tree; peer **TB-2140** | M |
+| TB-2160 | Single-flight (request coalescing) in `HybridHotPathReadCache` — kill miss stampedes; see ## TB-2160 below | Performance P0 — **V1**; owner perf wave 7 2026-08-09; no lock/`Lazy<T>` in cache today; pairs **TB-2141** | M |
+| TB-2161 | Zero-cost runtime knobs — Server GC + TieredPGO + invariant globalization; see ## TB-2161 below | Performance P0 — **V1**; owner perf wave 7 2026-08-09; free complement to R2R **no-go** in **TB-2124** | S |
+| TB-2162 | `System.Text.Json` source-generated contexts for API DTOs — cuts cold-start Phase B reflection; see ## TB-2162 below | Performance P0 — **V1**; owner perf wave 7 2026-08-09; only `GraphJsonSerializerContext` exists; pairs **TB-2146** | L |
+| TB-2163 | Outbound `SocketsHttpHandler` tuning across `AddHttpClient` registrations; see ## TB-2163 below | Performance P0 — **V1**; owner perf wave 7 2026-08-09; no primary-handler config on ~25 clients | M |
+| TB-2164 | Table-valued parameters for findings child inserts — stop plan-cache churn from variable chunk sizes; see ## TB-2164 below | Performance P0 — **V1**; owner perf wave 7 2026-08-09; needs SQL-mode measurement first | M |
+| TB-2165 | TanStack Query cache persistence across navigation / reload; see ## TB-2165 below | Performance P0 — **V1**; owner perf wave 7 2026-08-09; residual after Done **TB-2123**/**TB-2144** | S |
+| TB-2166 | Web Worker offload for INP on evidence graph + compare views; see ## TB-2166 below | Performance P0 — **V1**; owner perf wave 7 2026-08-09; INP not addressed by bundle cuts; after Done **TB-2031** | M |
+| TB-2167 | Leader election for hosted background services — unblocks `min_replicas` lever; see ## TB-2167 below | Performance/reliability P0 — **V1**; owner perf wave 7 2026-08-09; blocker named in **TB-2124** matrix | L |
 | TB-932 | **Done** (2026-08-09) — **Won't do** — Offload large JSON payloads to blob storage; DEV LOB evidence max ~30 KB / 0% ≥1 MB; see ## TB-932 below | Performance P0 — **V1** (promoted P0 + V1 2026-08-08 with perf wave 5; evidence-gated; was P3 V2); after **TB-929**–**TB-931**; peers **TB-2119** | L |
 | TB-2103 | Operator-maintained model catalog — DDL-backed `IAgentModelAliasRegistry` replacing `ConfigAgentModelAliasRegistry`; internal-only admin surface; lifecycle + audit on every mutation; see ## TB-2103 below | Maintainability P1 — **V1.1**; ADR 0065 D2′; today curation needs a code change + deploy | L |
 | TB-2104 | Structured-output capability ladder (`StrictJsonSchema` \| `JsonObject` \| `DegradedTextParse`) per catalog row + per-task minimum, fail-closed routing; see ## TB-2104 below | Correctness P1 — **V1.1**; ADR 0065 D4′; the **only** quality-adjacent fail-closed control — function, not quality judgment | M |
@@ -50398,6 +50422,646 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 **Peers:** Done **TB-1666** (contract + rule); **TB-2005** (form validation affordances); **TB-1670** (page-help Vitest guard).
 
 **Out of scope:** Mount waves **TB-1667**–**TB-1669**; **Learn more** targets (**TB-2048** Done); `iframe title`, which is a required accessible name and exempt by design.
+
+**Size estimate:** L.
+
+---
+
+## TB-2148 — Mutation reversibility classification + undo window (P0)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner confusion-reduction ask 2026-08-09 (lever 1); complements Done **TB-2114** (durable governance mutation outcomes).
+
+**Why:** Governance mutations (disposition, exception grant, bulk approve, signed-record finalize) commit on confirm with no product signal whether the action is reversible. Done **TB-2114** ensures outcomes are durably displayed, not whether operators can safely act. Hesitation on high-stakes buttons is silent confusion — users treat every mutation as permanent.
+
+**Approach:**
+
+1. Classify each governance mutation surface as **reversible**, **reversible with audit entry**, or **permanent** (SoT registry in `archlucid-ui/src/lib/`).
+2. Show the classification in every confirmation dialog for governed mutations (not toast-only).
+3. For **reversible** class only: ship a short undo affordance (e.g. 10s Sonner action or inline “Undo” on `OperatorSuccessCallout`) wired to the existing append-only trail / compensating API where one exists; where no API exists, label **permanent** honestly.
+4. Vitest: every guarded governance mutation root references the registry; confirmation copy includes reversibility class.
+
+**Acceptance:** Before confirming a governance mutation, the operator sees whether it can be undone; reversible mutations offer a working undo within the defined window; permanent mutations say so explicitly.
+
+**Affected files:** `GovernanceFindingsBulkActions`, workflow approve/reject dialogs, policy-pack publish, disposition surfaces, `durable-action-outcome-inventory.ts`, new `mutation-reversibility-registry.ts`.
+
+**Peers:** Done **TB-2114**/**TB-2116**; open **TB-987** (stale disposition honesty).
+
+**Out of scope:** Rewriting append-only audit semantics; undo for admin/integration saves (**TB-2115** surfaces).
+
+**Size estimate:** M.
+
+---
+
+## TB-2149 — Review execution background-safety + duration estimate + completion notify (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner confusion-reduction ask 2026-08-09 (lever 2); peers open **TB-2077** (shell in-flight store) and Done **TB-2121** (phase metrics).
+
+**Why:** `RunProgressTracker` times out at **180s** with retry; there is no duration estimate on the golden path and no completion notification. Operators cannot tell whether closing the tab kills execution or whether a long Real-mode run is still healthy — they either babysit the spinner or leave and miss completion.
+
+**Approach:**
+
+1. On review start and in `RunProgressTracker`, state explicitly that execution continues server-side if the user navigates away (honest only when true for the active execute mode).
+2. Show a tenant-scoped duration estimate (p50/p90 from recent finalized reviews in the workspace) beside the progress UI — not a global SLA claim.
+3. On completion (success or terminal failure), notify via browser notification (opt-in) and/or in-app shell badge tied to **TB-2077** when shipped; until then, email/in-app is acceptable MVP if notification permission is declined.
+4. Extend timeout copy when estimate exceeds 180s so “still running” does not read as failure.
+
+**Acceptance:** Starting or watching a review, an operator sees that work continues if they navigate away (when applicable), a realistic duration band, and a completion signal without returning to the tab.
+
+**Affected files:** `RunProgressTracker.tsx`, `useRunSummaryStream.ts`, review-start notices, optional `useReviewCompletionNotification.ts`, shell activity hook (**TB-2077** peer).
+
+**Peers:** **TB-2072**–**TB-2079** long-running ops cluster; Done **TB-2121** phase instrumentation.
+
+**Out of scope:** New `GET /v1/runs/{runId}/progress` endpoint (forbidden per `LONG_RUNNING_OPERATIONS_CONTRACT.md`).
+
+**Size estimate:** M.
+
+---
+
+## TB-2150 — Per-user "new since last visit" change markers (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner confusion-reduction ask 2026-08-09 (lever 3).
+
+**Why:** Returning after days away, an operator on the eight-tab review workspace has no signal which findings are new, which dispositions changed, or whether an approval moved. They re-read everything or miss material changes.
+
+**Approach:**
+
+1. Persist a per-user, per-entity last-seen watermark (localStorage MVP acceptable; server-backed follow-on optional) for review detail tabs, findings rows, and governance queue rows.
+2. Render quiet dot markers on tabs/rows where `updatedAt` (or disposition event time) exceeds the watermark.
+3. Clear markers on visit/focus of that tab or row; expose “Mark all as seen” on review detail.
+4. Vitest: watermark read/write; marker appears when fixture timestamp is newer than watermark.
+
+**Acceptance:** After absence, an operator opening a review sees which tabs and findings changed since their last visit without re-reading the full workspace.
+
+**Affected files:** `review-detail-workspace-tabs.ts`, findings list components, governance queue rows, new `usability/last-visited-watermark.ts`.
+
+**Peers:** Done **TB-2138** (golden walkthrough); open **TB-263** (action inbox).
+
+**Out of scope:** Real-time push for every peer edit (notification fan-out).
+
+**Size estimate:** M.
+
+---
+
+## TB-2151 — Specimen deliverable preview before intake commitment (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner confusion-reduction ask 2026-08-09 (lever 4); complements Done **TB-2136** (job→pack chooser) and **TB-353** (sample review surface).
+
+**Why:** Intake paths ask for 15–20 minutes of architecture description before the operator has seen what a finished package looks like. Effort/reward is invisible until after commitment — different problem than choosing among intake modes (**TB-2130** Done).
+
+**Approach:**
+
+1. On `/architecture/reviews/new` (and home start-review CTAs), link each intake path to a **real specimen** — showcase signed review record + findings set (static showcase or sample run), not marketing copy.
+2. Use buyer-safe framing: “See what you will get” with one primary open-specimen CTA above or beside intake chooser.
+3. Reuse `SHOWCASE_SAMPLE_REVIEW_REGISTRY` / marketing showcase routes — do not build a parallel export pipeline.
+4. Vitest: first-run new-review viewport includes specimen preview link; links resolve to a loadable showcase route.
+
+**Acceptance:** Before starting intake, an operator can open a real example of the finished deliverable (signed review record + findings) in one click.
+
+**Affected files:** `ReviewsNewPathSwitcher`, `ReviewsNewJobChooserSection`, home start CTAs, showcase deep-link helpers.
+
+**Peers:** Done **TB-353**/**TB-2136**/**TB-2138**; does **not** reopen **TB-270**.
+
+**Out of scope:** Changing intake wizard steps; GTM demo script rewrites.
+
+**Size estimate:** S.
+
+---
+
+## TB-2152 — Self-describing clickable metric count parity (P0)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner confusion-reduction ask 2026-08-09 (lever 5).
+
+**Why:** The same noun (“findings”, “open items”, “blocking”) carries different totals on review-detail Findings tab, `/governance/findings`, and executive dashboard because each applies different implicit filters. In governance tooling, two numbers that should match but do not destroy buyer trust.
+
+**Approach:**
+
+1. Introduce a shared count presentation helper: every metric renders inline scope (“12 open · this review · severity ≥ medium”).
+2. Clicking a count navigates to the filtered list that reproduces exactly that number (href + query contract).
+3. Add Vitest/CI fixtures asserting parity for golden-path pairs: review-detail findings count ↔ governance findings queue when scoped to same review; document intentional exceptions.
+4. Document scope dimensions in `UI_DESIGN_SYSTEM.md` § metric counts (or adjacent contract doc).
+
+**Acceptance:** Any headline count on golden-path surfaces shows its scope inline and click-through reproduces the same total; Vitest fails on undocumented drift between paired surfaces.
+
+**Affected files:** review detail summary chips, `GovernanceFindingsList`, executive KPI tiles, new `metric-count-presentation.ts`.
+
+**Peers:** Done **TB-2135** (trust labels); open **TB-2104** (alerts never-evaluated counters).
+
+**Out of scope:** Backend aggregation rewrites; full executive dashboard redesign.
+
+**Size estimate:** M.
+
+---
+
+## TB-2153 — Canonical object home + secondary-view labeling (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner confusion-reduction ask 2026-08-09 (lever 6); complements Done **TB-1026** (`OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md`).
+
+**Why:** Findings, decisions, and signed records appear in review-detail tabs, dedicated governance routes, approval queue, and audit trail with no signal which surface is the system of record. Operators do not know where to act vs where to browse.
+
+**Approach:**
+
+1. Declare canonical home route per object type (finding, decision, signed review record, approval request) in a small registry aligned with **TB-1026**.
+2. On secondary appearances, render a visible “Viewing from approval queue” (or equivalent) strip with link to canonical home.
+3. Primary actions (disposition, approve) only on canonical home or explicitly labeled inline actions — not duplicated silently on secondary views.
+4. Vitest: registry coverage for golden-path secondary surfaces; each shows home link.
+
+**Acceptance:** For each governed object type, operators can identify the canonical record location; secondary views label themselves and link home.
+
+**Affected files:** governance queue, review-detail governance sections, approval queue, `operator-primary-object-nav-collapse` helpers, new `canonical-object-home-registry.ts`.
+
+**Peers:** Done **TB-1026**/**TB-738**; **TB-401** (V1.1 run-detail IA — **do not reopen**).
+
+**Out of scope:** Full run-detail tab reduction (**TB-401**); nav tree collapse.
+
+**Size estimate:** M.
+
+---
+
+## TB-2154 — One-sentence finding derivation on card (P0)
+
+**Window:** V1 — Explainability.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner confusion-reduction ask 2026-08-09 (lever 7); lighter than open **TB-184**/**TB-185** (governance-block / conversational explainers).
+
+**Why:** Evidence trail and provenance routes can prove a finding, but the causal chain (rule → evidence → finding → severity) is spread across tabs. Skeptical principal architects must hunt to decide whether to believe a finding.
+
+**Approach:**
+
+1. On each finding card (review detail + governance queue), render one plain-language derivation sentence synthesized from existing payload fields (rule name, evidence class, severity rationale).
+2. “Show evidence” expands into the existing evidence-trail / provenance deep link — no new forensics pipeline.
+3. When derivation cannot be synthesized, show honest “Derivation not available” — do not fabricate confidence (**TB-273** BDA-013 guard).
+4. Vitest: fixture finding renders non-empty derivation; missing fields fall back safely.
+
+**Acceptance:** On the findings list, each row answers “why did I get this?” in one sentence without leaving the page; expand reaches the existing evidence trail.
+
+**Affected files:** finding card components, `FindingDetailPageView`, new `finding-derivation-sentence.ts`.
+
+**Peers:** Done **TB-2135** (trust labels); **TB-184**/**TB-185** (deeper explainers — out of scope).
+
+**Out of scope:** New LLM per-finding explainer; API schema changes.
+
+**Size estimate:** M.
+
+---
+
+## TB-2155 — Error recovery contract + Vitest guard (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner confusion-reduction ask 2026-08-09 (lever 8); extends Done **TB-2137** (empty/not-found recovery) and **TB-782**–**TB-792** (Report Problem).
+
+**Why:** Errors expose correlation id and Report Problem — good for support, poor for self-rescue. Operators do not know what failed, what is still intact (e.g. draft not lost), or the single best next action.
+
+**Approach:**
+
+1. Ratify error recovery contract in `UI_DESIGN_SYSTEM.md`: every operator error surface states **(a)** what failed, **(b)** what is intact, **(c)** one concrete next action.
+2. Apply to golden-path failures first: review load, wizard save, governance mutation failure, connectivity (`OperatorLayeredConnectivityError`).
+3. Add Vitest inventory guard (pattern: `durable-action-outcome-inventory.ts` / **TB-2116**) for guarded error roots.
+4. Report Problem remains for async/system failures; recovery copy is inline, not toast-only.
+
+**Acceptance:** Golden-path error surfaces include intact-state reassurance and a next step; Vitest fails when a guarded root omits required recovery markers.
+
+**Affected files:** `OperatorApiProblem.tsx`, `ReviewPackageLoadFailureView.tsx`, `OperatorLayeredConnectivityError.tsx`, wizard error panels, new `error-recovery-contract-inventory.ts`.
+
+**Peers:** Done **TB-2137**/**TB-271** (partial correlation id); **TB-157** (connectivity copy).
+
+**Out of scope:** Replacing Report Problem registry; backend Problem Details shape changes.
+
+**Size estimate:** M.
+
+---
+
+## TB-2156 — Admin prerequisites readiness board (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner confusion-reduction ask 2026-08-09 (lever 9); extends Done **TB-210** (pilot prerequisites + connectivity script).
+
+**Why:** `/administration/*` spans ~20 sub-pages (SSO, SCIM, billing, cloud connections, model governance). Nothing tells a tenant admin which items are actually required before the first real review vs optional polish.
+
+**Approach:**
+
+1. Ship a single **Prerequisites** board (home for admins or `/administration/settings` top card) listing only **unmet** prerequisites in dependency order (e.g. workspace → cloud connection → IdP if required → billing if required).
+2. Collapse not-yet-relevant items; link each row to the existing setup surface.
+3. Derive status from existing readiness probes where possible (`home-readiness-row-present`, connection health, SSO wizard state) — avoid duplicate health checks.
+4. Vitest: empty-tenant fixture shows ordered unmet rows; fully-ready tenant shows compact “Ready to run reviews”.
+
+**Acceptance:** A tenant admin can see, in one view, what remains before the first production review without exploring every settings page.
+
+**Affected files:** new `AdminPrerequisitesReadinessBoard.tsx`, readiness aggregation module, `/administration/settings` hub, tests.
+
+**Peers:** Done **TB-210**/**TB-345**–**TB-353**; open **TB-1139**–**TB-1143** (cloud connections UX).
+
+**Out of scope:** New SSO/SCIM implementation; auto-provisioning.
+
+**Size estimate:** M.
+
+---
+
+## TB-2157 — Multi-step wizard session persistence (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner confusion-reduction ask 2026-08-09 (lever 10); extends Done **TB-1455** (architecture draft autosave reassurance).
+
+**Why:** Autosave exists for architecture drafts (`use-architecture-draft-autosave.ts`) only. Intake wizards (Quick start, Guided questions, Templates), pilot baseline wizard, and SSO wizard lose state on refresh or accidental navigation — operators rush steps for fear of losing work.
+
+**Approach:**
+
+1. Generalize draft persistence hook to all multi-step wizards on the golden path (intake trio, pilot baseline, SSO wizard).
+2. Persist step + field state to sessionStorage or localStorage with tenant/user scoping; restore on remount with “Resume where you left off” prompt.
+3. Show the same save status line pattern as **TB-1455** (`ArchitectureDraftSaveStatus` parity).
+4. Vitest: refresh mid-wizard restores fields; clear on successful submit.
+
+**Acceptance:** Refreshing or leaving and returning to an in-progress wizard offers resume with prior fields intact; successful completion clears persisted state.
+
+**Affected files:** `use-architecture-draft-autosave.ts` (generalize), `FirstPilotIntakeWizard`, `SocraticIntakeWizard`, `NewRunWizardClient`, pilot baseline wizard, SSO wizard steps, tests.
+
+**Peers:** Done **TB-1455**/**TB-2007** (validation); open **TB-2006**–**TB-2011** (disable-until-ready).
+
+**Out of scope:** Cross-device server-side draft sync (V1.1).
+
+**Size estimate:** M.
+
+---
+
+## TB-2158 — Conditional GET (ETag / `If-None-Match`) on hot operator reads (P0)
+
+**Window:** V1 — Performance.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner perf wave 7 2026-08-09; verified absent — ETag handling exists only in `TrustCenterEvidencePackController` / `EvidencePackEtag` and `DemoCommitPagePreviewController`.
+
+**Why:** Run detail, run lists, findings, and audit reads have no validator, so every operator revisit and every shell refetch re-serializes and re-transfers a full payload. The validator is effectively free: `RowVersion` is **already** the hot-path cache key suffix (`explanation:aggregate:{runId}:{hex(RowVersion)}` per [`PERFORMANCE.md`](PERFORMANCE.md)), so an ETag is a rename of material the read path already loads.
+
+**Quantified target:** **−50 to −150 ms p95** per revisit and **−30 to −60%** response bytes on shell refetch cycles (estimates). Basis: manifest p95 is **164 ms** in-process ([`PERFORMANCE_BASELINES.md`](PERFORMANCE_BASELINES.md)) and is now dominated by serialization plus transfer after Done **TB-2119** slimming; a `304` is ~**200–400** bytes.
+
+**Approach:**
+
+1. Reuse the `EvidencePackEtag` pattern (do **not** add a second ETag helper) as a shared validator module; derive the tag from `RowVersion` where present, else a stable content hash.
+2. Emit `ETag` + honor `If-None-Match` on run detail, run keyset lists, findings snapshot reads, and audit reads; return `304` before body serialization.
+3. Confirm `Cache-Control` posture stays private/no-store-compatible for tenant-scoped data (validator only, no shared caching).
+4. Integration tests: second request with returned `ETag` yields `304` and empty body; mutation advancing `RowVersion` yields `200` with a new tag.
+
+**Acceptance:** Named read endpoints return a stable `ETag`; a conditional repeat returns `304` without serializing the payload; a write that advances `RowVersion` invalidates the tag. Measured byte and p95 delta recorded on the k6 operator path.
+
+**Affected files:** shared ETag validator (from `ArchLucid.Application/Marketing/EvidencePackEtag.cs` pattern), `RunQueryController`, `AuditController`, findings read controllers, `ArchLucid.Api.Tests`.
+
+**Peers:** Done **TB-2059**/**TB-2119** (slim payloads); **TB-2160** (coalescing); does not replace hot-path caching.
+
+**Out of scope:** Shared/CDN caching of tenant-scoped reads; `Last-Modified` as a second validator.
+
+**Size estimate:** M.
+
+---
+
+## TB-2159 — Azure OpenAI prompt-cache prefix stability + `cached_tokens` telemetry (P0)
+
+**Window:** V1 — Performance / Cost-effectiveness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner perf wave 7 2026-08-09; verified absent — no `cached_tokens` / `CachedTokens` symbol anywhere in tree.
+
+**Why:** `LlmCompletionAccountingClient` meters `LlmPromptTokens` and `LlmCompletionTokens` only, so provider-side prompt caching is neither exploited nor measured. Existing caching (`LlmCompletionResponseCache`, `ISemanticCache`, `DemoAiPromptCache`) is **our** cache on whole-completion identity; it does nothing for near-miss prompts that share a long stable prefix. Azure OpenAI caches identical prompt **prefixes** above a minimum token threshold, so prompt assembly order decides whether we get hits at all.
+
+**Quantified target:** **−20 to −50%** time-to-first-token on repeat calls whose prefix is cacheable, and a discount on the cached input-token portion — roughly **−10 to −25 s** against the real-mode p50 target of **< 120 s** ([`PERFORMANCE_BASELINES.md`](PERFORMANCE_BASELINES.md)) (estimates). The prefix typically carries **60–85%** of prompt tokens on policy-pack-heavy reviews. **Verify the current cached-input discount rate and minimum-prefix threshold against live Azure OpenAI pricing and model docs before quoting either to a buyer** — both are provider-set and version-dependent.
+
+**Approach:**
+
+1. Audit prompt assembly ordering: system instructions, then policy pack, then retrieved context, with volatile per-run content **last**; eliminate per-run interpolation (timestamps, GUIDs, correlation IDs) from the prefix.
+2. Record `cached_tokens` from the usage payload; add an `archlucid_llm_prompt_cached_tokens` counter and a cache-hit ratio in `ArchLucidInstrumentation`.
+3. Gate any latency or cost claim on measured hit ratio from a staging Real cohort — not on the estimate above.
+4. Document prefix-stability as a constraint in the prompt authoring docs so future edits do not silently break the cache.
+
+**Acceptance:** `cached_tokens` is measured and dashboarded with a hit ratio; prompt prefixes are byte-stable across runs for a fixed pack and model; measured TTFT and input-cost delta recorded before any published figure.
+
+**Affected files:** `ArchLucid.AgentRuntime/Prompts/*`, `LlmCompletionAccountingClient.cs`, `ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs`, [`OBSERVABILITY.md`](OBSERVABILITY.md), prompt authoring docs.
+
+**Peers:** **TB-2140** (Critic overlap — different lever on the same wall clock); Done **TB-2121** phase metrics; **TB-1336** capacity ledger.
+
+**Out of scope:** Provisioned throughput purchase; changing model selection; replacing our own response cache.
+
+**Size estimate:** M.
+
+---
+
+## TB-2160 — Single-flight coalescing in `HybridHotPathReadCache` (P0)
+
+**Window:** V1 — Performance.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner perf wave 7 2026-08-09; verified absent — no `SemaphoreSlim`, `Lazy<T>`, keyed lock, or `ConcurrentDictionary` in `ArchLucid.Persistence/Caching/HybridHotPathReadCache.cs`.
+
+**Why:** Every concurrent miss on the same key issues its own SQL query. This is the tail that survives caching: at TTL expiry, on cold start, and across replicas, duplicate work scales with concurrency rather than with distinct keys. Done **TB-2062** coalesced audit-cache **invalidation** under write churn; it did not add read-side single-flight. The gap widens exactly when **TB-2141** raises `ExpectedApiReplicaCount` above 1.
+
+**Quantified target:** **−40 to −80%** redundant SQL calls at TTL-expiry boundaries and **−200 to −800 ms p99** on policy-pack and run-detail reads under concurrent load (estimates). Basis: the cold-start pack already credits Redis L2 with **−20–60% p95** on cached reads; stampede is the residual tail that L2 alone does not remove.
+
+**Approach:**
+
+1. Add per-key async single-flight to the hybrid cache so N concurrent misses await one loader (keyed `SemaphoreSlim` or in-flight task map with correct removal on completion and on fault).
+2. Ensure a faulted loader does not poison waiters or cache a failure; keep cancellation honored per caller.
+3. Emit an in-flight-dedupe counter beside the existing `archlucid_explanation_cache_*` metrics so the effect is observable.
+4. Tests: N concurrent misses on one key invoke the inner loader exactly once; a faulting loader surfaces to all waiters without caching the fault.
+
+**Acceptance:** Concurrent misses on one key perform one backing read; dedupe counter observable; no deadlock or cross-tenant key sharing; p99 delta measured on the k6 burst profile.
+
+**Affected files:** `ArchLucid.Persistence/Caching/HybridHotPathReadCache.cs`, `ArchLucid.Persistence.Tests/Caching/*`, [`OBSERVABILITY.md`](OBSERVABILITY.md).
+
+**Peers:** Done **TB-580**/**TB-2062**/**TB-2120**; **TB-2141** (makes this materially more valuable).
+
+**Out of scope:** Changing TTL policy or cache key shapes; distributed lock across replicas (in-process coalescing only).
+
+**Size estimate:** M.
+
+---
+
+## TB-2161 — Zero-cost runtime knobs (Server GC / TieredPGO / invariant globalization) (P0)
+
+**Window:** V1 — Performance / Cost-effectiveness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner perf wave 7 2026-08-09; verified absent — `ArchLucid.Api.csproj` sets none of `ServerGarbageCollection`, `TieredPGO`, `InvariantGlobalization` (only `scripts/ci/run_fast_core_corset_shard.sh` touches GC settings, for CI).
+
+**Why:** Done **TB-2124** ruled every paid lever **no-go** (CPU bump, memory bump, ReadyToRun, `min_replicas`, trimming) on dev Phase A ~**66 s**. These three knobs are the **free** complement and were never evaluated: workstation GC on a multi-core container serializes collections under concurrent allocation-heavy JSON work, and tiered PGO is off by default for this project shape.
+
+**Quantified target:** Server GC **−10 to −30% p95** under concurrent load; TieredPGO **+5 to +15%** steady-state throughput; invariant globalization **−50 to −150 ms** startup plus a smaller image (estimates). Measured against the k6 gates (p95 ≤ **2000 ms** api-smoke, ≤ **3000 ms** ci-smoke) and the cold-start Phase A/B baselines. **Azure cost delta: $0** — no SKU change.
+
+**Approach:**
+
+1. Enable knobs one at a time (the [`PERFORMANCE_COLD_START_AND_TRIMMING.md`](PERFORMANCE_COLD_START_AND_TRIMMING.md) rule: one lever per hypothesis, re-baseline between).
+2. **Validate Server GC against the 1.0 Gi API memory limit** — Server GC raises the heap floor per core and can trade a p95 win for OOM risk on a small container; capture working set before and after and be prepared to pair with `GCConserveMemory` or decline the knob.
+3. Confirm invariant globalization breaks no culture-sensitive formatting, comparison, or `ToUpperInvariant`-adjacent assumption (audit currency/date rendering and any `CultureInfo` use) before enabling.
+4. Record measured deltas in the cold-start baseline register; update the paid-lever matrix to note the free knobs were taken first.
+
+**Acceptance:** Each knob independently measured and either kept with numbers or declined with a recorded reason; no memory-limit regression; k6 gates green.
+
+**Affected files:** `ArchLucid.Api/ArchLucid.Api.csproj`, `ArchLucid.Worker` csproj, `ArchLucid.Api/Dockerfile`, `docs/operations/cold-start-baselines/`, [`PERFORMANCE_COLD_START_AND_TRIMMING.md`](PERFORMANCE_COLD_START_AND_TRIMMING.md).
+
+**Peers:** Done **TB-2124** (paid levers no-go); **TB-2146** (Phase B capture); **TB-2162** (also targets Phase B).
+
+**Out of scope:** ReadyToRun and `PublishTrimmed` — both remain evidence-gated **no-go** under **TB-2124**/**TB-2146**.
+
+**Size estimate:** S.
+
+---
+
+## TB-2162 — `System.Text.Json` source-generated contexts for API DTOs (P0)
+
+**Window:** V1 — Performance.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner perf wave 7 2026-08-09; verified — the only `JsonSerializerContext` in tree is `ArchLucid.Core/Persistence/Serialization/GraphJsonSerializerContext.cs`; the API surface serializes reflectively.
+
+**Why:** Reflection-based serialization pays a per-type warm-up on first touch and higher steady-state CPU and allocations on large DTO trees. The warm-up lands squarely in cold-start **Phase B** (`/api/auth/me` after ready) — the phase that has **never been captured** against its **median < 1.0 s** gate, and the phase that Done **TB-2124** could not evaluate for exactly that reason.
+
+**Quantified target:** **−20 to −40%** serialization CPU and **−30 to −50%** allocations on large DTO trees; **−100 to −400 ms** on the first business request; **−5 to −15% p95** on list endpoints (estimates). Pair the measurement with **TB-2146** Phase B capture so the cold-start number is real rather than inferred.
+
+**Approach:**
+
+1. Inventory hot DTO roots (run detail, keyset lists, findings, audit, ProblemDetails) and add `[JsonSerializable]` contexts per area — one context per feature slice, not one god-context.
+2. Register contexts via `JsonSerializerOptions.TypeInfoResolver` chaining in `ArchLucidApiJsonSerializerOptions` so uncovered types still fall back to reflection (no behavior cliff).
+3. Assert wire-format parity: existing contract snapshot tests plus OpenAPI v1 snapshot must not drift (`ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`).
+4. Measure with `dotnet-trace` on startup + first request; record Phase B before and after.
+
+**Acceptance:** Hot DTO roots serialize through source-generated metadata with byte-identical payloads and a green OpenAPI snapshot; measured Phase B and list-endpoint deltas recorded.
+
+**Affected files:** `ArchLucid.Api/Serialization/ArchLucidApiJsonSerializerOptions.cs`, new per-slice `*JsonSerializerContext.cs` files (one class per file), `ArchLucid.Contracts` DTOs, contract tests.
+
+**Peers:** `GraphJsonSerializerContext` (existing pattern to follow); **TB-2146**/**TB-2161** (same Phase B target); Done **TB-2079** latency-tier gate.
+
+**Out of scope:** Trimming or AOT publish (**TB-2124** no-go); changing DTO shapes or naming policy.
+
+**Size estimate:** L.
+
+---
+
+## TB-2163 — Outbound `SocketsHttpHandler` tuning across `AddHttpClient` registrations (P0)
+
+**Window:** V1 — Performance / Reliability.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner perf wave 7 2026-08-09; verified — ~**25** `AddHttpClient` registrations across `ArchLucid.Host.Composition/Startup/*` and **none** configures a primary handler (`PooledConnectionLifetime` / `MaxConnectionsPerServer` / HTTP/2 appear only in `ArchLucid.Cli/Diagnostics/DoctorQuickStartReadiness.cs`).
+
+**Why:** With no primary-handler configuration, every named client inherits the default **2-minute** handler lifetime, so long-lived callers re-establish TCP + TLS on recycled handlers, and connection concurrency per server is left at defaults. On LLM, ARM, ITSM, and billing paths this shows up as avoidable handshake latency and as tail stalls when DNS moves and connections are held.
+
+**Quantified target:** **−50 to −150 ms** per new-connection call (TLS handshake avoided) and **−50 to −300 ms** on fan-out paths, plus fewer tail timeouts from stale-DNS holds (estimates).
+
+**Approach:**
+
+1. Add one shared `ConfigurePrimaryHttpMessageHandler` helper setting `PooledConnectionLifetime`, `PooledConnectionIdleTimeout`, `MaxConnectionsPerServer`, and HTTP/2 multiplexing where the peer supports it; apply per client class rather than one blanket value.
+2. Keep Polly resilience wiring intact — this changes the primary handler only, not retry or circuit-breaker posture.
+3. Confirm handler settings do not fight `IHttpClientFactory` lifetime (set `SetHandlerLifetime(Timeout.InfiniteTimeSpan)` only where `PooledConnectionLifetime` now owns recycling).
+4. Composition tests assert every registered client resolves a configured primary handler, so new clients cannot silently regress.
+
+**Acceptance:** All outbound named clients use tuned handlers with a guard test; Azure OpenAI and ARM paths measured before and after; no resilience-policy regression.
+
+**Affected files:** `ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions*.cs` (all `AddHttpClient` sites), new shared handler-configuration module, `ArchLucid.Host.Composition.Tests`.
+
+**Peers:** **TB-2159** (same LLM wall clock, different layer); Done **TB-996** Polly honesty CI.
+
+**Out of scope:** Replacing Polly policies; changing per-client timeouts already tuned for ITSM (60 s).
+
+**Size estimate:** M.
+
+---
+
+## TB-2164 — Table-valued parameters for findings child inserts (P0)
+
+**Window:** V1 — Performance.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner perf wave 7 2026-08-09; current shape per [`BACKEND_PERFORMANCE_REVIEW_STATUS.md`](../performance/BACKEND_PERFORMANCE_REVIEW_STATUS.md) — `InsertFindingChildrenAsync` batches related nodes, recommended actions, properties, and trace lists with chunked multi-row `VALUES` at parameter-budget-aware chunk sizes.
+
+**Why:** Parameter-budget-aware chunking means the **last** chunk of any batch differs in width from the full chunks, so query text varies with finding count. Each distinct width is a distinct cache key in the Azure SQL plan cache: compile CPU on the commit path plus plan-cache pollution that evicts genuinely hot plans. A table-valued parameter gives one stable statement and one cached plan regardless of row count.
+
+**Quantified target:** **−20 to −40%** of findings child-insert time and materially lower compile CPU, with the effect growing with finding count (estimate). **Basis caveat — measure first:** the ~**221 ms** findings figure in [`PERFORMANCE_BASELINES.md`](PERFORMANCE_BASELINES.md) was taken with `StorageProvider=InMemory`, so it is **not** SQL insert time. Capture a SQL-mode commit profile plus `sys.dm_exec_query_stats` compile counts before committing to a number.
+
+**Approach:**
+
+1. Measure first: SQL-mode commit breakdown and plan-cache entry count for the current chunked `VALUES` shape (Query Store script already exists at `ArchLucid.Persistence/Scripts/Maintenance/QueryStore-ArchLucid-hotpaths.sql`).
+2. Define TVP table types for each child collection; per the repo DDL rule, land them in the **single** `ArchLucid.Persistence/Scripts/ArchLucid.sql` greenfield file **and** a numbered DbUp migration with a matching rollback script.
+3. Convert `InsertFindingChildrenAsync` to Dapper TVP parameters; keep the in-memory repository emulation behaviorally identical.
+4. Extend `HotPathRelationalQueryShapeTests` with the new stable statement shapes; re-measure and record the delta.
+
+**Acceptance:** Child inserts execute through TVPs with one cached plan per statement; SQL-mode commit delta and compile-count delta recorded; greenfield DDL and migration agree; shape tests updated.
+
+**Affected files:** `SqlFindingsSnapshotRepository` (`InsertFindingChildrenAsync`), `ArchLucid.Persistence/Scripts/ArchLucid.sql`, new `ArchLucid.Persistence/Migrations/*` + `Rollback/*`, `ArchLucid.Persistence/Sql/HotPathRelationalQueryShapes.cs`, shape tests.
+
+**Peers:** Done **TB-929**–**TB-931** (list projections, typed columns); Done **TB-2060** (materialization off commit path).
+
+**Out of scope:** `SqlBulkCopy` (wrong tool at these row counts); changing findings schema or snapshot semantics.
+
+**Size estimate:** M.
+
+---
+
+## TB-2165 — TanStack Query cache persistence across navigation / reload (P0)
+
+**Window:** V1 — Performance.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner perf wave 7 2026-08-09; verified — `archlucid-ui/src/lib/query/operator-query-client.ts` and `OperatorQueryProvider.tsx` create an in-memory client with no persister.
+
+**Why:** Done **TB-2123**/**TB-2144** moved operator reads onto Query, but the cache dies on reload and on any full document navigation, so back/forward and refresh refetch from zero even when data is seconds old. Persistence is the missing half of the migration already paid for.
+
+**Quantified target:** **−1 to −3** round trips per navigation, worth **−100 to −400 ms** (estimate) — the same order Done **TB-2144** credited for removing RTTs on the alerts badge and billing banner.
+
+**Approach:**
+
+1. Add `persistQueryClient` with a `sessionStorage` persister, scoped by tenant and user so a session switch cannot surface another scope's cached reads.
+2. Set a conservative `maxAge` and a cache buster keyed to build ID so a deploy cannot rehydrate stale-shaped payloads.
+3. Exclude sensitive or authority-critical queries from persistence by key allowlist — persist list and summary reads, never signed-record or authority-decision payloads.
+4. Vitest: reload restores cached list data without a network call; tenant switch and build-ID change both discard the cache.
+
+**Acceptance:** Reload and back-navigation serve from the persisted cache with a background revalidate; scope isolation and build-buster verified by tests; no persisted authority payloads.
+
+**Affected files:** `archlucid-ui/src/lib/query/operator-query-client.ts`, `OperatorQueryProvider.tsx`, key allowlist module, tests.
+
+**Peers:** Done **TB-562**/**TB-2123**/**TB-2144**/**TB-935**; [`DATA_FLOW_AND_STATE.md`](../../archlucid-ui/docs/DATA_FLOW_AND_STATE.md).
+
+**Out of scope:** Server-side or cross-device cache; offline mode.
+
+**Size estimate:** S.
+
+---
+
+## TB-2166 — Web Worker offload for INP on evidence graph + compare views (P0)
+
+**Window:** V1 — Performance.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner perf wave 7 2026-08-09; residual dimension after Done **TB-2031** (field Web Vitals triage gate).
+
+**Why:** Every wave so far cut **bundle size**, which moves LCP and total blocking time. INP is a different axis: it is set by long tasks during interaction, and `reactflow` graph layout plus large compare/diff rendering still run on the main thread. A route can pass its First Load JS budget and still feel unresponsive on click.
+
+**Quantified target:** **−100 to −300 ms INP** on the evidence-graph and compare surfaces (estimate), by moving layout and diff computation off the main thread so no interaction task exceeds the **200 ms** long-task threshold.
+
+**Approach:**
+
+1. Use the **TB-2031** field Web Vitals data to confirm which surfaces actually show poor INP before writing any worker — measure first, do not assume the graph is worst.
+2. Move graph layout computation and compare/diff derivation into a Web Worker with a typed message contract; keep the render pass on the main thread.
+3. Where a worker is overkill, prefer `useDeferredValue` / `startTransition` for filter and search input so typing does not block.
+4. Vitest for worker message contracts plus an INP regression note in the performance baseline docs.
+
+**Acceptance:** Targeted surfaces show measured INP improvement in field data; no long task over 200 ms during graph interaction in a local trace; worker contract tested.
+
+**Affected files:** `FindingEvidenceGraph` and its layout module, compare/diff derivation, new worker module + typed contract, tests, [`PERFORMANCE_BASELINES.md`](PERFORMANCE_BASELINES.md).
+
+**Peers:** Done **TB-561** (`reactflow` dynamic import), **TB-2031** (CWV triage), **TB-694**/**TB-695** (virtualization); GTM **G-QA-06**/**G-QA-07**.
+
+**Out of scope:** Replacing `reactflow`; server-side graph layout.
+
+**Size estimate:** M.
+
+---
+
+## TB-2167 — Leader election for hosted background services (P0)
+
+**Window:** V1 — Performance / Reliability.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner perf wave 7 2026-08-09; blocker named explicitly in the Done **TB-2124** paid-lever matrix — "duplicate hosted background work if raised without worker split / leader election".
+
+**Why:** The `min_replicas` levers are blocked on this, not on cost: raising replicas today duplicates outbox drains, the stuck-job watchdog, cache warmups, and reconciliation probes across every replica. That is wasted SQL polling at steady state **and** a correctness smell (N pollers contending on the same rows), and it makes the **−5 to −20 s** warm-path deploy improvement unavailable.
+
+**Quantified target:** Removes **(N−1)×** duplicate background SQL polling at N replicas — at N=3 that is **~67%** of background poll load — and unblocks the **−5 to −20 s** user-visible warm-path deploy lever plus the **−30 to −90 s** idle lever from the **TB-2124** matrix (estimates; matrix figures).
+
+**Approach:**
+
+1. Inventory `ArchLucid.Host.Core/Hosted/*HostedService.cs` and classify each as singleton-required (outbox drains, watchdog, reconciliation) versus safe-per-replica (metrics, local warmups).
+2. Add SQL-backed lease leader election (reuse the existing distributed-lock primitive in `ArchLucid.Persistence/Concurrency/` rather than introducing a new mechanism) with lease renewal, fencing, and clean handover on shutdown.
+3. Gate singleton services behind lease ownership; expose current leader plus lease age in health/diagnostics so ops can see failover.
+4. Tests: two hosts contending yield exactly one active runner; lease expiry promotes the survivor; lost lease stops work without partial-batch corruption. Then re-evaluate `api_min_replicas` with a fresh baseline.
+
+**Acceptance:** Singleton hosted services run on exactly one replica with observable leadership and tested failover; `min_replicas` lever re-evaluated with a cost note in the decision pack.
+
+**Affected files:** `ArchLucid.Host.Core/Hosted/*`, lease/leader-election module reusing `ArchLucid.Persistence/Concurrency/*`, `ArchLucid.Host.Composition` registration, health diagnostics, [`PERFORMANCE_COLD_START_AND_TRIMMING.md`](PERFORMANCE_COLD_START_AND_TRIMMING.md), `infra/terraform-container-apps`.
+
+**Peers:** Done **TB-2122** (adaptive outbox poll), **TB-2056**/**TB-586** (outbox batching), **TB-2124** (matrix); **TB-2141** (replica scale-out), **TB-915**/**TB-946**/**TB-947** (scale posture).
+
+**Out of scope:** Splitting the worker into a separate deployment (V1.1); raising `min_replicas` in this row — that stays owner-gated under **TB-2146**.
 
 **Size estimate:** L.
 

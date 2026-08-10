@@ -75,7 +75,8 @@ def main(argv: list[str] | None = None) -> int:
     print()
     print(
         f"Source: {doc_path} - {len(lowest)} row(s); "
-        "excludes `/internal/*` and rows with UX score 0 (unscored)."
+        "excludes `/internal/*`, Internal-section rows, internal-runbook help exclusions, "
+        "and rows with UX score 0 (unscored)."
     )
     return 0
 

@@ -14,6 +14,8 @@ from archlucid_ui_route_traffic_table import (  # noqa: E402
     OWNER_DOC,
     deficit,
     format_overall_weight_total,
+    is_buyer_facing_ux_row,
+    lowest_ux_buyer_rows,
     parse_rows,
     sort_key,
     sort_rows,
@@ -84,3 +86,43 @@ def test_default_doc_points_at_owner_workbook() -> None:
     assert DOC == OWNER_DOC
     assert OWNER_DOC.name == "ui_route_traffic_estimates.md"
     assert ".local" in OWNER_DOC.as_posix()
+
+
+def test_configuration_reference_help_is_excluded_from_buyer_ux_ranking() -> None:
+    con_row = {
+        "id": "CON",
+        "path": "/help/configuration-reference",
+        "pct": "0.03%",
+        "score": "62,73",
+        "section": "Internal",
+        "notes": "Admin internal-runbook",
+    }
+
+    assert not is_buyer_facing_ux_row(con_row)
+
+    rows = [
+        con_row,
+        {
+            "id": "HOM",
+            "path": "/",
+            "pct": "3%",
+            "score": "74,80",
+            "section": "Core review",
+            "notes": "Home",
+        },
+    ]
+
+    assert lowest_ux_buyer_rows(rows, limit=10) == [rows[1]]
+
+
+def test_internal_section_rows_are_excluded_from_buyer_ux_ranking() -> None:
+    row = {
+        "id": "FOO",
+        "path": "/help/example",
+        "pct": "0.1%",
+        "score": "50,50",
+        "section": "Internal",
+        "notes": "Example",
+    }
+
+    assert not is_buyer_facing_ux_row(row)
