@@ -20,6 +20,7 @@ import {
   aggregateFindingProvenance,
   formatFindingProvenanceAggregateLine,
 } from "@/lib/finding-provenance-display";
+import { FindingDerivationLine } from "@/components/usability/FindingDerivationLine";
 import { FindingEvidenceLinkChip } from "@/components/usability/FindingEvidenceLinkChip";
 import { FindingEvidenceRefSnippets } from "@/components/usability/FindingEvidenceRefSnippets";
 import { FindingPolicyEvidenceCitationLinks } from "@/components/findings/FindingPolicyEvidenceCitationLinks";
@@ -44,6 +45,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
 import { postFindingMute } from "@/lib/api";
+import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
+import { findingDerivationFromQuickDecisionFinding } from "@/lib/finding-derivation-sentence";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
 import {
@@ -638,6 +641,8 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
     const findingActivityAt = resolveFindingActivityAtUtc(f.aiReasoning);
     const findingWatermarkKey = reviewFindingWatermarkKey(props.runId, f.findingId);
     const showNewSinceLastVisit = isActivityNewSinceLastVisit(findingWatermarkKey, findingActivityAt);
+    const derivation = findingDerivationFromQuickDecisionFinding(f);
+    const evidenceTraceHref = getFindingEvidenceTraceHref(props.runId, f.findingId);
 
     return (
       <article
@@ -674,6 +679,11 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
           <h3 className={cn("m-0 text-xl font-bold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {f.title}
           </h3>
+          <FindingDerivationLine
+            derivation={derivation}
+            evidenceHref={evidenceTraceHref}
+            testId={`finding-derivation-${f.findingId}`}
+          />
           {snippet.length > 0 ? (
             <p className={cn("m-0 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
               {snippet}
@@ -790,6 +800,8 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
       f.recommendation.length > 0
         ? firstRecommendationSentence(f.recommendation)
         : "See finding detail for recommended actions.";
+    const derivation = findingDerivationFromQuickDecisionFinding(f);
+    const evidenceTraceHref = getFindingEvidenceTraceHref(props.runId, f.findingId);
 
     return (
       <li
@@ -827,6 +839,11 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
             </div>
           </summary>
           <div className="mt-3 space-y-3 border-t border-neutral-100 pt-3 dark:border-neutral-800">
+            <FindingDerivationLine
+              derivation={derivation}
+              evidenceHref={evidenceTraceHref}
+              testId={`finding-derivation-${f.findingId}`}
+            />
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{snippet}</p>
             <Button type="button" size="sm" variant="outline" className="h-8" asChild>
               <Link href={href} prefetch={false}>Open finding</Link>

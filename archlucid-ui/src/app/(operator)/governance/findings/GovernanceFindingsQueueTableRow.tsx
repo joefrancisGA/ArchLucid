@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { CSSProperties, ReactElement } from "react";
 
+import { FindingDerivationLine } from "@/components/usability/FindingDerivationLine";
 import { NewSinceLastVisitMarker } from "@/components/usability/NewSinceLastVisitMarker";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
@@ -17,6 +18,7 @@ import {
 } from "@/components/ui/enterprise-table";
 import { BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA } from "@/lib/buyer-polish-copy";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { findingDerivationFromGovernanceQueueRow } from "@/lib/finding-derivation-sentence";
 import { CopyGovernanceQueueWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
 import { FindingPolicyTraceabilityBadges } from "@/components/FindingPolicyTraceabilityBadges";
 import { buildPolicyTraceabilityLinksFromRuleId } from "@/lib/finding-policy-evidence-citations";
@@ -78,6 +80,9 @@ function GovernanceFindingsQueueOperationalRowCells(props: {
   const evidenceChipHref =
     graphHref ??
     (row.evidenceHref !== undefined && row.evidenceHref.trim().length > 0 ? row.evidenceHref : null);
+  const findingDerivation = findingDerivationFromGovernanceQueueRow(row);
+  const evidenceTraceHref =
+    row.recordKind === "finding" ? governanceFindingInspectHref(row.runId, row.findingId) : null;
 
   return (
     <>
@@ -98,6 +103,16 @@ function GovernanceFindingsQueueOperationalRowCells(props: {
         ) : row.category && row.recordKind === "finding" ? (
           <div className={cn("mt-0.5 font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
             Policy area: {row.category}
+          </div>
+        ) : null}
+        {findingDerivation !== null ? (
+          <div className="mt-1">
+            <FindingDerivationLine
+              derivation={findingDerivation}
+              evidenceHref={evidenceTraceHref ?? evidenceChipHref}
+              testId={`governance-table-derivation-${row.findingId}`}
+              compact
+            />
           </div>
         ) : null}
         <div
@@ -192,6 +207,9 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
   const evidenceChipHref =
     graphHref ??
     (row.evidenceHref !== undefined && row.evidenceHref.trim().length > 0 ? row.evidenceHref : null);
+  const findingDerivation = findingDerivationFromGovernanceQueueRow(row);
+  const evidenceTraceHref =
+    row.recordKind === "finding" ? governanceFindingInspectHref(row.runId, row.findingId) : null;
 
   return (
     <EnterpriseTableRow
@@ -256,6 +274,16 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
             ) : row.category && row.recordKind === "finding" ? (
               <div className={cn("mt-0.5 font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
                 Policy area: {row.category}
+              </div>
+            ) : null}
+            {findingDerivation !== null ? (
+              <div className="mt-1">
+                <FindingDerivationLine
+                  derivation={findingDerivation}
+                  evidenceHref={evidenceTraceHref ?? evidenceChipHref}
+                  testId={`governance-table-derivation-${row.findingId}`}
+                  compact
+                />
               </div>
             ) : null}
             {evidenceChipHref !== null ? (

@@ -5,12 +5,14 @@ import { useRouter } from "next/navigation";
 import { memo, type ReactElement } from "react";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { FindingDerivationLine } from "@/components/usability/FindingDerivationLine";
 import { NewSinceLastVisitMarker } from "@/components/usability/NewSinceLastVisitMarker";
 import { FindingPolicyTraceabilityBadges } from "@/components/FindingPolicyTraceabilityBadges";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import { buildPolicyTraceabilityLinksFromRuleId } from "@/lib/finding-policy-evidence-citations";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { findingDerivationFromGovernanceQueueRow } from "@/lib/finding-derivation-sentence";
 import { cn } from "@/lib/utils";
 
 import {
@@ -49,6 +51,9 @@ function GovernanceFindingRowComponent({
   const router = useRouter();
   const rowIsDecision = row.recordKind === "decision";
   const buyerVariant = variant === "buyer";
+  const findingDerivation = findingDerivationFromGovernanceQueueRow(row);
+  const evidenceTraceHref =
+    row.recordKind === "finding" ? governanceFindingInspectHref(row.runId, row.findingId) : null;
 
   if (buyerVariant) {
     return (
@@ -100,6 +105,15 @@ function GovernanceFindingRowComponent({
               className="mt-1"
               {...buildPolicyTraceabilityLinksFromRuleId(row.policyRuleId, row.category || row.policyRuleId)}
             />
+          ) : null}
+          {findingDerivation !== null ? (
+            <div className="mt-2">
+              <FindingDerivationLine
+                derivation={findingDerivation}
+                evidenceHref={evidenceTraceHref}
+                testId={`governance-finding-derivation-${row.findingId}`}
+              />
+            </div>
           ) : null}
         </CardHeader>
         <CardContent className={cn("grid gap-3 pt-0", OPERATOR_TYPOGRAPHY.body)}>
@@ -158,6 +172,14 @@ function GovernanceFindingRowComponent({
             </span>
           )}
         </p>
+        {findingDerivation !== null ? (
+          <FindingDerivationLine
+            derivation={findingDerivation}
+            evidenceHref={evidenceTraceHref}
+            testId={`governance-finding-derivation-${row.findingId}`}
+            compact
+          />
+        ) : null}
         <GovernanceFindingOperationalHeaderMeta row={row} buyerPolishedShell={buyerPolishedShell} />
       </CardHeader>
       <CardContent className={cn("grid gap-2 pt-0 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
