@@ -790,7 +790,7 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
                               <div className="flex flex-wrap items-center gap-2 py-2 pr-2">
                                 <span>{permission.label}</span>
                                 {HIGH_RISK_PERMISSION_IDS.has(permission.id) ? (
-                                  <SeverityTag kind="high" label="High risk" className="shrink-0" />
+                                  <SeverityTag severity="High" kind="high" label="High risk" className="shrink-0" />
                                 ) : null}
                               </div>
                             </th>
