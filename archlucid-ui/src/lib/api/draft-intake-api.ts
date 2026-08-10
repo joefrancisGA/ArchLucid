@@ -40,8 +40,11 @@ export async function createDraftRequest(
   });
 }
 
-export async function getDraftRequest(draftId: string): Promise<DraftRequestResponse> {
-  return apiGet<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}`);
+export async function getDraftRequest(
+  draftId: string,
+  options?: { readonly scopeHeaders?: Record<string, string> },
+): Promise<DraftRequestResponse> {
+  return apiGet<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}`, options);
 }
 
 export async function patchDraftRequest(

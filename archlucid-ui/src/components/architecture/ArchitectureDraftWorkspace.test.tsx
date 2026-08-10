@@ -204,6 +204,26 @@ describe("ArchitectureDraftWorkspace", () => {
     });
   });
 
+  it("renders an H1 workspace title on edit routes (TB-1451)", async () => {
+    getDraftRequest.mockResolvedValue({
+      ...spawnedDraft,
+      status: "Drafting",
+      spawnedRunId: null,
+      document: { ...spawnedDraft.document, workflowIntent: "create-architecture" },
+    });
+
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-workspace-title")).toBeInTheDocument();
+    });
+
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Claims intake" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-creation-new-draft-section-title")).not.toBeInTheDocument();
+  });
+
   it("shows drafting-first workspace lead on load (TB-747)", async () => {
     getDraftRequest.mockResolvedValue({
       ...spawnedDraft,

@@ -136,6 +136,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   );
 
   const workspaceHeading = isNewDraft ? ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE : displayName;
+  const WorkspaceHeadingTag = isNewDraft ? "h2" : "h1";
 
   const workspaceLead = hasLocalDraftsOnCreatePath
     ? ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD
@@ -349,12 +350,14 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 space-y-1">
-          <h2
+          <WorkspaceHeadingTag
             className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}
-            {...(isNewDraft ? { "data-testid": "architecture-creation-new-draft-section-title" } : {})}
+            data-testid={
+              isNewDraft ? "architecture-creation-new-draft-section-title" : "architecture-draft-workspace-title"
+            }
           >
             {workspaceHeading}
-          </h2>
+          </WorkspaceHeadingTag>
           <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-draft-workspace-lead">
             {workspaceLead}
           </p>
