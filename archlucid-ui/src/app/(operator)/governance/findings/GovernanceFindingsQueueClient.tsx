@@ -7,6 +7,7 @@ import { GovernanceApprovalStatusBanner } from "@/components/governance/Governan
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { GovernanceFindingsFilterBar } from "@/components/governance/findings/GovernanceFindingsFilterBar";
 import { GovernanceFindingsList } from "@/components/governance/findings/GovernanceFindingsList";
@@ -163,6 +164,7 @@ export default function GovernanceFindingsQueueClient() {
         }
         actions={<PageContextualHelpButton />}
       />
+      <PageCapabilityBoundaryStrip surfaceId="governanceFindings" />
 <div className={cn("mt-4", OPERATOR_LAYOUT.sectionStack)}>
         {secondaryViewPresentation !== null ? (
           <CanonicalObjectSecondaryViewStrip

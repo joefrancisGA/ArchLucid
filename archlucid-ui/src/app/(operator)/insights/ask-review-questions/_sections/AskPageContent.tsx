@@ -26,6 +26,7 @@ import type { ConversationMessage, ConversationThread } from "@/types/conversati
 import { AskMainPanel } from "@/app/(operator)/insights/ask-review-questions/_sections/AskMainPanel";
 import { AskNoReviewEmptyState } from "@/app/(operator)/insights/ask-review-questions/_sections/AskNoReviewEmptyState";
 import { AskVsFrontierAiDifferentiationStrip } from "@/components/ask/AskVsFrontierAiDifferentiationStrip";
+import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { AskThreadHistoryPanel } from "@/app/(operator)/insights/ask-review-questions/_sections/AskThreadHistoryPanel";
 const ASK_PAGE_SUBTITLE =
   "Ask questions about a finalized review. Answers use the signed review record and cite evidence when available.";
@@ -429,6 +430,7 @@ export function AskPageContent() {
         actions={<PageContextualHelpButton />}
       />
       <AskVsFrontierAiDifferentiationStrip />
+      <PageCapabilityBoundaryStrip surfaceId="ask" />
 {listFailure !== null ? (
         <div role="alert" className="mb-4">
           <OperatorApiProblem

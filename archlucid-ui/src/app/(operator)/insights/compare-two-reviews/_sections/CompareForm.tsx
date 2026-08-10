@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { coerceComparisonExplanation, coerceGoldenManifestComparison, coerceRunComparison } from "@/lib/operator-response-guards";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -440,6 +441,7 @@ export function CompareForm() {
         subtitle={COMPARE_PAGE_SUBTITLE}
         actions={<PageContextualHelpButton />}
       />
+      <PageCapabilityBoundaryStrip surfaceId="compare" />
 {showInsufficientFinalized ? (
         <CompareInsufficientFinalizedEmptyState
           finalizedCount={finalizedCount}
