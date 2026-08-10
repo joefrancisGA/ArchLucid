@@ -20,7 +20,7 @@ Regenerate after opening or closing summary-table rows:
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
 | Explainability | 3 |
-| Trustworthiness | 93 |
+| Trustworthiness | 91 |
 | Maintainability | 9 |
 | Traceability | 3 |
 | Interoperability | 4 |
@@ -35,9 +35,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **680** |
+| **Total (unique open)** | **678** |
 
-**By priority band:** P0 **12** | P1 **538** | P2 **113** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **12** | P1 **536** | P2 **113** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -790,7 +790,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1793 | `/login` ? robots/noindex + metadata honesty (shim not a page); see ## TB-1793 below | Trustworthiness P1 ? **V1**; with **TB-1791** | XS |
 | TB-1797 | `/onboard` ? robots/noindex + metadata honesty (shim not a page); see ## TB-1797 below | Trustworthiness P1 ? **V1**; with **TB-1796**; pairs **TB-1793** | XS |
 | TB-1799 | Canonicalize inbound `/onboard` ? `/onboarding` (nav/docs); see ## TB-1799 below | Trustworthiness P1 ? **V1**; with **TB-1796** | S |
-| TB-1800 | Drop `/onboard` from marketing SEO path inventory (keep shim); see ## TB-1800 below | Trustworthiness P1 ? **V1**; with **TB-1796** | S |
+| TB-1800 | ~~Drop `/onboard` from marketing SEO path inventory (keep shim)~~ **Done** 2026-08-10 — robots disallow + sitemap exclusion Vitest; see ## TB-1800 below | Trustworthiness P1 — **V1**; with **TB-1796** | S |
 | TB-1802 | ~~`/onboarding/start` — robots/noindex + metadata honesty~~ **Done** 2026-08-10 — `LEGACY_ONBOARDING_START_ROUTE_METADATA` noindex + Vitest; see ## TB-1802 below | Trustworthiness P1 — **V1**; with **TB-1801**; pairs **TB-1797** | XS |
 | TB-1803 | ~~Canonicalize inbound `/onboarding/start` → `/onboarding`~~ **Done** 2026-08-10 — contributor doc guard + canonical `/architecture/first-review-guide`; see ## TB-1803 below | Trustworthiness P1 — **V1**; with **TB-1801**; pairs **TB-1799** | S |
 | TB-1804 | ~~Drop `/onboarding/start` from marketing SEO inventory (keep shim)~~ **Done** 2026-08-10 — robots disallow + sitemap exclusion Vitest; see ## TB-1804 below | Trustworthiness P1 — **V1**; with **TB-1801**; pairs **TB-1800** | S |
@@ -43373,13 +43373,15 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ---
 
-## TB-1800 ? Drop `/onboard` from marketing SEO path inventory (keep shim) (P0)
+## TB-1800 — Drop `/onboard` from marketing SEO path inventory (keep shim) (P0)
 
-**Window:** V1 ? Trustworthiness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 — Trustworthiness. **Status:** **Done** (2026-08-10) — `/onboard` excluded from `MARKETING_SITEMAP_PATHNAMES` and listed in `MARKETING_ROBOTS_DISALLOW_PREFIXES`; Vitest `legacy-onboard-route-seo.test.ts`. **Priority:** P0.
 
 **Problem:** `public-marketing-seo-paths` (or equivalent) may still list `/onboard`.
 
 **Approach:** Remove from marketing SEO allowlist; retain App Router shim. Vitest: SEO inventory excludes `/onboard`.
+
+**Shipped:** SEO inventory Vitest guards sitemap exclusion and robots disallow for the legacy onboard path.
 
 **Acceptance:** Marketing SEO does not promote legacy path. **Size estimate:** S.
 
