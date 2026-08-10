@@ -8,16 +8,27 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { ProvenanceGraphViewport } from "@/components/provenance/ProvenanceGraphViewport";
 import { ProvenanceGraphErrorBoundary } from "@/components/provenance/ProvenanceGraphErrorBoundary";
 import { ProvenanceSectionNav, type ProvenanceSection } from "@/components/provenance/ProvenanceSectionNav";
+import { ProvenanceWayfinding } from "@/components/provenance/ProvenanceWayfinding";
 import { ProvenanceNodeExplainCell } from "@/components/ProvenanceNodeExplainCell";
 import { ProvenanceReferenceLink } from "@/components/ProvenanceReferenceLink";
 import { RunTraceViewerLink } from "@/components/RunTraceViewerLink";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { StatusTag } from "@/components/ui/status-tag";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { REVIEWS_LIST_PATH, reviewDetailPath } from "@/lib/architecture-routes";
+import { reviewDetailPath } from "@/lib/architecture-routes";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
-import { PROVENANCE_CLAIM_DISCIPLINE } from "@/lib/provenance-evidence-copy";
+import { buyerTrailEdgeDisplayPhrase } from "@/lib/graph-mapper";
+import {
+  PROVENANCE_CLAIM_DISCIPLINE,
+  PROVENANCE_PAGE_TITLE,
+  PROVENANCE_SECTION_GRAPH_LABEL,
+  PROVENANCE_SECTION_LINKAGE_POINTS_LABEL,
+  PROVENANCE_SECTION_RELATIONSHIPS_LABEL,
+  PROVENANCE_SECTION_TRACE_TIMELINE_LABEL,
+  PROVENANCE_VIEW_GRAPH_LABEL,
+  PROVENANCE_VIEW_TABLES_LABEL,
+  PROVENANCE_VIEW_TIMELINE_LABEL,
+} from "@/lib/provenance-evidence-copy";
 import {
   provenanceEdgeDisplayLabel,
   provenanceNodeDisplayName,
@@ -46,6 +57,12 @@ export type ProvenancePageWorkspaceProps = {
 };
 
 type ProvenanceViewMode = "graph" | "timeline" | "table";
+
+const VIEW_MODE_OPTIONS: ReadonlyArray<{ id: ProvenanceViewMode; label: string }> = [
+  { id: "graph", label: PROVENANCE_VIEW_GRAPH_LABEL },
+  { id: "timeline", label: PROVENANCE_VIEW_TIMELINE_LABEL },
+  { id: "table", label: PROVENANCE_VIEW_TABLES_LABEL },
+];
 
 const FILTER_OPTIONS: ReadonlyArray<{ id: ProvenanceNodeFilterCategory; label: string }> = [
   { id: "evidence", label: "Evidence" },
@@ -103,14 +120,28 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
   const nodeById = useMemo(() => new Map(graph.nodes.map((node) => [node.id, node])), [graph.nodes]);
 
   const sections = useMemo((): ProvenanceSection[] => {
-    return [
-      ...(graph.traceabilityGaps.length > 0 ? [{ id: "trace-gaps", label: "Traceability gaps" }] : []),
-      { id: "prov-graph", label: "Provenance graph" },
-      { id: "prov-timeline", label: "Trace timeline" },
-      { id: "prov-nodes", label: "Nodes" },
-      { id: "prov-edges", label: "Edges" },
-    ];
-  }, [graph.traceabilityGaps.length]);
+    const next: ProvenanceSection[] = [];
+
+    if (graph.traceabilityGaps.length > 0) {
+      next.push({ id: "trace-gaps", label: "Traceability gaps" });
+    }
+
+    if (viewMode === "graph") {
+      next.push({ id: "prov-graph", label: PROVENANCE_SECTION_GRAPH_LABEL });
+    }
+
+    if (viewMode === "timeline") {
+      next.push({ id: "prov-timeline", label: PROVENANCE_SECTION_TRACE_TIMELINE_LABEL });
+    }
+
+    if (viewMode === "table") {
+      next.push({ id: "prov-timeline", label: PROVENANCE_SECTION_TRACE_TIMELINE_LABEL });
+      next.push({ id: "prov-nodes", label: PROVENANCE_SECTION_LINKAGE_POINTS_LABEL });
+      next.push({ id: "prov-edges", label: PROVENANCE_SECTION_RELATIONSHIPS_LABEL });
+    }
+
+    return next;
+  }, [graph.traceabilityGaps.length, viewMode]);
 
   const selectedNode = selectedNodeId === null ? null : (nodeById.get(selectedNodeId) ?? null);
 
@@ -248,9 +279,13 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
     };
   }, []);
 
-  const showGraph = viewMode === "graph" || viewMode === "table";
+  const showGraph = viewMode === "graph";
   const showTimeline = viewMode === "timeline" || viewMode === "table";
-  const showTables = viewMode === "table" || viewMode === "graph";
+  const showTables = viewMode === "table";
+  const evidenceGraphHref =
+    runId.trim().length > 0
+      ? `/insights/evidence-graph?runId=${encodeURIComponent(runId.trim())}`
+      : "/insights/evidence-graph";
 
   return (
     <div className="w-full max-w-[1160px] p-4 print:w-full" data-testid="provenance-page-workspace">
@@ -259,31 +294,9 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
           <ProvenanceSectionNav sections={sections} placement="inline-top" />
 
           <header className="space-y-2">
-            <nav aria-label="Breadcrumb" className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-              <ol className="m-0 flex flex-wrap items-center gap-1 p-0 list-none">
-                <li>
-                  <Link className={OPERATOR_LINK.nav} href={REVIEWS_LIST_PATH}>
-                    Reviews
-                  </Link>
-                </li>
-                <li aria-hidden="true" className="text-neutral-400">
-                  /
-                </li>
-                <li>
-                  <Link className={OPERATOR_LINK.nav} href={reviewHref}>
-                    {reviewTitle.length > 0 ? reviewTitle : "Review"}
-                  </Link>
-                </li>
-                <li aria-hidden="true" className="text-neutral-400">
-                  /
-                </li>
-                <li aria-current="page" className="text-neutral-800 dark:text-neutral-200">
-                  Provenance
-                </li>
-              </ol>
-            </nav>
+            <ProvenanceWayfinding reviewPackageHref={reviewHref} />
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>Provenance</h2>
+              <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{PROVENANCE_PAGE_TITLE}</h2>
               {reviewContext?.statusLabel !== null &&
               reviewContext?.statusLabel !== undefined &&
               reviewContext.statusLabel.length > 0 &&
@@ -291,7 +304,6 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
               reviewContext.statusTagKind !== undefined ? (
                 <StatusTag kind={reviewContext.statusTagKind} label={reviewContext.statusLabel} />
               ) : null}
-              <PageContextualHelpButton />
             </div>
             {reviewTitle.length > 0 ? (
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
@@ -317,6 +329,15 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
             >
               {PROVENANCE_CLAIM_DISCIPLINE}
             </p>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+              <Link className={OPERATOR_LINK.nav} href={evidenceGraphHref}>
+                Open Evidence graph
+              </Link>
+              {" · "}
+              <Link className={OPERATOR_LINK.nav} href="/insights/search-review-evidence">
+                Search review evidence
+              </Link>
+            </p>
           </header>
 {graph.traceabilityGaps.length > 0 ? (
             <section
@@ -340,21 +361,21 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
 
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
             <div className="inline-flex rounded-md border border-neutral-200 p-0.5 dark:border-neutral-700" role="tablist" aria-label="Provenance view">
-              {(["graph", "timeline", "table"] as const).map((mode) => (
+              {VIEW_MODE_OPTIONS.map((option) => (
                 <button
-                  key={mode}
+                  key={option.id}
                   type="button"
                   role="tab"
-                  aria-selected={viewMode === mode}
+                  aria-selected={viewMode === option.id}
                   className={cn(
-                    "rounded px-3 py-1.5 text-sm capitalize",
-                    viewMode === mode
+                    "rounded px-3 py-1.5 text-sm",
+                    viewMode === option.id
                       ? "bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900"
                       : "text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800",
                   )}
-                  onClick={() => setViewMode(mode)}
+                  onClick={() => setViewMode(option.id)}
                 >
-                  {mode}
+                  {option.label}
                 </button>
               ))}
             </div>
@@ -393,7 +414,7 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
           {showGraph ? (
             <section id="prov-graph" aria-labelledby="prov-graph-heading" className="scroll-mt-28">
               <h3 id="prov-graph-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                Provenance graph
+                {PROVENANCE_SECTION_GRAPH_LABEL}
               </h3>
               <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
                 Explore how evidence, findings, decisions, governance records, and artifacts connect across this review.
@@ -460,7 +481,7 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
                                   className="text-left underline decoration-neutral-400 underline-offset-2"
                                   onClick={() => onSelectEdge(edge.id)}
                                 >
-                                  {edge.type} from{" "}
+                                  {buyerTrailEdgeDisplayPhrase(edge.type)} from{" "}
                                   {provenanceNodeDisplayName(
                                     nodeById.get(edge.fromNodeId) ?? {
                                       id: edge.fromNodeId,
@@ -490,7 +511,7 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
                                   className="text-left underline decoration-neutral-400 underline-offset-2"
                                   onClick={() => onSelectEdge(edge.id)}
                                 >
-                                  {edge.type} to{" "}
+                                  {buyerTrailEdgeDisplayPhrase(edge.type)} to{" "}
                                   {provenanceNodeDisplayName(
                                     nodeById.get(edge.toNodeId) ?? {
                                       id: edge.toNodeId,
@@ -518,7 +539,7 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
           {showTimeline ? (
             <section id="prov-timeline" aria-labelledby="prov-timeline-heading" className="scroll-mt-28">
               <h3 id="prov-timeline-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                Trace timeline
+                {PROVENANCE_SECTION_TRACE_TIMELINE_LABEL}
               </h3>
               <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
                 Ordered events from review lifecycle and finalized decisions.
@@ -579,7 +600,7 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
           {showTables ? (
             <section id="prov-nodes" aria-labelledby="prov-nodes-heading" className="scroll-mt-28">
               <h3 id="prov-nodes-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                Nodes
+                {PROVENANCE_SECTION_LINKAGE_POINTS_LABEL}
               </h3>
               {graph.nodes.length >= SEARCH_THRESHOLD ? (
                 <div className="mt-3 flex flex-col gap-2 sm:flex-row">
@@ -633,7 +654,7 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
                           id={`prov-node-row-${node.id}`}
                           className={cn(
                             "transition-colors",
-                            selected ? "bg-blue-50/70 dark:bg-blue-950/30" : "",
+                            selected ? "bg-teal-50/80 dark:bg-teal-950/30" : "",
                           )}
                         >
                           <td className="border-b border-neutral-100 p-3 align-top font-medium dark:border-neutral-800">
@@ -679,7 +700,7 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
             <section id="prov-edges" aria-labelledby="prov-edges-heading" className="scroll-mt-28">
               <div className="flex items-center justify-between gap-2">
                 <h3 id="prov-edges-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                  Edges
+                  {PROVENANCE_SECTION_RELATIONSHIPS_LABEL}
                 </h3>
                 <Button
                   type="button"
@@ -723,7 +744,7 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
                               key={edge.id}
                               className={cn(
                                 "cursor-pointer transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-900/40",
-                                highlighted ? "bg-blue-50/70 dark:bg-blue-950/30" : "",
+                                highlighted ? "bg-teal-50/80 dark:bg-teal-950/30" : "",
                               )}
                               onClick={() => onSelectEdge(edge.id)}
                             >
@@ -731,7 +752,7 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
                                 {provenanceEdgeDisplayLabel(edge, nodeById)}
                               </td>
                               <td className="border-b border-neutral-100 p-3 align-top text-neutral-600 dark:border-neutral-800 dark:text-neutral-400">
-                                {edge.type}
+                                {buyerTrailEdgeDisplayPhrase(edge.type)}
                               </td>
                             </tr>
                           );
@@ -754,8 +775,8 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
 
       <style>{`
         .prov-node-row--flash {
-          outline: 2px solid #3b82f6;
-          background: #eff6ff;
+          outline: 2px solid var(--al-accent-interactive);
+          background: color-mix(in srgb, var(--al-accent-interactive) 12%, transparent);
           transition: background 0.3s ease;
         }
       `}</style>

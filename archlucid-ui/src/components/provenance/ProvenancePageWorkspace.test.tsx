@@ -12,6 +12,10 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 
+vi.mock("@/components/provenance/ProvenanceWayfinding", () => ({
+  ProvenanceWayfinding: () => <div data-testid="provenance-wayfinding" />,
+}));
+
 const graph: ArchitectureRunProvenanceGraph = {
   runId: "demo-run",
   traceabilityGaps: [],
@@ -70,16 +74,18 @@ beforeEach(() => {
 });
 
 describe("ProvenancePageWorkspace", () => {
-  it("renders section navigation for graph, timeline, nodes, and edges", () => {
+  it("renders section navigation for graph, timeline, and tables views", () => {
     render(<ProvenancePageWorkspace runId="demo-run" graph={graph} provenanceTraceId={null} />);
 
-    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.getByTestId("provenance-wayfinding")).toBeInTheDocument();
     expect(screen.queryByTestId("provenance-sources")).toBeNull(); // TB-2092
-    expect(screen.queryByTestId("provenance-claim-discipline")).toBeNull(); // TB-2092
-    expect(screen.getAllByRole("link", { name: "Provenance graph" }).length).toBeGreaterThan(0);
-    expect(screen.getAllByRole("link", { name: "Trace timeline" }).length).toBeGreaterThan(0);
-    expect(screen.getAllByRole("link", { name: "Nodes" }).length).toBeGreaterThan(0);
-    expect(screen.getAllByRole("link", { name: "Edges" }).length).toBeGreaterThan(0);
+    expect(screen.getByTestId("provenance-claim-discipline")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Review provenance" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Provenance graph" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open Evidence graph" })).toHaveAttribute(
+      "href",
+      "/insights/evidence-graph?runId=demo-run",
+    );
   });
 
   it("synchronizes graph selection with the nodes table", async () => {
@@ -95,20 +101,27 @@ describe("ProvenancePageWorkspace", () => {
       expect(screen.getByTestId("provenance-node-detail")).toBeInTheDocument();
     });
 
+    fireEvent.click(screen.getByRole("tab", { name: "Tables" }));
     const row = document.getElementById("prov-node-row-n-find");
 
-    expect(row?.className).toMatch(/bg-blue-50/);
+    expect(row?.className).toMatch(/bg-teal-50/);
   });
 
   it("switches between graph, timeline, and table views", () => {
     render(<ProvenancePageWorkspace runId="demo-run" graph={graph} provenanceTraceId={null} />);
 
-    fireEvent.click(screen.getByRole("tab", { name: "timeline" }));
+    expect(screen.getByTestId("provenance-graph-viewport")).toBeInTheDocument();
+    expect(screen.queryByTestId("provenance-timeline-table")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("tab", { name: "Timeline" }));
+    expect(screen.queryByTestId("provenance-graph-viewport")).not.toBeInTheDocument();
     expect(screen.getByTestId("provenance-timeline-table")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("tab", { name: "table" }));
-    expect(screen.getByTestId("provenance-nodes-table")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("tab", { name: "Tables" }));
+    expect(screen.queryByTestId("provenance-graph-viewport")).not.toBeInTheDocument();
     expect(screen.getByTestId("provenance-timeline-table")).toBeInTheDocument();
+    expect(screen.getByTestId("provenance-nodes-table")).toBeInTheDocument();
+    expect(screen.getByTestId("provenance-edges-table")).toBeInTheDocument();
   });
 
   it("shows filter notice without removing table data", () => {
@@ -120,22 +133,28 @@ describe("ProvenancePageWorkspace", () => {
       screen.getByText(/Filters hide graph elements for focus only/i),
     ).toBeInTheDocument();
     expect(screen.getByText(/Showing 1 of 3 nodes in the graph/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("tab", { name: "Tables" }));
     expect(screen.getByTestId("provenance-nodes-table")).toBeInTheDocument();
     expect(within(screen.getByTestId("provenance-nodes-table")).getAllByRole("row").length).toBeGreaterThan(3);
   });
 
-  it("expands the edges table by default for small graphs", () => {
+  it("expands the edges table by default for small graphs in Tables view", () => {
     render(<ProvenancePageWorkspace runId="demo-run" graph={graph} provenanceTraceId={null} />);
 
+    fireEvent.click(screen.getByRole("tab", { name: "Tables" }));
     expect(screen.getByTestId("provenance-edges-table")).toBeInTheDocument();
   });
 
   it("highlights edges when an edge row is clicked", () => {
     render(<ProvenancePageWorkspace runId="demo-run" graph={graph} provenanceTraceId={null} />);
 
+    fireEvent.click(screen.getByRole("tab", { name: "Tables" }));
     const edgesTable = screen.getByTestId("provenance-edges-table");
     fireEvent.click(within(edgesTable).getByText(/Reviewed source context → PHI minimization risk/));
 
-    expect(document.querySelector('[data-testid="provenance-edge-e-1"]')).toBeTruthy();
+    const highlightedRow = within(edgesTable).getByText(/Reviewed source context → PHI minimization risk/).closest("tr");
+
+    expect(highlightedRow?.className).toMatch(/bg-teal-50/);
   });
 });

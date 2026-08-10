@@ -40,10 +40,21 @@ export const PROVENANCE_CONTEXTUAL_HELP = {
     "Open a finalized or in-progress review that has provenance data in the current workspace scope.",
 } as const;
 
+export const PROVENANCE_PAGE_TITLE = "Review provenance";
+
 export const PROVENANCE_HELP_TOPIC = {
   slug: "evidence-trail",
-  label: "Review provenance",
+  label: PROVENANCE_PAGE_TITLE,
 } as const;
+
+export const PROVENANCE_VIEW_GRAPH_LABEL = "Graph";
+export const PROVENANCE_VIEW_TIMELINE_LABEL = "Timeline";
+export const PROVENANCE_VIEW_TABLES_LABEL = "Tables";
+
+export const PROVENANCE_SECTION_LINKAGE_POINTS_LABEL = "Linkage points";
+export const PROVENANCE_SECTION_RELATIONSHIPS_LABEL = "Relationships";
+export const PROVENANCE_SECTION_TRACE_TIMELINE_LABEL = "Trace timeline";
+export const PROVENANCE_SECTION_GRAPH_LABEL = "Provenance graph";
 
 /** True when the path is a run provenance page (canonical or nested). */
 export function pathIsRunProvenance(pathname: string): boolean {
