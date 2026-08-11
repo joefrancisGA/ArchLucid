@@ -112,6 +112,7 @@ describe("ExecDigestScheduleContent", () => {
     expect(layout).toHaveAttribute("data-live-rail-pinned", "false");
     expect(layout.className).not.toMatch(/xl:grid-cols-/);
     expect(screen.getByTestId("exec-digest-delivery-readiness")).toBeInTheDocument();
+    expect(screen.queryByTestId("exec-digest-latest-generated")).not.toBeInTheDocument();
   });
 
   it("pins delivery readiness rail after a recipient is added (TB-1574)", async () => {
@@ -262,6 +263,17 @@ describe("ExecDigestScheduleContent", () => {
   });
 
   it("explains disabled preview and clarifies architecture digest test action", async () => {
+    vi.mocked(getExecDigestPreferences).mockResolvedValue({
+      schemaVersion: 1,
+      tenantId: "t",
+      isConfigured: false,
+      emailEnabled: false,
+      recipientEmails: ["ops@example.com"],
+      ianaTimeZoneId: "UTC",
+      dayOfWeek: 1,
+      hourOfDay: 8,
+      updatedUtc: "2026-07-08T12:00:00Z",
+    });
     render(<ExecDigestScheduleContent healthSnap={baseHealth} />);
 
     const preview = await screen.findByTestId("exec-digest-preview-action");
@@ -297,6 +309,17 @@ describe("ExecDigestScheduleContent", () => {
   it("blocks save, enable, and test email actions in sample mode", async () => {
     demoEnvMock.buyerPolished = true;
     demoEnvMock.fullShell = false;
+    vi.mocked(getExecDigestPreferences).mockResolvedValue({
+      schemaVersion: 1,
+      tenantId: "t",
+      isConfigured: false,
+      emailEnabled: false,
+      recipientEmails: ["ops@example.com"],
+      ianaTimeZoneId: "UTC",
+      dayOfWeek: 1,
+      hourOfDay: 8,
+      updatedUtc: "2026-07-08T12:00:00Z",
+    });
 
     render(<ExecDigestScheduleContent />);
 
@@ -341,6 +364,7 @@ describe("ExecDigestScheduleContent", () => {
     const pinnedLayout = screen.getByTestId("exec-digest-schedule-layout");
     expect(pinnedLayout).toHaveAttribute("data-live-rail-pinned", "true");
     expect(pinnedLayout.className).toMatch(/xl:grid-cols-/);
+    expect(screen.getByTestId("exec-digest-latest-generated")).toBeInTheDocument();
   });
 
   it("keeps schedule day/time keyboard operable", async () => {

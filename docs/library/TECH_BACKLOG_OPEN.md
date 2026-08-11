@@ -41,9 +41,9 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | Governance setup UX + route rename | **TB-1134**–**TB-1138** (open P1 **V1**) | Route → /governance/setup; naming consistency; orientation; checklist visual design; foundation vs progress dedupe; owner screenshot ~52/100 2026-07-25 |
 | Cloud connections UX + honesty | **TB-1139**–**TB-1143** (open P1 **V1**) | Fix platform-scope checkbox↔card sync; remove stale GCP Preview; single primary CTA; scope fail-closed; suppress not-configured zero theater; owner review ~49/100 2026-07-25 |
 | Jira integration empty/not-configured UX | **TB-1146**–**TB-1150** (open P1 **V1**) | Guided next step; copy honesty; message dedupe; structured issue-type UI; gate connection test / demote overrides; owner screenshot ~46/100 2026-07-25 |
-| Azure Boards Database Query Failed + empty UX | **TB-1151**–**TB-1155** (open P1 **V1**) | Fix settings SQL catalog (TB-867 parity); isolate Promise.all failures; sanitize status errors; feature-off honesty; demote forms until connectable; owner screenshot ~38/100 2026-07-25 |
+| Azure Boards Database Query Failed + empty UX | **TB-1151**–**TB-1155** (**TB-1154**/**TB-1155** Done 2026-08-11; **TB-1151**–**TB-1153** open P1 **V1**) | Fix settings SQL catalog (TB-867 parity); isolate Promise.all failures; sanitize status errors; feature-off honesty; demote forms until connectable; owner screenshot ~38/100 2026-07-25 |
 | ServiceNow empty/not-configured UX | **TB-1161**–**TB-1165** (open P1 **V1**) | Guided admin CTA; isolate Promise.all; sanitize status errors; demote incident settings; setup-progress composition; dedicated ServiceNow client; owner review ~50/100 2026-07-25 |
-| Billing tier value-ladder + page UX | **TB-1166**–**TB-1170** (open P1 **V1**) | Implement owner repricing (GTM **M-200**) + catalog coherence guard; Enterprise 0-users fix; AI-usage unit vocabulary; sales-led CTA navigation; composition / accessibility baseline; owner screenshot ~64/100 2026-07-25 |
+| Billing tier value-ladder + page UX | **TB-1166**–**TB-1170** (**TB-1167**/**TB-1168**/**TB-1169**/**TB-1170** Done; **TB-1166** open P1 **V1**) | Implement owner repricing (GTM **M-200**) + catalog coherence guard; Enterprise 0-users fix; AI-usage unit vocabulary; sales-led CTA navigation; composition / accessibility baseline; owner screenshot ~64/100 2026-07-25 |
 | ServiceNow page-title icon | **TB-1171** (open P1 **V1**) | Use PageHeading + navHref so Workflow icon appears beside H1 (parity with Azure Boards) |
 | Teams notifications not-configured UX | **TB-1174**–**TB-1178**, **TB-1183**–**TB-1184** (open P1 **V1**) | StatusTag + next step; draft vs saved honesty; Validate→Test→Save hierarchy; operator density; help-link dedupe; remove Slack cross-link; PageContextualHelpButton icon + caption; owner screenshot ~60/100 2026-07-25 |
 | Slack notifications not-configured UX | **TB-1185**–**TB-1190** (open P1 **V1**) | Remove Teams cross-link; StatusTag + next step; PageContextualHelpButton; readiness link dedupe; operator density; Test→Save CTA hierarchy; owner review ~57/100 2026-07-25 |
@@ -312,8 +312,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1413 | Demo readiness admin — check-row StatusTag status vs label honesty | Trustworthiness P1 **V1** — with **TB-1409**; pairs **TB-116** |
 | TB-1422 | `/admin/deployment-status` — Internal Ops PageHeading + help | Adoption friction P1 **V1** — owner ADE ~52/100; traffic **ADE** |
 | TB-1423 | Deployment status — StatusTag/overall pill honesty (StatusPill → design-system) | Trustworthiness P1 **V1** — with **TB-1422**; pairs **TB-116**/**TB-1285** |
-| TB-1424 | Deployment status — Refresh primary CTA + empty/loading polish | Adoption friction P1 **V1** — with **TB-1422**; pairs **TB-1412** |
-| TB-1425 | Deployment status — OperatorPageContainer + Internal Ops wayfinding | Adoption friction P1 **V1** — with **TB-1422** |
 | TB-1426 | Deployment status — related-links external honesty + BUILD_ID chrome soften | Trustworthiness P1 **V1** — with **TB-1422** |
 | ~~TB-1429~~ | ~~`/admin/integrations/itsm` — Internal Ops PageHeading + title hierarchy (ITSM vs connectors)~~ **Done** 2026-07-30 | Adoption friction P0 **V1** — PageHeading + title alignment + Vitest |
 | ~~TB-1430~~ | ~~ITSM connectors admin — purge appsettings / V1-scope / System Administration leak chrome~~ **Done** 2026-07-30 | Trustworthiness P0 **V1** — operator-safe copy + Vitest |
@@ -357,8 +355,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1474 | Invitation invalid/expired/revoked/accepted — recovery CTAs (not alert-only) | Adoption friction P1 **V1** — with **TB-1472** |
 | TB-1475 | Valid invitation panel — design-system chrome + role/SSO honesty + defer token store | Trustworthiness P1 **V1** — with **TB-1472** |
 | TB-1476 | Invite auth chrome — safe secondary exit / help when stuck | Adoption friction P1 **V1** — with **TB-1472**; pairs **TB-1469**/**TB-1315** |
-| TB-1477 | Advisory schedules — empty form+scope-rail first-viewport whitespace | Adoption friction P1 **V1** — owner whitespace pass 2026-07-27; pairs **TB-1133** |
-| TB-1478 | Digests schedule — empty/form+readiness-rail whitespace | Adoption friction P1 **V1** — with **TB-1477** |
 | TB-1479 | Alert rules Rules tab — empty `gap-8` list+create+preview two-col | Adoption friction P1 **V1** — with **TB-1477**; pairs **TB-936** |
 | TB-1570 | Paying-tenant / API-key LLM spend-storm + metering-vs-AOAI-billing dispute claim map | Cost-effectiveness P1 **V1** — PA spend-storm / dispute Q; GTM **M-294**/**M-295**; see `PAYING_TENANT_LLM_SPEND_STORM_AND_BILLING_DISPUTE_CLAIM_MAP.md` — **Done** 2026-08-11 |
 | TB-1571 | Anti-unbounded-key-spend / anti-product-meter-equals-Azure-invoice honesty CI | Testability P1 **V1** — after **TB-1570**; pairs **M-294** — **Done** 2026-08-11 |
@@ -728,7 +724,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1316 | `/auth/session-expired` — AuthErrorPanel recovery honesty | Trustworthiness P1 **V1** — with **TB-1313** |
 | TB-1319 | `/demo/explain` — buyer vocabulary (purge provenance/eng chrome) | Adoption friction P1 **V1** — owner demo-explain ~51/100; traffic **DEX** |
 | TB-1320 | `/demo/explain` — status banner honesty + quiet IDs | Trustworthiness P1 **V1** — with **TB-1319** |
-| TB-1321 | `/demo/explain` — empty/not-available next-step ladder | Adoption friction P1 **V1** — with **TB-1319** |
 | TB-1322 | `/demo/explain` — IA gate or public proof ladder (IA-014) | Adoption friction P1 **V1** — with **TB-1319**; pairs **TB-1307**/**TB-1251** |
 | TB-1323 | `/demo/explain` — conversion CTA auth honesty | Trustworthiness P1 **V1** — with **TB-1319** |
 | TB-1331 | `/help/first-architecture-review` — step 2 Add evidence CTA honesty | Trustworthiness P1 **V1** — owner COR re-review ~70/100; traffic **COR**; after Done **TB-1040**–**TB-1043** |
@@ -750,8 +745,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1150 | Jira empty composition — gate connection test + demote overrides | Adoption friction P1 **V1** — with **TB-1146**/**TB-1148** |
 | TB-1152 | Azure Boards page load — isolate failures (no Promise.all wipe) | Reliability P0 **V1** — with **TB-1151** |
 | TB-1153 | Azure Boards — never show raw Database Query Failed as status | Trustworthiness P0 **V1** — with **TB-1151** |
-| TB-1154 | Azure Boards feature-off / load-error empty path honesty | Adoption friction P1 **V1** — with **TB-1151** |
-| TB-1155 | Azure Boards empty composition — demote forms until connectable | Adoption friction P1 **V1** — with **TB-1154** |
 | TB-1161 | ServiceNow not-configured dead end — guided admin CTA | Adoption friction P1 **V1** — owner `/integrations/servicenow` ~50/100 |
 | TB-1162 | ServiceNow page load — isolate failures (no Promise.all wipe) | Reliability P0 **V1** — with **TB-1161**; cf. **TB-1152** |
 | TB-1163 | ServiceNow — never show raw API/problem titles as connection status | Trustworthiness P0 **V1** — with **TB-1162**; cf. **TB-1153** |
@@ -805,8 +798,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1166 | Billing tier value-ladder coherence — implement owner repricing decision | Commercial / trustworthiness P0 **V1** — owner `/administration/settings/billing` ~64/100; after GTM **M-200** |
 | TB-1167 | ~~Enterprise billing card shows Included 0 users~~ **Done** 2026-07-29 | Correctness P0 **V1** — with **TB-1166** |
 | TB-1168 | ~~Billing Included AI usage unit collision (dollars vs credits)~~ **Done** 2026-07-29 | Trustworthiness P0 **V1** — with **TB-1166** |
-| TB-1169 | Billing sales-led CTAs dead-end into toasts — navigate instead | Adoption friction P1 **V1** — with **TB-1170** |
-| TB-1170 | Billing composition — anchor-jump buttons, duplicate primary, operator spacing | Adoption friction P1 **V1** — with **TB-1169** |
 | TB-2103 | Operator-curated model catalog — DDL-backed registry + internal curation surface | Maintainability P1 **V1.1** — ADR 0065 D2; deletes `ConfigAgentModelAliasRegistry`; first of the ADR 0065 train |
 | TB-2104 | Structured-output capability ladder + fail-closed routing | Correctness P1 **V1.1** — ADR 0065 D4; after **TB-2103** |
 | TB-2105 | Engine evaluation evidence — attached and surfaced, **not gating** | Trustworthiness P1 **V1.1** — ADR 0065 D3; reuses **TB-683** harness + judges; selection never refused on measured quality; explicit `NotEvaluated` |
@@ -864,7 +855,7 @@ Canonical: [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) only (see wave-3 c
 | Report a problem (`/help/report-a-problem`) | **TB-1741**–**TB-1745** (open P1 **V1**) | Specialty + Support CTA; button-absent dead-end; vs troubleshooting IA; first-viewport; Related/email; ~55/100; traffic **HRE**; after Done **TB-790** |
 | SOC 2 self-assessment (`/help/soc2-self-assessment`) | **TB-1746**/**TB-1749**/**TB-1750** **Done** 2026-08-03; **TB-1747**/**TB-1748** retained | Specialty guide + Trust CTA; IA dual; Help Center; traffic **HES**; do not reopen **TB-135**/**TB-136** |
 | Subprocessors (`/help/subprocessors`) | **TB-1751**–**TB-1755** (open P1 **V1**) | Specialty + Trust CTA; repo leakage; vs DPA/Trust IA; title/Help Center; residency honesty; ~44/100; traffic **HSU** |
-| Azure Boards product (`/integrations/azure-boards`) | **TB-1756**–**TB-1760** (open P1 **V1** incremental) + ship open **TB-1151**–**TB-1155** first | Density; aside chips; skeleton; help canonical; Vitest guards; ~38/100; traffic **IAZ** |
+| Azure Boards product (`/integrations/azure-boards`) | **TB-1756**–**TB-1760** (open P1 **V1** incremental) + ship open **TB-1151**–**TB-1153** first | Density; aside chips; skeleton; help canonical; Vitest guards; ~38/100; traffic **IAZ** |
 | AWS cloud connection detail (`/integrations/cloud-connections/aws`) | **TB-1761**–**TB-1765** (open P1 **V1**) | Wizard parity; Validate/Activity stubs; Tier jargon; CTA; trust-policy starter; ~44/100; traffic **INC**; hub **TB-1139**–**TB-1143** / help **TB-1234**–**TB-1238** stay open |
 | Azure cloud connection detail (`/integrations/cloud-connections/azure`) | **TB-1766**–**TB-1770** (open P1/P2 **V1**) | Tier jargon; Validate/Activity stubs; help IA; connected CTA; Vitest; ~72/100; traffic **INZ**; reference for AWS **TB-1761** |
 | GCP cloud connection detail (`/integrations/cloud-connections/gcp`) | **TB-1771**/**TB-1772** (open P1 **V1**); **TB-1773**/**TB-1774**/**TB-1775** **Done** | Preview honesty; wizard parity; live Validate/Activity shipped; WIF starter shipped; ~44/100; traffic **IGC**; Tier jargon shipped; pairs hub **TB-1140** / AWS **TB-1761** / help **TB-1239**–**TB-1243** |

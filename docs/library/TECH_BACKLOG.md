@@ -15,7 +15,7 @@ Regenerate after opening or closing summary-table rows:
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
 | Architectural integrity | 9 |
-| Adoption friction | 219 |
+| Adoption friction | 211 |
 | Commercial / marketability | 8 |
 | Cutting-edge AI | 3 |
 | Explainability | 1 |
@@ -34,9 +34,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **449** |
+| **Total (unique open)** | **441** |
 
-**By priority band:** P0 **2** | P1 **336** | P2 **94** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **2** | P1 **328** | P2 **94** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -897,12 +897,12 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1148 | ~~Jira not-configured message dedupe (status vs connection test)~~ **Done** (2026-08-11); see ## TB-1148 below | Adoption friction P1 ? **V1**; with **TB-1146** | XS |
 | TB-1149 | Jira issue type by severity ? structured UI (no raw JSON); see ## TB-1149 below | Adoption friction P1 ? **V1**; with **TB-1146** | M |
 | TB-1150 | Jira empty composition ? gate connection test + demote overrides; see ## TB-1150 below | Adoption friction P1 ? **V1**; with **TB-1146**/**TB-1148** | S |
-| TB-1154 | Azure Boards feature-off / load-error empty path honesty; see ## TB-1154 below | Adoption friction P1 ? **V1**; with **TB-1151** | S |
-| TB-1155 | Azure Boards empty composition ? demote forms until connectable; see ## TB-1155 below | Adoption friction P1 ? **V1**; with **TB-1154** | S |
+| TB-1154 | ~~Azure Boards feature-off / load-error empty path honesty~~ **Done** (2026-08-11); see ## TB-1154 below | Adoption friction P1 ? **V1**; with **TB-1151** | S |
+| TB-1155 | ~~Azure Boards empty composition ? demote forms until connectable~~ **Done** (2026-08-11); see ## TB-1155 below | Adoption friction P1 ? **V1**; with **TB-1154** | S |
 | TB-1161 | ServiceNow not-configured dead end ? guided admin CTA ? **Done** (2026-08-11); see ## TB-1161 below | Adoption friction P1 ? **V1**; owner `/integrations/servicenow` ~50/100 2026-07-25 | S |
 | TB-1164 | ServiceNow demote incident settings until credentials ready ? **Done** (2026-08-11); see ## TB-1164 below | Adoption friction P1 ? **V1**; with **TB-1161** | S |
 | TB-1165 | ServiceNow empty composition ? setup progress drives primary story ? **Done** (2026-08-11); see ## TB-1165 below | Adoption friction P1 ? **V1**; with **TB-1161**/**TB-1164** | S |
-| TB-1169 | Billing sales-led CTAs dead-end into toasts ? navigate instead; see ## TB-1169 below | Adoption friction P1 ? **V1**; with **TB-1170** | S |
+| TB-1169 | ~~Billing sales-led CTAs dead-end into toasts ? navigate instead~~ **Done** (2026-08-11); see ## TB-1169 below | Adoption friction P1 ? **V1**; with **TB-1170** | S |
 | TB-1170 | Billing composition ? anchor-jump buttons, duplicate primary, operator spacing ? **Done** (2026-08-11); see ## TB-1170 below | Adoption friction P1 ? **V1**; with **TB-1169** | S |
 | TB-1171 | ServiceNow page title ? show nav icon via PageHeading (parity with Azure Boards) ? **Done** (2026-08-11); see ## TB-1171 below | Adoption friction P1 ? **V1**; owner ServiceNow icon gap 2026-07-25; with **TB-1161**?**TB-1165** | XS |
 | TB-1174 | Teams not-configured ? StatusTag + guided next step ? **Done** (2026-08-11); see ## TB-1174 below | Adoption friction P1 ? **V1**; owner `/integrations/teams` ~60/100 2026-07-25 | S |
@@ -973,7 +973,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1313 | **Done** (2026-08-10) ? `/auth/session-expired` brand + h1 + document title; see ## TB-1313 below | Adoption friction P1 ? **V1**; owner session-expired ~59/100 2026-07-26; traffic **ASU** | S |
 | TB-1314 | **Done** (2026-08-10) ? `/auth/session-expired` Suspense + loading fallback; see ## TB-1314 below | Adoption friction P1 ? **V1**; with **TB-1313** | XS |
 | TB-1319 | **Done** (2026-08-11) — `/demo/explain` buyer vocabulary; Vitest + snapshot; see ## TB-1319 below | Adoption friction P1 ? **V1**; owner demo-explain ~51/100 2026-07-26; traffic **DEX** | S |
-| TB-1321 | `/demo/explain` ? empty/not-available next-step ladder; see ## TB-1321 below | Adoption friction P1 ? **V1**; with **TB-1319** | S |
+| TB-1321 | ~~`/demo/explain` ? empty/not-available next-step ladder~~ **Done** (2026-08-11); see ## TB-1321 below | Adoption friction P1 ? **V1**; with **TB-1319** | S |
 | TB-1322 | **Done** (2026-08-10) ? `/demo/explain` IA gate; see ## TB-1322 below | Adoption friction P1 ? **V1**; with **TB-1319**; pairs **TB-1307**/**TB-1251** | S |
 | TB-1328 | ~~Configuration reference ? operator task CTA chrome (SSO / identity / API keys)~~ **Done** 2026-08-02 ? specialty CTAs + Sources; see ## TB-1328 below | Adoption friction P1 ? **V1**; with **TB-1326** | S |
 | TB-1340 | ~~Enterprise onboarding ? collapse Quick links + Onboarding hub duplicate~~ **Done** 2026-08-10 ? presentation strips duplicate hub sections; interactive hub owns navigation; Vitest | Adoption friction P1 ? **V1**; with **TB-1338** | S |
@@ -994,8 +994,8 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1411 | ~~Demo readiness admin ? tooling-disabled empty state next steps~~ **Done** 2026-08-09 ? tooling gate + `EnterpriseCompactEmptyState` CTAs; Vitest; see ## TB-1411 below | Adoption friction P1 ? **V1**; with **TB-1409** | S |
 | TB-1412 | ~~Demo readiness admin ? CTA hierarchy + loading polish~~ **Done** 2026-08-09 ? Recheck primary in PageHeading; diagnostics text link; authority loading skeleton; Vitest; see ## TB-1412 below | Adoption friction P1 ? **V1**; with **TB-1409** | S |
 | TB-1422 | `/admin/deployment-status` ? Internal Ops PageHeading + help; see ## TB-1422 below | Adoption friction P1 ? **V1**; owner review ~52/100 2026-07-26; traffic **ADE**; pairs **TB-1409**/**TB-1184** | S |
-| TB-1424 | Deployment status ? Refresh primary CTA + empty/loading polish; see ## TB-1424 below | Adoption friction P1 ? **V1**; with **TB-1422**; pairs **TB-1412** | S |
-| TB-1425 | Deployment status ? OperatorPageContainer + Internal Ops wayfinding; see ## TB-1425 below | Adoption friction P1 ? **V1**; with **TB-1422** | S |
+| TB-1424 | ~~Deployment status ? Refresh primary CTA + empty/loading polish~~ **Done** 2026-08-11 ? primary Refresh + skeleton + actionable empty; Vitest | Adoption friction P1 ? **V1**; with **TB-1422**; pairs **TB-1412** | S |
+| TB-1425 | ~~Deployment status ? OperatorPageContainer + Internal Ops wayfinding~~ **Done** 2026-08-11 ? `OperatorPageContainer` + Internal Operations eyebrow; Vitest | Adoption friction P1 ? **V1**; with **TB-1422** | S |
 | ~~TB-1446~~ | ~~`/architectures` ? PageHeading H1 + primary Create architecture CTA~~ **Done** 2026-08-09; see `## TB-1446` below | Adoption friction P1 ? **V1**; owner review ~53/100 2026-07-27; traffic **AR**; after Done **TB-766**; pairs **TB-1184** | S |
 | ~~TB-1449~~ | ~~Architectures list ? first-viewport density (disclosure + helper + empty)~~ **Done** 2026-08-09; see `## TB-1449` below | Adoption friction P1 ? **V1**; with **TB-1446** | S |
 | ~~TB-1450~~ | ~~Architectures list ? loading hydrate + row density (EnterpriseTable / scan)~~ **Done** 2026-08-09; see `## TB-1450` below | Adoption friction P1 ? **V1**; with **TB-1446**; pairs **TB-117** | S |
@@ -1012,8 +1012,8 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1473 | **Done** (2026-08-10) ? invitation accept loading skeleton (title + summary card); see ## TB-1473 below | Adoption friction P1 ? **V1**; with **TB-1472** | S |
 | TB-1474 | **Done** (2026-08-10) ? invitation invalid recovery CTAs (not alert-only); see ## TB-1474 below | Adoption friction P1 ? **V1**; with **TB-1472** | S |
 | TB-1476 | **Done** (2026-08-10) ? invite safe secondary exit / help when stuck; see ## TB-1476 below | Adoption friction P1 ? **V1**; with **TB-1472**; pairs **TB-1469**/**TB-1315** | S |
-| TB-1477 | Advisory schedules ? empty form+scope-rail first-viewport whitespace; see ## TB-1477 below | Adoption friction P1 ? **V1**; owner whitespace pass 2026-07-27; `AdvisorySchedulesContent`; pairs **TB-1133** | S |
-| TB-1478 | Digests schedule ? empty/form+readiness-rail whitespace; see ## TB-1478 below | Adoption friction P1 ? **V1**; with **TB-1477**; `ExecDigestScheduleContent` | S |
+| TB-1477 | ~~Advisory schedules ? empty form+scope-rail first-viewport whitespace~~ **Done** 2026-08-11 ? compact empty under create form; Vitest | Adoption friction P1 ? **V1**; owner whitespace pass 2026-07-27; `AdvisorySchedulesContent`; pairs **TB-1133** | S |
+| TB-1478 | ~~Digests schedule ? empty/form+readiness-rail whitespace~~ **Done** 2026-08-11 ? demote supplemental aside when rail unpinned; Vitest | Adoption friction P1 ? **V1**; with **TB-1477**; `ExecDigestScheduleContent` | S |
 | TB-1479 | Alert rules Rules tab ? empty `gap-8` list+create+preview two-col; see ## TB-1479 below | Adoption friction P1 ? **V1**; with **TB-1477**; `AlertRulesContent`; pairs **TB-936** | S |
 | TB-1480 | Digests browse ? empty checklist+preview+empty stack composition; see ## TB-1480 below | Adoption friction P1 ? **V1**; with **TB-1477**; `DigestsBrowseContent` | S |
 | TB-1481 | Alert routing ? empty destinations+GettingStarted+create-card first viewport; see ## TB-1481 below | Adoption friction P1 ? **V1**; with **TB-1477**; `AlertRoutingContent`; pairs **TB-1441** | S |
@@ -29511,7 +29511,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done (2026-08-11) — Professional and Enterprise tier cards link to `/pricing?source=operator-billing&plan=…#pricing-quote-request` with expectation copy; self-serve checkout buttons unchanged; Vitest guards in billing page + href tests.
 
 **Priority:** P0.
 
@@ -36333,7 +36333,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-11 ? primary Refresh CTA, loading skeleton, actionable empty state with Refresh button; diagnostics text link; Vitest).
 
 **Priority:** P0.
 
@@ -36362,7 +36362,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-11 ? `OperatorPageContainer` dashboard variant + Internal Operations eyebrow via `PageHeading`; Vitest).
 
 **Priority:** P0.
 
@@ -37838,7 +37838,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-11 ? compact `EnterpriseCompactEmptyState` tucked under create form; tighter `mt-4` rhythm; Vitest).
 
 **Priority:** P0.
 
@@ -37867,7 +37867,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-11 ? supplemental aside (saved summary, latest digest) only when live rail pinned; compact readiness when stacked; Vitest).
 
 **Priority:** P0.
 

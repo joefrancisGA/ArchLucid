@@ -419,7 +419,7 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
       ) : (
         <div
           className={cn(
-            "grid gap-6",
+            "grid gap-4",
             pinLivePreviewRail && "xl:grid-cols-[minmax(0,1.4fr)_minmax(18rem,1fr)]",
           )}
           data-testid="exec-digest-schedule-layout"
@@ -729,9 +729,12 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
             </section>
           </div>
 
-          <aside className="space-y-4">
+          <aside className={cn("space-y-4", !pinLivePreviewRail && "mt-0")}>
             <section
-              className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
+              className={cn(
+                "rounded-lg border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950",
+                pinLivePreviewRail ? "p-4" : "p-3",
+              )}
               data-testid="exec-digest-delivery-readiness"
             >
               <div className="flex flex-wrap items-start justify-between gap-2">
@@ -795,7 +798,7 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
               ) : null}
             </section>
 
-            {savedSummary !== null && prefs.isConfigured ? (
+            {pinLivePreviewRail && savedSummary !== null && prefs.isConfigured ? (
               <section
                 className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
                 data-testid="exec-digest-saved-summary"
@@ -823,6 +826,7 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
               </section>
             ) : null}
 
+            {pinLivePreviewRail ? (
             <section
               className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
               data-testid="exec-digest-latest-generated"
@@ -888,6 +892,7 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
                 </p>
               )}
             </section>
+            ) : null}
           </aside>
         </div>
       )}

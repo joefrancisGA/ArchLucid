@@ -21,6 +21,8 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 
+import { INTERNAL_OPERATIONS_NAV_EYEBROW } from "@/lib/demo-readiness-evidence-copy";
+
 import AdminDeploymentStatusPage from "./page";
 
 function jsonResponse(data: unknown, status = 200) {
@@ -62,6 +64,10 @@ describe("AdminDeploymentStatusPage", () => {
     render(page);
 
     expect(await screen.findByTestId("admin-deployment-status-page")).toBeInTheDocument();
+    expect(screen.getByTestId("admin-deployment-status-ops-eyebrow")).toHaveTextContent(
+      INTERNAL_OPERATIONS_NAV_EYEBROW,
+    );
+    expect(screen.getByTestId("admin-deployment-status-refresh")).toHaveTextContent("Refresh");
     expect(screen.getByTestId("admin-deployment-status-page-lead").textContent).not.toMatch(/BUILD_ID/i);
     expect(screen.getByTestId("admin-deployment-status-overall-tag")).toHaveTextContent("Healthy");
     expect(screen.getByTestId("admin-deployment-status-overall-tag")).toHaveAccessibleName(
@@ -77,6 +83,21 @@ describe("AdminDeploymentStatusPage", () => {
 
     fireEvent.click(screen.getByTestId("admin-deployment-status-refresh"));
     await waitFor(() => expect(fetchMock.mock.calls.length).toBeGreaterThanOrEqual(2));
+
+    vi.unstubAllGlobals();
+  });
+
+  it("shows an actionable empty state when the API returns no payload (TB-1424)", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => jsonResponse(null)),
+    );
+
+    const page = await AdminDeploymentStatusPage();
+    render(page);
+
+    expect(await screen.findByTestId("admin-deployment-status-empty")).toBeInTheDocument();
+    expect(screen.getByTestId("admin-deployment-status-empty-refresh")).toBeInTheDocument();
 
     vi.unstubAllGlobals();
   });

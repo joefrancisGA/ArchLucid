@@ -11,6 +11,7 @@ import { AdvisoryScheduleCreateForm } from "@/components/advisory/AdvisorySchedu
 import { AdvisoryRecurrenceScheduleVocabularyRail } from "@/components/AdvisoryRecurrenceScheduleVocabularyRail";
 import { AdvisoryResultsSchedulesVocabularyRail } from "@/components/AdvisoryResultsSchedulesVocabularyRail";
 import { DocumentLayout } from "@/components/DocumentLayout";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
@@ -271,8 +272,8 @@ export function AdvisorySchedulesContent(): ReactElement {
           </p>
         ) : null}
 
-        {/* TB-1573: single-column — static Schedule scope rail banned; scope lives inline on the form. */}
-        <div className="mt-6 min-w-0 space-y-4" data-testid="advisory-schedules-layout">
+        {/* TB-1573 / TB-1477: single-column create story; compact empty list tucked under the form. */}
+        <div className="mt-4 min-w-0 space-y-4" data-testid="advisory-schedules-layout">
           <AdvisoryScheduleCreateForm
             canEdit={canMutateSchedules}
             sampleModeBlocked={sampleModeBlocked}
@@ -283,9 +284,23 @@ export function AdvisorySchedulesContent(): ReactElement {
             formResetKey={formResetKey}
             onCreate={onCreate}
           />
+
+          {schedules.length === 0 ? (
+            <section data-testid="advisory-schedules-existing">
+              <h3 className={cn("m-0 mb-2 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                {canMutateSchedules ? advisorySchedulesListHeadingOperator : advisorySchedulesListHeadingReader}
+              </h3>
+              <EnterpriseCompactEmptyState
+                title={ADVISORY_SCANS_SCHEDULES_EMPTY_TITLE}
+                description={ADVISORY_SCANS_SCHEDULES_EMPTY_BODY}
+                testId="advisory-schedules-empty"
+              />
+            </section>
+          ) : null}
         </div>
 
-        <section className="mt-8" data-testid="advisory-schedules-existing">
+        {schedules.length > 0 ? (
+        <section className="mt-4" data-testid="advisory-schedules-existing">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {canMutateSchedules ? advisorySchedulesListHeadingOperator : advisorySchedulesListHeadingReader}
@@ -304,17 +319,7 @@ export function AdvisorySchedulesContent(): ReactElement {
             </Button>
           </div>
 
-          {schedules.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-neutral-300 p-6 dark:border-neutral-700">
-              <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                {ADVISORY_SCANS_SCHEDULES_EMPTY_TITLE}
-              </p>
-              <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                {ADVISORY_SCANS_SCHEDULES_EMPTY_BODY}
-              </p>
-            </div>
-          ) : (
-            <ul className="list-none space-y-3 p-0">
+          <ul className="list-none space-y-3 p-0">
               {listViews.map((view) => (
                 <li
                   key={view.scheduleId}
@@ -421,8 +426,8 @@ export function AdvisorySchedulesContent(): ReactElement {
                 </li>
               ))}
             </ul>
-          )}
         </section>
+        ) : null}
       </DocumentLayout>
     </div>
   );

@@ -204,10 +204,14 @@ describe("AdvisorySchedulesContent", () => {
   it("shows empty state copy when no schedules exist", async () => {
     render(<AdvisorySchedulesContent />);
 
-    expect(await screen.findByText("No advisory-scan schedules yet")).toBeInTheDocument();
+    expect(await screen.findByTestId("advisory-schedules-empty")).toBeInTheDocument();
+    expect(screen.getByText("No advisory-scan schedules yet")).toBeInTheDocument();
     expect(
       screen.getByText(/Create a schedule to generate follow-up recommendations automatically/i),
     ).toBeInTheDocument();
+    expect(screen.getByTestId("advisory-schedules-layout").contains(screen.getByTestId("advisory-schedules-empty"))).toBe(
+      true,
+    );
   });
 
   it("renders existing schedules with status and actions", async () => {
@@ -302,9 +306,26 @@ describe("AdvisorySchedulesContent", () => {
   });
 
   it("places Refresh in the existing schedules header", async () => {
+    apiMocks.listAdvisorySchedules.mockResolvedValue([
+      {
+        scheduleId: "sched-1",
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        runProjectSlug: "default",
+        name: "Weekly scan",
+        cronExpression: "0 8 * * 1",
+        isEnabled: true,
+        createdUtc: "2026-07-01T00:00:00.000Z",
+        nextRunUtc: "2026-07-27T08:00:00.000Z",
+        lastRunUtc: null,
+      },
+    ]);
+
     render(<AdvisorySchedulesContent />);
 
-    const section = await screen.findByTestId("advisory-schedules-existing");
+    expect(await screen.findByText("Weekly scan")).toBeInTheDocument();
+    const section = screen.getByTestId("advisory-schedules-existing");
     expect(within(section).getByTestId("advisory-schedules-refresh")).toBeInTheDocument();
   });
 });
