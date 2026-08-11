@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 
@@ -31,7 +31,9 @@ vi.mock("@/lib/api/itsm-outbound-api", () => ({
 
 import { ItsmProductIntegrationPageClient } from "./ItsmProductIntegrationPageClient";
 import {
+  ITSM_CONNECTION_TEST_UNAVAILABLE_UNTIL_CONFIGURED,
   ITSM_PRODUCT_PAGE_COPY,
+  sanitizeItsmCustomerFacingProbeSummary,
   type ItsmProductId,
 } from "@/lib/itsm-product-integration-page-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -152,6 +154,60 @@ describe("ItsmProductIntegrationPageClient", () => {
       });
     },
   );
+
+  it.each<ItsmProductId>(["jira", "servicenow"])(
+    "page summary does not claim operators set connection credentials on this route (TB-1147)",
+    async (product) => {
+      mockFetchHealth.mockResolvedValue(baseHealth(product));
+
+      render(<ItsmProductIntegrationPageClient product={product} />);
+
+      const copy = ITSM_PRODUCT_PAGE_COPY[product];
+      expect(await screen.findByText(copy.summary)).toBeInTheDocument();
+      expect(copy.summary).not.toMatch(/set connection details/i);
+    },
+  );
+
+  it.each<ItsmProductId>(["jira", "servicenow"])(
+    "does not repeat the not-configured probe summary under Connection test (TB-1148)",
+    async (product) => {
+      const health = baseHealth(product);
+      mockFetchHealth.mockResolvedValue(health);
+
+      render(<ItsmProductIntegrationPageClient product={product} />);
+
+      const probeSummary = sanitizeItsmCustomerFacingProbeSummary(
+        product === "jira" ? health.jira.summary : health.serviceNow.summary,
+        product,
+      );
+
+      expect(await screen.findByText(probeSummary)).toBeInTheDocument();
+      expect(screen.getByText(ITSM_CONNECTION_TEST_UNAVAILABLE_UNTIL_CONFIGURED)).toBeInTheDocument();
+
+      const connectionTest = screen.getByTestId(`integrations-${product}-connection-test`);
+      expect(connectionTest.textContent ?? "").not.toContain(probeSummary);
+    },
+  );
+
+  it("shows a distinct connection-test result after Run without duplicating the probe summary (TB-1148)", async () => {
+    const health = baseHealth("jira");
+    mockFetchHealth.mockResolvedValue(health);
+
+    render(<ItsmProductIntegrationPageClient product="jira" />);
+
+    const probeSummary = sanitizeItsmCustomerFacingProbeSummary(health.jira.summary, "jira");
+    expect(await screen.findByText(probeSummary)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Run connection test" }));
+
+    const connectionTest = screen.getByTestId("integrations-jira-connection-test");
+    expect(
+      await within(connectionTest).findByText(
+        /Connection test could not complete — configure Jira credentials in ITSM administration/i,
+      ),
+    ).toBeInTheDocument();
+    expect(connectionTest.textContent ?? "").not.toContain(probeSummary);
+  });
 
   it("hides the not-configured next step when the connector is locally configured", async () => {
     mockFetchHealth.mockResolvedValue({

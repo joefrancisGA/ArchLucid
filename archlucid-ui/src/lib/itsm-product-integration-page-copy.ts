@@ -25,6 +25,10 @@ export const ITSM_NOT_CONFIGURED_OPERATOR_LEAD =
 
 export const ITSM_NOT_CONFIGURED_READINESS_CTA = "Open Integration readiness";
 
+/** Shown in Connection test before an explicit run when credentials are missing (TB-1148). */
+export const ITSM_CONNECTION_TEST_UNAVAILABLE_UNTIL_CONFIGURED =
+  "Connection test is unavailable until credentials are configured.";
+
 export const ITSM_NATIVE_CREATE_READY_MESSAGE =
   "Connection validation passed — finding surfaces can offer one-click {vendor} sync when outbound creation is enabled.";
 
@@ -40,7 +44,7 @@ export const ITSM_PRODUCT_PAGE_COPY: Record<ItsmProductId, ItsmProductPageCopy> 
   jira: {
     pageTitle: "Jira",
     summary:
-      "Configure Jira outbound ticket creation from architecture findings. Set connection details and routing preferences for this workspace.",
+      "Configure Jira outbound ticket routing for this workspace — project key, severity filters, and issue-type mapping. Connection credentials are configured by your platform team in ITSM administration.",
     connectionTestLead: "Runs a read-only connection check for Jira.",
     smokeHelpHref: ITSM_PRODUCT_SMOKE_VERIFICATION_HREF,
     smokeHelpLabel: "Jira connection verification checklist",
@@ -48,7 +52,7 @@ export const ITSM_PRODUCT_PAGE_COPY: Record<ItsmProductId, ItsmProductPageCopy> 
   servicenow: {
     pageTitle: "ServiceNow",
     summary:
-      "Configure ServiceNow outbound incident creation from architecture findings. Set connection details and routing preferences for this workspace.",
+      "Configure ServiceNow outbound incident routing for this workspace — tenant overrides for routing and CMDB behavior. Connection credentials are configured by your platform team in ITSM administration.",
     connectionTestLead: "Runs a read-only connection check for ServiceNow.",
     smokeHelpHref: ITSM_PRODUCT_SMOKE_VERIFICATION_HREF,
     smokeHelpLabel: "ServiceNow connection verification checklist",
@@ -57,6 +61,44 @@ export const ITSM_PRODUCT_PAGE_COPY: Record<ItsmProductId, ItsmProductPageCopy> 
 
 export function formatItsmNativeCreateReadyMessage(vendor: string): string {
   return ITSM_NATIVE_CREATE_READY_MESSAGE.replace("{vendor}", vendor);
+}
+
+type ItsmConnectionTestProbe = {
+  readonly locallyConfigured: boolean;
+  readonly reachable: boolean | null;
+  readonly summary: string;
+};
+
+/** Buyer-safe connection-test result — never repeats the probe-card not-configured sentence (TB-1148). */
+export function formatItsmConnectionTestResult(
+  product: ItsmProductId,
+  probe: ItsmConnectionTestProbe | null | undefined,
+): string {
+  if (probe === null || probe === undefined)
+  {
+    return "Connection test did not return a result.";
+  }
+
+  const vendor = ITSM_PRODUCT_PAGE_COPY[product].pageTitle;
+
+  if (!probe.locallyConfigured)
+  {
+    return `Connection test could not complete — configure ${vendor} credentials in ITSM administration, then run the test again.`;
+  }
+
+  if (probe.reachable === true)
+  {
+    return formatItsmNativeCreateReadyMessage(vendor);
+  }
+
+  const summary = sanitizeItsmCustomerFacingProbeSummary(probe.summary, product);
+
+  if (summary.length > 0)
+  {
+    return summary;
+  }
+
+  return `${vendor} connection check failed.`;
 }
 
 const ITSM_INTERNAL_PROBE_SUMMARY_PATTERN =

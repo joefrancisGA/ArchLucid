@@ -41,9 +41,6 @@ public sealed class SqlFindingsSnapshotRepository(
     private readonly IReadOnlyDbConnectionFactory _readConnectionFactory =
         readConnectionFactory ?? throw new ArgumentNullException(nameof(readConnectionFactory));
 
-    private const int FindingChildTripleColumnInsertRows = 650;
-    private const int FindingChildPropertyInsertRows = 650;
-
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
@@ -834,205 +831,184 @@ public sealed class SqlFindingsSnapshotRepository(
         Guid projectId,
         CancellationToken ct)
     {
-        await InsertTripleStringColumnChunksAsync(
+        await InsertFindingChildSortNodeIdRowsIfAnyAsync(
             connection,
             transaction,
-            """
-            INSERT INTO dbo.FindingRelatedNodes (FindingRecordId, SortOrder, NodeId, TenantId, WorkspaceId, ProjectId)
-            VALUES
-            """,
             findingRecordId,
-            finding.RelatedNodeIds,
             tenantId,
             workspaceId,
             projectId,
+            FindingChildInsertQueryShapes.RelatedNodesInsert,
+            finding.RelatedNodeIds,
             ct);
 
-        await InsertTripleStringColumnChunksAsync(
+        await InsertFindingChildSortTextRowsIfAnyAsync(
             connection,
             transaction,
-            """
-            INSERT INTO dbo.FindingRecommendedActions (FindingRecordId, SortOrder, ActionText, TenantId, WorkspaceId, ProjectId)
-            VALUES
-            """,
             findingRecordId,
-            finding.RecommendedActions,
             tenantId,
             workspaceId,
             projectId,
+            FindingChildInsertQueryShapes.RecommendedActionsInsert,
+            finding.RecommendedActions,
             ct);
 
         List<KeyValuePair<string, string>> orderedProps = finding.Properties
             .OrderBy(kv => kv.Key, StringComparer.Ordinal)
             .ToList();
 
-        await InsertFindingPropertiesChunksAsync(
+        await InsertFindingChildPropertyRowsIfAnyAsync(
             connection,
             transaction,
             findingRecordId,
+            tenantId,
+            workspaceId,
+            projectId,
             orderedProps,
+            ct);
+
+        await InsertFindingChildSortNodeIdRowsIfAnyAsync(
+            connection,
+            transaction,
+            findingRecordId,
             tenantId,
             workspaceId,
             projectId,
-            ct);
-
-        await InsertTripleStringColumnChunksAsync(
-            connection,
-            transaction,
-            """
-            INSERT INTO dbo.FindingTraceGraphNodesExamined (FindingRecordId, SortOrder, NodeId, TenantId, WorkspaceId, ProjectId)
-            VALUES
-            """,
-            findingRecordId,
+            FindingChildInsertQueryShapes.TraceGraphNodesExaminedInsert,
             finding.Trace.GraphNodeIdsExamined,
+            ct);
+
+        await InsertFindingChildSortTextRowsIfAnyAsync(
+            connection,
+            transaction,
+            findingRecordId,
             tenantId,
             workspaceId,
             projectId,
-            ct);
-
-        await InsertTripleStringColumnChunksAsync(
-            connection,
-            transaction,
-            """
-            INSERT INTO dbo.FindingTraceRulesApplied (FindingRecordId, SortOrder, RuleText, TenantId, WorkspaceId, ProjectId)
-            VALUES
-            """,
-            findingRecordId,
+            FindingChildInsertQueryShapes.TraceRulesAppliedInsert,
             finding.Trace.RulesApplied,
+            ct);
+
+        await InsertFindingChildSortTextRowsIfAnyAsync(
+            connection,
+            transaction,
+            findingRecordId,
             tenantId,
             workspaceId,
             projectId,
-            ct);
-
-        await InsertTripleStringColumnChunksAsync(
-            connection,
-            transaction,
-            """
-            INSERT INTO dbo.FindingTraceDecisionsTaken (FindingRecordId, SortOrder, DecisionText, TenantId, WorkspaceId, ProjectId)
-            VALUES
-            """,
-            findingRecordId,
+            FindingChildInsertQueryShapes.TraceDecisionsTakenInsert,
             finding.Trace.DecisionsTaken,
+            ct);
+
+        await InsertFindingChildSortTextRowsIfAnyAsync(
+            connection,
+            transaction,
+            findingRecordId,
             tenantId,
             workspaceId,
             projectId,
-            ct);
-
-        await InsertTripleStringColumnChunksAsync(
-            connection,
-            transaction,
-            """
-            INSERT INTO dbo.FindingTraceAlternativePaths (FindingRecordId, SortOrder, PathText, TenantId, WorkspaceId, ProjectId)
-            VALUES
-            """,
-            findingRecordId,
+            FindingChildInsertQueryShapes.TraceAlternativePathsInsert,
             finding.Trace.AlternativePathsConsidered,
-            tenantId,
-            workspaceId,
-            projectId,
             ct);
 
-        await InsertTripleStringColumnChunksAsync(
+        await InsertFindingChildSortTextRowsIfAnyAsync(
             connection,
             transaction,
-            """
-            INSERT INTO dbo.FindingTraceNotes (FindingRecordId, SortOrder, NoteText, TenantId, WorkspaceId, ProjectId)
-            VALUES
-            """,
             findingRecordId,
-            finding.Trace.Notes,
             tenantId,
             workspaceId,
             projectId,
+            FindingChildInsertQueryShapes.TraceNotesInsert,
+            finding.Trace.Notes,
             ct);
     }
 
-    private static async Task InsertTripleStringColumnChunksAsync(
+    private static async Task InsertFindingChildSortNodeIdRowsIfAnyAsync(
         IDbConnection connection,
         IDbTransaction? transaction,
-        string insertHeaderThroughValuesKeyword,
         Guid findingRecordId,
-        List<string> rows,
         Guid tenantId,
         Guid workspaceId,
         Guid projectId,
+        string sql,
+        IReadOnlyList<string> nodeIds,
         CancellationToken ct)
     {
-        if (rows.Count == 0)
-            return;
-
-        for (int offset = 0; offset < rows.Count; offset += FindingChildTripleColumnInsertRows)
+        if (nodeIds.Count == 0)
         {
-            int len = Math.Min(FindingChildTripleColumnInsertRows, rows.Count - offset);
-            StringBuilder sb = new(insertHeaderThroughValuesKeyword.Length + len * 80);
-            sb.Append(insertHeaderThroughValuesKeyword);
-            DynamicParameters dp = new();
-            dp.Add("fid", findingRecordId, DbType.Guid);
-            dp.Add("tid", tenantId);
-            dp.Add("wid", workspaceId);
-            dp.Add("pid", projectId);
-
-            for (int i = 0; i < len; i++)
-            {
-                if (i > 0)
-                    sb.Append(',');
-
-                int sortOrder = offset + i;
-                sb.Append($"(@fid,@s{i},@t{i},@tid,@wid,@pid)");
-                dp.Add($"s{i}", sortOrder);
-                dp.Add($"t{i}", rows[sortOrder]);
-            }
-
-            await connection.ExecuteAsync(
-                new CommandDefinition(sb.ToString(), dp, transaction, cancellationToken: ct));
+            return;
         }
+
+        DataTable rows = FindingChildTableValuedParameters.CreateSortNodeIdTable(nodeIds);
+        DynamicParameters parameters = FindingChildTableValuedParameters.CreateScopeParameters(
+            findingRecordId,
+            tenantId,
+            workspaceId,
+            projectId,
+            rows,
+            FindingChildTableValuedParameters.SortNodeIdListTypeName);
+
+        await connection.ExecuteAsync(new CommandDefinition(sql, parameters, transaction, cancellationToken: ct));
     }
 
-    private static async Task InsertFindingPropertiesChunksAsync(
+    private static async Task InsertFindingChildSortTextRowsIfAnyAsync(
         IDbConnection connection,
         IDbTransaction? transaction,
         Guid findingRecordId,
-        List<KeyValuePair<string, string>> orderedProps,
         Guid tenantId,
         Guid workspaceId,
         Guid projectId,
+        string sql,
+        IReadOnlyList<string> textRows,
+        CancellationToken ct)
+    {
+        if (textRows.Count == 0)
+        {
+            return;
+        }
+
+        DataTable rows = FindingChildTableValuedParameters.CreateSortTextTable(textRows);
+        DynamicParameters parameters = FindingChildTableValuedParameters.CreateScopeParameters(
+            findingRecordId,
+            tenantId,
+            workspaceId,
+            projectId,
+            rows,
+            FindingChildTableValuedParameters.SortTextListTypeName);
+
+        await connection.ExecuteAsync(new CommandDefinition(sql, parameters, transaction, cancellationToken: ct));
+    }
+
+    private static async Task InsertFindingChildPropertyRowsIfAnyAsync(
+        IDbConnection connection,
+        IDbTransaction? transaction,
+        Guid findingRecordId,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        IReadOnlyList<KeyValuePair<string, string>> orderedProps,
         CancellationToken ct)
     {
         if (orderedProps.Count == 0)
-            return;
-
-        const string preamble = """
-                                INSERT INTO dbo.FindingProperties (
-                                    FindingRecordId, PropertySortOrder, PropertyKey, PropertyValue, TenantId, WorkspaceId, ProjectId)
-                                VALUES
-                                """;
-
-        for (int offset = 0; offset < orderedProps.Count; offset += FindingChildPropertyInsertRows)
         {
-            int len = Math.Min(FindingChildPropertyInsertRows, orderedProps.Count - offset);
-            StringBuilder sb = new(preamble.Length + len * 96);
-            sb.Append(preamble);
-            DynamicParameters dp = new();
-            dp.Add("fid", findingRecordId, DbType.Guid);
-            dp.Add("tid", tenantId);
-            dp.Add("wid", workspaceId);
-            dp.Add("pid", projectId);
-
-            for (int i = 0; i < len; i++)
-            {
-                if (i > 0)
-                    sb.Append(',');
-
-                KeyValuePair<string, string> kv = orderedProps[offset + i];
-                sb.Append($"(@fid,@ps{i},@pk{i},@pv{i},@tid,@wid,@pid)");
-                dp.Add($"ps{i}", offset + i);
-                dp.Add($"pk{i}", kv.Key);
-                dp.Add($"pv{i}", kv.Value);
-            }
-
-            await connection.ExecuteAsync(
-                new CommandDefinition(sb.ToString(), dp, transaction, cancellationToken: ct));
+            return;
         }
+
+        DataTable rows = FindingChildTableValuedParameters.CreatePropertyTable(orderedProps);
+        DynamicParameters parameters = FindingChildTableValuedParameters.CreateScopeParameters(
+            findingRecordId,
+            tenantId,
+            workspaceId,
+            projectId,
+            rows,
+            FindingChildTableValuedParameters.PropertyListTypeName);
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                FindingChildInsertQueryShapes.PropertiesInsert,
+                parameters,
+                transaction,
+                cancellationToken: ct));
     }
 
     /// <summary>

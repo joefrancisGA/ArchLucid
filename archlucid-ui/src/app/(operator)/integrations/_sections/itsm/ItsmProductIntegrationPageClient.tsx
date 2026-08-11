@@ -23,7 +23,9 @@ import { DESIGN_TOKENS, OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LAYOUT, OPER
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import {
+  formatItsmConnectionTestResult,
   formatItsmNativeCreateReadyMessage,
+  ITSM_CONNECTION_TEST_UNAVAILABLE_UNTIL_CONFIGURED,
   ITSM_INTEGRATION_READINESS_AFTER_LINK,
   ITSM_PLATFORM_OPERATOR_NOTES_BODY,
   ITSM_PLATFORM_OPERATOR_NOTES_SUMMARY,
@@ -54,6 +56,7 @@ export function ItsmProductIntegrationPageClient(props: Props): React.ReactEleme
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
+  const [connectionTestSummary, setConnectionTestSummary] = useState<string | null>(null);
   const [jiraProjectKey, setJiraProjectKey] = useState("");
   const [jiraSendInfo, setJiraSendInfo] = useState(false);
   const [issueTypeJson, setIssueTypeJson] = useState("");
@@ -72,6 +75,7 @@ export function ItsmProductIntegrationPageClient(props: Props): React.ReactEleme
   const refresh = useCallback(async () => {
     setIsLoading(true);
     setLoadError(null);
+    setConnectionTestSummary(null);
 
     try {
       const [healthResponse, settingsResponse] = await Promise.all([
@@ -102,12 +106,14 @@ export function ItsmProductIntegrationPageClient(props: Props): React.ReactEleme
     try {
       const probe = await fetchItsmIntegrationHealth();
       setHealth(probe);
+      const rawProbe = props.product === "jira" ? probe.jira : probe.serviceNow;
+      setConnectionTestSummary(formatItsmConnectionTestResult(props.product, rawProbe ?? null));
     } catch (error: unknown) {
       setTestError(error instanceof Error ? error.message : "Connection test failed.");
     } finally {
       setIsTesting(false);
     }
-  }, []);
+  }, [props.product]);
 
   const saveSettings = useCallback(async () => {
     if (!canMutate) {
@@ -315,7 +321,7 @@ export function ItsmProductIntegrationPageClient(props: Props): React.ReactEleme
             </CardContent>
           </Card>
 
-          <Card>
+          <Card data-testid={`integrations-${props.product}-connection-test`}>
             <CardHeader>
               <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Connection test</CardTitle>
               <CardDescription className={OPERATOR_TYPOGRAPHY.helper}>{copy.connectionTestLead}</CardDescription>
@@ -329,8 +335,12 @@ export function ItsmProductIntegrationPageClient(props: Props): React.ReactEleme
               <Button type="button" onClick={() => void runConnectionTest()} disabled={isTesting}>
                 {isTesting ? "Testing…" : "Run connection test"}
               </Button>
-              {probe?.summary ? (
-                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{probe.summary}</p>
+              {connectionTestSummary ? (
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{connectionTestSummary}</p>
+              ) : showNotConfiguredNextStep ? (
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                  {ITSM_CONNECTION_TEST_UNAVAILABLE_UNTIL_CONFIGURED}
+                </p>
               ) : null}
               <p className="m-0">
                 <Link
