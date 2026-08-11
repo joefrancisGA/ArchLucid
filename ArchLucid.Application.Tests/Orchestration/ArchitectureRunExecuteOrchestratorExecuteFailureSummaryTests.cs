@@ -182,9 +182,11 @@ public sealed class ArchitectureRunExecuteOrchestratorExecuteFailureSummaryTests
         capturedRunFailedDetails.Should().Contain(AgentExecutionFailureClasses.InvalidOperation);
         capturedRunFailedDetails.Should().Contain(AgentTypeKeys.Compliance);
 
+        // Moq It.Is is an expression tree (CS8122 bans `is not null`); is-null guard bans `!= null`.
         runRepo.Verify(
             r => r.UpdateAsync(
-                It.Is<RunRecord>(h => h.LastFailureReason is not null && !h.LastFailureReason.Contains(secret)),
+                It.Is<RunRecord>(h =>
+                    !string.IsNullOrEmpty(h.LastFailureReason) && !h.LastFailureReason.Contains(secret)),
                 It.IsAny<CancellationToken>()),
             Times.Once);
 
