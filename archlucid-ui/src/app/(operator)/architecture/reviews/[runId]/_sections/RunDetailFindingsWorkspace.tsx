@@ -13,7 +13,9 @@ import {
   filterFindingsForToolbar,
   sortFindingsForToolbar,
   useRunDetailFindingsToolbarState,
+  type RunDetailFindingsFilterKind,
 } from "@/components/findings/RunDetailFindingsToolbar";
+import type { FindingsNaturalLanguageFacets } from "@/lib/findings-natural-language-filter";
 import { applyFindingsConfidenceVisibility } from "@/lib/finding-confidence-filter";
 import {
   architectureAssessmentFindingsPresentation,
@@ -55,6 +57,19 @@ export type RunDetailFindingsWorkspaceProps = {
 /** Findings list with workspace toolbar filters for the review detail page. */
 export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProps): ReactElement {
   const toolbar = useRunDetailFindingsToolbarState();
+
+  function applyNaturalLanguageFacets(facets: FindingsNaturalLanguageFacets): void {
+
+    if (facets.severity !== null) {
+      toolbar.setFilter(facets.severity as RunDetailFindingsFilterKind);
+    } else if (facets.status === "open") {
+      toolbar.setFilter("unresolved");
+    } else if (facets.status === "disposed") {
+      toolbar.setFilter("resolved");
+    }
+
+    toolbar.setSearchQuery(facets.titleKeywords.join(" "));
+  }
   const [showLowConfidence, setShowLowConfidence] = useState(false);
   const [showAdvisory, setShowAdvisory] = useState(false);
   const createHomeSurface = props.packageCommitted === false;
@@ -165,6 +180,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       onSortChange={toolbar.setSort}
       layout={createHomeSurface ? "compact" : "full"}
       packageCommitted={props.packageCommitted}
+      onNaturalLanguageFilterApply={applyNaturalLanguageFacets}
       exportSlot={
         <FindingsItsmExportToolbar
           runId={props.runId}

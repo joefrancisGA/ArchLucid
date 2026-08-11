@@ -10,6 +10,8 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatFindingsVisibilitySummaryLine } from "@/lib/finding-confidence-filter";
 import { FindingJobViewToggleBar } from "@/components/findings/FindingJobViewToggleBar";
+import { FindingsNaturalLanguageFilter } from "@/components/findings/FindingsNaturalLanguageFilter";
+import type { FindingsNaturalLanguageFacets } from "@/lib/findings-natural-language-filter";
 import {
   DEFAULT_FINDING_JOB_VIEW,
   filterReviewFindingsForJobView,
@@ -59,6 +61,7 @@ export type RunDetailFindingsToolbarProps = {
   readonly exportSlot?: React.ReactNode;
   readonly layout?: RunDetailFindingsToolbarLayout;
   readonly packageCommitted?: boolean;
+  readonly onNaturalLanguageFilterApply?: (facets: FindingsNaturalLanguageFacets) => void;
 };
 
 const FILTER_OPTIONS: readonly { id: RunDetailFindingsFilterKind; label: string }[] = [
@@ -375,6 +378,11 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
             <div className="flex flex-wrap gap-1" role="group" aria-label="Finding severity and status filters">
               {filterChips}
             </div>
+      {props.onNaturalLanguageFilterApply !== undefined ? (
+        <div data-testid="findings-nl-filter-toolbar">
+          <FindingsNaturalLanguageFilter onApply={props.onNaturalLanguageFilterApply} />
+        </div>
+      ) : null}
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
                 <Label htmlFor="findings-owner-filter" className={OPERATOR_TYPOGRAPHY.helper}>
@@ -448,6 +456,11 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
       <div className="flex flex-wrap gap-1" role="group" aria-label="Finding severity and status filters">
         {filterChips}
       </div>
+      {props.onNaturalLanguageFilterApply !== undefined ? (
+        <div data-testid="findings-nl-filter-toolbar">
+          <FindingsNaturalLanguageFilter onApply={props.onNaturalLanguageFilterApply} />
+        </div>
+      ) : null}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <Label htmlFor="findings-owner-filter" className={OPERATOR_TYPOGRAPHY.helper}>

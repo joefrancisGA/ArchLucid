@@ -19,6 +19,8 @@ import { FindingJobViewToggleBar } from "@/components/findings/FindingJobViewTog
 import {
   type FindingJobView,
 } from "@/lib/finding-job-view";
+import { FindingsNaturalLanguageFilter } from "@/components/findings/FindingsNaturalLanguageFilter";
+import type { FindingsNaturalLanguageFacets } from "@/lib/findings-natural-language-filter";
 
 export type GovernanceFindingsFilterBarProps = {
   readonly registerFilter: RiskRegisterFilter;
@@ -32,6 +34,7 @@ export type GovernanceFindingsFilterBarProps = {
   readonly onToggleGroupByResource: () => void;
   readonly displayedRows: readonly GovernanceFindingQueueRow[];
   readonly filterableRows: readonly GovernanceFindingQueueRow[];
+  readonly onNaturalLanguageFilterApply?: (facets: FindingsNaturalLanguageFacets) => void;
 };
 
 function GovernanceFindingsFilterBarComponent(props: GovernanceFindingsFilterBarProps): ReactElement {
@@ -128,6 +131,10 @@ function GovernanceFindingsFilterBarComponent(props: GovernanceFindingsFilterBar
           Group by resource
         </Button>
       </div>
+
+      {props.onNaturalLanguageFilterApply !== undefined ? (
+        <FindingsNaturalLanguageFilter onApply={props.onNaturalLanguageFilterApply} />
+      ) : null}
 
       {savedPresets.length > 0 ? (
         <div className="flex flex-wrap items-center gap-1.5" aria-label="Saved filter presets">

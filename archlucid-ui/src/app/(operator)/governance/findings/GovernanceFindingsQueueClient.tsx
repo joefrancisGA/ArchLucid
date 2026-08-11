@@ -38,6 +38,11 @@ import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/desig
 import { GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { governanceRegisterMetricPresentation } from "@/lib/metric-count-presentation";
 import { buildSponsorStoryDispositionCountsFromRows } from "@/lib/sponsor-story-synopsis";
+import {
+  EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS,
+  matchesFindingsNaturalLanguageFacets,
+  type FindingsNaturalLanguageFacets,
+} from "@/lib/findings-natural-language-filter";
 import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import { secondaryViewFromGovernanceQueueRow } from "@/lib/canonical-object-home-registry";
@@ -57,6 +62,9 @@ export type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
 export default function GovernanceFindingsQueueClient() {
   const [selectedFindingIds, setSelectedFindingIds] = useState<ReadonlySet<string>>(new Set());
   const [jobView, setJobView] = useState<FindingJobView>(DEFAULT_FINDING_JOB_VIEW);
+  const [nlFacets, setNlFacets] = useState<FindingsNaturalLanguageFacets>(
+    EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS,
+  );
   const { rows, loading, loadFailed, refresh } = useGovernanceFindingsQuery();
   const {
     registerFilter,
@@ -77,10 +85,22 @@ export default function GovernanceFindingsQueueClient() {
   const displayedRows = useMemo(
     () =>
       filterGovernanceRowsForJobView(
-        scopedRows.filter((row) => matchesRiskRegisterFilter(row, registerFilter)),
+        scopedRows.filter(
+          (row) =>
+            matchesRiskRegisterFilter(row, registerFilter) &&
+            matchesFindingsNaturalLanguageFacets(
+              {
+                title: row.title,
+                severity: row.severity,
+                status: row.status,
+                latestDisposition: row.latestDisposition,
+              },
+              nlFacets,
+            ),
+        ),
         jobView,
       ),
-    [scopedRows, registerFilter, jobView],
+    [scopedRows, registerFilter, jobView, nlFacets],
   );
   const registerSummary = useMemo(() => computeArchitectureRiskRegisterSummary(rows), [rows]);
   const findingIds = useMemo(
@@ -208,6 +228,7 @@ export default function GovernanceFindingsQueueClient() {
             onToggleGroupByResource={toggleGroupByResource}
             displayedRows={displayedRows}
             filterableRows={scopedRows}
+            onNaturalLanguageFilterApply={setNlFacets}
           />
         ) : null}
 
