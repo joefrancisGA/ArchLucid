@@ -164,6 +164,35 @@ Every navigable operator surface must teach its own job in place. The shell top-
 
 **Good exemplar (target state):** Digests Category-1 answers discuss Schedule/recipients; Learn more must open digests-relevant help (or omit) — not `/help/getting-started`. Category-1 what-to-do-next / where-to-configure fields that name a tab or operator route should expose optional `{ label, href }` actions (`PageContextualHelpAction`) rendered in `PageScopedContextualHelpPanel`.
 
+### Operator side rails (**TB-1572** — done 2026-08-11)
+
+Carbon **side panels** (drawers / modal panels) remain valid for transient focus. This section owns **persistent right columns** on operator pages — the always-on second column agents invent as teaching rails, static scope columns, and empty two-col theater.
+
+**Default:** single-column. A new operator page must **name a rail kind** below or stay single-column. Do not open a persistent right column “because Carbon has side panels” or “because another hub does.”
+
+| Kind | Allowed? | When |
+|------|----------|------|
+| **Working-object sticky** | Yes | Sticky package / selection chrome that tracks the object the operator is acting on (e.g. run-detail package rail). |
+| **Master-detail** | Yes | Browse list + detail pane where both panes are the page job (e.g. Digests browse). |
+| **Live preview / readiness** | Yes, only when live | Draft/selection produces pin-worthy preview or readiness content. Hide or stack below when empty/sparse (**TB-1574**; Digests Schedule / Alert rules coordinate **TB-1478**/**TB-1479** — do not reopen). |
+| **TOC / wizard** | Yes | Help TOC or multi-step wizard navigation that is the reading/progress affordance. |
+| **Teaching / workflow helper** | **Banned** as a persistent rail | Restates Next step or How-it-works beside the form. Demote to collapsed disclosure, inline tip, or remove (**TB-1573** — Recurrence helper anti-exemplar; empty-hide already Done **TB-1133**). |
+| **Static scope** | **Banned** as a persistent rail | Project + prose “scope” column that creates thin voids beside forms. Move inline near the field (**TB-1573** + Advisory Schedules / **TB-1477** — do not duplicate that surface ticket). |
+| **About aside** | **Banned** as a competing rail | Integration “about” columns that compete with `StatusTag` + page help. Demote to help + status (**TB-1575** inventory). |
+
+**Layout rules when a rail is allowed:**
+
+| Rule | Required behavior |
+|------|-------------------|
+| Shared shell | Sticky right column ~**17.5–18rem** wide (`w-70` / `w-72` class band); do not invent a third content column. |
+| Empty / sparse | Hide the rail or stack its content below the primary column — never keep an empty two-col first viewport (pairs empty-state contract **TB-1552**–**TB-1556**; whitespace **TB-1477**–**TB-1482**). |
+| Primary CTA | No second primary in the rail. Page CTAs follow the operator primary-CTA contract (**TB-1539** and siblings). |
+| Naming | In code review / PR notes, name the kind (`working-object`, `master-detail`, `live`, `toc-wizard`) or confirm single-column. |
+
+**Out of scope here:** Marketing two-column layouts; Carbon modal side panels / drawers; implementing every hub (surface work is **TB-1573**–**TB-1576** and existing whitespace/empty rows).
+
+**UI architecture pointer:** `archlucid-ui/docs/ARCHITECTURE.md` § *Where to go next* — layout guidance cites this contract; do not treat two-column operator layouts as free-form.
+
 ---
 
 ## What this standard forbids
@@ -384,3 +413,4 @@ Headline counts on golden-path surfaces must be **self-describing** and **click-
 - Agent guidance: `archlucid-ui/AGENTS.md`
 - Page-scoped help **mount + interaction** contract: this file § *Operator page contextual help — mount + interaction contract* (**TB-1666** Done) — press-only triggers, shared `HelpPopover`, `title`-as-help banned (sweep **TB-2147**); remaining mount waves **TB-1667**–**TB-1670**
 - Page-scoped **Learn more** job match: this file § *Operator page contextual help — Learn more job match* (**TB-2048** Done); Digests/secondary remaps **TB-2049**–**TB-2052**
+- Operator **side rails** contract: this file § *Operator side rails* (**TB-1572** Done) — single-column default; allow working-object / master-detail / live-when-live / TOC-wizard; ban teaching / static-scope / about-aside persistent rails; apply/inventory **TB-1573**–**TB-1576**
