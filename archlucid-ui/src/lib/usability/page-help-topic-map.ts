@@ -517,7 +517,11 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/administration/security-trust",
-    topic: { slug: "security-trust", label: "Security and trust" },
+    topic: { slug: "security-trust", label: `${OPERATOR_NAV_LINK_LABELS.securityTrust} help` },
+  },
+  {
+    prefix: "/administration/settings/security-trust",
+    topic: { slug: "security-trust", label: `${OPERATOR_NAV_LINK_LABELS.securityTrust} help` },
   },
   {
     prefix: "/administration/tenant",

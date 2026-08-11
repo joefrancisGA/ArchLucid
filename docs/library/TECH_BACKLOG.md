@@ -932,14 +932,14 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1213 | **Done (2026-08-11)** Users & roles API keys tab ? dedicated empty + Open API keys CTA; see ## TB-1213 below | Adoption friction P1 ? **V1**; with **TB-1211** | S |
 | TB-1214 | **Done (2026-08-11)** Users & invitations ? empty composition / guided next step; see ## TB-1214 below | Adoption friction P1 ? **V1**; with **TB-1211** | S |
 | TB-1215 | **Done (2026-08-11)** Users & roles ? PageContextualHelpButton at top; see ## TB-1215 below | Adoption friction P1 ? **V1**; with **TB-1210**; parity **TB-1184** | XS |
-| TB-1216 | **Done (2026-08-11)** AI usage — nav/document/H1 title consistency (AI usage); see ## TB-1216 below | Adoption friction P1 ? **V1**; owner `/administration/settings/ai-usage` ~51/100 2026-07-25; TB-404 | S |
-| TB-1218 | **Done (2026-08-11)** AI usage — PageHeading icon + PageContextualHelpButton; see ## TB-1218 below | Adoption friction P1 ? **V1**; with **TB-1216**; parity **TB-1184** | S |
-| TB-1219 | **Done (2026-08-11)** AI usage — dedupe Edit budget / budget-control CTAs; see ## TB-1219 below | Adoption friction P1 ? **V1**; with **TB-1216** | S |
-| TB-1223 | Security & trust ? Administration vs Settings wayfinding (breadcrumb / URL honesty); see ## TB-1223 below | Adoption friction P1 ? **V1**; owner `/administration/settings/security-trust` ~53/100 2026-07-25; TB-404; with **TB-1216** | S |
-| TB-1224 | Security & trust ? collapse triple intro into one hero; see ## TB-1224 below | Adoption friction P1 ? **V1**; with **TB-1223** | S |
-| TB-1225 | Security & trust ? PageHeading icon + PageContextualHelpButton; see ## TB-1225 below | Adoption friction P1 ? **V1**; with **TB-1224**; parity **TB-1184** | XS |
-| TB-1226 | Security & trust ? Available-now primary CTA hierarchy; see ## TB-1226 below | Adoption friction P1 ? **V1**; with **TB-1224** | S |
-| TB-1227 | Security & trust ? dedupe security@ contact CTAs; see ## TB-1227 below | Adoption friction P1 ? **V1**; with **TB-1223** | XS |
+| TB-1216 | **Done (2026-08-11)** AI usage ? nav/document/H1 title consistency (AI usage); see ## TB-1216 below | Adoption friction P1 ? **V1**; owner `/administration/settings/ai-usage` ~51/100 2026-07-25; TB-404 | S |
+| TB-1218 | **Done (2026-08-11)** AI usage ? PageHeading icon + PageContextualHelpButton; see ## TB-1218 below | Adoption friction P1 ? **V1**; with **TB-1216**; parity **TB-1184** | S |
+| TB-1219 | **Done (2026-08-11)** AI usage ? dedupe Edit budget / budget-control CTAs; see ## TB-1219 below | Adoption friction P1 ? **V1**; with **TB-1216** | S |
+| TB-1223 | **Done** (2026-08-11) ? Security & trust Administration breadcrumb + nav href honesty; Vitest; see `## TB-1223` below | Adoption friction P1 ? **V1**; owner `/administration/settings/security-trust` ~53/100 2026-07-25; TB-404; with **TB-1216** | S |
+| TB-1224 | **Done** (2026-08-11) ? Security & trust single hero description; Vitest; see `## TB-1224` below | Adoption friction P1 ? **V1**; with **TB-1223** | S |
+| TB-1225 | **Done** (2026-08-11) ? Security & trust PageHeading icon + PageContextualHelpButton; Vitest; see `## TB-1225` below | Adoption friction P1 ? **V1**; with **TB-1224**; parity **TB-1184** | XS |
+| TB-1226 | **Done** (2026-08-11) ? Security & trust Trust Center primary CTA hierarchy; Vitest; see `## TB-1226` below | Adoption friction P1 ? **V1**; with **TB-1224** | S |
+| TB-1227 | **Done** (2026-08-11) ? Security & trust dedupe security@ contact CTAs; Vitest; see `## TB-1227` below | Adoption friction P1 ? **V1**; with **TB-1223** | XS |
 | TB-1248 | Engineering troubleshooting ? align route slug with page title; see ## TB-1248 below | Adoption friction P1 ? **V1**; with **TB-1246** | S |
 | TB-1256 | Procurement FAQ ? diligence CTA chrome (trust / pack / DPA); see ## TB-1256 below | Adoption friction P1 ? **V1**; with **TB-1253** | S |
 | TB-1259 | Starting/review guide ? wizard companion CTA to `/reviews/new`; see ## TB-1259 below | Adoption friction P1 ? **V1**; with **TB-1258** | S |
@@ -25310,7 +25310,7 @@ Private-beta deploy P0 (**TB-928**): surface beta-blocking auth/email config in 
 
 **Window:** V1 ? Cost-effectiveness. Extends **TB-043** (Done).
 
-**Status:** Done (2026-08-11) — canonical /administration/ai-usage; H1 + ROUTE_TITLES + nav label use OPERATOR_NAV_LINK_LABELS.aiUsage; breadcrumbs removed (TB-2090). Vitest title/nav parity.
+**Status:** Done (2026-08-11) ? canonical /administration/ai-usage; H1 + ROUTE_TITLES + nav label use OPERATOR_NAV_LINK_LABELS.aiUsage; breadcrumbs removed (TB-2090). Vitest title/nav parity.
 
 **Why:** `MaxCompletionAttempts ? (1 + LlmCallMaxRetryAttempts)` (plus remediation) can multiply billed calls for one `(RunId, TaskId)`. Transport resilience must not be unbounded FinOps.
 
@@ -25333,7 +25333,7 @@ Private-beta deploy P0 (**TB-928**): surface beta-blocking auth/email config in 
 
 **Window:** V1 ? AI/Agent readiness. After **TB-937** / **TB-938**.
 
-**Status:** Done (2026-08-11) — PageHeading + PageContextualHelpButton; page-help-topic-map caption; Vitest icon/help wiring.
+**Status:** Done (2026-08-11) ? PageHeading + PageContextualHelpButton; page-help-topic-map caption; Vitest icon/help wiring.
 
 **Why:** Re-running Cost while leaving an old Critic (or merge) creates a consistent-looking but stale package. Commit must require Critic/dependents aligned with upstream agent result versions.
 
@@ -25358,7 +25358,7 @@ Private-beta deploy P0 (**TB-928**): surface beta-blocking auth/email config in 
 
 **Window:** V1 ? Reliability.
 
-**Status:** Done (2026-08-11) — single Budget controls cluster; monthly panel defers to controls; Vitest single edit-budget CTA.
+**Status:** Done (2026-08-11) ? single Budget controls cluster; monthly panel defers to controls; Vitest single edit-budget CTA.
 
 **Why:** Worker/API death mid-batch can leave `TasksGenerated` with some persisted `AgentResult`s and no owner signal. Polly cannot see this.
 
@@ -30849,11 +30849,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
-
-**Priority:** P0.
-
-**Source:** Owner `/administration/settings/security-trust` review 2026-07-25 (~53/100). Owner concern: route should be `administration/security-trust`.
+**Status:** **Done** (2026-08-11) ? `OperatorSecurityTrustPageView` renders Administration breadcrumb via `operator-security-trust-page-copy.ts`; canonical path `/administration/security-trust`; Vitest **TB-1223**.
 
 **Problem:** Sidebar places **Security & trust** under **Administration**, but breadcrumbs under `/administration/settings/*` resolve the parent as **Settings** (`breadcrumb-map` segment label). URL is `/administration/settings/security-trust` (`SETTINGS_SECURITY_TRUST_PATH`). Same class as **TB-1216**. Product history (**TB-404** Done): Administration nav group uses the **`/administration/settings/*`** URL namespace; **`/admin/*`** is System Administration. Inventing a one-off `/administration/security-trust` breaks namespace policy.
 
@@ -30878,7 +30874,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-11) ? removed `LayerHeader` and Available-now helper; single `OPERATOR_SECURITY_TRUST_PAGE_HERO_DESCRIPTION`; Vitest **TB-1224**.
 
 **Priority:** P0.
 
@@ -30912,7 +30908,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-11) ? `OperatorPageHeader` + `navHref` + `PageContextualHelpButton`; page-help topic caption; Vitest **TB-1225**.
 
 **Priority:** P0.
 
@@ -30939,7 +30935,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-11) ? primary **Open Trust Center** button + secondary materials list; Vitest **TB-1226**.
 
 **Priority:** P0.
 
@@ -30967,7 +30963,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-11) ? removed footer support card and NDA mailto; single Procurement contact mailto; Vitest **TB-1227**.
 
 **Priority:** P0.
 
