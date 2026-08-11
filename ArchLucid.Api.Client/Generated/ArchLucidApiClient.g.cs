@@ -162859,6 +162859,9 @@ namespace ArchLucid.Api.Client.Generated
     public partial class TenantWorkspaceApiDto
     {
 
+        [System.Text.Json.Serialization.JsonPropertyName("defaultProjectId")]
+        public System.Guid? DefaultProjectId { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("displayName")]
         public string? DisplayName { get; set; } = default!;
 

@@ -28186,6 +28186,10 @@
       },
       "TenantWorkspaceApiDto": {
         "properties": {
+          "defaultProjectId": {
+            "format": "uuid",
+            "type": "string"
+          },
           "displayName": {
             "type": [
               "null",
