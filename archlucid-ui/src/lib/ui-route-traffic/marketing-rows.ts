@@ -121,8 +121,8 @@ export const MARKETING_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "SEE",
     path: "/see-it",
     section: "Marketing",
-    note: "See it (Marketing) - SeeItMarketingPage with SeeItEvidenceOrientationStrip (evaluation Sources + claim-discipline: fabricated sample proof only). Not an operator PageContextualHelp surface. Sibling LXX = /live-demo; DPX = /demo/preview; SRH = /showcase/[runId].marketing/learning ceiling below operator Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
-    noteMustContain: ["SeeItMarketingPage", "Sources", "cannot improve further toward 80"],
+    note: "See it (Marketing) - SeeItMarketingPage with SeeItHeroSection (first-viewport H1 + lead + single primary CTA + deliverable preview rail — TB-1281), SeeItEvidenceOrientationStrip below sample body (evaluation Sources + claim-discipline: fabricated sample proof only), quiet `/live-demo` ladder link in hero (TB-1282 / TB-1267), secondary row PDF only (no duplicate preview CTA). Not an operator PageContextualHelp surface. Sibling LXX = /live-demo; DPX = /demo/preview; SRH = /showcase/[runId]. Score 68/100 (2026-08-11) after TB-1281–TB-1282 hero budget + CTA ladder — marketing/learning ceiling below operator Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.; 2026-08-11 al-ui-rate: First viewport stacked proof strip + duplicate preview CTAs + manifest jargon; shipped TB-1281–TB-1282 (batch 21–24); open: TB-1280",
+    noteMustContain: ["SeeItHeroSection", "TB-1281", "TB-1282", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Signup. Owner backlog shorthand: SIG. */
   {

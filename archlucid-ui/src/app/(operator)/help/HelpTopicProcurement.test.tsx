@@ -9,8 +9,7 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/help/procurement",
 }));
 
-import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownView";
-import { ProcurementHelpEvidenceOrientationStrip } from "@/components/help/ProcurementHelpEvidenceOrientationStrip";
+import { HelpProcurementGuideView } from "@/app/(operator)/help/_sections/HelpProcurementGuideView";
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
 import {
@@ -18,6 +17,10 @@ import {
   PROCUREMENT_HELP_NDA_REQUEST_HREF,
   PROCUREMENT_HELP_SALES_CONTACT_HREF,
 } from "@/lib/procurement-help-evidence-copy";
+import {
+  prepareProcurementHelpBodyMarkdown,
+  PROCUREMENT_HELP_PAGE_TITLE,
+} from "@/lib/procurement-help-guide-content";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
 const PROCUREMENT_SOURCE = "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md";
@@ -151,11 +154,24 @@ function isBuyerSafeProcurementFaqHref(href: string): boolean {
   return PROCUREMENT_FAQ_ALLOWED_HREF_PREFIXES.some((prefix) => href.startsWith(prefix));
 }
 
-describe("HelpTopicMarkdownView procurement FAQ", () => {
+describe("HelpProcurementGuideView procurement FAQ", () => {
   const loaded = tryLoadProductDocumentation("procurement");
 
   it("loads procurement FAQ markdown from the monorepo", () => {
     expect(loaded).not.toBeNull();
+  });
+
+  it("renders specialty buyer FAQ guide chrome (TB-1253)", () => {
+    if (loaded === null) {
+      throw new Error("Expected procurement documentation to load.");
+    }
+
+    render(<HelpProcurementGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    expect(screen.getByTestId("help-procurement-guide")).toBeInTheDocument();
+    expect(screen.getByTestId("help-procurement-page-title")).toHaveTextContent(PROCUREMENT_HELP_PAGE_TITLE);
+    expect(screen.getByTestId("help-topic-print-pdf")).toBeInTheDocument();
+    expect(screen.queryByTestId("page-contextual-help-button")).toBeNull();
   });
 
   it("uses buyer-safe TOC labels without question-mark artifacts in h3 titles", () => {
@@ -163,7 +179,10 @@ describe("HelpTopicMarkdownView procurement FAQ", () => {
       throw new Error("Expected procurement documentation to load.");
     }
 
-    const preparedMarkdown = prepareHelpMarkdownForPresentation(loaded.markdown, PROCUREMENT_SOURCE);
+    const bodyMarkdown = prepareProcurementHelpBodyMarkdown(loaded.markdown);
+    const preparedMarkdown = prepareHelpMarkdownForPresentation(bodyMarkdown, PROCUREMENT_SOURCE, {
+      helpTopicSlug: loaded.entry.slug,
+    });
     const headings = extractHelpMarkdownHeadings(preparedMarkdown);
     const tocTitles = headings.map((heading) => heading.title);
 
@@ -179,7 +198,7 @@ describe("HelpTopicMarkdownView procurement FAQ", () => {
       throw new Error("Expected procurement documentation to load.");
     }
 
-    render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
+    render(<HelpProcurementGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     expect(screen.queryByText(/Trust progression timeline/i)).toBeNull();
     expect(screen.queryByText(/Tenant\.DataRegion/i)).toBeNull();
@@ -212,7 +231,7 @@ describe("HelpTopicMarkdownView procurement FAQ", () => {
     expect(residencySection.toLowerCase()).not.toContain("azureblobserviceuribyregion");
     expect(residencySection.toLowerCase()).not.toContain("supporteddataregions");
 
-    render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
+    render(<HelpProcurementGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     expect(screen.getByRole("link", { name: /Data handling and tenant isolation/i })).toHaveAttribute(
       "href",
@@ -231,7 +250,7 @@ describe("HelpTopicMarkdownView procurement FAQ", () => {
       expect(preparedMarkdown, `prepared markdown contains "${banned}"`).not.toContain(banned.toLowerCase());
     }
 
-    render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
+    render(<HelpProcurementGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     const visible = (document.body.textContent ?? "").toLowerCase();
 
@@ -245,15 +264,7 @@ describe("HelpTopicMarkdownView procurement FAQ", () => {
       throw new Error("Expected procurement documentation to load.");
     }
 
-    render(
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        showContextualHelp
-        evidenceOrientation={<ProcurementHelpEvidenceOrientationStrip />}
-        showExportClaimDiscipline
-      />,
-    );
+    render(<HelpProcurementGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     expect(screen.queryByTestId("procurement-help-last-reviewed")).toBeNull();
     expect(screen.getByRole("heading", { name: "Q & A" })).toBeInTheDocument();
@@ -262,9 +273,9 @@ describe("HelpTopicMarkdownView procurement FAQ", () => {
     expect(screen.getByTestId("procurement-help-posture-summary")).toBeInTheDocument();
     expect(screen.getByTestId("procurement-help-answer-soc2")).toBeInTheDocument();
     expect(screen.getByTestId("procurement-help-answer-penetration-test")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-export-actions")).toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-export-claim-discipline")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-print-pdf")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByTestId("help-procurement-breadcrumb")).toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).toBeNull();
   });
 
@@ -290,7 +301,7 @@ describe("HelpTopicMarkdownView procurement FAQ", () => {
     expect(ssoSection).toMatch(/enterprise-onboarding/i);
     expect(ssoSection).toMatch(/authentication-sign-in/i);
 
-    render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
+    render(<HelpProcurementGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     expect(screen.getByRole("link", { name: /Users and roles/i })).toHaveAttribute(
       "href",
@@ -337,13 +348,7 @@ describe("HelpTopicMarkdownView procurement FAQ", () => {
       throw new Error("Expected procurement documentation to load.");
     }
 
-    render(
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        evidenceOrientation={<ProcurementHelpEvidenceOrientationStrip />}
-      />,
-    );
+    render(<HelpProcurementGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     const visible = document.body.textContent ?? "";
 
@@ -356,13 +361,7 @@ describe("HelpTopicMarkdownView procurement FAQ", () => {
       throw new Error("Expected procurement documentation to load.");
     }
 
-    render(
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        evidenceOrientation={<ProcurementHelpEvidenceOrientationStrip />}
-      />,
-    );
+    render(<HelpProcurementGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     const ctaSection = screen.getByTestId("procurement-help-diligence-ctas");
 
@@ -395,10 +394,13 @@ describe("HelpTopicMarkdownView procurement FAQ", () => {
       throw new Error("Expected procurement documentation to load.");
     }
 
-    const preparedMarkdown = prepareHelpMarkdownForPresentation(loaded.markdown, PROCUREMENT_SOURCE);
+    const bodyMarkdown = prepareProcurementHelpBodyMarkdown(loaded.markdown);
+    const preparedMarkdown = prepareHelpMarkdownForPresentation(bodyMarkdown, PROCUREMENT_SOURCE, {
+      helpTopicSlug: loaded.entry.slug,
+    });
     const headings = extractHelpMarkdownHeadings(preparedMarkdown);
 
-    render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
+    render(<HelpProcurementGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     const toc = screen.getByTestId("help-topic-toc");
 

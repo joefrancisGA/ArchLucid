@@ -15,7 +15,7 @@ Regenerate after opening or closing summary-table rows:
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
 | Architectural integrity | 9 |
-| Adoption friction | 229 |
+| Adoption friction | 225 |
 | Commercial / marketability | 9 |
 | Cutting-edge AI | 3 |
 | Explainability | 1 |
@@ -34,9 +34,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **460** |
+| **Total (unique open)** | **456** |
 
-**By priority band:** P0 **2** | P1 **347** | P2 **94** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **2** | P1 **343** | P2 **94** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -954,8 +954,8 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1274 | **Done** (2026-08-11) ? Integration DLQ EnterpriseTable + review deep links; Vitest; see `## TB-1274` below | Adoption friction P1 ? **V1**; with **TB-1272**; TB-117 parity | M |
 | TB-1275 | **Done** (2026-08-11) ? Integration DLQ empty/error/loading polish + operator density; Vitest; see `## TB-1275` below | Adoption friction P1 ? **V1**; with **TB-1274** | S |
 | TB-1276 | **Done** (2026-08-11) ? Integration DLQ mutation CTA hierarchy + Dialog confirm + filters; Vitest; see `## TB-1276` below | Adoption friction P1 ? **V1**; with **TB-1272** | M |
-| TB-1281 | `/see-it` ? first-viewport hero budget; see ## TB-1281 below | Adoption friction P1 ? **V1**; with **TB-1279** | S |
-| TB-1282 | `/see-it` ? single CTA path + `/live-demo` ladder + purge manifest jargon; see ## TB-1282 below | Adoption friction P1 ? **V1**; with **TB-1279**; pairs **TB-1267** | S |
+| TB-1281 | **Done** (2026-08-11) ? `/see-it` first-viewport hero budget; Vitest; see `## TB-1281` below | Adoption friction P1 ? **V1**; with **TB-1279** | S |
+| TB-1282 | **Done** (2026-08-11) ? `/see-it` single CTA + `/live-demo` ladder; Vitest; see `## TB-1282` below | Adoption friction P1 ? **V1**; with **TB-1279**; pairs **TB-1267** | S |
 | TB-1285 | **Done** (2026-08-10) ? Security & trust StatusTag for Available now / Under NDA / Roadmap; Vitest; see `## TB-1285` below | Adoption friction P1 ? **V1**; with **TB-1284**; TB-116 parity | XS |
 | TB-1286 | **Done** (2026-08-10) ? Security & trust operator density + badge-legend StatusTag samples; Vitest; see `## TB-1286` below | Adoption friction P1 ? **V1**; with **TB-1285** | XS |
 | TB-1289 | **Done** (2026-08-10) ? Recycle bin Administration breadcrumb + PageHeading/help; Vitest; see `## TB-1289` below | Adoption friction P1 ? **V1**; owner recycle-bin re-review ~58/100 2026-07-26; traffic **STR**; complements **TB-1179**?**TB-1182**; pairs **TB-1223** | S |
@@ -1405,8 +1405,8 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1241 | GCP help ? manifest-driven roles + Cloud Asset Inventory enablement; see ## TB-1241 below | Trustworthiness P1 ? **V1**; with **TB-1239** | M |
 | TB-1242 | GCP help ? copyable WIF pool-provider template + federation identifiers; see ## TB-1242 below | Trustworthiness P1 ? **V1**; with **TB-1239**; pairs **TB-1241** | M |
 | TB-1243 | GCP help ? workflow CTAs + classified data sections (Azure chrome parity); see ## TB-1243 below | Adoption friction P1 ? **V1**; with **TB-1239** | S |
-| TB-1253 | `/help/procurement` specialty buyer FAQ guide view; see ## TB-1253 below | Adoption friction P1 ? **V1**; owner procurement help ~49/100 2026-07-26; complements Done **TB-159**/**TB-736** | M |
-| TB-1258 | `/help/starting-reviews` ? canonicalize into `/help/review-guide`; see ## TB-1258 below | Adoption friction P1 ? **V1**; owner starting-reviews ~52/100 2026-07-26; traffic **HER** | S |
+| TB-1253 | **Done** (2026-08-11) ? `/help/procurement` specialty buyer FAQ guide view; Vitest; see `## TB-1253` below | Adoption friction P1 ? **V1**; owner procurement help ~49/100 2026-07-26; complements Done **TB-159**/**TB-736** | M |
+| TB-1258 | **Done** (2026-08-11) ? `/help/starting-reviews` canonicalize into `/help/review-guide`; Vitest; see `## TB-1258` below | Adoption friction P1 ? **V1**; owner starting-reviews ~52/100 2026-07-26; traffic **HER** | S |
 | TB-1326 | ~~`/help/configuration-reference` ? operator specialty guide + split full key catalog~~ **Done** 2026-08-02 ? HelpConfigurationReferenceGuideView + collapsed appendix; see ## TB-1326 below | Adoption friction P1 ? **V1**; owner configuration-reference ~39/100 2026-07-26; traffic **CON**; pairs **TB-1253**/**TB-1246** | M |
 | TB-1331 | **Done** (2026-08-10) ? `/help/core-pilot` step 2 Add evidence CTA honesty; see ## TB-1331 below | Trustworthiness P1 ? **V1**; owner core-pilot re-review ~70/100 2026-07-26; traffic **COR**; after Done **TB-1040**?**TB-1043** | S |
 | TB-1332 | **Done** (2026-08-10) ? `/help/core-pilot` sample review CTA Claims label; see ## TB-1332 below | Trustworthiness P1 ? **V1**; with **TB-1331**; pairs **TB-1028**/**TB-1283** | S |
@@ -31763,7 +31763,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done 2026-08-11 ? `SeeItHeroSection` first-viewport hero (H1 + lead + single primary CTA + deliverable preview rail); proof strip moved below sample body; Vitest `SeeItHeroSection.test.tsx`.
 
 **Priority:** P0.
 
@@ -31791,7 +31791,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done 2026-08-11 ? one hero primary CTA; quiet `/live-demo` ladder link; removed duplicate `see-it-full-preview-link`; secondary row PDF-only; Vitest.
 
 **Priority:** P0.
 
@@ -34432,7 +34432,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done 2026-08-11 ? `HelpProcurementGuideView` with buyer FAQ hero, FAQ-only body prep, diligence strip + CTAs; Vitest `HelpTopicProcurement.test.tsx` + `procurement-help-guide-content.test.ts`.
 
 **Priority:** P0.
 
@@ -34573,7 +34573,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done 2026-08-11 ? permanent redirect + registry alias fold to `review-guide`; Vitest guards in `review-guide-help-guide-content.test.ts`, `internal-concept-leakage-guard.test.ts`, `retired-help-topic-alias-honesty.test.ts`.
 
 **Priority:** P0.
 

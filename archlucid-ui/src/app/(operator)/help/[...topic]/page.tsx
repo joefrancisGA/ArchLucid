@@ -5,7 +5,6 @@ import { notFound, permanentRedirect } from "next/navigation";
 
 import { HelpTopicMarkdownView } from "../HelpTopicMarkdownView";
 import { CaiqSigResponseHelpEvidenceOrientationStrip } from "@/components/help/CaiqSigResponseHelpEvidenceOrientationStrip";
-import { ProcurementHelpEvidenceOrientationStrip } from "@/components/help/ProcurementHelpEvidenceOrientationStrip";
 import { ScopeHelpCurrentScopePanel } from "@/components/help/ScopeHelpCurrentScopePanel";
 import { ScopeHelpEvidenceOrientationStrip } from "@/components/help/ScopeHelpEvidenceOrientationStrip";
 import { IntegrationReadinessHelpEvidenceOrientationStrip } from "@/components/help/IntegrationReadinessHelpEvidenceOrientationStrip";
@@ -91,6 +90,9 @@ const HelpReviewPackagesGuideView = dynamic(() =>
 );
 const HelpReviewGuideView = dynamic(() =>
   import("../_sections/HelpReviewGuideView").then((module) => module.HelpReviewGuideView),
+);
+const HelpProcurementGuideView = dynamic(() =>
+  import("../_sections/HelpProcurementGuideView").then((module) => module.HelpProcurementGuideView),
 );
 const HelpPilotGuideView = dynamic(() =>
   import("../_sections/HelpPilotGuideView").then((module) => module.HelpPilotGuideView),
@@ -492,15 +494,7 @@ function renderHelpTopicView(
   }
 
   if (loaded.entry.slug === "procurement") {
-    return (
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        showContextualHelp
-        evidenceOrientation={<ProcurementHelpEvidenceOrientationStrip />}
-        showExportClaimDiscipline
-      />
-    );
+    return <HelpProcurementGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
   if (loaded.entry.slug === "evidence-trail") {

@@ -222,10 +222,6 @@ describe("SeeItMarketingBody", () => {
     expect(screen.getByTestId("see-it-demo-banner-title")).toHaveTextContent(
       "Healthcare claims sample — public evaluation preview",
     );
-    expect(screen.getByTestId("see-it-full-preview-link")).toHaveAttribute(
-      "href",
-      CANONICAL_ANONYMOUS_PROOF_HREF,
-    );
   });
 
   it("renders snapshot mode with snapshot notice", () => {
@@ -247,20 +243,19 @@ describe("SeeItMarketingBody", () => {
     expect(screen.getByText(/Executive sponsor briefing/i)).toBeInTheDocument();
   });
 
-  it("normalizes the secondary CTA row to outline buttons (no mixed hyperlink)", () => {
+  it("normalizes the secondary CTA row to a single PDF outline action (TB-1282)", () => {
     const payload = createMinimalDemoPreviewPayload();
     payload.run.runId = SHOWCASE_STATIC_DEMO_RUN_ID;
     payload.run.description = "Claims Intake Modernization Review";
 
     render(<SeeItMarketingBody source="live" payload={payload} />);
 
-    const sampleLink = screen.getByTestId("see-it-full-preview-link");
     const pdf = screen.getByTestId("see-it-proof-pack-download");
 
-    expect(sampleLink).toHaveAttribute("href", CANONICAL_ANONYMOUS_PROOF_HREF);
-    expect(sampleLink.tagName).toBe("A");
+    expect(pdf).toHaveAttribute("href", "/api/proxy/v1/marketing/why-archlucid-pack.pdf");
     expect(pdf.tagName).toBe("A");
-    expect(screen.getByTestId("see-it-secondary-cta-row").querySelectorAll("a")).toHaveLength(2);
+    expect(screen.getByTestId("see-it-secondary-cta-row").querySelectorAll("a")).toHaveLength(1);
+    expect(screen.queryByTestId("see-it-full-preview-link")).toBeNull();
   });
 
   it("never deep-links Contoso /demo/preview from Claims /see-it (TB-1028 Option A)", () => {
@@ -272,10 +267,7 @@ describe("SeeItMarketingBody", () => {
 
     expect(screen.queryByTestId("see-it-cta-demo-preview")).toBeNull();
     expect(container.querySelector('a[href="/demo/preview"]')).toBeNull();
-    expect(screen.getByTestId("see-it-full-preview-link")).toHaveAttribute(
-      "href",
-      CANONICAL_ANONYMOUS_PROOF_HREF,
-    );
+    expect(screen.queryByTestId("see-it-full-preview-link")).toBeNull();
   });
 });
 

@@ -294,8 +294,8 @@ export const HELP_TOPIC_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "HR",
     path: "/help/review-guide",
     section: "Help topic",
-    note: "Review guide help (Help topic) - HelpReviewGuideView with PageContextualHelpButton (topic map review-guide; Category-1 registry), Learn more / claim-discipline orientation strip (Sources follow-up removed TB-2092), start-review CTAs, prepared REVIEW_GUIDE.md body. Canon for wizard field-reference; absorbs former creating-runs / starting-reviews aliases (retired, TB-2050). Not bare HelpTopicMarkdownView. Score 58/100 (2026-08-08) - help-topic ceiling below HEL hub band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
-    noteMustContain: ["HelpReviewGuideView", "Sources", "cannot improve further toward 80"],
+    note: "Review guide help (Help topic) - HelpReviewGuideView with PageContextualHelpButton (topic map review-guide; Category-1 registry), Learn more / claim-discipline orientation strip (Sources follow-up removed TB-2092), start-review CTAs, prepared REVIEW_GUIDE.md body. Canon for wizard field-reference; absorbs former creating-runs / starting-reviews aliases via permanent redirect (TB-1258). Not bare HelpTopicMarkdownView. Score 58/100 (2026-08-08) - help-topic ceiling below HEL hub band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.; 2026-08-11 al-ui-rate: Duplicate starting-reviews registry slug split traffic from review-guide; shipped TB-1258 (batch 21–24); open: TB-1259–TB-1262 Done",
+    noteMustContain: ["HelpReviewGuideView", "TB-1258", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Report a problem help. Owner backlog shorthand: HRE. */
   {
@@ -352,8 +352,8 @@ export const HELP_TOPIC_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "PRO",
     path: "/help/procurement",
     section: "Help topic",
-    note: "Procurement FAQ help (Help topic) - HelpTopicMarkdownView with PageContextualHelpButton (topic map procurement; Category-1 registry), Learn more / claim-discipline orientation strip, ProcurementHelpDiligenceCtaSection (Trust Center, Security & trust help, DPA, Subprocessors, NDA/sales pack paths — TB-1256), curated procurement FAQ markdown. Sibling SEC = /security-trust; HSE = /help/security-trust; WSX = settings security-trust. Score 62/100 (2026-08-11) after TB-1256 diligence CTAs — help-topic ceiling below HEL hub band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.; 2026-08-11 al-ui-rate: FAQ answers without a diligence ladder fixed with first-viewport CTAs; shipped TB-1256 (batch 21–25); open: none",
-    noteMustContain: ["ProcurementHelpDiligenceCtaSection", "TB-1256", "cannot improve further toward 80"],
+    note: "Procurement FAQ help (Help topic) - HelpProcurementGuideView with PageContextualHelpButton (topic map procurement; Category-1 registry), buyer FAQ hero (Procurement FAQ H1), claim-discipline orientation strip, ProcurementHelpDiligenceCtaSection (Trust Center, Security & trust help, DPA, Subprocessors, NDA/sales pack paths — TB-1256), curated FAQ-only PROCUREMENT_FAQ.md body (TB-1253). Sibling SEC = /security-trust; HSE = /help/security-trust; WSX = settings security-trust. Score 68/100 (2026-08-11) after TB-1253 specialty guide + TB-1256 diligence CTAs — help-topic ceiling below HEL hub band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.; 2026-08-11 al-ui-rate: Generic HelpTopicMarkdownView FAQ dump without buyer diligence hero; shipped TB-1253 (batch 21–24); open: TB-1254–TB-1257 Done",
+    noteMustContain: ["HelpProcurementGuideView", "TB-1253", "TB-1256", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Architecture packages / reviews help. Owner backlog shorthand: REV. */
   {

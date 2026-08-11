@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import { MarketingProofChainStrip } from "@/components/marketing/MarketingProofChainStrip";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,7 +14,6 @@ import {
 } from "@/lib/see-it-page-copy";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import {
-  CANONICAL_ANONYMOUS_PROOF_HREF,
   SHOWCASE_BUYER_REVIEW_TITLE,
 } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
@@ -133,11 +130,6 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
           >
             {SEE_IT_MARKETING_PDF_DOWNLOAD_LABEL}
           </a>
-        </Button>
-        <Button asChild variant="outline">
-          <Link data-testid="see-it-full-preview-link" href={CANONICAL_ANONYMOUS_PROOF_HREF}>
-            Open interactive sample review
-          </Link>
         </Button>
       </section>
       <p className={cn("text-al-text-secondary", MARKETING_TYPOGRAPHY.meta, MARKETING_CAPTION_TEXT_CLASS)}>

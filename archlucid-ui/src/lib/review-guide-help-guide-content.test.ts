@@ -11,7 +11,7 @@ import {
   stripReviewGuideRelatedGuidesFromMarkdown,
 } from "@/lib/review-guide-help-guide-content";
 
-describe("review-guide-help-guide-content (TB-1259–TB-1262)", () => {
+describe("review-guide-help-guide-content (TB-1258 / TB-1259–TB-1262)", () => {
   it("points the primary wizard CTA at /reviews/new (TB-1259)", () => {
     expect(REVIEW_GUIDE_HELP_PRIMARY_ACTIONS.startReview.href).toBe("/architecture/reviews/new");
     expect(REVIEW_GUIDE_HELP_PRIMARY_ACTIONS.startReview.label).toBe("Start architecture review");
@@ -48,7 +48,7 @@ describe("review-guide-help-guide-content (TB-1259–TB-1262)", () => {
     expect(prepareReviewGuideHelpBodyMarkdown(markdown)).not.toContain("## Related guides");
   });
 
-  it("unifies discovery on review-guide (TB-1261)", () => {
+  it("unifies discovery on review-guide (TB-1258 / TB-1261)", () => {
     expect(getProductDocumentationEntry("review-guide")?.title).toBe("Review guide");
     expect(getProductDocumentationEntry("starting-reviews")).toBeNull();
     expect(getProductDocumentationEntry("creating-runs")).toBeNull();
