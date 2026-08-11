@@ -39,6 +39,13 @@ public sealed class TenantWorkspaceApiDto
         init;
     }
 
+    [JsonPropertyName("defaultProjectId")]
+    public Guid DefaultProjectId
+    {
+        get;
+        init;
+    }
+
     [JsonPropertyName("projects")]
     public IReadOnlyList<TenantWorkspaceProjectApiDto> Projects
     {

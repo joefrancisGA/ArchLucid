@@ -72,6 +72,7 @@ public sealed class TenantWorkspacesController(
                         WorkspaceId = w.WorkspaceId,
                         Name = w.Name,
                         DisplayName = w.Name,
+                        DefaultProjectId = w.DefaultProjectId,
                         Projects = byWorkspace[w.WorkspaceId]
                             .OrderBy(static p => p.Name, StringComparer.OrdinalIgnoreCase)
                             .Select(

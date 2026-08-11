@@ -20,6 +20,7 @@ import { DIGESTS_SCHEDULE_TAB_PATH } from "@/lib/settings-admin-route-paths";
 
 import { TenantCostSettingsCard } from "./TenantCostSettingsCard";
 import { TenantQualityGatesCard } from "./TenantQualityGatesCard";
+import { TenantWorkspaceProjectsCard } from "./TenantWorkspaceProjectsCard";
 import type { TenantSettingsPageContentModel } from "./tenant-settings-page-view-model";
 
 type SectionHeadingProps = { readonly children: ReactNode };
@@ -111,6 +112,8 @@ export function TenantSettingsPageView(props: Props) {
           </CollapsibleSection>
         </CardContent>
       </Card>
+
+      <TenantWorkspaceProjectsCard />
 
       {/* Only render when an active pilot/trial exists; hide the "None" / null state to reduce noise */}
       {m.trial != null && m.trial.status != null && m.trial.status !== "None" ? (

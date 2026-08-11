@@ -13,9 +13,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { INTEGRATIONS_READINESS_PATH, INTEGRATIONS_SLACK_PATH, INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { resolveTeamsConnectCtaPresentation } from "@/lib/teams-integration-connect-cta";
 import {
   TEAMS_INTEGRATION_CONNECT_SECTION_LEAD,
   TEAMS_INTEGRATION_CONNECT_SECTION_TITLE,
@@ -28,6 +29,7 @@ import {
   TEAMS_INTEGRATION_SECRET_HELPER,
   TEAMS_INTEGRATION_SECRET_NAME_LABEL,
   TEAMS_INTEGRATION_NOT_CONFIGURED_NEXT_STEP,
+  TEAMS_INTEGRATION_TEST_DISABLED_HELPER,
   teamsIntegrationConnectionStatusLabel,
   teamsIntegrationConnectionStatusTagKind,
 } from "@/lib/teams-integration-page-copy";
@@ -62,9 +64,22 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
       ? m.secretValidation.message
       : null;
   const validationKind = m.secretValidation === null ? null : m.secretValidation.outcome === "valid" ? "success" : "error";
+  const secretValidated = m.secretValidation?.outcome === "valid";
+  const isConfigured = m.conn?.isConfigured === true;
+  const cta = resolveTeamsConnectCtaPresentation({
+    isConfigured,
+    secretValidated,
+    canMutate: m.canMutate,
+    saving: m.saving,
+    secretNameEmpty: m.secretName.trim().length === 0,
+    canSendTest: m.canSendTest,
+  });
 
   return (
-    <div className="w-full max-w-[68rem] space-y-8 px-4 py-8 sm:px-6 lg:px-8" data-testid="integrations-teams-page">
+    <div
+      className={cn("w-full max-w-[68rem] px-4 py-4 sm:px-6 lg:px-8", OPERATOR_LAYOUT.majorSectionGap)}
+      data-testid="integrations-teams-page"
+    >
       <PageHeading
         navHref={INTEGRATIONS_TEAMS_PATH}
         title={TEAMS_INTEGRATION_PAGE_TITLE}
@@ -130,8 +145,8 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
       {m.loading && m.conn === null ? (
         <OperatorLoadingNotice>Loading Teams configuration…</OperatorLoadingNotice>
       ) : (
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_17.5rem] lg:items-start">
-          <div className={cn("min-w-0 space-y-8", !m.canMutate && "opacity-95")}>
+        <div className={cn("grid lg:grid-cols-[minmax(0,1fr)_17.5rem] lg:items-start", OPERATOR_LAYOUT.unrelatedClusterGap)}>
+          <div className={cn("min-w-0", OPERATOR_LAYOUT.sectionStack, !m.canMutate && "opacity-95")}>
             {m.conn?.isConfigured === true ? (
               <TeamsConnectionSummary
                 conn={m.conn}
@@ -220,43 +235,56 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
                 />
               </div>
 
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  type="button"
-                  variant="primary"
-                  disabled={!m.canMutate || m.saving}
-                  title={m.canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-                  data-testid="teams-save-button"
-                  onClick={() => void m.onSave()}
-                >
-                  {m.conn?.isConfigured === true ? "Save changes" : "Save Teams connection"}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={!m.canMutate || m.saving || m.validating || m.secretName.trim().length === 0}
-                  onClick={() => void m.onValidateSecret()}
-                >
-                  {m.validating ? "Validating…" : "Validate secret"}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={!m.canMutate || m.saving || m.testing || !m.canSendTest}
-                  data-testid="teams-test-button"
-                  onClick={() => void m.onSendTest()}
-                >
-                  {m.testing ? "Sending test…" : "Send test notification"}
-                </Button>
-                {m.conn?.isConfigured === true ? (
+              <div className={cn("flex flex-col", OPERATOR_LAYOUT.controlClusterGap)}>
+                <div className={cn("flex flex-wrap", OPERATOR_LAYOUT.inlineGap)}>
                   <Button
                     type="button"
-                    variant="outline"
-                    disabled={!m.canMutate || m.saving}
-                    onClick={() => void m.onRemove()}
+                    variant={cta.validateVariant}
+                    disabled={!m.canMutate || m.saving || m.validating || m.secretName.trim().length === 0}
+                    title={m.canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                    data-testid="teams-validate-button"
+                    onClick={() => void m.onValidateSecret()}
                   >
-                    Remove connection
+                    {m.validating ? "Validating…" : "Validate secret"}
                   </Button>
+                  <Button
+                    type="button"
+                    variant={cta.testVariant}
+                    disabled={!m.canMutate || m.saving || m.testing || !m.canSendTest}
+                    data-testid="teams-test-button"
+                    title={cta.showTestDisabledHelper ? TEAMS_INTEGRATION_TEST_DISABLED_HELPER : undefined}
+                    onClick={() => void m.onSendTest()}
+                  >
+                    {m.testing ? "Sending test…" : "Send test notification"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={cta.saveVariant}
+                    disabled={cta.saveDisabled}
+                    title={m.canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                    data-testid="teams-save-button"
+                    onClick={() => void m.onSave()}
+                  >
+                    {isConfigured ? "Save changes" : "Save Teams connection"}
+                  </Button>
+                  {isConfigured ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled={!m.canMutate || m.saving}
+                      onClick={() => void m.onRemove()}
+                    >
+                      Remove connection
+                    </Button>
+                  ) : null}
+                </div>
+                {cta.showTestDisabledHelper ? (
+                  <p
+                    className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="teams-test-disabled-helper"
+                  >
+                    {TEAMS_INTEGRATION_TEST_DISABLED_HELPER}
+                  </p>
                 ) : null}
               </div>
 

@@ -1,6 +1,10 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <button type="button">Page help</button>,
+}));
+
 const mockGetConnection = vi.fn();
 const mockGetCatalog = vi.fn();
 const mockUpsert = vi.fn();
@@ -185,7 +189,7 @@ describe("TeamsNotificationsIntegrationPageClient", () => {
     );
   });
 
-  it("shows durable success callout after saving a Teams connection", async () => {
+  it("TB-1176: not-configured path promotes Validate, demotes Save, and explains disabled Test", async () => {
     render(
       <TeamsNotificationsIntegrationPageClient
         loaded={{ mode: "live", conn: null, catalog: CATALOG, failure: null }}
@@ -194,20 +198,31 @@ describe("TeamsNotificationsIntegrationPageClient", () => {
 
     const secretInput = await screen.findByLabelText(TEAMS_INTEGRATION_SECRET_NAME_LABEL);
     fireEvent.change(secretInput, { target: { value: "teams-governance-alerts-prod" } });
-    fireEvent.click(screen.getByRole("button", { name: "Select recommended" }));
-    fireEvent.click(screen.getByTestId("teams-save-button"));
 
-    await waitFor(() => {
-      expect(mockUpsert).toHaveBeenCalled();
-    });
-
-    expect(await screen.findByTestId("teams-integration-mutation-success-callout")).toHaveTextContent(
-      TEAMS_INTEGRATION_SAVE_SUCCESS_MESSAGE,
+    expect(screen.getByTestId("teams-validate-button")).toHaveClass("bg-[var(--al-primary-action-bg)]");
+    expect(screen.getByTestId("teams-save-button")).not.toHaveClass("bg-[var(--al-primary-action-bg)]");
+    expect(screen.getByTestId("teams-test-button")).toBeDisabled();
+    expect(screen.getByTestId("teams-test-disabled-helper")).toHaveTextContent(
+      "Validate the secret before sending a test.",
     );
-    expect(showSuccess).not.toHaveBeenCalled();
+    expect(screen.getByTestId("teams-save-button")).toBeDisabled();
   });
 
-  it("rejects webhook URLs in the secret name field", async () => {
+  it("TB-1177: uses operator spacing tokens instead of marketing-scale py-8 / space-y-8", async () => {
+    render(
+      <TeamsNotificationsIntegrationPageClient
+        loaded={{ mode: "live", conn: null, catalog: CATALOG, failure: null }}
+      />,
+    );
+
+    const page = await screen.findByTestId("integrations-teams-page");
+    expect(page.className).toContain("space-y-6");
+    expect(page.className).toContain("py-4");
+    expect(page.className).not.toContain("space-y-8");
+    expect(page.className).not.toContain("py-8");
+  });
+
+  it("shows durable success callout after saving a Teams connection", async () => {
     render(
       <TeamsNotificationsIntegrationPageClient
         loaded={{ mode: "live", conn: null, catalog: CATALOG, failure: null }}

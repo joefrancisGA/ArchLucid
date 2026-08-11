@@ -53,6 +53,24 @@ describe("TenantSettingsPage", () => {
   beforeEach(() => {
     navAuth.callerAuthorityRank = AUTHORITY_RANK.AdminAuthority;
 
+    vi.stubGlobal("localStorage", {
+      getItem: (key: string) =>
+        key === "archlucid_operator_scope_v1"
+          ? JSON.stringify({
+              tenantId: "tenant-1",
+              workspaceId: "workspace-1",
+              projectId: "project-1",
+              workspaceLabel: "Pilot",
+              projectLabel: "Pilot",
+            })
+          : null,
+      setItem: vi.fn(),
+      removeItem: vi.fn(),
+      clear: vi.fn(),
+      length: 0,
+      key: vi.fn(),
+    });
+
     vi.stubGlobal(
       "fetch",
       vi.fn(async (input: RequestInfo) => {
@@ -67,6 +85,29 @@ describe("TenantSettingsPage", () => {
               eaDiscountPercentage: 0,
               isTenantConfigured: false,
               updatedUtc: null,
+            }),
+            { status: 200, headers: { "Content-Type": "application/json" } },
+          );
+        }
+
+        if (url.includes("/v1/tenant/workspaces/recycle-bin")) {
+          return new Response(JSON.stringify({ retentionDays: 30, workspaces: [] }), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+
+        if (url.includes("/v1/tenant/workspaces")) {
+          return new Response(
+            JSON.stringify({
+              workspaces: [
+                {
+                  workspaceId: "workspace-1",
+                  name: "Pilot",
+                  defaultProjectId: "project-1",
+                  projects: [{ projectId: "project-1", name: "Pilot" }],
+                },
+              ],
             }),
             { status: 200, headers: { "Content-Type": "application/json" } },
           );

@@ -99,6 +99,10 @@ export function teamsIntegrationConnectionStatusLabel(status: TeamsIntegrationCo
 export const TEAMS_INTEGRATION_NOT_CONFIGURED_NEXT_STEP =
   "Enter your Teams webhook secret reference, validate access, test delivery, then save the connection.";
 
+/** Shown when Send test notification stays disabled until Validate succeeds (TB-1176). */
+export const TEAMS_INTEGRATION_TEST_DISABLED_HELPER =
+  "Validate the secret before sending a test.";
+
 export function teamsIntegrationConnectionStatusTagKind(
   status: TeamsIntegrationConnectionStatus,
 ): "ready" | "needs-attention" {
