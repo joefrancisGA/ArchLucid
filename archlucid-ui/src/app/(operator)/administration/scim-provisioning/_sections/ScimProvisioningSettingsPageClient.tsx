@@ -11,6 +11,8 @@ import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { ScimIdentityProvidersVocabularyRail } from "@/components/ScimIdentityProvidersVocabularyRail";
 import { ScimUsersVocabularyRail } from "@/components/ScimUsersVocabularyRail";
+import { SsoWizardScimVocabularyRail } from "@/components/SsoWizardScimVocabularyRail";
+
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   AlertDialog,
@@ -362,6 +364,8 @@ export function ScimProvisioningSettingsPageClient() {
       />
       <ScimUsersVocabularyRail currentSurfaceId="scim" />
       <ScimIdentityProvidersVocabularyRail currentSurfaceId="scim-provisioning" />
+      <SsoWizardScimVocabularyRail currentSurfaceId="scim" />
+
       <p
         className={cn(
           "m-0 rounded-lg border border-neutral-200 bg-neutral-50/70 px-4 py-3 text-al-text-primary dark:border-neutral-800 dark:bg-neutral-900/40",

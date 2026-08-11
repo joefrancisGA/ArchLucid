@@ -12,6 +12,8 @@ import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persiste
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { IdentityProvidersSsoWizardVocabularyRail } from "@/components/IdentityProvidersSsoWizardVocabularyRail";
+import { SsoWizardScimVocabularyRail } from "@/components/SsoWizardScimVocabularyRail";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -361,8 +363,12 @@ export function SsoWizardPageClient() {
           {SSO_WIZARD_STATUS_NOT_ACTIVE}
         </p>
         {step === 0 ? (
-          <IdentityProvidersSsoWizardVocabularyRail currentSurfaceId="sso-wizard" />
+          <>
+            <IdentityProvidersSsoWizardVocabularyRail currentSurfaceId="sso-wizard" />
+            <SsoWizardScimVocabularyRail currentSurfaceId="sso-wizard" />
+          </>
         ) : null}
+
       </header>
 
       {wizardSession.pendingRestore !== null ? (
