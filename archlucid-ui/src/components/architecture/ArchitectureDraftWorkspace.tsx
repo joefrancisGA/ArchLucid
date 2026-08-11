@@ -77,7 +77,7 @@ import {
   ARCHITECTURE_DRAFT_WORKSPACE_LEAD,
 } from "@/lib/create-vs-review-intake-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { showError, showSuccess } from "@/lib/toast";
+import { showSuccess } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import type { ActorSet, DraftRequestResponse } from "@/types/draft-intake";
 
@@ -104,6 +104,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const [scopeGateOpen, setScopeGateOpen] = useState(false);
   const [scopeBullets, setScopeBullets] = useState<ScopeUnderstandingBullet[]>([]);
   const [startReviewError, setStartReviewError] = useState<string | null>(null);
+  const [saveActionError, setSaveActionError] = useState<string | null>(null);
   const [handoffAcknowledged, setHandoffAcknowledged] = useState(false);
   const [linkedReviewTitle, setLinkedReviewTitle] = useState("Untitled review");
   const [registryHydrated, setRegistryHydrated] = useState(false);
@@ -294,16 +295,18 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   }, [handoffAcknowledged, linkedReviewId, props.architectureId, saveState]);
 
   const handleSaveDraft = useCallback(async () => {
+    setSaveActionError(null);
     const saved = await saveDraft();
 
     if (saved) {
       showSuccess("Architecture draft saved.");
-    } else if (conflictMessage !== null) {
-      showError("Architecture draft", conflictMessage);
-    } else {
-      showError("Architecture draft", "Could not save your architecture draft. Try again.");
+
+      return;
     }
-  }, [conflictMessage, saveDraft]);
+
+    // Conflict banner is driven by autosave hook state on the next render — keep failures on-page.
+    setSaveActionError("Could not save your architecture draft. Try again.");
+  }, [saveDraft]);
 
   useEffect(() => {
     return () => {
@@ -314,6 +317,12 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     };
   }, []);
 
+  useEffect(() => {
+    if (conflictMessage !== null) {
+      setSaveActionError(null);
+    }
+  }, [conflictMessage]);
+
   const handleSaveAndExit = useCallback(async () => {
     if (isNewDraft && !hasPersistedDraft && !hasArchitectureDraftSaveableContent(fields)) {
       router.push(ARCHITECTURES_LIST_PATH);
@@ -322,12 +331,13 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     }
 
     setExitPending(true);
+    setSaveActionError(null);
 
     const saved = await saveDraft();
 
     if (!saved) {
       setExitPending(false);
-      showError("Architecture draft", "Exit paused — save your changes before leaving this page.");
+      setSaveActionError("Exit paused — save your changes before leaving this page.");
 
       return;
     }
@@ -508,18 +518,29 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       </div>
 
       {conflictMessage !== null ? (
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} role="alert" data-testid="architecture-draft-conflict">
-          {conflictMessage}{" "}
-          <button
+        <div className="space-y-2" data-testid="architecture-draft-conflict">
+          <OperatorMutationInlineError
+            message={conflictMessage}
+            testId="architecture-draft-conflict-message"
+            recoveryScenario="api-problem"
+            recoveryPresentation={{
+              whatFailed: "This architecture draft changed in another browser session.",
+              whatIsIntact: "Your unsaved edits in this tab are still on screen and were not overwritten.",
+              nextStep: "Refresh the draft to load the latest version, then re-apply any edits you still need.",
+            }}
+          />
+          <Button
             type="button"
-            className="font-medium text-teal-800 underline dark:text-teal-300"
+            variant="outline"
+            size="sm"
             onClick={() => {
               void reloadDraft();
             }}
+            data-testid="architecture-draft-conflict-refresh"
           >
             Refresh draft
-          </button>
-        </p>
+          </Button>
+        </div>
       ) : null}
 
       <Card>
@@ -602,6 +623,13 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
           <OperatorMutationInlineError
             message={startReviewError}
             testId="architecture-start-review-error"
+            recoveryScenario="api-problem"
+          />
+        ) : null}
+        {saveActionError !== null && conflictMessage === null ? (
+          <OperatorMutationInlineError
+            message={saveActionError}
+            testId="architecture-draft-save-action-error"
             recoveryScenario="api-problem"
           />
         ) : null}

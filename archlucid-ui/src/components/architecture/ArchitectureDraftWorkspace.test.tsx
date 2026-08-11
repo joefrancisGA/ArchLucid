@@ -475,6 +475,43 @@ describe("ArchitectureDraftWorkspace", () => {
     });
   });
 
+  it("shows a concurrent-edit conflict on the page without toasting when Save now fails (TB-2006)", async () => {
+    const conflictText =
+      "This architecture was updated in another session. Refresh to load the latest version before saving again.";
+    saveDraft.mockResolvedValue(false);
+    vi.mocked(useArchitectureDraftAutosave).mockReturnValue({
+      saveState: "error",
+      lastSavedUtc: null,
+      conflictMessage: conflictText,
+      saveDraft,
+      reloadDraft,
+      acceptServerBaseline: vi.fn(),
+      hasPersistedDraft: true,
+    });
+
+    getDraftRequest.mockResolvedValue({
+      ...spawnedDraft,
+      status: "Drafting",
+      spawnedRunId: null,
+      document: { ...spawnedDraft.document, workflowIntent: "create-architecture" },
+    });
+
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-conflict-message")).toHaveTextContent(conflictText);
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-save-draft-retry"));
+
+    await waitFor(() => {
+      expect(saveDraft).toHaveBeenCalled();
+    });
+
+    expect(screen.getByTestId("architecture-draft-conflict-refresh")).toBeInTheDocument();
+    expect(vi.mocked(showError)).not.toHaveBeenCalled();
+  });
+
   it("disables Start review and shows inline readiness when overview/outcome are below minimum (TB-2006)", async () => {
     getDraftRequest.mockResolvedValue({
       ...spawnedDraft,
