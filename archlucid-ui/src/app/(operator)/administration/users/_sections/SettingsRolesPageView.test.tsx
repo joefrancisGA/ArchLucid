@@ -21,6 +21,10 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => 3,
 }));
 
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+}));
+
 vi.mock("./SettingsRolesInvitePanel", () => ({
   SettingsRolesInvitePanel: () => <div data-testid="settings-roles-invite-form" />,
 }));
@@ -84,6 +88,16 @@ describe("SettingsRolesPageView (SSU P0)", () => {
     fireEvent.click(screen.getByTestId("settings-roles-tab-users"));
 
     expect(replaceMock).toHaveBeenCalledWith(SETTINGS_USERS_USERS_TAB_PATH);
+  });
+
+  it("shows users-specific error copy without principals jargon (TB-1938)", () => {
+    render(<SettingsRolesPageView model={buildModel({ usersNote: "load_failed" })} />);
+
+    const usersPanel = screen.getByTestId("settings-roles-tabpanel-users");
+
+    expect(within(usersPanel).getByTestId("settings-roles-api-note")).toBeInTheDocument();
+    expect(within(usersPanel).getByText(/workspace member list/i)).toBeInTheDocument();
+    expect(within(usersPanel).queryByText(/principal/i)).not.toBeInTheDocument();
   });
 });
 

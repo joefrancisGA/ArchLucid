@@ -44,4 +44,13 @@ describe("settingsRolesEmptyState copy", () => {
     expect(settingsRolesEmptyStateDescription("load_failed", "users")).toMatch(/workspace member list/i);
     expect(settingsRolesEmptyStateDescription("load_failed", "users")).not.toMatch(/api key/i);
   });
+
+  it("purges principals jargon from all Users-tab error and empty paths (TB-1938)", () => {
+    const usersKinds = ["empty_response", "api_unavailable", "load_failed"] as const;
+
+    for (const kind of usersKinds) {
+      expect(settingsRolesEmptyStateTitle(kind, "users")).not.toMatch(/principal/i);
+      expect(settingsRolesEmptyStateDescription(kind, "users")).not.toMatch(/principal/i);
+    }
+  });
 });
