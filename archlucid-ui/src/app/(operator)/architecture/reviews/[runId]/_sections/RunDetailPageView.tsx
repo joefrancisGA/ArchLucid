@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_PAGE_CONTAINER, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { GovernanceModePresentationGate } from "@/components/GovernanceModePresentationGate";
+import { SignedRecordsReviewDetailVocabularyRail } from "@/components/SignedRecordsReviewDetailVocabularyRail";
 import { detectStalledReview } from "@/lib/usability/stalled-review-detection";
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import { shouldShowOperatorDemoMarketingChrome } from "@/lib/buyer-demo-content-gating";
@@ -796,6 +797,8 @@ export async function RunDetailPageView(props: {
       )}
     >
       <RunDetailCtoDemoReviewRouteGuardDeferred runId={m.resolvedDetail.run.runId} />
+
+      <SignedRecordsReviewDetailVocabularyRail currentSurfaceId="review-detail" />
 
       <HelpPageSituationRegistrarDeferred
         situation={blockingApprovalCount > 0 ? "review-approval-blocked" : null}

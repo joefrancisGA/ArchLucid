@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { SignedRecordsReviewDetailVocabularyRail } from "@/components/SignedRecordsReviewDetailVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { listRunsByProjectPaged } from "@/lib/api";
 import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
@@ -105,6 +106,7 @@ export default function SignedRecordsListClient() {
         titleTestId="signed-records-list-page-title"
         actions={<PageContextualHelpButton />}
       />
+      <SignedRecordsReviewDetailVocabularyRail currentSurfaceId="signed-records" />
       {loadError !== null ? (
         <p className={cn(OPERATOR_TYPOGRAPHY.body, "mb-4 text-al-danger")} role="alert">
           {loadError}
