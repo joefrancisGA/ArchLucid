@@ -13,9 +13,23 @@ export const CLOUD_CONNECTIONS_PLATFORM_SCOPE_HEADING = "Cloud platforms shown";
 export const CLOUD_CONNECTIONS_PLATFORM_SCOPE_LEAD =
   "Only show the platforms used by this workspace.";
 
-/** Shown when operator scope has no workspace — panel is disabled (TB-1142). */
+/** Shown when effective scope has no workspace — panel is disabled (TB-1142). */
 export const CLOUD_CONNECTIONS_PLATFORM_SCOPE_WORKSPACE_REQUIRED =
-  "Choose a workspace in the header scope switcher before changing which platforms appear here. Platform filters are saved per workspace.";
+  "Choose a workspace and project before saving which platforms appear here. Platform filters are saved per workspace.";
+
+export const CLOUD_CONNECTIONS_PLATFORM_SCOPE_WORKSPACE_ACTION_LABEL = "How to choose workspace";
+
+export const CLOUD_CONNECTIONS_HUB_VOCABULARY_DISCLOSURE_TITLE =
+  "How this differs from Connection status and Extract & Upload";
+
+export const CLOUD_CONNECTIONS_SECURITY_ASSURANCE_TITLE = "Security assurance";
+
+export const CLOUD_CONNECTIONS_SECURITY_ASSURANCE_BODY =
+  "Cloud connections use read-only federated access. Review procurement materials and tenant isolation notes before enabling collection in production.";
+
+export const CLOUD_CONNECTIONS_SECURITY_ASSURANCE_LINK_LABEL = "Security & trust";
+
+export const CLOUD_CONNECTIONS_PROVIDER_EVIDENCE_NONE = "None collected yet";
 
 /** Compact empty-state line for unconfigured provider landing cards (TB-1143). */
 export const CLOUD_CONNECTIONS_PROVIDER_NOT_CONNECTED = "Not connected";

@@ -35,12 +35,14 @@ vi.mock("@/lib/api/gcp-cloud-connections-api", () => ({
 }));
 
 import { resetCloudPlatformScopeSessionStateForTests } from "@/lib/cloud-platform-scope-storage";
+import * as operatorScopeStorage from "@/lib/operator-scope-storage";
 
 import { CloudConnectionsPageClient } from "./CloudConnectionsPageClient";
 
 describe("CloudConnectionsPageClient", () => {
   afterEach(() => {
     vi.clearAllMocks();
+    vi.restoreAllMocks();
     window.localStorage.clear();
     resetCloudPlatformScopeSessionStateForTests();
   });
@@ -55,33 +57,37 @@ describe("CloudConnectionsPageClient", () => {
     expect(screen.getByRole("heading", { level: 1, name: "Cloud connections" })).toBeInTheDocument();
     expect(screen.getByText(/Cloud connectors are optional/i)).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.queryByTestId("cloud-connections-sources")).toBeNull(); // TB-2092
-    expect(screen.queryByTestId("cloud-connections-claim-discipline")).toBeNull(); // TB-2092
+    expect(screen.queryByTestId("cloud-connections-sources")).toBeNull();
+    expect(screen.queryByTestId("cloud-connections-claim-discipline")).toBeNull();
     expect(screen.getByTestId("cloud-platform-scope-panel")).toBeInTheDocument();
     expect(screen.getByTestId("cloud-connection-card-aws")).toBeInTheDocument();
     expect(screen.getByTestId("cloud-connection-card-azure")).toBeInTheDocument();
     expect(screen.getByTestId("cloud-connection-card-gcp")).toBeInTheDocument();
-    // TB-1140: GCP Tier 2 shipped (TB-403) — landing card must not show a stale Preview chip.
     expect(screen.getByTestId("cloud-connection-card-gcp")).not.toHaveTextContent(/Preview/i);
     expect(screen.queryByTestId("tier2-connection-wizard")).not.toBeInTheDocument();
     expect(screen.queryByTestId("aws-account-id")).not.toBeInTheDocument();
     expect(screen.queryByTestId("gcp-project-id")).not.toBeInTheDocument();
     expect(screen.getByTestId("cloud-connection-card-aws").querySelector('a[href="/integrations/cloud-connections/aws"]')).toBeTruthy();
-    // TB-1141: one primary CTA per provider card — no duplicate View details twin.
-    // TB-1143: unconfigured cards collapse zero-theater metric rows.
+    expect(screen.queryByTestId("connection-status-cloud-connections-vocabulary")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("extract-upload-cloud-connections-vocabulary")).not.toBeInTheDocument();
+    expect(screen.getByTestId("cloud-connections-hub-vocabulary-disclosure")).toBeInTheDocument();
+    expect(screen.getByTestId("cloud-connections-security-assurance-band")).toBeInTheDocument();
+    expect(screen.getByTestId("cloud-first-inventory-coach")).toBeInTheDocument();
+
     for (const provider of ["aws", "azure", "gcp"] as const) {
       const card = screen.getByTestId(`cloud-connection-card-${provider}`);
       expect(screen.getByTestId(`cloud-connection-card-${provider}-primary-cta`)).toHaveTextContent("Configure");
       expect(card.querySelectorAll("a[href^='/integrations/cloud-connections/']")).toHaveLength(1);
       expect(card).not.toHaveTextContent("View details");
       expect(screen.getByTestId(`cloud-connection-card-${provider}-not-connected`)).toBeInTheDocument();
-      expect(card).not.toHaveTextContent("Not configured");
-      expect(card).not.toHaveTextContent("Not validated yet");
-      expect(card).not.toHaveTextContent("No packages collected");
+      expect(card).toHaveTextContent("Last validation");
+      expect(card).toHaveTextContent("Not validated yet");
+      expect(card).toHaveTextContent("None collected yet");
+      expect(card).toHaveTextContent("Authentication model");
     }
   });
 
-  it("suppresses zero-theater rows on unconfigured provider cards (TB-1143)", async () => {
+  it("shows provenance rows on unconfigured provider cards", async () => {
     render(<CloudConnectionsPageClient />);
 
     await waitFor(() => {
@@ -89,9 +95,24 @@ describe("CloudConnectionsPageClient", () => {
     });
 
     expect(screen.getByTestId("cloud-connection-card-evidence-only")).toHaveTextContent("Always available");
+    expect(screen.getByTestId("cloud-connection-card-evidence-only")).toHaveTextContent("Last validation");
     expect(screen.queryByText("Not configured")).not.toBeInTheDocument();
-    expect(screen.queryByText("Not validated yet")).not.toBeInTheDocument();
-    expect(screen.queryByText("No packages collected")).not.toBeInTheDocument();
+  });
+
+  it("shows zero-connected readiness coach with one recommended action", async () => {
+    render(<CloudConnectionsPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("cloud-first-inventory-coach")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("cloud-first-inventory-coach")).toHaveAttribute("data-phase", "empty");
+    expect(screen.getByText(/0 of 3 cloud providers connected/i)).toBeInTheDocument();
+    expect(screen.getByTestId("cloud-first-inventory-coach-cta")).toHaveTextContent("Configure AWS");
+    expect(screen.getByTestId("cloud-first-inventory-coach-cta")).toHaveAttribute(
+      "href",
+      "/integrations/cloud-connections/aws",
+    );
   });
 
   it("hides provider cards when platform scope is narrowed", async () => {
@@ -120,6 +141,34 @@ describe("CloudConnectionsPageClient", () => {
     expect(screen.getByTestId("cloud-connection-card-aws")).toBeInTheDocument();
   });
 
+  it("recommends a visible provider when AWS is hidden from platform scope", async () => {
+    window.localStorage.setItem(
+      "archlucid_operator_scope_v1",
+      JSON.stringify({
+        tenantId: "tenant-1",
+        workspaceId: "workspace-1",
+        projectId: "project-1",
+        workspaceLabel: "Pilot workspace",
+        projectLabel: "Default",
+      }),
+    );
+
+    render(<CloudConnectionsPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("cloud-first-inventory-coach")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("cloud-platform-scope-aws"));
+
+    expect(screen.queryByTestId("cloud-connection-card-aws")).not.toBeInTheDocument();
+    expect(screen.getByTestId("cloud-first-inventory-coach-cta")).toHaveTextContent("Configure Azure");
+    expect(screen.getByTestId("cloud-first-inventory-coach-cta")).toHaveAttribute(
+      "href",
+      "/integrations/cloud-connections/azure",
+    );
+  });
+
   it("uses Open connection as the sole primary CTA when a provider is configured (TB-1141)", async () => {
     listAwsTier2Connections.mockResolvedValueOnce([
       {
@@ -144,9 +193,35 @@ describe("CloudConnectionsPageClient", () => {
     expect(awsCard).toHaveTextContent("Evidence collected");
     expect(screen.getByTestId("cloud-connection-card-azure-primary-cta")).toHaveTextContent("Configure");
     expect(screen.getByTestId("cloud-connection-card-azure-not-connected")).toBeInTheDocument();
+    expect(screen.getByTestId("cloud-first-inventory-coach")).toHaveAttribute("data-phase", "post-pull");
   });
 
-  it("disables platform scope and keeps all cards when workspace is missing (TB-1142)", async () => {
+  it("stays post-connect when AWS is configured without a successful pull", async () => {
+    listAwsTier2Connections.mockResolvedValueOnce([
+      {
+        connectionId: "aws-1",
+        status: "Configured",
+        updatedUtc: "2026-07-01T00:00:00Z",
+        lastPolledUtc: null,
+      },
+    ]);
+
+    render(<CloudConnectionsPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("cloud-connection-card-aws-primary-cta")).toHaveTextContent("Open connection");
+    });
+
+    expect(screen.getByTestId("cloud-first-inventory-coach")).toHaveAttribute("data-phase", "post-connect");
+  });
+
+  it("disables platform scope and keeps all cards when effective scope is missing (TB-1142)", async () => {
+    vi.spyOn(operatorScopeStorage, "getEffectiveBrowserProxyScopeHeaders").mockReturnValue({
+      "x-tenant-id": "",
+      "x-workspace-id": "",
+      "x-project-id": "",
+    });
+
     render(<CloudConnectionsPageClient />);
 
     await waitFor(() => {
@@ -154,6 +229,7 @@ describe("CloudConnectionsPageClient", () => {
     });
 
     expect(screen.getByTestId("cloud-platform-scope-workspace-required")).toBeInTheDocument();
+    expect(screen.getByTestId("cloud-platform-scope-workspace-action")).toHaveAttribute("href", "/help/scope");
     expect(screen.getByTestId("cloud-platform-scope-gcp")).toBeDisabled();
 
     fireEvent.click(screen.getByTestId("cloud-platform-scope-gcp"));

@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   hasCloudPlatformScopeWorkspace,
@@ -9,11 +9,13 @@ import {
   visibleLandingPlatformCards,
   writeCloudPlatformScopeToStorage,
 } from "@/lib/cloud-platform-scope-storage";
+import * as operatorScopeStorage from "@/lib/operator-scope-storage";
 
 describe("cloud-platform-scope-storage", () => {
   afterEach(() => {
     window.localStorage.clear();
     resetCloudPlatformScopeSessionStateForTests();
+    vi.restoreAllMocks();
   });
 
   it("defaults to all platforms visible", () => {
@@ -49,6 +51,12 @@ describe("cloud-platform-scope-storage", () => {
   });
 
   it("keeps toggles without operator workspace in session memory and notifies (TB-1139)", () => {
+    vi.spyOn(operatorScopeStorage, "getEffectiveBrowserProxyScopeHeaders").mockReturnValue({
+      "x-tenant-id": "",
+      "x-workspace-id": "",
+      "x-project-id": "",
+    });
+
     const events: string[] = [];
     const onChanged = () => {
       events.push("changed");
@@ -73,6 +81,12 @@ describe("cloud-platform-scope-storage", () => {
   });
 
   it("flushes deferred scope into an empty workspace key and clears session memory", () => {
+    vi.spyOn(operatorScopeStorage, "getEffectiveBrowserProxyScopeHeaders").mockReturnValue({
+      "x-tenant-id": "",
+      "x-workspace-id": "",
+      "x-project-id": "",
+    });
+
     writeCloudPlatformScopeToStorage({
       "evidence-only": true,
       azure: true,
@@ -91,14 +105,31 @@ describe("cloud-platform-scope-storage", () => {
       }),
     );
 
+    vi.spyOn(operatorScopeStorage, "getEffectiveBrowserProxyScopeHeaders").mockReturnValue({
+      "x-tenant-id": "tenant-1",
+      "x-workspace-id": "workspace-1",
+      "x-project-id": "project-1",
+    });
+
     expect(readCloudPlatformScopeFromStorage().gcp).toBe(false);
     expect(window.localStorage.getItem("archlucid.cloud-platform-scope.v1.workspace-1")).toContain('"gcp":false');
 
     window.localStorage.removeItem("archlucid_operator_scope_v1");
+    vi.spyOn(operatorScopeStorage, "getEffectiveBrowserProxyScopeHeaders").mockReturnValue({
+      "x-tenant-id": "",
+      "x-workspace-id": "",
+      "x-project-id": "",
+    });
     expect(readCloudPlatformScopeFromStorage().gcp).toBe(true);
   });
 
-  it("fail-closes landing scope to all platforms when workspace is missing (TB-1142)", () => {
+  it("fail-closes landing scope to all platforms when effective scope has no workspace (TB-1142)", () => {
+    vi.spyOn(operatorScopeStorage, "getEffectiveBrowserProxyScopeHeaders").mockReturnValue({
+      "x-tenant-id": "",
+      "x-workspace-id": "",
+      "x-project-id": "",
+    });
+
     writeCloudPlatformScopeToStorage({
       "evidence-only": true,
       azure: true,

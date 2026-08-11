@@ -4,6 +4,11 @@
  */
 
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+import { cloudProviderDetailPath } from "@/lib/cloud-connections-paths";
+import {
+  CLOUD_PROVIDER_NEUTRAL_ORDER,
+  type CloudProviderId,
+} from "@/lib/cloud-platform-scope-storage";
 
 export type CloudFirstInventoryCoachPhase = "empty" | "post-connect" | "post-pull";
 
@@ -11,6 +16,10 @@ export type CloudFirstInventoryCoachInput = {
   readonly hasConnection: boolean;
   /** True when at least one connection reports a successful pull/validation collection. */
   readonly hasSuccessfulPull: boolean;
+  readonly connectedProviderCount?: number;
+  readonly totalProviderCount?: number;
+  /** Preferred Configure target when nothing is connected (must match visible platform scope). */
+  readonly recommendedProviderId?: CloudProviderId;
 };
 
 export type CloudFirstInventoryCoachStepId = "attach" | "start-review";
@@ -33,7 +42,15 @@ export type CloudFirstInventoryCoachView = {
 
 export const CLOUD_FIRST_INVENTORY_COACH_TITLE = "Next: attach inventory and start a review" as const;
 
+export const CLOUD_FIRST_INVENTORY_COACH_EMPTY_TITLE = "No cloud providers connected yet" as const;
+
 export const CLOUD_FIRST_INVENTORY_START_REVIEW_HREF = "/architecture/reviews/new" as const;
+
+const EMPTY_COACH_PROVIDER_LABEL: Readonly<Record<CloudProviderId, string>> = {
+  azure: "Azure",
+  aws: "AWS",
+  gcp: "GCP",
+};
 
 export const CLOUD_FIRST_INVENTORY_COACH_STEPS: readonly CloudFirstInventoryCoachStep[] = [
   {
@@ -80,6 +97,8 @@ export function buildCloudFirstInventoryCoach(
   input: CloudFirstInventoryCoachInput,
 ): CloudFirstInventoryCoachView {
   const phase = resolveCloudFirstInventoryCoachPhase(input);
+  const connectedProviderCount = input.connectedProviderCount ?? (input.hasConnection ? 1 : 0);
+  const totalProviderCount = input.totalProviderCount ?? CLOUD_PROVIDER_NEUTRAL_ORDER.length;
 
   switch (phase) {
     case "post-pull":
@@ -92,11 +111,19 @@ export function buildCloudFirstInventoryCoach(
         phase,
         "Your cloud connection is saved. After the first successful pull, attach the inventory package to a review and start the review - do not stop at an idle collection list.",
       );
-    case "empty":
-      return buildView(
+    case "empty": {
+      const recommendedProviderId = input.recommendedProviderId ?? CLOUD_PROVIDER_NEUTRAL_ORDER[0];
+
+      return {
         phase,
-        "Connect a cloud provider and complete the first inventory pull, then attach that package and start an architecture review.",
-      );
+        title: CLOUD_FIRST_INVENTORY_COACH_EMPTY_TITLE,
+        body: `${connectedProviderCount} of ${totalProviderCount} cloud providers connected. Connecting adds read-only inventory packages to architecture reviews; evidence-only upload works without cloud vendor access.`,
+        steps: [],
+        primaryCtaLabel: `Configure ${EMPTY_COACH_PROVIDER_LABEL[recommendedProviderId]}`,
+        primaryCtaHref: cloudProviderDetailPath(recommendedProviderId),
+        replacesIdleEmpty: true,
+      };
+    }
     default: {
       const _exhaustive: never = phase;
 

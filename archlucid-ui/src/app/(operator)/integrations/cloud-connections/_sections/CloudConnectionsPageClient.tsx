@@ -11,9 +11,14 @@ import {
   CLOUD_CONNECTIONS_OPTIONAL_NOTE,
   CLOUD_CONNECTIONS_PAGE_SUBTITLE,
   CLOUD_CONNECTIONS_PAGE_TITLE,
+  CLOUD_CONNECTIONS_PROVIDER_EVIDENCE_NONE,
 } from "@/lib/cloud-connections-copy";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import {
+  cloudConnectionIndicatesSuccessfulPull,
+} from "@/lib/cloud-first-inventory-coach";
+import {
+  CLOUD_PROVIDER_NEUTRAL_ORDER,
   hasCloudPlatformScopeWorkspace,
   resolveLandingCloudPlatformScope,
   subscribeCloudPlatformScopeChanges,
@@ -26,10 +31,10 @@ import {
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { CloudFirstInventoryCoach } from "@/components/integrations/CloudFirstInventoryCoach";
-import { ConnectionStatusCloudConnectionsVocabularyRail } from "@/components/ConnectionStatusCloudConnectionsVocabularyRail";
-import { ExtractUploadCloudConnectionsVocabularyRail } from "@/components/ExtractUploadCloudConnectionsVocabularyRail";
 import { PageHeading } from "@/components/PageHeading";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { CloudConnectionsHubVocabularyDisclosure } from "./CloudConnectionsHubVocabularyDisclosure";
+import { CloudConnectionsSecurityAssuranceBand } from "./CloudConnectionsSecurityAssuranceBand";
 import { CloudPlatformScopePanel } from "./CloudPlatformScopePanel";
 import { CloudProviderSummaryCard } from "./CloudProviderSummaryCard";
 import { EvidenceOnlyConnectionCard } from "./EvidenceOnlyConnectionCard";
@@ -58,14 +63,17 @@ type ProviderSummaryState = {
 const DEFAULT_PROVIDER_SUMMARY: ProviderSummaryState = {
   status: "Not configured",
   lastValidation: "Not validated yet",
-  evidenceCollected: "No packages collected",
+  evidenceCollected: CLOUD_CONNECTIONS_PROVIDER_EVIDENCE_NONE,
 };
+
+const CLOUD_PROVIDER_COUNT = CLOUD_PROVIDER_NEUTRAL_ORDER.length;
 
 export function CloudConnectionsPageClient() {
   const [platformScope, setPlatformScope] = useState(() => resolveLandingCloudPlatformScope());
   const [persistAvailable, setPersistAvailable] = useState(() => hasCloudPlatformScopeWorkspace());
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [hasSuccessfulPull, setHasSuccessfulPull] = useState(false);
   const [providerSummaries, setProviderSummaries] = useState<Record<CloudProviderId, ProviderSummaryState>>({
     azure: DEFAULT_PROVIDER_SUMMARY,
     aws: DEFAULT_PROVIDER_SUMMARY,
@@ -79,6 +87,14 @@ export function CloudConnectionsPageClient() {
       listGcpTier2Connections(),
     ]);
 
+    const awsIndicatesPull = awsConnections.some((connection) =>
+      cloudConnectionIndicatesSuccessfulPull(connection),
+    );
+    const gcpIndicatesPull = gcpConnections.some((connection) =>
+      cloudConnectionIndicatesSuccessfulPull(connection),
+    );
+
+    setHasSuccessfulPull(awsIndicatesPull || gcpIndicatesPull);
     setProviderSummaries({
       azure:
         azureConnections.length > 0
@@ -137,18 +153,33 @@ export function CloudConnectionsPageClient() {
 
   const visibleCards = useMemo(() => visibleLandingPlatformCards(platformScope), [platformScope]);
 
-  const hasConfiguredProvider =
-    isCloudProviderSummaryConfigured(providerSummaries.azure.status) ||
-    isCloudProviderSummaryConfigured(providerSummaries.aws.status) ||
-    isCloudProviderSummaryConfigured(providerSummaries.gcp.status);
+  const connectedProviderCount = useMemo(
+    () =>
+      CLOUD_PROVIDER_NEUTRAL_ORDER.filter((provider) =>
+        isCloudProviderSummaryConfigured(providerSummaries[provider].status),
+      ).length,
+    [providerSummaries],
+  );
 
-  const hasSuccessfulPull =
-    providerSummaries.aws.evidenceCollected !== "No packages collected" ||
-    providerSummaries.gcp.evidenceCollected !== "No packages collected" ||
-    providerSummaries.azure.evidenceCollected !== "No packages collected";
+  const hasConfiguredProvider = connectedProviderCount > 0;
+
+  const recommendedProviderId = useMemo((): CloudProviderId => {
+    const visibleUnconfigured = CLOUD_PROVIDER_NEUTRAL_ORDER.find(
+      (provider) =>
+        platformScope[provider] && !isCloudProviderSummaryConfigured(providerSummaries[provider].status),
+    );
+
+    if (visibleUnconfigured !== undefined) {
+      return visibleUnconfigured;
+    }
+
+    const anyVisible = CLOUD_PROVIDER_NEUTRAL_ORDER.find((provider) => platformScope[provider]);
+
+    return anyVisible ?? CLOUD_PROVIDER_NEUTRAL_ORDER[0];
+  }, [platformScope, providerSummaries]);
 
   return (
-    <div className="w-full max-w-5xl space-y-6" data-testid="cloud-connections-page">
+    <div className="w-full max-w-[1120px] space-y-6 px-1 py-4 sm:px-0" data-testid="cloud-connections-page">
       <PageHeading
         navHref={CLOUD_CONNECTIONS_PATH}
         title={CLOUD_CONNECTIONS_PAGE_TITLE}
@@ -156,17 +187,14 @@ export function CloudConnectionsPageClient() {
         actions={<PageContextualHelpButton />}
         description={
           <>
-            <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{CLOUD_CONNECTIONS_PAGE_SUBTITLE}</p>
-            <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{CLOUD_CONNECTIONS_OPTIONAL_NOTE}</p>
+            <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {CLOUD_CONNECTIONS_PAGE_SUBTITLE}
+            </p>
+            <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {CLOUD_CONNECTIONS_OPTIONAL_NOTE}
+            </p>
           </>
         }
-      />
-      <ConnectionStatusCloudConnectionsVocabularyRail currentSurfaceId="cloud-connections" />
-      <ExtractUploadCloudConnectionsVocabularyRail currentSurfaceId="cloud-connections" />
-      <CloudPlatformScopePanel
-        scope={platformScope}
-        onScopeChange={handlePlatformScopeChange}
-        persistAvailable={persistAvailable}
       />
 
       <section className="space-y-4" aria-labelledby="cloud-connections-options-heading">
@@ -182,8 +210,14 @@ export function CloudConnectionsPageClient() {
 
         {isLoading ? <p className={OPERATOR_TYPOGRAPHY.helper}>Loading connection status...</p> : null}
 
-        {!isLoading && !loadError && hasConfiguredProvider ? (
-          <CloudFirstInventoryCoach hasConnection hasSuccessfulPull={hasSuccessfulPull} />
+        {!isLoading && !loadError ? (
+          <CloudFirstInventoryCoach
+            hasConnection={hasConfiguredProvider}
+            hasSuccessfulPull={hasSuccessfulPull}
+            connectedProviderCount={connectedProviderCount}
+            totalProviderCount={CLOUD_PROVIDER_COUNT}
+            recommendedProviderId={recommendedProviderId}
+          />
         ) : null}
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-2">
@@ -208,14 +242,24 @@ export function CloudConnectionsPageClient() {
 
         {visibleCards.length === 0 ? (
           <p className={OPERATOR_TYPOGRAPHY.helper}>
-            No platforms are selected. Enable at least one option above, or use{" "}
+            No platforms are selected. Enable at least one option below, or use{" "}
             <Link href="/architecture/reviews/new" className={OPERATOR_LINK.nav}>
               evidence-only review
             </Link>
             .
           </p>
         ) : null}
+
+        <CloudPlatformScopePanel
+          scope={platformScope}
+          onScopeChange={handlePlatformScopeChange}
+          persistAvailable={persistAvailable}
+        />
+
+        <CloudConnectionsHubVocabularyDisclosure />
       </section>
+
+      <CloudConnectionsSecurityAssuranceBand />
     </div>
   );
 }

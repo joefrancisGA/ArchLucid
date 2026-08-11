@@ -1,17 +1,21 @@
 "use client";
 
+import Link from "next/link";
+
+import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 
 import {
   CLOUD_CONNECTIONS_PLATFORM_SCOPE_HEADING,
   CLOUD_CONNECTIONS_PLATFORM_SCOPE_LEAD,
+  CLOUD_CONNECTIONS_PLATFORM_SCOPE_WORKSPACE_ACTION_LABEL,
   CLOUD_CONNECTIONS_PLATFORM_SCOPE_WORKSPACE_REQUIRED,
 } from "@/lib/cloud-connections-copy";
 import {
   type CloudPlatformId,
   type CloudPlatformScope,
 } from "@/lib/cloud-platform-scope-storage";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 const PLATFORM_LABELS: Readonly<Record<CloudPlatformId, string>> = {
   "evidence-only": "Evidence-only",
@@ -19,6 +23,8 @@ const PLATFORM_LABELS: Readonly<Record<CloudPlatformId, string>> = {
   aws: "AWS",
   gcp: "GCP",
 };
+
+const SCOPE_SWITCHER_HELP_HREF = "/help/scope";
 
 export type CloudPlatformScopePanelProps = {
   readonly scope: CloudPlatformScope;
@@ -52,36 +58,65 @@ export function CloudPlatformScopePanel({
       <h2 id="cloud-platform-scope-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
         {CLOUD_CONNECTIONS_PLATFORM_SCOPE_HEADING}
       </h2>
-      <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>{CLOUD_CONNECTIONS_PLATFORM_SCOPE_LEAD}</p>
+      <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        {CLOUD_CONNECTIONS_PLATFORM_SCOPE_LEAD}
+      </p>
       {!persistAvailable ? (
         <p
-          className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}
+          id="cloud-platform-scope-workspace-required"
+          className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           role="status"
           data-testid="cloud-platform-scope-workspace-required"
         >
-          {CLOUD_CONNECTIONS_PLATFORM_SCOPE_WORKSPACE_REQUIRED}
+          {CLOUD_CONNECTIONS_PLATFORM_SCOPE_WORKSPACE_REQUIRED}{" "}
+          <Link
+            href={SCOPE_SWITCHER_HELP_HREF}
+            className={cn(OPERATOR_LINK.inline, "font-medium")}
+            data-testid="cloud-platform-scope-workspace-action"
+          >
+            {CLOUD_CONNECTIONS_PLATFORM_SCOPE_WORKSPACE_ACTION_LABEL}
+          </Link>
         </p>
       ) : null}
-      <div className="mt-3 flex flex-wrap gap-4">
-        {(Object.keys(PLATFORM_LABELS) as CloudPlatformId[]).map((platformId) => (
-          <label
-            key={platformId}
-            className={cn(
-              "flex items-center gap-2",
-              OPERATOR_TYPOGRAPHY.body,
-              !persistAvailable ? "cursor-not-allowed opacity-60" : null,
-            )}
-          >
-            <input
-              type="checkbox"
-              checked={scope[platformId]}
-              disabled={!persistAvailable}
-              onChange={() => togglePlatform(platformId)}
-              data-testid={`cloud-platform-scope-${platformId}`}
-            />
-            <span>{PLATFORM_LABELS[platformId]}</span>
-          </label>
-        ))}
+      <div
+        className="mt-3 flex flex-wrap gap-x-6 gap-y-3"
+        role="group"
+        aria-labelledby="cloud-platform-scope-heading"
+        aria-describedby={!persistAvailable ? "cloud-platform-scope-workspace-required" : undefined}
+      >
+        {(Object.keys(PLATFORM_LABELS) as CloudPlatformId[]).map((platformId) => {
+          const checkboxId = `cloud-platform-scope-${platformId}`;
+
+          return (
+            <label
+              key={platformId}
+              htmlFor={checkboxId}
+              className={cn(
+                "flex min-h-6 min-w-[8.5rem] cursor-pointer items-center gap-3",
+                OPERATOR_TYPOGRAPHY.body,
+                "text-al-text-primary",
+                !persistAvailable ? "cursor-not-allowed" : null,
+              )}
+            >
+              <Checkbox
+                id={checkboxId}
+                checked={scope[platformId]}
+                disabled={!persistAvailable}
+                onCheckedChange={() => togglePlatform(platformId)}
+                data-testid={`cloud-platform-scope-${platformId}`}
+                className={cn(
+                  "h-6 w-6 shrink-0 rounded border-2 border-neutral-600 accent-teal-700",
+                  "focus-visible:ring-teal-600/40 disabled:opacity-100",
+                  "dark:border-neutral-400 dark:accent-teal-500",
+                  scope[platformId] ? "border-teal-700 bg-teal-700 dark:border-teal-500 dark:bg-teal-600" : null,
+                )}
+              />
+              <span className={cn(!persistAvailable ? "text-al-text-secondary" : "text-al-text-primary")}>
+                {PLATFORM_LABELS[platformId]}
+              </span>
+            </label>
+          );
+        })}
       </div>
     </section>
   );

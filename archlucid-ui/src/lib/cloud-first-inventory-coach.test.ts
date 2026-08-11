@@ -12,19 +12,26 @@ import {
 
 describe("cloud-first-inventory-coach (TB-2222)", () => {
   it("resolves empty / post-connect / post-pull phases", () => {
-    expect(resolveCloudFirstInventoryCoachPhase({ hasConnection: false, hasSuccessfulPull: false })).toBe(
-      "empty",
-    );
-    expect(resolveCloudFirstInventoryCoachPhase({ hasConnection: true, hasSuccessfulPull: false })).toBe(
-      "post-connect",
-    );
-    expect(resolveCloudFirstInventoryCoachPhase({ hasConnection: true, hasSuccessfulPull: true })).toBe(
-      "post-pull",
-    );
+    const base = { connectedProviderCount: 0, totalProviderCount: 3 };
+
+    expect(
+      resolveCloudFirstInventoryCoachPhase({ hasConnection: false, hasSuccessfulPull: false, ...base }),
+    ).toBe("empty");
+    expect(
+      resolveCloudFirstInventoryCoachPhase({ hasConnection: true, hasSuccessfulPull: false, ...base }),
+    ).toBe("post-connect");
+    expect(
+      resolveCloudFirstInventoryCoachPhase({ hasConnection: true, hasSuccessfulPull: true, ...base }),
+    ).toBe("post-pull");
   });
 
   it("teaches attach then start review instead of idle collection copy", () => {
-    const view = buildCloudFirstInventoryCoach({ hasConnection: true, hasSuccessfulPull: true });
+    const view = buildCloudFirstInventoryCoach({
+      hasConnection: true,
+      hasSuccessfulPull: true,
+      connectedProviderCount: 1,
+      totalProviderCount: 3,
+    });
 
     expect(view.title).toBe(CLOUD_FIRST_INVENTORY_COACH_TITLE);
     expect(view.replacesIdleEmpty).toBe(true);
@@ -38,11 +45,44 @@ describe("cloud-first-inventory-coach (TB-2222)", () => {
   });
 
   it("post-connect body warns against stopping at idle collection lists", () => {
-    const view = buildCloudFirstInventoryCoach({ hasConnection: true, hasSuccessfulPull: false });
+    const view = buildCloudFirstInventoryCoach({
+      hasConnection: true,
+      hasSuccessfulPull: false,
+      connectedProviderCount: 1,
+      totalProviderCount: 3,
+    });
 
     expect(view.phase).toBe("post-connect");
     expect(view.body.toLowerCase()).toMatch(/idle|collection/);
     expect(view.body.toLowerCase()).toContain("attach");
+  });
+
+  it("empty phase recommends configuring the first neutral provider", () => {
+    const view = buildCloudFirstInventoryCoach({
+      hasConnection: false,
+      hasSuccessfulPull: false,
+      connectedProviderCount: 0,
+      totalProviderCount: 3,
+    });
+
+    expect(view.phase).toBe("empty");
+    expect(view.body).toContain("0 of 3");
+    expect(view.steps).toEqual([]);
+    expect(view.primaryCtaLabel).toBe("Configure AWS");
+    expect(view.primaryCtaHref).toBe("/integrations/cloud-connections/aws");
+  });
+
+  it("empty phase respects recommendedProviderId from platform scope", () => {
+    const view = buildCloudFirstInventoryCoach({
+      hasConnection: false,
+      hasSuccessfulPull: false,
+      connectedProviderCount: 0,
+      totalProviderCount: 3,
+      recommendedProviderId: "azure",
+    });
+
+    expect(view.primaryCtaLabel).toBe("Configure Azure");
+    expect(view.primaryCtaHref).toBe("/integrations/cloud-connections/azure");
   });
 
   it("detects successful pull from lastPolledUtc or healthy status", () => {
