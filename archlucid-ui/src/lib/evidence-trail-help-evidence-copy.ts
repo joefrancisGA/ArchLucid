@@ -3,6 +3,12 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const EVIDENCE_TRAIL_HELP_CANONICAL_PATH = "/help/evidence-trail" as const;
 
+export const EVIDENCE_TRAIL_HELP_PRIMARY_ACTION = {
+  label: "Open Evidence graph",
+  href: EVIDENCE_GRAPH_PATH,
+  testId: "help-evidence-trail-open-graph",
+} as const;
+
 export const EVIDENCE_TRAIL_HELP_CLAIM_DISCIPLINE =
   "This Evidence graph guide is architect orientation for tracing findings, artifacts, and provenance — it is not a signed-review diligence Sources package. Open the live Evidence graph, Validate review, or Audit when you need workspace packages or assurance claims.";
 

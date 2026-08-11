@@ -11,7 +11,22 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("@/components/help/HelpTopicPdfDownloadButton", () => ({
+  HelpTopicPdfDownloadButton: () => null,
+}));
+
+vi.mock("@/components/help/HelpTopicPrintButton", () => ({
+  HelpTopicPrintButton: () => null,
+}));
+
 import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownView";
+import { EvidenceTrailHelpEvidenceOrientationStrip } from "@/components/help/EvidenceTrailHelpEvidenceOrientationStrip";
+import { AZURE_REFERENCE_SAMPLE_GRAPH_CTA_LABEL } from "@/lib/empty-state-presets";
+import {
+  EVIDENCE_TRAIL_HELP_CLAIM_DISCIPLINE,
+  EVIDENCE_TRAIL_HELP_PRIMARY_ACTION,
+} from "@/lib/evidence-trail-help-evidence-copy";
+import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
 /** TB-1363 — sample graph path must disclose Claims Intake demo, not tenant workspace. */
@@ -21,15 +36,47 @@ const EVIDENCE_TRAIL_SAMPLE_HONESTY_MARKERS = [
   "not a review from your tenant",
 ] as const;
 
-const EVIDENCE_TRAIL_SAMPLE_VAGUE_PHRASES = ["Open sample evidence graph", "sample evidence graph"] as const;
-
 const EVIDENCE_TRAIL_GRAPH_MODES = [
   "Evidence provenance",
   "Decision traceability",
   "Architecture context",
 ] as const;
 
+const EVIDENCE_TRAIL_LINEAGE_NODES = [
+  "evidence and artifacts",
+  "findings",
+  "governance decisions",
+  "signed review record",
+  "exports and downloads",
+] as const;
+
 const BANNED_DIAGRAM_COPY = ["GraphMode", "review-trail", "/v1/", "POST /", "GET /"] as const;
+
+const RETIRED_GRAPH_ROUTE = "/graph";
+
+function assertNoRetiredGraphRouteLiteral(text: string): void {
+  const withoutCanonicalPath = text.replaceAll(EVIDENCE_GRAPH_PATH, "");
+
+  expect(withoutCanonicalPath, "rendered body must not reference retired /graph route").not.toContain(
+    RETIRED_GRAPH_ROUTE,
+  );
+}
+
+function renderEvidenceTrailHelp(): void {
+  const loaded = tryLoadProductDocumentation("evidence-trail");
+
+  if (loaded === null) {
+    throw new Error("Expected evidence-trail documentation to load.");
+  }
+
+  render(
+    <HelpTopicMarkdownView
+      entry={loaded.entry}
+      markdown={loaded.markdown}
+      evidenceOrientation={<EvidenceTrailHelpEvidenceOrientationStrip />}
+    />,
+  );
+}
 
 describe("HelpTopicMarkdownView evidence-trail (TB-1363)", () => {
   const loaded = tryLoadProductDocumentation("evidence-trail");
@@ -38,7 +85,7 @@ describe("HelpTopicMarkdownView evidence-trail (TB-1363)", () => {
     expect(loaded).not.toBeNull();
   });
 
-  it("operator guide copy discloses Claims Intake sample universe honesty", () => {
+  it("operator guide copy discloses Claims Intake sample universe honesty and quotes shipped sample CTA", () => {
     if (loaded === null) {
       throw new Error("Expected evidence-trail documentation to load.");
     }
@@ -49,31 +96,43 @@ describe("HelpTopicMarkdownView evidence-trail (TB-1363)", () => {
       expect(normalizedMarkdown, `expected marker: ${marker}`).toContain(marker);
     }
 
-    for (const vague of EVIDENCE_TRAIL_SAMPLE_VAGUE_PHRASES) {
-      expect(normalizedMarkdown, `vague phrase still present: ${vague}`).not.toContain(vague);
-    }
+    expect(normalizedMarkdown).toContain(AZURE_REFERENCE_SAMPLE_GRAPH_CTA_LABEL);
+    assertNoRetiredGraphRouteLiteral(normalizedMarkdown);
+  });
+
+  it("renders primary action, claim-discipline orientation, and non-empty header actions", () => {
+    renderEvidenceTrailHelp();
+
+    const primaryAction = screen.getByTestId(EVIDENCE_TRAIL_HELP_PRIMARY_ACTION.testId);
+
+    expect(primaryAction).toHaveAttribute("href", EVIDENCE_GRAPH_PATH);
+    expect(primaryAction).toHaveTextContent(EVIDENCE_TRAIL_HELP_PRIMARY_ACTION.label);
+
+    const claimDiscipline = screen.getByTestId("evidence-trail-help-claim-discipline");
+
+    expect(claimDiscipline).toHaveTextContent(EVIDENCE_TRAIL_HELP_CLAIM_DISCIPLINE);
+    expect(claimDiscipline).toHaveTextContent("not a signed-review diligence Sources package");
+
+    const exportActions = screen.getByTestId("help-topic-export-actions");
+
+    expect(exportActions.querySelectorAll("a, button").length).toBeGreaterThan(0);
   });
 
   it("rendered help body keeps sample-universe honesty visible", () => {
-    if (loaded === null) {
-      throw new Error("Expected evidence-trail documentation to load.");
-    }
-
-    render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
+    renderEvidenceTrailHelp();
 
     const visible = document.body.textContent ?? "";
 
     for (const marker of EVIDENCE_TRAIL_SAMPLE_HONESTY_MARKERS) {
       expect(visible, `expected rendered marker: ${marker}`).toContain(marker);
     }
+
+    expect(visible).toContain(AZURE_REFERENCE_SAMPLE_GRAPH_CTA_LABEL);
+    assertNoRetiredGraphRouteLiteral(visible);
   });
 
-  it("shows provenance lineage diagram in the default viewport without disclosures", () => {
-    if (loaded === null) {
-      throw new Error("Expected evidence-trail documentation to load.");
-    }
-
-    render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} showContextualHelp />);
+  it("shows provenance lineage diagram and a text equivalent in the default viewport", () => {
+    renderEvidenceTrailHelp();
 
     expect(screen.getByRole("heading", { name: "What the evidence trail shows" })).toBeInTheDocument();
 
@@ -92,6 +151,10 @@ describe("HelpTopicMarkdownView evidence-trail (TB-1363)", () => {
     }
 
     const visible = document.body.textContent ?? "";
+
+    for (const node of EVIDENCE_TRAIL_LINEAGE_NODES) {
+      expect(visible, `expected lineage node in visible prose: ${node}`).toContain(node);
+    }
 
     for (const mode of EVIDENCE_TRAIL_GRAPH_MODES) {
       expect(visible, `expected graph mode vocabulary: ${mode}`).toContain(mode);

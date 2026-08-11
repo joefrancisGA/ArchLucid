@@ -85,6 +85,9 @@ describe("SessionExpiredClient", () => {
 
     render(<SessionExpiredClient />);
 
+    expect(screen.getByTestId("auth-flow-shell")).toBeInTheDocument();
+    expect(screen.getByLabelText("ArchLucid — welcome")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Your session expired");
     expect(screen.getByTestId("session-expired-heading")).toHaveTextContent("Your session expired");
     expect(
       screen.getByText(/for your security, archlucid signed you out after a period of inactivity/i),

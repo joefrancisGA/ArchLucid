@@ -39,11 +39,13 @@ flowchart LR
   SR --> PKG
 ```
 
+In order: **evidence and artifacts** feed **findings**; **findings** feed **governance decisions**; **governance decisions** commit to the **signed review record**; the **signed review record** produces **exports and downloads**.
+
 ## Open the Evidence graph {#open-the-evidence-graph}
 
-1. In the architect workspace, open **Insights** and choose **Evidence graph** (route `/graph`).
-2. Select a **finalized review from your workspace**, or choose **Open Claims Intake sample graph** to explore the illustrative **Healthcare Claims Intake** demo package — that sample is **not** a review from your tenant.
-3. Select **Load evidence graph** when prompted. When the sample is loaded, the page banner states it is the Claims Intake sample, not your workspace.
+1. In the architect workspace, open **Insights** and choose **Evidence graph**.
+2. Select a **finalized review from your workspace**, or choose **Open sample evidence graph (Azure reference)** to load the illustrative Claims Intake sample — the review picker shows **Showing Claims Intake sample (not your workspace)** and that sample is **not** a review from your tenant.
+3. Select **Load evidence graph** when prompted.
 
 You can also jump from a finding:
 
