@@ -62,7 +62,7 @@
 |----|------|
 | INV-001 / ADR 0037 | Decide-once scope; jobs use ambient scope |
 | Open **TB-999** / **M-150** | Single-derivation honesty |
-| Open **TB-1523** / **M-277** | Mid-run crash — in-flight sync continues until request end; see [`CRASH_RECOVERY_LONG_RUNNING_REVIEW_CLAIM_MAP.md`](CRASH_RECOVERY_LONG_RUNNING_REVIEW_CLAIM_MAP.md) |
+| Done **TB-1523** / **M-277** | Mid-run crash — in-flight sync continues until request end; see [`CRASH_RECOVERY_LONG_RUNNING_REVIEW_CLAIM_MAP.md`](CRASH_RECOVERY_LONG_RUNNING_REVIEW_CLAIM_MAP.md) |
 | Open **TB-1530** / **M-280** | ITSM/outbox delivery is tenant-scoped at-least-once — **no** principal re-check at worker; see [`ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md`](ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md) |
 | ADR 0059 | SPA Bearer / AuthVersion residual |
 | Done **TB-1537** / **M-282** | This revocation claim map |

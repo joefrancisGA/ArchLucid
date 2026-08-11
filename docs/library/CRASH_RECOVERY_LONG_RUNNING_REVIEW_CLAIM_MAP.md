@@ -4,7 +4,7 @@
 
 **Audience:** Engineering, SRE, principal-architect diligence. Not a buyer brochure.
 
-**Status:** Working contract for **TB-1523** / GTM **M-277**. Pair honesty CI **TB-1524** / **M-277**.
+**Status:** **Done** (2026-08-10) — **TB-1523** / GTM **M-277**/**M-278**. Pair honesty CI **TB-1524** (open).
 
 **Verdict (one line):** Authority-pipeline mid-run death is **Worker-reclaimable** (SQL outbox lease → resume or dead-letter → terminal Failed); **multi-agent Real execute is still sync on the API request thread** — process death mid-`ExecuteRunAsync` leaves **`TasksGenerated` / `WaitingForResults` with 0..N persisted AgentResults**, with **no execute ownership lease / auto-reconciler** (**TB-943** open) — the tenant typically sees a **stuck “In progress” / incomplete review**, not an automatic honest failure, until re-execute or statuses are derived after a completed (non-killed) execute path.
 

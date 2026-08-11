@@ -1509,7 +1509,7 @@ Do not say appsettings.json is deployment SoT, Terraform state is Container Apps
 
 ## Mid-run authority revocation (M-283) {#mid-run-authority-revocation-m-283}
 
-Former standalone body: `docs/go-to-market/MID_RUN_AUTHORITY_REVOCATION_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-282** / **M-283** / **TB-1537**). Engineering map: [`../library/MID_RUN_AUTHORITY_REVOCATION_CLAIM_MAP.md`](../library/MID_RUN_AUTHORITY_REVOCATION_CLAIM_MAP.md). Complements open **TB-1523**/**M-277** (crash recovery) and **TB-1530**/**M-280** (ITSM/outbox delivery) without conflating delivery guarantees with actor revoke. Does not claim Entra CAE, token introspection, or cooperative in-flight cancel. Not an assurance attestation.
+Former standalone body: `docs/go-to-market/MID_RUN_AUTHORITY_REVOCATION_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-282** / **M-283** / **TB-1537**). Engineering map: [`../library/MID_RUN_AUTHORITY_REVOCATION_CLAIM_MAP.md`](../library/MID_RUN_AUTHORITY_REVOCATION_CLAIM_MAP.md). Complements Done **TB-1523**/**M-277** (crash recovery) and open **TB-1530**/**M-280** (ITSM/outbox delivery) without conflating delivery guarantees with actor revoke. Does not claim Entra CAE, token introspection, or cooperative in-flight cancel. Not an assurance attestation.
 
 **Path-stable alias:** [`MID_RUN_AUTHORITY_REVOCATION_PA_ONE_PAGER.md`](MID_RUN_AUTHORITY_REVOCATION_PA_ONE_PAGER.md).
 
@@ -1551,7 +1551,7 @@ Former standalone body: `docs/go-to-market/MID_RUN_AUTHORITY_REVOCATION_PA_ONE_P
 ### Residuals (honest)
 
 - **TB-1538** owns honesty CI for instant-global-revoke overclaims.
-- Open **TB-1523** / **TB-1530** own crash and ITSM delivery matrices — cite without conflating.
+- Done **TB-1523** / open **TB-1530** own crash and ITSM delivery matrices — cite without conflating.
 - Optional product follow-ons: SCIM `active=false` vs `DirectoryRemovedUtc` gap, cooperative execute cancel — not claimed as shipped.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
 
@@ -4222,7 +4222,7 @@ Former standalone body: `docs/go-to-market/INTERRUPTED_REVIEW_BUYER_ONE_PAGER.md
 - **TB-039** (idempotent skip) and **TB-201** (unique `(RunId,TaskId)`) are Done.
 - **TB-960** **Done** (2026-08-10) — ACA worker failure-semantics engineering contract published.
 - **TB-961**–**TB-962** remain open for graceful drain and staging replica-kill drill.
-- See also [`../library/CRASH_RECOVERY_LONG_RUNNING_REVIEW_CLAIM_MAP.md`](../library/CRASH_RECOVERY_LONG_RUNNING_REVIEW_CLAIM_MAP.md).
+- **TB-1523** **Done** (2026-08-10) — engineering crash-recovery claim map: [`../library/CRASH_RECOVERY_LONG_RUNNING_REVIEW_CLAIM_MAP.md`](../library/CRASH_RECOVERY_LONG_RUNNING_REVIEW_CLAIM_MAP.md) (**M-277**/**M-278**).
 
 **Related:** [Process vs provider idempotency (M-171)](#process-vs-provider-idempotency-m-171) Â· [Polly vs run completeness (M-147)](#polly-vs-run-completeness-m-147) Â· [`../library/LLM_RETRY_AND_CIRCUIT_BREAKER.md`](../library/LLM_RETRY_AND_CIRCUIT_BREAKER.md) Â· [principal architect falsification script](#principal-architect-falsification-script-m-113) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).
 

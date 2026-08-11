@@ -72,7 +72,7 @@ Until **TB-1311** ships async agent execute to Worker, “runs executing on the 
 |----|------|
 | Open **TB-961** | SIGTERM drain + TF grace (implementation) |
 | Open **TB-960** / **TB-962** | Failure-semantics contract / staging kill drill |
-| Open **TB-943** / **TB-1523** / **M-277** | Execute stuck / crash-recovery map |
+| Open **TB-943** / Done **TB-1523** / **M-277** | Execute stuck / crash-recovery map |
 | Open **TB-1311** / **M-231** | Async agent execute → Worker |
 | **TB-1563** / **M-292** | This Worker rolling-deploy claim map |
 
