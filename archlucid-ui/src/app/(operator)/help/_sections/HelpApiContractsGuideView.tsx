@@ -3,6 +3,7 @@ import Link from "next/link";
 import { HelpApiContractsHeaderMetadata } from "@/app/(operator)/help/_sections/HelpApiContractsHeaderMetadata";
 import { HelpApiContractsSourceLinks } from "@/app/(operator)/help/_sections/HelpApiContractsSourceLinks";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { DeveloperApiContractsApiKeysVocabularyRail } from "@/components/DeveloperApiContractsApiKeysVocabularyRail";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTechnicalReferenceNavigation } from "@/components/help/HelpTechnicalReferenceNavigation";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
@@ -84,6 +85,8 @@ export function HelpApiContractsGuideView(props: HelpApiContractsGuideViewProps)
           }
         />
       </header>
+
+      <DeveloperApiContractsApiKeysVocabularyRail currentSurfaceId="api-contracts" />
 
       <section
         aria-labelledby="help-api-contracts-action-panel-heading"
