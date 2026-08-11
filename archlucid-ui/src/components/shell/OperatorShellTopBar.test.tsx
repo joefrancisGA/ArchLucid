@@ -7,7 +7,7 @@ import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 import { OPERATOR_SHELL_SIDEBAR_WIDTH_LG_CLASS } from "@/lib/design-tokens";
 import { GLOBAL_SEARCH_ARIA_LABEL } from "@/lib/keyboard-shortcut-display";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { PERSONA_SHELL_WORDMARK_ARIA_LABEL } from "@/lib/persona-shell-vocabulary";
+import { PERSONA_SHELL_WORDMARK_ARIA_LABEL } from "@/lib/vocabulary/persona-shell-vocabulary";
 
 const fullShellMock = vi.hoisted(() => ({ value: true }));
 const fetchBudgetCached = vi.hoisted(() => vi.fn());

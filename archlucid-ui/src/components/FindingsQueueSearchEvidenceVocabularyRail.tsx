@@ -9,7 +9,7 @@ import {
   resolveFindingsQueueSearchEvidencePeerLink,
   type FindingsQueueSearchEvidenceSurfaceId,
   type FindingsQueueSearchEvidenceVocabularyModel,
-} from "@/lib/findings-queue-search-evidence-vocabulary";
+} from "@/lib/vocabulary/findings-queue-search-evidence-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

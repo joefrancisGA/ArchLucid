@@ -9,7 +9,7 @@ import {
   resolveTrialFunnelDemoReadinessPeerLink,
   type TrialFunnelDemoReadinessSurfaceId,
   type TrialFunnelDemoReadinessVocabularyModel,
-} from "@/lib/trial-funnel-demo-readiness-vocabulary";
+} from "@/lib/vocabulary/trial-funnel-demo-readiness-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

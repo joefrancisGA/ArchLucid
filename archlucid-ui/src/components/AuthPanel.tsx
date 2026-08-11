@@ -5,7 +5,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
-import { PERSONA_SHELL_SIGN_OUT_HOME_ARIA_LABEL } from "@/lib/persona-shell-vocabulary";
+import { PERSONA_SHELL_SIGN_OUT_HOME_ARIA_LABEL } from "@/lib/vocabulary/persona-shell-vocabulary";
 import { AUTH_MODE } from "@/lib/auth-config";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import {

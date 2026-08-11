@@ -23,7 +23,7 @@ import {
   OPERATOR_SHELL_MAIN_PADDING_CLASS,
   OPERATOR_SHELL_MAX_WIDTH_CLASS,
 } from "@/lib/design-tokens";
-import { PERSONA_SHELL_WORKSPACE_LABEL } from "@/lib/persona-shell-vocabulary";
+import { PERSONA_SHELL_WORKSPACE_LABEL } from "@/lib/vocabulary/persona-shell-vocabulary";
 import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
 
 export type ExecutiveShellFrameProps = {

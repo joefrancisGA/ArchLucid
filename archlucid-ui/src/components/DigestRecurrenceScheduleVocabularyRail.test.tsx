@@ -8,7 +8,7 @@ import {
   DIGEST_RECURRENCE_SCHEDULE_HEADING,
   DIGEST_RECURRENCE_SCHEDULE_RECURRENCE_LINK,
   DIGEST_RECURRENCE_SCHEDULE_WHY_TWO,
-} from "@/lib/digest-recurrence-schedule-vocabulary";
+} from "@/lib/vocabulary/digest-recurrence-schedule-vocabulary";
 
 describe("DigestRecurrenceScheduleVocabularyRail (TB-2226)", () => {
   it("renders compact strip on digest schedule with peer link to recurrence", () => {

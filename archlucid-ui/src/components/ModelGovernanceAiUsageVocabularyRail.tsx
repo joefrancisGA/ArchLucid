@@ -9,7 +9,7 @@ import {
   resolveModelGovernanceAiUsagePeerLink,
   type ModelGovernanceAiUsageSurfaceId,
   type ModelGovernanceAiUsageVocabularyModel,
-} from "@/lib/model-governance-ai-usage-vocabulary";
+} from "@/lib/vocabulary/model-governance-ai-usage-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

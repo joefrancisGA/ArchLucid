@@ -10,7 +10,7 @@ import {
   resolveDeveloperApiContractsApiKeysPeerLinks,
   type DeveloperApiContractsApiKeysSurfaceId,
   type DeveloperApiContractsApiKeysVocabularyModel,
-} from "@/lib/developer-api-contracts-api-keys-vocabulary";
+} from "@/lib/vocabulary/developer-api-contracts-api-keys-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

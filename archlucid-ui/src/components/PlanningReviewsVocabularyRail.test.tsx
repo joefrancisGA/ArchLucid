@@ -8,7 +8,7 @@ import {
   PLANNING_REVIEWS_PLANNING_LINK,
   PLANNING_REVIEWS_REVIEWS_LINK,
   PLANNING_REVIEWS_WHY_TWO,
-} from "@/lib/planning-reviews-vocabulary";
+} from "@/lib/vocabulary/planning-reviews-vocabulary";
 
 describe("PlanningReviewsVocabularyRail (TB-2238)", () => {
   it("renders compact strip on planning with peer link to reviews", () => {

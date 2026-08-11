@@ -10,7 +10,7 @@ import {
   resolveRoiSponsorExportPeerLink,
   type RoiSponsorExportSurfaceId,
   type RoiSponsorExportVocabularyModel,
-} from "@/lib/roi-sponsor-export-vocabulary";
+} from "@/lib/vocabulary/roi-sponsor-export-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

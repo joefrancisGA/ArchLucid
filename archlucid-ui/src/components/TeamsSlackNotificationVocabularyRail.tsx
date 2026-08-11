@@ -9,7 +9,7 @@ import {
   resolveTeamsSlackNotificationPeerLink,
   type TeamsSlackNotificationSurfaceId,
   type TeamsSlackNotificationVocabularyModel,
-} from "@/lib/teams-slack-notification-vocabulary";
+} from "@/lib/vocabulary/teams-slack-notification-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

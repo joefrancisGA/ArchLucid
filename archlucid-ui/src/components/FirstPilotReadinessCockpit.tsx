@@ -41,7 +41,7 @@ import {
   shellReadinessCountPhrase,
   shellReadinessStatusTagLabel,
 } from "@/lib/buyer-shell-home-present";
-import { mapReadinessStatusToEnterpriseKind } from "@/lib/first-pilot-operator-status-vocabulary";
+import { mapReadinessStatusToEnterpriseKind } from "@/lib/vocabulary/first-pilot-operator-status-vocabulary";
 import { fetchAdminConfigLintSummary } from "@/lib/fetch-admin-config-lint";
 import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";

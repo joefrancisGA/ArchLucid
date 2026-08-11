@@ -9,7 +9,7 @@ import {
   resolveCustomRolesUsersPeerLink,
   type CustomRolesUsersSurfaceId,
   type CustomRolesUsersVocabularyModel,
-} from "@/lib/custom-roles-users-vocabulary";
+} from "@/lib/vocabulary/custom-roles-users-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

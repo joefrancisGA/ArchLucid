@@ -9,7 +9,7 @@ import {
   resolvePolicyPackDetailHubPeerLink,
   type PolicyPackDetailHubSurfaceId,
   type PolicyPackDetailHubVocabularyModel,
-} from "@/lib/policy-pack-detail-hub-vocabulary";
+} from "@/lib/vocabulary/policy-pack-detail-hub-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

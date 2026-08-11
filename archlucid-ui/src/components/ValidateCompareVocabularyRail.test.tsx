@@ -8,7 +8,7 @@ import {
   VALIDATE_COMPARE_HEADING,
   VALIDATE_COMPARE_VALIDATE_LINK,
   VALIDATE_COMPARE_WHY_TWO,
-} from "@/lib/validate-compare-vocabulary";
+} from "@/lib/vocabulary/validate-compare-vocabulary";
 
 describe("ValidateCompareVocabularyRail (TB-2240)", () => {
   it("renders compact strip on validate with peer link to compare", () => {

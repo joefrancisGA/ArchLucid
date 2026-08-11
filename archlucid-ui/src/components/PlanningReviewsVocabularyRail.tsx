@@ -9,7 +9,7 @@ import {
   resolvePlanningReviewsPeerLink,
   type PlanningReviewsSurfaceId,
   type PlanningReviewsVocabularyModel,
-} from "@/lib/planning-reviews-vocabulary";
+} from "@/lib/vocabulary/planning-reviews-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

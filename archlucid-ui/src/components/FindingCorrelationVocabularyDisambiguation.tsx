@@ -4,7 +4,7 @@ import type { ReactElement } from "react";
 import {
   FINDING_CORRELATION_VOCABULARY_DISAMBIGUATION_LINES,
   FINDING_CORRELATION_VOCABULARY_DISAMBIGUATION_TITLE,
-} from "@/lib/finding-correlation-vocabulary";
+} from "@/lib/vocabulary/finding-correlation-vocabulary";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type FindingCorrelationVocabularyDisambiguationProps = {

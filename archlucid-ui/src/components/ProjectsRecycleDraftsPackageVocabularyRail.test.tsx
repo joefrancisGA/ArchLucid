@@ -10,7 +10,7 @@ import {
   PROJECTS_RECYCLE_DRAFTS_PACKAGE_RECYCLE_LINK,
   PROJECTS_RECYCLE_DRAFTS_PACKAGE_RESTORE_RESIDUE_HONESTY,
   PROJECTS_RECYCLE_DRAFTS_PACKAGE_WHY_THREE,
-} from "@/lib/projects-recycle-drafts-package-vocabulary";
+} from "@/lib/vocabulary/projects-recycle-drafts-package-vocabulary";
 
 describe("ProjectsRecycleDraftsPackageVocabularyRail (TB-2251)", () => {
   it("renders compact strip on recycle with peer links to drafts and packages", () => {

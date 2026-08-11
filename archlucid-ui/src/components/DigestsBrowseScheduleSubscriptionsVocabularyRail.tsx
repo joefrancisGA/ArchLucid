@@ -10,7 +10,7 @@ import {
   resolveDigestsBrowseScheduleSubscriptionsPeerLinks,
   type DigestsBrowseScheduleSubscriptionsSurfaceId,
   type DigestsBrowseScheduleSubscriptionsVocabularyModel,
-} from "@/lib/digests-browse-schedule-subscriptions-vocabulary";
+} from "@/lib/vocabulary/digests-browse-schedule-subscriptions-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

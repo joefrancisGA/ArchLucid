@@ -8,7 +8,7 @@ import {
   MODEL_GOVERNANCE_AI_USAGE_HEADING,
   MODEL_GOVERNANCE_AI_USAGE_USAGE_LINK,
   MODEL_GOVERNANCE_AI_USAGE_WHY_TWO,
-} from "@/lib/model-governance-ai-usage-vocabulary";
+} from "@/lib/vocabulary/model-governance-ai-usage-vocabulary";
 
 describe("ModelGovernanceAiUsageVocabularyRail (TB-2286)", () => {
   it("renders compact strip on model governance with peer link to AI usage", () => {

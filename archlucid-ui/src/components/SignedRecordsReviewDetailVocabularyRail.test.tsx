@@ -8,7 +8,7 @@ import {
   SIGNED_RECORDS_REVIEW_DETAIL_REVIEW_DETAIL_LINK,
   SIGNED_RECORDS_REVIEW_DETAIL_SIGNED_RECORDS_LINK,
   SIGNED_RECORDS_REVIEW_DETAIL_WHY_TWO,
-} from "@/lib/signed-records-review-detail-vocabulary";
+} from "@/lib/vocabulary/signed-records-review-detail-vocabulary";
 
 describe("SignedRecordsReviewDetailVocabularyRail (TB-2272)", () => {
   it("renders signed-records strip with peer link to review detail", () => {

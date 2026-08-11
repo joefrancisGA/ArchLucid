@@ -9,7 +9,7 @@ import {
   DEVELOPER_API_CONTRACTS_API_KEYS_DEVELOPER_LINK,
   DEVELOPER_API_CONTRACTS_API_KEYS_HEADING,
   DEVELOPER_API_CONTRACTS_API_KEYS_WHY_THREE,
-} from "@/lib/developer-api-contracts-api-keys-vocabulary";
+} from "@/lib/vocabulary/developer-api-contracts-api-keys-vocabulary";
 
 describe("DeveloperApiContractsApiKeysVocabularyRail (TB-2270)", () => {
   it("renders developer strip with peer links to contracts and keys", () => {

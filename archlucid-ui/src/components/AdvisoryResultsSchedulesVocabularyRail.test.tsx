@@ -8,7 +8,7 @@ import {
   ADVISORY_RESULTS_SCHEDULES_RESULTS_LINK,
   ADVISORY_RESULTS_SCHEDULES_SCHEDULES_LINK,
   ADVISORY_RESULTS_SCHEDULES_WHY_TWO,
-} from "@/lib/advisory-results-schedules-vocabulary";
+} from "@/lib/vocabulary/advisory-results-schedules-vocabulary";
 
 describe("AdvisoryResultsSchedulesVocabularyRail (TB-2280)", () => {
   it("renders results strip with peer link to schedules", () => {

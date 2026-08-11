@@ -8,7 +8,7 @@ import {
   CONFIGURATION_SYSTEM_HEALTH_HEADING,
   CONFIGURATION_SYSTEM_HEALTH_SYSTEM_HEALTH_LINK,
   CONFIGURATION_SYSTEM_HEALTH_WHY_TWO,
-} from "@/lib/configuration-system-health-vocabulary";
+} from "@/lib/vocabulary/configuration-system-health-vocabulary";
 
 describe("ConfigurationSystemHealthVocabularyRail (TB-2279)", () => {
   it("renders configuration strip with peer link to system health", () => {

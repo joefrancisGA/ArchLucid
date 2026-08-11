@@ -8,7 +8,7 @@ import {
   PLANNING_PLAN_DETAIL_HUB_PLANNING_LINK,
   PLANNING_PLAN_DETAIL_HUB_PLAN_DETAIL_LINK,
   PLANNING_PLAN_DETAIL_HUB_WHY_TWO,
-} from "@/lib/planning-plan-detail-hub-vocabulary";
+} from "@/lib/vocabulary/planning-plan-detail-hub-vocabulary";
 
 describe("PlanningPlanDetailHubVocabularyRail (TB-2282)", () => {
   it("renders planning hub strip with peer link to plan detail", () => {

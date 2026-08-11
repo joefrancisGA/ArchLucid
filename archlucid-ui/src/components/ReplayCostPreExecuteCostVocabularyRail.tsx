@@ -9,7 +9,7 @@ import {
   resolveReplayCostPreExecuteCostPeerLink,
   type ReplayCostPreExecuteCostSurfaceId,
   type ReplayCostPreExecuteCostVocabularyModel,
-} from "@/lib/replay-cost-pre-execute-cost-vocabulary";
+} from "@/lib/vocabulary/replay-cost-pre-execute-cost-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

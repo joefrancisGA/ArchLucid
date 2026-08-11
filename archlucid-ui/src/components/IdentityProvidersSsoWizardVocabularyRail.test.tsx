@@ -8,7 +8,7 @@ import {
   IDENTITY_PROVIDERS_SSO_WIZARD_HUB_LINK,
   IDENTITY_PROVIDERS_SSO_WIZARD_WHY_TWO,
   IDENTITY_PROVIDERS_SSO_WIZARD_WIZARD_LINK,
-} from "@/lib/identity-providers-sso-wizard-vocabulary";
+} from "@/lib/vocabulary/identity-providers-sso-wizard-vocabulary";
 
 describe("IdentityProvidersSsoWizardVocabularyRail (TB-2277)", () => {
   it("renders identity-providers strip with peer link to sso wizard", () => {

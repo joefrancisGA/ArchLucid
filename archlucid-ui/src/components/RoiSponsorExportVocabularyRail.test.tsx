@@ -8,7 +8,7 @@ import {
   ROI_SPONSOR_EXPORT_ROI_SUMMARY_LINK,
   ROI_SPONSOR_EXPORT_SPONSOR_HANDOFF_LINK,
   ROI_SPONSOR_EXPORT_WHY_TWO,
-} from "@/lib/roi-sponsor-export-vocabulary";
+} from "@/lib/vocabulary/roi-sponsor-export-vocabulary";
 
 describe("RoiSponsorExportVocabularyRail (TB-2258)", () => {
   it("from ROI summary links sponsor export", () => {

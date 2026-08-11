@@ -9,7 +9,7 @@ import {
   resolveDeploymentStatusSystemHealthPeerLink,
   type DeploymentStatusSystemHealthSurfaceId,
   type DeploymentStatusSystemHealthVocabularyModel,
-} from "@/lib/deployment-status-system-health-vocabulary";
+} from "@/lib/vocabulary/deployment-status-system-health-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

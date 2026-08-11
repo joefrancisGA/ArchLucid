@@ -17,7 +17,7 @@ import type { FirstPilotReadinessGroup, FirstPilotReadinessRow } from "@/lib/fir
 import {
   mapReadinessStatusToEnterpriseKind,
   mapReadinessStatusToStatusTagLabel,
-} from "@/lib/first-pilot-operator-status-vocabulary";
+} from "@/lib/vocabulary/first-pilot-operator-status-vocabulary";
 import { DESIGN_TOKENS, OPERATOR_TYPE_SCALE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type FirstPilotReadinessGroupTableProps = {

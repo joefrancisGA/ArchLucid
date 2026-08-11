@@ -8,7 +8,7 @@ import {
   TRIAL_FUNNEL_DEMO_READINESS_HEADING,
   TRIAL_FUNNEL_DEMO_READINESS_TRIAL_FUNNEL_LINK,
   TRIAL_FUNNEL_DEMO_READINESS_WHY_TWO,
-} from "@/lib/trial-funnel-demo-readiness-vocabulary";
+} from "@/lib/vocabulary/trial-funnel-demo-readiness-vocabulary";
 
 describe("TrialFunnelDemoReadinessVocabularyRail (TB-2266)", () => {
   it("renders trial-funnel strip with peer link to demo readiness", () => {

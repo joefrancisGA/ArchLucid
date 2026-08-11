@@ -9,7 +9,7 @@ import {
   resolveFavoriteReviewsVsNavPinsPeerLink,
   type FavoriteReviewsVsNavPinsSurfaceId,
   type FavoriteReviewsVsNavPinsVocabularyModel,
-} from "@/lib/favorite-reviews-vs-nav-pins-vocabulary";
+} from "@/lib/vocabulary/favorite-reviews-vs-nav-pins-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

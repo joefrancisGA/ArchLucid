@@ -9,7 +9,7 @@ import {
   resolveConnectionStatusCloudConnectionsPeerLink,
   type ConnectionStatusCloudConnectionsSurfaceId,
   type ConnectionStatusCloudConnectionsVocabularyModel,
-} from "@/lib/connection-status-cloud-connections-vocabulary";
+} from "@/lib/vocabulary/connection-status-cloud-connections-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

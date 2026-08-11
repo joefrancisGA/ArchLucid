@@ -9,7 +9,7 @@ import {
   resolveIdentityProvidersSsoWizardPeerLink,
   type IdentityProvidersSsoWizardSurfaceId,
   type IdentityProvidersSsoWizardVocabularyModel,
-} from "@/lib/identity-providers-sso-wizard-vocabulary";
+} from "@/lib/vocabulary/identity-providers-sso-wizard-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

@@ -11,7 +11,7 @@ import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { Button } from "@/components/ui/button";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { BUYER_RUN_INSPECTOR_FINALIZED_LABEL } from "@/lib/buyer-polish-copy";
-import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import {
   isBuyerPolishedOperatorShellEnv,

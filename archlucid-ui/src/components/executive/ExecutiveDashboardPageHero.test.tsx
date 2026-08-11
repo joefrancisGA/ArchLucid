@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import {
   EXECUTIVE_DASHBOARD_PAGE_SUBTITLE_BUYER,
   executiveDashboardPageSubtitle,

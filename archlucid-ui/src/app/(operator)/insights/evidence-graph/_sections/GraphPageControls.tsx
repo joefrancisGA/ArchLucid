@@ -28,7 +28,7 @@ import {
   OPERATOR_GRAPH_SCOPE_LABEL,
 } from "@/lib/buyer-polish-copy";
 
-import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 

@@ -9,7 +9,7 @@ import {
   REPLAY_COST_PRE_EXECUTE_COST_PRE_EXECUTE_LINK,
   REPLAY_COST_PRE_EXECUTE_COST_REPLAY_LINK,
   REPLAY_COST_PRE_EXECUTE_COST_WHY_TWO,
-} from "@/lib/replay-cost-pre-execute-cost-vocabulary";
+} from "@/lib/vocabulary/replay-cost-pre-execute-cost-vocabulary";
 
 describe("ReplayCostPreExecuteCostVocabularyRail (TB-2284)", () => {
   it("renders compact strip on replay cost with peer link to pre-execute", () => {

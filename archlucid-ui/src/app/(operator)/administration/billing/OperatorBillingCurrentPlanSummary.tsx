@@ -14,7 +14,7 @@ import {
   llmBudgetRemainingPercent,
   llmBudgetUtilizationPercent,
 } from "@/lib/llm-monthly-budget-status";
-import { BILLING_MONTHLY_AI_BUDGET_ALLOWANCE_LABEL } from "@/lib/billing-meter-vocabulary";
+import { BILLING_MONTHLY_AI_BUDGET_ALLOWANCE_LABEL } from "@/lib/vocabulary/billing-meter-vocabulary";
 import { OPERATOR_BILLING_TIER_CTAS } from "@/lib/marketing/marketing-public-pricing";
 import {
   ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT,

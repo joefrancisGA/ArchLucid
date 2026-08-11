@@ -12,7 +12,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { StatusPill } from "@/components/StatusPill";
 import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { CORE_PILOT_PATH_STREAMLINED_LABELS, isStreamlinedCorePilotPath } from "@/lib/core-pilot-path-vocabulary";
+import { CORE_PILOT_PATH_STREAMLINED_LABELS, isStreamlinedCorePilotPath } from "@/lib/vocabulary/core-pilot-path-vocabulary";
 import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { StructuralExecutionModeBadge } from "@/components/StructuralExecutionModeBadge";

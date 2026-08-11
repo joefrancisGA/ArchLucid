@@ -8,7 +8,7 @@ import {
   IMPACT_PREVIEW_COMPARE_HEADING,
   IMPACT_PREVIEW_COMPARE_IMPACT_PREVIEW_LINK,
   IMPACT_PREVIEW_COMPARE_WHY_TWO,
-} from "@/lib/impact-preview-compare-vocabulary";
+} from "@/lib/vocabulary/impact-preview-compare-vocabulary";
 
 describe("ImpactPreviewCompareVocabularyRail (TB-2250)", () => {
   it("renders compact strip on impact preview with peer link to compare", () => {

@@ -8,7 +8,7 @@ import {
   DEPLOYMENT_STATUS_SYSTEM_HEALTH_HEADING,
   DEPLOYMENT_STATUS_SYSTEM_HEALTH_SYSTEM_LINK,
   DEPLOYMENT_STATUS_SYSTEM_HEALTH_WHY_TWO,
-} from "@/lib/deployment-status-system-health-vocabulary";
+} from "@/lib/vocabulary/deployment-status-system-health-vocabulary";
 
 describe("DeploymentStatusSystemHealthVocabularyRail (TB-2287)", () => {
   it("renders compact strip on deployment status with peer link to system health", () => {

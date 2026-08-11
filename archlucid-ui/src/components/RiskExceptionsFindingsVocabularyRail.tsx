@@ -9,7 +9,7 @@ import {
   resolveRiskExceptionsFindingsPeerLink,
   type RiskExceptionsFindingsSurfaceId,
   type RiskExceptionsFindingsVocabularyModel,
-} from "@/lib/risk-exceptions-findings-vocabulary";
+} from "@/lib/vocabulary/risk-exceptions-findings-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

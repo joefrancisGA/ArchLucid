@@ -8,7 +8,7 @@ import {
   RAG_HEALTH_SYSTEM_HEALTH_RAG_LINK,
   RAG_HEALTH_SYSTEM_HEALTH_SYSTEM_LINK,
   RAG_HEALTH_SYSTEM_HEALTH_WHY_TWO,
-} from "@/lib/rag-health-system-health-vocabulary";
+} from "@/lib/vocabulary/rag-health-system-health-vocabulary";
 
 describe("RagHealthSystemHealthVocabularyRail (TB-2285)", () => {
   it("renders compact strip on RAG health with peer link to system health", () => {

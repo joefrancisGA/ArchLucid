@@ -10,7 +10,7 @@ import {
   resolveTenantSystemWorkspaceHealthPeerLinks,
   type TenantSystemWorkspaceHealthSurfaceId,
   type TenantSystemWorkspaceHealthVocabularyModel,
-} from "@/lib/tenant-system-workspace-health-vocabulary";
+} from "@/lib/vocabulary/tenant-system-workspace-health-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

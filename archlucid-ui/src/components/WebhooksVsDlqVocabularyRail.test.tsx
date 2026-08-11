@@ -8,7 +8,7 @@ import {
   WEBHOOKS_VS_DLQ_HEADING,
   WEBHOOKS_VS_DLQ_WEBHOOKS_LINK,
   WEBHOOKS_VS_DLQ_WHY_TWO,
-} from "@/lib/webhooks-vs-dlq-vocabulary";
+} from "@/lib/vocabulary/webhooks-vs-dlq-vocabulary";
 
 describe("WebhooksVsDlqVocabularyRail (TB-2264)", () => {
   it("renders webhooks strip with peer link to dlq", () => {

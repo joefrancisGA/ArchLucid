@@ -8,7 +8,7 @@ import {
   CONNECTION_STATUS_CLOUD_CONNECTIONS_HEADING,
   CONNECTION_STATUS_CLOUD_CONNECTIONS_STATUS_LINK,
   CONNECTION_STATUS_CLOUD_CONNECTIONS_WHY_TWO,
-} from "@/lib/connection-status-cloud-connections-vocabulary";
+} from "@/lib/vocabulary/connection-status-cloud-connections-vocabulary";
 
 describe("ConnectionStatusCloudConnectionsVocabularyRail (TB-2245)", () => {
   it("renders compact strip on connection status with peer link to cloud connections", () => {

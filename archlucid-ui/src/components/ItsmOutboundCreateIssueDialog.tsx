@@ -29,7 +29,7 @@ import {
 import {
   ITSM_TICKET_LINKAGE_CREATE_INTRO,
   ITSM_TICKET_LINKAGE_DUPLICATE_BLOCKED,
-} from "@/lib/finding-correlation-vocabulary";
+} from "@/lib/vocabulary/finding-correlation-vocabulary";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useItsmNativeCreateEnabled } from "@/lib/use-itsm-native-create-enabled";
 import { showSuccess } from "@/lib/toast";

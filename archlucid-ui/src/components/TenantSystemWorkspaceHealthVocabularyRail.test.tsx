@@ -9,7 +9,7 @@ import {
   TENANT_SYSTEM_WORKSPACE_HEALTH_TENANT_LINK,
   TENANT_SYSTEM_WORKSPACE_HEALTH_WHY_THREE,
   TENANT_SYSTEM_WORKSPACE_HEALTH_WORKSPACE_LINK,
-} from "@/lib/tenant-system-workspace-health-vocabulary";
+} from "@/lib/vocabulary/tenant-system-workspace-health-vocabulary";
 
 describe("TenantSystemWorkspaceHealthVocabularyRail (TB-2252)", () => {
   it("renders compact strip on tenant health with peer links", () => {

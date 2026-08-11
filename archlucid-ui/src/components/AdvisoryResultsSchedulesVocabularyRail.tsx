@@ -9,7 +9,7 @@ import {
   resolveAdvisoryResultsSchedulesPeerLink,
   type AdvisoryResultsSchedulesSurfaceId,
   type AdvisoryResultsSchedulesVocabularyModel,
-} from "@/lib/advisory-results-schedules-vocabulary";
+} from "@/lib/vocabulary/advisory-results-schedules-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

@@ -8,7 +8,7 @@ import {
   POLICY_PACK_DETAIL_HUB_PACKS_LINK,
   POLICY_PACK_DETAIL_HUB_PACK_DETAIL_LINK,
   POLICY_PACK_DETAIL_HUB_WHY_TWO,
-} from "@/lib/policy-pack-detail-hub-vocabulary";
+} from "@/lib/vocabulary/policy-pack-detail-hub-vocabulary";
 
 describe("PolicyPackDetailHubVocabularyRail (TB-2283)", () => {
   it("renders packs hub strip with peer link to pack detail", () => {

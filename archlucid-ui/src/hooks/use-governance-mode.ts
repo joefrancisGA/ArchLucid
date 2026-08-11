@@ -15,7 +15,7 @@ import {
   readGovernanceModeEnabledFromStorage,
   writeGovernanceModeEnabledToStorage,
 } from "@/lib/governance-mode-storage";
-import { governanceModeVocabulary, type GovernanceModeVocabulary } from "@/lib/governance-mode-vocabulary";
+import { governanceModeVocabulary, type GovernanceModeVocabulary } from "@/lib/vocabulary/governance-mode-vocabulary";
 
 export type GovernanceModeContextValue = {
   mounted: boolean;

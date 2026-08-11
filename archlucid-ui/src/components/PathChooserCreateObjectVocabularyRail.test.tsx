@@ -9,7 +9,7 @@ import {
   PATH_CHOOSER_CREATE_OBJECT_PATH_CHOOSER_LINK,
   PATH_CHOOSER_CREATE_OBJECT_REVIEWS_NEW_LINK,
   PATH_CHOOSER_CREATE_OBJECT_WHY_THREE,
-} from "@/lib/path-chooser-create-object-vocabulary";
+} from "@/lib/vocabulary/path-chooser-create-object-vocabulary";
 
 describe("PathChooserCreateObjectVocabularyRail (TB-2260)", () => {
   it("renders compact strip on path-chooser with peer links to drafts and Start a review", () => {

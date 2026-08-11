@@ -1,4 +1,5 @@
 import { stripMarkdownSectionsByTitlePrefix } from "@/lib/help-markdown/section-strips";
+import { rewriteProcurementFaqBuyerPresentation } from "@/lib/procurement-help-presentation";
 
 export function stripProcurementContributorLeakage(markdown: string): string {
   return rewriteProcurementFaqBuyerPresentation(

@@ -8,7 +8,7 @@ import {
   TEAMS_SLACK_NOTIFICATION_SLACK_LINK,
   TEAMS_SLACK_NOTIFICATION_TEAMS_LINK,
   TEAMS_SLACK_NOTIFICATION_WHY_TWO,
-} from "@/lib/teams-slack-notification-vocabulary";
+} from "@/lib/vocabulary/teams-slack-notification-vocabulary";
 
 describe("TeamsSlackNotificationVocabularyRail (TB-2247)", () => {
   it("renders hub strip with both Teams and Slack links", () => {

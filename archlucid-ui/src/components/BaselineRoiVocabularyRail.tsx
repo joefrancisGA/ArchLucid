@@ -9,7 +9,7 @@ import {
   resolveBaselineRoiPeerLink,
   type BaselineRoiSurfaceId,
   type BaselineRoiVocabularyModel,
-} from "@/lib/baseline-roi-vocabulary";
+} from "@/lib/vocabulary/baseline-roi-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

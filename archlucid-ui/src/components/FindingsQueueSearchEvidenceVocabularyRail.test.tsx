@@ -8,7 +8,7 @@ import {
   FINDINGS_QUEUE_SEARCH_EVIDENCE_HEADING,
   FINDINGS_QUEUE_SEARCH_EVIDENCE_SEARCH_LINK,
   FINDINGS_QUEUE_SEARCH_EVIDENCE_WHY_TWO,
-} from "@/lib/findings-queue-search-evidence-vocabulary";
+} from "@/lib/vocabulary/findings-queue-search-evidence-vocabulary";
 
 describe("FindingsQueueSearchEvidenceVocabularyRail (TB-2261)", () => {
   it("renders findings strip with peer link to Search review evidence", () => {

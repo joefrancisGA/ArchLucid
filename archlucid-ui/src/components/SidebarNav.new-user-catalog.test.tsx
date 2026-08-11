@@ -11,7 +11,7 @@ const { mockPathname } = vi.hoisted(() => ({
 }));
 
 vi.mock("@/hooks/use-governance-mode", async () => {
-  const { governanceModeVocabulary } = await import("@/lib/governance-mode-vocabulary");
+  const { governanceModeVocabulary } = await import("@/lib/vocabulary/governance-mode-vocabulary");
 
   return {
     useGovernanceMode: () => ({

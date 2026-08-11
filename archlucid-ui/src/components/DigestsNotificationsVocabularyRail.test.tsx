@@ -8,7 +8,7 @@ import {
   DIGESTS_NOTIFICATIONS_HEADING,
   DIGESTS_NOTIFICATIONS_NOTIFICATIONS_LINK,
   DIGESTS_NOTIFICATIONS_WHY_TWO,
-} from "@/lib/digests-notifications-vocabulary";
+} from "@/lib/vocabulary/digests-notifications-vocabulary";
 
 describe("DigestsNotificationsVocabularyRail (TB-2254)", () => {
   it("renders digests strip with peer link to notifications", () => {

@@ -9,7 +9,7 @@ import {
   resolveImpactPreviewComparePeerLink,
   type ImpactPreviewCompareSurfaceId,
   type ImpactPreviewCompareVocabularyModel,
-} from "@/lib/impact-preview-compare-vocabulary";
+} from "@/lib/vocabulary/impact-preview-compare-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

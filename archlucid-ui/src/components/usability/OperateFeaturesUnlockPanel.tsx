@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { Button } from "@/components/ui/button";
-import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/core-pilot-path-vocabulary";
+import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/vocabulary/core-pilot-path-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { WORKSPACE_NAVIGATION_HELP_HREF } from "@/lib/workspace-navigation-help-alignment";
 import type { OperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";

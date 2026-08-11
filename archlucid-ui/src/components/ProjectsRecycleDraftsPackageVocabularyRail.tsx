@@ -10,7 +10,7 @@ import {
   resolveProjectsRecycleDraftsPackagePeerLinks,
   type ProjectsRecycleDraftsPackageSurfaceId,
   type ProjectsRecycleDraftsPackageVocabularyModel,
-} from "@/lib/projects-recycle-drafts-package-vocabulary";
+} from "@/lib/vocabulary/projects-recycle-drafts-package-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

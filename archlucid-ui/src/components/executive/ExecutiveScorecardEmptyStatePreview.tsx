@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 /** Bulleted preview of scorecard value when metrics are not yet populated. */

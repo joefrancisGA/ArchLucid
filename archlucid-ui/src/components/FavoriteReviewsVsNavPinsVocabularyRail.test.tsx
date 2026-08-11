@@ -8,7 +8,7 @@ import {
   FAVORITE_REVIEWS_VS_NAV_PINS_HEADING,
   FAVORITE_REVIEWS_VS_NAV_PINS_NAV_PINS_LINK,
   FAVORITE_REVIEWS_VS_NAV_PINS_WHY_TWO,
-} from "@/lib/favorite-reviews-vs-nav-pins-vocabulary";
+} from "@/lib/vocabulary/favorite-reviews-vs-nav-pins-vocabulary";
 
 describe("FavoriteReviewsVsNavPinsVocabularyRail (TB-2269)", () => {
   it("renders favorites strip with peer link to nav pins", () => {

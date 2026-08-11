@@ -9,7 +9,7 @@ import {
   resolveSignedRecordsReviewDetailPeerLink,
   type SignedRecordsReviewDetailSurfaceId,
   type SignedRecordsReviewDetailVocabularyModel,
-} from "@/lib/signed-records-review-detail-vocabulary";
+} from "@/lib/vocabulary/signed-records-review-detail-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

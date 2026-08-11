@@ -8,7 +8,7 @@ import {
   SCORECARD_ROI_ROI_SUMMARY_LINK,
   SCORECARD_ROI_SCORECARD_LINK,
   SCORECARD_ROI_WHY_TWO,
-} from "@/lib/scorecard-roi-vocabulary";
+} from "@/lib/vocabulary/scorecard-roi-vocabulary";
 
 describe("ScorecardRoiVocabularyRail (TB-2265)", () => {
   it("renders scorecard strip with peer link to roi summary", () => {

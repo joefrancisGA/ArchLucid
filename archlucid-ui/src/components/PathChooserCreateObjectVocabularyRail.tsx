@@ -10,7 +10,7 @@ import {
   resolvePathChooserCreateObjectPeerLinks,
   type PathChooserCreateObjectSurfaceId,
   type PathChooserCreateObjectVocabularyModel,
-} from "@/lib/path-chooser-create-object-vocabulary";
+} from "@/lib/vocabulary/path-chooser-create-object-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

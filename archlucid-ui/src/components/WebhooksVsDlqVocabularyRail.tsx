@@ -9,7 +9,7 @@ import {
   resolveWebhooksVsDlqPeerLink,
   type WebhooksVsDlqSurfaceId,
   type WebhooksVsDlqVocabularyModel,
-} from "@/lib/webhooks-vs-dlq-vocabulary";
+} from "@/lib/vocabulary/webhooks-vs-dlq-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

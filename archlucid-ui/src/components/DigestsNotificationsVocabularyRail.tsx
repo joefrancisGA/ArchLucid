@@ -9,7 +9,7 @@ import {
   resolveDigestsNotificationsPeerLink,
   type DigestsNotificationsSurfaceId,
   type DigestsNotificationsVocabularyModel,
-} from "@/lib/digests-notifications-vocabulary";
+} from "@/lib/vocabulary/digests-notifications-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

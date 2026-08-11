@@ -9,7 +9,7 @@ import {
   resolveScorecardRoiPeerLink,
   type ScorecardRoiSurfaceId,
   type ScorecardRoiVocabularyModel,
-} from "@/lib/scorecard-roi-vocabulary";
+} from "@/lib/vocabulary/scorecard-roi-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

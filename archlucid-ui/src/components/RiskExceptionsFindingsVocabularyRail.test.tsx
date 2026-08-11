@@ -8,7 +8,7 @@ import {
   RISK_EXCEPTIONS_FINDINGS_HEADING,
   RISK_EXCEPTIONS_FINDINGS_RISK_EXCEPTIONS_LINK,
   RISK_EXCEPTIONS_FINDINGS_WHY_TWO,
-} from "@/lib/risk-exceptions-findings-vocabulary";
+} from "@/lib/vocabulary/risk-exceptions-findings-vocabulary";
 
 describe("RiskExceptionsFindingsVocabularyRail (TB-2249)", () => {
   it("renders compact strip on risk exceptions with peer link to findings", () => {

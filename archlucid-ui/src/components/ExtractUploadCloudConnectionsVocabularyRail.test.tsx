@@ -8,7 +8,7 @@ import {
   EXTRACT_UPLOAD_CLOUD_CONNECTIONS_EXTRACT_LINK,
   EXTRACT_UPLOAD_CLOUD_CONNECTIONS_HEADING,
   EXTRACT_UPLOAD_CLOUD_CONNECTIONS_WHY_TWO,
-} from "@/lib/extract-upload-cloud-connections-vocabulary";
+} from "@/lib/vocabulary/extract-upload-cloud-connections-vocabulary";
 
 describe("ExtractUploadCloudConnectionsVocabularyRail (TB-2281)", () => {
   it("renders extract-upload strip with peer link to cloud connections", () => {

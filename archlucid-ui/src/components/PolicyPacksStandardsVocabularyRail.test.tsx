@@ -8,7 +8,7 @@ import {
   POLICY_PACKS_STANDARDS_POLICY_PACKS_LINK,
   POLICY_PACKS_STANDARDS_STANDARDS_LINK,
   POLICY_PACKS_STANDARDS_WHY_TWO,
-} from "@/lib/policy-packs-standards-vocabulary";
+} from "@/lib/vocabulary/policy-packs-standards-vocabulary";
 
 describe("PolicyPacksStandardsVocabularyRail (TB-2239)", () => {
   it("renders compact strip on policy packs with peer link to standards", () => {

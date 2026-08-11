@@ -9,7 +9,7 @@ import {
   resolveExtractUploadCloudConnectionsPeerLink,
   type ExtractUploadCloudConnectionsSurfaceId,
   type ExtractUploadCloudConnectionsVocabularyModel,
-} from "@/lib/extract-upload-cloud-connections-vocabulary";
+} from "@/lib/vocabulary/extract-upload-cloud-connections-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

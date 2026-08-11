@@ -9,7 +9,7 @@ import {
   resolveRagHealthSystemHealthPeerLink,
   type RagHealthSystemHealthSurfaceId,
   type RagHealthSystemHealthVocabularyModel,
-} from "@/lib/rag-health-system-health-vocabulary";
+} from "@/lib/vocabulary/rag-health-system-health-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

@@ -8,7 +8,7 @@ import {
   DIGESTS_BROWSE_SCHEDULE_SUBSCRIPTIONS_SCHEDULE_LINK,
   DIGESTS_BROWSE_SCHEDULE_SUBSCRIPTIONS_SUBSCRIPTIONS_LINK,
   DIGESTS_BROWSE_SCHEDULE_SUBSCRIPTIONS_WHY_THREE,
-} from "@/lib/digests-browse-schedule-subscriptions-vocabulary";
+} from "@/lib/vocabulary/digests-browse-schedule-subscriptions-vocabulary";
 
 describe("DigestsBrowseScheduleSubscriptionsVocabularyRail (TB-2290)", () => {
   it("renders browse strip with peer links to schedule and subscriptions", () => {
