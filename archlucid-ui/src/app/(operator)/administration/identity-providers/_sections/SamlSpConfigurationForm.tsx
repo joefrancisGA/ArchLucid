@@ -7,6 +7,7 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { MutatingInWorkspaceChip } from "@/components/MutatingInWorkspaceChip";
 import { Button } from "@/components/ui/button";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -38,6 +39,10 @@ import {
   SAML_CONFIGURATION_SAVED_SUCCESS_MESSAGE,
   SAML_METADATA_FETCHED_SUCCESS_MESSAGE,
 } from "@/lib/admin-integration-mutation-outcome-copy";
+import {
+  resolveSamlSpFetchMetadataDisabledReason,
+  resolveSamlSpSaveDisabledReason,
+} from "@/lib/saml-sp-configuration-disabled-cta";
 
 import { IdentityProvidersSaveConfirmDialog } from "./IdentityProvidersSaveConfirmDialog";
 
@@ -139,6 +144,11 @@ export function SamlSpConfigurationForm() {
   }, [values]);
 
   const canSave = isSamlSpConfigurationFormValid(values) && !busy && !loading;
+  const saveDisabledReason = resolveSamlSpSaveDisabledReason({ values, loading, busy });
+  const fetchMetadataDisabledReason = resolveSamlSpFetchMetadataDisabledReason({
+    metadataUrl: values.idpMetadataUrl,
+    busy,
+  });
 
   return (
     <Card data-testid="saml-sp-configuration-form">
@@ -175,7 +185,7 @@ export function SamlSpConfigurationForm() {
                 }}
                 placeholder="https://idp.example.com/FederationMetadata/2007-06/FederationMetadata.xml"
               />
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-col gap-2">
                 <Button
                   type="button"
                   variant="outline"
@@ -183,9 +193,20 @@ export function SamlSpConfigurationForm() {
                   disabled={busy || values.idpMetadataUrl.trim().length === 0}
                   onClick={() => void runDiscover()}
                   data-testid="saml-fetch-metadata-button"
+                  aria-describedby={
+                    busy || values.idpMetadataUrl.trim().length === 0
+                      ? "saml-fetch-metadata-disabled-hint"
+                      : undefined
+                  }
                 >
                   {IDENTITY_PROVIDERS_ACTION_FETCH_IDP_METADATA}
                 </Button>
+                <WhyDisabledCtaHint
+                  id="saml-fetch-metadata-disabled-hint"
+                  reason={fetchMetadataDisabledReason}
+                  testId="saml-fetch-metadata-disabled-hint"
+                  className="max-w-prose"
+                />
               </div>
             </div>
 
@@ -298,21 +319,30 @@ export function SamlSpConfigurationForm() {
               />
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
-              <MutatingInWorkspaceChip />
-              <Button
-                type="button"
-                disabled={!canSave}
-                onClick={() => requestSaveConfiguration()}
-                data-testid="saml-save-configuration-button"
-              >
-                {busy ? "Savingâ€¦" : IDENTITY_PROVIDERS_ACTION_SAVE}
-              </Button>
-              {savedUtc !== null ? (
-                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
-                  Last saved {new Date(savedUtc).toLocaleString()}
-                </p>
-              ) : null}
+            <div className="flex flex-col gap-2">
+              <div className="flex flex-wrap items-center gap-3">
+                <MutatingInWorkspaceChip />
+                <Button
+                  type="button"
+                  disabled={!canSave}
+                  onClick={() => requestSaveConfiguration()}
+                  data-testid="saml-save-configuration-button"
+                  aria-describedby={!canSave ? "saml-save-configuration-disabled-hint" : undefined}
+                >
+                  {busy ? "Saving…" : IDENTITY_PROVIDERS_ACTION_SAVE}
+                </Button>
+                {savedUtc !== null ? (
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
+                    Last saved {new Date(savedUtc).toLocaleString()}
+                  </p>
+                ) : null}
+              </div>
+              <WhyDisabledCtaHint
+                id="saml-save-configuration-disabled-hint"
+                reason={!canSave ? saveDisabledReason : null}
+                testId="saml-save-configuration-disabled-hint"
+                className="max-w-prose"
+              />
             </div>
           </>
         )}

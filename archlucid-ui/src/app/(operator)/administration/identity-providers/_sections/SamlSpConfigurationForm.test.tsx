@@ -211,6 +211,19 @@ describe("SamlSpConfigurationForm", () => {
     expect(screen.getByTestId("saml-fetch-metadata-button")).not.toHaveTextContent(
       IDENTITY_PROVIDERS_ACTION_VALIDATE,
     );
+    expect(screen.getByTestId("saml-fetch-metadata-disabled-hint")).toHaveTextContent(/IdP metadata URL/i);
+  });
+
+  it("shows why-disabled helper copy before SAML configuration can be saved", async () => {
+    render(<SamlSpConfigurationForm />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("saml-save-configuration-button")).toBeDisabled();
+    });
+
+    expect(screen.getByTestId("saml-save-configuration-disabled-hint")).toHaveTextContent(
+      /Issuer \/ entity ID is required/i,
+    );
   });
 
   it("uses in-page save confirmation instead of window.confirm (TB-1922)", async () => {

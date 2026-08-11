@@ -51,6 +51,7 @@ import {
 } from "@/lib/admin-integration-mutation-outcome-copy";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SSO_WIZARD_CANONICAL_PATH } from "@/lib/sso-wizard-evidence-copy";
+import { resolveSsoWizardPrimaryDisabledReason } from "@/lib/sso-wizard-disabled-cta";
 import { WIZARD_SESSION_IDS } from "@/lib/wizard-session-persistence";
 
 import { SsoWizardFooter } from "./SsoWizardFooter";
@@ -170,6 +171,19 @@ export function SsoWizardPageClient() {
     (step === 3 && canProceedStep3) ||
     (step === 4 && canProceedStep4) ||
     step === 5;
+
+  const isLastStep = step === SSO_WIZARD_STEPS.length - 1;
+  const primaryDisabledReason = useMemo(
+    () =>
+      resolveSsoWizardPrimaryDisabledReason({
+        step,
+        isLastStep,
+        busy,
+        canContinue: canProceed,
+        canActivate,
+      }),
+    [busy, canActivate, canProceed, isLastStep, step],
+  );
 
   const runDiscover = useCallback(async () => {
     if (state.protocol === null) {
@@ -630,10 +644,11 @@ export function SsoWizardPageClient() {
 
           <SsoWizardFooter
             isFirstStep={step === 0}
-            isLastStep={step === SSO_WIZARD_STEPS.length - 1}
+            isLastStep={isLastStep}
             canContinue={canProceed}
             canActivate={canActivate}
             busy={busy}
+            primaryDisabledReason={primaryDisabledReason}
             onCancel={handleCancel}
             onBack={handleBack}
             onContinue={handleContinue}
