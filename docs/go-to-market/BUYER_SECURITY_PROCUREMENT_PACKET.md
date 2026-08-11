@@ -1108,8 +1108,8 @@ Former standalone body: `docs/go-to-market/LLM_BUDGET_RESERVE_SETTLE_PA_ONE_PAGE
 | Guaranteed (intent) | Residual (open eng) |
 | --- | --- |
 | Cap-correct admission under concurrency | Orphan reserved USD after crash — **TB-976** |
-| Optimistic concurrency on settle path | Assumed-max race soft-DoS — **TB-977** |
-| Quick Scan pattern exists (**TB-894** Done) | Mature cost plane beyond gates — [M-226](#llm-cost-control-plane-m-226) / **TB-1287** |
+| In-flight admission fairness before monthly reserve (**TB-977** Done) | Daily period keys still app `TimeProvider` — daily follow-on |
+| Quick Scan pattern exists (**TB-894** Done) | Mature cost plane beyond gates — [M-226](#llm-cost-control-plane-m-226) (**TB-1287** Done) |
 
 ### Too strong vs safe
 
@@ -1140,7 +1140,8 @@ Former standalone body: `docs/go-to-market/LLM_BUDGET_RESERVE_SETTLE_PA_ONE_PAGE
 - **INV-004** and **TB-011** are Done for durable optimistic-concurrency cap enforcement.
 - **TB-894** is Done for Quick Scan reservation-id reserve/commit/release patterns.
 - **TB-975** is Done — lifecycle guarantees vs residuals are in [`INV004_RESERVE_SETTLE_LIFECYCLE_CONTRACT.md`](../library/INV004_RESERVE_SETTLE_LIFECYCLE_CONTRACT.md).
-- **TB-976**–**TB-977** remain open for orphan reclaim, SQL-owned period, and admission fairness.
+- **TB-976** remains open for orphan reclaim and per-reservation leases.
+- **TB-977** is **Done** (2026-08-11) — SQL-owned UTC month period + in-flight admission fairness.
 
 **Related:** [Interrupted review (M-122)](#interrupted-review-m-122) Â· [LLM cost-control plane (M-226)](#llm-cost-control-plane-m-226) Â· [Polly vs run completeness (M-147)](#polly-vs-run-completeness-m-147) Â· [`../library/LLM_RETRY_AND_CIRCUIT_BREAKER.md`](../library/LLM_RETRY_AND_CIRCUIT_BREAKER.md) Â· [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
@@ -1192,7 +1193,7 @@ Do not say warn/kill + monthly cap alone are mature FinOps, that call-site reser
 
 ### Residuals (honest)
 
-- **TB-1287** / **TB-1288** own the mature plane contract and language guards.
+- **TB-1287** **Done** (2026-08-11) — engineering SoT [`../library/LLM_COST_CONTROL_PLANE_BEYOND_BUDGET_GATES_CONTRACT.md`](../library/LLM_COST_CONTROL_PLANE_BEYOND_BUDGET_GATES_CONTRACT.md). **TB-1288** owns honesty CI guards.
 - Complements **M-131** / **M-170** / **M-121** without replacing those contracts.
 - Does not reopen Done **TB-011** / **TB-039** / **TB-894**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.

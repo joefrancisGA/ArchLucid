@@ -5,7 +5,7 @@
 **Status:** Active (V1)  
 **Backlog:** **TB-975** (this contract) · **TB-976** (durable per-reservation leases + orphan reclaim — open) · **TB-977** (SQL-owned UTC period + admission fairness — **Done** 2026-08-11)  
 **Audience:** Principal architects, FinOps reviewers, platform reviewers, coding agents  
-**Related:** [ARCHITECTURE_INVARIANTS.md](./ARCHITECTURE_INVARIANTS.md) (**INV-004**) · [LLM_BUDGET_TOP_UP.md](./LLM_BUDGET_TOP_UP.md) (**TB-014**) · [PAYING_TENANT_LLM_SPEND_STORM_AND_BILLING_DISPUTE_CLAIM_MAP.md](./PAYING_TENANT_LLM_SPEND_STORM_AND_BILLING_DISPUTE_CLAIM_MAP.md) (**TB-1570**) · ADR [0005](../architecture/adrs/0005-llm-cost-guardrails.md) · GTM **M-131** / **M-132** · Done **TB-011** / **TB-894** / **TB-939** · open **TB-1287** (mature cost plane — out of scope here)
+**Related:** [ARCHITECTURE_INVARIANTS.md](./ARCHITECTURE_INVARIANTS.md) (**INV-004**) · [LLM_COST_CONTROL_PLANE_BEYOND_BUDGET_GATES_CONTRACT.md](./LLM_COST_CONTROL_PLANE_BEYOND_BUDGET_GATES_CONTRACT.md) (**TB-1287**) · [LLM_BUDGET_TOP_UP.md](./LLM_BUDGET_TOP_UP.md) (**TB-014**) · [PAYING_TENANT_LLM_SPEND_STORM_AND_BILLING_DISPUTE_CLAIM_MAP.md](./PAYING_TENANT_LLM_SPEND_STORM_AND_BILLING_DISPUTE_CLAIM_MAP.md) (**TB-1570**) · ADR [0005](../architecture/adrs/0005-llm-cost-guardrails.md) · GTM **M-131** / **M-132** · Done **TB-011** / **TB-894** / **TB-939**
 
 ---
 
@@ -168,7 +168,7 @@ Canonical buyer handout: [`BUYER_SECURITY_PROCUREMENT_PACKET.md` § M-132](../go
 |----|--------------|
 | **TB-976** | Durable per-reservation id, expiry, orphan reclaim, paid-unsettle reconcile |
 | ~~**TB-977**~~ | ~~SQL-owned UTC period membership; admission fairness; month-boundary + race tests~~ **Done** 2026-08-11 |
-| **TB-1287** | Mature cost plane + non-bypassable accounting — **do not** fold into TB-975 |
+| ~~**TB-1287**~~ | ~~Mature cost plane + non-bypassable accounting~~ **Done** 2026-08-11 — [`LLM_COST_CONTROL_PLANE_BEYOND_BUDGET_GATES_CONTRACT.md`](./LLM_COST_CONTROL_PLANE_BEYOND_BUDGET_GATES_CONTRACT.md) |
 
 ---
 
@@ -176,5 +176,5 @@ Canonical buyer handout: [`BUYER_SECURITY_PROCUREMENT_PACKET.md` § M-132](../go
 
 - Replacing wallet overage semantics (**TB-014**).
 - Provider refunds for in-flight completions.
-- Authoring full FinOps / SDK-bypass matrix (**TB-1287** / **M-226**).
+- Authoring full FinOps / SDK-bypass matrix — **TB-1287** **Done** ([`LLM_COST_CONTROL_PLANE_BEYOND_BUDGET_GATES_CONTRACT.md`](./LLM_COST_CONTROL_PLANE_BEYOND_BUDGET_GATES_CONTRACT.md) / **M-226**); honesty CI is **TB-1288**.
 - Reopening Done **TB-011** harness or **TB-894** Quick Scan implementation.
