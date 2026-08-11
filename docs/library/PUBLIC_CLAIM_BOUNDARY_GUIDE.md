@@ -149,7 +149,7 @@ Former standalone body: `docs/go-to-market/PA_CLAIM_HONESTY_BULLETS_BATCH_A.md` 
 
 | Do not promise | Do promise |
 | --- | --- |
-| A P0 alert catalog means every tenant or stuck run is automatically paged, or that a second SRE platform is operating. | Fleet P0 monitoring is documented; per-tenant/stuck-run paging and create→execute→finalize canary coverage remain open under **TB-958**–**TB-959**. |
+| A P0 alert catalog means every tenant or stuck run is automatically paged, or that a second SRE platform is operating. | Fleet P0 monitoring is documented; stale-run P0 (**TB-958** **Done**) and review-path canary (**TB-959** **Done**) require owner enablement (AMW scrape, `ARCHLUCID_REVIEW_PATH_CANARY_ENABLED`, paging secrets). |
 
 #### M-121 — Interrupted LLM execution
 
@@ -223,7 +223,7 @@ Former standalone body: `docs/go-to-market/PA_CLAIM_HONESTY_BULLETS_BATCH_B.md` 
 
 | Do not promise | Do promise |
 | --- | --- |
-| Every tenant-affecting failure pages the founder before a support ticket; fleet MVO P0s equal per-tenant stuck-run coverage. | Fleet P0 monitoring when enabled; per-tenant stuck-run and review-path canary remain open under **TB-958**/**TB-959**; Report Problem is inbox-by-design. |
+| Every tenant-affecting failure pages the founder before a support ticket; fleet MVO P0s equal per-tenant stuck-run coverage. | Fleet P0 monitoring when enabled; stale-run P0 and review-path canary engineering shipped (**TB-958**/**TB-959** **Done**) but require owner enablement; Report Problem is inbox-by-design. |
 
 #### M-144 — Outbox at-least-once delivery
 
