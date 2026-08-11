@@ -15,7 +15,7 @@ Regenerate after opening or closing summary-table rows:
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
 | Architectural integrity | 11 |
-| Adoption friction | 303 |
+| Adoption friction | 299 |
 | Commercial / marketability | 9 |
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
@@ -35,9 +35,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **572** |
+| **Total (unique open)** | **568** |
 
-**By priority band:** P0 **3** | P1 **449** | P2 **103** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **3** | P1 **445** | P2 **103** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -982,10 +982,10 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1343 | WHAT_NOT_TO_PROMISE ? UI/copy over-promise + highest buyer-risk page matrix; see `## TB-1343` below | Commercial / marketability P1 ? **V1**; PA WNTP UI risk; GTM **M-239**/**M-240** | S |
 | TB-1348 | ~~Evaluator workbook — session-flow CTA chrome + first-architecture-review canonicalize~~ **Done** 2026-08-10 — four-step session strip + Start/first-review CTAs; evaluate branch demotes pilot-guide; Vitest | Adoption friction P1 — **V1**; with **TB-1345**; pairs **TB-1335**/**TB-1319** | S |
 | TB-1349 | ~~Evaluator workbook — collapse Depth / in-app-only related links~~ **Done** 2026-08-10 — collapsed buyer-orientation reference appendix; in-app related next steps; Vitest | Adoption friction P1 — **V1**; with **TB-1346**; parity **TB-1257**/**TB-1330** | S |
-| TB-1351 | Evidence intake ? path deep-links (`?path=`) + admission-gates jargon softener; see ## TB-1351 below | Adoption friction P1 ? **V1**; with **TB-1350** | S |
-| TB-1352 | Evidence intake ? Related guides IA canonicalize (core-pilot not first-hour); see ## TB-1352 below | Adoption friction P1 ? **V1**; with **TB-1350**; pairs **TB-1335**/**TB-1258** | S |
-| TB-1353 | Evidence intake ? Cloud connections CTA chrome; see ## TB-1353 below | Adoption friction P1 ? **V1**; with **TB-1350** | XS |
-| TB-1354 | Evidence intake ? verify-intake actionability (package Evidence tab); see ## TB-1354 below | Adoption friction P1 ? **V1**; with **TB-1350** | S |
+| TB-1351 | ~~Evidence intake — path deep-links (`?path=`) + admission-gates jargon softener~~ **Done** 2026-08-10 — path strip + presentation soften/strip; Vitest | Adoption friction P1 — **V1**; with **TB-1350** | S |
+| TB-1352 | ~~Evidence intake — Related guides IA canonicalize (first-architecture-review)~~ **Done** 2026-08-10 — typed related guides; Vitest no first-hour/pilot-guide | Adoption friction P1 — **V1**; with **TB-1350**; pairs **TB-1335**/**TB-1258** | S |
+| TB-1353 | ~~Evidence intake — Cloud connections CTA chrome~~ **Done** 2026-08-10 — hub + help CTAs in action panel; Vitest | Adoption friction P1 — **V1**; with **TB-1350** | XS |
+| TB-1354 | ~~Evidence intake — verify-intake actionability (package Evidence tab)~~ **Done** 2026-08-10 — verify panel with in-app links; Vitest | Adoption friction P1 — **V1**; with **TB-1350** | S |
 | TB-1367 | Elevator pitch vs shipped V1 claim audit (cut/hedge/prove-with-committed-run); see `## TB-1367` below | Commercial / marketability P1 ? **V1**; PA elevator audit; GTM **M-245**/**M-246**; after **TB-1365**?**TB-1366** reservation | S |
 | TB-1381 | Complete review workflow ? step deep-link CTA chrome; see ## TB-1381 below | Adoption friction P1 ? **V1**; with **TB-1379** | S |
 | TB-1382 | Complete review workflow ? Related help density; see ## TB-1382 below | Adoption friction P1 ? **V1**; with **TB-1379**; pairs **TB-1258** | S |

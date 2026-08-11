@@ -5,7 +5,6 @@ import { notFound, permanentRedirect } from "next/navigation";
 
 import { HelpTopicMarkdownView } from "../HelpTopicMarkdownView";
 import { CaiqSigResponseHelpEvidenceOrientationStrip } from "@/components/help/CaiqSigResponseHelpEvidenceOrientationStrip";
-import { EvidenceIntakeHelpClaimDisciplineStrip } from "@/components/help/EvidenceIntakeHelpClaimDisciplineStrip";
 import { EvidenceTrailHelpEvidenceOrientationStrip } from "@/components/help/EvidenceTrailHelpEvidenceOrientationStrip";
 import { IntegrationReadinessHelpEvidenceOrientationStrip } from "@/components/help/IntegrationReadinessHelpEvidenceOrientationStrip";
 import { AuthenticationSignInHelpEvidenceOrientationStrip } from "@/components/help/AuthenticationSignInHelpEvidenceOrientationStrip";
@@ -120,6 +119,9 @@ const HelpEnterpriseOnboardingGuideView = dynamic(() =>
   import("../_sections/HelpEnterpriseOnboardingGuideView").then(
     (module) => module.HelpEnterpriseOnboardingGuideView,
   ),
+);
+const HelpEvidenceIntakeGuideView = dynamic(() =>
+  import("../_sections/HelpEvidenceIntakeGuideView").then((module) => module.HelpEvidenceIntakeGuideView),
 );
 const HelpFirstReviewEvidenceChecklistGuideView = dynamic(() =>
   import("../_sections/HelpFirstReviewEvidenceChecklistGuideView").then(
@@ -354,6 +356,10 @@ function renderHelpTopicView(
     return <HelpEnterpriseOnboardingGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
+  if (loaded.entry.slug === "evidence-intake") {
+    return <HelpEvidenceIntakeGuideView entry={loaded.entry} markdown={loaded.markdown} />;
+  }
+
   if (loaded.entry.slug === "first-review") {
     return <HelpFirstReviewEvidenceChecklistGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
@@ -501,17 +507,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         evidenceOrientation={<EvidenceTrailHelpEvidenceOrientationStrip />}
-      />
-    );
-  }
-
-  if (loaded.entry.slug === "evidence-intake") {
-    return (
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        showContextualHelp
-        evidenceOrientation={<EvidenceIntakeHelpClaimDisciplineStrip />}
       />
     );
   }

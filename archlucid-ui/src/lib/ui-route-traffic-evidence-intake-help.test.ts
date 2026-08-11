@@ -20,10 +20,12 @@ describe("ui-route-traffic-evidence-intake-help (EVI)", () => {
     expect(row?.path).toBe(EVIDENCE_INTAKE_HELP_TRAFFIC_PATH);
     expect(row?.section).toBe(EVIDENCE_INTAKE_HELP_TRAFFIC_SECTION);
 
+    expect(EVIDENCE_INTAKE_HELP_TRAFFIC_NOTE).toContain("HelpEvidenceIntakeGuideView");
     expect(EVIDENCE_INTAKE_HELP_TRAFFIC_NOTE).toContain("claim-discipline callout");
-    expect(EVIDENCE_INTAKE_HELP_TRAFFIC_NOTE).toContain("Start review header primary action");
-    expect(EVIDENCE_INTAKE_HELP_TRAFFIC_NOTE).not.toContain("orientation strip");
+    expect(EVIDENCE_INTAKE_HELP_TRAFFIC_NOTE).toContain("Start review");
+    expect(EVIDENCE_INTAKE_HELP_TRAFFIC_NOTE).toContain("Not bare HelpTopicMarkdownView");
     expect(EVIDENCE_INTAKE_HELP_TRAFFIC_NOTE).not.toContain("Ã¢â‚¬â€");
     expect(EVIDENCE_INTAKE_HELP_TRAFFIC_NOTE).toContain("cannot improve further toward 80");
+    expect(row?.notes).toBe(EVIDENCE_INTAKE_HELP_TRAFFIC_NOTE);
   });
 });

@@ -3275,6 +3275,43 @@ export function stripSoc2SelfAssessmentContributorLeakage(markdown: string): str
 /** H2 sections rendered in HelpPathChooserGuideView chrome instead of markdown body. */
 const PATH_CHOOSER_STRUCTURED_UI_SECTION_TITLES = ["choose your next step", "related"] as const;
 
+const EVIDENCE_INTAKE_STRUCTURED_UI_SECTION_PREFIXES = [
+  "choose a starting path",
+  "related guides",
+  "verify intake before finalize",
+] as const;
+
+/**
+ * TB-1351 — buyer-safe wording for guided-intake path copy in product presentation.
+ */
+export function softenEvidenceIntakeHelpPresentation(markdown: string): string {
+  return markdown.replace(/admission gates/gi, "readiness checks");
+}
+
+/**
+ * TB-1350 — specialty chrome owns path strip, verify panel, and related guides.
+ */
+export function stripEvidenceIntakeStructuredUiSections(markdown: string): string {
+  const lines = markdown.split("\n");
+  const result: string[] = [];
+  let omitSection = false;
+
+  for (const line of lines) {
+    if (line.startsWith("## ") && !line.startsWith("###")) {
+      const title = line.slice(3).replace(/\s*\{#[^}]+\}\s*$/, "").trim().toLowerCase();
+      omitSection = EVIDENCE_INTAKE_STRUCTURED_UI_SECTION_PREFIXES.some((prefix) =>
+        title.startsWith(prefix),
+      );
+    }
+
+    if (!omitSection) {
+      result.push(line);
+    }
+  }
+
+  return result.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd();
+}
+
 export function stripPathChooserStructuredUiSections(markdown: string): string {
   const lines = markdown.split("\n");
   const result: string[] = [];
@@ -3617,6 +3654,13 @@ export function prepareHelpMarkdownForPresentation(
     normalizedSourcePath.includes("first_pilot_operator_path.md")
   ) {
     afterAudienceStrip = stripFirstValue20ContributorLeakage(sanitized);
+  } else if (
+    options?.helpTopicSlug === "evidence-intake" &&
+    normalizedSourcePath.includes("evidence_intake_operator_guide.md")
+  ) {
+    afterAudienceStrip = stripEvidenceIntakeStructuredUiSections(
+      softenEvidenceIntakeHelpPresentation(sanitized),
+    );
   } else if (
     options?.helpTopicSlug === "path-chooser" &&
     normalizedSourcePath.includes("buyer_orientation_one_screen.md")
