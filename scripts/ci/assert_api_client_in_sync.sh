@@ -1,23 +1,27 @@
 #!/usr/bin/env bash
-# CI guard: ensures NSwag output matches the committed OpenAPI snapshot.
-# Regenerates ArchLucid.Api.Client and fails if Generated/ArchLucidApiClient.g.cs drifts.
+# CI guard: ensures NSwag regenerates ArchLucid.Api.Client from the committed OpenAPI snapshot.
+# The .g.cs output is gitignored; this check proves generation + compile succeed.
 set -euo pipefail
 
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$root"
 
+client_path="ArchLucid.Api.Client/Generated/ArchLucidApiClient.g.cs"
+
 echo "Regenerating ArchLucid.Api.Client (NSwag) from openapi-v1.contract.snapshot.json..."
 dotnet build ArchLucid.Api.Client/ArchLucid.Api.Client.csproj -c Release
 
-client_path="ArchLucid.Api.Client/Generated/ArchLucidApiClient.g.cs"
-
-if git diff --exit-code -- "$client_path" > /dev/null 2>&1; then
-  echo "✅ $client_path is in sync with the OpenAPI snapshot."
-  exit 0
+if [[ ! -f "$client_path" ]]; then
+  echo "❌ $client_path was not produced. Check NSwag.MSBuild restore and nswag.json."
+  exit 1
 fi
 
-echo "❌ $client_path is out of sync. Run:"
-echo "   dotnet build ArchLucid.Api.Client/ArchLucid.Api.Client.csproj -c Release"
-echo "   then commit the regenerated file."
-git diff -- "$client_path" | head -80
-exit 1
+# Guard against an empty or truncated generator run that still exits 0.
+line_count="$(wc -l < "$client_path" | tr -d ' ')"
+if [[ "$line_count" -lt 1000 ]]; then
+  echo "❌ $client_path looks truncated ($line_count lines). Expected a full NSwag client."
+  exit 1
+fi
+
+echo "✅ $client_path regenerates cleanly from the OpenAPI snapshot ($line_count lines)."
+exit 0

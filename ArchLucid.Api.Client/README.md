@@ -29,10 +29,16 @@ The NuGet **package version** (`ArchLucidApiClientPackageVersion` in `Directory.
 
 ## Regenerating locally
 
+`Generated/ArchLucidApiClient.g.cs` is **gitignored**. Every `dotnet build` / `dotnet pack` of this project runs NSwag against the OpenAPI snapshot before compile.
+
 After API contract changes:
 
 1. Update the snapshot (canonical OpenAPI): set **`ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1`** and run **`OpenApiContractSnapshotTests`** (see repo **`OPENAPI_CONTRACT_DRIFT.md`**).
-2. Rebuild this project: **`dotnet build ArchLucid.Api.Client.csproj`** — NSwag runs **`nswag.json`** against **`ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`** before compile.
-3. Refresh **`archlucid-ui`** types: from **`archlucid-ui/`**, **`npm run generate:api-types`** (writes **`src/lib/api-types.generated.ts`**).
+2. Rebuild this project: **`dotnet build ArchLucid.Api.Client.csproj`** — NSwag writes **`Generated/ArchLucidApiClient.g.cs`** from **`ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`**.
+3. Refresh **`archlucid-ui`** types: from **`archlucid-ui/`**, **`npm run generate:api-types`** (writes **`src/lib/api-types.generated.ts`** — still committed).
 
-Commit the snapshot, **`Generated/ArchLucidApiClient.g.cs`**, and regenerated TS types in the same PR as the API change when possible.
+Commit the snapshot and regenerated TS types in the same PR as the API change when possible. Do **not** commit the NSwag `.g.cs` output.
+
+### Emergency offline skip
+
+If NSwag cannot run and a previously generated `.g.cs` is already on disk, set **`ARCHLUCID_SKIP_OPENAPI_CLIENT_REGEN=1`** or **`ArchLucidSkipNSwag=true`**. Skip is ignored when the file is missing so a fresh clone cannot silently compile without generation.

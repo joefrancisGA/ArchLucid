@@ -33,21 +33,28 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="Generated\README.md" />
     <Compile Include="ArchLucidApiClientPackage.cs" />
     <Compile Include="ArchLucidApiClientSerializerSettings.cs" />
     <Compile Include="ProblemDetails.cs" />
-    <!-- Committed NSwag output; list here so design-time / IDE analyzers merge partials with hand-written extensions (e.g. UpdateJsonSerializerSettings). -->
+    <!-- Path is fixed; GenerateArchLucidOpenApiClient runs BeforeCompile so the file exists for CoreCompile. Do not gate this Include on Exists() — that is evaluation-time and would skip a fresh-clone generate. -->
     <Compile Include="Generated\ArchLucidApiClient.g.cs" />
   </ItemGroup>
 
   <PropertyGroup>
-    <SkipGenerateArchLucidOpenApiClient Condition="'$(ARCHLUCID_SKIP_OPENAPI_CLIENT_REGEN)' == '1' Or '$(ArchLucidSkipNSwag)' == 'true'">true</SkipGenerateArchLucidOpenApiClient>
+    <!-- Emergency offline skip only when a previously generated file is already on disk. -->
+    <SkipGenerateArchLucidOpenApiClient Condition="('$(ARCHLUCID_SKIP_OPENAPI_CLIENT_REGEN)' == '1' Or '$(ArchLucidSkipNSwag)' == 'true') And Exists('$(MSBuildProjectDirectory)/Generated/ArchLucidApiClient.g.cs')">true</SkipGenerateArchLucidOpenApiClient>
   </PropertyGroup>
 
   <Target Name="GenerateArchLucidOpenApiClient" BeforeTargets="BeforeCompile" DependsOnTargets="PrepareForBuild" Condition="'$(SkipGenerateArchLucidOpenApiClient)' != 'true'">
     <MakeDir Directories="$(MSBuildProjectDirectory)/Generated" />
-    <Exec Command="$(NSwagExe_Net90) run &quot;$(MSBuildProjectDirectory)/nswag.json&quot;"
+    <Exec Command="$(NSwagExe_Net100) run &quot;$(MSBuildProjectDirectory)/nswag.json&quot;"
           WorkingDirectory="$(MSBuildProjectDirectory)" />
+  </Target>
+
+  <Target Name="EnsureArchLucidOpenApiClientGenerated" AfterTargets="GenerateArchLucidOpenApiClient" BeforeTargets="BeforeCompile">
+    <Error Text="NSwag did not produce Generated/ArchLucidApiClient.g.cs. Build ArchLucid.Api.Client without ARCHLUCID_SKIP_OPENAPI_CLIENT_REGEN / ArchLucidSkipNSwag, or restore the NSwag.MSBuild package."
+           Condition="!Exists('$(MSBuildProjectDirectory)/Generated/ArchLucidApiClient.g.cs')" />
   </Target>
 
 </Project>

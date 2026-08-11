@@ -46,7 +46,7 @@ Prevent accidental HTTP surface changes: the generated OpenAPI document for **v1
 | `openapi-v1.contract.snapshot.json` | Expected OpenAPI v1 CI baseline |
 | `openapi-v1-generated-canonical` workflow artifact | Generated canonical OpenAPI JSON from the fail-fast CI job; evidence for review/debugging, not a published product asset |
 | `scripts/ci/check_openapi_contract_snapshot.sh` (and `.ps1`) | Local / CI **same** build+test as the fail-fast gate (build `ArchLucid.Api.Tests` only, then single test FQN) |
-| `scripts/ci/assert_api_client_in_sync.sh` | CI guard: verifies .NET NSwag client (`ArchLucidApiClient.g.cs`) matches the current snapshot |
+| `scripts/ci/assert_api_client_in_sync.sh` | CI guard: regenerates the .NET NSwag client from the snapshot and fails if generation/compile does not produce a full `ArchLucidApiClient.g.cs` (the `.g.cs` file is gitignored) |
 | `scripts/ci/assert_api_types_in_sync.sh` | CI guard: regenerates `api-types.generated.ts` via `openapi-typescript` and fails on any git diff; emits full diff and remediation steps |
 | `scripts/ci/assert_api_types_in_sync.ps1` | PowerShell equivalent of `assert_api_types_in_sync.sh` for local Windows development |
 | `scripts/git-hooks/pre-push` (+ `Install-GitHooks.ps1` / `install-git-hooks.sh`) | Optional **pre-push** gate: same check before refs leave your clone when outgoing commits touch API-contract paths (see Operational considerations) |
@@ -98,11 +98,11 @@ Then commit the updated `ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snaps
 
 **Downstream generated clients (same PR as intentional contract changes):**
 
-1. **.NET SDK:** `dotnet build ArchLucid.Api.Client/ArchLucid.Api.Client.csproj` — NSwag regenerates `Generated/ArchLucidApiClient.g.cs` from the snapshot (`ArchLucid.Api.Client/README.md`). CI drift guard: `scripts/ci/assert_api_client_in_sync.sh` (job **openapi-contract-snapshot**).
+1. **.NET SDK:** `dotnet build ArchLucid.Api.Client/ArchLucid.Api.Client.csproj` — NSwag regenerates gitignored `Generated/ArchLucidApiClient.g.cs` from the snapshot (`ArchLucid.Api.Client/README.md`). CI guard: `scripts/ci/assert_api_client_in_sync.sh` (job **openapi-contract-snapshot**) proves generation + compile succeed.
 2. **TypeScript (architect workspace):** from `archlucid-ui/`, run `npm run generate:api-types` — refreshes `src/lib/api-types.generated.ts` from the same snapshot. CI drift guard: `scripts/ci/assert_api_types_in_sync.sh` (job **openapi-contract-snapshot**, runs after Node setup). Locally on Windows: `.\scripts\ci\assert_api_types_in_sync.ps1` (repo root). Remediation on failure: `cd archlucid-ui && npm run generate:api-types && git add src/lib/api-types.generated.ts && git commit`.
 3. **Docs:** update operator/integration docs when behavior or DTO semantics change (quality gate, agent evaluation, golden cohort, configuration tables linked from `ConfigurationKeyCatalog`).
 
-Commit baseline + regenerated clients + doc edits together so CI (`openapi-contract-snapshot`, `assert_api_client_in_sync`, `assert_api_types_in_sync` where wired) stays green.
+Commit baseline + regenerated TypeScript types + doc edits together so CI (`openapi-contract-snapshot`, `assert_api_client_in_sync`, `assert_api_types_in_sync` where wired) stays green. Do **not** commit the NSwag `.g.cs` output.
 
 **Optional git pre-push gate:** Run once from repo root: `pwsh scripts/install-git-hooks.ps1` (Windows) or `bash scripts/install-git-hooks.sh` (Unix). That sets `core.hooksPath` to `scripts/git-hooks` so **`pre-commit`** and **`pre-push`** run from the same install. **`pre-push`** runs the same snapshot check as CI when your outgoing commits touch paths under the API dependency closure (aligned with **Refresh OpenAPI v1 snapshot** in `.github/workflows/openapi-snapshot-refresh.yml`). Skip one push: `ARCHLUCID_SKIP_OPENAPI_PRE_PUSH=1` (Bash) or `$env:ARCHLUCID_SKIP_OPENAPI_PRE_PUSH = "1"` (PowerShell). Always run the check on every push (ignore path filter): `ARCHLUCID_OPENAPI_PRE_PUSH=all`. If a legitimate change did not match the filter and CI still failed, extend the patterns in `scripts/git-hooks/pre-push`.
 

@@ -8,7 +8,7 @@
 # Optional:
 #   ARCHLUCID_REGENERATE_UI_API_TYPES=1   — refresh archlucid-ui api-types.generated.ts
 #
-# Always refreshes buyer-contract.openapi.snapshot.json and ArchLucid.Api.Client (NSwag).
+# Always regenerates ArchLucid.Api.Client via NSwag (output is gitignored) and buyer-contract.openapi.snapshot.json.
 
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
