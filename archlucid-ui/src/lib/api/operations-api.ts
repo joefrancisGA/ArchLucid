@@ -1,4 +1,4 @@
-import { apiGet } from "@/lib/api/http";
+import { apiGet, apiPostNoContent } from "@/lib/api/http";
 import {
   normalizeOperationState,
   type OperationDetail,
@@ -47,4 +47,19 @@ export async function getOperation(operationId: string): Promise<OperationDetail
     heartbeatUtc: raw.heartbeatUtc ?? new Date().toISOString(),
     resultRef: mapResultRef(raw.resultRef),
   };
+}
+
+/**
+ * Requests cooperative cancel for a long-running operation (TB-2076 / TB-2225).
+ * OpenAPI returns 200 + OperationResponse; body is discarded — poll/patch updates the shell row.
+ */
+export async function cancelOperation(operationId: string): Promise<void> {
+  const trimmed = operationId.trim();
+
+  if (trimmed.length === 0) {
+    throw new Error("operationId is required.");
+  }
+
+  const encoded = encodeURIComponent(trimmed);
+  await apiPostNoContent(`/v1/operations/${encoded}/cancel`, {});
 }
