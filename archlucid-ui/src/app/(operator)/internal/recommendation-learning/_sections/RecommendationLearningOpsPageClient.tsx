@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
+import { PilotFeedbackRecommendationLearningVocabularyRail } from "@/components/PilotFeedbackRecommendationLearningVocabularyRail";
 import { StatusPill } from "@/components/StatusPill";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -301,6 +302,7 @@ export function RecommendationLearningOpsPageClient(props: Props) {
               Inspect and rebuild the recommendation-ranking profile derived from historical accepted, deferred,
               rejected, and implemented outcomes.
             </p>
+            <PilotFeedbackRecommendationLearningVocabularyRail currentSurfaceId="recommendation-learning" />
             <p className={cn("m-0 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               Scope: Tenant / Workspace / Project · Model: {status.activeProfile?.algorithmVersion ?? "recommendation-ranking-v1"} ·
               Feature schema: {status.activeProfile?.featureSchemaVersion ?? "outcome-stats-v1"}

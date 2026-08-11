@@ -6,6 +6,7 @@ import Link from "next/link";
 import { EmptyState } from "@/components/EmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { PilotFeedbackRecommendationLearningVocabularyRail } from "@/components/PilotFeedbackRecommendationLearningVocabularyRail";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
@@ -59,7 +60,8 @@ export function ProductLearningPageView(props: Props) {
       </div>
 
       <div className="mt-4 mb-5">
-</div>
+        <PilotFeedbackRecommendationLearningVocabularyRail currentSurfaceId="pilot-feedback" />
+      </div>
 
       <div className="flex flex-wrap gap-3 items-center mb-5 mt-4">
         <label className={cn("flex items-center gap-2", OPERATOR_TYPOGRAPHY.body)}>
