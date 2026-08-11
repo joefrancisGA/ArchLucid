@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import { CorePilotHelpOrientationFooter } from "@/app/(operator)/help/_sections/CorePilotHelpOrientationFooter";
 import { CorePilotHelpPostStepperPanel } from "@/app/(operator)/help/_sections/CorePilotHelpPostStepperPanel";
+import { GettingStartedFirstArchitectureReviewVocabularyRail } from "@/components/GettingStartedFirstArchitectureReviewVocabularyRail";
 import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
@@ -75,6 +76,8 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
           <PageContextualHelpButton />
         </div>
       </header>
+
+      <GettingStartedFirstArchitectureReviewVocabularyRail currentSurfaceId="first-architecture-review" />
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
