@@ -1,6 +1,7 @@
 "use client";
 
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { PreferencesNotificationsVocabularyRail } from "@/components/PreferencesNotificationsVocabularyRail";
 import { ThemePreferenceSelector } from "@/components/ThemePreferenceSelector";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -16,7 +17,8 @@ export function PreferencesSettingsPageView() {
         titleTestId="preferences-settings-page-title"
         actions={<PageContextualHelpButton />}
       />
-<Card data-testid="preferences-appearance-card">
+      <PreferencesNotificationsVocabularyRail currentSurfaceId="preferences" />
+      <Card data-testid="preferences-appearance-card">
         <CardHeader>
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Appearance</CardTitle>
         </CardHeader>

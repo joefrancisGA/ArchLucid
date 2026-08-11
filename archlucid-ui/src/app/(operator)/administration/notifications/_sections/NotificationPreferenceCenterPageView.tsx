@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { DigestsNotificationsVocabularyRail } from "@/components/DigestsNotificationsVocabularyRail";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { PreferencesNotificationsVocabularyRail } from "@/components/PreferencesNotificationsVocabularyRail";
 import { TeamsSlackNotificationVocabularyRail } from "@/components/TeamsSlackNotificationVocabularyRail";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,6 +30,7 @@ export function NotificationPreferenceCenterPageView() {
       />
 
       <DigestsNotificationsVocabularyRail currentSurfaceId="notifications" />
+      <PreferencesNotificationsVocabularyRail currentSurfaceId="notifications" />
 
       <TeamsSlackNotificationVocabularyRail currentSurfaceId="notifications-hub" />
 
