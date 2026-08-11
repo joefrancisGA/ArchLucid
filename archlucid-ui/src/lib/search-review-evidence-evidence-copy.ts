@@ -1,5 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const SEARCH_REVIEW_EVIDENCE_CANONICAL_PATH = SEARCH_REVIEW_EVIDENCE_PATH;
 
@@ -9,13 +10,9 @@ export const SEARCH_REVIEW_EVIDENCE_CLAIM_DISCIPLINE =
 export const SEARCH_REVIEW_EVIDENCE_SOURCES_INTRO =
  "Use these follow-ups when search hits need review context, evidence trails, or governance queues.";
 
-export type SearchReviewEvidenceSourceLink = {
- readonly label: string;
- readonly href: string;
-};
 
 /** Operator Sources — no self-href to search-review-evidence. */
-export const SEARCH_REVIEW_EVIDENCE_SOURCES: readonly SearchReviewEvidenceSourceLink[] = [
+export const SEARCH_REVIEW_EVIDENCE_SOURCES: readonly EvidenceSourceLink[] = [
  { label: "Architecture reviews", href: "/architecture/reviews" },
  { label: "Findings queue", href: "/governance/findings" },
  { label: "Audit trail", href: "/governance/audit" },

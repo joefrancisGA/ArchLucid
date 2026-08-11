@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const AUTHENTICATION_SIGN_IN_HELP_CANONICAL_PATH = "/help/authentication-sign-in" as const;
 
@@ -8,13 +9,9 @@ export const AUTHENTICATION_SIGN_IN_HELP_CLAIM_DISCIPLINE =
 export const AUTHENTICATION_SIGN_IN_HELP_SOURCES_INTRO =
   "Use these follow-ups when sign-in vocabulary turns into roles, account security, enterprise onboarding, or identity provider setup.";
 
-export type AuthenticationSignInHelpSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to `/help/authentication-sign-in`. */
-export const AUTHENTICATION_SIGN_IN_HELP_SOURCES: readonly AuthenticationSignInHelpSourceLink[] = [
+export const AUTHENTICATION_SIGN_IN_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Users and roles", href: inAppHelpHref("users-and-roles") },
   { label: "Security and trust help", href: inAppHelpHref("security-trust") },
   { label: "Enterprise onboarding", href: inAppHelpHref("enterprise-onboarding") },

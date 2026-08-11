@@ -1,5 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const ALERT_ROUTING_TAB_PATH = "/governance/alert-rules?tab=notifications" as const;
 
@@ -9,13 +10,9 @@ export const ALERT_ROUTING_CLAIM_DISCIPLINE =
 export const ALERT_ROUTING_SOURCES_INTRO =
   "Use these follow-ups when routing setup needs inbox triage, condition rules, or channel integrations.";
 
-export type AlertRoutingSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to the Notifications tab. */
-export const ALERT_ROUTING_SOURCES: readonly AlertRoutingSourceLink[] = [
+export const ALERT_ROUTING_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Alert inbox", href: "/governance/alerts" },
   { label: "Alert conditions", href: governanceAlertRulesTabHref("rules") },
   { label: "Integrations (webhooks)", href: "/integrations/webhooks" },

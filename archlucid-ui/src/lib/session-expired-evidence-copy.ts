@@ -1,3 +1,5 @@
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+
 export const SESSION_EXPIRED_CANONICAL_PATH = "/auth/session-expired" as const;
 
 export const SESSION_EXPIRED_CLAIM_DISCIPLINE =
@@ -6,13 +8,9 @@ export const SESSION_EXPIRED_CLAIM_DISCIPLINE =
 export const SESSION_EXPIRED_SOURCES_INTRO =
   "Use these public follow-ups when you need product orientation before signing in again (authenticated workspace routes stay unavailable until you sign in).";
 
-export type SessionExpiredSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Public Sources — no self-href to `/auth/session-expired`; avoid auth-gated artifact links. */
-export const SESSION_EXPIRED_SOURCES: readonly SessionExpiredSourceLink[] = [
+export const SESSION_EXPIRED_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Start evaluation", href: "/signup" },
   { label: "Get started", href: "/get-started" },
   { label: "See a sample review", href: "/see-it" },

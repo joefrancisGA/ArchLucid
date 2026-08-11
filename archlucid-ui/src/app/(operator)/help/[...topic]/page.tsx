@@ -6,6 +6,7 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { HelpTopicMarkdownView } from "../HelpTopicMarkdownView";
 import { CaiqSigResponseHelpEvidenceOrientationStrip } from "@/components/help/CaiqSigResponseHelpEvidenceOrientationStrip";
 import { EnterpriseOnboardingHelpEvidenceOrientationStrip } from "@/components/help/EnterpriseOnboardingHelpEvidenceOrientationStrip";
+import { EvidenceIntakeHelpClaimDisciplineStrip } from "@/components/help/EvidenceIntakeHelpClaimDisciplineStrip";
 import { EvidenceTrailHelpEvidenceOrientationStrip } from "@/components/help/EvidenceTrailHelpEvidenceOrientationStrip";
 import { IntegrationReadinessHelpEvidenceOrientationStrip } from "@/components/help/IntegrationReadinessHelpEvidenceOrientationStrip";
 import { AuthenticationSignInHelpEvidenceOrientationStrip } from "@/components/help/AuthenticationSignInHelpEvidenceOrientationStrip";
@@ -505,6 +506,7 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
+        evidenceOrientation={<EvidenceIntakeHelpClaimDisciplineStrip />}
       />
     );
   }

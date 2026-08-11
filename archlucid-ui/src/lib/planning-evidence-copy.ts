@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const PLANNING_CLAIM_DISCIPLINE =
   "Themes and plans are derived from captured review feedback in the current workspace scope — not a signed-review diligence Sources trail.";
@@ -6,13 +7,9 @@ export const PLANNING_CLAIM_DISCIPLINE =
 export const PLANNING_SOURCES_INTRO =
   "Open reviews, findings, or product-learning before treating prioritized plans as executed commitments.";
 
-export type PlanningSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to `/insights/improvement-planning`. */
-export const PLANNING_SOURCES: readonly PlanningSourceLink[] = [
+export const PLANNING_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "Findings", href: "/governance/findings" },
   { label: "Product learning", href: "/internal/product-learning" },

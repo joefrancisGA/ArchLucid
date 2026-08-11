@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const INTEGRATION_READINESS_HELP_CANONICAL_PATH = "/help/integration-readiness" as const;
 
@@ -14,13 +15,9 @@ export const INTEGRATION_READINESS_HELP_CLAIM_DISCIPLINE =
 export const INTEGRATION_READINESS_HELP_SOURCES_INTRO =
   "Use these follow-ups when readiness labels turn into live connector setup, ITSM destinations, or cloud evidence attachments.";
 
-export type IntegrationReadinessHelpSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources - no self-href to `/help/integration-readiness`. */
-export const INTEGRATION_READINESS_HELP_SOURCES: readonly IntegrationReadinessHelpSourceLink[] = [
+export const INTEGRATION_READINESS_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Connection status", href: "/administration/connection-status" },
   { label: "Jira integration", href: "/integrations/jira" },
   { label: "ServiceNow integration", href: "/integrations/servicenow" },

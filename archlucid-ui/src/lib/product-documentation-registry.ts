@@ -137,9 +137,13 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   {
     slug: "evidence-intake",
     title: "Start a review",
-    summary: "Start a review from a brief, diagram, document, or cloud evidence; verify intake before finalize.",
+    summary:
+      "Use this guide when you need accepted evidence formats, upload validation, and the right starting path on New architecture review.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/EVIDENCE_INTAKE_OPERATOR_GUIDE.md"],
+    lastReviewed: "2026-08-10",
+    releaseApplicability: "Applies to V1 GA — evidence intake and review starting paths",
+    pdfStatus: "customer",
   },
   {
     slug: "review-packages",

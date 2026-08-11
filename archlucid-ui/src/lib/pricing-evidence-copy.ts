@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const PRICING_CANONICAL_PATH = "/pricing" as const;
 
@@ -8,13 +9,9 @@ export const PRICING_CLAIM_DISCIPLINE =
 export const PRICING_SOURCES_INTRO =
   "Use these evaluation links when pricing questions turn into security, packaging, or pilot-scope follow-ups.";
 
-export type PricingSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Marketing Sources — no self-href to /pricing. */
-export const PRICING_SOURCES: readonly PricingSourceLink[] = [
+export const PRICING_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Product FAQ", href: "/faq" },
   { label: "Assurance status", href: "/security-trust" },
   { label: "Trust Center", href: "/trust" },

@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const BILLING_AND_PLANS_HELP_CANONICAL_PATH = "/help/billing-and-plans" as const;
 
@@ -8,13 +9,9 @@ export const BILLING_AND_PLANS_HELP_CLAIM_DISCIPLINE =
 export const BILLING_AND_PLANS_HELP_SOURCES_INTRO =
   "Use these follow-ups when plan questions turn into workspace billing controls, public packaging, or first-run orientation.";
 
-export type BillingAndPlansHelpSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to `/help/billing-and-plans`. */
-export const BILLING_AND_PLANS_HELP_SOURCES: readonly BillingAndPlansHelpSourceLink[] = [
+export const BILLING_AND_PLANS_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Billing settings", href: "/administration/billing" },
   { label: "Pricing", href: "/pricing" },
   { label: "Audit", href: "/governance/audit" },

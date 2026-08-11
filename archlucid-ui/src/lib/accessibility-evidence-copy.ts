@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const ACCESSIBILITY_CANONICAL_PATH = "/accessibility" as const;
 
@@ -8,13 +9,9 @@ export const ACCESSIBILITY_CLAIM_DISCIPLINE =
 export const ACCESSIBILITY_SOURCES_INTRO =
   "Use these evaluation links when accessibility questions turn into assurance, trust, or pilot-scope follow-ups.";
 
-export type AccessibilitySourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Marketing Sources — no self-href to /accessibility. */
-export const ACCESSIBILITY_SOURCES: readonly AccessibilitySourceLink[] = [
+export const ACCESSIBILITY_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Assurance status", href: "/security-trust" },
   { label: "Trust Center", href: "/trust" },
   { label: "Product FAQ", href: "/faq" },

@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const SCOPE_HELP_CANONICAL_PATH = "/help/scope" as const;
 
@@ -8,13 +9,9 @@ export const SCOPE_HELP_CLAIM_DISCIPLINE =
 export const SCOPE_HELP_SOURCES_INTRO =
   "Use these follow-ups when scope vocabulary turns into access control, isolation, or first-run setup.";
 
-export type ScopeHelpSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to `/help/scope`. */
-export const SCOPE_HELP_SOURCES: readonly ScopeHelpSourceLink[] = [
+export const SCOPE_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Users and roles", href: inAppHelpHref("users-and-roles") },
   { label: "Users settings", href: "/administration/users" },
   { label: "Data handling & isolation", href: inAppHelpHref("data-handling") },

@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const HELP_HUB_CANONICAL_PATH = "/help" as const;
 
@@ -8,13 +9,9 @@ export const HELP_HUB_CLAIM_DISCIPLINE =
 export const HELP_HUB_SOURCES_INTRO =
  "Use these follow-ups when browsing Help turns into workflow orientation, assurance, or activity trails.";
 
-export type HelpHubSourceLink = {
- readonly label: string;
- readonly href: string;
-};
 
 /** Operator Sources — no self-href to the Help hub. */
-export const HELP_HUB_SOURCES: readonly HelpHubSourceLink[] = [
+export const HELP_HUB_SOURCES: readonly EvidenceSourceLink[] = [
  { label: "Getting started", href: inAppHelpHref("getting-started") },
  { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
  { label: "Troubleshooting", href: inAppHelpHref("troubleshooting") },

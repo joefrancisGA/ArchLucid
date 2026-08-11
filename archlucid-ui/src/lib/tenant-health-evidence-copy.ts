@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const TENANT_HEALTH_CANONICAL_PATH = "/internal/tenant-health" as const;
 
@@ -8,13 +9,9 @@ export const TENANT_HEALTH_CLAIM_DISCIPLINE =
 export const TENANT_HEALTH_SOURCES_INTRO =
   "Use these follow-ups when a low engagement score needs operational checks, isolation guidance, or product orientation.";
 
-export type TenantHealthSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to tenant-health. */
-export const TENANT_HEALTH_SOURCES: readonly TenantHealthSourceLink[] = [
+export const TENANT_HEALTH_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "System health", href: "/administration/system-health" },
   { label: "Audit", href: "/governance/audit" },
   { label: "Data handling & isolation", href: inAppHelpHref("data-handling") },

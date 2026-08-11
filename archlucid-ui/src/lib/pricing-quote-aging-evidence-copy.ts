@@ -1,5 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { INTERNAL_PRICING_QUOTE_AGING_PATH } from "@/lib/internal-ops-route-paths";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const PRICING_QUOTE_AGING_CANONICAL_PATH = INTERNAL_PRICING_QUOTE_AGING_PATH;
 
@@ -9,13 +10,9 @@ export const PRICING_QUOTE_AGING_CLAIM_DISCIPLINE =
 export const PRICING_QUOTE_AGING_SOURCES_INTRO =
   "Use these follow-ups when quote aging needs commercial packaging, trial conversion, or trust context.";
 
-export type PricingQuoteAgingSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to pricing-quote-aging. */
-export const PRICING_QUOTE_AGING_SOURCES: readonly PricingQuoteAgingSourceLink[] = [
+export const PRICING_QUOTE_AGING_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Billing & plans", href: "/administration/billing" },
   { label: "Trial funnel", href: "/internal/trial-funnel" },
   { label: "Pricing", href: "/pricing" },

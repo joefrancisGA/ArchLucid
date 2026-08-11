@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const WHY_ARCHLUCID_CANONICAL_PATH = "/why-archlucid" as const;
 
@@ -8,13 +9,9 @@ export const WHY_ARCHLUCID_CLAIM_DISCIPLINE =
 export const WHY_ARCHLUCID_SOURCES_INTRO =
   "Use these follow-ups when demo proof turns into marketing comparison, sponsor packaging, or assurance orientation.";
 
-export type WhyArchLucidSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to `/why-archlucid`. */
-export const WHY_ARCHLUCID_SOURCES: readonly WhyArchLucidSourceLink[] = [
+export const WHY_ARCHLUCID_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Why ArchLucid (marketing)", href: "/why" },
   { label: "See a sample review", href: "/see-it" },
   { label: "Pilot outcomes", href: "/insights/pilot-outcomes" },

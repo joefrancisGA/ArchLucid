@@ -1,5 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import {
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
   INTEGRATIONS_JIRA_PATH,
   INTEGRATIONS_READINESS_PATH,
   INTEGRATIONS_SERVICENOW_PATH,
@@ -11,13 +12,9 @@ export const ADMIN_ITSM_CONNECTORS_CLAIM_DISCIPLINE =
 export const ADMIN_ITSM_CONNECTORS_SOURCES_INTRO =
   "Use these follow-ups when connector onboarding needs buyer export surfaces, readiness checks, or troubleshooting.";
 
-export type AdminItsmConnectorsSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to /internal/integrations/itsm. */
-export const ADMIN_ITSM_CONNECTORS_SOURCES: readonly AdminItsmConnectorsSourceLink[] = [
+export const ADMIN_ITSM_CONNECTORS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Integration readiness", href: INTEGRATIONS_READINESS_PATH },
   { label: "Jira integration", href: INTEGRATIONS_JIRA_PATH },
   { label: "ServiceNow integration", href: INTEGRATIONS_SERVICENOW_PATH },

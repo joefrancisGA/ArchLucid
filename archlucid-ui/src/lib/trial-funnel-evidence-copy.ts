@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const TRIAL_FUNNEL_CANONICAL_PATH = "/internal/trial-funnel" as const;
 
@@ -8,13 +9,9 @@ export const TRIAL_FUNNEL_CLAIM_DISCIPLINE =
 export const TRIAL_FUNNEL_SOURCES_INTRO =
   "Use these follow-ups when funnel stages need engagement checks, billing conversion, cost pressure, or assurance orientation.";
 
-export type TrialFunnelSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to `/internal/trial-funnel`. */
-export const TRIAL_FUNNEL_SOURCES: readonly TrialFunnelSourceLink[] = [
+export const TRIAL_FUNNEL_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Tenant health", href: "/internal/tenant-health" },
   { label: "AI usage", href: "/administration/ai-usage" },
   { label: "Billing settings", href: "/administration/billing" },

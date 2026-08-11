@@ -1,6 +1,7 @@
 import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const PRIOR_MANIFEST_RETRIEVAL_HELP_CANONICAL_PATH = "/help/prior-manifest-retrieval" as const;
 
@@ -10,13 +11,9 @@ export const PRIOR_MANIFEST_RETRIEVAL_HELP_CLAIM_DISCIPLINE =
 export const PRIOR_MANIFEST_RETRIEVAL_HELP_SOURCES_INTRO =
   "Use these follow-ups when prior-manifest vocabulary turns into live search, Ask answers, or finalized package lineage.";
 
-export type PriorManifestRetrievalHelpSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to `/help/prior-manifest-retrieval`. */
-export const PRIOR_MANIFEST_RETRIEVAL_HELP_SOURCES: readonly PriorManifestRetrievalHelpSourceLink[] = [
+export const PRIOR_MANIFEST_RETRIEVAL_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Search review evidence", href: "/insights/search-review-evidence" },
   { label: "Ask review questions", href: "/insights/ask-review-questions" },
   { label: "Reviews", href: REVIEWS_LIST_PATH },

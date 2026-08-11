@@ -1,5 +1,6 @@
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const SLACK_INTEGRATION_CANONICAL_PATH = "/integrations/slack" as const;
 
@@ -9,13 +10,9 @@ export const SLACK_INTEGRATION_CLAIM_DISCIPLINE =
 export const SLACK_INTEGRATION_SOURCES_INTRO =
   "Use these follow-ups when destinations need routing rules, readiness checks, or a sibling notification channel.";
 
-export type SlackIntegrationSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to `/integrations/slack`. */
-export const SLACK_INTEGRATION_SOURCES: readonly SlackIntegrationSourceLink[] = [
+export const SLACK_INTEGRATION_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Alert rules", href: "/governance/alert-rules" },
   { label: "Integration readiness", href: INTEGRATIONS_READINESS_PATH },
   { label: "Microsoft Teams", href: "/integrations/teams" },

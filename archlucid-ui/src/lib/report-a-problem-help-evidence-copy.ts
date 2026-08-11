@@ -1,5 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { SUPPORT_REPORT_PROBLEM_HELP_HREF } from "@/lib/support-workspace-present";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const REPORT_A_PROBLEM_HELP_CANONICAL_PATH = SUPPORT_REPORT_PROBLEM_HELP_HREF;
 
@@ -9,13 +10,9 @@ export const REPORT_A_PROBLEM_HELP_CLAIM_DISCIPLINE =
 export const REPORT_A_PROBLEM_HELP_SOURCES_INTRO =
   "Use these follow-ups when support intake vocabulary turns into symptom triage, admin support tools, or engineering diagnostics.";
 
-export type ReportAProblemHelpSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to `/help/report-a-problem`. */
-export const REPORT_A_PROBLEM_HELP_SOURCES: readonly ReportAProblemHelpSourceLink[] = [
+export const REPORT_A_PROBLEM_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Troubleshooting", href: inAppHelpHref("troubleshooting") },
   { label: "Engineering troubleshooting", href: inAppHelpHref("developer-troubleshooting") },
   { label: "Support workspace", href: "/administration/support" },

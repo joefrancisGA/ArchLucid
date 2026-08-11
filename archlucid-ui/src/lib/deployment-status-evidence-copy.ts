@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const DEPLOYMENT_STATUS_CANONICAL_PATH = "/internal/deployment-status" as const;
 
@@ -19,13 +20,9 @@ export const DEPLOYMENT_STATUS_CLAIM_DISCIPLINE =
 export const DEPLOYMENT_STATUS_SOURCES_INTRO =
   "Use these follow-ups when BUILD_ID or health signals turn into workspace readiness, demo diagnostics, or audit activity.";
 
-export type DeploymentStatusSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources - no self-href to `/internal/deployment-status`. */
-export const DEPLOYMENT_STATUS_SOURCES: readonly DeploymentStatusSourceLink[] = [
+export const DEPLOYMENT_STATUS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "System health", href: "/administration/system-health" },
   { label: "Demo readiness", href: "/internal/demo-readiness" },
   { label: "Tenant health", href: "/internal/tenant-health" },

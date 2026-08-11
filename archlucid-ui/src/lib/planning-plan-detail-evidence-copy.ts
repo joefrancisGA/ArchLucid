@@ -1,5 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { PLANNING_PATH, PLANNING_PLAN_DETAIL_PATH_PREFIX } from "@/lib/planning-route";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const PLANNING_PLAN_DETAIL_PAGE_TITLE = "Improvement plan" as const;
 
@@ -9,13 +10,9 @@ export const PLANNING_PLAN_DETAIL_CLAIM_DISCIPLINE =
 export const PLANNING_PLAN_DETAIL_SOURCES_INTRO =
   "Return to Improvement planning for themes and peer plans, or open reviews and findings when this plan needs execution follow-up.";
 
-export type PlanningPlanDetailSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to plan detail routes. */
-export const PLANNING_PLAN_DETAIL_SOURCES: readonly PlanningPlanDetailSourceLink[] = [
+export const PLANNING_PLAN_DETAIL_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Improvement planning", href: PLANNING_PATH },
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "Findings", href: "/governance/findings" },

@@ -1,5 +1,6 @@
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const INTEGRATION_EVENTS_DLQ_CANONICAL_PATH = "/internal/integration-events/dlq" as const;
 
@@ -9,13 +10,9 @@ export const INTEGRATION_EVENTS_DLQ_CLAIM_DISCIPLINE =
 export const INTEGRATION_EVENTS_DLQ_SOURCES_INTRO =
   "Use these follow-ups when a dead-letter needs readiness checks, channel config, or operational health context.";
 
-export type IntegrationEventsDlqSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to the DLQ page. */
-export const INTEGRATION_EVENTS_DLQ_SOURCES: readonly IntegrationEventsDlqSourceLink[] = [
+export const INTEGRATION_EVENTS_DLQ_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Integration readiness", href: INTEGRATIONS_READINESS_PATH },
   { label: "System health", href: "/administration/system-health" },
   { label: "Webhooks", href: "/integrations/webhooks" },

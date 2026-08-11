@@ -1,5 +1,6 @@
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export type CloudProviderConnectionKey = "aws" | "azure" | "gcp";
 
@@ -15,10 +16,6 @@ export const CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE =
 export const CLOUD_PROVIDER_CONNECTION_SOURCES_INTRO =
   "Use these follow-ups when federation setup, connection health, or provider help needs attention before treating inventory as authoritative.";
 
-export type CloudProviderConnectionSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 const PROVIDER_HELP_SLUG: Record<CloudProviderConnectionKey, string> = {
   aws: "cloud-connections-aws",
@@ -35,10 +32,10 @@ const PROVIDER_HELP_LABEL: Record<CloudProviderConnectionKey, string> = {
 /** Operator Sources for a provider detail page — excludes that provider's self-path. */
 export function cloudProviderConnectionSources(
   provider: CloudProviderConnectionKey,
-): readonly CloudProviderConnectionSourceLink[] {
+): readonly EvidenceSourceLink[] {
   const selfPath = CLOUD_PROVIDER_CONNECTION_PATHS[provider];
 
-  const links: CloudProviderConnectionSourceLink[] = [
+  const links: EvidenceSourceLink[] = [
     { label: "Cloud connections", href: CLOUD_CONNECTIONS_PATH },
     { label: "Connection status", href: "/administration/connection-status" },
     { label: PROVIDER_HELP_LABEL[provider], href: inAppHelpHref(PROVIDER_HELP_SLUG[provider]) },

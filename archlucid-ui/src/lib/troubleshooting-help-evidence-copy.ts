@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const TROUBLESHOOTING_HELP_CANONICAL_PATH = "/help/troubleshooting" as const;
 
@@ -8,13 +9,9 @@ export const TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE =
 export const TROUBLESHOOTING_HELP_SOURCES_INTRO =
   "Use these follow-ups when a symptom needs live health checks, audit context, engineering runbooks, or product orientation.";
 
-export type TroubleshootingHelpSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to `/help/troubleshooting`. */
-export const TROUBLESHOOTING_HELP_SOURCES: readonly TroubleshootingHelpSourceLink[] = [
+export const TROUBLESHOOTING_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "System health", href: "/administration/system-health" },
   { label: "Audit", href: "/governance/audit" },
   { label: "Getting started", href: inAppHelpHref("getting-started") },

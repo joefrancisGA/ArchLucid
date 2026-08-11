@@ -1,3 +1,5 @@
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+
 export const TRY_CANONICAL_PATH = "/try" as const;
 
 export const TRY_CLAIM_DISCIPLINE =
@@ -6,13 +8,9 @@ export const TRY_CLAIM_DISCIPLINE =
 export const TRY_SOURCES_INTRO =
   "Use these evaluation links when the sample inspection turns into signup, assurance, or a guided first-run path.";
 
-export type TrySourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Marketing Sources — no self-href to `/try`. */
-export const TRY_SOURCES: readonly TrySourceLink[] = [
+export const TRY_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Start evaluation", href: "/signup" },
   { label: "Get started", href: "/get-started" },
   { label: "Demo preview", href: "/demo/preview" },

@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const TENANT_SETTINGS_CANONICAL_PATH = "/administration/tenant" as const;
 
@@ -8,13 +9,9 @@ export const TENANT_SETTINGS_CLAIM_DISCIPLINE =
 export const TENANT_SETTINGS_SOURCES_INTRO =
   "Use these follow-ups when tenant defaults turn into recycle-bin restore, digest schedules, or assurance cites.";
 
-export type TenantSettingsSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources - no self-href to tenant settings. */
-export const TENANT_SETTINGS_SOURCES: readonly TenantSettingsSourceLink[] = [
+export const TENANT_SETTINGS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Projects recycle bin", href: "/administration/tenant/recycle-bin" },
   { label: "Workspace and scope help", href: inAppHelpHref("scope") },
   { label: "Digests schedule", href: "/architecture/digests?tab=schedule" },

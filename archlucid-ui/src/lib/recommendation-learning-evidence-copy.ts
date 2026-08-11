@@ -1,5 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { RECOMMENDATION_LEARNING_CANONICAL_PATH } from "@/types/recommendation-learning-operational";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export { RECOMMENDATION_LEARNING_CANONICAL_PATH };
 
@@ -9,13 +10,9 @@ export const RECOMMENDATION_LEARNING_CLAIM_DISCIPLINE =
 export const RECOMMENDATION_LEARNING_SOURCES_INTRO =
   "Use these follow-ups when profile eligibility, rebuild impact, or architect feedback needs a live workflow trail.";
 
-export type RecommendationLearningSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to `/internal/recommendation-learning`. */
-export const RECOMMENDATION_LEARNING_SOURCES: readonly RecommendationLearningSourceLink[] = [
+export const RECOMMENDATION_LEARNING_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Advisory scans", href: "/governance/advisory-scans" },
   { label: "Pilot feedback", href: "/internal/product-learning" },
   { label: "Architecture reviews", href: "/architecture/reviews" },

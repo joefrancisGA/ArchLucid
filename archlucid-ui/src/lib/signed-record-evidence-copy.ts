@@ -1,5 +1,6 @@
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 /** Workbook path pattern for MMX (dynamic manifest id). */
 export const SIGNED_RECORD_CANONICAL_PATH_PATTERN = "/governance/signed-records/[manifestId]" as const;
@@ -10,13 +11,9 @@ export const SIGNED_RECORD_CLAIM_DISCIPLINE =
 export const SIGNED_RECORD_SOURCES_INTRO =
   "Use these follow-ups when the signed review needs findings triage, audit trail, or assurance cites.";
 
-export type SignedRecordSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to the dynamic signed-record path pattern. */
-export const SIGNED_RECORD_SOURCES: readonly SignedRecordSourceLink[] = [
+export const SIGNED_RECORD_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Reviews help guide", href: inAppHelpHref("review-packages") },
   { label: "Findings", href: "/governance/findings" },
   { label: "Audit", href: GOVERNANCE_AUDIT_PATH },

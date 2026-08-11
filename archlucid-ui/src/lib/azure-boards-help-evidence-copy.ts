@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const AZURE_BOARDS_HELP_CANONICAL_PATH = "/help/azure-boards" as const;
 
@@ -32,13 +33,9 @@ export const AZURE_BOARDS_HELP_CLAIM_DISCIPLINE =
 export const AZURE_BOARDS_HELP_SOURCES_INTRO =
   "Use these follow-ups when Azure Boards vocabulary turns into live connector setup, readiness checks, or sibling ITSM destinations.";
 
-export type AzureBoardsHelpSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to `/help/azure-boards`. */
-export const AZURE_BOARDS_HELP_SOURCES: readonly AzureBoardsHelpSourceLink[] = [
+export const AZURE_BOARDS_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Azure Boards integration", href: "/integrations/azure-boards" },
   { label: "Integration readiness", href: inAppHelpHref("integration-readiness") },
   { label: "Jira integration", href: "/integrations/jira" },

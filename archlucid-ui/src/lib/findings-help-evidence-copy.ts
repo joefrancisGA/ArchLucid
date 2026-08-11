@@ -1,5 +1,6 @@
 import { FINDINGS_HELP_PATH } from "@/lib/findings-help-route";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const FINDINGS_HELP_CANONICAL_PATH = FINDINGS_HELP_PATH;
 
@@ -9,13 +10,9 @@ export const FINDINGS_HELP_CLAIM_DISCIPLINE =
 export const FINDINGS_HELP_SOURCES_INTRO =
   "Use these follow-ups when a finding needs live triage, evidence search, governance decisions, or product orientation.";
 
-export type FindingsHelpSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to `/help/findings`. */
-export const FINDINGS_HELP_SOURCES: readonly FindingsHelpSourceLink[] = [
+export const FINDINGS_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Findings", href: "/governance/findings" },
   { label: "Search review evidence", href: "/insights/search-review-evidence" },
   { label: "Decision register", href: "/governance/decision-register" },

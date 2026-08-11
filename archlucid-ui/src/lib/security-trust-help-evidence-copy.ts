@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const SECURITY_TRUST_HELP_CANONICAL_PATH = "/help/security-trust" as const;
 
@@ -8,13 +9,9 @@ export const SECURITY_TRUST_HELP_CLAIM_DISCIPLINE =
 export const SECURITY_TRUST_HELP_SOURCES_INTRO =
   "Use these follow-ups when help vocabulary turns into live assurance hubs, isolation depth, or procurement orientation.";
 
-export type SecurityTrustHelpSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to `/help/security-trust`. */
-export const SECURITY_TRUST_HELP_SOURCES: readonly SecurityTrustHelpSourceLink[] = [
+export const SECURITY_TRUST_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Assurance status", href: "/security-trust" },
   { label: "Trust Center", href: "/trust" },
   { label: "Data handling & isolation", href: inAppHelpHref("data-handling") },

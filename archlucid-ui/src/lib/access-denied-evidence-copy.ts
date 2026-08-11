@@ -1,3 +1,5 @@
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+
 export const ACCESS_DENIED_CANONICAL_PATH = "/403" as const;
 
 export const ACCESS_DENIED_CLAIM_DISCIPLINE =
@@ -6,13 +8,9 @@ export const ACCESS_DENIED_CLAIM_DISCIPLINE =
 export const ACCESS_DENIED_SOURCES_INTRO =
   "Use these follow-ups when access is blocked or you need evaluation orientation before a workspace role is ready.";
 
-export type AccessDeniedSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Public Sources — no self-href to /403. */
-export const ACCESS_DENIED_SOURCES: readonly AccessDeniedSourceLink[] = [
+export const ACCESS_DENIED_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Sign in", href: "/auth/signin" },
   { label: "Start evaluation", href: "/signup" },
   { label: "Assurance status", href: "/security-trust" },

@@ -13,14 +13,12 @@ export type ContextualHelpEntry = {
 export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
   "commit-manifest": {
     text: "Finalizing locks the signed review record and synthesizes artifacts. This is the primary pilot deliverable.",
-    learnMoreUrl: "/docs/CORE_PILOT.md#commit",
+    learnMoreUrl: "/docs/CORE_PILOT.md#review-states",
   },
   "governance-gate": {
     text: "When enabled, governance approval rules check findings against severity thresholds before allowing finalization.",
-    // Points at the governance-lead recipe's severity/policy-gate walkthrough (resolves to
-    // /help/evidence-intake, this doc's canonical topic per DOC_PATH_TO_SLUG), not CORE_PILOT.md
-    // (which has no matching anchor) — see the `{#governance-gate}` heading anchor in that doc.
-    learnMoreUrl: "/docs/library/customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md#governance-gate",
+    learnMoreUrl:
+      "/docs/library/customer-facing/GOVERNANCE_APPROVAL_OPERATOR_GUIDE.md#governance-workflow",
   },
 };
 

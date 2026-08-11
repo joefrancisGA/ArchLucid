@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const COMPARE_CLAIM_DISCIPLINE =
   "Comparison output and AI narrative are directional diffs between two finalized reviews — not a signed-review diligence Sources package by themselves. Open pair Sources after Compare before briefing sponsors.";
@@ -6,13 +7,9 @@ export const COMPARE_CLAIM_DISCIPLINE =
 export const COMPARE_SOURCES_INTRO =
   "Pick two finalized reviews below, then open Reviews, Evidence trail, or Compare help when you need orientation before treating the diff as authoritative.";
 
-export type CompareSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to compare-two-reviews. */
-export const COMPARE_SOURCES: readonly CompareSourceLink[] = [
+export const COMPARE_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "Evidence trail", href: "/insights/evidence-graph" },
   { label: "Search review evidence", href: "/insights/search-review-evidence" },

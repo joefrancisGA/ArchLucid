@@ -2,8 +2,6 @@
 
 # Start a review
 
-Start a review from a brief, diagram, document, or cloud evidence; verify intake before finalize.
-
 ## What counts as evidence {#what-counts-as-evidence}
 
 ArchLucid accepts architecture evidence that helps reviewers understand your design:
@@ -17,13 +15,13 @@ You can attach multiple files. At least one piece of evidence is required before
 
 ## Choose a starting path {#choose-a-starting-path}
 
-On **New architecture review** (`/architecture/reviews/new`), pick the path that matches how much structure you already have:
+On [**New architecture review**](/architecture/reviews/new), pick the path that matches how much structure you already have:
 
 | Path | Best when |
 | --- | --- |
-| **Quick start** | You want the fastest first review: title, optional attachments, and start analysis on one screen. |
-| **Guided intake** | You want clarifying questions and admission gates before analysis begins. |
-| **Templates and imports** | You need templates, imports, or fuller configuration for an export-ready architecture package. |
+| [**Quick start**](/architecture/reviews/new?path=quick-review) | You want the fastest first review: title, optional attachments, and start analysis on one screen. |
+| [**Guided questions**](/architecture/reviews/new?path=guided-intake) | You want clarifying questions and admission gates before analysis begins. |
+| [**Templates and imports**](/architecture/reviews/new?path=detailed) | You need templates, imports, or fuller configuration for an export-ready architecture package. |
 
 You can switch paths before you start the review. Each path uses the same evidence rules once you upload files.
 

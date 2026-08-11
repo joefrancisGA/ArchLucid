@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const ALERTS_HELP_CANONICAL_PATH = "/help/alerts" as const;
 
@@ -8,13 +9,9 @@ export const ALERTS_HELP_CLAIM_DISCIPLINE =
 export const ALERTS_HELP_SOURCES_INTRO =
   "Use these follow-ups when you need live alert configuration, inbox triage, destinations, or product orientation.";
 
-export type AlertsHelpSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to `/help/alerts`. */
-export const ALERTS_HELP_SOURCES: readonly AlertsHelpSourceLink[] = [
+export const ALERTS_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Alerts inbox", href: "/governance/alerts" },
   { label: "Alert rules", href: "/governance/alert-rules" },
   { label: "Audit", href: "/governance/audit" },

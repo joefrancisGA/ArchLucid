@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const COMPARISON_REPLAY_HELP_CANONICAL_PATH = "/help/comparison-replay" as const;
 
@@ -8,13 +9,9 @@ export const COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE =
 export const COMPARISON_REPLAY_HELP_SOURCES_INTRO =
   "Use these follow-ups when compare/replay vocabulary turns into live diffs, validation, or the repeat-review stickiness loop.";
 
-export type ComparisonReplayHelpSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to `/help/comparison-replay`. */
-export const COMPARISON_REPLAY_HELP_SOURCES: readonly ComparisonReplayHelpSourceLink[] = [
+export const COMPARISON_REPLAY_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Compare two reviews", href: "/insights/compare-two-reviews" },
   { label: "Validate review", href: "/internal/replay" },
   { label: "Repeat-review loop", href: inAppHelpHref("repeat-review-loop") },

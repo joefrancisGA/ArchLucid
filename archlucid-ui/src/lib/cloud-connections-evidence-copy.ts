@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const CLOUD_CONNECTIONS_CANONICAL_PATH = "/integrations/cloud-connections" as const;
 
@@ -8,13 +9,9 @@ export const CLOUD_CONNECTIONS_CLAIM_DISCIPLINE =
 export const CLOUD_CONNECTIONS_SOURCES_INTRO =
   "Pick a cloud provider or evidence-only upload below, then use Connection status, provider help, or How ArchLucid works when you need orientation before production collection.";
 
-export type CloudConnectionsSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to the cloud-connections landing page. */
-export const CLOUD_CONNECTIONS_SOURCES: readonly CloudConnectionsSourceLink[] = [
+export const CLOUD_CONNECTIONS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Connection status", href: "/administration/connection-status" },
   { label: "Start an evidence-only review", href: "/architecture/reviews/new" },
   { label: "Cloud connections help", href: inAppHelpHref("cloud-connections") },

@@ -1,5 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const ALERT_RULES_CANONICAL_PATH = "/governance/alert-rules" as const;
 
@@ -9,13 +10,9 @@ export const ALERT_RULES_CLAIM_DISCIPLINE =
 export const ALERT_RULES_SOURCES_INTRO =
   "Use these follow-ups when alert setup needs inbox triage, delivery channels, or product orientation.";
 
-export type AlertRulesSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to the default alert-rules hub path. */
-export const ALERT_RULES_SOURCES: readonly AlertRulesSourceLink[] = [
+export const ALERT_RULES_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Alert inbox", href: "/governance/alerts" },
   { label: "Notifications tab", href: governanceAlertRulesTabHref("notifications") },
   { label: "Integrations (webhooks)", href: "/integrations/webhooks" },

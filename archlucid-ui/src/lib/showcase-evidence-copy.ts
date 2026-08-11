@@ -1,3 +1,5 @@
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+
 export const SHOWCASE_CANONICAL_PATH_PREFIX = "/showcase/" as const;
 
 export const SHOWCASE_CLAIM_DISCIPLINE =
@@ -6,13 +8,9 @@ export const SHOWCASE_CLAIM_DISCIPLINE =
 export const SHOWCASE_SOURCES_INTRO =
   "Use these evaluation links when the sample review turns into signup, assurance, or a live product tour.";
 
-export type ShowcaseSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Marketing Sources — no self-href under `/showcase/`. */
-export const SHOWCASE_SOURCES: readonly ShowcaseSourceLink[] = [
+export const SHOWCASE_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Start evaluation", href: "/signup" },
   { label: "Get started", href: "/get-started" },
   { label: "Demo preview", href: "/demo/preview" },

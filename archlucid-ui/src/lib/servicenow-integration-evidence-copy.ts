@@ -1,5 +1,6 @@
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const SERVICENOW_INTEGRATION_CANONICAL_PATH = "/integrations/servicenow" as const;
 
@@ -9,13 +10,9 @@ export const SERVICENOW_INTEGRATION_CLAIM_DISCIPLINE =
 export const SERVICENOW_INTEGRATION_SOURCES_INTRO =
   "Use these follow-ups when connection health, readiness checks, or related work-item integrations need attention.";
 
-export type ServiceNowIntegrationSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to `/integrations/servicenow`. */
-export const SERVICENOW_INTEGRATION_SOURCES: readonly ServiceNowIntegrationSourceLink[] = [
+export const SERVICENOW_INTEGRATION_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Integration readiness", href: INTEGRATIONS_READINESS_PATH },
   { label: "Jira", href: "/integrations/jira" },
   { label: "Azure Boards", href: "/integrations/azure-boards" },

@@ -1,5 +1,6 @@
 import { ARCHITECTURE_DRAFTS_LIST_LABEL } from "@/lib/architecture-workflow-labels";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const PROJECTS_RECYCLE_BIN_CANONICAL_PATH = "/administration/tenant/recycle-bin" as const;
 
@@ -9,13 +10,9 @@ export const PROJECTS_RECYCLE_BIN_CLAIM_DISCIPLINE =
 export const PROJECTS_RECYCLE_BIN_SOURCES_INTRO =
   "Use these follow-ups when restored projects turn into architecture drafts, tenant scope checks, or audit cites.";
 
-export type ProjectsRecycleBinSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources - no self-href to recycle bin. */
-export const PROJECTS_RECYCLE_BIN_SOURCES: readonly ProjectsRecycleBinSourceLink[] = [
+export const PROJECTS_RECYCLE_BIN_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Tenant settings", href: "/administration/tenant" },
   { label: "Workspace and scope help", href: inAppHelpHref("scope") },
   { label: ARCHITECTURE_DRAFTS_LIST_LABEL, href: "/architecture/architectures" },

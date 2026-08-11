@@ -1,5 +1,6 @@
 import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const PRODUCT_LEARNING_CANONICAL_PATH = PRODUCT_LEARNING_PATH;
 
@@ -9,13 +10,9 @@ export const PRODUCT_LEARNING_CLAIM_DISCIPLINE =
 export const PRODUCT_LEARNING_SOURCES_INTRO =
   "Use these follow-ups when feedback trends turn into planning themes, live reviews, or architect help.";
 
-export type ProductLearningSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to `/internal/product-learning`. */
-export const PRODUCT_LEARNING_SOURCES: readonly ProductLearningSourceLink[] = [
+export const PRODUCT_LEARNING_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Improvement planning", href: "/insights/improvement-planning" },
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "Start a review", href: "/architecture/reviews/new" },

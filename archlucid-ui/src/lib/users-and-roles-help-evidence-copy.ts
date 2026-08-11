@@ -1,5 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { SETTINGS_USERS_USERS_TAB_PATH } from "@/lib/settings-admin-route-paths";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 /** Canon specialty path for users-and-roles help. */
 export const USERS_AND_ROLES_HELP_CANONICAL_PATH = "/help/users-and-roles" as const;
@@ -10,13 +11,9 @@ export const USERS_AND_ROLES_HELP_CLAIM_DISCIPLINE =
 export const USERS_AND_ROLES_HELP_SOURCES_INTRO =
   "Use these follow-ups when role vocabulary turns into inviting teammates, adjusting workspace access, or citing assurance orientation.";
 
-export type UsersAndRolesHelpSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to users-and-roles. */
-export const USERS_AND_ROLES_HELP_SOURCES: readonly UsersAndRolesHelpSourceLink[] = [
+export const USERS_AND_ROLES_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Users settings", href: SETTINGS_USERS_USERS_TAB_PATH },
   { label: "Invite a reviewer", href: "/administration/users/invite-reviewer" },
   { label: "Scope guide", href: inAppHelpHref("scope") },

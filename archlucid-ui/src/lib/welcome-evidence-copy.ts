@@ -1,3 +1,5 @@
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+
 export const WELCOME_CANONICAL_PATH = "/welcome" as const;
 
 export const WELCOME_CLAIM_DISCIPLINE =
@@ -6,13 +8,9 @@ export const WELCOME_CLAIM_DISCIPLINE =
 export const WELCOME_SOURCES_INTRO =
   "Use these evaluation links when the landing story turns into a sample proof, signup, or assurance review.";
 
-export type WelcomeSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Marketing Sources — no self-href to `/welcome`. */
-export const WELCOME_SOURCES: readonly WelcomeSourceLink[] = [
+export const WELCOME_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "See a sample review", href: "/see-it" },
   { label: "Start evaluation", href: "/signup" },
   { label: "Get started", href: "/get-started" },

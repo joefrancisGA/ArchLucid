@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const PILOT_ROI_MODEL_HELP_CANONICAL_PATH = "/help/pilot-roi-model" as const;
 
@@ -8,13 +9,9 @@ export const PILOT_ROI_MODEL_HELP_CLAIM_DISCIPLINE =
 export const PILOT_ROI_MODEL_HELP_SOURCES_INTRO =
   "Use these follow-ups when ROI methodology turns into scorecard numbers, baseline capture, or sponsor outcomes.";
 
-export type PilotRoiModelHelpSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources - no self-href to `/help/pilot-roi-model`. */
-export const PILOT_ROI_MODEL_HELP_SOURCES: readonly PilotRoiModelHelpSourceLink[] = [
+export const PILOT_ROI_MODEL_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Architecture scorecard", href: "/insights/architecture-scorecard" },
   { label: "ROI summary", href: "/insights/roi-summary" },
   { label: "Pilot outcomes", href: "/insights/pilot-outcomes" },

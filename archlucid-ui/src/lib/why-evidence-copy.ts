@@ -1,3 +1,5 @@
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+
 export const WHY_CANONICAL_PATH = "/why" as const;
 
 export const WHY_CLAIM_DISCIPLINE =
@@ -6,13 +8,9 @@ export const WHY_CLAIM_DISCIPLINE =
 export const WHY_SOURCES_INTRO =
   "Use these evaluation links when the comparison story turns into a sample proof, signup, or assurance review.";
 
-export type WhySourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Marketing Sources — no self-href to `/why`. */
-export const WHY_SOURCES: readonly WhySourceLink[] = [
+export const WHY_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "See a sample review", href: "/see-it" },
   { label: "Start evaluation", href: "/signup" },
   { label: "Get started", href: "/get-started" },

@@ -1,3 +1,5 @@
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+
 export const LIVE_DEMO_CANONICAL_PATH = "/live-demo" as const;
 
 export const LIVE_DEMO_CLAIM_DISCIPLINE =
@@ -6,13 +8,9 @@ export const LIVE_DEMO_CLAIM_DISCIPLINE =
 export const LIVE_DEMO_SOURCES_INTRO =
   "Use these evaluation links when the sample walkthrough turns into signup, assurance, or a deeper product tour.";
 
-export type LiveDemoSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Marketing Sources — no self-href to `/live-demo`. */
-export const LIVE_DEMO_SOURCES: readonly LiveDemoSourceLink[] = [
+export const LIVE_DEMO_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Start evaluation", href: "/signup" },
   { label: "Get started", href: "/get-started" },
   { label: "Demo preview", href: "/demo/preview" },

@@ -1,5 +1,6 @@
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const EVIDENCE_TRAIL_HELP_CANONICAL_PATH = "/help/evidence-trail" as const;
 
@@ -15,13 +16,9 @@ export const EVIDENCE_TRAIL_HELP_CLAIM_DISCIPLINE =
 export const EVIDENCE_TRAIL_HELP_SOURCES_INTRO =
   "Use these follow-ups when evidence-trail vocabulary turns into the live graph, search, provenance validation, or findings triage.";
 
-export type EvidenceTrailHelpSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to `/help/evidence-trail`. */
-export const EVIDENCE_TRAIL_HELP_SOURCES: readonly EvidenceTrailHelpSourceLink[] = [
+export const EVIDENCE_TRAIL_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Evidence graph", href: EVIDENCE_GRAPH_PATH },
   { label: "Search review evidence", href: "/insights/search-review-evidence" },
   { label: "Validate review", href: "/internal/replay" },

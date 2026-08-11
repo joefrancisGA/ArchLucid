@@ -1,3 +1,5 @@
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+
 export const AUTH_INVITE_CANONICAL_PATH = "/auth/invite" as const;
 
 export const AUTH_INVITE_CLAIM_DISCIPLINE =
@@ -6,13 +8,9 @@ export const AUTH_INVITE_CLAIM_DISCIPLINE =
 export const AUTH_INVITE_SOURCES_INTRO =
   "Use these follow-ups when the invitation is invalid or you need product orientation before signing in.";
 
-export type AuthInviteSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Public/product Sources - no self-href to `/auth/invite`. */
-export const AUTH_INVITE_SOURCES: readonly AuthInviteSourceLink[] = [
+export const AUTH_INVITE_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Sign in", href: "/auth/signin" },
   { label: "Start evaluation", href: "/signup" },
   { label: "Get started", href: "/get-started" },

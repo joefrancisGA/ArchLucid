@@ -1,5 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const AI_USAGE_SETTINGS_CANONICAL_PATH = AI_USAGE_SETTINGS_PATH;
 
@@ -9,13 +10,9 @@ export const AI_USAGE_SETTINGS_CLAIM_DISCIPLINE =
 export const AI_USAGE_SETTINGS_SOURCES_INTRO =
   "Use these follow-ups when estimated spend turns into plan changes, ROI methodology, or budget edit controls on Billing.";
 
-export type AiUsageSettingsSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources - no self-href to `/administration/ai-usage`. */
-export const AI_USAGE_SETTINGS_SOURCES: readonly AiUsageSettingsSourceLink[] = [
+export const AI_USAGE_SETTINGS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Billing & plans", href: "/administration/billing" },
   { label: "Billing and plans help", href: inAppHelpHref("billing-and-plans") },
   { label: "Pilot ROI model", href: inAppHelpHref("pilot-roi-model") },

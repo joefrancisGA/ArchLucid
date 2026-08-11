@@ -1,5 +1,6 @@
 import { GOVERNANCE_APPROVAL_QUEUE_PATH, GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 /** Workbook path pattern for GAI (dynamic approval id). */
 export const APPROVAL_LINEAGE_CANONICAL_PATH_PATTERN =
@@ -11,13 +12,9 @@ export const APPROVAL_LINEAGE_CLAIM_DISCIPLINE =
 export const APPROVAL_LINEAGE_SOURCES_INTRO =
   "Use these follow-ups when lineage needs queue context, findings triage, audit trail, or governance orientation.";
 
-export type ApprovalLineageSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to the dynamic lineage route pattern. */
-export const APPROVAL_LINEAGE_SOURCES: readonly ApprovalLineageSourceLink[] = [
+export const APPROVAL_LINEAGE_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Approval queue", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
   { label: "Findings", href: "/governance/findings" },
   { label: "Audit", href: GOVERNANCE_AUDIT_PATH },

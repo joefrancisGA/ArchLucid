@@ -1,5 +1,6 @@
 import { REVIEWS_LIST_PATH, REVIEWS_NEW_PATH, reviewDetailPath } from "@/lib/architecture-routes";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const REVIEW_WORKSPACE_CLAIM_DISCIPLINE =
   "This review workspace is the package leave-behind for one architecture review — findings, decisions, and artifacts here are application-layer evidence, not a complete diligence Sources export package alone. Open Evidence graph, Audit, or signed-record detail when you need fuller sponsor-safe trails.";
@@ -7,13 +8,9 @@ export const REVIEW_WORKSPACE_CLAIM_DISCIPLINE =
 export const REVIEW_WORKSPACE_SOURCES_INTRO =
   "Use these follow-ups when package work needs evidence search, governance disposition, or activity trails.";
 
-export type ReviewWorkspaceSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Build operator Sources for a run — never self-links the review detail path. */
-export function buildReviewWorkspaceSources(runId: string): readonly ReviewWorkspaceSourceLink[] {
+export function buildReviewWorkspaceSources(runId: string): readonly EvidenceSourceLink[] {
   const trimmed = runId.trim();
   const evidenceHref =
     trimmed.length > 0

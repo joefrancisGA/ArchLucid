@@ -1,4 +1,5 @@
 import {
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
   ARCHITECTURE_DRAFTS_LIST_LABEL,
   CREATE_ARCHITECTURE_LABEL,
 } from "@/lib/architecture-workflow-labels";
@@ -16,13 +17,9 @@ export const ARCHITECTURES_DRAFT_CLAIM_DISCIPLINE =
 export const ARCHITECTURES_DRAFT_SOURCES_INTRO =
   "Use these follow-ups when a draft needs the architectures list, create-bootstrap, review intake, or first-run orientation.";
 
-export type ArchitecturesDraftSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources - no self-href to the open draft id. */
-export const ARCHITECTURES_DRAFT_SOURCES: readonly ArchitecturesDraftSourceLink[] = [
+export const ARCHITECTURES_DRAFT_SOURCES: readonly EvidenceSourceLink[] = [
   { label: ARCHITECTURE_DRAFTS_LIST_LABEL, href: ARCHITECTURES_LIST_PATH },
   { label: CREATE_ARCHITECTURE_LABEL, href: ARCHITECTURES_NEW_PATH },
   { label: "Start a review", href: REVIEWS_NEW_PATH },

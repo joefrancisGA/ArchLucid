@@ -1,5 +1,6 @@
 import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const GOVERNANCE_FINDINGS_CANONICAL_PATH = "/governance/findings" as const;
 
@@ -9,13 +10,9 @@ export const GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE =
 export const GOVERNANCE_FINDINGS_SOURCES_INTRO =
   "Use these follow-ups when queue triage turns into package detail, evidence search, or activity trails.";
 
-export type GovernanceFindingsSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to the findings queue. */
-export const GOVERNANCE_FINDINGS_SOURCES: readonly GovernanceFindingsSourceLink[] = [
+export const GOVERNANCE_FINDINGS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Architecture reviews", href: REVIEWS_LIST_PATH },
   { label: "Alert inbox", href: "/governance/alerts" },
   { label: "Decision register", href: "/governance/decision-register" },

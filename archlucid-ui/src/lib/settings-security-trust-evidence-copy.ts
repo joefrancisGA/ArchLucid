@@ -1,5 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { SETTINGS_SECURITY_TRUST_PATH } from "@/lib/settings-admin-route-paths";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const SETTINGS_SECURITY_TRUST_CANONICAL_PATH = SETTINGS_SECURITY_TRUST_PATH;
 
@@ -9,13 +10,9 @@ export const SETTINGS_SECURITY_TRUST_CLAIM_DISCIPLINE =
 export const SETTINGS_SECURITY_TRUST_SOURCES_INTRO =
   "Use these follow-ups when procurement vocabulary turns into public assurance hubs, isolation depth, or audit activity.";
 
-export type SettingsSecurityTrustSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to settings security-trust. */
-export const SETTINGS_SECURITY_TRUST_SOURCES: readonly SettingsSecurityTrustSourceLink[] = [
+export const SETTINGS_SECURITY_TRUST_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Assurance status", href: "/security-trust" },
   { label: "Trust Center", href: "/trust" },
   { label: "Security and trust help", href: inAppHelpHref("security-trust") },

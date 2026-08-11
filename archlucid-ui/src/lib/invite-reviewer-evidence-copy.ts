@@ -1,5 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const INVITE_REVIEWER_CANONICAL_PATH = `${SETTINGS_USERS_PATH}/invite-reviewer` as const;
 
@@ -9,13 +10,9 @@ export const INVITE_REVIEWER_CLAIM_DISCIPLINE =
 export const INVITE_REVIEWER_SOURCES_INTRO =
   "Use these follow-ups when an invitation needs directory management, role guidance, or SSO prerequisites.";
 
-export type InviteReviewerSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to invite-reviewer. */
-export const INVITE_REVIEWER_SOURCES: readonly InviteReviewerSourceLink[] = [
+export const INVITE_REVIEWER_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Users and roles", href: SETTINGS_USERS_PATH },
   { label: "Users and roles help", href: inAppHelpHref("users-and-roles") },
   { label: "SSO and identity", href: "/administration/identity-providers" },

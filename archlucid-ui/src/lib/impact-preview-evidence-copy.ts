@@ -1,4 +1,5 @@
 import {
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
   IMPACT_PREVIEW_ADVISORY_HREF,
   IMPACT_PREVIEW_PLANNING_HREF,
   IMPACT_PREVIEW_REVIEWS_HREF,
@@ -11,13 +12,9 @@ export const IMPACT_PREVIEW_CLAIM_DISCIPLINE =
 export const IMPACT_PREVIEW_SOURCES_INTRO =
   "Choose a proposed change and baseline below, then open Reviews, Planning, or Compare when you need orientation before treating the simulation as authoritative.";
 
-export type ImpactPreviewSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to impact-preview. */
-export const IMPACT_PREVIEW_SOURCES: readonly ImpactPreviewSourceLink[] = [
+export const IMPACT_PREVIEW_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Architecture reviews", href: IMPACT_PREVIEW_REVIEWS_HREF },
   { label: "Planning", href: IMPACT_PREVIEW_PLANNING_HREF },
   { label: "Compare two reviews", href: "/insights/compare-two-reviews" },

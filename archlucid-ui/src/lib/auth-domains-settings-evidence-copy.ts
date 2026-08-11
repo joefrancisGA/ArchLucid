@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const AUTH_DOMAINS_SETTINGS_CANONICAL_PATH = "/administration/auth-domains" as const;
 
@@ -8,13 +9,9 @@ export const AUTH_DOMAINS_SETTINGS_CLAIM_DISCIPLINE =
 export const AUTH_DOMAINS_SETTINGS_SOURCES_INTRO =
   "Use these follow-ups when domain verification turns into identity-provider setup, recovery admins, or assurance cites.";
 
-export type AuthDomainsSettingsSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources - no self-href to `/administration/auth-domains`. */
-export const AUTH_DOMAINS_SETTINGS_SOURCES: readonly AuthDomainsSettingsSourceLink[] = [
+export const AUTH_DOMAINS_SETTINGS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "SSO and identity", href: "/administration/identity-providers" },
   { label: "Enterprise onboarding help", href: inAppHelpHref("enterprise-onboarding") },
   { label: "Users and roles", href: "/administration/users" },

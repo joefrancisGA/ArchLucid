@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const TRUST_CENTER_CANONICAL_PATH = "/trust" as const;
 
@@ -8,13 +9,9 @@ export const TRUST_CENTER_CLAIM_DISCIPLINE =
 export const TRUST_CENTER_SOURCES_INTRO =
   "Use these evaluation links when Trust Center downloads turn into engagement metadata, privacy, FAQ, or procurement follow-ups.";
 
-export type TrustCenterSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Marketing Sources — no self-href to `/trust`. */
-export const TRUST_CENTER_SOURCES: readonly TrustCenterSourceLink[] = [
+export const TRUST_CENTER_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Assurance status", href: "/security-trust" },
   { label: "Product FAQ", href: "/faq" },
   { label: "Pricing", href: "/pricing" },

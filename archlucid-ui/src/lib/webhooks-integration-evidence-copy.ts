@@ -1,5 +1,6 @@
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const WEBHOOKS_INTEGRATION_CANONICAL_PATH = "/integrations/webhooks" as const;
 
@@ -9,13 +10,9 @@ export const WEBHOOKS_INTEGRATION_CLAIM_DISCIPLINE =
 export const WEBHOOKS_INTEGRATION_SOURCES_INTRO =
   "Use these follow-ups when destinations need routing rules, readiness checks, or a sibling notification channel.";
 
-export type WebhooksIntegrationSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to `/integrations/webhooks`. */
-export const WEBHOOKS_INTEGRATION_SOURCES: readonly WebhooksIntegrationSourceLink[] = [
+export const WEBHOOKS_INTEGRATION_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Alert rules", href: "/governance/alert-rules" },
   { label: "Integration readiness", href: INTEGRATIONS_READINESS_PATH },
   { label: "Slack", href: "/integrations/slack" },

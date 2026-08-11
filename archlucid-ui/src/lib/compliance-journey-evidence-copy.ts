@@ -1,3 +1,5 @@
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+
 export const COMPLIANCE_JOURNEY_CANONICAL_PATH = "/compliance-journey" as const;
 
 export const COMPLIANCE_JOURNEY_CLAIM_DISCIPLINE =
@@ -6,13 +8,9 @@ export const COMPLIANCE_JOURNEY_CLAIM_DISCIPLINE =
 export const COMPLIANCE_JOURNEY_SOURCES_INTRO =
   "Use these evaluation links when compliance questions turn into Trust Center downloads, assurance status, FAQ, or procurement follow-ups.";
 
-export type ComplianceJourneySourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Marketing Sources - no self-href to `/compliance-journey`. */
-export const COMPLIANCE_JOURNEY_SOURCES: readonly ComplianceJourneySourceLink[] = [
+export const COMPLIANCE_JOURNEY_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Trust Center", href: "/trust" },
   { label: "Assurance status", href: "/security-trust" },
   { label: "Start evaluation", href: "/signup" },

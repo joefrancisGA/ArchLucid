@@ -1,6 +1,7 @@
 import { ACCOUNT_SECURITY_PAGE_TITLE } from "@/lib/account-security-page-copy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { SETTINGS_ACCOUNT_SECURITY_PATH } from "@/lib/settings-admin-route-paths";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const ACCOUNT_SECURITY_SETTINGS_CANONICAL_PATH = SETTINGS_ACCOUNT_SECURITY_PATH;
 
@@ -10,13 +11,9 @@ export const ACCOUNT_SECURITY_SETTINGS_CLAIM_DISCIPLINE =
 export const ACCOUNT_SECURITY_SETTINGS_SOURCES_INTRO =
   "Use these follow-ups when sign-in method changes turn into workspace identity setup, preferences, or assurance cites.";
 
-export type AccountSecuritySettingsSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources - no self-href to account-security. */
-export const ACCOUNT_SECURITY_SETTINGS_SOURCES: readonly AccountSecuritySettingsSourceLink[] = [
+export const ACCOUNT_SECURITY_SETTINGS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Security and trust help", href: inAppHelpHref("security-trust") },
   { label: "Preferences", href: "/administration/preferences" },
   { label: "SSO and identity", href: "/administration/identity-providers" },

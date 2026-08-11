@@ -1,10 +1,8 @@
-import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
-
 import { describe, expect, it } from "vitest";
 
 import { extractHelpMarkdownHeadings } from "./help-markdown-headings";
+import { prepareHelpMarkdownForPresentation } from "./help-markdown-presentation";
+import { tryLoadProductDocumentation } from "./load-product-documentation";
 import {
   contextualHelpByKey,
   contextualHelpTriggerAriaLabel,
@@ -12,11 +10,6 @@ import {
   toDocsBlobUrl,
 } from "./contextual-help-content";
 import { collectContextualHelpKeysFromSource, defaultArchlucidUiSrcRoot } from "./contextual-help-keys-from-source";
-
-/** Repo root — three levels above `archlucid-ui/src/lib`. */
-function repoRoot(): string {
-  return join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
-}
 
 describe("contextualHelpByKey", () => {
   it("defines every helpKey used by <ContextualHelp /> in production source (no missing index entries)", () => {
@@ -96,18 +89,54 @@ describe("contextualHelpByKey", () => {
 
     expect(learnMoreUrl).toBeDefined();
 
-    const [docPath, fragment] = learnMoreUrl!.split("#");
+    const resolvedUrl = learnMoreUrl!.startsWith("/help/")
+      ? learnMoreUrl!
+      : toDocsBlobUrl(learnMoreUrl!);
+    const [path, fragment] = resolvedUrl.split("#");
 
-    expect(fragment).toBe("governance-gate");
-    // Aliased via DOC_PATH_TO_SLUG to "evidence-intake" (this markdown file's canonical help
-    // topic), not the "governance-approval" registry entry that also lists it as a source path.
-    expect(toDocsBlobUrl(learnMoreUrl!)).toBe(`/help/evidence-intake#${fragment}`);
+    expect(fragment).toBe("governance-workflow");
+    expect(path).toBe("/help/governance-approval");
 
-    const absoluteDocPath = join(repoRoot(), docPath!.replace(/^\//, ""));
-    const markdown = readFileSync(absoluteDocPath, "utf8");
-    const headings = extractHelpMarkdownHeadings(markdown);
+    const slug = path.replace("/help/", "");
+    const loaded = tryLoadProductDocumentation(slug);
 
-    expect(headings.some((h) => h.id === fragment)).toBe(true);
+    expect(loaded).not.toBeNull();
+
+    const sourceDocPath = loaded!.entry.sourcePaths[0] ?? "";
+    const preparedMarkdown = prepareHelpMarkdownForPresentation(loaded!.markdown, sourceDocPath, {
+      helpTopicSlug: slug,
+    });
+    const headings = extractHelpMarkdownHeadings(preparedMarkdown);
+
+    expect(headings.some((heading) => heading.id === fragment)).toBe(true);
+  });
+
+  it("learn-more URLs with fragments resolve to headings in destination help topics", () => {
+    for (const key of Object.keys(contextualHelpByKey)) {
+      const learnMoreUrl = contextualHelpByKey[key].learnMoreUrl;
+
+      if (learnMoreUrl == null || !learnMoreUrl.includes("#")) {
+        continue;
+      }
+
+      const resolvedUrl = learnMoreUrl.startsWith("/help/") ? learnMoreUrl : toDocsBlobUrl(learnMoreUrl);
+      const [path, fragment] = resolvedUrl.split("#");
+
+      expect(fragment.length, key).toBeGreaterThan(0);
+
+      const slug = path.replace("/help/", "");
+      const loaded = tryLoadProductDocumentation(slug);
+
+      expect(loaded, key).not.toBeNull();
+
+      const sourceDocPath = loaded!.entry.sourcePaths[0] ?? "";
+      const preparedMarkdown = prepareHelpMarkdownForPresentation(loaded!.markdown, sourceDocPath, {
+        helpTopicSlug: slug,
+      });
+      const headings = extractHelpMarkdownHeadings(preparedMarkdown);
+
+      expect(headings.some((heading) => heading.id === fragment), key).toBe(true);
+    }
   });
 });
 

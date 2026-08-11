@@ -1,4 +1,5 @@
 import {
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
   GOVERNANCE_AUDIT_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
@@ -14,13 +15,9 @@ export const POLICY_PACKS_HELP_CLAIM_DISCIPLINE =
 export const POLICY_PACKS_HELP_SOURCES_INTRO =
   "Use these follow-ups when pack vocabulary turns into live assignments, conflict resolution, findings triage, or SE demo rehearsal.";
 
-export type PolicyPacksHelpSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to `/help/policy-packs`. */
-export const POLICY_PACKS_HELP_SOURCES: readonly PolicyPacksHelpSourceLink[] = [
+export const POLICY_PACKS_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Policy packs", href: GOVERNANCE_POLICY_PACKS_PATH },
   { label: "Standards and rules", href: GOVERNANCE_STANDARDS_AND_RULES_PATH },
   { label: "Findings", href: "/governance/findings" },

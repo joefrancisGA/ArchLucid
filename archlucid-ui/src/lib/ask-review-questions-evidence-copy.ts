@@ -1,5 +1,6 @@
 import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const ASK_REVIEW_QUESTIONS_CANONICAL_PATH = "/insights/ask-review-questions" as const;
 
@@ -9,13 +10,9 @@ export const ASK_REVIEW_QUESTIONS_CLAIM_DISCIPLINE =
 export const ASK_REVIEW_QUESTIONS_SOURCES_INTRO =
   "Use these follow-ups when answers need package context, evidence search, or governance disposition.";
 
-export type AskReviewQuestionsSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to Ask. */
-export const ASK_REVIEW_QUESTIONS_SOURCES: readonly AskReviewQuestionsSourceLink[] = [
+export const ASK_REVIEW_QUESTIONS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Architecture reviews", href: REVIEWS_LIST_PATH },
   { label: "Evidence graph", href: "/insights/evidence-graph" },
   { label: "Search review evidence", href: "/insights/search-review-evidence" },

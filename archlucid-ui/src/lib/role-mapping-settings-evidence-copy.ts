@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const ROLE_MAPPING_SETTINGS_CANONICAL_PATH =
   "/administration/identity-providers/role-mapping" as const;
@@ -9,13 +10,9 @@ export const ROLE_MAPPING_SETTINGS_CLAIM_DISCIPLINE =
 export const ROLE_MAPPING_SETTINGS_SOURCES_INTRO =
   "Use these follow-ups when claim mapping turns into membership invites, SSO setup, diagnostics, or assurance cites.";
 
-export type RoleMappingSettingsSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources - no self-href to role-mapping. */
-export const ROLE_MAPPING_SETTINGS_SOURCES: readonly RoleMappingSettingsSourceLink[] = [
+export const ROLE_MAPPING_SETTINGS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Users and roles help", href: inAppHelpHref("users-and-roles") },
   { label: "SSO and identity", href: "/administration/identity-providers" },
   { label: "Users and roles", href: "/administration/users" },

@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const CONNECT_GCP_SECURELY_CANONICAL_PATH = "/help/cloud-connections/gcp" as const;
 
@@ -12,13 +13,9 @@ export const CONNECT_GCP_SECURELY_CONFIGURE_HREF = "/integrations/cloud-connecti
 export const CONNECT_GCP_SECURELY_SOURCES_INTRO =
   "Use these follow-ups when GCP setup needs the live hub, sibling cloud guides, or assurance cites.";
 
-export type ConnectGcpSecurelySourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to `/help/cloud-connections/gcp`. */
-export const CONNECT_GCP_SECURELY_SOURCES: readonly ConnectGcpSecurelySourceLink[] = [
+export const CONNECT_GCP_SECURELY_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Cloud connections hub", href: "/integrations/cloud-connections" },
   { label: "GCP connection settings", href: CONNECT_GCP_SECURELY_CONFIGURE_HREF },
   { label: "Connect Azure securely", href: inAppHelpHref("cloud-connections-azure") },

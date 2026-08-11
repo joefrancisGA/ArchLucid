@@ -1,3 +1,5 @@
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+
 export const DEMO_PREVIEW_CANONICAL_PATH = "/demo/preview" as const;
 
 export const DEMO_PREVIEW_CLAIM_DISCIPLINE =
@@ -6,13 +8,9 @@ export const DEMO_PREVIEW_CLAIM_DISCIPLINE =
 export const DEMO_PREVIEW_SOURCES_INTRO =
   "Use these evaluation links when the sample review turns into signup, assurance, or a live product tour.";
 
-export type DemoPreviewSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Marketing Sources — no self-href to `/demo/preview`. */
-export const DEMO_PREVIEW_SOURCES: readonly DemoPreviewSourceLink[] = [
+export const DEMO_PREVIEW_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Start evaluation", href: "/signup" },
   { label: "Product FAQ", href: "/faq" },
   { label: "Assurance status", href: "/security-trust" },

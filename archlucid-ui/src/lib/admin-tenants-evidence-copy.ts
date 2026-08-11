@@ -1,5 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { INTERNAL_TENANTS_PATH } from "@/lib/internal-ops-route-paths";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const ADMIN_TENANTS_CANONICAL_PATH = INTERNAL_TENANTS_PATH;
 
@@ -9,13 +10,9 @@ export const ADMIN_TENANTS_CLAIM_DISCIPLINE =
 export const ADMIN_TENANTS_SOURCES_INTRO =
   "Use these follow-ups when a provisioned tenant needs engagement checks, isolation guidance, or onboarding help.";
 
-export type AdminTenantsSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to `/internal/tenants`. */
-export const ADMIN_TENANTS_SOURCES: readonly AdminTenantsSourceLink[] = [
+export const ADMIN_TENANTS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Tenant health", href: "/internal/tenant-health" },
   { label: "Audit", href: "/governance/audit" },
   { label: "Enterprise onboarding", href: inAppHelpHref("enterprise-onboarding") },

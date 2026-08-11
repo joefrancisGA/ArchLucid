@@ -1,5 +1,6 @@
 import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH, REVIEWS_NEW_PATH } from "@/lib/architecture-routes";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const ARCHITECTURES_LIST_CANONICAL_PATH = ARCHITECTURES_LIST_PATH;
 
@@ -9,13 +10,9 @@ export const ARCHITECTURES_LIST_CLAIM_DISCIPLINE =
 export const ARCHITECTURES_LIST_SOURCES_INTRO =
   "Use these follow-ups when inventory leads to create-bootstrap, a saved draft, review intake, or first-run orientation.";
 
-export type ArchitecturesListSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources - no self-href to `/architecture/architectures`. */
-export const ARCHITECTURES_LIST_SOURCES: readonly ArchitecturesListSourceLink[] = [
+export const ARCHITECTURES_LIST_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Create architecture", href: ARCHITECTURES_NEW_PATH },
   { label: "Start a review", href: REVIEWS_NEW_PATH },
   { label: "Your first architecture review", href: inAppHelpHref("first-architecture-review") },

@@ -1,5 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { LIVE_DEMO_PAGE_TITLE } from "@/lib/live-demo-page-copy";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const DEMO_READINESS_CANONICAL_PATH = "/internal/demo-readiness" as const;
 
@@ -28,13 +29,9 @@ export const DEMO_READINESS_CLAIM_DISCIPLINE =
 export const DEMO_READINESS_SOURCES_INTRO =
   "Use these follow-ups when demo checks turn into platform health, trial conversion, or public demo surfaces.";
 
-export type DemoReadinessSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources - no self-href to `/internal/demo-readiness`. */
-export const DEMO_READINESS_SOURCES: readonly DemoReadinessSourceLink[] = [
+export const DEMO_READINESS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "System health", href: "/administration/system-health" },
   { label: "Trial funnel", href: "/internal/trial-funnel" },
   { label: "Tenant health", href: "/internal/tenant-health" },

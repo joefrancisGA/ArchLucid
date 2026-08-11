@@ -125,8 +125,8 @@ describe("ContextualHelp", () => {
   });
 
   it.each([
-    ["commit-manifest", "/help/first-architecture-review#commit"],
-    ["governance-gate", "/help/evidence-intake#governance-gate"],
+    ["commit-manifest", "/help/first-architecture-review#review-states"],
+    ["governance-gate", "/help/governance-approval#governance-workflow"],
   ] as const)("routes the %s Learn more link to its in-app help topic", async (helpKey, href) => {
     const button = renderContextualHelp(helpKey);
 

@@ -1,4 +1,5 @@
 import {
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   GOVERNANCE_AUDIT_PATH,
   GOVERNANCE_WORKSPACE_HEALTH_HREF,
@@ -11,13 +12,9 @@ export const APPROVAL_QUEUE_CLAIM_DISCIPLINE =
 export const APPROVAL_QUEUE_SOURCES_INTRO =
   "Use these follow-ups when a decision needs findings triage, audit trail, workspace health, or governance orientation.";
 
-export type ApprovalQueueSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to the approval queue. */
-export const APPROVAL_QUEUE_SOURCES: readonly ApprovalQueueSourceLink[] = [
+export const APPROVAL_QUEUE_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Findings", href: "/governance/findings" },
   { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
   { label: "Workspace health", href: GOVERNANCE_WORKSPACE_HEALTH_HREF },

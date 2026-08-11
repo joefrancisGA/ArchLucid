@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const IDENTITY_PROVIDERS_DIAGNOSTICS_CANONICAL_PATH =
   "/administration/identity-providers/diagnostics" as const;
@@ -9,13 +10,9 @@ export const IDENTITY_PROVIDERS_DIAGNOSTICS_CLAIM_DISCIPLINE =
 export const IDENTITY_PROVIDERS_DIAGNOSTICS_SOURCES_INTRO =
   "Use these follow-ups when diagnostic probes turn into SSO setup, role mapping, or assurance cites.";
 
-export type IdentityProvidersDiagnosticsSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources - no self-href to identity diagnostics. */
-export const IDENTITY_PROVIDERS_DIAGNOSTICS_SOURCES: readonly IdentityProvidersDiagnosticsSourceLink[] =
+export const IDENTITY_PROVIDERS_DIAGNOSTICS_SOURCES: readonly EvidenceSourceLink[] =
   [
     { label: "SSO and identity", href: "/administration/identity-providers" },
     { label: "Enterprise onboarding help", href: inAppHelpHref("enterprise-onboarding") },

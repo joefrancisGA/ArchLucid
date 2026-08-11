@@ -1,3 +1,5 @@
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+
 export const AUTH_BOOTSTRAP_CANONICAL_PATH = "/auth/bootstrap" as const;
 
 export const AUTH_BOOTSTRAP_CLAIM_DISCIPLINE =
@@ -6,13 +8,9 @@ export const AUTH_BOOTSTRAP_CLAIM_DISCIPLINE =
 export const AUTH_BOOTSTRAP_SOURCES_INTRO =
   "Use these follow-ups when bootstrap is blocked or you need product orientation before a workspace is ready.";
 
-export type AuthBootstrapSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Public/product Sources - no self-href to `/auth/bootstrap`. */
-export const AUTH_BOOTSTRAP_SOURCES: readonly AuthBootstrapSourceLink[] = [
+export const AUTH_BOOTSTRAP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Sign in", href: "/auth/signin" },
   { label: "Start evaluation", href: "/signup" },
   { label: "Get started", href: "/get-started" },

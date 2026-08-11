@@ -1,5 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { SETTINGS_PREFERENCES_PATH } from "@/lib/settings-admin-route-paths";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const PREFERENCES_SETTINGS_CANONICAL_PATH = SETTINGS_PREFERENCES_PATH;
 
@@ -9,13 +10,9 @@ export const PREFERENCES_SETTINGS_CLAIM_DISCIPLINE =
 export const PREFERENCES_SETTINGS_SOURCES_INTRO =
   "Use these follow-ups when personal theme settings turn into onboarding, account security, or assurance cites.";
 
-export type PreferencesSettingsSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources - no self-href to preferences. */
-export const PREFERENCES_SETTINGS_SOURCES: readonly PreferencesSettingsSourceLink[] = [
+export const PREFERENCES_SETTINGS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Getting started", href: inAppHelpHref("getting-started") },
   { label: "Sign-in methods", href: "/administration/account-security" },
   { label: "Users and roles", href: "/administration/users" },

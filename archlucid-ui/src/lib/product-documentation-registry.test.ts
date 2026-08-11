@@ -344,6 +344,14 @@ describe("product-documentation-registry", () => {
     expect(entry?.pdfStatus).toBe("customer");
   });
 
+  it("declares provenance metadata on evidence-intake operator guide (EVI)", () => {
+    const entry = getProductDocumentationEntry("evidence-intake");
+
+    expect(entry?.lastReviewed).toBe("2026-08-10");
+    expect(entry?.releaseApplicability).toContain("V1 GA");
+    expect(entry?.pdfStatus).toBe("customer");
+  });
+
   it("keeps operator and buyer topics with governance citations off the missing-provenance list (CO)", () => {
     const missingProvenance = listProductDocumentationEntries()
       .filter(
@@ -356,5 +364,6 @@ describe("product-documentation-registry", () => {
 
     expect(missingProvenance).not.toContain("comparison-replay");
     expect(missingProvenance).not.toContain("enterprise-onboarding");
+    expect(missingProvenance).not.toContain("evidence-intake");
   });
 });

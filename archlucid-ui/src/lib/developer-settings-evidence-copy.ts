@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const DEVELOPER_SETTINGS_CANONICAL_PATH = "/administration/developer" as const;
 
@@ -8,13 +9,9 @@ export const DEVELOPER_SETTINGS_CLAIM_DISCIPLINE =
 export const DEVELOPER_SETTINGS_SOURCES_INTRO =
   "Use these follow-ups when theme or CLI experiments turn into engineering runbooks, system health checks, or governed trails.";
 
-export type DeveloperSettingsSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources - no self-href to `/administration/developer`. */
-export const DEVELOPER_SETTINGS_SOURCES: readonly DeveloperSettingsSourceLink[] = [
+export const DEVELOPER_SETTINGS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "System health", href: "/administration/system-health" },
   { label: "CLI usage help", href: inAppHelpHref("cli-usage") },
   { label: "Engineering troubleshooting", href: inAppHelpHref("developer-troubleshooting") },

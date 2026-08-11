@@ -1,5 +1,6 @@
 import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
 import {
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
   DIGESTS_BROWSE_TAB_PATH,
   DIGESTS_SCHEDULE_CANONICAL_PATH,
   DIGESTS_SUBSCRIPTIONS_TAB_PATH,
@@ -11,13 +12,9 @@ export { DIGESTS_SCHEDULE_CANONICAL_PATH };
 export const DIGESTS_SCHEDULE_SOURCES_INTRO =
   "Use these follow-ups when cadence is set but delivery destinations, browse history, or advisory scans still need attention.";
 
-export type DigestsScheduleSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to the schedule tab. */
-export const DIGESTS_SCHEDULE_SOURCES: readonly DigestsScheduleSourceLink[] = [
+export const DIGESTS_SCHEDULE_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Subscriptions", href: DIGESTS_SUBSCRIPTIONS_TAB_PATH },
   { label: "Browse digests", href: DIGESTS_BROWSE_TAB_PATH },
   { label: "Advisory scan schedules", href: ADVISORY_SCANS_SCHEDULES_HREF },

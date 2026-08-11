@@ -1,5 +1,6 @@
 import { REVIEWS_LIST_PATH, reviewDetailPath } from "@/lib/architecture-routes";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const PROVENANCE_CLAIM_DISCIPLINE =
   "This coordinator provenance graph and timeline show linkage for one review — they are not a complete signed-review diligence Sources export by themselves. Open the Evidence trail or the review workspace before briefing sponsors.";
@@ -7,13 +8,9 @@ export const PROVENANCE_CLAIM_DISCIPLINE =
 export const PROVENANCE_SOURCES_INTRO =
   "Use these follow-ups when provenance nodes need a fuller evidence trail, search, or review context.";
 
-export type ProvenanceSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Build operator Sources for a run — never self-links the provenance path. */
-export function buildProvenanceSources(runId: string): readonly ProvenanceSourceLink[] {
+export function buildProvenanceSources(runId: string): readonly EvidenceSourceLink[] {
   const trimmed = runId.trim();
   const reviewHref = trimmed.length > 0 ? reviewDetailPath(trimmed) : REVIEWS_LIST_PATH;
   const evidenceHref =

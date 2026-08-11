@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const CONNECT_AWS_SECURELY_CANONICAL_PATH = "/help/cloud-connections/aws" as const;
 
@@ -8,13 +9,9 @@ export const CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE =
 export const CONNECT_AWS_SECURELY_SOURCES_INTRO =
   "Use these follow-ups when AWS setup needs the live hub, parent cloud-connections help, sibling cloud guides, or assurance cites.";
 
-export type ConnectAwsSecurelySourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to `/help/cloud-connections/aws`. */
-export const CONNECT_AWS_SECURELY_SOURCES: readonly ConnectAwsSecurelySourceLink[] = [
+export const CONNECT_AWS_SECURELY_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Cloud connections hub", href: "/integrations/cloud-connections" },
   { label: "AWS connection settings", href: "/integrations/cloud-connections/aws" },
   { label: "Cloud connections help", href: inAppHelpHref("cloud-connections") },

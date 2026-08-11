@@ -1,17 +1,14 @@
 import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const DIGESTS_SOURCES_INTRO =
   "Configure subscriptions and schedule before treating digests as an operating rhythm; open reviews or findings when a summary needs follow-up.";
 
-export type DigestsSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to the digests hub. */
-export const DIGESTS_SOURCES: readonly DigestsSourceLink[] = [
+export const DIGESTS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "Findings", href: "/governance/findings" },
   { label: "Advisory scan schedules", href: ADVISORY_SCANS_SCHEDULES_HREF },

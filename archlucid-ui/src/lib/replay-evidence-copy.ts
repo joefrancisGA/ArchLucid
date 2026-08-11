@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const REPLAY_CANONICAL_PATH = "/internal/replay" as const;
 
@@ -8,13 +9,9 @@ export const REPLAY_CLAIM_DISCIPLINE =
 export const REPLAY_SOURCES_INTRO =
   "Use these follow-ups when validation results need review context, pairwise diffs, or help on compare/replay modes.";
 
-export type ReplaySourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to `/internal/replay`. */
-export const REPLAY_SOURCES: readonly ReplaySourceLink[] = [
+export const REPLAY_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "Compare two reviews", href: "/insights/compare-two-reviews" },
   { label: "Evidence trail", href: "/insights/evidence-graph" },

@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const OPERATOR_HOME_CANONICAL_PATH = "/";
 
@@ -8,13 +9,9 @@ export const OPERATOR_HOME_CLAIM_DISCIPLINE =
 export const OPERATOR_HOME_SOURCES_INTRO =
   "Use these follow-ups when Overview next-actions need architecture reviews, findings triage, executive ROI, or first-run guidance.";
 
-export type OperatorHomeSourceLink = {
-  readonly label: string;
-  readonly href: string;
-};
 
 /** Operator Sources — no self-href to Overview `/`. */
-export const OPERATOR_HOME_SOURCES: readonly OperatorHomeSourceLink[] = [
+export const OPERATOR_HOME_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "Start review", href: "/architecture/reviews/new" },
   { label: "Executive dashboard", href: "/architecture/executive-dashboard" },
