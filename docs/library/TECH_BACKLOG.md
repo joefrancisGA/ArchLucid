@@ -10,17 +10,17 @@ Regenerate after opening or closing summary-table rows:
 | Architectural quality | Open |
 | --- | ---: |
 | Correctness | 3 |
-| Testability | 115 |
+| Testability | 120 |
 | Reliability | 15 |
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
 | Architectural integrity | 11 |
-| Adoption friction | 322 |
+| Adoption friction | 331 |
 | Commercial / marketability | 9 |
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
 | Explainability | 1 |
-| Trustworthiness | 48 |
+| Trustworthiness | 49 |
 | Maintainability | 9 |
 | Traceability | 3 |
 | Interoperability | 4 |
@@ -35,9 +35,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **601** |
+| **Total (unique open)** | **616** |
 
-**By priority band:** P0 **3** | P1 **478** | P2 **103** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **3** | P1 **485** | P2 **111** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -968,7 +968,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1301 | **Done** (2026-08-10) — `/why` hero budget + primary `/see-it` CTA; see ## TB-1301 below | Adoption friction P1 ? **V1**; owner why ~51/100 2026-07-26; traffic **WHY** | S |
 | TB-1302 | **Done** (2026-08-10) — `/why` canonical proof ladder; Contoso demoted; see ## TB-1302 below | Adoption friction P1 ? **V1**; with **TB-1301**; pairs **TB-1296**/**TB-1282**/**TB-1028**/**M-107** | S |
 | TB-1303 | **Done** (2026-08-10) — `/why` collapse landscape comparison disclosure; see ## TB-1303 below | Adoption friction P1 ? **V1**; with **TB-1301** | S |
-| TB-1307 | `/why-archlucid` ? disambiguate title/IA from marketing `/why`; see ## TB-1307 below | Adoption friction P1 ? **V1**; with **TB-1306**; IA-014 | S |
+| TB-1307 | **Done** (2026-08-10) — `/why-archlucid` disambiguated from marketing `/why`; see ## TB-1307 below | Adoption friction P1 ? **V1**; with **TB-1306**; IA-014 | S |
 | TB-1309 | `/why-archlucid` ? primary CTA to sample architecture package; see ## TB-1309 below | Adoption friction P1 ? **V1**; with **TB-1306** | S |
 | TB-1310 | `/why-archlucid` ? PageHeading/help + pilot proof orientation; see ## TB-1310 below | Adoption friction P1 ? **V1**; with **TB-1307** | S |
 | TB-1313 | `/auth/session-expired` ? brand + h1 + document title; see ## TB-1313 below | Adoption friction P1 ? **V1**; owner session-expired ~59/100 2026-07-26; traffic **ASU** | S |
@@ -32536,7 +32536,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-10) — `WHY_ARCHLUCID_PAGE_TITLE` + marketing `/why` disambiguation link; Vitest in `why-archlucid-page-copy.test.ts` and `page.test.tsx`.
 
 **Priority:** P0.
 

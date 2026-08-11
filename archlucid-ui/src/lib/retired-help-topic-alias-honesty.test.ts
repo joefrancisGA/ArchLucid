@@ -8,6 +8,10 @@ import {
   resolveHelpTopicPermanentRedirect,
 } from "@/lib/help-topic-permanent-redirects";
 import { getProductDocumentationEntry, inAppHelpHref } from "@/lib/product-documentation-registry";
+import {
+  retiredHelpTopicAliasHonestyGuardEntries,
+  retiredHelpTopicSlugFromPath,
+} from "@/lib/ui-route-traffic-retired-help-topic-aliases";
 
 const RETIRED_HELP_TOPIC_SLUGS = Object.keys(HELP_TOPIC_PERMANENT_REDIRECTS);
 
@@ -18,7 +22,7 @@ const REDIRECT_ONLY_HYPHEN_CLOUD_HELP_PATHS = [
   "/help/cloud-connections-gcp",
 ] as const;
 
-const BUYER_HELP_DEEP_LINK_SURFACES = [
+const GLOBAL_BUYER_HELP_DEEP_LINK_SURFACES = [
   "src/lib/help-search-panel-catalog.ts",
   "src/lib/help-markdown-presentation.ts",
   "src/lib/configuration-reference-help-guide-content.ts",
@@ -29,11 +33,21 @@ const BUYER_HELP_DEEP_LINK_SURFACES = [
   "src/lib/enterprise-onboarding-hub-steps.ts",
 ] as const;
 
+const HELP_CATCH_ALL_PAGE_PATH = join(
+  process.cwd(),
+  "src",
+  "app",
+  "(operator)",
+  "help",
+  "[...topic]",
+  "page.tsx",
+);
+
 function retiredHelpBookmarkPath(slug: string): string {
   return `/help/${slug}`;
 }
 
-describe("retired help topic alias honesty (Batch D)", () => {
+describe("retired help topic alias honesty (Batch D + F)", () => {
   it.each(RETIRED_HELP_TOPIC_SLUGS)(
     "permanently redirects retired slug %s and omits it from the registry",
     (slug) => {
@@ -45,7 +59,17 @@ describe("retired help topic alias honesty (Batch D)", () => {
     },
   );
 
-  it.each(BUYER_HELP_DEEP_LINK_SURFACES)(
+  it("resolves permanent redirects before help topic registry lookup in the catch-all page", () => {
+    const pageSource = readFileSync(HELP_CATCH_ALL_PAGE_PATH, "utf8");
+    const permanentRedirectIndex = pageSource.indexOf("resolveHelpTopicPermanentRedirect");
+    const entryLookupIndex = pageSource.indexOf("getProductDocumentationEntry(slug)");
+
+    expect(permanentRedirectIndex).toBeGreaterThanOrEqual(0);
+    expect(entryLookupIndex).toBeGreaterThan(permanentRedirectIndex);
+    expect(pageSource).toContain("permanentRedirect(permanentRedirectTarget)");
+  });
+
+  it.each(GLOBAL_BUYER_HELP_DEEP_LINK_SURFACES)(
     "keeps %s free of retired help bookmark paths",
     (relativePath) => {
       const source = readFileSync(join(process.cwd(), relativePath), "utf8");
@@ -61,4 +85,29 @@ describe("retired help topic alias honesty (Batch D)", () => {
       }
     },
   );
+
+  it.each(
+    retiredHelpTopicAliasHonestyGuardEntries().flatMap((entry) => {
+      const surfaces = entry.buyerSurfaceGuards ?? [];
+
+      return surfaces.map((surface) => [entry.retiredPath, surface, entry] as const);
+    }),
+  )("keeps %s free of retired path %s", (retiredPath, relativePath, entry) => {
+    const source = readFileSync(join(process.cwd(), relativePath), "utf8");
+
+    expect(source, `${relativePath} must not deep-link ${retiredPath}`).not.toContain(retiredPath);
+
+    for (const banned of entry.bannedBuyerCopy ?? []) {
+      expect(source, `${relativePath} must not contain "${banned}"`).not.toContain(banned);
+    }
+  });
+
+  it.each(
+    retiredHelpTopicAliasHonestyGuardEntries().map(
+      (entry) => [retiredHelpTopicSlugFromPath(entry.retiredPath), entry] as const,
+    ),
+  )("permanently redirects manifest retired slug %s to its canonical path", (slug, entry) => {
+    expect(resolveHelpTopicPermanentRedirect(slug)).toBe(entry.canonicalPath);
+    expect(inAppHelpHref(slug)).toBe(entry.canonicalPath);
+  });
 });

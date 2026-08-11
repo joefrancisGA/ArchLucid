@@ -1,8 +1,9 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md";
+import {
+  extractMasterTablePaths,
+  readUiRouteTrafficEstimatesTemplateMarkdown,
+} from "@/lib/testing/ui-route-traffic-workbook-test-utils";
 
 const REDIRECT_ONLY_PATHS = [
   "/alerts",
@@ -31,33 +32,9 @@ const REDIRECT_ONLY_PATHS = [
   "/executive/scorecard",
 ];
 
-function readTemplateMarkdown(): string {
-  return readFileSync(join(process.cwd(), "..", TEMPLATE_PATH), "utf8");
-}
-
-function extractMasterTablePaths(markdown: string): string[] {
-  const marker = "## Master table";
-  const start = markdown.indexOf(marker);
-  if (start < 0) {
-    throw new Error(`Missing master table in ${TEMPLATE_PATH}`);
-  }
-
-  const tableSection = markdown.slice(start);
-  const paths: string[] = [];
-  for (const line of tableSection.split("\n")) {
-    const match = line.match(/^\| [^|]+ \| `([^`]+)` \|/);
-    if (match !== null) {
-      paths.push(match[1]);
-    }
-  }
-
-  return paths;
-}
-
 describe("ui-route-traffic-template-canonical-guard (TB-748)", () => {
   it("tracks canonical nav paths, not redirect-only legacy aliases", () => {
-    const markdown = readTemplateMarkdown();
-    const paths = extractMasterTablePaths(markdown);
+    const paths = extractMasterTablePaths(readUiRouteTrafficEstimatesTemplateMarkdown());
 
     expect(paths.length).toBeGreaterThan(0);
     expect(paths).toContain("/governance/alerts");

@@ -7,12 +7,18 @@ import { GOVERNANCE_API_CONTRACTS_HELP_TRAFFIC_PATH } from "@/lib/ui-route-traff
 import { PATH_CHOOSER_HELP_TRAFFIC_PATH } from "@/lib/ui-route-traffic-path-chooser-help";
 import { PILOT_GUIDE_HELP_TRAFFIC_PATH } from "@/lib/ui-route-traffic-pilot-guide-help";
 import { REVIEW_GUIDE_HELP_TRAFFIC_PATH } from "@/lib/ui-route-traffic-review-guide-help";
+import { USERS_AND_ROLES_HELP_CANONICAL_PATH } from "@/lib/users-and-roles-help-evidence-copy";
 
 export type RetiredHelpTopicAliasTrafficEntry = {
-  removedRowId: string;
+  /** Workbook row ID removed when alias was folded (omit when alias never had its own scored row). */
+  removedRowId?: string;
   retiredPath: string;
   canonicalPath: string;
   historicalNote?: string;
+  /** Buyer-visible strings that must not appear after retirement (path + jargon). */
+  bannedBuyerCopy?: readonly string[];
+  /** Repo-relative surfaces (under `archlucid-ui/`) checked for banned copy / retired paths. */
+  buyerSurfaceGuards?: readonly string[];
 };
 
 /**
@@ -51,6 +57,14 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     removedRowId: "HER",
     retiredPath: "/help/creating-runs",
     canonicalPath: REVIEW_GUIDE_HELP_TRAFFIC_PATH,
+    bannedBuyerCopy: ["/help/creating-runs", "creating runs", "Creating runs"],
+    buyerSurfaceGuards: [
+      "src/app/(operator)/help/_sections/HelpReviewGuideView.tsx",
+      "src/lib/empty-state-presets.ts",
+      "src/lib/usability/page-help-topic-map.ts",
+      "src/lib/bulk-evidence-upload-copy.ts",
+      "src/lib/architecture-created-clarifications-sources.ts",
+    ],
   },
   {
     removedRowId: "HEE",
@@ -71,6 +85,11 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     removedRowId: "HAZ",
     retiredPath: "/help/integrations/azure-boards",
     canonicalPath: AZURE_BOARDS_HELP_TRAFFIC_PATH,
+    buyerSurfaceGuards: [
+      "src/lib/azure-boards-help-evidence-copy.ts",
+      "src/lib/help-search-panel-catalog.ts",
+      "src/lib/configuration-reference-help-guide-content.ts",
+    ],
   },
   {
     removedRowId: "HHX",
@@ -89,60 +108,25 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     historicalNote:
       "Deprecated pilot-nav-profile help twin (Help topic) - workspace navigation guide folded into pilot-guide specialty (HP); canon HP = /help/pilot-guide.",
   },
+  {
+    retiredPath: "/help/operator-auth-roles",
+    canonicalPath: USERS_AND_ROLES_HELP_CANONICAL_PATH,
+    bannedBuyerCopy: ["/help/operator-auth-roles", "operator-auth-roles", "Operator auth roles"],
+    buyerSurfaceGuards: [
+      "src/lib/users-and-roles-help-evidence-copy.ts",
+      "src/lib/configuration-reference-help-guide-content.ts",
+      "src/lib/help-search-panel-catalog.ts",
+    ],
+  },
 ] as const;
 
-export const REMOVED_CORE_PILOT_HELP_ALIAS_TRAFFIC_ROW_ID = "ECO";
-export const RETIRED_CORE_PILOT_HELP_ALIAS_TRAFFIC_PATH = "/help/core-pilot";
-export const CANONICAL_FIRST_ARCHITECTURE_REVIEW_HELP_TRAFFIC_PATH =
-  FIRST_ARCHITECTURE_REVIEW_HELP_TRAFFIC_PATH;
+export function retiredHelpTopicSlugFromPath(retiredPath: string): string {
+  return retiredPath.replace(/^\/help\//, "");
+}
 
-export const REMOVED_EVIDENCE_ONLY_REVIEW_HELP_ALIAS_TRAFFIC_ROW_ID = "HEV";
-export const RETIRED_EVIDENCE_ONLY_REVIEW_HELP_ALIAS_TRAFFIC_PATH = "/help/evidence-only-review";
-export const CANONICAL_FIRST_ARCHITECTURE_REVIEW_HELP_TRAFFIC_PATH_FROM_EVIDENCE_ONLY =
-  FIRST_ARCHITECTURE_REVIEW_HELP_TRAFFIC_PATH;
-
-export const REMOVED_FIRST_PILOT_PATH_HELP_ALIAS_TRAFFIC_ROW_ID = "FIR";
-export const RETIRED_FIRST_PILOT_PATH_HELP_ALIAS_TRAFFIC_PATH = "/help/first-pilot-path";
-export const CANONICAL_FIRST_ARCHITECTURE_REVIEW_HELP_TRAFFIC_PATH_FROM_FIRST_PILOT_PATH =
-  FIRST_ARCHITECTURE_REVIEW_HELP_TRAFFIC_PATH;
-
-export const REMOVED_FIRST_HOUR_OPERATOR_PATH_HELP_ALIAS_TRAFFIC_ROW_ID = "HFE";
-export const RETIRED_FIRST_HOUR_OPERATOR_PATH_HELP_ALIAS_TRAFFIC_PATH = "/help/first-hour-operator-path";
-
-export const REMOVED_STARTING_REVIEWS_HELP_ALIAS_TRAFFIC_ROW_ID = "HET";
-export const RETIRED_STARTING_REVIEWS_HELP_ALIAS_TRAFFIC_PATH = "/help/starting-reviews";
-export const CANONICAL_REVIEW_GUIDE_HELP_TRAFFIC_PATH_FROM_STARTING_REVIEWS = REVIEW_GUIDE_HELP_TRAFFIC_PATH;
-
-export const REMOVED_CREATING_RUNS_HELP_ALIAS_TRAFFIC_ROW_ID = "HER";
-export const RETIRED_CREATING_RUNS_HELP_ALIAS_TRAFFIC_PATH = "/help/creating-runs";
-export const CANONICAL_REVIEW_GUIDE_HELP_TRAFFIC_PATH = REVIEW_GUIDE_HELP_TRAFFIC_PATH;
-
-export const REMOVED_EVALUATOR_WORKBOOK_HELP_ALIAS_TRAFFIC_ROW_ID = "HEE";
-export const RETIRED_EVALUATOR_WORKBOOK_HELP_ALIAS_TRAFFIC_PATH = "/help/evaluator-workbook";
-export const CANONICAL_PATH_CHOOSER_HELP_TRAFFIC_PATH = PATH_CHOOSER_HELP_TRAFFIC_PATH;
-
-export const REMOVED_API_CONTRACTS_HELP_ALIAS_TRAFFIC_ROW_ID = "HEP";
-export const RETIRED_API_CONTRACTS_HELP_ALIAS_TRAFFIC_PATH = "/help/api-contracts";
-export const CANONICAL_GOVERNANCE_API_CONTRACTS_HELP_TRAFFIC_PATH =
-  GOVERNANCE_API_CONTRACTS_HELP_TRAFFIC_PATH;
-
-export const REMOVED_DATA_HANDLING_TENANT_ISOLATION_HELP_ALIAS_TRAFFIC_ROW_ID = "HDA";
-export const RETIRED_DATA_HANDLING_TENANT_ISOLATION_HELP_ALIAS_TRAFFIC_PATH =
-  "/help/data-handling-tenant-isolation";
-
-export const REMOVED_AZURE_BOARDS_HELP_ALIAS_TRAFFIC_ROW_ID = "HAZ";
-export const RETIRED_AZURE_BOARDS_HELP_ALIAS_TRAFFIC_PATH = "/help/integrations/azure-boards";
-export const CANONICAL_AZURE_BOARDS_HELP_TRAFFIC_PATH = AZURE_BOARDS_HELP_TRAFFIC_PATH;
-
-export const REMOVED_HOW_IT_WORKS_HELP_ALIAS_TRAFFIC_ROW_ID = "HHX";
-export const RETIRED_HOW_IT_WORKS_HELP_ALIAS_TRAFFIC_PATH = "/help/how-it-works";
-export const CANONICAL_GETTING_STARTED_HELP_TRAFFIC_PATH_FROM_HOW_IT_WORKS = GETTING_STARTED_HELP_TRAFFIC_PATH;
-
-export const REMOVED_PRODUCT_OVERVIEW_HELP_ALIAS_TRAFFIC_ROW_ID = "EPR";
-export const RETIRED_PRODUCT_OVERVIEW_HELP_ALIAS_TRAFFIC_PATH = "/help/product-overview";
-export const CANONICAL_EXECUTIVE_SUMMARY_HELP_TRAFFIC_PATH_FROM_PRODUCT_OVERVIEW =
-  EXECUTIVE_SUMMARY_HELP_TRAFFIC_PATH;
-
-export const REMOVED_PILOT_NAV_PROFILE_HELP_ALIAS_TRAFFIC_ROW_ID = "PIL";
-export const RETIRED_PILOT_NAV_PROFILE_HELP_ALIAS_TRAFFIC_PATH = "/help/pilot-nav-profile";
-export const CANONICAL_PILOT_GUIDE_HELP_TRAFFIC_PATH_FROM_PILOT_NAV_PROFILE = PILOT_GUIDE_HELP_TRAFFIC_PATH;
+export function retiredHelpTopicAliasHonestyGuardEntries(): readonly RetiredHelpTopicAliasTrafficEntry[] {
+  return RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES.filter(
+    (entry) =>
+      (entry.bannedBuyerCopy?.length ?? 0) > 0 || (entry.buyerSurfaceGuards?.length ?? 0) > 0,
+  );
+}

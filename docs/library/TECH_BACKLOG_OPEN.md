@@ -420,11 +420,10 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1638 | Compare/replay help — IA dual with repeat-review-loop | Adoption friction P1 **V1** — with **TB-1636** |
 | TB-1639 | Compare/replay help — compare vs replay first-viewport job chrome | Adoption friction P1 **V1** — with **TB-1636** |
 | TB-1640 | Compare/replay help — Related density + inbound labels | Adoption friction P1 **V1** — with **TB-1636** |
-| TB-1641 | `/help/creating-runs` permanent redirect to canonical review guide | Adoption friction P1 **V1** — HCR ~46 |
-| TB-1642 | creating-runs alias — “runs” URL jargon honesty | Trustworthiness P1 **V1** — with **TB-1641** |
-| TB-1643 | ~~creating-runs alias — chain to same slug as TB-1258~~ **Done** 2026-08-03 | Adoption friction P1 **V1** — with **TB-1641**; `creating-runs` → `review-guide` |
-| TB-1644 | creating-runs alias — traffic workbook fold HCR→HER/HR | Adoption friction P2 **V1** — with **TB-1641** |
-| TB-1645 | creating-runs alias — anti-reintro product deep-link CI | Testability P2 **V1** — after **TB-1641** |
+| TB-1641 | ~~`/help/creating-runs` permanent redirect to canonical review guide~~ **Done** 2026-08-10 | Adoption friction P1 **V1** — HCR folded into HER/HR |
+| TB-1642 | ~~creating-runs alias — “runs” URL jargon honesty~~ **Done** 2026-08-10 | Trustworthiness P1 **V1** — `retired-help-topic-alias-honesty.test.ts` |
+| TB-1644 | ~~creating-runs alias — traffic workbook fold HCR→HER/HR~~ **Done** 2026-08-10 | Adoption friction P2 **V1** — Batch E manifest |
+| TB-1645 | ~~creating-runs alias — anti-reintro product deep-link CI~~ **Done** 2026-08-10 | Testability P2 **V1** — Batch F guards |
 | TB-1481 | Alert routing — empty destinations+GettingStarted+create-card first viewport | Adoption friction P1 **V1** — with **TB-1477**; pairs **TB-1441** |
 | TB-1482 | Shared empty form+rail whitespace contract + Vitest inventory | Testability P2 **V1** — after **TB-1477**–**TB-1481**; pairs Done **TB-1133** / empty **TB-1556** / side-rail **TB-1576** / **TB-1177**/**TB-1194** |
 | TB-1483 | `/compliance-journey` — MarketingPageShell + marketing tokens (parity `/trust`) | Adoption friction P1 **V1** — owner COM ~54/100; traffic **COM** |
@@ -485,16 +484,16 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1698 | Integration-readiness help — digests/advisory configure-href honesty | Trustworthiness P1 **V1** — with **TB-1696** |
 | TB-1699 | Integration-readiness help — status-label first-viewport density | Adoption friction P1 **V1** — with **TB-1696** |
 | TB-1700 | Integration-readiness help — Related + Integrations hub IA | Adoption friction P1 **V1** — with **TB-1696** |
-| TB-1701 | `/help/integrations/azure-boards` permanent redirect (execute TB-1623) | Adoption friction P1 **V1** — HEZ ~48 |
-| TB-1702 | HEZ alias — traffic workbook fold → HAZ | Adoption friction P2 **V1** — with **TB-1701** |
-| TB-1703 | HEZ alias — anti-reintro product deep-link CI | Testability P2 **V1** — after **TB-1701** |
-| TB-1704 | HEZ alias — soft-normalize URL honesty | Trustworthiness P1 **V1** — with **TB-1701** |
-| TB-1705 | HEZ alias — Vitest/e2e alias→`/help/azure-boards` | Testability P2 **V1** — after **TB-1701** |
-| TB-1706 | `/help/operator-auth-roles` permanent redirect to users-and-roles | Adoption friction P1 **V1** — HEO ~47 |
-| TB-1707 | HEO alias — “operator-auth” URL jargon honesty | Trustworthiness P1 **V1** — with **TB-1706** |
-| TB-1708 | HEO alias — traffic workbook fold → HOE | Adoption friction P2 **V1** — with **TB-1706** |
-| TB-1709 | HEO alias — anti-reintro product deep-link CI | Testability P2 **V1** — after **TB-1706** |
-| TB-1710 | HEO alias — Vitest/e2e alias→`/help/users-and-roles` | Testability P2 **V1** — after **TB-1706** |
+| TB-1701 | ~~`/help/integrations/azure-boards` permanent redirect~~ **Done** 2026-08-10 | Adoption friction P1 **V1** — HEZ folded into HAZ |
+| TB-1702 | ~~HEZ alias — traffic workbook fold → HAZ~~ **Done** 2026-08-10 | Adoption friction P2 **V1** — Batch E manifest |
+| TB-1703 | ~~HEZ alias — anti-reintro product deep-link CI~~ **Done** 2026-08-10 | Testability P2 **V1** — Batch F guards |
+| TB-1704 | ~~HEZ alias — soft-normalize URL honesty~~ **Done** 2026-08-10 | Trustworthiness P1 **V1** — `retired-help-topic-alias-honesty.test.ts` |
+| TB-1705 | ~~HEZ alias — Vitest/e2e alias→`/help/azure-boards`~~ **Done** 2026-08-10 | Testability P2 **V1** — Batch F guards |
+| TB-1706 | ~~`/help/operator-auth-roles` permanent redirect to users-and-roles~~ **Done** 2026-08-10 | Adoption friction P1 **V1** — folded into HOE |
+| TB-1707 | ~~HEO alias — “operator-auth” URL jargon honesty~~ **Done** 2026-08-10 | Trustworthiness P1 **V1** — `retired-help-topic-alias-honesty.test.ts` |
+| TB-1708 | ~~HEO alias — traffic workbook fold → HOE~~ **Done** 2026-08-10 | Adoption friction P2 **V1** — manifest + HOE note |
+| TB-1709 | ~~HEO alias — anti-reintro product deep-link CI~~ **Done** 2026-08-10 | Testability P2 **V1** — Batch F guards |
+| TB-1710 | ~~HEO alias — Vitest/e2e alias→`/help/users-and-roles`~~ **Done** 2026-08-10 | Testability P2 **V1** — Batch F guards |
 | TB-1711 | `/help/path-chooser` specialty next-step chooser | Adoption friction P1 **V1** — HPX ~35 |
 | TB-1713 | Path-chooser help — branch primary CTAs | Adoption friction P1 **V1** — with **TB-1711** |
 | TB-1714 | Path-chooser help — deferred ITSM + eng-help link honesty | Trustworthiness P1 **V1** — with **TB-1711** |
@@ -847,7 +846,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 Canonical: [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) only (see wave-3 cross-walk there / prior OPEN notes).
 | CAIQ / SIG questionnaire (/help/caiq-sig-response) | **TB-1631**–**TB-1635** (open P1 **V1**) | Specialty guide; leakage; pen-test honesty; dual-doc density; Help Center IA; ~41/100; traffic **HCA** |
 | Compare and replay (`/help/comparison-replay`) | **TB-1636**–**TB-1640** (open P1 **V1**) | Specialty + Open Compare CTA; tier honesty; vs repeat-review IA; job chrome; Related/inbound; ~48/100; traffic **CO** |
-| creating-runs help alias (`/help/creating-runs`) | **TB-1641**–**TB-1645** (open P1/P2 **V1**) | Permanent redirect; runs jargon; alias→TB-1258 chain; traffic fold; anti-reintro CI; ~46/100; traffic **HCR**; pairs **TB-1258**/**TB-1261** |
+| creating-runs help alias (`/help/creating-runs`) | **TB-1641**–**TB-1645** (**Done** 2026-08-10) | Permanent redirect; manifest guards; traffic fold; anti-reintro CI; traffic **HCR**→**HER**/**HR** |
 | Data handling (`/help/data-handling`) | **TB-1654**–**TB-1655** open; **TB-1651**/**TB-1652**/**TB-1656**/**TB-1658** shipped 2026-08-03 | Canon specialty guide; three-layer isolation folded into `DATA_HANDLING.md`; alias HDA→HED. Residual: leaves/stays chrome; Related; presentation rewriter still cites legacy twin path (dirty-blocked). ~52/100; traffic **HED** |
 | Data handling + tenant isolation (`/help/data-handling-tenant-isolation`) | **TB-1660** open; **TB-1656**–**TB-1658** Done 2026-08-03 | Alias → `data-handling`. Residual: Vitest anti-stub polish; traffic fold HDA→HED; leakage **Done TB-1659** |
 | DPA template (`/help/dpa-template`) | **TB-1676**–**TB-1680** (**Done** 2026-08-02) | Specialty guide + Trust CTA; leakage strip; placeholder honesty; Help Center IA; clause defer; traffic **HDP** |
@@ -855,8 +854,8 @@ Canonical: [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) only (see wave-3 c
 | Executive summary (`/help/executive-summary`) | **TB-1686**–**TB-1690** (open P1 **V1**) | Retarget off FAQ; specialty CTA; leakage; doc-href catch-all; title honesty; ~30/100; traffic **EXE** |
 | First value 20 minutes (`/help/first-value-20-minutes`) | **TB-1691**–**TB-1695** (**Done** 2026-08-02) | Specialty Admin guide + buyer CTA; 20-min retarget; leakage strip; IA dual; title honesty; traffic **HEF**; internal-runbook |
 | Integration readiness (`/help/integration-readiness`) | **TB-1696**–**TB-1700** (open P1 **V1**) | Specialty + Open CTA; tier honesty; digests href; viewport density; Related IA; ~50/100; traffic **HEI** |
-| Azure Boards help alias (`/help/integrations/azure-boards`) | **TB-1701**–**TB-1705** (open P1/P2 **V1**) | Permanent redirect (execute **TB-1623**); traffic fold; anti-reintro; URL honesty; e2e; ~48/100; traffic **HEZ** |
-| operator-auth-roles help alias (`/help/operator-auth-roles`) | **TB-1706**–**TB-1710** (open P1/P2 **V1**) | Permanent redirect→users-and-roles; jargon; traffic fold→HOE; anti-reintro; e2e; ~47/100; traffic **HEO** |
+| Azure Boards help alias (`/help/integrations/azure-boards`) | **TB-1701**–**TB-1705** (**Done** 2026-08-10) | Permanent redirect; traffic fold; anti-reintro; URL honesty; Vitest; traffic **HEZ**→**HAZ** |
+| operator-auth-roles help alias (`/help/operator-auth-roles`) | **TB-1706**–**TB-1710** (**Done** 2026-08-10) | Permanent redirect→users-and-roles; jargon; traffic fold→HOE; anti-reintro; Vitest |
 | Path chooser (`/help/path-chooser`) | **TB-1711**–**TB-1715** (open P1 **V1**) | Specialty chooser; leakage; branch CTAs; deferred/eng honesty; title/Related; ~35/100; traffic **HPX** |
 | Pilot feedback (`/help/pilot-feedback`) | **TB-1716**–**TB-1720** (open P1 **V1**) | Specialty + Open CTA; API leakage; title/58R; vs recommendation learning; job chrome; ~45/100; traffic **HPE**; internal-runbook |
 | Workspace navigation (`/help/pilot-nav-profile`) | **TB-1721**–**TB-1725** (open P1 **V1**) | Specialty + Home CTA; slug jargon; Help Center; vs core-pilot IA; Related/exec copy; ~52/100; traffic **PIL** |
