@@ -1,3 +1,5 @@
+import { renderToStaticMarkup } from "react-dom/server";
+import { Suspense, isValidElement } from "react";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -15,5 +17,17 @@ describe("session-expired page (TB-1313)", () => {
 
   it("renders the session-expired client route module", () => {
     expect(SessionExpiredPage).toBeTypeOf("function");
+  });
+});
+
+describe("session-expired page (TB-1314)", () => {
+  it("wraps the client in Suspense with a branded loading fallback", () => {
+    const element = SessionExpiredPage();
+
+    expect(isValidElement(element)).toBe(true);
+    expect(element.type).toBe(Suspense);
+
+    const fallback = (element.props as { fallback: React.ReactElement }).fallback;
+    expect(renderToStaticMarkup(fallback)).toContain('data-testid="session-expired-loading"');
   });
 });

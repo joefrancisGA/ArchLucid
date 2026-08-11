@@ -20,7 +20,7 @@ Regenerate after opening or closing summary-table rows:
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
 | Explainability | 1 |
-| Trustworthiness | 48 |
+| Trustworthiness | 47 |
 | Maintainability | 9 |
 | Traceability | 3 |
 | Interoperability | 4 |
@@ -35,9 +35,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **597** |
+| **Total (unique open)** | **596** |
 
-**By priority band:** P0 **3** | P1 **474** | P2 **103** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **3** | P1 **473** | P2 **103** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -832,7 +832,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1911 | **Done** (2026-08-10) — OIDC/JWT tab shell H1 status framing (not configuration); Vitest; see `## TB-1911` below | Trustworthiness P1 ? **V1**; owner review ~44/100 2026-07-27; traffic **SOI** | S |
 | TB-1912 | **Done** (2026-08-10) — OIDC/JWT tab shell `pageSubtitle` review framing (not configure workspace); Vitest; see `## TB-1912` below | Trustworthiness P1 ? **V1**; with **TB-1911**; do not reopen **TB-1906** | S |
 | TB-1913 | **Done** (2026-08-10) — OIDC/JWT tab discovery status uses StatusTag + shared TB-1907 mapping; Vitest; see `## TB-1913` below | Trustworthiness P1 ? **V1**; with **TB-1911**; pairs **TB-1907**/**TB-116** | S |
-| TB-1916 | Role mapping tab ? status-hub honesty (not in-page editor); see ## TB-1916 below | Trustworthiness P1 ? **V1**; owner review ~43/100 2026-07-27; traffic **SEO** | S |
+| TB-1916 | **Done** (2026-08-10) — Role mapping tab status-hub shell title/intro honesty (not in-page editor); Vitest; see `## TB-1916` below | Trustworthiness P1 ? **V1**; owner review ~43/100 2026-07-27; traffic **SEO** | S |
 | TB-1917 | Role mapping tab ? shell Configure + duplicate intro/helper with **TB-1906**; see ## TB-1917 below | Trustworthiness P1 ? **V1**; with **TB-1916**; do not reopen **TB-1906** | S |
 | TB-1918 | Role mapping tab ? StatusTag + illustrative example-group honesty; see ## TB-1918 below | Trustworthiness P1 ? **V1**; with **TB-1916**; pairs **TB-1907** | S |
 | TB-1921 | **Done** (2026-08-10) — SAML tab Fetch IdP metadata CTA label honesty; `IDENTITY_PROVIDERS_ACTION_FETCH_IDP_METADATA`; Vitest | Trustworthiness P1 ? **V1**; owner review ~52/100 2026-07-27; traffic **SSA** | S |
@@ -972,7 +972,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1309 | **Done** (2026-08-10) — `/why-archlucid` primary CTA to sample package; see ## TB-1309 below | Adoption friction P1 ? **V1**; with **TB-1306** | S |
 | TB-1310 | **Done** (2026-08-10) — `/why-archlucid` PageHeading/help + pilot orientation; see ## TB-1310 below | Adoption friction P1 ? **V1**; with **TB-1307** | S |
 | TB-1313 | **Done** (2026-08-10) — `/auth/session-expired` brand + h1 + document title; see ## TB-1313 below | Adoption friction P1 ? **V1**; owner session-expired ~59/100 2026-07-26; traffic **ASU** | S |
-| TB-1314 | `/auth/session-expired` ? Suspense + loading fallback (callback parity); see ## TB-1314 below | Adoption friction P1 ? **V1**; with **TB-1313** | XS |
+| TB-1314 | **Done** (2026-08-10) — `/auth/session-expired` Suspense + loading fallback; see ## TB-1314 below | Adoption friction P1 ? **V1**; with **TB-1313** | XS |
 | TB-1319 | `/demo/explain` ? buyer vocabulary (purge provenance/eng chrome); see ## TB-1319 below | Adoption friction P1 ? **V1**; owner demo-explain ~51/100 2026-07-26; traffic **DEX** | S |
 | TB-1321 | `/demo/explain` ? empty/not-available next-step ladder; see ## TB-1321 below | Adoption friction P1 ? **V1**; with **TB-1319** | S |
 | TB-1322 | `/demo/explain` ? IA gate or public proof ladder (IA-014); see ## TB-1322 below | Adoption friction P1 ? **V1**; with **TB-1319**; pairs **TB-1307**/**TB-1251** | S |
@@ -32652,7 +32652,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-10) — `AuthFlowShell` wordmark + `SessionExpiredView` h1; `metadata` title/description on route; Vitest in `page.test.tsx`, `SessionExpiredClient.test.tsx`, and `session-expired-page-copy.test.ts`.
 
 **Priority:** P0.
 
@@ -32681,7 +32681,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-10) — `Suspense` + `SessionExpiredLoadingView` in branded `AuthFlowShell`; Vitest in `page.test.tsx` and `SessionExpiredLoadingView.test.tsx`.
 
 **Priority:** P0.
 
@@ -44822,7 +44822,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1916 ? Role mapping tab ? status-hub honesty (not in-page editor) (P0)
 
-**Window:** V1 ? Trustworthiness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Trustworthiness. **Status:** **Done** (2026-08-10). **Priority:** P1.
 
 **Source:** Owner SEO ~43/100 2026-07-27.
 
@@ -44831,6 +44831,8 @@ Operators must read three intros before reaching the Trust Center link list.
 **Approach:** Frame as Role mapping status / overview; or ship in-page editor. Vitest title/lead.
 
 **Acceptance:** Buyer chrome matches hub vs editor job. **Size estimate:** S.
+
+**Closure (2026-08-10):** `IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_TITLE` → "Role mapping status"; intro reframed to review/status job. Vitest: `identity-providers-settings-copy.test.ts`, `IdentityProvidersRoleMappingPageView.test.tsx`.
 
 ---
 
