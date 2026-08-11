@@ -18,6 +18,7 @@ import { createPortal } from "react-dom";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { ScopeSwitcherProjectOptionButton } from "@/components/ScopeSwitcherProjectOptionButton";
 import { ScopeSwitcherTenantContextFooter } from "@/components/ScopeSwitcherTenantContextFooter";
+import { WorkspaceSwitcherFirstOpenCoach } from "@/components/WorkspaceSwitcherFirstOpenCoach";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -424,6 +425,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
                 : "Workspace scope"
         }
       >
+        <WorkspaceSwitcherFirstOpenCoach open={open} />
         {panelMode === "loading" ? (
           <p className={cn("m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.body)}>Loading workspaces…</p>
         ) : null}
