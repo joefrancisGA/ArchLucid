@@ -264,6 +264,17 @@ No special mocking is needed for `next/link` in Vitest with jsdom.
 
 Pure functions (no React, no DOM) are the easiest to test.
 
+### Source-scanning guard tests
+
+Many Vitest guards `readFileSync` product source and assert on text (import policy, FLJS deferrals, progressive disclosure). Prefer the shared harness over ad-hoc `readFileSync` + brittle paths:
+
+| Piece | Path |
+|-------|------|
+| Target registry | `src/testing/source-scan-targets.ts` |
+| Helpers | `src/testing/source-scan-harness.ts` (`readRegisteredSource`, `expectSourceContains`, `requireSourceIndex`, …) |
+
+When a scanned module moves, update **one** registry entry. New guards that target a shared product file should register a key there first.
+
 ### Example: testing coerce functions
 
 ```ts
