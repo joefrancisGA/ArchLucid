@@ -8,9 +8,14 @@ const mockUpsertSettings = vi.fn();
 
 let canMutate = true;
 let showOperatorNav = false;
+let callerAuthorityRank = 2;
 
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => canMutate,
+}));
+
+vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+  useNavCallerAuthorityRank: () => callerAuthorityRank,
 }));
 
 vi.mock("@/lib/features", () => ({
@@ -25,11 +30,14 @@ vi.mock("@/lib/api/itsm-outbound-api", () => ({
 }));
 
 import { ServiceNowIntegrationPageClient } from "./ServiceNowIntegrationPageClient";
-import { INTEGRATIONS_SERVICENOW_PATH } from "@/lib/integrations-nav-paths";
+import { INTEGRATIONS_READINESS_PATH, INTEGRATIONS_SERVICENOW_PATH } from "@/lib/integrations-nav-paths";
+import { ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm-connectors-admin-scope";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
   SERVICENOW_CONNECTION_TEST_BUTTON,
   SERVICENOW_CREDENTIALS_ADMIN_REQUIRED,
   SERVICENOW_INCIDENT_SETTINGS_TITLE,
+  SERVICENOW_INCIDENT_SETTINGS_UNAVAILABLE_LEAD,
   SERVICENOW_INTEGRATION_PAGE_DESCRIPTION,
   SERVICENOW_INTEGRATION_PAGE_TITLE,
   SERVICENOW_SAVE_SETTINGS_BUTTON,
@@ -78,11 +86,32 @@ function baseConnection(overrides: Record<string, unknown> = {}) {
   };
 }
 
+function credentialsReadyMocks(): void {
+  mockFetchHealth.mockResolvedValue(
+    baseHealth({
+      serviceNow: { locallyConfigured: true, reachable: null, summary: "pending" },
+    }),
+  );
+  mockFetchSettings.mockResolvedValue(
+    baseSettings({
+      deploymentCredentials: { serviceNowConfigured: true },
+    }),
+  );
+  mockFetchConnection.mockResolvedValue(
+    baseConnection({
+      isConfigured: true,
+      instanceBaseUrl: "https://example.service-now.com",
+      authMode: "BasicApiToken",
+    }),
+  );
+}
+
 describe("ServiceNowIntegrationPageClient", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     canMutate = true;
     showOperatorNav = false;
+    callerAuthorityRank = AUTHORITY_RANK.ExecuteAuthority;
     mockFetchHealth.mockResolvedValue(baseHealth());
     mockFetchSettings.mockResolvedValue(baseSettings());
     mockFetchConnection.mockResolvedValue(baseConnection());
@@ -115,16 +144,53 @@ describe("ServiceNowIntegrationPageClient", () => {
     );
   });
 
-  it("shows setup incomplete state and disables connection test", async () => {
+  it("shows setup incomplete state without connection test section", async () => {
     render(<ServiceNowIntegrationPageClient />);
 
     const status = await screen.findByTestId("servicenow-connection-status");
     expect(within(status).getByText("Setup incomplete")).toBeInTheDocument();
     expect(screen.getByText(SERVICENOW_CREDENTIALS_ADMIN_REQUIRED)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: SERVICENOW_CONNECTION_TEST_BUTTON })).not.toBeInTheDocument();
+    expect(screen.getByTestId("servicenow-incident-settings-collapsed")).toBeInTheDocument();
+  });
 
-    const testButton = screen.getByRole("button", { name: SERVICENOW_CONNECTION_TEST_BUTTON });
-    expect(testButton).toBeDisabled();
-    expect(screen.getByText(/Complete credential setup before testing/i)).toBeInTheDocument();
+  it("TB-1161: offers admin ITSM configure CTA when not configured", async () => {
+    callerAuthorityRank = AUTHORITY_RANK.AdminAuthority;
+
+    render(<ServiceNowIntegrationPageClient />);
+
+    expect(await screen.findByTestId("integrations-servicenow-not-configured-next-step")).toBeInTheDocument();
+    const configureLink = screen.getByTestId("integrations-servicenow-configure-admin-cta");
+    expect(configureLink).toHaveAttribute("href", ITSM_CONNECTORS_ADMIN_PATH);
+  });
+
+  it("TB-1161: offers Integration readiness CTA when not configured for non-admin", async () => {
+    render(<ServiceNowIntegrationPageClient />);
+
+    expect(await screen.findByTestId("integrations-servicenow-not-configured-next-step")).toBeInTheDocument();
+    const readinessLink = screen.getByTestId("integrations-servicenow-readiness-cta");
+    expect(readinessLink).toHaveAttribute("href", INTEGRATIONS_READINESS_PATH);
+    expect(screen.queryByTestId("integrations-servicenow-configure-admin-cta")).not.toBeInTheDocument();
+  });
+
+  it("TB-1164: demotes incident settings when credentials are missing", async () => {
+    render(<ServiceNowIntegrationPageClient />);
+
+    expect(await screen.findByTestId("servicenow-incident-settings-collapsed")).toBeInTheDocument();
+    expect(screen.getByText(SERVICENOW_INCIDENT_SETTINGS_UNAVAILABLE_LEAD)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: SERVICENOW_SAVE_SETTINGS_BUTTON })).not.toBeInTheDocument();
+  });
+
+  it("TB-1165: not-configured viewport has one primary control", async () => {
+    render(<ServiceNowIntegrationPageClient />);
+
+    await screen.findByTestId("integrations-servicenow-not-configured-next-step");
+    const mainColumn = screen.getByTestId("servicenow-page-main");
+    const primaryCta = within(mainColumn).getByTestId("integrations-servicenow-readiness-cta");
+
+    expect(primaryCta).toBeInTheDocument();
+    expect(within(mainColumn).queryAllByRole("button", { name: /save settings|test connection/i })).toHaveLength(0);
+    expect(screen.getByTestId("servicenow-setup-step-credentials")).toHaveAttribute("data-emphasized", "true");
   });
 
   it("shows connected state when probe is reachable", async () => {
@@ -175,6 +241,7 @@ describe("ServiceNowIntegrationPageClient", () => {
 
   it("blocks save when user lacks mutation capability", async () => {
     canMutate = false;
+    credentialsReadyMocks();
     render(<ServiceNowIntegrationPageClient />);
 
     const saveButton = await screen.findByRole("button", { name: SERVICENOW_SAVE_SETTINGS_BUTTON });
@@ -183,6 +250,7 @@ describe("ServiceNowIntegrationPageClient", () => {
   });
 
   it("saves incident creation settings with pending and success feedback", async () => {
+    credentialsReadyMocks();
     render(<ServiceNowIntegrationPageClient />);
 
     await screen.findByRole("heading", { name: SERVICENOW_INCIDENT_SETTINGS_TITLE });
@@ -200,6 +268,7 @@ describe("ServiceNowIntegrationPageClient", () => {
 
   it("surfaces save failure without clearing unsaved checkbox state", async () => {
     mockUpsertSettings.mockRejectedValue(new Error("Save rejected"));
+    credentialsReadyMocks();
 
     render(<ServiceNowIntegrationPageClient />);
     await screen.findByRole("heading", { name: SERVICENOW_INCIDENT_SETTINGS_TITLE });

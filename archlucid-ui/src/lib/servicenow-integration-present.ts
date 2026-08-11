@@ -36,6 +36,14 @@ export type ServiceNowSetupStep = {
   readonly complete: boolean;
 };
 
+export type ServiceNowPageComposition = {
+  readonly showNotConfiguredNextStep: boolean;
+  readonly incidentSettingsCollapsed: boolean;
+  readonly showConnectionTest: boolean;
+  readonly connectionTestCollapsed: boolean;
+  readonly emphasizedSetupStepId: string;
+};
+
 const STATUS_LABELS: Record<ServiceNowConnectionStatus, string> = {
   connected: "Connected",
   "setup-incomplete": "Setup incomplete",
@@ -225,6 +233,51 @@ export function resolveServiceNowCredentialStatusLabel(
   }
 
   return "Configured";
+}
+
+/** Progressive disclosure for ServiceNow integration page (TB-1164 / TB-1165). */
+export function resolveServiceNowPageComposition(input: {
+  readonly nativeEnabled: boolean;
+  readonly credentialsReady: boolean;
+  readonly testGateAllowed: boolean;
+}): ServiceNowPageComposition {
+  if (!input.nativeEnabled) {
+    return {
+      showNotConfiguredNextStep: !input.credentialsReady,
+      incidentSettingsCollapsed: true,
+      showConnectionTest: false,
+      connectionTestCollapsed: false,
+      emphasizedSetupStepId: "native",
+    };
+  }
+
+  if (!input.credentialsReady) {
+    return {
+      showNotConfiguredNextStep: true,
+      incidentSettingsCollapsed: true,
+      showConnectionTest: false,
+      connectionTestCollapsed: false,
+      emphasizedSetupStepId: "credentials",
+    };
+  }
+
+  if (!input.testGateAllowed) {
+    return {
+      showNotConfiguredNextStep: false,
+      incidentSettingsCollapsed: false,
+      showConnectionTest: false,
+      connectionTestCollapsed: true,
+      emphasizedSetupStepId: "verified",
+    };
+  }
+
+  return {
+    showNotConfiguredNextStep: false,
+    incidentSettingsCollapsed: false,
+    showConnectionTest: true,
+    connectionTestCollapsed: false,
+    emphasizedSetupStepId: "verified",
+  };
 }
 
 export function resolveServiceNowSetupSteps(input: {

@@ -20,6 +20,13 @@ export const SERVICENOW_INCIDENT_SETTINGS_TITLE = "Incident creation settings";
 export const SERVICENOW_INCIDENT_SETTINGS_LEAD =
   "Control how ArchLucid links findings to ServiceNow incidents for this workspace.";
 
+export const SERVICENOW_INCIDENT_SETTINGS_COLLAPSED_SUMMARY = "Incident creation settings";
+
+export const SERVICENOW_INCIDENT_SETTINGS_UNAVAILABLE_LEAD =
+  "Available after connection is configured.";
+
+export const SERVICENOW_CONNECTION_TEST_COLLAPSED_SUMMARY = "Test connection";
+
 export const SERVICENOW_CMDB_AUTO_CREATE_LABEL =
   "Create a Configuration Item when no match is found";
 

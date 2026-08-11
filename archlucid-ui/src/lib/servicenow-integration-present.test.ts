@@ -4,6 +4,7 @@ import {
   isServiceNowCredentialsReady,
   resolveServiceNowConnectionStatus,
   resolveServiceNowConnectionTestGate,
+  resolveServiceNowPageComposition,
   sanitizeCustomerFacingProbeSummary,
   sanitizeServiceNowLoadErrorForConnectionStatus,
   SERVICENOW_LOAD_FAILURE_STATUS_EXPLANATION,
@@ -107,5 +108,31 @@ describe("servicenow-integration-present", () => {
         "not configured — add Integrations:ItsmOutbound:ServiceNow credentials in host configuration",
       ),
     ).not.toMatch(/Integrations:ItsmOutbound|host configuration/i);
+  });
+
+  it("collapses incident settings and emphasizes credentials when not configured (TB-1164/TB-1165)", () => {
+    const composition = resolveServiceNowPageComposition({
+      nativeEnabled: true,
+      credentialsReady: false,
+      testGateAllowed: false,
+    });
+
+    expect(composition.showNotConfiguredNextStep).toBe(true);
+    expect(composition.incidentSettingsCollapsed).toBe(true);
+    expect(composition.showConnectionTest).toBe(false);
+    expect(composition.emphasizedSetupStepId).toBe("credentials");
+  });
+
+  it("shows connection test when gate allows", () => {
+    const composition = resolveServiceNowPageComposition({
+      nativeEnabled: true,
+      credentialsReady: true,
+      testGateAllowed: true,
+    });
+
+    expect(composition.showNotConfiguredNextStep).toBe(false);
+    expect(composition.incidentSettingsCollapsed).toBe(false);
+    expect(composition.showConnectionTest).toBe(true);
+    expect(composition.emphasizedSetupStepId).toBe("verified");
   });
 });
