@@ -893,8 +893,8 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1141 | Cloud provider summary cards ? single primary CTA (dedupe Configure / View details); see ## TB-1141 below | Adoption friction P1 ? **V1**; with **TB-1139** | S |
 | TB-1143 | Cloud connections empty/not-configured composition ? suppress zero theater; see ## TB-1143 below | Adoption friction P1 ? **V1**; with **TB-1141** | S |
 | TB-1144 | SOC 2 / pen-test honest procurement talk-track contract; see `## TB-1144` below | Commercial / marketability P1 ? **V1**; PA Q17 assurance talk; GTM **M-196**/**M-197** | S |
-| TB-1147 | Jira page copy honesty ? do not claim Set connection details; see ## TB-1147 below | Adoption friction P1 ? **V1**; with **TB-1146** | XS |
-| TB-1148 | Jira not-configured message dedupe (status vs connection test); see ## TB-1148 below | Adoption friction P1 ? **V1**; with **TB-1146** | XS |
+| TB-1147 | ~~Jira page copy honesty ? do not claim Set connection details~~ **Done** (2026-08-11); see ## TB-1147 below | Adoption friction P1 ? **V1**; with **TB-1146** | XS |
+| TB-1148 | ~~Jira not-configured message dedupe (status vs connection test)~~ **Done** (2026-08-11); see ## TB-1148 below | Adoption friction P1 ? **V1**; with **TB-1146** | XS |
 | TB-1149 | Jira issue type by severity ? structured UI (no raw JSON); see ## TB-1149 below | Adoption friction P1 ? **V1**; with **TB-1146** | M |
 | TB-1150 | Jira empty composition ? gate connection test + demote overrides; see ## TB-1150 below | Adoption friction P1 ? **V1**; with **TB-1146**/**TB-1148** | S |
 | TB-1154 | Azure Boards feature-off / load-error empty path honesty; see ## TB-1154 below | Adoption friction P1 ? **V1**; with **TB-1151** | S |
@@ -1254,7 +1254,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2161 | **Done** (2026-08-10) ? Zero-cost runtime knobs ? Server GC + TieredPGO + invariant globalization; see ## TB-2161 below | Performance P0 ? **V1**; owner perf wave 7 2026-08-09; free complement to R2R **no-go** in **TB-2124** | S |
 | TB-2162 | **Done** (2026-08-10) ? `System.Text.Json` source-generated contexts for API hot DTO slices; see ## TB-2162 below | Performance P0 ? **V1**; owner perf wave 7 2026-08-09; only `GraphJsonSerializerContext` exists; pairs **TB-2146** | L |
 | TB-2163 | **Done** (2026-08-10) ? Outbound `SocketsHttpHandler` tuning across `AddHttpClient` registrations; see ## TB-2163 below | Performance P0 ? **V1**; owner perf wave 7 2026-08-09; no primary-handler config on ~25 clients | M |
-| TB-2164 | Table-valued parameters for findings child inserts ? stop plan-cache churn from variable chunk sizes; see ## TB-2164 below | Performance P0 ? **V1**; owner perf wave 7 2026-08-09; needs SQL-mode measurement first | M |
+| TB-2164 | ~~Table-valued parameters for findings child inserts~~ **Done** (2026-08-11); see ## TB-2164 below | Performance P0 ? **V1**; owner perf wave 7 2026-08-09 | M |
 | TB-2165 | **Done** (2026-08-10) ? TanStack Query cache persistence across navigation / reload; see ## TB-2165 below | Performance P0 ? **V1**; owner perf wave 7 2026-08-09; residual after Done **TB-2123**/**TB-2144** | S |
 | TB-2166 | **Done** (2026-08-10) ? Web Worker offload for INP on evidence graph + compare views; see ## TB-2166 below | Performance P0 ? **V1**; owner perf wave 7 2026-08-09; INP not addressed by bundle cuts; after Done **TB-2031** | M |
 | TB-2167 | **Done** (2026-08-10) ? Leader election for hosted background services; see ## TB-2167 below | Performance P0 ? **V1**; owner perf wave 7 2026-08-09; reliability lever too; blocker named in **TB-2124** matrix | L |
@@ -28743,13 +28743,9 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-11) ? `ITSM_PRODUCT_PAGE_COPY` summaries describe tenant routing overrides only; credentials are platform/admin-configured; Vitest bans ?Set connection details? on this route.
 
 **Priority:** P0.
-
-**Source:** Owner `/integrations/jira` screenshot 2026-07-25.
-
-**Problem:** Subtitle in `ITSM_PRODUCT_PAGE_COPY.jira.summary` says ?Set connection details and routing preferences for this workspace,? but the page only edits **tenant overrides** (project key, severity filter, issue-type map). Connection credentials are host/platform-configured. Copy overpromises and worsens the dead end in **TB-1146**.
 
 **Approach:**
 
@@ -28771,13 +28767,9 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-11) ? probe summary stays on `ItsmConnectorProbeCard` only; Connection test shows unavailable hint until Run, then `formatItsmConnectionTestResult` (distinct wording); Vitest asserts no duplicate not-configured sentence.
 
 **Priority:** P0.
-
-**Source:** Owner `/integrations/jira` screenshot 2026-07-25.
-
-**Problem:** Sanitized probe summary ?Jira credentials are not configured for this workspace? appears on `ItsmConnectorProbeCard` **and again** under Connection test (`probe?.summary` after Run connection test / on load). Duplicate failure theater.
 
 **Approach:**
 
@@ -50905,11 +50897,9 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Window:** V1 ? Performance.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-11) ? migration **304** + greenfield `ArchLucid.sql` TVP types; `InsertFindingChildrenAsync` uses Dapper structured parameters via `FindingChildInsertQueryShapes` / `FindingChildTableValuedParameters`; `FindingChildInsertQueryShapeTests` guard stable `INSERT ? SELECT FROM @Rows` shapes.
 
 **Priority:** P0.
-
-**Source:** Owner perf wave 7 2026-08-09; current shape per [`BACKEND_PERFORMANCE_REVIEW_STATUS.md`](../performance/BACKEND_PERFORMANCE_REVIEW_STATUS.md) ? `InsertFindingChildrenAsync` batches related nodes, recommended actions, properties, and trace lists with chunked multi-row `VALUES` at parameter-budget-aware chunk sizes.
 
 **Why:** Parameter-budget-aware chunking means the **last** chunk of any batch differs in width from the full chunks, so query text varies with finding count. Each distinct width is a distinct cache key in the Azure SQL plan cache: compile CPU on the commit path plus plan-cache pollution that evicts genuinely hot plans. A table-valued parameter gives one stable statement and one cached plan regardless of row count.
 
