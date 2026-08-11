@@ -1,5 +1,6 @@
 import { isArchitectureCreationBootstrapIntent } from "@/lib/architecture-creation-bootstrap";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 
 /** Customer-facing architecture lifecycle — distinct from review or review states. */
 export type ArchitectureDraftCustomerStatus = "draft" | "ready-for-review" | "archived";
@@ -82,7 +83,7 @@ export function formatArchitectureDraftCreatedLabel(
     return null;
   }
 
-  const ms = Date.parse(trimmed);
+  const ms = parseIsoUtcMs(trimmed);
 
   if (Number.isNaN(ms)) {
     return null;

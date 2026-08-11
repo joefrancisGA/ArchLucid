@@ -21,13 +21,14 @@ import {
   ARCHITECTURE_CREATION_VIEW_ALL_DRAFTS_LABEL,
 } from "@/lib/create-vs-review-intake-copy";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import { formatRelativeTime } from "@/lib/relative-time";
 import { cn } from "@/lib/utils";
 
 const ARCHITECTURE_CREATION_RESUME_PREVIEW_LIMIT = 3;
 
 function formatAbsoluteUpdatedTitle(updatedUtc: string): string {
-  const parsed = Date.parse(updatedUtc);
+  const parsed = parseIsoUtcMs(updatedUtc);
 
   if (Number.isNaN(parsed)) {
     return updatedUtc;

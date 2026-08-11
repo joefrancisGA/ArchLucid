@@ -1,8 +1,10 @@
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
+
 /**
  * Human-readable relative time for UI lists (e.g. "2 hours ago").
  */
 export function formatRelativeTime(isoUtc: string, nowMs: number = Date.now()): string {
-  const t = Date.parse(isoUtc);
+  const t = parseIsoUtcMs(isoUtc);
 
   if (Number.isNaN(t)) {
     return isoUtc;

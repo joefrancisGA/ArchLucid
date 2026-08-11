@@ -17,6 +17,7 @@ import {
   startReviewFromArchitectureHref,
 } from "@/lib/architecture-routes";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import { formatRelativeTime } from "@/lib/relative-time";
 import { cn } from "@/lib/utils";
 
@@ -32,7 +33,7 @@ import { shouldShowReviewsHubResumeDrafts } from "./reviews-hub-header-primary";
 const REVIEWS_HUB_RESUME_DRAFTS_PREVIEW_LIMIT = 3;
 
 function formatAbsoluteUpdatedTitle(updatedUtc: string): string {
-  const parsed = Date.parse(updatedUtc);
+  const parsed = parseIsoUtcMs(updatedUtc);
 
   if (Number.isNaN(parsed)) {
     return updatedUtc;
