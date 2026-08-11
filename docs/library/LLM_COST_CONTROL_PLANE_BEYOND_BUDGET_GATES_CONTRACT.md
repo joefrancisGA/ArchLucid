@@ -1,19 +1,22 @@
-> **Scope:** Contributor-reference — mature LLM cost-control plane beyond budget gates (TB-1287); not a buyer-facing trust claim.
+> **Scope:** Contributor-reference — mature LLM cost-control plane beyond budget gates + non-bypassable accounting chokepoint (**TB-1287**); not a buyer assurance attestation.
 
-# Mature LLM cost-control plane beyond budget gates (TB-1287)
+# Mature LLM cost-control plane beyond budget gates
 
 **Status:** Active (V1)  
-**Backlog:** **TB-1287** (this contract) · **TB-1288** (anti-gates-alone / call-site-enough / SDK-bypass / stale-$50 honesty CI — open)  
+**Backlog:** **TB-1287** (this contract) · **TB-1288** (anti-gates-alone / call-site-reserve-enough / SDK-bypass / stale-$50 honesty CI — open)  
 **Audience:** Principal architects, FinOps reviewers, platform reviewers, coding agents  
-**Related:** [INV004_RESERVE_SETTLE_LIFECYCLE_CONTRACT.md](./INV004_RESERVE_SETTLE_LIFECYCLE_CONTRACT.md) (**TB-975** / **TB-976** open / **TB-977** Done) · [OPERATIONS_LLM_QUOTA.md](./OPERATIONS_LLM_QUOTA.md) · [GOLDEN_COHORT_BUDGET.md](../runbooks/GOLDEN_COHORT_BUDGET.md) · ADR [0005](../architecture/adrs/0005-llm-cost-guardrails.md) · GTM **M-225** / **M-226** / **M-131** / **M-170** · Done **TB-011** / **TB-894** / **TB-939** · open **TB-941** / **TB-976** / **TB-1020**
+**Related:** [ARCHITECTURE_INVARIANTS.md](./ARCHITECTURE_INVARIANTS.md) (**INV-004**) · [INV004_RESERVE_SETTLE_LIFECYCLE_CONTRACT.md](./INV004_RESERVE_SETTLE_LIFECYCLE_CONTRACT.md) (**TB-975**) · [OPERATIONS_LLM_QUOTA.md](./OPERATIONS_LLM_QUOTA.md) · [../runbooks/GOLDEN_COHORT_BUDGET.md](../runbooks/GOLDEN_COHORT_BUDGET.md) · ADR [0005](../architecture/adrs/0005-llm-cost-guardrails.md) · GTM **M-225** / **M-226** / **M-131** / **M-170** · Done **TB-011** / **TB-894** / **TB-939** · open **TB-976** / **TB-941** / **TB-1020**
+
+**Buyer / PA one-pager:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md` § M-226](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#llm-cost-control-plane-m-226).  
+**Path-stable alias:** [`LLM_COST_CONTROL_PLANE_PA_ONE_PAGER.md`](../go-to-market/LLM_COST_CONTROL_PLANE_PA_ONE_PAGER.md).
 
 ---
 
 ## 1. Purpose
 
-Name what a **mature LLM cost-control plane** adds beyond warn/kill + monthly/daily budget **gates** — and where **token accounting must live** so a new completion call site cannot bypass admission, metering, and reserve/settle without a deliberate exemption.
+Name what **budget gates alone** cover versus what a **mature LLM cost-control plane** adds — and where token accounting must live so new call sites cannot bypass product admission, metering, and reserve/settle.
 
-**One line:** **Gates cap admission; the mature plane is decorator-chokepoint accounting plus durable leases, run caps, spend reducers, showback, and process≠provider honesty — not warn/kill + monthly cap alone.**
+**One line:** **Gates admit or deny**; **the decorator chokepoint accounts**; **leases, run caps, cache/tier, and showback** complete the plane — warn/kill + monthly cap is necessary but not sufficient.
 
 ---
 
@@ -21,163 +24,138 @@ Name what a **mature LLM cost-control plane** adds beyond warn/kill + monthly/da
 
 | Do **not** claim | Why |
 |------------------|-----|
-| “Warn/kill + monthly cap = mature LLM FinOps.” | Cohort Cost Management probe + product `LlmMonthlyTenantDollarBudgetTracker` are **gates** — necessary, not the full plane (**M-225**). |
-| “Reserving at a handler call site is enough.” | Call-site reserve without DI `LlmCompletionAccountingClient` does not stop a **new** code path from constructing a wire client and skipping accounting. |
-| “Any host may call the Azure OpenAI SDK directly.” | Product hosts must inject `IAgentCompletionClient` / `IAgentStreamingCompletionClient` only; wire clients are host-registration factories (**TB-1288**). |
-| “Cohort cap is still $50/month.” | Owner lowered cohort hard cap to **$15** on 2026-06-06 (`tests/golden-cohort/budget.config.json`); ratios **80% warn / 95% kill** remain pinned. |
-| “Cohort ledger = product tenant ledger.” | Golden-cohort live harness uses Cost Management + append-only usage ledger; product uses INV-004 SQL trackers — label exemptions, do not elide. |
-| “Metering = Azure invoice.” | `IUsageMeteringService` / cost reporting are **showback** estimates — provider billing is **M-170** / **TB-1020**. |
+| “Warn/kill + monthly cap = mature FinOps.” | Cohort/product gates are admission layers only — not a complete cost-control architecture without chokepoint accounting and beyond-gate controls. |
+| “Call-site reserve is enough.” | Reserving at one handler does not prevent a new completion path from constructing a wire client outside the DI decorator chain. |
+| “Any host may call Azure OpenAI SDK directly.” | Product hosts must inject `IAgentCompletionClient` / `IAgentStreamingCompletionClient` and receive `LlmCompletionAccountingClient` from DI — not `new AzureOpenAiCompletionClient`. |
+| “Cohort cap is still **$50**/month.” | Owner lowered to **$15** on 2026-06-06 in `tests/golden-cohort/budget.config.json`; warn **80%** / kill **95%** ratios remain pinned. |
+| “Metering = Azure invoice.” | `IUsageMeteringService` showback is estimated tokens/USD — dispute-grade reconcile is **TB-1020** / **M-170**, not this contract. |
+| “Gates alone prevent SDK bypass.” | Bypass prevention is DI registration + architecture-test forbid list — not monthly/daily counters. |
 
 ---
 
 ## 3. Shipped gates (cite — do not re-author)
 
-These controls are **Done** or documented elsewhere. This contract **names** them as gate layers only.
+| Gate | Scope | Owner / anchor |
+|------|-------|----------------|
+| Golden-cohort Cost Management probe + warn/kill + append-only ledger | Live eval / cohort Azure spend | [`GOLDEN_COHORT_BUDGET.md`](../runbooks/GOLDEN_COHORT_BUDGET.md); `tests/golden-cohort/budget.config.json` (**$15** cap) |
+| `LlmMonthlyTenantDollarBudgetTracker` / `LlmDailyTenantBudgetTracker` | Authenticated tenant estimated USD / UTC-day tokens | **INV-004** / **TB-975**–**TB-977**; [`INV004_RESERVE_SETTLE_LIFECYCLE_CONTRACT.md`](./INV004_RESERVE_SETTLE_LIFECYCLE_CONTRACT.md) |
+| `LlmTokenQuotaWindowTracker` | Sliding-window token quota (Prod on) | [`OPERATIONS_LLM_QUOTA.md`](./OPERATIONS_LLM_QUOTA.md); ADR 0005 |
+| Run-scoped batch admit | Before `IAgentExecutor.ExecuteAsync` | **TB-939** Done — `IRunScopedLlmBudgetReservationService` |
+| Quick Scan reservation | Anonymous marketing plane | **TB-894** Done — per-reservation `Guid` + TTL |
+| HTTP fixed-window rate limit | Authenticated tenant bucket | Layer in paying-tenant spend map (**TB-1570**) |
 
-| Gate | What it does | Canonical doc / code | TB |
-|------|--------------|------------------------|-----|
-| Cohort Cost Management probe + warn/kill | MTD ActualCost vs cap; nightly real-LLM eligibility | [`GOLDEN_COHORT_BUDGET.md`](../runbooks/GOLDEN_COHORT_BUDGET.md), `scripts/golden_cohort_budget_probe.py`, `assert_golden_cohort_kill_switch_present.py` | cohort ops |
-| Product monthly USD hard cap | `LlmMonthlyTenantDollarBudgetTracker` reserve/settle on SQL row | [`INV004_RESERVE_SETTLE_LIFECYCLE_CONTRACT.md`](./INV004_RESERVE_SETTLE_LIFECYCLE_CONTRACT.md) | **TB-011** Done, **TB-975** |
-| Product daily token window | `LlmDailyTenantBudgetTracker` | `OPERATIONS_LLM_QUOTA.md` | Done |
-| Run-scoped batch admit | `IRunScopedLlmBudgetReservationService.AdmitBeforeAgentBatchAsync` before agent batch | INV-004 §6 | **TB-939** Done |
-| Quick Scan global reservation | Per-attempt `Guid` + TTL + commit/release | INV-004 §5 | **TB-894** Done |
-| SQL-owned UTC month period + in-flight fairness | Monthly period via `SYSUTCDATETIME()`; admission gate | INV-004 §7 | **TB-977** Done |
-
-**Cohort cap pin (owner):** `monthlyTokenBudgetUsd` = **15** USD; `warnThresholdPercent` = **80**; `killSwitchThresholdPercent` = **95** in [`tests/golden-cohort/budget.config.json`](../../tests/golden-cohort/budget.config.json). Do not re-assert **$50** in buyer or PA copy.
+**Cohort vs product ledger:** Golden-cohort live harness may use Cost Management ledger instead of the product monthly tracker — label the plane; do not pretend they are identical.
 
 ---
 
-## 4. Beyond gates — mature plane matrix
+## 4. Beyond gates — mature plane layers
 
-| Plane layer | Role | Not sufficient alone | Owner / residual |
-|-------------|------|----------------------|------------------|
-| **(1) Single accounting chokepoint** | All product completions (agents, Ask, judges, remediation, batch adapters) enter via DI-decorated `LlmCompletionAccountingClient` → inner wire client | Handler-level reserve without decorator | **TB-1288** CI; NetArch forbid list (design anchor below) |
-| **(2) Durable reservation lifecycle** | Reserve before call, settle after; pooled monthly counter today | Crash-proof settle; orphan reclaim | **TB-976** open; **TB-977** Done (period + fairness) |
-| **(3) Run / task spend caps** | Per-run USD/token ceilings; partial-run semantics | Monthly gate alone | **TB-941** open (per-step hard cap); **TB-937** Done (partial UX) |
-| **(4) Cache admission + tier routing** | Reduce duplicate provider calls; route to cheaper tier | Substitute for hard gates or accounting | Done cache paths; tier routing as spend **reducer** |
-| **(5) Attribution / showback** | `IUsageMeteringService`, operator cost views, OTel counters | Azure invoice reconciliation | **M-294** / **M-295**; **TB-1020** process≠provider |
-| **(6) Process ≠ provider billing** | Skip after persist vs provider at-least-once | Zero duplicate provider spend | **M-170** / **TB-1020** |
-| **(7) Embeddings / non-chat paths** | Explicit in or out of same plane | Assume all LLM spend is funneled if not listed | Document exemptions per path (see §6) |
+| # | Layer | Role | Not sufficient alone |
+|---|-------|------|----------------------|
+| 1 | **Accounting chokepoint** (`LlmCompletionAccountingClient`) | Single DI decorator on `IAgentCompletionClient` / `IAgentStreamingCompletionClient`: quota, daily/monthly reserve/settle, redaction hooks, OTel, `IUsageMeteringService`, `IAiBudgetPreCallGuard` | Call-site reserve without DI |
+| 2 | **Durable reservation lifecycle** | Pooled monthly/daily counter + SQL `ROWVERSION` CAS; per-call leases + orphan reclaim (**TB-976** open) | Crash-proof settle (**M-132**) |
+| 3 | **Run / task spend caps** | Run-scoped admit (**TB-939**); per-step hard cap residual (**TB-941** open); partial-run semantics (**TB-937** Done) | Transport Polly success |
+| 4 | **Cache / tier routing** | Spend reducers — demo prompt cache, mode/tier routing, prompt-cache prefix stability (**TB-2159**) | Substitute for hard kill or accounting |
+| 5 | **Attribution / showback** | Operator-visible estimated usage (`IUsageMeteringService`, cost reporting) | Azure invoice reconciliation |
+| 6 | **Process ≠ provider** | TaskId process skip after persist; provider at-least-once | Zero duplicate provider spend (**M-171** / **TB-1020**) |
+| 7 | **Embeddings / non-chat** | Must be explicitly in or out of the same plane | Assume parity without contract |
 
----
-
-## 5. Gates vs mature plane — summary matrix
-
-| Question | Gates answer | Mature plane adds |
-|----------|--------------|-------------------|
-| Can we stop runaway cohort nightly spend? | Yes — Cost Management + kill at 95% | Chokepoint accounting for **product** paths; cohort harness exemption labeled |
-| Can concurrent replicas bypass tenant hard cap? | Yes — INV-004 CAS (**TB-011** / **TB-975**) | Orphan reserved pressure until **TB-976**; fairness gate (**TB-977**) |
-| Can a new feature silently add LLM spend? | **No** — gates alone do not see unknown call sites | **Yes** — require `IAgentCompletionClient` injection through `LlmCompletionAccountingClient` |
-| Do we know who spent what? | Partial — product metering hooks at decorator | Showback + attribution distinct from kill |
-| Is product spend = Azure bill? | **No** | Process skip vs provider billing (**M-170**) |
+**Code anchor:** `ArchLucid.AgentRuntime/LlmCompletionAccountingClient.cs` — all agent completions, Ask, judges, remediation, and batch adapters that bill product hosts should enter through this decorator (ADR 0005).
 
 ---
 
-## 6. Non-bypass pin — accounting chokepoint
-
-### 6.1 Decorator chain (product hosts)
+## 5. Non-bypass pin
 
 | Rule | V1 intent |
 |------|-----------|
-| **Inject** | `IAgentCompletionClient` / `IAgentStreamingCompletionClient` from DI — never `new AzureOpenAiCompletionClient` in feature code |
-| **Chokepoint** | `LlmCompletionAccountingClient` (`ArchLucid.AgentRuntime/LlmCompletionAccountingClient.cs`) wraps inner client (typically `AzureOpenAiCompletionClient`) |
-| **Responsibilities at chokepoint** | Per-tenant quota windows, monthly/daily budget reserve/settle, `IUsageMeteringService` recording, prompt redaction hooks, OTel counters, `IAiBudgetPreCallGuard`, demo prompt cache |
-| **Registration** | `ServiceCollectionExtensions.AgentsGovernanceRetrieval.cs` — wire clients are singleton factories; decorators are scoped |
+| **Inject, don't construct** | Product hosts register `IAgentCompletionClient` → `LlmCompletionAccountingClient` → inner wire client in DI only. |
+| **Forbid direct SDK** | NetArchTest / factory-only construction — forbid `new AzureOpenAiCompletionClient` (and raw Azure OpenAI SDK clients) outside host registration. |
+| **New call sites** | Must take `IAgentCompletionClient` or `IAgentStreamingCompletionClient` from DI — never a wire type. |
+| **Residual exemptions** | Golden-cohort live harness (Cost Management ledger); unit/integration tests with explicit test doubles — label, don't generalize to product hosts. |
 
-ADR **0005** names guardrails at this layer. [`OPERATIONS_LLM_QUOTA.md`](./OPERATIONS_LLM_QUOTA.md) documents operator quota surfaces fed from the same path.
-
-### 6.2 NetArch / factory-only construction (design anchor for **TB-1288**)
-
-| Forbid in product feature assemblies | Allow in host composition only |
-|----------------------------------------|--------------------------------|
-| `new AzureOpenAiCompletionClient(...)` | Host `ServiceCollectionExtensions` registration |
-| Direct Azure OpenAI SDK client construction for completions | Test fakes / simulator hosts with explicit test registration |
-| Bypassing `LlmCompletionAccountingClient` for “just one quick call” | Golden-cohort **live** harness paths that use Cost Management ledger (labeled exemption) |
-
-**Residual:** NetArchTest forbid list may ship in **TB-1288** or a follow-on named in **TB-1287** acceptance — this contract is the **design SoT** either way.
-
-### 6.3 Labelled exemptions (not identical planes)
-
-| Path | Budget / accounting plane | Label in copy |
-|------|----------------------------|---------------|
-| Product authenticated LLM completions | `LlmCompletionAccountingClient` + INV-004 trackers | Product ledger |
-| Golden-cohort real-LLM nightly | Cost Management probe + cohort usage ledger | Cohort gate — not product `LlmMonthlyTenantDollarBudgetTracker` |
-| Anonymous Quick Scan | `IQuickScanGlobalBudgetReservationStore` (**TB-894**) | Marketing plane — not paying-tenant monthly row |
-| Simulator / test hosts | Test doubles or explicit simulator registration | Non-production |
+**TB-1288** owns CI/doc guards that fail gates-alone, call-site-enough, SDK-bypass, and stale-**$50** claims. NetArch forbid-list implementation may ship in **TB-1288** or a follow-on slice named there.
 
 ---
 
-## 7. Code anchors (verification)
+## 6. Cohort cap pin ($15)
 
-| Surface | Location |
-|---------|----------|
-| Accounting decorator | `ArchLucid.AgentRuntime/LlmCompletionAccountingClient.cs` |
-| Monthly tracker | `ArchLucid.AgentRuntime/LlmMonthlyTenantDollarBudgetTracker.cs` |
-| Daily token tracker | `ArchLucid.AgentRuntime/LlmDailyTenantBudgetTracker.cs` |
-| Run-scoped admit | `RunScopedLlmBudgetReservationService` (**TB-939**) |
-| Metering | `IUsageMeteringService` / `ArchLucidInstrumentation` LLM counters |
-| Cohort cap config | `tests/golden-cohort/budget.config.json` |
-| Cohort kill-switch CI | `scripts/ci/assert_golden_cohort_kill_switch_present.py` |
-| Host wire registration | `ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.AgentsGovernanceRetrieval.cs` |
+| Field | Value | Source |
+|-------|-------|--------|
+| `monthlyTokenBudgetUsd` | **15** | `tests/golden-cohort/budget.config.json` |
+| `warnThresholdPercent` | **80** | same |
+| `killSwitchThresholdPercent` | **95** | same |
+| Prior owner cap | **$50** (retired 2026-06-06) | Do not re-assert in buyer/PA copy |
 
 ---
 
-## 8. Operator / PA review
-
-1. Trace one Real completion — confirm it crosses `LlmCompletionAccountingClient`, not a raw SDK call in a controller or agent handler.
-2. Ask which assemblies are **forbidden** from constructing wire clients — answer must cite this contract + host registration, not “we only call OpenAI in one place today.”
-3. Separate **cohort $15** language from **product tenant monthly cap** — different probes and ledgers.
-4. Ask what happens after crash between reserve and settle — cite **TB-976**, not “automatic release” ([INV-004](./INV004_RESERVE_SETTLE_LIFECYCLE_CONTRACT.md)).
-5. Treat “caps alone = mature FinOps,” “call-site reserve prevents bypass,” or “$50 cohort cap” as review findings (**M-225**).
-
----
-
-## 9. Claim boundary (GTM **M-225** / **M-226**)
-
-| Safe | Unsafe |
-|------|--------|
-| “Accounting lives at the DI decorator chokepoint (`LlmCompletionAccountingClient`).” | “Warn/kill + monthly cap alone are mature FinOps.” |
-| “Gates plus leases, run caps, cache/tier, showback, process≠provider.” | “Reserving in the handler prevents bypass by new call sites.” |
-| “Cohort hard cap is **$15** (owner 2026-06-06); ratios 80/95 pinned.” | “Cohort cap is $50/month.” |
-| “Metering supports operator showback; reconcile separately from Azure invoice.” | “Metering equals the Azure bill.” |
-| “Cohort and product ledgers use different planes — label exemptions.” | “Cohort gate proves product ledger behavior.” |
-
-Buyer handout: [BUYER_SECURITY_PROCUREMENT_PACKET.md § M-226](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#llm-cost-control-plane-m-226). Path-stable alias: [LLM_COST_CONTROL_PLANE_PA_ONE_PAGER.md](../go-to-market/LLM_COST_CONTROL_PLANE_PA_ONE_PAGER.md).
-
----
-
-## 10. Enforcement surfaces (**TB-1288** CI anchors)
-
-| Guard | Intent | Verification points |
-|-------|--------|---------------------|
-| Gates-alone FinOps | Fail stubs equating warn/kill + monthly cap with complete cost-control architecture without naming chokepoint + beyond-gate controls | This contract §3–§4 |
-| Call-site reserve enough | Fail claims that handler reserve/settle prevents bypass without `LlmCompletionAccountingClient` | §6.1 |
-| SDK bypass approved | Fail claims that wire/SDK construction outside host registration is an approved product pattern | §6.2 |
-| Stale **$50** cohort cap | Fail cohort-cap claims contradicting `GOLDEN_COHORT_BUDGET.md` / `budget.config.json` | §3 cohort pin |
-| Wiring | Pair **M-225**; wire in `run_buyer_surface_strict_guards.py` | `LlmCompletionAccountingClient`, ADR 0005, `assert_golden_cohort_kill_switch_present.py`, INV-004 trackers, `IUsageMeteringService` |
-
-**TB-1288** implements the guards; **TB-1287** does **not** reopen Done **TB-011** or implement **TB-976**.
-
----
-
-## 11. Related backlog (do not collapse)
+## 7. Cross-links (orchestration)
 
 | ID | Relationship |
 |----|--------------|
-| **TB-975** | Reserve/settle lifecycle — complements; does not replace mature-plane matrix |
-| **TB-976** | Durable per-reservation leases + orphan reclaim |
-| **TB-977** | **Done** — SQL UTC month period + in-flight admission fairness |
-| **TB-939** | Run-scoped batch admit (gate, not chokepoint) |
-| **TB-941** | Per-run / per-step hard caps (open) |
-| **TB-1020** | Process vs provider billing honesty |
-| **TB-1288** | Honesty CI for this contract |
-| **M-225** / **M-226** | GTM claim boundary + PA one-pager |
+| **TB-975** / **TB-976** / **TB-977** | Reserve/settle lifecycle — gates 2 and 3; **TB-977** Done |
+| **TB-939** | Run-scoped admit before agent batch |
+| **TB-941** | Per-step hard cap (open) |
+| **TB-1020** / **M-170** | Process vs provider idempotency |
+| **TB-1570** | Paying-tenant spend storm — orchestrates, does not duplicate this matrix |
+| **M-225** | Claim honesty — do not overclaim gates |
+| **M-226** | PA one-pager — buyer-safe summary |
 
 ---
 
-## 12. Explicit non-goals
+## 8. Code / doc anchors
 
-- Implementing durable leases (**TB-976**) or raising/lowering cohort USD cap (owner PR only).
-- Provider refunds or wallet overage semantics (**TB-014**).
-- Reopening Done **TB-011** / **TB-894** / **TB-939** implementations.
-- NetArch forbid-list **implementation** (may ship with **TB-1288**).
+| Surface | Path |
+|---------|------|
+| Accounting decorator | `ArchLucid.AgentRuntime/LlmCompletionAccountingClient.cs` |
+| Monthly USD tracker | `ArchLucid.AgentRuntime/LlmMonthlyTenantDollarBudgetTracker.cs` |
+| Daily token tracker | `ArchLucid.AgentRuntime/LlmDailyTenantBudgetTracker.cs` |
+| Run-scoped admit | `RunScopedLlmBudgetReservationService` |
+| Cohort budget config | `tests/golden-cohort/budget.config.json` |
+| Cohort kill-switch CI | `assert_golden_cohort_kill_switch_present.py` |
+| ADR | `docs/architecture/adrs/0005-llm-cost-guardrails.md` |
+
+---
+
+## 9. PA review drill
+
+1. Trace a Real completion — confirm it crosses `LlmCompletionAccountingClient`, not a raw SDK client.
+2. Ask which product hosts are forbidden from constructing wire clients outside DI.
+3. Separate cohort **$15** budget language from product monthly ledger claims.
+4. Treat “caps alone = mature FinOps,” “call-site reserve prevents bypass,” or “metering = Azure invoice” as review findings.
+5. Ask which paths (embeddings, batch adapters, judges) are in vs out of the chokepoint — answer must cite this contract.
+
+---
+
+## 10. Claim boundary (GTM **M-225** / **M-226**)
+
+| Safe (buyer / GTM) | Too strong |
+|--------------------|------------|
+| Accounting lives at the DI decorator chokepoint | Warn/kill + monthly cap alone are mature FinOps |
+| Gates + leases + run caps + cache/tier + showback form the plane | Call-site reserve prevents bypass by new paths |
+| Cohort cap is **$15** (owner pin since 2026-06-06) | Stale **$50**/month cohort cap |
+| Product metering is estimated showback | Metering equals Azure OpenAI invoice |
+
+Canonical buyer handout: [`BUYER_SECURITY_PROCUREMENT_PACKET.md` § M-226](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#llm-cost-control-plane-m-226). Reserve/settle residuals: [`INV004_RESERVE_SETTLE_LIFECYCLE_CONTRACT.md`](./INV004_RESERVE_SETTLE_LIFECYCLE_CONTRACT.md) (**M-131** / **M-132**).
+
+---
+
+## 11. CI anchors for **TB-1288**
+
+| Guard | Must fail |
+|-------|-----------|
+| Gates-alone FinOps | Stubs equating warn/kill + monthly cap with complete LLM cost-control architecture without naming chokepoint + beyond-gate controls |
+| Call-site reserve enough | Claims that handler-level reserve/settle prevents bypass without `LlmCompletionAccountingClient` |
+| Direct SDK bypass | Claims that constructing wire/SDK clients outside the registered decorator chain is approved for product hosts |
+| Stale cohort cap | **$50**/month cohort-cap claims contradicting `GOLDEN_COHORT_BUDGET.md` / `budget.config.json` |
+
+Wire into `run_buyer_surface_strict_guards.py` per **TB-1288** acceptance. Pair **M-225** Verification anchors: `LlmCompletionAccountingClient`, ADR 0005, `assert_golden_cohort_kill_switch_present.py`, INV-004 trackers, `IUsageMeteringService`.
+
+---
+
+## 12. Out of scope
+
+- Implementing durable per-call leases (**TB-976**) — cited, not closed here.
+- Raising/lowering cohort USD cap — owner PR to `budget.config.json` only.
+- Provider refunds for in-flight completions.
+- Reopening Done **TB-011** / **TB-039** / **TB-894**.
+- Automated Azure Cost Management ↔ product invoice reconcile (**TB-1020** pipeline).

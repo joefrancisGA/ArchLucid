@@ -26,7 +26,7 @@ Regenerate after opening or closing summary-table rows:
 | Compliance readiness | 1 |
 | Performance | 5 |
 | Scalability | 2 |
-| Cost-effectiveness | 7 |
+| Cost-effectiveness | 6 |
 | Supportability | 2 |
 | Code hygiene | 1 |
 | Stickiness | 1 |
@@ -34,9 +34,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **538** |
+| **Total (unique open)** | **537** |
 
-**By priority band:** P0 **2** | P1 **417** | P2 **102** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **2** | P1 **416** | P2 **102** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -880,7 +880,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1277 | **Done** (2026-08-11) ? GoldenManifest content-schema evolution contract (tolerant readers primary); see `## TB-1277` below | Data consistency P1 ? **V1**; PA Q13 schema versioning; GTM **M-223**/**M-224** | S |
 | TB-975 | **Done** (2026-08-11) ? INV-004 reserve/settle lifecycle contract; see `## TB-975` below | Cost-effectiveness P1 ? **V1**; PA Q8 2026-07-23; GTM **M-131**/**M-132**; after Done **TB-011** / INV-004 | S |
 | TB-976 | **Done** (2026-08-11) ? durable per-call monthly USD reservation leases + orphan reclaim + reconcile; see `## TB-976` below | Cost-effectiveness P1 ? **V1**; after **TB-975**; pattern from Quick Scan **TB-894** Done | L |
-| TB-1287 | Mature LLM cost-control plane beyond budget gates + non-bypassable accounting chokepoint; see `## TB-1287` below | Cost-effectiveness P1 ? **V1**; PA Q14 FinOps plane; GTM **M-225**/**M-226** | S |
+| TB-1287 | **Done** (2026-08-11) ? mature LLM cost-control plane beyond budget gates + non-bypassable accounting chokepoint; see `## TB-1287` below | Cost-effectiveness P1 ? **V1**; PA Q14 FinOps plane; GTM **M-225**/**M-226** | S |
 | TB-1570 | Paying-tenant / API-key LLM spend-storm + metering-vs-AOAI-billing dispute claim map; see `## TB-1570` below | Cost-effectiveness P1 ? **V1**; PA spend-storm / billing-dispute Q; GTM **M-294**/**M-295**; see `PAYING_TENANT_LLM_SPEND_STORM_AND_BILLING_DISPUTE_CLAIM_MAP.md`; orchestrates **TB-1287**/**TB-975**/**TB-1020** | S |
 | TB-980 | Author Enterprise Customer Intake Modernization sample package ? second static spine; pin primary one-sentence + Contoso/Northwind ban; see `## TB-980` below | Commercial / marketability P1 ? **V1**; after **TB-979**; GTM **M-133**/**M-135**; PA primary-sentence 2026-07-25 | L |
 | TB-981 | Showcase default flip + trial/marketing universe+ID alignment ? no silent dual universe; see `## TB-981` below | Commercial / marketability P1 ? **V1**; after **TB-978**/**TB-980** + GTM **M-133**/**M-134**/**M-136**; PA Q15 2026-07-25 | M |

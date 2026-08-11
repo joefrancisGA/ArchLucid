@@ -4,6 +4,4 @@
 
 **Canon (full body):** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#llm-cost-control-plane-m-226`](BUYER_SECURITY_PROCUREMENT_PACKET.md#llm-cost-control-plane-m-226)
 
-**Engineering SoT:** [`../library/LLM_COST_CONTROL_PLANE_BEYOND_BUDGET_GATES_CONTRACT.md`](../library/LLM_COST_CONTROL_PLANE_BEYOND_BUDGET_GATES_CONTRACT.md) (**TB-1287**).
-
-This filename remains path-stable for GTM **M-225** / **M-226** / **TB-1287**. Prefer the procurement-packet section for buyer edits; prefer the engineering contract for contributor matrices and CI anchors (**TB-1288**).
+This filename remains path-stable for GTM **M-225** / **M-226** / **TB-1287**. Prefer the procurement-packet section for buyer edits. Engineering SoT: [`../library/LLM_COST_CONTROL_PLANE_BEYOND_BUDGET_GATES_CONTRACT.md`](../library/LLM_COST_CONTROL_PLANE_BEYOND_BUDGET_GATES_CONTRACT.md). Honesty CI follow-on: **TB-1288**.
