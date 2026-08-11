@@ -15,6 +15,7 @@ import {
   formatReviewGuideHelpProvenanceLine,
   REVIEW_GUIDE_HELP_CLAIM_DISCIPLINE,
   REVIEW_GUIDE_HELP_PRIMARY_ACTIONS,
+  prepareReviewGuideHelpBodyMarkdown,
   stripReviewGuideClaimDisciplineFromMarkdown,
 } from "@/lib/review-guide-help-guide-content";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
@@ -41,7 +42,6 @@ const TOC_SECTION_TITLES = [
   "Start the review",
   "Review findings and evidence",
   "Finalize the architecture package",
-  "Related guides",
 ] as const;
 
 describe("Review guide (HR)", () => {
@@ -135,10 +135,11 @@ describe("Review guide (HR)", () => {
     expect(evidenceIntakeLinks.length).toBeGreaterThanOrEqual(1);
     expect(evidenceIntakeLinks.every((link) => link.getAttribute("href") === "/help/evidence-intake")).toBe(true);
 
-    const firstReviewLinks = within(content).getAllByRole("link", { name: "Your first architecture review" });
+    expect(within(content).queryByRole("link", { name: "Your first architecture review" })).toBeNull();
 
-    expect(firstReviewLinks).toHaveLength(1);
-    expect(firstReviewLinks[0]).toHaveAttribute("href", FIRST_REVIEW_GUIDE_PATH);
+    expect(
+      screen.getByRole("link", { name: REVIEW_GUIDE_HELP_PRIMARY_ACTIONS.firstReviewGuide.label }),
+    ).toHaveAttribute("href", FIRST_REVIEW_GUIDE_PATH);
   });
 
   it("strips claim discipline from body markdown while keeping source pinned", () => {
@@ -173,10 +174,6 @@ describe("Review guide (HR)", () => {
     render(<HelpReviewGuideView entry={entry} markdown={loaded.markdown} />);
 
     for (const title of TOC_SECTION_TITLES) {
-      if (title === "Related guides") {
-        continue;
-      }
-
       expect(screen.getByRole("heading", { level: 2, name: title })).toBeInTheDocument();
     }
   });
@@ -187,8 +184,9 @@ describe("Review guide (HR)", () => {
     }
 
     const preparedMarkdown = prepareHelpMarkdownForPresentation(
-      stripReviewGuideClaimDisciplineFromMarkdown(loaded.markdown),
+      prepareReviewGuideHelpBodyMarkdown(loaded.markdown),
       GUIDE_SOURCE,
+      { helpTopicSlug: GUIDE_SLUG },
     );
     const headings = extractHelpMarkdownHeadings(preparedMarkdown);
 
@@ -201,5 +199,57 @@ describe("Review guide (HR)", () => {
     }
 
     expect(headings.map((heading) => heading.title)).toEqual(expect.arrayContaining([...TOC_SECTION_TITLES]));
+    expect(headings.some((heading) => heading.title === "Related guides")).toBe(false);
+  });
+});
+
+describe("HelpReviewGuideView (TB-1259–TB-1262)", () => {
+  const entry = getProductDocumentationEntry(GUIDE_SLUG);
+  const loaded = tryLoadProductDocumentation(GUIDE_SLUG);
+
+  it("exposes a first-viewport Start architecture review CTA to /reviews/new (TB-1259)", () => {
+    if (loaded === null || entry === null) {
+      throw new Error("Expected review guide to load.");
+    }
+
+    render(<HelpReviewGuideView entry={entry} markdown={loaded.markdown} />);
+
+    const headerStart = screen.getByTestId("help-review-guide-start-review");
+
+    expect(headerStart).toHaveAttribute("href", REVIEWS_NEW_PATH);
+    expect(headerStart).toHaveTextContent(REVIEW_GUIDE_HELP_PRIMARY_ACTIONS.startReview.label);
+  });
+
+  it("renders a single page-level h1 (TB-1260)", () => {
+    if (loaded === null || entry === null) {
+      throw new Error("Expected review guide to load.");
+    }
+
+    render(<HelpReviewGuideView entry={entry} markdown={loaded.markdown} />);
+
+    expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+    expect(screen.getByRole("heading", { level: 1, name: "Review guide" })).toBeInTheDocument();
+  });
+
+  it("lists two primary related guides with collapsed more help (TB-1262)", () => {
+    if (loaded === null || entry === null) {
+      throw new Error("Expected review guide to load.");
+    }
+
+    render(<HelpReviewGuideView entry={entry} markdown={loaded.markdown} />);
+
+    const primaryLinks = screen.getByTestId("help-review-guide-related-primary-links");
+
+    expect(primaryLinks.querySelectorAll("li")).toHaveLength(2);
+    expect(within(primaryLinks).getByRole("link", { name: /Evidence intake/i })).toHaveAttribute(
+      "href",
+      "/help/evidence-intake",
+    );
+    expect(within(primaryLinks).getByRole("link", { name: /Architecture packages/i })).toHaveAttribute(
+      "href",
+      "/help/review-packages",
+    );
+    expect(screen.getByTestId("help-review-guide-related-more")).toBeInTheDocument();
+    expect(screen.getByTestId("help-review-guide-content").textContent).not.toContain("## Related guides");
   });
 });

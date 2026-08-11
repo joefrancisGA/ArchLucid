@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { HelpReviewGuideRelatedGuidesSection } from "@/app/(operator)/help/_sections/HelpReviewGuideRelatedGuidesSection";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicExportClaimDiscipline } from "@/components/help/HelpTopicExportClaimDiscipline";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
@@ -25,7 +26,7 @@ import {
   REVIEW_GUIDE_HELP_PAGE_TITLE,
   REVIEW_GUIDE_HELP_PATH,
   REVIEW_GUIDE_HELP_PRIMARY_ACTIONS,
-  stripReviewGuideClaimDisciplineFromMarkdown,
+  prepareReviewGuideHelpBodyMarkdown,
 } from "@/lib/review-guide-help-guide-content";
 import { cn } from "@/lib/utils";
 
@@ -41,7 +42,7 @@ const REVIEW_GUIDE_CONTENT_GRID =
 export function HelpReviewGuideView(props: HelpReviewGuideViewProps): React.ReactElement {
   const { entry, markdown } = props;
   const sourceDocPath = entry.sourcePaths[0] ?? "";
-  const bodyMarkdown = stripReviewGuideClaimDisciplineFromMarkdown(markdown);
+  const bodyMarkdown = prepareReviewGuideHelpBodyMarkdown(markdown);
   const preparedMarkdown = prepareHelpMarkdownForPresentation(bodyMarkdown, sourceDocPath, {
     helpTopicSlug: entry.slug,
   });
@@ -123,8 +124,11 @@ export function HelpReviewGuideView(props: HelpReviewGuideViewProps): React.Reac
               presentation="help"
               sourceDocPath={sourceDocPath}
               helpTopicSlug={entry.slug}
+              preparedMarkdownOverride={preparedMarkdown}
             />
           </div>
+
+          <HelpReviewGuideRelatedGuidesSection />
 
           <div
             className="flex flex-wrap items-center gap-2 border-t border-neutral-200 pt-4 dark:border-neutral-800"
