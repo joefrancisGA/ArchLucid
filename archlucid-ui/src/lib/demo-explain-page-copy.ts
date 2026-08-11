@@ -15,6 +15,28 @@ export const DEMO_EXPLAIN_GENERATED_PREFIX = "Generated";
 
 export const DEMO_EXPLAIN_ILLUSTRATIVE_SAMPLE_LABEL = "Illustrative sample";
 
+/** TB-1319: buyer-facing page chrome — not engineering provenance jargon. */
+export const DEMO_EXPLAIN_PAGE_TITLE = "Sample review — evidence and explanation";
+
+export const DEMO_EXPLAIN_PAGE_LEAD =
+  "Walkthrough of how findings link to evidence and citations for the seeded example architecture review.";
+
+export const DEMO_EXPLAIN_EVIDENCE_TRAIL_PANEL_TITLE = "Evidence trail";
+
+export const DEMO_EXPLAIN_EXPLANATION_PANEL_TITLE = "Explanation & citations";
+
+export const DEMO_EXPLAIN_EMPTY_EVIDENCE_TRAIL_MESSAGE =
+  "This sample review has no linked evidence trail yet. Try again after the demo environment finishes seeding.";
+
+export const DEMO_EXPLAIN_GRAPH_TECHNICAL_DETAILS_LABEL = "Technical graph details";
+
+export const DEMO_EXPLAIN_EXPLANATION_TECHNICAL_DETAILS_LABEL = "Technical explanation details";
+
+export const DEMO_EXPLAIN_RISK_POSTURE_PREFIX = "Overall risk posture";
+
+export const DEMO_EXPLAIN_DETERMINISTIC_FALLBACK_NOTE =
+  "A deterministic fallback explanation was used for this sample — open technical details before sponsor send.";
+
 /** Canonical wizard entry for signed-in viewers graduating from `/demo/explain` (TB-218 / TB-219). */
 export const DEMO_EXPLAIN_CONVERSION_REVIEW_HREF = "/architecture/reviews/new?preset=greenfield" as const;
 

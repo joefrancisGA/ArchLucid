@@ -86,10 +86,12 @@ describe("DemoExplainPage (proof page snapshot)", () => {
       expect(summary).toHaveTextContent("demo tenant — replace before publishing");
       expect(summary.textContent).not.toContain(fixedPayload.runId);
       expect(summary.textContent).not.toContain("2026-04-20T12:00:00.000Z");
-      expect(screen.getByTestId("demo-explain-provenance-graph-nodes")).toHaveTextContent(
-        "Review baseline",
-      );
+      expect(screen.getByTestId("demo-explain-evidence-trail-heading")).toHaveTextContent("Evidence trail");
+      expect(screen.getByTestId("demo-explain-explanation-heading")).toHaveTextContent("Explanation & citations");
+      expect(screen.getByTestId("demo-explain-provenance-graph-nodes")).toHaveTextContent("Review baseline");
       expect(screen.getByTestId("demo-explain-citations")).toHaveTextContent("contoso-baseline-v1");
+      expect(screen.queryByText(/Provenance graph/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/re-seed the demo/i)).not.toBeInTheDocument();
     });
 
     expect(container.firstChild).toMatchSnapshot();

@@ -6,6 +6,10 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  DEMO_EXPLAIN_PAGE_LEAD,
+  DEMO_EXPLAIN_PAGE_TITLE,
+} from "@/lib/demo-explain-page-copy";
 
 import { DemoExplainExplanationPanel } from "./DemoExplainExplanationPanel";
 import { DemoExplainNotAvailableNotice } from "./DemoExplainNotAvailableNotice";
@@ -30,11 +34,11 @@ export function DemoExplainPageView(props: Props) {
       <header className="space-y-2">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div className="min-w-0 space-y-2">
-            <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>
-              Example analysis — provenance and explanation
+            <h1 className={OPERATOR_TYPOGRAPHY.pageTitle} data-testid="demo-explain-page-title">
+              {DEMO_EXPLAIN_PAGE_TITLE}
             </h1>
-            <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              Provenance graph and citations-bound explanation for the example architecture review.
+            <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="demo-explain-page-lead">
+              {DEMO_EXPLAIN_PAGE_LEAD}
             </p>
           </div>
           <PageContextualHelpButton />
@@ -52,15 +56,15 @@ export function DemoExplainPageView(props: Props) {
       {state.notFound ? <DemoExplainNotAvailableNotice /> : null}
 
       {state.payload && state.payload.provenanceGraph && state.payload.runExplanation ? (
-        <section aria-label="Provenance and explanation" className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <section aria-label="Evidence and explanation" className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <DemoExplainProvenanceGraphPanel graph={state.payload.provenanceGraph} />
           <DemoExplainExplanationPanel summary={state.payload.runExplanation} />
         </section>
       ) : !state.error && !state.notFound && state.loading ? (
-        <OperatorLoadingNotice>Loading example analysis…</OperatorLoadingNotice>
+        <OperatorLoadingNotice>Loading sample review explanation…</OperatorLoadingNotice>
       ) : !state.error && !state.notFound && !state.loading && state.payload ? (
         <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role="status">
-          The demo response was incomplete — provenance or explanation is missing. Try again after the API is ready.
+          The demo response was incomplete — evidence trail or explanation is missing. Try again after the API is ready.
         </p>
       ) : null}
       </div>
