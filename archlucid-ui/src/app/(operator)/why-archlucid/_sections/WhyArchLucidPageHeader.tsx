@@ -1,14 +1,21 @@
 import Link from "next/link";
 
-import { cn } from "@/lib/utils";
+import { OperatorPageBreadcrumb } from "@/components/OperatorPageBreadcrumb";
+import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { WHY_ARCHLUCID_CANONICAL_PATH } from "@/lib/why-archlucid-evidence-copy";
 import {
+  WHY_ARCHLUCID_BREADCRUMB_LEARNING_HREF,
+  WHY_ARCHLUCID_BREADCRUMB_LEARNING_LABEL,
+  WHY_ARCHLUCID_INTERNAL_PILOT_BADGE_LABEL,
   WHY_ARCHLUCID_MARKETING_WHY_HREF,
   WHY_ARCHLUCID_MARKETING_WHY_LINK_LABEL,
   WHY_ARCHLUCID_PAGE_ORIENTATION,
   WHY_ARCHLUCID_PAGE_TITLE,
 } from "@/lib/why-archlucid-page-copy";
+import { cn } from "@/lib/utils";
 import {
   type WhyArchLucidDemoUniverse,
   whyArchLucidUniverseBannerTitle,
@@ -20,31 +27,52 @@ export type WhyArchLucidPageHeaderProps = {
   readonly failClosed: boolean;
 };
 
-export function WhyArchLucidPageHeader(props: WhyArchLucidPageHeaderProps) {
+export function WhyArchLucidPageHeader(props: WhyArchLucidPageHeaderProps): React.JSX.Element {
   const { universe, failClosed } = props;
   const bannerTitle = whyArchLucidUniverseBannerTitle(universe);
   const lead = whyArchLucidUniverseWalkthroughLead(universe);
 
   return (
-    <header className="space-y-2">
-      <div className="flex flex-wrap items-center gap-2">
-        <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)} data-testid="why-archlucid-page-title">
-          {WHY_ARCHLUCID_PAGE_TITLE}
-        </h1>
-        <PageContextualHelpButton />
-      </div>
-
-      <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="why-archlucid-page-orientation">
-        {WHY_ARCHLUCID_PAGE_ORIENTATION}
-      </p>
-      <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.body)} data-testid="why-archlucid-marketing-disambiguation">
-        For competitive narrative, see{" "}
-        <Link className={OPERATOR_LINK} href={WHY_ARCHLUCID_MARKETING_WHY_HREF}>
-          {WHY_ARCHLUCID_MARKETING_WHY_LINK_LABEL}
-        </Link>
-        .
-      </p>
-
+    <OperatorPageHeader
+      navHref={WHY_ARCHLUCID_CANONICAL_PATH}
+      title={WHY_ARCHLUCID_PAGE_TITLE}
+      titleTestId="why-archlucid-page-title"
+      headingLevel="h1"
+      subtitle={
+        <>
+          <span data-testid="why-archlucid-page-orientation">{WHY_ARCHLUCID_PAGE_ORIENTATION}</span>{" "}
+          <span data-testid="why-archlucid-marketing-disambiguation">
+            For competitive narrative, see{" "}
+            <Link className={OPERATOR_LINK} href={WHY_ARCHLUCID_MARKETING_WHY_HREF}>
+              {WHY_ARCHLUCID_MARKETING_WHY_LINK_LABEL}
+            </Link>
+            .
+          </span>
+        </>
+      }
+      subtitleClassName="max-w-3xl"
+      breadcrumb={
+        <OperatorPageBreadcrumb
+          data-testid="why-archlucid-page-breadcrumb"
+          items={[
+            { label: WHY_ARCHLUCID_BREADCRUMB_LEARNING_LABEL, href: WHY_ARCHLUCID_BREADCRUMB_LEARNING_HREF },
+            { label: WHY_ARCHLUCID_PAGE_TITLE },
+          ]}
+        />
+      }
+      statusBadge={
+        <StatusTag
+          kind="neutral"
+          label={WHY_ARCHLUCID_INTERNAL_PILOT_BADGE_LABEL}
+          data-testid="why-archlucid-internal-pilot-badge"
+        />
+      }
+      actions={
+        <div data-testid="why-archlucid-page-heading-actions">
+          <PageContextualHelpButton />
+        </div>
+      }
+    >
       <div
         role="status"
         data-testid="why-archlucid-universe-banner"
@@ -60,6 +88,7 @@ export function WhyArchLucidPageHeader(props: WhyArchLucidPageHeaderProps) {
         <p className="font-semibold" data-testid="why-archlucid-universe-banner-title">
           {bannerTitle}
         </p>
+
         {failClosed ? (
           <p className={cn("m-0 mt-1 text-xs", OPERATOR_TYPOGRAPHY.helper)}>
             Claims Intake and Retail baseline labels are withheld until the loaded demo review identity is unambiguous.
@@ -68,9 +97,9 @@ export function WhyArchLucidPageHeader(props: WhyArchLucidPageHeaderProps) {
         ) : null}
       </div>
 
-      <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="why-archlucid-universe-lead">
+      <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="why-archlucid-universe-lead">
         {lead}
       </p>
-    </header>
+    </OperatorPageHeader>
   );
 }

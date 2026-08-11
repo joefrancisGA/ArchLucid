@@ -10,17 +10,17 @@ Regenerate after opening or closing summary-table rows:
 | Architectural quality | Open |
 | --- | ---: |
 | Correctness | 3 |
-| Testability | 120 |
+| Testability | 115 |
 | Reliability | 15 |
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
 | Architectural integrity | 11 |
-| Adoption friction | 331 |
+| Adoption friction | 320 |
 | Commercial / marketability | 9 |
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
 | Explainability | 1 |
-| Trustworthiness | 49 |
+| Trustworthiness | 48 |
 | Maintainability | 9 |
 | Traceability | 3 |
 | Interoperability | 4 |
@@ -35,9 +35,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **616** |
+| **Total (unique open)** | **599** |
 
-**By priority band:** P0 **3** | P1 **485** | P2 **111** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **3** | P1 **476** | P2 **103** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -32594,7 +32594,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-10) — `WhyArchLucidPrimaryCta` deep-links `/architecture/reviews/{demoRunId}` when universe resolves; withheld on fail-closed; Vitest in `page.test.tsx` + `why-archlucid-page-copy.test.ts`.
 
 **Priority:** P0.
 

@@ -10,6 +10,14 @@ export const WHY_ARCHLUCID_MARKETING_WHY_HREF = "/why" as const;
 
 export const WHY_ARCHLUCID_MARKETING_WHY_LINK_LABEL = "Public differentiation (/why)";
 
+export const WHY_ARCHLUCID_BREADCRUMB_LEARNING_LABEL = "Help";
+
+export const WHY_ARCHLUCID_BREADCRUMB_LEARNING_HREF = "/help" as const;
+
+export const WHY_ARCHLUCID_INTERNAL_PILOT_BADGE_LABEL = "Internal pilot proof";
+
+export const WHY_ARCHLUCID_DOCUMENT_TITLE = `ArchLucid · ${WHY_ARCHLUCID_PAGE_TITLE}`;
+
 /** TB-1309: primary hop from proof telemetry into the seeded sample review package. */
 export const WHY_ARCHLUCID_PRIMARY_CTA_LABEL = "Open sample architecture package";
 

@@ -6,100 +6,174 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
   class="w-full max-w-[1200px] space-y-8 p-4"
   data-testid="why-archlucid-page"
 >
-  <header
-    class="space-y-2"
+  <div
+    class="mb-6"
   >
     <div
-      class="flex flex-wrap items-center gap-2"
+      class="mb-2"
     >
-      <h1
-        class="m-0 text-xl font-semibold leading-7 tracking-tight text-al-text-primary"
-        data-testid="why-archlucid-page-title"
+      <nav
+        aria-label="Breadcrumb"
+        class="m-0 text-xs font-normal leading-[18px] text-al-text-secondary"
+        data-testid="why-archlucid-page-breadcrumb"
       >
-        Pilot proof telemetry
-      </h1>
-      <button
-        aria-expanded="false"
-        aria-haspopup="dialog"
-        aria-label="Help: Architecture workflow"
-        class="inline-flex items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-semibold border border-neutral-300 bg-white hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:hover:bg-neutral-800 rounded-md text-xs h-8 gap-1.5 px-2 text-neutral-700 dark:text-neutral-300"
-        data-state="closed"
-        data-testid="page-contextual-help-button"
-        type="button"
-      >
-        <svg
-          aria-hidden="true"
-          class="lucide lucide-circle-question-mark h-4 w-4"
-          fill="none"
-          height="24"
-          stroke="currentColor"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          viewBox="0 0 24 24"
-          width="24"
-          xmlns="http://www.w3.org/2000/svg"
+        <ol
+          class="m-0 flex flex-wrap items-center gap-1 p-0 list-none"
         >
-          <circle
-            cx="12"
-            cy="12"
-            r="10"
-          />
-          <path
-            d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"
-          />
-          <path
-            d="M12 17h.01"
-          />
-        </svg>
-        <span
-          class="text-xs font-normal leading-[18px] text-al-text-secondary"
+          <li
+            class="flex items-center gap-1"
+          >
+            <a
+              class="font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
+              href="/help"
+            >
+              Help
+            </a>
+          </li>
+          <li
+            class="flex items-center gap-1"
+          >
+            <span
+              aria-hidden="true"
+              class="text-al-text-secondary"
+            >
+              /
+            </span>
+            <span
+              aria-current="page"
+              class="text-al-text-primary"
+            >
+              Pilot proof telemetry
+            </span>
+          </li>
+        </ol>
+      </nav>
+    </div>
+    <header
+      class="border-b border-neutral-200 pb-6 dark:border-neutral-800"
+      data-nav-href="/why-archlucid"
+    >
+      <div
+        class="flex flex-wrap items-start gap-3"
+      >
+        <div
+          class="min-w-0 flex-1 space-y-2"
         >
-          Architecture workflow
-        </span>
-      </button>
-    </div>
-    <p
-      class="m-0 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary"
-      data-testid="why-archlucid-page-orientation"
-    >
-      Live sponsor counters and seeded demo instrumentation for pilots — not the public marketing comparison page.
-    </p>
-    <p
-      class="m-0 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary"
-      data-testid="why-archlucid-marketing-disambiguation"
-    >
-      For competitive narrative, see
-       
-      <a
-        class="[object Object]"
-        href="/why"
+          <div
+            class="flex flex-wrap items-center gap-2"
+          >
+            <h1
+              class="m-0 dark:text-neutral-50 text-xl font-semibold leading-7 tracking-tight text-al-text-primary"
+              data-testid="why-archlucid-page-title"
+            >
+              Pilot proof telemetry
+            </h1>
+            <span
+              class="inline-flex max-w-full items-center rounded px-1.5 py-0.5 cursor-default select-none pointer-events-none text-[11px] font-medium leading-tight border border-neutral-200/70 border-l-[3px] dark:border-neutral-700/70 border-l-neutral-400 bg-neutral-100 text-al-text-secondary dark:border-l-neutral-500 dark:bg-neutral-800/80"
+              data-testid="why-archlucid-internal-pilot-badge"
+            >
+              Internal pilot proof
+            </span>
+            <div
+              class="ml-auto flex flex-wrap items-center gap-2"
+            >
+              <div
+                data-testid="why-archlucid-page-heading-actions"
+              >
+                <button
+                  aria-expanded="false"
+                  aria-haspopup="dialog"
+                  aria-label="Help: Architecture workflow"
+                  class="inline-flex items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-semibold border border-neutral-300 bg-white hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:hover:bg-neutral-800 rounded-md text-xs h-8 gap-1.5 px-2 text-neutral-700 dark:text-neutral-300"
+                  data-state="closed"
+                  data-testid="page-contextual-help-button"
+                  type="button"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="lucide lucide-circle-question-mark h-4 w-4"
+                    fill="none"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="10"
+                    />
+                    <path
+                      d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"
+                    />
+                    <path
+                      d="M12 17h.01"
+                    />
+                  </svg>
+                  <span
+                    class="text-xs font-normal leading-[18px] text-al-text-secondary"
+                  >
+                    Architecture workflow
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div
+            class="m-0 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary"
+          >
+            <span
+              data-testid="why-archlucid-page-orientation"
+            >
+              Live sponsor counters and seeded demo instrumentation for pilots — not the public marketing comparison page.
+            </span>
+             
+            <span
+              data-testid="why-archlucid-marketing-disambiguation"
+            >
+              For competitive narrative, see
+               
+              <a
+                class="[object Object]"
+                href="/why"
+              >
+                Public differentiation (/why)
+              </a>
+              .
+            </span>
+          </div>
+        </div>
+      </div>
+      <div
+        class="mt-4"
       >
-        Public differentiation (/why)
-      </a>
-      .
-    </p>
-    <div
-      class="rounded border px-3 py-2 text-sm border-neutral-200 bg-neutral-50 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-200"
-      data-testid="why-archlucid-universe-banner"
-      data-why-archlucid-universe="contoso"
-      data-why-archlucid-universe-fail-closed="false"
-      role="status"
-    >
-      <p
-        class="font-semibold"
-        data-testid="why-archlucid-universe-banner-title"
-      >
-        Retail baseline sample — pilot proof telemetry
-      </p>
-    </div>
-    <p
-      class="text-[13px] font-normal leading-5 text-al-text-primary"
-      data-testid="why-archlucid-universe-lead"
-    >
-      See how ArchLucid turns architecture review into a governed decision package — executive summary, signed review record, evidence trail, governance approval, and audit record — using the Retail baseline sample workspace as a walkthrough.
-    </p>
-  </header>
+        <div
+          class="rounded border px-3 py-2 text-sm border-neutral-200 bg-neutral-50 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-200"
+          data-testid="why-archlucid-universe-banner"
+          data-why-archlucid-universe="contoso"
+          data-why-archlucid-universe-fail-closed="false"
+          role="status"
+        >
+          <p
+            class="font-semibold"
+            data-testid="why-archlucid-universe-banner-title"
+          >
+            Retail baseline sample — pilot proof telemetry
+          </p>
+        </div>
+        <p
+          class="mt-3 text-[13px] font-normal leading-5 text-al-text-primary"
+          data-testid="why-archlucid-universe-lead"
+        >
+          See how ArchLucid turns architecture review into a governed decision package — executive summary, signed review record, evidence trail, governance approval, and audit record — using the Retail baseline sample workspace as a walkthrough.
+        </p>
+      </div>
+    </header>
+  </div>
   <div
     class="flex flex-wrap items-center gap-3"
     data-testid="why-archlucid-primary-cta-row"

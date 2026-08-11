@@ -19,7 +19,7 @@ describe("ui-route-traffic-why-archlucid (WH)", () => {
     expect(row?.section).toBe(WHY_ARCHLUCID_TRAFFIC_SECTION);
     expect(row?.notes).toBe(WHY_ARCHLUCID_TRAFFIC_NOTE);
     expect(row?.notes).toContain("WhyArchLucidPage");
-    expect(row?.notes).toContain("Sources");
-    expect(row?.notes).toContain("cannot improve further toward 80");
+    expect(row?.notes).toContain("OperatorPageHeader");
+    expect(row?.notes).toContain("marketing /why");
   });
 });
