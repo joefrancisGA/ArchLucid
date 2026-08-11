@@ -8,7 +8,7 @@ import {
   formatUsd,
   hoursSurfaced,
 } from "@/lib/roi-assumptions";
-import { EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/executive-summary-pilot-roi-measurement-help";
+import { EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/executive/executive-summary-pilot-roi-measurement-help";
 import type { PilotValueReportJson, PilotValueReportSeverityJson } from "@/types/pilot-value-report";
 
 export const ROI_SUMMARY_METHODOLOGY_HELP_HREF = EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF;

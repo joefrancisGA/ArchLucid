@@ -11,7 +11,7 @@ import {
   buildRoiSponsorExportVocabulary,
   resolveRoiSponsorExportPeerLink,
 } from "@/lib/vocabulary/roi-sponsor-export-vocabulary";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
 import { SPONSOR_REPORT_ROI_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
 
 describe("roi-sponsor-export-vocabulary (TB-2258)", () => {

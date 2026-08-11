@@ -24,7 +24,7 @@ export const INTERNAL_CONCEPT_LEAKAGE_BANNED_PATTERNS = [
 export const BUYER_VOCABULARY_LEAKAGE_SURFACES = [
   "src/lib/vocabulary/buyer-surface-vocabulary.ts",
   "src/lib/buyer-polish-copy.ts",
-  "src/lib/executive-dashboard-page-copy.ts",
+  "src/lib/executive/executive-dashboard-page-copy.ts",
   "src/lib/review-scorecard-empty-state.ts",
   "src/lib/search-empty-preset.ts",
   "src/lib/enterprise-compact-empty-state-presets.ts",

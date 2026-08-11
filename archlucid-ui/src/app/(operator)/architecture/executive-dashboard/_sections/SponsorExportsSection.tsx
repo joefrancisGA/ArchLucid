@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { ArtifactPreviewSponsorExportVocabularyRail } from "@/components/ArtifactPreviewSponsorExportVocabularyRail";
 import { RoiSponsorExportVocabularyRail } from "@/components/RoiSponsorExportVocabularyRail";
 import { getRunPackageExportUrl } from "@/lib/api";
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture-scorecard-route";
@@ -142,6 +143,7 @@ export function SponsorExportsSection({
         ) : null}
       </div>
       <RoiSponsorExportVocabularyRail currentSurfaceId="executive-dashboard" />
+      <ArtifactPreviewSponsorExportVocabularyRail currentSurfaceId="sponsor-export" />
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {sponsorDocx !== null ? (
           <SponsorExportOutputCard

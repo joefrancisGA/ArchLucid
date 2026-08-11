@@ -45,7 +45,7 @@ Status values: **done** (fixed 2026-08-03) Â· **open** (follow-up) Â· **bloc
 |---|---|---|
 | `src/lib/vocabulary/buyer-surface-vocabulary.ts` (executive dashboard copy: "Commit at least one review…", "committed reviews", "No committed reviews yet", …) | ~12 | done |
 | `src/lib/buyer-polish-copy.ts` (`BUYER_EXECUTIVE_DATA_SOURCE_NOTE`, scorecard empty action) | 2 | done |
-| `src/lib/executive-dashboard-page-copy.ts` (page lead) | 1 | done |
+| `src/lib/executive/executive-dashboard-page-copy.ts` (page lead) | 1 | done |
 | `src/lib/pilot-scorecard-present.ts` ("Committed reviews" KPI + zero-detail copy) | 3 | **open — needs owner decision:** the scorecard deliberately shows "Committed reviews" (`totalRunsCommitted`) *beside* "Finalized packages" (`totalManifestsCreated`); renaming the first to "Finalized reviews" would conflate two distinct metrics. Owner must pick a buyer noun pair (e.g. "Reviews submitted" / "Packages finalized") before this file changes |
 | `src/lib/review-scorecard-empty-state.ts` ("No committed reviews yet" heading — rest of the module already used finalize vocabulary) | 1 | done |
 | `src/lib/search-empty-preset.ts` + `src/lib/enterprise-compact-empty-state-presets.ts` ("committed review evidence indexed") | 2 | done |

@@ -1,6 +1,6 @@
 /** Canonical governance nav URLs (TB-405). */
 
-import { EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/executive-dashboard-route";
+import { EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/executive/executive-dashboard-route";
 
 /** Approval queue (left-nav). Bare `/governance` is not a page and is not redirected. */
 export const GOVERNANCE_APPROVAL_QUEUE_PATH = "/governance/approval-queue" as const;

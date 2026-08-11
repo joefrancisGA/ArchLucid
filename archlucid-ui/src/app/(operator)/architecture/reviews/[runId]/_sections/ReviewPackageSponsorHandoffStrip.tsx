@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { GoldenManifestExportMenu } from "@/components/GoldenManifestExportMenu";
 import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
+import { ArtifactPreviewSponsorExportVocabularyRail } from "@/components/ArtifactPreviewSponsorExportVocabularyRail";
 import { RoiSponsorExportVocabularyRail } from "@/components/RoiSponsorExportVocabularyRail";
 import { SponsorRoiBaselineGateNotice } from "@/components/SponsorRoiBaselineGateNotice";
 import { SponsorRehearsalPreviewPanel } from "@/components/reviews/SponsorRehearsalPreviewPanel";
@@ -51,6 +52,11 @@ export function ReviewPackageSponsorHandoffStrip(
       </h2>
       <RoiSponsorExportVocabularyRail
         currentSurfaceId="sponsor-handoff"
+        runId={props.runId}
+        className="mt-2"
+      />
+      <ArtifactPreviewSponsorExportVocabularyRail
+        currentSurfaceId="sponsor-export"
         runId={props.runId}
         className="mt-2"
       />

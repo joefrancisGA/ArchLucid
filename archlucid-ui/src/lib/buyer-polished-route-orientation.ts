@@ -1,5 +1,5 @@
 import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
 import {
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
   pathMatchesGovernanceAlerts,

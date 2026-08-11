@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { ARCHITECTURE_EXECUTIVE_DASHBOARD_ROUTE_METADATA } from "@/lib/architecture-executive-dashboard-route-metadata";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
 import {
   LEGACY_EXECUTIVE_SHELL_DASHBOARD_PATH,
   LEGACY_OPERATOR_EXECUTIVE_DASHBOARD_PATH,
@@ -38,7 +38,7 @@ const PRODUCT_EXECUTIVE_DASHBOARD_SURFACES = [
   "archlucid-ui/src/lib/pilot-nav-group-builder.ts",
   "archlucid-ui/src/lib/usability/page-help-topic-map.ts",
   "archlucid-ui/src/lib/nav-disclosure-for-path.ts",
-  "archlucid-ui/src/lib/executive-kpi-drill-through-hrefs.ts",
+  "archlucid-ui/src/lib/executive/executive-kpi-drill-through-hrefs.ts",
 ] as const;
 
 const CANONICAL_EXECUTIVE_DASHBOARD_HANDOFF_MARKERS = [

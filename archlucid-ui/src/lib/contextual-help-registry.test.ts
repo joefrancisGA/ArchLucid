@@ -5,7 +5,7 @@ import {
   contextualHelpForPathname,
   type PageContextualHelpEntry,
 } from "@/lib/contextual-help-registry";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
 import {
   INTERNAL_DEMO_READINESS_PATH,
   INTERNAL_DEPLOYMENT_STATUS_PATH,

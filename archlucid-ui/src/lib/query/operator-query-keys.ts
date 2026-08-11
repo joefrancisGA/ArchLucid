@@ -1,4 +1,4 @@
-import type { ExecutiveTimeRange } from "@/lib/executive-time-range";
+import type { ExecutiveTimeRange } from "@/lib/executive/executive-time-range";
 import type { RunsByProjectPagedParams } from "@/lib/query/runs-by-project-paged-params";
 import type { OperatorScopeQueryKey } from "@/lib/operator-scope-query-key";
 

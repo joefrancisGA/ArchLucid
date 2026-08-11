@@ -10,7 +10,7 @@ import {
   BUYER_ONBOARDING_PAGE_TITLE,
   OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_HEADING,
 } from "@/lib/buyer-polish-copy";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { PROVENANCE_HELP_TOPIC, pathIsRunProvenance } from "@/lib/provenance-evidence-copy";
 import { pathIsFindingEvidenceTrace } from "@/lib/evidence-trace-contextual-help";

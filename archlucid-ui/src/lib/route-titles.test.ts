@@ -2,7 +2,7 @@ import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architectur
 import {
   EXECUTIVE_DASHBOARD_HREF,
   EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF,
-} from "@/lib/executive-dashboard-route";
+} from "@/lib/executive/executive-dashboard-route";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance-overview-copy";

@@ -15,7 +15,7 @@
  */
 
 import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
-import { EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/executive-dashboard-route";
+import { EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/executive/executive-dashboard-route";
 import { INTERNAL_TENANT_HEALTH_PATH } from "@/lib/internal-ops-route-paths";
 
 export type TenantSystemWorkspaceHealthSurfaceId =

@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
+import { ArtifactPreviewSponsorExportVocabularyRail } from "@/components/ArtifactPreviewSponsorExportVocabularyRail";
 import { ArtifactReviewContent } from "@/components/ArtifactReviewContent";
 import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import {
@@ -31,6 +32,7 @@ import {
 } from "@/lib/signed-record-artifact-page-copy";
 import {
   SIGNED_RECORDS_LIST_PATH,
+  signedRecordArtifactPath,
   signedRecordDetailPath,
 } from "@/lib/signed-records-paths";
 import { SignedRecordArtifactPageHeader } from "./SignedRecordArtifactPageHeader";
@@ -82,6 +84,11 @@ export function SignedRecordArtifactPageView(props: SignedRecordArtifactPageView
       </nav>
 
       <SignedRecordArtifactPageHeader subtitle={signedRecordArtifactPageSubtitle(buyerPolishedLayout)} />
+      <ArtifactPreviewSponsorExportVocabularyRail
+        currentSurfaceId="artifact-preview"
+        artifactHref={signedRecordArtifactPath(model.manifestId, model.descriptor.artifactId)}
+        runId={model.runId}
+      />
 <Card data-testid="signed-record-artifact-metadata-card">
         <CardHeader>
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{SIGNED_RECORD_ARTIFACT_WHAT_IS_THIS_HEADING}</CardTitle>
