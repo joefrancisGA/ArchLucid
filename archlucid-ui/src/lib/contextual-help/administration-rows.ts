@@ -1,6 +1,18 @@
 /** Administration hub routes (`/administration/**`). */
 
-import type { PageContextualHelpRow } from "@/lib/contextual-help/types";
+import type { PageContextualHelpEntry, PageContextualHelpRow } from "@/lib/contextual-help/types";
+
+/** Exact Settings hub root (`/administration`) — registered via parameterized matcher so children keep their own answers. */
+export const SETTINGS_HUB_CONTEXTUAL_HELP: PageContextualHelpEntry = {
+  whatIsThisPage:
+    "Settings hub — search and open workspace, governance, integration, security, billing, and support configuration pages.",
+  whatToDoNext:
+    "Search or jump to a section, then open a destination page to change settings. Use the help control for short answers about this index.",
+  whyEmpty:
+    "Sections appear based on your authority and search; try clearing search or showing advanced settings when a destination is missing.",
+  whereToConfigurePrerequisite:
+    "Some destinations require Admin or Operator authority; personal preferences stay in the account menu.",
+};
 
 export const ADMINISTRATION_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
   {

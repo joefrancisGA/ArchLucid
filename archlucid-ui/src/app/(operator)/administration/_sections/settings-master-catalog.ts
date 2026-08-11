@@ -8,19 +8,10 @@ import type { SettingsMasterSection } from "./settings-master-types";
 /** Searchable master settings index — hub links; detail pages own editable controls. */
 export const SETTINGS_MASTER_SECTIONS: readonly SettingsMasterSection[] = [
   {
-    id: "help",
-    navLabel: "Help",
-    title: "Help",
-    description: "Product guides and troubleshooting.",
-    keywords: ["help", "guide", "docs", "troubleshooting"],
-    tier: "common",
+    id: "workspace",
     // Personal settings (appearance, sign-in methods) belong to SELF_SETTINGS_DESTINATIONS and are published
     // from the top-bar account menu. Adding a `scope: "user"` destination here would hide it behind this hub's
     // authority filter — `settings-master-audience.ts` drops personal audiences so that mistake cannot ship.
-    destinations: [],
-  },
-  {
-    id: "workspace",
     navLabel: "Workspace",
     title: "Workspace",
     description: "Defaults and operational preferences for this workspace.",

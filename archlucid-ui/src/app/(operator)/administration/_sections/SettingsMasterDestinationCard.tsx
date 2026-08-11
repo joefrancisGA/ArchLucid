@@ -41,12 +41,24 @@ export function SettingsMasterDestinationCard(props: SettingsMasterDestinationCa
             {destination.emptyStateHint}
           </p>
         ) : null}
-        <SettingsScopeMeta
-          scope={destination.scope}
-          source={destination.source}
-          editability={destination.editability}
-          saveBehavior={destination.saveBehavior}
-        />
+        <details className="group" data-testid="settings-destination-meta-disclosure">
+          <summary
+            className={cn(
+              "cursor-pointer list-none text-al-text-secondary underline-offset-2 hover:underline marker:content-none [&::-webkit-details-marker]:hidden",
+              OPERATOR_TYPOGRAPHY.helper,
+            )}
+          >
+            Scope and editability details
+          </summary>
+          <div className="mt-2">
+            <SettingsScopeMeta
+              scope={destination.scope}
+              source={destination.source}
+              editability={destination.editability}
+              saveBehavior={destination.saveBehavior}
+            />
+          </div>
+        </details>
         {destination.highImpact === true ? (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Changes require confirmation on the destination page and are recorded in the audit trail.

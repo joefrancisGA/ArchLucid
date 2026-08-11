@@ -924,10 +924,10 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1193 | **Done (2026-08-11)** Webhooks page ? help as icon + caption in PageHeading actions; see ## TB-1193 below | Adoption friction P1 ? **V1**; with **TB-1191**; parity **TB-1184**/**TB-1187** | S |
 | TB-1194 | **Done (2026-08-11)** Webhooks operator spacing density; see ## TB-1194 below | Adoption friction P1 ? **V1**; with **TB-1191**; cf. **TB-1177**/**TB-1189** | XS |
 | TB-1195 | **Done (2026-08-11)** Webhooks empty composition ? suppress zero theater; see ## TB-1195 below | Adoption friction P1 ? **V1**; with **TB-1192** | S |
-| TB-1200 | Settings hub ? remove Recent changes empty theater; see ## TB-1200 below | Adoption friction P1 ? **V1**; with **TB-1199** | S |
-| TB-1201 | Settings hub ? PageHeading icon + PageContextualHelpButton; see ## TB-1201 below | Adoption friction P1 ? **V1**; with **TB-1198**; parity **TB-1184** | S |
-| TB-1202 | Settings hub ? section nav same-page jumps as links; see ## TB-1202 below | Adoption friction P1 ? **V1**; a11y baseline; with **TB-1201** | XS |
-| TB-1203 | Settings hub ? demote Scope/Source/Status meta density on destination cards; see ## TB-1203 below | Adoption friction P1 ? **V1**; with **TB-1198** | S |
+| TB-1200 | **Done (2026-08-11)** Settings hub — remove Recent changes empty theater; see ## TB-1200 below | Adoption friction P1 — **V1**; with **TB-1199** | S |
+| TB-1201 | **Done (2026-08-11)** Settings hub — PageHeading icon + PageContextualHelpButton; see ## TB-1201 below | Adoption friction P1 — **V1**; with **TB-1198**; parity **TB-1184** | S |
+| TB-1202 | **Done (2026-08-11)** Settings hub — section nav same-page jumps as links; see ## TB-1202 below | Adoption friction P1 — **V1**; a11y baseline; with **TB-1201** | XS |
+| TB-1203 | **Done (2026-08-11)** Settings hub — demote Scope/Source/Status meta density on destination cards; see ## TB-1203 below | Adoption friction P1 — **V1**; with **TB-1198** | S |
 | TB-1212 | Users & roles ? breadcrumb/nav title consistency; see ## TB-1212 below | Adoption friction P1 ? **V1**; with **TB-1210** | XS |
 | TB-1213 | Users & roles API keys tab ? dedicated empty + primary CTA; see ## TB-1213 below | Adoption friction P1 ? **V1**; with **TB-1211** | S |
 | TB-1214 | Users & invitations ? empty composition / guided next step; see ## TB-1214 below | Adoption friction P1 ? **V1**; with **TB-1211** | S |
@@ -30374,7 +30374,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-11).
 
 **Priority:** P0.
 
@@ -30402,7 +30402,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-11).
 
 **Priority:** P0.
 
@@ -30431,7 +30431,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-11).
 
 **Priority:** P0.
 
@@ -30459,7 +30459,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-11).
 
 **Priority:** P0.
 

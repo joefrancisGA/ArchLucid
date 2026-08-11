@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
+
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { settingsMasterSectionDomId } from "./settings-master-catalog";
 import type { SettingsMasterVisibleSection } from "./settings-master-page-model";
@@ -9,14 +11,6 @@ import type { SettingsMasterVisibleSection } from "./settings-master-page-model"
 type SettingsMasterSectionNavProps = {
   readonly sections: readonly SettingsMasterVisibleSection[];
 };
-
-function scrollToSection(sectionId: string): void {
-  const target = document.getElementById(settingsMasterSectionDomId(sectionId));
-
-  if (target !== null) {
-    target.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-}
 
 export function SettingsMasterSectionNav(props: SettingsMasterSectionNavProps) {
   return (
@@ -29,16 +23,16 @@ export function SettingsMasterSectionNav(props: SettingsMasterSectionNavProps) {
       <ul className="m-0 flex list-none flex-row gap-2 overflow-x-auto p-0 lg:flex-col lg:overflow-visible">
         {props.sections.map((section) => (
           <li key={section.id} className="shrink-0">
-            <button
-              type="button"
+            <Link
+              href={`#${settingsMasterSectionDomId(section.id)}`}
               className={cn(
-                "w-full rounded-md border border-transparent px-3 py-2 text-left transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800",
+                OPERATOR_LINK.nav,
+                "block w-full rounded-md border border-transparent px-3 py-2 text-left transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800",
                 OPERATOR_TYPOGRAPHY.body,
               )}
-              onClick={() => scrollToSection(section.id)}
             >
               {section.navLabel}
-            </button>
+            </Link>
           </li>
         ))}
       </ul>

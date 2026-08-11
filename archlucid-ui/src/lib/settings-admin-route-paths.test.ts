@@ -14,6 +14,7 @@ import {
   pathMatchesSettingsSecurityTrust,
   pathMatchesSettingsSupport,
   pathMatchesSettingsUsers,
+  pathIsSettingsHubRoot,
   sanitizeSettingsUsersTabParam,
   settingsUsersNavigationPathname,
   settingsUsersTabFromLocation,
@@ -26,6 +27,13 @@ describe("settings-admin-route-paths (TB-406 / TB-751)", () => {
     expect(SETTINGS_USERS_USERS_TAB_PATH).toBe("/administration/users?tab=users");
     expect(SETTINGS_SECURITY_TRUST_PATH).toBe("/administration/security-trust");
     expect(SETTINGS_SUPPORT_PATH).toBe("/administration/support");
+  });
+
+  it("matches Settings hub root exactly for contextual help (TB-1201)", () => {
+    expect(pathIsSettingsHubRoot("/administration")).toBe(true);
+    expect(pathIsSettingsHubRoot("/administration/settings")).toBe(true);
+    expect(pathIsSettingsHubRoot("/administration/users")).toBe(false);
+    expect(pathIsSettingsHubRoot("/administration/notifications")).toBe(false);
   });
 
   it("matches canonical and legacy users, security-trust, and support paths", () => {

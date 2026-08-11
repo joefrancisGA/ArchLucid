@@ -14,6 +14,9 @@ import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-ro
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { PROVENANCE_HELP_TOPIC, pathIsRunProvenance } from "@/lib/provenance-evidence-copy";
 import { pathIsFindingEvidenceTrace } from "@/lib/evidence-trace-contextual-help";
+import {
+  pathIsSettingsHubRoot,
+} from "@/lib/settings-admin-route-paths";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
 export type PageHelpTopic = {
@@ -543,6 +546,11 @@ export function pageHelpTopicForPathname(pathname: string): PageHelpTopic | null
 
   if (path === "/") {
     return PAGE_HELP_TOPICS.find((row) => row.prefix === "/")?.topic ?? null;
+  }
+
+  // Exact Settings hub only — must not use prefix startsWith or `/administration/*` children inherit this topic.
+  if (pathIsSettingsHubRoot(path)) {
+    return { label: "Settings help" };
   }
 
   const sorted = [...PAGE_HELP_TOPICS].sort((left, right) => right.prefix.length - left.prefix.length);

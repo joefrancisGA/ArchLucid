@@ -51,6 +51,11 @@ export function pathMatchesSettingsRoot(pathname: string): boolean {
   );
 }
 
+/** Exact Settings hub root only — not `/administration/*` children (TB-1201 help registration). */
+export function pathIsSettingsHubRoot(pathname: string): boolean {
+  return pathname === SETTINGS_ROOT_PATH || pathname === LEGACY_ADMINISTRATION_SETTINGS_ROOT_PATH;
+}
+
 /** Legacy browser paths â€” permanent redirects to canonical (TB-406). */
 export const LEGACY_ADMIN_USERS_PATH = "/admin/users";
 

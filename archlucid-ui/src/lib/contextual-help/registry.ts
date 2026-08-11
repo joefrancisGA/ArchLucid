@@ -10,7 +10,7 @@ import {
   pathIsArchitectureDraftDetail,
 } from "@/lib/architectures-draft-evidence-copy";
 import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
-import { ADMINISTRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/administration-rows";
+import { ADMINISTRATION_CONTEXTUAL_HELP_ROWS, SETTINGS_HUB_CONTEXTUAL_HELP } from "@/lib/contextual-help/administration-rows";
 import { ARCHITECTURE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/architecture-rows";
 import { DIGESTS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/digests-rows";
 import { GOVERNANCE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/governance-rows";
@@ -28,6 +28,7 @@ import {
   PROVENANCE_CONTEXTUAL_HELP,
   pathIsRunProvenance,
 } from "@/lib/provenance-evidence-copy";
+import { pathIsSettingsHubRoot } from "@/lib/settings-admin-route-paths";
 
 const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
   ...ADMINISTRATION_CONTEXTUAL_HELP_ROWS,
@@ -57,6 +58,7 @@ const PARAMETERIZED_ROUTE_MATCHERS: readonly {
   { matches: pathIsRunProvenance, entry: PROVENANCE_CONTEXTUAL_HELP },
   { matches: pathIsFindingEvidenceTrace, entry: EVIDENCE_TRACE_CONTEXTUAL_HELP },
   { matches: pathIsArchitectureDraftDetail, entry: ARCHITECTURES_DRAFT_CONTEXTUAL_HELP },
+  { matches: pathIsSettingsHubRoot, entry: SETTINGS_HUB_CONTEXTUAL_HELP },
 ];
 
 /** All registry rows — exported for content-constraint Vitest guards. */

@@ -46,6 +46,14 @@ vi.mock("@/components/SupportBundleDownloadButton", () => ({
   ),
 }));
 
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/administration",
+}));
+
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 import { SettingsPageView } from "./_sections/SettingsPageView";
@@ -62,11 +70,23 @@ describe("SettingsPageView", () => {
 
     expect(screen.getByRole("heading", { level: 1, name: "Settings" })).toBeInTheDocument();
     expect(screen.getByTestId("settings-master-overview-header")).toBeInTheDocument();
+    expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Search settings…")).toBeInTheDocument();
     expect(screen.getByTestId("settings-master-section-nav")).toBeInTheDocument();
     expect(screen.getByTestId("settings-section-security-trust")).toBeInTheDocument();
     expect(screen.queryByTestId("settings-section-advanced")).not.toBeInTheDocument();
     expect(screen.queryByTestId("settings-developer-tools-card")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("settings-recent-changes-card")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("settings-help-card")).not.toBeInTheDocument();
+  });
+
+  it("exposes section nav as hash links (TB-1202)", () => {
+    render(<SettingsPageView />);
+
+    const securityLink = screen.getByRole("link", { name: "Security & trust" });
+
+    expect(securityLink).toHaveAttribute("href", "#settings-section-security-trust");
   });
 
   it("shows the support section for execute-tier users but withholds workspace settings", () => {
@@ -76,6 +96,7 @@ describe("SettingsPageView", () => {
 
     expect(screen.getByTestId("settings-section-support")).toBeInTheDocument();
     expect(screen.getByTestId("support-bundle-stub")).toHaveAttribute("data-diagnostics", "true");
+    expect(screen.queryByText(/No support bundle generated yet in this session/i)).not.toBeInTheDocument();
     expect(screen.queryByTestId("settings-section-workspace")).not.toBeInTheDocument();
   });
 

@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { AdminPrerequisitesReadinessBoard } from "@/components/administration/AdminPrerequisitesReadinessBoard";
@@ -9,7 +8,6 @@ import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadB
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { isSelfHostedDeploymentEnv } from "@/lib/finish-setup-deployment";
 import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -20,7 +18,6 @@ import { SETTINGS_MASTER_SECTIONS, settingsMasterSectionDomId } from "./settings
 import { buildSettingsMasterVisibleSections } from "./settings-master-page-model";
 import { SettingsMasterDestinationCard } from "./SettingsMasterDestinationCard";
 import { SettingsMasterOverviewHeader } from "./SettingsMasterOverviewHeader";
-import { SettingsMasterRecentChangesCard } from "./SettingsMasterRecentChangesCard";
 import { SettingsMasterSearchField } from "./SettingsMasterSearchField";
 import { SettingsMasterSectionNav } from "./SettingsMasterSectionNav";
 
@@ -106,20 +103,6 @@ export function SettingsPageView() {
                 </div>
 
                 <div className="grid gap-4">
-                  {section.showHelp ? (
-                    <Card data-testid="settings-help-card">
-                      <CardHeader>
-                        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Help</CardTitle>
-                      </CardHeader>
-                      <CardContent className={cn("space-y-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                        <p className="m-0">Browse product guides, troubleshooting steps, and common workflows.</p>
-                        <Button asChild variant="outline" size="sm">
-                          <Link href="/help">{OPERATOR_NAV_LINK_LABELS.help}</Link>
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  ) : null}
-
                   {section.showSupportBundle ? (
                     <Card data-testid="settings-support-bundle-card">
                       <CardHeader>
@@ -129,12 +112,10 @@ export function SettingsPageView() {
                         <p className="m-0">
                           Download a redacted diagnostics bundle to include with a support ticket.
                         </p>
-                        <p className={cn("m-0 italic", OPERATOR_TYPOGRAPHY.helper)}>
-                          No support bundle generated yet in this session.
-                        </p>
                         <SupportBundleDownloadButton showDiagnosticsLink />
                         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-                          The bundle is redacted before download. Review it before sending if your organization requires approval.
+                          The bundle is redacted before download. Review it before sending if your organization requires
+                          approval.
                         </p>
                       </CardContent>
                     </Card>
@@ -146,10 +127,6 @@ export function SettingsPageView() {
                 </div>
               </section>
             ))}
-
-            <SettingsMasterRecentChangesCard
-              showAuditLink={callerAuthorityRank >= AUTHORITY_RANK.ReadAuthority}
-            />
           </div>
         </div>
       )}

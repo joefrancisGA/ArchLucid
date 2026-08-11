@@ -33,6 +33,10 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/insights/improvement-planning")?.label).toBe("Improvement planning");
     expect(pageHelpTopicForPathname("/administration/billing")?.slug).toBe("billing-and-plans");
     expect(pageHelpTopicForPathname("/administration/billing")?.label).toBe("Billing and plans");
+    expect(pageHelpTopicForPathname("/administration")?.label).toBe("Settings help");
+    expect(pageHelpTopicForPathname("/administration")?.slug).toBeUndefined();
+    expect(pageHelpTopicForPathname("/administration/settings")?.label).toBe("Settings help");
+    expect(pageHelpTopicForPathname("/administration/notifications")?.slug).toBeUndefined();
     expect(pageHelpTopicForPathname("/help/billing-and-plans")?.slug).toBe("billing-and-plans");
     expect(pageHelpTopicForPathname("/help/billing-and-plans")?.label).toBe("Billing and plans");
     expect(pageHelpTopicForPathname("/help/repeat-review-loop")?.slug).toBe("repeat-review-loop");
