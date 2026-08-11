@@ -81,9 +81,9 @@ export const IDENTITY_PROVIDERS_OIDC_PAGE_INTRO =
 export const IDENTITY_PROVIDERS_OIDC_PAGE_SUBTITLE =
   "Review OpenID Connect authority, audience, discovery status, and role claim mapping before enabling SSO for all users.";
 
-export const IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_TITLE = "Role mapping";
+export const IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_TITLE = "Role mapping status";
 export const IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_INTRO =
-  "Map identity provider groups to ArchLucid workspace roles.";
+  "Review identity source, claim mapping, and workspace role assignment status for this workspace.";
 
 export const IDENTITY_PROVIDERS_ROLE_MAPPING_HELPER =
   "Map identity provider groups to ArchLucid workspace roles.";

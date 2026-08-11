@@ -9,6 +9,8 @@ import {
   IDENTITY_PROVIDERS_OIDC_PAGE_INTRO,
   IDENTITY_PROVIDERS_OIDC_PAGE_SUBTITLE,
   IDENTITY_PROVIDERS_OIDC_PAGE_TITLE,
+  IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_INTRO,
+  IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_TITLE,
   IDENTITY_PROVIDERS_SAML_PAGE_INTRO,
   IDENTITY_PROVIDERS_SAML_PAGE_SUBTITLE,
   identityProvidersPageSubtitle,
@@ -48,5 +50,12 @@ describe("identity-providers-settings-copy", () => {
     expect(IDENTITY_PROVIDERS_OIDC_PAGE_SUBTITLE.toLowerCase()).not.toContain("configure workspace");
     expect(IDENTITY_PROVIDERS_OIDC_PAGE_SUBTITLE.toLowerCase()).not.toContain("configure sign-in");
     expect(IDENTITY_PROVIDERS_OIDC_PAGE_SUBTITLE.toLowerCase()).toContain("review");
+  });
+
+  it("uses status-hub framing for role mapping shell title and intro (TB-1916)", () => {
+    expect(IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_TITLE).toBe("Role mapping status");
+    expect(IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_TITLE.toLowerCase()).not.toBe("role mapping");
+    expect(IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_INTRO.toLowerCase()).toContain("review");
+    expect(IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_INTRO.toLowerCase()).not.toContain("map identity provider");
   });
 });
