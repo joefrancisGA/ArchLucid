@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { CollabRecentActorPresenceStrip } from "@/components/CollabRecentActorPresenceStrip";
 import { DispositionExportBeforeAfterPreview } from "@/components/operator/DispositionExportBeforeAfterPreview";
 import { DispositionExportImpactNotice } from "@/components/operator/DispositionExportImpactNotice";
 import { SponsorStorySynopsisFromCounts } from "@/components/operator/SponsorStorySynopsisPanel";
@@ -43,6 +44,7 @@ import {
 } from "@/lib/finding-governance-action-copy";
 import { buildSponsorStoryDispositionCountsFromRows } from "@/lib/sponsor-story-synopsis";
 import { resolveDispositionConcurrentUpdateNotice } from "@/lib/finding-disposition-concurrent-update";
+import { collabRecentActorsFromDispositionHistory } from "@/lib/collab-recent-actor-presence";
 
 const DISPOSITION_OPTIONS: FindingDispositionKind[] = [
   "Accepted",
@@ -324,9 +326,14 @@ export function FindingInspectGovernanceStickinessPanel({
   );
   const sponsorSynopsisPackageTitle =
     packageTitle !== null && packageTitle.trim().length > 0 ? packageTitle.trim() : runId;
+  const recentDispositionActors = useMemo(
+    () => collabRecentActorsFromDispositionHistory(history, { take: 3 }),
+    [history],
+  );
 
   return (
     <div className={cn("space-y-6 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950/40", OPERATOR_TYPOGRAPHY.body)}>
+      <CollabRecentActorPresenceStrip recentActors={recentDispositionActors} />
       <SponsorStorySynopsisFromCounts
         packageTitle={sponsorSynopsisPackageTitle}
         counts={sponsorSynopsisCounts}
