@@ -82,26 +82,22 @@ archlucid-ui/
 │   │   ├── page.tsx          ← Home page  →  /
 │   │   ├── loading.tsx       ← Loading fallback for /
 │   │   │
-│   │   ├── runs/
-│   │   │   ├── page.tsx      ← /runs?projectId=…
-│   │   │   ├── loading.tsx
+│   │   ├── architecture/reviews/
+│   │   │   ├── page.tsx      ← /architecture/reviews?projectId=…
 │   │   │   └── [runId]/
-│   │   │       ├── page.tsx  ← /runs/{runId}
-│   │   │       ├── loading.tsx
-│   │   │       └── artifacts/[artifactId]/
-│   │   │           ├── page.tsx   ← /runs/{runId}/artifacts/{artifactId}
-│   │   │           └── loading.tsx
+│   │   │       ├── page.tsx  ← /architecture/reviews/{runId}
+│   │   │       └── (no artifacts/[artifactId] — RER retired; Preview → GAR)
 │   │   │
-│   │   ├── manifests/[manifestId]/
-│   │   │   ├── page.tsx      ← /manifests/{manifestId}
-│   │   │   ├── loading.tsx
+│   │   ├── governance/signed-records/[manifestId]/
+│   │   │   ├── page.tsx      ← /governance/signed-records/{manifestId}
 │   │   │   └── artifacts/[artifactId]/
-│   │   │       ├── page.tsx  ← /manifests/{manifestId}/artifacts/{artifactId}
+│   │   │       ├── page.tsx  ← /governance/signed-records/{manifestId}/artifacts/{artifactId}
 │   │   │       └── loading.tsx
 │   │   │
-│   │   ├── graph/page.tsx    ← /graph          (client component)
-│   │   ├── compare/page.tsx  ← /compare        (client component)
-│   │   ├── replay/page.tsx   ← /replay         (client component)
+│   │   ├── insights/evidence-graph/page.tsx    ← /insights/evidence-graph
+│   │   ├── insights/compare-two-reviews/page.tsx
+│   │   ├── internal/replay/page.tsx
+│   │   ├── internal/recommendation-learning/page.tsx  ← ops SoT (TB-1787)
 │   │   │
 │   │   └── api/proxy/[...path]/route.ts  ← API proxy (Next.js route handler)
 │   │
@@ -482,9 +478,9 @@ The order matters: **error → malformed → empty → data**. This is determini
 **API calls:** `getManifestSummary`, `listArtifacts`  
 **States:** Same pattern as run detail but manifest-focused.
 
-### `/manifests/{manifestId}/artifacts/{artifactId}` — Artifact review
+### `/governance/signed-records/{manifestId}/artifacts/{artifactId}` — Artifact review (GAR)
 
-**File:** `app/manifests/[manifestId]/artifacts/[artifactId]/page.tsx` (server component)  
+**File:** `app/(operator)/governance/signed-records/[manifestId]/artifacts/[artifactId]/page.tsx` (server component)  
 **API calls:**
 1. `getArtifactDescriptor(manifestId, artifactId)` → metadata
 2. `fetchArtifactContentUtf8(manifestId, artifactId)` → file body as text
@@ -492,10 +488,9 @@ The order matters: **error → malformed → empty → data**. This is determini
 **Components:** `ArtifactReviewContent` (pretty + raw view), `ArtifactListTable` (sibling navigation)  
 **Helpers:** `artifact-review-helpers.ts` (type labels, JSON pretty-print, view classification)
 
-### `/runs/{runId}/artifacts/{artifactId}` — Run-scoped artifact entry
+### `/architecture/reviews/{runId}/artifacts/{artifactId}` — Retired run-scoped entry (RER)
 
-**File:** `app/runs/[runId]/artifacts/[artifactId]/page.tsx` (server component)  
-**What it does:** Loads the run, finds `goldenManifestId`, then `redirect()` to the canonical manifest artifact URL. Provides error/empty states if the run is missing or has no manifest.
+**Status:** No App Router page (old bookmarks 404). `ArtifactListTable` Preview uses `artifactPreviewHref` → GAR only (`/governance/signed-records/.../artifacts/...`). Do not reintroduce a run-scoped redirect page.
 
 ### `/graph` — Graph viewer
 
@@ -535,7 +530,7 @@ If the run has a golden manifest, the artifacts section shows a table:
 
 ### Step 2: Open an artifact for review
 
-Click **Review**. This opens `/manifests/{manifestId}/artifacts/{artifactId}`.
+Click **Review** / **Preview**. This opens `/governance/signed-records/{manifestId}/artifacts/{artifactId}` (GAR).
 
 ### Step 3: Understand the artifact
 
@@ -658,13 +653,13 @@ Every route in the architect workspace has one:
 
 ```
 app/loading.tsx                          → "Loading."
-app/runs/loading.tsx                     → "Loading runs."
-app/runs/[runId]/loading.tsx             → "Loading run detail."
-app/manifests/[manifestId]/loading.tsx   → "Loading manifest."
-app/manifests/.../artifacts/.../loading.tsx → "Loading artifact review."
-app/graph/loading.tsx                    → "Loading graph viewer."
-app/compare/loading.tsx                  → "Loading compare."
-app/replay/loading.tsx                   → "Loading replay."
+app/architecture/reviews/loading.tsx     → "Loading reviews."
+app/architecture/reviews/[runId]/loading.tsx → "Loading review detail."
+app/governance/signed-records/[manifestId]/loading.tsx → "Loading signed review record."
+app/governance/signed-records/.../artifacts/.../loading.tsx → "Loading artifact review."
+app/insights/evidence-graph/loading.tsx  → "Loading evidence graph."
+app/insights/compare-two-reviews/loading.tsx → "Loading compare."
+app/internal/replay/loading.tsx          → "Loading replay."
 ```
 
 They all use `OperatorLoadingNotice` — a calm, borderless status card with no spinner or animation.

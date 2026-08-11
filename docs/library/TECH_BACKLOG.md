@@ -1740,7 +1740,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1778 | ~~ITSM legacy path — retire or quarantine dead ItsmIntegrationPageClient~~ **Done** 2026-08-11 — clients deleted + anti-reintro | Maintainability P2 — **V1**; with **TB-1776**; pairs **TB-1146**/**TB-1161** | M |
 | TB-1781 | **Done** (2026-07-31) ? IIO traffic workbook notes: OAuth callback reachable after TB-1776 carve; Vitest; see `## TB-1781` below | Correctness P0 ? **V1**; owner review ~10/100 2026-07-27; traffic **IIO**; depends **TB-1776** | S |
 | TB-1785 | Atlassian OAuth callback ? Vitest success/fail/cancel states; see ## TB-1785 below | Testability P2 ? **V1**; after **TB-1776**/**TB-1783** | S |
-| TB-1787 | Recommendation-learning ops ? single surface (retire orphan polished UI); see ## TB-1787 below | Maintainability P2 ? **V1**; with **TB-1786** | M |
+| TB-1787 | ~~Recommendation-learning ops — single surface (retire orphan polished UI)~~ **Done** 2026-08-11 — orphan deleted; anti-reintro Vitest | Maintainability P2 — **V1**; with **TB-1786** | M |
 | TB-1790 | Recommendation-learning ops ? Vitest preview/rebuild/rollback + Execute gate; see ## TB-1790 below | Testability P2 ? **V1**; with **TB-1786**; after Done **TB-633** | S |
 | TB-1791 | `/login` Vitest redirect matrix (signin + idle-timeout); see ## TB-1791 below | Testability P2 ? **V1**; owner review ~12/100 2026-07-27; traffic **LOX** | S |
 | TB-1792 | **Done** (2026-07-31) ? `/login` multi-value searchParams fidelity via `buildLoginRedirectPath`; Vitest; see `## TB-1792` below | Correctness P0 ? **V1**; with **TB-1791** | S |

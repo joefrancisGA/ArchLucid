@@ -123,10 +123,10 @@ Renders a sorted table of artifacts with Review and Download links. Used on:
 
 ```ts
 {
-  manifestId: string;              // manifest these artifacts belong to
+  manifestId: string;              // signed-record these artifacts belong to
   artifacts: ArtifactDescriptor[]; // array from listArtifacts()
   currentArtifactId?: string;      // highlight this row (artifact review page)
-  runId?: string;                  // if set, Review links use /runs/… path
+  runId?: string;                  // ignored for Preview hrefs (GAR SoT; RER retired)
 }
 ```
 
@@ -134,24 +134,21 @@ Renders a sorted table of artifacts with Review and Download links. Used on:
 
 1. **Sorts** artifacts alphabetically by `name`.
 2. **Columns:** Artifact (name), Type (label from helper), Format, Created (localized), Hash (first 8 chars + `…`), Actions.
-3. **Review link:** When `runId` is provided, links to `/runs/{runId}/artifacts/{artifactId}` (redirects to manifest canonical URL). Without `runId`, links directly to `/manifests/{manifestId}/artifacts/{artifactId}`.
+3. **Preview / Review link:** Always `artifactPreviewHref(manifestId, artifactId)` → `/governance/signed-records/{manifestId}/artifacts/{artifactId}` (GAR). Optional `runId` does not change the href.
 4. **Download link:** Uses `getArtifactDownloadUrl(manifestId, artifactId)` — a proxy URL for binary download.
 5. **Current row highlighting:** Background turns `#eff6ff` (light blue) when `artifactId === currentArtifactId`.
 
-### How Review link routing works
+### How Preview link routing works
 
 ```
-From run detail (/runs/abc):
-  Review link → /runs/abc/artifacts/xyz
-    → page.tsx loads run, finds manifestId
-    → redirect() to /manifests/{manifestId}/artifacts/xyz
-    → canonical artifact review page renders
+From review detail or signed-record detail:
+  Preview → /governance/signed-records/{manifestId}/artifacts/{artifactId}
+    → GAR artifact review page renders
 
-From manifest detail (/manifests/def):
-  Review link → /manifests/def/artifacts/xyz
-    → canonical artifact review page renders directly
+Retired (do not reintroduce):
+  /architecture/reviews/{runId}/artifacts/{artifactId}  → 404 (RER removed)
+  /manifests/{manifestId}/artifacts/{artifactId}        → canonicalize to GAR when bookmarked
 ```
-
 ---
 
 ## 4. ArtifactReviewContent

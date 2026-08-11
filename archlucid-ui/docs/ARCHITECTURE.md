@@ -150,10 +150,10 @@ The shell **does** shape navigation (and light Enterprise copy) using the authen
 |-------|-----------|--------------|----------------|
 | `/` | `HomePage` | Server | Static landing with quick links |
 | `/runs` | `RunsPage` | Server | List runs for a project, coerce + render table |
-| `/runs/[runId]` | `RunDetailPage` | Server | Run metadata, authority chain, manifest summary, artifact table, downloads |
-| `/runs/[runId]/artifacts/[artifactId]` | (redirect page) | Server | Resolves run → manifest, redirects to canonical artifact URL |
-| `/manifests/[manifestId]` | `ManifestDetailPage` | Server | Manifest summary, artifact table, bundle download |
-| `/manifests/[manifestId]/artifacts/[artifactId]` | (artifact review page) | Server | Artifact metadata, content preview (pretty + raw), sibling navigation |
+| `/architecture/reviews/[runId]` | `RunDetailPage` | Server | Review metadata, authority chain, signed-record summary, artifact table, downloads |
+| `/architecture/reviews/[runId]/artifacts/[artifactId]` | *(retired RER — no page)* | — | Old bookmarks 404; Preview hrefs emit GAR only |
+| `/governance/signed-records/[manifestId]` | `SignedRecordDetailPage` | Server | Signed review record summary, artifact table, bundle download |
+| `/governance/signed-records/[manifestId]/artifacts/[artifactId]` | `SignedRecordArtifactPage` | Server | Artifact metadata, content preview (pretty + raw), sibling navigation (GAR SoT) |
 | `/graph` | `GraphPage` | Client | Run ID input, mode selector, graph loading, React Flow rendering |
 | `/insights/compare-two-reviews` | `ComparePage` | Client | Two run IDs, parallel fetch (legacy + structured + AI), three result views |
 | `/internal/replay` | `ReplayPage` | Client | Run ID input, mode selector, replay submission, validation display |
@@ -162,7 +162,7 @@ The shell **does** shape navigation (and light Enterprise copy) using the authen
 | `/governance/advisory-scans` | `GovernanceAdvisoryScansPage` (hub) | Server shell + `AdvisoryHubClient` | `?tab=` — **scans** (default; improvement advisor), **schedules** (scan windows; legacy `/advisory` + `/advisory-scheduling` via next.config — TB-1124). |
 | `/alerts` | `AlertsPage` (hub) | Client | `?tab=` — **inbox** (default), **rules**, **routing**, **composite**, **simulation** (simulation + tuning). Legacy `/alert-*` paths redirect here. |
 | `/digests` | `DigestsPage` (hub) | Server shell + `DigestsHubClient` | `?tab=` — **browse** (default; digest list), **subscriptions** (email delivery), **schedule** (exec digest prefs; legacy `/digest-subscriptions` redirect). |
-| `/recommendation-learning` | `LearningPage` | Client | Learning profile display + rebuild |
+| `/internal/recommendation-learning` | `RecommendationLearningOpsPageClient` | Client | Internal Ops learning profile inspect / preview / rebuild / rollback (orphan polished Learning UI retired — TB-1787) |
 | `/policy-packs` | `PolicyPacksPage` | Client | Pack creation, publishing, assignment |
 | `/governance/standards-and-rules` | `GovernanceResolutionPage` | Client | Effective resolution display |
 
