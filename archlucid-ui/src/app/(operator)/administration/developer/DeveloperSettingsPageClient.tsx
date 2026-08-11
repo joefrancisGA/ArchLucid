@@ -1,5 +1,6 @@
 "use client";
 
+import { DeveloperApiContractsApiKeysVocabularyRail } from "@/components/DeveloperApiContractsApiKeysVocabularyRail";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { AuthorityThemeDevSelector } from "@/components/settings/AuthorityThemeDevSelector";
 import { TryCliDemoCard } from "@/components/TryCliDemoCard";
@@ -13,12 +14,13 @@ import { INTERNAL_DEVELOPER_TOOLS_INTRO } from "./developer-settings-copy";
 export function DeveloperSettingsPageClient() {
   return (
     <div className="w-full max-w-3xl space-y-6" data-testid="developer-settings-page">
-<OperatorPageHeader
+      <OperatorPageHeader
         title="Internal developer tools"
         subtitle={INTERNAL_DEVELOPER_TOOLS_INTRO}
         titleTestId="developer-settings-page-title"
         actions={<PageContextualHelpButton />}
       />
+      <DeveloperApiContractsApiKeysVocabularyRail currentSurfaceId="developer" />
 
       <Card>
         <CardHeader>
