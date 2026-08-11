@@ -3,9 +3,11 @@ import { describe, expect, it } from "vitest";
 import {
   AZURE_BOARDS_LOAD_FAILURE_STATUS_EXPLANATION,
   isAzureBoardsCredentialsReady,
+  resolveAzureBoardsConnectionSaveGate,
   resolveAzureBoardsConnectionStatus,
   resolveAzureBoardsConnectionTestGate,
   resolveAzureBoardsPageComposition,
+  resolveAzureBoardsSetupStepTagLabel,
   sanitizeAzureBoardsLoadErrorForConnectionStatus,
   sanitizeCustomerFacingProbeSummary,
 } from "./azure-boards-integration-present";
@@ -124,6 +126,29 @@ describe("azure-boards-integration-present", () => {
     expect(composition.showConnectionSettings).toBe(true);
     expect(composition.defaultBehaviorCollapsed).toBe(true);
     expect(composition.showConnectionTest).toBe(false);
+    expect(composition.connectionTestCollapsed).toBe(true);
     expect(composition.emphasizedSetupStepId).toBe("credentials");
+  });
+
+  it("blocks save connection until token reference is provided", () => {
+    const gate = resolveAzureBoardsConnectionSaveGate({
+      canMutate: true,
+      organizationUrl: "https://dev.azure.com/example",
+      tokenReference: "",
+      connection: { isConfigured: false, credentialKeyVaultSecretName: null },
+      isSaving: false,
+    });
+
+    expect(gate.allowed).toBe(false);
+    expect(gate.reason?.message).toMatch(/token secure reference/i);
+  });
+
+  it("labels emphasized setup step as in progress", () => {
+    const label = resolveAzureBoardsSetupStepTagLabel(
+      { id: "credentials", label: "Organization URL and secure token reference", complete: false },
+      "credentials",
+    );
+
+    expect(label).toBe("In progress");
   });
 });

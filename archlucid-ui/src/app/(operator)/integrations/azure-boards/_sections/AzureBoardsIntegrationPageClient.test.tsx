@@ -153,26 +153,25 @@ describe("AzureBoardsIntegrationPageClient", () => {
     expect(screen.getByTestId("azure-boards-organization-url")).toHaveValue("https://dev.azure.com/example");
   });
 
-  it("TB-1757/1759: setup progress uses StatusTag and omits duplicate azure-boards help guide link", async () => {
+  it("links documentation to Azure Boards help topic and troubleshooting", async () => {
     render(<AzureBoardsIntegrationPageClient />);
 
     await screen.findByTestId("azure-boards-setup-progress");
-    expect(screen.getByTestId("azure-boards-setup-step-credentials")).toBeInTheDocument();
-    expect(screen.queryByTestId("azure-boards-help-guide-link")).not.toBeInTheDocument();
-
-    const aside = screen.getByTestId("azure-boards-integration-aside");
-    expect(aside.textContent ?? "").not.toContain("/help/azure-boards");
-    expect(aside.textContent ?? "").not.toContain("/help/integrations/azure-boards");
+    expect(screen.getByTestId("azure-boards-help-guide-link")).toHaveAttribute("href", "/help/azure-boards");
+    expect(screen.getByRole("link", { name: "Azure Boards integration guide" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Troubleshooting" })).toHaveAttribute("href", "/help/troubleshooting");
   });
 
-  it("shows setup incomplete and hides connection test until credentials exist (TB-1155)", async () => {
+  it("shows setup incomplete with needs-attention status tag on first load", async () => {
     render(<AzureBoardsIntegrationPageClient />);
 
     const status = await screen.findByTestId("azure-boards-connection-status");
     expect(within(status).getByText("Setup incomplete")).toBeInTheDocument();
     expect(screen.queryByTestId("azure-boards-test-connection-button")).not.toBeInTheDocument();
     expect(screen.getByTestId("azure-boards-default-behavior-collapsed")).toBeInTheDocument();
+    expect(screen.getByTestId("azure-boards-connection-test-collapsed")).toBeInTheDocument();
     expect(screen.getByTestId("azure-boards-setup-step-credentials")).toHaveAttribute("data-emphasized", "true");
+    expect(within(screen.getByTestId("azure-boards-setup-step-credentials")).getByText("In progress")).toBeInTheDocument();
   });
 
   it("shows connected state when health probe succeeds", async () => {
@@ -201,6 +200,7 @@ describe("AzureBoardsIntegrationPageClient", () => {
         isConfigured: true,
         instanceBaseUrl: "https://dev.azure.com/example",
         credentialKeyVaultSecretName: "kv-pat-secret",
+        updatedUtc: "2026-08-10T12:00:00.000Z",
       }),
     );
 
@@ -210,6 +210,46 @@ describe("AzureBoardsIntegrationPageClient", () => {
     expect(screen.getByTestId("azure-boards-token-reference")).toHaveValue("");
     expect(screen.getByTestId("azure-boards-credential-status")).toHaveTextContent("Secure reference saved");
     expect(screen.queryByText("kv-pat-secret")).not.toBeInTheDocument();
+    expect(screen.getByTestId("azure-boards-connection-provenance")).toHaveTextContent(/Last modified/i);
+    expect(screen.getByTestId("azure-boards-audit-trail-link")).toHaveAttribute("href", "/governance/audit");
+  });
+
+  it("requires token reference before enabling save connection", async () => {
+    render(<AzureBoardsIntegrationPageClient />);
+
+    const orgInput = await screen.findByTestId("azure-boards-organization-url");
+    fireEvent.change(orgInput, { target: { value: "https://dev.azure.com/example" } });
+
+    expect(screen.getByRole("button", { name: /Save connection/i })).toBeDisabled();
+    expect(screen.getByTestId("azure-boards-save-connection-disabled-helper")).toHaveTextContent(
+      /token secure reference/i,
+    );
+  });
+
+  it("preserves typed credentials when refresh is pressed", async () => {
+    render(<AzureBoardsIntegrationPageClient />);
+
+    const orgInput = await screen.findByTestId("azure-boards-organization-url");
+    const tokenInput = screen.getByTestId("azure-boards-token-reference");
+    fireEvent.change(orgInput, { target: { value: "https://dev.azure.com/example" } });
+    fireEvent.change(tokenInput, { target: { value: "kv-new-pat" } });
+
+    fireEvent.click(screen.getByTestId("azure-boards-refresh-button"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("azure-boards-organization-url")).toHaveValue("https://dev.azure.com/example");
+    });
+    expect(screen.getByTestId("azure-boards-token-reference")).toHaveValue("kv-new-pat");
+  });
+
+  it("links create-work-items setup step to findings", async () => {
+    render(<AzureBoardsIntegrationPageClient />);
+
+    await screen.findByTestId("azure-boards-setup-step-create");
+    expect(screen.getByRole("link", { name: /Create work items from findings/i })).toHaveAttribute(
+      "href",
+      "/governance/findings",
+    );
   });
 
   it("runs connection test with pending and success feedback", async () => {

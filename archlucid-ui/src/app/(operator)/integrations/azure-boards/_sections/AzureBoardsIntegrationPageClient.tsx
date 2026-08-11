@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { StatusTag } from "@/components/ui/status-tag";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import {
   fetchAzureBoardsHealth,
@@ -33,9 +35,13 @@ import {
 import { buildAzureBoardsPageLoadResult } from "@/lib/azure-boards-page-load";
 import {
   formatAzureBoardsOrganizationUrl,
+  isAzureBoardsConnectionSaveSuccessful,
   isAzureBoardsCredentialsReady,
+  resolveAzureBoardsConnectionProvenance,
+  resolveAzureBoardsConnectionSaveGate,
   resolveAzureBoardsConnectionStatus,
   resolveAzureBoardsConnectionTestGate,
+  resolveAzureBoardsCredentialStatusKind,
   resolveAzureBoardsCredentialStatusLabel,
   resolveAzureBoardsPageComposition,
   resolveAzureBoardsSetupSteps,
@@ -45,7 +51,10 @@ import {
   AZURE_BOARDS_CONNECTION_SETTINGS_LEAD,
   AZURE_BOARDS_CONNECTION_SETTINGS_TITLE,
   AZURE_BOARDS_CONNECTION_STATUS_HEADING,
+  AZURE_BOARDS_CONNECTION_TEST_COLLAPSED_CREDENTIALS_SUMMARY,
   AZURE_BOARDS_CONNECTION_TEST_COLLAPSED_SUMMARY,
+  AZURE_BOARDS_CONNECTION_AUDIT_TRAIL_LINK_LABEL,
+  AZURE_BOARDS_CONNECTION_SAVE_SUCCESS,
   AZURE_BOARDS_DEFAULT_BEHAVIOR_COLLAPSED_SUMMARY,
   AZURE_BOARDS_DEFAULT_BEHAVIOR_LEAD,
   AZURE_BOARDS_DEFAULT_BEHAVIOR_TITLE,
@@ -72,9 +81,10 @@ import {
   AZURE_BOARDS_TOKEN_REFERENCE_PLACEHOLDER,
 } from "@/lib/azure-boards-page-copy";
 import { cn } from "@/lib/utils";
-import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 import { ItsmConnectorProviderChooserRail } from "@/components/ItsmConnectorProviderChooserRail";
 
 import { AzureBoardsIntegrationAside } from "./AzureBoardsIntegrationAside";
@@ -94,6 +104,10 @@ function statusTagKind(
 
   if (status === "testing") {
     return "in-progress";
+  }
+
+  if (status === "setup-incomplete") {
+    return "needs-attention";
   }
 
   return "neutral";
@@ -147,13 +161,20 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
     );
   }, []);
 
-  const applyConnection = useCallback((loaded: TenantItsmConnectorConnectionResponse | null) => {
-    setConnection(loaded);
-    setOrganizationUrl(loaded?.instanceBaseUrl ?? "");
-    setTokenReference("");
-  }, []);
+  const applyConnection = useCallback(
+    (loaded: TenantItsmConnectorConnectionResponse | null, preserveUserEdits = false) => {
+      setConnection(loaded);
 
-  const refresh = useCallback(async () => {
+      if (!preserveUserEdits) {
+        setOrganizationUrl(loaded?.instanceBaseUrl ?? "");
+        setTokenReference("");
+      }
+    },
+    [],
+  );
+
+  const refresh = useCallback(
+    async (options?: { preserveConnectionEdits?: boolean }) => {
     setIsLoading(true);
     setLoadError(null);
 
@@ -185,7 +206,7 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
     }
 
     if (!loaded.connection.failed) {
-      applyConnection(loaded.connection.value);
+      applyConnection(loaded.connection.value, options?.preserveConnectionEdits === true);
     }
 
     setLoadError(loaded.loadError);
@@ -201,6 +222,8 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
 
   const nativeEnabled = itsmHealth?.nativeEnabled ?? false;
   const credentialsReady = isAzureBoardsCredentialsReady(connection, health);
+  const hasUnsavedConnectionEdits =
+    organizationUrl.trim() !== (connection?.instanceBaseUrl?.trim() ?? "") || tokenReference.trim().length > 0;
   const settingsReady =
     (settings?.projectName?.trim().length ?? 0) > 0 && (settings?.defaultWorkItemType?.trim().length ?? 0) > 0;
 
@@ -228,6 +251,18 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
         isSaving,
       }),
     [credentialsReady, isSaving, isTesting, nativeEnabled, projectName, workItemType],
+  );
+
+  const connectionSaveGate = useMemo(
+    () =>
+      resolveAzureBoardsConnectionSaveGate({
+        canMutate,
+        organizationUrl,
+        tokenReference,
+        connection,
+        isSaving: isSavingConnection,
+      }),
+    [canMutate, connection, isSavingConnection, organizationUrl, tokenReference],
   );
 
   const pageComposition = useMemo(
@@ -319,7 +354,9 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
         isEnabled: true,
       });
       applyConnection(saved);
-      setConnectionSaveSuccess("Connection saved.");
+      if (isAzureBoardsConnectionSaveSuccessful(saved)) {
+        setConnectionSaveSuccess(AZURE_BOARDS_CONNECTION_SAVE_SUCCESS);
+      }
       const healthResponse = await fetchAzureBoardsHealth();
       setHealth(healthResponse);
       await loadDiscovery();
@@ -393,8 +430,17 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
   }, [testGate.allowed]);
 
   const credentialStatus = resolveAzureBoardsCredentialStatusLabel(connection, credentialsReady);
+  const credentialStatusKind = resolveAzureBoardsCredentialStatusKind(credentialsReady);
+  const connectionProvenance = resolveAzureBoardsConnectionProvenance(connection, hasUnsavedConnectionEdits);
   const organizationDisplay = formatAzureBoardsOrganizationUrl(connection);
   const isInitialLoad = isLoading && !hasLoadedOnce;
+  const connectionTestCollapsedSummary = credentialsReady
+    ? AZURE_BOARDS_CONNECTION_TEST_COLLAPSED_SUMMARY
+    : AZURE_BOARDS_CONNECTION_TEST_COLLAPSED_CREDENTIALS_SUMMARY;
+
+  const handleRefresh = useCallback(() => {
+    void refresh({ preserveConnectionEdits: hasUnsavedConnectionEdits });
+  }, [hasUnsavedConnectionEdits, refresh]);
 
   return (
     <div
@@ -404,7 +450,7 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
       <AzureBoardsIntegrationPageHeader
         refreshing={isLoading}
         lastRefreshedAt={lastRefreshedAt}
-        onRefresh={() => void refresh()}
+        onRefresh={handleRefresh}
       />
 
       <ItsmConnectorProviderChooserRail currentProviderId="azure-boards" />
@@ -436,6 +482,7 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
             {pageComposition.showConnectionSettings ? (
               <section
                 aria-labelledby="azure-boards-connection-settings-heading"
+                id="azure-boards-connection-settings"
                 className={cn("space-y-4 rounded-md border border-neutral-200 p-4 dark:border-neutral-800", OPERATOR_LAYOUT.sectionHeadingStack)}
                 data-testid="azure-boards-connection-settings"
               >
@@ -499,24 +546,48 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
                     <dt className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
                       {AZURE_BOARDS_FIELD_CREDENTIAL_STATUS}
                     </dt>
-                    <dd
-                      className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-                      data-testid="azure-boards-credential-status"
-                    >
-                      {credentialStatus}
+                    <dd className="m-0 mt-1" data-testid="azure-boards-credential-status">
+                      <StatusTag kind={credentialStatusKind} label={credentialStatus} />
+                    </dd>
+                  </div>
+
+                  <div data-testid="azure-boards-connection-provenance">
+                    <dt className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                      Change history
+                    </dt>
+                    <dd className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                      <p className="m-0" role="status">
+                        {connectionProvenance}
+                      </p>
+                      <p className="m-0 mt-2">
+                        <Link
+                          href={GOVERNANCE_AUDIT_PATH}
+                          className={OPERATOR_LINK.inline}
+                          data-testid="azure-boards-audit-trail-link"
+                        >
+                          {AZURE_BOARDS_CONNECTION_AUDIT_TRAIL_LINK_LABEL}
+                        </Link>
+                      </p>
                     </dd>
                   </div>
                 </div>
 
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    type="button"
-                    onClick={() => void saveConnection()}
-                    disabled={isSavingConnection || !canMutate || organizationUrl.trim().length === 0}
-                    title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-                  >
-                    {isSavingConnection ? AZURE_BOARDS_SAVING_CONNECTION_LABEL : AZURE_BOARDS_SAVE_CONNECTION_LABEL}
-                  </Button>
+                <div className="flex flex-col gap-2">
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      type="button"
+                      onClick={() => void saveConnection()}
+                      disabled={!connectionSaveGate.allowed}
+                      title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                    >
+                      {isSavingConnection ? AZURE_BOARDS_SAVING_CONNECTION_LABEL : AZURE_BOARDS_SAVE_CONNECTION_LABEL}
+                    </Button>
+                  </div>
+                  <WhyDisabledCtaHint
+                    reason={connectionSaveGate.reason}
+                    testId="azure-boards-save-connection-disabled-helper"
+                    className="max-w-prose"
+                  />
                 </div>
 
                 {!canMutate ? (
@@ -527,6 +598,7 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
 
             {!pageComposition.blocked && pageComposition.defaultBehaviorCollapsed ? (
               <details
+                id="azure-boards-default-behavior-heading"
                 className="rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-800 dark:bg-neutral-900/40"
                 data-testid="azure-boards-default-behavior-collapsed"
               >
@@ -698,6 +770,7 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
 
             {!pageComposition.blocked && pageComposition.connectionTestCollapsed ? (
               <details
+                id="azure-boards-test-heading"
                 className="rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-800 dark:bg-neutral-900/40"
                 data-testid="azure-boards-connection-test-collapsed"
               >
@@ -707,11 +780,15 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
                     OPERATOR_DISCLOSURE_TRIGGER_CLASS,
                   )}
                 >
-                  {AZURE_BOARDS_CONNECTION_TEST_COLLAPSED_SUMMARY}
+                  {connectionTestCollapsedSummary}
                 </summary>
                 {testGate.reason ? (
                   <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} id="azure-boards-test-disabled-reason">
                     {testGate.reason}
+                  </p>
+                ) : !credentialsReady ? (
+                  <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    Save connection settings before running a connection test.
                   </p>
                 ) : null}
               </details>
