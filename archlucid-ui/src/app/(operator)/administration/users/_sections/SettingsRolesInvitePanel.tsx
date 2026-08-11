@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useState, type RefObject } from "react";
 
 import { MutatingInWorkspaceChip } from "@/components/MutatingInWorkspaceChip";
+import { ColdInviteUsersInviteVocabularyRail } from "@/components/ColdInviteUsersInviteVocabularyRail";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -88,6 +89,7 @@ export function SettingsRolesInvitePanel({ emailInputRef, onInviteSent }: Props)
       className="max-w-xl space-y-4"
       onSubmit={(event) => void handleSubmit(event)}
     >
+      <ColdInviteUsersInviteVocabularyRail currentSurfaceId="users-invite" />
       <div className="space-y-1">
         <Label htmlFor="invite-email">Email address</Label>
         <Input
