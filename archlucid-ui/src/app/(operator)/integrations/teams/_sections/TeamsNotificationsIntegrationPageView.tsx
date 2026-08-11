@@ -7,6 +7,7 @@ import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorksp
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { TeamsSlackNotificationVocabularyRail } from "@/components/TeamsSlackNotificationVocabularyRail";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -90,6 +91,7 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
           </>
         }
       />
+      <TeamsSlackNotificationVocabularyRail currentSurfaceId="teams" />
 {m.failure !== null ? (
         <div role="alert">
           <OperatorApiProblem

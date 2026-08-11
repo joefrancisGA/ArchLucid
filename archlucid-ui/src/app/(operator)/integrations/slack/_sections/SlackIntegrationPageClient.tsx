@@ -9,6 +9,7 @@ import { PageHeading } from "@/components/PageHeading";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { TeamsSlackNotificationVocabularyRail } from "@/components/TeamsSlackNotificationVocabularyRail";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -240,6 +241,7 @@ export function SlackIntegrationPageClient(): React.ReactElement {
           </>
         }
       />
+      <TeamsSlackNotificationVocabularyRail currentSurfaceId="slack" />
 {failure !== null ? (
         <div role="alert">
           <OperatorApiProblem

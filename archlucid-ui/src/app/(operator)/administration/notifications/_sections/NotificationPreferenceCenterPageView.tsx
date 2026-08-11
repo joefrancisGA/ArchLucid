@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { TeamsSlackNotificationVocabularyRail } from "@/components/TeamsSlackNotificationVocabularyRail";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -25,6 +26,8 @@ export function NotificationPreferenceCenterPageView() {
         titleTestId="notification-preference-center-page-title"
         actions={<PageContextualHelpButton />}
       />
+
+      <TeamsSlackNotificationVocabularyRail currentSurfaceId="notifications-hub" />
 
       <p
         className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
