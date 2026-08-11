@@ -534,8 +534,9 @@ resource "azurerm_container_app" "worker" {
 
 
   template {
-    min_replicas = var.worker_min_replicas
-    max_replicas = var.worker_max_replicas
+    min_replicas                      = var.worker_min_replicas
+    max_replicas                      = var.worker_max_replicas
+    termination_grace_period_seconds  = var.worker_termination_grace_period_seconds
 
     container {
       name    = "archlucid-worker"

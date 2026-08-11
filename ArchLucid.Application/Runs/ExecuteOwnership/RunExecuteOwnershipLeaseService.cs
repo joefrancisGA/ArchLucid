@@ -1,5 +1,8 @@
+using System.Diagnostics;
+
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Hosting;
 using ArchLucid.Core.Persistence.ApplicationPorts.Interfaces;
 
@@ -13,9 +16,13 @@ public sealed class RunExecuteOwnershipLeaseService(
     IRunExecuteOwnershipLeaseRepository leaseRepository,
     IHostProcessInstanceId processInstanceId,
     IArchLucidStorageMode storageMode,
+    IWorkerHostDrainGate drainGate,
     IOptionsMonitor<RunExecuteOwnershipLeaseOptions> optionsMonitor,
     ILogger<RunExecuteOwnershipLeaseService> logger) : IRunExecuteOwnershipLeaseService
 {
+    private readonly IWorkerHostDrainGate _drainGate =
+        drainGate ?? throw new ArgumentNullException(nameof(drainGate));
+
     private readonly IHostProcessInstanceId _processInstanceId =
         processInstanceId ?? throw new ArgumentNullException(nameof(processInstanceId));
 
@@ -39,6 +46,12 @@ public sealed class RunExecuteOwnershipLeaseService(
     {
         if (!IsEnabled)
             return;
+
+        if (_drainGate.IsDraining)
+        {
+            throw new ConflictException(
+                "Host is draining for shutdown; execute ownership is not admitting new leases. Retry on another replica after drain completes.");
+        }
 
         RunExecuteOwnershipLeaseOptions options = _optionsMonitor.CurrentValue;
         int durationSeconds = Math.Clamp(options.LeaseDurationSeconds, 30, 3600);
@@ -70,9 +83,14 @@ public sealed class RunExecuteOwnershipLeaseService(
         if (!IsEnabled)
             return 0;
 
+        Stopwatch stopwatch = Stopwatch.StartNew();
+
         int released = await _leaseRepository
             .ReleaseAllHeldByInstanceAsync(_processInstanceId.Value, cancellationToken)
             .ConfigureAwait(false);
+
+        stopwatch.Stop();
+        ArchLucidInstrumentation.WorkerDrainLeaseReleaseDurationMilliseconds.Record(stopwatch.Elapsed.TotalMilliseconds);
 
         if (released > 0 && _logger.IsEnabled(LogLevel.Information))
         {

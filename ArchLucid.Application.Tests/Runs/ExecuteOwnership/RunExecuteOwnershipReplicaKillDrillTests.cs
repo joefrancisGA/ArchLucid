@@ -39,6 +39,7 @@ public sealed class RunExecuteOwnershipReplicaKillDrillTests
             leases.Object,
             instance.Object,
             storage.Object,
+            new WorkerHostDrainGate(),
             options.Object,
             NullLogger<RunExecuteOwnershipLeaseService>.Instance);
 

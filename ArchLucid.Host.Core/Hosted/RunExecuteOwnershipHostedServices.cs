@@ -1,5 +1,6 @@
 using ArchLucid.Application.DataConsistency;
 using ArchLucid.Application.Runs.ExecuteOwnership;
+using ArchLucid.Core.Hosting;
 using ArchLucid.Host.Core.Hosted;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -80,9 +81,13 @@ public sealed class RunExecuteOwnershipReconciliationHostedService(
 /// <summary>Releases execute ownership leases held by this process on SIGTERM / shutdown (TB-961).</summary>
 public sealed class RunExecuteOwnershipShutdownReleaseHostedService(
     IHostApplicationLifetime lifetime,
+    IWorkerHostDrainGate drainGate,
     IServiceScopeFactory scopeFactory,
     ILogger<RunExecuteOwnershipShutdownReleaseHostedService> logger) : IHostedService
 {
+    private readonly IWorkerHostDrainGate _drainGate =
+        drainGate ?? throw new ArgumentNullException(nameof(drainGate));
+
     private readonly IHostApplicationLifetime _lifetime =
         lifetime ?? throw new ArgumentNullException(nameof(lifetime));
 
@@ -101,6 +106,8 @@ public sealed class RunExecuteOwnershipShutdownReleaseHostedService(
         {
             try
             {
+                WorkerHostDrainSignal.BeginIfNeeded(_drainGate, _logger);
+
                 using IServiceScope scope = _scopeFactory.CreateScope();
                 IRunExecuteOwnershipLeaseService leaseService =
                     scope.ServiceProvider.GetRequiredService<IRunExecuteOwnershipLeaseService>();

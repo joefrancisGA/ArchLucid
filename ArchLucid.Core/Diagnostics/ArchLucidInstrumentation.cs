@@ -1186,6 +1186,25 @@ public static class ArchLucidInstrumentation
             "archlucid_startup_config_warnings_total",
             description: "Non-fatal startup configuration warnings (label rule_name).");
 
+    /// <summary>Incremented once per replica when <c>ApplicationStopping</c> begins cooperative drain (TB-961).</summary>
+    public static readonly Counter<long> WorkerDrainStartedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_worker_drain_started_total",
+            description: "Worker/API host drain started on ApplicationStopping (TB-961).");
+
+    /// <summary>Incremented when host shutdown times out while drain is still active (TB-961).</summary>
+    public static readonly Counter<long> WorkerDrainForcedKillTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_worker_drain_forced_kill_total",
+            description: "Host shutdown timed out during drain; platform may force-kill the replica (TB-961).");
+
+    /// <summary>Shutdown execute-ownership lease release latency in milliseconds (TB-961).</summary>
+    public static readonly Histogram<double> WorkerDrainLeaseReleaseDurationMilliseconds =
+        AppMeter.CreateHistogram<double>(
+            "archlucid_worker_drain_lease_release_duration_ms",
+            "ms",
+            "Duration to release execute ownership leases held by this instance during shutdown drain (TB-961).");
+
     /// <summary>
     ///     Observed latency for named SQL/query gates (TECH_BACKLOG TB-003 parity with CI allowlist; label <c>query_name</c>).
     /// </summary>

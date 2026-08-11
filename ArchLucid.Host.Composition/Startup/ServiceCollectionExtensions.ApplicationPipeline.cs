@@ -75,6 +75,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Hosting;
 using ArchLucid.Core.Diagrams;
 using ArchLucid.Core.Http;
 using ArchLucid.Host.Composition.ValueReports;
@@ -240,6 +241,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IArchitectureRunExecuteOrchestrator, ArchitectureRunExecuteOrchestrator>();
         services.Configure<RunExecuteOwnershipLeaseOptions>(
             configuration.GetSection(RunExecuteOwnershipLeaseOptions.SectionName));
+        services.TryAddSingleton<IWorkerHostDrainGate, WorkerHostDrainGate>();
         services.AddScoped<IRunExecuteOwnershipLeaseService, RunExecuteOwnershipLeaseService>();
         services.AddScoped<IRunExecuteOwnershipReconciliationService, RunExecuteOwnershipReconciliationService>();
         services.AddScoped<IStaleInFlightRunRemediator, StaleInFlightRunRemediator>();
