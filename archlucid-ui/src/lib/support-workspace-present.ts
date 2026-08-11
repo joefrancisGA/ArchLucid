@@ -1,7 +1,7 @@
 export const ARCHLUCID_SUPPORT_EMAIL = "support@archlucid.net";
 
 export const SUPPORT_PAGE_GUIDANCE =
-  "When a page shows Report problem, use it first — it sends structured diagnostics and a report reference. For general questions or when you are not on an error surface, use Settings → Support or email below.";
+  "When a page shows Report problem, use it first — it sends structured diagnostics and a report reference. For general questions or when you are not on an error surface, use Administration → Support (administrators only) or email below.";
 
 export const SUPPORT_BUNDLE_SAFETY_SUMMARY =
   "The bundle is redacted before download. Review it before sharing outside your organization.";

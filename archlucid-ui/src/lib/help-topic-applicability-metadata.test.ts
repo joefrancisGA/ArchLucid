@@ -19,7 +19,7 @@ function sampleEntry(
 }
 
 describe("formatHelpTopicApplicabilityMetadata", () => {
-  it("returns null so help pages omit registry review and release labels", () => {
+  it("returns null for non-report-a-problem topics even when registry metadata exists", () => {
     expect(
       formatHelpTopicApplicabilityMetadata(
         sampleEntry({
@@ -30,7 +30,19 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
     ).toBeNull();
   });
 
-  it("returns null when registry metadata is absent", () => {
-    expect(formatHelpTopicApplicabilityMetadata(sampleEntry())).toBeNull();
+  it("returns null when report-a-problem registry metadata is absent", () => {
+    expect(formatHelpTopicApplicabilityMetadata(sampleEntry({ slug: "report-a-problem" }))).toBeNull();
+  });
+
+  it("formats report-a-problem provenance when lastReviewed and applicability exist", () => {
+    expect(
+      formatHelpTopicApplicabilityMetadata(
+        sampleEntry({
+          slug: "report-a-problem",
+          lastReviewed: "2026-08-11",
+          releaseApplicability: "Applies to in-product support intake",
+        }),
+      ),
+    ).toBe("Last reviewed 2026-08-11 · Applies to in-product support intake");
   });
 });

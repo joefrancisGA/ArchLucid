@@ -240,6 +240,9 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/REPORT_A_PROBLEM.md"],
     pdfStatus: "customer",
+    lastReviewed: "2026-08-11",
+    releaseApplicability:
+      "Applies to in-product support intake, captured fields, and the redacted support bundle",
   },
   {
     slug: "data-handling",
