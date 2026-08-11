@@ -40,6 +40,7 @@ import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ApiKeysVsUsersReconciler } from "@/components/ApiKeysVsUsersReconciler";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -272,6 +273,7 @@ export function ApiKeysSettingsPageClient() {
           </div>
           <PageContextualHelpButton />
         </div>
+        <ApiKeysVsUsersReconciler currentSurfaceId="api-keys" />
       </header>
 {state.status === "loading" ? (
         <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading API key status…</p>

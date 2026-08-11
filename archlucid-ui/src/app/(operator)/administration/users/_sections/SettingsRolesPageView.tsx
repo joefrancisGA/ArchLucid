@@ -8,6 +8,7 @@ import { PageHeading } from "@/components/PageHeading";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+import { ApiKeysVsUsersReconciler } from "@/components/ApiKeysVsUsersReconciler";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -195,6 +196,7 @@ export function SettingsRolesPageView(props: Props) {
           </div>
         }
       />
+      <ApiKeysVsUsersReconciler currentSurfaceId="users" />
       <Tabs value={activeTab} onValueChange={onSelectTab} className="space-y-6">
         <TabsList aria-label="Users and roles sections" data-testid="settings-roles-tablist">
           {tabs.map((tab) => (
