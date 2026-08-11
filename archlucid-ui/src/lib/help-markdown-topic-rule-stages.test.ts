@@ -23,7 +23,7 @@ const EXPECTED_AUDIENCE_IDS: readonly string[] = [
   "procurement-packet",
   "configuration-reference",
   "first-review-evidence-checklist",
-  "developer-troubleshooting",
+  "engineering-troubleshooting",
   "cli-usage",
   "enterprise-onboarding",
   "governance-api-contracts",
@@ -43,6 +43,7 @@ const EXPECTED_AUDIENCE_IDS: readonly string[] = [
   "prior-manifest-retrieval",
   "executive-summary-sponsor-brief",
   "soc2-self-assessment",
+  "security-trust-trust-center",
 ];
 
 const ALL_STAGE_NAMES = ["sourcePrestage", "contributorSections", "audience"] as const;

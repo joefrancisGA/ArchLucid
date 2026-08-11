@@ -78,7 +78,7 @@ export function HelpTopicMarkdownClient(props: HelpTopicMarkdownClientProps): Re
     return <HelpTopicNotFoundView />;
   }
 
-  if (props.entry.slug === "developer-troubleshooting") {
+  if (props.entry.slug === "engineering-troubleshooting") {
     return <HelpEngineeringTroubleshootingGuideView entry={props.entry} markdown={state.markdown} />;
   }
 

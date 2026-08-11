@@ -46,6 +46,10 @@ describe("engineering-troubleshooting-help-guide-content", () => {
     }
   });
 
+  it("TB-1248: canonical path matches engineering-troubleshooting slug", () => {
+    expect(ENGINEERING_TROUBLESHOOTING_HELP_CANONICAL_PATH).toBe("/help/engineering-troubleshooting");
+  });
+
   it("states claim discipline without implying certification", () => {
     expect(ENGINEERING_TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE.toLowerCase()).toContain("not customer");
     expect(ENGINEERING_TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE.toLowerCase()).not.toContain("cpa");

@@ -361,8 +361,8 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "first-architecture-review", label: "Your first architecture review" },
   },
   {
-    prefix: "/help/developer-troubleshooting",
-    topic: { slug: "developer-troubleshooting", label: "Engineering troubleshooting runbook" },
+    prefix: "/help/engineering-troubleshooting",
+    topic: { slug: "engineering-troubleshooting", label: "Engineering troubleshooting runbook" },
   },
   {
     prefix: "/help/api-contracts",

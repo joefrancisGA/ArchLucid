@@ -1,4 +1,4 @@
-import { DEVELOPER_TROUBLESHOOTING_HELP_PATH } from "@/lib/developer-troubleshooting-help-route";
+import { ENGINEERING_TROUBLESHOOTING_HELP_PATH } from "@/lib/developer-troubleshooting-help-route";
 import type { FindingSeverityKind } from "@/lib/design-tokens";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
@@ -192,4 +192,4 @@ export const ENGINEERING_TROUBLESHOOTING_HELP_SOURCES: readonly EngineeringTroub
     { label: "System health", href: "/administration/system-health" },
   ] as const;
 
-export const ENGINEERING_TROUBLESHOOTING_HELP_CANONICAL_PATH = DEVELOPER_TROUBLESHOOTING_HELP_PATH;
+export const ENGINEERING_TROUBLESHOOTING_HELP_CANONICAL_PATH = ENGINEERING_TROUBLESHOOTING_HELP_PATH;

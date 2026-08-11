@@ -1,5 +1,5 @@
 import { API_CONTRACTS_HELP_PATH } from "@/lib/api-contracts-help-route";
-import { DEVELOPER_TROUBLESHOOTING_HELP_PATH } from "@/lib/developer-troubleshooting-help-route";
+import { ENGINEERING_TROUBLESHOOTING_HELP_PATH } from "@/lib/developer-troubleshooting-help-route";
 import { DPA_TEMPLATE_HELP_PATH } from "@/lib/dpa-template-help-route";
 import { FINDINGS_HELP_PATH } from "@/lib/findings-help-route";
 import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
@@ -123,7 +123,7 @@ export const HELP_TOPIC_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "HCX",
     path: "/help/cli-usage",
     section: "Help topic",
-    note: "CLI usage help (Help topic) - HelpCliUsageTechnicalReferenceView with PageContextualHelpButton (topic map cli-usage; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, engineering runbook landing + CLI_USAGE.md. Sibling HDX = developer-troubleshooting; HTX = customer troubleshooting. Internal-runbook Ã¢â‚¬â€ not customer diligence. Score 58/100 (2026-08-05) Ã¢â‚¬â€ help-topic ceiling below HEL hub band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
+    note: "CLI usage help (Help topic) - HelpCliUsageTechnicalReferenceView with PageContextualHelpButton (topic map cli-usage; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, engineering runbook landing + CLI_USAGE.md. Sibling HDX = engineering-troubleshooting; HTX = customer troubleshooting. Internal-runbook Ã¢â‚¬â€ not customer diligence. Score 58/100 (2026-08-05) Ã¢â‚¬â€ help-topic ceiling below HEL hub band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
     noteMustContain: ["HelpCliUsageTechnicalReferenceView", "Sources", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for DPA template help. Owner backlog shorthand: HDP. */
@@ -137,9 +137,9 @@ export const HELP_TOPIC_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
   /** Traffic workbook row ID for Engineering troubleshooting runbook help. Owner backlog shorthand: HDX. */
   {
     rowId: "HDX",
-    path: DEVELOPER_TROUBLESHOOTING_HELP_PATH,
+    path: ENGINEERING_TROUBLESHOOTING_HELP_PATH,
     section: "Help topic",
-    note: "Specialty engineering troubleshooting runbook (Admin internal-runbook, TB-1246) - HelpEngineeringTroubleshootingGuideView with runbook overview landing, Customer Troubleshooting primary CTA + secondary link row, linked symptom escalation artifacts, Sources diligence strip (admin-diagnostics, configuration-reference), info claim-discipline callout, PageContextualHelp, HelpTopicAuthorityGate + HelpTopicMarkdownClient specialty branch, and prepared TROUBLESHOOTING.md + COMMON_ERRORS.md (contributor ADR/TB link strip). Help search Advanced diagnostics (adminOnly). Not in customer Help Center featured grid. Customer Troubleshooting (HTX) does not deep-link here (TB-1249). Slug remains developer-troubleshooting pending TB-1248 rename.help-topic ceiling below HEL hub band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
+    note: "Specialty engineering troubleshooting runbook (Admin internal-runbook, TB-1246) - HelpEngineeringTroubleshootingGuideView with runbook overview landing, Customer Troubleshooting primary CTA + secondary link row, linked symptom escalation artifacts, Sources diligence strip (admin-diagnostics, configuration-reference), info claim-discipline callout, PageContextualHelp, HelpTopicAuthorityGate + HelpTopicMarkdownClient specialty branch, and prepared TROUBLESHOOTING.md + COMMON_ERRORS.md (contributor ADR/TB link strip). Help search Advanced diagnostics (adminOnly). Not in customer Help Center featured grid. Customer Troubleshooting (HTX) does not deep-link here (TB-1249). Canonical slug engineering-troubleshooting with permanent redirect from developer-troubleshooting (TB-1248). help-topic ceiling below HEL hub band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
     noteMustContain: ["HelpTopicAuthorityGate", "HelpEngineeringTroubleshootingGuideView", "TB-1249", "cannot improve further toward 80"],
     noteMustNotContain: ["Not a specialty guide"],
     sectionMustNotEqualLower: ["marketing"],

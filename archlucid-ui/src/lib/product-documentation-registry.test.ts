@@ -244,7 +244,7 @@ describe("product-documentation-registry", () => {
   it("tags internal-runbook slugs with internal-runbook contentKind (TB-732 / TB-1250 / TB-1329)", () => {
     const internalRunbookSlugs = [
       "pilot-feedback",
-      "developer-troubleshooting",
+      "engineering-troubleshooting",
       "cli-usage",
       "api-contracts",
       "configuration-reference",

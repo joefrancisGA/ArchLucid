@@ -15,8 +15,8 @@ Regenerate after opening or closing summary-table rows:
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
 | Architectural integrity | 9 |
-| Adoption friction | 225 |
-| Commercial / marketability | 9 |
+| Adoption friction | 223 |
+| Commercial / marketability | 8 |
 | Cutting-edge AI | 3 |
 | Explainability | 1 |
 | Trustworthiness | 38 |
@@ -34,9 +34,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **456** |
+| **Total (unique open)** | **453** |
 
-**By priority band:** P0 **2** | P1 **343** | P2 **94** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **2** | P1 **340** | P2 **94** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -972,13 +972,13 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1310 | **Done** (2026-08-10) ? `/why-archlucid` PageHeading/help + pilot orientation; see ## TB-1310 below | Adoption friction P1 ? **V1**; with **TB-1307** | S |
 | TB-1313 | **Done** (2026-08-10) ? `/auth/session-expired` brand + h1 + document title; see ## TB-1313 below | Adoption friction P1 ? **V1**; owner session-expired ~59/100 2026-07-26; traffic **ASU** | S |
 | TB-1314 | **Done** (2026-08-10) ? `/auth/session-expired` Suspense + loading fallback; see ## TB-1314 below | Adoption friction P1 ? **V1**; with **TB-1313** | XS |
-| TB-1319 | `/demo/explain` ? buyer vocabulary (purge provenance/eng chrome); see ## TB-1319 below | Adoption friction P1 ? **V1**; owner demo-explain ~51/100 2026-07-26; traffic **DEX** | S |
+| TB-1319 | **Done** (2026-08-11) — `/demo/explain` buyer vocabulary; Vitest + snapshot; see ## TB-1319 below | Adoption friction P1 ? **V1**; owner demo-explain ~51/100 2026-07-26; traffic **DEX** | S |
 | TB-1321 | `/demo/explain` ? empty/not-available next-step ladder; see ## TB-1321 below | Adoption friction P1 ? **V1**; with **TB-1319** | S |
 | TB-1322 | **Done** (2026-08-10) ? `/demo/explain` IA gate; see ## TB-1322 below | Adoption friction P1 ? **V1**; with **TB-1319**; pairs **TB-1307**/**TB-1251** | S |
 | TB-1328 | ~~Configuration reference ? operator task CTA chrome (SSO / identity / API keys)~~ **Done** 2026-08-02 ? specialty CTAs + Sources; see ## TB-1328 below | Adoption friction P1 ? **V1**; with **TB-1326** | S |
 | TB-1340 | ~~Enterprise onboarding ? collapse Quick links + Onboarding hub duplicate~~ **Done** 2026-08-10 ? presentation strips duplicate hub sections; interactive hub owns navigation; Vitest | Adoption friction P1 ? **V1**; with **TB-1338** | S |
 | TB-1342 | ~~Enterprise onboarding ? first-review ? first-architecture-review + settings CTA pointers~~ **Done** 2026-08-10 ? hub step 7 ? `/help/first-architecture-review`; action panel Configure SSO / identity / users / cloud CTAs; Vitest | Adoption friction P1 ? **V1**; with **TB-1338**; pairs **TB-1335** | S |
-| TB-1343 | WHAT_NOT_TO_PROMISE ? UI/copy over-promise + highest buyer-risk page matrix; see `## TB-1343` below | Commercial / marketability P1 ? **V1**; PA WNTP UI risk; GTM **M-239**/**M-240** | S |
+| TB-1343 | **Done** (2026-08-11) — WNTP UI buyer-risk matrix contract; see `## TB-1343` below | Commercial / marketability P1 ? **V1**; PA WNTP UI risk; GTM **M-239**/**M-240** | S |
 | TB-1348 | ~~Evaluator workbook ? session-flow CTA chrome + first-architecture-review canonicalize~~ **Done** 2026-08-10 ? four-step session strip + Start/first-review CTAs; evaluate branch demotes pilot-guide; Vitest | Adoption friction P1 ? **V1**; with **TB-1345**; pairs **TB-1335**/**TB-1319** | S |
 | TB-1349 | ~~Evaluator workbook ? collapse Depth / in-app-only related links~~ **Done** 2026-08-10 ? collapsed buyer-orientation reference appendix; in-app related next steps; Vitest | Adoption friction P1 ? **V1**; with **TB-1346**; parity **TB-1257**/**TB-1330** | S |
 | TB-1351 | ~~Evidence intake ? path deep-links (`?path=`) + admission-gates jargon softener~~ **Done** 2026-08-10 ? path strip + presentation soften/strip; Vitest | Adoption friction P1 ? **V1**; with **TB-1350** | S |
@@ -32838,7 +32838,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-11) — `demo-explain-page-copy.ts` buyer titles (`Evidence trail`, `Explanation & citations`); technical graph details disclosure; Vitest + page snapshot guards.
 
 **Priority:** P0.
 
@@ -33517,7 +33517,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Commercial / marketability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-11) — `WHAT_NOT_TO_PROMISE_UI_BUYER_RISK_MATRIX_CONTRACT.md`; ranked surfaces + nine-row matrix; CI anchors for **TB-1344**; cross-links GTM **M-239**/**M-240**.
 
 **Priority:** P1.
 
@@ -34346,7 +34346,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-11) — canonical `/help/engineering-troubleshooting`; permanent redirect from `/help/developer-troubleshooting`; registry, Help drawer, in-app hrefs, traffic **HDX**; Vitest.
 
 **Priority:** P0.
 

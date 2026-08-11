@@ -59,7 +59,7 @@ const ALLOWLIST: readonly {
   {
     pathname: "/help/admin-diagnostics",
     nextHref: "/administration/system-health",
-    configureHref: "/help/developer-troubleshooting",
+    configureHref: "/help/engineering-troubleshooting",
   },
   {
     pathname: "/help/authentication-sign-in",

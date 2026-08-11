@@ -139,7 +139,7 @@ describe("HelpAdminDiagnosticsGuideView (HAE)", () => {
 
   it("matches source link labels to registry titles", () => {
     const troubleshooting = getProductDocumentationEntry("troubleshooting");
-    const engineering = getProductDocumentationEntry("developer-troubleshooting");
+    const engineering = getProductDocumentationEntry("engineering-troubleshooting");
     const configuration = getProductDocumentationEntry("configuration-reference");
     const cli = getProductDocumentationEntry("cli-usage");
     const reportAProblem = getProductDocumentationEntry("report-a-problem");

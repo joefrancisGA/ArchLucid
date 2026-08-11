@@ -337,7 +337,7 @@ const ADVANCED_ADMIN_TOPICS: readonly HelpSearchPanelTopic[] = [
     title: "Advanced diagnostics",
     description: "CLI commands, logs, and environment variables for engineering support.",
     keywords: ["cli", "logs", "environment", "engineering", "developer"],
-    action: { kind: "route", href: "/help/developer-troubleshooting", helpSlug: "developer-troubleshooting" },
+    action: { kind: "route", href: "/help/engineering-troubleshooting", helpSlug: "engineering-troubleshooting" },
     adminOnly: true,
   },
 ];

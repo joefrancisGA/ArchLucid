@@ -45,7 +45,7 @@ export const ADMIN_DIAGNOSTICS_HELP_RELATED_TOPICS: readonly EvidenceAdminSource
   { label: "Report a problem", href: inAppHelpHref("report-a-problem") },
   {
     label: "Engineering troubleshooting runbook",
-    href: inAppHelpHref("developer-troubleshooting"),
+    href: inAppHelpHref("engineering-troubleshooting"),
     adminOnly: true,
   },
   { label: "Configuration reference", href: inAppHelpHref("configuration-reference"), adminOnly: true },

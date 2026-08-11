@@ -135,6 +135,12 @@ describe("help-topic-permanent-redirects (Batch J merged)", () => {
     expect(resolveHelpTopicPermanentRedirect("review-guide")).toBeNull();
   });
 
+  it("redirects retired developer-troubleshooting bookmarks to engineering-troubleshooting (TB-1248)", () => {
+    expect(HELP_TOPIC_PERMANENT_REDIRECTS["developer-troubleshooting"]).toBe("/help/engineering-troubleshooting");
+    expect(resolveHelpTopicPermanentRedirect("developer-troubleshooting")).toBe("/help/engineering-troubleshooting");
+    expect(resolveHelpTopicPermanentRedirect("engineering-troubleshooting")).toBeNull();
+  });
+
   it("redirects data-handling-tenant-isolation alias to canonical data-handling", () => {
     expect(HELP_TOPIC_PERMANENT_REDIRECTS["data-handling-tenant-isolation"]).toBe("/help/data-handling");
     expect(resolveHelpTopicPermanentRedirect("data-handling-tenant-isolation")).toBe("/help/data-handling");

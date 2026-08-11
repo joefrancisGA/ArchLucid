@@ -153,8 +153,8 @@ export const HELP_MARKDOWN_AUDIENCE_RULE_SETS: readonly HelpMarkdownTopicRuleSet
     rules: [stripFirstReviewEvidenceChecklistContributorLeakage],
   },
   {
-    id: "developer-troubleshooting",
-    matches: matchesSlug("developer-troubleshooting"),
+    id: "engineering-troubleshooting",
+    matches: matchesSlug("engineering-troubleshooting"),
     rules: [stripDeveloperTroubleshootingContributorLeakage],
   },
   {

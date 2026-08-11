@@ -119,7 +119,7 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
     },
   },
   {
-    prefix: "/help/developer-troubleshooting",
+    prefix: "/help/engineering-troubleshooting",
     entry: {
       whatIsThisPage:
         "Admin engineering troubleshooting runbook for CLI, environment, and log triage after customer Troubleshooting.",
@@ -197,7 +197,7 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       },
       whereToConfigureAction: {
         label: "Open Engineering troubleshooting",
-        href: "/help/developer-troubleshooting",
+        href: "/help/engineering-troubleshooting",
       },
     },
   },

@@ -362,7 +362,7 @@ function renderHelpTopicView(
     return <HelpEvidenceIntakeGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
-  if (loaded.entry.slug === "developer-troubleshooting") {
+  if (loaded.entry.slug === "engineering-troubleshooting") {
     return <HelpEngineeringTroubleshootingGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 

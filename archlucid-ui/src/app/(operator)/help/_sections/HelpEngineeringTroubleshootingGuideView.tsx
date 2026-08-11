@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { DEVELOPER_TROUBLESHOOTING_HELP_PATH } from "@/lib/developer-troubleshooting-help-route";
+import { ENGINEERING_TROUBLESHOOTING_HELP_PATH } from "@/lib/developer-troubleshooting-help-route";
 import {
   ENGINEERING_TROUBLESHOOTING_HELP_ACTION_PANEL_TITLE,
   ENGINEERING_TROUBLESHOOTING_HELP_AUDIENCE_STRIP_BODY,
@@ -41,7 +41,7 @@ type HelpEngineeringTroubleshootingGuideViewProps = {
   readonly markdown: string;
 };
 
-/** Admin eng troubleshooting orientation for `/help/developer-troubleshooting` (HDX). */
+/** Admin eng troubleshooting orientation for `/help/engineering-troubleshooting` (HDX). */
 export function HelpEngineeringTroubleshootingGuideView(
   props: HelpEngineeringTroubleshootingGuideViewProps,
 ): React.ReactElement {
@@ -70,7 +70,7 @@ export function HelpEngineeringTroubleshootingGuideView(
         title={ENGINEERING_TROUBLESHOOTING_HELP_PAGE_TITLE}
         titleTestId="help-engineering-troubleshooting-page-title"
         subtitle={ENGINEERING_TROUBLESHOOTING_HELP_PAGE_SUBTITLE}
-        navHref={DEVELOPER_TROUBLESHOOTING_HELP_PATH}
+        navHref={ENGINEERING_TROUBLESHOOTING_HELP_PATH}
         headingLevel="h1"
         statusBadge={
           <StatusTag

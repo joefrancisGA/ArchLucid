@@ -87,7 +87,7 @@ describe("help-center-catalog", () => {
   });
 
   it("never lists engineering troubleshooting in featured or non-admin help catalogs (TB-1247)", () => {
-    expect(HELP_CENTER_FEATURED_SLUGS).not.toContain("developer-troubleshooting");
+    expect(HELP_CENTER_FEATURED_SLUGS).not.toContain("engineering-troubleshooting");
 
     const nonAdminTopics = listHelpCenterTopics({ showAdvanced: true, isAdmin: false }).map(
       (entry) => entry.slug,
@@ -96,8 +96,8 @@ describe("help-center-catalog", () => {
       (entry) => entry.slug,
     );
 
-    expect(nonAdminTopics).not.toContain("developer-troubleshooting");
-    expect(nonAdminGuides).not.toContain("developer-troubleshooting");
+    expect(nonAdminTopics).not.toContain("engineering-troubleshooting");
+    expect(nonAdminGuides).not.toContain("engineering-troubleshooting");
   });
 });
 

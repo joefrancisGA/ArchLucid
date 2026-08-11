@@ -488,7 +488,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     releaseApplicability: "platform health and workspace readiness signals",
   },
   {
-    slug: "developer-troubleshooting",
+    slug: "engineering-troubleshooting",
     title: "Engineering troubleshooting runbook",
     summary:
       "Admin-only specialty guide for CLI, environment, and log triage. Operators should use Troubleshooting; customers never deep-link here.",

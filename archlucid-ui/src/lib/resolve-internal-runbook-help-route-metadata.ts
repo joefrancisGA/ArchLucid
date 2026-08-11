@@ -19,7 +19,7 @@ const UNAUTHORIZED_INTERNAL_RUNBOOK_METADATA: Metadata = {
 };
 
 const AUTHORIZED_INTERNAL_RUNBOOK_METADATA_BY_SLUG: Readonly<Record<string, Metadata>> = {
-  "developer-troubleshooting": DEVELOPER_TROUBLESHOOTING_HELP_ROUTE_METADATA,
+  "engineering-troubleshooting": DEVELOPER_TROUBLESHOOTING_HELP_ROUTE_METADATA,
   "first-review": FIRST_REVIEW_HELP_ROUTE_METADATA,
   "first-value-20-minutes": FIRST_VALUE_20_HELP_ROUTE_METADATA,
   "policy-pack-delta-demo": POLICY_PACK_DELTA_DEMO_HELP_ROUTE_METADATA,

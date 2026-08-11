@@ -44,7 +44,7 @@ describe("searchHelpDocumentation", () => {
     for (const record of HELP_DOC_SEARCH_RECORDS) {
       const blob = `${record.docTitle}\n${record.sectionHeading}\n${record.excerpt}`.toLowerCase();
 
-      expect(blob, `${record.docPath}#${record.sectionSlug}`).not.toContain("/help/developer-troubleshooting");
+      expect(blob, `${record.docPath}#${record.sectionSlug}`).not.toContain("/help/engineering-troubleshooting");
       expect(blob, `${record.docPath}#${record.sectionSlug}`).not.toContain("engineering troubleshooting");
     }
   });
@@ -54,7 +54,7 @@ describe("searchHelpDocumentation", () => {
 
     expect(hits.some((h) => h.docPath.toLowerCase() === "docs/runbooks/troubleshooting.md")).toBe(false);
     expect(
-      hits.some((h) => `${h.docTitle} ${h.excerpt}`.toLowerCase().includes("developer-troubleshooting")),
+      hits.some((h) => `${h.docTitle} ${h.excerpt}`.toLowerCase().includes("engineering troubleshooting")),
     ).toBe(false);
   });
 

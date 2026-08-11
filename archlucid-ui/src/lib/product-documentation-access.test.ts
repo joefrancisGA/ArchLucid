@@ -12,7 +12,7 @@ import { getProductDocumentationEntry } from "@/lib/product-documentation-regist
 describe("product-documentation-access", () => {
   it("treats internal-runbook slugs as admin-only", () => {
     expect(isInternalRunbookHelpSlug("first-value-20-minutes")).toBe(true);
-    expect(isInternalRunbookHelpSlug("developer-troubleshooting")).toBe(true);
+    expect(isInternalRunbookHelpSlug("engineering-troubleshooting")).toBe(true);
     expect(isInternalRunbookHelpSlug("review-guide")).toBe(false);
     expect(isInternalRunbookHelpSlug("pre-commit-ci-gate")).toBe(false);
   });
@@ -27,7 +27,7 @@ describe("product-documentation-access", () => {
   });
 
   it("gates engineering troubleshooting as Admin-only (TB-1246)", () => {
-    const entry = getProductDocumentationEntry("developer-troubleshooting");
+    const entry = getProductDocumentationEntry("engineering-troubleshooting");
 
     expect(entry).not.toBeNull();
     expect(entry!.contentKind).toBe("internal-runbook");

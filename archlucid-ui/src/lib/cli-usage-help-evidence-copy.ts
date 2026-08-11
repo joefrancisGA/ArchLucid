@@ -13,7 +13,7 @@ export const CLI_USAGE_HELP_SOURCES_INTRO =
 /** Operator/eng Sources — no self-href to `/help/cli-usage`. */
 export const CLI_USAGE_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Customer Troubleshooting", href: inAppHelpHref("troubleshooting") },
-  { label: "Engineering troubleshooting", href: inAppHelpHref("developer-troubleshooting") },
+  { label: "Engineering troubleshooting", href: inAppHelpHref("engineering-troubleshooting") },
   { label: "Configuration reference", href: inAppHelpHref("configuration-reference") },
   { label: "API contracts", href: inAppHelpHref("api-contracts") },
   { label: "System health", href: "/administration/system-health" },

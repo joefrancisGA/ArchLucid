@@ -1464,10 +1464,10 @@ export function stripCliUsageContributorSections(markdown: string): string {
 export function stripCliUsageContributorLeakage(markdown: string): string {
   return stripCliUsageContributorSections(markdown)
     .replace(/https:\/\/staging\.archlucid\.net/gi, "https://<your-archlucid-host>")
-    .replace(/\[([^\]]*)\]\(\.\.\/runbooks\/TROUBLESHOOTING\.md[^)]*\)/gi, "[Developer troubleshooting](/help/developer-troubleshooting)")
-    .replace(/\[([^\]]*)\]\(\.\.\/library\/TROUBLESHOOTING\.md[^)]*\)/gi, "[Developer troubleshooting](/help/developer-troubleshooting)")
-    .replace(/\[([^\]]*)\]\(TROUBLESHOOTING\.md[^)]*\)/gi, "[Developer troubleshooting](/help/developer-troubleshooting)")
-    .replace(/\[([^\]]*)\]\(\.\.\/runbooks\/TRIAL_FUNNEL_END_TO_END\.md[^)]*\)/gi, "[Developer troubleshooting](/help/developer-troubleshooting)")
+    .replace(/\[([^\]]*)\]\(\.\.\/runbooks\/TROUBLESHOOTING\.md[^)]*\)/gi, "[Engineering troubleshooting](/help/engineering-troubleshooting)")
+    .replace(/\[([^\]]*)\]\(\.\.\/library\/TROUBLESHOOTING\.md[^)]*\)/gi, "[Engineering troubleshooting](/help/engineering-troubleshooting)")
+    .replace(/\[([^\]]*)\]\(TROUBLESHOOTING\.md[^)]*\)/gi, "[Engineering troubleshooting](/help/engineering-troubleshooting)")
+    .replace(/\[([^\]]*)\]\(\.\.\/runbooks\/TRIAL_FUNNEL_END_TO_END\.md[^)]*\)/gi, "[Engineering troubleshooting](/help/engineering-troubleshooting)")
     .replace(
       /\[([^\]]*)\]\(\.\.\/go-to-market\/ROI_MODEL\.md[^)]*\)/gi,
       "[Pilot ROI measurement](/help/executive-summary#pilot-roi-measurement)",
@@ -1493,7 +1493,7 @@ export function stripCliUsageContributorLeakage(markdown: string): string {
     .replace(/forbidden sales promises/gi, "")
     .replace(/Full checklist:\s*Developer [Tt]roubleshooting(?:\s*\([^)]*\))?\.?/g, "")
     .replace(/Full checklist:\s*Troubleshooting(?:\s*\([^)]*\))?\.?/g, "")
-    .replace(/see \[[^\]]+\]\([^)]+\) and \[([^\]]+)\]\(\)/g, "see [$1](/help/developer-troubleshooting)")
+    .replace(/see \[[^\]]+\]\([^)]+\) and \[([^\]]+)\]\(\)/g, "see [$1](/help/engineering-troubleshooting)")
     .replace(/\n{3,}/g, "\n\n")
     .trimEnd();
 }

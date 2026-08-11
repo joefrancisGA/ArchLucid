@@ -67,7 +67,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/cli-usage",
       "/help/first-review",
       "/help/first-value-20-minutes",
-      "/help/developer-troubleshooting",
+      "/help/engineering-troubleshooting",
       "/help/api-contracts",
       "/governance/standards-and-rules",
       "/governance/policy-packs",

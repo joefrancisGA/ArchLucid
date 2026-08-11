@@ -27,6 +27,7 @@ export const HELP_TOPIC_PERMANENT_REDIRECTS: Readonly<Record<string, string>> = 
   "pilot-roi-model": "/help/executive-summary#pilot-roi-measurement",
   "product-overview": "/help/executive-summary#what-archlucid-is",
   "starting-reviews": "/help/review-guide",
+  "developer-troubleshooting": "/help/engineering-troubleshooting",
 };
 
 /** Hyphen bookmark slugs that redirect to slash URLs but remain in the product registry. */

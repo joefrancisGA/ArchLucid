@@ -283,7 +283,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
 
   const isHelp = props.presentation === "help";
   const isPrivacy = props.presentation === "privacy";
-  const isEngineeringTroubleshooting = props.helpTopicSlug === "developer-troubleshooting";
+  const isEngineeringTroubleshooting = props.helpTopicSlug === "engineering-troubleshooting";
   const isCaiqSigResponse = isHelp && isCaiqSigResponseHelpTopic(props.helpTopicSlug);
   const isSecurityTrustHelp = isHelp && isSecurityTrustHelpTopic(props.helpTopicSlug);
   const isProcurementHelp = isHelp && isProcurementHelpTopic(props.helpTopicSlug);

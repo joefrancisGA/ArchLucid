@@ -22,7 +22,7 @@ export const REPORT_A_PROBLEM_HELP_PRIMARY_ACTION: HelpTopicMarkdownPrimaryActio
 /** Operator Sources — no self-href to `/help/report-a-problem`. */
 export const REPORT_A_PROBLEM_HELP_SOURCES: readonly EvidenceAdminSourceLink[] = [
   { label: "Troubleshooting", href: inAppHelpHref("troubleshooting") },
-  { label: "Engineering troubleshooting", href: inAppHelpHref("developer-troubleshooting"), adminOnly: true },
+  { label: "Engineering troubleshooting", href: inAppHelpHref("engineering-troubleshooting"), adminOnly: true },
   { label: "Support workspace", href: "/administration/support", adminOnly: true },
   { label: "System health", href: "/administration/system-health", adminOnly: true },
   { label: "Alerts", href: GOVERNANCE_ALERTS_PATH },

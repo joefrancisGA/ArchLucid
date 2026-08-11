@@ -6,7 +6,7 @@ export type ProductDocumentationContentKind =
 
 const INTERNAL_RUNBOOK_SLUGS = new Set<string>([
   "pilot-feedback",
-  "developer-troubleshooting",
+  "engineering-troubleshooting",
   "policy-pack-delta-demo",
   // TB-1250 — eng-facing help must not stay ungated as technical-documentation.
   "cli-usage",
@@ -38,7 +38,7 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "configuration-reference": "internal-runbook",
   "first-architecture-review": "product-help",
   "data-handling": "product-help",
-  "developer-troubleshooting": "internal-runbook",
+  "engineering-troubleshooting": "internal-runbook",
   "enterprise-onboarding": "product-help",
   "evidence-intake": "product-help",
   "evidence-trail": "product-help",

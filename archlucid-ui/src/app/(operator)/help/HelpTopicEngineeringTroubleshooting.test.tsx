@@ -22,7 +22,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 
 vi.mock("next/navigation", () => ({
 
-  usePathname: () => "/help/developer-troubleshooting",
+  usePathname: () => "/help/engineering-troubleshooting",
 
 }));
 
@@ -48,7 +48,7 @@ import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
 describe("HelpEngineeringTroubleshootingGuideView", () => {
 
-  const loaded = tryLoadProductDocumentation("developer-troubleshooting");
+  const loaded = tryLoadProductDocumentation("engineering-troubleshooting");
 
 
 
@@ -56,7 +56,7 @@ describe("HelpEngineeringTroubleshootingGuideView", () => {
 
     expect(loaded).not.toBeNull();
 
-    expect(loaded?.entry.slug).toBe("developer-troubleshooting");
+    expect(loaded?.entry.slug).toBe("engineering-troubleshooting");
 
     expect(loaded?.entry.title).toBe("Engineering troubleshooting runbook");
 
@@ -72,7 +72,7 @@ describe("HelpEngineeringTroubleshootingGuideView", () => {
 
     if (loaded === null) {
 
-      throw new Error("Expected developer-troubleshooting documentation to load.");
+      throw new Error("Expected engineering-troubleshooting documentation to load.");
 
     }
 
@@ -82,7 +82,7 @@ describe("HelpEngineeringTroubleshootingGuideView", () => {
 
     const preparedMarkdown = prepareHelpMarkdownForPresentation(loaded.markdown, sourcePath, {
 
-      helpTopicSlug: "developer-troubleshooting",
+      helpTopicSlug: "engineering-troubleshooting",
 
       preserveMaintenanceMetadata: true,
 
