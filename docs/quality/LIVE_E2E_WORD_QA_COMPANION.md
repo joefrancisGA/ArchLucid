@@ -248,7 +248,7 @@ Use **Pass / Fail / Notes** when executing manually. **API** = mostly API calls;
 | 28 | Policy packs (hub) | `/governance/policy-packs` |
 | 29 | Alerts inbox (hub) | `/governance/alerts` |
 | 30 | Alerts — rules tab | `/alerts?tab=rules` |
-| 31 | Alerts — routing tab | `/alerts?tab=routing` |
+| 31 | Alerts — notifications tab | `/governance/alert-rules?tab=notifications` |
 | 32 | Alerts — simulation tab | `/alerts?tab=simulation` |
 | 33 | Alerts — composite tab | `/alerts?tab=composite` |
 | 34 | Executive Workspace Health | `/governance/dashboard` |

@@ -877,7 +877,7 @@ Legacy `/inspect` bookmark row **RR** removed from the UI route traffic workbook
 
 ## 2026-08-03 ï¿½ UI/help: API contracts Admin specialty guide (HG / TB-1386)
 
-`/help/governance-api-contracts` ships `HelpApiContractsGuideView` ï¿½ title honesty ï¿½API contracts (technical reference)ï¿½, CLI / configuration / buyer Governance approval CTAs, Sources strip, orientation + claim discipline, and TB-1388-stripped `API_CONTRACTS.md`. Alias `/help/api-contracts`. Admin-gated internal-runbook; not buyer governance FAQ. Does not imply CPA SOC 2 or third-party pen-test publication.
+`/help/api-contracts` ships `HelpApiContractsGuideView` — title honesty “API contracts (technical reference)”, CLI / configuration / buyer Governance approval CTAs, Sources strip, orientation + claim discipline, and TB-1388-stripped `API_CONTRACTS.md`. Retired bookmark `/help/governance-api-contracts` permanently redirects here (Help alias Batch L). Admin-gated internal-runbook; not buyer governance FAQ. Does not imply CPA SOC 2 or third-party pen-test publication.
 
 ## 2026-08-02 ï¿½ UI/help: First value in 20 minutes Admin specialty guide (HEF / TB-1691ï¿½TB-1695)
 

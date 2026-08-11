@@ -62,7 +62,7 @@
 
 | Action | CLI | Primary API | Architect workspace | Authority | Runbook / doc |
 |--------|-----|-------------|-------------|-----------|---------------|
-| Alerts (hub) | — | `/v1/alerts…` and related alert APIs | `/alerts` — **Inbox**; **Rules** `?tab=rules`; **Routing** `?tab=routing`; **Composite** `?tab=composite`; **Simulation & Tuning** `?tab=simulation` (legacy paths redirect) | Read | [support/TIER_1_RUNBOOK.md](../support/TIER_1_RUNBOOK.md), [API_CONTRACTS.md](API_CONTRACTS.md) |
+| Alerts (hub) | — | `/v1/alerts…` and related alert APIs | `/governance/alerts` — **Inbox**; **Alert rules** hub `/governance/alert-rules` with **Conditions** `?tab=rules`; **Notifications** `?tab=notifications`; **Advanced rules** `?tab=advanced-rules`; **Test alerts** `?tab=test-alerts` (legacy `/alerts`, `/alert-routing`, and `?tab=routing` bookmarks fold via workbook migrations) | Read | [support/TIER_1_RUNBOOK.md](../support/TIER_1_RUNBOOK.md), [API_CONTRACTS.md](API_CONTRACTS.md) |
 | Policy packs | — | `/v1/policy-packs…` | `/policy-packs` | Read / Admin on writes | [ARCHITECTURE_COMPONENTS.md](ARCHITECTURE_COMPONENTS.md) |
 | Governance resolution (read) | — | effective governance | `/governance-resolution` | Read | [PRE_COMMIT_GOVERNANCE_GATE.md](PRE_COMMIT_GOVERNANCE_GATE.md) |
 | Governance dashboard | — | dashboard aggregates | `/governance/dashboard` | Read | [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) |

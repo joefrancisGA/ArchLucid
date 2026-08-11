@@ -496,9 +496,9 @@ Legacy bookmarks **`/runs/*`** permanently redirect to **`/reviews/*`** — clea
 | **Digests — schedule** | `/digests?tab=schedule` | [ ] |
 | **Alerts — inbox** | `/alerts` | [ ] |
 | **Alerts — rules** | `/governance/alert-rules` | [ ] |
-| **Alerts — routing** | `/alerts?tab=routing` | [ ] |
-| **Alerts — composite** | `/alerts?tab=composite` | [ ] |
-| **Alerts — simulation & tuning** | `/alerts?tab=simulation` | [ ] |
+| **Alerts — notifications** | `/governance/alert-rules?tab=notifications` | [ ] |
+| **Alerts — advanced rules** | `/governance/alert-rules?tab=advanced-rules` | [ ] |
+| **Alerts — test alerts** | `/governance/alert-rules?tab=test-alerts` | [ ] |
 | **Alert routing (standalone)** | `/alert-routing` | [ ] |
 | **Policy packs hub** | `/policy-packs` | [ ] |
 | **Policy pack detail** | `/governance/policy-packs/{id}` | [ ] |
@@ -708,7 +708,7 @@ Expand **Analysis** in the sidebar (many links are *extended* or *advanced*).
 |------|-------|------------------------|
 | Alerts inbox | `/alerts` | **Governance → Alerts** (Alt+L) → default **Inbox** tab. |
 | Alerts rules | `/governance/alert-rules` | **Governance** → **Alert rules** hub (legacy **Settings → Alerts** redirects here). |
-| Alerts routing | `/alerts?tab=routing` | **Alerts** → **Routing** tab, or sidebar-adjacent **Alert routing** bookmark at `/alert-routing`. |
+| Alerts notifications | `/governance/alert-rules?tab=notifications` | **Governance** → **Alert rules** hub → **Notifications** tab; legacy `/alert-routing` bookmark folds here. |
 | Alerts composite | `/alerts?tab=composite` | **Alerts** → **Composite** tab. |
 | Alerts simulation | `/alerts?tab=simulation` | **Alerts** → **Simulation & tuning** tab. |
 | Policy packs | `/policy-packs` | **Governance → Policy packs**. |
