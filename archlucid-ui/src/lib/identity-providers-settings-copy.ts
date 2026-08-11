@@ -84,6 +84,8 @@ export const IDENTITY_PROVIDERS_OIDC_PAGE_SUBTITLE =
 export const IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_TITLE = "Role mapping status";
 export const IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_INTRO =
   "Review identity source, claim mapping, and workspace role assignment status for this workspace.";
+export const IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_SUBTITLE =
+  "Review identity source, claim mapping, and workspace role assignment before enabling SSO for all users.";
 
 export const IDENTITY_PROVIDERS_ROLE_MAPPING_HELPER =
   "Map identity provider groups to ArchLucid workspace roles.";

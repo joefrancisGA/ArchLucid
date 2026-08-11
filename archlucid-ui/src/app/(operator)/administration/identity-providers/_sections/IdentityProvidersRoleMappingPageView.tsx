@@ -8,8 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES,
-  IDENTITY_PROVIDERS_ROLE_MAPPING_HELPER,
-  IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_INTRO,
+  IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_SUBTITLE,
   IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_TITLE,
 } from "@/lib/identity-providers-settings-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -38,7 +37,7 @@ export function IdentityProvidersRoleMappingPageView(
   return (
     <IdentityProvidersSettingsShell
       pageTitle={IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_TITLE}
-      pageIntro={IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_INTRO}
+      pageSubtitle={IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_SUBTITLE}
       refreshing={props.model.refreshing}
       lastRefreshedAt={props.model.lastRefreshedAt}
       onRefresh={() => void props.model.refresh()}
@@ -71,7 +70,6 @@ export function IdentityProvidersRoleMappingPageView(
               </dd>
             </div>
           </dl>
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{IDENTITY_PROVIDERS_ROLE_MAPPING_HELPER}</p>
           <ul className={cn("m-0 list-disc space-y-1 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             {IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES.map((example) => (
               <li key={example.archLucidRole}>

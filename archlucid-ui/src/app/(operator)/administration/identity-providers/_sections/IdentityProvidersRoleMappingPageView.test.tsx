@@ -12,7 +12,9 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 import { IdentityProvidersRoleMappingPageView } from "./IdentityProvidersRoleMappingPageView";
 import type { UseIdentityProvidersSettingsPageModel } from "./use-identity-providers-settings-page";
 import {
-  IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_INTRO,
+  IDENTITY_PROVIDERS_PAGE_SUBTITLE,
+  IDENTITY_PROVIDERS_ROLE_MAPPING_HELPER,
+  IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_SUBTITLE,
   IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_TITLE,
 } from "@/lib/identity-providers-settings-copy";
 
@@ -63,8 +65,16 @@ describe("IdentityProvidersRoleMappingPageView", () => {
     render(<IdentityProvidersRoleMappingPageView model={buildModel()} />);
 
     expect(screen.getByRole("heading", { name: IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_TITLE })).toBeInTheDocument();
-    expect(screen.getByText(IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_INTRO)).toBeInTheDocument();
+    expect(screen.getByText(IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: /^Role mapping$/i })).toBeNull();
-    expect(IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_INTRO.toLowerCase()).toContain("review");
+    expect(IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_SUBTITLE.toLowerCase()).toContain("review");
+  });
+
+  it("uses role-mapping shell subtitle and drops duplicate in-card helper essay (TB-1917)", () => {
+    render(<IdentityProvidersRoleMappingPageView model={buildModel()} />);
+
+    expect(screen.getByText(IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_SUBTITLE)).toBeInTheDocument();
+    expect(screen.queryByText(IDENTITY_PROVIDERS_PAGE_SUBTITLE)).not.toBeInTheDocument();
+    expect(screen.queryByText(IDENTITY_PROVIDERS_ROLE_MAPPING_HELPER)).not.toBeInTheDocument();
   });
 });
