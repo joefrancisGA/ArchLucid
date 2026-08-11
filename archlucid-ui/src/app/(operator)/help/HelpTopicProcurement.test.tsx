@@ -15,7 +15,6 @@ import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
 import {
   PROCUREMENT_HELP_CUSTOM_POLICY_PACK_QUOTE_HREF,
-  PROCUREMENT_HELP_LAST_REVIEWED_LABEL,
   PROCUREMENT_HELP_NDA_REQUEST_HREF,
   PROCUREMENT_HELP_SALES_CONTACT_HREF,
 } from "@/lib/procurement-help-evidence-copy";
@@ -256,9 +255,7 @@ describe("HelpTopicMarkdownView procurement FAQ", () => {
       />,
     );
 
-    expect(screen.getByTestId("procurement-help-last-reviewed")).toHaveTextContent(
-      PROCUREMENT_HELP_LAST_REVIEWED_LABEL,
-    );
+    expect(screen.queryByTestId("procurement-help-last-reviewed")).toBeNull();
     expect(screen.getByRole("heading", { name: "Q & A" })).toBeInTheDocument();
     expect(screen.getAllByText(/SOC 2/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/penetration/i).length).toBeGreaterThan(0);

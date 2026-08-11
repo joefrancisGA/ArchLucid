@@ -79,9 +79,9 @@ describe("HelpDpaTemplateGuideView", () => {
     }
 
     const provenance = screen.getByTestId("help-dpa-template-provenance");
-    expect(provenance.textContent).toContain(DPA_TEMPLATE_HELP_PROVENANCE.templateReviewDate);
     expect(provenance.textContent).toContain(DPA_TEMPLATE_HELP_PROVENANCE.sourceOfRecordPath);
     expect(provenance.textContent).toContain(formatDpaTemplateHelpProvenanceLine());
+    expect(provenance.textContent?.toLowerCase()).not.toContain("last reviewed");
 
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
     expect(screen.getByTestId("help-dpa-template-status-tag")).toHaveTextContent("Template — not executed");

@@ -37,7 +37,7 @@ describe("HelpReviewPackagesGuideView", () => {
     expect(entry?.pdfStatus).toBe("customer");
     expect(inAppHelpHref(GUIDE_SLUG)).toBe("/help/review-packages");
     expect(formatReviewGuideHelpProvenanceLine(entry!)).toBe(
-      "Last reviewed: 2026-08-11 · Source: REVIEW_PACKAGES_OPERATOR_GUIDE.md",
+      "Source: REVIEW_PACKAGES_OPERATOR_GUIDE.md",
     );
   });
 
@@ -61,7 +61,7 @@ describe("HelpReviewPackagesGuideView", () => {
     expect(title.tagName).toBe("H1");
 
     expect(screen.getByTestId("help-review-guide-provenance")).toHaveTextContent(
-      "Last reviewed: 2026-08-11 · Source: REVIEW_PACKAGES_OPERATOR_GUIDE.md",
+      "Source: REVIEW_PACKAGES_OPERATOR_GUIDE.md",
     );
 
     const headerActions = screen.getByTestId("help-review-packages-header-actions");

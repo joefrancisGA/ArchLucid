@@ -41,7 +41,7 @@ export type PrepareHelpMarkdownPresentationOptions = {
 
 /** Documentation governance lines stripped from buyer/operator help presentation. */
 const HELP_DOCUMENTATION_MAINTENANCE_LINE_PATTERNS: readonly RegExp[] = [
-  /^\s*(?:>\s*)?(?:[-*]\s+)?(?:\*\*)?(?:Last reviewed|Last updated|Maintained by|Doc owner)(?:\*\*)?:\s*.+$/i,
+  /^\s*(?:>\s*)?(?:[-*]\s+)?(?:\*\*)?(?:Last reviewed(?:\s*\(UTC\))?|Last updated|Maintained by|Doc owner)(?:\*\*)?:\s*.+$/i,
   /^\s*(?:>\s*)?(?:[-*]\s+)?(?:\*\*)?Owner(?:\*\*)?:\s*.+$/i,
 ] as const;
 

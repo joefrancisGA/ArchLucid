@@ -9,8 +9,6 @@ import { HelpTopicMarkdownPageHeader } from "@/app/(operator)/help/_sections/Hel
 import { CaiqSigResponseHelpPostureSummary } from "@/components/help/CaiqSigResponseHelpPostureSummary";
 
 import { HelpTopicExportClaimDiscipline } from "@/components/help/HelpTopicExportClaimDiscipline";
-import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
-import { ProcurementHelpHeaderAsOfLine } from "@/components/help/ProcurementHelpHeaderAsOfLine";
 
 import { HelpTopicSignInFailureTriageLine } from "@/components/help/HelpTopicSignInFailureTriageLine";
 
@@ -145,7 +143,6 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
   const isPolicyPacksHelp = entry.slug === "policy-packs";
   const isProcurementHelp = isProcurementHelpTopic(entry.slug);
   const isAuthenticationSignInHelp = entry.slug === "authentication-sign-in";
-  const isReportAProblemHelp = entry.slug === "report-a-problem";
   const allowWithoutServerPdf = entry.pdfStatus === null && (entry.audience === "buyer" || isProcurementHelp);
 
   const isTechnicalReferenceLayout = layoutVariant === "technicalReference";
@@ -200,13 +197,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
           ) : undefined
         }
 
-        titleBlockOrientation={
-          isProcurementHelp ? (
-            <ProcurementHelpHeaderAsOfLine />
-          ) : isPolicyPacksHelp || isReportAProblemHelp ? (
-            <HelpTopicRegistryProvenanceLine entry={entry} />
-          ) : undefined
-        }
+        titleBlockOrientation={undefined}
 
         signInFailureTriageLine={isAuthenticationSignInHelp ? <HelpTopicSignInFailureTriageLine /> : undefined}
 
@@ -219,7 +210,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
                 ? INTEGRATION_READINESS_HELP_PRIMARY_ACTION
                 : isPolicyPacksHelp
                   ? POLICY_PACKS_HELP_PRIMARY_ACTION
-                  : isReportAProblemHelp
+                  : entry.slug === "report-a-problem"
                     ? REPORT_A_PROBLEM_HELP_PRIMARY_ACTION
                     : undefined
         }

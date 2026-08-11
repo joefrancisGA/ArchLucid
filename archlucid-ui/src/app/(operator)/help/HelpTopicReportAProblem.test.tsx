@@ -59,6 +59,6 @@ describe("HelpTopicMarkdownView report a problem", () => {
     );
     expect(screen.getByTestId("report-a-problem-help-sources")).toBeInTheDocument();
     expect(screen.getByTestId("report-problem-surface-coverage")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-registry-provenance")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
   });
 });

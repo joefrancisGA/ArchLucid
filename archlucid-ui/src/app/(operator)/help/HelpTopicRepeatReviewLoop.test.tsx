@@ -92,7 +92,7 @@ describe("HelpTopicRepeatReviewLoop (TB-1396)", () => {
     expect(screen.queryByText(/collect-first-pilot-proof/i)).toBeNull();
   });
 
-  it("hoists eligibility above the start-loop CTA and wires evidence orientation", () => {
+  it("hoists eligibility and start-loop CTA above claim discipline", () => {
     if (loaded === null) {
       throw new Error("Expected repeat-review-loop documentation to load.");
     }
@@ -101,12 +101,16 @@ describe("HelpTopicRepeatReviewLoop (TB-1396)", () => {
 
     const eligibility = screen.getByTestId("help-repeat-review-loop-eligibility");
     const actionPanel = screen.getByTestId("help-repeat-review-loop-action-panel");
+    const claimDiscipline = screen.getByTestId("repeat-review-loop-help-claim-discipline");
 
     expect(eligibility.compareDocumentPosition(actionPanel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(screen.getByTestId("repeat-review-loop-help-claim-discipline")).toBeInTheDocument();
+    expect(actionPanel.compareDocumentPosition(claimDiscipline) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByTestId("repeat-review-loop-help-sources")).toBeInTheDocument();
     expect(screen.getByTestId("help-repeat-review-loop-breadcrumb")).toHaveTextContent("Help");
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
+    expect(screen.queryByTestId("help-repeat-review-loop-refresh-button")).toBeNull();
     expect(screen.getAllByText(/Prerequisite:/i)).toHaveLength(1);
+    expect(screen.queryByRole("link", { name: /Validate review/i })).toBeNull();
   });
 
   it("shows repeat-review cycle diagram in the default viewport without expanding disclosures", () => {
@@ -126,14 +130,6 @@ describe("HelpTopicRepeatReviewLoop (TB-1396)", () => {
     expect(mermaid).toHaveTextContent("Second finalize");
     expect(mermaid).toHaveTextContent("Collect sponsor-safe proof");
     expect(mermaid).toHaveTextContent("Next cycle");
-
-    expect(within(diagramHost).getByRole("link", { name: /Compare and replay/i })).toHaveAttribute(
-      "href",
-      "/help/comparison-replay",
-    );
-    expect(
-      within(diagramHost).getByRole("link", { name: /Your first architecture review/i }),
-    ).toHaveAttribute("href", "/help/first-architecture-review");
 
     const diagramText = mermaid.textContent ?? "";
 

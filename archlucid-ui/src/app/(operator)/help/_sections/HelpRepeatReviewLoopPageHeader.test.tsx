@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { repeatReviewLoopHelpPageSubtitle } from "@/lib/repeat-review-loop-help-guide-content";
@@ -21,20 +21,15 @@ import { HelpRepeatReviewLoopPageHeader } from "@/app/(operator)/help/_sections/
 describe("HelpRepeatReviewLoopPageHeader", () => {
   const entry = getProductDocumentationEntry("repeat-review-loop");
 
-  it("renders h1, help, refresh, and export actions without last-refreshed metadata", () => {
+  it("renders h1, registry provenance, and export actions without refresh", () => {
     if (entry === undefined) {
       throw new Error("Expected repeat-review-loop documentation entry.");
     }
-
-    const onRefresh = vi.fn();
 
     render(
       <HelpRepeatReviewLoopPageHeader
         entry={entry}
         subtitle={repeatReviewLoopHelpPageSubtitle(false)}
-        refreshing={false}
-        lastRefreshedAt={new Date("2026-07-09T12:00:00.000Z")}
-        onRefresh={onRefresh}
       />,
     );
 
@@ -42,16 +37,14 @@ describe("HelpRepeatReviewLoopPageHeader", () => {
     expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
     expect(screen.getByText(repeatReviewLoopHelpPageSubtitle(false))).toBeInTheDocument();
     expect(screen.getByTestId("help-repeat-review-loop-breadcrumb")).toHaveTextContent("Help");
-    expect(screen.queryByTestId("help-repeat-review-loop-provenance")).toBeNull();
-    expect(screen.queryByTestId("help-repeat-review-loop-last-refreshed")).toBeNull();
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-07-27");
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
+      "Compare two reviews and Validate review workspace tools",
+    );
+    expect(screen.queryByTestId("help-repeat-review-loop-refresh-button")).toBeNull();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-repeat-review-loop-header-actions")).toBeInTheDocument();
-    expect(screen.getByTestId("help-repeat-review-loop-refresh-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-print-button")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-pdf-download-button")).toBeNull();
-
-    fireEvent.click(screen.getByTestId("help-repeat-review-loop-refresh-button"));
-
-    expect(onRefresh).toHaveBeenCalledTimes(1);
   });
 });

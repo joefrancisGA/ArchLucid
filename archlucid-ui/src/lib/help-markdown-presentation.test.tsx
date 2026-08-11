@@ -367,7 +367,7 @@ describe("help-markdown-presentation", () => {
 
     expect(prepared.toLowerCase()).not.toContain("second-review habit loop validation");
     expect(prepared).toContain("## Recommended loop");
-    expect(prepared).toContain("## Related help");
+    expect(prepared.toLowerCase()).not.toContain("## related help");
     expect(prepared).not.toContain("collect-first-pilot-proof");
   });
 
@@ -1331,6 +1331,7 @@ describe("help-markdown-presentation", () => {
 
   it("detects documentation maintenance metadata lines", () => {
     expect(isDocumentationMaintenanceMetadataLine("**Last reviewed:** 2026-06-06")).toBe(true);
+    expect(isDocumentationMaintenanceMetadataLine("**Last reviewed (UTC):** 2026-07-31")).toBe(true);
     expect(isDocumentationMaintenanceMetadataLine("- **Last updated:** 2026-04-25")).toBe(true);
     expect(isDocumentationMaintenanceMetadataLine("| Control | Last reviewed |")).toBe(false);
     expect(isDocumentationMaintenanceMetadataLine("Note: illustrative dates only.")).toBe(false);

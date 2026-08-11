@@ -59,6 +59,9 @@ describe("HelpTopicMarkdownView security and trust", () => {
     expect(screen.queryByText(/Automated freshness posture/i)).toBeNull();
     expect(screen.queryByText(/V1_DEFERRED/i)).toBeNull();
     expect((document.body.textContent ?? "").toLowerCase()).not.toContain("github.com/joefrancisga");
+    expect(screen.queryByText(/Last reviewed \(UTC\)/i)).toBeNull();
+    expect(screen.queryByTestId("procurement-help-last-reviewed")).toBeNull();
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
   });
 
   it("renders trust center summary and links to procurement FAQ", () => {

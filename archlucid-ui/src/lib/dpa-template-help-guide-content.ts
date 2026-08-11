@@ -19,7 +19,7 @@ export const DPA_TEMPLATE_HELP_PROVENANCE = {
 } as const;
 
 export function formatDpaTemplateHelpProvenanceLine(): string {
-  return `Template last reviewed ${DPA_TEMPLATE_HELP_PROVENANCE.templateReviewDate} · Source: ${DPA_TEMPLATE_HELP_PROVENANCE.sourceOfRecordPath} · ${DPA_TEMPLATE_HELP_PROVENANCE.noExecutedAgreementNote}`;
+  return `Source: ${DPA_TEMPLATE_HELP_PROVENANCE.sourceOfRecordPath} · ${DPA_TEMPLATE_HELP_PROVENANCE.noExecutedAgreementNote}`;
 }
 
 export const DPA_TEMPLATE_HELP_DOWNLOAD_ACTION = {

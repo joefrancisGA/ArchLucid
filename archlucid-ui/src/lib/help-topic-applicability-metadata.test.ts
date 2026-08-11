@@ -19,7 +19,7 @@ function sampleEntry(
 }
 
 describe("formatHelpTopicApplicabilityMetadata", () => {
-  it("returns null for non-report-a-problem topics even when registry metadata exists", () => {
+  it("returns null for topics outside report-a-problem", () => {
     expect(
       formatHelpTopicApplicabilityMetadata(
         sampleEntry({
@@ -34,7 +34,7 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
     expect(formatHelpTopicApplicabilityMetadata(sampleEntry({ slug: "report-a-problem" }))).toBeNull();
   });
 
-  it("formats report-a-problem provenance when lastReviewed and applicability exist", () => {
+  it("formats report-a-problem applicability without review dates", () => {
     expect(
       formatHelpTopicApplicabilityMetadata(
         sampleEntry({
@@ -43,6 +43,18 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
           releaseApplicability: "Applies to in-product support intake",
         }),
       ),
-    ).toBe("Last reviewed 2026-08-11 · Applies to in-product support intake");
+    ).toBe("Applies to in-product support intake");
+  });
+
+  it("returns null for repeat-review-loop even when registry metadata exists", () => {
+    expect(
+      formatHelpTopicApplicabilityMetadata(
+        sampleEntry({
+          slug: "repeat-review-loop",
+          lastReviewed: "2026-07-27",
+          releaseApplicability: "Compare two reviews and Validate review workspace tools",
+        }),
+      ),
+    ).toBeNull();
   });
 });

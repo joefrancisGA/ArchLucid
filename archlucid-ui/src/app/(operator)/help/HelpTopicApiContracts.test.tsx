@@ -7,7 +7,6 @@ import {
   API_CONTRACTS_HELP_PAGE_TITLE,
   API_CONTRACTS_HELP_PRIMARY_ACTIONS,
   API_CONTRACTS_HELP_SOURCES,
-  formatApiContractsHelpReconciliationCopy,
 } from "@/lib/api-contracts-help-guide-content";
 import { API_CONTRACTS_HELP_REFERENCE_LANDING } from "@/lib/api-contracts-help-reference-content";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -142,9 +141,7 @@ describe("HelpApiContractsGuideView (HG)", () => {
     expect(screen.getByTestId("help-api-contracts-status-tag")).toHaveTextContent("Admin internal");
     expect(screen.getByTestId("help-api-contracts-version-tag")).toHaveTextContent("v1.0");
     expect(screen.getByTestId("help-api-contracts-header-metadata")).toBeInTheDocument();
-    expect(screen.getByTestId("help-api-contracts-reconciliation")).toHaveTextContent(
-      formatApiContractsHelpReconciliationCopy("2026-08-10"),
-    );
+    expect(screen.queryByTestId("help-api-contracts-reconciliation")).toBeNull();
     expect(screen.getByTestId("help-api-contracts-reference-landing")).toHaveTextContent(
       API_CONTRACTS_HELP_REFERENCE_LANDING.purpose,
     );

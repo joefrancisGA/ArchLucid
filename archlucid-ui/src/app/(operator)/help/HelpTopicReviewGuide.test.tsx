@@ -54,9 +54,7 @@ describe("Review guide (HR)", () => {
     expect(entry?.lastReviewed).toBe("2026-08-09");
     expect(entry?.pdfStatus).toBe("public");
     expect(inAppHelpHref(GUIDE_SLUG)).toBe("/help/review-guide");
-    expect(formatReviewGuideHelpProvenanceLine(entry!)).toBe(
-      "Last reviewed: 2026-08-09 · Source: REVIEW_GUIDE.md",
-    );
+    expect(formatReviewGuideHelpProvenanceLine(entry!)).toBe("Source: REVIEW_GUIDE.md");
   });
 
   it("loads user-facing markdown from the monorepo", () => {
@@ -72,9 +70,7 @@ describe("Review guide (HR)", () => {
     const { container } = render(<HelpReviewGuideView entry={entry} markdown={loaded.markdown} />);
 
     expect(screen.getByTestId("help-review-guide-page-title")).toHaveTextContent("Review guide");
-    expect(screen.getByTestId("help-review-guide-provenance")).toHaveTextContent(
-      "Last reviewed: 2026-08-09 · Source: REVIEW_GUIDE.md",
-    );
+    expect(screen.getByTestId("help-review-guide-provenance")).toHaveTextContent("Source: REVIEW_GUIDE.md");
     expect(screen.getByTestId("help-review-guide-claim-discipline")).toHaveTextContent(
       REVIEW_GUIDE_HELP_CLAIM_DISCIPLINE,
     );

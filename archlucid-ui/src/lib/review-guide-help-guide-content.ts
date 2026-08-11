@@ -32,13 +32,9 @@ export const REVIEW_GUIDE_HELP_PRIMARY_ACTIONS = {
   },
 } as const;
 
-/** Title-block as-of line for `/help/review-guide` (does not use shared registry formatter). */
+/** Title-block source-of-record line for `/help/review-guide` (does not use shared registry formatter). */
 export function formatReviewGuideHelpProvenanceLine(entry: ProductDocumentationEntry): string | null {
   const parts: string[] = [];
-
-  if (entry.lastReviewed !== undefined && entry.lastReviewed.trim().length > 0) {
-    parts.push(`Last reviewed: ${entry.lastReviewed.trim()}`);
-  }
 
   const sourcePath = entry.sourcePaths[0];
 
