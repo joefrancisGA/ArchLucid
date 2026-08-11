@@ -15,7 +15,7 @@ Regenerate after opening or closing summary-table rows:
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
 | Architectural integrity | 11 |
-| Adoption friction | 336 |
+| Adoption friction | 333 |
 | Commercial / marketability | 9 |
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
@@ -35,9 +35,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **623** |
+| **Total (unique open)** | **620** |
 
-**By priority band:** P0 **3** | P1 **492** | P2 **111** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **3** | P1 **489** | P2 **111** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -962,7 +962,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1289 | **Done** (2026-08-10) — Recycle bin Administration breadcrumb + PageHeading/help; Vitest; see `## TB-1289` below | Adoption friction P1 ? **V1**; owner recycle-bin re-review ~58/100 2026-07-26; traffic **STR**; complements **TB-1179**?**TB-1182**; pairs **TB-1223** | S |
 | TB-1290 | **Done** (2026-08-10) — Recycle bin Dialog confirm before Restore; Vitest; see `## TB-1290` below | Adoption friction P1 ? **V1**; with **TB-1289** | S |
 | TB-1291 | **Done** (2026-08-10) — Recycle bin OperatorEmptyState + loading notice; Vitest; see `## TB-1291` below | Adoption friction P1 ? **V1**; with **TB-1182** | XS |
-| TB-1294 | `/welcome` ? first-viewport hero budget; see ## TB-1294 below | Adoption friction P1 ? **V1**; owner welcome ~50/100 2026-07-26; traffic **WXX**; complements GTM **M-09** | S |
+| TB-1294 | **Done** (2026-08-10) — `/welcome` first-viewport hero budget; Vitest; see `## TB-1294` below | Adoption friction P1 ? **V1**; owner welcome ~50/100 2026-07-26; traffic **WXX**; complements GTM **M-09** | S |
 | TB-1295 | `/welcome` ? single primary conversion path (demote CTA stack); see ## TB-1295 below | Adoption friction P1 ? **V1**; with **TB-1294** | S |
 | TB-1296 | `/welcome` ? canonical proof CTA ladder (see-it vs demo/preview); see ## TB-1296 below | Adoption friction P1 ? **V1**; with **TB-1294**; pairs **TB-1028**/**TB-1282**/**M-107** | S |
 | TB-1301 | `/why` ? first-viewport hero budget + primary conversion CTA; see ## TB-1301 below | Adoption friction P1 ? **V1**; owner why ~51/100 2026-07-26; traffic **WHY** | S |
@@ -32238,20 +32238,15 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-10).
 
 **Priority:** P0.
 
-**Source:** Owner review of `/welcome` 2026-07-26 (~50/100; traffic **WXX**). Complements GTM **M-09** (landing content largely shipped; owner sign-off still open).
+**Source:** Owner review of `/welcome` 2026-07-26 (~50/100; traffic **WXX**). Complements GTM **M-09**.
 
-**Problem:** `WelcomeMarketingPage` hero stacks brand eyebrow + H1 + long pitch + CTA subheading + evaluation reassurance + SelfDemo + Walkthrough + EarlyAccess + FAQ links + ghost See-it/Signup/Sign-in + demo/preview prose + ROI PDF + Verify strip before problem/solution. Marketing hero budget should be brand, one headline, one supporting sentence, one CTA group ? not a second landing page above the fold.
+**Problem:** Hero stacked brand, H1, pitch, differentiator bullets, and CTA wall before problem/solution — too dense for first viewport.
 
-**Approach:**
-
-1. Collapse first viewport: brand + H1 + one pitch line + one primary CTA group (coordinate **TB-1295**).
-2. Move FAQ, ROI PDF, Verify, and duplicate demo/preview prose below the fold or into Proof / First-time visitor sections.
-3. Strengthen metadata `title` beyond bare **Welcome** (brand + outcome).
-4. Vitest / structure contract: primary CTA visible without scrolling past multi-paragraph CTA wall.
+**Shipped:** Hero band is brand + H1 + one pitch line + primary/secondary CTA row; differentiators moved to problem/solution; `WELCOME_PAGE_METADATA_TITLE`; Vitest hero-band contract.
 
 **Acceptance:** First viewport reads as one composition; secondary links do not precede the primary action.
 

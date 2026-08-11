@@ -4,10 +4,9 @@ import { CtaButton } from "@/components/marketing/CtaButton";
 import { SelfDemoRequestCta } from "@/components/marketing/SelfDemoRequestCta";
 import { WelcomeMarketingHeroVisual } from "@/components/marketing/WelcomeMarketingHeroVisual";
 import {
-  WELCOME_HERO_DIFFERENTIATORS,
   WELCOME_HERO_PITCH,
-  WELCOME_PROOF_LADDER_PRIMARY_HREF,
   WELCOME_SEE_IT_CTA_LABEL,
+  WELCOME_PROOF_LADDER_PRIMARY_HREF,
 } from "@/components/marketing/welcome-marketing-copy";
 import { BRAND_CATEGORY } from "@/lib/brand-category";
 import {
@@ -41,17 +40,6 @@ export function WelcomeMarketingHeroSection(): React.JSX.Element {
             >
               {WELCOME_HERO_PITCH}
             </p>
-            <ul
-              className={cn(
-                "mx-auto mt-5 grid max-w-2xl list-disc gap-x-8 gap-y-1 ps-5 text-start text-al-text-secondary marker:text-teal-700 sm:grid-cols-2 lg:mx-0 dark:marker:text-teal-300",
-                MARKETING_TYPOGRAPHY.meta,
-              )}
-              data-testid="welcome-hero-differentiators"
-            >
-              {WELCOME_HERO_DIFFERENTIATORS.map((line) => (
-                <li key={line}>{line}</li>
-              ))}
-            </ul>
             <div
               data-testid="welcome-hero-cta-stack"
               className="mt-8 flex w-full flex-col items-center gap-4 lg:items-start"

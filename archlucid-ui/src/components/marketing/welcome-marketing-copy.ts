@@ -19,7 +19,8 @@ export const WELCOME_HERO_PITCH =
   "Turn scattered architecture evidence into a prioritized, evidence-linked review your ARB can defend — exportable proof in days, not weeks.";
 
 /**
- * Above-the-fold differentiators answering "why this and not a chat assistant" without scrolling.
+ * Differentiators answering "why this and not a chat assistant".
+ * Rendered below the hero band (TB-1294) in problem/solution — not in the first-viewport CTA stack.
  * Each line must name shipped behavior already evidenced elsewhere on the page (pillars, Trust Center);
  * never add outcome claims here that the sample review cannot demonstrate.
  */

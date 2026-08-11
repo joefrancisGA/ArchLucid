@@ -1,4 +1,5 @@
 import {
+  WELCOME_HERO_DIFFERENTIATORS,
   WELCOME_PROBLEM_BODY,
   WELCOME_PROBLEM_HEADING,
   WELCOME_SOLUTION_BODY,
@@ -18,6 +19,17 @@ export function WelcomeMarketingProblemSolutionSection() {
       <h2 id="welcome-problem-solution-heading" className="sr-only">
         Problem and solution
       </h2>
+      <ul
+        className={cn(
+          "grid list-disc gap-x-8 gap-y-1 ps-5 text-al-text-secondary marker:text-teal-700 sm:grid-cols-2 dark:marker:text-teal-300",
+          MARKETING_TYPOGRAPHY.meta,
+        )}
+        data-testid="welcome-hero-differentiators"
+      >
+        {WELCOME_HERO_DIFFERENTIATORS.map((line) => (
+          <li key={line}>{line}</li>
+        ))}
+      </ul>
       <div className="grid gap-6 md:grid-cols-2">
         <article
           className={cn(
