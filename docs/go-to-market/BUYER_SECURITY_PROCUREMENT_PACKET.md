@@ -396,7 +396,7 @@ Former standalone body: `docs/go-to-market/FINDING_CONCURRENT_DISPOSITION_RACE_P
 | ITSM human review status | Plain update; last writer wins | Integration state, not CAS-protected approval |
 | Governance approval request | First transition wins; loser receives 409 | Conflict-aware approval decision |
 
-`FindingDispositionService` appends through `FindingReviewTrailAppendService` into `dbo.FindingReviewEvents`. The current view is selected by timestamp; it is not a mutex or compare-and-swap decision.
+Engineering SoT: [`FINDING_CONCURRENT_DISPOSITION_CONFLICT_CONTRACT.md`](../library/FINDING_CONCURRENT_DISPOSITION_CONFLICT_CONTRACT.md) (**TB-986** **Done**). `FindingDispositionService` appends through `FindingReviewTrailAppendService` into `dbo.FindingReviewEvents`. The current view is selected by timestamp; it is not a mutex or compare-and-swap decision.
 
 ### PA review script
 
@@ -416,7 +416,7 @@ Former standalone body: `docs/go-to-market/FINDING_CONCURRENT_DISPOSITION_RACE_P
 
 | Gap | Planned item |
 | --- | --- |
-| One explicit finding-versus-approval contract | **TB-986** |
+| One explicit finding-versus-approval contract | **TB-986** **Done** (2026-08-10) — [`FINDING_CONCURRENT_DISPOSITION_CONFLICT_CONTRACT.md`](../library/FINDING_CONCURRENT_DISPOSITION_CONFLICT_CONTRACT.md) |
 | Concurrent-update UX and divergence disclosure | **TB-987** |
 | Approve/reject race regression coverage | **TB-988** |
 

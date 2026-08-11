@@ -217,7 +217,7 @@ Former standalone body: `docs/go-to-market/PA_CLAIM_HONESTY_BULLETS_BATCH_B.md` 
 
 | Do not promise | Do promise |
 | --- | --- |
-| Finding approve/reject is mutually exclusive first-wins like the governance approval queue. | Dispositions are append-only (both persist; current = latest by time) unless **TB-986** option B ships a mutex; approval-request CAS claims remain separate. |
+| Finding approve/reject is mutually exclusive first-wins like the governance approval queue. | Dispositions are append-only (both persist; current = latest `OccurredAtUtc`); contract **TB-986** **Done**; approval-request CAS remains separate. |
 
 #### M-142 — Solo-ops single-tenant miss
 
