@@ -165,12 +165,14 @@ describe("AzureBoardsIntegrationPageClient", () => {
     expect(aside.textContent ?? "").not.toContain("/help/integrations/azure-boards");
   });
 
-  it("shows setup incomplete and disables connection test without credentials", async () => {
+  it("shows setup incomplete and hides connection test until credentials exist (TB-1155)", async () => {
     render(<AzureBoardsIntegrationPageClient />);
 
     const status = await screen.findByTestId("azure-boards-connection-status");
     expect(within(status).getByText("Setup incomplete")).toBeInTheDocument();
-    expect(screen.getByTestId("azure-boards-test-connection-button")).toBeDisabled();
+    expect(screen.queryByTestId("azure-boards-test-connection-button")).not.toBeInTheDocument();
+    expect(screen.getByTestId("azure-boards-default-behavior-collapsed")).toBeInTheDocument();
+    expect(screen.getByTestId("azure-boards-setup-step-credentials")).toHaveAttribute("data-emphasized", "true");
   });
 
   it("shows connected state when health probe succeeds", async () => {
@@ -309,5 +311,27 @@ describe("AzureBoardsIntegrationPageClient", () => {
     expect(status).not.toHaveTextContent(/Database Query Failed/i);
     expect(status).not.toHaveTextContent(/programming error/i);
     expect(status).toHaveTextContent(/could not load Azure Boards configuration/i);
+  });
+
+  it("hides configuration forms when work management integrations are disabled (TB-1154)", async () => {
+    mockFetchItsmHealth.mockResolvedValue({ nativeEnabled: false });
+
+    render(<AzureBoardsIntegrationPageClient />);
+
+    await screen.findByTestId("azure-boards-connection-status");
+    expect(screen.queryByTestId("azure-boards-connection-settings")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("azure-boards-default-behavior")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("azure-boards-connection-test")).not.toBeInTheDocument();
+    expect(screen.getByTestId("azure-boards-setup-step-credentials")).toHaveAttribute("data-emphasized", "true");
+  });
+
+  it("demotes default behavior until connection is saved (TB-1155)", async () => {
+    render(<AzureBoardsIntegrationPageClient />);
+
+    await screen.findByTestId("azure-boards-connection-settings");
+    expect(screen.getByTestId("azure-boards-default-behavior-collapsed")).toBeInTheDocument();
+    expect(screen.queryByTestId("azure-boards-default-behavior")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Save connection/i })).toBeInTheDocument();
+    expect(screen.queryByTestId("azure-boards-save-settings-button")).not.toBeInTheDocument();
   });
 });

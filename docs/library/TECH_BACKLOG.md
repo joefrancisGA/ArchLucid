@@ -28820,7 +28820,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done (2026-08-11) ? collapsed tenant overrides + disabled connection test when `!locallyConfigured`; Vitest parity for Jira and ServiceNow.
 
 **Priority:** P0.
 
@@ -28935,7 +28935,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done (2026-08-11) ? `resolveAzureBoardsPageComposition` hides configuration forms when `nativeEnabled` is false or connection payload is unavailable; status + setup progress lead.
 
 **Priority:** P0.
 
@@ -28963,7 +28963,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done (2026-08-11) ? progressive disclosure (connection first, collapsed default behavior + test); emphasized setup step in aside; Vitest hierarchy guards.
 
 **Priority:** P0.
 

@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils";
 type Props = {
   readonly status: AzureBoardsConnectionStatusPresentation;
   readonly setupSteps: readonly AzureBoardsSetupStep[];
+  readonly emphasizedSetupStepId: string;
   readonly lastTestAt: string | null;
   readonly lastTestSummary: string | null;
   readonly lastTestSuccess: boolean | null;
@@ -41,12 +42,24 @@ export function AzureBoardsIntegrationAside(props: Props): React.ReactElement {
           data-testid="azure-boards-setup-progress"
         >
           {props.setupSteps.map((step) => (
-            <li key={step.id} className="flex items-start justify-between gap-3">
-              <span className={step.complete ? "text-al-text-primary" : "text-al-text-secondary"}>{step.label}</span>
+            <li
+              key={step.id}
+              className="flex items-start justify-between gap-3"
+              aria-current={step.id === props.emphasizedSetupStepId ? "step" : undefined}
+              data-testid={`azure-boards-setup-step-${step.id}`}
+              data-emphasized={step.id === props.emphasizedSetupStepId ? "true" : undefined}
+            >
+              <span
+                className={cn(
+                  step.complete ? "text-al-text-primary" : "text-al-text-secondary",
+                  step.id === props.emphasizedSetupStepId ? "font-medium text-al-text-primary" : undefined,
+                )}
+              >
+                {step.label}
+              </span>
               <StatusTag
-                kind={step.complete ? "ready" : "neutral"}
+                kind={step.complete ? "ready" : step.id === props.emphasizedSetupStepId ? "in-progress" : "neutral"}
                 label={step.complete ? "Done" : "Pending"}
-                data-testid={`azure-boards-setup-step-${step.id}`}
               />
             </li>
           ))}

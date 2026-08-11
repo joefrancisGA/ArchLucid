@@ -30,6 +30,8 @@ import {
   ITSM_PLATFORM_OPERATOR_NOTES_BODY,
   ITSM_PLATFORM_OPERATOR_NOTES_SUMMARY,
   ITSM_PRODUCT_PAGE_COPY,
+  ITSM_TENANT_OVERRIDES_COLLAPSED_SUMMARY,
+  ITSM_TENANT_OVERRIDES_UNAVAILABLE_LEAD,
   sanitizeItsmCustomerFacingProbeSummary,
   type ItsmProductId,
 } from "@/lib/itsm-product-integration-page-copy";
@@ -150,6 +152,7 @@ export function ItsmProductIntegrationPageClient(props: Props): React.ReactEleme
   const locallyConfigured = probe?.locallyConfigured === true;
   // Only claim "not configured" after a successful health load (TB-1146 / Bugbot).
   const showNotConfiguredNextStep = health !== null && !locallyConfigured;
+  const overridesInteractionDisabled = showNotConfiguredNextStep || isSaving;
 
   useEffect(() => {
     if (isLoading) {
@@ -166,6 +169,87 @@ export function ItsmProductIntegrationPageClient(props: Props): React.ReactEleme
       operatorNotesSeededRef.current = true;
     }
   }, [health, isLoading, showNotConfiguredNextStep]);
+
+  const tenantOverrideFields = (
+    <>
+      {saveError ? (
+        <p className="m-0 text-red-600 dark:text-red-400" role="alert">
+          {saveError}
+        </p>
+      ) : null}
+
+      {props.product === "jira" ? (
+        <>
+          <div className="space-y-2">
+            <Label htmlFor="jira-project-key">Jira project key override</Label>
+            <Input
+              id="jira-project-key"
+              value={jiraProjectKey}
+              onChange={(event) => setJiraProjectKey(event.target.value)}
+              disabled={overridesInteractionDisabled}
+              placeholder="e.g. ARCH"
+              autoComplete="off"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="jira-send-info"
+              checked={jiraSendInfo}
+              onCheckedChange={(checked) => setJiraSendInfo(checked === true)}
+              disabled={overridesInteractionDisabled}
+            />
+            <Label htmlFor="jira-send-info">Send informational findings to Jira at low priority</Label>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="jira-issue-map">Jira issue type by severity (JSON object)</Label>
+            <Textarea
+              id="jira-issue-map"
+              value={issueTypeJson}
+              onChange={(event) => setIssueTypeJson(event.target.value)}
+              disabled={overridesInteractionDisabled}
+              rows={4}
+              placeholder='{"Critical":"Bug","Warning":"Task"}'
+            />
+          </div>
+        </>
+      ) : (
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id="snow-auto-cmdb"
+            checked={snowAutoCmdb}
+            onCheckedChange={(checked) => setSnowAutoCmdb(checked === true)}
+            disabled={overridesInteractionDisabled}
+          />
+          <Label htmlFor="snow-auto-cmdb">Auto-create CMDB CI when lookup misses</Label>
+        </div>
+      )}
+    </>
+  );
+
+  const tenantOverrideActions = (
+    <>
+      <div className="flex flex-wrap gap-2">
+        <Button
+          type="button"
+          variant={showNotConfiguredNextStep ? "outline" : "default"}
+          onClick={() => void saveSettings()}
+          disabled={overridesInteractionDisabled || !canMutate}
+          title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+        >
+          {isSaving ? "Saving…" : "Save tenant settings"}
+        </Button>
+        <Button type="button" variant="outline" onClick={() => void refresh()} disabled={isSaving}>
+          Reload
+        </Button>
+      </div>
+
+      {!canMutate ? (
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+          Elevated workspace permissions required to save tenant settings.
+        </p>
+      ) : null}
+    </>
+  );
 
   return (
     <div
@@ -240,85 +324,38 @@ export function ItsmProductIntegrationPageClient(props: Props): React.ReactEleme
           </details>
 
           <Card data-testid={`integrations-${props.product}-settings`}>
-            <CardHeader>
-              <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Tenant overrides</CardTitle>
-              <CardDescription className={OPERATOR_TYPOGRAPHY.helper}>
-                Optional per-tenant routing for {copy.pageTitle}.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {saveError ? (
-                <p className="m-0 text-red-600 dark:text-red-400" role="alert">
-                  {saveError}
-                </p>
-              ) : null}
-
-              {props.product === "jira" ? (
-                <>
-                  <div className="space-y-2">
-                    <Label htmlFor="jira-project-key">Jira project key override</Label>
-                    <Input
-                      id="jira-project-key"
-                      value={jiraProjectKey}
-                      onChange={(event) => setJiraProjectKey(event.target.value)}
-                      disabled={isSaving}
-                      placeholder="e.g. ARCH"
-                      autoComplete="off"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="jira-send-info"
-                      checked={jiraSendInfo}
-                      onCheckedChange={(checked) => setJiraSendInfo(checked === true)}
-                      disabled={isSaving}
-                    />
-                    <Label htmlFor="jira-send-info">Send informational findings to Jira at low priority</Label>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="jira-issue-map">Jira issue type by severity (JSON object)</Label>
-                    <Textarea
-                      id="jira-issue-map"
-                      value={issueTypeJson}
-                      onChange={(event) => setIssueTypeJson(event.target.value)}
-                      disabled={isSaving}
-                      rows={4}
-                      placeholder='{"Critical":"Bug","Warning":"Task"}'
-                    />
-                  </div>
-                </>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <Checkbox
-                    id="snow-auto-cmdb"
-                    checked={snowAutoCmdb}
-                    onCheckedChange={(checked) => setSnowAutoCmdb(checked === true)}
-                    disabled={isSaving}
-                  />
-                  <Label htmlFor="snow-auto-cmdb">Auto-create CMDB CI when lookup misses</Label>
-                </div>
-              )}
-
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  type="button"
-                  onClick={() => void saveSettings()}
-                  disabled={isSaving || !canMutate}
-                  title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+            {showNotConfiguredNextStep ? (
+              <details data-testid={`integrations-${props.product}-settings-collapsed`}>
+                <summary
+                  className={cn(
+                    "cursor-pointer select-none px-6 py-4 outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2",
+                    OPERATOR_DISCLOSURE_TRIGGER_CLASS,
+                  )}
                 >
-                  {isSaving ? "Saving…" : "Save tenant settings"}
-                </Button>
-                <Button type="button" variant="outline" onClick={() => void refresh()} disabled={isSaving}>
-                  Reload
-                </Button>
-              </div>
-
-              {!canMutate ? (
-                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-                  Elevated workspace permissions required to save tenant settings.
-                </p>
-              ) : null}
-            </CardContent>
+                  {ITSM_TENANT_OVERRIDES_COLLAPSED_SUMMARY}
+                </summary>
+                <CardContent className="space-y-4 border-t border-neutral-200 pt-4 dark:border-neutral-800">
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    {ITSM_TENANT_OVERRIDES_UNAVAILABLE_LEAD}
+                  </p>
+                  {tenantOverrideFields}
+                  {tenantOverrideActions}
+                </CardContent>
+              </details>
+            ) : (
+              <>
+                <CardHeader>
+                  <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Tenant overrides</CardTitle>
+                  <CardDescription className={OPERATOR_TYPOGRAPHY.helper}>
+                    Optional per-tenant routing for {copy.pageTitle}.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {tenantOverrideFields}
+                  {tenantOverrideActions}
+                </CardContent>
+              </>
+            )}
           </Card>
 
           <Card data-testid={`integrations-${props.product}-connection-test`}>
@@ -332,7 +369,12 @@ export function ItsmProductIntegrationPageClient(props: Props): React.ReactEleme
                   {testError}
                 </p>
               ) : null}
-              <Button type="button" onClick={() => void runConnectionTest()} disabled={isTesting}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => void runConnectionTest()}
+                disabled={isTesting || showNotConfiguredNextStep}
+              >
                 {isTesting ? "Testing…" : "Run connection test"}
               </Button>
               {connectionTestSummary ? (

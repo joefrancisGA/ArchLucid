@@ -29,6 +29,14 @@ export const ITSM_NOT_CONFIGURED_READINESS_CTA = "Open Integration readiness";
 export const ITSM_CONNECTION_TEST_UNAVAILABLE_UNTIL_CONFIGURED =
   "Connection test is unavailable until credentials are configured.";
 
+/** Collapsed tenant overrides summary when credentials are missing (TB-1150). */
+export const ITSM_TENANT_OVERRIDES_COLLAPSED_SUMMARY =
+  "Optional routing (available after connection)";
+
+/** Helper inside collapsed tenant overrides when credentials are missing (TB-1150). */
+export const ITSM_TENANT_OVERRIDES_UNAVAILABLE_LEAD =
+  "Configure credentials before saving tenant routing overrides for this workspace.";
+
 export const ITSM_NATIVE_CREATE_READY_MESSAGE =
   "Connection validation passed — finding surfaces can offer one-click {vendor} sync when outbound creation is enabled.";
 

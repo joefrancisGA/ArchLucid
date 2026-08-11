@@ -26,6 +26,19 @@ export type AzureBoardsSetupStep = {
   readonly complete: boolean;
 };
 
+export type AzureBoardsPageCompositionBlockedReason = "feature-off" | "load-error";
+
+export type AzureBoardsPageComposition = {
+  readonly blocked: boolean;
+  readonly blockedReason: AzureBoardsPageCompositionBlockedReason | null;
+  readonly showConnectionSettings: boolean;
+  readonly defaultBehaviorCollapsed: boolean;
+  readonly showConnectionTest: boolean;
+  readonly connectionTestCollapsed: boolean;
+  readonly saveSettingsVariant: "default" | "outline";
+  readonly emphasizedSetupStepId: string;
+};
+
 const STATUS_LABELS: Record<AzureBoardsConnectionStatus, string> = {
   connected: "Connected",
   "setup-incomplete": "Setup incomplete",
@@ -206,6 +219,85 @@ export function resolveAzureBoardsSetupSteps(input: {
       complete: input.nativeEnabled && input.health?.reachable === true && input.settingsReady,
     },
   ];
+}
+
+/** Progressive disclosure for Azure Boards integration page (TB-1154 / TB-1155). */
+export function resolveAzureBoardsPageComposition(input: {
+  readonly nativeEnabled: boolean;
+  readonly itsmHealthLoadFailed: boolean;
+  readonly credentialsReady: boolean;
+  readonly settingsReady: boolean;
+  readonly testGateAllowed: boolean;
+  readonly connectionSliceFailed: boolean;
+  readonly hasConnectionPayload: boolean;
+}): AzureBoardsPageComposition {
+  const featureBlocked = input.itsmHealthLoadFailed || !input.nativeEnabled;
+  const configurationBlocked =
+    featureBlocked ||
+    (input.connectionSliceFailed && !input.hasConnectionPayload && !input.credentialsReady);
+
+  if (configurationBlocked) {
+    return {
+      blocked: true,
+      blockedReason: featureBlocked ? "feature-off" : "load-error",
+      showConnectionSettings: false,
+      defaultBehaviorCollapsed: true,
+      showConnectionTest: false,
+      connectionTestCollapsed: false,
+      saveSettingsVariant: "outline",
+      emphasizedSetupStepId: "credentials",
+    };
+  }
+
+  if (!input.credentialsReady) {
+    return {
+      blocked: false,
+      blockedReason: null,
+      showConnectionSettings: true,
+      defaultBehaviorCollapsed: true,
+      showConnectionTest: false,
+      connectionTestCollapsed: false,
+      saveSettingsVariant: "outline",
+      emphasizedSetupStepId: "credentials",
+    };
+  }
+
+  if (!input.settingsReady) {
+    return {
+      blocked: false,
+      blockedReason: null,
+      showConnectionSettings: true,
+      defaultBehaviorCollapsed: false,
+      showConnectionTest: false,
+      connectionTestCollapsed: false,
+      saveSettingsVariant: "default",
+      emphasizedSetupStepId: "defaults",
+    };
+  }
+
+  if (!input.testGateAllowed) {
+    return {
+      blocked: false,
+      blockedReason: null,
+      showConnectionSettings: true,
+      defaultBehaviorCollapsed: false,
+      showConnectionTest: false,
+      connectionTestCollapsed: true,
+      saveSettingsVariant: "default",
+      emphasizedSetupStepId: "verify",
+    };
+  }
+
+  return {
+    blocked: false,
+    blockedReason: null,
+    showConnectionSettings: true,
+    defaultBehaviorCollapsed: false,
+    showConnectionTest: true,
+    connectionTestCollapsed: false,
+    saveSettingsVariant: "default",
+    emphasizedSetupStepId: input.testGateAllowed ? "verify" : "create",
+  };
 }
 
 export function sanitizeCustomerFacingProbeSummary(summary: string | null | undefined): string {

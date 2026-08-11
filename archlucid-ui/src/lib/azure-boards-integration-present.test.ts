@@ -5,6 +5,7 @@ import {
   isAzureBoardsCredentialsReady,
   resolveAzureBoardsConnectionStatus,
   resolveAzureBoardsConnectionTestGate,
+  resolveAzureBoardsPageComposition,
   sanitizeAzureBoardsLoadErrorForConnectionStatus,
   sanitizeCustomerFacingProbeSummary,
 } from "./azure-boards-integration-present";
@@ -91,5 +92,38 @@ describe("azure-boards-integration-present", () => {
         null,
       ),
     ).toBe(true);
+  });
+
+  it("blocks configuration forms when native integration is disabled (TB-1154)", () => {
+    const composition = resolveAzureBoardsPageComposition({
+      nativeEnabled: false,
+      itsmHealthLoadFailed: false,
+      credentialsReady: false,
+      settingsReady: false,
+      testGateAllowed: false,
+      connectionSliceFailed: false,
+      hasConnectionPayload: true,
+    });
+
+    expect(composition.blocked).toBe(true);
+    expect(composition.showConnectionSettings).toBe(false);
+  });
+
+  it("collapses default behavior until credentials are ready (TB-1155)", () => {
+    const composition = resolveAzureBoardsPageComposition({
+      nativeEnabled: true,
+      itsmHealthLoadFailed: false,
+      credentialsReady: false,
+      settingsReady: false,
+      testGateAllowed: false,
+      connectionSliceFailed: false,
+      hasConnectionPayload: false,
+    });
+
+    expect(composition.blocked).toBe(false);
+    expect(composition.showConnectionSettings).toBe(true);
+    expect(composition.defaultBehaviorCollapsed).toBe(true);
+    expect(composition.showConnectionTest).toBe(false);
+    expect(composition.emphasizedSetupStepId).toBe("credentials");
   });
 });

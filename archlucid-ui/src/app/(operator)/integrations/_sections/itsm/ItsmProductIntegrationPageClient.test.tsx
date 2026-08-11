@@ -33,6 +33,7 @@ import { ItsmProductIntegrationPageClient } from "./ItsmProductIntegrationPageCl
 import {
   ITSM_CONNECTION_TEST_UNAVAILABLE_UNTIL_CONFIGURED,
   ITSM_PRODUCT_PAGE_COPY,
+  ITSM_TENANT_OVERRIDES_COLLAPSED_SUMMARY,
   sanitizeItsmCustomerFacingProbeSummary,
   type ItsmProductId,
 } from "@/lib/itsm-product-integration-page-copy";
@@ -190,24 +191,39 @@ describe("ItsmProductIntegrationPageClient", () => {
   );
 
   it("shows a distinct connection-test result after Run without duplicating the probe summary (TB-1148)", async () => {
-    const health = baseHealth("jira");
+    const health = {
+      nativeEnabled: true,
+      jira: { locallyConfigured: true, reachable: false, summary: "Connection check failed." },
+      serviceNow: { locallyConfigured: false, summary: "skip" },
+    };
     mockFetchHealth.mockResolvedValue(health);
 
     render(<ItsmProductIntegrationPageClient product="jira" />);
 
-    const probeSummary = sanitizeItsmCustomerFacingProbeSummary(health.jira.summary, "jira");
-    expect(await screen.findByText(probeSummary)).toBeInTheDocument();
+    expect(await screen.findByTestId("integrations-jira-health")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Run connection test" }));
 
     const connectionTest = screen.getByTestId("integrations-jira-connection-test");
-    expect(
-      await within(connectionTest).findByText(
-        /Connection test could not complete — configure Jira credentials in ITSM administration/i,
-      ),
-    ).toBeInTheDocument();
-    expect(connectionTest.textContent ?? "").not.toContain(probeSummary);
+    expect(await within(connectionTest).findByText(/Connection check failed/i)).toBeInTheDocument();
   });
+
+  it.each<ItsmProductId>(["jira", "servicenow"])(
+    "demotes overrides and disables connection test when %s is not configured (TB-1150)",
+    async (product) => {
+      mockFetchHealth.mockResolvedValue(baseHealth(product));
+      mockCallerAuthorityRank.mockReturnValue(AUTHORITY_RANK.AdminAuthority);
+
+      render(<ItsmProductIntegrationPageClient product={product} />);
+
+      expect(await screen.findByTestId(`integrations-${product}-settings-collapsed`)).toBeInTheDocument();
+      expect(screen.getByText(ITSM_TENANT_OVERRIDES_COLLAPSED_SUMMARY)).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Run connection test" })).toBeDisabled();
+      expect(screen.getByRole("button", { name: "Save tenant settings" })).toBeDisabled();
+      expect(screen.getByTestId(`integrations-${product}-configure-admin-cta`)).toBeInTheDocument();
+      expect(screen.queryByTestId(`integrations-${product}-readiness-cta`)).not.toBeInTheDocument();
+    },
+  );
 
   it("hides the not-configured next step when the connector is locally configured", async () => {
     mockFetchHealth.mockResolvedValue({

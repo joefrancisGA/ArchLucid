@@ -92,6 +92,22 @@ export const AZURE_BOARDS_CONNECTION_VERIFICATION_HELP_LABEL = "Azure Boards con
 export const AZURE_BOARDS_MUTATION_DISABLED_HELPER =
   "You need workspace administrator permissions to change Azure Boards settings.";
 
+/** Shown when native integration is disabled for the tenant (TB-1154). */
+export const AZURE_BOARDS_FEATURE_OFF_LEAD =
+  "Azure Boards integration is not enabled for this tenant. Contact your workspace administrator to enable it before configuring connection settings.";
+
+/** Collapsed default-behavior summary until credentials are saved (TB-1155). */
+export const AZURE_BOARDS_DEFAULT_BEHAVIOR_COLLAPSED_SUMMARY =
+  "Default work item behavior (available after connection)";
+
+/** Helper inside collapsed default behavior when credentials are missing (TB-1155). */
+export const AZURE_BOARDS_DEFAULT_BEHAVIOR_UNAVAILABLE_LEAD =
+  "Save connection settings before choosing default work item type and area path.";
+
+/** Collapsed connection-test summary when the gate is closed (TB-1155). */
+export const AZURE_BOARDS_CONNECTION_TEST_COLLAPSED_SUMMARY =
+  "Test connection (available after defaults are saved)";
+
 export const AZURE_BOARDS_BANNED_UI_PATTERNS = [
   /_apis\/wit/i,
   /json-patch/i,
