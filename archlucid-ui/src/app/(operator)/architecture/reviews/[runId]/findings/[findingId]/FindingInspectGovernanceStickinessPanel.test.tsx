@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { FindingDispositionEvent } from "@/lib/api/governance-stickiness-api";
 import { formatDispositionConcurrentUpdateMessage } from "@/lib/finding-disposition-concurrent-update";
@@ -11,13 +11,15 @@ vi.mock("@/hooks/use-operate-capability", () => ({
 
 const listFindingDispositions = vi.fn(async () => [] as FindingDispositionEvent[]);
 const recordFindingDisposition = vi.fn();
+const listRiskExceptions = vi.fn(async () => []);
+const revokeRiskException = vi.fn();
 
 vi.mock("@/lib/api/governance-stickiness-api", () => ({
   listFindingDispositions: (...args: unknown[]) => listFindingDispositions(...args),
-  listRiskExceptions: async () => [],
+  listRiskExceptions: (...args: unknown[]) => listRiskExceptions(...args),
   createRiskException: vi.fn(),
   recordFindingDisposition: (...args: unknown[]) => recordFindingDisposition(...args),
-  revokeRiskException: vi.fn(),
+  revokeRiskException: (...args: unknown[]) => revokeRiskException(...args),
   defaultRiskExceptionExpiresAtUtc: () => "2099-01-01T00:00:00.000Z",
 }));
 
@@ -34,6 +36,12 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 });
 
 describe("FindingInspectGovernanceStickinessPanel", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    listFindingDispositions.mockResolvedValue([]);
+    listRiskExceptions.mockResolvedValue([]);
+  });
+
   it("shows concurrent-update copy when another disposition wins after save (TB-987)", async () => {
     const saved: FindingDispositionEvent = {
       eventId: "evt-saved",
@@ -102,5 +110,36 @@ describe("FindingInspectGovernanceStickinessPanel", () => {
     expect(screen.getByTestId("disposition-export-before-after")).toBeInTheDocument();
     expect(screen.getByTestId("disposition-export-impact-signed_review_record")).toBeInTheDocument();
     expect(screen.getByTestId("disposition-export-impact-sponsor_packet")).toBeInTheDocument();
+  });
+
+  it("requires confirmation before revoking an active waiver", async () => {
+    listRiskExceptions.mockResolvedValue([
+      {
+        riskExceptionId: "waiver-1",
+        findingId: "phi-minimization-risk",
+        status: "Active",
+        ownerUserId: "owner-1",
+        rationale: "Temporary exception",
+        expiresAtUtc: "2099-01-01T00:00:00.000Z",
+      },
+    ]);
+
+    render(
+      <FindingInspectGovernanceStickinessPanel
+        findingId="phi-minimization-risk"
+        runId="claims-intake-modernization"
+      />,
+    );
+
+    fireEvent.click(await screen.findByTestId("finding-waiver-revoke"));
+
+    expect(screen.getByRole("heading", { name: /Revoke risk exception/i })).toBeInTheDocument();
+    expect(revokeRiskException).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Revoke waiver" }));
+
+    await waitFor(() => {
+      expect(revokeRiskException).toHaveBeenCalledWith("waiver-1");
+    });
   });
 });

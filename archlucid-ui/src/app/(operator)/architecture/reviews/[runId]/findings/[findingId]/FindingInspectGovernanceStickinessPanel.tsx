@@ -112,6 +112,7 @@ export function FindingInspectGovernanceStickinessPanel({
   const [pendingDispositionConfirm, setPendingDispositionConfirm] = useState<PendingDispositionConfirm | null>(
     null,
   );
+  const [pendingRevokeWaiverConfirm, setPendingRevokeWaiverConfirm] = useState(false);
 
   const reload = useCallback(async (): Promise<FindingDispositionEvent[]> => {
     const [dispositions, waivers] = await Promise.all([
@@ -574,7 +575,9 @@ export function FindingInspectGovernanceStickinessPanel({
               variant="destructive"
               disabled={busyAction !== null || !canMutate}
               title={mutateDisabledTitle}
-              onClick={() => void revokeWaiver()}
+              onClick={() => {
+                setPendingRevokeWaiverConfirm(true);
+              }}
               data-testid="finding-waiver-revoke"
               aria-busy={busyAction === "revoke-waiver"}
             >
@@ -632,6 +635,25 @@ export function FindingInspectGovernanceStickinessPanel({
               setPendingDispositionConfirm(null);
             });
           }
+        }}
+      />
+
+      <ConfirmationDialog
+        open={pendingRevokeWaiverConfirm}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingRevokeWaiverConfirm(false);
+          }
+        }}
+        title="Revoke risk exception?"
+        description="Revoking ends the active waiver for this finding. The revocation is recorded on the audit trail; the signed review record is not automatically changed."
+        confirmLabel="Revoke waiver"
+        variant="destructive"
+        busy={busyAction === "revoke-waiver"}
+        onConfirm={() => {
+          void revokeWaiver().finally(() => {
+            setPendingRevokeWaiverConfirm(false);
+          });
         }}
       />
     </div>
