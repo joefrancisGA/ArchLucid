@@ -10,6 +10,7 @@ using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.ArtifactSynthesis.Generators;
@@ -111,6 +112,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IAgentEvaluationService, FindingsBackedAgentEvaluationService>();
         services.AddScoped<IEvidenceBuilder, DefaultEvidenceBuilder>();
         services.AddScoped<IAgentExecutionTraceRecorder, AgentExecutionTraceRecorder>();
+        services.AddScoped<ICommitRunIdempotencyCoordinator, CommitRunIdempotencyCoordinator>();
 
         // ADR 0030 PR A3 (2026-04-24): ICoordinatorGoldenManifestRepository and ICoordinatorDecisionTraceRepository
         // were deleted along with their concretes (InMemoryCoordinator*, GoldenManifestRepository, DecisionTraceRepository).

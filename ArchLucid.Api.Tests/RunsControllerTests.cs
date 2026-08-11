@@ -201,7 +201,7 @@ public sealed class RunsControllerTests
             actor.Object,
             Mock.Of<IAuditService>(),
             Mock.Of<ICommitSponsorEmailNotifier>(),
-            Mock.Of<ICommitRunIdempotencyRepository>(),
+            Mock.Of<ICommitRunIdempotencyCoordinator>(),
             Mock.Of<IRunRepository>(),
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IFindingFeedbackRepository>(),

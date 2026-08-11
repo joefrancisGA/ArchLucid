@@ -30,8 +30,6 @@ using Asp.Versioning;
 
 using FluentValidation;
 
-using System.Security.Cryptography;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -70,7 +68,7 @@ public sealed partial class RunsController(
     IActorContext actorContext,
     IAuditService auditService,
     ICommitSponsorEmailNotifier commitSponsorEmailNotifier,
-    ICommitRunIdempotencyRepository commitRunIdempotencyRepository,
+    ICommitRunIdempotencyCoordinator commitRunIdempotencyCoordinator,
     IRunRepository runRepository,
     IAuthorityQueryService authorityQuery,
     IFindingFeedbackRepository findingFeedbackRepository,
@@ -117,17 +115,13 @@ public sealed partial class RunsController(
         string user = actorContext.GetActor();
         string correlationId = HttpContext.TraceIdentifier;
 
-        if (Request.Headers.TryGetValue("Idempotency-Key", out StringValues rawKeyHeader))
+        if (!TryReadIdempotencyKeyHeader(out string? idempotencyKey, out IActionResult? badIdempotencyHeader))
         {
-            string trimmedKey = rawKeyHeader.ToString().Trim();
-
-            if (trimmedKey.Length > ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength)
-                return this.BadRequestProblem(
-                    $"Idempotency-Key must be at most {ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength} characters after trim.",
-                    ProblemTypes.ValidationFailed);
+            ArgumentNullException.ThrowIfNull(badIdempotencyHeader);
+            return badIdempotencyHeader;
         }
 
-        CreateRunIdempotencyState? idempotency = TryBuildCreateRunIdempotency(request);
+        CreateRunIdempotencyState? idempotency = BuildCreateRunIdempotency(idempotencyKey, request);
 
         try
         {
@@ -163,118 +157,6 @@ public sealed partial class RunsController(
             logger.LogWarningWithSanitizedUserArg(ex, "CreateRun failed for request '{RequestId}'.", request.RequestId);
             return this.InvalidOperationProblem(ex, ProblemTypes.BadRequest);
         }
-    }
-
-    [HttpPost("request/draft")]
-    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
-    [MutatingAuditExcluded("Draft endpoint is advisory-only and does not persist domain mutations.")]
-    [ProducesResponseType(typeof(DraftArchitectureRequestResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> DraftRequest(
-        [FromBody] DraftArchitectureRequestInput? input,
-        CancellationToken cancellationToken)
-    {
-        if (input is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
-
-        if (string.IsNullOrWhiteSpace(input.FreeTextDescription))
-            return this.BadRequestProblem("FreeTextDescription is required.", ProblemTypes.ValidationFailed);
-
-        if (input.FreeTextDescription.Trim().Length < 20)
-            return this.BadRequestProblem("FreeTextDescription must be at least 20 characters.", ProblemTypes.ValidationFailed);
-
-        DraftArchitectureRequestResponse response = await architectureRequestDraftService.DraftAsync(input, cancellationToken);
-        return Ok(response);
-    }
-
-    [HttpPost("chat-intake")]
-    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
-    [MutatingAuditExcluded("Chat intake is advisory-only and does not persist domain mutations.")]
-    [ProducesResponseType(typeof(ArchitectureRequest), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<IActionResult> ChatIntake(
-        [FromBody] ChatIntakeRequest? input,
-        CancellationToken cancellationToken)
-    {
-        if (input is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
-
-        if (string.IsNullOrWhiteSpace(input.RawText))
-            return this.BadRequestProblem("RawText is required.", ProblemTypes.ValidationFailed);
-
-        if (input.RawText.Trim().Length < 20)
-            return this.BadRequestProblem("RawText must be at least 20 characters.", ProblemTypes.ValidationFailed);
-
-        if (input.RawText.Trim().Length > 50_000)
-            return this.BadRequestProblem("RawText must not exceed 50000 characters.", ProblemTypes.ValidationFailed);
-
-        ArchitectureRequest parsed;
-
-        try
-        {
-            parsed = await chatIntakeParserService.ParseAsync(input, cancellationToken);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
-        }
-
-        FluentValidation.Results.ValidationResult validationResult =
-            await architectureRequestValidator.ValidateAsync(parsed, cancellationToken);
-
-        if (!validationResult.IsValid)
-        {
-            string detail = string.Join("; ", validationResult.Errors.Select(static error => error.ErrorMessage));
-            return this.UnprocessableEntityProblem(detail, ProblemTypes.ValidationFailed);
-        }
-
-        return Ok(parsed);
-    }
-
-    /// <summary>Maps Terraform state JSON or a public Git Terraform file into a wizard-ready architecture request.</summary>
-    // idempotency-posture: dry-run-no-persist
-    [HttpPost("connector-intake")]
-    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
-    [MutatingAuditExcluded("Connector intake is advisory-only and does not persist domain mutations.")]
-    [ProducesResponseType(typeof(ArchitectureRequest), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<IActionResult> ConnectorIntake(
-        [FromBody] ConnectorIntakeRequest? input,
-        CancellationToken cancellationToken)
-    {
-        if (input is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
-
-        if (string.IsNullOrWhiteSpace(input.Source))
-            return this.BadRequestProblem("Source is required.", ProblemTypes.ValidationFailed);
-
-        ArchitectureRequest parsed;
-
-        try
-        {
-            parsed = await connectorIntakeParserService.ParseAsync(input, cancellationToken);
-        }
-        catch (ArgumentException ex)
-        {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
-        }
-
-        FluentValidation.Results.ValidationResult validationResult =
-            await architectureRequestValidator.ValidateAsync(parsed, cancellationToken);
-
-        if (!validationResult.IsValid)
-        {
-            string detail = string.Join("; ", validationResult.Errors.Select(static error => error.ErrorMessage));
-            return this.UnprocessableEntityProblem(detail, ProblemTypes.ValidationFailed);
-        }
-
-        return Ok(parsed);
     }
 
     /// <summary>
@@ -365,11 +247,22 @@ public sealed partial class RunsController(
     /// <summary>Fingerprints the whole submitted array so a retry with a different batch payload is rejected.</summary>
     private CreateRunIdempotencyState? BuildBatchCreateRunIdempotency(
         string? idempotencyKey,
-        IReadOnlyList<ArchitectureRequest> requests)
-    {
-        if (string.IsNullOrWhiteSpace(idempotencyKey))
-            return null;
+        IReadOnlyList<ArchitectureRequest> requests) =>
+        string.IsNullOrWhiteSpace(idempotencyKey)
+            ? null
+            : BuildCreateRunIdempotency(
+                idempotencyKey,
+                ArchitectureRunIdempotencyHashing.HashIdempotencyKey(JsonSerializer.Serialize(requests)));
 
+    private CreateRunIdempotencyState? BuildCreateRunIdempotency(string? idempotencyKey, ArchitectureRequest request) =>
+        string.IsNullOrWhiteSpace(idempotencyKey)
+            ? null
+            : BuildCreateRunIdempotency(
+                idempotencyKey,
+                ArchitectureRunIdempotencyHashing.FingerprintRequest(request));
+
+    private CreateRunIdempotencyState BuildCreateRunIdempotency(string idempotencyKey, byte[] requestFingerprint)
+    {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
 
         return new CreateRunIdempotencyState(
@@ -377,25 +270,7 @@ public sealed partial class RunsController(
             scope.WorkspaceId,
             scope.ProjectId,
             ArchitectureRunIdempotencyHashing.HashIdempotencyKey(idempotencyKey),
-            ArchitectureRunIdempotencyHashing.HashIdempotencyKey(JsonSerializer.Serialize(requests)));
-    }
-
-    private CreateRunIdempotencyState? TryBuildCreateRunIdempotency(ArchitectureRequest request)
-    {
-        if (!Request.Headers.TryGetValue("Idempotency-Key", out StringValues raw) ||
-            string.IsNullOrWhiteSpace(raw.ToString()))
-            return null;
-
-        string trimmed = raw.ToString().Trim();
-
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-
-        return new CreateRunIdempotencyState(
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            ArchitectureRunIdempotencyHashing.HashIdempotencyKey(trimmed),
-            ArchitectureRunIdempotencyHashing.FingerprintRequest(request));
+            requestFingerprint);
     }
 
     /// <summary>
@@ -577,38 +452,32 @@ public sealed partial class RunsController(
         string correlationId = HttpContext.TraceIdentifier;
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         string canonicalRunKey = ArchitectureRunRouteIds.NormalizeForScopeKey(runId);
-        byte[] requestFingerprint = ArchitectureRunIdempotencyHashing.FingerprintCommitRequest(request);
 
-        if (!TryParseCommitIdempotencyKeyHeader(out byte[]? idempotencyKeyHash, out IActionResult? badIdempotencyHeader))
+        if (!TryReadIdempotencyKeyHeader(out string? idempotencyKey, out IActionResult? badIdempotencyHeader))
         {
             ArgumentNullException.ThrowIfNull(badIdempotencyHeader);
             return badIdempotencyHeader;
         }
 
+        CommitRunIdempotencyState? idempotency = idempotencyKey is null
+            ? null
+            : CommitRunIdempotencyState.Create(scope, runId, request, idempotencyKey);
+
         try
         {
-            bool markIdempotencyReplayHeader = idempotencyKeyHash is not null &&
-                                               await PreviewCommitIdempotencyAsync(scope, canonicalRunKey, idempotencyKeyHash, requestFingerprint,
-                                                   cancellationToken);
+            CommitRunIdempotencyOutcome outcome = await commitRunIdempotencyCoordinator.CommitAsync(
+                idempotency,
+                token => architectureRunCommitOrchestrator.CommitRunAsync(runId, request, token),
+                cancellationToken);
 
-            CommitRunResult result = await architectureRunCommitOrchestrator.CommitRunAsync(runId, request, cancellationToken);
+            CommitRunResult result = outcome.Result;
 
             CommitRunResponse response = RunResponseMapper.ToCommitRunResponse(
                 result.Manifest,
                 result.DecisionTraces,
                 result.Warnings);
 
-            if (idempotencyKeyHash is not null)
-            {
-                bool inserted =
-                    await commitRunIdempotencyRepository.TryInsertAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, canonicalRunKey,
-                        idempotencyKeyHash, requestFingerprint, cancellationToken);
-
-                if (!inserted)
-                    markIdempotencyReplayHeader = true;
-            }
-
-            if (markIdempotencyReplayHeader)
+            if (outcome.IdempotentReplay)
             {
                 Response.Headers.Append("X-Idempotency-Replayed", "true");
                 LogIdempotencyReplay(runId, user, correlationId);
@@ -624,7 +493,8 @@ public sealed partial class RunsController(
             if (request?.NotifySponsor != true)
                 return Ok(response);
 
-            if (!markIdempotencyReplayHeader)
+            // A replay already sent the sponsor mail on the original commit.
+            if (!outcome.IdempotentReplay)
             {
                 await commitSponsorEmailNotifier
                     .NotifyAfterCommitAsync(scope.TenantId, runId, cancellationToken);
@@ -659,53 +529,6 @@ public sealed partial class RunsController(
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
-    }
-
-    private bool TryParseCommitIdempotencyKeyHeader(out byte[]? idempotencyKeyHash, out IActionResult? badRequest)
-    {
-        idempotencyKeyHash = null;
-        badRequest = null;
-
-        if (!Request.Headers.TryGetValue("Idempotency-Key", out StringValues keys))
-            return true;
-
-        string trimmed = keys.ToString().Trim();
-
-        if (string.IsNullOrEmpty(trimmed))
-            return true;
-
-        if (trimmed.Length > ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength)
-        {
-            badRequest =
-                this.BadRequestProblem(
-                    $"Idempotency-Key must be at most {ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength} characters after trim.",
-                    ProblemTypes.ValidationFailed);
-
-            return false;
-        }
-
-        idempotencyKeyHash = ArchitectureRunIdempotencyHashing.HashIdempotencyKey(trimmed);
-
-        return true;
-    }
-
-    private async Task<bool> PreviewCommitIdempotencyAsync(
-        ScopeContext scope,
-        string canonicalRunKey,
-        byte[] idempotencyKeyHash,
-        byte[] requestFingerprint,
-        CancellationToken cancellationToken)
-    {
-        CommitRunIdempotencyLookup? lookup = await commitRunIdempotencyRepository
-            .TryGetAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, canonicalRunKey, idempotencyKeyHash, cancellationToken);
-
-        if (lookup is null)
-            return false;
-
-        if (!CryptographicOperations.FixedTimeEquals(lookup.RequestFingerprint, requestFingerprint))
-            throw new ConflictException("Idempotency-Key was reused with a different request payload.");
-
-        return true;
     }
 
     /// <summary>
@@ -883,196 +706,6 @@ public sealed partial class RunsController(
         return result.Success
             ? Ok(new SubmitAgentResultResponse { ResultId = result.ResultId! })
             : MapApplicationServiceFailure(result.Error, result.FailureKind, "Submission failed.");
-    }
-
-    /// <summary>
-    ///     Gets the original architecture request payload by ID.
-    /// </summary>
-    [HttpGet("request/{requestId}")]
-    [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
-    [ProducesResponseType(typeof(ArchitectureRequest), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetRequest(
-        [FromRoute] string requestId,
-        [FromServices] IArchitectureRequestRepository requestRepository,
-        CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrWhiteSpace(requestId))
-            return this.BadRequestProblem("requestId is required.", ProblemTypes.ValidationFailed);
-
-        ArchitectureRequest? request = await requestRepository.GetByIdAsync(requestId, cancellationToken);
-
-        if (request is null)
-            return this.NotFoundProblem($"Request '{requestId}' was not found.", ProblemTypes.ResourceNotFound);
-
-        return Ok(request);
-    }
-
-    /// <summary>
-    ///     Clones an existing architecture request, stripping its ID so it can be used as a template for a new run.
-    /// </summary>
-    [IdempotencyFilter]
-    [HttpPost("request/{requestId}/clone")]
-    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
-    [ProducesResponseType(typeof(ArchitectureRequest), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> CloneRequest(
-        [FromRoute] string requestId,
-        [FromServices] IArchitectureRequestRepository requestRepository,
-        CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrWhiteSpace(requestId))
-            return this.BadRequestProblem("requestId is required.", ProblemTypes.ValidationFailed);
-
-        ArchitectureRequest? request = await requestRepository.GetByIdAsync(requestId, cancellationToken);
-
-        if (request is null)
-            return this.NotFoundProblem($"Request '{requestId}' was not found.", ProblemTypes.ResourceNotFound);
-
-        // Strip the ID to make it a template for a new request
-        request.RequestId = Guid.NewGuid().ToString("N");
-        request.IsArchived = false;
-
-        return Ok(request);
-    }
-
-    /// <summary>
-    ///     Archives an architecture request, hiding it from default list views.
-    /// </summary>
-    [HttpPatch("request/{requestId}/archive")]
-    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> ArchiveRequest(
-        [FromRoute] string requestId,
-        [FromServices] IArchitectureRequestRepository requestRepository,
-        CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrWhiteSpace(requestId))
-            return this.BadRequestProblem("requestId is required.", ProblemTypes.ValidationFailed);
-
-        ArchitectureRequest? request = await requestRepository.GetByIdAsync(requestId, cancellationToken);
-
-        if (request is null)
-            return this.NotFoundProblem($"Request '{requestId}' was not found.", ProblemTypes.ResourceNotFound);
-
-        await requestRepository.ArchiveAsync(requestId, cancellationToken);
-
-        string auditActor = actorContext.GetActor();
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = "ArchitectureRequestArchived",
-                ActorUserId = auditActor,
-                ActorUserName = auditActor,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                CorrelationId = HttpContext.TraceIdentifier,
-                DataJson = JsonSerializer.Serialize(
-                    new { requestId },
-                    AuditJsonSerializationOptions.Instance)
-            },
-            cancellationToken);
-
-        return Ok();
-    }
-
-    /// <summary>
-    ///     Soft-deletes an architecture request by marking it archived (hidden from default list views).
-    /// </summary>
-    [HttpDelete("request/{requestId}")]
-    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteRequest(
-        [FromRoute] string requestId,
-        [FromServices] IArchitectureRequestRepository requestRepository,
-        CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrWhiteSpace(requestId))
-            return this.BadRequestProblem("requestId is required.", ProblemTypes.ValidationFailed);
-
-        ArchitectureRequest? request = await requestRepository.GetByIdAsync(requestId, cancellationToken);
-
-        if (request is null)
-            return this.NotFoundProblem($"Request '{requestId}' was not found.", ProblemTypes.ResourceNotFound);
-
-        if (request.IsArchived)
-            return Ok();
-
-        await requestRepository.ArchiveAsync(requestId, cancellationToken);
-
-        string auditActor = actorContext.GetActor();
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = "ArchitectureRequestDeleted",
-                ActorUserId = auditActor,
-                ActorUserName = auditActor,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                CorrelationId = HttpContext.TraceIdentifier,
-                DataJson = JsonSerializer.Serialize(
-                    new { requestId },
-                    AuditJsonSerializationOptions.Instance)
-            },
-            cancellationToken);
-
-        return Ok();
-    }
-
-    /// <summary>
-    ///     Restores an archived architecture request so it appears in default list views again.
-    /// </summary>
-    [IdempotencyFilter]
-    [HttpPost("request/{requestId}/restore")]
-    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> RestoreRequest(
-        [FromRoute] string requestId,
-        [FromServices] IArchitectureRequestRepository requestRepository,
-        CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrWhiteSpace(requestId))
-            return this.BadRequestProblem("requestId is required.", ProblemTypes.ValidationFailed);
-
-        ArchitectureRequest? request = await requestRepository.GetByIdAsync(requestId, cancellationToken);
-
-        if (request is null)
-            return this.NotFoundProblem($"Request '{requestId}' was not found.", ProblemTypes.ResourceNotFound);
-
-        if (!request.IsArchived)
-            return Ok();
-
-        await requestRepository.RestoreAsync(requestId, cancellationToken);
-
-        string auditActor = actorContext.GetActor();
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = "ArchitectureRequestRestored",
-                ActorUserId = auditActor,
-                ActorUserName = auditActor,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                CorrelationId = HttpContext.TraceIdentifier,
-                DataJson = JsonSerializer.Serialize(
-                    new { requestId },
-                    AuditJsonSerializationOptions.Instance)
-            },
-            cancellationToken);
-
-        return Ok();
     }
 
     private async Task LogRunSubmittedAuditAsync(string runId, string actor, CancellationToken cancellationToken)
