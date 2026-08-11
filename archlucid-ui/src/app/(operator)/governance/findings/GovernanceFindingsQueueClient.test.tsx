@@ -198,9 +198,26 @@ describe("GovernanceFindingsQueueClient", () => {
 
     renderGovernanceFindingsQueue();
 
-    expect(await screen.findByTestId("governance-findings-empty-state")).toBeInTheDocument();
+    expect(await screen.findByTestId("governance-findings-load-failed")).toBeInTheDocument();
+    expect(screen.getByText("Could not load architecture risk register")).toBeInTheDocument();
+    expect(screen.getByTestId("governance-findings-retry-load")).toBeInTheDocument();
+    expect(screen.queryByTestId("governance-findings-empty-state")).not.toBeInTheDocument();
     expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
     expect(screen.getByTestId("report-problem-trigger")).toBeInTheDocument();
+  });
+
+  it("retries the risk register load from the failure state", async () => {
+    vi.mocked(governanceApi.getArchitectureRiskRegister)
+      .mockRejectedValueOnce(new Error("network"))
+      .mockResolvedValueOnce({ entries: [loadedRiskRow] });
+
+    renderGovernanceFindingsQueue();
+
+    expect(await screen.findByTestId("governance-findings-retry-load")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("governance-findings-retry-load"));
+
+    expect(await screen.findByTestId("architecture-risk-register-filters")).toBeInTheDocument();
+    expect(screen.queryByTestId("governance-findings-load-failed")).not.toBeInTheDocument();
   });
 
   it("does not render Report problem on benign empty risk register", async () => {

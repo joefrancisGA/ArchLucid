@@ -18,6 +18,7 @@ import { GovernanceFindingsFilterBar } from "@/components/governance/findings/Go
 import { GovernanceFindingsList } from "@/components/governance/findings/GovernanceFindingsList";
 import { SponsorStorySynopsisFromCounts } from "@/components/operator/SponsorStorySynopsisPanel";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
+import { Button } from "@/components/ui/button";
 import { useGovernanceFindingsFilter } from "@/components/governance/findings/use-governance-findings-filter";
 import { useGovernanceFindingsQuery } from "@/components/governance/findings/use-governance-findings-query";
 import {
@@ -39,7 +40,7 @@ import {
 } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
+import { GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT, GOVERNANCE_FINDINGS_LOAD_FAILED_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { governanceRegisterMetricPresentation } from "@/lib/metric-count-presentation";
 import { buildSponsorStoryDispositionCountsFromRows } from "@/lib/sponsor-story-synopsis";
 import {
@@ -283,19 +284,49 @@ export default function GovernanceFindingsQueueClient() {
           </>
         ) : null}
 
-        {!loading && rows.length === 0 ? (
+        {!loading && rows.length === 0 && loadFailed ? (
+          <>
+            <EnterpriseCompactEmptyState
+              {...GOVERNANCE_FINDINGS_LOAD_FAILED_COMPACT}
+              title={
+                buyerPolishedShell
+                  ? "Could not load risks for this review"
+                  : GOVERNANCE_FINDINGS_LOAD_FAILED_COMPACT.title
+              }
+              description={
+                buyerPolishedShell
+                  ? "The risk register did not load. Your existing findings are unchanged — retry the load or check connectivity before navigating away."
+                  : GOVERNANCE_FINDINGS_LOAD_FAILED_COMPACT.description
+              }
+              footer={
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="sm"
+                  data-testid="governance-findings-retry-load"
+                  onClick={() => {
+                    void refresh();
+                  }}
+                >
+                  Retry load
+                </Button>
+              }
+            />
+            <FatalPageReportProblemSupportRow
+              surfaceId="governance-findings-queue-hard-failure"
+              errorTitle={pageTitle}
+              errorCode="governance-findings-load-failed"
+            />
+          </>
+        ) : null}
+
+        {!loading && rows.length === 0 && !loadFailed ? (
           <>
             <EnterpriseCompactEmptyState
               testId="governance-findings-empty-state"
               title={buyerPolishedShell ? BUYER_RISK_REGISTER_EMPTY_TITLE : ARCHITECTURE_RISK_REGISTER_EMPTY_TITLE}
               description={
-                loadFailed
-                  ? buyerPolishedShell
-                    ? "We could not load risks for this review. Check your connection, or open reviews and try again."
-                    : "We could not load the architecture risk register for this workspace â€” check connectivity, then open the curated Claims Intake example if you are in demo mode."
-                  : buyerPolishedShell
-                    ? BUYER_RISK_REGISTER_EMPTY_BODY
-                    : ARCHITECTURE_RISK_REGISTER_EMPTY_BODY
+                buyerPolishedShell ? BUYER_RISK_REGISTER_EMPTY_BODY : ARCHITECTURE_RISK_REGISTER_EMPTY_BODY
               }
               actions={[
                 { label: "Open reviews", href: "/architecture/reviews", variant: "primary" },
@@ -313,13 +344,6 @@ export default function GovernanceFindingsQueueClient() {
                 ) : undefined
               }
             />
-            {loadFailed ? (
-              <FatalPageReportProblemSupportRow
-                surfaceId="governance-findings-queue-hard-failure"
-                errorTitle={pageTitle}
-                errorCode="governance-findings-load-failed"
-              />
-            ) : null}
           </>
         ) : null}
       </div>

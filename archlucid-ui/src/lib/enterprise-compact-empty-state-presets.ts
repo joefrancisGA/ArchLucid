@@ -147,6 +147,15 @@ export const GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT: EnterpriseCompactEmpty
   actions: [],
 };
 
+/** Governance findings queue when the register fetch failed — distinct from a genuinely empty register. */
+export const GOVERNANCE_FINDINGS_LOAD_FAILED_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "governance-findings-load-failed",
+  title: "Could not load architecture risk register",
+  description:
+    "The risk register did not load for this workspace. Your existing findings are unchanged — retry the load or check connectivity before navigating away.",
+  actions: [],
+};
+
 /** Run detail deliverables panel before the review is finalized. */
 export const RUN_DELIVERABLES_PENDING_FINALIZE_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "run-deliverables-pending-finalize-empty-state",
