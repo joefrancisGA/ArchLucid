@@ -10,6 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { RecycleRestoreConsequencePreview } from "@/components/RecycleRestoreConsequencePreview";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   PROJECTS_RECYCLE_BIN_RESTORE_CONFIRM_ACTION_LABEL,
@@ -60,6 +61,7 @@ export function ProjectsRecycleBinRestoreConfirmDialog(
             {description}
           </AlertDialogDescription>
         </AlertDialogHeader>
+        {props.pending !== null ? <RecycleRestoreConsequencePreview /> : null}
         <AlertDialogFooter>
           <AlertDialogCancel disabled={props.busy} data-testid="projects-recycle-bin-restore-confirm-cancel">
             {PROJECTS_RECYCLE_BIN_RESTORE_CONFIRM_CANCEL_LABEL}

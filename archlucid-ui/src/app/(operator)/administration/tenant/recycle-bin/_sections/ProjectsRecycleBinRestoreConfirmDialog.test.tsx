@@ -33,5 +33,6 @@ describe("ProjectsRecycleBinRestoreConfirmDialog", () => {
     expect(screen.getByText(/Restore project\?/)).toBeInTheDocument();
     expect(screen.getByText(/Contoso Core/)).toBeInTheDocument();
     expect(screen.getByText(/Production/)).toBeInTheDocument();
+    expect(screen.getByTestId("recycle-restore-consequence-preview")).toBeInTheDocument();
   });
 });
