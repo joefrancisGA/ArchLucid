@@ -9,7 +9,11 @@ type OperatorHomeContinueSetupSlotProps = {
   readonly placement: "prominent" | "hidden";
 };
 
-/** Renders workspace readiness on Overview for first-run tenants only. */
+/**
+ * Renders setup blockers on Overview for first-run tenants only.
+ * While readiness is still loading the context is null, so the optimistic default keeps the slot
+ * silent rather than announcing an unverified ready state.
+ */
 export function OperatorHomeContinueSetupSlot(props: OperatorHomeContinueSetupSlotProps): React.JSX.Element | null {
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const readiness = useFinishSetupReadinessContext();
@@ -25,7 +29,6 @@ export function OperatorHomeContinueSetupSlot(props: OperatorHomeContinueSetupSl
 
   return (
     <OperatorHomeContinueSetupCard
-      loading={readiness.phase === "loading"}
       canBegin={workspaceReadiness.canBegin}
       blockerMessage={workspaceReadiness.blockerMessage}
     />

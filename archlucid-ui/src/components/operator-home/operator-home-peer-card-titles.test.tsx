@@ -11,9 +11,10 @@ import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAutho
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import {
   OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE,
+  OPERATOR_HOME_ASSIGN_ADMIN_BLOCKER,
   OPERATOR_HOME_EXPLORE_SAMPLE_HEADING,
   OPERATOR_HOME_INTENT_CHOOSER_HEADING,
-  OPERATOR_HOME_READY_TO_BEGIN_TITLE,
+  OPERATOR_HOME_ONE_REQUIRED_ITEM_TITLE,
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_HOME_CARD_SECTION_HEADING } from "@/lib/design-tokens";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
@@ -148,7 +149,8 @@ describe("operator home peer card titles", () => {
   });
 
   it("uses the same peer-card title scale for readiness, Workspace metrics, and Explore ArchLucid", () => {
-    render(<OperatorHomeContinueSetupCard canBegin blockerMessage={null} />);
+    // Readiness only renders a titled card in its blocker state.
+    render(<OperatorHomeContinueSetupCard canBegin={false} blockerMessage={OPERATOR_HOME_ASSIGN_ADMIN_BLOCKER} />);
     vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(true);
     render(<OperatorHomeWorkspaceContextDisclosure showWorkspaceStatus={false} runsDashboard={emptyRunsDashboard} />);
     render(
@@ -165,7 +167,7 @@ describe("operator home peer card titles", () => {
       </OperatorHomeDisclosureSection>,
     );
 
-    for (const name of [OPERATOR_HOME_READY_TO_BEGIN_TITLE, "Workspace metrics and status", OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE]) {
+    for (const name of [OPERATOR_HOME_ONE_REQUIRED_ITEM_TITLE, "Workspace metrics and status", OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE]) {
       expectPeerCardTitleClasses(screen.getByRole("heading", { level: 2, name }).className);
     }
   });

@@ -264,12 +264,12 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
         </article>
       </div>
 
-      {!isCompact ? (
-        <OperatorHomeReadinessStrip
-          canBegin={workspaceReadiness.canBegin}
-          blockerMessage={workspaceReadiness.blockerMessage}
-        />
-      ) : null}
+      {/* Renders only when a prerequisite blocks starting — compact layouts must not hide that. */}
+      <OperatorHomeReadinessStrip
+        canBegin={workspaceReadiness.canBegin}
+        blockerMessage={workspaceReadiness.blockerMessage}
+      />
+
 
       {reviewNavigation.showStagedPanel && reviewNavigation.activeStageId !== null ? (
         <ReviewStartStagedProgress

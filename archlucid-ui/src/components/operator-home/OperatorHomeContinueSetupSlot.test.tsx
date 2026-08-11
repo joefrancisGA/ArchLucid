@@ -26,10 +26,7 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   }),
 }));
 
-import {
-  OPERATOR_HOME_ASSIGN_ADMIN_BLOCKER,
-  OPERATOR_HOME_READY_TO_BEGIN_TITLE,
-} from "@/lib/buyer-polish-copy";
+import { OPERATOR_HOME_ASSIGN_ADMIN_BLOCKER } from "@/lib/buyer-polish-copy";
 
 import { OperatorHomeContinueSetupSlot } from "./OperatorHomeContinueSetupSlot";
 
@@ -56,7 +53,7 @@ describe("OperatorHomeContinueSetupSlot", () => {
     expect(screen.queryByText(/of \d+ complete/i)).not.toBeInTheDocument();
   });
 
-  it("keeps readiness visible when optional setup remains but required access is ready", () => {
+  it("stays silent when required access is ready and only optional setup remains", () => {
     useNavCommittedArchitectureReview.mockReturnValue(false);
     useFinishSetupReadinessContext.mockReturnValue({
       phase: "ready",
@@ -71,8 +68,21 @@ describe("OperatorHomeContinueSetupSlot", () => {
 
     render(<OperatorHomeContinueSetupSlot placement="prominent" />);
 
-    expect(screen.getByTestId("home-block-continue-setup")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_READY_TO_BEGIN_TITLE })).toBeInTheDocument();
+    expect(screen.queryByTestId("home-block-continue-setup")).not.toBeInTheDocument();
+  });
+
+  it("stays silent while readiness is still loading", () => {
+    useNavCommittedArchitectureReview.mockReturnValue(false);
+    useFinishSetupReadinessContext.mockReturnValue({
+      phase: "loading",
+      context: null,
+      readyCount: 0,
+      totalCount: 4,
+    });
+
+    render(<OperatorHomeContinueSetupSlot placement="prominent" />);
+
+    expect(screen.queryByTestId("home-block-continue-setup")).not.toBeInTheDocument();
   });
 
   it("hides readiness after the tenant has committed workspace activity", () => {

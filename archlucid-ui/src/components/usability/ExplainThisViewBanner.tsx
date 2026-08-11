@@ -43,16 +43,11 @@ export function ExplainThisViewBanner() {
       role="note"
     >
       <div className="min-w-0 flex-1 space-y-1">
-        <p className="m-0 flex flex-wrap items-baseline gap-x-2 gap-y-1 text-neutral-800 dark:text-neutral-200">
-          <span className="font-semibold text-neutral-900 dark:text-neutral-50">{explanation.title}</span>
-          <span className="text-neutral-500 dark:text-neutral-400" aria-hidden>
-            ·
-          </span>
-          <span className="text-neutral-700 dark:text-neutral-300">
-            <InlineGuidanceLabel label="Next:" testId="inline-guidance-what-to-do-next" /> {explanation.nextAction}
-          </span>
+        {/* Title is intentionally not shown: the page H1 and active nav item already name the route. */}
+        <p className="m-0 text-neutral-700 dark:text-neutral-300">
+          <InlineGuidanceLabel label="Next:" testId="inline-guidance-what-to-do-next" /> {explanation.nextAction}
         </p>
-</div>
+      </div>
       <DismissControl
         iconOnly
         ariaLabel={`Dismiss ${explanation.title} help`}
