@@ -909,9 +909,9 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1176 | **Done (2026-08-11)** Teams CTA hierarchy ? Validate ? Test ? Save + disabled-test reason; see ## TB-1176 below | Adoption friction P1 ? **V1**; with **TB-1174** | S |
 | TB-1177 | **Done (2026-08-11)** Teams operator spacing density (`space-y-8` / `py-8` ? operator tokens); see ## TB-1177 below | Adoption friction P1 ? **V1**; with **TB-1174**; cf. **TB-1170** | XS |
 | TB-1179 | **Done (2026-08-11)** Project deletion has no UI ? governed delete affordance; see ## TB-1179 below | Adoption friction P1 ? **V1**; owner recycle bin ~58/100 2026-07-25; API DELETE exists | M |
-| TB-1181 | Recycle bin discoverability ? unbury entry from Technical details disclosure; see ## TB-1181 below | Adoption friction P1 ? **V1**; after **TB-1179** | S |
-| TB-1182 | Recycle bin status presentation + operator density; see ## TB-1182 below | Adoption friction P1 ? **V1**; with **TB-1180** | S |
-| TB-1183 | Teams page ? remove Slack notifications cross-link; see ## TB-1183 below | Adoption friction P1 ? **V1**; owner `/integrations/teams` 2026-07-25; with **TB-1178** | XS |
+| TB-1181 | **Done (2026-08-11)** Recycle bin discoverability ? unbury entry from Technical details disclosure; see ## TB-1181 below | Adoption friction P1 ? **V1**; after **TB-1179** | S |
+| TB-1182 | **Done (2026-08-11)** Recycle bin status presentation + operator density; see ## TB-1182 below | Adoption friction P1 ? **V1**; with **TB-1180** | S |
+| TB-1183 | **Done (2026-08-11)** Teams page ? remove Slack notifications cross-link; see ## TB-1183 below | Adoption friction P1 ? **V1**; owner `/integrations/teams` 2026-07-25; with **TB-1178** | XS |
 | TB-1184 | Teams page ? help as icon + caption in PageHeading actions; see ## TB-1184 below | Adoption friction P1 ? **V1**; owner `/integrations/teams` 2026-07-25; with **TB-1178**/**TB-1183** | S |
 | TB-1185 | Slack page ? remove Teams notifications cross-link; see ## TB-1185 below | Adoption friction P1 ? **V1**; owner `/integrations/slack` ~57/100 2026-07-25; parity **TB-1183** | XS |
 | TB-1186 | Slack not-configured ? StatusTag + guided next step; see ## TB-1186 below | Adoption friction P1 ? **V1**; with **TB-1185** | S |
@@ -1085,7 +1085,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1764 | AWS cloud detail ? empty/connected single primary CTA; see ## TB-1764 below | Adoption friction P1 ? **V1**; with **TB-1761**; pairs **TB-1141**/**TB-1539** | S |
 | TB-1769 | Azure cloud detail ? hydrate saved connection + disconnect/re-validate CTA; see ## TB-1769 below | Adoption friction P1 ? **V1**; with **TB-1766** | M |
 | TB-1772 | GCP cloud detail ? Azure-parity guided connect wizard; see ## TB-1772 below | Adoption friction P1 ? **V1**; with **TB-1771**; pairs **TB-1761** | M |
-| TB-1779 | ITSM legacy traffic ? mark INT redirect-only + fold workbook notes; see ## TB-1779 below | Adoption friction P1 ? **V1**; with **TB-1776**; pairs **TB-1443** | S |
+| TB-1779 | ~~ITSM legacy traffic — mark INT redirect-only + fold workbook notes~~ **Done** 2026-08-11 — hub removed; IIX dropped; doc guard | Adoption friction P1 — **V1**; with **TB-1776**; pairs **TB-1443** | S |
 | TB-1782 | Atlassian OAuth callback ? brand shell + loading honesty; see ## TB-1782 below | Adoption friction P1 ? **V1**; with **TB-1781**; after **TB-1776** | S |
 | TB-1783 | Atlassian OAuth callback ? success copy + primary Open Jira CTA; see ## TB-1783 below | Adoption friction P1 ? **V1**; with **TB-1781** | S |
 | TB-1788 | Recommendation-learning ops ? Load persisted vs Refresh toolbar honesty; see ## TB-1788 below | Adoption friction P1 ? **V1**; with **TB-1786** | S |
@@ -1098,7 +1098,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1812 | `/patterns/[patternKey]` ? contextual peer-compare (not hard-coded BFF); see ## TB-1812 below | Adoption friction P1 ? **V1**; with **TB-1811** | S |
 | TB-1814 | `/patterns` + detail ? page-help topic map + contextual help mount; see ## TB-1814 below | Adoption friction P1 ? **V1**; with **TB-1811**; pairs **TB-1669** | S |
 | TB-1816 | `/quick-start` traffic redirect-only workbook honesty; see ## TB-1816 below | Adoption friction P1 ? **V1**; owner review ~12/100 2026-07-27; traffic **QUI**; after Done **TB-736** | S |
-| TB-1823 | `/reviews/.../artifacts/...` traffic ghost-route workbook honesty; see ## TB-1823 below | Adoption friction P1 ? **V1**; with **TB-1821** | S |
+| TB-1823 | ~~`/reviews/.../artifacts/...` traffic ghost-route workbook honesty~~ **Done** 2026-08-11 — RER row removed; doc guard | Adoption friction P1 — **V1**; with **TB-1821** | S |
 | TB-1826 | `/?/evidence-trace` buyer H1 + eyebrow vocabulary (finding-first); see ## TB-1826 below | Adoption friction P1 ? **V1**; owner review ~54/100 2026-07-27; traffic **ERU** | S |
 | TB-1827 | Evidence-trace footer must not self-link Inspect/Trace; see ## TB-1827 below | Adoption friction P1 ? **V1**; with **TB-1826** | XS |
 | TB-1828 | Evidence-trace ? finding detail primary wayfinding; see ## TB-1828 below | Adoption friction P1 ? **V1**; with **TB-1826**; peer traffic **RRF** | S |
@@ -1327,7 +1327,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1311 | First async-orchestration forcing workload + run state machine freeze (commit-safe split); see `## TB-1311` below | Architectural integrity P1 ? **V1**; PA 2026-07-26 async/DTF; GTM **M-231**/**M-232** | S |
 | TB-1324 | Policy-pack / rule-set evaluation hybrid (versioned data plane + compiled interpreter) contract; see `## TB-1324` below | Architectural integrity P1 ? **V1**; PA Q19 packs?frameworks; GTM **M-235**/**M-236** | S |
 | TB-1624 | Customer policy-pack rule sandbox / commit pin / blast-radius claim map; see `## TB-1624` below | Architectural integrity P1 ? **V1**; PA pack extensibility Q; GTM **M-298**/**M-299**; see `POLICY_PACK_CUSTOMER_RULE_SANDBOX_PIN_BLAST_RADIUS_CLAIM_MAP.md`; orchestrates **TB-1324**/**TB-1022** | S |
-| TB-1824 | Pair MAM `/signed-records/.../artifacts/...` with RER restore (no orphan sibling); see ## TB-1824 below | Architectural integrity P1 ? **V1**; with **TB-1821**; traffic **MAM** | M |
+| TB-1824 | ~~Pair MAM `/signed-records/.../artifacts/...` with RER restore~~ **Done** 2026-08-03 — via **TB-1947** GAR | Architectural integrity P1 — **V1**; with **TB-1821**; traffic **MAM**→**GAR** | M |
 | TB-1873 | Quick start vs legacy `QuickReviewWizard` dual-surface honesty; see ## TB-1873 below | Maintainability P1 ? **V1**; with **TB-1871** | M |
 | TB-1887 | **Done** (2026-08-01) ? remove `/settings/alerts` redirect + page (pre-release; no bookmark shim); see `## TB-1887` below | Maintainability P1 ? **V1**; with **TB-1886**; pairs **TB-1441**/**TB-1442** | S |
 | TB-1902 | **Done** (2026-08-01) ? remove `/settings/exec-digest` redirect + page (pre-release; no bookmark shim); see `## TB-1902` below | Maintainability P1 ? **V1**; with **TB-1901**; pairs **TB-1492** | S |
@@ -1736,8 +1736,8 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1770 | Azure cloud detail ? Vitest banned jargon + no stub Validate/Activity; see ## TB-1770 below | Testability P2 ? **V1**; after **TB-1766**/**TB-1767** | S |
 | TB-1771 | `/integrations/cloud-connections/gcp` purge Preview maturity copy ? **Done** (2026-07-28 with **TB-1140**); see ## TB-1771 below | Trustworthiness P0 ? **V1**; owner review ~44/100 2026-07-27; traffic **IGC**; pairs **TB-1140** (do not reopen) | S |
 | TB-1776 | **Done** (2026-07-30) ? ITSM hub-only redirect to readiness; OAuth callback carved from wildcard; Vitest; see `## TB-1776` below | Correctness P0 ? **V1**; owner review ~12/100 2026-07-27; traffic **INT**/**INA**; pairs Done **TB-600**/**TB-407** | S |
-| TB-1777 | ITSM legacy path ? Vitest next.config + OAuth redirect URI reachability; see ## TB-1777 below | Testability P2 ? **V1**; with **TB-1776** | S |
-| TB-1778 | ITSM legacy path ? retire or quarantine dead ItsmIntegrationPageClient; see ## TB-1778 below | Maintainability P2 ? **V1**; with **TB-1776**; pairs **TB-1146**/**TB-1161** | M |
+| TB-1777 | ~~ITSM legacy path — Vitest next.config + OAuth redirect URI reachability~~ **Done** 2026-08-11 — `itsm-legacy-route.test.ts` | Testability P2 — **V1**; with **TB-1776** | S |
+| TB-1778 | ~~ITSM legacy path — retire or quarantine dead ItsmIntegrationPageClient~~ **Done** 2026-08-11 — clients deleted + anti-reintro | Maintainability P2 — **V1**; with **TB-1776**; pairs **TB-1146**/**TB-1161** | M |
 | TB-1781 | **Done** (2026-07-31) ? IIO traffic workbook notes: OAuth callback reachable after TB-1776 carve; Vitest; see `## TB-1781` below | Correctness P0 ? **V1**; owner review ~10/100 2026-07-27; traffic **IIO**; depends **TB-1776** | S |
 | TB-1785 | Atlassian OAuth callback ? Vitest success/fail/cancel states; see ## TB-1785 below | Testability P2 ? **V1**; after **TB-1776**/**TB-1783** | S |
 | TB-1787 | Recommendation-learning ops ? single surface (retire orphan polished UI); see ## TB-1787 below | Maintainability P2 ? **V1**; with **TB-1786** | M |
@@ -29785,7 +29785,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done (2026-08-11).
 
 **Priority:** P0.
 
@@ -29894,7 +29894,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done (2026-08-11).
 
 **Priority:** P0.
 
@@ -29922,7 +29922,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done (2026-08-11).
 
 **Priority:** P0.
 

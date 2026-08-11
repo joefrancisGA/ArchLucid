@@ -543,9 +543,9 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1770 | Azure cloud detail — Vitest banned jargon + no stub Validate/Activity | Testability P2 **V1** — with **TB-1766** |
 | TB-1771 | `/integrations/cloud-connections/gcp` purge Preview maturity copy | Trustworthiness P0 **V1** — IGC ~44 |
 | TB-1772 | GCP cloud detail — Azure-parity guided connect wizard | Adoption friction P1 **V1** — with **TB-1771** |
-| TB-1777 | ITSM legacy path — Vitest next.config + OAuth redirect URI reachability | Testability P2 **V1** — with **TB-1776** (partially covered by **TB-1776** Vitest) |
-| TB-1778 | ITSM legacy path — retire or quarantine dead ItsmIntegrationPageClient | Maintainability P2 **V1** — with **TB-1776** |
-| TB-1779 | ITSM legacy traffic — mark INT redirect-only + fold workbook notes | Adoption friction P1 **V1** — with **TB-1776** |
+| TB-1777 | ITSM legacy path — Vitest next.config + OAuth redirect URI reachability | Testability P2 **V1** — with **TB-1776** — **Done** 2026-08-11 |
+| TB-1778 | ITSM legacy path — retire or quarantine dead ItsmIntegrationPageClient | Maintainability P2 **V1** — with **TB-1776** — **Done** 2026-08-11 |
+| TB-1779 | ITSM legacy traffic — mark INT redirect-only + fold workbook notes | Adoption friction P1 **V1** — with **TB-1776** — **Done** 2026-08-11 |
 | TB-1782 | Atlassian OAuth callback — brand shell + loading honesty | Adoption friction P1 **V1** — after **TB-1781** |
 | TB-1783 | Atlassian OAuth callback — success copy + primary Open Jira CTA | Adoption friction P1 **V1** — with **TB-1781** |
 | TB-1785 | Atlassian OAuth callback — Vitest success/fail/cancel states | Testability P2 **V1** — with **TB-1781** |
@@ -569,11 +569,11 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1816 | `/quick-start` traffic redirect-only workbook honesty | Adoption friction P1 **V1** — QUI ~12 — **Done** 2026-08-11 |
 | TB-1817 | Retire orphan `(marketing)/quick-start` page module (keep 301) | Maintainability P2 **V1** — with **TB-1816** — **Done** 2026-08-11 |
 | TB-1820 | `/quick-start` — Vitest anti-reintro (301 + no competing marketing UI) | Testability P2 **V1** — with **TB-1816** — **Done** 2026-08-11 |
-| TB-1821 | Restore or redirect `/reviews/[runId]/artifacts/[artifactId]` preview | Adoption friction P0 **V1** — RER ~10 |
-| TB-1822 | `ArtifactListTable` Preview hrefs must resolve to a live App Router page | Trustworthiness P0 **V1** — with **TB-1821** |
-| TB-1823 | `/reviews/.../artifacts/...` traffic ghost-route workbook honesty | Adoption friction P1 **V1** — with **TB-1821** |
-| TB-1824 | Pair MAM `/signed-records/.../artifacts/...` with RER restore (no orphan sibling) | Architectural integrity P1 **V1** — with **TB-1821** |
-| TB-1825 | Artifact preview route — Vitest/CI App Router existence guard | Testability P2 **V1** — with **TB-1821** |
+| TB-1821 | Restore or redirect `/reviews/[runId]/artifacts/[artifactId]` preview | Adoption friction P0 **V1** — RER ~10 — **Done** 2026-08-02 (GAR SoT; RER page removed) |
+| TB-1822 | `ArtifactListTable` Preview hrefs must resolve to a live App Router page | Trustworthiness P0 **V1** — with **TB-1821** — **Done** 2026-08-03 |
+| TB-1823 | `/reviews/.../artifacts/...` traffic ghost-route workbook honesty | Adoption friction P1 **V1** — with **TB-1821** — **Done** 2026-08-11 |
+| TB-1824 | Pair MAM `/signed-records/.../artifacts/...` with RER restore (no orphan sibling) | Architectural integrity P1 **V1** — with **TB-1821** — **Done** 2026-08-03 (via **TB-1947** GAR) |
+| TB-1825 | Artifact preview route — Vitest/CI App Router existence guard | Testability P2 **V1** — with **TB-1821** — **Done** 2026-08-11 |
 | TB-1826 | `/…/evidence-trace` buyer H1 + eyebrow vocabulary (finding-first) | Adoption friction P1 **V1** — ERU ~54 |
 | TB-1827 | Evidence-trace footer must not self-link Inspect/Trace | Adoption friction P1 **V1** — with **TB-1826** |
 | TB-1828 | Evidence-trace → finding detail primary wayfinding | Adoption friction P1 **V1** — with **TB-1826** |
@@ -669,7 +669,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1942 | Signed records list — empty Browse reviews drop `projectId=default` | Trustworthiness P1 **V1** — with **TB-1941** |
 | TB-1944 | Signed records list — dedupe Open review CTAs + page-1/100 + N+1 enrich | Adoption friction P1 **V1** — with **TB-1941** |
 | TB-1945 | Signed records list — Vitest empty href + row honesty + traffic note | Testability P2 **V1** — with **TB-1941** |
-| TB-1950 | MAM — Vitest App Router existence with **TB-1825** | Testability P2 **V1** — with **TB-1946** |
+| TB-1950 | MAM — Vitest App Router existence with **TB-1825** | Testability P2 **V1** — with **TB-1946** — **Done** 2026-08-11 |
 | TB-1661 | Operator line-tabs visual contract — document in UI_DESIGN_SYSTEM (+ UI ARCHITECTURE pointer) | Adoption friction P1 **V1** — owner tabs consistency pass 2026-07-27; after Done **TB-665**; pairs **TB-1552**–**TB-1556** / **TB-1572**–**TB-1576** / **TB-1646**–**TB-1650** |
 | TB-1662 | Strip TabsList/TabsTrigger chrome overrides (Advisory, Help×2, Deliverables, buyer RunsDashboard) | Adoption friction P1 **V1** — with **TB-1661**; after Done **TB-667**/**TB-670** |
 | TB-1663 | Alert rules hub — migrate hand-rolled folder tabs onto shared Tabs | Adoption friction P1 **V1** — with **TB-1661**; pairs **TB-1584**/**TB-1589** (do not reopen content UX) |
@@ -868,7 +868,7 @@ Canonical: [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) only (see wave-3 c
 | AWS cloud connection detail (`/integrations/cloud-connections/aws`) | **TB-1761**–**TB-1765** (open P1 **V1**) | Wizard parity; Validate/Activity stubs; Tier jargon; CTA; trust-policy starter; ~44/100; traffic **INC**; hub **TB-1139**–**TB-1143** / help **TB-1234**–**TB-1238** stay open |
 | Azure cloud connection detail (`/integrations/cloud-connections/azure`) | **TB-1766**–**TB-1770** (open P1/P2 **V1**) | Tier jargon; Validate/Activity stubs; help IA; connected CTA; Vitest; ~72/100; traffic **INZ**; reference for AWS **TB-1761** |
 | GCP cloud connection detail (`/integrations/cloud-connections/gcp`) | **TB-1771**/**TB-1772** (open P1 **V1**); **TB-1773**/**TB-1774**/**TB-1775** **Done** | Preview honesty; wizard parity; live Validate/Activity shipped; WIF starter shipped; ~44/100; traffic **IGC**; Tier jargon shipped; pairs hub **TB-1140** / AWS **TB-1761** / help **TB-1239**–**TB-1243** |
-| Legacy ITSM hub (`/integrations/itsm`) | **TB-1777**–**TB-1779** (open P1/P2 **V1**); **TB-1776**/**TB-1780** **Done** | OAuth carve-out **Done TB-1776**; CI; retire dead client; traffic redirect-only; canonical links shipped; ~12/100; traffic **INT**/**INA**; do not reopen **TB-1146**/**TB-1161**/**TB-1429** |
+| Legacy ITSM hub (`/integrations/itsm`) | — (cluster **Done** **TB-1776**–**TB-1780** 2026-08-11) | OAuth carve-out **Done**; hub page + dead clients **removed**; IIX dropped from workbook; canonical product deep-links; ~12/100; traffic **IIX** retired / **IIO** live callback; do not reopen **TB-1146**/**TB-1161**/**TB-1429** |
 | Atlassian OAuth callback (`/integrations/itsm/oauth/callback`) | **TB-1782**/**TB-1783**/**TB-1785** (open P1/P2 **V1**); **TB-1781**/**TB-1784** **Done** | Traffic honesty + error copy shipped; brand/loading; success CTA copy; Vitest; ~10/100; traffic **IIO**; do not reopen **TB-600** |
 | Recommendation-learning ops (`/internal-operations/recommendation-learning`) | **TB-1787**–**TB-1790** (open P1/P2 **V1**; **TB-1786** **Done** 2026-08-10) | Traffic/SEO Internal Ops **Done**; retire orphan UI; toolbar honesty; enterprise chrome; Vitest; ~52/100; traffic **INR** |
 | Legacy `/login` | — (cluster **Done** **TB-1791**–**TB-1795** 2026-08-11) | Vitest redirect matrix + idle-timeout; query fidelity; noindex **Done**; traffic redirect-only; docs canonicalize; ~12/100; traffic **LOX**; real UX on `/auth/signin` |
@@ -877,8 +877,8 @@ Canonical: [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) only (see wave-3 c
 | Legacy `/operate/architecture-graph` | — (cluster **Done** **TB-1806**–**TB-1810** 2026-08-11) | Traffic redirect-only; noindex **Done**; query preserve to `/insights/evidence-graph`; doc canonicalize **Done**; anti-reintro Vitest; ~12/100; traffic **OPR**; product on **INE** |
 | Pattern library detail (`/patterns/[patternKey]`) | **TB-1812**/**TB-1814**/**TB-1815** (open P1/P2 **V1**; **TB-1811**/**TB-1813** **Done** 2026-08-10) | Provenance + policy honesty **Done**; peer compare; help map+mount; CTA/Vitest; ~48/100; traffic **PAP**; do not reopen **TB-880** |
 | Retired marketing `/quick-start` | — (cluster **Done** **TB-1816**–**TB-1820** 2026-08-11) | Traffic redirect-only; retire orphan page; noindex + docs canonicalize **Done**; anti-reintro Vitest; ~12/100; traffic **QUI**; after Done **TB-736** |
-| Ghost artifact preview (`/reviews/.../artifacts/...`) | **TB-1823**–**TB-1825** (open P1/P2 **V1**) | RER redirect + hrefs **Done** **TB-1821**/**TB-1822**/**TB-1948**; traffic honesty; CI existence guard; ~10/100; traffic **RER** |
-| Ghost signed-record artifact preview (`/signed-records/.../artifacts/...`) | **TB-1950** (open P2 **V1**) | Traffic + section/docs **Done** **TB-1946**/**TB-1949**; page + hrefs **Done** **TB-1947**/**TB-1948**; Vitest with **TB-1825**; ~10/100; traffic **MAM**; peer **RER** |
+| Ghost artifact preview (`/reviews/.../artifacts/...`) | — (cluster **Done** **TB-1821**–**TB-1825** 2026-08-11) | RER page removed (404); Preview hrefs emit **GAR** only; traffic RER row removed; existence + doc guards; ~10/100; traffic **RER** retired |
+| Ghost signed-record artifact preview (`/signed-records/.../artifacts/...`) | — (cluster **Done** **TB-1946**–**TB-1950** 2026-08-11) | Traffic + section/docs **Done**; page + hrefs **Done** under **GAR**; Vitest existence with **TB-1825**; ~10/100; traffic **MAM**→**GAR**; peer **RER** |
 | Snapshot leave-behind (`/snapshot/[runId]`) | — (cluster **Done** **TB-1951**–**TB-1955**) | Redirect traffic; destination honesty; next.config/query; docs; Vitest; ~30/100; traffic **SNU** |
 | Architecture scorecard (`/insights/architecture-scorecard`) | — (cluster **Done**; Evidence chrome 2026-08-03) | **TB-1956**–**TB-1960** Done; Sources + Category-1 registry; ~45/100; traffic **SCX**; siblings SPE/SPP/SPR |
 | Executive summary (`/sponsor-report/executive-summary`) | — (cluster **Done** **TB-1961**–**TB-1965**) | SPE sponsor-report cluster complete; siblings SPP/SPR |
