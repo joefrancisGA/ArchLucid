@@ -158,4 +158,16 @@ describe("CommitRunButton", () => {
       "Add a private endpoint before finalizing.",
     );
   });
+  it("shows finalize consequence preview in the confirm dialog (TB-2224)", async () => {
+    render(<CommitRunButton runId="run-1" disabled={false} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /^finalize review$/i }));
+
+    const dialog = await screen.findByRole("alertdialog");
+
+    expect(within(dialog).getByTestId("finalize-consequence-preview")).toBeInTheDocument();
+    expect(within(dialog).getByTestId("finalize-consequence-preview-locks")).toBeInTheDocument();
+    expect(within(dialog).getAllByText(/signed review record/i).length).toBeGreaterThan(0);
+    expect(within(dialog).queryByText(/decision engine/i)).not.toBeInTheDocument();
+  });
 });

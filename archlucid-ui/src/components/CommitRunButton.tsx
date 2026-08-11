@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
@@ -28,13 +28,17 @@ import {
 } from "@/lib/first-tenant-funnel-telemetry";
 import { resolvePreCommitGovernanceBlockView } from "@/lib/pre-commit-governance-block-problem";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  FINALIZE_REPLAY_COMPARE_NOTE,
+} from "@/lib/finalize-consequence-preview";
+import { FinalizeConsequencePreview } from "@/components/FinalizeConsequencePreview";
 
-/** Nav and review-detail copy — replay/compare stay available post-finalize (see UI_GLOSSARY_V1). */
-export const FINALIZE_REPLAY_COMPARE_TOOLTIP = "Replay and comparison remain available after finalizing.";
+/** Nav and review-detail copy â€” replay/compare stay available post-finalize (see UI_GLOSSARY_V1). */
+export const FINALIZE_REPLAY_COMPARE_TOOLTIP = FINALIZE_REPLAY_COMPARE_NOTE;
 
 export type CommitRunButtonProps = {
   runId: string;
-  /** When true, the review already has a reviewed manifest — commit is not offered. */
+  /** When true, the review already has a reviewed manifest â€” commit is not offered. */
   disabled: boolean;
   /** Existing server-side finding coverage says finalize will be blocked. */
   commitBlockedReason?: string | null;
@@ -187,32 +191,35 @@ export function CommitRunButton({
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         title="Finalize this review?"
-        description={`Merges agent results for this review through the decision engine and saves the architecture snapshot. If the review is not ready, the API returns a conflict — adjust inputs and try again. ${FINALIZE_REPLAY_COMPARE_TOOLTIP}`}
+        description={`Creates the signed review record for this architecture package. If the package is not ready, resolve blockers and try again. ${FINALIZE_REPLAY_COMPARE_TOOLTIP}`}
         confirmLabel="Finalize review"
         cancelLabel="Cancel"
         variant="default"
         onConfirm={() => void onConfirm()}
         busy={busy}
         extraContent={
-          <div className="flex items-start gap-2 px-1 py-1">
-            <input
-              id="commit-notify-sponsor"
-              type="checkbox"
-              className="mt-1 h-4 w-4 rounded border border-neutral-300 text-neutral-900 focus-visible:ring-2 focus-visible:ring-neutral-400 disabled:opacity-50 dark:border-neutral-600 dark:text-neutral-100 dark:focus-visible:ring-neutral-500"
-              checked={notifySponsor}
-              disabled={busy}
-              onChange={(e) => {
-                setNotifySponsor(e.target.checked);
-              }}
-            />
-            <div className="min-w-0">
-              <Label htmlFor="commit-notify-sponsor" className={cn("font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-                Email tenant admin contact
-              </Label>
-              <p className={cn("mt-0.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                Sends a short heads-up with a link to this review when the tenant admin mailbox is on file and outbound
-                email is configured.
-              </p>
+          <div className="space-y-3 px-1 py-1">
+            <FinalizeConsequencePreview />
+            <div className="flex items-start gap-2">
+              <input
+                id="commit-notify-sponsor"
+                type="checkbox"
+                className="mt-1 h-4 w-4 rounded border border-neutral-300 text-neutral-900 focus-visible:ring-2 focus-visible:ring-neutral-400 disabled:opacity-50 dark:border-neutral-600 dark:text-neutral-100 dark:focus-visible:ring-neutral-500"
+                checked={notifySponsor}
+                disabled={busy}
+                onChange={(e) => {
+                  setNotifySponsor(e.target.checked);
+                }}
+              />
+              <div className="min-w-0">
+                <Label htmlFor="commit-notify-sponsor" className={cn("font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+                  Email tenant admin contact
+                </Label>
+                <p className={cn("mt-0.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  Sends a short heads-up with a link to this review when the tenant admin mailbox is on file and outbound
+                  email is configured.
+                </p>
+              </div>
             </div>
           </div>
         }
