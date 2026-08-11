@@ -83,9 +83,10 @@ export function useRunSummaryStream(
           return;
         }
 
-        setSummary(next);
+        // A body-less 2xx must not poison consumers with `undefined`; they contract on `null`.
+        setSummary(next ?? null);
 
-        if (next.hasGoldenManifest) {
+        if (next?.hasGoldenManifest === true) {
           clearFallback();
           streamPhaseRef.current = "complete";
           setStreamPhase("complete");

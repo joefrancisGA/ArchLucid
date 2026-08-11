@@ -89,21 +89,25 @@ export function useReviewCreationProgress() {
     };
   }, [clearTimers]);
 
+  // `input` is optional so a caller that forgets the stage hints degrades to the default
+  // stage list instead of throwing mid-submit and losing the create-run call.
   const begin = useCallback(
-    (input: ReviewCreationProgressBeginInput) => {
+    (input?: ReviewCreationProgressBeginInput) => {
       if (isActive) {
         return;
       }
+
+      const hasTemplateStage = input?.hasTemplate === true;
 
       clearTimers();
       setOutcome(null);
       setElapsedMs(0);
       setIsActive(true);
-      setHasTemplate(input.hasTemplate);
+      setHasTemplate(hasTemplateStage);
       setActiveStageId("creating-workspace");
       setShowStagedPanel(true);
 
-      const timeoutMs = input.timeoutMs ?? REVIEW_CREATION_PROGRESS_TIMEOUT_MS;
+      const timeoutMs = input?.timeoutMs ?? REVIEW_CREATION_PROGRESS_TIMEOUT_MS;
       const startedAtMs = Date.now();
 
       elapsedIntervalIdRef.current = window.setInterval(() => {
@@ -117,7 +121,7 @@ export function useReviewCreationProgress() {
         setOutcome({ kind: "unresolved" });
       }, timeoutMs);
 
-      if (input.hasTemplate) {
+      if (hasTemplateStage) {
         timerIdsRef.current.push(
           window.setTimeout(() => {
             setActiveStageId("applying-template");
@@ -196,3 +200,6 @@ export function useReviewCreationProgress() {
     waitCopy,
   };
 }
+
+/** Progress surface shared by wizard footers and the shared create-run submit path. */
+export type ReviewCreationProgress = ReturnType<typeof useReviewCreationProgress>;

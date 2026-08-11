@@ -34,6 +34,17 @@ describe("useReviewCreationProgress", () => {
     expect(result.current.outcome).toEqual({ kind: "unresolved" });
   });
 
+  it("starts without stage hints rather than throwing mid-submit", () => {
+    const { result } = renderHook(() => useReviewCreationProgress());
+
+    act(() => {
+      result.current.begin();
+    });
+
+    expect(result.current.isActive).toBe(true);
+    expect(result.current.stages.some((stage) => stage.id === "applying-template")).toBe(false);
+  });
+
   it("shows staged progress immediately when begin is called", () => {
     const { result } = renderHook(() => useReviewCreationProgress());
 

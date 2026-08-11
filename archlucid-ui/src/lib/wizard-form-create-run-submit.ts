@@ -1,5 +1,6 @@
 import type { UseFormGetValues, UseFormTrigger } from "react-hook-form";
 
+import type { ReviewCreationProgressBeginInput } from "@/hooks/use-review-creation-progress";
 import { createArchitectureRun } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
@@ -104,7 +105,7 @@ export async function submitWizardFormCreateRun(
  * to the same review rather than a duplicate.
  */
 export type WizardCreateRunProgressBridge = {
-  readonly begin: () => void;
+  readonly begin: (input?: ReviewCreationProgressBeginInput) => void;
   readonly succeed: () => void;
   readonly fail: (message?: string) => void;
 };
@@ -125,6 +126,8 @@ export type SubmitQuickFamilyWizardCreateRunArgs = GateArgs &
     readonly onRunCreated: (runId: string) => void;
     /** When supplied, drives staged-progress chrome and the unresolved-not-failed recovery notice. */
     readonly progress?: WizardCreateRunProgressBridge;
+    /** Stage hints for {@link WizardCreateRunProgressBridge.begin} (e.g. a template stage). */
+    readonly progressBeginInput?: ReviewCreationProgressBeginInput;
   };
 
 /**
@@ -151,7 +154,7 @@ export async function submitQuickFamilyWizardCreateRun(
   args.setSubmitting(true);
   args.setSubmitError(null);
   args.setStepValidationMessage(null);
-  args.progress?.begin();
+  args.progress?.begin(args.progressBeginInput ?? { hasTemplate: false });
 
   try {
     const result = await executeWizardFormCreateRun(args);

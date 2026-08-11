@@ -33,8 +33,8 @@ function stageDone(flag: boolean | undefined): boolean {
   return flag === true;
 }
 
-function allStagesReady(summary: RunSummary | null): boolean {
-  if (summary === null) {
+function allStagesReady(summary: RunSummary | null | undefined): boolean {
+  if (summary === null || summary === undefined) {
     return false;
   }
 

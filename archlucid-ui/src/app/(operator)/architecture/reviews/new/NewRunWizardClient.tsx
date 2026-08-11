@@ -14,6 +14,7 @@ import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResu
 import { WizardSessionSaveStatus } from "@/components/wizard/WizardSessionSaveStatus";
 import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
 import { WizardStepper } from "@/components/wizard/WizardStepper";
+import { WizardStickyFooter } from "@/components/wizard/WizardStickyFooter";
 import { WizardStepConstraints } from "@/components/wizard/steps/WizardStepConstraints";
 import { WizardStepDescription } from "@/components/wizard/steps/WizardStepDescription";
 import { WizardStepEvidenceUpload } from "@/components/wizard/steps/WizardStepEvidenceUpload";
@@ -23,9 +24,6 @@ import { WizardStepPreset } from "@/components/wizard/steps/WizardStepPreset";
 import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExceededBanner";
 import { LlmUsageBandHint } from "@/components/LlmUsageBandHint";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
-import { ReviewStartUnresolvedNotice } from "@/components/review-intake/ReviewStartUnresolvedNotice";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { useReviewCreationProgress } from "@/hooks/use-review-creation-progress";
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
@@ -35,7 +33,7 @@ import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { isAcceleratorPackId, resolveAcceleratorWizardPreset } from "@/lib/accelerator-wizard-presets";
-import { OPERATOR_SHELL_CONTENT_BLEED_X_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { showError, showSuccess } from "@/lib/toast";
 import { applyWizardPreset } from "@/lib/wizard-presets";
 import {
@@ -51,7 +49,6 @@ import {
 import {
   REVIEW_START_CREATION_FAILED_MESSAGE,
   REVIEW_START_LLM_BUDGET_EXCEEDED_MESSAGE,
-  REVIEW_START_PREPARING_LABEL,
   REVIEW_START_SUBMIT_VALIDATION_MESSAGE,
 } from "@/lib/review-start-progress-copy";
 import {
@@ -1117,59 +1114,15 @@ export function NewRunWizardClient() {
           ) : null}
 
           {showNav ? (
-            <div
-              className={cn(
-                "sticky bottom-0 z-10 mt-8 border-t border-neutral-200/60 bg-neutral-50/98 py-3 shadow-[0_-2px_8px_-2px_rgba(0,0,0,0.06)] backdrop-blur supports-[backdrop-filter]:bg-neutral-50/85 dark:border-neutral-800/60 dark:bg-neutral-950/98 dark:shadow-[0_-2px_8px_-2px_rgba(0,0,0,0.25)] dark:supports-[backdrop-filter]:bg-neutral-950/85",
-                OPERATOR_SHELL_CONTENT_BLEED_X_CLASS,
-              )}
-              data-testid="new-run-wizard-footer"
+            <WizardStickyFooter
+              testIdPrefix="new-run-wizard"
+              progress={creationProgress}
+              onRecheck={() => {
+                void submitRun();
+              }}
+              submitError={submitError}
+              showSubmitError={isReviewStep}
             >
-              {creationProgress.showStagedPanel && creationProgress.activeStageId !== null ? (
-                <div className="mb-3">
-                  <ReviewStartStagedProgress
-                    stages={creationProgress.stages}
-                    activeStageId={creationProgress.activeStageId}
-                    headline={REVIEW_START_PREPARING_LABEL}
-                    detail={creationProgress.waitCopy?.detail ?? null}
-                    testId="new-run-wizard-review-start-progress"
-                  />
-                </div>
-              ) : null}
-
-              {creationProgress.outcome?.kind === "unresolved" ? (
-                <div className="mb-3">
-                  <ReviewStartUnresolvedNotice
-                    onRecheck={() => {
-                      void submitRun();
-                    }}
-                    isRechecking={creationProgress.isActive}
-                    testId="new-run-wizard-unresolved-notice"
-                  />
-                </div>
-              ) : null}
-
-              {isReviewStep && submitError !== null ? (
-                <div className="mb-3" data-testid="new-run-wizard-submit-error">
-                  {isApiRequestError(submitError) ? (
-                    <OperatorApiProblem
-                      problem={submitError.problem}
-                      fallbackMessage={submitError.message}
-                      correlationId={submitError.correlationId}
-                      httpStatus={submitError.httpStatus}
-                      retryAfterSeconds={submitError.retryAfterSeconds}
-                    />
-                  ) : (
-                    <OperatorApiProblem
-                      problem={null}
-                      fallbackMessage={
-                        submitError && typeof submitError === "object" && "message" in submitError
-                          ? String((submitError as { message?: string }).message)
-                          : "Request failed."
-                      }
-                    />
-                  )}
-                </div>
-              ) : null}
               <WizardNavButtons
                 onBack={goBack}
                 onNext={isReviewStep ? undefined : goNext}
@@ -1184,7 +1137,7 @@ export function NewRunWizardClient() {
                 submitLabel="Start Architecture Review"
                 submittingLabel="Creating…"
               />
-            </div>
+            </WizardStickyFooter>
           ) : null}
 
           {stepIndex === trackStepIndex && !runId ? (
