@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
+import { PolicyPackChangeImpactNotice } from "@/components/PolicyPackChangeImpactNotice";
 import { PolicyPackContentJsonEditor } from "@/components/PolicyPackContentJsonEditor";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { InlineHelp } from "@/components/InlineHelp";
@@ -278,6 +279,7 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
           <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             Assignment must reference an existing version string for that pack (e.g. the one you published).
           </p>
+          <PolicyPackChangeImpactNotice findingCount={0} />
           <div className="flex flex-wrap items-end gap-3">
             <div className="space-y-2">
               <label
