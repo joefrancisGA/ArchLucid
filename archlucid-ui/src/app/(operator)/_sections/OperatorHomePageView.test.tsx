@@ -58,6 +58,10 @@ vi.mock("@/components/operator-home/OperatorHomeDeferredPanels", () => ({
   OperatorHomeWorkspaceStatusPanel: () => <div data-testid="home-block-workspace-status" />,
 }));
 
+vi.mock("@/components/operator-home/UnfinishedWorkRail", () => ({
+  UnfinishedWorkRail: () => null,
+}));
+
 vi.mock("@/components/operator-home/OperatorHomeDeferredOnboarding", () => ({
   OperatorHomeDeferredOnboarding: () => null,
   OperatorHomeFirstValueCallout: () => null,

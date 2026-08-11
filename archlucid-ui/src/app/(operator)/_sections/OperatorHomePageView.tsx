@@ -1,6 +1,7 @@
 "use client";
 
 import { OperatorHomeDeferredOnboarding } from "@/components/operator-home/OperatorHomeDeferredOnboarding";
+import { UnfinishedWorkRail } from "@/components/operator-home/UnfinishedWorkRail";
 import {
   OperatorHomeRunsPanel,
 } from "@/components/operator-home/OperatorHomeDeferredPanels";
@@ -127,7 +128,8 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
         <OperatorHomeDeferredOnboarding />
         <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.majorSectionGap}>
           <OperatorHomePageChrome buyerPolishedShell={buyerPolishedShell} />
-{buyerPolishedShell ? <BuyerPolishedHomePageBody model={model} /> : <OperatorHomePageBody model={model} />}
+          <UnfinishedWorkRail runs={model.runsDashboard.items} />
+          {buyerPolishedShell ? <BuyerPolishedHomePageBody model={model} /> : <OperatorHomePageBody model={model} />}
         </OperatorPageContainer>
       </OperatorHomeRefreshProvider>
     </OperatorHomeGateDeferred>
