@@ -533,6 +533,8 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "operator",
     // App-rendered specialty (`HelpDigestsGuideView`) — TB-2049.
     sourcePaths: [],
+    lastReviewed: "2026-08-10",
+    releaseApplicability: "Applies to V1 GA — architecture digests orientation",
   },
   {
     slug: "alerts",

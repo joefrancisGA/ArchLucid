@@ -2,20 +2,20 @@ import Link from "next/link";
 
 import {
   DIGESTS_HELP_CLAIM_DISCIPLINE,
+  DIGESTS_HELP_FOLLOW_UPS_TITLE,
   DIGESTS_HELP_SOURCES,
   DIGESTS_HELP_SOURCES_INTRO,
 } from "@/lib/digests-help-evidence-copy";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help-diligence-artifact-index";
 import { cn } from "@/lib/utils";
 
-/** Claim discipline + diligence artifact index for `/help/digests`. */
+/** Claim discipline + cross-topic follow-ups for `/help/digests`. */
 export function DigestsHelpEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <div className="space-y-3" data-testid="help-digests-orientation">
-      <aside className={cn(DESIGN_TOKENS.callout.warn, "p-3")} data-testid="help-digests-claim-discipline">
+      <div className={cn(DESIGN_TOKENS.callout.warn, "p-3")} data-testid="help-digests-claim-discipline">
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{DIGESTS_HELP_CLAIM_DISCIPLINE}</p>
-      </aside>
+      </div>
 
       <section
         className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
@@ -23,7 +23,7 @@ export function DigestsHelpEvidenceOrientationStrip(): React.JSX.Element {
         data-testid="help-digests-sources"
       >
         <h2 id="help-digests-sources-heading" className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          {HELP_DILIGENCE_ARTIFACT_INDEX_TITLE}
+          {DIGESTS_HELP_FOLLOW_UPS_TITLE}
         </h2>
         <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {DIGESTS_HELP_SOURCES_INTRO}

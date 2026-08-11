@@ -1,14 +1,11 @@
-import {
-  DIGESTS_BROWSE_TAB_PATH,
-  DIGESTS_SCHEDULE_TAB_PATH,
-  DIGESTS_SUBSCRIPTIONS_TAB_PATH,
-} from "@/lib/digests-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const DIGESTS_HELP_CANONICAL_PATH = "/help/digests" as const;
 
 export const DIGESTS_HELP_CLAIM_DISCIPLINE =
-  "This digests guide explains scheduled digest summaries — it is not a signed-review diligence Sources package. Open Schedule, Subscriptions, or Browse when you need live configuration.";
+  "This digests guide explains scheduled digest summaries — it is not a signed review record evidence trail.";
+
+export const DIGESTS_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const DIGESTS_HELP_SOURCES_INTRO =
   "Use these follow-ups when cadence, recipients, or generated digests still need attention.";
@@ -18,11 +15,8 @@ export type DigestsHelpSourceLink = {
   readonly href: string;
 };
 
-/** Operator Sources — no self-href to `/help/digests`. */
+/** Cross-topic follow-ups — hub tabs are linked from destination cards only. */
 export const DIGESTS_HELP_SOURCES: readonly DigestsHelpSourceLink[] = [
-  { label: "Schedule", href: DIGESTS_SCHEDULE_TAB_PATH },
-  { label: "Subscriptions", href: DIGESTS_SUBSCRIPTIONS_TAB_PATH },
-  { label: "Browse digests", href: DIGESTS_BROWSE_TAB_PATH },
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "Alerts help", href: inAppHelpHref("alerts") },
 ] as const;

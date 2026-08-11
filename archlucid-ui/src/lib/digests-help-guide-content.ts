@@ -1,6 +1,5 @@
 import {
   DIGESTS_BROWSE_TAB_PATH,
-  DIGESTS_HUB_PATH,
   DIGESTS_SCHEDULE_TAB_PATH,
   DIGESTS_SUBSCRIPTIONS_TAB_PATH,
 } from "@/lib/digests-route-paths";
@@ -12,21 +11,11 @@ export const DIGESTS_HELP_PAGE_SUBTITLE =
   "Schedule summaries of review activity, governance signals, findings, and advisory scans for operators.";
 
 export const DIGESTS_HELP_OVERVIEW =
-  "Architecture digests send scheduled summaries of workspace review activity. Configure cadence and recipients on the Schedule tab, manage subscriptions, then browse generated digests — digests are operator rollups, not a signed-review diligence Sources trail.";
+  "Architecture digests send scheduled summaries of workspace review activity. Configure cadence and recipients on the Schedule tab, manage subscriptions, then browse generated digests.";
 
-export const DIGESTS_HELP_PRIMARY_ACTIONS = {
-  openHub: {
-    label: "Open Architecture digests",
-    href: DIGESTS_HUB_PATH,
-  },
-  openSchedule: {
-    label: "Open Schedule tab",
-    href: DIGESTS_SCHEDULE_TAB_PATH,
-  },
-  openSubscriptions: {
-    label: "Open Subscriptions",
-    href: DIGESTS_SUBSCRIPTIONS_TAB_PATH,
-  },
+export const DIGESTS_HELP_PRIMARY_ACTION = {
+  label: "See where digests are managed",
+  href: "#where-digests-are-managed",
 } as const;
 
 export const DIGESTS_HELP_HOW_DIGESTS_WORK_STEPS = [
