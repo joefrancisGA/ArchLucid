@@ -17,6 +17,7 @@ import { OperatorHomeResumeDraftCallout } from "@/components/operator-home/Opera
 import { OperatorHomeWorkspaceMetricsSummary } from "@/components/operator-home/OperatorHomeWorkspaceMetricsSummary";
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { Button } from "@/components/ui/button";
+import { FirstPilotOperateUnlockVocabularyRail } from "@/components/FirstPilotOperateUnlockVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
 import {
@@ -176,6 +177,7 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
             </div>
           ) : null}
         </div>
+        <FirstPilotOperateUnlockVocabularyRail currentSurfaceId="first-pilot" />
       </div>
 
       {showHeroKpiStrip && props.runsDashboard !== undefined ? (
