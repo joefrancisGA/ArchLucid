@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { AskSearchEvidenceVocabularyRail } from "@/components/AskSearchEvidenceVocabularyRail";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -75,7 +76,8 @@ export function SearchPageView({ model }: SearchPageViewProps) {
           navHref={SEARCH_REVIEW_EVIDENCE_PATH}
           actions={<PageContextualHelpButton />}
         />
-<DemoWorkspaceCapabilityUnavailablePanel
+        <AskSearchEvidenceVocabularyRail currentSurfaceId="search" />
+        <DemoWorkspaceCapabilityUnavailablePanel
           layout="embedded"
           capability={SEARCH_PAGE_TITLE}
           description="In a connected tenant, architects search findings, decisions, and signed review records across the workspace evidence index."
@@ -93,7 +95,8 @@ export function SearchPageView({ model }: SearchPageViewProps) {
         navHref={SEARCH_REVIEW_EVIDENCE_PATH}
         actions={<PageContextualHelpButton />}
       />
-{scopedRunId.length > 0 ? <SearchReviewEvidenceCiteStrip runId={scopedRunId} /> : null}
+      <AskSearchEvidenceVocabularyRail currentSurfaceId="search" />
+      {scopedRunId.length > 0 ? <SearchReviewEvidenceCiteStrip runId={scopedRunId} /> : null}
 
       <Card className="mb-6 max-w-xl border-neutral-200 dark:border-neutral-700">
         <CardContent className="grid gap-4 p-4">
