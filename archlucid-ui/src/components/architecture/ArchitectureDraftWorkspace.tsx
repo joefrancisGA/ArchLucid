@@ -474,7 +474,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
           >
             {workspaceHeading}
           </WorkspaceHeadingTag>
-          <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-draft-workspace-lead">
+          <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-draft-workspace-lead">
             {workspaceLead}
           </p>
           <div className="flex flex-wrap items-center gap-2">
