@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -46,6 +46,7 @@ describe("ServiceBusHealthBanner", () => {
   afterEach(() => {
     buyerPolishedShellVitestOverride.value = null;
     globalThis.fetch = originalFetch;
+    vi.useRealTimers();
   });
 
   it("renders nothing when azure_service_bus is Healthy", async () => {
@@ -83,5 +84,48 @@ describe("ServiceBusHealthBanner", () => {
     expect(screen.getByRole("alert")).toHaveTextContent(/some analysis tasks are delayed/i);
     expect(screen.getByRole("link", { name: "System health" })).toHaveAttribute("href", "/internal/health");
     expect(screen.queryByText(/system health \(operators\)/i)).not.toBeInTheDocument();
+  });
+
+  it("keeps the degraded banner when a later health poll fails", async () => {
+    let callCount = 0;
+    globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+
+      if (!url.includes("/api/proxy/health/ready")) {
+        return new Response("not found", { status: 404 });
+      }
+
+      callCount += 1;
+
+      if (callCount === 1) {
+        return new Response(
+          JSON.stringify({
+            status: "Unhealthy",
+            entries: [{ name: "azure_service_bus", status: "Unhealthy" }],
+          }),
+          { status: 200 },
+        );
+      }
+
+      return new Response("unavailable", { status: 503 });
+    }) as unknown as typeof fetch;
+
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    render(<ServiceBusHealthBanner />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("service-bus-health-degraded-banner")).toBeInTheDocument();
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(60_000);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("service-bus-health-refresh-failed")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("service-bus-health-degraded-banner")).toBeInTheDocument();
+    expect(screen.getByText(/Could not refresh Service Bus health/i)).toBeInTheDocument();
   });
 });
