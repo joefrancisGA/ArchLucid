@@ -17,4 +17,14 @@ public sealed class DataConsistencyReconciliationOptions
         get;
         set;
     } = 120;
+
+    /// <summary>
+    /// When true (production default), stale in-flight run warnings degrade <c>/health/ready</c>.
+    /// When false, stale runs remain visible in reconciliation metrics/logs but do not block readiness.
+    /// </summary>
+    public bool StaleInFlightRunsBlockReadiness
+    {
+        get;
+        set;
+    } = true;
 }

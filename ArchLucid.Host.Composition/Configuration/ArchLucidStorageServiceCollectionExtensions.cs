@@ -224,6 +224,7 @@ public static class ArchLucidStorageServiceCollectionExtensions
     internal static void RegisterHostLeaderLeaseInfrastructure(IServiceCollection services)
     {
         services.AddSingleton<HostInstanceIdentifier>();
+        services.AddSingleton<ArchLucid.Core.Hosting.IHostProcessInstanceId, ArchLucid.Host.Core.Hosting.HostProcessInstanceIdAdapter>();
         services.AddSingleton<HostLeaderElectionCoordinator>();
     }
 

@@ -9,6 +9,7 @@ using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.ExecuteOwnership;
 using ArchLucid.Application.Operations;
 using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Evidence;
@@ -68,6 +69,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     IRunScopedLlmBudgetReservationService runScopedLlmBudgetReservationService,
     IOperationCancellationRegistry operationCancellationRegistry,
     OperationRunCancellationMarker runCancellationMarker,
+    IRunExecuteOwnershipLeaseService runExecuteOwnershipLeaseService,
     ILogger<ArchitectureRunExecuteOrchestrator> logger) : IArchitectureRunExecuteOrchestrator
 {
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
@@ -140,6 +142,9 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     private readonly OperationRunCancellationMarker _runCancellationMarker =
         runCancellationMarker ?? throw new ArgumentNullException(nameof(runCancellationMarker));
 
+    private readonly IRunExecuteOwnershipLeaseService _runExecuteOwnershipLeaseService =
+        runExecuteOwnershipLeaseService ?? throw new ArgumentNullException(nameof(runExecuteOwnershipLeaseService));
+
     /// <inheritdoc/>
     public async Task<ExecuteRunResult> ExecuteRunAsync(string runId, CancellationToken cancellationToken = default)
     {
@@ -152,7 +157,23 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         string actor = actorContext.GetActor();
         try
         {
-            return await ExecuteRunCoreAsync(runId, actor, cancellationToken);
+            if (TryParseRunGuid(runId, out Guid runGuid) && _runExecuteOwnershipLeaseService.IsEnabled)
+            {
+                await _runExecuteOwnershipLeaseService.AcquireAsync(runGuid, cancellationToken).ConfigureAwait(false);
+
+                try
+                {
+                    return await ExecuteRunCoreAsync(runId, actor, cancellationToken).ConfigureAwait(false);
+                }
+                finally
+                {
+                    await _runExecuteOwnershipLeaseService
+                        .ReleaseAsync(runGuid, CancellationToken.None)
+                        .ConfigureAwait(false);
+                }
+            }
+
+            return await ExecuteRunCoreAsync(runId, actor, cancellationToken).ConfigureAwait(false);
         }
         catch (RunNotFoundException)
         {

@@ -15,6 +15,10 @@ import { useAskStream } from "@/hooks/useAskStream";
 import { useAskReviewAvailability } from "@/hooks/useAskReviewAvailability";
 import { useConversationThreadsQuery } from "@/hooks/use-conversation-threads-query";
 import { buyerAskGroundingLinksForRun } from "@/lib/ask-buyer-grounding-links";
+import {
+  buildAskCitationActionFollowUps,
+  parseAskCitationRefsFromMessageMetadata,
+} from "@/lib/ask-citation-action-follow-ups";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
@@ -55,6 +59,9 @@ export function AskPageContent() {
   const [listFailure, setListFailure] = useState<ApiLoadFailureState | null>(null);
   const [actionFailure, setActionFailure] = useState<ApiLoadFailureState | null>(null);
   const [retrievalDegraded, setRetrievalDegraded] = useState(false);
+  const [lastAskReferencedFindings, setLastAskReferencedFindings] = useState<readonly string[]>([]);
+  const [lastAskReferencedDecisions, setLastAskReferencedDecisions] = useState<readonly string[]>([]);
+  const [lastAskReferencedArtifacts, setLastAskReferencedArtifacts] = useState<readonly string[]>([]);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const questionRef = useRef<HTMLTextAreaElement>(null);
   const hideCompareChrome =
@@ -287,6 +294,9 @@ export function AskPageContent() {
 
       setSelectedThreadId(result.threadId);
       setRetrievalDegraded(result.retrievalDegraded === true);
+      setLastAskReferencedFindings(result.referencedFindings ?? []);
+      setLastAskReferencedDecisions(result.referencedDecisions ?? []);
+      setLastAskReferencedArtifacts(result.referencedArtifacts ?? []);
       setQuestion("");
       await loadThreads();
       await loadMessages(result.threadId);
@@ -303,6 +313,9 @@ export function AskPageContent() {
   const onSelectThread = useCallback(
     async (threadId: string) => {
       setSelectedThreadId(threadId);
+      setLastAskReferencedFindings([]);
+      setLastAskReferencedDecisions([]);
+      setLastAskReferencedArtifacts([]);
 
       const thread = threads.find((t) => t.threadId === threadId);
 
@@ -400,10 +413,45 @@ export function AskPageContent() {
     [buyerPolishedShell, runId],
   );
 
+  const askCitationActionFollowUps = useMemo(() => {
+    const trailing = messages.length > 0 ? messages[messages.length - 1] : null;
+    const fromMetadata =
+      trailing !== null && trailing.role.toLowerCase() === "assistant"
+        ? parseAskCitationRefsFromMessageMetadata(trailing.metadataJson)
+        : null;
+
+    return buildAskCitationActionFollowUps({
+      runId,
+      referencedFindings:
+        lastAskReferencedFindings.length > 0
+          ? lastAskReferencedFindings
+          : (fromMetadata?.referencedFindings ?? []),
+      referencedDecisions:
+        lastAskReferencedDecisions.length > 0
+          ? lastAskReferencedDecisions
+          : (fromMetadata?.referencedDecisions ?? []),
+      referencedArtifacts:
+        lastAskReferencedArtifacts.length > 0
+          ? lastAskReferencedArtifacts
+          : (fromMetadata?.referencedArtifacts ?? []),
+      groundingLinks: askAssistantGroundingLinks,
+    });
+  }, [
+    askAssistantGroundingLinks,
+    lastAskReferencedArtifacts,
+    lastAskReferencedDecisions,
+    lastAskReferencedFindings,
+    messages,
+    runId,
+  ]);
+
   const onNewConversation = useCallback(() => {
     setSelectedThreadId("");
     setMessages([]);
     setRetrievalDegraded(false);
+    setLastAskReferencedFindings([]);
+    setLastAskReferencedDecisions([]);
+    setLastAskReferencedArtifacts([]);
 
     if (buyerPolishedShell) {
       const fromWs = workspaceRun?.activeRunId?.trim() ?? "";
@@ -487,6 +535,7 @@ export function AskPageContent() {
             messages={messages}
             streamingAssistantContent={streamingAssistantContent.length > 0 ? streamingAssistantContent : null}
             askAssistantGroundingLinks={askAssistantGroundingLinks}
+            askCitationActionFollowUps={askCitationActionFollowUps}
             showPostAssistantFollowUps={showPostAssistantFollowUps}
             retrievalDegraded={retrievalDegraded}
           />

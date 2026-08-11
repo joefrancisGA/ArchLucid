@@ -142,17 +142,24 @@ public static partial class ServiceCollectionExtensions
 
     private static void RegisterDataConsistencyReconciliation(
         IServiceCollection services,
-        IConfiguration _,
+        IConfiguration configuration,
         ArchLucidHostingRole hostingRole)
     {
+        services.Configure<DataConsistencyReconciliationOptions>(configuration.GetSection(DataConsistencyReconciliationOptions.SectionName));
+        services.Configure<StaleInFlightAutoRemediationOptions>(
+            configuration.GetSection(StaleInFlightAutoRemediationOptions.SectionName));
         services.AddSingleton<IArchLucidStorageMode, ArchLucidStorageMode>();
         services.AddSingleton<ILeaderElectionWorkRunner, LeaderElectionWorkRunner>();
         services.AddSingleton<DataConsistencyReconciliationHealthState>();
         services.AddScoped<IDataConsistencyReconciliationService, DataConsistencyReconciliationService>();
 
         if (hostingRole is ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker)
-
+        {
             services.AddHostedService<DataConsistencyReconciliationHostedService>();
+            services.AddHostedService<RunExecuteOwnershipReconciliationHostedService>();
+            services.AddHostedService<RunExecuteOwnershipShutdownReleaseHostedService>();
+            services.AddHostedService<StaleInFlightAutoRemediationHostedService>();
+        }
     }
 
     private static void RegisterBackgroundJobs(

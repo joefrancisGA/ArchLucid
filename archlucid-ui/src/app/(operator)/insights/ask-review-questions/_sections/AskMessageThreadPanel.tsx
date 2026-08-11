@@ -1,6 +1,8 @@
-import { cn } from "@/lib/utils";
+﻿import { cn } from "@/lib/utils";
 import type { BuyerAskGroundingLink } from "@/lib/ask-buyer-grounding-links";
+import type { AskCitationActionFollowUp } from "@/lib/ask-citation-action-follow-ups";
 import { AskAssistantMessageBody } from "@/components/AskAssistantMessageBody";
+import { AskCitationActionFollowUps } from "@/components/ask/AskCitationActionFollowUps";
 import { AiOutputGovernanceLabel } from "@/components/AiOutputGovernanceLabel";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { Button } from "@/components/ui/button";
@@ -28,6 +30,7 @@ export type AskMessageThreadPanelProps = {
   messages: ConversationMessage[];
   streamingAssistantContent: string | null;
   askAssistantGroundingLinks: readonly BuyerAskGroundingLink[] | null;
+  askCitationActionFollowUps: readonly AskCitationActionFollowUp[];
   showPostAssistantFollowUps: boolean;
   runMissing: boolean;
   onMergePromptLine: (line: string) => void;
@@ -47,12 +50,25 @@ function askMessageRoleLabel(role: string, buyerPolishedShell: boolean): string 
   return "Assistant";
 }
 
+function lastAssistantMessageId(messages: ConversationMessage[]): string | null {
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    const message = messages[index];
+
+    if (message !== undefined && message.role.toLowerCase() === "assistant") {
+      return message.messageId;
+    }
+  }
+
+  return null;
+}
+
 export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
   const {
     buyerPolishedShell,
     messages,
     streamingAssistantContent,
     askAssistantGroundingLinks,
+    askCitationActionFollowUps,
     showPostAssistantFollowUps,
     runMissing,
     onMergePromptLine,
@@ -66,6 +82,9 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
   });
   const artifactStatusCopy = askReviewArtifactStatusCopy(artifactStatus);
   const groundingLinkCount = askAssistantGroundingLinks?.length ?? 0;
+  const citationHostMessageId = lastAssistantMessageId(messages);
+  const showCitationActionsOnAnswer =
+    streamingAssistantContent === null && citationHostMessageId !== null;
 
   return (
     <div className="space-y-3 pt-1">
@@ -125,10 +144,16 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
                     </p>
                   ) : null}
                   <AskAssistantMessageBody
-                  buyerPolishedLinks={buyerPolishedShell}
-                  content={message.content}
-                  groundingLinks={askAssistantGroundingLinks ?? undefined}
-                />
+                    buyerPolishedLinks={buyerPolishedShell}
+                    content={message.content}
+                    groundingLinks={askAssistantGroundingLinks ?? undefined}
+                  />
+                  {showCitationActionsOnAnswer && message.messageId === citationHostMessageId ? (
+                    <AskCitationActionFollowUps
+                      chips={askCitationActionFollowUps}
+                      showHonestEmpty={showPostAssistantFollowUps && buyerPolishedShell}
+                    />
+                  ) : null}
                 </>
               ) : (
                 <p className={cn("m-0 whitespace-pre-wrap text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
@@ -167,9 +192,16 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
         ) : null}
       </div>
       {showPostAssistantFollowUps ? (
-        <div className="space-y-4 pt-1">
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Suggested follow-ups</p>
-          <div className="space-y-3" role="region" aria-label="Suggested follow-ups by topic">
+        <details className="space-y-2 pt-1" data-testid="ask-canned-prompt-follow-ups">
+          <summary
+            className={cn(
+              "cursor-pointer select-none text-al-text-secondary",
+              OPERATOR_TYPOGRAPHY.helper,
+            )}
+          >
+            More suggested questions
+          </summary>
+          <div className="space-y-3 pt-2 opacity-90" role="region" aria-label="Suggested follow-ups by topic">
             {ASK_BUYER_PROMPT_GROUPS.map((group) => (
               <div key={group.heading} className="space-y-2">
                 <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}>{group.heading}</p>
@@ -180,7 +212,10 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
                       type="button"
                       variant="outline"
                       size="sm"
-                      className={cn("h-auto max-w-full whitespace-normal py-1.5 text-left font-normal", OPERATOR_TYPOGRAPHY.helper)}
+                      className={cn(
+                        "h-auto max-w-full whitespace-normal py-1.5 text-left font-normal text-al-text-secondary",
+                        OPERATOR_TYPOGRAPHY.helper,
+                      )}
                       disabled={runMissing}
                       onClick={() => onMergePromptLine(line)}
                     >
@@ -191,7 +226,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
               </div>
             ))}
           </div>
-        </div>
+        </details>
       ) : null}
     </div>
   );

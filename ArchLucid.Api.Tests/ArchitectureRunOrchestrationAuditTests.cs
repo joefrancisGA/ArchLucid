@@ -4,6 +4,7 @@ using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Operations;
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.ExecuteOwnership;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
@@ -138,6 +139,7 @@ public sealed class ArchitectureRunOrchestrationAuditTests
             new ArchLucid.Application.Budgeting.PassThroughRunScopedLlmBudgetReservationService(),
             new OperationCancellationRegistry(),
             new OperationRunCancellationMarker(runRepository),
+            DisabledRunExecuteOwnershipLeaseService.Instance,
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
 

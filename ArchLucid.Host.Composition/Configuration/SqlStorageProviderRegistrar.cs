@@ -97,6 +97,7 @@ using ArchLucid.Persistence.Retrieval;
 using ArchLucid.Persistence.CustomerSuccess;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
+using ArchLucid.Core.Persistence.ApplicationPorts.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Diagnostics;
 using ArchLucid.Persistence.Feedback;
@@ -581,6 +582,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
 
         ArchLucidStorageServiceCollectionExtensions.RegisterHostLeaderLeaseInfrastructure(services);
         services.AddSingleton<IHostLeaderLeaseRepository, SqlHostLeaderLeaseRepository>();
+        services.AddSingleton<IRunExecuteOwnershipLeaseRepository, SqlRunExecuteOwnershipLeaseRepository>();
 
         // Scoped: DapperTrialFunnelOperationalMetricsReader takes ISqlConnectionFactory (scoped); hosted service resolves it per scope.
         services.AddScoped<ITrialFunnelOperationalMetricsReader, DapperTrialFunnelOperationalMetricsReader>();

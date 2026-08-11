@@ -1,11 +1,17 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.DataConsistency;
 
 /// <summary>Maps the last scheduled reconciliation outcome to ASP.NET health status.</summary>
-public sealed class DataConsistencyHealthCheck(DataConsistencyReconciliationHealthState healthState) : IHealthCheck
+public sealed class DataConsistencyHealthCheck(
+    DataConsistencyReconciliationHealthState healthState,
+    IOptionsMonitor<DataConsistencyReconciliationOptions> optionsMonitor) : IHealthCheck
 {
     private readonly DataConsistencyReconciliationHealthState _healthState = healthState ?? throw new ArgumentNullException(nameof(healthState));
+
+    private readonly IOptionsMonitor<DataConsistencyReconciliationOptions> _optionsMonitor =
+        optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
 
     public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
     {
@@ -17,10 +23,7 @@ public sealed class DataConsistencyHealthCheck(DataConsistencyReconciliationHeal
             return Task.FromResult(HealthCheckResult.Unhealthy("Data consistency reconciliation failed: " + error));
         if (report is null)
             return Task.FromResult(HealthCheckResult.Unhealthy("Data consistency reconciliation state is inconsistent (no report)."));
-        if (report.Findings.Any(f => f.Severity == DataConsistencyFindingSeverity.Critical))
-            return Task.FromResult(HealthCheckResult.Unhealthy("Critical data consistency findings detected in the last reconciliation."));
-        return Task.FromResult(report.Findings.Any(f => f.Severity == DataConsistencyFindingSeverity.Warning)
-            ? HealthCheckResult.Degraded("Warning-level data consistency findings detected in the last reconciliation.")
-            : HealthCheckResult.Healthy("Last data consistency reconciliation reported no warnings or critical issues."));
+
+        return Task.FromResult(DataConsistencyReadinessEvaluator.Evaluate(report, _optionsMonitor.CurrentValue));
     }
 }

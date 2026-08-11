@@ -1,6 +1,7 @@
 using ArchLucid.Application.AiUsage;
 using ArchLucid.Application.Budgeting;
 using ArchLucid.Application.Operations;
+using ArchLucid.Application.Runs.ExecuteOwnership;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Configuration;
@@ -23,6 +24,7 @@ public sealed record ArchitectureRunExecuteOrchestratorTailDependencies(
     IRunScopedLlmBudgetReservationService RunScopedLlmBudgetReservationService,
     IOperationCancellationRegistry OperationCancellationRegistry,
     OperationRunCancellationMarker RunCancellationMarker,
+    IRunExecuteOwnershipLeaseService RunExecuteOwnershipLeaseService,
     ILogger<ArchitectureRunExecuteOrchestrator> Logger);
 
 public static class ArchitectureRunExecuteOrchestratorTestFactory
@@ -39,6 +41,7 @@ public static class ArchitectureRunExecuteOrchestratorTestFactory
             CreatePassThroughRunScopedLlmBudgetReservationService(),
             new OperationCancellationRegistry(),
             new OperationRunCancellationMarker(runs),
+            DisabledRunExecuteOwnershipLeaseService.Instance,
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
 

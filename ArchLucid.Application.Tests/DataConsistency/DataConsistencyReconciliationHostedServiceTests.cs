@@ -187,7 +187,7 @@ public sealed class DataConsistencyHealthCheckTests
                 [new DataConsistencyFinding("x", DataConsistencyFindingSeverity.Critical, "c", [])],
                 IsHealthy: false));
 
-        DataConsistencyHealthCheck sut = new(state);
+        DataConsistencyHealthCheck sut = CreateHealthCheck(state);
 
         HealthCheckResult r = await sut.CheckHealthAsync(new HealthCheckContext());
 
@@ -198,7 +198,7 @@ public sealed class DataConsistencyHealthCheckTests
     public async Task Unhealthy_when_never_run()
     {
         DataConsistencyReconciliationHealthState state = new();
-        DataConsistencyHealthCheck sut = new(state);
+        DataConsistencyHealthCheck sut = CreateHealthCheck(state);
 
         HealthCheckResult r = await sut.CheckHealthAsync(new HealthCheckContext());
 
@@ -215,7 +215,7 @@ public sealed class DataConsistencyHealthCheckTests
                 [new DataConsistencyFinding("x", DataConsistencyFindingSeverity.Warning, "w", [])],
                 IsHealthy: false));
 
-        DataConsistencyHealthCheck sut = new(state);
+        DataConsistencyHealthCheck sut = CreateHealthCheck(state);
 
         HealthCheckResult r = await sut.CheckHealthAsync(new HealthCheckContext());
 
@@ -232,10 +232,40 @@ public sealed class DataConsistencyHealthCheckTests
                 [new DataConsistencyFinding("skip", DataConsistencyFindingSeverity.Info, "ok", [])],
                 IsHealthy: true));
 
-        DataConsistencyHealthCheck sut = new(state);
+        DataConsistencyHealthCheck sut = CreateHealthCheck(state);
 
         HealthCheckResult r = await sut.CheckHealthAsync(new HealthCheckContext());
 
         r.Status.Should().Be(HealthStatus.Healthy);
+    }
+
+    [SkippableFact]
+    public async Task Healthy_when_stale_in_flight_warning_and_block_readiness_disabled()
+    {
+        DataConsistencyReconciliationHealthState state = new();
+        state.RecordSuccess(
+            new DataConsistencyReport(
+                TimeProvider.System.UtcNowDateTime(),
+                [new DataConsistencyFinding(DataConsistencyReadinessEvaluator.StaleInFlightRunsCheckName, DataConsistencyFindingSeverity.Warning, "w", [])],
+                IsHealthy: false));
+
+        DataConsistencyHealthCheck sut = CreateHealthCheck(state, staleInFlightRunsBlockReadiness: false);
+
+        HealthCheckResult r = await sut.CheckHealthAsync(new HealthCheckContext());
+
+        r.Status.Should().Be(HealthStatus.Healthy);
+    }
+
+    private static DataConsistencyHealthCheck CreateHealthCheck(
+        DataConsistencyReconciliationHealthState state,
+        bool staleInFlightRunsBlockReadiness = true)
+    {
+        Mock<IOptionsMonitor<DataConsistencyReconciliationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new DataConsistencyReconciliationOptions
+        {
+            StaleInFlightRunsBlockReadiness = staleInFlightRunsBlockReadiness,
+        });
+
+        return new DataConsistencyHealthCheck(state, options.Object);
     }
 }

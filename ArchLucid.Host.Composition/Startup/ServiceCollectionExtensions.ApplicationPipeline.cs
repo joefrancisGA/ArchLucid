@@ -19,6 +19,8 @@ using ArchLucid.Application.Evolution;
 using ArchLucid.Application.ExecutiveSummary;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.ExecuteOwnership;
+using ArchLucid.Application.DataConsistency;
 using ArchLucid.Application.Integrations.Confluence;
 using ArchLucid.Host.Core.Http;
 using ArchLucid.Application.Billing;
@@ -236,6 +238,11 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<CoverageAssignmentValidator>();
         services.AddScoped<IArchitectureRunCreateOrchestrator, ArchitectureRunCreateOrchestrator>();
         services.AddScoped<IArchitectureRunExecuteOrchestrator, ArchitectureRunExecuteOrchestrator>();
+        services.Configure<RunExecuteOwnershipLeaseOptions>(
+            configuration.GetSection(RunExecuteOwnershipLeaseOptions.SectionName));
+        services.AddScoped<IRunExecuteOwnershipLeaseService, RunExecuteOwnershipLeaseService>();
+        services.AddScoped<IRunExecuteOwnershipReconciliationService, RunExecuteOwnershipReconciliationService>();
+        services.AddScoped<IStaleInFlightRunRemediator, StaleInFlightRunRemediator>();
         services.AddScoped<IRunEngineProvenanceCaptureService, RunEngineProvenanceCaptureService>();
         // ADR 0030 PR A3 (2026-04-24): the legacy ArchitectureRunCommitOrchestrator + RunCommitPathSelector
         // + LegacyRunCommitPathOptions were deleted. The authority-driven orchestrator is the single commit implementation.

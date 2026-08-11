@@ -32,6 +32,7 @@ using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.AwsExtractor;
 using ArchLucid.Core.GcpExtractor;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Persistence.ApplicationPorts.Interfaces;
 using ArchLucid.Core.Persistence.ApplicationPorts.Findings;
 using ArchLucid.Core.Persistence.ApplicationPorts.FineTuning;
 using ArchLucid.Core.Persistence.ApplicationPorts.Integrations;
@@ -318,6 +319,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
 
         ArchLucidStorageServiceCollectionExtensions.RegisterHostLeaderLeaseInfrastructure(services);
         services.AddSingleton<IHostLeaderLeaseRepository, NoOpHostLeaderLeaseRepository>();
+        services.AddSingleton<IRunExecuteOwnershipLeaseRepository, NoOpRunExecuteOwnershipLeaseRepository>();
 
         ArchLucidStorageServiceCollectionExtensions.RegisterArtifactLargePayloadBlobStore(services, configuration);
         ArchLucidStorageServiceCollectionExtensions.RegisterHotPathReadCaching(services, configuration);
