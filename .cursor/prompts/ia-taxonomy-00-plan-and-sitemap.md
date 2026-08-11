@@ -78,7 +78,7 @@ Reclassify these existing `/help` registry slugs from "guide" to **documentation
 | `configuration-reference` | `docs/library/CONFIGURATION_REFERENCE.md` | Developer/admin | Documentation tab |
 | `operator-auth-roles` | `docs/library/contributor-reference/SECURITY.md` | Developer | Documentation tab |
 | `cli-usage` | `docs/library/CLI_USAGE.md` | Developer | Documentation tab |
-| `governance-api-contracts` | `docs/library/API_CONTRACTS.md` | Developer | Documentation tab |
+| `api-contracts` | `docs/library/API_CONTRACTS.md` | Developer | Documentation tab |
 | `admin-diagnostics` | `docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md` | Admin | Documentation tab, admin-role gated |
 | `developer-troubleshooting` | `docs/runbooks/TROUBLESHOOTING.md`, `COMMON_ERRORS.md` | Developer | Documentation tab |
 
@@ -163,7 +163,7 @@ standalone route — leave as-is unless phase 05 finds a reason to split it out.
 Category 3 (technical documentation) and Category 5 (security/trust) are the only categories the
 user's spec allows to be PDF-exportable:
 
-- Technical docs tab topics (`configuration-reference`, `cli-usage`, `governance-api-contracts`,
+- Technical docs tab topics (`configuration-reference`, `cli-usage`, `api-contracts`,
   SSO/SCIM/CI-CD integration guides).
 - Security assurance packet (`BUYER_SECURITY_PROCUREMENT_PACKET.md`, `CAIQ_LITE.md`,
   `SOC2_SELF_ASSESSMENT_2026.md`, pen-test summaries) — buyer/procurement-safe, should be

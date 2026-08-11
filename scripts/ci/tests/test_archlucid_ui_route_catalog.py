@@ -13,6 +13,7 @@ from archlucid_ui_route_catalog import (  # noqa: E402
     PREFERRED_NEW_ROW_IDS,
     build_catalog,
     discover_app_router_paths,
+    discover_help_paths,
     discover_tab_paths,
     migrate_workbook_path,
     suggest_row_id,
@@ -40,6 +41,16 @@ def test_discover_tab_paths_includes_architecture_workspace_tabs() -> None:
 def test_build_catalog_classifies_architecture_intelligence_as_core_review() -> None:
     catalog = build_catalog()
     assert catalog["/architecture/architecture-intelligence"].section == "Core review"
+
+
+def test_discover_help_paths_includes_cloud_connections_slash_canonicals() -> None:
+    help_paths, alias_paths = discover_help_paths()
+
+    assert "/help/cloud-connections/azure" in help_paths
+    assert "/help/cloud-connections/aws" in help_paths
+    assert "/help/cloud-connections/gcp" in help_paths
+    assert "/help/cloud-connections-azure" not in help_paths
+    assert "/help/cloud-connections/aws" in alias_paths
 
 
 def test_migrate_workbook_path_maps_legacy_core_pilot_help_slug() -> None:

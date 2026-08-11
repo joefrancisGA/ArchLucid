@@ -1,4 +1,4 @@
-﻿> **Scope:** Contributor / developer technical reference — API contracts (notable behaviors). Not buyer self-serve help — in-app `/help/governance-api-contracts` is **Admin / developer** only.
+﻿> **Scope:** Contributor / developer technical reference — API contracts (notable behaviors). Not buyer self-serve help — in-app `/help/api-contracts` is **Admin / developer** only.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

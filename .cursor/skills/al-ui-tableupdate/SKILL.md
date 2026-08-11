@@ -81,7 +81,7 @@ List migrated, removed, and added paths when non-empty.
 | Source | Included |
 |--------|----------|
 | App Router `page.tsx` | Physical URL paths (route groups omitted from URL) |
-| Help registry | `/help`, `/help/{slug}`, alias paths from `HELP_TOPIC_SLUG_ALIASES` |
+| Help registry | `/help`, `/help/{slug}`, slash cloud canonicals from `cloud-connections-help-routes.ts` |
 | URL tabs | `?tab=` hubs (advisory, digests, alert-rules, alerts inbox, settings/users), `?path=` on `/reviews/new`, `?archTab=` on `/reviews/[runId]` |
 | Next.js redirects only | **Excluded** — workbook uses canonical destination after migration |
 

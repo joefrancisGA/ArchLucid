@@ -51,7 +51,7 @@ Canonical slug → kind map: `archlucid-ui/src/lib/product-documentation-content
 
 ### Technical-documentation slugs (initial set)
 
-- `configuration-reference`, `operator-auth-roles`, `cli-usage`, `governance-api-contracts`
+- `configuration-reference`, `operator-auth-roles`, `cli-usage`, `api-contracts`
 - `admin-diagnostics`, `developer-troubleshooting`
 - `workload-identity-federation`, `azure-permissions`, `observability`, `projection-cache-replicas`
 

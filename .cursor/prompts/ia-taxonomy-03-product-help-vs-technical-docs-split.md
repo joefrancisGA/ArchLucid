@@ -27,7 +27,7 @@ so users can tell "Help" from "Documentation" at a glance — this is the accept
   so the search drawer matches the `/help` page's structure.
 - Entries to move from "Guide" styling to "Documentation" styling (per
   `ia-taxonomy-00-plan-and-sitemap.md` § Category 3): `configuration-reference`,
-  `operator-auth-roles`, `cli-usage`, `governance-api-contracts`, `admin-diagnostics`,
+  `operator-auth-roles`, `cli-usage`, `api-contracts`, `admin-diagnostics`,
   `developer-troubleshooting`.
 - Entries that stay "Guide": `getting-started`, `review-guide`, `first-pilot-path`, `pilot-guide`,
   `cloud-connections*`, value-report guide topic(s), advisory scans guide topic(s),

@@ -64,4 +64,16 @@ describe("cloud-connections-help-routes (Batch K)", () => {
       "cloud-connections/gcp",
     ]);
   });
+
+  it("matches Python workbook cloud slash paths in route catalog discovery", () => {
+    const catalogSource = readFileSync(
+      join(process.cwd(), "..", "scripts", "ci", "archlucid_ui_route_catalog.py"),
+      "utf8",
+    );
+
+    for (const segment of CLOUD_CONNECTIONS_HELP_SLASH_TOPIC_SEGMENTS) {
+      expect(catalogSource).toContain("_parse_cloud_connections_help_providers");
+      expect(catalogSource).toContain(`"/help/${segment}"`);
+    }
+  });
 });

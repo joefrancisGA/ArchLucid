@@ -10,6 +10,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 UI_APP_DIR = REPO_ROOT / "archlucid-ui" / "src" / "app"
 UI_LIB_DIR = REPO_ROOT / "archlucid-ui" / "src" / "lib"
 HELP_REGISTRY = UI_LIB_DIR / "product-documentation-registry.ts"
+CLOUD_CONNECTIONS_HELP_ROUTES = UI_LIB_DIR / "cloud-connections-help-routes.ts"
 
 # Default Hit% for catalog paths newly inserted by sync-archlucid-ui-route-traffic-workbook.py.
 DEFAULT_NEW_HIT_PCT = "0.02%"
@@ -55,7 +56,7 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/help/cloud-connections-azure": "/help/cloud-connections/azure",
     "/help/cloud-connections-aws": "/help/cloud-connections/aws",
     "/help/cloud-connections-gcp": "/help/cloud-connections/gcp",
-    # TB-2050 / Batch C retired help aliases (removed from HELP_TOPIC_SLUG_ALIASES) — fold Hit% into canons.
+    # TB-2050 / Batch C retired help aliases — fold Hit% into canons.
     "/help/governance-api-contracts": "/help/api-contracts",
     "/help/creating-runs": "/help/review-guide",
     "/help/data-handling-tenant-isolation": "/help/data-handling",
@@ -244,21 +245,32 @@ def _parse_help_slugs(registry_path: Path = HELP_REGISTRY) -> list[str]:
     return sorted(set(re.findall(r'^\s+slug:\s*"([^"]+)"', text, flags=re.MULTILINE)))
 
 
-def _parse_help_aliases(registry_path: Path = HELP_REGISTRY) -> dict[str, str]:
-    if not registry_path.is_file():
-        return {}
-    text = registry_path.read_text(encoding="utf-8")
-    match = re.search(
-        r"HELP_TOPIC_SLUG_ALIASES.*?=\s*\{([^}]+)\}",
-        text,
-        flags=re.DOTALL,
-    )
-    if match is None:
-        return {}
-    aliases: dict[str, str] = {}
-    for alias, canonical in re.findall(r'"([^"]+)":\s*"([^"]+)"', match.group(1)):
-        aliases[alias] = canonical
-    return aliases
+def _parse_cloud_connections_help_providers(
+    routes_path: Path = CLOUD_CONNECTIONS_HELP_ROUTES,
+) -> list[str]:
+    return _parse_ts_string_array(routes_path, "CLOUD_CONNECTIONS_HELP_PROVIDERS")
+
+
+def _retired_cloud_connections_hyphen_help_paths() -> set[str]:
+    """Hyphen bookmark URLs superseded by slash canonicals (`cloud-connections-help-routes.ts`)."""
+    return {f"/help/cloud-connections-{provider}" for provider in _parse_cloud_connections_help_providers()}
+
+
+def _cloud_connections_slash_help_paths() -> list[str]:
+    providers = _parse_cloud_connections_help_providers()
+
+    return [f"/help/cloud-connections/{provider}" for provider in providers]
+
+
+def discover_help_paths() -> tuple[list[str], set[str]]:
+    slugs = _parse_help_slugs()
+    retired_slug_paths = _retired_cloud_connections_hyphen_help_paths()
+    paths = ["/help"]
+    paths.extend(f"/help/{slug}" for slug in slugs if f"/help/{slug}" not in retired_slug_paths)
+    paths.extend(_cloud_connections_slash_help_paths())
+    alias_paths = {path for path in paths if path.startswith("/help/cloud-connections/")}
+
+    return sorted(set(paths)), alias_paths
 
 
 def _tab_path(base_path: str, param: str, value: str) -> str:
@@ -289,29 +301,6 @@ def discover_tab_paths() -> list[str]:
     for tab_id in arch_tabs:
         paths.append(_tab_path("/architecture/reviews/[runId]", "archTab", tab_id))
     return sorted(set(paths))
-
-
-def _retired_help_slug_paths(aliases: dict[str, str]) -> set[str]:
-    """Hyphen slug URLs superseded by per-cloud slash aliases in HELP_TOPIC_SLUG_ALIASES."""
-    retired: set[str] = set()
-
-    for _alias, canonical in aliases.items():
-
-        if canonical.startswith("cloud-connections-"):
-            retired.add(f"/help/{canonical}")
-
-    return retired
-
-
-def discover_help_paths() -> tuple[list[str], set[str]]:
-    slugs = _parse_help_slugs()
-    aliases = _parse_help_aliases()
-    retired_slug_paths = _retired_help_slug_paths(aliases)
-    paths = ["/help"]
-    paths.extend(f"/help/{slug}" for slug in slugs if f"/help/{slug}" not in retired_slug_paths)
-    paths.extend(f"/help/{alias}" for alias in aliases)
-    alias_paths = {f"/help/{alias}" for alias in aliases}
-    return sorted(set(paths)), alias_paths
 
 
 def infer_section(path: str, *, help_alias_paths: set[str]) -> str:
