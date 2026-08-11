@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import {
   resolveExecutiveRoiIdentifiedVsRealized,
-} from "@/lib/executive-roi-identified-vs-realized";
-import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
+} from "@/lib/executive/executive-roi-identified-vs-realized";
+import type { ExecutiveRoiSummary } from "@/lib/executive/executive-summary-markdown";
 
 function sampleSummary(overrides: Partial<ExecutiveRoiSummary> = {}): ExecutiveRoiSummary {
   return {

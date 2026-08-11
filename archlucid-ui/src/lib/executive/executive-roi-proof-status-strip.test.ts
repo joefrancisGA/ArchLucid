@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   costEvidenceFreshnessStatusTagKind,
   formatExecutiveHeadlineScopeCodeLabel,
-} from "@/lib/executive-roi-proof-status-strip";
+} from "@/lib/executive/executive-roi-proof-status-strip";
 
 describe("costEvidenceFreshnessStatusTagKind", () => {
   it("maps freshness states to enterprise status kinds", () => {

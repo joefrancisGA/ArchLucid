@@ -7,10 +7,10 @@ import { BUYER_EXECUTIVE_SCORECARD_WINDOW_HELP } from "@/lib/buyer-polish-copy";
 import {
   EXECUTIVE_DASHBOARD_PAGE_SUBTITLE_BUYER,
   executiveDashboardPageSubtitle,
-} from "@/lib/executive-dashboard-page-copy";
+} from "@/lib/executive/executive-dashboard-page-copy";
 
 const EXECUTIVE_DASHBOARD_SURFACES = [
-  "src/lib/executive-dashboard-page-copy.ts",
+  "src/lib/executive/executive-dashboard-page-copy.ts",
   "src/components/executive/ExecutiveDashboardPageHero.tsx",
   "src/app/(operator)/architecture/executive-dashboard/_sections/ExecutiveRoiTrendSection.tsx",
 ] as const;

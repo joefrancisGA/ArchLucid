@@ -1,4 +1,4 @@
-import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
+import type { ExecutiveRoiSummary } from "@/lib/executive/executive-summary-markdown";
 
 /** True when the workspace has at least one committed review in the ROI summary scope. */
 export function hasExecutiveCommittedReviews(summary: ExecutiveRoiSummary | null | undefined): boolean {

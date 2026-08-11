@@ -4,7 +4,7 @@ import {
   decisionGradeExecutiveTraceRows,
   FINDING_CLASSIFICATION_CHECKLIST_COVERAGE,
   isChecklistCoverageTraceRow,
-} from "@/lib/executive-decision-grade-trace-rows";
+} from "@/lib/executive/executive-decision-grade-trace-rows";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
 
 function traceRow(

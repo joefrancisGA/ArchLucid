@@ -1,4 +1,4 @@
-import { EXECUTIVE_SUMMARY_HELP_PATH } from "@/lib/executive-summary-help-route";
+import { EXECUTIVE_SUMMARY_HELP_PATH } from "@/lib/executive/executive-summary-help-route";
 
 export const EXECUTIVE_SUMMARY_HELP_CANONICAL_PATH = EXECUTIVE_SUMMARY_HELP_PATH;
 

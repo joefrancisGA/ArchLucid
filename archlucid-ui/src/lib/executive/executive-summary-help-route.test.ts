@@ -3,9 +3,9 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { EXECUTIVE_SUMMARY_HELP_ROUTE_METADATA } from "@/lib/executive-summary-help-route-metadata";
-import { EXECUTIVE_SUMMARY_HELP_PATH } from "@/lib/executive-summary-help-route";
-import { EXECUTIVE_SUMMARY_HELP_PRIMARY_ACTIONS } from "@/lib/executive-summary-help-guide-content";
+import { EXECUTIVE_SUMMARY_HELP_ROUTE_METADATA } from "@/lib/executive/executive-summary-help-route-metadata";
+import { EXECUTIVE_SUMMARY_HELP_PATH } from "@/lib/executive/executive-summary-help-route";
+import { EXECUTIVE_SUMMARY_HELP_PRIMARY_ACTIONS } from "@/lib/executive/executive-summary-help-guide-content";
 import { SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
 import {
   MARKETING_ROBOTS_DISALLOW_PREFIXES,

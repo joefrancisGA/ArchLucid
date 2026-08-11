@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
-import { executiveShellHandoffLinkLabel, isOperatorShellHandoffHref } from "@/lib/executive-shell-handoff";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
+import { executiveShellHandoffLinkLabel, isOperatorShellHandoffHref } from "@/lib/executive/executive-shell-handoff";
 
 describe("executive-shell-handoff", () => {
   it("treats operator destinations as handoffs", () => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { presentCostEvidenceFreshness, presentExecutiveKpiCount } from "@/lib/executive-roi-kpi-display";
+import { presentCostEvidenceFreshness, presentExecutiveKpiCount } from "@/lib/executive/executive-roi-kpi-display";
 
 describe("presentExecutiveKpiCount", () => {
   it("returns em dash for missing values", () => {

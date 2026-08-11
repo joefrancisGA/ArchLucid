@@ -4,7 +4,7 @@ import {
   executiveWorkspaceHealthKpiTitle,
   executiveWorkspaceHealthPageLead,
   executiveWorkspaceHealthPageTitle,
-} from "@/lib/executive-workspace-health-page-copy";
+} from "@/lib/executive/executive-workspace-health-page-copy";
 
 describe("executive-workspace-health-page-copy", () => {
   it("uses buyer-facing titles without numbered KPI prefixes", () => {

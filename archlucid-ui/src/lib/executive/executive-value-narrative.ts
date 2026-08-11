@@ -1,4 +1,4 @@
-import type { ExecutiveScorecardRecommendedAction } from "@/lib/executive-scorecard-recommended-actions";
+import type { ExecutiveScorecardRecommendedAction } from "@/lib/executive/executive-scorecard-recommended-actions";
 
 export type BuildExecutiveValueNarrativeInput = {
   readonly reviewsCount: number;

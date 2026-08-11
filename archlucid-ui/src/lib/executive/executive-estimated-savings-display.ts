@@ -1,5 +1,5 @@
-import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
-import { hasExecutiveCommittedReviews } from "@/lib/executive-dashboard-workspace-state";
+import type { ExecutiveRoiSummary } from "@/lib/executive/executive-summary-markdown";
+import { hasExecutiveCommittedReviews } from "@/lib/executive/executive-dashboard-workspace-state";
 import { formatUsd } from "@/lib/roi-assumptions";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 

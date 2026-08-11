@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
 import {
   hrefTargetsPermanentRedirectSource,
   NEXT_CONFIG_PERMANENT_REDIRECT_SOURCE_PATHS,
@@ -14,7 +14,7 @@ import {
   LEGACY_PORTFOLIO_OVERVIEW_PATH,
 } from "@/lib/ui-route-traffic-architecture-executive-dashboard";
 
-import nextConfig from "../../next.config";
+import nextConfig from "../../../next.config";
 
 const RETIRED_EXECUTIVE_DASHBOARD_APP_DIRS = [
   join(process.cwd(), "src", "app", "(executive)", "executive", "dashboard"),

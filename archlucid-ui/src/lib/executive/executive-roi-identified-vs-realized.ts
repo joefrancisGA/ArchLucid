@@ -1,4 +1,4 @@
-import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
+import type { ExecutiveRoiSummary } from "@/lib/executive/executive-summary-markdown";
 import { formatUsd } from "@/lib/roi-assumptions";
 
 export type ExecutiveRoiIdentifiedVsRealizedBuckets = {

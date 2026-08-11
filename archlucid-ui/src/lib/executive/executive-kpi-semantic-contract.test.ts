@@ -7,11 +7,12 @@ import { describe, expect, it } from "vitest";
 import {
   EXECUTIVE_KPI_SEMANTIC_CONTRACT,
   listDashboardForbiddenPatternOffenders,
-} from "@/lib/executive-kpi-semantic-contract";
+} from "@/lib/executive/executive-kpi-semantic-contract";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const liveKpiCardsPath = join(
   __dirname,
+  "..",
   "..",
   "app",
   "(operator)",

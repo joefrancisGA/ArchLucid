@@ -1,5 +1,5 @@
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
-import type { CostEvidenceFreshnessPresentation } from "@/lib/executive-roi-kpi-display";
+import type { CostEvidenceFreshnessPresentation } from "@/lib/executive/executive-roi-kpi-display";
 
 /** Maps cost-evidence freshness presentation to enterprise StatusTag kind. */
 export function costEvidenceFreshnessStatusTagKind(

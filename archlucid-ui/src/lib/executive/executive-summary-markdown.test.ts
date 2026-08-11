@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildExecutiveSummaryMarkdown } from "@/lib/executive-summary-markdown";
+import { buildExecutiveSummaryMarkdown } from "@/lib/executive/executive-summary-markdown";
 import manifest from "@/lib/data/roi-sponsor-facing-scope-labels.v1.json";
 import { ROI_NON_ADDITIVITY_CAVEAT } from "@/lib/roi-sponsor-scope-labels";
 

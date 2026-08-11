@@ -3,8 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   boardPackClusterPostureLabel,
   buildBoardPackEvidenceClusterRows,
-} from "@/lib/executive-roi-board-pack-evidence-clusters";
-import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
+} from "@/lib/executive/executive-roi-board-pack-evidence-clusters";
+import type { ExecutiveRoiSummary } from "@/lib/executive/executive-summary-markdown";
 
 function baseSummary(overrides: Partial<ExecutiveRoiSummary> = {}): ExecutiveRoiSummary {
   return {

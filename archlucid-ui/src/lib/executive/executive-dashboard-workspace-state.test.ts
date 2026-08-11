@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
+import type { ExecutiveRoiSummary } from "@/lib/executive/executive-summary-markdown";
 import {
   hasExecutiveCommittedReviews,
   isExecutiveDashboardEmpty,
   isExecutiveSampleWorkspaceData,
-} from "@/lib/executive-dashboard-workspace-state";
+} from "@/lib/executive/executive-dashboard-workspace-state";
 
 function summary(partial: Partial<ExecutiveRoiSummary>): ExecutiveRoiSummary {
   return partial as ExecutiveRoiSummary;

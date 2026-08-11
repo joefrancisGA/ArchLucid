@@ -1,4 +1,4 @@
-import type { ExecutiveOrphanCandidateSummary } from "@/lib/executive-summary-markdown";
+import type { ExecutiveOrphanCandidateSummary } from "@/lib/executive/executive-summary-markdown";
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
 import type { PilotValueReportTimelineRow } from "@/types/pilot-value-report";
 

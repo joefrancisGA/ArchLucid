@@ -1,6 +1,6 @@
 /** Drill-through targets for executive dashboard KPI tiles (TB-244). */
 
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
 
 export const EXECUTIVE_KPI_DRILL_THROUGH = {

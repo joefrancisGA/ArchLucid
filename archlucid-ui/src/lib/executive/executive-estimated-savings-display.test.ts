@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { presentExecutiveEstimatedSavings, workspaceHasCostEvidenceBasis } from "@/lib/executive-estimated-savings-display";
-import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
+import { presentExecutiveEstimatedSavings, workspaceHasCostEvidenceBasis } from "@/lib/executive/executive-estimated-savings-display";
+import type { ExecutiveRoiSummary } from "@/lib/executive/executive-summary-markdown";
 
 function summary(partial: Partial<ExecutiveRoiSummary>): ExecutiveRoiSummary {
   return {

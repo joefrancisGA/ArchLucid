@@ -1,5 +1,5 @@
-import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
-import { presentCostEvidenceFreshness } from "@/lib/executive-roi-kpi-display";
+import type { ExecutiveRoiSummary } from "@/lib/executive/executive-summary-markdown";
+import { presentCostEvidenceFreshness } from "@/lib/executive/executive-roi-kpi-display";
 
 export type BoardPackClusterEvidencePosture = "extractor-backed" | "illustrative" | "review-backed";
 

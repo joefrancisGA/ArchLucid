@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import {
   EXECUTIVE_SUMMARY_HELP_PAGE_SUBTITLE_OPERATOR,
   EXECUTIVE_SUMMARY_HELP_PAGE_TITLE,
-} from "@/lib/executive-summary-help-guide-content";
+} from "@/lib/executive/executive-summary-help-guide-content";
 
 /**
  * Specialty executive summary guide — buyer help, not a marketing landing page.

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
-import { buildExecutiveValueNarrative } from "@/lib/executive-value-narrative";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
+import { buildExecutiveValueNarrative } from "@/lib/executive/executive-value-narrative";
 
 describe("buildExecutiveValueNarrative", () => {
   it("includes reviews, findings, hours, savings, and top action", () => {
