@@ -115,6 +115,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
       "Understand tenant, workspace, and project scope, including how the header switcher and sample workspace work.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/WORKSPACE_SCOPE_GUIDE.md"],
+    pdfStatus: "public",
   },
   {
     slug: "glossary",

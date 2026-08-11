@@ -43,6 +43,7 @@ import { PROCUREMENT_HELP_CLAIM_DISCIPLINE } from "@/lib/procurement-help-eviden
 import { isProcurementHelpTopic } from "@/lib/procurement-help-presentation";
 import { POLICY_PACKS_HELP_PRIMARY_ACTION } from "@/lib/policy-packs-help-evidence-copy";
 import { REPORT_A_PROBLEM_HELP_PRIMARY_ACTION } from "@/lib/report-a-problem-help-evidence-copy";
+import { SCOPE_HELP_PRIMARY_ACTION } from "@/lib/scope-help-evidence-copy";
 
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
 
@@ -141,6 +142,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
   const isIntegrationReadinessHelp = entry.slug === "integration-readiness";
   const isPolicyPacksHelp = entry.slug === "policy-packs";
+  const isScopeHelp = entry.slug === "scope";
   const isProcurementHelp = isProcurementHelpTopic(entry.slug);
   const isAuthenticationSignInHelp = entry.slug === "authentication-sign-in";
   const allowWithoutServerPdf = entry.pdfStatus === null && (entry.audience === "buyer" || isProcurementHelp);
@@ -210,7 +212,9 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
                 ? INTEGRATION_READINESS_HELP_PRIMARY_ACTION
                 : isPolicyPacksHelp
                   ? POLICY_PACKS_HELP_PRIMARY_ACTION
-                  : entry.slug === "report-a-problem"
+                  : isScopeHelp
+                    ? SCOPE_HELP_PRIMARY_ACTION
+                    : entry.slug === "report-a-problem"
                     ? REPORT_A_PROBLEM_HELP_PRIMARY_ACTION
                     : undefined
         }

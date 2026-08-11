@@ -51,6 +51,7 @@ import {
   formatScopeSwitcherSampleFullTitle,
   formatScopeSwitcherTriggerAccessibleLabel,
   formatScopeSwitcherTriggerLabel,
+  isEffectiveDevDefaultScope,
   isScopeSwitcherOptionSelected,
   isScopeSwitchingAvailable,
   resolveScopeSwitcherOptionPrimaryLabel,
@@ -152,16 +153,6 @@ function demoClaimsIntakeWorkspaceOption(): ScopeSwitcherWorkspaceOption {
     name: BUYER_WORKSPACE_DISPLAY_NAME,
     projects: [{ projectId: DEV_SCOPE_PROJECT_ID, name: "Primary project" }],
   };
-}
-
-function isEffectiveDevDefaultScope(
-  workspaceId: string,
-  projectId: string,
-): boolean {
-  return (
-    workspaceId.trim() === DEV_SCOPE_WORKSPACE_ID &&
-    projectId.trim() === DEV_SCOPE_PROJECT_ID
-  );
 }
 
 function shouldUseSampleWorkspaceFallback(

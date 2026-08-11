@@ -1,20 +1,18 @@
-import { inAppHelpHref } from "@/lib/product-documentation-registry";
-import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
-
 export const SCOPE_HELP_CANONICAL_PATH = "/help/scope" as const;
+
+export const SCOPE_HELP_PRIMARY_ACTION = {
+  label: "Open tenant settings",
+  href: "/administration/tenant",
+  testId: "help-scope-open-tenant-settings",
+} as const;
 
 export const SCOPE_HELP_CLAIM_DISCIPLINE =
   "This workspace and scope guide explains tenant, workspace, and project boundaries for architects — it is orientation vocabulary, not a signed-review diligence Sources package. Open Users and roles or Data handling when you need access or isolation depth.";
 
-export const SCOPE_HELP_SOURCES_INTRO =
-  "Use these follow-ups when scope vocabulary turns into access control, isolation, or first-run setup.";
+export const SCOPE_HELP_CURRENT_SCOPE_PANEL_TITLE = "Your current scope";
 
+export const SCOPE_HELP_CURRENT_SCOPE_SWITCHING_AVAILABLE =
+  "Workspace and project switching is available from the top-bar scope switcher.";
 
-/** Operator Sources — no self-href to `/help/scope`. */
-export const SCOPE_HELP_SOURCES: readonly EvidenceSourceLink[] = [
-  { label: "Users and roles", href: inAppHelpHref("users-and-roles") },
-  { label: "Users settings", href: "/administration/users" },
-  { label: "Data handling & isolation", href: inAppHelpHref("data-handling") },
-  { label: "Getting started", href: inAppHelpHref("getting-started") },
-  { label: "Assurance status", href: "/security-trust" },
-] as const;
+export const SCOPE_HELP_CURRENT_SCOPE_SWITCHING_UNAVAILABLE =
+  "Workspace switching is disabled for this session.";

@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 
 import Link from "next/link";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorPageBreadcrumb } from "@/components/OperatorPageBreadcrumb";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -52,6 +53,15 @@ export function HelpTopicMarkdownPageHeader(props: HelpTopicMarkdownPageHeaderPr
       title={props.entry.title}
       titleTestId="help-topic-page-title"
       subtitle={props.entry.summary}
+      breadcrumb={
+        <OperatorPageBreadcrumb
+          data-testid="help-topic-breadcrumb"
+          items={[
+            { label: "Help", href: "/help" },
+            { label: props.entry.title },
+          ]}
+        />
+      }
       metadata={
         props.titleBlockOrientation !== undefined && props.titleBlockOrientation !== null ? (
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1" data-testid="help-topic-header-metadata">

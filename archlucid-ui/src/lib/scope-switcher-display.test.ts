@@ -9,13 +9,20 @@ import {
   formatScopeSwitcherSampleFullTitle,
   formatScopeSwitcherTriggerAccessibleLabel,
   formatScopeSwitcherTriggerLabel,
+  isEffectiveDevDefaultScope,
   isScopeSwitcherOptionSelected,
   isScopeSwitchingAvailable,
   resolveScopeSwitcherOptionPrimaryLabel,
   workspaceShortNameFromLabel,
 } from "@/lib/scope-switcher-display";
+import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_WORKSPACE_ID } from "@/lib/scope";
 
 describe("scope-switcher-display", () => {
+  it("detects the dev default sample workspace scope", () => {
+    expect(isEffectiveDevDefaultScope(DEV_SCOPE_WORKSPACE_ID, DEV_SCOPE_PROJECT_ID)).toBe(true);
+    expect(isEffectiveDevDefaultScope(DEV_SCOPE_WORKSPACE_ID, "other-project")).toBe(false);
+  });
+
   it("formats compact and accessible sample workspace labels separately", () => {
     const args = {
       workspaceLabel: "Claims Intake Workspace",

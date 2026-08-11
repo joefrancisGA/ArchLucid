@@ -23,7 +23,7 @@ import { ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION } from "@/lib/enterprise-onbo
 describe("HelpTopicMarkdownPageHeader", () => {
   const entry = getProductDocumentationEntry("enterprise-onboarding");
 
-  it("renders registry provenance slot, identity providers CTA, and export actions without breadcrumb", () => {
+  it("renders identity providers CTA, export actions, and breadcrumb", () => {
     if (entry === null) {
       throw new Error("Expected enterprise-onboarding documentation entry.");
     }
@@ -36,7 +36,7 @@ describe("HelpTopicMarkdownPageHeader", () => {
       />,
     );
 
-    expect(screen.queryByTestId("help-topic-breadcrumb")).toBeNull();
+    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-page-title")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-header-metadata")).toBeInTheDocument();
     expect(screen.getByTestId(ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION.testId)).toHaveAttribute(

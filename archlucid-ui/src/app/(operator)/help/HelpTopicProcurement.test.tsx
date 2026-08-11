@@ -264,7 +264,7 @@ describe("HelpTopicMarkdownView procurement FAQ", () => {
     expect(screen.getByTestId("procurement-help-answer-penetration-test")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-export-actions")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-print-pdf")).toBeInTheDocument();
-    expect(screen.queryByTestId("help-topic-breadcrumb")).toBeNull();
+    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).toBeNull();
   });
 
