@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { PatternLibraryPolicyPacksVocabularyRail } from "@/components/PatternLibraryPolicyPacksVocabularyRail";
 import { Badge } from "@/components/ui/badge";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { PatternLibraryFiltersPanel } from "./PatternLibraryFiltersPanel";
@@ -71,7 +72,8 @@ export function PatternLibraryPageClient(): React.JSX.Element {
           <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.micro)}>{provenance.privacyNote}</p>
         </div>
       </OperatorPageHeader>
-<PatternLibrarySummaryRow summary={summary} />
+      <PatternLibraryPolicyPacksVocabularyRail currentSurfaceId="pattern-library" />
+      <PatternLibrarySummaryRow summary={summary} />
 
       <PatternLibraryFiltersPanel filters={filters} onChange={setFilters} />
 
