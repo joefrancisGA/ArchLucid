@@ -1,7 +1,7 @@
 import type { CorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import type { CorePilotHelpWorkflowStep } from "@/lib/core-pilot-help-guide-content";
-import { EXTRACT_UPLOAD_SETTINGS_PATH } from "@/lib/core-pilot-steps";
 import { BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR } from "@/lib/first-week-route-guidance";
+import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 
 export type CorePilotHelpWorkflowStepCta = {
   readonly enabled: boolean;
@@ -22,6 +22,17 @@ export const CORE_PILOT_HELP_START_REVIEW_FIRST_CTA: CorePilotHelpWorkflowStepCt
 };
 
 const START_REVIEW_FIRST: CorePilotHelpWorkflowStepCta = CORE_PILOT_HELP_START_REVIEW_FIRST_CTA;
+
+/** TB-1331: step 2 without an active review — honest Start-first framing instead of a second Start disguised as evidence intake. */
+export const CORE_PILOT_HELP_START_REVIEW_TO_ADD_EVIDENCE_CTA: CorePilotHelpWorkflowStepCta = {
+  enabled: true,
+  href: "/architecture/reviews/new",
+  label: "Start a review to add evidence",
+  helperText: "After you start a review, attach evidence on review detail.",
+};
+
+const START_REVIEW_TO_ADD_EVIDENCE: CorePilotHelpWorkflowStepCta =
+  CORE_PILOT_HELP_START_REVIEW_TO_ADD_EVIDENCE_CTA;
 
 /** True when a resolved step CTA is the shared "no review yet" gate. */
 export function isCorePilotHelpStartReviewFirstCta(
@@ -139,18 +150,13 @@ function resolveEvidenceStepCta(ctx: CorePilotCommitContext): CorePilotHelpWorkf
   if (ctx.latestRunId !== null) {
     return {
       enabled: true,
-      href: reviewDetailHref(ctx.latestRunId),
+      href: buildReviewDetailTabHref(ctx.latestRunId, "evidence"),
       label: "Add evidence on review detail",
       helperText: null,
     };
   }
 
-  return {
-    enabled: true,
-    href: EXTRACT_UPLOAD_SETTINGS_PATH,
-    label: "Open upload settings",
-    helperText: null,
-  };
+  return START_REVIEW_TO_ADD_EVIDENCE;
 }
 
 export function resolveCorePilotHelpWorkflowStepCta(

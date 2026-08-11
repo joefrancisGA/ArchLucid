@@ -26,19 +26,24 @@ describe("resolveCorePilotHelpWorkflowStepCta (TB-1042)", () => {
     expect(step1.href).toBeNull();
   });
 
-  it("routes step 2 to upload settings or review detail", () => {
-    const step2Empty = resolveCorePilotHelpWorkflowStepCta(CORE_PILOT_HELP_WORKFLOW_STEPS[1]!, emptyCtx);
+  it("TB-1331: routes step 2 to honest Start-first CTA or review-detail evidence tab", () => {
+    const step2 = CORE_PILOT_HELP_WORKFLOW_STEPS[1]!;
 
-    expect(step2Empty.href).toBe("/administration/extract-upload");
-    expect(step2Empty.label).toBe("Open upload settings");
+    const step2Empty = resolveCorePilotHelpWorkflowStepCta(step2, emptyCtx);
 
-    const step2WithRun = resolveCorePilotHelpWorkflowStepCta(CORE_PILOT_HELP_WORKFLOW_STEPS[1]!, {
+    expect(step2Empty.href).toBe("/architecture/reviews/new");
+    expect(step2Empty.label).toBe("Start a review to add evidence");
+    expect(step2Empty.label).not.toBe(step2.ctaLabel);
+    expect(step2Empty.helperText).toContain("review detail");
+
+    const step2WithRun = resolveCorePilotHelpWorkflowStepCta(step2, {
       ...emptyCtx,
       latestRunId: "run-abc",
     });
 
-    expect(step2WithRun.href).toBe("/architecture/reviews/run-abc");
+    expect(step2WithRun.href).toBe("/architecture/reviews/run-abc?reviewTab=evidence");
     expect(step2WithRun.label).toBe("Add evidence on review detail");
+    expect(step2WithRun.href).not.toContain("/architecture/reviews/new");
   });
 
   it("gates steps 3–5 to Start a review first when no active run", () => {
