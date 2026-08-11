@@ -815,6 +815,8 @@ export async function RunDetailPageView(props: {
         showMarketingBanner={showDemoMarketingChrome}
         showSampleBadge={m.usedStaticDemoRun && !showDemoMarketingChrome}
         emphasizeSampleData={m.usedStaticDemoRun}
+                usedStaticDemoRun={m.usedStaticDemoRun}
+                isSimulator={m.resolvedDetail.run.realModeFellBackToSimulator === true}
       />
 
       <RunDetailWorkspaceDisclosureProvider>
