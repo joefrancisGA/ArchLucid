@@ -98,6 +98,7 @@ export function OperatorPageHeader({
         >
           {title}
         </TitleTag>
+        {statusBadge != null ? <div className="flex items-center">{statusBadge}</div> : null}
         {actions != null && (
           <div className="ml-auto flex flex-wrap items-center gap-2">{actions}</div>
         )}

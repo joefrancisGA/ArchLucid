@@ -1,33 +1,40 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   AWS_TRUST_STARTER_FEDERATION_HEADING,
   AWS_TRUST_STARTER_FEDERATION_IDENTIFIERS,
-  AWS_TRUST_STARTER_FEDERATION_INTRO,
+  AWS_TRUST_STARTER_FEDERATION_INTRO_LEAD,
+  AWS_TRUST_STARTER_FEDERATION_INTRO_MID,
+  AWS_TRUST_STARTER_FEDERATION_INTRO_TAIL,
   AWS_TRUST_STARTER_TRUST_POLICY_HEADING,
   AWS_TRUST_STARTER_TRUST_POLICY_INTRO,
   AWS_TRUST_STARTER_TRUST_POLICY_REPLACE_HINT,
   buildAwsTrustStarterPolicyTemplate,
 } from "@/lib/aws-cloud-connection-trust-policy-starter";
+import { CONNECTION_STATUS_CANONICAL_PATH } from "@/lib/connection-status-evidence-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 
 /** Federation identifiers and copyable IAM trust-policy starter for AWS identity setup (TB-1765). */
 export function AwsTrustPolicyStarterPanel(): React.ReactElement {
-  const [copied, setCopied] = useState(false);
+  const [copyFeedback, setCopyFeedback] = useState<string | null>(null);
   const trustPolicyTemplate = useMemo(() => buildAwsTrustStarterPolicyTemplate(), []);
+  const awsHelpHref = inAppHelpHref("cloud-connections-aws");
 
   const copyTrustPolicy = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(trustPolicyTemplate);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 2000);
+      setCopyFeedback("Template copied — replace placeholders before applying in AWS.");
+      window.setTimeout(() => setCopyFeedback(null), 4000);
     } catch {
-      setCopied(false);
+      setCopyFeedback(null);
     }
   }, [trustPolicyTemplate]);
 
@@ -36,7 +43,15 @@ export function AwsTrustPolicyStarterPanel(): React.ReactElement {
       <div className="space-y-3">
         <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{AWS_TRUST_STARTER_FEDERATION_HEADING}</h3>
         <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          {AWS_TRUST_STARTER_FEDERATION_INTRO}
+          {AWS_TRUST_STARTER_FEDERATION_INTRO_LEAD}{" "}
+          <Link href={CONNECTION_STATUS_CANONICAL_PATH} className="text-teal-700 underline dark:text-teal-400">
+            Connection status
+          </Link>{" "}
+          {AWS_TRUST_STARTER_FEDERATION_INTRO_MID}{" "}
+          <Link href={awsHelpHref} className="text-teal-700 underline dark:text-teal-400">
+            Connect AWS securely
+          </Link>{" "}
+          {AWS_TRUST_STARTER_FEDERATION_INTRO_TAIL}
         </p>
         <div className={HELP_PAGE_LAYOUT.tableWrap} data-testid="aws-trust-starter-federation-identifiers">
           <table className={HELP_PAGE_LAYOUT.table}>
@@ -61,10 +76,16 @@ export function AwsTrustPolicyStarterPanel(): React.ReactElement {
                     {identifier.label}
                   </th>
                   <td className={cn(HELP_PAGE_LAYOUT.tableBodyCell, "font-mono text-sm")}>
-                    {identifier.value}
-                    {identifier.isPlaceholder ? (
-                      <span className="sr-only"> (placeholder — obtain live value from security review)</span>
-                    ) : null}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className={identifier.isPlaceholder ? "text-al-text-secondary" : undefined}>
+                        {identifier.value}
+                      </span>
+                      {identifier.isPlaceholder ? (
+                        <StatusTag kind="neutral" label="Replace" data-testid={`aws-trust-starter-placeholder-${identifier.id}`} />
+                      ) : (
+                        <StatusTag kind="ready" label="Confirmed" data-testid={`aws-trust-starter-confirmed-${identifier.id}`} />
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -84,9 +105,14 @@ export function AwsTrustPolicyStarterPanel(): React.ReactElement {
             aria-label="Copy IAM trust policy template"
             onClick={() => void copyTrustPolicy()}
           >
-            {copied ? "Copied" : "Copy trust policy"}
+            Copy trust policy
           </Button>
         </div>
+        {copyFeedback !== null ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status" aria-live="polite">
+            {copyFeedback}
+          </p>
+        ) : null}
         <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           {AWS_TRUST_STARTER_TRUST_POLICY_INTRO}
         </p>

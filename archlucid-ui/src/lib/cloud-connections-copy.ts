@@ -46,10 +46,7 @@ export const CLOUD_CONNECTIONS_PROVIDER_AUTH_MODEL: Readonly<Record<"azure" | "a
 };
 
 export const CLOUD_CONNECTIONS_SECURITY_PREFLIGHT_INTRO =
-  "Confirm these items with your cloud or security team before enabling collection.";
-
-export const CLOUD_CONNECTIONS_SECURITY_PREFLIGHT_SKIP_WARNING =
-  "Connection validation can proceed, but security review is recommended before production use.";
+  "Review these items with your cloud or security team before enabling collection. This checklist is guidance only — ArchLucid does not record it as an attestation or add it to the audit trail.";
 
 export const CLOUD_CONNECTIONS_DETAIL_SECTIONS = [
   "Overview",

@@ -18,10 +18,12 @@ export function AwsConnectionValidatePanel(): React.ReactElement {
     loadError,
     formError,
     actionMessage,
+    messageScope,
     pollingConnectionId,
     canMutate,
     triggerRePoll,
   } = useAwsConnectionData();
+  const ownsMessage = messageScope === "collection";
 
   if (isLoading) {
     return (
@@ -71,19 +73,29 @@ export function AwsConnectionValidatePanel(): React.ReactElement {
             data-testid={`aws-validate-repoll-${connection.connectionId}`}
             disabled={pollingConnectionId === connection.connectionId || !canMutate}
             title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-            onClick={() => void triggerRePoll(connection)}
+            onClick={() => void triggerRePoll(connection, "collection")}
           >
             {pollingConnectionId === connection.connectionId ? "Validating…" : "Re-poll now"}
           </Button>
         </div>
       ))}
-      {formError ? (
-        <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-red-600 dark:text-red-400")} role="alert">
+
+      {ownsMessage && formError !== null ? (
+        <p
+          className={cn(OPERATOR_TYPOGRAPHY.body, "text-red-600 dark:text-red-400")}
+          role="alert"
+          data-testid="aws-connection-validate-error"
+        >
           {formError}
         </p>
       ) : null}
-      {actionMessage ? (
-        <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-emerald-700 dark:text-emerald-300")} role="status">
+
+      {ownsMessage && actionMessage !== null ? (
+        <p
+          className={cn(OPERATOR_TYPOGRAPHY.body, "text-emerald-700 dark:text-emerald-300")}
+          role="status"
+          data-testid="aws-connection-validate-status"
+        >
           {actionMessage}
         </p>
       ) : null}
