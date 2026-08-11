@@ -15,7 +15,7 @@ Regenerate after opening or closing summary-table rows:
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
 | Architectural integrity | 11 |
-| Adoption friction | 332 |
+| Adoption friction | 331 |
 | Commercial / marketability | 9 |
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
@@ -35,9 +35,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **619** |
+| **Total (unique open)** | **618** |
 
-**By priority band:** P0 **3** | P1 **488** | P2 **111** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **3** | P1 **487** | P2 **111** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -964,7 +964,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1291 | **Done** (2026-08-10) — Recycle bin OperatorEmptyState + loading notice; Vitest; see `## TB-1291` below | Adoption friction P1 ? **V1**; with **TB-1182** | XS |
 | TB-1294 | **Done** (2026-08-10) — `/welcome` first-viewport hero budget; Vitest; see `## TB-1294` below | Adoption friction P1 ? **V1**; owner welcome ~50/100 2026-07-26; traffic **WXX**; complements GTM **M-09** | S |
 | TB-1295 | **Done** (2026-08-10) — `/welcome` single primary conversion path; Vitest; see `## TB-1295` below | Adoption friction P1 ? **V1**; with **TB-1294** | S |
-| TB-1296 | `/welcome` ? canonical proof CTA ladder (see-it vs demo/preview); see ## TB-1296 below | Adoption friction P1 ? **V1**; with **TB-1294**; pairs **TB-1028**/**TB-1282**/**M-107** | S |
+| TB-1296 | **Done** (2026-08-10) — `/welcome` canonical proof CTA ladder; Vitest; see `## TB-1296` below | Adoption friction P1 ? **V1**; with **TB-1294**; pairs **TB-1028**/**TB-1282**/**M-107** | S |
 | TB-1301 | `/why` ? first-viewport hero budget + primary conversion CTA; see ## TB-1301 below | Adoption friction P1 ? **V1**; owner why ~51/100 2026-07-26; traffic **WHY** | S |
 | TB-1302 | `/why` ? canonical proof ladder (`/see-it` vs Contoso `/demo/preview` iframe); see ## TB-1302 below | Adoption friction P1 ? **V1**; with **TB-1301**; pairs **TB-1296**/**TB-1282**/**TB-1028**/**M-107** | S |
 | TB-1303 | `/why` ? collapse triple comparison density; see ## TB-1303 below | Adoption friction P1 ? **V1**; with **TB-1301** | S |
@@ -32262,20 +32262,15 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-10).
 
 **Priority:** P0.
 
 **Source:** Owner WXX review 2026-07-26 ? SelfDemo + Walkthrough + EarlyAccess + Signup + Sign in as near-equal hero peers.
 
-**Problem:** Buyers cannot tell which action is the start. Three request CTAs plus signup/signin/see-it ghosts dilute conversion and inflate hero height.
+**Problem:** Buyers could not tell which action is the start when multiple request CTAs competed in the hero.
 
-**Approach:**
-
-1. Pick one primary CTA for the default buyer path (owner: self-demo inspect vs signup evaluation ? document choice in `welcome-marketing-copy.ts`).
-2. Demote the other request CTAs to secondary/outline or a ?Other ways to engage? disclosure below the fold.
-3. Keep Sign in as quiet tertiary (header/nav may already cover it).
-4. Vitest: at most one `variant="primary"` (or equivalent) conversion control in the hero CTA stack.
+**Shipped:** `WELCOME_PRIMARY_CONVERSION_PATH = "self-demo"`; hero row is SelfDemo primary + see-it outline; walkthrough/early-access/signup/sign-in demoted to `WelcomeMarketingEngagementPathsSection`; Vitest.
 
 **Acceptance:** One obvious next step in the hero; remaining paths stay reachable without equal weight.
 
