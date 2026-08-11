@@ -4,7 +4,7 @@ import { ARCHITECTURE_DRAFTS_LIST_LABEL } from "@/lib/architecture-workflow-labe
 export const ARCHITECTURES_HUB_PAGE_TITLE = ARCHITECTURE_DRAFTS_LIST_LABEL;
 
 export const ARCHITECTURES_HUB_PAGE_SUBTITLE =
-  "Architecture drafts saved in this browser only — not a tenant-wide inventory." as const;
+  "This draft list stays on this device after you close the browser — not a shared tenant-wide inventory." as const;
 
 export const ARCHITECTURES_HUB_FILTER_SEARCH_PLACEHOLDER = "Search drafts" as const;
 

@@ -18,16 +18,17 @@ import {
 } from "@/lib/architecture-workflow-labels";
 
 describe("create-vs-review-intake-copy (TB-1459)", () => {
-  it("discloses browser-local scope on create-path resume and empty guidance", () => {
-    expect(ARCHITECTURE_CREATION_RECENT_DRAFTS_BODY.toLowerCase()).toContain("this browser");
-    expect(ARCHITECTURE_CREATION_RECENT_DRAFTS_BODY.toLowerCase()).toContain("not a tenant-wide");
+  it("discloses device-local scope without implying session-only loss", () => {
+    expect(ARCHITECTURE_CREATION_RECENT_DRAFTS_BODY.toLowerCase()).toContain("this device");
+    expect(ARCHITECTURE_CREATION_RECENT_DRAFTS_BODY.toLowerCase()).toContain("close the browser");
+    expect(ARCHITECTURE_CREATION_RECENT_DRAFTS_BODY.toLowerCase()).toContain("not a shared tenant-wide");
 
-    expect(ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE.toLowerCase()).toContain("this browser");
+    expect(ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE.toLowerCase()).toContain("this device");
     expect(ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE.toLowerCase()).toContain("other browsers");
   });
 
   it("aligns view-all drafts label with architectures hub honesty", () => {
-    expect(ARCHITECTURE_CREATION_VIEW_ALL_DRAFTS_LABEL.toLowerCase()).toContain("this browser");
+    expect(ARCHITECTURE_CREATION_VIEW_ALL_DRAFTS_LABEL.toLowerCase()).toContain("this device");
   });
 });
 

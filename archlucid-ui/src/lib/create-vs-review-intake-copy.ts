@@ -18,7 +18,7 @@ export const ARCHITECTURE_DRAFT_WORKSPACE_LEAD =
 
 /** `/architectures/new` page subtitle — subordinate to H1 {@link CREATE_ARCHITECTURE_LABEL} (TB-1461). */
 export const ARCHITECTURE_CREATION_PAGE_SUBTITLE =
-  "Resume a saved architecture draft from this browser, or start a new draft in the form below.";
+  "Resume a saved architecture draft from this device, or start a new draft in the form below.";
 
 /** `/architectures/new` page subtitle when browser-local drafts exist (TB-1462). */
 export const ARCHITECTURE_CREATION_PAGE_SUBTITLE_WITH_DRAFTS =
@@ -33,14 +33,14 @@ export const ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE = "New architecture d
 
 /** Empty-state guidance when the operator has no saved drafts yet (TB-1459). */
 export const ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE =
-  "No architecture drafts are saved in this browser yet. Describe the system, goals, and constraints below to begin. Drafts you save on other browsers or devices will not appear here.";
+  "No architecture drafts on this device yet. Describe the system, goals, and constraints below to begin. Drafts from other browsers or devices will not appear here.";
 
 /** Resume strip body when local registry entries exist (TB-1459). */
 export const ARCHITECTURE_CREATION_RECENT_DRAFTS_BODY =
-  "These drafts are saved in this browser only — not a tenant-wide inventory. Continue one below or browse the full list on this device.";
+  "These drafts stay on this device after you close the browser — not a shared tenant-wide inventory. Continue one below or browse the full list.";
 
 /** Link to `/architectures` from the create path — aligned with architectures hub honesty (TB-1459). */
-export const ARCHITECTURE_CREATION_VIEW_ALL_DRAFTS_LABEL = "View all drafts on this browser" as const;
+export const ARCHITECTURE_CREATION_VIEW_ALL_DRAFTS_LABEL = "View all drafts on this device" as const;
 
 /** Concise create≠review boundary — not a warning banner. */
 export const ARCHITECTURE_CREATION_REVIEW_BOUNDARY =
