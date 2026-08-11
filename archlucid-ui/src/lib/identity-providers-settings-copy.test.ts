@@ -7,6 +7,7 @@ import {
   IDENTITY_PROVIDERS_PAGE_INTRO,
   IDENTITY_PROVIDERS_PAGE_SUBTITLE,
   IDENTITY_PROVIDERS_OIDC_PAGE_INTRO,
+  IDENTITY_PROVIDERS_OIDC_PAGE_SUBTITLE,
   IDENTITY_PROVIDERS_OIDC_PAGE_TITLE,
   IDENTITY_PROVIDERS_SAML_PAGE_INTRO,
   IDENTITY_PROVIDERS_SAML_PAGE_SUBTITLE,
@@ -39,5 +40,13 @@ describe("identity-providers-settings-copy", () => {
     expect(IDENTITY_PROVIDERS_OIDC_PAGE_TITLE).toBe("OIDC/JWT status");
     expect(IDENTITY_PROVIDERS_OIDC_PAGE_TITLE.toLowerCase()).not.toContain("configuration");
     expect(IDENTITY_PROVIDERS_OIDC_PAGE_INTRO.toLowerCase()).toContain("review");
+  });
+
+  it("uses a distinct OIDC shell subtitle instead of configure workspace intro (TB-1912)", () => {
+    expect(IDENTITY_PROVIDERS_OIDC_PAGE_SUBTITLE).not.toBe(IDENTITY_PROVIDERS_PAGE_SUBTITLE);
+    expect(IDENTITY_PROVIDERS_OIDC_PAGE_SUBTITLE).not.toBe(IDENTITY_PROVIDERS_PAGE_INTRO);
+    expect(IDENTITY_PROVIDERS_OIDC_PAGE_SUBTITLE.toLowerCase()).not.toContain("configure workspace");
+    expect(IDENTITY_PROVIDERS_OIDC_PAGE_SUBTITLE.toLowerCase()).not.toContain("configure sign-in");
+    expect(IDENTITY_PROVIDERS_OIDC_PAGE_SUBTITLE.toLowerCase()).toContain("review");
   });
 });

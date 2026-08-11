@@ -20,7 +20,7 @@ Regenerate after opening or closing summary-table rows:
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
 | Explainability | 1 |
-| Trustworthiness | 50 |
+| Trustworthiness | 49 |
 | Maintainability | 9 |
 | Traceability | 3 |
 | Interoperability | 4 |
@@ -35,9 +35,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **617** |
+| **Total (unique open)** | **616** |
 
-**By priority band:** P0 **3** | P1 **486** | P2 **111** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **3** | P1 **485** | P2 **111** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -830,7 +830,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1906 | **Done** (2026-08-10) — Identity diagnostics shell `pageSubtitle` validate/read-only job; redundant intro Card removed; Vitest; see `## TB-1906` below | Trustworthiness P1 ? **V1**; owner review ~47/100 2026-07-27; traffic **SEI** | S |
 | TB-1907 | **Done** (2026-08-10) — Identity diagnostics StatusTag + humanized probe/discovery statuses; Vitest; see `## TB-1907` below | Trustworthiness P1 ? **V1**; with **TB-1906**; pairs **TB-116** (do not reopen) | S |
 | TB-1911 | **Done** (2026-08-10) — OIDC/JWT tab shell H1 status framing (not configuration); Vitest; see `## TB-1911` below | Trustworthiness P1 ? **V1**; owner review ~44/100 2026-07-27; traffic **SOI** | S |
-| TB-1912 | OIDC/JWT tab ? shell Configure subtitle override with **TB-1906**; see ## TB-1912 below | Trustworthiness P1 ? **V1**; with **TB-1911**; do not reopen **TB-1906** | S |
+| TB-1912 | **Done** (2026-08-10) — OIDC/JWT tab shell `pageSubtitle` review framing (not configure workspace); Vitest; see `## TB-1912` below | Trustworthiness P1 ? **V1**; with **TB-1911**; do not reopen **TB-1906** | S |
 | TB-1913 | OIDC/JWT tab ? StatusTag for discovery status; see ## TB-1913 below | Trustworthiness P1 ? **V1**; with **TB-1911**; pairs **TB-1907**/**TB-116** | S |
 | TB-1916 | Role mapping tab ? status-hub honesty (not in-page editor); see ## TB-1916 below | Trustworthiness P1 ? **V1**; owner review ~43/100 2026-07-27; traffic **SEO** | S |
 | TB-1917 | Role mapping tab ? shell Configure + duplicate intro/helper with **TB-1906**; see ## TB-1917 below | Trustworthiness P1 ? **V1**; with **TB-1916**; do not reopen **TB-1906** | S |
@@ -44756,7 +44756,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1911 ? OIDC/JWT tab ? title honesty (status/review, not in-page configuration) (P0)
 
-**Window:** V1 ? Trustworthiness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Trustworthiness. **Status:** **Done** (2026-08-10). **Priority:** P0.
 
 **Source:** Owner SOI ~44/100 2026-07-27.
 
@@ -44766,17 +44766,21 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Acceptance:** Title matches shipped capabilities. **Size estimate:** S.
 
+**Shipped:** `IDENTITY_PROVIDERS_OIDC_PAGE_TITLE` → **OIDC/JWT status**; copy + `IdentityProvidersOidcPageView` Vitest guards ban configuration H1 overclaim.
+
 ---
 
 ## TB-1912 ? OIDC/JWT tab ? shell Configure subtitle override with **TB-1906** (P1)
 
-**Window:** V1 ? Trustworthiness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Trustworthiness. **Status:** **Done** (2026-08-10). **Priority:** P1.
 
 **Problem:** Shared shell subtitle still sells Configure on this tab.
 
 **Approach:** Land per-tab subtitle with **TB-1906** (do not reopen). Vitest includes OIDC tab.
 
 **Acceptance:** OIDC tab subtitle matches review/status job. **Size estimate:** S.
+
+**Closure (2026-08-10):** Added `IDENTITY_PROVIDERS_OIDC_PAGE_SUBTITLE`; `IdentityProvidersOidcPageView` passes `pageSubtitle` instead of `pageIntro` fallback. Vitest: `identity-providers-settings-copy.test.ts`, `IdentityProvidersOidcPageView.test.tsx`.
 
 ---
 

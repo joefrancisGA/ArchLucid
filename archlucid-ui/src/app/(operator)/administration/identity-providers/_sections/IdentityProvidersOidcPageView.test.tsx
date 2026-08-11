@@ -11,7 +11,11 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 
 import { IdentityProvidersOidcPageView } from "./IdentityProvidersOidcPageView";
 import type { UseIdentityProvidersSettingsPageModel } from "./use-identity-providers-settings-page";
-import { IDENTITY_PROVIDERS_OIDC_PAGE_TITLE } from "@/lib/identity-providers-settings-copy";
+import {
+  IDENTITY_PROVIDERS_OIDC_PAGE_SUBTITLE,
+  IDENTITY_PROVIDERS_OIDC_PAGE_TITLE,
+  IDENTITY_PROVIDERS_PAGE_SUBTITLE,
+} from "@/lib/identity-providers-settings-copy";
 
 function buildModel(
   overrides: Partial<UseIdentityProvidersSettingsPageModel> = {},
@@ -64,5 +68,12 @@ describe("IdentityProvidersOidcPageView", () => {
 
     expect(screen.getByRole("heading", { name: IDENTITY_PROVIDERS_OIDC_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: /OIDC\/JWT configuration/i })).toBeNull();
+  });
+
+  it("uses OIDC-specific shell subtitle instead of generic configure intro (TB-1912)", () => {
+    render(<IdentityProvidersOidcPageView model={buildModel()} />);
+
+    expect(screen.getByText(IDENTITY_PROVIDERS_OIDC_PAGE_SUBTITLE)).toBeInTheDocument();
+    expect(screen.queryByText(IDENTITY_PROVIDERS_PAGE_SUBTITLE)).not.toBeInTheDocument();
   });
 });

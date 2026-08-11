@@ -78,6 +78,8 @@ export const IDENTITY_PROVIDERS_SAML_PAGE_SUBTITLE =
 export const IDENTITY_PROVIDERS_OIDC_PAGE_TITLE = "OIDC/JWT status";
 export const IDENTITY_PROVIDERS_OIDC_PAGE_INTRO =
   "Review OpenID Connect authority, audience, discovery status, and role claim mapping.";
+export const IDENTITY_PROVIDERS_OIDC_PAGE_SUBTITLE =
+  "Review OpenID Connect authority, audience, discovery status, and role claim mapping before enabling SSO for all users.";
 
 export const IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_TITLE = "Role mapping";
 export const IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_INTRO =

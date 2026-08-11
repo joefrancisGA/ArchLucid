@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  IDENTITY_PROVIDERS_OIDC_PAGE_INTRO,
+  IDENTITY_PROVIDERS_OIDC_PAGE_SUBTITLE,
   IDENTITY_PROVIDERS_OIDC_PAGE_TITLE,
   IDENTITY_PROVIDERS_STATUS_HEALTHY,
   IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW,
@@ -36,7 +36,7 @@ export function IdentityProvidersOidcPageView(props: IdentityProvidersOidcPageVi
   return (
     <IdentityProvidersSettingsShell
       pageTitle={IDENTITY_PROVIDERS_OIDC_PAGE_TITLE}
-      pageIntro={IDENTITY_PROVIDERS_OIDC_PAGE_INTRO}
+      pageSubtitle={IDENTITY_PROVIDERS_OIDC_PAGE_SUBTITLE}
       refreshing={props.model.refreshing}
       lastRefreshedAt={props.model.lastRefreshedAt}
       onRefresh={() => void props.model.refresh()}
