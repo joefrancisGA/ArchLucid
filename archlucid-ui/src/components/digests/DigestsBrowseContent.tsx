@@ -292,7 +292,7 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
           )}
           <CollapsibleSection
             title={DIGESTS_BROWSE_INCLUDES_SECTION_TITLE}
-            defaultOpen={true}
+            defaultOpen={false}
             sectionTestId="digests-browse-includes-disclosure"
           >
             <DigestsBrowseIncludesPreview />

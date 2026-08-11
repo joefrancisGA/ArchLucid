@@ -120,7 +120,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | Authentication sign-in (`/help/authentication-sign-in`) | **TB-1614**–**TB-1618** (open P1 **V1**) | Specialty + Sign in CTA; eval/invite CTAs; viewport density; Related; auth-shell label; ~55/100; traffic **HEU** |
 | Azure Boards help (`/help/azure-boards`) | **TB-1619**–**TB-1622** (open P1 **V1**); **TB-1623** **Done** (HEZ redirect/fold) | Specialty + Open CTA; setup links; smoke leak; Phase-1 jargon; ~51/100; traffic **HAZ** |
 | Azure permissions (`/help/azure-permissions`) | **TB-1626**–**TB-1630** (open P1 **V1**) | Primary CTA; viewport density; Tier/contract jargon; Connect-Azure IA; skeleton; ~63/100; traffic **HEA** |
-| Compliance journey (`/compliance-journey`) | **TB-1483**–**TB-1487** (open P1 **V1**) | MarketingPageShell + tokens; ISR/testid; staged structure + Trust Center CTA; doc-link honesty; Verify dedupe; owner review ~54/100 2026-07-27; traffic **COM** |
+| Compliance journey (`/compliance-journey`) | **TB-1483**/**TB-1485**/**TB-1487** **Done** 2026-08-11; **TB-1484**/**TB-1486** **Done** | MarketingPageShell + staged journey + primary Trust Center CTA; ISR/testid; doc-link honesty |
 | Legacy digest subscriptions (`/digest-subscriptions`) | **TB-1492**–**TB-1496** (**Done** 2026-08-11) | Canonicalize via Digests Subscriptions tab; doc guard + PRODUCT_PACKAGING; **TB-1495**/**TB-1496** shipped 2026-08-10; traffic **IXX** retired |
 | Specialty help chrome (≤~50 scoreboard root) | **TB-1414**–**TB-1415** (open P1 **V1**) | Shared specialty-help chrome contract + anti-bare-markdown / ungated-technical-doc honesty CI; owner scoreboard ≤~50 help cluster; GTM **M-251**/**M-252**; orchestrates **TB-1246**–**TB-1250** / **TB-1253**–**TB-1257** / **TB-1326**–**TB-1330** / **TB-1345**–**TB-1349** / **TB-1374**–**TB-1378** / **TB-1384**–**TB-1398** |
 | INV-001 / decide-once / committed-manifest PA triad | **TB-1416**–**TB-1417** (open P1 **V1**) | Fused PA challenge matrix + anti-conflation honesty CI; GTM **M-253**/**M-254**; maps attacks → **TB-999**/**TB-1003**/**TB-1122**/**TB-1196**/**TB-1221**/**TB-1232**/**TB-1156**/**TB-1369**; committed ≠ content purity |
@@ -419,13 +419,13 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1642 | ~~creating-runs alias — “runs” URL jargon honesty~~ **Done** 2026-08-10 | Trustworthiness P1 **V1** — `retired-help-topic-alias-honesty.test.ts` |
 | TB-1644 | ~~creating-runs alias — traffic workbook fold HCR→HER/HR~~ **Done** 2026-08-10 | Adoption friction P2 **V1** — Batch E manifest |
 | TB-1645 | ~~creating-runs alias — anti-reintro product deep-link CI~~ **Done** 2026-08-10 | Testability P2 **V1** — Batch F guards |
-| TB-1481 | Alert routing — empty destinations+GettingStarted+create-card first viewport | Adoption friction P1 **V1** — with **TB-1477**; pairs **TB-1441** |
+| TB-1481 | ~~Alert routing — empty destinations+GettingStarted+create-card first viewport~~ **Done** 2026-08-11 | Adoption friction P1 **V1** — with **TB-1477**; pairs **TB-1441** |
 | TB-1482 | Shared empty form+rail whitespace contract + Vitest inventory | Testability P2 **V1** — after **TB-1477**–**TB-1481**; pairs Done **TB-1133** / empty **TB-1556** / side-rail **TB-1576** / **TB-1177**/**TB-1194** |
-| TB-1483 | `/compliance-journey` — MarketingPageShell + marketing tokens (parity `/trust`) | Adoption friction P1 **V1** — owner COM ~54/100; traffic **COM** |
+| TB-1483 | ~~`/compliance-journey` — MarketingPageShell + marketing tokens (parity `/trust`)~~ **Done** 2026-08-11 | Adoption friction P1 **V1** — owner COM ~54/100; traffic **COM** |
 | TB-1484 | Compliance journey — ISR `revalidate=300` + surface test id | Performance/testability P2 **V1** — with **TB-1483**; pairs **TB-567** |
-| TB-1485 | Compliance journey — staged structure + primary Trust Center CTA (not flat link dump) | Adoption friction P1 **V1** — with **TB-1483** |
+| TB-1485 | ~~Compliance journey — staged structure + primary Trust Center CTA (not flat link dump)~~ **Done** 2026-08-11 | Adoption friction P1 **V1** — with **TB-1483** |
 | TB-1486 | Compliance journey — doc-link honesty (help vs downloads) + buyer labels | Trustworthiness P1 **V1** — with **TB-1483** |
-| TB-1487 | Compliance journey — CTA hierarchy + Verify dedupe | Adoption friction P1 **V1** — with **TB-1483** |
+| TB-1487 | ~~Compliance journey — CTA hierarchy + Verify dedupe~~ **Done** 2026-08-11 | Adoption friction P1 **V1** — with **TB-1483** |
 | TB-1492 | ~~`/digest-subscriptions` — single redirect shim (drop dual config+page / dead layout)~~ **Done** 2026-08-11 | Maintainability P2 **V1** — traffic **IXX** retired |
 | TB-1493 | ~~Owner traffic workbook — mark IXX redirect-only (inherit Digests Subscriptions tab)~~ **Done** 2026-08-11 | Adoption friction P2 **V1** — IXX row removed |
 | TB-1494 | ~~CI drift — `/digest-subscriptions` must stay redirect-only~~ **Done** 2026-08-11 | Testability P2 **V1** — `legacy-digest-subscriptions-route-doc-guard` |

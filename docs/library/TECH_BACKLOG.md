@@ -1015,11 +1015,11 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1477 | ~~Advisory schedules ? empty form+scope-rail first-viewport whitespace~~ **Done** 2026-08-11 ? compact empty under create form; Vitest | Adoption friction P1 ? **V1**; owner whitespace pass 2026-07-27; `AdvisorySchedulesContent`; pairs **TB-1133** | S |
 | TB-1478 | ~~Digests schedule ? empty/form+readiness-rail whitespace~~ **Done** 2026-08-11 ? demote supplemental aside when rail unpinned; Vitest | Adoption friction P1 ? **V1**; with **TB-1477**; `ExecDigestScheduleContent` | S |
 | TB-1479 | Alert rules Rules tab ? empty `gap-8` list+create+preview two-col; see ## TB-1479 below | Adoption friction P1 ? **V1**; with **TB-1477**; `AlertRulesContent`; pairs **TB-936** | S |
-| TB-1480 | Digests browse ? empty checklist+preview+empty stack composition; see ## TB-1480 below | Adoption friction P1 ? **V1**; with **TB-1477**; `DigestsBrowseContent` | S |
-| TB-1481 | Alert routing ? empty destinations+GettingStarted+create-card first viewport; see ## TB-1481 below | Adoption friction P1 ? **V1**; with **TB-1477**; `AlertRoutingContent`; pairs **TB-1441** | S |
-| TB-1483 | `/compliance-journey` ? MarketingPageShell + marketing tokens (parity `/trust`); see ## TB-1483 below | Adoption friction P1 ? **V1**; owner review ~54/100 2026-07-27; traffic **COM** | S |
-| TB-1485 | Compliance journey ? staged structure + primary Trust Center CTA (not flat link dump); see ## TB-1485 below | Adoption friction P1 ? **V1**; with **TB-1483** | S |
-| TB-1487 | Compliance journey ? CTA hierarchy + Verify dedupe; see ## TB-1487 below | Adoption friction P1 ? **V1**; with **TB-1483** | S |
+| TB-1480 | Digests browse ? empty checklist+preview+empty stack composition; see ## TB-1480 below | Adoption friction P1 ? **V1**; **Done** 2026-08-11 | S |
+| TB-1481 | Alert routing ? empty destinations+GettingStarted+create-card first viewport; see ## TB-1481 below | Adoption friction P1 ? **V1**; **Done** 2026-08-11 | S |
+| TB-1483 | `/compliance-journey` ? MarketingPageShell + marketing tokens (parity `/trust`); see ## TB-1483 below | Adoption friction P1 ? **V1**; **Done** 2026-08-11 | S |
+| TB-1485 | Compliance journey ? staged structure + primary Trust Center CTA (not flat link dump); see ## TB-1485 below | Adoption friction P1 ? **V1**; **Done** 2026-08-11 | S |
+| TB-1487 | Compliance journey ? CTA hierarchy + Verify dedupe; see ## TB-1487 below | Adoption friction P1 ? **V1**; **Done** 2026-08-11 | S |
 | TB-1501 | Digests browse ? honor `#digest-{id}` deep link (select + scroll); see ## TB-1501 below | Adoption friction P1 ? **V1**; owner review ~53/100 2026-07-27; traffic **DIB**; hub Preview latest already builds hash | S |
 | TB-1502 | Digests browse ? loading skeleton (not prose-only Loading digests?); see ## TB-1502 below | Adoption friction P1 ? **V1**; with **TB-1501** | S |
 | TB-1505 | Digests browse ? keep `?tab=browse` deep-link stable when selecting Browse; see ## TB-1505 below | Adoption friction P1 ? **V1**; with **TB-1501**; traffic **DIB** | XS |
@@ -37924,7 +37924,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-11) ? empty browse path is checklist + collapsed includes disclosure (`DigestsBrowseContent`); Vitest TB-1480 contract.
 
 **Priority:** P0.
 
@@ -37952,7 +37952,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-11) ? empty routing tab is form-first composition with compact getting-started strip (`AlertRoutingContent`); Vitest TB-1481 contract.
 
 **Priority:** P0.
 
@@ -38010,7 +38010,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-11) ? `MarketingPageShell` variant `reading` + `MARKETING_SURFACES` / `MARKETING_TYPOGRAPHY` on diligence links (`ComplianceJourneyPageBody`).
 
 **Priority:** P0.
 
@@ -38066,7 +38066,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-11) ? three staged sections + primary Trust Center CTA (`compliance-journey-page-copy.ts`, `ComplianceJourneyPageBody`).
 
 **Priority:** P0.
 
@@ -38124,7 +38124,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-11) ? one primary Trust Center CTA; verify folded into final stage confirmation line; duplicate list Trust Center link removed.
 
 **Priority:** P0.
 

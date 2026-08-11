@@ -53,24 +53,7 @@ export function AlertRoutingDestinationList({
   onTest,
 }: AlertRoutingDestinationListProps) {
   if (items.length === 0) {
-    return (
-      <div
-        className="rounded-lg border border-dashed border-neutral-300 bg-neutral-50 p-6 dark:border-neutral-700 dark:bg-neutral-900/40"
-        data-testid="alert-routing-empty-state"
-      >
-        <h4 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          No notification destinations configured
-        </h4>
-        <p className={cn("mt-2 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          Create a destination to receive email, webhook, Teams, or Slack notifications when qualifying findings meet your severity threshold.
-        </p>
-        {canMutateRouting ? (
-          <Button type="button" variant="outline" className="mt-4" onClick={onAddDestination}>
-            Go to destination form
-          </Button>
-        ) : null}
-      </div>
-    );
+    return null;
   }
 
   return (

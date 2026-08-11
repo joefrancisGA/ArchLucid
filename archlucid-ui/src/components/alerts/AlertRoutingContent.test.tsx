@@ -147,19 +147,22 @@ describe("AlertRoutingContent", () => {
     expect(nameInput).toHaveAttribute("placeholder", ALERT_ROUTING_DESTINATION_NAME_PLACEHOLDER);
   });
 
-  it("places getting-started guidance below the form in the empty state", async () => {
+  it("places getting-started guidance below the form in the empty state (TB-1481)", async () => {
     renderWithHub(<AlertRoutingContent />);
 
-    await screen.findByTestId("alert-routing-empty-state");
+    const emptyState = await screen.findByTestId("alert-routing-empty-state");
 
-    const formHeading = screen.getByRole("heading", { name: "Destination details" });
-    const gettingStartedHeading = screen.getByText("Set up alert delivery");
+    const formHeading = screen.getByRole("heading", { name: "Set up alert delivery", level: 3 });
+    const gettingStartedSteps = screen.getByRole("list");
 
-    expect(formHeading.compareDocumentPosition(gettingStartedHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(emptyState).toContainElement(formHeading);
+    expect(formHeading.compareDocumentPosition(gettingStartedSteps) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByRole("link", { name: "Test alerts" })).toHaveAttribute(
       "href",
       "/governance/alert-rules?tab=test-alerts",
     );
+    expect(screen.queryByRole("button", { name: "Go to destination form" })).not.toBeInTheDocument();
+    expect(screen.queryByText("No notification destinations configured")).not.toBeInTheDocument();
   });
 
   it("does not show subscription in visible copy", async () => {

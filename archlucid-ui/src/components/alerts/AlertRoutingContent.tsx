@@ -124,6 +124,7 @@ export function AlertRoutingContent() {
   }, [canMutateRouting, items.length]);
 
   const deliveryHealth = useMemo(() => summarizeAlertRoutingDeliveryHealth(items), [items]);
+  const isEmptyComposition: boolean = !loading && items.length === 0;
 
   const configProvenanceLabel = useMemo(() => {
     const change = latestAlertRoutingConfigChange(items);
@@ -314,7 +315,7 @@ export function AlertRoutingContent() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className={cn(isEmptyComposition ? "max-w-4xl space-y-4" : "space-y-8")}>
       <header className="space-y-2">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Notification delivery</h2>
@@ -370,33 +371,48 @@ export function AlertRoutingContent() {
         </div>
       ) : null}
 
-      <section aria-labelledby="alert-routing-destinations-heading" className="space-y-4">
-        <h3 id="alert-routing-destinations-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          Notification destinations
-        </h3>
-        <AlertRoutingDestinationList
-          items={items}
-          attemptsBySub={attemptsBySub}
-          canMutateRouting={canEditRouting}
-          testingId={testingId}
-          onAddDestination={scrollToForm}
-          onToggle={(id, isEnabled, subscriptionName, channelTypeValue) =>
-            void onToggle(id, isEnabled, subscriptionName, channelTypeValue)
-          }
-          onLoadAttempts={(id) => void loadAttempts(id)}
-          onTest={(id) => void onTest(id)}
-        />
-      </section>
+      {!isEmptyComposition ? (
+        <section aria-labelledby="alert-routing-destinations-heading" className="space-y-4">
+          <h3 id="alert-routing-destinations-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+            Notification destinations
+          </h3>
+          <AlertRoutingDestinationList
+            items={items}
+            attemptsBySub={attemptsBySub}
+            canMutateRouting={canEditRouting}
+            testingId={testingId}
+            onAddDestination={scrollToForm}
+            onToggle={(id, isEnabled, subscriptionName, channelTypeValue) =>
+              void onToggle(id, isEnabled, subscriptionName, channelTypeValue)
+            }
+            onLoadAttempts={(id) => void loadAttempts(id)}
+            onTest={(id) => void onTest(id)}
+          />
+        </section>
+      ) : null}
 
-      <section
-        ref={formSectionRef}
-        tabIndex={-1}
-        aria-labelledby="alert-routing-form-heading"
-        className={cn("space-y-6 rounded-lg border border-neutral-200 bg-white p-5 dark:border-neutral-700 dark:bg-neutral-950", !canEditRouting && "opacity-90")}
+      <div
+        className={cn(isEmptyComposition && "space-y-4")}
+        data-testid={isEmptyComposition ? "alert-routing-empty-state" : undefined}
       >
-        <h3 id="alert-routing-form-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          {items.length === 0 ? "Destination details" : "Add another destination"}
-        </h3>
+        <section
+          ref={formSectionRef}
+          tabIndex={-1}
+          aria-labelledby="alert-routing-form-heading"
+          className={cn(
+            "space-y-6 rounded-lg border border-neutral-200 bg-white p-5 dark:border-neutral-700 dark:bg-neutral-950",
+            !canEditRouting && "opacity-90",
+          )}
+        >
+          <h3 id="alert-routing-form-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+            {isEmptyComposition ? "Set up alert delivery" : "Add another destination"}
+          </h3>
+          {isEmptyComposition ? (
+            <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              Create your first email or webhook destination. Qualifying findings notify your team when severity
+              thresholds are met.
+            </p>
+          ) : null}
 
         <fieldset className="space-y-4 border-0 p-0" disabled={!canEditRouting}>
           <label className={cn("block text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
@@ -542,21 +558,23 @@ export function AlertRoutingContent() {
         </div>
       </section>
 
-      {items.length === 0 ? (
-        <GettingStartedSteps
-          {...(canMutateRouting ? alertRoutingEmptyGettingStartedOperator : alertRoutingEmptyGettingStartedReader)}
-          stepLinkByIndex={
-            canMutateRouting
-              ? {
-                  3: {
-                    href: governanceAlertRulesTabHref("test-alerts"),
-                    label: "Test alerts",
-                  },
-                }
-              : undefined
-          }
-        />
-      ) : null}
+        {isEmptyComposition ? (
+          <GettingStartedSteps
+            {...(canMutateRouting ? alertRoutingEmptyGettingStartedOperator : alertRoutingEmptyGettingStartedReader)}
+            className="border-0 bg-transparent px-0 py-0"
+            stepLinkByIndex={
+              canMutateRouting
+                ? {
+                    3: {
+                      href: governanceAlertRulesTabHref("test-alerts"),
+                      label: "Test alerts",
+                    },
+                  }
+                : undefined
+            }
+          />
+        ) : null}
+      </div>
 
       <AlertRoutingSubscriptionDisableDialog
         target={pendingDisable}

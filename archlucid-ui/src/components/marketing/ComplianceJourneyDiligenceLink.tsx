@@ -5,10 +5,8 @@ import {
   complianceJourneyLinkAccessibleName,
   type ComplianceJourneyDiligenceLink,
 } from "@/lib/compliance-journey-diligence-links";
+import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
-
-const linkClassName =
-  "font-medium text-teal-700 underline underline-offset-2 dark:text-teal-300";
 
 type ComplianceJourneyDiligenceLinkProps = {
   readonly link: ComplianceJourneyDiligenceLink;
@@ -21,12 +19,15 @@ export function ComplianceJourneyDiligenceLink(props: ComplianceJourneyDiligence
   return (
     <Link
       aria-label={complianceJourneyLinkAccessibleName(link)}
-      className={linkClassName}
+      className={MARKETING_SURFACES.inlineLink}
       data-testid={`compliance-journey-link-${link.id}`}
       href={link.href}
     >
       {link.label}
-      <span className={cn("font-normal text-neutral-600 dark:text-neutral-400")}> ({destinationLabel})</span>
+      <span className={cn("font-normal text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>
+        {" "}
+        ({destinationLabel})
+      </span>
     </Link>
   );
 }
