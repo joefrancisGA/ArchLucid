@@ -1,8 +1,9 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { AlertsFindingsDualInboxReconciler } from "@/components/AlertsFindingsDualInboxReconciler";
 import { GovernanceApprovalStatusBanner } from "@/components/governance/GovernanceApprovalStatusBanner";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { LayerHeader } from "@/components/LayerHeader";
@@ -187,6 +188,7 @@ export default function GovernanceFindingsQueueClient() {
         actions={<PageContextualHelpButton />}
       />
       <GovernanceJobRouterStrip currentJobId="triage-findings" />
+      <AlertsFindingsDualInboxReconciler currentSurfaceId="findings-queue" />
       <PageCapabilityBoundaryStrip surfaceId="governanceFindings" />
 <div className={cn("mt-4", OPERATOR_LAYOUT.sectionStack)}>
         {secondaryViewPresentation !== null ? (
@@ -204,11 +206,11 @@ export default function GovernanceFindingsQueueClient() {
           >
             Showing risks for review{" "}
             <span className="font-mono text-al-text-primary">{scopedRunId}</span>
-            {" · "}
+            {" Â· "}
             <Link className={OPERATOR_LINK.inline} href="/governance/findings">
               Clear review scope
             </Link>
-            {" · "}
+            {" Â· "}
             <Link className={OPERATOR_LINK.inline} href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}>
               Open review
             </Link>
@@ -233,7 +235,7 @@ export default function GovernanceFindingsQueueClient() {
         ) : null}
 
         {loading ? (
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading findings…</p>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading findingsâ€¦</p>
         ) : null}
 
         {!loading && rows.length > 0 && displayedRows.length === 0 ? (
@@ -270,7 +272,7 @@ export default function GovernanceFindingsQueueClient() {
                 loadFailed
                   ? buyerPolishedShell
                     ? "We could not load risks for this review. Check your connection, or open reviews and try again."
-                    : "We could not load the architecture risk register for this workspace — check connectivity, then open the curated Claims Intake example if you are in demo mode."
+                    : "We could not load the architecture risk register for this workspace â€” check connectivity, then open the curated Claims Intake example if you are in demo mode."
                   : buyerPolishedShell
                     ? BUYER_RISK_REGISTER_EMPTY_BODY
                     : ARCHITECTURE_RISK_REGISTER_EMPTY_BODY
@@ -304,3 +306,4 @@ export default function GovernanceFindingsQueueClient() {
     </div>
   );
 }
+

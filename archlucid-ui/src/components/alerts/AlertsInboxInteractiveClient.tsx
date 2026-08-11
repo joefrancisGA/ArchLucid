@@ -1,8 +1,9 @@
-"use client";
+﻿"use client";
 
 import { AlertsInboxAlertListSection } from "@/components/alerts/AlertsInboxAlertListSection";
 import { AlertsInboxControls } from "@/components/alerts/AlertsInboxControls";
 import { AlertsInboxDialogsDeferred } from "@/components/alerts/alerts-inbox-deferred-chunks";
+import { AlertsFindingsDualInboxReconciler } from "@/components/AlertsFindingsDualInboxReconciler";
 import { AlertsInboxPageIntro } from "@/components/alerts/AlertsInboxPageIntro";
 import { AlertsInboxSummaryRow } from "@/components/alerts/AlertsInboxSummaryRow";
 import { useAlertsInboxController } from "@/components/alerts/use-alerts-inbox-controller";
@@ -23,6 +24,8 @@ export function AlertsInboxInteractiveClient({ initialModel = null }: AlertsInbo
         buyerPolishedShell={controller.buyerPolishedShell}
         failure={controller.failure}
       />
+
+      <AlertsFindingsDualInboxReconciler currentSurfaceId="alerts-inbox" />
 
       <AlertsInboxSummaryRow
         summary={controller.summaryCounts}
@@ -82,3 +85,4 @@ export function AlertsInboxInteractiveClient({ initialModel = null }: AlertsInbo
     </div>
   );
 }
+
