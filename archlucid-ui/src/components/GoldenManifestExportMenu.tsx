@@ -2,13 +2,7 @@
 
 import { useState } from "react";
 
-import {
-  buildGoldenManifestMarkdownFilename,
-  formatGoldenManifestMarkdown,
-  isUsableGoldenManifestExportJson,
-  triggerGoldenManifestMarkdownDownload,
-} from "@/lib/export-markdown";
-import { recordFirstExportOpenedOnce } from "@/lib/first-tenant-funnel-telemetry";
+import { ExportFormatWhenToUseHint } from "@/components/ExportFormatWhenToUseHint";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -18,7 +12,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  buildGoldenManifestMarkdownFilename,
+  formatGoldenManifestMarkdown,
+  isUsableGoldenManifestExportJson,
+  triggerGoldenManifestMarkdownDownload,
+} from "@/lib/export-markdown";
+import { EXPORT_FORMAT_MARKDOWN } from "@/lib/export-format-when-to-use";
+import { recordFirstExportOpenedOnce } from "@/lib/first-tenant-funnel-telemetry";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
+import { cn } from "@/lib/utils";
 import type { ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
 
 export type GoldenManifestExportMenuProps = {
@@ -28,13 +32,13 @@ export type GoldenManifestExportMenuProps = {
   manifestSummary: ManifestSummary | null;
   trustEvidenceCard?: RunTrustEvidenceCard | null;
   /**
-   * Buyer deliverables: single obvious control instead of a select labeled “More formats”.
+   * Buyer deliverables: single obvious control instead of a select labeled "More formats".
    */
   buyerMarkdownAsPrimaryButton?: boolean;
 };
 
 /**
- * Export menu for finalized review record artifacts on run detail — Markdown is generated entirely in the browser.
+ * Export menu for finalized review record artifacts on run detail - Markdown is generated entirely in the browser.
  *
  * @important Verify all buyer-visible string labels use {@link SIGNED_MANIFEST_LABEL}, not "golden manifest".
  * The `trustEvidenceGoldenManifestFieldTitle` guard covers data-layer field names but not hardcoded strings inside this component.
@@ -75,20 +79,26 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
     setExportMenuKey((k: number) => k + 1);
   }
 
+  const markdownOptionLabel =
+    buyerPolishedShell === true ? "Download review summary" : EXPORT_FORMAT_MARKDOWN.label;
+
   if (buyerMarkdownAsPrimaryButton === true) {
     return (
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        className="h-9"
-        data-testid="golden-manifest-markdown-download-button"
-        onClick={() => {
-          downloadMarkdownSummary();
-        }}
-      >
-        Download review summary
-      </Button>
+      <div className="flex max-w-xs flex-col gap-1">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="h-9"
+          data-testid="golden-manifest-markdown-download-button"
+          onClick={() => {
+            downloadMarkdownSummary();
+          }}
+        >
+          {markdownOptionLabel}
+        </Button>
+        <ExportFormatWhenToUseHint format="markdown" />
+      </div>
     );
   }
 
@@ -104,14 +114,27 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
       }}
     >
       <SelectTrigger
-        className={buyerPolishedShell ? "h-9 w-[11rem]" : "h-9 w-[10rem]"}
-        aria-label={buyerPolishedShell ? "More export formats for this review" : `Export ${SIGNED_MANIFEST_LABEL.toLowerCase()}`}
+        className={cn(
+          buyerPolishedShell ? "h-9 w-[12rem] opacity-60" : "h-9 w-[14rem]",
+          buyerPolishedShell && "text-neutral-600 dark:text-neutral-400",
+        )}
+        aria-label={
+          buyerPolishedShell
+            ? "More export formats for this review"
+            : `Export ${SIGNED_MANIFEST_LABEL.toLowerCase()}`
+        }
+        data-testid="golden-manifest-export-more-formats-trigger"
       >
         <SelectValue placeholder={buyerPolishedShell ? "More formats" : "Export"} />
       </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="markdown-summary">
-          {buyerPolishedShell ? "Download review summary" : "Markdown summary"}
+      <SelectContent className="min-w-[16rem]">
+        <SelectItem value="markdown-summary" className="items-start py-2">
+          <span className="flex flex-col gap-0.5 pr-2">
+            <span className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
+              {markdownOptionLabel}
+            </span>
+            <ExportFormatWhenToUseHint format="markdown" />
+          </span>
         </SelectItem>
       </SelectContent>
     </Select>

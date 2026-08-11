@@ -3,6 +3,8 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+import { EXPORT_FORMAT_MARKDOWN } from "@/lib/export-format-when-to-use";
+
 describe("GoldenManifestExportMenu (TB-513)", () => {
   const source = readFileSync(join(import.meta.dirname, "GoldenManifestExportMenu.tsx"), "utf8");
 
@@ -19,5 +21,19 @@ describe("GoldenManifestExportMenu (TB-513)", () => {
 
       expect(value, literal).not.toMatch(/\bgolden manifest\b/);
     }
+  });
+});
+
+describe("GoldenManifestExportMenu (TB-2202)", () => {
+  const source = readFileSync(join(import.meta.dirname, "GoldenManifestExportMenu.tsx"), "utf8");
+
+  it("wires ExportFormatWhenToUseHint and demotes More formats opacity", () => {
+    expect(source).toContain("ExportFormatWhenToUseHint");
+    expect(source).toContain('format="markdown"');
+    expect(source).toContain("EXPORT_FORMAT_MARKDOWN");
+    expect(source).toContain("opacity-60");
+    expect(source).toContain("More formats");
+    expect(source).toContain("EXPORT_FORMAT_MARKDOWN.label");
+    expect(EXPORT_FORMAT_MARKDOWN.recommendedFor).toBe("email");
   });
 });

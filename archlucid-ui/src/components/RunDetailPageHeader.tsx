@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { CommitRunButton } from "@/components/CommitRunButton";
+import { ExportFormatWhenToUseHint } from "@/components/ExportFormatWhenToUseHint";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { ContextualHelp } from "@/components/ContextualHelp";
@@ -17,6 +18,7 @@ import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { StructuralExecutionModeBadge } from "@/components/StructuralExecutionModeBadge";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
+import { EXPORT_FORMAT_DOCX, EXPORT_FORMAT_PDF } from "@/lib/export-format-when-to-use";
 import { RUN_PACKAGE_EXPORT_LABELS } from "@/lib/i18n";
 import { runExecutiveSummaryExportHref } from "@/lib/api/run-summary-export-api";
 import {
@@ -66,8 +68,8 @@ function RunPackageExportButtons({
     return (
       <div className="mt-1 flex flex-col gap-2">
         <div className="flex flex-wrap gap-2">
-          <DisabledExportButton label={RUN_PACKAGE_EXPORT_LABELS.docx} />
-          <DisabledExportButton label={RUN_PACKAGE_EXPORT_LABELS.pdf} />
+          <DisabledExportButton label={EXPORT_FORMAT_DOCX.label} />
+          <DisabledExportButton label={EXPORT_FORMAT_PDF.label} />
           <DisabledExportButton label={RUN_PACKAGE_EXPORT_LABELS.html} />
           <DisabledExportButton label="Download Executive Summary" />
         </div>
@@ -79,31 +81,39 @@ function RunPackageExportButtons({
   }
 
   return (
-    <div className="mt-1 flex flex-wrap gap-2">
-      <Button variant="outline" size="sm" asChild>
-        <Link href={getRunPackageExportUrl(runId, "docx")} prefetch={false} target="_blank">
-          <Download className="mr-2 h-4 w-4" />
-          {RUN_PACKAGE_EXPORT_LABELS.docx}
-        </Link>
-      </Button>
-      <Button variant="outline" size="sm" asChild>
-        <Link href={getRunPackageExportUrl(runId, "pdf")} prefetch={false} target="_blank">
-          <Download className="mr-2 h-4 w-4" />
-          {RUN_PACKAGE_EXPORT_LABELS.pdf}
-        </Link>
-      </Button>
-      <Button variant="outline" size="sm" asChild>
-        <Link href={getRunPackageExportUrl(runId, "html")} prefetch={false} target="_blank">
-          <Download className="mr-2 h-4 w-4" />
-          {RUN_PACKAGE_EXPORT_LABELS.html}
-        </Link>
-      </Button>
-      <Button variant="outline" size="sm" asChild>
-        <Link href={runExecutiveSummaryExportHref(runId)} prefetch={false} target="_blank">
-          <Download className="mr-2 h-4 w-4" />
-          Download Executive Summary
-        </Link>
-      </Button>
+    <div className="mt-1 flex flex-col gap-2">
+      <div className="flex flex-wrap gap-2">
+        <div className="flex max-w-[14rem] flex-col gap-1">
+          <Button variant="outline" size="sm" asChild>
+            <Link href={getRunPackageExportUrl(runId, "docx")} prefetch={false} target="_blank">
+              <Download className="mr-2 h-4 w-4" />
+              {EXPORT_FORMAT_DOCX.label}
+            </Link>
+          </Button>
+          <ExportFormatWhenToUseHint format="docx" />
+        </div>
+        <div className="flex max-w-[14rem] flex-col gap-1">
+          <Button variant="outline" size="sm" asChild>
+            <Link href={getRunPackageExportUrl(runId, "pdf")} prefetch={false} target="_blank">
+              <Download className="mr-2 h-4 w-4" />
+              {EXPORT_FORMAT_PDF.label}
+            </Link>
+          </Button>
+          <ExportFormatWhenToUseHint format="pdf" />
+        </div>
+        <Button variant="outline" size="sm" asChild>
+          <Link href={getRunPackageExportUrl(runId, "html")} prefetch={false} target="_blank">
+            <Download className="mr-2 h-4 w-4" />
+            {RUN_PACKAGE_EXPORT_LABELS.html}
+          </Link>
+        </Button>
+        <Button variant="outline" size="sm" asChild>
+          <Link href={runExecutiveSummaryExportHref(runId)} prefetch={false} target="_blank">
+            <Download className="mr-2 h-4 w-4" />
+            Download Executive Summary
+          </Link>
+        </Button>
+      </div>
     </div>
   );
 }

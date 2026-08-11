@@ -11,6 +11,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { ConsultingDocxExportButton } from "@/components/ConsultingDocxExportButton";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { ExportTerraformAdvisoryButton } from "@/components/ExportTerraformAdvisoryButton";
+import { ExportFormatWhenToUseHint } from "@/components/ExportFormatWhenToUseHint";
 import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { GoldenManifestExportMenu } from "@/components/GoldenManifestExportMenu";
 import { ReviewBoardWhitelabelConsultingExportButton } from "@/components/ReviewBoardWhitelabelConsultingExportButton";
@@ -126,17 +127,21 @@ export function RunDetailArtifactsExportsSection(
                 <Button variant="outline" disabled title={SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT}>
                   Download architecture review report (DOCX)
                 </Button>
+                <ExportFormatWhenToUseHint format="docx" />
                 <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   {SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT}
                 </p>
               </div>
             ) : (
-              <ExportTrackedAnchor
-                className={buttonVariants({ variant: "outline" })}
-                href={getRunPackageExportUrl(runId, "docx")}
-              >
-                Download architecture review report (DOCX)
-              </ExportTrackedAnchor>
+              <div className="flex max-w-prose flex-col gap-1">
+                <ExportTrackedAnchor
+                  className={buttonVariants({ variant: "outline" })}
+                  href={getRunPackageExportUrl(runId, "docx")}
+                >
+                  Download architecture review report (DOCX)
+                </ExportTrackedAnchor>
+                <ExportFormatWhenToUseHint format="docx" />
+              </div>
             )}
             {requestId ? (
               <ExportTrackedAnchor
@@ -264,12 +269,15 @@ export function RunDetailArtifactsExportsSection(
           <div className="mt-4 flex flex-col gap-3">
             {buyerPolishedArtifactTable ? (
               <div className="flex flex-wrap items-center gap-3">
-                <ExportTrackedAnchor
-                  className={buttonVariants({ variant: "outline", size: "sm" })}
-                  href={getBundleDownloadUrl(manifestId)}
-                >
-                  Download evidence bundle
-                </ExportTrackedAnchor>
+                <div className="flex max-w-[14rem] flex-col gap-1">
+                  <ExportTrackedAnchor
+                    className={buttonVariants({ variant: "outline", size: "sm" })}
+                    href={getBundleDownloadUrl(manifestId)}
+                  >
+                    Download evidence bundle
+                  </ExportTrackedAnchor>
+                  <ExportFormatWhenToUseHint format="zip" />
+                </div>
                 <GoldenManifestExportMenu
                   runId={runId}
                   manifestId={manifestId}
@@ -288,12 +296,15 @@ export function RunDetailArtifactsExportsSection(
                   manifestSummary={manifestSummaryForUi ?? manifestSummary}
                   trustEvidenceCard={trustEvidenceCard ?? null}
                 />
-                <ExportTrackedAnchor
-                  className={buttonVariants({ variant: "outline", size: "sm" })}
-                  href={getBundleDownloadUrl(manifestId)}
-                >
-                  Download bundle (ZIP)
-                </ExportTrackedAnchor>
+                <div className="flex max-w-[14rem] flex-col gap-1">
+                  <ExportTrackedAnchor
+                    className={buttonVariants({ variant: "outline", size: "sm" })}
+                    href={getBundleDownloadUrl(manifestId)}
+                  >
+                    Download bundle (ZIP)
+                  </ExportTrackedAnchor>
+                  <ExportFormatWhenToUseHint format="zip" />
+                </div>
                 <ConsultingDocxExportButton runId={runId} />
                 <ReviewBoardWhitelabelConsultingExportButton runId={runId} />
                 <ExportTerraformAdvisoryButton runId={runId} />
@@ -301,12 +312,15 @@ export function RunDetailArtifactsExportsSection(
             )}
             {buyerPolishedArtifactTable ? null : (
               <div className="flex flex-wrap items-center gap-3">
-                <ExportTrackedAnchor
-                  className={buttonVariants({ variant: "outline", size: "sm" })}
-                  href={getRunExportDownloadUrl(runId)}
-                >
-                  Download review export (ZIP)
-                </ExportTrackedAnchor>
+                <div className="flex max-w-[14rem] flex-col gap-1">
+                  <ExportTrackedAnchor
+                    className={buttonVariants({ variant: "outline", size: "sm" })}
+                    href={getRunExportDownloadUrl(runId)}
+                  >
+                    Download review export (ZIP)
+                  </ExportTrackedAnchor>
+                  <ExportFormatWhenToUseHint format="zip" />
+                </div>
                 <RunScopedAuditExportButton runId={runId} />
                 <Link
                   className={cn(buttonVariants({ variant: "outline", size: "sm" }), OPERATOR_LINK.nav)}
