@@ -2,6 +2,7 @@
 
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { PreferencesNotificationsVocabularyRail } from "@/components/PreferencesNotificationsVocabularyRail";
+import { ShellThemePreferencesAppearanceVocabularyRail } from "@/components/ShellThemePreferencesAppearanceVocabularyRail";
 import { ThemePreferenceSelector } from "@/components/ThemePreferenceSelector";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -18,6 +19,7 @@ export function PreferencesSettingsPageView() {
         actions={<PageContextualHelpButton />}
       />
       <PreferencesNotificationsVocabularyRail currentSurfaceId="preferences" />
+      <ShellThemePreferencesAppearanceVocabularyRail currentSurfaceId="preferences-appearance" />
       <Card data-testid="preferences-appearance-card">
         <CardHeader>
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Appearance</CardTitle>

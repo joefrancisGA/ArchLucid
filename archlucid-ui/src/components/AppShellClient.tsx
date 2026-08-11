@@ -24,6 +24,7 @@ import {
 import { AppShellKeyboardShortcutBoundary } from "@/components/shell/AppShellKeyboardShortcutBoundary";
 import { OperatorShellAccessRedirectsHost } from "@/components/shell/OperatorShellAccessRedirectsHost";
 import { ColorModeToggle } from "@/components/ColorModeToggle";
+import { ShellThemePreferencesAppearanceVocabularyRail } from "@/components/ShellThemePreferencesAppearanceVocabularyRail";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
 import {
   OperatorChromeModeProvider,
@@ -355,7 +356,14 @@ function AppShellInner({ children }: AppShellClientProps) {
                         </Button>
                       </ToolbarHelpTooltip>
                       {isUiAuthorityThemeEvalEnabledEnv() ? <AuthorityThemeToggle /> : null}
-                      <ColorModeToggle />
+                      <div className="relative flex items-center" data-testid="shell-theme-toggle-cluster">
+                        <ColorModeToggle />
+                        {/* Sticky chrome stays one-row; teaching stays available to AT and tests. */}
+                        <ShellThemePreferencesAppearanceVocabularyRail
+                          currentSurfaceId="shell-theme-toggle"
+                          className="sr-only"
+                        />
+                      </div>
                     </div>
                   </div>
                 </header>

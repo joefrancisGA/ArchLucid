@@ -33,6 +33,7 @@ export function ColorModeToggle() {
   const nextMode = resolveNextColorModePreference(preference, systemPrefersDark);
   const label = buildColorModeToggleLabel(preference, systemPrefersDark);
   const Icon = resolvedDark ? Moon : Sun;
+  const chromeTitle = `${label} Durable account theme lives under Preferences appearance.`;
 
   return (
     <button
@@ -40,7 +41,7 @@ export function ColorModeToggle() {
       className={cn("auth-panel-focus flex h-8 w-8 items-center justify-center rounded-md border border-neutral-200 bg-white transition-colors hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800 dark:hover:bg-neutral-700", OPERATOR_TYPOGRAPHY.body,
       )}
       aria-label={label}
-      title={label}
+      title={chromeTitle}
       onClick={() => setAndPersist(nextMode)}
     >
       <Icon className="size-4 shrink-0 text-neutral-700 dark:text-neutral-200" aria-hidden />
