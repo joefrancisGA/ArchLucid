@@ -22,6 +22,7 @@ import { scopedRunIdFromQuery } from "@/lib/architecture-risk-register-page";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
+import { DigestsAdvisoryScansVocabularyRail } from "@/components/DigestsAdvisoryScansVocabularyRail";
 import { AdvisoryScansContent } from "./AdvisoryScansContent";
 import { AdvisorySchedulesContent } from "./AdvisorySchedulesContent";
 
@@ -93,6 +94,7 @@ export function AdvisoryHubClient({ initialTab, initialRunId = null }: AdvisoryH
         </p>
       </OperatorPageHeader>
       <PageCapabilityBoundaryStrip surfaceId="advisoryScans" />
+      <DigestsAdvisoryScansVocabularyRail currentSurfaceId="advisory-scans" />
 <CollapsibleSection title={ADVISORY_SCANS_HOW_IT_WORKS_TITLE} sectionTestId="advisory-scans-how-it-works">
         <p className={cn("m-0 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           {ADVISORY_SCANS_HOW_IT_WORKS_BODY}

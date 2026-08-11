@@ -45,6 +45,7 @@ import {
 import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
 
 import { DigestRecurrenceScheduleVocabularyRail } from "@/components/DigestRecurrenceScheduleVocabularyRail";
+import { DigestsAdvisoryScansVocabularyRail } from "@/components/DigestsAdvisoryScansVocabularyRail";
 import { DigestsBrowseScheduleSubscriptionsVocabularyRail } from "@/components/DigestsBrowseScheduleSubscriptionsVocabularyRail";
 import { DigestsNotificationsVocabularyRail } from "@/components/DigestsNotificationsVocabularyRail";
 
@@ -238,6 +239,7 @@ export function DigestsHubClient(): ReactElement {
         </TabsList>
 
         <DigestsNotificationsVocabularyRail currentSurfaceId="digests" />
+        <DigestsAdvisoryScansVocabularyRail currentSurfaceId="digests" />
         <DigestsBrowseScheduleSubscriptionsVocabularyRail currentSurfaceId={activeTab} />
 
         {activeTab === "schedule" ? (
