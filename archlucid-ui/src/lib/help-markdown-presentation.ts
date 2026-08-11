@@ -1,6 +1,7 @@
 import { tryResolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { capitalizeInlineGuidanceBody, parseLeadingInlineGuidanceLabel } from "@/lib/inline-guidance-labels";
 import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
+import { applyHelpMarkdownPresentationRules } from "@/lib/help-markdown-presentation-pipeline";
 import { applyHelpTopicProductLanguage } from "@/lib/help-product-language";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -3505,8 +3506,10 @@ export function prepareHelpMarkdownForPresentation(
   sourceDocPath: string,
   options?: PrepareHelpMarkdownPresentationOptions,
 ): string {
-  const withoutPreamble = stripLeadingContributorScopeBlockquote(markdown);
-  const withoutInternalPreamble = stripInternalBuyerHelpPreamble(withoutPreamble);
+  const withoutInternalPreamble = applyHelpMarkdownPresentationRules(markdown, [
+    stripLeadingContributorScopeBlockquote,
+    stripInternalBuyerHelpPreamble,
+  ]);
   const registryEntry =
     options?.helpTopicSlug !== undefined ? getProductDocumentationEntry(options.helpTopicSlug) : null;
   const duplicateSectionTitles =
