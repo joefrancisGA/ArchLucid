@@ -2819,6 +2819,10 @@ BEGIN
         CreatedUtc DATETIME2 NOT NULL,
         LastDeliveredUtc DATETIME2 NULL,
         MetadataJson NVARCHAR(MAX) NOT NULL,
+        /* DbUp 306 parity: notification destination provenance */
+        CreatedByActor NVARCHAR(300) NULL,
+        LastModifiedByActor NVARCHAR(300) NULL,
+        LastModifiedUtc DATETIME2(7) NULL,
         INDEX IX_AlertRoutingSubscriptions_Scope_Enabled NONCLUSTERED (TenantId, WorkspaceId, ProjectId, IsEnabled, CreatedUtc DESC)
     );
 END;
@@ -8644,6 +8648,33 @@ IF TYPE_ID(N'dbo.ArchivedRunIdList') IS NULL
     CREATE TYPE dbo.ArchivedRunIdList AS TABLE
     (
         RunId UNIQUEIDENTIFIER NOT NULL PRIMARY KEY
+    );
+GO
+
+/* ---- TB-2164: findings child insert TVPs (stable plan-cache shape) ---- */
+
+IF TYPE_ID(N'dbo.FindingChildSortTextList') IS NULL
+    CREATE TYPE dbo.FindingChildSortTextList AS TABLE
+    (
+        SortOrder INT NOT NULL,
+        TextValue NVARCHAR(MAX) NOT NULL
+    );
+GO
+
+IF TYPE_ID(N'dbo.FindingChildSortNodeIdList') IS NULL
+    CREATE TYPE dbo.FindingChildSortNodeIdList AS TABLE
+    (
+        SortOrder INT NOT NULL,
+        NodeId NVARCHAR(500) NOT NULL
+    );
+GO
+
+IF TYPE_ID(N'dbo.FindingChildPropertyList') IS NULL
+    CREATE TYPE dbo.FindingChildPropertyList AS TABLE
+    (
+        PropertySortOrder INT NOT NULL,
+        PropertyKey NVARCHAR(200) NOT NULL,
+        PropertyValue NVARCHAR(MAX) NOT NULL
     );
 GO
 

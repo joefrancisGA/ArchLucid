@@ -2904,6 +2904,10 @@ BEGIN
         CreatedUtc DATETIME2 NOT NULL,
         LastDeliveredUtc DATETIME2 NULL,
         MetadataJson NVARCHAR(MAX) NOT NULL,
+        /* DbUp 306 parity: notification destination provenance */
+        CreatedByActor NVARCHAR(300) NULL,
+        LastModifiedByActor NVARCHAR(300) NULL,
+        LastModifiedUtc DATETIME2(7) NULL,
         INDEX IX_AlertRoutingSubscriptions_Scope_Enabled NONCLUSTERED (TenantId, WorkspaceId, ProjectId, IsEnabled, CreatedUtc DESC)
     );
 END;
