@@ -24,3 +24,7 @@ export function formatFindingHumanReviewStatusLabel(
       return "Human review status unknown";
   }
 }
+
+/** TB-987: ITSM inbound queue state is last-writer and separate from append-only disposition trail (TB-986). */
+export const FINDING_ITSM_HUMAN_REVIEW_STATUS_CAPTION =
+  "ITSM queue state (last inbound sync; separate from the disposition trail).";

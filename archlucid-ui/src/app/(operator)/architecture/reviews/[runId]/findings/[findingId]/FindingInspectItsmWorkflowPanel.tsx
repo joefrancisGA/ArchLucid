@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
 import { FindingCorrelationVocabularyDisambiguation } from "@/components/FindingCorrelationVocabularyDisambiguation";
 import { ITSM_TICKET_LINKAGE_CREATE_INTRO, ITSM_TICKET_LINKAGE_DUPLICATE_BLOCKED } from "@/lib/finding-correlation-vocabulary";
+import { FINDING_ITSM_HUMAN_REVIEW_STATUS_CAPTION } from "@/lib/finding-human-review-display";
 import { useItsmNativeCreateEnabled } from "@/lib/use-itsm-native-create-enabled";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -38,9 +39,13 @@ export function FindingInspectItsmWorkflowPanel({
       </CardHeader>
       <CardContent className={cn("space-y-3", OPERATOR_TYPOGRAPHY.body)}>
         {humanReviewStatusLabel ? (
-          <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            Inbound sync human review: <span className="font-medium text-al-text-primary">{humanReviewStatusLabel}</span>
-          </p>
+          <div className={cn("space-y-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            <p className="m-0">
+              Inbound sync human review:{" "}
+              <span className="font-medium text-al-text-primary">{humanReviewStatusLabel}</span>
+            </p>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{FINDING_ITSM_HUMAN_REVIEW_STATUS_CAPTION}</p>
+          </div>
         ) : null}
         {nativeCreateEnabled ? (
           <p className="text-al-text-secondary">

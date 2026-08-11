@@ -1,17 +1,22 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import type { FindingDispositionEvent } from "@/lib/api/governance-stickiness-api";
+import { formatDispositionConcurrentUpdateMessage } from "@/lib/finding-disposition-concurrent-update";
 import { FindingInspectGovernanceStickinessPanel } from "./FindingInspectGovernanceStickinessPanel";
 
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => true,
 }));
 
+const listFindingDispositions = vi.fn(async () => [] as FindingDispositionEvent[]);
+const recordFindingDisposition = vi.fn();
+
 vi.mock("@/lib/api/governance-stickiness-api", () => ({
-  listFindingDispositions: async () => [],
+  listFindingDispositions: (...args: unknown[]) => listFindingDispositions(...args),
   listRiskExceptions: async () => [],
   createRiskException: vi.fn(),
-  recordFindingDisposition: vi.fn(),
+  recordFindingDisposition: (...args: unknown[]) => recordFindingDisposition(...args),
   revokeRiskException: vi.fn(),
   defaultRiskExceptionExpiresAtUtc: () => "2099-01-01T00:00:00.000Z",
 }));
@@ -29,6 +34,42 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 });
 
 describe("FindingInspectGovernanceStickinessPanel", () => {
+  it("shows concurrent-update copy when another disposition wins after save (TB-987)", async () => {
+    const saved: FindingDispositionEvent = {
+      eventId: "evt-saved",
+      findingId: "phi-minimization-risk",
+      disposition: "Accepted",
+      reviewerUserId: "reviewer-1",
+      occurredAtUtc: "2026-08-10T11:00:00.000Z",
+    };
+    const winner: FindingDispositionEvent = {
+      eventId: "evt-winner",
+      findingId: "phi-minimization-risk",
+      disposition: "RejectedAsNotApplicable",
+      reviewerUserId: "reviewer-2",
+      occurredAtUtc: "2026-08-10T12:00:00.000Z",
+    };
+
+    recordFindingDisposition.mockResolvedValueOnce(saved);
+    listFindingDispositions
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([winner, saved]);
+
+    render(
+      <FindingInspectGovernanceStickinessPanel
+        findingId="phi-minimization-risk"
+        runId="claims-intake-modernization"
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("finding-disposition-save"));
+    fireEvent.click(screen.getByRole("button", { name: "Record disposition" }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("status")).toHaveTextContent(formatDispositionConcurrentUpdateMessage(winner));
+    });
+  });
+
   it("uses one primary save action per subsection", () => {
     render(
       <FindingInspectGovernanceStickinessPanel

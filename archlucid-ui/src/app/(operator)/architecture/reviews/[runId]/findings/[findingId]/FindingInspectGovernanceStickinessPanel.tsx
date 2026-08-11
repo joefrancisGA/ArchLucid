@@ -42,6 +42,7 @@ import {
   validateRemediationOwnerInput,
 } from "@/lib/finding-governance-action-copy";
 import { buildSponsorStoryDispositionCountsFromRows } from "@/lib/sponsor-story-synopsis";
+import { resolveDispositionConcurrentUpdateNotice } from "@/lib/finding-disposition-concurrent-update";
 
 const DISPOSITION_OPTIONS: FindingDispositionKind[] = [
   "Accepted",
@@ -110,7 +111,7 @@ export function FindingInspectGovernanceStickinessPanel({
     null,
   );
 
-  const reload = useCallback(async (): Promise<void> => {
+  const reload = useCallback(async (): Promise<FindingDispositionEvent[]> => {
     const [dispositions, waivers] = await Promise.all([
       listFindingDispositions(findingId),
       listRiskExceptions(),
@@ -120,6 +121,8 @@ export function FindingInspectGovernanceStickinessPanel({
     setActiveWaiver(
       waivers.find((w) => w.findingId === findingId && w.status === "Active") ?? null,
     );
+
+    return dispositions;
   }, [findingId]);
 
   useEffect(() => {
@@ -200,7 +203,7 @@ export function FindingInspectGovernanceStickinessPanel({
     setStatusMessage(null);
 
     try {
-      await recordFindingDisposition(findingId, {
+      const saved = await recordFindingDisposition(findingId, {
         disposition,
         rationale: rationale.trim().length > 0 ? rationale.trim() : undefined,
         runId,
@@ -211,8 +214,10 @@ export function FindingInspectGovernanceStickinessPanel({
             : undefined,
       });
 
-      setStatusMessage("Disposition recorded.");
-      await reload();
+      const refreshed = await reload();
+      const concurrentNotice = resolveDispositionConcurrentUpdateNotice(saved, refreshed);
+
+      setStatusMessage(concurrentNotice ?? "Disposition recorded.");
     } catch (error: unknown) {
       setErrorMessage(resolveMutationError(error));
     } finally {
@@ -230,14 +235,16 @@ export function FindingInspectGovernanceStickinessPanel({
     setStatusMessage(null);
 
     try {
-      await recordFindingDisposition(findingId, {
+      const saved = await recordFindingDisposition(findingId, {
         disposition: "Remediated",
         rationale: rationale.trim().length > 0 ? rationale.trim() : undefined,
         runId,
       });
 
-      setStatusMessage("Finding marked as remediated.");
-      await reload();
+      const refreshed = await reload();
+      const concurrentNotice = resolveDispositionConcurrentUpdateNotice(saved, refreshed);
+
+      setStatusMessage(concurrentNotice ?? "Finding marked as remediated.");
     } catch (error: unknown) {
       setErrorMessage(resolveMutationError(error));
     } finally {
