@@ -2,6 +2,8 @@ import {
 
   ArchiveRestore,
 
+  Bell,
+
   Building2,
 
   Cpu,
@@ -34,7 +36,7 @@ import type { NavGroupConfig } from "@/lib/nav-config.types";
 
 import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
-import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
+import { SETTINGS_NOTIFICATIONS_PATH, SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 
@@ -67,6 +69,22 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
           title: "Settings — searchable index of workspace, governance, integration, billing, and support configuration",
 
           icon: Settings,
+
+          tier: "extended",
+
+          requiredAuthority: "ReadAuthority",
+
+        },
+
+        {
+
+          href: SETTINGS_NOTIFICATIONS_PATH,
+
+          label: OPERATOR_NAV_LINK_LABELS.notifications,
+
+          title: "Notifications - digests, alerts, Teams, and Slack configure surfaces",
+
+          icon: Bell,
 
           tier: "extended",
 

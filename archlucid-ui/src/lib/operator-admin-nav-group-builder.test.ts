@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
+import { SETTINGS_NOTIFICATIONS_PATH } from "@/lib/settings-admin-route-paths";
 import { OperatorAdminNavGroupBuilder } from "@/lib/operator-admin-nav-group-builder";
 
 describe("OperatorAdminNavGroupBuilder", () => {
@@ -23,4 +24,14 @@ describe("OperatorAdminNavGroupBuilder", () => {
     expect(aiUsage).toBeDefined();
     expect(aiUsage?.requiredAuthority).toBe("AdminAuthority");
   });
+
+  it("exposes notification preference center at ReadAuthority (TB-2203)", () => {
+    const links = new OperatorAdminNavGroupBuilder().build().links;
+    const notifications = links.find((link) => link.href === SETTINGS_NOTIFICATIONS_PATH);
+
+    expect(notifications).toBeDefined();
+    expect(notifications?.requiredAuthority).toBe("ReadAuthority");
+    expect(notifications?.label).toBe("Notifications");
+  });
+
 });

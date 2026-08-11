@@ -1,8 +1,16 @@
-import { SETTINGS_ACCOUNT_SECURITY_PATH, SETTINGS_PREFERENCES_PATH } from "@/lib/settings-admin-route-paths";
+import {
+  SETTINGS_ACCOUNT_SECURITY_PATH,
+  SETTINGS_NOTIFICATIONS_PATH,
+  SETTINGS_PREFERENCES_PATH,
+} from "@/lib/settings-admin-route-paths";
 import {
   ACCOUNT_SECURITY_PAGE_TITLE,
   ACCOUNT_SECURITY_SELF_SETTINGS_DESCRIPTION,
 } from "@/lib/account-security-page-copy";
+import {
+  NOTIFICATION_PREFERENCE_CENTER_PAGE_SUBTITLE,
+  NOTIFICATION_PREFERENCE_CENTER_PAGE_TITLE,
+} from "@/lib/notification-preference-center";
 
 /** One user-scoped settings destination shown in the top-bar account menu. */
 export type SelfSettingsDestination = {
@@ -13,7 +21,7 @@ export type SelfSettingsDestination = {
 };
 
 /**
- * Registry of settings whose writes are confined to the caller's own account.
+ * Registry of account-menu settings: personal writes, plus read-only preference hubs that only link elsewhere.
  *
  * These are deliberately **not** in `SETTINGS_MASTER_SECTIONS`: the settings hub is the tenant-administration
  * surface and filters personal destinations out (see `settings-master-audience.ts`), so listing them there
@@ -25,6 +33,12 @@ export const SELF_SETTINGS_DESTINATIONS: readonly SelfSettingsDestination[] = [
     title: "Preferences",
     description: "Appearance and personal settings saved to your account.",
     href: SETTINGS_PREFERENCES_PATH,
+  },
+  {
+    id: "notification-preferences",
+    title: NOTIFICATION_PREFERENCE_CENTER_PAGE_TITLE,
+    description: NOTIFICATION_PREFERENCE_CENTER_PAGE_SUBTITLE,
+    href: SETTINGS_NOTIFICATIONS_PATH,
   },
   {
     id: "account-security",

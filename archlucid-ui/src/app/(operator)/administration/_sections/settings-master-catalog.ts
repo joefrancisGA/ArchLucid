@@ -1,6 +1,6 @@
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { ITSM_ADMIN_TICKET_LINKAGE_DESCRIPTION } from "@/lib/finding-correlation-vocabulary";
-import { SETTINGS_SECURITY_TRUST_PATH } from "@/lib/settings-admin-route-paths";
+import { SETTINGS_NOTIFICATIONS_PATH, SETTINGS_SECURITY_TRUST_PATH } from "@/lib/settings-admin-route-paths";
 
 import { INTERNAL_DEVELOPER_TOOLS_CATALOG_DESCRIPTION } from "../developer/developer-settings-copy";
 import type { SettingsMasterSection } from "./settings-master-types";
@@ -40,6 +40,30 @@ export const SETTINGS_MASTER_SECTIONS: readonly SettingsMasterSection[] = [
         source: "overridden",
         editability: "admin-only",
         saveBehavior: "Save on destination page",
+      },
+    ],
+  },
+  {
+    id: "notifications",
+    navLabel: "Notifications",
+    title: "Notifications",
+    description: "Digests, governance alerts, Teams, and Slack - what can ping this workspace.",
+    keywords: ["notification", "digest", "alert", "teams", "slack", "email", "ping"],
+    tier: "common",
+    destinations: [
+      {
+        id: "notification-preference-center",
+        title: OPERATOR_NAV_LINK_LABELS.notifications,
+        description:
+          "Open the notification preference hub for digests, alerts inbox and rules, Teams, and Slack. Each channel is configured on its own page.",
+        href: SETTINGS_NOTIFICATIONS_PATH,
+        cta: "Open notifications",
+        keywords: ["notification", "digest", "alert", "teams", "slack"],
+        requiredAuthority: "ReadAuthority",
+        tier: "common",
+        scope: "workspace",
+        source: "default",
+        editability: "read-only",
       },
     ],
   },

@@ -52,4 +52,15 @@ describe("settings-master-catalog (TB-1198)", () => {
     expect(section?.keywords).not.toContain("diagnostics");
     expect(INTERNAL_DEVELOPER_TOOLS_SHIPPED_INVENTORY).toHaveLength(2);
   });
+
+  it("TB-2203: publishes notification preference center destination", () => {
+    const destination = SETTINGS_MASTER_SECTIONS.flatMap((section) => section.destinations).find(
+      (entry) => entry.id === "notification-preference-center",
+    );
+
+    expect(destination).toBeDefined();
+    expect(destination?.href).toBe("/administration/notifications");
+    expect(destination?.requiredAuthority).toBe("ReadAuthority");
+  });
+
 });

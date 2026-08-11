@@ -180,6 +180,8 @@ export const OPERATOR_NAV_LINK_LABELS = {
   azureCloudConnection: "Azure cloud connection",
   cloudConnections: "Cloud connections",
   systemHealth: "System health",
+  /** Notification preference hub (`/administration/notifications`) TB-2203. */
+  notifications: "Notifications",
   digests: "Digests",
   /** Settings hub (`/administration`); workspace entry often `/administration/tenant`. */
   settings: "Settings",
