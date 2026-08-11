@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 
 import { compareRunHeadingLabel } from "@/lib/compare-run-display";
 import { buildCompareVerdictSummary } from "@/lib/build-compare-verdict-summary";
+import { COMPARE_VERDICT_ZERO_CHANGES_TEACHING } from "@/lib/compare-empty-diff-teaching";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { GoldenManifestComparison } from "@/types/comparison";
 import type { RunSummary } from "@/types/authority";
@@ -63,6 +64,15 @@ export function CompareVerdictSummary(props: CompareVerdictSummaryProps): ReactE
           </ul>
         ) : null}
       </div>
+
+      {verdict.totalChanges === 0 ? (
+        <p
+          className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="compare-verdict-zero-changes-teaching"
+        >
+          {COMPARE_VERDICT_ZERO_CHANGES_TEACHING}
+        </p>
+      ) : null}
 
       {verdict.topChangeHighlight !== null ? (
         <p

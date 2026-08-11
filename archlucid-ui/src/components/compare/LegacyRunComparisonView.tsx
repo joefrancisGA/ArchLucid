@@ -12,6 +12,10 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { sortDiffItems } from "@/lib/compare-display-sort";
+import {
+  buildCompareEmptyDiffTeaching,
+  type CompareEmptyDiffTeaching,
+} from "@/lib/compare-empty-diff-teaching";
 import type { RunComparison } from "@/types/authority";
 
 const monoCls = cn("font-mono", OPERATOR_TYPOGRAPHY.helper);
@@ -74,11 +78,7 @@ export function LegacyRunComparisonView(props: { result: RunComparison }) {
 
       <h4 className={OPERATOR_TYPOGRAPHY.helper}>Review-level diffs</h4>
       {result.runLevelDiffs.length === 0 ? (
-        <OperatorEmptyState title="No review-level diffs">
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-            The endpoint returned zero row-level differences (valid empty result).
-          </p>
-        </OperatorEmptyState>
+        <CompareEmptyDiffEmptyState teaching={buildCompareEmptyDiffTeaching("no-run-level-diffs")} />
       ) : (
         <EnterpriseTable ariaLabel="Review-level diffs" className="mt-2">
           <EnterpriseTableHead>
@@ -106,13 +106,7 @@ export function LegacyRunComparisonView(props: { result: RunComparison }) {
 
       <h4 className={cn("mt-6", OPERATOR_TYPOGRAPHY.helper)}>Review diff</h4>
       {!result.manifestComparison ? (
-        <OperatorEmptyState title="No review comparison block">
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-            {
-              'The API did not include a review comparison object for this pair (distinct from "zero diffs inside a comparison").'
-            }
-          </p>
-        </OperatorEmptyState>
+        <CompareEmptyDiffEmptyState teaching={buildCompareEmptyDiffTeaching("missing-comparison-block")} />
       ) : (
         <>
           <p className={cn("mb-2", OPERATOR_TYPOGRAPHY.body)}>
@@ -139,9 +133,7 @@ export function LegacyRunComparisonView(props: { result: RunComparison }) {
             </p>
           </details>
           {manifestDiffs.length === 0 ? (
-            <OperatorEmptyState title="Review comparison has zero line items">
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>Comparison object present but diff list is empty.</p>
-            </OperatorEmptyState>
+            <CompareEmptyDiffEmptyState teaching={buildCompareEmptyDiffTeaching("empty-manifest-diffs")} />
           ) : (
             <EnterpriseTable ariaLabel="Review manifest diffs" className="mt-2">
               <EnterpriseTableHead>
@@ -171,5 +163,23 @@ export function LegacyRunComparisonView(props: { result: RunComparison }) {
         </>
       )}
     </section>
+  );
+}
+
+/** Renders one empty-compare teaching block inside OperatorEmptyState. */
+function CompareEmptyDiffEmptyState(props: { teaching: CompareEmptyDiffTeaching }) {
+  const { teaching } = props;
+
+  return (
+    <OperatorEmptyState title={teaching.title}>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{teaching.body}</p>
+      {teaching.nextSteps.length > 0 ? (
+        <ul className={cn("mb-0 mt-2 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
+          {teaching.nextSteps.map((step) => (
+            <li key={step}>{step}</li>
+          ))}
+        </ul>
+      ) : null}
+    </OperatorEmptyState>
   );
 }

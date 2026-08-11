@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { LegacyRunComparisonView } from "@/components/compare/LegacyRunComparisonView";
 import { StructuredComparisonView } from "@/components/compare/StructuredComparisonView";
+import { buildCompareEmptyDiffTeaching } from "@/lib/compare-empty-diff-teaching";
 import type { GoldenManifestComparison } from "@/types/comparison";
 import type { RunComparison } from "@/types/authority";
 
@@ -89,11 +90,52 @@ describe("Compare / review views (55R smoke)", () => {
       rightRunId: "R",
       runLevelDiffs: [],
     };
+    const teaching = buildCompareEmptyDiffTeaching("no-run-level-diffs");
 
     render(<LegacyRunComparisonView result={result} />);
 
     expect(screen.getByRole("heading", { name: "Review-level diff", level: 3 })).toBeInTheDocument();
-    expect(screen.getByText("No review-level diffs")).toBeInTheDocument();
+    expect(screen.getByText(teaching.title)).toBeInTheDocument();
+    expect(screen.getByText(teaching.body)).toBeInTheDocument();
+    expect(screen.getAllByText(teaching.nextSteps[0]!).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("LegacyRunComparisonView teaches when the package comparison block is missing", () => {
+    const result: RunComparison = {
+      leftRunId: "L",
+      rightRunId: "R",
+      runLevelDiffs: [],
+    };
+    const teaching = buildCompareEmptyDiffTeaching("missing-comparison-block");
+
+    render(<LegacyRunComparisonView result={result} />);
+
+    expect(screen.getByText(teaching.title)).toBeInTheDocument();
+    expect(screen.getByText(teaching.body)).toBeInTheDocument();
+  });
+
+  it("LegacyRunComparisonView teaches when the package comparison has no line items", () => {
+    const result: RunComparison = {
+      leftRunId: "L",
+      rightRunId: "R",
+      runLevelDiffs: [],
+      manifestComparison: {
+        leftManifestId: "m-left",
+        rightManifestId: "m-right",
+        leftManifestHash: "sha256:left-real",
+        rightManifestHash: "sha256:right-real",
+        addedCount: 0,
+        removedCount: 0,
+        changedCount: 0,
+        diffs: [],
+      },
+    };
+    const teaching = buildCompareEmptyDiffTeaching("empty-manifest-diffs");
+
+    render(<LegacyRunComparisonView result={result} />);
+
+    expect(screen.getByText(teaching.title)).toBeInTheDocument();
+    expect(screen.getByText(teaching.body)).toBeInTheDocument();
   });
 
   it("LegacyRunComparisonView renders flat diffs when data exists", () => {

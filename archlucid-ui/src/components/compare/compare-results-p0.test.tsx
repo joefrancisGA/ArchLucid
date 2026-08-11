@@ -5,6 +5,7 @@ import { CompareResultsPanel } from "@/app/(operator)/insights/compare-two-revie
 import { CompareComparisonTrustBanner } from "@/components/compare/CompareComparisonTrustBanner";
 import { CompareVerdictSummary } from "@/components/compare/CompareVerdictSummary";
 import { SponsorLensCompareSummaryPanel } from "@/components/compare/SponsorLensCompareSummaryPanel";
+import { COMPARE_VERDICT_ZERO_CHANGES_TEACHING } from "@/lib/compare-empty-diff-teaching";
 import type { GoldenManifestComparison } from "@/types/comparison";
 
 vi.mock("@/app/(operator)/insights/compare-two-reviews/_sections/useCompareGovernanceDiff", () => ({
@@ -67,6 +68,22 @@ describe("Compare verdict and trust banner", () => {
     expect(screen.getByTestId("compare-verdict-category-counts")).toHaveTextContent("Decisions");
     expect(screen.getByTestId("compare-top-change-highlight")).toHaveTextContent("Region changed for residency");
     expect(screen.getByTestId("compare-top-change-highlight")).toHaveTextContent("from structured comparison summary");
+    expect(screen.queryByTestId("compare-verdict-zero-changes-teaching")).not.toBeInTheDocument();
+  });
+
+  it("CompareVerdictSummary teaches next steps when total changes are zero", () => {
+    const emptyGolden: GoldenManifestComparison = {
+      ...goldenWithDeltas,
+      decisionChanges: [],
+      summaryHighlights: [],
+      totalDeltaCount: 0,
+    };
+
+    render(<CompareVerdictSummary golden={emptyGolden} />);
+
+    expect(screen.getByTestId("compare-verdict-zero-changes-teaching")).toHaveTextContent(
+      COMPARE_VERDICT_ZERO_CHANGES_TEACHING,
+    );
   });
 
   it("SponsorLensCompareSummaryPanel renders sponsor lens bullets above technical verdict", () => {
