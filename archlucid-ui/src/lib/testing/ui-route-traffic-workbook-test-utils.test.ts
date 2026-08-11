@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   extractMasterTableRows,
+  extractUiRouteTrafficWorkbookRowFromModule,
   loadUiRouteTrafficMasterTableRows,
   readUiRouteTrafficEstimatesTemplateMarkdown,
 } from "@/lib/testing/ui-route-traffic-workbook-test-utils";
@@ -24,5 +25,22 @@ describe("ui-route-traffic-workbook-test-utils", () => {
 
   it("loads master table rows in one call", () => {
     expect(loadUiRouteTrafficMasterTableRows().length).toBeGreaterThan(100);
+  });
+
+  it("extracts the standard four workbook exports from a module namespace", () => {
+    const moduleRow = extractUiRouteTrafficWorkbookRowFromModule("ui-route-traffic-governance-findings.ts", {
+      GOVERNANCE_FINDINGS_TRAFFIC_ROW_ID: "GFN",
+      GOVERNANCE_FINDINGS_TRAFFIC_PATH: "/governance/findings",
+      GOVERNANCE_FINDINGS_TRAFFIC_SECTION: "Alerts/gov",
+      GOVERNANCE_FINDINGS_TRAFFIC_NOTE: "Findings queue",
+    });
+
+    expect(moduleRow).toEqual({
+      modulePath: "ui-route-traffic-governance-findings.ts",
+      rowId: "GFN",
+      path: "/governance/findings",
+      section: "Alerts/gov",
+      note: "Findings queue",
+    });
   });
 });
