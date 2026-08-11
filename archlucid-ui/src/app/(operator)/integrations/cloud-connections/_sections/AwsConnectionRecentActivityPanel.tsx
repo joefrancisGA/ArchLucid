@@ -2,9 +2,10 @@
 
 import { cn } from "@/lib/utils";
 
+import { CloudFirstInventoryCoach } from "@/components/integrations/CloudFirstInventoryCoach";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { AWS_CONNECTION_RECENT_ACTIVITY_EMPTY_STATE } from "@/lib/aws-cloud-connection-copy";
+import { cloudConnectionIndicatesSuccessfulPull } from "@/lib/cloud-first-inventory-coach";
 import { awsConnectionStatusTagKind, formatAwsConnectionTimestamp } from "@/lib/aws-connection-present";
 
 import { useAwsConnectionData } from "./AwsConnectionDataContext";
@@ -15,7 +16,7 @@ export function AwsConnectionRecentActivityPanel(): React.ReactElement {
   if (isLoading) {
     return (
       <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="aws-connection-recent-activity-panel">
-        Loading collection activity…
+        Loading collection activity...
       </p>
     );
   }
@@ -32,38 +33,46 @@ export function AwsConnectionRecentActivityPanel(): React.ReactElement {
     );
   }
 
-  if (connections.length === 0) {
+  const hasConnection = connections.length > 0;
+  const hasSuccessfulPull = connections.some((connection) =>
+    cloudConnectionIndicatesSuccessfulPull(connection),
+  );
+
+  if (!hasConnection) {
     return (
-      <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="aws-connection-recent-activity-panel">
-        {AWS_CONNECTION_RECENT_ACTIVITY_EMPTY_STATE}
-      </p>
+      <div className="space-y-3" data-testid="aws-connection-recent-activity-panel">
+        <CloudFirstInventoryCoach hasConnection={false} hasSuccessfulPull={false} />
+      </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto" data-testid="aws-connection-recent-activity-panel">
-      <table className="w-full min-w-[28rem] border-collapse text-left">
-        <thead>
-          <tr className={cn(OPERATOR_TYPOGRAPHY.helper, "border-b")}>
-            <th className="py-2 pr-4 font-medium">Account</th>
-            <th className="py-2 pr-4 font-medium">Status</th>
-            <th className="py-2 font-medium">Last collected</th>
-          </tr>
-        </thead>
-        <tbody>
-          {connections.map((connection) => (
-            <tr key={connection.connectionId} className="border-b last:border-b-0">
-              <td className={cn("py-2 pr-4", OPERATOR_TYPOGRAPHY.body)}>{connection.accountId}</td>
-              <td className="py-2 pr-4">
-                <StatusTag kind={awsConnectionStatusTagKind(connection.status)} label={connection.status} />
-              </td>
-              <td className={cn("py-2", OPERATOR_TYPOGRAPHY.body)}>
-                {formatAwsConnectionTimestamp(connection.lastPolledUtc)}
-              </td>
+    <div className="space-y-3" data-testid="aws-connection-recent-activity-panel">
+      <CloudFirstInventoryCoach hasConnection={hasConnection} hasSuccessfulPull={hasSuccessfulPull} />
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[28rem] border-collapse text-left">
+          <thead>
+            <tr className={cn(OPERATOR_TYPOGRAPHY.helper, "border-b")}>
+              <th className="py-2 pr-4 font-medium">Account</th>
+              <th className="py-2 pr-4 font-medium">Status</th>
+              <th className="py-2 font-medium">Last collected</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {connections.map((connection) => (
+              <tr key={connection.connectionId} className="border-b last:border-b-0">
+                <td className={cn("py-2 pr-4", OPERATOR_TYPOGRAPHY.body)}>{connection.accountId}</td>
+                <td className="py-2 pr-4">
+                  <StatusTag kind={awsConnectionStatusTagKind(connection.status)} label={connection.status} />
+                </td>
+                <td className={cn("py-2", OPERATOR_TYPOGRAPHY.body)}>
+                  {formatAwsConnectionTimestamp(connection.lastPolledUtc)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

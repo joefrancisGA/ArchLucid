@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -25,11 +25,13 @@ import {
 } from "@/lib/cloud-platform-scope-storage";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
+import { CloudFirstInventoryCoach } from "@/components/integrations/CloudFirstInventoryCoach";
 import { PageHeading } from "@/components/PageHeading";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { CloudPlatformScopePanel } from "./CloudPlatformScopePanel";
 import { CloudProviderSummaryCard } from "./CloudProviderSummaryCard";
 import { EvidenceOnlyConnectionCard } from "./EvidenceOnlyConnectionCard";
+import { isCloudProviderSummaryConfigured } from "./is-cloud-provider-summary-configured";
 
 function formatTimestamp(value: string | null | undefined): string {
   if (value === null || value === undefined || value.trim().length === 0) {
@@ -133,6 +135,16 @@ export function CloudConnectionsPageClient() {
 
   const visibleCards = useMemo(() => visibleLandingPlatformCards(platformScope), [platformScope]);
 
+  const hasConfiguredProvider =
+    isCloudProviderSummaryConfigured(providerSummaries.azure.status) ||
+    isCloudProviderSummaryConfigured(providerSummaries.aws.status) ||
+    isCloudProviderSummaryConfigured(providerSummaries.gcp.status);
+
+  const hasSuccessfulPull =
+    providerSummaries.aws.evidenceCollected !== "No packages collected" ||
+    providerSummaries.gcp.evidenceCollected !== "No packages collected" ||
+    providerSummaries.azure.evidenceCollected !== "No packages collected";
+
   return (
     <div className="w-full max-w-5xl space-y-6" data-testid="cloud-connections-page">
       <PageHeading
@@ -147,7 +159,7 @@ export function CloudConnectionsPageClient() {
           </>
         }
       />
-<CloudPlatformScopePanel
+      <CloudPlatformScopePanel
         scope={platformScope}
         onScopeChange={handlePlatformScopeChange}
         persistAvailable={persistAvailable}
@@ -164,7 +176,11 @@ export function CloudConnectionsPageClient() {
           </p>
         ) : null}
 
-        {isLoading ? <p className={OPERATOR_TYPOGRAPHY.helper}>Loading connection status…</p> : null}
+        {isLoading ? <p className={OPERATOR_TYPOGRAPHY.helper}>Loading connection status...</p> : null}
+
+        {!isLoading && !loadError && hasConfiguredProvider ? (
+          <CloudFirstInventoryCoach hasConnection hasSuccessfulPull={hasSuccessfulPull} />
+        ) : null}
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-2">
           {visibleCards.map((platformId: CloudPlatformId) => {
