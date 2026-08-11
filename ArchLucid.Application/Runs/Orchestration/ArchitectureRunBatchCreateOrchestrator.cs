@@ -31,6 +31,8 @@ public sealed class ArchitectureRunBatchCreateOrchestrator(
 
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
 
+    private const int BatchIdempotencyRunKeyDigestChars = 16;
+
     /// <inheritdoc />
     public async Task<BatchCreateRunOrchestrationResult> CreateBatchAsync(
         IReadOnlyList<ArchitectureRequest?> requests,
@@ -162,9 +164,15 @@ public sealed class ArchitectureRunBatchCreateOrchestrator(
     ///     Batch submissions have no run id, so they reserve a synthetic key in the per-run commit idempotency table.
     ///     The <c>batch_</c> prefix keeps them from ever colliding with a real run id.
     /// </summary>
+    /// <remarks>
+    ///     The digest is truncated to fit the run-id column; the full key hash is still stored and compared alongside it.
+    ///     The take is clamped because callers are not required to supply a fixed-width hash.
+    /// </remarks>
     private static string BuildBatchIdempotencyRunKey(CreateRunIdempotencyState idempotency)
     {
-        return "batch_" + Convert.ToBase64String(idempotency.IdempotencyKeyHash)[..16];
+        string encoded = Convert.ToBase64String(idempotency.IdempotencyKeyHash);
+
+        return "batch_" + encoded[..Math.Min(BatchIdempotencyRunKeyDigestChars, encoded.Length)];
     }
 
     private async Task LogBatchAcceptedAsync(
