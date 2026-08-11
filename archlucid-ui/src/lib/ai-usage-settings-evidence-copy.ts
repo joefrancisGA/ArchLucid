@@ -16,7 +16,7 @@ export const AI_USAGE_SETTINGS_SOURCES_INTRO =
 export const AI_USAGE_SETTINGS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Billing & plans", href: "/administration/billing" },
   { label: "Billing and plans help", href: inAppHelpHref("billing-and-plans") },
-  { label: "Pilot ROI model", href: inAppHelpHref("pilot-roi-model") },
+  { label: "Pilot ROI measurement", href: inAppHelpHref("executive-summary", "pilot-roi-measurement") },
   { label: "Pricing", href: "/pricing" },
   { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
 ] as const;

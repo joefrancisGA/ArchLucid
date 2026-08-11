@@ -1,3 +1,4 @@
+import { EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/executive-summary-pilot-roi-measurement-help";
 import { coerceFinitePositiveHours, isPilotRoiBaselineComplete } from "@/lib/pilot-roi-baseline-completeness";
 
 export type BaselineSettingsStatus = "not-set" | "partial" | "complete";
@@ -25,7 +26,7 @@ export const BASELINE_SETTINGS_PAGE_SUBTITLE =
 export const BASELINE_SETTINGS_CONSERVATIVE_DEFAULTS_NOTE =
   "If you leave these fields blank, ArchLucid uses conservative modeled defaults until measured review-cycle deltas are available." as const;
 
-export const BASELINE_SETTINGS_METHODOLOGY_HELP_HREF = "/help/pilot-roi-model";
+export const BASELINE_SETTINGS_METHODOLOGY_HELP_HREF = EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF;
 
 const REVIEW_CYCLE_HOURS_WARN_ABOVE = 200;
 const MANUAL_PREP_HOURS_WARN_ABOVE = 80;

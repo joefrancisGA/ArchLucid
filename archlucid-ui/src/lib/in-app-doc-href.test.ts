@@ -36,7 +36,7 @@ describe("resolveInAppDocHref", () => {
 
   it("maps internal runbooks registered in product documentation", () => {
     expect(tryResolveInAppDocHref("docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md")).toBe(
-      "/help/first-value-20-minutes",
+      "/help/first-architecture-review#first-value-in-20-minutes",
     );
   });
 
@@ -58,7 +58,9 @@ describe("resolveInAppDocHref", () => {
     expect(resolveInAppDocHref("docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md")).toBe("/help/executive-summary");
     expect(resolveInAppDocHref("docs/go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md")).toBe("/help/procurement");
     expect(resolveInAppDocHref("docs/go-to-market/PRICING_PHILOSOPHY.md")).toBe("/help/procurement");
-    expect(resolveInAppDocHref("docs/go-to-market/ROI_MODEL.md")).toBe("/help/pilot-roi-model");
+    expect(resolveInAppDocHref("docs/go-to-market/ROI_MODEL.md")).toBe(
+      "/help/executive-summary#pilot-roi-measurement",
+    );
     expect(resolveInAppDocHref("docs/library/customer-facing/FAQ.md")).toBe("/faq");
     expect(resolveInAppDocHref("docs/go-to-market/COMPETITIVE_COMPARISON.md")).toBe("/help/executive-summary");
   });

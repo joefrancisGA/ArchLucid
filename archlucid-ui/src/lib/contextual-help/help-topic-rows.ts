@@ -64,18 +64,6 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
     },
   },
   {
-    prefix: "/help/pilot-roi-model",
-    entry: {
-      whatIsThisPage:
-        "Pilot ROI model - how sponsor ROI figures are labeled, sourced, and kept buyer-safe in proof packets.",
-      whatToDoNext:
-        "Open Architecture scorecard or ROI summary for live numbers, or Workspace baseline when anchors need capture.",
-      whyEmpty: "This guide is always available; scorecard and baseline surfaces populate after reviews and tenant setup.",
-      whereToConfigurePrerequisite:
-        "Baseline and scorecard numbers need a role that can read tenant settings and finalized reviews.",
-    },
-  },
-  {
     prefix: "/help/pilot-feedback",
     entry: {
       whatIsThisPage:
@@ -101,21 +89,10 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       whatIsThisPage:
         "Executive summary help — sponsor-safe pilot proof, ROI framing, and what executives should expect in exports.",
       whatToDoNext:
-        "Open the live executive value report or dashboard, then review Pilot ROI model when methodology needs clarity.",
+        "Open the live executive value report or dashboard, then review Pilot ROI measurement when methodology needs clarity.",
       whyEmpty: "This guide is always available; live sponsor reports populate after finalized reviews exist.",
       whereToConfigurePrerequisite:
         "Sponsor exports need a role that can read finalized architecture reviews in this workspace.",
-    },
-  },
-  {
-    prefix: "/help/policy-pack-delta-demo",
-    entry: {
-      whatIsThisPage:
-        "SE and Admin demo script showing how stricter policy-pack enforcement changes finalize-gate outcomes on one review.",
-      whatToDoNext:
-        "Open policy packs, run the dry-run arc, then cite the audit trail before treating simulation as certification.",
-      whyEmpty: "This runbook always shows the demo arc when the help topic loads.",
-      whereToConfigurePrerequisite: "Use a committed review with findings and Admin access to policy packs and audit export.",
     },
   },
   {
@@ -139,28 +116,6 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       whyEmpty: "This reference always shows when the help topic loads.",
       whereToConfigurePrerequisite:
         "CLI and API automation need credentials and workspace scope configured for the target environment.",
-    },
-  },
-  {
-    prefix: "/help/first-review",
-    entry: {
-      whatIsThisPage:
-        "Admin and SE printable first-run evidence checklist for Azure extractor Tier 1, finalize, and sponsor-packet proof.",
-      whatToDoNext:
-        "Send customer architects to Your first architecture review, start a demo review when ready, then cite the audit trail.",
-      whyEmpty: "This checklist always shows when the help topic loads.",
-      whereToConfigurePrerequisite: "Admin access plus a workspace that can run extractor ingest and finalize.",
-    },
-  },
-  {
-    prefix: "/help/first-value-20-minutes",
-    entry: {
-      whatIsThisPage:
-        "Admin SE time-boxed checklist for first value in about 20 minutes when platform wiring is already green.",
-      whatToDoNext:
-        "Send customers to Your first architecture review; use this runbook only for Admin SE proof collection.",
-      whyEmpty: "Orientation and the 20-minute checklist always show when this Admin help topic loads.",
-      whereToConfigurePrerequisite: "Admin access with healthy API and persistence before starting the time box.",
     },
   },
   {

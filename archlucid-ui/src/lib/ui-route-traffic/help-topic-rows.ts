@@ -3,11 +3,8 @@ import { DEVELOPER_TROUBLESHOOTING_HELP_PATH } from "@/lib/developer-troubleshoo
 import { DPA_TEMPLATE_HELP_PATH } from "@/lib/dpa-template-help-route";
 import { FINDINGS_HELP_PATH } from "@/lib/findings-help-route";
 import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
-import { FIRST_REVIEW_HELP_PATH } from "@/lib/first-review-help-route";
-import { FIRST_VALUE_20_HELP_PATH } from "@/lib/first-value-20-help-route";
 import { GETTING_STARTED_HELP_PATH } from "@/lib/getting-started-help-guide-content";
 import { PATH_CHOOSER_HELP_PATH } from "@/lib/path-chooser-help-route";
-import { POLICY_PACK_DELTA_DEMO_HELP_PATH } from "@/lib/policy-pack-delta-demo-help-route";
 import { SOC2_SELF_ASSESSMENT_HELP_PATH } from "@/lib/soc2-self-assessment-help-route";
 import type { UiRouteTrafficRow } from "@/lib/ui-route-traffic/types";
 
@@ -27,7 +24,7 @@ export const HELP_TOPIC_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "COR",
     path: FIRST_ARCHITECTURE_REVIEW_HELP_PATH,
     section: "Help topic",
-    note: "Your first architecture review (Help topic) - HelpCorePilotGuideView with PageContextualHelpButton (topic map first-architecture-review; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, hero Start review CTA, five-step stepper, and gated finalize steps (TB-1040). Absorbs former core-pilot / first-pilot-path / first-hour-operator-path / evidence-only-review aliases (retired, TB-2050). Not bare HelpTopicMarkdownView. Sibling HP = pilot-guide. Score 58/100 (2026-08-05) Ã¢â‚¬â€ help-topic ceiling below HEL hub band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
+    note: "Your first architecture review (Help topic) - HelpCorePilotGuideView with PageContextualHelpButton (topic map first-architecture-review; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, hero Start review CTA, five-step stepper, gated finalize steps (TB-1040), and Admin-gated folded internal runbooks for printable first-run checklist (FI) and 20-minute first-value (HEF) retired Batch R 2026-08-11. Absorbs former core-pilot / first-pilot-path / first-hour-operator-path / evidence-only-review aliases (retired, TB-2050). Not bare HelpTopicMarkdownView. Sibling HP = pilot-guide. Score 58/100 (2026-08-05) Ã¢â‚¬â€ help-topic ceiling below HEL hub band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
     noteMustContain: ["HelpCorePilotGuideView", "cannot improve further toward 80"],
     sectionMustNotEqualLower: ["marketing"],
   },
@@ -57,14 +54,6 @@ export const HELP_TOPIC_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     note: "Evidence intake help (Help topic) - HelpEvidenceIntakeGuideView with PageContextualHelpButton (topic map evidence-intake; Category-1 registry), Start review + cloud connections primary CTAs, three-path wizard strip, verify-intake actionable panel, claim-discipline callout, collapsed EVIDENCE_INTAKE_OPERATOR_GUIDE.md reference body, and in-app related guides (TB-1350-TB-1354). Not bare HelpTopicMarkdownView. Sibling RNX = /reviews/new; COR = first-architecture-review. Score 58/100 (2026-08-05) - help-topic ceiling below HEL hub band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
     noteMustContain: ["HelpEvidenceIntakeGuideView", "claim-discipline callout", "Start review", "Not bare HelpTopicMarkdownView", "cannot improve further toward 80"],
     noteMustNotContain: ["Ã¢â‚¬â€"],
-  },
-  /** Traffic workbook row ID for First-run evidence checklist help. Owner backlog shorthand: FI. */
-  {
-    rowId: "FI",
-    path: FIRST_REVIEW_HELP_PATH,
-    section: "Help topic",
-    note: "Specialty first-run evidence checklist (Admin internal-runbook) - HelpFirstReviewEvidenceChecklistGuideView with first-architecture-review / Start architecture review / audit primary CTAs, Sources diligence strip (complete review workflow, Azure connect, audit-trail, troubleshooting, configuration-reference), evidence arc, claim-discipline callout (checklist is not certification), PageContextualHelp, and prepared FIRST_PILOT_OPERATOR_PATH.md printable section only (`sectionAnchors` + API/runbook/script leakage strip). `FIRST_RUN_EVIDENCE_CHECKLIST.md` is a path-stable alias. Not bare HelpTopicMarkdownView. Admin-gated internal Help Center tier. Not a redirect to buyer core-pilot. Score 68/100 (2026-08-08) - specialty checklist with Sources strip at HEL Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
-    noteMustContain: ["HelpFirstReviewEvidenceChecklistGuideView", "Not a redirect to buyer core-pilot", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Governance approval help. Owner backlog shorthand: GO. */
   {
@@ -187,14 +176,6 @@ export const HELP_TOPIC_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     section: "Help topic",
     note: "Data handling and tenant isolation help (Help topic) - HelpDataHandlingTenantIsolationGuideView with PageContextualHelpButton (topic map data-handling; Category-1 registry), leaves/stays first-viewport job chrome (TB-1654), React-owned Related topics with Trust Center discovery (TB-1655), Sources diligence strip + claim-discipline callout, residency honesty, Trust/security-trust/audit CTAs, prepared DATA_HANDLING.md. Absorbs retired data-handling-tenant-isolation bookmark (TB-1652 / TB-1658 / Batch B). Not bare HelpTopicMarkdownView. Score 65/100 (2026-08-10) - help-topic orientation hard-caps higher Evidence without signed-record diligence Sources trail.",
     noteMustContain: ["HelpDataHandlingTenantIsolationGuideView", "Score 65", "TB-1654"],
-  },
-  /** Traffic workbook row ID for first-value-20 help. Owner backlog shorthand: HEF (legacy workbook ID was `F`). */
-  {
-    rowId: "HEF",
-    path: FIRST_VALUE_20_HELP_PATH,
-    section: "Help topic",
-    note: "Specialty Admin 20-minute first-value runbook - HelpFirstValue20GuideView with first-architecture-review / Start architecture review / Troubleshooting primary CTAs, Sources diligence strip (complete review workflow, first-review checklist, configuration-reference), job-matrix IA dual (TB-1694), orientation steps, claim-discipline callout, PageContextualHelp, and prepared FIRST_PILOT_OPERATOR_PATH.md 20-min section only (TB-1691 sectionAnchors + TB-1693 leakage strip). Title honesty Admin runbook (TB-1695). Not bare HelpTopicMarkdownView. Admin-gated internal-runbook. Not the default customer help path. Score 61/100 (2026-08-08) - surface hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
-    noteMustContain: ["HelpFirstValue20GuideView", "Admin-gated", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Integration readiness help. Owner backlog shorthand: HEI. */
   {
@@ -365,14 +346,6 @@ export const HELP_TOPIC_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     section: "Help topic",
     note: "Troubleshooting help (Help topic) - HelpTroubleshootingGuideView with PageContextualHelpButton (topic map troubleshooting; Category-1 registry), Learn more / claim-discipline orientation strip (Sources follow-up removed TB-2092), start-here CTAs, common issues, advanced diagnostics. Operator unblocking guide - not a signed-record Sources trail. Score 58/100 (2026-08-08) - help-topic ceiling below HEL hub band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
     noteMustContain: ["HelpTroubleshootingGuideView", "Sources", "cannot improve further toward 80"],
-  },
-  /** Traffic workbook row ID for Policy-pack delta demo help. Owner backlog shorthand: POL. */
-  {
-    rowId: "POL",
-    path: POLICY_PACK_DELTA_DEMO_HELP_PATH,
-    section: "Help topic",
-    note: "Specialty policy-pack delta demo (internal runbook) - HelpPolicyPackDeltaDemoGuideView with policy-packs / standards-and-rules / audit primary CTAs, Sources diligence strip (findings, audit-trail help, governance-approval, alerts), 5-minute narrative arc, claim-discipline callout (dry-run is not certification), PageContextualHelp, and prepared POLICY_PACK_DELTA_DEMO_SCRIPT.md (TB-1727 leakage strip). Not bare HelpTopicMarkdownView. Admin-gated internal Help Center tier. Score 58/100 (2026-08-08) - help-topic ceiling below HEL hub band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
-    noteMustContain: ["HelpPolicyPackDeltaDemoGuideView", "dry-run", "Score 58", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Procurement FAQ help. Owner backlog shorthand: PRO. */
   {

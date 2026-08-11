@@ -26,7 +26,7 @@ export const ADMIN_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "ADA",
     path: "/administration/baseline",
     section: "Admin",
-    note: "Baseline settings (Settings/Admin) - BaselineSettingsClient with PageContextualHelpButton (topic map pilot-roi-model; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, ROI measurement anchors + save/clear. Sibling PI = pilot-roi-model help; SCX = architecture-scorecard; ABI = billing. Measurement anchors - not a signed-record Sources trail.admin hub at SET/ADY Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
+    note: "Baseline settings (Settings/Admin) - BaselineSettingsClient with PageContextualHelpButton (topic map executive-summary#pilot-roi-measurement; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, ROI measurement anchors + save/clear. Sibling SPE = executive-summary; SCX = architecture-scorecard; ABI = billing. Measurement anchors - not a signed-record Sources trail.admin hub at SET/ADY Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
     noteMustContain: ["BaselineSettingsClient", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Connection status (integration readiness). Owner backlog shorthand: ADC. */

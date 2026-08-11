@@ -276,7 +276,11 @@ export function PilotBaselineWizard({ open, onOpenChange, onSaved }: PilotBaseli
           <div className="flex flex-wrap items-center gap-3">
             <DialogTitle>{title}</DialogTitle>
 
-            <InAppHelpLink helpSlug="pilot-roi-model" label="Open pilot ROI model" />
+            <InAppHelpLink
+              helpSlug="executive-summary"
+              hashFragment="pilot-roi-measurement"
+              label="Open pilot ROI measurement"
+            />
           </div>
 
           <div className="space-y-3">

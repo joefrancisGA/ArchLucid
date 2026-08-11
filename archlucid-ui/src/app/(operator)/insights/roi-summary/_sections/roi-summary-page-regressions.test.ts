@@ -13,7 +13,10 @@ describe("roi-summary sponsor-report regressions (TB-1975)", () => {
     expect(ROI_SUMMARY_TRAFFIC_PATH).toBe(SPONSOR_REPORT_ROI_SUMMARY_PATH);
   });
 
-  it("contextual help maps ROI summary to pilot-roi-model (TB-1973)", () => {
-    expect(pageHelpTopicForPathname(SPONSOR_REPORT_ROI_SUMMARY_PATH)?.slug).toBe("pilot-roi-model");
+  it("contextual help maps ROI summary to executive-summary pilot ROI measurement (TB-1973)", () => {
+    expect(pageHelpTopicForPathname(SPONSOR_REPORT_ROI_SUMMARY_PATH)?.slug).toBe("executive-summary");
+    expect(pageHelpTopicForPathname(SPONSOR_REPORT_ROI_SUMMARY_PATH)?.hashFragment).toBe(
+      "pilot-roi-measurement",
+    );
   });
 });

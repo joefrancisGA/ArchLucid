@@ -40,7 +40,7 @@ export const MARKETING_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "EXA",
     path: "/example-roi-bulletin",
     section: "Marketing",
-    note: "Example ROI bulletin (Marketing) - ExampleRoiBulletinMarketingPage with ExampleRoiBulletinEvidenceOrientationStrip (evaluation Sources + claim-discipline: synthetic sample only). Admin-only preview gate + checked-in sample Markdown; robots noindex. Not an operator PageContextualHelp surface. Sibling PI = pilot-roi-model help; SPE = executive-summary.marketing/learning ceiling below operator Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
+    note: "Example ROI bulletin (Marketing) - ExampleRoiBulletinMarketingPage with ExampleRoiBulletinEvidenceOrientationStrip (evaluation Sources + claim-discipline: synthetic sample only). Admin-only preview gate + checked-in sample Markdown; robots noindex. Not an operator PageContextualHelp surface. Sibling SPE = executive-summary#pilot-roi-measurement. marketing/learning ceiling below operator Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
     noteMustContain: ["ExampleRoiBulletinEvidenceOrientationStrip", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Product FAQ marketing page. Owner backlog shorthand: FXX. */

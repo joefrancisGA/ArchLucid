@@ -243,7 +243,6 @@ describe("product-documentation-registry", () => {
 
   it("tags internal-runbook slugs with internal-runbook contentKind (TB-732 / TB-1250 / TB-1329)", () => {
     const internalRunbookSlugs = [
-      "policy-pack-delta-demo",
       "pilot-feedback",
       "developer-troubleshooting",
       "cli-usage",

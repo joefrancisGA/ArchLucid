@@ -18,7 +18,7 @@ export type ArchitectureScorecardSourceLink = {
 export const ARCHITECTURE_SCORECARD_SOURCES: readonly ArchitectureScorecardSourceLink[] = [
   { label: "ROI summary", href: SPONSOR_REPORT_ROI_SUMMARY_PATH },
   { label: "Architecture reviews", href: "/architecture/reviews" },
-  { label: "ROI methodology help", href: inAppHelpHref("pilot-roi-model") },
+  { label: "ROI methodology help", href: inAppHelpHref("executive-summary", "pilot-roi-measurement") },
   { label: "Workspace baseline settings", href: "/administration/baseline" },
   { label: "Workspace overview", href: GOVERNANCE_WORKSPACE_HEALTH_HREF },
 ] as const;

@@ -8,6 +8,7 @@ import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { LayerHeader } from "@/components/LayerHeader";
 import { RoiSponsorExportVocabularyRail } from "@/components/RoiSponsorExportVocabularyRail";
+import { ScorecardRoiVocabularyRail } from "@/components/ScorecardRoiVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -16,11 +17,11 @@ import { Button } from "@/components/ui/button";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { useRoiLoadedHourlyUsd } from "@/hooks/use-roi-loaded-hourly-usd";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+import { EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/executive-summary-pilot-roi-measurement-help";
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
-  ROI_SUMMARY_METHODOLOGY_HELP_HREF,
   ROI_SUMMARY_PAGE_SUBTITLE,
   computeRoiSummaryPeriodMetrics,
   deriveRoiSummaryDataNeeds,
@@ -107,6 +108,7 @@ export function RoiSummaryPageView(props: Props) {
       </div>
       <ValueReportOutcomesNav />
       <RoiSponsorExportVocabularyRail currentSurfaceId="roi-summary" />
+      <ScorecardRoiVocabularyRail currentSurfaceId="roi-summary" />
       <DocumentLayout>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
@@ -158,7 +160,7 @@ export function RoiSummaryPageView(props: Props) {
                 <Link href="/insights/pilot-outcomes">Open sample pilot outcomes</Link>
               </Button>
               <Button asChild variant="outline">
-                <Link href={ROI_SUMMARY_METHODOLOGY_HELP_HREF}>Review methodology</Link>
+                <Link href={EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF}>Review methodology</Link>
               </Button>
             </div>
           </section>
@@ -228,7 +230,7 @@ export function RoiSummaryPageView(props: Props) {
             workspace, and project scope only.
           </p>
           <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            <Link href={ROI_SUMMARY_METHODOLOGY_HELP_HREF} className={OPERATOR_LINK.inline}>
+            <Link href={EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF} className={OPERATOR_LINK.inline}>
               Review full methodology
             </Link>
           </p>

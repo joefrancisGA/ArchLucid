@@ -8,9 +8,10 @@ import {
   formatUsd,
   hoursSurfaced,
 } from "@/lib/roi-assumptions";
+import { EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/executive-summary-pilot-roi-measurement-help";
 import type { PilotValueReportJson, PilotValueReportSeverityJson } from "@/types/pilot-value-report";
 
-export const ROI_SUMMARY_METHODOLOGY_HELP_HREF = "/help/pilot-roi-model";
+export const ROI_SUMMARY_METHODOLOGY_HELP_HREF = EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF;
 
 export const ROI_SUMMARY_PAGE_SUBTITLE =
   "Estimate review-time savings from finalized findings, governance blocks, and avoided rework.";

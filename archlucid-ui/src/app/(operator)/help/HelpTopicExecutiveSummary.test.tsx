@@ -39,6 +39,12 @@ describe("HelpTopicExecutiveSummary", () => {
     expect(loaded?.entry.sourcePaths[0]?.toLowerCase()).toContain("executive_sponsor_brief.md");
   });
 
+  it("loads executive-summary with pilot ROI measurement section from scorecard", () => {
+    expect(loaded).not.toBeNull();
+    expect(loaded?.markdown.toLowerCase()).toContain("pilot roi measurement");
+    expect(loaded?.markdown.toLowerCase()).toContain("baseline questions");
+  });
+
   it("purges FAQ dump leakage and renders sponsor framing with primary CTA (TB-1687, TB-1690)", () => {
     if (loaded === null) {
       throw new Error("Expected executive-summary documentation to load.");
@@ -80,10 +86,12 @@ describe("HelpTopicExecutiveSummary", () => {
       .filter((heading) => /^\d+\./.test(heading.textContent ?? ""));
     expect(numberedHeadings).toHaveLength(0);
 
-    const pilotRoiLinks = screen.getAllByRole("link", { name: "Pilot ROI model" });
+    const pilotRoiLinks = screen.getAllByRole("link", { name: /Pilot ROI measurement/i });
     expect(pilotRoiLinks.length).toBeGreaterThan(0);
     for (const link of pilotRoiLinks) {
-      expect(link).toHaveAttribute("href", "/help/pilot-roi-model");
+      expect(link.getAttribute("href")).toMatch(
+        /^(\/help\/executive-summary#pilot-roi-measurement|#pilot-roi-measurement)$/,
+      );
     }
 
     expect(screen.queryByText(/\bRoi\b/)).toBeNull();

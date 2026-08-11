@@ -1,7 +1,7 @@
-import { ROI_SUMMARY_METHODOLOGY_HELP_HREF } from "@/lib/roi-summary-sponsor-presentation";
+import { EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/executive-summary-pilot-roi-measurement-help";
 
 /** Buyer-safe methodology help for aggregate ROI bulletin shape (TB-1520). */
-export const EXAMPLE_ROI_BULLETIN_METHODOLOGY_HELP_HREF = ROI_SUMMARY_METHODOLOGY_HELP_HREF;
+export const EXAMPLE_ROI_BULLETIN_METHODOLOGY_HELP_HREF = EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF;
 
 /** Parses the illustrative quarter label from the checked-in synthetic sample Markdown. */
 export function illustrativeQuarterLabelFromSample(markdown: string): string {

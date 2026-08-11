@@ -8,6 +8,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
+import { EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/executive-summary-pilot-roi-measurement-help";
 import {
   costEvidenceFreshnessStatusTagKind,
   formatExecutiveHeadlineScopeCodeLabel,
@@ -18,7 +19,7 @@ import {
   resolveExecutiveSystemRowScopeLabel,
 } from "@/lib/roi-sponsor-scope-labels";
 
-export const EXECUTIVE_ROI_PROOF_STATUS_HELP_HREF = "/help/pilot-roi-model";
+export const EXECUTIVE_ROI_PROOF_STATUS_HELP_HREF = EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF;
 
 export type ExecutiveRoiProofStatusStripProps = {
   readonly summary: ExecutiveRoiSummary;

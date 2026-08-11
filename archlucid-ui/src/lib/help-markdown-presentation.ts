@@ -997,6 +997,12 @@ export function stripExecutiveSummaryPilotRoiMeasurementLeakage(markdown: string
     .filter((line) => {
       const trimmedStart = line.trimStart();
 
+      // Earlier sponsor-brief email templates use fenced blocks; reset at H2 so folded
+      // scorecard sections are not treated as still inside a code fence.
+      if (/^##\s+/.test(trimmedStart)) {
+        inFence = false;
+      }
+
       if (trimmedStart.startsWith("```")) {
         inFence = !inFence;
         return true;
@@ -1006,7 +1012,15 @@ export function stripExecutiveSummaryPilotRoiMeasurementLeakage(markdown: string
         return true;
       }
 
-      if (/Former standalone body:.*PILOT_ROI_MODEL/i.test(line)) {
+      if (/Former standalone(?: body)?:/i.test(line)) {
+        return false;
+      }
+
+      if (/path-stable alias for product\/ci strings/i.test(line)) {
+        return false;
+      }
+
+      if (/Conservative value from\s+.+\boptions\b/i.test(line)) {
         return false;
       }
 
@@ -1082,6 +1096,8 @@ export function stripExecutiveSummaryPilotRoiMeasurementLeakage(markdown: string
     .replace(/docs\/go-to-market\/[^\s)]+/gi, "go-to-market documentation")
     .replace(/`?docs\/library\/[^`\s)]+`?/gi, "product documentation")
     .replace(/docs\/library\/[^\s)]+/gi, "product documentation")
+    .replace(/\bPilot Roi Model options\b/gi, "pilot ROI methodology options")
+    .replace(/\bPilot Roi Model\b/gi, "pilot ROI methodology")
     .replace(/\bCore Pilot\b/g, "Your first architecture review")
     .replace(/\n{3,}/g, "\n\n");
 }
@@ -2840,6 +2856,7 @@ export function stripExecutiveSummarySponsorBriefLeakage(markdown: string): stri
     .replace(/PRODUCT_PACKAGING\.md/gi, "/help/executive-summary#what-archlucid-is")
     .replace(/`\/value-report`/gi, "`/insights/executive-summary`")
     .replace(/\/value-report/gi, "/insights/executive-summary")
+    .replace(/\/help\/pilot-roi-model/gi, "/help/executive-summary#pilot-roi-measurement")
     .replace(/`?SPONSOR_BANNER_FIRST_COMMIT_BADGE\.md`?/gi, "sponsor banner documentation")
     .replace(/SPONSOR_BANNER_FIRST_COMMIT_BADGE\.md/gi, "sponsor banner documentation");
 }
@@ -3365,10 +3382,6 @@ const IS_FIRST_REVIEW_EVIDENCE_CHECKLIST = matchesEither(
 const IS_CLI_USAGE = matchesEither(matchesSlug("cli-usage"), matchesSourceDoc("cli_usage.md"));
 const IS_ENTERPRISE_ONBOARDING = matchesSourceDoc("hosted_enterprise_onboarding_checklist.md");
 const IS_GOVERNANCE_API_CONTRACTS = matchesSourceDoc("api_contracts.md");
-const IS_EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT = matchesBoth(
-  matchesSlug("executive-summary"),
-  matchesSourceDoc("pilot_success_scorecard.md"),
-);
 const IS_REPEAT_REVIEW_LOOP = matchesSourceDoc("repeat_review_loop.md");
 const IS_ACCELERATOR_CHOOSER = matchesEither(
   matchesSourceDoc("accelerator_chooser.md"),
@@ -3467,11 +3480,6 @@ const HELP_MARKDOWN_AUDIENCE_RULE_SETS: readonly HelpMarkdownTopicRuleSet[] = [
     rules: [stripGovernanceApiContractsContributorLeakage],
   },
   {
-    id: "executive-summary-pilot-roi-measurement",
-    matches: IS_EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT,
-    rules: [stripExecutiveSummaryPilotRoiMeasurementLeakage],
-  },
-  {
     id: "repeat-review-loop",
     matches: IS_REPEAT_REVIEW_LOOP,
     rules: [stripRepeatReviewLoopContributorLeakage],
@@ -3561,8 +3569,11 @@ const HELP_MARKDOWN_AUDIENCE_RULE_SETS: readonly HelpMarkdownTopicRuleSet[] = [
   {
     // The product-overview alias normalizes to executive-summary before render (TB-1739).
     id: "executive-summary-sponsor-brief",
-    matches: matchesBoth(matchesSlug("executive-summary"), matchesSourceDoc("executive_sponsor_brief.md")),
-    rules: [stripExecutiveSummarySponsorBriefLeakage],
+    matches: matchesSlug("executive-summary"),
+    rules: [
+      stripExecutiveSummarySponsorBriefLeakage,
+      stripExecutiveSummaryPilotRoiMeasurementLeakage,
+    ],
   },
   {
     id: "soc2-self-assessment",
@@ -3648,8 +3659,14 @@ export function prepareHelpMarkdownForPresentation(
       ? withoutHorizontalRules
       : stripDocumentationMaintenanceMetadata(withoutHorizontalRules);
 
-  return applyHelpMarkdownPresentationRules(presentationBody, [
+  let finalBody = applyHelpMarkdownPresentationRules(presentationBody, [
     emphasizeInlineGuidanceLabels,
     applyHelpTopicProductLanguage,
   ]);
+
+  if (options?.helpTopicSlug === "executive-summary") {
+    finalBody = stripExecutiveSummaryPilotRoiMeasurementLeakage(finalBody);
+  }
+
+  return finalBody;
 }

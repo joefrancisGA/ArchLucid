@@ -240,12 +240,6 @@
     "url": "/help"
   },
   {
-    "title": "Pilot ROI model",
-    "summary": "How sponsor ROI figures are labeled, sourced, and kept buyer-safe in proof packets.",
-    "category": "Go-to-Market",
-    "url": "/help/pilot-roi-model"
-  },
-  {
     "title": "Pilot guide",
     "summary": "Prepare for a pilot, run the first architecture review, interpret outputs, report issues, and get help.",
     "category": "Go-to-Market",

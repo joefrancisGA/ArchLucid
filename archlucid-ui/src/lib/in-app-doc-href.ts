@@ -8,6 +8,14 @@ import { inAppHelpHref, PRODUCT_DOCUMENTATION_REGISTRY } from "@/lib/product-doc
 const DOC_PATH_TO_ABSOLUTE_HREF: Readonly<Record<string, string>> = {
   /** Customer-facing FAQ.md is a path-stable stub; buyer Q&A lives on marketing `/faq`. */
   "docs/library/customer-facing/faq.md": "/faq",
+  /** Pilot ROI measurement folded into executive-summary (PI retired 2026-08-11). */
+  "docs/go-to-market/roi_model.md": "/help/executive-summary#pilot-roi-measurement",
+  "docs/library/pilot_roi_model.md": "/help/executive-summary#pilot-roi-measurement",
+  "docs/deployment/per_tenant_cost_model.md": "/help/executive-summary#pilot-roi-measurement",
+  "docs/library/per_tenant_cost_model.md": "/help/executive-summary#pilot-roi-measurement",
+  "docs/runbooks/first_value_20_minutes.md": "/help/first-architecture-review#first-value-in-20-minutes",
+  /** Shared with the printable checklist entry; prefer the 20-minute anchor for this source path. */
+  "docs/runbooks/first_pilot_operator_path.md": "/help/first-architecture-review#first-value-in-20-minutes",
   /** Finding provenance folded into Findings help (2026-08-04). */
   "docs/library/customer-facing/finding_provenance.md": "/help/findings#where-findings-come-from",
 };
@@ -52,9 +60,6 @@ const DOC_PATH_TO_SLUG: Readonly<Record<string, string>> = {
   "docs/core_pilot.md": "first-architecture-review",
   "docs/library/first_hour_operator_path.md": "first-architecture-review",
   "docs/library/customer-facing/complete_review_workflow.md": "first-architecture-review",
-  "docs/runbooks/first_value_20_minutes.md": "first-value-20-minutes",
-  /** Shared with the "first-review" checklist entry; prefer the 20-minute runbook slug for this source path. */
-  "docs/runbooks/first_pilot_operator_path.md": "first-value-20-minutes",
   "docs/library/governance_workflow_ui.md": "governance-approval",
   "docs/library/customer-facing/operator_quickstart.md": "cli-usage",
   "docs/library/customer-facing/concepts_in_5_minutes.md": "getting-started",
@@ -78,8 +83,6 @@ const DOC_PATH_TO_SLUG: Readonly<Record<string, string>> = {
   "docs/go-to-market/buyer_security_procurement_packet.md": "procurement",
   "docs/library/hosted_enterprise_onboarding_checklist.md": "enterprise-onboarding",
   "docs/library/customer-facing/cloud_connections.md": "cloud-connections",
-  "docs/deployment/per_tenant_cost_model.md": "pilot-roi-model",
-  "docs/library/per_tenant_cost_model.md": "pilot-roi-model",
   "docs/executive_sponsor_brief.md": "executive-summary",
   "docs/go-to-market/executive_sponsor_brief.md": "executive-summary",
   "docs/library/agent_output_evaluation.md": "admin-diagnostics",
@@ -109,8 +112,6 @@ const DOC_PATH_TO_SLUG: Readonly<Record<string, string>> = {
   "docs/library/core_pilot.md": "first-architecture-review",
   "docs/library/pilot_guide.md": "pilot-guide",
   "docs/go-to-market/pilot_success_scorecard.md": "pilot-guide",
-  "docs/go-to-market/roi_model.md": "pilot-roi-model",
-  "docs/library/pilot_roi_model.md": "pilot-roi-model",
   "docs/pre_commit_governance_gate.md": "governance-approval",
   "docs/alerts.md": "alerts",
   "archlucid-ui/docs/testing_and_troubleshooting.md": "troubleshooting",
