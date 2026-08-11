@@ -44,6 +44,7 @@ import { INTEGRATION_READINESS_HELP_PRIMARY_ACTION } from "@/lib/integration-rea
 import { PROCUREMENT_HELP_CLAIM_DISCIPLINE } from "@/lib/procurement-help-evidence-copy";
 import { isProcurementHelpTopic } from "@/lib/procurement-help-presentation";
 import { POLICY_PACKS_HELP_PRIMARY_ACTION } from "@/lib/policy-packs-help-evidence-copy";
+import { REPORT_A_PROBLEM_HELP_PRIMARY_ACTION } from "@/lib/report-a-problem-help-evidence-copy";
 
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
 
@@ -144,6 +145,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
   const isPolicyPacksHelp = entry.slug === "policy-packs";
   const isProcurementHelp = isProcurementHelpTopic(entry.slug);
   const isAuthenticationSignInHelp = entry.slug === "authentication-sign-in";
+  const isReportAProblemHelp = entry.slug === "report-a-problem";
   const allowWithoutServerPdf = entry.pdfStatus === null && (entry.audience === "buyer" || isProcurementHelp);
 
   const isTechnicalReferenceLayout = layoutVariant === "technicalReference";
@@ -201,7 +203,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
         titleBlockOrientation={
           isProcurementHelp ? (
             <ProcurementHelpHeaderAsOfLine />
-          ) : isPolicyPacksHelp ? (
+          ) : isPolicyPacksHelp || isReportAProblemHelp ? (
             <HelpTopicRegistryProvenanceLine entry={entry} />
           ) : undefined
         }
@@ -217,7 +219,9 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
                 ? INTEGRATION_READINESS_HELP_PRIMARY_ACTION
                 : isPolicyPacksHelp
                   ? POLICY_PACKS_HELP_PRIMARY_ACTION
-                  : undefined
+                  : isReportAProblemHelp
+                    ? REPORT_A_PROBLEM_HELP_PRIMARY_ACTION
+                    : undefined
         }
 
       />

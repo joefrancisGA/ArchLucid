@@ -152,7 +152,7 @@ describe("ReportProblemDialog (TB-784)", () => {
 
   it("shows bundle attach warning on acknowledgement when submit returns one", async () => {
     const warning =
-      "Your report was submitted, but the redacted support bundle could not be attached. You can download one from Settings → Support if needed.";
+      "Your report was submitted, but the redacted support bundle could not be attached. You can download one from Administration → Support if needed.";
 
     renderDialog({
       onSubmit: vi.fn().mockResolvedValue({

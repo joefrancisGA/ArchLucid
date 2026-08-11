@@ -9,7 +9,7 @@ import {
   resolveReportProblemAuditPeerLink,
   type ReportProblemAuditSurfaceId,
   type ReportProblemAuditVocabularyModel,
-} from "@/lib/report-problem-audit-vocabulary";
+} from "@/lib/vocabulary/report-problem-audit-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -53,7 +53,7 @@ export function ReportProblemAuditVocabularyRail(
         <span>{model.compactLine}</span>{" "}
         <Link
           href={peer.href}
-          className={cn(OPERATOR_LINK.inline, "font-medium")}
+          className={cn(OPERATOR_LINK.inline, "font-normal")}
           data-testid="report-problem-audit-vocabulary-peer-link"
         >
           {peer.label}

@@ -53,9 +53,11 @@ export function HelpTopicMarkdownPageHeader(props: HelpTopicMarkdownPageHeaderPr
       titleTestId="help-topic-page-title"
       subtitle={props.entry.summary}
       metadata={
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1" data-testid="help-topic-header-metadata">
-          {props.titleBlockOrientation}
-        </div>
+        props.titleBlockOrientation !== undefined && props.titleBlockOrientation !== null ? (
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1" data-testid="help-topic-header-metadata">
+            {props.titleBlockOrientation}
+          </div>
+        ) : undefined
       }
       actions={
         showActions ? (

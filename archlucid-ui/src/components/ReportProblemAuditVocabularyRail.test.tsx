@@ -8,7 +8,7 @@ import {
   REPORT_PROBLEM_AUDIT_HEADING,
   REPORT_PROBLEM_AUDIT_REPORT_PROBLEM_LINK,
   REPORT_PROBLEM_AUDIT_WHY_TWO,
-} from "@/lib/report-problem-audit-vocabulary";
+} from "@/lib/vocabulary/report-problem-audit-vocabulary";
 
 describe("ReportProblemAuditVocabularyRail (TB-2267)", () => {
   it("renders report-problem strip with peer link to audit", () => {
