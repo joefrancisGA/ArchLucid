@@ -56,9 +56,9 @@ describe("usability improvements", () => {
     expect(routeViewExplanationForPathname("/insights/evidence-graph")).toBeNull();
   });
 
-  it("routeViewExplanationForPathname returns null for alerts — the page carries its own governance context header", () => {
-    expect(routeViewExplanationForPathname("/governance/alerts")).toBeNull();
-    expect(routeViewExplanationForPathname("/alerts")).toBeNull();
+  it("routeViewExplanationForPathname covers alerts hubs (TB-2216)", () => {
+    expect(routeViewExplanationForPathname("/governance/alerts")?.title).toBe("Alerts");
+    expect(routeViewExplanationForPathname("/alerts")?.title).toBe("Alerts");
   });
 
   it("routeViewExplanationForPathname returns null for governance routes — page headers own orientation", () => {
@@ -69,8 +69,8 @@ describe("usability improvements", () => {
     expect(routeViewExplanationForPathname("/governance/findings")).toBeNull();
   });
 
-  it("routeViewExplanationForPathname returns null for compare — header and contextual help own orientation", () => {
-    expect(routeViewExplanationForPathname("/insights/compare-two-reviews")).toBeNull();
+  it("routeViewExplanationForPathname covers compare hub (TB-2216)", () => {
+    expect(routeViewExplanationForPathname("/insights/compare-two-reviews")?.title).toBe("Compare two reviews");
   });
 
   it("routeViewExplanationForPathname returns null for governance audit — page owns orientation", () => {
