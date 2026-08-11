@@ -3,14 +3,18 @@ import { describe, expect, it } from "vitest";
 
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import {
+  PAGE_CAPABILITY_BOUNDARY_ADVISORY_SCANS,
+  PAGE_CAPABILITY_BOUNDARY_ARCHITECTURE_INTELLIGENCE,
   PAGE_CAPABILITY_BOUNDARY_ASK,
   PAGE_CAPABILITY_BOUNDARY_COMPARE,
   PAGE_CAPABILITY_BOUNDARY_DISCLOSURE_SUMMARY,
   PAGE_CAPABILITY_BOUNDARY_GOVERNANCE_FINDINGS,
+  PAGE_CAPABILITY_BOUNDARY_IMPACT_PREVIEW,
+  PAGE_CAPABILITY_BOUNDARY_SEARCH_REVIEW_EVIDENCE,
   getPageCapabilityBoundary,
 } from "@/lib/page-capability-boundary";
 
-describe("PageCapabilityBoundaryStrip (TB-2197)", () => {
+describe("PageCapabilityBoundaryStrip (TB-2197 / TB-2274)", () => {
   it("renders ask disclosure with SoT items", () => {
     render(<PageCapabilityBoundaryStrip surfaceId="ask" />);
 
@@ -45,6 +49,50 @@ describe("PageCapabilityBoundaryStrip (TB-2197)", () => {
     );
     expect(
       screen.getByText(PAGE_CAPABILITY_BOUNDARY_GOVERNANCE_FINDINGS.items[0]!),
+    ).toBeInTheDocument();
+  });
+
+  it("renders architectureIntelligence surface items (TB-2274)", () => {
+    render(<PageCapabilityBoundaryStrip surfaceId="architectureIntelligence" />);
+
+    expect(screen.getByTestId("page-capability-boundary")).toHaveAttribute(
+      "data-surface-id",
+      "architectureIntelligence",
+    );
+    expect(
+      screen.getByText(PAGE_CAPABILITY_BOUNDARY_ARCHITECTURE_INTELLIGENCE.items[0]!),
+    ).toBeInTheDocument();
+  });
+
+  it("renders impactPreview surface items (TB-2274)", () => {
+    render(<PageCapabilityBoundaryStrip surfaceId="impactPreview" />);
+
+    expect(screen.getByTestId("page-capability-boundary")).toHaveAttribute(
+      "data-surface-id",
+      "impactPreview",
+    );
+    expect(screen.getByText(PAGE_CAPABILITY_BOUNDARY_IMPACT_PREVIEW.items[0]!)).toBeInTheDocument();
+  });
+
+  it("renders advisoryScans surface items (TB-2274)", () => {
+    render(<PageCapabilityBoundaryStrip surfaceId="advisoryScans" />);
+
+    expect(screen.getByTestId("page-capability-boundary")).toHaveAttribute(
+      "data-surface-id",
+      "advisoryScans",
+    );
+    expect(screen.getByText(PAGE_CAPABILITY_BOUNDARY_ADVISORY_SCANS.items[0]!)).toBeInTheDocument();
+  });
+
+  it("renders searchReviewEvidence surface items (TB-2274)", () => {
+    render(<PageCapabilityBoundaryStrip surfaceId="searchReviewEvidence" />);
+
+    expect(screen.getByTestId("page-capability-boundary")).toHaveAttribute(
+      "data-surface-id",
+      "searchReviewEvidence",
+    );
+    expect(
+      screen.getByText(PAGE_CAPABILITY_BOUNDARY_SEARCH_REVIEW_EVIDENCE.items[0]!),
     ).toBeInTheDocument();
   });
 

@@ -1,5 +1,5 @@
 /**
- * TB-2197 - page-level "what this surface cannot do" capability boundary.
+ * TB-2197 / TB-2274 - page-level "what this surface cannot do" capability boundary.
  * Compact cannot-do strips to stop over-trust; Azure permissions help remains the
  * detailed cloud-connection SoT (AZURE_CLOUD_CONNECTION_CANNOT_DO).
  */
@@ -10,7 +10,11 @@ export const PAGE_CAPABILITY_BOUNDARY_DISCLOSURE_SUMMARY =
 export type PageCapabilityBoundarySurfaceId =
   | "ask"
   | "compare"
-  | "governanceFindings";
+  | "governanceFindings"
+  | "architectureIntelligence"
+  | "impactPreview"
+  | "advisoryScans"
+  | "searchReviewEvidence";
 
 export type PageCapabilityBoundary = {
   readonly heading: string;
@@ -50,6 +54,50 @@ export const PAGE_CAPABILITY_BOUNDARY_GOVERNANCE_FINDINGS: PageCapabilityBoundar
   ],
 };
 
+/** Architecture intelligence - closed-loop reasoning; does not finalize or replace governance. */
+export const PAGE_CAPABILITY_BOUNDARY_ARCHITECTURE_INTELLIGENCE: PageCapabilityBoundary = {
+  heading: PAGE_CAPABILITY_BOUNDARY_DISCLOSURE_SUMMARY,
+  items: [
+    "Finalize an architecture package or create a signed review record by itself.",
+    "Approve, reject, or write Decision register dispositions.",
+    "Deploy or change cloud infrastructure from reasoning output.",
+    "Replace advisory scans, impact preview, or pairwise compare as the system of record.",
+  ],
+};
+
+/** Impact preview - simulated change impact; does not mutate packages or govern. */
+export const PAGE_CAPABILITY_BOUNDARY_IMPACT_PREVIEW: PageCapabilityBoundary = {
+  heading: PAGE_CAPABILITY_BOUNDARY_DISCLOSURE_SUMMARY,
+  items: [
+    "Mutate the baseline architecture package or its signed review record.",
+    "Approve, reject, or finalize packages from a simulation.",
+    "Replace pairwise Compare of two finalized architecture packages.",
+    "Author policy packs or write Decision register dispositions.",
+  ],
+};
+
+/** Advisory scans - improvement recommendations; does not remediate or finalize. */
+export const PAGE_CAPABILITY_BOUNDARY_ADVISORY_SCANS: PageCapabilityBoundary = {
+  heading: PAGE_CAPABILITY_BOUNDARY_DISCLOSURE_SUMMARY,
+  items: [
+    "Automatically remediate findings or cloud configuration.",
+    "Finalize architecture packages or create signed review records.",
+    "Replace the governance findings queue or Decision register.",
+    "Author or publish policy packs from a scan recommendation.",
+  ],
+};
+
+/** Search review evidence - retrieval over the evidence index; does not invent or govern. */
+export const PAGE_CAPABILITY_BOUNDARY_SEARCH_REVIEW_EVIDENCE: PageCapabilityBoundary = {
+  heading: PAGE_CAPABILITY_BOUNDARY_DISCLOSURE_SUMMARY,
+  items: [
+    "Invent findings, decisions, or evidence that are not in the evidence index.",
+    "Approve, reject, or finalize architecture packages from search results.",
+    "Write Decision register dispositions or replace the audit trail.",
+    "Serve as Ask review questions — search retrieves; Ask answers with citations.",
+  ],
+};
+
 const PAGE_CAPABILITY_BOUNDARY_BY_SURFACE: Record<
   PageCapabilityBoundarySurfaceId,
   PageCapabilityBoundary
@@ -57,6 +105,10 @@ const PAGE_CAPABILITY_BOUNDARY_BY_SURFACE: Record<
   ask: PAGE_CAPABILITY_BOUNDARY_ASK,
   compare: PAGE_CAPABILITY_BOUNDARY_COMPARE,
   governanceFindings: PAGE_CAPABILITY_BOUNDARY_GOVERNANCE_FINDINGS,
+  architectureIntelligence: PAGE_CAPABILITY_BOUNDARY_ARCHITECTURE_INTELLIGENCE,
+  impactPreview: PAGE_CAPABILITY_BOUNDARY_IMPACT_PREVIEW,
+  advisoryScans: PAGE_CAPABILITY_BOUNDARY_ADVISORY_SCANS,
+  searchReviewEvidence: PAGE_CAPABILITY_BOUNDARY_SEARCH_REVIEW_EVIDENCE,
 };
 
 /** Resolve the cannot-do boundary for a mounted operator surface. */

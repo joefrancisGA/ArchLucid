@@ -8,6 +8,7 @@ import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmpty
 import { FindingsQueueSearchEvidenceVocabularyRail } from "@/components/FindingsQueueSearchEvidenceVocabularyRail";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { RunIdPicker } from "@/components/RunIdPicker";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
@@ -81,6 +82,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
         <AskSearchEvidenceVocabularyRail currentSurfaceId="search" />
         <AuditEvidenceTrailVocabularyRail currentSurfaceId="search-evidence" />
         <FindingsQueueSearchEvidenceVocabularyRail currentSurfaceId="search-evidence" />
+        <PageCapabilityBoundaryStrip surfaceId="searchReviewEvidence" />
         <DemoWorkspaceCapabilityUnavailablePanel
           layout="embedded"
           capability={SEARCH_PAGE_TITLE}
@@ -102,6 +104,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
       <AskSearchEvidenceVocabularyRail currentSurfaceId="search" />
       <AuditEvidenceTrailVocabularyRail currentSurfaceId="search-evidence" />
       <FindingsQueueSearchEvidenceVocabularyRail currentSurfaceId="search-evidence" />
+      <PageCapabilityBoundaryStrip surfaceId="searchReviewEvidence" />
       {scopedRunId.length > 0 ? <SearchReviewEvidenceCiteStrip runId={scopedRunId} /> : null}
 
       <Card className="mb-6 max-w-xl border-neutral-200 dark:border-neutral-700">

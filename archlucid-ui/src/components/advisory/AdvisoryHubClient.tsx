@@ -7,6 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
@@ -91,6 +92,7 @@ export function AdvisoryHubClient({ initialTab, initialRunId = null }: AdvisoryH
           {ADVISORY_SCANS_PAGE_LEAD}
         </p>
       </OperatorPageHeader>
+      <PageCapabilityBoundaryStrip surfaceId="advisoryScans" />
 <CollapsibleSection title={ADVISORY_SCANS_HOW_IT_WORKS_TITLE} sectionTestId="advisory-scans-how-it-works">
         <p className={cn("m-0 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           {ADVISORY_SCANS_HOW_IT_WORKS_BODY}

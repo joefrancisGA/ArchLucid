@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { ImpactPreviewCompareVocabularyRail } from "@/components/ImpactPreviewCompareVocabularyRail";
+import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
@@ -85,6 +86,7 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
       />
 
       <ImpactPreviewCompareVocabularyRail currentSurfaceId="impact-preview" />
+      <PageCapabilityBoundaryStrip surfaceId="impactPreview" />
 
       <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         {IMPACT_PREVIEW_ORIENTATION}
