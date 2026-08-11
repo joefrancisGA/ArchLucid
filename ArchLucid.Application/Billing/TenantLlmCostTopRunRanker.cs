@@ -45,38 +45,55 @@ public sealed class TenantLlmCostTopRunRanker(
             .ListRunsByProjectAsync(scope, DefaultProjectSlug, scanCap, cancellationToken)
             .ConfigureAwait(false);
 
-        List<LlmCostTopRunRowResponse> ranked = [];
+        List<string> runHexIds = summaries
+            .Select(static summary => summary.RunId.ToString("N"))
+            .ToList();
 
-        foreach (RunSummaryDto summary in summaries)
-        {
-            string runHex = summary.RunId.ToString("N");
-            IReadOnlyList<AgentExecutionTraceLlmCostSlice> slices = await _traceRepository
-                .GetLlmCostSlicesByRunIdAsync(scope, runHex, cancellationToken)
+        // One scoped query for every scanned run instead of one round-trip per run.
+        IReadOnlyDictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>> slicesByRunId =
+            await _traceRepository
+                .GetLlmCostSlicesByRunIdsAsync(scope, runHexIds, cancellationToken)
                 .ConfigureAwait(false);
 
-            if (slices.Count == 0)
-                continue;
-
-            AgentExecutionTraceRunLlmCostSummary aggregate =
-                AgentExecutionTraceRunLlmCostAggregator.Compute(slices, _costEstimator);
-
-            if (aggregate.PromptTokens + aggregate.CompletionTokens <= 0 && aggregate.EstimatedCostUsd is null or <= 0m)
-                continue;
-
-            ranked.Add(new LlmCostTopRunRowResponse
-            {
-                RunId = runHex,
-                EstimatedCostUsd = aggregate.EstimatedCostUsd ?? 0m,
-                PromptTokens = aggregate.PromptTokens,
-                CompletionTokens = aggregate.CompletionTokens,
-                LlmCallCount = slices.Count,
-            });
-        }
-
-        return ranked
+        return runHexIds
+            .Select(runHex => TryBuildRow(runHex, slicesByRunId))
+            .OfType<LlmCostTopRunRowResponse>()
             .OrderByDescending(static row => row.EstimatedCostUsd)
             .ThenByDescending(static row => row.PromptTokens + row.CompletionTokens)
             .Take(takeCap)
             .ToList();
+    }
+
+    /// <summary>
+    ///     Returns <see langword="null" /> when the run has no traces or aggregates to zero cost and zero tokens,
+    ///     which keeps it out of the ranking entirely.
+    /// </summary>
+    private LlmCostTopRunRowResponse? TryBuildRow(
+        string runHex,
+        IReadOnlyDictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>> slicesByRunId)
+    {
+        ArgumentNullException.ThrowIfNull(slicesByRunId);
+
+        if (!slicesByRunId.TryGetValue(runHex, out IReadOnlyList<AgentExecutionTraceLlmCostSlice>? slices)
+            || slices is null
+            || slices.Count == 0)
+        {
+            return null;
+        }
+
+        AgentExecutionTraceRunLlmCostSummary aggregate =
+            AgentExecutionTraceRunLlmCostAggregator.Compute(slices, _costEstimator);
+
+        if (aggregate.PromptTokens + aggregate.CompletionTokens <= 0 && aggregate.EstimatedCostUsd is null or <= 0m)
+            return null;
+
+        return new LlmCostTopRunRowResponse
+        {
+            RunId = runHex,
+            EstimatedCostUsd = aggregate.EstimatedCostUsd ?? 0m,
+            PromptTokens = aggregate.PromptTokens,
+            CompletionTokens = aggregate.CompletionTokens,
+            LlmCallCount = slices.Count,
+        };
     }
 }

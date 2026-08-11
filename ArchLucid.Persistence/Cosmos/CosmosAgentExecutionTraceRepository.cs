@@ -4,6 +4,7 @@ using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Persistence.Data.Repositories;
@@ -20,6 +21,9 @@ public sealed class CosmosAgentExecutionTraceRepository(
     IOptionsMonitor<CosmosDbOptions> optionsMonitor) : IAgentExecutionTraceRepository
 {
     private const string ContainerId = "agent-traces";
+
+    /// <summary>Caps concurrent single-partition slice queries so a wide scan cannot saturate provisioned RUs.</summary>
+    private const int LlmCostSliceFanOutMaxConcurrent = 6;
 
     private readonly CosmosClientFactory _clientFactory =
         clientFactory ?? throw new ArgumentNullException(nameof(clientFactory));
@@ -207,12 +211,23 @@ public sealed class CosmosAgentExecutionTraceRepository(
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
+        _ = scope;
+
+        // Each slice query is a single-partition lookup keyed by runId, so fan out rather than
+        // paying one sequential round-trip per run.
+        IReadOnlyList<AgentExecutionTraceLlmCostSlice>[] sliceGroups = await BoundedParallelMap.MapAsync(
+            normalized,
+            LlmCostSliceFanOutMaxConcurrent,
+            async (runId, ct) => await QueryLlmCostSlicesByRunIdAsync(runId, ct),
+            cancellationToken);
+
         Dictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>> map =
             new(StringComparer.OrdinalIgnoreCase);
 
-        foreach (string runId in normalized)
+        // MapAsync preserves input order, so index i corresponds to normalized[i].
+        for (int i = 0; i < normalized.Count; i++)
         {
-            map[runId] = await GetLlmCostSlicesByRunIdAsync(scope, runId, cancellationToken);
+            map[normalized[i]] = sliceGroups[i];
         }
 
         return map;

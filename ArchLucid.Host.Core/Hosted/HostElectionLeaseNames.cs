@@ -88,4 +88,6 @@ public static class HostElectionLeaseNames
     public const string ExemplarCorpusStartupIndexer = "hosted:exemplar-corpus-startup-indexer";
 
     public const string PolicyPackCorpusStartupIndexer = "hosted:policy-pack-corpus-startup-indexer";
+
+    public const string PlatformDocCorpusStartupIndexer = "hosted:platform-doc-corpus-startup-indexer";
 }
