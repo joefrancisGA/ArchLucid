@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 
+import { BaselineRoiVocabularyRail } from "@/components/BaselineRoiVocabularyRail";
 import { DemoUnavailableNotice } from "@/components/DemoUnavailableNotice";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
@@ -370,6 +371,7 @@ export function BaselineSettingsClient() {
         </div>
         <PageContextualHelpButton />
       </div>
+      <BaselineRoiVocabularyRail currentSurfaceId="baseline" />
 {demoMode ? (
         <DemoUnavailableNotice
           title="Baseline settings"
