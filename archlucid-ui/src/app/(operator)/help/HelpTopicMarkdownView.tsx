@@ -44,6 +44,7 @@ import { isProcurementHelpTopic } from "@/lib/procurement-help-presentation";
 import { POLICY_PACKS_HELP_PRIMARY_ACTION } from "@/lib/policy-packs-help-evidence-copy";
 import { REPORT_A_PROBLEM_HELP_PRIMARY_ACTION } from "@/lib/report-a-problem-help-evidence-copy";
 import { SCOPE_HELP_PRIMARY_ACTION } from "@/lib/scope-help-evidence-copy";
+import { SecurityTrustHelpHubVocabularyRail } from "@/components/SecurityTrustHelpHubVocabularyRail";
 
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
 
@@ -222,6 +223,10 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
       />
 
 
+
+      {entry.slug === "security-trust" ? (
+        <SecurityTrustHelpHubVocabularyRail currentSurfaceId="security-trust-help" />
+      ) : null}
 
       {entry.audience === "developer" ? (
 
