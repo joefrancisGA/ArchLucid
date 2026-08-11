@@ -1,3 +1,4 @@
+import { ModelGovernanceAiUsageVocabularyRail } from "@/components/ModelGovernanceAiUsageVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -17,6 +18,7 @@ export default function ModelGovernanceSettingsPage() {
         </div>
         <PageContextualHelpButton />
       </div>
+      <ModelGovernanceAiUsageVocabularyRail currentSurfaceId="model-governance" />
       <ModelGovernanceSettingsCard />
     </div>
   );
