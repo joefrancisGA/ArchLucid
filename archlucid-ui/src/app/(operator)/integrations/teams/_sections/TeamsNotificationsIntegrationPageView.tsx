@@ -8,6 +8,7 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { StatusTag } from "@/components/ui/status-tag";
+import { DigestsTeamsSlackVocabularyRail } from "@/components/DigestsTeamsSlackVocabularyRail";
 import { TeamsSlackNotificationVocabularyRail } from "@/components/TeamsSlackNotificationVocabularyRail";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -120,6 +121,7 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
         }
       />
       <TeamsSlackNotificationVocabularyRail currentSurfaceId="teams" />
+      <DigestsTeamsSlackVocabularyRail currentSurfaceId="teams" />
 {m.failure !== null ? (
         <div role="alert">
           <OperatorApiProblem

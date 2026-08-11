@@ -48,6 +48,7 @@ import { DigestRecurrenceScheduleVocabularyRail } from "@/components/DigestRecur
 import { DigestsAdvisoryScansVocabularyRail } from "@/components/DigestsAdvisoryScansVocabularyRail";
 import { DigestsBrowseScheduleSubscriptionsVocabularyRail } from "@/components/DigestsBrowseScheduleSubscriptionsVocabularyRail";
 import { DigestsNotificationsVocabularyRail } from "@/components/DigestsNotificationsVocabularyRail";
+import { DigestsTeamsSlackVocabularyRail } from "@/components/DigestsTeamsSlackVocabularyRail";
 
 import { DigestsBrowseContent } from "./DigestsBrowseContent";
 import { DigestSubscriptionsContent } from "./DigestSubscriptionsContent";
@@ -239,6 +240,7 @@ export function DigestsHubClient(): ReactElement {
         </TabsList>
 
         <DigestsNotificationsVocabularyRail currentSurfaceId="digests" />
+        <DigestsTeamsSlackVocabularyRail currentSurfaceId="digests" />
         <DigestsAdvisoryScansVocabularyRail currentSurfaceId="digests" />
         <DigestsBrowseScheduleSubscriptionsVocabularyRail currentSurfaceId={activeTab} />
 
