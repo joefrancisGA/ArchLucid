@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { DigestsNotificationsVocabularyRail } from "@/components/DigestsNotificationsVocabularyRail";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { TeamsSlackNotificationVocabularyRail } from "@/components/TeamsSlackNotificationVocabularyRail";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,8 @@ export function NotificationPreferenceCenterPageView() {
         titleTestId="notification-preference-center-page-title"
         actions={<PageContextualHelpButton />}
       />
+
+      <DigestsNotificationsVocabularyRail currentSurfaceId="notifications" />
 
       <TeamsSlackNotificationVocabularyRail currentSurfaceId="notifications-hub" />
 
