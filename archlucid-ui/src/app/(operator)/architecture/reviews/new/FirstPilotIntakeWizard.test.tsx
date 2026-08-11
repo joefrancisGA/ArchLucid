@@ -57,6 +57,11 @@ import { FOCUSED_PILOT_MODE_POLICY_REFERENCE } from "@/lib/focused-pilot-mode-po
 
 import { FirstPilotIntakeWizard, FIRST_PILOT_INTAKE_SUBMIT_VALIDATION_MESSAGE } from "./FirstPilotIntakeWizard";
 
+/** The intake gate (TB-2176) blocks start until the operator confirms the in-scope understanding. */
+function confirmScopeUnderstanding(): void {
+  fireEvent.click(screen.getByTestId("architecture-scope-understanding-confirm"));
+}
+
 describe("FirstPilotIntakeWizard", () => {
   beforeEach(() => {
     createRun.mockReset();
@@ -169,6 +174,7 @@ describe("FirstPilotIntakeWizard", () => {
     });
 
     fireEvent.click(screen.getByTestId("first-pilot-upload-stub"));
+    confirmScopeUnderstanding();
 
     const startButton = screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA });
     expect(startButton).not.toBeDisabled();
@@ -207,6 +213,7 @@ describe("FirstPilotIntakeWizard", () => {
       target: { value: "Retail API review" },
     });
     fireEvent.click(screen.getByTestId("first-pilot-upload-stub"));
+    confirmScopeUnderstanding();
     fireEvent.click(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA }));
 
     expect(screen.getByTestId("first-pilot-review-start-progress")).toBeInTheDocument();
@@ -227,6 +234,7 @@ describe("FirstPilotIntakeWizard", () => {
           "Modernize the retail API behind an API gateway with containerized services, PostgreSQL for orders, Redis cache, PCI-scoped payment flows, and EU data residency for customer profiles.",
       },
     });
+    confirmScopeUnderstanding();
 
     const startButton = screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA });
     expect(startButton).not.toBeDisabled();
@@ -256,6 +264,7 @@ describe("FirstPilotIntakeWizard", () => {
       target: { value: "Retail API review" },
     });
     fireEvent.click(screen.getByTestId("first-pilot-upload-stub"));
+    confirmScopeUnderstanding();
     fireEvent.click(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA }));
 
     await waitFor(() => {
@@ -300,6 +309,7 @@ describe("FirstPilotIntakeWizard", () => {
     fireEvent.click(screen.getByTestId("first-pilot-upload-stub"));
     fireEvent.click(screen.getByText(/Review standards selection/i));
     fireEvent.click(screen.getByTestId("pilot-mode-policy-pack-toggle-all"));
+    confirmScopeUnderstanding();
     fireEvent.click(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA }));
 
     await waitFor(() => {
@@ -323,6 +333,7 @@ describe("FirstPilotIntakeWizard", () => {
       target: { value: "Retail API review" },
     });
     fireEvent.click(screen.getByTestId("first-pilot-upload-stub"));
+    confirmScopeUnderstanding();
     fireEvent.click(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA }));
 
     await waitFor(() => {

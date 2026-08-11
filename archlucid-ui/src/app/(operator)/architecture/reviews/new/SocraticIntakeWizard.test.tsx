@@ -672,6 +672,7 @@ describe("SocraticIntakeWizard", () => {
     });
 
     fireEvent.click(screen.getByTestId("socratic-questions-done"));
+    fireEvent.click(screen.getByTestId("architecture-scope-understanding-confirm"));
     fireEvent.click(screen.getByTestId("socratic-submit"));
 
     await waitFor(() => {

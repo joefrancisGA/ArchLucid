@@ -1104,6 +1104,7 @@ export function SocraticIntakeWizard() {
             <EvidenceGapForecastPanel presence={guidedIntakeEvidencePresence} />
             <ArchitectureScopeUnderstandingCheckPanel
               input={scopeUnderstandingInput}
+              contextSourceLabel="the architecture intent step"
               disabled={busy || blocksLlmExecution}
               onBulletsChange={setScopeBullets}
               onGateChange={setScopeGateOpen}
