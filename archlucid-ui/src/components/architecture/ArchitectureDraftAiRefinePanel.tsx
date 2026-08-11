@@ -4,8 +4,10 @@ import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 
 import { ArchitectureIntelligenceRefineResultSummary } from "@/components/architecture-intelligence/ArchitectureIntelligenceRefineResultSummary";
+import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import type { ArchitectureDraftFieldState } from "@/lib/architecture-draft-readiness";
 import {
@@ -24,6 +26,7 @@ import {
 import { buildArchitectureIntelligenceRunHref } from "@/lib/architecture-intelligence-run-href";
 import { reviewDetailPath } from "@/lib/architecture-routes";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { whyDisabledLlmBudgetExhausted } from "@/lib/why-disabled-cta";
 import { cn } from "@/lib/utils";
 
 export type ArchitectureDraftAiRefinePanelProps = {
@@ -162,6 +165,15 @@ export function ArchitectureDraftAiRefinePanel(props: ArchitectureDraftAiRefineP
               </Button>
             ) : null}
           </div>
+
+          <AiBudgetSpendNotice
+            action="Architecture refine"
+            testId="architecture-draft-ai-refine-budget"
+          />
+          <WhyDisabledCtaHint
+            reason={blocksLlmExecution ? whyDisabledLlmBudgetExhausted() : null}
+            testId="architecture-draft-ai-refine-disabled-hint"
+          />
         </>
       )}
 

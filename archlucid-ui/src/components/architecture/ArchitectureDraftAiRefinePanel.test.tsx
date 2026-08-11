@@ -5,23 +5,27 @@ import { ArchitectureDraftAiRefinePanel } from "./ArchitectureDraftAiRefinePanel
 
 const runReasoning = vi.fn();
 
+const budgetGate = vi.hoisted(() => ({
+  blocksLlmExecution: false,
+}));
+
 vi.mock("@/hooks/use-llm-monthly-budget-execution-gate", () => ({
   useLlmMonthlyBudgetExecutionGate: () => ({
     loading: false,
     status: {
       monthlyBudgetMonitoringActive: true,
-      blocksAdditionalLlmExecution: false,
+      blocksAdditionalLlmExecution: budgetGate.blocksLlmExecution,
       utcMonth: "2026-08",
       hardCutoffUsdPerUtcMonth: 75,
       effectiveHardCapUsd: 75,
       purchasedCapBumpUsd: 0,
       estimatedUsdPressure: 25,
       assumedNextCallReservationUsd: 0.5,
-      hardCapUtilizationFraction: 0.33,
+      hardCapUtilizationFraction: budgetGate.blocksLlmExecution ? 1 : 0.33,
       warnFraction: 0.75,
-      remainingBudgetUsd: 40,
+      remainingBudgetUsd: budgetGate.blocksLlmExecution ? 0 : 40,
     },
-    blocksLlmExecution: false,
+    blocksLlmExecution: budgetGate.blocksLlmExecution,
   }),
 }));
 
@@ -43,6 +47,7 @@ const draftFields = {
 describe("ArchitectureDraftAiRefinePanel", () => {
   beforeEach(() => {
     runReasoning.mockReset();
+    budgetGate.blocksLlmExecution = false;
   });
 
   it("runs closed-loop reasoning without publish when no linked review exists", async () => {
@@ -60,6 +65,7 @@ describe("ArchitectureDraftAiRefinePanel", () => {
     expect(screen.getByTestId("architecture-draft-ai-refine-run")).toHaveTextContent(
       "Refine architecture with AI",
     );
+    expect(screen.getByTestId("architecture-draft-ai-refine-budget")).toBeInTheDocument();
 
     screen.getByTestId("architecture-draft-ai-refine-run").click();
 
@@ -114,5 +120,15 @@ describe("ArchitectureDraftAiRefinePanel", () => {
 
     expect(screen.queryByTestId("architecture-draft-ai-refine-run")).not.toBeInTheDocument();
     expect(screen.getByText(/Add a system name or architecture overview/)).toBeInTheDocument();
+  });
+
+  it("explains why refine is disabled when AI budget is exhausted", () => {
+    budgetGate.blocksLlmExecution = true;
+
+    render(<ArchitectureDraftAiRefinePanel fields={draftFields} />);
+
+    expect(screen.getByTestId("architecture-draft-ai-refine-run")).toBeDisabled();
+    expect(screen.getByTestId("architecture-draft-ai-refine-disabled-hint")).toHaveTextContent(/AI budget/i);
+    expect(screen.getByTestId("architecture-draft-ai-refine-budget-blocked")).toBeInTheDocument();
   });
 });
