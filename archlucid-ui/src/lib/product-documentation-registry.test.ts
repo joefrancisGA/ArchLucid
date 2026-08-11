@@ -245,7 +245,7 @@ describe("product-documentation-registry", () => {
       "pilot-feedback",
       "developer-troubleshooting",
       "cli-usage",
-      "governance-api-contracts",
+      "api-contracts",
       "configuration-reference",
     ] as const;
 
@@ -350,6 +350,23 @@ describe("product-documentation-registry", () => {
     expect(entry?.lastReviewed).toBe("2026-08-10");
     expect(entry?.releaseApplicability).toContain("V1 GA");
     expect(entry?.pdfStatus).toBe("customer");
+  });
+
+  it("declares provenance metadata on api-contracts internal runbook (HG)", () => {
+    const entry = getProductDocumentationEntry("api-contracts");
+
+    expect(entry?.lastReviewed).toBe("2026-08-10");
+    expect(entry?.releaseApplicability).toContain("V1 GA");
+  });
+
+  it("keeps internal-runbook topics with source paths off the missing-provenance list (HG)", () => {
+    const missingProvenance = listProductDocumentationEntries()
+      .filter((entry) => entry.contentKind === "internal-runbook" && entry.sourcePaths.length > 0)
+      .filter((entry) => entry.lastReviewed === undefined || entry.releaseApplicability === undefined)
+      .map((entry) => entry.slug)
+      .sort();
+
+    expect(missingProvenance).not.toContain("api-contracts");
   });
 
   it("keeps operator and buyer topics with governance citations off the missing-provenance list (CO)", () => {

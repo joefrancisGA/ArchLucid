@@ -367,7 +367,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/help/governance-api-contracts",
+    prefix: "/help/api-contracts",
     entry: {
       whatIsThisPage:
         "Admin HTTP and OpenAPI contract reference for integrators — not the buyer Governance approval FAQ.",

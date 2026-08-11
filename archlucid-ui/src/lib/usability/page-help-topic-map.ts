@@ -347,8 +347,8 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "developer-troubleshooting", label: "Engineering troubleshooting runbook" },
   },
   {
-    prefix: "/help/governance-api-contracts",
-    topic: { slug: "governance-api-contracts", label: "API contracts (technical reference)" },
+    prefix: "/help/api-contracts",
+    topic: { slug: "api-contracts", label: "API contracts (technical reference)" },
   },
   {
     // Secondary hub — no impact-preview specialty; omit Learn more (TB-2050).

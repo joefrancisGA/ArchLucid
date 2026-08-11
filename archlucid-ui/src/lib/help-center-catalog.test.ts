@@ -58,7 +58,7 @@ describe("help-center-catalog", () => {
 
     // TB-1250 / TB-1329: eng CLI/API/config catalogs are internal-runbook and stay out of the help catalog.
     expect(adminGuides).not.toContain("cli-usage");
-    expect(adminGuides).not.toContain("governance-api-contracts");
+    expect(adminGuides).not.toContain("api-contracts");
     expect(adminGuides).not.toContain("configuration-reference");
   });
 
@@ -108,7 +108,7 @@ describe("help topic slug aliases", () => {
     expect(normalizeHelpTopicSlug("cloud-connections/gcp")).toBe("cloud-connections-gcp");
     expect(getProductDocumentationEntry("cloud-connections/azure")?.title).toBe("Connect Azure securely");
     expect(getProductDocumentationEntry("users-and-roles")?.slug).toBe("users-and-roles");
-    expect(getProductDocumentationEntry("governance-api-contracts")?.title).toBe(
+    expect(getProductDocumentationEntry("api-contracts")?.title).toBe(
       "API contracts (technical reference)",
     );
     expect(getProductDocumentationEntry("path-chooser")?.slug).toBe("path-chooser");
@@ -117,7 +117,7 @@ describe("help topic slug aliases", () => {
 
   it("no longer resolves retired help topic aliases (TB-2050)", () => {
     expect(getProductDocumentationEntry("operator-auth-roles")).toBeNull();
-    expect(getProductDocumentationEntry("api-contracts")).toBeNull();
+    expect(getProductDocumentationEntry("governance-api-contracts")).toBeNull();
     expect(getProductDocumentationEntry("evaluator-workbook")).toBeNull();
     expect(getProductDocumentationEntry("first-hour-operator-path")).toBeNull();
     expect(getProductDocumentationEntry("first-pilot-path")).toBeNull();

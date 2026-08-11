@@ -22,7 +22,7 @@ const DOC_PATH_TO_SLUG: Readonly<Record<string, string>> = {
   "docs/library/comparison_replay.md": "comparison-replay",
   "docs/library/customer-facing/comparison_replay_operator_guide.md": "comparison-replay",
   "docs/library/knowledge_graph.md": "evidence-trail",
-  "docs/library/api_contracts.md": "governance-api-contracts",
+  "docs/library/api_contracts.md": "api-contracts",
   "docs/library/alerts.md": "alerts",
   "docs/library/observability.md": "admin-diagnostics",
   "docs/troubleshooting.md": "developer-troubleshooting",

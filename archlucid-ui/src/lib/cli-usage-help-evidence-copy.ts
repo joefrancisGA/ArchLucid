@@ -15,6 +15,6 @@ export const CLI_USAGE_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Customer Troubleshooting", href: inAppHelpHref("troubleshooting") },
   { label: "Engineering troubleshooting", href: inAppHelpHref("developer-troubleshooting") },
   { label: "Configuration reference", href: inAppHelpHref("configuration-reference") },
-  { label: "API contracts", href: inAppHelpHref("governance-api-contracts") },
+  { label: "API contracts", href: inAppHelpHref("api-contracts") },
   { label: "System health", href: "/administration/system-health" },
 ] as const;

@@ -165,12 +165,12 @@ describe("help-topic-permanent-redirects (Batch J merged)", () => {
   });
 
   it("redirects Batch C retired help aliases to canonical topics", () => {
-    expect(HELP_TOPIC_PERMANENT_REDIRECTS["api-contracts"]).toBe("/help/governance-api-contracts");
+    expect(HELP_TOPIC_PERMANENT_REDIRECTS["governance-api-contracts"]).toBe("/help/api-contracts");
     expect(HELP_TOPIC_PERMANENT_REDIRECTS["evaluator-workbook"]).toBe("/help/path-chooser");
     expect(HELP_TOPIC_PERMANENT_REDIRECTS["first-hour-operator-path"]).toBe("/help/first-architecture-review");
     expect(HELP_TOPIC_PERMANENT_REDIRECTS["first-pilot-path"]).toBe("/help/first-architecture-review");
-    expect(resolveHelpTopicPermanentRedirect("api-contracts")).toBe("/help/governance-api-contracts");
-    expect(resolveHelpTopicPermanentRedirect("governance-api-contracts")).toBeNull();
+    expect(resolveHelpTopicPermanentRedirect("governance-api-contracts")).toBe("/help/api-contracts");
+    expect(resolveHelpTopicPermanentRedirect("api-contracts")).toBeNull();
     expect(resolveHelpTopicPermanentRedirect("evaluator-workbook")).toBe("/help/path-chooser");
     expect(resolveHelpTopicPermanentRedirect("first-hour-operator-path")).toBe("/help/first-architecture-review");
     expect(resolveHelpTopicPermanentRedirect("first-pilot-path")).toBe("/help/first-architecture-review");

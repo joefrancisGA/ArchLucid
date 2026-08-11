@@ -5,32 +5,31 @@ import { HelpApiContractsSourceLinks } from "@/app/(operator)/help/_sections/Hel
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
-import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
+import { HelpTechnicalReferenceNavigation } from "@/components/help/HelpTechnicalReferenceNavigation";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
-  GOVERNANCE_API_CONTRACTS_HELP_ACTION_PANEL_TITLE,
-  GOVERNANCE_API_CONTRACTS_HELP_CLAIM_DISCIPLINE,
-  GOVERNANCE_API_CONTRACTS_HELP_ORIENTATION,
-  GOVERNANCE_API_CONTRACTS_HELP_ORIENTATION_TITLE,
-  GOVERNANCE_API_CONTRACTS_HELP_OVERVIEW,
-  GOVERNANCE_API_CONTRACTS_HELP_PAGE_SUBTITLE,
-  GOVERNANCE_API_CONTRACTS_HELP_PAGE_TITLE,
-  GOVERNANCE_API_CONTRACTS_HELP_PRIMARY_ACTIONS,
-} from "@/lib/governance-api-contracts-help-guide-content";
-import { GOVERNANCE_API_CONTRACTS_HELP_PATH } from "@/lib/governance-api-contracts-help-route";
+  API_CONTRACTS_HELP_ACTION_PANEL_TITLE,
+  API_CONTRACTS_HELP_PAGE_SUBTITLE,
+  API_CONTRACTS_HELP_PAGE_TITLE,
+  API_CONTRACTS_HELP_PRIMARY_ACTIONS,
+} from "@/lib/api-contracts-help-guide-content";
+import { API_CONTRACTS_HELP_PATH } from "@/lib/api-contracts-help-route";
+import { API_CONTRACTS_HELP_REFERENCE_LANDING } from "@/lib/api-contracts-help-reference-content";
 import {
   DESIGN_TOKENS,
   OPERATOR_LAYOUT,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
+import { groupHelpMarkdownHeadings } from "@/lib/help-markdown-heading-groups";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
-import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help-page-layout";
+import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 
 type HelpApiContractsGuideViewProps = {
@@ -38,7 +37,7 @@ type HelpApiContractsGuideViewProps = {
   readonly markdown: string;
 };
 
-/** Admin API contracts technical reference for `/help/governance-api-contracts` (HG / TB-1386). */
+/** Admin API contracts technical reference for `/help/api-contracts` (HG). */
 export function HelpApiContractsGuideView(props: HelpApiContractsGuideViewProps): React.ReactElement {
   const { entry, markdown } = props;
   const sourceDocPath = entry.sourcePaths[0] ?? "";
@@ -46,11 +45,13 @@ export function HelpApiContractsGuideView(props: HelpApiContractsGuideViewProps)
     helpTopicSlug: entry.slug,
   });
   const headings = extractHelpMarkdownHeadings(preparedMarkdown);
-  const contentGridClass = resolveHelpPageContentGridClass(headings.length);
+  const headingGroups = groupHelpMarkdownHeadings(headings);
+  const majorSections = headings.filter((heading) => heading.level === 2);
+  const governanceApprovalHref = inAppHelpHref("governance-approval");
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
+      className={cn(OPERATOR_LAYOUT.majorSectionGap, HELP_PAGE_LAYOUT.technicalReferenceArticle)}
       data-testid="help-api-contracts-guide"
     >
       <a href="#help-api-contracts-content" className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
@@ -58,110 +59,175 @@ export function HelpApiContractsGuideView(props: HelpApiContractsGuideViewProps)
       </a>
       <HelpTopicHashScroll />
 
-      <OperatorPageHeader
-        title={GOVERNANCE_API_CONTRACTS_HELP_PAGE_TITLE}
-        titleTestId="help-api-contracts-page-title"
-        subtitle={GOVERNANCE_API_CONTRACTS_HELP_PAGE_SUBTITLE}
-        navHref={GOVERNANCE_API_CONTRACTS_HELP_PATH}
-        headingLevel="h1"
-        statusBadge={
-          <StatusTag kind="neutral" label="Admin internal" data-testid="help-api-contracts-status-tag" />
-        }
-        metadata={<HelpApiContractsHeaderMetadata entry={entry} />}
-        actions={
-          <div className="flex flex-wrap items-center gap-2" data-testid="help-api-contracts-header-actions">
-            <PageContextualHelpButton />
-            <HelpTopicPdfDownloadButton entry={entry} />
-            <HelpTopicPrintButton entry={entry} />
-          </div>
-        }
-      />
+      <header className={HELP_PAGE_LAYOUT.articleHeader}>
+        <OperatorPageHeader
+          title={API_CONTRACTS_HELP_PAGE_TITLE}
+          titleTestId="help-api-contracts-page-title"
+          subtitle={API_CONTRACTS_HELP_PAGE_SUBTITLE}
+          navHref={API_CONTRACTS_HELP_PATH}
+          headingLevel="h1"
+          statusBadge={
+            <div className="flex flex-wrap items-center gap-2">
+              <StatusTag kind="neutral" label="Admin internal" data-testid="help-api-contracts-status-tag" />
+              <StatusTag
+                kind="neutral"
+                label={API_CONTRACTS_HELP_REFERENCE_LANDING.apiVersion.split(" — ")[0] ?? "v1.0"}
+                data-testid="help-api-contracts-version-tag"
+              />
+            </div>
+          }
+          metadata={<HelpApiContractsHeaderMetadata entry={entry} />}
+          actions={
+            <div className="flex flex-wrap items-center gap-2" data-testid="help-api-contracts-header-actions">
+              <PageContextualHelpButton />
+              <HelpTopicPdfDownloadButton entry={entry} />
+              <HelpTopicPrintButton entry={entry} />
+            </div>
+          }
+        />
+      </header>
 
-      <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <div
-          className={cn(DESIGN_TOKENS.callout.info, "p-3")}
-          data-testid="help-api-contracts-action-panel"
-        >
-          <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            {GOVERNANCE_API_CONTRACTS_HELP_ACTION_PANEL_TITLE}
-          </p>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <Button asChild size="sm" variant="primary" data-testid="help-api-contracts-primary-cta">
-              <Link href={GOVERNANCE_API_CONTRACTS_HELP_PRIMARY_ACTIONS.openOpenApi.href}>
-                {GOVERNANCE_API_CONTRACTS_HELP_PRIMARY_ACTIONS.openOpenApi.label}
-              </Link>
-            </Button>
-            <Button asChild size="sm" variant="outline">
-              <Link href={GOVERNANCE_API_CONTRACTS_HELP_PRIMARY_ACTIONS.openCliUsage.href}>
-                {GOVERNANCE_API_CONTRACTS_HELP_PRIMARY_ACTIONS.openCliUsage.label}
-              </Link>
-            </Button>
-            <Button asChild size="sm" variant="outline">
-              <Link href={GOVERNANCE_API_CONTRACTS_HELP_PRIMARY_ACTIONS.openConfigurationReference.href}>
-                {GOVERNANCE_API_CONTRACTS_HELP_PRIMARY_ACTIONS.openConfigurationReference.label}
-              </Link>
-            </Button>
-            <Button asChild size="sm" variant="outline">
-              <Link href={GOVERNANCE_API_CONTRACTS_HELP_PRIMARY_ACTIONS.openBuyerGovernanceApproval.href}>
-                {GOVERNANCE_API_CONTRACTS_HELP_PRIMARY_ACTIONS.openBuyerGovernanceApproval.label}
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      <div className={contentGridClass}>
-        <div className="min-w-0 space-y-6">
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-api-contracts-overview">
-            {GOVERNANCE_API_CONTRACTS_HELP_OVERVIEW}
-          </p>
-
-          <section
-            aria-labelledby="help-api-contracts-orientation-heading"
-            className={cn(DESIGN_TOKENS.callout.warn, "p-3")}
-            data-testid="help-api-contracts-orientation"
+      <section
+        aria-labelledby="help-api-contracts-action-panel-heading"
+        className="space-y-4 rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"
+        data-testid="help-api-contracts-action-panel"
+      >
+        <div className="space-y-1">
+          <h2
+            id="help-api-contracts-action-panel-heading"
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}
           >
-            <h2
-              id="help-api-contracts-orientation-heading"
-              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+            {API_CONTRACTS_HELP_ACTION_PANEL_TITLE}
+          </h2>
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+            Architects looking for approval workflows should open{" "}
+            <Link
+              href={governanceApprovalHref}
+              className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
             >
-              {GOVERNANCE_API_CONTRACTS_HELP_ORIENTATION_TITLE}
-            </h2>
-            <ol className={cn("m-0 mt-2 list-decimal space-y-2 pl-5", OPERATOR_TYPOGRAPHY.body)}>
-              {GOVERNANCE_API_CONTRACTS_HELP_ORIENTATION.map((step) => (
-                <li key={step}>{step}</li>
-              ))}
-            </ol>
-          </section>
+              Governance approval
+            </Link>{" "}
+            instead of this HTTP contract reference.
+          </p>
+        </div>
+        <div>
+          <Button asChild size="sm" variant="primary" data-testid="help-api-contracts-primary-cta">
+            <Link href={API_CONTRACTS_HELP_PRIMARY_ACTIONS.openOpenApi.href}>
+              {API_CONTRACTS_HELP_PRIMARY_ACTIONS.openOpenApi.label}
+            </Link>
+          </Button>
+        </div>
+      </section>
 
-          <HelpApiContractsSourceLinks />
-
-          <aside
-            className={cn(DESIGN_TOKENS.callout.warn, "p-3")}
-            data-testid="help-api-contracts-claim-discipline"
+      <section
+        aria-labelledby="help-api-contracts-reference-landing-heading"
+        className="space-y-4 rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"
+        data-testid="help-api-contracts-reference-landing"
+      >
+        <div className="space-y-1">
+          <h2
+            id="help-api-contracts-reference-landing-heading"
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}
           >
-            <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Claim discipline</h2>
-            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
-              {GOVERNANCE_API_CONTRACTS_HELP_CLAIM_DISCIPLINE}
-            </p>
-          </aside>
-
-          <div
-            id="help-api-contracts-content"
-            className={HELP_PAGE_LAYOUT.contentColumn}
-            data-testid="help-api-contracts-content"
-          >
-            <MarketingAccessibilityMarkdownFragment
-              markdownBody={preparedMarkdown}
-              tableCaption={`${entry.title} reference table`}
-              presentation="help"
-              sourceDocPath={sourceDocPath}
-              helpTopicSlug={entry.slug}
-            />
-          </div>
+            Reference overview
+          </h2>
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{API_CONTRACTS_HELP_REFERENCE_LANDING.purpose}</p>
         </div>
 
-        <HelpTopicTableOfContents headings={headings} />
+        <dl className="m-0 grid gap-3 sm:grid-cols-2">
+          <div>
+            <dt className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.label)}>API version</dt>
+            <dd className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.body)}>
+              {API_CONTRACTS_HELP_REFERENCE_LANDING.apiVersion}
+            </dd>
+          </div>
+          <div>
+            <dt className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.label)}>Support status</dt>
+            <dd className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.body)}>
+              {API_CONTRACTS_HELP_REFERENCE_LANDING.supportStatus}
+            </dd>
+          </div>
+          <div>
+            <dt className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.label)}>Auth scheme</dt>
+            <dd className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.body)}>
+              {API_CONTRACTS_HELP_REFERENCE_LANDING.authScheme}
+            </dd>
+          </div>
+          <div>
+            <dt className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.label)}>Error format</dt>
+            <dd className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.body)}>
+              {API_CONTRACTS_HELP_REFERENCE_LANDING.errorFormat}
+            </dd>
+          </div>
+          <div>
+            <dt className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.label)}>Pagination</dt>
+            <dd className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.body)}>
+              {API_CONTRACTS_HELP_REFERENCE_LANDING.paginationConvention}
+            </dd>
+          </div>
+          <div>
+            <dt className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.label)}>Deprecation window</dt>
+            <dd className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.body)}>
+              {API_CONTRACTS_HELP_REFERENCE_LANDING.deprecationWindow}
+            </dd>
+          </div>
+          <div className="sm:col-span-2">
+            <dt className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.label)}>Authoritative source</dt>
+            <dd className={cn("m-0 mt-1 font-mono text-sm", OPERATOR_TYPOGRAPHY.body)}>
+              {API_CONTRACTS_HELP_REFERENCE_LANDING.authoritativeSource}
+            </dd>
+          </div>
+        </dl>
+
+        <div>
+          <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Major reference sections</h3>
+          <ul
+            className="m-0 mt-2 flex list-none flex-wrap gap-2 p-0"
+            data-testid="help-api-contracts-major-sections"
+          >
+            {majorSections.map((section) => (
+              <li key={section.id}>
+                <a
+                  href={`#${section.id}`}
+                  className={cn(
+                    "inline-flex rounded-full border border-neutral-300 bg-white px-3 py-1 text-sm no-underline transition-colors hover:border-teal-600/40 hover:bg-teal-50/40 dark:border-neutral-700 dark:bg-neutral-950 dark:hover:border-teal-600/40 dark:hover:bg-teal-950/20",
+                    DESIGN_TOKENS.accent.link,
+                  )}
+                >
+                  {section.title}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <HelpApiContractsSourceLinks />
+
+      <div className={HELP_PAGE_LAYOUT.technicalReferenceGrid}>
+        <div
+          id="help-api-contracts-content"
+          className={HELP_PAGE_LAYOUT.technicalReferenceColumn}
+          data-testid="help-api-contracts-content"
+          tabIndex={-1}
+          aria-labelledby="help-api-contracts-reference-body-heading"
+        >
+          <h2 id="help-api-contracts-reference-body-heading" className="sr-only">
+            API contracts reference body
+          </h2>
+          <MarketingAccessibilityMarkdownFragment
+            markdownBody={preparedMarkdown}
+            tableCaption={`${entry.title} reference table`}
+            presentation="help"
+            sourceDocPath={sourceDocPath}
+            helpTopicSlug={entry.slug}
+          />
+        </div>
+        <HelpTechnicalReferenceNavigation
+          groups={headingGroups}
+          enableScrollSpy
+          navigationTopicLabel="API contracts reference"
+        />
       </div>
     </article>
   );

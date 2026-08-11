@@ -76,7 +76,7 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
   },
   {
     removedRowId: "HEP",
-    retiredPath: "/help/api-contracts",
+    retiredPath: "/help/governance-api-contracts",
     canonicalPath: GOVERNANCE_API_CONTRACTS_HELP_TRAFFIC_PATH,
   },
   {

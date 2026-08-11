@@ -15,6 +15,8 @@ export type HelpTechnicalReferenceNavigationProps = {
   readonly groups: readonly HelpMarkdownHeadingGroup[];
   /** When true, highlights the section nearest the viewport center while scrolling. */
   readonly enableScrollSpy?: boolean;
+  /** Accessible name for the reference topic (default: CLI reference). */
+  readonly navigationTopicLabel?: string;
 };
 
 const DEFAULT_OPEN_GROUP_COUNT = 3;
@@ -114,6 +116,7 @@ function ReferenceNavigationGroups(props: {
 
 /** Hierarchical reference navigation with in-page search for long technical help topics. */
 export function HelpTechnicalReferenceNavigation(props: HelpTechnicalReferenceNavigationProps): React.JSX.Element {
+  const navigationTopicLabel = props.navigationTopicLabel ?? "CLI reference";
   const [activeId, setActiveId] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const filtered = useMemo(
@@ -205,7 +208,7 @@ export function HelpTechnicalReferenceNavigation(props: HelpTechnicalReferenceNa
         <summary className={cn("cursor-pointer font-semibold", HELP_PAGE_TOC.heading)}>Reference index</summary>
         <div className="mt-3 space-y-3" data-testid="help-technical-reference-toc-mobile">
           <label className="block">
-            <span className="sr-only">Filter CLI reference sections</span>
+            <span className="sr-only">Filter {navigationTopicLabel} sections</span>
             <input
               type="search"
               value={searchQuery}
@@ -218,12 +221,12 @@ export function HelpTechnicalReferenceNavigation(props: HelpTechnicalReferenceNa
             />
           </label>
           <p className={HELP_PAGE_TOC.referenceSearchMeta}>{matchSummary}</p>
-          <nav aria-label="CLI reference index (mobile)">{navigationBody}</nav>
+          <nav aria-label={`${navigationTopicLabel} index (mobile)`}>{navigationBody}</nav>
         </div>
       </details>
 
       <nav
-        aria-label="CLI reference index"
+        aria-label={`${navigationTopicLabel} index`}
         className={cn(HELP_PAGE_TOC.nav, "hidden lg:block")}
         data-testid="help-technical-reference-toc"
       >
@@ -231,7 +234,7 @@ export function HelpTechnicalReferenceNavigation(props: HelpTechnicalReferenceNa
           Reference index
         </p>
         <label className="mt-3 block">
-          <span className="sr-only">Filter CLI reference sections</span>
+          <span className="sr-only">Filter {navigationTopicLabel} sections</span>
           <input
             type="search"
             value={searchQuery}

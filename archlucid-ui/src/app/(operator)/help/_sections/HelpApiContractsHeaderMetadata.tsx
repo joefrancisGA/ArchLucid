@@ -1,9 +1,9 @@
-import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import {
-  GOVERNANCE_API_CONTRACTS_HELP_SOURCES_DISCLOSURE_INTRO,
-  GOVERNANCE_API_CONTRACTS_HELP_SOURCES_DISCLOSURE_TITLE,
-} from "@/lib/governance-api-contracts-help-guide-content";
+  API_CONTRACTS_HELP_SOURCES_DISCLOSURE_INTRO,
+  API_CONTRACTS_HELP_SOURCES_DISCLOSURE_TITLE,
+  formatApiContractsHelpReconciliationCopy,
+} from "@/lib/api-contracts-help-guide-content";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
@@ -16,24 +16,33 @@ export function HelpApiContractsHeaderMetadata(
   props: HelpApiContractsHeaderMetadataProps,
 ): React.ReactElement {
   const { entry } = props;
+  const sourcePath = entry.sourcePaths[0];
+  const reconciliationCopy =
+    entry.lastReviewed !== undefined
+      ? formatApiContractsHelpReconciliationCopy(entry.lastReviewed)
+      : null;
 
   return (
     <div className="space-y-2" data-testid="help-api-contracts-header-metadata">
       <HelpTopicRegistryProvenanceLine entry={entry} reviewedLabel="Last verified" />
 
-      <CollapsibleSection
-        title={GOVERNANCE_API_CONTRACTS_HELP_SOURCES_DISCLOSURE_TITLE}
-        summaryLine={GOVERNANCE_API_CONTRACTS_HELP_SOURCES_DISCLOSURE_INTRO}
-        sectionTestId="help-api-contracts-sources"
-      >
-        <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
-          {entry.sourcePaths.map((sourcePath) => (
-            <li key={sourcePath}>
-              <code className="font-mono text-sm">{sourcePath}</code>
-            </li>
-          ))}
-        </ul>
-      </CollapsibleSection>
+      {reconciliationCopy !== null ? (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="help-api-contracts-reconciliation">
+          {reconciliationCopy}
+        </p>
+      ) : null}
+
+      {sourcePath !== undefined ? (
+        <div data-testid="help-api-contracts-sources">
+          <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.label)}>
+            {API_CONTRACTS_HELP_SOURCES_DISCLOSURE_TITLE}
+          </p>
+          <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            {API_CONTRACTS_HELP_SOURCES_DISCLOSURE_INTRO}
+          </p>
+          <code className="mt-1 block font-mono text-sm">{sourcePath}</code>
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -87,7 +87,7 @@ export function HelpTopicMarkdownClient(props: HelpTopicMarkdownClientProps): Re
     return <HelpConfigurationReferenceGuideView entry={props.entry} markdown={state.markdown} />;
   }
 
-  if (props.entry.slug === "governance-api-contracts") {
+  if (props.entry.slug === "api-contracts") {
     return <HelpApiContractsGuideView entry={props.entry} markdown={state.markdown} />;
   }
 

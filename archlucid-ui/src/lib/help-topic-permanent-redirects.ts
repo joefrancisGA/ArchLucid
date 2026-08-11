@@ -6,7 +6,7 @@
  * redirects without circular initialization with route copy modules.
  */
 export const HELP_TOPIC_PERMANENT_REDIRECTS: Readonly<Record<string, string>> = {
-  "api-contracts": "/help/governance-api-contracts",
+  "governance-api-contracts": "/help/api-contracts",
   "cloud-connections-aws": "/help/cloud-connections/aws",
   "cloud-connections-azure": "/help/cloud-connections/azure",
   "cloud-connections-gcp": "/help/cloud-connections/gcp",

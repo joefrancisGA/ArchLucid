@@ -74,7 +74,7 @@ const HELP_CENTER_TIER_BY_SLUG: Readonly<Record<string, HelpCenterTier>> = {
   "cli-usage": "internal",
   "developer-troubleshooting": "internal",
   "accelerator-chooser": "product",
-  "governance-api-contracts": "internal",
+  "api-contracts": "internal",
   "admin-diagnostics": "internal",
   "pilot-feedback": "internal",
   "comparison-replay": "product",
@@ -113,7 +113,7 @@ const HELP_CENTER_DISPLAY_OVERRIDES: Readonly<Partial<Record<string, HelpCenterD
     summary:
       "Admin/SE time-boxed checklist when platform wiring is green — not the default customer first-review path.",
   },
-  "governance-api-contracts": {
+  "api-contracts": {
     title: "API contracts (technical reference)",
     summary:
       "Admin/developer HTTP and OpenAPI contract reference — not buyer governance-approval help.",

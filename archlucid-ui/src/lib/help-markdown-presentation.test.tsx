@@ -826,7 +826,7 @@ describe("help-markdown-presentation", () => {
     const source = [
       "## 5. What Pilot proves {#what-pilot-proves}",
       "",
-      "See [Api Contracts](/help/governance-api-contracts) and [Pilot Roi Model](/help/pilot-roi-model).",
+      "See [Api Contracts](/help/api-contracts) and [Pilot Roi Model](/help/pilot-roi-model).",
       "",
       "## 6. ROI framing {#roi-framing}",
       "",
@@ -838,7 +838,7 @@ describe("help-markdown-presentation", () => {
     expect(prepared).toContain("## What Pilot proves {#what-pilot-proves}");
     expect(prepared).toContain("## ROI framing {#roi-framing}");
     expect(prepared).not.toMatch(/^##\s+\d+\./m);
-    expect(prepared).toContain("[API contracts](/help/governance-api-contracts)");
+    expect(prepared).toContain("[API contracts](/help/api-contracts)");
     expect(prepared).toContain("[Pilot ROI model](/help/pilot-roi-model)");
     expect(prepared).not.toMatch(/\bApi\b/);
     expect(prepared).not.toMatch(/\bRoi\b/);

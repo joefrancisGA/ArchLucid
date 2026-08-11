@@ -51,12 +51,12 @@ describe("product-documentation-access", () => {
     expect(principalCanAccessHelpTopic(entry!, operatorNavOutsideProviderPrincipal)).toBe(true);
   });
 
-  it("gates governance-api-contracts as Admin-only (TB-1384)", () => {
-    const entry = getProductDocumentationEntry("governance-api-contracts");
+  it("gates api-contracts as Admin-only (TB-1384)", () => {
+    const entry = getProductDocumentationEntry("api-contracts");
 
     expect(entry).not.toBeNull();
     expect(entry!.contentKind).toBe("internal-runbook");
-    expect(isInternalRunbookHelpSlug("governance-api-contracts")).toBe(true);
+    expect(isInternalRunbookHelpSlug("api-contracts")).toBe(true);
     expect(callerCanAccessHelpTopic(entry!, AUTHORITY_RANK.ReadAuthority)).toBe(false);
     expect(callerCanAccessHelpTopic(entry!, AUTHORITY_RANK.ExecuteAuthority)).toBe(false);
     expect(callerCanAccessHelpTopic(entry!, AUTHORITY_RANK.AdminAuthority)).toBe(true);

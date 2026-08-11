@@ -43,6 +43,6 @@ describe("docs-search-index", () => {
       expect(slug.length === 0 || !isInternalRunbookSlug(slug), row.relativeDocsPath).toBe(true);
     }
 
-    expect(resolveDocumentationHref("docs/library/API_CONTRACTS.md")).toBe("/help/governance-api-contracts");
+    expect(resolveDocumentationHref("docs/library/API_CONTRACTS.md")).toBe("/help/api-contracts");
   });
 });

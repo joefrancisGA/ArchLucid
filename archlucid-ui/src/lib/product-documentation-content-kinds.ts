@@ -12,7 +12,7 @@ const INTERNAL_RUNBOOK_SLUGS = new Set<string>([
   "developer-troubleshooting",
   // TB-1250 — eng-facing help must not stay ungated as technical-documentation.
   "cli-usage",
-  "governance-api-contracts",
+  "api-contracts",
   // TB-1329 — Admin-gated while key-catalog appendix remains eng-adjacent (specialty chrome: TB-1326).
   "configuration-reference",
 ]);
@@ -49,7 +49,7 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "first-review": "internal-runbook",
   "first-value-20-minutes": "internal-runbook",
   "getting-started": "product-help",
-  "governance-api-contracts": "internal-runbook",
+  "api-contracts": "internal-runbook",
   "governance-approval": "product-help",
   "integration-readiness": "product-help",
   "azure-boards": "product-help",
