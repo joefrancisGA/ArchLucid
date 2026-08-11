@@ -63,6 +63,7 @@
     "dbo.IdempotencyRecords",
     "dbo.LlmDailyTenantTokenWindowState",
     "dbo.LlmJudgeDailyTenantTokenWindowState",
+    "dbo.LlmMonthlyTenantBudgetReservations",
     "dbo.LlmMonthlyTenantBudgetState",
     "dbo.LlmTenantWalletLedger",
     "dbo.LlmTenantWalletState",

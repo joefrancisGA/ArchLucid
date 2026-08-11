@@ -1750,7 +1750,13 @@ IF NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_GoldenManif
         CHECK (LifecycleStatus IN (N'Active', N'Superseded', N'Archived'));
 GO
 
-/* Brownfield: typed contract manifest version for version lookups (DbUp 302 parity). */
+/* Brownfield: typed contract manifest version for version lookups (DbUp 302/307 parity).
+   Prefer SignedReviewRecords — after ADR 0064 / 295, GoldenManifests is a synonym (COL_LENGTH unreliable). */
+IF OBJECT_ID(N'dbo.SignedReviewRecords', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.SignedReviewRecords', N'ContractManifestVersion') IS NULL
+    ALTER TABLE dbo.SignedReviewRecords ADD ContractManifestVersion NVARCHAR(128) NULL;
+GO
+
 IF OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.GoldenManifests', N'ContractManifestVersion') IS NULL
     ALTER TABLE dbo.GoldenManifests ADD ContractManifestVersion NVARCHAR(128) NULL;
@@ -7834,7 +7840,22 @@ BEGIN
 END;
 GO
 
-/* DbUp 302 parity: typed ContractManifestVersion lookup (replaces JSON_VALUE MetadataJson $.Version). */
+/* DbUp 302/307 parity: typed ContractManifestVersion lookup (replaces JSON_VALUE MetadataJson $.Version). */
+IF OBJECT_ID(N'dbo.SignedReviewRecords', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.SignedReviewRecords', N'ContractManifestVersion') IS NOT NULL
+   AND NOT EXISTS (
+        SELECT 1
+        FROM sys.indexes
+        WHERE name = N'IX_GoldenManifests_Scope_ContractManifestVersion'
+          AND object_id = OBJECT_ID(N'dbo.SignedReviewRecords'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_GoldenManifests_Scope_ContractManifestVersion
+        ON dbo.SignedReviewRecords (TenantId, WorkspaceId, ProjectId, ContractManifestVersion)
+        WHERE ContractManifestVersion IS NOT NULL
+          AND ArchivedUtc IS NULL;
+END;
+GO
+
 IF OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.GoldenManifests', N'ContractManifestVersion') IS NOT NULL
    AND NOT EXISTS (

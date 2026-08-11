@@ -6,6 +6,7 @@ using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -62,7 +63,13 @@ public sealed class GovernanceControllerDashboardTests
             Mock.Of<Core.Audit.IAuditService>(),
             Mock.Of<IPolicyPackDraftService>(),
             Mock.Of<IPolicyPackGeneratorService>(),
-            NullLogger<GovernanceController>.Instance);
+            NullLogger<GovernanceController>.Instance)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+            }
+        };
 
         IActionResult result = await sut.GetDashboard(20, 20, 20, CancellationToken.None);
 
