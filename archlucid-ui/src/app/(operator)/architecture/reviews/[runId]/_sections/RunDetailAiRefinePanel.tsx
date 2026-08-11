@@ -4,8 +4,10 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { ArchitectureIntelligenceRefineResultSummary } from "@/components/architecture-intelligence/ArchitectureIntelligenceRefineResultSummary";
+import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import {
   buildArchitectureIntelligenceRunRequest,
@@ -23,6 +25,7 @@ import {
 } from "@/lib/architecture-intelligence-review-tier";
 import { buildArchitectureIntelligenceRunHref } from "@/lib/architecture-intelligence-run-href";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { whyDisabledLlmBudgetExhausted } from "@/lib/why-disabled-cta";
 import { cn } from "@/lib/utils";
 
 export type RunDetailAiRefinePanelProps = {
@@ -202,6 +205,15 @@ export function RunDetailAiRefinePanel(props: RunDetailAiRefinePanelProps) {
               </Link>
             </Button>
           </div>
+
+          <AiBudgetSpendNotice
+            action="Refine and publish"
+            testId="run-detail-ai-refine-budget"
+          />
+          <WhyDisabledCtaHint
+            reason={blocksLlmExecution ? whyDisabledLlmBudgetExhausted() : null}
+            testId="run-detail-ai-refine-disabled-hint"
+          />
         </>
       ) : null}
 

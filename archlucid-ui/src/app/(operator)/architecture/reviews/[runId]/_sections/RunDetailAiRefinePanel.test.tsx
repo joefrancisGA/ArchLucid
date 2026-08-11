@@ -6,23 +6,27 @@ import { RunDetailAiRefinePanel } from "./RunDetailAiRefinePanel";
 const fetchContext = vi.fn();
 const runReasoning = vi.fn();
 
+const budgetGate = vi.hoisted(() => ({
+  blocksLlmExecution: false,
+}));
+
 vi.mock("@/hooks/use-llm-monthly-budget-execution-gate", () => ({
   useLlmMonthlyBudgetExecutionGate: () => ({
     loading: false,
     status: {
       monthlyBudgetMonitoringActive: true,
-      blocksAdditionalLlmExecution: false,
+      blocksAdditionalLlmExecution: budgetGate.blocksLlmExecution,
       utcMonth: "2026-08",
       hardCutoffUsdPerUtcMonth: 75,
       effectiveHardCapUsd: 75,
       purchasedCapBumpUsd: 0,
       estimatedUsdPressure: 25,
       assumedNextCallReservationUsd: 0.5,
-      hardCapUtilizationFraction: 0.33,
+      hardCapUtilizationFraction: budgetGate.blocksLlmExecution ? 1 : 0.33,
       warnFraction: 0.75,
-      remainingBudgetUsd: 40,
+      remainingBudgetUsd: budgetGate.blocksLlmExecution ? 0 : 40,
     },
-    blocksLlmExecution: false,
+    blocksLlmExecution: budgetGate.blocksLlmExecution,
   }),
 }));
 
@@ -40,6 +44,7 @@ describe("RunDetailAiRefinePanel", () => {
   beforeEach(() => {
     fetchContext.mockReset();
     runReasoning.mockReset();
+    budgetGate.blocksLlmExecution = false;
   });
 
   it("loads product intake and offers refine-and-publish", async () => {
@@ -66,6 +71,30 @@ describe("RunDetailAiRefinePanel", () => {
       "href",
       expect.stringContaining("architecture-intelligence"),
     );
+    expect(screen.getByTestId("run-detail-ai-refine-budget")).toBeInTheDocument();
+  });
+
+  it("explains why refine is disabled when AI budget is exhausted", async () => {
+    budgetGate.blocksLlmExecution = true;
+    fetchContext.mockResolvedValue({
+      runId: "run-abc",
+      sourceTexts: [
+        {
+          fileName: "architecture-description.txt",
+          contentType: "text/plain",
+          content: "Public API without authentication.",
+        },
+      ],
+    });
+
+    render(<RunDetailAiRefinePanel runId="run-abc" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("run-detail-ai-refine-run")).toBeDisabled();
+    });
+
+    expect(screen.getByTestId("run-detail-ai-refine-disabled-hint")).toHaveTextContent(/AI budget/i);
+    expect(screen.getByTestId("run-detail-ai-refine-budget-blocked")).toBeInTheDocument();
   });
 
   it("runs closed-loop reasoning with publish and shows results", async () => {

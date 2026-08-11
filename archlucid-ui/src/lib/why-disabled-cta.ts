@@ -71,3 +71,10 @@ export function whyDisabledBusy(actionLabel: string): WhyDisabledCtaReason {
     message: `${actionLabel} is in progress.`,
   };
 }
+
+export function whyDisabledLlmBudgetExhausted(): WhyDisabledCtaReason {
+  return {
+    kind: "policy",
+    message: "AI budget for this workspace is exhausted. Open AI usage to review spend or raise the cap.",
+  };
+}
