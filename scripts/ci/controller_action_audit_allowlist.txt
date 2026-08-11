@@ -64,6 +64,8 @@ ArchLucid.Api.Controllers.Authority.CloudInventoryExtractorUploadController.Uplo
 ArchLucid.Api.Controllers.Authority.RunComparisonController.CompareRunsEndToEndSummary
 ArchLucid.Api.Controllers.Authority.RunsController.CommitRun
 ArchLucid.Api.Controllers.Authority.RunsController.CreateRun
+# Durable audit: ArchitectureRunBatchCreateOrchestrator logs ArchitectureRunBatchAccepted; per-item persist emits RequestCreated.
+ArchLucid.Api.Controllers.Authority.RunsController.CreateRunBatch
 ArchLucid.Api.Controllers.Authority.RunsController.ExecuteRun
 ArchLucid.Api.Controllers.Authority.RunsController.ReplayRun
 ArchLucid.Api.Controllers.Authority.RunsController.SubmitAgentResult
