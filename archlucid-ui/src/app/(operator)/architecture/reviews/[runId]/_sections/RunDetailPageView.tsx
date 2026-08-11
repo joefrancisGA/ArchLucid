@@ -851,12 +851,7 @@ export async function RunDetailPageView(props: {
               {findingCoverageSummary?.hasCommitBlockingFailures === true && !showArchitectureCreatedHome ? (
                 <RunDetailCommitBlockingFindingsBannerDeferred
                   runId={m.resolvedDetail.run.runId}
-                  blockingFindings={[
-                    {
-                      findingId: "blocking-findings",
-                      title: "Open blocking findings — review the Findings tab",
-                    },
-                  ]}
+                  reason={commitBlockedReason}
                 />
               ) : null}
             </>
