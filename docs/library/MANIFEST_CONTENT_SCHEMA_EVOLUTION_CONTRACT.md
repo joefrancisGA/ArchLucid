@@ -3,7 +3,7 @@
 # GoldenManifest content-schema evolution contract
 
 **Status:** Active (V1)  
-**Backlog:** **TB-1277** (this contract) · **TB-1278** (anti-schema-column-as-readability / dual-write-upgrades-history / rewrite-sealed honesty CI — open)  
+**Backlog:** **TB-1277** (this contract) · **TB-1278** (anti-schema-column-as-readability / dual-write-upgrades-history / rewrite-sealed honesty CI — **Done** 2026-08-11)  
 **Audience:** Principal architects, platform reviewers, coding agents  
 **Related:** [COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md](./COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md) (**TB-1003**) · [APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md](./APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md) (**TB-1009**) · [MANIFEST_DUAL_HASHER_PROJECTION_EVOLUTION_CONTRACT.md](./MANIFEST_DUAL_HASHER_PROJECTION_EVOLUTION_CONTRACT.md) (**TB-1156**) · [DAPPER_DDL_SATELLITE_BREAKDOWN_SIGNALS_CLAIM_MAP.md](./DAPPER_DDL_SATELLITE_BREAKDOWN_SIGNALS_CLAIM_MAP.md) (**TB-1263**) · [JSON_FALLBACK_AUDIT.md](./JSON_FALLBACK_AUDIT.md) · [EVIDENCE_IMMUTABILITY.md](./EVIDENCE_IMMUTABILITY.md) · ADR [0039](../architecture/adrs/0039-append-only-sealed-evidence.md) / [0040](../architecture/adrs/0040-golden-manifest-schema-evolution.md) / [0045](../architecture/adrs/0045-golden-manifest-immutability.md) · GTM **M-223** / **M-224** · Done **TB-303** / **TB-307** / **TB-575** · open **TB-1157** (production hasher re-lock)
 
@@ -106,7 +106,7 @@ Buyer handout: [BUYER_SECURITY_PROCUREMENT_PACKET.md § M-224](../go-to-market/B
 
 | ID | Role |
 |----|------|
-| **TB-1278** | CI guard: forbid “SchemaVersion upgrades history,” “dual-write migrates sealed content,” and “rewrite sealed packages” stubs in buyer/WNTP-adjacent paths without **TB-1277** caveats; anchor to this contract and **PUBLIC_CLAIM_BOUNDARY_GUIDE.md** M-223 row |
+| **TB-1278** | **Done** (2026-08-11) — `scripts/ci/check_manifest_schema_evolution_honesty.py` forbids “SchemaVersion upgrades history,” “dual-write migrates sealed content,” and “rewrite sealed packages” stubs in buyer/WNTP-adjacent paths without **TB-1277** caveats; wired in `run_buyer_surface_strict_guards.py` |
 | **TB-1157** | Production `ManifestHashService` deliberate re-lock — hash surface, not reader tolerance |
 | **TB-1263** | Dapper/DDL/satellite dual-write ladder — storage compat only |
 
