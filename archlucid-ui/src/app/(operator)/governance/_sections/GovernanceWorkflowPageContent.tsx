@@ -12,6 +12,7 @@ import { MutationErrorBoundary } from "@/components/MutationErrorBoundary";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Separator } from "@/components/ui/separator";
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
+import { ApprovalLineageQueueVocabularyRail } from "@/components/ApprovalLineageQueueVocabularyRail";
 import { GovernanceJobRouterStrip } from "@/components/GovernanceJobRouterStrip";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -656,6 +657,7 @@ export function GovernanceWorkflowPageContent() {
         actions={overviewHeaderActions}
       />
       <GovernanceJobRouterStrip currentJobId="approve-governance" />
+      <ApprovalLineageQueueVocabularyRail currentSurfaceId="approval-queue" />
 
       {mutationSuccessMessage !== null ? (
         <OperatorSuccessCallout

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { OperatorPageBreadcrumb } from "@/components/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { ApprovalLineageQueueVocabularyRail } from "@/components/ApprovalLineageQueueVocabularyRail";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -95,6 +96,8 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
           </div>
         }
       />
+
+      <ApprovalLineageQueueVocabularyRail currentSurfaceId="approval-lineage" />
 
       <GovernanceApprovalLineageSpine data={data} />
 
