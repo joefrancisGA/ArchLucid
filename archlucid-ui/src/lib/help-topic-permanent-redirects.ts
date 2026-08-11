@@ -7,6 +7,9 @@
  */
 export const HELP_TOPIC_PERMANENT_REDIRECTS: Readonly<Record<string, string>> = {
   "api-contracts": "/help/governance-api-contracts",
+  "cloud-connections-aws": "/help/cloud-connections/aws",
+  "cloud-connections-azure": "/help/cloud-connections/azure",
+  "cloud-connections-gcp": "/help/cloud-connections/gcp",
   "core-pilot": "/help/first-architecture-review",
   "creating-runs": "/help/review-guide",
   "data-handling-tenant-isolation": "/help/data-handling",
@@ -21,6 +24,13 @@ export const HELP_TOPIC_PERMANENT_REDIRECTS: Readonly<Record<string, string>> = 
   "product-overview": "/help/executive-summary#what-archlucid-is",
   "starting-reviews": "/help/review-guide",
 };
+
+/** Hyphen bookmark slugs that redirect to slash URLs but remain in the product registry. */
+export const HELP_TOPIC_BOOKMARK_ONLY_REDIRECT_SLUGS = [
+  "cloud-connections-aws",
+  "cloud-connections-azure",
+  "cloud-connections-gcp",
+] as const;
 
 export function resolveHelpTopicPermanentRedirect(slug: string): string | null {
   const trimmed = slug.trim().toLowerCase();

@@ -6,13 +6,13 @@ import { describe, expect, it } from "vitest";
 
 import {
   PILOT_NAV_OPERATE_GROUP_IDS,
-  PILOT_NAV_PROFILE_DOC_PATH,
-  PILOT_NAV_PROFILE_HELP_HREF,
   PILOT_NAV_REQUIRED_SHELL_COMPONENTS,
   PILOT_NAV_REQUIRED_UI_TEST_IDS,
   PILOT_NAV_STORAGE_KEYS,
   PILOT_NAV_UNLOCK_CHANGED_EVENT,
-} from "@/lib/pilot-nav-profile-alignment";
+  WORKSPACE_NAVIGATION_GUIDE_DOC_PATH,
+  WORKSPACE_NAVIGATION_HELP_HREF,
+} from "@/lib/workspace-navigation-help-alignment";
 import { OPERATE_NAV_UNLOCK_CHANGED_EVENT } from "@/lib/usability/operate-nav-progressive-unlock";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
@@ -21,10 +21,10 @@ function readRepoFile(relativePath: string): string {
   return readFileSync(join(repoRoot, relativePath), "utf8");
 }
 
-describe("pilot-nav-profile-alignment", () => {
+describe("workspace-navigation-help-alignment", () => {
   it("exports stable help href and doc path", () => {
-    expect(PILOT_NAV_PROFILE_HELP_HREF).toBe("/help/pilot-guide");
-    expect(PILOT_NAV_PROFILE_DOC_PATH).toBe(
+    expect(WORKSPACE_NAVIGATION_HELP_HREF).toBe("/help/pilot-guide");
+    expect(WORKSPACE_NAVIGATION_GUIDE_DOC_PATH).toBe(
       "docs/library/customer-facing/WORKSPACE_NAVIGATION_GUIDE.md",
     );
   });
@@ -64,6 +64,6 @@ describe("pilot-nav-profile-alignment", () => {
     const registry = readRepoFile("archlucid-ui/src/lib/product-documentation-registry.ts");
 
     expect(registry).toContain("pilot-guide");
-    expect(registry).toContain(PILOT_NAV_PROFILE_DOC_PATH);
+    expect(registry).toContain(WORKSPACE_NAVIGATION_GUIDE_DOC_PATH);
   });
 });

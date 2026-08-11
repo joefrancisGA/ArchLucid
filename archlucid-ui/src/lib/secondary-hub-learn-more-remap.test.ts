@@ -36,7 +36,11 @@ describe("TB-2050 secondary-hub Learn more remap", () => {
     expect(PAGE_HELP_FIRST_RUN_GENERIC_LEARN_MORE_ALLOWLIST_PREFIXES).toContain("/architectures");
     expect(PAGE_HELP_FIRST_RUN_GENERIC_LEARN_MORE_ALLOWLIST_PREFIXES).toContain("/why-archlucid");
     expect(pageHelpTopicForPathname("/architectures")?.slug).toBe("getting-started");
-    expect(pageHelpTopicForPathname("/why-archlucid")?.slug).toBe("how-it-works");
+    expect(pageHelpTopicForPathname("/why-archlucid")).toEqual({
+      slug: "getting-started",
+      hashFragment: "how-archlucid-works",
+      label: "Why ArchLucid",
+    });
   });
 
   it("remaps tenant settings and recommendation-learning off getting-started", () => {

@@ -5,11 +5,12 @@ import {
   OPERATE_NAV_UNLOCK_STORAGE_KEY,
 } from "@/lib/usability/operate-nav-progressive-unlock";
 
-/** Canonical buyer-facing doc for pilot nav progressive disclosure (Tier 2 #5). */
-export const PILOT_NAV_PROFILE_DOC_PATH = "docs/library/customer-facing/WORKSPACE_NAVIGATION_GUIDE.md";
+/** Canonical buyer-facing doc for workspace navigation (folded into pilot-guide). */
+export const WORKSPACE_NAVIGATION_GUIDE_DOC_PATH =
+  "docs/library/customer-facing/WORKSPACE_NAVIGATION_GUIDE.md";
 
-/** In-app help route for the pilot nav profile. */
-export const PILOT_NAV_PROFILE_HELP_HREF = "/help/pilot-guide";
+/** In-app help route for workspace navigation guidance (PIL → HP fold). */
+export const WORKSPACE_NAVIGATION_HELP_HREF = "/help/pilot-guide";
 
 /** Operate nav groups hidden entirely until unlock phase ≥ 1. */
 export const PILOT_NAV_OPERATE_GROUP_IDS = [

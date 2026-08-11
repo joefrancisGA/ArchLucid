@@ -64,4 +64,12 @@ describe("help-topic-permanent-redirects", () => {
     expect(resolveHelpTopicPermanentRedirect("how-it-works")).toBe("/help/getting-started#how-archlucid-works");
     expect(resolveHelpTopicPermanentRedirect("getting-started")).toBeNull();
   });
+
+  it("redirects hyphen cloud-connection bookmarks to slash canonical URLs", () => {
+    expect(HELP_TOPIC_PERMANENT_REDIRECTS["cloud-connections-azure"]).toBe("/help/cloud-connections/azure");
+    expect(HELP_TOPIC_PERMANENT_REDIRECTS["cloud-connections-aws"]).toBe("/help/cloud-connections/aws");
+    expect(HELP_TOPIC_PERMANENT_REDIRECTS["cloud-connections-gcp"]).toBe("/help/cloud-connections/gcp");
+    expect(resolveHelpTopicPermanentRedirect("cloud-connections-azure")).toBe("/help/cloud-connections/azure");
+    expect(inAppHelpHref("cloud-connections-azure")).toBe("/help/cloud-connections/azure");
+  });
 });

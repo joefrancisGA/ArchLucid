@@ -369,19 +369,19 @@
     "title": "Connect AWS securely",
     "summary": "OIDC-federated read-only IAM role, Resource Explorer inventory, and connection validation \u2014 without long-lived access keys.",
     "category": "Operations",
-    "url": "/help/cloud-connections-aws"
+    "url": "/help/cloud-connections/aws"
   },
   {
     "title": "Connect Azure securely",
     "summary": "Workload identity federation, read-only Azure roles, subscription scope, and connection validation \u2014 without long-lived secrets.",
     "category": "Operations",
-    "url": "/help/cloud-connections-azure"
+    "url": "/help/cloud-connections/azure"
   },
   {
     "title": "Connect GCP securely",
     "summary": "Workload Identity Federation, Cloud Asset Viewer, project scope, and connection validation \u2014 without service-account JSON keys.",
     "category": "Operations",
-    "url": "/help/cloud-connections-gcp"
+    "url": "/help/cloud-connections/gcp"
   },
   {
     "title": "Day-one SRE",
@@ -540,10 +540,10 @@
     "url": "/help/scope"
   },
   {
-    "title": "Workspace navigation profile",
-    "summary": "How the sidebar keeps the first-review path focused until your first architecture review is finalized \u2014 and how to unlock analysis and governance on demand.",
+    "title": "Pilot guide",
+    "summary": "Prepare for a pilot, run the first architecture review, interpret outputs, report issues, and get help. Includes workspace navigation and progressive Operate unlock guidance.",
     "category": "Operations",
-    "url": "/help/pilot-nav-profile"
+    "url": "/help/pilot-guide"
   },
   {
     "title": "Day-one security",

@@ -7,7 +7,7 @@ import type { ReactElement } from "react";
 import { Button } from "@/components/ui/button";
 import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/core-pilot-path-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { PILOT_NAV_PROFILE_HELP_HREF } from "@/lib/pilot-nav-profile-alignment";
+import { WORKSPACE_NAVIGATION_HELP_HREF } from "@/lib/workspace-navigation-help-alignment";
 import type { OperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
 
 type OperateFeaturesUnlockPanelProps = {
@@ -51,7 +51,7 @@ export function OperateFeaturesUnlockPanel(props: OperateFeaturesUnlockPanelProp
         Show analysis tools
       </Button>
       <p className={cn("m-0 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-        <Link href={PILOT_NAV_PROFILE_HELP_HREF} className={OPERATOR_LINK.inline} data-testid="pilot-nav-profile-help-link">
+        <Link href={WORKSPACE_NAVIGATION_HELP_HREF} className={OPERATOR_LINK.inline} data-testid="pilot-nav-profile-help-link">
           How pilot navigation works
         </Link>
       </p>

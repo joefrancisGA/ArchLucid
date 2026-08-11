@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
+  HELP_TOPIC_BOOKMARK_ONLY_REDIRECT_SLUGS,
   HELP_TOPIC_PERMANENT_REDIRECTS,
   resolveHelpTopicPermanentRedirect,
 } from "@/lib/help-topic-permanent-redirects";
@@ -14,6 +15,9 @@ import {
 } from "@/lib/ui-route-traffic-retired-help-topic-aliases";
 
 const RETIRED_HELP_TOPIC_SLUGS = Object.keys(HELP_TOPIC_PERMANENT_REDIRECTS);
+const REGISTRY_RETIRED_HELP_TOPIC_SLUGS = RETIRED_HELP_TOPIC_SLUGS.filter(
+  (slug) => !(HELP_TOPIC_BOOKMARK_ONLY_REDIRECT_SLUGS as readonly string[]).includes(slug),
+);
 
 /** Hyphen bookmark paths that redirect to slash canonicals (TB-748). */
 const REDIRECT_ONLY_HYPHEN_CLOUD_HELP_PATHS = [
@@ -48,7 +52,18 @@ function retiredHelpBookmarkPath(slug: string): string {
 }
 
 describe("retired help topic alias honesty (Batch D + F)", () => {
-  it.each(RETIRED_HELP_TOPIC_SLUGS)(
+  it.each(HELP_TOPIC_BOOKMARK_ONLY_REDIRECT_SLUGS)(
+    "permanently redirects hyphen cloud bookmark %s to slash canonical",
+    (slug) => {
+      const redirectTarget = HELP_TOPIC_PERMANENT_REDIRECTS[slug];
+
+      expect(resolveHelpTopicPermanentRedirect(slug)).toBe(redirectTarget);
+      expect(inAppHelpHref(slug)).toBe(redirectTarget);
+      expect(getProductDocumentationEntry(slug)?.slug).toBe(slug);
+    },
+  );
+
+  it.each(REGISTRY_RETIRED_HELP_TOPIC_SLUGS)(
     "permanently redirects retired slug %s and omits it from the registry",
     (slug) => {
       const redirectTarget = HELP_TOPIC_PERMANENT_REDIRECTS[slug];

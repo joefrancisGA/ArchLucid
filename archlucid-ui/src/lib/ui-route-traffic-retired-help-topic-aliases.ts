@@ -1,4 +1,7 @@
 import { AZURE_BOARDS_HELP_TRAFFIC_PATH } from "@/lib/ui-route-traffic-azure-boards-help";
+import { CONNECT_AWS_SECURELY_HELP_TRAFFIC_PATH } from "@/lib/ui-route-traffic-connect-aws-securely-help";
+import { CONNECT_AZURE_SECURELY_HELP_TRAFFIC_PATH } from "@/lib/ui-route-traffic-connect-azure-securely-help";
+import { CONNECT_GCP_SECURELY_HELP_TRAFFIC_PATH } from "@/lib/ui-route-traffic-connect-gcp-securely-help";
 import { DATA_HANDLING_HELP_TRAFFIC_PATH } from "@/lib/ui-route-traffic-data-handling-help";
 import { EXECUTIVE_SUMMARY_HELP_TRAFFIC_PATH } from "@/lib/ui-route-traffic-executive-summary-help";
 import { FIRST_ARCHITECTURE_REVIEW_HELP_TRAFFIC_PATH } from "@/lib/ui-route-traffic-first-architecture-review-help";
@@ -117,6 +120,18 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
       "src/lib/configuration-reference-help-guide-content.ts",
       "src/lib/help-search-panel-catalog.ts",
     ],
+  },
+  {
+    retiredPath: "/help/cloud-connections-azure",
+    canonicalPath: CONNECT_AZURE_SECURELY_HELP_TRAFFIC_PATH,
+  },
+  {
+    retiredPath: "/help/cloud-connections-aws",
+    canonicalPath: CONNECT_AWS_SECURELY_HELP_TRAFFIC_PATH,
+  },
+  {
+    retiredPath: "/help/cloud-connections-gcp",
+    canonicalPath: CONNECT_GCP_SECURELY_HELP_TRAFFIC_PATH,
   },
 ] as const;
 

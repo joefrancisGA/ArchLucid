@@ -9,6 +9,7 @@ import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { contextualHelpForPathname } from "@/lib/contextual-help-registry";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { pageHelpTopicForPathname, pathnameIsInAppHelpTopic } from "@/lib/usability/page-help-topic-map";
 import { PageScopedContextualHelpPanel } from "@/components/usability/PageScopedContextualHelpPanel";
 
@@ -34,7 +35,9 @@ export function PageContextualHelpButton(props: PageContextualHelpButtonProps = 
   const topic = pageHelpTopicForPathname(pathname);
   const contextualEntry = contextualHelpForPathname(pathname);
   const learnMoreHref =
-    topic?.slug != null && topic.slug.length > 0 ? `/help/${topic.slug}` : null;
+    topic?.slug != null && topic.slug.length > 0
+      ? inAppHelpHref(topic.slug, topic.hashFragment)
+      : null;
 
   if (contextualEntry !== null && topic !== null) {
     return (

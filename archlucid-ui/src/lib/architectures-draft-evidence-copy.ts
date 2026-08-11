@@ -1,5 +1,5 @@
-import {
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import {
   ARCHITECTURE_DRAFTS_LIST_LABEL,
   CREATE_ARCHITECTURE_LABEL,
 } from "@/lib/architecture-workflow-labels";

@@ -3,8 +3,12 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { PRODUCT_DOCUMENTATION_REGISTRY } from "@/lib/product-documentation-registry";
+import {
+  HELP_TOPIC_BOOKMARK_ONLY_REDIRECT_SLUGS,
+  HELP_TOPIC_PERMANENT_REDIRECTS,
+} from "@/lib/help-topic-permanent-redirects";
 import { isInternalRunbookSlug } from "@/lib/product-documentation-content-kinds";
+import { PRODUCT_DOCUMENTATION_REGISTRY } from "@/lib/product-documentation-registry";
 import { textContainsGitHubBlobOrTreeUrl } from "@/lib/github-blob-url-contains";
 
 /** Paths scanned for customer-facing GitHub blob links (operator + marketing surfaces). */
@@ -79,6 +83,22 @@ describe("customer-facing GitHub blob link guard", () => {
       }
 
       expect(row.url, `doc-index entry "${row.title}" must use in-app help`).toMatch(/^\/help\//);
+    }
+  });
+
+  it("doc-index.json omits fully retired help bookmark paths", () => {
+    const raw = readFileSync(path.join(process.cwd(), "public/doc-index.json"), "utf8");
+    const index = JSON.parse(raw) as Array<{ title: string; url: string }>;
+    const retiredPaths = new Set(
+      Object.keys(HELP_TOPIC_PERMANENT_REDIRECTS)
+        .filter((slug) => !(HELP_TOPIC_BOOKMARK_ONLY_REDIRECT_SLUGS as readonly string[]).includes(slug))
+        .map((slug) => `/help/${slug}`),
+    );
+
+    for (const row of index) {
+      expect(retiredPaths.has(row.url), `doc-index must not list retired help path ${row.url}`).toBe(
+        false,
+      );
     }
   });
 

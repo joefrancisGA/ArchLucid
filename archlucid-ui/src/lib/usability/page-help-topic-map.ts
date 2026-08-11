@@ -22,18 +22,19 @@ export type PageHelpTopic = {
    * Omit (undefined) when Category-1 should mount without Learn more (TB-2048 / TB-2050).
    */
   readonly slug?: string;
+  /** Optional hash on the resolved help href (e.g. getting-started#how-archlucid-works). */
+  readonly hashFragment?: string;
   readonly label: string;
 };
 
-/** First-run / onboarding / help-topic paths allowed to keep `getting-started` or `how-it-works` Learn more. */
+/** First-run / onboarding / help-topic paths allowed to keep generic `getting-started` Learn more. */
 export const PAGE_HELP_FIRST_RUN_GENERIC_LEARN_MORE_ALLOWLIST_PREFIXES = [
   "/architecture/first-review-guide",
   "/help/getting-started",
-  "/help/how-it-works",
   ARCHITECTURES_LIST_PATH,
   "/architectures",
   "/help",
-  /** Learning proof page — job is product orientation; how-it-works is honest. */
+  /** Learning proof page — product orientation via getting-started anchor. */
   "/why-archlucid",
 ] as const;
 
@@ -249,9 +250,13 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "pilot-feedback", label: "Pilot feedback" },
   },
   {
-    // Learning / product-orientation allowlist — how-it-works matches the page job (TB-2050).
+    // Learning / product-orientation allowlist — retired how-it-works slug redirects to this anchor.
     prefix: "/why-archlucid",
-    topic: { slug: "how-it-works", label: "Why ArchLucid" },
+    topic: {
+      slug: "getting-started",
+      hashFragment: "how-archlucid-works",
+      label: "Why ArchLucid",
+    },
   },
   {
     prefix: "/demo/explain",
@@ -470,7 +475,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/administration/model-governance",
-    topic: { slug: "how-it-works", label: "AI and model governance" },
+    topic: { slug: "security-trust", label: "AI and model governance" },
   },
   {
     prefix: "/administration/users/invite-reviewer",
