@@ -9,7 +9,7 @@ import {
   resolveAskSearchEvidencePeerLink,
   type AskSearchEvidenceSurfaceId,
   type AskSearchEvidenceVocabularyModel,
-} from "@/lib/vocabulary/ask-search-evidence-vocabulary";
+} from "@/lib/ask-search-evidence-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

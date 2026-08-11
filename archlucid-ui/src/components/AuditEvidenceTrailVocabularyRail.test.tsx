@@ -9,7 +9,7 @@ import {
   AUDIT_EVIDENCE_TRAIL_HEADING,
   AUDIT_EVIDENCE_TRAIL_SEARCH_EVIDENCE_LINK,
   AUDIT_EVIDENCE_TRAIL_WHY_THREE,
-} from "@/lib/vocabulary/audit-evidence-trail-vocabulary";
+} from "@/lib/audit-evidence-trail-vocabulary";
 
 describe("AuditEvidenceTrailVocabularyRail (TB-2255)", () => {
   it("from audit links both evidence surfaces", () => {

@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
 import { ItsmOutboundTriadClarityStrip } from "@/components/ItsmOutboundTriadClarityStrip";
 import { FindingCorrelationVocabularyDisambiguation } from "@/components/FindingCorrelationVocabularyDisambiguation";
-import { ITSM_TICKET_LINKAGE_CREATE_INTRO, ITSM_TICKET_LINKAGE_DUPLICATE_BLOCKED } from "@/lib/vocabulary/finding-correlation-vocabulary";
+import { ITSM_TICKET_LINKAGE_CREATE_INTRO, ITSM_TICKET_LINKAGE_DUPLICATE_BLOCKED } from "@/lib/finding-correlation-vocabulary";
 import { FINDING_ITSM_HUMAN_REVIEW_STATUS_CAPTION } from "@/lib/finding-human-review-display";
 import { useItsmNativeCreateEnabled } from "@/lib/use-itsm-native-create-enabled";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";

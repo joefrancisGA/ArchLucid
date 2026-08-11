@@ -1,5 +1,5 @@
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
-import { ITSM_ADMIN_TICKET_LINKAGE_DESCRIPTION } from "@/lib/vocabulary/finding-correlation-vocabulary";
+import { ITSM_ADMIN_TICKET_LINKAGE_DESCRIPTION } from "@/lib/finding-correlation-vocabulary";
 import { SETTINGS_NOTIFICATIONS_PATH, SETTINGS_SECURITY_TRUST_PATH } from "@/lib/settings-admin-route-paths";
 
 import { INTERNAL_DEVELOPER_TOOLS_CATALOG_DESCRIPTION } from "../developer/developer-settings-copy";

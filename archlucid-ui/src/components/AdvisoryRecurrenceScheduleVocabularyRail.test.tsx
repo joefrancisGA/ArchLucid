@@ -8,7 +8,7 @@ import {
   ADVISORY_RECURRENCE_SCHEDULE_HEADING,
   ADVISORY_RECURRENCE_SCHEDULE_RECURRENCE_LINK,
   ADVISORY_RECURRENCE_SCHEDULE_WHY_TWO,
-} from "@/lib/vocabulary/advisory-recurrence-schedule-vocabulary";
+} from "@/lib/advisory-recurrence-schedule-vocabulary";
 
 describe("AdvisoryRecurrenceScheduleVocabularyRail (TB-2246)", () => {
   it("renders compact strip on advisory schedules with peer link to recurrence", () => {

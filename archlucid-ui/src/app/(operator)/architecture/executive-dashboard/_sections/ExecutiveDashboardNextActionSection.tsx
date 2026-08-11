@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useExecutiveNextActionInputsQuery } from "@/hooks/use-executive-next-action-inputs-query";
 import { buildExecutiveScorecardRecommendedActions } from "@/lib/executive-scorecard-recommended-actions";
 import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import type { ExecutiveTimeRange } from "@/lib/executive-time-range";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 

@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { ARCHLUCID_BRAND } from "@/components/brand/brand-colors";
-import { PERSONA_SHELL_WORDMARK_ARIA_LABEL } from "@/lib/vocabulary/persona-shell-vocabulary";
+import { PERSONA_SHELL_WORDMARK_ARIA_LABEL } from "@/lib/persona-shell-vocabulary";
 
 vi.mock("next/link", () => ({
   default: ({

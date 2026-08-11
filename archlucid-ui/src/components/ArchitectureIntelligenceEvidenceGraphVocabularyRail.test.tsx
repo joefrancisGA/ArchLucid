@@ -8,7 +8,7 @@ import {
   ARCHITECTURE_INTELLIGENCE_EVIDENCE_GRAPH_HEADING,
   ARCHITECTURE_INTELLIGENCE_EVIDENCE_GRAPH_INTELLIGENCE_LINK,
   ARCHITECTURE_INTELLIGENCE_EVIDENCE_GRAPH_WHY_TWO,
-} from "@/lib/vocabulary/architecture-intelligence-evidence-graph-vocabulary";
+} from "@/lib/architecture-intelligence-evidence-graph-vocabulary";
 
 describe("ArchitectureIntelligenceEvidenceGraphVocabularyRail (TB-2273)", () => {
   it("renders architecture-intelligence strip with peer link to evidence graph", () => {

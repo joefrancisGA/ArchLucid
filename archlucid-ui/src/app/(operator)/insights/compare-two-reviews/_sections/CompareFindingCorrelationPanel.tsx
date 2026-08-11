@@ -10,7 +10,7 @@ import {
   compareFindingCorrelationMethodLabel,
   type CompareFindingCorrelationMetadata,
 } from "@/lib/compare-finding-correlation";
-import { CROSS_REVIEW_FINDING_CORRELATION_PANEL_TITLE } from "@/lib/vocabulary/finding-correlation-vocabulary";
+import { CROSS_REVIEW_FINDING_CORRELATION_PANEL_TITLE } from "@/lib/finding-correlation-vocabulary";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type CompareFindingCorrelationPanelProps = {

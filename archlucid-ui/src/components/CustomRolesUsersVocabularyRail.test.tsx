@@ -8,7 +8,7 @@ import {
   CUSTOM_ROLES_USERS_HEADING,
   CUSTOM_ROLES_USERS_USERS_LINK,
   CUSTOM_ROLES_USERS_WHY_TWO,
-} from "@/lib/vocabulary/custom-roles-users-vocabulary";
+} from "@/lib/custom-roles-users-vocabulary";
 
 describe("CustomRolesUsersVocabularyRail (TB-2262)", () => {
   it("renders custom-roles strip with peer link to users", () => {

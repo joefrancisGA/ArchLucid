@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { QualityGateMetricsTile } from "@/components/QualityGateMetricsTile";
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { ExecutiveOrphanCandidatesCard } from "./ExecutiveOrphanCandidatesCard";

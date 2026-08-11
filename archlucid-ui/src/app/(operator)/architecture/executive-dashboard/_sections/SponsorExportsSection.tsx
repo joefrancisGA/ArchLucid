@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { RoiSponsorExportVocabularyRail } from "@/components/RoiSponsorExportVocabularyRail";
 import { getRunPackageExportUrl } from "@/lib/api";
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture-scorecard-route";
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer-demo-content-gating";

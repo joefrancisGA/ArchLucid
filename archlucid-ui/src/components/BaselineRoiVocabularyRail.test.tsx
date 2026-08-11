@@ -8,7 +8,7 @@ import {
   BASELINE_ROI_HEADING,
   BASELINE_ROI_ROI_SUMMARY_LINK,
   BASELINE_ROI_WHY_TWO,
-} from "@/lib/vocabulary/baseline-roi-vocabulary";
+} from "@/lib/baseline-roi-vocabulary";
 
 describe("BaselineRoiVocabularyRail (TB-2275)", () => {
   it("renders baseline strip with peer link to roi summary", () => {

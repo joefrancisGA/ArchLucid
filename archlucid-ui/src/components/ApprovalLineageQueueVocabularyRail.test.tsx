@@ -8,7 +8,7 @@ import {
   APPROVAL_LINEAGE_QUEUE_LINEAGE_LINK,
   APPROVAL_LINEAGE_QUEUE_QUEUE_LINK,
   APPROVAL_LINEAGE_QUEUE_WHY_TWO,
-} from "@/lib/vocabulary/approval-lineage-queue-vocabulary";
+} from "@/lib/approval-lineage-queue-vocabulary";
 
 describe("ApprovalLineageQueueVocabularyRail (TB-2271)", () => {
   it("renders lineage strip with peer link to approval queue", () => {

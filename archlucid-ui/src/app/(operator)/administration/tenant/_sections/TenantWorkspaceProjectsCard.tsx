@@ -21,7 +21,7 @@ import {
   projectDeleteSuccessToastMessage,
 } from "@/lib/projects-delete-confirm-copy";
 import { DEFAULT_RECYCLE_BIN_RETENTION_DAYS } from "@/lib/projects-recycle-bin-payload";
-import { PROJECTS_RECYCLE_BIN_PATH } from "@/lib/vocabulary/projects-recycle-drafts-package-vocabulary";
+import { PROJECTS_RECYCLE_BIN_PATH } from "@/lib/projects-recycle-drafts-package-vocabulary";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import {
   findTenantWorkspaceRow,

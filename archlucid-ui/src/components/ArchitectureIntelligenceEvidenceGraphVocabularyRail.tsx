@@ -9,7 +9,7 @@ import {
   resolveArchitectureIntelligenceEvidenceGraphPeerLink,
   type ArchitectureIntelligenceEvidenceGraphSurfaceId,
   type ArchitectureIntelligenceEvidenceGraphVocabularyModel,
-} from "@/lib/vocabulary/architecture-intelligence-evidence-graph-vocabulary";
+} from "@/lib/architecture-intelligence-evidence-graph-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

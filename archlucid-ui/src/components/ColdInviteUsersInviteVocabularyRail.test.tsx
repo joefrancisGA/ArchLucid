@@ -8,7 +8,7 @@ import {
   COLD_INVITE_USERS_INVITE_HEADING,
   COLD_INVITE_USERS_INVITE_USERS_LINK,
   COLD_INVITE_USERS_INVITE_WHY_TWO,
-} from "@/lib/vocabulary/cold-invite-users-invite-vocabulary";
+} from "@/lib/cold-invite-users-invite-vocabulary";
 
 describe("ColdInviteUsersInviteVocabularyRail (TB-2276)", () => {
   it("renders cold-invite strip with peer link to users invite", () => {

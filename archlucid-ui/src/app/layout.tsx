@@ -6,7 +6,7 @@ import {
   readBuildIdentityHtmlMetaContent,
 } from "@/lib/build-identity-html-meta";
 import { MARKETING_ROOT_OG_DESCRIPTION } from "@/lib/marketing-open-graph";
-import { PERSONA_SHELL_DEFAULT_DOCUMENT_TITLE } from "@/lib/vocabulary/persona-shell-vocabulary";
+import { PERSONA_SHELL_DEFAULT_DOCUMENT_TITLE } from "@/lib/persona-shell-vocabulary";
 import { getSiteMetadataBaseUrl } from "@/lib/site-metadata-base";
 import { buildColorModeBootstrapInlineScript } from "@/lib/color-mode-bootstrap";
 import { resolveAuthorityThemeFromEnv } from "@/lib/ui-authority-theme";

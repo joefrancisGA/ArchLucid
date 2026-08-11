@@ -27,9 +27,8 @@ import { PolicyPacksAdvancedAuthoringPanel } from "./PolicyPacksAdvancedAuthorin
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
-import { PolicyPackDetailHubVocabularyRail } from "@/components/PolicyPackDetailHubVocabularyRail";
-import { PatternLibraryPolicyPacksVocabularyRail } from "@/components/PatternLibraryPolicyPacksVocabularyRail";
 import { PolicyPacksStandardsVocabularyRail } from "@/components/PolicyPacksStandardsVocabularyRail";
+import { PolicyPackDetailHubVocabularyRail } from "@/components/PolicyPackDetailHubVocabularyRail";
 import {
   Tabs,
   TabsContent,
@@ -98,7 +97,6 @@ className="mb-3"
       />
 
       <PolicyPacksStandardsVocabularyRail currentSurfaceId="policy-packs" />
-      <PatternLibraryPolicyPacksVocabularyRail currentSurfaceId="policy-packs" />
       <PolicyPackDetailHubVocabularyRail currentSurfaceId="policy-packs" />
 
       {m.publishSuccessMessage !== null ? (

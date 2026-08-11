@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import { CopyFindingAsWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
 import { Button } from "@/components/ui/button";
-import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
+import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import type { FindingInspectPayload } from "@/types/finding-inspect";

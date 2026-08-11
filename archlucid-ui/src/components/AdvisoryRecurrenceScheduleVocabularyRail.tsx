@@ -9,7 +9,7 @@ import {
   resolveAdvisoryRecurrenceSchedulePeerLink,
   type AdvisoryRecurrenceScheduleSurfaceId,
   type AdvisoryRecurrenceScheduleVocabularyModel,
-} from "@/lib/vocabulary/advisory-recurrence-schedule-vocabulary";
+} from "@/lib/advisory-recurrence-schedule-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

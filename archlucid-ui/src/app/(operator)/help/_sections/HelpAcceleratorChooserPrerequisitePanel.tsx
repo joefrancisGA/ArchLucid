@@ -20,7 +20,7 @@ import {
 } from "@/lib/accelerator-chooser-pack-prerequisite";
 import type { AcceleratorChooserPrerequisiteStatus } from "@/lib/resolve-accelerator-chooser-prerequisite-status";
 import { OPERATOR_CARD, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
+import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { cn } from "@/lib/utils";
 
 type HelpAcceleratorChooserPrerequisitePanelProps = {

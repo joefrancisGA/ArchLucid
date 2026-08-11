@@ -9,7 +9,7 @@ import {
   resolveAlertRulesAlertsInboxPeerLink,
   type AlertRulesAlertsInboxSurfaceId,
   type AlertRulesAlertsInboxVocabularyModel,
-} from "@/lib/vocabulary/alert-rules-alerts-inbox-vocabulary";
+} from "@/lib/alert-rules-alerts-inbox-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

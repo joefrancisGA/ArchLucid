@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { AccountSecurityAuthDomainsVocabularyRail } from "@/components/AccountSecurityAuthDomainsVocabularyRail";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { BooleanStatusChip } from "@/components/ui/boolean-status-chip";
 import { Button } from "@/components/ui/button";
@@ -340,7 +339,6 @@ export function AccountSecurityPageClient() {
         titleTestId="account-security-page-title"
         actions={<PageContextualHelpButton />}
       />
-      <AccountSecurityAuthDomainsVocabularyRail currentSurfaceId="account-security" />
 {gateProblem ? (
         <FeedbackCallout
           feedback={problemToFeedback(gateProblem)}

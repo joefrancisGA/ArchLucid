@@ -1,7 +1,7 @@
 /**
  * Operator shell: suggested starters use {@link ASK_EXAMPLE_PROMPTS}; buyer shell groups {@link ASK_BUYER_PROMPT_GROUPS}.
  */
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 
 export const ASK_EXAMPLE_PROMPTS: readonly string[] = [
   "Summarize the PHI risk for this review.",

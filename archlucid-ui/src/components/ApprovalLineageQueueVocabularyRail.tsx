@@ -9,7 +9,7 @@ import {
   resolveApprovalLineageQueuePeerLink,
   type ApprovalLineageQueueSurfaceId,
   type ApprovalLineageQueueVocabularyModel,
-} from "@/lib/vocabulary/approval-lineage-queue-vocabulary";
+} from "@/lib/approval-lineage-queue-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

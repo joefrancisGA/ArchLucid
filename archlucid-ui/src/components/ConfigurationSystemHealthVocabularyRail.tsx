@@ -9,7 +9,7 @@ import {
   resolveConfigurationSystemHealthPeerLink,
   type ConfigurationSystemHealthSurfaceId,
   type ConfigurationSystemHealthVocabularyModel,
-} from "@/lib/vocabulary/configuration-system-health-vocabulary";
+} from "@/lib/configuration-system-health-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

@@ -26,7 +26,7 @@ import {
   type QuickReviewProofScopeId,
 } from "@/components/usability/QuickReviewProofScopeField";
 import { readActiveTenantContext } from "@/lib/active-tenant-context-display";
-import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/vocabulary/core-pilot-path-vocabulary";
+import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/core-pilot-path-vocabulary";
 import { FocusedPilotPolicyPackAppliedCallout } from "@/components/wizard/FocusedPilotPolicyPackAppliedCallout";
 import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
 import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResumePrompt";

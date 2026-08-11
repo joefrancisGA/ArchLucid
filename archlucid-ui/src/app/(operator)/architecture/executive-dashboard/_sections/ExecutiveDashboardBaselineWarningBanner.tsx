@@ -8,7 +8,7 @@ import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvid
 import { DismissControl } from "@/components/usability/DismissControl";
 import { Button } from "@/components/ui/button";
 import { useWorkspaceBaselineArtifactsPresence } from "@/hooks/use-workspace-baseline-artifacts";
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { CLOUD_NEUTRAL_PRIMARY_COPY } from "@/lib/cloud-neutral-primary-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";

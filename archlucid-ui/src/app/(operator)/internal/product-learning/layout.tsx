@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { BUYER_TERMINOLOGY } from "@/lib/vocabulary/buyer-surface-vocabulary";
+import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { OperatorClientDrivenRouteLayout } from "@/lib/next/operator-client-driven-route-layout";
 
 export const metadata: Metadata = {

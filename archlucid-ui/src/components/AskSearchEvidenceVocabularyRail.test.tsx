@@ -8,7 +8,7 @@ import {
   ASK_SEARCH_EVIDENCE_HEADING,
   ASK_SEARCH_EVIDENCE_SEARCH_LINK,
   ASK_SEARCH_EVIDENCE_WHY_TWO,
-} from "@/lib/vocabulary/ask-search-evidence-vocabulary";
+} from "@/lib/ask-search-evidence-vocabulary";
 
 describe("AskSearchEvidenceVocabularyRail (TB-2231)", () => {
   it("renders compact strip on Ask with peer link to Search", () => {

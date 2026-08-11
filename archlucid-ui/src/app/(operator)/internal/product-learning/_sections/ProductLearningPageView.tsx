@@ -12,7 +12,7 @@ import {
   buildProductLearningReportFileUrl,
   buildProductLearningReportJsonUrl,
 } from "@/lib/product-learning-report-urls";
-import { BUYER_TERMINOLOGY, PILOT_FEEDBACK_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
+import { BUYER_TERMINOLOGY, PILOT_FEEDBACK_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import {
   OPERATOR_KPI_CARD_TITLE,
   OPERATOR_LINK,
