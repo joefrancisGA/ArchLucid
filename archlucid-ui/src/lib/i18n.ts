@@ -186,6 +186,8 @@ export const OPERATOR_NAV_LINK_LABELS = {
   /** Settings hub (`/administration`); workspace entry often `/administration/tenant`. */
   settings: "Settings",
   workspaceSettings: "Workspace settings",
+  /** Users & roles hub (`/administration/users`) — ampersand matches Security & trust nav spelling. */
+  usersAndRoles: "Users & roles",
 } as const;
 
 /** Customer-facing copy for `/integrations/cloud-connections`. */

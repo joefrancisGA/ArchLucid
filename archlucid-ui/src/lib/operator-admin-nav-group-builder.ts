@@ -113,9 +113,9 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
           href: "/administration/users",
 
-          label: "Users & roles",
+          label: OPERATOR_NAV_LINK_LABELS.usersAndRoles,
 
-          title: "Users & roles — directory and role assignments",
+          title: `${OPERATOR_NAV_LINK_LABELS.usersAndRoles} — directory and role assignments`,
 
           icon: Users,
 

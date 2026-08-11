@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { useEffect } from "react";
 
 const replaceMock = vi.fn();
 
@@ -30,19 +31,41 @@ vi.mock("./SettingsRolesInvitePanel", () => ({
 }));
 
 vi.mock("./PendingInvitationsPanel", () => ({
-  PendingInvitationsPanel: () => <div data-testid="settings-roles-pending-invitations-table" />,
+  PendingInvitationsPanel: ({
+    onCountChange,
+    suppressEmptyPresentation,
+  }: {
+    onCountChange?: (count: number | null) => void;
+    suppressEmptyPresentation?: boolean;
+  }) => {
+    useEffect(() => {
+      onCountChange?.(0);
+    }, [onCountChange]);
+
+    if (suppressEmptyPresentation) {
+      return null;
+    }
+
+    return <div data-testid="settings-roles-pending-invitations-table" />;
+  },
 }));
 
 vi.mock("./SettingsRolesMatrixSection", () => ({
   SettingsRolesMatrixSection: () => <div data-testid="settings-roles-matrix-section" />,
 }));
 
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { SETTINGS_USERS_USERS_TAB_PATH } from "@/lib/settings-admin-route-paths";
+import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
+import { resolveNavLinkForPathname } from "@/lib/resolve-nav-link-for-pathname";
+import { ROUTE_TITLES } from "@/lib/route-static-titles";
 
 import { SettingsRolesPageView } from "./SettingsRolesPageView";
 import {
   SETTINGS_ROLES_KEYS_TAB_CARD_TITLE,
   SETTINGS_ROLES_KEYS_TAB_LABEL,
+  SETTINGS_ROLES_KEYS_TAB_LIFECYCLE_HREF,
+  SETTINGS_ROLES_KEYS_TAB_OPEN_CTA_LABEL,
 } from "./settings-roles-page-keys-tab-copy";
 import type { SettingsRolesPageViewModel } from "./settings-roles-page-view-model";
 
@@ -72,13 +95,44 @@ describe("SettingsRolesPageView (SSU P0)", () => {
     render(<SettingsRolesPageView model={buildModel({ usersNote: null })} />);
 
     expect(screen.getByTestId("settings-roles-invite-primary-action")).toHaveTextContent("Invite user");
-    expect(screen.getByRole("heading", { level: 2, name: /Members/ })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 2, name: "Pending invitations" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: OPERATOR_NAV_LINK_LABELS.usersAndRoles })).toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: "Invite user" })).toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId("settings-roles-invite-primary-action"));
 
     expect(screen.getByTestId("settings-roles-invite-section")).toHaveAttribute("open");
+  });
+
+  it("aligns page title with nav and document title (TB-1212)", () => {
+    expect(ROUTE_TITLES["/administration/users"]).toBe(OPERATOR_NAV_LINK_LABELS.usersAndRoles);
+    expect(resolveNavLinkForPathname("/administration/users")?.label).toBe(OPERATOR_NAV_LINK_LABELS.usersAndRoles);
+
+    render(<SettingsRolesPageView model={buildModel({ usersNote: null })} />);
+
+    expect(screen.getByRole("heading", { level: 1, name: OPERATOR_NAV_LINK_LABELS.usersAndRoles })).toBeInTheDocument();
+  });
+
+  it("registers contextual help for users hub paths (TB-1215)", () => {
+    expect(pageHelpTopicForPathname("/administration/users")?.slug).toBe("users-and-roles");
+    expect(pageHelpTopicForPathname("/administration/users")?.label).toBe(
+      `${OPERATOR_NAV_LINK_LABELS.usersAndRoles} help`,
+    );
+    expect(pageHelpTopicForPathname("/administration/settings/users")?.label).toBe(
+      `${OPERATOR_NAV_LINK_LABELS.usersAndRoles} help`,
+    );
+  });
+
+  it("uses invite-first empty composition without stacked empty cards (TB-1214)", () => {
+    render(<SettingsRolesPageView model={buildModel({ usersNote: null })} />);
+
+    expect(screen.getByTestId("settings-roles-users-empty-composition")).toBeInTheDocument();
+    expect(screen.getByTestId("settings-roles-users-empty-status")).toHaveTextContent(/No users yet/i);
+    expect(screen.getByTestId("settings-roles-invite-section")).toHaveAttribute("open");
+    expect(screen.queryByRole("heading", { level: 2, name: /Members/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 2, name: /Pending invitations/ })).not.toBeInTheDocument();
+    expect(screen.queryByText(/No pending invitations/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/principal/i)).not.toBeInTheDocument();
   });
 
   it("persists ?tab=users when the Users tab is selected (TB-1936)", () => {
@@ -113,7 +167,10 @@ describe("SettingsRolesPageView (SEU / keys tab)", () => {
     expect(within(keysPanel).getByText(SETTINGS_ROLES_KEYS_TAB_CARD_TITLE)).toBeInTheDocument();
     expect(within(keysPanel).getByText(/Assign built-in roles to automation API keys/i)).toBeInTheDocument();
     expect(within(keysPanel).queryByText(/automation principals/i)).not.toBeInTheDocument();
-    expect(within(keysPanel).getByRole("link", { name: "API keys" })).toHaveAttribute("href", "/administration/api-keys");
+    expect(within(keysPanel).getByRole("link", { name: "API keys" })).toHaveAttribute(
+      "href",
+      SETTINGS_ROLES_KEYS_TAB_LIFECYCLE_HREF,
+    );
   });
 
   it("shows keys-specific empty copy when the keys directory fails (TB-1933)", () => {
@@ -135,5 +192,19 @@ describe("SettingsRolesPageView (SEU / keys tab)", () => {
     expect(within(keysPanel).queryByText(/Member directory unavailable/i)).not.toBeInTheDocument();
     expect(within(keysPanel).queryByText(/invitation/i)).not.toBeInTheDocument();
     expect(within(keysPanel).queryByText(/principal/i)).not.toBeInTheDocument();
+  });
+
+  it("exposes Open API keys primary CTA on keys empty path (TB-1213)", () => {
+    render(<SettingsRolesPageView model={buildModel({ usersNote: null, keysNote: null })} />);
+
+    fireEvent.click(screen.getByTestId("settings-roles-tab-keys"));
+
+    const keysPanel = screen.getByTestId("settings-roles-tabpanel-keys");
+    const openCta = within(keysPanel).getByTestId("settings-roles-keys-open-api-keys");
+
+    expect(within(keysPanel).getByTestId("settings-roles-keys-empty")).toBeInTheDocument();
+    expect(openCta).toHaveTextContent(SETTINGS_ROLES_KEYS_TAB_OPEN_CTA_LABEL);
+    expect(openCta).toHaveAttribute("href", SETTINGS_ROLES_KEYS_TAB_LIFECYCLE_HREF);
+    expect(within(keysPanel).queryByText(/No principals found/i)).not.toBeInTheDocument();
   });
 });

@@ -60,15 +60,15 @@ export const SETTINGS_MASTER_SECTIONS: readonly SettingsMasterSection[] = [
   },
   {
     id: "users-roles",
-    navLabel: "Users & roles",
-    title: "Users & roles",
+    navLabel: OPERATOR_NAV_LINK_LABELS.usersAndRoles,
+    title: OPERATOR_NAV_LINK_LABELS.usersAndRoles,
     description: "Directory, role assignments, and access control.",
     keywords: ["users", "roles", "directory", "admin", "access"],
     tier: "common",
     destinations: [
       {
         id: "users-directory",
-        title: "Users & roles",
+        title: OPERATOR_NAV_LINK_LABELS.usersAndRoles,
         description: "Manage workspace members, role assignments, and invitations.",
         href: "/administration/users",
         cta: "Manage users",

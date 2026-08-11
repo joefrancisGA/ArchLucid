@@ -928,10 +928,10 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1201 | **Done (2026-08-11)** Settings hub ? PageHeading icon + PageContextualHelpButton; see ## TB-1201 below | Adoption friction P1 ? **V1**; with **TB-1198**; parity **TB-1184** | S |
 | TB-1202 | **Done (2026-08-11)** Settings hub ? section nav same-page jumps as links; see ## TB-1202 below | Adoption friction P1 ? **V1**; a11y baseline; with **TB-1201** | XS |
 | TB-1203 | **Done (2026-08-11)** Settings hub ? demote Scope/Source/Status meta density on destination cards; see ## TB-1203 below | Adoption friction P1 ? **V1**; with **TB-1198** | S |
-| TB-1212 | Users & roles ? breadcrumb/nav title consistency; see ## TB-1212 below | Adoption friction P1 ? **V1**; with **TB-1210** | XS |
-| TB-1213 | Users & roles API keys tab ? dedicated empty + primary CTA; see ## TB-1213 below | Adoption friction P1 ? **V1**; with **TB-1211** | S |
-| TB-1214 | Users & invitations ? empty composition / guided next step; see ## TB-1214 below | Adoption friction P1 ? **V1**; with **TB-1211** | S |
-| TB-1215 | Users & roles ? PageContextualHelpButton at top; see ## TB-1215 below | Adoption friction P1 ? **V1**; with **TB-1210**; parity **TB-1184** | XS |
+| TB-1212 | **Done (2026-08-11)** Users & roles ? nav/document/H1 title consistency (Users & roles); see ## TB-1212 below | Adoption friction P1 ? **V1**; with **TB-1210** | XS |
+| TB-1213 | **Done (2026-08-11)** Users & roles API keys tab ? dedicated empty + Open API keys CTA; see ## TB-1213 below | Adoption friction P1 ? **V1**; with **TB-1211** | S |
+| TB-1214 | **Done (2026-08-11)** Users & invitations ? empty composition / guided next step; see ## TB-1214 below | Adoption friction P1 ? **V1**; with **TB-1211** | S |
+| TB-1215 | **Done (2026-08-11)** Users & roles ? PageContextualHelpButton at top; see ## TB-1215 below | Adoption friction P1 ? **V1**; with **TB-1210**; parity **TB-1184** | XS |
 | TB-1216 | AI usage ? Administration vs Settings wayfinding (breadcrumb / URL honesty); see ## TB-1216 below | Adoption friction P1 ? **V1**; owner `/administration/settings/ai-usage` ~51/100 2026-07-25; TB-404 | S |
 | TB-1218 | AI usage ? PageHeading icon + PageContextualHelpButton; see ## TB-1218 below | Adoption friction P1 ? **V1**; with **TB-1216**; parity **TB-1184** | S |
 | TB-1219 | AI usage ? dedupe Edit budget / budget-control CTAs; see ## TB-1219 below | Adoption friction P1 ? **V1**; with **TB-1216** | S |
@@ -30537,7 +30537,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done (2026-08-11) ? OPERATOR_NAV_LINK_LABELS.usersAndRoles aligns nav, ROUTE_TITLES, settings catalog, and page H1; breadcrumbs removed system-wide (TB-2090). Vitest title/nav parity.
 
 **Priority:** P0.
 
@@ -30565,7 +30565,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done (2026-08-11) ? keys empty uses OperatorEmptyState + primary **Open API keys** CTA to /administration/api-keys; Vitest CTA href.
 
 **Priority:** P0.
 
@@ -30593,7 +30593,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done (2026-08-11) ? invite-first empty composition; StatusTag; suppress pending empty theater; Vitest composition guards.
 
 **Priority:** P0.
 
@@ -30621,7 +30621,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done (2026-08-11) ? page-help-topic-map caption + PageHeading actions PageContextualHelpButton; Vitest help wiring.
 
 **Priority:** P0.
 

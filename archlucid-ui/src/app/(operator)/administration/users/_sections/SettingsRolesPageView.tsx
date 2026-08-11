@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -13,13 +14,15 @@ import { CustomRolesUsersVocabularyRail } from "@/components/CustomRolesUsersVoc
 import { ScimVsUsersReconciler } from "@/components/ScimVsUsersReconciler";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatusTag } from "@/components/ui/status-tag";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { isApiKeysSettingsSurfaceEnabled } from "@/lib/api-keys-settings-access";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE } from "@/lib/buyer-polish-copy";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
   settingsUsersNavigationPathname,
   settingsUsersTabFromLocation,
@@ -39,6 +42,7 @@ import {
   SETTINGS_ROLES_KEYS_TAB_LEAD,
   SETTINGS_ROLES_KEYS_TAB_LIFECYCLE_HREF,
   SETTINGS_ROLES_KEYS_TAB_LIFECYCLE_LINK_LABEL,
+  SETTINGS_ROLES_KEYS_TAB_OPEN_CTA_LABEL,
 } from "./settings-roles-page-keys-tab-copy";
 import { SettingsRolesMatrixSection } from "./SettingsRolesMatrixSection";
 import { assignmentCountsByRoleName } from "./roles-matrix-assignment-counts";
@@ -92,6 +96,14 @@ export function SettingsRolesPageView(props: Props) {
     !m.loading
     && directoryNoteReliableForAssignmentCounts(m.usersNote)
     && (canManageApiKeys ? directoryNoteReliableForAssignmentCounts(m.keysNote) : true);
+  const userRows = useMemo(() => m.sortedRows.filter((r) => r.kind === "user"), [m.sortedRows]);
+  const apiKeyRows = useMemo(() => m.sortedRows.filter((r) => r.kind === "api_key"), [m.sortedRows]);
+  // Empty workspace: invite is the only job — do not stack members/pending empty theater (TB-1214).
+  const usersDirectoryEmpty =
+    m.surface === "admin" && !m.loading && m.usersNote === null && userRows.length === 0;
+  const usersTabEmptyWorkspace = usersDirectoryEmpty && pendingInvitationCount === 0;
+  const usersTabInviteFirstLayout =
+    usersDirectoryEmpty && (pendingInvitationCount === null || pendingInvitationCount === 0);
 
   useEffect(() => {
     setActiveTab(urlTab);
@@ -119,6 +131,12 @@ export function SettingsRolesPageView(props: Props) {
       inviteEmailInputRef.current?.focus();
     }, 0);
   }, [inviteSectionOpen]);
+
+  useEffect(() => {
+    if (usersTabInviteFirstLayout && activeTab === "users") {
+      setInviteSectionOpen(true);
+    }
+  }, [usersTabInviteFirstLayout, activeTab]);
 
   const onSelectTab = useCallback(
     (id: string) => {
@@ -171,8 +189,6 @@ export function SettingsRolesPageView(props: Props) {
     );
   }
 
-  const userRows = m.sortedRows.filter((r) => r.kind === "user");
-  const apiKeyRows = m.sortedRows.filter((r) => r.kind === "api_key");
   const usersSectionTitle =
     m.loading || m.usersNote !== null ? "Members" : `Members (${userRows.length})`;
   const pendingSectionTitle =
@@ -182,7 +198,7 @@ export function SettingsRolesPageView(props: Props) {
     <div className="w-full max-w-[1200px] space-y-6" data-testid="settings-roles-page">
       <PageHeading
         navHref="/administration/users"
-        title="Users and roles"
+        title={OPERATOR_NAV_LINK_LABELS.usersAndRoles}
         description="Invite users, assign roles, and manage workspace access."
         actions={
           <div className="flex flex-wrap items-center gap-2">
@@ -194,7 +210,7 @@ export function SettingsRolesPageView(props: Props) {
             >
               Invite user
             </Button>
-            <PageContextualHelpButton triggerText="Help" />
+            <PageContextualHelpButton />
           </div>
         }
       />
@@ -206,7 +222,7 @@ export function SettingsRolesPageView(props: Props) {
         />
       ) : null}
       <Tabs value={activeTab} onValueChange={onSelectTab} className="space-y-6">
-        <TabsList aria-label="Users and roles sections" data-testid="settings-roles-tablist">
+        <TabsList aria-label={`${OPERATOR_NAV_LINK_LABELS.usersAndRoles} sections`} data-testid="settings-roles-tablist">
           {tabs.map((tab) => (
             <TabsTrigger key={tab.id} value={tab.id} data-testid={`settings-roles-tab-${tab.id}`}>
               {tab.label}
@@ -216,52 +232,77 @@ export function SettingsRolesPageView(props: Props) {
 
         <TabsContent value="users" data-testid="settings-roles-tabpanel-users">
           <div className="space-y-6">
-            <Card aria-labelledby={MEMBERS_HEADING_ID}>
-              <CardHeader>
-                <CardTitle id={MEMBERS_HEADING_ID} as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
-                  {usersSectionTitle}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {m.loading ? <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading…</p> : null}
-                {!m.loading && m.usersNote !== null ? (
-                  <div data-testid="settings-roles-api-note">
-                    <OperatorEmptyState
-                      title={settingsRolesEmptyStateTitle(m.usersNote, "users")}
-                      description={settingsRolesEmptyStateDescription(m.usersNote, "users")}
-                    />
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      <Button type="button" variant="secondary" size="sm" onClick={() => void m.load()}>
-                        Refresh
-                      </Button>
-                    </div>
-                  </div>
+            {usersTabInviteFirstLayout ? (
+              <div className="space-y-3" data-testid="settings-roles-users-empty-composition">
+                {usersTabEmptyWorkspace ? (
+                  <StatusTag
+                    kind="draft"
+                    label="No users yet — send an invite below."
+                    data-testid="settings-roles-users-empty-status"
+                  />
                 ) : null}
-                {!m.loading && userRows.length > 0 ? (
-                  <SettingsRolesPrincipalTable rows={userRows} onRoleChange={m.onRoleChange} />
-                ) : null}
-                {!m.loading && m.usersNote === null && userRows.length === 0 ? (
-                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                    No members yet. People appear here after they accept an invitation.
-                  </p>
-                ) : null}
-              </CardContent>
-            </Card>
-
-            <Card aria-labelledby={PENDING_INVITATIONS_HEADING_ID}>
-              <CardHeader>
-                <CardTitle id={PENDING_INVITATIONS_HEADING_ID} as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
-                  {pendingSectionTitle}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  Members and pending invitations appear here after someone accepts an invite.
+                </p>
                 <PendingInvitationsPanel
                   refreshKey={invitationsRefreshKey}
                   seededInvitations={seededInvitations}
                   onCountChange={setPendingInvitationCount}
+                  suppressEmptyPresentation
                 />
-              </CardContent>
-            </Card>
+              </div>
+            ) : (
+              <>
+                <Card aria-labelledby={MEMBERS_HEADING_ID}>
+                  <CardHeader>
+                    <CardTitle id={MEMBERS_HEADING_ID} as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+                      {usersSectionTitle}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {m.loading ? (
+                      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading…</p>
+                    ) : null}
+                    {!m.loading && m.usersNote !== null ? (
+                      <div data-testid="settings-roles-api-note">
+                        <OperatorEmptyState
+                          title={settingsRolesEmptyStateTitle(m.usersNote, "users")}
+                          description={settingsRolesEmptyStateDescription(m.usersNote, "users")}
+                        />
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          <Button type="button" variant="secondary" size="sm" onClick={() => void m.load()}>
+                            Refresh
+                          </Button>
+                        </div>
+                      </div>
+                    ) : null}
+                    {!m.loading && userRows.length > 0 ? (
+                      <SettingsRolesPrincipalTable rows={userRows} onRoleChange={m.onRoleChange} />
+                    ) : null}
+                    {!m.loading && m.usersNote === null && userRows.length === 0 ? (
+                      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                        No members yet. People appear here after they accept an invitation.
+                      </p>
+                    ) : null}
+                  </CardContent>
+                </Card>
+
+                <Card aria-labelledby={PENDING_INVITATIONS_HEADING_ID}>
+                  <CardHeader>
+                    <CardTitle id={PENDING_INVITATIONS_HEADING_ID} as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+                      {pendingSectionTitle}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <PendingInvitationsPanel
+                      refreshKey={invitationsRefreshKey}
+                      seededInvitations={seededInvitations}
+                      onCountChange={setPendingInvitationCount}
+                    />
+                  </CardContent>
+                </Card>
+              </>
+            )}
 
             <CollapsibleSection
               title="Invite user"
@@ -311,22 +352,22 @@ export function SettingsRolesPageView(props: Props) {
               <CardContent className="space-y-4">
                 <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
                   {SETTINGS_ROLES_KEYS_TAB_LEAD}{" "}
-                  <a
-                    href={SETTINGS_ROLES_KEYS_TAB_LIFECYCLE_HREF}
-                    className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
-                  >
+                  <Link href={SETTINGS_ROLES_KEYS_TAB_LIFECYCLE_HREF} className={OPERATOR_LINK.nav}>
                     {SETTINGS_ROLES_KEYS_TAB_LIFECYCLE_LINK_LABEL}
-                  </a>
+                  </Link>
                   .
                 </p>
                 {m.loading ? <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading…</p> : null}
                 {!m.loading && m.keysNote !== null ? (
-                  <div data-testid="settings-roles-api-keys-note">
+                  <div data-testid="settings-roles-api-keys-note" className="space-y-4">
                     <OperatorEmptyState
                       title={settingsRolesEmptyStateTitle(m.keysNote, "api_keys")}
                       description={settingsRolesEmptyStateDescription(m.keysNote, "api_keys")}
                     />
-                    <div className="mt-4 flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2">
+                      <Button asChild size="sm" data-testid="settings-roles-keys-open-api-keys">
+                        <Link href={SETTINGS_ROLES_KEYS_TAB_LIFECYCLE_HREF}>{SETTINGS_ROLES_KEYS_TAB_OPEN_CTA_LABEL}</Link>
+                      </Button>
                       <Button type="button" variant="secondary" size="sm" onClick={() => void m.load()}>
                         Refresh
                       </Button>
@@ -337,7 +378,15 @@ export function SettingsRolesPageView(props: Props) {
                   <SettingsRolesPrincipalTable rows={apiKeyRows} onRoleChange={m.onRoleChange} />
                 ) : null}
                 {!m.loading && m.keysNote === null && apiKeyRows.length === 0 ? (
-                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No API keys found in this workspace.</p>
+                  <div className="space-y-4" data-testid="settings-roles-keys-empty">
+                    <OperatorEmptyState
+                      title={settingsRolesEmptyStateTitle("empty_response", "api_keys")}
+                      description={settingsRolesEmptyStateDescription("empty_response", "api_keys")}
+                    />
+                    <Button asChild size="sm" data-testid="settings-roles-keys-open-api-keys">
+                      <Link href={SETTINGS_ROLES_KEYS_TAB_LIFECYCLE_HREF}>{SETTINGS_ROLES_KEYS_TAB_OPEN_CTA_LABEL}</Link>
+                    </Button>
+                  </div>
                 ) : null}
               </CardContent>
             </Card>

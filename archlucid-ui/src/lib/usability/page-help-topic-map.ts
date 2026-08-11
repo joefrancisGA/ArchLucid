@@ -497,11 +497,16 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/administration/users",
-    topic: { slug: "users-and-roles", label: "Users and roles" },
+    topic: { slug: "users-and-roles", label: `${OPERATOR_NAV_LINK_LABELS.usersAndRoles} help` },
+  },
+  {
+    // Legacy settings segment — permanent redirect destination still resolves help before navigation settles.
+    prefix: "/administration/settings/users",
+    topic: { slug: "users-and-roles", label: `${OPERATOR_NAV_LINK_LABELS.usersAndRoles} help` },
   },
   {
     prefix: "/settings/roles",
-    topic: { slug: "users-and-roles", label: "Users and roles" },
+    topic: { slug: "users-and-roles", label: `${OPERATOR_NAV_LINK_LABELS.usersAndRoles} help` },
   },
   {
     prefix: "/administration/security-trust",

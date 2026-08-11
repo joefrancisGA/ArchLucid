@@ -89,7 +89,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/internal/demo-readiness": INTERNAL_DEMO_READINESS_PAGE_TITLE,
   [ITSM_CONNECTORS_ADMIN_PATH]: ITSM_CONNECTORS_ADMIN_LABEL,
   "/administration": OPERATOR_NAV_LINK_LABELS.settings,
-  "/administration/users": "Users & roles",
+  "/administration/users": OPERATOR_NAV_LINK_LABELS.usersAndRoles,
   "/administration/identity-providers": "Identity providers",
   "/administration/identity/sso-wizard": "SSO wizard",
   "/administration/scim-provisioning": "SCIM provisioning",

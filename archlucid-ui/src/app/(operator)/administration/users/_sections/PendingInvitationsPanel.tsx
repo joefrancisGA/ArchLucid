@@ -45,12 +45,18 @@ type Props = {
   /** Create-response rows that still carry accept-link secrets the list API omits. */
   readonly seededInvitations?: readonly AdminUserInvitationRow[];
   readonly onCountChange?: (count: number | null) => void;
+  /**
+   * When true, an empty invitation list renders nothing (TB-1214 empty composition).
+   * Count callbacks and load/error paths still run.
+   */
+  readonly suppressEmptyPresentation?: boolean;
 };
 
 export function PendingInvitationsPanel({
   refreshKey,
   seededInvitations = EMPTY_SEEDED_INVITATIONS,
   onCountChange,
+  suppressEmptyPresentation = false,
 }: Props) {
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<AdminUserInvitationRow[]>([]);
@@ -164,6 +170,10 @@ export function PendingInvitationsPanel({
   }
 
   if (pending.length === 0 && resolved.length === 0) {
+    if (suppressEmptyPresentation) {
+      return null;
+    }
+
     return (
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="settings-roles-pending-invitations-empty">
         No pending invitations.
