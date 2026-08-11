@@ -4,7 +4,7 @@
 
 **Audience:** Engineering, security reviewers, principal-architect diligence. Not a buyer brochure.
 
-**Status:** **Done** (2026-08-11) for **TB-1577** / GTM **M-296**. Pair honesty CI **TB-1578** / **M-296** (open).
+**Status:** **Done** (2026-08-11) for **TB-1577** / GTM **M-296**. Pair honesty CI **TB-1578** / **M-296** **Done** (`check_shared_aoai_tpm_noisy_neighbor_honesty.py`).
 
 **Verdict (one line):** There is **no cross-tenant fair share of shared Azure OpenAI TPM** today — only per-tenant **spend/abuse caps** and per-tenant HTTP rate limits. When tenant A saturates the deployment, tenant B shares Polly **429 → optional secondary AOAI → shared circuit breaker → Partial/Failed** (not fair-queue, not silent “slow success”).
 

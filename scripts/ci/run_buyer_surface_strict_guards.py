@@ -99,6 +99,11 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "shared-AOAI-TPM noisy-neighbor honesty",
+        ("python", "scripts/ci/check_shared_aoai_tpm_noisy_neighbor_honesty.py"),
+        None,
+    ),
+    GuardCommand(
         "buyer first-30-minutes sync",
         ("python", "scripts/ci/assert_buyer_first_30_minutes_in_sync.py"),
         None,
