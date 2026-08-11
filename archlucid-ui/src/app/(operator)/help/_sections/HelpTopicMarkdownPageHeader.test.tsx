@@ -11,10 +11,6 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 
-vi.mock("@/components/help/HelpTopicPdfDownloadButton", () => ({
-  HelpTopicPdfDownloadButton: () => <div data-testid="help-topic-pdf-download-button" />,
-}));
-
 vi.mock("@/components/help/HelpTopicPrintButton", () => ({
   HelpTopicPrintButton: () => <div data-testid="help-topic-print-button" />,
 }));
@@ -49,7 +45,7 @@ describe("HelpTopicMarkdownPageHeader", () => {
     );
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-export-actions")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-pdf-download-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-print-button")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-pdf-download-button")).toBeNull();
   });
 });

@@ -191,7 +191,8 @@ describe("HelpEnterpriseOnboardingGuideView enterprise onboarding checklist", ()
       "href",
       ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION.href,
     );
-    expect(screen.getByTestId("help-topic-download-pdf")).toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-print-pdf")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-download-pdf")).toBeNull();
   });
 
   it("renders every onboarding hub step with owner and deep link", () => {

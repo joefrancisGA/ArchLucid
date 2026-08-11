@@ -75,12 +75,14 @@ describe("Pilot guide (HP)", () => {
       }),
     ).toHaveAttribute("href", FIRST_ARCHITECTURE_REVIEW_HELP_PATH);
 
+    const relatedLinks = screen.getByTestId("help-pilot-guide-related-links");
+
     expect(
-      within(headerActions).getByRole("link", { name: PILOT_GUIDE_HELP_PRIMARY_ACTIONS.firstReviewGuide.label }),
+      within(relatedLinks).getByRole("link", { name: PILOT_GUIDE_HELP_PRIMARY_ACTIONS.firstReviewGuide.label }),
     ).toHaveAttribute("href", FIRST_REVIEW_GUIDE_PATH);
 
-    expect(screen.getByTestId("help-topic-download-pdf")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-print-pdf")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-download-pdf")).toBeNull();
 
     expect(screen.queryByTestId("help-pilot-guide-action-panel")).toBeNull();
     expect(container.innerHTML).not.toMatch(/bg-teal-50|border-teal-200/);

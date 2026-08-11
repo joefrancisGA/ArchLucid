@@ -4,10 +4,10 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpPathChooserEvaluatorSessionStrip } from "@/app/(operator)/help/_sections/HelpPathChooserEvaluatorSessionStrip";
 import { HelpPathChooserRelatedNextStepsLinks } from "@/app/(operator)/help/_sections/HelpPathChooserRelatedNextStepsLinks";
 import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
-import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
+import { PathChooserCreateObjectVocabularyRail } from "@/components/PathChooserCreateObjectVocabularyRail";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
@@ -81,11 +81,12 @@ export function HelpPathChooserGuideView(props: HelpPathChooserGuideViewProps): 
         actions={
           <div className="flex flex-wrap items-center gap-2" data-testid="help-path-chooser-header-actions">
             <PageContextualHelpButton />
-            <HelpTopicPdfDownloadButton entry={entry} />
             <HelpTopicPrintButton entry={entry} />
           </div>
         }
       />
+
+      <PathChooserCreateObjectVocabularyRail currentSurfaceId="path-chooser" />
 
       <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
         <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="help-path-chooser-overview">

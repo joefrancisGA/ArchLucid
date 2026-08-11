@@ -5,7 +5,6 @@ import { AlertTriangle } from "lucide-react";
 import { GcpWifStarterPanel } from "@/app/(operator)/integrations/cloud-connections/_sections/GcpWifStarterPanel";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { ConnectGcpSecurelyHelpEvidenceOrientationStrip } from "@/components/help/ConnectGcpSecurelyHelpEvidenceOrientationStrip";
-import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -188,7 +187,6 @@ export function HelpConnectGcpSecurelyGuideView(props: HelpConnectGcpSecurelyGui
             <Button asChild size="sm" variant="primary" data-testid="connect-gcp-configure-action">
               <Link href={CONNECT_GCP_SECURELY_CONFIGURE_HREF}>{CONNECT_GCP_SECURELY_CONFIGURE_ACTION}</Link>
             </Button>
-            <HelpTopicPdfDownloadButton entry={entry} />
             <HelpTopicPrintButton entry={entry} />
           </div>
         }

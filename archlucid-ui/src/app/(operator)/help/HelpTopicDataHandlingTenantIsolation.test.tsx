@@ -156,9 +156,8 @@ describe("HelpDataHandlingTenantIsolationGuideView", () => {
 
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("V1 GA");
 
-    expect(screen.getByTestId("help-topic-download-pdf")).toBeInTheDocument();
-
-    expect(screen.queryByTestId("help-topic-print-pdf")).toBeNull();
+    expect(screen.getByTestId("help-topic-print-pdf")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-download-pdf")).toBeNull();
 
 
 

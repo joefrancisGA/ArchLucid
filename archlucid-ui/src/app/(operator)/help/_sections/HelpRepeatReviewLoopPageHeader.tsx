@@ -3,7 +3,6 @@
 import { cn } from "@/lib/utils";
 
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -55,7 +54,6 @@ export function HelpRepeatReviewLoopPageHeader(
           >
             {props.refreshing ? REPEAT_REVIEW_LOOP_HELP_ACTION_REFRESHING : REPEAT_REVIEW_LOOP_HELP_ACTION_REFRESH}
           </Button>
-          <HelpTopicPdfDownloadButton entry={props.entry} />
           <HelpTopicPrintButton entry={props.entry} />
         </div>
       }

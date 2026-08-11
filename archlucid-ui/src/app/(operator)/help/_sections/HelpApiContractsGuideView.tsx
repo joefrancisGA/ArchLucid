@@ -3,7 +3,6 @@ import Link from "next/link";
 import { HelpApiContractsHeaderMetadata } from "@/app/(operator)/help/_sections/HelpApiContractsHeaderMetadata";
 import { HelpApiContractsSourceLinks } from "@/app/(operator)/help/_sections/HelpApiContractsSourceLinks";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
-import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTechnicalReferenceNavigation } from "@/components/help/HelpTechnicalReferenceNavigation";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
@@ -80,7 +79,6 @@ export function HelpApiContractsGuideView(props: HelpApiContractsGuideViewProps)
           actions={
             <div className="flex flex-wrap items-center gap-2" data-testid="help-api-contracts-header-actions">
               <PageContextualHelpButton />
-              <HelpTopicPdfDownloadButton entry={entry} />
               <HelpTopicPrintButton entry={entry} />
             </div>
           }

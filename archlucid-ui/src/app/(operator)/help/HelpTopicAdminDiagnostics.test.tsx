@@ -83,8 +83,8 @@ describe("HelpAdminDiagnosticsGuideView (HAE)", () => {
     expect(screen.getAllByRole("heading", { name: /start here/i })).toHaveLength(1);
     expect(screen.queryByRole("heading", { name: "Go to live diagnostics" })).toBeNull();
     expect(screen.getByTestId("help-admin-diagnostics-header-actions")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-download-pdf")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-print-pdf")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-download-pdf")).toBeNull();
     expect(screen.queryByTestId("help-topic-toc")).not.toBeInTheDocument();
 
     const primaryAction = screen.getByTestId("help-admin-diagnostics-primary-action");
