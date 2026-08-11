@@ -109,7 +109,7 @@ Use these stable tokens for a **single** walkthrough session (aligned with `src/
 
 **Justification:** Vitest can assert strings exist; only a human catches awkward synonyms that break trust on a live walkthrough.
 
-**Source of truth:** `archlucid-ui/src/lib/buyer-surface-vocabulary.ts`, `buyer-polish-copy.ts`.
+**Source of truth:** `archlucid-ui/src/lib/vocabulary/buyer-surface-vocabulary.ts`, `buyer-polish-copy.ts`.
 
 ---
 

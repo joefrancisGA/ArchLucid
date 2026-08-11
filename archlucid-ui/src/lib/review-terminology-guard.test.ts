@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 
-import { ARCHITECTURE_REVIEW_VOCABULARY } from "@/lib/architecture-review-vocabulary";
+import { ARCHITECTURE_REVIEW_VOCABULARY } from "@/lib/vocabulary/architecture-review-vocabulary";
 import {
   OPERATOR_HOME_WORKSPACE_EMPTY_BODY,
   OPERATOR_HOME_WORKSPACE_EMPTY_TITLE,
@@ -12,7 +12,7 @@ import {
 import { FIRST_PILOT_BUYER_COPY } from "@/lib/first-pilot-buyer-copy";
 import { RUNS_EMPTY } from "@/lib/empty-state-presets";
 import { RUNS_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
-import { governanceModeVocabulary } from "@/lib/governance-mode-vocabulary";
+import { governanceModeVocabulary } from "@/lib/vocabulary/governance-mode-vocabulary";
 import { OPERATOR_NAV_LINK_LABELS, RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
 import { COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-curated-tasks";
 import { ROUTE_TITLES } from "@/lib/route-static-titles";

@@ -34,7 +34,7 @@ import {
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 
-import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_TERMINOLOGY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 

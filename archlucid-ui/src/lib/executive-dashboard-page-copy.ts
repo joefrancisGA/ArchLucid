@@ -1,4 +1,4 @@
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 
 export const EXECUTIVE_DASHBOARD_PAGE_TITLE = BUYER_EXECUTIVE_SUMMARY_VOCABULARY.portfolioPageTitle;
 

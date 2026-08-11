@@ -163,12 +163,12 @@ These terms must not appear in any customer-visible rendered text (page titles, 
 ### Batch 1: P0 — three files, five string changes
 
 ```
-archlucid-ui/src/lib/buyer-surface-vocabulary.ts
+archlucid-ui/src/lib/vocabulary/buyer-surface-vocabulary.ts
   evaluationFeedback: "Pilot feedback" → "Review feedback"
   evaluationValueReport: "Evaluation value report" → "Review value report"
   costEvidenceNotConfiguredFootnote: "Add Azure cost evidence..." → "Add cost evidence (Azure, AWS, or GCP spend data)..."
 
-archlucid-ui/src/lib/core-pilot-path-vocabulary.ts
+archlucid-ui/src/lib/vocabulary/core-pilot-path-vocabulary.ts
   evaluationStandards: "Evaluation standards" → "Review standards"
 
 archlucid-ui/src/lib/buyer-polish-copy.ts
@@ -183,7 +183,7 @@ archlucid-ui/src/lib/buyer-polish-copy.ts
   BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL: "Committed reviews" → "Finalized reviews"
   OPERATOR_GRAPH_PAGE_SUBTITLE: "committed review package" → "finalized architecture package"
 
-archlucid-ui/src/lib/buyer-surface-vocabulary.ts
+archlucid-ui/src/lib/vocabulary/buyer-surface-vocabulary.ts
   emptyStateDescription: "...after you commit..." → "...after you finalize..."
   portfolioMetricsUnavailableDescription: "Commit a review package..." → "Finalize an architecture package..."
 ```

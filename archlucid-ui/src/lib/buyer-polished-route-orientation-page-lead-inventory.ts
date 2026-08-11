@@ -7,7 +7,7 @@ import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import {
   BUYER_EXECUTIVE_SUMMARY_VOCABULARY,
   PILOT_FEEDBACK_VOCABULARY,
-} from "@/lib/buyer-surface-vocabulary";
+} from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { GOVERNANCE_SETUP_PAGE_SUBTITLE } from "@/lib/governance-setup-route";
 import { GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance-overview-copy";
 import { RECURRENCE_SCHEDULES_PAGE_SUBTITLE } from "@/lib/recurrence-schedules-copy";

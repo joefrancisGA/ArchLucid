@@ -1,5 +1,6 @@
 import { REVIEWS_NEW_PATH } from "@/lib/architecture-routes";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
+import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const REVIEW_GUIDE_HELP_PATH = "/help/review-guide" as const;
@@ -22,7 +23,7 @@ export const REVIEW_GUIDE_HELP_PRIMARY_ACTIONS = {
     href: REVIEWS_NEW_PATH,
   },
   firstReviewGuide: {
-    label: "Your first architecture review",
+    label: "New here? Guided walkthrough",
     href: FIRST_REVIEW_GUIDE_PATH,
   },
   findingsGuide: {
@@ -30,3 +31,38 @@ export const REVIEW_GUIDE_HELP_PRIMARY_ACTIONS = {
     href: inAppHelpHref("findings"),
   },
 } as const;
+
+/** Title-block as-of line for `/help/review-guide` (does not use shared registry formatter). */
+export function formatReviewGuideHelpProvenanceLine(entry: ProductDocumentationEntry): string | null {
+  const parts: string[] = [];
+
+  if (entry.lastReviewed !== undefined && entry.lastReviewed.trim().length > 0) {
+    parts.push(`Last reviewed: ${entry.lastReviewed.trim()}`);
+  }
+
+  const sourcePath = entry.sourcePaths[0];
+
+  if (sourcePath !== undefined && sourcePath.trim().length > 0) {
+    const segments = sourcePath.trim().replace(/\\/g, "/").split("/");
+    const fileName = segments[segments.length - 1];
+
+    if (fileName !== undefined && fileName.length > 0) {
+      parts.push(`Source: ${fileName}`);
+    }
+  }
+
+  if (parts.length === 0) {
+    return null;
+  }
+
+  return parts.join(" · ");
+}
+
+/** Removes the pinned claim sentence from body markdown so the bordered notice is the single on-page copy. */
+export function stripReviewGuideClaimDisciplineFromMarkdown(markdown: string): string {
+  return markdown
+    .split(REVIEW_GUIDE_HELP_CLAIM_DISCIPLINE)
+    .join("")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}

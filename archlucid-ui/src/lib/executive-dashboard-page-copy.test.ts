@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import {
   EXECUTIVE_DASHBOARD_PAGE_SUBTITLE_BUYER,
   EXECUTIVE_DASHBOARD_PAGE_SUBTITLE_OPERATOR,

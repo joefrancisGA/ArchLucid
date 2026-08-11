@@ -4,7 +4,7 @@ import {
   BILLING_ADDITIONAL_ARCHITECTURE_PACKAGES_LABEL,
   BILLING_INCLUDED_AI_CREDITS_LABEL,
   BILLING_INCLUDED_ARCHITECTURE_PACKAGES_LABEL,
-} from "./billing-meter-vocabulary";
+} from "./vocabulary/billing-meter-vocabulary";
 import {
   buildOperatorBillingAddonLines,
   buildOperatorBillingPlanSummaryLines,

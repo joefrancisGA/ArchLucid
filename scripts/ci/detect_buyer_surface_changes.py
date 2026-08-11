@@ -16,7 +16,7 @@ BUYER_SURFACE_PREFIXES: tuple[str, ...] = (
     "docs/BUYER_FIRST_30_MINUTES.md",
     "docs/library/V1_SCOPE.md",
     "archlucid-ui/src/app/(marketing)/",
-    "archlucid-ui/src/lib/buyer-surface-vocabulary.ts",
+    "archlucid-ui/src/lib/vocabulary/buyer-surface-vocabulary.ts",
     "archlucid-ui/src/lib/marketing-",
     "templates/briefs/",
 )

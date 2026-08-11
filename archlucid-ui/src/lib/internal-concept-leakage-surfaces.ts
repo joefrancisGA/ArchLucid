@@ -22,7 +22,7 @@ export const INTERNAL_CONCEPT_LEAKAGE_BANNED_PATTERNS = [
  * End-state rule and remaining backfill: docs/library/VOCABULARY_ROSETTA.md.
  */
 export const BUYER_VOCABULARY_LEAKAGE_SURFACES = [
-  "src/lib/buyer-surface-vocabulary.ts",
+  "src/lib/vocabulary/buyer-surface-vocabulary.ts",
   "src/lib/buyer-polish-copy.ts",
   "src/lib/executive-dashboard-page-copy.ts",
   "src/lib/review-scorecard-empty-state.ts",

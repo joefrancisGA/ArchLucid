@@ -4,7 +4,7 @@
  * to use share link vs print vs export, not what a created link allows.
  */
 
-import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 
 export type ReviewPackageShareWhenToShareRowId = "shareLink" | "print" | "export";
 

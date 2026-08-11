@@ -1,4 +1,4 @@
-import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/core-pilot-path-vocabulary";
+import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/vocabulary/core-pilot-path-vocabulary";
 
 /** Policy reference token sent when focused pilot mode is enabled on review intake. */
 export const FOCUSED_PILOT_MODE_POLICY_REFERENCE = "pilot-mode:security-baseline-cost-only";

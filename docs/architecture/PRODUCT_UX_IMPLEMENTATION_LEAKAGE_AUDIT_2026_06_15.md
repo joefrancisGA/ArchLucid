@@ -262,7 +262,7 @@ This is not primarily a design problem; it is a **defaults and disclosure** prob
 | --- | --- |
 | Header AI-budget pill (dev chrome gate) | `archlucid-ui/src/components/shell/OperatorShellTopBar.tsx` |
 | AI-budget pill label + authority gate | `archlucid-ui/src/components/LlmBudgetStatusPill.tsx` |
-| Buyer vocabulary pass (demo-gated) | `archlucid-ui/src/lib/buyer-demo-vocabulary.ts` |
+| Buyer vocabulary pass (demo-gated) | `archlucid-ui/src/lib/vocabulary/buyer-demo-vocabulary.ts` |
 | Nav labels / Service Bus banner copy | `archlucid-ui/src/lib/i18n.ts` |
 | Pilot nav — "Evidence intake" | `archlucid-ui/src/lib/pilot-nav-group-builder.ts` |
 | Start-review label overrides | `archlucid-ui/src/lib/operator-nav-labels.ts` |

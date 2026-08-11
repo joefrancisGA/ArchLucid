@@ -14,7 +14,7 @@ import {
   BUYER_EXECUTIVE_SUMMARY_VOCABULARY,
   BUYER_SURFACE_VOCABULARY,
   BUYER_TERMINOLOGY,
-} from "@/lib/buyer-surface-vocabulary";
+} from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { EVIDENCE_TRAIL_SEARCH } from "@/lib/search-surface-disambiguation";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import {

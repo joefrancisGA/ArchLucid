@@ -22,7 +22,7 @@ import type { FirstPilotReadinessStatus } from "@/lib/first-pilot-readiness-cock
 import {
   mapReadinessStatusToStatusTagLabel,
   mapSponsorDispositionToEnterpriseKind,
-} from "@/lib/first-pilot-operator-status-vocabulary";
+} from "@/lib/vocabulary/first-pilot-operator-status-vocabulary";
 import {
   ENTERPRISE_STATUS_LABELS,
   enterpriseStatusTagClass,

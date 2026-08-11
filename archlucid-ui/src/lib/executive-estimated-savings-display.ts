@@ -1,7 +1,7 @@
 import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
 import { hasExecutiveCommittedReviews } from "@/lib/executive-dashboard-workspace-state";
 import { formatUsd } from "@/lib/roi-assumptions";
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 
 export type ExecutiveEstimatedSavingsPresentation = {
   readonly display: string;

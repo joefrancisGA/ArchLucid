@@ -3363,7 +3363,7 @@ Do not sell per-tenant fair share of shared TPM, claim token budgets isolate ten
 
 ### Residuals (honest)
 
-- **TB-1577** / **TB-1578** own the claim map and language guards.
+- **TB-1577** **Done** (claim map); **TB-1578** owns language guards (open).
 - TPM-aware admission remains open (**TB-1336** / **M-237**/**M-238**).
 - Complements **M-229**/**M-230**, **M-182**/**M-183**, **G-SCALE-01**/**G-SCALE-02**.
 - Distinct from spend-storm **M-294**/**M-295**.

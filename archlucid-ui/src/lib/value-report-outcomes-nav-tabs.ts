@@ -7,7 +7,7 @@ import {
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
   SPONSOR_REPORT_SECTION_LABEL,
 } from "@/lib/sponsor-report-navigation";
-import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_TERMINOLOGY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 
 export type ValueReportOutcomesTab = {
   readonly href: string;

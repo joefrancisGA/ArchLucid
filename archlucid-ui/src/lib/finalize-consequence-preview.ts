@@ -1,9 +1,9 @@
-﻿/**
+/**
  * Buyer-facing finalize consequence preview (TB-2224).
  * What locks, what stays editable, and what exports unlock - architecture package nouns.
  */
 
-import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 
 export const FINALIZE_CONSEQUENCE_PREVIEW_TITLE = "What finalizing does" as const;
 

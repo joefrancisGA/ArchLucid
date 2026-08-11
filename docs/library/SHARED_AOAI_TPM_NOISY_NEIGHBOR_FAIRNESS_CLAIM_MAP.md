@@ -4,7 +4,7 @@
 
 **Audience:** Engineering, security reviewers, principal-architect diligence. Not a buyer brochure.
 
-**Status:** Working contract for **TB-1577** / GTM **M-296**. Pair honesty CI **TB-1578** / **M-296**.
+**Status:** **Done** (2026-08-11) for **TB-1577** / GTM **M-296**. Pair honesty CI **TB-1578** / **M-296** (open).
 
 **Verdict (one line):** There is **no cross-tenant fair share of shared Azure OpenAI TPM** today — only per-tenant **spend/abuse caps** and per-tenant HTTP rate limits. When tenant A saturates the deployment, tenant B shares Polly **429 → optional secondary AOAI → shared circuit breaker → Partial/Failed** (not fair-queue, not silent “slow success”).
 
@@ -64,9 +64,9 @@
 |----|------|
 | Open **TB-1336**–**TB-1337**, **M-237**/**M-238** | 100× / **TPM-aware admission** capacity ledger |
 | Open **TB-1032**–**TB-1033**, **M-182**/**M-183** | Launch-load shape (≠ sustained TPM fairness) |
-| Open **TB-1299**–**TB-1300**, **M-229**/**M-230** | Execute policy under AOAI 429 |
-| Open **TB-915**/**TB-946**/**TB-947**, **G-SCALE-01**/**G-SCALE-02** | CA scale + TPM ceiling + drills |
-| Open **TB-1287** / **M-225**, **TB-1570** / **M-294** | FinOps / spend-storm (adjacent) |
+| Done **TB-1299**; open **TB-1300**, **M-229**/**M-230** | Execute policy under AOAI 429 |
+| Done **TB-915**/**TB-946**/**TB-947**; **G-SCALE-01**/**G-SCALE-02** | CA scale + TPM ceiling + drills |
+| Done **TB-1287** / **M-225**, Done **TB-1570** / **M-294** | FinOps / spend-storm (adjacent) |
 | **TB-1577** / **M-296** | This noisy-neighbor fairness claim map |
 
 ---

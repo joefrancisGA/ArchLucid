@@ -10,7 +10,7 @@ import {
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE,
 } from "@/lib/showcase-static-demo";
-import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 /**

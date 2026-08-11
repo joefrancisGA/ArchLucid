@@ -1,7 +1,7 @@
 import { tryResolveInAppDocHref, resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
 import { isInternalRunbookSlug } from "@/lib/product-documentation-content-kinds";
-import { PERSONA_SHELL_WORKSPACE_UI_MAP_LABEL } from "@/lib/persona-shell-vocabulary";
+import { PERSONA_SHELL_WORKSPACE_UI_MAP_LABEL } from "@/lib/vocabulary/persona-shell-vocabulary";
 
 function documentationSearchItemResolvesToInternalRunbook(relativeDocsPath: string): boolean {
   const href = tryResolveInAppDocHref(relativeDocsPath);

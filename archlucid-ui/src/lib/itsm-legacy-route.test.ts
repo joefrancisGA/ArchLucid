@@ -61,7 +61,7 @@ const ITSM_PRODUCT_DEEP_LINK_SURFACES = [
   "archlucid-ui/src/components/work-items/CreateWorkItemDialog.tsx",
 ] as const;
 
-describe("ITSM removed hub route (pre-release cleanup)", () => {
+describe("ITSM removed hub route (TB-1777 / TB-1778)", () => {
   it("does not redirect removed hub / operations / readiness paths", async () => {
     const redirectRules = await nextConfig.redirects?.();
 

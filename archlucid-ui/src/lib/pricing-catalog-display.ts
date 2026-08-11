@@ -4,7 +4,7 @@ import {
   BILLING_CUSTOM_AI_ALLOWANCE_VALUE,
   BILLING_INCLUDED_AI_CREDITS_LABEL,
   BILLING_INCLUDED_ARCHITECTURE_PACKAGES_LABEL,
-} from "@/lib/billing-meter-vocabulary";
+} from "@/lib/vocabulary/billing-meter-vocabulary";
 import {
   MARKETING_PRICING_TIER_ORDER,
   type MarketingPricingTierId,

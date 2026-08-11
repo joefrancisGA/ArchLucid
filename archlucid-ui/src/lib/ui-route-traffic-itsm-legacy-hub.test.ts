@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { extractMasterTableRows, readUiRouteTrafficEstimatesTemplateMarkdown } from "@/lib/testing/ui-route-traffic-workbook-test-utils";
 
-describe("ui-route-traffic removed ITSM hub (pre-release cleanup)", () => {
+describe("ui-route-traffic removed ITSM hub (TB-1779)", () => {
   it("drops the IIX legacy ITSM hub row from the traffic workbook", () => {
     const rows = extractMasterTableRows(readUiRouteTrafficEstimatesTemplateMarkdown());
 

@@ -3,7 +3,7 @@ import {
   EXECUTIVE_DASHBOARD_HREF,
   EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF,
 } from "@/lib/executive-dashboard-route";
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance-overview-copy";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";

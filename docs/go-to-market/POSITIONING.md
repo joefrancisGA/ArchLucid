@@ -1,4 +1,4 @@
-﻿> **Reviewed:** 2026-08-03
+> **Reviewed:** 2026-08-03
 
 > **Scope:** ArchLucid positioning — full detail, tables, and links below — plus the closed create/review adversarial evaluation (formerly `CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md`; Done **TB-738**–**TB-747**) and the product datasheet (formerly the body of `PRODUCT_DATASHEET.md`; that filename remains a path-stable alias for PDF/CI callers).
 
@@ -30,7 +30,7 @@
 | **Verbs never in the hero** | Marketing heroes, demo openers, and homepage cards lead with **package outcomes** (evidence-backed, defensible, exportable), not "create architecture," generation speed, or "beats ChatGPT" framing. |
 | **Trust ladder** | **Review-led** first (sample, intake, evidence-backed review), then a **creation bridge** on the same outputs ([TB-739](GTM_BACKLOG.md) home copy, [TB-742](../library/TECH_BACKLOG.md) created sample, [TB-745](DEMO_QUICKSTART.md#demo-scripts) demo scripts). |
 
-Canonical in-product labels: [`buyer-surface-vocabulary.ts`](../../archlucid-ui/src/lib/buyer-surface-vocabulary.ts). Brand voice: [`BRAND_SYSTEM.md`](../brand/BRAND_SYSTEM.md) §1.
+Canonical in-product labels: [`buyer-surface-vocabulary.ts`](../../archlucid-ui/src/lib/vocabulary/buyer-surface-vocabulary.ts). Brand voice: [`BRAND_SYSTEM.md`](../brand/BRAND_SYSTEM.md) §1.
 
 ### Create vs review — adversarial evaluation (closed) {#create-vs-review--adversarial-evaluation-closed}
 
