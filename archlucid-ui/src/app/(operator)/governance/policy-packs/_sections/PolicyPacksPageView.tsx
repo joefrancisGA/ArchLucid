@@ -30,6 +30,7 @@ import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCal
 import { PatternLibraryPolicyPacksVocabularyRail } from "@/components/PatternLibraryPolicyPacksVocabularyRail";
 import { PolicyPackDetailHubVocabularyRail } from "@/components/PolicyPackDetailHubVocabularyRail";
 import { PolicyPacksStandardsVocabularyRail } from "@/components/PolicyPacksStandardsVocabularyRail";
+import { GovernanceSetupConfigHubsVocabularyRail } from "@/components/GovernanceSetupConfigHubsVocabularyRail";
 import {
   Tabs,
   TabsContent,
@@ -100,6 +101,7 @@ className="mb-3"
       <PolicyPacksStandardsVocabularyRail currentSurfaceId="policy-packs" />
       <PatternLibraryPolicyPacksVocabularyRail currentSurfaceId="policy-packs" />
       <PolicyPackDetailHubVocabularyRail currentSurfaceId="policy-packs" />
+      <GovernanceSetupConfigHubsVocabularyRail currentSurfaceId="policy-packs" />
 
       {m.publishSuccessMessage !== null ? (
         <OperatorSuccessCallout

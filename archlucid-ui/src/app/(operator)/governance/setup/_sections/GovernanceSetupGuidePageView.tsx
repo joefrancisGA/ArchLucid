@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { GovernanceSetupConfigHubsVocabularyRail } from "@/components/GovernanceSetupConfigHubsVocabularyRail";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { GOVERNANCE_SETUP_PAGE_SUBTITLE } from "@/lib/governance-setup-route";
 
@@ -30,6 +31,8 @@ export function GovernanceSetupGuidePageView({ model }: GovernanceSetupGuidePage
       >
         <GovernanceSetupGuideProgressSummary summary={progress} />
       </OperatorPageHeader>
+
+      <GovernanceSetupConfigHubsVocabularyRail currentSurfaceId="setup" />
 
       <p
         className={cn(
