@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 
+import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { Button } from "@/components/ui/button";
 import {
   EnterpriseTable,
@@ -68,6 +69,10 @@ export function AdminTenantsPageClient() {
   const [actionMessage, setActionMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [mutatingId, setMutatingId] = useState<string | null>(null);
+  const [pendingTenantAction, setPendingTenantAction] = useState<{
+    kind: "shut-off" | "turn-on";
+    row: AdminTenantRecord;
+  } | null>(null);
 
   const [name, setName] = useState("");
   const [adminEmail, setAdminEmail] = useState("");
@@ -148,27 +153,7 @@ export function AdminTenantsPageClient() {
       return;
     }
 
-    const confirmed = window.confirm(
-      `Shut off tenant "${row.name ?? id}"? API access for that tenant will be suspended. Data is retained.`,
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
-    setMutatingId(id);
-    setError(null);
-    setActionMessage(null);
-
-    try {
-      await suspendAdminTenant(id);
-      setActionMessage(`Shut off ${row.name ?? id}.`);
-      await refresh();
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Failed to shut off tenant.");
-    } finally {
-      setMutatingId(null);
-    }
+    setPendingTenantAction({ kind: "shut-off", row });
   }
 
   async function onTurnOn(row: AdminTenantRecord) {
@@ -178,16 +163,44 @@ export function AdminTenantsPageClient() {
       return;
     }
 
+    setPendingTenantAction({ kind: "turn-on", row });
+  }
+
+  async function confirmPendingTenantAction(): Promise<void> {
+    if (pendingTenantAction === null || mutatingId !== null) {
+      return;
+    }
+
+    const row = pendingTenantAction.row;
+    const id = row.id?.trim() ?? "";
+
+    if (id.length === 0) {
+      return;
+    }
+
     setMutatingId(id);
     setError(null);
     setActionMessage(null);
 
     try {
-      await unsuspendAdminTenant(id);
-      setActionMessage(`Turned on ${row.name ?? id}.`);
+      if (pendingTenantAction.kind === "shut-off") {
+        await suspendAdminTenant(id);
+        setActionMessage(`Shut off ${row.name ?? id}.`);
+      } else {
+        await unsuspendAdminTenant(id);
+        setActionMessage(`Turned on ${row.name ?? id}.`);
+      }
+
+      setPendingTenantAction(null);
       await refresh();
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Failed to turn tenant back on.");
+      setError(
+        e instanceof Error
+          ? e.message
+          : pendingTenantAction.kind === "shut-off"
+            ? "Failed to shut off tenant."
+            : "Failed to turn tenant back on.",
+      );
     } finally {
       setMutatingId(null);
     }
@@ -391,6 +404,29 @@ export function AdminTenantsPageClient() {
           })}
         </EnterpriseTableBody>
       </EnterpriseTable>
+
+      <ConfirmationDialog
+        open={pendingTenantAction !== null}
+        onOpenChange={(open) => {
+          if (!open && mutatingId === null) {
+            setPendingTenantAction(null);
+          }
+        }}
+        title={
+          pendingTenantAction?.kind === "turn-on" ? "Turn tenant back on?" : "Shut off tenant?"
+        }
+        description={
+          pendingTenantAction?.kind === "turn-on"
+            ? `Restore API access for tenant "${pendingTenantAction.row.name ?? pendingTenantAction.row.id ?? "this tenant"}"?`
+            : `Shut off tenant "${pendingTenantAction?.row.name ?? pendingTenantAction?.row.id ?? "this tenant"}"? API access for that tenant will be suspended. Data is retained.`
+        }
+        confirmLabel={pendingTenantAction?.kind === "turn-on" ? "Turn back on" : "Shut off tenant"}
+        variant={pendingTenantAction?.kind === "turn-on" ? "default" : "destructive"}
+        busy={mutatingId !== null}
+        onConfirm={() => {
+          void confirmPendingTenantAction();
+        }}
+      />
     </div>
   );
 }
