@@ -24,7 +24,7 @@ const STATIC_DEMO_COPY: DemoVsLiveChromeCopy = {
   mode: "static-demo",
   bannerTitle: "NOT LIVE DATA",
   bannerBody:
-    "Demonstration / curated sample workspace — this is not your tenant and is not a live architecture package.",
+    "Demonstration / curated sample workspace — this is not your tenant and is not a live architecture review.",
   watermark: "DEMO — NOT LIVE",
   testId: "demo-vs-live-chrome-static-demo",
 };

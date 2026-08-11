@@ -1,4 +1,4 @@
-> **Scope:** TB-1311 contract — first async-orchestration forcing workload and commit-safe run state machine freeze.
+> **Scope:** Contributor-reference — TB-1311 contract — first async-orchestration forcing workload and commit-safe run state machine freeze.
 
 # Async orchestration first force (TB-1311)
 

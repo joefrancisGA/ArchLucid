@@ -50,7 +50,7 @@ export function OperatorDemoStaticBanner(props: OperatorDemoStaticBannerProps): 
       </span>
       {props.emphasizeSampleData === true ? (
         <span className="mt-1 block font-bold text-amber-950 dark:text-amber-100">
-          Sample data — not your tenant. Not a live architecture package.
+          Sample data — not your tenant. Not a live architecture review.
         </span>
       ) : null}
     </div>

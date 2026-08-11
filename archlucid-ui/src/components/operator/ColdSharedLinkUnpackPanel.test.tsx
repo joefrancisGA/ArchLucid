@@ -13,7 +13,7 @@ describe("ColdSharedLinkUnpackPanel (TB-2181)", () => {
           packageTitle: "Claims intake modernization",
           statusLabel: "Finalized",
           statusKind: "ready",
-          whyYouAreHere: "You were invited to review this architecture package.",
+          whyYouAreHere: "You were invited to review this architecture review.",
           primaryCtaHref: "/architecture/reviews/run-abc?reviewTab=findings",
           primaryCtaLabel: "Review findings",
         }}

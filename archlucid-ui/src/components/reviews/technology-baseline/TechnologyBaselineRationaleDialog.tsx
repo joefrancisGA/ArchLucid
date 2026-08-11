@@ -50,7 +50,7 @@ export function TechnologyBaselineRationaleDialog({
         <DialogHeader>
           <DialogTitle>Edit technology choice rationale</DialogTitle>
           <DialogDescription>
-            Record why this technology choice is authoritative for the architecture package before finalize.
+            Record why this technology choice is authoritative for the architecture review before finalize.
           </DialogDescription>
         </DialogHeader>
 

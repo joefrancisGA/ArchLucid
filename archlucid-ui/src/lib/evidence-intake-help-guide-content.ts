@@ -18,7 +18,7 @@ import {
 export const EVIDENCE_INTAKE_HELP_PAGE_TITLE = "Start a review" as const;
 
 export const EVIDENCE_INTAKE_HELP_HERO_OVERVIEW =
-  "Attach architecture evidence, pick a starting path on New architecture review, then verify uploads before you finalize the architecture package.";
+  "Attach architecture evidence, pick a starting path on New architecture review, then verify uploads before you finalize the architecture review.";
 
 export const EVIDENCE_INTAKE_HELP_PATH_PANEL_TITLE = "Choose a starting path";
 
@@ -74,7 +74,7 @@ export type EvidenceIntakeHelpVerifyStep = {
 export const EVIDENCE_INTAKE_HELP_VERIFY_INTAKE_TITLE = "Verify intake before finalize";
 
 export const EVIDENCE_INTAKE_HELP_VERIFY_INTAKE_INTRO =
-  "After you start a review, confirm evidence landed where you expect before you finalize the architecture package.";
+  "After you start a review, confirm evidence landed where you expect before you finalize the architecture review.";
 
 /** Actionable verify steps — honest pending-state copy when no review id is known (TB-1354). */
 export const EVIDENCE_INTAKE_HELP_VERIFY_STEPS: readonly EvidenceIntakeHelpVerifyStep[] = [
@@ -84,7 +84,7 @@ export const EVIDENCE_INTAKE_HELP_VERIFY_STEPS: readonly EvidenceIntakeHelpVerif
     action: { label: "New architecture review", href: REVIEWS_NEW_PATH },
   },
   {
-    title: "Open the architecture package Evidence tab",
+    title: "Open the architecture review Evidence tab",
     body: "After analysis starts, open your in-progress review and use the Evidence tab to confirm attachments.",
     action: { label: "Architecture reviews", href: "/architecture/reviews" },
   },
@@ -104,7 +104,7 @@ export type EvidenceIntakeHelpRelatedGuide = {
 export const EVIDENCE_INTAKE_HELP_RELATED_GUIDES: readonly EvidenceIntakeHelpRelatedGuide[] = [
   { label: "Review guide", href: inAppHelpHref("review-guide") },
   { label: "Cloud connections", href: inAppHelpHref("cloud-connections") },
-  { label: "Architecture packages", href: inAppHelpHref("review-packages") },
+  { label: "Architecture reviews", href: inAppHelpHref("review-packages") },
   { label: "Your first architecture review", href: inAppHelpHref("first-architecture-review") },
 ] as const;
 

@@ -49,7 +49,7 @@ export const DEMO_EXPLAIN_BUYER_SHELL_REDIRECT_HREF = DEMO_EXPLAIN_CONVERSION_SE
 export const DEMO_EXPLAIN_INTERNAL_TOOLING_BADGE_LABEL = "Internal demo tooling";
 
 export const DEMO_EXPLAIN_INTERNAL_ORIENTATION_LEAD =
-  "Full-operator shell only. Buyer-polished environments redirect to the public proof funnel.";
+  "Full architect workspace only. Buyer-polished environments redirect to the public proof funnel.";
 
 export const DEMO_EXPLAIN_INTERNAL_PUBLIC_PROOF_LINK_LABEL = SEE_IT_PAGE_TITLE;
 

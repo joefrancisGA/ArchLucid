@@ -21,7 +21,7 @@ describe("digest-recurrence-schedule-vocabulary (TB-2226)", () => {
     expect(model.whyTwo).toBe(DIGEST_RECURRENCE_SCHEDULE_WHY_TWO);
     expect(model.whyTwo.toLowerCase()).toContain("email");
     expect(model.whyTwo.toLowerCase()).toContain("re-review");
-    expect(model.whyTwo.toLowerCase()).toContain("architecture package");
+    expect(model.whyTwo.toLowerCase()).toContain("architecture review");
     expect(model.compactLine).toBe(DIGEST_RECURRENCE_SCHEDULE_COMPACT_LINE);
 
     expect(model.digestLink).toEqual(DIGEST_RECURRENCE_SCHEDULE_DIGEST_LINK);

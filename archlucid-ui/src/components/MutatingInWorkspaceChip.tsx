@@ -60,7 +60,6 @@ export function MutatingInWorkspaceChip(props: MutatingInWorkspaceChipProps): JS
       className={cn("inline-flex max-w-full items-center", props.className)}
       data-testid="mutating-in-workspace-chip"
       data-prefix={MUTATING_IN_WORKSPACE_CHIP_PREFIX}
-      title={copy.label}
     >
       <StatusTag kind="neutral" label={copy.label} data-testid="mutating-in-workspace-chip-tag" />
     </span>

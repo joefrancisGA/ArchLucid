@@ -18,7 +18,7 @@ const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteView
     explanation: {
       title: "Compare two reviews",
       summary:
-        "Diff two architecture packages side by side — findings, severity shifts, and what changed between reviews.",
+        "Diff two architecture reviews side by side — findings, severity shifts, and what changed between reviews.",
       nextAction: "Pick a baseline and a later review, then scan severity and finding deltas.",
     },
   },
@@ -63,7 +63,7 @@ const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteView
     explanation: {
       title: "Home",
       summary:
-        "Workspace overview — recent reviews, pilot progress, and the next action for your architecture packages.",
+        "Workspace overview — recent reviews, pilot progress, and the next action for your architecture reviews.",
       nextAction: "Open a recent review or start a new architecture review from the primary CTA.",
     },
   },

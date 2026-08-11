@@ -19,7 +19,7 @@ function firstSearchParam(value: string | string[] | undefined): string | null {
   return null;
 }
 
-export default async function EvolutionReviewPage(props: EvolutionReviewPageProps) {
+export default async function EvolutionReviewPage(props: EvolutionReviewPageProps = {}) {
   const searchParams = props.searchParams != null ? await props.searchParams : undefined;
   const candidateId = firstSearchParam(searchParams?.candidateId);
   const loaded = await loadEvolutionReviewPageData({ candidateId });

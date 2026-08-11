@@ -1,11 +1,11 @@
 /**
- * Operator shell offline → reconnect banner copy and visibility (TB-2214).
+ * Architect workspace offline → reconnect banner copy and visibility (TB-2214).
  */
 
 export const OPERATOR_OFFLINE_RECONNECT_TITLE = "Connection lost";
 
 export const OPERATOR_OFFLINE_RECONNECT_BODY =
-  "You appear to be offline. Architecture package data may be stale until the connection returns.";
+  "You appear to be offline. Architecture review data may be stale until the connection returns.";
 
 export const OPERATOR_OFFLINE_RECONNECT_RETRY_LABEL = "Retry";
 
@@ -18,7 +18,7 @@ export function shouldShowOperatorOfflineReconnectBanner(isOnline: boolean): boo
   return isOnline !== true;
 }
 
-/** Initial online state for the operator shell (SSR-safe default: online). */
+/** Initial online state for the architect workspace (SSR-safe default: online). */
 export function readNavigatorOnline(): boolean {
   if (typeof navigator === "undefined") {
     return true;

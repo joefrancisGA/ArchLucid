@@ -1,4 +1,4 @@
-﻿import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import {
@@ -16,7 +16,7 @@ describe("finalize-consequence-preview (TB-2224)", () => {
     const preview = buildFinalizeConsequencePreview();
 
     expect(preview.title).toBe(FINALIZE_CONSEQUENCE_PREVIEW_TITLE);
-    expect(preview.summary.toLowerCase()).toContain("architecture package");
+    expect(preview.summary.toLowerCase()).toContain("architecture review");
     expect(preview.summary.toLowerCase()).toContain(
       BUYER_SURFACE_VOCABULARY.signedReviewRecord.toLowerCase(),
     );

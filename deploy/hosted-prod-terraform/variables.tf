@@ -104,7 +104,9 @@ variable "search_service_name" {
 
 variable "search_sku_name" {
   type        = string
-  description = "Azure AI Search SKU."
+  # Cost-default basic; raise to standard when retrieval p95 / QPS needs it (AI_SEARCH_SKU_GUIDANCE.md).
+  # Vector HNSW (m / efConstruction / efSearch) is index JSON, not this SKU knob.
+  description = "Azure AI Search SKU (basic cost default; standard under load)."
   default     = "basic"
 }
 

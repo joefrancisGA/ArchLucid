@@ -5,7 +5,7 @@
  * - Digests executive schedule (`/architecture/digests?tab=schedule`) is the
  *   *sponsor email cadence* for architecture digest delivery.
  * - Recurrence schedules (`/governance/recurrence-schedules`) automate
- *   *re-review of architecture packages* on a repeating cadence.
+ *   *re-review of architecture reviews* on a repeating cadence.
  *
  * They stay separate because email cadence is not the same as automated
  * follow-up review. Operators need both surfaces with deep links so they do
@@ -37,10 +37,10 @@ export type DigestRecurrenceScheduleVocabularyModel = {
 export const DIGEST_RECURRENCE_SCHEDULE_HEADING = "Two different kinds of schedule" as const;
 
 export const DIGEST_RECURRENCE_SCHEDULE_WHY_TWO =
-  "Executive digests are the sponsor email cadence for architecture package summaries. Recurrence schedules automate re-review of architecture packages on a repeating cadence. Both use the word “schedule,” but one sends email and the other starts follow-up reviews — open the peer link when you need the other kind." as const;
+  "Executive digests are the sponsor email cadence for architecture review summaries. Recurrence schedules automate re-review of architecture reviews on a repeating cadence. Both use the word “schedule,” but one sends email and the other starts follow-up reviews — open the peer link when you need the other kind." as const;
 
 export const DIGEST_RECURRENCE_SCHEDULE_COMPACT_LINE =
-  "Digest schedule emails sponsors; recurrence schedules re-review architecture packages — open the other when you need both." as const;
+  "Digest schedule emails sponsors; recurrence schedules re-review architecture reviews — open the other when you need both." as const;
 
 export const DIGEST_RECURRENCE_SCHEDULE_DIGEST_LINK: DigestRecurrenceScheduleLink = {
   id: "digest-executive-schedule",
@@ -53,7 +53,7 @@ export const DIGEST_RECURRENCE_SCHEDULE_RECURRENCE_LINK: DigestRecurrenceSchedul
   id: "recurrence-schedules",
   label: "Recurrence schedules",
   href: RECURRENCE_SCHEDULES_MANAGE_PATH,
-  whenToUse: "Automate repeating re-review of architecture packages.",
+  whenToUse: "Automate repeating re-review of architecture reviews.",
 };
 
 /** Full vocabulary model (heading, why-two copy, and deep links). */

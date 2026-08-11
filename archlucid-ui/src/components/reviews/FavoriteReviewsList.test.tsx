@@ -33,10 +33,10 @@ describe("FavoriteReviewsList", () => {
     await waitFor(() => {
       expect(screen.getByTestId("favorite-reviews-empty")).toBeInTheDocument();
     });
-    expect(screen.getByText(/Pin architecture packages/i)).toBeInTheDocument();
+    expect(screen.getByText(/Pin architecture reviews/i)).toBeInTheDocument();
   });
 
-  it("lists pinned architecture packages with review links", async () => {
+  it("lists pinned architecture reviews with review links", async () => {
     writeFavoriteReviews([
       { runId: "run-a", title: "Claims package", pinnedAt: "2026-08-10T12:00:00.000Z" },
       { runId: "run-b", pinnedAt: "2026-08-09T12:00:00.000Z" },

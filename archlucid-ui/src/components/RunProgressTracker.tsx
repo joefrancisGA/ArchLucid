@@ -235,7 +235,7 @@ export function RunProgressTracker({
 
   const liveStatus = useMemo(() => {
     if (preFinalizeTerminal) {
-      return "Ready to finalize — use Finalize review to create the signed review record for this architecture package.";
+      return "Ready to finalize — use Finalize review to create the signed review record for this architecture review.";
     }
 
     if (buyerAssessmentCopy) {

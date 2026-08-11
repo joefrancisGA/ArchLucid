@@ -16,9 +16,9 @@ type FavoriteReviewsListProps = {
 
 const DEFAULT_HEADING = "Pinned reviews";
 const DEFAULT_EMPTY =
-  "Pin architecture packages you revisit often — they appear here so you can skip inventory search.";
+  "Pin architecture reviews you revisit often — they appear here so you can skip inventory search.";
 
-/** Lists localStorage favorites with deep links into review packages (TB-2206). */
+/** Lists localStorage favorites with deep links into architecture reviews (TB-2206). */
 export function FavoriteReviewsList(props: FavoriteReviewsListProps): React.JSX.Element {
   const { favorites } = useFavoriteReviews();
   const heading = props.heading ?? DEFAULT_HEADING;

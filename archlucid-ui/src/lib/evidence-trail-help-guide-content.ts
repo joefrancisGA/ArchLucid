@@ -21,7 +21,7 @@ import {
 } from "@/lib/showcase-static-demo";
 
 export const EVIDENCE_TRAIL_HELP_HERO_OVERVIEW =
-  "Open the Evidence graph to trace how findings, artifacts, and governance decisions connect for a finalized architecture package.";
+  "Open the Evidence graph to trace how findings, artifacts, and governance decisions connect for a finalized architecture review.";
 
 export const EVIDENCE_TRAIL_HELP_ACTION_PANEL_TITLE = "Open the Evidence graph";
 
@@ -68,7 +68,7 @@ export type EvidenceTrailHelpRelatedGuide = {
 /** In-app related guides only — trimmed to three high-value follow-ups (TB-1362). */
 export const EVIDENCE_TRAIL_HELP_RELATED_GUIDES: readonly EvidenceTrailHelpRelatedGuide[] = [
   { label: "Review guide", href: inAppHelpHref("review-guide") },
-  { label: "Architecture packages", href: inAppHelpHref("review-packages") },
+  { label: "Architecture reviews", href: inAppHelpHref("review-packages") },
   { label: "Findings", href: inAppHelpHref("findings") },
 ] as const;
 

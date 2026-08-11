@@ -21,7 +21,7 @@ export type PageCapabilityBoundary = {
 export const PAGE_CAPABILITY_BOUNDARY_ASK: PageCapabilityBoundary = {
   heading: PAGE_CAPABILITY_BOUNDARY_DISCLOSURE_SUMMARY,
   items: [
-    "Approve, reject, or finalize architecture packages.",
+    "Approve, reject, or finalize architecture reviews.",
     "Write dispositions into the Decision register or replace formal governance records.",
     "Invent architecture or evidence outside the selected finalized review.",
     "Serve as an unaudited general-purpose chat transcript that becomes your system of record.",

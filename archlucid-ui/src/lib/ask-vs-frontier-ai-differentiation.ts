@@ -28,10 +28,10 @@ export const ASK_VS_FRONTIER_AI_ASK_WILL_NOT_BULLETS = [
 ] as const;
 
 export const ASK_VS_FRONTIER_AI_WHY_PACKAGE_BEATS_CHAT_HEADING =
-  "Why a governed architecture package beats a frontier-chat paste" as const;
+  "Why a governed architecture review beats a frontier-chat paste" as const;
 
 export const ASK_VS_FRONTIER_AI_WHY_PACKAGE_BEATS_CHAT_BULLETS = [
-  "Durable architecture package with an evidence trail you can reopen and export.",
+  "Durable architecture review with an evidence trail you can reopen and export.",
   "Repeatable, audit-ready signed review record — not a one-off transcript.",
   "Sponsor-ready packaging and policy citations without reassembling chat history by hand.",
 ] as const;

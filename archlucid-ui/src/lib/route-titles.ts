@@ -32,7 +32,7 @@ export function getRouteTitle(pathname: string): string {
   }
 
   if (/^\/architecture\/reviews\/[^/]+\/print$/.test(normalized)) {
-    return "Architecture package";
+    return "Architecture review";
   }
 
   if (

@@ -1674,7 +1674,7 @@ There is **no** “migration job completes before any pod starts” gate in the 
 
 1. Ask **who** runs DDL (process startup, not CD SQL job) and **as which identity** (bootstrap MI vs wired runtime split).
 2. Separate **single-file DDL hygiene** (Done **TB-359**) from **rolling ZDT** — expand/contract is discipline, not automatic.
-3. For rollback questions, pair with [`MIGRATION_ROLLBACK.md`](../library/MIGRATION_ROLLBACK.md) — app rollback after non-additive DDL is gated.
+3. For rollback questions, pair with [`MIGRATION_ROLLBACK.md`](../runbooks/MIGRATION_ROLLBACK.md) — app rollback after non-additive DDL is gated.
 
 ### Residuals (honest)
 
@@ -1683,7 +1683,7 @@ There is **no** “migration job completes before any pod starts” gate in the 
 - Optional product follow-ons: dedicated migrator job, wire `ArchLucidRuntime` — not claimed as shipped.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
 
-**Related:** [Azure workload privilege seam (M-216)](#azure-workload-privilege-escalation-seam-m-216) Â· [`MIGRATION_ROLLBACK.md`](../library/MIGRATION_ROLLBACK.md) Â· [`DEPLOYMENT_CD_PIPELINE.md`](../library/DEPLOYMENT_CD_PIPELINE.md) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+**Related:** [Azure workload privilege seam (M-216)](#azure-workload-privilege-escalation-seam-m-216) Â· [`MIGRATION_ROLLBACK.md`](../runbooks/MIGRATION_ROLLBACK.md) Â· [`DEPLOYMENT_CD_PIPELINE.md`](../library/DEPLOYMENT_CD_PIPELINE.md) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## REST + CLI breaking-change compatibility (M-289) {#rest-cli-breaking-change-compatibility-m-289}
 
