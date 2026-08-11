@@ -912,9 +912,9 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1181 | **Done (2026-08-11)** Recycle bin discoverability ? unbury entry from Technical details disclosure; see ## TB-1181 below | Adoption friction P1 ? **V1**; after **TB-1179** | S |
 | TB-1182 | **Done (2026-08-11)** Recycle bin status presentation + operator density; see ## TB-1182 below | Adoption friction P1 ? **V1**; with **TB-1180** | S |
 | TB-1183 | **Done (2026-08-11)** Teams page ? remove Slack notifications cross-link; see ## TB-1183 below | Adoption friction P1 ? **V1**; owner `/integrations/teams` 2026-07-25; with **TB-1178** | XS |
-| TB-1184 | Teams page ? help as icon + caption in PageHeading actions; see ## TB-1184 below | Adoption friction P1 ? **V1**; owner `/integrations/teams` 2026-07-25; with **TB-1178**/**TB-1183** | S |
-| TB-1185 | Slack page ? remove Teams notifications cross-link; see ## TB-1185 below | Adoption friction P1 ? **V1**; owner `/integrations/slack` ~57/100 2026-07-25; parity **TB-1183** | XS |
-| TB-1186 | Slack not-configured ? StatusTag + guided next step; see ## TB-1186 below | Adoption friction P1 ? **V1**; with **TB-1185** | S |
+| TB-1184 | **Done (2026-08-11)** Teams page ? help as icon + caption in PageHeading actions; see ## TB-1184 below | Adoption friction P1 ? **V1**; owner `/integrations/teams` 2026-07-25; with **TB-1178**/**TB-1183** | S |
+| TB-1185 | **Done (2026-08-11)** Slack page ? remove Teams notifications cross-link; see ## TB-1185 below | Adoption friction P1 ? **V1**; owner `/integrations/slack` ~57/100 2026-07-25; parity **TB-1183** | XS |
+| TB-1186 | **Done (2026-08-11)** Slack not-configured ? StatusTag + guided next step; see ## TB-1186 below | Adoption friction P1 ? **V1**; with **TB-1185** | S |
 | TB-1187 | Slack page ? help as icon + caption in PageHeading actions; see ## TB-1187 below | Adoption friction P1 ? **V1**; with **TB-1185**; parity **TB-1184** | S |
 | TB-1188 | Slack help/readiness link dedupe (header vs aside); see ## TB-1188 below | Adoption friction P1 ? **V1**; with **TB-1185**/**TB-1187** | XS |
 | TB-1189 | Slack operator spacing density; see ## TB-1189 below | Adoption friction P1 ? **V1**; with **TB-1185**; cf. **TB-1177** | XS |
@@ -29814,7 +29814,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done (2026-08-11).
 
 **Priority:** P0.
 
@@ -29950,7 +29950,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done (2026-08-11).
 
 **Priority:** P0.
 
@@ -29978,7 +29978,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done (2026-08-11).
 
 **Priority:** P0.
 

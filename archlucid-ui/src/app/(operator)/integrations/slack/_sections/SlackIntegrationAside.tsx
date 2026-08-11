@@ -27,10 +27,6 @@ export function SlackIntegrationAside(): React.ReactElement {
         <Link className={OPERATOR_LINK.inline} href={INTEGRATIONS_READINESS_PATH}>
           Integration readiness
         </Link>
-        . Need a different channel?{" "}
-        <Link className={OPERATOR_LINK.inline} href="/integrations/teams">
-          Configure Microsoft Teams
-        </Link>
         .
       </p>
     </aside>

@@ -5,7 +5,6 @@ import Link from "next/link";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
-import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { TEAMS_INTEGRATION_SECURITY_NOTE } from "@/lib/teams-integration-page-copy";
 import { cn } from "@/lib/utils";
 
@@ -76,10 +75,6 @@ export function TeamsIntegrationAside(props: TeamsIntegrationAsideProps): React.
       ) : null}
 
       <p className={cn("m-0 leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("troubleshooting")}>
-          Microsoft Teams notification help
-        </Link>
-        {" · "}
         <Link className={OPERATOR_LINK.inline} href={INTEGRATIONS_READINESS_PATH}>
           Integration readiness
         </Link>

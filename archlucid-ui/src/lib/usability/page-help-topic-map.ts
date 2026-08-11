@@ -403,7 +403,8 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/integrations/teams",
-    topic: { slug: "alerts", label: "Teams integration" },
+    // TB-1184 — caption matches prior plain-text help; long-form guide is troubleshooting.
+    topic: { slug: "troubleshooting", label: "Microsoft Teams notification help" },
   },
   { prefix: "/administration/connection-status", topic: { slug: "integration-readiness", label: "How integration readiness works" } },
   { prefix: "/administration/developer", topic: { slug: "cli-usage", label: "Internal developer tools" } },

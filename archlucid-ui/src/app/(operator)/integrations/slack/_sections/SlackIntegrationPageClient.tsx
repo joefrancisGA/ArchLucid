@@ -8,6 +8,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { PageHeading } from "@/components/PageHeading";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
+import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { TeamsSlackNotificationVocabularyRail } from "@/components/TeamsSlackNotificationVocabularyRail";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
@@ -29,9 +30,11 @@ import {
 } from "@/lib/slack-integration-form-schema";
 import {
   SLACK_INTEGRATION_DISABLE_CONFIRM,
+  SLACK_INTEGRATION_NOT_CONFIGURED_NEXT_STEP,
   SLACK_INTEGRATION_PAGE_SUBTITLE,
   SLACK_INTEGRATION_PAGE_TITLE,
   slackIntegrationConfigurationStatusLabel,
+  slackIntegrationConfigurationStatusTagKind,
 } from "@/lib/slack-integration-page-copy";
 import {
   SLACK_INTEGRATION_DISABLE_SUCCESS_MESSAGE,
@@ -221,22 +224,30 @@ export function SlackIntegrationPageClient(): React.ReactElement {
             <p className={cn("m-0 max-w-2xl leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               {SLACK_INTEGRATION_PAGE_SUBTITLE}
             </p>
-            <p
-              className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
-              data-testid="slack-configuration-status"
-            >
-              {loading ? "Loading configuration status…" : slackIntegrationConfigurationStatusLabel(activeDestinationCount)}
-            </p>
+            <div className="space-y-2" data-testid="slack-configuration-status">
+              {loading ? (
+                <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                  Loading configuration status…
+                </p>
+              ) : (
+                <StatusTag
+                  kind={slackIntegrationConfigurationStatusTagKind(activeDestinationCount)}
+                  label={slackIntegrationConfigurationStatusLabel(activeDestinationCount)}
+                />
+              )}
+              {!loading && activeDestinationCount === 0 ? (
+                <p
+                  className={cn("m-0 max-w-2xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="slack-not-configured-next-step"
+                >
+                  {SLACK_INTEGRATION_NOT_CONFIGURED_NEXT_STEP}
+                </p>
+              ) : null}
+            </div>
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              See{" "}
               <Link className={OPERATOR_LINK.inline} href={INTEGRATIONS_READINESS_PATH}>
                 Integration readiness
               </Link>
-              . Need a different channel?{" "}
-              <Link className={OPERATOR_LINK.inline} href="/integrations/teams">
-                Configure Microsoft Teams
-              </Link>
-              .
             </p>
           </>
         }

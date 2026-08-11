@@ -27,6 +27,7 @@ vi.mock("@/lib/toast", () => ({
 import { SlackIntegrationPageClient } from "@/app/(operator)/integrations/slack/_sections/SlackIntegrationPageClient";
 import { SLACK_INTEGRATION_SAVE_SUCCESS_MESSAGE } from "@/lib/admin-integration-mutation-outcome-copy";
 import {
+  SLACK_INTEGRATION_NOT_CONFIGURED_NEXT_STEP,
   SLACK_INTEGRATION_PAGE_SUBTITLE,
   SLACK_INTEGRATION_PAGE_TITLE,
 } from "@/lib/slack-integration-page-copy";
@@ -47,8 +48,15 @@ describe("SlackIntegrationPageClient", () => {
 
     expect(screen.getByRole("heading", { level: 1, name: SLACK_INTEGRATION_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(SLACK_INTEGRATION_PAGE_SUBTITLE)).toBeInTheDocument();
-    expect(await screen.findByTestId("slack-configuration-status")).toHaveTextContent("Not configured");
+    expect(await screen.findByTestId("slack-configuration-status")).toContainElement(
+      screen.getByLabelText("Status: Not configured"),
+    );
+    expect(screen.getByTestId("slack-not-configured-next-step")).toHaveTextContent(
+      SLACK_INTEGRATION_NOT_CONFIGURED_NEXT_STEP,
+    );
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Configure Microsoft Teams/i })).not.toBeInTheDocument();
+    expect(screen.queryByText(/Need a different channel\?/i)).not.toBeInTheDocument();
   });
 
   it("renders customer-facing form labels and actions", async () => {
@@ -140,7 +148,10 @@ describe("SlackIntegrationPageClient", () => {
 
     render(<SlackIntegrationPageClient />);
 
-    expect(await screen.findByTestId("slack-configuration-status")).toHaveTextContent("1 active destination");
+    expect(await screen.findByTestId("slack-configuration-status")).toContainElement(
+      screen.getByLabelText("Status: 1 active destination"),
+    );
+    expect(screen.queryByTestId("slack-not-configured-next-step")).not.toBeInTheDocument();
     const table = await screen.findByTestId("slack-destinations-table");
     expect(within(table).getByText("Governance alerts")).toBeInTheDocument();
     expect(screen.queryByText("https://hooks.slack.com/services/SECRET/PATH")).not.toBeInTheDocument();

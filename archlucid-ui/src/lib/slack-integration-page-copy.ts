@@ -41,6 +41,9 @@ export const SLACK_INTEGRATION_DISABLE_SUCCESS = "Slack destination disabled.";
 
 export const SLACK_INTEGRATION_ENABLE_SUCCESS = "Slack destination enabled.";
 
+export const SLACK_INTEGRATION_NOT_CONFIGURED_NEXT_STEP =
+  "Create a Slack incoming webhook, paste the URL below, send a test, then save the destination.";
+
 export function slackIntegrationConfigurationStatusLabel(activeDestinationCount: number): string {
   if (activeDestinationCount === 0) {
     return "Not configured";
@@ -51,6 +54,16 @@ export function slackIntegrationConfigurationStatusLabel(activeDestinationCount:
   }
 
   return `${activeDestinationCount} active destinations`;
+}
+
+export function slackIntegrationConfigurationStatusTagKind(
+  activeDestinationCount: number,
+): "ready" | "needs-attention" {
+  if (activeDestinationCount > 0) {
+    return "ready";
+  }
+
+  return "needs-attention";
 }
 
 export function slackIntegrationDestinationsSupportingText(totalCount: number): string {

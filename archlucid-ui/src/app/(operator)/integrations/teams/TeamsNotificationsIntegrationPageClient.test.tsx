@@ -2,7 +2,11 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
-  PageContextualHelpButton: () => <button type="button">Page help</button>,
+  PageContextualHelpButton: () => (
+    <button type="button" data-testid="page-contextual-help-button">
+      Microsoft Teams notification help
+    </button>
+  ),
 }));
 
 const mockGetConnection = vi.fn();
@@ -105,6 +109,10 @@ describe("TeamsNotificationsIntegrationPageClient", () => {
     expect(screen.getByTestId("teams-not-configured-next-step")).toHaveTextContent(
       TEAMS_INTEGRATION_NOT_CONFIGURED_NEXT_STEP,
     );
+    expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent(
+      "Microsoft Teams notification help",
+    );
+    expect(screen.queryByRole("link", { name: /^Microsoft Teams notification help$/i })).not.toBeInTheDocument();
     expect(screen.queryAllByRole("link", { name: /^Slack notifications$/i })).toHaveLength(0);
   });
 
