@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import { AlertsFindingsDualInboxReconciler } from "@/components/AlertsFindingsDualInboxReconciler";
 import { GovernanceApprovalStatusBanner } from "@/components/governance/GovernanceApprovalStatusBanner";
@@ -40,17 +40,19 @@ import { GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT } from "@/lib/enterprise-co
 import { governanceRegisterMetricPresentation } from "@/lib/metric-count-presentation";
 import { buildSponsorStoryDispositionCountsFromRows } from "@/lib/sponsor-story-synopsis";
 import {
-  EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS,
   matchesFindingsNaturalLanguageFacets,
   type FindingsNaturalLanguageFacets,
 } from "@/lib/findings-natural-language-filter";
 import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import { secondaryViewFromGovernanceQueueRow } from "@/lib/canonical-object-home-registry";
+import {
+  patchGovernanceFindingsQueueFacets,
+  readGovernanceFindingsQueueFacets,
+} from "@/lib/governance-findings-queue-facets-storage";
 import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
 import { cn } from "@/lib/utils";
 import {
-  DEFAULT_FINDING_JOB_VIEW,
   filterGovernanceRowsForJobView,
   type FindingJobView,
 } from "@/lib/finding-job-view";
@@ -62,9 +64,11 @@ export type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
  */
 export default function GovernanceFindingsQueueClient() {
   const [selectedFindingIds, setSelectedFindingIds] = useState<ReadonlySet<string>>(new Set());
-  const [jobView, setJobView] = useState<FindingJobView>(DEFAULT_FINDING_JOB_VIEW);
-  const [nlFacets, setNlFacets] = useState<FindingsNaturalLanguageFacets>(
-    EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS,
+  const [jobView, setJobViewState] = useState<FindingJobView>(
+    () => readGovernanceFindingsQueueFacets().jobView,
+  );
+  const [nlFacets, setNlFacetsState] = useState<FindingsNaturalLanguageFacets>(
+    () => readGovernanceFindingsQueueFacets().nlFacets,
   );
   const { rows, loading, loadFailed, refresh } = useGovernanceFindingsQuery();
   const {
@@ -77,6 +81,16 @@ export default function GovernanceFindingsQueueClient() {
     groupByResource,
     toggleGroupByResource,
   } = useGovernanceFindingsFilter();
+
+  const setJobView = useCallback((next: FindingJobView): void => {
+    setJobViewState(next);
+    patchGovernanceFindingsQueueFacets({ jobView: next });
+  }, []);
+
+  const setNlFacets = useCallback((next: FindingsNaturalLanguageFacets): void => {
+    setNlFacetsState(next);
+    patchGovernanceFindingsQueueFacets({ nlFacets: next });
+  }, []);
 
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const scopedRows = useMemo(

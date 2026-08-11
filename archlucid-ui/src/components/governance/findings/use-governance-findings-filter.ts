@@ -8,6 +8,10 @@ import {
   writeGroupByResourcePreference,
 } from "@/lib/governance-findings-group-by-resource-storage";
 import {
+  patchGovernanceFindingsQueueFacets,
+  readGovernanceFindingsQueueFacets,
+} from "@/lib/governance-findings-queue-facets-storage";
+import {
   riskRegisterFilterFromQuery,
   scopedRunIdFromQuery,
   type RiskRegisterFilter,
@@ -20,10 +24,18 @@ import {
   type GovernanceFindingsFilterPreset,
 } from "@/components/governance/findings/governance-findings-filter-presets";
 
+function initialRegisterFilterFromUrlOrStorage(rawFilter: string | null): RiskRegisterFilter {
+  if (rawFilter !== null && rawFilter.trim().length > 0) {
+    return riskRegisterFilterFromQuery(rawFilter);
+  }
+
+  return readGovernanceFindingsQueueFacets().registerFilter;
+}
+
 export function useGovernanceFindingsFilter() {
   const searchParams = useSearchParams();
-  const [registerFilter, setRegisterFilter] = useState<RiskRegisterFilter>(() =>
-    riskRegisterFilterFromQuery(searchParams.get("filter")),
+  const [registerFilter, setRegisterFilterState] = useState<RiskRegisterFilter>(() =>
+    initialRegisterFilterFromUrlOrStorage(searchParams.get("filter")),
   );
   const [scopedRunId, setScopedRunId] = useState<string | null>(() =>
     scopedRunIdFromQuery(searchParams.get("runId")),
@@ -38,9 +50,22 @@ export function useGovernanceFindingsFilter() {
   }, []);
 
   useEffect(() => {
-    setRegisterFilter(riskRegisterFilterFromQuery(searchParams.get("filter")));
+    const rawFilter = searchParams.get("filter");
+
+    if (rawFilter !== null && rawFilter.trim().length > 0) {
+      const fromUrl = riskRegisterFilterFromQuery(rawFilter);
+
+      setRegisterFilterState(fromUrl);
+      patchGovernanceFindingsQueueFacets({ registerFilter: fromUrl });
+    }
+
     setScopedRunId(scopedRunIdFromQuery(searchParams.get("runId")));
   }, [searchParams]);
+
+  const setRegisterFilter = useCallback((next: RiskRegisterFilter): void => {
+    setRegisterFilterState(next);
+    patchGovernanceFindingsQueueFacets({ registerFilter: next });
+  }, []);
 
   const saveCurrentFilterAsPreset = useCallback((): void => {
     if (registerFilter === "all") {
