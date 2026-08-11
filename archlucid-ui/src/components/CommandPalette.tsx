@@ -52,6 +52,7 @@ import {
 import { applyPatternLibraryHrefSetGate, applyPatternLibraryNavGate } from "@/lib/apply-pattern-library-nav-gate";
 import { usePatternLibraryNavVisible } from "@/hooks/use-pattern-library-nav-visible";
 import { CommandPaletteRecentViewsGroup } from "@/components/usability/CommandPaletteRecentViewsGroup";
+import { CommandPaletteSidebarVocabularyRail } from "@/components/CommandPaletteSidebarVocabularyRail";
 import { stampRouteReferrer } from "@/lib/operator-navigation-referrer";
 import { OPEN_COMMAND_PALETTE_EVENT, SHORTCUTS } from "@/lib/shortcut-registry";
 
@@ -622,6 +623,9 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
       ) : null}
       <CommandDialog open={open} onOpenChange={setOpen}>
         <CommandInput placeholder={buyerPolishedShell ? polishedPalettePlaceholder : "Search pages or paste a review ID…"} />
+        <div className="px-3 pt-2">
+          <CommandPaletteSidebarVocabularyRail currentSurfaceId="command-palette" />
+        </div>
         <CommandList>
           <RunIdQuickOpen onNavigate={navigate} allowRunIdPaste={!buyerPolishedShell} />
           <CommandPaletteRecentViewsGroup onNavigate={navigate} />

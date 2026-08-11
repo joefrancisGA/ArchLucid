@@ -116,7 +116,12 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
   const resultsPanelOpen = open && query.trim().length >= 2;
 
   return (
-    <div ref={rootRef} className={props.className ?? "relative w-full"} data-testid="global-search">
+    <div
+      ref={rootRef}
+      id="find-a-page"
+      className={props.className ?? "relative w-full"}
+      data-testid="global-search"
+    >
       <label htmlFor={inputId} className="sr-only">
         {GLOBAL_SEARCH_ARIA_LABEL}
       </label>
