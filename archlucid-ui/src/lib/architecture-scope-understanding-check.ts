@@ -16,7 +16,6 @@ export type DeriveScopeUnderstandingBulletsInput = {
 
 export const SCOPE_UNDERSTANDING_HEADING = "What ArchLucid will treat as in-scope";
 export const SCOPE_UNDERSTANDING_CONFIRM_LABEL = "Confirm scope";
-export const SCOPE_UNDERSTANDING_SKIP_LABEL = "I accept the inferred scope";
 export const SCOPE_UNDERSTANDING_SECTION_HEADER = "Operator-confirmed in-scope understanding";
 
 function pushUniqueBullet(bullets: ScopeUnderstandingBullet[], text: string, prefix: string): void {
@@ -121,13 +120,6 @@ export function mergeScopeBulletsIntoBrief(
   }
 
   return `${trimmedBrief}\n\n${section}`;
-}
-
-export function isScopeUnderstandingGateOpen(input: {
-  readonly confirmed: boolean;
-  readonly acceptedInferredScope: boolean;
-}): boolean {
-  return input.confirmed || input.acceptedInferredScope;
 }
 
 export function normalizeScopeUnderstandingBullets(

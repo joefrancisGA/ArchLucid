@@ -4,7 +4,6 @@ import {
   deriveScopeUnderstandingBullets,
   mergeScopeBulletsIntoBrief,
   SCOPE_UNDERSTANDING_SECTION_HEADER,
-  SCOPE_UNDERSTANDING_SKIP_LABEL,
 } from "@/lib/architecture-scope-understanding-check";
 
 describe("deriveScopeUnderstandingBullets", () => {
@@ -22,6 +21,15 @@ describe("deriveScopeUnderstandingBullets", () => {
     expect(bullets.some((bullet) => bullet.text.includes("Reduce manual claims routing"))).toBe(true);
     expect(bullets.some((bullet) => bullet.text.includes("Policy API"))).toBe(true);
   });
+
+  it("marks derived bullets as inferred so callers can tell edited scope from untouched scope", () => {
+    const bullets = deriveScopeUnderstandingBullets({
+      systemName: "Payments hub",
+      businessOutcome: "Improve settlement latency",
+    });
+
+    expect(bullets.every((bullet) => bullet.source === "inferred")).toBe(true);
+  });
 });
 
 describe("mergeScopeBulletsIntoBrief", () => {
@@ -35,10 +43,5 @@ describe("mergeScopeBulletsIntoBrief", () => {
     expect(merged).toContain("Base operator brief.");
     expect(merged).toContain(SCOPE_UNDERSTANDING_SECTION_HEADER);
     expect(merged).toContain("Payments hub");
-  });
-
-  it("documents explicit skip acknowledgement via section header contract", () => {
-    expect(SCOPE_UNDERSTANDING_SKIP_LABEL).toContain("accept");
-    expect(SCOPE_UNDERSTANDING_SKIP_LABEL.toLowerCase()).toContain("inferred");
   });
 });

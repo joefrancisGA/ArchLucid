@@ -7,11 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   deriveScopeUnderstandingBullets,
-  isScopeUnderstandingGateOpen,
   normalizeScopeUnderstandingBullets,
   SCOPE_UNDERSTANDING_CONFIRM_LABEL,
   SCOPE_UNDERSTANDING_HEADING,
-  SCOPE_UNDERSTANDING_SKIP_LABEL,
   type DeriveScopeUnderstandingBulletsInput,
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture-scope-understanding-check";
@@ -25,7 +23,7 @@ export type ArchitectureScopeUnderstandingCheckPanelProps = {
   readonly onGateChange?: (gateOpen: boolean) => void;
 };
 
-/** TB-2176: editable in-scope bullets with explicit confirm or accept-inferred skip before execute. */
+/** TB-2176: editable in-scope bullets with an explicit operator confirmation before execute. */
 export function ArchitectureScopeUnderstandingCheckPanel(
   props: ArchitectureScopeUnderstandingCheckPanelProps,
 ): React.JSX.Element {
@@ -36,36 +34,24 @@ export function ArchitectureScopeUnderstandingCheckPanel(
   const [bullets, setBullets] = useState<ScopeUnderstandingBullet[]>(inferredBullets);
   const [newBulletText, setNewBulletText] = useState("");
   const [confirmed, setConfirmed] = useState(false);
-  const [acceptedInferredScope, setAcceptedInferredScope] = useState(false);
-
-  const gateOpen = isScopeUnderstandingGateOpen({ confirmed, acceptedInferredScope });
 
   useEffect(() => {
-    if (!gateOpen) {
+    if (!confirmed) {
       setBullets(inferredBullets);
     }
-  }, [inferredBullets, gateOpen]);
+  }, [inferredBullets, confirmed]);
 
   const updateBullets = (nextBullets: ScopeUnderstandingBullet[]) => {
     const normalized = normalizeScopeUnderstandingBullets(nextBullets);
 
     setBullets(normalized);
     setConfirmed(false);
-    setAcceptedInferredScope(false);
     props.onBulletsChange?.(normalized);
     props.onGateChange?.(false);
   };
 
   const handleConfirm = () => {
     setConfirmed(true);
-    setAcceptedInferredScope(false);
-    props.onBulletsChange?.(bullets);
-    props.onGateChange?.(true);
-  };
-
-  const handleAcceptInferred = () => {
-    setAcceptedInferredScope(true);
-    setConfirmed(false);
     props.onBulletsChange?.(bullets);
     props.onGateChange?.(true);
   };
@@ -93,7 +79,7 @@ export function ArchitectureScopeUnderstandingCheckPanel(
           <li key={bullet.id} className="flex flex-wrap items-center gap-2">
             <Input
               value={bullet.text}
-              disabled={props.disabled === true || gateOpen}
+              disabled={props.disabled === true || confirmed}
               aria-label="In-scope bullet"
               onChange={(event) => {
                 const nextText = event.target.value;
@@ -109,7 +95,7 @@ export function ArchitectureScopeUnderstandingCheckPanel(
               type="button"
               variant="outline"
               size="sm"
-              disabled={props.disabled === true || gateOpen}
+              disabled={props.disabled === true || confirmed}
               onClick={() => {
                 updateBullets(bullets.filter((entry) => entry.id !== bullet.id));
               }}
@@ -128,7 +114,7 @@ export function ArchitectureScopeUnderstandingCheckPanel(
           <Input
             id="architecture-scope-understanding-new"
             value={newBulletText}
-            disabled={props.disabled === true || gateOpen}
+            disabled={props.disabled === true || confirmed}
             placeholder="Add another in-scope item"
             onChange={(event) => {
               setNewBulletText(event.target.value);
@@ -139,7 +125,7 @@ export function ArchitectureScopeUnderstandingCheckPanel(
           type="button"
           variant="outline"
           size="sm"
-          disabled={props.disabled === true || gateOpen || newBulletText.trim().length === 0}
+          disabled={props.disabled === true || confirmed || newBulletText.trim().length === 0}
           onClick={() => {
             const trimmed = newBulletText.trim();
 
@@ -167,27 +153,17 @@ export function ArchitectureScopeUnderstandingCheckPanel(
           type="button"
           variant="primary"
           size="sm"
-          disabled={props.disabled === true || gateOpen}
+          disabled={props.disabled === true || confirmed}
           data-testid="architecture-scope-understanding-confirm"
           onClick={handleConfirm}
         >
           {SCOPE_UNDERSTANDING_CONFIRM_LABEL}
         </Button>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={props.disabled === true || gateOpen}
-          data-testid="architecture-scope-understanding-skip"
-          onClick={handleAcceptInferred}
-        >
-          {SCOPE_UNDERSTANDING_SKIP_LABEL}
-        </Button>
       </div>
 
-      {gateOpen ? (
+      {confirmed ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-scope-understanding-ready">
-          Scope {acceptedInferredScope ? "accepted as inferred" : "confirmed"} — you can start the review.
+          Scope confirmed — you can start the review.
         </p>
       ) : null}
     </section>
