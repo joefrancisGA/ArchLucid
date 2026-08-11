@@ -3,6 +3,7 @@
 import { useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
+import { AlertRulesAlertsInboxVocabularyRail } from "@/components/AlertRulesAlertsInboxVocabularyRail";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -59,12 +60,15 @@ function AlertRulesHubChrome(): React.JSX.Element {
   const { refreshing, lastRefreshedAt, requestRefresh } = useAlertRulesHubRefresh();
 
   return (
-    <AlertRulesPageHeader
-      subtitle={alertsConfigurationPageSubtitle(isBuyerPolishedOperatorShellEnv())}
-      refreshing={refreshing}
-      lastRefreshedAt={lastRefreshedAt}
-      onRefresh={requestRefresh}
-    />
+    <>
+      <AlertRulesPageHeader
+        subtitle={alertsConfigurationPageSubtitle(isBuyerPolishedOperatorShellEnv())}
+        refreshing={refreshing}
+        lastRefreshedAt={lastRefreshedAt}
+        onRefresh={requestRefresh}
+      />
+      <AlertRulesAlertsInboxVocabularyRail currentSurfaceId="alert-rules" />
+    </>
   );
 }
 

@@ -3,6 +3,7 @@
 import { AlertsInboxAlertListSection } from "@/components/alerts/AlertsInboxAlertListSection";
 import { AlertsInboxControls } from "@/components/alerts/AlertsInboxControls";
 import { AlertsInboxDialogsDeferred } from "@/components/alerts/alerts-inbox-deferred-chunks";
+import { AlertRulesAlertsInboxVocabularyRail } from "@/components/AlertRulesAlertsInboxVocabularyRail";
 import { AlertsFindingsDualInboxReconciler } from "@/components/AlertsFindingsDualInboxReconciler";
 import { AlertsInboxPageIntro } from "@/components/alerts/AlertsInboxPageIntro";
 import { AlertsInboxSummaryRow } from "@/components/alerts/AlertsInboxSummaryRow";
@@ -25,6 +26,7 @@ export function AlertsInboxInteractiveClient({ initialModel = null }: AlertsInbo
         failure={controller.failure}
       />
 
+      <AlertRulesAlertsInboxVocabularyRail currentSurfaceId="alerts-inbox" />
       <AlertsFindingsDualInboxReconciler currentSurfaceId="alerts-inbox" />
 
       <AlertsInboxSummaryRow
