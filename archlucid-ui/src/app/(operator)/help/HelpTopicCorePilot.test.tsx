@@ -15,6 +15,7 @@ import { HelpCorePilotGuideView } from "@/app/(operator)/help/_sections/HelpCore
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 import {
   CORE_PILOT_HELP_DISCLOSURE,
+  CORE_PILOT_HELP_SAMPLE_REVIEW_CTA_LABEL,
   CORE_PILOT_HELP_SUMMARY_TITLE,
 } from "@/lib/core-pilot-help-guide-content";
 import { CORE_PILOT_HELP_CLAIM_DISCIPLINE } from "@/lib/core-pilot-help-evidence-copy";
@@ -96,7 +97,7 @@ describe("HelpCorePilotGuideView", () => {
       "href",
       "/architecture/reviews/new",
     );
-    expect(within(summaryCard).getByRole("link", { name: "Open sample review" })).toBeInTheDocument();
+    expect(within(summaryCard).getByRole("link", { name: CORE_PILOT_HELP_SAMPLE_REVIEW_CTA_LABEL })).toBeInTheDocument();
     expect(within(summaryCard).queryByRole("link", { name: "View pilot guide" })).toBeNull();
     expect(screen.getByTestId("core-pilot-primary-start-cta")).toBeInTheDocument();
     expect(screen.getAllByTestId("core-pilot-primary-start-cta")).toHaveLength(1);
@@ -113,9 +114,13 @@ describe("HelpCorePilotGuideView", () => {
       .getAllByRole("link")
       .filter((link) => link.getAttribute("href") === "/architecture/reviews/new");
 
-    expect(newReviewLinks).toHaveLength(2);
+    expect(newReviewLinks).toHaveLength(3);
     expect(newReviewLinks.map((link) => link.textContent)).toEqual(
-      expect.arrayContaining([BUYER_START_ARCHITECTURE_REVIEW_CTA, "Start a review first"]),
+      expect.arrayContaining([
+        BUYER_START_ARCHITECTURE_REVIEW_CTA,
+        "Start a review to add evidence",
+        "Start a review first",
+      ]),
     );
   });
 
@@ -143,9 +148,9 @@ describe("HelpCorePilotGuideView", () => {
     expect(within(stepper).getByRole("heading", { name: /Monitor review progress/ })).toBeInTheDocument();
     expect(within(stepper).getByRole("heading", { name: /Finalize review/ })).toBeInTheDocument();
     expect(within(stepper).getByRole("heading", { name: /Share outputs/ })).toBeInTheDocument();
-    expect(within(stepper).getByRole("link", { name: "Open upload settings" })).toHaveAttribute(
+    expect(within(stepper).getByRole("link", { name: "Start a review to add evidence" })).toHaveAttribute(
       "href",
-      "/administration/extract-upload",
+      "/architecture/reviews/new",
     );
     expect(within(stepper).queryByTestId("core-pilot-step-1-cta")).toBeNull();
   });

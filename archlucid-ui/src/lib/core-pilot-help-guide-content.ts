@@ -2,7 +2,7 @@ import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
 import { EXTRACT_UPLOAD_SETTINGS_PATH } from "@/lib/core-pilot-steps";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 export const CORE_PILOT_HELP_SUMMARY_TITLE = "First review path";
 
@@ -31,6 +31,10 @@ export type CorePilotHelpDeferredItem = {
 };
 
 const sampleReviewHref = `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
+
+/** TB-1332: name the curated Claims Intake showcase — not a bare "sample review" label. */
+export const CORE_PILOT_HELP_SAMPLE_REVIEW_CTA_LABEL =
+  `Open ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE} sample review` as const;
 
 export const CORE_PILOT_HELP_WORKFLOW_STEPS: readonly CorePilotHelpWorkflowStep[] = [
   {
@@ -126,7 +130,7 @@ export const CORE_PILOT_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
 /** Hero + secondary actions for `/help/first-architecture-review` — no recursive pilot-guide link (TB-1040). */
 export const CORE_PILOT_HELP_PRIMARY_ACTIONS = {
   startReview: { href: "/architecture/reviews/new", label: BUYER_START_ARCHITECTURE_REVIEW_CTA },
-  sampleReview: { href: sampleReviewHref, label: "Open sample review" },
+  sampleReview: { href: sampleReviewHref, label: CORE_PILOT_HELP_SAMPLE_REVIEW_CTA_LABEL },
   troubleshooting: { href: inAppHelpHref("troubleshooting"), label: "Troubleshooting" },
 } as const;
 

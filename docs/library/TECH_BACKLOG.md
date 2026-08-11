@@ -20,7 +20,7 @@ Regenerate after opening or closing summary-table rows:
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
 | Explainability | 1 |
-| Trustworthiness | 46 |
+| Trustworthiness | 44 |
 | Maintainability | 9 |
 | Traceability | 3 |
 | Interoperability | 4 |
@@ -35,9 +35,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **590** |
+| **Total (unique open)** | **588** |
 
-**By priority band:** P0 **3** | P1 **467** | P2 **103** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **3** | P1 **465** | P2 **103** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -1409,8 +1409,8 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1253 | `/help/procurement` specialty buyer FAQ guide view; see ## TB-1253 below | Adoption friction P1 ? **V1**; owner procurement help ~49/100 2026-07-26; complements Done **TB-159**/**TB-736** | M |
 | TB-1258 | `/help/starting-reviews` ? canonicalize into `/help/review-guide`; see ## TB-1258 below | Adoption friction P1 ? **V1**; owner starting-reviews ~52/100 2026-07-26; traffic **HER** | S |
 | TB-1326 | ~~`/help/configuration-reference` ? operator specialty guide + split full key catalog~~ **Done** 2026-08-02 ? HelpConfigurationReferenceGuideView + collapsed appendix; see ## TB-1326 below | Adoption friction P1 ? **V1**; owner configuration-reference ~39/100 2026-07-26; traffic **CON**; pairs **TB-1253**/**TB-1246** | M |
-| TB-1331 | `/help/core-pilot` ? step 2 Add evidence CTA honesty (commit-aware); see ## TB-1331 below | Trustworthiness P1 ? **V1**; owner core-pilot re-review ~70/100 2026-07-26; traffic **COR**; after Done **TB-1040**?**TB-1043** | S |
-| TB-1332 | `/help/core-pilot` ? sample review CTA Claims/universe label honesty; see ## TB-1332 below | Trustworthiness P1 ? **V1**; with **TB-1331**; pairs **TB-1028**/**TB-1283** | S |
+| TB-1331 | **Done** (2026-08-10) — `/help/core-pilot` step 2 Add evidence CTA honesty; see ## TB-1331 below | Trustworthiness P1 ? **V1**; owner core-pilot re-review ~70/100 2026-07-26; traffic **COR**; after Done **TB-1040**?**TB-1043** | S |
+| TB-1332 | **Done** (2026-08-10) — `/help/core-pilot` sample review CTA Claims label; see ## TB-1332 below | Trustworthiness P1 ? **V1**; with **TB-1331**; pairs **TB-1028**/**TB-1283** | S |
 | TB-1333 | `/help/core-pilot` ? stepper pending chrome (no disabled fake CTAs); see ## TB-1333 below | Adoption friction P1 ? **V1**; with **TB-1331**; extends **TB-1042** | XS |
 | TB-1334 | `/help/core-pilot` ? post-stepper density (cloud / fast-path / deferrals); see ## TB-1334 below | Adoption friction P1 ? **V1**; with **TB-1331**; extends **TB-1043** | S |
 | TB-1335 | `/help/core-pilot` ? related-guides IA canonicalize vs first-hour/onboarding/pilot-guide; see ## TB-1335 below | Adoption friction P1 ? **V1**; with **TB-1331**; pairs **TB-1258** | S |
@@ -33176,7 +33176,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Trustworthiness.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-10) — `resolveEvidenceStepCta` routes empty workspace to Start-first CTA (`/architecture/reviews/new`); with `latestRunId` deep-links review-detail evidence tab; Vitest TB-1331 case.
 
 **Priority:** P0.
 
@@ -33204,7 +33204,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Trustworthiness.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-10) — `CORE_PILOT_HELP_SAMPLE_REVIEW_CTA_LABEL` names Claims Intake Modernization showcase; Vitest in guide-content + HelpTopicCorePilot tests.
 
 **Priority:** P0.
 
