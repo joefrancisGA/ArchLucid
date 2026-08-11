@@ -5,6 +5,15 @@ vi.mock("@/lib/api", () => ({
   getDemoExplain: vi.fn(),
 }));
 
+vi.mock("@/lib/demo-explain-route-gate", () => ({
+  shouldRedirectDemoExplainFromBuyerShell: vi.fn(() => false),
+  getDemoExplainBuyerShellRedirectHref: vi.fn(() => "/see-it"),
+}));
+
+vi.mock("@/lib/demo-ui-env", () => ({
+  isOperatorExperienceFullShellEnv: vi.fn(() => false),
+}));
+
 vi.mock("next/navigation", async (importOriginal) => {
   const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
 
@@ -20,11 +29,19 @@ vi.mock("@/components/OperatorApiProblem", () => ({
 }));
 
 import { getDemoExplain } from "@/lib/api";
+import {
+  getDemoExplainBuyerShellRedirectHref,
+  shouldRedirectDemoExplainFromBuyerShell,
+} from "@/lib/demo-explain-route-gate";
 import type { DemoExplainResponse } from "@/types/demo-explain";
 
 import DemoExplainPage from "./page";
+import { redirect } from "next/navigation";
 
 const demoExplainMock = vi.mocked(getDemoExplain);
+const shouldRedirectMock = vi.mocked(shouldRedirectDemoExplainFromBuyerShell);
+const redirectHrefMock = vi.mocked(getDemoExplainBuyerShellRedirectHref);
+const redirectMock = vi.mocked(redirect);
 
 const fixedPayload: DemoExplainResponse = {
   generatedUtc: "2026-04-20T12:00:00.000Z",
@@ -74,6 +91,19 @@ const fixedPayload: DemoExplainResponse = {
 };
 
 describe("DemoExplainPage (proof page snapshot)", () => {
+  it("TB-1322: redirects buyer-polished shells to /see-it", async () => {
+    shouldRedirectMock.mockReturnValueOnce(true);
+    redirectHrefMock.mockReturnValueOnce("/see-it");
+    redirectMock.mockImplementationOnce(() => {
+      throw new Error("NEXT_REDIRECT");
+    });
+
+    await expect(DemoExplainPage()).rejects.toThrow("NEXT_REDIRECT");
+
+    expect(redirectMock).toHaveBeenCalledWith("/see-it");
+    expect(demoExplainMock).not.toHaveBeenCalled();
+  });
+
   it("renders the side-by-side provenance + explanation layout for the demo tenant", async () => {
     demoExplainMock.mockResolvedValue(fixedPayload);
 

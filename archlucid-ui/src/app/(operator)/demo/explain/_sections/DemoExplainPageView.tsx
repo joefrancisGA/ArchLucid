@@ -12,7 +12,9 @@ import {
   DEMO_EXPLAIN_PAGE_LEAD,
   DEMO_EXPLAIN_PAGE_TITLE,
 } from "@/lib/demo-explain-page-copy";
+import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 
+import { DemoExplainInternalOrientationStrip } from "./DemoExplainInternalOrientationStrip";
 import { DemoExplainExplanationPanel } from "./DemoExplainExplanationPanel";
 import { DemoExplainIncompleteNotice } from "./DemoExplainIncompleteNotice";
 import { DemoExplainNotAvailableNotice } from "./DemoExplainNotAvailableNotice";
@@ -27,6 +29,7 @@ type Props = {
 export function DemoExplainPageView(props: Props) {
   const state = props.state;
   const router = useRouter();
+  const showInternalOrientation = isOperatorExperienceFullShellEnv();
 
   return (
     <>
@@ -35,6 +38,7 @@ export function DemoExplainPageView(props: Props) {
         data-testid="demo-explain-page"
         aria-busy={state.loading}
       >
+      {showInternalOrientation ? <DemoExplainInternalOrientationStrip /> : null}
       <header className="space-y-2">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div className="min-w-0 space-y-2">

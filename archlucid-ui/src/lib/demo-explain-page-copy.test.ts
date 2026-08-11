@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  DEMO_EXPLAIN_BUYER_SHELL_REDIRECT_HREF,
   DEMO_EXPLAIN_CONVERSION_REVIEW_HREF,
   DEMO_EXPLAIN_EVIDENCE_TRAIL_PANEL_TITLE,
   DEMO_EXPLAIN_EXPLANATION_PANEL_TITLE,
   DEMO_EXPLAIN_INCOMPLETE_BODY,
+  DEMO_EXPLAIN_INTERNAL_ORIENTATION_LEAD,
   DEMO_EXPLAIN_LADDER_PRIMARY_HREF,
   DEMO_EXPLAIN_MANIFEST_VERSION_LABEL,
   DEMO_EXPLAIN_NOT_AVAILABLE_BODY,
@@ -56,5 +58,11 @@ describe("demo-explain-page-copy (TB-1320)", () => {
     expect(DEMO_EXPLAIN_LADDER_PRIMARY_HREF).toBe("/see-it");
     expect(DEMO_EXPLAIN_NOT_AVAILABLE_BODY.toLowerCase()).not.toContain("re-seed");
     expect(DEMO_EXPLAIN_INCOMPLETE_BODY.toLowerCase()).not.toContain("re-seed");
+  });
+
+  it("TB-1322: buyer-shell redirect and internal orientation copy stay honest", () => {
+    expect(DEMO_EXPLAIN_BUYER_SHELL_REDIRECT_HREF).toBe("/see-it");
+    expect(DEMO_EXPLAIN_INTERNAL_ORIENTATION_LEAD.toLowerCase()).toContain("buyer-polished");
+    expect(DEMO_EXPLAIN_INTERNAL_ORIENTATION_LEAD.toLowerCase()).not.toContain("re-seed");
   });
 });

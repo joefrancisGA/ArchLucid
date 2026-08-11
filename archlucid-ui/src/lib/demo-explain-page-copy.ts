@@ -43,6 +43,16 @@ export const DEMO_EXPLAIN_CONVERSION_SEE_IT_HREF = "/see-it" as const;
 
 export const DEMO_EXPLAIN_LADDER_PRIMARY_HREF = DEMO_EXPLAIN_CONVERSION_SEE_IT_HREF;
 
+/** TB-1322: buyer-polished shell redirect target for `/demo/explain` (IA-014). */
+export const DEMO_EXPLAIN_BUYER_SHELL_REDIRECT_HREF = DEMO_EXPLAIN_CONVERSION_SEE_IT_HREF;
+
+export const DEMO_EXPLAIN_INTERNAL_TOOLING_BADGE_LABEL = "Internal demo tooling";
+
+export const DEMO_EXPLAIN_INTERNAL_ORIENTATION_LEAD =
+  "Full-operator shell only. Buyer-polished environments redirect to the public proof funnel.";
+
+export const DEMO_EXPLAIN_INTERNAL_PUBLIC_PROOF_LINK_LABEL = SEE_IT_PAGE_TITLE;
+
 export const DEMO_EXPLAIN_LADDER_PRIMARY_LABEL = SEE_IT_PAGE_TITLE;
 
 export const DEMO_EXPLAIN_LADDER_LIVE_DEMO_HREF = "/live-demo" as const;

@@ -1,3 +1,10 @@
+import { redirect } from "next/navigation";
+
+import {
+  getDemoExplainBuyerShellRedirectHref,
+  shouldRedirectDemoExplainFromBuyerShell,
+} from "@/lib/demo-explain-route-gate";
+
 import { DemoExplainPageClient } from "./_sections/DemoExplainPageClient";
 import { loadDemoExplainPageData } from "./_sections/load-demo-explain-page-data";
 
@@ -9,8 +16,15 @@ import { loadDemoExplainPageData } from "./_sections/load-demo-explain-page-data
  *
  * The route is gated on `Demo:Enabled=true` at the API; a 404 here covers both
  * "demo seed has not been applied" and "this deployment never exposes the demo surface".
+ *
+ * TB-1322 (IA-014): buyer-polished shells redirect to `/see-it`; full-operator shells (or Playwright
+ * harness bypass) may render this internal demo tooling route.
  */
 export default async function DemoExplainPage() {
+  if (shouldRedirectDemoExplainFromBuyerShell()) {
+    redirect(getDemoExplainBuyerShellRedirectHref());
+  }
+
   const loaded = await loadDemoExplainPageData();
 
   return <DemoExplainPageClient loaded={loaded} />;
