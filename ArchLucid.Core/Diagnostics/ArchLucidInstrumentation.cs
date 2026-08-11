@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.Globalization;
@@ -8,33 +7,15 @@ using ArchLucid.Core.Retrieval;
 namespace ArchLucid.Core.Diagnostics;
 
 /// <summary>
-///     Thread-safe completion count for one <c>RealAgentExecutor.ExecuteAsync</c> batch (parallel handlers share one
-///     instance).
-/// </summary>
-public sealed class AgentExecutionLlmCallAccumulator
-{
-    private int _count;
-
-    /// <summary>Adds <paramref name="delta" /> successful remote completions (ignored if non-positive).</summary>
-    public void AddCompletions(int delta)
-    {
-        if (delta > 0)
-
-            _ = Interlocked.Add(ref _count, delta);
-    }
-
-    /// <summary>Reads and resets the accumulated count.</summary>
-    public int Consume()
-    {
-        return Interlocked.Exchange(ref _count, 0);
-    }
-}
-
-/// <summary>
 ///     Shared <see cref="ActivitySource" /> and <see cref="Meter" /> names for cross-cutting observability (OTel wiring in
 ///     the API host).
 /// </summary>
-public static class ArchLucidInstrumentation
+/// <remarks>
+///     This file owns the instrument catalog (activity sources, counters, histograms) plus recording logic that has not
+///     been pulled into a subsystem partial yet. Subsystem partials live beside it as
+///     <c>ArchLucidInstrumentation.{Subsystem}.cs</c>.
+/// </remarks>
+public static partial class ArchLucidInstrumentation
 {
     /// <summary>Maximum characters for optional GenAI span payloads gated by <c>LlmTelemetry:CapturePromptResponseOnSpans</c>.</summary>
     public const int SensitiveGenAiTelemetrySnapshotMaxChars = 65536;
@@ -50,12 +31,6 @@ public static class ArchLucidInstrumentation
 
     private static int _staleInFlightRunObservableGaugesRegistered;
 
-    private static int _trialFunnelObservableGaugesRegistered;
-
-    private static int _llmCompletionCacheObservableInstrumentsRegistered;
-
-    private static int _llmPromptCacheObservableInstrumentsRegistered;
-
     private static int _circuitBreakerStateObservableGaugeRegistered;
 
     private static int _llmTenantBudgetUtilizationObservableGaugeRegistered;
@@ -63,37 +38,6 @@ public static class ArchLucidInstrumentation
     private static int _llmTenantBudgetRemainingObservableGaugeRegistered;
 
     private static int _executiveRoiSavingsObservableGaugeRegistered;
-
-    private static int _llmWalletBalanceObservableGaugeRegistered;
-
-    private static readonly ConcurrentDictionary<string, double> LlmWalletBalanceUsdByTenant = new(StringComparer.Ordinal);
-    private static long _llmCompletionCacheHitsAggregate;
-
-    private static long _llmCompletionCacheMissesAggregate;
-
-    private static long _llmCompletionCachePoisonBustsAggregate;
-
-    private static long _llmProviderPromptTokensAggregate;
-
-    private static long _llmProviderCachedPromptTokensAggregate;
-
-    private static long _hotPathReadCacheHitsAggregate;
-
-    private static long _hotPathReadCacheMissesAggregate;
-
-    private static long _hotPathReadCacheInFlightDedupedAggregate;
-
-    private static long _explanationCacheHitsAggregate;
-
-    private static long _explanationCacheMissesAggregate;
-
-    private static long _graphProjectionCacheHitsAggregate;
-
-    private static long _graphProjectionCacheMissesAggregate;
-
-    private static long _graphProjectionCacheOversizedBypassAggregate;
-
-    private static long _trialActiveTenantsCached;
 
     private static long _warmCatalogsAvailableCached;
 
@@ -267,6 +211,12 @@ public static class ArchLucidInstrumentation
         AppMeter.CreateCounter<long>(
             "archlucid_llm_monthly_budget_optimistic_retry_exhausted_total",
             description: "Monthly USD reserve/settle optimistic concurrency retries exhausted (TB-977).");
+
+    /// <summary>Expired monthly per-call reservation leases reclaimed by background worker (TB-976).</summary>
+    public static readonly Counter<long> LlmMonthlyBudgetReservationReclaimedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_monthly_budget_reservation_reclaimed_total",
+            description: "Expired monthly per-call USD reservation leases reclaimed (TB-976).");
 
     /// <summary>Judge paths skipped fail-open when the isolated judge UTC-day token pool is exhausted (TB-190).</summary>
     public static readonly Counter<long> LlmJudgeBudgetExhaustedTotal =
@@ -1458,76 +1408,6 @@ public static class ArchLucidInstrumentation
             "Age in seconds of the oldest stale in-flight run (fleet-wide; no tenant label).");
     }
 
-    /// <summary>Registers trial funnel observable gauges once (call from OpenTelemetry host setup).</summary>
-    public static void EnsureTrialFunnelObservableGaugesRegistered()
-    {
-        if (Interlocked.Exchange(ref _trialFunnelObservableGaugesRegistered, 1) != 0)
-            return;
-
-        AppMeter.CreateObservableGauge(
-            "archlucid_trial_active_tenants",
-            () => new Measurement<long>(Volatile.Read(ref _trialActiveTenantsCached)),
-            description:
-            "Tenants currently on an active self-service trial (TrialStatus=Active, TrialExpiresUtc set).");
-    }
-
-    /// <summary>
-    ///     Registers observable LLM completion cache instruments once (<c>CachingLlmCompletionClient</c>).
-    /// </summary>
-    public static void EnsureLlmCompletionCacheObservableInstrumentsRegistered()
-    {
-        if (Interlocked.Exchange(ref _llmCompletionCacheObservableInstrumentsRegistered, 1) != 0)
-
-            return;
-
-        AppMeter.CreateObservableGauge(
-            "archlucid_llm_cache_hit_ratio",
-            () =>
-            {
-                long hits = Interlocked.Read(ref _llmCompletionCacheHitsAggregate);
-                long misses = Interlocked.Read(ref _llmCompletionCacheMissesAggregate);
-                long denominator = hits + misses;
-
-                double ratio = denominator == 0 ? 0 : hits / (double)denominator;
-
-                return new Measurement<double>(ratio);
-            },
-            description:
-            "Process-wide LLM completion cache hit ratio (hits / (hits + misses)) from CachingLlmCompletionClient.");
-    }
-
-    /// <summary>
-    ///     Registers observable Azure OpenAI automatic prompt-cache instruments once
-    ///     (<see cref="LlmCachedPromptTokensTotal" /> / <see cref="LlmPromptTokensTotal" />).
-    /// </summary>
-    public static void EnsureLlmPromptCacheObservableInstrumentsRegistered()
-    {
-        if (Interlocked.Exchange(ref _llmPromptCacheObservableInstrumentsRegistered, 1) != 0)
-
-            return;
-
-        AppMeter.CreateObservableGauge(
-            "archlucid_llm_prompt_cache_hit_ratio",
-            () =>
-            {
-                long promptTokens = Interlocked.Read(ref _llmProviderPromptTokensAggregate);
-                long cachedTokens = Interlocked.Read(ref _llmProviderCachedPromptTokensAggregate);
-
-                double ratio = promptTokens == 0 ? 0 : cachedTokens / (double)promptTokens;
-
-                return new Measurement<double>(ratio);
-            },
-            description:
-            "Process-wide Azure OpenAI automatic prompt-cache hit ratio (cached prompt tokens / total prompt tokens).");
-    }
-
-    /// <summary>Resets provider prompt-cache aggregates for unit tests only.</summary>
-    internal static void TestingResetProviderPromptCacheAggregates()
-    {
-        Interlocked.Exchange(ref _llmProviderPromptTokensAggregate, 0);
-        Interlocked.Exchange(ref _llmProviderCachedPromptTokensAggregate, 0);
-    }
-
     /// <summary>
     ///     Registers per-gauge circuit breaker state once (numeric: Closed=0, HalfOpen=1, Open=2; labels <c>gate</c>,
     ///     <c>state</c>).
@@ -1602,16 +1482,6 @@ public static class ArchLucidInstrumentation
             () => _executiveRoiSavingsReader?.Invoke() ?? Array.Empty<Measurement<double>>(),
             "USD",
             "Estimated USD savings rollup from Executive ROI dedup rules. Labels: scope=platform|tenant; tenant_id when scope=tenant.");
-    }
-
-    /// <summary>Updates the cached value read by <c>archlucid_trial_active_tenants</c> (background metrics collector).</summary>
-    public static void PublishTrialActiveTenantCount(long count)
-    {
-        if (count < 0)
-
-            count = 0;
-
-        Volatile.Write(ref _trialActiveTenantsCached, count);
     }
 
     /// <summary>Registers warm tenant catalog pool depth gauge once (leader-elected replenish worker publishes counts).</summary>
@@ -1694,78 +1564,6 @@ public static class ArchLucidInstrumentation
 
         if (estimatedSavingsUsd > 0)
             LlmBatchEstimatedSavingsUsdTotal.Add(estimatedSavingsUsd, tags);
-    }
-
-    /// <summary>Records one LLM completion response cache hit (label <c>agent_type</c>).</summary>
-    public static void RecordLlmCompletionCacheHit(string agentType)
-    {
-        string label = string.IsNullOrWhiteSpace(agentType) ? "unknown" : agentType.Trim();
-
-        _ = Interlocked.Increment(ref _llmCompletionCacheHitsAggregate);
-
-        TagList tags = [];
-        tags.Add("agent_type", label);
-
-        LlmCompletionCacheHitsTotal.Add(1, tags);
-    }
-
-    /// <summary>Records one LLM completion response cache miss (label <c>agent_type</c>).</summary>
-    public static void RecordLlmCompletionCacheMiss(string agentType)
-    {
-        string label = string.IsNullOrWhiteSpace(agentType) ? "unknown" : agentType.Trim();
-
-        _ = Interlocked.Increment(ref _llmCompletionCacheMissesAggregate);
-
-        TagList tags = [];
-        tags.Add("agent_type", label);
-
-        LlmCompletionCacheMissesTotal.Add(1, tags);
-    }
-
-    /// <summary>Records a TB-940 poison bust (cache-served body failed admission / schema).</summary>
-    public static void RecordLlmCompletionCachePoisonBust(string agentType)
-    {
-        string label = string.IsNullOrWhiteSpace(agentType) ? "unknown" : agentType.Trim();
-
-        _ = Interlocked.Increment(ref _llmCompletionCachePoisonBustsAggregate);
-
-        TagList tags = [];
-        tags.Add("agent_type", label);
-
-        LlmCompletionCachePoisonBustsTotal.Add(1, tags);
-    }
-
-    /// <summary>Records one hot-path read cache hit (<c>IHotPathReadCache</c> / HybridCache).</summary>
-    public static void RecordHotPathReadCacheHit()
-    {
-        _ = Interlocked.Increment(ref _hotPathReadCacheHitsAggregate);
-    }
-
-    /// <summary>Records one hot-path read cache miss (factory invoked).</summary>
-    public static void RecordHotPathReadCacheMiss()
-    {
-        _ = Interlocked.Increment(ref _hotPathReadCacheMissesAggregate);
-    }
-
-    /// <summary>Records one hot-path read cache miss coalesced onto an in-flight loader for the same key.</summary>
-    public static void RecordHotPathReadCacheInFlightDedupe()
-    {
-        _ = Interlocked.Increment(ref _hotPathReadCacheInFlightDedupedAggregate);
-        HotPathReadCacheInFlightDedupedTotal.Add(1);
-    }
-
-    /// <summary>Records one aggregate explanation cache hit.</summary>
-    public static void RecordExplanationCacheHit()
-    {
-        _ = Interlocked.Increment(ref _explanationCacheHitsAggregate);
-        ExplanationCacheHits.Add(1);
-    }
-
-    /// <summary>Records one aggregate explanation cache miss.</summary>
-    public static void RecordExplanationCacheMiss()
-    {
-        _ = Interlocked.Increment(ref _explanationCacheMissesAggregate);
-        ExplanationCacheMisses.Add(1);
     }
 
     /// <summary>Records one Ask SQL retrieval fallback after vector search failure.</summary>
@@ -2005,24 +1803,6 @@ public static class ArchLucidInstrumentation
         return "mixed";
     }
 
-    /// <summary>Records one graph snapshot projection cache hit.</summary>
-    public static void RecordGraphProjectionCacheHit()
-    {
-        _ = Interlocked.Increment(ref _graphProjectionCacheHitsAggregate);
-    }
-
-    /// <summary>Records one graph snapshot projection cache miss.</summary>
-    public static void RecordGraphProjectionCacheMiss()
-    {
-        _ = Interlocked.Increment(ref _graphProjectionCacheMissesAggregate);
-    }
-
-    /// <summary>Records one oversized graph projection that bypassed in-process cache storage.</summary>
-    public static void RecordGraphProjectionCacheOversizedBypass()
-    {
-        _ = Interlocked.Increment(ref _graphProjectionCacheOversizedBypassAggregate);
-    }
-
     /// <summary>Records permanently failed integration outbox DLQ rows observed in one auto-retry pass.</summary>
     public static void RecordIntegrationEventDlqPermanentFailures(long count)
     {
@@ -2030,23 +1810,6 @@ public static class ArchLucidInstrumentation
             return;
 
         IntegrationEventDlqPermanentFailureTotal.Add(count);
-    }
-
-    /// <summary>Returns process-life cache counters for operator diagnostics.</summary>
-    public static CacheTelemetrySnapshot GetCacheTelemetrySnapshot()
-    {
-        return new CacheTelemetrySnapshot
-        {
-            HotPathReadCacheHits = Interlocked.Read(ref _hotPathReadCacheHitsAggregate),
-            HotPathReadCacheMisses = Interlocked.Read(ref _hotPathReadCacheMissesAggregate),
-            HotPathReadCacheInFlightDeduped = Interlocked.Read(ref _hotPathReadCacheInFlightDedupedAggregate),
-            ExplanationCacheHits = Interlocked.Read(ref _explanationCacheHitsAggregate),
-            ExplanationCacheMisses = Interlocked.Read(ref _explanationCacheMissesAggregate),
-            LlmCompletionCacheHits = Interlocked.Read(ref _llmCompletionCacheHitsAggregate),
-            LlmCompletionCacheMisses = Interlocked.Read(ref _llmCompletionCacheMissesAggregate),
-            GraphProjectionCacheHits = Interlocked.Read(ref _graphProjectionCacheHitsAggregate),
-            GraphProjectionCacheMisses = Interlocked.Read(ref _graphProjectionCacheMissesAggregate),
-        };
     }
 
     /// <summary>
@@ -2166,342 +1929,6 @@ public static class ArchLucidInstrumentation
             tags.Add("tenant_id", tenantId.ToString("D"));
 
         RetrievalFaithfulnessRatio.Record(clamped, tags);
-    }
-
-    /// <summary>Increments <see cref="TrialSignupsTotal" />.</summary>
-    public static void RecordTrialSignup(string source, string mode)
-    {
-        TagList tags = new()
-        {
-            { "source", string.IsNullOrWhiteSpace(source) ? "unknown" : source.Trim() },
-            { "mode", string.IsNullOrWhiteSpace(mode) ? "unknown" : mode.Trim() }
-        };
-
-        TrialSignupsTotal.Add(1, tags);
-    }
-
-    /// <summary>Increments <see cref="SignupMarketingConversionTotal" /> with coarse attribution buckets (TB-019).</summary>
-    public static void RecordSignupMarketingConversion(string coarseMedium, string coarsePlatform)
-    {
-        TagList tags = new()
-        {
-            { "attribution.medium", string.IsNullOrWhiteSpace(coarseMedium) ? "unknown" : coarseMedium.Trim() },
-            { "attribution.platform", string.IsNullOrWhiteSpace(coarsePlatform) ? "unknown" : coarsePlatform.Trim() },
-        };
-
-        SignupMarketingConversionTotal.Add(1, tags);
-    }
-
-    /// <summary>Increments <see cref="LlmWalletRefillUsdTotal" /> after a successful wallet credit.</summary>
-    public static void RecordLlmWalletRefillUsd(decimal amountUsd)
-    {
-        if (amountUsd <= 0m)
-            return;
-
-        LlmWalletRefillUsdTotal.Add((double)amountUsd);
-    }
-
-    /// <summary>Increments <see cref="LlmWalletRefillFailuresTotal" /> (label: stripe_decline_code).</summary>
-    public static void RecordLlmWalletRefillFailure(string? declineCode)
-    {
-        TagList tags = new()
-        {
-            { "stripe_decline_code", string.IsNullOrWhiteSpace(declineCode) ? "unknown" : declineCode.Trim() },
-        };
-
-        LlmWalletRefillFailuresTotal.Add(1, tags);
-    }
-
-    /// <summary>Updates per-tenant wallet balance snapshot for <c>archlucid_llm_wallet_balance_usd</c>.</summary>
-    public static void RecordLlmWalletBalanceUsd(Guid tenantId, decimal balanceUsd)
-    {
-        if (tenantId == Guid.Empty)
-            return;
-
-        EnsureLlmWalletBalanceObservableGaugeRegistered();
-        LlmWalletBalanceUsdByTenant[tenantId.ToString("D", CultureInfo.InvariantCulture)] = (double)balanceUsd;
-    }
-
-    /// <summary>Registers observable per-tenant LLM wallet balance gauge (TB-014).</summary>
-    public static void EnsureLlmWalletBalanceObservableGaugeRegistered()
-    {
-        if (Interlocked.Exchange(ref _llmWalletBalanceObservableGaugeRegistered, 1) != 0)
-            return;
-
-        AppMeter.CreateObservableGauge(
-            "archlucid_llm_wallet_balance_usd",
-            () =>
-            {
-                List<Measurement<double>> measurements = new(LlmWalletBalanceUsdByTenant.Count);
-
-                foreach (KeyValuePair<string, double> kv in LlmWalletBalanceUsdByTenant)
-                {
-                    measurements.Add(
-                        new Measurement<double>(
-                            kv.Value,
-                            new KeyValuePair<string, object?>("tenant_id", kv.Key)));
-                }
-
-                return measurements;
-            },
-            "USD",
-            "Non-expiring LLM prepaid wallet balance (label tenant_id).");
-    }
-
-    /// <summary>Increments <see cref="TrialSignupFailuresTotal" />.</summary>
-    public static void RecordTrialSignupFailure(string stage, string reason)
-    {
-        TagList tags = new()
-        {
-            { "stage", string.IsNullOrWhiteSpace(stage) ? "unknown" : stage.Trim() },
-            { "reason", string.IsNullOrWhiteSpace(reason) ? "unknown" : reason.Trim() }
-        };
-
-        TrialSignupFailuresTotal.Add(1, tags);
-    }
-
-    /// <summary>Increments <see cref="TrialFunnelHealthProbeTotal" /> (label: <c>outcome</c> success|failure).</summary>
-    public static void RecordTrialFunnelHealthProbe(string outcome)
-    {
-        string o = string.IsNullOrWhiteSpace(outcome) ? "unknown" : outcome.Trim();
-        if (o is not ("success" or "failure"))
-            o = "unknown";
-        TagList tags = new() { { "outcome", o } };
-        TrialFunnelHealthProbeTotal.Add(1, tags);
-    }
-
-    /// <summary>Increments <see cref="TrialRegistrationFailuresTotal" /> (label: <c>reason</c> validation|conflict|internal).</summary>
-    public static void RecordTrialRegistrationFailure(string reason)
-    {
-        string r = string.IsNullOrWhiteSpace(reason) ? "unknown" : reason.Trim();
-        if (r is not ("validation" or "conflict" or "internal"))
-            r = "unknown";
-        TagList tags = new() { { "reason", r } };
-        TrialRegistrationFailuresTotal.Add(1, tags);
-    }
-
-    /// <summary>Increments <see cref="EmailOtpChallengeRequestedTotal" />.</summary>
-    public static void RecordEmailOtpChallengeRequested(string result)
-    {
-        TagList tags = new() { { "result", NormalizeEmailOtpChallengeResult(result) } };
-
-        EmailOtpChallengeRequestedTotal.Add(1, tags);
-    }
-
-    /// <summary>Increments <see cref="EmailOtpChallengeVerifiedTotal" />.</summary>
-    public static void RecordEmailOtpChallengeVerified(string result)
-    {
-        TagList tags = new() { { "result", NormalizeEmailOtpVerifyResult(result) } };
-
-        EmailOtpChallengeVerifiedTotal.Add(1, tags);
-    }
-
-    /// <summary>Increments <see cref="EmailOtpDeliveryFailedTotal" />.</summary>
-    public static void RecordEmailOtpDeliveryFailed()
-    {
-        EmailOtpDeliveryFailedTotal.Add(1);
-    }
-
-    /// <summary>Increments <see cref="EmailOtpRateLimitTriggeredTotal" />.</summary>
-    public static void RecordEmailOtpRateLimitTriggered(string scope)
-    {
-        TagList tags = new() { { "scope", string.IsNullOrWhiteSpace(scope) ? "unknown" : scope.Trim() } };
-
-        EmailOtpRateLimitTriggeredTotal.Add(1, tags);
-    }
-
-    /// <summary>Increments <see cref="SelfServiceTrialAbuseDeniedTotal" />.</summary>
-    public static void RecordSelfServiceTrialAbuseDenied(string reason)
-    {
-        TagList tags = new() { { "reason", string.IsNullOrWhiteSpace(reason) ? "unknown" : reason.Trim() } };
-
-        SelfServiceTrialAbuseDeniedTotal.Add(1, tags);
-    }
-
-    private static string NormalizeEmailOtpChallengeResult(string result)
-    {
-        string r = string.IsNullOrWhiteSpace(result) ? "unknown" : result.Trim();
-
-        return r switch
-        {
-            "accepted" or "rate_limited" or "sso_required" or "disabled" or "invalid_email" or "bot_challenge_failed" => r,
-            _ => "unknown"
-        };
-    }
-
-    private static string NormalizeEmailOtpVerifyResult(string result)
-    {
-        string r = string.IsNullOrWhiteSpace(result) ? "unknown" : result.Trim();
-
-        return r switch
-        {
-            "success" or "invalid" or "expired" or "rate_limited" or "sso_required" => r,
-            _ => "invalid"
-        };
-    }
-
-    /// <summary>Increments <see cref="TrialSignupBaselineSkippedTotal" /> (model-default baseline path at signup).</summary>
-    public static void RecordTrialSignupBaselineSkipped()
-    {
-        TrialSignupBaselineSkippedTotal.Add(1);
-    }
-
-    /// <summary>Increments <see cref="BaselineManualPrepCapturedTotal" />.</summary>
-    public static void RecordBaselineManualPrepCaptured()
-    {
-        BaselineManualPrepCapturedTotal.Add(1);
-    }
-
-    /// <summary>Records <see cref="TrialFirstRunSeconds" /> when positive and finite.</summary>
-    public static void RecordTrialFirstRunLatencySeconds(double seconds)
-    {
-        if (seconds <= 0 || double.IsNaN(seconds) || double.IsInfinity(seconds))
-            return;
-
-        TrialFirstRunSeconds.Record(seconds);
-    }
-
-    /// <summary>
-    ///     Records <see cref="TenantTimeToFirstCommitSeconds" /> for the first successful manifest pin (any tenant).
-    /// </summary>
-    public static void RecordTenantTimeToFirstCommitSeconds(double seconds, string tenantKind)
-    {
-        if (seconds <= 0 || double.IsNaN(seconds) || double.IsInfinity(seconds))
-            return;
-
-        string k = string.IsNullOrWhiteSpace(tenantKind) ? "unknown" : tenantKind.Trim();
-
-        if (k is not ("trial" or "non_trial"))
-            k = "unknown";
-
-        TenantTimeToFirstCommitSeconds.Record(seconds, new TagList { { "tenant_kind", k } });
-    }
-
-    /// <summary>Records <see cref="TrialRunsUsedRatio" /> clamped to non-negative values.</summary>
-    public static void RecordTrialRunsUsedRatio(double ratio)
-    {
-        if (double.IsNaN(ratio) || double.IsInfinity(ratio))
-            return;
-
-        TrialRunsUsedRatio.Record(Math.Max(0, ratio));
-    }
-
-    /// <summary>Increments <see cref="TrialConversionTotal" />.</summary>
-    public static void RecordTrialConversion(string fromState, string toTier)
-    {
-        TagList tags = new()
-        {
-            { "from_state", string.IsNullOrWhiteSpace(fromState) ? "unknown" : fromState.Trim() },
-            { "to_tier", string.IsNullOrWhiteSpace(toTier) ? "unknown" : toTier.Trim() }
-        };
-
-        TrialConversionTotal.Add(1, tags);
-    }
-
-    /// <summary>Increments <see cref="TrialExpirationsTotal" />.</summary>
-    public static void RecordTrialExpiration(string reason)
-    {
-        string r = string.IsNullOrWhiteSpace(reason) ? "unknown" : reason.Trim();
-        TagList tags = new() { { "reason", r } };
-
-        TrialExpirationsTotal.Add(1, tags);
-    }
-
-    private static readonly HashSet<string> TrialUpgradeNudgeTriggers =
-        new(StringComparer.Ordinal) { "runs", "seats", "expiry" };
-
-    /// <summary>Increments <see cref="TrialUpgradeNudgeShownTotal" />.</summary>
-    public static void RecordTrialUpgradeNudgeShown(string trigger)
-    {
-        string t = NormalizeTrialUpgradeNudgeTrigger(trigger);
-        TrialUpgradeNudgeShownTotal.Add(1, new TagList { { "trigger", t } });
-    }
-
-    /// <summary>Increments <see cref="TrialUpgradeNudgeClickedTotal" />.</summary>
-    public static void RecordTrialUpgradeNudgeClicked(string trigger)
-    {
-        string t = NormalizeTrialUpgradeNudgeTrigger(trigger);
-        TrialUpgradeNudgeClickedTotal.Add(1, new TagList { { "trigger", t } });
-    }
-
-    private static string NormalizeTrialUpgradeNudgeTrigger(string trigger)
-    {
-        string t = string.IsNullOrWhiteSpace(trigger) ? "unknown" : trigger.Trim();
-
-        return TrialUpgradeNudgeTriggers.Contains(t) ? t : "unknown";
-    }
-
-    private static readonly HashSet<string> TeamExpansionNudgeTriggers =
-        new(StringComparer.Ordinal) { "seats", "workspaces" };
-
-    /// <summary>Increments <see cref="TeamExpansionNudgeShownTotal" />.</summary>
-    public static void RecordTeamExpansionNudgeShown(string trigger)
-    {
-        string t = NormalizeTeamExpansionNudgeTrigger(trigger);
-        TeamExpansionNudgeShownTotal.Add(1, new TagList { { "trigger", t } });
-    }
-
-    /// <summary>Increments <see cref="TeamExpansionNudgeClickedTotal" />.</summary>
-    public static void RecordTeamExpansionNudgeClicked(string trigger)
-    {
-        string t = NormalizeTeamExpansionNudgeTrigger(trigger);
-        TeamExpansionNudgeClickedTotal.Add(1, new TagList { { "trigger", t } });
-    }
-
-    private static string NormalizeTeamExpansionNudgeTrigger(string trigger)
-    {
-        string t = string.IsNullOrWhiteSpace(trigger) ? "unknown" : trigger.Trim();
-
-        return TeamExpansionNudgeTriggers.Contains(t) ? t : "unknown";
-    }
-
-    /// <summary>Increments <see cref="SponsorBannerFirstCommitBadgeRenderedTotal" />.</summary>
-    public static void RecordSponsorBannerFirstCommitBadgeRendered(Guid tenantId, string daysSinceFirstCommitBucket)
-    {
-        string bucket = string.IsNullOrWhiteSpace(daysSinceFirstCommitBucket)
-            ? "unknown"
-            : daysSinceFirstCommitBucket.Trim();
-        TagList tags = new() { { "tenant_id", tenantId.ToString("D") }, { "days_since_first_commit_bucket", bucket } };
-
-        SponsorBannerFirstCommitBadgeRenderedTotal.Add(1, tags);
-    }
-
-    private static readonly string[] CorePilotRailChecklistSteps =
-        ["create_request", "track_review", "finalize_review_package", "review_outputs"];
-
-    /// <summary>Increments <see cref="CorePilotRailChecklistStepsTotal" /> for checklist step indices 0–3 inclusive.</summary>
-    public static void RecordCorePilotRailChecklistStep(int stepIndex)
-    {
-        if (stepIndex < 0 || stepIndex >= CorePilotRailChecklistSteps.Length)
-            throw new ArgumentOutOfRangeException(
-                nameof(stepIndex),
-                stepIndex,
-                $"stepIndex must be 0..{CorePilotRailChecklistSteps.Length - 1}");
-
-        TagList tags = new() { { "step", CorePilotRailChecklistSteps[stepIndex] } };
-
-        CorePilotRailChecklistStepsTotal.Add(1, tags);
-    }
-
-    /// <summary>Increments <see cref="FirstSessionCompletedTotal" /> once per tenant (caller must gate).</summary>
-    public static void RecordFirstSessionCompleted()
-    {
-        FirstSessionCompletedTotal.Add(1);
-    }
-
-    /// <summary>Records <see cref="WizardToCommittedMinutes" /> for wizard-sourced runs (TB-220).</summary>
-    public static void RecordWizardToCommittedMinutes(double minutes, string executionMode, string presetUsed)
-    {
-        double clampedMinutes = minutes < 0 ? 0 : minutes;
-        string mode = string.IsNullOrWhiteSpace(executionMode) ? "unknown" : executionMode.Trim().ToLowerInvariant();
-        string preset = string.IsNullOrWhiteSpace(presetUsed) ? "unknown" : presetUsed.Trim().ToLowerInvariant();
-        TagList tags = new()
-        {
-            { "execution_mode", mode },
-            { "preset_used", preset },
-        };
-
-        WizardToCommittedMinutes.Record(clampedMinutes, tags);
     }
 
     /// <summary>Increments <see cref="AuditWriteFailuresTotal" /> (label <c>event_type</c>).</summary>
