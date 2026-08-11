@@ -38,6 +38,7 @@
     "test:e2e:mock:visual": "playwright test -c playwright.mock.config.ts --project=chromium-visual",
     "test:a11y": "playwright test -c playwright.mock.config.ts --project=chromium-accessibility",
     "test:e2e:accessibility": "playwright test -c playwright.mock.config.ts --project=chromium-accessibility",
+    "test:e2e:help-redirects": "playwright test -c playwright.mock.config.ts --grep @help-redirects",
     "e2e:mock": "playwright test -c playwright.mock.config.ts",
     "screenshots": "playwright test -c playwright.mock.config.ts capture-marketing-screenshots.spec.ts",
     "screenshots:all": "playwright test -c playwright.mock.config.ts capture-all-screenshots.spec.ts --workers=50%",

@@ -122,7 +122,7 @@ export const ALERTS_GOV_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "SAX",
     path: "/governance/alert-rules",
     section: "Alerts/gov",
-    note: "Alert rules hub (Alerts/gov) - AlertRulesHubClient with PageContextualHelpButton (topic map alerts; Category-1 registry), Learn more / claim-discipline orientation strip on non-routing tabs (Sources follow-up removed TB-2092; Notifications/routing keeps ALE sibling chrome), Conditions/Notifications/Advanced/Test tabs. Alert configuration - not a signed-record Sources trail. Sibling ALE/GOR = routing tab; GOA = low-hit hub duplicate in template. Score 68/100 (2026-08-08) - alert-config hub at AL Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
+    note: "Alert rules hub (Alerts/gov) - AlertRulesHubClient with PageContextualHelpButton (topic map alerts; Category-1 registry), Learn more / claim-discipline orientation strip on non-routing tabs (Sources follow-up removed TB-2092; Notifications/routing keeps ALE sibling chrome), Conditions/Notifications/Advanced/Test tabs. Alert configuration - not a signed-record Sources trail. Sibling ALE = routing tab. Score 68/100 (2026-08-08) - alert-config hub at AL Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
     noteMustContain: ["AlertRulesHubClient", "Sources", "cannot improve further toward 80"],
   },
 ];
