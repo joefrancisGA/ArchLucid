@@ -21,6 +21,7 @@ import {
   stripTenantIsolationContributorLeakage,
   stripDpaTemplateContributorLeakage,
   stripExecutiveSummaryContributorLeakage,
+  stripExecutiveSummarySponsorBriefLeakage,
   stripFirstValue20ContributorLeakage,
   stripPathChooserContributorLeakage,
   stripPilotFeedbackContributorLeakage,
@@ -819,6 +820,28 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toMatch(/\btb-\d+\b/i);
     expect(prepared).not.toContain("trust-center.md");
     expect(prepared).toContain("what pilot proves");
+  });
+
+  it("strips executive-summary sponsor-brief section ordinals and normalizes humanized link labels (EXE P0-2, P0-3)", () => {
+    const source = [
+      "## 5. What Pilot proves {#what-pilot-proves}",
+      "",
+      "See [Api Contracts](/help/governance-api-contracts) and [Pilot Roi Model](/help/pilot-roi-model).",
+      "",
+      "## 6. ROI framing {#roi-framing}",
+      "",
+      "Also [Roi Model](/help/pilot-roi-model).",
+    ].join("\n");
+
+    const prepared = stripExecutiveSummarySponsorBriefLeakage(source);
+
+    expect(prepared).toContain("## What Pilot proves {#what-pilot-proves}");
+    expect(prepared).toContain("## ROI framing {#roi-framing}");
+    expect(prepared).not.toMatch(/^##\s+\d+\./m);
+    expect(prepared).toContain("[API contracts](/help/governance-api-contracts)");
+    expect(prepared).toContain("[Pilot ROI model](/help/pilot-roi-model)");
+    expect(prepared).not.toMatch(/\bApi\b/);
+    expect(prepared).not.toMatch(/\bRoi\b/);
   });
 
   it("strips first-value-20 CLI/dotnet and runbook-path leakage (TB-1693)", () => {

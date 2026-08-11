@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { HelpExecutiveSummaryGuideView } from "@/app/(operator)/help/_sections/HelpExecutiveSummaryGuideView";
@@ -56,20 +56,45 @@ describe("HelpTopicExecutiveSummary", () => {
     }
 
     expect(preparedMarkdown).toContain("what pilot proves");
+    expect(preparedMarkdown).not.toMatch(/^##\s+\d+\./m);
 
     render(<HelpExecutiveSummaryGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     expect(screen.getByTestId("help-executive-summary-guide")).toBeInTheDocument();
     expect(screen.getByTestId("help-executive-summary-page-title")).toHaveTextContent("Executive summary");
-    expect(screen.queryByTestId("executive-summary-help-sources")).toBeNull(); // TB-2092
-    expect(screen.queryByTestId("executive-summary-help-claim-discipline")).toBeNull(); // TB-2092
+    expect(screen.getAllByRole("heading", { level: 1, name: "Executive summary" })).toHaveLength(1);
+    expect(screen.queryByTestId("help-executive-summary-refresh-button")).toBeNull();
+    expect(screen.queryByTestId("help-executive-summary-last-refreshed")).toBeNull();
+    expect(screen.getByTestId("help-executive-summary-claim-discipline")).toBeInTheDocument();
+    expect(screen.getByTestId("help-executive-summary-document-status")).toHaveTextContent("Current");
+    expect(screen.getByTestId("help-executive-summary-source-of-record")).toHaveTextContent(
+      "Source of record: docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md",
+    );
     expect(screen.getByRole("link", { name: /open executive value report/i })).toHaveAttribute(
       "href",
       SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
     );
 
-    const pageHeadings = screen.getAllByRole("heading", { level: 2, name: "Executive summary" });
-    expect(pageHeadings).toHaveLength(1);
+    const contentRegion = screen.getByTestId("help-executive-summary-content");
+    const numberedHeadings = within(contentRegion)
+      .getAllByRole("heading")
+      .filter((heading) => /^\d+\./.test(heading.textContent ?? ""));
+    expect(numberedHeadings).toHaveLength(0);
+
+    const pilotRoiLinks = screen.getAllByRole("link", { name: "Pilot ROI model" });
+    expect(pilotRoiLinks.length).toBeGreaterThan(0);
+    for (const link of pilotRoiLinks) {
+      expect(link).toHaveAttribute("href", "/help/pilot-roi-model");
+    }
+
+    expect(screen.queryByText(/\bRoi\b/)).toBeNull();
+    expect(screen.queryByText(/\bApi\b/)).toBeNull();
     expect(screen.queryByText(/frequently asked questions/i)).toBeNull();
+    expect(screen.queryByText(/last refreshed/i)).toBeNull();
+    expect(screen.queryByText(/not refreshed yet/i)).toBeNull();
+
+    const actionPanel = screen.getByTestId("help-executive-summary-action-panel");
+    expect(actionPanel.className).not.toMatch(/bg-teal-/);
+    expect(actionPanel.className).not.toMatch(/border-teal-/);
   });
 });

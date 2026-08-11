@@ -17,14 +17,6 @@ export function executiveSummaryHelpPageSubtitle(buyerPolishedShell: boolean): s
     : EXECUTIVE_SUMMARY_HELP_PAGE_SUBTITLE_OPERATOR;
 }
 
-export const EXECUTIVE_SUMMARY_HELP_LAST_REFRESHED_PREFIX = "Last refreshed" as const;
-
-export const EXECUTIVE_SUMMARY_HELP_ACTION_REFRESH = "Refresh" as const;
-
-export const EXECUTIVE_SUMMARY_HELP_ACTION_REFRESHING = "Refreshing…" as const;
-
-export const EXECUTIVE_SUMMARY_HELP_SCOPE_DETAILS_TRIGGER = "About executive summaries" as const;
-
 export const EXECUTIVE_SUMMARY_HELP_OVERVIEW =
   "Use this guide for sponsor-safe pilot outcomes, measurable value framing, and honest limits before opening the live executive value report or dashboard.";
 

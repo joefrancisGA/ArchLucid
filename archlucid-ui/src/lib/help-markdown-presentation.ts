@@ -2990,12 +2990,16 @@ function isProductOverviewContributorLeakageLine(line: string): boolean {
  */
 export function stripExecutiveSummarySponsorBriefLeakage(markdown: string): string {
   return stripProductOverviewContributorLeakage(markdown)
+    .replace(/^(##+)\s+\d+\.\s+/gm, "$1 ")
     .replace(/`?API_CONTRACTS\.md`?/gi, "[Configuration reference](/help/configuration-reference)")
     .replace(/API_CONTRACTS\.md/gi, "/help/configuration-reference")
     .replace(/`?PILOT_ROI_MODEL\.md`?/gi, "[Pilot ROI model](/help/pilot-roi-model)")
     .replace(/PILOT_ROI_MODEL\.md/gi, "/help/pilot-roi-model")
     .replace(/`?ROI_MODEL\.md`?/gi, "[Pilot ROI model](/help/pilot-roi-model)")
     .replace(/ROI_MODEL\.md/gi, "/help/pilot-roi-model")
+    .replace(/\[Api Contracts\]\(/gi, "[API contracts](")
+    .replace(/\[Pilot Roi Model\]\(/gi, "[Pilot ROI model](")
+    .replace(/\[Roi Model\]\(/gi, "[Pilot ROI model](")
     .replace(/`?PRODUCT_PACKAGING\.md`?/gi, "[Executive summary](/help/executive-summary#what-archlucid-is)")
     .replace(/PRODUCT_PACKAGING\.md/gi, "/help/executive-summary#what-archlucid-is")
     .replace(/`\/value-report`/gi, "`/insights/executive-summary`")

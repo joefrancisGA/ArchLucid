@@ -1,13 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import {
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
 import { HelpExecutiveSummaryPageHeader } from "@/app/(operator)/help/_sections/HelpExecutiveSummaryPageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { ExecutiveSummaryHelpEvidenceOrientationStrip } from "@/components/help/ExecutiveSummaryHelpEvidenceOrientationStrip";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
@@ -34,6 +30,7 @@ import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presenta
 import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
+
 type HelpExecutiveSummaryGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
   readonly markdown: string;
@@ -46,24 +43,6 @@ export function HelpExecutiveSummaryGuideView(
   const { entry, markdown } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const sourceDocPath = entry.sourcePaths[0] ?? "";
-  const [refreshing, setRefreshing] = useState(false);
-  const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
-  const [contentKey, setContentKey] = useState(0);
-
-  useEffect(() => {
-    setLastRefreshedAt(new Date());
-  }, []);
-
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-
-    try {
-      setContentKey((previous) => previous + 1);
-      setLastRefreshedAt(new Date());
-    } finally {
-      setRefreshing(false);
-    }
-  }, []);
 
   const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
     helpTopicSlug: entry.slug,
@@ -80,18 +59,12 @@ export function HelpExecutiveSummaryGuideView(
       <HelpExecutiveSummaryPageHeader
         entry={entry}
         subtitle={executiveSummaryHelpPageSubtitle(buyerPolishedShell)}
-        refreshing={refreshing}
-        lastRefreshedAt={lastRefreshedAt}
-        onRefresh={() => {
-          void onRefresh();
-        }}
       />
 
-      <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <Card
-          className="border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20"
-          data-testid="help-executive-summary-action-panel"
-        >
+      <ExecutiveSummaryHelpEvidenceOrientationStrip />
+
+      <div className="space-y-4">
+        <Card data-testid="help-executive-summary-action-panel">
           <CardHeader className={OPERATOR_CARD.header}>
             <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
               Open sponsor outputs
@@ -129,7 +102,6 @@ export function HelpExecutiveSummaryGuideView(
           </p>
 
           <div
-            key={contentKey}
             className={HELP_PAGE_LAYOUT.contentColumn}
             data-testid="help-executive-summary-content"
           >
