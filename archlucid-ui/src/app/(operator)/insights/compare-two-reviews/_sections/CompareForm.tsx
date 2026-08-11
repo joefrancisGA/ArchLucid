@@ -8,6 +8,7 @@ import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { ValidateCompareVocabularyRail } from "@/components/ValidateCompareVocabularyRail";
+import { ImpactPreviewCompareVocabularyRail } from "@/components/ImpactPreviewCompareVocabularyRail";
 import { coerceComparisonExplanation, coerceGoldenManifestComparison, coerceRunComparison } from "@/lib/operator-response-guards";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -443,6 +444,7 @@ export function CompareForm() {
         actions={<PageContextualHelpButton />}
       />
       <ValidateCompareVocabularyRail currentSurfaceId="compare" />
+      <ImpactPreviewCompareVocabularyRail currentSurfaceId="compare" />
       <PageCapabilityBoundaryStrip surfaceId="compare" />
 {showInsufficientFinalized ? (
         <CompareInsufficientFinalizedEmptyState
