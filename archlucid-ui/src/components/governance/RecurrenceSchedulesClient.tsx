@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
@@ -33,7 +33,12 @@ import {
 } from "@/lib/api/governance-stickiness-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
-import { formatRecurrenceScheduleUtcLabel } from "@/lib/recurrence-schedule-utc-format";
+import { RecurrenceLocalTimeDisplay } from "@/components/governance/RecurrenceLocalTimeDisplay";
+import {
+  buildRecurrenceLocalTimeSummary,
+  formatRecurrenceInstantLocalFirst,
+  resolveRecurrenceDisplayTimeZoneId,
+} from "@/lib/recurrence-local-time";
 import {
   RECURRENCE_SCHEDULES_EMPTY_DESCRIPTION,
   RECURRENCE_SCHEDULES_EMPTY_TITLE,
@@ -147,6 +152,7 @@ type RecurrenceScheduleRowEditorState = {
 /** TB-222 — governance workspace for architecture review recurrence schedules. */
 export default function RecurrenceSchedulesClient() {
   const canMutate = useOperateCapability();
+  const displayTimeZoneId = useMemo(() => resolveRecurrenceDisplayTimeZoneId(), []);
   const [schedules, setSchedules] = useState<ArchitectureReviewRecurrenceSchedule[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -412,12 +418,33 @@ export default function RecurrenceSchedulesClient() {
                           {truncateRunId(schedule.sourceRunId)}
                         </Link>
                       </EnterpriseTableCell>
-                      <EnterpriseTableCell className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>
-                        {schedule.cronExpression}
-                      </EnterpriseTableCell>
-                      <EnterpriseTableCell>{formatRecurrenceScheduleUtcLabel(schedule.nextRunUtc)}</EnterpriseTableCell>
                       <EnterpriseTableCell>
-                        {formatRecurrenceScheduleUtcLabel(schedule.lastTriggeredUtc)}
+                        <RecurrenceLocalTimeDisplay
+                          summary={buildRecurrenceLocalTimeSummary({
+                            cronExpression: schedule.cronExpression,
+                            nextRunUtc: schedule.nextRunUtc,
+                            ianaTimeZoneId: displayTimeZoneId,
+                          })}
+                        />
+                        <p className={cn("m-0 mt-1 font-mono text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
+                          {schedule.cronExpression}
+                        </p>
+                      </EnterpriseTableCell>
+                      <EnterpriseTableCell>
+                        <RecurrenceLocalTimeDisplay
+                          summary={formatRecurrenceInstantLocalFirst(
+                            schedule.nextRunUtc,
+                            displayTimeZoneId,
+                          )}
+                        />
+                      </EnterpriseTableCell>
+                      <EnterpriseTableCell>
+                        <RecurrenceLocalTimeDisplay
+                          summary={formatRecurrenceInstantLocalFirst(
+                            schedule.lastTriggeredUtc,
+                            displayTimeZoneId,
+                          )}
+                        />
                       </EnterpriseTableCell>
                       <EnterpriseTableCell>
                         <StatusTag

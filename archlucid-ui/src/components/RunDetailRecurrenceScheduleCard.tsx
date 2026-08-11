@@ -1,8 +1,14 @@
 "use client";
 import { cn } from "@/lib/utils";
+import { RecurrenceLocalTimeDisplay } from "@/components/governance/RecurrenceLocalTimeDisplay";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  buildRecurrenceLocalTimeSummary,
+  formatRecurrenceInstantLocalFirst,
+  resolveRecurrenceDisplayTimeZoneId,
+} from "@/lib/recurrence-local-time";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -40,6 +46,7 @@ export function RunDetailRecurrenceScheduleCard({ runId }: RunDetailRecurrenceSc
   const [busy, setBusy] = useState(false);
 
   const normalizedRunId = normalizeRunIdForRecurrenceApi(runId);
+  const displayTimeZoneId = useMemo(() => resolveRecurrenceDisplayTimeZoneId(), []);
 
   const reload = useCallback(async (): Promise<void> => {
     const rows = await listArchitectureReviewRecurrenceSchedules();
@@ -87,7 +94,15 @@ export function RunDetailRecurrenceScheduleCard({ runId }: RunDetailRecurrenceSc
         isEnabled: true,
       });
 
-      setStatusMessage("Weekly recurrence enabled (Mondays 08:00 UTC).");
+      const enabledSummary = buildRecurrenceLocalTimeSummary({
+        cronExpression: "0 8 * * 1",
+        ianaTimeZoneId: displayTimeZoneId,
+      });
+      const utcPart =
+        enabledSummary.utcSecondary.trim().length > 0
+          ? ` (server: ${enabledSummary.utcSecondary})`
+          : "";
+      setStatusMessage(`Weekly recurrence enabled - ${enabledSummary.localPrimary}${utcPart}.`);
       await reload();
     } catch (error: unknown) {
       setErrorMessage(error instanceof Error ? error.message : "Failed to create recurrence schedule.");
@@ -118,8 +133,22 @@ export function RunDetailRecurrenceScheduleCard({ runId }: RunDetailRecurrenceSc
             {existing.name} — {existing.cronExpression}
             {existing.isEnabled ? "" : " (disabled)"}
           </li>
-          {existing.nextRunUtc ? <li>Next run: {existing.nextRunUtc}</li> : null}
-          {existing.lastTriggeredUtc ? <li>Last triggered: {existing.lastTriggeredUtc}</li> : null}
+          {existing.nextRunUtc ? (
+            <li>
+              Next run
+              <RecurrenceLocalTimeDisplay
+                summary={formatRecurrenceInstantLocalFirst(existing.nextRunUtc, displayTimeZoneId)}
+              />
+            </li>
+          ) : null}
+          {existing.lastTriggeredUtc ? (
+            <li>
+              Last triggered
+              <RecurrenceLocalTimeDisplay
+                summary={formatRecurrenceInstantLocalFirst(existing.lastTriggeredUtc, displayTimeZoneId)}
+              />
+            </li>
+          ) : null}
         </ul>
       ) : (
         <Button type="button" size="sm" disabled={busy || normalizedRunId === null} onClick={() => void enableWeeklySchedule()}>

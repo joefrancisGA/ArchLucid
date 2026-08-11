@@ -1,15 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
+import { RecurrenceLocalTimeDisplay } from "@/components/governance/RecurrenceLocalTimeDisplay";
 import { previewRecurrenceScheduleRuns } from "@/lib/api/governance-stickiness-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { findCronSchedulePresetByExpression } from "@/lib/cron-schedule-presets";
+import {
+  buildRecurrenceLocalTimeSummary,
+  formatRecurrenceInstantLocalFirst,
+  resolveRecurrenceDisplayTimeZoneId,
+} from "@/lib/recurrence-local-time";
 import {
   RECURRENCE_ACTIVATION_SUMMARY_HEADING,
   RECURRENCE_EACH_OCCURRENCE_NOTE,
 } from "@/lib/recurrence-schedule-activation-copy";
-import { formatRecurrenceScheduleUtcLabel } from "@/lib/recurrence-schedule-utc-format";
 import { cn } from "@/lib/utils";
 
 export type RecurrenceScheduleActivationSummaryProps = {
@@ -20,16 +24,28 @@ export type RecurrenceScheduleActivationSummaryProps = {
 /** Cadence, next run, and activation status shown before saving or enabling a recurrence schedule. */
 export function RecurrenceScheduleActivationSummary(props: RecurrenceScheduleActivationSummaryProps) {
   const { cronExpression, isActive } = props;
-  const [nextRunLabel, setNextRunLabel] = useState<string>("—");
+  const [nextRunUtc, setNextRunUtc] = useState<string | null>(null);
   const trimmedCron = cronExpression.trim();
-  const preset = findCronSchedulePresetByExpression(trimmedCron);
-  const cadenceLabel = preset?.label ?? trimmedCron;
+  const displayTimeZoneId = useMemo(() => resolveRecurrenceDisplayTimeZoneId(), []);
+  const cadenceSummary = useMemo(
+    () =>
+      buildRecurrenceLocalTimeSummary({
+        cronExpression: trimmedCron,
+        nextRunUtc,
+        ianaTimeZoneId: displayTimeZoneId,
+      }),
+    [trimmedCron, nextRunUtc, displayTimeZoneId],
+  );
+  const nextRunSummary = useMemo(
+    () => formatRecurrenceInstantLocalFirst(nextRunUtc, displayTimeZoneId),
+    [nextRunUtc, displayTimeZoneId],
+  );
 
   useEffect(() => {
     let cancelled = false;
 
     if (trimmedCron.length === 0) {
-      setNextRunLabel("—");
+      setNextRunUtc(null);
 
       return () => {
         cancelled = true;
@@ -43,14 +59,14 @@ export function RecurrenceScheduleActivationSummary(props: RecurrenceScheduleAct
         }
 
         if (result.isValid && result.nextRunUtc.length > 0) {
-          setNextRunLabel(formatRecurrenceScheduleUtcLabel(result.nextRunUtc[0]));
+          setNextRunUtc(result.nextRunUtc[0] ?? null);
         } else {
-          setNextRunLabel("—");
+          setNextRunUtc(null);
         }
       })
       .catch(() => {
         if (!cancelled) {
-          setNextRunLabel("—");
+          setNextRunUtc(null);
         }
       });
 
@@ -71,12 +87,22 @@ export function RecurrenceScheduleActivationSummary(props: RecurrenceScheduleAct
       <dl className={cn("m-0 grid gap-2 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
         <div>
           <dt className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Schedule cadence</dt>
-          <dd className="m-0">{cadenceLabel}</dd>
+          <dd className="m-0">
+            <RecurrenceLocalTimeDisplay
+              summary={cadenceSummary}
+              primaryTestId="recurrence-activation-cadence-local"
+              secondaryTestId="recurrence-activation-cadence-utc"
+            />
+          </dd>
         </div>
         <div>
           <dt className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Next expected run</dt>
           <dd className="m-0" data-testid="recurrence-activation-next-run">
-            {nextRunLabel}
+            <RecurrenceLocalTimeDisplay
+              summary={nextRunSummary}
+              primaryTestId="recurrence-activation-next-run-local"
+              secondaryTestId="recurrence-activation-next-run-utc"
+            />
           </dd>
         </div>
         <div>

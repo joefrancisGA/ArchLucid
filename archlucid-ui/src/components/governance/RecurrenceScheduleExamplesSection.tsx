@@ -1,19 +1,76 @@
 "use client";
 
+import { useMemo } from "react";
+
+import { RecurrenceLocalTimeDisplay } from "@/components/governance/RecurrenceLocalTimeDisplay";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  buildRecurrenceLocalTimeSummary,
+  resolveRecurrenceDisplayTimeZoneId,
+} from "@/lib/recurrence-local-time";
 import {
   RECURRENCE_SCHEDULE_EXAMPLES,
   RECURRENCE_SCHEDULES_EXAMPLES_HEADING,
   type RecurrenceScheduleExample,
 } from "@/lib/recurrence-schedules-copy";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type RecurrenceScheduleExamplesSectionProps = {
   readonly onApplyExample?: (example: RecurrenceScheduleExample) => void;
   readonly disabled?: boolean;
-  /** TB-1133 — compact chooser under Create (not a fourth card column). */
+  /** TB-1133 - compact chooser under Create (not a fourth card column). */
   readonly variant?: "cards" | "compact";
 };
+
+function ExampleCadenceBody(props: {
+  readonly example: RecurrenceScheduleExample;
+  readonly isCompact: boolean;
+  readonly timeZoneId: string;
+}) {
+  const { example, isCompact, timeZoneId } = props;
+  const summary = useMemo(
+    () =>
+      buildRecurrenceLocalTimeSummary({
+        cronExpression: example.cronExpression,
+        ianaTimeZoneId: timeZoneId,
+      }),
+    [example.cronExpression, timeZoneId],
+  );
+
+  return (
+    <>
+      <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+        {example.title}
+      </p>
+      <div
+        className={cn(isCompact ? "mt-0.5" : "mt-1")}
+        data-testid="recurrence-schedule-example-human-cadence"
+      >
+        <RecurrenceLocalTimeDisplay summary={summary} />
+      </div>
+      {isCompact ? (
+        <span className="sr-only" data-testid="recurrence-schedule-example-cron">
+          Cron (UTC): {example.cronExpression}
+        </span>
+      ) : (
+        <>
+          <p
+            className={cn(
+              "m-0 mt-1 font-mono text-neutral-500 dark:text-neutral-500",
+              OPERATOR_TYPOGRAPHY.helper,
+            )}
+            data-testid="recurrence-schedule-example-cron"
+          >
+            Cron (UTC): {example.cronExpression}
+          </p>
+          <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            {example.whenToUse}
+          </p>
+        </>
+      )}
+    </>
+  );
+}
 
 /** Static examples that explain when to use common recurrence cadences (TB-1132 / TB-1133). */
 export function RecurrenceScheduleExamplesSection(props: RecurrenceScheduleExamplesSectionProps) {
@@ -21,6 +78,7 @@ export function RecurrenceScheduleExamplesSection(props: RecurrenceScheduleExamp
   const isInteractive = onApplyExample !== undefined && !disabled;
   const isCompact = variant === "compact";
   const heading = isCompact ? "Start from a common cadence" : RECURRENCE_SCHEDULES_EXAMPLES_HEADING;
+  const timeZoneId = useMemo(() => resolveRecurrenceDisplayTimeZoneId(), []);
 
   return (
     <section
@@ -43,45 +101,8 @@ export function RecurrenceScheduleExamplesSection(props: RecurrenceScheduleExamp
         )}
       >
         {RECURRENCE_SCHEDULE_EXAMPLES.map((example) => {
-          const body = isCompact ? (
-            <>
-              <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-                {example.title}
-              </p>
-              <p
-                className={cn("m-0 mt-0.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="recurrence-schedule-example-human-cadence"
-              >
-                {example.humanCadence}
-              </p>
-              <span className="sr-only" data-testid="recurrence-schedule-example-cron">
-                Cron (UTC): {example.cronExpression}
-              </span>
-            </>
-          ) : (
-            <>
-              <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-                {example.title}
-              </p>
-              <p
-                className={cn("m-0 mt-1 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
-                data-testid="recurrence-schedule-example-human-cadence"
-              >
-                {example.humanCadence}
-              </p>
-              <p
-                className={cn(
-                  "m-0 mt-1 font-mono text-neutral-500 dark:text-neutral-500",
-                  OPERATOR_TYPOGRAPHY.helper,
-                )}
-                data-testid="recurrence-schedule-example-cron"
-              >
-                Cron (UTC): {example.cronExpression}
-              </p>
-              <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                {example.whenToUse}
-              </p>
-            </>
+          const body = (
+            <ExampleCadenceBody example={example} isCompact={isCompact} timeZoneId={timeZoneId} />
           );
 
           const itemClassName = isCompact

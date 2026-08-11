@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { CronExpressionBuilder } from "@/components/advisory/CronExpressionBuilder";
 import { normalizeRunIdForRecurrenceApi } from "@/components/RunDetailRecurrenceScheduleCard";
@@ -15,7 +15,11 @@ import {
   type ArchitectureReviewRecurrenceSchedule,
 } from "@/lib/api/governance-stickiness-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { formatRecurrenceScheduleUtcLabel } from "@/lib/recurrence-schedule-utc-format";
+import { RecurrenceLocalTimeDisplay } from "@/components/governance/RecurrenceLocalTimeDisplay";
+import {
+  formatRecurrenceInstantLocalFirst,
+  resolveRecurrenceDisplayTimeZoneId,
+} from "@/lib/recurrence-local-time";
 import { RECURRENCE_SCHEDULES_MANAGE_PATH } from "@/lib/recurrence-schedules-copy";
 
 const DEFAULT_CRON = "0 8 * * 1";
@@ -40,6 +44,7 @@ export function RecurrenceSchedulePostCommitCard({
   const [busy, setBusy] = useState(false);
 
   const normalizedRunId = normalizeRunIdForRecurrenceApi(runId);
+  const displayTimeZoneId = useMemo(() => resolveRecurrenceDisplayTimeZoneId(), []);
 
   const reload = useCallback(async (): Promise<void> => {
     const rows = await listArchitectureReviewRecurrenceSchedules();
@@ -120,9 +125,12 @@ export function RecurrenceSchedulePostCommitCard({
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.label)}>
               {existing.name} — {existing.cronExpression}
             </p>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.label)}>
-              Next run: {formatRecurrenceScheduleUtcLabel(existing.nextRunUtc)}
-            </p>
+            <div className={cn(OPERATOR_TYPOGRAPHY.label)}>
+              <span className="block">Next run</span>
+              <RecurrenceLocalTimeDisplay
+                summary={formatRecurrenceInstantLocalFirst(existing.nextRunUtc, displayTimeZoneId)}
+              />
+            </div>
             <Link
               href={RECURRENCE_SCHEDULES_MANAGE_PATH}
               className={cn(
