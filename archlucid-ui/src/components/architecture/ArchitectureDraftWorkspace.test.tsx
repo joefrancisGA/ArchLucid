@@ -28,6 +28,7 @@ vi.mock("@/hooks/use-architecture-draft-autosave", () => ({
     conflictMessage: null,
     saveDraft,
     reloadDraft,
+    acceptServerBaseline: vi.fn(),
     hasPersistedDraft: true,
   })),
 }));
@@ -127,6 +128,7 @@ beforeEach(() => {
     conflictMessage: null,
     saveDraft,
     reloadDraft,
+    acceptServerBaseline: vi.fn(),
     hasPersistedDraft: true,
   });
 });
@@ -139,6 +141,7 @@ describe("ArchitectureDraftWorkspace", () => {
       conflictMessage: null,
       saveDraft,
       reloadDraft,
+      acceptServerBaseline: vi.fn(),
       hasPersistedDraft: false,
     });
 
@@ -373,6 +376,41 @@ describe("ArchitectureDraftWorkspace", () => {
     expect(screen.queryByTestId("architecture-draft-acknowledge-edit")).not.toBeInTheDocument();
   });
 
+  it("hydrates system name and business outcome from the server draft", async () => {
+    const acceptServerBaseline = vi.fn();
+    vi.mocked(useArchitectureDraftAutosave).mockReturnValue({
+      saveState: "idle",
+      lastSavedUtc: null,
+      conflictMessage: null,
+      saveDraft,
+      reloadDraft,
+      acceptServerBaseline,
+      hasPersistedDraft: true,
+    });
+
+    getDraftRequest.mockResolvedValue({
+      ...spawnedDraft,
+      status: "Drafting",
+      spawnedRunId: null,
+    });
+
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-system-name")).toHaveValue("Claims intake");
+    });
+
+    expect(screen.getByTestId("architecture-draft-outcome")).toHaveValue("Reduce manual routing");
+    expect(acceptServerBaseline).toHaveBeenCalledWith(
+      {
+        freeTextIntent: "Claims intake modernization",
+        businessOutcome: "Reduce manual routing",
+        systemName: "Claims intake",
+      },
+      spawnedDraft.updatedUtc,
+    );
+  });
+
   it("discloses autosave and omits a disabled Save draft when autosave is authoritative (TB-1455)", async () => {
     vi.mocked(useArchitectureDraftAutosave).mockReturnValue({
       saveState: "saved",
@@ -380,6 +418,7 @@ describe("ArchitectureDraftWorkspace", () => {
       conflictMessage: null,
       saveDraft,
       reloadDraft,
+      acceptServerBaseline: vi.fn(),
       hasPersistedDraft: true,
     });
 
@@ -410,6 +449,7 @@ describe("ArchitectureDraftWorkspace", () => {
       conflictMessage: null,
       saveDraft,
       reloadDraft,
+      acceptServerBaseline: vi.fn(),
       hasPersistedDraft: true,
     });
 

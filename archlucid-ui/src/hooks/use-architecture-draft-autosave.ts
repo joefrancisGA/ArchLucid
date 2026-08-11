@@ -40,6 +40,14 @@ type UseArchitectureDraftAutosaveResult = {
   readonly saveDraft: () => Promise<boolean>;
   readonly markDirty: () => void;
   readonly reloadDraft: () => Promise<void>;
+  /**
+   * Align the autosave baseline with form state already applied from the server (initial load).
+   * Prevents a spurious post-load PATCH that can race with later edits.
+   */
+  readonly acceptServerBaseline: (
+    fields: ArchitectureDraftFieldState,
+    serverUpdatedUtc: string,
+  ) => void;
   readonly hasPersistedDraft: boolean;
 };
 
@@ -49,6 +57,14 @@ function fieldsAreEqual(left: ArchitectureDraftFieldState, right: ArchitectureDr
     left.businessOutcome === right.businessOutcome &&
     left.systemName === right.systemName
   );
+}
+
+function fieldsFromDraftDocument(draft: DraftRequestResponse): ArchitectureDraftFieldState {
+  return {
+    freeTextIntent: draft.document.freeTextIntent,
+    businessOutcome: draft.document.businessOutcome ?? "",
+    systemName: draft.document.systemName ?? "",
+  };
 }
 
 function createIntentForDeferredDraft(fields: ArchitectureDraftFieldState): string {
@@ -71,20 +87,46 @@ export function useArchitectureDraftAutosave(
   const [lastSavedUtc, setLastSavedUtc] = useState<string | null>(null);
   const [conflictMessage, setConflictMessage] = useState<string | null>(null);
   const [hasPersistedDraft, setHasPersistedDraft] = useState(!deferCreateUntilFirstSave);
+  // Bumped whenever persistedFieldsRef changes so dirty detection re-runs after save/load.
+  const [baselineRevision, setBaselineRevision] = useState(0);
   const persistedFieldsRef = useRef<ArchitectureDraftFieldState>(args.fields);
+  const fieldsRef = useRef(args.fields);
+  const actorSetRef = useRef(args.actorSet);
   const serverUpdatedUtcRef = useRef<string | null>(null);
   const saveSequenceRef = useRef(0);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inFlightSaveRef = useRef<Promise<boolean> | null>(null);
+  const trailingSaveNeededRef = useRef(false);
+  const persistDraftRef = useRef<() => Promise<boolean>>(async () => false);
   const resolvedArchitectureIdRef = useRef<string | null>(
     deferCreateUntilFirstSave ? null : args.architectureId,
   );
+
+  fieldsRef.current = args.fields;
+  actorSetRef.current = args.actorSet;
 
   const isOnline = typeof navigator !== "undefined" ? navigator.onLine : true;
 
   const hasUnsavedChanges = useMemo(
     () => !fieldsAreEqual(args.fields, persistedFieldsRef.current),
-    [args.fields],
+    [args.fields, baselineRevision],
+  );
+
+  const writePersistedBaseline = useCallback((fields: ArchitectureDraftFieldState) => {
+    persistedFieldsRef.current = fields;
+    setBaselineRevision((current) => current + 1);
+  }, []);
+
+  const acceptServerBaseline = useCallback(
+    (fields: ArchitectureDraftFieldState, serverUpdatedUtc: string) => {
+      serverUpdatedUtcRef.current = serverUpdatedUtc;
+      writePersistedBaseline(fields);
+      setLastSavedUtc(null);
+      setConflictMessage(null);
+      setSaveState("idle");
+      setHasPersistedDraft(true);
+    },
+    [writePersistedBaseline],
   );
 
   const persistDraft = useCallback(async (): Promise<boolean> => {
@@ -98,13 +140,15 @@ export function useArchitectureDraftAutosave(
       return false;
     }
 
-    if (!hasArchitectureDraftSaveableContent(args.fields)) {
+    const latestFields = fieldsRef.current;
+
+    if (!hasArchitectureDraftSaveableContent(latestFields)) {
       setSaveState("idle");
 
       return false;
     }
 
-    const validation = validateArchitectureDraftIntegrity(args.fields);
+    const validation = validateArchitectureDraftIntegrity(latestFields);
 
     if (!validation.isValid) {
       setSaveState("unsaved");
@@ -113,6 +157,9 @@ export function useArchitectureDraftAutosave(
     }
 
     if (inFlightSaveRef.current !== null) {
+      // Stale in-flight PATCH must not drop edits typed while the request was outstanding.
+      trailingSaveNeededRef.current = true;
+
       return inFlightSaveRef.current;
     }
 
@@ -126,7 +173,10 @@ export function useArchitectureDraftAutosave(
         let architectureId = resolvedArchitectureIdRef.current ?? args.architectureId;
 
         if (deferCreateUntilFirstSave && resolvedArchitectureIdRef.current === null) {
-          const created = await createDraftRequest(createIntentForDeferredDraft(args.fields), CREATE_ARCHITECTURE_INTENT);
+          const created = await createDraftRequest(
+            createIntentForDeferredDraft(fieldsRef.current),
+            CREATE_ARCHITECTURE_INTENT,
+          );
           resolvedArchitectureIdRef.current = created.draftId;
           architectureId = created.draftId;
           setHasPersistedDraft(true);
@@ -147,12 +197,16 @@ export function useArchitectureDraftAutosave(
           return false;
         }
 
+        // Re-read immediately before PATCH so a long GET cannot freeze older field values.
+        const fieldsForPatch = fieldsRef.current;
+        const actorSetForPatch = actorSetRef.current;
+
         const patched = await patchDraftRequest(architectureId, {
-          freeTextIntent: args.fields.freeTextIntent.trim(),
-          businessOutcome: args.fields.businessOutcome.trim(),
-          systemName: args.fields.systemName.trim() || undefined,
+          freeTextIntent: fieldsForPatch.freeTextIntent.trim(),
+          businessOutcome: fieldsForPatch.businessOutcome.trim(),
+          systemName: fieldsForPatch.systemName.trim() || undefined,
           actorSet: normalizeActorSetForAdmission(
-            args.actorSet.actors.length > 0 ? args.actorSet : buildDefaultActorSet(),
+            actorSetForPatch.actors.length > 0 ? actorSetForPatch : buildDefaultActorSet(),
           ),
           workflowIntent: CREATE_ARCHITECTURE_INTENT,
         });
@@ -161,11 +215,7 @@ export function useArchitectureDraftAutosave(
           return false;
         }
 
-        persistedFieldsRef.current = {
-          freeTextIntent: patched.document.freeTextIntent,
-          businessOutcome: patched.document.businessOutcome ?? "",
-          systemName: patched.document.systemName ?? "",
-        };
+        writePersistedBaseline(fieldsFromDraftDocument(patched));
         serverUpdatedUtcRef.current = patched.updatedUtc;
         setLastSavedUtc(patched.updatedUtc);
         upsertArchitectureDraftRegistryEntry(buildArchitectureDraftRegistryEntry(patched));
@@ -180,6 +230,17 @@ export function useArchitectureDraftAutosave(
         return false;
       } finally {
         inFlightSaveRef.current = null;
+
+        const stillDirtyRelativeToBaseline = !fieldsAreEqual(
+          fieldsRef.current,
+          persistedFieldsRef.current,
+        );
+        const shouldRunTrailingSave = trailingSaveNeededRef.current || stillDirtyRelativeToBaseline;
+        trailingSaveNeededRef.current = false;
+
+        if (shouldRunTrailingSave && hasArchitectureDraftSaveableContent(fieldsRef.current)) {
+          void persistDraftRef.current();
+        }
       }
     })();
 
@@ -187,29 +248,19 @@ export function useArchitectureDraftAutosave(
 
     return savePromise;
   }, [
-    args.actorSet,
     args.architectureId,
-    args.fields,
     args.onDraftCreated,
     deferCreateUntilFirstSave,
     enabled,
     isOnline,
+    writePersistedBaseline,
   ]);
+
+  persistDraftRef.current = persistDraft;
 
   const reloadDraft = useCallback(async () => {
     const architectureId = resolvedArchitectureIdRef.current ?? args.architectureId;
     const draft = await getDraftRequest(architectureId);
-    serverUpdatedUtcRef.current = draft.updatedUtc;
-    persistedFieldsRef.current = {
-      freeTextIntent: draft.document.freeTextIntent,
-      businessOutcome: draft.document.businessOutcome ?? "",
-      systemName: draft.document.systemName ?? "",
-    };
-    setLastSavedUtc(null);
-    setConflictMessage(null);
-    // Fresh load / conflict refresh — baseline is synced; wait for a user save before "Saved".
-    setSaveState("idle");
-    setHasPersistedDraft(true);
     args.onDraftLoaded?.(draft);
   }, [args]);
 
@@ -280,6 +331,7 @@ export function useArchitectureDraftAutosave(
     saveDraft: persistDraft,
     markDirty,
     reloadDraft,
+    acceptServerBaseline,
     hasPersistedDraft,
   };
 }

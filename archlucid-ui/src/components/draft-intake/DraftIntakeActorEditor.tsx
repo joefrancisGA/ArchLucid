@@ -1,9 +1,14 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  INLINE_GUIDANCE_LABEL_CLASS,
+  OPERATOR_FORM_FIELD_LABEL_CLASS,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
 
 import { useMemo, useState } from "react";
 
+import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { Button } from "@/components/ui/button";
 import { DismissControl } from "@/components/usability/DismissControl";
 import { Input } from "@/components/ui/input";
@@ -17,9 +22,9 @@ import {
 } from "@/components/ui/select";
 import {
   ACTOR_KIND_OPTIONS,
-  formatActorCardHeading,
   formatSuggestedActorLabel,
   getInteractionContractOptions,
+  resolveActorCardHeadingParts,
   TRUST_ORIGIN_OPTIONS,
 } from "@/lib/draft-intake-actor-labels";
 import {
@@ -187,7 +192,7 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
     <div className="draft-intake-actor-editor space-y-4" data-testid="draft-intake-actor-editor">
       <div className="space-y-1">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+          <p className={cn("m-0", OPERATOR_FORM_FIELD_LABEL_CLASS)}>
             {GUIDED_INTAKE_ACTORS_SECTION_HEADING}
           </p>
           <Button
@@ -284,15 +289,24 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
         </div>
       ) : null}
 
-      {props.actorSet.actors.map((actor, index) => (
+      {props.actorSet.actors.map((actor, index) => {
+        const heading = resolveActorCardHeadingParts(actor, index);
+
+        return (
         <div
           key={`actor-${index}-${actor.kind}-${actor.trustOrigin}-${actor.contract}`}
           className="space-y-3 rounded-md border p-3"
           data-testid="draft-intake-actor-row"
         >
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-              {formatActorCardHeading(actor, index)}
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+              {heading.keyHasColon ? (
+                <InlineGuidanceLabel label={heading.keyLabel} />
+              ) : (
+                <strong className={INLINE_GUIDANCE_LABEL_CLASS}>{heading.keyLabel}</strong>
+              )}
+              {heading.valueText.length > 0 ? ` ${heading.valueText}` : null}
+              {heading.provenanceSuffix}
             </p>
             <div className="flex flex-wrap gap-2">
               {actor.origin === "Inferred" ? (
@@ -420,7 +434,8 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
             </div>
           </div>
         </div>
-      ))}
+        );
+      })}
 
       <div className="flex flex-wrap gap-2">
         <Button

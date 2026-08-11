@@ -62,18 +62,52 @@ export function actorOriginLabel(origin: ActorOrigin): string {
 }
 
 /** Buyer-facing actor card title — surfaces suggested vs confirmed provenance. */
-export function formatActorCardHeading(
+export type ActorCardHeadingParts = {
+  /** Scan key shown before the value (`Actor` or `Actor 2`). */
+  readonly keyLabel: string;
+  /** Whether to render a trailing colon after {@link keyLabel}. */
+  readonly keyHasColon: boolean;
+  /** Actor display name; empty when falling back to numbering. */
+  readonly valueText: string;
+  /** Provenance suffix such as ` — suggested`. */
+  readonly provenanceSuffix: string;
+};
+
+export function resolveActorCardHeadingParts(
   actor: ActorDescriptor,
   index: number,
-): string {
+): ActorCardHeadingParts {
   const label = actor.label?.trim() ?? "";
   const provenanceSuffix = actor.origin === "Inferred" ? " — suggested" : "";
 
   if (label.length > 0) {
-    return `Actor: ${label}${provenanceSuffix}`;
+    return {
+      keyLabel: "Actor",
+      keyHasColon: true,
+      valueText: label,
+      provenanceSuffix,
+    };
   }
 
-  return `Actor ${index + 1}${provenanceSuffix}`;
+  return {
+    keyLabel: `Actor ${index + 1}`,
+    keyHasColon: false,
+    valueText: "",
+    provenanceSuffix,
+  };
+}
+
+export function formatActorCardHeading(
+  actor: ActorDescriptor,
+  index: number,
+): string {
+  const parts = resolveActorCardHeadingParts(actor, index);
+
+  if (parts.valueText.length > 0) {
+    return `Actor: ${parts.valueText}${parts.provenanceSuffix}`;
+  }
+
+  return `${parts.keyLabel}${parts.provenanceSuffix}`;
 }
 
 /** Compact label for suggested-actor checkboxes. */

@@ -130,7 +130,32 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     [router],
   );
 
-  const { saveState, lastSavedUtc, conflictMessage, saveDraft, reloadDraft, hasPersistedDraft } =
+  const applyLoadedDraftToForm = useCallback((loaded: DraftRequestResponse) => {
+    const formState = applyArchitectureCreationDraftToFormState(loaded);
+    setDraft(loaded);
+    setFields(formState);
+    setActorSet(
+      loaded.document.actorSet.actors.length > 0
+        ? loaded.document.actorSet
+        : architectureCreationDefaultActorSet(),
+    );
+
+    return formState;
+  }, []);
+
+  const acceptServerBaselineRef = useRef<
+    (fields: { freeTextIntent: string; businessOutcome: string; systemName: string }, serverUpdatedUtc: string) => void
+  >(() => undefined);
+
+  const handleDraftLoaded = useCallback(
+    (loaded: DraftRequestResponse) => {
+      const formState = applyLoadedDraftToForm(loaded);
+      acceptServerBaselineRef.current(formState, loaded.updatedUtc);
+    },
+    [applyLoadedDraftToForm],
+  );
+
+  const { saveState, lastSavedUtc, conflictMessage, saveDraft, reloadDraft, acceptServerBaseline, hasPersistedDraft } =
     useArchitectureDraftAutosave({
       architectureId: props.architectureId,
       fields,
@@ -138,8 +163,10 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       enabled: !handoffEditorLocked,
       deferCreateUntilFirstSave: isNewDraft,
       onDraftCreated: isNewDraft ? handleDraftCreated : undefined,
-      onDraftLoaded: setDraft,
+      onDraftLoaded: handleDraftLoaded,
     });
+
+  acceptServerBaselineRef.current = acceptServerBaseline;
 
   const hasUnsavedChanges = saveState === "unsaved" || saveState === "saving" || saveState === "error";
   useUnsavedChangesGuard({ when: hasUnsavedChanges && !handoffEditorLocked });
@@ -195,12 +222,10 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         // Draft exists but is not a create-architecture draft — still allow editing with create intent on save.
       }
 
-      const formState = applyArchitectureCreationDraftToFormState(loaded);
-      setDraft(loaded);
-      setFields(formState);
-      setActorSet(
-        loaded.document.actorSet.actors.length > 0 ? loaded.document.actorSet : architectureCreationDefaultActorSet(),
-      );
+      const formState = applyLoadedDraftToForm(loaded);
+      // Match autosave baseline to the hydrated form so reload does not look "unsaved"
+      // and accidentally PATCH empty system name / business outcome over the server copy.
+      acceptServerBaseline(formState, loaded.updatedUtc);
       setHandoffAcknowledged(isArchitectureDraftHandoffAcknowledged(props.architectureId));
       upsertArchitectureDraftRegistryEntry(
         buildArchitectureDraftRegistryEntry(loaded, {
@@ -212,7 +237,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     } finally {
       setLoading(false);
     }
-  }, [isNewDraft, props.architectureId]);
+  }, [acceptServerBaseline, applyLoadedDraftToForm, isNewDraft, props.architectureId]);
 
   useEffect(() => {
     if (isNewDraft) {
