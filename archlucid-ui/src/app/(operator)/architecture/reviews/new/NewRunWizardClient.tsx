@@ -255,6 +255,7 @@ export function NewRunWizardClient() {
   const [submitError, setSubmitError] = useState<unknown | null>(null);
   const creationProgress = useReviewCreationProgress();
   const [runId, setRunId] = useState<string | null>(null);
+  const [trackPollSession, setTrackPollSession] = useState(0);
   const [pendingEvidenceFile, setPendingEvidenceFile] = useState<File | null>(null);
   const [pendingDocumentFiles, setPendingDocumentFiles] = useState<File[]>([]);
   const [evidenceUploadState, setEvidenceUploadState] = useState<WizardEvidenceUploadTrackState>("idle");
@@ -303,6 +304,7 @@ export function NewRunWizardClient() {
 
   const { summary: pollSummary } = useRunSummaryStream(runId, {
     enabled: runId !== null && (wizardMode === "quick" ? true : stepIndex === trackStepIndex),
+    retryToken: trackPollSession,
   });
 
   const form = useForm<WizardFormValues>({
@@ -915,7 +917,11 @@ export function NewRunWizardClient() {
                   void retryEvidenceUpload();
                 }}
               />
-              <WizardStepTrack runId={runId} pollSummary={pollSummary} />
+              <WizardStepTrack
+                runId={runId}
+                pollSummary={pollSummary}
+                onRetryPolling={() => setTrackPollSession((session) => session + 1)}
+              />
             </>
           ) : null}
 
@@ -1102,7 +1108,11 @@ export function NewRunWizardClient() {
                   void retryEvidenceUpload();
                 }}
               />
-              <WizardStepTrack runId={runId} pollSummary={pollSummary} />
+              <WizardStepTrack
+                runId={runId}
+                pollSummary={pollSummary}
+                onRetryPolling={() => setTrackPollSession((session) => session + 1)}
+              />
             </>
           ) : null}
 
