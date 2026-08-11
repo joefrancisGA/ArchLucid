@@ -6,6 +6,7 @@ import {
   REVIEW_TERMINOLOGY_BANNED_OPERATOR_PATTERNS,
   REVIEW_TERMINOLOGY_BANNED_PACKAGE_PATTERNS,
   REVIEW_TERMINOLOGY_BANNED_PRIMARY_RUN_PATTERNS,
+  REVIEW_TERMINOLOGY_BANNED_PRODUCT_VERSION_PATTERNS,
   REVIEW_TERMINOLOGY_GOLDEN_PATH_BANNED_PATTERNS,
 } from "@/lib/review-terminology-surfaces";
 
@@ -29,6 +30,11 @@ const EXCLUDED_RELATIVE_PATH_FRAGMENTS = [
   "/pipeline-status-label-surfaces.ts",
   "/retired-demo-org-branding.ts",
   "/help-product-language.ts",
+  "/help-markdown/contributor-leakage.ts",
+  "/help-markdown/markdown-cleanup.ts",
+  "/itsm-connectors-admin-scope.ts",
+  "/api-v1-routes.ts",
+  "/wizard-evidence-source-options.ts",
   "/golden-path-glossary-nouns.ts",
   "/lib/api/",
   "/committed-run-picker.ts",
@@ -50,6 +56,18 @@ const LINE_SAFELIST_PATTERNS = [
   /\brun_id\b/i,
   /\/architecture\/reviews\//i,
   /\/v1\//i,
+  /openapi\/v\d/i,
+  /\.v\d+["'`;,)]/i,
+  /_V1\b/,
+  /_v1\b/,
+  /REPORT_PROBLEM_V1/i,
+  /DEFAULT_POLICY_PACKS_V1/i,
+  /POLICY_PACK.*_V1/i,
+  /availability === "v1\.1"/i,
+  /placeholder="e\.g\. v1\.0\.0"/i,
+  /\bsetV1\b/,
+  /thresholdValue: v1/,
+  /value=\{v1\}/,
   /data-testid/i,
   /^import\s+/,
   /^export\s+/,
@@ -162,6 +180,7 @@ const ALL_BANNED_PATTERNS = [
   ...REVIEW_TERMINOLOGY_BANNED_MANIFEST_PATTERNS,
   ...REVIEW_TERMINOLOGY_BANNED_OPERATOR_PATTERNS,
   ...REVIEW_TERMINOLOGY_BANNED_PACKAGE_PATTERNS,
+  ...REVIEW_TERMINOLOGY_BANNED_PRODUCT_VERSION_PATTERNS,
 ] as const;
 
 export type ReviewTerminologyViolation = {

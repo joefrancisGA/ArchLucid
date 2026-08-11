@@ -81,7 +81,7 @@ export const CTO_DEMO_QUESTIONS: readonly CtoDemoQuestion[] = [
     id: "integration",
     question: "Can it integrate with our tools?",
     answer:
-      "V1 exposes a documented REST API and CLI; Jira, Teams, and webhooks are on the V1.1 roadmap.",
+      "ArchLucid exposes a documented REST API and CLI; Jira, Teams, and webhooks are on the future-release roadmap.",
     proofHref: auditTrailNavHref("claims-intake-modernization"),
     proofLabel: "Audit trail",
     proofQueryParam: "focus=api",

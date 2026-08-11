@@ -24,7 +24,7 @@ export const API_CONTRACTS_HELP_SOURCES_STRIP_INTRO =
 
 export const API_CONTRACTS_HELP_PRIMARY_ACTIONS = {
   openOpenApi: {
-    label: "OpenAPI contract (v1)",
+    label: "OpenAPI contract",
     href: API_CONTRACTS_OPENAPI_PATH,
   },
 } as const;

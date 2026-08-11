@@ -34,7 +34,7 @@
       "Advisory findings on psus-ctrl-* compliance rules",
       "Control-gap narrative suitable for internal ATO prep (not ATO itself)"
     ],
-    "scopeLabel": "V1-ready",
+    "scopeLabel": "Product-ready",
     "doNotUseWhen": [
       "Buyer requires issued FedRAMP ATO or agency authorization package from ArchLucid",
       "Non-US public-sector scope without 800-53 mapping need"

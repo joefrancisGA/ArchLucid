@@ -62,6 +62,7 @@ describe("HelpTopicMarkdownView security and trust", () => {
     expect(screen.queryByText(/Last reviewed \(UTC\)/i)).toBeNull();
     expect(screen.queryByTestId("procurement-help-last-reviewed")).toBeNull();
     expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
+    expect((document.body.textContent ?? "")).not.toMatch(/\bV1\b/);
   });
 
   it("renders trust center summary and links to procurement FAQ", () => {

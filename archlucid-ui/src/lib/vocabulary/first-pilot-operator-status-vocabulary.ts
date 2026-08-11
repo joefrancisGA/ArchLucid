@@ -144,6 +144,6 @@ export const FIRST_PILOT_OPERATOR_STATUS_VOCABULARY = {
   ready: "READY — no blocking action for this row.",
   needsAttention: "NEEDS ATTENTION — review before sponsor send or external circulation.",
   blocked: "BLOCKED — resolve before sponsor handoff or procurement follow-up.",
-  deferred: "DEFERRED — explicitly out of V1 first-pilot scope; document in proof disposition.",
+  deferred: "DEFERRED — explicitly out of first-pilot scope; document in proof disposition.",
   nextAction: "NEXT ACTION — one primary link surfaced by the command center phase card.",
 } as const;

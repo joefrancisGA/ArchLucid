@@ -48,7 +48,74 @@ function applyHelpTopicProductLanguage(text) {
   result = result.replace(/(?<!\/architecture)\/reviews\b/g, "/architecture/reviews");
   result = result.replace(/\/architecture\/reviews\/([^)/\s]+)\/manifest\b/g, "/architecture/reviews/$1/architecture");
 
-  return result;
+  return stripProductReleaseVersionLabels(result);
+}
+
+/**
+ * Keep in sync with `src/lib/help-markdown/markdown-cleanup.ts` — strips product version labels from buyer excerpts.
+ * @param {string} markdown
+ */
+function stripProductReleaseVersionLabels(markdown) {
+  return markdown
+    .replace(/\*\*\[V1 GA[^\]]*\]\*\*/gi, "**[first-party]**")
+    .replace(/\[V1 GA[^\]]*\]/gi, "first-party")
+    .replace(/\bV1 GA first-party\b/gi, "first-party")
+    .replace(/\bV1 GA\b/gi, "generally available")
+    .replace(/\bV1\.1 customer-operated\b/gi, "customer-operated")
+    .replace(/\bV1\.1 recipe bridge\b/gi, "recipe bridge")
+    .replace(/\bV1\.1\b/gi, "future release")
+    .replace(/\bV1-ready\b/gi, "product-ready")
+    .replace(/\bV1 pilots?\b/gi, "pilots")
+    .replace(/\bfirst-pilot V1\b/gi, "first-pilot")
+    .replace(/\bshipped V1\b/gi, "shipped")
+    .replace(/\bStatus:\s*V1 GA\b/gi, "Status: generally available")
+    .replace(/\bNot V1-required\b/gi, "Not required for pilots")
+    .replace(/\bnot V1 defects\b/gi, "not product defects")
+    .replace(/\bout of V1\b/gi, "out of current scope")
+    .replace(/\bdo not promise GA in V1 pilots\b/gi, "do not promise GA in pilots")
+    .replace(/\bUse \(V1\)\b/g, "Use")
+    .replace(/\bV1-only\b/gi, "product")
+    .replace(/\bV1 REST\b/gi, "REST")
+    .replace(/\bV1 vs V1\.1\b/gi, "current product vs future release")
+    .replace(/\bV1 window\b/gi, "current product window")
+    .replace(/\binternal V1 rollout\b/gi, "internal rollout")
+    .replace(/\bV1 scope\b/gi, "product scope")
+    .replace(/\bV1 ships\b/gi, "ArchLucid ships")
+    .replace(/\bV1 includes\b/gi, "ArchLucid includes")
+    .replace(/\bV1 offers\b/gi, "ArchLucid offers")
+    .replace(/\bV1 uses\b/gi, "ArchLucid uses")
+    .replace(/\bV1 professional services\b/gi, "Professional services")
+    .replace(/\bV1 GA —/gi, "")
+    .replace(/\bRoadmap \/ V1\.1\b/gi, "Roadmap")
+    .replace(/\bGTM V1\.1\b/gi, "GTM")
+    .replace(/\bThree lanes \(V1 default\)/gi, "Three lanes")
+    .replace(/##\s*V1\s+scalability/gi, "## Scalability")
+    .replace(/\{#v1-/gi, "{#")
+    .replace(/\bV1\s+scalability\b/gi, "scalability")
+    .replace(/\bActive\s+V1\s+control\b/gi, "Active control")
+    .replace(/\bnot\s+V1\s+blockers\b/gi, "not product blockers")
+    .replace(/\b\(V1 evidence today\)/gi, "(current evidence)")
+    .replace(/\bV1\s+evidence\b/gi, "current evidence")
+    .replace(/\bdefault\s+V1\s+path\b/gi, "default path")
+    .replace(/\bnot\s+a\s+single-switch\s+V1\s+guarantee\b/gi, "not a single-switch product guarantee")
+    .replace(/\bAuthoritative\s+V1\b/gi, "Authoritative product")
+    .replace(/\bthe\s+\*\*V1\*\*\s+contract\b/gi, "the product contract")
+    .replace(/\bV1\s+assurance\b/gi, "current assurance")
+    .replace(/\bV1\s+posture\b/gi, "product posture")
+    .replace(/\bfor\s+V1\b/gi, "for the product")
+    .replace(/\bin\s+V1\b/gi, "in the product")
+    .replace(/\bV1\s+describes\b/gi, "ArchLucid describes")
+    .replace(/\bnot\s+a\s+V1\s+guarantee\b/gi, "not a product guarantee")
+    .replace(/\bV1\s+surface\b/gi, "product surface")
+    .replace(/\bV1\s+registry\b/gi, "product registry")
+    .replace(/\bV1\s+readiness\b/gi, "product readiness")
+    .replace(/\bV1\s+objections\b/gi, "procurement objections")
+    .replace(/\bV1\s+claims\b/gi, "product claims")
+    .replace(/\bV1\s+required\b/gi, "product-required")
+    .replace(/\bV1\s+storage\b/gi, "current storage")
+    .replace(/\bV1\s+exposes\b/gi, "ArchLucid exposes")
+    .replace(/\bYes\s+—\s+V1\b/gi, "Yes")
+    .replace(/\bV1\b/g, "ArchLucid");
 }
 
 /**
@@ -99,7 +166,7 @@ function applyHelpProductLanguageToExcerpt(text) {
     .replace(/\]\(\/runs\/new\)/g, "](/reviews/new)")
     .replace(/\[(\/runs\/[^\]]+)\]/g, (_match, path) => `[${path.replace(/^\/runs\//, "/reviews/")}]`);
 
-  return result;
+  return stripProductReleaseVersionLabels(result);
 }
 
 /**

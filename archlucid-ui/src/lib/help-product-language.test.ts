@@ -88,6 +88,16 @@ describe("help-product-language", () => {
 
     expect(applyHelpTopicProductLanguage(input)).toContain("manifest.json");
   });
+
+  it("strips product version labels from buyer help copy", () => {
+    const input =
+      "**V1** assurance includes owner-conducted testing. Tier 2 is opt-in and not required for V1 pilots. Status: V1 GA — aligns with product scope.";
+    const output = applyHelpTopicProductLanguage(input);
+
+    expect(output).not.toMatch(/\bV1\b/);
+    expect(output.toLowerCase()).toContain("archlucid");
+    expect(output.toLowerCase()).toContain("generally available");
+  });
 });
 
 describe("help topic banned copy guard", () => {

@@ -65,7 +65,7 @@ export function rewriteProcurementFaqBuyerPresentation(markdown: string): string
     )
     .replace(
       /\*\*Answer:\*\* \*\*V1\*\* uses \*\*owner-conducted\*\* penetration-style testing and internal assessments\. A \*\*third-party\*\* vendor engagement is \*\*planned, not yet scheduled\*\*; there is \*\*no\*\* awarded external vendor today\. Redacted assessor summaries, when they exist, are distributed \*\*under NDA\*\* through security \/ sales diligence\. Lack of a published third-party pen-test report is an honesty boundary, not a hidden control claim\./gi,
-      `**Answer:** V1 uses owner-conducted penetration-style testing and internal assessments. A third-party vendor engagement is planned, not yet scheduled; there is no awarded external vendor today. Redacted assessor summaries, when they exist, are distributed under NDA through [Security & trust](/administration/security-trust). Lack of a published third-party pen-test report is an honesty boundary, not a hidden control claim.`,
+      `**Answer:** ArchLucid uses owner-conducted penetration-style testing and internal assessments. A third-party vendor engagement is planned, not yet scheduled; there is no awarded external vendor today. Redacted assessor summaries, when they exist, are distributed under NDA through [Security & trust](/administration/security-trust). Lack of a published third-party pen-test report is an honesty boundary, not a hidden control claim.`,
     )
     .replace(
       /\*\*Answer:\*\* \*\*Vendor-hosted\*\* Azure workloads\./gi,

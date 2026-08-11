@@ -54,7 +54,7 @@ export function WelcomeMarketingUseCasesSection() {
           className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
           href={resolveInAppDocHref("docs/go-to-market/DEFAULT_POLICY_PACKS_V1.md")}
         >
-          Default policy packs (V1)
+          Default policy packs
         </Link>
         .
       </p>

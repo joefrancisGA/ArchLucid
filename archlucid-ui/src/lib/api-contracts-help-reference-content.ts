@@ -2,7 +2,7 @@
 export const API_CONTRACTS_HELP_REFERENCE_LANDING = {
   purpose:
     "Versioned HTTP contract of record for integrators and Admin support — OpenAPI, auth, errors, and endpoint behavior.",
-  apiVersion: "v1.0 — major version in URL path (`/v1/...`)",
+  apiVersion: "1.0 — major version segment in the URL path",
   supportStatus: "Generally available HTTP contract",
   authScheme: "Entra ID bearer tokens and workspace API keys",
   errorFormat: "RFC 9457 Problem Details (`application/problem+json`)",

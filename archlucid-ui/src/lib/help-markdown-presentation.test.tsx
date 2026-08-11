@@ -1506,6 +1506,26 @@ describe("help topic product-language drift guards", () => {
       }
     }
   });
+
+  it("keeps prepared help topics free of product version labels", () => {
+    for (const topic of HELP_TOPICS) {
+      const loaded = tryLoadProductDocumentation(topic.id);
+
+      if (loaded === null) {
+        continue;
+      }
+
+      const sourcePath = loaded.entry.sourcePaths[0] ?? "";
+      const prepared = prepareHelpMarkdownForPresentation(loaded.markdown, sourcePath, {
+        helpTopicSlug: topic.id,
+        preserveMaintenanceMetadata: loaded.entry.audience === "developer",
+      });
+      const withoutCodeFences = prepared.replace(/```[\s\S]*?```/g, "");
+      const withoutApiPaths = withoutCodeFences.replace(/\/v1\/[^\s)`]*/gi, "");
+
+      expect(withoutApiPaths, topic.id).not.toMatch(/\bV1\b/);
+    }
+  });
 });
 
 describe("MarketingAccessibilityMarkdownFragment help presentation", () => {

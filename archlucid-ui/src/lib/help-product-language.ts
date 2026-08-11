@@ -1,4 +1,5 @@
 import { buyerFacingReviewTerminology } from "@/lib/review-terminology-copy";
+import { stripProductReleaseVersionLabels } from "@/lib/help-markdown/markdown-cleanup";
 import {
   ARCHITECTURE_REVIEW_LABEL,
   REVIEW_PACKAGE_LABEL,
@@ -62,7 +63,7 @@ export function applyHelpTopicProductLanguage(markdown: string): string {
     result = result.replace(pattern, replacement);
   }
 
-  return rewriteLegacyHelpOperatorRoutes(result);
+  return stripProductReleaseVersionLabels(rewriteLegacyHelpOperatorRoutes(result));
 }
 
 /** Lowercase fragments that must not appear in help presentation output (buyer-facing). */

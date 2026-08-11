@@ -14,17 +14,17 @@ import { cn } from "@/lib/utils";
 const VALIDATION_ONLY_400_EXCLUSION =
   "Validation-only HTTP 400 responses (field validation) do not show Report problem unless the registry is expanded.";
 
-/** Enumerates the V1 Report problem surface registry for the help topic. */
+/** Enumerates the Report problem surface registry for the help topic. */
 export function ReportProblemSurfaceCoverageTable(): React.JSX.Element {
   return (
     <section className="mt-4 space-y-2" data-testid="report-problem-surface-coverage">
       <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-        Where Report problem appears (V1 registry)
+        Where Report problem appears
       </h2>
       <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         Report problem is limited to these high-stakes failure surfaces. {VALIDATION_ONLY_400_EXCLUSION}
       </p>
-      <EnterpriseTable ariaLabel="Report problem V1 surface registry">
+      <EnterpriseTable ariaLabel="Report problem surface registry">
         <EnterpriseTableHead>
           <EnterpriseTableRow>
             <EnterpriseTableHeaderCell>Surface</EnterpriseTableHeaderCell>

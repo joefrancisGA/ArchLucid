@@ -115,14 +115,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "OPERATOR_ADMIN_DIAGNOSTICS",
     "sectionSlug": "start-here",
     "sectionHeading": "Start here",
-    "excerpt": "1. Open [System health](/administration/system-health) in the workspace — live/ready checks and version identity. 2. On [Workspace overview](/), expand Workspace readiness — per-area status and next actions. 3. Open Assistant readiness diagnostics on [Workspace overview](/) when LLM or assistant features fail."
-  },
-  {
-    "docPath": "docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md",
-    "docTitle": "OPERATOR_ADMIN_DIAGNOSTICS",
-    "sectionSlug": "related-help-topics",
-    "sectionHeading": "Related Help topics",
-    "excerpt": "- [Troubleshooting](/help/troubleshooting) — symptom-first fixes for review and workspace issues."
+    "excerpt": "1. Admin: Use System health (primary action above) for live/ready checks and version identity. Without Admin access: Start with Troubleshooting or Report a problem in Related Help topics below. 2. On Workspace overview (Live workspace surfaces), expand Workspace readiness — per-area status and next actions. 3. Open …"
   },
   {
     "docPath": "docs/library/CONFIGURATION_REFERENCE.md",
@@ -130,6 +123,13 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "sectionSlug": "",
     "sectionHeading": "Configuration reference — overview",
     "excerpt": "This document lists operator-facing configuration keys (colon paths or environment names) recognized by `archlucid config check` and by `GET /v1/admin/config-summary` / `GET /v1/admin/configuration/summary` (presence plus optional redacted scalars; never raw secrets). `GET /v1/admin/config-lint` returns structured b…"
+  },
+  {
+    "docPath": "docs/library/CONFIGURATION_REFERENCE.md",
+    "docTitle": "Configuration reference",
+    "sectionSlug": "host-configuration-precedence-api",
+    "sectionHeading": "Host configuration precedence (API)",
+    "excerpt": "Layered `IConfiguration` for the API host (`ArchLucid.Api/Program.cs`). Later sources override earlier ones for the same key. Claim map: [`CONFIGURATION_ARCHITECTURE_PRECEDENCE_VALIDATION_DRIFT_CLAIM_MAP.md`](CONFIGURATION_ARCHITECTURE_PRECEDENCE_VALIDATION_DRIFT_CLAIM_MAP.md) (TB-1561)."
   },
   {
     "docPath": "docs/library/CONFIGURATION_REFERENCE.md",
@@ -619,7 +619,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "current-semantics",
     "sectionHeading": "Current semantics",
-    "excerpt": "`FindingDispositionService` appends through `FindingReviewTrailAppendService` into `dbo.FindingReviewEvents`. The current view is selected by timestamp; it is not a mutex or compare-and-swap decision."
+    "excerpt": "Engineering SoT: [`FINDING_CONCURRENT_DISPOSITION_CONFLICT_CONTRACT.md`](../library/FINDING_CONCURRENT_DISPOSITION_CONFLICT_CONTRACT.md) (TB-986 Done). `FindingDispositionService` appends through `FindingReviewTrailAppendService` into `dbo.FindingReviewEvents`. The current view is selected by timestamp; it is not a …"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -1053,7 +1053,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "safe-vs-forbidden-phrases",
     "sectionHeading": "Safe vs forbidden phrases",
-    "excerpt": "Live rehearsal remains GTM V1.1 M-91 (do not pull forward unless owner directs)."
+    "excerpt": "Live rehearsal remains GTM future release M-91 (do not pull forward unless owner directs)."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -1165,7 +1165,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "llm-budget-reserve-settle-m-132",
     "sectionHeading": "LLM budget — reserve / settle (M-132)",
-    "excerpt": "Former standalone body: `docs/go-to-market/LLM_BUDGET_RESERVE_SETTLE_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-132 / TB-975). Complements [Interrupted review (M-122)](#interrupted-review-m-122). Not an assurance attestation."
+    "excerpt": "Former standalone body: `docs/go-to-market/LLM_BUDGET_RESERVE_SETTLE_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-132 / TB-975). Engineering SoT: [`../library/INV004_RESERVE_SETTLE_LIFECYCLE_CONTRACT.md`](../library/INV004_RESERVE_SETTLE_LIFECYCLE_CONTRACT.md). Complements [Interru…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -1207,7 +1207,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "residuals-honest-19",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- INV-004 and TB-011 are Done for durable optimistic-concurrency cap enforcement. - TB-894 is Done for Quick Scan reservation-id reserve/commit/release patterns. - TB-975–TB-977 remain open for lifecycle, crash reconciliation, and race/clock hardening."
+    "excerpt": "- INV-004 and TB-011 are Done for durable optimistic-concurrency cap enforcement. - TB-894 is Done for Quick Scan reservation-id reserve/commit/release patterns. - TB-975 is Done — lifecycle guarantees vs residuals are in [`INV004_RESERVE_SETTLE_LIFECYCLE_CONTRACT.md`](../library/INV004_RESERVE_SETTLE_LIFECYCLE_CONT…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -1256,7 +1256,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "residuals-honest-20",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1287 / TB-1288 own the mature plane contract and language guards. - Complements M-131 / M-170 / M-121 without replacing those contracts. - Does not reopen Done TB-011 / TB-039 / TB-894. - This handout does not claim CPA SOC 2 or a published third-party penetration test."
+    "excerpt": "- TB-1287 Done (2026-08-11) — engineering SoT [`../library/LLM_COST_CONTROL_PLANE_BEYOND_BUDGET_GATES_CONTRACT.md`](../library/LLM_COST_CONTROL_PLANE_BEYOND_BUDGET_GATES_CONTRACT.md). TB-1288 owns honesty CI guards. - Complements M-131 / M-170 / M-121 without replacing those contracts. - Does not reopen Done TB-011 …"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -1410,14 +1410,14 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "pa-review-8",
     "sectionHeading": "PA review",
-    "excerpt": "1. Separate “authority already queued” from “agents still need DTF.” 2. Confirm commit is not described as an orchestrator activity. 3. Confirm integration-event Service Bus is not sold as the agent orchestration plane. 4. Treat “everything still in-process” or “V1 requires DTF” as a review finding."
+    "excerpt": "1. Separate “authority already queued” from “agents still need DTF.” 2. Confirm commit is not described as an orchestrator activity. 3. Confirm integration-event Service Bus is not sold as the agent orchestration plane. 4. Treat “everything still in-process” or “ArchLucid requires DTF” as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "claim-boundary-10",
     "sectionHeading": "Claim boundary",
-    "excerpt": "Do not say everything still runs in-process, that V1 requires DTF/Service Bus for agents, that integration-event Service Bus is agent orchestration, or that commit/finalize is an orchestrator activity. Say first agent force = request-lifetime Real execute → SQL outbox/Worker, and commit stays a separate CAS verb."
+    "excerpt": "Do not say everything still runs in-process, that ArchLucid requires DTF/Service Bus for agents, that integration-event Service Bus is agent orchestration, or that commit/finalize is an orchestrator activity. Say first agent force = request-lifetime Real execute → SQL outbox/Worker, and commit stays a separate CAS verb."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -1471,6 +1471,237 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "configuration-architecture-precedence-validation-drift-m-291",
+    "sectionHeading": "Configuration architecture — precedence, validation, drift (M-291)",
+    "excerpt": "Former standalone body: `docs/go-to-market/CONFIGURATION_ARCHITECTURE_PRECEDENCE_VALIDATION_DRIFT_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-290 / M-291 / TB-1561). Engineering map: [`../library/CONFIGURATION_ARCHITECTURE_PRECEDENCE_VALIDATION_DRIFT_CLAIM_MAP.md`](../library/CONF…"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "precedence-ladder-api-host",
+    "sectionHeading": "Precedence ladder (API host)",
+    "excerpt": "Per-key catalog rows in [`../library/CONFIGURATION_REFERENCE.md`](../library/CONFIGURATION_REFERENCE.md) document keys — they do not replace this ladder."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "startup-validation-vs-runtime-reads",
+    "sectionHeading": "Startup validation vs runtime reads",
+    "excerpt": "Startup validation vs runtime reads"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "drift-detection-classes",
+    "sectionHeading": "Drift detection classes",
+    "excerpt": "Drift detection classes"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "tb-881-class-do-not-conflate",
+    "sectionHeading": "TB-881 class (do not conflate)",
+    "excerpt": "TB-881 class (do not conflate)"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "claim-boundary-12",
+    "sectionHeading": "Claim boundary",
+    "excerpt": "Do not say appsettings.json is deployment SoT, Terraform state is Container Apps config SoT, drift preflight proves live Azure matches TF, startup validation covers all config, `IOptionsMonitor` implies production hot-reload without App Config, or an open RC registration env-var race blocks pilots / requires reopeni…"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "pa-review-10",
+    "sectionHeading": "PA review",
+    "excerpt": "1. Ask which layer wins for deployment overrides (env vs JSON overlays). 2. Confirm “green preflight” is not sold as live config parity across environments. 3. Separate startup validation coverage from runtime `IOptionsMonitor` reads. 4. Classify TB-881 as Done CI/test — do not reopen for pilots."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "residuals-honest-26",
+    "sectionHeading": "Residuals (honest)",
+    "excerpt": "- TB-1562 / TB-1372 / TB-1318 own honesty CI and language guards. - Open TB-1371 / TB-1317 own ship-blocker classification and CA Terraform escape matrices. - Optional follow-ons: expand `ValidateOnStart`, live config parity probe, App Config (ADR 0017 deferred). - This handout does not claim CPA SOC 2 or a publishe…"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "mid-run-authority-revocation-m-283",
+    "sectionHeading": "Mid-run authority revocation (M-283)",
+    "excerpt": "Former standalone body: `docs/go-to-market/MID_RUN_AUTHORITY_REVOCATION_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-282 / M-283 / TB-1537). Engineering map: [`../library/MID_RUN_AUTHORITY_REVOCATION_CLAIM_MAP.md`](../library/MID_RUN_AUTHORITY_REVOCATION_CLAIM_MAP.md). Complements …"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "structural-vs-eventual-buyer-summary",
+    "sectionHeading": "Structural vs eventual (buyer summary)",
+    "excerpt": "Structural vs eventual (buyer summary)"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "claim-boundary-13",
+    "sectionHeading": "Claim boundary",
+    "excerpt": "Claim boundary"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "pa-diligence-prompts",
+    "sectionHeading": "PA diligence prompts",
+    "excerpt": "1. Ask which surfaces are structural (next HTTP / next key authenticate) vs eventual (in-flight + queued). 2. Separate actor revoke from ITSM/outbox delivery and from crash recovery — do not sell one as the other. 3. For compromised API keys, pair with [Paying-tenant spend storm (M-295)](#paying-tenant-llm-spend-sto…"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "residuals-honest-27",
+    "sectionHeading": "Residuals (honest)",
+    "excerpt": "- TB-1538 owns honesty CI for instant-global-revoke overclaims. - Done TB-1523 / open TB-1530 own crash and ITSM delivery matrices — cite without conflating. - Optional product follow-ons: SCIM `active=false` vs `DirectoryRemovedUtc` gap, cooperative execute cancel — not claimed as shipped. - This handout does not c…"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "evidence-audit-ordering-causality-m-285",
+    "sectionHeading": "Evidence / audit ordering & causality (M-285)",
+    "excerpt": "Former standalone body: `docs/go-to-market/EVIDENCE_AUDIT_ORDERING_CAUSALITY_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-284 / M-285 / TB-1550). Engineering map: [`../library/EVIDENCE_AUDIT_ORDERING_CAUSALITY_CLAIM_MAP.md`](../library/EVIDENCE_AUDIT_ORDERING_CAUSALITY_CLAIM_MAP.md…"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "order-keys-buyer-summary",
+    "sectionHeading": "Order keys (buyer summary)",
+    "excerpt": "Order keys (buyer summary)"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "what-stamps-the-clock",
+    "sectionHeading": "What stamps the clock",
+    "excerpt": "What stamps the clock"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "claim-boundary-14",
+    "sectionHeading": "Claim boundary",
+    "excerpt": "Claim boundary"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "pa-diligence-prompts-2",
+    "sectionHeading": "PA diligence prompts",
+    "excerpt": "1. Ask which surfaces use forensic time order vs lifecycle narrative order (UI vs export). 2. Separate append-only immutability (TB-1009) and required audit durability (TB-953) from causal ordering — do not sell one as the other. 3. For “approval before evidence changed?” questions, pair with offline export verifica…"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "residuals-honest-28",
+    "sectionHeading": "Residuals (honest)",
+    "excerpt": "- TB-1551 owns honesty CI for DB-sequence/Lamport/UI-as-forensic overclaims. - Open TB-1009 / TB-956 own append-only and same-TX audit matrices. - Optional product follow-ons: forensic UI mode, legacy export `EventId` tie-break, commit-LSN column — not claimed as shipped. - This handout does not claim CPA SOC 2 or a…"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "zero-downtime-sql-migration-m-287",
+    "sectionHeading": "Zero-downtime SQL migration (M-287)",
+    "excerpt": "Former standalone body: `docs/go-to-market/ZERO_DOWNTIME_SQL_MIGRATION_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-286 / M-287 / TB-1557). Engineering map: [`../library/ZERO_DOWNTIME_SQL_MIGRATION_CLAIM_MAP.md`](../library/ZERO_DOWNTIME_SQL_MIGRATION_CLAIM_MAP.md). Complements ope…"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "ddl-source-of-truth-vs-production-apply",
+    "sectionHeading": "DDL source of truth vs production apply",
+    "excerpt": "Order: DbUp first → then `SqlSchemaBootstrapper` (idempotent IF NOT EXISTS). Greenfield may baseline-stamp early scripts then DbUp 051+."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "who-executes-ddl-and-with-what-identity",
+    "sectionHeading": "Who executes DDL (and with what identity)",
+    "excerpt": "Who executes DDL (and with what identity)"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "old-code-new-schema-rolling-deploy",
+    "sectionHeading": "Old code × new schema (rolling deploy)",
+    "excerpt": "There is no “migration job completes before any pod starts” gate in the default CD path."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "claim-boundary-15",
+    "sectionHeading": "Claim boundary",
+    "excerpt": "Claim boundary"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "pa-diligence-prompts-3",
+    "sectionHeading": "PA diligence prompts",
+    "excerpt": "1. Ask who runs DDL (process startup, not CD SQL job) and as which identity (bootstrap MI vs wired runtime split). 2. Separate single-file DDL hygiene (Done TB-359) from rolling ZDT — expand/contract is discipline, not automatic. 3. For rollback questions, pair with [`MIGRATION_ROLLBACK.md`](../library/MIGRATION_ROL…"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "residuals-honest-29",
+    "sectionHeading": "Residuals (honest)",
+    "excerpt": "- TB-1558 owns honesty CI for separate-migrator / always-ZDT / least-privilege-while-bootstrap overclaims. - Open TB-1244 owns bootstrap vs runtime SQL MI seam — cite without duplicating. - Optional product follow-ons: dedicated migrator job, wire `ArchLucidRuntime` — not claimed as shipped. - This handout does not …"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "rest-cli-breaking-change-compatibility-m-289",
+    "sectionHeading": "REST + CLI breaking-change compatibility (M-289)",
+    "excerpt": "Former standalone body: `docs/go-to-market/REST_CLI_BREAKING_CHANGE_COMPATIBILITY_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-288 / M-289 / TB-1559). Engineering map: [`../library/REST_CLI_BREAKING_CHANGE_COMPATIBILITY_CLAIM_MAP.md`](../library/REST_CLI_BREAKING_CHANGE_COMPATIBILI…"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "policy-what-we-say",
+    "sectionHeading": "Policy (what we say)",
+    "excerpt": "Policy (what we say)"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "structural-vs-convention",
+    "sectionHeading": "Structural vs convention",
+    "excerpt": "Structural vs convention"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "pilot-first-class-surfaces",
+    "sectionHeading": "Pilot-first-class surfaces",
+    "excerpt": "Pilot-first-class surfaces"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "claim-boundary-16",
+    "sectionHeading": "Claim boundary",
+    "excerpt": "Claim boundary"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "pa-diligence-prompts-4",
+    "sectionHeading": "PA diligence prompts",
+    "excerpt": "1. Ask what CI actually gates (snapshot equality) vs what policy intends (break → new major). 2. Separate buyer OpenAPI slice from full pilot lifecycle routes — pilots use operator `/v1/architecture/*`. 3. For route sunset questions, pair with open TB-1034/M-184 (strangler) — distinct from REST major versioning."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "residuals-honest-30",
+    "sectionHeading": "Residuals (honest)",
+    "excerpt": "- TB-1560 owns honesty CI for CI-guarantees-compat / Sunset-always-on overclaims. - Optional product follow-ons: `oasdiff`, CLI surface snapshot, enable Sunset in prod — not claimed as shipped. - This handout does not claim CPA SOC 2 or a published third-party penetration test."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "azure-workload-privilege-escalation-seam-m-216",
     "sectionHeading": "Azure workload privilege-escalation seam (M-216)",
     "excerpt": "Former standalone body: `docs/go-to-market/AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-215 / M-216 / TB-1244). Contributor contract: [`AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md`](../library/AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEA…"
@@ -1506,7 +1737,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-12",
+    "sectionSlug": "claim-boundary-17",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not claim production API SQL is least-privilege / non-`db_owner` while bootstrap privilege stays on the request-path MI and runtime UAMI is off or unwired; do not equate private endpoints alone with a private data plane; do not sell ArchLucid’s intended AOAI role as Contributor. Say: headline seam is compromised …"
   },
@@ -1520,14 +1751,14 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-10",
+    "sectionSlug": "pa-review-11",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask whether runtime SQL UAMI is on and bootstrap privilege is off the request path. 2. Confirm intended AOAI role is User, not Contributor. 3. Confirm PE is not sold as least privilege. 4. Treat “compromised API cannot DDL” without the identity split as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-26",
+    "sectionSlug": "residuals-honest-31",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "- TB-1244 contract Done — [`AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md`](../library/AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md); runtime UAMI default-on + app wiring remains follow-on. - TB-1245 honesty CI (open) hardens buyer/proof stubs. - Cite `enable_api_sql_runtime_identity`, [`../security/M…"
   },
@@ -1562,21 +1793,21 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-11",
+    "sectionSlug": "pa-review-12",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask which limiter fails first under sustained Real success volume (expect TPM). 2. Confirm scale-out is not sold as more AOAI quota. 3. Confirm blob offload / DTF are not framed as mandatory next steps. 4. Treat “SQL manifests fail first at 100Ã—” as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-13",
+    "sectionSlug": "claim-boundary-18",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not say SQL fails first at 100Ã— success volume, that premature blob offload or DTF is required, or that API/worker scale-out creates more AOAI TPM. Say hard-first = LLM quota; cheapest now = SLI ledger + TPM-aware admission."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-27",
+    "sectionSlug": "residuals-honest-32",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "- TB-1336 / TB-1337 own the capacity ledger and language guards. - Related eng: TB-1032, TB-915 / TB-947, measured TB-932. - Complements M-182 / M-183 without replacing launch-load contracts. - This handout does not claim CPA SOC 2 or a published third-party penetration test."
   },
@@ -1604,21 +1835,21 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-12",
+    "sectionSlug": "pa-review-13",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask which pages were reviewed against WNTP rows for this cut. 2. Confirm billing help does not imply always-on checkout if self-serve is deferred. 3. Confirm trust copy does not invent CPA SOC 2 or published 3P pen test. 4. Treat “docs scanner green = UI safe” as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-14",
+    "sectionSlug": "claim-boundary-19",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not say doc-only scanners cover buyer UI, or lead with SOC 2 CPA report claims / published 3P pen test / Marketplace buy today / guaranteed savings / invoice-accurate COGS. Say ranked page review with named owners against the gtm-do-not-promise table."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-28",
+    "sectionSlug": "residuals-honest-33",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "- TB-1343 / TB-1344 own the UI matrix and language guards. - Complements M-190 / M-196 / M-138 / M-178 / M-200. - Does not reopen Done TB-135 / TB-136. - This handout does not claim CPA SOC 2 or a published third-party penetration test."
   },
@@ -1646,21 +1877,21 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-13",
+    "sectionSlug": "pa-review-14",
     "sectionHeading": "PA review",
     "excerpt": "1. Walk first-session home and confirm Authority → Finalize → sponsor export is the taught spine. 2. Confirm empty dashboard is not labeled sponsor-ready. 3. Confirm CLI proof collection is not the primary first-session handoff. 4. Treat create→execute→commit as default peer guidance as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-15",
+    "sectionSlug": "claim-boundary-20",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not teach create→execute→commit as the default peer to Authority on first-session home, label future checkpoints Needs attention, send sponsor-ready to empty `/dashboard`, or lead first-session sponsor handoff with CLI/PowerShell. Say request → pipeline → Finalize → in-app sponsor exports."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-29",
+    "sectionSlug": "residuals-honest-34",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "- TB-1355–TB-1359 own the stick/empty contract and language guards. - Complements M-180 / M-158 / M-166. - This handout does not claim CPA SOC 2 or a published third-party penetration test."
   },
@@ -1688,21 +1919,21 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-14",
+    "sectionSlug": "pa-review-15",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask which committed run the 2-minute demo will open. 2. Confirm no TCO-beats-Copilot or always-beats-frontier claims. 3. Confirm bakeoffs are not the lead artifact. 4. Treat pre-M-42 “beats ChatGPT” copy as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-16",
+    "sectionSlug": "claim-boundary-21",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not claim ArchLucid always beats frontier AI on speed/novelty/cost-per-query, cheaper TCO than Copilot seats, or “beats ChatGPT” before M-42. Say seats draft / ArchLucid proves via finalized package, evidence, audit, optional gate, sponsor export, and labeled ROI."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-30",
+    "sectionSlug": "residuals-honest-35",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "- TB-1365 / TB-1366 own the talk-track contract and language guards. - Complements M-42 / M-186 / [M-187](#competitive-deal-loss-closing-evidence-m-187); Done TB-265 stays closed. - This handout does not claim CPA SOC 2 or a published third-party penetration test."
   },
@@ -1710,7 +1941,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "elevator-pitch-v1-claim-audit-m-246",
-    "sectionHeading": "Elevator pitch V1 — cut / hedge / prove (M-246)",
+    "sectionHeading": "Elevator pitch ArchLucid — cut / hedge / prove (M-246)",
     "excerpt": "Former standalone body: `docs/go-to-market/ELEVATOR_PITCH_V1_CLAIM_AUDIT_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-245 / M-246 / TB-1367). Complements [`ELEVATOR_PITCH.md`](ELEVATOR_PITCH.md) and KEEP [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md) Â§4 (not folded). N…"
   },
   {
@@ -1723,21 +1954,21 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-15",
+    "sectionSlug": "pa-review-16",
     "sectionHeading": "PA review",
     "excerpt": "1. Open the pitch and mark each absolute as cut, hedge, or prove. 2. Confirm pitch and sponsor brief Â§4 do not diverge on gates/connectors. 3. Confirm a live committed run backs every “prove” line. 4. Treat universal time-savings as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-17",
+    "sectionSlug": "claim-boundary-22",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not say reviews that took two weeks now take two hours, that every finding always has an explainability trace, that replayable means absolute architecture stability, or that pre-commit gates are always on. Say only what a committed run demonstrates: package, audit chain, multi-agent roles, evidence-cited findings…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-31",
+    "sectionSlug": "residuals-honest-36",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "- TB-1367 / TB-1368 own the cut/hedge/prove contract and language guards. - Complements Done M-02 / M-138 / M-154 / M-174 / M-243 / M-239. - This handout does not claim CPA SOC 2 or a published third-party penetration test."
   },
@@ -1758,21 +1989,21 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-16",
+    "sectionSlug": "pa-review-17",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask which seam the buyer is worried about — overlay, ComplianceTags lift, confidence, or empty EvidenceRefs. 2. Confirm Simulator is not sold as fail-closed differently from Real on these seams. 3. Confirm `DecisionMergeInputGate` is not equated with typed/provenance gates. 4. Treat “typed-findings-only decide wi…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-18",
+    "sectionSlug": "claim-boundary-23",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not say Simulator decide is gated differently from Real for topology overlay / ComplianceTags lift / proposal merge, that schema-validated AgentResult equals provenance-gated decision input, or that mode labels close AgentTask leak seams. Say Authority typed-findings decide is the chokepoint and cite the ranked m…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-32",
+    "sectionSlug": "residuals-honest-37",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "- TB-1369 / TB-1370 own the leak matrix contract and language guards. - Complements M-203 / M-204 / M-166 / M-207 / M-208 / M-211; does not replace validate-before-overlay ship (TB-1196). - Does not reopen Done TB-684 PilotStrict floors. - This handout does not claim CPA SOC 2 or a published third-party penetration …"
   },
@@ -1807,7 +2038,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-19",
+    "sectionSlug": "claim-boundary-24",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not sell agent free text / unvalidated `ProposedChanges` as the signed architecture review; do not claim PilotStrict green makes Real overlays corruption-proof; do not omit that commit topology may still overlay agent proposals until validate-before-overlay ships. Say: typed findings + sealed graph decide; propo…"
   },
@@ -1821,14 +2052,14 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-17",
+    "sectionSlug": "pa-review-18",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask whether decide inputs are typed findings + sealed graph or free-text proposals. 2. Confirm validate-before-overlay status (TB-1196). 3. Confirm mode labels are present and not sold as overlay gates. 4. Treat “agent prose is the signed architecture” as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-33",
+    "sectionSlug": "residuals-honest-38",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "- TB-1196 / TB-1197 own the Real-variance isolation contract and honesty CI. - Cite `AgentTopologyProposalGraphMerge`, `RuleBasedDecisionEngine`, `DecisionMergeInputGate`, quality Enforce/Block. - Complements M-154, M-158/M-159, M-166/M-167, M-247/M-248; pairs claim-honesty M-203. - This handout does not claim CPA S…"
   },
@@ -1863,7 +2094,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-20",
+    "sectionSlug": "claim-boundary-25",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not treat unexplained mass SHA rewrites as regression proof; do not sell cohort re-lock as healing production `ManifestHash` / export verify; do not capture Real-mode as Simulator baseline. Say: intentional content re-lock OK with rationale; rubber-stamp when mass rewrite silences drift without owning the product…"
   },
@@ -1877,14 +2108,14 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-18",
+    "sectionSlug": "pa-review-19",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask whether a cited re-lock has recorded rationale and owned product delta. 2. Confirm it is not sold as production ManifestHash repair. 3. Confirm never-re-lockable invariants were not touched casually. 4. Treat unexplained mass SHA rewrite as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-34",
+    "sectionSlug": "residuals-honest-39",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "- TB-1172 Done — [`GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_CONTRACT.md`](../library/GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_CONTRACT.md); TB-1173 owns anti-rubber-stamp CI. - Cite `tests/golden-cohort/README.md` lock ritual + TB-1156 Done dual-hasher contract. - Complements M-154, M-198/M-199, M-274; pairs claim-honesty M…"
   },
@@ -1919,7 +2150,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-21",
+    "sectionSlug": "claim-boundary-26",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not equate golden-cohort content SHA with production `ManifestHash`; do not claim “deterministic drift” without naming hasher + re-lock ritual; do not imply silent hasher subset changes keep historical verify green. Say: authority hash vs contract content fingerprint; cohort lock-baseline vs production deliberate…"
   },
@@ -1933,14 +2164,14 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-19",
+    "sectionSlug": "pa-review-20",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask which hasher surface a cited SHA belongs to. 2. Confirm re-lock (if any) names cohort vs production ritual. 3. Confirm projection/schema evolution is not sold as sealed rewrite. 4. Treat silent hasher subset changes as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-35",
+    "sectionSlug": "residuals-honest-40",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "- TB-1156 Done — [`MANIFEST_DUAL_HASHER_PROJECTION_EVOLUTION_CONTRACT.md`](../library/MANIFEST_DUAL_HASHER_PROJECTION_EVOLUTION_CONTRACT.md); TB-1157 owns production re-lock CI. - Cite `ManifestHashService`, `GoldenManifestFingerprint`, `AuthorityCommitProjectionBuilder`, ADR 0040, Done TB-307. - Complements M-154/M…"
   },
@@ -1975,7 +2206,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-22",
+    "sectionSlug": "claim-boundary-27",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not claim all findings are citation-bound or evidence-grounded while empty `EvidenceRefs` persist; do not treat Critic Low or top-level agent evidence refs as a per-finding architectural guarantee; do not sell prompt instructions as fail-closed provenance. Say: decision-grade needs structural ProvenanceKind plus …"
   },
@@ -1989,14 +2220,14 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-20",
+    "sectionSlug": "pa-review-21",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask whether the buyer means structural provenance or semantic faithfulness. 2. Confirm empty `EvidenceRefs` is disclosed for decision-grade paths. 3. Confirm prompt/Critic language is not sold as the gate. 4. Treat “all findings are citation-bound” as a review finding until emission/commit gates ship."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-36",
+    "sectionSlug": "residuals-honest-41",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "- TB-1221 contract Done — [`DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_CONTRACT.md`](../library/DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_CONTRACT.md); emission/commit validator wiring remains follow-on. - TB-1222 honesty CI (open) hardens buyer/proof stubs. - Score-lane positioning is M-209/M-210 / TB-1228 —…"
   },
@@ -2011,8 +2242,8 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "three-lanes-v1-default",
-    "sectionHeading": "Three lanes (V1 default)",
-    "excerpt": "Three lanes (V1 default)"
+    "sectionHeading": "Three lanes",
+    "excerpt": "Three lanes"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2031,7 +2262,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-23",
+    "sectionSlug": "claim-boundary-28",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not claim RAG support-ratio, LLM faithfulness, nightly eval, or embedding cosine is the golden-manifest commit gate; do not equate PilotStrict heuristic floors with semantic legal truth; do not sell model-promotion cohort ratios as per-run package safety. Say: structural/light-heuristic on execute→commit; semanti…"
   },
@@ -2045,14 +2276,14 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-21",
+    "sectionSlug": "pa-review-22",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask which lane a cited score belongs to — structural, semantic/RAG, or promotion. 2. Confirm semantic scores are not sold as the commit gate. 3. Confirm PilotStrict green is not equated with legal/semantic truth. 4. Treat fused “one faithfulness number seals the package” copy as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-37",
+    "sectionSlug": "residuals-honest-42",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "- TB-1228 / TB-1229 own the lane-split contract and honesty CI. - Shared defense-plane ownership is M-212 / TB-1230; structural provenance is M-207/M-208; FT decision-record fields are M-227/M-228 (do not fork). - Cite `AgentOutputQualityGate`, `AgentResultEvidenceFaithfulnessChecker`, `RetrievalFaithfulnessEvaluato…"
   },
@@ -2061,7 +2292,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "tb881-org-registration-race-ship-blocker-m-250",
     "sectionHeading": "TB-881 org-registration race — ship-blocker classification (M-250)",
-    "excerpt": "Former standalone body: `docs/go-to-market/TB881_ORG_REGISTRATION_RACE_SHIP_BLOCKER_CLASSIFICATION_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-249 / M-250 / TB-1371). Complements Done TB-881 (CI/test isolation). Not an assurance attestation and not a reopen of Done TB-881."
+    "excerpt": "Former standalone body: `docs/go-to-market/TB881_ORG_REGISTRATION_RACE_SHIP_BLOCKER_CLASSIFICATION_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-249 / M-250 / TB-1371). Engineering SoT: [`../library/TB881_ORG_REGISTRATION_RACE_SHIP_BLOCKER_CLASSIFICATION_CONTRACT.md`](../library/TB8…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2073,23 +2304,23 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-22",
+    "sectionSlug": "pa-review-23",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask whether the concern is CI flakiness, pilot registration, or concurrent self-serve signup. 2. Confirm OPEN inventories do not list TB-881 as an open RC12 pilot blocker. 3. Confirm Done TB-881 is not reopened “for pilots.” 4. Treat “org registration broken in production” backed only by the RC12 parallel-test ra…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-24",
+    "sectionSlug": "claim-boundary-29",
     "sectionHeading": "Claim boundary",
-    "excerpt": "Do not treat Done TB-881 as an open V1/pilot ship gate, equate the RC12 CI env-pin / parallel-test race with production pilot registration failure, or reopen Done TB-881 for pilots. Say TB-881 = CI/test isolation (Done); pilots = sequential single-catalog provision; residual concurrent same-name TOCTOU = multi-tenan…"
+    "excerpt": "Do not treat Done TB-881 as an open ArchLucid/pilot ship gate, equate the RC12 CI env-pin / parallel-test race with production pilot registration failure, or reopen Done TB-881 for pilots. Say TB-881 = CI/test isolation (Done); pilots = sequential single-catalog provision; residual concurrent same-name TOCTOU = multi-tenan…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-38",
+    "sectionSlug": "residuals-honest-43",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1371 / TB-1372 own the classification contract and language guards. - Does not reopen Done TB-881; out of scope: unique Name index / distributed signup locks. - This handout does not claim CPA SOC 2 or a published third-party penetration test."
+    "excerpt": "- TB-1372 owns anti–“TB-881 blocks pilots” language guards and OPEN hygiene (TB-1371 contract is Done). - Does not reopen Done TB-881; out of scope: unique Name index / distributed signup locks. - This handout does not claim CPA SOC 2 or a published third-party penetration test."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2115,21 +2346,21 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-23",
+    "sectionSlug": "pa-review-24",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask which â‰¤~50 slug is in scope and which TB cluster owns it. 2. Confirm claims of “specialty-guided help” do not cover bare `HelpTopicMarkdownView` inventory rows. 3. Confirm TB-735 is not sold as gating all `technical-documentation` while ungated search entries remain. 4. Treat a new per-slug presentation sys…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-25",
+    "sectionSlug": "claim-boundary-30",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not claim product help is specialty-guided / Start-CTA ready while â‰¤~50 inventory still falls through bare `HelpTopicMarkdownView`, that TB-735 gates all technical help while `contentKind: technical-documentation` remains ungated in search, or invent a second presentation system per slug. Say shared specialty c…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-39",
+    "sectionSlug": "residuals-honest-44",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "- TB-1414 / TB-1415 own the shared chrome contract and language guards. - Per-route clusters own shipping chrome for each row; this handout does not replace those P0s. - Out of scope: integration empty/not-configured theater (M-257/M-258). - This handout does not claim CPA SOC 2 or a published third-party penetratio…"
   },
@@ -2157,21 +2388,21 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-24",
+    "sectionSlug": "pa-review-25",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask which “decide-once” the buyer means — tenant, quality gate, or architecture commit. 2. Confirm committed â‰ evidence-grounded / no-overlay / crypto-isolated. 3. Confirm triad is not sold as closed while honesty CI (TB-1000 / TB-1004 / TB-1417) or residual slice owners remain open (tenant TB-999, committed-man…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-26",
+    "sectionSlug": "claim-boundary-31",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not equate INV-001 tenant decide-once with architecture decided once or INV-012 quality-gate decide-once; do not claim committed signed review record proves semantic faithfulness, zero AgentTask overlay, or crypto tenant isolation; do not sell the triad as closed while residual owner contracts remain Not started. Say …"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-40",
+    "sectionSlug": "residuals-honest-45",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "- TB-1416 Done — fused matrix: [`INV001_DECIDE_ONCE_COMMITTED_MANIFEST_PA_TRIAD_CHALLENGE_MATRIX.md`](../library/INV001_DECIDE_ONCE_COMMITTED_MANIFEST_PA_TRIAD_CHALLENGE_MATRIX.md). - TB-1417 Open — anti triad-conflation / triad-closed honesty CI (GTM M-253). - Ship-order hint among open honesty: TB-1000 + TB-1004, …"
   },
@@ -2192,21 +2423,21 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-25",
+    "sectionSlug": "pa-review-26",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask which class the buyer is probing — catalog, identity, SQL predicate, RLS, or demo. 2. Confirm RLS is not cited as a production DiD control. 3. Confirm demo/anonymous is not sold as structural isolation (contract TB-1251 Done; dedicated demo factory/catalog wiring may still be follow-on). 4. Treat “WHERE Tenan…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-27",
+    "sectionSlug": "claim-boundary-32",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not sell `WHERE TenantId` / scope threading as the paying-client boundary, cite SQL RLS as deployed or required DiD, call demo pin structural isolation (factory/catalog wiring may still be follow-on per TB-1251 contract), or treat workspace/project as paying-client security. Say Layer A catalogs are structural; B…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-41",
+    "sectionSlug": "residuals-honest-46",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "- TB-1418 / TB-1419 own the classification map and language guards. - Orchestrates TB-1122 / TB-1232 / TB-999 / TB-1251 (contract Done; factory wiring follow-on) without replacing those contracts. - Complements M-194 / M-213 / M-214 / M-150 / M-168 / M-217 / M-218. - This handout does not claim CPA SOC 2 or a publis…"
   },
@@ -2248,7 +2479,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-28",
+    "sectionSlug": "claim-boundary-33",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not equate repository `WHERE TenantId = @scope` or scope-provider threading alone with production paying-client isolation; do not claim ARCH001/ARCH006 / NetArchTest green alone proves isolation; do not sell SQL RLS as the missing beyond-predicate control. Say: Layer A database-per-tenant + INV-001 decide-once; L…"
   },
@@ -2262,14 +2493,14 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-26",
+    "sectionSlug": "pa-review-27",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask what is primary (catalog + INV-001) vs DiD (predicates / analyzers). 2. Walk at least two erosion modes from the table above. 3. Confirm RLS is not proposed as the fix. 4. Treat “WHERE TenantId proves tenant isolation” as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-42",
+    "sectionSlug": "residuals-honest-47",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "- TB-1232 contract Done — [`TENANT_DID_EROSION_AND_ENFORCEMENT_BEYOND_PREDICATES_CONTRACT.md`](../library/TENANT_DID_EROSION_AND_ENFORCEMENT_BEYOND_PREDICATES_CONTRACT.md); exemption budget / ambient job guards remain follow-on. - TB-1233 honesty CI (open) hardens buyer/proof stubs. - Cite `IScopeContextProvider`, `…"
   },
@@ -2304,7 +2535,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-29",
+    "sectionSlug": "claim-boundary-34",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not claim `[AllowAnonymous]`, read-only demo, or `DemoScopes` hard-pin alone prevents reading paying-tenant data; do not equate empty demo ambient scope with “no data” (system catalog risk); do not sell query filters as the demo boundary. Say: three planes; structural target is dedicated demo factory/catalog or s…"
   },
@@ -2318,14 +2549,14 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-27",
+    "sectionSlug": "pa-review-28",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask which plane a cited demo surface uses — tenant, system, or demo. 2. Confirm AllowAnonymous / DemoScopes are not sold as structural isolation (contract TB-1251 names targets; factory wiring may still be open). 3. Confirm empty demo ambient is not equated with “no rows.” 4. Treat “demo pin is structural isolati…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-43",
+    "sectionSlug": "residuals-honest-48",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "- TB-1251 contract Done — [`DEMO_ANONYMOUS_READ_PLANE_CONTRACT.md`](../library/DEMO_ANONYMOUS_READ_PLANE_CONTRACT.md); dedicated demo factory/catalog wiring + TB-1252 honesty CI remain follow-on. - Complements M-168/M-169, M-178/M-179, M-213/M-256; pairs claim-honesty M-217. - Cite `DemoScopes`, `DemoExplainControll…"
   },
@@ -2360,21 +2591,21 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-28",
+    "sectionSlug": "pa-review-29",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask which connector page is in the demo and whether credentials are configured. 2. Confirm empty pages are not narrated as “integrations ready.” 3. Confirm Jira/SN/Teams/Slack/webhooks are not claimed unified while they diverge from the 5-slot contract. 4. Treat per-connector maturity inferred from empty-theater …"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-30",
+    "sectionSlug": "claim-boundary-35",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not sell stacked empty integration pages as “integrations ready,” invent per-connector maturity from empty-theater differences, or claim a unified empty-state while Jira/SN/Teams/Slack/webhooks diverge from the 5-slot contract. Say StatusTag + one guided CTA + demote forms + suppress zero theater + isolate/saniti…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-44",
+    "sectionSlug": "residuals-honest-49",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "- TB-1420 / TB-1421 own the canonical contract and language guards. - Per-surface P0s own shipping the 5 slots; this handout does not replace them. - Complements M-251 (help chrome) as a secondary empty-theater class. - This handout does not claim CPA SOC 2 or a published third-party penetration test."
   },
@@ -2402,21 +2633,21 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-29",
+    "sectionSlug": "pa-review-30",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask which rung the buyer will open and whether ladder UI labels the `/see-it` ↔ `/live-demo` relationship (TB-1267 / TB-1282). 2. Confirm offline curated fallback is not narrated as a live API session. 3. Confirm Contoso payload is not under Claims chrome. 4. Treat “ladder done” while TB-1267 / TB-1282 / TB-1029 …"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-31",
+    "sectionSlug": "claim-boundary-36",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not sell `/live-demo` as a live product/tenant demo, treat offline curated fallback as a live API session, present rungs 1–2 without ladder labels (TB-1267 / TB-1282), or put Contoso preview under Claims chrome. Say see-it (rung 1) → guided fabricated sample walkthrough (rung 2) → eval/enterprise CTA, with mode c…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-45",
+    "sectionSlug": "residuals-honest-50",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "- TB-1427 Done (2026-08-09) — fused ladder + claim-honesty contract published in [`../library/LIVE_DEMO_SEE_IT_LADDER_HONESTY.md`](../library/LIVE_DEMO_SEE_IT_LADDER_HONESTY.md). - TB-1428 owns anti-live-demo-as-live / ladder-closed language guards (depends on TB-1427). - UI ship remains on TB-1266–TB-1269 / TB-1281…"
   },
@@ -2444,23 +2675,23 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-30",
+    "sectionSlug": "pa-review-31",
     "sectionHeading": "PA review",
     "excerpt": "1. Confirm the kill framed is manual packaging, not “smarter AI” or EA loss. 2. Confirm no pre-M-42 “beats ChatGPT” or cheaper-TCO-than-seats claims. 3. Confirm Simulator/fabricated sample is not sold as live customer proof. 4. Treat measured kill-rate claims without M-20 as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-32",
+    "sectionSlug": "claim-boundary-37",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not stage EA/LeanIX as a 15-minute bake-off loser, claim smarter/cheaper than ChatGPT/Copilot or publish beats-ChatGPT before M-42, or claim measured manual/diagram/GRC kill rates without M-20. Say manual ARB packaging loses first; generic LLM loses on packaging/audit only; EA is complement/SoR."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-46",
+    "sectionSlug": "residuals-honest-51",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1456 / TB-1457 own the fused loser+sequence contract and language guards. - Complements M-186 / M-243 / M-180 / M-20 / M-42; does not reopen V1.1 M-43 / M-44. - This handout does not claim CPA SOC 2 or a published third-party penetration test."
+    "excerpt": "- TB-1456 / TB-1457 own the fused loser+sequence contract and language guards. - Complements M-186 / M-243 / M-180 / M-20 / M-42; does not reopen future release M-43 / M-44. - This handout does not claim CPA SOC 2 or a published third-party penetration test."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2493,21 +2724,21 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-31",
+    "sectionSlug": "pa-review-32",
     "sectionHeading": "PA review",
     "excerpt": "1. Scan the SEND packet against C1–C6 before sponsor/procurement use. 2. Confirm Contoso dollars and bakeoff protocol are not unlabeled customer proof. 3. Confirm Done TB-135 / TB-136 are not reopened as engineering gaps. 4. Treat Critical drift still in the packet as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-33",
+    "sectionSlug": "claim-boundary-38",
     "sectionHeading": "Claim boundary",
-    "excerpt": "Do not SEND sponsor/procurement packets that still carry Critical drift (stale connectors-not-in-V1, unguarded two-weeks→two-hours, Live demo as live product, see-it 30s/evidence-bundle lies, Contoso-under-Claims, Contoso dollars as customer ROI, bakeoff protocol as completed cohort). Say use the weekly SEND vs REWR…"
+    "excerpt": "Do not SEND sponsor/procurement packets that still carry Critical drift (stale connectors-not-in-ArchLucid, unguarded two-weeks→two-hours, Live demo as live product, see-it 30s/evidence-bundle lies, Contoso-under-Claims, Contoso dollars as customer ROI, bakeoff protocol as completed cohort). Say use the weekly SEND vs REWR…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-47",
+    "sectionSlug": "residuals-honest-52",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "- TB-1463 / TB-1464 own inventory currency and language guards. - Full tables: [`../library/WEEKLY_BUYER_CLAIM_DRIFT_2026_07_27.md`](../library/WEEKLY_BUYER_CLAIM_DRIFT_2026_07_27.md). - Does not reopen Done TB-135 / TB-136; CPA / 3P pen test remain GTM owner rows. - This handout does not claim CPA SOC 2 or a publis…"
   },
@@ -2523,7 +2754,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "two-requests-do-not-fuse",
     "sectionHeading": "Two requests (do not fuse)",
-    "excerpt": "Fully automated quarantine→purge pipeline remains V2 (`V1_DEFERRED` Â§6m). V1 still has operator/trial hard purge — do not claim “no deletion.”"
+    "excerpt": "Fully automated quarantine→purge pipeline remains V2 (`V1_DEFERRED` Â§6m). ArchLucid still has operator/trial hard purge — do not claim “no deletion.”"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2535,23 +2766,23 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-34",
+    "sectionSlug": "claim-boundary-39",
     "sectionHeading": "Claim boundary",
-    "excerpt": "Do not sell sealed evidence as undeletable after offboard, “complete erasure including Search/backups/telemetry,” fuse Art. 17 with tenant hard purge, claim V1 has no deletion, or claim V1 ships a fully automated Â§6m pipeline. Say sealed-in-life for the app principal; lifecycle hard purge after Admin approval; Sear…"
+    "excerpt": "Do not sell sealed evidence as undeletable after offboard, “complete erasure including Search/backups/telemetry,” fuse Art. 17 with tenant hard purge, claim ArchLucid has no deletion, or claim ArchLucid ships a fully automated Â§6m pipeline. Say sealed-in-life for the app principal; lifecycle hard purge after Admin approval; Sear…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-32",
+    "sectionSlug": "pa-review-33",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask whether the buyer means per-user DSAR or tenant offboard. 2. Confirm “append-only forever” is not in the packet. 3. Confirm Search residual is disclosed until purge is wired. 4. Treat “everything deleted everywhere instantly” as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-48",
+    "sectionSlug": "residuals-honest-53",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1470 / TB-1471 own the plane map and language guards. - Complements M-160 / M-161; does not reopen Done TB-303 / TB-071. - Full map: [`../library/GDPR_ERASURE_VS_APPEND_ONLY_MAP.md`](../library/GDPR_ERASURE_VS_APPEND_ONLY_MAP.md). - This handout does not claim CPA SOC 2 or a published third-party penetration test."
+    "excerpt": "- TB-1470 Done (2026-08-10) — plane map published; TB-1471 owns honesty CI guards. - Complements M-160 / M-161; does not reopen Done TB-303 / TB-071. - Full map: [`../library/GDPR_ERASURE_VS_APPEND_ONLY_MAP.md`](../library/GDPR_ERASURE_VS_APPEND_ONLY_MAP.md). - This handout does not claim CPA SOC 2 or a published th…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2577,23 +2808,23 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-35",
+    "sectionSlug": "claim-boundary-40",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not sell “fully offline ManifestHash verify forever,” equate Art. 20 ZIP/DOCX with commit-audit lineage, call packages PKI-signed, or imply `/export/verify` works after hard purge. Say offline file integrity via `export-manifest.json`; lineage via live verify (or saved receipt) while the tenant exists; WORM = cus…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-33",
+    "sectionSlug": "pa-review-34",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask whether the buyer needs file integrity offline or commit-audit lineage. 2. Confirm export-before-purge is in the offboard talk-track. 3. Confirm dual-hasher residual (TB-1156) is not sold as closed. 4. Treat “sha256sum recomputes ManifestHash” as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-49",
+    "sectionSlug": "residuals-honest-54",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1488 / TB-1489 own the portability map and language guards. - Complements M-160 / M-198 / M-265; open TB-886 (surface verify in buyer materials) remains separate. - Does not reopen Done TB-307 / ADR 0040. - This handout does not claim CPA SOC 2 or a published third-party penetration test."
+    "excerpt": "- TB-1488 Done (2026-08-10) — engineering portability map [`../library/OFFLINE_VERIFIABLE_EXPORT_PORTABILITY.md`](../library/OFFLINE_VERIFIABLE_EXPORT_PORTABILITY.md). TB-1489 owns language guards CI. - Complements M-160 / M-198 / M-265; open TB-886 (surface verify in buyer materials) remains separate. - Does not re…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2619,23 +2850,23 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-36",
+    "sectionSlug": "claim-boundary-41",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not sell append-only as “backups cannot rewrite history,” claim restored tenants are cryptographically distinguishable from tampered ones by SQL alone, or claim SQL+blob perfect PITR. Say restore preserves point-in-time commit-sealed consistency; treat as controlled discontinuity; distinguish via external export …"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-34",
+    "sectionSlug": "pa-review-35",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask whether the buyer means SQL recoverability or tamper detection. 2. Confirm external export anchors are in the DR talk-track. 3. Confirm SQL/blob skew is disclosed. 4. Treat “restored â‰ tampered by SQL alone” as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-50",
+    "sectionSlug": "residuals-honest-55",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1490 / TB-1491 own the invariant map and language guards. - Complements M-160 / M-267 / M-265; cite [`../runbooks/BACKUP_RESTORE_DRILL.md`](../runbooks/BACKUP_RESTORE_DRILL.md). - Does not reopen Done TB-303 / TB-307. - This handout does not claim CPA SOC 2 or a published third-party penetration test."
+    "excerpt": "- TB-1490 Done (2026-08-10) — engineering invariant map [`../library/EVIDENCE_BACKUP_RESTORE_INVARIANT_MAP.md`](../library/EVIDENCE_BACKUP_RESTORE_INVARIANT_MAP.md). TB-1491 owns language guards CI. - Complements M-160 / M-267 / M-265; cite [`../runbooks/BACKUP_RESTORE_DRILL.md`](../runbooks/BACKUP_RESTORE_DRILL.md)…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2654,7 +2885,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-37",
+    "sectionSlug": "claim-boundary-42",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not sell “delete project deletes all its evidence,” equate recycle-bin purge with GDPR Art. 17 / tenant erasure, or claim “no trace after purge.” Say: project record only; committed packages, runs, sealed evidence, and audit remain until broader tenant offboard. Soft-delete mutates mutable `Projects` flags — seal…"
   },
@@ -2668,16 +2899,16 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-35",
+    "sectionSlug": "pa-review-36",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask whether the buyer means catalog delete or evidence erasure. 2. Confirm recycle-bin / help copy does not imply purge erases packages (TB-1180). 3. Confirm project retention â‰ tenant Art. 17 / offboard. 4. Treat “no residue after purge” as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-51",
+    "sectionSlug": "residuals-honest-56",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1497 / TB-1498 own the residue map and language guards. - UX / transparency gaps remain open (TB-1179–TB-1182, TB-1289–TB-1291) — this handout is semantics, not UX ship status. - Complements M-160 / M-265; does not reopen Done TB-303. - This handout does not claim CPA SOC 2 or a published third-party penetratio…"
+    "excerpt": "- TB-1497 Done (2026-08-10) — engineering residue map [`../library/PROJECT_SOFT_DELETE_SEALED_EVIDENCE_MAP.md`](../library/PROJECT_SOFT_DELETE_SEALED_EVIDENCE_MAP.md). TB-1498 owns language guards CI. - UX / transparency gaps remain open (TB-1179–TB-1182, TB-1289–TB-1291) — this handout is semantics, not UX ship sta…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2710,7 +2941,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-38",
+    "sectionSlug": "claim-boundary-43",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not sell golden cohort as perpetual model reproducibility, claim “replay always re-runs the same model,” equate auto-upgrade with `ManifestHash` continuity, or treat verify-mode drift as a live model oracle. Say: committed packages remain hash-verifiable relative to stored bytes; stored-source replay detects drif…"
   },
@@ -2724,16 +2955,51 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-36",
+    "sectionSlug": "pa-review-37",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask whether the buyer means stored replay or live Real re-execute. 2. Confirm auto-upgrade is disclosed as availability, not output identity. 3. Confirm re-lock rituals name the model change (no rubber stamp). 4. Treat “ManifestHash survives auto-upgrade” as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-52",
+    "sectionSlug": "residuals-honest-57",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1499 / TB-1500 own the claim map and language guards. - Complements M-174 / M-198 / M-201 / M-209 / M-227; TB-688 stays V2 cadence. - Cite [`../library/RUNBOOK_REPLAY_DRIFT.md`](../library/RUNBOOK_REPLAY_DRIFT.md). - Does not reopen Done TB-307 / TB-594. - This handout does not claim CPA SOC 2 or a published th…"
+    "excerpt": "- TB-1499 Done (2026-08-10) — engineering claim map [`../library/AOAI_MODEL_RETIREMENT_REPRO_CLAIM_MAP.md`](../library/AOAI_MODEL_RETIREMENT_REPRO_CLAIM_MAP.md). TB-1500 Done (2026-08-10) — language guards CI (`check_aoai_retirement_repro_honesty.py`). - Complements M-174 / M-198 / M-201 / M-209 / M-227; TB-688 stay…"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "live-vs-nightly-finding-quality-tripwire-m-276",
+    "sectionHeading": "Live vs nightly finding-quality tripwire (M-276)",
+    "excerpt": "Former standalone body: `docs/go-to-market/LIVE_VS_NIGHTLY_FINDING_QUALITY_TRIPWIRE_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-275 / M-276 / TB-1506). Engineering map: [`../library/LIVE_VS_NIGHTLY_FINDING_QUALITY_TRIPWIRE_MAP.md`](../library/LIVE_VS_NIGHTLY_FINDING_QUALITY_TRIPWI…"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "nightly-vs-live-one-table",
+    "sectionHeading": "Nightly vs live (one table)",
+    "excerpt": "Nightly vs live (one table)"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "claim-boundary-44",
+    "sectionHeading": "Claim boundary",
+    "excerpt": "Do not call TB-683 “live real-mode monitoring,” claim nightly eval catches Azure model revs, or say Prometheus alone proves degradation before customers. Say: nightly is offline exemplar scoring; live gates defend customer traffic; pre-customer canary is a documented gap."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "safe-pin-11",
+    "sectionHeading": "Safe pin",
+    "excerpt": "> Per-execute quality and faithfulness gates plus optional Prometheus alerts defend live customer traffic. Nightly real-mode eval does not call Azure OpenAI — it re-scores committed exemplars. Detecting silent model quality drops before customers requires an explicit live canary loop (not shipped today)."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "residuals-honest-58",
+    "sectionHeading": "Residuals (honest)",
+    "excerpt": "- TB-1506 Done (2026-08-10) — engineering map [`../library/LIVE_VS_NIGHTLY_FINDING_QUALITY_TRIPWIRE_MAP.md`](../library/LIVE_VS_NIGHTLY_FINDING_QUALITY_TRIPWIRE_MAP.md). TB-1507 Done (2026-08-10) — language guards CI (`check_live_vs_nightly_tripwire_honesty.py`). - Optional canary + ModelVersion alert remain follow-…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2747,7 +3013,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "what-stops-a-paying-tenant-stolen-key-spend-storm",
     "sectionHeading": "What stops a paying-tenant / stolen-key spend storm",
-    "excerpt": "Compromised API key: Full tenant principal until removed from config (next request fail-closed after reload; requests already in progress may still complete — M-282). Can spend up to tenant quotas/budgets (and AOAI TPM). Not unbounded forever; not per-key spend isolation."
+    "excerpt": "Compromised API key: Full tenant principal until removed from config (next request fail-closed after reload; requests already in progress may still complete — [Mid-run authority revocation (M-283)](#mid-run-authority-revocation-m-283)). Can spend up to tenant quotas/budgets (and AOAI TPM). Not unbounded forever; not…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2759,28 +3025,28 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-39",
+    "sectionSlug": "claim-boundary-45",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not sell Quick Scan anonymous gates as paid-tenant protection, claim stolen keys cannot burn money or that spend is per-key isolated, equate product AI usage with Azure OpenAI invoices, claim automated dispute reconciliation ships, or claim Azure RG consumption budgets hard-stop product LLM. Say: tenant HTTP/toke…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "safe-pin-11",
+    "sectionSlug": "safe-pin-12",
     "sectionHeading": "Safe pin",
     "excerpt": "> Paying tenants use layered HTTP, token, and (when enabled) monthly estimated-USD fail-closed gates — not the Quick Scan anonymous plane. A stolen API key can burn remaining tenant headroom until revoke (no per-key spend isolation). Product AI usage figures are estimates from tokens Ã— configured rates; dispute mon…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-37",
+    "sectionSlug": "pa-review-38",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask whether the buyer means product showback or Azure invoice reconciliation. 2. Confirm Quick Scan is not sold as the paying-tenant gate plane. 3. Confirm monthly USD budget enablement (SaaS overlay vs Production.json default) is disclosed when relevant. 4. Treat “metering reconciles to Azure invoice” or “per-ke…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-53",
+    "sectionSlug": "residuals-honest-59",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "- TB-1570 / TB-1571 own the claim map and language guards. - Mature cost-control plane residual: M-225 / TB-1287. - INV-004 reserve/settle orphans: M-131/M-132. - Distinct from TPM fairness: M-296/M-297. - Does not reopen Done Quick Scan TB-892–TB-896. - This handout does not claim CPA SOC 2 or a published third-par…"
   },
@@ -2808,30 +3074,30 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-40",
+    "sectionSlug": "claim-boundary-46",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not sell per-tenant fair share of shared TPM, claim token budgets isolate tenants from each other’s AOAI load, claim more CA replicas fix noisy-neighbor LLM, claim 429 yields graceful Real success / queued Real, equate authority per-tenant slots with LLM fairness, or conflate spend-storm controls with TPM fairnes…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "safe-pin-12",
+    "sectionSlug": "safe-pin-13",
     "sectionHeading": "Safe pin",
     "excerpt": "> On shared AOAI, there is no cross-tenant TPM fair share. Noisy neighbors can induce throttling and Partial/Failed runs for others. Capacity planning and admission controls mitigate; they do not create per-tenant TPM fairness on a shared deployment. HTTP scale-out does not raise the TPM ceiling."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-38",
+    "sectionSlug": "pa-review-39",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask whether the buyer means spend caps or TPM fair share. 2. Confirm scale-out is not sold as more AOAI TPM. 3. Confirm 429 paths end in Partial/Failed — not silent Simulator or queued Real success. 4. Treat “fair shared AOAI TPM across tenants” as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-54",
+    "sectionSlug": "residuals-honest-60",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1577 / TB-1578 own the claim map and language guards. - TPM-aware admission remains open (TB-1336 / M-237/M-238). - Complements M-229/M-230, M-182/M-183, G-SCALE-01/G-SCALE-02. - Distinct from spend-storm M-294/M-295. - This handout does not claim CPA SOC 2 or a published third-party penetration test."
+    "excerpt": "- TB-1577 Done (claim map); TB-1578 Done (`check_shared_aoai_tpm_noisy_neighbor_honesty.py` language guards). - TPM-aware admission remains open (TB-1336 / M-237/M-238). - Complements M-229/M-230, M-182/M-183, G-SCALE-01/G-SCALE-02. - Distinct from spend-storm M-294/M-295. - This handout does not claim CPA SOC 2 or …"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2864,30 +3130,30 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-41",
+    "sectionSlug": "claim-boundary-47",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not sell WASM/script sandbox, unconstrained programmable policy language, “broken packs cannot affect reviews,” “malicious pack takes down the platform / other tenants,” execute-time durable pack-version pins, or pack-as-certification. Say: bounded declarative interpreter; commit-time pin; tenant-local blast radi…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "safe-pin-13",
+    "sectionSlug": "safe-pin-14",
     "sectionHeading": "Safe pin",
     "excerpt": "> Customer-authored rules are data evaluated in-process under host bounds, pinned into the committed package via pack version + `RuleSetHash`, with blast radius limited to the assigning tenant. Do not sell WASM isolation or pack-as-certification. Self-degrade (noise, wrong gates) is possible for that tenant; cross-t…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-39",
+    "sectionSlug": "pa-review-40",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask whether the buyer means WASM isolation or declarative in-process evaluation. 2. Confirm pin is commit-time, not a durable execute-time column. 3. Confirm “platform-wide” is not equated with “that tenant’s reviews.” 4. Treat “WASM sandbox” or “broken rule takes down all tenants” as review findings."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-55",
+    "sectionSlug": "residuals-honest-61",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1624 / TB-1625 own the claim map and language guards. - Complements M-235/M-236 (eval hybrid) and M-172/M-173 (gate vs advisory). - Shared-process CPU residual under pathological packs remains. - This handout does not claim CPA SOC 2 or a published third-party penetration test."
+    "excerpt": "- TB-1624 Done (claim map); TB-1625 Done (`check_policy_pack_customer_rule_sandbox_honesty.py` language guards). - Complements M-235/M-236 (eval hybrid) and M-172/M-173 (gate vs advisory). - Shared-process CPU residual under pathological packs remains. - This handout does not claim CPA SOC 2 or a published third-par…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2906,28 +3172,28 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-42",
+    "sectionSlug": "claim-boundary-48",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not sell API scale-out as removing AOAI 429/TPM limits, claim launch load is “proven” while `LAUNCH_LOAD_DRILL.md` Latest run is pending, or imply worker/outbox lag loses committed packages or is the first sync admit failure under marketing burst. Say: HTTP-first launch vs AOAI-ceiling Real execute; committed pac…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "safe-pin-14",
+    "sectionSlug": "safe-pin-15",
     "sectionHeading": "Safe pin",
     "excerpt": "> For a launch burst, synchronous HTTP admission fails before worker or outbox lag; Real execution then reaches the Azure OpenAI TPM ceiling. Degradation must preserve committed packages and label non-Real alternatives. Measured dominant-path evidence remains G-SCALE-02 — design contracts (TB-1032) do not substitute…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-40",
+    "sectionSlug": "pa-review-41",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask whether the buyer means cut-day launch burst or sustained 100Ã— growth. 2. Confirm scale-out is not sold as more AOAI TPM. 3. Confirm commit durability under worker lag is stated separately from admit failure order. 4. Treat “launch load proven” without G-SCALE-02 as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-56",
+    "sectionSlug": "residuals-honest-62",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "- TB-1032 / TB-1033 own the design contract and language guards. - Measured evidence: owner G-SCALE-01 / G-SCALE-02; cite [`../architecture/LAUNCH_LOAD_DRILL.md`](../architecture/LAUNCH_LOAD_DRILL.md) + [`../library/DEGRADED_MODE.md`](../library/DEGRADED_MODE.md). - Complements M-229/M-230 (execute throttle) and M-2…"
   },
@@ -2955,28 +3221,28 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-43",
+    "sectionSlug": "claim-boundary-49",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not promise Healthcare Claims sample while serving Contoso `demo/preview`, imply anonymous preview is tenant-accurate, or claim Contoso SQL rename / Option D / Northwind purge is required before the Q21 bar. Say: one universe per page + fail-closed mismatch; Q21 minimum = Option A or B on welcome→`/see-it`→CTA."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "safe-pin-15",
+    "sectionSlug": "safe-pin-16",
     "sectionHeading": "Safe pin",
     "excerpt": "> Keep the static pitch, anonymous sample, and signed-in tenant planes visibly separate. The welcome-to-see-it-to-CTA path must use either a Claims-only static route or an explicitly Contoso-labeled live route; a universe mismatch fails closed. Anonymous preview is not tenant data; Northwind remains off-funnel."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-41",
+    "sectionSlug": "pa-review-42",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask which universe the primary funnel serves and whether chrome matches payload. 2. Confirm Contoso preview is not under Claims labels. 3. Confirm Option A or B on welcome→`/see-it`→CTA (not dual-universe C). 4. Treat “tenant-accurate anonymous live demo” as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-57",
+    "sectionSlug": "residuals-honest-63",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "- TB-1028 Done (engineering contract + Option A CTA purity). TB-1029 owns language / honesty CI guards. - Cite ADR 0027 + `ui_routes.md` Tier 1/2; sample matrix [`DEMO_QUICKSTART.md#sample-package-funnel-id-matrix`](DEMO_QUICKSTART.md#sample-package-funnel-id-matrix) (`SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md` alias). - C…"
   },
@@ -2997,28 +3263,28 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-44",
+    "sectionSlug": "claim-boundary-50",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not teach create→execute→commit as the default peer lifecycle to Authority, claim dual coordinator storage still ships, or imply `POST …/result` finalizes/commits. Say: Authority product-default; AgentTask is the extension loop; keep execute/selective; `/result` does not commit Authority packages."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "safe-pin-16",
+    "sectionSlug": "safe-pin-17",
     "sectionHeading": "Safe pin",
     "excerpt": "> New product surfaces use the Authority pipeline. Dual coordinator storage is retired. AgentTask execute remains for intentional task-loop work. `POST …/result` never finalizes an Authority-committed package — treat “create then always execute/result/commit” as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-42",
+    "sectionSlug": "pa-review-43",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask whether the integrator is on Authority create/finalize or AgentTask lifecycle. 2. Confirm dual-storage vocabulary is not used as evidence of two live write paths. 3. Confirm `/result` is not sold as Authority finish. 4. Treat “create→execute→commit is the default peer lifecycle” as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-58",
+    "sectionSlug": "residuals-honest-64",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "- TB-1034 / TB-1035 own strangler next-slice language guards. - Complements M-158/M-159 forbid matrix; does not reopen Done TB-919. - Cite [`../architecture/COORDINATOR_STRANGLER_INVENTORY.md`](../architecture/COORDINATOR_STRANGLER_INVENTORY.md), ADR 0030, ADR 0042. - This handout does not claim CPA SOC 2 or a publi…"
   },
@@ -3053,28 +3319,28 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-45",
+    "sectionSlug": "claim-boundary-51",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not claim dual coordinator storage still ships; do not equate AgentTask verbs or Contracts↔Authority mappers with dual repos; do not delete DualPipeline/CoordinatorStrangler discipline tests solely because inventory / TB-919 says complete. Say: hunt soft bridges + mental-model dualism; keep anti-resurrection pins…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "safe-pin-17",
+    "sectionSlug": "safe-pin-18",
     "sectionHeading": "Safe pin",
     "excerpt": "> Storage strangler completion is not residual-coupling closure. Keep discipline tests that block dual-pipeline resurrection until the retirement gate owns their removal — treat “TB-919 complete so we can delete DualPipeline tests” as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-43",
+    "sectionSlug": "pa-review-44",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask whether “complete” means storage removal or residual-coupling closure. 2. Confirm AgentTask / mapper language is not sold as dual SoR. 3. Confirm discipline-test retirement cites TB-1204, not inventory alone. 4. Treat casual deletion of anti-resurrection pins as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-59",
+    "sectionSlug": "residuals-honest-65",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "- TB-1204 / TB-1205 own residual-coupling / discipline-test retirement contract and honesty CI. - Cite ADR 0030/0042, `DualPipelineRegistrationDisciplineTests`, `CoordinatorStranglerCompletionArchitectureTests`, ceiling script. - Complements M-158/M-159, M-184/M-185; pairs claim-honesty M-205. - This handout does no…"
   },
@@ -3130,21 +3396,21 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-46",
+    "sectionSlug": "claim-boundary-52",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not claim measured win/loss without M-20, promise ArchLucid replaces Confluence/Miro/ServiceNow/GRC, lead with a Visio bakeoff, or claim cheaper TCO than Copilot seats. Say: hypothesis kill-order favors manual packaging; close with committed package + evidence + export; complement stack tools; win = manifest + tr…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-44",
+    "sectionSlug": "pa-review-45",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask which rival class is actually killing the deal (manual vs diagram vs GRC vs seats). 2. Confirm closing path shows a committed package, not a diagram bakeoff. 3. Confirm complement language for Confluence/Miro/ServiceNow. 4. Treat measured kill-rate or “replaces ServiceNow” copy as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-60",
+    "sectionSlug": "residuals-honest-66",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "- TB-1055 / TB-1056 own deal-loss closing-evidence language guards. - Measured frequency remains M-20; seats cohort remains M-42. - Cite [`COMPETITIVE_POSITIONING.md`](COMPETITIVE_POSITIONING.md), [`DIFFERENTIATION_PROOF_PACKET.md#model-seats-counter-positioning-message-test`](DIFFERENTIATION_PROOF_PACKET.md#model-s…"
   },
@@ -3179,21 +3445,21 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "safe-pin-18",
+    "sectionSlug": "safe-pin-19",
     "sectionHeading": "Safe pin",
     "excerpt": "> We are in Stage 0 controlled pilots. What we can prove today is a mode-labeled committed package with evidence-linked findings, mode-labeled export, source-classified ROI, and honest trust substitutes. We do not claim Stage 1 evidence-backed selling, N-pilot proof, Marketplace buy today, named references, or CPA S…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-45",
+    "sectionSlug": "pa-review-46",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask which authorized stage [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md) shows. 2. Confirm G4 status before any “proven across pilots” language. 3. Confirm LinkedIn / demo copy stays on the allowlist. 4. Treat Stage 1 or certification language under G4 HOLD as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-61",
+    "sectionSlug": "residuals-honest-67",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "- TB-1072 / TB-1073 own Stage 0 allowlist language guards. - G4 evidence remains G-REAL-06 / G-REAL-07; does not substitute those runs. - Pilot-packet composition without CPA/3P is [M-191](#minimum-pilot-trust-packet-m-191). - This handout does not claim CPA SOC 2 or a published third-party penetration test."
   },
@@ -3228,28 +3494,28 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-47",
+    "sectionSlug": "claim-boundary-53",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not promise that assembly/layer architecture tests alone prove multi-tenant isolation or make cross-tenant leaks impossible. Say: compile-time DAG + Layer A catalogs + INV-001 + retrieval filters; name residual irreversible classes (wrong catalog / unscoped path) and the TB-950 tool hole. Engineering SoT: [`LAYER…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "safe-pin-19",
+    "sectionSlug": "safe-pin-20",
     "sectionHeading": "Safe pin",
     "excerpt": "> NetArchTest guards the dependency DAG. Isolation is catalogs, decide-once identity, and retrieval filters at runtime. A green architecture-test suite does not close wrong-catalog, unscoped SQL, or empty-`AllowedTools` residuals — treat “NetArchTest proves isolation” as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-46",
+    "sectionSlug": "pa-review-47",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask which residual class is in scope (catalog, retrieval, tools, DiD erosion, claim integrity). 2. Confirm NetArchTest is not sold as the isolation proof. 3. Confirm allowlisted exceptions are named, not silent. 4. Treat “architecture tests make leaks impossible” as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-62",
+    "sectionSlug": "residuals-honest-68",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "Engineering SoT: [`LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md`](../library/LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md) (TB-1005 Done). Compile-time DAG guards are implemented; they do not close ranked runtime residuals. Follow-on claim CI: TB-1006. Does not reopen Done TB-027–TB-032. Does not claim CPA SOC 2 or a pu…"
   },
@@ -3284,28 +3550,28 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-48",
+    "sectionSlug": "claim-boundary-54",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not promise that artifact-mode replay proves architecture is unchanged, or that a live mutable UI side-by-side equals verify. Say: persisted `ComparisonRecord` + committed reviews on both sides; use verify for buyer drift/stable claims; label artifact-only as stored-delta replay."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "safe-pin-20",
+    "sectionSlug": "safe-pin-21",
     "sectionHeading": "Safe pin",
     "excerpt": "> A comparison is durable when persisted with `PayloadJson` against committed reviews. “Unchanged since last review” requires verify mode — treat artifact replay or a live UI side-by-side as a review finding if sold as drift proof."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-47",
+    "sectionSlug": "pa-review-48",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask whether the demo uses artifact, regenerate, or verify. 2. Confirm both sides have committed reviews. 3. Confirm buyer drift language cites verify (422), not UI eyeballing. 4. Treat “artifact replay proves unchanged” as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-63",
+    "sectionSlug": "residuals-honest-69",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "Engineering SoT: [`COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md`](../library/COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md) (TB-1024 Done). Minimal immutable snapshot set, replay modes, and illusion surfaces are published. Follow-on claim CI: TB-1025. Does not claim platform WORM on comparison rows (ADR 0040)…"
   },
@@ -3354,28 +3620,28 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-49",
+    "sectionSlug": "claim-boundary-55",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not promise “15 minutes without founder narration,” “product-led first value,” “no SE required,” or “won’t dismiss” without package spine + minute-12 checkpoint; do not treat absent M-44 as proof. Say: Finalize + sponsor export co-located; non-obvious finding + evidence → commit → unaided export."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "safe-pin-21",
+    "sectionSlug": "safe-pin-22",
     "sectionHeading": "Safe pin",
     "excerpt": "> In the first 15 minutes, stay on run detail: find a non-obvious evidence-linked finding by minute 12, then commit and locate sponsor export unaided. Treat Operate/Graph/Compare-first demos and “won’t dismiss without cohort” claims as review findings."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-48",
+    "sectionSlug": "pa-review-49",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask whether Finalize and sponsor export are co-located on `/architecture/reviews/{runId}`. 2. Confirm the minute-12 checkpoint is in the script. 3. Confirm Operate/Graph/Compare are not first clicks. 4. Treat pre-M-44 “won’t dismiss” / “no SE” copy as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-64",
+    "sectionSlug": "residuals-honest-70",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "Engineering SoT: [`../library/PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md`](../library/PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md) (TB-1030 Done). Must-complete set, package-spine IA unlock, minute-12 checkpoint, and narration-forcing residuals are published. Follow-on claim CI: TB-1031. Live validation remains M-44 / M-…"
   },
@@ -3410,28 +3676,28 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-50",
+    "sectionSlug": "claim-boundary-56",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not claim Simulator (or QuickStartForcedSimulator) quality / PilotStrict green means Real-safe, sell parallel Simulator vs Real vs FT defense stacks, or skip the schema/heuristic plane for Simulator. Say: one post-agent defense plane; mode may only vary thresholds / optional LLM judges / content-safety on live co…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "safe-pin-22",
+    "sectionSlug": "safe-pin-23",
     "sectionHeading": "Safe pin",
     "excerpt": "> Quality and hallucination defenses share one post-agent plane. A green Simulator or PilotStrict run is not Real-safe proof — treat “Simulator passed, therefore production AI is safe” or a forked Simulator-only defense stack as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-49",
+    "sectionSlug": "pa-review-50",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask whether Simulator and Real share the same post-agent plane. 2. Confirm schema/heuristic checks are not skipped for Simulator. 3. Confirm mode labels (INV-002) appear on the cited run. 4. Treat Simulator-green-equals-Real-safe copy as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-65",
+    "sectionSlug": "residuals-honest-71",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "- TB-1230 / TB-1231 own the shared-plane contract and anti-mode-fork honesty CI. - Complements M-166/M-167, M-203/TB-1196, M-209/M-210/TB-1228; does not reopen Done TB-684. - Cite `AgentOutputTraceQualityEvaluator`, `SkipWhenSimulator`, `ContentSafetyEnforcingAgentCompletionClient`, `FineTunedAgentCompletionDeployme…"
   },
@@ -3466,28 +3732,28 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-51",
+    "sectionSlug": "claim-boundary-57",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not claim deterministic verification of semantic findings; do not claim hallucination-proof / “never invents a regulation”; do not show synthetic 0–100 dimension scores without full decomposition; do not claim “beats expert architects” before held-out evidence; do not treat “risk accepted” as pass; do not report …"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "safe-pin-23",
+    "sectionSlug": "safe-pin-24",
     "sectionHeading": "Safe pin",
     "excerpt": "> ArchLucid reasons with evidence and structural gates — it does not sell “hallucination-proof” or expert-beating absolutism. Determinism stops at the integrity stage; semantic support stays labeled model inference; uncertainty and risk-accepted dispositions stay visible; benchmark numbers need held-out cases."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-50",
+    "sectionSlug": "pa-review-51",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask which claims are integrity-stage vs labeled semantic reasoning. 2. Confirm uncertainty / risk-accepted never read as pass. 3. Confirm any benchmark number cites held-out methodology (M-304). 4. Treat hallucination-proof or expert-beating copy without evidence as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-66",
+    "sectionSlug": "residuals-honest-72",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "- TB-1981 / TB-1985 / TB-1982 / TB-1990 / TB-1991 own reasoning / uncertainty / benchmark contracts. - Flagship demo narrative is M-301 (TB-1988); blind grading panel M-302 remains owner-executed (not this handout). - Complements M-209/M-210, M-211/M-212, M-203/M-204. - This handout does not claim CPA SOC 2 or a pub…"
   },
@@ -3522,7 +3788,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-67",
+    "sectionSlug": "residuals-honest-73",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "- TB-1015–TB-1017 formalize orthogonal-axis disclosure and export gates. - Real-variance→commit isolation remains M-203/TB-1196; Mixed roll-up semantics remain M-127. - Shared hallucination defense plane: [M-212](#shared-hallucination-defense-plane-m-212) / TB-1230."
   },
@@ -3552,7 +3818,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "interrupted-review-m-122",
     "sectionHeading": "Interrupted review — replica death and resume (M-122)",
-    "excerpt": "Former standalone body: `docs/go-to-market/INTERRUPTED_REVIEW_BUYER_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-122 / TB-960). Complements M-113 Claim-3. Not an assurance attestation and not Real-mode proof (G-REAL-06/G-REAL-07)."
+    "excerpt": "Former standalone body: `docs/go-to-market/INTERRUPTED_REVIEW_BUYER_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-122 / TB-960). Engineering SoT: [`../operations/ACA_WORKER_LLM_FAILURE_SEMANTICS.md`](../operations/ACA_WORKER_LLM_FAILURE_SEMANTICS.md). Complements M-113 Claim-3. Not an …"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -3585,9 +3851,9 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-68",
+    "sectionSlug": "residuals-honest-74",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-039 (idempotent skip) and TB-201 (unique `(RunId,TaskId)`) are Done. - TB-960–TB-962 remain open for the ACA worker contract, graceful drain, and staging replica-kill drill. - See also [`../library/CRASH_RECOVERY_LONG_RUNNING_REVIEW_CLAIM_MAP.md`](../library/CRASH_RECOVERY_LONG_RUNNING_REVIEW_CLAIM_MAP.md)."
+    "excerpt": "- TB-039 (idempotent skip) and TB-201 (unique `(RunId,TaskId)`) are Done. - TB-960 Done (2026-08-10) — ACA worker failure-semantics engineering contract published. - TB-961–TB-962 remain open for graceful drain and staging replica-kill drill. - TB-1523 Done (2026-08-10) — engineering crash-recovery claim map: [`../l…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -3606,21 +3872,21 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-51",
+    "sectionSlug": "pa-review-52",
     "sectionHeading": "PA review",
     "excerpt": "1. Identify whether billing claims refer to process skip or provider invoice reconciliation. 2. Trace a retry/interrupt path and note crash-before-persist rebill risk. 3. Confirm Polly and cache semantics are not described as exactly-once LLM. 4. Defer deep FinOps idempotency from first security review per M-192 / T…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-52",
+    "sectionSlug": "claim-boundary-58",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not say “exactly-once LLM,” “zero duplicate spend on retry,” or “provider refunds mid-request calls.” Say process skip applies after persisted successful `(RunId, TaskId)` and disclose provider at-least-once."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-69",
+    "sectionSlug": "residuals-honest-75",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "- TB-1020 defines the process-vs-provider matrix. - TB-1021 guards FinOps language. - ACA host interrupt specialization remains [M-122](#interrupted-review-m-122) / TB-960. - Execute+commit races remain [M-222](#concurrent-execute-commit-race-m-222) / TB-1270."
   },
@@ -3648,30 +3914,30 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-52",
+    "sectionSlug": "pa-review-53",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask which race the buyer is worried about — commit CAS, execute rebill, or async delivery. 2. Confirm “idempotent commit” means same ManifestId first-wins, not universal exactly-once. 3. Confirm HTTP Idempotency-Key is not sold as a substitute for SQL CAS. 4. Treat a silent overwrite or “retries never spend” clai…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-53",
+    "sectionSlug": "claim-boundary-59",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not say “exactly-once commit,” “retries never spend LLM,” “two racing executes cannot conflict,” or “Idempotency-Key equals CAS.” Say first-wins commit, process skip only after `(RunId, TaskId)` persist, and finalize â‰ async delivery."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-70",
+    "sectionSlug": "residuals-honest-76",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1270 / TB-1271 own the engineering race matrix and language guards. - Does not reopen Done TB-039 / TB-201 / TB-303 / TB-310. - Complements M-160 / M-162 / M-170 without replacing those contracts. - This handout does not claim CPA SOC 2 or a published third-party penetration test."
+    "excerpt": "- TB-1270 Done — engineering race matrix: [`CONCURRENT_EXECUTE_AND_COMMIT_RACE_CONTRACT.md`](../library/CONCURRENT_EXECUTE_AND_COMMIT_RACE_CONTRACT.md). - Open TB-1271 — language guards / honesty CI. - Does not reopen Done TB-039 / TB-201 / TB-303 / TB-310. - Complements M-160 / M-162 / M-170 without replacing those…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "manifest-content-schema-evolution-m-224",
     "sectionHeading": "GoldenManifest content-schema evolution (M-224)",
-    "excerpt": "Former standalone body: `docs/go-to-market/MANIFEST_CONTENT_SCHEMA_EVOLUTION_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-223 / M-224 / TB-1277). Complements [Committed signed review record (M-155)](#committed-golden-manifest-unit-of-truth-m-155) and [Append-only / sealed evidence (M-16…"
+    "excerpt": "Former standalone body: `docs/go-to-market/MANIFEST_CONTENT_SCHEMA_EVOLUTION_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-223 / M-224 / TB-1277). Engineering SoT: [`../library/MANIFEST_CONTENT_SCHEMA_EVOLUTION_CONTRACT.md`](../library/MANIFEST_CONTENT_SCHEMA_EVOLUTION_CONTRACT.md).…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -3690,23 +3956,23 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-53",
+    "sectionSlug": "pa-review-54",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask whether “schema upgrade” means reader tolerance or a rewrite of sealed rows. 2. Confirm dual-write language is scoped to storage layout, not historical content migration. 3. Confirm hash-affecting changes re-lock rather than claiming bit-identical old packages. 4. Treat “SchemaVersion keeps every old manifest…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-54",
+    "sectionSlug": "claim-boundary-60",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not say a schema-version column (or dual-write window) alone keeps old committed reviews readable/upgraded, or that shipping new sections rewrites sealed packages. Say tolerant readers are primary, `SchemaVersion` is activate-or-retire, dual-write â‰ content migration, and sealed packages are never rewritten."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-71",
+    "sectionSlug": "residuals-honest-77",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1277 / TB-1278 own the evolution contract and language guards. - Complements M-198 / M-154 / M-219 / M-220 without replacing those contracts. - Does not reopen Done TB-307 / TB-575 / TB-303. - This handout does not claim CPA SOC 2 or a published third-party penetration test."
+    "excerpt": "- TB-1277 Done — [`MANIFEST_CONTENT_SCHEMA_EVOLUTION_CONTRACT.md`](../library/MANIFEST_CONTENT_SCHEMA_EVOLUTION_CONTRACT.md). - TB-1278 (open) — language guards for schema-column / dual-write / rewrite-sealed overclaims. - Complements M-198 / M-154 / M-219 / M-220 without replacing those contracts. - Does not reopen…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -3739,28 +4005,28 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "claim-boundary-55",
+    "sectionSlug": "claim-boundary-61",
     "sectionHeading": "Claim boundary",
     "excerpt": "Do not claim EF/ORM would fix tenant isolation, sealed DENYs, or hot-path `*Json` cost; do not sell dual-write satellites as “halfway to ORM”; do not open ORM under schedule duress without measured LOB/list indicators and exhaustion of typed projections / TB-931. Say: intentional Dapper stack; ladder before ORM; Gol…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "safe-pin-24",
+    "sectionSlug": "safe-pin-25",
     "sectionHeading": "Safe pin",
     "excerpt": "> Persistence is Dapper on a single DDL database with optional satellites for storage layout — not a stealth ORM migration. When list latency or LOB cost hurts, climb typed projections and shared query shapes first; do not treat “add EF” as the isolation or immutability fix."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "pa-review-54",
+    "sectionSlug": "pa-review-55",
     "sectionHeading": "PA review",
     "excerpt": "1. Ask which signal triggered the ORM question — LOB, drift, or schedule pressure. 2. Confirm satellites are not sold as half-ORM. 3. Confirm tenant isolation / sealed DENYs are not blamed on “missing ORM.” 4. Treat “we need EF to be enterprise-safe” without measured ladder exhaustion as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-72",
+    "sectionSlug": "residuals-honest-78",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "- TB-1263 / TB-1264 own the breakdown-signal contract and honesty CI. - Cite [`../library/SQL_SCRIPTS.md`](../library/SQL_SCRIPTS.md), [`../library/JSON_FALLBACK_AUDIT.md`](../library/JSON_FALLBACK_AUDIT.md), `HotPathRelationalQueryShapes`, ADR 0011 / 0037 / 0039. - Complements M-154 / M-160 / M-198 / TB-931; pairs …"
   },
@@ -3795,7 +4061,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-73",
+    "sectionSlug": "residuals-honest-79",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "Engineering SoT: [`POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md`](../library/POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md) (TB-995 Done). Partial-run / selective re-execute / run budget / cache admission are largely shipped (TB-937–TB-940 Done); residual owners include TB-941–TB-945 and TB-975–TB-977. Use the execution resu…"
   },
@@ -3830,7 +4096,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
-    "sectionSlug": "residuals-honest-74",
+    "sectionSlug": "residuals-honest-80",
     "sectionHeading": "Residuals (honest)",
     "excerpt": "This work does not reopen the shipped fleet alerting baseline in TB-957."
   },
@@ -3930,7 +4196,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "principal-architect-falsification-script-m-113",
     "sectionHeading": "Principal architect falsification script (M-113)",
-    "excerpt": "Audience: Founder / SE running a procurement technical review with a skeptical principal architect (or security reviewer). Duration: 30–45 minutes. Goal: Let them try to break three highest-stakes V1 claims; walk out with pass/fail notes and artifact links. Spine: [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS…"
+    "excerpt": "Audience: Founder / SE running a procurement technical review with a skeptical principal architect (or security reviewer). Duration: 30–45 minutes. Goal: Let them try to break three highest-stakes product claims; walk out with pass/fail notes and artifact links. Spine: [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -3972,7 +4238,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "azure-extractor-infosec-pre-read",
     "sectionHeading": "Azure extractor — InfoSec pre-read",
-    "excerpt": "Audience: Customer security, cloud platform, and procurement reviewers who must approve running `Get-ArchLucidAzurePackage.ps1` or uploading its ZIP output to ArchLucid. Status: V1 GA — aligns with [`V1_SCOPE.md`](../library/V1_SCOPE.md) Â§2.16 and [`trust-center.md`](trust-center.md) Azure connectivity posture. Rel…"
+    "excerpt": "Audience: Customer security, cloud platform, and procurement reviewers who must approve running `Get-ArchLucidAzurePackage.ps1` or uploading its ZIP output to ArchLucid. Status: generally available — aligns with [`V1_SCOPE.md`](../library/V1_SCOPE.md) Â§2.16 and [`trust-center.md`](trust-center.md) Azure connectivity posture. Rel…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -3985,7 +4251,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "tier-1-customer-run-collector-default-v1-path",
-    "sectionHeading": "Tier 1 — customer-run collector (default V1 path)",
+    "sectionHeading": "Tier 1 — customer-run collector (default path)",
     "excerpt": "1. Your team downloads and reviews `scripts/azure/Get-ArchLucidAzurePackage.ps1` from the ArchLucid distribution you received (or repository tag aligned to your pilot build). 2. An authorized operator runs the script inside your Azure context (Azure PowerShell / Cloud Shell / approved automation runner). 3. The arch…"
   },
   {
@@ -4000,7 +4266,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "tier-2-optional-hosted-collection-separate-approval",
     "sectionHeading": "Tier 2 — optional hosted collection (separate approval)",
-    "excerpt": "Tier 2 is opt-in and not required for V1 pilots. If enabled later: customer provisions a dedicated read-only service principal with `Reader` + `Cost Management Reader` only; federated workload identity preferred; ArchLucid stores only `{ customerTenantId, customerAppId, subscriptionId, includeCost }` — never custome…"
+    "excerpt": "Tier 2 is opt-in and not required for pilots. If enabled later: customer provisions a dedicated read-only service principal with `Reader` + `Cost Management Reader` only; federated workload identity preferred; ArchLucid stores only `{ customerTenantId, customerAppId, subscriptionId, includeCost }` — never custome…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -4055,15 +4321,15 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "3-security-controls-shipped-v1",
-    "sectionHeading": "3. Security controls (shipped V1)",
-    "excerpt": "3. Security controls (shipped V1)"
+    "sectionHeading": "3. Security controls (shipped)",
+    "excerpt": "3. Security controls (shipped)"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "4-assurance-status-explicit",
     "sectionHeading": "4. Assurance status — explicit",
-    "excerpt": "> Reading this table: Status values are Shipped, Self-assessed, Roadmap / V1.1, or Not available. Do not treat Roadmap items as current capabilities."
+    "excerpt": "> Reading this table: Status values are Shipped, Self-assessed, Roadmap / future release, or Not available. Do not treat Roadmap items as current capabilities."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -4147,7 +4413,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "2-can-we-see-the-latest-penetration-test-report",
     "sectionHeading": "2. Can we see the latest penetration-test report?",
-    "excerpt": "Answer: V1 uses owner-conducted penetration-style testing and internal assessments. A third-party vendor engagement is planned, not yet scheduled; there is no awarded external vendor today. Redacted assessor summaries, when they exist, are distributed under NDA through security / sales diligence. Lack of a published…"
+    "excerpt": "Answer: ArchLucid uses owner-conducted penetration-style testing and internal assessments. A third-party vendor engagement is planned, not yet scheduled; there is no awarded external vendor today. Redacted assessor summaries, when they exist, are distributed under NDA through security / sales diligence. Lack of a published…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -4161,7 +4427,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "4-can-we-authenticate-with-okta-ping-auth0-instead-of-microsoft-entra-id",
     "sectionHeading": "4. Can we authenticate with Okta / Ping / Auth0 instead of Microsoft Entra ID?",
-    "excerpt": "Answer: Yes — V1 GA. ArchLucid supports OIDC (including Okta, Ping, and Auth0-class issuers) and SAML 2.0 workforce SSO. Provide issuer, audience, and claim-mapping details with your IdP administrator during diligence. See [Enterprise onboarding](/help/enterprise-onboarding), [Users and roles](/help/users-and-roles)…"
+    "excerpt": "Answer: Yes — generally available. ArchLucid supports OIDC (including Okta, Ping, and Auth0-class issuers) and SAML 2.0 workforce SSO. Provide issuer, audience, and claim-mapping details with your IdP administrator during diligence. See [Enterprise onboarding](/help/enterprise-onboarding), [Users and roles](/help/users-and-roles)…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -4217,7 +4483,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "12-can-we-commission-custom-policy-packs-beyond-bundled-defaults",
     "sectionHeading": "12. Can we commission custom policy packs beyond bundled defaults?",
-    "excerpt": "Answer: Yes — V1 professional services. ArchLucid offers Custom Policy Pack Authoring SKUs (Starter / Standard / Program) with customer-exclusive or ArchLucid-owned IP tiers. Scope, delivery windows, and list prices are on the public [pricing](/pricing) page; submit a quote with tier interest Custom policy pack (pro…"
+    "excerpt": "Answer: Yes — Professional services. ArchLucid offers Custom Policy Pack Authoring SKUs (Starter / Standard / Program) with customer-exclusive or ArchLucid-owned IP tiers. Scope, delivery windows, and list prices are on the public [pricing](/pricing) page; submit a quote with tier interest Custom policy pack (pro…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -4265,22 +4531,22 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "current-controls-v1-evidence-today",
-    "sectionHeading": "Current controls (V1 evidence today)",
+    "sectionHeading": "Current controls (current evidence today)",
     "excerpt": "- Tenant-scoped auth (OIDC/SAML/API key) with least-privilege operator ranks - Append-only audit events and correlation IDs on API failures - Config summary and config lint without returning secrets - Policy packs and governance workflows (optional after first commit) - DPA/SIG/CAIQ-style templates in procurement pa…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "deferred-informational-only-not-v1-blockers",
-    "sectionHeading": "Deferred / informational only (not V1 blockers)",
-    "excerpt": "- CPA SOC 2 Type I/II report - Third-party penetration test publication - No ISO or statutory certification automation in V1 (deferred) - Live marketplace checkout as procurement gate"
+    "sectionHeading": "Deferred / informational only (not product blockers)",
+    "excerpt": "- CPA SOC 2 Type I/II report - Third-party penetration test publication - No ISO or statutory certification automation in the product (deferred) - Live marketplace checkout as procurement gate"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "we-will-never-ask-you-to-paste",
     "sectionHeading": "We will never ask you to paste",
-    "excerpt": "- Production database connection strings in tickets - API keys, SAML secrets, or Key Vault values in email - Unredacted LLM prompts in buyer-safe attachments - Customer-operated webhook secrets in V1 required path"
+    "excerpt": "- Production database connection strings in tickets - API keys, SAML secrets, or Key Vault values in email - Unredacted LLM prompts in buyer-safe attachments - Customer-operated webhook secrets in the product required path"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -4329,7 +4595,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "controlled-pilot-drill",
     "sectionHeading": "Controlled pilot drill",
-    "excerpt": "Duration: 45–60 minutes (solo or with a colleague playing procurement). Rehearse top V1 objections without over-claiming deferred assurance (SOC 2 CPA, third-party pen test)."
+    "excerpt": "Duration: 45–60 minutes (solo or with a colleague playing procurement). Rehearse top procurement objections without over-claiming deferred assurance (SOC 2 CPA, third-party pen test)."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",

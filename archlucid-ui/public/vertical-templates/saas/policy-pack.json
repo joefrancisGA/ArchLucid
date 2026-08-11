@@ -35,7 +35,7 @@
       "Advisory findings mapped to saas-ctrl-* compliance rules",
       "Governance dry-run delta summary when simulated against a run"
     ],
-    "scopeLabel": "V1-ready",
+    "scopeLabel": "Product-ready",
     "doNotUseWhen": [
       "Buyer requires CPA-issued SOC 2 Type I/II attestation",
       "No Azure or identity evidence in the architecture request"

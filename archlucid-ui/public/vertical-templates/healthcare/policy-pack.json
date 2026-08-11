@@ -35,7 +35,7 @@
       "Advisory findings on hc-ctrl-* rules (minimum necessary, audit, encryption)",
       "Proof checklist alignment when paired with healthcare starter pack"
     ],
-    "scopeLabel": "V1-ready",
+    "scopeLabel": "Product-ready",
     "doNotUseWhen": [
       "Real PHI in prompts or uploads without contractual basis",
       "Buyer expects HIPAA certification or BAAs from ArchLucid"

@@ -126,6 +126,35 @@ export const REVIEW_TERMINOLOGY_BANNED_PACKAGE_PATTERNS = [
   "finalize review package",
 ] as const;
 
+export const REVIEW_TERMINOLOGY_BANNED_PRODUCT_VERSION_PATTERNS = [
+  "v1 ga",
+  "v1-ready",
+  "v1 uses",
+  "v1 includes",
+  "v1 offers",
+  "v1 ships",
+  "v1 scope",
+  "v1 assurance",
+  "v1 control",
+  "v1 contract",
+  "v1 guarantee",
+  "v1 blockers",
+  "v1 evidence",
+  "v1 scalability",
+  "v1 posture",
+  "v1 registry",
+  "v1 surface",
+  "v1 professional",
+  "v1 pilots",
+  "shipped v1",
+  "for v1",
+  "in v1",
+  "not v1",
+  "active v1",
+  "default v1",
+  "openapi contract (v1)",
+] as const;
+
 export const REVIEW_TERMINOLOGY_NAV_EMPTY_GLOSSARY_SURFACE_PATHS = [
   "src/lib/empty-state-presets.ts",
   "src/lib/enterprise-compact-empty-state-presets.ts",

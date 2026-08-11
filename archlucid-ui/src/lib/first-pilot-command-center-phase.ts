@@ -232,7 +232,7 @@ export function resolveFirstPilotCommandCenterPhase(input: {
 
       summary:
 
-        "V1 proof looks ready, but recorded buyer requirements (for example SOC 2 CPA or V1.1 connectors) remain explicitly deferred. Use DEFERRED_SCOPE disposition in the proof pipeline — do not present them as first-pilot blockers.",
+        "Product proof looks ready, but recorded buyer requirements (for example SOC 2 CPA or future-release connectors) remain explicitly deferred. Use DEFERRED_SCOPE disposition in the proof pipeline — do not present them as first-pilot blockers.",
 
       href: committedReviewHref(signals),
 

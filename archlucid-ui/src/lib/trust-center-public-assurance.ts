@@ -41,7 +41,7 @@ export const TRUST_PUBLIC_ASSURANCE_ARTIFACTS: readonly TrustPublicAssuranceArti
     id: "owner-pentest-summary",
     title: "Owner-conducted pen-test summary (2026 Q2)",
     description:
-      "V1 owner-led penetration-style assessment — not a third-party attestation. Third-party vendor testing is planned, not yet scheduled.",
+      "Owner-led penetration-style assessment — not a third-party attestation. Third-party vendor testing is planned, not yet scheduled.",
     href: resolveInAppDocHref("docs/security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md"),
   },
 ] as const;
