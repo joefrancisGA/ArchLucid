@@ -4,19 +4,27 @@ import { Check } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { WIZARD_STICKY_PROGRESS_CLASS } from "@/lib/wizard-sticky-progress";
 
 import { SSO_WIZARD_STEPS } from "./sso-wizard-state";
 
 export type SsoWizardStepperProps = {
   readonly currentStep: number;
   readonly completedSteps: readonly number[];
+  /** Keep the step rail visible under the operator shell while scrolling (TB-2198). Defaults to true. */
+  readonly sticky?: boolean;
 };
 
 export function SsoWizardStepper(props: SsoWizardStepperProps): React.JSX.Element {
+  const sticky = props.sticky !== false;
   const completed = new Set(props.completedSteps);
 
   return (
-    <nav aria-label="SSO configuration progress" data-testid="sso-wizard-stepper">
+    <nav
+      aria-label="SSO configuration progress"
+      data-testid="sso-wizard-stepper"
+      className={cn(sticky && WIZARD_STICKY_PROGRESS_CLASS)}
+    >
       <ol className="m-0 flex w-full list-none flex-col gap-4 p-0 sm:flex-row sm:items-start sm:gap-2">
         {SSO_WIZARD_STEPS.map((step, index) => {
           const isActive = index === props.currentStep;
@@ -48,7 +56,8 @@ export function SsoWizardStepper(props: SsoWizardStepperProps): React.JSX.Elemen
                   isDone &&
                     !isActive &&
                     "border-teal-700 bg-teal-50 text-teal-900 dark:border-teal-500 dark:bg-teal-950/50 dark:text-teal-100",
-                  isFuture && "border-neutral-300 bg-white text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-200",
+                  isFuture &&
+                    "border-neutral-300 bg-white text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-200",
                 )}
               >
                 {isDone && !isActive ? <Check className="h-4 w-4" aria-hidden /> : stepNumber}

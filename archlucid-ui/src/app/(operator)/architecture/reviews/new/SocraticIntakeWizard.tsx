@@ -62,6 +62,10 @@ import { isApiRequestError } from "@/lib/api-request-error";
 import { deriveEvidencePresenceFromFileNames } from "@/lib/evidence-gap-forecast";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  WIZARD_STICKY_PROGRESS_CLASS,
+  WIZARD_STICKY_PROGRESS_TEST_ID,
+} from "@/lib/wizard-sticky-progress";
 import { showError, showSuccess } from "@/lib/toast";
 import {
   normalizeActorSetForAdmission,
@@ -669,9 +673,17 @@ export function SocraticIntakeWizard() {
         />
       </div>
       {!isCreateArchitectureFlow ? (
-        <p className={cn(OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")} data-testid="socratic-intake-progress">
-          {stepLabel} — {INTAKE_STEPS[step]?.progressLabel}
-        </p>
+        <div
+          className={WIZARD_STICKY_PROGRESS_CLASS}
+          data-testid={WIZARD_STICKY_PROGRESS_TEST_ID}
+        >
+          <p
+            className={cn(OPERATOR_TYPOGRAPHY.helper, "m-0 text-neutral-600 dark:text-neutral-400")}
+            data-testid="socratic-intake-progress"
+          >
+            {stepLabel} — {INTAKE_STEPS[step]?.progressLabel}
+          </p>
+        </div>
       ) : null}
       {!isCreateArchitectureFlow ? (
         <DraftIntakeClaimLabel surface="structural-admission" />

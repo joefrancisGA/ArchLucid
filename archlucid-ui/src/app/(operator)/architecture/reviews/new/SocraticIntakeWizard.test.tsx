@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { WIZARD_STICKY_PROGRESS_TEST_ID } from "@/lib/wizard-sticky-progress";
 
 const admitDraftRequest = vi.fn();
 const answerDraftQuestion = vi.fn();
@@ -273,6 +274,9 @@ describe("SocraticIntakeWizard", () => {
     expect(screen.getByTestId("socratic-intake-progress")).toHaveTextContent(
       /step 1 of 3 — describe the system/i,
     );
+    const stickyChrome = screen.getByTestId(WIZARD_STICKY_PROGRESS_TEST_ID);
+    expect(stickyChrome.className).toContain("sticky");
+    expect(stickyChrome).toContainElement(screen.getByTestId("socratic-intake-progress"));
     expect(screen.getByRole("button", { name: GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS })).toBeInTheDocument();
   });
 

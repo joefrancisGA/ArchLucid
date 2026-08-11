@@ -1,6 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
+import {
+  WIZARD_STICKY_PROGRESS_CLASS,
+  WIZARD_STICKY_PROGRESS_TEST_ID,
+} from "@/lib/wizard-sticky-progress";
+
 import { WizardStepper } from "./WizardStepper";
 
 const sampleSteps = [
@@ -41,5 +46,28 @@ describe("WizardStepper", () => {
     expect(screen.getByText("1")).toBeInTheDocument();
     expect(screen.getByText("2")).toBeInTheDocument();
     expect(screen.getByText("3")).toBeInTheDocument();
+  });
+
+  it("applies sticky progress chrome by default", () => {
+    render(
+      <WizardStepper steps={sampleSteps} currentStep={0} completedSteps={[]} />,
+    );
+
+    const nav = screen.getByTestId(WIZARD_STICKY_PROGRESS_TEST_ID);
+    expect(nav).toHaveAttribute("aria-label", "Wizard progress");
+    expect(nav.className).toContain("sticky");
+    for (const token of WIZARD_STICKY_PROGRESS_CLASS.split(/\s+/).filter(Boolean)) {
+      expect(nav.className.split(/\s+/)).toContain(token);
+    }
+  });
+
+  it("omits sticky progress chrome when sticky is false", () => {
+    render(
+      <WizardStepper steps={sampleSteps} currentStep={0} completedSteps={[]} sticky={false} />,
+    );
+
+    expect(screen.queryByTestId(WIZARD_STICKY_PROGRESS_TEST_ID)).not.toBeInTheDocument();
+    const nav = screen.getByRole("navigation", { name: "Wizard progress" });
+    expect(nav.className.split(/\s+/)).not.toContain("sticky");
   });
 });

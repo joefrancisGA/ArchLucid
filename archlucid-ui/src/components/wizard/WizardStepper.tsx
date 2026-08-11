@@ -1,6 +1,10 @@
-
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  WIZARD_STICKY_PROGRESS_CLASS,
+  WIZARD_STICKY_PROGRESS_TEST_ID,
+} from "@/lib/wizard-sticky-progress";
+
 export type WizardStepDefinition = {
   label: string;
   description?: string;
@@ -13,16 +17,32 @@ export type WizardStepperProps = {
   currentStep: number;
   /** Zero-based indices of steps already completed. */
   completedSteps: number[];
+  /**
+   * Keep the step rail visible under the operator shell while the wizard body scrolls.
+   * Defaults to true for operator wizards (TB-2198).
+   */
+  sticky?: boolean;
+  className?: string;
 };
 
 /**
  * Horizontal wizard progress: numbered circles with labels, teal accent aligned with operator primary link (#0f766e).
  */
-export function WizardStepper({ steps, currentStep, completedSteps }: WizardStepperProps) {
+export function WizardStepper({
+  steps,
+  currentStep,
+  completedSteps,
+  sticky = true,
+  className,
+}: WizardStepperProps) {
   const completed = new Set(completedSteps);
 
   return (
-    <nav aria-label="Wizard progress" className="w-full">
+    <nav
+      aria-label="Wizard progress"
+      className={cn("w-full", sticky && WIZARD_STICKY_PROGRESS_CLASS, className)}
+      data-testid={sticky ? WIZARD_STICKY_PROGRESS_TEST_ID : undefined}
+    >
       <ol className="m-0 flex w-full list-none flex-wrap items-start gap-3 p-0 md:gap-6">
         {steps.map((step, index) => {
           const isActive = index === currentStep;
@@ -35,7 +55,9 @@ export function WizardStepper({ steps, currentStep, completedSteps }: WizardStep
               aria-current={isActive ? "step" : undefined}
             >
               <span
-                className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 font-semibold transition-colors", OPERATOR_TYPOGRAPHY.cardTitle,
+                className={cn(
+                  "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 font-semibold transition-colors",
+                  OPERATOR_TYPOGRAPHY.cardTitle,
                   isActive && "border-teal-700 bg-teal-700 text-white",
                   !isActive &&
                     isDone &&
@@ -47,11 +69,21 @@ export function WizardStepper({ steps, currentStep, completedSteps }: WizardStep
               >
                 {index + 1}
               </span>
-              <span className={cn("max-w-[10rem] font-medium text-neutral-800 dark:text-neutral-200 md:", OPERATOR_TYPOGRAPHY.body)}>
+              <span
+                className={cn(
+                  "max-w-[10rem] font-medium text-neutral-800 dark:text-neutral-200 md:",
+                  OPERATOR_TYPOGRAPHY.body,
+                )}
+              >
                 {step.label}
               </span>
               {step.description ? (
-                <span className={cn("hidden max-w-[12rem] text-neutral-500 dark:text-neutral-300 md:block", OPERATOR_TYPOGRAPHY.helper)}>
+                <span
+                  className={cn(
+                    "hidden max-w-[12rem] text-neutral-500 dark:text-neutral-300 md:block",
+                    OPERATOR_TYPOGRAPHY.helper,
+                  )}
+                >
                   {step.description}
                 </span>
               ) : null}
