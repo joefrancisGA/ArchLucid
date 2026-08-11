@@ -13,6 +13,7 @@ import { PlanningExportReadinessNote } from "@/components/planning/PlanningExpor
 import { PlanningPlansTable } from "@/components/planning/PlanningPlansTable";
 import { PlanningSummarySection } from "@/components/planning/PlanningSummarySection";
 import { PlanningThemesTable } from "@/components/planning/PlanningThemesTable";
+import { PlanningPlanDetailHubVocabularyRail } from "@/components/PlanningPlanDetailHubVocabularyRail";
 import { PlanningReviewsVocabularyRail } from "@/components/PlanningReviewsVocabularyRail";
 import { Button } from "@/components/ui/button";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -61,6 +62,7 @@ export function PlanningPageView(props: Props) {
       />
 
       <PlanningReviewsVocabularyRail currentSurfaceId="improvement-planning" />
+      <PlanningPlanDetailHubVocabularyRail currentSurfaceId="improvement-planning" />
 
       {!buyerPolishedShell ? (
         <>
