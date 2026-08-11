@@ -206,8 +206,8 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/insights/improvement-planning/plans/plan-1")?.whatIsThisPage).toContain("one prioritized improvement plan");
   });
 
-  it("resolves Overview home without stealing other routes (HOM / TB-1667)", () => {
-    expect(contextualHelpForPathname("/")?.whatIsThisPage).toContain("Overview");
+  it("resolves Home without stealing other routes (HOM / TB-1667)", () => {
+    expect(contextualHelpForPathname("/")?.whatIsThisPage).toContain("Home");
     expect(contextualHelpForPathname("/insights/roi-summary")).toBeNull();
   });
 

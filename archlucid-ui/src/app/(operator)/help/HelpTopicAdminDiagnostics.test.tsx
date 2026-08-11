@@ -157,7 +157,7 @@ describe("HelpAdminDiagnosticsGuideView (HAE)", () => {
     expect(ADMIN_DIAGNOSTICS_HELP_RELATED_TOPICS.find((link) => link.href.includes("report-a-problem"))?.label).toBe(
       reportAProblem?.title,
     );
-    expect(ADMIN_DIAGNOSTICS_HELP_LIVE_SURFACES.find((link) => link.href === "/")?.label).toBe("Workspace overview");
+    expect(ADMIN_DIAGNOSTICS_HELP_LIVE_SURFACES.find((link) => link.href === "/")?.label).toBe("Home");
   });
 
   it("labels admin-gated links for non-admin callers instead of hiding them", () => {

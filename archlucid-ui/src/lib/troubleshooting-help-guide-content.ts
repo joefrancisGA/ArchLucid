@@ -203,7 +203,7 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     whatYouSee: "Ask, compare, or related analysis surfaces are greyed out.",
     likelyCause: "Feature gated until the first review is finalized or trial limits apply.",
     tryFirst: "Finalize your first review, then refresh the page.",
-    ifStillBlocked: "Check trial banners on Overview for budget or entitlement limits.",
+    ifStillBlocked: "Check trial banners on Home for budget or entitlement limits.",
     nextSteps: [
       { label: "View first review guide", href: inAppHelpHref("first-architecture-review") },
       { label: "Open reviews", href: "/architecture/reviews" },

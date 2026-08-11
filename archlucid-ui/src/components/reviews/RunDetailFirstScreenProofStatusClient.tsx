@@ -1,12 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
+import { useCallback, useEffect, useState } from "react";
 
+import { Button } from "@/components/ui/button";
 import {
   buildRunDetailFirstScreenProofSummary,
   type RunDetailFirstScreenProofSummary,
 } from "@/lib/run-detail-first-screen-proof-status";
 import type { PilotRunDeltasProofSummaryJson } from "@/lib/pilot-proof-readiness";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { RunDetailFirstScreenProofStatus } from "./RunDetailFirstScreenProofStatus";
 
@@ -19,6 +22,15 @@ export function RunDetailFirstScreenProofStatusClient(
 ): React.JSX.Element | null {
   const [summary, setSummary] = useState<RunDetailFirstScreenProofSummary | null>(null);
   const [loadFailed, setLoadFailed] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [reloadToken, setReloadToken] = useState(0);
+
+  const retryLoad = useCallback(() => {
+    setLoadFailed(false);
+    setLoading(true);
+    setSummary(null);
+    setReloadToken((token) => token + 1);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -33,6 +45,7 @@ export function RunDetailFirstScreenProofStatusClient(
         if (!response.ok) {
           if (!cancelled) {
             setLoadFailed(true);
+            setLoading(false);
           }
 
           return;
@@ -43,11 +56,12 @@ export function RunDetailFirstScreenProofStatusClient(
         if (!cancelled) {
           setSummary(buildRunDetailFirstScreenProofSummary(payload));
           setLoadFailed(false);
+          setLoading(false);
         }
-      }
-      catch {
+      } catch {
         if (!cancelled) {
           setLoadFailed(true);
+          setLoading(false);
         }
       }
     }
@@ -57,9 +71,38 @@ export function RunDetailFirstScreenProofStatusClient(
     return () => {
       cancelled = true;
     };
-  }, [props.runId]);
+  }, [props.runId, reloadToken]);
 
-  if (loadFailed || summary === null) {
+  if (loading) {
+    return null;
+  }
+
+  if (loadFailed) {
+    return (
+      <section
+        className="min-w-0 overflow-visible rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 dark:border-amber-700 dark:bg-amber-950/40"
+        data-testid="run-detail-first-screen-proof-status-load-failed"
+        role="alert"
+        aria-label="Proof status unavailable"
+      >
+        <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+          Proof status could not be loaded for this review.
+        </p>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="mt-3"
+          onClick={retryLoad}
+          data-testid="run-detail-first-screen-proof-status-retry"
+        >
+          Retry load
+        </Button>
+      </section>
+    );
+  }
+
+  if (summary === null) {
     return null;
   }
 

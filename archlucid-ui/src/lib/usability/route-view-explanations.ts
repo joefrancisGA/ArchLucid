@@ -125,7 +125,7 @@ const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteView
     explanation: {
       title: "Home",
       summary:
-        "Workspace overview — recent reviews, pilot progress, and the next action for your architecture packages.",
+        "Recent reviews, pilot progress, and the next action for your architecture packages.",
       nextAction: "Open a recent review or start a new architecture review from the primary CTA.",
     },
   },

@@ -1,6 +1,7 @@
-/** Workspace Overview and architecture review routes (`/`, `/architecture/**`). */
+/** Home and architecture review routes (`/`, `/architecture/**`). */
 
 import type { PageContextualHelpRow } from "@/lib/contextual-help/types";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 export const ARCHITECTURE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
   {
@@ -8,7 +9,7 @@ export const ARCHITECTURE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
     prefix: "/",
     entry: {
       whatIsThisPage:
-        "Workspace Overview — start or resume architecture reviews and see recent activity from one command center.",
+        `${OPERATOR_NAV_LINK_LABELS.home} — start or resume architecture reviews and see recent activity from one command center.`,
       whatToDoNext: "Start a review, resume a draft, or explore a sample workspace.",
       whyEmpty: "Recent reviews and metrics appear after you create or finalize architecture reviews.",
       whereToConfigurePrerequisite: "Switch workspace or project scope from the header switcher when you work across teams.",
