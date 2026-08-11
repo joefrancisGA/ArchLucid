@@ -105,6 +105,7 @@ describe("TeamsNotificationsIntegrationPageClient", () => {
     expect(screen.getByTestId("teams-not-configured-next-step")).toHaveTextContent(
       TEAMS_INTEGRATION_NOT_CONFIGURED_NEXT_STEP,
     );
+    expect(screen.queryAllByRole("link", { name: /^Slack notifications$/i })).toHaveLength(0);
   });
 
   it("does not pre-check recommended triggers when not configured (TB-1175)", async () => {

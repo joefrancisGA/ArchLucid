@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { ProjectsRecycleDraftsPackageVocabularyRail } from "@/components/ProjectsRecycleDraftsPackageVocabularyRail";
 import { Button } from "@/components/ui/button";
 import {
   EnterpriseTable,
@@ -14,9 +15,21 @@ import {
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
+import { StatusTag } from "@/components/ui/status-tag";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
+import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  type ProjectsRecycleBinFeedback,
+  recycleBinFeedbackCalloutClass,
+  recycleBinFeedbackStatusKind,
+} from "@/lib/projects-recycle-bin-feedback";
+import {
+  PROJECTS_RECYCLE_BIN_LOAD_ERROR_STATUS_LABEL,
+  PROJECTS_RECYCLE_BIN_RESTORE_CONFLICT_STATUS_LABEL,
+  PROJECTS_RECYCLE_BIN_RESTORE_ERROR_STATUS_LABEL,
+  PROJECTS_RECYCLE_BIN_RESTORE_SUCCESS_STATUS_LABEL,
+} from "@/lib/projects-recycle-bin-page-copy";
 import {
   coerceRecycleBinPayload,
   DEFAULT_RECYCLE_BIN_RETENTION_DAYS,
@@ -25,18 +38,33 @@ import {
 } from "@/lib/projects-recycle-bin-payload";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
-import { ProjectsRecycleBinPageHeader } from "./ProjectsRecycleBinPageHeader";
 import { ProjectsRecycleBinEmptyState, ProjectsRecycleBinLoadingNotice } from "./ProjectsRecycleBinListStates";
+import { ProjectsRecycleBinPageHeader } from "./ProjectsRecycleBinPageHeader";
 import {
   ProjectsRecycleBinRestoreConfirmDialog,
   type ProjectsRecycleBinPendingRestore,
 } from "./ProjectsRecycleBinRestoreConfirmDialog";
-import { ProjectsRecycleDraftsPackageVocabularyRail } from "@/components/ProjectsRecycleDraftsPackageVocabularyRail";
 
 const RECYCLE_BIN_PATH = `/api/proxy/${ApiV1Routes.tenantWorkspacesRecycleBin}`;
 
 function formatTimestamp(iso: string): string {
   return new Date(iso).toLocaleString();
+}
+
+function restoreFeedbackStatusLabel(kind: ProjectsRecycleBinFeedback["kind"]): string {
+  switch (kind) {
+    case "success":
+      return PROJECTS_RECYCLE_BIN_RESTORE_SUCCESS_STATUS_LABEL;
+    case "conflict":
+      return PROJECTS_RECYCLE_BIN_RESTORE_CONFLICT_STATUS_LABEL;
+    case "error":
+      return PROJECTS_RECYCLE_BIN_RESTORE_ERROR_STATUS_LABEL;
+    default: {
+      const exhaustive: never = kind;
+
+      return exhaustive;
+    }
+  }
 }
 
 type WorkspaceRecycleBinTableProps = Readonly<{
@@ -131,12 +159,11 @@ export function ProjectsRecycleBinPage() {
 
   const [pendingRestore, setPendingRestore] = useState<ProjectsRecycleBinPendingRestore | null>(null);
 
-  const [restoreMessage, setRestoreMessage] = useState<string | null>(null);
+  const [restoreFeedback, setRestoreFeedback] = useState<ProjectsRecycleBinFeedback | null>(null);
 
   const reload = useCallback(async () => {
     setLoading(true);
     setError(null);
-    setRestoreMessage(null);
 
     try {
       const res = await fetch(
@@ -169,7 +196,7 @@ export function ProjectsRecycleBinPage() {
 
   async function restoreProject(workspaceId: string, projectId: string): Promise<void> {
     setRestoreBusyRow(`${workspaceId}:${projectId}`);
-    setRestoreMessage(null);
+    setRestoreFeedback(null);
 
     try {
       const encodedW = encodeURIComponent(workspaceId.trim());
@@ -185,7 +212,7 @@ export function ProjectsRecycleBinPage() {
       );
 
       if (res.status === 204) {
-        setRestoreMessage("Project restored.");
+        setRestoreFeedback({ kind: "success", message: "Project restored." });
         setPendingRestore(null);
 
         await reload();
@@ -194,20 +221,27 @@ export function ProjectsRecycleBinPage() {
       }
 
       if (res.status === 409) {
-        setRestoreMessage(
-          "Another active project already uses this name in the workspace — rename or remove it first.",
-        );
+        setRestoreFeedback({
+          kind: "conflict",
+          message: "Another active project already uses this name in the workspace — rename or remove it first.",
+        });
+        setPendingRestore(null);
 
         return;
       }
 
       if (res.status === 404) {
-        setRestoreMessage("Project was not found or may have already been permanently removed.");
+        setRestoreFeedback({
+          kind: "error",
+          message: "Project was not found or may have already been permanently removed.",
+        });
+        setPendingRestore(null);
 
         return;
       }
 
-      setRestoreMessage(`Restore failed (${res.status}).`);
+      setRestoreFeedback({ kind: "error", message: `Restore failed (${res.status}).` });
+      setPendingRestore(null);
     } finally {
       setRestoreBusyRow(null);
     }
@@ -216,35 +250,47 @@ export function ProjectsRecycleBinPage() {
   const pageDescription = recycleBinPageDescription(retentionDays);
 
   return (
-    <div className="w-full max-w-3xl space-y-6" data-testid="projects-recycle-bin-page">
+    <div className={cn("w-full max-w-3xl", OPERATOR_LAYOUT.sectionStack)} data-testid="projects-recycle-bin-page">
       <ProjectsRecycleBinPageHeader
         loading={loading}
         subtitle={pageDescription}
         onRefresh={() => {
+          setRestoreFeedback(null);
           void reload();
         }}
       />
       <ProjectsRecycleDraftsPackageVocabularyRail currentSurfaceId="projects-recycle" />
       {!isAuthorityLoading && !canRestoreExecute ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          Restore requires Execute authority — you can browse deleted projects below, but restoring is unavailable for this signed-in principal.
+          Restore requires Execute authority — you can browse deleted projects below, but restoring is unavailable for this
+          signed-in principal.
         </p>
       ) : null}
 
       {error !== null ? (
-        <p className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)} role="alert" data-testid="projects-recycle-bin-error">
-          {error}
-        </p>
+        <div
+          className={cn(DESIGN_TOKENS.callout.blocked, "space-y-2 px-3 py-3")}
+          role="alert"
+          data-testid="projects-recycle-bin-error"
+        >
+          <StatusTag kind="blocked" label={PROJECTS_RECYCLE_BIN_LOAD_ERROR_STATUS_LABEL} />
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{error}</p>
+        </div>
       ) : null}
 
-      {restoreMessage !== null ? (
-        <p
-          className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
-          role="status"
+      {restoreFeedback !== null ? (
+        <div
+          className={cn(recycleBinFeedbackCalloutClass(restoreFeedback.kind), "space-y-2 px-3 py-3")}
+          role={restoreFeedback.kind === "success" ? "status" : "alert"}
           data-testid="projects-recycle-bin-restore-message"
+          data-feedback-kind={restoreFeedback.kind}
         >
-          {restoreMessage}
-        </p>
+          <StatusTag
+            kind={recycleBinFeedbackStatusKind(restoreFeedback.kind)}
+            label={restoreFeedbackStatusLabel(restoreFeedback.kind)}
+          />
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{restoreFeedback.message}</p>
+        </div>
       ) : null}
 
       {loading && rows.length === 0 ? <ProjectsRecycleBinLoadingNotice /> : null}

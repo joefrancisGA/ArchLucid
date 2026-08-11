@@ -8,6 +8,8 @@ import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   PROJECTS_RECYCLE_BIN_EMPTY_ARCHITECTURES_HREF,
   PROJECTS_RECYCLE_BIN_EMPTY_ARCHITECTURES_LINK_LABEL,
+  PROJECTS_RECYCLE_BIN_EMPTY_DELETE_SURFACE_HREF,
+  PROJECTS_RECYCLE_BIN_EMPTY_DELETE_SURFACE_LINK_LABEL,
   PROJECTS_RECYCLE_BIN_EMPTY_STATE_STATUS_LABEL,
   PROJECTS_RECYCLE_BIN_EMPTY_STATE_TITLE,
   PROJECTS_RECYCLE_BIN_LOADING_NOTICE,
@@ -28,7 +30,7 @@ export type ProjectsRecycleBinEmptyStateProps = {
   readonly retentionDays: number;
 };
 
-/** Happy-empty recycle bin with quiet status and delete-surface orientation (TB-1291). */
+/** Happy-empty recycle bin with quiet status and delete-surface orientation (TB-1291 / TB-1181). */
 export function ProjectsRecycleBinEmptyState(props: ProjectsRecycleBinEmptyStateProps): React.JSX.Element {
   const emptyBody = recycleBinEmptyStateBody(props.retentionDays);
 
@@ -43,11 +45,25 @@ export function ProjectsRecycleBinEmptyState(props: ProjectsRecycleBinEmptyState
           />
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{emptyBody}</p>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-            Soft-deleted projects are removed from the active list in{" "}
-            <Link className="font-medium text-sky-700 underline underline-offset-2 dark:text-sky-400" href={PROJECTS_RECYCLE_BIN_EMPTY_ARCHITECTURES_HREF}>
-              {PROJECTS_RECYCLE_BIN_EMPTY_ARCHITECTURES_LINK_LABEL}
+            Delete a project from{" "}
+            <Link
+              className="font-medium text-sky-700 underline underline-offset-2 dark:text-sky-400"
+              href={PROJECTS_RECYCLE_BIN_EMPTY_DELETE_SURFACE_HREF}
+              data-testid="projects-recycle-bin-empty-delete-surface-link"
+            >
+              {PROJECTS_RECYCLE_BIN_EMPTY_DELETE_SURFACE_LINK_LABEL}
             </Link>{" "}
-            and appear here for {props.retentionDays} days before permanent removal.
+            and it appears here for {props.retentionDays} days before permanent removal.
+          </p>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Soft-deleted projects are also removed from the active list in{" "}
+            <Link
+              className="font-medium text-sky-700 underline underline-offset-2 dark:text-sky-400"
+              href={PROJECTS_RECYCLE_BIN_EMPTY_ARCHITECTURES_HREF}
+            >
+              {PROJECTS_RECYCLE_BIN_EMPTY_ARCHITECTURES_LINK_LABEL}
+            </Link>
+            .
           </p>
         </div>
       </OperatorEmptyState>

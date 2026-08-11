@@ -17,6 +17,7 @@ import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
 import { DIGESTS_SCHEDULE_TAB_PATH } from "@/lib/settings-admin-route-paths";
+import { PROJECTS_RECYCLE_BIN_PATH } from "@/lib/vocabulary/projects-recycle-drafts-package-vocabulary";
 
 import { TenantCostSettingsCard } from "./TenantCostSettingsCard";
 import { TenantQualityGatesCard } from "./TenantQualityGatesCard";
@@ -74,17 +75,20 @@ export function TenantSettingsPageView(props: Props) {
           <p className="m-0">
             Your active workspace and project are selected from the workspace switcher.
           </p>
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+            Soft-deleted architecture projects move to the projects recycle bin, where you can review or restore them
+            before permanent removal.
+          </p>
+          <Button asChild variant="outline" size="sm">
+            <Link href={PROJECTS_RECYCLE_BIN_PATH} data-testid="tenant-settings-recycle-bin-link">
+              Open projects recycle bin
+            </Link>
+          </Button>
 
           <CollapsibleSection title="Technical details — routing scope" defaultOpen={false}>
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
               Internal browser-to-API routing carries scope identifiers on proxied requests. Values below reflect your
               current selection.
-            </p>
-            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
-              <Link className={OPERATOR_LINK.inline} href="/administration/tenant/recycle-bin">
-                Open projects recycle bin
-              </Link>{" "}
-              to review or restore soft-deleted architecture projects.
             </p>
             <ul className={cn("m-0 mt-2 list-inside list-disc", OPERATOR_TYPOGRAPHY.body)}>
               <li>

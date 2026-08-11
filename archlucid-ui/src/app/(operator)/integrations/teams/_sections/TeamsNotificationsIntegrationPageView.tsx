@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
-import { INTEGRATIONS_READINESS_PATH, INTEGRATIONS_SLACK_PATH, INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
+import { INTEGRATIONS_READINESS_PATH, INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
 import { resolveTeamsConnectCtaPresentation } from "@/lib/teams-integration-connect-cta";
 import {
   TEAMS_INTEGRATION_CONNECT_SECTION_LEAD,
@@ -114,10 +114,6 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               <Link className={OPERATOR_LINK.inline} href={INTEGRATIONS_READINESS_PATH}>
                 Integration readiness
-              </Link>
-              {" · "}
-              <Link className={OPERATOR_LINK.inline} href={INTEGRATIONS_SLACK_PATH}>
-                Slack notifications
               </Link>
             </p>
           </>

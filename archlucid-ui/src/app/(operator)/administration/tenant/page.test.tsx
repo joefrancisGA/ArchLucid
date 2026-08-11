@@ -147,6 +147,21 @@ describe("TenantSettingsPage", () => {
     expect(screen.queryByTestId("tenant-digest-save")).not.toBeInTheDocument();
   });
 
+  it("exposes the projects recycle bin link outside technical details (TB-1181)", async () => {
+    const page = await TenantSettingsPage();
+
+    render(page);
+
+    const recycleLink = await screen.findByTestId("tenant-settings-recycle-bin-link");
+
+    expect(recycleLink).toHaveAttribute("href", "/administration/tenant/recycle-bin");
+
+    const technicalDetails = screen.getByText("Technical details — routing scope").closest("details");
+
+    expect(technicalDetails).not.toBeNull();
+    expect(technicalDetails!.contains(recycleLink)).toBe(false);
+  });
+
   it("shows a restricted state for callers below admin rank", async () => {
     navAuth.callerAuthorityRank = AUTHORITY_RANK.ExecuteAuthority;
 

@@ -29,6 +29,14 @@ describe("ProjectsRecycleBinListStates (TB-1291)", () => {
     expect(screen.getByTestId("projects-recycle-bin-empty-status")).toHaveTextContent(
       PROJECTS_RECYCLE_BIN_EMPTY_STATE_STATUS_LABEL,
     );
+    expect(screen.getByTestId("projects-recycle-bin-empty-delete-surface-link")).toHaveAttribute(
+      "href",
+      "/administration/tenant",
+    );
+    expect(screen.getByRole("link", { name: "Workspace settings" })).toHaveAttribute(
+      "href",
+      "/administration/tenant",
+    );
     expect(screen.getByRole("link", { name: "Architecture drafts" })).toHaveAttribute(
       "href",
       "/architecture/architectures",
