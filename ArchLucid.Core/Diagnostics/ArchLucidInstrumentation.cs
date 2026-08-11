@@ -11,9 +11,9 @@ namespace ArchLucid.Core.Diagnostics;
 ///     the API host).
 /// </summary>
 /// <remarks>
-///     This file owns the instrument catalog (activity sources, counters, histograms) plus recording logic that has not
-///     been pulled into a subsystem partial yet. Subsystem partials live beside it as
-///     <c>ArchLucidInstrumentation.{Subsystem}.cs</c>.
+///     This file owns the shared meter, activity-source aliases, and the instrument catalog (counters/histograms)
+///     that have not been pulled into a subsystem partial yet. Recording helpers live beside it as
+///     <c>ArchLucidInstrumentation.{Subsystem}.cs</c> (Caches, GrowthFunnel, LlmWallet, Retrieval, Integration, Runs).
 /// </remarks>
 public static partial class ArchLucidInstrumentation
 {
@@ -1280,12 +1280,6 @@ public static partial class ArchLucidInstrumentation
     public static void SetFirstTenantFunnelEventNameValidator(Func<string, bool> validator) =>
         Volatile.Write(ref _firstTenantFunnelEventNameValidator, validator);
 
-    /// <summary>
-    ///     Supplies the RAG per-tenant tag circuit breaker (drops <c>tenant_id</c> when tenant estimates exceed safe
-    ///     thresholds).
-    /// </summary>
-    public static void SetRetrievalTelemetryPerTenantTagCircuitBreaker(Func<bool>? shouldSuppressTenantIdTags) =>
-        Volatile.Write(ref _retrievalTelemetryPerTenantTagCircuitBreaker, shouldSuppressTenantIdTags);
 
     /// <summary>Registers observable gauges once (call from OpenTelemetry host setup).</summary>
     public static void EnsureOutboxDepthObservableGaugesRegistered()
@@ -1566,42 +1560,6 @@ public static partial class ArchLucidInstrumentation
             LlmBatchEstimatedSavingsUsdTotal.Add(estimatedSavingsUsd, tags);
     }
 
-    /// <summary>Records one Ask SQL retrieval fallback after vector search failure.</summary>
-    public static void RecordRagRetrievalFallback()
-    {
-        RagRetrievalFallbackTotal.Add(1);
-    }
-
-    /// <summary>Records one retrieval embedding dimension mismatch skip (TB-045).</summary>
-    public static void RecordRetrievalEmbeddingDimensionMismatch()
-    {
-        RetrievalEmbeddingDimensionMismatchTotal.Add(1);
-    }
-
-    /// <summary>Records one retrieval document skipped because ContentHash and chunking fingerprint are unchanged.</summary>
-    public static void RecordRetrievalIndexDocumentSkippedUnchanged()
-    {
-        RetrievalIndexDocumentSkippedUnchangedTotal.Add(1);
-    }
-
-    /// <summary>Records one retrieval document re-indexed.</summary>
-    public static void RecordRetrievalIndexDocumentReindexed()
-    {
-        RetrievalIndexDocumentReindexedTotal.Add(1);
-    }
-
-    /// <summary>Records chunk removal before re-index due to chunking fingerprint change.</summary>
-    public static void RecordRetrievalIndexChunkingFingerprintInvalidated()
-    {
-        RetrievalIndexChunkingFingerprintInvalidatedTotal.Add(1);
-    }
-
-    /// <summary>Records one startup corpus indexer failure for the given corpus kind.</summary>
-    public static void RecordRetrievalCorpusStartupIndexerFailure(string corpusKind)
-    {
-        KeyValuePair<string, object?> tag = new("corpus_kind", corpusKind);
-        RetrievalCorpusStartupIndexerFailureTotal.Add(1, tag);
-    }
 
     /// <summary>Records one provenance snapshot upsert.</summary>
     public static void RecordProvenanceSnapshotWrite()
@@ -1630,187 +1588,6 @@ public static partial class ArchLucidInstrumentation
             new KeyValuePair<string, object?>("sku", sku));
     }
 
-    /// <summary>
-    ///     Records RAG vector search latency and per-<paramref name="hits" /> corpus chunk counts (Improvement 7).
-    ///     Omits <c>tenant_id</c> tags by default (high cardinality); callers pass <paramref name="recordPerTenant" />
-    ///     only for bounded tenant counts.
-    /// </summary>
-    public static void RecordRagRetrievalSearch(
-        double durationMilliseconds,
-        IReadOnlyList<RetrievalHit> hits,
-        Guid tenantId,
-        bool recordPerTenant = false)
-    {
-        if (durationMilliseconds < 0 || double.IsNaN(durationMilliseconds) || double.IsInfinity(durationMilliseconds))
-            return;
-
-        string corpusKindLabel = ResolveRagRetrievalCorpusKindLabel(hits);
-
-        bool emitTenantId = ShouldEmitRagRetrievalTenantIdTag(recordPerTenant, tenantId);
-
-        TagList durationTags = new() { { "corpus_kind", corpusKindLabel } };
-
-        if (emitTenantId)
-            durationTags.Add("tenant_id", tenantId.ToString("D"));
-
-        RagRetrievalDurationMilliseconds.Record(durationMilliseconds, durationTags);
-
-        if (hits is null || hits.Count == 0)
-        {
-            TagList emptyTags = new() { { "corpus_kind", "none" } };
-
-            if (emitTenantId)
-                emptyTags.Add("tenant_id", tenantId.ToString("D"));
-
-            RagChunksRetrieved.Record(0, emptyTags);
-
-            return;
-        }
-
-        Dictionary<string, int> countsByCorpus = new(StringComparer.Ordinal);
-
-        foreach (RetrievalHit hit in hits)
-        {
-            if (hit is null)
-                continue;
-
-            string kind = string.IsNullOrWhiteSpace(hit.CorpusKind) ? "unknown" : hit.CorpusKind.Trim();
-
-            countsByCorpus.TryGetValue(kind, out int existing);
-            countsByCorpus[kind] = existing + 1;
-        }
-
-        foreach (KeyValuePair<string, int> pair in countsByCorpus)
-        {
-            TagList chunkTags = new() { { "corpus_kind", pair.Key } };
-
-            if (emitTenantId)
-                chunkTags.Add("tenant_id", tenantId.ToString("D"));
-
-            RagChunksRetrieved.Record(pair.Value, chunkTags);
-        }
-    }
-
-    private static bool ShouldEmitRagRetrievalTenantIdTag(bool recordPerTenant, Guid tenantId)
-    {
-        if (!recordPerTenant || tenantId == Guid.Empty)
-            return false;
-
-        Func<bool>? circuitBreaker = Volatile.Read(ref _retrievalTelemetryPerTenantTagCircuitBreaker);
-
-        if (circuitBreaker is not null && circuitBreaker.Invoke())
-            return false;
-
-        return true;
-    }
-
-    /// <summary>Records <see cref="RetrievalRerankLatencyMilliseconds" /> for a completed rerank call.</summary>
-    public static void RecordRetrievalRerankLatency(double durationMilliseconds, int resultCount)
-    {
-        if (durationMilliseconds < 0 || double.IsNaN(durationMilliseconds) || double.IsInfinity(durationMilliseconds))
-            return;
-
-        TagList tags = new() { { "result_count", Math.Clamp(resultCount, 0, 50).ToString() } };
-        RetrievalRerankLatencyMilliseconds.Record(durationMilliseconds, tags);
-    }
-
-    /// <summary>Records Graph-RAG neighbor expansion counters and latency (V1 §2.20).</summary>
-    public static void RecordGraphRagExpansion(int neighborsAdded, double expansionLatencyMilliseconds)
-    {
-        if (neighborsAdded > 0)
-            GraphRagNeighborsAddedTotal.Add(neighborsAdded);
-
-        if (expansionLatencyMilliseconds < 0
-            || double.IsNaN(expansionLatencyMilliseconds)
-            || double.IsInfinity(expansionLatencyMilliseconds))
-            return;
-
-        GraphRagExpansionLatencyMilliseconds.Record(expansionLatencyMilliseconds);
-    }
-
-    /// <summary>Increments <see cref="IntegrationEventDeliverySuccessTotal" />.</summary>
-    public static void RecordIntegrationEventDeliverySuccess(string eventType)
-    {
-        string e = string.IsNullOrWhiteSpace(eventType) ? "unknown" : eventType.Trim();
-        IntegrationEventDeliverySuccessTotal.Add(1, new TagList { { "event_type", e } });
-    }
-
-    /// <summary>Increments <see cref="IntegrationEventDeliveryFailedTotal" />.</summary>
-    public static void RecordIntegrationEventDeliveryFailure(string eventType)
-    {
-        string e = string.IsNullOrWhiteSpace(eventType) ? "unknown" : eventType.Trim();
-        IntegrationEventDeliveryFailedTotal.Add(1, new TagList { { "event_type", e } });
-    }
-
-    /// <summary>Increments <see cref="RunExportBlobPushOutboxProcessedSuccessTotal" />.</summary>
-    public static void RecordRunExportBlobPushOutboxProcessedSuccess()
-    {
-        RunExportBlobPushOutboxProcessedSuccessTotal.Add(1);
-    }
-
-    /// <summary>Increments <see cref="RunExportBlobPushOutboxRetryScheduledTotal" />.</summary>
-    public static void RecordRunExportBlobPushOutboxRetryScheduled()
-    {
-        RunExportBlobPushOutboxRetryScheduledTotal.Add(1);
-    }
-
-    /// <summary>Increments <see cref="RunExportBlobPushOutboxDeadLetteredTotal" />.</summary>
-    public static void RecordRunExportBlobPushOutboxDeadLettered()
-    {
-        RunExportBlobPushOutboxDeadLetteredTotal.Add(1);
-    }
-
-    /// <summary>Increments <see cref="PostCommitProjectionOutboxProcessedSuccessTotal" />.</summary>
-    public static void RecordPostCommitProjectionOutboxProcessedSuccess()
-    {
-        PostCommitProjectionOutboxProcessedSuccessTotal.Add(1);
-    }
-
-    /// <summary>Increments <see cref="PostCommitProjectionOutboxRetryScheduledTotal" />.</summary>
-    public static void RecordPostCommitProjectionOutboxRetryScheduled()
-    {
-        PostCommitProjectionOutboxRetryScheduledTotal.Add(1);
-    }
-
-    /// <summary>Increments <see cref="PostCommitProjectionOutboxDeadLetteredTotal" />.</summary>
-    public static void RecordPostCommitProjectionOutboxDeadLettered()
-    {
-        PostCommitProjectionOutboxDeadLetteredTotal.Add(1);
-    }
-
-    private static string ResolveRagRetrievalCorpusKindLabel(IReadOnlyList<RetrievalHit>? hits)
-    {
-        if (hits is null || hits.Count == 0)
-            return "none";
-
-        HashSet<string> kinds = new(StringComparer.Ordinal);
-
-        foreach (RetrievalHit hit in hits)
-        {
-            if (hit is null)
-                continue;
-
-            string kind = string.IsNullOrWhiteSpace(hit.CorpusKind) ? "unknown" : hit.CorpusKind.Trim();
-            kinds.Add(kind);
-        }
-
-        if (kinds.Count == 0)
-            return "none";
-
-        if (kinds.Count == 1)
-            return kinds.First();
-
-        return "mixed";
-    }
-
-    /// <summary>Records permanently failed integration outbox DLQ rows observed in one auto-retry pass.</summary>
-    public static void RecordIntegrationEventDlqPermanentFailures(long count)
-    {
-        if (count <= 0)
-            return;
-
-        IntegrationEventDlqPermanentFailureTotal.Add(count);
-    }
 
     /// <summary>
     ///     Records a successful completion that used the secondary fallback client (label <c>deployment</c> from primary
@@ -1841,55 +1618,6 @@ public static partial class ArchLucidInstrumentation
         AgentHandlerDegradationsTotal.Add(1, tags);
     }
 
-    /// <summary>Increments <c>archlucid.try.real_mode.attempted_total</c>.</summary>
-    public static void RecordTryRealModePilotAttempted() => TryRealModeAttemptedTotal.Add(1);
-
-    /// <summary>Increments <c>archlucid.try.real_mode.succeeded_total</c>.</summary>
-    public static void RecordTryRealModePilotSucceeded() => TryRealModeSucceededTotal.Add(1);
-
-    /// <summary>Increments <c>archlucid.try.real_mode.fellback_to_simulator_total</c>.</summary>
-    public static void RecordTryRealModePilotFellBackToSimulator() => TryRealModeFellBackToSimulatorTotal.Add(1);
-
-    /// <summary>Increments <c>archlucid_finding_engine_failures_total</c>.</summary>
-    public static void RecordFindingEngineFailure(string engineType, string category)
-    {
-        TagList tags = new() { { "engine_type", engineType }, { "category", category } };
-
-        FindingEngineFailuresTotal.Add(1, tags);
-    }
-
-    /// <summary>Increments <c>archlucid_findings_engine_partial_failure_total</c>.</summary>
-    public static void RecordFindingsEnginePartialFailure()
-    {
-        FindingsEnginePartialFailureTotal.Add(1);
-    }
-
-    /// <summary>Increments <c>archlucid_agent_result_schema_validations_total</c> (outcome: valid or invalid).</summary>
-    public static void RecordAgentResultSchemaValidation(string agentType, string outcome)
-    {
-        TagList tags = new() { { "agent_type", agentType }, { "outcome", outcome } };
-
-        AgentResultSchemaValidationsTotal.Add(1, tags);
-    }
-
-    /// <summary>Increments <see cref="AgentSchemaRemediationRetriesTotal" />.</summary>
-    public static void RecordAgentSchemaRemediationRetry(string agentTypeLabel)
-    {
-        string t = string.IsNullOrWhiteSpace(agentTypeLabel) ? "unknown" : agentTypeLabel.Trim();
-        TagList tags = new() { { "agent_type", t } };
-
-        AgentSchemaRemediationRetriesTotal.Add(1, tags);
-    }
-
-    /// <summary>Increments <see cref="AgentSchemaRemediationCompletionsTotal" /> with the retry count required for success.</summary>
-    public static void RecordAgentSchemaRemediationCompletion(string agentTypeLabel, int schemaRetryCount)
-    {
-        string t = string.IsNullOrWhiteSpace(agentTypeLabel) ? "unknown" : agentTypeLabel.Trim();
-        int clamped = schemaRetryCount < 0 ? 0 : schemaRetryCount;
-        TagList tags = new() { { "agent_type", t }, { "schema_retry_count", clamped.ToString(System.Globalization.CultureInfo.InvariantCulture) } };
-
-        AgentSchemaRemediationCompletionsTotal.Add(1, tags);
-    }
 
     /// <summary>Increments <c>archlucid_explanation_schema_validations_total</c> (outcome: valid, invalid, or skipped).</summary>
     public static void RecordExplanationSchemaValidation(string explanationType, string outcome)
@@ -1915,21 +1643,6 @@ public static partial class ArchLucidInstrumentation
         ExplanationFaithfulnessRatio.Record(clamped);
     }
 
-    /// <summary>Records <see cref="RetrievalFaithfulnessRatio" /> (clamped 0–1) with tenant and corpus tags.</summary>
-    public static void RecordRetrievalFaithfulnessRatio(
-        double ratio,
-        Guid tenantId,
-        IReadOnlyList<RetrievalHit>? hits)
-    {
-        double clamped = Math.Clamp(ratio, 0.0, 1.0);
-        string corpusSource = ResolveRagRetrievalCorpusKindLabel(hits);
-        TagList tags = new() { { "corpus_source", corpusSource } };
-
-        if (tenantId != Guid.Empty)
-            tags.Add("tenant_id", tenantId.ToString("D"));
-
-        RetrievalFaithfulnessRatio.Record(clamped, tags);
-    }
 
     /// <summary>Increments <see cref="AuditWriteFailuresTotal" /> (label <c>event_type</c>).</summary>
     public static void RecordAuditWriteFailure(string eventType)
@@ -2164,32 +1877,6 @@ public static partial class ArchLucidInstrumentation
         }
     }
 
-    /// <summary>Records orchestrator state transitions on the active trace and Prometheus counter.</summary>
-    public static void RecordOrchestratorStateTransition(Guid runId, string fromState, string toState)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(fromState);
-        ArgumentException.ThrowIfNullOrWhiteSpace(toState);
-
-        TagList tags = new();
-        tags.Add("from_state", fromState);
-        tags.Add("to_state", toState);
-        OrchestratorTransitionTotal.Add(1, tags);
-
-        Activity? activity = Activity.Current;
-
-        if (activity is null)
-            return;
-
-        activity.AddEvent(
-            new ActivityEvent(
-                "orchestrator.state_transition",
-                tags: new ActivityTagsCollection
-                {
-                    { "archlucid.run_id", runId.ToString("D") },
-                    { "from_state", fromState },
-                    { "to_state", toState },
-                }));
-    }
 
     /// <summary>Increments embedding input-token counter (orthogonal to chat <see cref="RecordLlmTokenUsage" />).</summary>
     public static void RecordLlmEmbeddingInputTokens(long inputTokens, string? llmDeploymentLabel)
