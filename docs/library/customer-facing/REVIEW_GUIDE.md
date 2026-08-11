@@ -1,4 +1,4 @@
-﻿> **Scope:** Customer-facing field reference — what each step of the New architecture review wizard (`/architecture/reviews/new`) asks for and why.
+> **Scope:** Customer-facing field reference — what each step of the New architecture review wizard (/architecture/reviews/new) asks for and why.
 
 # Review guide
 
@@ -16,31 +16,31 @@ This field reference describes the New architecture review wizard — it is prod
 
 | Field | Required | What ArchLucid does with it | Common mistake |
 | --- | --- | --- | --- |
-| Attach architecture evidence | Required without architecture context | Stores diagrams, exports, and documents as evidence for findings and the evidence trail. | Attaching unrelated files or skipping evidence when the architecture context is too thin. |
-| Accepted file types | — | PDF, DOCX, Markdown, plain text, JSON, YAML, and common image formats. | Uploading proprietary formats ArchLucid cannot parse — see [Evidence intake: accepted formats](/help/evidence-intake) for ZIP and cloud-inventory rules. |
+| Attach architecture evidence | Conditional | Required without architecture context. Stores diagrams, exports, and documents as evidence for findings and the evidence trail. | Attaching unrelated files or skipping evidence when the architecture context is too thin. |
+| Accepted file types | Not applicable | PDF, DOCX, Markdown, plain text, JSON, YAML, and common image formats. | Uploading proprietary formats ArchLucid cannot parse — see [Evidence intake: accepted formats](/help/evidence-intake) for ZIP and cloud-inventory rules. |
 
 ## Add architecture context
 
 | Field | Required | What ArchLucid does with it | Common mistake |
 | --- | --- | --- | --- |
-| Architecture context | Required without evidence (minimum 100 characters) | Feeds goals, constraints, risks, integrations, and review focus into analysis when files are missing or thin. | One-line placeholders that do not explain what should be evaluated. |
+| Architecture context | Conditional | Required without evidence (minimum 100 characters). Feeds goals, constraints, risks, integrations, and review focus into analysis when files are missing or thin. | One-line placeholders that do not explain what should be evaluated. |
 
 ## Confirm review scope
 
 By default, your first review is evaluated against six architecture-quality standards — Security Architecture Baseline, Reliability and Resilience, FinOps & Cloud Cost Optimization, Performance and Scalability, Operational Excellence, and Sustainability and Resource Efficiency. Open **Review standards selection** to turn this off and use every standard enabled for your workspace instead.
 
-| Standard | Included when focused scope is on | What ArchLucid evaluates |
-| --- | --- | --- |
-| Security Architecture Baseline | Yes | Identity, data protection, and security controls for the design. |
-| Reliability and Resilience | Yes | Failure modes, recovery, and operational continuity. |
-| FinOps & Cloud Cost Optimization | Yes | Cost drivers, waste, and right-sizing opportunities. |
-| Performance and Scalability | Yes | Latency, throughput, and growth headroom. |
-| Operational Excellence | Yes | Operability, observability, and operational procedures. |
-| Sustainability and Resource Efficiency | Yes | Resource efficiency and environmental impact of the design. |
+| Standard | What ArchLucid evaluates |
+| --- | --- |
+| Security Architecture Baseline | Identity, data protection, and security controls for the design. |
+| Reliability and Resilience | Failure modes, recovery, and operational continuity. |
+| FinOps & Cloud Cost Optimization | Cost drivers, waste, and right-sizing opportunities. |
+| Performance and Scalability | Latency, throughput, and growth headroom. |
+| Operational Excellence | Operability, observability, and operational procedures. |
+| Sustainability and Resource Efficiency | Resource efficiency and environmental impact of the design. |
 
 | Field | Required | What ArchLucid does with it | Common mistake |
 | --- | --- | --- | --- |
-| Review standards selection | Optional (focused scope on by default) | Limits the first review to the six standards above, or widens evaluation to every standard enabled for your workspace. | Confusing review scope (which standards run) with workspace or tenant scope — see the [Workspace and scope guide](/help/scope). |
+| Review standards selection | Optional | Focused scope on by default. Limits the first review to the six standards above, or widens evaluation to every standard enabled for your workspace. | Confusing review scope (which standards run) with workspace or tenant scope — see the [Workspace and scope guide](/help/scope). |
 
 Review scope controls which standards evaluate your design; it is not the same as workspace or tenant scope. See the [Workspace and scope guide](/help/scope) for tenant, workspace, and project isolation.
 
@@ -48,7 +48,7 @@ Review scope controls which standards evaluate your design; it is not the same a
 
 | Field | Required | What ArchLucid does with it | Common mistake |
 | --- | --- | --- | --- |
-| Start an architecture review | — (primary action) | Creates the architecture package and begins evaluation when the title and evidence or context rules are met. | Selecting start before a review title is set or before evidence or sufficient context is provided. |
+| Start an architecture review | Not applicable | Primary action. Creates the architecture package and begins evaluation when the title and evidence or context rules are met. | Selecting start before a review title is set or before evidence or sufficient context is provided. |
 
 ## Review findings and evidence
 

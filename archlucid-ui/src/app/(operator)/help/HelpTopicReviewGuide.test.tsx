@@ -12,8 +12,10 @@ import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
 import { getProductDocumentationEntry, inAppHelpHref } from "@/lib/product-documentation-registry";
 import {
+  formatReviewGuideHelpProvenanceLine,
   REVIEW_GUIDE_HELP_CLAIM_DISCIPLINE,
   REVIEW_GUIDE_HELP_PRIMARY_ACTIONS,
+  stripReviewGuideClaimDisciplineFromMarkdown,
 } from "@/lib/review-guide-help-guide-content";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
@@ -52,6 +54,9 @@ describe("Review guide (HR)", () => {
     expect(entry?.lastReviewed).toBe("2026-08-09");
     expect(entry?.pdfStatus).toBe("public");
     expect(inAppHelpHref(GUIDE_SLUG)).toBe("/help/review-guide");
+    expect(formatReviewGuideHelpProvenanceLine(entry!)).toBe(
+      "Last reviewed: 2026-08-09 · Source: REVIEW_GUIDE.md",
+    );
   });
 
   it("loads user-facing markdown from the monorepo", () => {
@@ -59,7 +64,7 @@ describe("Review guide (HR)", () => {
     expect(loaded!.markdown.length).toBeGreaterThan(200);
   });
 
-  it("renders HelpReviewGuideView with provenance, export actions, and a single start-review control", () => {
+  it("renders HelpReviewGuideView with provenance, claim notice, and a single primary path", () => {
     if (loaded === null || entry === null) {
       throw new Error("Expected review guide to load.");
     }
@@ -67,10 +72,19 @@ describe("Review guide (HR)", () => {
     const { container } = render(<HelpReviewGuideView entry={entry} markdown={loaded.markdown} />);
 
     expect(screen.getByTestId("help-review-guide-page-title")).toHaveTextContent("Review guide");
-    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
-    expect(screen.getByTestId("help-review-guide-content").textContent).toContain(
+    expect(screen.getByTestId("help-review-guide-provenance")).toHaveTextContent(
+      "Last reviewed: 2026-08-09 · Source: REVIEW_GUIDE.md",
+    );
+    expect(screen.getByTestId("help-review-guide-claim-discipline")).toHaveTextContent(
       REVIEW_GUIDE_HELP_CLAIM_DISCIPLINE,
     );
+    expect(screen.getByTestId("help-review-guide-content").textContent).not.toContain(
+      REVIEW_GUIDE_HELP_CLAIM_DISCIPLINE,
+    );
+
+    const breadcrumb = screen.getByTestId("help-review-guide-breadcrumb");
+
+    expect(within(breadcrumb).getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
 
     const headerActions = screen.getByTestId("help-review-guide-header-actions");
     const startReviewLinks = within(headerActions).getAllByRole("link", {
@@ -84,14 +98,20 @@ describe("Review guide (HR)", () => {
       within(headerActions).getByRole("link", { name: REVIEW_GUIDE_HELP_PRIMARY_ACTIONS.firstReviewGuide.label }),
     ).toHaveAttribute("href", FIRST_REVIEW_GUIDE_PATH);
 
+    expect(within(headerActions).queryByRole("link", { name: "Findings help" })).toBeNull();
     expect(screen.getByTestId("help-topic-print-pdf")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-download-pdf")).toBeNull();
+
+    expect(screen.getByTestId("help-review-guide-start-review-footer")).toHaveAttribute(
+      "href",
+      REVIEWS_NEW_PATH,
+    );
 
     expect(screen.queryByTestId("help-review-guide-action-panel")).toBeNull();
     expect(container.innerHTML).not.toMatch(/bg-teal-50|border-teal-200/);
   });
 
-  it("renders field-reference tables and avoids duplicate start-review labels in markdown links", () => {
+  it("renders Required StatusTags and drops the constant Yes standards column", () => {
     if (loaded === null || entry === null) {
       throw new Error("Expected review guide to load.");
     }
@@ -102,6 +122,8 @@ describe("Review guide (HR)", () => {
     const tables = within(content).getAllByRole("table");
 
     expect(tables.length).toBeGreaterThanOrEqual(1);
+    expect(within(content).getAllByTestId("review-guide-required-status-tag").length).toBeGreaterThanOrEqual(4);
+    expect(content.textContent).not.toContain("Included when focused scope is on");
 
     const markdownLinks = within(content).getAllByRole("link");
     const startReviewMarkdownLinks = markdownLinks.filter((link) =>
@@ -121,6 +143,13 @@ describe("Review guide (HR)", () => {
 
     expect(firstReviewLinks).toHaveLength(1);
     expect(firstReviewLinks[0]).toHaveAttribute("href", FIRST_REVIEW_GUIDE_PATH);
+  });
+
+  it("strips claim discipline from body markdown while keeping source pinned", () => {
+    expect(loaded?.markdown).toContain(REVIEW_GUIDE_HELP_CLAIM_DISCIPLINE);
+    expect(stripReviewGuideClaimDisciplineFromMarkdown(loaded!.markdown)).not.toContain(
+      REVIEW_GUIDE_HELP_CLAIM_DISCIPLINE,
+    );
   });
 
   it("renders the guide without internal pilot or engineering language", () => {
@@ -161,7 +190,10 @@ describe("Review guide (HR)", () => {
       throw new Error("Expected review guide to load.");
     }
 
-    const preparedMarkdown = prepareHelpMarkdownForPresentation(loaded.markdown, GUIDE_SOURCE);
+    const preparedMarkdown = prepareHelpMarkdownForPresentation(
+      stripReviewGuideClaimDisciplineFromMarkdown(loaded.markdown),
+      GUIDE_SOURCE,
+    );
     const headings = extractHelpMarkdownHeadings(preparedMarkdown);
 
     render(<HelpReviewGuideView entry={entry} markdown={loaded.markdown} />);

@@ -9,6 +9,7 @@ import { HelpMarkdownInlineCode } from "@/components/help/HelpMarkdownInlineCode
 import { CaiqSigResponseHelpEvidenceCell } from "@/components/help/CaiqSigResponseHelpEvidenceCell";
 import { CaiqSigResponseHelpStatusCell } from "@/components/help/CaiqSigResponseHelpStatusCell";
 import { ProcurementHelpAnswerPosture } from "@/components/help/ProcurementHelpAnswerPosture";
+import { ReviewGuideRequiredStatusCell } from "@/components/help/ReviewGuideRequiredStatusCell";
 import { MermaidDiagram } from "@/components/help/MermaidDiagram";
 import {
   CAIQ_SIG_RESPONSE_LITE_PART_HEADING,
@@ -283,6 +284,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
   const isEngineeringTroubleshooting = props.helpTopicSlug === "developer-troubleshooting";
   const isCaiqSigResponse = isHelp && isCaiqSigResponseHelpTopic(props.helpTopicSlug);
   const isProcurementHelp = isHelp && isProcurementHelpTopic(props.helpTopicSlug);
+  const isReviewGuideHelp = isHelp && props.helpTopicSlug === "review-guide";
   const bodyTextClass = isPrivacy
     ? PRIVACY_POLICY_PROSE.paragraph
     : isHelp
@@ -584,6 +586,8 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
       const statusColumnIndex = headerCells.findIndex((cell) => /^status$/i.test(cell));
       const responseColumnIndex = headerCells.findIndex((cell) => /^response$/i.test(cell));
       const evidenceColumnIndex = headerCells.findIndex((cell) => /^evidence$/i.test(cell));
+      const requiredColumnIndex = headerCells.findIndex((cell) => /^required$/i.test(cell));
+      const isReviewGuideFieldTable = isReviewGuideHelp && requiredColumnIndex >= 0;
 
       blocks.push(
         <div
@@ -616,7 +620,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
               isPrivacy
                 ? PRIVACY_POLICY_PROSE.table
                 : isHelp
-                  ? HELP_PAGE_LAYOUT.table
+                  ? cn(HELP_PAGE_LAYOUT.table, isReviewGuideFieldTable && "min-w-[48rem]")
                   : cn("w-full border-collapse border border-neutral-200 dark:border-neutral-800", tableTextClass)
             }
           >
@@ -631,7 +635,13 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
                       isPrivacy
                         ? PRIVACY_POLICY_PROSE.tableHeadCell
                         : isHelp
-                          ? HELP_PAGE_LAYOUT.tableHeadCell
+                          ? cn(
+                              HELP_PAGE_LAYOUT.tableHeadCell,
+                              isReviewGuideFieldTable && idx === 0 && "w-[11rem] whitespace-nowrap",
+                              isReviewGuideFieldTable &&
+                                idx === requiredColumnIndex &&
+                                "w-[9rem] whitespace-nowrap",
+                            )
                           : "border border-neutral-200 px-3 py-2 text-left font-semibold dark:border-neutral-800"
                     }
                   >
@@ -669,7 +679,13 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
                           isPrivacy
                             ? PRIVACY_POLICY_PROSE.tableBodyCell
                             : isHelp
-                              ? HELP_PAGE_LAYOUT.tableBodyCell
+                              ? cn(
+                                  HELP_PAGE_LAYOUT.tableBodyCell,
+                                  isReviewGuideFieldTable && cIdx === 0 && "w-[11rem] whitespace-nowrap",
+                                  isReviewGuideFieldTable &&
+                                    cIdx === requiredColumnIndex &&
+                                    "w-[9rem] whitespace-nowrap",
+                                )
                               : "border border-neutral-200 px-3 py-2 dark:border-neutral-800"
                         }
                       >
@@ -691,6 +707,10 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
                             statusLabel={statusColumnIndex >= 0 ? (cells[statusColumnIndex] ?? "") : undefined}
                             renderInline={(text, keyPrefix) => renderInline(text, keyPrefix, renderOptions)}
                           />
+                        ) : isReviewGuideHelp &&
+                          cIdx === requiredColumnIndex &&
+                          requiredColumnIndex >= 0 ? (
+                          <ReviewGuideRequiredStatusCell statusLabel={c} />
                         ) : (
                           renderInline(c, `td-${key}-${rIdx}-${cIdx}`, renderOptions)
                         )}
