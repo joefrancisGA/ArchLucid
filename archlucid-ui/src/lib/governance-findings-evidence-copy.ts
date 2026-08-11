@@ -1,5 +1,10 @@
 import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
-import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance-route-paths";
+import {
+  GOVERNANCE_ALERTS_PATH,
+  GOVERNANCE_AUDIT_PATH,
+  GOVERNANCE_DECISION_REGISTER_PATH,
+  GOVERNANCE_FINDINGS_PATH,
+} from "@/lib/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
@@ -16,9 +21,9 @@ export const GOVERNANCE_FINDINGS_SOURCES_INTRO =
 /** Operator Sources — no self-href to the findings queue. */
 export const GOVERNANCE_FINDINGS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Architecture reviews", href: REVIEWS_LIST_PATH },
-  { label: "Alert inbox", href: "/governance/alerts" },
-  { label: "Decision register", href: "/governance/decision-register" },
-  { label: "Audit trail", href: "/governance/audit" },
+  { label: "Alert inbox", href: GOVERNANCE_ALERTS_PATH },
+  { label: "Decision register", href: GOVERNANCE_DECISION_REGISTER_PATH },
+  { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
   { label: "Search review evidence", href: "/insights/search-review-evidence" },
   { label: "Findings help", href: inAppHelpHref("findings") },
 ] as const;

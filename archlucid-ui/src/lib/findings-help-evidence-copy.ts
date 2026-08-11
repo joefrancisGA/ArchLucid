@@ -1,4 +1,8 @@
 import { FINDINGS_HELP_PATH } from "@/lib/findings-help-route";
+import {
+  GOVERNANCE_DECISION_REGISTER_PATH,
+  GOVERNANCE_FINDINGS_PATH,
+} from "@/lib/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
@@ -13,9 +17,9 @@ export const FINDINGS_HELP_SOURCES_INTRO =
 
 /** Operator Sources — no self-href to `/help/findings`. */
 export const FINDINGS_HELP_SOURCES: readonly EvidenceSourceLink[] = [
-  { label: "Findings", href: "/governance/findings" },
+  { label: "Findings", href: GOVERNANCE_FINDINGS_PATH },
   { label: "Search review evidence", href: "/insights/search-review-evidence" },
-  { label: "Decision register", href: "/governance/decision-register" },
+  { label: "Decision register", href: GOVERNANCE_DECISION_REGISTER_PATH },
   { label: "Audit trail", href: inAppHelpHref("audit-trail") },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;

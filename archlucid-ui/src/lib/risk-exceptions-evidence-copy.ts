@@ -1,3 +1,8 @@
+import {
+  GOVERNANCE_AUDIT_PATH,
+  GOVERNANCE_DECISION_REGISTER_PATH,
+  GOVERNANCE_FINDINGS_PATH,
+} from "@/lib/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
@@ -10,9 +15,9 @@ export const RISK_EXCEPTIONS_SOURCES_INTRO =
 
 /** Operator Sources — no self-href to exceptions. */
 export const RISK_EXCEPTIONS_SOURCES: readonly EvidenceSourceLink[] = [
-  { label: "Governance findings", href: "/governance/findings" },
-  { label: "Decision register", href: "/governance/decision-register" },
-  { label: "Audit trail", href: "/governance/audit" },
+  { label: "Governance findings", href: GOVERNANCE_FINDINGS_PATH },
+  { label: "Decision register", href: GOVERNANCE_DECISION_REGISTER_PATH },
+  { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
   { label: "Findings help", href: inAppHelpHref("findings") },
   { label: "Governance approval help", href: inAppHelpHref("governance-approval") },
 ] as const;
