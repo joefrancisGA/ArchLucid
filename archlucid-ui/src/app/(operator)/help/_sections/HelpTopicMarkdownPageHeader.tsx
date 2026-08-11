@@ -1,12 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { OperatorPageBreadcrumb } from "@/components/OperatorPageBreadcrumb";
+import Link from "next/link";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
-import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
@@ -22,8 +20,10 @@ export type HelpTopicMarkdownPageHeaderProps = {
   readonly entry: ProductDocumentationEntry;
   readonly showContextualHelp?: boolean;
   readonly showExportClaimDiscipline?: boolean;
+  readonly allowWithoutServerPdf?: boolean;
   readonly primaryAction?: HelpTopicMarkdownPrimaryAction;
   readonly exportClaimDiscipline?: ReactNode;
+  readonly titleBlockOrientation?: ReactNode;
   readonly signInFailureTriageLine?: ReactNode;
 };
 
@@ -32,18 +32,18 @@ function hasExportActions(props: HelpTopicMarkdownPageHeaderProps): boolean {
     return true;
   }
 
-  if (props.showContextualHelp === true) {
+  if (props.entry.pdfStatus !== null) {
     return true;
   }
 
-  if (props.entry.pdfStatus !== null) {
+  if (props.allowWithoutServerPdf === true) {
     return true;
   }
 
   return false;
 }
 
-/** Shared hero for residual `HelpTopicMarkdownView` topics — breadcrumb, provenance, and export actions. */
+/** Shared hero for residual `HelpTopicMarkdownView` topics — provenance, orientation, and export actions. */
 export function HelpTopicMarkdownPageHeader(props: HelpTopicMarkdownPageHeaderProps): React.JSX.Element {
   const showActions = hasExportActions(props);
 
@@ -52,15 +52,9 @@ export function HelpTopicMarkdownPageHeader(props: HelpTopicMarkdownPageHeaderPr
       title={props.entry.title}
       titleTestId="help-topic-page-title"
       subtitle={props.entry.summary}
-      breadcrumb={
-        <OperatorPageBreadcrumb
-          data-testid="help-topic-breadcrumb"
-          items={[{ label: "Help", href: "/help" }, { label: props.entry.title }]}
-        />
-      }
       metadata={
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1" data-testid="help-topic-header-metadata">
-          <HelpTopicRegistryProvenanceLine entry={props.entry} />
+          {props.titleBlockOrientation}
         </div>
       }
       actions={
@@ -72,7 +66,7 @@ export function HelpTopicMarkdownPageHeader(props: HelpTopicMarkdownPageHeaderPr
               </Button>
             ) : null}
             {props.showContextualHelp === true ? <PageContextualHelpButton /> : null}
-            <HelpTopicPrintButton entry={props.entry} />
+            <HelpTopicPrintButton entry={props.entry} allowWithoutServerPdf={props.allowWithoutServerPdf} />
           </div>
         ) : undefined
       }

@@ -12,7 +12,9 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 }));
 
 vi.mock("@/components/help/HelpTopicPrintButton", () => ({
-  HelpTopicPrintButton: () => <div data-testid="help-topic-print-button" />,
+  HelpTopicPrintButton: (props: { allowWithoutServerPdf?: boolean }) => (
+    <div data-testid="help-topic-print-button" data-allow-without-server-pdf={props.allowWithoutServerPdf === true} />
+  ),
 }));
 
 import { HelpTopicMarkdownPageHeader } from "@/app/(operator)/help/_sections/HelpTopicMarkdownPageHeader";
@@ -21,7 +23,7 @@ import { ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION } from "@/lib/enterprise-onbo
 describe("HelpTopicMarkdownPageHeader", () => {
   const entry = getProductDocumentationEntry("enterprise-onboarding");
 
-  it("renders breadcrumb, registry provenance, identity providers CTA, and export actions", () => {
+  it("renders registry provenance slot, identity providers CTA, and export actions without breadcrumb", () => {
     if (entry === null) {
       throw new Error("Expected enterprise-onboarding documentation entry.");
     }
@@ -34,11 +36,9 @@ describe("HelpTopicMarkdownPageHeader", () => {
       />,
     );
 
-    expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent("Help");
-    expect(screen.getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
+    expect(screen.queryByTestId("help-topic-breadcrumb")).toBeNull();
     expect(screen.getByTestId("help-topic-page-title")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-09");
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("V1 GA");
+    expect(screen.getByTestId("help-topic-header-metadata")).toBeInTheDocument();
     expect(screen.getByTestId(ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION.testId)).toHaveAttribute(
       "href",
       ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION.href,
@@ -47,5 +47,24 @@ describe("HelpTopicMarkdownPageHeader", () => {
     expect(screen.getByTestId("help-topic-export-actions")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-print-button")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-pdf-download-button")).toBeNull();
+  });
+
+  it("does not render an empty export action container when only contextual help is requested", () => {
+    const procurement = getProductDocumentationEntry("procurement");
+
+    if (procurement === null) {
+      throw new Error("Expected procurement documentation entry.");
+    }
+
+    render(
+      <HelpTopicMarkdownPageHeader
+        entry={procurement}
+        allowWithoutServerPdf
+      />,
+    );
+
+    expect(screen.getByTestId("help-topic-export-actions")).toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-print-button")).toHaveAttribute("data-allow-without-server-pdf", "true");
+    expect(screen.queryByTestId("page-contextual-help-button")).toBeNull();
   });
 });

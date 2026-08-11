@@ -2,8 +2,16 @@ import { CAIQ_SIG_RESPONSE_HELP_CLAIM_DISCIPLINE } from "@/lib/caiq-sig-response
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
+type HelpTopicExportClaimDisciplineProps = {
+  readonly claimDiscipline?: string;
+};
+
 /** Print-visible export caveat for public help PDF / print flows. */
-export function HelpTopicExportClaimDiscipline(): React.JSX.Element {
+export function HelpTopicExportClaimDiscipline(
+  props: HelpTopicExportClaimDisciplineProps = {},
+): React.JSX.Element {
+  const claimDiscipline = props.claimDiscipline ?? CAIQ_SIG_RESPONSE_HELP_CLAIM_DISCIPLINE;
+
   return (
     <p
       className={cn(
@@ -12,7 +20,7 @@ export function HelpTopicExportClaimDiscipline(): React.JSX.Element {
       )}
       data-testid="help-topic-export-claim-discipline"
     >
-      {CAIQ_SIG_RESPONSE_HELP_CLAIM_DISCIPLINE}
+      {claimDiscipline}
     </p>
   );
 }

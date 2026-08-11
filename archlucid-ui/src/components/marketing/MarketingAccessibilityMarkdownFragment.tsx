@@ -8,6 +8,7 @@ import { HelpMarkdownCodeBlock } from "@/components/help/HelpMarkdownCodeBlock";
 import { HelpMarkdownInlineCode } from "@/components/help/HelpMarkdownInlineCode";
 import { CaiqSigResponseHelpEvidenceCell } from "@/components/help/CaiqSigResponseHelpEvidenceCell";
 import { CaiqSigResponseHelpStatusCell } from "@/components/help/CaiqSigResponseHelpStatusCell";
+import { ProcurementHelpAnswerPosture } from "@/components/help/ProcurementHelpAnswerPosture";
 import { MermaidDiagram } from "@/components/help/MermaidDiagram";
 import {
   CAIQ_SIG_RESPONSE_LITE_PART_HEADING,
@@ -15,6 +16,11 @@ import {
   isCaiqSigResponseHelpTopic,
   resolveCaiqSigHelpTableCaption,
 } from "@/lib/caiq-sig-response-help-presentation";
+import {
+  isProcurementHelpTopic,
+  parseProcurementFaqQuestionNumber,
+  resolveProcurementFaqPostureForQuestion,
+} from "@/lib/procurement-help-presentation";
 import { createHelpHeadingSlugAllocator, resolveHelpHeadingId } from "@/lib/help-heading-slug";
 import { isMermaidDiagramSource } from "@/lib/help-mermaid";
 import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
@@ -259,6 +265,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
   const isPrivacy = props.presentation === "privacy";
   const isEngineeringTroubleshooting = props.helpTopicSlug === "developer-troubleshooting";
   const isCaiqSigResponse = isHelp && isCaiqSigResponseHelpTopic(props.helpTopicSlug);
+  const isProcurementHelp = isHelp && isProcurementHelpTopic(props.helpTopicSlug);
   const bodyTextClass = isPrivacy
     ? PRIVACY_POLICY_PROSE.paragraph
     : isHelp
@@ -309,6 +316,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
   let currentPartLabel = "";
   let currentSectionTitle = "";
   let currentSubsectionTitle = "";
+  let currentProcurementQuestionNumber: number | null = null;
   const allocateSectionSlug = createHelpHeadingSlugAllocator();
   let skippedDuplicateHelpTitle = !isHelp;
 
@@ -461,6 +469,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
         currentSectionTitle = title;
       } else if (isHelp) {
         currentSubsectionTitle = title;
+        currentProcurementQuestionNumber = isProcurementHelp ? parseProcurementFaqQuestionNumber(title) : null;
       }
 
       blocks.push(
@@ -773,6 +782,25 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
 
     const paragraph = paraLines.join(" ").trim();
     if (paragraph.length > 0) {
+      const procurementPosture =
+        isProcurementHelp && paragraph.startsWith("**Answer:**")
+          ? resolveProcurementFaqPostureForQuestion(currentProcurementQuestionNumber ?? -1)
+          : null;
+
+      if (procurementPosture !== null) {
+        blocks.push(
+          <div key={`procurement-answer-${key}`} className={isHelp ? HELP_PAGE_LAYOUT.paragraph : undefined}>
+            <ProcurementHelpAnswerPosture
+              posture={procurementPosture}
+              answerMarkdown={paragraph}
+              renderInline={(text, keyPrefix) => renderInline(text, keyPrefix, renderOptions)}
+            />
+          </div>,
+        );
+        key++;
+        continue;
+      }
+
       blocks.push(
         <p
           key={`p-${key}`}

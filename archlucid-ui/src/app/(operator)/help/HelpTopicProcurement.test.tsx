@@ -5,9 +5,20 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/help/procurement",
+}));
+
 import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownView";
+import { ProcurementHelpEvidenceOrientationStrip } from "@/components/help/ProcurementHelpEvidenceOrientationStrip";
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import {
+  PROCUREMENT_HELP_CUSTOM_POLICY_PACK_QUOTE_HREF,
+  PROCUREMENT_HELP_LAST_REVIEWED_LABEL,
+  PROCUREMENT_HELP_NDA_REQUEST_HREF,
+  PROCUREMENT_HELP_SALES_CONTACT_HREF,
+} from "@/lib/procurement-help-evidence-copy";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
 const PROCUREMENT_SOURCE = "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md";
@@ -16,16 +27,16 @@ const EXPECTED_TOC_LABELS = [
   "Q & A",
   "1. Do you have SOC 2 Type II?",
   "2. Can we see the latest penetration-test report?",
-  "3. Where is customer **data processed / stored**?",
-  "4. Can we authenticate with **Okta / Ping / Auth0** instead of Microsoft Entra ID?",
-  "5. What **SLA** do you publish?",
-  "6. Can we execute the **Data Processing Agreement**?",
-  "7. What **subprocessors** apply?",
-  "8. What happens if ArchLucid **ceases trading**?",
-  "9. Do you maintain **cyber insurance**?",
-  "10. Can we speak with **reference customers**?",
-  "11. How do we get **extended audit retention** (e.g. 7 years)?",
-  "12. Can we **commission custom policy packs** beyond bundled defaults?",
+  "3. Where is customer data processed / stored?",
+  "4. Can we authenticate with Okta / Ping / Auth0 instead of Microsoft Entra ID?",
+  "5. What SLA do you publish?",
+  "6. Can we execute the Data Processing Agreement?",
+  "7. What subprocessors apply?",
+  "8. What happens if ArchLucid ceases trading?",
+  "9. Do you maintain cyber insurance?",
+  "10. Can we speak with reference customers?",
+  "11. How do we get extended audit retention (e.g. 7 years)?",
+  "12. Can we commission custom policy packs beyond bundled defaults?",
 ] as const;
 
 /** TB-1254 — contributor path/CLI/improvement-ID leakage must not appear in `/help/procurement`. */
@@ -68,6 +79,14 @@ const PROCUREMENT_FAQ_ALLOWED_HREF_PREFIXES = [
   "/administration/",
   "mailto:",
   "#",
+] as const;
+
+const PROCUREMENT_FAQ_REQUIRED_LINK_PATTERNS = [
+  PROCUREMENT_HELP_NDA_REQUEST_HREF,
+  PROCUREMENT_HELP_SALES_CONTACT_HREF,
+  PROCUREMENT_HELP_CUSTOM_POLICY_PACK_QUOTE_HREF,
+  "/help/soc2-self-assessment",
+  "/help/dpa-template",
 ] as const;
 
 const SSO_QUESTION_HEADING =
@@ -227,11 +246,29 @@ describe("HelpTopicMarkdownView procurement FAQ", () => {
       throw new Error("Expected procurement documentation to load.");
     }
 
-    render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
+    render(
+      <HelpTopicMarkdownView
+        entry={loaded.entry}
+        markdown={loaded.markdown}
+        showContextualHelp
+        evidenceOrientation={<ProcurementHelpEvidenceOrientationStrip />}
+        showExportClaimDiscipline
+      />,
+    );
 
+    expect(screen.getByTestId("procurement-help-last-reviewed")).toHaveTextContent(
+      PROCUREMENT_HELP_LAST_REVIEWED_LABEL,
+    );
     expect(screen.getByRole("heading", { name: "Q & A" })).toBeInTheDocument();
     expect(screen.getAllByText(/SOC 2/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/penetration/i).length).toBeGreaterThan(0);
+    expect(screen.getByTestId("procurement-help-posture-summary")).toBeInTheDocument();
+    expect(screen.getByTestId("procurement-help-answer-soc2")).toBeInTheDocument();
+    expect(screen.getByTestId("procurement-help-answer-penetration-test")).toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-export-actions")).toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-print-pdf")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-breadcrumb")).toBeNull();
+    expect(screen.queryByTestId("page-contextual-help-button")).toBeNull();
   });
 
   it("keeps Q4 SSO answer questionnaire-length without infra or CLI leakage (TB-1257)", () => {
@@ -286,6 +323,35 @@ describe("HelpTopicMarkdownView procurement FAQ", () => {
     for (const href of hrefs) {
       expect(isBuyerSafeProcurementFaqHref(href), `unsafe FAQ href: ${href}`).toBe(true);
     }
+
+    for (const required of PROCUREMENT_FAQ_REQUIRED_LINK_PATTERNS) {
+      expect(faqSection, `missing required FAQ link: ${required}`).toContain(`](${required})`);
+    }
+
+    expect(faqSection).not.toMatch(/through security \/ sales/i);
+    expect(faqSection).not.toMatch(/through legal \/ sales/i);
+    expect(faqSection).not.toMatch(/`\/pricing\?/i);
+    expect(faqSection).not.toMatch(/\bVendor\b/);
+    expect(faqSection.toLowerCase()).toContain("third-party vendor");
+  });
+
+  it("does not use standalone Vendor template voice in rendered copy (P0-5)", () => {
+    if (loaded === null) {
+      throw new Error("Expected procurement documentation to load.");
+    }
+
+    render(
+      <HelpTopicMarkdownView
+        entry={loaded.entry}
+        markdown={loaded.markdown}
+        evidenceOrientation={<ProcurementHelpEvidenceOrientationStrip />}
+      />,
+    );
+
+    const visible = document.body.textContent ?? "";
+
+    expect(visible).not.toMatch(/\bVendor\b/);
+    expect(visible).toMatch(/ArchLucid-hosted/i);
   });
 
   it("renders every right-side TOC item as an anchor to an existing section id", () => {

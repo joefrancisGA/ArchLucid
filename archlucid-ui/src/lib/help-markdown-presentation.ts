@@ -11,6 +11,7 @@ import {
 } from "@/lib/help-markdown-presentation-pipeline";
 import { stripMarkdownSectionsByTitlePrefix } from "@/lib/help-markdown/section-strips";
 import { applyHelpTopicProductLanguage } from "@/lib/help-product-language";
+import { rewriteProcurementFaqBuyerPresentation } from "@/lib/procurement-help-presentation";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 const MARKDOWN_FILE_PATTERN = /\.md(?:#[^\s)]*)?$/i;
@@ -487,6 +488,44 @@ export function stripInternalBuyerHelpPreamble(markdown: string): string {
   return removeEmptyFencedCodeBlocks(result.join("\n"));
 }
 
+/** Strips product release window labels and internal version shorthand from buyer-visible help copy. */
+export function stripProductReleaseVersionLabels(markdown: string): string {
+  return markdown
+    .replace(/\*\*\[V1 GA[^\]]*\]\*\*/gi, "**[first-party]**")
+    .replace(/\[V1 GA[^\]]*\]/gi, "first-party")
+    .replace(/\bV1 GA first-party\b/gi, "first-party")
+    .replace(/\bV1 GA\b/gi, "generally available")
+    .replace(/\bV1\.1 customer-operated\b/gi, "customer-operated")
+    .replace(/\bV1\.1 recipe bridge\b/gi, "recipe bridge")
+    .replace(/\bV1\.1\b/gi, "future release")
+    .replace(/\bV1-ready\b/gi, "product-ready")
+    .replace(/\bV1 pilots?\b/gi, "pilots")
+    .replace(/\bfirst-pilot V1\b/gi, "first-pilot")
+    .replace(/\bshipped V1\b/gi, "shipped")
+    .replace(/\bStatus:\s*V1 GA\b/gi, "Status: generally available")
+    .replace(/\bNot V1-required\b/gi, "Not required for pilots")
+    .replace(/\bnot V1 defects\b/gi, "not product defects")
+    .replace(/\bout of V1\b/gi, "out of current")
+    .replace(/\bdo not promise GA in V1 pilots\b/gi, "do not promise GA in pilots")
+    .replace(/product scope/gi, "product scope")
+    .replace(/\bUse \(V1\)\b/g, "Use")
+    .replace(/\bV1-only\b/gi, "product")
+    .replace(/\bV1 REST\b/gi, "REST")
+    .replace(/\bV1 vs V1\.1\b/gi, "current product vs future release")
+    .replace(/\bV1 window\b/gi, "current product window")
+    .replace(/\binternal V1 rollout\b/gi, "internal rollout")
+    .replace(/\bV1 scope\b/gi, "product scope")
+    .replace(/\bV1 ships\b/gi, "ArchLucid ships")
+    .replace(/\bV1 includes\b/gi, "ArchLucid includes")
+    .replace(/\bV1 offers\b/gi, "ArchLucid offers")
+    .replace(/\bV1 uses\b/gi, "ArchLucid uses")
+    .replace(/\bV1 professional services\b/gi, "Professional services")
+    .replace(/\bV1 GA —/gi, "")
+    .replace(/\bRoadmap \/ V1\.1\b/gi, "Roadmap")
+    .replace(/\bGTM V1\.1\b/gi, "GTM")
+    .replace(/\bThree lanes \(V1 default\)/gi, "Three lanes");
+}
+
 /** Strips inline CI and backlog references from buyer help copy. */
 export function stripInternalBuyerHelpInlineReferences(markdown: string): string {
   return markdown
@@ -507,11 +546,12 @@ export function stripInternalBuyerHelpInlineReferences(markdown: string): string
  * link rewrite (procurement FAQ and similar buyer packets).
  */
 export function stripProcurementContributorLeakage(markdown: string): string {
-  return markdown
+  return rewriteProcurementFaqBuyerPresentation(
+    markdown
     .replace(/Improvement archived\s*\*?\*?#?\d+\*?\*?/gi, "")
     .replace(/`?archlucid auth(?:\s+validate-saml)?`?/gi, "IdP federation validation")
-    .replace(/`?V1_SCOPE\.md`?/gi, "V1 product scope")
-    .replace(/V1_SCOPE\.md/gi, "V1 product scope")
+    .replace(/`?V1_SCOPE\.md`?/gi, "product scope")
+    .replace(/V1_SCOPE\.md/gi, "product scope")
     .replace(/`?CONFIGURATION_REFERENCE\.md`?/gi, "configuration documentation")
     .replace(/CONFIGURATION_REFERENCE\.md/gi, "configuration documentation")
     .replace(/`?SECURITY\.md`?/gi, "security documentation")
@@ -531,7 +571,8 @@ export function stripProcurementContributorLeakage(markdown: string): string {
     .replace(/CUSTOM_POLICY_PACK_AUTHORING_SOW_TEMPLATE\.md/gi, "SoW template")
     .replace(/PRICING_PHILOSOPHY\.md/gi, "pricing documentation")
     .replace(/SLA_SUMMARY\.md/gi, "SLA summary")
-    .replace(/SLA_TARGETS\.md/gi, "SLA targets");
+    .replace(/SLA_TARGETS\.md/gi, "SLA targets"),
+  );
 }
 
 /** H2 sections omitted from in-app configuration reference (contributor / marketing / test-only). */
@@ -820,9 +861,9 @@ export function stripConfigurationReferenceContributorLeakage(markdown: string):
     .replace(/\[([^\]]*)\]\(contributor-reference\/SECURITY\.md\)/gi, "security documentation")
     .replace(/contributor-reference\/SECURITY\.md/gi, "security documentation")
     .replace(/contributor-reference\//gi, "")
-    .replace(/\[([^\]]*)\]\(V1_SCOPE\.md[^)]*\)/gi, "V1 product scope")
-    .replace(/`?V1_SCOPE\.md`?/gi, "V1 product scope")
-    .replace(/docs\/library\/V1_SCOPE\.md/gi, "V1 product scope")
+    .replace(/\[([^\]]*)\]\(V1_SCOPE\.md[^)]*\)/gi, "product scope")
+    .replace(/`?V1_SCOPE\.md`?/gi, "product scope")
+    .replace(/docs\/library\/V1_SCOPE\.md/gi, "product scope")
     .replace(/\[([^\]]*)\]\([^)]*SECURITY\.md\)/gi, "security documentation")
     .replace(/`?SECURITY\.md`?/gi, "security documentation")
     .replace(/PUBLIC_MARKETING_SITE_TOPOLOGY\.md/gi, "marketing site topology")
@@ -1072,7 +1113,7 @@ export function stripExecutiveSummaryPilotRoiMeasurementLeakage(markdown: string
     .replace(/\s*\(TB-\d+\)/gi, "")
     .replace(/\bTB-\d+\b/gi, "")
     .replace(/`?START_HERE\.md`?/gi, "product documentation index")
-    .replace(/`?V1_SCOPE\.md`?/gi, "V1 product scope")
+    .replace(/`?V1_SCOPE\.md`?/gi, "product scope")
     .replace(/`?CORE_PILOT\.md`?/gi, "Your first architecture review")
     .replace(/`?REPOSITORY_README`?/gi, "repository overview")
     .replace(/`?OPERATOR_DECISION_GUIDE\.md`?/gi, "deployment decision guide")
@@ -1914,7 +1955,7 @@ export function stripFirstReviewEvidenceChecklistContributorLeakage(markdown: st
     )
     .replace(/\[([^\]]*)\]\(\.\.\/runbooks\/TROUBLESHOOTING\.md\)/gi, "[Troubleshooting](/help/troubleshooting)")
     .replace(/\[([^\]]*)\]\(TROUBLESHOOTING\.md\)/gi, "[Troubleshooting](/help/troubleshooting)")
-    .replace(/\[([^\]]*)\]\(\.\.\/library\/V1_SCOPE\.md[^)]*\)/gi, "V1 product scope")
+    .replace(/\[([^\]]*)\]\(\.\.\/library\/V1_SCOPE\.md[^)]*\)/gi, "product scope")
     .replace(/\[([^\]]*)\]\(\.\.\/library\/REPEAT_REVIEW_LOOP\.md\)/gi, "[Repeat-review loop](/help/repeat-review-loop)")
     .replace(/\[([^\]]*)\]\([^)]*contributor-reference\/[^)]+\)/gi, "$1")
     .replace(/\[([^\]]*)\]\([^)]*(?:runbooks|library|deploy)\/[^)]+\)/gi, "$1")
@@ -1927,7 +1968,7 @@ export function stripFirstReviewEvidenceChecklistContributorLeakage(markdown: st
     .replace(/`?CANONICAL_FIRST_RUN_PATH\.md`?/gi, "first architecture review walkthrough")
     .replace(/`?WORKSPACE_NAVIGATION_GUIDE\.md`?/gi, "workspace navigation guide")
     .replace(/`?TROUBLESHOOTING\.md`?/gi, "troubleshooting")
-    .replace(/`?V1_SCOPE\.md`?/gi, "V1 product scope")
+    .replace(/`?V1_SCOPE\.md`?/gi, "product scope")
     .replace(/`?PILOT_RESCUE_PLAYBOOK\.md`?/gi, "troubleshooting guide")
     .replace(/`?LIVE_E2E_HAPPY_PATH\.md`?/gi, "live happy-path guidance")
     .replace(/`?OPERATOR_PILOT_STICKINESS_CHECKLIST\.md`?/gi, "stickiness checklist")
@@ -2007,8 +2048,8 @@ export function stripDeveloperTroubleshootingContributorLeakage(markdown: string
     .replace(/\[([^\]]*)\]\([^)]*contributor-reference\/[^)]+\)/gi, "$1")
     .replace(/\[([^\]]*)\]\(\.\.\/architecture\/adrs\/[^)]+\)/gi, "$1")
     .replace(/\[([^\]]*)\]\([^)]*architecture\/adrs\/[^)]+\)/gi, "$1")
-    .replace(/\[([^\]]*)\]\(\.\.\/library\/V1_SCOPE\.md[^)]*\)/gi, "V1 product scope")
-    .replace(/\[([^\]]*)\]\(V1_SCOPE\.md[^)]*\)/gi, "V1 product scope")
+    .replace(/\[([^\]]*)\]\(\.\.\/library\/V1_SCOPE\.md[^)]*\)/gi, "product scope")
+    .replace(/\[([^\]]*)\]\(V1_SCOPE\.md[^)]*\)/gi, "product scope")
     .replace(/\[([^\]]*)\]\(\.\.\/go-to-market\/[^)]+\)/gi, "$1")
     .replace(/\bTB-\d+\b/gi, "")
     .replace(/\s*\(TB-\d+\)/gi, "")
@@ -3662,10 +3703,15 @@ export function prepareHelpMarkdownForPresentation(
   let finalBody = applyHelpMarkdownPresentationRules(presentationBody, [
     emphasizeInlineGuidanceLabels,
     applyHelpTopicProductLanguage,
+    stripProductReleaseVersionLabels,
   ]);
 
   if (options?.helpTopicSlug === "executive-summary") {
     finalBody = stripExecutiveSummaryPilotRoiMeasurementLeakage(finalBody);
+  }
+
+  if (options?.helpTopicSlug === "procurement") {
+    finalBody = rewriteProcurementFaqBuyerPresentation(finalBody);
   }
 
   return finalBody;
