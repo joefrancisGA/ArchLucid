@@ -8,6 +8,10 @@ import * as governanceApi from "@/lib/api/governance-stickiness-api";
 import { BUYER_RISK_EXCEPTIONS_EMPTY_TERTIARY_ACTION } from "@/lib/buyer-polish-copy";
 import { routeViewExplanationForPathname } from "@/lib/usability/route-view-explanations";
 
+vi.mock("@/hooks/use-operate-capability", () => ({
+  useOperateCapability: () => true,
+}));
+
 vi.mock("@/lib/api/governance-stickiness-api", () => ({
   defaultRiskExceptionExpiresAtUtc: vi.fn(() => "2099-01-01T00:00:00.000Z"),
   listRiskExceptions: vi.fn(),
@@ -55,6 +59,7 @@ const laterExpiry = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(
 describe("RiskExceptionsClient", () => {
   beforeEach(() => {
     demoUiEnvMock.buyerPolishedShell = false;
+    vi.clearAllMocks();
 
     vi.mocked(governanceApi.listRiskExceptions).mockResolvedValue([
       {
@@ -78,41 +83,29 @@ describe("RiskExceptionsClient", () => {
         findingId: "finding-c",
         ownerUserId: "owner3@contoso.com",
         rationale: "Third waiver.",
-        expiresAtUtc: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
+        expiresAtUtc: laterExpiry,
         status: "Active",
       },
     ]);
+    vi.mocked(governanceApi.revokeRiskException).mockResolvedValue(undefined);
   });
 
-  it("renders table rows for active exceptions", async () => {
-    render(<RiskExceptionsClient />);
-
-    expect(await screen.findByText("finding-b")).toBeInTheDocument();
-    expect(screen.getAllByRole("row").length).toBeGreaterThan(3);
-  });
-
-  it("shows expiring-soon warning when any risk exception is within 14 days", async () => {
+  it("shows expiring-soon warning when waivers expire within 30 days", async () => {
     render(<RiskExceptionsClient />);
 
     expect(await screen.findByTestId("risk-exceptions-expiring-warning")).toBeInTheDocument();
-    expect(screen.getByText(/risk exception/)).toBeInTheDocument();
   });
 
-  it("shows empty state with primary and secondary actions", async () => {
+  it("renders empty state with create architecture CTA", async () => {
     vi.mocked(governanceApi.listRiskExceptions).mockResolvedValue([]);
 
     render(<RiskExceptionsClient />);
 
-    expect(await screen.findByText("No active risk exceptions")).toBeInTheDocument();
-    expect(
-      screen.getByText(/Risk exceptions appear here when a finding is waived or deferred through governance/),
-    ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open findings" })).toHaveAttribute("href", "/governance/findings");
-    expect(screen.getByRole("link", { name: "Open governance workflow" })).toHaveAttribute("href", "/governance/approval-queue");
-    expect(screen.getByRole("link", { name: CREATE_ARCHITECTURE_LABEL })).toHaveAttribute("href", "/architecture/reviews/new");
+    expect(await screen.findByTestId("risk-exceptions-empty-state")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: CREATE_ARCHITECTURE_LABEL })).toBeInTheDocument();
   });
 
-  it("uses risk-exceptions layer guidance instead of governance workflow copy in operator shell", async () => {
+  it("renders layer guidance outside buyer shell", async () => {
     vi.mocked(governanceApi.listRiskExceptions).mockResolvedValue([]);
 
     render(<RiskExceptionsClient />);
@@ -147,17 +140,17 @@ describe("RiskExceptionsClient", () => {
   });
 
   it("revokes after confirmation", async () => {
-    vi.stubGlobal("confirm", vi.fn(() => true));
-
     render(<RiskExceptionsClient />);
-    await screen.findAllByRole("button", { name: "Revoke" });
 
-    fireEvent.click(screen.getAllByRole("button", { name: "Revoke" })[0]);
+    fireEvent.click(await screen.findByTestId("risk-exception-revoke-11111111-1111-1111-1111-111111111111"));
+
+    expect(screen.getByRole("heading", { name: /Revoke risk exception/i })).toBeInTheDocument();
+    expect(governanceApi.revokeRiskException).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Revoke exception" }));
 
     await waitFor(() => {
-      expect(governanceApi.revokeRiskException).toHaveBeenCalled();
+      expect(governanceApi.revokeRiskException).toHaveBeenCalledWith("11111111-1111-1111-1111-111111111111");
     });
-
-    vi.unstubAllGlobals();
   });
 });

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { GovernanceApprovalStatusBanner } from "@/components/governance/GovernanceApprovalStatusBanner";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
@@ -98,6 +99,7 @@ export default function RiskExceptionsClient() {
   const [renewingId, setRenewingId] = useState<string | null>(null);
   const [renewExpiresAtUtc, setRenewExpiresAtUtc] = useState(defaultRiskExceptionExpiresAtUtc());
   const [renewRationale, setRenewRationale] = useState("");
+  const [pendingRevoke, setPendingRevoke] = useState<RiskExceptionRecord | null>(null);
 
   const reload = useCallback(async (): Promise<void> => {
     const rows = await listRiskExceptions();
@@ -159,10 +161,6 @@ export default function RiskExceptionsClient() {
 
   async function submitRevoke(record: RiskExceptionRecord): Promise<void> {
     if (!canMutate) {
-      return;
-    }
-
-    if (!window.confirm(`Revoke risk exception for finding ${record.findingId}?`)) {
       return;
     }
 
@@ -330,7 +328,10 @@ export default function RiskExceptionsClient() {
                             variant="outline"
                             disabled={busyId === record.riskExceptionId || !canMutate}
                             title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-                            onClick={() => void submitRevoke(record)}
+                            onClick={() => {
+                              setPendingRevoke(record);
+                            }}
+                            data-testid={`risk-exception-revoke-${record.riskExceptionId}`}
                           >
                             Revoke
                           </Button>
@@ -344,6 +345,33 @@ export default function RiskExceptionsClient() {
           </EnterpriseTable>
         )}
       </div>
+
+      <ConfirmationDialog
+        open={pendingRevoke !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingRevoke(null);
+          }
+        }}
+        title="Revoke risk exception?"
+        description={
+          pendingRevoke !== null
+            ? `Revoking ends the active waiver for finding ${pendingRevoke.findingId}. The revocation is recorded on the audit trail.`
+            : "Revoking ends the active waiver. The revocation is recorded on the audit trail."
+        }
+        confirmLabel="Revoke exception"
+        variant="destructive"
+        busy={pendingRevoke !== null && busyId === pendingRevoke.riskExceptionId}
+        onConfirm={() => {
+          if (pendingRevoke === null) {
+            return;
+          }
+
+          void submitRevoke(pendingRevoke).finally(() => {
+            setPendingRevoke(null);
+          });
+        }}
+      />
     </div>
   );
 }
