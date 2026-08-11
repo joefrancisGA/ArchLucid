@@ -69,3 +69,53 @@ export function extractMarkdownSectionsByAnchor(
 
   return chunks.filter((chunk) => chunk.length > 0).join("\n\n---\n\n");
 }
+
+/**
+ * Returns markdown with `{#anchor}`-tagged `##` sections removed (inverse of extract).
+ */
+export function omitMarkdownSectionsByAnchor(
+  markdown: string,
+  sectionAnchors: readonly string[],
+): string {
+  if (sectionAnchors.length === 0) {
+    return markdown;
+  }
+
+  const anchorSet = new Set(
+    sectionAnchors.map((anchor) => anchor.trim().toLowerCase()).filter((anchor) => anchor.length > 0),
+  );
+
+  if (anchorSet.size === 0) {
+    return markdown;
+  }
+
+  const lines = markdown.replace(/\r\n/g, "\n").split("\n");
+  const keptLines: string[] = [];
+  let omitting = false;
+  let index = 0;
+
+  while (index < lines.length) {
+    const line = lines[index] ?? "";
+
+    if (line.startsWith("## ") && !line.startsWith("###")) {
+      const anchorMatch = line.match(/\{#([^}]+)\}/);
+      const anchor = anchorMatch?.[1]?.trim().toLowerCase() ?? "";
+      omitting = anchorSet.has(anchor);
+
+      if (!omitting) {
+        keptLines.push(line);
+      }
+
+      index++;
+      continue;
+    }
+
+    if (!omitting) {
+      keptLines.push(line);
+    }
+
+    index++;
+  }
+
+  return keptLines.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+}

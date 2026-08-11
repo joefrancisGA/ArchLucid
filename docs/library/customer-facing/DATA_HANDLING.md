@@ -59,7 +59,7 @@ Download an export bundle from any finalized architecture package at any time. Y
 
 Finalized architecture packages support exportable governance artifacts for sponsors and audit. Tenant data lifecycle, retention, and deletion requests are handled according to your agreement and the security review process — contact your administrator or ArchLucid support for workspace-specific posture.
 
-## Related topics
+## Related topics {#related-topics}
 
 - [How ArchLucid works](/help/getting-started#how-archlucid-works) — product workflow from evidence to exports
 - [Security and trust](/help/security-trust) — assurance materials and diligence support

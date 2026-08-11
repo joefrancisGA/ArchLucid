@@ -65,7 +65,7 @@ describe("ui-route-traffic-data-handling-help (HED)", () => {
     expect(row?.section).toBe(DATA_HANDLING_HELP_TRAFFIC_SECTION);
     expect(row?.notes).toBe(DATA_HANDLING_HELP_TRAFFIC_NOTE);
     expect(row?.notes).toContain("HelpDataHandlingTenantIsolationGuideView");
-    expect(row?.notes).toContain("Score 58");
-    expect(row?.notes).toContain("cannot improve further toward 80");
+    expect(row?.notes).toContain("Score 65");
+    expect(row?.notes).toContain("TB-1654");
   });
 });

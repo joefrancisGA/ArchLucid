@@ -4,11 +4,13 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
+  DATA_HANDLING_TENANT_ISOLATION_HELP_LEAVES_STAYS_CARDS,
   DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CROSS_CHECK_LINKS,
   DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CROSS_CHECK_PREFIX,
   DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CONTRACTED_PACK_FOLLOW_UP,
   DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_TITLE,
   DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_ACTIONS,
+  DATA_HANDLING_TENANT_ISOLATION_HELP_RELATED,
 } from "@/lib/data-handling-tenant-isolation-help-guide-content";
 import { getHelpCenterDisplay } from "@/lib/help-center-catalog";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -47,6 +49,23 @@ describe("data-handling-tenant-isolation-help-guide-content", () => {
     expect(DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CONTRACTED_PACK_FOLLOW_UP.toLowerCase()).toContain(
       "contracted",
     );
+  });
+
+  it("keeps leaves/stays cards and diligence Related budget (TB-1654 / TB-1655)", () => {
+    expect(DATA_HANDLING_TENANT_ISOLATION_HELP_LEAVES_STAYS_CARDS).toHaveLength(2);
+    expect(DATA_HANDLING_TENANT_ISOLATION_HELP_LEAVES_STAYS_CARDS.map((card) => card.title)).toEqual([
+      "What leaves your tenant",
+      "What stays in your tenant",
+    ]);
+    expect(DATA_HANDLING_TENANT_ISOLATION_HELP_RELATED.map((link) => link.label)).toEqual([
+      "Security and trust",
+      "Trust Center",
+      "Audit trail",
+      "Subprocessors",
+      "DPA template",
+      "Procurement FAQ",
+    ]);
+    expect(DATA_HANDLING_TENANT_ISOLATION_HELP_RELATED.some((link) => link.href === "/trust")).toBe(true);
   });
 
   it("documents data residency in customer-facing markdown", () => {

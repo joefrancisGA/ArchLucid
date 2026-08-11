@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { extractMarkdownSectionsByAnchor } from "@/lib/help-markdown-sections";
+import { extractMarkdownSectionsByAnchor, omitMarkdownSectionsByAnchor } from "@/lib/help-markdown-sections";
 
 const SAMPLE = `# Cloud connections
 
@@ -48,5 +48,14 @@ describe("extractMarkdownSectionsByAnchor", () => {
 
   it("returns full markdown when no anchors are requested", () => {
     expect(extractMarkdownSectionsByAnchor(SAMPLE, [])).toBe(SAMPLE);
+  });
+
+  it("omits requested anchor sections while keeping intro and other sections", () => {
+    const result = omitMarkdownSectionsByAnchor(SAMPLE, ["related-topics"]);
+
+    expect(result).toContain("Optional intro paragraph.");
+    expect(result).toContain("Azure body.");
+    expect(result).not.toContain("Related topics");
+    expect(result).not.toContain("Links.");
   });
 });

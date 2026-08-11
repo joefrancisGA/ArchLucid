@@ -39,11 +39,11 @@ import {
   DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CONTRACTED_PACK_FOLLOW_UP,
 
   DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CROSS_CHECK_LINKS,
-
   DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_TITLE,
-
   DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_ACTIONS,
-
+  DATA_HANDLING_TENANT_ISOLATION_HELP_RELATED,
+  DATA_HANDLING_TENANT_ISOLATION_HELP_RELATED_TOPICS_HEADING,
+  DATA_HANDLING_TENANT_ISOLATION_HELP_LEAVES_STAYS_CARDS,
 } from "@/lib/data-handling-tenant-isolation-help-guide-content";
 
 import {
@@ -218,7 +218,30 @@ describe("HelpDataHandlingTenantIsolationGuideView", () => {
 
     expect(claimDiscipline).toHaveTextContent("not a countersigned DPA");
 
+    const firstViewport = screen.getByTestId("help-data-handling-tenant-isolation-first-viewport");
 
+    for (const card of DATA_HANDLING_TENANT_ISOLATION_HELP_LEAVES_STAYS_CARDS) {
+      expect(within(firstViewport).getByTestId(`help-data-handling-tenant-isolation-${card.id}-card`)).toHaveTextContent(
+        card.title,
+      );
+    }
+
+    const related = within(firstViewport).getByTestId("help-data-handling-tenant-isolation-related");
+
+    expect(within(related).getByRole("heading", { name: DATA_HANDLING_TENANT_ISOLATION_HELP_RELATED_TOPICS_HEADING })).toBeInTheDocument();
+
+    for (const link of DATA_HANDLING_TENANT_ISOLATION_HELP_RELATED) {
+      expect(
+        within(related).getByTestId(`help-data-handling-tenant-isolation-related-link-${link.label}`),
+      ).toHaveAttribute("href", link.href);
+    }
+
+    expect(within(related).getByRole("link", { name: "Trust Center" })).toHaveAttribute("href", "/trust");
+
+    expect(within(related).getByRole("link", { name: "Security and trust" })).toHaveAttribute(
+      "href",
+      "/help/security-trust",
+    );
 
     const headerActions = screen.getByTestId("help-data-handling-tenant-isolation-header-actions");
 
@@ -254,6 +277,8 @@ describe("HelpDataHandlingTenantIsolationGuideView", () => {
 
     }
 
+    expect(toc).toHaveTextContent(DATA_HANDLING_TENANT_ISOLATION_HELP_RELATED_TOPICS_HEADING);
+
 
 
     expect(screen.getByTestId("help-data-handling-tenant-isolation-source-disclosure")).toBeInTheDocument();
@@ -279,6 +304,7 @@ describe("HelpDataHandlingTenantIsolationGuideView", () => {
 
 
     const content = screen.getByTestId("help-data-handling-tenant-isolation-content");
+    expect(content).not.toHaveTextContent("Procurement FAQ");
     expect(content).toHaveTextContent("Open the audit trail in your tenant governance workspace.");
     const governanceAuditLinks = within(content)
       .getAllByRole("link")
