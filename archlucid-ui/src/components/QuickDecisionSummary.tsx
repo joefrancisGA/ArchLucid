@@ -2,7 +2,6 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState, useMemo } from "react";
 import type { ReactElement } from "react";
 
@@ -42,20 +41,10 @@ import { MessageCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { QuickDecisionFindingMuteDialog } from "@/components/findings/QuickDecisionFindingMuteDialog";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useOptionallyControlledBoolean } from "@/hooks/use-optionally-controlled-boolean";
 import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
-import { postFindingMute } from "@/lib/api";
 import {
   getFindingDetailHref,
   getFindingEvidenceTraceHref,
@@ -155,7 +144,6 @@ export type QuickDecisionSummaryProps = {
 
 /** Top severity-ranked actionable findings from run detail agent results (no extra API calls). */
 export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactElement {
-  const router = useRouter();
   const canMutate = useOperateCapability();
   const sorted = sortQuickDecisionFindings(props.findings);
   const confidenceManagedExternally = props.confidenceVisibility?.managedExternally === true;
@@ -241,10 +229,20 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
   const [activeReasoning, setActiveReasoning] = useState<QuickDecisionFinding | null>(null);
   const [muteOpen, setMuteOpen] = useState(false);
   const [muteTarget, setMuteTarget] = useState<QuickDecisionFinding | null>(null);
-  const [muteReason, setMuteReason] = useState("");
-  const [muteBusy, setMuteBusy] = useState(false);
-  const [muteError, setMuteError] = useState<string | null>(null);
   const [askFindingId, setAskFindingId] = useState<string | null>(null);
+
+  function handleMuteDialogOpenChange(open: boolean): void {
+    setMuteOpen(open);
+
+    if (!open) {
+      setMuteTarget(null);
+    }
+  }
+
+  function openMuteDialog(finding: QuickDecisionFinding): void {
+    setMuteTarget(finding);
+    setMuteOpen(true);
+  }
 
   function renderEmptySummary(): ReactElement {
     if (
@@ -429,10 +427,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
               className={cn("h-8 shrink-0", OPERATOR_TYPOGRAPHY.button)}
               title="Hide this finding from the default list for this review"
               onClick={() => {
-                setMuteTarget(f);
-                setMuteReason("");
-                setMuteError(null);
-                setMuteOpen(true);
+                openMuteDialog(f);
               }}
             >
               Mute
@@ -810,10 +805,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
               variant="secondary"
               className={cn("h-8 shrink-0", OPERATOR_TYPOGRAPHY.button)}
               onClick={() => {
-                setMuteTarget(f);
-                setMuteReason("");
-                setMuteError(null);
-                setMuteOpen(true);
+                openMuteDialog(f);
               }}
             >
               Mute
@@ -904,7 +896,8 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
     );
   }
 
-  function renderWorkspaceDialogs(): ReactElement {
+  /** Reasoning + mute dialogs shared by both layouts; `muteReasonInputId` keeps label ids unique per layout. */
+  function renderDialogs(muteReasonInputId: string): ReactElement {
     return (
       <>
         <FindingAiReasoningDialog
@@ -920,83 +913,13 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
           findingTitle={activeReasoning?.title ?? ""}
           snapshot={activeReasoning?.aiReasoning ?? null}
         />
-        <Dialog
+        <QuickDecisionFindingMuteDialog
+          runId={props.runId}
+          finding={muteTarget}
           open={muteOpen}
-          onOpenChange={(open) => {
-            setMuteOpen(open);
-
-            if (!open) {
-              setMuteTarget(null);
-              setMuteReason("");
-              setMuteError(null);
-              setMuteBusy(false);
-            }
-          }}
-        >
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Mute finding</DialogTitle>
-              <DialogDescription>
-                Provide a short reason. Muted findings are hidden from this summary until you enable{" "}
-                <strong>Show muted findings</strong>.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-2">
-              <Label htmlFor="finding-mute-reason-workspace">Reason</Label>
-              <Textarea
-                id="finding-mute-reason-workspace"
-                value={muteReason}
-                onChange={(e) => {
-                  setMuteReason(e.target.value);
-                }}
-                rows={4}
-                className="resize-y"
-                disabled={muteBusy}
-              />
-              {muteError ? <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.body)}>{muteError}</p> : null}
-            </div>
-            <DialogFooter className="gap-2 sm:gap-0">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  setMuteOpen(false);
-                }}
-                disabled={muteBusy}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="button"
-                variant="primary"
-                disabled={muteBusy || muteReason.trim().length === 0}
-                onClick={() => {
-                  if (muteTarget === null) {
-                    return;
-                  }
-
-                  void (async () => {
-                    setMuteBusy(true);
-                    setMuteError(null);
-
-                    try {
-                      await postFindingMute(props.runId, muteTarget.findingId, muteReason.trim());
-                      setMuteOpen(false);
-                      router.refresh();
-                    } catch (e) {
-                      const msg = e instanceof Error ? e.message : "Mute request failed.";
-                      setMuteError(msg);
-                    } finally {
-                      setMuteBusy(false);
-                    }
-                  })();
-                }}
-              >
-                {muteBusy ? "Saving…" : "Mute finding"}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+          onOpenChange={handleMuteDialogOpenChange}
+          reasonInputId={muteReasonInputId}
+        />
       </>
     );
   }
@@ -1124,7 +1047,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
             </details>
           ) : null}
         </div>
-        {renderWorkspaceDialogs()}
+        {renderDialogs("finding-mute-reason-workspace")}
       </>
     );
   }
@@ -1315,97 +1238,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
         </CardContent>
       </Card>
 
-      <FindingAiReasoningDialog
-        open={reasoningOpen}
-        onOpenChange={(open) => {
-          setReasoningOpen(open);
-
-          if (!open) {
-            setActiveReasoning(null);
-          }
-        }}
-        findingId={activeReasoning?.findingId ?? null}
-        findingTitle={activeReasoning?.title ?? ""}
-        snapshot={activeReasoning?.aiReasoning ?? null}
-      />
-
-      <Dialog
-        open={muteOpen}
-        onOpenChange={(open) => {
-          setMuteOpen(open);
-
-          if (!open) {
-            setMuteTarget(null);
-            setMuteReason("");
-            setMuteError(null);
-            setMuteBusy(false);
-          }
-        }}
-      >
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Mute finding</DialogTitle>
-            <DialogDescription>
-              Provide a short reason. Muted findings are hidden from this summary until you enable{" "}
-              <strong>Show muted findings</strong>.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-2">
-            <Label htmlFor="finding-mute-reason">Reason</Label>
-            <Textarea
-              id="finding-mute-reason"
-              value={muteReason}
-              onChange={(e) => {
-                setMuteReason(e.target.value);
-              }}
-              rows={4}
-              className="resize-y"
-              disabled={muteBusy}
-            />
-            {muteError ? <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.body)}>{muteError}</p> : null}
-          </div>
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                setMuteOpen(false);
-              }}
-              disabled={muteBusy}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              variant="primary"
-              disabled={muteBusy || muteReason.trim().length === 0}
-              onClick={() => {
-                if (muteTarget === null) {
-                  return;
-                }
-
-                void (async () => {
-                  setMuteBusy(true);
-                  setMuteError(null);
-
-                  try {
-                    await postFindingMute(props.runId, muteTarget.findingId, muteReason.trim());
-                    setMuteOpen(false);
-                    router.refresh();
-                  } catch (e) {
-                    const msg = e instanceof Error ? e.message : "Mute request failed.";
-                    setMuteError(msg);
-                  } finally {
-                    setMuteBusy(false);
-                  }
-                })();
-              }}
-            >
-              {muteBusy ? "Saving…" : "Mute finding"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {renderDialogs("finding-mute-reason")}
     </>
   );
 }
