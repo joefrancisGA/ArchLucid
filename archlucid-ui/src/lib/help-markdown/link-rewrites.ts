@@ -95,15 +95,60 @@ function stripWrappingQuotes(value: string): string {
   return value.replace(/^[`'"]+|[`'"]+$/g, "").trim();
 }
 
+function naiveTitleCaseFromMarkdownFilename(pathOrName: string): string {
+  const withoutFragment = pathOrName.split("#")[0] ?? pathOrName;
+  const baseName = withoutFragment.split("/").pop() ?? withoutFragment;
+  const withoutExtension = baseName.replace(/\.md$/i, "");
+
+  return withoutExtension
+    .replace(/_/g, " ")
+    .replace(/-/g, " ")
+    .split(/\s+/)
+    .filter((word) => word.length > 0)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+}
+
 /**
  * Prefer human labels over raw repo filenames in rendered help copy.
  */
+function resolveRegistryTitleFromHelpHref(href: string): string | null {
+  const helpMatch = href.match(/^\/help\/([^/?#]+)/i);
+
+  if (helpMatch === null) {
+    return null;
+  }
+
+  const entry = getProductDocumentationEntry(helpMatch[1] ?? "");
+
+  return entry?.title ?? null;
+}
+
 export function humanizeMarkdownLinkLabel(label: string, href: string): string {
   const cleanedLabel = stripWrappingQuotes(label);
   const cleanedHref = href.trim();
+  const registryTitle = resolveRegistryTitleFromHelpHref(cleanedHref);
+  const looksLikeFilenameLabel =
+    MARKDOWN_FILE_PATTERN.test(cleanedLabel)
+    || cleanedLabel === cleanedHref
+    || (registryTitle !== null
+      && cleanedLabel === humanizeMarkdownFileReference(`${cleanedLabel.replace(/ /g, "_")}.md`));
 
-  if (MARKDOWN_FILE_PATTERN.test(cleanedLabel) || cleanedLabel === cleanedHref) {
-    return humanizeMarkdownFileReference(cleanedLabel);
+  if (looksLikeFilenameLabel) {
+    const humanizedFromFile = humanizeMarkdownFileReference(cleanedLabel);
+    const usedOverride =
+      MARKDOWN_FILE_PATTERN.test(cleanedLabel)
+      && humanizedFromFile !== naiveTitleCaseFromMarkdownFilename(cleanedLabel);
+
+    if (usedOverride) {
+      return humanizedFromFile;
+    }
+
+    if (registryTitle !== null) {
+      return registryTitle;
+    }
+
+    return humanizedFromFile;
   }
 
   return cleanedLabel;
@@ -179,7 +224,8 @@ export function rewriteHelpMarkdownDocLinks(markdown: string, sourceDocPath: str
     const fragment = hashIndex >= 0 ? trimmedHref.slice(hashIndex) : "";
     const repoPath = resolveRelativeRepoDocPath(hrefPath, sourceDocPath);
     const inAppHref = tryResolveInAppDocHref(`${repoPath}${fragment}`);
-    const displayLabel = humanizeMarkdownLinkLabel(label, trimmedHref);
+    const resolvedHref = inAppHref ?? trimmedHref;
+    const displayLabel = humanizeMarkdownLinkLabel(label, resolvedHref);
 
     if (inAppHref !== null) {
       return `[${displayLabel}](${inAppHref})`;

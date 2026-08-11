@@ -45,6 +45,7 @@ import { POLICY_PACKS_HELP_PRIMARY_ACTION } from "@/lib/policy-packs-help-eviden
 import { REPORT_A_PROBLEM_HELP_PRIMARY_ACTION } from "@/lib/report-a-problem-help-evidence-copy";
 import { SCOPE_HELP_PRIMARY_ACTION } from "@/lib/scope-help-evidence-copy";
 import { SECURITY_TRUST_HELP_PRIMARY_ACTION } from "@/lib/security-trust-help-evidence-copy";
+import { SUBPROCESSORS_HELP_PRIMARY_ACTION } from "@/lib/subprocessors-help-evidence-copy";
 import { SecurityTrustHelpHubVocabularyRail } from "@/components/SecurityTrustHelpHubVocabularyRail";
 
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
@@ -70,6 +71,10 @@ type HelpTopicMarkdownViewProps = {
   /** Optional Evidence orientation strip (Sources + claim discipline). */
 
   readonly evidenceOrientation?: ReactNode;
+
+  /** Optional header metadata under the title (status tag, reviewed date). */
+
+  readonly titleBlockOrientation?: ReactNode;
 
   /** When true, show Category-1 PageContextualHelpButton in the header actions. */
 
@@ -102,6 +107,8 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
     markdown,
 
     evidenceOrientation,
+
+    titleBlockOrientation,
 
     showContextualHelp,
 
@@ -146,6 +153,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
   const isPolicyPacksHelp = entry.slug === "policy-packs";
   const isScopeHelp = entry.slug === "scope";
   const isSecurityTrustHelp = entry.slug === "security-trust";
+  const isSubprocessorsHelp = entry.slug === "subprocessors";
   const isProcurementHelp = isProcurementHelpTopic(entry.slug);
   const isAuthenticationSignInHelp = entry.slug === "authentication-sign-in";
   const allowWithoutServerPdf = entry.pdfStatus === null && (entry.audience === "buyer" || isProcurementHelp);
@@ -202,7 +210,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
           ) : undefined
         }
 
-        titleBlockOrientation={undefined}
+        titleBlockOrientation={titleBlockOrientation}
 
         signInFailureTriageLine={isAuthenticationSignInHelp ? <HelpTopicSignInFailureTriageLine /> : undefined}
 
@@ -219,9 +227,11 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
                     ? SCOPE_HELP_PRIMARY_ACTION
                     : isSecurityTrustHelp
                       ? SECURITY_TRUST_HELP_PRIMARY_ACTION
-                    : entry.slug === "report-a-problem"
-                    ? REPORT_A_PROBLEM_HELP_PRIMARY_ACTION
-                    : undefined
+                      : isSubprocessorsHelp
+                        ? SUBPROCESSORS_HELP_PRIMARY_ACTION
+                        : entry.slug === "report-a-problem"
+                          ? REPORT_A_PROBLEM_HELP_PRIMARY_ACTION
+                          : undefined
         }
 
       />

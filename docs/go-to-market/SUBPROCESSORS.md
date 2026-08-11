@@ -11,21 +11,25 @@
 
 **Last reviewed:** 2026-07-25
 
+This register is **current as of 2026-07-25**. Material changes are notified per the **Change notification** section below.
+
 ArchLucid uses the following **subprocessors** to deliver the hosted service. The list is derived from the **Azure-first** architecture described in [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md), [../security/SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md), and repository `infra/` modules.
 
 We will notify customers **at least 30 days** before engaging a **new** subprocessor that processes customer content or personal data, unless a shorter period is required by law or the change is immaterial (e.g., rename of an existing Microsoft service).
 
 ---
 
-## Subprocessor table
+## Subprocessor register
 
-| Subprocessor | Services used (representative) | Data typically processed | Region | Purpose |
-|--------------|----------------------------------|---------------------------|--------|---------|
-| **Microsoft Corporation** | **Azure Container Apps** (or equivalent compute), **Azure SQL**, **Azure Blob Storage**, **Azure Key Vault**, optional **Azure Service Bus**, **Azure Cache for Redis** (or compatible), **Azure Front Door**, optional **Azure API Management**, monitoring integrations | Customer architecture content, run metadata, manifests, findings, audit events, blobs (including optional agent traces), secrets by reference | **Primary Azure region(s)** chosen at deploy time via Terraform (see **Data residency** below) | Host application, store and encrypt data at rest, edge routing, optional queue/cache |
-| **Microsoft Corporation** | **Microsoft Entra ID** | User / service principal identifiers, sign-in telemetry per Entra policy | Customer’s Entra tenant + Microsoft’s identity infrastructure | Authentication and app roles |
-| **Microsoft Corporation** | **Azure OpenAI Service** | Prompts and completions for agent workflows (may include customer architecture text if submitted by users) | Azure OpenAI deployment region (per subscription configuration) | LLM inference |
+**Entity:** All subprocessors listed below are **Microsoft Corporation**.
 
-**Non-Microsoft:** The product codebase does not require a separate non-Microsoft **runtime** subprocessor for core API functionality beyond Microsoft Azure services above. If you add third-party observability, CRM, or support tools that touch customer data, **update this table** before production use.
+| Service | Processing role | Data categories | Processing location | Transfer safeguards | Added |
+|---------|-----------------|-----------------|---------------------|---------------------|-------|
+| **Azure Container Apps** (or equivalent compute), **Azure SQL**, **Azure Blob Storage**, **Azure Key Vault**, optional **Azure Service Bus**, **Azure Cache for Redis** (or compatible), **Azure Front Door**, optional **Azure API Management**, monitoring integrations | Host application; store and encrypt data at rest; edge routing; optional queue/cache | Customer architecture content, architecture package data, findings, audit events, stored evidence artifacts (including optional agent trace artifacts), encrypted configuration references via Key Vault | Primary Azure region selected at deployment for your subscription or order (see **Data residency** below) | Microsoft Product Terms and DPA; EU Standard Contractual Clauses where applicable | 2026-07-25 |
+| **Microsoft Entra ID** | Authentication and app roles | User and service principal identifiers; sign-in telemetry per Entra policy | Customer Entra tenant and Microsoft identity infrastructure | Microsoft Product Terms and DPA; EU Standard Contractual Clauses where applicable | 2026-07-25 |
+| **Azure OpenAI Service** | LLM inference for agent workflows | Prompts and completions that may include customer architecture text when submitted by users | Azure OpenAI deployment region (per subscription configuration) | Microsoft Product Terms and DPA; EU Standard Contractual Clauses where applicable | 2026-07-25 |
+
+**Non-Microsoft:** Core hosted ArchLucid API functionality runs on Microsoft Azure services listed above. Additional third-party subprocessors (for example observability, CRM, or support tools) are listed here when they process customer content.
 
 ---
 
