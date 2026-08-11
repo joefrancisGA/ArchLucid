@@ -24,6 +24,22 @@ export function formatPricingMoney(amount: number, currency: string): string {
   }).format(amount);
 }
 
+/** Human-readable catalog effective date for billing tier footers (TB-1170). */
+export function formatPricingCatalogEffectiveDate(isoDate: string): string {
+  const parsed = new Date(`${isoDate}T00:00:00.000Z`);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return isoDate;
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(parsed);
+}
+
 export function pricingTierSortIndex(id: string): number {
   const index = MARKETING_PRICING_TIER_ORDER.indexOf(id as MarketingPricingTierId);
 

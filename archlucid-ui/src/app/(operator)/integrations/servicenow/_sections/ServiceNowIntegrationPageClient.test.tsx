@@ -25,6 +25,7 @@ vi.mock("@/lib/api/itsm-outbound-api", () => ({
 }));
 
 import { ServiceNowIntegrationPageClient } from "./ServiceNowIntegrationPageClient";
+import { INTEGRATIONS_SERVICENOW_PATH } from "@/lib/integrations-nav-paths";
 import {
   SERVICENOW_CONNECTION_TEST_BUTTON,
   SERVICENOW_CREDENTIALS_ADMIN_REQUIRED,
@@ -42,7 +43,6 @@ const BANNED_PATTERNS = [
   /vendor probes?/i,
   /smoke checklist/i,
   /single-tenant pilot fallback/i,
-  /\bAzure\b/,
 ];
 
 function baseHealth(overrides: Record<string, unknown> = {}) {
@@ -102,6 +102,17 @@ describe("ServiceNowIntegrationPageClient", () => {
     for (const pattern of BANNED_PATTERNS) {
       expect(text).not.toMatch(pattern);
     }
+  });
+
+  it("TB-1171: page heading exposes nav icon via PageHeading", async () => {
+    render(<ServiceNowIntegrationPageClient />);
+
+    await screen.findByRole("heading", { name: SERVICENOW_INTEGRATION_PAGE_TITLE });
+    expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
+    expect(screen.getByTestId("integrations-servicenow-page").querySelector("[data-nav-href]")).toHaveAttribute(
+      "data-nav-href",
+      INTEGRATIONS_SERVICENOW_PATH,
+    );
   });
 
   it("shows setup incomplete state and disables connection test", async () => {

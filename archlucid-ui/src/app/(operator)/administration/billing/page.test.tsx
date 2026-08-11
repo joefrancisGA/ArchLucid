@@ -196,6 +196,18 @@ describe("BillingSettingsPage", () => {
     const architectCard = screen.getByTestId("billing-tier-architect");
     expect(within(architectCard).getByText("Included AI credits")).toBeInTheDocument();
     expect(within(architectCard).getByText("500 AI credits / month")).toBeInTheDocument();
+    expect(within(architectCard).getByText(/Effective Jul 9, 2026/i)).toBeInTheDocument();
+    const currentPlan = screen.getByTestId("operator-billing-current-plan");
+    expect(within(currentPlan).getByRole("link", { name: /Start Architect plan/i })).toHaveAttribute(
+      "href",
+      "#billing-plans",
+    );
+    expect(within(currentPlan).getByRole("link", { name: /Compare available plans/i })).toHaveAttribute(
+      "href",
+      "#billing-plans",
+    );
+    expect(within(currentPlan).queryByRole("button", { name: /Start Architect plan/i })).not.toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /Start Architect plan/i })).toHaveLength(1);
     expect(
       within(screen.getByTestId("operator-billing-current-plan")).queryByText("Included AI credits"),
     ).not.toBeInTheDocument();

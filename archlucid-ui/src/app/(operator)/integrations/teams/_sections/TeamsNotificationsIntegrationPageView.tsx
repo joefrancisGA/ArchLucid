@@ -7,6 +7,7 @@ import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorksp
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { StatusTag } from "@/components/ui/status-tag";
 import { TeamsSlackNotificationVocabularyRail } from "@/components/TeamsSlackNotificationVocabularyRail";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,7 +27,9 @@ import {
   TEAMS_INTEGRATION_SECRET_EXAMPLE,
   TEAMS_INTEGRATION_SECRET_HELPER,
   TEAMS_INTEGRATION_SECRET_NAME_LABEL,
+  TEAMS_INTEGRATION_NOT_CONFIGURED_NEXT_STEP,
   teamsIntegrationConnectionStatusLabel,
+  teamsIntegrationConnectionStatusTagKind,
 } from "@/lib/teams-integration-page-copy";
 import { cn } from "@/lib/utils";
 
@@ -73,12 +76,26 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
             <p className={cn("m-0 max-w-2xl leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
               {TEAMS_INTEGRATION_PAGE_SUBTITLE}
             </p>
-            <p
-              className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
-              data-testid="teams-connection-status"
-            >
-              {m.loading ? "Loading connection status…" : teamsIntegrationConnectionStatusLabel(m.connectionStatus)}
-            </p>
+            <div className="space-y-2" data-testid="teams-connection-status">
+              {m.loading ? (
+                <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                  Loading connection status…
+                </p>
+              ) : (
+                <StatusTag
+                  kind={teamsIntegrationConnectionStatusTagKind(m.connectionStatus)}
+                  label={teamsIntegrationConnectionStatusLabel(m.connectionStatus)}
+                />
+              )}
+              {!m.loading && m.connectionStatus === "not-configured" ? (
+                <p
+                  className={cn("m-0 max-w-2xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="teams-not-configured-next-step"
+                >
+                  {TEAMS_INTEGRATION_NOT_CONFIGURED_NEXT_STEP}
+                </p>
+              ) : null}
+            </div>
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               <Link className={OPERATOR_LINK.inline} href={INTEGRATIONS_READINESS_PATH}>
                 Integration readiness

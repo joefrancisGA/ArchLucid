@@ -30,6 +30,7 @@ import { TeamsNotificationsIntegrationPageClient } from "@/app/(operator)/integr
 import { TEAMS_INTEGRATION_SAVE_SUCCESS_MESSAGE } from "@/lib/admin-integration-mutation-outcome-copy";
 import {
   TEAMS_INTEGRATION_DRAFT_NOT_SAVED_HELPER,
+  TEAMS_INTEGRATION_NOT_CONFIGURED_NEXT_STEP,
   TEAMS_INTEGRATION_PAGE_SUBTITLE,
   TEAMS_INTEGRATION_PAGE_TITLE,
   TEAMS_INTEGRATION_SECRET_NAME_LABEL,
@@ -94,7 +95,12 @@ describe("TeamsNotificationsIntegrationPageClient", () => {
 
     expect(screen.getByRole("heading", { level: 1, name: TEAMS_INTEGRATION_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(TEAMS_INTEGRATION_PAGE_SUBTITLE)).toBeInTheDocument();
-    expect(await screen.findByTestId("teams-connection-status")).toHaveTextContent("Not configured");
+    expect(await screen.findByTestId("teams-connection-status")).toContainElement(
+      screen.getByLabelText("Status: Not configured"),
+    );
+    expect(screen.getByTestId("teams-not-configured-next-step")).toHaveTextContent(
+      TEAMS_INTEGRATION_NOT_CONFIGURED_NEXT_STEP,
+    );
   });
 
   it("does not pre-check recommended triggers when not configured (TB-1175)", async () => {

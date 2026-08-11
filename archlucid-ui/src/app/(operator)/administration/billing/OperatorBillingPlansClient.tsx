@@ -24,6 +24,7 @@ import {
   buildOperatorBillingAddonLines,
   buildOperatorBillingPlanSummaryLines,
   formatPlanPrice,
+  formatPricingCatalogEffectiveDate,
   sortPricingPackages,
 } from "@/lib/pricing-catalog-display";
 import { fetchPricingCatalog } from "@/lib/pricing-catalog-client";
@@ -275,7 +276,7 @@ export function OperatorBillingPlansClient(props: OperatorBillingPlansClientProp
                     </Button>
                   )}
                   <p className={cn("text-center", OPERATOR_TYPOGRAPHY.micro)}>
-                    Effective {pricing.effectiveDate} · {pricing.currency}
+                    Effective {formatPricingCatalogEffectiveDate(pricing.effectiveDate)} · {pricing.currency}
                   </p>
                 </CardFooter>
               </Card>

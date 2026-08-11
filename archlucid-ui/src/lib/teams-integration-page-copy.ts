@@ -95,3 +95,16 @@ export function teamsIntegrationConnectionStatusLabel(status: TeamsIntegrationCo
     }
   }
 }
+
+export const TEAMS_INTEGRATION_NOT_CONFIGURED_NEXT_STEP =
+  "Enter your Teams webhook secret reference, validate access, test delivery, then save the connection.";
+
+export function teamsIntegrationConnectionStatusTagKind(
+  status: TeamsIntegrationConnectionStatus,
+): "ready" | "needs-attention" {
+  if (status === "connected") {
+    return "ready";
+  }
+
+  return "needs-attention";
+}

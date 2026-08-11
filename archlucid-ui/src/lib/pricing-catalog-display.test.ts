@@ -6,6 +6,7 @@ import {
   formatIncludedArchitecturePackagesPerMonth,
   formatIncludedUsersAndWorkspaces,
   formatPlanPrice,
+  formatPricingCatalogEffectiveDate,
 } from "@/lib/pricing-catalog-display";
 import {
   BILLING_ADDITIONAL_ARCHITECTURE_PACKAGES_LABEL,
@@ -142,5 +143,9 @@ describe("pricing-catalog-display", () => {
         includedReviewsPerMonth: 20,
       }),
     ).toBe("20 architecture reviews / month");
+  });
+
+  it("formats catalog effective date for billing tier footers (TB-1170)", () => {
+    expect(formatPricingCatalogEffectiveDate("2026-07-09")).toBe("Jul 9, 2026");
   });
 });

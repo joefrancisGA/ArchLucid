@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
@@ -151,13 +150,13 @@ export function OperatorBillingCurrentPlanSummary() {
         </dl>
 
         {!view.hasPaidPlan ? (
-          <div className="flex flex-wrap gap-2">
-            <Button type="button" variant="primary" size="sm" asChild>
-              <Link href="#billing-plans">{OPERATOR_BILLING_TIER_CTAS.architect.primaryLabel}</Link>
-            </Button>
-            <Button type="button" variant="outline" size="sm" asChild>
-              <Link href="#billing-plans">Compare available plans</Link>
-            </Button>
+          <div className="flex flex-wrap gap-3">
+            <Link href="#billing-plans" className={cn(OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.body)}>
+              {OPERATOR_BILLING_TIER_CTAS.architect.primaryLabel}
+            </Link>
+            <Link href="#billing-plans" className={cn(OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.body)}>
+              Compare available plans
+            </Link>
           </div>
         ) : (
           <OperatorBillingManageBillingAction canMutate={canMutate} variant="outline" size="sm" />
