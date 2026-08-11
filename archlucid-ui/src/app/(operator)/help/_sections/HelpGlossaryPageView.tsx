@@ -24,7 +24,7 @@ type HelpGlossaryPageViewProps = {
 export function HelpGlossaryPageView(props: HelpGlossaryPageViewProps): React.ReactElement {
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "mx-auto w-full max-w-[68rem]")}
+      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[68rem]")}
       data-testid="help-glossary-page"
     >
       <HelpTopicHashScroll />

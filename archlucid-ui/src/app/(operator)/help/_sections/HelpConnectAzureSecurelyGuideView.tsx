@@ -103,7 +103,7 @@ export function HelpConnectAzureSecurelyGuideView(props: HelpConnectAzureSecurel
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "mx-auto w-full max-w-[68rem]")}
+      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[68rem]")}
       data-testid="help-connect-azure-securely-guide"
     >
       <HelpTopicHashScroll />

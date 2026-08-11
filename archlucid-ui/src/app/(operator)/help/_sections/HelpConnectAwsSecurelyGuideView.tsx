@@ -153,7 +153,7 @@ export function HelpConnectAwsSecurelyGuideView(props: HelpConnectAwsSecurelyGui
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "mx-auto w-full max-w-[68rem]")}
+      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[68rem]")}
       data-testid="help-connect-aws-securely-guide"
     >
       <HelpTopicHashScroll />

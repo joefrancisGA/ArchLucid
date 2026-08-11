@@ -15,11 +15,11 @@ describe("help-page-layout", () => {
     expect(HELP_PAGE_LAYOUT.tableHeadCell).toContain("font-semibold");
   });
 
-  it("constrains help content to the reading-width column", () => {
-    expect(HELP_PAGE_LAYOUT.contentColumn).toContain("max-w-[40rem]");
+  it("left-aligns help content within the shell content pane", () => {
+    expect(HELP_PAGE_LAYOUT.contentColumn).toContain("max-w-none");
     expect(HELP_PAGE_LAYOUT.contentGrid).toContain("gap-10");
     expect(HELP_PAGE_LAYOUT.contentGrid).toContain("max-w-[72rem]");
-    expect(HELP_PAGE_LAYOUT.contentGrid).toContain("40rem");
+    expect(HELP_PAGE_LAYOUT.contentGrid).not.toContain("mx-auto");
     expect(HELP_PAGE_LAYOUT.contentGrid).not.toContain("52rem");
   });
 

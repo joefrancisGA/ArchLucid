@@ -18,7 +18,7 @@ export const HELP_PAGE_LAYOUT = {
     OPERATOR_LAYOUT.sectionHeadingStack,
   ),
   contentGrid:
-    "mx-auto grid w-full max-w-[72rem] grid-cols-1 gap-10 xl:grid-cols-[minmax(0,1fr)_16.5rem] xl:items-start",
+    "grid w-full max-w-[72rem] grid-cols-1 gap-10 xl:grid-cols-[minmax(0,1fr)_16.5rem] xl:items-start",
   technicalReferenceGrid:
     "grid grid-cols-1 justify-start gap-10 lg:grid-cols-[minmax(0,52rem)_16.5rem] lg:items-start",
   contentColumn: "min-w-0 w-full max-w-none",

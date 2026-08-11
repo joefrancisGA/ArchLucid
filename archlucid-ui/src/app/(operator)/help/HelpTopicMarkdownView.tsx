@@ -44,7 +44,7 @@ import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
 
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
 
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help-page-layout";
 
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -144,7 +144,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
     ? HELP_PAGE_LAYOUT.technicalReferenceGrid
 
-    : HELP_PAGE_LAYOUT.contentGrid;
+    : resolveHelpPageContentGridClass(headings.length);
 
   const contentColumnClass = isTechnicalReferenceLayout
 
