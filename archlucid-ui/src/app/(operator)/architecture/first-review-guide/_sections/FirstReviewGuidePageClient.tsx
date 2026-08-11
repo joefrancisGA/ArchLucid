@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { FirstReviewGuideFirstArchitectureReviewVocabularyRail } from "@/components/FirstReviewGuideFirstArchitectureReviewVocabularyRail";
 import { GettingStartedTrialSection } from "@/components/GettingStartedTrialSection";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { Button } from "@/components/ui/button";
@@ -69,7 +70,8 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
           <PageContextualHelpButton />
         </div>
         <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.helper)}>{BUYER_ONBOARDING_PAGE_LEAD}</p>
-<div
+        <FirstReviewGuideFirstArchitectureReviewVocabularyRail currentSurfaceId="first-review-guide" />
+        <div
           className="space-y-2"
           data-testid="first-review-guide-readiness"
           aria-live="polite"
