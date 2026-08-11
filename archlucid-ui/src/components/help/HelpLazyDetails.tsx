@@ -37,7 +37,25 @@ export function HelpLazyDetails(props: HelpLazyDetailsProps): React.ReactElement
   } = props;
   const detailsTestId = props["data-testid"];
   const detailsRef = useRef<HTMLDetailsElement>(null);
+  const suppressToggleHandlerRef = useRef(false);
+  const mountedRef = useRef(false);
   const [contentMounted, setContentMounted] = useState(false);
+
+  const mountBodyContent = (): void => {
+    queueMicrotask(() => {
+      if (mountedRef.current) {
+        setContentMounted(true);
+      }
+    });
+  };
+
+  useEffect(() => {
+    mountedRef.current = true;
+
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!mountOnHash) {
@@ -53,11 +71,29 @@ export function HelpLazyDetails(props: HelpLazyDetailsProps): React.ReactElement
     const details = detailsRef.current;
 
     if (details !== null) {
+      suppressToggleHandlerRef.current = true;
       details.open = true;
+      suppressToggleHandlerRef.current = false;
     }
 
-    setContentMounted(true);
+    mountBodyContent();
   }, [mountOnHash]);
+
+  useEffect(() => {
+    function onHelpHashScroll(): void {
+      const details = detailsRef.current;
+
+      if (details !== null && details.open) {
+        mountBodyContent();
+      }
+    }
+
+    window.addEventListener("archlucid:help-hash-scroll", onHelpHashScroll);
+
+    return () => {
+      window.removeEventListener("archlucid:help-hash-scroll", onHelpHashScroll);
+    };
+  }, []);
 
   return (
     <details
@@ -66,9 +102,11 @@ export function HelpLazyDetails(props: HelpLazyDetailsProps): React.ReactElement
       className={className}
       data-testid={detailsTestId}
       onToggle={(event) => {
-        if (event.currentTarget.open) {
-          setContentMounted(true);
+        if (suppressToggleHandlerRef.current || !event.currentTarget.open) {
+          return;
         }
+
+        mountBodyContent();
       }}
     >
       <summary className={summaryClassName}>{summary}</summary>

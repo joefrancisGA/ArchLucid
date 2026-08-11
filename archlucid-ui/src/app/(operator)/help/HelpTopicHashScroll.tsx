@@ -53,12 +53,16 @@ function scrollToHashFragment(): void {
     return;
   }
 
-  // Expand collapsed help disclosures so TOC / search deep links are not hidden (TB-1043).
-  openSectionDetails(target);
-
+  // Defer DOM opens until after mount so HelpLazyDetails toggle handlers do not setState mid-commit.
   requestAnimationFrame(() => {
-    target.scrollIntoView({ behavior: "smooth", block: "start" });
-    focusHashTarget(target);
+    // Expand collapsed help disclosures so TOC / search deep links are not hidden (TB-1043).
+    openSectionDetails(target);
+    window.dispatchEvent(new Event("archlucid:help-hash-scroll"));
+
+    requestAnimationFrame(() => {
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+      focusHashTarget(target);
+    });
   });
 }
 
