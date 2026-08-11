@@ -2,6 +2,7 @@
 
 import type { ReactElement } from "react";
 
+import { ReviewPackageShareWhenToSharePreview } from "@/components/ReviewPackageShareWhenToSharePreview";
 import { ReviewSealedIndicatorChip } from "@/components/reviews/ReviewSealedIndicatorChip";
 import { ExportDeliverableDialog } from "@/components/usability/ExportDeliverableDialog";
 import { PersistentSponsorEmailStrip } from "@/components/usability/PersistentSponsorEmailStrip";
@@ -20,6 +21,7 @@ export function RunDetailReviewPackageShareRow(props: RunDetailReviewPackageShar
   return (
     <>
       <PersistentSponsorEmailStrip runId={props.runId} isCommitted />
+      <ReviewPackageShareWhenToSharePreview />
       <div className={cn("flex flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)}>
         <ExportDeliverableDialog runId={props.runId} manifestId={props.manifestId} />
         <ShareableReviewLinkButton runId={props.runId} isCommitted />
