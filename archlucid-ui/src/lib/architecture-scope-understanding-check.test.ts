@@ -4,6 +4,7 @@ import {
   deriveScopeUnderstandingBullets,
   mergeScopeBulletsIntoBrief,
   SCOPE_UNDERSTANDING_SECTION_HEADER,
+  stripScopeUnderstandingSection,
 } from "@/lib/architecture-scope-understanding-check";
 
 describe("deriveScopeUnderstandingBullets", () => {
@@ -29,6 +30,40 @@ describe("deriveScopeUnderstandingBullets", () => {
     });
 
     expect(bullets.every((bullet) => bullet.source === "inferred")).toBe(true);
+  });
+
+  it("ignores a scope block already merged into the brief instead of restating it", () => {
+    const merged = mergeScopeBulletsIntoBrief(
+      deriveScopeUnderstandingBullets({ systemName: "Vertex", businessOutcome: "faster and better" }),
+      "faster and better",
+    );
+    const bullets = deriveScopeUnderstandingBullets({
+      systemName: "Vertex",
+      businessOutcome: merged,
+    });
+
+    expect(bullets.some((bullet) => bullet.text.includes(SCOPE_UNDERSTANDING_SECTION_HEADER))).toBe(false);
+    expect(bullets.some((bullet) => bullet.text === "Business outcome: faster and better")).toBe(true);
+  });
+});
+
+describe("stripScopeUnderstandingSection", () => {
+  it("removes a merged scope block and the blank line before it", () => {
+    const merged = mergeScopeBulletsIntoBrief(
+      deriveScopeUnderstandingBullets({ systemName: "Vertex" }),
+      "Vertex tenant migration.",
+    );
+
+    expect(stripScopeUnderstandingSection(merged)).toBe("Vertex tenant migration.");
+  });
+
+  it("leaves briefs without a scope block untouched", () => {
+    expect(stripScopeUnderstandingSection("Vertex tenant migration.")).toBe("Vertex tenant migration.");
+  });
+
+  it("treats missing text as empty", () => {
+    expect(stripScopeUnderstandingSection(null)).toBe("");
+    expect(stripScopeUnderstandingSection(undefined)).toBe("");
   });
 });
 

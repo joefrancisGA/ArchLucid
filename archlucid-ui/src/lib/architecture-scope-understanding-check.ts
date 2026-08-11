@@ -15,8 +15,34 @@ export type DeriveScopeUnderstandingBulletsInput = {
 };
 
 export const SCOPE_UNDERSTANDING_HEADING = "What ArchLucid will treat as in-scope";
+export const SCOPE_UNDERSTANDING_HELPER =
+  "Edit any line, or type a new item below and choose Add to scope. Corrections are saved into the intake brief.";
+export const SCOPE_UNDERSTANDING_ADD_LABEL = "Add an in-scope item";
+export const SCOPE_UNDERSTANDING_ADD_PLACEHOLDER =
+  "Type a system, constraint, or boundary, then choose Add to scope";
+export const SCOPE_UNDERSTANDING_ADD_BUTTON_LABEL = "Add to scope";
+export const SCOPE_UNDERSTANDING_ADD_HINT =
+  "Type the item in the field, then choose Add to scope (or press Enter).";
 export const SCOPE_UNDERSTANDING_CONFIRM_LABEL = "Confirm scope";
 export const SCOPE_UNDERSTANDING_SECTION_HEADER = "Operator-confirmed in-scope understanding";
+
+/**
+ * Removes a previously merged scope block from a brief field. Without this, a brief that already
+ * carries the confirmed-scope section would feed that section back in as new bullet text.
+ */
+export function stripScopeUnderstandingSection(text: string | null | undefined): string {
+  if (text === null || text === undefined) {
+    return "";
+  }
+
+  const sectionIndex = text.indexOf(SCOPE_UNDERSTANDING_SECTION_HEADER);
+
+  if (sectionIndex < 0) {
+    return text;
+  }
+
+  return text.slice(0, sectionIndex).trimEnd();
+}
 
 function pushUniqueBullet(bullets: ScopeUnderstandingBullet[], text: string, prefix: string): void {
   const trimmed = text.trim();
@@ -49,13 +75,15 @@ export function deriveScopeUnderstandingBullets(
     pushUniqueBullet(bullets, `Primary system or architecture: ${architectureName}`, "system");
   }
 
-  const outcome = input.businessOutcome?.trim() ?? "";
+  const outcome = stripScopeUnderstandingSection(input.businessOutcome).trim();
 
   if (outcome.length > 0) {
     pushUniqueBullet(bullets, `Business outcome: ${outcome}`, "outcome");
   }
 
-  const overview = input.architectureOverview?.trim() ?? input.intentText?.trim() ?? "";
+  const overview = stripScopeUnderstandingSection(
+    input.architectureOverview ?? input.intentText,
+  ).trim();
 
   if (overview.length > 0) {
     const excerpt = overview.length > 180 ? `${overview.slice(0, 177).trimEnd()}…` : overview;

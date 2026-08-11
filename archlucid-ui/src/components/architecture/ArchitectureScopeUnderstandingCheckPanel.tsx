@@ -8,8 +8,13 @@ import { Label } from "@/components/ui/label";
 import {
   deriveScopeUnderstandingBullets,
   normalizeScopeUnderstandingBullets,
+  SCOPE_UNDERSTANDING_ADD_BUTTON_LABEL,
+  SCOPE_UNDERSTANDING_ADD_HINT,
+  SCOPE_UNDERSTANDING_ADD_LABEL,
+  SCOPE_UNDERSTANDING_ADD_PLACEHOLDER,
   SCOPE_UNDERSTANDING_CONFIRM_LABEL,
   SCOPE_UNDERSTANDING_HEADING,
+  SCOPE_UNDERSTANDING_HELPER,
   type DeriveScopeUnderstandingBulletsInput,
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture-scope-understanding-check";
@@ -56,6 +61,29 @@ export function ArchitectureScopeUnderstandingCheckPanel(
     props.onGateChange?.(true);
   };
 
+  const addBulletFromDraft = () => {
+    const trimmed = newBulletText.trim();
+
+    if (trimmed.length === 0) {
+      return;
+    }
+
+    updateBullets([
+      ...bullets,
+      {
+        id: `user-${bullets.length + 1}`,
+        text: trimmed,
+        source: "user",
+      },
+    ]);
+    setNewBulletText("");
+  };
+
+  const canAddBullet =
+    props.disabled !== true && !confirmed && newBulletText.trim().length > 0;
+  const showAddHint =
+    props.disabled !== true && !confirmed && newBulletText.trim().length === 0;
+
   return (
     <section
       className={cn(DESIGN_TOKENS.callout.neutral, "space-y-3 p-4")}
@@ -70,11 +98,14 @@ export function ArchitectureScopeUnderstandingCheckPanel(
           {SCOPE_UNDERSTANDING_HEADING}
         </h2>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          Edit what ArchLucid will treat as in scope before you start. Corrections are saved into the intake brief.
+          {SCOPE_UNDERSTANDING_HELPER}
         </p>
       </div>
 
-      <ul className={cn("m-0 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body)} data-testid="architecture-scope-understanding-bullets">
+      <ul
+        className={cn("m-0 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body)}
+        data-testid="architecture-scope-understanding-bullets"
+      >
         {bullets.map((bullet) => (
           <li key={bullet.id} className="flex flex-wrap items-center gap-2">
             <Input
@@ -106,46 +137,66 @@ export function ArchitectureScopeUnderstandingCheckPanel(
         ))}
       </ul>
 
-      <div className="flex flex-wrap items-end gap-2">
-        <div className="min-w-[12rem] flex-1">
-          <Label htmlFor="architecture-scope-understanding-new" className="sr-only">
-            Add in-scope bullet
-          </Label>
-          <Input
-            id="architecture-scope-understanding-new"
-            value={newBulletText}
-            disabled={props.disabled === true || confirmed}
-            placeholder="Add another in-scope item"
-            onChange={(event) => {
-              setNewBulletText(event.target.value);
-            }}
-          />
-        </div>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={props.disabled === true || confirmed || newBulletText.trim().length === 0}
-          onClick={() => {
-            const trimmed = newBulletText.trim();
-
-            if (trimmed.length === 0) {
-              return;
-            }
-
-            updateBullets([
-              ...bullets,
-              {
-                id: `user-${bullets.length + 1}`,
-                text: trimmed,
-                source: "user",
-              },
-            ]);
-            setNewBulletText("");
-          }}
+      <div
+        className="space-y-2 border-t border-al-border-subtle pt-3"
+        data-testid="architecture-scope-understanding-add"
+      >
+        <Label
+          htmlFor="architecture-scope-understanding-new"
+          className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.label)}
         >
-          Add
-        </Button>
+          {SCOPE_UNDERSTANDING_ADD_LABEL}
+        </Label>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="min-w-[12rem] flex-1">
+            <Input
+              id="architecture-scope-understanding-new"
+              value={newBulletText}
+              disabled={props.disabled === true || confirmed}
+              placeholder={SCOPE_UNDERSTANDING_ADD_PLACEHOLDER}
+              aria-describedby={
+                showAddHint ? "architecture-scope-understanding-add-hint" : undefined
+              }
+              onChange={(event) => {
+                setNewBulletText(event.target.value);
+              }}
+              onKeyDown={(event) => {
+                if (event.key !== "Enter") {
+                  return;
+                }
+
+                event.preventDefault();
+
+                if (!canAddBullet) {
+                  return;
+                }
+
+                addBulletFromDraft();
+              }}
+            />
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={!canAddBullet}
+            data-testid="architecture-scope-understanding-add-button"
+            onClick={() => {
+              addBulletFromDraft();
+            }}
+          >
+            {SCOPE_UNDERSTANDING_ADD_BUTTON_LABEL}
+          </Button>
+        </div>
+        {showAddHint ? (
+          <p
+            id="architecture-scope-understanding-add-hint"
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="architecture-scope-understanding-add-hint"
+          >
+            {SCOPE_UNDERSTANDING_ADD_HINT}
+          </p>
+        ) : null}
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -162,7 +213,10 @@ export function ArchitectureScopeUnderstandingCheckPanel(
       </div>
 
       {confirmed ? (
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-scope-understanding-ready">
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="architecture-scope-understanding-ready"
+        >
           Scope confirmed — you can start the review.
         </p>
       ) : null}
