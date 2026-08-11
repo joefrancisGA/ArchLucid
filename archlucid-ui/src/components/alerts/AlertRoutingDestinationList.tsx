@@ -37,7 +37,7 @@ export type AlertRoutingDestinationListProps = {
   canMutateRouting: boolean;
   testingId: string | null;
   onAddDestination: () => void;
-  onToggle: (id: string) => void;
+  onToggle: (id: string, isEnabled: boolean, subscriptionName: string, channelType: string) => void;
   onLoadAttempts: (id: string) => void;
   onTest: (id: string) => void;
 };
@@ -137,8 +137,16 @@ export function AlertRoutingDestinationList({
                       type="button"
                       variant="outline"
                       size="sm"
-                      onClick={() => onToggle(item.routingSubscriptionId)}
+                      onClick={() =>
+                        onToggle(
+                          item.routingSubscriptionId,
+                          item.isEnabled === true,
+                          item.name,
+                          item.channelType,
+                        )
+                      }
                       disabled={!canMutateRouting}
+                      data-testid={`alert-routing-toggle-${item.routingSubscriptionId}`}
                     >
                       {canMutateRouting
                         ? item.isEnabled

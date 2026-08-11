@@ -10,6 +10,10 @@ import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { AlertRoutingCriteriaFields } from "@/components/alerts/AlertRoutingCriteriaFields";
 import { AlertRoutingDestinationList } from "@/components/alerts/AlertRoutingDestinationList";
+import {
+  AlertRoutingSubscriptionDisableDialog,
+  type AlertRoutingSubscriptionDisableTarget,
+} from "@/app/(operator)/integrations/_sections/AlertRoutingSubscriptionDisableDialog";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
@@ -91,6 +95,9 @@ export function AlertRoutingContent() {
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<AlertRoutingFieldErrors>({});
   const [testingId, setTestingId] = useState<string | null>(null);
+  const [pendingDisable, setPendingDisable] = useState<AlertRoutingSubscriptionDisableTarget | null>(null);
+  const [disableBusy, setDisableBusy] = useState(false);
+  const [disableErrorMessage, setDisableErrorMessage] = useState<string | null>(null);
 
   const [name, setName] = useState("");
   const [channelType, setChannelType] = useState("Email");
@@ -226,17 +233,58 @@ export function AlertRoutingContent() {
     }
   }
 
-  async function onToggle(id: string) {
+  async function onToggle(
+    id: string,
+    isEnabled: boolean,
+    subscriptionName: string,
+    channelTypeValue: string,
+  ) {
     if (!canEditRouting) {
       return;
     }
 
+    if (isEnabled) {
+      setDisableErrorMessage(null);
+      setPendingDisable({
+        routingSubscriptionId: id,
+        subscriptionName,
+        channel: channelTypeValue === "SlackWebhook" ? "slack" : "webhook",
+      });
+
+      return;
+    }
+
+    await executeToggle(id);
+  }
+
+  async function executeToggle(id: string): Promise<void> {
     setFailure(null);
+
     try {
       await toggleAlertRoutingSubscription(id);
       await load();
     } catch (e) {
       setFailure(toApiLoadFailure(e));
+      throw e;
+    }
+  }
+
+  async function confirmDisableSubscription(): Promise<void> {
+    if (pendingDisable === null || disableBusy) {
+      return;
+    }
+
+    setDisableBusy(true);
+    setDisableErrorMessage(null);
+
+    try {
+      await executeToggle(pendingDisable.routingSubscriptionId);
+      setPendingDisable(null);
+    } catch (error: unknown) {
+      const apiFailure = toApiLoadFailure(error);
+      setDisableErrorMessage(apiFailure.message);
+    } finally {
+      setDisableBusy(false);
     }
   }
 
@@ -332,7 +380,9 @@ export function AlertRoutingContent() {
           canMutateRouting={canEditRouting}
           testingId={testingId}
           onAddDestination={scrollToForm}
-          onToggle={(id) => void onToggle(id)}
+          onToggle={(id, isEnabled, subscriptionName, channelTypeValue) =>
+            void onToggle(id, isEnabled, subscriptionName, channelTypeValue)
+          }
           onLoadAttempts={(id) => void loadAttempts(id)}
           onTest={(id) => void onTest(id)}
         />
@@ -507,6 +557,21 @@ export function AlertRoutingContent() {
           }
         />
       ) : null}
+
+      <AlertRoutingSubscriptionDisableDialog
+        target={pendingDisable}
+        busy={disableBusy}
+        errorMessage={disableErrorMessage}
+        onCancel={() => {
+          if (!disableBusy) {
+            setPendingDisable(null);
+            setDisableErrorMessage(null);
+          }
+        }}
+        onConfirm={() => {
+          void confirmDisableSubscription();
+        }}
+      />
     </div>
   );
 }

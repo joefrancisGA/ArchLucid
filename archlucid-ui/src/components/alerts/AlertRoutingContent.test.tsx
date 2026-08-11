@@ -215,4 +215,38 @@ describe("AlertRoutingContent", () => {
     expect(screen.getByTestId("alert-routing-delivery-health")).toHaveTextContent("1 of 1 delivering");
     expect(screen.getByTestId("alert-routing-delivery-status-sub-1")).toHaveTextContent("Delivering");
   });
+
+  it("confirms before disabling an enabled destination", async () => {
+    apiHoisted.listAlertRoutingSubscriptions.mockResolvedValue([
+      {
+        routingSubscriptionId: "sub-1",
+        tenantId: "tenant-1",
+        workspaceId: "workspace-1",
+        projectId: "project-1",
+        name: "Ops email",
+        channelType: "Email",
+        destination: "ops@example.com",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-15T12:00:00.000Z",
+        createdByActor: "alex@contoso.com",
+        lastDeliveredUtc: "2026-01-16T12:00:00.000Z",
+        metadataJson: "{}",
+      },
+    ]);
+    apiHoisted.toggleAlertRoutingSubscription.mockResolvedValue(undefined);
+
+    renderWithHub(<AlertRoutingContent />);
+
+    fireEvent.click(await screen.findByTestId("alert-routing-toggle-sub-1"));
+
+    expect(screen.getByTestId("alert-routing-subscription-disable-dialog")).toBeInTheDocument();
+    expect(apiHoisted.toggleAlertRoutingSubscription).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByTestId("alert-routing-subscription-disable-confirm"));
+
+    await waitFor(() => {
+      expect(apiHoisted.toggleAlertRoutingSubscription).toHaveBeenCalledWith("sub-1");
+    });
+  });
 });
