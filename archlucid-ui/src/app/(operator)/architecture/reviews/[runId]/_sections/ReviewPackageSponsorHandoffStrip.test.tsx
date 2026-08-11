@@ -12,6 +12,11 @@ vi.mock("@/components/GoldenManifestExportMenu", () => ({
   ),
 }));
 
+vi.mock("@/components/SponsorRoiBaselineGateNotice", () => ({
+  SponsorRoiBaselineGateNotice: ({ isFinalized }: { isFinalized: boolean }) =>
+    isFinalized ? <div data-testid="sponsor-roi-baseline-gate-notice">ROI baselines not captured</div> : null,
+}));
+
 vi.mock("next/link", () => ({
   default: ({
     href,
@@ -50,5 +55,22 @@ describe("ReviewPackageSponsorHandoffStrip", () => {
       "href",
       "/architecture/reviews/run-abc?reviewTab=review-package#sponsor-handoff-extended",
     );
+  });
+
+  it("mounts the soft ROI baseline gate notice near sponsor export CTAs", () => {
+    render(
+      <ReviewPackageSponsorHandoffStrip
+        runId="run-abc"
+        manifestId="manifest-1"
+        goldenManifestJsonForExport={{}}
+        manifestSummary={null}
+        trustEvidenceCard={null}
+        usedStaticDemoRun={false}
+        showExtendedSponsorBriefing={false}
+      />,
+    );
+
+    expect(screen.getByTestId("sponsor-roi-baseline-gate-notice")).toBeInTheDocument();
+    expect(screen.getByTestId("review-package-sponsor-handoff-docx")).not.toBeDisabled();
   });
 });

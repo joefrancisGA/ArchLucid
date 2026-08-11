@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { GoldenManifestExportMenu } from "@/components/GoldenManifestExportMenu";
 import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
+import { SponsorRoiBaselineGateNotice } from "@/components/SponsorRoiBaselineGateNotice";
 import { Button } from "@/components/ui/button";
 import { getRunPackageExportUrl, SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT } from "@/lib/api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -26,7 +27,7 @@ export type ReviewPackageSponsorHandoffStripProps = {
   readonly showExtendedSponsorBriefing: boolean;
 };
 
-/** Above-the-fold sponsor export entry — promotes existing export surfaces (TB-2132). */
+/** Above-the-fold sponsor export entry — promotes existing export surfaces (TB-2132). Soft ROI baseline warn (TB-2204). */
 export function ReviewPackageSponsorHandoffStrip(
   props: ReviewPackageSponsorHandoffStripProps,
 ): React.JSX.Element {
@@ -49,6 +50,7 @@ export function ReviewPackageSponsorHandoffStrip(
         sponsors. Use <InlineGlossaryChip nounId="governance-approval">governance approval</InlineGlossaryChip> when
         policy sign-off is required.
       </div>
+      <SponsorRoiBaselineGateNotice isFinalized />
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <GoldenManifestExportMenu
           runId={props.runId}

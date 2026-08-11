@@ -190,8 +190,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             }
             catch (RunNotFoundException)
             {
-                await _baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunFailed, actor, runId, "Run not found.", cancellationToken);
-                await TryPublishAzureDevOpsCommitStatusBestEffortAsync(runId, succeeded: false, cancellationToken);
+                await RecordCommitFailureAsync(actor, runId, "Run not found.", cancellationToken);
                 throw;
             }
             catch (Exception ex) when (SqlUniqueConstraintViolationDetector.IsUniqueKeyViolation(ex))
@@ -330,9 +329,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         }
         catch (ConflictException ex)
         {
-            await _baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunFailed, actor, runId, $"Commit blocked: {ex.Message}",
-                cancellationToken);
-            await TryPublishAzureDevOpsCommitStatusBestEffortAsync(runId, succeeded: false, cancellationToken);
+            await RecordCommitFailureAsync(actor, runId, $"Commit blocked: {ex.Message}", cancellationToken);
             throw;
         }
 
@@ -424,8 +421,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            await _baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunFailed, actor, runId, ex.GetType().Name, cancellationToken);
-            await TryPublishAzureDevOpsCommitStatusBestEffortAsync(runId, succeeded: false, cancellationToken);
+            await RecordCommitFailureAsync(actor, runId, ex.GetType().Name, cancellationToken);
             throw;
         }
 
@@ -469,9 +465,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            await _baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunFailed, actor, runId, $"Persist failed: {ex.GetType().Name}",
-                cancellationToken);
-            await TryPublishAzureDevOpsCommitStatusBestEffortAsync(runId, succeeded: false, cancellationToken);
+            await RecordCommitFailureAsync(actor, runId, $"Persist failed: {ex.GetType().Name}", cancellationToken);
             throw;
         }
 
@@ -537,6 +531,21 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         await TryPublishAzureDevOpsCommitStatusBestEffortAsync(runId, succeeded: true, cancellationToken);
 
         return new CommitRunResult { Manifest = contract, DecisionTraces = [DecisionTraceRecordMapper.ToDto(trace)], Warnings = persisted.Warnings.Count == 0 ? [] : [.. persisted.Warnings] };
+    }
+
+    private async Task RecordCommitFailureAsync(
+        string actor,
+        string runId,
+        string auditDetails,
+        CancellationToken cancellationToken)
+    {
+        await _baselineMutationAudit.RecordAsync(
+            AuditEventTypes.Baseline.Architecture.RunFailed,
+            actor,
+            runId,
+            auditDetails,
+            cancellationToken);
+        await TryPublishAzureDevOpsCommitStatusBestEffortAsync(runId, succeeded: false, cancellationToken);
     }
 
     private async Task TryPublishAzureDevOpsCommitStatusBestEffortAsync(
