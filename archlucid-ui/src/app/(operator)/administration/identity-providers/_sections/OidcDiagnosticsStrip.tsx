@@ -1,6 +1,8 @@
 "use client";
 
+import { StatusTag } from "@/components/ui/status-tag";
 import { cn } from "@/lib/utils";
+import { oidcDiscoveryStatusPresentation } from "@/lib/identity-provider-probe-status-presentation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { components } from "@/lib/openapi-schemas";
@@ -23,17 +25,6 @@ function discoveryStatusLabel(payload: AdminOidcDiagnosticsResponse): string {
   }
 
   return "Unreachable";
-}
-
-function discoveryStatusClass(status: string): string {
-  switch (status) {
-    case "Healthy":
-      return "border-neutral-300 bg-al-surface-raised text-al-text-primary dark:border-neutral-700";
-    case "Unreachable":
-      return "border-rose-700/40 bg-al-surface-raised text-al-text-primary dark:border-rose-800/50";
-    default:
-      return "border-neutral-300 bg-neutral-50 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-200";
-  }
 }
 
 export function OidcDiagnosticsStrip(props: OidcDiagnosticsStripProps) {
@@ -59,6 +50,7 @@ export function OidcDiagnosticsStrip(props: OidcDiagnosticsStripProps) {
   }
 
   const discoveryStatus = discoveryStatusLabel(payload);
+  const discoveryPresentation = oidcDiscoveryStatusPresentation(discoveryStatus);
 
   return (
     <Card data-testid="oidc-diagnostics-card">
@@ -81,12 +73,11 @@ export function OidcDiagnosticsStrip(props: OidcDiagnosticsStripProps) {
       <CardContent className={cn("space-y-3 text-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
         <div className="flex flex-wrap items-center gap-2">
           <span className="font-medium">Discovery</span>
-          <span
-            className={cn("inline-flex rounded-full border px-2 py-0.5", OPERATOR_TYPOGRAPHY.badge, discoveryStatusClass(discoveryStatus))}
+          <StatusTag
+            kind={discoveryPresentation.kind}
+            label={discoveryPresentation.label}
             data-testid="oidc-diagnostics-discovery-status"
-          >
-            {discoveryStatus}
-          </span>
+          />
         </div>
         <dl className={cn("m-0 grid gap-2", OPERATOR_TYPOGRAPHY.helper)}>
           <div>
