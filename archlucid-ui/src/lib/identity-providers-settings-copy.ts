@@ -96,6 +96,9 @@ export const IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES = [
   { idpValue: "archlucid-readers", archLucidRole: "Reader" },
   { idpValue: "archlucid-auditors", archLucidRole: "Auditor" },
 ] as const;
+export const IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES_LABEL = "Illustrative mapping examples";
+export const IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES_HELPER =
+  "Sample IdP group names for reference — not your tenant's live configuration.";
 
 export const IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_TITLE = "Identity diagnostics";
 export const IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_INTRO =

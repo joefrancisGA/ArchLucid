@@ -32886,7 +32886,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-10) — `DemoExplainNextStepLadder` on not-available + incomplete states; `/see-it` primary with live-demo/welcome/get-started/help links; Vitest in ladder/page/copy tests.
 
 **Priority:** P0.
 
@@ -44850,13 +44850,15 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1918 ? Role mapping tab ? StatusTag + illustrative example-group honesty (P0)
 
-**Window:** V1 ? Trustworthiness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Trustworthiness. **Status:** **Done** (2026-08-10). **Priority:** P1.
 
 **Problem:** Mapping status is plain text; example groups (`archlucid-admins`, ?) read as live tenant config.
 
 **Approach:** StatusTag; label examples as illustrative. Pair **TB-1907**.
 
 **Acceptance:** Status uses StatusTag; examples clearly sample. **Size estimate:** S.
+
+**Closure (2026-08-10):** `identityProviderCustomerStatusPresentation`; role mapping page `StatusTag` + illustrative examples label/helper. Vitest: `identity-provider-probe-status-presentation.test.ts`, `identity-providers-settings-copy.test.ts`, `IdentityProvidersRoleMappingPageView.test.tsx`.
 
 ---
 

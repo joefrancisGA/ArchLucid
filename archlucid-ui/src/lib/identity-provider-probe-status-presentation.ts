@@ -1,6 +1,10 @@
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
+import type { IdentityProviderCustomerStatus } from "@/lib/identity-providers-settings-types";
 import {
   IDENTITY_PROVIDERS_DISCOVERY_STATUS_NOT_ATTEMPTED,
+  IDENTITY_PROVIDERS_STATUS_ACTION_NEEDED,
+  IDENTITY_PROVIDERS_STATUS_DISABLED,
+  IDENTITY_PROVIDERS_STATUS_ENABLED,
   IDENTITY_PROVIDERS_STATUS_HEALTHY,
   IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW,
   IDENTITY_PROVIDERS_STATUS_NOT_APPLICABLE,
@@ -25,6 +29,29 @@ export function identityProviderProbeStatusPresentation(
       return { kind: "neutral", label: IDENTITY_PROVIDERS_STATUS_NOT_APPLICABLE };
     default:
       return { kind: "neutral", label: IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED };
+  }
+}
+
+export function identityProviderCustomerStatusPresentation(
+  status: IdentityProviderCustomerStatus,
+): IdentityProviderStatusPresentation {
+  switch (status) {
+    case IDENTITY_PROVIDERS_STATUS_ENABLED:
+    case IDENTITY_PROVIDERS_STATUS_HEALTHY:
+      return { kind: "ready", label: status };
+    case IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW:
+      return { kind: "needs-attention", label: status };
+    case IDENTITY_PROVIDERS_STATUS_ACTION_NEEDED:
+      return { kind: "blocked", label: status };
+    case IDENTITY_PROVIDERS_STATUS_DISABLED:
+    case IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED:
+    case IDENTITY_PROVIDERS_STATUS_NOT_APPLICABLE:
+      return { kind: "neutral", label: status };
+    default: {
+      const _exhaustive: never = status;
+
+      return _exhaustive;
+    }
   }
 }
 

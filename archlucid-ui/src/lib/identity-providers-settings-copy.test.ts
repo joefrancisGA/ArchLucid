@@ -12,6 +12,8 @@ import {
   IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_INTRO,
   IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_SUBTITLE,
   IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_TITLE,
+  IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES_HELPER,
+  IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES_LABEL,
   IDENTITY_PROVIDERS_ROLE_MAPPING_HELPER,
   IDENTITY_PROVIDERS_SAML_PAGE_INTRO,
   IDENTITY_PROVIDERS_SAML_PAGE_SUBTITLE,
@@ -69,5 +71,10 @@ describe("identity-providers-settings-copy", () => {
     expect(IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_SUBTITLE.toLowerCase()).not.toContain("configure workspace");
     expect(IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_SUBTITLE.toLowerCase()).not.toContain("configure sign-in");
     expect(IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_SUBTITLE.toLowerCase()).toContain("review");
+  });
+
+  it("labels role mapping examples as illustrative, not live tenant config (TB-1918)", () => {
+    expect(IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES_LABEL.toLowerCase()).toContain("illustrative");
+    expect(IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES_HELPER.toLowerCase()).toContain("not your tenant");
   });
 });

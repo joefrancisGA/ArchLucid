@@ -3,11 +3,15 @@
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
+import { StatusTag } from "@/components/ui/status-tag";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { identityProviderCustomerStatusPresentation } from "@/lib/identity-provider-probe-status-presentation";
 import {
   IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES,
+  IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES_HELPER,
+  IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES_LABEL,
   IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_SUBTITLE,
   IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_TITLE,
 } from "@/lib/identity-providers-settings-copy";
@@ -33,6 +37,7 @@ export function IdentityProvidersRoleMappingPageView(
   const claimSource = props.model.authConfigurationDiagnostics?.roleClaimNameConfigured === true
     ? "Configured"
     : "Not configured";
+  const mappingPresentation = identityProviderCustomerStatusPresentation(props.model.overview.roleMappingStatus);
 
   return (
     <IdentityProvidersSettingsShell
@@ -61,7 +66,9 @@ export function IdentityProvidersRoleMappingPageView(
             </div>
             <div>
               <dt className="text-al-text-secondary">Mapping status</dt>
-              <dd className="m-0 mt-1 font-medium text-al-text-primary">{props.model.overview.roleMappingStatus}</dd>
+              <dd className="m-0 mt-1" data-testid="identity-providers-role-mapping-status-tag">
+                <StatusTag kind={mappingPresentation.kind} label={mappingPresentation.label} />
+              </dd>
             </div>
             <div>
               <dt className="text-al-text-secondary">Default role behavior</dt>
@@ -70,13 +77,28 @@ export function IdentityProvidersRoleMappingPageView(
               </dd>
             </div>
           </dl>
-          <ul className={cn("m-0 list-disc space-y-1 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          <div>
+            <p
+              className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}
+              id="identity-providers-role-mapping-examples-label"
+            >
+              {IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES_LABEL}
+            </p>
+            <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES_HELPER}
+            </p>
+            <ul
+              aria-labelledby="identity-providers-role-mapping-examples-label"
+              className={cn("m-0 mt-2 list-disc space-y-1 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="identity-providers-role-mapping-examples"
+            >
             {IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES.map((example) => (
               <li key={example.archLucidRole}>
                 {example.idpValue} → {example.archLucidRole}
               </li>
             ))}
-          </ul>
+            </ul>
+          </div>
           <div className="flex flex-wrap gap-2">
             <Button asChild size="sm">
               <Link href="/administration/identity-providers/saml">Edit SAML role mapping</Link>

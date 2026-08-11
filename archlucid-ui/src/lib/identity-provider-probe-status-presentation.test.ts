@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  identityProviderCustomerStatusPresentation,
   identityProviderProbeStatusPresentation,
   oidcDiscoveryStatusLabelFromPayload,
   oidcDiscoveryStatusPresentation,
@@ -8,6 +9,8 @@ import {
 } from "@/lib/identity-provider-probe-status-presentation";
 import {
   IDENTITY_PROVIDERS_DISCOVERY_STATUS_NOT_ATTEMPTED,
+  IDENTITY_PROVIDERS_STATUS_ACTION_NEEDED,
+  IDENTITY_PROVIDERS_STATUS_ENABLED,
   IDENTITY_PROVIDERS_STATUS_HEALTHY,
   IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW,
   IDENTITY_PROVIDERS_STATUS_NOT_APPLICABLE,
@@ -38,6 +41,25 @@ describe("identity-provider-probe-status-presentation", () => {
     });
 
     expect(IDENTITY_PROVIDERS_STATUS_NOT_APPLICABLE).not.toContain("NotApplicable");
+  });
+
+  it("humanizes identity provider customer statuses for buyer-facing StatusTag labels (TB-1918)", () => {
+    expect(identityProviderCustomerStatusPresentation(IDENTITY_PROVIDERS_STATUS_ENABLED)).toEqual({
+      kind: "ready",
+      label: IDENTITY_PROVIDERS_STATUS_ENABLED,
+    });
+    expect(identityProviderCustomerStatusPresentation(IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW)).toEqual({
+      kind: "needs-attention",
+      label: IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW,
+    });
+    expect(identityProviderCustomerStatusPresentation(IDENTITY_PROVIDERS_STATUS_ACTION_NEEDED)).toEqual({
+      kind: "blocked",
+      label: IDENTITY_PROVIDERS_STATUS_ACTION_NEEDED,
+    });
+    expect(identityProviderCustomerStatusPresentation(IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED)).toEqual({
+      kind: "neutral",
+      label: IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED,
+    });
   });
 
   it("humanizes OIDC discovery statuses for buyer-facing StatusTag labels (TB-1907)", () => {

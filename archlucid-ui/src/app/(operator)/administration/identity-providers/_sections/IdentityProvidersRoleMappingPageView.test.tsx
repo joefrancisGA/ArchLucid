@@ -13,9 +13,11 @@ import { IdentityProvidersRoleMappingPageView } from "./IdentityProvidersRoleMap
 import type { UseIdentityProvidersSettingsPageModel } from "./use-identity-providers-settings-page";
 import {
   IDENTITY_PROVIDERS_PAGE_SUBTITLE,
+  IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES_LABEL,
   IDENTITY_PROVIDERS_ROLE_MAPPING_HELPER,
   IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_SUBTITLE,
   IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_TITLE,
+  IDENTITY_PROVIDERS_STATUS_ENABLED,
 } from "@/lib/identity-providers-settings-copy";
 
 function buildModel(
@@ -51,7 +53,7 @@ function buildModel(
       ssoStatus: "Enabled",
       samlStatus: "Not configured",
       oidcStatus: "Healthy",
-      roleMappingStatus: "Configured",
+      roleMappingStatus: "Enabled",
       lastValidationLabel: "Today",
       recommendedNextStep: "Validate role mapping",
       recommendedNextHref: "/administration/identity-providers/diagnostics",
@@ -76,5 +78,15 @@ describe("IdentityProvidersRoleMappingPageView", () => {
     expect(screen.getByText(IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.queryByText(IDENTITY_PROVIDERS_PAGE_SUBTITLE)).not.toBeInTheDocument();
     expect(screen.queryByText(IDENTITY_PROVIDERS_ROLE_MAPPING_HELPER)).not.toBeInTheDocument();
+  });
+
+  it("renders mapping status with StatusTag and illustrative example label (TB-1918)", () => {
+    render(<IdentityProvidersRoleMappingPageView model={buildModel()} />);
+
+    expect(screen.getByTestId("identity-providers-role-mapping-status-tag")).toHaveTextContent(
+      IDENTITY_PROVIDERS_STATUS_ENABLED,
+    );
+    expect(screen.getByText(IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES_LABEL)).toBeInTheDocument();
+    expect(screen.getByTestId("identity-providers-role-mapping-examples")).toBeInTheDocument();
   });
 });
