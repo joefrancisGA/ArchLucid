@@ -34810,6 +34810,12 @@
             },
             "description": "OK"
           },
+          "304": {
+            "content": {
+              "application/json": {}
+            },
+            "description": "Not Modified"
+          },
           "400": {
             "content": {
               "application/problem\u002Bjson": {
@@ -35124,6 +35130,12 @@
             },
             "description": "OK"
           },
+          "304": {
+            "content": {
+              "application/json": {}
+            },
+            "description": "Not Modified"
+          },
           "400": {
             "content": {
               "application/problem\u002Bjson": {
@@ -35263,6 +35275,12 @@
               }
             },
             "description": "OK"
+          },
+          "304": {
+            "content": {
+              "application/json": {}
+            },
+            "description": "Not Modified"
           },
           "400": {
             "content": {
