@@ -26,10 +26,6 @@ import {
   aggregateFindingProvenance,
   formatFindingProvenanceAggregateLine,
 } from "@/lib/finding-provenance-display";
-import { FindingDerivationLine } from "@/components/usability/FindingDerivationLine";
-import { FindingCausalMiniChain } from "@/components/usability/FindingCausalMiniChain";
-import { findingCausalMiniChainFromQuickDecisionFinding } from "@/lib/finding-causal-mini-chain";
-import { SponsorPlainEnglishFindingPanel } from "@/components/findings/SponsorPlainEnglishFindingPanel";
 import { FindingEvidenceLinkChip } from "@/components/usability/FindingEvidenceLinkChip";
 import { FindingEvidenceRefSnippets } from "@/components/usability/FindingEvidenceRefSnippets";
 import { FindingPolicyEvidenceCitationLinks } from "@/components/findings/FindingPolicyEvidenceCitationLinks";
@@ -42,16 +38,16 @@ import { MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { QuickDecisionFindingMuteDialog } from "@/components/findings/QuickDecisionFindingMuteDialog";
-import { QuickDecisionWorkspaceFindingSupportingDetails } from "@/components/findings/QuickDecisionWorkspaceFindingSupportingDetails";
-import type { QuickDecisionWorkItemContext } from "@/components/findings/QuickDecisionWorkspaceFindingSupportingDetails";
+import { QuickDecisionWorkspacePrimaryFindingCard } from "@/components/findings/QuickDecisionWorkspacePrimaryFindingCard";
+import { QuickDecisionWorkspaceSecondaryFindingCard } from "@/components/findings/QuickDecisionWorkspaceSecondaryFindingCard";
+import type {
+  QuickDecisionWorkItemContext,
+  QuickDecisionWorkspaceCardContext,
+} from "@/components/findings/QuickDecisionWorkspaceFindingSupportingDetails";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useOptionallyControlledBoolean } from "@/hooks/use-optionally-controlled-boolean";
 import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
-import {
-  getFindingDetailHref,
-  getFindingEvidenceTraceHref,
-} from "@/lib/finding-evidence-navigation";
-import { findingDerivationFromQuickDecisionFinding } from "@/lib/finding-derivation-sentence";
+import { getFindingDetailHref } from "@/lib/finding-evidence-navigation";
 import {
   buildQuickDecisionFindingEvidenceLinks,
   quickDecisionRecommendationSnippet,
@@ -80,18 +76,10 @@ import {
   partitionQuickDecisionFindingsByConfidence,
 } from "@/lib/finding-confidence-filter";
 import {
-  FINDINGS_ROW_METADATA_TAG_SIZE,
   OPERATOR_LINK,
   OPERATOR_NAV_GROUP_LABEL,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { resolveFindingActivityAtUtc } from "@/lib/finding-activity-at-utc";
-import { NewSinceLastVisitMarker } from "@/components/usability/NewSinceLastVisitMarker";
-import {
-  isActivityNewSinceLastVisit,
-  markLastVisitedNow,
-  reviewFindingWatermarkKey,
-} from "@/lib/usability/last-visited-watermark";
 
 export type QuickDecisionSummaryConfidenceVisibility = {
   readonly showLowConfidence: boolean;
@@ -544,264 +532,46 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
     return rendered;
   }
 
-  function renderWorkspaceSupportingDetails(f: QuickDecisionFinding): ReactElement {
+  const workspaceCardContext: QuickDecisionWorkspaceCardContext = {
+    runId: props.runId,
+    allFindings: props.findings,
+    packageCommitted: props.packageCommitted,
+    providerNeutralWorkItems: props.providerNeutralWorkItems,
+    architectureWorkItemContext: props.architectureWorkItemContext,
+  };
+
+  function openReasoningDialog(finding: QuickDecisionFinding): void {
+    setActiveReasoning(finding);
+    setReasoningOpen(true);
+  }
+
+  function toggleAskPanel(finding: QuickDecisionFinding): void {
+    setAskFindingId((current) => (current === finding.findingId ? null : finding.findingId));
+  }
+
+  function renderWorkspacePrimaryFinding(f: QuickDecisionFinding): ReactElement {
     return (
-      <QuickDecisionWorkspaceFindingSupportingDetails
-        runId={props.runId}
+      <QuickDecisionWorkspacePrimaryFindingCard
+        key={f.findingId}
+        context={workspaceCardContext}
         finding={f}
-        allFindings={props.findings}
-        packageCommitted={props.packageCommitted}
-        providerNeutralWorkItems={props.providerNeutralWorkItems}
-        architectureWorkItemContext={props.architectureWorkItemContext}
+        canMutate={canMutate}
+        askPanelOpen={askFindingId === f.findingId}
+        onToggleAskPanel={toggleAskPanel}
+        onViewReasoning={openReasoningDialog}
+        onMute={openMuteDialog}
       />
     );
   }
 
-  function renderWorkspacePrimaryFinding(f: QuickDecisionFinding): ReactElement {
-    const href = getFindingDetailHref(props.runId, f.findingId);
-    const snippet = quickDecisionRecommendationSnippet(f);
-    const badgeLabel = severityBadgeLabel(f.severityValue);
-    const { evidenceRefCount, viewEvidenceHref } = buildQuickDecisionFindingEvidenceLinks(props.runId, f);
-    const reviewStatus = humanReviewStatusDisplay(f.humanReviewStatus);
-    const owner = f.assignedToUserId?.trim() ?? "";
-    const findingActivityAt = resolveFindingActivityAtUtc(f.aiReasoning);
-    const findingWatermarkKey = reviewFindingWatermarkKey(props.runId, f.findingId);
-    const showNewSinceLastVisit = isActivityNewSinceLastVisit(findingWatermarkKey, findingActivityAt);
-    const derivation = findingDerivationFromQuickDecisionFinding(f);
-    const evidenceTraceHref = getFindingEvidenceTraceHref(props.runId, f.findingId);
-
-    return (
-      <article
-        key={f.findingId}
-        className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-950"
-        data-testid={`finding-workspace-card-${f.findingId}`}
-        data-finding-workspace-primary="true"
-        data-finding-id={f.findingId}
-        tabIndex={0}
-      >
-        <header className="space-y-2">
-          <div className="flex flex-wrap items-center gap-2">
-            {showNewSinceLastVisit ? <NewSinceLastVisitMarker testId={`finding-new-${f.findingId}`} /> : null}
-            <SeverityTag
-              severity={badgeLabel}
-              kind={severityKindFromNumericValue(f.severityValue)}
-              label={badgeLabel}
-              className={cn("shrink-0 tabular-nums", FINDINGS_ROW_METADATA_TAG_SIZE)}
-            />
-            {reviewStatus !== null ? (
-              <StatusTag
-                kind={reviewStatus.statusKind}
-                label={reviewStatus.label}
-                className={FINDINGS_ROW_METADATA_TAG_SIZE}
-                data-testid={`finding-review-status-${f.findingId}`}
-              />
-            ) : (
-              <StatusTag kind="neutral" label="Open" className={FINDINGS_ROW_METADATA_TAG_SIZE} />
-            )}
-            <StatusTag
-              kind="neutral"
-              label={findingEnforcementTierLabel(f.enforcementTier)}
-              className={cn("shrink-0", FINDINGS_ROW_METADATA_TAG_SIZE)}
-            />
-          </div>
-          <h3 className={cn("m-0 text-xl font-bold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            {f.title}
-          </h3>
-          <FindingDerivationLine
-            derivation={derivation}
-            evidenceHref={evidenceTraceHref}
-            testId={`finding-derivation-${f.findingId}`}
-          />
-          <FindingCausalMiniChain
-            chain={findingCausalMiniChainFromQuickDecisionFinding(f)}
-            className="mt-2"
-          />
-          <SponsorPlainEnglishFindingPanel
-            input={{
-              title: f.title,
-              message: f.recommendation,
-              severity: badgeLabel,
-              derivationSentence: derivation.sentence,
-              residualRisk: null,
-            }}
-            testId={`sponsor-plain-english-${f.findingId}`}
-          />
-          {snippet.length > 0 ? (
-            <p className={cn("m-0 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-              {snippet}
-            </p>
-          ) : null}
-        </header>
-        <dl className={cn("m-0 mt-4 grid gap-2 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.helper)}>
-          <div>
-            <dt className="text-neutral-500 dark:text-neutral-400">Owner</dt>
-            <dd className="m-0 mt-0.5 font-medium text-neutral-800 dark:text-neutral-200" data-testid={`finding-owner-${f.findingId}`}>
-              {owner.length > 0 ? owner : "No remediation owner assigned"}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-neutral-500 dark:text-neutral-400">Confidence</dt>
-            <dd className="m-0 mt-0.5">
-              {f.confidenceLevel === "High" || f.confidenceLevel === "Medium" || f.confidenceLevel === "Low" ? (
-                <FindingConfidenceBadge level={f.confidenceLevel} />
-              ) : (
-                <span className="font-medium text-neutral-800 dark:text-neutral-200">Not scored</span>
-              )}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-neutral-500 dark:text-neutral-400">Evidence</dt>
-            <dd className="m-0 mt-0.5 font-medium tabular-nums text-neutral-800 dark:text-neutral-200">
-              {evidenceRefCount} reference{evidenceRefCount === 1 ? "" : "s"}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-neutral-500 dark:text-neutral-400">Decision state</dt>
-            <dd className="m-0 mt-0.5 font-medium text-neutral-800 dark:text-neutral-200">
-              {reviewStatus?.label ?? "Not recorded"}
-            </dd>
-          </div>
-        </dl>
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          <Button type="button" size="sm" variant="default" className="h-8" asChild>
-            <Link
-              href={href}
-              prefetch={false}
-              onClick={() => {
-                markLastVisitedNow(findingWatermarkKey, findingActivityAt);
-              }}
-            >
-              Open finding
-            </Link>
-          </Button>
-          {viewEvidenceHref !== null ? (
-            <FindingEvidenceLinkChip
-              href={viewEvidenceHref}
-              evidenceRefCount={evidenceRefCount}
-              className="shrink-0"
-            />
-          ) : null}
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            className={cn("h-8 shrink-0", OPERATOR_TYPOGRAPHY.button)}
-            onClick={() => {
-              setActiveReasoning(f);
-              setReasoningOpen(true);
-            }}
-          >
-            View AI reasoning
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            className={cn("h-8 shrink-0", OPERATOR_TYPOGRAPHY.button)}
-            onClick={() => {
-              setAskFindingId((current) => (current === f.findingId ? null : f.findingId));
-            }}
-            aria-pressed={askFindingId === f.findingId}
-            title="Ask about this finding"
-          >
-            <MessageCircle className="mr-1 h-3.5 w-3.5" aria-hidden />
-            Ask
-          </Button>
-          {canMutate && !f.isMuted ? (
-            <Button
-              type="button"
-              size="sm"
-              variant="secondary"
-              className={cn("h-8 shrink-0", OPERATOR_TYPOGRAPHY.button)}
-              onClick={() => {
-                openMuteDialog(f);
-              }}
-            >
-              Mute
-            </Button>
-          ) : null}
-        </div>
-        {askFindingId === f.findingId ? (
-          <div className="mt-3">
-            <FindingAskInlinePanel findingId={f.findingId} defaultOpen />
-          </div>
-        ) : null}
-        {renderWorkspaceSupportingDetails(f)}
-      </article>
-    );
-  }
-
   function renderWorkspaceSecondaryFinding(f: QuickDecisionFinding, subdued = false): ReactElement {
-    const href = getFindingDetailHref(props.runId, f.findingId);
-    const badgeLabel = severityBadgeLabel(f.severityValue);
-    const reviewStatus = humanReviewStatusDisplay(f.humanReviewStatus);
-    const snippet = quickDecisionRecommendationSnippet(f);
-    const derivation = findingDerivationFromQuickDecisionFinding(f);
-    const evidenceTraceHref = getFindingEvidenceTraceHref(props.runId, f.findingId);
-
     return (
-      <li
+      <QuickDecisionWorkspaceSecondaryFindingCard
         key={f.findingId}
-        className={cn("list-none pl-0", subdued ? "opacity-80" : undefined)}
-        data-testid={`finding-workspace-card-${f.findingId}`}
-      >
-        <details
-          className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
-          data-workspace-disclosure
-        >
-          <summary
-            className={cn(
-              "cursor-pointer list-none [&::-webkit-details-marker]:hidden",
-              OPERATOR_TYPOGRAPHY.body,
-            )}
-          >
-            <div className="flex flex-wrap items-center gap-2">
-              <SeverityTag
-                severity={badgeLabel}
-                kind={severityKindFromNumericValue(f.severityValue)}
-                label={badgeLabel}
-                className={cn("shrink-0 tabular-nums", FINDINGS_ROW_METADATA_TAG_SIZE)}
-              />
-              {reviewStatus !== null ? (
-                <StatusTag
-                  kind={reviewStatus.statusKind}
-                  label={reviewStatus.label}
-                  className={FINDINGS_ROW_METADATA_TAG_SIZE}
-                />
-              ) : (
-                <StatusTag kind="neutral" label="Open" className={FINDINGS_ROW_METADATA_TAG_SIZE} />
-              )}
-              <span className="min-w-0 flex-1 font-semibold text-al-text-primary">{f.title}</span>
-            </div>
-          </summary>
-          <div className="mt-3 space-y-3 border-t border-neutral-100 pt-3 dark:border-neutral-800">
-            <FindingDerivationLine
-              derivation={derivation}
-              evidenceHref={evidenceTraceHref}
-              testId={`finding-derivation-${f.findingId}`}
-            />
-            <FindingCausalMiniChain
-              chain={findingCausalMiniChainFromQuickDecisionFinding(f)}
-              className="mt-2"
-            />
-            <SponsorPlainEnglishFindingPanel
-              input={{
-                title: f.title,
-                message: f.recommendation,
-                severity: badgeLabel,
-                derivationSentence: derivation.sentence,
-                residualRisk: null,
-              }}
-              testId={`sponsor-plain-english-${f.findingId}`}
-            />
-            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{snippet}</p>
-            <Button type="button" size="sm" variant="outline" className="h-8" asChild>
-              <Link href={href} prefetch={false}>Open finding</Link>
-            </Button>
-            {renderWorkspaceSupportingDetails(f)}
-          </div>
-        </details>
-      </li>
+        context={workspaceCardContext}
+        finding={f}
+        subdued={subdued}
+      />
     );
   }
 

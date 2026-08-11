@@ -23,9 +23,9 @@ export type QuickDecisionWorkItemContext = {
   readonly ownerLabel: string | null;
 };
 
-export type QuickDecisionWorkspaceFindingSupportingDetailsProps = {
+/** Review-wide context every workspace finding card needs, independent of the finding being rendered. */
+export type QuickDecisionWorkspaceCardContext = {
   readonly runId: string;
-  readonly finding: QuickDecisionFinding;
   /** Sibling findings passed through to the work-item affordance for batch actions. */
   readonly allFindings: readonly QuickDecisionFinding[];
   /** When false, work-item / ITSM chrome stays hidden until a committed manifest exists (TB-1854). */
@@ -34,17 +34,23 @@ export type QuickDecisionWorkspaceFindingSupportingDetailsProps = {
   readonly architectureWorkItemContext?: QuickDecisionWorkItemContext | null;
 };
 
+export type QuickDecisionWorkspaceFindingSupportingDetailsProps = {
+  readonly context: QuickDecisionWorkspaceCardContext;
+  readonly finding: QuickDecisionFinding;
+};
+
 /** Collapsed evidence, citation, and work-item detail behind the workspace card's "Supporting detail" disclosure. */
 export function QuickDecisionWorkspaceFindingSupportingDetails(
   props: QuickDecisionWorkspaceFindingSupportingDetailsProps,
 ): ReactElement {
   // ITSM correlations are only fetched once the operator opens the disclosure.
   const [integrationsOpen, setIntegrationsOpen] = useState(false);
+  const context = props.context;
   const finding = props.finding;
-  const citationModel = buildFindingPolicyEvidenceCitationsFromQuickDecision(props.runId, finding);
+  const citationModel = buildFindingPolicyEvidenceCitationsFromQuickDecision(context.runId, finding);
 
   function renderIntegrations(): ReactElement | null {
-    if (props.packageCommitted === false) {
+    if (context.packageCommitted === false) {
       return null;
     }
 
@@ -60,19 +66,19 @@ export function QuickDecisionWorkspaceFindingSupportingDetails(
           Create work item / Integrations
         </summary>
         <div className="mt-2" data-testid={`finding-itsm-sync-${finding.findingId}`}>
-          {props.providerNeutralWorkItems === true && props.architectureWorkItemContext ? (
+          {context.providerNeutralWorkItems === true && context.architectureWorkItemContext ? (
             <FindingCreateWorkItemActions
-              runId={props.runId}
+              runId={context.runId}
               finding={finding}
-              architectureName={props.architectureWorkItemContext.architectureName}
-              architectureOverview={props.architectureWorkItemContext.architectureOverview}
-              ownerLabel={props.architectureWorkItemContext.ownerLabel}
-              allFindings={props.allFindings}
+              architectureName={context.architectureWorkItemContext.architectureName}
+              architectureOverview={context.architectureWorkItemContext.architectureOverview}
+              ownerLabel={context.architectureWorkItemContext.ownerLabel}
+              allFindings={context.allFindings}
             />
           ) : (
             <div className="flex flex-wrap items-center gap-2">
               <CopyGovernanceQueueWorkItemButton
-                runId={props.runId}
+                runId={context.runId}
                 findingId={finding.findingId}
                 findingTitle={finding.title}
                 severityLabel={quickDecisionWorkItemSeverityLabel(finding.severityValue)}
