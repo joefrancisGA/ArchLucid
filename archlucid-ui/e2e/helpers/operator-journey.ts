@@ -582,7 +582,7 @@ export function runDetailFinalizedPackageLink(page: Page): Locator {
   return getAppMain(page).getByTestId("run-detail-finalized-package-link").first();
 }
 
-/** Poll until the finalized manifest deep link is visible (activity tab + folded outcome cards). */
+/** Poll until the finalized manifest deep link is visible (overview/activity + folded outcome cards). */
 export async function expectFinalizedManifestLinkVisible(
   page: Page,
   options?: { runId?: string; timeoutMs?: number },
@@ -592,10 +592,20 @@ export async function expectFinalizedManifestLinkVisible(
 
   await expect(async () => {
     if (options?.runId !== undefined && options.runId.trim().length > 0) {
-      await openReviewDetailWorkspaceTab(page, options.runId, "activity");
+      // Buyer layout folds outcome cards under Overview; architecture-created keeps them on Activity.
+      await openReviewDetailWorkspaceTab(page, options.runId, "overview");
+
+      if ((await reviewDetailOutcomeCardsDetails(page).count()) === 0) {
+        await openReviewDetailWorkspaceTab(page, options.runId, "activity");
+      }
     } else if ((await buyerPolishedReviewDetailWorkspace(page).count()) > 0) {
-      await page.getByTestId("review-detail-workspace-tab-activity").click();
-      await expect(reviewDetailWorkspacePanel(page, "activity")).toBeVisible({ timeout: 60_000 });
+      await page.getByTestId("review-detail-workspace-tab-overview").click();
+      await expect(reviewDetailWorkspacePanel(page, "overview")).toBeVisible({ timeout: 60_000 });
+
+      if ((await reviewDetailOutcomeCardsDetails(page).count()) === 0) {
+        await page.getByTestId("review-detail-workspace-tab-activity").click();
+        await expect(reviewDetailWorkspacePanel(page, "activity")).toBeVisible({ timeout: 60_000 });
+      }
     }
 
     if (await manifestLink.isVisible()) {
@@ -697,17 +707,17 @@ export async function ensureBuyerDeliverablesSectionExpanded(page: Page, runId?:
 
 /** Buyer-polished run detail collapses `#sponsor-handoff` (Time-to-Value banner) by default — expand before sponsor PDF assertions. */
 export async function ensureBuyerExecutiveBriefingSectionExpanded(page: Page, runId?: string): Promise<void> {
-  // `#sponsor-handoff` lives on the Activity workspace tab (see LEGACY_HASH_TO_TAB). Buyer nav no
-  // longer lists that hash — always open Activity first. Closed <details> hides the anchor until
-  // expanded; SSR can also miss commit status, so poll with reload until the node mounts.
+  // `#sponsor-handoff` maps to the Review package workspace tab (see LEGACY_HASH_TO_TAB /
+  // run-detail-section-tab-map). The above-the-fold strip also mounts outside tabs when the primary
+  // action is send-to-sponsor — still open Review package first so extended briefing anchors resolve.
   const sponsorHandoff = page.locator("#sponsor-handoff").first();
 
   await expect(async () => {
     if (runId !== undefined && runId.trim().length > 0) {
-      await openReviewDetailWorkspaceTab(page, runId, "activity");
+      await openReviewDetailWorkspaceTab(page, runId, "review-package");
     } else if ((await buyerPolishedReviewDetailWorkspace(page).count()) > 0) {
-      await page.getByTestId("review-detail-workspace-tab-activity").click();
-      await expect(reviewDetailWorkspacePanel(page, "activity")).toBeVisible({ timeout: 30_000 });
+      await page.getByTestId("review-detail-workspace-tab-review-package").click();
+      await expect(reviewDetailWorkspacePanel(page, "review-package")).toBeVisible({ timeout: 30_000 });
     } else {
       const sectionNav = buyerPolishedReviewDetailSectionNav(page);
       const sponsorNavLink = buyerPolishedReviewDetailSectionNavLink(sectionNav, "sponsor-handoff");
@@ -719,7 +729,7 @@ export async function ensureBuyerExecutiveBriefingSectionExpanded(page: Page, ru
 
     if ((await sponsorHandoff.count()) === 0) {
       await page.reload({ waitUntil: "domcontentloaded" });
-      throw new Error("sponsor-handoff not mounted on Activity tab yet");
+      throw new Error("sponsor-handoff not mounted on Review package tab yet");
     }
 
     const briefingDetails = page.locator("details:has(#sponsor-handoff)").first();

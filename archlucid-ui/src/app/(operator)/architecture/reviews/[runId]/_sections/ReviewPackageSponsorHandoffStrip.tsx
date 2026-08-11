@@ -57,6 +57,7 @@ export function ReviewPackageSponsorHandoffStrip(
           manifestSummary={props.manifestSummary}
           trustEvidenceCard={props.trustEvidenceCard ?? null}
           buyerMarkdownAsPrimaryButton
+          markdownDownloadTestId="review-package-sponsor-handoff-markdown-download"
         />
         {props.usedStaticDemoRun ? (
           <Button variant="primary" size="sm" disabled title={SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT}>

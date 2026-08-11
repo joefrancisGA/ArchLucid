@@ -31,6 +31,12 @@ export type GoldenManifestExportMenuProps = {
    * Buyer deliverables: single obvious control instead of a select labeled “More formats”.
    */
   buyerMarkdownAsPrimaryButton?: boolean;
+  /**
+   * Stable selector for the primary Markdown download button. Call sites that mount more than one
+   * menu must pass distinct ids (sponsor handoff vs artifacts exports) so Playwright strict mode
+   * does not resolve two elements.
+   */
+  markdownDownloadTestId?: string;
 };
 
 /**
@@ -50,6 +56,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
     manifestSummary,
     trustEvidenceCard,
     buyerMarkdownAsPrimaryButton = false,
+    markdownDownloadTestId = "golden-manifest-markdown-download-button",
   } = props;
   const [exportMenuKey, setExportMenuKey] = useState(0);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
@@ -82,7 +89,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
         variant="outline"
         size="sm"
         className="h-9"
-        data-testid="golden-manifest-markdown-download-button"
+        data-testid={markdownDownloadTestId}
         onClick={() => {
           downloadMarkdownSummary();
         }}
