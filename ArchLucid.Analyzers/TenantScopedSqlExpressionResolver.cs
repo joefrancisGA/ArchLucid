@@ -187,8 +187,10 @@ internal static class TenantScopedSqlExpressionResolver
             return new ResolutionResult(localConst, true, false);
 
         if (expression is MemberAccessExpressionSyntax member &&
-            string.Equals(member.Name.Identifier.Text, "ScopeWhereClause", StringComparison.Ordinal) &&
-            member.Expression.ToString().Contains("RunChildRunScopeSql", StringComparison.Ordinal))
+            (string.Equals(member.Name.Identifier.Text, "ScopeWhereClause", StringComparison.Ordinal) ||
+             string.Equals(member.Name.Identifier.Text, "RunChildScopeWhereClause", StringComparison.Ordinal)) &&
+            (member.Expression.ToString().Contains("RunChildRunScopeSql", StringComparison.Ordinal) ||
+             member.Expression.ToString().Contains("PersistenceTenantScope", StringComparison.Ordinal)))
             return new ResolutionResult(RunChildScopeWhereClauseMarker, true, true);
 
         Optional<object?> constant = semanticModel.GetConstantValue(expression);
@@ -225,7 +227,8 @@ internal static class TenantScopedSqlExpressionResolver
         string containingType = method.ContainingType.ToDisplayString();
 
         return containingType.Contains("RunChildRunScopeSql", StringComparison.Ordinal) ||
-               containingType.Contains("RepositoryScopePredicate", StringComparison.Ordinal);
+               containingType.Contains("RepositoryScopePredicate", StringComparison.Ordinal) ||
+               containingType.Contains("PersistenceTenantScope", StringComparison.Ordinal);
     }
 
     private static bool IsScopeHelperExpression(ExpressionSyntax expression, SemanticModel semanticModel)
