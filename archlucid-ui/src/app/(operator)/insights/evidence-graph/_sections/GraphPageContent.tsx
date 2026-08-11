@@ -6,6 +6,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, sta
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { ArchitectureIntelligenceEvidenceGraphVocabularyRail } from "@/components/ArchitectureIntelligenceEvidenceGraphVocabularyRail";
 import { AuditEvidenceTrailVocabularyRail } from "@/components/AuditEvidenceTrailVocabularyRail";
+import { RunProvenanceEvidenceGraphVocabularyRail } from "@/components/RunProvenanceEvidenceGraphVocabularyRail";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import type { EmptyStateProps } from "@/components/EmptyState";
 import { EvidenceGraphFirstOpenCoach } from "@/components/EvidenceGraphFirstOpenCoach";
@@ -16,7 +17,7 @@ import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_GRAPH_PAGE_SUBTITLE } from "@/lib/buyer-polish-copy";
-import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { cn } from "@/lib/utils";
 import { OPERATOR_LAYOUT, OPERATOR_PAGE_CONTAINER } from "@/lib/design-tokens";
@@ -708,6 +709,7 @@ export function GraphPageContent() {
       <OperatorPageHeader title={pageTitle} subtitle={pageSubtitle} navHref="/insights/evidence-graph" />
       <ArchitectureIntelligenceEvidenceGraphVocabularyRail currentSurfaceId="evidence-graph" />
       <AuditEvidenceTrailVocabularyRail currentSurfaceId="evidence-graph" />
+      <RunProvenanceEvidenceGraphVocabularyRail currentSurfaceId="evidence-graph" />
       <EvidenceGraphFirstOpenCoach />
       <GraphEvidenceTrailGuidanceDisclosure className={buyerPolishedShell ? "hidden" : undefined} />
       {buyerGraphBody}

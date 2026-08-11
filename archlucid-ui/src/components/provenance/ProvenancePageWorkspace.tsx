@@ -9,6 +9,7 @@ import { ProvenanceGraphViewport } from "@/components/provenance/ProvenanceGraph
 import { ProvenanceGraphErrorBoundary } from "@/components/provenance/ProvenanceGraphErrorBoundary";
 import { ProvenanceSectionNav, type ProvenanceSection } from "@/components/provenance/ProvenanceSectionNav";
 import { ProvenanceWayfinding } from "@/components/provenance/ProvenanceWayfinding";
+import { RunProvenanceEvidenceGraphVocabularyRail } from "@/components/RunProvenanceEvidenceGraphVocabularyRail";
 import {
   ProvenanceViewModeTabs,
   provenanceViewPanelProps,
@@ -315,6 +316,7 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
 
           <header className="space-y-2">
             <ProvenanceWayfinding reviewPackageHref={reviewHref} />
+            <RunProvenanceEvidenceGraphVocabularyRail currentSurfaceId="run-provenance" />
             <div className="flex flex-wrap items-center gap-2">
               <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{PROVENANCE_PAGE_TITLE}</h2>
               {reviewContext?.statusLabel !== null &&
