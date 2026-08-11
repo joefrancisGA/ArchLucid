@@ -11,7 +11,7 @@ import type { ResolveReviewPackagePrimaryActionInput } from "./resolve-review-pa
 
 export type RunDetailReviewPackageSponsorHandoffGateProps = ResolveReviewPackagePrimaryActionInput & {
   readonly manifestId: string;
-  readonly goldenManifestJsonForExport: string | null;
+  readonly goldenManifestJsonForExport: unknown | null;
   readonly manifestSummary: ManifestSummary | null;
   readonly trustEvidenceCard: RunTrustEvidenceCard | null | undefined;
   readonly usedStaticDemoRun: boolean;

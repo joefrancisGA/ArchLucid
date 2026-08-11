@@ -135,7 +135,7 @@ export function ArchitectureFindingsDualPane(props: ArchitectureFindingsDualPane
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>Findings</p>
             <Button type="button" variant="outline" size="sm" asChild>
-              <Link href={findingsHref} className={OPERATOR_LINK}>
+              <Link href={findingsHref} className={OPERATOR_LINK.nav}>
                 Open findings tab
               </Link>
             </Button>

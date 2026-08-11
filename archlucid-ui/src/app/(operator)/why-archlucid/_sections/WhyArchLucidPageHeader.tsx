@@ -43,7 +43,7 @@ export function WhyArchLucidPageHeader(props: WhyArchLucidPageHeaderProps): Reac
           <span data-testid="why-archlucid-page-orientation">{WHY_ARCHLUCID_PAGE_ORIENTATION}</span>{" "}
           <span data-testid="why-archlucid-marketing-disambiguation">
             For competitive narrative, see{" "}
-            <Link className={OPERATOR_LINK} href={WHY_ARCHLUCID_MARKETING_WHY_HREF}>
+            <Link className={OPERATOR_LINK.nav} href={WHY_ARCHLUCID_MARKETING_WHY_HREF}>
               {WHY_ARCHLUCID_MARKETING_WHY_LINK_LABEL}
             </Link>
             .

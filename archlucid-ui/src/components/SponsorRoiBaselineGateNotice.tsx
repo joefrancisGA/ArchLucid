@@ -105,7 +105,7 @@ export function SponsorRoiBaselineGateNotice(
         <Button
           type="button"
           size="sm"
-          variant="ghost"
+          variant="outline"
           className="h-7"
           data-testid="sponsor-roi-baseline-gate-send-anyway"
           onClick={acknowledgeSendAnyway}

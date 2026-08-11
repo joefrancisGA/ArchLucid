@@ -10,7 +10,7 @@ export const OPERATOR_OFFLINE_RECONNECT_BODY =
 export const OPERATOR_OFFLINE_RECONNECT_RETRY_LABEL = "Retry";
 
 export type OperatorOfflineQueryClientLike = {
-  invalidateQueries: (filters?: unknown) => Promise<unknown>;
+  invalidateQueries: () => Promise<unknown>;
 };
 
 /** Show the strip only while the browser reports offline. */

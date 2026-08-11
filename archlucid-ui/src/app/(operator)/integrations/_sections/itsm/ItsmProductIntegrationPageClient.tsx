@@ -109,7 +109,18 @@ export function ItsmProductIntegrationPageClient(props: Props): React.ReactEleme
       const probe = await fetchItsmIntegrationHealth();
       setHealth(probe);
       const rawProbe = props.product === "jira" ? probe.jira : probe.serviceNow;
-      setConnectionTestSummary(formatItsmConnectionTestResult(props.product, rawProbe ?? null));
+      setConnectionTestSummary(
+        formatItsmConnectionTestResult(
+          props.product,
+          rawProbe == null
+            ? null
+            : {
+                locallyConfigured: rawProbe.locallyConfigured ?? false,
+                reachable: rawProbe.reachable ?? null,
+                summary: rawProbe.summary ?? "",
+              },
+        ),
+      );
     } catch (error: unknown) {
       setTestError(error instanceof Error ? error.message : "Connection test failed.");
     } finally {

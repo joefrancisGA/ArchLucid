@@ -1,7 +1,7 @@
 import {
   CORE_PILOT_HELP_SOURCES,
-  type CorePilotHelpSourceLink,
 } from "@/lib/core-pilot-help-evidence-copy";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import {
   CORE_PILOT_HELP_DEPTH_GUIDES,
   CORE_PILOT_HELP_PRIMARY_ACTIONS,
@@ -18,7 +18,7 @@ function alreadyLinkedOnPageHrefs(): ReadonlySet<string> {
   ]);
 }
 
-function isNewFollowUp(source: CorePilotHelpSourceLink, linkedHrefs: ReadonlySet<string>): boolean {
+function isNewFollowUp(source: EvidenceSourceLink, linkedHrefs: ReadonlySet<string>): boolean {
   return !linkedHrefs.has(source.href);
 }
 
@@ -26,7 +26,7 @@ function isNewFollowUp(source: CorePilotHelpSourceLink, linkedHrefs: ReadonlySet
  * Related guides for `/help/first-architecture-review`: curated depth guides first, then any
  * follow-up Source the page does not already link. Deduped by href so the curated label wins.
  */
-export function corePilotHelpRelatedGuides(): readonly CorePilotHelpSourceLink[] {
+export function corePilotHelpRelatedGuides(): readonly EvidenceSourceLink[] {
   const linkedHrefs = new Set<string>([
     ...alreadyLinkedOnPageHrefs(),
     ...CORE_PILOT_HELP_DEPTH_GUIDES.map((guide) => guide.href),
