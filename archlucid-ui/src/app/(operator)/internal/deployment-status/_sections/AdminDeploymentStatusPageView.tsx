@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
+import { DeploymentStatusSystemHealthVocabularyRail } from "@/components/DeploymentStatusSystemHealthVocabularyRail";
 import { ExternalLink } from "@/components/ui/external-link";
 import { StatusTag } from "@/components/ui/status-tag";
 import { Button } from "@/components/ui/button";
@@ -71,6 +72,7 @@ export function AdminDeploymentStatusPageView(props: Props) {
           </div>
           <PageContextualHelpButton />
         </div>
+        <DeploymentStatusSystemHealthVocabularyRail currentSurfaceId="deployment-status" />
         <div className="flex flex-wrap items-center gap-3" data-testid="admin-deployment-status-overall">
           <StatusTag
             kind={deploymentOverallStatusTagKind(overallTone)}
