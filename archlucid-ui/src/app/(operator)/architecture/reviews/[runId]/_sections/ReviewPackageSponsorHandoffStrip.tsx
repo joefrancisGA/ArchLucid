@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { GoldenManifestExportMenu } from "@/components/GoldenManifestExportMenu";
 import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
+import { RoiSponsorExportVocabularyRail } from "@/components/RoiSponsorExportVocabularyRail";
 import { SponsorRoiBaselineGateNotice } from "@/components/SponsorRoiBaselineGateNotice";
 import { SponsorRehearsalPreviewPanel } from "@/components/reviews/SponsorRehearsalPreviewPanel";
 import type { SponsorRehearsalPreviewInput } from "@/lib/sponsor-rehearsal-preview";
@@ -48,6 +49,11 @@ export function ReviewPackageSponsorHandoffStrip(
       >
         {RUN_DETAIL_SPONSOR_HANDOFF_TITLE}
       </h2>
+      <RoiSponsorExportVocabularyRail
+        currentSurfaceId="sponsor-handoff"
+        runId={props.runId}
+        className="mt-2"
+      />
       <div className={cn("m-0 mt-1 max-w-prose text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         Download the executive review summary or architecture report when you are ready to share this finalized{" "}
         <InlineGlossaryChip nounId="signed-review-record">signed review record</InlineGlossaryChip> internally or with

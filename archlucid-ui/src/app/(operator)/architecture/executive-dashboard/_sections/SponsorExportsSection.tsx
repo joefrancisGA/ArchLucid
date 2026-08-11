@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { RoiSponsorExportVocabularyRail } from "@/components/RoiSponsorExportVocabularyRail";
 import { getRunPackageExportUrl } from "@/lib/api";
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture-scorecard-route";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
@@ -127,7 +128,11 @@ export function SponsorExportsSection({
   }, []);
 
   return (
-    <section aria-labelledby="executive-exports-heading" className="space-y-3">
+    <section
+      id="sponsor-exports"
+      aria-labelledby="executive-exports-heading"
+      className="scroll-mt-24 space-y-3"
+    >
       <div>
         <h2 id="executive-exports-heading" className={`m-0 ${OPERATOR_TYPOGRAPHY.sectionTitle}`} data-testid="executive-exports-heading">
           {executiveSurface ? v.executiveExportsTitle : "Sponsor exports"}
@@ -136,6 +141,7 @@ export function SponsorExportsSection({
           <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{v.executiveExportsDescription}</p>
         ) : null}
       </div>
+      <RoiSponsorExportVocabularyRail currentSurfaceId="executive-dashboard" />
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {sponsorDocx !== null ? (
           <SponsorExportOutputCard
