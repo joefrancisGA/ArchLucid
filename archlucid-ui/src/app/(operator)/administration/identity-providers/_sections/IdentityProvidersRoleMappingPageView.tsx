@@ -8,10 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { identityProviderCustomerStatusPresentation } from "@/lib/identity-provider-probe-status-presentation";
+import { resolveRoleMappingPrimaryCta } from "@/lib/role-mapping-page-cta";
 import {
+  IDENTITY_PROVIDERS_ACTION_OPEN_IDENTITY_DIAGNOSTICS,
   IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES,
   IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES_HELPER,
   IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES_LABEL,
+  IDENTITY_PROVIDERS_ROLE_MAPPING_LOADING,
   IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_SUBTITLE,
   IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_TITLE,
 } from "@/lib/identity-providers-settings-copy";
@@ -38,6 +41,8 @@ export function IdentityProvidersRoleMappingPageView(
     ? "Configured"
     : "Not configured";
   const mappingPresentation = identityProviderCustomerStatusPresentation(props.model.overview.roleMappingStatus);
+  const configLoaded = props.model.authConfigurationDiagnosticsLoaded;
+  const primaryCta = resolveRoleMappingPrimaryCta(props.model.authConfigurationDiagnostics);
 
   return (
     <IdentityProvidersSettingsShell
@@ -55,6 +60,15 @@ export function IdentityProvidersRoleMappingPageView(
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Role mapping status</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
+          {!configLoaded ? (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="identity-providers-role-mapping-loading"
+            >
+              {IDENTITY_PROVIDERS_ROLE_MAPPING_LOADING}
+            </p>
+          ) : (
+            <>
           <dl className={cn("m-0 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
             <div>
               <dt className="text-al-text-secondary">Identity source</dt>
@@ -101,12 +115,18 @@ export function IdentityProvidersRoleMappingPageView(
           </div>
           <div className="flex flex-wrap gap-2">
             <Button asChild size="sm">
-              <Link href="/administration/identity-providers/saml">Edit SAML role mapping</Link>
+              <Link href={primaryCta.href} data-testid="identity-providers-role-mapping-primary-cta">
+                {primaryCta.label}
+              </Link>
             </Button>
             <Button asChild variant="outline" size="sm">
-              <Link href="/administration/identity-providers/diagnostics">Test role mapping</Link>
+              <Link href="/administration/identity-providers/diagnostics" data-testid="identity-providers-role-mapping-diagnostics-cta">
+                {IDENTITY_PROVIDERS_ACTION_OPEN_IDENTITY_DIAGNOSTICS}
+              </Link>
             </Button>
           </div>
+            </>
+          )}
         </CardContent>
       </Card>
     </IdentityProvidersSettingsShell>

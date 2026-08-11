@@ -100,6 +100,11 @@ export const IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES_LABEL = "Illustrative mapp
 export const IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES_HELPER =
   "Sample IdP group names for reference — not your tenant's live configuration.";
 
+export const IDENTITY_PROVIDERS_ROLE_MAPPING_LOADING = "Loading role mapping status…";
+export const IDENTITY_PROVIDERS_ROLE_MAPPING_ACTION_EDIT_SAML = "Edit SAML role mapping";
+export const IDENTITY_PROVIDERS_ROLE_MAPPING_ACTION_OPEN_SSO_WIZARD = "Open SSO wizard";
+export const IDENTITY_PROVIDERS_ACTION_OPEN_IDENTITY_DIAGNOSTICS = "Open identity diagnostics";
+
 export const IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_TITLE = "Identity diagnostics";
 export const IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_INTRO =
   "Technical validation, health checks, and support tooling for identity configuration.";

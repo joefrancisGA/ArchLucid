@@ -12,9 +12,13 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 import { IdentityProvidersRoleMappingPageView } from "./IdentityProvidersRoleMappingPageView";
 import type { UseIdentityProvidersSettingsPageModel } from "./use-identity-providers-settings-page";
 import {
+  IDENTITY_PROVIDERS_ACTION_OPEN_IDENTITY_DIAGNOSTICS,
   IDENTITY_PROVIDERS_PAGE_SUBTITLE,
+  IDENTITY_PROVIDERS_ROLE_MAPPING_ACTION_EDIT_SAML,
+  IDENTITY_PROVIDERS_ROLE_MAPPING_ACTION_OPEN_SSO_WIZARD,
   IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES_LABEL,
   IDENTITY_PROVIDERS_ROLE_MAPPING_HELPER,
+  IDENTITY_PROVIDERS_ROLE_MAPPING_LOADING,
   IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_SUBTITLE,
   IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_TITLE,
   IDENTITY_PROVIDERS_STATUS_ENABLED,
@@ -88,5 +92,48 @@ describe("IdentityProvidersRoleMappingPageView", () => {
     );
     expect(screen.getByText(IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES_LABEL)).toBeInTheDocument();
     expect(screen.getByTestId("identity-providers-role-mapping-examples")).toBeInTheDocument();
+  });
+
+  it("shows loading state until auth configuration diagnostics load (TB-1919)", () => {
+    render(
+      <IdentityProvidersRoleMappingPageView
+        model={buildModel({ authConfigurationDiagnosticsLoaded: false, authConfigurationDiagnostics: null })}
+      />,
+    );
+
+    expect(screen.getByTestId("identity-providers-role-mapping-loading")).toHaveTextContent(
+      IDENTITY_PROVIDERS_ROLE_MAPPING_LOADING,
+    );
+    expect(screen.queryByTestId("identity-providers-role-mapping-primary-cta")).not.toBeInTheDocument();
+  });
+
+  it("routes OIDC tenants to SSO wizard and honest diagnostics CTA (TB-1919)", () => {
+    render(<IdentityProvidersRoleMappingPageView model={buildModel()} />);
+
+    expect(screen.getByTestId("identity-providers-role-mapping-primary-cta")).toHaveTextContent(
+      IDENTITY_PROVIDERS_ROLE_MAPPING_ACTION_OPEN_SSO_WIZARD,
+    );
+    expect(screen.getByTestId("identity-providers-role-mapping-diagnostics-cta")).toHaveTextContent(
+      IDENTITY_PROVIDERS_ACTION_OPEN_IDENTITY_DIAGNOSTICS,
+    );
+    expect(screen.queryByRole("link", { name: /test role mapping/i })).not.toBeInTheDocument();
+  });
+
+  it("routes SAML tenants to SAML editor primary CTA (TB-1919)", () => {
+    render(
+      <IdentityProvidersRoleMappingPageView
+        model={buildModel({
+          authConfigurationDiagnostics: {
+            authMode: "JwtBearer",
+            tenantIdentityProviderProtocol: "Saml",
+            roleClaimNameConfigured: true,
+          },
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("identity-providers-role-mapping-primary-cta")).toHaveTextContent(
+      IDENTITY_PROVIDERS_ROLE_MAPPING_ACTION_EDIT_SAML,
+    );
   });
 });
