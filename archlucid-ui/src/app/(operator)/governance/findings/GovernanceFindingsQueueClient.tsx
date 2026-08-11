@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 
 import { AlertsFindingsDualInboxReconciler } from "@/components/AlertsFindingsDualInboxReconciler";
+import { DecisionRegisterFindingsVocabularyRail } from "@/components/DecisionRegisterFindingsVocabularyRail";
 import { GovernanceApprovalStatusBanner } from "@/components/governance/GovernanceApprovalStatusBanner";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { FindingsQueueSearchEvidenceVocabularyRail } from "@/components/FindingsQueueSearchEvidenceVocabularyRail";
@@ -205,6 +206,7 @@ export default function GovernanceFindingsQueueClient() {
       />
       <GovernanceJobRouterStrip currentJobId="triage-findings" />
       <AlertsFindingsDualInboxReconciler currentSurfaceId="findings-queue" />
+      <DecisionRegisterFindingsVocabularyRail currentSurfaceId="findings-queue" />
       <RiskExceptionsFindingsVocabularyRail currentSurfaceId="findings-queue" />
       <FindingsQueueSearchEvidenceVocabularyRail currentSurfaceId="findings-queue" />
       <PageCapabilityBoundaryStrip surfaceId="governanceFindings" />
