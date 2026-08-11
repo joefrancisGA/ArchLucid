@@ -19,3 +19,5 @@ export const CUSTOMER_GLOSSARY_RELATED_TERMS_LABEL = "Related terms";
 export const CUSTOMER_GLOSSARY_DEPRECATED_LABEL = "Former term";
 
 export const CUSTOMER_GLOSSARY_SEARCH_BROWSE_HEADING = "Search and browse";
+
+export const CUSTOMER_GLOSSARY_FEATURED_TERMS_LABEL = "Start with these terms";

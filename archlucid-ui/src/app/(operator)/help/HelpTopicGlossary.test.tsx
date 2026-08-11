@@ -20,12 +20,13 @@ vi.mock("@/components/help/HelpTopicPrintButton", () => ({
 import { HelpGlossaryPageView } from "@/app/(operator)/help/_sections/HelpGlossaryPageView";
 import {
   CUSTOMER_GLOSSARY_EMPTY_STATE,
+  CUSTOMER_GLOSSARY_FEATURED_TERMS_LABEL,
   CUSTOMER_GLOSSARY_PAGE_INTRO,
   CUSTOMER_GLOSSARY_PAGE_TITLE,
   CUSTOMER_GLOSSARY_SEARCH_LABEL,
 } from "@/lib/customer-glossary-copy";
 import { CUSTOMER_GLOSSARY_CONTRACT_VERSION } from "@/lib/customer-glossary-manifest";
-import { GLOSSARY_HELP_CLAIM_DISCIPLINE } from "@/lib/glossary-help-evidence-copy";
+import { GLOSSARY_HELP_CLAIM_DISCIPLINE, GLOSSARY_HELP_FOLLOW_UP_LINKS } from "@/lib/glossary-help-evidence-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 
@@ -85,6 +86,10 @@ describe("HelpGlossaryPageView", () => {
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("glossary-help-claim-discipline")).toHaveTextContent(GLOSSARY_HELP_CLAIM_DISCIPLINE);
 
+    for (const link of GLOSSARY_HELP_FOLLOW_UP_LINKS) {
+      expect(screen.getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+    }
+
     const helpTopic = pageHelpTopicForPathname("/help/glossary");
 
     expect(helpTopic).not.toBeNull();
@@ -101,6 +106,11 @@ describe("HelpGlossaryPageView", () => {
     expect(screen.getAllByRole("heading", { level: 1, name: CUSTOMER_GLOSSARY_PAGE_TITLE })).toHaveLength(1);
     expect(screen.getByText(CUSTOMER_GLOSSARY_PAGE_INTRO)).toBeInTheDocument();
     expect(screen.getByLabelText(CUSTOMER_GLOSSARY_SEARCH_LABEL)).toBeInTheDocument();
+    expect(screen.getByText(CUSTOMER_GLOSSARY_FEATURED_TERMS_LABEL)).toBeInTheDocument();
+
+    const featuredTerms = screen.getByTestId("glossary-featured-terms");
+    expect(within(featuredTerms).getByRole("button", { name: "Finding" })).toBeInTheDocument();
+    expect(within(featuredTerms).getByRole("button", { name: "Signed review record" })).toBeInTheDocument();
 
     for (const banned of BANNED_INTERNAL_COPY) {
       expect(screen.queryByText(new RegExp(banned, "i"))).toBeNull();
@@ -144,6 +154,22 @@ describe("HelpGlossaryPageView", () => {
     expect(within(toc).getByRole("link", { name: "Search and browse" })).toHaveAttribute("href", "#glossary-search");
     expect(within(toc).getByRole("link", { name: "Review process" })).toHaveAttribute("href", "#category-review-process");
     expect(within(toc).queryByRole("link", { name: /Finding fields/i })).toBeNull();
+  });
+
+  it("jumps to featured terms after clearing an active category filter", () => {
+    if (entry === undefined) {
+      throw new Error("Expected glossary documentation entry.");
+    }
+
+    render(<HelpGlossaryPageView entry={entry} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Evidence" }));
+    expect(screen.queryByTestId("glossary-term-finding")).toBeNull();
+
+    fireEvent.click(within(screen.getByTestId("glossary-featured-terms")).getByRole("button", { name: "Finding" }));
+
+    expect(screen.getByTestId("glossary-term-finding")).toBeInTheDocument();
+    expect(document.getElementById("term-finding")).not.toBeNull();
   });
 
   it("keeps in-page anchor targets present when the Evidence filter is active", () => {

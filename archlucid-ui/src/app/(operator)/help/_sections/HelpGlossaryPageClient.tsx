@@ -11,6 +11,7 @@ import {
   CUSTOMER_GLOSSARY_ALL_TERMS_FILTER,
   CUSTOMER_GLOSSARY_DEPRECATED_LABEL,
   CUSTOMER_GLOSSARY_EMPTY_STATE,
+  CUSTOMER_GLOSSARY_FEATURED_TERMS_LABEL,
   CUSTOMER_GLOSSARY_RELATED_TERMS_LABEL,
   CUSTOMER_GLOSSARY_SEARCH_BROWSE_HEADING,
   CUSTOMER_GLOSSARY_SEARCH_LABEL,
@@ -27,6 +28,7 @@ import {
   type CustomerGlossaryCategoryId,
   type CustomerGlossaryTerm,
 } from "@/lib/customer-glossary-manifest";
+import { GOLDEN_PATH_GLOSSARY_NOUN_IDS } from "@/lib/golden-path-glossary-nouns";
 import { OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
 import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
@@ -34,6 +36,8 @@ import { cn } from "@/lib/utils";
 
 const CUSTOMER_TERMS = listCustomerFacingGlossaryTerms();
 const TERM_LABEL_INDEX = buildGlossaryTermLabelIndex(CUSTOMER_TERMS);
+
+const GLOSSARY_FEATURED_TERM_IDS = ["finding", ...GOLDEN_PATH_GLOSSARY_NOUN_IDS] as const;
 
 const FILTER_CHIP_CLASS = "min-h-8 px-3";
 
@@ -162,6 +166,27 @@ export function HelpGlossaryPageClient(): React.ReactElement {
       <div className="min-w-0 space-y-8" data-testid="help-glossary-primary">
         <section id="glossary-search" className={cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, "scroll-mt-24 space-y-4")}>
           <h2 className={cn("sr-only", OPERATOR_TYPOGRAPHY.sectionTitle)}>{CUSTOMER_GLOSSARY_SEARCH_LABEL}</h2>
+          <div className="space-y-2" data-testid="glossary-featured-terms">
+            <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.label)}>
+              {CUSTOMER_GLOSSARY_FEATURED_TERMS_LABEL}
+            </p>
+            <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
+              {GLOSSARY_FEATURED_TERM_IDS.map((termId) => {
+                const label = TERM_LABEL_INDEX[termId] ?? termId;
+
+                return (
+                  <li key={termId}>
+                    <FilterChip
+                      className={cn(buyerFilterChipClass(false, false), FILTER_CHIP_CLASS)}
+                      onClick={() => handleRelatedTermNavigate(termId)}
+                    >
+                      {label}
+                    </FilterChip>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
           <div className="space-y-2">
             <label htmlFor="glossary-search-input" className={cn("font-medium", OPERATOR_TYPOGRAPHY.label)}>
               {CUSTOMER_GLOSSARY_SEARCH_LABEL}
