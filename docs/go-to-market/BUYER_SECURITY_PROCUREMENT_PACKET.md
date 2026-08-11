@@ -792,7 +792,7 @@ Former standalone body: `docs/go-to-market/SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE
 
 ## Minimum pilot trust packet without CPA / 3P pen test (M-191) {#minimum-pilot-trust-packet-m-191}
 
-Former standalone body: `docs/go-to-market/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-191** / **TB-1112**). Does **not** reopen Done **TB-135**/**TB-136**. Complements [Â§4 Assurance status](#4-assurance-status--explicit). Not an assurance attestation.
+Former standalone body: `docs/go-to-market/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-191** / **TB-1112**). Engineering SoT: [`../library/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_CONTRACT.md`](../library/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_CONTRACT.md). Does **not** reopen Done **TB-135**/**TB-136**. Complements [Â§4 Assurance status](#4-assurance-status--explicit). Not an assurance attestation.
 
 **Path-stable alias:** [`MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md`](MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md).
 
@@ -830,7 +830,7 @@ Former standalone body: `docs/go-to-market/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CP
 
 **Talk-track ladder:** [SOC 2 / pen-test honest procurement talk-track (M-197)](#soc2-pentest-honest-talk-track-m-197) Â· [Stage 0 claim allowlist (M-189)](#stage-0-claim-allowlist-vs-oversell-m-189).
 
-**Related:** [`QUOTE_TO_PROOF_PACKET.md`](QUOTE_TO_PROOF_PACKET.md) Â· [`ASSURANCE_STATUS_CANONICAL.md`](ASSURANCE_STATUS_CANONICAL.md) Â· [Â§4 Assurance status](#4-assurance-status--explicit) Â· [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) Â· [Stage 0 claim allowlist (M-189)](#stage-0-claim-allowlist-vs-oversell-m-189) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+**Related:** [`../library/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_CONTRACT.md`](../library/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_CONTRACT.md) Â· [`QUOTE_TO_PROOF_PACKET.md`](QUOTE_TO_PROOF_PACKET.md) Â· [`ASSURANCE_STATUS_CANONICAL.md`](ASSURANCE_STATUS_CANONICAL.md) Â· [Â§4 Assurance status](#4-assurance-status--explicit) Â· [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) Â· [Stage 0 claim allowlist (M-189)](#stage-0-claim-allowlist-vs-oversell-m-189) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Committed golden manifest — unit of truth (M-155) {#committed-golden-manifest-unit-of-truth-m-155}
 

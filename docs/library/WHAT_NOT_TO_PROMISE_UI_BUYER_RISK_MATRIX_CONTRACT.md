@@ -6,7 +6,7 @@
 **GTM:** **M-239** (matrix), **M-240** (PA one-pager).  
 **Canon table:** [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) (formerly `WHAT_NOT_TO_PROMISE.md`).  
 **PA handout (path-stable alias):** [`../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#wntp-ui-buyer-risk-matrix-m-240`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#wntp-ui-buyer-risk-matrix-m-240) · [`../go-to-market/WHAT_NOT_TO_PROMISE_UI_BUYER_RISK_MATRIX_PA_ONE_PAGER.md`](../go-to-market/WHAT_NOT_TO_PROMISE_UI_BUYER_RISK_MATRIX_PA_ONE_PAGER.md).  
-**Related:** Done **TB-134** · open **TB-1112** / **TB-1144** / **TB-1166** / **TB-1279** / **TB-1294** · **TB-1367** · **TB-1463** / **TB-1464**.
+**Related:** Done **TB-134** · Done **TB-1112** · open **TB-1144** / **TB-1166** / **TB-1279** / **TB-1294** · **TB-1367** · **TB-1463** / **TB-1464**.
 
 ## Decision
 
