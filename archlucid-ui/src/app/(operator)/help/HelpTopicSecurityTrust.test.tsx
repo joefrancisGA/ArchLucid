@@ -8,6 +8,7 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownView";
 import { SecurityTrustHelpEvidenceOrientationStrip } from "@/components/help/SecurityTrustHelpEvidenceOrientationStrip";
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
+import { buildSecurityTrustTocGroups } from "@/lib/security-trust-help-presentation";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import { TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF } from "@/lib/trust-center-public-assurance";
@@ -121,6 +122,9 @@ describe("HelpTopicMarkdownView security and trust", () => {
     expect(screen.getAllByRole("link", { name: /how to request the procurement pack/i }).length).toBeGreaterThan(0);
     expect(screen.getAllByRole("link", { name: /scalability and load evidence/i }).length).toBeGreaterThan(0);
     expect(screen.getAllByRole("link", { name: /soc 2 self-assessment/i }).length).toBeGreaterThan(0);
+    expect(screen.getByTestId("security-trust-help-posture-summary")).toBeInTheDocument();
+    expect(screen.getByTestId("security-trust-help-next-steps")).toBeInTheDocument();
+    expect(screen.queryByText(/Automated freshness posture/i)).toBeNull();
   });
 
   it("renders focusable scroll regions with section-based table captions", () => {
@@ -150,6 +154,7 @@ describe("HelpTopicMarkdownView security and trust", () => {
       helpTopicSlug: "security-trust",
     });
     const headings = extractHelpMarkdownHeadings(preparedMarkdown);
+    const tocHeadings = buildSecurityTrustTocGroups(headings).flatMap((group) => group.headings);
 
     render(
       <HelpTopicMarkdownView
@@ -161,7 +166,7 @@ describe("HelpTopicMarkdownView security and trust", () => {
 
     const toc = screen.getByTestId("help-topic-toc");
 
-    for (const heading of headings) {
+    for (const heading of tocHeadings) {
       const link = within(toc).getByRole("link", { name: heading.title });
 
       expect(link).toHaveAttribute("href", `#${heading.id}`);

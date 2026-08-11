@@ -8,6 +8,10 @@ import { HelpTopicMarkdownPageHeader } from "@/app/(operator)/help/_sections/Hel
 
 import { CaiqSigResponseHelpPostureSummary } from "@/components/help/CaiqSigResponseHelpPostureSummary";
 
+import { SecurityTrustHelpNextSteps } from "@/components/help/SecurityTrustHelpNextSteps";
+
+import { SecurityTrustHelpPostureSummary } from "@/components/help/SecurityTrustHelpPostureSummary";
+
 import { HelpTopicExportClaimDiscipline } from "@/components/help/HelpTopicExportClaimDiscipline";
 
 import { HelpTopicSignInFailureTriageLine } from "@/components/help/HelpTopicSignInFailureTriageLine";
@@ -47,6 +51,12 @@ import { SCOPE_HELP_PRIMARY_ACTION } from "@/lib/scope-help-evidence-copy";
 import { SECURITY_TRUST_HELP_PRIMARY_ACTION } from "@/lib/security-trust-help-evidence-copy";
 import { SUBPROCESSORS_HELP_PRIMARY_ACTION } from "@/lib/subprocessors-help-evidence-copy";
 import { SecurityTrustHelpHubVocabularyRail } from "@/components/SecurityTrustHelpHubVocabularyRail";
+
+import {
+  buildSecurityTrustTocGroups,
+  computeSecurityTrustPostureCounts,
+  countSecurityTrustPostureTableRows,
+} from "@/lib/security-trust-help-presentation";
 
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
 
@@ -142,17 +152,30 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
   const headings = extractedHeadings;
 
+  const isSecurityTrustHelp = entry.slug === "security-trust";
+
   const resolvedTocGroups =
 
-    tocGroups ?? (isCaiqSigResponse ? buildCaiqSigResponseTocGroups(headings) : undefined);
+    tocGroups
 
-  const postureCounts = isCaiqSigResponse ? computeCaiqSigResponsePostureCounts(preparedMarkdown) : null;
-  const postureTableRowTotal = isCaiqSigResponse ? countCaiqSigResponseTableRows(preparedMarkdown) : 0;
+    ?? (isCaiqSigResponse ? buildCaiqSigResponseTocGroups(headings) : undefined)
+
+    ?? (isSecurityTrustHelp ? buildSecurityTrustTocGroups(headings) : undefined);
+
+  const postureCounts = isCaiqSigResponse
+    ? computeCaiqSigResponsePostureCounts(preparedMarkdown)
+    : isSecurityTrustHelp
+      ? computeSecurityTrustPostureCounts(preparedMarkdown)
+      : null;
+  const postureTableRowTotal = isCaiqSigResponse
+    ? countCaiqSigResponseTableRows(preparedMarkdown)
+    : isSecurityTrustHelp
+      ? countSecurityTrustPostureTableRows(preparedMarkdown)
+      : 0;
 
   const isIntegrationReadinessHelp = entry.slug === "integration-readiness";
   const isPolicyPacksHelp = entry.slug === "policy-packs";
   const isScopeHelp = entry.slug === "scope";
-  const isSecurityTrustHelp = entry.slug === "security-trust";
   const isSubprocessorsHelp = entry.slug === "subprocessors";
   const isProcurementHelp = isProcurementHelpTopic(entry.slug);
   const isAuthenticationSignInHelp = entry.slug === "authentication-sign-in";
@@ -269,7 +292,11 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
 
       {postureCounts !== null ? (
-        <CaiqSigResponseHelpPostureSummary counts={postureCounts} tableRowTotal={postureTableRowTotal} />
+        isSecurityTrustHelp ? (
+          <SecurityTrustHelpPostureSummary counts={postureCounts} tableRowTotal={postureTableRowTotal} />
+        ) : (
+          <CaiqSigResponseHelpPostureSummary counts={postureCounts} tableRowTotal={postureTableRowTotal} />
+        )
       ) : null}
 
 
@@ -301,6 +328,8 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
         <HelpTopicTableOfContents headings={headings} groups={resolvedTocGroups} enableScrollSpy />
 
       </div>
+
+      {isSecurityTrustHelp ? <SecurityTrustHelpNextSteps /> : null}
 
     </article>
 

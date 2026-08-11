@@ -2865,6 +2865,25 @@ export function stripTrustCenterContributorLeakage(markdown: string): string {
     ].join("\n"),
   );
 
+  result = result.replace(
+    /## Automated freshness posture[\s\S]*?(?=\n## |\n---\n|$)/i,
+    "",
+  );
+
+  result = result.replace(
+    /## Healthcare and PHI[\s\S]*?(?=\n## |\n---\n|$)/i,
+    [
+      "## Healthcare and PHI",
+      "",
+      "ArchLucid is for **architecture and governance evidence** — not a regulated record system for clinical care.",
+      "",
+      "- **Do not upload PHI** into briefs, uploads, or free-text architecture fields.",
+      "- For **BAA**, **MSA/DPA** wording, or contractual posture beyond in-repo templates, contact **sales@archlucid.net**.",
+      "- For **tenant isolation** and residency messaging, see [Data handling and tenant isolation](/help/data-handling#isolation).",
+      "- Deeper healthcare vertical positioning lives in the healthcare policy review guide — product fit only; no new certification claims.",
+    ].join("\n"),
+  );
+
   return result.replace(/\n{3,}/g, "\n\n").trimEnd();
 }
 
