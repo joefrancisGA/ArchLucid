@@ -3281,6 +3281,11 @@ const EVIDENCE_INTAKE_STRUCTURED_UI_SECTION_PREFIXES = [
   "verify intake before finalize",
 ] as const;
 
+const EVIDENCE_TRAIL_STRUCTURED_UI_SECTION_PREFIXES = [
+  "open the evidence graph",
+  "related guides",
+] as const;
+
 /**
  * TB-1351 — buyer-safe wording for guided-intake path copy in product presentation.
  */
@@ -3300,6 +3305,30 @@ export function stripEvidenceIntakeStructuredUiSections(markdown: string): strin
     if (line.startsWith("## ") && !line.startsWith("###")) {
       const title = line.slice(3).replace(/\s*\{#[^}]+\}\s*$/, "").trim().toLowerCase();
       omitSection = EVIDENCE_INTAKE_STRUCTURED_UI_SECTION_PREFIXES.some((prefix) =>
+        title.startsWith(prefix),
+      );
+    }
+
+    if (!omitSection) {
+      result.push(line);
+    }
+  }
+
+  return result.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd();
+}
+
+/**
+ * TB-1360 — specialty chrome owns open-graph action panel, finding jump, and related guides.
+ */
+export function stripEvidenceTrailStructuredUiSections(markdown: string): string {
+  const lines = markdown.split("\n");
+  const result: string[] = [];
+  let omitSection = false;
+
+  for (const line of lines) {
+    if (line.startsWith("## ") && !line.startsWith("###")) {
+      const title = line.slice(3).replace(/\s*\{#[^}]+\}\s*$/, "").trim().toLowerCase();
+      omitSection = EVIDENCE_TRAIL_STRUCTURED_UI_SECTION_PREFIXES.some((prefix) =>
         title.startsWith(prefix),
       );
     }
@@ -3661,6 +3690,11 @@ export function prepareHelpMarkdownForPresentation(
     afterAudienceStrip = stripEvidenceIntakeStructuredUiSections(
       softenEvidenceIntakeHelpPresentation(sanitized),
     );
+  } else if (
+    options?.helpTopicSlug === "evidence-trail" &&
+    normalizedSourcePath.includes("EVIDENCE_TRAIL_OPERATOR_GUIDE.md")
+  ) {
+    afterAudienceStrip = stripEvidenceTrailStructuredUiSections(sanitized);
   } else if (
     options?.helpTopicSlug === "path-chooser" &&
     normalizedSourcePath.includes("buyer_orientation_one_screen.md")

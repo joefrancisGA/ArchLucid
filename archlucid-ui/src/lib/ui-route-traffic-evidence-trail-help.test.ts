@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { extractMasterTableRows, readUiRouteTrafficEstimatesTemplateMarkdown } from "@/lib/testing/ui-route-traffic-workbook-test-utils";
-
+import {
+  extractMasterTableRows,
+  findTrafficRowById,
+  readUiRouteTrafficEstimatesTemplateMarkdown,
+} from "@/lib/testing/ui-route-traffic-workbook-test-utils";
 import {
   EVIDENCE_TRAIL_HELP_TRAFFIC_NOTE,
   EVIDENCE_TRAIL_HELP_TRAFFIC_PATH,
@@ -17,8 +20,12 @@ describe("ui-route-traffic-evidence-trail-help (EV)", () => {
     expect(row).toBeDefined();
     expect(row?.path).toBe(EVIDENCE_TRAIL_HELP_TRAFFIC_PATH);
     expect(row?.section).toBe(EVIDENCE_TRAIL_HELP_TRAFFIC_SECTION);
+
+    expect(EVIDENCE_TRAIL_HELP_TRAFFIC_NOTE).toContain("HelpEvidenceTrailGuideView");
+    expect(EVIDENCE_TRAIL_HELP_TRAFFIC_NOTE).toContain("Open Evidence graph");
+    expect(EVIDENCE_TRAIL_HELP_TRAFFIC_NOTE).toContain("Not bare HelpTopicMarkdownView");
+    expect(EVIDENCE_TRAIL_HELP_TRAFFIC_NOTE).not.toContain("Ã¢â‚¬â€");
+    expect(EVIDENCE_TRAIL_HELP_TRAFFIC_NOTE).toContain("cannot improve further toward 80");
     expect(row?.notes).toBe(EVIDENCE_TRAIL_HELP_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("HelpTopicMarkdownView");
-    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

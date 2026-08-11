@@ -1,45 +1,27 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  findingIdForGraphDeepLink,
-  graphFindingDetailHref,
-  graphFindingInspectHref,
+  FINDING_EVIDENCE_GRAPH_DEFAULT_MODE,
+  getFindingEvidenceGraphHref,
   graphTrailHrefWithOptionalNode,
-  GRAPH_NODE_FOCUS_QUERY_PARAM,
+  SHIPPED_EVIDENCE_GRAPH_MODES,
 } from "@/lib/graph-finding-deep-links";
-import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "@/lib/showcase-static-demo";
-import type { GraphNodeVm } from "@/types/graph";
 
-describe("graph-finding-deep-links", () => {
-  it("resolves finding id from referenceId metadata", () => {
-    const node: GraphNodeVm = {
-      id: "n-x",
-      label: "Risk",
-      type: "Finding",
-      metadata: { referenceId: "phi-minimization-risk" },
-    };
+describe("graph-finding-deep-links (TB-1361)", () => {
+  it("uses provenance-full for finding graph deep links", () => {
+    expect(FINDING_EVIDENCE_GRAPH_DEFAULT_MODE).toBe("provenance-full");
+    expect(SHIPPED_EVIDENCE_GRAPH_MODES).toContain(FINDING_EVIDENCE_GRAPH_DEFAULT_MODE);
 
-    expect(findingIdForGraphDeepLink(node)).toBe("phi-minimization-risk");
+    const href = getFindingEvidenceGraphHref("run-1", "n-phi");
+
+    expect(href).toContain("/insights/evidence-graph");
+    expect(href).toContain("runId=run-1");
+    expect(href).toContain("mode=provenance-full");
+    expect(href).toContain("graphNodeId=n-phi");
+    expect(href).not.toContain("review-trail");
   });
 
-  it("falls back to curated id for static demo phi node", () => {
-    const node: GraphNodeVm = {
-      id: "n-phi",
-      label: "PHI minimization risk",
-      type: "Finding",
-      metadata: {},
-    };
-
-    expect(findingIdForGraphDeepLink(node)).toBe(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID);
-  });
-
-  it("builds detail and inspect hrefs", () => {
-    expect(graphFindingDetailHref("run-a", "fid-1")).toBe("/architecture/reviews/run-a/findings/fid-1");
-    expect(graphFindingInspectHref("run-a", "fid-1")).toBe("/architecture/reviews/run-a/findings/fid-1/evidence-trace");
-  });
-
-  it("graphTrailHrefWithOptionalNode adds graphNodeId only when focused id is non-empty", () => {
-    expect(graphTrailHrefWithOptionalNode("run-z", null)).toBe("/insights/evidence-graph?runId=run-z");
-    expect(graphTrailHrefWithOptionalNode("run-z", "n-phi")).toBe(`/insights/evidence-graph?runId=run-z&${GRAPH_NODE_FOCUS_QUERY_PARAM}=n-phi`);
+  it("delegates graphTrailHrefWithOptionalNode to getFindingEvidenceGraphHref", () => {
+    expect(graphTrailHrefWithOptionalNode("run-2", null)).toBe(getFindingEvidenceGraphHref("run-2"));
   });
 });

@@ -54,6 +54,7 @@ describe("finding-inspect-graph-evidence", () => {
 
     expect(href).toContain(`runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`);
     expect(href).toContain(`graphNodeId=${SHOWCASE_PHI_FINDING_GRAPH_NODE_ID}`);
+    expect(href).toContain("mode=provenance-full");
   });
 
   it("resolves preferred graph node id for slugged showcase finding ids", () => {

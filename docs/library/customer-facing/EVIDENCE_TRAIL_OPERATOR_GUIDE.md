@@ -51,7 +51,7 @@ You can also jump from a finding:
 
 1. Open an architecture package and go to **Findings**.
 2. On a finding with linked evidence, choose **Explain in evidence trail** (or **View evidence trail** from related surfaces).
-3. ArchLucid opens the Evidence graph scoped to that review and finding.
+3. ArchLucid opens the finding **evidence trace** for that review and finding. From the trace table or graph view, open the Evidence graph in **Evidence provenance** mode when you need the visual explorer.
 
 ## Trace table vs graph view {#trace-table-vs-graph-view}
 
@@ -79,7 +79,7 @@ Start with **Evidence provenance** when your question is “what file or artifac
 ## Trace a finding step by step {#trace-a-finding-step-by-step}
 
 1. **Start from the finding** — open the architecture package **Findings** tab and note the finding title and severity.
-2. **Open the evidence graph** — use **Explain in evidence trail** on the finding, or load the same review from **Insights → Evidence graph**.
+2. **Open the evidence trace** — use **Explain in evidence trail** on the finding, or load the same review from **Insights → Evidence graph** and switch to **Evidence provenance**.
 3. **Read the trace table** — confirm the finding row lists evidence links or flags an evidence gap.
 4. **Switch to graph view** — select **Evidence provenance** and follow edges from the finding to artifact nodes.
 5. **Return to the package** — use **Open review** to jump back to the architecture package detail when you are ready to add evidence, record a disposition, or export.

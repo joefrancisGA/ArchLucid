@@ -19,9 +19,9 @@ vi.mock("@/components/help/HelpTopicPrintButton", () => ({
   HelpTopicPrintButton: () => null,
 }));
 
-import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownView";
-import { EvidenceTrailHelpEvidenceOrientationStrip } from "@/components/help/EvidenceTrailHelpEvidenceOrientationStrip";
+import { HelpEvidenceTrailGuideView } from "@/app/(operator)/help/_sections/HelpEvidenceTrailGuideView";
 import { AZURE_REFERENCE_SAMPLE_GRAPH_CTA_LABEL } from "@/lib/empty-state-presets";
+import { BUYER_EVIDENCE_TRAIL_LOAD_BUTTON } from "@/lib/buyer-polish-copy";
 import {
   EVIDENCE_TRAIL_HELP_CLAIM_DISCIPLINE,
   EVIDENCE_TRAIL_HELP_PRIMARY_ACTION,
@@ -69,16 +69,10 @@ function renderEvidenceTrailHelp(): void {
     throw new Error("Expected evidence-trail documentation to load.");
   }
 
-  render(
-    <HelpTopicMarkdownView
-      entry={loaded.entry}
-      markdown={loaded.markdown}
-      evidenceOrientation={<EvidenceTrailHelpEvidenceOrientationStrip />}
-    />,
-  );
+  render(<HelpEvidenceTrailGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 }
 
-describe("HelpTopicMarkdownView evidence-trail (TB-1363)", () => {
+describe("HelpEvidenceTrailGuideView (TB-1360–TB-1364)", () => {
   const loaded = tryLoadProductDocumentation("evidence-trail");
 
   it("loads evidence-trail markdown from the monorepo", () => {
@@ -100,13 +94,23 @@ describe("HelpTopicMarkdownView evidence-trail (TB-1363)", () => {
     assertNoRetiredGraphRouteLiteral(normalizedMarkdown);
   });
 
-  it("renders primary action, claim-discipline orientation, and non-empty header actions", () => {
+  it("renders specialty guide chrome with primary action, secondary CTAs, and claim discipline", () => {
     renderEvidenceTrailHelp();
+
+    expect(screen.getByTestId("help-evidence-trail-guide")).toBeInTheDocument();
+    expect(screen.getByTestId("help-evidence-trail-first-viewport")).toBeInTheDocument();
 
     const primaryAction = screen.getByTestId(EVIDENCE_TRAIL_HELP_PRIMARY_ACTION.testId);
 
     expect(primaryAction).toHaveAttribute("href", EVIDENCE_GRAPH_PATH);
     expect(primaryAction).toHaveTextContent(EVIDENCE_TRAIL_HELP_PRIMARY_ACTION.label);
+
+    expect(screen.getByTestId("help-evidence-trail-load-graph")).toHaveTextContent(
+      BUYER_EVIDENCE_TRAIL_LOAD_BUTTON,
+    );
+    expect(screen.getByTestId("help-evidence-trail-open-sample-graph")).toHaveTextContent(
+      AZURE_REFERENCE_SAMPLE_GRAPH_CTA_LABEL,
+    );
 
     const claimDiscipline = screen.getByTestId("evidence-trail-help-claim-discipline");
 
@@ -116,6 +120,25 @@ describe("HelpTopicMarkdownView evidence-trail (TB-1363)", () => {
     const exportActions = screen.getByTestId("help-topic-export-actions");
 
     expect(exportActions.querySelectorAll("a, button").length).toBeGreaterThan(0);
+  });
+
+  it("exposes finding trace and provenance graph deep links without review-trail mode (TB-1361)", () => {
+    renderEvidenceTrailHelp();
+
+    const traceLink = screen.getByTestId("help-evidence-trail-finding-trace-link");
+    const graphLink = screen.getByTestId("help-evidence-trail-finding-graph-link");
+
+    expect(traceLink.getAttribute("href")).toContain("/evidence-trace");
+    expect(graphLink.getAttribute("href")).toContain("mode=provenance-full");
+    expect(graphLink.getAttribute("href")).not.toContain("review-trail");
+  });
+
+  it("lists at most three related guides in specialty chrome (TB-1362)", () => {
+    renderEvidenceTrailHelp();
+
+    expect(screen.getAllByTestId("help-evidence-trail-related-guides-links")[0].querySelectorAll("li").length).toBeLessThanOrEqual(
+      3,
+    );
   });
 
   it("rendered help body keeps sample-universe honesty visible", () => {

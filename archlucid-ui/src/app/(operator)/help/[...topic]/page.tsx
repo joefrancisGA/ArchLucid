@@ -5,7 +5,6 @@ import { notFound, permanentRedirect } from "next/navigation";
 
 import { HelpTopicMarkdownView } from "../HelpTopicMarkdownView";
 import { CaiqSigResponseHelpEvidenceOrientationStrip } from "@/components/help/CaiqSigResponseHelpEvidenceOrientationStrip";
-import { EvidenceTrailHelpEvidenceOrientationStrip } from "@/components/help/EvidenceTrailHelpEvidenceOrientationStrip";
 import { IntegrationReadinessHelpEvidenceOrientationStrip } from "@/components/help/IntegrationReadinessHelpEvidenceOrientationStrip";
 import { AuthenticationSignInHelpEvidenceOrientationStrip } from "@/components/help/AuthenticationSignInHelpEvidenceOrientationStrip";
 import { HelpTopicAuthorityGate } from "../_sections/HelpTopicAuthorityGate";
@@ -122,6 +121,9 @@ const HelpEnterpriseOnboardingGuideView = dynamic(() =>
 );
 const HelpEvidenceIntakeGuideView = dynamic(() =>
   import("../_sections/HelpEvidenceIntakeGuideView").then((module) => module.HelpEvidenceIntakeGuideView),
+);
+const HelpEvidenceTrailGuideView = dynamic(() =>
+  import("../_sections/HelpEvidenceTrailGuideView").then((module) => module.HelpEvidenceTrailGuideView),
 );
 const HelpFirstReviewEvidenceChecklistGuideView = dynamic(() =>
   import("../_sections/HelpFirstReviewEvidenceChecklistGuideView").then(
@@ -502,13 +504,7 @@ function renderHelpTopicView(
   }
 
   if (loaded.entry.slug === "evidence-trail") {
-    return (
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        evidenceOrientation={<EvidenceTrailHelpEvidenceOrientationStrip />}
-      />
-    );
+    return <HelpEvidenceTrailGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
   if (loaded.entry.slug === "pilot-roi-model") {

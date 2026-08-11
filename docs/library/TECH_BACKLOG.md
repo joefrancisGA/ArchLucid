@@ -2,7 +2,7 @@
 
 <!-- tech-backlog-open-by-category:start -->
 
-**Open counts by architectural quality** (auto-maintained; last refreshed **2026-08-10**).
+**Open counts by architectural quality** (auto-maintained; last refreshed **2026-08-11**).
 
 Regenerate after opening or closing summary-table rows:
 `python scripts/ci/refresh_tech_backlog_category_counts.py --write`
@@ -15,12 +15,12 @@ Regenerate after opening or closing summary-table rows:
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
 | Architectural integrity | 11 |
-| Adoption friction | 298 |
+| Adoption friction | 295 |
 | Commercial / marketability | 9 |
-| Data consistency | 4 |
+| Data consistency | 3 |
 | Cutting-edge AI | 3 |
 | Explainability | 1 |
-| Trustworthiness | 41 |
+| Trustworthiness | 40 |
 | Maintainability | 9 |
 | Traceability | 3 |
 | Interoperability | 4 |
@@ -35,9 +35,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **566** |
+| **Total (unique open)** | **561** |
 
-**By priority band:** P0 **3** | P1 **443** | P2 **103** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **3** | P1 **438** | P2 **103** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -861,7 +861,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1971 | **Done** (2026-08-01) ? ROI summary traffic workbook retagged Sponsor report (not Marketing); Vitest; see `## TB-1971` below | Trustworthiness P1 ? **V1**; owner review ~45/100 2026-07-27; traffic **SPR** | XS |
 | TB-1972 | **Done** (2026-08-01) ? ROI summary zero CTA uses buyer Start architecture review label; Vitest; see `## TB-1972` below | Trustworthiness P1 ? **V1**; with **TB-1971** | S |
 | TB-991 | **Done** (2026-08-10) ? Solo-ops MVO honesty CI guard (`check_solo_ops_mvo_honesty.py`); P0 critical wiring assert; buyer doc scan while **TB-958**/**TB-959** open; see `## TB-991` below | Trustworthiness P1 ? **V1**; after **TB-989**; pairs **M-119**/**M-142** | S |
-| TB-987 | Enforce finding race honesty ? stale-current UX, optional contradictory-disposition conflict, HumanReviewStatus vs trail alignment; see `## TB-987` below | Correctness P1 ? **V1**; after **TB-986**; operator finding inspect / stickiness + ITSM inbound | M |
+| TB-987 | **Done** (2026-08-10) ? Finding race honesty: concurrent disposition UX after save + ITSM HumanReviewStatus provenance caption; see `## TB-987` below | Correctness P1 ? **V1**; after **TB-986**; operator finding inspect / stickiness + ITSM inbound | M |
 | TB-1371 | **Done** (2026-08-10) ? TB-881 org-registration race ship-blocker classification contract; see `## TB-1371` below | Correctness P1 ? **V1**; PA TB-881 gate class; GTM **M-249**/**M-250**; Done **TB-881** stays closed | S |
 | TB-958 | Cardinality-safe per-tenant / stuck-run degradation alerts ? page before support ticket; see `## TB-958` below | Reliability P1 ? **V1**; after **TB-957**; solo-ops MVO 2026-07-23 | M |
 | TB-959 | Canary create?execute?finalize synthetic that pages ? beyond auth/showcase probes; see `## TB-959` below | Reliability P1 ? **V1**; after **TB-957**; pairs **TB-889**/**TB-758** | M |
@@ -1418,10 +1418,10 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1345 | ~~`/help/evaluator-workbook` ? specialty evaluator guide + primary Start CTA~~ **Done** 2026-08-10 ? canonical `/help/path-chooser` + `HelpPathChooserEvaluatorSessionStrip`; Vitest | Adoption friction P1 ? **V1**; owner evaluator-workbook ~42/100 2026-07-26; traffic **HEE**; pairs **TB-1253**/**TB-1338** | M |
 | TB-1347 | ~~Evaluator workbook ? help-center tier / audience honesty (not buried internal)~~ **Done** 2026-08-10 ? `evaluator-workbook` alias ? product-tier `path-chooser`; Vitest | Trustworthiness P1 ? **V1**; with **TB-1345**; pairs **TB-1329**/**TB-1250** | S |
 | TB-1350 | ~~`/help/evidence-intake` ? specialty wizard companion + primary Start CTA~~ **Done** 2026-08-10 ? `HelpEvidenceIntakeGuideView`; Vitest specialty root | Adoption friction P1 ? **V1**; owner evidence-intake ~55/100 2026-07-26; traffic **EVI**; after Done **TB-761** | M |
-| TB-1360 | `/help/evidence-trail` ? specialty Evidence graph companion + Open `/graph` CTA; see ## TB-1360 below | Adoption friction P1 ? **V1**; owner evidence-trail ~58/100 2026-07-26; traffic **EV**; after Done **TB-762** | M |
-| TB-1361 | Evidence trail help ? finding deep-link / `mode=` honesty; see ## TB-1361 below | Trustworthiness P1 ? **V1**; with **TB-1360** | S |
-| TB-1362 | Evidence trail help ? Related guides density; see ## TB-1362 below | Adoption friction P1 ? **V1**; with **TB-1360**; pairs **TB-1258** | S |
-| TB-1364 | Evidence trail help ? Open sample / Load CTA chrome parity; see ## TB-1364 below | Adoption friction P1 ? **V1**; with **TB-1360** | S |
+| TB-1360 | ~~`/help/evidence-trail` ? specialty Evidence graph companion + Open `/graph` CTA~~ **Done** 2026-08-10 ? `HelpEvidenceTrailGuideView` + first-viewport Open/Load/sample CTAs; Vitest | Adoption friction P1 ? **V1**; owner evidence-trail ~58/100 2026-07-26; traffic **EV**; after Done **TB-762** | M |
+| TB-1361 | ~~Evidence trail help ? finding deep-link / `mode=` honesty~~ **Done** 2026-08-10 ? `getFindingEvidenceGraphHref` (`mode=provenance-full`); finding jump panel + guide copy; Vitest | Trustworthiness P1 ? **V1**; with **TB-1360** | S |
+| TB-1362 | ~~Evidence trail help ? Related guides density~~ **Done** 2026-08-10 ? ?3 in-app related guides in specialty chrome; Vitest | Adoption friction P1 ? **V1**; with **TB-1360**; pairs **TB-1258** | S |
+| TB-1364 | ~~Evidence trail help ? Open sample / Load CTA chrome parity~~ **Done** 2026-08-10 ? Load + Open sample CTAs match `BUYER_EVIDENCE_TRAIL_LOAD_BUTTON` / sample graph label; Vitest | Adoption friction P1 ? **V1**; with **TB-1360** | S |
 | TB-1374 | `/help/first-hour-operator-path` ? canonicalize into `/help/core-pilot`; see ## TB-1374 below | Adoption friction P1 ? **V1**; owner first-hour ~46/100 2026-07-26; traffic **HFE**; pairs **TB-1335**/**TB-1352** | M |
 | TB-1375 | First-hour help ? purge Pilot / operator-path jargon + slug honesty; see ## TB-1375 below | Trustworthiness P1 ? **V1**; with **TB-1374** | S |
 | TB-1376 | First-hour help ? inbound first-review pointers ? core-pilot; see ## TB-1376 below | Adoption friction P1 ? **V1**; with **TB-1374**; pairs **TB-1352**/**TB-1335** | S |
@@ -34707,7 +34707,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done 2026-08-10 ? `HelpEvidenceTrailGuideView` with first-viewport Open Evidence graph CTA, Load/sample secondary actions, finding jump panel, and Vitest (`HelpTopicEvidenceTrail`, `evidence-trail-help-guide-content`).
 
 **Priority:** P0.
 
@@ -34735,7 +34735,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Trustworthiness.
 
-**Status:** Not started.
+**Status:** Done 2026-08-10 ? `getFindingEvidenceGraphHref` uses shipped `mode=provenance-full`; finding jump panel + guide copy; Vitest (`graph-finding-deep-links`, `HelpTopicEvidenceTrail`).
 
 **Priority:** P0.
 
@@ -34763,7 +34763,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done 2026-08-10 ? ?3 in-app related guides in `HelpEvidenceTrailRelatedGuidesLinks`; Vitest.
 
 **Priority:** P0.
 
@@ -34817,7 +34817,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done 2026-08-10 ? Load + Open sample CTAs match `BUYER_EVIDENCE_TRAIL_LOAD_BUTTON` and `AZURE_REFERENCE_SAMPLE_GRAPH_CTA_LABEL`; Vitest.
 
 **Priority:** P0.
 
