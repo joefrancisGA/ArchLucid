@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { HelpEngineeringTroubleshootingHeaderMetadata } from "@/app/(operator)/help/_sections/HelpEngineeringTroubleshootingHeaderMetadata";
+import { HelpEngineeringTroubleshootingRunbookOverview } from "@/app/(operator)/help/_sections/HelpEngineeringTroubleshootingRunbookOverview";
 import { HelpEngineeringTroubleshootingSourceLinks } from "@/app/(operator)/help/_sections/HelpEngineeringTroubleshootingSourceLinks";
 import { HelpEngineeringTroubleshootingSymptomIndex } from "@/app/(operator)/help/_sections/HelpEngineeringTroubleshootingSymptomIndex";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
@@ -18,7 +19,6 @@ import {
   ENGINEERING_TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE,
   ENGINEERING_TROUBLESHOOTING_HELP_ORIENTATION,
   ENGINEERING_TROUBLESHOOTING_HELP_ORIENTATION_TITLE,
-  ENGINEERING_TROUBLESHOOTING_HELP_OVERVIEW,
   ENGINEERING_TROUBLESHOOTING_HELP_PAGE_SUBTITLE,
   ENGINEERING_TROUBLESHOOTING_HELP_PAGE_TITLE,
   ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS,
@@ -26,6 +26,7 @@ import {
 import {
   DESIGN_TOKENS,
   OPERATOR_LAYOUT,
+  OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
@@ -50,6 +51,7 @@ export function HelpEngineeringTroubleshootingGuideView(
     preserveMaintenanceMetadata: true,
   });
   const headings = extractHelpMarkdownHeadings(preparedMarkdown);
+  const majorSections = headings.filter((heading) => heading.level === 2);
   const contentGridClass = resolveHelpPageContentGridClass(headings.length);
 
   return (
@@ -102,21 +104,29 @@ export function HelpEngineeringTroubleshootingGuideView(
                 {ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openCustomerTroubleshooting.label}
               </Link>
             </Button>
-            <Button asChild size="sm" variant="outline">
-              <Link href={ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openSystemHealth.href}>
-                {ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openSystemHealth.label}
-              </Link>
-            </Button>
-            <Button asChild size="sm" variant="outline">
-              <Link href={ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openReportAProblem.href}>
-                {ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openReportAProblem.label}
-              </Link>
-            </Button>
-            <Button asChild size="sm" variant="outline">
-              <Link href={ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openCliUsage.href}>
-                {ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openCliUsage.label}
-              </Link>
-            </Button>
+          </div>
+          <div
+            className="mt-2 flex flex-wrap gap-x-3 gap-y-1"
+            data-testid="help-engineering-troubleshooting-secondary-ctas"
+          >
+            <Link
+              className={cn(OPERATOR_LINK.inline, "inline-flex min-h-6 items-center py-1 font-medium")}
+              href={ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openSystemHealth.href}
+            >
+              {ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openSystemHealth.label}
+            </Link>
+            <Link
+              className={cn(OPERATOR_LINK.inline, "inline-flex min-h-6 items-center py-1 font-medium")}
+              href={ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openReportAProblem.href}
+            >
+              {ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openReportAProblem.label}
+            </Link>
+            <Link
+              className={cn(OPERATOR_LINK.inline, "inline-flex min-h-6 items-center py-1 font-medium")}
+              href={ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openCliUsage.href}
+            >
+              {ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openCliUsage.label}
+            </Link>
           </div>
         </div>
       </div>
@@ -133,19 +143,14 @@ export function HelpEngineeringTroubleshootingGuideView(
 
       <div className={contentGridClass}>
         <div className="min-w-0 space-y-6">
-          <p
-            className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}
-            data-testid="help-engineering-troubleshooting-overview"
-          >
-            {ENGINEERING_TROUBLESHOOTING_HELP_OVERVIEW}
-          </p>
+          <HelpEngineeringTroubleshootingRunbookOverview majorSections={majorSections} />
 
           <HelpEngineeringTroubleshootingSourceLinks />
 
           <HelpEngineeringTroubleshootingSymptomIndex />
 
           <aside
-            className={cn(DESIGN_TOKENS.callout.warn, "p-3")}
+            className={cn(DESIGN_TOKENS.callout.info, "p-3")}
             data-testid="help-engineering-troubleshooting-claim-discipline"
           >
             <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Claim discipline</h2>
@@ -158,6 +163,7 @@ export function HelpEngineeringTroubleshootingGuideView(
             id="help-engineering-troubleshooting-content"
             className={HELP_PAGE_LAYOUT.contentColumn}
             data-testid="help-engineering-troubleshooting-content"
+            tabIndex={-1}
           >
             <MarketingAccessibilityMarkdownFragment
               markdownBody={preparedMarkdown}

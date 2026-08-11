@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
 import { SeverityTag } from "@/components/ui/severity-tag";
@@ -8,7 +9,7 @@ import {
   ENGINEERING_TROUBLESHOOTING_HELP_SYMPTOM_INDEX_TITLE,
   ENGINEERING_TROUBLESHOOTING_HELP_SYMPTOM_ROWS,
 } from "@/lib/engineering-troubleshooting-help-guide-content";
-import { OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT, HELP_PAGE_TOC } from "@/lib/help-page-layout";
 import { cn } from "@/lib/utils";
 
@@ -99,7 +100,15 @@ export function HelpEngineeringTroubleshootingSymptomIndex(): React.ReactElement
                     </div>
                   </th>
                   <td className={HELP_PAGE_LAYOUT.tableBodyCell}>{row.firstCheck}</td>
-                  <td className={HELP_PAGE_LAYOUT.tableBodyCell}>{row.escalationArtifact}</td>
+                  <td className={HELP_PAGE_LAYOUT.tableBodyCell}>
+                    {row.escalationHref !== undefined ? (
+                      <Link className={cn(OPERATOR_LINK.inline, "font-medium")} href={row.escalationHref}>
+                        {row.escalationArtifact}
+                      </Link>
+                    ) : (
+                      row.escalationArtifact
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>

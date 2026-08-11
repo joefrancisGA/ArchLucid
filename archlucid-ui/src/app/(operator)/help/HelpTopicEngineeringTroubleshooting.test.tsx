@@ -50,6 +50,7 @@ describe("HelpEngineeringTroubleshootingGuideView", () => {
     expect(screen.getByTestId("help-engineering-troubleshooting-sources")).toBeInTheDocument();
     expect(screen.getByTestId("help-engineering-troubleshooting-sources-strip")).toBeInTheDocument();
     expect(screen.getByTestId("help-engineering-troubleshooting-orientation")).toBeInTheDocument();
+    expect(screen.getByTestId("help-engineering-troubleshooting-runbook-overview")).toBeInTheDocument();
     expect(screen.getByTestId("help-engineering-troubleshooting-symptom-index")).toBeInTheDocument();
     expect(screen.getByTestId("help-engineering-troubleshooting-claim-discipline")).toBeInTheDocument();
 
@@ -65,16 +66,24 @@ describe("HelpEngineeringTroubleshootingGuideView", () => {
       "href",
       ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openCustomerTroubleshooting.href,
     );
+
+    const secondaryCtas = screen.getByTestId("help-engineering-troubleshooting-secondary-ctas");
+
     expect(
-      within(actionPanel).getByRole("link", {
+      within(secondaryCtas).getByRole("link", {
         name: ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openCliUsage.label,
       }),
     ).toHaveAttribute("href", ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openCliUsage.href);
 
     const filter = screen.getByTestId("help-engineering-troubleshooting-symptom-filter");
 
+    const symptomIndex = screen.getByTestId("help-engineering-troubleshooting-symptom-index");
+
     fireEvent.change(filter, { target: { value: "401" } });
-    expect(screen.getAllByTestId("help-engineering-troubleshooting-symptom-row")).toHaveLength(1);
+    expect(within(symptomIndex).getAllByTestId("help-engineering-troubleshooting-symptom-row")).toHaveLength(1);
+    expect(
+      within(symptomIndex).getByRole("link", { name: "Configuration reference" }),
+    ).toHaveAttribute("href", "/help/configuration-reference");
 
     fireEvent.change(filter, { target: { value: "no-such-symptom" } });
     expect(screen.getByTestId("help-engineering-troubleshooting-symptom-empty")).toBeInTheDocument();

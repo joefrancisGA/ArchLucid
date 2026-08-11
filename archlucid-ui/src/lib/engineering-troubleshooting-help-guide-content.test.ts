@@ -6,6 +6,7 @@ import {
   ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS,
   ENGINEERING_TROUBLESHOOTING_HELP_SOURCES,
   ENGINEERING_TROUBLESHOOTING_HELP_SOURCES_STRIP_INTRO,
+  ENGINEERING_TROUBLESHOOTING_HELP_SYMPTOM_ROWS,
 } from "@/lib/engineering-troubleshooting-help-guide-content";
 
 describe("engineering-troubleshooting-help-guide-content", () => {
@@ -31,6 +32,13 @@ describe("engineering-troubleshooting-help-guide-content", () => {
     expect(ENGINEERING_TROUBLESHOOTING_HELP_SOURCES.some((link) => link.href.includes("troubleshooting"))).toBe(
       true,
     );
+  });
+
+  it("links every symptom escalation artifact to an in-app destination", () => {
+    for (const row of ENGINEERING_TROUBLESHOOTING_HELP_SYMPTOM_ROWS) {
+      expect(row.escalationHref, row.symptom).toBeDefined();
+      expect(row.escalationHref, row.symptom).toMatch(/^\//);
+    }
   });
 
   it("states claim discipline without implying certification", () => {

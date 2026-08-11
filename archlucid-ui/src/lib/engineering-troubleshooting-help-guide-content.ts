@@ -32,6 +32,13 @@ export const ENGINEERING_TROUBLESHOOTING_HELP_ORIENTATION_TITLE = "When to use t
 export const ENGINEERING_TROUBLESHOOTING_HELP_ORIENTATION =
   "Open customer Troubleshooting and System health first. Use this Admin eng runbook only when you need CLI, migration, proxy, or auth-depth triage after those paths.";
 
+export const ENGINEERING_TROUBLESHOOTING_HELP_RUNBOOK_OVERVIEW = {
+  title: "Runbook overview",
+  audience: "Admin and engineering support — not customer self-serve.",
+  stability: "Internal runbook; registry-verified 2026-08-09.",
+  documentSource: "docs/runbooks/TROUBLESHOOTING.md + docs/runbooks/COMMON_ERRORS.md",
+} as const;
+
 export const ENGINEERING_TROUBLESHOOTING_HELP_ACTION_PANEL_TITLE = "Prefer customer paths first";
 
 export const ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS = {
@@ -57,6 +64,7 @@ export type EngineeringTroubleshootingHelpSymptomRow = {
   readonly symptom: string;
   readonly firstCheck: string;
   readonly escalationArtifact: string;
+  readonly escalationHref?: string;
   readonly severity: FindingSeverityKind;
 };
 
@@ -65,61 +73,71 @@ export const ENGINEERING_TROUBLESHOOTING_HELP_SYMPTOM_ROWS: readonly Engineering
     {
       symptom: "API does not start (migration / DbUp)",
       firstCheck: "Fix ConnectionStrings:ArchLucid and confirm SQL is reachable.",
-      escalationArtifact: "Startup diagnostic signal + migration error detail",
+      escalationArtifact: "Configuration reference",
+      escalationHref: inAppHelpHref("configuration-reference"),
       severity: "critical",
     },
     {
       symptom: "/health/ready returns 503",
       firstCheck: "Read JSON entries[] for the first Unhealthy or Degraded check.",
-      escalationArtifact: "support-bundle --zip",
+      escalationArtifact: "System health",
+      escalationHref: "/administration/system-health",
       severity: "high",
     },
     {
       symptom: "401 / 403 on API",
       firstCheck: "Confirm auth mode and JWT roles map to Reader, Operator, or Admin.",
-      escalationArtifact: "API contracts security section",
+      escalationArtifact: "Configuration reference",
+      escalationHref: inAppHelpHref("configuration-reference"),
       severity: "medium",
     },
     {
       symptom: "429 Too Many Requests",
       firstCheck: "Wait for the rate-limit window or adjust RateLimiting settings (non-production).",
-      escalationArtifact: "Rate limit configuration reference",
+      escalationArtifact: "Configuration reference",
+      escalationHref: inAppHelpHref("configuration-reference"),
       severity: "low",
     },
     {
       symptom: "404 on review or signed review record",
       firstCheck: "Verify review ID and tenant / workspace / project scope headers.",
-      escalationArtifact: "Re-fetch review in the architect workspace",
+      escalationArtifact: "Customer Troubleshooting",
+      escalationHref: inAppHelpHref("troubleshooting"),
       severity: "medium",
     },
     {
       symptom: "409 on commit",
       firstCheck: "Follow the conflict message; re-fetch run status before retrying.",
-      escalationArtifact: "Fresh architecture review attempt",
+      escalationArtifact: "Customer Troubleshooting",
+      escalationHref: inAppHelpHref("troubleshooting"),
       severity: "medium",
     },
     {
       symptom: "UI shows 503 invalid upstream API configuration",
       firstCheck: "Set ARCHLUCID_API_BASE_URL in archlucid-ui/.env.local and restart dev.",
-      escalationArtifact: "Next server proxy diagnostic signal",
+      escalationArtifact: "Configuration reference",
+      escalationHref: inAppHelpHref("configuration-reference"),
       severity: "high",
     },
     {
       symptom: "UI loads but API calls fail",
       firstCheck: "Inspect browser network tab and Next archlucid-ui-proxy warnings.",
-      escalationArtifact: "HAR + correlationId from problem JSON",
+      escalationArtifact: "Admin diagnostics",
+      escalationHref: inAppHelpHref("admin-diagnostics"),
       severity: "high",
     },
     {
       symptom: "run --quick / execute LLM or timeout errors",
       firstCheck: "Prefer simulator mode for pilots; validate AgentExecution / Azure OpenAI config.",
-      escalationArtifact: "Resilience configuration + circuit breaker state",
+      escalationArtifact: "CLI usage",
+      escalationHref: inAppHelpHref("cli-usage"),
       severity: "high",
     },
     {
       symptom: ".NET tests fail with SQL errors",
       firstCheck: "Set ARCHLUCID_SQL_TEST or run fast core tests only.",
-      escalationArtifact: "Build guide SQL prerequisites",
+      escalationArtifact: "CLI usage",
+      escalationHref: inAppHelpHref("cli-usage"),
       severity: "low",
     },
   ] as const;
