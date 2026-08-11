@@ -79,7 +79,6 @@ describe("HelpGlossaryPageView", () => {
     expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent("Help");
     expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent("Glossary");
     expect(screen.getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
-    expect(screen.getByTestId("help-topic-document-status")).toHaveTextContent("Current");
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
       `Last reviewed ${CUSTOMER_GLOSSARY_CONTRACT_VERSION}`,
     );

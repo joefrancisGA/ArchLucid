@@ -45,7 +45,6 @@ describe("HelpBillingAndPlansPageHeader", () => {
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-billing-header-actions")).toBeInTheDocument();
     expect(screen.getByTestId("help-billing-refresh-button")).toBeInTheDocument();
-    expect(screen.getByTestId("help-billing-document-status")).toHaveTextContent("Current");
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(/Last reviewed/i);
     expect(screen.getByTestId("help-billing-source-of-record")).toHaveTextContent("BILLING_AND_PLANS.md");
     expect(screen.getByTestId("help-billing-last-refreshed")).toHaveTextContent(/Plan data:/i);

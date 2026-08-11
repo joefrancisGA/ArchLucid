@@ -63,7 +63,7 @@ describe("DemoExplainConversionCtaCard (TB-1323)", () => {
     expect(screen.queryByTestId("demo-explain-conversion-see-it")).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "See what you need first" })).toHaveAttribute(
       "href",
-      "/help/path-chooser",
+      "/help/choose-your-next-step",
     );
   });
 });

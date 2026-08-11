@@ -39,7 +39,7 @@ const EXPECTED_AUDIENCE_IDS: readonly string[] = [
   "first-value-20-minutes",
   "evidence-intake",
   "evidence-trail",
-  "path-chooser",
+  "choose-your-next-step",
   "pilot-feedback",
   "policy-pack-delta-demo",
   "prior-manifest-retrieval",

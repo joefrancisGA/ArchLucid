@@ -28,7 +28,7 @@ const HELP_DOCS_STATIC_ENTRIES: readonly DocIndexEntry[] = [
     title: "Choose your next step",
     summary: "Path chooser — evaluate, mid-pilot recovery, procurement, sponsor output, or engineering support.",
     category: "Getting Started",
-    url: "/help/path-chooser",
+    url: "/help/choose-your-next-step",
   },
   { title: "Overview (pilot)", summary: "Pilot checklist and recent reviews.", category: "Getting Started", url: "/" },
   {

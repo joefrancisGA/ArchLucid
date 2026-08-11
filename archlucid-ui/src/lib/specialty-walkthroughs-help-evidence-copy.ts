@@ -13,7 +13,7 @@ export const SPECIALTY_WALKTHROUGHS_HELP_SOURCES_INTRO =
 /** Operator Sources — no self-href to `/help/specialty-walkthroughs`. */
 export const SPECIALTY_WALKTHROUGHS_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Start review", href: "/architecture/reviews/new" },
-  { label: "Path chooser", href: inAppHelpHref("path-chooser") },
+  { label: "Path chooser", href: inAppHelpHref("choose-your-next-step") },
   { label: "Your first architecture review", href: inAppHelpHref("first-architecture-review") },
   { label: "Getting started", href: inAppHelpHref("getting-started") },
   { label: "Pilot guide", href: inAppHelpHref("pilot-guide") },

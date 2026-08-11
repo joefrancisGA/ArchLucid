@@ -25,7 +25,7 @@ import { ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION } from "@/lib/enterprise-onbo
 describe("HelpTopicMarkdownPageHeader", () => {
   const entry = getProductDocumentationEntry("enterprise-onboarding");
 
-  it("renders breadcrumb, document status, identity providers CTA, and export actions", () => {
+  it("renders breadcrumb, registry provenance, identity providers CTA, and export actions", () => {
     if (entry === null) {
       throw new Error("Expected enterprise-onboarding documentation entry.");
     }
@@ -41,7 +41,6 @@ describe("HelpTopicMarkdownPageHeader", () => {
     expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent("Help");
     expect(screen.getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
     expect(screen.getByTestId("help-topic-page-title")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-document-status")).toHaveTextContent("Current");
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-09");
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("V1 GA");
     expect(screen.getByTestId(ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION.testId)).toHaveAttribute(

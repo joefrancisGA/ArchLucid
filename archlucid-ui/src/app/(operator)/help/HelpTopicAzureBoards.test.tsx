@@ -24,7 +24,6 @@ import {
   AZURE_BOARDS_HELP_SOURCES,
   AZURE_BOARDS_HELP_SOURCES_HEADING,
 } from "@/lib/azure-boards-help-evidence-copy";
-import { HELP_TOPIC_DOCUMENT_STATUS_LABEL } from "@/lib/help-topic-markdown-header-content";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -79,9 +78,6 @@ describe("HelpAzureBoardsGuideView (HEZ)", () => {
       AZURE_BOARDS_HELP_CANONICAL_PATH,
     );
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
-    expect(screen.getByTestId("help-azure-boards-document-status")).toHaveTextContent(
-      HELP_TOPIC_DOCUMENT_STATUS_LABEL,
-    );
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("2026-08-09");
     expect(screen.getByTestId("help-azure-boards-authority-note")).toHaveTextContent(
       AZURE_BOARDS_HELP_AUTHORITY_NOTE,
@@ -101,8 +97,8 @@ describe("HelpAzureBoardsGuideView (HEZ)", () => {
     expect(screen.getByTestId("help-azure-boards-connection-context")).toBeInTheDocument();
     expect(screen.getByTestId("help-azure-boards-breadcrumb")).toHaveTextContent("Help");
     expect(screen.getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
-    expect(screen.getByTestId("help-topic-download-pdf")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-print-pdf")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-download-pdf")).toBeNull();
     expect(screen.getByRole("link", { name: AZURE_BOARDS_HELP_PRIMARY_ACTIONS.openSettings.label })).toHaveAttribute(
       "href",
       "/integrations/azure-boards",

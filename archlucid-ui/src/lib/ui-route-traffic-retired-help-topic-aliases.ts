@@ -15,7 +15,7 @@ const RETIRED_HELP_TOPIC_CANONICAL_PATHS = {
   executiveSummary: inAppHelpHref("executive-summary"),
   firstArchitectureReview: inAppHelpHref("first-architecture-review"),
   gettingStarted: inAppHelpHref("getting-started"),
-  pathChooser: inAppHelpHref("path-chooser"),
+  pathChooser: inAppHelpHref("choose-your-next-step"),
   pilotGuide: inAppHelpHref("pilot-guide"),
   reviewGuide: inAppHelpHref("review-guide"),
 } as const;
@@ -111,6 +111,27 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     removedRowId: "EPR",
     retiredPath: "/help/product-overview",
     canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.executiveSummary,
+  },
+  {
+    removedRowId: "FI",
+    retiredPath: "/help/first-review",
+    canonicalPath: `${RETIRED_HELP_TOPIC_CANONICAL_PATHS.firstArchitectureReview}#printable-first-run-evidence-checklist`,
+    historicalNote:
+      "Deprecated first-review help twin (Help topic) - Admin printable checklist folded into first-architecture-review specialty (COR); canon COR = /help/first-architecture-review.",
+  },
+  {
+    removedRowId: "HEF",
+    retiredPath: "/help/first-value-20-minutes",
+    canonicalPath: `${RETIRED_HELP_TOPIC_CANONICAL_PATHS.firstArchitectureReview}#first-value-in-20-minutes`,
+    historicalNote:
+      "Deprecated first-value-20-minutes help twin (Help topic) - Admin 20-minute runbook folded into first-architecture-review specialty (COR).",
+  },
+  {
+    removedRowId: "POL",
+    retiredPath: "/help/policy-pack-delta-demo",
+    canonicalPath: `${inAppHelpHref("policy-packs")}#policy-pack-delta-demo`,
+    historicalNote:
+      "Deprecated policy-pack-delta-demo help twin (Help topic) - SE demo runbook folded into policy-packs help (HEO).",
   },
   {
     removedRowId: "PIL",

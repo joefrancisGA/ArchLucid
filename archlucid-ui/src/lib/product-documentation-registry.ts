@@ -65,15 +65,6 @@ export function normalizeHelpTopicSlug(slug: string): string {
 
 const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistryInput[] = [
   {
-    slug: "first-review",
-    title: "First-run evidence checklist (internal runbook)",
-    summary:
-      "Admin/SE printable Tier-1 evidence checklist with specialty CTAs to Your first architecture review, Start architecture review, and audit. Customer architects should use those buyer paths instead.",
-    audience: "operator",
-    sourcePaths: ["docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md"],
-    sectionAnchors: ["printable-first-run-evidence-checklist"],
-  },
-  {
     slug: "review-guide",
     title: "Review guide",
     summary:
@@ -409,17 +400,6 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     releaseApplicability: "Applies to V1 GA — first architecture review workflow",
   },
   {
-    slug: "first-value-20-minutes",
-    title: "First value in 20 minutes (Admin runbook)",
-    summary:
-      "Admin-only SE/ops checklist for time-boxed first value when platform wiring is already green. Customer architects should use Your first architecture review instead.",
-    audience: "operator",
-    sourcePaths: ["docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md"],
-    sectionAnchors: ["first-value-in-20-minutes"],
-    lastReviewed: "2026-08-09",
-    releaseApplicability: "Applies to V1 GA — Admin SE time-boxed first-value proof path",
-  },
-  {
     slug: "pilot-roi-model",
     title: "Pilot ROI model",
     summary: "How sponsor ROI figures are labeled, sourced, and kept buyer-safe in proof packets.",
@@ -500,7 +480,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     releaseApplicability: "Applies to V1 GA — engineering support and platform triage",
   },
   {
-    slug: "path-chooser",
+    slug: "choose-your-next-step",
     title: "Choose your next step",
     summary: "Map your current goal — evaluate, pilot, procurement, sponsor output, or engineering support — to one primary next action.",
     audience: "buyer",
@@ -522,14 +502,6 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
       "After the first finalized architecture review: compare, replay, governance dry-runs, and second-review proof checklist.",
     audience: "operator",
     sourcePaths: ["docs/library/REPEAT_REVIEW_LOOP.md"],
-  },
-  {
-    slug: "policy-pack-delta-demo",
-    title: "Policy-pack delta demo (internal runbook)",
-    summary:
-      "Admin/SE demo script: same finalized architecture review, stricter pack enforcement, different finalize-gate outcome — dry-run, simulation, and audit slice. Not buyer self-serve help.",
-    audience: "operator",
-    sourcePaths: ["docs/go-to-market/POLICY_PACK_DELTA_DEMO_SCRIPT.md"],
   },
   {
     slug: "digests",

@@ -71,7 +71,6 @@ describe("HelpGettingStartedGuideView", () => {
 
     expect(screen.getByRole("heading", { level: 1, name: "Getting started" })).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-document-status")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-export-actions")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
   });

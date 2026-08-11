@@ -34,7 +34,6 @@ describe("HelpAuditTrailPageHeader", () => {
     expect(screen.getByText(auditTrailHelpPageSubtitle(false))).toBeInTheDocument();
     expect(screen.getByTestId("help-audit-trail-provenance")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-09");
-    expect(screen.getByTestId("help-audit-trail-document-status")).toHaveTextContent("Current");
 
     const sourceOfRecordLink = screen.getByRole("link", { name: "Data handling" });
     expect(sourceOfRecordLink).toHaveAttribute("href", AUDIT_TRAIL_HELP_SOURCE_OF_RECORD_HREF);

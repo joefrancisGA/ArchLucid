@@ -53,7 +53,7 @@ const ALLOWLIST: readonly {
   },
   {
     pathname: "/help/accelerator-chooser",
-    nextHref: "/help/path-chooser",
+    nextHref: "/help/choose-your-next-step",
     configureHref: "/architecture/reviews/new",
   },
   {

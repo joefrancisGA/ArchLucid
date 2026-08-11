@@ -303,8 +303,8 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "soc2-self-assessment", label: "SOC 2 self-assessment" },
   },
   {
-    prefix: "/help/path-chooser",
-    topic: { slug: "path-chooser", label: "Choose your next step" },
+    prefix: "/help/choose-your-next-step",
+    topic: { slug: "choose-your-next-step", label: "Choose your next step" },
   },
   {
     prefix: "/help/enterprise-onboarding",
@@ -323,8 +323,8 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "executive-summary", label: "Executive summary" },
   },
   {
-    prefix: "/help/policy-pack-delta-demo",
-    topic: { slug: "policy-pack-delta-demo", label: "Policy-pack delta demo" },
+    prefix: "/help/policy-packs",
+    topic: { slug: "policy-packs", label: "Policy packs" },
   },
   {
     prefix: "/help/configuration-reference",
@@ -335,12 +335,8 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "cli-usage", label: "CLI usage" },
   },
   {
-    prefix: "/help/first-review",
-    topic: { slug: "first-review", label: "First-run evidence checklist" },
-  },
-  {
-    prefix: "/help/first-value-20-minutes",
-    topic: { slug: "first-value-20-minutes", label: "First value in 20 minutes (Admin runbook)" },
+    prefix: "/help/first-architecture-review",
+    topic: { slug: "first-architecture-review", label: "Your first architecture review" },
   },
   {
     prefix: "/help/developer-troubleshooting",
@@ -415,7 +411,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/admin/demo-readiness",
-    topic: { slug: "path-chooser", label: "Demo readiness" },
+    topic: { slug: "choose-your-next-step", label: "Demo readiness" },
   },
   {
     prefix: "/admin/deployment-status",

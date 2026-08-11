@@ -15,7 +15,7 @@ export const ACCELERATOR_CHOOSER_HELP_RELATED_NEXT_STEPS_INTRO =
 
 /** Related next steps — no self-href to `/help/accelerator-chooser`. */
 export const ACCELERATOR_CHOOSER_HELP_RELATED_NEXT_STEPS: readonly EvidenceSourceLink[] = [
-  { label: "Path chooser", href: inAppHelpHref("path-chooser") },
+  { label: "Path chooser", href: inAppHelpHref("choose-your-next-step") },
   { label: "Your first architecture review", href: inAppHelpHref("first-architecture-review") },
   { label: "Getting started", href: inAppHelpHref("getting-started") },
   { label: "Start a review", href: "/architecture/reviews/new" },

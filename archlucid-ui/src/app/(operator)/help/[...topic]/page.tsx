@@ -20,8 +20,6 @@ import { CONFIGURATION_REFERENCE_HELP_ROUTE_METADATA } from "@/lib/configuration
 import { DATA_HANDLING_TENANT_ISOLATION_HELP_ROUTE_METADATA } from "@/lib/data-handling-tenant-isolation-help-route-metadata";
 import { DPA_TEMPLATE_HELP_ROUTE_METADATA } from "@/lib/dpa-template-help-route-metadata";
 import { SOC2_SELF_ASSESSMENT_HELP_ROUTE_METADATA } from "@/lib/soc2-self-assessment-help-route-metadata";
-import { FIRST_REVIEW_HELP_ROUTE_METADATA } from "@/lib/first-review-help-route-metadata";
-import { POLICY_PACK_DELTA_DEMO_HELP_ROUTE_METADATA } from "@/lib/policy-pack-delta-demo-help-route-metadata";
 import { ACCELERATOR_CHOOSER_HELP_ROUTE_METADATA } from "@/lib/accelerator-chooser-help-route-metadata";
 import { PATH_CHOOSER_HELP_ROUTE_METADATA } from "@/lib/path-chooser-help-route-metadata";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
@@ -125,16 +123,8 @@ const HelpEvidenceIntakeGuideView = dynamic(() =>
 const HelpEvidenceTrailGuideView = dynamic(() =>
   import("../_sections/HelpEvidenceTrailGuideView").then((module) => module.HelpEvidenceTrailGuideView),
 );
-const HelpFirstReviewEvidenceChecklistGuideView = dynamic(() =>
-  import("../_sections/HelpFirstReviewEvidenceChecklistGuideView").then(
-    (module) => module.HelpFirstReviewEvidenceChecklistGuideView,
-  ),
-);
-const HelpFirstValue20GuideView = dynamic(() =>
-  import("../_sections/HelpFirstValue20GuideView").then((module) => module.HelpFirstValue20GuideView),
-);
-const HelpPolicyPackDeltaDemoGuideView = dynamic(() =>
-  import("../_sections/HelpPolicyPackDeltaDemoGuideView").then((module) => module.HelpPolicyPackDeltaDemoGuideView),
+const HelpPolicyPacksGuideView = dynamic(() =>
+  import("../_sections/HelpPolicyPacksGuideView").then((module) => module.HelpPolicyPacksGuideView),
 );
 const HelpConnectAzureSecurelyGuideView = dynamic(() =>
   import("../_sections/HelpConnectAzureSecurelyGuideView").then((module) => module.HelpConnectAzureSecurelyGuideView),
@@ -346,10 +336,6 @@ function renderHelpTopicView(
     return <HelpSoc2SelfAssessmentGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
-  if (loaded.entry.slug === "policy-pack-delta-demo") {
-    return <HelpPolicyPackDeltaDemoGuideView entry={loaded.entry} markdown={loaded.markdown} />;
-  }
-
   if (loaded.entry.slug === "configuration-reference") {
     return <HelpConfigurationReferenceGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
@@ -360,14 +346,6 @@ function renderHelpTopicView(
 
   if (loaded.entry.slug === "evidence-intake") {
     return <HelpEvidenceIntakeGuideView entry={loaded.entry} markdown={loaded.markdown} />;
-  }
-
-  if (loaded.entry.slug === "first-review") {
-    return <HelpFirstReviewEvidenceChecklistGuideView entry={loaded.entry} markdown={loaded.markdown} />;
-  }
-
-  if (loaded.entry.slug === "first-value-20-minutes") {
-    return <HelpFirstValue20GuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
   if (loaded.entry.slug === "developer-troubleshooting") {
@@ -412,13 +390,7 @@ function renderHelpTopicView(
   }
 
   if (loaded.entry.slug === "policy-packs") {
-    return (
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        showContextualHelp
-      />
-    );
+    return <HelpPolicyPacksGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
   if (loaded.entry.slug === "prior-manifest-retrieval") {
@@ -558,7 +530,7 @@ export async function generateMetadata(props: HelpTopicPageProps): Promise<Metad
     return GOVERNANCE_APPROVAL_HELP_ROUTE_METADATA;
   }
 
-  if (entry.slug === "path-chooser") {
+  if (entry.slug === "choose-your-next-step") {
     return PATH_CHOOSER_HELP_ROUTE_METADATA;
   }
 
@@ -578,16 +550,8 @@ export async function generateMetadata(props: HelpTopicPageProps): Promise<Metad
     return SOC2_SELF_ASSESSMENT_HELP_ROUTE_METADATA;
   }
 
-  if (entry.slug === "policy-pack-delta-demo") {
-    return POLICY_PACK_DELTA_DEMO_HELP_ROUTE_METADATA;
-  }
-
   if (entry.slug === "configuration-reference") {
     return CONFIGURATION_REFERENCE_HELP_ROUTE_METADATA;
-  }
-
-  if (entry.slug === "first-review") {
-    return FIRST_REVIEW_HELP_ROUTE_METADATA;
   }
 
   return {

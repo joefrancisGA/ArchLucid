@@ -42,7 +42,9 @@ describe("contextual-help-registry (TB-733)", () => {
   it("covers the starting operator pages", () => {
     const prefixes = allPageContextualHelpRows().map((row) => row.prefix);
 
-    expect(prefixes).toEqual([
+    // Compared as a set: rows are declared in per-domain modules and resolution picks the longest
+    // matching prefix, so declaration order carries no meaning.
+    expect([...prefixes].sort()).toEqual([
       "/",
       "/architecture/reviews",
       "/insights/architecture-scorecard",
@@ -56,7 +58,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/data-handling",
       "/help/dpa-template",
       "/help/soc2-self-assessment",
-      "/help/path-chooser",
+      "/help/choose-your-next-step",
       "/help/enterprise-onboarding",
       "/help/pilot-roi-model",
       "/help/pilot-feedback",
@@ -167,7 +169,14 @@ describe("contextual-help-registry (TB-733)", () => {
       "/integrations/webhooks",
       "/operate/integration-events/dlq",
       "/integrations/teams",
-    ]);
+    ].sort());
+  });
+
+  it("declares each route in exactly one domain module", () => {
+    const prefixes = allPageContextualHelpRows().map((row) => row.prefix);
+    const duplicates = prefixes.filter((prefix, index) => prefixes.indexOf(prefix) !== index);
+
+    expect(duplicates).toEqual([]);
   });
 
   it("resolves nested paths from the longest matching prefix", () => {

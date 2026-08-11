@@ -111,7 +111,7 @@ describe("help topic slug aliases", () => {
     expect(getProductDocumentationEntry("api-contracts")?.title).toBe(
       "API contracts (technical reference)",
     );
-    expect(getProductDocumentationEntry("path-chooser")?.slug).toBe("path-chooser");
+    expect(getProductDocumentationEntry("choose-your-next-step")?.slug).toBe("choose-your-next-step");
     expect(getProductDocumentationEntry("first-architecture-review")?.slug).toBe("first-architecture-review");
   });
 
@@ -140,14 +140,14 @@ describe("help center tiers", () => {
     expect(entry?.title).toBe(ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE);
   });
 
-  it("classifies path-chooser as product tier for buyer evaluator orientation (TB-1347)", () => {
-    const entry = getProductDocumentationEntry("path-chooser");
+  it("classifies choose-your-next-step as product tier for buyer evaluator orientation (TB-1347)", () => {
+    const entry = getProductDocumentationEntry("choose-your-next-step");
 
     expect(entry).not.toBeNull();
     expect(entry?.audience).toBe("buyer");
     expect(getHelpCenterTier(entry!)).toBe("product");
     expect(getProductDocumentationEntry("evaluator-workbook")).toBeNull();
-    expect(resolveHelpTopicPermanentRedirect("evaluator-workbook")).toBe("/help/path-chooser");
+    expect(resolveHelpTopicPermanentRedirect("evaluator-workbook")).toBe("/help/choose-your-next-step");
   });
 
   it("classifies engineering runbooks as internal", () => {

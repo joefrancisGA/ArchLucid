@@ -4,7 +4,6 @@ import { OperatorPageBreadcrumb } from "@/components/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { Button } from "@/components/ui/button";
-import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   BILLING_HELP_ACTION_REFRESH,
@@ -17,7 +16,6 @@ import {
   BILLING_HELP_SOURCE_OF_RECORD_LABEL,
 } from "@/lib/billing-help-guide-content";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { HELP_TOPIC_DOCUMENT_STATUS_LABEL } from "@/lib/help-topic-markdown-header-content";
 import {
   operatorFreshnessMetadataLabel,
   operatorLastRefreshedExactLabel,
@@ -77,11 +75,6 @@ export function HelpBillingAndPlansPageHeader(props: HelpBillingAndPlansPageHead
       metadata={
         <div className="flex flex-col gap-1" data-testid="help-billing-header-metadata">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <StatusTag
-              kind="ready"
-              label={HELP_TOPIC_DOCUMENT_STATUS_LABEL}
-              data-testid="help-billing-document-status"
-            />
             <HelpTopicRegistryProvenanceLine entry={props.entry} />
           </div>
           <span

@@ -5,13 +5,10 @@ import type { ReactNode } from "react";
 
 import { OperatorPageBreadcrumb } from "@/components/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { Button } from "@/components/ui/button";
-import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { HELP_TOPIC_DOCUMENT_STATUS_LABEL } from "@/lib/help-topic-markdown-header-content";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -49,7 +46,6 @@ function hasExportActions(props: HelpTopicMarkdownPageHeaderProps): boolean {
 /** Shared hero for residual `HelpTopicMarkdownView` topics — breadcrumb, provenance, and export actions. */
 export function HelpTopicMarkdownPageHeader(props: HelpTopicMarkdownPageHeaderProps): React.JSX.Element {
   const showActions = hasExportActions(props);
-  const isAuthenticationSignInHelp = props.entry.slug === "authentication-sign-in";
 
   return (
     <OperatorPageHeader
@@ -64,11 +60,6 @@ export function HelpTopicMarkdownPageHeader(props: HelpTopicMarkdownPageHeaderPr
       }
       metadata={
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1" data-testid="help-topic-header-metadata">
-          <StatusTag
-            kind="ready"
-            label={HELP_TOPIC_DOCUMENT_STATUS_LABEL}
-            data-testid="help-topic-document-status"
-          />
           <HelpTopicRegistryProvenanceLine entry={props.entry} />
         </div>
       }
@@ -81,8 +72,7 @@ export function HelpTopicMarkdownPageHeader(props: HelpTopicMarkdownPageHeaderPr
               </Button>
             ) : null}
             {props.showContextualHelp === true ? <PageContextualHelpButton /> : null}
-            <HelpTopicPdfDownloadButton entry={props.entry} />
-            {isAuthenticationSignInHelp ? null : <HelpTopicPrintButton entry={props.entry} />}
+            <HelpTopicPrintButton entry={props.entry} />
           </div>
         ) : undefined
       }

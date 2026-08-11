@@ -5,9 +5,6 @@ export type ProductDocumentationContentKind =
   | "internal-runbook";
 
 const INTERNAL_RUNBOOK_SLUGS = new Set<string>([
-  "first-value-20-minutes",
-  "first-review",
-  "policy-pack-delta-demo",
   "pilot-feedback",
   "developer-troubleshooting",
   // TB-1250 — eng-facing help must not stay ungated as technical-documentation.
@@ -46,20 +43,17 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "evidence-trail": "product-help",
   "executive-summary": "product-help",
   findings: "product-help",
-  "first-review": "internal-runbook",
-  "first-value-20-minutes": "internal-runbook",
   "getting-started": "product-help",
   "api-contracts": "internal-runbook",
   "governance-approval": "product-help",
   "integration-readiness": "product-help",
   "azure-boards": "product-help",
   "users-and-roles": "product-help",
-  "path-chooser": "product-help",
+  "choose-your-next-step": "product-help",
   "pilot-feedback": "internal-runbook",
   "pilot-guide": "product-help",
   "pilot-roi-model": "product-help",
   "prior-manifest-retrieval": "product-help",
-  "policy-pack-delta-demo": "internal-runbook",
   "policy-packs": "product-help",
   procurement: "product-help",
   "caiq-sig-response": "product-help",

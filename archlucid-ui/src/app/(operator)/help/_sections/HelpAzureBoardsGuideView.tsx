@@ -4,7 +4,6 @@ import { Suspense } from "react";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpAzureBoardsConnectionContext } from "@/app/(operator)/help/_sections/HelpAzureBoardsConnectionContext";
-import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -13,7 +12,6 @@ import { OperatorPageBreadcrumb } from "@/components/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   AZURE_BOARDS_HELP_AUTHORITY_NOTE,
@@ -37,7 +35,6 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
-import { HELP_TOPIC_DOCUMENT_STATUS_LABEL } from "@/lib/help-topic-markdown-header-content";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
 import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -84,18 +81,12 @@ export function HelpAzureBoardsGuideView(props: HelpAzureBoardsGuideViewProps): 
             className="flex flex-wrap items-center gap-x-3 gap-y-1"
             data-testid="help-azure-boards-header-metadata"
           >
-            <StatusTag
-              kind="ready"
-              label={HELP_TOPIC_DOCUMENT_STATUS_LABEL}
-              data-testid="help-azure-boards-document-status"
-            />
             <HelpTopicRegistryProvenanceLine entry={entry} />
           </div>
         }
         actions={
           <div className="flex flex-wrap items-center gap-2" data-testid="help-azure-boards-header-actions">
             <PageContextualHelpButton />
-            <HelpTopicPdfDownloadButton entry={entry} />
             <HelpTopicPrintButton entry={entry} />
           </div>
         }

@@ -19,7 +19,6 @@ import {
   FIRST_VALUE_20_HELP_PRIMARY_ACTIONS,
   FIRST_VALUE_20_HELP_SOURCES,
 } from "@/lib/first-value-20-help-guide-content";
-import { HELP_TOPIC_DOCUMENT_STATUS_LABEL } from "@/lib/help-topic-markdown-header-content";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
@@ -61,9 +60,6 @@ describe("HelpFirstValue20GuideView", () => {
     );
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
     expect(screen.getByTestId("help-first-value-20-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByTestId("help-first-value-20-document-status")).toHaveTextContent(
-      HELP_TOPIC_DOCUMENT_STATUS_LABEL,
-    );
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("2026-08-09");
     expect(screen.getByTestId("help-first-value-20-admin-tag")).toHaveTextContent("Admin only");
     expect(screen.getByTestId("help-first-value-20-claim-discipline")).toBeInTheDocument();

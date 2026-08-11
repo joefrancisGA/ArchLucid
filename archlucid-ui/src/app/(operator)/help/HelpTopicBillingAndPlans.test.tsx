@@ -158,7 +158,6 @@ describe("HelpBillingAndPlansGuideView", () => {
     expect(screen.getByTestId("help-billing-last-refreshed")).not.toHaveTextContent(
       "Last refreshed: Not refreshed yet",
     );
-    expect(screen.getByTestId("help-billing-document-status")).toHaveTextContent("Current");
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(/Last reviewed/i);
     expect(screen.getByTestId("help-billing-source-of-record")).toHaveTextContent(
       "docs/library/customer-facing/BILLING_AND_PLANS.md",

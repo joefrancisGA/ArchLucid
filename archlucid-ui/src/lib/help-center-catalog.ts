@@ -60,7 +60,7 @@ const HELP_CENTER_TIER_BY_SLUG: Readonly<Record<string, HelpCenterTier>> = {
   glossary: "product",
   scope: "product",
   "pilot-guide": "product",
-  "path-chooser": "product",
+  "choose-your-next-step": "product",
   "enterprise-onboarding": "admin",
   "integration-readiness": "admin",
   procurement: "admin",
@@ -69,8 +69,6 @@ const HELP_CENTER_TIER_BY_SLUG: Readonly<Record<string, HelpCenterTier>> = {
   "specialty-walkthroughs": "admin",
   "review-guide": "product",
   "first-architecture-review": "product",
-  "first-review": "internal",
-  "first-value-20-minutes": "internal",
   "cli-usage": "internal",
   "developer-troubleshooting": "internal",
   "accelerator-chooser": "product",
@@ -79,7 +77,6 @@ const HELP_CENTER_TIER_BY_SLUG: Readonly<Record<string, HelpCenterTier>> = {
   "pilot-feedback": "internal",
   "comparison-replay": "product",
   "repeat-review-loop": "internal",
-  "policy-pack-delta-demo": "internal",
   "pilot-roi-model": "product",
 };
 
@@ -107,11 +104,6 @@ const HELP_CENTER_DISPLAY_OVERRIDES: Readonly<Partial<Record<string, HelpCenterD
     title: "SOC 2 self-assessment",
     summary:
       "Owner TSC readiness mapping — not a CPA Type I/II attestation; open Trust Center for the diligence pack.",
-  },
-  "first-value-20-minutes": {
-    title: "First value in 20 minutes (Admin runbook)",
-    summary:
-      "Admin/SE time-boxed checklist when platform wiring is green — not the default customer first-review path.",
   },
   "api-contracts": {
     title: "API contracts (technical reference)",

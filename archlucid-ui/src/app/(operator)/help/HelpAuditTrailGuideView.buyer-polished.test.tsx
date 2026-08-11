@@ -46,7 +46,6 @@ describe("HelpAuditTrailGuideView buyer-polished shell", () => {
     expect(screen.queryByText(AUDIT_TRAIL_HELP_PAGE_SUBTITLE_OPERATOR)).not.toBeInTheDocument();
     expect(screen.getByTestId("help-audit-trail-breadcrumb")).toHaveTextContent("Help");
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-09");
-    expect(screen.getByTestId("help-audit-trail-document-status")).toHaveTextContent("Current");
 
     const sourceOfRecordLink = screen.getByRole("link", { name: "Data handling" });
     expect(sourceOfRecordLink).toHaveAttribute("href", AUDIT_TRAIL_HELP_SOURCE_OF_RECORD_HREF);

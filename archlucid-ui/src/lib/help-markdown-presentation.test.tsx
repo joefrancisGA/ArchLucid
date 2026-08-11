@@ -938,13 +938,13 @@ describe("help-markdown-presentation", () => {
   });
 
   it("keeps presented path-chooser help buyer-safe (TB-1712)", () => {
-    const loaded = tryLoadProductDocumentation("path-chooser");
+    const loaded = tryLoadProductDocumentation("choose-your-next-step");
 
     expect(loaded).not.toBeNull();
 
     const sourcePath = loaded!.entry.sourcePaths[0] ?? "";
     const prepared = prepareHelpMarkdownForPresentation(loaded!.markdown, sourcePath, {
-      helpTopicSlug: "path-chooser",
+      helpTopicSlug: "choose-your-next-step",
     }).toLowerCase();
 
     expect(prepared).not.toContain("first_pilot_operator_path");
