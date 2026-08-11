@@ -185,7 +185,7 @@ Former standalone body: `docs/go-to-market/PA_CLAIM_HONESTY_BULLETS_BATCH_A.md` 
 
 | Do not promise | Do promise |
 | --- | --- |
-| Crash-proof settlement, zero orphaned reserved USD, provider exactly-once billing, or immunity from assumed-max reservation races. | Durable SQL state plus optimistic concurrency blocks multi-replica hard-cap bypass; crash, clock-boundary, and soft-denial residuals remain under **TB-975**–**TB-977**. |
+| Crash-proof settlement, zero orphaned reserved USD, provider exactly-once billing, or immunity from assumed-max reservation races. | Durable SQL state plus optimistic concurrency blocks multi-replica hard-cap bypass; lifecycle contract **TB-975** Done — crash/orphan (**TB-976**) and clock/fairness (**TB-977**) residuals remain open. |
 
 #### M-148 — LLM trust boundary
 

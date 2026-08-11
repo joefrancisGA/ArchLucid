@@ -1086,7 +1086,7 @@ Former standalone body: `docs/go-to-market/QUALITY_GATE_VERSIONING_PA_ONE_PAGER.
 
 ## LLM budget — reserve / settle (M-132) {#llm-budget-reserve-settle-m-132}
 
-Former standalone body: `docs/go-to-market/LLM_BUDGET_RESERVE_SETTLE_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-132** / **TB-975**). Complements [Interrupted review (M-122)](#interrupted-review-m-122). Not an assurance attestation.
+Former standalone body: `docs/go-to-market/LLM_BUDGET_RESERVE_SETTLE_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-132** / **TB-975**). Engineering SoT: [`../library/INV004_RESERVE_SETTLE_LIFECYCLE_CONTRACT.md`](../library/INV004_RESERVE_SETTLE_LIFECYCLE_CONTRACT.md). Complements [Interrupted review (M-122)](#interrupted-review-m-122). Not an assurance attestation.
 
 **Path-stable alias:** [`LLM_BUDGET_RESERVE_SETTLE_PA_ONE_PAGER.md`](LLM_BUDGET_RESERVE_SETTLE_PA_ONE_PAGER.md).
 
@@ -1139,7 +1139,8 @@ Former standalone body: `docs/go-to-market/LLM_BUDGET_RESERVE_SETTLE_PA_ONE_PAGE
 
 - **INV-004** and **TB-011** are Done for durable optimistic-concurrency cap enforcement.
 - **TB-894** is Done for Quick Scan reservation-id reserve/commit/release patterns.
-- **TB-975**–**TB-977** remain open for lifecycle, crash reconciliation, and race/clock hardening.
+- **TB-975** is Done — lifecycle guarantees vs residuals are in [`INV004_RESERVE_SETTLE_LIFECYCLE_CONTRACT.md`](../library/INV004_RESERVE_SETTLE_LIFECYCLE_CONTRACT.md).
+- **TB-976**–**TB-977** remain open for orphan reclaim, SQL-owned period, and admission fairness.
 
 **Related:** [Interrupted review (M-122)](#interrupted-review-m-122) Â· [LLM cost-control plane (M-226)](#llm-cost-control-plane-m-226) Â· [Polly vs run completeness (M-147)](#polly-vs-run-completeness-m-147) Â· [`../library/LLM_RETRY_AND_CIRCUIT_BREAKER.md`](../library/LLM_RETRY_AND_CIRCUIT_BREAKER.md) Â· [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
