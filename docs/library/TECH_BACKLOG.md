@@ -1752,7 +1752,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1820 | `/quick-start` ? Vitest anti-reintro (301 + no competing marketing UI); see ## TB-1820 below | Testability P2 ? **V1**; with **TB-1816** | S |
 | TB-1821 | **Done** (2026-08-02) ? Restore or redirect `/reviews/[runId]/artifacts/[artifactId]` preview (RER ? signed-records artifact page); Vitest; see ## TB-1821 below | Adoption friction P0 ? **V1**; owner review ~10/100 2026-07-27; traffic **RER**; after Done **TB-752** | L |
 | TB-1822 | **Done** (2026-08-03) ? `ArtifactListTable` Preview hrefs resolve via `artifactPreviewHref` to live App Router pages; Vitest; see ## TB-1822 below | Trustworthiness P0 ? **V1**; with **TB-1821** | M |
-| TB-1825 | Artifact preview route ? Vitest/CI App Router existence guard; see ## TB-1825 below | Testability P2 ? **V1**; with **TB-1821** | S |
+| TB-1825 | ~~Artifact preview route — Vitest/CI App Router existence guard~~ **Done** 2026-08-11 — GAR present / RER absent | Testability P2 — **V1**; with **TB-1821** | S |
 | TB-1830 | Evidence-trace Vitest anti-regress + pair **TB-987** stickiness honesty; see ## TB-1830 below | Testability P2 ? **V1**; with **TB-1826**; do not reopen **TB-986** | S |
 | TB-1835 | archTab Activity ? Vitest dual-param + panel orientation guards; see ## TB-1835 below | Testability P2 ? **V1**; with **TB-1831** | S |
 | TB-1838 | **Done** (2026-07-31) ? Clarifications tab badge counts open-question entities; Vitest; see `## TB-1838` below | Correctness P0 ? **V1**; with **TB-1836** | S |
@@ -1792,7 +1792,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1945 | Signed records list ? Vitest empty href + row honesty + traffic note; see ## TB-1945 below | Testability P2 ? **V1**; with **TB-1941** | S |
 | TB-1947 | **Done** (2026-08-03) ? Execute **TB-1824** ? signed-records artifact preview page (MAM); contract Vitest; see ## TB-1947 below | Adoption friction P0 ? **V1**; with **TB-1946**; do not reopen **TB-1821**/**TB-1824** | M |
 | TB-1948 | **Done** (2026-08-03) ? Manifest-scoped Preview hrefs resolve via `signedRecordArtifactPath` / `artifactPreviewHref`; Vitest; see ## TB-1948 below |
-| TB-1950 | MAM ? Vitest App Router existence with **TB-1825**; see ## TB-1950 below | Testability P2 ? **V1**; with **TB-1946**; do not reopen **TB-1825** | S |
+| TB-1950 | ~~MAM — Vitest App Router existence with **TB-1825**~~ **Done** 2026-08-11 — GAR existence in same guard | Testability P2 — **V1**; with **TB-1946**; do not reopen **TB-1825** | S |
 | TB-1955 | **Done** (2026-08-02) ? Snapshot Vitest redirect matrix bundle for TB-1951?TB-1954; Vitest; see `## TB-1955` below | Testability P2 ? **V1**; with **TB-1951** | S |
 | TB-1960 | **Done** (2026-08-02) ? Architecture scorecard Vitest regression bundle for **TB-1956**?**TB-1959**; see `## TB-1960` below | Testability P2 ? **V1**; with **TB-1956** | S |
 | TB-1965 | **Done** (2026-08-02) ? Executive summary Vitest regression bundle for TB-1961?TB-1964; Vitest; see `## TB-1965` below | Testability P2 ? **V1**; with **TB-1961** | S |

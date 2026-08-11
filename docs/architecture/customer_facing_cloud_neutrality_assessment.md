@@ -17,7 +17,7 @@ However, **Azure, AWS, and Google Cloud are not currently presented as first-cla
 1. **Do not** paper over genuine capability asymmetry. ArchLucid’s **hosted SaaS** runs on Azure (Azure OpenAI, Key Vault, Azure SQL, Service Bus). That is accurate procurement language — separate from **customer workload** neutrality.
 2. **Do** fix copy and IA where Azure appears **without justification** (ServiceNow readiness sentence, marketing use-case cards, wizard inventory default when `cloudProvider` is `None`).
 3. **Do** fix **implementation leakage** on workspace-admin routes (host configuration keys, tenant SQL, vendor probes, smoke checklists) — highest severity on `/integrations/servicenow` and `/integrations/jira`.
-4. **Treat as capability work (not copy-only):** multi-tenant ITSM connector configuration is **implemented but unreachable** (`/integrations/itsm` redirects to readiness); secret resolution is **Key Vault or environment variables only** — no AWS Secrets Manager or Google Secret Manager `ISecretProvider` backend.
+4. **Treat as capability work (not copy-only):** multi-tenant ITSM connector configuration on the former unified hub was **removed** (`/integrations/itsm` retired — no redirect; OAuth callback retained; product on Jira/ServiceNow + admin connectors); secret resolution is **Key Vault or environment variables only** — no AWS Secrets Manager or Google Secret Manager `ISecretProvider` backend.
 5. **Sequence:** (A) immediate copy/IA fixes → (B) ServiceNow/Jira page redesign + restore connector configuration path → (C) secret-store abstraction wording + optional provider backends → (D) marketing/sample parity pass.
 
 ---
@@ -66,7 +66,7 @@ However, **Azure, AWS, and Google Cloud are not currently presented as first-cla
 | `/integrations/slack` | Read+ | Direct webhook — different model |
 | `/integrations/webhooks` | Execute+ advanced | Generic |
 | `/integrations/readiness` | Admin | Read-only dashboard |
-| `/integrations/itsm` | — | **Redirects** to `/integrations/readiness` |
+| `/integrations/itsm` | — | **Removed** (no redirect; OAuth callback retained at `/integrations/itsm/oauth/callback`) |
 | `/administration/settings/*` (tenant, users, IdP, billing, etc.) | Admin / mixed | Identity diagnostics use “probe” language |
 | `/health` | Admin | “Key vault connectivity”, “Service probes” |
 
@@ -121,7 +121,7 @@ However, **Azure, AWS, and Google Cloud are not currently presented as first-cla
 | 1 | `/integrations/servicenow`, `/integrations/jira` | `ItsmProductIntegrationPageClient.tsx` L195, L218–230 | `Integrations:ItsmOutbound:ServiceNow`, “host configuration”, “Key Vault materialization”, “tenant SQL” | **Customer-visible implementation leakage** | **Critical** | Workspace-admin language for deployment operators; move to gated “Deployment prerequisites” help or system-admin | Copy + IA |
 | 2 | `/why` (marketing) | `why-comparison.ts` L23 | `TenantDatabaseBindings` | **Customer-visible implementation leakage** | **Critical** | Generalize isolation claim | Copy |
 | 3 | `/integrations/teams` | `teams-integration-page-copy.ts`, `teams-integration-secret-validation.ts` | “Key Vault secret name”, “Check the workspace’s Key Vault permissions” | **Customer-visible implementation leakage** | **High** | Use “approved secret store” + provider-specific detail on cloud settings | Copy (capability limits footnote) |
-| 4 | `/integrations/itsm` (redirected) | `ItsmConnectorConnectionSection.tsx` | `credentialKeyVaultSecretName`, OAuth KV fields | **Customer-visible implementation leakage** | **High** | Page unreachable — fix route first, then neutral labels | Capability + copy |
+| 4 | `/integrations/itsm` (**removed** hub) | `ItsmConnectorConnectionSection.tsx` (retired with hub) | `credentialKeyVaultSecretName`, OAuth KV fields | **Customer-visible implementation leakage** | **High** | Hub removed — configure on Jira/ServiceNow + admin connectors; keep labels neutral | Capability + copy |
 | 5 | `/health` | `health-readiness-presentation.ts` L56, L84 | “Key vault connectivity”, `keyvault` check id | **Customer-visible implementation leakage** | **Medium** | “Secrets store connectivity” with Azure detail in disclosure | Copy |
 | 6 | Finish setup wizard | `FinishSetupWizardPanel.tsx` L85 | “without manual Key Vault edits” | **Customer-visible implementation leakage** | **Medium** | “without manual secret-store configuration” | Copy |
 | 7 | Connection test cards | `ItsmProductIntegrationPageClient.tsx` L323 | “read-only vendor probes” | **Customer-visible implementation leakage** | **Medium** | “read-only connection check” | Copy |
@@ -142,7 +142,7 @@ However, **Azure, AWS, and Google Cloud are not currently presented as first-cla
 |----------|---------|
 | **Intended audience** | Nav requires `AdminAuthority`; mutations require `ExecuteAuthority`. Copy targets **deployment operators** (host configuration, pilot fallback), not workspace admins configuring a SaaS tenant. |
 | **Workspace-admin vs deployment-operator** | **Deployment-operator page** presented in **workspace-admin** nav. Misaligned with Teams/Slack (tenant self-service). |
-| **Instance URL / credentials here?** | Copy says per-tenant connector references live on “unified ITSM page” — but **`/integrations/itsm` redirects to readiness**. Product page only exposes **tenant overrides** (CMDB auto-create flag), not instance URL or credentials. |
+| **Instance URL / credentials here?** | Copy said per-tenant connector references lived on a “unified ITSM page” — but **`/integrations/itsm` was redirected then removed**. Product pages expose Jira/ServiceNow surfaces + admin connectors; not a restored unified hub. |
 | **Permits configuration?** | **Partially.** Saves `serviceNowAutoCreateCmdbCi` only. No ServiceNow instance URL, no secret names, no credential entry on this page. |
 | **Exposes internal config keys?** | **Yes.** `Integrations:ItsmOutbound:ServiceNow credentials in host configuration` |
 | **Why Azure in readiness sentence?** | Line 171 lists “Azure” alongside Teams, Slack, webhooks — **no code-backed reason**. Classified as **copy error** / stray cloud reference. |
@@ -178,8 +178,8 @@ However, **Azure, AWS, and Google Cloud are not currently presented as first-cla
 |------|----------|----------|-------|
 | Multi-cloud **evidence connectors** | **Copy aligned; capability present** | `CloudConnectionsPageClient.tsx` lists all three; APIs for Azure/AWS/GCP Tier-2 | TB-402/TB-403 marked done in TECH_BACKLOG |
 | **Secret store** for Teams/ITSM | **Capability gap** | Only `KeyVault` + `EnvironmentVariable` | Copy should not imply AWS SM / Google SM until implemented |
-| **ITSM per-tenant connector UI** | **Capability present; IA gap** | `ItsmIntegrationPageClient` + `ItsmConnectorConnectionSection` exist; route redirected | Restore reachable path or embed section on product pages |
-| **ServiceNow instance URL in UI** | **Capability present** on redirected page (`instanceBaseUrl` field) | Not reachable via nav | IA fix |
+| **ITSM per-tenant connector UI** | **Capability present; IA gap closed for hub** | `ItsmIntegrationPageClient` + `ItsmConnectorConnectionSection` **removed** with hub; product on Jira/ServiceNow + `/internal/integrations/itsm` | Do not restore `/integrations/itsm` hub |
+| **ServiceNow instance URL in UI** | **Capability present** on product/admin connectors (former hub **removed**) | Not on a restored `/integrations/itsm` hub | Keep on product surfaces |
 | **Slack vs Teams credential storage** | **Real asymmetry** | Slack stores webhook in alert-routing metadata; Teams uses KV reference | Document honestly; do not force KV wording on Slack |
 | **Default policy packs** | **Capability asymmetry** | `StandardBaselineDisplayNames` = Azure baseline | Not a copy bug — needs transparent limitation or cloud-targeted provisioning |
 | **Hosted SaaS on Azure** | **Accurate asymmetry** | Trust center, DATA_HANDLING | Keep |
@@ -195,7 +195,7 @@ However, **Azure, AWS, and Google Cloud are not currently presented as first-cla
 |----------|-------|---------------|--------|
 | `docs/library/customer-facing/FAQ.md` L38–39 | ITSM is V1.1 | V1 GA per `INTEGRATION_CATALOG.md` (2026-07-03) | Update FAQ |
 | `docs/library/customer-facing/CI_CD_INTEGRATION_GUIDE.md` L5 | ITSM deferred to V1.1 | First-party connectors V1 GA | Update scope line |
-| ITSM product page summary | “unified ITSM page” for connector refs | `/integrations/itsm` → readiness redirect | Fix IA or copy |
+| ITSM product page summary | “unified ITSM page” for connector refs | `/integrations/itsm` **removed** (was readiness redirect) | Fix copy to Jira/ServiceNow / connection status |
 | `PRODUCT_UX_IMPLEMENTATION_LEAKAGE_AUDIT_2026_06_15.md` | Wizard defaults `cloudProvider` to Azure | **Fixed** — `buildDefaultWizardValues()` uses `"None"` (TB-340) | Do not regress |
 | `WizardStepAzureContext.test.tsx` | Azure command by default when `None` | Still current — **stale neutrality claim** in comments elsewhere | Fix wizard default platform |
 
@@ -254,7 +254,7 @@ Use on **generic** surfaces (before cloud selection, integration hub intros, err
 
 ## 13. Routes requiring capability work before copy correction
 
-1. **`/integrations/itsm` redirect** — Restore unified ITSM connector configuration OR embed `ItsmConnectorConnectionSection` on Jira/ServiceNow product pages **before** promising “configure instance URL here”.
+1. **`/integrations/itsm` removed hub** — Do not restore the unified hub; keep connector configuration on Jira/ServiceNow product pages + admin connectors **before** promising “configure instance URL here” on a dead path.
 2. **Secret provider abstraction** — Implement or explicitly defer AWS Secrets Manager / Google Secret Manager; until then, Teams/ITSM copy must state **“Azure Key Vault (hosted deployments)”** with limitation footnote — not fake neutrality.
 3. **Default policy pack provisioning** — If marketing claims multi-cloud parity, either provision neutral-only defaults or capture cloud target at signup and call `ResolveStandardBaselineDisplayNames(cloudProvider)`.
 4. **Multi-cloud sample packages** — Before claiming sample parity, ship at least one AWS- and one GCP-skewed showcase run (or label samples “Azure reference architecture”).
@@ -423,8 +423,7 @@ Align copy with §14–16 patterns.
 Scope: Unify Teams/Slack two-column layout with ITSM product pages. Single integration template:
 header, security aside, configure panel, connection check, readiness link.
 
-Resolve /integrations/itsm redirect: either restore ItsmIntegrationPageClient at /integrations/itsm
-or merge ItsmConnectorConnectionSection into jira/servicenow routes.
+Resolve removed /integrations/itsm hub: do not restore ItsmIntegrationPageClient; keep OAuth callback and product surfaces on jira/servicenow + admin connectors.
 
 Document credential model differences (KV reference vs webhook URL) without implying parity that does not exist.
 ```
@@ -456,8 +455,8 @@ Each item needs ADR/backlog ID before implementation; do not fake neutral copy a
 | Area | Path |
 |------|------|
 | ServiceNow UI | `archlucid-ui/src/app/(operator)/integrations/_sections/itsm/ItsmProductIntegrationPageClient.tsx` |
-| ITSM connector form | `archlucid-ui/src/app/(operator)/integrations/itsm/_sections/ItsmConnectorConnectionSection.tsx` |
-| ITSM redirect | `archlucid-ui/next.config.ts` (`/integrations/itsm` → readiness) |
+| ITSM connector form | ~~`archlucid-ui/src/app/(operator)/integrations/itsm/_sections/ItsmConnectorConnectionSection.tsx`~~ **removed** with hub |
+| ITSM hub | **Removed** `/integrations/itsm` (no next.config redirect; OAuth callback retained) |
 | Cloud-neutral copy | `archlucid-ui/src/lib/cloud-neutral-primary-copy.ts` |
 | Cloud connections copy | `archlucid-ui/src/lib/cloud-connections-copy.ts` |
 | Secret provider | `ArchLucid.Core/Secrets/SecretProviderKind.cs` |

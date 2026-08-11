@@ -132,7 +132,7 @@ Constants live in `archlucid-ui/src/lib/showcase-static-demo.ts` and `archlucid-
 | `/administration/settings`, `/admin/users`, `/workspace/security-trust`, `/admin/support` | `/administration/*` |
 | `/settings/cloud-connections` | `/integrations/cloud-connections` |
 
-**Note:** Run-scoped `/architecture/reviews/[runId]/artifacts/[artifactId]` (RER) may redirect to MAM when a golden manifest exists (application logic, not `next.config`).
+**Note:** Run-scoped `/architecture/reviews/[runId]/artifacts/[artifactId]` (**RER**) is **retired** — no App Router page (old bookmarks 404). Artifact Preview hrefs emit **GAR** only (`/governance/signed-records/[manifestId]/artifacts/[artifactId]`).
 
 ---
 
