@@ -1,10 +1,10 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import {
-import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
   SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
   SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
 } from "@/lib/sponsor-report-navigation";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const PILOT_OUTCOMES_CANONICAL_PATH = SPONSOR_REPORT_PILOT_OUTCOMES_PATH;
 

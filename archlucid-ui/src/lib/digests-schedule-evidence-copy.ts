@@ -1,11 +1,11 @@
 import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
 import {
-import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
   DIGESTS_BROWSE_TAB_PATH,
   DIGESTS_SCHEDULE_CANONICAL_PATH,
   DIGESTS_SUBSCRIPTIONS_TAB_PATH,
 } from "@/lib/digests-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export { DIGESTS_SCHEDULE_CANONICAL_PATH };
 

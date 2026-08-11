@@ -1,10 +1,10 @@
 import {
-import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
   IMPACT_PREVIEW_ADVISORY_HREF,
   IMPACT_PREVIEW_PLANNING_HREF,
   IMPACT_PREVIEW_REVIEWS_HREF,
 } from "@/lib/impact-preview-page-copy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const IMPACT_PREVIEW_CLAIM_DISCIPLINE =
   "Impact preview simulations are review-time what-if analysis against a finalized baseline — not production observation and not a signed-review diligence Sources package by themselves. Open Reviews or Compare before briefing sponsors.";
