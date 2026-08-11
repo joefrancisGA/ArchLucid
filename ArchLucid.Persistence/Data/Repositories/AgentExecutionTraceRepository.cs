@@ -589,16 +589,16 @@ public sealed class AgentExecutionTraceRepository(
         string runId,
         CancellationToken cancellationToken = default)
     {
-        RunChildRunScopeSql.RequireScope(scope);
+        PersistenceTenantScope.RequireRunChildScope(scope);
 
         using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string sql = $"""
                       SELECT t.TraceJson
                       FROM AgentExecutionTraces t
-                      {RunChildRunScopeSql.InnerJoinRuns("t")}
+                      {PersistenceTenantScope.InnerJoinRuns("t")}
                       WHERE t.RunId = @RunId
-                        AND {RunChildRunScopeSql.ScopeWhereClause}
+                        AND {PersistenceTenantScope.RunChildScopeWhereClause}
                       ORDER BY t.CreatedUtc
                       {SqlPagingSyntax.FirstRowsOnly(500)};
                       """;
@@ -622,16 +622,16 @@ public sealed class AgentExecutionTraceRepository(
         string runId,
         CancellationToken cancellationToken = default)
     {
-        RunChildRunScopeSql.RequireScope(scope);
+        PersistenceTenantScope.RequireRunChildScope(scope);
 
         using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string sql = $"""
                       SELECT {AgentExecutionTraceLlmCostProjectionSql.SelectColumns}
                       FROM AgentExecutionTraces t
-                      {RunChildRunScopeSql.InnerJoinRuns("t")}
+                      {PersistenceTenantScope.InnerJoinRuns("t")}
                       WHERE t.RunId = @RunId
-                        AND {RunChildRunScopeSql.ScopeWhereClause}
+                        AND {PersistenceTenantScope.RunChildScopeWhereClause}
                       ORDER BY t.CreatedUtc
                       {SqlPagingSyntax.FirstRowsOnly(500)};
                       """;
@@ -667,7 +667,7 @@ public sealed class AgentExecutionTraceRepository(
         if (normalized.Count == 0)
             return new Dictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>>(StringComparer.OrdinalIgnoreCase);
 
-        RunChildRunScopeSql.RequireScope(scope);
+        PersistenceTenantScope.RequireRunChildScope(scope);
 
         Guid[] runIdsParameter = normalized.Select(SqlRunIdMapping.ToSqlRunId).ToArray();
 
@@ -675,9 +675,9 @@ public sealed class AgentExecutionTraceRepository(
                       SELECT t.RunId,
                              {AgentExecutionTraceLlmCostProjectionSql.SelectColumns}
                       FROM AgentExecutionTraces t
-                      {RunChildRunScopeSql.InnerJoinRuns("t")}
+                      {PersistenceTenantScope.InnerJoinRuns("t")}
                       WHERE t.RunId IN @RunIds
-                        AND {RunChildRunScopeSql.ScopeWhereClause}
+                        AND {PersistenceTenantScope.RunChildScopeWhereClause}
                       ORDER BY t.RunId, t.CreatedUtc;
                       """;
 
@@ -737,15 +737,15 @@ public sealed class AgentExecutionTraceRepository(
         int limit,
         CancellationToken cancellationToken = default)
     {
-        RunChildRunScopeSql.RequireScope(scope);
+        PersistenceTenantScope.RequireRunChildScope(scope);
 
         string sql = $"""
                       SELECT t.TraceJson,
                              COUNT(*) OVER () AS TotalCount
                       FROM AgentExecutionTraces t
-                      {RunChildRunScopeSql.InnerJoinRuns("t")}
+                      {PersistenceTenantScope.InnerJoinRuns("t")}
                       WHERE t.RunId = @RunId
-                        AND {RunChildRunScopeSql.ScopeWhereClause}
+                        AND {PersistenceTenantScope.RunChildScopeWhereClause}
                       ORDER BY t.CreatedUtc
                       OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY;
                       """;
@@ -785,15 +785,15 @@ public sealed class AgentExecutionTraceRepository(
         int limit,
         CancellationToken cancellationToken = default)
     {
-        RunChildRunScopeSql.RequireScope(scope);
+        PersistenceTenantScope.RequireRunChildScope(scope);
 
         string sql = $"""
                       SELECT {AgentExecutionTraceListSql.SelectSummaryColumns},
                              COUNT(*) OVER () AS TotalCount
                       FROM AgentExecutionTraces t
-                      {RunChildRunScopeSql.InnerJoinRuns("t")}
+                      {PersistenceTenantScope.InnerJoinRuns("t")}
                       WHERE t.RunId = @RunId
-                        AND {RunChildRunScopeSql.ScopeWhereClause}
+                        AND {PersistenceTenantScope.RunChildScopeWhereClause}
                       ORDER BY t.CreatedUtc
                       OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY;
                       """;
@@ -830,14 +830,14 @@ public sealed class AgentExecutionTraceRepository(
         string runId,
         CancellationToken cancellationToken = default)
     {
-        RunChildRunScopeSql.RequireScope(scope);
+        PersistenceTenantScope.RequireRunChildScope(scope);
 
         string sql = $"""
                       SELECT COUNT(1)
                       FROM AgentExecutionTraces t
-                      {RunChildRunScopeSql.InnerJoinRuns("t")}
+                      {PersistenceTenantScope.InnerJoinRuns("t")}
                       WHERE t.RunId = @RunId
-                        AND {RunChildRunScopeSql.ScopeWhereClause};
+                        AND {PersistenceTenantScope.RunChildScopeWhereClause};
                       """;
 
         using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -913,7 +913,7 @@ public sealed class AgentExecutionTraceRepository(
         if (normalized.Count == 0)
             return new Dictionary<string, IReadOnlyList<string>>(StringComparer.OrdinalIgnoreCase);
 
-        RunChildRunScopeSql.RequireScope(scope);
+        PersistenceTenantScope.RequireRunChildScope(scope);
 
         const string pattern = AgentExecutionTraceModelMetadata.LlmCompletionFallbackDeploymentPrefix + "%";
 
@@ -923,9 +923,9 @@ public sealed class AgentExecutionTraceRepository(
         string sql = $"""
                       SELECT DISTINCT t.RunId, t.AgentType
                       FROM dbo.AgentExecutionTraces t
-                      {RunChildRunScopeSql.InnerJoinRuns("t")}
+                      {PersistenceTenantScope.InnerJoinRuns("t")}
                       WHERE t.RunId IN @RunIds
-                        AND {RunChildRunScopeSql.ScopeWhereClause}
+                        AND {PersistenceTenantScope.RunChildScopeWhereClause}
                         AND t.ModelDeploymentName LIKE @PrefixPattern
                       """;
 

@@ -14,7 +14,7 @@ ADR 0037 removed SQL RLS and relies on database-per-tenant catalogs plus applica
 
 1. Add **`TenantScopedQueryScopeBindingAnalyzer` (`ARCH006`)** in `ArchLucid.Analyzers`, enabled on **`ArchLucid.Persistence`** only.
 2. Source of truth for tenant-scoped tables is **`scripts/ci/data/tenant_scoped_tables.v1.json`**, generated from the **`scope-triple-on-row`** and **`tenant-id-on-row`** buckets in `docs/security/TENANT_TABLE_ISOLATION_CLASSIFICATION.md`. A parity architecture test prevents drift.
-3. **Fail-closed** on unanalyzable SQL against scoped tables unless a recognized scope helper (`RunChildRunScopeSql`, `RepositoryScopePredicate`) or **`[TenantScopeExempt]`** is present.
+3. **Fail-closed** on unanalyzable SQL against scoped tables unless a recognized scope helper (`PersistenceTenantScope`, `RunChildRunScopeSql`, `RepositoryScopePredicate`) or **`[TenantScopeExempt]`** is present. Repositories call **`PersistenceTenantScope`**; the other two remain recognized because the façade delegates to them.
 4. **`[TenantScopeExempt]`** (`ArchLucid.Core.Tenancy`) documents finite exemptions aligned to classification buckets (`AcceptedResidual`, `SystemPlaneOnly`, `Operational`).
 5. v1 analyzer accepts, within a tenant catalog:
    - explicit triple/`TenantId` predicates,

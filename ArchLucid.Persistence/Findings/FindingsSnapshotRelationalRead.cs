@@ -29,7 +29,7 @@ internal static class FindingsSnapshotRelationalRead
 
         DynamicParameters parameters = new();
         parameters.Add("FindingsSnapshotId", row.FindingsSnapshotId);
-        RepositoryScopePredicate.AddScopeTripleIfNeeded(parameters, scope);
+        PersistenceTenantScope.AddScopeTripleIfNeeded(parameters, scope);
 
         List<FindingRecordRow> records = (await connection.QueryAsync<FindingRecordRow>(
             new CommandDefinition(
@@ -185,7 +185,7 @@ internal static class FindingsSnapshotRelationalRead
         return baseColumns
                + insightDensityColumns
                + "\nFROM dbo.FindingRecords\nWHERE FindingsSnapshotId = @FindingsSnapshotId"
-               + RepositoryScopePredicate.AndTripleWhere(scope)
+               + PersistenceTenantScope.AndTripleWhere(scope)
                + " ORDER BY SortOrder;";
     }
 

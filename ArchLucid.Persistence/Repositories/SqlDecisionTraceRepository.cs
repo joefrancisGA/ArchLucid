@@ -34,7 +34,7 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
             throw new InvalidOperationException("Expected a RuleAudit trace (authority pipeline).");
 
         RuleAuditTracePayload audit = ruleAuditTrace.RuleAudit;
-        ScopedRepositoryScopeValidation.RequireEntityTenant(audit.TenantId);
+        PersistenceTenantScope.RequireEntityTenant(audit.TenantId);
 
         const string sql = """
                            INSERT INTO dbo.DecisioningTraces
@@ -95,7 +95,7 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
     public async Task<DecisionTraceDto?> GetByIdAsync(ScopeContext scope, Guid decisionTraceId, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
 
         const string sql = """
                            SELECT

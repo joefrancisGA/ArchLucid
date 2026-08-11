@@ -39,4 +39,7 @@ internal static class PersistenceTenantScope
 
     internal static void RequireEntityTenant(Guid tenantId) =>
         ScopedRepositoryScopeValidation.RequireEntityTenant(tenantId);
+
+    /// <summary>Trusted jobs (backfill, migration) skip repository scope predicates when tenant is empty.</summary>
+    internal static ScopeContext TrustedJobScope => ScopedRepositoryScopeValidation.TrustedJobScope;
 }

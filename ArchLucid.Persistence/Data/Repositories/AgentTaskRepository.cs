@@ -99,7 +99,7 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
         string runId,
         CancellationToken cancellationToken = default)
     {
-        RunChildRunScopeSql.RequireScope(scope);
+        PersistenceTenantScope.RequireRunChildScope(scope);
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
@@ -114,9 +114,9 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
                           at.CompletedUtc,
                           at.EvidenceBundleRef
                       FROM AgentTasks at
-                      {RunChildRunScopeSql.InnerJoinRuns("at")}
+                      {PersistenceTenantScope.InnerJoinRuns("at")}
                       WHERE at.RunId = @RunId
-                        AND {RunChildRunScopeSql.ScopeWhereClause}
+                        AND {PersistenceTenantScope.RunChildScopeWhereClause}
                       ORDER BY at.CreatedUtc
                       {SqlPagingSyntax.FirstRowsOnly(500)};
                       """;

@@ -30,7 +30,7 @@ public sealed class DapperDraftRequestRepository(ISqlConnectionFactory connectio
         Guid draftId,
         CancellationToken cancellationToken)
     {
-        ScopedRepositoryScopeValidation.RequireEntityTenant(tenantId);
+        PersistenceTenantScope.RequireEntityTenant(tenantId);
 
         const string sql = """
                            SELECT
@@ -72,7 +72,7 @@ public sealed class DapperDraftRequestRepository(ISqlConnectionFactory connectio
     {
         ArgumentNullException.ThrowIfNull(document);
         ArgumentException.ThrowIfNullOrWhiteSpace(createdByUserId);
-        ScopedRepositoryScopeValidation.RequireEntityTenant(tenantId);
+        PersistenceTenantScope.RequireEntityTenant(tenantId);
 
         Guid draftId = Guid.NewGuid();
         DateTime now = TimeProvider.System.GetUtcNow().UtcDateTime;
@@ -145,7 +145,7 @@ public sealed class DapperDraftRequestRepository(ISqlConnectionFactory connectio
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(document);
-        ScopedRepositoryScopeValidation.RequireEntityTenant(tenantId);
+        PersistenceTenantScope.RequireEntityTenant(tenantId);
 
         DateTime now = TimeProvider.System.GetUtcNow().UtcDateTime;
         string documentJson = JsonSerializer.Serialize(document, JsonOptions);
@@ -232,7 +232,7 @@ public sealed class DapperDraftRequestRepository(ISqlConnectionFactory connectio
         Guid parentDraftId,
         CancellationToken cancellationToken)
     {
-        ScopedRepositoryScopeValidation.RequireEntityTenant(tenantId);
+        PersistenceTenantScope.RequireEntityTenant(tenantId);
 
         const string sql = """
                            SELECT COUNT(1)
@@ -268,7 +268,7 @@ public sealed class DapperDraftRequestRepository(ISqlConnectionFactory connectio
         int maxCount,
         CancellationToken cancellationToken)
     {
-        ScopedRepositoryScopeValidation.RequireEntityTenant(tenantId);
+        PersistenceTenantScope.RequireEntityTenant(tenantId);
 
         int effectiveMax = Math.Clamp(maxCount, 1, 25);
 

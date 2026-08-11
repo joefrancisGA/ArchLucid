@@ -120,11 +120,11 @@ public sealed class SqlContextSnapshotRepository(
                          SourceHashesJson
                      FROM dbo.ContextSnapshots
                      WHERE SnapshotId = @SnapshotId
-                     """ + RepositoryScopePredicate.AndScopeProjectIdTripleWhere(scope) + ";";
+                     """ + PersistenceTenantScope.AndScopeProjectIdTripleWhere(scope) + ";";
 
         DynamicParameters parameters = new();
         parameters.Add("SnapshotId", snapshotId);
-        RepositoryScopePredicate.AddScopeTripleIfNeeded(parameters, scope);
+        PersistenceTenantScope.AddScopeTripleIfNeeded(parameters, scope);
 
         ContextSnapshotStorageRow? row = await connection.QuerySingleOrDefaultAsync<ContextSnapshotStorageRow>(
             new CommandDefinition(sql, parameters, transaction, cancellationToken: ct));

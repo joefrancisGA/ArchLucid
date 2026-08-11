@@ -42,7 +42,7 @@ public sealed class SqlRunRepository(
         IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(run);
-        ScopedRepositoryScopeValidation.RequireEntityTenant(run.TenantId);
+        PersistenceTenantScope.RequireEntityTenant(run.TenantId);
 
         const string sql = """
                            DECLARE @RunInsertOutput TABLE (RowVersionStamp VARBINARY(8) NOT NULL);
@@ -109,7 +109,7 @@ public sealed class SqlRunRepository(
     public async Task<RunRecord?> GetByIdAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
 
         Stopwatch sw = Stopwatch.StartNew();
 
@@ -207,7 +207,7 @@ public sealed class SqlRunRepository(
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(authorityProjectSlug);
-        ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
 
         Stopwatch sw = Stopwatch.StartNew();
 
@@ -267,7 +267,7 @@ public sealed class SqlRunRepository(
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(projectId);
-        ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
 
         const string sql = """
                            SELECT TOP (1) r.RunId
@@ -311,7 +311,7 @@ public sealed class SqlRunRepository(
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
 
         // NOLOCK: dashboard-grade list on hot-write table; tolerates replica-style staleness (see ListRecentInScopeAsync).
 
@@ -353,7 +353,7 @@ public sealed class SqlRunRepository(
     {
         ArgumentNullException.ThrowIfNull(scope);
         ValidateRunKeysetCursor(cursorCreatedUtc, cursorRunId);
-        ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
 
         int safeTake = RunPagination.ClampTake(take);
         int fetch = safeTake + 1;
@@ -401,7 +401,7 @@ public sealed class SqlRunRepository(
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
 
         Stopwatch sw = Stopwatch.StartNew();
 
@@ -442,7 +442,7 @@ public sealed class SqlRunRepository(
     {
         ArgumentNullException.ThrowIfNull(scope);
         ValidateRunKeysetCursor(cursorCreatedUtc, cursorRunId);
-        ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
 
         int safeTake = RunPagination.ClampTake(take);
         int fetch = safeTake + 1;
@@ -492,7 +492,7 @@ public sealed class SqlRunRepository(
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
 
         int safeLimit = RunPagination.ClampLimit(limit);
         int safeOffset = RunPagination.NormalizeOffset(offset);
@@ -539,7 +539,7 @@ public sealed class SqlRunRepository(
         IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(run);
-        ScopedRepositoryScopeValidation.RequireEntityTenant(run.TenantId);
+        PersistenceTenantScope.RequireEntityTenant(run.TenantId);
 
         const string sql = """
                            DECLARE @RunUpdateOutput TABLE (RowVersionStamp VARBINARY(8) NOT NULL);
@@ -755,7 +755,7 @@ public sealed class SqlRunRepository(
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
 
         if (string.IsNullOrWhiteSpace(architectureRequestId))
             throw new ArgumentException("Architecture request id is required.", nameof(architectureRequestId));
@@ -1025,7 +1025,7 @@ public sealed class SqlRunRepository(
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
 
         if (runId == Guid.Empty)
             throw new ArgumentException("Run id is required.", nameof(runId));

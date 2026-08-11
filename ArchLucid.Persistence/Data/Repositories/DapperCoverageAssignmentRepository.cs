@@ -92,7 +92,7 @@ public sealed class DapperCoverageAssignmentRepository(IDbConnectionFactory conn
         string runId,
         CancellationToken cancellationToken = default)
     {
-        RunChildRunScopeSql.RequireScope(scope);
+        PersistenceTenantScope.RequireRunChildScope(scope);
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
         string sql = $"""
@@ -115,9 +115,9 @@ public sealed class DapperCoverageAssignmentRepository(IDbConnectionFactory conn
                          c.CreatedUtc,
                          c.EvaluationVersion
                      FROM dbo.CoverageAssignments c
-                     {RunChildRunScopeSql.InnerJoinRuns("c")}
+                     {PersistenceTenantScope.InnerJoinRuns("c")}
                      WHERE c.RunId = @RunId
-                       AND {RunChildRunScopeSql.ScopeWhereClause}
+                       AND {PersistenceTenantScope.RunChildScopeWhereClause}
                      ORDER BY c.CreatedUtc;
                      """;
 

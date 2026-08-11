@@ -85,7 +85,7 @@ public sealed class TechnologyLedgerRepository(IDbConnectionFactory connectionFa
         string runId,
         CancellationToken cancellationToken = default)
     {
-        RunChildRunScopeSql.RequireScope(scope);
+        PersistenceTenantScope.RequireRunChildScope(scope);
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -105,9 +105,9 @@ public sealed class TechnologyLedgerRepository(IDbConnectionFactory connectionFa
                          t.CreatedUtc,
                          t.UpdatedUtc
                      FROM dbo.TechnologyLedgerEntries t
-                     {RunChildRunScopeSql.InnerJoinRuns("t")}
+                     {PersistenceTenantScope.InnerJoinRuns("t")}
                      WHERE t.RunId = @RunId
-                       AND {RunChildRunScopeSql.ScopeWhereClause}
+                       AND {PersistenceTenantScope.RunChildScopeWhereClause}
                      ORDER BY t.CreatedUtc;
                      """;
 

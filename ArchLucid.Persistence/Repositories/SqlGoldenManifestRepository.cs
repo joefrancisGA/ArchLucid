@@ -43,7 +43,7 @@ public sealed class SqlGoldenManifestRepository(
         IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(manifest);
-        ScopedRepositoryScopeValidation.RequireEntityTenant(manifest.TenantId);
+        PersistenceTenantScope.RequireEntityTenant(manifest.TenantId);
 
         if (connection is not null)
         {
@@ -88,7 +88,7 @@ public sealed class SqlGoldenManifestRepository(
         if (contractHash is null)
             throw new ArgumentNullException(nameof(contractHash));
 
-        ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
         ManifestDocument model = ContractGoldenManifestPersistence.ResolveGoldenManifestForContractSave(
             contract,
             scope,
@@ -108,7 +108,7 @@ public sealed class SqlGoldenManifestRepository(
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
 
         if (connection is not null)
             return await SupersedeUnreferencedActiveGoldenManifestsCoreAsync(scope, newManifestId, connection, transaction, cancellationToken);
@@ -179,7 +179,7 @@ public sealed class SqlGoldenManifestRepository(
     public async Task<ManifestDocument?> GetByIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
 
         const string sql = """
                            SELECT
@@ -237,7 +237,7 @@ public sealed class SqlGoldenManifestRepository(
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
 
         if (string.IsNullOrWhiteSpace(manifestVersion))
             throw new ArgumentException("Manifest version is required.", nameof(manifestVersion));
@@ -287,7 +287,7 @@ public sealed class SqlGoldenManifestRepository(
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
         cancellationToken.ThrowIfCancellationRequested();
 
         if (maxManifests <= 0)
@@ -802,7 +802,7 @@ public sealed class SqlGoldenManifestRepository(
         ArgumentNullException.ThrowIfNull(connection);
 
         Guid manifestId = manifest.ManifestId;
-        ScopedRepositoryScopeValidation.RequireEntityTenant(manifest.TenantId);
+        PersistenceTenantScope.RequireEntityTenant(manifest.TenantId);
 
         object sliceCountArgs = new
         {

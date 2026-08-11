@@ -112,7 +112,7 @@ public sealed class SqlRelationalBackfillService(
         await using Microsoft.Data.SqlClient.SqlTransaction tx = conn.BeginTransaction();
 
         ContextSnapshot? snapshot = await contextSnapshotRepository.GetByIdAsync(
-            ScopedRepositoryScopeValidation.TrustedJobScope,
+            PersistenceTenantScope.TrustedJobScope,
             snapshotId,
             conn,
             tx,
@@ -152,7 +152,7 @@ public sealed class SqlRelationalBackfillService(
         await using Microsoft.Data.SqlClient.SqlTransaction tx = conn.BeginTransaction();
 
         GraphSnapshot? snapshot = await graphSnapshotRepository.GetByIdAsync(
-            ScopedRepositoryScopeValidation.TrustedJobScope,
+            PersistenceTenantScope.TrustedJobScope,
             graphSnapshotId,
             conn,
             tx,
@@ -193,7 +193,7 @@ public sealed class SqlRelationalBackfillService(
         await using Microsoft.Data.SqlClient.SqlTransaction tx = conn.BeginTransaction();
 
         FindingsSnapshot? snapshot = await findingsSnapshotRepository.GetByIdAsync(
-            ScopedRepositoryScopeValidation.TrustedJobScope,
+            PersistenceTenantScope.TrustedJobScope,
             findingsSnapshotId,
             ct);
 

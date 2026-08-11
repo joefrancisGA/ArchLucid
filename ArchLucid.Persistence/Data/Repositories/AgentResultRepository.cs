@@ -308,14 +308,14 @@ public sealed class AgentResultRepository(
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
-        RunChildRunScopeSql.RequireScope(scope);
+        PersistenceTenantScope.RequireRunChildScope(scope);
 
         string sql = $"""
                       {AgentResultListSql.GetByRunIdSelectResultJson}
                       FROM AgentResults ar
-                      {RunChildRunScopeSql.InnerJoinRuns("ar")}
+                      {PersistenceTenantScope.InnerJoinRuns("ar")}
                       WHERE ar.RunId = @RunId
-                        AND {RunChildRunScopeSql.ScopeWhereClause}
+                        AND {PersistenceTenantScope.RunChildScopeWhereClause}
                       ORDER BY ar.CreatedUtc
                       {SqlPagingSyntax.FirstRowsOnly(1000)};
                       """;
@@ -382,14 +382,14 @@ public sealed class AgentResultRepository(
         string runId,
         CancellationToken cancellationToken = default)
     {
-        RunChildRunScopeSql.RequireScope(scope);
+        PersistenceTenantScope.RequireRunChildScope(scope);
 
         string sql = $"""
                       {AgentResultListSql.GetByRunIdSelectAgentTypeMarkers}
                       FROM AgentResults ar
-                      {RunChildRunScopeSql.InnerJoinRuns("ar")}
+                      {PersistenceTenantScope.InnerJoinRuns("ar")}
                       WHERE ar.RunId = @RunId
-                        AND {RunChildRunScopeSql.ScopeWhereClause}
+                        AND {PersistenceTenantScope.RunChildScopeWhereClause}
                       ORDER BY ar.CreatedUtc
                       {SqlPagingSyntax.FirstRowsOnly(1000)};
                       """;
@@ -445,14 +445,14 @@ public sealed class AgentResultRepository(
         string runId,
         CancellationToken cancellationToken = default)
     {
-        RunChildRunScopeSql.RequireScope(scope);
+        PersistenceTenantScope.RequireRunChildScope(scope);
 
         string sql = $"""
                       {AgentResultListSql.GetByRunIdSelectRollupProjection}
                       FROM AgentResults ar
-                      {RunChildRunScopeSql.InnerJoinRuns("ar")}
+                      {PersistenceTenantScope.InnerJoinRuns("ar")}
                       WHERE ar.RunId = @RunId
-                        AND {RunChildRunScopeSql.ScopeWhereClause}
+                        AND {PersistenceTenantScope.RunChildScopeWhereClause}
                       ORDER BY ar.CreatedUtc
                       {SqlPagingSyntax.FirstRowsOnly(1000)};
                       """;
@@ -638,7 +638,7 @@ public sealed class AgentResultRepository(
         ScopeContext scope,
         CancellationToken cancellationToken = default)
     {
-        RunChildRunScopeSql.RequireScope(scope);
+        PersistenceTenantScope.RequireRunChildScope(scope);
 
         string sql = $"""
                       SELECT
@@ -646,11 +646,11 @@ public sealed class AgentResultRepository(
                           CAST(0 AS BIT) AS IsPromoted
                       FROM AgentResults AS ar
                       LEFT JOIN dbo.AgentResultEnrichments AS enr ON enr.ResultId = ar.ResultId
-                      {RunChildRunScopeSql.InnerJoinRuns("ar")}
+                      {PersistenceTenantScope.InnerJoinRuns("ar")}
                       WHERE ar.ProposedEvidenceJson IS NOT NULL
                         AND ar.EvidenceProposalPromotedUtc IS NULL
                         AND enr.EvidenceProposalPromotedUtc IS NULL
-                        AND {RunChildRunScopeSql.ScopeWhereClause}
+                        AND {PersistenceTenantScope.RunChildScopeWhereClause}
                         AND NOT EXISTS (
                             SELECT 1
                             FROM TenantCuratedEvidenceEntries AS tce
@@ -667,7 +667,7 @@ public sealed class AgentResultRepository(
         {
             rows = await conn.QueryAsync<EvidenceProposalRow>(new CommandDefinition(
                 sql,
-                RunChildRunScopeSql.ScopeParameters(scope),
+                PersistenceTenantScope.RunChildScopeParameters(scope),
                 cancellationToken: cancellationToken));
         }
         finally
@@ -684,7 +684,7 @@ public sealed class AgentResultRepository(
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(resultId);
-        RunChildRunScopeSql.RequireScope(scope);
+        PersistenceTenantScope.RequireRunChildScope(scope);
 
         string sql = $"""
                       SELECT TOP (1)
@@ -706,10 +706,10 @@ public sealed class AgentResultRepository(
                           END AS IsPromoted
                       FROM AgentResults AS ar
                       LEFT JOIN dbo.AgentResultEnrichments AS enr ON enr.ResultId = ar.ResultId
-                      {RunChildRunScopeSql.InnerJoinRuns("ar")}
+                      {PersistenceTenantScope.InnerJoinRuns("ar")}
                       WHERE ar.ResultId = @ResultId
                         AND ar.ProposedEvidenceJson IS NOT NULL
-                        AND {RunChildRunScopeSql.ScopeWhereClause};
+                        AND {PersistenceTenantScope.RunChildScopeWhereClause};
                       """;
 
         (IDbConnection conn, bool ownsConnection) =

@@ -107,7 +107,7 @@ public sealed class GovernancePromotionRecordRepository(
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
+        string scopeSql = PersistenceTenantScope.AndTripleWhere(scope);
 
         string sql = $"""
                       SELECT
@@ -133,7 +133,7 @@ public sealed class GovernancePromotionRecordRepository(
 
         RepositoryRunIdPredicate.AddRunIdMatchParameters(p, runId);
 
-        RepositoryScopePredicate.AddScopeTripleIfNeeded(p, scope);
+        PersistenceTenantScope.AddScopeTripleIfNeeded(p, scope);
 
         IEnumerable<GovernancePromotionRecord> rows = await connection.QueryAsync<GovernancePromotionRecord>(
             new CommandDefinition(

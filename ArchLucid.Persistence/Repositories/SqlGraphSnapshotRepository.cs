@@ -79,11 +79,11 @@ public sealed class SqlGraphSnapshotRepository(
                          GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc
                      FROM dbo.GraphSnapshots
                      WHERE ContextSnapshotId = @ContextSnapshotId
-                     """ + RepositoryScopePredicate.AndScopeProjectIdTripleWhere(scope) + " ORDER BY CreatedUtc DESC;";
+                     """ + PersistenceTenantScope.AndScopeProjectIdTripleWhere(scope) + " ORDER BY CreatedUtc DESC;";
 
         DynamicParameters parameters = new();
         parameters.Add("ContextSnapshotId", contextSnapshotId);
-        RepositoryScopePredicate.AddScopeTripleIfNeeded(parameters, scope);
+        PersistenceTenantScope.AddScopeTripleIfNeeded(parameters, scope);
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         GraphSnapshotRelationalRead.GraphSnapshotHeaderRow? header =
@@ -295,11 +295,11 @@ public sealed class SqlGraphSnapshotRepository(
                          GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc
                      FROM dbo.GraphSnapshots
                      WHERE GraphSnapshotId = @GraphSnapshotId
-                     """ + RepositoryScopePredicate.AndScopeProjectIdTripleWhere(scope) + ";";
+                     """ + PersistenceTenantScope.AndScopeProjectIdTripleWhere(scope) + ";";
 
         DynamicParameters parameters = new();
         parameters.Add("GraphSnapshotId", graphSnapshotId);
-        RepositoryScopePredicate.AddScopeTripleIfNeeded(parameters, scope);
+        PersistenceTenantScope.AddScopeTripleIfNeeded(parameters, scope);
 
         GraphSnapshotRelationalRead.GraphSnapshotHeaderRow? header =
             await connection.QuerySingleOrDefaultAsync<GraphSnapshotRelationalRead.GraphSnapshotHeaderRow>(

@@ -85,11 +85,11 @@ public sealed class SqlFindingsSnapshotRepository(
                           {FindingsSnapshotReadSql.SelectHeaderColumns}
                       FROM dbo.FindingsSnapshots
                       WHERE FindingsSnapshotId = @FindingsSnapshotId
-                      """ + RepositoryScopePredicate.AndProjectIdTripleWhere(scope) + ";";
+                      """ + PersistenceTenantScope.AndProjectIdTripleWhere(scope) + ";";
 
         DynamicParameters parameters = new();
         parameters.Add("FindingsSnapshotId", findingsSnapshotId);
-        RepositoryScopePredicate.AddScopeTripleIfNeeded(parameters, scope);
+        PersistenceTenantScope.AddScopeTripleIfNeeded(parameters, scope);
 
         Stopwatch sw = Stopwatch.StartNew();
 
@@ -111,7 +111,7 @@ public sealed class SqlFindingsSnapshotRepository(
                 """
                 SELECT COUNT(1) FROM dbo.FindingRecords
                 WHERE FindingsSnapshotId = @FindingsSnapshotId
-                """ + RepositoryScopePredicate.AndTripleWhere(scope),
+                """ + PersistenceTenantScope.AndTripleWhere(scope),
                 parameters,
                 ct);
 
@@ -171,11 +171,11 @@ public sealed class SqlFindingsSnapshotRepository(
                           {FindingsSnapshotCoverageSql.SelectHeaderColumns}
                       FROM dbo.FindingsSnapshots
                       WHERE FindingsSnapshotId = @FindingsSnapshotId
-                      """ + RepositoryScopePredicate.AndProjectIdTripleWhere(scope) + ";";
+                      """ + PersistenceTenantScope.AndProjectIdTripleWhere(scope) + ";";
 
         DynamicParameters parameters = new();
         parameters.Add("FindingsSnapshotId", findingsSnapshotId);
-        RepositoryScopePredicate.AddScopeTripleIfNeeded(parameters, scope);
+        PersistenceTenantScope.AddScopeTripleIfNeeded(parameters, scope);
 
         await using SqlConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(ct);
         FindingsCoverageHeaderRow? header = await connection.QuerySingleOrDefaultAsync<FindingsCoverageHeaderRow>(
@@ -189,7 +189,7 @@ public sealed class SqlFindingsSnapshotRepository(
                                  {FindingsSnapshotCoverageSql.SelectFindingMetadataColumns}
                              FROM dbo.FindingRecords
                              WHERE FindingsSnapshotId = @FindingsSnapshotId
-                             """ + RepositoryScopePredicate.AndTripleWhere(scope) + """
+                             """ + PersistenceTenantScope.AndTripleWhere(scope) + """
                              
                              ORDER BY SortOrder ASC;
                              """;
@@ -301,7 +301,7 @@ public sealed class SqlFindingsSnapshotRepository(
         int cappedTake = Math.Clamp(take <= 0 ? FindingPagination.DefaultTake : take, 1, FindingPagination.MaxTake);
         int fetchLimit = cappedTake + 1;
 
-        string scopeWhere = RepositoryScopePredicate.AndTripleWhere(scope);
+        string scopeWhere = PersistenceTenantScope.AndTripleWhere(scope);
 
         string sql = orderByPriority
             ? $"""
@@ -358,7 +358,7 @@ public sealed class SqlFindingsSnapshotRepository(
         listParameters.Add("CurSo", cursorSort);
         listParameters.Add("CurFrid", cursorFindingRecordId ?? Guid.Empty);
         listParameters.Add("Limit", fetchLimit);
-        RepositoryScopePredicate.AddScopeTripleIfNeeded(listParameters, scope);
+        PersistenceTenantScope.AddScopeTripleIfNeeded(listParameters, scope);
 
         List<FindingMetaSqlRow> rows = (
             await connection.QueryAsync<FindingMetaSqlRow>(
@@ -458,7 +458,7 @@ public sealed class SqlFindingsSnapshotRepository(
         commandText.Append(updateHeader);
         DynamicParameters parameters = new();
         parameters.Add("FsId", findingsSnapshotId);
-        RepositoryScopePredicate.AddScopeTripleIfNeeded(parameters, scope);
+        PersistenceTenantScope.AddScopeTripleIfNeeded(parameters, scope);
 
         for (int i = 0; i < rowCount; i++)
         {

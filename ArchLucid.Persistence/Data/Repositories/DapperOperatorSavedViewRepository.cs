@@ -27,7 +27,7 @@ public sealed class DapperOperatorSavedViewRepository(ISqlConnectionFactory conn
         string? surface,
         CancellationToken cancellationToken)
     {
-        ScopedRepositoryScopeValidation.RequireEntityTenant(tenantId);
+        PersistenceTenantScope.RequireEntityTenant(tenantId);
         ArgumentException.ThrowIfNullOrWhiteSpace(userId);
 
         string sql = """
@@ -74,7 +74,7 @@ public sealed class DapperOperatorSavedViewRepository(ISqlConnectionFactory conn
         bool isShared,
         CancellationToken cancellationToken)
     {
-        ScopedRepositoryScopeValidation.RequireEntityTenant(tenantId);
+        PersistenceTenantScope.RequireEntityTenant(tenantId);
         ArgumentException.ThrowIfNullOrWhiteSpace(userId);
         ArgumentException.ThrowIfNullOrWhiteSpace(surface);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
@@ -181,7 +181,7 @@ public sealed class DapperOperatorSavedViewRepository(ISqlConnectionFactory conn
         Guid viewId,
         CancellationToken cancellationToken)
     {
-        ScopedRepositoryScopeValidation.RequireEntityTenant(tenantId);
+        PersistenceTenantScope.RequireEntityTenant(tenantId);
         ArgumentException.ThrowIfNullOrWhiteSpace(userId);
 
         if (viewId == Guid.Empty)

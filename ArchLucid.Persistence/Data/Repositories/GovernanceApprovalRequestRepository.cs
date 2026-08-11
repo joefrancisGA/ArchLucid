@@ -144,7 +144,7 @@ public sealed class GovernanceApprovalRequestRepository(
         ArgumentException.ThrowIfNullOrWhiteSpace(reviewedBy);
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
+        string scopeSql = PersistenceTenantScope.AndTripleWhere(scope);
 
         // @@ROWCOUNT batch: pooled sessions often inherit SET NOCOUNT ON, so ExecuteAsync's return value is unreliable
         // for matched-row detection under concurrent Serializable transitions (contract test expects exactly one winner).
@@ -170,7 +170,7 @@ public sealed class GovernanceApprovalRequestRepository(
         transitionParams.Add("ReviewedUtc", reviewedUtc, DbType.DateTime2);
         transitionParams.Add("Draft", GovernanceApprovalStatus.Draft);
         transitionParams.Add("Submitted", GovernanceApprovalStatus.Submitted);
-        RepositoryScopePredicate.AddScopeTripleIfNeeded(transitionParams, scope);
+        PersistenceTenantScope.AddScopeTripleIfNeeded(transitionParams, scope);
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         using IDbTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
@@ -197,7 +197,7 @@ public sealed class GovernanceApprovalRequestRepository(
         ArgumentNullException.ThrowIfNull(item);
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
+        string scopeSql = PersistenceTenantScope.AndTripleWhere(scope);
 
         string sql = $"""
                       UPDATE GovernanceApprovalRequests
@@ -219,7 +219,7 @@ public sealed class GovernanceApprovalRequestRepository(
         p.Add("ReviewedUtc", item.ReviewedUtc, DbType.DateTime2);
         p.Add("SlaDeadlineUtc", item.SlaDeadlineUtc, DbType.DateTime2);
         p.Add("SlaBreachNotifiedUtc", item.SlaBreachNotifiedUtc, DbType.DateTime2);
-        RepositoryScopePredicate.AddScopeTripleIfNeeded(p, scope);
+        PersistenceTenantScope.AddScopeTripleIfNeeded(p, scope);
 
         if (connection is not null)
         {
@@ -237,7 +237,7 @@ public sealed class GovernanceApprovalRequestRepository(
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
+        string scopeSql = PersistenceTenantScope.AndTripleWhere(scope);
 
         string sql = $"""
                       SELECT
@@ -268,7 +268,7 @@ public sealed class GovernanceApprovalRequestRepository(
 
         DynamicParameters p = new();
         p.Add("ApprovalRequestId", approvalRequestId);
-        RepositoryScopePredicate.AddScopeTripleIfNeeded(p, scope);
+        PersistenceTenantScope.AddScopeTripleIfNeeded(p, scope);
 
         return await connection.QuerySingleOrDefaultAsync<GovernanceApprovalRequest>(new CommandDefinition(
             sql,
@@ -283,7 +283,7 @@ public sealed class GovernanceApprovalRequestRepository(
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
+        string scopeSql = PersistenceTenantScope.AndTripleWhere(scope);
 
         string sql = $"""
                       SELECT
@@ -316,7 +316,7 @@ public sealed class GovernanceApprovalRequestRepository(
 
         RepositoryRunIdPredicate.AddRunIdMatchParameters(p, runId);
 
-        RepositoryScopePredicate.AddScopeTripleIfNeeded(p, scope);
+        PersistenceTenantScope.AddScopeTripleIfNeeded(p, scope);
 
         IEnumerable<GovernanceApprovalRequest> rows = await connection.QueryAsync<GovernanceApprovalRequest>(
             new CommandDefinition(
@@ -335,7 +335,7 @@ public sealed class GovernanceApprovalRequestRepository(
             throw new ArgumentOutOfRangeException(nameof(maxRows));
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
+        string scopeSql = PersistenceTenantScope.AndTripleWhere(scope);
 
         string sql = $"""
                       SELECT TOP (@MaxRows)
@@ -369,7 +369,7 @@ public sealed class GovernanceApprovalRequestRepository(
         p.Add("MaxRows", maxRows);
         p.Add("Draft", GovernanceApprovalStatus.Draft);
         p.Add("Submitted", GovernanceApprovalStatus.Submitted);
-        RepositoryScopePredicate.AddScopeTripleIfNeeded(p, scope);
+        PersistenceTenantScope.AddScopeTripleIfNeeded(p, scope);
 
         IEnumerable<GovernanceApprovalRequest> rows = await connection.QueryAsync<GovernanceApprovalRequest>(
             new CommandDefinition(
@@ -388,7 +388,7 @@ public sealed class GovernanceApprovalRequestRepository(
             throw new ArgumentOutOfRangeException(nameof(maxRows));
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
+        string scopeSql = PersistenceTenantScope.AndTripleWhere(scope);
 
         string sql = $"""
                       SELECT TOP (@MaxRows)
@@ -424,7 +424,7 @@ public sealed class GovernanceApprovalRequestRepository(
         p.Add("Approved", GovernanceApprovalStatus.Approved);
         p.Add("Rejected", GovernanceApprovalStatus.Rejected);
         p.Add("Promoted", GovernanceApprovalStatus.Promoted);
-        RepositoryScopePredicate.AddScopeTripleIfNeeded(p, scope);
+        PersistenceTenantScope.AddScopeTripleIfNeeded(p, scope);
 
         IEnumerable<GovernanceApprovalRequest> rows = await connection.QueryAsync<GovernanceApprovalRequest>(
             new CommandDefinition(
@@ -440,7 +440,7 @@ public sealed class GovernanceApprovalRequestRepository(
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
+        string scopeSql = PersistenceTenantScope.AndTripleWhere(scope);
 
         string sql = $"""
                       SELECT TOP 200
@@ -477,7 +477,7 @@ public sealed class GovernanceApprovalRequestRepository(
         p.Add("UtcNow", utcNow, DbType.DateTime2);
         p.Add("Draft", GovernanceApprovalStatus.Draft);
         p.Add("Submitted", GovernanceApprovalStatus.Submitted);
-        RepositoryScopePredicate.AddScopeTripleIfNeeded(p, scope);
+        PersistenceTenantScope.AddScopeTripleIfNeeded(p, scope);
 
         IEnumerable<GovernanceApprovalRequest> rows = await connection.QueryAsync<GovernanceApprovalRequest>(
             new CommandDefinition(
@@ -496,7 +496,7 @@ public sealed class GovernanceApprovalRequestRepository(
         ArgumentException.ThrowIfNullOrWhiteSpace(approvalRequestId);
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
+        string scopeSql = PersistenceTenantScope.AndTripleWhere(scope);
 
         string sql = $"""
                       UPDATE GovernanceApprovalRequests
@@ -509,7 +509,7 @@ public sealed class GovernanceApprovalRequestRepository(
         DynamicParameters p = new();
         p.Add("ApprovalRequestId", approvalRequestId);
         p.Add("SlaBreachNotifiedUtc", slaBreachNotifiedUtc, DbType.DateTime2);
-        RepositoryScopePredicate.AddScopeTripleIfNeeded(p, scope);
+        PersistenceTenantScope.AddScopeTripleIfNeeded(p, scope);
 
         await connection.ExecuteAsync(new CommandDefinition(sql, p, cancellationToken: cancellationToken));
     }

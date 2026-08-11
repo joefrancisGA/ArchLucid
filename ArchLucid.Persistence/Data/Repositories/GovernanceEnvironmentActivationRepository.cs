@@ -100,7 +100,7 @@ public sealed class GovernanceEnvironmentActivationRepository(
         ArgumentNullException.ThrowIfNull(item);
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
+        string scopeSql = PersistenceTenantScope.AndTripleWhere(scope);
 
         string sql = $"""
                       UPDATE dbo.GovernanceEnvironmentActivations
@@ -116,7 +116,7 @@ public sealed class GovernanceEnvironmentActivationRepository(
             DynamicParameters p = new();
             p.Add("ActivationId", item.ActivationId);
             p.Add("IsActive", item.IsActive);
-            RepositoryScopePredicate.AddScopeTripleIfNeeded(p, scope);
+            PersistenceTenantScope.AddScopeTripleIfNeeded(p, scope);
 
             await conn.ExecuteAsync(new CommandDefinition(
                 sql,
@@ -137,7 +137,7 @@ public sealed class GovernanceEnvironmentActivationRepository(
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
+        string scopeSql = PersistenceTenantScope.AndTripleWhere(scope);
 
         string sql = $"""
                       SELECT
@@ -158,7 +158,7 @@ public sealed class GovernanceEnvironmentActivationRepository(
 
         DynamicParameters p = new();
         p.Add("Environment", environment);
-        RepositoryScopePredicate.AddScopeTripleIfNeeded(p, scope);
+        PersistenceTenantScope.AddScopeTripleIfNeeded(p, scope);
 
         IEnumerable<GovernanceEnvironmentActivation> rows =
             await connection.QueryAsync<GovernanceEnvironmentActivation>(new CommandDefinition(
@@ -176,7 +176,7 @@ public sealed class GovernanceEnvironmentActivationRepository(
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
+        string scopeSql = PersistenceTenantScope.AndTripleWhere(scope);
 
         string sql = $"""
                       SELECT
@@ -199,7 +199,7 @@ public sealed class GovernanceEnvironmentActivationRepository(
 
         RepositoryRunIdPredicate.AddRunIdMatchParameters(p, runId);
 
-        RepositoryScopePredicate.AddScopeTripleIfNeeded(p, scope);
+        PersistenceTenantScope.AddScopeTripleIfNeeded(p, scope);
 
         IEnumerable<GovernanceEnvironmentActivation> rows =
             await connection.QueryAsync<GovernanceEnvironmentActivation>(new CommandDefinition(
