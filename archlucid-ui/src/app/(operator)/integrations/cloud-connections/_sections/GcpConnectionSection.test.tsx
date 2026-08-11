@@ -1,0 +1,96 @@
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+
+import { GcpConnectionDataProvider } from "./GcpConnectionDataContext";
+import { GcpConnectionSection } from "./GcpConnectionSection";
+
+vi.mock("@/hooks/use-operate-capability", () => ({
+  useOperateCapability: () => true,
+}));
+
+const listGcpTier2Connections = vi.fn(async () => []);
+const configureGcpTier2Connection = vi.fn(async () => undefined);
+const disconnectGcpTier2Connection = vi.fn(async () => undefined);
+
+vi.mock("@/lib/api/gcp-cloud-connections-api", () => ({
+  listGcpTier2Connections: (...args: unknown[]) => listGcpTier2Connections(...args),
+  configureGcpTier2Connection: (...args: unknown[]) => configureGcpTier2Connection(...args),
+  disconnectGcpTier2Connection: (...args: unknown[]) => disconnectGcpTier2Connection(...args),
+  triggerGcpTier2HostedRun: vi.fn(),
+}));
+
+describe("GcpConnectionSection", () => {
+  it("requires confirmation before disconnecting a saved connection", async () => {
+    listGcpTier2Connections.mockResolvedValueOnce([
+      {
+        connectionId: "gcp-1",
+        projectId: "my-gcp-project",
+        workloadIdentityPoolProvider:
+          "projects/my-gcp-project/locations/global/workloadIdentityPools/pool/providers/provider",
+        serviceAccountEmail: "archlucid@my-gcp-project.iam.gserviceaccount.com",
+        status: "connected",
+        lastPolledUtc: null,
+        updatedUtc: null,
+      },
+    ]);
+
+    render(
+      <GcpConnectionDataProvider>
+        <GcpConnectionSection embedded />
+      </GcpConnectionDataProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("gcp-disconnect-gcp-1")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("gcp-disconnect-gcp-1"));
+
+    expect(screen.getByTestId("gcp-connection-disconnect-dialog")).toBeInTheDocument();
+    expect(screen.getByText(/Disconnect GCP project my-gcp-project/i)).toBeInTheDocument();
+    expect(disconnectGcpTier2Connection).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByTestId("gcp-connection-disconnect-confirm"));
+
+    await waitFor(() => {
+      expect(disconnectGcpTier2Connection).toHaveBeenCalledWith("gcp-1");
+    });
+  });
+
+  it("shows a failed disconnect inside the dialog rather than behind the overlay", async () => {
+    listGcpTier2Connections.mockResolvedValueOnce([
+      {
+        connectionId: "gcp-2",
+        projectId: "other-project",
+        workloadIdentityPoolProvider:
+          "projects/other-project/locations/global/workloadIdentityPools/pool/providers/provider",
+        serviceAccountEmail: "archlucid@other-project.iam.gserviceaccount.com",
+        status: "connected",
+        lastPolledUtc: null,
+        updatedUtc: null,
+      },
+    ]);
+    disconnectGcpTier2Connection.mockRejectedValueOnce(new Error("boom"));
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    render(
+      <GcpConnectionDataProvider>
+        <GcpConnectionSection embedded />
+      </GcpConnectionDataProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("gcp-disconnect-gcp-2")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("gcp-disconnect-gcp-2"));
+    fireEvent.click(screen.getByTestId("gcp-connection-disconnect-confirm"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("gcp-connection-disconnect-error")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("gcp-connection-disconnect-dialog")).toBeInTheDocument();
+    expect(screen.getAllByRole("alert")).toHaveLength(1);
+  });
+});

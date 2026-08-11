@@ -10,8 +10,13 @@ import { Label } from "@/components/ui/label";
 import { configureGcpTier2Connection, disconnectGcpTier2Connection } from "@/lib/api/gcp-cloud-connections-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import { GCP_CONNECTION_DISCONNECT_FAILED_ERROR } from "@/lib/gcp-cloud-connection-copy";
 import { formatGcpConnectionTimestamp, gcpConnectionStatusBadgeClass } from "@/lib/gcp-connection-present";
 
+import {
+  GcpConnectionDisconnectDialog,
+  type GcpConnectionDisconnectTarget,
+} from "./GcpConnectionDisconnectDialog";
 import { useGcpConnectionData } from "./GcpConnectionDataContext";
 
 export function GcpConnectionSection(props: { readonly embedded?: boolean }) {
@@ -33,6 +38,8 @@ export function GcpConnectionSection(props: { readonly embedded?: boolean }) {
   const [workloadIdentityPoolProvider, setWorkloadIdentityPoolProvider] = useState("");
   const [serviceAccountEmail, setServiceAccountEmail] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [isDisconnecting, setIsDisconnecting] = useState(false);
+  const [disconnectTarget, setDisconnectTarget] = useState<GcpConnectionDisconnectTarget | null>(null);
 
   const handleConnect = useCallback(async () => {
     if (!canMutate) {
@@ -101,18 +108,25 @@ export function GcpConnectionSection(props: { readonly embedded?: boolean }) {
 
       setActionMessage(null);
       setFormError(null);
+      setIsDisconnecting(true);
 
       try {
         await disconnectGcpTier2Connection(connectionId);
         await refreshConnections();
         setActionMessage("GCP connection removed.");
+        setDisconnectTarget(null);
       } catch (err) {
         console.error(err);
-        setFormError("Could not disconnect the GCP connection.");
+        setFormError(GCP_CONNECTION_DISCONNECT_FAILED_ERROR);
+      } finally {
+        setIsDisconnecting(false);
       }
     },
     [canMutate, refreshConnections, setActionMessage, setFormError],
   );
+
+  const disconnectDialogError = disconnectTarget !== null ? formError : null;
+  const inlineFormError = disconnectDialogError === null ? formError : null;
 
   const body = (
     <>
@@ -169,9 +183,9 @@ export function GcpConnectionSection(props: { readonly embedded?: boolean }) {
         </p>
       ) : null}
 
-      {formError !== null ? (
+      {inlineFormError !== null ? (
         <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-red-600 dark:text-red-400")} role="alert">
-          {formError}
+          {inlineFormError}
         </p>
       ) : null}
 
@@ -221,9 +235,14 @@ export function GcpConnectionSection(props: { readonly embedded?: boolean }) {
                   type="button"
                   variant="outline"
                   data-testid={`gcp-disconnect-${connection.connectionId}`}
-                  disabled={!canMutate}
+                  disabled={!canMutate || isDisconnecting}
                   title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-                  onClick={() => void handleDisconnect(connection.connectionId)}
+                  onClick={() =>
+                    setDisconnectTarget({
+                      connectionId: connection.connectionId,
+                      projectId: connection.projectId,
+                    })
+                  }
                 >
                   Disconnect
                 </Button>
@@ -232,6 +251,20 @@ export function GcpConnectionSection(props: { readonly embedded?: boolean }) {
           ))}
         </div>
       ) : null}
+
+      <GcpConnectionDisconnectDialog
+        target={disconnectTarget}
+        busy={isDisconnecting}
+        errorMessage={disconnectDialogError}
+        onCancel={() => setDisconnectTarget(null)}
+        onConfirm={() => {
+          if (disconnectTarget === null) {
+            return;
+          }
+
+          void handleDisconnect(disconnectTarget.connectionId);
+        }}
+      />
     </>
   );
 
