@@ -74,7 +74,7 @@ export function PackageChangesSinceFinalizePanel(
       >
         {PACKAGE_CHANGES_SINCE_FINALIZE_TITLE}
       </h2>
-      <p className={cn("m-0 mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+      <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {PACKAGE_CHANGES_SINCE_FINALIZE_INTRO}
       </p>
 

@@ -140,7 +140,7 @@ export function AuditPageView(props: AuditPageViewProps) {
       <AuditLogRankCue className="mb-2" />
 
       {props.callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority && !props.exportRoleOk && !buyerPolishedShell ? (
-        <p className={cn("mb-2 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="note">
+        <p className={cn("mb-2 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="note">
           {auditExportExecuteRankAuditorRoleNote}
         </p>
       ) : null}

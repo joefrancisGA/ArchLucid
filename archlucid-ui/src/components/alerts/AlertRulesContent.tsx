@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -201,7 +201,7 @@ export function AlertRulesContent() {
   return (
     <div className="min-w-0">
       <h2 className={cn("mb-2 mt-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Alert conditions</h2>
-      <p className={cn("mb-4 max-w-prose leading-snug text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+      <p className={cn("mb-4 max-w-3xl leading-snug text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {ALERT_RULES_CONDITIONS_FINDINGS_HELPER}
       </p>
 

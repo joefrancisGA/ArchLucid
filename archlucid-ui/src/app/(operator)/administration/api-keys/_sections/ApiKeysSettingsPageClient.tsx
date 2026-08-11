@@ -269,7 +269,7 @@ export function ApiKeysSettingsPageClient() {
             <p className={cn("mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               {API_KEYS_PAGE_SUBTITLE}
             </p>
-            <p className={cn("mt-2 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            <p className={cn("mt-2 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               {API_KEYS_ENTERPRISE_ONLY_NOTICE}
             </p>
           </div>

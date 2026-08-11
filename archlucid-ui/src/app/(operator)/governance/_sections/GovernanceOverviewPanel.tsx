@@ -265,7 +265,7 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
 
             {workspaceIsIdle ? (
               <p
-                className={cn("m-0 mt-4 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                className={cn("m-0 mt-4 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                 data-testid="governance-overview-idle-hint"
               >
                 {GOVERNANCE_OVERVIEW_IDLE_WORKSPACE_HINT}
@@ -285,7 +285,7 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
         <h2 id="governance-overview-load-review-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
           {GOVERNANCE_OVERVIEW_LOAD_REVIEW_SECTION_TITLE}
         </h2>
-        <p className={cn("m-0 mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {GOVERNANCE_OVERVIEW_LOAD_REVIEW_SECTION_LEAD}
         </p>
         <div className="mt-3 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">

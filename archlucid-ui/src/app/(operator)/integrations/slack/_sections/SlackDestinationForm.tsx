@@ -138,7 +138,7 @@ export function SlackDestinationForm(props: SlackDestinationFormProps): React.Re
         <h2 id="slack-add-destination-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
           {SLACK_INTEGRATION_ADD_SECTION_TITLE}
         </h2>
-        <p className={cn("m-0 mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {SLACK_INTEGRATION_ADD_SECTION_LEAD}
         </p>
       </div>
@@ -279,7 +279,7 @@ export function SlackDestinationForm(props: SlackDestinationFormProps): React.Re
         <WhyDisabledCtaHint
           reason={saveDisabledReason}
           testId="slack-save-disabled-helper"
-          className="max-w-prose"
+          className="max-w-3xl"
         />
       </div>
 

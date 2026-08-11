@@ -63,7 +63,7 @@ export function RunDetailEvidenceInventorySection(props: RunDetailEvidenceInvent
   return (
     <section id="submitted-evidence-inventory" className="scroll-mt-24" data-testid="run-detail-evidence-inventory">
       <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>Submitted evidence</h3>
-      <p className={cn("m-0 mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+      <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         Evidence items ingested for this review and how many findings cite each source.
       </p>
       <div className="mt-3">

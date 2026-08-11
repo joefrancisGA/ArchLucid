@@ -118,7 +118,7 @@ className="mb-3"
 
       {!m.canMutatePacks ? (
         <p
-          className={cn("mb-3 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          className={cn("mb-3 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="policy-packs-reader-assist"
         >
           {m.buyerPolishedShell

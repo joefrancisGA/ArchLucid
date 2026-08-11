@@ -107,7 +107,7 @@ export function IdentityProvidersSettingsPageView(props: IdentityProvidersSettin
         </CardContent>
       </Card>
 
-      <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+      <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {IDENTITY_PROVIDERS_ADMIN_FALLBACK_NOTICE}
       </p>
     </IdentityProvidersSettingsShell>

@@ -64,7 +64,7 @@ export function ArchitectureCreationLocalDraftsPanel(): React.JSX.Element | null
   if (entries.length === 0) {
     return (
       <p
-        className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
         data-testid="architecture-creation-no-drafts-guidance"
       >
         {ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE}
@@ -82,7 +82,7 @@ export function ArchitectureCreationLocalDraftsPanel(): React.JSX.Element | null
       aria-label={sectionTitle}
     >
       <h2 className={cn("m-0 text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>{sectionTitle}</h2>
-      <p className={cn("m-0 mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+      <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {ARCHITECTURE_CREATION_RECENT_DRAFTS_BODY}
       </p>
       <ul className="m-0 mt-3 list-none space-y-3 p-0">

@@ -139,7 +139,7 @@ export function DigestPreviewBeforeSubscribePanel(
         </Button>
         {!sendToMeAvailable ? (
           <p
-            className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
             data-testid="digest-preview-before-subscribe-send-to-me-reason"
           >
             {DIGEST_PREVIEW_SEND_TO_ME_UNAVAILABLE_REASON}

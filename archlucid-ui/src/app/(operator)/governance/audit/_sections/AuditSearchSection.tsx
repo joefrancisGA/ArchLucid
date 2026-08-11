@@ -161,7 +161,7 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
         </div>
       ) : null}
       {callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority && !buyerPolishedShell ? (
-        <p className={cn("mb-2 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        <p className={cn("mb-2 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {auditSearchSectionLeadReaderLine}
         </p>
       ) : null}

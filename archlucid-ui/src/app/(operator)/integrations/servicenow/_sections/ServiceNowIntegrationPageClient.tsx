@@ -453,7 +453,7 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
                 <h2 id="servicenow-connection-settings-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
                   {SERVICENOW_CONNECTION_SETTINGS_TITLE}
                 </h2>
-                <p className={cn("m-0 mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   {SERVICENOW_CONNECTION_SETTINGS_LEAD}
                 </p>
               </div>
@@ -521,7 +521,7 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
                   <h2 id="servicenow-incident-settings-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
                     {SERVICENOW_INCIDENT_SETTINGS_TITLE}
                   </h2>
-                  <p className={cn("m-0 mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     {SERVICENOW_INCIDENT_SETTINGS_LEAD}
                   </p>
                 </div>
@@ -540,7 +540,7 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
                   <h2 id="servicenow-test-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
                     {SERVICENOW_CONNECTION_TEST_TITLE}
                   </h2>
-                  <p className={cn("m-0 mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     {SERVICENOW_CONNECTION_TEST_LEAD}
                   </p>
                 </div>

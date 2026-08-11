@@ -173,7 +173,7 @@ export function HelpConnectGcpSecurelyGuideView(props: HelpConnectGcpSecurelyGui
         }
         metadata={
           <div className="space-y-2">
-            <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               <a href="#troubleshoot" className={OPERATOR_LINK.nav}>
                 Fix a failed permission check
               </a>
@@ -193,14 +193,14 @@ export function HelpConnectGcpSecurelyGuideView(props: HelpConnectGcpSecurelyGui
       />
 
       <div className="space-y-3">
-        <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{CONNECT_GCP_SECURELY_PAGE_LEAD}</p>
-        <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+        <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{CONNECT_GCP_SECURELY_PAGE_LEAD}</p>
+        <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           {CONNECT_GCP_SECURELY_CONNECTION_VALUE}
         </p>
-        <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+        <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           {CONNECT_GCP_SECURELY_UPLOAD_INVENTORY_NOTE}
         </p>
-        <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+        <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           {CONNECT_GCP_SECURELY_SCHEDULED_COLLECTION_NOTE}
         </p>
       </div>
@@ -262,7 +262,7 @@ export function HelpConnectGcpSecurelyGuideView(props: HelpConnectGcpSecurelyGui
                 </li>
               ))}
             </ol>
-            <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               {CONNECT_GCP_SECURELY_WIF_IDENTITY_INTRO}
             </p>
             <GcpWifStarterPanel />
@@ -274,7 +274,7 @@ export function HelpConnectGcpSecurelyGuideView(props: HelpConnectGcpSecurelyGui
             data-testid="connect-gcp-securely-roles-section"
           >
             <HelpSectionHeading id="gcp-roles">{CONNECT_GCP_SECURELY_ROLES_HEADING}</HelpSectionHeading>
-            <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               {CONNECT_GCP_SECURELY_ROLES_NOTE}
             </p>
             <GcpRolesTable />

@@ -237,6 +237,9 @@ export const OPERATOR_GUIDANCE_NEXT_LABEL_CLASS = INLINE_GUIDANCE_LABEL_CLASS;
  */
 export const INLINE_METADATA_LABEL_CLASS = "font-medium text-al-text-primary";
 
+/** Helper-sized page/section leads — wider than max-w-prose so 12px one-line intros are not capped at ~65ch. */
+export const OPERATOR_PAGE_LEAD_MEASURE = "max-w-3xl";
+
 export const OPERATOR_TYPOGRAPHY = {
   pageTitle: OPERATOR_TYPE_SCALE.pageTitle,
   sectionTitle: OPERATOR_TYPE_SCALE.sectionTitle,

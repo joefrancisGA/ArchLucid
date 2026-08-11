@@ -65,7 +65,7 @@ export function ReviewsHubResumeDrafts(): React.JSX.Element | null {
       aria-label={REVIEWS_HUB_RESUME_DRAFTS_TITLE}
     >
       <h2 className={cn("m-0 text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>{REVIEWS_HUB_RESUME_DRAFTS_TITLE}</h2>
-      <p className={cn("m-0 mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+      <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {REVIEWS_HUB_RESUME_DRAFTS_BODY}
       </p>
       <ul className="m-0 mt-3 list-none space-y-3 p-0">

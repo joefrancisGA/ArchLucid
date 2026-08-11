@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
@@ -153,7 +153,7 @@ export function SamlSpConfigurationForm() {
   return (
     <Card data-testid="saml-sp-configuration-form">
       <CardHeader>
-        <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {IDENTITY_PROVIDERS_TEST_BEFORE_ENABLE_NOTICE}
         </p>
       </CardHeader>
@@ -205,7 +205,7 @@ export function SamlSpConfigurationForm() {
                   id="saml-fetch-metadata-disabled-hint"
                   reason={fetchMetadataDisabledReason}
                   testId="saml-fetch-metadata-disabled-hint"
-                  className="max-w-prose"
+                  className="max-w-3xl"
                 />
               </div>
             </div>
@@ -341,7 +341,7 @@ export function SamlSpConfigurationForm() {
                 id="saml-save-configuration-disabled-hint"
                 reason={!canSave ? saveDisabledReason : null}
                 testId="saml-save-configuration-disabled-hint"
-                className="max-w-prose"
+                className="max-w-3xl"
               />
             </div>
           </>

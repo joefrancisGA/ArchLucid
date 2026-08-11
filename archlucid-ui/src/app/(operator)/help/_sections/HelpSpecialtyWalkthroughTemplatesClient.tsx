@@ -353,13 +353,13 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
       <OperatorPageContainer variant="reading" className="w-full max-w-[1100px] space-y-4">
         <header className="space-y-4 border-b border-neutral-200 p-4 pb-4 dark:border-neutral-800">
           <HelpTopicTitleRow title={SPECIALTY_REVIEW_TEMPLATES_PAGE_TITLE} actions={<PageContextualHelpButton />} />
-          <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.helper)}>{SPECIALTY_REVIEW_TEMPLATES_PAGE_SUBTITLE}</p>
+          <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{SPECIALTY_REVIEW_TEMPLATES_PAGE_SUBTITLE}</p>
           <details className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/30">
             <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.helper)}>
               {SPECIALTY_REVIEW_TEMPLATES_INTRO_DISCLOSURE_TITLE}
             </summary>
             <p className={cn("m-0 mt-2 max-w-prose", OPERATOR_TYPOGRAPHY.body)}>{SPECIALTY_REVIEW_TEMPLATES_INTRO}</p>
-            <p className={cn("m-0 mt-2 max-w-prose", OPERATOR_TYPOGRAPHY.helper)}>{SPECIALTY_REVIEW_TEMPLATES_OPTIONAL_NOTE}</p>
+            <p className={cn("m-0 mt-2 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{SPECIALTY_REVIEW_TEMPLATES_OPTIONAL_NOTE}</p>
           </details>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
             <Link href="/architecture/reviews/new" className={cn(OPERATOR_LINK.inline)}>
@@ -367,7 +367,7 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
             </Link>
           </p>
           {!canExecute ? (
-            <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.helper)} data-testid="specialty-template-permission-hint">
+            <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)} data-testid="specialty-template-permission-hint">
               {SPECIALTY_REVIEW_TEMPLATES_READ_ONLY_USE_HINT}
             </p>
           ) : null}

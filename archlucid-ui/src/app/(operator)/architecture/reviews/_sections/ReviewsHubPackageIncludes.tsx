@@ -9,7 +9,7 @@ export function ReviewsHubPackageIncludes(): React.JSX.Element {
   return (
     <section className="mt-4" data-testid="reviews-hub-package-includes">
       <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{REVIEWS_HUB_INCLUDES_TITLE}</h2>
-      <p className={cn("m-0 mt-2 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+      <p className={cn("m-0 mt-2 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {REVIEWS_HUB_INCLUDES_LEAD}
       </p>
       <ul

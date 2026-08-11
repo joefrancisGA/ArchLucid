@@ -150,7 +150,7 @@ export function PolicyPacksInspectSection(props: PolicyPacksInspectSectionProps)
 
       <h4 className={cn("mb-2 mt-5 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Compare versions</h4>
       {!canMutatePacks ? (
-        <p className={cn("mb-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="note">
+        <p className={cn("mb-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="note">
           {policyPacksCompareVersionsReaderSubline}
         </p>
       ) : null}

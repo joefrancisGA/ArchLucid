@@ -122,7 +122,7 @@ export function ReviewsHubRecentPackages(props: ReviewsHubRecentPackagesProps): 
           role="status"
         >
           <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{REVIEWS_HUB_RECENT_EMPTY_TITLE}</p>
-          <p className={cn("m-0 mt-2 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          <p className={cn("m-0 mt-2 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             {REVIEWS_HUB_RECENT_EMPTY_BODY}
           </p>
           <div className="mt-4">

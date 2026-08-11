@@ -84,12 +84,12 @@ export function IdentityProvidersSettingsShell(props: IdentityProvidersSettingsS
       {isOverviewPage ? (
         <div className="space-y-2">
           {!buyerPolishedShell ? (
-            <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               {IDENTITY_PROVIDERS_PAGE_INTRO}
             </p>
           ) : null}
           <p
-            className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
             data-testid="identity-providers-safety-notice"
           >
             {IDENTITY_PROVIDERS_SAFETY_NOTICE}

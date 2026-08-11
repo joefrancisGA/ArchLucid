@@ -17,7 +17,6 @@ import { DraftIntakeAdvancedSection } from "@/components/draft-intake/DraftIntak
 import { DraftIntakeReasoningPanel } from "@/components/draft-intake/DraftIntakeReasoningPanel";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { ReplayCostPreExecuteCostVocabularyRail } from "@/components/ReplayCostPreExecuteCostVocabularyRail";
 import { PreExecuteCostEstimateNotice } from "@/components/usability/PreExecuteCostEstimateNotice";
 import { Button } from "@/components/ui/button";
 import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
@@ -75,7 +74,7 @@ import {
   ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD,
   ARCHITECTURE_DRAFT_WORKSPACE_LEAD,
 } from "@/lib/create-vs-review-intake-copy";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { showSuccess } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import type { ActorSet, DraftRequestResponse } from "@/types/draft-intake";
@@ -474,7 +473,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
           >
             {workspaceHeading}
           </WorkspaceHeadingTag>
-          <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-draft-workspace-lead">
+          <p className={cn("m-0", OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-draft-workspace-lead">
             {workspaceLead}
           </p>
           <div className="flex flex-wrap items-center gap-2">
@@ -583,10 +582,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       ) : null}
 
       {linkedReviewId === null ? (
-        <>
-          <ReplayCostPreExecuteCostVocabularyRail currentSurfaceId="pre-execute-cost" />
-          <PreExecuteCostEstimateNotice testId="architecture-draft-pre-execute-cost" />
-        </>
+        <PreExecuteCostEstimateNotice testId="architecture-draft-pre-execute-cost" />
       ) : null}
 
       <div className="space-y-2">

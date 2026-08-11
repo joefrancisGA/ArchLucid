@@ -163,7 +163,7 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
               <h2 id="teams-connect-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
                 {TEAMS_INTEGRATION_CONNECT_SECTION_TITLE}
               </h2>
-              <p className={cn("m-0 mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 {TEAMS_INTEGRATION_CONNECT_SECTION_LEAD}
               </p>
               {m.conn?.isConfigured !== true ? (

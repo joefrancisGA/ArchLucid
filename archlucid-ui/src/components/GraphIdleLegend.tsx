@@ -20,11 +20,11 @@ export function GraphIdleLegend(props: { readonly buyerPolished?: boolean }) {
         {buyerPolished ? "Decision traceability preview" : "Graph preview (sample)"}
       </p>
       {buyerPolished ? (
-        <p className={cn("m-0 mt-1 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+        <p className={cn("m-0 mt-1 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Shapes how reviewed context, findings, and deliverables connect to the signed review record for this review.
         </p>
       ) : (
-        <p className={cn("m-0 mt-1 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+        <p className={cn("m-0 mt-1 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Loaded graphs represent <strong>decisions</strong>, <strong>findings</strong>, <strong>artifacts</strong>,{" "}
           <strong>review trail events</strong>, and <strong>architecture components</strong> as nodes, with edges for
           provenance and flow. Use the review and mode controls to load or refresh the graph.

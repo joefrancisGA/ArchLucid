@@ -69,7 +69,7 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
           <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{BUYER_ONBOARDING_PAGE_TITLE}</h1>
           <PageContextualHelpButton />
         </div>
-        <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.helper)}>{BUYER_ONBOARDING_PAGE_LEAD}</p>
+        <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{BUYER_ONBOARDING_PAGE_LEAD}</p>
         <FirstReviewGuideFirstArchitectureReviewVocabularyRail currentSurfaceId="first-review-guide" />
         <div
           className="space-y-2"
@@ -80,7 +80,7 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
             <StatusTag kind={readinessStatusKind(guide.readiness.kind)} label={guide.readiness.headline} />
           </div>
           {guide.readiness.detail !== null ? (
-            <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.helper)}>{guide.readiness.detail}</p>
+            <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{guide.readiness.detail}</p>
           ) : null}
         </div>
         <FirstReviewGuideRequiredSetupPanel blockers={guide.requiredBlockers} />
@@ -98,7 +98,7 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
             <Link href={guide.headerActions.secondaryHref}>{guide.headerActions.secondaryLabel}</Link>
           </Button>
         </div>
-        <WhyDisabledCtaHint reason={primaryDisabledReason} className="max-w-prose" />
+        <WhyDisabledCtaHint reason={primaryDisabledReason} className="max-w-3xl" />
       </header>
 
       {model.fromRegistration ? <GettingStartedTrialSection fromRegistrationQuery={model.fromRegistration} /> : null}

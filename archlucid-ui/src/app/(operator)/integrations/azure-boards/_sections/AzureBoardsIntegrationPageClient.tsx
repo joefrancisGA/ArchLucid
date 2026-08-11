@@ -491,7 +491,7 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
                   <h2 id="azure-boards-connection-settings-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
                     {AZURE_BOARDS_CONNECTION_SETTINGS_TITLE}
                   </h2>
-                  <p className={cn("m-0 mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     {AZURE_BOARDS_CONNECTION_SETTINGS_LEAD}
                   </p>
                 </div>
@@ -587,7 +587,7 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
                   <WhyDisabledCtaHint
                     reason={connectionSaveGate.reason}
                     testId="azure-boards-save-connection-disabled-helper"
-                    className="max-w-prose"
+                    className="max-w-3xl"
                   />
                 </div>
 
@@ -627,7 +627,7 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
                   <h2 id="azure-boards-default-behavior-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
                     {AZURE_BOARDS_DEFAULT_BEHAVIOR_TITLE}
                   </h2>
-                  <p className={cn("m-0 mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     {AZURE_BOARDS_DEFAULT_BEHAVIOR_LEAD}
                   </p>
                 </div>
@@ -747,7 +747,7 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
                   <h2 id="azure-boards-test-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
                     {AZURE_BOARDS_TEST_CONNECTION_TITLE}
                   </h2>
-                  <p className={cn("m-0 mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     {AZURE_BOARDS_TEST_CONNECTION_LEAD}
                   </p>
                 </div>

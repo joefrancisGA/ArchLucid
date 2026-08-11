@@ -353,7 +353,7 @@ export function WebhooksSettingsClient() {
               <h2 id="webhook-create-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
                 New subscription
               </h2>
-              <p className={cn("m-0 mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 {WEBHOOKS_SAVE_THEN_TEST_HELPER}
               </p>
             </div>
@@ -542,7 +542,7 @@ export function WebhooksSettingsClient() {
                   <h2 id="webhook-existing-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
                     {WEBHOOKS_SUBSCRIPTIONS_HEADING}
                   </h2>
-                  <p className={cn("max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  <p className={cn("max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     {webhookRows.length} subscription{webhookRows.length === 1 ? "" : "s"} in this workspace.
                   </p>
                 </div>
