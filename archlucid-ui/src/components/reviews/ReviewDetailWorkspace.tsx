@@ -13,6 +13,7 @@ import { useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PackageActivityAuditTrailVocabularyRail } from "@/components/PackageActivityAuditTrailVocabularyRail";
 import { PackageEvidenceEvidenceGraphVocabularyRail } from "@/components/PackageEvidenceEvidenceGraphVocabularyRail";
 import { PackageGovernanceApprovalQueueVocabularyRail } from "@/components/PackageGovernanceApprovalQueueVocabularyRail";
 import { NewSinceLastVisitMarker } from "@/components/usability/NewSinceLastVisitMarker";
@@ -374,6 +375,11 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
             className="min-w-0 overflow-visible"
             data-testid="review-detail-workspace-panel-activity"
           >
+            <PackageActivityAuditTrailVocabularyRail
+              runId={props.runId}
+              currentSurfaceId="package-activity"
+              hrefKind="reviewTab"
+            />
             {props.panels.activity}
           </TabsContent>
         </Tabs>

@@ -10,6 +10,7 @@ import { ArchitectureCreatedWorkspaceHeader } from "@/components/architecture/Ar
 import { ArchitectureDiagramPanel } from "@/components/architecture/ArchitectureDiagramPanel";
 import { ArchitectureFindingsDualPane } from "@/components/architecture/ArchitectureFindingsDualPane";
 import { ClarificationsFindingsVocabularyRail } from "@/components/ClarificationsFindingsVocabularyRail";
+import { PackageActivityAuditTrailVocabularyRail } from "@/components/PackageActivityAuditTrailVocabularyRail";
 import { PackageEvidenceEvidenceGraphVocabularyRail } from "@/components/PackageEvidenceEvidenceGraphVocabularyRail";
 import { PackageGovernanceApprovalQueueVocabularyRail } from "@/components/PackageGovernanceApprovalQueueVocabularyRail";
 import {
@@ -352,7 +353,14 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
         </TabsContent>
 
         <TabsContent value="activity" data-testid="architecture-workspace-panel-activity">
-          {props.panels.activity}
+          <div className="space-y-4">
+            <PackageActivityAuditTrailVocabularyRail
+              runId={props.baseline.runId}
+              currentSurfaceId="package-activity"
+              hrefKind="archTab"
+            />
+            {props.panels.activity}
+          </div>
         </TabsContent>
       </Tabs>
     </div>
