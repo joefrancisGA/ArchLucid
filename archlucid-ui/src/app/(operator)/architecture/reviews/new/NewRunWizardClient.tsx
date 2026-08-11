@@ -24,7 +24,10 @@ import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExceededBanner";
 import { LlmUsageBandHint } from "@/components/LlmUsageBandHint";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
+import { ReviewStartUnresolvedNotice } from "@/components/review-intake/ReviewStartUnresolvedNotice";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
+import { useReviewCreationProgress } from "@/hooks/use-review-creation-progress";
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
 import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
 import { listRunsByProjectPaged } from "@/lib/api";
@@ -43,10 +46,12 @@ import {
 import {
   evaluateWizardFormCreateRunGates,
   executeWizardFormCreateRun,
+  resolveCreateRunFailureMessage,
 } from "@/lib/wizard-form-create-run-submit";
 import {
   REVIEW_START_CREATION_FAILED_MESSAGE,
   REVIEW_START_LLM_BUDGET_EXCEEDED_MESSAGE,
+  REVIEW_START_PREPARING_LABEL,
   REVIEW_START_SUBMIT_VALIDATION_MESSAGE,
 } from "@/lib/review-start-progress-copy";
 import {
@@ -248,6 +253,7 @@ export function NewRunWizardClient() {
   const [advancedConfigurationOptIn, setAdvancedConfigurationOptIn] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<unknown | null>(null);
+  const creationProgress = useReviewCreationProgress();
   const [runId, setRunId] = useState<string | null>(null);
   const [pendingEvidenceFile, setPendingEvidenceFile] = useState<File | null>(null);
   const [pendingDocumentFiles, setPendingDocumentFiles] = useState<File[]>([]);
@@ -471,8 +477,9 @@ export function NewRunWizardClient() {
     }
   }, [stepIndex, reviewStepIndex]);
 
-  const canProceed = !submitting;
-  const canSubmit = !submitting && !blocksLlmExecution;
+  const isCreating = submitting || creationProgress.isActive;
+  const canProceed = !isCreating;
+  const canSubmit = !isCreating && !blocksLlmExecution;
 
   const showToast = useCallback((kind: "ok" | "err", message: string) => {
     if (kind === "ok") {
@@ -712,6 +719,7 @@ export function NewRunWizardClient() {
 
     setSubmitting(true);
     setSubmitError(null);
+    creationProgress.begin({ hasTemplate: presetDeeplinkToken !== null });
 
     try {
       const result = await executeWizardFormCreateRun({
@@ -726,11 +734,13 @@ export function NewRunWizardClient() {
 
       if (!result.ok) {
         if (result.reason === "no-run-id") {
+          creationProgress.fail(REVIEW_START_CREATION_FAILED_MESSAGE);
           showToast("err", REVIEW_START_CREATION_FAILED_MESSAGE);
 
           return;
         }
 
+        creationProgress.fail(resolveCreateRunFailureMessage(result.error));
         setSubmitError(result.error);
 
         if (!isApiRequestError(result.error)) {
@@ -746,6 +756,7 @@ export function NewRunWizardClient() {
 
       const id = result.runId;
 
+      creationProgress.succeed();
       setRunId(id);
       setStepIndex(trackStepIndex);
       templateWizardSession.clearSession();
@@ -1103,6 +1114,30 @@ export function NewRunWizardClient() {
               )}
               data-testid="new-run-wizard-footer"
             >
+              {creationProgress.showStagedPanel && creationProgress.activeStageId !== null ? (
+                <div className="mb-3">
+                  <ReviewStartStagedProgress
+                    stages={creationProgress.stages}
+                    activeStageId={creationProgress.activeStageId}
+                    headline={REVIEW_START_PREPARING_LABEL}
+                    detail={creationProgress.waitCopy?.detail ?? null}
+                    testId="new-run-wizard-review-start-progress"
+                  />
+                </div>
+              ) : null}
+
+              {creationProgress.outcome?.kind === "unresolved" ? (
+                <div className="mb-3">
+                  <ReviewStartUnresolvedNotice
+                    onRecheck={() => {
+                      void submitRun();
+                    }}
+                    isRechecking={creationProgress.isActive}
+                    testId="new-run-wizard-unresolved-notice"
+                  />
+                </div>
+              ) : null}
+
               {isReviewStep && submitError !== null ? (
                 <div className="mb-3" data-testid="new-run-wizard-submit-error">
                   {isApiRequestError(submitError) ? (
@@ -1130,7 +1165,7 @@ export function NewRunWizardClient() {
                 onNext={isReviewStep ? undefined : goNext}
                 onSubmit={isReviewStep ? submitRun : undefined}
                 onSaveDraft={saveWizardDraft}
-                submitting={submitting}
+                submitting={isCreating}
                 canProceed={canProceed}
                 canSubmit={canSubmit}
                 isFirstStep={isFirstStep}

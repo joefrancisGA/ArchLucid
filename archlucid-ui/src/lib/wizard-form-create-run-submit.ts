@@ -1,6 +1,7 @@
 import type { UseFormGetValues, UseFormTrigger } from "react-hook-form";
 
 import { createArchitectureRun } from "@/lib/api";
+import { isApiRequestError } from "@/lib/api-request-error";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import {
   REVIEW_START_CREATION_FAILED_MESSAGE,
@@ -96,12 +97,34 @@ export async function submitWizardFormCreateRun(
   return executeWizardFormCreateRun(args);
 }
 
+/**
+ * Subset of `useReviewCreationProgress` needed by the shared submit path. The hook owns a
+ * watchdog that reports `unresolved` when the browser stops waiting, which is distinct from
+ * a server-reported failure — create is idempotent per wizard session, so a recheck resolves
+ * to the same review rather than a duplicate.
+ */
+export type WizardCreateRunProgressBridge = {
+  readonly begin: () => void;
+  readonly succeed: () => void;
+  readonly fail: (message?: string) => void;
+};
+
+export function resolveCreateRunFailureMessage(error: unknown): string {
+  if (isApiRequestError(error) && error.message.trim().length > 0) {
+    return error.message;
+  }
+
+  return REVIEW_START_CREATION_FAILED_MESSAGE;
+}
+
 export type SubmitQuickFamilyWizardCreateRunArgs = GateArgs &
   ExecuteArgs & {
     readonly setSubmitting: (value: boolean) => void;
     readonly setSubmitError: (error: unknown | null) => void;
     readonly setStepValidationMessage: (message: string | null) => void;
     readonly onRunCreated: (runId: string) => void;
+    /** When supplied, drives staged-progress chrome and the unresolved-not-failed recovery notice. */
+    readonly progress?: WizardCreateRunProgressBridge;
   };
 
 /**
@@ -128,22 +151,26 @@ export async function submitQuickFamilyWizardCreateRun(
   args.setSubmitting(true);
   args.setSubmitError(null);
   args.setStepValidationMessage(null);
+  args.progress?.begin();
 
   try {
     const result = await executeWizardFormCreateRun(args);
 
     if (result.ok) {
+      args.progress?.succeed();
       args.onRunCreated(result.runId);
 
       return;
     }
 
     if (result.reason === "no-run-id") {
+      args.progress?.fail(REVIEW_START_CREATION_FAILED_MESSAGE);
       args.setSubmitError(new Error(REVIEW_START_CREATION_FAILED_MESSAGE));
 
       return;
     }
 
+    args.progress?.fail(resolveCreateRunFailureMessage(result.error));
     args.setSubmitError(result.error ?? new Error(REVIEW_START_CREATION_FAILED_MESSAGE));
   } finally {
     args.setSubmitting(false);

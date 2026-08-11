@@ -182,4 +182,32 @@ describe("submitQuickFamilyWizardCreateRun", () => {
       }),
     );
   });
+
+  it("calls progress bridge begin, succeed, and fail around the create-run POST", async () => {
+    createArchitectureRunMock.mockResolvedValue({ run: { runId: "run-42" } } as never);
+    const progress = {
+      begin: vi.fn(),
+      succeed: vi.fn(),
+      fail: vi.fn(),
+    };
+    const onRunCreated = vi.fn();
+
+    await submitQuickFamilyWizardCreateRun({
+      trigger: vi.fn().mockResolvedValue(true),
+      getValues: vi.fn(() => emptyValues()),
+      blocksLlmExecution: false,
+      payloadOptions: { requestSource: "wizard" },
+      wizardCompletedName: "QuickStart",
+      setSubmitting: vi.fn(),
+      setSubmitError: vi.fn(),
+      setStepValidationMessage: vi.fn(),
+      onRunCreated,
+      progress,
+    });
+
+    expect(progress.begin).toHaveBeenCalledOnce();
+    expect(progress.succeed).toHaveBeenCalledOnce();
+    expect(progress.fail).not.toHaveBeenCalled();
+    expect(onRunCreated).toHaveBeenCalledWith("run-42");
+  });
 });

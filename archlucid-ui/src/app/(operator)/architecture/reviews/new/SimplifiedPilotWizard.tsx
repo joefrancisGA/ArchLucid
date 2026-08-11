@@ -8,6 +8,8 @@ import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion"
 import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExceededBanner";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
+import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
+import { ReviewStartUnresolvedNotice } from "@/components/review-intake/ReviewStartUnresolvedNotice";
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
 import { WizardStepAdvanced } from "@/components/wizard/steps/WizardStepAdvanced";
@@ -18,10 +20,14 @@ import { WizardStepDescription } from "@/components/wizard/steps/WizardStepDescr
 import { WizardStepIdentity } from "@/components/wizard/steps/WizardStepIdentity";
 import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
 import type { LlmMonthlyDollarBudgetStatus } from "@/hooks/use-llm-monthly-budget-execution-gate";
+import { useReviewCreationProgress } from "@/hooks/use-review-creation-progress";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_SHELL_CONTENT_BLEED_X_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { REVIEW_START_STEP_VALIDATION_MESSAGE } from "@/lib/review-start-progress-copy";
+import {
+  REVIEW_START_PREPARING_LABEL,
+  REVIEW_START_STEP_VALIDATION_MESSAGE,
+} from "@/lib/review-start-progress-copy";
 import { SIMPLIFIED_PILOT_WIZARD_STEP_FIELD_GROUPS } from "@/lib/simplified-pilot-wizard-step-fields";
 import { applyWizardPreset, wizardPresets } from "@/lib/wizard-presets";
 import { buildDefaultWizardValues, type WizardFormValues } from "@/lib/wizard-schema";
@@ -54,6 +60,7 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<unknown | null>(null);
   const [stepValidationMessage, setStepValidationMessage] = useState<string | null>(null);
+  const creationProgress = useReviewCreationProgress();
   const {
     baselineReviewCycleHours,
     setBaselineReviewCycleHours,
@@ -85,8 +92,9 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
     setStepValidationMessage(null);
   }, [pilotStep]);
 
-  const canProceed = !submitting;
-  const canSubmit = !submitting && !blocksLlmExecution;
+  const isCreating = submitting || creationProgress.isActive;
+  const canProceed = !isCreating;
+  const canSubmit = !isCreating && !blocksLlmExecution;
 
   const goBack = () => {
     setPilotStep((current) => Math.max(0, current - 1));
@@ -141,6 +149,7 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
       setSubmitError,
       setStepValidationMessage,
       onRunCreated,
+      progress: creationProgress,
     });
   };
 
@@ -200,6 +209,30 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
         )}
         data-testid="simplified-pilot-footer"
       >
+        {creationProgress.showStagedPanel && creationProgress.activeStageId !== null ? (
+          <div className="mb-3">
+            <ReviewStartStagedProgress
+              stages={creationProgress.stages}
+              activeStageId={creationProgress.activeStageId}
+              headline={REVIEW_START_PREPARING_LABEL}
+              detail={creationProgress.waitCopy?.detail ?? null}
+              testId="simplified-pilot-review-start-progress"
+            />
+          </div>
+        ) : null}
+
+        {creationProgress.outcome?.kind === "unresolved" ? (
+          <div className="mb-3">
+            <ReviewStartUnresolvedNotice
+              onRecheck={() => {
+                void submitRun();
+              }}
+              isRechecking={creationProgress.isActive}
+              testId="simplified-pilot-unresolved-notice"
+            />
+          </div>
+        ) : null}
+
         {stepValidationMessage !== null ? (
           <div className="mb-3" data-testid="simplified-pilot-validation-error">
             <ReviewStartInlineError message={stepValidationMessage} />
@@ -232,7 +265,7 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
           onNext={isReviewStep ? undefined : goNext}
           onSubmit={isReviewStep ? submitRun : undefined}
           onSaveDraft={undefined}
-          submitting={submitting}
+          submitting={isCreating}
           canProceed={canProceed}
           canSubmit={canSubmit}
           isFirstStep={isFirstStep}

@@ -7,6 +7,8 @@ import { useFormContext } from "react-hook-form";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExceededBanner";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
+import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
+import { ReviewStartUnresolvedNotice } from "@/components/review-intake/ReviewStartUnresolvedNotice";
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
 import { WizardStepDescription } from "@/components/wizard/steps/WizardStepDescription";
@@ -15,12 +17,16 @@ import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { LlmMonthlyDollarBudgetStatus } from "@/hooks/use-llm-monthly-budget-execution-gate";
+import { useReviewCreationProgress } from "@/hooks/use-review-creation-progress";
 import { architectureReviewTemplates, suggestedSystemNameFromTemplateId } from "@/data/review-templates";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_SHELL_CONTENT_BLEED_X_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { REVIEW_START_STEP_VALIDATION_MESSAGE } from "@/lib/review-start-progress-copy";
+import {
+  REVIEW_START_PREPARING_LABEL,
+  REVIEW_START_STEP_VALIDATION_MESSAGE,
+} from "@/lib/review-start-progress-copy";
 import { submitQuickFamilyWizardCreateRun } from "@/lib/wizard-form-create-run-submit";
 import { resolveWizardPresetDeeplinkTokenFromPresetId } from "@/lib/wizard-preset-deeplink";
 import { applyWizardPreset, wizardPresets, type WizardPreset } from "@/lib/wizard-presets";
@@ -58,6 +64,7 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<unknown | null>(null);
   const [stepValidationMessage, setStepValidationMessage] = useState<string | null>(null);
+  const creationProgress = useReviewCreationProgress();
   const [presetId, setPresetId] = useState<string>(() => {
     if (props.initialPresetId !== undefined && wizardPresets.some((entry) => entry.id === props.initialPresetId)) {
       return props.initialPresetId;
@@ -99,8 +106,9 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
     setStepValidationMessage(null);
   }, [quickStep]);
 
-  const canProceed = !submitting;
-  const canSubmit = !submitting && !blocksLlmExecution;
+  const isCreating = submitting || creationProgress.isActive;
+  const canProceed = !isCreating;
+  const canSubmit = !isCreating && !blocksLlmExecution;
 
   const applyReviewTemplate = (templateId: string) => {
     const template = architectureReviewTemplates.find((t) => t.id === templateId);
@@ -161,6 +169,7 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
       setSubmitError,
       setStepValidationMessage,
       onRunCreated,
+      progress: creationProgress,
     });
   };
 
@@ -260,6 +269,30 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
         )}
         data-testid="quick-start-footer"
       >
+        {creationProgress.showStagedPanel && creationProgress.activeStageId !== null ? (
+          <div className="mb-3">
+            <ReviewStartStagedProgress
+              stages={creationProgress.stages}
+              activeStageId={creationProgress.activeStageId}
+              headline={REVIEW_START_PREPARING_LABEL}
+              detail={creationProgress.waitCopy?.detail ?? null}
+              testId="quick-start-review-start-progress"
+            />
+          </div>
+        ) : null}
+
+        {creationProgress.outcome?.kind === "unresolved" ? (
+          <div className="mb-3">
+            <ReviewStartUnresolvedNotice
+              onRecheck={() => {
+                void submitRun();
+              }}
+              isRechecking={creationProgress.isActive}
+              testId="quick-start-unresolved-notice"
+            />
+          </div>
+        ) : null}
+
         {stepValidationMessage !== null ? (
           <div className="mb-3" data-testid="quick-start-validation-error">
             <ReviewStartInlineError message={stepValidationMessage} />
@@ -292,7 +325,7 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
           onNext={isReviewStep ? undefined : goNext}
           onSubmit={isReviewStep ? submitRun : undefined}
           onSaveDraft={undefined}
-          submitting={submitting}
+          submitting={isCreating}
           canProceed={canProceed}
           canSubmit={canSubmit}
           isFirstStep={isFirstStep}
