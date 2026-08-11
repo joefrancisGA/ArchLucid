@@ -76,7 +76,8 @@ Job `CorrelationId` includes `Guid.NewGuid()` per enqueue — **not** a stable i
 | ID | Role |
 |----|------|
 | Done **TB-394** | Durable async ITSM create via background jobs |
-| Open **TB-992**–**TB-994** / **M-144**–**M-145** | Integration outbox at-least-once contract (Path B) |
+| Done **TB-992** / **M-144**–**M-145** | Integration outbox at-least-once contract (Path B) — [`TRANSACTIONAL_OUTBOX_REPLAY_VS_IDEMPOTENCY_CONTRACT.md`](./TRANSACTIONAL_OUTBOX_REPLAY_VS_IDEMPOTENCY_CONTRACT.md) |
+| Open **TB-993**–**TB-994** | Stable `MessageId` enforcement + crash regression CI |
 | Open **TB-1011** / **M-162** | Finalize vs outbox; delivery lag disclosed |
 | **TB-1530** / **M-280** | This ITSM Path A vs B + duplicate/DLQ notify map |
 

@@ -23,7 +23,7 @@ Name what belongs in **transactional finalize** versus **outbox / async workers*
 |------------------|-----|
 | “Commit success means indexed / delivered / projected.” | Those are async consumer outcomes (**§4**). |
 | “Every audit event is transactional / fail-closed.” | Required vs informational (**INV-003** / **TB-001** / **M-117**). |
-| “Outbox = exactly-once delivery.” | At-least-once dispatch; consumer idempotency required (**TB-992** / **M-145**). |
+| “Outbox = exactly-once delivery.” | At-least-once dispatch; consumer idempotency required — [`TRANSACTIONAL_OUTBOX_REPLAY_VS_IDEMPOTENCY_CONTRACT.md`](./TRANSACTIONAL_OUTBOX_REPLAY_VS_IDEMPOTENCY_CONTRACT.md) (**TB-992** / **M-145**). |
 | “V1 requires Durable Task Framework exactly-once.” | DTF adoption is **TB-924** (out of scope here). |
 | “Finalize makes Ask / RAG immediately consistent.” | Retrieval indexing lags until outbox workers run (ADR 0004). |
 

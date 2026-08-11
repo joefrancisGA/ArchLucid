@@ -676,6 +676,8 @@ Engineering SoT: [`TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md`](../library/TRA
 
 Former standalone body: `docs/go-to-market/TRANSACTIONAL_OUTBOX_REPLAY_IDEMPOTENCY_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-145** / **TB-992**). Complements [Transactional finalize vs outbox (M-163)](#transactional-finalize-vs-outbox-m-163). Does not claim exactly-once delivery. Not an assurance attestation.
 
+**Engineering SoT:** [`../library/TRANSACTIONAL_OUTBOX_REPLAY_VS_IDEMPOTENCY_CONTRACT.md`](../library/TRANSACTIONAL_OUTBOX_REPLAY_VS_IDEMPOTENCY_CONTRACT.md) (**TB-992** Done).
+
 **Path-stable alias:** [`TRANSACTIONAL_OUTBOX_REPLAY_IDEMPOTENCY_PA_ONE_PAGER.md`](TRANSACTIONAL_OUTBOX_REPLAY_IDEMPOTENCY_PA_ONE_PAGER.md).
 
 **Audience:** Principal architects and integration reviewers.
