@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import {
   identityProviderProbeStatusPresentation,
+  oidcDiscoveryStatusLabelFromPayload,
   oidcDiscoveryStatusPresentation,
+  oidcPageDiscoveryStatusPresentation,
 } from "@/lib/identity-provider-probe-status-presentation";
 import {
   IDENTITY_PROVIDERS_DISCOVERY_STATUS_NOT_ATTEMPTED,
@@ -50,6 +52,54 @@ describe("identity-provider-probe-status-presentation", () => {
     expect(oidcDiscoveryStatusPresentation("Not attempted")).toEqual({
       kind: "neutral",
       label: IDENTITY_PROVIDERS_DISCOVERY_STATUS_NOT_ATTEMPTED,
+    });
+  });
+
+  it("derives OIDC discovery labels from diagnostics payload (TB-1913)", () => {
+    expect(oidcDiscoveryStatusLabelFromPayload(null)).toBeNull();
+    expect(oidcDiscoveryStatusLabelFromPayload({ discoveryAttempted: false })).toBe("Not attempted");
+    expect(
+      oidcDiscoveryStatusLabelFromPayload({ discoveryAttempted: false, discoverySucceeded: false }),
+    ).toBe("Unreachable");
+    expect(
+      oidcDiscoveryStatusLabelFromPayload({ discoveryAttempted: true, discoverySucceeded: true }),
+    ).toBe("Healthy");
+    expect(
+      oidcDiscoveryStatusLabelFromPayload({ discoveryAttempted: true, discoverySucceeded: false }),
+    ).toBe("Unreachable");
+  });
+
+  it("resolves OIDC page discovery presentation from payload or overview fallback (TB-1913)", () => {
+    expect(
+      oidcPageDiscoveryStatusPresentation(
+        { discoveryAttempted: true, discoverySucceeded: true },
+        "Healthy",
+      ),
+    ).toEqual({
+      kind: "ready",
+      label: IDENTITY_PROVIDERS_STATUS_HEALTHY,
+    });
+    expect(
+      oidcPageDiscoveryStatusPresentation(
+        { discoveryAttempted: false, discoverySucceeded: false },
+        "Healthy",
+      ),
+    ).toEqual({
+      kind: "blocked",
+      label: IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW,
+    });
+    expect(
+      oidcPageDiscoveryStatusPresentation(
+        { discoveryAttempted: false },
+        IDENTITY_PROVIDERS_STATUS_NOT_APPLICABLE,
+      ),
+    ).toEqual({
+      kind: "neutral",
+      label: IDENTITY_PROVIDERS_STATUS_NOT_APPLICABLE,
+    });
+    expect(oidcPageDiscoveryStatusPresentation(null, "Not configured")).toEqual({
+      kind: "neutral",
+      label: IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED,
     });
   });
 });

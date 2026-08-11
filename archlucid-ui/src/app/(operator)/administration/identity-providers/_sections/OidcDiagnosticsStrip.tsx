@@ -2,7 +2,11 @@
 
 import { StatusTag } from "@/components/ui/status-tag";
 import { cn } from "@/lib/utils";
-import { oidcDiscoveryStatusPresentation } from "@/lib/identity-provider-probe-status-presentation";
+import {
+  oidcDiscoveryStatusLabelFromPayload,
+  oidcDiscoveryStatusPresentation,
+  type OidcDiscoveryStatusLabel,
+} from "@/lib/identity-provider-probe-status-presentation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { components } from "@/lib/openapi-schemas";
@@ -15,16 +19,14 @@ export type OidcDiagnosticsStripProps = {
   readonly showTechnicalDetails?: boolean;
 };
 
-function discoveryStatusLabel(payload: AdminOidcDiagnosticsResponse): string {
-  if (!payload.discoveryAttempted) {
+function discoveryStatusLabel(payload: AdminOidcDiagnosticsResponse): OidcDiscoveryStatusLabel {
+  const label = oidcDiscoveryStatusLabelFromPayload(payload);
+
+  if (label === null) {
     return "Not attempted";
   }
 
-  if (payload.discoverySucceeded === true) {
-    return "Healthy";
-  }
-
-  return "Unreachable";
+  return label;
 }
 
 export function OidcDiagnosticsStrip(props: OidcDiagnosticsStripProps) {

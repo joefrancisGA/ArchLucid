@@ -3,15 +3,13 @@
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
+import { StatusTag } from "@/components/ui/status-tag";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { oidcPageDiscoveryStatusPresentation } from "@/lib/identity-provider-probe-status-presentation";
 import {
   IDENTITY_PROVIDERS_OIDC_PAGE_SUBTITLE,
   IDENTITY_PROVIDERS_OIDC_PAGE_TITLE,
-  IDENTITY_PROVIDERS_STATUS_HEALTHY,
-  IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW,
-  IDENTITY_PROVIDERS_STATUS_NOT_APPLICABLE,
-  IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED,
 } from "@/lib/identity-providers-settings-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -24,14 +22,7 @@ type IdentityProvidersOidcPageViewProps = {
 
 export function IdentityProvidersOidcPageView(props: IdentityProvidersOidcPageViewProps): React.JSX.Element {
   const oidc = props.model.oidcDiagnostics;
-  const discoveryStatus =
-    oidc?.discoverySucceeded === true
-      ? IDENTITY_PROVIDERS_STATUS_HEALTHY
-      : oidc?.discoverySucceeded === false
-        ? IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW
-        : props.model.overview.oidcStatus === IDENTITY_PROVIDERS_STATUS_NOT_APPLICABLE
-          ? IDENTITY_PROVIDERS_STATUS_NOT_APPLICABLE
-          : IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED;
+  const discoveryPresentation = oidcPageDiscoveryStatusPresentation(oidc, props.model.overview.oidcStatus);
 
   return (
     <IdentityProvidersSettingsShell
@@ -49,8 +40,8 @@ export function IdentityProvidersOidcPageView(props: IdentityProvidersOidcPageVi
           <dl className={cn("m-0 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
             <div>
               <dt className="text-al-text-secondary">Discovery status</dt>
-              <dd className="m-0 mt-1 font-medium text-al-text-primary" data-testid="identity-providers-oidc-discovery-status">
-                {discoveryStatus}
+              <dd className="m-0 mt-1" data-testid="identity-providers-oidc-discovery-status">
+                <StatusTag kind={discoveryPresentation.kind} label={discoveryPresentation.label} />
               </dd>
             </div>
             <div>

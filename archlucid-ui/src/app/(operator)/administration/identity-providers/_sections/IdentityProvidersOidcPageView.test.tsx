@@ -15,6 +15,7 @@ import {
   IDENTITY_PROVIDERS_OIDC_PAGE_SUBTITLE,
   IDENTITY_PROVIDERS_OIDC_PAGE_TITLE,
   IDENTITY_PROVIDERS_PAGE_SUBTITLE,
+  IDENTITY_PROVIDERS_STATUS_HEALTHY,
 } from "@/lib/identity-providers-settings-copy";
 
 function buildModel(
@@ -75,5 +76,13 @@ describe("IdentityProvidersOidcPageView", () => {
 
     expect(screen.getByText(IDENTITY_PROVIDERS_OIDC_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.queryByText(IDENTITY_PROVIDERS_PAGE_SUBTITLE)).not.toBeInTheDocument();
+  });
+
+  it("renders discovery status with StatusTag and human label (TB-1913)", () => {
+    render(<IdentityProvidersOidcPageView model={buildModel()} />);
+
+    expect(screen.getByTestId("identity-providers-oidc-discovery-status")).toHaveTextContent(
+      IDENTITY_PROVIDERS_STATUS_HEALTHY,
+    );
   });
 });
