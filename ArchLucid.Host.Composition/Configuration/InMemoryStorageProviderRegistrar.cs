@@ -341,6 +341,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddHostedService<OutboxOperationalMetricsHostedService>();
         services.AddHostedService<StaleInFlightRunMetricsHostedService>();
         services.AddHostedService<LlmTenantBudgetUtilizationMetricsHostedService>();
+        services.AddHostedService<LlmMonthlyTenantBudgetReservationReclaimHostedService>();
         services.AddHostedService<MarketingPricingQuoteAgingMetricsHostedService>();
 
         // Parity with Sql path: orphan probe resolves but no-ops when storage is InMemory (see DataConsistencyOrphanProbeExecutor).

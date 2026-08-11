@@ -23,6 +23,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
     IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> optionsMonitor,
     ILlmCostEstimator costEstimator,
     ILlmTenantBudgetRepository budgetRepository,
+    ILlmMonthlyTenantBudgetReservationStore reservationStore,
     ILlmTenantWalletService walletService,
     ITenantLlmMonthlyBudgetCapResolver budgetCapResolver,
     IConfiguration configuration,
@@ -31,11 +32,15 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
 {
     private const int MaxOptimisticRetries = 12;
 
+    private static readonly AsyncLocal<Guid?> PendingReservationId = new();
     private static readonly AsyncLocal<string?> PendingReservationPeriodKey = new();
     private static readonly ConcurrentDictionary<Guid, int> InFlightReservationsByTenant = new();
 
     private readonly ILlmTenantBudgetRepository _budgetRepository =
         budgetRepository ?? throw new ArgumentNullException(nameof(budgetRepository));
+
+    private readonly ILlmMonthlyTenantBudgetReservationStore _reservationStore =
+        reservationStore ?? throw new ArgumentNullException(nameof(reservationStore));
 
     private readonly ILlmTenantWalletService _walletService =
         walletService ?? throw new ArgumentNullException(nameof(walletService));
@@ -128,16 +133,21 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
 
                 effectiveMax = max + state.PurchasedCapBumpUsd;
 
-                LlmTenantBudgetReserveResult reserved = await _budgetRepository
-                    .ReserveAsync(
-                        new LlmTenantBudgetReserveRequest
+                Guid reservationId = Guid.NewGuid();
+                TimeSpan reservationTtl = TimeSpan.FromMinutes(Math.Clamp(opts.ReservationTtlMinutes, 1, 24 * 60));
+
+                LlmMonthlyTenantBudgetReservationStoreResult reserved = await _reservationStore
+                    .TryReserveAsync(
+                        new LlmMonthlyTenantBudgetReservationRequest
                         {
+                            ReservationId = reservationId,
                             TenantId = tenantId,
-                            Period = LlmBudgetPeriod.Monthly,
                             PeriodKey = periodKey,
                             ReserveUsd = assumed,
                             HardCapUsd = effectiveMax,
-                            ExpectedRowVersion = state.RowVersion
+                            ExpectedRowVersion = state.RowVersion,
+                            UtcNow = _timeProvider.GetUtcNow(),
+                            ReservationTtl = reservationTtl
                         },
                         cancellationToken)
                     .ConfigureAwait(false);
@@ -153,12 +163,6 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
                     await Task.Delay(5 * (attempt + 1), cancellationToken).ConfigureAwait(false);
 
                     continue;
-                }
-
-                if (reserved.AdmissionBlocked)
-                {
-                    ArchLucidInstrumentation.LlmMonthlyBudgetAdmissionBlockedTotal.Add(1);
-                    throw CreateAdmissionBlockedException(tenantId);
                 }
 
                 if (reserved.HardCapBlocked)
@@ -179,6 +183,14 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
                     throw CreateHardCapExceededException(max + blocked.PurchasedCapBumpUsd, blocked.TotalUsdPressure, periodKey);
                 }
 
+                if (!reserved.Allowed || reserved.ReservationId is null)
+                {
+                    await Task.Delay(5 * (attempt + 1), cancellationToken).ConfigureAwait(false);
+
+                    continue;
+                }
+
+                PendingReservationId.Value = reserved.ReservationId;
                 PendingReservationPeriodKey.Value = periodKey;
 
                 return (assumed, false);
@@ -189,7 +201,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
         }
         finally
         {
-            if (inFlightHeld && PendingReservationPeriodKey.Value is null)
+            if (inFlightHeld && PendingReservationId.Value is null)
                 ReleaseInFlightReservationSlot(tenantId);
         }
     }
@@ -244,56 +256,87 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
         try
         {
             string periodKey = await ResolveSettlementPeriodKeyAsync(cancellationToken).ConfigureAwait(false);
+            Guid? reservationId = PendingReservationId.Value;
 
-            for (int attempt = 0; attempt < MaxOptimisticRetries; attempt++)
+            if (reservationId is null || reservationId == Guid.Empty)
             {
-                LlmTenantBudgetStateReadModel read =
-                    await _budgetRepository.GetOrCreateAsync(tenantId, LlmBudgetPeriod.Monthly, periodKey, cancellationToken)
+                for (int attempt = 0; attempt < MaxOptimisticRetries; attempt++)
+                {
+                    LlmTenantBudgetStateReadModel read =
+                        await _budgetRepository.GetOrCreateAsync(tenantId, LlmBudgetPeriod.Monthly, periodKey, cancellationToken)
+                            .ConfigureAwait(false);
+
+                    LlmTenantBudgetSettleResult settled = await _budgetRepository
+                        .SettleAsync(
+                            new LlmTenantBudgetSettleRequest
+                            {
+                                TenantId = tenantId,
+                                Period = LlmBudgetPeriod.Monthly,
+                                PeriodKey = periodKey,
+                                ActualUsd = addUsd.Value,
+                                ReleaseReservedUsd = pendingReservedUsd ?? 0m,
+                                WarnAtUsd = warnAt,
+                                ExpectedRowVersion = read.RowVersion
+                            },
+                            cancellationToken)
                         .ConfigureAwait(false);
 
-                LlmTenantBudgetSettleResult settled = await _budgetRepository
-                    .SettleAsync(
-                        new LlmTenantBudgetSettleRequest
-                        {
-                            TenantId = tenantId,
-                            Period = LlmBudgetPeriod.Monthly,
-                            PeriodKey = periodKey,
-                            ActualUsd = addUsd.Value,
-                            ReleaseReservedUsd = pendingReservedUsd ?? 0m,
-                            WarnAtUsd = warnAt,
-                            ExpectedRowVersion = read.RowVersion
-                        },
-                        cancellationToken)
-                    .ConfigureAwait(false);
+                    if (settled.PeriodKeyMismatch)
+                        ArchLucidInstrumentation.LlmMonthlyBudgetPeriodRemapTotal.Add(1);
 
-                if (settled.PeriodKeyMismatch)
-                    ArchLucidInstrumentation.LlmMonthlyBudgetPeriodRemapTotal.Add(1);
+                    if (settled.ConcurrencyConflict)
+                    {
+                        await Task.Delay(5 * (attempt + 1), cancellationToken).ConfigureAwait(false);
 
-                if (settled.ConcurrencyConflict)
-                {
-                    await Task.Delay(5 * (attempt + 1), cancellationToken).ConfigureAwait(false);
+                        continue;
+                    }
 
-                    continue;
+                    decimal newTotal =
+                        settled.NewState?.CommittedUsd ?? throw new InvalidOperationException("Missing spend state after update.");
+
+                    if (settled.ShouldEmitWarnAudit && auditService is not null)
+                    {
+                        (int year, int month) = ParseUtcYearMonth(periodKey);
+                        TryScheduleWarnAudit(scopeProvider, auditService, year, month, newTotal, warnAt, opts);
+                    }
+
+                    return;
                 }
 
-                decimal newTotal =
-                    settled.NewState?.CommittedUsd ?? throw new InvalidOperationException("Missing spend state after update.");
-
-                if (settled.ShouldEmitWarnAudit && auditService is not null)
-                {
-                    (int year, int month) = ParseUtcYearMonth(periodKey);
-                    TryScheduleWarnAudit(scopeProvider, auditService, year, month, newTotal, warnAt, opts);
-                }
-
-                return;
+                ArchLucidInstrumentation.LlmMonthlyBudgetOptimisticRetryExhaustedTotal.Add(1);
+                throw new InvalidOperationException("LLM monthly dollar budget could not be updated after optimistic retries.");
             }
 
-            ArchLucidInstrumentation.LlmMonthlyBudgetOptimisticRetryExhaustedTotal.Add(1);
-            throw new InvalidOperationException("LLM monthly dollar budget could not be updated after optimistic retries.");
+            LlmMonthlyTenantBudgetReservationSettleResult settledById = await _reservationStore
+                .SettleAsync(reservationId.Value, addUsd.Value, warnAt, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (settledById.PeriodKeyMismatch)
+                ArchLucidInstrumentation.LlmMonthlyBudgetPeriodRemapTotal.Add(1);
+
+            if (settledById.ConcurrencyConflict)
+            {
+                ArchLucidInstrumentation.LlmMonthlyBudgetOptimisticRetryExhaustedTotal.Add(1);
+                throw new InvalidOperationException("LLM monthly dollar budget reservation could not be settled.");
+            }
+
+            if (settledById.NewState is not null && settledById.ShouldEmitWarnAudit && auditService is not null)
+            {
+                (int year, int month) = ParseUtcYearMonth(periodKey);
+                TryScheduleWarnAudit(
+                    scopeProvider,
+                    auditService,
+                    year,
+                    month,
+                    settledById.NewState.CommittedUsd,
+                    warnAt,
+                    opts);
+            }
         }
         finally
         {
             ReleaseInFlightReservationSlot(tenantId);
+            PendingReservationId.Value = null;
             PendingReservationPeriodKey.Value = null;
         }
     }
@@ -327,6 +370,15 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
 
         try
         {
+            Guid? reservationId = PendingReservationId.Value;
+
+            if (reservationId is not null && reservationId != Guid.Empty)
+            {
+                await _reservationStore.ReleaseAsync(reservationId.Value, cancellationToken).ConfigureAwait(false);
+
+                return;
+            }
+
             string periodKey = await ResolveSettlementPeriodKeyAsync(cancellationToken).ConfigureAwait(false);
 
             for (int attempt = 0; attempt < MaxOptimisticRetries; attempt++)
@@ -370,6 +422,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
         finally
         {
             ReleaseInFlightReservationSlot(tenantId);
+            PendingReservationId.Value = null;
             PendingReservationPeriodKey.Value = null;
         }
     }

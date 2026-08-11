@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { DecisionRegisterTimeline } from "@/components/DecisionRegisterTimeline";
+import { DecisionRegisterEmptyTeaching } from "@/components/DecisionRegisterEmptyTeaching";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { GovernanceJobRouterStrip } from "@/components/GovernanceJobRouterStrip";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
@@ -227,16 +228,19 @@ export default function DecisionRegisterClient() {
 
       {!loading && !loadError && !hasWorkspaceDecisions ? (
         <DecisionRegisterViewEmptyShell viewMode={viewMode}>
-          <EnterpriseCompactEmptyState
-            testId="decision-register-empty-state"
-            title={DECISION_REGISTER_EMPTY_TITLE}
-            description={DECISION_REGISTER_EMPTY_BODY}
-            actions={[
-              { label: DECISION_REGISTER_EMPTY_ACTION_REVIEW_PACKAGES, href: "/architecture/reviews", variant: "primary" },
-              { label: DECISION_REGISTER_EMPTY_ACTION_START_REVIEW, href: "/architecture/reviews/new", variant: "outline" },
-              { label: DECISION_REGISTER_EMPTY_ACTION_GOVERNANCE, href: "/governance/approval-queue", variant: "outline" },
-            ]}
-          />
+          <div className="space-y-3">
+            <DecisionRegisterEmptyTeaching />
+            <EnterpriseCompactEmptyState
+              testId="decision-register-empty-state"
+              title={DECISION_REGISTER_EMPTY_TITLE}
+              description={DECISION_REGISTER_EMPTY_BODY}
+              actions={[
+                { label: DECISION_REGISTER_EMPTY_ACTION_REVIEW_PACKAGES, href: "/architecture/reviews", variant: "primary" },
+                { label: DECISION_REGISTER_EMPTY_ACTION_START_REVIEW, href: "/architecture/reviews/new", variant: "outline" },
+                { label: DECISION_REGISTER_EMPTY_ACTION_GOVERNANCE, href: "/governance/approval-queue", variant: "outline" },
+              ]}
+            />
+          </div>
         </DecisionRegisterViewEmptyShell>
       ) : null}
 

@@ -188,6 +188,7 @@ public sealed class RunsControllerTests
 
         return new RunsController(
             Mock.Of<IArchitectureRunCreateOrchestrator>(),
+            Mock.Of<IArchitectureRunBatchCreateOrchestrator>(),
             Mock.Of<IArchitectureRunExecuteOrchestrator>(),
             Mock.Of<IArchitectureRunCommitOrchestrator>(),
             architectureApplicationService ?? Mock.Of<IArchitectureApplicationService>(),

@@ -1,6 +1,7 @@
 "use client";
 
 import { ContextualPageHintStrip } from "@/components/ContextualPageHintStrip";
+import { KeyboardShortcutsDiscoverabilityCoach } from "@/components/KeyboardShortcutsDiscoverabilityCoach";
 import { OperatorRecentViewsTracker } from "@/components/OperatorRecentViewsTracker";
 import { BuyerGoldenJourneyLayerContextStrip } from "@/components/shell/BuyerGoldenJourneyLayerContextStrip";
 import { DemoVsLiveChromeBanner } from "@/components/usability/DemoVsLiveChromeBanner";
@@ -19,6 +20,7 @@ export function AppShellMainAffordances() {
       <OperatorRecentViewsTracker />
       <ReviewsListReturnStateTracker />
       <FirstVisitHelpAutoOpen />
+      <KeyboardShortcutsDiscoverabilityCoach />
       {staticDemoEnv ? (
         <DemoVsLiveChromeBanner isStaticDemoEnv showWatermark className="mb-3" />
       ) : null}

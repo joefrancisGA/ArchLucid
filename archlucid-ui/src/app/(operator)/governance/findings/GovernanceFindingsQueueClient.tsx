@@ -6,6 +6,7 @@ import { useCallback, useMemo, useState } from "react";
 import { AlertsFindingsDualInboxReconciler } from "@/components/AlertsFindingsDualInboxReconciler";
 import { GovernanceApprovalStatusBanner } from "@/components/governance/GovernanceApprovalStatusBanner";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { FindingsQueueSearchEvidenceVocabularyRail } from "@/components/FindingsQueueSearchEvidenceVocabularyRail";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { GovernanceJobRouterStrip } from "@/components/GovernanceJobRouterStrip";
@@ -205,6 +206,7 @@ export default function GovernanceFindingsQueueClient() {
       <GovernanceJobRouterStrip currentJobId="triage-findings" />
       <AlertsFindingsDualInboxReconciler currentSurfaceId="findings-queue" />
       <RiskExceptionsFindingsVocabularyRail currentSurfaceId="findings-queue" />
+      <FindingsQueueSearchEvidenceVocabularyRail currentSurfaceId="findings-queue" />
       <PageCapabilityBoundaryStrip surfaceId="governanceFindings" />
 <div className={cn("mt-4", OPERATOR_LAYOUT.sectionStack)}>
         {secondaryViewPresentation !== null ? (

@@ -65,4 +65,18 @@ public sealed class LlmMonthlyTenantDollarBudgetOptions
         get;
         set;
     } = 64;
+
+    /// <summary>Pending per-call reservation TTL before orphan reclaim releases monthly pressure (TB-976).</summary>
+    public int ReservationTtlMinutes
+    {
+        get;
+        set;
+    } = 15;
+
+    /// <summary>Background orphan reclaim interval for expired monthly per-call reservations (TB-976).</summary>
+    public int ReservationReclaimIntervalSeconds
+    {
+        get;
+        set;
+    } = 60;
 }

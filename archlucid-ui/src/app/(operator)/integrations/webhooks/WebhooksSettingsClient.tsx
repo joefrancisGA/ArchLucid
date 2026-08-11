@@ -11,6 +11,7 @@ import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCal
 import { WEBHOOK_SUBSCRIPTION_SAVE_SUCCESS_MESSAGE } from "@/lib/admin-integration-mutation-outcome-copy";
 import { PageHeading } from "@/components/PageHeading";
 import { WebhooksVsApiKeysReconciler } from "@/components/WebhooksVsApiKeysReconciler";
+import { WebhooksVsDlqVocabularyRail } from "@/components/WebhooksVsDlqVocabularyRail";
 import { BooleanStatusChip } from "@/components/ui/boolean-status-chip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -253,7 +254,8 @@ export function WebhooksSettingsClient() {
         }
       />
       <WebhooksVsApiKeysReconciler currentSurfaceId="webhooks" />
-{failure !== null ? (
+      <WebhooksVsDlqVocabularyRail currentSurfaceId="webhooks" />
+      {failure !== null ? (
         <div role="alert">
           <OperatorApiProblem
             problem={failure.problem}

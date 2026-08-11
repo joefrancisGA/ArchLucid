@@ -1,6 +1,7 @@
 using System.Globalization;
 
 using ArchLucid.AgentRuntime.Tests.Support;
+using ArchLucid.Application.Budgeting;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Configuration;
@@ -277,6 +278,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
             options,
             costEstimator,
             repository,
+            new InMemoryLlmMonthlyTenantBudgetReservationStore(repository, timeProvider ?? TimeProvider.System),
             new NoOpLlmTenantWalletService(),
             new PassthroughTenantLlmMonthlyBudgetCapResolver(),
             effectiveConfiguration,

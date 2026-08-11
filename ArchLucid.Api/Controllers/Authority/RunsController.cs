@@ -57,6 +57,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 public sealed partial class RunsController(
     IArchitectureRunCreateOrchestrator architectureRunCreateOrchestrator,
+    IArchitectureRunBatchCreateOrchestrator architectureRunBatchCreateOrchestrator,
     IArchitectureRunExecuteOrchestrator architectureRunExecuteOrchestrator,
     IArchitectureRunCommitOrchestrator architectureRunCommitOrchestrator,
     IArchitectureApplicationService architectureApplicationService,
@@ -304,154 +305,80 @@ public sealed partial class RunsController(
                 $"Batch may contain at most {BatchCreateRunMaxItems} items. Received {requests.Count}.",
                 ProblemTypes.ValidationFailed);
 
-        if (Request.Headers.TryGetValue("Idempotency-Key", out StringValues rawKeyHeader))
-        {
-            string trimmedKey = rawKeyHeader.ToString().Trim();
+        if (!TryReadIdempotencyKeyHeader(out string? idempotencyKey, out IActionResult? badRequest))
+            return badRequest!;
 
-            if (trimmedKey.Length > ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength)
-                return this.BadRequestProblem(
-                    $"Idempotency-Key must be at most {ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength} characters after trim.",
-                    ProblemTypes.ValidationFailed);
-        }
-
-        // We can use a composite hash of the key and the batch payload.
-        // For simplicity, we'll hash the key and the first request's fingerprint if present, or just the key.
-        // A full implementation would hash the entire batch payload.
-        // Here we just use the key and a hash of the serialized requests.
-        // We will store it in the idempotency table using a special prefix.
-        CreateRunIdempotencyState? idempotency = null;
-
-        if (Request.Headers.TryGetValue("Idempotency-Key", out StringValues raw) && !string.IsNullOrWhiteSpace(raw.ToString()))
-        {
-            string trimmed = raw.ToString().Trim();
-            ScopeContext scope = scopeContextProvider.GetCurrentScope();
-            byte[] keyHash = ArchitectureRunIdempotencyHashing.HashIdempotencyKey(trimmed);
-            byte[] payloadHash = ArchitectureRunIdempotencyHashing.HashIdempotencyKey(JsonSerializer.Serialize(requests));
-            idempotency = new CreateRunIdempotencyState(
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
-                keyHash,
-                payloadHash);
-        }
-
-        // Note: For batch, we could check idempotency at the batch level or item level.
-        // If we check at the batch level, we'd need a BatchCreateRunIdempotencyRepository.
-        // For now, we'll pass null to individual items and handle batch idempotency if needed,
-        // or just let individual items be idempotent if they have their own keys.
-        // Wait, the prompt says: "Generate a composite hash of the key and the batch payload. Store it in dbo.ArchitectureRunIdempotency (or a batch equivalent) to prevent duplicate batch processing on retries."
-        // Let's implement batch idempotency properly.
-
-        bool isReplay = false;
-
-        if (idempotency is not null)
-        {
-            // Check if batch was already processed
-            // We can reuse the commitRunIdempotencyRepository or create a new one.
-            // For now, we'll just pass the idempotency state to the first item as a hack, or better,
-            // we should really use a dedicated table. Let's just use the existing one with a "batch_" prefix.
-            // Actually, the prompt says "Store it in dbo.ArchitectureRunIdempotency (or a batch equivalent)".
-            // Let's use commitRunIdempotencyRepository with a special run key "batch_" + hash.
-            string batchKey = "batch_" + Convert.ToBase64String(idempotency.IdempotencyKeyHash).Substring(0, 16);
-            CommitRunIdempotencyLookup? lookup = await commitRunIdempotencyRepository
-                .TryGetAsync(idempotency.TenantId, idempotency.WorkspaceId, idempotency.ProjectId, batchKey, idempotency.IdempotencyKeyHash, cancellationToken);
-            
-            if (lookup is not null)
-            {
-                if (!CryptographicOperations.FixedTimeEquals(lookup.RequestFingerprint, idempotency.RequestFingerprint))
-                    return this.ConflictProblem("Idempotency-Key was reused with a different request payload.", ProblemTypes.Conflict);
-                
-                isReplay = true;
-                // We should ideally return the exact same response. Since we don't store the response,
-                // we'll just return an empty Accepted or we'd need to store the response.
-                // For now, we'll just proceed and skip processing, returning a generic success.
-                Response.Headers.Append("X-Idempotency-Replayed", "true");
-                LogIdempotencyReplay("batch", user, correlationId);
-                return Ok(new BatchCreateRunResponse { Items = new List<BatchCreateRunItemResult>() }); // Simplified replay response
-            }
-        }
-
-        List<BatchCreateRunItemResult> results = new(requests.Count);
-
-        foreach (ArchitectureRequest request in requests)
-        {
-            if (request is null)
-            {
-                results.Add(new BatchCreateRunItemResult { Succeeded = false, ErrorMessage = "Null item in batch." });
-                continue;
-            }
-
-            try
-            {
-                CreateRunResult result = await architectureRunCreateOrchestrator
-                    .CreateRunAsync(request, idempotency: null, cancellationToken);
-
-                results.Add(new BatchCreateRunItemResult
-                {
-                    RequestId = request.RequestId,
-                    RunId = result.Run.RunId,
-                    Succeeded = true
-                });
-            }
-            catch (ConflictException ex)
-            {
-                results.Add(new BatchCreateRunItemResult
-                {
-                    RequestId = request.RequestId,
-                    Succeeded = false,
-                    ErrorCode = ProblemTypes.Conflict,
-                    ErrorMessage = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                results.Add(new BatchCreateRunItemResult
-                {
-                    RequestId = request.RequestId,
-                    Succeeded = false,
-                    ErrorCode = ProblemTypes.BadRequest,
-                    ErrorMessage = ex.Message
-                });
-            }
-        }
-
-        if (idempotency is not null && !isReplay)
-        {
-            string batchKey = "batch_" + Convert.ToBase64String(idempotency.IdempotencyKeyHash).Substring(0, 16);
-            await commitRunIdempotencyRepository.TryInsertAsync(
-                idempotency.TenantId, idempotency.WorkspaceId, idempotency.ProjectId, batchKey,
-                idempotency.IdempotencyKeyHash, idempotency.RequestFingerprint, cancellationToken);
-        }
-
-        ScopeContext batchScope = scopeContextProvider.GetCurrentScope();
-        string batchActor = actorContext.GetActor();
-        int succeededCount = results.Count(r => r.Succeeded);
-
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.ArchitectureRunBatchAccepted,
-                ActorUserId = batchActor,
-                ActorUserName = batchActor,
-                TenantId = batchScope.TenantId,
-                WorkspaceId = batchScope.WorkspaceId,
-                ProjectId = batchScope.ProjectId,
-                CorrelationId = HttpContext.TraceIdentifier,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        itemCount = requests.Count,
-                        succeeded = succeededCount,
-                        failed = requests.Count - succeededCount
-                    },
-                    AuditJsonSerializationOptions.Instance)
-            },
+        BatchCreateRunOrchestrationResult result = await architectureRunBatchCreateOrchestrator.CreateBatchAsync(
+            requests,
+            BuildBatchCreateRunIdempotency(idempotencyKey, requests),
+            correlationId,
             cancellationToken);
 
-        return Accepted(new BatchCreateRunResponse { Items = results });
+        if (result.Outcome == BatchCreateRunOutcome.IdempotencyKeyPayloadMismatch)
+            return this.ConflictProblem(
+                "Idempotency-Key was reused with a different request payload.",
+                ProblemTypes.Conflict);
+
+        if (result.Outcome == BatchCreateRunOutcome.IdempotentReplay)
+        {
+            Response.Headers.Append("X-Idempotency-Replayed", "true");
+            LogIdempotencyReplay("batch", user, correlationId);
+
+            // The batch response body is not persisted, so a replay confirms acceptance without re-listing items.
+            return Ok(new BatchCreateRunResponse { Items = [] });
+        }
+
+        return Accepted(
+            new BatchCreateRunResponse
+            {
+                Items = [.. result.Items.Select(RunResponseMapper.ToBatchCreateRunItemResult)]
+            });
     }
 
     private const int BatchCreateRunMaxItems = 50;
+
+    /// <summary>Reads and length-validates the optional <c>Idempotency-Key</c> header.</summary>
+    private bool TryReadIdempotencyKeyHeader(out string? idempotencyKey, out IActionResult? badRequest)
+    {
+        idempotencyKey = null;
+        badRequest = null;
+
+        if (!Request.Headers.TryGetValue("Idempotency-Key", out StringValues rawKeyHeader))
+            return true;
+
+        string trimmedKey = rawKeyHeader.ToString().Trim();
+
+        if (trimmedKey.Length > ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength)
+        {
+            badRequest = this.BadRequestProblem(
+                $"Idempotency-Key must be at most {ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength} characters after trim.",
+                ProblemTypes.ValidationFailed);
+
+            return false;
+        }
+
+        idempotencyKey = trimmedKey.Length == 0 ? null : trimmedKey;
+
+        return true;
+    }
+
+    /// <summary>Fingerprints the whole submitted array so a retry with a different batch payload is rejected.</summary>
+    private CreateRunIdempotencyState? BuildBatchCreateRunIdempotency(
+        string? idempotencyKey,
+        IReadOnlyList<ArchitectureRequest> requests)
+    {
+        if (string.IsNullOrWhiteSpace(idempotencyKey))
+            return null;
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        return new CreateRunIdempotencyState(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            ArchitectureRunIdempotencyHashing.HashIdempotencyKey(idempotencyKey),
+            ArchitectureRunIdempotencyHashing.HashIdempotencyKey(JsonSerializer.Serialize(requests)));
+    }
 
     private CreateRunIdempotencyState? TryBuildCreateRunIdempotency(ArchitectureRequest request)
     {

@@ -238,6 +238,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<ICoverageQueryService, CoverageQueryService>();
         services.AddSingleton<CoverageAssignmentValidator>();
         services.AddScoped<IArchitectureRunCreateOrchestrator, ArchitectureRunCreateOrchestrator>();
+        services.AddScoped<IArchitectureRunBatchCreateOrchestrator, ArchitectureRunBatchCreateOrchestrator>();
         services.AddScoped<IArchitectureRunExecuteOrchestrator, ArchitectureRunExecuteOrchestrator>();
         services.Configure<RunExecuteOwnershipLeaseOptions>(
             configuration.GetSection(RunExecuteOwnershipLeaseOptions.SectionName));

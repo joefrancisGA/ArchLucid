@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState, type ReactElement } from "react";
 
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { TrialFunnelDemoReadinessVocabularyRail } from "@/components/TrialFunnelDemoReadinessVocabularyRail";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -337,7 +338,8 @@ export function TrialFunnelOpsPageClient(): ReactElement {
           </div>
         }
       />
-<div className="sr-only" role="status" aria-live="polite">
+      <TrialFunnelDemoReadinessVocabularyRail currentSurfaceId="trial-funnel" />
+      <div className="sr-only" role="status" aria-live="polite">
         {refreshAnnouncement}
       </div>
 

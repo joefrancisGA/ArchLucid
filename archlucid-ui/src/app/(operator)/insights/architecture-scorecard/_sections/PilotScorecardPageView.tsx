@@ -7,6 +7,7 @@ import { useMemo } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
+import { ScorecardRoiVocabularyRail } from "@/components/ScorecardRoiVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
 import { Button } from "@/components/ui/button";
@@ -155,6 +156,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
   return (
     <OperatorPageContainer variant="dashboard" className="space-y-4" data-testid="review-scorecard-page">
       <ValueReportOutcomesNav />
+      <ScorecardRoiVocabularyRail currentSurfaceId="scorecard" />
       <header className="space-y-2 border-b border-neutral-200 pb-4 dark:border-neutral-800">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-2">

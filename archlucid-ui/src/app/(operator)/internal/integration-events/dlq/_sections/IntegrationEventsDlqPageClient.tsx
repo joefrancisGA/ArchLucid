@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import { WebhooksVsDlqVocabularyRail } from "@/components/WebhooksVsDlqVocabularyRail";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -248,6 +249,7 @@ export function IntegrationEventsDlqPageClient() {
         <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Inspect outbound integration events that exceeded publish retries and requeue them after fixing the root cause.
         </p>
+        <WebhooksVsDlqVocabularyRail currentSurfaceId="dlq" />
         {!canMutate ? (
           <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Administrator access required to retry or suppress dead-letter rows.

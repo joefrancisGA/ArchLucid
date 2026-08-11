@@ -12,6 +12,7 @@ import {
 } from "@/components/operator-home/BuyerCtoDemoReadinessPanel";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { PageHeading } from "@/components/PageHeading";
+import { TrialFunnelDemoReadinessVocabularyRail } from "@/components/TrialFunnelDemoReadinessVocabularyRail";
 import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
@@ -107,6 +108,7 @@ export function DemoReadinessAdminPageClient(): React.JSX.Element {
           </Link>
         ) : null}
       </PageHeading>
+      <TrialFunnelDemoReadinessVocabularyRail currentSurfaceId="demo-readiness" />
       {demoOperatorToolingEnabled ? (
         <BuyerCtoDemoReadinessPanel
           layout="internal-page"

@@ -145,6 +145,9 @@ public static partial class ServiceCollectionExtensions
             services.AddSingleton<InMemoryRunScopedLlmBudgetReservationStore>();
             services.AddSingleton<IRunScopedLlmBudgetReservationStore>(sp =>
                 sp.GetRequiredService<InMemoryRunScopedLlmBudgetReservationStore>());
+            services.AddSingleton<InMemoryLlmMonthlyTenantBudgetReservationStore>();
+            services.AddSingleton<ILlmMonthlyTenantBudgetReservationStore>(sp =>
+                sp.GetRequiredService<InMemoryLlmMonthlyTenantBudgetReservationStore>());
             services.AddSingleton<InMemoryQuickScanDistributedConcurrencyStore>();
             services.AddSingleton<IQuickScanDistributedConcurrencyStore>(sp =>
                 sp.GetRequiredService<InMemoryQuickScanDistributedConcurrencyStore>());
@@ -168,6 +171,7 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IQuickScanIdentityAbuseStore, DapperQuickScanIdentityAbuseStore>();
         services.AddSingleton<IQuickScanSafetyOperationalStateStore, DapperQuickScanSafetyOperationalStateStore>();
         services.AddSingleton<IRunScopedLlmBudgetReservationStore, DapperRunScopedLlmBudgetReservationStore>();
+        services.AddSingleton<ILlmMonthlyTenantBudgetReservationStore, DapperLlmMonthlyTenantBudgetReservationStore>();
         services.AddScoped<IProjectRoleAssignmentRepository, ProjectRoleAssignmentRepository>();
         services.AddScoped<IAgentTaskRepository, AgentTaskRepository>();
         services.AddScoped<IAgentResultEnrichmentRepository, AgentResultEnrichmentRepository>();
