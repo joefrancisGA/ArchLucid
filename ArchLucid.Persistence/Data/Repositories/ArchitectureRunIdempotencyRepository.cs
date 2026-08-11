@@ -110,7 +110,7 @@ public sealed class ArchitectureRunIdempotencyRepository(IDbConnectionFactory co
                             ProjectId = projectId,
                             IdempotencyKeyHash = idempotencyKeyHash,
                             RequestFingerprint = requestFingerprint,
-                            RunId = RunChildRunScopeSql.ToSqlRunId(runId),
+                            RunId = SqlRunIdMapping.ToSqlRunId(runId),
                             CreatedUtc = createdUtc
                         },
                         transaction,

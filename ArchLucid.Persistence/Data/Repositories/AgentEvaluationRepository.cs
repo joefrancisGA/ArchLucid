@@ -102,7 +102,7 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
 
         IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
-            new { RunId = RunChildRunScopeSql.ToSqlRunId(runId) },
+            new { RunId = SqlRunIdMapping.ToSqlRunId(runId) },
             cancellationToken: cancellationToken));
 
         List<AgentEvaluationRecord> evaluations = [];
@@ -143,7 +143,7 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
     {
         await conn.ExecuteAsync(new CommandDefinition(
             deleteSql,
-            new { RunId = RunChildRunScopeSql.ToSqlRunId(runId) },
+            new { RunId = SqlRunIdMapping.ToSqlRunId(runId) },
             tx,
             cancellationToken: cancellationToken));
 
@@ -155,7 +155,7 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
                 new
                 {
                     e.EvaluationId,
-                    RunId = RunChildRunScopeSql.ToSqlRunId(e.RunId),
+                    RunId = SqlRunIdMapping.ToSqlRunId(e.RunId),
                     e.TargetAgentTaskId,
                     e.EvaluationType,
                     e.ConfidenceDelta,

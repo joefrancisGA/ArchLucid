@@ -53,7 +53,7 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
         IEnumerable<object> rows = tasks.Select(object (t) => new
         {
             t.TaskId,
-            RunId = RunChildRunScopeSql.ToSqlRunId(t.RunId),
+            RunId = SqlRunIdMapping.ToSqlRunId(t.RunId),
             AgentType = t.AgentType.ToString(),
             t.Objective,
             Status = t.Status.ToString(),
@@ -125,7 +125,7 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
             sql,
             new
             {
-                RunId = RunChildRunScopeSql.ToSqlRunId(runId),
+                RunId = SqlRunIdMapping.ToSqlRunId(runId),
                 scope.TenantId,
                 scope.WorkspaceId,
                 ScopeProjectId = scope.ProjectId,
@@ -137,7 +137,7 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
             .. rows.Select(r => new AgentTask
             {
                 TaskId = r.TaskId,
-                RunId = RunChildRunScopeSql.ToContractRunId(r.RunId),
+                RunId = SqlRunIdMapping.ToContractRunId(r.RunId),
                 AgentType = Enum.TryParse(r.AgentType, true, out AgentType agentType)
                     ? agentType
                     : throw new InvalidOperationException($"Unknown AgentType '{r.AgentType}' for task '{r.TaskId}'."),

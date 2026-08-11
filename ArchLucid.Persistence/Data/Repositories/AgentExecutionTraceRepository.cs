@@ -110,7 +110,7 @@ public sealed class AgentExecutionTraceRepository(
 
         object scopeArgs = new
         {
-            RunId = RunChildRunScopeSql.ToSqlRunId(trace.RunId),
+            RunId = SqlRunIdMapping.ToSqlRunId(trace.RunId),
             trace.TaskId,
             AgentType = trace.AgentType.ToString(),
             trace.AttemptIndex
@@ -134,7 +134,7 @@ public sealed class AgentExecutionTraceRepository(
             new
             {
                 trace.TraceId,
-                RunId = RunChildRunScopeSql.ToSqlRunId(trace.RunId),
+                RunId = SqlRunIdMapping.ToSqlRunId(trace.RunId),
                 trace.TaskId,
                 AgentType = trace.AgentType.ToString(),
                 trace.AttemptIndex,
@@ -607,7 +607,7 @@ public sealed class AgentExecutionTraceRepository(
             sql,
             new
             {
-                RunId = RunChildRunScopeSql.ToSqlRunId(runId),
+                RunId = SqlRunIdMapping.ToSqlRunId(runId),
                 scope.TenantId,
                 scope.WorkspaceId,
                 ScopeProjectId = scope.ProjectId,
@@ -641,7 +641,7 @@ public sealed class AgentExecutionTraceRepository(
                 sql,
                 new
                 {
-                    RunId = RunChildRunScopeSql.ToSqlRunId(runId),
+                    RunId = SqlRunIdMapping.ToSqlRunId(runId),
                     scope.TenantId,
                     scope.WorkspaceId,
                     ScopeProjectId = scope.ProjectId,
@@ -669,7 +669,7 @@ public sealed class AgentExecutionTraceRepository(
 
         RunChildRunScopeSql.RequireScope(scope);
 
-        Guid[] runIdsParameter = normalized.Select(RunChildRunScopeSql.ToSqlRunId).ToArray();
+        Guid[] runIdsParameter = normalized.Select(SqlRunIdMapping.ToSqlRunId).ToArray();
 
         string sql = $"""
                       SELECT t.RunId,
@@ -700,7 +700,7 @@ public sealed class AgentExecutionTraceRepository(
 
         foreach (LlmCostSliceRow row in rows)
         {
-            string contractRunId = RunChildRunScopeSql.ToContractRunId(row.RunId);
+            string contractRunId = SqlRunIdMapping.ToContractRunId(row.RunId);
 
             if (!grouped.TryGetValue(contractRunId, out List<AgentExecutionTraceLlmCostSlice>? list))
             {
@@ -759,7 +759,7 @@ public sealed class AgentExecutionTraceRepository(
             sql,
             new
             {
-                RunId = RunChildRunScopeSql.ToSqlRunId(runId),
+                RunId = SqlRunIdMapping.ToSqlRunId(runId),
                 scope.TenantId,
                 scope.WorkspaceId,
                 ScopeProjectId = scope.ProjectId,
@@ -807,7 +807,7 @@ public sealed class AgentExecutionTraceRepository(
             sql,
             new
             {
-                RunId = RunChildRunScopeSql.ToSqlRunId(runId),
+                RunId = SqlRunIdMapping.ToSqlRunId(runId),
                 scope.TenantId,
                 scope.WorkspaceId,
                 ScopeProjectId = scope.ProjectId,
@@ -846,7 +846,7 @@ public sealed class AgentExecutionTraceRepository(
             sql,
             new
             {
-                RunId = RunChildRunScopeSql.ToSqlRunId(runId),
+                RunId = SqlRunIdMapping.ToSqlRunId(runId),
                 scope.TenantId,
                 scope.WorkspaceId,
                 ScopeProjectId = scope.ProjectId,
@@ -918,7 +918,7 @@ public sealed class AgentExecutionTraceRepository(
         const string pattern = AgentExecutionTraceModelMetadata.LlmCompletionFallbackDeploymentPrefix + "%";
 
         // List<string> is globally mapped to JSON via ListStringTypeHandler, which prevents Dapper's IN-list expansion.
-        Guid[] runIdsParameter = normalized.Select(RunChildRunScopeSql.ToSqlRunId).ToArray();
+        Guid[] runIdsParameter = normalized.Select(SqlRunIdMapping.ToSqlRunId).ToArray();
 
         string sql = $"""
                       SELECT DISTINCT t.RunId, t.AgentType
@@ -960,7 +960,7 @@ public sealed class AgentExecutionTraceRepository(
 
         foreach (string rid in normalized)
         {
-            Guid runKey = RunChildRunScopeSql.ToSqlRunId(rid);
+            Guid runKey = SqlRunIdMapping.ToSqlRunId(rid);
 
             if (!grouped.TryGetValue(runKey, out List<string>? agents))
             {
@@ -1209,7 +1209,7 @@ public sealed class AgentExecutionTraceRepository(
         return new AgentExecutionTraceSummary
         {
             TraceId = row.TraceId,
-            RunId = RunChildRunScopeSql.ToContractRunId(row.RunId),
+            RunId = SqlRunIdMapping.ToContractRunId(row.RunId),
             TaskId = row.TaskId,
             AgentType = agentType,
             ParseSucceeded = row.ParseSucceeded,

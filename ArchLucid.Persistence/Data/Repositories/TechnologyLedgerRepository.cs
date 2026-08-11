@@ -65,7 +65,7 @@ public sealed class TechnologyLedgerRepository(IDbConnectionFactory connectionFa
             new
             {
                 entry.EntryId,
-                RunId = RunChildRunScopeSql.ToSqlRunId(entry.RunId),
+                RunId = SqlRunIdMapping.ToSqlRunId(entry.RunId),
                 Role = entry.Role.ToString(),
                 entry.TechnologyName,
                 ProviderFamily = entry.ProviderFamily.ToString(),
@@ -116,7 +116,7 @@ public sealed class TechnologyLedgerRepository(IDbConnectionFactory connectionFa
                 sql,
                 new
                 {
-                    RunId = RunChildRunScopeSql.ToSqlRunId(runId),
+                    RunId = SqlRunIdMapping.ToSqlRunId(runId),
                     scope.TenantId,
                     scope.WorkspaceId,
                     ScopeProjectId = scope.ProjectId,
@@ -169,7 +169,7 @@ public sealed class TechnologyLedgerRepository(IDbConnectionFactory connectionFa
     private static TechnologyLedgerEntry ToEntry(TechnologyLedgerEntryRow row) => new()
     {
         EntryId = row.EntryId,
-        RunId = RunChildRunScopeSql.ToContractRunId(row.RunId),
+        RunId = SqlRunIdMapping.ToContractRunId(row.RunId),
         Role = Enum.Parse<TechnologyLedgerRole>(row.Role),
         TechnologyName = row.TechnologyName,
         ProviderFamily = Enum.Parse<CloudProvider>(row.ProviderFamily),

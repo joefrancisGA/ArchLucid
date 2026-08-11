@@ -76,7 +76,7 @@ public sealed class AgentResultRepository(
         {
             result.ResultId,
             result.TaskId,
-            RunId = RunChildRunScopeSql.ToSqlRunId(result.RunId),
+            RunId = SqlRunIdMapping.ToSqlRunId(result.RunId),
             AgentType = result.AgentType.ToString(),
             result.Confidence,
             result.CalibratedConfidence,
@@ -218,7 +218,7 @@ public sealed class AgentResultRepository(
         {
             replacement.ResultId,
             replacement.TaskId,
-            RunId = RunChildRunScopeSql.ToSqlRunId(replacement.RunId),
+            RunId = SqlRunIdMapping.ToSqlRunId(replacement.RunId),
             AgentType = replacement.AgentType.ToString(),
             replacement.Confidence,
             replacement.CalibratedConfidence,
@@ -239,7 +239,7 @@ public sealed class AgentResultRepository(
             {
                 await conn.ExecuteAsync(new CommandDefinition(
                     deleteSql,
-                    new { RunId = RunChildRunScopeSql.ToSqlRunId(replacement.RunId), replacement.TaskId },
+                    new { RunId = SqlRunIdMapping.ToSqlRunId(replacement.RunId), replacement.TaskId },
                     transaction,
                     cancellationToken: cancellationToken));
 
@@ -253,7 +253,7 @@ public sealed class AgentResultRepository(
             {
                 await conn.ExecuteAsync(new CommandDefinition(
                     deleteSql,
-                    new { RunId = RunChildRunScopeSql.ToSqlRunId(replacement.RunId), replacement.TaskId },
+                    new { RunId = SqlRunIdMapping.ToSqlRunId(replacement.RunId), replacement.TaskId },
                     cancellationToken: cancellationToken));
 
                 await conn.ExecuteAsync(new CommandDefinition(
@@ -291,7 +291,7 @@ public sealed class AgentResultRepository(
         {
             await conn.ExecuteAsync(new CommandDefinition(
                 deleteSql,
-                new { RunId = RunChildRunScopeSql.ToSqlRunId(runId), TaskId = taskId },
+                new { RunId = SqlRunIdMapping.ToSqlRunId(runId), TaskId = taskId },
                 transaction,
                 cancellationToken: cancellationToken));
         }
@@ -330,7 +330,7 @@ public sealed class AgentResultRepository(
                 sql,
                 new
                 {
-                    RunId = RunChildRunScopeSql.ToSqlRunId(runId),
+                    RunId = SqlRunIdMapping.ToSqlRunId(runId),
                     scope.TenantId,
                     scope.WorkspaceId,
                     ScopeProjectId = scope.ProjectId,
@@ -405,7 +405,7 @@ public sealed class AgentResultRepository(
                     sql,
                     new
                     {
-                        RunId = RunChildRunScopeSql.ToSqlRunId(runId),
+                        RunId = SqlRunIdMapping.ToSqlRunId(runId),
                         scope.TenantId,
                         scope.WorkspaceId,
                         ScopeProjectId = scope.ProjectId,
@@ -429,7 +429,7 @@ public sealed class AgentResultRepository(
                 ResultId = row.ResultId,
                 TaskId = row.TaskId,
                 // SQL UNIQUEIDENTIFIER — map via Guid row type (string cast throws DataException).
-                RunId = RunChildRunScopeSql.ToContractRunId(row.RunId),
+                RunId = SqlRunIdMapping.ToContractRunId(row.RunId),
                 AgentType = agentType,
                 Confidence = row.Confidence,
                 CreatedUtc = row.CreatedUtc,
@@ -468,7 +468,7 @@ public sealed class AgentResultRepository(
                     sql,
                     new
                     {
-                        RunId = RunChildRunScopeSql.ToSqlRunId(runId),
+                        RunId = SqlRunIdMapping.ToSqlRunId(runId),
                         scope.TenantId,
                         scope.WorkspaceId,
                         ScopeProjectId = scope.ProjectId,
@@ -491,7 +491,7 @@ public sealed class AgentResultRepository(
             {
                 ResultId = row.ResultId,
                 TaskId = row.TaskId,
-                RunId = RunChildRunScopeSql.ToContractRunId(row.RunId),
+                RunId = SqlRunIdMapping.ToContractRunId(row.RunId),
                 AgentType = agentType,
                 Confidence = row.Confidence,
                 CreatedUtc = row.CreatedUtc,
@@ -741,7 +741,7 @@ public sealed class AgentResultRepository(
         return new EvidenceProposalListItem
         {
             ResultId = row.ResultId,
-            RunId = RunChildRunScopeSql.ToContractRunId(row.RunId),
+            RunId = SqlRunIdMapping.ToContractRunId(row.RunId),
             AgentType = row.AgentType,
             ProposedEvidenceJson = row.ProposedEvidenceJson,
             CreatedUtc = row.CreatedUtc,
@@ -809,7 +809,7 @@ public sealed class AgentResultRepository(
 
             parameters.Add($"ResultId{i}", result.ResultId);
             parameters.Add($"TaskId{i}", result.TaskId);
-            parameters.Add($"RunId{i}", RunChildRunScopeSql.ToSqlRunId(result.RunId));
+            parameters.Add($"RunId{i}", SqlRunIdMapping.ToSqlRunId(result.RunId));
             parameters.Add($"AgentType{i}", result.AgentType.ToString());
             parameters.Add($"Confidence{i}", result.Confidence);
             parameters.Add($"CalibratedConfidence{i}", result.CalibratedConfidence);

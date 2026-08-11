@@ -70,7 +70,7 @@ public sealed class DapperCoverageAssignmentRepository(IDbConnectionFactory conn
                 assignment.TenantId,
                 assignment.WorkspaceId,
                 assignment.ProjectId,
-                RunId = assignment.RunId is null ? (Guid?)null : RunChildRunScopeSql.ToSqlRunId(assignment.RunId),
+                RunId = assignment.RunId is null ? (Guid?)null : SqlRunIdMapping.ToSqlRunId(assignment.RunId),
                 assignment.PolicyPackId,
                 assignment.PolicyPackVersion,
                 CoverageType = assignment.CoverageType.ToString(),
@@ -128,7 +128,7 @@ public sealed class DapperCoverageAssignmentRepository(IDbConnectionFactory conn
                 sql,
                 new
                 {
-                    RunId = RunChildRunScopeSql.ToSqlRunId(runId),
+                    RunId = SqlRunIdMapping.ToSqlRunId(runId),
                     scope.TenantId,
                     scope.WorkspaceId,
                     ScopeProjectId = scope.ProjectId,
@@ -188,7 +188,7 @@ public sealed class DapperCoverageAssignmentRepository(IDbConnectionFactory conn
         TenantId = row.TenantId,
         WorkspaceId = row.WorkspaceId,
         ProjectId = row.ProjectId,
-        RunId = row.RunId is null ? null : RunChildRunScopeSql.ToContractRunId(row.RunId.Value),
+        RunId = row.RunId is null ? null : SqlRunIdMapping.ToContractRunId(row.RunId.Value),
         PolicyPackId = row.PolicyPackId,
         PolicyPackVersion = row.PolicyPackVersion,
         CoverageType = Enum.Parse<CoverageType>(row.CoverageType),
