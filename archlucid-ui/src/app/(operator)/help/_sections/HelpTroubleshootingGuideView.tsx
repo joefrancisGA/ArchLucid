@@ -3,6 +3,7 @@ import Link from "next/link";
 import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTroubleshootingAdvancedDiagnostics } from "@/app/(operator)/help/_sections/HelpTroubleshootingAdvancedDiagnostics";
+import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
 import { Button } from "@/components/ui/button";
@@ -218,22 +219,20 @@ export function HelpTroubleshootingGuideView(props: HelpTroubleshootingGuideView
             </Button>
           </section>
 
-          <details
+          <HelpLazyDetails
             id="advanced-diagnostics"
             className={cn(HELP_PAGE_LAYOUT.details, OPERATOR_SHELL_SCROLL_OFFSET_CLASS)}
             data-testid="troubleshooting-advanced-diagnostics"
+            summaryClassName={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}
+            summary="Advanced diagnostics"
+            bodyClassName={cn(HELP_PAGE_LAYOUT.detailsBody, "space-y-4")}
           >
-            <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>
-              Advanced diagnostics
-            </summary>
-            <div className={cn(HELP_PAGE_LAYOUT.detailsBody, "space-y-4")}>
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-                Technical checks for workspace administrators and support. Most users should start with the quick fixes
-                and decision tree above.
-              </p>
-              <HelpTroubleshootingAdvancedDiagnostics />
-            </div>
-          </details>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+              Technical checks for workspace administrators and support. Most users should start with the quick fixes
+              and decision tree above.
+            </p>
+            <HelpTroubleshootingAdvancedDiagnostics />
+          </HelpLazyDetails>
         </div>
 
         <HelpTopicTableOfContents headings={TROUBLESHOOTING_GUIDE_HEADINGS} />

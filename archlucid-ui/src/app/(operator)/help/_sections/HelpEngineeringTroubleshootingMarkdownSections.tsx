@@ -1,3 +1,4 @@
+import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { createHelpHeadingSlugAllocator, resolveHelpHeadingId } from "@/lib/help-heading-slug";
 import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
@@ -99,12 +100,12 @@ export function HelpEngineeringTroubleshootingMarkdownSections(
       ) : null}
 
       {sections.map((section) => (
-        <details
+        <HelpLazyDetails
           key={section.id}
           className={HELP_PAGE_LAYOUT.details}
           data-testid="help-engineering-troubleshooting-markdown-section"
-        >
-          <summary className={cn("cursor-pointer select-none", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
+          summaryClassName={cn("cursor-pointer select-none", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}
+          summary={
             <h2
               id={section.id}
               className={cn(
@@ -115,21 +116,23 @@ export function HelpEngineeringTroubleshootingMarkdownSections(
             >
               {section.title}
             </h2>
-          </summary>
-          <div className={HELP_PAGE_LAYOUT.detailsBody}>
-            {section.body.length > 0 ? (
-              <MarketingAccessibilityMarkdownFragment
-                markdownBody={section.body}
-                tableCaption={props.tableCaption}
-                presentation="help"
-                sourceDocPath={props.sourceDocPath}
-                helpTopicSlug={props.helpTopicSlug}
-                preserveMaintenanceMetadata
-                preparedMarkdownOverride={section.body}
-              />
-            ) : null}
-          </div>
-        </details>
+          }
+          bodyClassName={HELP_PAGE_LAYOUT.detailsBody}
+          // Section title ids live in the summary; avoid mounting every body on any page hash.
+          mountOnHash={false}
+        >
+          {section.body.length > 0 ? (
+            <MarketingAccessibilityMarkdownFragment
+              markdownBody={section.body}
+              tableCaption={props.tableCaption}
+              presentation="help"
+              sourceDocPath={props.sourceDocPath}
+              helpTopicSlug={props.helpTopicSlug}
+              preserveMaintenanceMetadata
+              preparedMarkdownOverride={section.body}
+            />
+          ) : null}
+        </HelpLazyDetails>
       ))}
     </div>
   );

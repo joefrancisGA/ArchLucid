@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/components/help/MermaidDiagram", () => ({
@@ -221,6 +221,9 @@ describe("HelpGettingStartedGuideView", () => {
     expect(within(pipelineDiagram).queryByText(BANNED_PRODUCT_NOUN_RUN)).not.toBeInTheDocument();
 
     const technical = screen.getByTestId("getting-started-technical-details");
+    expect(technical).toBeInstanceOf(HTMLDetailsElement);
+    technical.open = true;
+    fireEvent(technical, new Event("toggle", { bubbles: false }));
     expect(within(technical).getByText(/runId/i)).toBeInTheDocument();
   });
 });

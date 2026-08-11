@@ -3,6 +3,7 @@ import Link from "next/link";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpPathChooserEvaluatorSessionStrip } from "@/app/(operator)/help/_sections/HelpPathChooserEvaluatorSessionStrip";
 import { HelpPathChooserRelatedNextStepsLinks } from "@/app/(operator)/help/_sections/HelpPathChooserRelatedNextStepsLinks";
+import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
 import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -175,29 +176,27 @@ export function HelpPathChooserGuideView(props: HelpPathChooserGuideViewProps): 
             data-testid="help-path-chooser-content"
             id="reference-detail"
           >
-            <details
+            <HelpLazyDetails
               className="rounded-md border border-neutral-200 bg-neutral-50/60 p-3 dark:border-neutral-800 dark:bg-neutral-900/30"
               data-testid="help-path-chooser-reference-appendix"
+              summaryClassName={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+              summary="Buyer orientation reference (pass/hold, stop rules, deferred scope)"
+              preface={
+                <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  Collapsed by default so the first viewport stays an evaluator guide. Expand when you need pass/hold
+                  tables or stop-rule detail.
+                </p>
+              }
+              bodyClassName={cn("mt-4", HELP_PAGE_LAYOUT.contentColumn)}
             >
-              <summary
-                className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
-              >
-                Buyer orientation reference (pass/hold, stop rules, deferred scope)
-              </summary>
-              <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Collapsed by default so the first viewport stays an evaluator guide. Expand when you need pass/hold
-                tables or stop-rule detail.
-              </p>
-              <div className={cn("mt-4", HELP_PAGE_LAYOUT.contentColumn)}>
-                <MarketingAccessibilityMarkdownFragment
-                  markdownBody={markdown}
-                  tableCaption={`${entry.title} reference table`}
-                  presentation="help"
-                  sourceDocPath={sourceDocPath}
-                  helpTopicSlug={entry.slug}
-                />
-              </div>
-            </details>
+              <MarketingAccessibilityMarkdownFragment
+                markdownBody={markdown}
+                tableCaption={`${entry.title} reference table`}
+                presentation="help"
+                sourceDocPath={sourceDocPath}
+                helpTopicSlug={entry.slug}
+              />
+            </HelpLazyDetails>
           </section>
 
           <aside

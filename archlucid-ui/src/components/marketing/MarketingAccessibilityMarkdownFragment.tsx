@@ -3,6 +3,7 @@ import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_SHELL_SCROLL
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
 import { HelpMarkdownCodeBlock } from "@/components/help/HelpMarkdownCodeBlock";
 import { HelpMarkdownInlineCode } from "@/components/help/HelpMarkdownInlineCode";
 import { CaiqSigResponseHelpEvidenceCell } from "@/components/help/CaiqSigResponseHelpEvidenceCell";
@@ -350,24 +351,22 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
       const innerMarkdown = innerLines.join("\n").trim();
 
       blocks.push(
-        <details
+        <HelpLazyDetails
           key={`details-${key}`}
           className={isHelp ? HELP_PAGE_LAYOUT.details : "my-4 rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-950/40"}
+          summaryClassName={cn("cursor-pointer select-none", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}
+          summary={summary}
+          bodyClassName={isHelp ? HELP_PAGE_LAYOUT.detailsBody : "mt-3 border-t border-neutral-200 pt-3 dark:border-neutral-700"}
         >
-          <summary className={cn("cursor-pointer select-none", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
-            {summary}
-          </summary>
-          <div className={isHelp ? HELP_PAGE_LAYOUT.detailsBody : "mt-3 border-t border-neutral-200 pt-3 dark:border-neutral-700"}>
-            {innerMarkdown.length > 0 ? (
-              <MarketingAccessibilityMarkdownFragment
-                markdownBody={innerMarkdown}
-                tableCaption={props.tableCaption}
-                presentation={props.presentation}
-                sourceDocPath={props.sourceDocPath}
-              />
-            ) : null}
-          </div>
-        </details>,
+          {innerMarkdown.length > 0 ? (
+            <MarketingAccessibilityMarkdownFragment
+              markdownBody={innerMarkdown}
+              tableCaption={props.tableCaption}
+              presentation={props.presentation}
+              sourceDocPath={props.sourceDocPath}
+            />
+          ) : null}
+        </HelpLazyDetails>,
       );
       key++;
       continue;

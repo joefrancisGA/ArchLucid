@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
 import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
@@ -133,32 +134,28 @@ export function HelpConfigurationReferenceGuideView(
           </p>
         </aside>
 
-        <details
+        <HelpLazyDetails
           className="rounded-md border border-neutral-200 bg-neutral-50/60 p-3 dark:border-neutral-800 dark:bg-neutral-900/30"
           data-testid="help-configuration-reference-catalog-appendix"
+          summaryClassName={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+          summary="Full key catalog (Admin technical appendix)"
+          preface={
+            <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              Collapsed by default so the first viewport stays a task guide. Expand only when you need a specific key
+              name after using the settings CTAs above.
+            </p>
+          }
+          bodyClassName={cn(HELP_PAGE_LAYOUT.contentColumn, "mt-4")}
+          bodyTestId="help-configuration-reference-content"
         >
-          <summary
-            className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
-          >
-            Full key catalog (Admin technical appendix)
-          </summary>
-          <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Collapsed by default so the first viewport stays a task guide. Expand only when you need a specific key
-            name after using the settings CTAs above.
-          </p>
-          <div
-            className={cn(HELP_PAGE_LAYOUT.contentColumn, "mt-4")}
-            data-testid="help-configuration-reference-content"
-          >
-            <MarketingAccessibilityMarkdownFragment
-              markdownBody={markdown}
-              tableCaption={`${entry.title} reference table`}
-              presentation="help"
-              sourceDocPath={sourceDocPath}
-              helpTopicSlug={entry.slug}
-            />
-          </div>
-        </details>
+          <MarketingAccessibilityMarkdownFragment
+            markdownBody={markdown}
+            tableCaption={`${entry.title} reference table`}
+            presentation="help"
+            sourceDocPath={sourceDocPath}
+            helpTopicSlug={entry.slug}
+          />
+        </HelpLazyDetails>
       </div>
     </article>
   );

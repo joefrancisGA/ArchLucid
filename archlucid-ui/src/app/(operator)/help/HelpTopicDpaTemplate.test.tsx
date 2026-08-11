@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
@@ -135,5 +135,24 @@ describe("HelpDpaTemplateGuideView", () => {
 
     const allPrimaryStyled = container.querySelectorAll('[class*="--al-primary-action-bg"]');
     expect(allPrimaryStyled).toHaveLength(1);
+
+    expect(screen.queryByTestId("help-dpa-template-content")).toBeNull();
+  });
+
+  it("mounts the full DPA markdown body only after the disclosure opens", () => {
+    if (loaded === null) {
+      throw new Error("Expected dpa-template documentation to load.");
+    }
+
+    render(<HelpDpaTemplateGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    expect(screen.queryByTestId("help-dpa-template-content")).toBeNull();
+
+    const disclosure = screen.getByTestId("help-dpa-template-full-disclosure");
+    expect(disclosure).toBeInstanceOf(HTMLDetailsElement);
+    disclosure.open = true;
+    fireEvent(disclosure, new Event("toggle", { bubbles: false }));
+
+    expect(screen.getByTestId("help-dpa-template-content")).toBeInTheDocument();
   });
 });
