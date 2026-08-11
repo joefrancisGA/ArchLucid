@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { ItsmOutboundTriadClarityStrip } from "@/components/ItsmOutboundTriadClarityStrip";
 import {
   Dialog,
   DialogContent,
@@ -158,6 +159,8 @@ export function ItsmOutboundCreateIssueDialog({
               {ITSM_TICKET_LINKAGE_CREATE_INTRO} {ITSM_TICKET_LINKAGE_DUPLICATE_BLOCKED}
             </DialogDescription>
           </DialogHeader>
+
+          <ItsmOutboundTriadClarityStrip className="mb-0" />
 
           <div className="space-y-4">
             <div className="space-y-2">

@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
+import { ItsmOutboundTriadClarityStrip } from "@/components/ItsmOutboundTriadClarityStrip";
 import { FindingCorrelationVocabularyDisambiguation } from "@/components/FindingCorrelationVocabularyDisambiguation";
 import { ITSM_TICKET_LINKAGE_CREATE_INTRO, ITSM_TICKET_LINKAGE_DUPLICATE_BLOCKED } from "@/lib/finding-correlation-vocabulary";
 import { FINDING_ITSM_HUMAN_REVIEW_STATUS_CAPTION } from "@/lib/finding-human-review-display";
@@ -14,7 +15,7 @@ export type FindingInspectItsmWorkflowPanelProps = {
   readonly humanReviewStatusLabel?: string | null;
 };
 
-/** TB-063: ITSM workflow on finding inspect. TB-387: one-click create gated; inbound sync + correlations remain. */
+/** TB-063: ITSM workflow on finding inspect. TB-387: one-click create gated; inbound sync + correlations remain. TB-2236: triad clarity. */
 export function FindingInspectItsmWorkflowPanel({
   findingId,
   humanReviewStatusLabel = null,
@@ -24,6 +25,7 @@ export function FindingInspectItsmWorkflowPanel({
   if (!nativeCreateEnabled && !humanReviewStatusLabel) {
     return (
       <div className="space-y-3">
+        <ItsmOutboundTriadClarityStrip />
         <ItsmOutboundQuickActions findingId={findingId} />
         <FindingCorrelationVocabularyDisambiguation testId="finding-inspect-correlation-vocabulary" />
       </div>
@@ -38,6 +40,7 @@ export function FindingInspectItsmWorkflowPanel({
         </CardTitle>
       </CardHeader>
       <CardContent className={cn("space-y-3", OPERATOR_TYPOGRAPHY.body)}>
+        <ItsmOutboundTriadClarityStrip />
         {humanReviewStatusLabel ? (
           <div className={cn("space-y-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             <p className="m-0">
