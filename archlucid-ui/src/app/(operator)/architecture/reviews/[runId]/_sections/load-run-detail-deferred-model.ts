@@ -76,7 +76,7 @@ export async function loadRunDetailBelowFoldPipelineModel(
 ): Promise<
   Pick<
     RunDetailBelowFoldDeferredModel,
-    "pipelineTimelineForUi" | "pipelineTimelineFailure" | "stageTimelineForUi"
+    "pipelineTimelineForUi" | "pipelineTimelineAllForPackageChanges" | "pipelineTimelineFailure" | "stageTimelineForUi"
   >
 > {
   return loadPipelineTimelineSections(context);
@@ -185,7 +185,7 @@ async function loadPipelineTimelineSections(
 ): Promise<
   Pick<
     RunDetailBelowFoldDeferredModel,
-    "pipelineTimelineForUi" | "pipelineTimelineFailure" | "stageTimelineForUi"
+    "pipelineTimelineForUi" | "pipelineTimelineAllForPackageChanges" | "pipelineTimelineFailure" | "stageTimelineForUi"
   >
 > {
   // Pipeline + stage timelines share a runId but do not depend on each other (TB-2027).
@@ -196,6 +196,7 @@ async function loadPipelineTimelineSections(
 
   return {
     pipelineTimelineForUi: pipelineSettled.pipelineTimelineForUi,
+    pipelineTimelineAllForPackageChanges: pipelineSettled.pipelineTimelineAllForPackageChanges,
     pipelineTimelineFailure: pipelineSettled.pipelineTimelineFailure,
     stageTimelineForUi: stageSettled,
   };
@@ -204,7 +205,7 @@ async function loadPipelineTimelineSections(
 async function loadPipelineTimelineOnly(
   context: RunDetailDeferredLoadContext,
 ): Promise<
-  Pick<RunDetailBelowFoldDeferredModel, "pipelineTimelineForUi" | "pipelineTimelineFailure">
+  Pick<RunDetailBelowFoldDeferredModel, "pipelineTimelineForUi" | "pipelineTimelineAllForPackageChanges" | "pipelineTimelineFailure">
 > {
   let pipelineTimeline: PipelineTimelineItem[] | null = null;
   let pipelineTimelineFailure: ApiLoadFailureState | null = null;
@@ -239,6 +240,7 @@ async function loadPipelineTimelineOnly(
 
   return {
     pipelineTimelineForUi,
+    pipelineTimelineAllForPackageChanges: pipelineTimeline,
     pipelineTimelineFailure,
   };
 }

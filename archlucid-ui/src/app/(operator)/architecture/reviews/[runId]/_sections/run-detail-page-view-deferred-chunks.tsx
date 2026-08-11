@@ -633,6 +633,14 @@ export const RunDetailReviewPackageDoThisNextResolvedDeferred = dynamic(
 );
 
 /** Perf wave 14 — sponsor handoff gate off sync First Load JS. */
+export const RunDetailPackageChangesSinceFinalizeDeferred = dynamic(
+  () =>
+    import("./RunDetailPackageChangesSinceFinalizeSection").then(
+      (module) => module.RunDetailPackageChangesSinceFinalizeSection,
+    ),
+  { ssr: false, loading: () => null },
+);
+
 export const RunDetailReviewPackageSponsorHandoffGateDeferred = dynamic(
   () =>
     import("./RunDetailReviewPackageSponsorHandoffGate").then(

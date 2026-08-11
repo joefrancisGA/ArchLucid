@@ -64,6 +64,7 @@ import {
   RunDetailCreateHomeEvidencePanelDeferred,
   RunDetailReviewPackageDoThisNextResolvedDeferred,
   RunDetailReviewPackageSponsorHandoffGateDeferred,
+  RunDetailPackageChangesSinceFinalizeDeferred,
   RunDetailWorkspaceHeaderDeferred,
   RunDetailWorkspaceBlockingBannerDeferred,
   RunDetailWorkspaceSummaryStripDeferred,
@@ -673,6 +674,16 @@ export async function RunDetailPageView(props: {
                   completedUtc={m.resolvedDetail.run.completedUtc}
                 />
               ) : null}
+              {m.manifestId ? (
+                <RunDetailPackageChangesSinceFinalizeDeferred
+                  runId={m.routeRunId}
+                  finalizeUtc={
+                    m.manifestSummaryForUi?.createdUtc?.trim() ||
+                    m.manifestSummary?.createdUtc?.trim() ||
+                    null
+                  }
+                />
+              ) : null}
               {showDemoMarketingChrome ? sampleReviewPackageSummaryEl : null}
               {!m.buyerPolishedArtifactTable ? (
                 <div className={cn("flex flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)}>
@@ -703,7 +714,7 @@ export async function RunDetailPageView(props: {
           architecture: architectureTabPanelEl,
           activity: (
             <div className="space-y-4">
-              <RunDetailActivityTabSectionNav />
+              <RunDetailActivityTabSectionNav hasManifestId={Boolean(m.manifestId)} />
               {!m.manifestId && m.showProgressTracker ? (
                 <div id="pipeline-timeline" className="scroll-mt-24">
                   <RunDetailProgressTrackerDeferred runId={m.routeRunId} initialSummary={m.progressForPipelineUi} />

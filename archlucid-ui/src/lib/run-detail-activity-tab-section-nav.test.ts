@@ -17,6 +17,20 @@ describe("buildRunDetailActivityTabSections", () => {
     ]);
   });
 
+  it("includes post-finalize package changes when manifest is present", () => {
+    const sections = buildRunDetailActivityTabSections({
+      buyerPolishedArtifactTable: true,
+      authorityChainLabel: "",
+      hasManifestId: true,
+    });
+
+    expect(sections.map((section) => section.id)).toEqual([
+      "pipeline-timeline",
+      "pipeline-stages",
+      "package-changes-since-finalize",
+    ]);
+  });
+
   it("omits diagnostics on buyer-polished activity tab", () => {
     const sections = buildRunDetailActivityTabSections({
       buyerPolishedArtifactTable: true,

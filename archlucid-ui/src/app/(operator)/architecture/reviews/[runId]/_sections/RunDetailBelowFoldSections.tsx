@@ -14,6 +14,7 @@ import { RunDetailAdvancedAnalysisSection } from "./RunDetailAdvancedAnalysisSec
 import { RunDetailManifestSummaryAlerts } from "./RunDetailManifestSummaryAlerts";
 import { RunDetailOperatorPipelineToolsCollapsible } from "./RunDetailOperatorPipelineToolsCollapsible";
 import { RunDetailOperatorTechnicalFooter } from "./RunDetailOperatorTechnicalFooter";
+import { PackageChangesSinceFinalizePanel } from "@/components/PackageChangesSinceFinalizePanel";
 import { RunDetailPipelineTimelineSection } from "./RunDetailPipelineTimelineSection";
 import { RunDetailPipelineStagesSection } from "./RunDetailPipelineStagesSection";
 import { RunDetailPreFinalizedEmptyState } from "./RunDetailPreFinalizedEmptyState";
@@ -302,6 +303,11 @@ async function RunDetailBelowFoldPipelineAsync(props: BelowFoldAsyncProps): Prom
   const m = props.model;
   const pipeline = await loadRunDetailBelowFoldPipelineModel(props.context);
 
+  const finalizeUtc =
+    m.manifestSummaryForUi?.createdUtc?.trim() ||
+    m.manifestSummary?.createdUtc?.trim() ||
+    null;
+
   return (
     <>
       <RunDetailPipelineTimelineSection
@@ -310,6 +316,13 @@ async function RunDetailBelowFoldPipelineAsync(props: BelowFoldAsyncProps): Prom
         pipelineTimelineFailure={pipeline.pipelineTimelineFailure}
         pipelineTimelineForUi={pipeline.pipelineTimelineForUi}
       />
+
+      {m.manifestId ? (
+        <PackageChangesSinceFinalizePanel
+          events={pipeline.pipelineTimelineAllForPackageChanges}
+          finalizeUtc={finalizeUtc}
+        />
+      ) : null}
 
       <RunDetailPipelineStagesSection
         stageTimeline={pipeline.stageTimelineForUi}
