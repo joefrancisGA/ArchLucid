@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import { AiUsageBillingVocabularyRail } from "@/components/AiUsageBillingVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { OPERATOR_BILLING_PAGE_LEAD } from "@/lib/marketing/marketing-public-pricing";
@@ -19,7 +20,7 @@ export function OperatorBillingSettingsClient(props: { readonly initialPlanId?: 
   const canMutate = useNavCallerAuthorityRank() >= AUTHORITY_RANK.AdminAuthority;
 
   return (
-    <div className="w-full max-w-[1440px] space-y-8 px-4 py-8" data-testid="operator-billing-plans-page">
+    <div className="w-full max-w-[1440px] space-y-4 p-4" data-testid="operator-billing-plans-page">
       <header className="space-y-2">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0 flex-1 space-y-2">
@@ -29,6 +30,7 @@ export function OperatorBillingSettingsClient(props: { readonly initialPlanId?: 
           <PageContextualHelpButton />
         </div>
       </header>
+      <AiUsageBillingVocabularyRail currentSurfaceId="billing" />
 <OperatorBillingPaymentPastDueBanner canMutate={canMutate} />
 
       <OperatorBillingCurrentPlanSummary />
