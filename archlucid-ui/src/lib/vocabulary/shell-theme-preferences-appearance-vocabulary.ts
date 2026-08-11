@@ -15,6 +15,13 @@
 
 import { SETTINGS_PREFERENCES_PATH } from "@/lib/settings-admin-route-paths";
 
+/**
+ * Shell ColorModeToggle has no dedicated route (chrome control only).
+ * Hash is documentation/symmetry for Link-shaped models — peer resolution
+ * never returns the shell link from Preferences (links=[]).
+ */
+export const SHELL_THEME_TOGGLE_NO_ROUTE_HREF = "#shell-theme-toggle" as const;
+
 export type ShellThemePreferencesAppearanceSurfaceId =
   | "shell-theme-toggle"
   | "preferences-appearance";
@@ -52,7 +59,7 @@ export const SHELL_THEME_PREFERENCES_APPEARANCE_SHELL_LINK: ShellThemePreference
   {
     id: "shell-theme-toggle",
     label: "Shell theme toggle",
-    href: SETTINGS_PREFERENCES_PATH,
+    href: SHELL_THEME_TOGGLE_NO_ROUTE_HREF,
     whenToUse: "Cycle light, dark, or system appearance quickly from the top bar.",
   };
 
