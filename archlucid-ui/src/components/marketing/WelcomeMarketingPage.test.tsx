@@ -16,6 +16,7 @@ import {
   WELCOME_HERO_DIFFERENTIATORS,
   WELCOME_HERO_PITCH,
   WELCOME_PAGE_METADATA_TITLE,
+  WELCOME_PRIMARY_CONVERSION_PATH,
   WELCOME_SEE_IT_CTA_LABEL,
   WELCOME_SEE_IT_HREF,
   WELCOME_WORKFLOW_STEPS,
@@ -112,12 +113,11 @@ describe("WelcomeMarketingPage", () => {
     });
   });
 
-  it("TB-1294/1295: hero budget — one primary conversion CTA and one secondary proof CTA above the fold", () => {
+  it("TB-1294: hero budget — pitch and CTAs stay inside the hero band without differentiator bullets", () => {
     renderWelcomePage();
 
     const heroBand = screen.getByTestId("welcome-hero-band");
     const heroStack = screen.getByTestId("welcome-hero-cta-stack");
-    const primaryRow = screen.getByTestId("welcome-hero-primary-secondary-row");
 
     expect(within(heroBand).queryByTestId("welcome-hero-differentiators")).not.toBeInTheDocument();
     expect(within(heroStack).queryByTestId("welcome-hero-cta-subheading")).not.toBeInTheDocument();
@@ -125,6 +125,14 @@ describe("WelcomeMarketingPage", () => {
     expect(within(heroStack).queryByTestId("welcome-hero-tertiary-region")).not.toBeInTheDocument();
     expect(within(heroStack).queryByTestId("welcome-hero-secondary-actions")).not.toBeInTheDocument();
     expect(within(heroStack).queryByRole("button", { name: /join early access/i })).not.toBeInTheDocument();
+  });
+
+  it("TB-1295: single primary conversion path in the hero CTA row", () => {
+    renderWelcomePage();
+
+    expect(WELCOME_PRIMARY_CONVERSION_PATH).toBe("self-demo");
+
+    const primaryRow = screen.getByTestId("welcome-hero-primary-secondary-row");
 
     expect(within(primaryRow).getByTestId("welcome-self-demo-cta")).toBeInTheDocument();
     expect(within(primaryRow).getByTestId("welcome-hero-see-it-cta")).toHaveAttribute("href", WELCOME_SEE_IT_HREF);
@@ -134,6 +142,21 @@ describe("WelcomeMarketingPage", () => {
   it("TB-1294: exports a branded metadata title beyond bare Welcome", () => {
     expect(WELCOME_PAGE_METADATA_TITLE).toContain("ArchLucid");
     expect(WELCOME_PAGE_METADATA_TITLE.toLowerCase()).not.toBe("welcome");
+  });
+
+  it("TB-1296: proof ladder lives below the hero with see-it secondary in hero", () => {
+    renderWelcomePage();
+
+    const heroBand = screen.getByTestId("welcome-hero-band");
+    const proofLadder = screen.getByTestId("welcome-proof-ladder");
+
+    expect(within(heroBand).getByTestId("welcome-hero-see-it-cta")).toHaveAttribute("href", WELCOME_SEE_IT_HREF);
+    expect(within(heroBand).queryByTestId("welcome-proof-ladder")).not.toBeInTheDocument();
+    expect(within(proofLadder).getByRole("link", { name: WELCOME_SEE_IT_CTA_LABEL })).toHaveAttribute("href", WELCOME_SEE_IT_HREF);
+    expect(within(proofLadder).getByRole("link", { name: /retail sample roi/i })).toHaveAttribute(
+      "href",
+      "/WORKED_EXAMPLE_ROI.pdf",
+    );
   });
 
   it("TB-1296/1298: demoted engagement paths + honest see-it copy (no 30-second claim)", () => {
