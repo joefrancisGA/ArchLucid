@@ -94,8 +94,8 @@ public sealed class RunScopedLlmBudgetReservationService(
             return RunScopedLlmBudgetAdmitResult.PassThrough();
         }
 
+        string periodKey = await _budgetRepository.GetSqlUtcMonthlyPeriodKeyAsync(cancellationToken).ConfigureAwait(false);
         DateTimeOffset utcNow = _timeProvider.GetUtcNow();
-        string periodKey = FormatUtcMonthKey(utcNow.UtcDateTime);
 
         try
         {
@@ -182,7 +182,4 @@ public sealed class RunScopedLlmBudgetReservationService(
 
         return _reservationStore.ReleaseAsync(reservationId, cancellationToken);
     }
-
-    private static string FormatUtcMonthKey(DateTime utc) =>
-        string.Format(CultureInfo.InvariantCulture, "{0:0000}-{1:00}", utc.Year, utc.Month);
 }

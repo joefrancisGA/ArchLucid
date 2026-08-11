@@ -250,6 +250,24 @@ public static class ArchLucidInstrumentation
             "archlucid_llm_quota_exceeded_total",
             description: "LLM calls rejected by tenant token quota or daily budget before outbound completion.");
 
+    /// <summary>Monthly USD reserve admission denied due to concurrent in-flight reservation ceiling (TB-977).</summary>
+    public static readonly Counter<long> LlmMonthlyBudgetAdmissionBlockedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_monthly_budget_admission_blocked_total",
+            description: "Monthly USD reserve admission denied due to concurrent in-flight reservation ceiling (TB-977).");
+
+    /// <summary>Monthly USD reserve/settle used SQL-authoritative period remap (TB-977).</summary>
+    public static readonly Counter<long> LlmMonthlyBudgetPeriodRemapTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_monthly_budget_period_remap_total",
+            description: "Monthly USD reserve/settle observed caller/SQL UTC month mismatch (TB-977).");
+
+    /// <summary>Monthly USD reserve/settle optimistic concurrency retries exhausted (TB-977).</summary>
+    public static readonly Counter<long> LlmMonthlyBudgetOptimisticRetryExhaustedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_monthly_budget_optimistic_retry_exhausted_total",
+            description: "Monthly USD reserve/settle optimistic concurrency retries exhausted (TB-977).");
+
     /// <summary>Judge paths skipped fail-open when the isolated judge UTC-day token pool is exhausted (TB-190).</summary>
     public static readonly Counter<long> LlmJudgeBudgetExhaustedTotal =
         AppMeter.CreateCounter<long>(

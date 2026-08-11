@@ -74,6 +74,17 @@ public sealed partial class SqlLlmTenantBudgetRepository(IDbConnectionFactory co
         };
     }
 
+    /// <inheritdoc />
+    public async Task<string> GetSqlUtcMonthlyPeriodKeyAsync(CancellationToken cancellationToken = default)
+    {
+        using IDbConnection connection =
+            await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+        (int utcYear, int utcMonth) = await ReadSqlUtcYearMonthAsync(connection, cancellationToken).ConfigureAwait(false);
+
+        return FormatUtcYearMonth(utcYear, utcMonth);
+    }
+
     private async Task<LlmTenantBudgetStateReadModel> GetOrCreateDailyAsync(
         Guid tenantId,
         string periodKey,
@@ -251,8 +262,15 @@ public sealed partial class SqlLlmTenantBudgetRepository(IDbConnectionFactory co
         if (request.HardCapUsd is null)
             throw new ArgumentException("HardCapUsd is required for monthly reserve.", nameof(request));
 
-        (int utcYear, int utcMonth) = ParseUtcYearMonth(request.PeriodKey);
-        ValidateUtcYearMonth(utcYear, utcMonth);
+        using IDbConnection connection =
+            await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+        (int sqlYear, int sqlMonth) = await ReadSqlUtcYearMonthAsync(connection, cancellationToken).ConfigureAwait(false);
+        (int requestYear, int requestMonth) = ParseUtcYearMonth(request.PeriodKey);
+        bool periodKeyMismatch = requestYear != sqlYear || requestMonth != sqlMonth;
+        string authoritativePeriodKey = FormatUtcYearMonth(sqlYear, sqlMonth);
+
+        await EnsureMonthlyRowAsync(connection, request.TenantId, sqlYear, sqlMonth, cancellationToken).ConfigureAwait(false);
 
         const string sql = """
                            UPDATE dbo.LlmMonthlyTenantBudgetState
@@ -265,9 +283,6 @@ public sealed partial class SqlLlmTenantBudgetRepository(IDbConnectionFactory co
                              AND SpentUsd + ReservedAssumedUsd + @Add <= @HardCap;
                            """;
 
-        using IDbConnection connection =
-            await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-
         int affected = await connection
             .ExecuteAsync(
                 new CommandDefinition(
@@ -275,8 +290,8 @@ public sealed partial class SqlLlmTenantBudgetRepository(IDbConnectionFactory co
                     new
                     {
                         request.TenantId,
-                        UtcYear = utcYear,
-                        UtcMonth = utcMonth,
+                        UtcYear = sqlYear,
+                        UtcMonth = sqlMonth,
                         Add = request.ReserveUsd,
                         RowVersion = request.ExpectedRowVersion,
                         HardCap = request.HardCapUsd.Value
@@ -285,21 +300,42 @@ public sealed partial class SqlLlmTenantBudgetRepository(IDbConnectionFactory co
             .ConfigureAwait(false);
 
         if (affected != 1)
-            return await ClassifyMonthlyReserveFailureAsync(
+        {
+            LlmTenantBudgetReserveResult failure = await ClassifyMonthlyReserveFailureAsync(
                 request.TenantId,
-                utcYear,
-                utcMonth,
+                sqlYear,
+                sqlMonth,
                 request.ExpectedRowVersion,
                 request.ReserveUsd,
                 request.HardCapUsd.Value,
                 cancellationToken).ConfigureAwait(false);
 
+            if (periodKeyMismatch)
+            {
+                return new LlmTenantBudgetReserveResult
+                {
+                    ConcurrencyConflict = failure.ConcurrencyConflict,
+                    HardCapBlocked = failure.HardCapBlocked,
+                    NewState = failure.NewState,
+                    PeriodKeyMismatch = true,
+                    AuthoritativePeriodKey = authoritativePeriodKey
+                };
+            }
+
+            return failure;
+        }
+
         LlmTenantBudgetStateReadModel model =
-            await SelectMonthlyAsync(connection, request.TenantId, utcYear, utcMonth, cancellationToken)
+            await SelectMonthlyAsync(connection, request.TenantId, sqlYear, sqlMonth, cancellationToken)
                 .ConfigureAwait(false)
             ?? throw new InvalidOperationException("Monthly budget row missing after reserve.");
 
-        return new LlmTenantBudgetReserveResult { NewState = model };
+        return new LlmTenantBudgetReserveResult
+        {
+            NewState = model,
+            PeriodKeyMismatch = periodKeyMismatch,
+            AuthoritativePeriodKey = periodKeyMismatch ? authoritativePeriodKey : null
+        };
 
     }
 
@@ -421,18 +457,29 @@ public sealed partial class SqlLlmTenantBudgetRepository(IDbConnectionFactory co
         LlmTenantBudgetSettleRequest request,
         CancellationToken cancellationToken)
     {
-        (int utcYear, int utcMonth) = ParseUtcYearMonth(request.PeriodKey);
-        ValidateUtcYearMonth(utcYear, utcMonth);
+        using IDbConnection connection =
+            await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+        (int sqlYear, int sqlMonth) = await ReadSqlUtcYearMonthAsync(connection, cancellationToken).ConfigureAwait(false);
+        (int mintedYear, int mintedMonth) = ParseUtcYearMonth(request.PeriodKey);
+        ValidateUtcYearMonth(mintedYear, mintedMonth);
+        bool periodKeyMismatch = mintedYear != sqlYear || mintedMonth != sqlMonth;
+        string authoritativePeriodKey = FormatUtcYearMonth(sqlYear, sqlMonth);
 
         if (request is { ActualUsd: 0m, ReleaseReservedUsd: 0m })
         {
-            using IDbConnection c = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
             LlmTenantBudgetStateReadModel? cur =
-                await SelectMonthlyAsync(c, request.TenantId, utcYear, utcMonth, cancellationToken).ConfigureAwait(false);
+                await SelectMonthlyAsync(connection, request.TenantId, mintedYear, mintedMonth, cancellationToken)
+                    .ConfigureAwait(false);
 
             return cur is null
                 ? new LlmTenantBudgetSettleResult { ConcurrencyConflict = true }
-                : new LlmTenantBudgetSettleResult { NewState = cur };
+                : new LlmTenantBudgetSettleResult
+                {
+                    NewState = cur,
+                    PeriodKeyMismatch = periodKeyMismatch,
+                    AuthoritativePeriodKey = periodKeyMismatch ? authoritativePeriodKey : null
+                };
         }
 
         const string sql = """
@@ -456,9 +503,6 @@ public sealed partial class SqlLlmTenantBudgetRepository(IDbConnectionFactory co
                              AND ReservedAssumedUsd >= @Release;
                            """;
 
-        using IDbConnection connection =
-            await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-
         MonthlySettleOutput? output = await connection
             .QuerySingleOrDefaultAsync<MonthlySettleOutput>(
                 new CommandDefinition(
@@ -466,8 +510,8 @@ public sealed partial class SqlLlmTenantBudgetRepository(IDbConnectionFactory co
                     new
                     {
                         request.TenantId,
-                        UtcYear = utcYear,
-                        UtcMonth = utcMonth,
+                        UtcYear = mintedYear,
+                        UtcMonth = mintedMonth,
                         Actual = request.ActualUsd,
                         Release = request.ReleaseReservedUsd,
                         WarnAt = request.WarnAtUsd,
@@ -480,7 +524,7 @@ public sealed partial class SqlLlmTenantBudgetRepository(IDbConnectionFactory co
             return new LlmTenantBudgetSettleResult { ConcurrencyConflict = true };
 
         LlmTenantBudgetStateReadModel model =
-            await SelectMonthlyAsync(connection, request.TenantId, utcYear, utcMonth, cancellationToken)
+            await SelectMonthlyAsync(connection, request.TenantId, mintedYear, mintedMonth, cancellationToken)
                 .ConfigureAwait(false)
             ?? throw new InvalidOperationException("Monthly budget row missing after settle.");
 
@@ -490,7 +534,9 @@ public sealed partial class SqlLlmTenantBudgetRepository(IDbConnectionFactory co
         {
             ConcurrencyConflict = false,
             NewState = model,
-            ShouldEmitWarnAudit = shouldAudit
+            ShouldEmitWarnAudit = shouldAudit,
+            PeriodKeyMismatch = periodKeyMismatch,
+            AuthoritativePeriodKey = periodKeyMismatch ? authoritativePeriodKey : null
         };
     }
 
@@ -563,6 +609,62 @@ public sealed partial class SqlLlmTenantBudgetRepository(IDbConnectionFactory co
         int m = int.Parse(parts[1], CultureInfo.InvariantCulture);
 
         return (y, m);
+    }
+
+    private static string FormatUtcYearMonth(int utcYear, int utcMonth) =>
+        string.Format(CultureInfo.InvariantCulture, "{0:0000}-{1:00}", utcYear, utcMonth);
+
+    private static async Task<(int Year, int Month)> ReadSqlUtcYearMonthAsync(
+        IDbConnection connection,
+        CancellationToken cancellationToken)
+    {
+        const string sql = "SELECT YEAR(SYSUTCDATETIME()) AS UtcYear, MONTH(SYSUTCDATETIME()) AS UtcMonth;";
+
+        (int Year, int Month) row = await connection
+            .QuerySingleAsync<(int Year, int Month)>(new CommandDefinition(sql, cancellationToken: cancellationToken))
+            .ConfigureAwait(false);
+
+        ValidateUtcYearMonth(row.Year, row.Month);
+
+        return row;
+    }
+
+    private static async Task EnsureMonthlyRowAsync(
+        IDbConnection connection,
+        Guid tenantId,
+        int utcYear,
+        int utcMonth,
+        CancellationToken cancellationToken)
+    {
+        LlmTenantBudgetStateReadModel? row =
+            await SelectMonthlyAsync(connection, tenantId, utcYear, utcMonth, cancellationToken).ConfigureAwait(false);
+
+        if (row is not null)
+            return;
+
+        const string insert = """
+                              INSERT INTO dbo.LlmMonthlyTenantBudgetState (TenantId, UtcYear, UtcMonth, SpentUsd, ReservedAssumedUsd, PurchasedCapBumpUsd, WarnedApproaching, LastUpdatedUtc)
+                              VALUES (@TenantId, @UtcYear, @UtcMonth, 0, 0, 0, 0, SYSUTCDATETIME());
+                              """;
+
+        try
+        {
+            await connection
+                .ExecuteAsync(
+                    new CommandDefinition(
+                        insert,
+                        new
+                        {
+                            TenantId = tenantId,
+                            UtcYear = utcYear,
+                            UtcMonth = utcMonth
+                        },
+                        cancellationToken: cancellationToken))
+                .ConfigureAwait(false);
+        }
+        catch (SqlException ex) when (ex.Number is 2601 or 2627)
+        {
+        }
     }
 
     private static void ValidateUtcYearMonth(int utcYear, int utcMonth)
