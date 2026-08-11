@@ -13,7 +13,43 @@ export const PATH_CHOOSER_HELP_OVERVIEW =
 export const PATH_CHOOSER_HELP_ACTION_PANEL_TITLE = "Common next steps";
 
 export const PATH_CHOOSER_HELP_ACTION_PANEL_INTRO =
-  "When you already know your goal, start here — otherwise use Choose by goal below for primary and alternate routes.";
+  "When you already know your goal, start here — otherwise use the evaluator session steps or Choose by goal below for primary and alternate routes.";
+
+export type PathChooserHelpEvaluatorSessionStep = {
+  readonly title: string;
+  readonly body: string;
+  readonly action: { readonly label: string; readonly href: string };
+};
+
+/** Four-step evaluator session flow — absorbs former `/help/evaluator-workbook` chrome (TB-1345 / TB-1348). */
+export const PATH_CHOOSER_HELP_EVALUATOR_SESSION_STEPS: readonly PathChooserHelpEvaluatorSessionStep[] = [
+  {
+    title: "Read executive summary expectations",
+    body: "Understand the outcome story before you run a review or brief sponsors.",
+    action: { label: "Executive summary", href: inAppHelpHref("executive-summary") },
+  },
+  {
+    title: "Start an architecture review",
+    body: "Run or observe one governed review on your evidence or an accepted demo workspace.",
+    action: { label: BUYER_START_ARCHITECTURE_REVIEW_CTA, href: "/architecture/reviews/new" },
+  },
+  {
+    title: "Follow your first architecture review guide",
+    body: "Use the step-by-step path when you need help mid-session.",
+    action: {
+      label: "Your first architecture review",
+      href: inAppHelpHref("first-architecture-review"),
+    },
+  },
+  {
+    title: "Read pass / hold interpretation",
+    body: "Interpret proof disposition labels before external circulation.",
+    action: {
+      label: "Pass / hold interpretation",
+      href: "#pass-hold-deferred-interpretation",
+    },
+  },
+] as const;
 
 export const PATH_CHOOSER_HELP_PRIMARY_ACTIONS = {
   startReview: {
@@ -46,7 +82,10 @@ export const PATH_CHOOSER_HELP_BRANCHES: readonly PathChooserHelpBranch[] = [
       label: BUYER_START_ARCHITECTURE_REVIEW_CTA,
       href: "/architecture/reviews/new",
     },
-    fallback: { label: "Pilot guide", href: inAppHelpHref("pilot-guide") },
+    fallback: {
+      label: "Your first architecture review",
+      href: inAppHelpHref("first-architecture-review"),
+    },
   },
   {
     id: "stuck",

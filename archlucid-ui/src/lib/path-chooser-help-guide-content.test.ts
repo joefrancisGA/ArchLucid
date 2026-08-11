@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   PATH_CHOOSER_HELP_BRANCHES,
   PATH_CHOOSER_HELP_CANONICAL_PATH,
+  PATH_CHOOSER_HELP_EVALUATOR_SESSION_STEPS,
   PATH_CHOOSER_HELP_PRIMARY_ACTIONS,
 } from "@/lib/path-chooser-help-guide-content";
 import {
@@ -27,6 +28,17 @@ describe("path-chooser-help-guide-content", () => {
       expect(branch.primary.href).not.toContain(".md");
       expect(branch.fallback.href).not.toContain(".md");
     }
+
+    const evaluateBranch = PATH_CHOOSER_HELP_BRANCHES.find((branch) => branch.id === "evaluate");
+
+    expect(evaluateBranch?.fallback.href).toBe("/help/first-architecture-review");
+    expect(evaluateBranch?.fallback.href).not.toContain("pilot-guide");
+  });
+
+  it("defines four evaluator session steps with Start and first-review CTAs (TB-1345)", () => {
+    expect(PATH_CHOOSER_HELP_EVALUATOR_SESSION_STEPS).toHaveLength(4);
+    expect(PATH_CHOOSER_HELP_EVALUATOR_SESSION_STEPS[1]?.action.href).toBe("/architecture/reviews/new");
+    expect(PATH_CHOOSER_HELP_EVALUATOR_SESSION_STEPS[2]?.action.href).toBe("/help/first-architecture-review");
   });
 
   it("lists related next steps without a self-link to path-chooser", () => {

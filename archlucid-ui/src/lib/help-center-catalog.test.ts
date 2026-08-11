@@ -140,6 +140,16 @@ describe("help center tiers", () => {
     expect(entry?.title).toBe(ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE);
   });
 
+  it("classifies path-chooser as product tier for buyer evaluator orientation (TB-1347)", () => {
+    const entry = getProductDocumentationEntry("path-chooser");
+
+    expect(entry).not.toBeNull();
+    expect(entry?.audience).toBe("buyer");
+    expect(getHelpCenterTier(entry!)).toBe("product");
+    expect(getProductDocumentationEntry("evaluator-workbook")).toBeNull();
+    expect(resolveHelpTopicPermanentRedirect("evaluator-workbook")).toBe("/help/path-chooser");
+  });
+
   it("classifies engineering runbooks as internal", () => {
     const cli = getProductDocumentationEntry("cli-usage");
 
