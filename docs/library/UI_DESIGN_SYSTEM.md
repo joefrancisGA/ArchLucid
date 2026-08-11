@@ -193,6 +193,38 @@ Carbon **side panels** (drawers / modal panels) remain valid for transient focus
 
 **UI architecture pointer:** `archlucid-ui/docs/ARCHITECTURE.md` § *Where to go next* — layout guidance cites this contract; do not treat two-column operator layouts as free-form.
 
+### Operator populated lists (**TB-1646** — done 2026-08-11)
+
+`EnterpriseTable` + `StatusTag` are already mandated components — this section owns **which list kind** a populated operator surface must name, when cards are allowed, and when raw HTML tables are forbidden. Agents invent card stacks and parallel table dialects for the same inventory job without a kind.
+
+**Default:** name a list kind below. New inventory / master-detail UIs use `EnterpriseTable` + `StatusTag` unless a kind below explicitly allows another pattern.
+
+| Kind | Default chrome | When |
+|------|----------------|------|
+| **Inventory** | `EnterpriseTable` + `StatusTag` | Manage many same-shaped rows (schedules, rules, destinations, reviews). Primary columns = buyer labels; UUIDs / cron / hashes under disclosure. |
+| **Master-detail** | `EnterpriseTable` (or equivalent list) + detail pane | Browse list + detail is the page job (e.g. Digests browse). Pair with side-rail kind **master-detail** (**TB-1572**). |
+| **Entity-summary** | Cards only when justified | Low cardinality **and** nested detail that does not fit a row (history, multi-block body). Require `StatusTag`; no fake “Last triggered: unknown” theater. Document the justification in PR notes. Apply migrations: **TB-1647**. |
+| **Config-checklist** | Checklist / boolean rows | One-time connection or trigger setup (e.g. Teams trigger checklist) — **not** destination inventory. |
+| **Scale-table** | Sticky / virtualized table | Very large operator inventories (e.g. Audit) that need sticky headers or virtualization beyond default `EnterpriseTable` density. Keep `DESIGN_TOKENS.table`; do not invent a second table dialect. |
+
+**Shared rules for every kind:**
+
+| Rule | Required behavior |
+|------|-------------------|
+| Status | Use `StatusTag` (or `BooleanStatusChip` where boolean on/off is the status). Ban plain-text status columns on inventory hubs. |
+| Row actions | ≤**2** visible row actions; overflow the rest into a menu. Hide disabled Delete unless actionable. Apply densify: **TB-1649**. |
+| Buyer labels | Primary columns show human names / cadence / scope labels — not UUID Scope, mono cron, or hash theater (disclosure OK). |
+| Raw HTML tables | **Banned** as a parallel dialect on operator hubs. Migrate Slack / Settings principals / ArtifactListTable-class tables onto `EnterpriseTable` (**TB-1648** / **TB-1649**). |
+| CTAs / empties / rails | Page CTAs follow **TB-1539**; empties follow **TB-1552**; persistent right columns follow **TB-1572**. |
+
+**Exemplar:** Digests browse / Recurrence / Reviews — `EnterpriseTable` inventory (or master-detail) with `StatusTag`.
+
+**Anti-exemplars (apply siblings — do not reopen empty/not-configured clusters):** Advisory Schedules + Alert rules card stacks (**TB-1647**); Slack raw HTML + Webhooks spacious cards for the same destination-inventory job (**TB-1648**); action-dense Digest subscription rows / UUID-heavy Recurrence columns (**TB-1649**).
+
+**Out of scope here:** Implementing every hub (owned by **TB-1647**–**TB-1650**); marketing tables; nested compare/diff grids.
+
+**UI architecture pointer:** `archlucid-ui/docs/ARCHITECTURE.md` § *Where to go next* — list/table guidance cites this contract; do not invent card stacks or raw HTML tables for inventory jobs.
+
 ---
 
 ## What this standard forbids
@@ -425,3 +457,4 @@ Headline counts on golden-path surfaces must be **self-describing** and **click-
 - Page-scoped **Learn more** job match: this file § *Operator page contextual help — Learn more job match* (**TB-2048** Done); Digests/secondary remaps **TB-2049**–**TB-2052**
 - Page-header help **borderless carve-out**: this file § *Visible-boundary `Button` contract* → *Carve-out — page-header contextual help* (owner decision 2026-08-11) — shared chrome in `components/usability/page-contextual-help-trigger.ts`; shell top-bar `Help` stays `variant="outline"`
 - Operator **side rails** contract: this file § *Operator side rails* (**TB-1572** Done) — single-column default; allow working-object / master-detail / live-when-live / TOC-wizard; ban teaching / static-scope / about-aside persistent rails; live pin policy **TB-1574** Done; hub inventory + about-aside demotion **TB-1575** Done (`operator-side-rail-inventory.ts`); Vitest allowlist **TB-1576**
+- Operator **populated lists** contract: this file § *Operator populated lists* (**TB-1646** Done) — name list kind; default inventory/master-detail → `EnterpriseTable` + `StatusTag`; entity-summary cards only when justified; ≤2 visible row actions; ban parallel raw HTML tables; apply **TB-1647**–**TB-1650**
