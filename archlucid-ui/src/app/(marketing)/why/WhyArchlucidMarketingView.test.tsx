@@ -7,9 +7,13 @@ import {
   WHY_CLOSING_PRIMARY_CTA_LABEL,
   WHY_CLOSING_SECONDARY_CTA_HREF,
   WHY_CLOSING_SECONDARY_CTA_LABEL,
+  WHY_CONTOSO_PREVIEW_HREF,
+  WHY_CONTOSO_PREVIEW_LABEL,
   WHY_HERO_PITCH,
   WHY_HERO_PRIMARY_CTA_HREF,
   WHY_MARKETING_PDF_DOWNLOAD_LABEL,
+  WHY_PROOF_LADDER_PRIMARY_HREF,
+  WHY_PROOF_LADDER_SAMPLE_HREF,
 } from "@/lib/why-page-copy";
 import { WHY_MARKET_LANDSCAPE_MARKETING_ROWS } from "@/lib/why-market-landscape-comparison";
 import { WHY_COMPARISON_ROWS } from "@/lib/why-comparison";
@@ -19,7 +23,7 @@ import { WhyArchlucidMarketingView } from "./WhyArchlucidMarketingView";
 describe("WhyArchlucidMarketingView", () => {
   it("renders qualitative landscape mini-table aligned with WHY_MARKET_LANDSCAPE_MARKETING_ROWS", () => {
     const { getByTestId, getAllByRole } = render(
-      <WhyArchlucidMarketingView frontDoorRows={WHY_COMPARISON_ROWS} showDemoEmbed={false} />,
+      <WhyArchlucidMarketingView frontDoorRows={WHY_COMPARISON_ROWS} />,
     );
 
     const table = getByTestId("why-market-landscape-mini-table");
@@ -30,7 +34,7 @@ describe("WhyArchlucidMarketingView", () => {
 
   it("matches snapshot (marketing /why layout + proof pack download)", () => {
     const { container } = render(
-      <WhyArchlucidMarketingView frontDoorRows={WHY_COMPARISON_ROWS} showDemoEmbed={false} />,
+      <WhyArchlucidMarketingView frontDoorRows={WHY_COMPARISON_ROWS} />,
     );
 
     expect(container.firstChild).toMatchSnapshot();
@@ -38,7 +42,7 @@ describe("WhyArchlucidMarketingView", () => {
 
   it("renders vs chat assistant contrast section (TB-265)", () => {
     const { getByTestId } = render(
-      <WhyArchlucidMarketingView frontDoorRows={WHY_COMPARISON_ROWS} showDemoEmbed={false} />,
+      <WhyArchlucidMarketingView frontDoorRows={WHY_COMPARISON_ROWS} />,
     );
 
     expect(getByTestId("why-vs-chat-assistant")).toBeInTheDocument();
@@ -46,7 +50,7 @@ describe("WhyArchlucidMarketingView", () => {
 
   it("renders proof pack download targeting the proxied PDF endpoint", () => {
     const { getByTestId } = render(
-      <WhyArchlucidMarketingView frontDoorRows={WHY_COMPARISON_ROWS} showDemoEmbed={false} />,
+      <WhyArchlucidMarketingView frontDoorRows={WHY_COMPARISON_ROWS} />,
     );
 
     const link = getByTestId("why-proof-pack-download");
@@ -56,7 +60,7 @@ describe("WhyArchlucidMarketingView", () => {
   });
 
   it("TB-1305: renders closing conversion CTAs after the comparison table", () => {
-    render(<WhyArchlucidMarketingView frontDoorRows={WHY_COMPARISON_ROWS} showDemoEmbed={false} />);
+    render(<WhyArchlucidMarketingView frontDoorRows={WHY_COMPARISON_ROWS} />);
 
     expect(screen.getByTestId("why-closing-cta")).toBeInTheDocument();
     expect(screen.getByTestId("why-closing-primary-cta")).toHaveAttribute("href", WHY_CLOSING_PRIMARY_CTA_HREF);
@@ -70,7 +74,7 @@ describe("WhyArchlucidMarketingView", () => {
 
   it("renders the brand-category paragraph using BRAND_CATEGORY (not the legacy string)", () => {
     const { getByTestId } = render(
-      <WhyArchlucidMarketingView frontDoorRows={WHY_COMPARISON_ROWS} showDemoEmbed={false} />,
+      <WhyArchlucidMarketingView frontDoorRows={WHY_COMPARISON_ROWS} />,
     );
 
     const paragraph = getByTestId("why-brand-category-paragraph");
@@ -82,14 +86,14 @@ describe("WhyArchlucidMarketingView", () => {
 
   it("renders the proof-scope statement beneath the brand-category paragraph", () => {
     const { getByTestId } = render(
-      <WhyArchlucidMarketingView frontDoorRows={WHY_COMPARISON_ROWS} showDemoEmbed={false} />,
+      <WhyArchlucidMarketingView frontDoorRows={WHY_COMPARISON_ROWS} />,
     );
 
     expect(getByTestId("why-proof-scope-statement").textContent).toBe(BRAND_PROOF_SCOPE_STATEMENT);
   });
 
   it("TB-1301: hero budget — pitch and primary conversion CTA stay in the hero band", () => {
-    render(<WhyArchlucidMarketingView frontDoorRows={WHY_COMPARISON_ROWS} showDemoEmbed={false} />);
+    render(<WhyArchlucidMarketingView frontDoorRows={WHY_COMPARISON_ROWS} />);
 
     const heroBand = screen.getByTestId("why-hero-band");
     const ctaRow = screen.getByTestId("why-hero-cta-row");
@@ -103,5 +107,18 @@ describe("WhyArchlucidMarketingView", () => {
 
     const hardCompare = screen.getByTestId("why-hard-comparison-table");
     expect(heroBand.compareDocumentPosition(hardCompare) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("TB-1302: proof ladder primary is /see-it; Contoso preview is demoted and labeled", () => {
+    render(<WhyArchlucidMarketingView frontDoorRows={WHY_COMPARISON_ROWS} />);
+
+    expect(screen.getByTestId("why-proof-ladder-primary-cta")).toHaveAttribute("href", WHY_PROOF_LADDER_PRIMARY_HREF);
+    expect(screen.getByTestId("why-proof-ladder-sample-cta")).toHaveAttribute("href", WHY_PROOF_LADDER_SAMPLE_HREF);
+    expect(screen.queryByTitle("ArchLucid demo review page preview")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("why-demo-embed-placeholder")).not.toBeInTheDocument();
+
+    const ladderLinks = screen.getByTestId("why-proof-ladder-links");
+    const contosoLink = within(ladderLinks).getByRole("link", { name: WHY_CONTOSO_PREVIEW_LABEL });
+    expect(contosoLink).toHaveAttribute("href", WHY_CONTOSO_PREVIEW_HREF);
   });
 });

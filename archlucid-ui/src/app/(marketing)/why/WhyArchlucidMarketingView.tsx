@@ -5,6 +5,7 @@ import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { MarketingProofChainStrip } from "@/components/marketing/MarketingProofChainStrip";
 import { WhyEvidenceOrientationStrip } from "@/components/marketing/WhyEvidenceOrientationStrip";
 import { WhyMarketingHeroSection } from "@/app/(marketing)/why/WhyMarketingHeroSection";
+import { WhyMarketingProofLadderSection } from "@/app/(marketing)/why/WhyMarketingProofLadderSection";
 import { Button } from "@/components/ui/button";
 import { BUYER_OUTCOME_LED_VALUE_PROPOSITION } from "@/lib/buyer-polish-copy";
 import { BRAND_CATEGORY, BRAND_PROOF_SCOPE_STATEMENT } from "@/lib/brand-category";
@@ -19,9 +20,10 @@ import {
   WHY_MARKETING_PDF_DOWNLOAD_FILENAME,
   WHY_MARKETING_PDF_DOWNLOAD_LABEL,
   WHY_MARKETING_PDF_HREF,
-  WHY_MARKETING_PDF_SECTION_INTRO_AFTER_LINK,
   WHY_MARKETING_PDF_SECTION_INTRO_BEFORE_LINK,
+  WHY_MARKETING_PDF_SECTION_INTRO_AFTER_LINK,
   WHY_MARKETING_PDF_SECTION_TITLE,
+  WHY_PROOF_LADDER_PRIMARY_HREF,
 } from "@/lib/why-page-copy";
 import { cn } from "@/lib/utils";
 import { WHY_MARKET_LANDSCAPE_MARKETING_ROWS } from "@/lib/why-market-landscape-comparison";
@@ -67,17 +69,12 @@ function WhyHardComparisonVerifyCell({ links }: { readonly links: readonly WhyVe
 export type WhyArchlucidMarketingViewProps = {
   /** Parsed from `WHY_COMPARISON_ROWS_SERIALIZED` on the marketing route for a single JSON source path. */
   frontDoorRows: readonly WhyHardComparisonRow[];
-  /**
-   * When false, skips the /demo/preview iframe (jest-axe cannot scan iframes in jsdom).
-   * Production page passes true (default).
-   */
-  showDemoEmbed?: boolean;
 };
 
 /**
  * Public “Why ArchLucid” differentiation page — no operator auth.
  */
-export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true }: WhyArchlucidMarketingViewProps) {
+export function WhyArchlucidMarketingView({ frontDoorRows }: WhyArchlucidMarketingViewProps) {
   return (
     <MarketingPageShell className={MARKETING_MOTION.revealIn}>
       <WhyMarketingHeroSection />
@@ -216,9 +213,9 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
         <h2 className={MARKETING_TYPOGRAPHY.sectionTitle}>{WHY_MARKETING_PDF_SECTION_TITLE}</h2>
         <p className={`mt-2 max-w-3xl ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}>
           {WHY_MARKETING_PDF_SECTION_INTRO_BEFORE_LINK}
-          <a className={`font-medium ${MARKETING_SURFACES.inlineLink}`} href="/demo/preview">
-            public demo preview
-          </a>
+          <Link className={`font-medium ${MARKETING_SURFACES.inlineLink}`} href={WHY_PROOF_LADDER_PRIMARY_HREF}>
+            see-it sample review
+          </Link>
           {WHY_MARKETING_PDF_SECTION_INTRO_AFTER_LINK}
         </p>
         <p className="mt-3">
@@ -234,43 +231,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
         </p>
       </section>
 
-      <section className="mt-10" aria-labelledby="why-demo-heading">
-        <h2 id="why-demo-heading" className={MARKETING_TYPOGRAPHY.sectionTitle}>
-          See a finalized sample review page
-        </h2>
-        <p className={`mt-2 max-w-3xl ${MARKETING_TYPOGRAPHY.meta}`}>
-          Anonymous read-only preview of an illustrative sample review record — same layout as the product workspace, not
-          a live customer outcome; no sign-in required.
-        </p>
-        {showDemoEmbed ? (
-          <div className={`mt-4 overflow-hidden ${MARKETING_SURFACES.sectionPanel}`}>
-            <iframe
-              title="ArchLucid demo review page preview"
-              src="/demo/preview"
-              className="h-[min(70vh,520px)] w-full border-0"
-              loading="lazy"
-            />
-          </div>
-        ) : (
-          <p
-            className="mt-4 rounded-lg border border-dashed border-neutral-300 bg-neutral-50 px-3 py-8 text-center text-sm text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400"
-            data-testid="why-demo-embed-placeholder"
-          >
-            Demo embed omitted (test build). In production this area shows an iframe of{" "}
-            <Link className={MARKETING_SURFACES.inlineLink} href="/demo/preview">
-              the demo preview page
-            </Link>
-            .
-          </p>
-        )}
-        <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
-          {showDemoEmbed ? "Opens in-page above; " : null}
-          <Link className={MARKETING_SURFACES.inlineLink} href="/demo/preview">
-            Open demo preview
-          </Link>
-          {showDemoEmbed ? " in a full tab." : "."}
-        </p>
-      </section>
+      <WhyMarketingProofLadderSection />
 
       <section className="mt-12" aria-labelledby="why-hard-compare-heading">
         <h2 id="why-hard-compare-heading" className={MARKETING_TYPOGRAPHY.sectionTitle}>

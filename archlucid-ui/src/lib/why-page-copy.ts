@@ -3,6 +3,7 @@ import {
   SEE_IT_MARKETING_PDF_HREF,
   SEE_IT_PAGE_TITLE,
 } from "@/lib/see-it-page-copy";
+import { CANONICAL_ANONYMOUS_PROOF_HREF } from "@/lib/showcase-static-demo";
 
 /** Marketing why-pack PDF on `/why` — same asset as `/see-it`, not a governed evidence export (TB-1305). */
 export const WHY_MARKETING_PDF_HREF = SEE_IT_MARKETING_PDF_HREF;
@@ -17,7 +18,7 @@ export const WHY_MARKETING_PDF_SECTION_INTRO_BEFORE_LINK =
   "Download a single PDF that bundles the same read-only sample output as the ";
 
 export const WHY_MARKETING_PDF_SECTION_INTRO_AFTER_LINK =
-  " (review excerpt, explanation, citations, timeline) plus the citation-backed differentiation narrative table (five detailed rows with citations — not the symbol-only front-door grid below). If the download is not available in your environment, use the contact path on the getting started page.";
+  " page (review excerpt, explanation, citations, timeline) plus the citation-backed differentiation narrative table (five detailed rows with citations — not the symbol-only front-door grid below). If the download is not available in your environment, use the contact path on the getting started page.";
 
 export const WHY_MARKET_LANDSCAPE_CITATION_NOTE =
   "Summarized wording only — citations and benchmark detail are included in the marketing overview PDF linked from this page.";
@@ -44,3 +45,23 @@ export const WHY_CLOSING_SECONDARY_CTA_HREF = "/signup" as const;
 export const WHY_HERO_SECONDARY_CTA_LABEL = WHY_CLOSING_SECONDARY_CTA_LABEL;
 
 export const WHY_HERO_SECONDARY_CTA_HREF = WHY_CLOSING_SECONDARY_CTA_HREF;
+
+/**
+ * TB-1302 / M-107 Option A: canonical anonymous proof ladder — Claims-static primary;
+ * Contoso `/demo/preview` is secondary and explicitly labeled.
+ */
+export const WHY_PROOF_LADDER_PRIMARY_HREF = WHY_HERO_PRIMARY_CTA_HREF;
+
+export const WHY_PROOF_LADDER_PRIMARY_LABEL = SEE_IT_PAGE_TITLE;
+
+export const WHY_PROOF_LADDER_SAMPLE_HREF = CANONICAL_ANONYMOUS_PROOF_HREF;
+
+export const WHY_PROOF_LADDER_SAMPLE_LABEL = "Healthcare Claims sample review";
+
+export const WHY_PROOF_LADDER_WALKTHROUGH_HREF = "/live-demo" as const;
+
+export const WHY_PROOF_LADDER_WALKTHROUGH_LABEL = "Prefer a longer walkthrough?";
+
+export const WHY_CONTOSO_PREVIEW_HREF = "/demo/preview" as const;
+
+export const WHY_CONTOSO_PREVIEW_LABEL = "Retail Contoso sample (longer preview)";

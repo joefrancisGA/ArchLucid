@@ -11,7 +11,7 @@ expect.extend(toHaveNoViolations);
 describe("Why ArchLucid marketing page (Vitest + axe)", () => {
   it("has no serious axe violations", async () => {
     const { container } = render(
-      <WhyArchlucidMarketingView frontDoorRows={WHY_COMPARISON_ROWS} showDemoEmbed={false} />,
+      <WhyArchlucidMarketingView frontDoorRows={WHY_COMPARISON_ROWS} />,
     );
 
     expect(await axe(container)).toHaveNoViolations();
