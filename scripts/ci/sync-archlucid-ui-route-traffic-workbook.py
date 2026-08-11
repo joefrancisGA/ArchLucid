@@ -138,7 +138,7 @@ def sync_rows(existing_rows: list[dict[str, str]]) -> tuple[list[dict[str, str]]
             "pct": DEFAULT_NEW_HIT_PCT,
             "score": "0",
             "section": entry.section,
-            "done": "",
+            "done": "No",
             "notes": "None",
         }
         report.added.append(path)

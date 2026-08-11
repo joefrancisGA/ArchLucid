@@ -21,6 +21,7 @@ SCORE_SEPARATOR = ","
 EVIDENCE_INDEX = 0
 UX_INDEX = 1
 SCORE_DIMENSIONS = {"evidence": EVIDENCE_INDEX, "ux": UX_INDEX}
+DEFAULT_DONE = "No"
 OVERALL_WEIGHT_LABEL = "**OVERALL WEIGHT SCORE:**"
 OVERALL_EVIDENCE_LABEL = "**OVERALL EVIDENCE SCORE:**"
 
@@ -57,13 +58,15 @@ def parse_rows(table_text: str) -> list[dict[str, str]]:
         if not line.startswith("| ") or line.startswith("| ID") or line.startswith("|----"):
             continue
         parts = [part.strip() for part in line.strip("|").split("|")]
-        done = ""
+        done = DEFAULT_DONE
         if len(parts) == 7:
             row_id, path, pct, score, _weight, section, notes = parts
         elif len(parts) == 8:
             row_id, path, pct, score, _weight, _deficit, section, notes = parts
         elif len(parts) == 9:
             row_id, path, pct, score, _weight, _deficit, section, done, notes = parts
+            if not done:
+                done = DEFAULT_DONE
         else:
             continue
         path = path.strip(BACKTICK)
@@ -261,7 +264,7 @@ def render_table(rows: list[dict[str, str]]) -> list[str]:
         lines.append(
             f"| {row['id']} | `{row['path']}` | {row['pct']} | {row['score']} | "
             f"{format_weight_value(row)} | {format_deficit_value(row)} | {row['section']} | "
-            f"{row.get('done', '')} | {row['notes']} |"
+            f"{row.get('done', DEFAULT_DONE) or DEFAULT_DONE} | {row['notes']} |"
         )
     return lines
 

@@ -45,7 +45,7 @@ def test_parse_rows_eight_columns_with_deficit() -> None:
     rows = parse_rows(table)
     assert len(rows) == 1
     assert rows[0]["id"] == "HOM"
-    assert rows[0]["done"] == ""
+    assert rows[0]["done"] == "No"
 
 
 def test_parse_rows_nine_columns_with_done() -> None:
@@ -71,10 +71,10 @@ def test_deficit_is_hit_pct_times_evidence_gap() -> None:
 
 def test_sort_zero_scores_before_scored_by_deficit_desc() -> None:
     rows = [
-        {"id": "HOM", "path": "/", "pct": "3%", "score": "0", "section": "Core review", "done": "", "notes": "None"},
-        {"id": "RE", "path": "/reviews", "pct": "12%", "score": "0", "section": "Core review", "done": "", "notes": "None"},
-        {"id": "ASK", "path": "/ask", "pct": "4%", "score": "78", "section": "Core review", "done": "", "notes": "None"},
-        {"id": "AL", "path": "/alerts", "pct": "3%", "score": "61", "section": "Alerts/gov", "done": "", "notes": "None"},
+        {"id": "HOM", "path": "/", "pct": "3%", "score": "0", "section": "Core review", "done": "No", "notes": "None"},
+        {"id": "RE", "path": "/reviews", "pct": "12%", "score": "0", "section": "Core review", "done": "No", "notes": "None"},
+        {"id": "ASK", "path": "/ask", "pct": "4%", "score": "78", "section": "Core review", "done": "No", "notes": "None"},
+        {"id": "AL", "path": "/alerts", "pct": "3%", "score": "61", "section": "Alerts/gov", "done": "No", "notes": "None"},
     ]
     sorted_rows = sort_rows(rows)
     assert [row["id"] for row in sorted_rows] == ["RE", "HOM", "AL", "ASK"]
