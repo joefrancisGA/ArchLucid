@@ -18,6 +18,7 @@ import { createPortal } from "react-dom";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { ScopeSwitcherProjectOptionButton } from "@/components/ScopeSwitcherProjectOptionButton";
 import { ScopeSwitcherTenantContextFooter } from "@/components/ScopeSwitcherTenantContextFooter";
+import { WorkspaceScopeTenantSettingsVocabularyRail } from "@/components/WorkspaceScopeTenantSettingsVocabularyRail";
 import { WorkspaceSwitcherFirstOpenCoach } from "@/components/WorkspaceSwitcherFirstOpenCoach";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -417,6 +418,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
         }
       >
         <WorkspaceSwitcherFirstOpenCoach open={open} />
+        <WorkspaceScopeTenantSettingsVocabularyRail currentSurfaceId="workspace-scope" />
         {panelMode === "loading" ? (
           <p className={cn("m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.body)}>Loading workspaces…</p>
         ) : null}
@@ -592,6 +594,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
             )}
             aria-expanded={open}
             aria-haspopup="dialog"
+            id="operator-scope-switcher"
             data-testid="operator-scope-switcher-trigger"
             aria-label={triggerAccessibleLabel}
             title={triggerAccessibleLabel}
@@ -627,6 +630,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
           className={cn("min-w-0 max-w-full shrink gap-1 overflow-hidden", scopeTriggerMaxWidthClass)}
           aria-expanded={open}
           aria-haspopup="dialog"
+          id="operator-scope-switcher"
           data-testid="operator-scope-switcher-trigger"
           aria-label={triggerAccessibleLabel}
           title={triggerAccessibleLabel}

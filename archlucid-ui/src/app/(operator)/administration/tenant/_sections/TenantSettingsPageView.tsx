@@ -9,6 +9,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
 import { TenantLlmJudgeGuideCard } from "@/components/TenantLlmJudgeGuideCard";
+import { WorkspaceScopeTenantSettingsVocabularyRail } from "@/components/WorkspaceScopeTenantSettingsVocabularyRail";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -50,6 +51,7 @@ export function TenantSettingsPageView(props: Props) {
         titleTestId="tenant-settings-page-title"
         actions={<PageContextualHelpButton />}
       />
+      <WorkspaceScopeTenantSettingsVocabularyRail currentSurfaceId="tenant-settings" />
 <SectionHeading>General</SectionHeading>
 
       <Card>
