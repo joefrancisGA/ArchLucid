@@ -1,10 +1,11 @@
-"use client";
+﻿"use client";
 
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
+import { MutatingInWorkspaceChip } from "@/components/MutatingInWorkspaceChip";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -159,7 +160,7 @@ export function SamlSpConfigurationForm() {
 
         {loading ? (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role="status">
-            Loading SAML configuration…
+            Loading SAML configurationâ€¦
           </p>
         ) : (
           <>
@@ -298,13 +299,14 @@ export function SamlSpConfigurationForm() {
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
+              <MutatingInWorkspaceChip />
               <Button
                 type="button"
                 disabled={!canSave}
                 onClick={() => requestSaveConfiguration()}
                 data-testid="saml-save-configuration-button"
               >
-                {busy ? "Saving…" : IDENTITY_PROVIDERS_ACTION_SAVE}
+                {busy ? "Savingâ€¦" : IDENTITY_PROVIDERS_ACTION_SAVE}
               </Button>
               {savedUtc !== null ? (
                 <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
@@ -324,3 +326,4 @@ export function SamlSpConfigurationForm() {
     </Card>
   );
 }
+

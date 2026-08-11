@@ -1,8 +1,9 @@
-"use client";
+﻿"use client";
 
 import { cn } from "@/lib/utils";
 import { useState, type RefObject } from "react";
 
+import { MutatingInWorkspaceChip } from "@/components/MutatingInWorkspaceChip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -134,7 +135,7 @@ export function SettingsRolesInvitePanel({ emailInputRef, onInviteSent }: Props)
         </Label>
         <Textarea
           id="invite-message"
-          placeholder="Add a note to include in the invitation email…"
+          placeholder="Add a note to include in the invitation emailâ€¦"
           value={form.message}
           onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
           rows={3}
@@ -143,6 +144,7 @@ export function SettingsRolesInvitePanel({ emailInputRef, onInviteSent }: Props)
       </div>
 
       <div className="space-y-2">
+        <MutatingInWorkspaceChip />
         <div className="flex flex-wrap gap-2">
           <Button
             type="submit"
@@ -150,7 +152,7 @@ export function SettingsRolesInvitePanel({ emailInputRef, onInviteSent }: Props)
             disabled={sending || !canSubmit}
             data-testid="settings-roles-invite-submit"
           >
-            {sending ? "Sending…" : "Send invite"}
+            {sending ? "Sendingâ€¦" : "Send invite"}
           </Button>
           <Button
             type="button"
@@ -172,3 +174,4 @@ export function SettingsRolesInvitePanel({ emailInputRef, onInviteSent }: Props)
     </form>
   );
 }
+

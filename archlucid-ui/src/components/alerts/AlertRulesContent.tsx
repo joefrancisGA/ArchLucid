@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -10,6 +10,7 @@ import { AlertRuleListRow } from "@/components/alerts/AlertRuleListRow";
 import { AlertRuleLivePreviewPanel } from "@/components/alerts/AlertRuleLivePreviewPanel";
 import { AlertRuleNotificationReadinessPanel } from "@/components/alerts/AlertRuleNotificationReadinessPanel";
 import { AlertRuleSimulateModal } from "@/components/alerts/AlertRuleSimulateModal";
+import { MutatingInWorkspaceChip } from "@/components/MutatingInWorkspaceChip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,7 +37,6 @@ import {
   ALERT_RULES_CREATE_BUTTON_LABEL,
   ALERT_RULES_CREATE_HEADING,
   ALERT_RULES_CREATE_PENDING_LABEL,
-  ALERT_RULES_CREATE_SCOPE_PREFIX,
   ALERT_RULES_CREATE_SUCCESS_MESSAGE,
   ALERT_RULES_FORM_SECTION_ARIA_LABEL,
   ALERT_RULES_LIST_EMPTY_BODY,
@@ -49,10 +49,6 @@ import {
   ALERT_RULES_SAMPLE_MODE_CTA_LABEL,
   ALERT_RULES_STATUS_LIVE_REGION_LABEL,
 } from "@/lib/alert-rule-conditions-copy";
-import {
-  readActiveWorkspaceScopeLabel,
-  resolveWorkspaceScopeLabelFromRecord,
-} from "@/lib/active-workspace-scope-label";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -87,10 +83,7 @@ export function AlertRulesContent() {
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [simulateForRule, setSimulateForRule] = useState<AlertRule | null>(null);
 
-  // Server render has no storage; the stored workspace label / project id are adopted after mount to avoid a hydration mismatch.
-  const [workspaceScopeLabel, setWorkspaceScopeLabel] = useState<string>(() =>
-    resolveWorkspaceScopeLabelFromRecord(null),
-  );
+  // Server render has no storage; project id is adopted after mount to avoid a hydration mismatch.
   const [sessionProjectId, setSessionProjectId] = useState<string | undefined>(undefined);
 
   const [name, setName] = useState(DEFAULT_FORM.name);
@@ -139,7 +132,6 @@ export function AlertRulesContent() {
   }, []);
 
   useEffect(() => {
-    setWorkspaceScopeLabel(readActiveWorkspaceScopeLabel());
     setSessionProjectId(readOperatorScopeFromStorage()?.projectId);
   }, []);
 
@@ -362,12 +354,7 @@ export function AlertRulesContent() {
               ) : null}
 
               <div className="grid gap-2">
-                <p
-                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                  data-testid="alert-rules-create-scope"
-                >
-                  {ALERT_RULES_CREATE_SCOPE_PREFIX}: {workspaceScopeLabel}
-                </p>
+                <MutatingInWorkspaceChip />
 
                 <div className="flex flex-wrap items-center gap-3">
                   <Button
@@ -421,3 +408,4 @@ export function AlertRulesContent() {
     </div>
   );
 }
+

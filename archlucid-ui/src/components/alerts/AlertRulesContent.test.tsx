@@ -1,10 +1,9 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+﻿import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AlertRulesContent } from "@/components/alerts/AlertRulesContent";
 import {
   ALERT_RULES_CREATE_BLOCKED_HINT,
-  ALERT_RULES_CREATE_SCOPE_PREFIX,
   ALERT_RULES_CREATE_SUCCESS_MESSAGE,
   ALERT_RULES_LIST_EMPTY_TITLE,
   ALERT_RULES_NAME_LABEL,
@@ -133,13 +132,14 @@ describe("AlertRulesContent", () => {
     render(<AlertRulesContent />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("alert-rules-create-scope")).toBeInTheDocument();
+      expect(screen.getByTestId("mutating-in-workspace-chip")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("alert-rules-create-scope")).toHaveTextContent(
-      `${ALERT_RULES_CREATE_SCOPE_PREFIX}: Claims Intake`,
+    expect(screen.getByTestId("mutating-in-workspace-chip")).toHaveTextContent(
+      "Applies to workspace: Claims Intake",
     );
   });
+
 
   it("marks the rule preview as an unsaved draft so it cannot read as a configured rule", async () => {
     render(<AlertRulesContent />);
@@ -209,3 +209,4 @@ describe("AlertRulesContent", () => {
     });
   });
 });
+
