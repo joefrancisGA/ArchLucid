@@ -17,6 +17,7 @@ import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice"
 import { DraftIntakeAdvancedSection } from "@/components/draft-intake/DraftIntakeAdvancedSection";
 import { DraftIntakeReasoningPanel } from "@/components/draft-intake/DraftIntakeReasoningPanel";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { PreExecuteCostEstimateNotice } from "@/components/usability/PreExecuteCostEstimateNotice";
 import { Button } from "@/components/ui/button";
 import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
 import { Card, CardContent } from "@/components/ui/card";
@@ -542,6 +543,10 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
           onBulletsChange={setScopeBullets}
           onGateChange={setScopeGateOpen}
         />
+      ) : null}
+
+      {linkedReviewId === null ? (
+        <PreExecuteCostEstimateNotice testId="architecture-draft-pre-execute-cost" />
       ) : null}
 
       <div className="flex flex-wrap gap-2">

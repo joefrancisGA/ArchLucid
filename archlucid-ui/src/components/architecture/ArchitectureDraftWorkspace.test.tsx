@@ -296,6 +296,10 @@ describe("ArchitectureDraftWorkspace", () => {
     expect(screen.getByTestId("architecture-draft-ai-budget-notice")).toHaveTextContent(
       "Architecture reasoning uses AI budget.",
     );
+    expect(screen.getByTestId("architecture-draft-pre-execute-cost")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-draft-pre-execute-cost-message")).toHaveTextContent(
+      /AI allotment|architecture package/i,
+    );
     expect(screen.getByTestId("architecture-draft-ai-refine-stub")).toBeInTheDocument();
     expect(screen.getByTestId("draft-intake-reasoning-stub")).toBeInTheDocument();
   });

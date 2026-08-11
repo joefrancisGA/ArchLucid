@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { NewReviewSampleEscapeLink } from "@/components/usability/NewReviewSampleEscapeLink";
+import { PreExecuteCostEstimateNotice } from "@/components/usability/PreExecuteCostEstimateNotice";
 import {
   proofScopeToRequiredCapabilities,
   type QuickReviewProofScopeId,
@@ -391,6 +392,13 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
             disabled={creationProgress.isActive || blocksLlmExecution}
             onBulletsChange={setScopeBullets}
             onGateChange={setScopeGateOpen}
+          />
+
+          <PreExecuteCostEstimateNotice
+            testId="first-pilot-pre-execute-cost"
+            remainingBudgetUsd={llmBudgetStatus?.remainingBudgetUsd ?? null}
+            monthlyBudgetMonitoringActive={llmBudgetStatus?.monthlyBudgetMonitoringActive ?? null}
+            useBudgetGate={false}
           />
 
           <CollapsibleSection
