@@ -9,6 +9,7 @@ import {
   applyHelpMarkdownPresentationRules,
   applyHelpMarkdownTopicRules,
 } from "@/lib/help-markdown-presentation-pipeline";
+import { stripMarkdownSectionsByTitlePrefix } from "@/lib/help-markdown/section-strips";
 import { applyHelpTopicProductLanguage } from "@/lib/help-product-language";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -355,22 +356,8 @@ export function stripHtmlComments(markdown: string): string {
 /** Drops contributor-only sections that must not appear in buyer help topics. */
 export function stripInternalBuyerHelpSections(markdown: string): string {
   const internalSectionPrefixes = ["trust progression timeline", "automated freshness posture"] as const;
-  const lines = markdown.split("\n");
-  const result: string[] = [];
-  let omitSection = false;
 
-  for (const line of lines) {
-    if (line.startsWith("## ") && !line.startsWith("###")) {
-      const title = line.slice(3).trim().toLowerCase();
-      omitSection = internalSectionPrefixes.some((prefix) => title.startsWith(prefix));
-    }
-
-    if (!omitSection) {
-      result.push(line);
-    }
-  }
-
-  return result.join("\n");
+  return stripMarkdownSectionsByTitlePrefix(markdown, internalSectionPrefixes);
 }
 
 const INTERNAL_BUYER_HELP_LINE_PATTERNS: ReadonlyArray<RegExp> = [
@@ -557,24 +544,7 @@ const CONFIGURATION_REFERENCE_OMITTED_SECTION_PREFIXES = [
  * TB-1327 — drops Testing / marketing-build sections from the product configuration help view.
  */
 export function stripConfigurationReferenceContributorSections(markdown: string): string {
-  const lines = markdown.split("\n");
-  const result: string[] = [];
-  let omitSection = false;
-
-  for (const line of lines) {
-    if (line.startsWith("## ") && !line.startsWith("###")) {
-      const title = line.slice(3).trim().toLowerCase();
-      omitSection = CONFIGURATION_REFERENCE_OMITTED_SECTION_PREFIXES.some((prefix) =>
-        title.startsWith(prefix),
-      );
-    }
-
-    if (!omitSection) {
-      result.push(line);
-    }
-  }
-
-  return result.join("\n");
+  return stripMarkdownSectionsByTitlePrefix(markdown, CONFIGURATION_REFERENCE_OMITTED_SECTION_PREFIXES);
 }
 
 /** H2 sections omitted from in-app enterprise onboarding (ArchLucid CS / ops theater). */
@@ -620,24 +590,7 @@ export function stripEnterpriseOnboardingQuickLinksBlock(markdown: string): stri
  * TB-1339 — drops ArchLucid-internal tenant provisioning from the product onboarding help view.
  */
 export function stripEnterpriseOnboardingContributorSections(markdown: string): string {
-  const lines = markdown.split("\n");
-  const result: string[] = [];
-  let omitSection = false;
-
-  for (const line of lines) {
-    if (line.startsWith("## ") && !line.startsWith("###")) {
-      const title = line.slice(3).replace(/\s*\{#[^}]+\}\s*$/, "").trim().toLowerCase();
-      omitSection = ENTERPRISE_ONBOARDING_OMITTED_SECTION_PREFIXES.some((prefix) =>
-        title.startsWith(prefix),
-      );
-    }
-
-    if (!omitSection) {
-      result.push(line);
-    }
-  }
-
-  return result.join("\n");
+  return stripMarkdownSectionsByTitlePrefix(markdown, ENTERPRISE_ONBOARDING_OMITTED_SECTION_PREFIXES);
 }
 
 /**
@@ -925,24 +878,7 @@ const GOVERNANCE_API_CONTRACTS_OMITTED_SECTION_PREFIXES = [
  * TB-1388 — drops CI snapshot and PR-checklist sections from the governance API contracts help view.
  */
 export function stripGovernanceApiContractsContributorSections(markdown: string): string {
-  const lines = markdown.split("\n");
-  const result: string[] = [];
-  let omitSection = false;
-
-  for (const line of lines) {
-    if (line.startsWith("## ") && !line.startsWith("###")) {
-      const title = line.slice(3).trim().toLowerCase();
-      omitSection = GOVERNANCE_API_CONTRACTS_OMITTED_SECTION_PREFIXES.some((prefix) =>
-        title.startsWith(prefix),
-      );
-    }
-
-    if (!omitSection) {
-      result.push(line);
-    }
-  }
-
-  return result.join("\n");
+  return stripMarkdownSectionsByTitlePrefix(markdown, GOVERNANCE_API_CONTRACTS_OMITTED_SECTION_PREFIXES);
 }
 
 /**
@@ -1062,22 +998,7 @@ const PILOT_ROI_MODEL_OMITTED_SECTION_PREFIXES = [
  * TB-1390 — drops Spine / Related contributor navigation sections from pilot ROI help.
  */
 export function stripPilotRoiModelContributorSections(markdown: string): string {
-  const lines = markdown.split("\n");
-  const result: string[] = [];
-  let omitSection = false;
-
-  for (const line of lines) {
-    if (line.startsWith("## ") && !line.startsWith("###")) {
-      const title = line.slice(3).trim().toLowerCase();
-      omitSection = PILOT_ROI_MODEL_OMITTED_SECTION_PREFIXES.some((prefix) => title.startsWith(prefix));
-    }
-
-    if (!omitSection) {
-      result.push(line);
-    }
-  }
-
-  return result.join("\n");
+  return stripMarkdownSectionsByTitlePrefix(markdown, PILOT_ROI_MODEL_OMITTED_SECTION_PREFIXES);
 }
 
 /**
@@ -1170,22 +1091,7 @@ const REPEAT_REVIEW_LOOP_OMITTED_SECTION_PREFIXES = ["second-review habit loop v
  * TB-1396 — drops habit-loop validation and founder proof-theater sections from repeat-review help.
  */
 export function stripRepeatReviewLoopContributorSections(markdown: string): string {
-  const lines = markdown.split("\n");
-  const result: string[] = [];
-  let omitSection = false;
-
-  for (const line of lines) {
-    if (line.startsWith("## ") && !line.startsWith("###")) {
-      const title = line.slice(3).trim().toLowerCase();
-      omitSection = REPEAT_REVIEW_LOOP_OMITTED_SECTION_PREFIXES.some((prefix) => title.startsWith(prefix));
-    }
-
-    if (!omitSection) {
-      result.push(line);
-    }
-  }
-
-  return result.join("\n");
+  return stripMarkdownSectionsByTitlePrefix(markdown, REPEAT_REVIEW_LOOP_OMITTED_SECTION_PREFIXES);
 }
 
 /**
@@ -1433,35 +1339,12 @@ export function stripAcceleratorChooserIntroAndTable(markdown: string): string {
  * TB-1606 — drops policy-pack index and canonical library sections from accelerator chooser help.
  */
 export function stripAcceleratorChooserContributorSections(markdown: string): string {
-  const lines = markdown.split("\n");
-  const result: string[] = [];
-  let omitSection = false;
-
-  for (const line of lines) {
+  return stripMarkdownSectionsByTitlePrefix(markdown, ACCELERATOR_CHOOSER_OMITTED_SECTION_PREFIXES, {
+    headingLevels: [2, 3],
     // Buyer help must not surface GTM deferred-scope / V1.1 roadmap inventory.
-    if (line.startsWith("**Out of scope")) {
-      continue;
-    }
-
-    if (line.startsWith("## ") && !line.startsWith("###")) {
-      const title = line.slice(3).trim().toLowerCase().split("{#")[0]?.trim() ?? "";
-      omitSection = ACCELERATOR_CHOOSER_OMITTED_SECTION_PREFIXES.some((prefix) => title.startsWith(prefix));
-    }
-
-    if (line.startsWith("### ")) {
-      const title = line.slice(4).trim().toLowerCase().split("{#")[0]?.trim() ?? "";
-      omitSection = ACCELERATOR_CHOOSER_OMITTED_SECTION_PREFIXES.some((prefix) => title.startsWith(prefix));
-    }
-
-    const keepDespiteOmit =
-      omitSection && line.includes("/help/first-architecture-review");
-
-    if (!omitSection || keepDespiteOmit) {
-      result.push(line);
-    }
-  }
-
-  return result.join("\n");
+    dropLinesStartingWith: ["**Out of scope"],
+    keepLinesContaining: ["/help/first-architecture-review"],
+  });
 }
 
 /**
@@ -1649,22 +1532,7 @@ const SUBPROCESSORS_OMITTED_SECTION_PREFIXES = ["related documents"] as const;
  * TB-1752 — drops contributor Related documents section from subprocessors help.
  */
 export function stripSubprocessorsContributorSections(markdown: string): string {
-  const lines = markdown.split("\n");
-  const result: string[] = [];
-  let omitSection = false;
-
-  for (const line of lines) {
-    if (line.startsWith("## ") && !line.startsWith("###")) {
-      const title = line.slice(3).trim().toLowerCase();
-      omitSection = SUBPROCESSORS_OMITTED_SECTION_PREFIXES.some((prefix) => title.startsWith(prefix));
-    }
-
-    if (!omitSection) {
-      result.push(line);
-    }
-  }
-
-  return result.join("\n");
+  return stripMarkdownSectionsByTitlePrefix(markdown, SUBPROCESSORS_OMITTED_SECTION_PREFIXES);
 }
 
 function isSubprocessorsContributorLeakageLine(line: string): boolean {
@@ -1994,24 +1862,7 @@ const FIRST_REVIEW_EVIDENCE_OMITTED_SECTION_PREFIXES = [
  * Drops Tier-2 WIF, PowerShell proof, and eng Related sections from `/help/first-review`.
  */
 export function stripFirstReviewEvidenceChecklistContributorSections(markdown: string): string {
-  const lines = markdown.split("\n");
-  const result: string[] = [];
-  let omitSection = false;
-
-  for (const line of lines) {
-    if (line.startsWith("## ") && !line.startsWith("###")) {
-      const title = line.slice(3).trim().toLowerCase();
-      omitSection = FIRST_REVIEW_EVIDENCE_OMITTED_SECTION_PREFIXES.some((prefix) =>
-        title.startsWith(prefix),
-      );
-    }
-
-    if (!omitSection) {
-      result.push(line);
-    }
-  }
-
-  return result.join("\n");
+  return stripMarkdownSectionsByTitlePrefix(markdown, FIRST_REVIEW_EVIDENCE_OMITTED_SECTION_PREFIXES);
 }
 
 /**
@@ -2078,22 +1929,7 @@ const CLI_USAGE_OMITTED_SECTION_PREFIXES = [
  * HCX — drops GTM guardrails and marketplace preflight sections from `/help/cli-usage`.
  */
 export function stripCliUsageContributorSections(markdown: string): string {
-  const lines = markdown.split("\n");
-  const result: string[] = [];
-  let omitSection = false;
-
-  for (const line of lines) {
-    if (line.startsWith("## ") && !line.startsWith("###")) {
-      const title = line.slice(3).replace(/\s*\{#[^}]+\}\s*$/, "").trim().toLowerCase();
-      omitSection = CLI_USAGE_OMITTED_SECTION_PREFIXES.some((prefix) => title.startsWith(prefix));
-    }
-
-    if (!omitSection) {
-      result.push(line);
-    }
-  }
-
-  return result.join("\n");
+  return stripMarkdownSectionsByTitlePrefix(markdown, CLI_USAGE_OMITTED_SECTION_PREFIXES);
 }
 
 /**
@@ -2271,22 +2107,7 @@ const PILOT_FEEDBACK_OMITTED_SECTION_PREFIXES = ["4.2 planning bridge", "6. rela
  * TB-1717 — drops planning-bridge eng PRD from in-app pilot-feedback help.
  */
 export function stripPilotFeedbackContributorSections(markdown: string): string {
-  const lines = markdown.split("\n");
-  const result: string[] = [];
-  let omitSection = false;
-
-  for (const line of lines) {
-    if (line.startsWith("## ") && !line.startsWith("###")) {
-      const title = line.slice(3).trim().toLowerCase();
-      omitSection = PILOT_FEEDBACK_OMITTED_SECTION_PREFIXES.some((prefix) => title.startsWith(prefix));
-    }
-
-    if (!omitSection) {
-      result.push(line);
-    }
-  }
-
-  return result.join("\n");
+  return stripMarkdownSectionsByTitlePrefix(markdown, PILOT_FEEDBACK_OMITTED_SECTION_PREFIXES);
 }
 
 function isPilotFeedbackContributorLeakageLine(line: string): boolean {
@@ -2554,22 +2375,7 @@ const POLICY_PACK_DELTA_OMITTED_SECTION_PREFIXES = [
  * TB-1727 — drops script/CI/GTM appendix sections from in-app policy-pack-delta help.
  */
 export function stripPolicyPackDeltaContributorSections(markdown: string): string {
-  const lines = markdown.split("\n");
-  const result: string[] = [];
-  let omitSection = false;
-
-  for (const line of lines) {
-    if (line.startsWith("## ") && !line.startsWith("###")) {
-      const title = line.slice(3).trim().toLowerCase();
-      omitSection = POLICY_PACK_DELTA_OMITTED_SECTION_PREFIXES.some((prefix) => title.startsWith(prefix));
-    }
-
-    if (!omitSection) {
-      result.push(line);
-    }
-  }
-
-  return result.join("\n");
+  return stripMarkdownSectionsByTitlePrefix(markdown, POLICY_PACK_DELTA_OMITTED_SECTION_PREFIXES);
 }
 
 function isPolicyPackDeltaContributorLeakageLine(line: string): boolean {
@@ -3102,22 +2908,7 @@ const SOC2_SELF_ASSESSMENT_OMITTED_SECTION_PREFIXES = ["related", "pending quest
  * TB-1747 — drops contributor Related / Pending Questions sections from SOC 2 self-assessment help.
  */
 export function stripSoc2SelfAssessmentContributorSections(markdown: string): string {
-  const lines = markdown.split("\n");
-  const result: string[] = [];
-  let omitSection = false;
-
-  for (const line of lines) {
-    if (line.startsWith("## ") && !line.startsWith("###")) {
-      const title = line.slice(3).trim().toLowerCase();
-      omitSection = SOC2_SELF_ASSESSMENT_OMITTED_SECTION_PREFIXES.some((prefix) => title.startsWith(prefix));
-    }
-
-    if (!omitSection) {
-      result.push(line);
-    }
-  }
-
-  return result.join("\n");
+  return stripMarkdownSectionsByTitlePrefix(markdown, SOC2_SELF_ASSESSMENT_OMITTED_SECTION_PREFIXES);
 }
 
 function isSoc2SelfAssessmentContributorLeakageLine(line: string): boolean {
@@ -3304,69 +3095,24 @@ export function softenEvidenceIntakeHelpPresentation(markdown: string): string {
  * TB-1350 — specialty chrome owns path strip, verify panel, and related guides.
  */
 export function stripEvidenceIntakeStructuredUiSections(markdown: string): string {
-  const lines = markdown.split("\n");
-  const result: string[] = [];
-  let omitSection = false;
-
-  for (const line of lines) {
-    if (line.startsWith("## ") && !line.startsWith("###")) {
-      const title = line.slice(3).replace(/\s*\{#[^}]+\}\s*$/, "").trim().toLowerCase();
-      omitSection = EVIDENCE_INTAKE_STRUCTURED_UI_SECTION_PREFIXES.some((prefix) =>
-        title.startsWith(prefix),
-      );
-    }
-
-    if (!omitSection) {
-      result.push(line);
-    }
-  }
-
-  return result.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd();
+  return stripMarkdownSectionsByTitlePrefix(markdown, EVIDENCE_INTAKE_STRUCTURED_UI_SECTION_PREFIXES, {
+    collapseBlankLines: true,
+  });
 }
 
 /**
  * TB-1360 — specialty chrome owns open-graph action panel, finding jump, and related guides.
  */
 export function stripEvidenceTrailStructuredUiSections(markdown: string): string {
-  const lines = markdown.split("\n");
-  const result: string[] = [];
-  let omitSection = false;
-
-  for (const line of lines) {
-    if (line.startsWith("## ") && !line.startsWith("###")) {
-      const title = line.slice(3).replace(/\s*\{#[^}]+\}\s*$/, "").trim().toLowerCase();
-      omitSection = EVIDENCE_TRAIL_STRUCTURED_UI_SECTION_PREFIXES.some((prefix) =>
-        title.startsWith(prefix),
-      );
-    }
-
-    if (!omitSection) {
-      result.push(line);
-    }
-  }
-
-  return result.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd();
+  return stripMarkdownSectionsByTitlePrefix(markdown, EVIDENCE_TRAIL_STRUCTURED_UI_SECTION_PREFIXES, {
+    collapseBlankLines: true,
+  });
 }
 
 export function stripPathChooserStructuredUiSections(markdown: string): string {
-  const lines = markdown.split("\n");
-  const result: string[] = [];
-  let omitSection = false;
-
-  for (const line of lines) {
-    if (line.startsWith("## ") && !line.startsWith("###")) {
-      const title = line.slice(3).trim().toLowerCase();
-      omitSection = PATH_CHOOSER_STRUCTURED_UI_SECTION_TITLES.some(
-        (prefix) => title === prefix || title.startsWith(prefix),
-      );
-    }
-
-    if (!omitSection) {
-      result.push(line);
-    }
-  }
-
-  return result.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd();
+  return stripMarkdownSectionsByTitlePrefix(markdown, PATH_CHOOSER_STRUCTURED_UI_SECTION_TITLES, {
+    collapseBlankLines: true,
+  });
 }
 
 export function stripPathChooserContributorLeakage(markdown: string): string {
@@ -3770,8 +3516,8 @@ const HELP_MARKDOWN_AUDIENCE_RULE_SETS: readonly HelpMarkdownTopicRuleSet[] = [
     rules: [stripEvidenceTrailStructuredUiSections],
   },
   {
-    id: "path-chooser",
-    matches: matchesBoth(matchesSlug("path-chooser"), matchesSourceDoc("buyer_orientation_one_screen.md")),
+    id: "choose-your-next-step",
+    matches: matchesBoth(matchesSlug("choose-your-next-step"), matchesSourceDoc("buyer_orientation_one_screen.md")),
     rules: [stripPathChooserContributorLeakage, stripPathChooserStructuredUiSections],
   },
   {

@@ -6,14 +6,17 @@ import { describe, expect, it } from "vitest";
 import { PATH_CHOOSER_HELP_ROUTE_METADATA } from "@/lib/path-chooser-help-route-metadata";
 import { PATH_CHOOSER_HELP_PATH } from "@/lib/path-chooser-help-route";
 import { HELP_CENTER_FEATURED_SLUGS } from "@/lib/help-center-catalog";
+import { findHelpMarkdownTopicRuleSet } from "@/lib/help-markdown-presentation-pipeline";
+import {
+  HELP_MARKDOWN_TOPIC_RULE_STAGES,
+  stripPathChooserContributorLeakage,
+} from "@/lib/help-markdown-presentation";
 import {
   MARKETING_ROBOTS_DISALLOW_PREFIXES,
   MARKETING_SITEMAP_PATHNAMES,
 } from "@/lib/marketing/public-marketing-seo-paths";
 
 const HELP_TOPIC_PAGE = join(process.cwd(), "src", "app", "(operator)", "help", "[...topic]", "page.tsx");
-const HELP_MARKDOWN_PRESENTATION = join(process.cwd(), "src", "lib", "help-markdown-presentation.ts");
-
 const PRODUCT_PATH_CHOOSER_HELP_SURFACES = [
   "archlucid-ui/src/lib/help-search-panel-catalog.ts",
   "archlucid-ui/src/lib/in-app-doc-href.ts",
@@ -51,10 +54,27 @@ describe("path-chooser-help-route (HPX)", () => {
   });
 
   it("sanitizes path-chooser markdown via stripPathChooserContributorLeakage (TB-1712)", () => {
-    const presentationSource = readFileSync(HELP_MARKDOWN_PRESENTATION, "utf8");
+    const ruleSet = findHelpMarkdownTopicRuleSet(HELP_MARKDOWN_TOPIC_RULE_STAGES.audience, {
+      helpTopicSlug: "path-chooser",
+      normalizedSourcePath: "docs/go-to-market/buyer_orientation_one_screen.md",
+    });
 
-    expect(presentationSource).toContain('options?.helpTopicSlug === "path-chooser"');
-    expect(presentationSource).toContain("stripPathChooserContributorLeakage");
+    expect(ruleSet?.id).toBe("path-chooser");
+    expect(ruleSet?.rules).toContain(stripPathChooserContributorLeakage);
+  });
+
+  it("routes contributor leakage out of presented path-chooser copy (TB-1712)", () => {
+    const markdown = [
+      "> **Start operators here:** internal routing note.",
+      "",
+      "See `FIRST_PILOT_OPERATOR_PATH.md` for the operator path.",
+    ].join("\n");
+
+    const sanitized = stripPathChooserContributorLeakage(markdown);
+
+    expect(sanitized).not.toContain("Start operators here");
+    expect(sanitized).not.toContain("FIRST_PILOT_OPERATOR_PATH.md");
+    expect(sanitized).toContain("/help/first-architecture-review");
   });
 
   it("keeps marketing SEO inventory off the in-app help path", () => {
