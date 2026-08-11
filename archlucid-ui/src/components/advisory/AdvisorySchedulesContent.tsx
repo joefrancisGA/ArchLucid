@@ -8,6 +8,7 @@ import { RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from "react";
 
 import { AdvisoryScheduleCreateForm } from "@/components/advisory/AdvisoryScheduleCreateForm";
+import { AdvisoryRecurrenceScheduleVocabularyRail } from "@/components/AdvisoryRecurrenceScheduleVocabularyRail";
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -232,6 +233,7 @@ export function AdvisorySchedulesContent(): ReactElement {
             {ADVISORY_SCANS_SCHEDULES_PAGE_HEADING}
           </h2>
         </div>
+        <AdvisoryRecurrenceScheduleVocabularyRail currentSurfaceId="advisory-schedules" />
         <p className={cn("doc-meta m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.body)}>{ADVISORY_SCANS_SCHEDULES_INTRO}</p>
         <p className={cn("m-0 mt-2 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           {ADVISORY_SCANS_SCHEDULES_ELIGIBILITY}
