@@ -1352,7 +1352,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whatIsThisPage:
         "SSO wizard - guided OIDC or SAML setup that discovers provider metadata, maps roles, tests connection, then activates SSO for this workspace.",
       whatToDoNext:
-        "Choose a protocol, fetch metadata, map IdP claims to ArchLucid roles, run a test connection, then activate only after the test succeeds.",
+        "Choose your identity provider, confirm a protocol, fetch metadata, map claims to ArchLucid roles, run a test connection, then activate only after the test succeeds.",
       whyEmpty:
         "Wizard steps always render for authorized Admins; empty issuer or mapping fields mean metadata has not been fetched or claims are not filled yet.",
       whereToConfigurePrerequisite:

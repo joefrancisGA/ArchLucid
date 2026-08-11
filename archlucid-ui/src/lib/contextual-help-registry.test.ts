@@ -279,7 +279,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "SSO wizard",
     );
     expect(contextualHelpForPathname("/administration/identity/sso-wizard")?.whatToDoNext).toContain(
-      "Choose a protocol",
+      "Choose your identity provider",
     );
   });
 

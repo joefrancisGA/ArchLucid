@@ -30,6 +30,11 @@ import { SSO_WIZARD_BANNED_UI_PATTERNS } from "@/lib/sso-wizard-copy";
 import { SSO_WIZARD_ACTIVATE_SUCCESS_MESSAGE } from "@/lib/admin-integration-mutation-outcome-copy";
 import { showSuccess } from "@/lib/toast";
 
+function selectEntraAndContinue(): void {
+  fireEvent.click(screen.getByTestId("sso-idp-entra"));
+  fireEvent.click(screen.getByTestId("sso-wizard-continue"));
+}
+
 describe("SsoWizardPage", () => {
   it("renders enterprise SSO wizard chrome without internal implementation language", () => {
     render(<SsoWizardPageClient />);
@@ -38,7 +43,9 @@ describe("SsoWizardPage", () => {
     expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
     expect(screen.getByText(/test the connection before it can be activated/i)).toBeInTheDocument();
     expect(screen.getByTestId("sso-wizard-stepper")).toBeInTheDocument();
-    expect(screen.getByTestId("sso-protocol-selector")).toBeInTheDocument();
+    expect(screen.getByTestId("sso-wizard-stepper")).toHaveTextContent("Identity provider");
+    expect(screen.getByTestId("sso-idp-selector")).toBeInTheDocument();
+    expect(screen.queryByTestId("sso-protocol-selector")).not.toBeInTheDocument();
     expect(screen.getByTestId("sso-wizard-continue")).toBeDisabled();
 
     const pageText = screen.getByTestId("sso-wizard-page").textContent ?? "";
@@ -46,10 +53,37 @@ describe("SsoWizardPage", () => {
     for (const pattern of SSO_WIZARD_BANNED_UI_PATTERNS) {
       expect(pageText, `expected no match for ${pattern}`).not.toMatch(pattern);
     }
+
+    expect(pageText).not.toMatch(/IdP entity/i);
   });
 
-  it("exposes an accessible protocol radio group with Continue gating", () => {
+  it("gates Continue on identity provider, then shows protocol step with Entra OIDC preset", () => {
     render(<SsoWizardPageClient />);
+
+    const continueButton = screen.getByTestId("sso-wizard-continue");
+    expect(continueButton).toBeDisabled();
+    expect(screen.getByRole("radiogroup", { name: /identity provider/i })).toBeInTheDocument();
+    expect(screen.getByText(/Select an identity provider to continue/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("sso-idp-entra"));
+    expect(continueButton).toBeEnabled();
+
+    fireEvent.click(continueButton);
+
+    const protocolGroup = screen.getByRole("radiogroup", { name: /single sign-on protocol/i });
+    expect(protocolGroup).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: /OpenID Connect/i })).toBeChecked();
+    expect(continueButton).toBeEnabled();
+
+    fireEvent.click(continueButton);
+    expect(screen.getByTestId("sso-metadata-url")).toBeInTheDocument();
+  });
+
+  it("exposes an accessible protocol radio group with Continue gating after Other", () => {
+    render(<SsoWizardPageClient />);
+
+    fireEvent.click(screen.getByTestId("sso-idp-other"));
+    fireEvent.click(screen.getByTestId("sso-wizard-continue"));
 
     const radioGroup = screen.getByRole("radiogroup", { name: /single sign-on protocol/i });
     expect(radioGroup).toBeInTheDocument();
@@ -70,7 +104,7 @@ describe("SsoWizardPage", () => {
 
     render(<SsoWizardPageClient />);
 
-    fireEvent.click(screen.getByTestId("sso-protocol-oidc"));
+    fireEvent.click(screen.getByTestId("sso-idp-entra"));
     fireEvent.click(screen.getByRole("button", { name: /Cancel/i }));
 
     expect(confirmSpy).toHaveBeenCalled();
@@ -81,6 +115,8 @@ describe("SsoWizardPage", () => {
 
   it("expands protocol guidance without implementation leakage", () => {
     render(<SsoWizardPageClient />);
+
+    selectEntraAndContinue();
 
     fireEvent.click(screen.getByText(/Not sure which protocol to choose/i));
     expect(screen.getByText(/Choose OpenID Connect when your provider supports it/i)).toBeInTheDocument();
@@ -127,7 +163,7 @@ describe("SsoWizardPage", () => {
 
     render(<SsoWizardPageClient />);
 
-    fireEvent.click(screen.getByTestId("sso-protocol-oidc"));
+    selectEntraAndContinue();
     fireEvent.click(screen.getByTestId("sso-wizard-continue"));
 
     fireEvent.change(screen.getByTestId("sso-metadata-url"), {

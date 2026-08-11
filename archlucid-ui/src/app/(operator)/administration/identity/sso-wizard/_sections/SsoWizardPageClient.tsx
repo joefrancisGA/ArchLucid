@@ -31,6 +31,8 @@ import {
   SSO_WIZARD_CREDENTIALS_REFERENCE_LABEL,
   SSO_WIZARD_CREDENTIALS_REFERENCE_PLACEHOLDER,
   SSO_WIZARD_IDENTITY_PROVIDERS_HREF,
+  SSO_WIZARD_IDP_STEP_HEADING,
+  SSO_WIZARD_IDP_STEP_INSTRUCTION,
   SSO_WIZARD_PAGE_INTRO,
   SSO_WIZARD_PAGE_TITLE,
   SSO_WIZARD_PROTOCOL_STEP_HEADING,
@@ -48,10 +50,12 @@ import { SSO_WIZARD_CANONICAL_PATH } from "@/lib/sso-wizard-evidence-copy";
 import { WIZARD_SESSION_IDS } from "@/lib/wizard-session-persistence";
 
 import { SsoWizardFooter } from "./SsoWizardFooter";
+import { SsoWizardIdpSelector } from "./SsoWizardIdpSelector";
 import { SsoWizardProtocolHelpDisclosure } from "./SsoWizardProtocolHelpDisclosure";
 import { SsoWizardProtocolSelector } from "./SsoWizardProtocolSelector";
 import { SsoWizardStepper } from "./SsoWizardStepper";
 import {
+  applySsoWizardIdpPreset,
   ARCHLUCID_ROLES,
   createDefaultSsoWizardState,
   SSO_WIZARD_STEPS,
@@ -123,39 +127,45 @@ export function SsoWizardPageClient() {
   const completedSteps = useMemo(() => {
     const done: number[] = [];
 
-    if (state.protocol !== null) {
+    if (state.idpPresetId !== null) {
       done.push(0);
     }
 
-    if (state.issuerUri.trim().length > 0) {
+    if (state.protocol !== null) {
       done.push(1);
     }
 
-    if (state.claimMapping.mappings.some((m) => m.idpValue.trim().length > 0)) {
+    if (state.issuerUri.trim().length > 0) {
       done.push(2);
     }
 
-    if (state.testLoginSuccess) {
+    if (state.claimMapping.mappings.some((m) => m.idpValue.trim().length > 0)) {
       done.push(3);
+    }
+
+    if (state.testLoginSuccess) {
+      done.push(4);
     }
 
     return done;
   }, [state]);
 
-  const canProceedStep0 = state.protocol !== null;
-  const canProceedStep1 = state.issuerUri.trim().length > 0;
-  const canProceedStep2 =
+  const canProceedStep0 = state.idpPresetId !== null;
+  const canProceedStep1 = state.protocol !== null;
+  const canProceedStep2 = state.issuerUri.trim().length > 0;
+  const canProceedStep3 =
     state.claimMapping.roleClaimName.trim().length > 0 &&
     state.claimMapping.mappings.some((m) => m.idpValue.trim().length > 0 && m.archLucidRole.trim().length > 0);
-  const canProceedStep3 = state.testLoginSuccess;
-  const canActivate = canProceedStep3 && state.protocol !== null;
+  const canProceedStep4 = state.testLoginSuccess;
+  const canActivate = canProceedStep4 && state.protocol !== null;
 
   const canProceed =
     (step === 0 && canProceedStep0) ||
     (step === 1 && canProceedStep1) ||
     (step === 2 && canProceedStep2) ||
     (step === 3 && canProceedStep3) ||
-    step === 4;
+    (step === 4 && canProceedStep4) ||
+    step === 5;
 
   const runDiscover = useCallback(async () => {
     if (state.protocol === null) {
@@ -291,7 +301,7 @@ export function SsoWizardPageClient() {
 
       setSuccessMessage(SSO_WIZARD_ACTIVATE_SUCCESS_MESSAGE);
       wizardSession.clearSession();
-      setStep(4);
+      setStep(5);
     } catch (error: unknown) {
       setError(formatSsoWizardUnexpectedError(error));
     } finally {
@@ -377,14 +387,29 @@ export function SsoWizardPageClient() {
       <Card>
         <CardHeader>
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>
-            {step === 0 ? SSO_WIZARD_PROTOCOL_STEP_HEADING : currentStepMeta?.label}
+            {step === 0
+              ? SSO_WIZARD_IDP_STEP_HEADING
+              : step === 1
+                ? SSO_WIZARD_PROTOCOL_STEP_HEADING
+                : currentStepMeta?.label}
           </CardTitle>
           {step === 0 ? (
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{SSO_WIZARD_IDP_STEP_INSTRUCTION}</p>
+          ) : null}
+          {step === 1 ? (
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{SSO_WIZARD_PROTOCOL_STEP_INSTRUCTION}</p>
           ) : null}
         </CardHeader>
         <CardContent className="space-y-5">
           {step === 0 ? (
+            <SsoWizardIdpSelector
+              value={state.idpPresetId}
+              disabled={busy}
+              onChange={(idpPresetId) => setState((prev) => applySsoWizardIdpPreset(prev, idpPresetId))}
+            />
+          ) : null}
+
+          {step === 1 ? (
             <>
               <SsoWizardProtocolSelector
                 value={state.protocol}
@@ -395,7 +420,7 @@ export function SsoWizardPageClient() {
             </>
           ) : null}
 
-          {step === 1 ? (
+          {step === 2 ? (
             <div className="space-y-3">
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
                 Enter the metadata or discovery URL from your identity provider.
@@ -442,7 +467,7 @@ export function SsoWizardPageClient() {
             </div>
           ) : null}
 
-          {step === 2 ? (
+          {step === 3 ? (
             <div className="space-y-3">
               <div>
                 <Label htmlFor="role-claim">Identity provider group or role claim</Label>
@@ -536,7 +561,7 @@ export function SsoWizardPageClient() {
             </div>
           ) : null}
 
-          {step === 3 ? (
+          {step === 4 ? (
             <div className="space-y-3">
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
                 Run a test sign-in with sample claim values before activating SSO for users.
@@ -569,7 +594,7 @@ export function SsoWizardPageClient() {
             </div>
           ) : null}
 
-          {step === 4 ? (
+          {step === 5 ? (
             <div className="space-y-3">
               <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{SSO_WIZARD_ACTIVATE_INTRO}</p>
               <div>

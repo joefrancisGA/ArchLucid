@@ -16,6 +16,13 @@ export const SSO_WIZARD_SETTINGS_HREF = "/administration";
 
 export const SSO_WIZARD_BREADCRUMB_CONFIGURE = "Configure SSO";
 
+export const SSO_WIZARD_IDP_STEP_HEADING = "Choose your identity provider";
+
+export const SSO_WIZARD_IDP_STEP_INSTRUCTION =
+  "Select the directory or SSO product your organization uses. We will suggest a protocol next.";
+
+export const SSO_WIZARD_IDP_REQUIRED_HELPER = "Select an identity provider to continue.";
+
 export const SSO_WIZARD_PROTOCOL_STEP_HEADING = "Choose a protocol";
 
 export const SSO_WIZARD_PROTOCOL_STEP_INSTRUCTION =
