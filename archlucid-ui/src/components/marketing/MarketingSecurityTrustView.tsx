@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { SecurityTrustEvidenceOrientationStrip } from "@/components/marketing/SecurityTrustEvidenceOrientationStrip";
+import { TrustAssuranceSecurityTrustVocabularyRail } from "@/components/TrustAssuranceSecurityTrustVocabularyRail";
 import { Button } from "@/components/ui/button";
 import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -115,6 +116,7 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
         <SecurityTrustPrimaryActions testId="security-trust-hero-ctas" />
       </section>
 
+      <TrustAssuranceSecurityTrustVocabularyRail currentSurfaceId="assurance-status" />
       <SecurityTrustEvidenceOrientationStrip />
 
       <section aria-labelledby="security-trust-evidence-groups" className="space-y-4">

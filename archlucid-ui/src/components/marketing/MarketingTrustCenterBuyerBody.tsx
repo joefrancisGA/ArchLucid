@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { TrustCenterEvidenceOrientationStrip } from "@/components/marketing/TrustCenterEvidenceOrientationStrip";
+import { TrustAssuranceSecurityTrustVocabularyRail } from "@/components/TrustAssuranceSecurityTrustVocabularyRail";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
@@ -114,6 +115,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
         </div>
       </header>
 
+      <TrustAssuranceSecurityTrustVocabularyRail currentSurfaceId="trust-center" />
       <TrustCenterEvidenceOrientationStrip />
 
       <section aria-labelledby="trust-assurance-glance-heading" data-testid="trust-center-assurance-glance">

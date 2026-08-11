@@ -4,6 +4,7 @@ import Link from "next/link";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { StatusTag } from "@/components/StatusTag";
+import { TrustAssuranceSecurityTrustVocabularyRail } from "@/components/TrustAssuranceSecurityTrustVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
@@ -89,6 +90,7 @@ export function OperatorSecurityTrustPageView() {
         subtitle="Procurement-ready security and trust materials for this workspace."
         actions={<PageContextualHelpButton />}
       />
+      <TrustAssuranceSecurityTrustVocabularyRail currentSurfaceId="security-trust-hub" />
       <LayerHeader density="compact" pageKey="security-trust" />
 
       <section aria-label="Available now" className={OPERATOR_LAYOUT.sectionHeadingStack}>
@@ -224,10 +226,4 @@ export function OperatorSecurityTrustPageView() {
                   </td>
                 </tr>
               ))}
-            </tbody>
-          </table>
-        </div>
-      </details>
-    </div>
-  );
-}
+      
