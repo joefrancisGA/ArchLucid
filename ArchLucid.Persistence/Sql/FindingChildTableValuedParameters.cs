@@ -2,8 +2,6 @@ using System.Data;
 
 using Dapper;
 
-using Microsoft.Data.SqlClient;
-
 namespace ArchLucid.Persistence.Sql;
 
 /// <summary>
@@ -28,7 +26,7 @@ internal static class FindingChildTableValuedParameters
         parameters.Add("TenantId", tenantId, DbType.Guid);
         parameters.Add("WorkspaceId", workspaceId, DbType.Guid);
         parameters.Add("ProjectId", projectId, DbType.Guid);
-        parameters.Add("Rows", CreateStructuredParameter("Rows", typeName, rows));
+        parameters.Add("Rows", rows.AsTableValuedParameter(typeName));
         return parameters;
     }
 
@@ -74,14 +72,5 @@ internal static class FindingChildTableValuedParameters
         }
 
         return table;
-    }
-
-    private static SqlParameter CreateStructuredParameter(string name, string typeName, DataTable table)
-    {
-        return new SqlParameter(name, SqlDbType.Structured)
-        {
-            TypeName = typeName,
-            Value = table,
-        };
     }
 }
