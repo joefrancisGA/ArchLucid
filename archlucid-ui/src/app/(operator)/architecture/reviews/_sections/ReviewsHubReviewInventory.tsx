@@ -7,6 +7,7 @@ import { useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { cn } from "@/lib/utils";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { FavoriteReviewToggle } from "@/components/reviews/FavoriteReviewToggle";
 import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
 import { FilterChip } from "@/components/ui/filter-chip";
 import {
@@ -197,20 +198,23 @@ function ReviewsHubInventoryRow(props: InventoryRowProps): React.JSX.Element {
       style={props.style}
     >
       <EnterpriseTableCell>
-        <div className="min-w-[12rem]">
-          <Link
-            href={row.reviewHref}
-            className={cn(OPERATOR_LINK.nav, "font-medium")}
-            aria-label={`Open review ${row.reviewTitle}`}
-            data-testid={`reviews-hub-primary-action-${row.runId}`}
-          >
-            {row.reviewTitle}
-          </Link>
-          {row.isSampleReview ? (
-            <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              Sample review
-            </p>
-          ) : null}
+        <div className="flex min-w-[12rem] items-start gap-2">
+          <div className="min-w-0 flex-1">
+            <Link
+              href={row.reviewHref}
+              className={cn(OPERATOR_LINK.nav, "font-medium")}
+              aria-label={`Open review ${row.reviewTitle}`}
+              data-testid={`reviews-hub-primary-action-${row.runId}`}
+            >
+              {row.reviewTitle}
+            </Link>
+            {row.isSampleReview ? (
+              <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                Sample review
+              </p>
+            ) : null}
+          </div>
+          <FavoriteReviewToggle runId={row.runId} title={row.reviewTitle} />
         </div>
       </EnterpriseTableCell>
       <EnterpriseTableCell>{row.architectureName}</EnterpriseTableCell>

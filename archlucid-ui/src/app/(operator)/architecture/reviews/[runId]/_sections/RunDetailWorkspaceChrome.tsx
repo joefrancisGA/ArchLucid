@@ -8,6 +8,7 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { buttonVariants } from "@/components/ui/button";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
+import { FavoriteReviewToggle } from "@/components/reviews/FavoriteReviewToggle";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
 import { CTA_WIDTH, DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -58,7 +59,10 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
             </div>
           </div>
         </div>
-        <PageContextualHelpButton />
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
+          <FavoriteReviewToggle runId={props.runId} title={props.h1Title} size="sm" />
+          <PageContextualHelpButton />
+        </div>
       </div>
 
       <dl

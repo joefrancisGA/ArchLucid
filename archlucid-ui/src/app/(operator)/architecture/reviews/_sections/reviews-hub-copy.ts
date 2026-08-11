@@ -98,6 +98,11 @@ export const REVIEWS_HUB_INCLUDES_ITEMS = [
   "Exports",
 ] as const;
 
+
+export const REVIEWS_HUB_PINNED_REVIEWS_TITLE = "Pinned reviews";
+
+export const REVIEWS_HUB_PINNED_REVIEWS_EMPTY =
+  "Pin architecture packages you revisit often from the star on a row or review header.";
 export const REVIEWS_HUB_ADVANCED_LIST_DISCLOSURE = "Search and filter all reviews";
 
 export const REVIEWS_HUB_FILTER_SEARCH_PLACEHOLDER = "Search reviews, systems, owners, or references";

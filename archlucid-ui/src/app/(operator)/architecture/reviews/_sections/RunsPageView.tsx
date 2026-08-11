@@ -34,6 +34,7 @@ import {
   RunsListAggregateErrorBoundaryDeferred,
 } from "./reviews-hub-deferred-chunks";
 import { ReviewsHubResumeDrafts } from "./ReviewsHubResumeDrafts";
+import { ReviewsHubPinnedReviews } from "./ReviewsHubPinnedReviews";
 import { ReviewsHubReviewInventory } from "./ReviewsHubReviewInventory";
 import { ReviewsHubSummaryRow } from "./ReviewsHubSummaryRow";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -82,6 +83,7 @@ export function RunsPageView(props: Props) {
 {hubLoadOk ? (
         <>
           <ReviewsHubSummaryRow summary={workspaceSummary} />
+          <ReviewsHubPinnedReviews />
           <ReviewsHubReviewInventory runs={m.runs} />
           <ReviewsHubResumeDrafts />
           {hasReviews ? (

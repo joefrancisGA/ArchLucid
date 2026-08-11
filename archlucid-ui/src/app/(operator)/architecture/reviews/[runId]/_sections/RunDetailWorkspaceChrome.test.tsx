@@ -84,6 +84,7 @@ describe("RunDetailWorkspaceHeader", () => {
     expect(screen.getAllByText("Not recorded")).toHaveLength(2);
     expect(screen.getByText("Jan 1, 2026, 12:00 PM")).toBeInTheDocument();
     expect(screen.getByText("v2")).toBeInTheDocument();
+    expect(screen.getByTestId("favorite-review-toggle")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
   });
 });

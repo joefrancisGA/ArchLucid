@@ -163,4 +163,21 @@ describe("ReviewsHubReviewInventory", () => {
     expect(screen.getByTestId("reviews-hub-row-finalized")).toBeInTheDocument();
     expect(screen.queryByTestId("reviews-hub-row-draft")).toBeNull();
   });
+  it("renders a pin toggle on each inventory row (TB-2206)", () => {
+    render(
+      <ReviewsHubReviewInventory
+        runs={[
+          {
+            runId: "run-pin-1",
+            projectId: "default",
+            createdUtc: "2026-08-10T12:00:00.000Z",
+            displayName: "Pinned candidate",
+          } satisfies RunSummary,
+        ]}
+      />,
+    );
+
+    expect(screen.getByTestId("favorite-review-toggle")).toBeInTheDocument();
+    expect(screen.getByTestId("favorite-review-toggle")).toHaveAttribute("data-run-id", "run-pin-1");
+  });
 });
