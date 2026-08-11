@@ -13,6 +13,33 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class ApiControllerProblemDetailsSourceGuardTests
 {
+    /// <summary>
+    ///     Source shapes that bypass <c>ProblemDetailsExtensions</c>, paired with the remedy named in the failure.
+    /// </summary>
+    /// <remarks>
+    ///     The 4xx-with-payload rule covers <c>StatusCode(StatusCodes.Status413PayloadTooLarge, new { … })</c>, which the
+    ///     earlier single-argument rules missed: passing a body kept the response out of <c>problem+json</c> and so
+    ///     without <c>correlationId</c> or <c>errorCode</c>. It is deliberately scoped to 4xx, because 5xx responses
+    ///     carrying their own schema (health and upload endpoints) are a separate contract decision.
+    /// </remarks>
+    private static readonly (Regex Pattern, string Remedy)[] ForbiddenResultShapes =
+    [
+        (new Regex(@"\breturn\s+NotFound\s*\(", RegexOptions.CultureInvariant),
+            "return NotFound(...) — use NotFoundProblem per RFC 9457"),
+        (new Regex(@"\breturn\s+Conflict\s*\(", RegexOptions.CultureInvariant),
+            "return Conflict(...) — use ConflictProblem per RFC 9457"),
+        (new Regex(@"\breturn\s+BadRequest\s*\(", RegexOptions.CultureInvariant),
+            "return BadRequest(...) — use BadRequestProblem per RFC 9457"),
+        (new Regex(@"\breturn\s+StatusCode\s*\(\s*\d+\s*\)\s*;", RegexOptions.CultureInvariant),
+            "bare StatusCode(nnn) — use a Problem helper per docs/API_ERROR_CONTRACT.md"),
+        (new Regex(@"\breturn\s+StatusCode\s*\(\s*StatusCodes\.Status404NotFound\s*\)\s*;", RegexOptions.CultureInvariant),
+            "return StatusCode(StatusCodes.Status404NotFound) — use NotFoundProblem per RFC 9457"),
+        (new Regex(@"\breturn\s+StatusCode\s*\(\s*(?:StatusCodes\.Status4\d{2}\w*|4\d{2})\s*,", RegexOptions.CultureInvariant),
+            "4xx StatusCode(...) with a response body — use a Problem helper so the body stays problem+json"),
+        (new Regex(@"new\s+ObjectResult\s*\([^)]*\)\s*\{[^}]*StatusCode\s*=", RegexOptions.CultureInvariant),
+            "ObjectResult with StatusCode property — prefer typed Problem() helpers")
+    ];
+
     private static string ControllersDirectory()
     {
         DirectoryInfo? dir = new(AppContext.BaseDirectory);
@@ -20,9 +47,11 @@ public sealed class ApiControllerProblemDetailsSourceGuardTests
         while (dir is not null)
         {
             string sln = Path.Combine(dir.FullName, "ArchLucid.sln");
+
             if (File.Exists(sln))
             {
                 string controllers = Path.Combine(dir.FullName, "ArchLucid.Api", "Controllers");
+
                 if (Directory.Exists(controllers))
                 {
                     return controllers;
@@ -37,65 +66,27 @@ public sealed class ApiControllerProblemDetailsSourceGuardTests
     }
 
     [SkippableFact]
-    public void Controller_sources_must_not_use_bare_NotFound_or_Conflict_results()
+    public void Controller_sources_must_not_bypass_problem_details_helpers()
     {
         string root = ControllersDirectory();
         string[] files = Directory.GetFiles(root, "*.cs", SearchOption.AllDirectories);
         files.Length.Should().BeGreaterThan(0);
 
-        // Any `return NotFound(` / `Conflict(` / `BadRequest(` is a violation: use ProblemDetailsExtensions
-        // (`NotFoundProblem`, `ConflictProblem`, `BadRequestProblem`). `this.NotFoundProblem` does not match
-        // `return NotFound(` because the token after `return` is `this`.
-        Regex returnNotFound = new(@"\breturn\s+NotFound\s*\(", RegexOptions.CultureInvariant);
-        Regex returnConflict = new(@"\breturn\s+Conflict\s*\(", RegexOptions.CultureInvariant);
-        Regex returnBadRequest = new(@"\breturn\s+BadRequest\s*\(", RegexOptions.CultureInvariant);
-        Regex bareStatusCode = new(@"\breturn\s+StatusCode\s*\(\s*\d+\s*\)\s*;", RegexOptions.CultureInvariant);
-        Regex statusCodeNamed404 = new(
-            @"\breturn\s+StatusCode\s*\(\s*StatusCodes\.Status404NotFound\s*\)\s*;",
-            RegexOptions.CultureInvariant);
-        Regex objectResultWithStatus = new(@"new\s+ObjectResult\s*\([^)]*\)\s*\{[^}]*StatusCode\s*=",
-            RegexOptions.CultureInvariant);
-        List<string> violations = [];
-
-        foreach (string file in files)
-        {
-            string text = File.ReadAllText(file);
-
-            if (returnNotFound.IsMatch(text))
-            {
-                violations.Add($"{file}: return NotFound(...) — use NotFoundProblem per RFC 9457");
-            }
-
-            if (returnConflict.IsMatch(text))
-            {
-                violations.Add($"{file}: return Conflict(...) — use ConflictProblem per RFC 9457");
-            }
-
-            if (returnBadRequest.IsMatch(text))
-            {
-                violations.Add($"{file}: return BadRequest(...) — use BadRequestProblem per RFC 9457");
-            }
-
-            if (bareStatusCode.IsMatch(text))
-            {
-                violations.Add(
-                    $"{file}: bare StatusCode(nnn) — use Problem/IActionResult factory per docs/API_ERROR_CONTRACT.md");
-            }
-
-            if (statusCodeNamed404.IsMatch(text))
-            {
-                violations.Add(
-                    $"{file}: return StatusCode(StatusCodes.Status404NotFound) — use NotFoundProblem per RFC 9457");
-            }
-
-            if (objectResultWithStatus.IsMatch(text))
-            {
-                violations.Add($"{file}: ObjectResult with StatusCode property — prefer typed Problem() helpers");
-            }
-        }
+        List<string> violations = files
+            .SelectMany(file => FindViolations(file))
+            .ToList();
 
         violations.Should().BeEmpty(
             "use ProblemDetailsExtensions (e.g. NotFoundProblem, ConflictProblem) per docs/API_ERROR_CONTRACT.md: " +
             string.Join("; ", violations));
+    }
+
+    private static IEnumerable<string> FindViolations(string file)
+    {
+        string text = File.ReadAllText(file);
+
+        return ForbiddenResultShapes
+            .Where(shape => shape.Pattern.IsMatch(text))
+            .Select(shape => $"{file}: {shape.Remedy}");
     }
 }

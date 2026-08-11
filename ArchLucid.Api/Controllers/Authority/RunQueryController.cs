@@ -868,14 +868,15 @@ public sealed class RunQueryController(
         }
         catch (TraceabilityBundleTooLargeException ex)
         {
-            return StatusCode(
-                StatusCodes.Status413PayloadTooLarge,
-                new
+            // ExportFailed rather than a size-specific type: 413 plus the byte extensions already tell a client the
+            // bundle exceeded the cap, so this reuses an existing contract value instead of adding one.
+            return this.PayloadTooLargeProblem(
+                ex.Message,
+                ProblemTypes.ExportFailed,
+                extensions: new Dictionary<string, object?>
                 {
-                    title = "Traceability bundle exceeds size cap",
-                    detail = ex.Message,
-                    attemptedBytes = ex.AttemptedBytes,
-                    maxBytes = ex.MaxBytes
+                    ["attemptedBytes"] = ex.AttemptedBytes,
+                    ["maxBytes"] = ex.MaxBytes
                 });
         }
     }

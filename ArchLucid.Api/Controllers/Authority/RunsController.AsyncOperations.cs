@@ -67,17 +67,9 @@ public sealed partial class RunsController
             Response.Headers.Location = $"/v1/operations/{operationId}";
             return StatusCode(StatusCodes.Status202Accepted);
         }
-        catch (RunNotFoundException ex)
+        catch (Exception ex) when (AuthorityRunProblemLadder.CanMap(ex))
         {
-            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
-        }
-        catch (ConflictException ex)
-        {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-        }
-        catch (ArgumentException ex)
-        {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+            return AuthorityRunProblemLadder.Map(this, ex);
         }
     }
 
@@ -143,21 +135,9 @@ public sealed partial class RunsController
             Response.Headers.Location = $"/v1/operations/{operationId}";
             return StatusCode(StatusCodes.Status202Accepted);
         }
-        catch (RunNotFoundException ex)
+        catch (Exception ex) when (AuthorityRunProblemLadder.CanMap(ex))
         {
-            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
-        }
-        catch (ConflictException ex)
-        {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-        }
-        catch (ArgumentException ex)
-        {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return this.InvalidOperationProblem(ex, ProblemTypes.BadRequest);
+            return AuthorityRunProblemLadder.Map(this, ex);
         }
     }
 }
