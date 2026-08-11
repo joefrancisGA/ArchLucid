@@ -111,6 +111,7 @@ archlucid-ui/src/components/TrialUsageUpgradeNudge.tsx
 archlucid-ui/src/components/WelcomeBanner.tsx
 archlucid-ui/src/components/advisory/AdvisorySchedulesContent.tsx
 archlucid-ui/src/components/alerts/AlertRulesContent.tsx
+archlucid-ui/src/components/alerts/AlertRoutingContent.tsx
 archlucid-ui/src/components/alerts/use-alerts-inbox-controller.ts
 archlucid-ui/src/components/compare/CompareRawManifestDiffSection.tsx
 archlucid-ui/src/components/cto-demo/CtoDemoAuditClosingBeat.tsx
@@ -128,7 +129,6 @@ archlucid-ui/src/components/dev-testing/DevTestingQuickSwitchPanel.tsx
 archlucid-ui/src/components/digests/DigestSubscriptionCreateForm.tsx
 archlucid-ui/src/components/digests/DigestsHubClient.tsx
 archlucid-ui/src/components/digests/ExecDigestScheduleContent.tsx
-archlucid-ui/src/components/executive/ExecutiveDashboardPageHero.tsx
 archlucid-ui/src/components/explanation/CitationChips.tsx
 archlucid-ui/src/components/governance/DataArchivalDegradedBanner.tsx
 archlucid-ui/src/components/governance/GovernanceBypassAuditPanel.tsx

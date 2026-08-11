@@ -110,6 +110,12 @@ def parse_score(row: dict[str, str]) -> int:
 
 def parse_ux_score(row: dict[str, str]) -> int:
     """UX quality score (Scores position 2); 0 means unscored."""
+    series = parse_score_series(row)
+
+    if len(series) == 1:
+        # Legacy single-dimension workbooks treated the sole score as the UX headline.
+        return series[0]
+
     return _score_at(row, UX_INDEX)
 
 
