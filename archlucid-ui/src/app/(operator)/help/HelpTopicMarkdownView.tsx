@@ -41,6 +41,7 @@ import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/desig
 import { AUTHENTICATION_SIGN_IN_HELP_PRIMARY_ACTION } from "@/lib/authentication-sign-in-help-copy";
 import { CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTION } from "@/lib/caiq-sig-response-help-evidence-copy";
 import { ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION } from "@/lib/enterprise-onboarding-help-copy";
+import { INTEGRATION_READINESS_HELP_PRIMARY_ACTION } from "@/lib/integration-readiness-help-evidence-copy";
 
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
 
@@ -145,6 +146,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
   const postureCounts = isCaiqSigResponse ? computeCaiqSigResponsePostureCounts(preparedMarkdown) : null;
   const postureTableRowTotal = isCaiqSigResponse ? countCaiqSigResponseTableRows(preparedMarkdown) : 0;
 
+  const isIntegrationReadinessHelp = entry.slug === "integration-readiness";
   const isAuthenticationSignInHelp = entry.slug === "authentication-sign-in";
 
   const isTechnicalReferenceLayout = layoutVariant === "technicalReference";
@@ -200,7 +202,9 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
               ? AUTHENTICATION_SIGN_IN_HELP_PRIMARY_ACTION
               : isCaiqSigResponse
                 ? CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTION
-                : undefined
+                : isIntegrationReadinessHelp
+                  ? INTEGRATION_READINESS_HELP_PRIMARY_ACTION
+                  : undefined
         }
 
       />

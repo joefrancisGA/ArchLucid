@@ -2,8 +2,14 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const INTEGRATION_READINESS_HELP_CANONICAL_PATH = "/help/integration-readiness" as const;
 
+export const INTEGRATION_READINESS_HELP_PRIMARY_ACTION = {
+  label: "Open Connection status",
+  href: "/administration/connection-status",
+  testId: "help-integration-readiness-open-connection-status",
+} as const;
+
 export const INTEGRATION_READINESS_HELP_CLAIM_DISCIPLINE =
-  "This integration readiness guide is architect orientation for connector setup priority - it is not or a signed-review diligence Sources package. Open Connection status or a specific integration settings page when you need live connector health.";
+  "This integration readiness guide is architect orientation for connector setup priority — it is not a signed-review diligence Sources package. Open Connection status or a specific integration settings page when you need live connector health.";
 
 export const INTEGRATION_READINESS_HELP_SOURCES_INTRO =
   "Use these follow-ups when readiness labels turn into live connector setup, ITSM destinations, or cloud evidence attachments.";
