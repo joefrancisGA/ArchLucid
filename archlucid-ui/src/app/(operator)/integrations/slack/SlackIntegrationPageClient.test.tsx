@@ -67,6 +67,10 @@ describe("SlackIntegrationPageClient", () => {
     expect(pageRoot.className).not.toMatch(/\bspace-y-8\b/);
     expect(pageRoot.className).not.toMatch(/\bpy-8\b/);
     expect(pageRoot.className).toMatch(/\bpy-4\b/);
+
+    // TB-1575: about-aside demoted — no persistent 17.5rem two-col rail.
+    expect(document.querySelector(".lg\\:grid-cols-\\[minmax\\(0\\,1fr\\)_17\\.5rem\\]")).toBeNull();
+    expect(screen.getByTestId("slack-integration-aside")).toBeInTheDocument();
   });
 
   it("renders customer-facing form labels and Test-before-Save CTA hierarchy", async () => {

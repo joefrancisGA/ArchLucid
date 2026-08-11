@@ -459,9 +459,10 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
         <AzureBoardsIntegrationPageLoadingSkeleton />
       ) : (
         <div
-          className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_17.5rem] lg:items-start"
+          className={cn(OPERATOR_LAYOUT.majorSectionGap)}
           aria-busy={isLoading}
           data-testid="azure-boards-page-content"
+          data-operator-side-rail-kind="none"
         >
           <div className={cn("min-w-0", OPERATOR_LAYOUT.majorSectionGap)}>
             <section aria-labelledby="azure-boards-status-heading" className="space-y-3" data-testid="azure-boards-connection-status">

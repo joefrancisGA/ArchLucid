@@ -24,10 +24,11 @@ export function RunDetailWorkspaceLayout(props: RunDetailWorkspaceLayoutProps): 
           "grid gap-6",
           props.rail !== null ? "lg:grid-cols-[minmax(0,1fr)_280px]" : "lg:grid-cols-1",
         )}
+        data-operator-side-rail-kind={props.rail !== null ? "working-object" : "none"}
       >
         <div className={cn("min-w-0 space-y-4", OPERATOR_LAYOUT.sectionStack)}>{props.main}</div>
         {props.rail !== null ? (
-          <aside className="space-y-4">
+          <aside className="space-y-4" data-testid="run-detail-working-object-rail">
             <div className="space-y-4 lg:sticky lg:top-36">{props.rail}</div>
           </aside>
         ) : null}

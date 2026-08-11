@@ -143,171 +143,190 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
       {m.loading && m.conn === null ? (
         <OperatorLoadingNotice>Loading Teams configuration…</OperatorLoadingNotice>
       ) : (
-        <div className={cn("grid lg:grid-cols-[minmax(0,1fr)_17.5rem] lg:items-start", OPERATOR_LAYOUT.unrelatedClusterGap)}>
-          <div className={cn("min-w-0", OPERATOR_LAYOUT.sectionStack, !m.canMutate && "opacity-95")}>
-            {m.conn?.isConfigured === true ? (
-              <TeamsConnectionSummary
-                conn={m.conn}
-                destinationName={destinationName}
-                status={m.connectionStatus}
-                lastTestMessage={m.lastTestMessage}
-              />
-            ) : null}
+        <div
+          className={cn("min-w-0", OPERATOR_LAYOUT.sectionStack, !m.canMutate && "opacity-95")}
+          data-operator-side-rail-kind="none"
+        >
+          {m.conn?.isConfigured === true ? (
+            <TeamsConnectionSummary
+              conn={m.conn}
+              destinationName={destinationName}
+              status={m.connectionStatus}
+              lastTestMessage={m.lastTestMessage}
+            />
+          ) : null}
 
-            <section aria-labelledby="teams-connect-heading" className="space-y-5">
-              <div>
-                <h2 id="teams-connect-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
-                  {TEAMS_INTEGRATION_CONNECT_SECTION_TITLE}
-                </h2>
-                <p className={cn("m-0 mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  {TEAMS_INTEGRATION_CONNECT_SECTION_LEAD}
-                </p>
-                {m.conn?.isConfigured !== true ? (
-                  <p
-                    className={cn(
-                      "m-0 mt-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100",
-                      OPERATOR_TYPOGRAPHY.helper,
-                    )}
-                    role="status"
-                    data-testid="teams-draft-not-saved"
-                  >
-                    {TEAMS_INTEGRATION_DRAFT_NOT_SAVED_HELPER}
-                  </p>
-                ) : null}
-              </div>
-
-              <div className="grid max-w-xl gap-5">
-                <div>
-                  <Label htmlFor="kv-secret">{TEAMS_INTEGRATION_SECRET_NAME_LABEL}</Label>
-                  <Input
-                    id="kv-secret"
-                    name="keyVaultSecretName"
-                    value={m.secretName}
-                    onChange={(event) => m.setSecretName(event.target.value)}
-                    disabled={!m.canMutate || m.saving}
-                    autoComplete="off"
-                    placeholder="teams-governance-alerts-prod"
-                    className="placeholder:text-al-text-secondary/70"
-                    aria-describedby="kv-secret-helper kv-secret-example kv-secret-error"
-                  />
-                  <p id="kv-secret-helper" className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    {TEAMS_INTEGRATION_SECRET_HELPER}
-                  </p>
-                  <p id="kv-secret-example" className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    {TEAMS_INTEGRATION_SECRET_EXAMPLE}
-                  </p>
-                  {m.secretValidation !== null && m.secretValidation.outcome === "invalid-name" ? (
-                    <p id="kv-secret-error" role="alert" className={cn("m-0 mt-1 text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.body)}>
-                      {m.secretValidation.message}
-                    </p>
-                  ) : null}
-                </div>
-
-                <div>
-                  <Label htmlFor="teams-destination-name">Destination name (optional)</Label>
-                  <Input
-                    id="teams-destination-name"
-                    name="label"
-                    value={m.label}
-                    onChange={(event) => m.setLabel(event.target.value)}
-                    disabled={!m.canMutate || m.saving}
-                    autoComplete="off"
-                    placeholder="Architecture governance"
-                    className="placeholder:text-al-text-secondary/70"
-                    aria-describedby="teams-destination-name-helper"
-                  />
-                  <p id="teams-destination-name-helper" className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    {TEAMS_INTEGRATION_DESTINATION_NAME_HELPER}
-                  </p>
-                </div>
-
-                <TeamsNotificationsSelector
-                  enabledTriggers={m.enabledTriggers}
-                  canMutate={m.canMutate}
-                  saving={m.saving}
-                  showValidationError={m.showTriggerValidationError}
-                  onToggle={m.toggleTrigger}
-                  onSelectRecommended={m.onSelectRecommended}
-                  onSelectAll={m.onSelectAll}
-                  onClearAll={m.onClearAll}
-                />
-              </div>
-
-              <div className={cn("flex flex-col", OPERATOR_LAYOUT.controlClusterGap)}>
-                <div className={cn("flex flex-wrap", OPERATOR_LAYOUT.inlineGap)}>
-                  <Button
-                    type="button"
-                    variant={cta.validateVariant}
-                    disabled={!m.canMutate || m.saving || m.validating || m.secretName.trim().length === 0}
-                    title={m.canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-                    data-testid="teams-validate-button"
-                    onClick={() => void m.onValidateSecret()}
-                  >
-                    {m.validating ? "Validating…" : "Validate secret"}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={cta.testVariant}
-                    disabled={!m.canMutate || m.saving || m.testing || !m.canSendTest}
-                    data-testid="teams-test-button"
-                    title={cta.showTestDisabledHelper ? TEAMS_INTEGRATION_TEST_DISABLED_HELPER : undefined}
-                    onClick={() => void m.onSendTest()}
-                  >
-                    {m.testing ? "Sending test…" : "Send test notification"}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={cta.saveVariant}
-                    disabled={cta.saveDisabled}
-                    title={m.canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-                    data-testid="teams-save-button"
-                    onClick={() => void m.onSave()}
-                  >
-                    {isConfigured ? "Save changes" : "Save Teams connection"}
-                  </Button>
-                  {isConfigured ? (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      disabled={!m.canMutate || m.saving}
-                      onClick={() => void m.onRemove()}
-                    >
-                      Remove connection
-                    </Button>
-                  ) : null}
-                </div>
-                {cta.showTestDisabledHelper ? (
-                  <p
-                    className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                    data-testid="teams-test-disabled-helper"
-                  >
-                    {TEAMS_INTEGRATION_TEST_DISABLED_HELPER}
-                  </p>
-                ) : null}
-              </div>
-
-              {m.testMessage !== null && m.testKind !== null ? (
+          <section aria-labelledby="teams-connect-heading" className="space-y-5">
+            <div>
+              <h2 id="teams-connect-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
+                {TEAMS_INTEGRATION_CONNECT_SECTION_TITLE}
+              </h2>
+              <p className={cn("m-0 mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {TEAMS_INTEGRATION_CONNECT_SECTION_LEAD}
+              </p>
+              {m.conn?.isConfigured !== true ? (
                 <p
-                  role={m.testKind === "error" ? "alert" : "status"}
                   className={cn(
-                    "m-0",
-                    OPERATOR_TYPOGRAPHY.body,
-                    m.testKind === "error" ? "text-red-700 dark:text-red-300" : "text-teal-800 dark:text-teal-200",
+                    "m-0 mt-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100",
+                    OPERATOR_TYPOGRAPHY.helper,
                   )}
-                  data-testid="teams-form-test-feedback"
+                  role="status"
+                  data-testid="teams-draft-not-saved"
                 >
-                  {m.testMessage}
+                  {TEAMS_INTEGRATION_DRAFT_NOT_SAVED_HELPER}
                 </p>
               ) : null}
-            </section>
-          </div>
+            </div>
 
-          <TeamsIntegrationAside
-            validationMessage={validationMessage}
-            validationKind={validationKind}
-            testMessage={m.testMessage}
-            testKind={m.testKind}
-          />
+            <div className="grid max-w-xl gap-5">
+              <div>
+                <Label htmlFor="kv-secret">{TEAMS_INTEGRATION_SECRET_NAME_LABEL}</Label>
+                <Input
+                  id="kv-secret"
+                  name="keyVaultSecretName"
+                  value={m.secretName}
+                  onChange={(event) => m.setSecretName(event.target.value)}
+                  disabled={!m.canMutate || m.saving}
+                  autoComplete="off"
+                  placeholder="teams-governance-alerts-prod"
+                  className="placeholder:text-al-text-secondary/70"
+                  aria-describedby="kv-secret-helper kv-secret-example kv-secret-error"
+                />
+                <p id="kv-secret-helper" className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {TEAMS_INTEGRATION_SECRET_HELPER}
+                </p>
+                <p id="kv-secret-example" className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {TEAMS_INTEGRATION_SECRET_EXAMPLE}
+                </p>
+                {m.secretValidation !== null && m.secretValidation.outcome === "invalid-name" ? (
+                  <p
+                    id="kv-secret-error"
+                    role="alert"
+                    className={cn("m-0 mt-1 text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.body)}
+                  >
+                    {m.secretValidation.message}
+                  </p>
+                ) : null}
+              </div>
+
+              <div>
+                <Label htmlFor="teams-destination-name">Destination name (optional)</Label>
+                <Input
+                  id="teams-destination-name"
+                  name="label"
+                  value={m.label}
+                  onChange={(event) => m.setLabel(event.target.value)}
+                  disabled={!m.canMutate || m.saving}
+                  autoComplete="off"
+                  placeholder="Architecture governance"
+                  className="placeholder:text-al-text-secondary/70"
+                  aria-describedby="teams-destination-name-helper"
+                />
+                <p
+                  id="teams-destination-name-helper"
+                  className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                >
+                  {TEAMS_INTEGRATION_DESTINATION_NAME_HELPER}
+                </p>
+              </div>
+
+              <TeamsNotificationsSelector
+                enabledTriggers={m.enabledTriggers}
+                canMutate={m.canMutate}
+                saving={m.saving}
+                showValidationError={m.showTriggerValidationError}
+                onToggle={m.toggleTrigger}
+                onSelectRecommended={m.onSelectRecommended}
+                onSelectAll={m.onSelectAll}
+                onClearAll={m.onClearAll}
+              />
+            </div>
+
+            <div className={cn("flex flex-col", OPERATOR_LAYOUT.controlClusterGap)}>
+              <div className={cn("flex flex-wrap", OPERATOR_LAYOUT.inlineGap)}>
+                <Button
+                  type="button"
+                  variant={cta.validateVariant}
+                  disabled={!m.canMutate || m.saving || m.validating || m.secretName.trim().length === 0}
+                  title={m.canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                  data-testid="teams-validate-button"
+                  onClick={() => void m.onValidateSecret()}
+                >
+                  {m.validating ? "Validating…" : "Validate secret"}
+                </Button>
+                <Button
+                  type="button"
+                  variant={cta.testVariant}
+                  disabled={!m.canMutate || m.saving || m.testing || !m.canSendTest}
+                  data-testid="teams-test-button"
+                  title={cta.showTestDisabledHelper ? TEAMS_INTEGRATION_TEST_DISABLED_HELPER : undefined}
+                  onClick={() => void m.onSendTest()}
+                >
+                  {m.testing ? "Sending test…" : "Send test notification"}
+                </Button>
+                <Button
+                  type="button"
+                  variant={cta.saveVariant}
+                  disabled={cta.saveDisabled}
+                  title={m.canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                  data-testid="teams-save-button"
+                  onClick={() => void m.onSave()}
+                >
+                  {isConfigured ? "Save changes" : "Save Teams connection"}
+                </Button>
+                {isConfigured ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={!m.canMutate || m.saving}
+                    onClick={() => void m.onRemove()}
+                  >
+                    Remove connection
+                  </Button>
+                ) : null}
+              </div>
+              {cta.showTestDisabledHelper ? (
+                <p
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="teams-test-disabled-helper"
+                >
+                  {TEAMS_INTEGRATION_TEST_DISABLED_HELPER}
+                </p>
+              ) : null}
+            </div>
+
+            {validationMessage !== null ? (
+              <p
+                role={validationKind === "error" ? "alert" : "status"}
+                className={cn(
+                  "m-0 rounded-md border px-3 py-2",
+                  OPERATOR_TYPOGRAPHY.helper,
+                  validationKind === "error"
+                    ? "border-red-200 text-red-800 dark:border-red-900 dark:text-red-200"
+                    : "border-teal-200 text-teal-900 dark:border-teal-900 dark:text-teal-100",
+                )}
+                data-testid="teams-secret-validation-feedback"
+              >
+                {validationMessage}
+              </p>
+            ) : null}
+
+            {m.testMessage !== null && m.testKind !== null ? (
+              <p
+                role={m.testKind === "error" ? "alert" : "status"}
+                className={cn(
+                  "m-0",
+                  OPERATOR_TYPOGRAPHY.body,
+                  m.testKind === "error" ? "text-red-700 dark:text-red-300" : "text-teal-800 dark:text-teal-200",
+                )}
+                data-testid="teams-form-test-feedback"
+              >
+                {m.testMessage}
+              </p>
+            ) : null}
+          </section>
+
+          <TeamsIntegrationAside />
         </div>
       )}
 

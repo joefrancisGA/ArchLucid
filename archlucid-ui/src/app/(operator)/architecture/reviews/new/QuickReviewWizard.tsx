@@ -552,7 +552,11 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
       </div>
       </div>
 
-      <aside className="hidden lg:block">
+      <aside
+        className="hidden lg:block"
+        data-testid="quick-review-wizard-side-rail"
+        data-operator-side-rail-kind="toc-wizard"
+      >
         <WizardPackagePreview systemName={displaySystemName} hasEvidence={evidenceAttached} />
       </aside>
     </OperatorPageContainer>

@@ -307,7 +307,11 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
       ) : null}
 
       {digests.length > 0 ? (
-        <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(20rem,0.8fr)]">
+        <div
+          className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(20rem,0.8fr)]"
+          data-testid="digests-browse-master-detail"
+          data-operator-side-rail-kind="master-detail"
+        >
           <section className="min-w-0 rounded-lg border border-neutral-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-950">
             <h3 className={cn("m-0 mb-3 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
               Digest history

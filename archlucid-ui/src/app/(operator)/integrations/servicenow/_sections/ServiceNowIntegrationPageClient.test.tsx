@@ -343,13 +343,17 @@ describe("ServiceNowIntegrationPageClient", () => {
     expect(within(screen.getByTestId("servicenow-latest-test")).getByText(/403 forbidden/i)).toBeInTheDocument();
   });
 
-  it("uses responsive two-column layout classes", async () => {
+  it("uses single-column layout after about-aside demotion (TB-1575)", async () => {
     render(<ServiceNowIntegrationPageClient />);
     await screen.findByTestId("integrations-servicenow-page");
 
     const grid = document.querySelector(".lg\\:grid-cols-\\[minmax\\(0\\,1fr\\)_17\\.5rem\\]");
-    expect(grid).not.toBeNull();
+    expect(grid).toBeNull();
     expect(screen.getByTestId("servicenow-integration-aside")).toBeInTheDocument();
+    expect(screen.getByTestId("servicenow-integration-aside")).toHaveAttribute(
+      "data-operator-side-rail-kind",
+      "none",
+    );
   });
 
   it("exposes meaningful status region for accessibility", async () => {

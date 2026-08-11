@@ -5,8 +5,9 @@ import { cn } from "@/lib/utils";
 export function AzureBoardsIntegrationPageLoadingSkeleton(): React.JSX.Element {
   return (
     <div
-      className={cn("grid gap-6 lg:grid-cols-[minmax(0,1fr)_17.5rem] lg:items-start", OPERATOR_LAYOUT.majorSectionGap)}
+      className={cn(OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="azure-boards-loading-skeleton"
+      data-operator-side-rail-kind="none"
       aria-busy="true"
     >
       <div className={cn("min-w-0", OPERATOR_LAYOUT.majorSectionGap)}>

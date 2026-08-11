@@ -193,7 +193,7 @@ describe("TeamsNotificationsIntegrationPageClient", () => {
       expect(mockTest).toHaveBeenCalledWith("teams-governance-alerts-prod");
     });
 
-    expect(await screen.findByTestId("teams-test-feedback")).toHaveTextContent(
+    expect(await screen.findByTestId("teams-form-test-feedback")).toHaveTextContent(
       "Test notification sent to Microsoft Teams.",
     );
   });

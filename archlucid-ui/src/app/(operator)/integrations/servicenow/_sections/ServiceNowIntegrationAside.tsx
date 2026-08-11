@@ -33,7 +33,11 @@ type Props = {
 
 export function ServiceNowIntegrationAside(props: Props): React.ReactElement {
   return (
-    <aside className="space-y-4" data-testid="servicenow-integration-aside">
+    <aside
+      className="space-y-4"
+      data-testid="servicenow-integration-aside"
+      data-operator-side-rail-kind="none"
+    >
       <div className="rounded-md border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800">
         <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{SERVICENOW_SETUP_PROGRESS_TITLE}</h2>
         <ol

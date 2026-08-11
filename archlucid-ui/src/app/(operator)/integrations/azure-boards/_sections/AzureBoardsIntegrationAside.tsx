@@ -65,7 +65,11 @@ function AzureBoardsSetupStepLabel(props: {
 
 export function AzureBoardsIntegrationAside(props: Props): React.ReactElement {
   return (
-    <aside className="space-y-4" data-testid="azure-boards-integration-aside">
+    <aside
+      className="space-y-4"
+      data-testid="azure-boards-integration-aside"
+      data-operator-side-rail-kind="none"
+    >
       <div className="rounded-md border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800">
         <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{AZURE_BOARDS_SETUP_PROGRESS_TITLE}</h2>
         <ol

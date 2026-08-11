@@ -200,6 +200,7 @@ export function HelpTopicTableOfContents(props: HelpTopicTableOfContentsProps): 
           aria-label="On this page"
           className={cn(HELP_PAGE_TOC.nav, "hidden xl:block")}
           data-testid="help-topic-toc"
+          data-operator-side-rail-kind="toc-wizard"
         >
           <p className={HELP_PAGE_TOC.heading} data-testid="help-topic-toc-heading">
             On this page

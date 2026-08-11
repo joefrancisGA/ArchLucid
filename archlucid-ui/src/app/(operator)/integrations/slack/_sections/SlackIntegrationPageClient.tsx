@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm } from "react-hook-form";
 
@@ -21,8 +22,11 @@ import {
   testWebhookSubscription,
   toggleAlertRoutingSubscription,
 } from "@/lib/api";
-import { INTEGRATIONS_SLACK_PATH } from "@/lib/integrations-nav-paths";
-import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  INTEGRATIONS_READINESS_PATH,
+  INTEGRATIONS_SLACK_PATH,
+} from "@/lib/integrations-nav-paths";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   slackIntegrationDefaultValues,
   slackIntegrationFormSchema,
@@ -247,6 +251,11 @@ export function SlackIntegrationPageClient(): React.ReactElement {
                 </p>
               ) : null}
             </div>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              <Link className={OPERATOR_LINK.inline} href={INTEGRATIONS_READINESS_PATH}>
+                Integration readiness
+              </Link>
+            </p>
           </>
         }
       />
@@ -272,37 +281,33 @@ export function SlackIntegrationPageClient(): React.ReactElement {
 
       <FormProvider {...form}>
         <div
-          className={cn(
-            "grid lg:grid-cols-[minmax(0,1fr)_17.5rem] lg:items-start",
-            OPERATOR_LAYOUT.unrelatedClusterGap,
-          )}
+          className={cn("min-w-0", OPERATOR_LAYOUT.sectionStack, !canMutate && "opacity-95")}
+          data-operator-side-rail-kind="none"
         >
-          <div className={cn("min-w-0", OPERATOR_LAYOUT.sectionStack, !canMutate && "opacity-95")}>
-            <SlackDestinationForm
-              onClearFormTestFeedback={() => setFormTestFeedback(null)}
-              canMutate={canMutate}
-              loading={loading}
-              testingForm={testingForm}
-              formTestFeedback={formTestFeedback}
-              onSave={() => void onSave()}
-              onSendTest={() => void onSendFormTest()}
-            />
-
-            <SlackDestinationsPanel
-              destinations={slackRows}
-              loading={loading}
-              canMutate={canMutate}
-              testingId={testingId}
-              rowTestFeedback={rowTestFeedback}
-              onRefresh={() => void load()}
-              onTest={(routingSubscriptionId) => void onTestDestination(routingSubscriptionId)}
-              onToggle={(routingSubscriptionId, isEnabled) =>
-                void onToggleDestination(routingSubscriptionId, isEnabled)
-              }
-            />
-          </div>
+          <SlackDestinationForm
+            onClearFormTestFeedback={() => setFormTestFeedback(null)}
+            canMutate={canMutate}
+            loading={loading}
+            testingForm={testingForm}
+            formTestFeedback={formTestFeedback}
+            onSave={() => void onSave()}
+            onSendTest={() => void onSendFormTest()}
+          />
 
           <SlackIntegrationAside />
+
+          <SlackDestinationsPanel
+            destinations={slackRows}
+            loading={loading}
+            canMutate={canMutate}
+            testingId={testingId}
+            rowTestFeedback={rowTestFeedback}
+            onRefresh={() => void load()}
+            onTest={(routingSubscriptionId) => void onTestDestination(routingSubscriptionId)}
+            onToggle={(routingSubscriptionId, isEnabled) =>
+              void onToggleDestination(routingSubscriptionId, isEnabled)
+            }
+          />
         </div>
       </FormProvider>
     </div>

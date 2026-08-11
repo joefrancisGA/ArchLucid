@@ -178,7 +178,7 @@ Carbon **side panels** (drawers / modal panels) remain valid for transient focus
 | **TOC / wizard** | Yes | Help TOC or multi-step wizard navigation that is the reading/progress affordance. |
 | **Teaching / workflow helper** | **Banned** as a persistent rail | Restates Next step or How-it-works beside the form. Demote to collapsed disclosure, inline tip, or remove. **Anti-exemplar Done (TB-1573):** Recurrence `RecurrenceSchedulesWorkflowHelperCard` is a collapsed `CollapsibleSection` (empty-hide already Done **TB-1133**). |
 | **Static scope** | **Banned** as a persistent rail | Project + prose “scope” column that creates thin voids beside forms. Move inline near the field. **Anti-exemplar Done (TB-1573):** Advisory Schedules scope is inline on `AdvisoryScheduleCreateForm` (coordinate remaining whitespace **TB-1477** — do not duplicate that surface ticket). |
-| **About aside** | **Banned** as a competing rail | Integration “about” columns that compete with `StatusTag` + page help. Demote to help + status (**TB-1575** inventory). |
+| **About aside** | **Banned** as a competing rail | Integration “about” columns that compete with `StatusTag` + page help. **Done (TB-1575):** inventory in `archlucid-ui/src/lib/operator-side-rail-inventory.ts`; Teams/Slack/Azure Boards/ServiceNow demoted to single-column (disclosures or stacked setup StatusTags). |
 
 **Layout rules when a rail is allowed:**
 
@@ -189,7 +189,7 @@ Carbon **side panels** (drawers / modal panels) remain valid for transient focus
 | Primary CTA | No second primary in the rail. Page CTAs follow the operator primary-CTA contract (**TB-1539** and siblings). |
 | Naming | In code review / PR notes, name the kind (`working-object`, `master-detail`, `live`, `toc-wizard`) or confirm single-column. |
 
-**Out of scope here:** Marketing two-column layouts; Carbon modal side panels / drawers; implementing every hub (surface work is **TB-1573**–**TB-1576** and existing whitespace/empty rows).
+**Out of scope here:** Marketing two-column layouts; Carbon modal side panels / drawers; Vitest allowlist guard (**TB-1576** — extend from `operator-side-rail-inventory.ts` checklist).
 
 **UI architecture pointer:** `archlucid-ui/docs/ARCHITECTURE.md` § *Where to go next* — layout guidance cites this contract; do not treat two-column operator layouts as free-form.
 
@@ -424,4 +424,4 @@ Headline counts on golden-path surfaces must be **self-describing** and **click-
 - Page-scoped help **mount + interaction** contract: this file § *Operator page contextual help — mount + interaction contract* (**TB-1666** Done) — press-only triggers, shared `HelpPopover`, `title`-as-help banned (sweep **TB-2147**); remaining mount waves **TB-1667**–**TB-1670**
 - Page-scoped **Learn more** job match: this file § *Operator page contextual help — Learn more job match* (**TB-2048** Done); Digests/secondary remaps **TB-2049**–**TB-2052**
 - Page-header help **borderless carve-out**: this file § *Visible-boundary `Button` contract* → *Carve-out — page-header contextual help* (owner decision 2026-08-11) — shared chrome in `components/usability/page-contextual-help-trigger.ts`; shell top-bar `Help` stays `variant="outline"`
-- Operator **side rails** contract: this file § *Operator side rails* (**TB-1572** Done) — single-column default; allow working-object / master-detail / live-when-live / TOC-wizard; ban teaching / static-scope / about-aside persistent rails; live pin policy **TB-1574** Done; remaining apply/inventory **TB-1575**–**TB-1576**
+- Operator **side rails** contract: this file § *Operator side rails* (**TB-1572** Done) — single-column default; allow working-object / master-detail / live-when-live / TOC-wizard; ban teaching / static-scope / about-aside persistent rails; live pin policy **TB-1574** Done; hub inventory + about-aside demotion **TB-1575** Done (`operator-side-rail-inventory.ts`); Vitest allowlist **TB-1576**
