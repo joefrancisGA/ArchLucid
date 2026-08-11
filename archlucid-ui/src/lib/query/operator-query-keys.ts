@@ -42,6 +42,9 @@ export const operatorQueryKeys = {
   ) => ["operator", "alerts", "inbox-page", scope, params] as const,
   alertsInboxSummary: (scope: OperatorScopeQueryKey) =>
     ["operator", "alerts", "inbox-summary", scope] as const,
+  /** Hub aggregates for /administration/notifications — must not share alertsInboxSummary cache shape. */
+  notificationChannelDeliverySnapshot: (scope: OperatorScopeQueryKey) =>
+    ["operator", "administration", "notifications", "channel-delivery-snapshot", scope] as const,
   alertsInboxWorkspaceContext: (scope: OperatorScopeQueryKey) =>
     ["operator", "alerts", "workspace-context", scope] as const,
   auditEventsSearch: (

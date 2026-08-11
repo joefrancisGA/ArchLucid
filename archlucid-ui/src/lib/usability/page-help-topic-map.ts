@@ -483,6 +483,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "getting-started", label: "Preferences" },
   },
   {
+    prefix: "/administration/notifications",
+    topic: { slug: "integration-readiness", label: "Notification channels" },
+  },
+  {
     prefix: "/administration/account-security",
     topic: { slug: "security-trust", label: "Sign-in methods" },
   },

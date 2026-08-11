@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import { SettingsScopeMeta } from "./SettingsScopeMeta";
@@ -64,10 +64,8 @@ export function SettingsMasterDestinationCard(props: SettingsMasterDestinationCa
             Changes require confirmation on the destination page and are recorded in the audit trail.
           </p>
         ) : null}
-        <Button asChild variant={destination.highImpact === true ? "outline" : "default"} size="sm">
-          <Link className={OPERATOR_LINK.nav} href={destination.href}>
-            {destination.cta}
-          </Link>
+        <Button asChild variant="outline" size="sm">
+          <Link href={destination.href}>{destination.cta}</Link>
         </Button>
       </CardContent>
     </Card>

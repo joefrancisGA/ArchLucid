@@ -233,6 +233,19 @@ export const ADMINISTRATION_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow
     },
   },
   {
+    prefix: "/administration/notifications",
+    entry: {
+      whatIsThisPage:
+        "Notifications - channel launcher that shows delivery status for digests, in-product alerts, alert rules, Teams, and Slack.",
+      whatToDoNext:
+        "Review each channel card, then open the destination page to change subscriptions, rules, or webhook connections.",
+      whyEmpty:
+        "Status tags load from each channel's API; when a destination cannot be read here, configure it on that page.",
+      whereToConfigurePrerequisite:
+        "Digests, alert rules, Teams, and Slack each save settings on their own pages — this hub does not store a unified preference profile.",
+    },
+  },
+  {
     prefix: "/administration/account-security",
     entry: {
       whatIsThisPage:
