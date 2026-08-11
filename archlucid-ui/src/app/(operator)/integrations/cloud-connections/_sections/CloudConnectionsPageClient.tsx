@@ -27,6 +27,7 @@ import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/
 
 import { CloudFirstInventoryCoach } from "@/components/integrations/CloudFirstInventoryCoach";
 import { ConnectionStatusCloudConnectionsVocabularyRail } from "@/components/ConnectionStatusCloudConnectionsVocabularyRail";
+import { ExtractUploadCloudConnectionsVocabularyRail } from "@/components/ExtractUploadCloudConnectionsVocabularyRail";
 import { PageHeading } from "@/components/PageHeading";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { CloudPlatformScopePanel } from "./CloudPlatformScopePanel";
@@ -161,6 +162,7 @@ export function CloudConnectionsPageClient() {
         }
       />
       <ConnectionStatusCloudConnectionsVocabularyRail currentSurfaceId="cloud-connections" />
+      <ExtractUploadCloudConnectionsVocabularyRail currentSurfaceId="cloud-connections" />
       <CloudPlatformScopePanel
         scope={platformScope}
         onScopeChange={handlePlatformScopeChange}

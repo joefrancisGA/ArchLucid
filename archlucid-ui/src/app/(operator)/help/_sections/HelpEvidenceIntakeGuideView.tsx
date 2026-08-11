@@ -4,6 +4,7 @@ import { HelpEvidenceIntakeRelatedGuidesLinks } from "@/app/(operator)/help/_sec
 import { HelpEvidenceIntakeVerifyIntakePanel } from "@/app/(operator)/help/_sections/HelpEvidenceIntakeVerifyIntakePanel";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicMarkdownPageHeader } from "@/app/(operator)/help/_sections/HelpTopicMarkdownPageHeader";
+import { ExtractUploadCloudConnectionsVocabularyRail } from "@/components/ExtractUploadCloudConnectionsVocabularyRail";
 import { EvidenceIntakeHelpClaimDisciplineStrip } from "@/components/help/EvidenceIntakeHelpClaimDisciplineStrip";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
@@ -51,6 +52,8 @@ export function HelpEvidenceIntakeGuideView(props: HelpEvidenceIntakeGuideViewPr
         showContextualHelp
         primaryAction={EVIDENCE_INTAKE_HELP_PRIMARY_ACTION}
       />
+
+      <ExtractUploadCloudConnectionsVocabularyRail currentSurfaceId="extract-upload" />
 
       <div
         className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"

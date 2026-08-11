@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 
 import { AzureExtractorUploadFailureCallout } from "@/components/AzureExtractorUploadFailureCallout";
 import { AzureExtractorZipDropZone } from "@/components/AzureExtractorZipDropZone";
+import { ExtractUploadCloudConnectionsVocabularyRail } from "@/components/ExtractUploadCloudConnectionsVocabularyRail";
 import { ExtractUploadConstraintsPanel } from "@/components/usability/ExtractUploadConstraintsPanel";
 import { ExtractUploadFileProgressList } from "@/components/usability/ExtractUploadFileProgressList";
 import { Button } from "@/components/ui/button";
@@ -227,7 +228,10 @@ export function ExtractUploadSettingsPageClient() {
         </div>
         <PageContextualHelpButton />
       </div>
-<ExtractUploadConstraintsPanel />
+
+      <ExtractUploadCloudConnectionsVocabularyRail currentSurfaceId="extract-upload" />
+
+      <ExtractUploadConstraintsPanel />
 
       {extractorUpdateBanner ? (
         <div
