@@ -104,7 +104,7 @@ describe("SidebarNav (primary navigation)", () => {
 
     const reviewNav = screen.getByRole("group", { name: "Architecture" });
     expect(reviewNav).toBeInTheDocument();
-    expect(within(reviewNav).getByRole("link", { name: "Overview" })).toHaveAttribute("href", "/");
+    expect(within(reviewNav).getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
     expect(within(reviewNav).getByRole("link", { name: ARCHITECTURE_DRAFTS_LIST_LABEL })).toHaveAttribute(
       "href",
       ARCHITECTURES_LIST_PATH,
@@ -227,7 +227,7 @@ describe("SidebarNav buyer-polished desktop shell", () => {
     expect(screen.getByText("Architecture")).toBeInTheDocument();
 
     const nav = screen.getByRole("group", { name: "Architecture" });
-    expect(within(nav).getByRole("link", { name: "Overview" })).toHaveAttribute("href", "/");
+    expect(within(nav).getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
     expect(within(nav).getByRole("link", { name: ARCHITECTURE_DRAFTS_LIST_LABEL })).toHaveAttribute(
       "href",
       ARCHITECTURES_LIST_PATH,

@@ -24,13 +24,13 @@ vi.mock("@/lib/operator-home-refresh-context", () => ({
 import { OperatorHomePageHeader } from "@/app/(operator)/_sections/OperatorHomePageHeader";
 
 describe("OperatorHomePageHeader", () => {
-  it("renders Overview title, help, and refresh without Last refreshed metadata", () => {
+  it("renders Home title, help, and refresh without Last refreshed metadata", () => {
     requestRefresh.mockReset();
 
     render(<OperatorHomePageHeader subtitle={operatorHomePageSubtitle(false)} />);
 
-    expect(screen.getByTestId("operator-home-page-title")).toHaveTextContent("Overview");
-    expect(screen.getByRole("heading", { level: 2, name: "Overview" })).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-page-title")).toHaveTextContent("Home");
+    expect(screen.getByRole("heading", { level: 2, name: "Home" })).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-page-subtitle")).toHaveTextContent(
       operatorHomePageSubtitle(false),
     );
@@ -47,7 +47,7 @@ describe("OperatorHomePageHeader", () => {
     expect(requestRefresh).toHaveBeenCalledTimes(1);
   });
 
-  it("bolds One lifecycle: on the buyer-polished Overview lead", () => {
+  it("bolds One lifecycle: on the buyer-polished Home lead", () => {
     render(<OperatorHomePageHeader subtitle={operatorHomePageSubtitle(true)} />);
 
     const label = screen.getByText("One lifecycle:");

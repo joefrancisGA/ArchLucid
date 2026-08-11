@@ -29,12 +29,13 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
       label: OPERATOR_NAV_GROUP_LABELS.reviewWork,
       surface: "review-workflow",
       caption:
-        "Buyer-first path: Overview → Architectures → Reviews → Executive dashboard; then First review guide and governance follow-up.",
+        "Buyer-first path: Home → Architectures → Reviews → Executive dashboard; then First review guide and governance follow-up.",
       links: [
         {
           href: "/",
           label: OPERATOR_NAV_LINK_LABELS.home,
-          title: "Workspace overview",
+          // "Workspace overview" is the buyer title of `/governance/dashboard` — keep this tooltip distinct.
+          title: "Workspace home",
           icon: Home,
           tier: "essential",
         },

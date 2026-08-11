@@ -15,7 +15,7 @@ import {
   FIRST_REVIEW_GUIDE_TEMPLATE_LABEL,
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_LINK, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
 import {
   OPERATOR_HOME_EXAMPLE_TEMPLATE_ID,
   REVIEW_INTAKE_EXAMPLE_TEMPLATES,
@@ -96,18 +96,13 @@ export function FirstReviewGuideSupportPanel() {
           <li>
             <InAppHelpLink
               helpSlug="first-architecture-review"
-              label="Your first architecture review"
+              label={FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE}
               variant="text"
             />
           </li>
           <li>
             <Link className={OPERATOR_LINK.inline} href={sampleHref}>
               Explore a sample review
-            </Link>
-          </li>
-          <li>
-            <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("first-architecture-review")}>
-              Open Help
             </Link>
           </li>
         </ul>

@@ -6,6 +6,7 @@
  * internal operator UI. See also `useKeyboardShortcuts.ts`.
  */
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { BUYER_NEW_REVIEW_NAV_LABEL, OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator-nav-labels";
 
 export type ShortcutEntry = {
@@ -66,9 +67,9 @@ export const SHORTCUTS: ShortcutEntry[] = [
   },
   {
     key: "alt+h",
-    label: "Overview",
+    label: OPERATOR_NAV_LINK_LABELS.home,
     route: "/",
-    description: "Open workspace overview",
+    description: "Open workspace home",
   },
   {
     key: "shift+?",

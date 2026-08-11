@@ -22,6 +22,6 @@ export const OPERATOR_HOME_ACTION_REFRESH = "Refresh" as const;
 
 export const OPERATOR_HOME_ACTION_REFRESHING = "Refreshing…" as const;
 
-export const OPERATOR_HOME_SCOPE_DETAILS_TRIGGER = "About Overview" as const;
+export const OPERATOR_HOME_SCOPE_DETAILS_TRIGGER = `About ${OPERATOR_NAV_LINK_LABELS.home}` as const;
 
 export const OPERATOR_HOME_SCOPE_OVERVIEW = OPERATOR_HOME_COMMAND_CENTER_TAGLINE;

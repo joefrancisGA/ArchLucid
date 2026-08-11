@@ -14,7 +14,7 @@ export type CuratedPaletteTask = {
 };
 
 export const COMMAND_PALETTE_CURATED_TASKS: CuratedPaletteTask[] = [
-  { label: "Overview", href: "/", searchValue: "task I want overview home start workspace" },
+  { label: OPERATOR_NAV_LINK_LABELS.home, href: "/", searchValue: "task I want overview home start workspace" },
   { label: "Onboarding checklist", href: "/architecture/first-review-guide", searchValue: "task I want onboarding first run checklist" },
   { label: "New architecture review", href: "/architecture/reviews/new", searchValue: "task I want new review wizard" },
   { label: "Reviews list", href: "/architecture/reviews", searchValue: "task I want reviews list projects" },

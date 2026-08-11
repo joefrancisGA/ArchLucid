@@ -38,7 +38,7 @@ export function OperatorPilotOrientationBanner() {
             className={`${OPERATOR_TYPOGRAPHY.helper} text-al-accent-interactive underline-offset-2 hover:underline`}
             data-testid="operator-pilot-secondary-first-run"
           >
-            First-review walkthrough
+            {FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE}
           </Link>
           <Link
             href="/architecture/reviews"

@@ -13,7 +13,9 @@ import {
   type CorePilotHelpWorkflowStep,
 } from "@/lib/core-pilot-help-guide-content";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import {
   isCorePilotHelpStartReviewFirstCta,
   isCorePilotHelpWorkflowContextPendingCta,
@@ -82,6 +84,42 @@ function StepCta(props: {
   );
 }
 
+function StepSecondaryLinks(props: {
+  readonly step: CorePilotHelpWorkflowStep;
+  readonly ctx: CorePilotCommitContext;
+}): React.ReactElement | null {
+  const { step, ctx } = props;
+  const runId = ctx.latestRunId ?? ctx.firstCommittedRunId;
+
+  if (runId === null) {
+    return null;
+  }
+
+  if (step.stepNumber === 3) {
+    return (
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+        <Link
+          href={buildReviewDetailTabHref(runId, "findings")}
+          className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
+          data-testid="core-pilot-step-3-findings-link"
+        >
+          Review findings
+        </Link>
+        {" · "}
+        <Link
+          href={inAppHelpHref("evidence-trail")}
+          className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
+          data-testid="core-pilot-step-3-evidence-trail-link"
+        >
+          Evidence trail guide
+        </Link>
+      </p>
+    );
+  }
+
+  return null;
+}
+
 function StepContextPendingPlaceholder(props: { readonly stepNumber: number }): React.ReactElement {
   return (
     <div
@@ -133,7 +171,7 @@ export function HelpCorePilotWorkflowStepper(): React.ReactElement {
           const deferToGroupGate = groupGate && isCorePilotHelpStartReviewFirstCta(cta);
           const stepStatus = resolveCorePilotHelpWorkflowStepStatus(step, statusContext);
           const showStepCta =
-            step.stepNumber !== 1 && !deferToGroupGate && !isPending && !isCorePilotHelpWorkflowContextPendingCta(cta);
+            !deferToGroupGate && !isPending && !isCorePilotHelpWorkflowContextPendingCta(cta);
           const showPendingPlaceholder = isPending && step.stepNumber >= 2;
 
           return (
@@ -170,6 +208,8 @@ export function HelpCorePilotWorkflowStepper(): React.ReactElement {
                 {showPendingPlaceholder ? <StepContextPendingPlaceholder stepNumber={step.stepNumber} /> : null}
 
                 {showStepCta ? <StepCta cta={cta} stepNumber={step.stepNumber} /> : null}
+
+                {showStepCta && !isPending ? <StepSecondaryLinks step={step} ctx={statusContext} /> : null}
               </div>
             </li>
           );

@@ -23,11 +23,12 @@ const step4 = CORE_PILOT_HELP_WORKFLOW_STEPS[3]!;
 const step5 = CORE_PILOT_HELP_WORKFLOW_STEPS[4]!;
 
 describe("resolveCorePilotHelpWorkflowStepCta (TB-1042)", () => {
-  it("does not surface a duplicate step-1 start CTA in the stepper", () => {
+  it("TB-1381: surfaces a step-1 start CTA on the stepper", () => {
     const step1 = resolveCorePilotHelpWorkflowStepCta(CORE_PILOT_HELP_WORKFLOW_STEPS[0]!, emptyCtx);
 
-    expect(step1.enabled).toBe(false);
-    expect(step1.href).toBeNull();
+    expect(step1.enabled).toBe(true);
+    expect(step1.href).toBe("/architecture/reviews/new");
+    expect(step1.label).toBe(CORE_PILOT_HELP_WORKFLOW_STEPS[0]!.ctaLabel);
   });
 
   it("TB-1331: routes step 2 to honest Start-first CTA or review-detail evidence tab", () => {

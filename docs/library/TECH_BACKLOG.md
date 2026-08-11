@@ -15,7 +15,7 @@ Regenerate after opening or closing summary-table rows:
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
 | Architectural integrity | 9 |
-| Adoption friction | 223 |
+| Adoption friction | 220 |
 | Commercial / marketability | 8 |
 | Cutting-edge AI | 3 |
 | Explainability | 1 |
@@ -34,9 +34,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **453** |
+| **Total (unique open)** | **450** |
 
-**By priority band:** P0 **2** | P1 **340** | P2 **94** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **2** | P1 **337** | P2 **94** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -986,9 +986,9 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1353 | ~~Evidence intake ? Cloud connections CTA chrome~~ **Done** 2026-08-10 ? hub + help CTAs in action panel; Vitest | Adoption friction P1 ? **V1**; with **TB-1350** | XS |
 | TB-1354 | ~~Evidence intake ? verify-intake actionability (package Evidence tab)~~ **Done** 2026-08-10 ? verify panel with in-app links; Vitest | Adoption friction P1 ? **V1**; with **TB-1350** | S |
 | TB-1367 | Elevator pitch vs shipped V1 claim audit (cut/hedge/prove-with-committed-run); see `## TB-1367` below | Commercial / marketability P1 ? **V1**; PA elevator audit; GTM **M-245**/**M-246**; after **TB-1365**?**TB-1366** reservation | S |
-| TB-1381 | Complete review workflow ? step deep-link CTA chrome; see ## TB-1381 below | Adoption friction P1 ? **V1**; with **TB-1379** | S |
-| TB-1382 | Complete review workflow ? Related help density; see ## TB-1382 below | Adoption friction P1 ? **V1**; with **TB-1379**; pairs **TB-1258** | S |
-| TB-1383 | Complete review workflow ? inbound label honesty (FAQ / First-pilot checklist dupes); see ## TB-1383 below | Adoption friction P1 ? **V1**; with **TB-1379**; pairs **TB-1380** | S |
+| TB-1381 | ~~Complete review workflow ? step deep-link CTA chrome~~ **Done** 2026-08-11 ? per-step CTAs + findings/evidence-trail secondary links; Vitest; see ## TB-1381 below | Adoption friction P1 ? **V1**; with **TB-1379** | S |
+| TB-1382 | ~~Complete review workflow ? Related help density~~ **Done** 2026-08-11 ? three related guides (evidence-intake, pilot-guide, troubleshooting); Vitest; see ## TB-1382 below | Adoption friction P1 ? **V1**; with **TB-1379**; pairs **TB-1258** | S |
+| TB-1383 | ~~Complete review workflow ? inbound label honesty (FAQ / First-pilot checklist dupes)~~ **Done** 2026-08-11 ? canonical help title on inbound links; collapse duplicate help CTAs; Vitest; see ## TB-1383 below | Adoption friction P1 ? **V1**; with **TB-1379**; pairs **TB-1380** | S |
 | TB-1386 | ~~Governance API contracts ? title/slug honesty (not buyer governance FAQ)~~ **Done** 2026-08-03 ? `HelpApiContractsGuideView` title ?API contracts (technical reference)? + `api-contracts` alias; Vitest; see ## TB-1386 below | Adoption friction P1 ? **V1**; with **TB-1384**; pairs **TB-1248** | S |
 | TB-1409 | ~~`/admin/demo-readiness` ? Internal Ops PageHeading + dedupe Demo readiness H1/H2~~ **Done** 2026-08-09 ? PageHeading + Internal Operations eyebrow; single H1; panel H2 suppressed; Vitest; see ## TB-1409 below | Adoption friction P1 ? **V1**; owner review ~47/100 2026-07-26; traffic **ADD**; pairs **TB-1184**/**TB-1218** | S |
 | TB-1411 | ~~Demo readiness admin ? tooling-disabled empty state next steps~~ **Done** 2026-08-09 ? tooling gate + `EnterpriseCompactEmptyState` CTAs; Vitest; see ## TB-1411 below | Adoption friction P1 ? **V1**; with **TB-1409** | S |
@@ -35229,7 +35229,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** 2026-08-11 ? `resolveCorePilotHelpWorkflowStepCta` enables step-1 Create CTA; stepper secondary links for findings + evidence-trail on step 3; Vitest (`HelpTopicCorePilot.test.tsx`, `resolve-core-pilot-help-workflow-step-cta.test.ts`).
 
 **Priority:** P0.
 
@@ -35256,7 +35256,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** 2026-08-11 ? `CORE_PILOT_HELP_RELATED_GUIDES` trimmed to three job-matched topics; Vitest (`core-pilot-help-related-guides.test.ts`, `HelpTopicCorePilot.test.tsx`).
 
 **Priority:** P0.
 
@@ -35283,7 +35283,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** 2026-08-11 ? `FirstReviewGuideSupportPanel` + `OperatorPilotOrientationBanner` use `FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE`; duplicate help href removed; Vitest (`FirstReviewGuideSupportPanel.test.tsx`, `OperatorPilotOrientationBanner.test.tsx`).
 
 **Priority:** P0.
 

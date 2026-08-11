@@ -14,7 +14,7 @@ import { getRouteTitle } from "./route-titles";
 
 describe("getRouteTitle — static routes", () => {
   it("returns known titles", () => {
-    expect(getRouteTitle("/")).toBe("Overview");
+    expect(getRouteTitle("/")).toBe("Home");
     expect(getRouteTitle(GOVERNANCE_AUDIT_PATH)).toBe(OPERATOR_NAV_LINK_LABELS.auditTrail);
     expect(getRouteTitle("/architecture/reviews/new")).toBe(START_REVIEW_LABEL);
     expect(getRouteTitle("/architectures/draft-1")).toBe(CREATE_ARCHITECTURE_LABEL);

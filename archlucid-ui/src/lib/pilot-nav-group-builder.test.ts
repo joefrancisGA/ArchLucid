@@ -66,20 +66,20 @@ describe("PilotNavGroupBuilder", () => {
     expect(group.label).toBe("Architecture");
   });
 
-  it("lists Overview first in Architecture nav (TB-516)", () => {
+  it("lists Home first in Architecture nav (TB-516)", () => {
     const group = new PilotNavGroupBuilder().build();
-    const overviewLink = group.links[0];
+    const homeLink = group.links[0];
 
-    expect(overviewLink?.href).toBe("/");
-    expect(overviewLink?.label).toBe("Overview");
-    expect(overviewLink?.title).toBe("Workspace overview");
+    expect(homeLink?.href).toBe("/");
+    expect(homeLink?.label).toBe("Home");
+    expect(homeLink?.title).toBe("Workspace home");
   });
 
   it("keeps Architecture nav focused on first-review essentials and architecture intelligence (TB-518)", () => {
     const group = new PilotNavGroupBuilder().build();
 
     expect(group.links.map((link) => link.label)).toEqual([
-      "Overview",
+      "Home",
       ARCHITECTURE_DRAFTS_LIST_LABEL,
       "Reviews",
       "Executive dashboard",

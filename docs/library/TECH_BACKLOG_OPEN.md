@@ -84,7 +84,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | Core Pilot product happy path (home spine) | **TB-1355**–**TB-1357** (open P1 **V1**) + **TB-1358**–**TB-1359** (P1) | Checkpoint honesty; 4/5/7 spine unify; first-session CLI purge; stick/empty matrix + honesty CI; GTM **M-241**/**M-242**; complements help **TB-1331**–**TB-1335** / **TB-1030** / **TB-1007** / Done **TB-1036**–**TB-1039** |
 | Evidence trail / Evidence graph help (`/help/evidence-trail`) | **TB-1360**–**TB-1364** (open P1 **V1**) | Specialty companion + Open `/graph` CTA; finding deep-link/`mode=` honesty; Related density; sample universe honesty; Load/sample CTA chrome; owner review ~58/100 2026-07-26; traffic **EV**; after Done **TB-762**; pairs **TB-1350**/**TB-1028** |
 | First-review guide help (`/help/first-architecture-review`; **HFE** redirect **Done**) | **TB-1374**–**TB-1378** (open P1/P2 **V1**) | Residual on **COR**: purge Pilot/operator-path jargon; inbound first-review pointers; discovery/search twin collapse; Vitest guard; pairs **TB-1335**/**TB-1352** |
-| Complete review workflow help (`/help/first-architecture-review`; **FIR** redirect **Done**) | **TB-1379**–**TB-1383** (open P1 **V1**) | Residual on **COR**: specialty companion + Start CTA; slug/Pilot honesty; step deep-link CTAs; Related density; inbound FAQ/checklist label honesty; pairs **TB-1335**/**TB-1374** |
+| Complete review workflow help (`/help/first-architecture-review`; **FIR** redirect **Done**) | **TB-1379** (open P1 **V1**); **TB-1380**–**TB-1383** (**Done** 2026-08-11) | Residual on **COR**: specialty companion + Start CTA; pairs **TB-1335**/**TB-1374** |
 | API contracts help (`/help/api-contracts`; legacy `/help/governance-api-contracts` redirects) | **TB-1384**–**TB-1388** (**Done**) | Specialty API contracts guide + title honesty; Admin gate; de-index; buyer deep-link retarget; leakage strip; traffic **HG** |
 | Pilot ROI model help (`/help/pilot-roi-model`; **PI** retired) | **TB-1389**–**TB-1393** (**Done** 2026-08-11) | Folded into `executive-summary#pilot-roi-measurement` (Batch R½); residual EXE quality **TB-1686**–**TB-1690** |
 | Repeat-review loop help (`/help/repeat-review-loop`) | **TB-1394**/**TB-1397**–**TB-1398** (open P1 **V1**) | Specialty second-review companion + Compare CTA; drop stickiness + tier honesty; **TB-1396** Done 2026-07-29 contributor leak purge; Related density; loop-step CTAs; owner review ~40/100 2026-07-26; traffic **HRX**; pairs **TB-1335**/**TB-1390**/**TB-1346** |
@@ -277,10 +277,10 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1377 | First-hour help — discovery / featured / search twin collapse | Adoption friction P1 **V1** — with **TB-1374** |
 | TB-1378 | First-hour help — Vitest guard against product first-review CTA to first-hour | Testability P2 **V1** — with **TB-1374** |
 | TB-1379 | `/help/first-architecture-review` — Complete review workflow companion + Start CTA (FIR redirect **Done**) | Adoption friction P1 **V1** — residual on **COR**; traffic **COR** |
-| TB-1380 | Complete review workflow — slug/title + Pilot jargon honesty | Trustworthiness P1 **V1** — with **TB-1379** |
-| TB-1381 | Complete review workflow — step deep-link CTA chrome | Adoption friction P1 **V1** — with **TB-1379** |
-| TB-1382 | Complete review workflow — Related help density | Adoption friction P1 **V1** — with **TB-1379**; pairs **TB-1258** |
-| TB-1383 | Complete review workflow — inbound label honesty (FAQ / checklist dupes) | Adoption friction P1 **V1** — with **TB-1379**; pairs **TB-1380** |
+| ~~TB-1380~~ | ~~Complete review workflow — slug/title + Pilot jargon honesty~~ **Done** 2026-08-09 | Trustworthiness P1 **V1** — with **TB-1379** |
+| ~~TB-1381~~ | ~~Complete review workflow — step deep-link CTA chrome~~ **Done** 2026-08-11 | Adoption friction P1 **V1** — with **TB-1379** |
+| ~~TB-1382~~ | ~~Complete review workflow — Related help density~~ **Done** 2026-08-11 | Adoption friction P1 **V1** — with **TB-1379**; pairs **TB-1258** |
+| ~~TB-1383~~ | ~~Complete review workflow — inbound label honesty (FAQ / checklist dupes)~~ **Done** 2026-08-11 | Adoption friction P1 **V1** — with **TB-1379**; pairs **TB-1380** |
 | ~~TB-1384~~ | ~~`/help/api-contracts` — reclassify as internal-runbook + Admin gate~~ **Done** 2026-07-29 | Trustworthiness P0 **V1** — TB-1250 + Vitest |
 | ~~TB-1385~~ | ~~Governance API contracts — de-index from product help search / static params~~ **Done** 2026-07-29 | Trustworthiness P0 **V1** — Ctrl+K + doc-index + Vitest |
 | ~~TB-1387~~ | ~~Buyer Findings/Governance help — remove eng API-contracts deep link~~ **Done** 2026-07-29 | Trustworthiness P0 **V1** — help-topics + wizard drawer |

@@ -149,15 +149,6 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
                 </li>
               ))}
             </ul>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-              Stuck?{" "}
-              <Link
-                href={CORE_PILOT_HELP_PRIMARY_ACTIONS.troubleshooting.href}
-                className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
-              >
-                {CORE_PILOT_HELP_PRIMARY_ACTIONS.troubleshooting.label}
-              </Link>
-            </p>
           </section>
         </div>
 
