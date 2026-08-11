@@ -3,6 +3,7 @@ import Link from "next/link";
 import { describe, expect, it } from "vitest";
 
 import { EvidenceOrientationClaimCallout } from "@/components/evidence-orientation/EvidenceOrientationClaimCallout";
+import { EVIDENCE_CLAIM_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 
 describe("EvidenceOrientationClaimCallout", () => {
   it("renders a warn complementary band by default", () => {
@@ -21,7 +22,7 @@ describe("EvidenceOrientationClaimCallout", () => {
         testId="help-digests-claim-discipline"
         body="Digest orientation."
         element="div"
-        tone="neutral"
+        style={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       />,
     );
 
@@ -55,7 +56,7 @@ describe("EvidenceOrientationClaimCallout", () => {
       <EvidenceOrientationClaimCallout
         testId="connect-gcp-securely-help-claim-discipline"
         body="Connector orientation."
-        tone="info"
+        style={EVIDENCE_CLAIM_STYLE.operatorInfo}
         heading={{ id: "gcp-claim-heading", text: "Connector setup orientation", visuallyHidden: true }}
       />,
     );

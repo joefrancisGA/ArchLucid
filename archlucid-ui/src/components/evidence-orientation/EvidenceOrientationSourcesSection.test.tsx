@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { EvidenceOrientationSourcesSection } from "@/components/evidence-orientation/EvidenceOrientationSourcesSection";
+import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
 
 const LINKS: readonly EvidenceOrientationLink[] = [
@@ -71,7 +72,7 @@ describe("EvidenceOrientationSourcesSection", () => {
         title="Where to go next"
         intro="Follow-ups."
         links={LINKS}
-        surface="raised"
+        style={EVIDENCE_SOURCES_STYLE.operatorRaised}
       />,
     );
 

@@ -1,51 +1,22 @@
-import Link from "next/link";
-
+import { EvidenceOrientationSourcesAndClaimStrip } from "@/components/evidence-orientation/EvidenceOrientationSourcesAndClaimStrip";
+import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import {
   ACCESSIBILITY_CLAIM_DISCIPLINE,
   ACCESSIBILITY_SOURCES,
   ACCESSIBILITY_SOURCES_INTRO,
 } from "@/lib/accessibility-evidence-copy";
-import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 /** Evaluation Sources + claim discipline for `/accessibility` (AXX Evidence). */
 export function AccessibilityEvidenceOrientationStrip(): React.JSX.Element {
   return (
-    <div className="space-y-3 text-left" data-testid="accessibility-orientation">
-      <section
-        className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
-        aria-labelledby="accessibility-sources-heading"
-        data-testid="accessibility-sources"
-      >
-        <h2
-          id="accessibility-sources-heading"
-          className={cn("m-0 text-al-text-primary", MARKETING_TYPOGRAPHY.cardTitle)}
-        >
-          Sources for follow-up
-        </h2>
-        <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
-          {ACCESSIBILITY_SOURCES_INTRO}
-        </p>
-        <ul className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", MARKETING_TYPOGRAPHY.body)}>
-          {ACCESSIBILITY_SOURCES.map((link) => (
-            <li key={`${link.href}-${link.label}`}>
-              <Link className={MARKETING_SURFACES.inlineLink} href={link.href}>
-                {link.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <aside
-        className="rounded-md border border-amber-200/80 bg-amber-50/50 p-3 dark:border-amber-900/40 dark:bg-amber-950/20"
-        data-testid="accessibility-claim-discipline"
-      >
-        <h2 className={cn("m-0 text-al-text-primary", MARKETING_TYPOGRAPHY.cardTitle)}>
-          Public accessibility statement only
-        </h2>
-        <p className={cn("m-0 mt-2", MARKETING_TYPOGRAPHY.body)}>{ACCESSIBILITY_CLAIM_DISCIPLINE}</p>
-      </aside>
-    </div>
+    <EvidenceOrientationSourcesAndClaimStrip
+      slug="accessibility"
+      align="text-left"
+      sourcesIntro={ACCESSIBILITY_SOURCES_INTRO}
+      sources={ACCESSIBILITY_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.evaluationMutedAccentLink}
+      claimHeading="Public accessibility statement only"
+      claim={ACCESSIBILITY_CLAIM_DISCIPLINE}
+    />
   );
 }

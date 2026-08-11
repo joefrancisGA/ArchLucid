@@ -1,14 +1,20 @@
 import type { ReactNode } from "react";
 
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  EVIDENCE_CLAIM_STYLE,
+  EVIDENCE_ORIENTATION_HEADING_CLASS,
+  type EvidenceOrientationClaimStyle,
+} from "@/components/evidence-orientation/evidence-orientation-styles";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-/** Callout severity for a claim-discipline band. Maps onto the operator callout tokens. */
-export type EvidenceOrientationCalloutTone = "warn" | "info" | "neutral";
-
 export type EvidenceOrientationCalloutHeading = {
-  readonly id: string;
   readonly text: string;
+  /**
+   * Set when the heading should also name the band via `aria-labelledby`. Omit on evaluation surfaces,
+   * whose published DOM carries a plain heading with no id.
+   */
+  readonly id?: string;
   /**
    * Renders the heading `sr-only`. Use when the band needs an accessible name but the visible
    * caution styling already communicates its purpose to sighted readers.
@@ -20,7 +26,7 @@ export type EvidenceOrientationClaimCalloutProps = {
   readonly testId: string;
   /** Claim-discipline copy. Accepts nodes so a surface can inline follow-up links in the sentence. */
   readonly body: ReactNode;
-  readonly tone?: EvidenceOrientationCalloutTone;
+  readonly style?: EvidenceOrientationClaimStyle;
   /** `aside` where the band is a complementary region; `div` where an ancestor already owns that role. */
   readonly element?: "aside" | "div";
   readonly heading?: EvidenceOrientationCalloutHeading;
@@ -32,7 +38,7 @@ export type EvidenceOrientationClaimCalloutProps = {
 export function EvidenceOrientationClaimCallout({
   testId,
   body,
-  tone = "warn",
+  style = EVIDENCE_CLAIM_STYLE.operatorWarn,
   element = "aside",
   heading,
   children,
@@ -41,24 +47,25 @@ export function EvidenceOrientationClaimCallout({
   const hasVisibleHeading: boolean = heading !== undefined && heading.visuallyHidden !== true;
 
   return (
-    <CalloutElement
-      className={cn(DESIGN_TOKENS.callout[tone], "p-3")}
-      data-testid={testId}
-      aria-labelledby={heading?.id}
-    >
+    <CalloutElement className={style.panel} data-testid={testId} aria-labelledby={heading?.id}>
       {heading === undefined ? null : (
         <h2
           id={heading.id}
-          className={
-            heading.visuallyHidden === true
-              ? "sr-only"
-              : cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)
-          }
+          className={heading.visuallyHidden === true ? "sr-only" : EVIDENCE_ORIENTATION_HEADING_CLASS}
         >
           {heading.text}
         </h2>
       )}
-      <p className={cn("m-0", hasVisibleHeading ? "mt-2" : undefined, OPERATOR_TYPOGRAPHY.body)}>{body}</p>
+      <p
+        className={cn(
+          "m-0",
+          hasVisibleHeading ? "mt-2" : undefined,
+          style.body,
+          OPERATOR_TYPOGRAPHY.body,
+        )}
+      >
+        {body}
+      </p>
       {children}
     </CalloutElement>
   );

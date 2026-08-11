@@ -1,6 +1,7 @@
 import { EvidenceOrientationClaimCallout } from "@/components/evidence-orientation/EvidenceOrientationClaimCallout";
 import { EvidenceOrientationSourcesSection } from "@/components/evidence-orientation/EvidenceOrientationSourcesSection";
 import { EvidenceOrientationStripShell } from "@/components/evidence-orientation/EvidenceOrientationStripShell";
+import { EVIDENCE_CLAIM_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import {
   CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE,
   CONNECT_GCP_SECURELY_SOURCES,
@@ -17,7 +18,7 @@ export function ConnectGcpSecurelyHelpEvidenceOrientationStrip(): React.JSX.Elem
       <EvidenceOrientationClaimCallout
         testId="connect-gcp-securely-help-claim-discipline"
         body={CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE}
-        tone="info"
+        style={EVIDENCE_CLAIM_STYLE.operatorInfo}
         heading={{
           id: "connect-gcp-securely-help-claim-discipline-heading",
           text: CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE_HEADING,

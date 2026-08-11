@@ -1,4 +1,5 @@
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import { EVIDENCE_CLAIM_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import {
   REPEAT_REVIEW_LOOP_HELP_CLAIM_DISCIPLINE,
   REPEAT_REVIEW_LOOP_HELP_SOURCES,
@@ -11,7 +12,7 @@ export function RepeatReviewLoopHelpEvidenceOrientationStrip(): React.JSX.Elemen
     <EvidenceOrientationClaimAndSourcesStrip
       slug="repeat-review-loop-help"
       claim={REPEAT_REVIEW_LOOP_HELP_CLAIM_DISCIPLINE}
-      claimTone="info"
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorInfo}
       sourcesIntro={REPEAT_REVIEW_LOOP_HELP_SOURCES_INTRO}
       sources={REPEAT_REVIEW_LOOP_HELP_SOURCES}
     />

@@ -1,12 +1,10 @@
-import {
-  EvidenceOrientationClaimCallout,
-  type EvidenceOrientationCalloutTone,
-} from "@/components/evidence-orientation/EvidenceOrientationClaimCallout";
-import {
-  EvidenceOrientationSourcesSection,
-  type EvidenceOrientationSourcesSurface,
-} from "@/components/evidence-orientation/EvidenceOrientationSourcesSection";
+import { EvidenceOrientationClaimCallout } from "@/components/evidence-orientation/EvidenceOrientationClaimCallout";
+import { EvidenceOrientationSourcesSection } from "@/components/evidence-orientation/EvidenceOrientationSourcesSection";
 import { EvidenceOrientationStripShell } from "@/components/evidence-orientation/EvidenceOrientationStripShell";
+import type {
+  EvidenceOrientationClaimStyle,
+  EvidenceOrientationSourcesStyle,
+} from "@/components/evidence-orientation/evidence-orientation-styles";
 import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
 import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help-diligence-artifact-index";
 
@@ -20,17 +18,17 @@ export type EvidenceOrientationClaimAndSourcesStripProps = {
   readonly sourcesIntro: string;
   readonly sources: readonly EvidenceOrientationLink[];
   readonly sourcesTitle?: string;
-  readonly claimTone?: EvidenceOrientationCalloutTone;
+  readonly claimStyle?: EvidenceOrientationClaimStyle;
   readonly claimElement?: "aside" | "div";
   readonly claimTestId?: string;
-  readonly sourcesSurface?: EvidenceOrientationSourcesSurface;
+  readonly sourcesStyle?: EvidenceOrientationSourcesStyle;
   readonly sourcesHeadingId?: string;
   readonly sourcesTestId?: string;
   readonly stripTestId?: string;
 };
 
 /**
- * Claim-discipline band followed by a Sources index — the shape most evidence orientation strips use.
+ * Claim-discipline band followed by a Sources index — the shape operator help strips use.
  * Surfaces needing extra bands (lead sentence, freshness line, bulleted scope) compose the underlying
  * primitives directly instead of extending this composite.
  */
@@ -40,10 +38,10 @@ export function EvidenceOrientationClaimAndSourcesStrip({
   sourcesIntro,
   sources,
   sourcesTitle = HELP_DILIGENCE_ARTIFACT_INDEX_TITLE,
-  claimTone,
+  claimStyle,
   claimElement,
   claimTestId,
-  sourcesSurface,
+  sourcesStyle,
   sourcesHeadingId,
   sourcesTestId,
   stripTestId,
@@ -53,7 +51,7 @@ export function EvidenceOrientationClaimAndSourcesStrip({
       <EvidenceOrientationClaimCallout
         testId={claimTestId ?? `${slug}-claim-discipline`}
         body={claim}
-        tone={claimTone}
+        style={claimStyle}
         element={claimElement}
       />
 
@@ -63,7 +61,7 @@ export function EvidenceOrientationClaimAndSourcesStrip({
         title={sourcesTitle}
         intro={sourcesIntro}
         links={sources}
-        surface={sourcesSurface}
+        style={sourcesStyle}
       />
     </EvidenceOrientationStripShell>
   );
