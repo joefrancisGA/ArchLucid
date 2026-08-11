@@ -25,7 +25,7 @@ export function AiUsageBudgetControlsPanel(props: Props) {
         </p>
       </CardHeader>
       <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap gap-2")}>
-        <Button asChild variant="outline" size="sm">
+        <Button asChild variant="outline" size="sm" data-testid="ai-usage-edit-monthly-budget">
           <Link href="/administration/billing#billing-ai-credits">Edit monthly budget</Link>
         </Button>
         <Button asChild variant="outline" size="sm">

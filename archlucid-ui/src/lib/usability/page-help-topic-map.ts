@@ -282,7 +282,14 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "evidence-trail", label: "Demo explain" },
   },
   { prefix: "/administration/billing", topic: { slug: "billing-and-plans", label: "Billing and plans" } },
-  { prefix: "/administration/ai-usage", topic: { slug: "billing-and-plans", label: "AI usage and cost" } },
+  {
+    prefix: "/administration/ai-usage",
+    topic: { slug: "billing-and-plans", label: `${OPERATOR_NAV_LINK_LABELS.aiUsage} help` },
+  },
+  {
+    prefix: "/administration/settings/ai-usage",
+    topic: { slug: "billing-and-plans", label: `${OPERATOR_NAV_LINK_LABELS.aiUsage} help` },
+  },
   { prefix: "/help/billing-and-plans", topic: { slug: "billing-and-plans", label: "Billing and plans" } },
   {
     prefix: "/help/security-trust",
