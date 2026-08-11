@@ -383,6 +383,7 @@ kbd {
   .privacy-policy-no-print,
   [data-testid="marketing-analytics-consent-banner"],
   [data-testid="help-topic-export-actions"],
+  [data-testid="package-print-actions"],
   [data-testid="help-topic-toc"],
   [data-testid="help-topic-toc-mobile"] {
     display: none !important;

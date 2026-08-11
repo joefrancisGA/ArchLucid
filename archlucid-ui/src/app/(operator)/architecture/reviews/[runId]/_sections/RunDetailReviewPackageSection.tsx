@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
+import { PackagePrintOpenButton } from "@/components/reviews/PackagePrintOpenButton";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { REVIEW_DETAIL_TAB_LABELS } from "@/lib/review-detail-workspace-tabs";
@@ -29,9 +30,14 @@ export function RunDetailReviewPackageSection(
         {REVIEW_DETAIL_TAB_LABELS["review-package"]}
       </h2>
       {!finalized ? (
-        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          Finalize the review to create the shareable review.
-        </p>
+        <div className="space-y-3">
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+            Finalize the review to create the shareable review.
+          </p>
+          <div className="flex flex-wrap gap-2 pt-1 print:hidden">
+            <PackagePrintOpenButton runId={props.runId} />
+          </div>
+        </div>
       ) : (
         <div className="space-y-3">
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
@@ -43,16 +49,19 @@ export function RunDetailReviewPackageSection(
             <li>Evidence bundle ({props.artifactCount} artifact{props.artifactCount === 1 ? "" : "s"})</li>
             <li>Decisions</li>
           </ul>
-          {props.showExportActions ? (
-            <div className="flex flex-wrap gap-2 pt-1">
-              <Button variant="outline" size="sm" asChild>
-                <Link href="#artifacts-exports">Export or share</Link>
-              </Button>
-              <Button variant="outline" size="sm" asChild>
-                <Link href="#manifest-summary">View finalized record</Link>
-              </Button>
-            </div>
-          ) : null}
+          <div className="flex flex-wrap gap-2 pt-1 print:hidden">
+            <PackagePrintOpenButton runId={props.runId} />
+            {props.showExportActions ? (
+              <>
+                <Button variant="outline" size="sm" asChild>
+                  <Link href="#artifacts-exports">Export or share</Link>
+                </Button>
+                <Button variant="outline" size="sm" asChild>
+                  <Link href="#manifest-summary">View finalized record</Link>
+                </Button>
+              </>
+            ) : null}
+          </div>
         </div>
       )}
     </section>

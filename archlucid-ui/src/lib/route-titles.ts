@@ -31,6 +31,10 @@ export function getRouteTitle(pathname: string): string {
     return "Review detail";
   }
 
+  if (/^\/architecture\/reviews\/[^/]+\/print$/.test(normalized)) {
+    return "Architecture package";
+  }
+
   if (
     /^\/architecture\/architectures\/[^/]+$/.test(lookupPath)
     || /^\/architectures\/[^/]+$/.test(normalized)
