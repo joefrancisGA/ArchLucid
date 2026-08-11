@@ -42,7 +42,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ApiKeysVsUsersReconciler } from "@/components/ApiKeysVsUsersReconciler";
 import { DeveloperApiContractsApiKeysVocabularyRail } from "@/components/DeveloperApiContractsApiKeysVocabularyRail";
-import { WebhooksVsApiKeysReconciler } from "@/components/WebhooksVsApiKeysReconciler";
+import { WebhooksApiKeysVocabularyRail } from "@/components/WebhooksApiKeysVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -276,7 +276,7 @@ export function ApiKeysSettingsPageClient() {
           <PageContextualHelpButton />
         </div>
         <ApiKeysVsUsersReconciler currentSurfaceId="api-keys" />
-        <WebhooksVsApiKeysReconciler currentSurfaceId="api-keys" />
+        <WebhooksApiKeysVocabularyRail currentSurfaceId="api-keys" />
         <DeveloperApiContractsApiKeysVocabularyRail currentSurfaceId="api-keys" />
       </header>
 {state.status === "loading" ? (

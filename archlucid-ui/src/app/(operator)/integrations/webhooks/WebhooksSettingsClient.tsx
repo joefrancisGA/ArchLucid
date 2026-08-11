@@ -9,7 +9,7 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { WEBHOOK_SUBSCRIPTION_SAVE_SUCCESS_MESSAGE } from "@/lib/admin-integration-mutation-outcome-copy";
 import { PageHeading } from "@/components/PageHeading";
-import { WebhooksVsApiKeysReconciler } from "@/components/WebhooksVsApiKeysReconciler";
+import { WebhooksApiKeysVocabularyRail } from "@/components/WebhooksApiKeysVocabularyRail";
 import { WebhooksVsDlqVocabularyRail } from "@/components/WebhooksVsDlqVocabularyRail";
 import { ConnectionStatusWebhooksVocabularyRail } from "@/components/ConnectionStatusWebhooksVocabularyRail";
 import { BooleanStatusChip } from "@/components/ui/boolean-status-chip";
@@ -273,7 +273,7 @@ export function WebhooksSettingsClient() {
           </>
         }
       />
-      <WebhooksVsApiKeysReconciler currentSurfaceId="webhooks" />
+      <WebhooksApiKeysVocabularyRail currentSurfaceId="webhooks" />
       <WebhooksVsDlqVocabularyRail currentSurfaceId="webhooks" />
       <ConnectionStatusWebhooksVocabularyRail currentSurfaceId="webhooks" />
       {failure !== null ? (
