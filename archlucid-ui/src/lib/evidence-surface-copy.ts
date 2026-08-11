@@ -16,6 +16,15 @@ export type EvidenceDiligenceSourceLink = EvidenceSourceLink & {
   readonly access: string;
 };
 
+/**
+ * Widest link shape an orientation strip can render. Every narrower link type above is structurally
+ * assignable to it, so per-surface copy modules keep their precise type and still pass type-check here.
+ */
+export type EvidenceOrientationLink = EvidenceSourceLink & {
+  readonly when?: string;
+  readonly adminOnly?: boolean;
+};
+
 export type EvidenceSurfaceCopy = {
   readonly canonicalPath: string;
   readonly claimDiscipline: string;

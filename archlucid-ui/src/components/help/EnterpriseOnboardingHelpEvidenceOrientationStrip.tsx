@@ -1,52 +1,20 @@
-import Link from "next/link";
-
+import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import {
   ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE,
   ENTERPRISE_ONBOARDING_HELP_RELATED_PAGES_TITLE,
   ENTERPRISE_ONBOARDING_HELP_SOURCES,
   ENTERPRISE_ONBOARDING_HELP_SOURCES_INTRO,
 } from "@/lib/enterprise-onboarding-help-evidence-copy";
-import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 /** Claim discipline + related setup pages for `/help/enterprise-onboarding`. */
 export function EnterpriseOnboardingHelpEvidenceOrientationStrip(): React.JSX.Element {
   return (
-    <div className="space-y-3" data-testid="enterprise-onboarding-help-orientation">
-      <aside
-        className={cn(DESIGN_TOKENS.callout.warn, "p-3")}
-        data-testid="enterprise-onboarding-help-claim-discipline"
-      >
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE}</p>
-      </aside>
-
-      <section
-        className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
-        aria-labelledby="enterprise-onboarding-help-sources-heading"
-        data-testid="enterprise-onboarding-help-sources"
-      >
-        <h2
-          id="enterprise-onboarding-help-sources-heading"
-          className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
-        >
-          {ENTERPRISE_ONBOARDING_HELP_RELATED_PAGES_TITLE}
-        </h2>
-        <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          {ENTERPRISE_ONBOARDING_HELP_SOURCES_INTRO}
-        </p>
-        <ul className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.body)}>
-          {ENTERPRISE_ONBOARDING_HELP_SOURCES.map((link) => (
-            <li key={`${link.href}-${link.label}`}>
-              <Link
-                className={cn(OPERATOR_LINK.inline, "inline-flex min-h-6 items-center py-1 font-medium")}
-                href={link.href}
-              >
-                {link.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
-    </div>
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="enterprise-onboarding-help"
+      claim={ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE}
+      sourcesTitle={ENTERPRISE_ONBOARDING_HELP_RELATED_PAGES_TITLE}
+      sourcesIntro={ENTERPRISE_ONBOARDING_HELP_SOURCES_INTRO}
+      sources={ENTERPRISE_ONBOARDING_HELP_SOURCES}
+    />
   );
 }

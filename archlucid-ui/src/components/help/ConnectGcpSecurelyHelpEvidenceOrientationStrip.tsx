@@ -1,58 +1,37 @@
-import Link from "next/link";
-
+import { EvidenceOrientationClaimCallout } from "@/components/evidence-orientation/EvidenceOrientationClaimCallout";
+import { EvidenceOrientationSourcesSection } from "@/components/evidence-orientation/EvidenceOrientationSourcesSection";
+import { EvidenceOrientationStripShell } from "@/components/evidence-orientation/EvidenceOrientationStripShell";
 import {
   CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE,
   CONNECT_GCP_SECURELY_SOURCES,
   CONNECT_GCP_SECURELY_SOURCES_INTRO,
 } from "@/lib/connect-gcp-securely-help-evidence-copy";
-import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help-diligence-artifact-index";
-import { cn } from "@/lib/utils";
 
 export const CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE_HEADING = "Connector setup orientation";
 
 /** Claim discipline + diligence artifact index for `/help/cloud-connections/gcp`. */
 export function ConnectGcpSecurelyHelpEvidenceOrientationStrip(): React.JSX.Element {
   return (
-    <div className="space-y-3" data-testid="connect-gcp-securely-help-orientation">
-      <aside
-        className={cn(DESIGN_TOKENS.callout.info, "p-3")}
-        data-testid="connect-gcp-securely-help-claim-discipline"
-        aria-labelledby="connect-gcp-securely-help-claim-discipline-heading"
-      >
-        <h2 id="connect-gcp-securely-help-claim-discipline-heading" className="sr-only">
-          {CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE_HEADING}
-        </h2>
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE}</p>
-      </aside>
+    <EvidenceOrientationStripShell testId="connect-gcp-securely-help-orientation">
+      <EvidenceOrientationClaimCallout
+        testId="connect-gcp-securely-help-claim-discipline"
+        body={CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE}
+        tone="info"
+        heading={{
+          id: "connect-gcp-securely-help-claim-discipline-heading",
+          text: CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE_HEADING,
+          visuallyHidden: true,
+        }}
+      />
 
-      <section
-        className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
-        aria-labelledby="connect-gcp-securely-help-sources-heading"
-        data-testid="connect-gcp-securely-help-sources"
-      >
-        <h2
-          id="connect-gcp-securely-help-sources-heading"
-          className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
-        >
-          {HELP_DILIGENCE_ARTIFACT_INDEX_TITLE}
-        </h2>
-        <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          {CONNECT_GCP_SECURELY_SOURCES_INTRO}
-        </p>
-        <ul className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.body)}>
-          {CONNECT_GCP_SECURELY_SOURCES.map((link) => (
-            <li key={`${link.href}-${link.label}`}>
-              <Link
-                className={cn(OPERATOR_LINK.inline, "inline-flex min-h-6 items-center py-1 font-medium")}
-                href={link.href}
-              >
-                {link.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
-    </div>
+      <EvidenceOrientationSourcesSection
+        testId="connect-gcp-securely-help-sources"
+        headingId="connect-gcp-securely-help-sources-heading"
+        title={HELP_DILIGENCE_ARTIFACT_INDEX_TITLE}
+        intro={CONNECT_GCP_SECURELY_SOURCES_INTRO}
+        links={CONNECT_GCP_SECURELY_SOURCES}
+      />
+    </EvidenceOrientationStripShell>
   );
 }
