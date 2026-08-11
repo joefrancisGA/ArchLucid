@@ -12,10 +12,16 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 import { IdentityProvidersOidcPageView } from "./IdentityProvidersOidcPageView";
 import type { UseIdentityProvidersSettingsPageModel } from "./use-identity-providers-settings-page";
 import {
+  IDENTITY_PROVIDERS_ACTION_OPEN_IDENTITY_DIAGNOSTICS,
+  IDENTITY_PROVIDERS_OIDC_ACTION_VALIDATE_DISCOVERY,
+  IDENTITY_PROVIDERS_OIDC_EMPTY,
+  IDENTITY_PROVIDERS_OIDC_LOADING,
   IDENTITY_PROVIDERS_OIDC_PAGE_SUBTITLE,
   IDENTITY_PROVIDERS_OIDC_PAGE_TITLE,
   IDENTITY_PROVIDERS_PAGE_SUBTITLE,
+  IDENTITY_PROVIDERS_ROLE_MAPPING_ACTION_OPEN_SSO_WIZARD,
   IDENTITY_PROVIDERS_STATUS_HEALTHY,
+  IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW,
 } from "@/lib/identity-providers-settings-copy";
 
 function buildModel(
@@ -83,6 +89,66 @@ describe("IdentityProvidersOidcPageView", () => {
 
     expect(screen.getByTestId("identity-providers-oidc-discovery-status")).toHaveTextContent(
       IDENTITY_PROVIDERS_STATUS_HEALTHY,
+    );
+  });
+
+  it("shows loading state until OIDC diagnostics load (TB-1914)", () => {
+    render(
+      <IdentityProvidersOidcPageView
+        model={buildModel({ oidcDiagnosticsLoaded: false, oidcDiagnostics: null })}
+      />,
+    );
+
+    expect(screen.getByTestId("identity-providers-oidc-loading")).toHaveTextContent(
+      IDENTITY_PROVIDERS_OIDC_LOADING,
+    );
+    expect(screen.queryByText("—")).not.toBeInTheDocument();
+  });
+
+  it("shows empty state instead of em-dashes when OIDC payload is missing (TB-1914)", () => {
+    render(<IdentityProvidersOidcPageView model={buildModel({ oidcDiagnostics: null })} />);
+
+    expect(screen.getByTestId("identity-providers-oidc-empty")).toHaveTextContent(
+      IDENTITY_PROVIDERS_OIDC_EMPTY,
+    );
+    expect(screen.queryByText("—")).not.toBeInTheDocument();
+  });
+
+  it("uses SSO wizard as primary CTA when discovery is healthy (TB-1914)", () => {
+    render(<IdentityProvidersOidcPageView model={buildModel()} />);
+
+    expect(screen.getByTestId("identity-providers-oidc-primary-cta")).toHaveTextContent(
+      IDENTITY_PROVIDERS_ROLE_MAPPING_ACTION_OPEN_SSO_WIZARD,
+    );
+    expect(screen.getByTestId("identity-providers-oidc-secondary-cta")).toHaveTextContent(
+      IDENTITY_PROVIDERS_ACTION_OPEN_IDENTITY_DIAGNOSTICS,
+    );
+  });
+
+  it("uses diagnostics as primary CTA when discovery needs review (TB-1914)", () => {
+    render(
+      <IdentityProvidersOidcPageView
+        model={buildModel({
+          oidcDiagnostics: {
+            authMode: "JwtBearer",
+            configuredAuthority: "https://login.example.com/",
+            configuredAudience: "api://demo",
+            discoveryAttempted: true,
+            discoverySucceeded: false,
+          },
+          overview: {
+            ...buildModel().overview,
+            oidcStatus: IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW,
+          },
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("identity-providers-oidc-primary-cta")).toHaveTextContent(
+      IDENTITY_PROVIDERS_OIDC_ACTION_VALIDATE_DISCOVERY,
+    );
+    expect(screen.getByTestId("identity-providers-oidc-secondary-cta")).toHaveTextContent(
+      IDENTITY_PROVIDERS_ROLE_MAPPING_ACTION_OPEN_SSO_WIZARD,
     );
   });
 });

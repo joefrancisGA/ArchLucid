@@ -1411,9 +1411,9 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1326 | ~~`/help/configuration-reference` ? operator specialty guide + split full key catalog~~ **Done** 2026-08-02 ? HelpConfigurationReferenceGuideView + collapsed appendix; see ## TB-1326 below | Adoption friction P1 ? **V1**; owner configuration-reference ~39/100 2026-07-26; traffic **CON**; pairs **TB-1253**/**TB-1246** | M |
 | TB-1331 | **Done** (2026-08-10) — `/help/core-pilot` step 2 Add evidence CTA honesty; see ## TB-1331 below | Trustworthiness P1 ? **V1**; owner core-pilot re-review ~70/100 2026-07-26; traffic **COR**; after Done **TB-1040**?**TB-1043** | S |
 | TB-1332 | **Done** (2026-08-10) — `/help/core-pilot` sample review CTA Claims label; see ## TB-1332 below | Trustworthiness P1 ? **V1**; with **TB-1331**; pairs **TB-1028**/**TB-1283** | S |
-| TB-1333 | `/help/core-pilot` ? stepper pending chrome (no disabled fake CTAs); see ## TB-1333 below | Adoption friction P1 ? **V1**; with **TB-1331**; extends **TB-1042** | XS |
-| TB-1334 | `/help/core-pilot` ? post-stepper density (cloud / fast-path / deferrals); see ## TB-1334 below | Adoption friction P1 ? **V1**; with **TB-1331**; extends **TB-1043** | S |
-| TB-1335 | `/help/core-pilot` ? related-guides IA canonicalize vs first-hour/onboarding/pilot-guide; see ## TB-1335 below | Adoption friction P1 ? **V1**; with **TB-1331**; pairs **TB-1258** | S |
+| TB-1333 | **Done** (2026-08-10) — `/help/core-pilot` stepper pending chrome; see ## TB-1333 below | Adoption friction P1 ? **V1**; with **TB-1331**; extends **TB-1042** | XS |
+| TB-1334 | **Done** (2026-08-10) — `/help/core-pilot` post-stepper density; see ## TB-1334 below | Adoption friction P1 ? **V1**; with **TB-1331**; extends **TB-1043** | S |
+| TB-1335 | **Done** (2026-08-10) — `/help/core-pilot` related-guides IA; see ## TB-1335 below | Adoption friction P1 ? **V1**; with **TB-1331**; pairs **TB-1258** | S |
 | TB-1338 | `/help/enterprise-onboarding` ? specialty checklist guide + primary SSO CTA; see ## TB-1338 below | Adoption friction P1 ? **V1**; owner enterprise-onboarding ~51/100 2026-07-26; traffic **HEX** | M |
 | TB-1345 | `/help/evaluator-workbook` ? specialty evaluator guide + primary Start CTA; see ## TB-1345 below | Adoption friction P1 ? **V1**; owner evaluator-workbook ~42/100 2026-07-26; traffic **HEE**; pairs **TB-1253**/**TB-1338** | M |
 | TB-1347 | Evaluator workbook ? help-center tier / audience honesty (not buried internal); see ## TB-1347 below | Trustworthiness P1 ? **V1**; with **TB-1345**; pairs **TB-1329**/**TB-1250** | S |
@@ -33232,11 +33232,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
-
-**Priority:** P0.
-
-**Source:** Owner COR re-review 2026-07-26 ? `HelpCorePilotWorkflowStepper` passes `ctx=null` while `useCorePilotCommitContextQuery` is pending; resolver disables steps 3?5 with labels like **Open review detail** / **Finalize on review detail**.
+**Status:** **Done** (2026-08-10) — pending resolver copy + skeleton for steps 2–5; no disabled finalize/export CTAs while context loads; Vitest pending guards.
 
 **Problem:** Loading looks like permanently unavailable finalize/export controls rather than ?checking your workspace??.
 
@@ -33259,11 +33255,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
-
-**Priority:** P0.
-
-**Source:** Owner COR re-review 2026-07-26 ? **TB-1043** put cloud/related outside `core-pilot-first-viewport`, but the page still stacks always-visible H2s (Cloud connectors optional, Fast path, What can wait, Ready to begin?) each wrapping a nested `<details>`.
+**Status:** **Done** (2026-08-10) — `CorePilotHelpPostStepperPanel` collapses cloud/fast-path/deferrals into one optional disclosure + quiet closing card; Vitest first-viewport guard preserved.
 
 **Problem:** After the stepper, the next scroll is a second orientation wall ? title + collapsed disclosure ×3 ? before Related guides. First-session readers bounce between competing ?optional? frames.
 
@@ -33287,11 +33279,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
-
-**Priority:** P0.
-
-**Source:** Owner COR re-review 2026-07-26 ? Related guides: **Complete review workflow** (`first-pilot-path`) + **First review guide in the product** (`/onboarding`) + Troubleshooting; Help center also features `first-hour-operator-path` titled ?First-review guide?, `pilot-guide`, and open **TB-1258** starting-reviews / review-guide twins.
+**Status:** **Done** (2026-08-10) — related guides use In-product checklist label for `/architecture/first-review-guide`; no First review guide twin; Vitest label guards.
 
 **Problem:** ?First review? is overloaded ? core-pilot, onboarding checklist, first-hour help, pilot guide, and review-guide compete. Related links from the canonical first-review help page should not invent yet another twin title.
 

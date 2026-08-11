@@ -80,6 +80,10 @@ export const IDENTITY_PROVIDERS_OIDC_PAGE_INTRO =
   "Review OpenID Connect authority, audience, discovery status, and role claim mapping.";
 export const IDENTITY_PROVIDERS_OIDC_PAGE_SUBTITLE =
   "Review OpenID Connect authority, audience, discovery status, and role claim mapping before enabling SSO for all users.";
+export const IDENTITY_PROVIDERS_OIDC_LOADING = "Loading OIDC/JWT status…";
+export const IDENTITY_PROVIDERS_OIDC_EMPTY =
+  "OIDC/JWT discovery has not been run yet for this workspace.";
+export const IDENTITY_PROVIDERS_OIDC_ACTION_VALIDATE_DISCOVERY = "Validate discovery";
 
 export const IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_TITLE = "Role mapping status";
 export const IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_INTRO =
