@@ -4,7 +4,6 @@ import type { ProductDocumentationEntry } from "@/lib/product-documentation-regi
 export const FOLDED_INTERNAL_RUNBOOK_SLUGS = [
   "first-review",
   "first-value-20-minutes",
-  "policy-pack-delta-demo",
 ] as const;
 
 export type FoldedInternalRunbookSlug = (typeof FOLDED_INTERNAL_RUNBOOK_SLUGS)[number];
@@ -30,17 +29,7 @@ const FOLDED_INTERNAL_RUNBOOK_ENTRIES: readonly ProductDocumentationEntry[] = [
     sourcePaths: ["docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md"],
     sectionAnchors: ["first-value-in-20-minutes"],
     lastReviewed: "2026-08-09",
-    releaseApplicability: "Applies to V1 GA — Admin SE time-boxed first-value proof path",
-    contentKind: "internal-runbook",
-    pdfStatus: null,
-  },
-  {
-    slug: "policy-pack-delta-demo",
-    title: "Policy-pack delta demo (internal runbook)",
-    summary:
-      "Admin/SE demo script: same finalized architecture review, stricter pack enforcement, different finalize-gate outcome — dry-run, simulation, and audit slice. Not buyer self-serve help.",
-    audience: "operator",
-    sourcePaths: ["docs/go-to-market/POLICY_PACK_DELTA_DEMO_SCRIPT.md"],
+    releaseApplicability: "Admin SE time-boxed first-value proof path",
     contentKind: "internal-runbook",
     pdfStatus: null,
   },

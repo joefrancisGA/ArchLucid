@@ -43,26 +43,56 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.firstArchitectureReview,
     historicalNote:
       "Deprecated core-pilot help alias (Help alias) - slug alias core-pilot -> first-architecture-review; canon COR = /help/first-architecture-review.",
+    bannedBuyerCopy: ["/help/core-pilot"],
+    buyerSurfaceGuards: [
+      "src/lib/help-search-panel-catalog.ts",
+      "src/lib/usability/page-help-topic-map.ts",
+      "src/app/(operator)/help/_sections/HelpCorePilotGuideView.tsx",
+    ],
   },
   {
     removedRowId: "HEV",
     retiredPath: "/help/evidence-only-review",
     canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.firstArchitectureReview,
+    bannedBuyerCopy: ["/help/evidence-only-review"],
+    buyerSurfaceGuards: [
+      "src/lib/help-search-panel-catalog.ts",
+      "src/lib/usability/page-help-topic-map.ts",
+      "src/app/(operator)/help/_sections/HelpCorePilotGuideView.tsx",
+    ],
   },
   {
     removedRowId: "FIR",
     retiredPath: "/help/first-pilot-path",
     canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.firstArchitectureReview,
+    bannedBuyerCopy: ["/help/first-pilot-path"],
+    buyerSurfaceGuards: [
+      "src/lib/help-search-panel-catalog.ts",
+      "src/lib/usability/page-help-topic-map.ts",
+      "src/app/(operator)/help/_sections/HelpCorePilotGuideView.tsx",
+    ],
   },
   {
     removedRowId: "HFE",
     retiredPath: "/help/first-hour-operator-path",
     canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.firstArchitectureReview,
+    bannedBuyerCopy: ["/help/first-hour-operator-path"],
+    buyerSurfaceGuards: [
+      "src/lib/help-search-panel-catalog.ts",
+      "src/lib/usability/page-help-topic-map.ts",
+      "src/lib/evidence-intake-help-guide-content.ts",
+    ],
   },
   {
     removedRowId: "HET",
     retiredPath: "/help/starting-reviews",
     canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.reviewGuide,
+    bannedBuyerCopy: ["/help/starting-reviews"],
+    buyerSurfaceGuards: [
+      "src/lib/help-search-panel-catalog.ts",
+      "src/lib/usability/page-help-topic-map.ts",
+      "src/app/(operator)/help/_sections/HelpReviewGuideView.tsx",
+    ],
   },
   {
     removedRowId: "HER",
@@ -81,16 +111,35 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     removedRowId: "HEE",
     retiredPath: "/help/evaluator-workbook",
     canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.pathChooser,
+    bannedBuyerCopy: ["/help/evaluator-workbook"],
+    buyerSurfaceGuards: [
+      "src/lib/help-search-panel-catalog.ts",
+      "src/lib/usability/page-help-topic-map.ts",
+      "src/lib/path-chooser-help-guide-content.ts",
+      "src/app/(operator)/help/_sections/HelpPathChooserGuideView.tsx",
+    ],
   },
   {
     removedRowId: "HEP",
     retiredPath: "/help/governance-api-contracts",
     canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.apiContracts,
+    bannedBuyerCopy: ["/help/governance-api-contracts"],
+    buyerSurfaceGuards: [
+      "src/lib/help-search-panel-catalog.ts",
+      "src/lib/usability/page-help-topic-map.ts",
+      "src/app/(operator)/help/_sections/HelpApiContractsGuideView.tsx",
+    ],
   },
   {
     removedRowId: "HDA",
     retiredPath: "/help/data-handling-tenant-isolation",
     canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.dataHandling,
+    bannedBuyerCopy: ["/help/data-handling-tenant-isolation"],
+    buyerSurfaceGuards: [
+      "src/lib/help-search-panel-catalog.ts",
+      "src/lib/usability/page-help-topic-map.ts",
+      "src/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationGuideView.tsx",
+    ],
   },
   {
     removedRowId: "HAZ",
@@ -106,11 +155,24 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     removedRowId: "HHX",
     retiredPath: "/help/how-it-works",
     canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.gettingStarted,
+    bannedBuyerCopy: ["/help/how-it-works"],
+    buyerSurfaceGuards: [
+      "src/lib/help-search-panel-catalog.ts",
+      "src/lib/usability/page-help-topic-map.ts",
+      "src/lib/getting-started-help-guide-content.ts",
+      "src/app/(operator)/help/_sections/HelpGettingStartedGuideView.tsx",
+    ],
   },
   {
     removedRowId: "EPR",
     retiredPath: "/help/product-overview",
     canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.executiveSummary,
+    bannedBuyerCopy: ["/help/product-overview"],
+    buyerSurfaceGuards: [
+      "src/lib/help-search-panel-catalog.ts",
+      "src/lib/usability/page-help-topic-map.ts",
+      "src/app/(operator)/help/_sections/HelpExecutiveSummaryGuideView.tsx",
+    ],
   },
   {
     removedRowId: "FI",
@@ -141,26 +203,18 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     ],
   },
   {
-    removedRowId: "POL",
-    retiredPath: "/help/policy-pack-delta-demo",
-    canonicalPath: `${inAppHelpHref("policy-packs")}#policy-pack-delta-demo`,
-    historicalNote:
-      "Deprecated policy-pack-delta-demo help twin (Help topic) - SE demo runbook folded into policy-packs help (HEO).",
-    bannedBuyerCopy: ["/help/policy-pack-delta-demo", "Policy-pack delta demo help"],
-    buyerSurfaceGuards: [
-      "src/lib/help-search-panel-catalog.ts",
-      "src/lib/policy-packs-help-evidence-copy.ts",
-      "src/lib/usability/page-help-topic-map.ts",
-      "src/app/(operator)/governance/policy-packs/_sections/PolicyPacksMarketingIntro.tsx",
-      "src/components/PolicyPackImpactPreviewPanel.tsx",
-    ],
-  },
-  {
     removedRowId: "PIL",
     retiredPath: "/help/pilot-nav-profile",
     canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.pilotGuide,
     historicalNote:
       "Deprecated pilot-nav-profile help twin (Help topic) - workspace navigation guide folded into pilot-guide specialty (HP); canon HP = /help/pilot-guide.",
+    bannedBuyerCopy: ["/help/pilot-nav-profile"],
+    buyerSurfaceGuards: [
+      "src/lib/help-search-panel-catalog.ts",
+      "src/lib/usability/page-help-topic-map.ts",
+      "src/lib/pilot-guide-help-evidence-copy.ts",
+      "src/app/(operator)/help/_sections/HelpPilotGuideView.tsx",
+    ],
   },
   {
     removedRowId: "PI",

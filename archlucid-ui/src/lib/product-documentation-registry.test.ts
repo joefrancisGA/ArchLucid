@@ -121,7 +121,7 @@ describe("product-documentation-registry", () => {
     expect(glossary?.sourcePaths).toEqual([]);
     expect(glossary?.pdfStatus).toBeNull();
     expect(glossary?.lastReviewed).toBe(CUSTOMER_GLOSSARY_CONTRACT_VERSION);
-    expect(glossary?.releaseApplicability).toContain("V1 GA");
+    expect(glossary?.releaseApplicability).toContain("product vocabulary");
     expect(tryLoadProductDocumentation("glossary")?.markdown).toBe("");
   });
 
@@ -334,14 +334,14 @@ describe("product-documentation-registry", () => {
     const entry = getProductDocumentationEntry("comparison-replay");
 
     expect(entry?.lastReviewed).toBe("2026-08-09");
-    expect(entry?.releaseApplicability).toContain("V1 GA");
+    expect(entry?.releaseApplicability).toContain("Compare two reviews");
   });
 
   it("declares provenance metadata on enterprise-onboarding operator checklist (HE)", () => {
     const entry = getProductDocumentationEntry("enterprise-onboarding");
 
     expect(entry?.lastReviewed).toBe("2026-08-09");
-    expect(entry?.releaseApplicability).toContain("V1 GA");
+    expect(entry?.releaseApplicability).toContain("hosted enterprise tenant onboarding");
     expect(entry?.pdfStatus).toBe("customer");
   });
 
@@ -349,7 +349,15 @@ describe("product-documentation-registry", () => {
     const entry = getProductDocumentationEntry("evidence-intake");
 
     expect(entry?.lastReviewed).toBe("2026-08-10");
-    expect(entry?.releaseApplicability).toContain("V1 GA");
+    expect(entry?.releaseApplicability).toContain("evidence intake");
+    expect(entry?.pdfStatus).toBe("customer");
+  });
+
+  it("declares provenance metadata on policy-packs operator guide (HEO)", () => {
+    const entry = getProductDocumentationEntry("policy-packs");
+
+    expect(entry?.lastReviewed).toBe("2026-08-09");
+    expect(entry?.releaseApplicability).toContain("policy pack assignment and conflict resolution");
     expect(entry?.pdfStatus).toBe("customer");
   });
 
@@ -357,7 +365,7 @@ describe("product-documentation-registry", () => {
     const entry = getProductDocumentationEntry("api-contracts");
 
     expect(entry?.lastReviewed).toBe("2026-08-10");
-    expect(entry?.releaseApplicability).toContain("V1 GA");
+    expect(entry?.releaseApplicability).toContain("HTTP contract");
   });
 
   it("keeps internal-runbook topics with source paths off the missing-provenance list (HG)", () => {
@@ -383,5 +391,6 @@ describe("product-documentation-registry", () => {
     expect(missingProvenance).not.toContain("comparison-replay");
     expect(missingProvenance).not.toContain("enterprise-onboarding");
     expect(missingProvenance).not.toContain("evidence-intake");
+    expect(missingProvenance).not.toContain("policy-packs");
   });
 });

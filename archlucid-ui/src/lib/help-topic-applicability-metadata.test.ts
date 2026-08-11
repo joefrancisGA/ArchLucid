@@ -23,12 +23,26 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
     const label = formatHelpTopicApplicabilityMetadata(
       sampleEntry({
         lastReviewed: "2026-08-09",
-        releaseApplicability: "Applies to V1 GA — Azure Boards work item connector",
+        releaseApplicability: "Azure Boards work item connector",
       }),
     );
 
     expect(label).toBe(
       "Last reviewed 2026-08-09 · Applies to V1 GA — Azure Boards work item connector",
+    );
+  });
+
+  it("formats policy-packs provenance with V1 GA release applicability", () => {
+    expect(
+      formatHelpTopicApplicabilityMetadata(
+        sampleEntry({
+          slug: "policy-packs",
+          lastReviewed: "2026-08-09",
+          releaseApplicability: "policy pack assignment and conflict resolution",
+        }),
+      ),
+    ).toBe(
+      "Last reviewed 2026-08-09 · Applies to V1 GA — policy pack assignment and conflict resolution",
     );
   });
 

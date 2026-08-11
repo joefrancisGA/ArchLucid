@@ -9,6 +9,8 @@ import { HelpTopicMarkdownPageHeader } from "@/app/(operator)/help/_sections/Hel
 import { CaiqSigResponseHelpPostureSummary } from "@/components/help/CaiqSigResponseHelpPostureSummary";
 
 import { HelpTopicExportClaimDiscipline } from "@/components/help/HelpTopicExportClaimDiscipline";
+import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
+import { ProcurementHelpHeaderAsOfLine } from "@/components/help/ProcurementHelpHeaderAsOfLine";
 
 import { HelpTopicSignInFailureTriageLine } from "@/components/help/HelpTopicSignInFailureTriageLine";
 
@@ -39,6 +41,9 @@ import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/desig
 import { AUTHENTICATION_SIGN_IN_HELP_PRIMARY_ACTION } from "@/lib/authentication-sign-in-help-copy";
 import { CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTION } from "@/lib/caiq-sig-response-help-evidence-copy";
 import { INTEGRATION_READINESS_HELP_PRIMARY_ACTION } from "@/lib/integration-readiness-help-evidence-copy";
+import { PROCUREMENT_HELP_CLAIM_DISCIPLINE } from "@/lib/procurement-help-evidence-copy";
+import { isProcurementHelpTopic } from "@/lib/procurement-help-presentation";
+import { POLICY_PACKS_HELP_PRIMARY_ACTION } from "@/lib/policy-packs-help-evidence-copy";
 
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
 
@@ -136,7 +141,10 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
   const postureTableRowTotal = isCaiqSigResponse ? countCaiqSigResponseTableRows(preparedMarkdown) : 0;
 
   const isIntegrationReadinessHelp = entry.slug === "integration-readiness";
+  const isPolicyPacksHelp = entry.slug === "policy-packs";
+  const isProcurementHelp = isProcurementHelpTopic(entry.slug);
   const isAuthenticationSignInHelp = entry.slug === "authentication-sign-in";
+  const allowWithoutServerPdf = entry.pdfStatus === null && (entry.audience === "buyer" || isProcurementHelp);
 
   const isTechnicalReferenceLayout = layoutVariant === "technicalReference";
 
@@ -180,7 +188,23 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
         showExportClaimDiscipline={showExportClaimDiscipline}
 
-        exportClaimDiscipline={showExportClaimDiscipline ? <HelpTopicExportClaimDiscipline /> : undefined}
+        allowWithoutServerPdf={allowWithoutServerPdf}
+
+        exportClaimDiscipline={
+          showExportClaimDiscipline ? (
+            <HelpTopicExportClaimDiscipline
+              claimDiscipline={isProcurementHelp ? PROCUREMENT_HELP_CLAIM_DISCIPLINE : undefined}
+            />
+          ) : undefined
+        }
+
+        titleBlockOrientation={
+          isProcurementHelp ? (
+            <ProcurementHelpHeaderAsOfLine />
+          ) : isPolicyPacksHelp ? (
+            <HelpTopicRegistryProvenanceLine entry={entry} />
+          ) : undefined
+        }
 
         signInFailureTriageLine={isAuthenticationSignInHelp ? <HelpTopicSignInFailureTriageLine /> : undefined}
 
@@ -191,7 +215,9 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
               ? CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTION
               : isIntegrationReadinessHelp
                 ? INTEGRATION_READINESS_HELP_PRIMARY_ACTION
-                : undefined
+                : isPolicyPacksHelp
+                  ? POLICY_PACKS_HELP_PRIMARY_ACTION
+                  : undefined
         }
 
       />

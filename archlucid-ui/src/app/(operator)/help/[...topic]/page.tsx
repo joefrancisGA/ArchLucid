@@ -5,6 +5,7 @@ import { notFound, permanentRedirect } from "next/navigation";
 
 import { HelpTopicMarkdownView } from "../HelpTopicMarkdownView";
 import { CaiqSigResponseHelpEvidenceOrientationStrip } from "@/components/help/CaiqSigResponseHelpEvidenceOrientationStrip";
+import { ProcurementHelpEvidenceOrientationStrip } from "@/components/help/ProcurementHelpEvidenceOrientationStrip";
 import { IntegrationReadinessHelpEvidenceOrientationStrip } from "@/components/help/IntegrationReadinessHelpEvidenceOrientationStrip";
 import { AuthenticationSignInHelpEvidenceOrientationStrip } from "@/components/help/AuthenticationSignInHelpEvidenceOrientationStrip";
 import { ReportProblemAuditVocabularyRail } from "@/components/ReportProblemAuditVocabularyRail";
@@ -88,6 +89,11 @@ const HelpReviewGuideView = dynamic(() =>
 );
 const HelpPilotGuideView = dynamic(() =>
   import("../_sections/HelpPilotGuideView").then((module) => module.HelpPilotGuideView),
+);
+const HelpPolicyPackDeltaDemoGuideView = dynamic(() =>
+  import("../_sections/HelpPolicyPackDeltaDemoGuideView").then(
+    (module) => module.HelpPolicyPackDeltaDemoGuideView,
+  ),
 );
 const HelpPilotFeedbackGuideView = dynamic(() =>
   import("../_sections/HelpPilotFeedbackGuideView").then((module) => module.HelpPilotFeedbackGuideView),
@@ -394,6 +400,10 @@ function renderHelpTopicView(
     return <HelpPolicyPacksGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
+  if (loaded.entry.slug === "policy-pack-delta-demo") {
+    return <HelpPolicyPackDeltaDemoGuideView entry={loaded.entry} markdown={loaded.markdown} />;
+  }
+
   if (loaded.entry.slug === "prior-manifest-retrieval") {
     return (
       <HelpTopicMarkdownView
@@ -473,6 +483,8 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
+        evidenceOrientation={<ProcurementHelpEvidenceOrientationStrip />}
+        showExportClaimDiscipline
       />
     );
   }

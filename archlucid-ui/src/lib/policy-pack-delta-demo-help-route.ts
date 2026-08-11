@@ -1,5 +1,2 @@
-import { POLICY_PACKS_HELP_PATH } from "@/lib/policy-packs-page";
-
-/** Canonical folded location for policy-pack delta demo runbook (retired slug `policy-pack-delta-demo`). */
-export const POLICY_PACK_DELTA_DEMO_HELP_PATH =
-  `${POLICY_PACKS_HELP_PATH}#policy-pack-delta-demo` as const;
+/** Canonical standalone Admin/SE route for policy-pack delta demo runbook. */
+export const POLICY_PACK_DELTA_DEMO_HELP_PATH = "/help/policy-pack-delta-demo" as const;

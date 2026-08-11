@@ -25,7 +25,6 @@ export const HELP_TOPIC_PERMANENT_REDIRECTS: Readonly<Record<string, string>> = 
   "operator-auth-roles": "/help/users-and-roles",
   "pilot-nav-profile": "/help/pilot-guide",
   "pilot-roi-model": "/help/executive-summary#pilot-roi-measurement",
-  "policy-pack-delta-demo": "/help/policy-packs#policy-pack-delta-demo",
   "product-overview": "/help/executive-summary#what-archlucid-is",
   "starting-reviews": "/help/review-guide",
 };

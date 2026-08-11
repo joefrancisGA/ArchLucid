@@ -994,7 +994,7 @@ describe("help-markdown-presentation", () => {
   });
 
   it("keeps presented policy-pack-delta help UI-first (TB-1727)", () => {
-    const loaded = tryLoadFoldedInternalRunbook("policy-pack-delta-demo");
+    const loaded = tryLoadProductDocumentation("policy-pack-delta-demo");
 
     expect(loaded).not.toBeNull();
 

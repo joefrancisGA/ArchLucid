@@ -7,6 +7,7 @@ export type ProductDocumentationContentKind =
 const INTERNAL_RUNBOOK_SLUGS = new Set<string>([
   "pilot-feedback",
   "developer-troubleshooting",
+  "policy-pack-delta-demo",
   // TB-1250 — eng-facing help must not stay ungated as technical-documentation.
   "cli-usage",
   "api-contracts",
@@ -54,6 +55,7 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "pilot-guide": "product-help",
   "prior-manifest-retrieval": "product-help",
   "policy-packs": "product-help",
+  "policy-pack-delta-demo": "internal-runbook",
   procurement: "product-help",
   "caiq-sig-response": "product-help",
   "dpa-template": "product-help",

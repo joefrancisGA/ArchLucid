@@ -86,7 +86,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     ],
     sectionAnchors: ["what-you-see", "main-workflow"],
     lastReviewed: "2026-08-09",
-    releaseApplicability: "Applies to V1 GA — pilot preparation and first architecture review workflow",
+    releaseApplicability: "pilot preparation and first architecture review workflow",
     pdfStatus: "public",
   },
   {
@@ -105,7 +105,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/CONCEPTS_IN_5_MINUTES.md"],
     lastReviewed: "2026-08-09",
-    releaseApplicability: "Applies to V1 GA — product orientation and first review workflow",
+    releaseApplicability: "product orientation and first review workflow",
     pdfStatus: "public",
   },
   {
@@ -125,7 +125,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     // App-rendered from `customer-glossary-manifest.ts` — not a markdown help body.
     sourcePaths: [],
     lastReviewed: CUSTOMER_GLOSSARY_CONTRACT_VERSION,
-    releaseApplicability: "Applies to V1 GA — product vocabulary for reviews, evidence, and governance",
+    releaseApplicability: "product vocabulary for reviews, evidence, and governance",
   },
   {
     slug: "evidence-intake",
@@ -135,7 +135,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/EVIDENCE_INTAKE_OPERATOR_GUIDE.md"],
     lastReviewed: "2026-08-10",
-    releaseApplicability: "Applies to V1 GA — evidence intake and review starting paths",
+    releaseApplicability: "evidence intake and review starting paths",
     pdfStatus: "customer",
   },
   {
@@ -199,6 +199,17 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/POLICY_PACKS_OPERATOR_GUIDE.md"],
     pdfStatus: "customer",
+    lastReviewed: "2026-08-09",
+    releaseApplicability: "policy pack assignment and conflict resolution",
+  },
+  {
+    slug: "policy-pack-delta-demo",
+    title: "Policy-pack delta demo (internal runbook)",
+    summary:
+      "Admin/SE demo script: same finalized architecture review, stricter pack enforcement, different finalize-gate outcome — dry-run, simulation, and audit slice. Not buyer self-serve help.",
+    audience: "operator",
+    sourcePaths: ["docs/go-to-market/POLICY_PACK_DELTA_DEMO_SCRIPT.md"],
+    pdfStatus: null,
   },
   {
     slug: "audit-trail",
@@ -208,7 +219,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sourcePaths: ["docs/library/AUDIT_EVENT_MODEL.md"],
     pdfStatus: "customer",
     lastReviewed: "2026-08-09",
-    releaseApplicability: "Applies to V1 GA — audit events and export posture",
+    releaseApplicability: "audit events and export posture",
   },
   {
     slug: "authentication-sign-in",
@@ -239,7 +250,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sourcePaths: ["docs/library/customer-facing/DATA_HANDLING.md"],
     pdfStatus: "public",
     lastReviewed: "2026-08-09",
-    releaseApplicability: "Applies to V1 GA — data flow and tenant isolation",
+    releaseApplicability: "data flow and tenant isolation",
   },
   {
     slug: "security-trust",
@@ -293,7 +304,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     includeIntroWithSections: true,
     pdfStatus: "customer",
     lastReviewed: "2026-08-09",
-    releaseApplicability: "Applies to V1 GA — optional cloud evidence connectors",
+    releaseApplicability: "optional cloud evidence connectors",
   },
   {
     slug: "cloud-connections-azure",
@@ -305,7 +316,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sectionAnchors: ["connect-azure-securely"],
     pdfStatus: "customer",
     lastReviewed: "2026-08-09",
-    releaseApplicability: "Applies to V1 GA — optional cloud evidence connectors",
+    releaseApplicability: "optional cloud evidence connectors",
   },
   {
     slug: "cloud-connections-aws",
@@ -317,7 +328,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sectionAnchors: ["connect-aws-securely"],
     pdfStatus: "customer",
     lastReviewed: "2026-08-09",
-    releaseApplicability: "Applies to V1 GA — optional cloud evidence connectors",
+    releaseApplicability: "optional cloud evidence connectors",
   },
   {
     slug: "cloud-connections-gcp",
@@ -329,7 +340,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sectionAnchors: ["connect-gcp-securely"],
     pdfStatus: "customer",
     lastReviewed: "2026-08-09",
-    releaseApplicability: "Applies to V1 GA — optional cloud evidence connectors (GCP Workload Identity Federation connector)",
+    releaseApplicability: "optional cloud evidence connectors (GCP Workload Identity Federation connector)",
   },
   {
     slug: "azure-permissions",
@@ -340,7 +351,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sourcePaths: ["docs/library/customer-facing/AZURE_CLOUD_CONNECTION_PERMISSIONS.md"],
     pdfStatus: "customer",
     lastReviewed: "2026-08-09",
-    releaseApplicability: "Applies to V1 GA — optional cloud evidence connectors",
+    releaseApplicability: "optional cloud evidence connectors",
   },
   {
     slug: "enterprise-onboarding",
@@ -351,7 +362,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sourcePaths: ["docs/library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md"],
     pdfStatus: "customer",
     lastReviewed: "2026-08-09",
-    releaseApplicability: "Applies to V1 GA — hosted enterprise tenant onboarding checklist",
+    releaseApplicability: "hosted enterprise tenant onboarding checklist",
   },
   {
     slug: "integration-readiness",
@@ -370,7 +381,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sourcePaths: ["docs/library/customer-facing/AZURE_BOARDS_INTEGRATION.md"],
     pdfStatus: "public",
     lastReviewed: "2026-08-09",
-    releaseApplicability: "Applies to V1 GA — Azure Boards work item connector",
+    releaseApplicability: "Azure Boards work item connector",
   },
   {
     slug: "procurement",
@@ -390,7 +401,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/BILLING_AND_PLANS.md"],
     lastReviewed: "2026-08-09",
-    releaseApplicability: "Applies to V1 GA — workspace billing and subscriptions",
+    releaseApplicability: "workspace billing and subscriptions",
   },
   {
     slug: "first-architecture-review",
@@ -401,7 +412,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sourcePaths: ["docs/CORE_PILOT.md"],
     pdfStatus: "public",
     lastReviewed: "2026-08-09",
-    releaseApplicability: "Applies to V1 GA — first architecture review workflow",
+    releaseApplicability: "first architecture review workflow",
   },
   {
     slug: "cli-usage",
@@ -463,7 +474,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sourcePaths: ["docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md"],
     pdfStatus: "customer",
     lastReviewed: "2026-08-09",
-    releaseApplicability: "Applies to V1 GA — platform health and workspace readiness signals",
+    releaseApplicability: "platform health and workspace readiness signals",
   },
   {
     slug: "developer-troubleshooting",
@@ -473,7 +484,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "developer",
     sourcePaths: ["docs/runbooks/TROUBLESHOOTING.md", "docs/runbooks/COMMON_ERRORS.md"],
     lastReviewed: "2026-08-09",
-    releaseApplicability: "Applies to V1 GA — engineering support and platform triage",
+    releaseApplicability: "engineering support and platform triage",
   },
   {
     slug: "choose-your-next-step",
@@ -489,7 +500,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/COMPARISON_REPLAY_OPERATOR_GUIDE.md"],
     lastReviewed: "2026-08-09",
-    releaseApplicability: "Applies to V1 GA — Compare two reviews and Validate review workspace tools",
+    releaseApplicability: "Compare two reviews and Validate review workspace tools",
   },
   {
     slug: "repeat-review-loop",
@@ -508,7 +519,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     // App-rendered specialty (`HelpDigestsGuideView`) — TB-2049.
     sourcePaths: [],
     lastReviewed: "2026-08-10",
-    releaseApplicability: "Applies to V1 GA — architecture digests orientation",
+    releaseApplicability: "architecture digests orientation",
   },
   {
     slug: "alerts",
@@ -519,7 +530,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     // App-rendered specialty (`HelpAlertsGuideView`) — copy owned in `alerts-help-guide-content.ts`.
     sourcePaths: [],
     lastReviewed: "2026-08-09",
-    releaseApplicability: "Applies to V1 GA — governance alerts orientation",
+    releaseApplicability: "governance alerts orientation",
   },
   {
     slug: "api-contracts",
@@ -529,7 +540,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "developer",
     sourcePaths: ["docs/library/API_CONTRACTS.md"],
     lastReviewed: "2026-08-10",
-    releaseApplicability: "Applies to V1 GA — HTTP contract of record for integrators",
+    releaseApplicability: "HTTP contract of record for integrators",
   },
   {
     slug: "pilot-feedback",
