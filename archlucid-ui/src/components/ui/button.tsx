@@ -10,10 +10,10 @@ import * as React from "react";
  * neutral fill rather than a near-black one.
  */
 const SECONDARY_BUTTON_CLASS =
-  "bg-neutral-200 text-neutral-900 hover:bg-neutral-300 dark:bg-neutral-700 dark:text-neutral-50 dark:hover:bg-neutral-600";
+  "border border-neutral-400 bg-neutral-200 text-neutral-900 hover:bg-neutral-300 dark:border-neutral-500 dark:bg-neutral-700 dark:text-neutral-50 dark:hover:bg-neutral-600";
 
 const buttonVariants = cva(
-  (cn("inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50", OPERATOR_TYPOGRAPHY.button)),
+  (cn("inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50", OPERATOR_TYPOGRAPHY.button)),
   {
     variants: {
       variant: {

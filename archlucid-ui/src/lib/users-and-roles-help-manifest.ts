@@ -7,9 +7,20 @@ import {
   BUILTIN_ROLE_SUMMARIES,
   type BuiltinRoleName,
 } from "@/app/(operator)/administration/users/_sections/roles-matrix-constants";
+import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
 import { roleDisplayLabel } from "@/lib/role-display-labels";
 import { SETTINGS_USERS_USERS_TAB_PATH } from "@/lib/settings-admin-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import {
+  USERS_AND_ROLES_FAQ_HEADING,
+  USERS_AND_ROLES_HOW_ACCESS_WORKS_HEADING,
+  USERS_AND_ROLES_CAPABILITY_MATRIX_HEADING,
+  USERS_AND_ROLES_MANAGING_ACCESS_HEADING,
+  USERS_AND_ROLES_REVIEW_PARTICIPATION_HEADING,
+  USERS_AND_ROLES_ROLE_OVERVIEW_HEADING,
+  USERS_AND_ROLES_SECURITY_GUIDANCE_HEADING,
+  USERS_AND_ROLES_WORKSPACE_ACCESS_HEADING,
+} from "@/lib/users-and-roles-help-copy";
 
 export const USERS_AND_ROLES_CONTRACT_VERSION = "2026-07-13";
 
@@ -47,6 +58,17 @@ export type UsersAndRolesFaqItem = {
 };
 
 export const USERS_AND_ROLES_MANAGE_HREF = SETTINGS_USERS_USERS_TAB_PATH;
+
+export const USERS_AND_ROLES_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
+  { level: 2, id: "how-access-works", title: USERS_AND_ROLES_HOW_ACCESS_WORKS_HEADING },
+  { level: 2, id: "role-overview", title: USERS_AND_ROLES_ROLE_OVERVIEW_HEADING },
+  { level: 2, id: "capability-matrix", title: USERS_AND_ROLES_CAPABILITY_MATRIX_HEADING },
+  { level: 2, id: "workspace-access", title: USERS_AND_ROLES_WORKSPACE_ACCESS_HEADING },
+  { level: 2, id: "review-participation", title: USERS_AND_ROLES_REVIEW_PARTICIPATION_HEADING },
+  { level: 2, id: "managing-access", title: USERS_AND_ROLES_MANAGING_ACCESS_HEADING },
+  { level: 2, id: "security-guidance", title: USERS_AND_ROLES_SECURITY_GUIDANCE_HEADING },
+  { level: 2, id: "common-questions", title: USERS_AND_ROLES_FAQ_HEADING },
+];
 
 export const USERS_AND_ROLES_SECURITY_TRUST_HREF = inAppHelpHref("security-trust");
 

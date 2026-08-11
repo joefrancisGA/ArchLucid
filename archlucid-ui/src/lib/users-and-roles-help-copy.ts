@@ -5,8 +5,14 @@ export const USERS_AND_ROLES_PAGE_INTRO =
 
 export const USERS_AND_ROLES_MANAGE_ACTION_LABEL = "Manage users and roles";
 
-export const USERS_AND_ROLES_UNAUTHORIZED_ACTION =
+export const USERS_AND_ROLES_UNAUTHORIZED_BODY =
   "Contact your workspace administrator to invite users or change roles.";
+
+export const USERS_AND_ROLES_AUTHORITY_LOADING_LABEL = "Checking your access…";
+
+export const USERS_AND_ROLES_UNAUTHORIZED_NEXT_STEP_LABEL = "Review built-in roles";
+
+export const USERS_AND_ROLES_ROLE_OVERVIEW_HASH = "#role-overview";
 
 export const USERS_AND_ROLES_HOW_ACCESS_WORKS_HEADING = "How access works";
 
