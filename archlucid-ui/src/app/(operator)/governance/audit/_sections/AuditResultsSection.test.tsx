@@ -3,8 +3,21 @@ import { describe, expect, it, vi } from "vitest";
 
 import { AuditResultsSection } from "./AuditResultsSection";
 
-vi.mock("@/lib/demo-ui-env", () => ({
-  isNextPublicDemoMode: () => false,
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isNextPublicDemoMode: () => false,
+  };
+});
+
+vi.mock("./AuditTimelineEventCard", () => ({
+  AuditTimelineEventCard: () => <div data-testid="audit-timeline-event-card" />,
+}));
+
+vi.mock("./AuditEventsOperatorTable", () => ({
+  AuditEventsOperatorTable: () => <div data-testid="audit-events-operator-table" />,
 }));
 
 describe("AuditResultsSection buyer completion download", () => {
@@ -15,8 +28,24 @@ describe("AuditResultsSection buyer completion download", () => {
         viewMode="story"
         onViewModeChange={vi.fn()}
         callerAuthorityRank={100}
-        events={[{ eventId: "e1", occurredUtc: "2026-01-01T00:00:00Z", eventType: "x", summary: "s" } as never]}
-        displayEvents={[{ eventId: "e1", occurredUtc: "2026-01-01T00:00:00Z", eventType: "x", summary: "s" } as never]}
+        events={[
+          {
+            eventId: "e1",
+            occurredUtc: "2026-01-01T00:00:00Z",
+            eventType: "x",
+            summary: "s",
+            actorUserName: "system",
+          } as never,
+        ]}
+        displayEvents={[
+          {
+            eventId: "e1",
+            occurredUtc: "2026-01-01T00:00:00Z",
+            eventType: "x",
+            summary: "s",
+            actorUserName: "system",
+          } as never,
+        ]}
         displayEventGroups={null}
         hasMoreResults={false}
         loadingMore={false}
