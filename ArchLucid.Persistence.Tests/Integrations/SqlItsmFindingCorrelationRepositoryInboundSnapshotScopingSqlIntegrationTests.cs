@@ -172,6 +172,117 @@ public sealed class SqlItsmFindingCorrelationRepositoryInboundSnapshotScopingSql
         newerStatus.Should().Be("Rejected");
     }
 
+    [SkippableFact]
+    [Trait("Backlog", "TB-988")]
+    public async Task UpdateHumanReviewStatusForFindingAsync_sequential_dual_updates_last_writer_wins()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        TestSqlConnectionFactory connectionFactory = new(fixture.ConnectionString);
+        DapperTenantRepository tenants = DapperTenantRepositoryTestFactory.CreateForSingleCatalogIntegration(connectionFactory);
+        SqlItsmFindingCorrelationRepository sut = CreateRepository(connectionFactory);
+
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Guid findingsSnapshotId = Guid.NewGuid();
+        Guid findingRecordId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+        const string findingId = "tb988-human-review-race";
+
+        await SeedTenantAsync(connectionFactory, tenants, tenantId, workspaceId, projectId);
+
+        await SeedCommittedRunFindingAsync(
+            connectionFactory,
+            tenantId,
+            workspaceId,
+            projectId,
+            runId,
+            findingsSnapshotId,
+            findingRecordId,
+            manifestId,
+            findingId,
+            DateTime.UtcNow.AddHours(-1),
+            "Pending");
+
+        int first = await sut.UpdateHumanReviewStatusForFindingAsync(
+            tenantId,
+            findingId,
+            "Approved",
+            findingRecordId,
+            CancellationToken.None);
+
+        int second = await sut.UpdateHumanReviewStatusForFindingAsync(
+            tenantId,
+            findingId,
+            "Rejected",
+            findingRecordId,
+            CancellationToken.None);
+
+        first.Should().Be(1);
+        second.Should().Be(1);
+
+        string finalStatus = await ReadHumanReviewStatusAsync(connectionFactory, findingRecordId);
+        finalStatus.Should().Be("Rejected");
+    }
+
+    [SkippableFact]
+    [Trait("Backlog", "TB-988")]
+    public async Task UpdateHumanReviewStatusForFindingAsync_concurrent_dual_updates_last_writer_wins()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        TestSqlConnectionFactory connectionFactory = new(fixture.ConnectionString);
+        DapperTenantRepository tenants = DapperTenantRepositoryTestFactory.CreateForSingleCatalogIntegration(connectionFactory);
+        SqlItsmFindingCorrelationRepository sut = CreateRepository(connectionFactory);
+
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Guid findingsSnapshotId = Guid.NewGuid();
+        Guid findingRecordId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+        const string findingId = "tb988-human-review-concurrent";
+
+        await SeedTenantAsync(connectionFactory, tenants, tenantId, workspaceId, projectId);
+
+        await SeedCommittedRunFindingAsync(
+            connectionFactory,
+            tenantId,
+            workspaceId,
+            projectId,
+            runId,
+            findingsSnapshotId,
+            findingRecordId,
+            manifestId,
+            findingId,
+            DateTime.UtcNow.AddHours(-1),
+            "Pending");
+
+        Task<int> approvedTask = sut.UpdateHumanReviewStatusForFindingAsync(
+            tenantId,
+            findingId,
+            "Approved",
+            findingRecordId,
+            CancellationToken.None);
+
+        Task<int> rejectedTask = sut.UpdateHumanReviewStatusForFindingAsync(
+            tenantId,
+            findingId,
+            "Rejected",
+            findingRecordId,
+            CancellationToken.None);
+
+        int[] updated = await Task.WhenAll(approvedTask, rejectedTask);
+
+        updated.Should().AllSatisfy(count => count.Should().Be(1));
+
+        string finalStatus = await ReadHumanReviewStatusAsync(connectionFactory, findingRecordId);
+        finalStatus.Should().BeOneOf("Approved", "Rejected");
+    }
+
     private static SqlItsmFindingCorrelationRepository CreateRepository(TestSqlConnectionFactory connectionFactory)
     {
         ResiliencePipeline pipeline = SqlOpenResilienceDefaults.BuildSqlOperationRetryPipeline(

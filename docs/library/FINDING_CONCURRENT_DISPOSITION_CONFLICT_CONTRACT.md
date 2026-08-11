@@ -52,7 +52,9 @@ V1 keeps **append-only finding dispositions** (both racing writes persist; **cur
 | Trail repository | `SqlFindingReviewTrailRepository` | `ListByFindingAsync` ordered `OccurredAtUtc DESC` |
 | Inspect current | `DapperFindingInspectReadRepository` | `LatestDisposition` from latest disposition row |
 | Approval CAS | `GovernanceApprovalRequestRepository.TryTransitionFromReviewableAsync` | Unchanged; loser 409 |
-| Concurrent transition tests | `GovernanceWorkflowTransitionConflictPropertyTests` | Approval-request only — finding races covered by **TB-988** |
+| Concurrent transition tests | `GovernanceWorkflowTransitionConflictPropertyTests` | Approval-request CAS only |
+| Finding disposition race tests | `FindingDispositionConcurrentRaceTests` (**TB-988**) | Both opposing `RecordAsync` calls persist; `ListHistoryAsync` current = latest `OccurredAtUtc` |
+| ITSM `HumanReviewStatus` race tests | `SqlItsmFindingCorrelationRepositoryInboundSnapshotScopingSqlIntegrationTests` (**TB-988** traits) | Sequential and concurrent dual updates — last writer wins on correlated snapshot row |
 | ITSM inbound | `API_CONTRACTS.md` ITSM inbound row; **TB-390** / **TB-396** | `HumanReviewStatus` update + optional disposition append |
 
 ---
@@ -65,7 +67,7 @@ V1 keeps **append-only finding dispositions** (both racing writes persist; **cur
 | “Concurrent disposition returns 409 Conflict” | **409** is approval-request CAS today; finding disposition returns **200** with a new event |
 | “ITSM status update is the durable approval trail” | ITSM updates queue state; disposition trail is separate unless mapped (**TB-396**) |
 | “Current disposition is immutable” | Later disposition events supersede for **current** view; history remains |
-| “Operators always see concurrent-update feedback” | **TB-987** open — UX honesty not yet enforced |
+| “Operators always see concurrent-update feedback” | **TB-987** **Done** — inspect stickiness surfaces concurrent-update notice after save |
 
 ---
 
@@ -73,8 +75,8 @@ V1 keeps **append-only finding dispositions** (both racing writes persist; **cur
 
 | ID | Role |
 | --- | --- |
-| **TB-987** | Stale-current UX, optional contradictory-disposition conflict surfacing, `HumanReviewStatus` vs trail alignment |
-| **TB-988** | Automated concurrent approve/reject + ITSM dual-writer regression tests |
+| **TB-987** **Done** | Stale-current UX, ITSM queue provenance caption |
+| **TB-988** **Done** | Automated concurrent approve/reject + ITSM dual-writer regression tests |
 | **TB-396** **Done** | Optional ITSM status → disposition trail append |
 | **TB-390** **Done** | Correlated `FindingRecordId` for inbound status target row |
 
