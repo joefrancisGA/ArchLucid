@@ -1,24 +1,15 @@
 import type { Metadata } from "next";
 
-import {
-  LIVE_DEMO_FABRICATED_DISCLOSURE,
-  LIVE_DEMO_PAGE_METADATA_TITLE,
-  LIVE_DEMO_PAGE_SUBTITLE,
-  LIVE_DEMO_PAGE_TITLE,
-  LIVE_DEMO_SAMPLE_IDENTITY,
-  LIVE_DEMO_SAMPLE_SCENARIO,
-  LIVE_DEMO_VALUE_PROPOSITION,
-} from "@/lib/live-demo-page-copy";
 import { LiveDemoEvidenceOrientationStrip } from "@/components/marketing/LiveDemoEvidenceOrientationStrip";
-import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import { MARKETING_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 import { getShowcaseStaticDemoPayload, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { parseLiveDemoWalkthroughStepId } from "@/lib/live-demo-walkthrough-steps";
-import { cn } from "@/lib/utils";
+import { LIVE_DEMO_PAGE_METADATA_TITLE } from "@/lib/live-demo-page-copy";
 
 import { normalizeSeeItMarketingPayload } from "../see-it/normalize-see-it-payload";
 import { LiveDemoMarketingBody } from "./LiveDemoMarketingBody";
+import { LiveDemoPageHeader } from "./LiveDemoPageHeader";
 
 export const revalidate = 300;
 
@@ -57,31 +48,7 @@ function LiveDemoPageShell(props: {
 }) {
   return (
     <main className="mx-auto max-w-6xl px-4 py-10">
-      <header className="max-w-3xl">
-        <p className={cn("m-0 text-teal-800 dark:text-teal-300", MARKETING_TYPOGRAPHY.meta)}>Sample walkthrough</p>
-        <h1 className="mt-1 text-3xl font-semibold text-neutral-900 dark:text-neutral-50">{LIVE_DEMO_PAGE_TITLE}</h1>
-        <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", MARKETING_TYPOGRAPHY.body)}>
-          {LIVE_DEMO_PAGE_SUBTITLE}
-        </p>
-        <p className={cn("m-0 mt-4 text-neutral-700 dark:text-neutral-300", MARKETING_TYPOGRAPHY.body)}>
-          {LIVE_DEMO_VALUE_PROPOSITION}
-        </p>
-        <div
-          className="mt-4 rounded-lg border border-amber-200 bg-amber-50/80 px-4 py-3 dark:border-amber-900/50 dark:bg-amber-950/30"
-          role="status"
-          data-testid="live-demo-fabricated-disclosure"
-        >
-          <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-50", MARKETING_TYPOGRAPHY.cardTitle)}>
-            {LIVE_DEMO_SAMPLE_IDENTITY}
-          </p>
-          <p className={cn("m-0 mt-1 text-neutral-700 dark:text-neutral-300", MARKETING_TYPOGRAPHY.body)}>
-            {LIVE_DEMO_SAMPLE_SCENARIO}
-          </p>
-          <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", MARKETING_TYPOGRAPHY.meta)}>
-            {LIVE_DEMO_FABRICATED_DISCLOSURE}
-          </p>
-        </div>
-      </header>
+      <LiveDemoPageHeader />
       <LiveDemoEvidenceOrientationStrip />
       <div className="mt-10">
         <LiveDemoMarketingBody payload={props.payload} activeStepId={props.activeStepId} />

@@ -7,6 +7,9 @@ export const LIVE_DEMO_PAGE_METADATA_TITLE = `ArchLucid · ${LIVE_DEMO_PAGE_TITL
 
 export const LIVE_DEMO_PAGE_SUBTITLE = "Sample architecture review using fabricated, read-only evidence.";
 
+/** Primary hero CTA — lands on step 1 without a preamble wall (TB-1266). */
+export const LIVE_DEMO_START_WALKTHROUGH_CTA = "Start walkthrough";
+
 export const LIVE_DEMO_VALUE_PROPOSITION =
   "In about five minutes, see how ArchLucid turns captured evidence into an executive conclusion, signed review record, evidence chain, governance approval, and retained audit history.";
 
@@ -19,6 +22,10 @@ export const LIVE_DEMO_FABRICATED_DISCLOSURE =
   "This walkthrough uses fabricated sample data. It is not a real customer record and does not represent regulatory certification.";
 
 export const LIVE_DEMO_STEPPER_LABEL = "Guided walkthrough steps";
+
+export const LIVE_DEMO_CONTINUOUS_TOC_LABEL = "Walkthrough contents";
+
+export const LIVE_DEMO_EARLY_CONVERSION_PROMPT = "Ready to evaluate ArchLucid on your own evidence?";
 
 export const LIVE_DEMO_PREVIOUS_STEP = "Previous";
 

@@ -17,7 +17,12 @@ import {
 import {
   SEE_IT_PAGE_METADATA_TITLE,
   SEE_IT_PAGE_TITLE,
+  SEE_IT_GUIDED_WALKTHROUGH_HREF,
 } from "@/lib/see-it-page-copy";
+import {
+  LIVE_DEMO_SEE_IT_LADDER_LIVE_DEMO_ARIA,
+  LIVE_DEMO_SEE_IT_LADDER_LIVE_DEMO_LINK,
+} from "@/lib/live-demo-see-it-ladder-copy";
 import { CANONICAL_ANONYMOUS_PROOF_HREF } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 
@@ -72,6 +77,16 @@ export default async function SeeItMarketingPage() {
             </p>
           </div>
           <p className={cn("mt-4", MARKETING_TYPOGRAPHY.meta)}>
+            <Link
+              className="text-teal-800 underline underline-offset-2 dark:text-teal-200"
+              href={SEE_IT_GUIDED_WALKTHROUGH_HREF}
+              data-testid="see-it-guided-walkthrough-link"
+              aria-label={LIVE_DEMO_SEE_IT_LADDER_LIVE_DEMO_ARIA}
+            >
+              {LIVE_DEMO_SEE_IT_LADDER_LIVE_DEMO_LINK}
+            </Link>
+          </p>
+          <p className={cn("mt-2", MARKETING_TYPOGRAPHY.meta)}>
             Sample data.{" "}
             <Link
               className="text-teal-800 underline underline-offset-2 dark:text-teal-200"

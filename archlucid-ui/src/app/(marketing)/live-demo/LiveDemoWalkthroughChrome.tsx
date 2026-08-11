@@ -4,6 +4,7 @@ import { useState, type ReactElement, type ReactNode } from "react";
 
 import type { LiveDemoWalkthroughStepId } from "@/lib/live-demo-walkthrough-steps";
 
+import { LiveDemoEarlyConversionCta } from "./LiveDemoEarlyConversionCta";
 import { LiveDemoWalkthroughNav } from "./LiveDemoWalkthroughNav";
 
 type LiveDemoWalkthroughChromeProps = {
@@ -23,6 +24,8 @@ export function LiveDemoWalkthroughChrome(props: LiveDemoWalkthroughChromeProps)
         continuousMode={continuousMode}
         onContinuousModeChange={setContinuousMode}
       />
+
+      {!continuousMode ? <LiveDemoEarlyConversionCta /> : null}
 
       <div
         role="region"

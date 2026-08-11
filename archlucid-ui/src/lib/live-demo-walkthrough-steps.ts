@@ -22,6 +22,8 @@ export type LiveDemoWalkthroughStep = {
   readonly id: LiveDemoWalkthroughStepId;
   readonly number: number;
   readonly title: string;
+  /** Compact stepper label; full `title` stays on the active panel H2 (TB-1268). */
+  readonly shortLabel: string;
   readonly description: string;
   readonly keyTakeaway: string;
 };
@@ -31,6 +33,7 @@ export const LIVE_DEMO_WALKTHROUGH_STEPS: readonly LiveDemoWalkthroughStep[] = [
     id: "executive",
     number: 1,
     title: DEMO_PREVIEW_ARTIFACT_EXECUTIVE_TITLE,
+    shortLabel: "Executive",
     description: DEMO_PREVIEW_ARTIFACT_EXECUTIVE_DESC,
     keyTakeaway:
       "Sponsors see the decision, supporting evidence basis, and monitored conditions before drilling into artifacts.",
@@ -39,6 +42,7 @@ export const LIVE_DEMO_WALKTHROUGH_STEPS: readonly LiveDemoWalkthroughStep[] = [
     id: "signed-record",
     number: 2,
     title: DEMO_PREVIEW_ARTIFACT_SIGNED_TITLE,
+    shortLabel: "Signed record",
     description: DEMO_PREVIEW_ARTIFACT_SIGNED_DESC,
     keyTakeaway:
       "The signed review record captures finalized status, accountable reviewer, policy coverage, and integrity checks.",
@@ -47,6 +51,7 @@ export const LIVE_DEMO_WALKTHROUGH_STEPS: readonly LiveDemoWalkthroughStep[] = [
     id: "evidence",
     number: 3,
     title: DEMO_PREVIEW_ARTIFACT_EVIDENCE_TITLE,
+    shortLabel: "Evidence",
     description: DEMO_PREVIEW_ARTIFACT_EVIDENCE_DESC,
     keyTakeaway:
       "Conclusions trace back through captured context, graph relationships, and cited findings — not unsupported assertions.",
@@ -55,6 +60,7 @@ export const LIVE_DEMO_WALKTHROUGH_STEPS: readonly LiveDemoWalkthroughStep[] = [
     id: "governance",
     number: 4,
     title: DEMO_PREVIEW_ARTIFACT_GOVERNANCE_TITLE,
+    shortLabel: "Governance",
     description: DEMO_PREVIEW_ARTIFACT_GOVERNANCE_DESC,
     keyTakeaway:
       "Governance approval records who approved, what risks remain monitored, and which issues are still unresolved.",
@@ -63,6 +69,7 @@ export const LIVE_DEMO_WALKTHROUGH_STEPS: readonly LiveDemoWalkthroughStep[] = [
     id: "audit-trail",
     number: 5,
     title: DEMO_PREVIEW_ARTIFACT_AUDIT_TITLE,
+    shortLabel: "Audit trail",
     description: DEMO_PREVIEW_ARTIFACT_AUDIT_DESC,
     keyTakeaway:
       "A retained audit trail shows when evidence was captured, findings recorded, the review finalized, and deliverables produced.",

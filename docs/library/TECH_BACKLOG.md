@@ -946,10 +946,10 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1260 | **Done** (2026-08-11) ? Review guide single title hierarchy; Vitest; see `## TB-1260` below | Adoption friction P1 ? **V1**; with **TB-1258** | XS |
 | TB-1261 | **Done** (2026-08-11) ? Review guide discovery unified on `review-guide`; Vitest; see `## TB-1261` below | Adoption friction P1 ? **V1**; with **TB-1258** | S |
 | TB-1262 | **Done** (2026-08-11) ? Review guide Related guides density; Vitest; see `## TB-1262` below | Adoption friction P1 ? **V1**; with **TB-1259** | XS |
-| TB-1266 | `/live-demo` ? first-viewport hero budget (start before disclosure wall); see ## TB-1266 below | Adoption friction P1 ? **V1**; with **TB-1265** | S |
-| TB-1267 | `/live-demo` ? clarify journey vs `/see-it` (entry ladder); see ## TB-1267 below | Adoption friction P1 ? **V1**; with **TB-1265**; pairs **TB-1028** | S |
-| TB-1268 | `/live-demo` ? compact stepper + early conversion CTA; see ## TB-1268 below | Adoption friction P1 ? **V1**; with **TB-1266** | S |
-| TB-1269 | `/live-demo` ? continuous-mode density (no five-panel dump); see ## TB-1269 below | Adoption friction P1 ? **V1**; with **TB-1268** | S |
+| TB-1266 | **Done** (2026-08-11) ? `/live-demo` first-viewport hero budget; Vitest; see `## TB-1266` below | Adoption friction P1 ? **V1**; with **TB-1265** | S |
+| TB-1267 | **Done** (2026-08-11) ? `/live-demo` vs `/see-it` entry ladder cross-links; Vitest; see `## TB-1267` below | Adoption friction P1 ? **V1**; with **TB-1265**; pairs **TB-1028** | S |
+| TB-1268 | **Done** (2026-08-11) ? `/live-demo` compact stepper + early conversion CTA; Vitest; see `## TB-1268` below | Adoption friction P1 ? **V1**; with **TB-1266** | S |
+| TB-1269 | **Done** (2026-08-11) ? `/live-demo` continuous-mode TOC + single panel; Vitest; see `## TB-1269` below | Adoption friction P1 ? **V1**; with **TB-1268** | S |
 | TB-1273 | Integration DLQ ? align H1/nav to Failed integration messages; see ## TB-1273 below | Adoption friction P1 ? **V1**; with **TB-1272** | XS |
 | TB-1274 | Integration DLQ ? EnterpriseTable + review deep links; quiet UUIDs; see ## TB-1274 below | Adoption friction P1 ? **V1**; with **TB-1272**; TB-117 parity | M |
 | TB-1275 | Integration DLQ ? empty/error/loading polish + operator density; see ## TB-1275 below | Adoption friction P1 ? **V1**; with **TB-1274** | S |
@@ -33884,7 +33884,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-11) ? `LiveDemoPageHeader` + `LiveDemoSampleStatusLine`; hero title + one line + Start CTA; Vitest **TB-1266**.
 
 **Priority:** P0.
 
@@ -33912,7 +33912,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-11) ? `live-demo-see-it-ladder-copy.ts` + cross-links on `/live-demo` and `/see-it`; Vitest **TB-1267**.
 
 **Priority:** P0.
 
@@ -33941,7 +33941,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-11) ? compact stepper `shortLabel` + `LiveDemoEarlyConversionCta`; Vitest **TB-1268**.
 
 **Priority:** P0.
 
@@ -33970,7 +33970,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-11) ? `LiveDemoContinuousWalkthrough` TOC + single expanded panel; Vitest **TB-1269**.
 
 **Priority:** P0.
 
