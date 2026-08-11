@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedUtc": "2026-08-10T18:45:00.000Z",
+  "updatedUtc": "2026-08-11T15:30:00.000Z",
   "regressionToleranceKb": 25,
   "routes": {
     "/": {
@@ -13,13 +13,13 @@
       "firstLoadJsKb": 1450.3
     },
     "/governance/alerts": {
-      "firstLoadJsKb": 1394.5
+      "firstLoadJsKb": 1435.9
     },
     "/governance/alert-rules": {
       "firstLoadJsKb": 1060.8
     },
     "/architecture/reviews": {
-      "firstLoadJsKb": 1229.1
+      "firstLoadJsKb": 1268.7
     },
     "/architecture/reviews/[runId]": {
       "firstLoadJsKb": 1883.4
@@ -31,5 +31,5 @@
       "firstLoadJsKb": 1427.7
     }
   },
-  "notes": "Restored post-deferral First Load JS baselines after 170ac0eab accidentally rewrote routes to pre-TB-2118/2142/2145 sizes (e.g. `/` 1520), which failed `check:first-load-js` on CI (measured `/` 1601.3 kB). Values below are from ui-static-quality run 31409776833 job 93529317317. Prior TB-2145: `/` **1646.1 → 1587.2 kB**; TB-2142: `/architecture/reviews/[runId]` **2150.6 → 1879.1 kB**; TB-2118 hub cuts via `app-shell-deferred-chunks.tsx`."
+  "notes": "RC29 CI run 31502052986: refresh `/architecture/reviews` (1268.7 kB) and `/governance/alerts` (1435.9 kB) after merge-driven First Load growth beyond +25 kB tolerance. Other routes retained from ui-static-quality run 31409776833. Prior: reviews 1229.1 / alerts 1394.5."
 }

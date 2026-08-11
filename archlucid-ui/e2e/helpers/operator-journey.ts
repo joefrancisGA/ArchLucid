@@ -257,8 +257,9 @@ export async function expandCompareRunPickersIfCollapsed(page: Page): Promise<vo
   }
 
   const leftInput = comparePageLeftRunInput(page);
-  const collapsedPickers = page.locator("details").filter({ has: leftInput });
-  const summary = collapsedPickers.locator("summary");
+  // Outer "Change compared reviews" fold only — nested Advanced details also has a summary.
+  const collapsedPickers = page.locator("details").filter({ has: leftInput }).first();
+  const summary = collapsedPickers.locator(":scope > summary");
 
   if ((await summary.count()) === 0) {
     return;
@@ -487,7 +488,11 @@ export async function openReviewDetailWorkspaceTab(
 
   // Prefer in-place tab activation — full page.goto drops cold-start scope races on demo/tenant shells.
   if (onRunDetail && (await trigger.count()) > 0) {
-    if ((await trigger.getAttribute("data-state")) !== "active") {
+    const dataState = await trigger.getAttribute("data-state");
+    const ariaCurrent = await trigger.getAttribute("aria-current");
+    const alreadyActive = dataState === "active" || ariaCurrent === "page";
+
+    if (!alreadyActive) {
       await trigger.click();
     }
   } else {
@@ -495,9 +500,17 @@ export async function openReviewDetailWorkspaceTab(
   }
 
   await expect(reviewDetailWorkspacePanel(page, tab)).toBeVisible({ timeout: 60_000 });
-  await expect(page.getByTestId(`review-detail-workspace-tab-${tab}`)).toHaveAttribute("data-state", "active", {
-    timeout: 15_000,
-  });
+  // Primary tabs use TabsTrigger `data-state`; "More sections" buttons use `aria-current="page"`.
+  const activeTab = page.getByTestId(`review-detail-workspace-tab-${tab}`);
+
+  await expect
+    .poll(async () => {
+      const dataState = await activeTab.getAttribute("data-state");
+      const ariaCurrent = await activeTab.getAttribute("aria-current");
+
+      return dataState === "active" || ariaCurrent === "page";
+    }, { timeout: 15_000 })
+    .toBe(true);
 }
 
 function reviewDetailOutcomeCardsDetails(page: Page): Locator {
@@ -840,12 +853,13 @@ export async function expandCompareStructuredDecisionChanges(page: Page): Promis
 }
 
 /**
- * Sponsor callout on the comparison verdict summary (sibling above `#compare-structured`).
+ * Top change highlight on the comparison verdict summary (sibling above `#compare-structured`).
  * Uses `data-testid` — buyer-polished shells rewrite fixture highlight prose (see
  * {@link applyBuyerPolishedGoldenManifestSummaryHighlights}), so asserting raw fixture copy flakes in mock CI.
+ * Formerly `compare-sponsor-recommendation` (RC28); renamed with CompareVerdictSummary verdict lead.
  */
 export function structuredCompareSponsorRecommendationParagraph(page: Page): Locator {
-  return page.getByTestId("compare-sponsor-recommendation");
+  return page.getByTestId("compare-top-change-highlight");
 }
 
 /** Navigates to `/architecture/reviews/{runId}` with encoded id and DOM-ready wait (live API E2E parity). */
