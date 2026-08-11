@@ -52,7 +52,7 @@ export const BUYER_VALUE_REPORT_EMPTY_DESCRIPTION =
 
 export const BUYER_VIEW_SAMPLE_VALUE_REPORT_CTA = "View sample value report";
 
-export const BUYER_VALUE_REPORT_DEMO_SAMPLE_NOTE = "Demo workspace: sample report output is available.";
+export const BUYER_VALUE_REPORT_DEMO_SAMPLE_NOTE = "Demo workspace: Sample report output is available.";
 
 export const BUYER_VALUE_REPORT_PREVIEW_TITLE = "Report preview";
 

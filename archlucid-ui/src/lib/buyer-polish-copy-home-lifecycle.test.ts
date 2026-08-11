@@ -14,7 +14,7 @@ describe("buyer-polish-copy — home architecture lifecycle", () => {
     expect(OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE).toMatch(/^Step 1 —/);
     expect(OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE).toMatch(/^Step 2 —/);
     expect(OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO).toBe(
-      "One lifecycle: describe your architecture, then run a governed review. The review is the durable work item.",
+      "One lifecycle: Describe your architecture, then run a governed review. The review is the durable work item.",
     );
     expect(OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO.startsWith("One lifecycle:")).toBe(true);
     expect(OPERATOR_HOME_COMMAND_CENTER_TAGLINE).not.toMatch(/Create an architecture, review an existing design/i);

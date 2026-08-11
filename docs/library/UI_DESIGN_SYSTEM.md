@@ -91,6 +91,24 @@ Use precise product language throughout the UI — labels, headings, empty state
 
 Do **not** use “Evidence trail” as the title, tab, or destination pill for `/insights/evidence-graph`. Keep glossary and Related-links “Evidence trail” labels unless an explicit rename of the concept is approved.
 
+### Capitalization
+
+**Sentence case everywhere**, matching Carbon and Fluent: page titles, section headings, tabs, table column headers, buttons, links, status tags, empty states, and form labels. Capitalize only the first word plus proper nouns and product-surface names that are already capitalized elsewhere (Trust Center, Evidence graph, Architecture Decision Record). Never Title Case a heading or CTA (“Start Review” → “Start review”).
+
+**After a colon**, capitalize when a complete sentence follows; stay lowercase when the colon introduces a fragment, value, or list. This follows the Microsoft Writing Style Guide, and matches Chicago's exception for a colon introducing one or more full sentences.
+
+| Copy | Correct because |
+|------|-----------------|
+| `One lifecycle: Describe your architecture, then run a governed review.` | Two complete sentences follow the colon |
+| `Demo workspace: Sample report output is available.` | Complete sentence follows the colon |
+| `Source: finalized reviews in this workspace.` | Fragment, not a sentence |
+| `Example: teams-governance-alerts-prod` | Value, not a sentence |
+| `In-app alerts: enabled for active rules` | Fragment describing state |
+
+This matters most where a bold lead label renders as its own element (for example `OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL` + `…_BODY` on Home): the label reads as detached, so a lowercase continuation looks like a defect rather than a grammatical choice.
+
+**Preserve declared casing.** Vocabulary constants and status-tag copy own their capitalization — do not re-case them at the call site with CSS (`capitalize`, `uppercase`) or string transforms. The `text-xs uppercase` section-label token in `OPERATOR_TYPOGRAPHY` is the one sanctioned exception, and only for eyebrow/section labels.
+
 ### Technical details
 
 - **Hide CLI/script/API/model/runtime details from normal product surfaces.**

@@ -110,7 +110,7 @@ export const OPERATOR_HOME_COMPACT_STARTING_ACTIONS_HEADING = "Start another rev
 export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL = "One lifecycle:";
 
 export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_BODY =
-  "describe your architecture, then run a governed review. The review is the durable work item.";
+  "Describe your architecture, then run a governed review. The review is the durable work item.";
 
 export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO =
   `${OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL} ${OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_BODY}`;
