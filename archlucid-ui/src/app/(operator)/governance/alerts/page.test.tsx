@@ -17,11 +17,21 @@ vi.mock("next/navigation", async (importOriginal) => {
 import AlertsPage from "./page";
 
 describe("AlertsPage", () => {
-  it("renders inbox for legacy tab=inbox without redirect", async () => {
+  it("redirects legacy tab=inbox to canonical alerts inbox (TB-1594)", async () => {
+    redirect.mockClear();
+
+    await expect(
+      AlertsPage({
+        searchParams: Promise.resolve({ tab: "inbox", status: "Open" }),
+      }),
+    ).rejects.toThrow("redirect:/governance/alerts?status=Open");
+  });
+
+  it("renders inbox when tab param is absent", async () => {
     redirect.mockClear();
 
     const element = await AlertsPage({
-      searchParams: Promise.resolve({ tab: "inbox", status: "Open" }),
+      searchParams: Promise.resolve({ status: "Open" }),
     });
 
     expect(redirect).not.toHaveBeenCalled();

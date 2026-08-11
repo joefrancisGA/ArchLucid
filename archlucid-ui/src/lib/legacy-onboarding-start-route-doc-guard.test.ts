@@ -10,6 +10,7 @@ import {
 import { LEGACY_ONBOARDING_START_TRAFFIC_NOTE } from "@/lib/ui-route-traffic-legacy-onboarding-start";
 
 const LEGACY_ONBOARDING_START_PATH_PATTERN = /\/onboarding\/start/g;
+const CATALOG_PATH = join(process.cwd(), "..", "scripts", "ci", "archlucid_ui_route_catalog.py");
 const LEGACY_PATH_ALLOWED_ON_LINE =
   /redirect|retired|legacy|deprecated|bookmark|301|noindex|unreachable|removed|canonical|alias|arf|first-review-guide/i;
 
@@ -59,5 +60,11 @@ describe("legacy-onboarding-start-route-doc-guard (TB-1803)", () => {
     expect(LEGACY_ONBOARDING_START_TRAFFIC_NOTE.toLowerCase()).toContain("legacy");
     expect(LEGACY_ONBOARDING_START_TRAFFIC_NOTE).toContain("first-review-guide");
     expect(LEGACY_ONBOARDING_START_TRAFFIC_NOTE).not.toMatch(/live marketing/i);
+  });
+
+  it("migrates /onboarding/start to first-review-guide in Python WORKBOOK_PATH_MIGRATIONS (TB-1801)", () => {
+    const catalogSource = readFileSync(CATALOG_PATH, "utf8");
+
+    expect(catalogSource).toContain('"/onboarding/start": "/architecture/first-review-guide"');
   });
 });

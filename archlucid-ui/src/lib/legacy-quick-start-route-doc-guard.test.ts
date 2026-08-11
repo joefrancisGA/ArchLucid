@@ -9,6 +9,7 @@ import {
 import { LEGACY_QUICK_START_TRAFFIC_NOTE } from "@/lib/ui-route-traffic-legacy-quick-start";
 
 const LEGACY_QUICK_START_PATH_PATTERN = /\/quick-start/g;
+const CATALOG_PATH = join(process.cwd(), "..", "scripts", "ci", "archlucid_ui_route_catalog.py");
 const LEGACY_PATH_ALLOWED_ON_LINE =
   /redirect|retired|legacy|deprecated|bookmark|301|noindex|unreachable|removed|canonical/i;
 
@@ -58,5 +59,11 @@ describe("legacy-quick-start-route-doc-guard (TB-1819)", () => {
     expect(LEGACY_QUICK_START_TRAFFIC_NOTE.toLowerCase()).toContain("legacy");
     expect(LEGACY_QUICK_START_TRAFFIC_NOTE.toLowerCase()).toContain("/get-started");
     expect(LEGACY_QUICK_START_TRAFFIC_NOTE).not.toMatch(/live marketing/i);
+  });
+
+  it("migrates /quick-start to get-started in Python WORKBOOK_PATH_MIGRATIONS (TB-1816)", () => {
+    const catalogSource = readFileSync(CATALOG_PATH, "utf8");
+
+    expect(catalogSource).toContain('"/quick-start": "/get-started"');
   });
 });

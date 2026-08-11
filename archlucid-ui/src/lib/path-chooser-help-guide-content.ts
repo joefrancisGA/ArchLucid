@@ -21,7 +21,7 @@ export type PathChooserHelpEvaluatorSessionStep = {
   readonly action: { readonly label: string; readonly href: string };
 };
 
-/** Four-step evaluator session flow — absorbs former `/help/evaluator-workbook` chrome (TB-1345 / TB-1348). */
+/** Four-step evaluator session flow — absorbs former evaluator-workbook topic chrome (TB-1345 / TB-1348). */
 export const PATH_CHOOSER_HELP_EVALUATOR_SESSION_STEPS: readonly PathChooserHelpEvaluatorSessionStep[] = [
   {
     title: "Read executive summary expectations",

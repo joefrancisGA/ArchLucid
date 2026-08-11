@@ -199,6 +199,12 @@ def test_migrate_workbook_path_maps_legacy_alert_routing() -> None:
         migrate_workbook_path("/governance/alert-rules?tab=routing")
         == "/governance/alert-rules?tab=notifications"
     )
+    assert migrate_workbook_path("/governance/alerts?tab=inbox") == "/governance/alerts"
+
+
+def test_migrate_workbook_path_maps_legacy_onboarding_and_quick_start() -> None:
+    assert migrate_workbook_path("/onboarding/start") == "/architecture/first-review-guide"
+    assert migrate_workbook_path("/quick-start") == "/get-started"
 
 
 def test_migrate_workbook_path_maps_legacy_settings_alerts() -> None:

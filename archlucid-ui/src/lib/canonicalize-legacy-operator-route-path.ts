@@ -1,4 +1,4 @@
-import { AI_USAGE_LEGACY_ADMIN_PATH, AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
+import { AI_USAGE_COST_REPORTING_PATH, AI_USAGE_LEGACY_ADMIN_PATH, AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import {
   ARCHITECTURES_LIST_PATH,
   CTO_DEMO_TOUR_ENTRY_HREF,
@@ -21,6 +21,14 @@ import {
   pathMatchesRoutePrefix,
 } from "@/lib/governance-route-paths";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
+import {
+  CANONICAL_ONBOARDING_PATH,
+  LEGACY_ONBOARDING_START_PATH,
+} from "@/lib/legacy-onboarding-start-route";
+import {
+  CANONICAL_GET_STARTED_PATH,
+  LEGACY_QUICK_START_PATH,
+} from "@/lib/legacy-quick-start-route";
 import {
   LEGACY_INSIGHTS_PLANNING_PATH,
   LEGACY_INSIGHTS_PLANNING_PLAN_DETAIL_PATH_PREFIX,
@@ -62,6 +70,7 @@ const ADMINISTRATION_IDENTITY_SSO_WIZARD_PATH = "/administration/identity/sso-wi
 const LEGACY_DIGEST_SUBSCRIPTIONS_PATH = "/digest-subscriptions";
 const LEGACY_MANIFESTS_PATH = "/manifests";
 const LEGACY_SETTINGS_ROLES_PATH = "/settings/roles";
+const LEGACY_SETTINGS_AI_USAGE_PATH = "/settings/ai-usage";
 const LEGACY_ADMIN_ROOT_PATH = "/admin";
 const LEGACY_INTERNAL_OPERATIONS_ROOT_PATH = "/internal-operations";
 const LEGACY_OPERATE_INTEGRATION_EVENTS_DLQ_PATH = "/operate/integration-events/dlq";
@@ -180,6 +189,18 @@ export function canonicalizeLegacyOperatorRoutePath(pathname: string): string {
 
   if (normalized === AI_USAGE_LEGACY_ADMIN_PATH) {
     return AI_USAGE_SETTINGS_PATH;
+  }
+
+  if (normalized === AI_USAGE_COST_REPORTING_PATH || normalized === LEGACY_SETTINGS_AI_USAGE_PATH) {
+    return AI_USAGE_SETTINGS_PATH;
+  }
+
+  if (normalized === LEGACY_ONBOARDING_START_PATH) {
+    return CANONICAL_ONBOARDING_PATH;
+  }
+
+  if (normalized === LEGACY_QUICK_START_PATH) {
+    return CANONICAL_GET_STARTED_PATH;
   }
 
   if (normalized === LEGACY_SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH || normalized === LEGACY_SPONSOR_REPORT_ROOT_PATH) {

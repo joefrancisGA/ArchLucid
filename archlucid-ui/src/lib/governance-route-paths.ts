@@ -137,3 +137,30 @@ export function governanceAlertsTabHref(tab: string): string {
 
   return governanceAlertRulesTabHref(trimmed);
 }
+
+/**
+ * Canonical alerts inbox href — strips retired `tab=inbox` while preserving inbox filters (TB-1594).
+ */
+export function buildCanonicalGovernanceAlertsInboxHref(
+  searchParams: Record<string, string | string[] | undefined>,
+): string {
+  const params = new URLSearchParams();
+
+  for (const [key, value] of Object.entries(searchParams)) {
+    if (key === "tab" || value === undefined) {
+      continue;
+    }
+
+    if (Array.isArray(value)) {
+      for (const entry of value) {
+        params.append(key, entry);
+      }
+    } else {
+      params.set(key, value);
+    }
+  }
+
+  const query = params.toString();
+
+  return query.length === 0 ? GOVERNANCE_ALERTS_PATH : `${GOVERNANCE_ALERTS_PATH}?${query}`;
+}

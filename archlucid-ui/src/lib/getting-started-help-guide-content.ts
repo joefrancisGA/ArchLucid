@@ -21,7 +21,7 @@ export type GettingStartedHelpSourceLink = {
 };
 
 /**
- * Diligence Sources — no self-href to /help/getting-started. Retired /help/how-it-works bookmarks
+ * Diligence Sources — no self-href to /help/getting-started. Retired how-it-works topic bookmarks
  * permanently redirect to #how-archlucid-works below, so it is intentionally omitted here to avoid a self-link.
  */
 export const GETTING_STARTED_HELP_SOURCES: readonly GettingStartedHelpSourceLink[] = [

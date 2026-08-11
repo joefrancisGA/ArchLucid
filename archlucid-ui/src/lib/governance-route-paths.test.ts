@@ -6,6 +6,7 @@ import {
   GOVERNANCE_DECISION_REGISTER_PATH,
   GOVERNANCE_FINDINGS_PATH,
   GOVERNANCE_WORKSPACE_HEALTH_HREF,
+  buildCanonicalGovernanceAlertsInboxHref,
   governanceAlertRulesTabHref,
   governanceAlertsTabHref,
 } from "@/lib/governance-route-paths";
@@ -32,5 +33,15 @@ describe("governance-route-paths", () => {
     expect(governanceAlertsTabHref("notifications")).toBe("/governance/alert-rules?tab=notifications");
     expect(governanceAlertsTabHref("advanced-rules")).toBe("/governance/alert-rules?tab=advanced-rules");
     expect(governanceAlertsTabHref("test-alerts")).toBe("/governance/alert-rules?tab=test-alerts");
+  });
+
+  it("strips retired tab=inbox while preserving inbox filters (TB-1594)", () => {
+    expect(buildCanonicalGovernanceAlertsInboxHref({ tab: "inbox" })).toBe("/governance/alerts");
+    expect(buildCanonicalGovernanceAlertsInboxHref({ tab: "inbox", status: "Open" })).toBe(
+      "/governance/alerts?status=Open",
+    );
+    expect(buildCanonicalGovernanceAlertsInboxHref({ status: "Open", cursor: "abc" })).toBe(
+      "/governance/alerts?status=Open&cursor=abc",
+    );
   });
 });

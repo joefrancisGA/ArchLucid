@@ -56,5 +56,12 @@ describe("canonicalizeLegacyOperatorRoutePath", () => {
 
   it("maps legacy AI usage admin bookmark to canonical administration path (TB-1404)", () => {
     expect(canonicalizeLegacyOperatorRoutePath("/admin/ai-usage-cost")).toBe("/administration/ai-usage");
+    expect(canonicalizeLegacyOperatorRoutePath("/settings/cost-reporting")).toBe("/administration/ai-usage");
+    expect(canonicalizeLegacyOperatorRoutePath("/settings/ai-usage")).toBe("/administration/ai-usage");
+  });
+
+  it("maps legacy onboarding and marketing bookmarks to canonical paths (TB-1801 / TB-1816)", () => {
+    expect(canonicalizeLegacyOperatorRoutePath("/onboarding/start")).toBe("/architecture/first-review-guide");
+    expect(canonicalizeLegacyOperatorRoutePath("/quick-start")).toBe("/get-started");
   });
 });

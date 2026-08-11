@@ -89,6 +89,9 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/settings/cost-reporting": "/administration/ai-usage",
     "/settings/ai-usage": "/administration/ai-usage",
     "/admin/ai-usage-cost": "/administration/ai-usage",
+    "/onboarding/start": "/architecture/first-review-guide",
+    "/quick-start": "/get-started",
+    "/governance/alerts?tab=inbox": "/governance/alerts",
     # TB-1124: Advisory scans hub under Governance (next.config permanent redirects only).
     "/advisory": "/governance/advisory-scans",
     "/advisory?tab=scans": "/governance/advisory-scans?tab=scans",

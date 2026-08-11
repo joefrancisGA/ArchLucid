@@ -113,7 +113,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | Customer policy-pack rule sandbox / pin / blast radius (PA) | **TB-1624**–**TB-1625** (open P1 **V1**) | Declarative in-process interpreter (not WASM); commit `PolicyPackVersion`+`RuleSetHash` pin; tenant-scoped blast radius; honesty CI; GTM **M-298**/**M-299**; orchestrates **TB-1324**/**TB-1022** |
 | Paying-tenant LLM spend-storm + billing dispute (PA) | **TB-1570**–**TB-1571** (open P1 **V1**) | Tenant HTTP/token/(optional) monthly USD gates; stolen key burns headroom until revoke; metering ≠ Azure invoice; honesty CI; GTM **M-294**/**M-295**; orchestrates **TB-1287** |
 | Alert rules Test (`/governance/alert-rules?tab=simulation`) | **TB-1589**–**TB-1591**, **TB-1593** (open P1 **V1**); **TB-1592** **Done** | Demote dual h2; DS form; human sub-tabs; tuning score density; ~47/100; traffic **GOS**; GUID/slug honesty shipped |
-| Alerts inbox tab (`/governance/alerts?tab=inbox`) | **TB-1594**–**TB-1598** (open P1 **V1**) | Canonicalize `?tab=inbox`; traffic/CI; zero-theater summary; default-project CTA + skeleton; ~53/100; traffic **GOI** |
+| Alerts inbox tab (`/governance/alerts?tab=inbox`) | **TB-1594**–**TB-1596** (**Done** 2026-08-11); **TB-1597**–**TB-1598** (open P1 **V1**) | Canonicalize `?tab=inbox` + traffic/CI **Done**; zero-theater summary; default-project CTA + skeleton; ~53/100; traffic **GOI** |
 | Help catch-all (`/help/[...topic]`) | **TB-1599**–**TB-1603** (open P1/P2 **V1**) | NotFound recovery; loading/dynamic honesty; fallthrough↔**TB-1414**; traffic router-meta; dispatch CI; ~49/100; traffic **HE.** |
 | Accelerator chooser (`/help/accelerator-chooser`) | **TB-1604**–**TB-1608** (open P1 **V1**) | Specialty + Start CTAs; title/tier; leak purge; TS SoT; home inbound; ~42/100; traffic **HAX** |
 | Admin diagnostics (`/help/admin-diagnostics`) | **TB-1609**–**TB-1613** (open P1 **V1**) | Specialty + `/administration/system-health` CTA; title; kind/tier; eng Related demote; inbound/doc-href; ~48/100; traffic **HAE** |
@@ -376,9 +376,9 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1590 | Alert simulation/tuning — design-system fields + primary Simulate/Recommend | Adoption friction P1 **V1** — with **TB-1589** |
 | TB-1591 | Alert simulation — human nested sub-tab labels | Adoption friction P1 **V1** — with **TB-1589** |
 | TB-1593 | Alert tuning — score-breakdown operator honesty + dual lead/rank density | Trustworthiness / adoption P1 **V1** — with **TB-1589** |
-| TB-1594 | Alerts inbox — canonicalize `?tab=inbox` → `/governance/alerts` | Adoption friction P1 **V1** — GOI ~53/100 |
-| TB-1595 | Alerts inbox tab twin — traffic redirect-only + nav/docs canonicalize | Adoption friction P1 **V1** — with **TB-1594** |
-| TB-1596 | Alerts inbox — CI/Vitest guard against stale `?tab=inbox` deep links | Adoption friction P2 **V1** — with **TB-1594** |
+| TB-1594 | Alerts inbox — canonicalize `?tab=inbox` → `/governance/alerts` | Adoption friction P1 **V1** — GOI ~53/100 — **Done** 2026-08-11 |
+| TB-1595 | Alerts inbox tab twin — traffic redirect-only + nav/docs canonicalize | Adoption friction P1 **V1** — with **TB-1594** — **Done** 2026-08-11 |
+| TB-1596 | Alerts inbox — CI/Vitest guard against stale `?tab=inbox` deep links | Adoption friction P2 **V1** — with **TB-1594** — **Done** 2026-08-11 |
 | TB-1597 | Alerts inbox — suppress summary zero-theater when empty/no rules | Trustworthiness P1 **V1** — with **TB-1594** |
 | TB-1598 | Alerts inbox — empty CTA `projectId=default` honesty + list loading skeleton | Trustworthiness/adoption P1 **V1** — with **TB-1594** |
 | TB-1599 | Help catch-all — unknown slug → HelpTopicNotFoundView | Adoption friction P1 **V1** — HE. ~49/100 |
@@ -558,17 +558,17 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1795 | Docs/help — login language → `/auth/signin` (keep shim) | Trustworthiness P1 **V1** — with **TB-1791** |
 | TB-1796 | `/onboard` Vitest multi-value searchParams (parity ONS) | Testability P2 **V1** — ON ~12 |
 | TB-1798 | `/onboard` — traffic redirect-only workbook honesty | Adoption friction P1 **V1** — with **TB-1796** |
-| TB-1801 | `/onboarding/start` traffic redirect-only workbook honesty | Adoption friction P1 **V1** — ONS ~12 |
-| TB-1805 | `/onboarding/start` — Vitest anti-reintro (redirect-only, no UI) | Testability P2 **V1** — with **TB-1801** |
+| TB-1801 | `/onboarding/start` traffic redirect-only workbook honesty | Adoption friction P1 **V1** — ONS ~12 — **Done** 2026-08-11 |
+| TB-1805 | `/onboarding/start` — Vitest anti-reintro (redirect-only, no UI) | Testability P2 **V1** — with **TB-1801** — **Done** 2026-08-11 |
 | TB-1806 | `/operate/architecture-graph` traffic redirect-only workbook honesty | Adoption friction P1 **V1** — OPR ~12 |
 | TB-1808 | Preserve query on `/operate/architecture-graph` → `/insights/evidence-graph` redirect | Adoption friction P1 **V1** — with **TB-1806** |
 | TB-1810 | `/operate/architecture-graph` — Vitest anti-reintro (redirect-only + query) | Testability P2 **V1** — with **TB-1806** |
 | TB-1812 | `/patterns/[patternKey]` — contextual peer-compare (not hard-coded BFF) | Adoption friction P1 **V1** — with **TB-1811** |
 | TB-1814 | `/patterns` + detail — page-help topic map + contextual help mount | Adoption friction P1 **V1** — with **TB-1811** |
 | TB-1815 | `/patterns/[patternKey]` — CTA hierarchy + Vitest anti-regress | Adoption friction P2 **V1** — with **TB-1811** |
-| TB-1816 | `/quick-start` traffic redirect-only workbook honesty | Adoption friction P1 **V1** — QUI ~12 |
+| TB-1816 | `/quick-start` traffic redirect-only workbook honesty | Adoption friction P1 **V1** — QUI ~12 — **Done** 2026-08-11 |
 | TB-1817 | Retire orphan `(marketing)/quick-start` page module (keep 301) | Maintainability P2 **V1** — with **TB-1816** |
-| TB-1820 | `/quick-start` — Vitest anti-reintro (301 + no competing marketing UI) | Testability P2 **V1** — with **TB-1816** |
+| TB-1820 | `/quick-start` — Vitest anti-reintro (301 + no competing marketing UI) | Testability P2 **V1** — with **TB-1816** — **Done** 2026-08-11 |
 | TB-1821 | Restore or redirect `/reviews/[runId]/artifacts/[artifactId]` preview | Adoption friction P0 **V1** — RER ~10 |
 | TB-1822 | `ArtifactListTable` Preview hrefs must resolve to a live App Router page | Trustworthiness P0 **V1** — with **TB-1821** |
 | TB-1823 | `/reviews/.../artifacts/...` traffic ghost-route workbook honesty | Adoption friction P1 **V1** — with **TB-1821** |
@@ -873,10 +873,10 @@ Canonical: [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) only (see wave-3 c
 | Recommendation-learning ops (`/internal-operations/recommendation-learning`) | **TB-1787**–**TB-1790** (open P1/P2 **V1**; **TB-1786** **Done** 2026-08-10) | Traffic/SEO Internal Ops **Done**; retire orphan UI; toolbar honesty; enterprise chrome; Vitest; ~52/100; traffic **INR** |
 | Legacy `/login` | **TB-1791**/**TB-1794**/**TB-1795** (open P1/P2 **V1**; **TB-1793** **Done** 2026-08-10) | Vitest redirect; query fidelity; noindex **Done**; traffic redirect-only; docs canonicalize; ~12/100; traffic **LOX**; real UX on `/auth/signin` |
 | Legacy `/onboard` | **TB-1796**/**TB-1798** (open P1/P2 **V1**; **TB-1797**/**TB-1799**/**TB-1800** **Done** 2026-08-10) | Query Vitest; traffic redirect-only; canonicalize + noindex + SEO drop **Done**; ~12/100; traffic **ON**; peer ONS; hub Done **TB-674**–**TB-680** |
-| Legacy `/onboarding/start` | **TB-1801**/**TB-1805** (open P1/P2 **V1**; **TB-1802**/**TB-1803**/**TB-1804** **Done** 2026-08-10) | Traffic redirect-only; noindex + docs canonicalize + SEO drop **Done**; anti-reintro Vitest; ~12/100; traffic **ONS**; peer ON **TB-1796**–**TB-1800** |
+| Legacy `/onboarding/start` | — (cluster **Done** **TB-1801**–**TB-1805** 2026-08-11) | Traffic redirect-only; noindex + docs canonicalize + SEO drop **Done**; anti-reintro Vitest; ~12/100; traffic **ONS**; peer ON **TB-1796**–**TB-1800** |
 | Legacy `/operate/architecture-graph` | **TB-1806**/**TB-1808**/**TB-1810** (open P1/P2 **V1**; **TB-1807**/**TB-1809** **Done** 2026-08-10) | Traffic redirect-only; noindex **Done**; query preserve to `/insights/evidence-graph`; doc canonicalize **Done**; anti-reintro Vitest; ~12/100; traffic **OPR**; product on **INE** |
 | Pattern library detail (`/patterns/[patternKey]`) | **TB-1812**/**TB-1814**/**TB-1815** (open P1/P2 **V1**; **TB-1811**/**TB-1813** **Done** 2026-08-10) | Provenance + policy honesty **Done**; peer compare; help map+mount; CTA/Vitest; ~48/100; traffic **PAP**; do not reopen **TB-880** |
-| Retired marketing `/quick-start` | **TB-1816**–**TB-1820** (open P1/P2 **V1**; **TB-1818**/**TB-1819** **Done** 2026-08-10) | Traffic redirect-only; retire orphan page; noindex + docs canonicalize **Done**; anti-reintro Vitest; ~12/100; traffic **QUI**; after Done **TB-736** |
+| Retired marketing `/quick-start` | **TB-1817** (open P2 **V1**; **TB-1816**/**TB-1818**–**TB-1820** **Done** 2026-08-11) | Traffic redirect-only; retire orphan page; noindex + docs canonicalize **Done**; anti-reintro Vitest; ~12/100; traffic **QUI**; after Done **TB-736** |
 | Ghost artifact preview (`/reviews/.../artifacts/...`) | **TB-1823**–**TB-1825** (open P1/P2 **V1**) | RER redirect + hrefs **Done** **TB-1821**/**TB-1822**/**TB-1948**; traffic honesty; CI existence guard; ~10/100; traffic **RER** |
 | Ghost signed-record artifact preview (`/signed-records/.../artifacts/...`) | **TB-1950** (open P2 **V1**) | Traffic + section/docs **Done** **TB-1946**/**TB-1949**; page + hrefs **Done** **TB-1947**/**TB-1948**; Vitest with **TB-1825**; ~10/100; traffic **MAM**; peer **RER** |
 | Snapshot leave-behind (`/snapshot/[runId]`) | — (cluster **Done** **TB-1951**–**TB-1955**) | Redirect traffic; destination honesty; next.config/query; docs; Vitest; ~30/100; traffic **SNU** |

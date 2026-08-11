@@ -154,7 +154,7 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
   {
     removedRowId: "HHX",
     retiredPath: "/help/how-it-works",
-    canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.gettingStarted,
+    canonicalPath: `${RETIRED_HELP_TOPIC_CANONICAL_PATHS.gettingStarted}#how-archlucid-works`,
     bannedBuyerCopy: ["/help/how-it-works"],
     buyerSurfaceGuards: [
       "src/lib/help-search-panel-catalog.ts",
@@ -166,7 +166,7 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
   {
     removedRowId: "EPR",
     retiredPath: "/help/product-overview",
-    canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.executiveSummary,
+    canonicalPath: `${RETIRED_HELP_TOPIC_CANONICAL_PATHS.executiveSummary}#what-archlucid-is`,
     bannedBuyerCopy: ["/help/product-overview"],
     buyerSurfaceGuards: [
       "src/lib/help-search-panel-catalog.ts",
