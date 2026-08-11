@@ -160,7 +160,7 @@ public sealed class ArchitectureRunExecuteOrchestratorExecuteFailureSummaryTests
             ArchitectureRunExecuteOrchestratorTestFactory.CreatePassThroughRunScopedLlmBudgetReservationService(),
             new OperationCancellationRegistry(),
             new OperationRunCancellationMarker(runRepo.Object),
-            DisabledRunExecuteOwnershipLeaseService.Instance,
+            new DisabledRunExecuteOwnershipLeaseService(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
 
         Func<Task> act = async () => await sut.ExecuteRunAsync(runId);

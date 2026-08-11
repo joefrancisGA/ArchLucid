@@ -241,7 +241,7 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveExecuteTests
             ArchitectureRunExecuteOrchestratorTestFactory.CreatePassThroughRunScopedLlmBudgetReservationService(),
             new OperationCancellationRegistry(),
             new OperationRunCancellationMarker(runRepo.Object),
-            DisabledRunExecuteOwnershipLeaseService.Instance,
+            new DisabledRunExecuteOwnershipLeaseService(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
 

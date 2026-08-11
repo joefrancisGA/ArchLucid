@@ -50,6 +50,8 @@ public sealed class StorageProviderRegistrationParityTests
         typeof(IConfigureOptions<SqlConnectionPoolOptions>),
         typeof(IOptionsChangeTokenSource<WarmTenantCatalogOptions>),
         typeof(IConfigureOptions<WarmTenantCatalogOptions>),
+        typeof(IOptionsChangeTokenSource<SqlConnectionPoolWarmupOptions>),
+        typeof(IConfigureOptions<SqlConnectionPoolWarmupOptions>),
         typeof(ITenantOnboardingStateRepository),
         typeof(SqlAuthorityPipelineTenantExecutionLeaseRepository),
         typeof(SqlConnectionFactory),

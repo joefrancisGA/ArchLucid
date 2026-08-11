@@ -41,7 +41,7 @@ public static class ArchitectureRunExecuteOrchestratorTestFactory
             CreatePassThroughRunScopedLlmBudgetReservationService(),
             new OperationCancellationRegistry(),
             new OperationRunCancellationMarker(runs),
-            DisabledRunExecuteOwnershipLeaseService.Instance,
+            new DisabledRunExecuteOwnershipLeaseService(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
 

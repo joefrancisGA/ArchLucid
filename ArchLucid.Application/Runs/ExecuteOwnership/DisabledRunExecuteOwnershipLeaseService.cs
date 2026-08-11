@@ -3,13 +3,6 @@ namespace ArchLucid.Application.Runs.ExecuteOwnership;
 /// <summary>Lease service used when leasing is disabled (InMemory tests and explicit opt-out).</summary>
 public sealed class DisabledRunExecuteOwnershipLeaseService : IRunExecuteOwnershipLeaseService
 {
-    /// <summary>Shared singleton for manual orchestrator construction in unit tests.</summary>
-    public static DisabledRunExecuteOwnershipLeaseService Instance { get; } = new();
-
-    private DisabledRunExecuteOwnershipLeaseService()
-    {
-    }
-
     /// <inheritdoc />
     public bool IsEnabled => false;
 

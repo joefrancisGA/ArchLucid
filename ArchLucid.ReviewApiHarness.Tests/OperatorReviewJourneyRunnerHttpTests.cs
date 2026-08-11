@@ -5,6 +5,8 @@ using FluentAssertions;
 
 namespace ArchLucid.ReviewApiHarness.Tests;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class OperatorReviewJourneyRunnerHttpTests
 {
     [Fact]

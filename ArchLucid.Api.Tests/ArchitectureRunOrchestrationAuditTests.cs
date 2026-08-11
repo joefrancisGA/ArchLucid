@@ -139,7 +139,7 @@ public sealed class ArchitectureRunOrchestrationAuditTests
             new ArchLucid.Application.Budgeting.PassThroughRunScopedLlmBudgetReservationService(),
             new OperationCancellationRegistry(),
             new OperationRunCancellationMarker(runRepository),
-            DisabledRunExecuteOwnershipLeaseService.Instance,
+            new DisabledRunExecuteOwnershipLeaseService(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
 
