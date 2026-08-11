@@ -1,17 +1,19 @@
 import Link from "next/link";
 
 import { ReportProblemAuditVocabularyRail } from "@/components/ReportProblemAuditVocabularyRail";
+import { ReportProblemSupportWorkspaceVocabularyRail } from "@/components/ReportProblemSupportWorkspaceVocabularyRail";
 import { ReportProblemHelpEvidenceOrientationStrip } from "@/components/help/ReportProblemHelpEvidenceOrientationStrip";
 import { ReportProblemSurfaceCoverageTable } from "@/components/help/ReportProblemSurfaceCoverageTable";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { ARCHLUCID_SUPPORT_EMAIL } from "@/lib/support-workspace-present";
 import { cn } from "@/lib/utils";
 
-/** Evidence strip, vocabulary rail, support email, and surface registry for HRE. */
+/** Evidence strip, vocabulary rails, support email, and surface registry for HRE. */
 export function ReportProblemHelpOrientationStack(): React.JSX.Element {
   return (
     <div className="space-y-4" data-testid="report-a-problem-help-orientation-stack">
       <ReportProblemHelpEvidenceOrientationStrip />
+      <ReportProblemSupportWorkspaceVocabularyRail currentSurfaceId="report-a-problem" />
       <ReportProblemAuditVocabularyRail currentSurfaceId="report-problem" />
       <p
         className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}

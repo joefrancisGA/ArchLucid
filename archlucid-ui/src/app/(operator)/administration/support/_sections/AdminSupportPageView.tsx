@@ -6,6 +6,7 @@ import { useCallback, useState } from "react";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { ReportProblemSupportWorkspaceVocabularyRail } from "@/components/ReportProblemSupportWorkspaceVocabularyRail";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -85,6 +86,8 @@ export function AdminSupportPageView({ model }: AdminSupportPageViewProps) {
         titleTestId="admin-support-title"
         subtitle="Contact ArchLucid support, gather redacted diagnostics, and follow guided troubleshooting paths."
       />
+
+      <ReportProblemSupportWorkspaceVocabularyRail currentSurfaceId="support-workspace" />
 
       <p
         className={cn(
