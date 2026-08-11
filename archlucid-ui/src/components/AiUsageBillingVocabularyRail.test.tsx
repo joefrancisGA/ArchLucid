@@ -9,7 +9,7 @@ import {
   AI_USAGE_BILLING_ESTIMATES_HONESTY,
   AI_USAGE_BILLING_HEADING,
   AI_USAGE_BILLING_WHY_TWO,
-} from "@/lib/ai-usage-billing-vocabulary";
+} from "@/lib/vocabulary/ai-usage-billing-vocabulary";
 
 describe("AiUsageBillingVocabularyRail (TB-2253)", () => {
   it("renders compact strip on AI usage with peer link to billing", () => {

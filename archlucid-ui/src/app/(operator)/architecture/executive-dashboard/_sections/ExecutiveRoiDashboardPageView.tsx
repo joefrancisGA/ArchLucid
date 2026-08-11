@@ -9,7 +9,7 @@ import { ExecutiveDashboardEmptyState } from "@/components/executive/ExecutiveDa
 import { ExecutiveDashboardPageHero } from "@/components/executive/ExecutiveDashboardPageHero";
 import { ExecutiveDashboardSampleWorkspaceBanner } from "@/components/executive/ExecutiveDashboardSampleWorkspaceBanner";
 import type { ExecutiveTimeRange } from "@/lib/executive-time-range";
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   hasExecutiveCommittedReviews,

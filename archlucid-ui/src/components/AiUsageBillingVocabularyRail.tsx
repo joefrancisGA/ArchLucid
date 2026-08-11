@@ -9,7 +9,7 @@ import {
   resolveAiUsageBillingPeerLink,
   type AiUsageBillingSurfaceId,
   type AiUsageBillingVocabularyModel,
-} from "@/lib/ai-usage-billing-vocabulary";
+} from "@/lib/vocabulary/ai-usage-billing-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

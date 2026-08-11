@@ -10,7 +10,7 @@ import {
   resolveAuditEvidenceTrailPeerLinks,
   type AuditEvidenceTrailSurfaceId,
   type AuditEvidenceTrailVocabularyModel,
-} from "@/lib/audit-evidence-trail-vocabulary";
+} from "@/lib/vocabulary/audit-evidence-trail-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 

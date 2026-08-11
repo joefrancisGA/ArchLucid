@@ -1,4 +1,4 @@
-import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import type { FindingConfidenceLevel } from "@/types/explanation";
 
 /** Distinguishes explainability-backed findings from recorded architecture decisions in the mixed queue. */

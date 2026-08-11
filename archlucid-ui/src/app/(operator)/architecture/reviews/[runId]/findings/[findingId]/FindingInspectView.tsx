@@ -11,7 +11,7 @@ import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/Canoni
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-registry";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { ARCHITECTURE_REVIEW_VOCABULARY } from "@/lib/architecture-review-vocabulary";
+import { ARCHITECTURE_REVIEW_VOCABULARY } from "@/lib/vocabulary/architecture-review-vocabulary";
 import {
   findingDetailHeadingTitle,
   findingDetailLeadSentence,

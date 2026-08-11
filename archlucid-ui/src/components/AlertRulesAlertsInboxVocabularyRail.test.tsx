@@ -8,7 +8,7 @@ import {
   ALERT_RULES_ALERTS_INBOX_INBOX_LINK,
   ALERT_RULES_ALERTS_INBOX_RULES_LINK,
   ALERT_RULES_ALERTS_INBOX_WHY_TWO,
-} from "@/lib/alert-rules-alerts-inbox-vocabulary";
+} from "@/lib/vocabulary/alert-rules-alerts-inbox-vocabulary";
 
 describe("AlertRulesAlertsInboxVocabularyRail (TB-2289)", () => {
   it("renders alert-rules strip with peer link to alerts inbox", () => {

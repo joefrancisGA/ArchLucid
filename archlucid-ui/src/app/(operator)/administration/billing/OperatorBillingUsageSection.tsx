@@ -10,7 +10,7 @@ import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import {
   BILLING_AI_USAGE_SECTION_INTRO,
   BILLING_MONTHLY_AI_USAGE_CARD_DESCRIPTION,
-} from "@/lib/billing-meter-vocabulary";
+} from "@/lib/vocabulary/billing-meter-vocabulary";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export function OperatorBillingUsageSection() {
