@@ -13,6 +13,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { simulatePolicyPackAgainstRun } from "@/lib/api/policy-governance-api";
 import { toApiLoadFailure, uiFailureFromMessage, type ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { POLICY_PACK_DELTA_DEMO_HELP_PATH } from "@/lib/policy-pack-delta-demo-help-route";
 import type { components } from "@/lib/openapi-schemas";
 import {
   buildAfterAssignmentComplianceRuleKeys,
@@ -228,7 +229,7 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
 
       <p className={cn("m-0 mt-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         Full scripted walkthrough:{" "}
-        <Link href="/help/policy-pack-delta-demo" className={OPERATOR_LINK.inline}>
+        <Link href={POLICY_PACK_DELTA_DEMO_HELP_PATH} className={OPERATOR_LINK.inline}>
           Policy-pack delta demo
         </Link>
         .

@@ -118,6 +118,12 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     canonicalPath: `${RETIRED_HELP_TOPIC_CANONICAL_PATHS.firstArchitectureReview}#printable-first-run-evidence-checklist`,
     historicalNote:
       "Deprecated first-review help twin (Help topic) - Admin printable checklist folded into first-architecture-review specialty (COR); canon COR = /help/first-architecture-review.",
+    bannedBuyerCopy: ["/help/first-review", "first-review help", "First review help"],
+    buyerSurfaceGuards: [
+      "src/lib/help-search-panel-catalog.ts",
+      "src/lib/first-review-help-guide-content.ts",
+      "src/lib/usability/page-help-topic-map.ts",
+    ],
   },
   {
     removedRowId: "HEF",
@@ -125,6 +131,14 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     canonicalPath: `${RETIRED_HELP_TOPIC_CANONICAL_PATHS.firstArchitectureReview}#first-value-in-20-minutes`,
     historicalNote:
       "Deprecated first-value-20-minutes help twin (Help topic) - Admin 20-minute runbook folded into first-architecture-review specialty (COR).",
+    bannedBuyerCopy: ["/help/first-value-20-minutes", "first-value-20-minutes", "First value 20 minutes help"],
+    buyerSurfaceGuards: [
+      "src/lib/help-search-panel-catalog.ts",
+      "src/lib/first-value-20-help-guide-content.ts",
+      "src/lib/usability/page-help-topic-map.ts",
+      "src/components/usability/CorePilotProgressTrackerSummary.tsx",
+      "src/components/usability/CorePilotProgressTrackerBanner.tsx",
+    ],
   },
   {
     removedRowId: "POL",
@@ -132,6 +146,14 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     canonicalPath: `${inAppHelpHref("policy-packs")}#policy-pack-delta-demo`,
     historicalNote:
       "Deprecated policy-pack-delta-demo help twin (Help topic) - SE demo runbook folded into policy-packs help (HEO).",
+    bannedBuyerCopy: ["/help/policy-pack-delta-demo", "Policy-pack delta demo help"],
+    buyerSurfaceGuards: [
+      "src/lib/help-search-panel-catalog.ts",
+      "src/lib/policy-packs-help-evidence-copy.ts",
+      "src/lib/usability/page-help-topic-map.ts",
+      "src/app/(operator)/governance/policy-packs/_sections/PolicyPacksMarketingIntro.tsx",
+      "src/components/PolicyPackImpactPreviewPanel.tsx",
+    ],
   },
   {
     removedRowId: "PIL",

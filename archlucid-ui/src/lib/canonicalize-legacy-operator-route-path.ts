@@ -1,3 +1,4 @@
+import { AI_USAGE_LEGACY_ADMIN_PATH, AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import {
   ARCHITECTURES_LIST_PATH,
   CTO_DEMO_TOUR_ENTRY_HREF,
@@ -175,6 +176,10 @@ export function canonicalizeLegacyOperatorRoutePath(pathname: string): string {
 
   if (normalized === LEGACY_SETTINGS_ROLES_PATH) {
     return ADMINISTRATION_USERS_PATH;
+  }
+
+  if (normalized === AI_USAGE_LEGACY_ADMIN_PATH) {
+    return AI_USAGE_SETTINGS_PATH;
   }
 
   if (normalized === LEGACY_SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH || normalized === LEGACY_SPONSOR_REPORT_ROOT_PATH) {

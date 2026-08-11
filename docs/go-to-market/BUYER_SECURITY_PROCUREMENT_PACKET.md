@@ -2478,7 +2478,7 @@ Former standalone body: `docs/go-to-market/OWNER_SCREENSHOT_BELOW_50_SPECIALTY_H
 | ~39 | `/help/configuration-reference` | **TB-1326**–**TB-1330** |
 | ~40 | `/help/repeat-review-loop` | **TB-1394**–**TB-1398** |
 | ~42 | `/help/evaluator-workbook` | **TB-1345**–**TB-1349** |
-| ~42 | `/help/pilot-roi-model` | **TB-1389**–**TB-1393** |
+| ~42 | `/help/executive-summary#pilot-roi-measurement` (folded from pilot-roi-model) | **TB-1389**–**TB-1393** **Done** |
 | ~46 | `/help/first-hour-operator-path` | **TB-1374**–**TB-1378** |
 | ~49 | `/help/procurement` | **TB-1253**–**TB-1257** |
 

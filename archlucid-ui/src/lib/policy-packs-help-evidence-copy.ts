@@ -5,7 +5,7 @@ import {
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
 } from "@/lib/governance-route-paths";
 import { POLICY_PACKS_HELP_PATH } from "@/lib/policy-packs-page";
-import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { POLICY_PACK_DELTA_DEMO_HELP_PATH } from "@/lib/policy-pack-delta-demo-help-route";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const POLICY_PACKS_HELP_CANONICAL_PATH = POLICY_PACKS_HELP_PATH;
@@ -23,5 +23,5 @@ export const POLICY_PACKS_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Standards and rules", href: GOVERNANCE_STANDARDS_AND_RULES_PATH },
   { label: "Findings", href: GOVERNANCE_FINDINGS_PATH },
   { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
-  { label: "Policy-pack delta demo", href: inAppHelpHref("policy-pack-delta-demo") },
+  { label: "Policy-pack delta demo", href: POLICY_PACK_DELTA_DEMO_HELP_PATH },
 ] as const;

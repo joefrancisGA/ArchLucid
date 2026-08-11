@@ -16,6 +16,8 @@ const CONTRIBUTOR_DOC_PATHS = [
   "docs/architecture/ui_route_traffic_estimates.template.md",
 ] as const;
 
+const CATALOG_PATH = join(process.cwd(), "..", "scripts", "ci", "archlucid_ui_route_catalog.py");
+
 function readRepoRelativeDoc(relativePath: string): string {
   return readFileSync(join(process.cwd(), "..", relativePath), "utf8");
 }
@@ -54,5 +56,11 @@ describe("ai-usage-legacy-route-doc-guard (TB-1408)", () => {
     expect(AI_USAGE_SETTINGS_TRAFFIC_NOTE.toLowerCase()).toContain("redirect-only");
     expect(AI_USAGE_SETTINGS_TRAFFIC_NOTE.toLowerCase()).toContain("canonical adi path");
     expect(AI_USAGE_SETTINGS_TRAFFIC_NOTE).not.toMatch(/AAX\s*=\s*admin ai-usage-cost/i);
+  });
+
+  it("migrates /admin/ai-usage-cost to canonical AI usage settings in Python WORKBOOK_PATH_MIGRATIONS (TB-1406)", () => {
+    const catalogSource = readFileSync(CATALOG_PATH, "utf8");
+
+    expect(catalogSource).toContain('"/admin/ai-usage-cost": "/administration/ai-usage"');
   });
 });

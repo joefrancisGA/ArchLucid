@@ -53,4 +53,8 @@ describe("canonicalizeLegacyOperatorRoutePath", () => {
       "/administration/identity/sso-wizard",
     );
   });
+
+  it("maps legacy AI usage admin bookmark to canonical administration path (TB-1404)", () => {
+    expect(canonicalizeLegacyOperatorRoutePath("/admin/ai-usage-cost")).toBe("/administration/ai-usage");
+  });
 });

@@ -8,7 +8,9 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
+import { FIRST_VALUE_20_HELP_PATH } from "@/lib/first-value-20-help-route";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
   FIRST_VALUE_MINUTES_ESTIMATE,
@@ -76,7 +78,7 @@ export function CorePilotProgressTrackerBanner(props: CorePilotProgressTrackerBa
             <>
               {" · "}
               <Link
-                href={canOpenInternalRunbook ? "/help/first-value-20-minutes" : "/help/first-architecture-review"}
+                href={canOpenInternalRunbook ? FIRST_VALUE_20_HELP_PATH : FIRST_ARCHITECTURE_REVIEW_HELP_PATH}
                 className="font-medium text-teal-800 underline dark:text-teal-300"
               >
                 Complete one review in about {FIRST_VALUE_MINUTES_ESTIMATE} minutes

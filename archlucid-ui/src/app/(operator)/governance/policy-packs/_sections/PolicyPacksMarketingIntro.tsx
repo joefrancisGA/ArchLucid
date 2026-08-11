@@ -12,6 +12,7 @@ import {
   policyPacksPageLeadReaderBuyerPolished,
 } from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { POLICY_PACK_DELTA_DEMO_HELP_PATH } from "@/lib/policy-pack-delta-demo-help-route";
 
 export type PolicyPacksMarketingIntroProps = {
   buyerPolishedShell: boolean;
@@ -38,7 +39,7 @@ export function PolicyPacksMarketingIntro(props: PolicyPacksMarketingIntroProps)
         >
           {policyPacksDeltaDemoBannerLine}{" "}
           <Link
-            href="/help/policy-pack-delta-demo"
+            href={POLICY_PACK_DELTA_DEMO_HELP_PATH}
             className={OPERATOR_LINK.inline}
           >
             Open demo script
