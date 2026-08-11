@@ -2,8 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import type { CorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import { CORE_PILOT_HELP_WORKFLOW_STEPS } from "@/lib/core-pilot-help-guide-content";
+import { CORE_PILOT_HELP_WORKFLOW_CHECKING_STATUS } from "@/lib/core-pilot-help-guide-content";
 import { BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR } from "@/lib/first-week-route-guidance";
-import { resolveCorePilotHelpWorkflowStepCta } from "@/lib/resolve-core-pilot-help-workflow-step-cta";
+import {
+  isCorePilotHelpWorkflowContextPendingCta,
+  resolveCorePilotHelpWorkflowStepCta,
+} from "@/lib/resolve-core-pilot-help-workflow-step-cta";
 
 const emptyCtx: CorePilotCommitContext = {
   hasCommittedManifest: false,
@@ -61,6 +65,18 @@ describe("resolveCorePilotHelpWorkflowStepCta (TB-1042)", () => {
 
     expect(cta.enabled).toBe(false);
     expect(cta.href).toBeNull();
+    expect(isCorePilotHelpWorkflowContextPendingCta(cta)).toBe(true);
+  });
+
+  it("TB-1333: never returns finalize/export labels while context is loading", () => {
+    for (const step of [CORE_PILOT_HELP_WORKFLOW_STEPS[1]!, step3, step4, step5]) {
+      const cta = resolveCorePilotHelpWorkflowStepCta(step, null);
+
+      expect(cta.label).toBe(CORE_PILOT_HELP_WORKFLOW_CHECKING_STATUS);
+      expect(cta.label).not.toBe("Finalize on review detail");
+      expect(cta.label).not.toBe("Open exports");
+      expect(cta.label).not.toBe("Open review detail");
+    }
   });
 
   it("deep-links monitor/finalize/exports when a run exists", () => {

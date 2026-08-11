@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { CorePilotHelpOrientationFooter } from "@/app/(operator)/help/_sections/CorePilotHelpOrientationFooter";
+import { CorePilotHelpPostStepperPanel } from "@/app/(operator)/help/_sections/CorePilotHelpPostStepperPanel";
 import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
@@ -11,12 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
-  CORE_PILOT_HELP_CLOUD_ACTIONS,
-  CORE_PILOT_HELP_DEFERRED_ITEMS,
-  CORE_PILOT_HELP_DEPTH_GUIDES,
   CORE_PILOT_HELP_DISCLOSURE,
   CORE_PILOT_HELP_GUIDE_HEADINGS,
-  CORE_PILOT_HELP_HOME_STATUS_NOTE,
   CORE_PILOT_HELP_PRIMARY_ACTIONS,
   CORE_PILOT_HELP_SUMMARY_COPY,
   CORE_PILOT_HELP_SUMMARY_TITLE,
@@ -26,11 +23,11 @@ import {
   DESIGN_TOKENS,
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
-  OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import { corePilotHelpRelatedGuides } from "@/lib/core-pilot-help-related-guides";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 type HelpCorePilotGuideViewProps = {
@@ -95,7 +92,6 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
                   {CORE_PILOT_HELP_SUMMARY_TITLE}
                 </CardTitle>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{CORE_PILOT_HELP_SUMMARY_COPY}</p>
-                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{CORE_PILOT_HELP_HOME_STATUS_NOTE}</p>
               </CardHeader>
               <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap gap-2")}>
                 <Button asChild size="sm" data-testid="core-pilot-primary-start-cta">
@@ -124,115 +120,7 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
             {CORE_PILOT_HELP_DISCLOSURE.whatThisGuideCovers.body}
           </HelpDisclosure>
 
-          <section aria-labelledby="cloud-connectors-optional" className="space-y-3">
-            <HelpSectionHeading id="cloud-connectors-optional">
-              Cloud connectors are optional for your first review
-            </HelpSectionHeading>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-              You can run an evidence-only review first, then connect a provider later when needed.
-            </p>
-            <details className={HELP_PAGE_LAYOUT.details} data-testid="core-pilot-cloud-disclosure">
-              <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                Show cloud connector options
-              </summary>
-              <div className={cn(HELP_PAGE_LAYOUT.detailsBody, "space-y-4")}>
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" data-testid="core-pilot-cloud-actions">
-                  {CORE_PILOT_HELP_CLOUD_ACTIONS.map((action) => (
-                    <Card key={action.title} className="h-full">
-                      <CardHeader className={OPERATOR_CARD.header}>
-                        <CardTitle className={cn("text-base", OPERATOR_TYPOGRAPHY.cardTitle)}>{action.title}</CardTitle>
-                        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{action.description}</p>
-                      </CardHeader>
-                      <CardContent className={OPERATOR_CARD.content}>
-                        <Button asChild size="sm" variant="outline">
-                          <Link href={action.href}>{action.ctaLabel}</Link>
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-                  {CORE_PILOT_HELP_DISCLOSURE.whenToUseCloudConnectors.body}
-                </p>
-              </div>
-            </details>
-          </section>
-
-          <section aria-labelledby="fast-path-evidence-only" className="space-y-3">
-            <HelpSectionHeading id="fast-path-evidence-only">Fast path: evidence-only review</HelpSectionHeading>
-            <details className={HELP_PAGE_LAYOUT.details} data-testid="core-pilot-fast-path-disclosure">
-              <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                Show evidence-only steps
-              </summary>
-              <div className={cn(HELP_PAGE_LAYOUT.detailsBody, "space-y-3")}>
-                <Card className="border-neutral-200 dark:border-neutral-800">
-                  <CardContent className={cn(OPERATOR_CARD.body, "space-y-3")}>
-                    <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-                      Recommended when connector access is not approved yet, or when your first session only has briefs,
-                      diagrams, IaC, screenshots, exports, or policy documents.
-                    </p>
-                    <ol className={cn("m-0 list-decimal space-y-1.5 pl-5", OPERATOR_TYPOGRAPHY.body)}>
-                      <li>Start a review with no cloud target selected (evidence-only).</li>
-                      <li>Upload files or paste your architecture brief — a cloud connector is not required.</li>
-                      <li>Start the review, finalize the package, and export the sponsor packet.</li>
-                    </ol>
-                    <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-                      <Link href="#first-review-path" className={cn(OPERATOR_LINK.inline, DESIGN_TOKENS.accent.link)}>
-                        Start evidence-only review
-                      </Link>
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-            </details>
-          </section>
-
-          <section aria-labelledby="what-can-wait" className="space-y-3">
-            <HelpSectionHeading id="what-can-wait">What can wait</HelpSectionHeading>
-            <details className={HELP_PAGE_LAYOUT.details} data-testid="core-pilot-what-can-wait-disclosure">
-              <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                Show deferred topics
-              </summary>
-              <div className={cn(HELP_PAGE_LAYOUT.detailsBody, "space-y-3")}>
-                <ul className="m-0 list-none space-y-3 p-0">
-                  {CORE_PILOT_HELP_DEFERRED_ITEMS.map((item) => (
-                    <li
-                      key={item.title}
-                      className="rounded-md border border-neutral-200 bg-neutral-50/60 px-4 py-3 dark:border-neutral-800 dark:bg-neutral-900/40"
-                    >
-                      <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>{item.title}</p>
-                      <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>{item.description}</p>
-                    </li>
-                  ))}
-                </ul>
-                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-                  {CORE_PILOT_HELP_DISCLOSURE.whatCanWaitUntilLater.body}
-                </p>
-              </div>
-            </details>
-          </section>
-
-          <section
-            aria-labelledby="ready-to-begin"
-            className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-6 dark:border-neutral-800 dark:bg-neutral-900/30"
-            data-testid="core-pilot-closing-cta"
-          >
-            <HelpSectionHeading id="ready-to-begin">Ready to begin?</HelpSectionHeading>
-            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
-              Start your first review now, or explore the sample review to see a completed outcome.
-            </p>
-            <p className={cn("m-0 mt-4 flex flex-wrap gap-x-4 gap-y-2", OPERATOR_TYPOGRAPHY.body)}>
-              <Link href="#first-review-path" className={cn(OPERATOR_LINK.inline, DESIGN_TOKENS.accent.link)}>
-                Jump to start control
-              </Link>
-              <Link
-                href={CORE_PILOT_HELP_PRIMARY_ACTIONS.sampleReview.href}
-                className={cn(OPERATOR_LINK.inline, DESIGN_TOKENS.accent.link)}
-              >
-                {CORE_PILOT_HELP_PRIMARY_ACTIONS.sampleReview.label}
-              </Link>
-            </p>
-          </section>
+          <CorePilotHelpPostStepperPanel />
 
           <CorePilotHelpOrientationFooter />
 
@@ -245,7 +133,7 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
               Related guides
             </h2>
             <ul className={cn("m-0 flex flex-wrap gap-x-4 gap-y-2 p-0 list-none", OPERATOR_TYPOGRAPHY.body)}>
-              {CORE_PILOT_HELP_DEPTH_GUIDES.map((guide) => (
+              {corePilotHelpRelatedGuides().map((guide) => (
                 <li key={guide.href}>
                   <Link
                     href={guide.href}

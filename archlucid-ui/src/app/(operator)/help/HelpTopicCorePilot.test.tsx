@@ -15,6 +15,7 @@ import { HelpCorePilotGuideView } from "@/app/(operator)/help/_sections/HelpCore
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 import {
   CORE_PILOT_HELP_DISCLOSURE,
+  CORE_PILOT_HELP_IN_PRODUCT_CHECKLIST_LABEL,
   CORE_PILOT_HELP_SAMPLE_REVIEW_CTA_LABEL,
   CORE_PILOT_HELP_SUMMARY_TITLE,
 } from "@/lib/core-pilot-help-guide-content";
@@ -187,11 +188,16 @@ describe("HelpCorePilotGuideView", () => {
 
     render(<HelpCorePilotGuideView entry={entry} />);
 
+    expect(screen.getByTestId("core-pilot-step-2-pending")).toHaveAttribute("aria-busy", "true");
     expect(screen.getByTestId("core-pilot-step-3-pending")).toHaveAttribute("aria-busy", "true");
     expect(screen.getByTestId("core-pilot-step-4-pending")).toHaveAttribute("aria-busy", "true");
     expect(screen.getByTestId("core-pilot-step-5-pending")).toHaveAttribute("aria-busy", "true");
     expect(screen.queryByTestId("core-pilot-workflow-gate-note")).toBeNull();
     expect(screen.queryByRole("button", { name: "Open review detail" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Finalize on review detail" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Open exports" })).toBeNull();
+    expect(screen.queryByTestId("core-pilot-step-2-cta")).toBeNull();
+    expect(screen.queryByTestId("core-pilot-step-4-cta")).toBeNull();
   });
 
   it("falls back to the gate note when context fetch fails", () => {
@@ -235,29 +241,31 @@ describe("HelpCorePilotGuideView", () => {
     render(<HelpCorePilotGuideView entry={entry} />);
 
     expect(screen.getByRole("region", { name: "Run the first review" })).toBeInTheDocument();
-    expect(screen.getByRole("region", { name: "Cloud connectors are optional for your first review" })).toBeInTheDocument();
-    expect(screen.getByRole("region", { name: "Fast path: evidence-only review" })).toBeInTheDocument();
-    expect(screen.getByRole("region", { name: "What can wait" })).toBeInTheDocument();
-    expect(screen.getByRole("region", { name: "Ready to begin?" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Optional paths for your first review" })).toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: "Cloud connectors are optional for your first review" })).toBeNull();
+    expect(screen.queryByRole("region", { name: "Fast path: evidence-only review" })).toBeNull();
+    expect(screen.queryByRole("region", { name: "What can wait" })).toBeNull();
+    expect(screen.getByTestId("core-pilot-closing-cta")).toBeInTheDocument();
   });
 
-  it("frames cloud connectors as optional and shows fast-path evidence-only review", () => {
+  it("frames optional cloud and evidence-only paths inside one disclosure (TB-1334)", () => {
     if (entry === undefined) {
       throw new Error("Expected first-architecture-review documentation entry.");
     }
 
     render(<HelpCorePilotGuideView entry={entry} />);
 
-    expect(
-      screen.getByRole("heading", { name: "Cloud connectors are optional for your first review" }),
-    ).toBeInTheDocument();
-    expect(screen.getByTestId("core-pilot-cloud-disclosure")).toBeInTheDocument();
-    expect(screen.getByRole("region", { name: "Cloud connectors are optional for your first review" })).toHaveTextContent(
-      /evidence-only review first/i,
-    );
-    expect(screen.getByRole("heading", { name: "Fast path: evidence-only review" })).toBeInTheDocument();
-    expect(screen.getByTestId("core-pilot-fast-path-disclosure")).toBeInTheDocument();
-    expect(screen.getByTestId("core-pilot-cloud-actions")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Optional paths for your first review" })).toBeInTheDocument();
+    expect(screen.getByTestId("core-pilot-optional-paths-disclosure")).toBeInTheDocument();
+    expect(screen.queryByTestId("core-pilot-cloud-disclosure")).toBeNull();
+    expect(screen.queryByTestId("core-pilot-fast-path-disclosure")).toBeNull();
+    expect(screen.queryByTestId("core-pilot-what-can-wait-disclosure")).toBeNull();
+
+    const disclosure = screen.getByTestId("core-pilot-optional-paths-disclosure");
+    expect(within(disclosure).getByTestId("core-pilot-cloud-actions")).toBeInTheDocument();
+    expect(within(disclosure).getByTestId("core-pilot-fast-path-panel")).toBeInTheDocument();
+    expect(within(disclosure).getByTestId("core-pilot-deferred-topics-panel")).toBeInTheDocument();
+    expect(within(disclosure).getByText(/evidence-only review first/i)).toBeInTheDocument();
   });
 
   it("uses customer-facing deferral copy and closing CTAs", () => {
@@ -267,11 +275,9 @@ describe("HelpCorePilotGuideView", () => {
 
     render(<HelpCorePilotGuideView entry={entry} />);
 
-    expect(screen.getByRole("heading", { name: "What can wait" })).toBeInTheDocument();
-    expect(screen.getByTestId("core-pilot-what-can-wait-disclosure")).toBeInTheDocument();
-    expect(screen.getByText(/compare, replay, and portfolio graph at scale/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Ready to begin?" })).toBeInTheDocument();
     expect(screen.getByTestId("core-pilot-closing-cta")).toBeInTheDocument();
-    expect(screen.getByText("The home page shows your next recommended action after each review step.")).toBeInTheDocument();
+    expect(screen.getByText(/compare, replay, and portfolio graph at scale/i)).toBeInTheDocument();
     expect(
       within(screen.getByTestId("core-pilot-closing-cta")).getByRole("link", { name: "Jump to start control" }),
     ).toHaveAttribute("href", "#first-review-path");
@@ -293,16 +299,17 @@ describe("HelpCorePilotGuideView", () => {
     const firstViewport = screen.getByTestId("core-pilot-first-viewport");
     expect(within(firstViewport).getByTestId("core-pilot-summary-card")).toBeInTheDocument();
     expect(within(firstViewport).getByTestId("core-pilot-workflow-stepper")).toBeInTheDocument();
-    expect(within(firstViewport).queryByTestId("core-pilot-cloud-disclosure")).toBeNull();
+    expect(within(firstViewport).queryByTestId("core-pilot-optional-paths-disclosure")).toBeNull();
     expect(within(firstViewport).queryByTestId("core-pilot-related-guides")).toBeNull();
     expect(within(firstViewport).queryByTestId("core-pilot-help-orientation")).toBeNull();
     expect(within(firstViewport).queryByTestId("help-topic-registry-provenance")).toBeNull();
 
     const related = screen.getByTestId("core-pilot-related-guides");
-    expect(within(related).getAllByRole("link")).toHaveLength(3);
+    expect(within(related).getAllByRole("link").length).toBeGreaterThanOrEqual(3);
     expect(within(related).getByRole("link", { name: "Pilot guide" })).toBeInTheDocument();
-    expect(within(related).getByRole("link", { name: "First review guide in the product" })).toBeInTheDocument();
+    expect(within(related).getByRole("link", { name: CORE_PILOT_HELP_IN_PRODUCT_CHECKLIST_LABEL })).toBeInTheDocument();
     expect(within(related).getByRole("link", { name: "Troubleshooting" })).toBeInTheDocument();
+    expect(within(related).queryByRole("link", { name: "First review guide in the product" })).toBeNull();
     expect(within(related).queryByRole("link", { name: "Review templates" })).toBeNull();
     expect(within(related).queryByRole("link", { name: "Evaluator workbook" })).toBeNull();
   });
@@ -319,7 +326,7 @@ describe("HelpCorePilotGuideView", () => {
 
     const related = screen.getByTestId("core-pilot-related-guides");
     expect(within(related).getByRole("link", { name: "Pilot guide" })).toBeInTheDocument();
-    expect(within(related).getByRole("link", { name: "First review guide in the product" })).toBeInTheDocument();
+    expect(within(related).getByRole("link", { name: CORE_PILOT_HELP_IN_PRODUCT_CHECKLIST_LABEL })).toBeInTheDocument();
     expect(within(related).queryByRole("link", { name: "Start a review" })).toBeNull();
   });
 

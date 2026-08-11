@@ -6,6 +6,7 @@ import {
 } from "@/lib/core-pilot-help-evidence-copy";
 import {
   CORE_PILOT_HELP_DEPTH_GUIDES,
+  CORE_PILOT_HELP_IN_PRODUCT_CHECKLIST_LABEL,
   CORE_PILOT_HELP_PRIMARY_ACTIONS,
 } from "@/lib/core-pilot-help-guide-content";
 import { corePilotHelpRelatedGuides } from "@/lib/core-pilot-help-related-guides";
@@ -38,9 +39,17 @@ describe("corePilotHelpRelatedGuides", () => {
 
     expect(new Set(hrefs).size).toBe(hrefs.length);
 
-    // Both lists carry /architecture/first-review-guide; the curated wording survives.
-    expect(guides.some((guide) => guide.label === "First review guide in the product")).toBe(true);
+    expect(guides.some((guide) => guide.label === CORE_PILOT_HELP_IN_PRODUCT_CHECKLIST_LABEL)).toBe(true);
     expect(guides.some((guide) => guide.label === "First review guide")).toBe(false);
+    expect(guides.some((guide) => guide.label === "First review guide in the product")).toBe(false);
+  });
+
+  it("TB-1335: related guide labels name distinct jobs", () => {
+    const labels = corePilotHelpRelatedGuides().map((guide) => guide.label);
+
+    expect(labels).toContain("Pilot guide");
+    expect(labels).toContain(CORE_PILOT_HELP_IN_PRODUCT_CHECKLIST_LABEL);
+    expect(labels.filter((label) => /first review guide/i.test(label))).toHaveLength(0);
   });
 
   it("never self-links back to the first-architecture-review help topic", () => {

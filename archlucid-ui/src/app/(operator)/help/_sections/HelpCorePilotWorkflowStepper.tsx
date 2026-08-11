@@ -8,6 +8,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
 import type { CorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import {
+  CORE_PILOT_HELP_WORKFLOW_CHECKING_STATUS,
   CORE_PILOT_HELP_WORKFLOW_STEPS,
   type CorePilotHelpWorkflowStep,
 } from "@/lib/core-pilot-help-guide-content";
@@ -15,6 +16,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   isCorePilotHelpStartReviewFirstCta,
+  isCorePilotHelpWorkflowContextPendingCta,
   resolveCorePilotHelpWorkflowStepCta,
   type CorePilotHelpWorkflowStepCta,
 } from "@/lib/resolve-core-pilot-help-workflow-step-cta";
@@ -49,6 +51,10 @@ function StepCta(props: {
   readonly stepNumber: number;
 }): React.ReactElement | null {
   const { cta, stepNumber } = props;
+
+  if (isCorePilotHelpWorkflowContextPendingCta(cta)) {
+    return null;
+  }
 
   if (!cta.enabled && cta.href === null && cta.helperText === null) {
     return null;
@@ -85,6 +91,9 @@ function StepContextPendingPlaceholder(props: { readonly stepNumber: number }): 
       data-testid={`core-pilot-step-${props.stepNumber}-pending`}
     >
       <span className="sr-only">Checking workspace status for step {props.stepNumber}.</span>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid={`core-pilot-step-${props.stepNumber}-pending-label`}>
+        {CORE_PILOT_HELP_WORKFLOW_CHECKING_STATUS}
+      </p>
       <div className="h-8 w-36 rounded-md bg-neutral-100 dark:bg-neutral-800/80" />
     </div>
   );
@@ -123,8 +132,9 @@ export function HelpCorePilotWorkflowStepper(): React.ReactElement {
           const isLast = index === resolvedSteps.length - 1;
           const deferToGroupGate = groupGate && isCorePilotHelpStartReviewFirstCta(cta);
           const stepStatus = resolveCorePilotHelpWorkflowStepStatus(step, statusContext);
-          const showStepCta = step.stepNumber !== 1 && !deferToGroupGate && !isPending;
-          const showPendingPlaceholder = isPending && step.stepNumber >= 3;
+          const showStepCta =
+            step.stepNumber !== 1 && !deferToGroupGate && !isPending && !isCorePilotHelpWorkflowContextPendingCta(cta);
+          const showPendingPlaceholder = isPending && step.stepNumber >= 2;
 
           return (
             <li key={step.stepNumber} className="relative flex gap-4 pb-6 last:pb-0">

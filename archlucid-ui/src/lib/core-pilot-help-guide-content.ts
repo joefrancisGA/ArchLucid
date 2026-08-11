@@ -1,6 +1,7 @@
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
 import { EXTRACT_UPLOAD_SETTINGS_PATH } from "@/lib/core-pilot-steps";
+import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
@@ -118,12 +119,16 @@ export const CORE_PILOT_HELP_DEFERRED_ITEMS: readonly CorePilotHelpDeferredItem[
   },
 ];
 
+/** TB-1334: single post-stepper optional cluster title. */
+export const CORE_PILOT_HELP_OPTIONAL_PATHS_TITLE = "Optional paths for your first review";
+
+export const CORE_PILOT_HELP_OPTIONAL_PATHS_SUMMARY =
+  "Cloud connectors are optional. You can run an evidence-only review first, then add connectors or advanced topics later.";
+
 export const CORE_PILOT_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "first-review-path", title: CORE_PILOT_HELP_SUMMARY_TITLE },
   { level: 2, id: "run-the-first-review", title: "Run the first review" },
-  { level: 2, id: "cloud-connectors-optional", title: "Cloud connectors are optional for your first review" },
-  { level: 2, id: "fast-path-evidence-only", title: "Fast path: evidence-only review" },
-  { level: 2, id: "what-can-wait", title: "What can wait" },
+  { level: 2, id: "optional-paths", title: CORE_PILOT_HELP_OPTIONAL_PATHS_TITLE },
   { level: 2, id: "ready-to-begin", title: "Ready to begin?" },
 ];
 
@@ -157,10 +162,16 @@ export const CORE_PILOT_HELP_DISCLOSURE = {
   },
 } as const;
 
+/** TB-1335: distinct related-guide label — not another “First review guide” twin. */
+export const CORE_PILOT_HELP_IN_PRODUCT_CHECKLIST_LABEL = "In-product checklist";
+
 export const CORE_PILOT_HELP_DEPTH_GUIDES: readonly { readonly label: string; readonly href: string }[] = [
   { label: "Pilot guide", href: inAppHelpHref("pilot-guide") },
-  { label: "First review guide in the product", href: "/architecture/first-review-guide" },
+  { label: CORE_PILOT_HELP_IN_PRODUCT_CHECKLIST_LABEL, href: FIRST_REVIEW_GUIDE_PATH },
 ];
 
 export const CORE_PILOT_HELP_HOME_STATUS_NOTE =
   "The home page shows your next recommended action after each review step.";
+
+/** TB-1333: neutral copy while commit context loads — never impersonate finalize/export CTAs. */
+export const CORE_PILOT_HELP_WORKFLOW_CHECKING_STATUS = "Checking workspace status…";
