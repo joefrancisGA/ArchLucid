@@ -141,8 +141,8 @@ export const OTHER_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "OID",
     path: "/internal/integration-events/dlq",
     section: "Advisory",
-    note: "Integration event dead letters (Advisory/Admin ops) - IntegrationEventsDlqPageClient with PageContextualHelpButton (topic map integration-readiness; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, cross-tenant DLQ list + retry/suppress. Internal Operations triage Ã¢â‚¬â€ not a signed-record Sources trail. Sibling IWX = webhooks; IJX = Jira; ADY = system-health.admin KPI/config ceiling below ADY Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
-    noteMustContain: ["IntegrationEventsDlqPageClient", "Sources", "cannot improve further toward 80"],
+    note: "Failed integration messages (Advisory/Admin ops) - IntegrationEventsDlqPageClient with PageContextualHelpButton (topic map integration-readiness; Category-1 registry), cross-tenant callout, EnterpriseTable + review links (TB-1274), OperatorEmptyState/loading (TB-1275), Refresh-primary + destructive bulk Dialog with typed all tenants acknowledgment + filters (TB-1276), H1 aligned to nav (TB-1273). Internal Operations triage — not a signed-record Sources trail. Sibling IWX = webhooks; IJX = Jira; ADY = system-health. Score 62/100 (2026-08-11) after TB-1273–TB-1276 — admin ops queue hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.; 2026-08-11 al-ui-rate: Cross-tenant DLQ read as debug dump with dangerous equal-weight bulk retry; shipped TB-1273–TB-1276 (batch 21–25); open: none",
+    noteMustContain: ["IntegrationEventsDlqPageClient", "TB-1273", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for operator Why ArchLucid proof page. Owner backlog shorthand: WH. */
   {

@@ -351,6 +351,45 @@ describe("HelpTopicMarkdownView procurement FAQ", () => {
     expect(visible).toMatch(/ArchLucid-hosted/i);
   });
 
+  it("exposes first-viewport diligence CTAs without CLI pack instructions (TB-1256)", () => {
+    if (loaded === null) {
+      throw new Error("Expected procurement documentation to load.");
+    }
+
+    render(
+      <HelpTopicMarkdownView
+        entry={loaded.entry}
+        markdown={loaded.markdown}
+        evidenceOrientation={<ProcurementHelpEvidenceOrientationStrip />}
+      />,
+    );
+
+    const ctaSection = screen.getByTestId("procurement-help-diligence-ctas");
+
+    expect(within(ctaSection).getByRole("link", { name: "Trust Center" })).toHaveAttribute("href", "/trust");
+    expect(within(ctaSection).getByRole("link", { name: "Security and trust help" })).toHaveAttribute(
+      "href",
+      "/help/security-trust",
+    );
+    expect(within(ctaSection).getByRole("link", { name: "DPA template" })).toHaveAttribute(
+      "href",
+      "/help/dpa-template",
+    );
+    expect(within(ctaSection).getByRole("link", { name: "Subprocessors" })).toHaveAttribute(
+      "href",
+      "/help/subprocessors",
+    );
+    expect(within(ctaSection).getByRole("link", { name: "Request materials under NDA" })).toHaveAttribute(
+      "href",
+      "/administration/security-trust",
+    );
+
+    const visible = document.body.textContent ?? "";
+
+    expect(visible).not.toMatch(/procurement-pack/i);
+    expect(visible).not.toMatch(/procurement-pack --out/i);
+  });
+
   it("renders every right-side TOC item as an anchor to an existing section id", () => {
     if (loaded === null) {
       throw new Error("Expected procurement documentation to load.");

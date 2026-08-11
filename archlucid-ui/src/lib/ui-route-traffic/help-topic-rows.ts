@@ -352,8 +352,8 @@ export const HELP_TOPIC_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "PRO",
     path: "/help/procurement",
     section: "Help topic",
-    note: "Procurement FAQ help (Help topic) - HelpTopicMarkdownView with PageContextualHelpButton (topic map procurement; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, curated procurement FAQ markdown. Sibling SEC = /security-trust; HSE = /help/security-trust; WSX = settings security-trust. Score 58/100 (2026-08-05) Ã¢â‚¬â€ help-topic ceiling below HEL hub band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
-    noteMustContain: ["HelpTopicMarkdownView", "Sources", "cannot improve further toward 80"],
+    note: "Procurement FAQ help (Help topic) - HelpTopicMarkdownView with PageContextualHelpButton (topic map procurement; Category-1 registry), Learn more / claim-discipline orientation strip, ProcurementHelpDiligenceCtaSection (Trust Center, Security & trust help, DPA, Subprocessors, NDA/sales pack paths — TB-1256), curated procurement FAQ markdown. Sibling SEC = /security-trust; HSE = /help/security-trust; WSX = settings security-trust. Score 62/100 (2026-08-11) after TB-1256 diligence CTAs — help-topic ceiling below HEL hub band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.; 2026-08-11 al-ui-rate: FAQ answers without a diligence ladder fixed with first-viewport CTAs; shipped TB-1256 (batch 21–25); open: none",
+    noteMustContain: ["ProcurementHelpDiligenceCtaSection", "TB-1256", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Architecture packages / reviews help. Owner backlog shorthand: REV. */
   {

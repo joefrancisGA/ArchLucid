@@ -1,6 +1,8 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { INTEGRATION_EVENTS_DLQ_BULK_RETRY_ACKNOWLEDGMENT } from "@/lib/integration-events-dlq-page-copy";
 
 const nav = vi.hoisted(() => ({ callerAuthorityRank: 3 }));
 
@@ -65,6 +67,77 @@ describe("IntegrationEventsDlqPageClient", () => {
     vi.unstubAllGlobals();
   });
 
+  it("aligns page H1 with nav Failed integration messages (TB-1273)", async () => {
+    render(<IntegrationEventsDlqPageClient />);
+
+    expect(await screen.findByTestId("integration-events-dlq-page-title")).toHaveTextContent(
+      OPERATOR_NAV_LINK_LABELS.failedIntegrationMessages,
+    );
+
+    vi.unstubAllGlobals();
+  });
+
+  it("links review cells to architecture reviews when runId is present (TB-1274)", async () => {
+    render(<IntegrationEventsDlqPageClient />);
+
+    const reviewCell = await screen.findByTestId(
+      `integration-events-dlq-review-cell-${sampleRow.outboxId}`,
+    );
+    const reviewLink = within(reviewCell).getByRole("link");
+
+    expect(reviewLink).toHaveAttribute("href", "/architecture/reviews/run-1");
+
+    vi.unstubAllGlobals();
+  });
+
+  it("uses OperatorEmptyState for happy empty and avoids emerald-only empty copy (TB-1275)", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(JSON.stringify([]), { status: 200 })),
+    );
+
+    render(<IntegrationEventsDlqPageClient />);
+
+    const empty = await screen.findByTestId("integration-events-dlq-empty-state");
+
+    expect(within(empty).getByText("No failed integration messages")).toBeInTheDocument();
+    expect(document.querySelector(".text-emerald-800")).toBeNull();
+    expect(document.querySelector(".text-emerald-300")).toBeNull();
+    expect(document.body.textContent ?? "").not.toMatch(/No dead-lettered integration events/i);
+
+    vi.unstubAllGlobals();
+  });
+
+  it("demotes bulk retry beside primary Refresh and requires typed Dialog confirmation (TB-1276)", async () => {
+    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(false);
+
+    render(<IntegrationEventsDlqPageClient />);
+
+    const actions = await screen.findByTestId("integration-events-dlq-header-actions");
+    const refresh = within(actions).getByTestId("integration-events-dlq-refresh-button");
+    const bulk = within(actions).getByTestId("integration-events-dlq-bulk-retry-button");
+
+    expect(refresh.className).toMatch(/primary|bg-\[var\(--al-primary-action-bg\)\]/);
+    expect(bulk.className).toMatch(/destructive|bg-red-600/);
+
+    fireEvent.click(bulk);
+
+    const dialog = await screen.findByTestId("integration-events-dlq-bulk-retry-confirm-dialog");
+    const confirm = within(dialog).getByTestId("integration-events-dlq-bulk-retry-confirm-button");
+
+    expect(confirm).toBeDisabled();
+
+    fireEvent.change(within(dialog).getByTestId("integration-events-dlq-bulk-retry-acknowledgment-input"), {
+      target: { value: INTEGRATION_EVENTS_DLQ_BULK_RETRY_ACKNOWLEDGMENT },
+    });
+
+    expect(confirm).not.toBeDisabled();
+    expect(confirmSpy).not.toHaveBeenCalled();
+
+    confirmSpy.mockRestore();
+    vi.unstubAllGlobals();
+  });
+
   it("disables Retry/Suppress/Bulk retry for callers below AdminAuthority", async () => {
     nav.callerAuthorityRank = 2;
 
@@ -73,7 +146,9 @@ describe("IntegrationEventsDlqPageClient", () => {
     expect(await screen.findByRole("button", { name: "Retry" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "Suppress" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "Bulk retry (100)" })).toBeDisabled();
-    expect(screen.getByText(/Administrator access required to retry or suppress dead-letter rows\./)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Administrator access required to retry or suppress failed integration messages\./),
+    ).toBeInTheDocument();
 
     vi.unstubAllGlobals();
   });

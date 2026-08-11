@@ -36,3 +36,53 @@ export const PROCUREMENT_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "DPA template", href: inAppHelpHref("dpa-template") },
   { label: "Settings Security & trust", href: "/administration/security-trust" },
 ] as const;
+
+export type ProcurementHelpDiligenceCta = {
+  readonly label: string;
+  readonly href: string;
+  readonly description: string;
+  readonly testId: string;
+};
+
+/** First-viewport diligence ladder for `/help/procurement` (TB-1256). */
+export const PROCUREMENT_HELP_DILIGENCE_PRIMARY_CTAS: readonly ProcurementHelpDiligenceCta[] = [
+  {
+    label: "Trust Center",
+    href: "/trust",
+    description: "Public assurance downloads and diligence contact paths.",
+    testId: "procurement-help-diligence-trust-center",
+  },
+  {
+    label: "Security and trust help",
+    href: inAppHelpHref("security-trust"),
+    description: "Assurance ladder, data handling, and procurement orientation.",
+    testId: "procurement-help-diligence-security-trust-help",
+  },
+  {
+    label: "DPA template",
+    href: inAppHelpHref("dpa-template"),
+    description: "Negotiation template for counsel — not a countersigned agreement.",
+    testId: "procurement-help-diligence-dpa-template",
+  },
+  {
+    label: "Subprocessors",
+    href: inAppHelpHref("subprocessors"),
+    description: "Current sub-processor list and objection commitments.",
+    testId: "procurement-help-diligence-subprocessors",
+  },
+] as const;
+
+export const PROCUREMENT_HELP_DILIGENCE_SECONDARY_CTAS: readonly ProcurementHelpDiligenceCta[] = [
+  {
+    label: "Request materials under NDA",
+    href: PROCUREMENT_HELP_NDA_REQUEST_HREF,
+    description: "Settings Security & trust — NDA-gated diligence pack requests.",
+    testId: "procurement-help-diligence-nda-request",
+  },
+  {
+    label: "Contact sales for procurement pack",
+    href: PROCUREMENT_HELP_SALES_CONTACT_HREF,
+    description: "Sales-led quotes, references, and enterprise packaging.",
+    testId: "procurement-help-diligence-sales-contact",
+  },
+] as const;
