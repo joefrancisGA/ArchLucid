@@ -8,32 +8,9 @@ import { GovernanceModePresentationGate } from "@/components/GovernanceModePrese
 import { SignedRecordsReviewDetailVocabularyRail } from "@/components/SignedRecordsReviewDetailVocabularyRail";
 import { detectStalledReview } from "@/lib/usability/stalled-review-detection";
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
-import { shouldShowOperatorDemoMarketingChrome } from "@/lib/buyer-demo-content-gating";
-import { isBuyerGoldenReviewPackagePageReady } from "@/lib/buyer-golden-spine-run-id";
-import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
-import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
-import { shouldShowRunDetailGovernanceCta } from "@/lib/run-detail-governance-cta-visibility";
-import {
-  SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
-} from "@/lib/showcase-static-demo";
 
-import type { BuildArchitectureCreatedHomeModelInput } from "@/lib/architecture-created-home-model";
-import { buildArchitectureCreatedHomeModel } from "@/lib/architecture-created-home-model";
-import { deriveArchitectureGapBaselineFromSubmittedText } from "@/lib/derive-architecture-gap-baseline";
-import { deriveEvidencePresenceFromInventoryKinds } from "@/lib/evidence-gap-forecast";
-import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { deriveReviewDetailTabActivityAt } from "@/lib/review-detail-tab-activity";
-import { deriveRunDetailFindingsTriageCounts } from "@/lib/run-detail-findings-triage-counts";
-import {
-  humanReviewStatusDisplay,
-  resolveQuickDecisionFindingsForRunDetail,
-} from "@/lib/quick-decision-summary-derive";
 import { RunDetailActivityTabSectionNav } from "@/components/RunDetailActivityTabSectionNav";
-import { resolvePartialRunCommitBlockPresentation } from "@/lib/run-detail-partial-run-commit-block";
-import {
-  countRunDetailEvidenceInventoryItems,
-  deriveRunDetailEvidenceInventory,
-} from "@/lib/run-detail-evidence-inventory";
 
 import {
   RunDetailWorkspaceDisclosureControls,
@@ -100,8 +77,7 @@ import {
 } from "./run-detail-page-view-deferred-chunks";
 import { resolveRunDetailSponsorBriefingSection } from "./RunDetailSponsorBriefingSection";
 import { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
-import { buildBuyerReviewPackageDispositionLine } from "@/lib/review-buyer-disposition-line";
-import { analysisStagesCompleteOnSummary } from "./pipeline-complete-on-summary";
+import { buildRunDetailPresentation } from "./run-detail-page-presentation";
 import {
   RunDetailArchitectureGraphIsland,
   RunDetailPostCommitHabitIsland,
@@ -114,52 +90,61 @@ import {
 import { RunDetailDecisionDeltaDeferred } from "./RunDetailDecisionDeltaDeferred";
 import { RunDetailDecisionDeltaSkeleton } from "./RunDetailDecisionDeltaSkeleton";
 import { RunDetailExplanationDeferred } from "./RunDetailExplanationDeferred";
-import type { RunDetailDeferredSectionContext, RunDetailPageModel } from "./run-detail-page-model";
-
-function toDeferredSectionContext(model: RunDetailPageModel): RunDetailDeferredSectionContext {
-  return {
-    routeRunId: model.routeRunId,
-    resolvedDetail: model.resolvedDetail,
-    usedStaticDemoRun: model.usedStaticDemoRun,
-    buyerPolishedArtifactTable: model.buyerPolishedArtifactTable,
-    manifestId: model.manifestId,
-    artifacts: model.artifacts,
-  };
-}
+import type { RunDetailPageModel } from "./run-detail-page-model";
 
 /** Server component: renders the main run detail chrome from a preloaded `RunDetailPageModel`. */
 export async function RunDetailPageView(props: {
   readonly model: RunDetailPageModel;
   readonly fromArchitectureCreation?: boolean;
 }): Promise<React.JSX.Element> {
-  const {
-    countFindingsBySeverity,
-    deriveArchitectureSystemName,
-    deriveBlockingApprovalCount,
-    deriveEvidenceCoverageSummary,
-    deriveExecutiveBottomLineContent,
-    deriveHighestFindingSeverityLabel,
-    derivePrimaryConcernFinding,
-    derivePrimaryConcernLabel,
-    deriveFinalizedAtUtc,
-    deriveLastEvaluatedLabel,
-    deriveOverallPostureLabel,
-    derivePackageVersionLabel,
-    deriveRecommendedWorkspaceActions,
-    deriveReviewDisplayTitle,
-    deriveReviewHeaderPresentation,
-    deriveReviewOwnerLabel,
-    deriveReviewStatusSummary,
-    deriveReviewTemplateLabel,
-    deriveRunDetailWorkspaceStatus,
-    deriveSubmittedArchitectureText,
-    formatDecisionSnapshotFindingsLine,
-    formatDecisionSnapshotGovernanceOutcome,
-  } = await import("@/lib/run-detail-workspace-derive");
-
   const m = props.model;
-  const deferredContext = toDeferredSectionContext(m);
-  const runSummaryForBadge = m.progressForPipelineUi;
+  const {
+    architectureCreatedBaseline,
+    architectureCreatedHomeModel,
+    architectureEditHref,
+    architectureSummaryTitle,
+    blockingApprovalCount,
+    buyerFinalizedPackage,
+    buyerGoldenPageReady,
+    commitBlockedReason,
+    createHomeActivityProvenanceAsOfLabel,
+    createHomeActivityStatusLine,
+    createHomeAnalysisStagesComplete,
+    createHomePreFinalizeReadyToFinalize,
+    deferredContext,
+    evidenceCoverageSummary,
+    evidenceInventoryCount,
+    evidenceInventoryItems,
+    evidenceReviewDateLabel,
+    executiveBottomLineContent,
+    finalizedAtLabel,
+    findingCoverageSummary,
+    findingsSummaryLine,
+    findingsTriageVisibleCount,
+    governanceOutcomeLine,
+    hasSubmittedArchitecture,
+    materialSeverityLine,
+    packageVersionLabel,
+    pendingDecisionCount,
+    primaryConcernFindingId,
+    primaryConcernLabel,
+    quickDecisionFindings,
+    recommendedActions,
+    reviewDisplayTitle,
+    reviewHeaderPresentation,
+    reviewOwnerLabel,
+    reviewPolicyPackCallout,
+    reviewStatusSummary,
+    severityCounts,
+    showArchitectureCreatedHome,
+    showcasePolicyPackStrip,
+    showDemoMarketingChrome,
+    showGovernanceCta,
+    showGovernanceCtaCard,
+    submittedArchitectureText,
+    templateLabel,
+    workspaceStatus,
+  } = await buildRunDetailPresentation(m, props.fromArchitectureCreation === true);
 
   const sampleReviewPackageSummaryEl =
     m.usedStaticDemoRun ? (
@@ -170,38 +155,6 @@ export async function RunDetailPageView(props: {
         findingCount={m.findingCountDisplay}
       />
     ) : null;
-
-  const showcasePolicyPackStrip =
-    m.buyerPolishedArtifactTable &&
-    m.manifestSummaryForUi !== null &&
-    isShowcaseStaticDemoRunId(m.resolvedDetail.run.runId)
-      ? {
-          href: SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
-          label: policyPackBuyerLabel(m.manifestSummaryForUi.ruleSetId, m.manifestSummaryForUi.ruleSetVersion),
-        }
-      : null;
-  const findingCoverageSummary = m.resolvedDetail.findingCoverageSummary ?? null;
-  const findingCoverageCommitBlockedReason =
-    findingCoverageSummary?.hasCommitBlockingFailures === true
-      ? m.buyerPolishedArtifactTable === true
-        ? "Some checks must finish before this review can be finalized."
-        : `Finding coverage is commit-blocking. Failed engines: ${
-            findingCoverageSummary.failedEngineLabels?.length
-              ? findingCoverageSummary.failedEngineLabels.join(", ")
-              : "one or more required finding engines"
-          }.`
-      : null;
-  const partialRunCommitBlock =
-    findingCoverageCommitBlockedReason === null
-      ? resolvePartialRunCommitBlockPresentation({
-          legacyRunStatus: m.resolvedDetail.run.legacyRunStatus ?? null,
-          agentExecutionOutcomes: m.resolvedDetail.agentExecutionOutcomes ?? null,
-          findingCoverageAlreadyBlocking: findingCoverageSummary?.hasCommitBlockingFailures === true,
-        })
-      : null;
-  const commitBlockedReason =
-    findingCoverageCommitBlockedReason ?? partialRunCommitBlock?.summary ?? null;
-  const commitBlockedTechnicalDetail = partialRunCommitBlock?.technicalDetail ?? null;
 
   const governanceAlertsEl = (
     <GovernanceModePresentationGate>
@@ -252,10 +205,6 @@ export async function RunDetailPageView(props: {
     />
   );
 
-  const buyerFinalizedPackage =
-    m.buyerPolishedArtifactTable === true && Boolean(m.manifestId);
-  const blockingFindingCount = m.manifestSummary?.unresolvedIssueCount ?? 0;
-
   const artifactsExportsSectionEl =
     m.manifestId ? (
       <RunDetailArtifactsExportsSectionDeferred
@@ -282,136 +231,10 @@ export async function RunDetailPageView(props: {
     <RunDetailSectionNavDeferred runId={m.resolvedDetail.run.runId} sections={m.runDetailNavSections} />
   );
 
-  const showDemoMarketingChrome = shouldShowOperatorDemoMarketingChrome(
-    m.buyerPolishedArtifactTable === true,
-    m.usedStaticDemoRun,
-  );
-
-  const reviewPolicyPackCallout =
-    m.manifestSummaryForUi !== null && m.manifestId
-      ? {
-          ruleSetId: m.manifestSummaryForUi.ruleSetId,
-          ruleSetVersion: m.manifestSummaryForUi.ruleSetVersion,
-        }
-      : null;
-
-  const governanceCtaEl = shouldShowRunDetailGovernanceCta({
-    manifestId: m.manifestId,
-    buyerPolishedArtifactTable: m.buyerPolishedArtifactTable,
-    operatorGovernanceDecision: m.resolvedDetail.run.operatorGovernanceDecision,
-    manifestStatus: m.manifestSummary?.status ?? null,
-  }) ? (
+  const governanceCtaEl = showGovernanceCta ? (
     <RunDetailGovernanceCtaDeferred runId={m.resolvedDetail.run.runId} demoted />
   ) : null;
 
-  const buyerGoldenPageReady = isBuyerGoldenReviewPackagePageReady({
-    buyerPolishedArtifactTable: m.buyerPolishedArtifactTable,
-    runId: m.resolvedDetail.run.runId,
-    headline: m.headline,
-    manifestId: m.manifestId,
-  });
-
-  const quickDecisionFindings = resolveQuickDecisionFindingsForRunDetail(
-    m.resolvedDetail,
-    m.explanationSummary,
-  );
-  const findingsTriageCounts = deriveRunDetailFindingsTriageCounts(quickDecisionFindings);
-  const findingsTriageVisibleCount = findingsTriageCounts.triageVisibleCount;
-  const severityCounts = countFindingsBySeverity(quickDecisionFindings);
-  const reviewDisplayTitle = deriveReviewDisplayTitle(runSummaryForBadge, m.headline);
-  const systemName = deriveArchitectureSystemName(runSummaryForBadge, reviewDisplayTitle);
-  const highestSeverity = deriveHighestFindingSeverityLabel(
-    quickDecisionFindings,
-    m.explanationSummary?.riskPosture ?? null,
-  );
-  const overallPosture = deriveOverallPostureLabel(
-    m.explanationSummary?.riskPosture,
-    m.governanceGateLabel,
-    highestSeverity,
-  );
-  const blockingApprovalCount = deriveBlockingApprovalCount({
-    unresolvedIssueCount: m.manifestSummary?.unresolvedIssueCount,
-    hasCommitBlockingFailures: findingCoverageSummary?.hasCommitBlockingFailures === true,
-    findings: quickDecisionFindings,
-  });
-  const skipDuplicateFindingsActions =
-    findingCoverageSummary?.hasCommitBlockingFailures === true ||
-    (Boolean(m.manifestId) && blockingApprovalCount > 0);
-  const workspaceStatus = deriveRunDetailWorkspaceStatus({
-    run: m.resolvedDetail.run,
-    manifestId: m.manifestId,
-    manifestStatus: m.manifestSummary?.status ?? null,
-    showProgressTracker: m.showProgressTracker,
-    operatorGovernanceDecision: m.resolvedDetail.run.operatorGovernanceDecision,
-    buyerPolishedArtifactTable: m.buyerPolishedArtifactTable,
-    blockingFindingCount: blockingApprovalCount,
-  });
-  const evidenceGapsCount = quickDecisionFindings.filter((finding) => (finding.evidenceRefCount ?? 0) === 0).length;
-  const evidenceCoverageComplete =
-    evidenceGapsCount === 0 &&
-    m.artifacts.length > 0 &&
-    m.resolvedDetail.trustEvidenceCard !== null &&
-    m.resolvedDetail.trustEvidenceCard !== undefined;
-  const recommendedActions = deriveRecommendedWorkspaceActions({
-    runId: m.resolvedDetail.run.runId,
-    findings: quickDecisionFindings,
-    manifestId: m.manifestId,
-    showProgressTracker: m.showProgressTracker,
-    hasCommitBlockingFailures: findingCoverageSummary?.hasCommitBlockingFailures === true,
-    blockingFindingCount,
-    buyerPolishedArtifactTable: m.buyerPolishedArtifactTable,
-    operatorGovernanceDecision: m.resolvedDetail.run.operatorGovernanceDecision,
-    manifestStatus: m.manifestSummary?.status ?? null,
-    runCompleted: m.resolvedDetail.run.completedUtc != null,
-    evidenceCoverageComplete,
-    skipDuplicateFindingsActions,
-  });
-  const reviewStatusSummary = deriveReviewStatusSummary({
-    reviewOutcome: overallPosture,
-    findings: quickDecisionFindings,
-    recommendedActions,
-    blockingFindingCount: blockingApprovalCount,
-  });
-  const governanceWouldBePrimaryAction =
-    Boolean(m.manifestId) &&
-    !(findingCoverageSummary?.hasCommitBlockingFailures === true) &&
-    blockingApprovalCount === 0 &&
-    shouldShowRunDetailGovernanceCta({
-      manifestId: m.manifestId,
-      buyerPolishedArtifactTable: m.buyerPolishedArtifactTable,
-      operatorGovernanceDecision: m.resolvedDetail.run.operatorGovernanceDecision,
-      manifestStatus: m.manifestSummary?.status ?? null,
-    });
-  const showGovernanceCtaCard = governanceCtaEl !== null && !governanceWouldBePrimaryAction;
-  const reviewHeaderPresentation = deriveReviewHeaderPresentation({
-    reviewTitle: reviewDisplayTitle,
-    systemName,
-    runId: m.resolvedDetail.run.runId,
-  });
-  const evidenceCoverageSummary = deriveEvidenceCoverageSummary(quickDecisionFindings);
-  const packageVersionLabel = derivePackageVersionLabel(m.manifestSummaryForUi ?? m.manifestSummary, m.manifestId);
-  const finalizedAtUtc = deriveFinalizedAtUtc(
-    m.resolvedDetail.run,
-    m.manifestSummary,
-    m.manifestId,
-  );
-  const finalizedAtLabel =
-    finalizedAtUtc !== null ? formatInstantForLocale(finalizedAtUtc) : null;
-  const submittedArchitectureText = deriveSubmittedArchitectureText(runSummaryForBadge, reviewDisplayTitle);
-  const hasSubmittedArchitecture = submittedArchitectureText !== null;
-  const evidenceInventoryItems = deriveRunDetailEvidenceInventory({
-    findings: quickDecisionFindings,
-    runCreatedUtc: m.resolvedDetail.run.createdUtc,
-    submittedArchitecturePresent: hasSubmittedArchitecture,
-  });
-  const evidenceInventoryCount = countRunDetailEvidenceInventoryItems(evidenceInventoryItems);
-  const evidencePresence = deriveEvidencePresenceFromInventoryKinds({
-    inventoryKinds: evidenceInventoryItems.map((item) => item.kind),
-    submittedArchitecturePresent: hasSubmittedArchitecture,
-  });
-  const evidenceReviewDateLabel =
-    formatInstantForLocale(m.resolvedDetail.run.completedUtc ?? m.resolvedDetail.run.createdUtc) || m.createdLabel;
-  const primaryConcernFinding = derivePrimaryConcernFinding(quickDecisionFindings);
   const evidenceTabPanelEl = (
     <RunDetailEvidenceTabPanelDeferred
       packageName={reviewDisplayTitle}
@@ -429,59 +252,15 @@ export async function RunDetailPageView(props: {
       trustEvidenceCard={m.resolvedDetail.trustEvidenceCard}
       faithfulnessWarning={m.explanationSummary?.faithfulnessWarning ?? null}
       artifactsExportsSection={artifactsExportsSectionEl}
-      blockingFindingId={primaryConcernFinding?.findingId ?? null}
-      blockingFindingTitle={derivePrimaryConcernLabel(quickDecisionFindings)}
+      blockingFindingId={primaryConcernFindingId}
+      blockingFindingTitle={primaryConcernLabel}
       approvalBlocked={blockingApprovalCount > 0}
     />
   );
-  const architectureSummaryTitle =
-    systemName !== null && systemName !== reviewDisplayTitle ? systemName : null;
-  const governanceDecisionLabel =
-    (m.resolvedDetail.run.operatorGovernanceDecision ?? "").trim().length > 0
-      ? (m.resolvedDetail.run.operatorGovernanceDecision ?? "").trim()
-      : m.governanceGateLabel ?? "No governance decision recorded";
-  const executiveBottomLineContent = deriveExecutiveBottomLineContent({
-    governanceDecisionLabel,
-    governanceDecisionRationale: m.resolvedDetail.run.operatorGovernanceDecisionRationale,
-    overallPosture,
-    blockingFindingCount: blockingApprovalCount,
-    highestSeverity,
-    themeSummaries: m.explanationSummary?.themeSummaries ?? null,
-  });
   const executiveBottomLineEl =
     blockingApprovalCount === 0 ? (
       <RunDetailExecutiveBottomLineDeferred content={executiveBottomLineContent} />
     ) : null;
-  const materialSeverityLine =
-    severityCounts.critical + severityCounts.high > 0
-      ? `${severityCounts.critical} critical · ${severityCounts.high} high`
-      : null;
-
-  const showArchitectureCreatedHome =
-    props.fromArchitectureCreation === true && (m.manifestId ?? "").trim().length === 0;
-  const createHomeAnalysisStagesComplete = analysisStagesCompleteOnSummary(m.progressForPipelineUi);
-  const createHomePreFinalizeReadyToFinalize = showArchitectureCreatedHome && createHomeAnalysisStagesComplete;
-  const createHomeActivityStatusLine = buildBuyerReviewPackageDispositionLine({
-    hasGoldenManifest: Boolean(m.manifestId),
-    findingCountDisplay: m.findingCountDisplay,
-    warningCountDisplay: m.warningCountDisplay,
-    unresolvedIssueCountDisplay: m.manifestSummary?.unresolvedIssueCount ?? null,
-    governanceGateLabel: m.governanceGateLabel,
-    aggregateRiskPosture: m.explanationSummary?.riskPosture ?? null,
-  });
-  const createHomeActivityProvenanceAsOfLabel = formatInstantForLocale(
-    m.resolvedDetail.run.completedUtc ?? m.resolvedDetail.run.createdUtc,
-  );
-  const lastEvaluatedUtc = deriveLastEvaluatedLabel(m.resolvedDetail.run, m.manifestSummary);
-  const pendingDecisionCount = quickDecisionFindings.filter((finding) => {
-    const status = humanReviewStatusDisplay(finding.humanReviewStatus);
-
-    return status?.label === "Pending review";
-  }).length;
-  const architectureEditHref =
-    !m.manifestId
-      ? `/architecture/reviews/new?path=guided-intake&rerun=${encodeURIComponent(m.resolvedDetail.run.runId)}`
-      : null;
   const explanationDeferredEl = (
     <RunDetailExplanationDeferred
       runId={m.routeRunId}
@@ -762,30 +541,6 @@ export async function RunDetailPageView(props: {
       />
     </Suspense>
   ) : null;
-  const derivedGapBaseline = deriveArchitectureGapBaselineFromSubmittedText(submittedArchitectureText);
-  const architectureCorrectionHref =
-    !m.manifestId
-      ? `/architecture/reviews/new?path=guided-intake&rerun=${encodeURIComponent(m.resolvedDetail.run.runId)}`
-      : null;
-  const architectureCreatedBaseline: BuildArchitectureCreatedHomeModelInput = {
-    runId: m.resolvedDetail.run.runId,
-    architectureName: systemName ?? reviewDisplayTitle,
-    architectureOverview: submittedArchitectureText ?? "",
-    businessOutcome: derivedGapBaseline.businessOutcome,
-    peopleAndSystems: derivedGapBaseline.peopleAndSystems,
-    ownerLabel: deriveReviewOwnerLabel(m.resolvedDetail.run),
-    lastUpdatedLabel:
-      lastEvaluatedUtc !== null ? formatInstantForLocale(lastEvaluatedUtc) : "just now",
-    workspaceStatus,
-    assessmentInProgress: m.showProgressTracker,
-    hasArtifacts: m.artifacts.length > 0,
-    correctionHref: architectureCorrectionHref,
-    gapAssertion: derivedGapBaseline.gapAssertion,
-    gapSourceCapturedAtUtc: null,
-  };
-  const architectureCreatedHomeModel = showArchitectureCreatedHome
-    ? buildArchitectureCreatedHomeModel(architectureCreatedBaseline)
-    : null;
 
   const runDetailBody = (
     <div
@@ -841,7 +596,7 @@ export async function RunDetailPageView(props: {
                     nextAction={reviewStatusSummary.nextAction}
                     showProgressTracker={m.showProgressTracker}
                     openClarificationGapCount={architectureCreatedHomeModel?.clarificationGaps.length ?? 0}
-                    correctionHref={architectureCorrectionHref}
+                    correctionHref={architectureEditHref}
                     useCreateHomeWorkspaceTabs
                     hasGoldenManifest={Boolean(m.manifestId)}
                     commitBlockedReason={commitBlockedReason}
@@ -854,11 +609,7 @@ export async function RunDetailPageView(props: {
                     canEditDiagram={!m.manifestId}
                     findings={quickDecisionFindings}
                     findingsTriageVisibleCount={findingsTriageVisibleCount}
-                    correctionHref={
-                      !m.manifestId
-                        ? `/architecture/reviews/new?path=guided-intake&rerun=${encodeURIComponent(m.resolvedDetail.run.runId)}`
-                        : null
-                    }
+                    correctionHref={architectureEditHref}
                     panels={{
                       findings: (
                         <RunDetailExplanationDeferred
@@ -985,11 +736,7 @@ export async function RunDetailPageView(props: {
                         <RunDetailSubmittedArchitectureSectionDeferred
                           architectureText={submittedArchitectureText}
                           canEditSource={!m.manifestId}
-                          editHref={
-                            !m.manifestId
-                              ? `/architecture/reviews/new?path=guided-intake&rerun=${encodeURIComponent(m.resolvedDetail.run.runId)}`
-                              : null
-                          }
+                          editHref={architectureEditHref}
                           useStructuredPresentation={false}
                           runId={m.resolvedDetail.run.runId}
                           sectionTitle="Submitted brief"
@@ -1007,8 +754,8 @@ export async function RunDetailPageView(props: {
                     eyebrowLabel={reviewHeaderPresentation.eyebrowLabel}
                     reviewIdentifierLabel={reviewHeaderPresentation.reviewIdentifierLabel}
                     workspaceStatus={workspaceStatus}
-                    reviewOwner={deriveReviewOwnerLabel(m.resolvedDetail.run)}
-                    templateLabel={deriveReviewTemplateLabel(m.manifestSummaryForUi)}
+                    reviewOwner={reviewOwnerLabel}
+                    templateLabel={templateLabel}
                     finalizedAtLabel={finalizedAtLabel}
                     packageVersionLabel={packageVersionLabel}
                   />
@@ -1016,7 +763,7 @@ export async function RunDetailPageView(props: {
                   <RunDetailColdOpenOrientationDeferred
                     runId={m.resolvedDetail.run.runId}
                     packageTitle={reviewDisplayTitle}
-                    packageOwnerLabel={deriveReviewOwnerLabel(m.resolvedDetail.run)}
+                    packageOwnerLabel={reviewOwnerLabel}
                     workspaceStatus={workspaceStatus}
                   />
 
@@ -1032,7 +779,7 @@ export async function RunDetailPageView(props: {
                     nextAction={reviewStatusSummary.nextAction}
                     showProgressTracker={m.showProgressTracker}
                     openClarificationGapCount={0}
-                    correctionHref={architectureCorrectionHref}
+                    correctionHref={architectureEditHref}
                     useCreateHomeWorkspaceTabs={false}
                     hasGoldenManifest={Boolean(m.manifestId)}
                     commitBlockedReason={commitBlockedReason}
@@ -1046,20 +793,9 @@ export async function RunDetailPageView(props: {
 
                   <RunDetailWorkspaceSummaryStripDeferred
                     outcomeHeading={m.manifestId ? "Governance decision" : "Review posture"}
-                    reviewOutcome={
-                      m.manifestId
-                        ? formatDecisionSnapshotGovernanceOutcome({
-                            governanceDecisionLabel,
-                            blockingFindingCount: blockingApprovalCount,
-                          })
-                        : reviewStatusSummary.reviewOutcome
-                    }
+                    reviewOutcome={m.manifestId ? governanceOutcomeLine : reviewStatusSummary.reviewOutcome}
                     highestUnresolvedSeverity={reviewStatusSummary.highestUnresolvedSeverity}
-                    findingsSummaryLine={formatDecisionSnapshotFindingsLine(
-                      reviewStatusSummary.openFindingsCount,
-                      blockingApprovalCount,
-                      reviewStatusSummary.findingsRequiringActionCount,
-                    )}
+                    findingsSummaryLine={findingsSummaryLine}
                     evidenceCoverageLine={evidenceCoverageSummary.summaryLine}
                     primaryConcern={reviewStatusSummary.primaryConcern}
                     materialSeverityLine={materialSeverityLine}
