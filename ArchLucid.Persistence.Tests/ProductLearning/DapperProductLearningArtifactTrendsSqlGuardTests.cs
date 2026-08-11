@@ -14,7 +14,7 @@ public sealed class DapperProductLearningArtifactTrendsSqlGuardTests
     [Fact]
     public void ListArtifactOutcomeTrendsSql_DoesNotSelectNonGroupedArtifactHintFallback()
     {
-        string source = ReadRepositorySource();
+        string source = ReadPilotSignalSqlSource();
 
         // Bad form: SELECT COALESCE(..., SubjectType) while GROUP BY uses COALESCE(..., N'*') —
         // SQL Server rejects ArtifactHint as not aggregated / not grouped (error 8120).
@@ -28,20 +28,24 @@ public sealed class DapperProductLearningArtifactTrendsSqlGuardTests
             because: "empty artifact hint must fall back via a GROUP BY-safe CASE");
     }
 
-    private static string ReadRepositorySource([CallerFilePath] string? callerFilePath = null)
+    /// <summary>
+    ///     Reads the SQL companion rather than the repository, because the statements were extracted out of the
+    ///     repository's method bodies (see <c>RepositorySqlExtractionRatchetTests</c>).
+    /// </summary>
+    private static string ReadPilotSignalSqlSource([CallerFilePath] string? callerFilePath = null)
     {
         string testsDir = Path.GetDirectoryName(callerFilePath)
                           ?? throw new InvalidOperationException("Caller path unavailable.");
         string repoRoot = Path.GetFullPath(Path.Combine(testsDir, "..", ".."));
-        string repositoryPath = Path.Combine(
+        string sqlPath = Path.Combine(
             repoRoot,
             "ArchLucid.Persistence",
             "Coordination",
             "ProductLearning",
-            "DapperProductLearningPilotSignalRepository.cs");
+            "ProductLearningPilotSignalSql.cs");
 
-        File.Exists(repositoryPath).Should().BeTrue("repository source must be adjacent to the test project");
+        File.Exists(sqlPath).Should().BeTrue("SQL companion source must be adjacent to the test project");
 
-        return File.ReadAllText(repositoryPath);
+        return File.ReadAllText(sqlPath);
     }
 }

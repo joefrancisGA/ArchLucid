@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 namespace ArchLucid.Persistence.Tests.Sql;
 
 /// <summary>
@@ -15,11 +17,16 @@ public sealed class SqlCteBatchPrefixTests
             "ArchLucid.Persistence",
             "Coordination",
             "ProductLearning",
-            "DapperProductLearningPilotSignalRepository.cs");
+            "ProductLearningPilotSignalSql.cs");
         string source = File.ReadAllText(path);
 
         source.Should().Contain(";WITH Scoped AS (");
-        source.Should().NotContain("\n                           WITH Scoped AS (");
+
+        // Matching on the missing semicolon rather than a fixed indentation keeps the guard working when the
+        // statements are reformatted or moved between files.
+        Regex.IsMatch(source, @"(?<!;)WITH Scoped AS \(")
+            .Should()
+            .BeFalse("a CTE that may follow another statement in the same batch needs the ';WITH' prefix");
     }
 
     [SkippableFact]
