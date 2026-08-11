@@ -56,7 +56,7 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/help/cloud-connections-aws": "/help/cloud-connections/aws",
     "/help/cloud-connections-gcp": "/help/cloud-connections/gcp",
     # TB-2050 / Batch C retired help aliases (removed from HELP_TOPIC_SLUG_ALIASES) — fold Hit% into canons.
-    "/help/api-contracts": "/help/governance-api-contracts",
+    "/help/governance-api-contracts": "/help/api-contracts",
     "/help/creating-runs": "/help/review-guide",
     "/help/data-handling-tenant-isolation": "/help/data-handling",
     "/help/evidence-only-review": "/help/first-architecture-review",

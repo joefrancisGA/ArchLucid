@@ -47,7 +47,7 @@ def test_migrate_workbook_path_maps_legacy_core_pilot_help_slug() -> None:
 
 
 def test_migrate_workbook_path_maps_tb2050_retired_help_aliases() -> None:
-    assert migrate_workbook_path("/help/api-contracts") == "/help/governance-api-contracts"
+    assert migrate_workbook_path("/help/governance-api-contracts") == "/help/api-contracts"
     assert migrate_workbook_path("/help/evaluator-workbook") == "/help/path-chooser"
     assert migrate_workbook_path("/help/first-hour-operator-path") == "/help/first-architecture-review"
     assert migrate_workbook_path("/help/operator-auth-roles") == "/help/users-and-roles"
@@ -55,7 +55,7 @@ def test_migrate_workbook_path_maps_tb2050_retired_help_aliases() -> None:
 
 def test_build_catalog_keeps_tb2050_retired_aliases_out() -> None:
     catalog = build_catalog()
-    assert "/help/api-contracts" not in catalog
+    assert "/help/governance-api-contracts" not in catalog
     assert "/help/evaluator-workbook" not in catalog
     assert "/help/first-hour-operator-path" not in catalog
     assert "/help/first-pilot-path" not in catalog
@@ -63,7 +63,7 @@ def test_build_catalog_keeps_tb2050_retired_aliases_out() -> None:
     assert "/help/operator-auth-roles" not in catalog
     assert "/help/core-pilot" not in catalog
     assert "/help/first-architecture-review" in catalog
-    assert "/help/governance-api-contracts" in catalog
+    assert "/help/api-contracts" in catalog
     assert "/help/path-chooser" in catalog
     assert "/help/users-and-roles" in catalog
 
@@ -90,7 +90,7 @@ def test_migrate_workbook_path_maps_retired_cloud_connection_help_slugs() -> Non
 
 
 def test_migrate_workbook_path_maps_retired_api_contracts_help_alias() -> None:
-    assert migrate_workbook_path("/help/api-contracts") == "/help/governance-api-contracts"
+    assert migrate_workbook_path("/help/governance-api-contracts") == "/help/api-contracts"
 
 
 def test_migrate_workbook_path_maps_retired_creating_runs_help_alias() -> None:
