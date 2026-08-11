@@ -63,6 +63,10 @@ export type ArchitectureDiagramPanelProps = {
   readonly variant?: "full" | "preview";
   readonly onOpenFull?: () => void;
   readonly onUnconfirmedInferredCountChange?: (count: number) => void;
+  /** TB-2201 — select provenance node when findings dual-pane highlights a component. */
+  readonly highlightedNodeId?: string | null;
+  /** TB-2201 — publish active node ids/labels for finding ↔ diagram selection sync. */
+  readonly onDiagramNodesChange?: (nodes: readonly { id: string; label: string }[]) => void;
 };
 
 type PanelPhase = "idle" | "loading" | "ready" | "insufficient" | "invalid" | "error";
@@ -85,6 +89,41 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
   const [, setCacheVersion] = useState(0);
   const autoStartedRef = useRef(false);
   const dark = useDocumentDarkMode();
+  const onDiagramNodesChange = props.onDiagramNodesChange;
+  const highlightedNodeId = props.highlightedNodeId;
+
+  useEffect(() => {
+    if (diagramModel === null) {
+      onDiagramNodesChange?.([]);
+      return;
+    }
+
+    const nodes = diagramModel.nodes
+      .filter((node) => !node.removed)
+      .map((node) => ({ id: node.id, label: node.label }));
+    onDiagramNodesChange?.(nodes);
+  }, [diagramModel, onDiagramNodesChange]);
+
+  useEffect(() => {
+    if (highlightedNodeId === null || highlightedNodeId === undefined) {
+      return;
+    }
+
+    const id = highlightedNodeId.trim();
+
+    if (id.length === 0 || diagramModel === null) {
+      return;
+    }
+
+    const exists = diagramModel.nodes.some((node) => node.id === id && !node.removed);
+
+    if (!exists) {
+      return;
+    }
+
+    setSelectedElementKind("node");
+    setSelectedElementId(id);
+  }, [diagramModel, highlightedNodeId]);
 
   const cache = readArchitectureDiagramCache(props.runId);
   const versions = cache?.versions ?? [];

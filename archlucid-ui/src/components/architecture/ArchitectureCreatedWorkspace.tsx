@@ -8,6 +8,13 @@ import { ArchitectureCreatedCompactFirstViewport } from "@/components/architectu
 import { ArchitectureCreatedOverviewPanel } from "@/components/architecture/ArchitectureCreatedOverviewPanel";
 import { ArchitectureCreatedWorkspaceHeader } from "@/components/architecture/ArchitectureCreatedWorkspaceHeader";
 import { ArchitectureDiagramPanel } from "@/components/architecture/ArchitectureDiagramPanel";
+import { ArchitectureFindingsDualPane } from "@/components/architecture/ArchitectureFindingsDualPane";
+import {
+  ARCHITECTURE_FINDINGS_DUAL_PANE_TOGGLE_OFF_LABEL,
+  ARCHITECTURE_FINDINGS_DUAL_PANE_TOGGLE_ON_LABEL,
+  resolveArchitectureFindingsDualPaneLayoutMode,
+} from "@/lib/architecture-findings-dual-pane";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   countClarificationGaps,
@@ -76,6 +83,10 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
     () => new Set(),
   );
   const [diagramInferredCount, setDiagramInferredCount] = useState(0);
+  const [showFindingsLinkedView, setShowFindingsLinkedView] = useState(false);
+  const [diagramNodes, setDiagramNodes] = useState<readonly { id: string; label: string }[]>([]);
+  const [highlightedNodeId, setHighlightedNodeId] = useState<string | null>(null);
+  const linkedLayoutMode = resolveArchitectureFindingsDualPaneLayoutMode(showFindingsLinkedView);
 
   const merged = useMemo(() => {
     const snapshot = readArchitectureCreationHandoff(props.baseline.runId);
@@ -232,17 +243,60 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
 
         <TabsContent value="diagram" data-testid="architecture-workspace-panel-diagram">
           <div className="space-y-4">
-<ArchitectureDiagramPanel
-              runId={props.baseline.runId}
-              architectureName={merged.architectureName}
-              sourceText={props.architectureSourceText}
-              userAssertions={userAssertions}
-              canEdit={props.canEditDiagram}
-              clarifyHref={clarificationsTabHref}
-              onClarificationsNavigate={() => navigateTab("clarifications")}
-              onUnconfirmedInferredCountChange={setDiagramInferredCount}
-              variant="full"
-            />
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                aria-pressed={showFindingsLinkedView}
+                data-testid="architecture-findings-dual-pane-toggle"
+                data-layout-mode={linkedLayoutMode}
+                onClick={() => {
+                  setShowFindingsLinkedView((current) => !current);
+                }}
+              >
+                {showFindingsLinkedView
+                  ? ARCHITECTURE_FINDINGS_DUAL_PANE_TOGGLE_OFF_LABEL
+                  : ARCHITECTURE_FINDINGS_DUAL_PANE_TOGGLE_ON_LABEL}
+              </Button>
+            </div>
+            {showFindingsLinkedView ? (
+              <ArchitectureFindingsDualPane
+                runId={props.baseline.runId}
+                findings={props.findings}
+                diagramNodes={diagramNodes}
+                onHighlightedNodeIdChange={setHighlightedNodeId}
+                diagram={
+                  <ArchitectureDiagramPanel
+                    runId={props.baseline.runId}
+                    architectureName={merged.architectureName}
+                    sourceText={props.architectureSourceText}
+                    userAssertions={userAssertions}
+                    canEdit={props.canEditDiagram}
+                    clarifyHref={clarificationsTabHref}
+                    onClarificationsNavigate={() => navigateTab("clarifications")}
+                    onUnconfirmedInferredCountChange={setDiagramInferredCount}
+                    onDiagramNodesChange={setDiagramNodes}
+                    highlightedNodeId={highlightedNodeId}
+                    variant="full"
+                  />
+                }
+              />
+            ) : (
+              <ArchitectureDiagramPanel
+                runId={props.baseline.runId}
+                architectureName={merged.architectureName}
+                sourceText={props.architectureSourceText}
+                userAssertions={userAssertions}
+                canEdit={props.canEditDiagram}
+                clarifyHref={clarificationsTabHref}
+                onClarificationsNavigate={() => navigateTab("clarifications")}
+                onUnconfirmedInferredCountChange={setDiagramInferredCount}
+                onDiagramNodesChange={setDiagramNodes}
+                highlightedNodeId={null}
+                variant="full"
+              />
+            )}
           </div>
         </TabsContent>
 
