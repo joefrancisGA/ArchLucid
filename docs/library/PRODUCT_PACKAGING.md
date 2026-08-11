@@ -263,7 +263,7 @@ Available immediately after a first finalized architecture package. Enabled by c
 | Natural-language Ask | `POST /v1/ask/threads` | Ask (`/ask`) |
 | Advisory scans | `POST /v1/advisory/scans` | Advisory (`/advisory`) |
 | Architecture digests | `GET /v1/advisory/digests` | Digests (`/digests`) |
-| Digest subscriptions (email delivery) | `POST /v1/advisory/digest-subscriptions` | Subscriptions (`/digest-subscriptions`) |
+| Digest subscriptions (email delivery) | `POST /v1/advisory/digest-subscriptions` | Digests Subscriptions tab (`/architecture/digests?tab=subscriptions`; legacy `/digest-subscriptions` bookmark canonicalizes here) |
 | Advisory scheduling | `PUT /v1/advisory/schedules` | Schedules (`/advisory-scheduling`) |
 | Retrieval indexing and search | `POST /v1/retrieval/index` | Search (`/search`) |
 | Pilot feedback rollups | `GET /v1/product-learning/rollups` | Pilot feedback (`/product-learning`) |

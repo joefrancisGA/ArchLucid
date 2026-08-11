@@ -59,9 +59,20 @@ def test_migrate_workbook_path_maps_legacy_core_pilot_help_slug() -> None:
 
 def test_migrate_workbook_path_maps_tb2050_retired_help_aliases() -> None:
     assert migrate_workbook_path("/help/governance-api-contracts") == "/help/api-contracts"
-    assert migrate_workbook_path("/help/evaluator-workbook") == "/help/path-chooser"
+    assert migrate_workbook_path("/help/evaluator-workbook") == "/help/choose-your-next-step"
+    assert migrate_workbook_path("/help/path-chooser") == "/help/choose-your-next-step"
     assert migrate_workbook_path("/help/first-hour-operator-path") == "/help/first-architecture-review"
     assert migrate_workbook_path("/help/operator-auth-roles") == "/help/users-and-roles"
+    assert (
+        migrate_workbook_path("/help/first-review")
+        == "/help/first-architecture-review#printable-first-run-evidence-checklist"
+    )
+    assert (
+        migrate_workbook_path("/help/first-value-20-minutes")
+        == "/help/first-architecture-review#first-value-in-20-minutes"
+    )
+    assert migrate_workbook_path("/help/policy-pack-delta-demo") == "/help/policy-packs#policy-pack-delta-demo"
+    assert migrate_workbook_path("/help/pilot-roi-model") == "/help/executive-summary#pilot-roi-measurement"
 
 
 def test_build_catalog_keeps_tb2050_retired_aliases_out() -> None:
@@ -75,7 +86,7 @@ def test_build_catalog_keeps_tb2050_retired_aliases_out() -> None:
     assert "/help/core-pilot" not in catalog
     assert "/help/first-architecture-review" in catalog
     assert "/help/api-contracts" in catalog
-    assert "/help/path-chooser" in catalog
+    assert "/help/choose-your-next-step" in catalog
     assert "/help/users-and-roles" in catalog
 
 

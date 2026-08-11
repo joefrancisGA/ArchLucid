@@ -8,16 +8,18 @@ import {
   FIRST_REVIEW_90MIN_REQUIRED_ROUTES,
   FIRST_RUN_EVIDENCE_CHECKLIST_DOC_PATH,
 } from "@/lib/first-review-90min-playbook-alignment";
-import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { getFoldedInternalRunbookEntry } from "@/lib/folded-internal-runbook-help";
 
 describe("first-review 90-minute playbook alignment", () => {
-  it("registers /help/first-review as Admin-only against the first-run evidence checklist doc", () => {
-    const entry = getProductDocumentationEntry("first-review");
+  it("registers first-review folded runbook against the first-run evidence checklist doc", () => {
+    const entry = getFoldedInternalRunbookEntry("first-review");
 
     expect(entry).not.toBeNull();
     expect(entry?.sourcePaths[0]).toBe(FIRST_RUN_EVIDENCE_CHECKLIST_DOC_PATH);
     expect(entry?.contentKind).toBe("internal-runbook");
-    expect(FIRST_REVIEW_90MIN_HELP_HREF).toBe("/help/first-review");
+    expect(FIRST_REVIEW_90MIN_HELP_HREF).toBe(
+      "/help/first-architecture-review#printable-first-run-evidence-checklist",
+    );
     expect(BUYER_FIRST_REVIEW_HELP_HREF).toBe("/help/first-architecture-review");
   });
 

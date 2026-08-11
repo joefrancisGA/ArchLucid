@@ -1,4 +1,5 @@
 import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
+import { FIRST_REVIEW_HELP_PATH } from "@/lib/first-review-help-route";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 
 /**
@@ -8,7 +9,7 @@ import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 export const FIRST_RUN_EVIDENCE_CHECKLIST_DOC_PATH = "docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md";
 
 /** Admin-only SE/ops printable checklist (`contentKind: internal-runbook`). */
-export const FIRST_REVIEW_90MIN_HELP_HREF = "/help/first-review";
+export const FIRST_REVIEW_90MIN_HELP_HREF = FIRST_REVIEW_HELP_PATH;
 
 /** Buyer-facing guided first-review help — preferred over the SE checklist on operator home. */
 export const BUYER_FIRST_REVIEW_HELP_HREF = FIRST_ARCHITECTURE_REVIEW_HELP_PATH;

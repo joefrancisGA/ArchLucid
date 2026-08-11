@@ -24,7 +24,9 @@ describe("getDocHref", () => {
   });
 
   it("maps internal runbooks registered in product documentation", () => {
-    expect(getDocHref("docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md")).toBe("/help/first-value-20-minutes");
+    expect(getDocHref("docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md")).toBe(
+      "/help/first-architecture-review#first-value-in-20-minutes",
+    );
   });
 
   it("returns null when docPath is empty or whitespace", () => {
