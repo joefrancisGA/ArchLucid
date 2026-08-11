@@ -1,3 +1,4 @@
+import type { EvidenceSourceLinkWithWhen } from "@/lib/evidence-surface-copy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const CAIQ_SIG_RESPONSE_HELP_CANONICAL_PATH = "/help/caiq-sig-response" as const;
@@ -23,20 +24,16 @@ export const CAIQ_SIG_RESPONSE_HELP_CLAIM_NOT_THIS = [
 export const CAIQ_SIG_RESPONSE_HELP_SOURCES_INTRO =
   "Use these follow-ups when CAIQ/SIG vocabulary turns into SOC 2 mapping, Trust Center pack, DPA, subprocessors, or procurement FAQ.";
 
-export type CaiqSigResponseHelpSourceLink = {
-  readonly label: string;
-  readonly href: string;
-  readonly when: string;
-};
-
 export const CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTION = {
   label: "Request diligence pack",
   href: inAppHelpHref("procurement"),
   testId: "help-caiq-sig-response-primary-action",
 } as const;
 
+export type CaiqSigResponseHelpSourceLink = EvidenceSourceLinkWithWhen;
+
 /** Operator Sources — no self-href to `/help/caiq-sig-response`. */
-export const CAIQ_SIG_RESPONSE_HELP_SOURCES: readonly CaiqSigResponseHelpSourceLink[] = [
+export const CAIQ_SIG_RESPONSE_HELP_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
   {
     label: "SOC 2 self-assessment",
     href: inAppHelpHref("soc2-self-assessment"),

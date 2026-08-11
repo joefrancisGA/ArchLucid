@@ -1,3 +1,4 @@
+import type { EvidenceAdminSourceLink } from "@/lib/evidence-surface-copy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const ADMIN_DIAGNOSTICS_HELP_CANONICAL_PATH = "/help/admin-diagnostics" as const;
@@ -25,25 +26,21 @@ export const ADMIN_DIAGNOSTICS_HELP_PAGE_ORIENTATION_TITLE = "What this page is"
 export const ADMIN_DIAGNOSTICS_HELP_PAGE_ORIENTATION =
   "This guide explains where to check platform health and workspace readiness in ArchLucid. It is orientation help — not a live health report or an audit export from your tenant. When you need current probe results or support triage, open System health, Troubleshooting, or Engineering troubleshooting runbook.";
 
-export type AdminDiagnosticsHelpSourceLink = {
-  readonly label: string;
-  readonly href: string;
-  readonly adminOnly?: boolean;
-};
-
 export const ADMIN_DIAGNOSTICS_HELP_PRIMARY_ACTION = {
   label: "System health",
   href: "/administration/system-health",
   adminOnly: true,
 } as const;
 
+export type AdminDiagnosticsHelpSourceLink = EvidenceAdminSourceLink;
+
 /** Non-`/help/*` workspace routes — System health is promoted to the header primary CTA. */
-export const ADMIN_DIAGNOSTICS_HELP_LIVE_SURFACES: readonly AdminDiagnosticsHelpSourceLink[] = [
+export const ADMIN_DIAGNOSTICS_HELP_LIVE_SURFACES: readonly EvidenceAdminSourceLink[] = [
   { label: "Workspace overview", href: "/" },
 ] as const;
 
 /** In-app help topics — rendered once in the related-topics block (not duplicated in markdown). */
-export const ADMIN_DIAGNOSTICS_HELP_RELATED_TOPICS: readonly AdminDiagnosticsHelpSourceLink[] = [
+export const ADMIN_DIAGNOSTICS_HELP_RELATED_TOPICS: readonly EvidenceAdminSourceLink[] = [
   { label: "Troubleshooting", href: inAppHelpHref("troubleshooting") },
   { label: "Report a problem", href: inAppHelpHref("report-a-problem") },
   {
