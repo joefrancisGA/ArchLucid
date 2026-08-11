@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Fragment, useCallback, useEffect, useState } from "react";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { ReplayCostPreExecuteCostVocabularyRail } from "@/components/ReplayCostPreExecuteCostVocabularyRail";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -96,6 +97,7 @@ export function ArchitectureComparisonReplayCostSection() {
 
   return (
     <section className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 max-w-3xl p-4">
+      <ReplayCostPreExecuteCostVocabularyRail currentSurfaceId="replay-cost" />
       <h3 className={cn("mt-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Comparison replay cost estimate (warn-only)</h3>
       <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
         Estimate relative cost before you replay a saved comparison record. This is separate from validating a single review on the
