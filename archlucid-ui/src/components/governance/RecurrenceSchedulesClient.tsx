@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { DigestRecurrenceScheduleVocabularyRail } from "@/components/DigestRecurrenceScheduleVocabularyRail";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -320,7 +321,10 @@ export default function RecurrenceSchedulesClient() {
               </div>
             }
           />
-<CollapsibleSection
+
+          <DigestRecurrenceScheduleVocabularyRail currentSurfaceId="recurrence-schedules" />
+
+          <CollapsibleSection
             title={RECURRENCE_SCHEDULES_HOW_IT_WORKS_TITLE}
             sectionTestId="recurrence-schedules-how-it-works"
           >
