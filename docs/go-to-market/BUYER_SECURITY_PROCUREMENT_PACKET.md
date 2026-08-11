@@ -3430,7 +3430,7 @@ Do not sell WASM/script sandbox, unconstrained programmable policy language, “
 
 ### Residuals (honest)
 
-- **TB-1624** / **TB-1625** own the claim map and language guards.
+- **TB-1624** **Done** (claim map); **TB-1625** **Done** (`check_policy_pack_customer_rule_sandbox_honesty.py` language guards).
 - Complements **M-235**/**M-236** (eval hybrid) and **M-172**/**M-173** (gate vs advisory).
 - Shared-process CPU residual under pathological packs remains.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.

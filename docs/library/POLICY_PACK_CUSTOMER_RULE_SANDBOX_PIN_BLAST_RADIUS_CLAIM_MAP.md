@@ -4,7 +4,7 @@
 
 **Audience:** Engineering, security reviewers, principal-architect diligence. Not a buyer brochure.
 
-**Status:** Working contract for **TB-1624** / GTM **M-298**. Pair honesty CI **TB-1625** / **M-298**.
+**Status:** Shipped contract for **TB-1624** / GTM **M-298**. Honesty CI **TB-1625** / **M-298** (`check_policy_pack_customer_rule_sandbox_honesty.py`).
 
 **Verdict (one line):** Customer-authored rules are **declarative data** interpreted by a **bounded in-process criteria/action engine** — **not** a WASM/script sandbox — pinned at commit via **`PolicyPackVersion` + `RuleSetHash` + `EffectiveGovernanceAtCommit`**; a broken or “malicious” pack degrades **that tenant’s** reviews (noise, wrong gates), **not** other tenants’ data plane or platform code execution.
 
@@ -77,10 +77,16 @@
 | ID | Role |
 |----|------|
 | Open **TB-1324**–**TB-1325**, **M-235**/**M-236** | Evaluation hybrid (data plane vs compiled) + anti-Turing-DSL |
-| Open **TB-1022**–**TB-1023**, **M-172**/**M-173** | Pre-finalize gate vs advisory / pack≠cert |
+| Done **TB-1022**, open **TB-1023**, **M-172**/**M-173** | Pre-finalize gate vs advisory / pack≠cert |
 | Open **G-CONTENT-01** | Bundled pack content enrichment |
 | Done multi-cloud pack content **TB-701**–**TB-719** | Do not reopen |
-| **TB-1624** / **M-298** | This sandbox / pin / blast-radius claim map |
+| Done **TB-1624** / **M-298**; Done **TB-1625** honesty CI | This sandbox / pin / blast-radius claim map + language guards |
+
+## 7. CI anchors (**TB-1625**)
+
+Honesty guard: `scripts/ci/check_policy_pack_customer_rule_sandbox_honesty.py` (wired in `run_buyer_surface_strict_guards.py`).
+
+Fails buyer-doc stubs that claim WASM/Firecracker/per-rule process sandbox, pack JSON as RCE/scripting, “broken packs cannot affect reviews,” platform-wide/cross-tenant pack outage, or execute-time durable pack-version pin. Source of truth: this map + `CommittedEffectiveGovernanceSnapshotCapturer` / `DecisionRuleCriteriaEvaluator` / **TB-1324**.
 
 ---
 

@@ -104,6 +104,11 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "policy-pack customer-rule sandbox honesty",
+        ("python", "scripts/ci/check_policy_pack_customer_rule_sandbox_honesty.py"),
+        None,
+    ),
+    GuardCommand(
         "buyer first-30-minutes sync",
         ("python", "scripts/ci/assert_buyer_first_30_minutes_in_sync.py"),
         None,
