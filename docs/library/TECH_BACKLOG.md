@@ -9,13 +9,13 @@ Regenerate after opening or closing summary-table rows:
 
 | Architectural quality | Open |
 | --- | ---: |
-| Correctness | 3 |
+| Correctness | 2 |
 | Testability | 115 |
 | Reliability | 15 |
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
 | Architectural integrity | 11 |
-| Adoption friction | 308 |
+| Adoption friction | 306 |
 | Commercial / marketability | 9 |
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
@@ -35,9 +35,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **581** |
+| **Total (unique open)** | **578** |
 
-**By priority band:** P0 **3** | P1 **458** | P2 **103** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **3** | P1 **455** | P2 **103** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -862,7 +862,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1972 | **Done** (2026-08-01) ? ROI summary zero CTA uses buyer Start architecture review label; Vitest; see `## TB-1972` below | Trustworthiness P1 ? **V1**; with **TB-1971** | S |
 | TB-991 | **Done** (2026-08-10) — Solo-ops MVO honesty CI guard (`check_solo_ops_mvo_honesty.py`); P0 critical wiring assert; buyer doc scan while **TB-958**/**TB-959** open; see `## TB-991` below | Trustworthiness P1 ? **V1**; after **TB-989**; pairs **M-119**/**M-142** | S |
 | TB-987 | Enforce finding race honesty ? stale-current UX, optional contradictory-disposition conflict, HumanReviewStatus vs trail alignment; see `## TB-987` below | Correctness P1 ? **V1**; after **TB-986**; operator finding inspect / stickiness + ITSM inbound | M |
-| TB-1371 | TB-881 org-registration race ship-blocker classification (CI/test vs pilot vs signup stress); see `## TB-1371` below | Correctness P1 ? **V1**; PA TB-881 gate class; GTM **M-249**/**M-250**; Done **TB-881** stays closed | S |
+| TB-1371 | **Done** (2026-08-10) — TB-881 org-registration race ship-blocker classification contract; see `## TB-1371` below | Correctness P1 ? **V1**; PA TB-881 gate class; GTM **M-249**/**M-250**; Done **TB-881** stays closed | S |
 | TB-958 | Cardinality-safe per-tenant / stuck-run degradation alerts ? page before support ticket; see `## TB-958` below | Reliability P1 ? **V1**; after **TB-957**; solo-ops MVO 2026-07-23 | M |
 | TB-959 | Canary create?execute?finalize synthetic that pages ? beyond auth/showcase probes; see `## TB-959` below | Reliability P1 ? **V1**; after **TB-957**; pairs **TB-889**/**TB-758** | M |
 | TB-960 | ACA Worker LLM review failure-semantics contract ? replica death, lease resume, no double-bill of persisted tasks, buyer states; see `## TB-960` below | Reliability P1 ? **V1**; PA Q16 2026-07-23; binds **TB-937**?**TB-943**; GTM **M-121**/**M-122** | S |
@@ -977,7 +977,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1321 | `/demo/explain` ? empty/not-available next-step ladder; see ## TB-1321 below | Adoption friction P1 ? **V1**; with **TB-1319** | S |
 | TB-1322 | **Done** (2026-08-10) — `/demo/explain` IA gate; see ## TB-1322 below | Adoption friction P1 ? **V1**; with **TB-1319**; pairs **TB-1307**/**TB-1251** | S |
 | TB-1328 | ~~Configuration reference ? operator task CTA chrome (SSO / identity / API keys)~~ **Done** 2026-08-02 ? specialty CTAs + Sources; see ## TB-1328 below | Adoption friction P1 ? **V1**; with **TB-1326** | S |
-| TB-1340 | Enterprise onboarding ? collapse Quick links + Onboarding hub duplicate; see ## TB-1340 below | Adoption friction P1 ? **V1**; with **TB-1338** | S |
+| TB-1340 | ~~Enterprise onboarding — collapse Quick links + Onboarding hub duplicate~~ **Done** 2026-08-10 — presentation strips duplicate hub sections; interactive hub owns navigation; Vitest | Adoption friction P1 — **V1**; with **TB-1338** | S |
 | TB-1342 | ~~Enterprise onboarding — first-review → first-architecture-review + settings CTA pointers~~ **Done** 2026-08-10 — hub step 7 → `/help/first-architecture-review`; action panel Configure SSO / identity / users / cloud CTAs; Vitest | Adoption friction P1 — **V1**; with **TB-1338**; pairs **TB-1335** | S |
 | TB-1343 | WHAT_NOT_TO_PROMISE ? UI/copy over-promise + highest buyer-risk page matrix; see `## TB-1343` below | Commercial / marketability P1 ? **V1**; PA WNTP UI risk; GTM **M-239**/**M-240** | S |
 | TB-1348 | Evaluator workbook ? session-flow CTA chrome + core-pilot canonicalize; see ## TB-1348 below | Adoption friction P1 ? **V1**; with **TB-1345**; pairs **TB-1335**/**TB-1319** | S |
