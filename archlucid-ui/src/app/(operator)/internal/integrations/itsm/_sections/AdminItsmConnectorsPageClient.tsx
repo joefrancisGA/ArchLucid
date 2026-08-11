@@ -6,6 +6,7 @@ import { Workflow } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
 import { FindingCorrelationVocabularyDisambiguation } from "@/components/FindingCorrelationVocabularyDisambiguation";
+import { ItsmConnectorsBuyerJiraServicenowVocabularyRail } from "@/components/ItsmConnectorsBuyerJiraServicenowVocabularyRail";
 import { ItsmConnectorsFindingTicketVocabularyRail } from "@/components/ItsmConnectorsFindingTicketVocabularyRail";
 import { PageHeading } from "@/components/PageHeading";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -116,6 +117,8 @@ export function AdminItsmConnectorsPageClient(): React.ReactElement {
         }
         data-testid="admin-itsm-connectors-page-heading"
       />
+
+      <ItsmConnectorsBuyerJiraServicenowVocabularyRail currentSurfaceId="itsm-connectors" />
 
       <ItsmConnectorsFindingTicketVocabularyRail currentSurfaceId="itsm-connectors" />
 

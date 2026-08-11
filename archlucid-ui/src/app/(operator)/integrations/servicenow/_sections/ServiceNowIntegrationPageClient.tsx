@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { ItsmConnectorProviderChooserRail } from "@/components/ItsmConnectorProviderChooserRail";
+import { ItsmConnectorsBuyerJiraServicenowVocabularyRail } from "@/components/ItsmConnectorsBuyerJiraServicenowVocabularyRail";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { PageHeading } from "@/components/PageHeading";
 import { Button } from "@/components/ui/button";
@@ -398,6 +399,8 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
           </>
         }
       />
+
+      <ItsmConnectorsBuyerJiraServicenowVocabularyRail currentSurfaceId="servicenow" />
 
       <ItsmConnectorProviderChooserRail currentProviderId="servicenow" />
 

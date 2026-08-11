@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { ItsmConnectorProviderChooserRail } from "@/components/ItsmConnectorProviderChooserRail";
+import { ItsmConnectorsBuyerJiraServicenowVocabularyRail } from "@/components/ItsmConnectorsBuyerJiraServicenowVocabularyRail";
 import {
   fetchItsmIntegrationHealth,
   fetchTenantItsmOutboundSettings,
@@ -285,6 +286,10 @@ export function ItsmProductIntegrationPageClient(props: Props): React.ReactEleme
           {ITSM_INTEGRATION_READINESS_AFTER_LINK}
         </p>
       </header>
+
+      {props.product === "jira" ? (
+        <ItsmConnectorsBuyerJiraServicenowVocabularyRail currentSurfaceId="jira" />
+      ) : null}
 
       <ItsmConnectorProviderChooserRail
         currentProviderId={props.product === "jira" ? "jira" : "servicenow"}
