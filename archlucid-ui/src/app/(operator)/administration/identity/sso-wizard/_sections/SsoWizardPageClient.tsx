@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { useCallback, useMemo, useState } from "react";
 
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
@@ -117,6 +118,7 @@ export function SsoWizardPageClient() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [pendingCancelConfirm, setPendingCancelConfirm] = useState(false);
   const handleSessionRestore = useCallback((snapshot: { stepIndex: number; state: SsoWizardState }) => {
     setStep(snapshot.stepIndex);
     setState(snapshot.state);
@@ -327,17 +329,19 @@ export function SsoWizardPageClient() {
     }
   }, [state, wizardSession]);
 
+  const leaveWizard = useCallback(() => {
+    router.push(SSO_WIZARD_IDENTITY_PROVIDERS_HREF);
+  }, [router]);
+
   const handleCancel = useCallback(() => {
     if (ssoWizardHasUnsavedChanges(state, step)) {
-      const confirmed = window.confirm(SSO_WIZARD_CANCEL_UNSAVED_CONFIRM);
+      setPendingCancelConfirm(true);
 
-      if (!confirmed) {
-        return;
-      }
+      return;
     }
 
-    router.push(SSO_WIZARD_IDENTITY_PROVIDERS_HREF);
-  }, [router, state, step]);
+    leaveWizard();
+  }, [leaveWizard, state, step]);
 
   const handleContinue = useCallback(() => {
     if (!canProceed || busy) {
@@ -660,6 +664,23 @@ export function SsoWizardPageClient() {
           />
         </CardContent>
       </Card>
+
+      <ConfirmationDialog
+        open={pendingCancelConfirm}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingCancelConfirm(false);
+          }
+        }}
+        title="Leave SSO setup?"
+        description={SSO_WIZARD_CANCEL_UNSAVED_CONFIRM}
+        confirmLabel="Leave without saving"
+        variant="destructive"
+        onConfirm={() => {
+          setPendingCancelConfirm(false);
+          leaveWizard();
+        }}
+      />
     </div>
   );
 }
