@@ -1,7 +1,8 @@
 "use client";
 
-import { memo, type ReactElement } from "react";
+import { memo, useState, type ReactElement } from "react";
 
+import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { Button } from "@/components/ui/button";
 import { downloadArchitectureRiskRegisterCsv } from "@/lib/architecture-risk-register-csv";
 import {
@@ -50,6 +51,7 @@ function GovernanceFindingsFilterBarComponent(props: GovernanceFindingsFilterBar
     onToggleGroupByResource,
     displayedRows,
   } = props;
+  const [pendingRemovePreset, setPendingRemovePreset] = useState<GovernanceFindingsFilterPreset | null>(null);
 
   const findingRows = displayedRows.filter((row) => row.recordKind === "finding");
   const totalInView = findingRows.length;
@@ -164,7 +166,10 @@ function GovernanceFindingsFilterBarComponent(props: GovernanceFindingsFilterBar
                 type="button"
                 className="ml-0.5 text-neutral-400 hover:text-red-500 dark:hover:text-red-400"
                 aria-label={`Remove preset "${preset.label}"`}
-                onClick={() => onRemovePreset(preset.id)}
+                data-testid={`governance-findings-remove-preset-${preset.id}`}
+                onClick={() => {
+                  setPendingRemovePreset(preset);
+                }}
               >
                 ×
               </button>
@@ -172,6 +177,31 @@ function GovernanceFindingsFilterBarComponent(props: GovernanceFindingsFilterBar
           ))}
         </div>
       ) : null}
+
+      <ConfirmationDialog
+        open={pendingRemovePreset !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingRemovePreset(null);
+          }
+        }}
+        title="Remove saved filter?"
+        description={
+          pendingRemovePreset !== null
+            ? `Remove “${pendingRemovePreset.label}” from your saved filters? This cannot be undone.`
+            : "Remove this saved filter? This cannot be undone."
+        }
+        confirmLabel="Remove filter"
+        variant="destructive"
+        onConfirm={() => {
+          if (pendingRemovePreset === null) {
+            return;
+          }
+
+          onRemovePreset(pendingRemovePreset.id);
+          setPendingRemovePreset(null);
+        }}
+      />
     </div>
   );
 }
