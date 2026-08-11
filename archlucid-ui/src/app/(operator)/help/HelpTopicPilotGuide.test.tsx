@@ -56,7 +56,7 @@ describe("Pilot guide (HP)", () => {
 
     expect(screen.getByTestId("help-pilot-guide-page-title")).toHaveTextContent("Pilot guide");
     expect(screen.getByRole("heading", { level: 1, name: "Pilot guide" })).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-09");
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
     expect(screen.getByTestId("pilot-guide-help-claim-discipline")).toHaveTextContent(
       PILOT_GUIDE_HELP_CLAIM_DISCIPLINE,
     );
@@ -95,8 +95,8 @@ describe("Pilot guide (HP)", () => {
 
     render(<HelpPilotGuideView entry={entry} markdown={loaded.markdown} />);
 
-    expect(screen.getByRole("heading", { level: 2, name: "Prepare for a pilot" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 2, name: "Run the first review" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "What you will see" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Main workflow" })).toBeInTheDocument();
 
     const visibleText = document.body.textContent?.toLowerCase() ?? "";
 
@@ -117,8 +117,8 @@ describe("Pilot guide (HP)", () => {
 
     const toc = screen.getByTestId("help-topic-toc");
 
-    expect(within(toc).getByRole("link", { name: "Prepare for a pilot" })).toBeInTheDocument();
-    expect(within(toc).getByRole("link", { name: "Run the first review" })).toBeInTheDocument();
+    expect(within(toc).getByRole("link", { name: "What you will see" })).toBeInTheDocument();
+    expect(within(toc).getByRole("link", { name: "Main workflow" })).toBeInTheDocument();
     expect(headings.length).toBeGreaterThan(2);
   });
 });

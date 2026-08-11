@@ -67,7 +67,7 @@ describe("Review guide (HR)", () => {
     const { container } = render(<HelpReviewGuideView entry={entry} markdown={loaded.markdown} />);
 
     expect(screen.getByTestId("help-review-guide-page-title")).toHaveTextContent("Review guide");
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-09");
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
     expect(screen.getByTestId("help-review-guide-content").textContent).toContain(
       REVIEW_GUIDE_HELP_CLAIM_DISCIPLINE,
     );

@@ -201,6 +201,23 @@ function parseDetailsSummary(openingLine: string, nextLine: string | undefined):
   return { summary: "Advanced", contentStartOffset: 0 };
 }
 
+function isMarkdownTaskListItem(line: string): boolean {
+  return /^- \[( |x|X)\] /.test(line.trimStart());
+}
+
+function parseMarkdownTaskListItem(line: string): { readonly checked: boolean; readonly text: string } | null {
+  const match = line.trim().match(/^- \[( |x|X)\] (.+)$/);
+
+  if (match === null) {
+    return null;
+  }
+
+  return {
+    checked: match[1] !== " ",
+    text: match[2] ?? "",
+  };
+}
+
 function isMarkdownBlockStart(line: string): boolean {
   const trimmed = line.trim();
 
@@ -212,7 +229,7 @@ function isMarkdownBlockStart(line: string): boolean {
     return true;
   }
 
-  if (line.startsWith("### ") || trimmed.startsWith(">") || isTableRow(line) || trimmed.startsWith("- ")) {
+  if (line.startsWith("### ") || trimmed.startsWith(">") || isTableRow(line) || isMarkdownTaskListItem(line) || trimmed.startsWith("- ")) {
     return true;
   }
 
@@ -685,6 +702,52 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
             </tbody>
           </table>
         </div>,
+      );
+      key++;
+      continue;
+    }
+
+    if (isMarkdownTaskListItem(line)) {
+      const items: Array<{ readonly checked: boolean; readonly text: string }> = [];
+      while (i < lines.length) {
+        const l = lines[i] ?? "";
+
+        if (l.trim().length === 0) {
+          break;
+        }
+
+        const parsed = parseMarkdownTaskListItem(l);
+
+        if (parsed === null) {
+          break;
+        }
+
+        items.push(parsed);
+        i++;
+      }
+
+      blocks.push(
+        <ul
+          key={`task-ul-${key}`}
+          className={
+            isHelp
+              ? cn(HELP_PAGE_LAYOUT.bulletList, "list-none space-y-2 pl-0")
+              : cn("my-3 list-none space-y-2 pl-0", bodyTextClass)
+          }
+        >
+          {items.map((item, idx) => (
+            <li key={`task-li-${key}-${idx}`} className="flex items-start gap-2">
+              <span
+                aria-hidden="true"
+                className={cn(
+                  "mt-0.5 inline-flex h-4 w-4 shrink-0 rounded border border-neutral-400 dark:border-neutral-500",
+                  item.checked && "bg-neutral-700 dark:bg-neutral-300",
+                )}
+              />
+              <span>{renderInline(item.text, `task-li-${key}-${idx}`, renderOptions)}</span>
+            </li>
+          ))}
+        </ul>,
       );
       key++;
       continue;

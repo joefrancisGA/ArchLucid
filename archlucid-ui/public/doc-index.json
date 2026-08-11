@@ -468,7 +468,7 @@
     "url": "/help"
   },
   {
-    "title": "Repeat-review stickiness loop",
+    "title": "Your repeat architecture review",
     "summary": "After the first finalized architecture review: compare, replay, governance dry-runs, and second-review proof checklist.",
     "category": "Operations",
     "url": "/help/repeat-review-loop"

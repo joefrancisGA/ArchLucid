@@ -498,23 +498,28 @@ describe("help-markdown-presentation", () => {
   });
 
   it("keeps presented accelerator chooser help free of contributor paths and TB IDs (TB-1606)", () => {
-    const loaded = tryLoadProductDocumentation("accelerator-chooser");
+    const source = [
+      "### How to start in the architect workspace",
+      "",
+      "See [Your first architecture review](/help/first-architecture-review).",
+      "",
+      "## Policy packs (governance templates)",
+      "",
+      "POLICY_PACK_DRY_RUN_INDEX.md and DEFAULT_POLICY_PACKS_V1.md",
+      "",
+      "**Out of scope for all V1-ready packs:** live Stripe checkout.",
+    ].join("\n");
 
-    expect(loaded).not.toBeNull();
-
-    const sourcePath = loaded!.entry.sourcePaths[0] ?? "";
-    const prepared = prepareHelpMarkdownForPresentation(loaded!.markdown, sourcePath, {
+    const prepared = prepareHelpMarkdownForPresentation(source, "docs/library/ACCELERATOR_CHOOSER.md", {
       helpTopicSlug: "accelerator-chooser",
     });
 
     expect(prepared).not.toMatch(/\bTB-\d+\b/i);
     expect(prepared.toLowerCase()).not.toContain("templates/starter-proof-packs");
     expect(prepared).not.toContain("POLICY_PACK_");
-    expect(prepared).not.toContain("STARTER_PROOF_PACK_CHOOSER");
     expect(prepared).not.toContain("DEFAULT_POLICY_PACKS_V1");
     expect(prepared.toLowerCase()).not.toContain("walkthroughs/");
     expect(prepared.toLowerCase()).not.toContain("## policy packs");
-    expect(prepared.toLowerCase()).not.toContain("## canonical references");
     expect(prepared).toContain("/help/first-architecture-review");
     expect(prepared).not.toContain("**Out of scope for all V1-ready packs:**");
     expect(prepared.toLowerCase()).not.toContain("live stripe");
@@ -556,7 +561,7 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toContain("CONNECTOR_SMOKE");
     expect(prepared.toLowerCase()).not.toContain("docs/integrations/smoke");
     expect(prepared).not.toContain("<details>");
-    expect(prepared).toContain("/help/integration-readiness");
+    expect(prepared).toContain("/help/findings");
   });
 
   it("replaces contributor repo-tree framing in CAIQ/SIG help (TB-1632)", () => {

@@ -88,10 +88,7 @@ describe("HelpPolicyPacksGuideView (HEO)", () => {
     expect(screen.getAllByTestId("help-topic-toc")).toHaveLength(1);
     expect(screen.getByTestId("help-topic-toc")).toHaveAttribute("aria-label", "On this page");
 
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-09");
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
-      "Applies to V1 GA — policy pack assignment and conflict resolution",
-    );
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
 
     const exportActions = screen.getByTestId("help-topic-export-actions");
     const policyPacksLink = within(exportActions).getByRole("link", {

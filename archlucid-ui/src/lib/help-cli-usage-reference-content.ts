@@ -1,7 +1,7 @@
 /** Buyer-safe landing metadata for `/help/cli-usage` (TB-948). */
 export const CLI_USAGE_HELP_REFERENCE_LANDING = {
   audience: "Integration developers, platform engineers, and API consumers automating ArchLucid workflows.",
-  documentSource: "docs/library/CLI_USAGE.md",
+  documentSource: "CLI usage documentation",
   purpose:
     "Non-interactive `archlucid` commands, configuration keys, environment variables, exit codes, and REST starter fixtures.",
   stability: "Generally available — ships with the ArchLucid CLI and documented API contracts.",

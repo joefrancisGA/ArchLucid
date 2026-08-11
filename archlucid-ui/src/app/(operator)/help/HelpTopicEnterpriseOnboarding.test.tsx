@@ -183,10 +183,8 @@ describe("HelpEnterpriseOnboardingGuideView enterprise onboarding checklist", ()
       expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
     }
 
-    expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent("Help");
-    expect(screen.getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-09");
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("V1 GA");
+    expect(screen.getByTestId("help-topic-page-title")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
     expect(screen.getByTestId(ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION.testId)).toHaveAttribute(
       "href",
       ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION.href,

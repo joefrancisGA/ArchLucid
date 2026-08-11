@@ -5,7 +5,6 @@ import Link from "next/link";
 import { OperatorPageBreadcrumb } from "@/components/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
-import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { Button } from "@/components/ui/button";
 import {
   AUDIT_TRAIL_HELP_CANONICAL_PATH,
@@ -41,9 +40,8 @@ export function HelpAuditTrailPageHeader(props: HelpAuditTrailPageHeaderProps): 
       }
       metadata={
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1" data-testid="help-audit-trail-provenance">
-          <HelpTopicRegistryProvenanceLine entry={props.entry} />
           <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.label)} data-testid="help-audit-trail-source-of-record">
-            Source of record:{" "}
+            Related topic:{" "}
             <Link
               href={AUDIT_TRAIL_HELP_SOURCE_OF_RECORD_HREF}
               className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}

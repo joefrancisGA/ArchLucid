@@ -56,7 +56,7 @@ describe("HelpAlertsGuideView", () => {
     expect(screen.getByRole("heading", { level: 1, name: ALERTS_HELP_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(ALERTS_HELP_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByTestId("help-alerts-claim-discipline")).toHaveTextContent(ALERTS_HELP_CLAIM_DISCIPLINE);
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-09");
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
     expect(screen.getByTestId("help-alerts-guide-hero-mock")).toBeInTheDocument();
     expect(screen.getByTestId("help-alerts-overview")).toHaveTextContent(ALERTS_HELP_OVERVIEW);
     expect(screen.queryByTestId("help-alerts-sources")).not.toBeInTheDocument();

@@ -504,11 +504,12 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "repeat-review-loop",
-    title: "Repeat-review stickiness loop",
+    title: "Your repeat architecture review",
     summary:
       "After the first finalized architecture review: compare, replay, governance dry-runs, and second-review proof checklist.",
     audience: "operator",
     sourcePaths: ["docs/library/REPEAT_REVIEW_LOOP.md"],
+    lastReviewed: "2026-07-27",
   },
   {
     slug: "digests",

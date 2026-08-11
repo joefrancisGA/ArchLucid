@@ -73,7 +73,7 @@ function EvidenceSourceBadge(props: { availability: WizardEvidenceSourceAvailabi
   if (props.availability === "v1.1") {
     return (
       <span className={cn("rounded-full bg-neutral-100 px-2 py-0.5 font-semibold text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.badge)}>
-        V1.1
+        Planned
       </span>
     );
   }

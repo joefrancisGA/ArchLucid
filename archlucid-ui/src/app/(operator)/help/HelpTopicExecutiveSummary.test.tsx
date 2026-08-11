@@ -72,9 +72,7 @@ describe("HelpTopicExecutiveSummary", () => {
     expect(screen.queryByTestId("help-executive-summary-refresh-button")).toBeNull();
     expect(screen.queryByTestId("help-executive-summary-last-refreshed")).toBeNull();
     expect(screen.getByTestId("help-executive-summary-claim-discipline")).toBeInTheDocument();
-    expect(screen.getByTestId("help-executive-summary-source-of-record")).toHaveTextContent(
-      "Source of record: docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md",
-    );
+    expect(screen.queryByTestId("help-executive-summary-source-of-record")).toBeNull();
     expect(screen.getByRole("link", { name: /open executive value report/i })).toHaveAttribute(
       "href",
       SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,

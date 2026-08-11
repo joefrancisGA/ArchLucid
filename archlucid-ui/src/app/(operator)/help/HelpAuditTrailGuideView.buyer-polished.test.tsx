@@ -45,11 +45,11 @@ describe("HelpAuditTrailGuideView buyer-polished shell", () => {
     expect(screen.getByText(AUDIT_TRAIL_HELP_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.queryByText(AUDIT_TRAIL_HELP_PAGE_SUBTITLE_OPERATOR)).not.toBeInTheDocument();
     expect(screen.getByTestId("help-audit-trail-breadcrumb")).toHaveTextContent("Help");
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-09");
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
 
     const sourceOfRecordLink = screen.getByRole("link", { name: "Data handling" });
     expect(sourceOfRecordLink).toHaveAttribute("href", AUDIT_TRAIL_HELP_SOURCE_OF_RECORD_HREF);
-    expect(screen.getByTestId("help-audit-trail-source-of-record")).toHaveTextContent("Source of record: Data handling");
+    expect(screen.getByTestId("help-audit-trail-source-of-record")).toHaveTextContent("Related topic: Data handling");
 
     expect(screen.queryByTestId("page-contextual-help-button")).toBeNull();
     expect(screen.queryByTestId("help-audit-trail-refresh-button")).toBeNull();

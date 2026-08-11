@@ -1226,6 +1226,14 @@ export function stripRepeatReviewLoopContributorLeakage(markdown: string): strin
       continue;
     }
 
+    if (/^\*\*Audience:\*\*/i.test(trimmed)) {
+      continue;
+    }
+
+    if (/^\*\*Prerequisite:\*\*/i.test(trimmed)) {
+      continue;
+    }
+
     if (/SECOND_REVIEW_HABIT_LOOP_VALIDATION/i.test(line)) {
       continue;
     }
@@ -1259,6 +1267,11 @@ export function stripRepeatReviewLoopContributorLeakage(markdown: string): strin
     }
 
     if (/collect-first-pilot-proof/i.test(line)) {
+      continue;
+    }
+
+    if (/^-\s+\[[xX ]\]\s+/i.test(trimmedStart)) {
+      result.push(trimmedStart.replace(/^-\s+\[[xX ]\]\s+/, "- "));
       continue;
     }
 

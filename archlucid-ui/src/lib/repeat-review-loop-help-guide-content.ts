@@ -1,4 +1,12 @@
-export const REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE = "Repeat-review stickiness loop";
+export const REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE = "Your repeat architecture review";
+
+export const REPEAT_REVIEW_LOOP_HELP_LAST_REVIEWED = "2026-07-27" as const;
+
+export const REPEAT_REVIEW_LOOP_HELP_AUDIENCE =
+  "Audience: Architects and architecture leads after the first finalized architecture package.";
+
+export const REPEAT_REVIEW_LOOP_HELP_PREREQUISITE_DETAIL =
+  "Prerequisite: One successful Core Pilot finalize.";
 
 export const REPEAT_REVIEW_LOOP_HELP_PAGE_SUBTITLE =
   "After the first finalized architecture review: compare, replay, governance dry-runs, and second-review proof checklist.";
@@ -23,10 +31,10 @@ export const REPEAT_REVIEW_LOOP_HELP_ACTION_REFRESHING = "Refreshing…" as cons
 export const REPEAT_REVIEW_LOOP_HELP_SCOPE_DETAILS_TRIGGER = "About repeat reviews" as const;
 
 export const REPEAT_REVIEW_LOOP_HELP_OVERVIEW =
-  "After one committed architecture review, ArchLucid helps you show stickiness: compare packages, replay authority for regressions, run governance dry-runs, and collect sponsor-safe proof on follow-up reviews.";
+  "After one committed architecture review, ArchLucid helps you compare packages, replay authority for regressions, run governance dry-runs, and collect sponsor-safe proof on follow-up reviews.";
 
 export const REPEAT_REVIEW_LOOP_HELP_DIAGRAM_SUMMARY =
-  "The stickiness loop after your first finalize: compare, replay, dry-run governance, finalize again, and collect proof. See [Compare and replay](/help/comparison-replay) and [Your first architecture review](/help/first-architecture-review) for step detail.";
+  "The repeat-review loop after your first finalize: compare, replay, dry-run governance, finalize again, and collect proof. See [Compare and replay](/help/comparison-replay) and [Your first architecture review](/help/first-architecture-review) for step detail.";
 
 /** Buyer-safe repeat-review cycle — no CLI scripts or repo paths. */
 export const REPEAT_REVIEW_LOOP_HELP_DIAGRAM_SOURCE = `flowchart LR

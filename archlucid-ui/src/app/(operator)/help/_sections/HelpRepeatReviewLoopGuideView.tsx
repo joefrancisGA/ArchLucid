@@ -10,6 +10,7 @@ import { HelpRepeatReviewLoopPageHeader } from "@/app/(operator)/help/_sections/
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MermaidDiagram } from "@/components/help/MermaidDiagram";
+import { RepeatReviewLoopHelpEvidenceOrientationStrip } from "@/components/help/RepeatReviewLoopHelpEvidenceOrientationStrip";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +24,7 @@ import {
   DESIGN_TOKENS,
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
+  OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
@@ -30,9 +32,11 @@ import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presenta
 import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import {
+  REPEAT_REVIEW_LOOP_HELP_AUDIENCE,
   REPEAT_REVIEW_LOOP_HELP_DIAGRAM_SOURCE,
   REPEAT_REVIEW_LOOP_HELP_DIAGRAM_SUMMARY,
   REPEAT_REVIEW_LOOP_HELP_OVERVIEW,
+  REPEAT_REVIEW_LOOP_HELP_PREREQUISITE_DETAIL,
   REPEAT_REVIEW_LOOP_HELP_PRIMARY_ACTIONS,
   repeatReviewLoopHelpPageSubtitle,
 } from "@/lib/repeat-review-loop-help-guide-content";
@@ -87,9 +91,29 @@ export function HelpRepeatReviewLoopGuideView(props: HelpRepeatReviewLoopGuideVi
           void onRefresh();
         }}
       />
+
+      <RepeatReviewLoopHelpEvidenceOrientationStrip />
+
+      <div
+        className="space-y-2 border-b border-neutral-200 pb-6 dark:border-neutral-800"
+        data-testid="help-repeat-review-loop-eligibility"
+      >
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{REPEAT_REVIEW_LOOP_HELP_AUDIENCE}</p>
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+          {REPEAT_REVIEW_LOOP_HELP_PREREQUISITE_DETAIL}{" "}
+          <Link
+            href={REPEAT_REVIEW_LOOP_HELP_PRIMARY_ACTIONS.firstArchitectureReview.href}
+            className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link, OPERATOR_LINK.inline)}
+          >
+            {REPEAT_REVIEW_LOOP_HELP_PRIMARY_ACTIONS.firstArchitectureReview.label}
+          </Link>
+          .
+        </p>
+      </div>
+
       <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
         <Card
-          className="border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20"
+          className="border-neutral-200 bg-al-surface-raised dark:border-neutral-800"
           data-testid="help-repeat-review-loop-action-panel"
         >
           <CardHeader className={OPERATOR_CARD.header}>
@@ -135,14 +159,14 @@ export function HelpRepeatReviewLoopGuideView(props: HelpRepeatReviewLoopGuideVi
           >
             <MarketingAccessibilityMarkdownFragment
               markdownBody={REPEAT_REVIEW_LOOP_HELP_DIAGRAM_SUMMARY}
-              tableCaption="Repeat-review stickiness loop summary"
+              tableCaption="Repeat architecture review loop summary"
               presentation="help"
               sourceDocPath={sourceDocPath}
               helpTopicSlug={entry.slug}
             />
             <MermaidDiagram
               source={REPEAT_REVIEW_LOOP_HELP_DIAGRAM_SOURCE}
-              accessibleName="Repeat-review stickiness loop"
+              accessibleName="Repeat architecture review loop"
             />
           </div>
 

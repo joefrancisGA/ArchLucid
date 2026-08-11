@@ -1,11 +1,8 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   EXECUTIVE_SUMMARY_HELP_PAGE_TITLE,
 } from "@/lib/executive-summary-help-guide-content";
@@ -17,12 +14,10 @@ export type HelpExecutiveSummaryPageHeaderProps = {
   readonly subtitle: string;
 };
 
-/** Shared `/help/executive-summary` hero — title, lead, contextual help, export, and document provenance. */
+/** Shared `/help/executive-summary` hero — title, lead, contextual help, and export. */
 export function HelpExecutiveSummaryPageHeader(
   props: HelpExecutiveSummaryPageHeaderProps,
 ): React.JSX.Element {
-  const sourceDocPath = props.entry.sourcePaths[0] ?? "";
-
   return (
     <OperatorPageHeader
       title={EXECUTIVE_SUMMARY_HELP_PAGE_TITLE}
@@ -34,16 +29,6 @@ export function HelpExecutiveSummaryPageHeader(
         <div className="flex flex-wrap items-center gap-2" data-testid="help-executive-summary-header-actions">
           <PageContextualHelpButton />
           <HelpTopicPrintButton entry={props.entry} />
-        </div>
-      }
-      metadata={
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1" data-testid="help-executive-summary-provenance">
-          <span
-            className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.label)}
-            data-testid="help-executive-summary-source-of-record"
-          >
-            Source of record: {sourceDocPath}
-          </span>
         </div>
       }
     />

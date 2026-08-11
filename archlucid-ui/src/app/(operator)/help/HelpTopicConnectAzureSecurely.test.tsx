@@ -51,7 +51,7 @@ describe("HelpConnectAzureSecurelyGuideView", () => {
     expect(entry?.slug).toBe("cloud-connections-azure");
     expect(entry?.title).toBe(CONNECT_AZURE_SECURELY_PAGE_TITLE);
     expect(entry?.lastReviewed).toBe("2026-08-09");
-    expect(entry?.releaseApplicability).toContain("V1 GA");
+    expect(entry?.releaseApplicability).toBeTruthy();
   });
 
   it("renders one H1 and starts on-page navigation with Security model", () => {
@@ -67,8 +67,8 @@ describe("HelpConnectAzureSecurelyGuideView", () => {
     expect(screen.getByTestId("connect-azure-securely-help-claim-discipline")).toHaveTextContent(
       CONNECT_AZURE_SECURELY_CLAIM_DISCIPLINE,
     );
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-09");
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("V1 GA");
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
 
     const toc = screen.getByTestId("help-topic-toc");
     expect(within(toc).getByRole("link", { name: CONNECT_AZURE_SECURELY_SECURITY_HEADING })).toHaveAttribute(

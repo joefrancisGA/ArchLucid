@@ -13,10 +13,11 @@ describe("RunDetailDeferredScopeNotice", () => {
     render(<RunDetailDeferredScopeNotice deferredBuyerRequirementsPresent={true} />);
 
     expect(screen.getByTestId("run-detail-deferred-scope-notice")).toBeInTheDocument();
-    expect(screen.getByTestId("deferred-scope-item-soc2-cpa")).toHaveTextContent("TB-135");
-    expect(screen.getByTestId("deferred-scope-item-third-party-pentest")).toHaveTextContent("TB-136");
-    expect(screen.getByTestId("deferred-scope-item-native-connectors")).toHaveTextContent("V1.1");
+    expect(screen.getByTestId("deferred-scope-item-soc2-cpa")).toHaveTextContent("owner-led SOC 2");
+    expect(screen.getByTestId("deferred-scope-item-third-party-pentest")).toHaveTextContent("owner-conducted");
+    expect(screen.getByTestId("deferred-scope-item-native-connectors")).toHaveTextContent("separate roadmap");
     expect(screen.getByTestId("deferred-scope-item-mcp-marketplace")).toHaveTextContent("deferred");
     expect(screen.getByTestId("deferred-scope-item-live-commerce")).toHaveTextContent("deferred");
+    expect(screen.queryByText(/V1/i)).toBeNull();
   });
 });

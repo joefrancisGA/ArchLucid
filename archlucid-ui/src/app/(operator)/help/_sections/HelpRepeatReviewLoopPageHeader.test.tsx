@@ -21,7 +21,7 @@ import { HelpRepeatReviewLoopPageHeader } from "@/app/(operator)/help/_sections/
 describe("HelpRepeatReviewLoopPageHeader", () => {
   const entry = getProductDocumentationEntry("repeat-review-loop");
 
-  it("renders h1, help, refresh, export actions, and last-refreshed metadata", () => {
+  it("renders h1, help, refresh, and export actions without last-refreshed metadata", () => {
     if (entry === undefined) {
       throw new Error("Expected repeat-review-loop documentation entry.");
     }
@@ -38,15 +38,17 @@ describe("HelpRepeatReviewLoopPageHeader", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { level: 1, name: "Repeat-review stickiness loop" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "Your repeat architecture review" })).toBeInTheDocument();
     expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
     expect(screen.getByText(repeatReviewLoopHelpPageSubtitle(false))).toBeInTheDocument();
+    expect(screen.getByTestId("help-repeat-review-loop-breadcrumb")).toHaveTextContent("Help");
+    expect(screen.queryByTestId("help-repeat-review-loop-provenance")).toBeNull();
+    expect(screen.queryByTestId("help-repeat-review-loop-last-refreshed")).toBeNull();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-repeat-review-loop-header-actions")).toBeInTheDocument();
     expect(screen.getByTestId("help-repeat-review-loop-refresh-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-print-button")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-pdf-download-button")).toBeNull();
-    expect(screen.getByTestId("help-repeat-review-loop-last-refreshed")).toHaveTextContent(/Last refreshed:/i);
 
     fireEvent.click(screen.getByTestId("help-repeat-review-loop-refresh-button"));
 

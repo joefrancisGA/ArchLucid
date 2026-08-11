@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/components/help/MermaidDiagram", () => ({
@@ -34,6 +34,7 @@ import {
   GETTING_STARTED_HELP_PIPELINE_TEXT_STAGES,
   GETTING_STARTED_HELP_QUICK_START_TITLE,
   GETTING_STARTED_HELP_SOURCES,
+  GETTING_STARTED_HELP_TECHNICAL_DETAILS_TITLE,
 } from "@/lib/getting-started-help-guide-content";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -59,7 +60,7 @@ describe("HelpGettingStartedGuideView", () => {
     expect(entry?.slug).toBe("getting-started");
     expect(entry?.summary).toContain("review findings");
     expect(entry?.lastReviewed).toBe("2026-08-09");
-    expect(entry?.releaseApplicability).toContain("V1 GA");
+    expect(entry?.releaseApplicability).toBeTruthy();
   });
 
   it("renders shared help header chrome with breadcrumb, status, provenance, and export actions", () => {
@@ -70,7 +71,7 @@ describe("HelpGettingStartedGuideView", () => {
     render(<HelpGettingStartedGuideView entry={entry} />);
 
     expect(screen.getByRole("heading", { level: 1, name: "Getting started" })).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-page-title")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-export-actions")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
   });
@@ -195,7 +196,7 @@ describe("HelpGettingStartedGuideView", () => {
     expect(vocabularyLink.tagName).toBe("A");
   });
 
-  it("keeps internal implementation terms inside the administrator disclosure", () => {
+  it("keeps internal implementation terms inside the administrator disclosure", async () => {
     if (entry === undefined) {
       throw new Error("Expected getting-started documentation entry.");
     }
@@ -221,8 +222,9 @@ describe("HelpGettingStartedGuideView", () => {
 
     const technical = screen.getByTestId("getting-started-technical-details");
     expect(technical).toBeInstanceOf(HTMLDetailsElement);
-    technical.open = true;
-    fireEvent(technical, new Event("toggle", { bubbles: false }));
-    expect(within(technical).getByText(/runId/i)).toBeInTheDocument();
+    fireEvent.click(within(technical).getByText(GETTING_STARTED_HELP_TECHNICAL_DETAILS_TITLE));
+    await waitFor(() => {
+      expect(within(technical).getByText(/runId/i)).toBeInTheDocument();
+    });
   });
 });

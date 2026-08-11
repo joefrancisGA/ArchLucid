@@ -33,7 +33,7 @@ describe("HelpDigestsGuideView", () => {
     expect(entry?.title).toBe(DIGESTS_HELP_PAGE_TITLE);
     expect(entry?.summary).toBe(DIGESTS_HELP_PAGE_SUBTITLE);
     expect(entry?.lastReviewed).toBe("2026-08-10");
-    expect(entry?.releaseApplicability).toBe("Applies to V1 GA — architecture digests orientation");
+    expect(entry?.releaseApplicability).toBe("architecture digests orientation");
   });
 
   it("shows breadcrumb, overview first, and buyer-safe section order", () => {
@@ -50,10 +50,8 @@ describe("HelpDigestsGuideView", () => {
 
     expect(screen.getByRole("heading", { level: 1, name: DIGESTS_HELP_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(DIGESTS_HELP_PAGE_SUBTITLE)).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-10");
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
-      "Applies to V1 GA — architecture digests orientation",
-    );
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
 
     const overview = screen.getByTestId("help-digests-overview");
     const claimDiscipline = screen.getByTestId("help-digests-claim-discipline");

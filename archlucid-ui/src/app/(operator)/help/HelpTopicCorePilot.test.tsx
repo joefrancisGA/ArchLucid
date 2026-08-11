@@ -79,8 +79,8 @@ describe("HelpCorePilotGuideView", () => {
     expect(screen.getByRole("heading", { level: 1, name: "Your first architecture review" })).toBeInTheDocument();
     expect(screen.getByText(entry.summary)).toBeInTheDocument();
     expect(screen.queryByText(/core[- ]?pilot/i)).toBeNull();
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(/Last reviewed 2026-08-09/i);
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(/first architecture review workflow/i);
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
   });
 
   it("renders the guided first-review path near the top", () => {

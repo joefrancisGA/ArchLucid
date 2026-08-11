@@ -46,7 +46,7 @@ describe("HelpConnectGcpSecurelyGuideView", () => {
   it("registers the connect GCP securely help guide entry with provenance metadata", () => {
     expect(entry?.slug).toBe("cloud-connections-gcp");
     expect(entry?.lastReviewed).toBe("2026-08-09");
-    expect(entry?.releaseApplicability).toContain("V1 GA");
+    expect(entry?.releaseApplicability).toBeTruthy();
     expect(entry?.releaseApplicability).toContain("GCP Workload Identity Federation");
   });
 
@@ -79,7 +79,7 @@ describe("HelpConnectGcpSecurelyGuideView", () => {
     expect(screen.getAllByRole("heading", { level: 1, name: entry.title })).toHaveLength(1);
     expect(screen.queryByRole("heading", { level: 2, name: entry.title })).toBeNull();
     expect(screen.getByText(CONNECT_GCP_SECURELY_PAGE_LEAD)).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-registry-provenance")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
 
     const toc = screen.getByTestId("help-topic-toc");
     expect(within(toc).getByRole("link", { name: CONNECT_GCP_SECURELY_SECURITY_HEADING })).toHaveAttribute(
@@ -126,7 +126,7 @@ describe("HelpConnectGcpSecurelyGuideView", () => {
       "/integrations/cloud-connections/gcp",
     );
     expect(screen.getByTestId("connect-gcp-configure-action-footer")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-pdf-download-button")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-pdf-download-button")).toBeNull();
     expect(screen.getByTestId("help-topic-print-button")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
   });

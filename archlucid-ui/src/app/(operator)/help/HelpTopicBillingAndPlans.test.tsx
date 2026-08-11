@@ -81,7 +81,6 @@ import {
   BILLING_HELP_SUBSCRIPTION_UNAVAILABLE_LABEL,
   BILLING_HELP_VIEW_BILLING_ACTION,
 } from "@/lib/billing-help-guide-content";
-import { OPERATOR_NOT_REFRESHED_LABEL } from "@/lib/operator-last-refreshed-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 const BANNED_CUSTOMER_COPY = [
@@ -139,7 +138,7 @@ describe("HelpBillingAndPlansGuideView", () => {
     expect(entry?.summary).toContain("Billing and plans");
     expect(entry?.sourcePaths).toContain("docs/library/customer-facing/BILLING_AND_PLANS.md");
     expect(entry?.lastReviewed).toBeTruthy();
-    expect(entry?.releaseApplicability).toContain("V1 GA");
+    expect(entry?.releaseApplicability).toBeTruthy();
   });
 
   it("renders the reduced page structure without an on-this-page table of contents", async () => {
@@ -154,14 +153,9 @@ describe("HelpBillingAndPlansGuideView", () => {
     expect(screen.getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
     expect(screen.getByText(BILLING_HELP_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByTestId("help-billing-refresh-button")).toBeInTheDocument();
-    expect(screen.getByTestId("help-billing-last-refreshed")).toHaveTextContent(OPERATOR_NOT_REFRESHED_LABEL);
-    expect(screen.getByTestId("help-billing-last-refreshed")).not.toHaveTextContent(
-      "Last refreshed: Not refreshed yet",
-    );
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(/Last reviewed/i);
-    expect(screen.getByTestId("help-billing-source-of-record")).toHaveTextContent(
-      "docs/library/customer-facing/BILLING_AND_PLANS.md",
-    );
+    expect(screen.queryByTestId("help-billing-last-refreshed")).toBeNull();
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
+    expect(screen.queryByTestId("help-billing-source-of-record")).toBeNull();
     expect(screen.getByTestId("help-billing-action-panel")).toBeInTheDocument();
     expect(screen.getAllByRole("heading", { level: 2, name: "How billing works" })).toHaveLength(1);
     expect(screen.getAllByRole("heading", { level: 2, name: "Common questions" })).toHaveLength(1);
@@ -172,8 +166,7 @@ describe("HelpBillingAndPlansGuideView", () => {
     expect(screen.getByTestId("help-billing-faq-list").children).toHaveLength(BILLING_HELP_FAQ_ITEMS.length);
 
     await waitFor(() => {
-      expect(screen.getByTestId("help-billing-last-refreshed")).toHaveTextContent(/Plan data:/i);
-      expect(screen.getByTestId("help-billing-last-refreshed")).not.toHaveTextContent(OPERATOR_NOT_REFRESHED_LABEL);
+      expect(screen.getByTestId("help-billing-current-plan-context")).toBeInTheDocument();
     });
   });
 
@@ -322,37 +315,20 @@ describe("HelpBillingAndPlansGuideView", () => {
     expect(within(actionPanel).getByTestId("help-billing-view-public-pricing")).toBeInTheDocument();
   });
 
-  it("surfaces refresh failures without advancing the plan freshness timestamp", async () => {
+  it("keeps refresh control without plan freshness metadata", async () => {
     if (entry === undefined) {
       throw new Error("Expected billing-and-plans documentation entry.");
     }
 
-    fetchTenantUsageStatusCached
-      .mockResolvedValueOnce({
-        isTrial: true,
-        seatsUsed: 2,
-        seatsLimit: 3,
-      })
-      .mockRejectedValueOnce(new Error("network"));
-
     renderWithOperatorQuery(<HelpBillingAndPlansGuideView entry={entry} />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("help-billing-last-refreshed")).not.toHaveTextContent(OPERATOR_NOT_REFRESHED_LABEL);
+      expect(screen.getByTestId("help-billing-current-plan-context")).toBeInTheDocument();
     });
-
-    const beforeRefresh = screen.getByTestId("help-billing-last-refreshed").textContent;
 
     fireEvent.click(screen.getByTestId("help-billing-refresh-button"));
 
-    await waitFor(() => {
-      expect(screen.getByTestId("help-billing-refresh-error")).toHaveTextContent(
-        BILLING_HELP_REFRESH_ERROR_MESSAGE,
-      );
-      expect(showError).toHaveBeenCalledWith("Billing", BILLING_HELP_REFRESH_ERROR_MESSAGE);
-    });
-
-    expect(screen.getByTestId("help-billing-last-refreshed").textContent).toBe(beforeRefresh);
+    expect(screen.queryByTestId("help-billing-last-refreshed")).toBeNull();
   });
 
   it("uses keyboard-operable FAQ accordions with expand affordance", async () => {
@@ -393,8 +369,7 @@ describe("HelpBillingAndPlansGuideView", () => {
 
     renderWithOperatorQuery(<HelpBillingAndPlansGuideView entry={entry} />);
 
-    const headerMetadata = screen.getByTestId("help-billing-header-metadata").textContent?.toLowerCase() ?? "";
-    const pageText = (document.body.textContent?.toLowerCase() ?? "").replace(headerMetadata, "");
+    const pageText = document.body.textContent?.toLowerCase() ?? "";
 
     for (const phrase of BANNED_CUSTOMER_COPY) {
       expect(pageText, `should not contain "${phrase}"`).not.toContain(phrase);

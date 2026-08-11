@@ -8,7 +8,7 @@ export const REPEAT_REVIEW_LOOP_HELP_CLAIM_DISCIPLINE =
   "This repeat-review loop guide is architect orientation for compare, replay, and second-review proof - it is not a signed-review diligence Sources package. Open Compare, Validate review, or Audit when you need live packages or assurance claims.";
 
 export const REPEAT_REVIEW_LOOP_HELP_SOURCES_INTRO =
-  "Use these follow-ups when stickiness guidance turns into comparing packages, starting the next review, or sponsor outcomes.";
+  "Use these follow-ups when repeat-review guidance turns into comparing packages, starting the next review, or sponsor outcomes.";
 
 
 /** Operator Sources - no self-href to `/help/repeat-review-loop`. */

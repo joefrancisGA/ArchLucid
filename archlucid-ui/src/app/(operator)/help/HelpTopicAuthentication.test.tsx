@@ -49,10 +49,8 @@ describe("HelpTopicMarkdownView authentication and sign-in", () => {
 
     render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
 
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-04");
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
-      "Applies to hosted SaaS sign-in, invitations, and SSO-enforced tenants",
-    );
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
     expect(screen.getByTestId("help-topic-sign-in-failure-triage")).toBeInTheDocument();
     const triage = screen.getByTestId("help-topic-sign-in-failure-triage");
 

@@ -48,7 +48,7 @@ describe("HelpCloudConnectionsGuideView (HCE)", () => {
     expect(screen.getByTestId("help-cloud-connections-breadcrumb")).toHaveTextContent("Help");
     expect(screen.getByTestId("help-cloud-connections-breadcrumb")).toHaveTextContent("Cloud connections");
     expect(screen.getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-09");
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
     expect(screen.getByTestId("help-topic-print-pdf")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-download-pdf")).toBeNull();
     expect(screen.queryByTestId("help-cloud-connections-sources")).toBeNull();

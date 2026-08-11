@@ -78,7 +78,7 @@ describe("HelpAzureBoardsGuideView (HEZ)", () => {
       AZURE_BOARDS_HELP_CANONICAL_PATH,
     );
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("2026-08-09");
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
     expect(screen.getByTestId("help-azure-boards-authority-note")).toHaveTextContent(
       AZURE_BOARDS_HELP_AUTHORITY_NOTE,
     );

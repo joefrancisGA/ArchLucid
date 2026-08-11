@@ -106,7 +106,7 @@ const CURATED_DOCUMENTATION_SEARCH_ITEMS: readonly DocumentationSearchItem[] = [
   },
   {
     category: "Scope",
-    title: "V1 scope contract",
+    title: "Product scope contract",
     description: "In-scope and deferred product boundaries.",
     relativeDocsPath: "docs/library/V1_SCOPE.md",
   },

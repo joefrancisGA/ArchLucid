@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
@@ -139,7 +139,7 @@ describe("HelpDpaTemplateGuideView", () => {
     expect(screen.queryByTestId("help-dpa-template-content")).toBeNull();
   });
 
-  it("mounts the full DPA markdown body only after the disclosure opens", () => {
+  it("mounts the full DPA markdown body only after the disclosure opens", async () => {
     if (loaded === null) {
       throw new Error("Expected dpa-template documentation to load.");
     }
@@ -150,9 +150,9 @@ describe("HelpDpaTemplateGuideView", () => {
 
     const disclosure = screen.getByTestId("help-dpa-template-full-disclosure");
     expect(disclosure).toBeInstanceOf(HTMLDetailsElement);
-    disclosure.open = true;
-    fireEvent(disclosure, new Event("toggle", { bubbles: false }));
-
-    expect(screen.getByTestId("help-dpa-template-content")).toBeInTheDocument();
+    fireEvent.click(screen.getByText("Show full DPA template (clauses and placeholders)"));
+    await waitFor(() => {
+      expect(screen.getByTestId("help-dpa-template-content")).toBeInTheDocument();
+    });
   });
 });

@@ -19,31 +19,15 @@ function sampleEntry(
 }
 
 describe("formatHelpTopicApplicabilityMetadata", () => {
-  it("joins last reviewed and release applicability when both are set", () => {
-    const label = formatHelpTopicApplicabilityMetadata(
-      sampleEntry({
-        lastReviewed: "2026-08-09",
-        releaseApplicability: "Azure Boards work item connector",
-      }),
-    );
-
-    expect(label).toBe(
-      "Last reviewed 2026-08-09 · Applies to V1 GA — Azure Boards work item connector",
-    );
-  });
-
-  it("formats policy-packs provenance with V1 GA release applicability", () => {
+  it("returns null so help pages omit registry review and release labels", () => {
     expect(
       formatHelpTopicApplicabilityMetadata(
         sampleEntry({
-          slug: "policy-packs",
           lastReviewed: "2026-08-09",
-          releaseApplicability: "policy pack assignment and conflict resolution",
+          releaseApplicability: "Azure Boards work item connector",
         }),
       ),
-    ).toBe(
-      "Last reviewed 2026-08-09 · Applies to V1 GA — policy pack assignment and conflict resolution",
-    );
+    ).toBeNull();
   });
 
   it("returns null when registry metadata is absent", () => {
