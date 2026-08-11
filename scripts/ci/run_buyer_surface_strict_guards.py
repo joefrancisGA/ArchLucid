@@ -109,6 +109,11 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "minimum pilot trust packet honesty",
+        ("python", "scripts/ci/check_minimum_pilot_trust_packet_honesty.py"),
+        None,
+    ),
+    GuardCommand(
         "buyer first-30-minutes sync",
         ("python", "scripts/ci/assert_buyer_first_30_minutes_in_sync.py"),
         None,

@@ -1005,6 +1005,14 @@ jobs:
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_live_vs_nightly_tripwire_honesty.py"
 
+      - name: Minimum pilot trust packet honesty guard (TB-1113 / M-190)
+        continue-on-error: true
+        run: python scripts/ci/check_minimum_pilot_trust_packet_honesty.py
+
+      - name: Minimum pilot trust packet honesty guard unit tests
+        continue-on-error: true
+        run: python -m unittest discover -s scripts/ci/tests -p "test_check_minimum_pilot_trust_packet_honesty.py"
+
       - name: Buyer-surface strict claim guards (blocking when buyer paths changed)
         if: steps.buyer-surface-detect.outputs.changed == 'true'
         run: |

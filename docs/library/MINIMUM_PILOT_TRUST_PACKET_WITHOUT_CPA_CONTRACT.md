@@ -4,7 +4,7 @@
 
 **Audience:** Engineering, security reviewers, principal-architect diligence. Not a buyer brochure.
 
-**Status:** Shipped contract for **TB-1112** / GTM **M-190** / **M-191**. Honesty CI **TB-1113** / **M-190** (named anchors below — not yet implemented).
+**Status:** Shipped contract for **TB-1112** / GTM **M-190** / **M-191**. Honesty CI **TB-1113** / **M-190** shipped (`check_minimum_pilot_trust_packet_honesty.py`).
 
 **Verdict (one line):** Stage 0 single-pilot trust is a **six-element Real SEND executive packet** plus **labeled self-attested** assurance substitutes — **not** a CPA-issued SOC 2 report and **not** a published third-party pen-test summary.
 
@@ -62,7 +62,7 @@ These six Stage 0 trust elements are the **pilot trust bar**. The QUOTE_TO_PROOF
 | ID | Role |
 |----|------|
 | Done **M-190** / **M-191**; **TB-1112** | This minimum pilot trust packet contract + buyer handout |
-| Open **TB-1113** | Anti-CPA/3P-as-pilot-packet honesty CI |
+| Done **TB-1113** | Anti-CPA/3P-as-pilot-packet honesty CI |
 | Done **M-188** / **M-189**; **TB-1072** cluster | Stage 0 claim allowlist vs oversell |
 | Open **TB-1144** / **TB-1145**; **M-196** / **M-197** | SOC 2 / pen-test honest conversation ladder |
 | Done **TB-135** / **TB-136** | Tech tracking closed — do **not** reopen |
@@ -73,7 +73,7 @@ These six Stage 0 trust elements are the **pilot trust bar**. The QUOTE_TO_PROOF
 
 ## 5. CI anchors (**TB-1113**)
 
-Honesty guard (follow-on): `scripts/ci/check_minimum_pilot_trust_packet_honesty.py` (wire in `run_buyer_surface_strict_guards.py` when **TB-1113** ships).
+Honesty guard: `scripts/ci/check_minimum_pilot_trust_packet_honesty.py` (wired in `run_buyer_surface_strict_guards.py`; **TB-1113** Done).
 
 Intended fail stubs:
 
