@@ -25,6 +25,7 @@ import {
   type VisualPredicateOperator,
   visualBuilderStateToContentJson,
 } from "@/lib/policy-pack-visual-builder";
+import { presentPolicyPackSimulateToast } from "@/lib/policy-pack-simulate-toast";
 import { showSuccess } from "@/lib/toast";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -212,7 +213,7 @@ export function PolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) {
       };
       const result = await simulatePolicyPackAgainstRun(body);
       setSimulateResult(result);
-      showSuccess("Policy validation completed.");
+      presentPolicyPackSimulateToast(result);
     } catch (error: unknown) {
       setSimulateFailure(toApiLoadFailure(error));
     } finally {
