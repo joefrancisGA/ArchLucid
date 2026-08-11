@@ -7,6 +7,10 @@ const mockToggle = vi.fn();
 const mockTest = vi.fn();
 const mockDryRun = vi.fn();
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/integrations/slack",
+}));
+
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => true,
 }));
@@ -54,9 +58,15 @@ describe("SlackIntegrationPageClient", () => {
     expect(screen.getByTestId("slack-not-configured-next-step")).toHaveTextContent(
       SLACK_INTEGRATION_NOT_CONFIGURED_NEXT_STEP,
     );
-    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent("Slack notifications help");
+    expect(screen.getAllByRole("link", { name: /^Integration readiness$/i })).toHaveLength(1);
     expect(screen.queryByRole("link", { name: /Configure Microsoft Teams/i })).not.toBeInTheDocument();
     expect(screen.queryByText(/Need a different channel\?/i)).not.toBeInTheDocument();
+
+    const pageRoot = screen.getByTestId("integrations-slack-page");
+    expect(pageRoot.className).not.toMatch(/\bspace-y-8\b/);
+    expect(pageRoot.className).not.toMatch(/\bpy-8\b/);
+    expect(pageRoot.className).toMatch(/\bpy-4\b/);
   });
 
   it("renders customer-facing form labels and actions", async () => {

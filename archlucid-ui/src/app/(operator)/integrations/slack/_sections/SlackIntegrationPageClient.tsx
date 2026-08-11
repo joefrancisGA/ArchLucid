@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm } from "react-hook-form";
@@ -21,8 +20,8 @@ import {
   testWebhookSubscription,
   toggleAlertRoutingSubscription,
 } from "@/lib/api";
-import { INTEGRATIONS_READINESS_PATH, INTEGRATIONS_SLACK_PATH } from "@/lib/integrations-nav-paths";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { INTEGRATIONS_SLACK_PATH } from "@/lib/integrations-nav-paths";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   slackIntegrationDefaultValues,
   slackIntegrationFormSchema,
@@ -212,7 +211,10 @@ export function SlackIntegrationPageClient(): React.ReactElement {
   });
 
   return (
-    <div className="w-full max-w-[68rem] space-y-8 px-4 py-8 sm:px-6 lg:px-8" data-testid="integrations-slack-page">
+    <div
+      className={cn("w-full max-w-[68rem] px-4 py-4 sm:px-6 lg:px-8", OPERATOR_LAYOUT.majorSectionGap)}
+      data-testid="integrations-slack-page"
+    >
       <PageHeading
         navHref={INTEGRATIONS_SLACK_PATH}
         title={SLACK_INTEGRATION_PAGE_TITLE}
@@ -244,16 +246,11 @@ export function SlackIntegrationPageClient(): React.ReactElement {
                 </p>
               ) : null}
             </div>
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              <Link className={OPERATOR_LINK.inline} href={INTEGRATIONS_READINESS_PATH}>
-                Integration readiness
-              </Link>
-            </p>
           </>
         }
       />
       <TeamsSlackNotificationVocabularyRail currentSurfaceId="slack" />
-{failure !== null ? (
+      {failure !== null ? (
         <div role="alert">
           <OperatorApiProblem
             problem={failure.problem}
@@ -272,8 +269,13 @@ export function SlackIntegrationPageClient(): React.ReactElement {
       ) : null}
 
       <FormProvider {...form}>
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_17.5rem] lg:items-start">
-          <div className={cn("min-w-0 space-y-10", !canMutate && "opacity-95")}>
+        <div
+          className={cn(
+            "grid lg:grid-cols-[minmax(0,1fr)_17.5rem] lg:items-start",
+            OPERATOR_LAYOUT.unrelatedClusterGap,
+          )}
+        >
+          <div className={cn("min-w-0", OPERATOR_LAYOUT.sectionStack, !canMutate && "opacity-95")}>
             <SlackDestinationForm
               canMutate={canMutate}
               loading={loading}

@@ -395,7 +395,8 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/integrations/slack",
-    topic: { slug: "alerts", label: "Slack integration" },
+    // TB-1187 — caption for PageHeading help control; long-form guide shares troubleshooting.
+    topic: { slug: "troubleshooting", label: "Slack notifications help" },
   },
   {
     prefix: "/integrations/webhooks",
