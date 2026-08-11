@@ -1,7 +1,14 @@
 import { tryResolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { capitalizeInlineGuidanceBody, parseLeadingInlineGuidanceLabel } from "@/lib/inline-guidance-labels";
 import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
-import { applyHelpMarkdownPresentationRules } from "@/lib/help-markdown-presentation-pipeline";
+import type {
+  HelpMarkdownTopicContext,
+  HelpMarkdownTopicRuleSet,
+} from "@/lib/help-markdown-presentation-pipeline";
+import {
+  applyHelpMarkdownPresentationRules,
+  applyHelpMarkdownTopicRules,
+} from "@/lib/help-markdown-presentation-pipeline";
 import { applyHelpTopicProductLanguage } from "@/lib/help-product-language";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -3564,6 +3571,268 @@ export function stripDocumentationMaintenanceMetadata(markdown: string): string 
   return lines.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd();
 }
 
+function matchesSourceDoc(fileName: string): (context: HelpMarkdownTopicContext) => boolean {
+  return (context) => context.normalizedSourcePath.includes(fileName);
+}
+
+function matchesSlug(slug: string): (context: HelpMarkdownTopicContext) => boolean {
+  return (context) => context.helpTopicSlug === slug;
+}
+
+function matchesEither(
+  ...predicates: ReadonlyArray<(context: HelpMarkdownTopicContext) => boolean>
+): (context: HelpMarkdownTopicContext) => boolean {
+  return (context) => predicates.some((predicate) => predicate(context));
+}
+
+function matchesBoth(
+  ...predicates: ReadonlyArray<(context: HelpMarkdownTopicContext) => boolean>
+): (context: HelpMarkdownTopicContext) => boolean {
+  return (context) => predicates.every((predicate) => predicate(context));
+}
+
+/** Topics whose source doc drives both a section strip and a leakage strip stage. */
+const IS_CONFIGURATION_REFERENCE = matchesSourceDoc("configuration_reference.md");
+const IS_FIRST_REVIEW_EVIDENCE_CHECKLIST = matchesEither(
+  matchesSlug("first-review"),
+  matchesSourceDoc("first_run_evidence_checklist.md"),
+);
+const IS_CLI_USAGE = matchesEither(matchesSlug("cli-usage"), matchesSourceDoc("cli_usage.md"));
+const IS_ENTERPRISE_ONBOARDING = matchesSourceDoc("hosted_enterprise_onboarding_checklist.md");
+const IS_GOVERNANCE_API_CONTRACTS = matchesSourceDoc("api_contracts.md");
+const IS_PILOT_ROI_MODEL = matchesSourceDoc("pilot_roi_model.md");
+const IS_REPEAT_REVIEW_LOOP = matchesSourceDoc("repeat_review_loop.md");
+const IS_ACCELERATOR_CHOOSER = matchesEither(
+  matchesSourceDoc("accelerator_chooser.md"),
+  matchesSlug("accelerator-chooser"),
+);
+
+/**
+ *  Runbook `.md` links are retargeted to `/help` before the generic link rewrite drops them
+ *  (TB-1346), so this stage runs ahead of the section strips.
+ */
+const HELP_MARKDOWN_SOURCE_PRESTAGE_RULE_SETS: readonly HelpMarkdownTopicRuleSet[] = [
+  {
+    id: "evaluator-workbook",
+    matches: matchesSourceDoc("evaluator_workbook.md"),
+    rules: [stripEvaluatorWorkbookContributorLeakage],
+  },
+];
+
+/** Contributor-only sections removed before doc links are rewritten. First match wins. */
+const HELP_MARKDOWN_CONTRIBUTOR_SECTION_RULE_SETS: readonly HelpMarkdownTopicRuleSet[] = [
+  {
+    id: "configuration-reference",
+    matches: IS_CONFIGURATION_REFERENCE,
+    rules: [stripConfigurationReferenceContributorSections],
+  },
+  {
+    id: "first-review-evidence-checklist",
+    matches: IS_FIRST_REVIEW_EVIDENCE_CHECKLIST,
+    rules: [stripFirstReviewEvidenceChecklistContributorSections],
+  },
+  {
+    id: "enterprise-onboarding",
+    matches: IS_ENTERPRISE_ONBOARDING,
+    rules: [stripEnterpriseOnboardingQuickLinksBlock, stripEnterpriseOnboardingContributorSections],
+  },
+  {
+    id: "governance-api-contracts",
+    matches: IS_GOVERNANCE_API_CONTRACTS,
+    rules: [stripGovernanceApiContractsContributorSections],
+  },
+  {
+    id: "pilot-roi-model",
+    matches: IS_PILOT_ROI_MODEL,
+    rules: [stripPilotRoiModelContributorSections],
+  },
+  {
+    id: "repeat-review-loop",
+    matches: IS_REPEAT_REVIEW_LOOP,
+    rules: [stripRepeatReviewLoopContributorSections],
+  },
+  {
+    id: "accelerator-chooser",
+    matches: IS_ACCELERATOR_CHOOSER,
+    rules: [stripAcceleratorChooserContributorSections],
+  },
+  {
+    id: "cli-usage",
+    matches: IS_CLI_USAGE,
+    rules: [stripCliUsageContributorSections],
+  },
+];
+
+/**
+ *  Audience-specific leakage strips applied after link rewriting. First match wins, so a topic must
+ *  not receive procurement or configuration rewrites meant for an unrelated document.
+ */
+const HELP_MARKDOWN_AUDIENCE_RULE_SETS: readonly HelpMarkdownTopicRuleSet[] = [
+  {
+    id: "procurement-packet",
+    matches: matchesSourceDoc("buyer_security_procurement_packet.md"),
+    rules: [stripProcurementContributorLeakage],
+  },
+  {
+    id: "configuration-reference",
+    matches: IS_CONFIGURATION_REFERENCE,
+    rules: [stripConfigurationReferenceContributorLeakage],
+  },
+  {
+    id: "first-review-evidence-checklist",
+    matches: IS_FIRST_REVIEW_EVIDENCE_CHECKLIST,
+    rules: [stripFirstReviewEvidenceChecklistContributorLeakage],
+  },
+  {
+    id: "developer-troubleshooting",
+    matches: matchesSlug("developer-troubleshooting"),
+    rules: [stripDeveloperTroubleshootingContributorLeakage],
+  },
+  {
+    id: "cli-usage",
+    matches: IS_CLI_USAGE,
+    rules: [stripCliUsageContributorLeakage],
+  },
+  {
+    id: "enterprise-onboarding",
+    matches: IS_ENTERPRISE_ONBOARDING,
+    rules: [stripEnterpriseOnboardingContributorLeakage],
+  },
+  {
+    id: "governance-api-contracts",
+    matches: IS_GOVERNANCE_API_CONTRACTS,
+    rules: [stripGovernanceApiContractsContributorLeakage],
+  },
+  {
+    id: "pilot-roi-model",
+    matches: IS_PILOT_ROI_MODEL,
+    rules: [stripPilotRoiModelContributorLeakage],
+  },
+  {
+    id: "repeat-review-loop",
+    matches: IS_REPEAT_REVIEW_LOOP,
+    rules: [stripRepeatReviewLoopContributorLeakage],
+  },
+  {
+    id: "accelerator-chooser",
+    matches: IS_ACCELERATOR_CHOOSER,
+    rules: [stripAcceleratorChooserContributorLeakage, stripAcceleratorChooserIntroAndTable],
+  },
+  {
+    id: "azure-boards-integration",
+    matches: matchesSourceDoc("azure_boards_integration.md"),
+    rules: [stripAzureBoardsContributorLeakage],
+  },
+  {
+    id: "caiq-sig-response",
+    matches: matchesEither(matchesSourceDoc("caiq_lite_2026.md"), matchesSourceDoc("sig_core_2026.md")),
+    rules: [stripCaiqSigContributorLeakage, alignCaiqSigAssuranceHonesty],
+  },
+  {
+    id: "dpa-template",
+    matches: matchesSourceDoc("dpa_template.md"),
+    rules: [stripDpaTemplateContributorLeakage],
+  },
+  {
+    id: "subprocessors",
+    matches: matchesBoth(matchesSlug("subprocessors"), matchesSourceDoc("subprocessors.md")),
+    rules: [stripSubprocessorsContributorLeakage],
+  },
+  {
+    id: "executive-summary-faq",
+    matches: matchesBoth(matchesSlug("executive-summary"), matchesSourceDoc("customer-facing/faq.md")),
+    rules: [stripExecutiveSummaryContributorLeakage],
+  },
+  {
+    id: "first-value-20-minutes",
+    matches: matchesBoth(
+      matchesSlug("first-value-20-minutes"),
+      matchesSourceDoc("first_pilot_operator_path.md"),
+    ),
+    rules: [stripFirstValue20ContributorLeakage],
+  },
+  {
+    id: "evidence-intake",
+    matches: matchesBoth(
+      matchesSlug("evidence-intake"),
+      matchesSourceDoc("evidence_intake_operator_guide.md"),
+    ),
+    rules: [softenEvidenceIntakeHelpPresentation, stripEvidenceIntakeStructuredUiSections],
+  },
+  {
+    // Never matches: the compared file name is upper-case while normalizedSourcePath is lower-cased.
+    // Preserved verbatim so this refactor does not change rendered output; see stripEvidenceTrailStructuredUiSections.
+    id: "evidence-trail",
+    matches: matchesBoth(
+      matchesSlug("evidence-trail"),
+      matchesSourceDoc("EVIDENCE_TRAIL_OPERATOR_GUIDE.md"),
+    ),
+    rules: [stripEvidenceTrailStructuredUiSections],
+  },
+  {
+    id: "path-chooser",
+    matches: matchesBoth(matchesSlug("path-chooser"), matchesSourceDoc("buyer_orientation_one_screen.md")),
+    rules: [stripPathChooserContributorLeakage, stripPathChooserStructuredUiSections],
+  },
+  {
+    id: "pilot-feedback",
+    matches: matchesBoth(matchesSlug("pilot-feedback"), matchesSourceDoc("product_learning.md")),
+    rules: [stripPilotFeedbackContributorLeakage],
+  },
+  {
+    id: "policy-pack-delta-demo",
+    matches: matchesBoth(
+      matchesSlug("policy-pack-delta-demo"),
+      matchesSourceDoc("policy_pack_delta_demo_script.md"),
+    ),
+    rules: [stripPolicyPackDeltaContributorLeakage],
+  },
+  {
+    id: "prior-manifest-retrieval",
+    matches: matchesBoth(
+      matchesSlug("prior-manifest-retrieval"),
+      matchesSourceDoc("prior_manifest_retrieval_guide.md"),
+    ),
+    rules: [stripPriorManifestRetrievalContributorLeakage],
+  },
+  {
+    // The product-overview alias normalizes to executive-summary before render (TB-1739).
+    id: "executive-summary-sponsor-brief",
+    matches: matchesBoth(matchesSlug("executive-summary"), matchesSourceDoc("executive_sponsor_brief.md")),
+    rules: [stripExecutiveSummarySponsorBriefLeakage],
+  },
+  {
+    id: "soc2-self-assessment",
+    matches: matchesBoth(
+      matchesSlug("soc2-self-assessment"),
+      matchesSourceDoc("soc2_self_assessment_2026.md"),
+    ),
+    rules: [stripSoc2SelfAssessmentContributorLeakage],
+  },
+];
+
+/** Rule-set registries exposed for the drift test that pins stage order and topic coverage. */
+export const HELP_MARKDOWN_TOPIC_RULE_STAGES = {
+  sourcePrestage: HELP_MARKDOWN_SOURCE_PRESTAGE_RULE_SETS,
+  contributorSections: HELP_MARKDOWN_CONTRIBUTOR_SECTION_RULE_SETS,
+  audience: HELP_MARKDOWN_AUDIENCE_RULE_SETS,
+} as const;
+
+/** Title duplicated by an in-page section anchor is dropped so the body does not repeat the H1. */
+function resolveDuplicateSectionTitles(helpTopicSlug: string | undefined): readonly string[] | undefined {
+  const registryEntry = helpTopicSlug !== undefined ? getProductDocumentationEntry(helpTopicSlug) : null;
+
+  if (
+    registryEntry === null ||
+    registryEntry.sectionAnchors === undefined ||
+    registryEntry.sectionAnchors.length === 0
+  ) {
+    return undefined;
+  }
+
+  return [registryEntry.title];
+}
+
 /**
  * Prepares repo markdown for in-app help rendering — no raw `.md` paths in operator UI.
  */
@@ -3576,167 +3845,48 @@ export function prepareHelpMarkdownForPresentation(
     stripLeadingContributorScopeBlockquote,
     stripInternalBuyerHelpPreamble,
   ]);
-  const registryEntry =
-    options?.helpTopicSlug !== undefined ? getProductDocumentationEntry(options.helpTopicSlug) : null;
-  const duplicateSectionTitles =
-    registryEntry !== null &&
-    registryEntry.sectionAnchors !== undefined &&
-    registryEntry.sectionAnchors.length > 0
-      ? [registryEntry.title]
-      : undefined;
+  const duplicateSectionTitles = resolveDuplicateSectionTitles(options?.helpTopicSlug);
   const normalized = stripDuplicateMarkdownTitle(stripInternalEngineeringBatchLabels(withoutInternalPreamble), {
     duplicateSectionTitles,
   });
-  const withoutHtmlComments = stripHtmlComments(normalized);
-  const withoutInternalSections = stripInternalBuyerHelpSections(withoutHtmlComments);
-  const withoutInlineReferences = stripInternalBuyerHelpInlineReferences(withoutInternalSections);
-  const normalizedSourcePath = sourceDocPath.replace(/\\/g, "/").toLowerCase();
-  const isConfigurationReference = normalizedSourcePath.includes("configuration_reference.md");
-  const isFirstReviewEvidenceChecklist =
-    options?.helpTopicSlug === "first-review" ||
-    normalizedSourcePath.includes("first_run_evidence_checklist.md");
-  const isDeveloperTroubleshooting = options?.helpTopicSlug === "developer-troubleshooting";
-  const isCliUsage =
-    options?.helpTopicSlug === "cli-usage" || normalizedSourcePath.includes("cli_usage.md");
-  const isEnterpriseOnboarding = normalizedSourcePath.includes(
-    "hosted_enterprise_onboarding_checklist.md",
+  const withoutInlineReferences = applyHelpMarkdownPresentationRules(normalized, [
+    stripHtmlComments,
+    stripInternalBuyerHelpSections,
+    stripInternalBuyerHelpInlineReferences,
+  ]);
+  const topicContext: HelpMarkdownTopicContext = {
+    helpTopicSlug: options?.helpTopicSlug,
+    normalizedSourcePath: sourceDocPath.replace(/\\/g, "/").toLowerCase(),
+  };
+  const beforeLinkRewrite = applyHelpMarkdownTopicRules(
+    applyHelpMarkdownTopicRules(
+      withoutInlineReferences,
+      HELP_MARKDOWN_SOURCE_PRESTAGE_RULE_SETS,
+      topicContext,
+    ),
+    HELP_MARKDOWN_CONTRIBUTOR_SECTION_RULE_SETS,
+    topicContext,
   );
-  const isEvaluatorWorkbook = normalizedSourcePath.includes("evaluator_workbook.md");
-  const isGovernanceApiContracts = normalizedSourcePath.includes("api_contracts.md");
-  const isPilotRoiModel = normalizedSourcePath.includes("pilot_roi_model.md");
-  const isRepeatReviewLoop = normalizedSourcePath.includes("repeat_review_loop.md");
-  const isAcceleratorChooser =
-    normalizedSourcePath.includes("accelerator_chooser.md") ||
-    options?.helpTopicSlug === "accelerator-chooser";
-  const isAzureBoardsIntegration = normalizedSourcePath.includes("azure_boards_integration.md");
-  const isCaiqSigResponse =
-    normalizedSourcePath.includes("caiq_lite_2026.md") ||
-    normalizedSourcePath.includes("sig_core_2026.md");
-  // TB-1346 — retarget runbook .md links to /help before generic link rewrite drops them.
-  const afterEvaluatorWorkbookStrip = isEvaluatorWorkbook
-    ? stripEvaluatorWorkbookContributorLeakage(withoutInlineReferences)
-    : withoutInlineReferences;
-  const beforeLinkRewrite = isConfigurationReference
-    ? stripConfigurationReferenceContributorSections(afterEvaluatorWorkbookStrip)
-    : isFirstReviewEvidenceChecklist
-      ? stripFirstReviewEvidenceChecklistContributorSections(afterEvaluatorWorkbookStrip)
-      : isEnterpriseOnboarding
-        ? stripEnterpriseOnboardingContributorSections(
-            stripEnterpriseOnboardingQuickLinksBlock(afterEvaluatorWorkbookStrip),
-          )
-        : isGovernanceApiContracts
-          ? stripGovernanceApiContractsContributorSections(afterEvaluatorWorkbookStrip)
-          : isPilotRoiModel
-            ? stripPilotRoiModelContributorSections(afterEvaluatorWorkbookStrip)
-            : isRepeatReviewLoop
-              ? stripRepeatReviewLoopContributorSections(afterEvaluatorWorkbookStrip)
-              : isAcceleratorChooser
-                ? stripAcceleratorChooserContributorSections(afterEvaluatorWorkbookStrip)
-                : isCliUsage
-                  ? stripCliUsageContributorSections(afterEvaluatorWorkbookStrip)
-                  : afterEvaluatorWorkbookStrip;
-  const rewrittenLinks = rewriteHelpMarkdownDocLinks(beforeLinkRewrite, sourceDocPath);
-  const sanitized = sanitizeBareMarkdownFileReferences(rewrittenLinks);
-  // Audience-specific strips — do not apply procurement/config rewrites to unrelated topics.
-  let afterAudienceStrip = sanitized;
-
-  if (normalizedSourcePath.includes("buyer_security_procurement_packet.md")) {
-    afterAudienceStrip = stripProcurementContributorLeakage(sanitized);
-  } else if (isConfigurationReference) {
-    afterAudienceStrip = stripConfigurationReferenceContributorLeakage(sanitized);
-  } else if (isFirstReviewEvidenceChecklist) {
-    afterAudienceStrip = stripFirstReviewEvidenceChecklistContributorLeakage(sanitized);
-  } else if (isDeveloperTroubleshooting) {
-    afterAudienceStrip = stripDeveloperTroubleshootingContributorLeakage(sanitized);
-  } else if (isCliUsage) {
-    afterAudienceStrip = stripCliUsageContributorLeakage(sanitized);
-  } else if (isEnterpriseOnboarding) {
-    afterAudienceStrip = stripEnterpriseOnboardingContributorLeakage(sanitized);
-  } else if (isGovernanceApiContracts) {
-    afterAudienceStrip = stripGovernanceApiContractsContributorLeakage(sanitized);
-  } else if (isPilotRoiModel) {
-    afterAudienceStrip = stripPilotRoiModelContributorLeakage(sanitized);
-  } else if (isRepeatReviewLoop) {
-    afterAudienceStrip = stripRepeatReviewLoopContributorLeakage(sanitized);
-  } else if (isAcceleratorChooser) {
-    afterAudienceStrip = stripAcceleratorChooserIntroAndTable(
-      stripAcceleratorChooserContributorLeakage(sanitized),
-    );
-  } else if (isAzureBoardsIntegration) {
-    afterAudienceStrip = stripAzureBoardsContributorLeakage(sanitized);
-  } else if (isCaiqSigResponse) {
-    afterAudienceStrip = alignCaiqSigAssuranceHonesty(stripCaiqSigContributorLeakage(sanitized));
-  } else if (normalizedSourcePath.includes("dpa_template.md")) {
-    afterAudienceStrip = stripDpaTemplateContributorLeakage(sanitized);
-  } else if (
-    options?.helpTopicSlug === "subprocessors" &&
-    normalizedSourcePath.includes("subprocessors.md")
-  ) {
-    afterAudienceStrip = stripSubprocessorsContributorLeakage(sanitized);
-  } else if (
-    options?.helpTopicSlug === "executive-summary" &&
-    normalizedSourcePath.includes("customer-facing/faq.md")
-  ) {
-    afterAudienceStrip = stripExecutiveSummaryContributorLeakage(sanitized);
-  } else if (
-    options?.helpTopicSlug === "first-value-20-minutes" &&
-    normalizedSourcePath.includes("first_pilot_operator_path.md")
-  ) {
-    afterAudienceStrip = stripFirstValue20ContributorLeakage(sanitized);
-  } else if (
-    options?.helpTopicSlug === "evidence-intake" &&
-    normalizedSourcePath.includes("evidence_intake_operator_guide.md")
-  ) {
-    afterAudienceStrip = stripEvidenceIntakeStructuredUiSections(
-      softenEvidenceIntakeHelpPresentation(sanitized),
-    );
-  } else if (
-    options?.helpTopicSlug === "evidence-trail" &&
-    normalizedSourcePath.includes("EVIDENCE_TRAIL_OPERATOR_GUIDE.md")
-  ) {
-    afterAudienceStrip = stripEvidenceTrailStructuredUiSections(sanitized);
-  } else if (
-    options?.helpTopicSlug === "path-chooser" &&
-    normalizedSourcePath.includes("buyer_orientation_one_screen.md")
-  ) {
-    afterAudienceStrip = stripPathChooserStructuredUiSections(
-      stripPathChooserContributorLeakage(sanitized),
-    );
-  } else if (
-    options?.helpTopicSlug === "pilot-feedback" &&
-    normalizedSourcePath.includes("product_learning.md")
-  ) {
-    afterAudienceStrip = stripPilotFeedbackContributorLeakage(sanitized);
-  } else if (
-    options?.helpTopicSlug === "policy-pack-delta-demo" &&
-    normalizedSourcePath.includes("policy_pack_delta_demo_script.md")
-  ) {
-    afterAudienceStrip = stripPolicyPackDeltaContributorLeakage(sanitized);
-  } else if (
-    options?.helpTopicSlug === "prior-manifest-retrieval" &&
-    normalizedSourcePath.includes("prior_manifest_retrieval_guide.md")
-  ) {
-    afterAudienceStrip = stripPriorManifestRetrievalContributorLeakage(sanitized);
-  } else if (
-    // product-overview alias normalizes to executive-summary before render (TB-1739).
-    options?.helpTopicSlug === "executive-summary" &&
-    normalizedSourcePath.includes("executive_sponsor_brief.md")
-  ) {
-    afterAudienceStrip = stripExecutiveSummarySponsorBriefLeakage(sanitized);
-  } else if (
-    options?.helpTopicSlug === "soc2-self-assessment" &&
-    normalizedSourcePath.includes("soc2_self_assessment_2026.md")
-  ) {
-    afterAudienceStrip = stripSoc2SelfAssessmentContributorLeakage(sanitized);
-  }
-
-  const afterIsolationHonesty = alignDataHandlingIsolationHonesty(afterAudienceStrip);
-  const afterTenantIsolationStrip = stripTenantIsolationContributorLeakage(afterIsolationHonesty);
-  const withoutHorizontalRules = stripMarkdownHorizontalRules(afterTenantIsolationStrip);
+  const sanitized = sanitizeBareMarkdownFileReferences(
+    rewriteHelpMarkdownDocLinks(beforeLinkRewrite, sourceDocPath),
+  );
+  const afterAudienceStrip = applyHelpMarkdownTopicRules(
+    sanitized,
+    HELP_MARKDOWN_AUDIENCE_RULE_SETS,
+    topicContext,
+  );
+  const withoutHorizontalRules = applyHelpMarkdownPresentationRules(afterAudienceStrip, [
+    alignDataHandlingIsolationHonesty,
+    stripTenantIsolationContributorLeakage,
+    stripMarkdownHorizontalRules,
+  ]);
   const presentationBody =
     options?.preserveMaintenanceMetadata === true
       ? withoutHorizontalRules
       : stripDocumentationMaintenanceMetadata(withoutHorizontalRules);
 
-  return applyHelpTopicProductLanguage(emphasizeInlineGuidanceLabels(presentationBody));
+  return applyHelpMarkdownPresentationRules(presentationBody, [
+    emphasizeInlineGuidanceLabels,
+    applyHelpTopicProductLanguage,
+  ]);
 }
