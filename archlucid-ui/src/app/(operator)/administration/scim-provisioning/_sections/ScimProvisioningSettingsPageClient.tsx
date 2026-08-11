@@ -10,7 +10,7 @@ import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCal
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { ScimIdentityProvidersVocabularyRail } from "@/components/ScimIdentityProvidersVocabularyRail";
-import { ScimVsUsersReconciler } from "@/components/ScimVsUsersReconciler";
+import { ScimUsersVocabularyRail } from "@/components/ScimUsersVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   AlertDialog,
@@ -360,7 +360,7 @@ export function ScimProvisioningSettingsPageClient() {
         titleTestId="scim-provisioning-page-title"
         actions={<PageContextualHelpButton />}
       />
-      <ScimVsUsersReconciler currentSurfaceId="scim" />
+      <ScimUsersVocabularyRail currentSurfaceId="scim" />
       <ScimIdentityProvidersVocabularyRail currentSurfaceId="scim-provisioning" />
       <p
         className={cn(

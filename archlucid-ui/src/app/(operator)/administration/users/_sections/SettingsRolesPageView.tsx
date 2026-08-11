@@ -11,7 +11,7 @@ import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorksp
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { ApiKeysVsUsersReconciler } from "@/components/ApiKeysVsUsersReconciler";
 import { CustomRolesUsersVocabularyRail } from "@/components/CustomRolesUsersVocabularyRail";
-import { ScimVsUsersReconciler } from "@/components/ScimVsUsersReconciler";
+import { ScimUsersVocabularyRail } from "@/components/ScimUsersVocabularyRail";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -215,7 +215,7 @@ export function SettingsRolesPageView(props: Props) {
         }
       />
       <ApiKeysVsUsersReconciler currentSurfaceId="users" />
-      <ScimVsUsersReconciler currentSurfaceId="users" />
+      <ScimUsersVocabularyRail currentSurfaceId="users" />
       {activeTab === "roles" || activeTab === "users" ? (
         <CustomRolesUsersVocabularyRail
           currentSurfaceId={activeTab === "roles" ? "custom-roles" : "users"}
