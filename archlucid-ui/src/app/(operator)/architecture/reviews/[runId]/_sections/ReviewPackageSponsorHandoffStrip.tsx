@@ -7,6 +7,8 @@ import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { GoldenManifestExportMenu } from "@/components/GoldenManifestExportMenu";
 import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
 import { SponsorRoiBaselineGateNotice } from "@/components/SponsorRoiBaselineGateNotice";
+import { SponsorRehearsalPreviewPanel } from "@/components/reviews/SponsorRehearsalPreviewPanel";
+import type { SponsorRehearsalPreviewInput } from "@/lib/sponsor-rehearsal-preview";
 import { Button } from "@/components/ui/button";
 import { getRunPackageExportUrl, SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT } from "@/lib/api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -25,6 +27,8 @@ export type ReviewPackageSponsorHandoffStripProps = {
   readonly trustEvidenceCard: RunTrustEvidenceCard | null | undefined;
   readonly usedStaticDemoRun: boolean;
   readonly showExtendedSponsorBriefing: boolean;
+  /** Optional rehearsal inputs; empty sections stay honest when omitted. */
+  readonly rehearsalPreview?: SponsorRehearsalPreviewInput | null;
 };
 
 /** Above-the-fold sponsor export entry — promotes existing export surfaces (TB-2132). Soft ROI baseline warn (TB-2204). */
@@ -78,6 +82,15 @@ export function ReviewPackageSponsorHandoffStrip(
             </Link>
           </Button>
         ) : null}
+      </div>
+      <div className="mt-3">
+        <SponsorRehearsalPreviewPanel
+          input={
+            props.rehearsalPreview ?? {
+              packageTitle: props.runId,
+            }
+          }
+        />
       </div>
     </section>
   );
