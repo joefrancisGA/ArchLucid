@@ -1,16 +1,24 @@
-import { AZURE_BOARDS_HELP_TRAFFIC_PATH } from "@/lib/ui-route-traffic-azure-boards-help";
-import { CONNECT_AWS_SECURELY_HELP_TRAFFIC_PATH } from "@/lib/ui-route-traffic-connect-aws-securely-help";
-import { CONNECT_AZURE_SECURELY_HELP_TRAFFIC_PATH } from "@/lib/ui-route-traffic-connect-azure-securely-help";
-import { CONNECT_GCP_SECURELY_HELP_TRAFFIC_PATH } from "@/lib/ui-route-traffic-connect-gcp-securely-help";
-import { DATA_HANDLING_HELP_TRAFFIC_PATH } from "@/lib/ui-route-traffic-data-handling-help";
-import { EXECUTIVE_SUMMARY_HELP_TRAFFIC_PATH } from "@/lib/ui-route-traffic-executive-summary-help";
-import { FIRST_ARCHITECTURE_REVIEW_HELP_TRAFFIC_PATH } from "@/lib/ui-route-traffic-first-architecture-review-help";
-import { GETTING_STARTED_HELP_TRAFFIC_PATH } from "@/lib/ui-route-traffic-getting-started-help";
-import { GOVERNANCE_API_CONTRACTS_HELP_TRAFFIC_PATH } from "@/lib/ui-route-traffic-governance-api-contracts-help";
-import { PATH_CHOOSER_HELP_TRAFFIC_PATH } from "@/lib/ui-route-traffic-path-chooser-help";
-import { PILOT_GUIDE_HELP_TRAFFIC_PATH } from "@/lib/ui-route-traffic-pilot-guide-help";
-import { REVIEW_GUIDE_HELP_TRAFFIC_PATH } from "@/lib/ui-route-traffic-review-guide-help";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { USERS_AND_ROLES_HELP_CANONICAL_PATH } from "@/lib/users-and-roles-help-evidence-copy";
+
+/**
+ * Canonical help URLs come from the product documentation registry, rather than
+ * traffic-workbook metadata. This keeps retired-alias routing independent of scoring rows.
+ */
+const RETIRED_HELP_TOPIC_CANONICAL_PATHS = {
+  apiContracts: inAppHelpHref("api-contracts"),
+  azureBoards: inAppHelpHref("azure-boards"),
+  cloudConnectionsAws: inAppHelpHref("cloud-connections-aws"),
+  cloudConnectionsAzure: inAppHelpHref("cloud-connections-azure"),
+  cloudConnectionsGcp: inAppHelpHref("cloud-connections-gcp"),
+  dataHandling: inAppHelpHref("data-handling"),
+  executiveSummary: inAppHelpHref("executive-summary"),
+  firstArchitectureReview: inAppHelpHref("first-architecture-review"),
+  gettingStarted: inAppHelpHref("getting-started"),
+  pathChooser: inAppHelpHref("path-chooser"),
+  pilotGuide: inAppHelpHref("pilot-guide"),
+  reviewGuide: inAppHelpHref("review-guide"),
+} as const;
 
 export type RetiredHelpTopicAliasTrafficEntry = {
   /** Workbook row ID removed when alias was folded (omit when alias never had its own scored row). */
@@ -32,34 +40,34 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
   {
     removedRowId: "ECO",
     retiredPath: "/help/core-pilot",
-    canonicalPath: FIRST_ARCHITECTURE_REVIEW_HELP_TRAFFIC_PATH,
+    canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.firstArchitectureReview,
     historicalNote:
       "Deprecated core-pilot help alias (Help alias) - slug alias core-pilot -> first-architecture-review; canon COR = /help/first-architecture-review.",
   },
   {
     removedRowId: "HEV",
     retiredPath: "/help/evidence-only-review",
-    canonicalPath: FIRST_ARCHITECTURE_REVIEW_HELP_TRAFFIC_PATH,
+    canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.firstArchitectureReview,
   },
   {
     removedRowId: "FIR",
     retiredPath: "/help/first-pilot-path",
-    canonicalPath: FIRST_ARCHITECTURE_REVIEW_HELP_TRAFFIC_PATH,
+    canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.firstArchitectureReview,
   },
   {
     removedRowId: "HFE",
     retiredPath: "/help/first-hour-operator-path",
-    canonicalPath: FIRST_ARCHITECTURE_REVIEW_HELP_TRAFFIC_PATH,
+    canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.firstArchitectureReview,
   },
   {
     removedRowId: "HET",
     retiredPath: "/help/starting-reviews",
-    canonicalPath: REVIEW_GUIDE_HELP_TRAFFIC_PATH,
+    canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.reviewGuide,
   },
   {
     removedRowId: "HER",
     retiredPath: "/help/creating-runs",
-    canonicalPath: REVIEW_GUIDE_HELP_TRAFFIC_PATH,
+    canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.reviewGuide,
     bannedBuyerCopy: ["/help/creating-runs", "creating runs", "Creating runs"],
     buyerSurfaceGuards: [
       "src/app/(operator)/help/_sections/HelpReviewGuideView.tsx",
@@ -72,22 +80,22 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
   {
     removedRowId: "HEE",
     retiredPath: "/help/evaluator-workbook",
-    canonicalPath: PATH_CHOOSER_HELP_TRAFFIC_PATH,
+    canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.pathChooser,
   },
   {
     removedRowId: "HEP",
     retiredPath: "/help/governance-api-contracts",
-    canonicalPath: GOVERNANCE_API_CONTRACTS_HELP_TRAFFIC_PATH,
+    canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.apiContracts,
   },
   {
     removedRowId: "HDA",
     retiredPath: "/help/data-handling-tenant-isolation",
-    canonicalPath: DATA_HANDLING_HELP_TRAFFIC_PATH,
+    canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.dataHandling,
   },
   {
     removedRowId: "HAZ",
     retiredPath: "/help/integrations/azure-boards",
-    canonicalPath: AZURE_BOARDS_HELP_TRAFFIC_PATH,
+    canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.azureBoards,
     buyerSurfaceGuards: [
       "src/lib/azure-boards-help-evidence-copy.ts",
       "src/lib/help-search-panel-catalog.ts",
@@ -97,17 +105,17 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
   {
     removedRowId: "HHX",
     retiredPath: "/help/how-it-works",
-    canonicalPath: GETTING_STARTED_HELP_TRAFFIC_PATH,
+    canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.gettingStarted,
   },
   {
     removedRowId: "EPR",
     retiredPath: "/help/product-overview",
-    canonicalPath: EXECUTIVE_SUMMARY_HELP_TRAFFIC_PATH,
+    canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.executiveSummary,
   },
   {
     removedRowId: "PIL",
     retiredPath: "/help/pilot-nav-profile",
-    canonicalPath: PILOT_GUIDE_HELP_TRAFFIC_PATH,
+    canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.pilotGuide,
     historicalNote:
       "Deprecated pilot-nav-profile help twin (Help topic) - workspace navigation guide folded into pilot-guide specialty (HP); canon HP = /help/pilot-guide.",
   },
@@ -123,15 +131,15 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
   },
   {
     retiredPath: "/help/cloud-connections-azure",
-    canonicalPath: CONNECT_AZURE_SECURELY_HELP_TRAFFIC_PATH,
+    canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.cloudConnectionsAzure,
   },
   {
     retiredPath: "/help/cloud-connections-aws",
-    canonicalPath: CONNECT_AWS_SECURELY_HELP_TRAFFIC_PATH,
+    canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.cloudConnectionsAws,
   },
   {
     retiredPath: "/help/cloud-connections-gcp",
-    canonicalPath: CONNECT_GCP_SECURELY_HELP_TRAFFIC_PATH,
+    canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.cloudConnectionsGcp,
   },
 ] as const;
 
