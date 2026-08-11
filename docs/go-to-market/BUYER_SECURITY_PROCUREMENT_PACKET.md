@@ -2470,7 +2470,7 @@ Former standalone body: `docs/go-to-market/OWNER_SCREENSHOT_BELOW_50_SPECIALTY_H
 | Score (approx) | Route | Owning cluster |
 | --- | --- | --- |
 | ~32 | `/help/developer-troubleshooting` | **TB-1246**–**TB-1250** |
-| ~33 | `/help/governance-api-contracts` | **TB-1384**–**TB-1388** |
+| ~33 | `/help/api-contracts` | **TB-1384**–**TB-1388** |
 | ~39 | `/help/configuration-reference` | **TB-1326**–**TB-1330** |
 | ~40 | `/help/repeat-review-loop` | **TB-1394**–**TB-1398** |
 | ~42 | `/help/evaluator-workbook` | **TB-1345**–**TB-1349** |
@@ -4223,6 +4223,7 @@ Former standalone body: `docs/go-to-market/INTERRUPTED_REVIEW_BUYER_ONE_PAGER.md
 - **TB-960** **Done** (2026-08-10) — ACA worker failure-semantics engineering contract published.
 - **TB-961**–**TB-962** remain open for graceful drain and staging replica-kill drill.
 - **TB-1523** **Done** (2026-08-10) — engineering crash-recovery claim map: [`../library/CRASH_RECOVERY_LONG_RUNNING_REVIEW_CLAIM_MAP.md`](../library/CRASH_RECOVERY_LONG_RUNNING_REVIEW_CLAIM_MAP.md) (**M-277**/**M-278**).
+- **TB-1563** **Done** (2026-08-10) — Worker rolling-deploy drain/handoff/kill claim map: [`../library/WORKER_ROLLING_DEPLOY_DRAIN_HANDOFF_CLAIM_MAP.md`](../library/WORKER_ROLLING_DEPLOY_DRAIN_HANDOFF_CLAIM_MAP.md) (**M-292**/**M-293**).
 
 **Related:** [Process vs provider idempotency (M-171)](#process-vs-provider-idempotency-m-171) Â· [Polly vs run completeness (M-147)](#polly-vs-run-completeness-m-147) Â· [`../library/LLM_RETRY_AND_CIRCUIT_BREAKER.md`](../library/LLM_RETRY_AND_CIRCUIT_BREAKER.md) Â· [principal architect falsification script](#principal-architect-falsification-script-m-113) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).
 

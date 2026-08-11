@@ -59,7 +59,7 @@
 | --- | --- | --- |
 | Replica SIGTERM / scale-in | Stop admitting new work; finish or abandon in-flight call; release lease before kill | **TB-961** (graceful drain) |
 | Unexpected process crash | Lease TTL → reclaim; reconcile stuck execute | **TB-943** (zombie reconciliation) |
-| Rolling deploy | Same as scale-in — no silent Ready | **TB-1563** claim map |
+| Rolling deploy | Same as scale-in — no silent Ready | Done **TB-1563** claim map |
 
 ---
 

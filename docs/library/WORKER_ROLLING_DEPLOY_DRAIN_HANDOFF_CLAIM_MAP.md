@@ -4,7 +4,7 @@
 
 **Audience:** Engineering, security reviewers, principal-architect diligence. Not a buyer brochure.
 
-**Status:** Working contract for **TB-1563** / GTM **M-292**. Pair honesty CI **TB-1564** / **M-292**.
+**Status:** **Done** (2026-08-10) — **TB-1563** / GTM **M-292**/**M-293**. Pair honesty CI **TB-1564** (open).
 
 **Verdict (one line):** A Worker revision roll is **soft drain (~45s) then kill**, not a live handoff of in-flight work. Durable Worker work (**authority outbox**, durable jobs, other leased loops) **reclaims after lease/stuck expiry** on a peer. Long-running **agent LLM execute is API-sync today** — Worker ZDT does **not** protect it. No product max-run-duration is sized to survive a deploy; the baked-in stop budget is **`HostOptions.ShutdownTimeout = 45s`** (ACA `terminationGracePeriodSeconds` unset in Terraform).
 
@@ -74,7 +74,7 @@ Until **TB-1311** ships async agent execute to Worker, “runs executing on the 
 | Open **TB-960** / **TB-962** | Failure-semantics contract / staging kill drill |
 | Open **TB-943** / Done **TB-1523** / **M-277** | Execute stuck / crash-recovery map |
 | Open **TB-1311** / **M-231** | Async agent execute → Worker |
-| **TB-1563** / **M-292** | This Worker rolling-deploy claim map |
+| Done **TB-1563** / **M-292** | This Worker rolling-deploy claim map |
 
 ---
 
