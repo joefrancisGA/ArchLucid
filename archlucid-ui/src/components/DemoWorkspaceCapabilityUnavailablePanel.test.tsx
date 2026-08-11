@@ -22,7 +22,7 @@ describe("DemoWorkspaceCapabilityUnavailablePanel", () => {
     );
     expect(screen.getByText(BUYER_DEMO_CAPABILITY_UNAVAILABLE_TITLE)).toBeInTheDocument();
     expect(
-      screen.getByText("In a connected tenant, operators configure scheduled governance digests here."),
+      screen.getByText("In a connected tenant, architects configure scheduled governance digests here."),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open reviews" })).toHaveAttribute(
       "href",

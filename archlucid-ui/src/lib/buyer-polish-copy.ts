@@ -380,10 +380,10 @@ export const OPERATOR_HOME_WORKSPACE_STATUS_COLLAPSED_SUMMARY_FIRST_RUN =
   "Workspace readiness signals.";
 
 export const NEW_REVIEW_SAMPLE_ESCAPE_CTA =
-  "See a completed architecture package and its evidence trail.";
+  "See a completed signed review record and its evidence trail.";
 
 export const NEW_REVIEW_SAMPLE_ESCAPE_HINT =
-  "Skip setup and explore a finished architecture package.";
+  "Skip setup and explore a finished signed review record.";
 
 /** TB-2151 — pre-intake specimen preview on `/architecture/reviews/new` and home start CTAs. */
 export const REVIEWS_NEW_SPECIMEN_PREVIEW_TITLE = "See what you will get";

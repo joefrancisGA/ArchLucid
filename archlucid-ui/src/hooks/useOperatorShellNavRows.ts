@@ -58,6 +58,10 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
   const roleNavDensityPersona = resolveRoleNavDensityPersona(currentPrincipal.roleClaimValues);
   const demoUi = isStaticDemoPayloadFallbackEnabled();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const ctoDemoNavExpandedEnv = isCtoDemoNavExpandedEnv();
+  // CTO demo presenter pack expands Graph / Governance without progressive disclosure — also bypass
+  // role-density collapse so mock CI and demos keep operate-governance visible (TB-2139).
+  const effectiveRoleNavDensityShowFullNav = roleNavDensityShowFullNav || ctoDemoNavExpandedEnv;
   // Tier / operate-unlock disclosure retired: always request full link sets; authority filters below.
   const showExtended = true;
   const showAdvanced = true;
@@ -69,7 +73,7 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
     navDisclosurePathOverride: true,
     buyerPolishedShell,
     demoUi,
-    ctoDemoNavExpandedEnv: isCtoDemoNavExpandedEnv(),
+    ctoDemoNavExpandedEnv,
     runtimeCtoDemoTourActive: false,
   });
   const effectiveHasCommittedArchitectureReview = hasCommittedArchitectureReview || buyerPolishedShell;
@@ -128,12 +132,12 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
     const allRows = filterNavGroupsByRoleDensity(
       scopedRows,
       roleNavDensityPersona,
-      roleNavDensityShowFullNav,
+      effectiveRoleNavDensityShowFullNav,
     );
     const roleNavDensityHiddenGroupCount = countNavGroupsHiddenByRoleDensity(
       scopedRows,
       roleNavDensityPersona,
-      roleNavDensityShowFullNav,
+      effectiveRoleNavDensityShowFullNav,
     );
 
     return {
@@ -150,7 +154,7 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
       shellShowExtended,
       shellShowAdvanced,
       roleNavDensityHiddenGroupCount,
-      roleNavDensityShowFullNav,
+      roleNavDensityShowFullNav: effectiveRoleNavDensityShowFullNav,
       toggleRoleNavDensityShowFullNav,
     };
   }, [
@@ -160,12 +164,12 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
     demoUi,
     effectiveHasCommittedArchitectureReview,
     effectiveOperateUnlockPhase,
+    effectiveRoleNavDensityShowFullNav,
     navAdvanced,
     navExpanded,
     omitAdminClusters,
     patternLibraryNavVisible,
     roleNavDensityPersona,
-    roleNavDensityShowFullNav,
     shellShowAdvanced,
     shellShowExtended,
     showAdvanced,

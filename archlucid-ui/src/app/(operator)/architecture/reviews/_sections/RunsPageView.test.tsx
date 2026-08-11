@@ -77,8 +77,9 @@ vi.mock("@/components/OperatorPageHeader", () => ({
   ),
 }));
 
-vi.mock("@/lib/architecture-draft-registry", () => ({
-  listArchitectureDraftRegistryEntries: () => [],
+vi.mock("@/hooks/use-architecture-draft-registry-entries", () => ({
+  useArchitectureDraftRegistryEntries: () => [],
+  useArchitectureDraftRegistryHydrated: () => true,
 }));
 
 vi.mock("@/components/OperatorWelcomeOnboarding", () => ({
@@ -219,7 +220,7 @@ describe("RunsPageView load failure", () => {
       />,
     );
 
-    expect(screen.getByText("Not found in this workspace")).toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent("Not found in this workspace");
     expect(screen.getByText(REVIEWS_HUB_LIST_NOT_FOUND_TRY_NEXT)).toBeInTheDocument();
     expect(screen.queryByText(/Check your connection/i)).not.toBeInTheDocument();
   });

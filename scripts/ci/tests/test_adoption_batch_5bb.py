@@ -16,10 +16,16 @@ class TestAdoptionBatch5BB(unittest.TestCase):
         self.assertIn("portfolio-key-not-configured", text)
 
     def test_tb_249_ui_redirect(self) -> None:
-        path = REPO_ROOT / "archlucid-ui" / "next.config.ts"
+        # Legacy /portfolio is hard-retired (host-gate 404), not a next.config redirect.
+        path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "ui-route-traffic-architecture-executive-dashboard.ts"
         text = path.read_text(encoding="utf-8")
-        self.assertIn('source: "/portfolio"', text)
-        self.assertIn('destination: "/architecture/executive-dashboard"', text)
+        self.assertIn('LEGACY_PORTFOLIO_OVERVIEW_PATH = "/portfolio"', text)
+        self.assertIn("hard-retired", text)
+        self.assertIn("EXECUTIVE_DASHBOARD_HREF", text)
+        route = (REPO_ROOT / "archlucid-ui" / "src" / "lib" / "executive-dashboard-route.ts").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("/architecture/executive-dashboard", route)
 
     def test_tb_249_doc(self) -> None:
         path = REPO_ROOT / "docs" / "library" / "MULTI_TENANT_PORTFOLIO.md"

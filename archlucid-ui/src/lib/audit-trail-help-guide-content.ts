@@ -53,7 +53,7 @@ export const AUDIT_TRAIL_HELP_PRIMARY_ACTIONS = {
 } as const;
 
 export const AUDIT_TRAIL_HELP_WHAT_IS_BODY =
-  "When an authorized user finalizes an architecture package, records a governance approval, updates evidence, or exports a diligence bundle, ArchLucid appends an audit trail entry with actor identity, action type, timestamp, and correlation identifiers. Entries stay linked to the review so auditors can reconstruct accountability without opening every finding or signed review record separately.";
+  "When an authorized user finalizes an architecture review, records a governance approval, updates evidence, or exports a diligence bundle, ArchLucid appends an audit trail entry with actor identity, action type, timestamp, and correlation identifiers. Entries stay linked to the review so auditors can reconstruct accountability without opening every finding or signed review record separately.";
 
 export type AuditTrailHelpAnatomyField = {
   readonly label: string;
@@ -128,7 +128,7 @@ export const AUDIT_TRAIL_HELP_EVIDENCE_TRAIL_ITEMS = [
   "Input artifacts and evidence trail citations explain what was reviewed.",
   "Findings and decisions capture architecture risk and governance disposition.",
   "Audit trail entries record authenticated actions — who submitted, approved, exported, or changed evidence.",
-  "The signed review record binds the committed architecture package state.",
+  "The signed review record binds the committed architecture review state.",
 ] as const;
 
 export type AuditTrailHelpRoleGuidance = {

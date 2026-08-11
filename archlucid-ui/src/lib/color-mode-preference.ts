@@ -1,5 +1,3 @@
-import { getUserPreferences, setUserAppearancePreference } from "@/lib/api/user-preferences";
-
 export const COLOR_MODE_STORAGE_KEY = "archlucid_color_mode";
 
 export type ColorModePreference = "light" | "dark" | "system";
@@ -187,6 +185,8 @@ export async function syncColorModePreferenceFromServer(): Promise<ColorModePref
   }
 
   try {
+    // Dynamic import keeps this module free of an eager cycle with user-preferences → http (Vitest mocks).
+    const { getUserPreferences } = await import("@/lib/api/user-preferences");
     const remote = await getUserPreferences();
     const systemPrefersDark = readSystemPrefersDark();
     const localPreference = readStoredColorModePreference();
@@ -214,6 +214,7 @@ export async function persistColorModePreferenceToServer(
   preference: ColorModePreference,
 ): Promise<void> {
   try {
+    const { setUserAppearancePreference } = await import("@/lib/api/user-preferences");
     await setUserAppearancePreference(preference);
   }
   catch {

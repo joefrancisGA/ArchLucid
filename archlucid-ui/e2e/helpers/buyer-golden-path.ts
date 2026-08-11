@@ -1,9 +1,6 @@
 import { expect, type Page } from "@playwright/test";
 
-import {
-  SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
-  SHOWCASE_BUYER_REVIEW_TITLE,
-} from "@/lib/showcase-static-demo";
+import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE } from "@/lib/showcase-static-demo";
 
 import {
   SCREENSHOT_LEFT_RUN_ID,
@@ -49,15 +46,15 @@ export const BUYER_GOLDEN_PATH_HREFS = {
 /** Buyer audit page title when scoped to the showcase run (`AuditPageView`). */
 export const BUYER_SHOWCASE_AUDIT_TRAIL_HEADING = "Audit trail for Claims Intake Modernization";
 
-/** Review detail workspace H1 for showcase run (`deriveReviewDisplayTitle` / `buyerFacingReviewTitleFromSummary`). */
-export const BUYER_SHOWCASE_EXECUTIVE_HEADLINE = SHOWCASE_BUYER_REVIEW_TITLE;
+/** Review detail workspace H1 for showcase run (`deriveReviewHeaderPresentation` system name). */
+export const BUYER_SHOWCASE_EXECUTIVE_HEADLINE = SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE;
 
 /** Procurement-oriented package label in cards, breadcrumbs, and static demo copy. */
 export const BUYER_SHOWCASE_REVIEW_PACKAGE_HEADLINE = SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE;
 
 /** Playwright-accessible name may include status chips inside the H1 flex row. */
 export const BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN =
-  /Claims Intake Modernization Review( Package)?/i;
+  /Claims Intake Modernization(?: Review(?: Package)?)?/i;
 
 export async function expectNoGenericErrorBoundary(page: Page): Promise<void> {
   await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);

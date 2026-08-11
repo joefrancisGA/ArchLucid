@@ -1,4 +1,4 @@
-> **Scope:** Operator — Hosted SaaS enterprise onboarding checklist for ArchLucid-operated multi-tenant SaaS.
+> **Scope:** customer-facing — hosted SaaS enterprise onboarding checklist for ArchLucid-operated multi-tenant SaaS (tenant administrators, implementation engineers, security, and procurement reviewers).
 
 # Hosted SaaS enterprise onboarding checklist
 

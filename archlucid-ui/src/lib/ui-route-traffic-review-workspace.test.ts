@@ -22,8 +22,7 @@ describe("ui-route-traffic-review-workspace (RRE)", () => {
     expect(rre?.section).toBe(REVIEW_WORKSPACE_TRAFFIC_SECTION);
     expect(rre?.notes).toBe(REVIEW_WORKSPACE_TRAFFIC_NOTE);
     expect(rre?.notes).toContain("Absorbs former SRN");
-    expect(rre?.notes).toContain("findings-first reviewTab queue");
-    expect(rre?.notes).toContain("Score 76");
-    expect(rre?.notes).toContain("HCD = contextual help drawer");
+    expect(rre?.notes).toContain("RunDetailPageView");
+    expect(rre?.notes).toContain("Score 72");
   });
 });

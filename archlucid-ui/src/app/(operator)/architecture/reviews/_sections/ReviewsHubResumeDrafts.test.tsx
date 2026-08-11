@@ -1,10 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const listArchitectureDraftRegistryEntries = vi.fn();
+const useArchitectureDraftRegistryEntries = vi.fn();
 
-vi.mock("@/lib/architecture-draft-registry", () => ({
-  listArchitectureDraftRegistryEntries: () => listArchitectureDraftRegistryEntries(),
+vi.mock("@/hooks/use-architecture-draft-registry-entries", () => ({
+  useArchitectureDraftRegistryEntries: () => useArchitectureDraftRegistryEntries(),
+  useArchitectureDraftRegistryHydrated: () => true,
 }));
 
 vi.mock("@/lib/architecture-draft-resume-telemetry", () => ({
@@ -14,12 +15,12 @@ vi.mock("@/lib/architecture-draft-resume-telemetry", () => ({
 import { ReviewsHubResumeDrafts } from "./ReviewsHubResumeDrafts";
 
 beforeEach(() => {
-  listArchitectureDraftRegistryEntries.mockReset();
+  useArchitectureDraftRegistryEntries.mockReset();
 });
 
 describe("ReviewsHubResumeDrafts", () => {
   it("renders nothing when no drafts exist", () => {
-    listArchitectureDraftRegistryEntries.mockReturnValue([]);
+    useArchitectureDraftRegistryEntries.mockReturnValue([]);
 
     const { container } = render(<ReviewsHubResumeDrafts />);
 
@@ -27,7 +28,7 @@ describe("ReviewsHubResumeDrafts", () => {
   });
 
   it("renders nothing when a single draft is already the header Continue target", () => {
-    listArchitectureDraftRegistryEntries.mockReturnValue([
+    useArchitectureDraftRegistryEntries.mockReturnValue([
       {
         architectureId: "draft-001",
         displayName: "Payments platform draft",
@@ -45,11 +46,11 @@ describe("ReviewsHubResumeDrafts", () => {
   });
 
   it("renders a supporting multi-draft strip with status, relative time, and actions", () => {
-    listArchitectureDraftRegistryEntries.mockReturnValue([
+    useArchitectureDraftRegistryEntries.mockReturnValue([
       {
         architectureId: "draft-001",
         displayName:
-          "# Architecture Review Packet — Contoso Claims Intake Platform Modernization (Phase 1)",
+          "# Architecture Review Package — Contoso Claims Intake Platform Modernization (Phase 1)",
         customerStatus: "ready-for-review",
         ownerLabel: "You",
         lastUpdatedUtc: "2026-01-15T12:00:00.000Z",

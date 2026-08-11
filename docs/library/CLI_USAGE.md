@@ -452,4 +452,4 @@ Automation can combine exit codes with leading **`--json`** for structured stder
 
 ## REST integration starter fixtures
 
-For HTTP automation against the documented buyer integration path (create → execute → commit → export → compare → ROI), see [API contracts](/help/api-contracts) and [Developer troubleshooting](/help/developer-troubleshooting).
+For HTTP automation against the documented buyer integration path (create → execute → commit → export → compare → ROI), see [API contracts](/help/api-contracts), [Developer troubleshooting](/help/developer-troubleshooting), and the sanitized starter fixtures in [`scripts/ci/data/v1_integration_starter_contracts.v1.json`](../../scripts/ci/data/v1_integration_starter_contracts.v1.json).

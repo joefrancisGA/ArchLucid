@@ -104,9 +104,8 @@ export function ArchitectureCreationLocalDraftsPanel(): React.JSX.Element | null
                 />
                 <span
                   className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
-                  title={absoluteUpdated}
                 >
-                  Updated {formatRelativeTime(entry.lastUpdatedUtc)}
+                  Updated {formatRelativeTime(entry.lastUpdatedUtc)} ({absoluteUpdated})
                 </span>
               </div>
               <div className="mt-2">

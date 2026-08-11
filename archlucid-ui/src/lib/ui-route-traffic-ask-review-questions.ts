@@ -15,4 +15,4 @@ export const ASK_REVIEW_QUESTIONS_TRAFFIC_SECTION = "Core review";
  * ASCII-only for Windows console note scripts.
  */
 export const ASK_REVIEW_QUESTIONS_TRAFFIC_NOTE =
- "Ask review questions (Core review) - AskPageContent with PageContextualHelpButton (topic map evidence-trail; Category-1 registry), thread/history panels. Formerly /ask (retired). Sibling GRA/INE = evidence-graph; SXX = search. Score 78/100 (2026-08-08) - grounded Q&A hard-caps short of full diligence packing. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
+  "Ask review questions (Core review) - AskPageContent with PageContextualHelpButton (topic map evidence-trail; Category-1 registry), thread/history panels. Formerly /ask (retired). Sibling GRA/INE = evidence-graph; SXX = search. Score 78/100 (2026-08-08) - grounded Q&A hard-caps short of full diligence packing. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";

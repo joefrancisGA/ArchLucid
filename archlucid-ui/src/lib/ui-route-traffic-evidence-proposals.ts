@@ -17,4 +17,4 @@ export const EVIDENCE_PROPOSALS_TRAFFIC_SECTION = "Admin";
  * ASCII-only for Windows console note scripts.
  */
 export const EVIDENCE_PROPOSALS_TRAFFIC_NOTE =
- "Evidence proposals (Admin) - AdminEvidenceProposalsPageClient with PageContextualHelpButton (topic map evidence-trail; Category-1 registry), promote queue. Internal agent catalog candidates - not a signed-record Sources trail.admin hub at SET/ADY Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
+  "Evidence proposals (Admin) - AdminEvidenceProposalsPageClient with PageContextualHelpButton (topic map evidence-trail; Category-1 registry), promote queue. Internal agent catalog candidates - not a signed-record Sources trail.admin hub at SET/ADY Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";

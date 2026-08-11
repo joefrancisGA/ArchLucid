@@ -3,6 +3,7 @@
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
 import {
+  OPERATOR_HOME_WORKSPACE_EMPTY_BODY,
   OPERATOR_HOME_WORKSPACE_EMPTY_TITLE,
 } from "@/lib/buyer-polish-copy";
 
@@ -14,7 +15,7 @@ export function OperatorHomeWorkspaceEmptyState() {
       title={OPERATOR_HOME_WORKSPACE_EMPTY_TITLE}
       description={
         <>
-          Your in-progress and completed architecture reviews will appear here. When you finalize, you produce a{" "}
+          {OPERATOR_HOME_WORKSPACE_EMPTY_BODY} When you finalize, you produce a{" "}
           <InlineGlossaryChip nounId="signed-review-record">signed review record</InlineGlossaryChip> backed by an{" "}
           <InlineGlossaryChip nounId="evidence-trail">evidence trail</InlineGlossaryChip> and optional{" "}
           <InlineGlossaryChip nounId="governance-approval">governance approval</InlineGlossaryChip>.

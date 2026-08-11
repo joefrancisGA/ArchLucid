@@ -6,7 +6,7 @@ import { ReviewPackageSponsorHandoffStrip } from "./ReviewPackageSponsorHandoffS
 
 vi.mock("@/components/GoldenManifestExportMenu", () => ({
   GoldenManifestExportMenu: () => (
-    <button type="button" data-testid="golden-manifest-markdown-download-button">
+    <button type="button" data-testid="review-package-sponsor-handoff-markdown-download">
       Download review summary
     </button>
   ),
@@ -51,7 +51,7 @@ describe("ReviewPackageSponsorHandoffStrip", () => {
     expect(screen.getByTestId("sponsor-rehearsal-preview")).toBeInTheDocument();
     expect(screen.getByText("Preview as sponsor")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Send to sponsor" })).toBeInTheDocument();
-    expect(screen.getByTestId("golden-manifest-markdown-download-button")).toBeInTheDocument();
+    expect(screen.getByTestId("review-package-sponsor-handoff-markdown-download")).toBeInTheDocument();
     expect(screen.getByTestId("review-package-sponsor-handoff-docx")).toBeInTheDocument();
     expect(screen.getByTestId("review-package-sponsor-handoff-more")).toHaveAttribute(
       "href",

@@ -1,4 +1,4 @@
-import { apiGet, apiPutJson } from "@/lib/api/http";
+import * as httpApi from "@/lib/api/http";
 import type { ColorModePreference } from "@/lib/color-mode-preference";
 
 export type UserPreferencesResponse = {
@@ -73,7 +73,8 @@ export async function getUserPreferences(): Promise<UserPreferencesResponse> {
 
   const generation = cacheGeneration;
 
-  inFlight = apiGet<UserPreferencesResponse>("/v1/user/preferences")
+  inFlight = httpApi
+    .apiGet<UserPreferencesResponse>("/v1/user/preferences")
     .then((value) => {
       writeCache(value, generation);
       return value;
@@ -86,7 +87,10 @@ export async function getUserPreferences(): Promise<UserPreferencesResponse> {
 }
 
 export async function setUserAppearancePreference(value: ColorModePreference): Promise<void> {
-  await apiPutJson<void>("/v1/user/preferences/appearance", { value } satisfies SetAppearancePreferenceRequest);
+  await httpApi.apiPutJson<void>(
+    "/v1/user/preferences/appearance",
+    { value } satisfies SetAppearancePreferenceRequest,
+  );
 
   writeCache(
     {

@@ -1,21 +1,14 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import {
-  COLOR_MODE_STORAGE_KEY,
-  applyColorModePreference,
-  normalizeColorModePreference,
-  persistColorModePreference,
-  resolveColorModeAppearance,
-  resolveDarkAppearance,
-  syncColorModePreferenceFromServer,
-} from "@/lib/color-mode-preference";
-
-vi.mock("@/lib/api/user-preferences", () => ({
-  getUserPreferences: vi.fn(),
-  setUserAppearancePreference: vi.fn(),
+const { getUserPreferencesMock, setUserAppearancePreferenceMock } = vi.hoisted(() => ({
+  getUserPreferencesMock: vi.fn(),
+  setUserAppearancePreferenceMock: vi.fn(),
 }));
 
-import { getUserPreferences, setUserAppearancePreference } from "@/lib/api/user-preferences";
+vi.mock("@/lib/api/user-preferences", () => ({
+  getUserPreferences: (...args: unknown[]) => getUserPreferencesMock(...args),
+  setUserAppearancePreference: (...args: unknown[]) => setUserAppearancePreferenceMock(...args),
+}));
 
 type MatchMediaController = {
   readonly matches: boolean;
@@ -62,10 +55,40 @@ function installMatchMedia(initialMatches: boolean): MatchMediaController {
 
 describe("color-mode-preference", () => {
   let matchMediaController: MatchMediaController | null = null;
+  let COLOR_MODE_STORAGE_KEY: typeof import("@/lib/color-mode-preference").COLOR_MODE_STORAGE_KEY;
+  let applyColorModePreference: typeof import("@/lib/color-mode-preference").applyColorModePreference;
+  let normalizeColorModePreference: typeof import("@/lib/color-mode-preference").normalizeColorModePreference;
+  let persistColorModePreference: typeof import("@/lib/color-mode-preference").persistColorModePreference;
+  let resolveColorModeAppearance: typeof import("@/lib/color-mode-preference").resolveColorModeAppearance;
+  let resolveDarkAppearance: typeof import("@/lib/color-mode-preference").resolveDarkAppearance;
+  let syncColorModePreferenceFromServer: typeof import("@/lib/color-mode-preference").syncColorModePreferenceFromServer;
+
+  beforeEach(async () => {
+    vi.resetModules();
+    getUserPreferencesMock.mockReset();
+    setUserAppearancePreferenceMock.mockReset();
+
+    const mod = await import("@/lib/color-mode-preference");
+
+    COLOR_MODE_STORAGE_KEY = mod.COLOR_MODE_STORAGE_KEY;
+    applyColorModePreference = mod.applyColorModePreference;
+    normalizeColorModePreference = mod.normalizeColorModePreference;
+    persistColorModePreference = mod.persistColorModePreference;
+    resolveColorModeAppearance = mod.resolveColorModeAppearance;
+    resolveDarkAppearance = mod.resolveDarkAppearance;
+    syncColorModePreferenceFromServer = mod.syncColorModePreferenceFromServer;
+
+    try {
+      window.localStorage.removeItem(COLOR_MODE_STORAGE_KEY);
+    }
+    catch {
+      // ignore
+    }
+  });
 
   afterEach(() => {
-    vi.mocked(getUserPreferences).mockReset();
-    vi.mocked(setUserAppearancePreference).mockReset();
+    getUserPreferencesMock.mockReset();
+    setUserAppearancePreferenceMock.mockReset();
     document.documentElement.classList.remove("dark");
     matchMediaController?.dispose();
     matchMediaController = null;
@@ -111,7 +134,7 @@ describe("color-mode-preference", () => {
 
   it("syncColorModePreferenceFromServer overwrites localStorage with explicit server value", async () => {
     window.localStorage.setItem(COLOR_MODE_STORAGE_KEY, "light");
-    vi.mocked(getUserPreferences).mockResolvedValue({
+    getUserPreferencesMock.mockResolvedValue({
       appearancePreference: "dark",
       appearancePreferenceIsExplicit: true,
     });
@@ -125,20 +148,21 @@ describe("color-mode-preference", () => {
 
   it("migrates legacy browser-only preference when server has no explicit value", async () => {
     window.localStorage.setItem(COLOR_MODE_STORAGE_KEY, "dark");
-    vi.mocked(getUserPreferences).mockResolvedValue({
+    getUserPreferencesMock.mockResolvedValue({
       appearancePreference: "system",
       appearancePreferenceIsExplicit: false,
     });
+    setUserAppearancePreferenceMock.mockResolvedValue(undefined);
 
     const synced = await syncColorModePreferenceFromServer();
 
     expect(synced).toBe("dark");
-    expect(setUserAppearancePreference).toHaveBeenCalledWith("dark");
+    expect(setUserAppearancePreferenceMock).toHaveBeenCalledWith("dark");
   });
 
   it("preserves explicit dark preference during server sync", async () => {
     window.localStorage.setItem(COLOR_MODE_STORAGE_KEY, "system");
-    vi.mocked(getUserPreferences).mockResolvedValue({
+    getUserPreferencesMock.mockResolvedValue({
       appearancePreference: "dark",
       appearancePreferenceIsExplicit: true,
     });

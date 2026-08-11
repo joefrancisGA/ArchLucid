@@ -27,7 +27,7 @@ test.describe("Compare view — mocked manifest delta", () => {
 
     // `CompareForm` auto-runs compare when `leftRunId`/`rightRunId` are in the URL; wait for outcomes, not the submit control.
     await expect(page.locator("#compare-structured")).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Review comparison", level: 3 })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Review comparison", level: 2 })).toBeVisible();
 
     await expect(structuredCompareSponsorRecommendationParagraph(page)).toBeVisible();
 

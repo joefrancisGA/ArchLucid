@@ -9,6 +9,7 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+  PAGE_HELP_SHORT_TRIGGER_TEXT: "Help",
 }));
 
 import { DigestsPageHeader } from "@/components/digests/DigestsPageHeader";

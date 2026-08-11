@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 
 vi.mock("./OperatorHomeDeferredPanels", () => ({
   OperatorHomeDeltaPanel: () => <div data-testid="home-block-delta-panel" />,
@@ -21,6 +22,15 @@ vi.mock("@/hooks/use-finish-setup-readiness-context", () => ({
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => true),
+  useOperatorNavAuthority: () => ({
+    currentPrincipal: {
+      ...operatorNavOutsideProviderPrincipal,
+      authorityRank: 3,
+      hasCommittedArchitectureReview: true,
+    },
+    callerAuthorityRank: 3,
+    isAuthorityLoading: false,
+  }),
 }));
 
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";

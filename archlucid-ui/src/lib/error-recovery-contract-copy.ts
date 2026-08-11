@@ -31,7 +31,7 @@ const CONNECTIVITY_RECOVERY: ErrorRecoveryContractPresentation = {
 };
 
 const REVIEW_PACKAGE_LOAD_RECOVERY: ErrorRecoveryContractPresentation = {
-  whatFailed: "This review package could not be loaded in the current workspace.",
+  whatFailed: "This architecture review could not be loaded in the current workspace.",
   whatIsIntact: "Other reviews in the workspace are unaffected; generation handoff metadata is preserved for diagnostics.",
   nextStep: "Retry loading the review, then open reviews or start a new review if it still fails.",
 };

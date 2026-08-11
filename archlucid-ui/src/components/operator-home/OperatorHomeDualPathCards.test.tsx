@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 
 const push = vi.fn();
 const prefetch = vi.fn();
@@ -32,7 +33,15 @@ vi.mock("@/hooks/use-finish-setup-readiness-context", () => ({
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => 100,
-}));
+  useOperatorNavAuthority: () => ({
+    currentPrincipal: {
+      ...operatorNavOutsideProviderPrincipal,
+      authorityRank: 100,
+      hasCommittedArchitectureReview: false,
+    },
+    callerAuthorityRank: 100,
+    isAuthorityLoading: false,
+  }),}));
 
 vi.mock("@/components/operator-home/operator-home-workspace-activity-context", () => ({
   useOperatorHomeWorkspaceActivity: () => ({

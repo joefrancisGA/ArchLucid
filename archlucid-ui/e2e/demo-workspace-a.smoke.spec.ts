@@ -104,6 +104,8 @@ test.describe(
     });
 
     /** Affordance only — do not trigger Markdown download blob (release gate verifies control presence). */
-    await expect(page.getByTestId("golden-manifest-markdown-download-button")).toBeVisible();
+    await expect(
+      page.locator("#artifacts-exports").getByTestId("golden-manifest-markdown-download-button"),
+    ).toBeVisible();
   });
 });

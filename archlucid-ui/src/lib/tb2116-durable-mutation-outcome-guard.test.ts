@@ -139,6 +139,7 @@ describe("TB-2116 durable mutation outcome guard", () => {
 
       return (
         !content.includes("OperatorSuccessCallout")
+        && !content.includes("ReversibleMutationSuccessCallout")
         && !content.includes("ReviewGenerationCreatedNotice")
         && !content.includes("ReviewStartInlineError")
         && !content.includes("OperatorMutationInlineError")

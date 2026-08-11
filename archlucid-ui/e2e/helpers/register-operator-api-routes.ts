@@ -26,6 +26,7 @@ import {
   matchesArtifactBundleGet,
   matchesArtifactListGet,
   matchesAuthorityProjectRunsPagedGet,
+  matchesAuthorityReviewsInScopePagedGet,
   matchesAuthorityRunManifestGet,
   matchesBuyerRunDetailSummaryGet,
   matchesCompareExplainGet,
@@ -87,7 +88,7 @@ export type OperatorJourneyRouteConfig = {
   authorityRunManifests?: readonly AuthorityRunManifestRouteSpec[] | null;
   compareExplanation?: CompareExplanationRouteSpec | null;
   artifactBundle?: ArtifactBundleRouteSpec | null;
-  /** Stubs `GET /v1/authority/projects/{projectId}/reviews` (Compare {@link RunIdPicker} loads rows on focus). */
+  /** Stubs `GET /v1/authority/projects/{projectId}/reviews` and scope-wide `GET /v1/authority/reviews` (Compare RunIdPicker). */
   projectRunsPaged?: { projectId: string; body: unknown } | null;
 };
 
@@ -117,7 +118,8 @@ export async function registerOperatorJourneyApiRoutes(
       if (
         config.projectRunsPaged &&
         method === "GET" &&
-        matchesAuthorityProjectRunsPagedGet(url, config.projectRunsPaged.projectId)
+        (matchesAuthorityProjectRunsPagedGet(url, config.projectRunsPaged.projectId) ||
+          matchesAuthorityReviewsInScopePagedGet(url))
       ) {
         await fulfillJson(route, 200, config.projectRunsPaged.body);
         return true;

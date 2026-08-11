@@ -26,49 +26,46 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
           Provenance graph and citations-bound explanation for the example architecture review.
         </p>
       </div>
-      <span
-        class="inline-flex items-center"
+      <button
+        aria-expanded="false"
+        aria-haspopup="dialog"
+        aria-label="Help: Demo explain"
+        class="inline-flex items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-semibold border border-neutral-300 bg-white hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:hover:bg-neutral-800 rounded-md text-xs h-8 gap-1.5 px-2 text-neutral-700 dark:text-neutral-300"
+        data-state="closed"
+        data-testid="page-contextual-help-button"
+        type="button"
       >
-        <button
-          aria-expanded="false"
-          aria-label="Help: Demo explain"
-          class="inline-flex items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-semibold hover:bg-neutral-100 hover:text-[color:var(--al-text-primary)] dark:hover:bg-neutral-800 rounded-md text-xs h-8 gap-1.5 px-2 text-neutral-700 dark:text-neutral-300"
-          data-testid="page-contextual-help-button"
-          title="Help: Demo explain"
-          type="button"
+        <svg
+          aria-hidden="true"
+          class="lucide lucide-circle-question-mark h-4 w-4"
+          fill="none"
+          height="24"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
         >
-          <svg
-            aria-hidden="true"
-            class="lucide lucide-circle-question-mark h-4 w-4"
-            fill="none"
-            height="24"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            viewBox="0 0 24 24"
-            width="24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <circle
-              cx="12"
-              cy="12"
-              r="10"
-            />
-            <path
-              d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"
-            />
-            <path
-              d="M12 17h.01"
-            />
-          </svg>
-          <span
-            class="text-xs font-normal leading-[18px] text-al-text-secondary"
-          >
-            Demo explain
-          </span>
-        </button>
-      </span>
+          <circle
+            cx="12"
+            cy="12"
+            r="10"
+          />
+          <path
+            d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"
+          />
+          <path
+            d="M12 17h.01"
+          />
+        </svg>
+        <span
+          class="text-xs font-normal leading-[18px] text-al-text-secondary"
+        >
+          Demo explain
+        </span>
+      </button>
     </div>
     <div
       class="space-y-2 rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900 text-xs font-normal leading-[18px] text-al-text-secondary"
@@ -81,7 +78,7 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
       >
         <span
           aria-label="Status: demo tenant — replace before publishing"
-          class="inline-flex max-w-full items-center rounded px-1.5 py-0.5 cursor-default select-none pointer-events-none text-[11px] font-medium leading-tight bg-neutral-500/10 text-al-text-secondary dark:bg-neutral-500/15"
+          class="inline-flex max-w-full items-center rounded px-1.5 py-0.5 cursor-default select-none pointer-events-none text-[11px] font-medium leading-tight border border-neutral-200/70 border-l-[3px] dark:border-neutral-700/70 border-l-neutral-500 bg-neutral-100 text-al-text-secondary dark:border-l-neutral-400 dark:bg-neutral-800/80"
         >
           demo tenant — replace before publishing
         </span>
@@ -98,7 +95,7 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
         <button
           aria-controls="_r_1_"
           aria-expanded="false"
-          class="inline-flex items-center whitespace-nowrap rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-[color:var(--al-text-primary)] h-auto w-full justify-between gap-2 px-4 py-3 text-left hover:bg-neutral-100/80 dark:hover:bg-neutral-800/60 text-[15px] font-semibold leading-[22px] text-al-text-secondary"
+          class="inline-flex items-center whitespace-nowrap rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-neutral-300 bg-white dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 h-auto w-full justify-between gap-2 px-4 py-3 text-left hover:bg-neutral-100/80 dark:hover:bg-neutral-800/60 text-[15px] font-semibold leading-[22px] text-al-text-secondary"
           data-state="closed"
           type="button"
         >
@@ -287,13 +284,13 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
           data-testid="explanation-evidence-basis-badges"
         >
           <span
-            class="border inline-flex max-w-full items-center rounded px-1.5 py-0.5 cursor-default select-none pointer-events-none bg-[var(--al-status-warn-bg)] text-xs font-normal leading-[18px] text-al-text-secondary"
+            class="inline-flex max-w-full items-center rounded px-1.5 py-0.5 cursor-default select-none pointer-events-none border border-neutral-200/70 border-l-[3px] dark:border-neutral-700/70 border-l-amber-600 bg-[var(--al-status-warn-bg)] dark:border-l-amber-500 text-xs font-normal leading-[18px] text-al-text-secondary"
             title="Illustrative sample output; do not present as buyer evidence."
           >
             Demo-derived
           </span>
           <span
-            class="border inline-flex max-w-full items-center rounded px-1.5 py-0.5 cursor-default select-none pointer-events-none bg-[var(--al-status-ready-bg)] text-xs font-normal leading-[18px] text-al-text-secondary"
+            class="inline-flex max-w-full items-center rounded px-1.5 py-0.5 cursor-default select-none pointer-events-none border border-neutral-200/70 border-l-[3px] dark:border-neutral-700/70 border-l-emerald-600 bg-[var(--al-status-ready-bg)] dark:border-l-emerald-500 text-xs font-normal leading-[18px] text-al-text-secondary"
             title="2 persisted citations support this explanation."
           >
             Evidence-backed

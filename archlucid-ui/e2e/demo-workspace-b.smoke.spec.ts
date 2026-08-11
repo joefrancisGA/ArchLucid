@@ -263,6 +263,6 @@ test.describe(
     await expect(page.locator("#artifacts-exports").getByRole("link", { name: /Download evidence bundle/i })).toBeVisible({
       timeout: 60_000,
     });
-    await expect(page.getByTestId("golden-manifest-markdown-download-button")).toBeVisible();
+    await expect(page.locator("#artifacts-exports").getByTestId("golden-manifest-markdown-download-button")).toBeVisible();
   });
 });
