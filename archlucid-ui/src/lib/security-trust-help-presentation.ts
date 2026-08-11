@@ -116,7 +116,7 @@ function parsePostureSummaryStatusCells(markdown: string): readonly string[] {
 
 export function computeSecurityTrustPostureCounts(preparedMarkdown: string): SecurityTrustPostureCounts {
   // Mutable accumulator; returned object satisfies the readonly counts shape.
-  const counts: { [K in keyof SecurityTrustPostureCounts]: number } = {
+  const counts: { -readonly [K in keyof SecurityTrustPostureCounts]: number } = {
     selfAsserted: 0,
     planned: 0,
     active: 0,
