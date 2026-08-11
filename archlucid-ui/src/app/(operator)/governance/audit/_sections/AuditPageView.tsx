@@ -28,6 +28,7 @@ import {
 } from "@/lib/audit-trail-page-helpers";
 
 import { AuditActiveFilterChips } from "@/components/AuditActiveFilterChips";
+import { AuditEvidenceTrailVocabularyRail } from "@/components/AuditEvidenceTrailVocabularyRail";
 import { buildAuditActiveFilterChips } from "@/lib/audit-active-filter-chips";
 import { CtoDemoAuditIntegrityExportButton } from "@/components/cto-demo/CtoDemoAuditIntegrityExportButton";
 import { CtoDemoAuditIntegrityVerifyButton } from "@/components/cto-demo/CtoDemoAuditIntegrityVerifyButton";
@@ -109,6 +110,7 @@ export function AuditPageView(props: AuditPageViewProps) {
           )
         }
       />
+      <AuditEvidenceTrailVocabularyRail currentSurfaceId="audit" />
 {buyerPolishedShell && props.buyerAuditTrailMetrics !== null ? (
         <AuditBuyerHeaderMetrics buyerAuditTrailMetrics={props.buyerAuditTrailMetrics} />
       ) : null}

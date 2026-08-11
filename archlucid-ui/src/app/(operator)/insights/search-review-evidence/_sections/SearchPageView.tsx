@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { AskSearchEvidenceVocabularyRail } from "@/components/AskSearchEvidenceVocabularyRail";
+import { AuditEvidenceTrailVocabularyRail } from "@/components/AuditEvidenceTrailVocabularyRail";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -77,6 +78,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
           actions={<PageContextualHelpButton />}
         />
         <AskSearchEvidenceVocabularyRail currentSurfaceId="search" />
+        <AuditEvidenceTrailVocabularyRail currentSurfaceId="search-evidence" />
         <DemoWorkspaceCapabilityUnavailablePanel
           layout="embedded"
           capability={SEARCH_PAGE_TITLE}
@@ -96,6 +98,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
         actions={<PageContextualHelpButton />}
       />
       <AskSearchEvidenceVocabularyRail currentSurfaceId="search" />
+      <AuditEvidenceTrailVocabularyRail currentSurfaceId="search-evidence" />
       {scopedRunId.length > 0 ? <SearchReviewEvidenceCiteStrip runId={scopedRunId} /> : null}
 
       <Card className="mb-6 max-w-xl border-neutral-200 dark:border-neutral-700">
