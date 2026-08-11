@@ -23,7 +23,6 @@ import {
 } from "@/lib/admin-integration-mutation-outcome-copy";
 import {
   resolveTeamsIntegrationConnectionStatus,
-  TEAMS_INTEGRATION_REMOVE_CONFIRM,
   TEAMS_INTEGRATION_SECRET_ACCESS_FAILURE_MESSAGE,
   TEAMS_INTEGRATION_TEST_FAILURE,
   TEAMS_INTEGRATION_TEST_SUCCESS,
@@ -70,6 +69,7 @@ export function useTeamsNotificationsIntegrationPage(
   const canMutate = useOperateCapability();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [pendingRemoveConfirm, setPendingRemoveConfirm] = useState(false);
   const [validating, setValidating] = useState(false);
   const [testing, setTesting] = useState(false);
 
@@ -295,14 +295,24 @@ export function useTeamsNotificationsIntegrationPage(
     }
   }, [canMutate, catalog, enabledTriggers, label, secretName]);
 
-  const onRemove = useCallback(async (): Promise<void> => {
+  const requestRemove = useCallback((): void => {
     if (!canMutate) {
       return;
     }
 
-    const confirmed = window.confirm(TEAMS_INTEGRATION_REMOVE_CONFIRM);
+    setPendingRemoveConfirm(true);
+  }, [canMutate]);
 
-    if (!confirmed) {
+  const cancelRemove = useCallback((): void => {
+    if (saving) {
+      return;
+    }
+
+    setPendingRemoveConfirm(false);
+  }, [saving]);
+
+  const confirmRemove = useCallback(async (): Promise<void> => {
+    if (!canMutate) {
       return;
     }
 
@@ -322,6 +332,7 @@ export function useTeamsNotificationsIntegrationPage(
       setLastTestMessage(null);
       await load();
       setMutationSuccessMessage(TEAMS_INTEGRATION_REMOVE_SUCCESS_MESSAGE);
+      setPendingRemoveConfirm(false);
     } catch (error) {
       setFailure(toApiLoadFailure(error));
     } finally {
@@ -360,6 +371,9 @@ export function useTeamsNotificationsIntegrationPage(
     onValidateSecret,
     onSendTest,
     onSave,
-    onRemove,
+    pendingRemoveConfirm,
+    requestRemove,
+    cancelRemove,
+    confirmRemove,
   };
 }

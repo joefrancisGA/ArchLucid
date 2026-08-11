@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { PageHeading } from "@/components/PageHeading";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -26,6 +27,7 @@ import {
   TEAMS_INTEGRATION_DRAFT_NOT_SAVED_HELPER,
   TEAMS_INTEGRATION_PAGE_SUBTITLE,
   TEAMS_INTEGRATION_PAGE_TITLE,
+  TEAMS_INTEGRATION_REMOVE_CONFIRM,
   TEAMS_INTEGRATION_SECRET_EXAMPLE,
   TEAMS_INTEGRATION_SECRET_HELPER,
   TEAMS_INTEGRATION_SECRET_NAME_LABEL,
@@ -279,7 +281,10 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
                     type="button"
                     variant="outline"
                     disabled={!m.canMutate || m.saving}
-                    onClick={() => void m.onRemove()}
+                    data-testid="teams-remove-connection"
+                    onClick={() => {
+                      m.requestRemove();
+                    }}
                   >
                     Remove connection
                   </Button>
@@ -336,6 +341,23 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
           permissions.
         </p>
       ) : null}
+
+      <ConfirmationDialog
+        open={m.pendingRemoveConfirm}
+        onOpenChange={(open) => {
+          if (!open) {
+            m.cancelRemove();
+          }
+        }}
+        title="Remove Teams connection?"
+        description={TEAMS_INTEGRATION_REMOVE_CONFIRM}
+        confirmLabel="Remove connection"
+        variant="destructive"
+        busy={m.saving}
+        onConfirm={() => {
+          void m.confirmRemove();
+        }}
+      />
     </div>
   );
 }

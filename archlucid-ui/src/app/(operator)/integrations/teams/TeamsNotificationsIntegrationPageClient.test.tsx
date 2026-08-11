@@ -247,4 +247,49 @@ describe("TeamsNotificationsIntegrationPageClient", () => {
     expect(await screen.findByText(TEAMS_INTEGRATION_SECRET_NAME_NOT_URL_MESSAGE)).toBeInTheDocument();
     expect(mockValidate).not.toHaveBeenCalled();
   });
+
+  it("confirms before removing a Teams connection instead of window.confirm", async () => {
+    mockGetConnection.mockResolvedValue({
+      tenantId: "t",
+      isConfigured: true,
+      label: "Ops channel",
+      keyVaultSecretName: "teams-ops",
+      enabledTriggers: TEAMS_RECOMMENDED_EVENT_TYPES,
+      updatedUtc: "2026-01-01T00:00:00Z",
+    });
+    mockDelete.mockResolvedValue(undefined);
+    const confirmSpy = vi.spyOn(window, "confirm");
+
+    render(
+      <TeamsNotificationsIntegrationPageClient
+        loaded={{
+          mode: "live",
+          conn: {
+            tenantId: "t",
+            isConfigured: true,
+            label: "Ops channel",
+            keyVaultSecretName: "teams-ops",
+            enabledTriggers: [...TEAMS_RECOMMENDED_EVENT_TYPES],
+            updatedUtc: "2026-01-01T00:00:00Z",
+          },
+          catalog: CATALOG,
+          failure: null,
+        }}
+      />,
+    );
+
+    fireEvent.click(await screen.findByTestId("teams-remove-connection"));
+
+    expect(screen.getByRole("heading", { name: /Remove Teams connection/i })).toBeInTheDocument();
+    expect(confirmSpy).not.toHaveBeenCalled();
+    expect(mockDelete).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Remove connection" }));
+
+    await waitFor(() => {
+      expect(mockDelete).toHaveBeenCalled();
+    });
+
+    confirmSpy.mockRestore();
+  });
 });
