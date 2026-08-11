@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { ArchitectureDraftFieldState } from "@/lib/architecture-draft-readiness";
 import {
+  GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS,
   GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
   GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_LABEL,
   GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_PLACEHOLDER,
@@ -26,6 +27,8 @@ type ArchitectureDraftFormFieldsProps = {
   readonly fields: ArchitectureDraftFieldState;
   readonly actorSet: ActorSet;
   readonly disabled?: boolean;
+  /** When true, mark required fields that fail review-start minimums (TB-2006). */
+  readonly markReviewReadinessInvalid?: boolean;
   readonly onFieldsChange: (fields: ArchitectureDraftFieldState) => void;
   readonly onActorSetChange: (actorSet: ActorSet) => void;
 };
@@ -50,6 +53,10 @@ export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsPr
   const intentTrimmedLength = props.fields.freeTextIntent.trim().length;
   const outcomeTrimmedLength = props.fields.businessOutcome.trim().length;
   const outcomeMeetsMinimum = outcomeTrimmedLength >= MIN_OUTCOME_CHARS;
+  const markInvalid = props.markReviewReadinessInvalid === true;
+  const systemNameInvalid = markInvalid && props.fields.systemName.trim().length === 0;
+  const overviewInvalid = markInvalid && intentTrimmedLength < GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS;
+  const outcomeInvalid = markInvalid && outcomeTrimmedLength < MIN_OUTCOME_CHARS;
 
   return (
     <div className="space-y-6" data-testid="architecture-draft-form-fields">
@@ -69,6 +76,7 @@ export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsPr
           placeholder={GUIDED_INTAKE_CREATION_SYSTEM_NAME_PLACEHOLDER}
           data-testid="architecture-draft-system-name"
           aria-required
+          aria-invalid={systemNameInvalid}
         />
       </div>
 
@@ -89,6 +97,7 @@ export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsPr
           placeholder={GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_PLACEHOLDER}
           data-testid="architecture-draft-intent"
           aria-required
+          aria-invalid={overviewInvalid}
         />
         <p className={cn(OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
           {guidedIntakeCreationArchitectureOverviewHelperText(intentTrimmedLength)}
@@ -112,6 +121,7 @@ export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsPr
           placeholder={GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER}
           data-testid="architecture-draft-outcome"
           aria-required
+          aria-invalid={outcomeInvalid}
         />
         <p className={cn(OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
           {outcomeTrimmedLength === 0

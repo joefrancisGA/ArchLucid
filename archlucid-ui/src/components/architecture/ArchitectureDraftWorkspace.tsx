@@ -16,6 +16,7 @@ import { ArchitectureDraftSaveStatus } from "@/components/architecture/Architect
 import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
 import { DraftIntakeAdvancedSection } from "@/components/draft-intake/DraftIntakeAdvancedSection";
 import { DraftIntakeReasoningPanel } from "@/components/draft-intake/DraftIntakeReasoningPanel";
+import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { ReplayCostPreExecuteCostVocabularyRail } from "@/components/ReplayCostPreExecuteCostVocabularyRail";
 import { PreExecuteCostEstimateNotice } from "@/components/usability/PreExecuteCostEstimateNotice";
@@ -102,6 +103,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const [startReviewPending, setStartReviewPending] = useState(false);
   const [scopeGateOpen, setScopeGateOpen] = useState(false);
   const [scopeBullets, setScopeBullets] = useState<ScopeUnderstandingBullet[]>([]);
+  const [startReviewError, setStartReviewError] = useState<string | null>(null);
   const [handoffAcknowledged, setHandoffAcknowledged] = useState(false);
   const [linkedReviewTitle, setLinkedReviewTitle] = useState("Untitled review");
   const [registryHydrated, setRegistryHydrated] = useState(false);
@@ -184,6 +186,9 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     : ARCHITECTURE_DRAFT_WORKSPACE_LEAD;
 
   const reviewReadiness = useMemo(() => validateArchitectureReviewReadiness(fields), [fields]);
+  const needsPersistedDraftBeforeStart = isNewDraft && !hasPersistedDraft;
+  const canStartReview =
+    reviewReadiness.isValid && scopeGateOpen && !needsPersistedDraftBeforeStart && saveState !== "saving";
   const scopeUnderstandingInput = useMemo(
     () => ({
       architectureName: fields.systemName,
@@ -206,6 +211,10 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       }),
     [linkedReviewId, reviewReadiness.isValid],
   );
+
+  useEffect(() => {
+    setStartReviewError(null);
+  }, [fields, scopeGateOpen]);
 
   const loadDraft = useCallback(async () => {
     if (isNewDraft) {
@@ -341,24 +350,8 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       return;
     }
 
-    if (isNewDraft && !hasPersistedDraft) {
-      showError("Start architecture review", "Save the architecture draft before starting a review.");
-
-      return;
-    }
-
-    if (!reviewReadiness.isValid) {
-      showError(
-        "Start architecture review",
-        `Add ${reviewReadiness.blockers.join(" and ")} before starting a review.`,
-      );
-
-      return;
-    }
-
-    if (!scopeGateOpen) {
-      showError("Start architecture review", "Confirm or accept the inferred scope before starting a review.");
-
+    // Client-known blockers stay on the form; CTA is disabled until canStartReview.
+    if (!canStartReview) {
       return;
     }
 
@@ -366,6 +359,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       window.clearTimeout(startReviewTimeoutIdRef.current);
     }
 
+    setStartReviewError(null);
     setStartReviewPending(true);
 
     // Soft-nav stall must not leave Start review depressed forever.
@@ -390,7 +384,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         }
 
         setStartReviewPending(false);
-        showError("Start architecture review", "Save the architecture draft before starting a review.");
+        setStartReviewError("Save the architecture draft before starting a review.");
 
         return;
       }
@@ -410,21 +404,18 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       }
 
       setStartReviewPending(false);
-      showError("Start architecture review", "Could not start the architecture review. Try again.");
+      setStartReviewError("Could not start the architecture review. Try again.");
     }
   }, [
+    canStartReview,
     draft,
-    hasPersistedDraft,
+    fields.businessOutcome,
     isNewDraft,
     linkedReviewId,
     props.architectureId,
-    reviewReadiness,
     router,
     saveDraft,
     scopeBullets,
-    scopeGateOpen,
-    fields.businessOutcome,
-    isNewDraft,
     startReviewPending,
   ]);
 
@@ -537,6 +528,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
             fields={fields}
             actorSet={actorSet}
             disabled={handoffEditorLocked || exitPending}
+            markReviewReadinessInvalid={linkedReviewId === null && !reviewReadiness.isValid}
             onFieldsChange={setFields}
             onActorSetChange={setActorSet}
           />
@@ -578,59 +570,89 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         </>
       ) : null}
 
-      <div className="flex flex-wrap gap-2">
-        {linkedReviewId !== null ? (
-          <Button type="button" variant="primary" size="sm" asChild data-testid="architecture-continue-review">
-            <Link href={reviewDetailPath(linkedReviewId)}>Continue in review</Link>
-          </Button>
-        ) : (
-          <ReviewStartLoadingButton
-            type="button"
-            variant="primary"
-            size="sm"
-            disabled={saveState === "saving" || (isNewDraft && !hasPersistedDraft) || !scopeGateOpen}
-            isLoading={startReviewPending}
-            idleLabel={BUYER_START_ARCHITECTURE_REVIEW_CTA}
-            loadingLabel={REVIEW_START_PREPARING_LABEL}
-            onClick={() => {
-              void handleStartReview();
-            }}
-            data-testid="architecture-start-review"
+      <div className="space-y-2">
+        {linkedReviewId === null && !reviewReadiness.isValid ? (
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-red-800 dark:text-red-300")}
+            role="alert"
+            data-testid="architecture-draft-review-readiness"
+          >
+            Add {reviewReadiness.blockers.join(" and ")} before starting a review.
+          </p>
+        ) : null}
+        {linkedReviewId === null && reviewReadiness.isValid && needsPersistedDraftBeforeStart ? (
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
+            role="status"
+            data-testid="architecture-draft-persist-readiness"
+          >
+            Save the architecture draft before starting a review.
+          </p>
+        ) : null}
+        {linkedReviewId === null && reviewReadiness.isValid && !needsPersistedDraftBeforeStart && !scopeGateOpen ? (
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
+            role="status"
+            data-testid="architecture-draft-scope-readiness"
+          >
+            Confirm or accept the inferred scope before starting a review.
+          </p>
+        ) : null}
+        {startReviewError !== null ? (
+          <OperatorMutationInlineError
+            message={startReviewError}
+            testId="architecture-start-review-error"
+            recoveryScenario="api-problem"
           />
-        )}
-        {saveState === "error" || saveState === "offline" ? (
+        ) : null}
+        <div className="flex flex-wrap gap-2">
+          {linkedReviewId !== null ? (
+            <Button type="button" variant="primary" size="sm" asChild data-testid="architecture-continue-review">
+              <Link href={reviewDetailPath(linkedReviewId)}>Continue in review</Link>
+            </Button>
+          ) : (
+            <ReviewStartLoadingButton
+              type="button"
+              variant="primary"
+              size="sm"
+              disabled={!canStartReview}
+              isLoading={startReviewPending}
+              idleLabel={BUYER_START_ARCHITECTURE_REVIEW_CTA}
+              loadingLabel={REVIEW_START_PREPARING_LABEL}
+              onClick={() => {
+                void handleStartReview();
+              }}
+              data-testid="architecture-start-review"
+            />
+          )}
+          {saveState === "error" || saveState === "offline" ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={handoffEditorLocked}
+              onClick={() => {
+                void handleSaveDraft();
+              }}
+              data-testid="architecture-save-draft-retry"
+            >
+              Save now
+            </Button>
+          ) : null}
           <Button
             type="button"
             variant="outline"
             size="sm"
-            disabled={handoffEditorLocked}
+            disabled={handoffEditorLocked || saveState === "saving" || exitPending}
             onClick={() => {
-              void handleSaveDraft();
+              void handleSaveAndExit();
             }}
-            data-testid="architecture-save-draft-retry"
+            data-testid="architecture-save-and-exit"
           >
-            Save now
+            Save and exit
           </Button>
-        ) : null}
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={handoffEditorLocked || saveState === "saving" || exitPending}
-          onClick={() => {
-            void handleSaveAndExit();
-          }}
-          data-testid="architecture-save-and-exit"
-        >
-          Save and exit
-        </Button>
+        </div>
       </div>
-
-      {!reviewReadiness.isValid && linkedReviewId === null ? (
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>
-          Review readiness: add {reviewReadiness.blockers.join(" and ")} before starting a review.
-        </p>
-      ) : null}
     </div>
   );
 }

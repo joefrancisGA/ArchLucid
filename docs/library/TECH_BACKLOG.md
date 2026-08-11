@@ -940,7 +940,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1225 | **Done** (2026-08-11) ? Security & trust PageHeading icon + PageContextualHelpButton; Vitest; see `## TB-1225` below | Adoption friction P1 ? **V1**; with **TB-1224**; parity **TB-1184** | XS |
 | TB-1226 | **Done** (2026-08-11) ? Security & trust Trust Center primary CTA hierarchy; Vitest; see `## TB-1226` below | Adoption friction P1 ? **V1**; with **TB-1224** | S |
 | TB-1227 | **Done** (2026-08-11) ? Security & trust dedupe security@ contact CTAs; Vitest; see `## TB-1227` below | Adoption friction P1 ? **V1**; with **TB-1223** | XS |
-| TB-1248 | Engineering troubleshooting ? align route slug with page title; see ## TB-1248 below | Adoption friction P1 ? **V1**; with **TB-1246** | S |
+| TB-1248 | **Done** (2026-08-11) — canonical `/help/engineering-troubleshooting` + redirect; Vitest; see ## TB-1248 below | Adoption friction P1 ? **V1**; with **TB-1246** | S |
 | TB-1256 | **Done** (2026-08-11) ? Procurement FAQ diligence CTA chrome; Vitest; see `## TB-1256` below | Adoption friction P1 ? **V1**; with **TB-1253** | S |
 | TB-1259 | **Done** (2026-08-11) ? Review guide Start architecture review CTA to `/reviews/new`; Vitest; see `## TB-1259` below | Adoption friction P1 ? **V1**; with **TB-1258** | S |
 | TB-1260 | **Done** (2026-08-11) ? Review guide single title hierarchy; Vitest; see `## TB-1260` below | Adoption friction P1 ? **V1**; with **TB-1258** | XS |
