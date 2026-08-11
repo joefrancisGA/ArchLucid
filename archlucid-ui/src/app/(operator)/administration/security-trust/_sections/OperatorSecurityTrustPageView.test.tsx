@@ -64,4 +64,23 @@ describe("OperatorSecurityTrustPageView", () => {
     expect(legend.tagName).toBe("SUMMARY");
     expect(screen.getByText("Need security review support?")).toBeInTheDocument();
   });
+
+  it("uses StatusTag maturity badges on sections and legend (TB-1285 / TB-1286)", () => {
+    render(<OperatorSecurityTrustPageView />);
+
+    const page = screen.getByTestId("operator-security-trust-page");
+
+    expect(page.className).toContain("space-y-4");
+
+    expect(screen.getByTestId("security-trust-maturity-Available now")).toHaveTextContent("Available now");
+    expect(screen.getByTestId("security-trust-maturity-Under NDA")).toHaveTextContent("Under NDA");
+    expect(screen.getByTestId("security-trust-maturity-Roadmap")).toHaveTextContent("Roadmap");
+
+    expect(screen.getByTestId("security-trust-legend-Available now")).toHaveTextContent("Available now");
+    expect(screen.getByTestId("security-trust-legend-Under NDA")).toHaveTextContent("Under NDA");
+    expect(screen.getByTestId("security-trust-legend-Roadmap")).toHaveTextContent("Roadmap");
+
+    expect(document.querySelector(".rounded-full")).toBeNull();
+    expect(document.querySelector('[class*="bg-violet-100"]')).toBeNull();
+  });
 });

@@ -3,8 +3,9 @@ import Link from "next/link";
 
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { StatusTag } from "@/components/StatusTag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
   OPERATOR_SECURITY_TRUST_AVAILABLE_NOW_ITEMS,
@@ -15,6 +16,10 @@ import {
   OPERATOR_SECURITY_TRUST_DATA_RETENTION_PRIVACY_HREF,
   OPERATOR_SECURITY_TRUST_DATA_RETENTION_PRIVACY_LABEL,
   OPERATOR_SECURITY_TRUST_DATA_RETENTION_TITLE,
+  OPERATOR_SECURITY_TRUST_MATURITY_TAG_AVAILABLE_NOW,
+  OPERATOR_SECURITY_TRUST_MATURITY_TAG_ROADMAP,
+  OPERATOR_SECURITY_TRUST_MATURITY_TAG_UNDER_NDA,
+  OPERATOR_SECURITY_TRUST_MATURITY_TAGS,
   OPERATOR_SECURITY_TRUST_NDA_EMAIL,
   OPERATOR_SECURITY_TRUST_NDA_INTRO,
   OPERATOR_SECURITY_TRUST_ROADMAP_ITEMS,
@@ -22,6 +27,7 @@ import {
   OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_DETAIL_HREF,
   OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_DETAIL_LABEL,
   OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_TITLE,
+  type OperatorSecurityTrustMaturityTag,
 } from "@/lib/operator-security-trust-content";
 
 const securityTrustLinkClassName = cn(
@@ -55,29 +61,41 @@ function SecurityTrustLinkItem({
   );
 }
 
+function SecurityTrustMaturitySectionHeader({
+  maturityTag,
+  title,
+}: {
+  readonly maturityTag: OperatorSecurityTrustMaturityTag;
+  readonly title: string;
+}) {
+  return (
+    <div className={cn("flex flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)}>
+      <StatusTag
+        data-testid={`security-trust-maturity-${maturityTag.label}`}
+        kind={maturityTag.kind}
+        label={maturityTag.label}
+      />
+      <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{title}</h2>
+    </div>
+  );
+}
+
 /** Procurement-oriented trust center (operator shell). */
 export function OperatorSecurityTrustPageView() {
   return (
-    <div className="space-y-6">
+    <div className={OPERATOR_LAYOUT.sectionStack} data-testid="operator-security-trust-page">
       <OperatorPageHeader
         title={OPERATOR_NAV_LINK_LABELS.securityTrust}
         subtitle="Procurement-ready security and trust materials for this workspace."
         actions={<PageContextualHelpButton />}
       />
-<LayerHeader density="compact" pageKey="security-trust" />
+      <LayerHeader density="compact" pageKey="security-trust" />
 
-      <section aria-label="Available now" className="space-y-3">
-        <div className="flex items-center gap-2">
-          <span
-            className={cn(
-              "inline-flex rounded-full border border-emerald-700/40 bg-al-surface-raised px-2.5 py-0.5 text-al-text-primary dark:border-emerald-800/50",
-              OPERATOR_TYPOGRAPHY.tab,
-            )}
-          >
-            Available now
-          </span>
-          <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Public and procurement-ready materials</h2>
-        </div>
+      <section aria-label="Available now" className={OPERATOR_LAYOUT.sectionHeadingStack}>
+        <SecurityTrustMaturitySectionHeader
+          maturityTag={OPERATOR_SECURITY_TRUST_MATURITY_TAG_AVAILABLE_NOW}
+          title="Public and procurement-ready materials"
+        />
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
           Security posture is documented through policies, self-assessments, and procurement materials.
         </p>
@@ -90,7 +108,7 @@ export function OperatorSecurityTrustPageView() {
         </div>
       </section>
 
-      <section aria-label={OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_TITLE} className="space-y-3">
+      <section aria-label={OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_TITLE} className={OPERATOR_LAYOUT.sectionHeadingStack}>
         <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_TITLE}</h2>
         <div className="rounded-lg border border-neutral-200 bg-neutral-50/90 px-4 py-3 dark:border-neutral-700 dark:bg-neutral-900/40">
           <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
@@ -106,7 +124,7 @@ export function OperatorSecurityTrustPageView() {
         </div>
       </section>
 
-      <section aria-label={OPERATOR_SECURITY_TRUST_DATA_RETENTION_TITLE} className="space-y-3">
+      <section aria-label={OPERATOR_SECURITY_TRUST_DATA_RETENTION_TITLE} className={OPERATOR_LAYOUT.sectionHeadingStack}>
         <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{OPERATOR_SECURITY_TRUST_DATA_RETENTION_TITLE}</h2>
         <div className="rounded-lg border border-neutral-200 bg-neutral-50/90 px-4 py-3 dark:border-neutral-700 dark:bg-neutral-900/40">
           <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
@@ -129,18 +147,11 @@ export function OperatorSecurityTrustPageView() {
         </div>
       </section>
 
-      <section aria-label="Under NDA" className="space-y-3">
-        <div className="flex items-center gap-2">
-          <span
-            className={cn(
-              "inline-flex rounded-full border border-neutral-300 bg-al-surface-raised px-2.5 py-0.5 text-al-text-primary dark:border-neutral-600",
-              OPERATOR_TYPOGRAPHY.tab,
-            )}
-          >
-            Under NDA
-          </span>
-          <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Diligence-only materials</h2>
-        </div>
+      <section aria-label="Under NDA" className={OPERATOR_LAYOUT.sectionHeadingStack}>
+        <SecurityTrustMaturitySectionHeader
+          maturityTag={OPERATOR_SECURITY_TRUST_MATURITY_TAG_UNDER_NDA}
+          title="Diligence-only materials"
+        />
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
           Shared under NDA; report bodies are not published on this page.
         </p>
@@ -159,18 +170,11 @@ export function OperatorSecurityTrustPageView() {
         </div>
       </section>
 
-      <section aria-label="Roadmap" className="space-y-3">
-        <div className="flex items-center gap-2">
-          <span
-            className={cn(
-              "rounded-full bg-violet-100 px-2.5 py-0.5 text-violet-800 dark:bg-violet-900/50 dark:text-violet-300",
-              OPERATOR_TYPOGRAPHY.tab,
-            )}
-          >
-            Roadmap
-          </span>
-          <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Planned security maturity</h2>
-        </div>
+      <section aria-label="Roadmap" className={OPERATOR_LAYOUT.sectionHeadingStack}>
+        <SecurityTrustMaturitySectionHeader
+          maturityTag={OPERATOR_SECURITY_TRUST_MATURITY_TAG_ROADMAP}
+          title="Planned security maturity"
+        />
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Planned work — not yet available.</p>
         <div className="rounded-md border border-neutral-200 bg-al-surface-raised px-4 py-3 dark:border-neutral-800">
           <ul className={cn("m-0 list-disc space-y-1.5 pl-5 text-violet-950/90 dark:text-violet-100/90", OPERATOR_TYPOGRAPHY.body)}>
@@ -206,26 +210,20 @@ export function OperatorSecurityTrustPageView() {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td className="border-b border-neutral-100 px-3 py-2 font-medium dark:border-neutral-800/80">
-                  Available now
-                </td>
-                <td className="border-b border-neutral-100 px-3 py-2 text-neutral-700 dark:border-neutral-800/80 dark:text-neutral-300">
-                  Active and accessible without NDA.
-                </td>
-              </tr>
-              <tr>
-                <td className="border-b border-neutral-100 px-3 py-2 font-medium dark:border-neutral-800/80">
-                  Under NDA
-                </td>
-                <td className="border-b border-neutral-100 px-3 py-2 text-neutral-700 dark:border-neutral-800/80 dark:text-neutral-300">
-                  Shared under NDA; report body not published publicly.
-                </td>
-              </tr>
-              <tr>
-                <td className="px-3 py-2 font-medium">Roadmap</td>
-                <td className="px-3 py-2 text-neutral-700 dark:text-neutral-300">Planned; not yet available.</td>
-              </tr>
+              {OPERATOR_SECURITY_TRUST_MATURITY_TAGS.map((maturityTag) => (
+                <tr key={maturityTag.label}>
+                  <td className="border-b border-neutral-100 px-3 py-2 dark:border-neutral-800/80">
+                    <StatusTag
+                      data-testid={`security-trust-legend-${maturityTag.label}`}
+                      kind={maturityTag.kind}
+                      label={maturityTag.label}
+                    />
+                  </td>
+                  <td className="border-b border-neutral-100 px-3 py-2 text-neutral-700 dark:border-neutral-800/80 dark:text-neutral-300">
+                    {maturityTag.legendMeaning}
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

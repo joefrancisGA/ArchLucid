@@ -1,4 +1,5 @@
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
+import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 
 export type OperatorSecurityTrustLinkItem = {
   readonly label: string;
@@ -62,4 +63,35 @@ export const OPERATOR_SECURITY_TRUST_ROADMAP_ITEMS: ReadonlyArray<string> = [
   "SOC 2 Type II readiness and audit engagement planning",
   "ISO 27001 alignment documentation",
   "Automated compliance evidence export for procurement packs",
+];
+
+export type OperatorSecurityTrustMaturityTag = {
+  readonly kind: EnterpriseStatusKind;
+  readonly label: string;
+  readonly legendMeaning: string;
+};
+
+/** Shared StatusTag vocabulary for section headers and the badge legend (TB-1285 / TB-1286). */
+export const OPERATOR_SECURITY_TRUST_MATURITY_TAG_AVAILABLE_NOW: OperatorSecurityTrustMaturityTag = {
+  kind: "ready",
+  label: "Available now",
+  legendMeaning: "Active and accessible without NDA.",
+};
+
+export const OPERATOR_SECURITY_TRUST_MATURITY_TAG_UNDER_NDA: OperatorSecurityTrustMaturityTag = {
+  kind: "neutral",
+  label: "Under NDA",
+  legendMeaning: "Shared under NDA; report body not published publicly.",
+};
+
+export const OPERATOR_SECURITY_TRUST_MATURITY_TAG_ROADMAP: OperatorSecurityTrustMaturityTag = {
+  kind: "draft",
+  label: "Roadmap",
+  legendMeaning: "Planned; not yet available.",
+};
+
+export const OPERATOR_SECURITY_TRUST_MATURITY_TAGS: ReadonlyArray<OperatorSecurityTrustMaturityTag> = [
+  OPERATOR_SECURITY_TRUST_MATURITY_TAG_AVAILABLE_NOW,
+  OPERATOR_SECURITY_TRUST_MATURITY_TAG_UNDER_NDA,
+  OPERATOR_SECURITY_TRUST_MATURITY_TAG_ROADMAP,
 ];
