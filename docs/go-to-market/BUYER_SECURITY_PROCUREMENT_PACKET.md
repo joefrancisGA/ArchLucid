@@ -2410,7 +2410,7 @@ Do not claim RAG support-ratio, LLM faithfulness, nightly eval, or embedding cos
 
 ## TB-881 org-registration race — ship-blocker classification (M-250) {#tb881-org-registration-race-ship-blocker-m-250}
 
-Former standalone body: `docs/go-to-market/TB881_ORG_REGISTRATION_RACE_SHIP_BLOCKER_CLASSIFICATION_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-249** / **M-250** / **TB-1371**). Complements Done **TB-881** (CI/test isolation). Not an assurance attestation and not a reopen of Done **TB-881**.
+Former standalone body: `docs/go-to-market/TB881_ORG_REGISTRATION_RACE_SHIP_BLOCKER_CLASSIFICATION_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-249** / **M-250** / **TB-1371**). Engineering SoT: [`../library/TB881_ORG_REGISTRATION_RACE_SHIP_BLOCKER_CLASSIFICATION_CONTRACT.md`](../library/TB881_ORG_REGISTRATION_RACE_SHIP_BLOCKER_CLASSIFICATION_CONTRACT.md). Complements Done **TB-881** (CI/test isolation). Not an assurance attestation and not a reopen of Done **TB-881**.
 
 **Path-stable alias:** [`TB881_ORG_REGISTRATION_RACE_SHIP_BLOCKER_CLASSIFICATION_PA_ONE_PAGER.md`](TB881_ORG_REGISTRATION_RACE_SHIP_BLOCKER_CLASSIFICATION_PA_ONE_PAGER.md).
 
@@ -2439,7 +2439,7 @@ Do not treat Done **TB-881** as an open V1/pilot ship gate, equate the RC12 CI e
 
 ### Residuals (honest)
 
-- **TB-1371** / **TB-1372** own the classification contract and language guards.
+- **TB-1372** owns anti–“TB-881 blocks pilots” language guards and OPEN hygiene (**TB-1371** contract is **Done**).
 - Does not reopen Done **TB-881**; out of scope: unique Name index / distributed signup locks.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
 

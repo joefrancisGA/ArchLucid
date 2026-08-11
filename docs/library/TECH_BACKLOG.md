@@ -34965,7 +34965,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Correctness (gate classification / docs).
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-10).
 
 **Priority:** P1.
 
@@ -34986,6 +34986,8 @@ Operators must read three intros before reaching the Trust Center link list.
 **Out of scope:** Unique Name index / distributed signup locks.
 
 **Size estimate:** S.
+
+**Closure (2026-08-10):** `docs/library/TB881_ORG_REGISTRATION_RACE_SHIP_BLOCKER_CLASSIFICATION_CONTRACT.md`; GTM one-pager + procurement packet cross-links.
 
 ---
 
