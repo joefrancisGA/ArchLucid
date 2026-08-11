@@ -1032,6 +1032,8 @@ export async function RunDetailPageView(props: {
                     hasGoldenManifest={Boolean(m.manifestId)}
                     commitBlockedReason={commitBlockedReason}
                   />
+
+                  {blockingApprovalCount > 0 ? (
                     <RunDetailWorkspaceBlockingBannerDeferred
                       blockingCount={blockingApprovalCount}
                     />
