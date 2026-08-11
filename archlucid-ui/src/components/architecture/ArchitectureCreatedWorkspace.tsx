@@ -10,6 +10,7 @@ import { ArchitectureCreatedWorkspaceHeader } from "@/components/architecture/Ar
 import { ArchitectureDiagramPanel } from "@/components/architecture/ArchitectureDiagramPanel";
 import { ArchitectureFindingsDualPane } from "@/components/architecture/ArchitectureFindingsDualPane";
 import { ClarificationsFindingsVocabularyRail } from "@/components/ClarificationsFindingsVocabularyRail";
+import { OverviewDiagramVocabularyRail } from "@/components/OverviewDiagramVocabularyRail";
 import { PackageActivityAuditTrailVocabularyRail } from "@/components/PackageActivityAuditTrailVocabularyRail";
 import { PackageEvidenceEvidenceGraphVocabularyRail } from "@/components/PackageEvidenceEvidenceGraphVocabularyRail";
 import { PackageGovernanceApprovalQueueVocabularyRail } from "@/components/PackageGovernanceApprovalQueueVocabularyRail";
@@ -233,7 +234,11 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
 
         <TabsContent value="overview" data-testid="architecture-workspace-panel-overview">
           <div className="space-y-4">
-<ArchitectureCreatedOverviewPanel
+            <OverviewDiagramVocabularyRail
+              runId={props.baseline.runId}
+              currentSurfaceId="overview"
+            />
+            <ArchitectureCreatedOverviewPanel
               model={model}
               sourceText={props.architectureSourceText}
               userAssertions={userAssertions}
@@ -247,6 +252,10 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
 
         <TabsContent value="diagram" data-testid="architecture-workspace-panel-diagram">
           <div className="space-y-4">
+            <OverviewDiagramVocabularyRail
+              runId={props.baseline.runId}
+              currentSurfaceId="diagram"
+            />
             <div className="flex flex-wrap items-center justify-end gap-2">
               <Button
                 type="button"
