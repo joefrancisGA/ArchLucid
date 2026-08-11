@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { ArchitectureDraftGuidanceDisclosure } from "@/components/architecture/ArchitectureDraftGuidanceDisclosure";
+import { PathChooserCreateObjectVocabularyRail } from "@/components/PathChooserCreateObjectVocabularyRail";
 import { ProjectsRecycleDraftsPackageVocabularyRail } from "@/components/ProjectsRecycleDraftsPackageVocabularyRail";
 import { Button } from "@/components/ui/button";
 import {
@@ -209,6 +210,7 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
     return (
       <div className="mt-4 space-y-4" data-testid="architecture-draft-list-empty">
         <ProjectsRecycleDraftsPackageVocabularyRail currentSurfaceId="architecture-drafts" />
+        <PathChooserCreateObjectVocabularyRail currentSurfaceId="architecture-drafts" />
         <EnterpriseCompactEmptyState
           title={ARCHITECTURES_HUB_EMPTY_TITLE}
           description={ARCHITECTURES_HUB_EMPTY_BODY}
@@ -227,6 +229,7 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
   return (
     <div className="mt-4 space-y-4" data-testid="architecture-draft-list">
       <ProjectsRecycleDraftsPackageVocabularyRail currentSurfaceId="architecture-drafts" />
+      <PathChooserCreateObjectVocabularyRail currentSurfaceId="architecture-drafts" />
       <ArchitectureDraftGuidanceDisclosure />
       <div
         className="flex flex-col gap-2 lg:flex-row lg:flex-wrap lg:items-center"
