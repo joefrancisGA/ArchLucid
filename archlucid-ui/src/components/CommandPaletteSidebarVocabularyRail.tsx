@@ -1,14 +1,16 @@
 "use client";
 
-import type { JSX } from "react";
+import type { JSX, MouseEvent } from "react";
 
+import { FOCUS_GLOBAL_SEARCH_EVENT } from "@/components/GlobalSearchBar";
+import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 import {
   buildCommandPaletteSidebarVocabulary,
+  COMMAND_PALETTE_FIND_A_PAGE_HREF,
   resolveCommandPaletteSidebarPeerLink,
   type CommandPaletteSidebarSurfaceId,
   type CommandPaletteSidebarVocabularyModel,
 } from "@/lib/vocabulary/command-palette-sidebar-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type CommandPaletteSidebarVocabularyRailProps = {
   readonly currentSurfaceId: CommandPaletteSidebarSurfaceId;
@@ -16,6 +18,12 @@ export type CommandPaletteSidebarVocabularyRailProps = {
   readonly className?: string;
   readonly model?: CommandPaletteSidebarVocabularyModel;
 };
+
+function focusFindAPageControl(event: MouseEvent<HTMLAnchorElement>): void {
+  // Hash alone lands on a non-focusable wrapper; focus the Go to… input instead.
+  event.preventDefault();
+  window.dispatchEvent(new Event(FOCUS_GLOBAL_SEARCH_EVENT));
+}
 
 /** TB-2316 — Find a page (command palette) vs Sidebar navigation. */
 export function CommandPaletteSidebarVocabularyRail(
@@ -27,6 +35,8 @@ export function CommandPaletteSidebarVocabularyRail(
     props.currentSurfaceId === "command-palette"
       ? model.commandPaletteLink
       : model.sidebarLink;
+  const peerOnClick =
+    peer.href === COMMAND_PALETTE_FIND_A_PAGE_HREF ? focusFindAPageControl : undefined;
 
   return (
     <VocabularyRail
@@ -38,7 +48,7 @@ export function CommandPaletteSidebarVocabularyRail(
       heading={model.heading}
       whyTwo={model.whyTwo}
       currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      links={[{ ...peer, testIdSuffix: "peer-link", onClick: peerOnClick }]}
     />
   );
 }

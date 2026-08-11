@@ -1,7 +1,8 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
 import { CommandPaletteSidebarVocabularyRail } from "@/components/CommandPaletteSidebarVocabularyRail";
+import { FOCUS_GLOBAL_SEARCH_EVENT } from "@/components/GlobalSearchBar";
 import {
   COMMAND_PALETTE_SIDEBAR_COMMAND_PALETTE_LINK,
   COMMAND_PALETTE_SIDEBAR_COMPACT_LINE,
@@ -29,6 +30,19 @@ describe("CommandPaletteSidebarVocabularyRail (TB-2316)", () => {
     const peer = screen.getByTestId("command-palette-sidebar-vocabulary-peer-link");
     expect(peer).toHaveTextContent(COMMAND_PALETTE_SIDEBAR_COMMAND_PALETTE_LINK.label);
     expect(peer).toHaveAttribute("href", COMMAND_PALETTE_SIDEBAR_COMMAND_PALETTE_LINK.href);
+  });
+
+  it("focuses Go to… when the Find a page peer link is clicked", () => {
+    const listener = vi.fn();
+    window.addEventListener(FOCUS_GLOBAL_SEARCH_EVENT, listener);
+
+    try {
+      render(<CommandPaletteSidebarVocabularyRail currentSurfaceId="sidebar" />);
+      fireEvent.click(screen.getByTestId("command-palette-sidebar-vocabulary-peer-link"));
+      expect(listener).toHaveBeenCalledTimes(1);
+    } finally {
+      window.removeEventListener(FOCUS_GLOBAL_SEARCH_EVENT, listener);
+    }
   });
 
   it("renders full variant with why-two explanation", () => {

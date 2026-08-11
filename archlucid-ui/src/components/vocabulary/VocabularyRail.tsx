@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, type JSX } from "react";
+import { Fragment, type JSX, type MouseEventHandler } from "react";
 
 import Link from "next/link";
 
@@ -12,6 +12,8 @@ export type VocabularyRailLink = {
   readonly label: string;
   /** Appended to {@link VocabularyRailProps.testIdPrefix}, e.g. `peer-link`. */
   readonly testIdSuffix: string;
+  /** Optional click handler (e.g. focus a same-page control instead of relying on hash alone). */
+  readonly onClick?: MouseEventHandler<HTMLAnchorElement>;
 };
 
 /** Extra full-variant paragraph below the why-two line (honesty caveats, scope notes). */
@@ -67,6 +69,7 @@ export function VocabularyRail(props: VocabularyRailProps): JSX.Element {
               href={link.href}
               className={cn(OPERATOR_LINK.inline, "font-medium")}
               data-testid={`${props.testIdPrefix}-${link.testIdSuffix}`}
+              onClick={link.onClick}
             >
               {link.label}
             </Link>
@@ -119,6 +122,7 @@ export function VocabularyRail(props: VocabularyRailProps): JSX.Element {
             href={link.href}
             className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
             data-testid={`${props.testIdPrefix}-${link.testIdSuffix}`}
+            onClick={link.onClick}
           >
             {link.label}
           </Link>

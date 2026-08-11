@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { GlobalSearchBar } from "@/components/GlobalSearchBar";
+import { GlobalSearchBar, FOCUS_GLOBAL_SEARCH_EVENT } from "@/components/GlobalSearchBar";
 import {
   COMMAND_PALETTE_ARIA_KEYSHORTCUTS,
   GLOBAL_SEARCH_ARIA_LABEL,
@@ -58,5 +58,24 @@ describe("GlobalSearchBar", () => {
     fireEvent.change(input, { target: { value: "ab" } });
 
     expect(await screen.findByRole("listbox")).toBeInTheDocument();
+  });
+
+  it("focuses the input when the find-a-page hash changes", async () => {
+    render(<GlobalSearchBar />);
+
+    window.location.hash = "find-a-page";
+    fireEvent(window, new HashChangeEvent("hashchange"));
+
+    await vi.waitFor(() => {
+      expect(screen.getByRole("combobox", { name: GLOBAL_SEARCH_ARIA_LABEL })).toHaveFocus();
+    });
+  });
+
+  it("focuses the input when FOCUS_GLOBAL_SEARCH_EVENT is dispatched", () => {
+    render(<GlobalSearchBar />);
+
+    window.dispatchEvent(new Event(FOCUS_GLOBAL_SEARCH_EVENT));
+
+    expect(screen.getByRole("combobox", { name: GLOBAL_SEARCH_ARIA_LABEL })).toHaveFocus();
   });
 });

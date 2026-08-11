@@ -76,22 +76,38 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
   }, [fetchResults, query]);
 
   useEffect(() => {
+    function focusInput(): void {
+      setOpen(true);
+      inputRef.current?.focus();
+    }
+
     function onOpen() {
       setOpen(true);
       window.requestAnimationFrame(() => inputRef.current?.focus());
     }
 
     function onFocus() {
-      setOpen(true);
-      inputRef.current?.focus();
+      focusInput();
     }
 
+    // `#find-a-page` is the documented deep-link target for the header control.
+    function focusFromFindAPageHash(): void {
+      if (window.location.hash !== "#find-a-page") {
+        return;
+      }
+
+      window.requestAnimationFrame(() => focusInput());
+    }
+
+    focusFromFindAPageHash();
     window.addEventListener(OPEN_GLOBAL_SEARCH_EVENT, onOpen);
     window.addEventListener(FOCUS_GLOBAL_SEARCH_EVENT, onFocus);
+    window.addEventListener("hashchange", focusFromFindAPageHash);
 
     return () => {
       window.removeEventListener(OPEN_GLOBAL_SEARCH_EVENT, onOpen);
       window.removeEventListener(FOCUS_GLOBAL_SEARCH_EVENT, onFocus);
+      window.removeEventListener("hashchange", focusFromFindAPageHash);
     };
   }, []);
 

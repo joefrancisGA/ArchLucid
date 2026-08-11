@@ -1,5 +1,5 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
 import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
@@ -27,6 +27,26 @@ describe("VocabularyRail", () => {
     const peer = screen.getByTestId("pair-vocabulary-peer-link");
     expect(peer).toHaveAttribute("href", "/peer");
     expect(peer).toHaveTextContent("Peer surface");
+  });
+
+  it("invokes an optional link onClick handler", () => {
+    const onClick = vi.fn((event: { preventDefault: () => void }) => {
+      event.preventDefault();
+    });
+
+    render(
+      <VocabularyRail
+        testIdPrefix="pair-vocabulary"
+        currentSurfaceId="left"
+        compactLine="Left is not right."
+        heading="Left vs right"
+        whyTwo="They answer different questions."
+        links={[{ ...PEER, onClick }]}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("pair-vocabulary-peer-link"));
+    expect(onClick).toHaveBeenCalledTimes(1);
   });
 
   it("separates multiple compact links so hub rails can offer both peers", () => {
