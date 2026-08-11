@@ -9,6 +9,7 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { RiskExceptionsFindingsVocabularyRail } from "@/components/RiskExceptionsFindingsVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
 import {
@@ -187,6 +188,7 @@ export default function RiskExceptionsClient() {
       )}
 
       <OperatorPageHeader title={pageTitle} subtitle={pageSubtitle} actions={<PageContextualHelpButton />} />
+      <RiskExceptionsFindingsVocabularyRail currentSurfaceId="risk-exceptions" />
 <div className={cn("mt-4", OPERATOR_LAYOUT.sectionStack)}>
         {expiringSoonCount > 0 ? (
           <div

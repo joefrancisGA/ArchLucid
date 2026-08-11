@@ -9,6 +9,7 @@ import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmpty
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { GovernanceJobRouterStrip } from "@/components/GovernanceJobRouterStrip";
+import { RiskExceptionsFindingsVocabularyRail } from "@/components/RiskExceptionsFindingsVocabularyRail";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { GovernanceFindingsFilterBar } from "@/components/governance/findings/GovernanceFindingsFilterBar";
@@ -203,6 +204,7 @@ export default function GovernanceFindingsQueueClient() {
       />
       <GovernanceJobRouterStrip currentJobId="triage-findings" />
       <AlertsFindingsDualInboxReconciler currentSurfaceId="findings-queue" />
+      <RiskExceptionsFindingsVocabularyRail currentSurfaceId="findings-queue" />
       <PageCapabilityBoundaryStrip surfaceId="governanceFindings" />
 <div className={cn("mt-4", OPERATOR_LAYOUT.sectionStack)}>
         {secondaryViewPresentation !== null ? (
