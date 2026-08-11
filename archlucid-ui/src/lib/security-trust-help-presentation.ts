@@ -1,4 +1,4 @@
-import type { EnterpriseStatusKind } from "@/components/ui/status-tag";
+import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
 import type { HelpTopicTocGroup } from "@/lib/caiq-sig-response-help-presentation";
 
@@ -115,7 +115,8 @@ function parsePostureSummaryStatusCells(markdown: string): readonly string[] {
 }
 
 export function computeSecurityTrustPostureCounts(preparedMarkdown: string): SecurityTrustPostureCounts {
-  const counts: SecurityTrustPostureCounts = {
+  // Mutable accumulator; returned object satisfies the readonly counts shape.
+  const counts: { [K in keyof SecurityTrustPostureCounts]: number } = {
     selfAsserted: 0,
     planned: 0,
     active: 0,

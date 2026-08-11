@@ -162,11 +162,12 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
     ?? (isSecurityTrustHelp ? buildSecurityTrustTocGroups(headings) : undefined);
 
-  const postureCounts = isCaiqSigResponse
+  const securityTrustPostureCounts = isSecurityTrustHelp
+    ? computeSecurityTrustPostureCounts(preparedMarkdown)
+    : null;
+  const caiqSigPostureCounts = isCaiqSigResponse
     ? computeCaiqSigResponsePostureCounts(preparedMarkdown)
-    : isSecurityTrustHelp
-      ? computeSecurityTrustPostureCounts(preparedMarkdown)
-      : null;
+    : null;
   const postureTableRowTotal = isCaiqSigResponse
     ? countCaiqSigResponseTableRows(preparedMarkdown)
     : isSecurityTrustHelp
@@ -291,12 +292,12 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
 
 
-      {postureCounts !== null ? (
-        isSecurityTrustHelp ? (
-          <SecurityTrustHelpPostureSummary counts={postureCounts} tableRowTotal={postureTableRowTotal} />
-        ) : (
-          <CaiqSigResponseHelpPostureSummary counts={postureCounts} tableRowTotal={postureTableRowTotal} />
-        )
+      {securityTrustPostureCounts !== null ? (
+        <SecurityTrustHelpPostureSummary counts={securityTrustPostureCounts} tableRowTotal={postureTableRowTotal} />
+      ) : null}
+
+      {caiqSigPostureCounts !== null ? (
+        <CaiqSigResponseHelpPostureSummary counts={caiqSigPostureCounts} tableRowTotal={postureTableRowTotal} />
       ) : null}
 
 
