@@ -16,25 +16,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { LlmMonthlyDollarBudgetStatus } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { architectureReviewTemplates, suggestedSystemNameFromTemplateId } from "@/data/review-templates";
-import { createArchitectureRun } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_SHELL_CONTENT_BLEED_X_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
-import {
-  REVIEW_START_CREATION_FAILED_MESSAGE,
-  REVIEW_START_LLM_BUDGET_EXCEEDED_MESSAGE,
-  REVIEW_START_STEP_VALIDATION_MESSAGE,
-  REVIEW_START_SUBMIT_VALIDATION_MESSAGE,
-} from "@/lib/review-start-progress-copy";
-import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
+import { REVIEW_START_STEP_VALIDATION_MESSAGE } from "@/lib/review-start-progress-copy";
+import { submitQuickFamilyWizardCreateRun } from "@/lib/wizard-form-create-run-submit";
 import { resolveWizardPresetDeeplinkTokenFromPresetId } from "@/lib/wizard-preset-deeplink";
 import { applyWizardPreset, wizardPresets, type WizardPreset } from "@/lib/wizard-presets";
 import type { ReviewIntakeExampleTemplate } from "@/lib/operator-home-example-request";
 import { buildDefaultWizardValues, type WizardFormValues } from "@/lib/wizard-schema";
 import { WIZARD_STEP_FIELD_GROUPS } from "@/lib/wizard-step-fields";
-import { trackWizardStepViewed, trackWizardCompleted, trackWizardValidationFailed } from "@/lib/telemetry";
+import { trackWizardStepViewed, trackWizardValidationFailed } from "@/lib/telemetry";
 
 const QUICK_STEPS = [
   { label: "System & preset", description: "Name your system and pick a starter profile" },
@@ -152,48 +145,23 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
   };
 
   const submitRun = async () => {
-    const ok = await trigger(undefined, { shouldFocus: true });
+    const presetToken = resolveWizardPresetDeeplinkTokenFromPresetId(presetId);
 
-    if (!ok) {
-      setStepValidationMessage(REVIEW_START_SUBMIT_VALIDATION_MESSAGE);
-
-      return;
-    }
-
-    if (blocksLlmExecution) {
-      setStepValidationMessage(REVIEW_START_LLM_BUDGET_EXCEEDED_MESSAGE);
-
-      return;
-    }
-
-    setSubmitting(true);
-    setSubmitError(null);
-    setStepValidationMessage(null);
-
-    try {
-      const presetToken = resolveWizardPresetDeeplinkTokenFromPresetId(presetId);
-      const body = wizardValuesToCreateRunPayload(getValues(), {
+    await submitQuickFamilyWizardCreateRun({
+      trigger,
+      getValues,
+      blocksLlmExecution,
+      payloadOptions: {
         requestSource: "wizard",
         wizardPresetUsed: presetToken ?? undefined,
         focusedPilotModeEnabled,
-      });
-      const res = await createArchitectureRun(body);
-      const id = res.run?.runId ?? null;
-
-      if (!id) {
-        setSubmitError(new Error(REVIEW_START_CREATION_FAILED_MESSAGE));
-
-        return;
-      }
-
-      trackWizardCompleted("QuickStart");
-      recordFirstTenantFunnelEvent("first_run_started");
-      onRunCreated(id);
-    } catch (error: unknown) {
-      setSubmitError(error);
-    } finally {
-      setSubmitting(false);
-    }
+      },
+      wizardCompletedName: "QuickStart",
+      setSubmitting,
+      setSubmitError,
+      setStepValidationMessage,
+      onRunCreated,
+    });
   };
 
   const isReviewStep = quickStep === 2;

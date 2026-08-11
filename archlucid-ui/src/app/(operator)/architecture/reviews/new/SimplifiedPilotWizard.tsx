@@ -18,22 +18,15 @@ import { WizardStepDescription } from "@/components/wizard/steps/WizardStepDescr
 import { WizardStepIdentity } from "@/components/wizard/steps/WizardStepIdentity";
 import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
 import type { LlmMonthlyDollarBudgetStatus } from "@/hooks/use-llm-monthly-budget-execution-gate";
-import { createArchitectureRun } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_SHELL_CONTENT_BLEED_X_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
-import {
-  REVIEW_START_CREATION_FAILED_MESSAGE,
-  REVIEW_START_LLM_BUDGET_EXCEEDED_MESSAGE,
-  REVIEW_START_STEP_VALIDATION_MESSAGE,
-  REVIEW_START_SUBMIT_VALIDATION_MESSAGE,
-} from "@/lib/review-start-progress-copy";
+import { REVIEW_START_STEP_VALIDATION_MESSAGE } from "@/lib/review-start-progress-copy";
 import { SIMPLIFIED_PILOT_WIZARD_STEP_FIELD_GROUPS } from "@/lib/simplified-pilot-wizard-step-fields";
 import { applyWizardPreset, wizardPresets } from "@/lib/wizard-presets";
 import { buildDefaultWizardValues, type WizardFormValues } from "@/lib/wizard-schema";
-import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
-import { trackWizardStepViewed, trackWizardCompleted, trackWizardValidationFailed } from "@/lib/telemetry";
+import { submitQuickFamilyWizardCreateRun } from "@/lib/wizard-form-create-run-submit";
+import { trackWizardStepViewed, trackWizardValidationFailed } from "@/lib/telemetry";
 import { useWizardBaselineMetricsActions } from "@/lib/use-wizard-baseline-metrics-actions";
 
 const PILOT_STEPS = [
@@ -135,46 +128,20 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
   };
 
   const submitRun = async () => {
-    const ok = await trigger(undefined, { shouldFocus: true });
-
-    if (!ok) {
-      setStepValidationMessage(REVIEW_START_SUBMIT_VALIDATION_MESSAGE);
-
-      return;
-    }
-
-    if (blocksLlmExecution) {
-      setStepValidationMessage(REVIEW_START_LLM_BUDGET_EXCEEDED_MESSAGE);
-
-      return;
-    }
-
-    setSubmitting(true);
-    setSubmitError(null);
-    setStepValidationMessage(null);
-
-    try {
-      const body = wizardValuesToCreateRunPayload(getValues(), {
+    await submitQuickFamilyWizardCreateRun({
+      trigger,
+      getValues,
+      blocksLlmExecution,
+      payloadOptions: {
         requestSource: "wizard",
         focusedPilotModeEnabled,
-      });
-      const res = await createArchitectureRun(body);
-      const id = res.run?.runId ?? null;
-
-      if (id === null) {
-        setSubmitError(new Error(REVIEW_START_CREATION_FAILED_MESSAGE));
-
-        return;
-      }
-
-      trackWizardCompleted("SimplifiedPilot");
-      recordFirstTenantFunnelEvent("first_run_started");
-      onRunCreated(id);
-    } catch (error: unknown) {
-      setSubmitError(error);
-    } finally {
-      setSubmitting(false);
-    }
+      },
+      wizardCompletedName: "SimplifiedPilot",
+      setSubmitting,
+      setSubmitError,
+      setStepValidationMessage,
+      onRunCreated,
+    });
   };
 
   const isReviewStep = pilotStep === PILOT_STEPS.length - 1;

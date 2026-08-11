@@ -27,13 +27,12 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
 import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
-import { createArchitectureRun, listRunsByProjectPaged } from "@/lib/api";
+import { listRunsByProjectPaged } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { isAcceleratorPackId, resolveAcceleratorWizardPreset } from "@/lib/accelerator-wizard-presets";
 import { OPERATOR_SHELL_CONTENT_BLEED_X_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { showError, showSuccess } from "@/lib/toast";
 import { applyWizardPreset } from "@/lib/wizard-presets";
 import {
@@ -41,7 +40,15 @@ import {
   resolveWizardPresetIdFromDeeplink,
   resolveWizardPresetValuesFromDeeplink,
 } from "@/lib/wizard-preset-deeplink";
-import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
+import {
+  evaluateWizardFormCreateRunGates,
+  executeWizardFormCreateRun,
+} from "@/lib/wizard-form-create-run-submit";
+import {
+  REVIEW_START_CREATION_FAILED_MESSAGE,
+  REVIEW_START_LLM_BUDGET_EXCEEDED_MESSAGE,
+  REVIEW_START_SUBMIT_VALIDATION_MESSAGE,
+} from "@/lib/review-start-progress-copy";
 import {
   getWizardStepFieldGroup,
   FULL_WIZARD_BASELINE_METRICS_STEP_INDEX,
@@ -63,7 +70,7 @@ import {
   type WizardFormValues,
 } from "@/lib/wizard-schema";
 import { WizardAiSuggestedFieldsProvider } from "@/lib/wizard-ai-suggested-fields";
-import { trackWizardStepViewed, trackWizardCompleted, trackWizardValidationFailed } from "@/lib/telemetry";
+import { trackWizardStepViewed, trackWizardValidationFailed } from "@/lib/telemetry";
 import {
   resolveFirstRunWizardMode,
   shouldShowWizardModeToggle,
@@ -686,16 +693,19 @@ export function NewRunWizardClient() {
   };
 
   const submitRun = async () => {
-    const ok = await trigger(undefined, { shouldFocus: true });
+    const gateFailure = await evaluateWizardFormCreateRunGates({
+      trigger,
+      blocksLlmExecution,
+    });
 
-    if (!ok) {
-      showToast("err", "Fix validation errors before creating the architecture review.");
+    if (gateFailure === "validation") {
+      showToast("err", REVIEW_START_SUBMIT_VALIDATION_MESSAGE);
 
       return;
     }
 
-    if (blocksLlmExecution) {
-      showToast("err", "LLM Execution budget exceeded for this month. You may still view previous reviews.");
+    if (gateFailure === "llm-budget") {
+      showToast("err", REVIEW_START_LLM_BUDGET_EXCEEDED_MESSAGE);
 
       return;
     }
@@ -704,39 +714,45 @@ export function NewRunWizardClient() {
     setSubmitError(null);
 
     try {
-      const body = wizardValuesToCreateRunPayload(getValues(), {
-        requestSource: "wizard",
-        wizardPresetUsed: presetDeeplinkToken ?? undefined,
-        focusedPilotModeEnabled,
+      const result = await executeWizardFormCreateRun({
+        getValues,
+        payloadOptions: {
+          requestSource: "wizard",
+          wizardPresetUsed: presetDeeplinkToken ?? undefined,
+          focusedPilotModeEnabled,
+        },
+        wizardCompletedName: "FullGuided",
       });
-      const res = await createArchitectureRun(body);
-      const id = res.run?.runId ?? null;
 
-      if (!id) {
-        showToast("err", "API returned no architecture review id.");
+      if (!result.ok) {
+        if (result.reason === "no-run-id") {
+          showToast("err", REVIEW_START_CREATION_FAILED_MESSAGE);
+
+          return;
+        }
+
+        setSubmitError(result.error);
+
+        if (!isApiRequestError(result.error)) {
+          const message =
+            result.error && typeof result.error === "object" && "message" in result.error
+              ? String((result.error as { message?: string }).message)
+              : "Request failed.";
+          showToast("err", message);
+        }
 
         return;
       }
 
+      const id = result.runId;
+
       setRunId(id);
       setStepIndex(trackStepIndex);
       templateWizardSession.clearSession();
-      trackWizardCompleted("FullGuided");
-      recordFirstTenantFunnelEvent("first_run_started");
       showToast("ok", `Architecture review ${id} created — tracking pipeline below.`);
 
       if (pendingEvidenceFile !== null || pendingDocumentFiles.length > 0) {
         await uploadPendingEvidence(id);
-      }
-    } catch (error: unknown) {
-      setSubmitError(error);
-
-      if (!isApiRequestError(error)) {
-        const message =
-          error && typeof error === "object" && "message" in error
-            ? String((error as { message?: string }).message)
-            : "Request failed.";
-        showToast("err", message);
       }
     } finally {
       setSubmitting(false);
