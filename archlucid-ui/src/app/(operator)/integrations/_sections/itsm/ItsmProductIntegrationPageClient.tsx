@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { ItsmConnectorProviderChooserRail } from "@/components/ItsmConnectorProviderChooserRail";
 import {
   fetchItsmIntegrationHealth,
   fetchTenantItsmOutboundSettings,
@@ -284,6 +285,10 @@ export function ItsmProductIntegrationPageClient(props: Props): React.ReactEleme
           {ITSM_INTEGRATION_READINESS_AFTER_LINK}
         </p>
       </header>
+
+      <ItsmConnectorProviderChooserRail
+        currentProviderId={props.product === "jira" ? "jira" : "servicenow"}
+      />
 
 {loadError ? (
         <p className={cn("text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)} role="alert">

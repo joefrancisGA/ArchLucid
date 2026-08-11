@@ -75,6 +75,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
+import { ItsmConnectorProviderChooserRail } from "@/components/ItsmConnectorProviderChooserRail";
 
 import { AzureBoardsIntegrationAside } from "./AzureBoardsIntegrationAside";
 import { AzureBoardsIntegrationPageHeader } from "./AzureBoardsIntegrationPageHeader";
@@ -405,6 +406,9 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
         lastRefreshedAt={lastRefreshedAt}
         onRefresh={() => void refresh()}
       />
+
+      <ItsmConnectorProviderChooserRail currentProviderId="azure-boards" />
+
 {isInitialLoad ? (
         <AzureBoardsIntegrationPageLoadingSkeleton />
       ) : (
