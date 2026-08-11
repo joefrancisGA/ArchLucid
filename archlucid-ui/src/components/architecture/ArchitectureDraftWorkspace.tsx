@@ -378,12 +378,6 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     }, SOFT_NAVIGATION_TIMEOUT_MS);
 
     try {
-      if (!isNewDraft) {
-        const briefWithScope = mergeScopeBulletsIntoBrief(scopeBullets, fields.businessOutcome);
-        await patchDraftRequest(props.architectureId, { businessOutcome: briefWithScope });
-        setFields((current) => ({ ...current, businessOutcome: briefWithScope }));
-      }
-
       const saved = await saveDraft();
 
       if (!saved) {
@@ -396,6 +390,14 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         setStartReviewError("Save the architecture draft before starting a review.");
 
         return;
+      }
+
+      // Confirmed scope belongs on the server copy of the brief only. Mirroring it into local
+      // fields would put the block in the operator's own text and feed it back to the panel.
+      if (!isNewDraft) {
+        await patchDraftRequest(props.architectureId, {
+          freeTextIntent: mergeScopeBulletsIntoBrief(scopeBullets, fields.freeTextIntent),
+        });
       }
 
       upsertArchitectureDraftRegistryEntry(
@@ -418,7 +420,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   }, [
     canStartReview,
     draft,
-    fields.businessOutcome,
+    fields.freeTextIntent,
     isNewDraft,
     linkedReviewId,
     props.architectureId,

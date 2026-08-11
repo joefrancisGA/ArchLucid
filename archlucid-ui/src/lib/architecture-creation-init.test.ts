@@ -75,6 +75,27 @@ describe("initializeArchitectureCreation", () => {
     });
   });
 
+  it("strips a previously merged scope block out of loaded brief fields", () => {
+    expect(
+      applyArchitectureCreationDraftToFormState({
+        draftId: "draft-polluted",
+        document: {
+          freeTextIntent:
+            "Vertex tenant migration.\n\nOperator-confirmed in-scope understanding:\n- Primary system or architecture: Vertex",
+          businessOutcome:
+            "faster and better\n\nOperator-confirmed in-scope understanding:\n- Business outcome: faster and better",
+          systemName: "Vertex",
+          actorSet: { actors: [] },
+        },
+        status: "Drafting",
+      } as never),
+    ).toEqual({
+      freeTextIntent: "Vertex tenant migration.",
+      businessOutcome: "faster and better",
+      systemName: "Vertex",
+    });
+  });
+
   it("recreates the draft when the stored draft no longer exists", async () => {
     writeArchitectureCreationDraftId("draft-missing");
     getDraftRequest.mockRejectedValue(new Error("not found"));

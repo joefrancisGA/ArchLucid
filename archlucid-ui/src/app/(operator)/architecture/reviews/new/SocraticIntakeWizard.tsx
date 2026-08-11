@@ -605,8 +605,8 @@ export function SocraticIntakeWizard() {
     setSubmitError(null);
 
     try {
-      const briefWithScope = mergeScopeBulletsIntoBrief(scopeBullets, businessOutcome);
-      await patchDraftRequest(draftId, { businessOutcome: briefWithScope });
+      const briefWithScope = mergeScopeBulletsIntoBrief(scopeBullets, freeTextIntent);
+      await patchDraftRequest(draftId, { freeTextIntent: briefWithScope });
       const result = await submitDraftRequest(draftId);
       recordFirstTenantFunnelEvent("first_run_started");
       wizardSession.clearSession();
@@ -653,7 +653,7 @@ export function SocraticIntakeWizard() {
     } finally {
       setBusy(false);
     }
-  }, [actorSet.actors, businessOutcome, draftId, freeTextIntent, isCreateArchitectureFlow, parentSpawnedRunId, router, systemName, wizardSession]);
+  }, [actorSet.actors, businessOutcome, draftId, freeTextIntent, isCreateArchitectureFlow, parentSpawnedRunId, router, scopeBullets, systemName, wizardSession]);
 
   return (
     <div

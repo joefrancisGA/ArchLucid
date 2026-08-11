@@ -18,6 +18,7 @@ import {
   buildArchitectureDraftRegistryEntry,
   upsertArchitectureDraftRegistryEntry,
 } from "@/lib/architecture-draft-registry";
+import { stripScopeUnderstandingSection } from "@/lib/architecture-scope-understanding-check";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
 import { buildDefaultActorSet, createDraftRequest, getDraftRequest } from "@/lib/api/draft-intake-api";
 import { formatVerboseApiFailureMessage } from "@/lib/resolve-api-error-message";
@@ -135,9 +136,10 @@ export function applyArchitectureCreationDraftToFormState(draft: DraftRequestRes
     };
   }
 
+  // Drafts saved before the scope block moved out of the form fields can still carry it inline.
   return {
-    freeTextIntent: draft.document.freeTextIntent,
-    businessOutcome: draft.document.businessOutcome ?? "",
+    freeTextIntent: stripScopeUnderstandingSection(draft.document.freeTextIntent),
+    businessOutcome: stripScopeUnderstandingSection(draft.document.businessOutcome),
     systemName: draft.document.systemName ?? "",
   };
 }
