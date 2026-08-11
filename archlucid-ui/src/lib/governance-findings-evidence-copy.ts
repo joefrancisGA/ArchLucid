@@ -1,8 +1,10 @@
 import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
+import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
-export const GOVERNANCE_FINDINGS_CANONICAL_PATH = "/governance/findings" as const;
+/** Alias for existing imports — prefer {@link GOVERNANCE_FINDINGS_PATH}. */
+export const GOVERNANCE_FINDINGS_CANONICAL_PATH = GOVERNANCE_FINDINGS_PATH;
 
 export const GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE =
   "Findings is the cross-review risk-register queue for disposition and ownership — it is not a signed-review diligence Sources package by itself. Open a finding detail, Evidence graph, or Audit when you need sponsor-safe trails.";

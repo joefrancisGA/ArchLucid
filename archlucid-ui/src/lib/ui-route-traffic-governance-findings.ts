@@ -1,3 +1,5 @@
+import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance-route-paths";
+
 /**
  * Traffic workbook row ID for Governance findings queue.
  * Owner backlog shorthand: GFN.
@@ -5,7 +7,7 @@
 export const GOVERNANCE_FINDINGS_TRAFFIC_ROW_ID = "GFN";
 
 /** Canonical path tracked on the GFN workbook row. */
-export const GOVERNANCE_FINDINGS_TRAFFIC_PATH = "/governance/findings";
+export const GOVERNANCE_FINDINGS_TRAFFIC_PATH = GOVERNANCE_FINDINGS_PATH;
 
 /** Workbook Section column value. */
 export const GOVERNANCE_FINDINGS_TRAFFIC_SECTION = "Alerts/gov";
