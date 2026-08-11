@@ -2,7 +2,10 @@
 
 import { cn } from "@/lib/utils";
 
+import { ConfigurationSystemHealthVocabularyRail } from "@/components/ConfigurationSystemHealthVocabularyRail";
 import { DeploymentBuildFingerprintStrip } from "@/components/shell/DeploymentBuildFingerprintStrip";
+import { DeploymentStatusSystemHealthVocabularyRail } from "@/components/DeploymentStatusSystemHealthVocabularyRail";
+import { RagHealthSystemHealthVocabularyRail } from "@/components/RagHealthSystemHealthVocabularyRail";
 import { TenantSystemWorkspaceHealthVocabularyRail } from "@/components/TenantSystemWorkspaceHealthVocabularyRail";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SYSTEM_HEALTH_CLAIM_DISCIPLINE, SYSTEM_HEALTH_SOURCES, SYSTEM_HEALTH_SOURCES_INTRO } from "@/lib/system-health-evidence-copy";
@@ -99,6 +102,9 @@ export function SystemHealthPageView(props: Props) {
       />
 
       <TenantSystemWorkspaceHealthVocabularyRail currentSurfaceId="system-health" />
+      <ConfigurationSystemHealthVocabularyRail currentSurfaceId="system-health" />
+      <RagHealthSystemHealthVocabularyRail currentSurfaceId="system-health" />
+      <DeploymentStatusSystemHealthVocabularyRail currentSurfaceId="system-health" />
 
       <HealthOverallStatusHeader
         overallStatus={overall}
