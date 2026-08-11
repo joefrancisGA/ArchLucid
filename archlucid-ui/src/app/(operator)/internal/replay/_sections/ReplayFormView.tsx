@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 import { ClientErrorBoundary } from "@/components/ClientErrorBoundary";
@@ -15,15 +14,15 @@ import { ReplayValidationResultPanel } from "@/components/replay/ReplayValidatio
 import { ReviewPackageValidationPicker } from "@/components/replay/ReviewPackageValidationPicker";
 import { OperatorLoadingNotice, OperatorMalformedCallout, OperatorTryNext } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
+import { ValidateCompareVocabularyRail } from "@/components/ValidateCompareVocabularyRail";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import {
   firstWhyDisabledCtaReason,
   whyDisabledBusy,
   type WhyDisabledCtaReason,
 } from "@/lib/why-disabled-cta";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
-  REPLAY_COMPARE_LINK_LABEL,
   REPLAY_MODIFY_CONFIRMATION_LABEL,
   REPLAY_PAGE_INTRO,
 } from "@/lib/replay-validation-copy";
@@ -55,12 +54,8 @@ export function ReplayFormView(props: Props) {
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6" data-testid="replay-validation-workspace">
       <OperatorPageHeader title="Validate review" helpKey="replay-run" actions={<PageContextualHelpButton />} />
+      <ValidateCompareVocabularyRail currentSurfaceId="validate-replay" />
       <p className={cn("m-0 max-w-4xl leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{REPLAY_PAGE_INTRO}</p>
-      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-        <Link href="/insights/compare-two-reviews" className={OPERATOR_LINK.nav}>
-          {REPLAY_COMPARE_LINK_LABEL}
-        </Link>
-      </p>
 <div className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
         <div className="space-y-5">
           <ReviewPackageValidationPicker
