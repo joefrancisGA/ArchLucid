@@ -12,6 +12,7 @@ import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import { AdvisoryRecommendationCard } from "@/components/advisory/AdvisoryRecommendationCard";
 import { AdvisorySampleRecommendationPreview } from "@/components/advisory/AdvisorySampleRecommendationPreview";
 import { AdvisoryScanSummaryPanel } from "@/components/advisory/AdvisoryScanSummaryPanel";
+import { AdvisoryResultsSchedulesVocabularyRail } from "@/components/AdvisoryResultsSchedulesVocabularyRail";
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
@@ -208,6 +209,7 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
   return (
     <div className="w-full max-w-[1200px] px-4 py-6">
       <DocumentLayout>
+        <AdvisoryResultsSchedulesVocabularyRail currentSurfaceId="advisory-results" />
         <section
           className={cn(DESIGN_TOKENS.surface.card, "mb-6 space-y-4 p-5")}
           aria-label={ADVISORY_SCANS_FORM_SECTION_TITLE}
