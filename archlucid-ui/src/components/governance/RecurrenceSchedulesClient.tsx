@@ -304,14 +304,7 @@ export default function RecurrenceSchedulesClient() {
       data-testid="recurrence-schedules-page"
       data-empty-composition={isEmpty ? "true" : "false"}
     >
-      <div
-        className={cn(
-          "grid gap-4",
-          // Hide the right-rail column when empty so the page is one composition (TB-1133).
-          isEmpty ? "grid-cols-1" : "lg:grid-cols-[minmax(0,1fr)_minmax(220px,280px)]",
-        )}
-      >
-        <div className="space-y-4">
+      <div className="space-y-4">
           <OperatorPageHeader
             title="Recurrence schedules"
             subtitle={RECURRENCE_SCHEDULES_PAGE_SUBTITLE}
@@ -334,6 +327,9 @@ export default function RecurrenceSchedulesClient() {
               {RECURRENCE_SCHEDULES_HOW_IT_WORKS_BODY}
             </p>
           </CollapsibleSection>
+
+          {/* TB-1573: teaching helper is collapsed disclosure only — never a persistent rail. */}
+          {isEmpty ? null : <RecurrenceSchedulesWorkflowHelperCard />}
 
           <nav
             aria-label="Related governance links"
@@ -543,9 +539,6 @@ export default function RecurrenceSchedulesClient() {
               </EnterpriseTableBody>
             </EnterpriseTable>
           )}
-        </div>
-
-        {isEmpty ? null : <RecurrenceSchedulesWorkflowHelperCard />}
       </div>
     </div>
   );

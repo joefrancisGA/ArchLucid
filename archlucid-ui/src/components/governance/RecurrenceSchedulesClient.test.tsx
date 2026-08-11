@@ -15,8 +15,6 @@ import {
   RECURRENCE_SCHEDULE_EXAMPLES,
   RECURRENCE_SCHEDULES_EMPTY_DESCRIPTION,
   RECURRENCE_SCHEDULES_EMPTY_SUPPORTING,
-  RECURRENCE_SCHEDULES_HELPER_BODY,
-  RECURRENCE_SCHEDULES_HELPER_NEXT_STEP,
   RECURRENCE_SCHEDULES_HELPER_TITLE,
   RECURRENCE_SCHEDULES_HOW_IT_WORKS_BODY,
   RECURRENCE_SCHEDULES_PAGE_SUBTITLE,
@@ -112,7 +110,7 @@ describe("RecurrenceSchedulesClient", () => {
     expect(secondaryNav.querySelector("button")).toBeNull();
   });
 
-  it("hides the workflow helper rail when empty (TB-1133)", async () => {
+  it("hides the workflow helper disclosure when empty (TB-1133)", async () => {
     render(<RecurrenceSchedulesClient />);
 
     await screen.findByTestId("recurrence-schedules-empty-state");
@@ -120,7 +118,7 @@ describe("RecurrenceSchedulesClient", () => {
     expect(screen.getByTestId("recurrence-schedules-page")).toHaveAttribute("data-empty-composition", "true");
   });
 
-  it("shows the workflow helper rail when schedules exist (TB-1133)", async () => {
+  it("demotes workflow helper to collapsed disclosure when schedules exist (TB-1573)", async () => {
     vi.mocked(governanceApi.listArchitectureReviewRecurrenceSchedules).mockResolvedValue([sampleSchedule]);
 
     render(<RecurrenceSchedulesClient />);
@@ -129,11 +127,13 @@ describe("RecurrenceSchedulesClient", () => {
       expect(screen.getByText("Weekly architecture review")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("recurrence-schedules-helper-card")).toBeInTheDocument();
-    expect(screen.getByText(RECURRENCE_SCHEDULES_HELPER_TITLE)).toBeInTheDocument();
-    expect(screen.getByText(RECURRENCE_SCHEDULES_HELPER_BODY)).toBeInTheDocument();
-    expect(screen.getByText(new RegExp(RECURRENCE_SCHEDULES_HELPER_NEXT_STEP))).toBeInTheDocument();
+    const helper = screen.getByTestId("recurrence-schedules-helper-card");
+    expect(helper.tagName.toLowerCase()).toBe("details");
+    expect(helper).not.toHaveAttribute("open");
+    expect(helper).toHaveTextContent(RECURRENCE_SCHEDULES_HELPER_TITLE);
     expect(screen.getByTestId("recurrence-schedules-page")).toHaveAttribute("data-empty-composition", "false");
+    // Single-column page root — helper is disclosure in the main stack, not a right-rail aside.
+    expect(helper.closest("aside")).toBeNull();
   });
 
   it("uses a compact examples chooser under Create when empty (TB-1133)", async () => {
@@ -229,7 +229,8 @@ describe("RecurrenceSchedulesClient", () => {
     expect(screen.getByTestId("recurrence-schedule-create-panel")).toBeInTheDocument();
     expect(screen.getByTestId("recurrence-schedule-name")).toHaveValue(example.title);
     expect(screen.getByTestId("cron-expression-input")).toHaveValue(example.cronExpression);
-    expect(screen.getByText(example.humanCadence)).toBeInTheDocument();
+    const humanLines = screen.getAllByTestId("recurrence-schedule-example-human-cadence");
+    expect(humanLines[0]?.textContent).toContain(example.humanCadence);
   });
 
   it("moves Create to the header when schedules exist (TB-1131)", async () => {

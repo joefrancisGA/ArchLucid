@@ -1,3 +1,4 @@
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { InlineGuidance } from "@/components/InlineGuidance";
 import {
   RECURRENCE_SCHEDULES_HELPER_BODY,
@@ -7,18 +8,19 @@ import {
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-/** Right-rail guidance for the recurrence schedules governance workspace. */
+/**
+ * TB-1573 anti-exemplar: teaching helper must not be a persistent right rail.
+ * Collapsed disclosure keeps Next-step guidance without opening a second column.
+ */
 export function RecurrenceSchedulesWorkflowHelperCard() {
   return (
-    <aside
-      className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
-      aria-label={RECURRENCE_SCHEDULES_HELPER_TITLE}
-      data-testid="recurrence-schedules-helper-card"
+    <CollapsibleSection
+      title={RECURRENCE_SCHEDULES_HELPER_TITLE}
+      headingLevel={3}
+      sectionTestId="recurrence-schedules-helper-card"
+      defaultOpen={false}
     >
-      <h3 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
-        {RECURRENCE_SCHEDULES_HELPER_TITLE}
-      </h3>
-      <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+      <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         {RECURRENCE_SCHEDULES_HELPER_BODY}
       </p>
       <p className={cn("m-0 mt-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
@@ -26,6 +28,6 @@ export function RecurrenceSchedulesWorkflowHelperCard() {
           {RECURRENCE_SCHEDULES_HELPER_NEXT_STEP}
         </InlineGuidance>
       </p>
-    </aside>
+    </CollapsibleSection>
   );
 }

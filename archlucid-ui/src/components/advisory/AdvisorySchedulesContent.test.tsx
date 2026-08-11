@@ -271,7 +271,7 @@ describe("AdvisorySchedulesContent", () => {
     expect(screen.getByLabelText("Day of month")).toBeInTheDocument();
   });
 
-  it("uses a responsive two-column layout with a side column for scope", async () => {
+  it("uses a single-column layout with inline scope (TB-1573)", async () => {
     render(<AdvisorySchedulesContent />);
 
     await waitFor(() => {
@@ -279,8 +279,10 @@ describe("AdvisorySchedulesContent", () => {
     });
 
     const layout = screen.getByTestId("advisory-schedules-layout");
-    expect(layout.className).toMatch(/xl:grid-cols-/);
-    expect(screen.getByTestId("advisory-schedules-side-column")).toBeInTheDocument();
+    expect(layout.className).not.toMatch(/xl:grid-cols-/);
+    expect(screen.queryByTestId("advisory-schedules-side-column")).not.toBeInTheDocument();
+    expect(screen.getByTestId("advisory-schedule-inline-scope")).toBeInTheDocument();
+    expect(screen.getByText(/Current project: claims-intake/i)).toBeInTheDocument();
   });
 
   it("surfaces invalid advanced cron feedback", async () => {

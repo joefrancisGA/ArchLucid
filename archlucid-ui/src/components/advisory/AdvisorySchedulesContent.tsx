@@ -27,9 +27,6 @@ import {
   ADVISORY_SCANS_SCHEDULES_RECURRENCE_HREF,
   ADVISORY_SCANS_SCHEDULES_RECURRENCE_LINK_HELPER,
   ADVISORY_SCANS_SCHEDULES_RECURRENCE_LINK_LABEL,
-  ADVISORY_SCANS_SCHEDULES_SCOPE_CURRENT,
-  ADVISORY_SCANS_SCHEDULES_SCOPE_HELPER,
-  ADVISORY_SCANS_SCHEDULES_TIMING_NOTE,
 } from "@/lib/advisory-copy";
 import { resolveAdvisoryRunProjectSlug, resolveBrowserTimeZoneId } from "@/lib/advisory-schedule-form";
 import {
@@ -274,44 +271,18 @@ export function AdvisorySchedulesContent(): ReactElement {
           </p>
         ) : null}
 
-        <div
-          className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1.5fr)_minmax(16rem,1fr)]"
-          data-testid="advisory-schedules-layout"
-        >
-          <div className="min-w-0 space-y-4">
-            <AdvisoryScheduleCreateForm
-              canEdit={canMutateSchedules}
-              sampleModeBlocked={sampleModeBlocked}
-              creating={creating}
-              createSuccess={createSuccess}
-              projectLabel={projectLabel}
-              runProjectSlug={runProjectSlug}
-              formResetKey={formResetKey}
-              onCreate={onCreate}
-            />
-          </div>
-
-          <aside className="space-y-4" data-testid="advisory-schedules-side-column">
-            <section className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-700">
-              <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                Schedule scope
-              </h3>
-              <dl className="m-0 mt-3 grid gap-3">
-                <div>
-                  <dt className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Project</dt>
-                  <dd className={cn("m-0 mt-0.5 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                    {ADVISORY_SCANS_SCHEDULES_SCOPE_CURRENT}: {projectLabel}
-                  </dd>
-                </div>
-              </dl>
-              <p className={cn("m-0 mt-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                {ADVISORY_SCANS_SCHEDULES_SCOPE_HELPER}
-              </p>
-              <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                {ADVISORY_SCANS_SCHEDULES_TIMING_NOTE}
-              </p>
-            </section>
-          </aside>
+        {/* TB-1573: single-column — static Schedule scope rail banned; scope lives inline on the form. */}
+        <div className="mt-6 min-w-0 space-y-4" data-testid="advisory-schedules-layout">
+          <AdvisoryScheduleCreateForm
+            canEdit={canMutateSchedules}
+            sampleModeBlocked={sampleModeBlocked}
+            creating={creating}
+            createSuccess={createSuccess}
+            projectLabel={projectLabel}
+            runProjectSlug={runProjectSlug}
+            formResetKey={formResetKey}
+            onCreate={onCreate}
+          />
         </div>
 
         <section className="mt-8" data-testid="advisory-schedules-existing">

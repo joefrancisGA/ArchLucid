@@ -176,8 +176,8 @@ Carbon **side panels** (drawers / modal panels) remain valid for transient focus
 | **Master-detail** | Yes | Browse list + detail pane where both panes are the page job (e.g. Digests browse). |
 | **Live preview / readiness** | Yes, only when live | Draft/selection produces pin-worthy preview or readiness content. Hide or stack below when empty/sparse (**TB-1574**; Digests Schedule / Alert rules coordinate **TB-1478**/**TB-1479** — do not reopen). |
 | **TOC / wizard** | Yes | Help TOC or multi-step wizard navigation that is the reading/progress affordance. |
-| **Teaching / workflow helper** | **Banned** as a persistent rail | Restates Next step or How-it-works beside the form. Demote to collapsed disclosure, inline tip, or remove (**TB-1573** — Recurrence helper anti-exemplar; empty-hide already Done **TB-1133**). |
-| **Static scope** | **Banned** as a persistent rail | Project + prose “scope” column that creates thin voids beside forms. Move inline near the field (**TB-1573** + Advisory Schedules / **TB-1477** — do not duplicate that surface ticket). |
+| **Teaching / workflow helper** | **Banned** as a persistent rail | Restates Next step or How-it-works beside the form. Demote to collapsed disclosure, inline tip, or remove. **Anti-exemplar Done (TB-1573):** Recurrence `RecurrenceSchedulesWorkflowHelperCard` is a collapsed `CollapsibleSection` (empty-hide already Done **TB-1133**). |
+| **Static scope** | **Banned** as a persistent rail | Project + prose “scope” column that creates thin voids beside forms. Move inline near the field. **Anti-exemplar Done (TB-1573):** Advisory Schedules scope is inline on `AdvisoryScheduleCreateForm` (coordinate remaining whitespace **TB-1477** — do not duplicate that surface ticket). |
 | **About aside** | **Banned** as a competing rail | Integration “about” columns that compete with `StatusTag` + page help. Demote to help + status (**TB-1575** inventory). |
 
 **Layout rules when a rail is allowed:**
