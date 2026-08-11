@@ -2,6 +2,10 @@ import { describe, expect, it, vi } from "vitest";
 
 import { render, screen } from "@testing-library/react";
 
+vi.mock("@/components/OperatorOfflineReconnectBanner", () => ({
+  OperatorOfflineReconnectBanner: () => <div data-testid="operator-offline-reconnect" />,
+}));
+
 vi.mock("@/components/tenancy/TenantMigrationMaintenanceBanner", () => ({
   TenantMigrationMaintenanceBanner: () => <div data-testid="tenant-migration-maintenance-banner" />,
 }));
@@ -50,13 +54,15 @@ vi.mock("@/components/usability/SetupHealthShellBanner", () => ({
 import { AppShellStatusBanners } from "@/components/shell/AppShellStatusBanners";
 
 describe("AppShellStatusBanners", () => {
-  it("includes tenant migration maintenance banner for minimal and full variants", () => {
+  it("includes offline reconnect and tenant migration banners for minimal and full variants", () => {
     const { rerender } = render(<AppShellStatusBanners variant="minimal" />);
 
+    expect(screen.getByTestId("operator-offline-reconnect")).toBeInTheDocument();
     expect(screen.getByTestId("tenant-migration-maintenance-banner")).toBeInTheDocument();
 
     rerender(<AppShellStatusBanners variant="full" />);
 
+    expect(screen.getByTestId("operator-offline-reconnect")).toBeInTheDocument();
     expect(screen.getByTestId("tenant-migration-maintenance-banner")).toBeInTheDocument();
   });
 });

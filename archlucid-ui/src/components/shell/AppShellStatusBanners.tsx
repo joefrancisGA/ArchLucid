@@ -1,5 +1,6 @@
 "use client";
 
+import { OperatorOfflineReconnectBanner } from "@/components/OperatorOfflineReconnectBanner";
 import { TenantMigrationMaintenanceBanner } from "@/components/tenancy/TenantMigrationMaintenanceBanner";
 import { CtoDemoStaticFallbackPresenterBanner } from "@/components/cto-demo/CtoDemoStaticFallbackPresenterBanner";
 import { ServiceBusHealthBanner } from "@/components/governance/ServiceBusHealthBanner";
@@ -20,6 +21,7 @@ type AppShellStatusBannersProps = {
 export function AppShellStatusBanners({ variant }: AppShellStatusBannersProps) {
   return (
     <>
+      <OperatorOfflineReconnectBanner />
       <TenantMigrationMaintenanceBanner />
       {variant === "full" ? <CtoDemoStaticFallbackPresenterBanner /> : null}
       <PublicDemoAiUsageBanner />
