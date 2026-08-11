@@ -184,7 +184,7 @@ public sealed class ArchitectureRunExecuteOrchestratorExecuteFailureSummaryTests
 
         runRepo.Verify(
             r => r.UpdateAsync(
-                It.Is<RunRecord>(h => h.LastFailureReason != null && !h.LastFailureReason.Contains(secret)),
+                It.Is<RunRecord>(h => h.LastFailureReason is not null && !h.LastFailureReason.Contains(secret)),
                 It.IsAny<CancellationToken>()),
             Times.Once);
 
