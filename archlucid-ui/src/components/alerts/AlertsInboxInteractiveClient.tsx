@@ -4,7 +4,7 @@ import { AlertsInboxAlertListSection } from "@/components/alerts/AlertsInboxAler
 import { AlertsInboxControls } from "@/components/alerts/AlertsInboxControls";
 import { AlertsInboxDialogsDeferred } from "@/components/alerts/alerts-inbox-deferred-chunks";
 import { AlertRulesAlertsInboxVocabularyRail } from "@/components/AlertRulesAlertsInboxVocabularyRail";
-import { AlertsFindingsDualInboxReconciler } from "@/components/AlertsFindingsDualInboxReconciler";
+import { AlertsFindingsVocabularyRail } from "@/components/AlertsFindingsVocabularyRail";
 import { AlertsInboxPageIntro } from "@/components/alerts/AlertsInboxPageIntro";
 import { AlertsInboxSummaryRow } from "@/components/alerts/AlertsInboxSummaryRow";
 import { useAlertsInboxController } from "@/components/alerts/use-alerts-inbox-controller";
@@ -27,7 +27,7 @@ export function AlertsInboxInteractiveClient({ initialModel = null }: AlertsInbo
       />
 
       <AlertRulesAlertsInboxVocabularyRail currentSurfaceId="alerts-inbox" />
-      <AlertsFindingsDualInboxReconciler currentSurfaceId="alerts-inbox" />
+      <AlertsFindingsVocabularyRail currentSurfaceId="alerts-inbox" />
 
       <AlertsInboxSummaryRow
         summary={controller.summaryCounts}

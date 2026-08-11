@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 
-import { AlertsFindingsDualInboxReconciler } from "@/components/AlertsFindingsDualInboxReconciler";
+import { AlertsFindingsVocabularyRail } from "@/components/AlertsFindingsVocabularyRail";
 import { DecisionRegisterFindingsVocabularyRail } from "@/components/DecisionRegisterFindingsVocabularyRail";
 import { GovernanceApprovalStatusBanner } from "@/components/governance/GovernanceApprovalStatusBanner";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
@@ -205,7 +205,7 @@ export default function GovernanceFindingsQueueClient() {
         actions={<PageContextualHelpButton />}
       />
       <GovernanceJobRouterStrip currentJobId="triage-findings" />
-      <AlertsFindingsDualInboxReconciler currentSurfaceId="findings-queue" />
+      <AlertsFindingsVocabularyRail currentSurfaceId="findings-queue" />
       <DecisionRegisterFindingsVocabularyRail currentSurfaceId="findings-queue" />
       <RiskExceptionsFindingsVocabularyRail currentSurfaceId="findings-queue" />
       <FindingsQueueSearchEvidenceVocabularyRail currentSurfaceId="findings-queue" />
