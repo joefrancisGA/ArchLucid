@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { Controller, useFormContext } from "react-hook-form";
+import { useEffect, useRef, useState } from "react";
+import { Controller, useFormContext, useWatch } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { resolveSlackAddDestinationCtaPresentation } from "@/lib/slack-integration-add-destination-cta";
 import {
   slackIntegrationEventCatalog,
   type SlackIntegrationFormValues,
@@ -15,10 +17,12 @@ import {
 import {
   SLACK_INTEGRATION_ADD_SECTION_LEAD,
   SLACK_INTEGRATION_ADD_SECTION_TITLE,
+  SLACK_INTEGRATION_SAVE_DISABLED_HELPER,
   SLACK_INTEGRATION_SECRET_HELPER,
   SLACK_INTEGRATION_SECRET_STORED_WARNING,
 } from "@/lib/slack-integration-page-copy";
 import type { SlackIntegrationTestFeedback } from "@/lib/slack-integration-test-feedback";
+import type { WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 import { cn } from "@/lib/utils";
 
 type SlackDestinationFormProps = {
@@ -26,6 +30,7 @@ type SlackDestinationFormProps = {
   readonly loading: boolean;
   readonly testingForm: boolean;
   readonly formTestFeedback: SlackIntegrationTestFeedback | null;
+  readonly onClearFormTestFeedback: () => void;
   readonly onSave: () => void;
   readonly onSendTest: () => void;
 };
@@ -87,13 +92,45 @@ function SigningSecretField(props: { readonly disabled: boolean }): React.ReactE
 
 /** Create form for a new Slack webhook destination. */
 export function SlackDestinationForm(props: SlackDestinationFormProps): React.ReactElement {
-  const { canMutate, loading, testingForm, formTestFeedback, onSave, onSendTest } = props;
+  const {
+    canMutate,
+    loading,
+    testingForm,
+    formTestFeedback,
+    onClearFormTestFeedback,
+    onSave,
+    onSendTest,
+  } = props;
   const {
     register,
     control,
     formState: { errors },
   } = useFormContext<SlackIntegrationFormValues>();
   const disabled = !canMutate || loading;
+  const webhookUrl = useWatch({ control, name: "webhookUrl" });
+  const previousWebhookUrlRef = useRef(webhookUrl);
+  const formTestSucceeded = formTestFeedback?.kind === "success";
+  const cta = resolveSlackAddDestinationCtaPresentation({
+    formTestSucceeded,
+    canMutate,
+    loading,
+    testingForm,
+  });
+  const saveDisabledReason: WhyDisabledCtaReason | null = cta.showSaveDisabledHelper
+    ? { kind: "prerequisite", message: SLACK_INTEGRATION_SAVE_DISABLED_HELPER }
+    : null;
+
+  useEffect(() => {
+    if (previousWebhookUrlRef.current === webhookUrl) {
+      return;
+    }
+
+    previousWebhookUrlRef.current = webhookUrl;
+
+    if (formTestFeedback !== null) {
+      onClearFormTestFeedback();
+    }
+  }, [webhookUrl, formTestFeedback, onClearFormTestFeedback]);
 
   return (
     <section aria-labelledby="slack-add-destination-heading" className="space-y-5">
@@ -217,25 +254,33 @@ export function SlackDestinationForm(props: SlackDestinationFormProps): React.Re
         </fieldset>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <Button
-          type="button"
-          variant="primary"
-          disabled={disabled}
-          data-testid="slack-save-button"
-          onClick={onSave}
-        >
-          Save destination
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          disabled={disabled || testingForm}
-          data-testid="slack-test-button"
-          onClick={onSendTest}
-        >
-          {testingForm ? "Sending test…" : "Send test notification"}
-        </Button>
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            type="button"
+            variant={cta.testVariant}
+            disabled={disabled || testingForm}
+            data-testid="slack-test-button"
+            onClick={onSendTest}
+          >
+            {testingForm ? "Sending test…" : "Send test notification"}
+          </Button>
+          <Button
+            type="button"
+            variant={cta.saveVariant}
+            disabled={cta.saveDisabled}
+            title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+            data-testid="slack-save-button"
+            onClick={onSave}
+          >
+            Save destination
+          </Button>
+        </div>
+        <WhyDisabledCtaHint
+          reason={saveDisabledReason}
+          testId="slack-save-disabled-helper"
+          className="max-w-prose"
+        />
       </div>
 
       {formTestFeedback !== null ? (

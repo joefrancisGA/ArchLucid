@@ -277,6 +277,7 @@ export function SlackIntegrationPageClient(): React.ReactElement {
         >
           <div className={cn("min-w-0", OPERATOR_LAYOUT.sectionStack, !canMutate && "opacity-95")}>
             <SlackDestinationForm
+              onClearFormTestFeedback={() => setFormTestFeedback(null)}
               canMutate={canMutate}
               loading={loading}
               testingForm={testingForm}

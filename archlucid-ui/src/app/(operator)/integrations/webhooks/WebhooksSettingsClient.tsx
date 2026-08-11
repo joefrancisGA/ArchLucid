@@ -1,7 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, FormProvider, useForm, useWatch } from "react-hook-form";
@@ -16,6 +15,7 @@ import { BooleanStatusChip } from "@/components/ui/boolean-status-chip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
@@ -27,7 +27,7 @@ import {
   testWebhookSubscription,
   toggleAlertRoutingSubscription,
 } from "@/lib/api";
-import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatWebhookDestinationLabel } from "@/lib/webhooks-destination-present";
 import {
   formatWebhooksCustomerError,
@@ -35,7 +35,6 @@ import {
 } from "@/lib/webhooks-page-error-present";
 import {
   WEBHOOKS_ACTIVE_HEADING,
-  WEBHOOKS_DEDICATED_INTEGRATION_LINKS,
   WEBHOOKS_DESTINATION_URL_HELPER,
   WEBHOOKS_DESTINATION_URL_LABEL,
   WEBHOOKS_EMPTY_BODY,
@@ -43,8 +42,8 @@ import {
   WEBHOOKS_EVENTS_HELPER,
   WEBHOOKS_FORM_DESTINATION_HEADING,
   WEBHOOKS_FORM_EVENTS_HEADING,
+  WEBHOOKS_NOT_CONFIGURED_NEXT_STEP,
   WEBHOOKS_PAGE_DESCRIPTION,
-  WEBHOOKS_PAGE_DEDICATED_INTEGRATIONS_INTRO,
   WEBHOOKS_PAGE_TITLE,
   WEBHOOKS_SAVE_LABEL,
   WEBHOOKS_SAVE_THEN_TEST_HELPER,
@@ -55,6 +54,8 @@ import {
   WEBHOOKS_SIGNING_SECRET_LABEL,
   WEBHOOKS_TEST_LABEL,
   WEBHOOKS_TESTING_LABEL,
+  webhooksConfigurationStatusLabel,
+  webhooksConfigurationStatusTagKind,
 } from "@/lib/webhooks-page-copy";
 import { INTEGRATIONS_WEBHOOKS_PATH } from "@/lib/integrations-nav-paths";
 import {
@@ -119,6 +120,11 @@ export function WebhooksSettingsClient() {
   const webhookRows = useMemo(
     () => items.filter((subscription) => isGenericOutboundWebhookChannel(subscription.channelType)),
     [items],
+  );
+
+  const activeSubscriptionCount = useMemo(
+    () => webhookRows.filter((subscription) => subscription.isEnabled === true).length,
+    [webhookRows],
   );
 
   const load = useCallback(async () => {
@@ -237,19 +243,26 @@ export function WebhooksSettingsClient() {
         description={
           <>
             <p className={cn("m-0 max-w-3xl leading-snug", OPERATOR_TYPOGRAPHY.body)}>{WEBHOOKS_PAGE_DESCRIPTION}</p>
-            <p className={cn("m-0 max-w-3xl leading-snug", OPERATOR_TYPOGRAPHY.body)}>
-              {WEBHOOKS_PAGE_DEDICATED_INTEGRATIONS_INTRO}
-            </p>
-            <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)} data-testid="webhooks-dedicated-links">
-              {WEBHOOKS_DEDICATED_INTEGRATION_LINKS.map((link, index) => (
-                <span key={link.href}>
-                  {index > 0 ? " · " : null}
-                  <Link href={link.href} className={OPERATOR_LINK.inline}>
-                    {link.label}
-                  </Link>
-                </span>
-              ))}
-            </p>
+            <div className="space-y-2" data-testid="webhooks-configuration-status">
+              {loading ? (
+                <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                  Loading configuration status…
+                </p>
+              ) : (
+                <StatusTag
+                  kind={webhooksConfigurationStatusTagKind(activeSubscriptionCount)}
+                  label={webhooksConfigurationStatusLabel(activeSubscriptionCount)}
+                />
+              )}
+              {!loading && activeSubscriptionCount === 0 ? (
+                <p
+                  className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="webhooks-not-configured-next-step"
+                >
+                  {WEBHOOKS_NOT_CONFIGURED_NEXT_STEP}
+                </p>
+              ) : null}
+            </div>
           </>
         }
       />

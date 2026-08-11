@@ -918,9 +918,9 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1187 | **Done (2026-08-11)** Slack page ? help as icon + caption in PageHeading actions; see ## TB-1187 below | Adoption friction P1 ? **V1**; with **TB-1185**; parity **TB-1184** | S |
 | TB-1188 | **Done (2026-08-11)** Slack help/readiness link dedupe (header vs aside); see ## TB-1188 below | Adoption friction P1 ? **V1**; with **TB-1185**/**TB-1187** | XS |
 | TB-1189 | **Done (2026-08-11)** Slack operator spacing density; see ## TB-1189 below | Adoption friction P1 ? **V1**; with **TB-1185**; cf. **TB-1177** | XS |
-| TB-1190 | Slack CTA hierarchy ? Test ? Save on add form; see ## TB-1190 below | Adoption friction P1 ? **V1**; with **TB-1186** | S |
-| TB-1191 | Webhooks page ? remove Jira/ServiceNow/Teams/Slack cross-link strip; see ## TB-1191 below | Adoption friction P1 ? **V1**; owner `/integrations/webhooks` ~56/100 2026-07-25; parity **TB-1183**/**TB-1185** | XS |
-| TB-1192 | Webhooks not-configured ? StatusTag + guided next step; see ## TB-1192 below | Adoption friction P1 ? **V1**; with **TB-1191** | S |
+| TB-1190 | **Done (2026-08-11)** Slack CTA hierarchy ? Test ? Save on add form; see ## TB-1190 below | Adoption friction P1 ? **V1**; with **TB-1186** | S |
+| TB-1191 | **Done (2026-08-11)** Webhooks page ? remove Jira/ServiceNow/Teams/Slack cross-link strip; see ## TB-1191 below | Adoption friction P1 ? **V1**; owner `/integrations/webhooks` ~56/100 2026-07-25; parity **TB-1183**/**TB-1185** | XS |
+| TB-1192 | **Done (2026-08-11)** Webhooks not-configured ? StatusTag + guided next step; see ## TB-1192 below | Adoption friction P1 ? **V1**; with **TB-1191** | S |
 | TB-1193 | Webhooks page ? help as icon + caption in PageHeading actions; see ## TB-1193 below | Adoption friction P1 ? **V1**; with **TB-1191**; parity **TB-1184**/**TB-1187** | S |
 | TB-1194 | Webhooks operator spacing density; see ## TB-1194 below | Adoption friction P1 ? **V1**; with **TB-1191**; cf. **TB-1177**/**TB-1189** | XS |
 | TB-1195 | Webhooks empty composition ? suppress zero theater; see ## TB-1195 below | Adoption friction P1 ? **V1**; with **TB-1192** | S |
@@ -30089,7 +30089,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done (2026-08-11).
 
 **Priority:** P0.
 
@@ -30179,7 +30179,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done (2026-08-11).
 
 **Priority:** P0.
 
@@ -30207,7 +30207,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done (2026-08-11).
 
 **Priority:** P0.
 

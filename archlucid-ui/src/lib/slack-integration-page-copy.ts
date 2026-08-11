@@ -44,6 +44,9 @@ export const SLACK_INTEGRATION_ENABLE_SUCCESS = "Slack destination enabled.";
 export const SLACK_INTEGRATION_NOT_CONFIGURED_NEXT_STEP =
   "Create a Slack incoming webhook, paste the URL below, send a test, then save the destination.";
 
+export const SLACK_INTEGRATION_SAVE_DISABLED_HELPER =
+  "Send a successful test notification before saving this destination.";
+
 export function slackIntegrationConfigurationStatusLabel(activeDestinationCount: number): string {
   if (activeDestinationCount === 0) {
     return "Not configured";

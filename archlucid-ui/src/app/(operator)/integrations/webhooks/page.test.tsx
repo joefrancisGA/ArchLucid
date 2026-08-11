@@ -80,29 +80,30 @@ describe("WebhooksIntegrationPage", () => {
     expect(resolveNavIconForHref("/integrations/webhooks")).toBe(WEBHOOKS_SURFACE_ICON);
   });
 
-  it("shows dedicated integration cross-references without implying they consume generic webhooks", async () => {
+  it("does not cross-link sibling Integrations products from page chrome", async () => {
     render(<WebhooksIntegrationPage />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("webhooks-dedicated-links")).toBeInTheDocument();
+      expect(apiMocks.list).toHaveBeenCalled();
     });
 
-    const dedicatedLinks = screen.getByTestId("webhooks-dedicated-links");
+    expect(screen.queryByTestId("webhooks-dedicated-links")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Jira" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "ServiceNow" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Microsoft Teams" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Slack" })).not.toBeInTheDocument();
+    expect(screen.queryByText(/For dedicated workflows, use Jira/i)).not.toBeInTheDocument();
+  });
 
-    expect(within(dedicatedLinks).getByRole("link", { name: "Jira" })).toHaveAttribute("href", "/integrations/jira");
-    expect(within(dedicatedLinks).getByRole("link", { name: "ServiceNow" })).toHaveAttribute(
-      "href",
-      "/integrations/servicenow",
-    );
-    expect(within(dedicatedLinks).getByRole("link", { name: "Microsoft Teams" })).toHaveAttribute(
-      "href",
-      "/integrations/teams",
-    );
-    expect(within(dedicatedLinks).getByRole("link", { name: "Slack" })).toHaveAttribute("href", "/integrations/slack");
+  it("shows StatusTag and guided next step when no subscriptions exist", async () => {
+    render(<WebhooksIntegrationPage />);
 
-    const pageText = screen.getByTestId("webhooks-page").textContent ?? "";
-    expect(pageText).toMatch(/another HTTPS endpoint/i);
-    expect(pageText).not.toMatch(/generic webhooks for custom HTTP endpoints/i);
+    expect(await screen.findByTestId("webhooks-configuration-status")).toContainElement(
+      screen.getByLabelText("Status: Not configured"),
+    );
+    expect(screen.getByTestId("webhooks-not-configured-next-step")).toHaveTextContent(
+      /Name the subscription, enter an HTTPS URL and signing secret/i,
+    );
   });
 
   it("does not expose internal implementation language in the rendered page", async () => {

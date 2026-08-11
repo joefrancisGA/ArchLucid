@@ -69,7 +69,7 @@ describe("SlackIntegrationPageClient", () => {
     expect(pageRoot.className).toMatch(/\bpy-4\b/);
   });
 
-  it("renders customer-facing form labels and actions", async () => {
+  it("renders customer-facing form labels and Test-before-Save CTA hierarchy", async () => {
     render(<SlackIntegrationPageClient />);
 
     expect(await screen.findByRole("heading", { name: "Add Slack destination" })).toBeInTheDocument();
@@ -77,8 +77,16 @@ describe("SlackIntegrationPageClient", () => {
     expect(screen.getByLabelText("Minimum alert severity")).toBeInTheDocument();
     expect(screen.getByLabelText("Slack incoming webhook URL")).toBeInTheDocument();
     expect(screen.getByLabelText("Signing secret (optional)")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Save destination" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Send test notification" })).toBeInTheDocument();
+
+    const testButton = screen.getByTestId("slack-test-button");
+    const saveButton = screen.getByTestId("slack-save-button");
+
+    expect(testButton).toBeInTheDocument();
+    expect(saveButton).toBeDisabled();
+    expect(screen.getByTestId("slack-save-disabled-helper")).toHaveTextContent(
+      /Send a successful test notification before saving/i,
+    );
+    expect(testButton.compareDocumentPosition(saveButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("shows polished empty state for destinations", async () => {
@@ -115,7 +123,7 @@ describe("SlackIntegrationPageClient", () => {
     );
   });
 
-  it("shows durable success callout after saving a destination", async () => {
+  it("shows durable success callout after testing then saving a destination", async () => {
     render(<SlackIntegrationPageClient />);
 
     fireEvent.change(await screen.findByLabelText("Destination name"), {
@@ -126,6 +134,16 @@ describe("SlackIntegrationPageClient", () => {
       target: { value: "https://hooks.slack.com/services/T000/B000/XXXXXXXX" },
     });
     fireEvent.blur(screen.getByLabelText("Slack incoming webhook URL"));
+
+    expect(screen.getByTestId("slack-save-button")).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Send test notification" }));
+
+    expect(await screen.findByTestId("slack-form-test-feedback")).toHaveTextContent(
+      "Test notification sent successfully.",
+    );
+    expect(screen.getByTestId("slack-save-button")).not.toBeDisabled();
+    expect(screen.queryByTestId("slack-save-disabled-helper")).not.toBeInTheDocument();
+
     fireEvent.click(screen.getByRole("button", { name: "Save destination" }));
 
     await waitFor(() => {

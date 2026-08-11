@@ -1,19 +1,7 @@
-import { INTEGRATIONS_JIRA_PATH, INTEGRATIONS_SERVICENOW_PATH, INTEGRATIONS_SLACK_PATH, INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
-
 export const WEBHOOKS_PAGE_TITLE = "Webhooks";
 
 export const WEBHOOKS_PAGE_DESCRIPTION =
   "Send selected ArchLucid events to a secure HTTPS endpoint that you manage.";
-
-export const WEBHOOKS_PAGE_DEDICATED_INTEGRATIONS_INTRO =
-  "For dedicated workflows, use Jira, ServiceNow, Microsoft Teams, or Slack. Use a webhook when you need to send ArchLucid events to another HTTPS endpoint.";
-
-export const WEBHOOKS_DEDICATED_INTEGRATION_LINKS = [
-  { label: "Jira", href: INTEGRATIONS_JIRA_PATH, purpose: "work-management records" },
-  { label: "ServiceNow", href: INTEGRATIONS_SERVICENOW_PATH, purpose: "service-management records" },
-  { label: "Microsoft Teams", href: INTEGRATIONS_TEAMS_PATH, purpose: "collaboration notifications" },
-  { label: "Slack", href: INTEGRATIONS_SLACK_PATH, purpose: "collaboration notifications" },
-] as const;
 
 export const WEBHOOKS_ABOUT_WHEN_TO_USE =
   "Use a webhook when you operate your own HTTPS receiver and need selected ArchLucid alert events delivered there.";
@@ -71,6 +59,9 @@ export const WEBHOOKS_EMPTY_TITLE = "No webhook subscriptions yet";
 export const WEBHOOKS_EMPTY_BODY =
   "Create a subscription to send selected ArchLucid events to a secure endpoint that you manage.";
 
+export const WEBHOOKS_NOT_CONFIGURED_NEXT_STEP =
+  "Name the subscription, enter an HTTPS URL and signing secret, save, then send a test from Active subscriptions.";
+
 export const WEBHOOKS_BANNED_UI_PATTERNS = [
   /OnCallWebhook/i,
   /routingSubscriptionId/i,
@@ -79,3 +70,25 @@ export const WEBHOOKS_BANNED_UI_PATTERNS = [
   /synthetic ping/i,
   /dbo\./i,
 ] as const;
+
+export function webhooksConfigurationStatusLabel(activeSubscriptionCount: number): string {
+  if (activeSubscriptionCount === 0) {
+    return "Not configured";
+  }
+
+  if (activeSubscriptionCount === 1) {
+    return "1 active subscription";
+  }
+
+  return `${activeSubscriptionCount} active subscriptions`;
+}
+
+export function webhooksConfigurationStatusTagKind(
+  activeSubscriptionCount: number,
+): "ready" | "needs-attention" {
+  if (activeSubscriptionCount > 0) {
+    return "ready";
+  }
+
+  return "needs-attention";
+}
