@@ -2528,6 +2528,9 @@ export function stripPilotFeedbackContributorLeakage(markdown: string): string {
       /(## 4\.1[^\n]*\n\nWhen you want[^\n]*:\n\n)/i,
       "$1- Open **Q&A & advisory** → **Pilot feedback** (`/internal/product-learning`), then use the **Planning bridge** panel to materialize draft themes and plans from ranked opportunities.\n",
     )
+    .replace(/\s*\(58R\)/gi, "")
+    .replace(/\s*\(59R\)/gi, "")
+    .replace(/\bin 58R\b/gi, "in pilot feedback")
     .replace(/\n{3,}/g, "\n\n")
     .trimEnd();
 }
