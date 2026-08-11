@@ -1,13 +1,17 @@
 import Link from "next/link";
 
-import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
+import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { DigestsHelpEvidenceOrientationStrip } from "@/components/help/DigestsHelpEvidenceOrientationStrip";
+import { OperatorPageBreadcrumb } from "@/components/OperatorPageBreadcrumb";
+import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
+  DIGESTS_HELP_CONTENT_ITEMS,
+  DIGESTS_HELP_CONTENT_SECTION_TITLE,
   DIGESTS_HELP_DESTINATION_CARDS,
   DIGESTS_HELP_GUIDE_HEADINGS,
   DIGESTS_HELP_HOW_DIGESTS_WORK_STEPS,
@@ -15,10 +19,24 @@ import {
   DIGESTS_HELP_PAGE_SUBTITLE,
   DIGESTS_HELP_PAGE_TITLE,
   DIGESTS_HELP_PRIMARY_ACTION,
+  DIGESTS_HELP_SAMPLE_DIGEST_BROWSE_LABEL,
+  DIGESTS_HELP_SAMPLE_DIGEST_LINES,
+  DIGESTS_HELP_SAMPLE_DIGEST_PERIOD,
+  DIGESTS_HELP_SAMPLE_DIGEST_TITLE,
 } from "@/lib/digests-help-guide-content";
 import {
+  DIGESTS_HELP_CANONICAL_PATH,
+  DIGESTS_HELP_SUBSCRIPTION_AUDIT_TRAIL_LINK,
+  DIGESTS_HELP_SUBSCRIPTION_AUDIT_TRAIL_NOTE,
+  DIGESTS_HELP_SUBSCRIPTION_CONSTRAINTS,
+  DIGESTS_HELP_SUBSCRIPTION_CONSTRAINTS_TITLE,
+} from "@/lib/digests-help-evidence-copy";
+import { DIGESTS_BROWSE_TAB_PATH } from "@/lib/digests-route-paths";
+import {
+  DESIGN_TOKENS,
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
+  OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
@@ -41,28 +59,88 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
   );
 }
 
-function HowDigestsWorkStepper(): React.ReactElement {
+function HowDigestsWorkSteps(): React.ReactElement {
   return (
-    <div
-      className="rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"
+    <ol
+      className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2 xl:grid-cols-3"
       data-testid="help-digests-how-stepper"
     >
-      <ol className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2 xl:grid-cols-4">
-        {DIGESTS_HELP_HOW_DIGESTS_WORK_STEPS.map((step, index) => (
-          <li key={step} className="min-w-0">
-            <div className="flex h-full flex-col gap-2 rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950">
-              <span className="sr-only">{`Step ${index + 1}`}</span>
-              <span
-                aria-hidden
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-teal-700/30 bg-teal-50 text-sm font-semibold text-teal-900 dark:border-teal-600/40 dark:bg-teal-950/50 dark:text-teal-100"
-              >
-                {index + 1}
-              </span>
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{step}</p>
-            </div>
+      {DIGESTS_HELP_HOW_DIGESTS_WORK_STEPS.map((step, index) => (
+        <li key={step} className="flex min-w-0 gap-3">
+          <span className="sr-only">{`Step ${index + 1}`}</span>
+          <span
+            aria-hidden
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-teal-700/30 bg-teal-50 text-sm font-semibold text-teal-900 dark:border-teal-600/40 dark:bg-teal-950/50 dark:text-teal-100"
+          >
+            {index + 1}
+          </span>
+          <p className={cn("m-0 min-w-0", OPERATOR_TYPOGRAPHY.body)}>{step}</p>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function DigestsHelpContentSection(): React.ReactElement {
+  return (
+    <section
+      aria-labelledby="what-a-digest-contains"
+      className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+    >
+      <HelpSectionHeading id="what-a-digest-contains">{DIGESTS_HELP_CONTENT_SECTION_TITLE}</HelpSectionHeading>
+      <ul className={cn("m-0 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-digests-content-items">
+        {DIGESTS_HELP_CONTENT_ITEMS.map((item) => (
+          <li key={item.label} className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-2">
+            <span className="font-medium text-al-text-primary">{item.label}</span>
+            <span className="text-al-text-secondary">
+              {"from "}
+              <Link className={OPERATOR_LINK.inline} href={item.href}>
+                {item.sourceSurface}
+              </Link>
+            </span>
           </li>
         ))}
-      </ol>
+      </ul>
+      <div className={cn(DESIGN_TOKENS.surface.card, "space-y-3 p-4")} data-testid="help-digests-sample">
+        <div>
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{DIGESTS_HELP_SAMPLE_DIGEST_TITLE}</p>
+          <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>{DIGESTS_HELP_SAMPLE_DIGEST_PERIOD}</p>
+        </div>
+        <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
+          {DIGESTS_HELP_SAMPLE_DIGEST_LINES.map((line) => (
+            <li key={line}>{line}</li>
+          ))}
+        </ul>
+        <Button asChild size="sm" variant="outline">
+          <Link href={DIGESTS_BROWSE_TAB_PATH}>{DIGESTS_HELP_SAMPLE_DIGEST_BROWSE_LABEL}</Link>
+        </Button>
+      </div>
+    </section>
+  );
+}
+
+function DigestsHelpSubscriptionConstraintsBlock(): React.ReactElement {
+  return (
+    <div
+      className={cn(DESIGN_TOKENS.surface.card, "space-y-3 p-4")}
+      data-testid="help-digests-subscription-constraints"
+    >
+      <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{DIGESTS_HELP_SUBSCRIPTION_CONSTRAINTS_TITLE}</h3>
+      <dl className={cn("m-0 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
+        {DIGESTS_HELP_SUBSCRIPTION_CONSTRAINTS.map((constraint) => (
+          <div key={constraint.label}>
+            <dt className="font-medium text-al-text-primary">{constraint.label}</dt>
+            <dd className="m-0 mt-1 text-al-text-secondary">{constraint.detail}</dd>
+          </div>
+        ))}
+      </dl>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+        {DIGESTS_HELP_SUBSCRIPTION_AUDIT_TRAIL_NOTE}{" "}
+        <Link className={OPERATOR_LINK.inline} href={DIGESTS_HELP_SUBSCRIPTION_AUDIT_TRAIL_LINK.href}>
+          {DIGESTS_HELP_SUBSCRIPTION_AUDIT_TRAIL_LINK.label}
+        </Link>
+        {" shows who changed a destination."}
+      </p>
     </div>
   );
 }
@@ -79,47 +157,52 @@ export function HelpDigestsGuideView(props: HelpDigestsGuideViewProps): React.Re
     >
       <HelpTopicHashScroll />
 
-      <header className={HELP_PAGE_LAYOUT.articleHeader}>
-        <HelpTopicTitleRow title={DIGESTS_HELP_PAGE_TITLE} actions={<PageContextualHelpButton />} />
-        <p className={cn("m-0 max-w-[42rem]", OPERATOR_TYPOGRAPHY.helper)}>{DIGESTS_HELP_PAGE_SUBTITLE}</p>
-        <HelpTopicRegistryProvenanceLine entry={entry} />
-      </header>
-
-      <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <Card
-          className="border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20"
-          data-testid="help-digests-action-panel"
-        >
-          <CardHeader className={OPERATOR_CARD.header}>
-            <CardTitle className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Manage digests</CardTitle>
-          </CardHeader>
-          <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
-            <Button asChild size="sm" variant="primary">
-              <Link href={DIGESTS_HELP_PRIMARY_ACTION.href}>{DIGESTS_HELP_PRIMARY_ACTION.label}</Link>
-            </Button>
-          </CardContent>
-        </Card>
-
-        <DigestsHelpEvidenceOrientationStrip />
-      </div>
+      <OperatorPageHeader
+        title={DIGESTS_HELP_PAGE_TITLE}
+        titleTestId="help-digests-page-title"
+        subtitle={DIGESTS_HELP_PAGE_SUBTITLE}
+        navHref={DIGESTS_HELP_CANONICAL_PATH}
+        headingLevel="h1"
+        breadcrumb={
+          <OperatorPageBreadcrumb
+            data-testid="help-digests-breadcrumb"
+            items={[{ label: "Help", href: "/help" }, { label: DIGESTS_HELP_PAGE_TITLE }]}
+          />
+        }
+        metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
+        actions={<PageContextualHelpButton />}
+      />
 
       <div className={contentGridClass}>
-        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-8")}>
+        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
           <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)} data-testid="help-digests-overview">
             {DIGESTS_HELP_OVERVIEW}
           </p>
 
+          <Card className="border-neutral-200 dark:border-neutral-800" data-testid="help-digests-action-panel">
+            <CardHeader className={OPERATOR_CARD.header}>
+              <CardTitle className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Manage digests</CardTitle>
+            </CardHeader>
+            <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
+              <Button asChild size="sm" variant="primary">
+                <Link href={DIGESTS_HELP_PRIMARY_ACTION.href}>{DIGESTS_HELP_PRIMARY_ACTION.label}</Link>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <DigestsHelpContentSection />
+
           <section
             aria-labelledby="how-digests-work"
-            className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
           >
             <HelpSectionHeading id="how-digests-work">How digests work</HelpSectionHeading>
-            <HowDigestsWorkStepper />
+            <HowDigestsWorkSteps />
           </section>
 
           <section
             aria-labelledby="where-digests-are-managed"
-            className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
           >
             <HelpSectionHeading id="where-digests-are-managed">Where digests are managed</HelpSectionHeading>
             <div className="grid items-stretch gap-3 sm:grid-cols-3" data-testid="help-digests-destination-cards">
@@ -137,8 +220,13 @@ export function HelpDigestsGuideView(props: HelpDigestsGuideViewProps): React.Re
                 </Card>
               ))}
             </div>
+            <DigestsHelpSubscriptionConstraintsBlock />
           </section>
+
+          <DigestsHelpEvidenceOrientationStrip />
         </div>
+
+        <HelpTopicTableOfContents headings={DIGESTS_HELP_GUIDE_HEADINGS} enableScrollSpy />
       </div>
     </article>
   );

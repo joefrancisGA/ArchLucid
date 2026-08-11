@@ -13,16 +13,19 @@ import { cn } from "@/lib/utils";
 export function DigestsHelpEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <div className="space-y-3" data-testid="help-digests-orientation">
-      <div className={cn(DESIGN_TOKENS.callout.warn, "p-3")} data-testid="help-digests-claim-discipline">
+      <div
+        className={cn(DESIGN_TOKENS.callout.neutral, "p-3")}
+        data-testid="help-digests-claim-discipline"
+      >
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{DIGESTS_HELP_CLAIM_DISCIPLINE}</p>
       </div>
 
       <section
-        className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
-        aria-labelledby="help-digests-sources-heading"
+        className="rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-800"
+        aria-labelledby="where-to-go-next"
         data-testid="help-digests-sources"
       >
-        <h2 id="help-digests-sources-heading" className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+        <h2 id="where-to-go-next" className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           {DIGESTS_HELP_FOLLOW_UPS_TITLE}
         </h2>
         <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
