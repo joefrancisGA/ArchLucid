@@ -28,9 +28,9 @@ import { POLICY_PACK_DELTA_DEMO_HELP_ROUTE_METADATA } from "@/lib/policy-pack-de
 import { ACCELERATOR_CHOOSER_HELP_ROUTE_METADATA } from "@/lib/accelerator-chooser-help-route-metadata";
 import { PATH_CHOOSER_HELP_ROUTE_METADATA } from "@/lib/path-chooser-help-route-metadata";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
+import { CLOUD_CONNECTIONS_HELP_SLASH_TOPIC_SEGMENTS } from "@/lib/cloud-connections-help-routes";
 import {
   getProductDocumentationEntry,
-  HELP_TOPIC_SLUG_ALIASES,
   listProductDocumentationEntries,
 } from "@/lib/product-documentation-registry";
 import { HELP_TOPIC_PERMANENT_REDIRECTS } from "@/lib/help-topic-permanent-redirects";
@@ -92,6 +92,9 @@ const HelpReviewGuideView = dynamic(() =>
 );
 const HelpPilotGuideView = dynamic(() =>
   import("../_sections/HelpPilotGuideView").then((module) => module.HelpPilotGuideView),
+);
+const HelpPilotFeedbackGuideView = dynamic(() =>
+  import("../_sections/HelpPilotFeedbackGuideView").then((module) => module.HelpPilotFeedbackGuideView),
 );
 const HelpConfigurationReferenceGuideView = dynamic(() =>
   import("../_sections/HelpConfigurationReferenceGuideView").then(
@@ -201,14 +204,14 @@ export async function generateStaticParams(): Promise<Array<{ topic: string[] }>
   const registryParams = listProductDocumentationEntries()
     .filter((entry) => entry.contentKind !== "internal-runbook")
     .map((entry) => ({ topic: [entry.slug] }));
-  const aliasParams = Object.keys(HELP_TOPIC_SLUG_ALIASES).map((alias) => ({
-    topic: alias.split("/"),
+  const cloudHelpParams = CLOUD_CONNECTIONS_HELP_SLASH_TOPIC_SEGMENTS.map((segment) => ({
+    topic: segment.split("/"),
   }));
   const retiredSlugParams = Object.keys(HELP_TOPIC_PERMANENT_REDIRECTS).map((slug) => ({
     topic: slug.split("/"),
   }));
 
-  return [...registryParams, ...aliasParams, ...retiredSlugParams];
+  return [...registryParams, ...cloudHelpParams, ...retiredSlugParams];
 }
 
 function renderHelpTopicView(
@@ -355,7 +358,7 @@ function renderHelpTopicView(
     return <HelpEngineeringTroubleshootingGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
-  if (loaded.entry.slug === "governance-api-contracts") {
+  if (loaded.entry.slug === "api-contracts") {
     return <HelpApiContractsGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
@@ -444,13 +447,7 @@ function renderHelpTopicView(
   }
 
   if (loaded.entry.slug === "pilot-feedback") {
-    return (
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        showContextualHelp
-      />
-    );
+    return <HelpPilotFeedbackGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
   if (loaded.entry.slug === "caiq-sig-response") {

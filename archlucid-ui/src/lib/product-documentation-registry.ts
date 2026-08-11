@@ -10,6 +10,10 @@ import {
   type ProductDocumentationContentKind,
 } from "@/lib/product-documentation-content-kinds";
 import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-redirects";
+import {
+  cloudConnectionsHelpPathSegmentForRegistrySlug,
+  normalizeCloudConnectionsSlashHelpTopicSlug,
+} from "@/lib/cloud-connections-help-routes";
 
 export type { ProductDocumentationContentKind } from "@/lib/product-documentation-content-kinds";
 export type ProductDocumentationAudience = "operator" | "buyer" | "marketing" | "developer";
@@ -42,15 +46,7 @@ type ProductDocumentationRegistryInput = Omit<ProductDocumentationEntry, "pdfSta
   pdfStatus?: ProductDocumentationPdfStatus | null;
 };
 
-/** Slug aliases for contextual deep links (`/help/{slug}`). */
-/** Path-style + folded-topic aliases. TB-2050 retires only the hyphen twins listed in help-center-catalog. */
-/** Retired bookmarks with permanent redirects live in `help-topic-permanent-redirects.ts` (Batch B / Batch A). */
-export const HELP_TOPIC_SLUG_ALIASES: Readonly<Record<string, string>> = {
-  "cloud-connections/azure": "cloud-connections-azure",
-  "cloud-connections/aws": "cloud-connections-aws",
-  "cloud-connections/gcp": "cloud-connections-gcp",
-};
-
+/** Slash `/help/cloud-connections/{provider}` URLs normalize to hyphen registry slugs (Batch K). */
 export function normalizeHelpTopicSlug(slug: string): string {
   const trimmed = slug.trim().toLowerCase();
 
@@ -58,7 +54,13 @@ export function normalizeHelpTopicSlug(slug: string): string {
     return trimmed;
   }
 
-  return HELP_TOPIC_SLUG_ALIASES[trimmed] ?? trimmed;
+  const cloudRegistrySlug = normalizeCloudConnectionsSlashHelpTopicSlug(trimmed);
+
+  if (cloudRegistrySlug !== null) {
+    return cloudRegistrySlug;
+  }
+
+  return trimmed;
 }
 
 const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistryInput[] = [
@@ -552,12 +554,14 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     releaseApplicability: "Applies to V1 GA — governance alerts orientation",
   },
   {
-    slug: "governance-api-contracts",
+    slug: "api-contracts",
     title: "API contracts (technical reference)",
     summary:
       "Admin/developer HTTP contract reference — versioned endpoint behavior, auth, and OpenAPI as contract of record. Not buyer governance-approval help.",
     audience: "developer",
     sourcePaths: ["docs/library/API_CONTRACTS.md"],
+    lastReviewed: "2026-08-10",
+    releaseApplicability: "Applies to V1 GA — HTTP contract of record for integrators",
   },
   {
     slug: "pilot-feedback",
@@ -588,15 +592,13 @@ export function getProductDocumentationEntry(slug: string): ProductDocumentation
   return bySlug.get(normalized) ?? null;
 }
 
-/** Prefer slash aliases (e.g. `cloud-connections/azure`) over retired hyphen slug URLs. */
+/** Prefer slash canonicals for cloud-connection provider help topics. */
 function preferredHelpPathSegmentForSlug(slug: string): string {
   const normalized = normalizeHelpTopicSlug(slug);
+  const slashSegment = cloudConnectionsHelpPathSegmentForRegistrySlug(normalized);
 
-  for (const [alias, canonical] of Object.entries(HELP_TOPIC_SLUG_ALIASES)) {
-
-    if (canonical === normalized && canonical.startsWith("cloud-connections-")) {
-      return alias;
-    }
+  if (slashSegment !== null) {
+    return slashSegment;
   }
 
   return normalized;

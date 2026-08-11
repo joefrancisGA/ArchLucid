@@ -14,7 +14,7 @@ export function resolveHelpTopicBrowseLabel(helpSlug: string | null): HelpBrowse
   }
 
   // TB-1739: callers may pass a retired alias slug (e.g. "how-it-works") that only
-  // exists in HELP_TOPIC_SLUG_ALIASES, not the content-kind map — resolve it first.
+  // exists as a permanent redirect — resolve via normalizeHelpTopicSlug first.
   const kind = resolveProductDocumentationContentKind(normalizeHelpTopicSlug(helpSlug));
 
   if (kind === "technical-documentation") {
