@@ -174,7 +174,7 @@ Carbon **side panels** (drawers / modal panels) remain valid for transient focus
 |------|----------|------|
 | **Working-object sticky** | Yes | Sticky package / selection chrome that tracks the object the operator is acting on (e.g. run-detail package rail). |
 | **Master-detail** | Yes | Browse list + detail pane where both panes are the page job (e.g. Digests browse). |
-| **Live preview / readiness** | Yes, only when live | Draft/selection produces pin-worthy preview or readiness content. Hide or stack below when empty/sparse (**TB-1574**; Digests Schedule / Alert rules coordinate **TB-1478**/**TB-1479** — do not reopen). |
+| **Live preview / readiness** | Yes, only when live | Draft/selection produces pin-worthy preview or readiness content. Hide or stack below when empty/sparse. **Done (TB-1574):** shared `operator-live-preview-readiness-rail` policy; Digests Schedule + Alert rules Rules tab stack when sparse and pin when live (coordinate residual whitespace **TB-1478**/**TB-1479** — do not reopen). |
 | **TOC / wizard** | Yes | Help TOC or multi-step wizard navigation that is the reading/progress affordance. |
 | **Teaching / workflow helper** | **Banned** as a persistent rail | Restates Next step or How-it-works beside the form. Demote to collapsed disclosure, inline tip, or remove. **Anti-exemplar Done (TB-1573):** Recurrence `RecurrenceSchedulesWorkflowHelperCard` is a collapsed `CollapsibleSection` (empty-hide already Done **TB-1133**). |
 | **Static scope** | **Banned** as a persistent rail | Project + prose “scope” column that creates thin voids beside forms. Move inline near the field. **Anti-exemplar Done (TB-1573):** Advisory Schedules scope is inline on `AdvisoryScheduleCreateForm` (coordinate remaining whitespace **TB-1477** — do not duplicate that surface ticket). |
@@ -185,7 +185,7 @@ Carbon **side panels** (drawers / modal panels) remain valid for transient focus
 | Rule | Required behavior |
 |------|-------------------|
 | Shared shell | Sticky right column ~**17.5–18rem** wide (`w-70` / `w-72` class band); do not invent a third content column. |
-| Empty / sparse | Hide the rail or stack its content below the primary column — never keep an empty two-col first viewport (pairs empty-state contract **TB-1552**–**TB-1556**; whitespace **TB-1477**–**TB-1482**). |
+| Empty / sparse | Hide the rail or stack its content below the primary column — never keep an empty two-col first viewport (pairs empty-state contract **TB-1552**–**TB-1556**; whitespace **TB-1477**–**TB-1482**). **TB-1574** Done for Digests Schedule + Alert rules live rails. |
 | Primary CTA | No second primary in the rail. Page CTAs follow the operator primary-CTA contract (**TB-1539** and siblings). |
 | Naming | In code review / PR notes, name the kind (`working-object`, `master-detail`, `live`, `toc-wizard`) or confirm single-column. |
 
@@ -413,4 +413,4 @@ Headline counts on golden-path surfaces must be **self-describing** and **click-
 - Agent guidance: `archlucid-ui/AGENTS.md`
 - Page-scoped help **mount + interaction** contract: this file § *Operator page contextual help — mount + interaction contract* (**TB-1666** Done) — press-only triggers, shared `HelpPopover`, `title`-as-help banned (sweep **TB-2147**); remaining mount waves **TB-1667**–**TB-1670**
 - Page-scoped **Learn more** job match: this file § *Operator page contextual help — Learn more job match* (**TB-2048** Done); Digests/secondary remaps **TB-2049**–**TB-2052**
-- Operator **side rails** contract: this file § *Operator side rails* (**TB-1572** Done) — single-column default; allow working-object / master-detail / live-when-live / TOC-wizard; ban teaching / static-scope / about-aside persistent rails; apply/inventory **TB-1573**–**TB-1576**
+- Operator **side rails** contract: this file § *Operator side rails* (**TB-1572** Done) — single-column default; allow working-object / master-detail / live-when-live / TOC-wizard; ban teaching / static-scope / about-aside persistent rails; live pin policy **TB-1574** Done; remaining apply/inventory **TB-1575**–**TB-1576**

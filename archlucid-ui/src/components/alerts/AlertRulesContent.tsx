@@ -21,7 +21,9 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   ALERT_PRIORITY_OPTIONS,
+  ALERT_RULE_FORM_DEFAULT_DRAFT,
   ALERT_RULE_TYPE_OPTIONS,
+  alertRuleFormDiffersFromDefaultDraft,
   describeThresholdComparison,
   isAlertRuleFormValid,
   resolveAlertRuleScopePreviewProjectId,
@@ -29,6 +31,11 @@ import {
   validateAlertRuleForm,
   type AlertRuleFormInput,
 } from "@/lib/alert-rule-conditions";
+import {
+  hasAlertRulesLivePreviewPinContent,
+  OPERATOR_LIVE_PREVIEW_READINESS_RAIL_KIND,
+  shouldPinLivePreviewReadinessRail,
+} from "@/lib/operator-live-preview-readiness-rail";
 import {
   ALERT_RULES_ALERT_PRIORITY_HELP,
   ALERT_RULES_ALERT_PRIORITY_LABEL,
@@ -59,13 +66,6 @@ import { readOperatorScopeFromStorage } from "@/lib/operator-scope-storage";
 import type { AlertRule } from "@/types/alerts";
 import type { AlertRoutingSubscription } from "@/types/alert-routing";
 
-const DEFAULT_FORM: AlertRuleFormInput = {
-  name: "Architecture alert rule",
-  ruleType: "CriticalRecommendationCount",
-  alertPriority: "Warning",
-  thresholdValue: 3,
-};
-
 export function AlertRulesContent() {
   const canMutateAlertRules = useOperateCapability();
   const refreshContext = useOptionalAlertRulesHubRefresh();
@@ -86,10 +86,10 @@ export function AlertRulesContent() {
   // Server render has no storage; project id is adopted after mount to avoid a hydration mismatch.
   const [sessionProjectId, setSessionProjectId] = useState<string | undefined>(undefined);
 
-  const [name, setName] = useState(DEFAULT_FORM.name);
-  const [ruleType, setRuleType] = useState(DEFAULT_FORM.ruleType);
-  const [alertPriority, setAlertPriority] = useState(DEFAULT_FORM.alertPriority);
-  const [threshold, setThreshold] = useState(DEFAULT_FORM.thresholdValue);
+  const [name, setName] = useState(ALERT_RULE_FORM_DEFAULT_DRAFT.name);
+  const [ruleType, setRuleType] = useState(ALERT_RULE_FORM_DEFAULT_DRAFT.ruleType);
+  const [alertPriority, setAlertPriority] = useState(ALERT_RULE_FORM_DEFAULT_DRAFT.alertPriority);
+  const [threshold, setThreshold] = useState(ALERT_RULE_FORM_DEFAULT_DRAFT.thresholdValue);
   const [fieldTouched, setFieldTouched] = useState({ name: false, threshold: false });
 
   const formInput: AlertRuleFormInput = useMemo(
@@ -190,6 +190,14 @@ export function AlertRulesContent() {
 
   const draftReadinessRule = useMemo(() => ({ isEnabled: true }), []);
 
+  // TB-1574: pin live preview/readiness rail only when rules exist or draft left empty defaults.
+  const pinLivePreviewRail = shouldPinLivePreviewReadinessRail(
+    hasAlertRulesLivePreviewPinContent({
+      existingRuleCount: items.length,
+      draftDiffersFromDefault: alertRuleFormDiffersFromDefaultDraft(formInput),
+    }),
+  );
+
   return (
     <div className="min-w-0">
       <h2 className={cn("mb-2 mt-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Alert conditions</h2>
@@ -231,7 +239,15 @@ export function AlertRulesContent() {
         </div>
       ) : null}
 
-      <div className="grid gap-8 xl:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)]">
+      <div
+        className={cn(
+          "grid gap-8",
+          pinLivePreviewRail && "xl:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)]",
+        )}
+        data-testid="alert-rules-layout"
+        data-rail-kind={OPERATOR_LIVE_PREVIEW_READINESS_RAIL_KIND}
+        data-live-rail-pinned={pinLivePreviewRail ? "true" : "false"}
+      >
         <div className="flex min-w-0 flex-col gap-8">
           <section aria-labelledby="alert-rules-list-heading">
             <h3 id="alert-rules-list-heading" className={cn("m-0 mb-3", OPERATOR_TYPOGRAPHY.sectionTitle)}>

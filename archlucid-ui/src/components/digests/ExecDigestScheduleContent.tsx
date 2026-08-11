@@ -64,6 +64,11 @@ import {
   normalizeIanaTimeZoneForSelect,
   toStoredIanaTimeZoneId,
 } from "@/lib/iana-time-zone-select";
+import {
+  hasExecDigestScheduleLivePreviewPinContent,
+  OPERATOR_LIVE_PREVIEW_READINESS_RAIL_KIND,
+  shouldPinLivePreviewReadinessRail,
+} from "@/lib/operator-live-preview-readiness-rail";
 import type { ExecDigestPreferencesResponse } from "@/types/exec-digest-preferences";
 import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
 
@@ -171,6 +176,18 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
   const busy: boolean = saving || enabling || pausing;
   const liveScheduleSummary: string | null =
     form !== null ? formatExecDigestLiveScheduleSummary(form) : null;
+
+  // TB-1574: pin delivery readiness rail only when schedule/recipients/preview give it a job.
+  const pinLivePreviewRail =
+    prefs !== null
+      ? shouldPinLivePreviewReadinessRail(
+          hasExecDigestScheduleLivePreviewPinContent({
+            isConfigured: prefs.isConfigured,
+            recipientCount,
+            hasPreviewDigest,
+          }),
+        )
+      : false;
 
   function announceSuccess(message: string): void {
     setSaveSuccess(message);
@@ -401,8 +418,13 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
         </p>
       ) : (
         <div
-          className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(18rem,1fr)]"
+          className={cn(
+            "grid gap-6",
+            pinLivePreviewRail && "xl:grid-cols-[minmax(0,1.4fr)_minmax(18rem,1fr)]",
+          )}
           data-testid="exec-digest-schedule-layout"
+          data-rail-kind={OPERATOR_LIVE_PREVIEW_READINESS_RAIL_KIND}
+          data-live-rail-pinned={pinLivePreviewRail ? "true" : "false"}
         >
           <div className="space-y-4">
             <section

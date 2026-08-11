@@ -88,6 +88,41 @@ describe("AlertRulesContent", () => {
     });
   });
 
+  it("stacks live preview rail when empty list uses default draft (TB-1574)", async () => {
+    render(<AlertRulesContent />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("alert-rules-layout")).toHaveAttribute("data-live-rail-pinned", "false");
+    });
+
+    expect(screen.getByTestId("alert-rules-layout").className).not.toMatch(/xl:grid-cols-/);
+    expect(screen.getByTestId("alert-rule-live-preview")).toBeInTheDocument();
+  });
+
+  it("pins live preview rail after the create draft leaves defaults (TB-1574)", async () => {
+    render(<AlertRulesContent />);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(ALERT_RULES_NAME_LABEL)).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByLabelText(ALERT_RULES_NAME_LABEL), {
+      target: { value: "Custom workspace watch" },
+    });
+
+    expect(screen.getByTestId("alert-rules-layout")).toHaveAttribute("data-live-rail-pinned", "true");
+    expect(screen.getByTestId("alert-rules-layout").className).toMatch(/xl:grid-cols-/);
+  });
+
+  it("pins live preview rail when rules already exist (TB-1574)", async () => {
+    apiHoisted.listAlertRules.mockResolvedValue([sampleRule]);
+    render(<AlertRulesContent />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("alert-rules-layout")).toHaveAttribute("data-live-rail-pinned", "true");
+    });
+  });
+
   it("creates a rule with pending state and success live region", async () => {
     render(<AlertRulesContent />);
 

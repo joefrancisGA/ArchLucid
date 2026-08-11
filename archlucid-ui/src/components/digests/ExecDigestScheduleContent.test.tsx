@@ -105,6 +105,41 @@ describe("ExecDigestScheduleContent", () => {
     expect(screen.getByTestId("digest-preview-before-subscribe")).toBeInTheDocument();
   });
 
+  it("stacks delivery readiness rail when schedule is sparse empty (TB-1574)", async () => {
+    render(<ExecDigestScheduleContent />);
+
+    const layout = await screen.findByTestId("exec-digest-schedule-layout");
+    expect(layout).toHaveAttribute("data-live-rail-pinned", "false");
+    expect(layout.className).not.toMatch(/xl:grid-cols-/);
+    expect(screen.getByTestId("exec-digest-delivery-readiness")).toBeInTheDocument();
+  });
+
+  it("pins delivery readiness rail after a recipient is added (TB-1574)", async () => {
+    render(<ExecDigestScheduleContent />);
+
+    await screen.findByTestId("exec-digest-schedule-layout");
+    addRecipient("ops@example.com");
+
+    const layout = screen.getByTestId("exec-digest-schedule-layout");
+    expect(layout).toHaveAttribute("data-live-rail-pinned", "true");
+    expect(layout.className).toMatch(/xl:grid-cols-/);
+  });
+
+  it("pins delivery readiness rail when a preview digest exists (TB-1574)", async () => {
+    render(
+      <ExecDigestScheduleContent
+        healthSnap={{
+          ...baseHealth,
+          latestArchitectureDigestId: "digest-1",
+          latestArchitectureDigestGeneratedUtc: "2026-07-08T12:00:00Z",
+        }}
+      />,
+    );
+
+    const layout = await screen.findByTestId("exec-digest-schedule-layout");
+    expect(layout).toHaveAttribute("data-live-rail-pinned", "true");
+  });
+
   it("enables scheduled delivery, saves, and refreshes summary", async () => {
     const onRefresh = vi.fn();
     render(<ExecDigestScheduleContent healthSnap={baseHealth} onRefresh={onRefresh} />);
@@ -294,11 +329,18 @@ describe("ExecDigestScheduleContent", () => {
     expect(onRefresh).toHaveBeenCalled();
   });
 
-  it("uses a responsive two-column layout", async () => {
+  it("uses a responsive two-column layout only when the live rail is pinned (TB-1574)", async () => {
     render(<ExecDigestScheduleContent />);
 
-    const layout = await screen.findByTestId("exec-digest-schedule-layout");
-    expect(layout.className).toMatch(/xl:grid-cols-/);
+    const sparseLayout = await screen.findByTestId("exec-digest-schedule-layout");
+    expect(sparseLayout).toHaveAttribute("data-live-rail-pinned", "false");
+    expect(sparseLayout.className).not.toMatch(/xl:grid-cols-/);
+
+    addRecipient("ops@example.com");
+
+    const pinnedLayout = screen.getByTestId("exec-digest-schedule-layout");
+    expect(pinnedLayout).toHaveAttribute("data-live-rail-pinned", "true");
+    expect(pinnedLayout.className).toMatch(/xl:grid-cols-/);
   });
 
   it("keeps schedule day/time keyboard operable", async () => {
