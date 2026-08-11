@@ -11,11 +11,16 @@ import {
   EVIDENCE_INTAKE_HELP_PRIMARY_ACTION,
 } from "@/lib/evidence-intake-help-evidence-copy";
 import {
+  EVIDENCE_INTAKE_HELP_HERO_OVERVIEW,
   EVIDENCE_INTAKE_HELP_PATH_OPTIONS,
   EVIDENCE_INTAKE_HELP_PRIMARY_ACTIONS,
   EVIDENCE_INTAKE_HELP_RELATED_GUIDES,
   EVIDENCE_INTAKE_HELP_VERIFY_STEPS,
 } from "@/lib/evidence-intake-help-guide-content";
+import {
+  EVIDENCE_UPLOAD_ACCEPTED_EXTENSIONS,
+  EVIDENCE_UPLOAD_ACCEPTED_FORMAT_ROWS,
+} from "@/lib/evidence-upload-accepted-formats";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import {
@@ -38,7 +43,7 @@ describe("HelpEvidenceIntakeGuideView (EVI)", () => {
     expect(entry?.pdfStatus).toBe("customer");
   });
 
-  it("renders specialty wizard companion chrome with Start and path CTAs (TB-1350 / TB-1351)", () => {
+  it("renders one header primary, reference content first, and distinct path CTAs", () => {
     if (loaded === null || entry === null) {
       throw new Error("Expected evidence-intake help to load.");
     }
@@ -47,42 +52,57 @@ describe("HelpEvidenceIntakeGuideView (EVI)", () => {
 
     expect(screen.getByTestId("help-evidence-intake-guide")).toBeInTheDocument();
     expect(screen.getByTestId("help-evidence-intake-first-viewport")).toBeInTheDocument();
+    expect(screen.getByTestId("help-evidence-intake-overview")).toHaveTextContent(
+      EVIDENCE_INTAKE_HELP_HERO_OVERVIEW,
+    );
+
     expect(screen.getByTestId(EVIDENCE_INTAKE_HELP_PRIMARY_ACTION.testId)).toHaveAttribute(
       "href",
       EVIDENCE_INTAKE_HELP_PRIMARY_ACTION.href,
     );
 
-    const actionPanel = screen.getByTestId("help-evidence-intake-action-panel");
+    const startReviewLinks = screen.getAllByRole("link", { name: EVIDENCE_INTAKE_HELP_PRIMARY_ACTION.label });
 
-    expect(
-      within(actionPanel).getByRole("link", {
-        name: EVIDENCE_INTAKE_HELP_PRIMARY_ACTIONS.openCloudConnections.label,
-      }),
-    ).toHaveAttribute("href", EVIDENCE_INTAKE_HELP_PRIMARY_ACTIONS.openCloudConnections.href);
+    expect(startReviewLinks).toHaveLength(1);
 
+    expect(screen.queryByTestId("help-evidence-intake-action-panel")).not.toBeInTheDocument();
+
+    const firstViewport = screen.getByTestId("help-evidence-intake-first-viewport");
     const pathStrip = screen.getByTestId("help-evidence-intake-path-strip");
+
+    expect(firstViewport.compareDocumentPosition(pathStrip) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(within(firstViewport).getByTestId("help-evidence-intake-accepted-formats")).toBeInTheDocument();
+    expect(within(firstViewport).getByTestId("help-evidence-intake-reference")).toBeInTheDocument();
+
+    for (const extension of EVIDENCE_UPLOAD_ACCEPTED_EXTENSIONS) {
+      expect(within(firstViewport).getByText(extension)).toBeInTheDocument();
+    }
 
     for (const pathOption of EVIDENCE_INTAKE_HELP_PATH_OPTIONS) {
       const row = screen.getByTestId(`help-evidence-intake-path-${pathOption.id}`);
 
-      expect(within(row).getByRole("link", { name: pathOption.label })).toHaveAttribute(
-        "href",
-        pathOption.href,
-      );
+      expect(
+        within(row).getByRole("link", { name: `${pathOption.actionLabel} — ${pathOption.label}` }),
+      ).toHaveAttribute("href", pathOption.href);
     }
 
-    expect(within(pathStrip).getByRole("link", { name: "Quick start" })).toHaveAttribute(
-      "href",
-      REVIEWS_NEW_QUICK_REVIEW_HREF,
-    );
-    expect(within(pathStrip).getByRole("link", { name: "Guided questions" })).toHaveAttribute(
-      "href",
-      REVIEWS_NEW_GUIDED_INTAKE_HREF,
-    );
-    expect(within(pathStrip).getByRole("link", { name: "Templates and imports" })).toHaveAttribute(
-      "href",
-      REVIEWS_NEW_DETAILED_HREF,
-    );
+    expect(
+      within(pathStrip).getByRole("link", { name: "Open Quick start — Quick start" }),
+    ).toHaveAttribute("href", REVIEWS_NEW_QUICK_REVIEW_HREF);
+    expect(
+      within(pathStrip).getByRole("link", { name: "Open Guided questions — Guided questions" }),
+    ).toHaveAttribute("href", REVIEWS_NEW_GUIDED_INTAKE_HREF);
+    expect(
+      within(pathStrip).getByRole("link", { name: "Open Templates and imports — Templates and imports" }),
+    ).toHaveAttribute("href", REVIEWS_NEW_DETAILED_HREF);
+
+    expect(
+      within(pathStrip).getByRole("link", {
+        name: EVIDENCE_INTAKE_HELP_PRIMARY_ACTIONS.openCloudConnections.label,
+      }),
+    ).toHaveAttribute("href", EVIDENCE_INTAKE_HELP_PRIMARY_ACTIONS.openCloudConnections.href);
+
+    expect(screen.getByText("Recommended for first review")).toBeInTheDocument();
   });
 
   it("renders actionable verify-intake links and claim discipline (TB-1354)", () => {
@@ -95,11 +115,19 @@ describe("HelpEvidenceIntakeGuideView (EVI)", () => {
     const verifyPanel = screen.getByTestId("help-evidence-intake-verify-panel");
 
     for (const step of EVIDENCE_INTAKE_HELP_VERIFY_STEPS) {
+      if (step.action === undefined) {
+        continue;
+      }
+
       expect(within(verifyPanel).getByRole("link", { name: step.action.label })).toHaveAttribute(
         "href",
         step.action.href,
       );
     }
+
+    expect(
+      within(verifyPanel).queryByRole("link", { name: EVIDENCE_INTAKE_HELP_PRIMARY_ACTION.label }),
+    ).not.toBeInTheDocument();
 
     expect(screen.getByText(EVIDENCE_INTAKE_HELP_CLAIM_DISCIPLINE)).toBeInTheDocument();
   });
@@ -142,5 +170,12 @@ describe("HelpEvidenceIntakeGuideView (EVI)", () => {
     expect(visibleText).not.toContain("Guided intake");
     expect(visibleText).not.toMatch(/admission gates?/i);
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-10");
+    expect(screen.queryByTestId("help-topic-toc")).not.toBeInTheDocument();
+  });
+
+  it("keeps the accepted-formats table aligned with the wizard extension list", () => {
+    expect(EVIDENCE_UPLOAD_ACCEPTED_FORMAT_ROWS.map((row) => row.extension)).toEqual([
+      ...EVIDENCE_UPLOAD_ACCEPTED_EXTENSIONS,
+    ]);
   });
 });

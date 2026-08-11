@@ -25,6 +25,12 @@ describe("evidence-intake-help-guide-content", () => {
       "/architecture/reviews/new?path=guided-intake",
       "/architecture/reviews/new?path=detailed",
     ]);
+    expect(EVIDENCE_INTAKE_HELP_PATH_OPTIONS.filter((option) => option.recommended === true)).toHaveLength(1);
+    expect(EVIDENCE_INTAKE_HELP_PATH_OPTIONS.map((option) => option.actionLabel)).toEqual([
+      "Open Quick start",
+      "Open Guided questions",
+      "Open Templates and imports",
+    ]);
   });
 
   it("lists related guides with first-architecture-review and no first-hour alias (TB-1352)", () => {
@@ -37,7 +43,8 @@ describe("evidence-intake-help-guide-content", () => {
 
   it("defines verify-intake steps with in-app follow-up links (TB-1354)", () => {
     expect(EVIDENCE_INTAKE_HELP_VERIFY_STEPS).toHaveLength(3);
-    expect(EVIDENCE_INTAKE_HELP_VERIFY_STEPS.some((step) => step.action.href === "/architecture/reviews")).toBe(
+    expect(EVIDENCE_INTAKE_HELP_VERIFY_STEPS[0]?.action).toBeUndefined();
+    expect(EVIDENCE_INTAKE_HELP_VERIFY_STEPS.some((step) => step.action?.href === "/architecture/reviews")).toBe(
       true,
     );
   });

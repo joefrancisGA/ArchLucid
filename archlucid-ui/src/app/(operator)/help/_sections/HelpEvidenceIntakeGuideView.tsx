@@ -1,5 +1,4 @@
-import Link from "next/link";
-
+import { HelpEvidenceIntakeAcceptedFormatsTable } from "@/app/(operator)/help/_sections/HelpEvidenceIntakeAcceptedFormatsTable";
 import { HelpEvidenceIntakePathStrip } from "@/app/(operator)/help/_sections/HelpEvidenceIntakePathStrip";
 import { HelpEvidenceIntakeRelatedGuidesLinks } from "@/app/(operator)/help/_sections/HelpEvidenceIntakeRelatedGuidesLinks";
 import { HelpEvidenceIntakeVerifyIntakePanel } from "@/app/(operator)/help/_sections/HelpEvidenceIntakeVerifyIntakePanel";
@@ -8,22 +7,19 @@ import { HelpTopicMarkdownPageHeader } from "@/app/(operator)/help/_sections/Hel
 import { EvidenceIntakeHelpClaimDisciplineStrip } from "@/components/help/EvidenceIntakeHelpClaimDisciplineStrip";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  DESIGN_TOKENS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { EVIDENCE_INTAKE_HELP_PRIMARY_ACTION } from "@/lib/evidence-intake-help-evidence-copy";
-import {
-  EVIDENCE_INTAKE_HELP_HERO_OVERVIEW,
-  EVIDENCE_INTAKE_HELP_PRIMARY_ACTIONS,
-} from "@/lib/evidence-intake-help-guide-content";
+import { EVIDENCE_INTAKE_HELP_HERO_OVERVIEW } from "@/lib/evidence-intake-help-guide-content";
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import {
+  HELP_PAGE_LAYOUT,
+  HELP_PAGE_MIN_TOC_HEADINGS,
+  resolveHelpPageContentGridClass,
+} from "@/lib/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 
@@ -40,6 +36,8 @@ export function HelpEvidenceIntakeGuideView(props: HelpEvidenceIntakeGuideViewPr
     helpTopicSlug: entry.slug,
   });
   const headings = extractHelpMarkdownHeadings(preparedMarkdown);
+  const contentGridClass = resolveHelpPageContentGridClass(headings.length);
+  const showSectionNav = headings.length >= HELP_PAGE_MIN_TOC_HEADINGS;
 
   return (
     <article
@@ -62,46 +60,9 @@ export function HelpEvidenceIntakeGuideView(props: HelpEvidenceIntakeGuideViewPr
           {EVIDENCE_INTAKE_HELP_HERO_OVERVIEW}
         </p>
 
-        <Card
-          className="border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20"
-          data-testid="help-evidence-intake-action-panel"
-        >
-          <CardHeader className={OPERATOR_CARD.header}>
-            <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-              Start evidence intake
-            </CardTitle>
-          </CardHeader>
-          <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
-            <Button asChild size="sm" variant="primary">
-              <Link href={EVIDENCE_INTAKE_HELP_PRIMARY_ACTIONS.startReview.href}>
-                {EVIDENCE_INTAKE_HELP_PRIMARY_ACTIONS.startReview.label}
-              </Link>
-            </Button>
-            <Button asChild size="sm" variant="outline">
-              <Link href={EVIDENCE_INTAKE_HELP_PRIMARY_ACTIONS.openCloudConnections.href}>
-                {EVIDENCE_INTAKE_HELP_PRIMARY_ACTIONS.openCloudConnections.label}
-              </Link>
-            </Button>
-            <Link
-              href={EVIDENCE_INTAKE_HELP_PRIMARY_ACTIONS.openCloudConnectionsHelp.href}
-              className={cn(
-                "text-sm underline-offset-2 hover:underline",
-                DESIGN_TOKENS.accent.link,
-                OPERATOR_TYPOGRAPHY.body,
-              )}
-            >
-              {EVIDENCE_INTAKE_HELP_PRIMARY_ACTIONS.openCloudConnectionsHelp.label}
-            </Link>
-          </CardContent>
-        </Card>
+        <HelpEvidenceIntakeAcceptedFormatsTable />
 
-        <HelpEvidenceIntakePathStrip />
-        <HelpEvidenceIntakeVerifyIntakePanel />
-        <EvidenceIntakeHelpClaimDisciplineStrip />
-      </div>
-
-      <div className={HELP_PAGE_LAYOUT.contentGrid}>
-        <div className={cn("min-w-0 space-y-6", HELP_PAGE_LAYOUT.contentColumn)} data-testid="help-topic-content">
+        <div className={cn("min-w-0", HELP_PAGE_LAYOUT.contentColumn)} data-testid="help-evidence-intake-reference">
           <MarketingAccessibilityMarkdownFragment
             markdownBody={markdown}
             tableCaption={`${entry.title} reference table`}
@@ -110,6 +71,14 @@ export function HelpEvidenceIntakeGuideView(props: HelpEvidenceIntakeGuideViewPr
             helpTopicSlug={entry.slug}
             preparedMarkdownOverride={preparedMarkdown}
           />
+        </div>
+      </div>
+
+      <div className={contentGridClass}>
+        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")} data-testid="help-evidence-intake-secondary">
+          <HelpEvidenceIntakePathStrip />
+          <HelpEvidenceIntakeVerifyIntakePanel />
+          <EvidenceIntakeHelpClaimDisciplineStrip />
 
           <section
             aria-labelledby="help-evidence-intake-related-heading"
@@ -129,7 +98,7 @@ export function HelpEvidenceIntakeGuideView(props: HelpEvidenceIntakeGuideViewPr
           </section>
         </div>
 
-        <HelpTopicTableOfContents headings={headings} enableScrollSpy />
+        {showSectionNav ? <HelpTopicTableOfContents headings={headings} enableScrollSpy /> : null}
       </div>
     </article>
   );
