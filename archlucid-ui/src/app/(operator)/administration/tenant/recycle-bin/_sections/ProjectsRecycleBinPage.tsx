@@ -28,6 +28,10 @@ import {
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 import { ProjectsRecycleBinPageHeader } from "./ProjectsRecycleBinPageHeader";
+import {
+  ProjectsRecycleBinRestoreConfirmDialog,
+  type ProjectsRecycleBinPendingRestore,
+} from "./ProjectsRecycleBinRestoreConfirmDialog";
 
 const RECYCLE_BIN_PATH = `/api/proxy/${ApiV1Routes.tenantWorkspacesRecycleBin}`;
 
@@ -39,11 +43,11 @@ type WorkspaceRecycleBinTableProps = Readonly<{
   workspace: WorkspaceBinRow;
   canRestoreExecute: boolean;
   restoreBusyRow: string | null;
-  onRestore: (workspaceId: string, projectId: string) => void;
+  onRequestRestore: (workspaceId: string, workspaceName: string, projectId: string, projectName: string) => void;
 }>;
 
 function WorkspaceRecycleBinTable(props: WorkspaceRecycleBinTableProps) {
-  const { workspace, canRestoreExecute, restoreBusyRow, onRestore } = props;
+  const { workspace, canRestoreExecute, restoreBusyRow, onRequestRestore } = props;
 
   return (
     <section
@@ -94,7 +98,7 @@ function WorkspaceRecycleBinTable(props: WorkspaceRecycleBinTableProps) {
                     disabled={!canRestoreExecute || restoreBusyRow === rowKey}
                     title={canRestoreExecute ? undefined : "Execute authority required to restore"}
                     onClick={() => {
-                      onRestore(workspace.workspaceId, project.projectId);
+                      onRequestRestore(workspace.workspaceId, workspace.name, project.projectId, project.name);
                     }}
                   >
                     Restore
@@ -124,6 +128,8 @@ export function ProjectsRecycleBinPage() {
   const [rows, setRows] = useState<WorkspaceBinRow[]>([]);
 
   const [restoreBusyRow, setRestoreBusyRow] = useState<string | null>(null);
+
+  const [pendingRestore, setPendingRestore] = useState<ProjectsRecycleBinPendingRestore | null>(null);
 
   const [restoreMessage, setRestoreMessage] = useState<string | null>(null);
 
@@ -180,6 +186,7 @@ export function ProjectsRecycleBinPage() {
 
       if (res.status === 204) {
         setRestoreMessage("Project restored.");
+        setPendingRestore(null);
 
         await reload();
 
@@ -262,12 +269,34 @@ export function ProjectsRecycleBinPage() {
             workspace={workspace}
             canRestoreExecute={canRestoreExecute}
             restoreBusyRow={restoreBusyRow}
-            onRestore={(workspaceId, projectId) => {
-              void restoreProject(workspaceId, projectId);
+            onRequestRestore={(workspaceId, workspaceName, projectId, projectName) => {
+              setPendingRestore({
+                workspaceId,
+                workspaceName,
+                projectId,
+                projectName,
+              });
             }}
           />
         );
       })}
+
+      <ProjectsRecycleBinRestoreConfirmDialog
+        busy={restoreBusyRow !== null}
+        pending={pendingRestore}
+        onCancel={() => {
+          if (restoreBusyRow === null) {
+            setPendingRestore(null);
+          }
+        }}
+        onConfirm={() => {
+          if (pendingRestore === null) {
+            return;
+          }
+
+          void restoreProject(pendingRestore.workspaceId, pendingRestore.projectId);
+        }}
+      />
     </div>
   );
 }

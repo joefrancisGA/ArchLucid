@@ -20,7 +20,7 @@ Regenerate after opening or closing summary-table rows:
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
 | Explainability | 1 |
-| Trustworthiness | 52 |
+| Trustworthiness | 51 |
 | Maintainability | 9 |
 | Traceability | 3 |
 | Interoperability | 4 |
@@ -35,9 +35,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **624** |
+| **Total (unique open)** | **623** |
 
-**By priority band:** P0 **3** | P1 **493** | P2 **111** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **3** | P1 **492** | P2 **111** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -828,7 +828,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1903 | **Done** (2026-08-01) ? `/settings/exec-digest` removed from readiness/nav as live Settings; see `## TB-1903` below | Trustworthiness P1 ? **V1**; with **TB-1901**; pairs **TB-1495**/**TB-1888** | S |
 | TB-1904 | **Done** (2026-08-01) ? canonicalize Digests Schedule docs; drop retired `/settings/exec-digest`; see `## TB-1904` below | Trustworthiness P1 ? **V1**; with **TB-1901** | S |
 | TB-1906 | **Done** (2026-08-10) — Identity diagnostics shell `pageSubtitle` validate/read-only job; redundant intro Card removed; Vitest; see `## TB-1906` below | Trustworthiness P1 ? **V1**; owner review ~47/100 2026-07-27; traffic **SEI** | S |
-| TB-1907 | Identity diagnostics ? StatusTag + humanize probe statuses; see ## TB-1907 below | Trustworthiness P1 ? **V1**; with **TB-1906**; pairs **TB-116** (do not reopen) | S |
+| TB-1907 | **Done** (2026-08-10) — Identity diagnostics StatusTag + humanized probe/discovery statuses; Vitest; see `## TB-1907` below | Trustworthiness P1 ? **V1**; with **TB-1906**; pairs **TB-116** (do not reopen) | S |
 | TB-1911 | OIDC/JWT tab ? title honesty (status/review, not in-page configuration); see ## TB-1911 below | Trustworthiness P1 ? **V1**; owner review ~44/100 2026-07-27; traffic **SOI** | S |
 | TB-1912 | OIDC/JWT tab ? shell Configure subtitle override with **TB-1906**; see ## TB-1912 below | Trustworthiness P1 ? **V1**; with **TB-1911**; do not reopen **TB-1906** | S |
 | TB-1913 | OIDC/JWT tab ? StatusTag for discovery status; see ## TB-1913 below | Trustworthiness P1 ? **V1**; with **TB-1911**; pairs **TB-1907**/**TB-116** | S |
