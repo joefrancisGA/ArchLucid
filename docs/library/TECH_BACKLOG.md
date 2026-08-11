@@ -20,7 +20,7 @@ Regenerate after opening or closing summary-table rows:
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
 | Explainability | 1 |
-| Trustworthiness | 47 |
+| Trustworthiness | 46 |
 | Maintainability | 9 |
 | Traceability | 3 |
 | Interoperability | 4 |
@@ -35,9 +35,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **593** |
+| **Total (unique open)** | **592** |
 
-**By priority band:** P0 **3** | P1 **470** | P2 **103** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **3** | P1 **469** | P2 **103** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -834,7 +834,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1913 | **Done** (2026-08-10) — OIDC/JWT tab discovery status uses StatusTag + shared TB-1907 mapping; Vitest; see `## TB-1913` below | Trustworthiness P1 ? **V1**; with **TB-1911**; pairs **TB-1907**/**TB-116** | S |
 | TB-1916 | **Done** (2026-08-10) — Role mapping tab status-hub shell title/intro honesty (not in-page editor); Vitest; see `## TB-1916` below | Trustworthiness P1 ? **V1**; owner review ~43/100 2026-07-27; traffic **SEO** | S |
 | TB-1917 | Role mapping tab ? shell Configure + duplicate intro/helper with **TB-1906**; see ## TB-1917 below | Trustworthiness P1 ? **V1**; with **TB-1916**; do not reopen **TB-1906** | S |
-| TB-1918 | Role mapping tab ? StatusTag + illustrative example-group honesty; see ## TB-1918 below | Trustworthiness P1 ? **V1**; with **TB-1916**; pairs **TB-1907** | S |
+| TB-1918 | **Done** (2026-08-10) — Role mapping tab mapping status StatusTag + illustrative example-group label; Vitest; see `## TB-1918` below | Trustworthiness P1 ? **V1**; with **TB-1916**; pairs **TB-1907** | S |
 | TB-1921 | **Done** (2026-08-10) — SAML tab Fetch IdP metadata CTA label honesty; `IDENTITY_PROVIDERS_ACTION_FETCH_IDP_METADATA`; Vitest | Trustworthiness P1 ? **V1**; owner review ~52/100 2026-07-27; traffic **SSA** | S |
 | TB-1922 | **Done** (2026-08-10) — SAML tab in-page save confirm via `IdentityProvidersSaveConfirmDialog`; Vitest | Trustworthiness P1 ? **V1**; with **TB-1921**; pairs **TB-1883**/**TB-1893** | S |
 | TB-1923 | **Done** (2026-08-10) — SAML shell `pageSubtitle` + demoted card title density; Vitest | Trustworthiness P1 ? **V1**; with **TB-1921**; do not reopen **TB-1906** | S |

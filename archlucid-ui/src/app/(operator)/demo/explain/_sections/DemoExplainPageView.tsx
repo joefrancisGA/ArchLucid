@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 import { cn } from "@/lib/utils";
 import { DemoExplainConversionCtaCard } from "@/components/DemoExplainConversionCtaCard";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -12,6 +14,7 @@ import {
 } from "@/lib/demo-explain-page-copy";
 
 import { DemoExplainExplanationPanel } from "./DemoExplainExplanationPanel";
+import { DemoExplainIncompleteNotice } from "./DemoExplainIncompleteNotice";
 import { DemoExplainNotAvailableNotice } from "./DemoExplainNotAvailableNotice";
 import { DemoExplainProvenanceGraphPanel } from "./DemoExplainProvenanceGraphPanel";
 import { DemoExplainStatusBanner } from "./DemoExplainStatusBanner";
@@ -23,6 +26,7 @@ type Props = {
 
 export function DemoExplainPageView(props: Props) {
   const state = props.state;
+  const router = useRouter();
 
   return (
     <>
@@ -63,9 +67,7 @@ export function DemoExplainPageView(props: Props) {
       ) : !state.error && !state.notFound && state.loading ? (
         <OperatorLoadingNotice>Loading sample review explanation…</OperatorLoadingNotice>
       ) : !state.error && !state.notFound && !state.loading && state.payload ? (
-        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role="status">
-          The demo response was incomplete — evidence trail or explanation is missing. Try again after the API is ready.
-        </p>
+        <DemoExplainIncompleteNotice onRetry={() => router.refresh()} />
       ) : null}
       </div>
 

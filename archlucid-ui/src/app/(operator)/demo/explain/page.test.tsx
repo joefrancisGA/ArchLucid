@@ -97,20 +97,21 @@ describe("DemoExplainPage (proof page snapshot)", () => {
     expect(container.firstChild).toMatchSnapshot();
   });
 
-  it("renders the not-available notice when the API responds 404 (Demo:Enabled=false or no committed run)", async () => {
+  it("TB-1321: renders proof ladder when demo explain is not available", async () => {
     demoExplainMock.mockResolvedValue(null);
 
     const page = await DemoExplainPage();
     render(page);
 
     await waitFor(() => {
-      expect(screen.getByTestId("demo-explain-not-available")).toHaveTextContent(
-        "The example analysis is not available in this environment",
-      );
+      expect(screen.getByTestId("demo-explain-not-available-title")).toBeInTheDocument();
+      expect(screen.getByTestId("demo-explain-next-step-ladder")).toBeInTheDocument();
+      expect(screen.getByTestId("demo-explain-ladder-primary")).toHaveAttribute("href", "/see-it");
     });
 
     expect(screen.queryByTestId("demo-explain-status-banner")).not.toBeInTheDocument();
     expect(screen.queryByTestId("demo-explain-provenance-graph")).not.toBeInTheDocument();
+    expect(screen.queryByText(/re-seed/i)).not.toBeInTheDocument();
   });
 
   it("renders the API problem callout when the upstream call rejects", async () => {

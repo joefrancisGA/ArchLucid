@@ -26,7 +26,40 @@ export const DEMO_EXPLAIN_EVIDENCE_TRAIL_PANEL_TITLE = "Evidence trail";
 export const DEMO_EXPLAIN_EXPLANATION_PANEL_TITLE = "Explanation & citations";
 
 export const DEMO_EXPLAIN_EMPTY_EVIDENCE_TRAIL_MESSAGE =
-  "This sample review has no linked evidence trail yet. Try again after the demo environment finishes seeding.";
+  "This sample review has no linked evidence trail in the response yet. Use the proof paths below to continue exploring ArchLucid.";
+
+/** TB-1321: dead-end recovery ladder when demo explain is unavailable or incomplete. */
+export const DEMO_EXPLAIN_NOT_AVAILABLE_TITLE = "This sample explanation is not available here";
+
+export const DEMO_EXPLAIN_NOT_AVAILABLE_BODY =
+  "The demo API did not return a sample review explanation in this environment. Continue with the public proof paths below.";
+
+export const DEMO_EXPLAIN_INCOMPLETE_BODY =
+  "The demo response was incomplete — evidence trail or explanation is missing. Try again, or continue with the public proof paths below.";
+
+export const DEMO_EXPLAIN_RETRY_LABEL = "Try again";
+
+export const DEMO_EXPLAIN_CONVERSION_SEE_IT_HREF = "/see-it" as const;
+
+export const DEMO_EXPLAIN_LADDER_PRIMARY_HREF = DEMO_EXPLAIN_CONVERSION_SEE_IT_HREF;
+
+export const DEMO_EXPLAIN_LADDER_PRIMARY_LABEL = SEE_IT_PAGE_TITLE;
+
+export const DEMO_EXPLAIN_LADDER_LIVE_DEMO_HREF = "/live-demo" as const;
+
+export const DEMO_EXPLAIN_LADDER_LIVE_DEMO_LABEL = "Prefer a longer walkthrough?";
+
+export const DEMO_EXPLAIN_LADDER_WELCOME_HREF = "/welcome" as const;
+
+export const DEMO_EXPLAIN_LADDER_WELCOME_LABEL = "Back to ArchLucid";
+
+export const DEMO_EXPLAIN_LADDER_GET_STARTED_HREF = "/get-started" as const;
+
+export const DEMO_EXPLAIN_LADDER_GET_STARTED_LABEL = "Getting started";
+
+export const DEMO_EXPLAIN_LADDER_HELP_HREF = "/help/evidence-trail" as const;
+
+export const DEMO_EXPLAIN_LADDER_HELP_LABEL = "Evidence trail help";
 
 export const DEMO_EXPLAIN_GRAPH_TECHNICAL_DETAILS_LABEL = "Technical graph details";
 
@@ -39,8 +72,6 @@ export const DEMO_EXPLAIN_DETERMINISTIC_FALLBACK_NOTE =
 
 /** Canonical wizard entry for signed-in viewers graduating from `/demo/explain` (TB-218 / TB-219). */
 export const DEMO_EXPLAIN_CONVERSION_REVIEW_HREF = "/architecture/reviews/new?preset=greenfield" as const;
-
-export const DEMO_EXPLAIN_CONVERSION_SEE_IT_HREF = "/see-it" as const;
 
 export const DEMO_EXPLAIN_CONVERSION_AUTHENTICATED_HEADING = "Ready to run this on your own architecture?";
 

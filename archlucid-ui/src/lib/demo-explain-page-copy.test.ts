@@ -4,7 +4,10 @@ import {
   DEMO_EXPLAIN_CONVERSION_REVIEW_HREF,
   DEMO_EXPLAIN_EVIDENCE_TRAIL_PANEL_TITLE,
   DEMO_EXPLAIN_EXPLANATION_PANEL_TITLE,
+  DEMO_EXPLAIN_INCOMPLETE_BODY,
+  DEMO_EXPLAIN_LADDER_PRIMARY_HREF,
   DEMO_EXPLAIN_MANIFEST_VERSION_LABEL,
+  DEMO_EXPLAIN_NOT_AVAILABLE_BODY,
   DEMO_EXPLAIN_PAGE_TITLE,
   DEMO_EXPLAIN_REVIEW_ID_LABEL,
   formatDemoExplainGeneratedLabel,
@@ -47,5 +50,11 @@ describe("demo-explain-page-copy (TB-1320)", () => {
     expect(DEMO_EXPLAIN_EVIDENCE_TRAIL_PANEL_TITLE).toBe("Evidence trail");
     expect(DEMO_EXPLAIN_EXPLANATION_PANEL_TITLE).toBe("Explanation & citations");
     expect(DEMO_EXPLAIN_EVIDENCE_TRAIL_PANEL_TITLE.toLowerCase()).not.toContain("provenance");
+  });
+
+  it("TB-1321: ladder primary targets canonical see-it proof", () => {
+    expect(DEMO_EXPLAIN_LADDER_PRIMARY_HREF).toBe("/see-it");
+    expect(DEMO_EXPLAIN_NOT_AVAILABLE_BODY.toLowerCase()).not.toContain("re-seed");
+    expect(DEMO_EXPLAIN_INCOMPLETE_BODY.toLowerCase()).not.toContain("re-seed");
   });
 });
