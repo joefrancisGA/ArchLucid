@@ -5,6 +5,11 @@ import Link from "next/link";
 import type { CSSProperties, ReactElement } from "react";
 
 import { FindingDerivationLine } from "@/components/usability/FindingDerivationLine";
+import { FindingCausalMiniChain } from "@/components/usability/FindingCausalMiniChain";
+import {
+  buildFindingCausalMiniChain,
+  findingCausalMiniChainFromGovernanceQueueRow,
+} from "@/lib/finding-causal-mini-chain";
 import { NewSinceLastVisitMarker } from "@/components/usability/NewSinceLastVisitMarker";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
@@ -113,6 +118,10 @@ function GovernanceFindingsQueueOperationalRowCells(props: {
               testId={`governance-table-derivation-${row.findingId}`}
               compact
             />
+              <FindingCausalMiniChain
+                chain={findingCausalMiniChainFromGovernanceQueueRow(row) ?? buildFindingCausalMiniChain({})}
+                className="mt-2"
+              />
           </div>
         ) : null}
         <div
@@ -287,6 +296,10 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
                   testId={`governance-table-derivation-${row.findingId}`}
                   compact
                 />
+              <FindingCausalMiniChain
+                chain={findingCausalMiniChainFromGovernanceQueueRow(row) ?? buildFindingCausalMiniChain({})}
+                className="mt-2"
+              />
               </div>
             ) : null}
             {evidenceChipHref !== null ? (

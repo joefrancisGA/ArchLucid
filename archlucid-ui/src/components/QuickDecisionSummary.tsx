@@ -28,6 +28,8 @@ import {
   formatFindingProvenanceAggregateLine,
 } from "@/lib/finding-provenance-display";
 import { FindingDerivationLine } from "@/components/usability/FindingDerivationLine";
+import { FindingCausalMiniChain } from "@/components/usability/FindingCausalMiniChain";
+import { findingCausalMiniChainFromQuickDecisionFinding } from "@/lib/finding-causal-mini-chain";
 import { SponsorPlainEnglishFindingPanel } from "@/components/findings/SponsorPlainEnglishFindingPanel";
 import { FindingEvidenceLinkChip } from "@/components/usability/FindingEvidenceLinkChip";
 import { FindingEvidenceRefSnippets } from "@/components/usability/FindingEvidenceRefSnippets";
@@ -748,6 +750,10 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
             evidenceHref={evidenceTraceHref}
             testId={`finding-derivation-${f.findingId}`}
           />
+          <FindingCausalMiniChain
+            chain={findingCausalMiniChainFromQuickDecisionFinding(f)}
+            className="mt-2"
+          />
           <SponsorPlainEnglishFindingPanel
             input={{
               title: f.title,
@@ -917,6 +923,10 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
               derivation={derivation}
               evidenceHref={evidenceTraceHref}
               testId={`finding-derivation-${f.findingId}`}
+            />
+            <FindingCausalMiniChain
+              chain={findingCausalMiniChainFromQuickDecisionFinding(f)}
+              className="mt-2"
             />
             <SponsorPlainEnglishFindingPanel
               input={{

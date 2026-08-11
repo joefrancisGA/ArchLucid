@@ -6,6 +6,11 @@ import { memo, type ReactElement } from "react";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { FindingDerivationLine } from "@/components/usability/FindingDerivationLine";
+import { FindingCausalMiniChain } from "@/components/usability/FindingCausalMiniChain";
+import {
+  buildFindingCausalMiniChain,
+  findingCausalMiniChainFromGovernanceQueueRow,
+} from "@/lib/finding-causal-mini-chain";
 import { NewSinceLastVisitMarker } from "@/components/usability/NewSinceLastVisitMarker";
 import { FindingPolicyTraceabilityBadges } from "@/components/FindingPolicyTraceabilityBadges";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -114,6 +119,10 @@ function GovernanceFindingRowComponent({
                 evidenceHref={evidenceTraceHref}
                 testId={`governance-finding-derivation-${row.findingId}`}
               />
+              <FindingCausalMiniChain
+                chain={findingCausalMiniChainFromGovernanceQueueRow(row) ?? buildFindingCausalMiniChain({})}
+                className="mt-2"
+              />
             </div>
           ) : null}
         </CardHeader>
@@ -178,12 +187,18 @@ function GovernanceFindingRowComponent({
           )}
         </p>
         {findingDerivation !== null ? (
+          <>
           <FindingDerivationLine
             derivation={findingDerivation}
             evidenceHref={evidenceTraceHref}
             testId={`governance-finding-derivation-${row.findingId}`}
             compact
           />
+            <FindingCausalMiniChain
+              chain={findingCausalMiniChainFromGovernanceQueueRow(row) ?? buildFindingCausalMiniChain({})}
+              className="mt-2"
+            />
+          </>
         ) : null}
         <GovernanceFindingOperationalHeaderMeta row={row} buyerPolishedShell={buyerPolishedShell} />
       </CardHeader>

@@ -28,6 +28,9 @@ import {
   phiMinimizationBuyerConsequenceNarrative,
 } from "@/lib/finding-display-from-inspect";
 import { buildFindingDerivationSentence } from "@/lib/finding-derivation-sentence";
+import { findingCausalMiniChainFromInspectPayload } from "@/lib/finding-causal-mini-chain";
+import { FindingDerivationLine } from "@/components/usability/FindingDerivationLine";
+import { FindingCausalMiniChain } from "@/components/usability/FindingCausalMiniChain";
 import { findingSeverityAudienceCopy } from "@/lib/finding-explainability-summary";
 import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import { isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
@@ -153,6 +156,21 @@ export function FindingDetailPageView(props: Props) {
         reviewFindingsHref={reviewFindingsHref}
         currentPageLabel={pageTitle}
       />
+      {inspectPayload !== null ? (
+        <div className="space-y-2" data-testid="finding-detail-derivation-causal">
+          <FindingDerivationLine
+            derivation={buildFindingDerivationSentence({
+              ruleName: inspectPayload.decisionRuleName,
+              ruleId: inspectPayload.decisionRuleId,
+              severityLabel: severityHeadline,
+              evidenceRefCount: inspectPayload.evidence?.length ?? 0,
+              reasoningSummary: inspectPayload.reasoningSummary,
+            })}
+            evidenceHref={inspectHref}
+          />
+          <FindingCausalMiniChain chain={findingCausalMiniChainFromInspectPayload(inspectPayload)} />
+        </div>
+      ) : null}
 {showBuyerPolishedBody ? (
         <div className="space-y-4">
           <section className={cn("overflow-hidden rounded-lg border p-5", DESIGN_TOKENS.surface.card)}>
