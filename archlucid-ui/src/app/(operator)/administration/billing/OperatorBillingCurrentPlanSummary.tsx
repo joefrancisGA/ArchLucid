@@ -25,6 +25,8 @@ import { resolveOperatorBillingCurrentPlan } from "@/lib/operator-billing-curren
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
+import { BillingNextInvoicePlainEnglishNotice } from "@/components/billing/BillingNextInvoicePlainEnglishNotice";
+import { useBillingSubscriptionStatusQuery } from "@/hooks/use-billing-subscription-status-query";
 import { OperatorBillingManageBillingAction } from "./OperatorBillingManageBillingAction";
 
 function readWorkspaceLabelFromStorage(): string | null {
@@ -42,6 +44,7 @@ function readWorkspaceLabelFromStorage(): string | null {
 export function OperatorBillingCurrentPlanSummary() {
   const canMutate = useNavCallerAuthorityRank() >= AUTHORITY_RANK.AdminAuthority;
   const { data: trialPayload } = useTenantTrialStatusQuery();
+  const { data: subscriptionStatus } = useBillingSubscriptionStatusQuery();
   const [workspaceLabel, setWorkspaceLabel] = useState<string | null>(null);
   const [aiBudgetRemainingPercent, setAiBudgetRemainingPercent] = useState<number | null>(null);
   const [includedAiBudgetUsd, setIncludedAiBudgetUsd] = useState<number | null>(null);
@@ -159,6 +162,14 @@ export function OperatorBillingCurrentPlanSummary() {
         ) : (
           <OperatorBillingManageBillingAction canMutate={canMutate} variant="outline" size="sm" />
         )}
+
+        <BillingNextInvoicePlainEnglishNotice
+          canMutate={canMutate}
+          planLabel={view.headline}
+          status={subscriptionStatus?.status}
+          hasSubscription={subscriptionStatus?.hasSubscription ?? view.hasPaidPlan}
+          provider={subscriptionStatus?.provider}
+        />
       </CardContent>
     </Card>
   );
