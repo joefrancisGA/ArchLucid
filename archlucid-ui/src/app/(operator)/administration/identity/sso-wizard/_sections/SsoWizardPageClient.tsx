@@ -16,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { SsoActivateConsequencePreview } from "@/components/SsoActivateConsequencePreview";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import {
   formatSsoWizardActivateError,
@@ -611,6 +612,7 @@ export function SsoWizardPageClient() {
                 <li>Issuer: {state.issuerUri}</li>
                 <li>Mapped roles (test): {state.mappedRoles.join(", ") || "—"}</li>
               </ul>
+              <SsoActivateConsequencePreview />
             </div>
           ) : null}
 
