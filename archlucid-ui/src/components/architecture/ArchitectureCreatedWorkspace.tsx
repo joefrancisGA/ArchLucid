@@ -9,6 +9,7 @@ import { ArchitectureCreatedOverviewPanel } from "@/components/architecture/Arch
 import { ArchitectureCreatedWorkspaceHeader } from "@/components/architecture/ArchitectureCreatedWorkspaceHeader";
 import { ArchitectureDiagramPanel } from "@/components/architecture/ArchitectureDiagramPanel";
 import { ArchitectureFindingsDualPane } from "@/components/architecture/ArchitectureFindingsDualPane";
+import { ClarificationsFindingsVocabularyRail } from "@/components/ClarificationsFindingsVocabularyRail";
 import {
   ARCHITECTURE_FINDINGS_DUAL_PANE_TOGGLE_OFF_LABEL,
   ARCHITECTURE_FINDINGS_DUAL_PANE_TOGGLE_ON_LABEL,
@@ -301,6 +302,10 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
         </TabsContent>
 
         <TabsContent value="clarifications" data-testid="architecture-workspace-panel-clarifications">
+          <ClarificationsFindingsVocabularyRail
+            runId={props.baseline.runId}
+            currentSurfaceId="clarifications"
+          />
           <ArchitectureCreatedClarificationsPanel
             model={model}
             sourceText={props.architectureSourceText}
@@ -314,7 +319,11 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
 
         <TabsContent value="findings" data-testid="architecture-workspace-panel-findings">
           <div className="space-y-4">
-{props.panels.findings}
+            <ClarificationsFindingsVocabularyRail
+              runId={props.baseline.runId}
+              currentSurfaceId="findings"
+            />
+            {props.panels.findings}
           </div>
         </TabsContent>
 
