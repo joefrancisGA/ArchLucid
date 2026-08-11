@@ -5,6 +5,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useCallback, useState } from "react";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { ShareLinkPermissionClarityPanel } from "@/components/usability/ShareLinkPermissionClarityPanel";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -51,11 +52,20 @@ export function ShareableReviewLinkButton(props: ShareableReviewLinkButtonProps)
         <DialogHeader>
           <DialogTitle>Share review</DialogTitle>
           <DialogDescription>
-            Send this read-only link to sponsors who do not need architect access. Scope and retention follow your tenant policy.
+            Send this read-only showcase link to sponsors who do not need architect access. Review who can open,
+            expiry, export, and invite differences below before you copy the URL.
           </DialogDescription>
         </DialogHeader>
+        <ShareLinkPermissionClarityPanel />
         <div className="flex flex-wrap items-center gap-2">
-          <code className={cn("flex-1 break-all rounded bg-neutral-100 px-2 py-1 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}>{url}</code>
+          <code
+            className={cn(
+              "flex-1 break-all rounded bg-neutral-100 px-2 py-1 dark:bg-neutral-800",
+              OPERATOR_TYPOGRAPHY.helper,
+            )}
+          >
+            {url}
+          </code>
           <CopyIdButton value={url} aria-label="Copy share link" />
         </div>
       </DialogContent>
