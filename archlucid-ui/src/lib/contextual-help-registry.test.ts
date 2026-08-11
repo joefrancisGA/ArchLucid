@@ -60,7 +60,6 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/soc2-self-assessment",
       "/help/choose-your-next-step",
       "/help/enterprise-onboarding",
-      "/help/pilot-roi-model",
       "/help/pilot-feedback",
       "/help/executive-summary",
       "/help/policy-pack-delta-demo",
@@ -554,12 +553,12 @@ describe("contextual-help-registry (TB-733)", () => {
     );
   });
 
-  it("resolves pilot ROI model help Category-1 help (PI)", () => {
+  it("falls back to generic help guidance for retired pilot-roi-model path", () => {
     expect(contextualHelpForPathname("/help/pilot-roi-model")?.whatIsThisPage).toContain(
-      "Pilot ROI model",
+      "In-app help topic",
     );
-    expect(contextualHelpForPathname("/help/pilot-roi-model")?.whatToDoNext).toContain(
-      "Architecture scorecard",
+    expect(contextualHelpForPathname("/help/pilot-roi-model")?.whatIsThisPage).not.toContain(
+      "Pilot ROI model -",
     );
   });
 

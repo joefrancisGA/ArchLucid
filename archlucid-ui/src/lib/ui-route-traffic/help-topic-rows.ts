@@ -366,14 +366,6 @@ export const HELP_TOPIC_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     note: "Troubleshooting help (Help topic) - HelpTroubleshootingGuideView with PageContextualHelpButton (topic map troubleshooting; Category-1 registry), Learn more / claim-discipline orientation strip (Sources follow-up removed TB-2092), start-here CTAs, common issues, advanced diagnostics. Operator unblocking guide - not a signed-record Sources trail. Score 58/100 (2026-08-08) - help-topic ceiling below HEL hub band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
     noteMustContain: ["HelpTroubleshootingGuideView", "Sources", "cannot improve further toward 80"],
   },
-  /** Traffic workbook row ID for Pilot ROI model help. Owner backlog shorthand: PI. */
-  {
-    rowId: "PI",
-    path: "/help/pilot-roi-model",
-    section: "Help topic",
-    note: "Pilot ROI model help (Help topic) - HelpTopicMarkdownView with PageContextualHelpButton (topic map pilot-roi-model; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, curated PILOT_ROI_MODEL markdown. Sibling SCX = architecture-scorecard; SPP = pilot-outcomes; SPE = executive-summary; ADA = baseline settings. Score 58/100 (2026-08-05) - help-topic ceiling below HEL hub band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
-    noteMustContain: ["HelpTopicMarkdownView", "cannot improve further toward 80"],
-  },
   /** Traffic workbook row ID for Policy-pack delta demo help. Owner backlog shorthand: POL. */
   {
     rowId: "POL",

@@ -52,7 +52,6 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "choose-your-next-step": "product-help",
   "pilot-feedback": "internal-runbook",
   "pilot-guide": "product-help",
-  "pilot-roi-model": "product-help",
   "prior-manifest-retrieval": "product-help",
   "policy-packs": "product-help",
   procurement: "product-help",

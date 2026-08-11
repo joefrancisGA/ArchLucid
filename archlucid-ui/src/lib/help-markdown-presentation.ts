@@ -986,26 +986,10 @@ export function stripGovernanceApiContractsContributorLeakage(markdown: string):
     .replace(/\n{3,}/g, "\n\n");
 }
 
-/** H2 sections omitted from in-app pilot ROI model help (contributor spine / related library dump). */
-const PILOT_ROI_MODEL_OMITTED_SECTION_PREFIXES = [
-  "spine",
-  "related guides",
-  "related documentation",
-  "contributor",
-] as const;
-
 /**
- * TB-1390 — drops Spine / Related contributor navigation sections from pilot ROI help.
+ * TB-1390 / fold PI→SPE — removes contributor leakage from executive-summary pilot ROI measurement section.
  */
-export function stripPilotRoiModelContributorSections(markdown: string): string {
-  return stripMarkdownSectionsByTitlePrefix(markdown, PILOT_ROI_MODEL_OMITTED_SECTION_PREFIXES);
-}
-
-/**
- * TB-1390 — removes contributor library spine, eng `.md` paths, GTM archive links, and TB IDs
- * from in-app pilot ROI model presentation.
- */
-export function stripPilotRoiModelContributorLeakage(markdown: string): string {
+export function stripExecutiveSummaryPilotRoiMeasurementLeakage(markdown: string): string {
   let inFence = false;
 
   const withoutSensitiveRows = markdown
@@ -1020,6 +1004,10 @@ export function stripPilotRoiModelContributorLeakage(markdown: string): string {
 
       if (inFence) {
         return true;
+      }
+
+      if (/Former standalone body:.*PILOT_ROI_MODEL/i.test(line)) {
+        return false;
       }
 
       if (/START_HERE\.md/i.test(line)) {
@@ -1075,13 +1063,32 @@ export function stripPilotRoiModelContributorLeakage(markdown: string): string {
     .replace(/`?REPOSITORY_README`?/gi, "repository overview")
     .replace(/`?OPERATOR_DECISION_GUIDE\.md`?/gi, "deployment decision guide")
     .replace(/`?PRODUCT_PACKAGING\.md`?/gi, "product packaging guide")
-    .replace(/`?PILOT_ROI_MODEL\.md`?/gi, "pilot ROI methodology")
-    .replace(/PILOT_ROI_MODEL\.md/gi, "pilot ROI methodology")
+    .replace(
+      /`?EXECUTIVE_SPONSOR_BRIEF\.md`?/gi,
+      "[Executive summary](/help/executive-summary)",
+    )
+    .replace(/EXECUTIVE_SPONSOR_BRIEF\.md/gi, "/help/executive-summary")
+    .replace(
+      /`?PILOT_ROI_MODEL\.md`?/gi,
+      "[Pilot ROI measurement](/help/executive-summary#pilot-roi-measurement)",
+    )
+    .replace(/PILOT_ROI_MODEL\.md/gi, "/help/executive-summary#pilot-roi-measurement")
+    .replace(
+      /`?ROI_MODEL\.md`?/gi,
+      "[Pilot ROI measurement](/help/executive-summary#pilot-roi-measurement)",
+    )
+    .replace(/ROI_MODEL\.md/gi, "/help/executive-summary#pilot-roi-measurement")
     .replace(/`?docs\/go-to-market\/[^`\s)]+`?/gi, "go-to-market documentation")
     .replace(/docs\/go-to-market\/[^\s)]+/gi, "go-to-market documentation")
     .replace(/`?docs\/library\/[^`\s)]+`?/gi, "product documentation")
     .replace(/docs\/library\/[^\s)]+/gi, "product documentation")
+    .replace(/\bCore Pilot\b/g, "Your first architecture review")
     .replace(/\n{3,}/g, "\n\n");
+}
+
+/** @deprecated Folded into executive-summary#pilot-roi-measurement — use stripExecutiveSummaryPilotRoiMeasurementLeakage. */
+export function stripPilotRoiModelContributorLeakage(markdown: string): string {
+  return stripExecutiveSummaryPilotRoiMeasurementLeakage(markdown);
 }
 
 /** H2 sections omitted from in-app repeat-review help (founder validation / proof theater). */
@@ -1859,7 +1866,7 @@ const FIRST_REVIEW_EVIDENCE_OMITTED_SECTION_PREFIXES = [
 ] as const;
 
 /**
- * Drops Tier-2 WIF, PowerShell proof, and eng Related sections from `/help/first-review`.
+ * Drops Tier-2 WIF, PowerShell proof, and eng Related sections from the folded first-review checklist section.
  */
 export function stripFirstReviewEvidenceChecklistContributorSections(markdown: string): string {
   return stripMarkdownSectionsByTitlePrefix(markdown, FIRST_REVIEW_EVIDENCE_OMITTED_SECTION_PREFIXES);
@@ -1942,8 +1949,14 @@ export function stripCliUsageContributorLeakage(markdown: string): string {
     .replace(/\[([^\]]*)\]\(\.\.\/library\/TROUBLESHOOTING\.md[^)]*\)/gi, "[Developer troubleshooting](/help/developer-troubleshooting)")
     .replace(/\[([^\]]*)\]\(TROUBLESHOOTING\.md[^)]*\)/gi, "[Developer troubleshooting](/help/developer-troubleshooting)")
     .replace(/\[([^\]]*)\]\(\.\.\/runbooks\/TRIAL_FUNNEL_END_TO_END\.md[^)]*\)/gi, "[Developer troubleshooting](/help/developer-troubleshooting)")
-    .replace(/\[([^\]]*)\]\(\.\.\/go-to-market\/ROI_MODEL\.md[^)]*\)/gi, "[Pilot ROI model](/help/pilot-roi-model)")
-    .replace(/\[([^\]]*)\]\(\.\.\/go-to-market\/SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC\.md[^)]*\)/gi, "[Pilot ROI model](/help/pilot-roi-model)")
+    .replace(
+      /\[([^\]]*)\]\(\.\.\/go-to-market\/ROI_MODEL\.md[^)]*\)/gi,
+      "[Pilot ROI measurement](/help/executive-summary#pilot-roi-measurement)",
+    )
+    .replace(
+      /\[([^\]]*)\]\(\.\.\/go-to-market\/SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC\.md[^)]*\)/gi,
+      "[Pilot ROI measurement](/help/executive-summary#pilot-roi-measurement)",
+    )
     .replace(/\[([^\]]*)\]\(\.\.\/go-to-market\/PRICING_PHILOSOPHY\.md[^)]*\)/gi, "[Procurement](/help/procurement)")
     .replace(/\[([^\]]*)\]\(\.\.\/go-to-market\/AZURE_MARKETPLACE_SAAS_OFFER\.md[^)]*\)/gi, "")
     .replace(/\[([^\]]*)\]\(\.\.\/go-to-market\/[^)]+\)/gi, "")
@@ -2810,13 +2823,19 @@ export function stripExecutiveSummarySponsorBriefLeakage(markdown: string): stri
     .replace(/^(##+)\s+\d+\.\s+/gm, "$1 ")
     .replace(/`?API_CONTRACTS\.md`?/gi, "[Configuration reference](/help/configuration-reference)")
     .replace(/API_CONTRACTS\.md/gi, "/help/configuration-reference")
-    .replace(/`?PILOT_ROI_MODEL\.md`?/gi, "[Pilot ROI model](/help/pilot-roi-model)")
-    .replace(/PILOT_ROI_MODEL\.md/gi, "/help/pilot-roi-model")
-    .replace(/`?ROI_MODEL\.md`?/gi, "[Pilot ROI model](/help/pilot-roi-model)")
-    .replace(/ROI_MODEL\.md/gi, "/help/pilot-roi-model")
+    .replace(
+      /`?PILOT_ROI_MODEL\.md`?/gi,
+      "[Pilot ROI measurement](/help/executive-summary#pilot-roi-measurement)",
+    )
+    .replace(/PILOT_ROI_MODEL\.md/gi, "/help/executive-summary#pilot-roi-measurement")
+    .replace(
+      /`?ROI_MODEL\.md`?/gi,
+      "[Pilot ROI measurement](/help/executive-summary#pilot-roi-measurement)",
+    )
+    .replace(/ROI_MODEL\.md/gi, "/help/executive-summary#pilot-roi-measurement")
     .replace(/\[Api Contracts\]\(/gi, "[API contracts](")
-    .replace(/\[Pilot Roi Model\]\(/gi, "[Pilot ROI model](")
-    .replace(/\[Roi Model\]\(/gi, "[Pilot ROI model](")
+    .replace(/\[Pilot Roi Model\]\(/gi, "[Pilot ROI measurement](")
+    .replace(/\[Roi Model\]\(/gi, "[Pilot ROI measurement](")
     .replace(/`?PRODUCT_PACKAGING\.md`?/gi, "[Executive summary](/help/executive-summary#what-archlucid-is)")
     .replace(/PRODUCT_PACKAGING\.md/gi, "/help/executive-summary#what-archlucid-is")
     .replace(/`\/value-report`/gi, "`/insights/executive-summary`")
@@ -3346,7 +3365,10 @@ const IS_FIRST_REVIEW_EVIDENCE_CHECKLIST = matchesEither(
 const IS_CLI_USAGE = matchesEither(matchesSlug("cli-usage"), matchesSourceDoc("cli_usage.md"));
 const IS_ENTERPRISE_ONBOARDING = matchesSourceDoc("hosted_enterprise_onboarding_checklist.md");
 const IS_GOVERNANCE_API_CONTRACTS = matchesSourceDoc("api_contracts.md");
-const IS_PILOT_ROI_MODEL = matchesSourceDoc("pilot_roi_model.md");
+const IS_EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT = matchesBoth(
+  matchesSlug("executive-summary"),
+  matchesSourceDoc("pilot_success_scorecard.md"),
+);
 const IS_REPEAT_REVIEW_LOOP = matchesSourceDoc("repeat_review_loop.md");
 const IS_ACCELERATOR_CHOOSER = matchesEither(
   matchesSourceDoc("accelerator_chooser.md"),
@@ -3386,11 +3408,6 @@ const HELP_MARKDOWN_CONTRIBUTOR_SECTION_RULE_SETS: readonly HelpMarkdownTopicRul
     id: "governance-api-contracts",
     matches: IS_GOVERNANCE_API_CONTRACTS,
     rules: [stripGovernanceApiContractsContributorSections],
-  },
-  {
-    id: "pilot-roi-model",
-    matches: IS_PILOT_ROI_MODEL,
-    rules: [stripPilotRoiModelContributorSections],
   },
   {
     id: "repeat-review-loop",
@@ -3450,9 +3467,9 @@ const HELP_MARKDOWN_AUDIENCE_RULE_SETS: readonly HelpMarkdownTopicRuleSet[] = [
     rules: [stripGovernanceApiContractsContributorLeakage],
   },
   {
-    id: "pilot-roi-model",
-    matches: IS_PILOT_ROI_MODEL,
-    rules: [stripPilotRoiModelContributorLeakage],
+    id: "executive-summary-pilot-roi-measurement",
+    matches: IS_EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT,
+    rules: [stripExecutiveSummaryPilotRoiMeasurementLeakage],
   },
   {
     id: "repeat-review-loop",

@@ -194,7 +194,11 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/governance/policy-packs", topic: { slug: "policy-packs", label: "Policy packs" } },
   {
     prefix: "/insights/roi-summary",
-    topic: { slug: "pilot-roi-model", label: "View ROI methodology" },
+    topic: {
+      slug: "executive-summary",
+      hashFragment: "pilot-roi-measurement",
+      label: "View ROI methodology",
+    },
   },
   {
     prefix: "/insights/pilot-outcomes",
@@ -203,7 +207,11 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   {
     // Trigger names the page; Learn more still opens ROI methodology for assumption drill-down.
     prefix: "/insights/architecture-scorecard",
-    topic: { slug: "pilot-roi-model", label: OPERATOR_NAV_LINK_LABELS.scorecard },
+    topic: {
+      slug: "executive-summary",
+      hashFragment: "pilot-roi-measurement",
+      label: OPERATOR_NAV_LINK_LABELS.scorecard,
+    },
   },
   {
     prefix: "/insights/executive-summary",
@@ -212,7 +220,11 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   // Legacy sponsor-report bookmarks canonicalize to /insights/* above; keep prefixes for direct lookups.
   {
     prefix: "/sponsor-report/roi-summary",
-    topic: { slug: "pilot-roi-model", label: "View ROI methodology" },
+    topic: {
+      slug: "executive-summary",
+      hashFragment: "pilot-roi-measurement",
+      label: "View ROI methodology",
+    },
   },
   {
     prefix: "/sponsor-report/pilot-outcomes",
@@ -220,7 +232,11 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/insights/roi-summary",
-    topic: { slug: "pilot-roi-model", label: "View ROI methodology" },
+    topic: {
+      slug: "executive-summary",
+      hashFragment: "pilot-roi-measurement",
+      label: "View ROI methodology",
+    },
   },
   {
     prefix: "/insights/pilot-outcomes",
@@ -232,7 +248,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/insights/architecture-scorecard",
-    topic: { slug: "pilot-roi-model", label: "View ROI methodology" },
+    topic: { slug: "executive-summary", hashFragment: "pilot-roi-measurement", label: "View ROI methodology" },
   },
   { prefix: "/sponsor-report", topic: { slug: "executive-summary", label: "Executive summary" } },
   { prefix: "/sponsor-report", topic: { slug: "executive-summary", label: "Executive summary" } },
@@ -309,10 +325,6 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   {
     prefix: "/help/enterprise-onboarding",
     topic: { slug: "enterprise-onboarding", label: "Enterprise onboarding checklist" },
-  },
-  {
-    prefix: "/help/pilot-roi-model",
-    topic: { slug: "pilot-roi-model", label: "Pilot ROI model" },
   },
   {
     prefix: "/help/pilot-feedback",
@@ -493,7 +505,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/administration/tenant",
     topic: { slug: "scope", label: OPERATOR_NAV_LINK_LABELS.workspaceSettings },
   },
-  { prefix: "/administration/baseline", topic: { slug: "pilot-roi-model", label: "View ROI methodology" } },
+  { prefix: "/administration/baseline", topic: { slug: "executive-summary", hashFragment: "pilot-roi-measurement", label: "View ROI methodology" } },
   { prefix: "/help", topic: { slug: "getting-started", label: "Help" } },
 ];
 

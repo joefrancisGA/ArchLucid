@@ -141,6 +141,20 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
       "Deprecated pilot-nav-profile help twin (Help topic) - workspace navigation guide folded into pilot-guide specialty (HP); canon HP = /help/pilot-guide.",
   },
   {
+    removedRowId: "PI",
+    retiredPath: "/help/pilot-roi-model",
+    canonicalPath: `${RETIRED_HELP_TOPIC_CANONICAL_PATHS.executiveSummary}#pilot-roi-measurement`,
+    historicalNote:
+      "Deprecated pilot-roi-model help twin (Help topic) - PILOT_ROI_MODEL alias stub folded into executive-summary#pilot-roi-measurement (SPE); measurement body from PILOT_SUCCESS_SCORECARD.",
+    bannedBuyerCopy: ["/help/pilot-roi-model", "pilot-roi-model", "Pilot ROI model help"],
+    buyerSurfaceGuards: [
+      "src/lib/help-center-catalog.ts",
+      "src/lib/help-search-panel-catalog.ts",
+      "src/lib/executive-summary-help-guide-content.ts",
+      "src/lib/usability/page-help-topic-map.ts",
+    ],
+  },
+  {
     retiredPath: "/help/operator-auth-roles",
     canonicalPath: USERS_AND_ROLES_HELP_CANONICAL_PATH,
     bannedBuyerCopy: ["/help/operator-auth-roles", "operator-auth-roles", "Operator auth roles"],

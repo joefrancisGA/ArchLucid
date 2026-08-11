@@ -20,10 +20,17 @@ import {
   FIRST_VALUE_20_HELP_SOURCES,
 } from "@/lib/first-value-20-help-guide-content";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
-import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
+import { tryLoadFoldedInternalRunbook } from "@/lib/load-product-documentation";
+import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-redirects";
 
-describe("HelpFirstValue20GuideView", () => {
-  const loaded = tryLoadProductDocumentation("first-value-20-minutes");
+describe("HelpFirstValue20GuideView (folded into COR, Batch R)", () => {
+  const loaded = tryLoadFoldedInternalRunbook("first-value-20-minutes");
+
+  it("permanently redirects the retired first-value-20-minutes slug to COR Admin runbook anchor", () => {
+    expect(resolveHelpTopicPermanentRedirect("first-value-20-minutes")).toBe(
+      "/help/first-architecture-review#first-value-in-20-minutes",
+    );
+  });
 
   it("loads first-value-20 help from the operator runbook source", () => {
     expect(loaded).not.toBeNull();

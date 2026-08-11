@@ -879,7 +879,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1270 | **Done** (2026-08-11) ? concurrent execute + idempotent commit race resolution contract; see `## TB-1270` below | Data consistency P1 ? **V1**; PA Q12 commit races; GTM **M-221**/**M-222** | S |
 | TB-1277 | **Done** (2026-08-11) ? GoldenManifest content-schema evolution contract (tolerant readers primary); see `## TB-1277` below | Data consistency P1 ? **V1**; PA Q13 schema versioning; GTM **M-223**/**M-224** | S |
 | TB-975 | **Done** (2026-08-11) ? INV-004 reserve/settle lifecycle contract; see `## TB-975` below | Cost-effectiveness P1 ? **V1**; PA Q8 2026-07-23; GTM **M-131**/**M-132**; after Done **TB-011** / INV-004 | S |
-| TB-976 | Durable per-reservation LLM budget leases + orphan reclaim + paid-unsettle reconcile ? end pooled-only `ReservedAssumedUsd` lifecycle gap; see `## TB-976` below | Cost-effectiveness P1 ? **V1**; after **TB-975**; pattern from Quick Scan **TB-894** Done | L |
+| TB-976 | **Done** (2026-08-11) ? durable per-call monthly USD reservation leases + orphan reclaim + reconcile; see `## TB-976` below | Cost-effectiveness P1 ? **V1**; after **TB-975**; pattern from Quick Scan **TB-894** Done | L |
 | TB-1287 | Mature LLM cost-control plane beyond budget gates + non-bypassable accounting chokepoint; see `## TB-1287` below | Cost-effectiveness P1 ? **V1**; PA Q14 FinOps plane; GTM **M-225**/**M-226** | S |
 | TB-1570 | Paying-tenant / API-key LLM spend-storm + metering-vs-AOAI-billing dispute claim map; see `## TB-1570` below | Cost-effectiveness P1 ? **V1**; PA spend-storm / billing-dispute Q; GTM **M-294**/**M-295**; see `PAYING_TENANT_LLM_SPEND_STORM_AND_BILLING_DISPUTE_CLAIM_MAP.md`; orchestrates **TB-1287**/**TB-975**/**TB-1020** | S |
 | TB-980 | Author Enterprise Customer Intake Modernization sample package ? second static spine; pin primary one-sentence + Contoso/Northwind ban; see `## TB-980` below | Commercial / marketability P1 ? **V1**; after **TB-979**; GTM **M-133**/**M-135**; PA primary-sentence 2026-07-25 | L |
@@ -903,9 +903,9 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1164 | ServiceNow demote incident settings until credentials ready; see ## TB-1164 below | Adoption friction P1 ? **V1**; with **TB-1161** | S |
 | TB-1165 | ServiceNow empty composition ? setup progress drives primary story; see ## TB-1165 below | Adoption friction P1 ? **V1**; with **TB-1161**/**TB-1164** | S |
 | TB-1169 | Billing sales-led CTAs dead-end into toasts ? navigate instead; see ## TB-1169 below | Adoption friction P1 ? **V1**; with **TB-1170** | S |
-| TB-1170 | Billing composition ? anchor-jump buttons, duplicate primary, operator spacing; see ## TB-1170 below | Adoption friction P1 ? **V1**; with **TB-1169** | S |
-| TB-1171 | ServiceNow page title ? show nav icon via PageHeading (parity with Azure Boards); see ## TB-1171 below | Adoption friction P1 ? **V1**; owner ServiceNow icon gap 2026-07-25; with **TB-1161**?**TB-1165** | XS |
-| TB-1174 | Teams not-configured ? StatusTag + guided next step; see ## TB-1174 below | Adoption friction P1 ? **V1**; owner `/integrations/teams` ~60/100 2026-07-25 | S |
+| TB-1170 | Billing composition ? anchor-jump buttons, duplicate primary, operator spacing ? **Done** (2026-08-11); see ## TB-1170 below | Adoption friction P1 ? **V1**; with **TB-1169** | S |
+| TB-1171 | ServiceNow page title ? show nav icon via PageHeading (parity with Azure Boards) ? **Done** (2026-08-11); see ## TB-1171 below | Adoption friction P1 ? **V1**; owner ServiceNow icon gap 2026-07-25; with **TB-1161**?**TB-1165** | XS |
+| TB-1174 | Teams not-configured ? StatusTag + guided next step ? **Done** (2026-08-11); see ## TB-1174 below | Adoption friction P1 ? **V1**; owner `/integrations/teams` ~60/100 2026-07-25 | S |
 | TB-1176 | Teams CTA hierarchy ? Validate ? Test ? Save + disabled-test reason; see ## TB-1176 below | Adoption friction P1 ? **V1**; with **TB-1174** | S |
 | TB-1177 | Teams operator spacing density (`space-y-8` / `py-8` ? operator tokens); see ## TB-1177 below | Adoption friction P1 ? **V1**; with **TB-1174**; cf. **TB-1170** | XS |
 | TB-1179 | Project deletion has no UI ? governed delete affordance; see ## TB-1179 below | Adoption friction P1 ? **V1**; owner recycle bin ~58/100 2026-07-25; API DELETE exists | M |
@@ -26368,7 +26368,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Cost-effectiveness.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-11).
 
 **Priority:** P1.
 
@@ -26383,6 +26383,8 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 3. Background/orphan reclaim: expire stale Reserved ? release pressure; alert on reclaim rate.
 4. Paid-unsettle reconcile: when usage/trace proves tokens were consumed without settle, commit actual (or conservative estimate) and clear reservation ? document residual windows.
 5. Tests: kill replica after reserve (no call) ? reclaim restores headroom; kill after success before settle ? reconcile increases Spent without double-count.
+
+**Shipped:** `LlmMonthlyTenantBudgetReservations` + SQL SPs (`TryReserve`/`Settle`/`Release`/`ExpirePending`/`ReconcileUnsettled`); `ILlmMonthlyTenantBudgetReservationStore` + Dapper/in-memory stores; `LlmMonthlyTenantDollarBudgetTracker` settles by reservation id; `LlmMonthlyTenantBudgetReservationReclaimHostedService`; OTel `archlucid_llm_monthly_budget_reservation_reclaimed_total`; unit tests in `LlmMonthlyTenantBudgetReservationStoreTb976Tests` (merged into TB-977 suite when present).
 
 **Acceptance:** No unbounded orphan reserved pool in staging kill drill; reconcile path documented; dual-replica tests extended beyond Done **TB-011** happy-path concurrency.
 
@@ -29537,7 +29539,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done (2026-08-11) ? current-plan anchor jumps are links; single primary checkout CTA on Architect tier card; operator `space-y-4` / `p-4` wrapper; humanized tier effective dates; Vitest guards.
 
 **Priority:** P0.
 
@@ -29566,7 +29568,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done (2026-08-11) ? `ServiceNowIntegrationPageClient` uses `PageHeading` with `navHref={INTEGRATIONS_SERVICENOW_PATH}` and `variant="integration"`; Vitest asserts `page-heading-icon` + `data-nav-href`.
 
 **Priority:** P0.
 
@@ -29643,7 +29645,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** Done (2026-08-11) ? connection status uses `StatusTag`; not-configured path shows guided next-step copy with `teams-not-configured-next-step` test id; Vitest guards.
 
 **Priority:** P0.
 

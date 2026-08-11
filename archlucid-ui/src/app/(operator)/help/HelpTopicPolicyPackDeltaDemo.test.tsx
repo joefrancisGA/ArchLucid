@@ -19,10 +19,17 @@ import {
   POLICY_PACK_DELTA_DEMO_HELP_SOURCES,
 } from "@/lib/policy-pack-delta-demo-help-guide-content";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
-import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
+import { tryLoadFoldedInternalRunbook } from "@/lib/load-product-documentation";
+import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-redirects";
 
-describe("HelpPolicyPackDeltaDemoGuideView", () => {
-  const loaded = tryLoadProductDocumentation("policy-pack-delta-demo");
+describe("HelpPolicyPackDeltaDemoGuideView (folded into policy-packs, Batch R)", () => {
+  const loaded = tryLoadFoldedInternalRunbook("policy-pack-delta-demo");
+
+  it("permanently redirects the retired policy-pack-delta-demo slug to policy-packs demo anchor", () => {
+    expect(resolveHelpTopicPermanentRedirect("policy-pack-delta-demo")).toBe(
+      "/help/policy-packs#policy-pack-delta-demo",
+    );
+  });
 
   it("loads policy-pack-delta demo help from GTM demo script source", () => {
     expect(loaded).not.toBeNull();

@@ -45,13 +45,12 @@ import {
   stripGovernanceApiContractsContributorLeakage,
   stripGovernanceApiContractsContributorSections,
   stripPilotRoiModelContributorLeakage,
-  stripPilotRoiModelContributorSections,
   stripRepeatReviewLoopContributorLeakage,
   stripRepeatReviewLoopContributorSections,
   stripInternalBuyerHelpPreamble,
 } from "@/lib/help-markdown-presentation";
 import { HELP_TOPIC_BANNED_COPY_PATTERNS } from "@/lib/help-product-language";
-import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
+import { tryLoadFoldedInternalRunbook, tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import { HELP_TOPICS } from "@/lib/help-topics";
 
 describe("help-markdown-presentation", () => {
@@ -313,35 +312,7 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toContain("TROUBLESHOOTING");
   });
 
-  it("omits Spine and Related sections from pilot ROI model presentation (TB-1390)", () => {
-    const source = [
-      "## Measurement overview",
-      "",
-      "Use buyer-provided baselines.",
-      "",
-      "## Spine",
-      "",
-      "START_HERE.md and CORE_PILOT.md",
-      "",
-      "## Related guides",
-      "",
-      "REPOSITORY_README and archive/gtm-internal/PMF tracker",
-      "",
-      "## Scorecard inputs",
-      "",
-      "Label every figure.",
-    ].join("\n");
-
-    const prepared = stripPilotRoiModelContributorSections(source);
-
-    expect(prepared.toLowerCase()).not.toContain("## spine");
-    expect(prepared.toLowerCase()).not.toContain("## related guides");
-    expect(prepared).toContain("## Measurement overview");
-    expect(prepared).toContain("## Scorecard inputs");
-    expect(prepared).not.toContain("START_HERE");
-  });
-
-  it("strips contributor spine and eng doc leakage from pilot ROI model (TB-1390)", () => {
+  it("strips contributor spine and eng doc leakage from pilot ROI measurement (TB-1390)", () => {
     const source = [
       "Spine: START_HERE.md",
       "",
@@ -373,8 +344,7 @@ describe("help-markdown-presentation", () => {
 
     const prepared = prepareHelpMarkdownForPresentation(source, "docs/library/PILOT_ROI_MODEL.md");
 
-    expect(prepared).toContain("/help/pilot-guide");
-    expect(prepared).toContain("/help/pilot-roi-model");
+    expect(prepared).toContain("/help/executive-summary#pilot-roi-measurement");
     expect(prepared.toLowerCase()).not.toContain("docs/go-to-market");
   });
 
@@ -839,7 +809,7 @@ describe("help-markdown-presentation", () => {
     expect(prepared).toContain("## ROI framing {#roi-framing}");
     expect(prepared).not.toMatch(/^##\s+\d+\./m);
     expect(prepared).toContain("[API contracts](/help/api-contracts)");
-    expect(prepared).toContain("[Pilot ROI model](/help/pilot-roi-model)");
+    expect(prepared).toContain("[Pilot ROI measurement](/help/executive-summary#pilot-roi-measurement)");
     expect(prepared).not.toMatch(/\bApi\b/);
     expect(prepared).not.toMatch(/\bRoi\b/);
   });
@@ -897,7 +867,7 @@ describe("help-markdown-presentation", () => {
   });
 
   it("keeps presented first-value-20 help buyer-safe (TB-1691 / TB-1693)", () => {
-    const loaded = tryLoadProductDocumentation("first-value-20-minutes");
+    const loaded = tryLoadFoldedInternalRunbook("first-value-20-minutes");
 
     expect(loaded).not.toBeNull();
     expect(loaded!.entry.sectionAnchors).toEqual(["first-value-in-20-minutes"]);
@@ -1024,7 +994,7 @@ describe("help-markdown-presentation", () => {
   });
 
   it("keeps presented policy-pack-delta help UI-first (TB-1727)", () => {
-    const loaded = tryLoadProductDocumentation("policy-pack-delta-demo");
+    const loaded = tryLoadFoldedInternalRunbook("policy-pack-delta-demo");
 
     expect(loaded).not.toBeNull();
 

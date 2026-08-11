@@ -20,6 +20,7 @@ DEFAULT_NEW_HIT_PCT = "0.02%"
 # values unique 3-letter uppercase IDs (guarded by tests/test_archlucid_ui_route_catalog.py).
 PREFERRED_NEW_ROW_IDS: dict[str, str] = {
     "/shell/contextual-help-drawer": "HCD",
+    "/help/choose-your-next-step": "HPX",
 }
 
 # Admin internal-runbook help topics excluded from buyer UX scoring (/al-ui-lowest).
@@ -65,11 +66,16 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/help/integrations/azure-boards": "/help/azure-boards",
     "/help/product-overview": "/help/executive-summary",
     "/help/starting-reviews": "/help/review-guide",
-    "/help/evaluator-workbook": "/help/path-chooser",
+    "/help/evaluator-workbook": "/help/choose-your-next-step",
+    "/help/path-chooser": "/help/choose-your-next-step",
     "/help/first-hour-operator-path": "/help/first-architecture-review",
     "/help/first-pilot-path": "/help/first-architecture-review",
     "/help/operator-auth-roles": "/help/users-and-roles",
     "/help/pilot-nav-profile": "/help/pilot-guide",
+    "/help/first-review": "/help/first-architecture-review",
+    "/help/first-value-20-minutes": "/help/first-architecture-review",
+    "/help/policy-pack-delta-demo": "/help/policy-packs",
+    "/help/pilot-roi-model": "/help/executive-summary",
     "/manifests": "/governance/signed-records",
     "/manifests/[manifestId]": "/governance/signed-records/[manifestId]",
     "/manifests/[manifestId]/artifacts/[artifactId]": (

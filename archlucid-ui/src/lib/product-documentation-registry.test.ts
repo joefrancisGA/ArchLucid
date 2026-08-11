@@ -74,6 +74,11 @@ describe("product-documentation-registry", () => {
     expect(inAppHelpHref("evidence-only-review", "fast-path-evidence-only")).toBe(
       "/help/first-architecture-review#fast-path-evidence-only",
     );
+    expect(getProductDocumentationEntry("pilot-roi-model")).toBeNull();
+    expect(resolveHelpTopicPermanentRedirect("pilot-roi-model")).toBe(
+      "/help/executive-summary#pilot-roi-measurement",
+    );
+    expect(inAppHelpHref("pilot-roi-model")).toBe("/help/executive-summary#pilot-roi-measurement");
     expect(getProductDocumentationEntry("cloud-connections/azure")?.title).toBe("Connect Azure securely");
     expect(getProductDocumentationEntry("cloud-connections/aws")?.title).toBe("Connect AWS securely");
     expect(getProductDocumentationEntry("cloud-connections/gcp")?.title).toBe("Connect GCP securely");
@@ -209,7 +214,6 @@ describe("product-documentation-registry", () => {
       "governance-approval": "customer",
       "policy-packs": "customer",
       "audit-trail": "customer",
-      "pilot-roi-model": "public",
     };
 
     for (const [slug, pdfStatus] of Object.entries(expected)) {
@@ -239,8 +243,6 @@ describe("product-documentation-registry", () => {
 
   it("tags internal-runbook slugs with internal-runbook contentKind (TB-732 / TB-1250 / TB-1329)", () => {
     const internalRunbookSlugs = [
-      "first-value-20-minutes",
-      "first-review",
       "policy-pack-delta-demo",
       "pilot-feedback",
       "developer-troubleshooting",

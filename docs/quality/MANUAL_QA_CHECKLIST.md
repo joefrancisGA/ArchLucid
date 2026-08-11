@@ -499,7 +499,7 @@ Legacy bookmarks **`/runs/*`** permanently redirect to **`/reviews/*`** — clea
 | **Alerts — notifications** | `/governance/alert-rules?tab=notifications` | [ ] |
 | **Alerts — advanced rules** | `/governance/alert-rules?tab=advanced-rules` | [ ] |
 | **Alerts — test alerts** | `/governance/alert-rules?tab=test-alerts` | [ ] |
-| **Alert routing (standalone)** | `/alert-routing` | [ ] |
+| **Alert routing (legacy bookmark)** | `/governance/alert-rules?tab=notifications` (redirect-only; `/alert-routing` retired) | [ ] |
 | **Policy packs hub** | `/policy-packs` | [ ] |
 | **Policy pack detail** | `/governance/policy-packs/{id}` | [ ] |
 | **Governance resolution** | `/governance-resolution` | [ ] |

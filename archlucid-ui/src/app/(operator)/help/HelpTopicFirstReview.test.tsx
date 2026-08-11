@@ -19,7 +19,8 @@ import {
   FIRST_REVIEW_HELP_SOURCES,
 } from "@/lib/first-review-help-guide-content";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
-import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
+import { tryLoadFoldedInternalRunbook } from "@/lib/load-product-documentation";
+import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-redirects";
 
 const FIRST_REVIEW_HELP_BANNED_SUBSTRINGS = [
   "GET /health/ready",
@@ -32,8 +33,14 @@ const FIRST_REVIEW_HELP_BANNED_SUBSTRINGS = [
   "deploy/customer-templates",
 ] as const;
 
-describe("HelpFirstReviewEvidenceChecklistGuideView", () => {
-  const loaded = tryLoadProductDocumentation("first-review");
+describe("HelpFirstReviewEvidenceChecklistGuideView (folded into COR, Batch R)", () => {
+  const loaded = tryLoadFoldedInternalRunbook("first-review");
+
+  it("permanently redirects the retired first-review slug to COR printable checklist anchor", () => {
+    expect(resolveHelpTopicPermanentRedirect("first-review")).toBe(
+      "/help/first-architecture-review#printable-first-run-evidence-checklist",
+    );
+  });
 
   it("loads first-review help from the operator-path printable section", () => {
     expect(loaded).not.toBeNull();

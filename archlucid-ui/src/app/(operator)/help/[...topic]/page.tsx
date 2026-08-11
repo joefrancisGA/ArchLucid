@@ -479,16 +479,6 @@ function renderHelpTopicView(
     return <HelpEvidenceTrailGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
-  if (loaded.entry.slug === "pilot-roi-model") {
-    return (
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        showContextualHelp
-      />
-    );
-  }
-
   return (
     <HelpTopicMarkdownView
       entry={loaded.entry}

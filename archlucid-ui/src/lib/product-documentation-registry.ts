@@ -158,7 +158,10 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     title: "Executive summary",
     summary: "Sponsor-safe summaries, ROI basis labels, and what executives should expect in exports.",
     audience: "buyer",
-    sourcePaths: ["docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md"],
+    sourcePaths: [
+      "docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md",
+      "docs/go-to-market/PILOT_SUCCESS_SCORECARD.md",
+    ],
     sectionAnchors: [
       "what-pilot-proves",
       "measurable-pilot-value",
@@ -167,6 +170,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
       "what-not-to-over-claim-yet",
       "sponsor-success-outcome",
       "limits-of-ai-explanations",
+      "pilot-roi-measurement",
     ],
     includeIntroWithSections: false,
     pdfStatus: "public",
@@ -398,14 +402,6 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     pdfStatus: "public",
     lastReviewed: "2026-08-09",
     releaseApplicability: "Applies to V1 GA — first architecture review workflow",
-  },
-  {
-    slug: "pilot-roi-model",
-    title: "Pilot ROI model",
-    summary: "How sponsor ROI figures are labeled, sourced, and kept buyer-safe in proof packets.",
-    audience: "buyer",
-    sourcePaths: ["docs/library/PILOT_ROI_MODEL.md"],
-    pdfStatus: "public",
   },
   {
     slug: "cli-usage",
