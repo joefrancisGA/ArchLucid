@@ -5,6 +5,7 @@ import { memo, type ReactElement } from "react";
 import { Button } from "@/components/ui/button";
 import { downloadArchitectureRiskRegisterCsv } from "@/lib/architecture-risk-register-csv";
 import {
+  matchesRiskRegisterFilter,
   RISK_REGISTER_FILTER_LABELS,
   RISK_REGISTER_QUICK_FILTERS,
   type RiskRegisterFilter,
@@ -21,6 +22,7 @@ import {
 } from "@/lib/finding-job-view";
 import { FindingsNaturalLanguageFilter } from "@/components/findings/FindingsNaturalLanguageFilter";
 import type { FindingsNaturalLanguageFacets } from "@/lib/findings-natural-language-filter";
+import { BulkTriageRemainingProgress } from "@/components/usability/BulkTriageRemainingProgress";
 
 export type GovernanceFindingsFilterBarProps = {
   readonly registerFilter: RiskRegisterFilter;
@@ -49,6 +51,10 @@ function GovernanceFindingsFilterBarComponent(props: GovernanceFindingsFilterBar
     displayedRows,
   } = props;
 
+  const findingRows = displayedRows.filter((row) => row.recordKind === "finding");
+  const totalInView = findingRows.length;
+  const openCount = findingRows.filter((row) => matchesRiskRegisterFilter(row, "open")).length;
+
   return (
     <div className="space-y-2">
       <FindingJobViewToggleBar
@@ -56,6 +62,7 @@ function GovernanceFindingsFilterBarComponent(props: GovernanceFindingsFilterBar
         onJobViewChange={props.onJobViewChange}
         governanceRows={props.filterableRows}
       />
+      <BulkTriageRemainingProgress openCount={openCount} totalInView={totalInView} />
       <div
         className="flex flex-wrap items-center gap-2"
         data-testid="architecture-risk-register-filters"

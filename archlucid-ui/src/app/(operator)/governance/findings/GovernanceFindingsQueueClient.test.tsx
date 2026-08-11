@@ -237,5 +237,6 @@ describe("GovernanceFindingsQueueClient", () => {
       "/governance/exceptions",
     );
     expect(screen.getByTestId("architecture-risk-register-summary-open-value")).toHaveTextContent("1");
+    expect(screen.getByTestId("bulk-triage-remaining-progress")).toHaveTextContent("1 of 1 left");
   });
 });
