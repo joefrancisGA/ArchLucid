@@ -51,6 +51,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { useOptionallyControlledBoolean } from "@/hooks/use-optionally-controlled-boolean";
 import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
 import { postFindingMute } from "@/lib/api";
 import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
@@ -157,25 +158,25 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
   const sorted = sortQuickDecisionFindings(props.findings);
   const confidenceManagedExternally = props.confidenceVisibility?.managedExternally === true;
   const [showMuted, setShowMuted] = useState(false);
-  const [internalShowLowConfidence, setInternalShowLowConfidence] = useState(false);
-  const showLowConfidence = confidenceManagedExternally
-    ? props.confidenceVisibility?.showLowConfidence === true
-    : internalShowLowConfidence;
-  const setShowLowConfidence = confidenceManagedExternally
-    ? (value: boolean) => {
-        props.confidenceVisibility?.onShowLowConfidenceChange(value);
-      }
-    : setInternalShowLowConfidence;
-  const [showAdvisoryInternal, setShowAdvisoryInternal] = useState(false);
+  const [showLowConfidence, setShowLowConfidence] = useOptionallyControlledBoolean(
+    confidenceManagedExternally && props.confidenceVisibility
+      ? {
+          value: props.confidenceVisibility.showLowConfidence,
+          onChange: props.confidenceVisibility.onShowLowConfidenceChange,
+          managedExternally: true,
+        }
+      : undefined,
+  );
   const advisoryManagedExternally = props.advisoryVisibility?.managedExternally === true;
-  const showAdvisory = advisoryManagedExternally
-    ? props.advisoryVisibility?.showAdvisory === true
-    : showAdvisoryInternal;
-  const setShowAdvisory = advisoryManagedExternally
-    ? (value: boolean) => {
-        props.advisoryVisibility?.onShowAdvisoryChange(value);
-      }
-    : setShowAdvisoryInternal;
+  const [showAdvisory, setShowAdvisory] = useOptionallyControlledBoolean(
+    advisoryManagedExternally && props.advisoryVisibility
+      ? {
+          value: props.advisoryVisibility.showAdvisory,
+          onChange: props.advisoryVisibility.onShowAdvisoryChange,
+          managedExternally: true,
+        }
+      : undefined,
+  );
   const [openWorkspaceIntegrationsByFindingId, setOpenWorkspaceIntegrationsByFindingId] = useState<
     Readonly<Record<string, boolean>>
   >({});
