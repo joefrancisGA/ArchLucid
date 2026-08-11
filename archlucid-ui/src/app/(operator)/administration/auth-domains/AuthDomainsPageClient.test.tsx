@@ -9,6 +9,7 @@ import {
   fetchTenantAuthDomains,
   proposeTenantAuthDomain,
   removeTenantAuthDomainRecoveryAdmin,
+  setTenantAuthDomainEnforcement,
 } from "@/lib/admin-auth-domains-api";
 import { AUTH_DOMAINS_ENFORCEMENT_WARNING } from "@/lib/auth-domains-confirm-copy";
 
@@ -186,6 +187,56 @@ describe("AuthDomainsPageClient", () => {
       expect(removeTenantAuthDomainRecoveryAdmin).toHaveBeenCalledWith("example.com", "breakglass@example.com", true);
     });
     expect(confirmSpy).not.toHaveBeenCalled();
+  });
+
+  it("requires confirmation before setting Require SSO enforcement mode", async () => {
+    vi.mocked(fetchTenantAuthDomains).mockResolvedValue([sampleDomain]);
+    vi.mocked(fetchTenantAuthDomainEnforcementReadiness).mockResolvedValue(readyReadiness);
+    vi.mocked(setTenantAuthDomainEnforcement).mockResolvedValue({} as never);
+
+    render(<AuthDomainsPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-domain-row-example.com")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("auth-domain-row-example.com"));
+    fireEvent.click(screen.getByTestId("auth-domains-enforcement-required"));
+
+    expect(await screen.findByTestId("auth-domains-set-enforcement-confirm-dialog")).toBeInTheDocument();
+    expect(setTenantAuthDomainEnforcement).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByTestId("auth-domains-confirm-confirm"));
+
+    await waitFor(() => {
+      expect(setTenantAuthDomainEnforcement).toHaveBeenCalledWith(
+        "example.com",
+        "SsoRequiredForVerifiedDomain",
+        false,
+      );
+    });
+    expect(screen.getByText(/Enforcement mode for example.com set to SSO required/i)).toBeInTheDocument();
+  });
+
+  it("applies SSO optional immediately with specific success copy", async () => {
+    vi.mocked(fetchTenantAuthDomains).mockResolvedValue([sampleDomain]);
+    vi.mocked(fetchTenantAuthDomainEnforcementReadiness).mockResolvedValue(readyReadiness);
+    vi.mocked(setTenantAuthDomainEnforcement).mockResolvedValue({} as never);
+
+    render(<AuthDomainsPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-domain-row-example.com")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("auth-domain-row-example.com"));
+    fireEvent.click(screen.getByTestId("auth-domains-enforcement-optional"));
+
+    await waitFor(() => {
+      expect(setTenantAuthDomainEnforcement).toHaveBeenCalledWith("example.com", "SsoOptional", false);
+    });
+    expect(screen.queryByTestId("auth-domains-set-enforcement-confirm-dialog")).not.toBeInTheDocument();
+    expect(screen.getByText(/Enforcement mode for example.com set to SSO optional/i)).toBeInTheDocument();
   });
 
   it("disables add domain while propose is in flight", async () => {

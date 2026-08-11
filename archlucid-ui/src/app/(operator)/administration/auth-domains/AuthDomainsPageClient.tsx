@@ -17,8 +17,10 @@ import {
 import {
   authDomainEnforcementModeKind,
   authDomainVerificationStatusKind,
+  isRestrictiveAuthDomainEnforcementMode,
   labelForAuthDomainEnforcementMode,
   labelForAuthDomainVerificationStatus,
+  successMessageForAuthDomainEnforcementModeChange,
 } from "@/lib/auth-domains-enum-labels";
 import { AUTH_DOMAINS_ENFORCEMENT_WARNING } from "@/lib/auth-domains-confirm-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -43,6 +45,11 @@ import { cn } from "@/lib/utils";
 
 type RefreshOptions = {
   readonly surfaceError?: boolean;
+};
+
+type EnforcementModeRequest = {
+  readonly enforcementMode: string;
+  readonly allowEmailOtpRecovery: boolean;
 };
 
 export function AuthDomainsPageClient() {
@@ -227,6 +234,53 @@ export function AuthDomainsPageClient() {
     setPendingConfirm({ kind: "enable-enforcement" });
   }
 
+  function requestSetEnforcementMode(request: EnforcementModeRequest) {
+    if (selectedDomain === null || busy || selected === null) {
+      return;
+    }
+
+    if (isRestrictiveAuthDomainEnforcementMode(request.enforcementMode)) {
+      setPendingConfirm({
+        kind: "set-enforcement-mode",
+        displayDomain: selected.displayDomain,
+        enforcementMode: request.enforcementMode,
+        allowEmailOtpRecovery: request.allowEmailOtpRecovery,
+      });
+
+      return;
+    }
+
+    void executeSetEnforcementMode(request);
+  }
+
+  async function executeSetEnforcementMode(request: EnforcementModeRequest) {
+    if (selectedDomain === null || busy || selected === null) {
+      return;
+    }
+
+    setErrorMessage(null);
+    setStatusMessage(null);
+
+    setBusy(true);
+
+    try {
+      await setTenantAuthDomainEnforcement(
+        selectedDomain,
+        request.enforcementMode,
+        request.allowEmailOtpRecovery,
+      );
+      setStatusMessage(
+        successMessageForAuthDomainEnforcementModeChange(selected.displayDomain, request.enforcementMode),
+      );
+      await refreshDomains();
+      await refreshReadiness(selectedDomain, { surfaceError: true });
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : String(error));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function executeEnableEnforcement() {
     if (selectedDomain === null || busy) {
       return;
@@ -257,6 +311,19 @@ export function AuthDomainsPageClient() {
     if (pendingConfirm.kind === "enable-enforcement") {
       setPendingConfirm(null);
       await executeEnableEnforcement();
+
+      return;
+    }
+
+    if (pendingConfirm.kind === "set-enforcement-mode") {
+      const request: EnforcementModeRequest = {
+        enforcementMode: pendingConfirm.enforcementMode,
+        allowEmailOtpRecovery: pendingConfirm.allowEmailOtpRecovery,
+      };
+
+      setPendingConfirm(null);
+      await executeSetEnforcementMode(request);
+
       return;
     }
 
@@ -561,9 +628,10 @@ export function AuthDomainsPageClient() {
                   disabled={busy}
                   data-testid="auth-domains-enforcement-optional"
                   onClick={() =>
-                    void runForSelected((domain) =>
-                      setTenantAuthDomainEnforcement(domain, "SsoOptional", false),
-                    )
+                    requestSetEnforcementMode({
+                      enforcementMode: "SsoOptional",
+                      allowEmailOtpRecovery: false,
+                    })
                   }
                 >
                   SSO optional
@@ -574,9 +642,10 @@ export function AuthDomainsPageClient() {
                   disabled={busy}
                   data-testid="auth-domains-enforcement-required"
                   onClick={() =>
-                    void runForSelected((domain) =>
-                      setTenantAuthDomainEnforcement(domain, "SsoRequiredForVerifiedDomain", false),
-                    )
+                    requestSetEnforcementMode({
+                      enforcementMode: "SsoRequiredForVerifiedDomain",
+                      allowEmailOtpRecovery: false,
+                    })
                   }
                 >
                   Require SSO
@@ -587,9 +656,10 @@ export function AuthDomainsPageClient() {
                   disabled={busy}
                   data-testid="auth-domains-enforcement-recovery"
                   onClick={() =>
-                    void runForSelected((domain) =>
-                      setTenantAuthDomainEnforcement(domain, "SsoRequiredWithRecoveryException", true),
-                    )
+                    requestSetEnforcementMode({
+                      enforcementMode: "SsoRequiredWithRecoveryException",
+                      allowEmailOtpRecovery: true,
+                    })
                   }
                 >
                   Require SSO with recovery
