@@ -17,6 +17,7 @@ import {
   WHY_CLOSING_SECONDARY_CTA_HREF,
   WHY_CLOSING_SECONDARY_CTA_LABEL,
   WHY_MARKET_LANDSCAPE_CITATION_NOTE,
+  WHY_MARKET_LANDSCAPE_DISCLOSURE_LABEL,
   WHY_MARKETING_PDF_DOWNLOAD_FILENAME,
   WHY_MARKETING_PDF_DOWNLOAD_LABEL,
   WHY_MARKETING_PDF_HREF,
@@ -150,63 +151,70 @@ export function WhyArchlucidMarketingView({ frontDoorRows }: WhyArchlucidMarketi
       </section>
 
       <section className="mt-12" aria-labelledby="why-market-landscape-heading">
-        <h2 id="why-market-landscape-heading" className={MARKETING_TYPOGRAPHY.sectionTitle}>
-          Where ArchLucid fits (adjacent tooling)
-        </h2>
-        <p className="mt-2 max-w-3xl text-xs leading-snug text-neutral-600 dark:text-neutral-400">
-          {WHY_MARKET_LANDSCAPE_CITATION_NOTE}
-        </p>
-        <div className="mt-4 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
-          <table
-            data-testid="why-market-landscape-mini-table"
-            className="w-full min-w-[60rem] border-collapse text-left text-sm"
+        <details className="group rounded-lg border border-neutral-200 dark:border-neutral-800" data-testid="why-market-landscape-disclosure">
+          <summary
+            className="cursor-pointer list-none px-4 py-3 font-semibold text-neutral-900 marker:content-none dark:text-neutral-100 [&::-webkit-details-marker]:hidden"
+            data-testid="why-market-landscape-disclosure-trigger"
           >
-            <thead>
-              <tr className="border-b border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/80">
-                <th scope="col" className="px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100">
-                  Dimension
-                </th>
-                <th scope="col" className="min-w-[12rem] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100">
-                  ArchLucid
-                </th>
-                <th scope="col" className="min-w-[12rem] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100">
-                  GitHub Copilot (architecture ad-hoc)
-                </th>
-                <th scope="col" className="min-w-[12rem] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100">
-                  ChatGPT / Claude (manual prompting)
-                </th>
-                <th scope="col" className="min-w-[12rem] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100">
-                  Structurizr (+ AI assist)
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {WHY_MARKET_LANDSCAPE_MARKETING_ROWS.map((row) => (
-                <tr
-                  key={row.dimension}
-                  className="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
-                >
-                  <th
-                    scope="row"
-                    className="max-w-[200px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
-                  >
-                    {row.dimension}
-                  </th>
-                  <td className="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200">{row.archlucid}</td>
-                  <td className="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200">
-                    {row.githubCopilotAdHocArchitecture}
-                  </td>
-                  <td className="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200">
-                    {row.manualChatgptClaude}
-                  </td>
-                  <td className="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200">
-                    {row.structurizrWithAssist}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            <span className={MARKETING_TYPOGRAPHY.sectionTitle}>{WHY_MARKET_LANDSCAPE_DISCLOSURE_LABEL}</span>
+          </summary>
+          <div className="border-t border-neutral-200 px-4 pb-4 pt-3 dark:border-neutral-800">
+            <p className="max-w-3xl text-xs leading-snug text-neutral-600 dark:text-neutral-400">
+              {WHY_MARKET_LANDSCAPE_CITATION_NOTE}
+            </p>
+            <div className="mt-4 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
+              <table
+                data-testid="why-market-landscape-mini-table"
+                className="w-full min-w-[60rem] border-collapse text-left text-sm"
+              >
+                <thead>
+                  <tr className="border-b border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/80">
+                    <th scope="col" className="px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100">
+                      Dimension
+                    </th>
+                    <th scope="col" className="min-w-[12rem] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100">
+                      ArchLucid
+                    </th>
+                    <th scope="col" className="min-w-[12rem] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100">
+                      GitHub Copilot (architecture ad-hoc)
+                    </th>
+                    <th scope="col" className="min-w-[12rem] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100">
+                      ChatGPT / Claude (manual prompting)
+                    </th>
+                    <th scope="col" className="min-w-[12rem] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100">
+                      Structurizr (+ AI assist)
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {WHY_MARKET_LANDSCAPE_MARKETING_ROWS.map((row) => (
+                    <tr
+                      key={row.dimension}
+                      className="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
+                    >
+                      <th
+                        scope="row"
+                        className="max-w-[200px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
+                      >
+                        {row.dimension}
+                      </th>
+                      <td className="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200">{row.archlucid}</td>
+                      <td className="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200">
+                        {row.githubCopilotAdHocArchitecture}
+                      </td>
+                      <td className="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200">
+                        {row.manualChatgptClaude}
+                      </td>
+                      <td className="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200">
+                        {row.structurizrWithAssist}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </details>
       </section>
 
       <section className={MARKETING_SURFACES.mutedPanel}>

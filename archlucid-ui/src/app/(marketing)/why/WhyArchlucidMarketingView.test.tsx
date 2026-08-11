@@ -121,4 +121,13 @@ describe("WhyArchlucidMarketingView", () => {
     const contosoLink = within(ladderLinks).getByRole("link", { name: WHY_CONTOSO_PREVIEW_LABEL });
     expect(contosoLink).toHaveAttribute("href", WHY_CONTOSO_PREVIEW_HREF);
   });
+
+  it("TB-1303: only the governance hard-comparison table is expanded by default", () => {
+    render(<WhyArchlucidMarketingView frontDoorRows={WHY_COMPARISON_ROWS} />);
+
+    const landscapeDisclosure = screen.getByTestId("why-market-landscape-disclosure");
+    expect(landscapeDisclosure).not.toHaveAttribute("open");
+    expect(screen.getByTestId("why-hard-comparison-table")).toBeVisible();
+    expect(screen.getByTestId("why-market-landscape-mini-table")).not.toBeVisible();
+  });
 });

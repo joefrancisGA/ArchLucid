@@ -15,7 +15,7 @@ Regenerate after opening or closing summary-table rows:
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
 | Architectural integrity | 11 |
-| Adoption friction | 324 |
+| Adoption friction | 323 |
 | Commercial / marketability | 9 |
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
@@ -35,9 +35,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **604** |
+| **Total (unique open)** | **603** |
 
-**By priority band:** P0 **3** | P1 **481** | P2 **103** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **3** | P1 **480** | P2 **103** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -966,7 +966,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1295 | **Done** (2026-08-10) — `/welcome` single primary conversion path; Vitest; see `## TB-1295` below | Adoption friction P1 ? **V1**; with **TB-1294** | S |
 | TB-1296 | **Done** (2026-08-10) — `/welcome` canonical proof CTA ladder; Vitest; see `## TB-1296` below | Adoption friction P1 ? **V1**; with **TB-1294**; pairs **TB-1028**/**TB-1282**/**M-107** | S |
 | TB-1301 | **Done** (2026-08-10) — `/why` hero budget + primary `/see-it` CTA; see ## TB-1301 below | Adoption friction P1 ? **V1**; owner why ~51/100 2026-07-26; traffic **WHY** | S |
-| TB-1302 | `/why` ? canonical proof ladder (`/see-it` vs Contoso `/demo/preview` iframe); see ## TB-1302 below | Adoption friction P1 ? **V1**; with **TB-1301**; pairs **TB-1296**/**TB-1282**/**TB-1028**/**M-107** | S |
+| TB-1302 | **Done** (2026-08-10) — `/why` canonical proof ladder; Contoso demoted; see ## TB-1302 below | Adoption friction P1 ? **V1**; with **TB-1301**; pairs **TB-1296**/**TB-1282**/**TB-1028**/**M-107** | S |
 | TB-1303 | `/why` ? collapse triple comparison density; see ## TB-1303 below | Adoption friction P1 ? **V1**; with **TB-1301** | S |
 | TB-1307 | `/why-archlucid` ? disambiguate title/IA from marketing `/why`; see ## TB-1307 below | Adoption friction P1 ? **V1**; with **TB-1306**; IA-014 | S |
 | TB-1309 | `/why-archlucid` ? primary CTA to sample architecture package; see ## TB-1309 below | Adoption friction P1 ? **V1**; with **TB-1306** | S |
@@ -32394,7 +32394,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-10) — `WhyMarketingProofLadderSection`; primary `/see-it` + Claims showcase; Contoso preview demoted with honest label; removed default iframe embed; Vitest in `WhyArchlucidMarketingView.test.tsx` + `why-page-copy.test.ts`.
 
 **Priority:** P0.
 
@@ -40990,7 +40990,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1641 ? `/help/creating-runs` permanent redirect to canonical review guide (P0)
 
-**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-10) ? `help-topic-permanent-redirects` maps `creating-runs` → `/help/review-guide`; help catch-all `permanentRedirect` before render; Batch E manifest removes **HCR**/**HER** workbook rows. **Priority:** P0.
+**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P0.
 
 **Source:** Owner HCR ~46/100 2026-07-27 (Help alias).
 
@@ -41008,7 +41008,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1642 ? creating-runs alias ? ?runs? URL jargon honesty (P0)
 
-**Window:** V1 ? Trustworthiness. **Status:** **Done** (2026-08-10) ? `help-topic-permanent-redirects` + help catch-all `permanentRedirect` before render; `creating-runs-help-alias-honesty.test.ts`; Vitest guards. **Priority:** P0.
+**Window:** V1 ? Trustworthiness. **Status:** **Done** (2026-08-10) ? `help-topic-permanent-redirects` + help catch-all `permanentRedirect` before render; manifest `bannedBuyerCopy` + `retired-help-topic-alias-honesty.test.ts`; Vitest guards. **Priority:** P0.
 
 **Problem:** Path segment `creating-runs` contradicts review terminology guards (?architecture reviews?) and confuses buyers who land from old bookmarks.
 
@@ -41020,7 +41020,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1643 ? creating-runs alias ? chain to same slug as TB-1258 canonicalize (P0)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-10) ? `creating-runs` and `starting-reviews` permanent redirects land on `/help/review-guide` (single hop). **Priority:** P0.
 
 **Problem:** Today `creating-runs` ? `starting-reviews` while **TB-1258** will collapse `starting-reviews` ? `review-guide` ? risk of a two-hop or sticky intermediate if alias map is not updated with canonicalize.
 
@@ -41034,7 +41034,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1644 ? creating-runs alias ? traffic workbook fold HCR?HER/HR (P0)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-10) ? `ui-route-traffic-retired-help-topic-aliases.ts` manifest + workbook guard; **HCR** row removed. **Priority:** P0.
 
 **Problem:** Owner workbook keeps **HCR** as a scoreable product row though the surface is redirect-only ? splits deficit with **HER**/**HR**.
 
@@ -41046,7 +41046,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1645 ? creating-runs alias ? anti-reintro product deep-link CI (P0)
 
-**Window:** V1 ? Testability. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Testability. **Status:** **Done** (2026-08-10) ? `retired-help-topic-alias-honesty.test.ts` global + manifest buyer-surface guards. **Priority:** P0.
 
 **Problem:** Empty-state already points at `starting-reviews`, but other product/help links may still emit `/help/creating-runs`.
 
@@ -42086,7 +42086,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1701 ? `/help/integrations/azure-boards` permanent redirect (execute TB-1623) (P0)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-10) ? `help-topic-permanent-redirects` maps `integrations/azure-boards` → `/help/azure-boards`; Batch E manifest removes **HEZ** workbook row. **Priority:** P0.
 
 **Source:** Owner HEZ ~48/100 2026-07-27 (Help alias).
 

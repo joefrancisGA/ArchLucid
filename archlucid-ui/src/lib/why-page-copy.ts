@@ -23,6 +23,9 @@ export const WHY_MARKETING_PDF_SECTION_INTRO_AFTER_LINK =
 export const WHY_MARKET_LANDSCAPE_CITATION_NOTE =
   "Summarized wording only — citations and benchmark detail are included in the marketing overview PDF linked from this page.";
 
+/** TB-1303: collapsed-by-default adjacent-tooling landscape table. */
+export const WHY_MARKET_LANDSCAPE_DISCLOSURE_LABEL = "More comparisons: adjacent tooling landscape";
+
 export const WHY_BRAND_CATEGORY_DOWNLOAD_NOTE =
   "The downloadable differentiation overview carries the citation-backed drill-down for diligence teams who need paperwork parity.";
 
