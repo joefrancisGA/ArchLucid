@@ -3,6 +3,7 @@ import Link from "next/link";
 import { HelpGlossaryPageClient } from "@/app/(operator)/help/_sections/HelpGlossaryPageClient";
 import { HelpTopicMarkdownPageHeader } from "@/app/(operator)/help/_sections/HelpTopicMarkdownPageHeader";
 import { GlossaryHelpEvidenceOrientationStrip } from "@/components/help/GlossaryHelpEvidenceOrientationStrip";
+import { GlossaryProceduralHelpVocabularyRail } from "@/components/GlossaryProceduralHelpVocabularyRail";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -64,6 +65,7 @@ export function HelpGlossaryPageView(props: HelpGlossaryPageViewProps): React.Re
           </CardContent>
         </Card>
         <GlossaryHelpEvidenceOrientationStrip />
+        <GlossaryProceduralHelpVocabularyRail currentSurfaceId="glossary" />
       </header>
       <HelpGlossaryPageClient />
     </article>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
+import { GlossaryProceduralHelpVocabularyRail } from "@/components/GlossaryProceduralHelpVocabularyRail";
 import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { HelpTourTrigger } from "./HelpTourTrigger";
@@ -43,6 +44,7 @@ export default function HelpPage() {
           <HelpTourTrigger />
         </div>
       </div>
+      <GlossaryProceduralHelpVocabularyRail currentSurfaceId="help-hub" />
       <HelpProductGuide />
     </OperatorPageContainer>
   );
