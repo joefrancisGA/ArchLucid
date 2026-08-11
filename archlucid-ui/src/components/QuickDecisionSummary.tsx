@@ -56,20 +56,20 @@ import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useOptionallyControlledBoolean } from "@/hooks/use-optionally-controlled-boolean";
 import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
 import { postFindingMute } from "@/lib/api";
-import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
-import { findingDerivationFromQuickDecisionFinding } from "@/lib/finding-derivation-sentence";
-import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
-import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
 import {
-  defaultManifestIdForShowcaseFinding,
-  primaryFindingEvidenceNavigationHref,
-  runDetailSectionHref,
-} from "@/lib/finding-source-evidence-links";
+  getFindingDetailHref,
+  getFindingEvidenceTraceHref,
+} from "@/lib/finding-evidence-navigation";
+import { findingDerivationFromQuickDecisionFinding } from "@/lib/finding-derivation-sentence";
+import {
+  buildQuickDecisionFindingEvidenceLinks,
+  quickDecisionRecommendationSnippet,
+  quickDecisionWorkItemSeverityLabel,
+} from "@/lib/quick-decision-finding-links";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import {
   buildWorkspaceCardRenderedFindings,
   findingHasNoSourceEvidence,
-  firstRecommendationSentence,
   humanReviewStatusDisplay,
   partitionQuickDecisionFindings,
   severityBadgeLabel,
@@ -317,29 +317,10 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
   }
 
   function renderFindingRow(f: QuickDecisionFinding, showTierBadge: boolean, subdued = false): ReactElement {
-    const href = `/architecture/reviews/${encodeURIComponent(props.runId)}/findings/${encodeURIComponent(f.findingId)}`;
-    const snippet =
-      f.recommendation.length > 0
-        ? firstRecommendationSentence(f.recommendation)
-        : "See finding detail for recommended actions.";
+    const href = getFindingDetailHref(props.runId, f.findingId);
+    const snippet = quickDecisionRecommendationSnippet(f);
     const badgeLabel = severityBadgeLabel(f.severityValue);
-    const graphFocusId = preferredGraphNodeIdForFindingDeepLink(props.runId, f.findingId);
-    const evidenceRefCount = f.evidenceRefCount ?? 0;
-    const manifestId = defaultManifestIdForShowcaseFinding(props.runId, f.findingId);
-    const manifestHref =
-      manifestId !== null ? runDetailSectionHref(props.runId, "manifest-summary") : null;
-    const graphHref =
-      evidenceRefCount > 0 || graphFocusId !== null
-        ? graphTrailHrefWithOptionalNode(props.runId, graphFocusId)
-        : null;
-    const viewEvidenceHref =
-      primaryFindingEvidenceNavigationHref(
-        manifestHref !== null
-          ? [{ kind: "manifestSection", label: "Manifest", detail: null, href: manifestHref }]
-          : graphHref !== null
-            ? [{ kind: "graphNode", label: "Graph", detail: null, href: graphHref }]
-            : [],
-      ) ?? graphHref;
+    const { evidenceRefCount, viewEvidenceHref } = buildQuickDecisionFindingEvidenceLinks(props.runId, f);
     const citationModel = buildFindingPolicyEvidenceCitationsFromQuickDecision(props.runId, f);
     const reviewStatus = humanReviewStatusDisplay(f.humanReviewStatus);
     const owner = f.assignedToUserId?.trim() ?? "";
@@ -529,9 +510,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
                     runId={props.runId}
                     findingId={f.findingId}
                     findingTitle={f.title}
-                    severityLabel={
-                      f.severityValue >= 3 ? "High" : f.severityValue === 2 ? "Medium" : f.severityValue === 1 ? "Low" : "Info"
-                    }
+                    severityLabel={quickDecisionWorkItemSeverityLabel(f.severityValue)}
                     recommendedAction={f.recommendation}
                     statusLabel="Open"
                     compact
@@ -611,9 +590,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
                 runId={props.runId}
                 findingId={f.findingId}
                 findingTitle={f.title}
-                severityLabel={
-                  f.severityValue >= 3 ? "High" : f.severityValue === 2 ? "Medium" : f.severityValue === 1 ? "Low" : "Info"
-                }
+                severityLabel={quickDecisionWorkItemSeverityLabel(f.severityValue)}
                 recommendedAction={f.recommendation}
                 statusLabel="Open"
                 compact
@@ -677,29 +654,10 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
   }
 
   function renderWorkspacePrimaryFinding(f: QuickDecisionFinding): ReactElement {
-    const href = `/architecture/reviews/${encodeURIComponent(props.runId)}/findings/${encodeURIComponent(f.findingId)}`;
-    const snippet =
-      f.recommendation.length > 0
-        ? firstRecommendationSentence(f.recommendation)
-        : "See finding detail for recommended actions.";
+    const href = getFindingDetailHref(props.runId, f.findingId);
+    const snippet = quickDecisionRecommendationSnippet(f);
     const badgeLabel = severityBadgeLabel(f.severityValue);
-    const graphFocusId = preferredGraphNodeIdForFindingDeepLink(props.runId, f.findingId);
-    const evidenceRefCount = f.evidenceRefCount ?? 0;
-    const manifestId = defaultManifestIdForShowcaseFinding(props.runId, f.findingId);
-    const manifestHref =
-      manifestId !== null ? runDetailSectionHref(props.runId, "manifest-summary") : null;
-    const graphHref =
-      evidenceRefCount > 0 || graphFocusId !== null
-        ? graphTrailHrefWithOptionalNode(props.runId, graphFocusId)
-        : null;
-    const viewEvidenceHref =
-      primaryFindingEvidenceNavigationHref(
-        manifestHref !== null
-          ? [{ kind: "manifestSection", label: "Manifest", detail: null, href: manifestHref }]
-          : graphHref !== null
-            ? [{ kind: "graphNode", label: "Graph", detail: null, href: graphHref }]
-            : [],
-      ) ?? graphHref;
+    const { evidenceRefCount, viewEvidenceHref } = buildQuickDecisionFindingEvidenceLinks(props.runId, f);
     const reviewStatus = humanReviewStatusDisplay(f.humanReviewStatus);
     const owner = f.assignedToUserId?.trim() ?? "";
     const findingActivityAt = resolveFindingActivityAtUtc(f.aiReasoning);
@@ -873,13 +831,10 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
   }
 
   function renderWorkspaceSecondaryFinding(f: QuickDecisionFinding, subdued = false): ReactElement {
-    const href = `/architecture/reviews/${encodeURIComponent(props.runId)}/findings/${encodeURIComponent(f.findingId)}`;
+    const href = getFindingDetailHref(props.runId, f.findingId);
     const badgeLabel = severityBadgeLabel(f.severityValue);
     const reviewStatus = humanReviewStatusDisplay(f.humanReviewStatus);
-    const snippet =
-      f.recommendation.length > 0
-        ? firstRecommendationSentence(f.recommendation)
-        : "See finding detail for recommended actions.";
+    const snippet = quickDecisionRecommendationSnippet(f);
     const derivation = findingDerivationFromQuickDecisionFinding(f);
     const evidenceTraceHref = getFindingEvidenceTraceHref(props.runId, f.findingId);
 
