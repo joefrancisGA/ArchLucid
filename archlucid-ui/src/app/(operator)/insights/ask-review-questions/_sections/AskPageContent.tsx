@@ -29,6 +29,7 @@ import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { ConversationMessage, ConversationThread } from "@/types/conversation";
 import { AskMainPanel } from "@/app/(operator)/insights/ask-review-questions/_sections/AskMainPanel";
 import { AskNoReviewEmptyState } from "@/app/(operator)/insights/ask-review-questions/_sections/AskNoReviewEmptyState";
+import { AskArchitectureIntelligenceVocabularyRail } from "@/components/AskArchitectureIntelligenceVocabularyRail";
 import { AskSearchEvidenceVocabularyRail } from "@/components/AskSearchEvidenceVocabularyRail";
 import { AskVsFrontierAiDifferentiationStrip } from "@/components/ask/AskVsFrontierAiDifferentiationStrip";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
@@ -479,6 +480,7 @@ export function AskPageContent() {
         actions={<PageContextualHelpButton />}
       />
       <AskSearchEvidenceVocabularyRail currentSurfaceId="ask" />
+      <AskArchitectureIntelligenceVocabularyRail currentSurfaceId="ask-review-questions" />
       <AskVsFrontierAiDifferentiationStrip />
       <PageCapabilityBoundaryStrip surfaceId="ask" />
 {listFailure !== null ? (

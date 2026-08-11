@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 import { ArchitectureIntelligenceProductRoundTrip } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceProductRoundTrip";
 import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
 import { ArchitectureIntelligenceEvidenceGraphVocabularyRail } from "@/components/ArchitectureIntelligenceEvidenceGraphVocabularyRail";
+import { AskArchitectureIntelligenceVocabularyRail } from "@/components/AskArchitectureIntelligenceVocabularyRail";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
@@ -621,6 +622,7 @@ export function ArchitectureIntelligencePageClient() {
         actions={<PageContextualHelpButton />}
       />
       <PageCapabilityBoundaryStrip surfaceId="architectureIntelligence" />
+      <AskArchitectureIntelligenceVocabularyRail currentSurfaceId="architecture-intelligence" />
       <ArchitectureIntelligenceEvidenceGraphVocabularyRail currentSurfaceId="architecture-intelligence" />
 {inboundContextLine ? (
         <p
