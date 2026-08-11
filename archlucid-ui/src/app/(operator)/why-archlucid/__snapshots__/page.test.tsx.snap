@@ -14,14 +14,15 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
     >
       <h1
         class="m-0 text-xl font-semibold leading-7 tracking-tight text-al-text-primary"
+        data-testid="why-archlucid-page-title"
       >
-        Why ArchLucid
+        Pilot proof telemetry
       </h1>
       <button
         aria-expanded="false"
         aria-haspopup="dialog"
         aria-label="Help: Architecture workflow"
-        class="inline-flex items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-semibold hover:bg-neutral-100 hover:text-[color:var(--al-text-primary)] dark:hover:bg-neutral-800 rounded-md text-xs h-8 gap-1.5 px-2 text-neutral-700 dark:text-neutral-300"
+        class="inline-flex items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-semibold border border-neutral-300 bg-white hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:hover:bg-neutral-800 rounded-md text-xs h-8 gap-1.5 px-2 text-neutral-700 dark:text-neutral-300"
         data-state="closed"
         data-testid="page-contextual-help-button"
         type="button"
@@ -58,6 +59,26 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
         </span>
       </button>
     </div>
+    <p
+      class="m-0 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary"
+      data-testid="why-archlucid-page-orientation"
+    >
+      Live sponsor counters and seeded demo instrumentation for pilots — not the public marketing comparison page.
+    </p>
+    <p
+      class="m-0 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary"
+      data-testid="why-archlucid-marketing-disambiguation"
+    >
+      For competitive narrative, see
+       
+      <a
+        class="[object Object]"
+        href="/why"
+      >
+        Public differentiation (/why)
+      </a>
+      .
+    </p>
     <div
       class="rounded border px-3 py-2 text-sm border-neutral-200 bg-neutral-50 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-200"
       data-testid="why-archlucid-universe-banner"

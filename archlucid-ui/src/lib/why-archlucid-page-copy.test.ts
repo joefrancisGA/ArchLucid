@@ -8,6 +8,8 @@ import {
   WHY_ARCHLUCID_FOOTER_EXECUTIVE_BRIEF_HREF,
   WHY_ARCHLUCID_FOOTER_GETTING_STARTED_HREF,
   WHY_ARCHLUCID_FOOTER_TRUST_CENTER_HREF,
+  WHY_ARCHLUCID_MARKETING_WHY_HREF,
+  WHY_ARCHLUCID_PAGE_TITLE,
   whyArchlucidCounterHintAuditRowsTruncated,
 } from "@/lib/why-archlucid-page-copy";
 
@@ -45,5 +47,10 @@ describe("why-archlucid-page-copy (TB-1308)", () => {
       expect(href.startsWith("/")).toBe(true);
       expect(href.toLowerCase()).not.toContain("docs/");
     }
+  });
+
+  it("TB-1307: page title is not the marketing /why H1 twin", () => {
+    expect(WHY_ARCHLUCID_PAGE_TITLE).not.toBe("Why ArchLucid");
+    expect(WHY_ARCHLUCID_MARKETING_WHY_HREF).toBe("/why");
   });
 });

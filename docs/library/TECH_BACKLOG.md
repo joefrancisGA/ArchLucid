@@ -15,12 +15,12 @@ Regenerate after opening or closing summary-table rows:
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
 | Architectural integrity | 11 |
-| Adoption friction | 323 |
+| Adoption friction | 322 |
 | Commercial / marketability | 9 |
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
 | Explainability | 1 |
-| Trustworthiness | 49 |
+| Trustworthiness | 48 |
 | Maintainability | 9 |
 | Traceability | 3 |
 | Interoperability | 4 |
@@ -35,9 +35,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **603** |
+| **Total (unique open)** | **601** |
 
-**By priority band:** P0 **3** | P1 **480** | P2 **103** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **3** | P1 **478** | P2 **103** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -831,7 +831,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1907 | **Done** (2026-08-10) — Identity diagnostics StatusTag + humanized probe/discovery statuses; Vitest; see `## TB-1907` below | Trustworthiness P1 ? **V1**; with **TB-1906**; pairs **TB-116** (do not reopen) | S |
 | TB-1911 | **Done** (2026-08-10) — OIDC/JWT tab shell H1 status framing (not configuration); Vitest; see `## TB-1911` below | Trustworthiness P1 ? **V1**; owner review ~44/100 2026-07-27; traffic **SOI** | S |
 | TB-1912 | **Done** (2026-08-10) — OIDC/JWT tab shell `pageSubtitle` review framing (not configure workspace); Vitest; see `## TB-1912` below | Trustworthiness P1 ? **V1**; with **TB-1911**; do not reopen **TB-1906** | S |
-| TB-1913 | OIDC/JWT tab ? StatusTag for discovery status; see ## TB-1913 below | Trustworthiness P1 ? **V1**; with **TB-1911**; pairs **TB-1907**/**TB-116** | S |
+| TB-1913 | **Done** (2026-08-10) — OIDC/JWT tab discovery status uses StatusTag + shared TB-1907 mapping; Vitest; see `## TB-1913` below | Trustworthiness P1 ? **V1**; with **TB-1911**; pairs **TB-1907**/**TB-116** | S |
 | TB-1916 | Role mapping tab ? status-hub honesty (not in-page editor); see ## TB-1916 below | Trustworthiness P1 ? **V1**; owner review ~43/100 2026-07-27; traffic **SEO** | S |
 | TB-1917 | Role mapping tab ? shell Configure + duplicate intro/helper with **TB-1906**; see ## TB-1917 below | Trustworthiness P1 ? **V1**; with **TB-1916**; do not reopen **TB-1906** | S |
 | TB-1918 | Role mapping tab ? StatusTag + illustrative example-group honesty; see ## TB-1918 below | Trustworthiness P1 ? **V1**; with **TB-1916**; pairs **TB-1907** | S |
@@ -967,7 +967,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1296 | **Done** (2026-08-10) — `/welcome` canonical proof CTA ladder; Vitest; see `## TB-1296` below | Adoption friction P1 ? **V1**; with **TB-1294**; pairs **TB-1028**/**TB-1282**/**M-107** | S |
 | TB-1301 | **Done** (2026-08-10) — `/why` hero budget + primary `/see-it` CTA; see ## TB-1301 below | Adoption friction P1 ? **V1**; owner why ~51/100 2026-07-26; traffic **WHY** | S |
 | TB-1302 | **Done** (2026-08-10) — `/why` canonical proof ladder; Contoso demoted; see ## TB-1302 below | Adoption friction P1 ? **V1**; with **TB-1301**; pairs **TB-1296**/**TB-1282**/**TB-1028**/**M-107** | S |
-| TB-1303 | `/why` ? collapse triple comparison density; see ## TB-1303 below | Adoption friction P1 ? **V1**; with **TB-1301** | S |
+| TB-1303 | **Done** (2026-08-10) — `/why` collapse landscape comparison disclosure; see ## TB-1303 below | Adoption friction P1 ? **V1**; with **TB-1301** | S |
 | TB-1307 | `/why-archlucid` ? disambiguate title/IA from marketing `/why`; see ## TB-1307 below | Adoption friction P1 ? **V1**; with **TB-1306**; IA-014 | S |
 | TB-1309 | `/why-archlucid` ? primary CTA to sample architecture package; see ## TB-1309 below | Adoption friction P1 ? **V1**; with **TB-1306** | S |
 | TB-1310 | `/why-archlucid` ? PageHeading/help + pilot proof orientation; see ## TB-1310 below | Adoption friction P1 ? **V1**; with **TB-1307** | S |
@@ -32422,7 +32422,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-10) — adjacent-tooling landscape table collapsed in `<details>` by default; governance hard-comparison remains primary expanded table; Vitest in `WhyArchlucidMarketingView.test.tsx`.
 
 **Priority:** P0.
 
@@ -42086,7 +42086,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1701 ? `/help/integrations/azure-boards` permanent redirect (execute TB-1623) (P0)
 
-**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-10) ? `help-topic-permanent-redirects` maps `integrations/azure-boards` → `/help/azure-boards`; Batch E manifest removes **HEZ** workbook row. **Priority:** P0.
+**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P0.
 
 **Source:** Owner HEZ ~48/100 2026-07-27 (Help alias).
 
@@ -42114,7 +42114,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1703 ? HEZ alias ? anti-reintro product deep-link CI (P0)
 
-**Window:** V1 ? Testability. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Testability. **Status:** **Done** (2026-08-10) ? `retired-help-topic-alias-honesty.test.ts` manifest buyer-surface guards. **Priority:** P0.
 
 **Problem:** Product/help links may still emit `/help/integrations/azure-boards`.
 
@@ -42126,7 +42126,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1704 ? HEZ alias ? soft-normalize URL honesty (P0)
 
-**Window:** V1 ? Trustworthiness. **Status:** **Done** (2026-08-10) ? `help-topic-permanent-redirects` maps `integrations/azure-boards` → `/help/azure-boards`; help catch-all `permanentRedirect` before render; `azure-boards-help-alias-honesty.test.ts`; Vitest guards. **Priority:** P0.
+**Window:** V1 ? Trustworthiness. **Status:** **Done** (2026-08-10) ? `help-topic-permanent-redirects` maps `integrations/azure-boards` → `/help/azure-boards`; help catch-all `permanentRedirect` before render; `retired-help-topic-alias-honesty.test.ts`; Vitest guards. **Priority:** P0.
 
 **Problem:** Soft slug normalize can leave a nested Integrations path in the address bar while chrome title says Azure Boards integration ? looks like a second guide.
 
@@ -42138,7 +42138,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1705 ? HEZ alias ? Vitest/e2e alias?`/help/azure-boards` (P0)
 
-**Window:** V1 ? Testability. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Testability. **Status:** **Done** (2026-08-10) ? `retired-help-topic-alias-honesty.test.ts` redirect + manifest guards. **Priority:** P0.
 
 **Problem:** Registry normalize tests exist; redirect/e2e coverage for the nested path may not.
 
@@ -42150,7 +42150,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1706 ? `/help/operator-auth-roles` permanent redirect to users-and-roles (P0)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-10) ? `help-topic-permanent-redirects` maps `operator-auth-roles` → `/help/users-and-roles`; manifest entry + HOE workbook note. **Priority:** P0.
 
 **Source:** Owner HEO ~47/100 2026-07-27 (Help alias).
 
@@ -42166,7 +42166,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1707 ? HEO alias ? ?operator-auth? URL jargon honesty (P0)
 
-**Window:** V1 ? Trustworthiness. **Status:** **Done** (2026-08-10) ? `help-topic-permanent-redirects` maps `operator-auth-roles` → `/help/users-and-roles`; help catch-all `permanentRedirect` before render; `operator-auth-roles-help-alias-honesty.test.ts`; Vitest guards. **Priority:** P0.
+**Window:** V1 ? Trustworthiness. **Status:** **Done** (2026-08-10) ? `help-topic-permanent-redirects` maps `operator-auth-roles` → `/help/users-and-roles`; help catch-all `permanentRedirect` before render; `retired-help-topic-alias-honesty.test.ts`; Vitest guards. **Priority:** P0.
 
 **Problem:** Path `operator-auth-roles` leaks operator/auth eng vocabulary; product title is Users and roles.
 
@@ -42178,7 +42178,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1708 ? HEO alias ? traffic workbook fold ? HOE (P0)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-10) ? HOE note documents redirect; manifest guards alias paths; no separate **HEO** help row. **Priority:** P0.
 
 **Problem:** Workbook keeps **HEO** scoreable while **HOE** already owns the content surface (~80).
 
@@ -42190,7 +42190,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1709 ? HEO alias ? anti-reintro product deep-link CI (P0)
 
-**Window:** V1 ? Testability. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Testability. **Status:** **Done** (2026-08-10) ? `retired-help-topic-alias-honesty.test.ts` manifest `bannedBuyerCopy` guards. **Priority:** P0.
 
 **Problem:** Product/help links may still emit `/help/operator-auth-roles`.
 
@@ -42202,7 +42202,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1710 ? HEO alias ? Vitest/e2e alias?`/help/users-and-roles` (P0)
 
-**Window:** V1 ? Testability. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Testability. **Status:** **Done** (2026-08-10) ? `retired-help-topic-alias-honesty.test.ts` redirect + manifest guards. **Priority:** P0.
 
 **Problem:** Registry normalize may be tested; redirect/e2e for this alias may not.
 
@@ -44786,13 +44786,15 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1913 ? OIDC/JWT tab ? StatusTag for discovery status (P0)
 
-**Window:** V1 ? Trustworthiness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Trustworthiness. **Status:** **Done** (2026-08-10). **Priority:** P1.
 
 **Problem:** Discovery status is plain `dd` text; peers use inconsistent badge patterns.
 
 **Approach:** StatusTag; share mapping with **TB-1907**. Do not reopen **TB-116**.
 
 **Acceptance:** Discovery status uses StatusTag. **Size estimate:** S.
+
+**Closure (2026-08-10):** `IdentityProvidersOidcPageView` renders discovery `StatusTag` via `oidcPageDiscoveryStatusPresentation`; shared `oidcDiscoveryStatusLabelFromPayload` with `OidcDiagnosticsStrip`. Vitest: `identity-provider-probe-status-presentation.test.ts`, `IdentityProvidersOidcPageView.test.tsx`.
 
 ---
 

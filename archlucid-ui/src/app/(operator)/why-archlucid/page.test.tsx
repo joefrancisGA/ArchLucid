@@ -23,6 +23,7 @@ import {
 } from "@/lib/api";
 
 import WhyArchLucidPage from "./page";
+import { WHY_ARCHLUCID_MARKETING_WHY_HREF, WHY_ARCHLUCID_PAGE_TITLE } from "@/lib/why-archlucid-page-copy";
 
 const measuredRoiMock = vi.mocked(getTenantMeasuredRoi);
 const sponsorPackMock = vi.mocked(getSponsorEvidencePack);
@@ -230,6 +231,27 @@ describe("WhyArchLucidPage (proof page snapshot)", () => {
     );
     expect(screen.getByRole("link", { name: /Getting started/i })).toHaveAttribute("href", "/get-started");
     expect(screen.getByRole("link", { name: /Trust Center/i })).toHaveAttribute("href", "/trust");
+  });
+
+  it("TB-1307: disambiguates operator proof telemetry from marketing /why", async () => {
+    measuredRoiMock.mockResolvedValue(fixedMeasuredRoi);
+    sponsorPackMock.mockResolvedValue(fixedSponsorEvidencePack);
+    reportMock.mockResolvedValue(fixedReport);
+    explanationMock.mockResolvedValue(fixedExplanation);
+
+    render(<WhyArchLucidPage />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("why-archlucid-counters")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("why-archlucid-page-title")).toHaveTextContent(WHY_ARCHLUCID_PAGE_TITLE);
+    expect(screen.getByTestId("why-archlucid-page-title")).not.toHaveTextContent(/^Why ArchLucid$/);
+    expect(screen.getByTestId("why-archlucid-marketing-disambiguation")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Public differentiation/i })).toHaveAttribute(
+      "href",
+      WHY_ARCHLUCID_MARKETING_WHY_HREF,
+    );
   });
 
   it("shows API-problem callouts when downstream calls fail", async () => {

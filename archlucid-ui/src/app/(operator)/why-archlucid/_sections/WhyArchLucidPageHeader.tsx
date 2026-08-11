@@ -1,6 +1,14 @@
+import Link from "next/link";
+
 import { cn } from "@/lib/utils";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  WHY_ARCHLUCID_MARKETING_WHY_HREF,
+  WHY_ARCHLUCID_MARKETING_WHY_LINK_LABEL,
+  WHY_ARCHLUCID_PAGE_ORIENTATION,
+  WHY_ARCHLUCID_PAGE_TITLE,
+} from "@/lib/why-archlucid-page-copy";
 import {
   type WhyArchLucidDemoUniverse,
   whyArchLucidUniverseBannerTitle,
@@ -20,9 +28,22 @@ export function WhyArchLucidPageHeader(props: WhyArchLucidPageHeaderProps) {
   return (
     <header className="space-y-2">
       <div className="flex flex-wrap items-center gap-2">
-        <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>Why ArchLucid</h1>
+        <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)} data-testid="why-archlucid-page-title">
+          {WHY_ARCHLUCID_PAGE_TITLE}
+        </h1>
         <PageContextualHelpButton />
       </div>
+
+      <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="why-archlucid-page-orientation">
+        {WHY_ARCHLUCID_PAGE_ORIENTATION}
+      </p>
+      <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.body)} data-testid="why-archlucid-marketing-disambiguation">
+        For competitive narrative, see{" "}
+        <Link className={OPERATOR_LINK} href={WHY_ARCHLUCID_MARKETING_WHY_HREF}>
+          {WHY_ARCHLUCID_MARKETING_WHY_LINK_LABEL}
+        </Link>
+        .
+      </p>
 
       <div
         role="status"

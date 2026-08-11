@@ -1,5 +1,15 @@
 /** Buyer-safe copy for `/why-archlucid` sponsor proof surfaces (TB-1308). */
 
+/** TB-1307: operator telemetry page title — not the marketing `/why` H1 twin. */
+export const WHY_ARCHLUCID_PAGE_TITLE = "Pilot proof telemetry";
+
+export const WHY_ARCHLUCID_PAGE_ORIENTATION =
+  "Live sponsor counters and seeded demo instrumentation for pilots — not the public marketing comparison page.";
+
+export const WHY_ARCHLUCID_MARKETING_WHY_HREF = "/why" as const;
+
+export const WHY_ARCHLUCID_MARKETING_WHY_LINK_LABEL = "Public differentiation (/why)";
+
 export const WHY_ARCHLUCID_COUNTERS_INTRO =
   "Cumulative process totals since this API host started, plus audit trail rows in scope for the demo review.";
 
