@@ -79,7 +79,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | Configuration reference help (`/help/configuration-reference`) | **TB-1326**–**TB-1330** **Done** | Specialty Admin guide + CTAs + in-app link map shipped 2026-08-02; traffic **CON**; residual: Admin gate while catalog appendix remains eng-adjacent |
 | Core pilot first-review help (`/help/first-architecture-review`; **COR**) | **TB-1331**–**TB-1335** (open P1 **V1**) | Incremental after Done **TB-1040**–**TB-1043**: step-2 evidence CTA honesty; sample Claims label; stepper pending chrome; post-stepper density; related-guides IA vs first-hour/onboarding; owner re-review ~70/100 2026-07-26; traffic **COR**; `core-pilot` redirect **Done** |
 | Enterprise onboarding help (`/help/enterprise-onboarding`) | **TB-1338**, **TB-1340**–**TB-1342** (open; **TB-1339** Done) | Specialty checklist + SSO CTA; hub dedupe; title/tier honesty; core-pilot + settings CTAs; owner review ~51/100 2026-07-26; traffic **HEX**; pairs **TB-1253**/**TB-1326**/**TB-1335** |
-| Evaluator workbook help (`/help/evaluator-workbook`) | **TB-1345**, **TB-1347**–**TB-1349** (open; **TB-1346** Done) | Specialty evaluator guide + Start CTA; help-center tier honesty (not buried internal); session CTA + core-pilot canonicalize; Depth collapse / in-app-only links; owner review ~42/100 2026-07-26; traffic **HEE**; pairs **TB-1253**/**TB-1326**/**TB-1335**/**TB-1319** |
+| Evaluator workbook help (`/help/evaluator-workbook`; **HEE** retired) | **TB-1345**–**TB-1349** (**Done** 2026-08-11) | Folded into `/help/choose-your-next-step` (Batch S / path-chooser specialty); residual HPX quality stays on choose-your-next-step |
 | Evidence intake / Start a review help (`/help/evidence-intake`) | **TB-1350**–**TB-1354** (open P1 **V1**) | Specialty wizard companion + Start CTA; path `?path=` deep-links + admission jargon; Related → core-pilot; Cloud connections CTA; verify-intake actionability; owner review ~55/100 2026-07-26; traffic **EVI**; after Done **TB-761**; pairs **TB-1258**/**TB-1335**/**TB-1259** |
 | Core Pilot product happy path (home spine) | **TB-1355**–**TB-1357** (open P1 **V1**) + **TB-1358**–**TB-1359** (P1) | Checkpoint honesty; 4/5/7 spine unify; first-session CLI purge; stick/empty matrix + honesty CI; GTM **M-241**/**M-242**; complements help **TB-1331**–**TB-1335** / **TB-1030** / **TB-1007** / Done **TB-1036**–**TB-1039** |
 | Evidence trail / Evidence graph help (`/help/evidence-trail`) | **TB-1360**–**TB-1364** (open P1 **V1**) | Specialty companion + Open `/graph` CTA; finding deep-link/`mode=` honesty; Related density; sample universe honesty; Load/sample CTA chrome; owner review ~58/100 2026-07-26; traffic **EV**; after Done **TB-762**; pairs **TB-1350**/**TB-1028** |
@@ -553,21 +553,21 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1788 | Recommendation-learning ops — Load persisted vs Refresh toolbar honesty | Adoption friction P1 **V1** — with **TB-1786** |
 | TB-1789 | Recommendation-learning ops — enterprise chrome (header/StatusTag/EnterpriseTable) | Adoption friction P1 **V1** — with **TB-1786** |
 | TB-1790 | Recommendation-learning ops — Vitest preview/rebuild/rollback + Execute gate | Testability P2 **V1** — with **TB-1786** |
-| TB-1791 | `/login` Vitest redirect matrix (signin + idle-timeout) | Testability P2 **V1** — LOX ~12 |
-| TB-1794 | `/login` — traffic redirect-only + canonicalize inbound links | Adoption friction P1 **V1** — with **TB-1791** |
-| TB-1795 | Docs/help — login language → `/auth/signin` (keep shim) | Trustworthiness P1 **V1** — with **TB-1791** |
-| TB-1796 | `/onboard` Vitest multi-value searchParams (parity ONS) | Testability P2 **V1** — ON ~12 |
-| TB-1798 | `/onboard` — traffic redirect-only workbook honesty | Adoption friction P1 **V1** — with **TB-1796** |
+| TB-1791 | `/login` Vitest redirect matrix (signin + idle-timeout) | Testability P2 **V1** — LOX ~12 — **Done** 2026-08-11 |
+| TB-1794 | `/login` — traffic redirect-only + canonicalize inbound links | Adoption friction P1 **V1** — with **TB-1791** — **Done** 2026-08-11 |
+| TB-1795 | Docs/help — login language → `/auth/signin` (keep shim) | Trustworthiness P1 **V1** — with **TB-1791** — **Done** 2026-08-11 |
+| TB-1796 | `/onboard` Vitest multi-value searchParams (parity ONS) | Testability P2 **V1** — ON ~12 — **Done** 2026-08-11 |
+| TB-1798 | `/onboard` — traffic redirect-only workbook honesty | Adoption friction P1 **V1** — with **TB-1796** — **Done** 2026-08-11 |
 | TB-1801 | `/onboarding/start` traffic redirect-only workbook honesty | Adoption friction P1 **V1** — ONS ~12 — **Done** 2026-08-11 |
 | TB-1805 | `/onboarding/start` — Vitest anti-reintro (redirect-only, no UI) | Testability P2 **V1** — with **TB-1801** — **Done** 2026-08-11 |
-| TB-1806 | `/operate/architecture-graph` traffic redirect-only workbook honesty | Adoption friction P1 **V1** — OPR ~12 |
-| TB-1808 | Preserve query on `/operate/architecture-graph` → `/insights/evidence-graph` redirect | Adoption friction P1 **V1** — with **TB-1806** |
-| TB-1810 | `/operate/architecture-graph` — Vitest anti-reintro (redirect-only + query) | Testability P2 **V1** — with **TB-1806** |
+| TB-1806 | `/operate/architecture-graph` traffic redirect-only workbook honesty | Adoption friction P1 **V1** — OPR ~12 — **Done** 2026-08-11 |
+| TB-1808 | Preserve query on `/operate/architecture-graph` → `/insights/evidence-graph` redirect | Adoption friction P1 **V1** — with **TB-1806** — **Done** 2026-08-11 |
+| TB-1810 | `/operate/architecture-graph` — Vitest anti-reintro (redirect-only + query) | Testability P2 **V1** — with **TB-1806** — **Done** 2026-08-11 |
 | TB-1812 | `/patterns/[patternKey]` — contextual peer-compare (not hard-coded BFF) | Adoption friction P1 **V1** — with **TB-1811** |
 | TB-1814 | `/patterns` + detail — page-help topic map + contextual help mount | Adoption friction P1 **V1** — with **TB-1811** |
 | TB-1815 | `/patterns/[patternKey]` — CTA hierarchy + Vitest anti-regress | Adoption friction P2 **V1** — with **TB-1811** |
 | TB-1816 | `/quick-start` traffic redirect-only workbook honesty | Adoption friction P1 **V1** — QUI ~12 — **Done** 2026-08-11 |
-| TB-1817 | Retire orphan `(marketing)/quick-start` page module (keep 301) | Maintainability P2 **V1** — with **TB-1816** |
+| TB-1817 | Retire orphan `(marketing)/quick-start` page module (keep 301) | Maintainability P2 **V1** — with **TB-1816** — **Done** 2026-08-11 |
 | TB-1820 | `/quick-start` — Vitest anti-reintro (301 + no competing marketing UI) | Testability P2 **V1** — with **TB-1816** — **Done** 2026-08-11 |
 | TB-1821 | Restore or redirect `/reviews/[runId]/artifacts/[artifactId]` preview | Adoption friction P0 **V1** — RER ~10 |
 | TB-1822 | `ArtifactListTable` Preview hrefs must resolve to a live App Router page | Trustworthiness P0 **V1** — with **TB-1821** |
@@ -871,12 +871,12 @@ Canonical: [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) only (see wave-3 c
 | Legacy ITSM hub (`/integrations/itsm`) | **TB-1777**–**TB-1779** (open P1/P2 **V1**); **TB-1776**/**TB-1780** **Done** | OAuth carve-out **Done TB-1776**; CI; retire dead client; traffic redirect-only; canonical links shipped; ~12/100; traffic **INT**/**INA**; do not reopen **TB-1146**/**TB-1161**/**TB-1429** |
 | Atlassian OAuth callback (`/integrations/itsm/oauth/callback`) | **TB-1782**/**TB-1783**/**TB-1785** (open P1/P2 **V1**); **TB-1781**/**TB-1784** **Done** | Traffic honesty + error copy shipped; brand/loading; success CTA copy; Vitest; ~10/100; traffic **IIO**; do not reopen **TB-600** |
 | Recommendation-learning ops (`/internal-operations/recommendation-learning`) | **TB-1787**–**TB-1790** (open P1/P2 **V1**; **TB-1786** **Done** 2026-08-10) | Traffic/SEO Internal Ops **Done**; retire orphan UI; toolbar honesty; enterprise chrome; Vitest; ~52/100; traffic **INR** |
-| Legacy `/login` | **TB-1791**/**TB-1794**/**TB-1795** (open P1/P2 **V1**; **TB-1793** **Done** 2026-08-10) | Vitest redirect; query fidelity; noindex **Done**; traffic redirect-only; docs canonicalize; ~12/100; traffic **LOX**; real UX on `/auth/signin` |
-| Legacy `/onboard` | **TB-1796**/**TB-1798** (open P1/P2 **V1**; **TB-1797**/**TB-1799**/**TB-1800** **Done** 2026-08-10) | Query Vitest; traffic redirect-only; canonicalize + noindex + SEO drop **Done**; ~12/100; traffic **ON**; peer ONS; hub Done **TB-674**–**TB-680** |
+| Legacy `/login` | — (cluster **Done** **TB-1791**–**TB-1795** 2026-08-11) | Vitest redirect matrix + idle-timeout; query fidelity; noindex **Done**; traffic redirect-only; docs canonicalize; ~12/100; traffic **LOX**; real UX on `/auth/signin` |
+| Legacy `/onboard` | — (cluster **Done** **TB-1796**–**TB-1800** 2026-08-11) | Query Vitest; traffic redirect-only; canonicalize + noindex + SEO drop **Done**; anti-reintro Vitest; ~12/100; traffic **ON**; peer ONS; hub Done **TB-674**–**TB-680** |
 | Legacy `/onboarding/start` | — (cluster **Done** **TB-1801**–**TB-1805** 2026-08-11) | Traffic redirect-only; noindex + docs canonicalize + SEO drop **Done**; anti-reintro Vitest; ~12/100; traffic **ONS**; peer ON **TB-1796**–**TB-1800** |
-| Legacy `/operate/architecture-graph` | **TB-1806**/**TB-1808**/**TB-1810** (open P1/P2 **V1**; **TB-1807**/**TB-1809** **Done** 2026-08-10) | Traffic redirect-only; noindex **Done**; query preserve to `/insights/evidence-graph`; doc canonicalize **Done**; anti-reintro Vitest; ~12/100; traffic **OPR**; product on **INE** |
+| Legacy `/operate/architecture-graph` | — (cluster **Done** **TB-1806**–**TB-1810** 2026-08-11) | Traffic redirect-only; noindex **Done**; query preserve to `/insights/evidence-graph`; doc canonicalize **Done**; anti-reintro Vitest; ~12/100; traffic **OPR**; product on **INE** |
 | Pattern library detail (`/patterns/[patternKey]`) | **TB-1812**/**TB-1814**/**TB-1815** (open P1/P2 **V1**; **TB-1811**/**TB-1813** **Done** 2026-08-10) | Provenance + policy honesty **Done**; peer compare; help map+mount; CTA/Vitest; ~48/100; traffic **PAP**; do not reopen **TB-880** |
-| Retired marketing `/quick-start` | **TB-1817** (open P2 **V1**; **TB-1816**/**TB-1818**–**TB-1820** **Done** 2026-08-11) | Traffic redirect-only; retire orphan page; noindex + docs canonicalize **Done**; anti-reintro Vitest; ~12/100; traffic **QUI**; after Done **TB-736** |
+| Retired marketing `/quick-start` | — (cluster **Done** **TB-1816**–**TB-1820** 2026-08-11) | Traffic redirect-only; retire orphan page; noindex + docs canonicalize **Done**; anti-reintro Vitest; ~12/100; traffic **QUI**; after Done **TB-736** |
 | Ghost artifact preview (`/reviews/.../artifacts/...`) | **TB-1823**–**TB-1825** (open P1/P2 **V1**) | RER redirect + hrefs **Done** **TB-1821**/**TB-1822**/**TB-1948**; traffic honesty; CI existence guard; ~10/100; traffic **RER** |
 | Ghost signed-record artifact preview (`/signed-records/.../artifacts/...`) | **TB-1950** (open P2 **V1**) | Traffic + section/docs **Done** **TB-1946**/**TB-1949**; page + hrefs **Done** **TB-1947**/**TB-1948**; Vitest with **TB-1825**; ~10/100; traffic **MAM**; peer **RER** |
 | Snapshot leave-behind (`/snapshot/[runId]`) | — (cluster **Done** **TB-1951**–**TB-1955**) | Redirect traffic; destination honesty; next.config/query; docs; Vitest; ~30/100; traffic **SNU** |

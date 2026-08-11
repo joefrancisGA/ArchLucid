@@ -204,7 +204,13 @@ def test_migrate_workbook_path_maps_legacy_alert_routing() -> None:
 
 def test_migrate_workbook_path_maps_legacy_onboarding_and_quick_start() -> None:
     assert migrate_workbook_path("/onboarding/start") == "/architecture/first-review-guide"
+    assert migrate_workbook_path("/onboard") == "/architecture/first-review-guide"
     assert migrate_workbook_path("/quick-start") == "/get-started"
+
+
+def test_migrate_workbook_path_maps_legacy_login_and_architecture_graph() -> None:
+    assert migrate_workbook_path("/login") == "/auth/signin"
+    assert migrate_workbook_path("/operate/architecture-graph") == "/insights/evidence-graph"
 
 
 def test_migrate_workbook_path_maps_legacy_settings_alerts() -> None:

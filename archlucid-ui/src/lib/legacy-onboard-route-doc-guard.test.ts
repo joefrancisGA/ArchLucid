@@ -7,6 +7,7 @@ import { CANONICAL_ONBOARDING_PATH, LEGACY_ONBOARD_PATH } from "@/lib/legacy-onb
 import { LEGACY_ONBOARD_TRAFFIC_NOTE } from "@/lib/ui-route-traffic-legacy-onboard";
 
 const LEGACY_ONBOARD_PATH_PATTERN = /\/onboard(?!ing)/g;
+const CATALOG_PATH = join(process.cwd(), "..", "scripts", "ci", "archlucid_ui_route_catalog.py");
 const LEGACY_PATH_ALLOWED_ON_LINE =
   /redirect|retired|legacy|deprecated|bookmark|301|noindex|unreachable|removed|canonical|alias|arf|first-review-guide/i;
 
@@ -56,5 +57,11 @@ describe("legacy-onboard-route-doc-guard (TB-1799)", () => {
     expect(LEGACY_ONBOARD_TRAFFIC_NOTE.toLowerCase()).toContain("legacy");
     expect(LEGACY_ONBOARD_TRAFFIC_NOTE).toContain("first-review-guide");
     expect(LEGACY_ONBOARD_TRAFFIC_NOTE).not.toMatch(/live marketing/i);
+  });
+
+  it("migrates /onboard to first-review-guide in Python WORKBOOK_PATH_MIGRATIONS (TB-1798)", () => {
+    const catalogSource = readFileSync(CATALOG_PATH, "utf8");
+
+    expect(catalogSource).toContain('"/onboard": "/architecture/first-review-guide"');
   });
 });

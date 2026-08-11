@@ -22,6 +22,18 @@ import {
 } from "@/lib/governance-route-paths";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import {
+  CANONICAL_GRAPH_PATH,
+  LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH,
+} from "@/lib/legacy-architecture-graph-route";
+import {
+  CANONICAL_AUTH_SIGNIN_PATH,
+  LEGACY_LOGIN_PATH,
+} from "@/lib/legacy-login-route";
+import {
+  CANONICAL_ONBOARDING_PATH as CANONICAL_ONBOARD_PATH,
+  LEGACY_ONBOARD_PATH,
+} from "@/lib/legacy-onboard-route";
+import {
   CANONICAL_ONBOARDING_PATH,
   LEGACY_ONBOARDING_START_PATH,
 } from "@/lib/legacy-onboarding-start-route";
@@ -199,8 +211,20 @@ export function canonicalizeLegacyOperatorRoutePath(pathname: string): string {
     return CANONICAL_ONBOARDING_PATH;
   }
 
+  if (normalized === LEGACY_ONBOARD_PATH) {
+    return CANONICAL_ONBOARD_PATH;
+  }
+
   if (normalized === LEGACY_QUICK_START_PATH) {
     return CANONICAL_GET_STARTED_PATH;
+  }
+
+  if (normalized === LEGACY_LOGIN_PATH) {
+    return CANONICAL_AUTH_SIGNIN_PATH;
+  }
+
+  if (normalized === LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH) {
+    return CANONICAL_GRAPH_PATH;
   }
 
   if (normalized === LEGACY_SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH || normalized === LEGACY_SPONSOR_REPORT_ROOT_PATH) {

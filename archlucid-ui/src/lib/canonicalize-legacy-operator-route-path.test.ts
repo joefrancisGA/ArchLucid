@@ -64,4 +64,12 @@ describe("canonicalizeLegacyOperatorRoutePath", () => {
     expect(canonicalizeLegacyOperatorRoutePath("/onboarding/start")).toBe("/architecture/first-review-guide");
     expect(canonicalizeLegacyOperatorRoutePath("/quick-start")).toBe("/get-started");
   });
+
+  it("maps legacy login, onboard, and architecture-graph bookmarks (TB-1794 / TB-1798 / TB-1806)", () => {
+    expect(canonicalizeLegacyOperatorRoutePath("/login")).toBe("/auth/signin");
+    expect(canonicalizeLegacyOperatorRoutePath("/onboard")).toBe("/architecture/first-review-guide");
+    expect(canonicalizeLegacyOperatorRoutePath("/operate/architecture-graph")).toBe(
+      "/insights/evidence-graph",
+    );
+  });
 });

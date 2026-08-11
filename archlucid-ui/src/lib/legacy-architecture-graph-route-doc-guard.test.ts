@@ -10,6 +10,7 @@ import {
 import { LEGACY_ARCHITECTURE_GRAPH_TRAFFIC_NOTE } from "@/lib/ui-route-traffic-legacy-architecture-graph";
 
 const LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH_PATTERN = /\/operate\/architecture-graph/g;
+const CATALOG_PATH = join(process.cwd(), "..", "scripts", "ci", "archlucid_ui_route_catalog.py");
 const LEGACY_PATH_ALLOWED_ON_LINE =
   /redirect|retired|legacy|deprecated|bookmark|301|noindex|unreachable|removed|canonical|alias|ine|evidence-graph|insights\/evidence-graph/i;
 
@@ -57,5 +58,11 @@ describe("legacy-architecture-graph-route-doc-guard (TB-1809)", () => {
     expect(LEGACY_ARCHITECTURE_GRAPH_TRAFFIC_NOTE.toLowerCase()).toContain("legacy");
     expect(LEGACY_ARCHITECTURE_GRAPH_TRAFFIC_NOTE).toContain("insights/evidence-graph");
     expect(LEGACY_ARCHITECTURE_GRAPH_TRAFFIC_NOTE).not.toMatch(/live marketing/i);
+  });
+
+  it("migrates /operate/architecture-graph to evidence-graph in Python WORKBOOK_PATH_MIGRATIONS (TB-1806)", () => {
+    const catalogSource = readFileSync(CATALOG_PATH, "utf8");
+
+    expect(catalogSource).toContain('"/operate/architecture-graph": "/insights/evidence-graph"');
   });
 });
