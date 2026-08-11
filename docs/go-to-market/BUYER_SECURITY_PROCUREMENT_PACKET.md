@@ -4324,7 +4324,7 @@ Do not say “exactly-once commit,” “retries never spend LLM,” “two raci
 
 ## GoldenManifest content-schema evolution (M-224) {#manifest-content-schema-evolution-m-224}
 
-Former standalone body: `docs/go-to-market/MANIFEST_CONTENT_SCHEMA_EVOLUTION_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-223** / **M-224** / **TB-1277**). Complements [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) and [Append-only / sealed evidence (M-161)](#append-only-sealed-evidence-m-161). Not an assurance attestation.
+Former standalone body: `docs/go-to-market/MANIFEST_CONTENT_SCHEMA_EVOLUTION_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-223** / **M-224** / **TB-1277**). Engineering SoT: [`../library/MANIFEST_CONTENT_SCHEMA_EVOLUTION_CONTRACT.md`](../library/MANIFEST_CONTENT_SCHEMA_EVOLUTION_CONTRACT.md). Complements [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) and [Append-only / sealed evidence (M-161)](#append-only-sealed-evidence-m-161). Not an assurance attestation.
 
 **Path-stable alias:** [`MANIFEST_CONTENT_SCHEMA_EVOLUTION_PA_ONE_PAGER.md`](MANIFEST_CONTENT_SCHEMA_EVOLUTION_PA_ONE_PAGER.md).
 
@@ -4361,7 +4361,8 @@ Do not say a schema-version column (or dual-write window) alone keeps old commit
 
 ### Residuals (honest)
 
-- **TB-1277** / **TB-1278** own the evolution contract and language guards.
+- **TB-1277** **Done** — [`MANIFEST_CONTENT_SCHEMA_EVOLUTION_CONTRACT.md`](../library/MANIFEST_CONTENT_SCHEMA_EVOLUTION_CONTRACT.md).
+- **TB-1278** (open) — language guards for schema-column / dual-write / rewrite-sealed overclaims.
 - Complements **M-198** / **M-154** / **M-219** / **M-220** without replacing those contracts.
 - Does not reopen Done **TB-307** / **TB-575** / **TB-303**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.

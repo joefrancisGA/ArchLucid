@@ -7,7 +7,7 @@
 
 **Buyer / PA one-pager:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#manifest-dual-hasher-projection-evolution-m-199) (GTM **M-198** / **M-199**).  
 **Path-stable alias:** [`MANIFEST_DUAL_HASHER_PROJECTION_EVOLUTION_PA_ONE_PAGER.md`](../go-to-market/MANIFEST_DUAL_HASHER_PROJECTION_EVOLUTION_PA_ONE_PAGER.md).  
-**Production re-lock CI:** **TB-1157** (open). **Committed unit of truth:** **TB-1003** / GTM **M-155**. **Sealed-row evolution:** **TB-1277** / GTM **M-223**.
+**Production re-lock CI:** **TB-1157** (open). **Committed unit of truth:** **TB-1003** / GTM **M-155**. **Sealed-row evolution:** **TB-1277** **Done** — [`MANIFEST_CONTENT_SCHEMA_EVOLUTION_CONTRACT.md`](./MANIFEST_CONTENT_SCHEMA_EVOLUTION_CONTRACT.md) / GTM **M-223**.
 
 ---
 

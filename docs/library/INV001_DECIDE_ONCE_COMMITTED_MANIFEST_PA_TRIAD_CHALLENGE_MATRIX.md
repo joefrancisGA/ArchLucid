@@ -85,7 +85,7 @@ Do **not** re-author the slice contracts below — cite them and the listed back
 | **TB-1018** | Empty-scope / system-catalog honesty | **Open** | Pairs **TB-1232** / **M-168** |
 | **TB-1122** | Isolation claims too strong + RLS purge | **Open** | GTM **M-194** |
 | **TB-1196** | Agent→decisioning Real-variance isolation | **Open** | GTM **M-203** |
-| **TB-1277** | GoldenManifest schema evolution | **Open** | GTM **M-223** |
+| **TB-1277** | GoldenManifest schema evolution | **Done** (2026-08-11) | GTM **M-223** — [`MANIFEST_CONTENT_SCHEMA_EVOLUTION_CONTRACT.md`](./MANIFEST_CONTENT_SCHEMA_EVOLUTION_CONTRACT.md) |
 | **TB-1369** | AgentTask→decisioning ungated leak seams | **Open** | GTM **M-247** |
 | **TB-1417** | Anti triad-conflation / triad-closed honesty CI | **Open** | After **TB-1416**; GTM **M-253** |
 
