@@ -5,6 +5,7 @@ import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { PilotGuideHelpEvidenceOrientationStrip } from "@/components/help/PilotGuideHelpEvidenceOrientationStrip";
+import { PilotGuideGettingStartedFirstReviewVocabularyRail } from "@/components/PilotGuideGettingStartedFirstReviewVocabularyRail";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
@@ -102,6 +103,7 @@ export function HelpPilotGuideView(props: HelpPilotGuideViewProps): React.ReactE
         }
       />
 
+      <PilotGuideGettingStartedFirstReviewVocabularyRail currentSurfaceId="pilot-guide" />
       <PilotGuideHelpEvidenceOrientationStrip />
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>

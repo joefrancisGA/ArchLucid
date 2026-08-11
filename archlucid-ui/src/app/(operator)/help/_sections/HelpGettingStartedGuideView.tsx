@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicMarkdownPageHeader } from "@/app/(operator)/help/_sections/HelpTopicMarkdownPageHeader";
-import { GettingStartedFirstArchitectureReviewVocabularyRail } from "@/components/GettingStartedFirstArchitectureReviewVocabularyRail";
+import { PilotGuideGettingStartedFirstReviewVocabularyRail } from "@/components/PilotGuideGettingStartedFirstReviewVocabularyRail";
 import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MermaidDiagram } from "@/components/help/MermaidDiagram";
@@ -135,7 +135,7 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
     <article className={OPERATOR_LAYOUT.majorSectionGap} data-testid="help-getting-started-guide">
       <HelpTopicHashScroll />
       <HelpTopicMarkdownPageHeader entry={entry} showContextualHelp />
-      <GettingStartedFirstArchitectureReviewVocabularyRail currentSurfaceId="getting-started" />
+      <PilotGuideGettingStartedFirstReviewVocabularyRail currentSurfaceId="getting-started" />
       <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{GETTING_STARTED_HELP_AUDIENCE_LINE}</p>
       <aside
         className={cn(DESIGN_TOKENS.callout.neutral, "p-3")}
