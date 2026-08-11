@@ -17,8 +17,8 @@ import { HelpPathChooserGuideView } from "@/app/(operator)/help/_sections/HelpPa
 import {
   PATH_CHOOSER_HELP_BRANCHES,
   PATH_CHOOSER_HELP_PRIMARY_ACTIONS,
-  PATH_CHOOSER_HELP_SOURCES,
 } from "@/lib/path-chooser-help-guide-content";
+import { PATH_CHOOSER_HELP_RELATED_NEXT_STEPS } from "@/lib/path-chooser-help-evidence-copy";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
@@ -46,10 +46,14 @@ describe("HelpPathChooserGuideView", () => {
 
     expect(preparedMarkdown.toLowerCase()).not.toContain("v1_deferred");
     expect(preparedMarkdown.toLowerCase()).not.toContain("artifacts/");
+    expect(preparedMarkdown.toLowerCase()).not.toContain("choose your next step");
     expect(visible).toContain("choose your next step");
     expect(screen.getByTestId("help-path-chooser-guide")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-path-chooser-claim-discipline")).toBeInTheDocument();
+    expect(screen.getByTestId("help-path-chooser-related-next-steps")).toBeInTheDocument();
+    expect(screen.getByTestId("help-path-chooser-related-next-steps-links")).toBeInTheDocument();
+    expect(screen.queryByText(/^Fallback:/i)).toBeNull();
 
     const actionPanel = screen.getByTestId("help-path-chooser-action-panel");
 
@@ -61,10 +65,24 @@ describe("HelpPathChooserGuideView", () => {
     ).toHaveAttribute("href", PATH_CHOOSER_HELP_PRIMARY_ACTIONS.securityTrust.href);
 
     for (const branch of PATH_CHOOSER_HELP_BRANCHES) {
-      expect(screen.getByTestId(`help-path-chooser-branch-${branch.id}`)).toBeInTheDocument();
+      const branchCard = screen.getByTestId(`help-path-chooser-branch-${branch.id}`);
+      expect(branchCard).toBeInTheDocument();
+      expect(within(branchCard).getByRole("link", { name: branch.primary.label })).toHaveAttribute(
+        "href",
+        branch.primary.href,
+      );
+      expect(within(branchCard).getByRole("link", { name: branch.fallback.label })).toHaveAttribute(
+        "href",
+        branch.fallback.href,
+      );
     }
 
-    expect(screen.queryByTestId("help-path-chooser-sources")).toBeNull(); // TB-2092
-expect(screen.getAllByRole("link", { name: /security and trust/i }).length).toBeGreaterThan(0);
+    const relatedNextSteps = screen.getByTestId("help-path-chooser-related-next-steps-links");
+
+    for (const link of PATH_CHOOSER_HELP_RELATED_NEXT_STEPS) {
+      expect(within(relatedNextSteps).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+    }
+
+    expect(screen.getAllByRole("link", { name: /security and trust/i }).length).toBeGreaterThan(0);
   });
 });

@@ -3,10 +3,12 @@ import { describe, expect, it } from "vitest";
 import {
   PATH_CHOOSER_HELP_BRANCHES,
   PATH_CHOOSER_HELP_CANONICAL_PATH,
-  PATH_CHOOSER_HELP_CLAIM_DISCIPLINE,
   PATH_CHOOSER_HELP_PRIMARY_ACTIONS,
-  PATH_CHOOSER_HELP_SOURCES,
 } from "@/lib/path-chooser-help-guide-content";
+import {
+  PATH_CHOOSER_HELP_CLAIM_DISCIPLINE,
+  PATH_CHOOSER_HELP_RELATED_NEXT_STEPS,
+} from "@/lib/path-chooser-help-evidence-copy";
 
 describe("path-chooser-help-guide-content", () => {
   it("keeps primary CTAs on review start, security-trust, and first-pilot path", () => {
@@ -27,9 +29,11 @@ describe("path-chooser-help-guide-content", () => {
     }
   });
 
-  it("lists Sources without a self-link to path-chooser", () => {
-    expect(PATH_CHOOSER_HELP_SOURCES.some((link) => link.href === PATH_CHOOSER_HELP_CANONICAL_PATH)).toBe(false);
-    expect(PATH_CHOOSER_HELP_SOURCES.some((link) => link.href === "/trust")).toBe(true);
+  it("lists related next steps without a self-link to path-chooser", () => {
+    expect(
+      PATH_CHOOSER_HELP_RELATED_NEXT_STEPS.some((link) => link.href === PATH_CHOOSER_HELP_CANONICAL_PATH),
+    ).toBe(false);
+    expect(PATH_CHOOSER_HELP_RELATED_NEXT_STEPS.some((link) => link.href === "/trust")).toBe(true);
   });
 
   it("states claim discipline without implying CPA or third-party pen test", () => {

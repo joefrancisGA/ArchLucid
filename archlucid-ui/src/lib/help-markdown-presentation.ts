@@ -2322,7 +2322,7 @@ function isPilotFeedbackContributorLeakageLine(line: string): boolean {
     return true;
   }
 
-  if (/governance-api-contracts/i.test(line)) {
+  if (/\/help\/governance-api-contracts|\/help\/api-contracts/i.test(line)) {
     return true;
   }
 
@@ -3268,6 +3268,30 @@ export function stripSoc2SelfAssessmentContributorLeakage(markdown: string): str
   );
 }
 
+/** H2 sections rendered in HelpPathChooserGuideView chrome instead of markdown body. */
+const PATH_CHOOSER_STRUCTURED_UI_SECTION_TITLES = ["choose your next step", "related"] as const;
+
+export function stripPathChooserStructuredUiSections(markdown: string): string {
+  const lines = markdown.split("\n");
+  const result: string[] = [];
+  let omitSection = false;
+
+  for (const line of lines) {
+    if (line.startsWith("## ") && !line.startsWith("###")) {
+      const title = line.slice(3).trim().toLowerCase();
+      omitSection = PATH_CHOOSER_STRUCTURED_UI_SECTION_TITLES.some(
+        (prefix) => title === prefix || title.startsWith(prefix),
+      );
+    }
+
+    if (!omitSection) {
+      result.push(line);
+    }
+  }
+
+  return result.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd();
+}
+
 export function stripPathChooserContributorLeakage(markdown: string): string {
   return markdown
     .replace(/> \*\*Start operators here:\*\*[^\n]*\n?/gi, "")
@@ -3591,7 +3615,9 @@ export function prepareHelpMarkdownForPresentation(
     options?.helpTopicSlug === "path-chooser" &&
     normalizedSourcePath.includes("buyer_orientation_one_screen.md")
   ) {
-    afterAudienceStrip = stripPathChooserContributorLeakage(sanitized);
+    afterAudienceStrip = stripPathChooserStructuredUiSections(
+      stripPathChooserContributorLeakage(sanitized),
+    );
   } else if (
     options?.helpTopicSlug === "pilot-feedback" &&
     normalizedSourcePath.includes("product_learning.md")

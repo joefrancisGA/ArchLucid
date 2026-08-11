@@ -952,8 +952,9 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toContain("procurement_pack_index.md");
     expect(prepared).not.toContain("v1_deferred");
     expect(prepared).not.toContain("artifacts/");
-    expect(prepared).toContain("choose your next step");
+    expect(prepared).not.toContain("choose your next step");
     expect(prepared).toContain("/help/security-trust");
+    expect(prepared).toContain("two layers");
   });
 
   it("strips pilot-feedback API/SQL/StorageProvider leakage (TB-1717)", () => {
