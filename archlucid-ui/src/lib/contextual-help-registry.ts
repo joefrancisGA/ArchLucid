@@ -4,7 +4,7 @@
  */
 
 import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
-import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
+import { REVIEWS_LIST_PATH, REVIEWS_NEW_PATH } from "@/lib/architecture-routes";
 import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
 import {
   DIGESTS_HUB_PATH,
@@ -174,6 +174,10 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
         "Patterns appear when anonymized aggregates meet privacy thresholds, or when sample catalog data is shown.",
       whereToConfigurePrerequisite:
         "Live aggregates need enough finalized reviews across anonymized tenants to meet the privacy threshold.",
+      whatToDoNextAction: {
+        label: "Start a review",
+        href: REVIEWS_NEW_PATH,
+      },
     },
   },
   {

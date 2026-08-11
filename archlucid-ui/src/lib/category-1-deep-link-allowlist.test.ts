@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
-import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
+import { REVIEWS_LIST_PATH, REVIEWS_NEW_PATH } from "@/lib/architecture-routes";
 import { contextualHelpForPathname } from "@/lib/contextual-help-registry";
 import {
   DIGESTS_SCHEDULE_TAB_PATH,
@@ -116,6 +116,10 @@ const ALLOWLIST: readonly {
     pathname: "/insights/impact-preview",
     nextHref: REVIEWS_LIST_PATH,
     configureHref: REVIEWS_LIST_PATH,
+  },
+  {
+    pathname: "/insights/patterns",
+    nextHref: REVIEWS_NEW_PATH,
   },
   {
     pathname: "/internal/product-learning",
