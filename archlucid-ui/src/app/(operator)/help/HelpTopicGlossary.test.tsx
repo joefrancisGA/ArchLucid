@@ -27,6 +27,7 @@ import {
 } from "@/lib/customer-glossary-copy";
 import { CUSTOMER_GLOSSARY_CONTRACT_VERSION } from "@/lib/customer-glossary-manifest";
 import { GLOSSARY_HELP_CLAIM_DISCIPLINE, GLOSSARY_HELP_FOLLOW_UP_LINKS } from "@/lib/glossary-help-evidence-copy";
+import { GLOSSARY_HELP_PRIMARY_ACTIONS } from "@/lib/glossary-help-guide-content";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 
@@ -85,9 +86,24 @@ describe("HelpGlossaryPageView", () => {
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("V1 GA");
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("glossary-help-claim-discipline")).toHaveTextContent(GLOSSARY_HELP_CLAIM_DISCIPLINE);
+    expect(screen.getByTestId("help-glossary-action-panel")).toBeInTheDocument();
+    const actionPanel = screen.getByTestId("help-glossary-action-panel");
+    expect(within(actionPanel).getByRole("link", { name: GLOSSARY_HELP_PRIMARY_ACTIONS.openReviews.label })).toHaveAttribute(
+      "href",
+      GLOSSARY_HELP_PRIMARY_ACTIONS.openReviews.href,
+    );
+    expect(
+      within(actionPanel).getByRole("link", { name: GLOSSARY_HELP_PRIMARY_ACTIONS.openFindingsGuide.label }),
+    ).toHaveAttribute("href", GLOSSARY_HELP_PRIMARY_ACTIONS.openFindingsGuide.href);
+    expect(
+      within(actionPanel).getByRole("link", { name: GLOSSARY_HELP_PRIMARY_ACTIONS.openFirstReviewGuide.label }),
+    ).toHaveAttribute("href", GLOSSARY_HELP_PRIMARY_ACTIONS.openFirstReviewGuide.href);
 
     for (const link of GLOSSARY_HELP_FOLLOW_UP_LINKS) {
-      expect(screen.getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+      expect(within(screen.getByTestId("glossary-help-claim-discipline")).getByRole("link", { name: link.label })).toHaveAttribute(
+        "href",
+        link.href,
+      );
     }
 
     const helpTopic = pageHelpTopicForPathname("/help/glossary");
@@ -105,6 +121,7 @@ describe("HelpGlossaryPageView", () => {
 
     expect(screen.getAllByRole("heading", { level: 1, name: CUSTOMER_GLOSSARY_PAGE_TITLE })).toHaveLength(1);
     expect(screen.getByText(CUSTOMER_GLOSSARY_PAGE_INTRO)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Search and browse" })).toBeInTheDocument();
     expect(screen.getByLabelText(CUSTOMER_GLOSSARY_SEARCH_LABEL)).toBeInTheDocument();
     expect(screen.getByText(CUSTOMER_GLOSSARY_FEATURED_TERMS_LABEL)).toBeInTheDocument();
 

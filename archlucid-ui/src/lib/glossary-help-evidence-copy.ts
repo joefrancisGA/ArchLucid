@@ -13,8 +13,8 @@ export const GLOSSARY_HELP_CLAIM_DISCIPLINE_TAIL =
 export const GLOSSARY_HELP_FOLLOW_UP_LINKS: readonly EvidenceSourceLink[] = [
   { label: "Getting started", href: inAppHelpHref("getting-started") },
   { label: "Assurance status", href: "/security-trust" },
-  { label: "Audit", href: "/governance/audit" },
+  { label: "Audit trail", href: "/governance/audit" },
 ] as const;
 
 /** Plain-text guard for tests that do not render links. */
-export const GLOSSARY_HELP_CLAIM_DISCIPLINE = `${GLOSSARY_HELP_CLAIM_DISCIPLINE_LEAD} Open Getting started, Assurance status, or Audit ${GLOSSARY_HELP_CLAIM_DISCIPLINE_TAIL}`;
+export const GLOSSARY_HELP_CLAIM_DISCIPLINE = `${GLOSSARY_HELP_CLAIM_DISCIPLINE_LEAD} Open Getting started, Assurance status, or Audit trail ${GLOSSARY_HELP_CLAIM_DISCIPLINE_TAIL}`;

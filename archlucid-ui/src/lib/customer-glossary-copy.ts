@@ -3,12 +3,9 @@ export const CUSTOMER_GLOSSARY_PAGE_TITLE = "Glossary";
 export const CUSTOMER_GLOSSARY_PAGE_INTRO =
   "Definitions for the terms used throughout ArchLucid reviews, evidence, governance, and administration.";
 
-export const CUSTOMER_GLOSSARY_PAGE_SECONDARY =
-  "Search by term or browse by category.";
-
 export const CUSTOMER_GLOSSARY_SEARCH_LABEL = "Search glossary terms";
 
-export const CUSTOMER_GLOSSARY_SEARCH_PLACEHOLDER = "Search glossary terms";
+export const CUSTOMER_GLOSSARY_SEARCH_PLACEHOLDER = "e.g. finding, evidence trail, signed review record";
 
 export const CUSTOMER_GLOSSARY_EMPTY_STATE = "No glossary terms match your search.";
 

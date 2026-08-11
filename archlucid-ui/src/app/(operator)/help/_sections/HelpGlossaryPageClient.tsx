@@ -165,7 +165,7 @@ export function HelpGlossaryPageClient(): React.ReactElement {
     <div className={HELP_PAGE_LAYOUT.contentGrid}>
       <div className="min-w-0 space-y-8" data-testid="help-glossary-primary">
         <section id="glossary-search" className={cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, "scroll-mt-24 space-y-4")}>
-          <h2 className={cn("sr-only", OPERATOR_TYPOGRAPHY.sectionTitle)}>{CUSTOMER_GLOSSARY_SEARCH_LABEL}</h2>
+          <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>{CUSTOMER_GLOSSARY_SEARCH_BROWSE_HEADING}</h2>
           <div className="space-y-2" data-testid="glossary-featured-terms">
             <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.label)}>
               {CUSTOMER_GLOSSARY_FEATURED_TERMS_LABEL}
