@@ -6,6 +6,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, sta
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { ArchitectureIntelligenceEvidenceGraphVocabularyRail } from "@/components/ArchitectureIntelligenceEvidenceGraphVocabularyRail";
 import { AuditEvidenceTrailVocabularyRail } from "@/components/AuditEvidenceTrailVocabularyRail";
+import { PackageEvidenceEvidenceGraphVocabularyRail } from "@/components/PackageEvidenceEvidenceGraphVocabularyRail";
 import { RunProvenanceEvidenceGraphVocabularyRail } from "@/components/RunProvenanceEvidenceGraphVocabularyRail";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import type { EmptyStateProps } from "@/components/EmptyState";
@@ -710,6 +711,7 @@ export function GraphPageContent() {
       <ArchitectureIntelligenceEvidenceGraphVocabularyRail currentSurfaceId="evidence-graph" />
       <AuditEvidenceTrailVocabularyRail currentSurfaceId="evidence-graph" />
       <RunProvenanceEvidenceGraphVocabularyRail currentSurfaceId="evidence-graph" />
+      <PackageEvidenceEvidenceGraphVocabularyRail currentSurfaceId="evidence-graph" />
       <EvidenceGraphFirstOpenCoach />
       <GraphEvidenceTrailGuidanceDisclosure className={buyerPolishedShell ? "hidden" : undefined} />
       {buyerGraphBody}

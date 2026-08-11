@@ -10,6 +10,7 @@ import { ArchitectureCreatedWorkspaceHeader } from "@/components/architecture/Ar
 import { ArchitectureDiagramPanel } from "@/components/architecture/ArchitectureDiagramPanel";
 import { ArchitectureFindingsDualPane } from "@/components/architecture/ArchitectureFindingsDualPane";
 import { ClarificationsFindingsVocabularyRail } from "@/components/ClarificationsFindingsVocabularyRail";
+import { PackageEvidenceEvidenceGraphVocabularyRail } from "@/components/PackageEvidenceEvidenceGraphVocabularyRail";
 import {
   ARCHITECTURE_FINDINGS_DUAL_PANE_TOGGLE_OFF_LABEL,
   ARCHITECTURE_FINDINGS_DUAL_PANE_TOGGLE_ON_LABEL,
@@ -329,7 +330,12 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
 
         <TabsContent value="evidence" data-testid="architecture-workspace-panel-evidence">
           <div className="space-y-4">
-{props.panels.evidence}
+            <PackageEvidenceEvidenceGraphVocabularyRail
+              runId={props.baseline.runId}
+              currentSurfaceId="package-evidence"
+              hrefKind="archTab"
+            />
+            {props.panels.evidence}
           </div>
         </TabsContent>
 

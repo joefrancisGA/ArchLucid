@@ -13,6 +13,7 @@ import { useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PackageEvidenceEvidenceGraphVocabularyRail } from "@/components/PackageEvidenceEvidenceGraphVocabularyRail";
 import { NewSinceLastVisitMarker } from "@/components/usability/NewSinceLastVisitMarker";
 import { useReviewDetailLastVisited } from "@/hooks/use-review-detail-last-visited";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -327,6 +328,11 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
             className="min-w-0 overflow-visible"
             data-testid="review-detail-workspace-panel-evidence"
           >
+            <PackageEvidenceEvidenceGraphVocabularyRail
+              runId={props.runId}
+              currentSurfaceId="package-evidence"
+              hrefKind="reviewTab"
+            />
             {props.panels.evidence}
           </TabsContent>
           <TabsContent
