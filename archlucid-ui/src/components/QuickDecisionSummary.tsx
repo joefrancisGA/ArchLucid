@@ -42,6 +42,8 @@ import { MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { QuickDecisionFindingMuteDialog } from "@/components/findings/QuickDecisionFindingMuteDialog";
+import { QuickDecisionWorkspaceFindingSupportingDetails } from "@/components/findings/QuickDecisionWorkspaceFindingSupportingDetails";
+import type { QuickDecisionWorkItemContext } from "@/components/findings/QuickDecisionWorkspaceFindingSupportingDetails";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useOptionallyControlledBoolean } from "@/hooks/use-optionally-controlled-boolean";
 import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
@@ -120,11 +122,7 @@ export type QuickDecisionSummaryProps = {
   readonly defaultExpandLowSeverity?: boolean;
   /** Architecture-creation review detail: provider-neutral work item affordance instead of Jira-biased copy controls. */
   readonly providerNeutralWorkItems?: boolean;
-  readonly architectureWorkItemContext?: {
-    readonly architectureName: string;
-    readonly architectureOverview: string;
-    readonly ownerLabel: string | null;
-  } | null;
+  readonly architectureWorkItemContext?: QuickDecisionWorkItemContext | null;
   /** When false, hide work-item / ITSM integration chrome until a committed manifest exists (TB-1854). */
   readonly packageCommitted?: boolean;
   /** When set, confidence filtering is owned by the parent (review detail findings workspace). */
@@ -167,9 +165,6 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
         }
       : undefined,
   );
-  const [openWorkspaceIntegrationsByFindingId, setOpenWorkspaceIntegrationsByFindingId] = useState<
-    Readonly<Record<string, boolean>>
-  >({});
   const afterMuteFilter = showMuted ? sorted : sorted.filter((f) => !f.isMuted);
   const confidencePartition = confidenceManagedExternally
     ? {
@@ -549,102 +544,16 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
     return rendered;
   }
 
-  function renderWorkspaceIntegrations(f: QuickDecisionFinding): ReactElement | null {
-    if (props.packageCommitted === false) {
-      return null;
-    }
-
-    return (
-      <details
-        className="rounded-md border border-neutral-200 p-2 dark:border-neutral-800"
-        data-workspace-disclosure
-        onToggle={(event) => {
-          const open = event.currentTarget.open;
-          setOpenWorkspaceIntegrationsByFindingId((current) => ({
-            ...current,
-            [f.findingId]: open,
-          }));
-        }}
-      >
-        <summary className={cn("cursor-pointer font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
-          Create work item / Integrations
-        </summary>
-        <div className="mt-2" data-testid={`finding-itsm-sync-${f.findingId}`}>
-          {props.providerNeutralWorkItems === true && props.architectureWorkItemContext ? (
-            <FindingCreateWorkItemActions
-              runId={props.runId}
-              finding={f}
-              architectureName={props.architectureWorkItemContext.architectureName}
-              architectureOverview={props.architectureWorkItemContext.architectureOverview}
-              ownerLabel={props.architectureWorkItemContext.ownerLabel}
-              allFindings={props.findings}
-            />
-          ) : (
-            <div className="flex flex-wrap items-center gap-2">
-              <CopyGovernanceQueueWorkItemButton
-                runId={props.runId}
-                findingId={f.findingId}
-                findingTitle={f.title}
-                severityLabel={quickDecisionWorkItemSeverityLabel(f.severityValue)}
-                recommendedAction={f.recommendation}
-                statusLabel="Open"
-                compact
-              />
-              <ItsmOutboundQuickActions
-                findingId={f.findingId}
-                compact
-                loadWhen={openWorkspaceIntegrationsByFindingId[f.findingId] === true}
-              />
-            </div>
-          )}
-        </div>
-      </details>
-    );
-  }
-
   function renderWorkspaceSupportingDetails(f: QuickDecisionFinding): ReactElement {
-    const citationModel = buildFindingPolicyEvidenceCitationsFromQuickDecision(props.runId, f);
-
     return (
-      <details
-        className="mt-4 rounded-md border border-neutral-200 bg-neutral-50/50 p-3 dark:border-neutral-800 dark:bg-neutral-900/30"
-        data-workspace-disclosure
-        data-testid={`finding-workspace-supporting-${f.findingId}`}
-      >
-        <summary className={cn("cursor-pointer font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-          Supporting detail
-        </summary>
-        <div className="mt-3 space-y-3">
-          {citationModel.pack !== null || citationModel.policy !== null ? (
-            <FindingPolicyCitationProminentStrip
-              pack={citationModel.pack}
-              policy={citationModel.policy}
-              compact
-            />
-          ) : null}
-          <FindingPolicyEvidenceCitationLinks model={citationModel} />
-          {f.evidenceRefSnippets !== undefined && f.evidenceRefSnippets.length > 0 ? (
-            <FindingEvidenceRefSnippets snippets={f.evidenceRefSnippets} />
-          ) : null}
-          {(f.insightDensityScore !== null && f.insightDensityScore !== undefined) ||
-          (f.whyThisIsNotGeneric !== null &&
-            f.whyThisIsNotGeneric !== undefined &&
-            f.whyThisIsNotGeneric.length > 0) ? (
-            <FindingInsightDensityDisclosure
-              insightDensityScore={f.insightDensityScore ?? null}
-              whyThisIsNotGeneric={f.whyThisIsNotGeneric ?? null}
-            />
-          ) : null}
-          {renderWorkspaceIntegrations(f)}
-          {f.traceConfidenceLabel !== null &&
-          f.traceConfidenceLabel !== undefined &&
-          f.traceConfidenceLabel.trim().length > 0 ? (
-            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              Evaluation trace: {f.traceConfidenceLabel}
-            </p>
-          ) : null}
-        </div>
-      </details>
+      <QuickDecisionWorkspaceFindingSupportingDetails
+        runId={props.runId}
+        finding={f}
+        allFindings={props.findings}
+        packageCommitted={props.packageCommitted}
+        providerNeutralWorkItems={props.providerNeutralWorkItems}
+        architectureWorkItemContext={props.architectureWorkItemContext}
+      />
     );
   }
 
