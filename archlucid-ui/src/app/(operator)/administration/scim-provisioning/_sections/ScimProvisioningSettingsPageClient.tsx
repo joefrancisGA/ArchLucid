@@ -9,6 +9,7 @@ import { OperatorMutationInlineError } from "@/components/operator/OperatorMutat
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { ScimVsUsersReconciler } from "@/components/ScimVsUsersReconciler";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   AlertDialog,
@@ -358,7 +359,8 @@ export function ScimProvisioningSettingsPageClient() {
         titleTestId="scim-provisioning-page-title"
         actions={<PageContextualHelpButton />}
       />
-<p
+      <ScimVsUsersReconciler currentSurfaceId="scim" />
+      <p
         className={cn(
           "m-0 rounded-lg border border-neutral-200 bg-neutral-50/70 px-4 py-3 text-al-text-primary dark:border-neutral-800 dark:bg-neutral-900/40",
           OPERATOR_TYPOGRAPHY.body,
