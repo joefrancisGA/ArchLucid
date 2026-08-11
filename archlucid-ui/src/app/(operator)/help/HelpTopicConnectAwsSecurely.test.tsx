@@ -6,18 +6,27 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 }));
 
 import { HelpConnectAwsSecurelyGuideView } from "@/app/(operator)/help/_sections/HelpConnectAwsSecurelyGuideView";
-import { formatAwsPermissionRequirementLabel } from "@/lib/aws-cloud-connection-permissions-manifest";
+import {
+  AWS_CLOUD_CONNECTION_TROUBLESHOOTING_ITEMS,
+  formatAwsPermissionRequirementLabel,
+} from "@/lib/aws-cloud-connection-permissions-manifest";
+import { AWS_PERMISSIONS_TROUBLESHOOT_HEADING } from "@/lib/aws-cloud-connection-permissions-copy";
 import {
   CONNECT_AWS_SECURELY_BANNED_COPY,
   CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE,
   CONNECT_AWS_SECURELY_SOURCES,
 } from "@/lib/connect-aws-securely-help-evidence-copy";
 import {
-  CONNECT_AWS_SECURELY_CONNECTION_VALUE,
+  CONNECT_AWS_SECURELY_CONNECTION_STATUS_HREF,
+  CONNECT_AWS_SECURELY_CONNECTION_STATUS_LINK_LABEL,
   CONNECT_AWS_SECURELY_FORBIDDEN_POLICIES_BODY,
-  CONNECT_AWS_SECURELY_PAGE_INTRO,
+  CONNECT_AWS_SECURELY_PAGE_LEAD,
   CONNECT_AWS_SECURELY_PAGE_TITLE,
   CONNECT_AWS_SECURELY_SECURITY_HEADING,
+  CONNECT_AWS_SECURELY_VERIFICATION_CHECKS,
+  CONNECT_AWS_SECURELY_VERIFICATION_DOES_NOT_VERIFY,
+  CONNECT_AWS_SECURELY_VERIFICATION_HEADING,
+  buildConnectAwsSecurelyVerifyHref,
 } from "@/lib/connect-aws-securely-help-content";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -40,13 +49,16 @@ describe("HelpConnectAwsSecurelyGuideView", () => {
 
     expect(screen.getAllByRole("heading", { level: 1, name: CONNECT_AWS_SECURELY_PAGE_TITLE })).toHaveLength(1);
     expect(screen.queryByRole("heading", { level: 2, name: CONNECT_AWS_SECURELY_PAGE_TITLE })).toBeNull();
-    expect(screen.getByText(CONNECT_AWS_SECURELY_PAGE_INTRO)).toBeInTheDocument();
-    expect(screen.getByText(CONNECT_AWS_SECURELY_CONNECTION_VALUE)).toBeInTheDocument();
+    expect(screen.getByText(CONNECT_AWS_SECURELY_PAGE_LEAD)).toBeInTheDocument();
 
     const toc = screen.getByTestId("help-topic-toc");
     expect(within(toc).getByRole("link", { name: CONNECT_AWS_SECURELY_SECURITY_HEADING })).toHaveAttribute(
       "href",
       "#security-model",
+    );
+    expect(within(toc).getByRole("link", { name: AWS_PERMISSIONS_TROUBLESHOOT_HEADING })).toHaveAttribute(
+      "href",
+      "#troubleshoot",
     );
     expect(within(toc).queryByRole("link", { name: CONNECT_AWS_SECURELY_PAGE_TITLE })).toBeNull();
   });
@@ -77,9 +89,51 @@ describe("HelpConnectAwsSecurelyGuideView", () => {
     );
     expect(screen.getByTestId("connect-aws-securely-help-sources")).toBeInTheDocument();
 
+    const sources = within(screen.getByTestId("connect-aws-securely-help-sources"));
+
     for (const source of CONNECT_AWS_SECURELY_SOURCES) {
-      expect(screen.getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
+      expect(sources.getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
     }
+  });
+
+  it("shows verification callout, troubleshoot section, and validate deep links", () => {
+    if (entry === undefined) {
+      throw new Error("Expected cloud-connections-aws documentation entry.");
+    }
+
+    render(<HelpConnectAwsSecurelyGuideView entry={entry} />);
+
+    expect(screen.getByRole("heading", { level: 3, name: CONNECT_AWS_SECURELY_VERIFICATION_HEADING })).toBeInTheDocument();
+
+    for (const item of CONNECT_AWS_SECURELY_VERIFICATION_CHECKS) {
+      expect(screen.getByText(item)).toBeInTheDocument();
+    }
+
+    const doesNotVerify = screen.getByTestId("connect-aws-securely-does-not-verify");
+
+    for (const item of CONNECT_AWS_SECURELY_VERIFICATION_DOES_NOT_VERIFY) {
+      expect(within(doesNotVerify).getByText(item)).toBeInTheDocument();
+    }
+
+    const verifyHref = buildConnectAwsSecurelyVerifyHref("/integrations/cloud-connections");
+    expect(verifyHref).toBe("/integrations/cloud-connections/aws#validate-connection");
+    expect(screen.getAllByRole("link", { name: /run Re-poll now/i })[0]).toHaveAttribute("href", verifyHref);
+    expect(screen.getByRole("link", { name: CONNECT_AWS_SECURELY_CONNECTION_STATUS_LINK_LABEL })).toHaveAttribute(
+      "href",
+      CONNECT_AWS_SECURELY_CONNECTION_STATUS_HREF,
+    );
+
+    for (const link of screen.getAllByRole("link", { name: /run Re-poll now/i })) {
+      expect(link.getAttribute("href")).not.toContain("/help/");
+    }
+
+    expect(screen.getByTestId("connect-aws-securely-troubleshoot-section")).toBeInTheDocument();
+
+    for (const item of AWS_CLOUD_CONNECTION_TROUBLESHOOTING_ITEMS) {
+      expect(screen.getByText(item)).toBeInTheDocument();
+    }
+
+    expect(screen.getByRole("link", { name: /Fix a failed permission check/i })).toHaveAttribute("href", "#troubleshoot");
   });
 
   it("shows IAM permissions, federation identifiers, and trust-policy template", () => {

@@ -36,6 +36,15 @@ export const AWS_CLOUD_CONNECTION_FORBIDDEN_POLICIES: readonly string[] = [
   "IAMFullAccess",
 ];
 
+export const AWS_CLOUD_CONNECTION_TROUBLESHOOTING_ITEMS: readonly string[] = [
+  "IAM trust policy issuer, subject, or audience does not match the federation identifiers on this page — confirm values from Assurance status.",
+  "The read-only role ARN points to another AWS account or a misspelled role name.",
+  "Resource Explorer does not have an aggregator index in the account and primary region used for the connection.",
+  "AWSResourceExplorerReadOnlyAccess is not attached to the read-only IAM role ArchLucid assumes.",
+  "An organization SCP or permission boundary blocks sts:AssumeRoleWithWebIdentity or resource-explorer-2:Search.",
+  "IAM changes have not propagated yet — wait a few minutes and run Re-poll now again.",
+];
+
 export const AWS_CLOUD_CONNECTION_PERMISSION_ROWS: readonly AwsCloudConnectionPermissionRow[] = [
   {
     iamIdentifier: "resource-explorer-2:Search",

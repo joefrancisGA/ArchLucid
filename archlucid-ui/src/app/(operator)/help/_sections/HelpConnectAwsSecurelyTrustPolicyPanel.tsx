@@ -35,7 +35,7 @@ export function HelpConnectAwsSecurelyTrustPolicyPanel(): React.ReactElement {
   }, [trustPolicyTemplate]);
 
   return (
-    <div className="space-y-4" data-testid="connect-aws-securely-federation-panel">
+    <div className="space-y-4" id="connect-aws-securely-federation-panel" data-testid="connect-aws-securely-federation-panel">
       <div className="space-y-3">
         <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{CONNECT_AWS_SECURELY_FEDERATION_HEADING}</h3>
         <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
