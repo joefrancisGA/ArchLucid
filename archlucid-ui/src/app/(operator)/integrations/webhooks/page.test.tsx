@@ -14,6 +14,10 @@ const apiMocks = vi.hoisted(() => ({
 
 const useOperateCapabilityMock = vi.hoisted(() => vi.fn(() => true));
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/integrations/webhooks",
+}));
+
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => useOperateCapabilityMock(),
 }));
@@ -78,6 +82,21 @@ describe("WebhooksIntegrationPage", () => {
     expect(screen.getByRole("heading", { name: WEBHOOKS_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
     expect(resolveNavIconForHref("/integrations/webhooks")).toBe(WEBHOOKS_SURFACE_ICON);
+  });
+
+  it("shows PageHeading contextual help with the Webhooks caption", async () => {
+    render(<WebhooksIntegrationPage />);
+
+    expect(await screen.findByTestId("page-contextual-help-button")).toHaveTextContent("Webhooks help");
+  });
+
+  it("uses operator spacing density on the page shell", async () => {
+    render(<WebhooksIntegrationPage />);
+
+    const pageRoot = await screen.findByTestId("webhooks-page");
+    expect(pageRoot.className).not.toMatch(/\bspace-y-8\b/);
+    expect(pageRoot.className).not.toMatch(/\bpy-8\b/);
+    expect(pageRoot.className).toMatch(/\bpy-4\b/);
   });
 
   it("does not cross-link sibling Integrations products from page chrome", async () => {
@@ -270,10 +289,18 @@ describe("WebhooksIntegrationPage", () => {
     expect(apiMocks.create).not.toHaveBeenCalled();
   });
 
-  it("renders empty state guidance", async () => {
+  it("keeps a single create story when empty (no Active/zero/empty-card theater)", async () => {
     render(<WebhooksIntegrationPage />);
 
-    expect(await screen.findByTestId("webhooks-empty-state")).toHaveTextContent("No webhook subscriptions yet");
+    expect(await screen.findByTestId("webhooks-configuration-status")).toContainElement(
+      screen.getByLabelText("Status: Not configured"),
+    );
+    expect(screen.getByTestId("webhooks-not-configured-next-step")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /New subscription/i })).toBeInTheDocument();
+    expect(screen.queryByTestId("webhooks-empty-state")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("webhooks-subscriptions-section")).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: /Active subscriptions/i })).not.toBeInTheDocument();
+    expect(screen.queryByText(/0 subscriptions in this workspace/i)).not.toBeInTheDocument();
   });
 
   it("renders existing subscriptions with masked destination hostname and secret status", async () => {

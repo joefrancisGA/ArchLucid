@@ -400,7 +400,8 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/integrations/webhooks",
-    topic: { slug: "alerts", label: "Webhooks" },
+    // TB-1193 — caption for PageHeading help control; long-form guide shares alerts help.
+    topic: { slug: "alerts", label: "Webhooks help" },
   },
   {
     prefix: "/integrations/teams",

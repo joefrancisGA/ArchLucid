@@ -50,9 +50,12 @@ export const WEBHOOKS_TEST_SUCCESS = "Test event delivered.";
 export const WEBHOOKS_TEST_FAILURE = "We could not reach the destination.";
 
 export const WEBHOOKS_SAVE_THEN_TEST_HELPER =
-  "Save the subscription first, then send a test event from the active subscriptions list.";
+  "Save the subscription first, then send a test event from the subscriptions list.";
 
-export const WEBHOOKS_ACTIVE_HEADING = "Active subscriptions";
+/** Heading for the saved-subscription list (not used on the empty create-only path — TB-1195). */
+export const WEBHOOKS_SUBSCRIPTIONS_HEADING = "Subscriptions";
+
+export const WEBHOOKS_ACTIVE_HEADING = WEBHOOKS_SUBSCRIPTIONS_HEADING;
 
 export const WEBHOOKS_EMPTY_TITLE = "No webhook subscriptions yet";
 
@@ -60,7 +63,7 @@ export const WEBHOOKS_EMPTY_BODY =
   "Create a subscription to send selected ArchLucid events to a secure endpoint that you manage.";
 
 export const WEBHOOKS_NOT_CONFIGURED_NEXT_STEP =
-  "Name the subscription, enter an HTTPS URL and signing secret, save, then send a test from Active subscriptions.";
+  "Name the subscription, enter an HTTPS URL and signing secret, save, then send a test from Subscriptions.";
 
 export const WEBHOOKS_BANNED_UI_PATTERNS = [
   /OnCallWebhook/i,
