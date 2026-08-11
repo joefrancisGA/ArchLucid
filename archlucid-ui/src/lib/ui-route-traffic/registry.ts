@@ -33,7 +33,6 @@ export const UI_ROUTE_TRAFFIC_STANDALONE_MODULES: readonly string[] = [
   "ui-route-traffic-architecture-executive-dashboard",
   "ui-route-traffic-architecture-scorecard",
   "ui-route-traffic-architectures-list",
-  "ui-route-traffic-demo-entry",
   "ui-route-traffic-developer-settings",
   "ui-route-traffic-digests-help",
   "ui-route-traffic-digests-schedule",
