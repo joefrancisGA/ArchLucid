@@ -3,7 +3,7 @@
 CI guard: merged Cobertura (ReportGenerator output) must meet:
   - minimum merged line coverage (default 70%; GitHub Actions `dotnet-coverage-merge` uses positional **76** interim toward V1.1 **95**),
   - minimum merged branch coverage (default 50%; full-regression job currently uses **61** interim toward **63**),
-  - minimum line coverage per product ArchLucid.* package with coverable lines (default 60%; full-regression uses **88**, optional skips).
+  - minimum line coverage per product ArchLucid.* package with coverable lines (default 60%; full-regression uses **89**, optional skips).
 
 Coverlet runs per test assembly; enforcing <Threshold> in coverage.runsettings would not
 represent solution-wide coverage. The full-regression job merges Cobertura files first.
