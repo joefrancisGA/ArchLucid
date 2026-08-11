@@ -37,7 +37,7 @@ export function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
 
     const cells = line.split("|").map((cell) => cell.trim());
 
-    if (cells.length < 9 || cells[1] === "ID") {
+    if (cells.length < 10 || cells[1] === "ID") {
       continue;
     }
 
@@ -45,7 +45,8 @@ export function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
       id: cells[1] ?? "",
       path: (cells[2] ?? "").replace(/^`|`$/g, ""),
       section: cells[7] ?? "",
-      notes: cells[8] ?? "",
+      done: cells[8] ?? "",
+      notes: cells[9] ?? "",
     });
   }
 

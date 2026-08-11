@@ -57,10 +57,13 @@ def parse_rows(table_text: str) -> list[dict[str, str]]:
         if not line.startswith("| ") or line.startswith("| ID") or line.startswith("|----"):
             continue
         parts = [part.strip() for part in line.strip("|").split("|")]
+        done = ""
         if len(parts) == 7:
             row_id, path, pct, score, _weight, section, notes = parts
         elif len(parts) == 8:
             row_id, path, pct, score, _weight, _deficit, section, notes = parts
+        elif len(parts) == 9:
+            row_id, path, pct, score, _weight, _deficit, section, done, notes = parts
         else:
             continue
         path = path.strip(BACKTICK)
@@ -71,6 +74,7 @@ def parse_rows(table_text: str) -> list[dict[str, str]]:
                 "pct": pct,
                 "score": score,
                 "section": section,
+                "done": done,
                 "notes": notes,
             }
         )
@@ -250,13 +254,14 @@ def render_table(rows: list[dict[str, str]]) -> list[str]:
     lines = [
         "## Master table (UX score 0 first; then Deficit desc; ties A→Z by path)",
         "",
-        "| ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |",
-        "|----|------|------|--------|--------|---------|---------|-------|",
+        "| ID | Path | Hit% | Scores | Weight | Deficit | Section | Done | Notes |",
+        "|----|------|------|--------|--------|---------|---------|------|-------|",
     ]
     for row in rows:
         lines.append(
             f"| {row['id']} | `{row['path']}` | {row['pct']} | {row['score']} | "
-            f"{format_weight_value(row)} | {format_deficit_value(row)} | {row['section']} | {row['notes']} |"
+            f"{format_weight_value(row)} | {format_deficit_value(row)} | {row['section']} | "
+            f"{row.get('done', '')} | {row['notes']} |"
         )
     return lines
 
