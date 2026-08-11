@@ -4,6 +4,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { useCallback, useEffect, useState } from "react";
 
+import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { Button } from "@/components/ui/button";
 import { toApiLoadFailure, type ApiLoadFailureState } from "@/lib/api-load-failure";
 import {
@@ -135,6 +136,7 @@ export function OperatorSavedViewsBar(props: OperatorSavedViewsBarProps) {
   const [saveName, setSaveName] = useState("");
   const [saveShared, setSaveShared] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [pendingDeleteConfirm, setPendingDeleteConfirm] = useState(false);
 
   const myViews = views.filter((view) => view.isOwnedByCurrentUser !== false);
   const sharedViews = views.filter((view) => view.isShared === true && view.isOwnedByCurrentUser === false);
@@ -240,7 +242,10 @@ export function OperatorSavedViewsBar(props: OperatorSavedViewsBarProps) {
           variant="outline"
           size="sm"
           disabled={disabled || loading || deleting || selectedView === null || selectedView.isOwnedByCurrentUser === false}
-          onClick={() => void handleDelete()}
+          onClick={() => {
+            setPendingDeleteConfirm(true);
+          }}
+          data-testid={`operator-saved-views-delete-${surface}`}
         >
           {deleting ? "Deleting…" : "Delete"}
         </Button>
@@ -280,6 +285,29 @@ export function OperatorSavedViewsBar(props: OperatorSavedViewsBarProps) {
           {statusMessage}
         </p>
       ) : null}
+
+      <ConfirmationDialog
+        open={pendingDeleteConfirm}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingDeleteConfirm(false);
+          }
+        }}
+        title="Delete saved view?"
+        description={
+          selectedView !== null
+            ? `Delete “${selectedView.name}”? This cannot be undone.`
+            : "Delete the selected saved view? This cannot be undone."
+        }
+        confirmLabel="Delete view"
+        variant="destructive"
+        busy={deleting}
+        onConfirm={() => {
+          void handleDelete().finally(() => {
+            setPendingDeleteConfirm(false);
+          });
+        }}
+      />
     </div>
   );
 }
