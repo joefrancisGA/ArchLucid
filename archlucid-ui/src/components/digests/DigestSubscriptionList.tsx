@@ -52,7 +52,7 @@ export type DigestSubscriptionListProps = {
   readonly canMutate: boolean;
   readonly canRevealDestinations: boolean;
   readonly onRefresh: () => void;
-  readonly onToggle: (subscriptionId: string) => void;
+  readonly onToggle: (subscriptionId: string, isEnabled: boolean, subscriptionName: string) => void;
   readonly onViewHistory: (subscriptionId: string) => void;
   readonly onPrefillCreate: (subscription: DigestSubscription) => void;
 };
@@ -157,9 +157,12 @@ export function DigestSubscriptionList(props: DigestSubscriptionListProps): Reac
                           type="button"
                           size="sm"
                           variant="outline"
-                          onClick={() => props.onToggle(item.subscriptionId)}
+                          onClick={() =>
+                            props.onToggle(item.subscriptionId, item.isEnabled === true, item.name)
+                          }
                           disabled={!props.canMutate}
                           title={props.canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                          data-testid={`digest-subscription-toggle-${item.subscriptionId}`}
                         >
                           {props.canMutate
                             ? item.isEnabled

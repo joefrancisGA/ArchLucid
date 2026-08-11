@@ -31,6 +31,7 @@ import {
   createDigestSubscription,
   listDigestSubscriptions,
   listSubscriptionDeliveryAttempts,
+  toggleDigestSubscription,
 } from "@/lib/api";
 import { fetchTenantIntegrationsOperations } from "@/lib/api/tenant-customer-success";
 
@@ -40,9 +41,11 @@ describe("DigestSubscriptionsContent", () => {
     vi.mocked(listDigestSubscriptions).mockReset();
     vi.mocked(createDigestSubscription).mockReset();
     vi.mocked(listSubscriptionDeliveryAttempts).mockReset();
+    vi.mocked(toggleDigestSubscription).mockReset();
     vi.mocked(fetchTenantIntegrationsOperations).mockReset();
     vi.mocked(listDigestSubscriptions).mockResolvedValue([]);
     vi.mocked(listSubscriptionDeliveryAttempts).mockResolvedValue([]);
+    vi.mocked(toggleDigestSubscription).mockResolvedValue(undefined);
     vi.mocked(fetchTenantIntegrationsOperations).mockResolvedValue({
       connectors: [],
       integrationEventBus: {
@@ -188,6 +191,36 @@ describe("DigestSubscriptionsContent", () => {
     );
     expect(screen.getByRole("button", { name: "Delete" })).toBeDisabled();
     expect(screen.getByTestId("digest-subscriptions-refresh")).toBeInTheDocument();
+  });
+
+  it("confirms before pausing an enabled digest destination", async () => {
+    vi.mocked(listDigestSubscriptions).mockResolvedValue([
+      {
+        subscriptionId: "s1",
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Ops mailbox",
+        channelType: "Email",
+        destination: "ops@example.com",
+        isEnabled: true,
+        createdUtc: "2026-07-01T00:00:00Z",
+        metadataJson: "{}",
+      },
+    ]);
+
+    renderWithOperatorQuery(<DigestSubscriptionsContent healthSnap={null} />);
+
+    fireEvent.click(await screen.findByTestId("digest-subscription-toggle-s1"));
+
+    expect(screen.getByRole("heading", { name: /Pause digest delivery for Ops mailbox/i })).toBeInTheDocument();
+    expect(toggleDigestSubscription).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Pause delivery" }));
+
+    await waitFor(() => {
+      expect(toggleDigestSubscription).toHaveBeenCalledWith("s1");
+    });
   });
 
   it("prefills the create form when Edit is clicked", async () => {
