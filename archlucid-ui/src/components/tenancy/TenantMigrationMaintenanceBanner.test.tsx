@@ -129,6 +129,18 @@ describe("TenantMigrationMaintenanceBanner", () => {
 
     expect(screen.getByTestId("tenant-migration-maintenance-banner")).toBeInTheDocument();
     expect(screen.getByText(/verification is running/i)).toBeInTheDocument();
+    expect(screen.getByTestId("tenant-migration-status-refresh-failed")).toBeInTheDocument();
+    expect(screen.getByText(/Could not refresh migration status/i)).toBeInTheDocument();
+  });
+
+  it("shows a degraded banner with retry when the first status poll fails", async () => {
+    fetchStatusMock.mockResolvedValue(null);
+
+    render(<TenantMigrationMaintenanceBanner />);
+
+    expect(await screen.findByTestId("tenant-migration-maintenance-banner")).toBeInTheDocument();
+    expect(screen.getByText(/Catalog migration status unavailable/i)).toBeInTheDocument();
+    expect(screen.getByTestId("tenant-migration-status-retry")).toBeInTheDocument();
   });
 
   it("shows correlation id and verification error details when provided", async () => {

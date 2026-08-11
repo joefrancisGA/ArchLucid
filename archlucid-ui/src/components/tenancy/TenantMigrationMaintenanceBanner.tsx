@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
+import { Button } from "@/components/ui/button";
 import { fetchTenantCatalogMigrationStatus } from "@/lib/fetch-tenant-catalog-migration-status";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -30,6 +31,12 @@ export function TenantMigrationMaintenanceBanner() {
   const [operatorDetails, setOperatorDetails] = useState<
     ReturnType<typeof buildTenantMigrationOperatorDetailLines>
   >([]);
+  const [refreshFailed, setRefreshFailed] = useState(false);
+  const [reloadToken, setReloadToken] = useState(0);
+
+  const retryRefresh = useCallback(() => {
+    setReloadToken((token) => token + 1);
+  }, []);
 
   useEffect(() => {
     if (isMigrationBannerSuppressed()) {
@@ -48,8 +55,12 @@ export function TenantMigrationMaintenanceBanner() {
       }
 
       if (status === null) {
+        setRefreshFailed(true);
+
         return;
       }
+
+      setRefreshFailed(false);
 
       if (status.inMigration) {
         setMessage(resolveTenantMigrationSuspendMessage(status));
@@ -71,13 +82,13 @@ export function TenantMigrationMaintenanceBanner() {
       cancelled = true;
       window.clearInterval(timer);
     };
-  }, []);
+  }, [reloadToken]);
 
   if (isMigrationBannerSuppressed()) {
     return null;
   }
 
-  if (message === null) {
+  if (message === null && !refreshFailed) {
     return null;
   }
 
@@ -90,16 +101,42 @@ export function TenantMigrationMaintenanceBanner() {
       role="alert"
       data-testid="tenant-migration-maintenance-banner"
     >
-      <p className="m-0 font-semibold text-sky-950 dark:text-sky-100">
-        Catalog migration in progress{stageLabel !== null ? ` — ${stageLabel}` : ""}
-      </p>
-      <p className="m-0 mt-1 leading-snug">
-        {message}{" "}
-        <Link href="/internal/health" className="font-medium text-sky-950 underline underline-offset-2 dark:text-sky-100">
-          System health
-        </Link>
-        .
-      </p>
+      {message !== null ? (
+        <>
+          <p className="m-0 font-semibold text-sky-950 dark:text-sky-100">
+            Catalog migration in progress{stageLabel !== null ? ` — ${stageLabel}` : ""}
+          </p>
+          <p className="m-0 mt-1 leading-snug">
+            {message}{" "}
+            <Link href="/internal/health" className="font-medium text-sky-950 underline underline-offset-2 dark:text-sky-100">
+              System health
+            </Link>
+            .
+          </p>
+        </>
+      ) : (
+        <p className="m-0 font-semibold text-sky-950 dark:text-sky-100">
+          Catalog migration status unavailable
+        </p>
+      )}
+      {refreshFailed ? (
+        <div className="mt-2 space-y-2" data-testid="tenant-migration-status-refresh-failed">
+          <p className="m-0 leading-snug text-sky-950/90 dark:text-sky-100/90">
+            {message !== null
+              ? "Could not refresh migration status. Showing the last known state until refresh succeeds."
+              : "Could not confirm whether a catalog migration is active. Retry before making writes."}
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={retryRefresh}
+            data-testid="tenant-migration-status-retry"
+          >
+            Retry status
+          </Button>
+        </div>
+      ) : null}
       {operatorDetails.length > 0 ? (
         <dl
           className="m-0 mt-2 grid gap-1 text-sm text-sky-950/90 dark:text-sky-100/90"

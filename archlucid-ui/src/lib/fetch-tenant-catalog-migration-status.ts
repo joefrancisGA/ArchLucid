@@ -7,7 +7,8 @@ export type TenantCatalogMigrationStatus = {
   lastVerificationError?: string | null;
 };
 
-/** Tenant catalog migration maintenance status (`GET /v1/tenant/catalog-migration-status`). */
+/** Tenant catalog migration maintenance status (`GET /v1/tenant/catalog-migration-status`).
+ * Returns `null` when status cannot be determined (network/non-OK) — callers must not treat that as inactive. */
 export async function fetchTenantCatalogMigrationStatus(): Promise<TenantCatalogMigrationStatus | null> {
   try {
     const res = await fetch("/api/proxy/v1/tenant/catalog-migration-status", {
