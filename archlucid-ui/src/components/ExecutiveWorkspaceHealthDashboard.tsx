@@ -14,6 +14,7 @@ import { DataArchivalDegradedBanner } from "@/components/governance/DataArchival
 import { ExecutiveWorkspaceHealthPageHero } from "@/components/governance/ExecutiveWorkspaceHealthPageHero";
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { LayerHeader } from "@/components/LayerHeader";
+import { TenantSystemWorkspaceHealthVocabularyRail } from "@/components/TenantSystemWorkspaceHealthVocabularyRail";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
@@ -205,6 +206,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
       <div className="w-full max-w-[1440px] space-y-4">
         {layerHeader}
         <ExecutiveWorkspaceHealthPageHero buyerPolishedShell={buyerPolishedShell} />
+        <TenantSystemWorkspaceHealthVocabularyRail currentSurfaceId="workspace-health" />
 <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           {buyerPolishedShell ? "Loading workspace overview…" : "Loading executive workspace health…"}
         </p>
@@ -217,6 +219,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
       <div className="w-full max-w-[1440px] space-y-4">
         {layerHeader}
         <ExecutiveWorkspaceHealthPageHero buyerPolishedShell={buyerPolishedShell} />
+        <TenantSystemWorkspaceHealthVocabularyRail currentSurfaceId="workspace-health" />
 <OperatorApiProblem
           fallbackMessage={state.message}
           problem={state.problem}
@@ -310,6 +313,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
       {layerHeader}
 
       <ExecutiveWorkspaceHealthPageHero buyerPolishedShell={buyerPolishedShell} />
+      <TenantSystemWorkspaceHealthVocabularyRail currentSurfaceId="workspace-health" />
 {scopeBannerBlock}
 
       <DataArchivalDegradedBanner />

@@ -16,6 +16,7 @@ import {
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { TenantSystemWorkspaceHealthVocabularyRail } from "@/components/TenantSystemWorkspaceHealthVocabularyRail";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
@@ -100,6 +101,7 @@ export function TenantHealthAdminPageClient() {
           {loading ? "Refreshing…" : "Refresh"}
         </Button>
       </div>
+      <TenantSystemWorkspaceHealthVocabularyRail currentSurfaceId="tenant-health" />
 {error ? (
         <p className={cn("text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.body)} role="alert">
           {error}
