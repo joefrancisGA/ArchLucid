@@ -6,7 +6,7 @@ using ArchLucid.Persistence.Caching;
 namespace ArchLucid.Persistence.Tenancy;
 
 /// <summary>
-///     Decorates <see cref="ITenantRepository.GetByIdAsync" /> for erasure-quarantine middleware and other hot reads.
+///     Decorates <see cref="ITenantDirectoryReader.GetByIdAsync" /> for erasure-quarantine middleware and other hot reads.
 /// </summary>
 public sealed class CachingTenantRepository(ITenantRepository inner, IHotPathReadCache hotPathReadCache)
     : ITenantRepository

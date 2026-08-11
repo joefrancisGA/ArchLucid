@@ -1,7 +1,7 @@
 namespace ArchLucid.Core.Tenancy;
 
 /// <summary>
-///     Determines whether <see cref="ITenantRepository.TryClaimTrialSeatAsync" /> must run for a tenant row.
+///     Determines whether <see cref="ITenantTrialRepository.TryClaimTrialSeatAsync" /> must run for a tenant row.
 ///     Mirrors the early-exit predicates in <c>DapperTenantRepository.TryClaimTrialSeatAsync</c> before the
 ///     transactional <c>UPDLOCK</c> read.
 /// </summary>

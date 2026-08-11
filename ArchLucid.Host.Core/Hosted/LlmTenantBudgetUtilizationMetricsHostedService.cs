@@ -15,7 +15,7 @@ namespace ArchLucid.Host.Core.Hosted;
 /// <summary>
 ///     Refreshes cached Prometheus snapshots for monthly LLM dollar budget gauges: utilization fraction (
 ///     <c>archlucid_llm_budget_utilization_fraction</c>), remaining USD (<c>archlucid_llm_budget_remaining_usd</c>).
-///     Tenant ids refresh at most every 60 seconds to bound <see cref="ITenantRepository.ListAsync(CancellationToken)" /> churn; budget rows are re-read on the same loop as gauge publication (five-minute delay between passes).
+///     Tenant ids refresh at most every 60 seconds to bound <see cref="ITenantDirectoryReader.ListAsync(CancellationToken)" /> churn; budget rows are re-read on the same loop as gauge publication (five-minute delay between passes).
 /// </summary>
 public sealed class LlmTenantBudgetUtilizationMetricsHostedService(
     IServiceScopeFactory scopeFactory,

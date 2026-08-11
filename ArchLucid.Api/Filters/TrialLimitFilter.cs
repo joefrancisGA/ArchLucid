@@ -14,7 +14,7 @@ namespace ArchLucid.Api.Filters;
 /// <summary>
 ///     Authorization handler enforcing <see cref="TrialActiveRequirement" /> via <see cref="TrialLimitGate" /> (HTTP-only
 ///     wiring;
-///     worker paths rely on <see cref="ArchLucid.Core.Tenancy.ITenantRepository.TryIncrementActiveTrialRunAsync" />
+///     worker paths rely on <see cref="ArchLucid.Core.Tenancy.ITenantTrialRepository.TryIncrementActiveTrialRunAsync" />
 ///     throwing).
 /// </summary>
 public sealed class TrialLimitAuthorizationHandler(IHttpContextAccessor httpContextAccessor)
