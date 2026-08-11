@@ -1,9 +1,11 @@
+import { BUYER_COPY_MODULE_PATHS } from "@/lib/buyer-copy/module-paths";
+
 /**
  * High-traffic operator and sponsor-facing modules scanned by {@link ./review-terminology-guard.test.ts}.
  * API/DTO identifiers (`runId`, routes) are intentionally excluded — display copy only.
  */
 export const REVIEW_TERMINOLOGY_HIGH_TRAFFIC_SURFACE_PATHS = [
-  "src/lib/buyer-polish-copy.ts",
+  ...BUYER_COPY_MODULE_PATHS,
   "src/lib/contextual-help-content.ts",
   "src/lib/glossary-definitions.ts",
   "src/lib/repeat-review-activation.ts",

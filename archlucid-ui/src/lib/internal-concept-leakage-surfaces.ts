@@ -1,9 +1,11 @@
+import { BUYER_COPY_MODULE_PATHS } from "@/lib/buyer-copy/module-paths";
+
 /** Customer-facing modules scanned by {@link ./internal-concept-leakage-guard.test.ts} (IA-013). */
 export const INTERNAL_CONCEPT_LEAKAGE_SURFACES = [
   "src/app/(operator)/administration/users/_sections/SettingsRolesPageView.tsx",
   "src/app/(operator)/internal/trial-funnel/_sections/TrialFunnelOpsPageClient.tsx",
   "src/app/(operator)/integrations/cloud-connections/_sections/Tier2ConnectionWizard.tsx",
-  "src/lib/buyer-polish-copy.ts",
+  ...BUYER_COPY_MODULE_PATHS,
   "src/lib/empty-state-presets.ts",
 ] as const;
 
@@ -23,7 +25,7 @@ export const INTERNAL_CONCEPT_LEAKAGE_BANNED_PATTERNS = [
  */
 export const BUYER_VOCABULARY_LEAKAGE_SURFACES = [
   "src/lib/vocabulary/buyer-surface-vocabulary.ts",
-  "src/lib/buyer-polish-copy.ts",
+  ...BUYER_COPY_MODULE_PATHS,
   "src/lib/executive/executive-dashboard-page-copy.ts",
   "src/lib/review-scorecard-empty-state.ts",
   "src/lib/search-empty-preset.ts",
