@@ -208,7 +208,13 @@ export function FindingDetailPageView(props: Props) {
             ) : null}
           </section>
 
-          {decisionSummary !== null ? <FindingDetailDecisionSummary summary={decisionSummary} /> : null}
+          {decisionSummary !== null ? (
+            <FindingDetailDecisionSummary
+              summary={decisionSummary}
+              runId={runId}
+              findingId={decodedFindingId}
+            />
+          ) : null}
 
           {inspectPayload !== null ? (
             <FindingDetailOperationalActions

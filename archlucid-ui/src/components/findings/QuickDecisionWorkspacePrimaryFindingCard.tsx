@@ -17,7 +17,7 @@ import { NewSinceLastVisitMarker } from "@/components/usability/NewSinceLastVisi
 import { FINDINGS_ROW_METADATA_TAG_SIZE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveFindingActivityAtUtc } from "@/lib/finding-activity-at-utc";
 import { findingEnforcementTierLabel } from "@/lib/finding-enforcement-tier";
-import { getFindingDetailHref } from "@/lib/finding-evidence-navigation";
+import { getFindingDetailHref, getFindingGovernanceDispositionHref } from "@/lib/finding-evidence-navigation";
 import {
   buildQuickDecisionFindingEvidenceLinks,
   quickDecisionRecommendationSnippet,
@@ -141,6 +141,15 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
       </dl>
       <div className="mt-4 flex flex-wrap items-center gap-2">
         <Button type="button" size="sm" variant="default" className="h-8" asChild>
+          <Link
+            href={getFindingGovernanceDispositionHref(runId, finding.findingId)}
+            prefetch={false}
+            data-testid={`finding-record-disposition-${finding.findingId}`}
+          >
+            Record disposition
+          </Link>
+        </Button>
+        <Button type="button" size="sm" variant="outline" className="h-8" asChild>
           <Link
             href={getFindingDetailHref(runId, finding.findingId)}
             prefetch={false}

@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { FINDINGS_ROW_METADATA_TAG_SIZE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { getFindingDetailHref } from "@/lib/finding-evidence-navigation";
+import { getFindingDetailHref, getFindingGovernanceDispositionHref } from "@/lib/finding-evidence-navigation";
 import { quickDecisionRecommendationSnippet } from "@/lib/quick-decision-finding-links";
 import {
   humanReviewStatusDisplay,
@@ -75,11 +75,22 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             {quickDecisionRecommendationSnippet(finding)}
           </p>
-          <Button type="button" size="sm" variant="outline" className="h-8" asChild>
-            <Link href={getFindingDetailHref(runId, finding.findingId)} prefetch={false}>
-              Open finding
-            </Link>
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" size="sm" variant="default" className="h-8" asChild>
+              <Link
+                href={getFindingGovernanceDispositionHref(runId, finding.findingId)}
+                prefetch={false}
+                data-testid={`finding-record-disposition-${finding.findingId}`}
+              >
+                Record disposition
+              </Link>
+            </Button>
+            <Button type="button" size="sm" variant="outline" className="h-8" asChild>
+              <Link href={getFindingDetailHref(runId, finding.findingId)} prefetch={false}>
+                Open finding
+              </Link>
+            </Button>
+          </div>
           <QuickDecisionWorkspaceFindingSupportingDetails context={props.context} finding={finding} />
         </div>
       </details>

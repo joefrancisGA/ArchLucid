@@ -22,6 +22,14 @@ export function getFindingEvidenceTraceHref(runId: string, findingId: string): s
   return `${getFindingDetailHref(runId, findingId)}/${FINDING_EVIDENCE_TRACE_SEGMENT}`;
 }
 
+/** In-page anchor for the disposition workflow on the evidence trace surface. */
+export const FINDING_GOVERNANCE_DISPOSITION_HASH = "governance-disposition-heading";
+
+/** Deep link to record disposition on the evidence trace governance panel. */
+export function getFindingGovernanceDispositionHref(runId: string, findingId: string): string {
+  return `${getFindingEvidenceTraceHref(runId, findingId)}#${FINDING_GOVERNANCE_DISPOSITION_HASH}`;
+}
+
 /** @deprecated Prefer {@link getFindingEvidenceTraceHref}. */
 export function getFindingEvidenceInspectHref(runId: string, findingId: string): string {
   return getFindingEvidenceTraceHref(runId, findingId);

@@ -1,6 +1,6 @@
 import { formatFindingHumanReviewStatusLabel } from "@/lib/finding-human-review-display";
 import { coerceComplianceRuleKey } from "@/lib/policy-pack-rule-key-prefix-catalog";
-import { severityFromTrace } from "@/lib/executive-finding-severity";
+import { severityFromTrace } from "@/lib/executive/executive-finding-severity";
 import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator-static-demo";
 import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
@@ -26,7 +26,7 @@ export function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): Gove
     const recommended =
       entry.latestDisposition !== null && entry.latestDisposition !== undefined
         ? `Latest disposition: ${entry.latestDisposition}. Owner: ${entry.ownerUserId ?? "unassigned"}.`
-        : "Open the finding inspector to record disposition or a time-bounded waiver.";
+        : "Open evidence trace to record disposition or a time-bounded waiver.";
     const runLabel =
       systemName.length > 0 ? systemName : runId.length > 0 ? runId : "—";
 

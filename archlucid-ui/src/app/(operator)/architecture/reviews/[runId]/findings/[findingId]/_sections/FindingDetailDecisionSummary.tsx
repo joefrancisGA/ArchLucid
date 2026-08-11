@@ -1,14 +1,19 @@
 import { cn } from "@/lib/utils";
 
+import Link from "next/link";
+
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
-import { OPERATOR_KPI_CARD_TITLE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_KPI_CARD_TITLE, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { getFindingGovernanceDispositionHref } from "@/lib/finding-evidence-navigation";
 import { findingStatusTagKind } from "./finding-detail-route-display";
 import type { FindingDecisionSummary } from "./finding-detail-route-display";
 
 export type FindingDetailDecisionSummaryProps = {
   readonly summary: FindingDecisionSummary;
+  readonly runId: string;
+  readonly findingId: string;
 };
 
 /** Compact executive decision summary near the top of the finding detail page. */
@@ -66,6 +71,15 @@ export function FindingDetailDecisionSummary(props: FindingDetailDecisionSummary
           <dd className="m-0 mt-0.5 font-medium text-al-text-primary">{summary.riskOwner}</dd>
         </div>
       </dl>
+      <p className={cn("m-0 mt-4", OPERATOR_TYPOGRAPHY.body)}>
+        <Link
+          className={OPERATOR_LINK.nav}
+          href={getFindingGovernanceDispositionHref(props.runId, props.findingId)}
+          data-testid="finding-detail-record-disposition"
+        >
+          Record disposition
+        </Link>
+      </p>
     </section>
   );
 }
