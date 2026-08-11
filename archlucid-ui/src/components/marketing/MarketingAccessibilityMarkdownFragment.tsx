@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { HelpMarkdownCodeBlock } from "@/components/help/HelpMarkdownCodeBlock";
+import { HelpMarkdownInlineCode } from "@/components/help/HelpMarkdownInlineCode";
 import { CaiqSigResponseHelpEvidenceCell } from "@/components/help/CaiqSigResponseHelpEvidenceCell";
 import { CaiqSigResponseHelpStatusCell } from "@/components/help/CaiqSigResponseHelpStatusCell";
 import { MermaidDiagram } from "@/components/help/MermaidDiagram";
@@ -22,6 +23,7 @@ import { prepareHelpMarkdownForPresentation, sanitizeBareMarkdownFileReferences 
 type RenderInlineOptions = {
   readonly linkMode: "external-only" | "help";
   readonly nowrapInlineCode?: boolean;
+  readonly copyableInlineCode?: boolean;
 };
 
 /** Landmark names must be unique when multiple scrollable table regions appear on one page (axe landmark-unique). */
@@ -80,16 +82,20 @@ function renderInline(text: string, keyPrefix: string, options: RenderInlineOpti
 
       const inner = remaining.slice(next.at + 1, close);
       nodes.push(
-        <code
-          key={`${keyPrefix}-ic-${i}`}
-          className={cn(
-            "rounded bg-neutral-100 px-1 py-0.5 font-mono text-[0.9em] text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100",
-            options.nowrapInlineCode &&
-              "inline-block max-w-full overflow-x-auto whitespace-nowrap align-bottom",
-          )}
-        >
-          {inner}
-        </code>,
+        options.copyableInlineCode ? (
+          <HelpMarkdownInlineCode key={`${keyPrefix}-ic-${i}`} code={inner} />
+        ) : (
+          <code
+            key={`${keyPrefix}-ic-${i}`}
+            className={cn(
+              "rounded bg-neutral-100 px-1 py-0.5 font-mono text-[0.9em] text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100",
+              options.nowrapInlineCode &&
+                "inline-block max-w-full overflow-x-auto whitespace-nowrap align-bottom",
+            )}
+          >
+            {inner}
+          </code>
+        ),
       );
       remaining = remaining.slice(close + 1);
       i++;
@@ -250,6 +256,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
 
   const isHelp = props.presentation === "help";
   const isPrivacy = props.presentation === "privacy";
+  const isEngineeringTroubleshooting = props.helpTopicSlug === "developer-troubleshooting";
   const isCaiqSigResponse = isHelp && isCaiqSigResponseHelpTopic(props.helpTopicSlug);
   const bodyTextClass = isPrivacy
     ? PRIVACY_POLICY_PROSE.paragraph
@@ -277,6 +284,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
   const renderOptions: RenderInlineOptions = {
     linkMode: isHelp || isPrivacy ? "help" : "external-only",
     nowrapInlineCode: isHelp,
+    copyableInlineCode: isEngineeringTroubleshooting,
   };
   const markdownBody =
     props.preparedMarkdownOverride !== undefined && props.preparedMarkdownOverride.trim().length > 0

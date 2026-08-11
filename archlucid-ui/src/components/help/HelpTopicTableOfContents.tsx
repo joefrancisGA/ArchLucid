@@ -13,6 +13,8 @@ export type HelpTopicTableOfContentsProps = {
   readonly groups?: readonly HelpTopicTocGroup[];
   /** When true, highlights the section nearest the viewport center while scrolling. */
   readonly enableScrollSpy?: boolean;
+  /** Where to render: default shows both; header-inline is mobile-only beneath page header; sidebar is xl sticky rail. */
+  readonly placement?: "default" | "header-inline" | "sidebar";
 };
 
 const MIN_HEADINGS_FOR_TOC = 4;
@@ -178,25 +180,33 @@ export function HelpTopicTableOfContents(props: HelpTopicTableOfContentsProps): 
       <TableOfContentsList headings={props.headings} activeId={activeId} />
     );
 
+  const placement = props.placement ?? "default";
+  const showHeaderInline = placement === "default" || placement === "header-inline";
+  const showSidebar = placement === "default" || placement === "sidebar";
+
   return (
     <>
-      <details className="mb-4 rounded-md border border-neutral-200 bg-al-surface-raised p-3 xl:hidden dark:border-neutral-800">
-        <summary className={cn("cursor-pointer font-semibold", HELP_PAGE_TOC.heading)}>On this page</summary>
-        <nav aria-label="On this page" className="mt-3" data-testid="help-topic-toc-mobile">
+      {showHeaderInline ? (
+        <details className="mb-4 rounded-md border border-neutral-200 bg-al-surface-raised p-3 xl:hidden dark:border-neutral-800">
+          <summary className={cn("cursor-pointer font-semibold", HELP_PAGE_TOC.heading)}>On this page</summary>
+          <nav aria-label="On this page" className="mt-3" data-testid="help-topic-toc-mobile">
+            {tocBody}
+          </nav>
+        </details>
+      ) : null}
+
+      {showSidebar ? (
+        <nav
+          aria-label="On this page"
+          className={cn(HELP_PAGE_TOC.nav, "hidden xl:block")}
+          data-testid="help-topic-toc"
+        >
+          <p className={HELP_PAGE_TOC.heading} data-testid="help-topic-toc-heading">
+            On this page
+          </p>
           {tocBody}
         </nav>
-      </details>
-
-      <nav
-        aria-label="On this page"
-        className={cn(HELP_PAGE_TOC.nav, "hidden xl:block")}
-        data-testid="help-topic-toc"
-      >
-        <p className={HELP_PAGE_TOC.heading} data-testid="help-topic-toc-heading">
-          On this page
-        </p>
-        {tocBody}
-      </nav>
+      ) : null}
     </>
   );
 }

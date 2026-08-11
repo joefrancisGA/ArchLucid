@@ -286,12 +286,28 @@ export const DESIGN_TOKENS = {
   callout: {
     success:
       "rounded-md border border-emerald-700/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-emerald-800/50",
-    warn: "rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50",
+    warn: "rounded-md border border-amber-600/60 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/60",
+    warnShell:
+      "flex gap-3 rounded-md border border-amber-600/60 border-l-4 border-l-amber-600 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/60 dark:border-l-amber-500",
     blocked:
-      "rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50",
+      "rounded-md border border-rose-600/60 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/60",
+    blockedShell:
+      "flex gap-3 rounded-md border border-rose-600/60 border-l-4 border-l-rose-600 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/60 dark:border-l-rose-500",
     info: "rounded-md border border-neutral-300 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-neutral-700",
     neutral:
       "rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 text-sm text-al-text-secondary dark:border-neutral-800",
+  },
+  calloutSeverity: {
+    warn: {
+      label: "Caution",
+      labelClass: "text-amber-900 dark:text-amber-200",
+      iconClass: "text-amber-800 dark:text-amber-200",
+    },
+    blocked: {
+      label: "Blocked",
+      labelClass: "text-rose-900 dark:text-rose-200",
+      iconClass: "text-rose-800 dark:text-rose-200",
+    },
   },
   banner: {
     page:

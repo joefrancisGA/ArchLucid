@@ -10,7 +10,10 @@ import {
 } from "@/lib/engineering-troubleshooting-help-guide-content";
 
 describe("engineering-troubleshooting-help-guide-content", () => {
-  it("keeps primary CTAs on customer troubleshooting, system health, report-a-problem, and CLI", () => {
+  it("keeps primary CTA on-page and secondary CTAs on customer, system health, report-a-problem, and CLI", () => {
+    expect(ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.jumpToSymptomLookup.href).toBe(
+      "#help-engineering-troubleshooting-symptom-index-heading",
+    );
     expect(ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openCustomerTroubleshooting.href).toBe(
       "/help/troubleshooting",
     );
@@ -34,8 +37,10 @@ describe("engineering-troubleshooting-help-guide-content", () => {
     );
   });
 
-  it("links every symptom escalation artifact to an in-app destination", () => {
+  it("links every symptom row to a runbook section and escalation destination", () => {
     for (const row of ENGINEERING_TROUBLESHOOTING_HELP_SYMPTOM_ROWS) {
+      expect(row.runbookSectionId, row.symptom).toMatch(/^[a-z0-9-]+$/);
+      expect(row.evidenceToAttach.length, row.symptom).toBeGreaterThan(0);
       expect(row.escalationHref, row.symptom).toBeDefined();
       expect(row.escalationHref, row.symptom).toMatch(/^\//);
     }

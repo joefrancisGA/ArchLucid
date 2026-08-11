@@ -1,6 +1,7 @@
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import {
+  ENGINEERING_TROUBLESHOOTING_HELP_RUNBOOK_OVERVIEW,
   ENGINEERING_TROUBLESHOOTING_HELP_SOURCES_DISCLOSURE_INTRO,
   ENGINEERING_TROUBLESHOOTING_HELP_SOURCES_DISCLOSURE_TITLE,
 } from "@/lib/engineering-troubleshooting-help-guide-content";
@@ -19,6 +20,15 @@ export function HelpEngineeringTroubleshootingHeaderMetadata(
 
   return (
     <div className="space-y-2" data-testid="help-engineering-troubleshooting-header-metadata">
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.label)}>
+        <span className="font-medium text-al-text-primary">
+          {ENGINEERING_TROUBLESHOOTING_HELP_RUNBOOK_OVERVIEW.documentTitle}
+        </span>
+        <span>
+          {" "}
+          · {ENGINEERING_TROUBLESHOOTING_HELP_RUNBOOK_OVERVIEW.documentVersion}
+        </span>
+      </p>
       <HelpTopicRegistryProvenanceLine entry={entry} reviewedLabel="Last verified" />
 
       <CollapsibleSection
