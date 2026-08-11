@@ -31,6 +31,7 @@ import {
   ProjectsRecycleBinRestoreConfirmDialog,
   type ProjectsRecycleBinPendingRestore,
 } from "./ProjectsRecycleBinRestoreConfirmDialog";
+import { ProjectsRecycleDraftsPackageVocabularyRail } from "@/components/ProjectsRecycleDraftsPackageVocabularyRail";
 
 const RECYCLE_BIN_PATH = `/api/proxy/${ApiV1Routes.tenantWorkspacesRecycleBin}`;
 
@@ -223,6 +224,7 @@ export function ProjectsRecycleBinPage() {
           void reload();
         }}
       />
+      <ProjectsRecycleDraftsPackageVocabularyRail currentSurfaceId="projects-recycle" />
       {!isAuthorityLoading && !canRestoreExecute ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Restore requires Execute authority — you can browse deleted projects below, but restoring is unavailable for this signed-in principal.
