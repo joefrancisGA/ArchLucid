@@ -29,6 +29,18 @@ export const WHY_CLOSING_PRIMARY_CTA_LABEL = SEE_IT_PAGE_TITLE;
 
 export const WHY_CLOSING_PRIMARY_CTA_HREF = "/see-it" as const;
 
+/** TB-1301: one supporting sentence above the fold — long differentiation detail lives below. */
+export const WHY_HERO_PITCH =
+  "Governed architecture reviews with traceable evidence, signed decisions, and audit-ready exports — not another chat box.";
+
+export const WHY_HERO_PRIMARY_CTA_LABEL = WHY_CLOSING_PRIMARY_CTA_LABEL;
+
+export const WHY_HERO_PRIMARY_CTA_HREF = WHY_CLOSING_PRIMARY_CTA_HREF;
+
 export const WHY_CLOSING_SECONDARY_CTA_LABEL = "Start your evaluation";
 
 export const WHY_CLOSING_SECONDARY_CTA_HREF = "/signup" as const;
+
+export const WHY_HERO_SECONDARY_CTA_LABEL = WHY_CLOSING_SECONDARY_CTA_LABEL;
+
+export const WHY_HERO_SECONDARY_CTA_HREF = WHY_CLOSING_SECONDARY_CTA_HREF;

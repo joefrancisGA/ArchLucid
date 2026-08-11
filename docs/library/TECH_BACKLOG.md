@@ -965,7 +965,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1294 | **Done** (2026-08-10) — `/welcome` first-viewport hero budget; Vitest; see `## TB-1294` below | Adoption friction P1 ? **V1**; owner welcome ~50/100 2026-07-26; traffic **WXX**; complements GTM **M-09** | S |
 | TB-1295 | **Done** (2026-08-10) — `/welcome` single primary conversion path; Vitest; see `## TB-1295` below | Adoption friction P1 ? **V1**; with **TB-1294** | S |
 | TB-1296 | **Done** (2026-08-10) — `/welcome` canonical proof CTA ladder; Vitest; see `## TB-1296` below | Adoption friction P1 ? **V1**; with **TB-1294**; pairs **TB-1028**/**TB-1282**/**M-107** | S |
-| TB-1301 | `/why` ? first-viewport hero budget + primary conversion CTA; see ## TB-1301 below | Adoption friction P1 ? **V1**; owner why ~51/100 2026-07-26; traffic **WHY** | S |
+| TB-1301 | **Done** (2026-08-10) — `/why` hero budget + primary `/see-it` CTA; see ## TB-1301 below | Adoption friction P1 ? **V1**; owner why ~51/100 2026-07-26; traffic **WHY** | S |
 | TB-1302 | `/why` ? canonical proof ladder (`/see-it` vs Contoso `/demo/preview` iframe); see ## TB-1302 below | Adoption friction P1 ? **V1**; with **TB-1301**; pairs **TB-1296**/**TB-1282**/**TB-1028**/**M-107** | S |
 | TB-1303 | `/why` ? collapse triple comparison density; see ## TB-1303 below | Adoption friction P1 ? **V1**; with **TB-1301** | S |
 | TB-1307 | `/why-archlucid` ? disambiguate title/IA from marketing `/why`; see ## TB-1307 below | Adoption friction P1 ? **V1**; with **TB-1306**; IA-014 | S |
@@ -32366,7 +32366,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-10) — `WhyMarketingHeroSection` + `WHY_HERO_PITCH`; primary `/see-it` + secondary `/signup` in hero band; long brand paragraph demoted below fold; Vitest in `WhyArchlucidMarketingView.test.tsx`.
 
 **Priority:** P0.
 

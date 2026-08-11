@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { BRAND_CATEGORY, BRAND_CATEGORY_LEGACY, BRAND_PROOF_SCOPE_STATEMENT } from "@/lib/brand-category";
@@ -7,6 +7,8 @@ import {
   WHY_CLOSING_PRIMARY_CTA_LABEL,
   WHY_CLOSING_SECONDARY_CTA_HREF,
   WHY_CLOSING_SECONDARY_CTA_LABEL,
+  WHY_HERO_PITCH,
+  WHY_HERO_PRIMARY_CTA_HREF,
   WHY_MARKETING_PDF_DOWNLOAD_LABEL,
 } from "@/lib/why-page-copy";
 import { WHY_MARKET_LANDSCAPE_MARKETING_ROWS } from "@/lib/why-market-landscape-comparison";
@@ -84,5 +86,22 @@ describe("WhyArchlucidMarketingView", () => {
     );
 
     expect(getByTestId("why-proof-scope-statement").textContent).toBe(BRAND_PROOF_SCOPE_STATEMENT);
+  });
+
+  it("TB-1301: hero budget — pitch and primary conversion CTA stay in the hero band", () => {
+    render(<WhyArchlucidMarketingView frontDoorRows={WHY_COMPARISON_ROWS} showDemoEmbed={false} />);
+
+    const heroBand = screen.getByTestId("why-hero-band");
+    const ctaRow = screen.getByTestId("why-hero-cta-row");
+
+    expect(within(heroBand).getByTestId("why-hero-pitch")).toHaveTextContent(WHY_HERO_PITCH);
+    expect(within(heroBand).queryByTestId("why-brand-category-paragraph")).not.toBeInTheDocument();
+    expect(within(ctaRow).getByTestId("why-hero-primary-cta")).toHaveAttribute("href", WHY_HERO_PRIMARY_CTA_HREF);
+    expect(within(ctaRow).getByTestId("why-hero-primary-cta")).toHaveTextContent(WHY_CLOSING_PRIMARY_CTA_LABEL);
+    expect(within(ctaRow).getByTestId("why-hero-secondary-cta")).toHaveAttribute("href", WHY_CLOSING_SECONDARY_CTA_HREF);
+    expect(within(ctaRow).getByTestId("why-hero-secondary-cta")).toHaveTextContent(WHY_CLOSING_SECONDARY_CTA_LABEL);
+
+    const hardCompare = screen.getByTestId("why-hard-comparison-table");
+    expect(heroBand.compareDocumentPosition(hardCompare) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

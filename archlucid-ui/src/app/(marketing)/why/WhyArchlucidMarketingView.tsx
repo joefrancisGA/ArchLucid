@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { MarketingProofChainStrip } from "@/components/marketing/MarketingProofChainStrip";
 import { WhyEvidenceOrientationStrip } from "@/components/marketing/WhyEvidenceOrientationStrip";
+import { WhyMarketingHeroSection } from "@/app/(marketing)/why/WhyMarketingHeroSection";
 import { Button } from "@/components/ui/button";
 import { BUYER_OUTCOME_LED_VALUE_PROPOSITION } from "@/lib/buyer-polish-copy";
 import { BRAND_CATEGORY, BRAND_PROOF_SCOPE_STATEMENT } from "@/lib/brand-category";
@@ -79,19 +80,19 @@ export type WhyArchlucidMarketingViewProps = {
 export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true }: WhyArchlucidMarketingViewProps) {
   return (
     <MarketingPageShell className={MARKETING_MOTION.revealIn}>
-      <h1 className={MARKETING_TYPOGRAPHY.heroTitle}>Why ArchLucid</h1>
-      <p
-        className={cn("mt-4 max-w-3xl", MARKETING_TYPOGRAPHY.lead)}
-        data-testid="why-brand-category-paragraph"
-      >
-        {`ArchLucid is an ${BRAND_CATEGORY}: governed architecture reviews whose findings, signed decisions, approvals, and exports share one traceable evidence trail — durable evidence before emphasizing agent-assisted acceleration. Comparisons below summarize typical fit versus adjacent tooling. ${WHY_BRAND_CATEGORY_DOWNLOAD_NOTE}`}
-      </p>
-      <p
-        className={cn("mt-3 max-w-3xl", MARKETING_TYPOGRAPHY.meta)}
-        data-testid="why-proof-scope-statement"
-      >
-        {BRAND_PROOF_SCOPE_STATEMENT}
-      </p>
+      <WhyMarketingHeroSection />
+
+      <section className="mt-10" data-testid="why-brand-category-detail" aria-label="Differentiation context">
+        <p className={cn("max-w-3xl", MARKETING_TYPOGRAPHY.body, "text-al-text-secondary")} data-testid="why-brand-category-paragraph">
+          {`ArchLucid is an ${BRAND_CATEGORY}: governed architecture reviews whose findings, signed decisions, approvals, and exports share one traceable evidence trail — durable evidence before emphasizing agent-assisted acceleration. Comparisons below summarize typical fit versus adjacent tooling. ${WHY_BRAND_CATEGORY_DOWNLOAD_NOTE}`}
+        </p>
+        <p
+          className={cn("mt-3 max-w-3xl", MARKETING_TYPOGRAPHY.meta)}
+          data-testid="why-proof-scope-statement"
+        >
+          {BRAND_PROOF_SCOPE_STATEMENT}
+        </p>
+      </section>
 
       <WhyEvidenceOrientationStrip />
 
