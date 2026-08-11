@@ -89,6 +89,11 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "anti-gates-alone FinOps honesty",
+        ("python", "scripts/ci/check_anti_gates_alone_finops_honesty.py"),
+        None,
+    ),
+    GuardCommand(
         "buyer first-30-minutes sync",
         ("python", "scripts/ci/assert_buyer_first_30_minutes_in_sync.py"),
         None,

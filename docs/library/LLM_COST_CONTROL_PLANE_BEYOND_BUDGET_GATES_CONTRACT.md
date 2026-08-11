@@ -3,7 +3,7 @@
 # Mature LLM cost-control plane beyond budget gates
 
 **Status:** Active (V1)  
-**Backlog:** **TB-1287** (this contract) · **TB-1288** (anti-gates-alone / call-site-reserve-enough / SDK-bypass / stale-$50 honesty CI — open)  
+**Backlog:** **TB-1287** (this contract) · **TB-1288** **Done** (anti-gates-alone / call-site-reserve-enough / SDK-bypass / stale-$50 honesty CI)  
 **Audience:** Principal architects, FinOps reviewers, platform reviewers, coding agents  
 **Related:** [ARCHITECTURE_INVARIANTS.md](./ARCHITECTURE_INVARIANTS.md) (**INV-004**) · [INV004_RESERVE_SETTLE_LIFECYCLE_CONTRACT.md](./INV004_RESERVE_SETTLE_LIFECYCLE_CONTRACT.md) (**TB-975**) · [OPERATIONS_LLM_QUOTA.md](./OPERATIONS_LLM_QUOTA.md) · [../runbooks/GOLDEN_COHORT_BUDGET.md](../runbooks/GOLDEN_COHORT_BUDGET.md) · ADR [0005](../architecture/adrs/0005-llm-cost-guardrails.md) · GTM **M-225** / **M-226** / **M-131** / **M-170** · Done **TB-011** / **TB-894** / **TB-939** · open **TB-976** / **TB-941** / **TB-1020**
 
@@ -73,7 +73,7 @@ Name what **budget gates alone** cover versus what a **mature LLM cost-control p
 | **New call sites** | Must take `IAgentCompletionClient` or `IAgentStreamingCompletionClient` from DI — never a wire type. |
 | **Residual exemptions** | Golden-cohort live harness (Cost Management ledger); unit/integration tests with explicit test doubles — label, don't generalize to product hosts. |
 
-**TB-1288** owns CI/doc guards that fail gates-alone, call-site-enough, SDK-bypass, and stale-**$50** claims. NetArch forbid-list implementation may ship in **TB-1288** or a follow-on slice named there.
+**TB-1288** **Done** — CI/doc guards fail gates-alone, call-site-enough, SDK-bypass, and stale-**$50** claims. NetArch forbid-list implementation may ship in a follow-on slice named there.
 
 ---
 
@@ -148,7 +148,7 @@ Canonical buyer handout: [`BUYER_SECURITY_PROCUREMENT_PACKET.md` § M-226](../go
 | Direct SDK bypass | Claims that constructing wire/SDK clients outside the registered decorator chain is approved for product hosts |
 | Stale cohort cap | **$50**/month cohort-cap claims contradicting `GOLDEN_COHORT_BUDGET.md` / `budget.config.json` |
 
-Wire into `run_buyer_surface_strict_guards.py` per **TB-1288** acceptance. Pair **M-225** Verification anchors: `LlmCompletionAccountingClient`, ADR 0005, `assert_golden_cohort_kill_switch_present.py`, INV-004 trackers, `IUsageMeteringService`.
+Wire into `run_buyer_surface_strict_guards.py` per **TB-1288** **Done**. Pair **M-225** Verification anchors: `LlmCompletionAccountingClient`, ADR 0005, `assert_golden_cohort_kill_switch_present.py`, INV-004 trackers, `IUsageMeteringService`.
 
 ---
 
