@@ -1716,6 +1716,7 @@ BEGIN
         WarningsJson NVARCHAR(MAX) NOT NULL,
         ProvenanceJson NVARCHAR(MAX) NOT NULL,
         ManifestPayloadBlobUri NVARCHAR(2000) NULL,
+        ContractManifestVersion NVARCHAR(128) NULL,
         TenantId UNIQUEIDENTIFIER NOT NULL,
         WorkspaceId UNIQUEIDENTIFIER NOT NULL,
         ProjectId UNIQUEIDENTIFIER NOT NULL,
