@@ -19,4 +19,7 @@ public interface ILlmTenantBudgetRepository
     Task<LlmTenantBudgetSettleResult> SettleAsync(
         LlmTenantBudgetSettleRequest request,
         CancellationToken cancellationToken = default);
+
+    /// <summary>UTC calendar month key (<c>yyyy-MM</c>) from the repository's trusted clock (SQL <c>SYSUTCDATETIME()</c> in production).</summary>
+    Task<string> GetSqlUtcMonthlyPeriodKeyAsync(CancellationToken cancellationToken = default);
 }

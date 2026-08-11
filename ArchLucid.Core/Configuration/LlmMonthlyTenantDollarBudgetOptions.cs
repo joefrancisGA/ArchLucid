@@ -56,4 +56,13 @@ public sealed class LlmMonthlyTenantDollarBudgetOptions
         get;
         set;
     } = 8_192;
+
+    /// <summary>
+    ///     Maximum concurrent in-flight monthly USD reservations per tenant before new reserves are rejected (TB-977).
+    /// </summary>
+    public int MaxConcurrentInFlightMonthlyReservations
+    {
+        get;
+        set;
+    } = 64;
 }
