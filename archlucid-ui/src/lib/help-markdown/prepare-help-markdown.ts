@@ -31,6 +31,7 @@ import {
   resolveDuplicateSectionTitles,
 } from "./topic-rule-sets";
 import { stripExecutiveSummaryPilotRoiMeasurementLeakage, stripTenantIsolationContributorLeakage, alignDataHandlingIsolationHonesty } from "./contributor-leakage";
+import { finalizeSecurityTrustHelpPresentation } from "@/lib/security-trust-help-presentation";
 
 export type PrepareHelpMarkdownPresentationOptions = {
   /** Engineering runbooks keep documentation governance lines (Last reviewed, etc.). */
@@ -141,6 +142,10 @@ export function prepareHelpMarkdownForPresentation(
 
   if (options?.helpTopicSlug === "procurement") {
     finalBody = rewriteProcurementFaqBuyerPresentation(finalBody);
+  }
+
+  if (options?.helpTopicSlug === "security-trust") {
+    finalBody = finalizeSecurityTrustHelpPresentation(finalBody);
   }
 
   return finalBody;

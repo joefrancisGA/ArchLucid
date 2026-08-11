@@ -294,6 +294,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "buyer",
     sourcePaths: ["docs/go-to-market/SUBPROCESSORS.md"],
     pdfStatus: "public",
+    lastReviewed: "2026-07-25",
   },
   {
     slug: "dpa-template",

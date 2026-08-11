@@ -32,6 +32,14 @@ describe("resolveInAppDocHref", () => {
     expect(resolveInAppDocHref("docs/security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md")).toBe("/help/procurement");
     expect(resolveInAppDocHref("docs/go-to-market/SECURITY_REVIEWER_ONE_PAGER.md")).toBe("/help/security-policies");
     expect(resolveInAppDocHref("docs/library/SECOND_RUN.md")).toBe("/help/repeat-review-loop");
+    expect(resolveInAppDocHref("docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md")).toBe("/help/soc2-self-assessment");
+    expect(resolveInAppDocHref("docs/go-to-market/PROCUREMENT_PACK_INDEX.md")).toBe("/help/procurement");
+    expect(resolveInAppDocHref("docs/library/BUYER_SCALABILITY_FAQ.md")).toBe(
+      "/help/security-trust#scalability-and-load-evidence",
+    );
+    expect(resolveInAppDocHref("docs/library/BUYER_SCALABILITY_FAQ.md#v1-scalability-and-load-evidence")).toBe(
+      "/help/security-trust#scalability-and-load-evidence",
+    );
   });
 
   it("maps internal runbooks registered in product documentation", () => {

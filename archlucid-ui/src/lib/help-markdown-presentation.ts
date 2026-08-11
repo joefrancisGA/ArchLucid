@@ -61,6 +61,7 @@ export {
   stripSubprocessorsContributorSections,
   stripSubprocessorsContributorLeakage,
   alignSubprocessorsResidencyHonesty,
+  alignSubprocessorsRegisterProductLanguage,
   stripTenantIsolationContributorLeakage,
   stripDpaTemplateContributorLeakage,
   stripExecutiveSummaryContributorLeakage,
@@ -87,4 +88,5 @@ export {
   stripPathChooserContributorLeakage,
   alignDataHandlingIsolationHonesty,
   alignCaiqSigAssuranceHonesty,
+  stripTrustCenterContributorLeakage,
 } from "./help-markdown/contributor-leakage";

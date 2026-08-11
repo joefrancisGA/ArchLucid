@@ -41,7 +41,9 @@ import {
   stripRepeatReviewLoopContributorLeakage,
   stripRepeatReviewLoopContributorSections,
   stripSoc2SelfAssessmentContributorLeakage,
-  stripSubprocessorsContributorLeakage
+  alignSubprocessorsRegisterProductLanguage,
+  stripSubprocessorsContributorLeakage,
+  stripTrustCenterContributorLeakage
 } from "./contributor-leakage";
 
 function matchesSourceDoc(fileName: string): (context: HelpMarkdownTopicContext) => boolean {
@@ -198,7 +200,7 @@ export const HELP_MARKDOWN_AUDIENCE_RULE_SETS: readonly HelpMarkdownTopicRuleSet
   {
     id: "subprocessors",
     matches: matchesBoth(matchesSlug("subprocessors"), matchesSourceDoc("subprocessors.md")),
-    rules: [stripSubprocessorsContributorLeakage],
+    rules: [stripSubprocessorsContributorLeakage, alignSubprocessorsRegisterProductLanguage],
   },
   {
     id: "executive-summary-faq",
@@ -273,6 +275,11 @@ export const HELP_MARKDOWN_AUDIENCE_RULE_SETS: readonly HelpMarkdownTopicRuleSet
       matchesSourceDoc("soc2_self_assessment_2026.md"),
     ),
     rules: [stripSoc2SelfAssessmentContributorLeakage],
+  },
+  {
+    id: "security-trust-trust-center",
+    matches: matchesBoth(matchesSlug("security-trust"), matchesSourceDoc("trust_center.md")),
+    rules: [stripTrustCenterContributorLeakage],
   },
 ];
 

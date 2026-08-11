@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 import type { ReactNode } from "react";
 
@@ -44,6 +44,7 @@ import { isProcurementHelpTopic } from "@/lib/procurement-help-presentation";
 import { POLICY_PACKS_HELP_PRIMARY_ACTION } from "@/lib/policy-packs-help-evidence-copy";
 import { REPORT_A_PROBLEM_HELP_PRIMARY_ACTION } from "@/lib/report-a-problem-help-evidence-copy";
 import { SCOPE_HELP_PRIMARY_ACTION } from "@/lib/scope-help-evidence-copy";
+import { SECURITY_TRUST_HELP_PRIMARY_ACTION } from "@/lib/security-trust-help-evidence-copy";
 import { SecurityTrustHelpHubVocabularyRail } from "@/components/SecurityTrustHelpHubVocabularyRail";
 
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
@@ -144,6 +145,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
   const isIntegrationReadinessHelp = entry.slug === "integration-readiness";
   const isPolicyPacksHelp = entry.slug === "policy-packs";
   const isScopeHelp = entry.slug === "scope";
+  const isSecurityTrustHelp = entry.slug === "security-trust";
   const isProcurementHelp = isProcurementHelpTopic(entry.slug);
   const isAuthenticationSignInHelp = entry.slug === "authentication-sign-in";
   const allowWithoutServerPdf = entry.pdfStatus === null && (entry.audience === "buyer" || isProcurementHelp);
@@ -215,6 +217,8 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
                   ? POLICY_PACKS_HELP_PRIMARY_ACTION
                   : isScopeHelp
                     ? SCOPE_HELP_PRIMARY_ACTION
+                    : isSecurityTrustHelp
+                      ? SECURITY_TRUST_HELP_PRIMARY_ACTION
                     : entry.slug === "report-a-problem"
                     ? REPORT_A_PROBLEM_HELP_PRIMARY_ACTION
                     : undefined
@@ -232,7 +236,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
         <p className={`m-0 max-w-3xl ${OPERATOR_TYPOGRAPHY.label}`}>
 
-          Engineering runbook — CLI commands, environment variables, and log detail. For symptom-first operator help,
+          Engineering runbook â€” CLI commands, environment variables, and log detail. For symptom-first operator help,
 
           open{" "}
 

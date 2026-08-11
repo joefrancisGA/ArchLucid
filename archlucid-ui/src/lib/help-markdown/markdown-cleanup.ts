@@ -291,6 +291,8 @@ export function stripProductReleaseVersionLabels(markdown: string): string {
     .replace(/\bGTM V1\.1\b/gi, "GTM")
     .replace(/\bThree lanes \(V1 default\)/gi, "Three lanes")
     .replace(/##\s*V1\s+scalability/gi, "## Scalability")
+    .replace(/#v1-scalability-and-load-evidence/gi, "#scalability-and-load-evidence")
+    .replace(/\{#v1-scalability-and-load-evidence\}/gi, "{#scalability-and-load-evidence}")
     .replace(/\{#v1-/gi, "{#")
     .replace(/\bV1\s+scalability\b/gi, "scalability")
     .replace(/\bActive\s+V1\s+control\b/gi, "Active control")
@@ -316,6 +318,8 @@ export function stripProductReleaseVersionLabels(markdown: string): string {
     .replace(/\bV1\s+storage\b/gi, "current storage")
     .replace(/\bV1\s+exposes\b/gi, "ArchLucid exposes")
     .replace(/\bYes\s+—\s+V1\b/gi, "Yes")
+    .replace(/\*\*V1:\*\*/gi, "**Current product posture:**")
+    .replace(/\*\*V1\*\* assurance/gi, "**Current** assurance")
     .replace(/\bV1\b/g, "ArchLucid");
 }
 

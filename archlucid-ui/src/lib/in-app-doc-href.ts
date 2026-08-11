@@ -10,6 +10,7 @@ const DOC_PATH_TO_ABSOLUTE_HREF: Readonly<Record<string, string>> = {
   "docs/library/customer-facing/faq.md": "/faq",
   /** Pilot ROI measurement folded into executive-summary (PI retired 2026-08-11). */
   "docs/go-to-market/roi_model.md": "/help/executive-summary#pilot-roi-measurement",
+  "docs/library/buyer_scalability_faq.md": "/help/security-trust#scalability-and-load-evidence",
   "docs/library/pilot_roi_model.md": "/help/executive-summary#pilot-roi-measurement",
   "docs/deployment/per_tenant_cost_model.md": "/help/executive-summary#pilot-roi-measurement",
   "docs/library/per_tenant_cost_model.md": "/help/executive-summary#pilot-roi-measurement",
@@ -104,6 +105,17 @@ const DOC_PATH_TO_SLUG: Readonly<Record<string, string>> = {
   "docs/security/sig_core_2026.md": "caiq-sig-response",
   "docs/security/pen-test-summaries/2026-q2-owner-conducted.md": "procurement",
   "docs/go-to-market/trust_center.md": "security-trust",
+  "docs/go-to-market/assurance_status_canonical.md": "soc2-self-assessment",
+  "docs/go-to-market/procurement_pack_index.md": "procurement",
+  "docs/go-to-market/pen_test_summary_procurement_interim.md": "procurement",
+  "docs/security/pen-test-summaries/2026-q2-sow.md": "procurement",
+  "docs/security/pen-test-summaries/remediation_tracker.md": "security-trust",
+  "docs/security/rls_risk_acceptance.md": "data-handling",
+  "docs/security/system_threat_model.md": "security-trust",
+  "docs/security/ask_rag_threat_model.md": "security-trust",
+  "docs/security/zap_baseline_rules.md": "security-trust",
+  "docs/security/managed_identity_sql_blob.md": "security-trust",
+  "docs/security/gitleaks_pre_receive.md": "security-trust",
   "docs/library/second_run.md": "repeat-review-loop",
   "docs/library/operator_atlas.md": "pilot-guide",
   "docs/library/operator_decision_guide.md": "pilot-guide",
@@ -137,11 +149,19 @@ function slugFromRegistry(normalizedPath: string): string | null {
   return null;
 }
 
+function normalizeDocFragment(fragment: string): string {
+  if (fragment === "v1-scalability-and-load-evidence") {
+    return "scalability-and-load-evidence";
+  }
+
+  return fragment;
+}
+
 function resolveAbsoluteDocHref(absoluteHref: string, fragment: string): string {
   const hashIndex = absoluteHref.indexOf("#");
   const base = hashIndex >= 0 ? absoluteHref.slice(0, hashIndex) : absoluteHref;
   const defaultFragment = hashIndex >= 0 ? absoluteHref.slice(hashIndex + 1) : "";
-  const useFragment = fragment.length > 0 ? fragment : defaultFragment;
+  const useFragment = normalizeDocFragment(fragment.length > 0 ? fragment : defaultFragment);
 
   if (useFragment.length === 0) {
     return base;
@@ -177,7 +197,9 @@ export function tryResolveInAppDocHref(docPath: string): string | null {
     return null;
   }
 
-  return inAppHelpHref(slug, fragment.length > 0 ? fragment : undefined);
+  const normalizedFragment = normalizeDocFragment(fragment);
+
+  return inAppHelpHref(slug, normalizedFragment.length > 0 ? normalizedFragment : undefined);
 }
 
 /**

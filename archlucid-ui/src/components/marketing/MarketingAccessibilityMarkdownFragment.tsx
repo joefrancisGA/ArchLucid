@@ -8,6 +8,7 @@ import { HelpMarkdownCodeBlock } from "@/components/help/HelpMarkdownCodeBlock";
 import { HelpMarkdownInlineCode } from "@/components/help/HelpMarkdownInlineCode";
 import { CaiqSigResponseHelpEvidenceCell } from "@/components/help/CaiqSigResponseHelpEvidenceCell";
 import { CaiqSigResponseHelpStatusCell } from "@/components/help/CaiqSigResponseHelpStatusCell";
+import { SecurityTrustHelpStatusCell } from "@/components/help/SecurityTrustHelpStatusCell";
 import { ProcurementHelpAnswerPosture } from "@/components/help/ProcurementHelpAnswerPosture";
 import { ReviewGuideRequiredStatusCell } from "@/components/help/ReviewGuideRequiredStatusCell";
 import { MermaidDiagram } from "@/components/help/MermaidDiagram";
@@ -27,6 +28,7 @@ import { isMermaidDiagramSource } from "@/lib/help-mermaid";
 import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
 import { PRIVACY_POLICY_PROSE } from "@/lib/privacy-policy-layout";
 import { prepareHelpMarkdownForPresentation, sanitizeBareMarkdownFileReferences } from "@/lib/help-markdown-presentation";
+import { isSecurityTrustHelpTopic } from "@/lib/security-trust-help-presentation";
 
 type RenderInlineOptions = {
   readonly linkMode: "external-only" | "help";
@@ -283,6 +285,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
   const isPrivacy = props.presentation === "privacy";
   const isEngineeringTroubleshooting = props.helpTopicSlug === "developer-troubleshooting";
   const isCaiqSigResponse = isHelp && isCaiqSigResponseHelpTopic(props.helpTopicSlug);
+  const isSecurityTrustHelp = isHelp && isSecurityTrustHelpTopic(props.helpTopicSlug);
   const isProcurementHelp = isHelp && isProcurementHelpTopic(props.helpTopicSlug);
   const isReviewGuideHelp = isHelp && props.helpTopicSlug === "review-guide";
   const bodyTextClass = isPrivacy
@@ -691,6 +694,11 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
                       >
                         {isCaiqSigResponse && cIdx === statusColumnIndex && statusColumnIndex >= 0 ? (
                           <CaiqSigResponseHelpStatusCell
+                            statusLabel={c}
+                            renderInline={(text, keyPrefix) => renderInline(text, keyPrefix, renderOptions)}
+                          />
+                        ) : isSecurityTrustHelp && cIdx === statusColumnIndex && statusColumnIndex >= 0 ? (
+                          <SecurityTrustHelpStatusCell
                             statusLabel={c}
                             renderInline={(text, keyPrefix) => renderInline(text, keyPrefix, renderOptions)}
                           />

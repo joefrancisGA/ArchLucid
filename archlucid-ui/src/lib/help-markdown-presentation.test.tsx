@@ -11,6 +11,7 @@ import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/M
 import { HELP_DOC_SEARCH_RECORDS } from "@/lib/help-index.generated";
 import {
   humanizeMarkdownFileReference,
+  humanizeMarkdownLinkLabel,
   isDocumentationMaintenanceMetadataLine,
   prepareHelpMarkdownForPresentation,
   resolveRelativeRepoDocPath,
@@ -31,6 +32,7 @@ import {
   stripSoc2SelfAssessmentContributorLeakage,
   stripSubprocessorsContributorLeakage,
   alignSubprocessorsResidencyHonesty,
+  alignSubprocessorsRegisterProductLanguage,
   stripAcceleratorChooserContributorLeakage,
   stripAcceleratorChooserContributorSections,
   stripAzureBoardsContributorLeakage,
@@ -59,6 +61,15 @@ describe("help-markdown-presentation", () => {
     expect(humanizeMarkdownFileReference("OPERATOR_ATLAS.md")).toBe("Workspace route map");
     expect(humanizeMarkdownFileReference("../runbooks/FIRST_PILOT_OPERATOR_PATH.md")).toBe(
       "First-pilot workspace runbook",
+    );
+  });
+
+  it("resolves in-app help link labels from product documentation titles", () => {
+    expect(humanizeMarkdownLinkLabel("DPA_TEMPLATE.md", "/help/dpa-template")).toBe(
+      "Data Processing Agreement (template)",
+    );
+    expect(humanizeMarkdownLinkLabel("Dpa Template", "/help/dpa-template")).toBe(
+      "Data Processing Agreement (template)",
     );
   });
 
@@ -1197,7 +1208,7 @@ describe("help-markdown-presentation", () => {
       "",
       "ArchLucid uses the following **subprocessors** to deliver the hosted service. The list is derived from the **Azure-first** architecture described in [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md), [../security/SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md), and repository `infra/` modules.",
       "",
-      "| **Microsoft Corporation** | **Azure Container Apps** (or equivalent compute), **Azure SQL**, **Azure Blob Storage**, **Azure Key Vault**, optional **Azure Service Bus**, **Azure Cache for Redis** (or compatible), **Azure Front Door**, optional **Azure API Management**, monitoring integrations | Customer architecture content, run metadata, manifests, findings, audit events, blobs (including optional agent traces), secrets by reference | **Primary Azure region(s)** chosen at deploy time via Terraform (see **Data residency** below) | Host application, store and encrypt data at rest, edge routing, optional queue/cache |",
+      "| **Azure Container Apps** (or equivalent compute), **Azure SQL** | Host application | Customer architecture content, run metadata, manifests, findings, audit events, blobs, secrets by reference | Primary Azure region | Microsoft Product Terms and DPA | 2026-07-25 |",
       "",
       "Production deployments are **Azure-region scoped**; the **primary region** is selected when infrastructure is provisioned (see `infra/` Terraform variables and [../terraform-azure-variables.md](../library/terraform-azure-variables.md)).",
       "",
@@ -1220,6 +1231,8 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toContain("customer_trust_and_access");
     expect(prepared).not.toContain("system_threat_model");
     expect(prepared).not.toContain("related documents");
+    expect(prepared).not.toContain("run metadata");
+    expect(prepared).not.toContain("secrets by reference");
     expect(prepared).toContain("/help/security-trust");
     expect(prepared).toContain("/help/dpa-template");
     expect(prepared).toContain("azure-region scoped");
@@ -1253,6 +1266,8 @@ describe("help-markdown-presentation", () => {
       "**Non-Microsoft:** The product codebase does not require a separate non-Microsoft **runtime** subprocessor for core API functionality beyond Microsoft Azure services above. If you add third-party observability, CRM, or support tools that touch customer data, **update this table** before production use.",
       "",
       "Until a single public **primary production region** is published for the ArchLucid SaaS offering, treat the region as **“per deployment / subscription — confirm in order form or security pack.”**",
+      "",
+      "Contact your account team during procurement if you need confirmation of the current register.",
     ].join("\n");
 
     const prepared = alignSubprocessorsResidencyHonesty(source).toLowerCase();
@@ -1260,9 +1275,25 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toContain("update this table");
     expect(prepared).not.toContain("product codebase");
     expect(prepared).not.toContain("before production use");
+    expect(prepared).not.toContain("contact your account team");
     expect(prepared).toContain("hosted archlucid saas");
     expect(prepared).toContain("/help/security-trust");
     expect(prepared).toContain("security diligence pack");
+    expect(prepared).toContain("current as of 2026-07-25");
+  });
+
+  it("aligns subprocessors register product language (TB-1756)", () => {
+    const source =
+      "Customer architecture content, run metadata, manifests, findings, audit events, blobs, secrets by reference";
+
+    const prepared = alignSubprocessorsRegisterProductLanguage(source).toLowerCase();
+
+    expect(prepared).not.toContain("run metadata");
+    expect(prepared).not.toContain("secrets by reference");
+    expect(prepared).not.toMatch(/\bblobs\b/);
+    expect(prepared).not.toMatch(/\bmanifests\b/);
+    expect(prepared).toContain("architecture package data");
+    expect(prepared).toContain("stored evidence artifacts");
   });
 
   it("keeps presented subprocessors help residency buyer-safe (TB-1755)", () => {

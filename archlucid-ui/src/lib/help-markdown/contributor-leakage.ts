@@ -1145,7 +1145,7 @@ export function stripSubprocessorsContributorLeakage(markdown: string): string {
 
     if (/^\*\*Non-Microsoft:\*\*/i.test(line.trim())) {
       result.push(
-        "**Non-Microsoft:** Core hosted ArchLucid API functionality runs on Microsoft Azure services listed above. Additional third-party subprocessors (for example observability, CRM, or support tools) are listed here when they process customer content. Contact your account team during procurement if you need confirmation of the current register.",
+        "**Non-Microsoft:** Core hosted ArchLucid API functionality runs on Microsoft Azure services listed above. Additional third-party subprocessors (for example observability, CRM, or support tools) are listed here when they process customer content.",
       );
       continue;
     }
@@ -1161,10 +1161,36 @@ export function stripSubprocessorsContributorLeakage(markdown: string): string {
       continue;
     }
 
-    if (/^\| \*\*Microsoft Corporation\*\* \| \*\*Azure Container Apps\*\*/i.test(line)) {
+    if (/^\| \*\*Azure Container Apps\*\*/i.test(line.trim())) {
       result.push(
-        "| **Microsoft Corporation** | **Azure Container Apps** (or equivalent compute), **Azure SQL**, **Azure Blob Storage**, **Azure Key Vault**, optional **Azure Service Bus**, **Azure Cache for Redis** (or compatible), **Azure Front Door**, optional **Azure API Management**, monitoring integrations | Customer architecture content, run metadata, manifests, findings, audit events, blobs (including optional agent traces), secrets by reference | **Primary Azure region(s)** chosen at deployment time (see **Data residency** below) | Host application, store and encrypt data at rest, edge routing, optional queue/cache |",
+        "| **Azure Container Apps** (or equivalent compute), **Azure SQL**, **Azure Blob Storage**, **Azure Key Vault**, optional **Azure Service Bus**, **Azure Cache for Redis** (or compatible), **Azure Front Door**, optional **Azure API Management**, monitoring integrations | Host application; store and encrypt data at rest; edge routing; optional queue/cache | Customer architecture content, architecture package data, findings, audit events, stored evidence artifacts (including optional agent trace artifacts), encrypted configuration references via Key Vault | Primary Azure region selected at deployment for your subscription or order (see **Data residency** below) | Microsoft Product Terms and DPA; EU Standard Contractual Clauses where applicable | 2026-07-25 |",
       );
+      continue;
+    }
+
+    if (/^\| \*\*Microsoft Entra ID\*\*/i.test(line.trim())) {
+      result.push(
+        "| **Microsoft Entra ID** | Authentication and app roles | User and service principal identifiers; sign-in telemetry per Entra policy | Customer Entra tenant and Microsoft identity infrastructure | Microsoft Product Terms and DPA; EU Standard Contractual Clauses where applicable | 2026-07-25 |",
+      );
+      continue;
+    }
+
+    if (/^\| \*\*Azure OpenAI Service\*\*/i.test(line.trim())) {
+      result.push(
+        "| **Azure OpenAI Service** | LLM inference for agent workflows | Prompts and completions that may include customer architecture text when submitted by users | Azure OpenAI deployment region (per subscription configuration) | Microsoft Product Terms and DPA; EU Standard Contractual Clauses where applicable | 2026-07-25 |",
+      );
+      continue;
+    }
+
+    if (/^\| \*\*Microsoft Corporation\*\* \| \*\*Azure Container Apps\*\*/i.test(line.trim())) {
+      continue;
+    }
+
+    if (/^\| \*\*Microsoft Corporation\*\* \| \*\*Microsoft Entra ID\*\*/i.test(line.trim())) {
+      continue;
+    }
+
+    if (/^\| \*\*Microsoft Corporation\*\* \| \*\*Azure OpenAI Service\*\*/i.test(line.trim())) {
       continue;
     }
 
@@ -1209,7 +1235,11 @@ export function alignSubprocessorsResidencyHonesty(markdown: string): string {
   return markdown
     .replace(
       /\*\*Non-Microsoft:\*\* The product codebase does not require[^\n]+/gi,
-      "**Non-Microsoft:** Core hosted ArchLucid API functionality runs on Microsoft Azure services listed above. Additional third-party subprocessors (for example observability, CRM, or support tools) are listed here when they process customer content. Contact your account team during procurement if you need confirmation of the current register.",
+      "**Non-Microsoft:** Core hosted ArchLucid API functionality runs on Microsoft Azure services listed above. Additional third-party subprocessors (for example observability, CRM, or support tools) are listed here when they process customer content.",
+    )
+    .replace(
+      /Contact your account team during procurement if you need confirmation of the current register\./gi,
+      "This register is **current as of 2026-07-25**; material changes are notified per the **Change notification** section below.",
     )
     .replace(
       /Until a single public \*\*primary production region\*\* is published for the ArchLucid SaaS offering, treat the region as \*\*["“]per deployment \/ subscription — confirm in order form or security pack\.["”]\*\*/gi,
@@ -1217,6 +1247,19 @@ export function alignSubprocessorsResidencyHonesty(markdown: string): string {
     )
     .replace(/update this table before production use/gi, "confirm the current subprocessor register during procurement")
     .replace(/product codebase/gi, "core hosted service")
+    .replace(/\n{3,}/g, "\n\n")
+    .trimEnd();
+}
+
+/**
+ * TB-1756 — subprocessors register: buyer-safe data-category vocabulary.
+ */
+export function alignSubprocessorsRegisterProductLanguage(markdown: string): string {
+  return markdown
+    .replace(/\brun metadata\b/gi, "architecture review records")
+    .replace(/\bmanifests\b/gi, "architecture package data")
+    .replace(/\bblobs\b/gi, "stored evidence artifacts")
+    .replace(/\bsecrets by reference\b/gi, "encrypted configuration references via Key Vault")
     .replace(/\n{3,}/g, "\n\n")
     .trimEnd();
 }
