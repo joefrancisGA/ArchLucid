@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { AccountSecurityAuthDomainsVocabularyRail } from "@/components/AccountSecurityAuthDomainsVocabularyRail";
+import { AuthDomainsIdentityProvidersVocabularyRail } from "@/components/AuthDomainsIdentityProvidersVocabularyRail";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -362,7 +363,8 @@ export function AuthDomainsPageClient() {
         <PageContextualHelpButton />
       </div>
       <AccountSecurityAuthDomainsVocabularyRail currentSurfaceId="auth-domains" />
-{statusMessage !== null ? (
+      <AuthDomainsIdentityProvidersVocabularyRail currentSurfaceId="auth-domains" />
+      {statusMessage !== null ? (
         <p className={cn("m-0 rounded-md border border-emerald-700/30 bg-emerald-50 px-3 py-2 text-emerald-900", OPERATOR_TYPOGRAPHY.body)} role="status">
           {statusMessage}
         </p>
