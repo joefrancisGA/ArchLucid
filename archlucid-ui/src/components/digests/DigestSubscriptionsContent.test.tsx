@@ -75,6 +75,7 @@ describe("DigestSubscriptionsContent", () => {
     expect(await screen.findByTestId("digest-subscriptions-empty")).toBeInTheDocument();
     expect(screen.getByText("No delivery destinations yet")).toBeInTheDocument();
     expect(screen.getByTestId("digest-subscription-create-button")).toBeInTheDocument();
+    expect(screen.getByTestId("digest-preview-before-subscribe")).toBeInTheDocument();
     expect(screen.queryByLabelText("Digest type")).not.toBeInTheDocument();
     expect(screen.getByTestId("digest-subscriptions-privacy-note")).toBeInTheDocument();
   });

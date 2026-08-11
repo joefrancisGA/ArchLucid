@@ -102,6 +102,7 @@ describe("ExecDigestScheduleContent", () => {
     expect(await screen.findByTestId("exec-digest-status-tag")).toHaveTextContent("Setup incomplete");
     expect(screen.getByTestId("exec-digest-enable-delivery")).toBeInTheDocument();
     expect(screen.getByTestId("exec-digest-save-schedule")).toBeInTheDocument();
+    expect(screen.getByTestId("digest-preview-before-subscribe")).toBeInTheDocument();
   });
 
   it("enables scheduled delivery, saves, and refreshes summary", async () => {

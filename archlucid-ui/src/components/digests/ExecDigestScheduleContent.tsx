@@ -7,6 +7,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from "react";
 
+import { DigestPreviewBeforeSubscribePanel } from "@/components/digests/DigestPreviewBeforeSubscribePanel";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -640,6 +641,13 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
                   </select>
                 </div>
               </fieldset>
+
+              <DigestPreviewBeforeSubscribePanel
+                className="mt-3"
+                variant="executive-schedule"
+                recipientEmails={recipientEmails}
+                cadenceSummary={liveScheduleSummary ?? undefined}
+              />
 
               <div className="flex flex-wrap items-center gap-2 border-t border-neutral-200 pt-4 dark:border-neutral-800">
                 <Button

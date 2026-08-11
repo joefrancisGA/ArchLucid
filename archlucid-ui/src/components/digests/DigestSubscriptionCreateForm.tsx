@@ -6,6 +6,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 import { useEffect, useMemo, useState, type ReactElement } from "react";
 
+import { DigestPreviewBeforeSubscribePanel } from "@/components/digests/DigestPreviewBeforeSubscribePanel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -147,6 +148,8 @@ export function DigestSubscriptionCreateForm(props: DigestSubscriptionCreateForm
     !isUnchangedPrefill;
 
   const showDigestType: boolean = shouldShowDigestTypeSelector();
+  const digestTypeLabel: string =
+    DIGEST_TYPE_OPTIONS.find((option) => option.value === digestType)?.label ?? "Architecture digest";
 
   if (!expanded) {
     return (
@@ -344,6 +347,15 @@ export function DigestSubscriptionCreateForm(props: DigestSubscriptionCreateForm
           Change at least one field to save a new subscription. Existing destinations cannot be updated in place.
         </p>
       ) : null}
+
+      <DigestPreviewBeforeSubscribePanel
+        className="mt-3"
+        variant="architecture-subscription"
+        subscriptionName={name}
+        channelType={channelType}
+        destination={destination}
+        digestTypeLabel={digestTypeLabel}
+      />
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <Button
