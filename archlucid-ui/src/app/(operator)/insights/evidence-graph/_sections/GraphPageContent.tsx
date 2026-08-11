@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, startTransition } from "react";
 
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
+import { ArchitectureIntelligenceEvidenceGraphVocabularyRail } from "@/components/ArchitectureIntelligenceEvidenceGraphVocabularyRail";
 import { AuditEvidenceTrailVocabularyRail } from "@/components/AuditEvidenceTrailVocabularyRail";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import type { EmptyStateProps } from "@/components/EmptyState";
@@ -705,6 +706,7 @@ export function GraphPageContent() {
         <CtoDemoBuyerValueStrip stepIndex={2} />
       )}
       <OperatorPageHeader title={pageTitle} subtitle={pageSubtitle} navHref="/insights/evidence-graph" />
+      <ArchitectureIntelligenceEvidenceGraphVocabularyRail currentSurfaceId="evidence-graph" />
       <AuditEvidenceTrailVocabularyRail currentSurfaceId="evidence-graph" />
       <EvidenceGraphFirstOpenCoach />
       <GraphEvidenceTrailGuidanceDisclosure className={buyerPolishedShell ? "hidden" : undefined} />

@@ -6,9 +6,11 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 
 import { ArchitectureIntelligenceProductRoundTrip } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceProductRoundTrip";
 import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
+import { ArchitectureIntelligenceEvidenceGraphVocabularyRail } from "@/components/ArchitectureIntelligenceEvidenceGraphVocabularyRail";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -618,6 +620,8 @@ export function ArchitectureIntelligencePageClient() {
         titleTestId="architecture-intelligence-page-title"
         actions={<PageContextualHelpButton />}
       />
+      <PageCapabilityBoundaryStrip surfaceId="architectureIntelligence" />
+      <ArchitectureIntelligenceEvidenceGraphVocabularyRail currentSurfaceId="architecture-intelligence" />
 {inboundContextLine ? (
         <p
           className={cn(OPERATOR_TYPOGRAPHY.body, "text-muted-foreground")}
