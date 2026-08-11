@@ -71,9 +71,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
         >
           <MobileNavDrawerDeferred />
           <h1 className="m-0">
-            <Button variant="outline" className="h-auto p-0" asChild>
-              <ArchLucidWordmarkLink href="/" aria-label={PERSONA_SHELL_WORDMARK_ARIA_LABEL} variant="operator" />
-            </Button>
+            <ArchLucidWordmarkLink href="/" aria-label={PERSONA_SHELL_WORDMARK_ARIA_LABEL} variant="operator" />
           </h1>
         </div>
 

@@ -133,7 +133,7 @@ Every navigable operator surface must teach its own job in place. The shell top-
 | Rule | Required behavior |
 |------|-------------------|
 | Where required | Navigable operator hubs — every sidebar destination and every primary workflow page. Documented exceptions: auth / callback / error pages, pure redirects, and the Help Center itself. |
-| Affordance | `PageContextualHelpButton` in the page header actions (CircleHelp + short caption). It must resolve a non-null topic via `pageHelpTopicForPathname` — a mounted button that renders `null` because the map row is missing is a **defect**, not a soft gap. |
+| Affordance | `PageContextualHelpButton` in the page header actions (CircleHelp + short caption), rendered **borderless** per § *Visible-boundary `Button` contract* → *Carve-out — page-header contextual help*. It must resolve a non-null topic via `pageHelpTopicForPathname` — a mounted button that renders `null` because the map row is missing is a **defect**, not a soft gap. |
 | Content preference | Prefer Category-1 short answers from `contextualHelpForPathname` (what is this page / what to do next / why empty / where to configure). Fall back to a `/help/{slug}` link only when short answers are not written yet. |
 | Trigger semantics | Help panels are **press-triggered**, never hover-triggered. They contain links and deep-link CTAs, and hover-only reveal makes those unreachable by keyboard and touch, and unusable on mobile. |
 | Panel semantics | Use the shared `HelpPopover` primitive (`components/ui/help-popover.tsx`, layered on `components/ui/popover.tsx`). It supplies portaled collision-aware placement, `role="dialog"`, focus movement into the panel, Escape / outside-press dismissal, and focus return to the trigger. Do not hand-roll absolute positioning — it clips at the viewport edge and inside `overflow-hidden` ancestors. |
@@ -363,7 +363,17 @@ Every `Button` must have a **visible boundary** — a **border** or a **solid fi
 
 **Text-styled navigation** (wordmarks, inline “learn more”, help deep-links) uses **`OPERATOR_LINK`** / `<Link>` styling — not `Button variant="link"` or ghost `Button asChild` wrappers. Link-as-button carve-outs are tracked in **TB-1671**–**TB-1675**.
 
+*Wordmark applied 2026-08-11:* the shell/marketing brand mark no longer sits inside `Button variant="outline"` (`OperatorShellTopBar`, `AppShellClient`, `ExecutiveShellFrame`, `MarketingPublicHeader`) — a bordered logo reads as an unstyled button. `ArchLucidWordmarkLink` now owns its own `focus-visible` ring; do **not** reintroduce a wrapper to supply focus styling.
+
 **Borderless fills are intentional:** `primary`, `secondary`, `default`, and `destructive` stay **without** an extra neutral ring. Adding borders to filled variants would (a) read as a halo on teal/red fills, (b) need per-theme border tokens across four theme permutations, (c) contradict § *Color and surface* (“borders communicate state, not decorate”), and (d) converge button chrome with `Tabs variant="pill"` / `FilterChip` (**TB-665**). IBM Carbon Primary/Secondary/Danger buttons are borderless fills — ArchLucid follows that pattern for filled variants.
+
+**Carve-out — page-header contextual help (owner decision 2026-08-11).** The page-header help trigger (`PageContextualHelpButton` / `PageScopedContextualHelpPanel`) is **borderless**: shared chrome in `components/usability/page-contextual-help-trigger.ts`, not a `Button` variant. Help is a reference affordance, not an action on the page's data. An outline made it a visual peer of real header actions (`Refresh`, `Save`), inflating the control cluster and out-ranking the primary CTA. Borderless demotes it to chrome, matching IBM Carbon and Azure Portal page-level help.
+
+| Carve-out boundary | Rule |
+|---|---|
+| Scope | The page-header help trigger only. Do **not** generalize this to other tertiary controls — `ghost` and `link` `Button` variants stay banned. |
+| Required affordance | Icon **plus** visible caption, with hover and focus-visible states. An **icon-only** borderless page help trigger is **not** covered by this carve-out. |
+| Shell top bar | The persistent shell `Help` control (`OperatorShellTopBar`, `AppShellClient`) **keeps** `variant="outline"` — it is a global utility control with no competing page actions, and the border supplies its hit-target boundary. |
 
 ### Button / CTA width
 
@@ -413,4 +423,5 @@ Headline counts on golden-path surfaces must be **self-describing** and **click-
 - Agent guidance: `archlucid-ui/AGENTS.md`
 - Page-scoped help **mount + interaction** contract: this file § *Operator page contextual help — mount + interaction contract* (**TB-1666** Done) — press-only triggers, shared `HelpPopover`, `title`-as-help banned (sweep **TB-2147**); remaining mount waves **TB-1667**–**TB-1670**
 - Page-scoped **Learn more** job match: this file § *Operator page contextual help — Learn more job match* (**TB-2048** Done); Digests/secondary remaps **TB-2049**–**TB-2052**
+- Page-header help **borderless carve-out**: this file § *Visible-boundary `Button` contract* → *Carve-out — page-header contextual help* (owner decision 2026-08-11) — shared chrome in `components/usability/page-contextual-help-trigger.ts`; shell top-bar `Help` stays `variant="outline"`
 - Operator **side rails** contract: this file § *Operator side rails* (**TB-1572** Done) — single-column default; allow working-object / master-detail / live-when-live / TOC-wizard; ban teaching / static-scope / about-aside persistent rails; live pin policy **TB-1574** Done; remaining apply/inventory **TB-1575**–**TB-1576**

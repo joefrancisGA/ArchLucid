@@ -321,9 +321,7 @@ function AppShellInner({ children }: AppShellClientProps) {
                   <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_SHELL_CONTENT_PADDING_X_CLASS, "flex flex-wrap items-center justify-between gap-3 py-2.5")}>
                     <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
                       <h1 className="m-0">
-                        <Button variant="outline" className="h-auto p-0" asChild>
-                          <ArchLucidWordmarkLink href="/" aria-label="ArchLucid — go to workspace overview" variant="operator" />
-                        </Button>
+                        <ArchLucidWordmarkLink href="/" aria-label="ArchLucid — go to workspace overview" variant="operator" />
                       </h1>
                       <Link
                         href="/architecture/reviews"

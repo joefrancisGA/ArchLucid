@@ -63,6 +63,16 @@ describe("ArchLucidWordmarkLink", () => {
     expect(lightLogoSvg).toHaveAttribute("width", "32");
   });
 
+  it("carries its own focus-visible ring so it needs no Button wrapper (TB-1671)", () => {
+    render(<ArchLucidWordmarkLink href="/" aria-label="ArchLucid" variant="operator" />);
+
+    const link = screen.getByTestId("archlucid-wordmark-link");
+
+    // The brand mark renders unframed, so the keyboard indicator must live on the anchor itself.
+    expect(link.className).toContain("focus-visible:ring-2");
+    expect(link.className).not.toMatch(/\bborder(?:\s|-neutral)/);
+  });
+
   it("renders a dark-surface logo pair for theme switching", () => {
     const { container } = render(
       <ArchLucidWordmarkLink href="/" aria-label="ArchLucid" variant="operator" />,
