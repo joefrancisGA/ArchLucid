@@ -11,6 +11,7 @@ import { ArchitectureDiagramPanel } from "@/components/architecture/Architecture
 import { ArchitectureFindingsDualPane } from "@/components/architecture/ArchitectureFindingsDualPane";
 import { ClarificationsFindingsVocabularyRail } from "@/components/ClarificationsFindingsVocabularyRail";
 import { PackageEvidenceEvidenceGraphVocabularyRail } from "@/components/PackageEvidenceEvidenceGraphVocabularyRail";
+import { PackageGovernanceApprovalQueueVocabularyRail } from "@/components/PackageGovernanceApprovalQueueVocabularyRail";
 import {
   ARCHITECTURE_FINDINGS_DUAL_PANE_TOGGLE_OFF_LABEL,
   ARCHITECTURE_FINDINGS_DUAL_PANE_TOGGLE_ON_LABEL,
@@ -340,7 +341,14 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
         </TabsContent>
 
         <TabsContent value="governance" data-testid="architecture-workspace-panel-governance">
-          {props.panels.governance}
+          <div className="space-y-4">
+            <PackageGovernanceApprovalQueueVocabularyRail
+              runId={props.baseline.runId}
+              currentSurfaceId="package-governance"
+              hrefKind="archTab"
+            />
+            {props.panels.governance}
+          </div>
         </TabsContent>
 
         <TabsContent value="activity" data-testid="architecture-workspace-panel-activity">
