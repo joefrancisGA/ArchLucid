@@ -33,7 +33,6 @@ import {
   type SlackIntegrationFormValues,
 } from "@/lib/slack-integration-form-schema";
 import {
-  SLACK_INTEGRATION_DISABLE_CONFIRM,
   SLACK_INTEGRATION_NOT_CONFIGURED_NEXT_STEP,
   SLACK_INTEGRATION_PAGE_SUBTITLE,
   SLACK_INTEGRATION_PAGE_TITLE,
@@ -56,6 +55,10 @@ import type { AlertRoutingSubscription } from "@/types/alert-routing";
 import { SlackDestinationForm } from "./SlackDestinationForm";
 import { SlackDestinationsPanel } from "./SlackDestinationsPanel";
 import { SlackIntegrationAside } from "./SlackIntegrationAside";
+import {
+  AlertRoutingSubscriptionDisableDialog,
+  type AlertRoutingSubscriptionDisableTarget,
+} from "@/app/(operator)/integrations/_sections/AlertRoutingSubscriptionDisableDialog";
 const SLACK_CHANNEL_TYPE = "SlackWebhook";
 
 const SAVE_FAILURE_MESSAGE = "We could not save this destination. Check the fields and try again.";
@@ -71,6 +74,9 @@ export function SlackIntegrationPageClient(): React.ReactElement {
   const [formTestFeedback, setFormTestFeedback] = useState<SlackIntegrationTestFeedback | null>(null);
   const [rowTestFeedback, setRowTestFeedback] = useState<Record<string, SlackIntegrationTestFeedback>>({});
   const [mutationSuccessMessage, setMutationSuccessMessage] = useState<string | null>(null);
+  const [pendingDisable, setPendingDisable] = useState<AlertRoutingSubscriptionDisableTarget | null>(null);
+  const [disableBusy, setDisableBusy] = useState(false);
+  const [disableErrorMessage, setDisableErrorMessage] = useState<string | null>(null);
 
   const form = useForm<SlackIntegrationFormValues>({
     resolver: zodResolver(slackIntegrationFormSchema),
@@ -156,19 +162,30 @@ export function SlackIntegrationPageClient(): React.ReactElement {
     }
   });
 
-  async function onToggleDestination(routingSubscriptionId: string, isEnabled: boolean): Promise<void> {
+  async function onToggleDestination(
+    routingSubscriptionId: string,
+    isEnabled: boolean,
+    subscriptionName: string,
+  ): Promise<void> {
     if (!canMutate) {
       return;
     }
 
     if (isEnabled) {
-      const confirmed = window.confirm(SLACK_INTEGRATION_DISABLE_CONFIRM);
+      setDisableErrorMessage(null);
+      setPendingDisable({
+        routingSubscriptionId,
+        subscriptionName,
+        channel: "slack",
+      });
 
-      if (!confirmed) {
-        return;
-      }
+      return;
     }
 
+    await executeToggleDestination(routingSubscriptionId, false);
+  }
+
+  async function executeToggleDestination(routingSubscriptionId: string, wasEnabled: boolean): Promise<void> {
     setFailure(null);
     setMutationSuccessMessage(null);
 
@@ -176,10 +193,30 @@ export function SlackIntegrationPageClient(): React.ReactElement {
       await toggleAlertRoutingSubscription(routingSubscriptionId);
       await load();
       setMutationSuccessMessage(
-        isEnabled ? SLACK_INTEGRATION_DISABLE_SUCCESS_MESSAGE : SLACK_INTEGRATION_ENABLE_SUCCESS_MESSAGE,
+        wasEnabled ? SLACK_INTEGRATION_DISABLE_SUCCESS_MESSAGE : SLACK_INTEGRATION_ENABLE_SUCCESS_MESSAGE,
       );
     } catch (error) {
       setFailure(toApiLoadFailure(error));
+      throw error;
+    }
+  }
+
+  async function confirmDisableDestination(): Promise<void> {
+    if (pendingDisable === null || disableBusy) {
+      return;
+    }
+
+    setDisableBusy(true);
+    setDisableErrorMessage(null);
+
+    try {
+      await executeToggleDestination(pendingDisable.routingSubscriptionId, true);
+      setPendingDisable(null);
+    } catch (error) {
+      const apiFailure = toApiLoadFailure(error);
+      setDisableErrorMessage(apiFailure.message);
+    } finally {
+      setDisableBusy(false);
     }
   }
 
@@ -304,12 +341,27 @@ export function SlackIntegrationPageClient(): React.ReactElement {
             rowTestFeedback={rowTestFeedback}
             onRefresh={() => void load()}
             onTest={(routingSubscriptionId) => void onTestDestination(routingSubscriptionId)}
-            onToggle={(routingSubscriptionId, isEnabled) =>
-              void onToggleDestination(routingSubscriptionId, isEnabled)
+            onToggle={(routingSubscriptionId, isEnabled, subscriptionName) =>
+              void onToggleDestination(routingSubscriptionId, isEnabled, subscriptionName)
             }
           />
         </div>
       </FormProvider>
+
+      <AlertRoutingSubscriptionDisableDialog
+        target={pendingDisable}
+        busy={disableBusy}
+        errorMessage={disableErrorMessage}
+        onCancel={() => {
+          if (!disableBusy) {
+            setPendingDisable(null);
+            setDisableErrorMessage(null);
+          }
+        }}
+        onConfirm={() => {
+          void confirmDisableDestination();
+        }}
+      />
     </div>
   );
 }

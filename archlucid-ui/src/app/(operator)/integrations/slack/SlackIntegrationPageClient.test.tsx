@@ -29,7 +29,10 @@ vi.mock("@/lib/toast", () => ({
 }));
 
 import { SlackIntegrationPageClient } from "@/app/(operator)/integrations/slack/_sections/SlackIntegrationPageClient";
-import { SLACK_INTEGRATION_SAVE_SUCCESS_MESSAGE } from "@/lib/admin-integration-mutation-outcome-copy";
+import {
+  SLACK_INTEGRATION_DISABLE_SUCCESS_MESSAGE,
+  SLACK_INTEGRATION_SAVE_SUCCESS_MESSAGE,
+} from "@/lib/admin-integration-mutation-outcome-copy";
 import {
   SLACK_INTEGRATION_NOT_CONFIGURED_NEXT_STEP,
   SLACK_INTEGRATION_PAGE_SUBTITLE,
@@ -187,5 +190,43 @@ describe("SlackIntegrationPageClient", () => {
     const table = await screen.findByTestId("slack-destinations-table");
     expect(within(table).getByText("Governance alerts")).toBeInTheDocument();
     expect(screen.queryByText("https://hooks.slack.com/services/SECRET/PATH")).not.toBeInTheDocument();
+  });
+
+  it("requires confirmation before disabling an enabled Slack destination", async () => {
+    mockList.mockResolvedValue([
+      {
+        routingSubscriptionId: "sub-1",
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Governance alerts",
+        channelType: "SlackWebhook",
+        destination: "https://hooks.slack.com/services/SECRET/PATH",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        lastDeliveredUtc: "2026-01-02T00:00:00Z",
+        metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+      },
+    ]);
+
+    render(<SlackIntegrationPageClient />);
+
+    fireEvent.click(await screen.findByTestId("slack-toggle-sub-1"));
+
+    expect(screen.getByTestId("alert-routing-subscription-disable-dialog")).toBeInTheDocument();
+    expect(screen.getByText(/Disable Slack destination Governance alerts/i)).toBeInTheDocument();
+    expect(screen.getByText(/Governance alerts will no longer post/i)).toBeInTheDocument();
+    expect(mockToggle).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByTestId("alert-routing-subscription-disable-confirm"));
+
+    await waitFor(() => {
+      expect(mockToggle).toHaveBeenCalledWith("sub-1");
+    });
+
+    expect(await screen.findByTestId("slack-integration-mutation-success-callout")).toHaveTextContent(
+      SLACK_INTEGRATION_DISABLE_SUCCESS_MESSAGE,
+    );
   });
 });

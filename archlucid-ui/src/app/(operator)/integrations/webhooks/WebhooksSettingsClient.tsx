@@ -70,10 +70,14 @@ import {
   type WebhookSettingsFormValues,
 } from "@/lib/webhook-settings-form-schema";
 import { summarizeMaskedWebhookSubscription, buildWebhookSubscriptionMetadata } from "@/lib/webhook-subscription-metadata";
-import {
-  presentWebhookConnectionTestRequestFailure,
+import { presentWebhookConnectionTestRequestFailure,
   presentWebhookConnectionTestToasts,
 } from "@/lib/webhook-subscription-connection-test";
+
+import {
+  AlertRoutingSubscriptionDisableDialog,
+  type AlertRoutingSubscriptionDisableTarget,
+} from "@/app/(operator)/integrations/_sections/AlertRoutingSubscriptionDisableDialog";
 
 import type { AlertRoutingSubscription, WebhookTestResponse } from "@/types/alert-routing";
 
@@ -99,6 +103,9 @@ export function WebhooksSettingsClient() {
   const [testingId, setTestingId] = useState<string | null>(null);
   const [testResults, setTestResults] = useState<Record<string, WebhookTestResponse>>({});
   const [saveSuccessMessage, setSaveSuccessMessage] = useState<string | null>(null);
+  const [pendingDisable, setPendingDisable] = useState<AlertRoutingSubscriptionDisableTarget | null>(null);
+  const [disableBusy, setDisableBusy] = useState(false);
+  const [disableErrorMessage, setDisableErrorMessage] = useState<string | null>(null);
 
   const form = useForm<WebhookSettingsFormValues>({
     resolver: zodResolver(webhookSettingsFormSchema),
@@ -176,11 +183,26 @@ export function WebhooksSettingsClient() {
     }
   }
 
-  async function onToggle(routingSubscriptionId: string) {
+  async function onToggle(routingSubscriptionId: string, subscriptionName: string, isEnabled: boolean) {
     if (!canMutate) {
       return;
     }
 
+    if (isEnabled) {
+      setDisableErrorMessage(null);
+      setPendingDisable({
+        routingSubscriptionId,
+        subscriptionName,
+        channel: "webhook",
+      });
+
+      return;
+    }
+
+    await executeToggle(routingSubscriptionId);
+  }
+
+  async function executeToggle(routingSubscriptionId: string): Promise<void> {
     setFailure(null);
 
     try {
@@ -188,6 +210,26 @@ export function WebhooksSettingsClient() {
       await load();
     } catch (error: unknown) {
       setFailure(toApiLoadFailure(error));
+      throw error;
+    }
+  }
+
+  async function confirmDisableSubscription(): Promise<void> {
+    if (pendingDisable === null || disableBusy) {
+      return;
+    }
+
+    setDisableBusy(true);
+    setDisableErrorMessage(null);
+
+    try {
+      await executeToggle(pendingDisable.routingSubscriptionId);
+      setPendingDisable(null);
+    } catch (error: unknown) {
+      const apiFailure = toApiLoadFailure(error);
+      setDisableErrorMessage(formatCustomerApiFailure(apiFailure));
+    } finally {
+      setDisableBusy(false);
     }
   }
 
@@ -553,7 +595,8 @@ export function WebhooksSettingsClient() {
                             variant="outline"
                             disabled={!canMutate || loading}
                             title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-                            onClick={() => void onToggle(row.routingSubscriptionId)}
+                            onClick={() => void onToggle(row.routingSubscriptionId, row.name, row.isEnabled === true)}
+                            data-testid={`webhook-toggle-${row.routingSubscriptionId}`}
                           >
                             {row.isEnabled === true ? "Disable" : "Enable"}
                           </Button>
@@ -611,6 +654,21 @@ export function WebhooksSettingsClient() {
           ) : null}
         </form>
       </FormProvider>
+
+      <AlertRoutingSubscriptionDisableDialog
+        target={pendingDisable}
+        busy={disableBusy}
+        errorMessage={disableErrorMessage}
+        onCancel={() => {
+          if (!disableBusy) {
+            setPendingDisable(null);
+            setDisableErrorMessage(null);
+          }
+        }}
+        onConfirm={() => {
+          void confirmDisableSubscription();
+        }}
+      />
     </div>
   );
 }

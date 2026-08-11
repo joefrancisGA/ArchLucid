@@ -35,7 +35,7 @@ export const SLACK_INTEGRATION_TEST_FAILURE =
 export const SLACK_INTEGRATION_SAVE_SUCCESS = "Slack destination saved.";
 
 export const SLACK_INTEGRATION_DISABLE_CONFIRM =
-  "Disable this Slack destination? Alerts will not be sent to this channel until you enable it again.";
+  "Governance alerts will no longer post to this Slack channel until you enable the destination again. Saved webhook credentials and delivery history stay in this workspace.";
 
 export const SLACK_INTEGRATION_DISABLE_SUCCESS = "Slack destination disabled.";
 

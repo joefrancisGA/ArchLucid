@@ -471,6 +471,40 @@ describe("WebhooksIntegrationPage", () => {
     expect(screen.getByRole("group", { name: /Webhook events/i })).toBeInTheDocument();
   });
 
+  it("requires confirmation before disabling an enabled webhook subscription", async () => {
+    const subscriptionId = "sub-disable-1";
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "PagerDuty alerts",
+        channelType: "OnCallWebhook",
+        destination: "https://example.com/webhooks/archlucid",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+      },
+    ]);
+
+    render(<WebhooksIntegrationPage />);
+
+    fireEvent.click(await screen.findByTestId(`webhook-toggle-${subscriptionId}`));
+
+    expect(screen.getByTestId("alert-routing-subscription-disable-dialog")).toBeInTheDocument();
+    expect(screen.getByText(/Disable webhook subscription PagerDuty alerts/i)).toBeInTheDocument();
+    expect(screen.getByText(/Outbound HTTPS deliveries/i)).toBeInTheDocument();
+    expect(apiMocks.toggle).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByTestId("alert-routing-subscription-disable-confirm"));
+
+    await waitFor(() => {
+      expect(apiMocks.toggle).toHaveBeenCalledWith(subscriptionId);
+    });
+  });
+
   it("does not render mid-page About webhooks panel (TB-2093)", async () => {
     render(<WebhooksIntegrationPage />);
 

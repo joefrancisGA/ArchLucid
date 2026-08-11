@@ -28,7 +28,7 @@ type SlackDestinationsPanelProps = {
   readonly rowTestFeedback: Readonly<Record<string, SlackIntegrationTestFeedback>>;
   readonly onRefresh: () => void;
   readonly onTest: (routingSubscriptionId: string) => void;
-  readonly onToggle: (routingSubscriptionId: string, isEnabled: boolean) => void;
+  readonly onToggle: (routingSubscriptionId: string, isEnabled: boolean, subscriptionName: string) => void;
 };
 
 function formatLastDeliveryLabel(lastDeliveredUtc: string | null | undefined): string {
@@ -158,7 +158,8 @@ export function SlackDestinationsPanel(props: SlackDestinationsPanelProps): Reac
                           variant="outline"
                           disabled={!canMutate || loading}
                           title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-                          onClick={() => onToggle(row.routingSubscriptionId, row.isEnabled === true)}
+                          onClick={() => onToggle(row.routingSubscriptionId, row.isEnabled === true, row.name)}
+                          data-testid={`slack-toggle-${row.routingSubscriptionId}`}
                         >
                           {row.isEnabled === true ? "Disable" : "Enable"}
                         </Button>
