@@ -9,7 +9,7 @@ import { PageHeading } from "@/components/PageHeading";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
-import { ApiKeysVsUsersReconciler } from "@/components/ApiKeysVsUsersReconciler";
+import { ApiKeysUsersVocabularyRail } from "@/components/ApiKeysUsersVocabularyRail";
 import { CustomRolesUsersVocabularyRail } from "@/components/CustomRolesUsersVocabularyRail";
 import { ScimUsersVocabularyRail } from "@/components/ScimUsersVocabularyRail";
 import { Button } from "@/components/ui/button";
@@ -214,7 +214,7 @@ export function SettingsRolesPageView(props: Props) {
           </div>
         }
       />
-      <ApiKeysVsUsersReconciler currentSurfaceId="users" />
+      <ApiKeysUsersVocabularyRail currentSurfaceId="users" />
       <ScimUsersVocabularyRail currentSurfaceId="users" />
       {activeTab === "roles" || activeTab === "users" ? (
         <CustomRolesUsersVocabularyRail

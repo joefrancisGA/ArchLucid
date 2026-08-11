@@ -40,7 +40,7 @@ import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ApiKeysVsUsersReconciler } from "@/components/ApiKeysVsUsersReconciler";
+import { ApiKeysUsersVocabularyRail } from "@/components/ApiKeysUsersVocabularyRail";
 import { DeveloperApiContractsApiKeysVocabularyRail } from "@/components/DeveloperApiContractsApiKeysVocabularyRail";
 import { WebhooksApiKeysVocabularyRail } from "@/components/WebhooksApiKeysVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -275,7 +275,7 @@ export function ApiKeysSettingsPageClient() {
           </div>
           <PageContextualHelpButton />
         </div>
-        <ApiKeysVsUsersReconciler currentSurfaceId="api-keys" />
+        <ApiKeysUsersVocabularyRail currentSurfaceId="api-keys" />
         <WebhooksApiKeysVocabularyRail currentSurfaceId="api-keys" />
         <DeveloperApiContractsApiKeysVocabularyRail currentSurfaceId="api-keys" />
       </header>
