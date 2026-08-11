@@ -38,11 +38,14 @@ export function resolvePolicyPackSimulateToastOutcome(
 /** Shows success or warning toast from a policy simulate result (never green on block). */
 export function presentPolicyPackSimulateToast(
   result: components["schemas"]["PolicyPackGovernanceDryRunResult"],
+  options?: {
+    readonly successMessage?: string;
+  },
 ): void {
   const outcome = resolvePolicyPackSimulateToastOutcome(result);
 
   if (outcome.kind === "success") {
-    showSuccess(outcome.message);
+    showSuccess(options?.successMessage ?? outcome.message);
 
     return;
   }

@@ -29,6 +29,7 @@ import {
 import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
 import type { components } from "@/lib/openapi-schemas";
 import type { PolicyPackContentDocument } from "@/types/policy-packs";
+import { presentPolicyPackSimulateToast } from "@/lib/policy-pack-simulate-toast";
 import { showSuccess } from "@/lib/toast";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { RunSummary } from "@/types/authority";
@@ -344,7 +345,9 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
       const result: components["schemas"]["PolicyPackGovernanceDryRunResult"] =
         await simulatePolicyPackAgainstRun(body);
       setSimulateResult(result);
-      showSuccess("Policy test completed for the selected review.");
+      presentPolicyPackSimulateToast(result, {
+        successMessage: "Policy test completed for the selected review.",
+      });
     } catch (e: unknown) {
       setSimulateFailure(toApiLoadFailure(e));
     } finally {

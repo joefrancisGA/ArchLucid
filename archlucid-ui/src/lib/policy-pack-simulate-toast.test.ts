@@ -60,4 +60,18 @@ describe("presentPolicyPackSimulateToast", () => {
       { type: "warning" },
     );
   });
+
+  it("allows a custom success message when the gate allows", () => {
+    vi.clearAllMocks();
+
+    presentPolicyPackSimulateToast(
+      {
+        gateResult: { blocked: false, warnOnly: false },
+        failedChecks: [],
+      },
+      { successMessage: "Policy test completed for the selected review." },
+    );
+
+    expect(showSuccess).toHaveBeenCalledWith("Policy test completed for the selected review.");
+  });
 });
