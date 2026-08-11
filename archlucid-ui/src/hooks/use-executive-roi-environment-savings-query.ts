@@ -12,15 +12,14 @@ export type ExecutiveRoiEnvironmentSlice = {
   estimatedUsdSavings: number;
 };
 
-async function fetchExecutiveRoiEnvironmentSavings(): Promise<ExecutiveRoiEnvironmentSlice[]> {
+export async function fetchExecutiveRoiEnvironmentSavings(): Promise<ExecutiveRoiEnvironmentSlice[]> {
   const response = await fetch(
     `/api/proxy/${ApiV1Routes.roiExecutiveSummary}/export`,
     mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
   );
 
-  // Non-OK renders the same empty state as no data (section has no error UI).
   if (!response.ok) {
-    return [];
+    throw new Error(`HTTP ${response.status}`);
   }
 
   const json = (await response.json()) as { savingsByEnvironment?: ExecutiveRoiEnvironmentSlice[] };
