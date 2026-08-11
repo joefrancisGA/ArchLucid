@@ -63,9 +63,11 @@ describe("GovernanceFindingsList bulk disposition (TB-2114)", () => {
       target: { value: "Reviewed with architecture board." },
     });
     fireEvent.click(screen.getByRole("button", { name: "Accept all" }));
+    expect(screen.getByTestId("mutation-reversibility-notice-governance_bulk_disposition")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Apply disposition" }));
 
     await waitFor(() => {
+      // ReversibleMutationSuccessCallout still exposes this durable success test id.
       expect(screen.getByTestId("governance-bulk-disposition-success-callout")).toHaveTextContent(
         "Marked 1 finding(s) as accepted.",
       );

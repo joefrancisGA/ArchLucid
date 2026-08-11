@@ -39,6 +39,15 @@ vi.mock("@/hooks/useNavProgressiveDisclosure", () => ({
   }),
 }));
 
+/** TB-2139: Admin density hides Internal / Operate groups unless expanded. */
+vi.mock("@/hooks/use-role-nav-density-expanded", () => ({
+  useRoleNavDensityExpanded: () => ({
+    showFullNav: true,
+    setShowFullNav: vi.fn(),
+    toggleShowFullNav: vi.fn(),
+  }),
+}));
+
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
@@ -60,10 +69,16 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
-  useNavCallerAuthorityRank: (): number => 3,
-  useNavCommittedArchitectureReview: (): boolean => true,
-}));
+vi.mock("@/components/OperatorNavAuthorityProvider", async () => {
+  const { createOperatorNavAuthorityVitestMock } = await import(
+    "@/testing/operator-nav-authority-vitest-mock"
+  );
+
+  return createOperatorNavAuthorityVitestMock({
+    callerAuthorityRank: 3,
+    hasCommittedArchitectureReview: true,
+  });
+});
 
 vi.mock("next/link", () => ({
   default: ({

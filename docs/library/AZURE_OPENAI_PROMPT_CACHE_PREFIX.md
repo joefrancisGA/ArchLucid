@@ -1,3 +1,5 @@
+> **Scope:** contributor-reference — Azure OpenAI automatic prompt-cache prefix ordering, telemetry, and authoring guardrails (TB-681, TB-2159).
+
 # Azure OpenAI automatic prompt-cache prefix contract
 
 **TB-681** (prefix ordering) and **TB-2159** (telemetry + authoring guardrails).

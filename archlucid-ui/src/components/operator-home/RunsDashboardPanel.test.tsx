@@ -220,7 +220,9 @@ describe("RunsDashboardPanel", () => {
     });
     expect(screen.queryByTestId("runs-dashboard-status-filters")).toBeNull();
     expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_TITLE)).toBeInTheDocument();
-      expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_BODY)).toBeInTheDocument();
+      expect(
+        screen.getByText((content) => content.includes(OPERATOR_HOME_WORKSPACE_EMPTY_BODY)),
+      ).toBeInTheDocument();
     } finally {
       fallbackSpy.mockRestore();
     }
@@ -558,7 +560,9 @@ describe("RunsDashboardPanel", () => {
     });
     expect(screen.queryByTestId("runs-dashboard-status-filters")).toBeNull();
     expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_TITLE)).toBeInTheDocument();
-      expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_BODY)).toBeInTheDocument();
+      expect(
+        screen.getByText((content) => content.includes(OPERATOR_HOME_WORKSPACE_EMPTY_BODY)),
+      ).toBeInTheDocument();
       expect(screen.queryByRole("link", { name: "View review" })).toBeNull();
       expect(screen.queryByTestId("example-request-panel")).toBeNull();
     } finally {

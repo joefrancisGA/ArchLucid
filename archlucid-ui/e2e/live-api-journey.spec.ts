@@ -39,12 +39,11 @@ import {
   expandAuditBuyerFiltersIfPresent,
   expectLiveManifestDetailPageReady,
   expectLiveRunDetailPageReady,
-  expandReviewDetailOutcomeCards,
+  expectFinalizedManifestLinkVisible,
   expectGovernanceRunWorkflowVisible,
   gotoLiveRunDetailPage,
   governancePageMainHeading,
   openReviewDetailWorkspaceTab,
-  runDetailFinalizedPackageLink,
 } from "./helpers/operator-journey";
 
 const liveE2eForensics: { runId?: string; approvalRequestId?: string; auditCorrelationId?: string } = {};
@@ -149,16 +148,10 @@ test.describe("live-api-journey", { tag: ["@founder", "@critical"] }, () => {
 
     await openReviewDetailWorkspaceTab(page, runId, "activity");
 
-    const manifestLink = runDetailFinalizedPackageLink(page);
-
-    await expect(async () => {
-      if (await manifestLink.isVisible()) {
-        return;
-      }
-
-      await expandReviewDetailOutcomeCards(page);
-      await expect(manifestLink).toBeVisible({ timeout: 5_000 });
-    }).toPass({ timeout: 60_000 });
+    const manifestLink = await expectFinalizedManifestLinkVisible(page, {
+      runId,
+      timeoutMs: 120_000,
+    });
 
     await Promise.all([
       page.waitForURL(/\/(?:signed-records|manifests)\/.+/i, { waitUntil: "commit" }),

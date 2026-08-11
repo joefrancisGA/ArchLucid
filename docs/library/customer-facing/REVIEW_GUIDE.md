@@ -4,7 +4,7 @@
 
 Use this page while you work through the **New architecture review** wizard. The default **Quick start** path is a single screen; you can also switch to guided questions or templates and imports. You can start from a saved architecture draft or attach evidence directly in the wizard — both paths use the fields below.
 
-This field reference describes the New architecture review wizard — it is product help, not a signed review record or a finalized architecture package export. Match labels and requirements to the live wizard before treating a printed copy as procurement evidence.
+This field reference describes the New architecture review wizard — it is product help, not a signed review record or a finalized architecture review export. Match labels and requirements to the live wizard before treating a printed copy as procurement evidence.
 
 ## Name the review
 
@@ -35,7 +35,7 @@ By default, your first review is evaluated against six architecture-quality stan
 | Reliability and Resilience | Yes | Failure modes, recovery, and operational continuity. |
 | FinOps & Cloud Cost Optimization | Yes | Cost drivers, waste, and right-sizing opportunities. |
 | Performance and Scalability | Yes | Latency, throughput, and growth headroom. |
-| Operational Excellence | Yes | Operability, observability, and runbooks. |
+| Operational Excellence | Yes | Operability, observability, and operational procedures. |
 | Sustainability and Resource Efficiency | Yes | Resource efficiency and environmental impact of the design. |
 
 | Field | Required | What ArchLucid does with it | Common mistake |

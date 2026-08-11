@@ -18,7 +18,8 @@ describe("ui-route-traffic-connect-aws-securely-help (HEC)", () => {
     expect(row?.path).toBe(CONNECT_AWS_SECURELY_HELP_TRAFFIC_PATH);
     expect(row?.section).toBe(CONNECT_AWS_SECURELY_HELP_TRAFFIC_SECTION);
     expect(row?.notes).toBe(CONNECT_AWS_SECURELY_HELP_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("HelpConnectAwsSecurelyGuideView");
+    expect(row?.notes).toContain("CLOUD_CONNECTIONS.md");
+    expect(row?.notes).toContain("PageContextualHelpButton");
     expect(row?.notes).toContain("Sources");
     expect(row?.notes).toContain("Score 58");
     expect(row?.notes).toContain("cannot improve further toward 80");

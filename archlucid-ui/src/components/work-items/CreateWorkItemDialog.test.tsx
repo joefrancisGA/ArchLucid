@@ -1,26 +1,31 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 
 import { CreateWorkItemDialog } from "./CreateWorkItemDialog";
 import type { ArchitectureWorkItemPreview } from "@/lib/architecture-work-item-model";
+import type { ItsmIntegrationHealthResponse } from "@/lib/api/itsm-outbound-api";
 import {
   CREATE_WORK_ITEM_API_FAILURE,
   CREATE_WORK_ITEM_INVALID_CONNECTION,
   CREATE_WORK_ITEM_NO_PROVIDER_AUTHORIZED,
   CREATE_WORK_ITEM_NO_PROVIDER_UNAUTHORIZED,
 } from "@/lib/create-work-item-copy";
-import { resetItsmNativeCreateEnabledCacheForTests } from "@/lib/itsm-native-integration";
 
-const fetchItsmIntegrationHealth = vi.fn();
 const listItsmFindingCorrelations = vi.fn();
 const createItsmOutboundIssue = vi.fn();
 const writeWorkItemBodyToClipboard = vi.fn();
 const useNavCallerAuthorityRank = vi.fn(() => 1);
+const useItsmNativeCreateReadiness = vi.fn();
 
 vi.mock("@/lib/api/itsm-outbound-api", () => ({
-  fetchItsmIntegrationHealth: (...args: unknown[]) => fetchItsmIntegrationHealth(...args),
   listItsmFindingCorrelations: (...args: unknown[]) => listItsmFindingCorrelations(...args),
   createItsmOutboundIssue: (...args: unknown[]) => createItsmOutboundIssue(...args),
+}));
+
+vi.mock("@/lib/use-itsm-native-create-enabled", () => ({
+  useItsmNativeCreateReadiness: () => useItsmNativeCreateReadiness(),
+  useItsmNativeCreateEnabled: () => useItsmNativeCreateReadiness().defaultPathReady,
 }));
 
 vi.mock("@/lib/copy-finding-as-work-item", () => ({
@@ -29,6 +34,15 @@ vi.mock("@/lib/copy-finding-as-work-item", () => ({
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => useNavCallerAuthorityRank(),
+  useOperatorNavAuthority: () => ({
+    currentPrincipal: {
+      ...operatorNavOutsideProviderPrincipal,
+      authorityRank: useNavCallerAuthorityRank,
+      hasCommittedArchitectureReview: false,
+    },
+    callerAuthorityRank: useNavCallerAuthorityRank,
+    isAuthorityLoading: false,
+  }),
 }));
 
 const preview: ArchitectureWorkItemPreview = {
@@ -46,6 +60,15 @@ const preview: ArchitectureWorkItemPreview = {
   ],
   sourceArchitectureLink: "https://app.archlucid.test/architecture/reviews/run-1",
 };
+
+function mockReadiness(health: ItsmIntegrationHealthResponse): void {
+  useItsmNativeCreateReadiness.mockReturnValue({
+    deploymentEnabled: health.nativeEnabled === true,
+    defaultPathReady: health.nativeEnabled === true,
+    health,
+    azureBoardsReady: false,
+  });
+}
 
 function renderDialog(overrides?: Partial<React.ComponentProps<typeof CreateWorkItemDialog>>) {
   const onOpenChange = vi.fn();
@@ -66,19 +89,18 @@ function renderDialog(overrides?: Partial<React.ComponentProps<typeof CreateWork
 
 describe("CreateWorkItemDialog", () => {
   beforeEach(() => {
-    resetItsmNativeCreateEnabledCacheForTests();
-    fetchItsmIntegrationHealth.mockReset();
     listItsmFindingCorrelations.mockReset();
     createItsmOutboundIssue.mockReset();
     writeWorkItemBodyToClipboard.mockReset();
     useNavCallerAuthorityRank.mockReset();
+    useItsmNativeCreateReadiness.mockReset();
     useNavCallerAuthorityRank.mockReturnValue(1);
     listItsmFindingCorrelations.mockResolvedValue({ correlations: [] });
     writeWorkItemBodyToClipboard.mockResolvedValue(true);
   });
 
   it("shows connect guidance when neither provider is configured for non-admin users", async () => {
-    fetchItsmIntegrationHealth.mockResolvedValue({
+    mockReadiness({
       nativeEnabled: true,
       jira: { locallyConfigured: false, summary: "skip" },
       serviceNow: { locallyConfigured: false, summary: "skip" },
@@ -94,7 +116,7 @@ describe("CreateWorkItemDialog", () => {
 
   it("shows configure guidance for authorized users when no provider is configured", async () => {
     useNavCallerAuthorityRank.mockReturnValue(3);
-    fetchItsmIntegrationHealth.mockResolvedValue({
+    mockReadiness({
       nativeEnabled: true,
       jira: { locallyConfigured: false, summary: "skip" },
       serviceNow: { locallyConfigured: false, summary: "skip" },
@@ -109,7 +131,7 @@ describe("CreateWorkItemDialog", () => {
   });
 
   it("defaults to Jira when only Jira is configured", async () => {
-    fetchItsmIntegrationHealth.mockResolvedValue({
+    mockReadiness({
       nativeEnabled: true,
       jira: { locallyConfigured: true, reachable: true, summary: "ready" },
       serviceNow: { locallyConfigured: false, summary: "skip" },
@@ -123,7 +145,7 @@ describe("CreateWorkItemDialog", () => {
   });
 
   it("defaults to ServiceNow when only ServiceNow is configured", async () => {
-    fetchItsmIntegrationHealth.mockResolvedValue({
+    mockReadiness({
       nativeEnabled: true,
       jira: { locallyConfigured: false, summary: "skip" },
       serviceNow: { locallyConfigured: true, reachable: true, summary: "ready" },
@@ -135,7 +157,7 @@ describe("CreateWorkItemDialog", () => {
   });
 
   it("shows a provider picker when both connectors are configured", async () => {
-    fetchItsmIntegrationHealth.mockResolvedValue({
+    mockReadiness({
       nativeEnabled: true,
       jira: { locallyConfigured: true, reachable: true, summary: "ready" },
       serviceNow: { locallyConfigured: true, reachable: true, summary: "ready" },
@@ -147,7 +169,7 @@ describe("CreateWorkItemDialog", () => {
   });
 
   it("disables native create for invalid connections but still allows copy", async () => {
-    fetchItsmIntegrationHealth.mockResolvedValue({
+    mockReadiness({
       nativeEnabled: true,
       jira: { locallyConfigured: true, reachable: false, summary: "token expired" },
       serviceNow: { locallyConfigured: false, summary: "skip" },
@@ -163,7 +185,7 @@ describe("CreateWorkItemDialog", () => {
   });
 
   it("surfaces provider API failures without closing the dialog", async () => {
-    fetchItsmIntegrationHealth.mockResolvedValue({
+    mockReadiness({
       nativeEnabled: true,
       jira: { locallyConfigured: true, reachable: true, summary: "ready" },
       serviceNow: { locallyConfigured: false, summary: "skip" },
@@ -180,7 +202,7 @@ describe("CreateWorkItemDialog", () => {
   });
 
   it("creates a linked work item successfully", async () => {
-    fetchItsmIntegrationHealth.mockResolvedValue({
+    mockReadiness({
       nativeEnabled: true,
       jira: { locallyConfigured: true, reachable: true, summary: "ready" },
       serviceNow: { locallyConfigured: false, summary: "skip" },
@@ -202,7 +224,7 @@ describe("CreateWorkItemDialog", () => {
   });
 
   it("falls back to a generic API failure message when the provider throws a non-error", async () => {
-    fetchItsmIntegrationHealth.mockResolvedValue({
+    mockReadiness({
       nativeEnabled: true,
       jira: { locallyConfigured: true, reachable: true, summary: "ready" },
       serviceNow: { locallyConfigured: false, summary: "skip" },

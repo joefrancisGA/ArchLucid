@@ -4,7 +4,7 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 export const WHY_ARCHLUCID_CANONICAL_PATH = "/why-archlucid" as const;
 
 export const WHY_ARCHLUCID_CLAIM_DISCIPLINE =
-  "This Why ArchLucid page is an architect demo/proof surface over seeded telemetry and sample review outputs — it is not a signed-review diligence Sources package from your production tenant. Open the public /why comparison, Assurance status, or a finalized review package when you need diligence-grade trails.";
+  "This Why ArchLucid page is an architect demo/proof surface over seeded telemetry and sample review outputs — it is not a signed-review diligence Sources bundle from your production tenant. Open the public /why comparison, Assurance status, or a finalized signed review record when you need diligence-grade trails.";
 
 export const WHY_ARCHLUCID_SOURCES_INTRO =
   "Use these follow-ups when demo proof turns into marketing comparison, sponsor packaging, or assurance orientation.";

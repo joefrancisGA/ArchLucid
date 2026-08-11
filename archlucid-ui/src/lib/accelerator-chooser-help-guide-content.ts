@@ -13,7 +13,7 @@ export const ACCELERATOR_CHOOSER_HELP_OVERVIEW =
   "Each row maps a stakeholder scenario to an in-product accelerator pack. Pick one primary pack, start the architecture review, attach evidence, finalize, and export the proof checklist.";
 
 export const ACCELERATOR_CHOOSER_HELP_PREREQUISITE =
-  "Specialty packs assume at least one signed review record on an architecture package in this tenant — finalize your first architecture review before starting a specialty pack.";
+  "Specialty packs assume at least one signed review record in this tenant — finalize your first architecture review before starting a specialty pack.";
 
 export const ACCELERATOR_CHOOSER_HELP_PREREQUISITE_TENANT_STATE = {
   checking: "Checking whether this tenant has a signed review record…",
@@ -68,7 +68,7 @@ export const ACCELERATOR_CHOOSER_HELP_WORKFLOW_STEPS: readonly AcceleratorChoose
     stepNumber: 3,
     title: "Finalize and export proof",
     description:
-      "Attach pack evidence, finalize the architecture review, then export the proof checklist with the architecture package.",
+      "Attach pack evidence, finalize the architecture review, then export the proof checklist with the signed review record.",
     href: inAppHelpHref("repeat-review-loop"),
     ctaLabel: "Finalize and export guide",
   },

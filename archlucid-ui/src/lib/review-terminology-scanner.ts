@@ -29,7 +29,7 @@ const EXCLUDED_RELATIVE_PATH_FRAGMENTS = [
   "/pipeline-status-label-surfaces.ts",
   "/retired-demo-org-branding.ts",
   "/help-product-language.ts",
-  "/glossary-terms.ts",
+  "/golden-path-glossary-nouns.ts",
   "/lib/api/",
   "/committed-run-picker.ts",
   "/operator-run-picker-client.ts",

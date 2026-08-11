@@ -15,4 +15,4 @@ export const RAG_HEALTH_TRAFFIC_SECTION = "Admin";
  * ASCII-only for Windows console note scripts.
  */
 export const RAG_HEALTH_TRAFFIC_NOTE =
- "RAG corpus health (Admin) - RagHealthAdminPageClient with PageContextualHelpButton (topic map troubleshooting; Category-1 registry), per-corpus table. Sibling AHX = diagnostics; ADY = system-health. Not a signed-record Sources trail. Score 62/100 (2026-08-08) - admin RAG ops hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
+  "RAG corpus health (Admin) - RagHealthAdminPageClient with PageContextualHelpButton (topic map troubleshooting; Category-1 registry), per-corpus table. Sibling AHX = diagnostics; ADY = system-health. Not a signed-record Sources trail. Score 62/100 (2026-08-08) - admin RAG ops hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";

@@ -86,7 +86,7 @@ export function resolvePartialRunCommitBlockPresentation(args: {
   if (status === "PartiallyCompleted") {
     return {
       summary:
-        "Assessment coverage is incomplete for this architecture package. Re-run the review before finalizing.",
+        "Assessment coverage is incomplete for this architecture review. Re-run the review before finalizing.",
       technicalDetail: null,
     };
   }

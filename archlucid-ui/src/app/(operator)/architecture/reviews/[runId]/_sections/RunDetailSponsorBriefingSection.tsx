@@ -60,7 +60,7 @@ export type RunDetailSponsorBriefingModelSlice = {
 
 /**
  * Time-to-Value / sponsor PDF CTA. Kept outside {@link RunDetailBelowFoldSections}' deferred await
- * so `#sponsor-handoff` mounts when the Activity tab opens even if pipeline timeline fetch is slow.
+ * so `#sponsor-handoff-extended` mounts when the Review package tab opens even if pipeline timeline fetch is slow.
  */
 export function resolveRunDetailSponsorBriefingSection(
   model: RunDetailSponsorBriefingModelSlice,

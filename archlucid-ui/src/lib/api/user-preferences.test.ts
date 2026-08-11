@@ -1,14 +1,7 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+﻿import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import {
-  getUserPreferences,
-  invalidateUserPreferencesCache,
-  resetUserPreferencesCacheForTests,
-  setUserAppearancePreference,
-} from "@/lib/api/user-preferences";
-
-const apiGetMock = vi.fn();
-const apiPutJsonMock = vi.fn();
+const apiGetMock = vi.hoisted(() => vi.fn());
+const apiPutJsonMock = vi.hoisted(() => vi.fn());
 
 vi.mock("@/lib/api/http", () => ({
   apiGet: (...args: unknown[]) => apiGetMock(...args),
@@ -16,10 +9,21 @@ vi.mock("@/lib/api/http", () => ({
 }));
 
 describe("getUserPreferences", () => {
-  beforeEach(() => {
-    resetUserPreferencesCacheForTests();
+  let getUserPreferences: typeof import("@/lib/api/user-preferences").getUserPreferences;
+  let invalidateUserPreferencesCache: typeof import("@/lib/api/user-preferences").invalidateUserPreferencesCache;
+  let resetUserPreferencesCacheForTests: typeof import("@/lib/api/user-preferences").resetUserPreferencesCacheForTests;
+  let setUserAppearancePreference: typeof import("@/lib/api/user-preferences").setUserAppearancePreference;
+
+  beforeEach(async () => {
+    vi.resetModules();
     apiGetMock.mockReset();
     apiPutJsonMock.mockReset();
+    const mod = await import("@/lib/api/user-preferences");
+    getUserPreferences = mod.getUserPreferences;
+    invalidateUserPreferencesCache = mod.invalidateUserPreferencesCache;
+    resetUserPreferencesCacheForTests = mod.resetUserPreferencesCacheForTests;
+    setUserAppearancePreference = mod.setUserAppearancePreference;
+    resetUserPreferencesCacheForTests();
   });
 
   afterEach(() => {
@@ -125,7 +129,6 @@ describe("getUserPreferences", () => {
       appearancePreferenceIsExplicit: true,
     });
 
-    // Cache should hold the post-invalidate response, not the late stale one.
     const cachedAfter = await getUserPreferences();
 
     expect(cachedAfter.appearancePreference).toBe("dark");
@@ -134,10 +137,19 @@ describe("getUserPreferences", () => {
 });
 
 describe("setUserAppearancePreference", () => {
-  beforeEach(() => {
-    resetUserPreferencesCacheForTests();
+  let getUserPreferences: typeof import("@/lib/api/user-preferences").getUserPreferences;
+  let resetUserPreferencesCacheForTests: typeof import("@/lib/api/user-preferences").resetUserPreferencesCacheForTests;
+  let setUserAppearancePreference: typeof import("@/lib/api/user-preferences").setUserAppearancePreference;
+
+  beforeEach(async () => {
+    vi.resetModules();
     apiGetMock.mockReset();
     apiPutJsonMock.mockReset();
+    const mod = await import("@/lib/api/user-preferences");
+    getUserPreferences = mod.getUserPreferences;
+    resetUserPreferencesCacheForTests = mod.resetUserPreferencesCacheForTests;
+    setUserAppearancePreference = mod.setUserAppearancePreference;
+    resetUserPreferencesCacheForTests();
   });
 
   afterEach(() => {

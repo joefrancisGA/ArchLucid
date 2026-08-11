@@ -16,10 +16,21 @@ import { OPERATOR_HOME_CARD_SECTION_HEADING } from "@/lib/design-tokens";
 import { PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT } from "@/lib/core-pilot-commit-context";
 import { SHOWCASE_SAMPLE_REVIEW_REGISTRY } from "@/lib/showcase-sample-review-registry";
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
-  useNavCommittedArchitectureReview: vi.fn(() => false),
-  useNavCallerAuthorityRank: vi.fn(() => 100),
-}));
+vi.mock("@/components/OperatorNavAuthorityProvider", async () => {
+  const { createOperatorNavAuthorityVitestMock } = await import(
+    "@/testing/operator-nav-authority-vitest-mock"
+  );
+  const base = createOperatorNavAuthorityVitestMock({
+    callerAuthorityRank: 100,
+    hasCommittedArchitectureReview: false,
+  });
+
+  return {
+    ...base,
+    useNavCommittedArchitectureReview: vi.fn(() => false),
+    useNavCallerAuthorityRank: vi.fn(() => 100),
+  };
+});
 
 vi.mock("@/hooks/use-finish-setup-readiness-context", () => ({
   useFinishSetupReadinessContext: () => ({

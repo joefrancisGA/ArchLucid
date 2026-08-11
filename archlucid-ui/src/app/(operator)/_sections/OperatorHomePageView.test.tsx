@@ -34,6 +34,26 @@ vi.mock("./operator-home-page-view-deferred-chunks", () => ({
   CtoDemoExecutiveLandingRedirectDeferred: () => null,
 }));
 
+// Product imports next/dynamic wrappers from deferred-chunks (TB-2145); leaf mocks alone never render.
+vi.mock("./operator-home-page-view-deferred-chunks", () => ({
+  PilotCommandCenterCardDeferred: () => <div data-testid="home-block-pilot-command-center" />,
+  OperatorHomeExecutiveRoiStripDeferred: () => <div data-testid="home-block-executive-roi" />,
+  OperatorHomeBelowFoldPanelsDeferred: ({
+    buyerPolishedShell,
+  }: {
+    buyerPolishedShell: boolean;
+  }) => (
+    <>
+      <div data-testid="home-block-explore-sample" />
+      <div data-testid="home-block-workspace-context">
+        <div data-testid="operator-home-workspace-metrics-summary" />
+        {buyerPolishedShell ? null : <div data-testid="home-block-workspace-status" />}
+      </div>
+      {buyerPolishedShell ? null : <div data-testid="home-block-advanced-guidance" />}
+    </>
+  ),
+}));
+
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 

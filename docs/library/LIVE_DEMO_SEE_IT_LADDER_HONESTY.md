@@ -108,6 +108,6 @@ Demote “Review integrity” / sponsor-governance readiness language to **sampl
 
 ## Related
 
-- GTM **M-259** / **M-260** · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](../go-to-market/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise)
+- GTM **M-259** / **M-260** · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise)
 - Open honesty CI follow-on: **TB-1428**
 - Does **not** implement title/ladder UI, hero budgets, or stepper density — those remain in **TB-1266**–**TB-1269** / **TB-1281**–**TB-1282**

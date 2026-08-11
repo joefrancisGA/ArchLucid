@@ -1,35 +1,35 @@
 {
   "schemaVersion": 1,
-  "updatedUtc": "2026-08-09T22:11:14.050Z",
+  "updatedUtc": "2026-08-10T18:45:00.000Z",
   "regressionToleranceKb": 25,
   "routes": {
     "/": {
-      "firstLoadJsKb": 1587.2
+      "firstLoadJsKb": 1601.3
     },
     "/welcome": {
-      "firstLoadJsKb": 609.6
+      "firstLoadJsKb": 609.1
     },
     "/governance/approval-queue": {
-      "firstLoadJsKb": 1429.9
+      "firstLoadJsKb": 1450.3
     },
     "/governance/alerts": {
-      "firstLoadJsKb": 1377.3
+      "firstLoadJsKb": 1394.5
     },
     "/governance/alert-rules": {
-      "firstLoadJsKb": 1049.4
+      "firstLoadJsKb": 1060.8
     },
     "/architecture/reviews": {
-      "firstLoadJsKb": 1211.2
+      "firstLoadJsKb": 1229.1
     },
     "/architecture/reviews/[runId]": {
-      "firstLoadJsKb": 1903.6
+      "firstLoadJsKb": 1883.4
     },
     "/architecture/executive-dashboard": {
-      "firstLoadJsKb": 1471.7
+      "firstLoadJsKb": 1489.3
     },
     "/governance/signed-records": {
-      "firstLoadJsKb": 1412.4
+      "firstLoadJsKb": 1427.7
     }
   },
-  "notes": "TB-2145: `/` measured **1646.1 → 1587.2 kB** (−58.9 kB) after deferring pilot command center, executive ROI strip, below-fold panels, and CTO demo redirect (`operator-home-page-view-deferred-chunks.tsx`). TB-2142: `/architecture/reviews/[runId]` measured **2150.6 → 1879.1 kB** (−271.5 kB) after deferring evidence tab, share/export row, demo chrome, manifest alerts, run actions, and help registrar off sync First Load JS. TB-2118: shared operator-shell deferrals remeasured hubs — `/architecture/reviews` **1710.6 → 1169.5 kB**, `/governance/alerts` **1485 → 1331.5 kB**, `/governance/alert-rules` **1470 → 1103.9 kB** (`app-shell-deferred-chunks.tsx`). TB-2117: prior `/architecture/reviews/[runId]` cut **2237.5 → 2150.6 kB** (−86.9 kB) after workspace/overview chrome deferrals."
+  "notes": "Restored post-deferral First Load JS baselines after 170ac0eab accidentally rewrote routes to pre-TB-2118/2142/2145 sizes (e.g. `/` 1520), which failed `check:first-load-js` on CI (measured `/` 1601.3 kB). Values below are from ui-static-quality run 31409776833 job 93529317317. Prior TB-2145: `/` **1646.1 → 1587.2 kB**; TB-2142: `/architecture/reviews/[runId]` **2150.6 → 1879.1 kB**; TB-2118 hub cuts via `app-shell-deferred-chunks.tsx`."
 }

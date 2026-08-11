@@ -23,10 +23,16 @@ vi.mock("@/hooks/useNavProgressiveDisclosure", () => ({
   useNavProgressiveDisclosure: () => ({ showExtended: true, showAdvanced: true }),
 }));
 
-vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
-  useNavCallerAuthorityRank: () => 3,
-  useNavCommittedArchitectureReview: () => false,
-}));
+vi.mock("@/components/OperatorNavAuthorityProvider", async () => {
+  const { createOperatorNavAuthorityVitestMock } = await import(
+    "@/testing/operator-nav-authority-vitest-mock"
+  );
+
+  return createOperatorNavAuthorityVitestMock({
+    callerAuthorityRank: 3,
+    hasCommittedArchitectureReview: false,
+  });
+});
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();

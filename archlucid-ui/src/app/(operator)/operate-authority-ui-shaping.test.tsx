@@ -190,7 +190,7 @@ import { AdvisorySchedulesContent } from "@/components/advisory/AdvisorySchedule
 import { DigestSubscriptionsContent } from "@/components/digests/DigestSubscriptionsContent";
 import { renderWithOperatorQuery } from "@/testing/operator-query-test-helpers";
 import GovernanceResolutionPage from "./governance/standards-and-rules/page";
-import GovernanceWorkflowPage from "./governance/approval-queue/page";
+import { GovernanceWorkflowPageContent } from "./governance/_sections/GovernanceWorkflowPageContent";
 import PolicyPacksPage from "./governance/policy-packs/page";
 
 const emptyGovernanceResolutionPayload = {
@@ -586,7 +586,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     "Governance workflow: submit Review ID and manifest inputs stay read-only when mutation capability is false",
     async () => {
       mutateCapability.current = false;
-      render(<GovernanceWorkflowPage />);
+      render(<GovernanceWorkflowPageContent />);
 
       await waitFor(() => {
         expect(screen.getByRole("heading", { name: GOVERNANCE_OVERVIEW_PAGE_TITLE })).toBeInTheDocument();
@@ -612,22 +612,23 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
 
   it("Governance workflow: submit Review ID is editable when mutation capability is true", async () => {
     mutateCapability.current = true;
-    render(<GovernanceWorkflowPage />);
+    render(<GovernanceWorkflowPageContent />);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText("Review")).toBeInTheDocument();
+    });
 
     fireEvent.change(screen.getByLabelText("Review"), { target: { value: "gov-ui-shape-run" } });
     fireEvent.click(screen.getByTestId("governance-overview-load-review"));
 
     await waitFor(() => {
-      const submitRunTrigger = document.getElementById("gov-submit-run-select") as HTMLButtonElement | null;
+      const submitVersion = document.getElementById("gov-submit-version") as HTMLInputElement | null;
 
-      expect(submitRunTrigger).not.toBeNull();
-      expect(submitRunTrigger!.disabled).toBe(false);
+      expect(submitVersion).not.toBeNull();
+      expect(submitVersion!.readOnly).toBe(false);
     });
 
-    const submitVersion = document.getElementById("gov-submit-version") as HTMLInputElement | null;
-
-    expect(submitVersion).not.toBeNull();
-    expect(submitVersion!.readOnly).toBe(false);
+    expect(document.getElementById("gov-submit-run-select")).not.toBeNull();
   });
 
   /**

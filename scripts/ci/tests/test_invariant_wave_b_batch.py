@@ -25,7 +25,8 @@ class TestInvariantWaveBBatch(unittest.TestCase):
     def test_inv_013_replay_commit_uses_replay_guid_guard(self) -> None:
         path = REPO_ROOT / "ArchLucid.Architecture.Tests" / "ReplayReadOnlyScopeArchitectureTests.cs"
         text = path.read_text(encoding="utf-8")
-        self.assertIn("PersistCommittedChainAsync(scope, replayGuid,", text)
+        self.assertIn(r"PersistCommittedChainAsync\(\s*scope,\s*replayGuid,", text)
+        self.assertIn("INV-013", text)
 
     def test_inv_012_persisted_read_path_architecture_tests_exist(self) -> None:
         path = (

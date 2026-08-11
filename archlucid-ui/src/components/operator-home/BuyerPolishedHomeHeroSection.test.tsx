@@ -1,8 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("@/components/usability/PilotCommandCenterCard", () => ({
-  PilotCommandCenterCard: () => <div data-testid="home-block-pilot-command-center" />,
+// Hero uses PilotCommandCenterCardDeferred (TB-2145), not the leaf module.
+vi.mock("@/app/(operator)/_sections/operator-home-page-view-deferred-chunks", () => ({
+  PilotCommandCenterCardDeferred: () => <div data-testid="home-block-pilot-command-center" />,
 }));
 
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";

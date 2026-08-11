@@ -98,14 +98,14 @@ public sealed class HybridHotPathReadCacheTests
         List<Task<string?>> tasks = Enumerable.Range(0, 8)
             .Select(_ => Task.Run(async () =>
             {
-                await startGate.Task.ConfigureAwait(false);
+                await startGate.Task;
 
-                return await cache.GetOrCreateAsync("burst", Factory, CancellationToken.None).ConfigureAwait(false);
+                return await cache.GetOrCreateAsync("burst", Factory, CancellationToken.None);
             }))
             .ToList();
 
         startGate.SetResult();
-        string?[] results = await Task.WhenAll(tasks).ConfigureAwait(false);
+        string?[] results = await Task.WhenAll(tasks);
 
         results.Should().OnlyContain(static value => value == "burst-value");
         calls.Should().Be(1);
@@ -115,7 +115,7 @@ public sealed class HybridHotPathReadCacheTests
         {
             Interlocked.Increment(ref calls);
 
-            await Task.Delay(50, ct).ConfigureAwait(false);
+            await Task.Delay(50, ct);
 
             return "burst-value";
         }
@@ -134,22 +134,22 @@ public sealed class HybridHotPathReadCacheTests
         List<Task> waiters = Enumerable.Range(0, 4)
             .Select(_ => Task.Run(async () =>
             {
-                await startGate.Task.ConfigureAwait(false);
+                await startGate.Task;
 
                 Func<Task> act = () => cache.GetOrCreateAsync("fault", Factory, CancellationToken.None);
 
-                await act.Should().ThrowAsync<InvalidOperationException>().ConfigureAwait(false);
+                await act.Should().ThrowAsync<InvalidOperationException>();
             }))
             .ToList();
 
         startGate.SetResult();
-        await Task.WhenAll(waiters).ConfigureAwait(false);
+        await Task.WhenAll(waiters);
 
         calls.Should().Be(1);
 
         Func<Task> retry = () => cache.GetOrCreateAsync("fault", Factory, CancellationToken.None);
 
-        await retry.Should().ThrowAsync<InvalidOperationException>().ConfigureAwait(false);
+        await retry.Should().ThrowAsync<InvalidOperationException>();
         calls.Should().Be(2);
         return;
 

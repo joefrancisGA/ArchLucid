@@ -185,7 +185,7 @@ export const GETTING_STARTED_HELP_NEXT_ACTION_CARDS: readonly GettingStartedActi
   },
   {
     title: GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_TITLE,
-    description: "Walk through a labeled sample from architecture package to sponsor-ready exports.",
+    description: "Walk through a labeled sample from signed review record to sponsor-ready exports.",
     href: sampleReviewHref,
     ctaLabel: GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA,
   },

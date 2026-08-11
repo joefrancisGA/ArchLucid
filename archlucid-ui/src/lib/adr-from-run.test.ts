@@ -44,7 +44,7 @@ describe("adr-from-run", () => {
           recommendation: "Encrypt and pin region.",
           severityLabel: "High",
           aiReasoningExcerpt: "Model cited graph path.",
-          trustLabel: "ModelInference",
+          trustLabel: "EvidenceBacked",
           trustLabelReason: "Cited graph path.",
         },
       ],
@@ -60,7 +60,7 @@ describe("adr-from-run", () => {
     expect(md).toContain("## Consequences");
     expect(md).toContain(input.runId);
     expect(md).toContain("[High] Store PII in-region");
-    expect(md).toContain("**Trust label:** ModelInference — Cited graph path.");
+    expect(md).toContain("**Trust label:** EvidenceBacked — Cited graph path.");
     expect(md).toContain("Driver A");
   });
 

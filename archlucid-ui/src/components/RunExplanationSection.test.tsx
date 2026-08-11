@@ -185,7 +185,7 @@ describe("RunExplanationSection", () => {
     expect(provenanceDetails).not.toBeNull();
     fireEvent.click(within(provenanceDetails as HTMLElement).getByText("Provenance metadata"));
 
-    expect(screen.getByText("unit-agent")).toBeInTheDocument();
+    expect(screen.getByText("Agent (unit-agent)")).toBeInTheDocument();
     expect(screen.getByText("gpt-test")).toBeInTheDocument();
     expect(screen.getByText("tpl-1")).toBeInTheDocument();
     expect(screen.getByText("v2")).toBeInTheDocument();

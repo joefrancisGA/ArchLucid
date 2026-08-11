@@ -18,8 +18,8 @@ describe("ui-route-traffic-settings-users-roles-tab (SER)", () => {
     expect(row?.path).toBe(SETTINGS_USERS_ROLES_TAB_TRAFFIC_PATH);
     expect(row?.section).toBe(SETTINGS_USERS_ROLES_TAB_TRAFFIC_SECTION);
     expect(row?.notes).toBe(SETTINGS_USERS_ROLES_TAB_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("/al-ui-rate");
-    expect(row?.notes).toContain("UX 84/100");
-    expect(row?.notes).toContain("Save/Discard");
+    expect(row?.notes).toContain("SettingsRolesPageView");
+    expect(row?.notes).toContain("?tab=roles");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

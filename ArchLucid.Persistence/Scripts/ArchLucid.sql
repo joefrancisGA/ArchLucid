@@ -8638,7 +8638,7 @@ WHERE r.Status = N''Open''
 END;
 GO
 
-/* ---- DbUp 211 parity: archive cascade TVP + procedure ---- */
+/* ---- DbUp 211 + 300 parity: archive cascade TVP + procedure (COL_LENGTH prefers SignedReviewRecords) ---- */
 
 IF TYPE_ID(N'dbo.ArchivedRunIdList') IS NULL
     CREATE TYPE dbo.ArchivedRunIdList AS TABLE

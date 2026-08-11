@@ -81,7 +81,8 @@ describe("DigestsHubClient buyer-polished shell", () => {
         "Send scheduled summaries of review activity, governance signals, findings, and advisory scans.",
       ),
     ).not.toBeInTheDocument();
-    expect(screen.getByTestId("digests-privacy-note")).toBeInTheDocument();
+    // Setup-incomplete browse collapses the privacy note behind the get-started checklist.
+    expect(screen.queryByTestId("digests-privacy-note")).not.toBeInTheDocument();
 
     await waitFor(() => {
       expect(screen.getByTestId("digests-header-actions")).toBeInTheDocument();

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -17,8 +18,6 @@ vi.mock("@/components/operator-home/BuyerCtoDemoReadinessPanel", () => ({
   }: {
     onRecheckControlsChange?: (controls: { runChecks: () => void; loading: boolean }) => void;
   }) => {
-    const { useEffect } = require("react") as typeof import("react");
-
     useEffect(() => {
       onRecheckControlsChange?.({
         runChecks: () => undefined,

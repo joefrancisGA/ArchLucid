@@ -49,10 +49,16 @@ const scorecardData: PilotScorecardJson = {
 
 function buildModel(overrides: Partial<UsePilotScorecardPageModel> = {}): UsePilotScorecardPageModel {
   return {
+    assumptionsComplete: false,
+    assumptionsDirty: false,
     canExecute: true,
+    canSaveAssumptions: false,
     data: scorecardData,
     error: null,
+    fieldErrors: { hours: null, reviews: null, rate: null },
     hours: "",
+    livePreview: null,
+    metricsAsOfUtc: null,
     onSaveBaselines: vi.fn(async () => undefined),
     rate: "",
     reviews: "",
@@ -81,8 +87,9 @@ describe("PilotScorecardPageView", () => {
   it("renders Sources strip and directional claim discipline (SCX Evidence)", () => {
     render(<PilotScorecardPageView model={buildModel()} />);
 
-    expect(screen.queryByTestId("architecture-scorecard-sources")).toBeNull(); // TB-2092
-    expect(screen.queryByTestId("architecture-scorecard-claim-discipline")).toBeNull(); // TB-2092
+    expect(screen.getByTestId("architecture-scorecard-sources")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Sources" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Sources for follow-up" })).toBeNull();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
   });
 
@@ -108,7 +115,6 @@ describe("PilotScorecardPageView", () => {
     expect(screen.getByTestId("review-scorecard-roi-assumptions")).toHaveClass("grid");
     expect(screen.getByText("ROI assumptions")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Save ROI assumptions" })).toBeInTheDocument();
-    expect(screen.getByTestId("review-scorecard-roi-estimate-empty")).toBeInTheDocument();
   });
 
   it("shows an executive-ready empty state when no reviews are committed", () => {

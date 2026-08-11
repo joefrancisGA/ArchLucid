@@ -15,4 +15,4 @@ export const ACCESS_DENIED_TRAFFIC_SECTION = "Auth";
  * ASCII-only for Windows console note scripts.
  */
 export const ACCESS_DENIED_TRAFFIC_NOTE =
- "Access denied (Auth) - OperatorAccessDeniedPageClient with, role-missing messaging, sign-in/support actions. Not an operator PageContextualHelp surface. Sibling ASI = signin; AUB = bootstrap. Score 76/100 (2026-08-08) - authz gate hard-caps short of diligence packing. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
+  "Access denied (Auth) - OperatorAccessDeniedPageClient with, role-missing messaging, sign-in/support actions. Not an operator PageContextualHelp surface. Sibling ASI = signin; AUB = bootstrap. Score 76/100 (2026-08-08) - authz gate hard-caps short of diligence packing. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";

@@ -10,7 +10,6 @@ export function NewSinceLastVisitMarker(props: NewSinceLastVisitMarkerProps): Re
   return (
     <span
       aria-label="Updated since your last visit"
-      title="Updated since your last visit"
       data-testid={props.testId ?? "new-since-last-visit-marker"}
       className={cn(
         "inline-block h-2 w-2 shrink-0 rounded-full bg-teal-600 align-middle dark:bg-teal-500",
