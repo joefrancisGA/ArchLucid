@@ -13,6 +13,7 @@ import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { PolicyPacksStandardsVocabularyRail } from "@/components/PolicyPacksStandardsVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
 import {
@@ -223,6 +224,7 @@ export function GovernanceResolutionPageView(props: Props) {
           subtitle={STANDARDS_RULES_PAGE_SUBTITLE}
           actions={<PageContextualHelpButton />}
         />
+        <PolicyPacksStandardsVocabularyRail currentSurfaceId="standards-and-rules" />
 {m.failure !== null ? (
           <div role="alert">
             <OperatorApiProblem
@@ -265,6 +267,7 @@ export function GovernanceResolutionPageView(props: Props) {
         subtitle={m.canMutateEnterprisePolicySurfaces ? governanceResolutionPageLeadOperator : governanceResolutionPageLeadReader}
         actions={<PageContextualHelpButton />}
       />
+      <PolicyPacksStandardsVocabularyRail currentSurfaceId="standards-and-rules" />
 <GovernanceResolutionRankCue className="mb-3" />
       {m.failure !== null ? (
         <div role="alert">

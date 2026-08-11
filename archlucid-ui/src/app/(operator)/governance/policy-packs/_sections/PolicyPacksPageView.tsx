@@ -27,6 +27,7 @@ import { PolicyPacksAdvancedAuthoringPanel } from "./PolicyPacksAdvancedAuthorin
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
+import { PolicyPacksStandardsVocabularyRail } from "@/components/PolicyPacksStandardsVocabularyRail";
 import {
   Tabs,
   TabsContent,
@@ -93,6 +94,8 @@ className="mb-3"
         lastRefreshedAt={m.lastRefreshedAt}
         onRefresh={m.load}
       />
+
+      <PolicyPacksStandardsVocabularyRail currentSurfaceId="policy-packs" />
 
       {m.publishSuccessMessage !== null ? (
         <OperatorSuccessCallout
