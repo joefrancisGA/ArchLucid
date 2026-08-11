@@ -8,4 +8,6 @@
 
 **Canonical handout:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#interrupted-review-m-122`](BUYER_SECURITY_PROCUREMENT_PACKET.md#interrupted-review-m-122).
 
+**Engineering SoT:** [`../operations/ACA_WORKER_LLM_FAILURE_SEMANTICS.md`](../operations/ACA_WORKER_LLM_FAILURE_SEMANTICS.md) (**TB-960**).
+
 Buyer-visible states, too-strong vs safe, reviewer checks, posture, and residuals live only in the buyer security procurement packet. This file keeps the historical path stable for GTM **M-122** and [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).

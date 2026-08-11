@@ -4176,7 +4176,7 @@ Former standalone body: `docs/go-to-market/SIMULATOR_ROI_SPONSOR_FORBID_ONE_PAGE
 
 ## Interrupted review — replica death and resume (M-122) {#interrupted-review-m-122}
 
-Former standalone body: `docs/go-to-market/INTERRUPTED_REVIEW_BUYER_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-122** / **TB-960**). Complements **M-113** Claim-3. Not an assurance attestation and not Real-mode proof (**G-REAL-06**/**G-REAL-07**).
+Former standalone body: `docs/go-to-market/INTERRUPTED_REVIEW_BUYER_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-122** / **TB-960**). Engineering SoT: [`../operations/ACA_WORKER_LLM_FAILURE_SEMANTICS.md`](../operations/ACA_WORKER_LLM_FAILURE_SEMANTICS.md). Complements **M-113** Claim-3. Not an assurance attestation and not Real-mode proof (**G-REAL-06**/**G-REAL-07**).
 
 **Path-stable alias:** [`INTERRUPTED_REVIEW_BUYER_ONE_PAGER.md`](INTERRUPTED_REVIEW_BUYER_ONE_PAGER.md).
 
@@ -4220,7 +4220,8 @@ Former standalone body: `docs/go-to-market/INTERRUPTED_REVIEW_BUYER_ONE_PAGER.md
 ### Residuals (honest)
 
 - **TB-039** (idempotent skip) and **TB-201** (unique `(RunId,TaskId)`) are Done.
-- **TB-960**–**TB-962** remain open for the ACA worker contract, graceful drain, and staging replica-kill drill.
+- **TB-960** **Done** (2026-08-10) — ACA worker failure-semantics engineering contract published.
+- **TB-961**–**TB-962** remain open for graceful drain and staging replica-kill drill.
 - See also [`../library/CRASH_RECOVERY_LONG_RUNNING_REVIEW_CLAIM_MAP.md`](../library/CRASH_RECOVERY_LONG_RUNNING_REVIEW_CLAIM_MAP.md).
 
 **Related:** [Process vs provider idempotency (M-171)](#process-vs-provider-idempotency-m-171) Â· [Polly vs run completeness (M-147)](#polly-vs-run-completeness-m-147) Â· [`../library/LLM_RETRY_AND_CIRCUIT_BREAKER.md`](../library/LLM_RETRY_AND_CIRCUIT_BREAKER.md) Â· [principal architect falsification script](#principal-architect-falsification-script-m-113) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).
