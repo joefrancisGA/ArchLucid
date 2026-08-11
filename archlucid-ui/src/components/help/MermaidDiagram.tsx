@@ -15,6 +15,7 @@ export type MermaidDiagramProps = {
   readonly source: string;
   readonly accessibleName: string;
   readonly description?: string;
+  readonly themeVariables?: Readonly<Record<string, string>>;
 };
 
 function useDocumentDarkMode(): boolean {
@@ -83,7 +84,7 @@ function useHasBeenVisible(targetRef: RefObject<HTMLElement | null>): boolean {
 
 /** Client-rendered Mermaid diagram for trusted in-app help markdown. */
 export function MermaidDiagram(props: MermaidDiagramProps): React.JSX.Element {
-  const { source, accessibleName, description } = props;
+  const { source, accessibleName, description, themeVariables } = props;
   const reactId = useId();
   const renderId = useMemo(() => sanitizeMermaidRenderId(`help-mermaid-${reactId}`), [reactId]);
   const frameRef = useRef<HTMLDivElement>(null);
@@ -113,6 +114,7 @@ export function MermaidDiagram(props: MermaidDiagramProps): React.JSX.Element {
           theme: dark ? "dark" : "neutral",
           securityLevel: "strict",
           fontFamily: "ui-sans-serif, system-ui, sans-serif",
+          ...(themeVariables !== undefined ? { themeVariables: { ...themeVariables } } : {}),
         });
 
         const result = await mermaid.render(renderId, source.trim());
@@ -134,7 +136,7 @@ export function MermaidDiagram(props: MermaidDiagramProps): React.JSX.Element {
     return (): void => {
       cancelled = true;
     };
-  }, [source, dark, renderId, hasBeenVisible]);
+  }, [source, dark, renderId, hasBeenVisible, themeVariables]);
 
   useLayoutEffect(() => {
     if (svgMarkup === null) {

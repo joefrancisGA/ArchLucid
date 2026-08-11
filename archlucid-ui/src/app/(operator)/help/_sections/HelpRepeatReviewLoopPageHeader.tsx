@@ -13,7 +13,7 @@ export type HelpRepeatReviewLoopPageHeaderProps = {
   readonly subtitle: string;
 };
 
-/** Shared `/help/repeat-review-loop` hero — title, lead, provenance, contextual help, and export. */
+/** Shared `/help/repeat-review-loop` hero — title, lead, contextual help, and export. */
 export function HelpRepeatReviewLoopPageHeader(
   props: HelpRepeatReviewLoopPageHeaderProps,
 ): React.JSX.Element {
@@ -33,7 +33,6 @@ export function HelpRepeatReviewLoopPageHeader(
           ]}
         />
       }
-      metadata={undefined}
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="help-repeat-review-loop-header-actions">
           <PageContextualHelpButton />

@@ -19,11 +19,11 @@
 
 | Repeat-review signal | Where you see it | Proof acceptance |
 | --- | --- | --- |
-| Reused prior decision | Compare / prior package context | Second review references first signed review record in findings or compare output |
-| Repeated finding category trend | Product learning rollups | Category counts shift with real evidence changes |
-| Improved cycle time | Review duration metrics · pilot timing budget | Wall-clock or architect hours decrease vs baseline in [`PILOT_SUCCESS_SCORECARD.md`](../go-to-market/PILOT_SUCCESS_SCORECARD.md) |
-| Governance trend | Policy pack dry-run → enforce | Fewer critical findings on repeat with same pack |
-| Executive ROI rollup | Executive ROI summary export | Sponsor-safe ROI basis labels on executive exports |
+| Reused prior decision | [Compare and prior package context](/insights/compare-two-reviews) | Second review references first signed review record in findings or compare output |
+| Repeated finding category trend | [Product learning rollups](/help/pilot-feedback) | Category counts shift with real evidence changes |
+| Improved cycle time | [Review duration metrics and pilot timing budget](/insights/architecture-scorecard) | Wall-clock or architect hours decrease vs baseline in [`PILOT_SUCCESS_SCORECARD.md`](../go-to-market/PILOT_SUCCESS_SCORECARD.md) |
+| Governance trend | [Policy pack dry-run and enforce](/governance/policy-packs) | Fewer critical findings on repeat with same pack |
+| Executive ROI rollup | [Executive ROI summary export](/insights/executive-summary) | Sponsor-safe ROI basis labels on executive exports |
 
 ---
 

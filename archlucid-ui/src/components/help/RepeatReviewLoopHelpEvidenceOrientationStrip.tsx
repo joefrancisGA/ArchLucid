@@ -14,7 +14,7 @@ export function RepeatReviewLoopHelpEvidenceOrientationStrip(): React.JSX.Elemen
   return (
     <div className="space-y-3" data-testid="repeat-review-loop-help-orientation">
       <aside
-        className={cn(DESIGN_TOKENS.callout.warn, "p-3")}
+        className={cn(DESIGN_TOKENS.callout.info, "p-3")}
         data-testid="repeat-review-loop-help-claim-discipline"
       >
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{REPEAT_REVIEW_LOOP_HELP_CLAIM_DISCIPLINE}</p>

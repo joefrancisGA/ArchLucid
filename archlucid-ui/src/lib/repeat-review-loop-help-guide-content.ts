@@ -22,19 +22,34 @@ export function repeatReviewLoopHelpPageSubtitle(buyerPolishedShell: boolean): s
     : REPEAT_REVIEW_LOOP_HELP_PAGE_SUBTITLE_OPERATOR;
 }
 
-export const REPEAT_REVIEW_LOOP_HELP_LAST_REFRESHED_PREFIX = "Last refreshed" as const;
-
-export const REPEAT_REVIEW_LOOP_HELP_ACTION_REFRESH = "Refresh" as const;
-
-export const REPEAT_REVIEW_LOOP_HELP_ACTION_REFRESHING = "Refreshing…" as const;
-
-export const REPEAT_REVIEW_LOOP_HELP_SCOPE_DETAILS_TRIGGER = "About repeat reviews" as const;
-
 export const REPEAT_REVIEW_LOOP_HELP_OVERVIEW =
   "After one committed architecture review, ArchLucid helps you compare packages, replay authority for regressions, run governance dry-runs, and collect sponsor-safe proof on follow-up reviews.";
 
 export const REPEAT_REVIEW_LOOP_HELP_DIAGRAM_SUMMARY =
-  "The repeat-review loop after your first finalize: compare, replay, dry-run governance, finalize again, and collect proof. See [Compare and replay](/help/comparison-replay) and [Your first architecture review](/help/first-architecture-review) for step detail.";
+  "The repeat-review loop after your first finalize: compare, replay, dry-run governance, finalize again, and collect proof.";
+
+/** Per-instance Mermaid theme — larger labels and higher contrast on raised surfaces. */
+export const REPEAT_REVIEW_LOOP_HELP_DIAGRAM_THEME_VARIABLES: Readonly<Record<string, string>> = {
+  fontSize: "16px",
+  primaryTextColor: "#171717",
+  secondaryTextColor: "#404040",
+  tertiaryTextColor: "#525252",
+  lineColor: "#404040",
+  primaryColor: "#f5f5f5",
+  secondaryColor: "#e5e5e5",
+  tertiaryColor: "#d4d4d4",
+};
+
+export const REPEAT_REVIEW_LOOP_HELP_DIAGRAM_THEME_VARIABLES_DARK: Readonly<Record<string, string>> = {
+  fontSize: "16px",
+  primaryTextColor: "#f5f5f5",
+  secondaryTextColor: "#d4d4d4",
+  tertiaryTextColor: "#a3a3a3",
+  lineColor: "#d4d4d4",
+  primaryColor: "#262626",
+  secondaryColor: "#404040",
+  tertiaryColor: "#525252",
+};
 
 /** Buyer-safe repeat-review cycle — no CLI scripts or repo paths. */
 export const REPEAT_REVIEW_LOOP_HELP_DIAGRAM_SOURCE = `flowchart LR

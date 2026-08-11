@@ -21,7 +21,7 @@ import { HelpRepeatReviewLoopPageHeader } from "@/app/(operator)/help/_sections/
 describe("HelpRepeatReviewLoopPageHeader", () => {
   const entry = getProductDocumentationEntry("repeat-review-loop");
 
-  it("renders h1, registry provenance, and export actions without refresh", () => {
+  it("renders h1 and export actions without refresh or registry review dates", () => {
     if (entry === undefined) {
       throw new Error("Expected repeat-review-loop documentation entry.");
     }
@@ -37,10 +37,7 @@ describe("HelpRepeatReviewLoopPageHeader", () => {
     expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
     expect(screen.getByText(repeatReviewLoopHelpPageSubtitle(false))).toBeInTheDocument();
     expect(screen.getByTestId("help-repeat-review-loop-breadcrumb")).toHaveTextContent("Help");
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-07-27");
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
-      "Compare two reviews and Validate review workspace tools",
-    );
+    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
     expect(screen.queryByTestId("help-repeat-review-loop-refresh-button")).toBeNull();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-repeat-review-loop-header-actions")).toBeInTheDocument();
