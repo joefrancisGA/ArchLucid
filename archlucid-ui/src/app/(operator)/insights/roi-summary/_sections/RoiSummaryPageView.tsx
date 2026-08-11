@@ -7,6 +7,7 @@ import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorksp
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { LayerHeader } from "@/components/LayerHeader";
+import { BaselineRoiVocabularyRail } from "@/components/BaselineRoiVocabularyRail";
 import { RoiSponsorExportVocabularyRail } from "@/components/RoiSponsorExportVocabularyRail";
 import { ScorecardRoiVocabularyRail } from "@/components/ScorecardRoiVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -109,6 +110,7 @@ export function RoiSummaryPageView(props: Props) {
       <ValueReportOutcomesNav />
       <RoiSponsorExportVocabularyRail currentSurfaceId="roi-summary" />
       <ScorecardRoiVocabularyRail currentSurfaceId="roi-summary" />
+      <BaselineRoiVocabularyRail currentSurfaceId="roi-summary" />
       <DocumentLayout>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
