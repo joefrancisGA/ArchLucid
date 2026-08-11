@@ -6,8 +6,6 @@ import type { ReactNode } from "react";
 
 import { HelpTopicMarkdownPageHeader } from "@/app/(operator)/help/_sections/HelpTopicMarkdownPageHeader";
 
-import { EnterpriseOnboardingHubSteps } from "@/components/help/EnterpriseOnboardingHubSteps";
-
 import { CaiqSigResponseHelpPostureSummary } from "@/components/help/CaiqSigResponseHelpPostureSummary";
 
 import { HelpTopicExportClaimDiscipline } from "@/components/help/HelpTopicExportClaimDiscipline";
@@ -40,7 +38,6 @@ import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/desig
 
 import { AUTHENTICATION_SIGN_IN_HELP_PRIMARY_ACTION } from "@/lib/authentication-sign-in-help-copy";
 import { CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTION } from "@/lib/caiq-sig-response-help-evidence-copy";
-import { ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION } from "@/lib/enterprise-onboarding-help-copy";
 import { EVIDENCE_INTAKE_HELP_PRIMARY_ACTION } from "@/lib/evidence-intake-help-evidence-copy";
 import { EVIDENCE_TRAIL_HELP_PRIMARY_ACTION } from "@/lib/evidence-trail-help-evidence-copy";
 import { INTEGRATION_READINESS_HELP_PRIMARY_ACTION } from "@/lib/integration-readiness-help-evidence-copy";
@@ -117,8 +114,6 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
   const isCaiqSigResponse = isCaiqSigResponseHelpTopic(entry.slug);
 
-  const isEnterpriseOnboarding = entry.slug === "enterprise-onboarding";
-
   const preparedMarkdown = isCaiqSigResponse
 
     ? prepareCaiqSigResponseHelpMarkdown(markdown, sourceDocPath)
@@ -133,13 +128,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
   const extractedHeadings = extractHelpMarkdownHeadings(preparedMarkdown);
 
-  const headings =
-
-    isEnterpriseOnboarding
-
-      ? [{ id: "onboarding-hub", title: "Onboarding hub", level: 2 as const }, ...extractedHeadings]
-
-      : extractedHeadings;
+  const headings = extractedHeadings;
 
   const resolvedTocGroups =
 
@@ -200,19 +189,17 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
         signInFailureTriageLine={isAuthenticationSignInHelp ? <HelpTopicSignInFailureTriageLine /> : undefined}
 
         primaryAction={
-          isEnterpriseOnboarding
-            ? ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION
-            : isAuthenticationSignInHelp
-              ? AUTHENTICATION_SIGN_IN_HELP_PRIMARY_ACTION
-              : isCaiqSigResponse
-                ? CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTION
-                : isIntegrationReadinessHelp
-                  ? INTEGRATION_READINESS_HELP_PRIMARY_ACTION
-                  : isEvidenceTrail
-                    ? EVIDENCE_TRAIL_HELP_PRIMARY_ACTION
-                    : isEvidenceIntakeHelp
-                      ? EVIDENCE_INTAKE_HELP_PRIMARY_ACTION
-                      : undefined
+          isAuthenticationSignInHelp
+            ? AUTHENTICATION_SIGN_IN_HELP_PRIMARY_ACTION
+            : isCaiqSigResponse
+              ? CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTION
+              : isIntegrationReadinessHelp
+                ? INTEGRATION_READINESS_HELP_PRIMARY_ACTION
+                : isEvidenceTrail
+                  ? EVIDENCE_TRAIL_HELP_PRIMARY_ACTION
+                  : isEvidenceIntakeHelp
+                    ? EVIDENCE_INTAKE_HELP_PRIMARY_ACTION
+                    : undefined
         }
 
       />
@@ -241,7 +228,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
 
 
-      {!isEnterpriseOnboarding ? evidenceOrientation : null}
+      {!evidenceOrientation ? null : evidenceOrientation}
 
 
 
@@ -254,10 +241,6 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
       <div className={contentGridClass}>
 
         <div className={contentColumnClass} data-testid="help-topic-content">
-
-          {isEnterpriseOnboarding ? <EnterpriseOnboardingHubSteps /> : null}
-
-          {isEnterpriseOnboarding ? evidenceOrientation : null}
 
           <MarketingAccessibilityMarkdownFragment
 

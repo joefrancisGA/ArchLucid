@@ -15,8 +15,7 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/help/enterprise-onboarding",
 }));
 
-import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownView";
-import { EnterpriseOnboardingHelpEvidenceOrientationStrip } from "@/components/help/EnterpriseOnboardingHelpEvidenceOrientationStrip";
+import { HelpEnterpriseOnboardingGuideView } from "@/app/(operator)/help/_sections/HelpEnterpriseOnboardingGuideView";
 import {
   ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE,
   ENTERPRISE_ONBOARDING_HELP_RELATED_PAGES_TITLE,
@@ -26,6 +25,7 @@ import {
   ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE,
   ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION,
 } from "@/lib/enterprise-onboarding-help-copy";
+import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
 import { ENTERPRISE_ONBOARDING_HUB_STEPS } from "@/lib/enterprise-onboarding-hub-steps";
 import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
 import { getHelpCenterDisplay, getHelpCenterTier } from "@/lib/help-center-catalog";
@@ -76,12 +76,7 @@ function renderEnterpriseOnboardingView(): void {
   }
 
   render(
-    <HelpTopicMarkdownView
-      entry={loaded.entry}
-      markdown={loaded.markdown}
-      showContextualHelp
-      evidenceOrientation={<EnterpriseOnboardingHelpEvidenceOrientationStrip />}
-    />,
+    <HelpEnterpriseOnboardingGuideView entry={loaded.entry} markdown={loaded.markdown} />,
   );
 }
 
@@ -100,7 +95,7 @@ function contentOrderIndex(testId: string): number {
   return nodes.findIndex((node) => node.getAttribute("data-testid") === testId);
 }
 
-describe("HelpTopicMarkdownView enterprise onboarding checklist", () => {
+describe("HelpEnterpriseOnboardingGuideView enterprise onboarding checklist", () => {
   const loaded = tryLoadProductDocumentation("enterprise-onboarding");
 
   it("loads enterprise onboarding markdown from the monorepo", () => {
@@ -132,6 +127,37 @@ describe("HelpTopicMarkdownView enterprise onboarding checklist", () => {
     });
 
     expect(preparedMarkdown.trimStart().startsWith("# ")).toBe(false);
+  });
+
+  it("renders specialty checklist guide chrome with Configure SSO in the first viewport (TB-1338)", () => {
+    renderEnterpriseOnboardingView();
+
+    expect(screen.getByTestId("help-enterprise-onboarding-guide")).toBeInTheDocument();
+    expect(screen.getByTestId("help-enterprise-onboarding-action-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("help-enterprise-onboarding-first-viewport")).toBeInTheDocument();
+
+    const actionPanel = screen.getByTestId("help-enterprise-onboarding-action-panel");
+    const firstReviewHeading = screen.getByRole("heading", { level: 2, name: "Sign-in models" });
+
+    expect(
+      (firstReviewHeading.compareDocumentPosition(actionPanel) & Node.DOCUMENT_POSITION_PRECEDING) !== 0,
+    ).toBe(true);
+
+    expect(within(actionPanel).getByRole("link", { name: "Configure SSO" })).toHaveAttribute(
+      "href",
+      "/administration/identity/sso-wizard",
+    );
+  });
+
+  it("repoints Validate first architecture review to first-architecture-review, not pilot-guide (TB-1342)", () => {
+    renderEnterpriseOnboardingView();
+
+    const hub = screen.getByTestId("enterprise-onboarding-hub-steps");
+    const firstReviewLink = within(hub).getByRole("link", { name: "Your first architecture review" });
+
+    expect(firstReviewLink).toHaveAttribute("href", FIRST_ARCHITECTURE_REVIEW_HELP_PATH);
+    expect(within(hub).queryByRole("link", { name: /pilot guide/i })).toBeNull();
+    expect(hub.textContent ?? "").not.toContain("/help/pilot-guide");
   });
 
   it("renders evidence orientation after the hub with related setup pages title", () => {

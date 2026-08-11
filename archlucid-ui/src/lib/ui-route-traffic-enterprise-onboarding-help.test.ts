@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { extractMasterTableRows, readUiRouteTrafficEstimatesTemplateMarkdown } from "@/lib/testing/ui-route-traffic-workbook-test-utils";
+import { extractMasterTableRows, findTrafficRowById, readUiRouteTrafficEstimatesTemplateMarkdown } from "@/lib/testing/ui-route-traffic-workbook-test-utils";
 
 import {
   ENTERPRISE_ONBOARDING_HELP_TRAFFIC_NOTE,
@@ -18,7 +18,7 @@ describe("ui-route-traffic-enterprise-onboarding-help (HEX)", () => {
     expect(row?.path).toBe(ENTERPRISE_ONBOARDING_HELP_TRAFFIC_PATH);
     expect(row?.section).toBe(ENTERPRISE_ONBOARDING_HELP_TRAFFIC_SECTION);
     expect(row?.notes).toBe(ENTERPRISE_ONBOARDING_HELP_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("HelpTopicMarkdownView");
+    expect(row?.notes).toContain("HelpEnterpriseOnboardingGuideView");
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

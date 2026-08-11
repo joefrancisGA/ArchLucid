@@ -5,7 +5,6 @@ import { notFound, permanentRedirect } from "next/navigation";
 
 import { HelpTopicMarkdownView } from "../HelpTopicMarkdownView";
 import { CaiqSigResponseHelpEvidenceOrientationStrip } from "@/components/help/CaiqSigResponseHelpEvidenceOrientationStrip";
-import { EnterpriseOnboardingHelpEvidenceOrientationStrip } from "@/components/help/EnterpriseOnboardingHelpEvidenceOrientationStrip";
 import { EvidenceIntakeHelpClaimDisciplineStrip } from "@/components/help/EvidenceIntakeHelpClaimDisciplineStrip";
 import { EvidenceTrailHelpEvidenceOrientationStrip } from "@/components/help/EvidenceTrailHelpEvidenceOrientationStrip";
 import { IntegrationReadinessHelpEvidenceOrientationStrip } from "@/components/help/IntegrationReadinessHelpEvidenceOrientationStrip";
@@ -115,6 +114,11 @@ const HelpSoc2SelfAssessmentGuideView = dynamic(() =>
 const HelpEngineeringTroubleshootingGuideView = dynamic(() =>
   import("../_sections/HelpEngineeringTroubleshootingGuideView").then(
     (module) => module.HelpEngineeringTroubleshootingGuideView,
+  ),
+);
+const HelpEnterpriseOnboardingGuideView = dynamic(() =>
+  import("../_sections/HelpEnterpriseOnboardingGuideView").then(
+    (module) => module.HelpEnterpriseOnboardingGuideView,
   ),
 );
 const HelpFirstReviewEvidenceChecklistGuideView = dynamic(() =>
@@ -346,6 +350,10 @@ function renderHelpTopicView(
     return <HelpConfigurationReferenceGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
+  if (loaded.entry.slug === "enterprise-onboarding") {
+    return <HelpEnterpriseOnboardingGuideView entry={loaded.entry} markdown={loaded.markdown} />;
+  }
+
   if (loaded.entry.slug === "first-review") {
     return <HelpFirstReviewEvidenceChecklistGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
@@ -504,17 +512,6 @@ function renderHelpTopicView(
         markdown={loaded.markdown}
         showContextualHelp
         evidenceOrientation={<EvidenceIntakeHelpClaimDisciplineStrip />}
-      />
-    );
-  }
-
-  if (loaded.entry.slug === "enterprise-onboarding") {
-    return (
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        showContextualHelp
-        evidenceOrientation={<EnterpriseOnboardingHelpEvidenceOrientationStrip />}
       />
     );
   }

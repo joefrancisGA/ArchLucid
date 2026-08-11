@@ -15,7 +15,7 @@ Regenerate after opening or closing summary-table rows:
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
 | Architectural integrity | 11 |
-| Adoption friction | 309 |
+| Adoption friction | 308 |
 | Commercial / marketability | 9 |
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
@@ -35,9 +35,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **582** |
+| **Total (unique open)** | **581** |
 
-**By priority band:** P0 **3** | P1 **459** | P2 **103** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **3** | P1 **458** | P2 **103** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -978,7 +978,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1322 | **Done** (2026-08-10) — `/demo/explain` IA gate; see ## TB-1322 below | Adoption friction P1 ? **V1**; with **TB-1319**; pairs **TB-1307**/**TB-1251** | S |
 | TB-1328 | ~~Configuration reference ? operator task CTA chrome (SSO / identity / API keys)~~ **Done** 2026-08-02 ? specialty CTAs + Sources; see ## TB-1328 below | Adoption friction P1 ? **V1**; with **TB-1326** | S |
 | TB-1340 | Enterprise onboarding ? collapse Quick links + Onboarding hub duplicate; see ## TB-1340 below | Adoption friction P1 ? **V1**; with **TB-1338** | S |
-| TB-1342 | Enterprise onboarding ? first-review ? core-pilot + settings CTA pointers; see ## TB-1342 below | Adoption friction P1 ? **V1**; with **TB-1338**; pairs **TB-1335** | S |
+| TB-1342 | ~~Enterprise onboarding — first-review → first-architecture-review + settings CTA pointers~~ **Done** 2026-08-10 — hub step 7 → `/help/first-architecture-review`; action panel Configure SSO / identity / users / cloud CTAs; Vitest | Adoption friction P1 — **V1**; with **TB-1338**; pairs **TB-1335** | S |
 | TB-1343 | WHAT_NOT_TO_PROMISE ? UI/copy over-promise + highest buyer-risk page matrix; see `## TB-1343` below | Commercial / marketability P1 ? **V1**; PA WNTP UI risk; GTM **M-239**/**M-240** | S |
 | TB-1348 | Evaluator workbook ? session-flow CTA chrome + core-pilot canonicalize; see ## TB-1348 below | Adoption friction P1 ? **V1**; with **TB-1345**; pairs **TB-1335**/**TB-1319** | S |
 | TB-1349 | Evaluator workbook ? collapse Depth / in-app-only related links; see ## TB-1349 below | Adoption friction P1 ? **V1**; with **TB-1346**; parity **TB-1257**/**TB-1330** | S |
@@ -1414,7 +1414,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1333 | **Done** (2026-08-10) — `/help/core-pilot` stepper pending chrome; see ## TB-1333 below | Adoption friction P1 ? **V1**; with **TB-1331**; extends **TB-1042** | XS |
 | TB-1334 | **Done** (2026-08-10) — `/help/core-pilot` post-stepper density; see ## TB-1334 below | Adoption friction P1 ? **V1**; with **TB-1331**; extends **TB-1043** | S |
 | TB-1335 | **Done** (2026-08-10) — `/help/core-pilot` related-guides IA; see ## TB-1335 below | Adoption friction P1 ? **V1**; with **TB-1331**; pairs **TB-1258** | S |
-| TB-1338 | `/help/enterprise-onboarding` ? specialty checklist guide + primary SSO CTA; see ## TB-1338 below | Adoption friction P1 ? **V1**; owner enterprise-onboarding ~51/100 2026-07-26; traffic **HEX** | M |
+| TB-1338 | ~~`/help/enterprise-onboarding` — specialty checklist guide + primary SSO CTA~~ **Done** 2026-08-10 — `HelpEnterpriseOnboardingGuideView` hero + action panel + hub; Vitest specialty root | Adoption friction P1 — **V1**; owner enterprise-onboarding ~51/100 2026-07-26; traffic **HEX** | M |
 | TB-1345 | `/help/evaluator-workbook` ? specialty evaluator guide + primary Start CTA; see ## TB-1345 below | Adoption friction P1 ? **V1**; owner evaluator-workbook ~42/100 2026-07-26; traffic **HEE**; pairs **TB-1253**/**TB-1338** | M |
 | TB-1347 | Evaluator workbook ? help-center tier / audience honesty (not buried internal); see ## TB-1347 below | Trustworthiness P1 ? **V1**; with **TB-1345**; pairs **TB-1329**/**TB-1250** | S |
 | TB-1350 | `/help/evidence-intake` ? specialty wizard companion + primary Start CTA; see ## TB-1350 below | Adoption friction P1 ? **V1**; owner evidence-intake ~55/100 2026-07-26; traffic **EVI**; after Done **TB-761** | M |
@@ -33362,11 +33362,11 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ---
 
-## TB-1338 ? `/help/enterprise-onboarding` ? specialty checklist guide + primary SSO CTA (P0)
+## TB-1338 — `/help/enterprise-onboarding` — specialty checklist guide + primary SSO CTA (P0)
 
-**Window:** V1 ? Adoption friction.
+**Window:** V1 — Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-10) — `HelpEnterpriseOnboardingGuideView` with hero overview, Configure SSO / identity / users / cloud action panel, eight-step hub, evidence orientation strip, and markdown appendix; Vitest specialty root + first-viewport CTA guards.
 
 **Priority:** P0.
 
@@ -33475,11 +33475,11 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ---
 
-## TB-1342 ? Enterprise onboarding ? first-review ? core-pilot + settings CTA pointers (P0)
+## TB-1342 — Enterprise onboarding — first-review → first-architecture-review + settings CTA pointers (P0)
 
-**Window:** V1 ? Adoption friction.
+**Window:** V1 — Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-10) — hub step 7 repointed to `/help/first-architecture-review`; primary Configure SSO wizard CTA plus identity providers, users and roles, and cloud connections in action panel; Vitest no pilot-guide hub link.
 
 **Priority:** P0.
 

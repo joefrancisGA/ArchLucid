@@ -54,7 +54,10 @@ export const ENTERPRISE_ONBOARDING_HUB_STEPS: readonly EnterpriseOnboardingHubSt
   {
     title: "Validate first architecture review",
     owner: ENTERPRISE_ONBOARDING_HUB_STEP_OWNERS.architect,
-    primaryLink: { label: "Validate first architecture review", href: inAppHelpHref("pilot-guide") },
+    primaryLink: {
+      label: "Your first architecture review",
+      href: inAppHelpHref("first-architecture-review"),
+    },
   },
   {
     title: "Prepare procurement/trust review",
