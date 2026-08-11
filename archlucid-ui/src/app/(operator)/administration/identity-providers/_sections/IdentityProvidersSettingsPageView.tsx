@@ -5,6 +5,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { IdentityProvidersSsoWizardVocabularyRail } from "@/components/IdentityProvidersSsoWizardVocabularyRail";
+import { ScimIdentityProvidersVocabularyRail } from "@/components/ScimIdentityProvidersVocabularyRail";
 import {
   IDENTITY_PROVIDERS_ADMIN_FALLBACK_NOTICE,
   IDENTITY_PROVIDERS_NAV_DIAGNOSTICS,
@@ -62,6 +63,7 @@ export function IdentityProvidersSettingsPageView(props: IdentityProvidersSettin
       onRefresh={() => void model.refresh()}
     >
       <IdentityProvidersSsoWizardVocabularyRail currentSurfaceId="identity-providers" />
+      <ScimIdentityProvidersVocabularyRail currentSurfaceId="identity-providers" />
 {model.note !== null ? (
         <p
           className={cn("m-0 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}
