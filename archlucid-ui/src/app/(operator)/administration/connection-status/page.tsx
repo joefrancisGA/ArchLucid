@@ -1,5 +1,6 @@
 import { ConnectorOperationsDashboard } from "@/components/integrations/ConnectorOperationsDashboard";
 import { ConnectionStatusCloudConnectionsVocabularyRail } from "@/components/ConnectionStatusCloudConnectionsVocabularyRail";
+import { ConnectionStatusWebhooksVocabularyRail } from "@/components/ConnectionStatusWebhooksVocabularyRail";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -15,6 +16,7 @@ export default function AdministrationConnectionStatusPage() {
         actions={<PageContextualHelpButton />}
       />
       <ConnectionStatusCloudConnectionsVocabularyRail currentSurfaceId="connection-status" />
+      <ConnectionStatusWebhooksVocabularyRail currentSurfaceId="connection-status" />
       <p className={cn("m-0 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         Connection status shows which notification, ticketing, publishing, and delivery integrations are configured
         for this workspace.
