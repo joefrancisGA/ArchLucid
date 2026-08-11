@@ -186,7 +186,6 @@ Requires host / `features.showSystemAdministrationNav`. Walk once empty, once af
 | [ ] | [ ] | `/internal/recommendation-learning` |
 | [ ] | [ ] | `/internal/product-learning` |
 | [ ] | [ ] | `/internal/demo-readiness` |
-| [ ] | [ ] | `/internal/cli-usage` |
 | [ ] | [ ] | `/internal/integrations/itsm` |
 
 ### Help and misc operator

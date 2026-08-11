@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 /**
  * Admin-gated CLI engineering runbook — not a customer help topic or marketing page.
- * Served from `/internal/cli-usage`; retired `/help/cli-usage` bookmarks redirect here.
+ * Served from the authority-gated `/help/cli-usage` topic; retired `/internal/cli-usage` bookmarks redirect there.
  */
 export const CLI_USAGE_HELP_ROUTE_METADATA: Metadata = {
   title: "CLI usage",

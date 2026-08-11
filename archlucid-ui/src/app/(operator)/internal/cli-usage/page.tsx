@@ -1,19 +1,11 @@
-import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { permanentRedirect } from "next/navigation";
 
-import { CLI_USAGE_HELP_ROUTE_METADATA } from "@/lib/cli-usage-help-route-metadata";
-import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
+import { CLI_USAGE_HELP_PATH } from "@/lib/cli-usage-help-route";
 
-import { CliUsageInternalPageClient } from "./_sections/CliUsageInternalPageClient";
-
-export const metadata: Metadata = CLI_USAGE_HELP_ROUTE_METADATA;
-
-export default function CliUsageInternalPage(): React.JSX.Element {
-  const loaded = tryLoadProductDocumentation("cli-usage");
-
-  if (loaded === null) {
-    notFound();
-  }
-
-  return <CliUsageInternalPageClient entry={loaded.entry} markdown={loaded.markdown} />;
+/**
+ * Retired duplicate of the CLI runbook. The canonical surface is the `cli-usage` help topic,
+ * which enforces the internal-runbook authority gate on the server before rendering.
+ */
+export default function CliUsageInternalPage(): never {
+  permanentRedirect(CLI_USAGE_HELP_PATH);
 }
