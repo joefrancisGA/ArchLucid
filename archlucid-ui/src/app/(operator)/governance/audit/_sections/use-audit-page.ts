@@ -43,6 +43,13 @@ import {
   isCtoDemoAuditFilterActive,
   isCtoDemoRelevantAuditEvent,
 } from "@/lib/cto-demo-audit-filter";
+import {
+  type AuditTrailViewMode,
+  defaultAuditTrailViewMode,
+  readAuditTrailViewModeFromStorage,
+  resolveAuditTrailViewMode,
+  writeAuditTrailViewModeToStorage,
+} from "@/lib/audit-trail-view-mode";
 
 import type { OperatorSavedView } from "@/lib/api/operator-saved-views";
 import type { AuditSavedViewFilters } from "@/lib/operator-saved-view-types";
@@ -71,6 +78,9 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const canMutateEnterpriseShell = useOperateCapability();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const [viewMode, setViewModeState] = useState<AuditTrailViewMode>(() =>
+    defaultAuditTrailViewMode(buyerPolishedShell),
+  );
   const [advancedAuditFiltersOpen, setAdvancedAuditFiltersOpen] = useState(!buyerPolishedShell);
   const [buyerPrimaryFiltersOpen, setBuyerPrimaryFiltersOpen] = useState(false);
   const [eventTypes, setEventTypes] = useState<string[]>(serverLoad.eventTypes);
@@ -92,6 +102,21 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
   const [auditDatePreset, setAuditDatePreset] = useState<null | "24h" | "7d">(null);
   const demoAuditPrimedRef = useRef(false);
   const ctoDemoAuditFilterActive = isCtoDemoAuditFilterActive(searchParams.get(CTO_DEMO_AUDIT_FILTER_QUERY_PARAM));
+
+  useEffect(() => {
+    const storedMode = readAuditTrailViewModeFromStorage();
+    const resolved = resolveAuditTrailViewMode({
+      buyerPolishedShell,
+      storedMode,
+    });
+
+    setViewModeState(resolved);
+  }, [buyerPolishedShell]);
+
+  const onViewModeChange = useCallback((mode: AuditTrailViewMode) => {
+    setViewModeState(mode);
+    writeAuditTrailViewModeToStorage(mode);
+  }, []);
 
   useEffect(() => {
     const fromQuery = searchParams.get("runId")?.trim() ?? "";
@@ -491,8 +516,10 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
     [buyerPolishedShell, callerAuthorityRank],
   );
 
+  const storyPresentation = viewMode === "story";
+
   const sortedDisplayEvents = useMemo(() => {
-    if (!buyerPolishedShell) {
+    if (!storyPresentation) {
       return events;
     }
 
@@ -506,7 +533,7 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
 
       return eventA.occurredUtc.localeCompare(eventB.occurredUtc);
     });
-  }, [buyerPolishedShell, events]);
+  }, [events, storyPresentation]);
 
   const displayEvents = useMemo(() => {
     if (!ctoDemoAuditFilterActive) {
@@ -517,14 +544,14 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
   }, [ctoDemoAuditFilterActive, sortedDisplayEvents]);
 
   const displayEventGroups = useMemo(() => {
-    const eligible = buyerPolishedShell && auditEventsAreLifecycleOnlyForGrouping(displayEvents);
+    const eligible = storyPresentation && auditEventsAreLifecycleOnlyForGrouping(displayEvents);
 
     if (!eligible) {
       return null;
     }
 
     return groupAuditEventsByLifecycleStage(displayEvents);
-  }, [buyerPolishedShell, displayEvents]);
+  }, [displayEvents, storyPresentation]);
 
   const uniformRunIdForDisplay = useMemo(() => {
     if (displayEvents.length === 0) {
@@ -560,6 +587,8 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
 
   return {
     buyerPolishedShell,
+    viewMode,
+    onViewModeChange,
     runId,
     buyerAuditTrailSummaryLine,
     buyerAuditTrailMetrics,

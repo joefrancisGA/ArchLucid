@@ -7,6 +7,11 @@ import type { AuditEvent } from "@/lib/api";
 import { formatAuditSummaryHeading } from "@/app/(operator)/governance/audit/audit-ui-helpers";
 import { formatBuyerAuditResultsStatusLine } from "@/lib/audit-trail-page-helpers";
 import {
+  AUDIT_TRAIL_VIEW_STORY_INTRO,
+  AUDIT_TRAIL_VIEW_TABLE_INTRO,
+  type AuditTrailViewMode,
+} from "@/lib/audit-trail-view-mode";
+import {
   auditBuyerUtilitiesDetailsSummary,
   auditExportControlDisabledTitle,
   auditExportExecuteRankAuditorRoleNote,
@@ -27,7 +32,6 @@ import {
   BUYER_AUDIT_ENTERPRISE_WORKSPACE_FOLLOWUP,
   BUYER_AUDIT_ENTERPRISE_WORKSPACE_LEAD,
   BUYER_AUDIT_PACKAGE_READY_LEAD,
-  BUYER_AUDIT_TIMELINE_INTRO,
   BUYER_AUDIT_TRAIL_COMPLETE_HEADING,
 } from "@/lib/buyer-polish-copy";
 import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
@@ -35,6 +39,7 @@ import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { AuditBuyerEmptyState } from "./AuditBuyerEmptyState";
 import { AuditEventsOperatorTable } from "./AuditEventsOperatorTable";
 import { AuditTimelineEventCard } from "./AuditTimelineEventCard";
+import { AuditTrailViewSwitcher } from "./AuditTrailViewSwitcher";
 import { BuyerAuditEventsTechnicalAppendix } from "./BuyerAuditEventsTechnicalAppendix";
 import { CtoDemoAuditClosingBeat } from "@/components/cto-demo/CtoDemoAuditClosingBeat";
 import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
@@ -44,6 +49,8 @@ type AuditEventGroup = { stage: string; events: AuditEvent[] };
 
 type AuditResultsSectionProps = {
   buyerPolishedShell: boolean;
+  viewMode: AuditTrailViewMode;
+  onViewModeChange: (mode: AuditTrailViewMode) => void;
   callerAuthorityRank: number;
   events: AuditEvent[];
   displayEvents: AuditEvent[];
@@ -67,6 +74,8 @@ type AuditResultsSectionProps = {
 export function AuditResultsSection(props: AuditResultsSectionProps) {
   const {
     buyerPolishedShell,
+    viewMode,
+    onViewModeChange,
     callerAuthorityRank,
     events,
     displayEvents,
@@ -87,24 +96,31 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
     onExportCsv,
   } = props;
 
+  const storyPresentation = viewMode === "story";
+
   return (
     <section aria-labelledby="audit-results-heading">
       <CtoDemoBuyerValueStrip stepIndex={4} />
-      <h3 id="audit-results-heading" className={cn("mt-0 mb-2", OPERATOR_TYPOGRAPHY.cardTitle)}>
-        {buyerPolishedShell && events.length > 0
-          ? BUYER_AUDIT_TRAIL_COMPLETE_HEADING
-          : buyerPolishedShell
-            ? auditResultsSectionHeadingBuyerPolished
-            : callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
-              ? auditResultsSectionHeadingReader
-              : auditResultsSectionHeadingOperator}
-      </h3>
+      <div className="mb-2 flex flex-wrap items-start justify-between gap-3">
+        <h3 id="audit-results-heading" className={cn("mt-0 mb-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          {buyerPolishedShell && events.length > 0
+            ? BUYER_AUDIT_TRAIL_COMPLETE_HEADING
+            : buyerPolishedShell
+              ? auditResultsSectionHeadingBuyerPolished
+              : callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
+                ? auditResultsSectionHeadingReader
+                : auditResultsSectionHeadingOperator}
+        </h3>
+        <AuditTrailViewSwitcher viewMode={viewMode} onViewModeChange={onViewModeChange} />
+      </div>
       <p className={cn("mb-2 mt-0 max-w-2xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        {buyerPolishedShell ? (
-          <>{BUYER_AUDIT_TIMELINE_INTRO}</>
+        {storyPresentation ? (
+          <>{AUDIT_TRAIL_VIEW_STORY_INTRO}</>
+        ) : buyerPolishedShell ? (
+          <>{AUDIT_TRAIL_VIEW_TABLE_INTRO}</>
         ) : (
           <>
-            Each card is one <GlossaryTooltip termKey="audit_event">audit event</GlossaryTooltip>
+            Each row is one <GlossaryTooltip termKey="audit_event">audit event</GlossaryTooltip>
             {" — "}
             who acted, what changed, when it happened
             {", and review context when present"}.
@@ -170,7 +186,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                         {group.events.length} event{group.events.length === 1 ? "" : "s"}
                       </p>
                     </div>
-                    {buyerPolishedShell ? (
+                    {storyPresentation ? (
                       <div className="relative pl-5">
                         <div
                           className="pointer-events-none absolute left-1.5 top-2 bottom-2 w-0.5 rounded-full bg-neutral-300 dark:bg-neutral-700"
@@ -181,7 +197,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                             <AuditTimelineEventCard
                               key={ev.eventId}
                               ev={ev}
-                              buyerPolishedShell={buyerPolishedShell}
+                              buyerPolishedShell={true}
                               uniformRunId={uniformRunIdForDisplay}
                             />
                           ))}
@@ -196,13 +212,13 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                   </div>
                 ))}
               </div>
-            ) : buyerPolishedShell ? (
+            ) : storyPresentation ? (
               <div className="grid gap-3">
                 {displayEvents.map((ev) => (
                   <AuditTimelineEventCard
                     key={ev.eventId}
                     ev={ev}
-                    buyerPolishedShell={buyerPolishedShell}
+                    buyerPolishedShell={true}
                     uniformRunId={uniformRunIdForDisplay}
                   />
                 ))}

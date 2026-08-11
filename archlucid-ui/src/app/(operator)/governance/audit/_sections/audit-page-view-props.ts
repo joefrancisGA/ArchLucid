@@ -4,6 +4,7 @@ import type { AuditEvent } from "@/lib/api";
 import type { OperatorSavedView } from "@/lib/api/operator-saved-views";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { OperatorSavedViewPayload } from "@/lib/operator-saved-view-types";
+import type { AuditTrailViewMode } from "@/lib/audit-trail-view-mode";
 export type AuditPageEventGroup = {
   readonly stage: string;
   readonly events: AuditEvent[];
@@ -14,6 +15,8 @@ import type { BuyerAuditGovernanceSummary } from "@/lib/audit-trail-page-helpers
 /** Props for the presentational audit layout; produced by `useAuditPage(serverLoad)`. */
 export type AuditPageViewProps = {
   readonly buyerPolishedShell: boolean;
+  readonly viewMode: AuditTrailViewMode;
+  readonly onViewModeChange: (mode: AuditTrailViewMode) => void;
   readonly runId: string;
   readonly buyerAuditTrailSummaryLine: string | null;
   readonly buyerAuditTrailMetrics: BuyerAuditGovernanceSummary | null;

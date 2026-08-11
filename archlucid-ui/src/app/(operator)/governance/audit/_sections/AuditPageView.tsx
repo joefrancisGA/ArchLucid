@@ -213,6 +213,8 @@ export function AuditPageView(props: AuditPageViewProps) {
         <div className={cn(buyerPolishedShell && "order-1")}>
           <AuditResultsSection
             buyerPolishedShell={buyerPolishedShell}
+            viewMode={props.viewMode}
+            onViewModeChange={props.onViewModeChange}
             callerAuthorityRank={props.callerAuthorityRank}
             events={props.events}
             displayEvents={props.displayEvents}
