@@ -15,7 +15,7 @@ Regenerate after opening or closing summary-table rows:
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
 | Architectural integrity | 11 |
-| Adoption friction | 335 |
+| Adoption friction | 336 |
 | Commercial / marketability | 9 |
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
@@ -35,9 +35,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **622** |
+| **Total (unique open)** | **623** |
 
-**By priority band:** P0 **3** | P1 **491** | P2 **111** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **3** | P1 **492** | P2 **111** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -961,7 +961,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1286 | **Done** (2026-08-10) — Security & trust operator density + badge-legend StatusTag samples; Vitest; see `## TB-1286` below | Adoption friction P1 ? **V1**; with **TB-1285** | XS |
 | TB-1289 | **Done** (2026-08-10) — Recycle bin Administration breadcrumb + PageHeading/help; Vitest; see `## TB-1289` below | Adoption friction P1 ? **V1**; owner recycle-bin re-review ~58/100 2026-07-26; traffic **STR**; complements **TB-1179**?**TB-1182**; pairs **TB-1223** | S |
 | TB-1290 | **Done** (2026-08-10) — Recycle bin Dialog confirm before Restore; Vitest; see `## TB-1290` below | Adoption friction P1 ? **V1**; with **TB-1289** | S |
-| TB-1291 | Recycle bin ? OperatorEmptyState + loading notice; see ## TB-1291 below | Adoption friction P1 ? **V1**; with **TB-1182** | XS |
+| TB-1291 | **Done** (2026-08-10) — Recycle bin OperatorEmptyState + loading notice; Vitest; see `## TB-1291` below | Adoption friction P1 ? **V1**; with **TB-1182** | XS |
 | TB-1294 | `/welcome` ? first-viewport hero budget; see ## TB-1294 below | Adoption friction P1 ? **V1**; owner welcome ~50/100 2026-07-26; traffic **WXX**; complements GTM **M-09** | S |
 | TB-1295 | `/welcome` ? single primary conversion path (demote CTA stack); see ## TB-1295 below | Adoption friction P1 ? **V1**; with **TB-1294** | S |
 | TB-1296 | `/welcome` ? canonical proof CTA ladder (see-it vs demo/preview); see ## TB-1296 below | Adoption friction P1 ? **V1**; with **TB-1294**; pairs **TB-1028**/**TB-1282**/**M-107** | S |
@@ -32020,21 +32020,17 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-10).
 
 **Priority:** P0.
 
 **Source:** Owner STR re-review 2026-07-26 ? empty Card ?No deleted projects?; loading is plain ?Loading??.
 
-**Problem:** Happy-empty and first-load states do not use `OperatorEmptyState` / `OperatorLoadingNotice` (or equivalent) used on other Admin operate pages. Empty copy duplicates the unnamed retention period (**TB-1180**) and does not yet point at the delete surface (**TB-1181**).
+**Problem:** Happy-empty and first-load states did not use `OperatorEmptyState` / `OperatorLoadingNotice`. Empty copy did not orient operators to the delete surface.
 
-**Approach:**
+**Shipped:** `ProjectsRecycleBinListStates` with `OperatorLoadingNotice` (`aria-busy`) and `OperatorEmptyState` + quiet `StatusTag`; Architecture drafts link + concrete retention days; Vitest.
 
-1. Empty ? OperatorEmptyState with Ready/quiet status; once **TB-1179**/**TB-1180** land, point to delete path + concrete retention days.
-2. Loading ? OperatorLoadingNotice / skeleton with `aria-busy` (not a lone ?Loading?? paragraph).
-3. Vitest: empty and loading use shared operator empty/loading testids.
-
-**Acceptance:** Empty and loading match Administration operate-page patterns; no emerald Card-only empty theater.
+**Acceptance:** Empty and loading match Administration operate-page patterns; no Card-only empty theater.
 
 **Depends on:** Prefer with **TB-1182**; coordinate empty copy with **TB-1180**/**TB-1181**.
 
