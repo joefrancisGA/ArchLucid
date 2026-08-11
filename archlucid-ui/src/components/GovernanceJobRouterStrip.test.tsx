@@ -3,20 +3,22 @@ import { describe, expect, it } from "vitest";
 
 import { GovernanceJobRouterStrip } from "@/components/GovernanceJobRouterStrip";
 import {
+  GOVERNANCE_JOB_APPROVE_GOVERNANCE,
   GOVERNANCE_JOB_RECORD_DECISIONS,
   GOVERNANCE_JOB_ROUTER_HEADING,
   GOVERNANCE_JOB_TRIAGE_FINDINGS,
   getGovernanceJobRouter,
 } from "@/lib/governance-job-router";
 
-describe("GovernanceJobRouterStrip (TB-2199)", () => {
-  it("renders chooser with SoT heading and both job options", () => {
+describe("GovernanceJobRouterStrip (TB-2199 / TB-2230)", () => {
+  it("renders chooser with SoT heading and all three job options", () => {
     render(<GovernanceJobRouterStrip currentJobId="triage-findings" />);
 
     const strip = screen.getByTestId("governance-job-router");
     expect(strip).toHaveAttribute("data-current-job", "triage-findings");
     expect(screen.getByText(GOVERNANCE_JOB_ROUTER_HEADING)).toBeInTheDocument();
 
+    const approve = screen.getByTestId("governance-job-router-option-approve-governance");
     const triage = screen.getByTestId("governance-job-router-option-triage-findings");
     const decisions = screen.getByTestId("governance-job-router-option-record-decisions");
 
@@ -26,10 +28,36 @@ describe("GovernanceJobRouterStrip (TB-2199)", () => {
     expect(triage).toHaveTextContent(GOVERNANCE_JOB_TRIAGE_FINDINGS.label);
     expect(triage).toHaveTextContent(GOVERNANCE_JOB_TRIAGE_FINDINGS.whenToUse);
 
+    expect(approve).toHaveAttribute("data-current", "false");
+    expect(approve.tagName.toLowerCase()).toBe("a");
+    expect(approve).toHaveAttribute("href", GOVERNANCE_JOB_APPROVE_GOVERNANCE.href);
+    expect(approve).toHaveTextContent(GOVERNANCE_JOB_APPROVE_GOVERNANCE.label);
+
     expect(decisions).toHaveAttribute("data-current", "false");
     expect(decisions.tagName.toLowerCase()).toBe("a");
     expect(decisions).toHaveAttribute("href", GOVERNANCE_JOB_RECORD_DECISIONS.href);
     expect(decisions).toHaveTextContent(GOVERNANCE_JOB_RECORD_DECISIONS.label);
+  });
+
+  it("marks approve-governance current on the Approval queue surface", () => {
+    render(<GovernanceJobRouterStrip currentJobId="approve-governance" />);
+
+    expect(screen.getByTestId("governance-job-router")).toHaveAttribute(
+      "data-current-job",
+      "approve-governance",
+    );
+    expect(screen.getByTestId("governance-job-router-option-approve-governance")).toHaveAttribute(
+      "data-current",
+      "true",
+    );
+    expect(screen.getByTestId("governance-job-router-option-triage-findings")).toHaveAttribute(
+      "href",
+      GOVERNANCE_JOB_TRIAGE_FINDINGS.href,
+    );
+    expect(screen.getByTestId("governance-job-router-option-record-decisions")).toHaveAttribute(
+      "href",
+      GOVERNANCE_JOB_RECORD_DECISIONS.href,
+    );
   });
 
   it("marks record-decisions current on the Decision register surface", () => {
@@ -46,6 +74,10 @@ describe("GovernanceJobRouterStrip (TB-2199)", () => {
     expect(screen.getByTestId("governance-job-router-option-triage-findings")).toHaveAttribute(
       "href",
       GOVERNANCE_JOB_TRIAGE_FINDINGS.href,
+    );
+    expect(screen.getByTestId("governance-job-router-option-approve-governance")).toHaveAttribute(
+      "href",
+      GOVERNANCE_JOB_APPROVE_GOVERNANCE.href,
     );
   });
 

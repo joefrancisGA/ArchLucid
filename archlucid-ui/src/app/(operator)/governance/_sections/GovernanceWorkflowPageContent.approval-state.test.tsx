@@ -62,7 +62,19 @@ vi.mock("@/lib/api", async (importOriginal) => {
 });
 
 vi.mock("next/link", () => ({
-  default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a>,
+  default: ({
+    href,
+    children,
+    ...rest
+  }: {
+    href: string;
+    children: React.ReactNode;
+    [key: string]: unknown;
+  }) => (
+    <a href={typeof href === "string" ? href : "#"} {...rest}>
+      {children}
+    </a>
+  ),
 }));
 
 vi.mock("./governance-workflow-deferred-chunks", async () => {
@@ -148,6 +160,25 @@ describe("GovernanceWorkflowPageContent approval state", () => {
       description: "",
     });
     apiHoisted.getRunDetail.mockResolvedValue({ data: { run: { currentManifestVersion: "" } } });
+  });
+
+  it("renders the governance job router triad with Approval queue current (TB-2230)", async () => {
+    render(<GovernanceWorkflowPageContent />);
+
+    const strip = await screen.findByTestId("governance-job-router");
+    expect(strip).toHaveAttribute("data-current-job", "approve-governance");
+    expect(screen.getByTestId("governance-job-router-option-approve-governance")).toHaveAttribute(
+      "data-current",
+      "true",
+    );
+    expect(screen.getByTestId("governance-job-router-option-triage-findings")).toHaveAttribute(
+      "href",
+      "/governance/findings",
+    );
+    expect(screen.getByTestId("governance-job-router-option-record-decisions")).toHaveAttribute(
+      "href",
+      "/governance/decision-register",
+    );
   });
 
   it("shows no-request guidance without completion messaging when a review has no approval history", async () => {

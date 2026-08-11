@@ -72,7 +72,8 @@ function GovernanceJobRouterCard(props: {
 }
 
 /**
- * TB-2199 - compact "which job am I doing?" chooser between findings queue and Decision register.
+ * TB-2199 / TB-2230 - compact "which job am I doing?" triad chooser
+ * (Approval queue, findings queue, Decision register).
  */
 export function GovernanceJobRouterStrip(props: GovernanceJobRouterStripProps): JSX.Element {
   const router = props.router ?? getGovernanceJobRouter();
@@ -93,7 +94,8 @@ export function GovernanceJobRouterStrip(props: GovernanceJobRouterStripProps): 
       >
         {router.heading}
       </h2>
-      <div className="flex flex-col gap-2 sm:flex-row">
+      {/* Three equal cards on sm+; stack on narrow viewports so when-to-use copy stays readable. */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
         {router.options.map((option) => (
           <GovernanceJobRouterCard
             key={option.id}
