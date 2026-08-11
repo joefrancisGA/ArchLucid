@@ -26,7 +26,7 @@ export const TROUBLESHOOTING_HELP_TOPIC_IDS = new Set<string>(["troubleshooting"
  */
 export const GOLDEN_PATH_GUIDE_TOPIC_IDS: readonly string[] = [
   "first-run",
-  "pilot-nav-profile",
+  "pilot-guide",
   "artifacts",
   "graph",
   "ask-archlucid",
@@ -52,12 +52,12 @@ export const HELP_TOPICS: HelpTopic[] = [
     routes: ["/", "/architecture/first-review-guide", "/architecture/reviews/new", EXECUTIVE_DASHBOARD_HREF],
   },
   {
-    id: "pilot-nav-profile",
-    title: "Workspace navigation profile",
-    keywords: ["sidebar", "nav", "analysis", "governance", "unlock", "first review"],
+    id: "pilot-guide",
+    title: "Pilot guide",
+    keywords: ["sidebar", "nav", "analysis", "governance", "unlock", "first review", "pilot"],
     summary:
-      "The first-review path stays focused until your first architecture review is finalized; analysis and governance groups unlock on demand or automatically after finalize.",
-    docPath: "docs/library/customer-facing/WORKSPACE_NAVIGATION_GUIDE.md",
+      "Prepare for a pilot and understand how the sidebar stays focused on the first-review path until finalize, then unlocks analysis and governance on demand.",
+    docPath: "docs/library/customer-facing/PILOT_GUIDE.md",
     routes: ["/", "/architecture/reviews", "/architecture/first-review-guide"],
   },
   {

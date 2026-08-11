@@ -2028,7 +2028,7 @@ export function stripFirstReviewEvidenceChecklistContributorLeakage(markdown: st
     )
     .replace(
       /\[([^\]]*)\]\(\.\.\/library\/customer-facing\/WORKSPACE_NAVIGATION_GUIDE\.md\)/gi,
-      "[Workspace navigation profile](/help/pilot-nav-profile)",
+      "[Workspace navigation profile](/help/pilot-guide)",
     )
     .replace(/\[([^\]]*)\]\(\.\.\/runbooks\/TROUBLESHOOTING\.md\)/gi, "[Troubleshooting](/help/troubleshooting)")
     .replace(/\[([^\]]*)\]\(TROUBLESHOOTING\.md\)/gi, "[Troubleshooting](/help/troubleshooting)")

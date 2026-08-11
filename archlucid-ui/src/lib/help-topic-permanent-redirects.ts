@@ -17,6 +17,7 @@ export const HELP_TOPIC_PERMANENT_REDIRECTS: Readonly<Record<string, string>> = 
   "how-it-works": "/help/getting-started#how-archlucid-works",
   "integrations/azure-boards": "/help/azure-boards",
   "operator-auth-roles": "/help/users-and-roles",
+  "pilot-nav-profile": "/help/pilot-guide",
   "product-overview": "/help/executive-summary#what-archlucid-is",
   "starting-reviews": "/help/review-guide",
 };

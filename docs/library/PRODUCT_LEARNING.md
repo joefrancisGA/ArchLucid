@@ -7,7 +7,7 @@
 
 **Audience:** Workspace admins and product / architecture owners reviewing how ArchLucid outputs are received in a pilot.
 
-**Not the same as** **Learning** in the architect workspace ([Workspace navigation](/help/pilot-nav-profile)): that page is **recommendation learning** (advisory acceptance weights). **Pilot feedback** (this doc) is **cross-cutting judgment** on reviews, architecture packages, and artifacts, stored per tenant/workspace/project.
+**Not the same as** **Learning** in the architect workspace ([Workspace navigation](/help/pilot-guide)): that page is **recommendation learning** (advisory acceptance weights). **Pilot feedback** (this doc) is **cross-cutting judgment** on reviews, architecture packages, and artifacts, stored per tenant/workspace/project.
 
 ---
 

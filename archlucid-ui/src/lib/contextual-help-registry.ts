@@ -288,26 +288,6 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/help/pilot-nav-profile",
-    entry: {
-      whatIsThisPage:
-        "Workspace navigation profile — how the sidebar stays focused on the first-review path until you finalize a review, then unlocks analysis and governance.",
-      whatToDoNext:
-        "Start or finalize a review to unlock Operate groups, or open Getting started when you need the first-value checklist.",
-      whyEmpty: "This guide is always available; live sidebar unlock reflects finalize progress in this workspace.",
-      whereToConfigurePrerequisite:
-        "Progressive Operate unlock follows your first finalized architecture review in this workspace.",
-      whatToDoNextAction: {
-        label: "Start a review",
-        href: "/architecture/reviews/new",
-      },
-      whereToConfigureAction: {
-        label: "Open Getting started",
-        href: "/help/getting-started",
-      },
-    },
-  },
-  {
     prefix: "/help/executive-summary",
     entry: {
       whatIsThisPage:

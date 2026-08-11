@@ -449,16 +449,6 @@ function renderHelpTopicView(
     );
   }
 
-  if (loaded.entry.slug === "pilot-nav-profile") {
-    return (
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        showContextualHelp
-      />
-    );
-  }
-
   if (loaded.entry.slug === "caiq-sig-response") {
     return (
       <HelpTopicMarkdownView

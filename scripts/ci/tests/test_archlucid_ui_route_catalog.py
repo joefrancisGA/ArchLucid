@@ -59,6 +59,7 @@ def test_build_catalog_keeps_tb2050_retired_aliases_out() -> None:
     assert "/help/evaluator-workbook" not in catalog
     assert "/help/first-hour-operator-path" not in catalog
     assert "/help/first-pilot-path" not in catalog
+    assert "/help/pilot-nav-profile" not in catalog
     assert "/help/operator-auth-roles" not in catalog
     assert "/help/core-pilot" not in catalog
     assert "/help/first-architecture-review" in catalog
@@ -130,6 +131,10 @@ def test_build_catalog_keeps_batch_a_retired_help_aliases_out() -> None:
 
 def test_migrate_workbook_path_maps_batch_c_retired_help_aliases() -> None:
     assert migrate_workbook_path("/help/first-pilot-path") == "/help/first-architecture-review"
+
+
+def test_migrate_workbook_path_maps_pilot_nav_profile_fold_into_pilot_guide() -> None:
+    assert migrate_workbook_path("/help/pilot-nav-profile") == "/help/pilot-guide"
 
 
 def test_migrate_workbook_path_maps_legacy_alerts() -> None:

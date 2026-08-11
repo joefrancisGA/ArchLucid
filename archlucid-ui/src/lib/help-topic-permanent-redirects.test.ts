@@ -4,6 +4,7 @@ import {
   HELP_TOPIC_PERMANENT_REDIRECTS,
   resolveHelpTopicPermanentRedirect,
 } from "@/lib/help-topic-permanent-redirects";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 describe("help-topic-permanent-redirects", () => {
   it("redirects retired creating-runs bookmarks to review-guide", () => {
@@ -50,6 +51,12 @@ describe("help-topic-permanent-redirects", () => {
     expect(resolveHelpTopicPermanentRedirect("evaluator-workbook")).toBe("/help/path-chooser");
     expect(resolveHelpTopicPermanentRedirect("first-hour-operator-path")).toBe("/help/first-architecture-review");
     expect(resolveHelpTopicPermanentRedirect("first-pilot-path")).toBe("/help/first-architecture-review");
+  });
+
+  it("redirects pilot-nav-profile alias to pilot-guide (PIL folded into HP)", () => {
+    expect(HELP_TOPIC_PERMANENT_REDIRECTS["pilot-nav-profile"]).toBe("/help/pilot-guide");
+    expect(resolveHelpTopicPermanentRedirect("pilot-nav-profile")).toBe("/help/pilot-guide");
+    expect(inAppHelpHref("pilot-nav-profile")).toBe("/help/pilot-guide");
   });
 
   it("redirects how-it-works alias to getting-started How ArchLucid works anchor", () => {

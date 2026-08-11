@@ -57,7 +57,6 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "path-chooser": "product-help",
   "pilot-feedback": "internal-runbook",
   "pilot-guide": "product-help",
-  "pilot-nav-profile": "product-help",
   "pilot-roi-model": "product-help",
   "prior-manifest-retrieval": "product-help",
   "policy-pack-delta-demo": "internal-runbook",

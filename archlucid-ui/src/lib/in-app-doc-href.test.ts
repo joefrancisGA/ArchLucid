@@ -46,7 +46,7 @@ describe("resolveInAppDocHref", () => {
     expect(tryResolveInAppDocHref("docs/go-to-market/SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md")).toBeNull();
     expect(tryResolveInAppDocHref("docs/quality/game-day-log/README.md")).toBeNull();
     expect(tryResolveInAppDocHref("docs/library/PRODUCT_PACKAGING.md")).toBeNull();
-    expect(tryResolveInAppDocHref("docs/library/OPERATOR_ATLAS.md")).toBe("/help/pilot-nav-profile");
+    expect(tryResolveInAppDocHref("docs/library/OPERATOR_ATLAS.md")).toBe("/help/pilot-guide");
   });
 
   it("maps procurement diligence docs to in-app help (TB-1257)", () => {

@@ -7,7 +7,7 @@ import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-re
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import {
   RETIRED_CREATING_RUNS_HELP_ALIAS_TRAFFIC_PATH,
-} from "@/lib/ui-route-traffic-creating-runs-help-alias";
+} from "@/lib/ui-route-traffic-retired-help-topic-aliases";
 import { REVIEW_GUIDE_HELP_TRAFFIC_PATH } from "@/lib/ui-route-traffic-review-guide-help";
 
 const HELP_CATCH_ALL_PAGE_PATH = join(

@@ -72,15 +72,6 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sectionAnchors: ["printable-first-run-evidence-checklist"],
   },
   {
-    slug: "pilot-nav-profile",
-    title: "Workspace navigation profile",
-    summary:
-      "How the sidebar keeps the first-review path focused until your first architecture review is finalized — and how to unlock analysis and governance on demand.",
-    audience: "operator",
-    sourcePaths: ["docs/library/customer-facing/WORKSPACE_NAVIGATION_GUIDE.md"],
-    sectionAnchors: ["what-you-see", "main-workflow"],
-  },
-  {
     slug: "review-guide",
     title: "Review guide",
     summary:
@@ -94,9 +85,13 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "pilot-guide",
     title: "Pilot guide",
     summary:
-      "Prepare for a pilot, run the first architecture review, interpret outputs, report issues, and get help.",
+      "Prepare for a pilot, run the first architecture review, interpret outputs, report issues, and get help. Includes workspace navigation and progressive Operate unlock guidance.",
     audience: "buyer",
-    sourcePaths: ["docs/library/customer-facing/PILOT_GUIDE.md"],
+    sourcePaths: [
+      "docs/library/customer-facing/PILOT_GUIDE.md",
+      "docs/library/customer-facing/WORKSPACE_NAVIGATION_GUIDE.md",
+    ],
+    sectionAnchors: ["what-you-see", "main-workflow"],
     lastReviewed: "2026-08-09",
     releaseApplicability: "Applies to V1 GA — pilot preparation and first architecture review workflow",
     pdfStatus: "public",

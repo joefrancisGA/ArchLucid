@@ -9,7 +9,7 @@ import {
 export const PILOT_NAV_PROFILE_DOC_PATH = "docs/library/customer-facing/WORKSPACE_NAVIGATION_GUIDE.md";
 
 /** In-app help route for the pilot nav profile. */
-export const PILOT_NAV_PROFILE_HELP_HREF = "/help/pilot-nav-profile";
+export const PILOT_NAV_PROFILE_HELP_HREF = "/help/pilot-guide";
 
 /** Operate nav groups hidden entirely until unlock phase ≥ 1. */
 export const PILOT_NAV_OPERATE_GROUP_IDS = [

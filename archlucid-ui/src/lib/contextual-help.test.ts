@@ -27,7 +27,7 @@ describe("contextual-help", () => {
 
   it("includes fragments for runs list and run detail keys", () => {
     expect(getHelpUrl("/runs")).toBe("/help/cli-usage#operator-ui");
-    expect(getHelpUrl("/runs/[id]")).toBe("/help/pilot-nav-profile#main-workflow");
+    expect(getHelpUrl("/runs/[id]")).toBe("/help/pilot-guide#main-workflow");
   });
 
   it("resolves every mapped doc path to a file under the repo root", () => {

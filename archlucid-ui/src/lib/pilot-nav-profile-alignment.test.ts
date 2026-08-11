@@ -23,7 +23,7 @@ function readRepoFile(relativePath: string): string {
 
 describe("pilot-nav-profile-alignment", () => {
   it("exports stable help href and doc path", () => {
-    expect(PILOT_NAV_PROFILE_HELP_HREF).toBe("/help/pilot-nav-profile");
+    expect(PILOT_NAV_PROFILE_HELP_HREF).toBe("/help/pilot-guide");
     expect(PILOT_NAV_PROFILE_DOC_PATH).toBe(
       "docs/library/customer-facing/WORKSPACE_NAVIGATION_GUIDE.md",
     );
@@ -63,7 +63,7 @@ describe("pilot-nav-profile-alignment", () => {
   it("registers help topic in product documentation registry", () => {
     const registry = readRepoFile("archlucid-ui/src/lib/product-documentation-registry.ts");
 
-    expect(registry).toContain("pilot-nav-profile");
+    expect(registry).toContain("pilot-guide");
     expect(registry).toContain(PILOT_NAV_PROFILE_DOC_PATH);
   });
 });

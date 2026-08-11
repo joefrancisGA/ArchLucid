@@ -314,10 +314,6 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "pilot-feedback", label: "Pilot feedback" },
   },
   {
-    prefix: "/help/pilot-nav-profile",
-    topic: { slug: "pilot-nav-profile", label: "Workspace navigation profile" },
-  },
-  {
     prefix: "/help/executive-summary",
     topic: { slug: "executive-summary", label: "Executive summary" },
   },

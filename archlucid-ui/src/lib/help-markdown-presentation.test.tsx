@@ -123,7 +123,7 @@ describe("help-markdown-presentation", () => {
     const prepared = prepareHelpMarkdownForPresentation(excerpt, "docs/library/operator-shell.md");
 
     expect(prepared.includes(".md")).toBe(false);
-    expect(prepared).toContain("[Workspace route map](/help/pilot-nav-profile)");
+    expect(prepared).toContain("[Workspace route map](/help/pilot-guide)");
     expect(prepared).toMatch(/\[Your first architecture review\]\(\/help\/first-architecture-review\)/);
   });
 
@@ -1460,7 +1460,6 @@ describe("help-markdown-presentation", () => {
 
 describe("help topic product-language drift guards", () => {
   const SCOPED_ARCHITECT_HELP_SLUGS = [
-    "pilot-nav-profile",
     "troubleshooting",
     "admin-diagnostics",
     "review-guide",

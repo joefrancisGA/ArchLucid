@@ -121,8 +121,11 @@ describe("help topic slug aliases", () => {
     expect(getProductDocumentationEntry("evaluator-workbook")).toBeNull();
     expect(getProductDocumentationEntry("first-hour-operator-path")).toBeNull();
     expect(getProductDocumentationEntry("first-pilot-path")).toBeNull();
+    expect(getProductDocumentationEntry("pilot-nav-profile")).toBeNull();
     expect(resolveHelpTopicPermanentRedirect("first-pilot-path")).toBe("/help/first-architecture-review");
+    expect(resolveHelpTopicPermanentRedirect("pilot-nav-profile")).toBe("/help/pilot-guide");
     expect(inAppHelpHref("first-pilot-path")).toBe("/help/first-architecture-review");
+    expect(inAppHelpHref("pilot-nav-profile")).toBe("/help/pilot-guide");
   });
 });
 

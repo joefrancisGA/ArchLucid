@@ -246,6 +246,7 @@ _ID_REMAP: dict[str, str] = {
     "HFE": "COR",
     "HEE": "HPX",
     "HUX": "HOE",
+    "PIL": "HP",
 }
 
 # Owner overrides recorded after the bulk pass (docs/architecture/UX_AUDIT_2026_08_09.md).

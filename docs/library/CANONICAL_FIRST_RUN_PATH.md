@@ -74,7 +74,7 @@ Give architects a **linear checklist** for creating the first **architecture rev
 3. **Pick a preset or template** — Choose the closest sample if you are evaluating; customize fields only where you have real system facts.
 4. **Complete each wizard step** — Advance only when required fields validate; note inline errors reference a correlation id when the UI surfaces API failures — see **[Troubleshooting](/help/troubleshooting)**.
 5. **Submit** — Capture the returned review id from the success path or **Reviews** list.
-6. **Execute and finalize** — From **review detail**, drive **Execute**, then **Finalize** when the pipeline reports **Ready to finalize** — see **[Workspace navigation](/help/pilot-nav-profile)**.
+6. **Execute and finalize** — From **review detail**, drive **Execute**, then **Finalize** when the pipeline reports **Ready to finalize** — see **[Workspace navigation](/help/pilot-guide)**.
 7. **Verify the architecture package** — Confirm the signed review record and artifacts appear; use **Compare**/**Replay** only after you have two finalized packages or an export need — see **[Architecture packages](/help/review-packages)**.
 8. **Attach to your workflow (optional)** — After finalize, collect sponsor proof per **[Pilot guide](/help/pilot-guide)** when your team uses GitHub or Azure DevOps handoff.
 
@@ -92,7 +92,7 @@ Give architects a **linear checklist** for creating the first **architecture rev
 - **[Your first architecture review](/help/first-architecture-review)** — guided first-session checklist.
 - [`#first-run-wizard-architect-workspace`](#first-run-wizard-architect-workspace) — design and UX notes (`FIRST_RUN_WIZARD.md` alias).
 - **[Pilot guide](/help/pilot-guide)** — pilot-facing scope and support boundaries.
-- **[Workspace navigation](/help/pilot-nav-profile)** — sidebar and first-review path.
+- **[Workspace navigation](/help/pilot-guide)** — sidebar and first-review path.
 - [Seven mandatory steps](#seven-mandatory-steps) — scripted proof / sponsor-handoff path.
 
 ---

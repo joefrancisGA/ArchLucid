@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import { resolveHelpTopicPermanentRedirect } from "@/lib/help-topic-permanent-redirects";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
-import { RETIRED_AZURE_BOARDS_HELP_ALIAS_TRAFFIC_PATH } from "@/lib/ui-route-traffic-azure-boards-help-alias";
+import { RETIRED_AZURE_BOARDS_HELP_ALIAS_TRAFFIC_PATH } from "@/lib/ui-route-traffic-retired-help-topic-aliases";
 import { AZURE_BOARDS_HELP_TRAFFIC_PATH } from "@/lib/ui-route-traffic-azure-boards-help";
 
 const HELP_CATCH_ALL_PAGE_PATH = join(

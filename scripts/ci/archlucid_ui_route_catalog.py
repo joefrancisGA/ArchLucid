@@ -68,6 +68,7 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/help/first-hour-operator-path": "/help/first-architecture-review",
     "/help/first-pilot-path": "/help/first-architecture-review",
     "/help/operator-auth-roles": "/help/users-and-roles",
+    "/help/pilot-nav-profile": "/help/pilot-guide",
     "/manifests": "/governance/signed-records",
     "/manifests/[manifestId]": "/governance/signed-records/[manifestId]",
     "/manifests/[manifestId]/artifacts/[artifactId]": (

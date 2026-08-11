@@ -18,7 +18,7 @@ const DOC_PATH_TO_ABSOLUTE_HREF: Readonly<Record<string, string>> = {
  */
 const DOC_PATH_TO_SLUG: Readonly<Record<string, string>> = {
   "docs/library/first_run_wizard.md": "getting-started",
-  "docs/library/operator-shell.md": "pilot-nav-profile",
+  "docs/library/operator-shell.md": "pilot-guide",
   "docs/library/comparison_replay.md": "comparison-replay",
   "docs/library/customer-facing/comparison_replay_operator_guide.md": "comparison-replay",
   "docs/library/knowledge_graph.md": "evidence-trail",
@@ -102,8 +102,8 @@ const DOC_PATH_TO_SLUG: Readonly<Record<string, string>> = {
   "docs/security/pen-test-summaries/2026-q2-owner-conducted.md": "procurement",
   "docs/go-to-market/trust_center.md": "security-trust",
   "docs/library/second_run.md": "repeat-review-loop",
-  "docs/library/operator_atlas.md": "pilot-nav-profile",
-  "docs/library/operator_decision_guide.md": "pilot-nav-profile",
+  "docs/library/operator_atlas.md": "pilot-guide",
+  "docs/library/operator_decision_guide.md": "pilot-guide",
   "docs/library/concept_vocabulary.md": "scope",
   "docs/go-to-market/ui_glossary_v1.md": "scope",
   "docs/library/core_pilot.md": "first-architecture-review",
@@ -114,8 +114,8 @@ const DOC_PATH_TO_SLUG: Readonly<Record<string, string>> = {
   "docs/pre_commit_governance_gate.md": "governance-approval",
   "docs/alerts.md": "alerts",
   "archlucid-ui/docs/testing_and_troubleshooting.md": "troubleshooting",
-  "archlucid-ui/docs/architecture.md": "pilot-nav-profile",
-  "archlucid-ui/docs/operator_shell_tutorial.md": "pilot-nav-profile",
+  "archlucid-ui/docs/architecture.md": "pilot-guide",
+  "archlucid-ui/docs/operator_shell_tutorial.md": "pilot-guide",
 };
 
 function normalizeDocPath(docPath: string): string {

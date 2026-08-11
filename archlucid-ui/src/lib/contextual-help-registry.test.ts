@@ -60,7 +60,6 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/enterprise-onboarding",
       "/help/pilot-roi-model",
       "/help/pilot-feedback",
-      "/help/pilot-nav-profile",
       "/help/executive-summary",
       "/help/policy-pack-delta-demo",
       "/help/configuration-reference",
