@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { GlossaryProceduralHelpVocabularyRail } from "@/components/GlossaryProceduralHelpVocabularyRail";
+import { ReportProblemDialogHelpHubVocabularyRail } from "@/components/ReportProblemDialogHelpHubVocabularyRail";
 import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { HelpTourTrigger } from "./HelpTourTrigger";
@@ -45,6 +46,7 @@ export default function HelpPage() {
         </div>
       </div>
       <GlossaryProceduralHelpVocabularyRail currentSurfaceId="help-hub" />
+      <ReportProblemDialogHelpHubVocabularyRail currentSurfaceId="help-hub" />
       <HelpProductGuide />
     </OperatorPageContainer>
   );

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { ReportProblemDialogHelpHubVocabularyRail } from "@/components/ReportProblemDialogHelpHubVocabularyRail";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -416,6 +417,8 @@ export function ReportProblemDialog({
             </DialogDescription>
           ) : null}
         </DialogHeader>
+
+        <ReportProblemDialogHelpHubVocabularyRail currentSurfaceId="report-problem-dialog" />
 
         {phase === "acknowledged" && referenceId !== null ? (
           <ReportProblemAcknowledgementPanel
