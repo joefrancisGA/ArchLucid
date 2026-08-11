@@ -7,6 +7,7 @@ import { GovernanceApprovalStatusBanner } from "@/components/governance/Governan
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { GovernanceJobRouterStrip } from "@/components/GovernanceJobRouterStrip";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { GovernanceFindingsFilterBar } from "@/components/governance/findings/GovernanceFindingsFilterBar";
@@ -41,6 +42,7 @@ import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/Canoni
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import { secondaryViewFromGovernanceQueueRow } from "@/lib/canonical-object-home-registry";
 import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
+import { cn } from "@/lib/utils";
 import {
   DEFAULT_FINDING_JOB_VIEW,
   filterGovernanceRowsForJobView,
@@ -164,6 +166,7 @@ export default function GovernanceFindingsQueueClient() {
         }
         actions={<PageContextualHelpButton />}
       />
+      <GovernanceJobRouterStrip currentJobId="triage-findings" />
       <PageCapabilityBoundaryStrip surfaceId="governanceFindings" />
 <div className={cn("mt-4", OPERATOR_LAYOUT.sectionStack)}>
         {secondaryViewPresentation !== null ? (

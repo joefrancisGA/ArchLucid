@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { DecisionRegisterTimeline } from "@/components/DecisionRegisterTimeline";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { GovernanceJobRouterStrip } from "@/components/GovernanceJobRouterStrip";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -185,6 +186,7 @@ export default function DecisionRegisterClient() {
           </div>
         }
       />
+      <GovernanceJobRouterStrip currentJobId="record-decisions" />
 {!loadError ? <DecisionRegisterSummaryRow summary={summary} /> : null}
 
       <DecisionRegisterFiltersPanel

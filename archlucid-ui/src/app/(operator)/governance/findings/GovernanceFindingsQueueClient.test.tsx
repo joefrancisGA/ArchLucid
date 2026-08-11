@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { beforeEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 import GovernanceFindingsQueueClient from "@/app/(operator)/governance/findings/GovernanceFindingsQueueClient";
@@ -127,6 +127,22 @@ describe("GovernanceFindingsQueueClient", () => {
     vi.mocked(governanceApi.getArchitectureDecisionRegister).mockResolvedValue({ decisions: [] });
   });
 
+
+  it("renders the governance job router chooser at the top (TB-2199)", async () => {
+    renderGovernanceFindingsQueue();
+
+    const strip = await screen.findByTestId("governance-job-router");
+    expect(strip).toHaveAttribute("data-current-job", "triage-findings");
+    expect(screen.getByTestId("governance-job-router-option-triage-findings")).toHaveAttribute(
+      "data-current",
+      "true",
+    );
+    expect(screen.getByTestId("governance-job-router-option-record-decisions")).toHaveAttribute(
+      "href",
+      "/governance/decision-register",
+    );
+  });
+
   it("uses Governance Findings route title consistent with nav labels", () => {
     expect(ROUTE_TITLES["/governance/findings"]).toBe(OPERATOR_NAV_LINK_LABELS.findings);
   });
@@ -196,6 +212,8 @@ describe("GovernanceFindingsQueueClient", () => {
     renderGovernanceFindingsQueue();
 
     expect(await screen.findByTestId("architecture-risk-register-filters")).toBeInTheDocument();
+    // Accepted disposition lands in ready-for-sponsor-packet (default job view is needs-my-decision).
+    fireEvent.click(screen.getByTestId("finding-job-view-ready-for-sponsor-packet"));
     expect(screen.getByRole("columnheader", { name: "Risk" })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "Source review" })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "Exception expiry" })).toBeInTheDocument();

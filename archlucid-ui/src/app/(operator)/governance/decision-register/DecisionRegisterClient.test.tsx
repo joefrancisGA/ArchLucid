@@ -29,6 +29,22 @@ describe("DecisionRegisterClient view switcher", () => {
     mockedGetRegister.mockResolvedValue({ decisions: [] });
   });
 
+
+  it("renders the governance job router chooser at the top (TB-2199)", async () => {
+    render(<DecisionRegisterClient />);
+
+    const strip = await screen.findByTestId("governance-job-router");
+    expect(strip).toHaveAttribute("data-current-job", "record-decisions");
+    expect(screen.getByTestId("governance-job-router-option-record-decisions")).toHaveAttribute(
+      "data-current",
+      "true",
+    );
+    expect(screen.getByTestId("governance-job-router-option-triage-findings")).toHaveAttribute(
+      "href",
+      "/governance/findings",
+    );
+  });
+
   it("switches empty-state chrome between cards and timeline", async () => {
     render(<DecisionRegisterClient />);
 
