@@ -133957,6 +133957,9 @@
             },
             "description": "OK"
           },
+          "304": {
+            "description": "Not Modified"
+          },
           "400": {
             "content": {
               "application/problem\u002Bjson": {
@@ -134111,6 +134114,9 @@
               }
             },
             "description": "OK"
+          },
+          "304": {
+            "description": "Not Modified"
           },
           "400": {
             "content": {
@@ -140000,6 +140006,9 @@
             },
             "description": "OK"
           },
+          "304": {
+            "description": "Not Modified"
+          },
           "400": {
             "content": {
               "application/problem\u002Bjson": {
@@ -140314,6 +140323,9 @@
             },
             "description": "OK"
           },
+          "304": {
+            "description": "Not Modified"
+          },
           "400": {
             "content": {
               "application/problem\u002Bjson": {
@@ -140453,6 +140465,9 @@
               }
             },
             "description": "OK"
+          },
+          "304": {
+            "description": "Not Modified"
           },
           "400": {
             "content": {

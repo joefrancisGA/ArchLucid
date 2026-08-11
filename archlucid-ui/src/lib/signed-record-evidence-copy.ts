@@ -2,6 +2,9 @@ import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governanc
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
+/** Alias kept for call sites that name the signed-record Sources row type explicitly. */
+export type SignedRecordSourceLink = EvidenceSourceLink;
+
 /** Workbook path pattern for MMX (dynamic manifest id). */
 export const SIGNED_RECORD_CANONICAL_PATH_PATTERN = "/governance/signed-records/[manifestId]" as const;
 

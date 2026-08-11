@@ -13,7 +13,7 @@ export const SPONSOR_STORY_SYNOPSIS_WORKING_LABEL =
 export function buildSponsorStoryDispositionCountsFromRows(
   rows: readonly { readonly latestDisposition?: string | null }[],
 ): SponsorStoryDispositionCounts {
-  const counts: SponsorStoryDispositionCounts = {
+  const counts = {
     accepted: 0,
     dismissed: 0,
     deferred: 0,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils";
 export type ArchitectureScopeUnderstandingCheckPanelProps = {
   readonly input: DeriveScopeUnderstandingBulletsInput;
   readonly disabled?: boolean;
-  readonly onBulletsChange?: (bullets: readonly ScopeUnderstandingBullet[]) => void;
+  readonly onBulletsChange?: Dispatch<SetStateAction<ScopeUnderstandingBullet[]>>;
   readonly onGateChange?: (gateOpen: boolean) => void;
 };
 

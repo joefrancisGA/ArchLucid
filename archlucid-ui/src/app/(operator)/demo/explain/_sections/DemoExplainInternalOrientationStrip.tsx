@@ -29,7 +29,7 @@ export function DemoExplainInternalOrientationStrip(): React.JSX.Element {
         />
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="demo-explain-internal-orientation-lead">
           {DEMO_EXPLAIN_INTERNAL_ORIENTATION_LEAD}{" "}
-          <Link className={OPERATOR_LINK} href={DEMO_EXPLAIN_BUYER_SHELL_REDIRECT_HREF}>
+          <Link className={OPERATOR_LINK.nav} href={DEMO_EXPLAIN_BUYER_SHELL_REDIRECT_HREF}>
             {DEMO_EXPLAIN_INTERNAL_PUBLIC_PROOF_LINK_LABEL}
           </Link>
           .

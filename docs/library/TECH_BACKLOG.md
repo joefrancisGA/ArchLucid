@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — living engineering backlog (TB rows); not buyer-facing hosted-SaaS onboarding.
+
 # Tech backlog ? open inventory
 
 <!-- tech-backlog-open-by-category:start -->
