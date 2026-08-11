@@ -3,7 +3,7 @@
 # Transactional outbox — replay-safe vs must-idempotent contract
 
 **Status:** Active (V1)  
-**Backlog:** **TB-992** (this contract) · **TB-993** (stable `MessageId` + handler inventory — open) · **TB-994** (crash-between-publish-and-mark regression + anti-exactly-once CI — open)  
+**Backlog:** **TB-992** (this contract) · **TB-993** (stable `MessageId` + handler inventory — **Done**) · **TB-994** (crash-between-publish-and-mark regression + anti-exactly-once CI — open)  
 **Audience:** Principal architects, integration reviewers, coding agents  
 **Related:** [ADR 0004](../architecture/adrs/0004-transactional-outbox-retrieval-indexing.md) · [ADR 0043](../architecture/adrs/0043-integration-event-outbox-durable-dispatch.md) · [ADR 0044](../architecture/adrs/0044-integration-event-outbox-reliability.md) · [TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md](./TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md) (**TB-1011**) · [DATA_CONSISTENCY_MATRIX.md](./DATA_CONSISTENCY_MATRIX.md) · [INTEGRATION_EVENTS_AND_WEBHOOKS.md](./INTEGRATION_EVENTS_AND_WEBHOOKS.md) · [INTEGRATION_EVENT_CATALOG.md](./INTEGRATION_EVENT_CATALOG.md) · [INTEGRATION_EVENT_DLQ_RETRY_POLICY.md](./INTEGRATION_EVENT_DLQ_RETRY_POLICY.md) · [ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md](./ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md) (**TB-1530**) · [BUYER_SECURITY_PROCUREMENT_PACKET.md § M-145](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#outbox-replay-vs-idempotency-m-145) · GTM **M-144** / **M-145** · open **TB-920** (shared outbox base refactor) · **TB-924** (DTF — out of scope)
 
@@ -121,7 +121,7 @@ Buyer handout: [BUYER_SECURITY_PROCUREMENT_PACKET.md § M-145](../go-to-market/B
 
 | ID | Role |
 |----|------|
-| **TB-993** | Require stable `MessageId` on all outbox enqueue paths; publish handler idempotency inventory |
+| **TB-993** | **Done** — stable `MessageId` gateway + [`INTEGRATION_EVENT_HANDLER_IDEMPOTENCY_INVENTORY.md`](./INTEGRATION_EVENT_HANDLER_IDEMPOTENCY_INVENTORY.md) |
 | **TB-994** | Integration test: publish succeeds → skip `MarkProcessed` → second drain asserts identical `MessageId`; CI guard against “exactly-once delivery” in buyer stubs |
 | **TB-920** | Optional shared outbox base — does not change semantics |
 | **TB-924** | DTF cutover — **out of scope** for this contract |

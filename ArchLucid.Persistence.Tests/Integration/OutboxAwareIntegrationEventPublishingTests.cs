@@ -87,7 +87,7 @@ public sealed class OutboxAwareIntegrationEventPublishingTests
             {
                 a = 1
             },
-            null,
+            "mid-standalone",
             null,
             Guid.NewGuid(),
             Guid.NewGuid(),
@@ -197,7 +197,7 @@ public sealed class OutboxAwareIntegrationEventPublishingTests
             {
                 schemaVersion = 1
             },
-            null,
+            "mid-gov",
             null,
             Guid.NewGuid(),
             Guid.NewGuid(),
@@ -256,6 +256,73 @@ public sealed class OutboxAwareIntegrationEventPublishingTests
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.AtLeastOnce);
+    }
+
+    [SkippableFact]
+    public async Task TryPublishOrEnqueueAsync_when_outbox_enabled_and_message_id_missing_skips_enqueue()
+    {
+        Mock<IIntegrationEventOutboxRepository> outbox = new();
+        Mock<IIntegrationEventPublisher> publisher = new();
+        Mock<ILogger> logger = new();
+        logger.Setup(l => l.IsEnabled(LogLevel.Warning)).Returns(true);
+        IntegrationEventsOptions options = new()
+        {
+            TransactionalOutboxEnabled = true
+        };
+
+        await OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(
+            outbox.Object,
+            publisher.Object,
+            options,
+            logger.Object,
+            IntegrationEventTypes.AlertFiredV1,
+            new
+            {
+                schemaVersion = 1
+            },
+            null,
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            null,
+            null,
+            CancellationToken.None);
+
+        outbox.Verify(
+            o => o.EnqueueAsync(
+                It.IsAny<Guid?>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        outbox.Verify(
+            o => o.EnqueueAsync(
+                It.IsAny<Guid?>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<IDbConnection>(),
+                It.IsAny<IDbTransaction>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        publisher.Verify(
+            p => p.PublishAsync(
+                It.IsAny<string>(),
+                It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<string?>(),
+                It.IsAny<IReadOnlyDictionary<string, object>?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
 }
