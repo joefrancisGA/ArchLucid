@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -16,7 +15,6 @@ import {
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -28,6 +26,8 @@ import {
   type WorkspaceBinRow,
 } from "@/lib/projects-recycle-bin-payload";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+
+import { ProjectsRecycleBinPageHeader } from "./ProjectsRecycleBinPageHeader";
 
 const RECYCLE_BIN_PATH = `/api/proxy/${ApiV1Routes.tenantWorkspacesRecycleBin}`;
 
@@ -211,27 +211,12 @@ export function ProjectsRecycleBinPage() {
 
   return (
     <div className="w-full max-w-3xl space-y-6" data-testid="projects-recycle-bin-page">
-      <OperatorPageHeader
-        title="Projects recycle bin"
+      <ProjectsRecycleBinPageHeader
+        loading={loading}
         subtitle={pageDescription}
-        titleTestId="projects-recycle-bin-page-title"
-        actions={
-          <>
-            <PageContextualHelpButton />
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={loading}
-              aria-label="Refresh recycle bin list"
-              onClick={() => {
-                void reload();
-              }}
-            >
-              {loading ? "Refreshing…" : "Refresh"}
-            </Button>
-          </>
-        }
+        onRefresh={() => {
+          void reload();
+        }}
       />
       {!isAuthorityLoading && !canRestoreExecute ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>

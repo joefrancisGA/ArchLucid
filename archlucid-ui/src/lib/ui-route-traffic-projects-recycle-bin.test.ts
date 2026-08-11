@@ -60,7 +60,7 @@ function findTrafficRowById(rows: TrafficWorkbookRow[], rowId: string): TrafficW
 }
 
 describe("ui-route-traffic-projects-recycle-bin (STR)", () => {
-  it("tracks Projects recycle bin under Settings with honest access-hub notes", () => {
+  it("tracks Projects recycle bin under Administration with honest access-hub notes", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
     const row = findTrafficRowById(rows, PROJECTS_RECYCLE_BIN_TRAFFIC_ROW_ID);
 
@@ -69,6 +69,7 @@ describe("ui-route-traffic-projects-recycle-bin (STR)", () => {
     expect(row?.section).toBe(PROJECTS_RECYCLE_BIN_TRAFFIC_SECTION);
     expect(row?.notes).toBe(PROJECTS_RECYCLE_BIN_TRAFFIC_NOTE);
     expect(row?.notes).toContain("ProjectsRecycleBinPage");
+    expect(row?.notes).toContain("Administration");
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
