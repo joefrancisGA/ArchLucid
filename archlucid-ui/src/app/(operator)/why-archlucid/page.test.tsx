@@ -254,6 +254,55 @@ describe("WhyArchLucidPage (proof page snapshot)", () => {
     );
   });
 
+  it("TB-1309: primary CTA deep-links the demo run when snapshot loads", async () => {
+    measuredRoiMock.mockResolvedValue(fixedMeasuredRoi);
+    sponsorPackMock.mockResolvedValue(fixedSponsorEvidencePack);
+    reportMock.mockResolvedValue(fixedReport);
+    explanationMock.mockResolvedValue(fixedExplanation);
+
+    render(<WhyArchLucidPage />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("why-archlucid-primary-cta")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("why-archlucid-primary-cta")).toHaveAttribute(
+      "href",
+      `/architecture/reviews/${fixedSnapshot.demoRunId}`,
+    );
+  });
+
+  it("TB-1309: withholds primary CTA when demo identity is fail-closed", async () => {
+    measuredRoiMock.mockResolvedValue({
+      ...fixedMeasuredRoi,
+      snapshot: {
+        ...fixedSnapshot,
+        demoRunId: "claims-intake-modernization",
+      },
+    });
+    sponsorPackMock.mockResolvedValue({
+      ...fixedSponsorEvidencePack,
+      demoRunId: "claims-intake-modernization",
+      demoRunValueReportDelta: {
+        ...fixedSponsorEvidencePack.demoRunValueReportDelta!,
+        isDemoTenant: true,
+      },
+    });
+    reportMock.mockResolvedValue(fixedReport);
+    explanationMock.mockResolvedValue(fixedExplanation);
+
+    render(<WhyArchLucidPage />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("why-archlucid-universe-banner")).toHaveAttribute(
+        "data-why-archlucid-universe",
+        "unknown",
+      );
+    });
+
+    expect(screen.queryByTestId("why-archlucid-primary-cta")).not.toBeInTheDocument();
+  });
+
   it("shows API-problem callouts when downstream calls fail", async () => {
     measuredRoiMock.mockRejectedValue(new Error("snapshot failed"));
     sponsorPackMock.mockRejectedValue(new Error("pack failed"));

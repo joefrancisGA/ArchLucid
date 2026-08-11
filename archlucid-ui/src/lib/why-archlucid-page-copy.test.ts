@@ -11,6 +11,7 @@ import {
   WHY_ARCHLUCID_MARKETING_WHY_HREF,
   WHY_ARCHLUCID_PAGE_TITLE,
   whyArchlucidCounterHintAuditRowsTruncated,
+  whyArchLucidSampleReviewHref,
 } from "@/lib/why-archlucid-page-copy";
 
 const ENGINEERING_LEAK_PATTERNS = [
@@ -52,5 +53,11 @@ describe("why-archlucid-page-copy (TB-1308)", () => {
   it("TB-1307: page title is not the marketing /why H1 twin", () => {
     expect(WHY_ARCHLUCID_PAGE_TITLE).not.toBe("Why ArchLucid");
     expect(WHY_ARCHLUCID_MARKETING_WHY_HREF).toBe("/why");
+  });
+
+  it("TB-1309: sample review href is null without a demo run id", () => {
+    expect(whyArchLucidSampleReviewHref(null)).toBeNull();
+    expect(whyArchLucidSampleReviewHref("  ")).toBeNull();
+    expect(whyArchLucidSampleReviewHref("demo-run-1")).toBe("/architecture/reviews/demo-run-1");
   });
 });

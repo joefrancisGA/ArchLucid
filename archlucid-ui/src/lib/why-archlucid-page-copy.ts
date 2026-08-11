@@ -10,6 +10,19 @@ export const WHY_ARCHLUCID_MARKETING_WHY_HREF = "/why" as const;
 
 export const WHY_ARCHLUCID_MARKETING_WHY_LINK_LABEL = "Public differentiation (/why)";
 
+/** TB-1309: primary hop from proof telemetry into the seeded sample review package. */
+export const WHY_ARCHLUCID_PRIMARY_CTA_LABEL = "Open sample architecture package";
+
+export function whyArchLucidSampleReviewHref(demoRunId: string | null | undefined): string | null {
+  const trimmed = demoRunId?.trim() ?? "";
+
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  return `/architecture/reviews/${trimmed}`;
+}
+
 export const WHY_ARCHLUCID_COUNTERS_INTRO =
   "Cumulative process totals since this API host started, plus audit trail rows in scope for the demo review.";
 

@@ -20,6 +20,7 @@ import { WhyArchLucidFirstValueReportSection } from "@/app/(operator)/why-archlu
 import { WhyArchLucidMeasuredContextSection } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidMeasuredContextSection";
 import { WhyArchLucidPageFooter } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidPageFooter";
 import { WhyArchLucidPageHeader } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidPageHeader";
+import { WhyArchLucidPrimaryCta } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidPrimaryCta";
 import { WhyArchLucidRunExplanationSection } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidRunExplanationSection";
 import { WhyArchLucidSnapshotSection } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidSnapshotSection";
 import { WhyArchLucidSponsorEvidencePackSection } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidSponsorEvidencePackSection";
@@ -135,7 +136,12 @@ export function WhyArchLucidPage() {
       aria-busy={state.loading}
     >
       <WhyArchLucidPageHeader universe={payloadUniverse} failClosed={failClosed} />
-<WhyArchLucidSnapshotSection state={state} />
+      <WhyArchLucidPrimaryCta
+        demoRunId={state.snapshot?.demoRunId}
+        loading={state.loading}
+        failClosed={failClosed}
+      />
+      <WhyArchLucidSnapshotSection state={state} />
       <WhyArchLucidSponsorEvidencePackSection state={state} universe={payloadUniverse} />
       <WhyArchLucidMeasuredContextSection state={state} />
       <WhyArchLucidFirstValueReportSection state={state} universe={payloadUniverse} />

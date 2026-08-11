@@ -100,6 +100,18 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
       See how ArchLucid turns architecture review into a governed decision package — executive summary, signed review record, evidence trail, governance approval, and audit record — using the Retail baseline sample workspace as a walkthrough.
     </p>
   </header>
+  <div
+    class="flex flex-wrap items-center gap-3"
+    data-testid="why-archlucid-primary-cta-row"
+  >
+    <a
+      class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-semibold bg-[var(--al-primary-action-bg)] text-[var(--al-primary-action-fg)] hover:bg-[var(--al-primary-action-bg-hover)] focus-visible:ring-[var(--al-primary-action-ring)] h-10 rounded-md px-6 text-[15px]"
+      data-testid="why-archlucid-primary-cta"
+      href="/architecture/reviews/6e8c4a102b1f4c9a9d3e10b2a4f0c501"
+    >
+      Open sample architecture package
+    </a>
+  </div>
   <section
     aria-labelledby="why-archlucid-counters-heading"
     class="space-y-3"
