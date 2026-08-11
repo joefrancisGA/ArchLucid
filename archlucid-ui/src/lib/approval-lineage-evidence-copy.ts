@@ -1,4 +1,4 @@
-import { GOVERNANCE_APPROVAL_QUEUE_PATH, GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH, GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
@@ -16,7 +16,7 @@ export const APPROVAL_LINEAGE_SOURCES_INTRO =
 /** Operator Sources — no self-href to the dynamic lineage route pattern. */
 export const APPROVAL_LINEAGE_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Approval queue", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
-  { label: "Findings", href: "/governance/findings" },
+  { label: "Findings", href: GOVERNANCE_FINDINGS_PATH },
   { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
   { label: "Governance approval help", href: inAppHelpHref("governance-approval") },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started") },

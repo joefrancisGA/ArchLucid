@@ -1,5 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 
 export const TENANT_HEALTH_CANONICAL_PATH = "/internal/tenant-health" as const;
 
@@ -13,7 +14,7 @@ export const TENANT_HEALTH_SOURCES_INTRO =
 /** Operator Sources — no self-href to tenant-health. */
 export const TENANT_HEALTH_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "System health", href: "/administration/system-health" },
-  { label: "Audit", href: "/governance/audit" },
+  { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
   { label: "Data handling & isolation", href: inAppHelpHref("data-handling") },
   { label: "Troubleshooting", href: inAppHelpHref("troubleshooting") },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },

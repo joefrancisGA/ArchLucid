@@ -1,4 +1,4 @@
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_FINDINGS_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
@@ -12,7 +12,7 @@ export const STANDARDS_RULES_SOURCES_INTRO =
 /** Operator Sources — no self-href to /governance/standards-and-rules. */
 export const STANDARDS_RULES_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Policy packs", href: GOVERNANCE_POLICY_PACKS_PATH },
-  { label: "Findings", href: "/governance/findings" },
+  { label: "Findings", href: GOVERNANCE_FINDINGS_PATH },
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "Policy packs help", href: inAppHelpHref("policy-packs") },
   { label: "Assurance status", href: "/security-trust" },

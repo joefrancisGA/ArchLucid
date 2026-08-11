@@ -1,6 +1,8 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { RECOMMENDATION_LEARNING_CANONICAL_PATH } from "@/types/recommendation-learning-operational";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { ADVISORY_SCANS_HREF } from "@/lib/advisory-scans-route";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 
 export { RECOMMENDATION_LEARNING_CANONICAL_PATH };
 
@@ -13,9 +15,9 @@ export const RECOMMENDATION_LEARNING_SOURCES_INTRO =
 
 /** Operator Sources — no self-href to `/internal/recommendation-learning`. */
 export const RECOMMENDATION_LEARNING_SOURCES: readonly EvidenceSourceLink[] = [
-  { label: "Advisory scans", href: "/governance/advisory-scans" },
+  { label: "Advisory scans", href: ADVISORY_SCANS_HREF },
   { label: "Pilot feedback", href: "/internal/product-learning" },
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "Pilot feedback help", href: inAppHelpHref("pilot-feedback") },
-  { label: "Audit", href: "/governance/audit" },
+  { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
 ] as const;

@@ -1,6 +1,7 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { SUPPORT_REPORT_PROBLEM_HELP_HREF } from "@/lib/support-workspace-present";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { GOVERNANCE_ALERTS_PATH } from "@/lib/governance-route-paths";
 
 export const REPORT_A_PROBLEM_HELP_CANONICAL_PATH = SUPPORT_REPORT_PROBLEM_HELP_HREF;
 
@@ -17,5 +18,5 @@ export const REPORT_A_PROBLEM_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Engineering troubleshooting", href: inAppHelpHref("developer-troubleshooting") },
   { label: "Support workspace", href: "/administration/support" },
   { label: "System health", href: "/administration/system-health" },
-  { label: "Alerts", href: "/governance/alerts" },
+  { label: "Alerts", href: GOVERNANCE_ALERTS_PATH },
 ] as const;

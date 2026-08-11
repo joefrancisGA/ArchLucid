@@ -1,5 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 
 export const TRIAL_FUNNEL_CANONICAL_PATH = "/internal/trial-funnel" as const;
 
@@ -16,5 +17,5 @@ export const TRIAL_FUNNEL_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "AI usage", href: "/administration/ai-usage" },
   { label: "Billing settings", href: "/administration/billing" },
   { label: "Billing and plans help", href: inAppHelpHref("billing-and-plans") },
-  { label: "Audit", href: "/governance/audit" },
+  { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
 ] as const;

@@ -1,5 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 
 export const CONNECTION_STATUS_CANONICAL_PATH = "/administration/connection-status" as const;
 
@@ -16,5 +17,5 @@ export const CONNECTION_STATUS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Integration readiness help", href: inAppHelpHref("integration-readiness") },
   { label: "Cloud connections", href: "/integrations/cloud-connections" },
   { label: "Webhooks", href: "/integrations/webhooks" },
-  { label: "Audit", href: "/governance/audit" },
+  { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
 ] as const;

@@ -1,4 +1,4 @@
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_FINDINGS_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
@@ -13,9 +13,9 @@ export const POLICY_PACK_DETAIL_SOURCES_INTRO =
 export const POLICY_PACK_DETAIL_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Policy pack library", href: GOVERNANCE_POLICY_PACKS_PATH },
   { label: "Architecture reviews", href: "/architecture/reviews" },
-  { label: "Findings", href: "/governance/findings" },
+  { label: "Findings", href: GOVERNANCE_FINDINGS_PATH },
   { label: "Governance approval help", href: inAppHelpHref("governance-approval") },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;
 
-export const POLICY_PACK_DETAIL_PATH_PREFIX = "/governance/policy-packs/" as const;
+export const POLICY_PACK_DETAIL_PATH_PREFIX = `${GOVERNANCE_POLICY_PACKS_PATH}/` as const;

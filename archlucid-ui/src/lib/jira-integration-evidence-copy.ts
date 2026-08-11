@@ -1,6 +1,7 @@
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 
 export const JIRA_INTEGRATION_CANONICAL_PATH = "/integrations/jira" as const;
 
@@ -16,6 +17,6 @@ export const JIRA_INTEGRATION_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Integration readiness", href: INTEGRATIONS_READINESS_PATH },
   { label: "Azure Boards", href: "/integrations/azure-boards" },
   { label: "ServiceNow", href: "/integrations/servicenow" },
-  { label: "Audit", href: "/governance/audit" },
+  { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
   { label: "How integration readiness works", href: inAppHelpHref("integration-readiness") },
 ] as const;

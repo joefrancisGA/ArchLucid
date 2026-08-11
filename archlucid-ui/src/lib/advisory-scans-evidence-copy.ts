@@ -1,6 +1,7 @@
 import { ADVISORY_SCANS_HREF, ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance-route-paths";
 
 export const ADVISORY_SCANS_CANONICAL_PATH = ADVISORY_SCANS_HREF;
 
@@ -14,8 +15,8 @@ export const ADVISORY_SCANS_SOURCES_INTRO =
 /** Operator Sources — no self-href to the default advisory-scans hub path. */
 export const ADVISORY_SCANS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Architecture reviews", href: "/architecture/reviews" },
-  { label: "Findings", href: "/governance/findings" },
+  { label: "Findings", href: GOVERNANCE_FINDINGS_PATH },
   { label: "Schedules tab", href: ADVISORY_SCANS_SCHEDULES_HREF },
-  { label: "Audit", href: "/governance/audit" },
+  { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;

@@ -1,4 +1,4 @@
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
@@ -12,7 +12,7 @@ export const AUDIT_TRAIL_HELP_SOURCES_INTRO =
 /** Operator Sources — no self-href to `/help/audit-trail`. */
 export const AUDIT_TRAIL_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
-  { label: "Findings", href: "/governance/findings" },
+  { label: "Findings", href: GOVERNANCE_FINDINGS_PATH },
   { label: "Governance approval", href: inAppHelpHref("governance-approval") },
   { label: "Assurance status", href: "/security-trust" },
   { label: "Findings help", href: inAppHelpHref("findings") },

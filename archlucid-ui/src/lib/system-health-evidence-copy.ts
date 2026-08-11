@@ -1,6 +1,7 @@
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 
 /**
  * Quiet honesty for Technical details / owner notes — not a first-viewport amber banner.
@@ -17,7 +18,7 @@ export const SYSTEM_HEALTH_SOURCES_INTRO =
 export const SYSTEM_HEALTH_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Connection status", href: "/administration/connection-status" },
   { label: "Architecture digests", href: DIGESTS_HUB_PATH },
-  { label: "Governance audit", href: "/governance/audit" },
+  { label: "Governance audit", href: GOVERNANCE_AUDIT_PATH },
   { label: "Troubleshooting help", href: inAppHelpHref("troubleshooting") },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;

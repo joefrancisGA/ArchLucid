@@ -1,5 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
-import { governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH, governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const ALERTS_INBOX_CLAIM_DISCIPLINE =
@@ -12,8 +12,8 @@ export const ALERTS_INBOX_SOURCES_INTRO =
 /** Operator Sources — no self-href to the alerts inbox. */
 export const ALERTS_INBOX_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Alert rules", href: governanceAlertRulesTabHref("rules") },
-  { label: "Governance findings", href: "/governance/findings" },
-  { label: "Audit trail", href: "/governance/audit" },
+  { label: "Governance findings", href: GOVERNANCE_FINDINGS_PATH },
+  { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
   { label: "Integrations (webhooks)", href: "/integrations/webhooks" },
   { label: "How alerts work", href: inAppHelpHref("alerts") },
 ] as const;

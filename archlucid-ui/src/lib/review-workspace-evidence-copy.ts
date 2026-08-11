@@ -1,6 +1,7 @@
 import { REVIEWS_LIST_PATH, REVIEWS_NEW_PATH, reviewDetailPath } from "@/lib/architecture-routes";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance-route-paths";
 
 export const REVIEW_WORKSPACE_CLAIM_DISCIPLINE =
   "This review workspace is the package leave-behind for one architecture review — findings, decisions, and artifacts here are application-layer evidence, not a complete diligence Sources export package alone. Open Evidence graph, Audit, or signed-record detail when you need fuller sponsor-safe trails.";
@@ -19,15 +20,15 @@ export function buildReviewWorkspaceSources(runId: string): readonly EvidenceSou
   const findingsHref =
     trimmed.length > 0
       ? `${reviewDetailPath(trimmed)}?reviewTab=findings`
-      : "/governance/findings";
+      : GOVERNANCE_FINDINGS_PATH;
 
   return [
     { label: "Architecture reviews", href: REVIEWS_LIST_PATH },
     { label: "Start a review", href: REVIEWS_NEW_PATH },
     { label: "Evidence graph", href: evidenceHref },
     { label: "Findings tab", href: findingsHref },
-    { label: "Governance findings", href: "/governance/findings" },
-    { label: "Audit trail", href: "/governance/audit" },
+    { label: "Governance findings", href: GOVERNANCE_FINDINGS_PATH },
+    { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
     { label: "Review packages help", href: inAppHelpHref("review-packages") },
   ] as const;
 }

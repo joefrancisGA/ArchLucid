@@ -1,6 +1,7 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { INTERNAL_TENANTS_PATH } from "@/lib/internal-ops-route-paths";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 
 export const ADMIN_TENANTS_CANONICAL_PATH = INTERNAL_TENANTS_PATH;
 
@@ -14,7 +15,7 @@ export const ADMIN_TENANTS_SOURCES_INTRO =
 /** Operator Sources — no self-href to `/internal/tenants`. */
 export const ADMIN_TENANTS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Tenant health", href: "/internal/tenant-health" },
-  { label: "Audit", href: "/governance/audit" },
+  { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
   { label: "Enterprise onboarding", href: inAppHelpHref("enterprise-onboarding") },
   { label: "Data handling & isolation", href: inAppHelpHref("data-handling") },
   { label: "System health", href: "/administration/system-health" },

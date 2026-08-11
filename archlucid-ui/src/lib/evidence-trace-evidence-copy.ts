@@ -1,5 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance-route-paths";
 
 export const EVIDENCE_TRACE_CANONICAL_PATH_PATTERN =
   "/architecture/reviews/[runId]/findings/[findingId]/evidence-trace" as const;
@@ -31,7 +32,7 @@ export function buildEvidenceTraceSources(
   return [
     { label: "Finding detail", href: `/architecture/reviews/${encRun}/findings/${encFinding}` },
     { label: "Review provenance", href: `/architecture/reviews/${encRun}/provenance` },
-    { label: "Findings queue", href: "/governance/findings" },
+    { label: "Findings queue", href: GOVERNANCE_FINDINGS_PATH },
     { label: "Findings help", href: inAppHelpHref("findings") },
     { label: "Evidence trail help", href: inAppHelpHref("evidence-trail") },
   ] as const;

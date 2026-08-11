@@ -1,6 +1,7 @@
 import { ARCHITECTURE_DRAFTS_LIST_LABEL } from "@/lib/architecture-workflow-labels";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 
 export const PROJECTS_RECYCLE_BIN_CANONICAL_PATH = "/administration/tenant/recycle-bin" as const;
 
@@ -16,6 +17,6 @@ export const PROJECTS_RECYCLE_BIN_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Tenant settings", href: "/administration/tenant" },
   { label: "Workspace and scope help", href: inAppHelpHref("scope") },
   { label: ARCHITECTURE_DRAFTS_LIST_LABEL, href: "/architecture/architectures" },
-  { label: "Audit", href: "/governance/audit" },
+  { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
   { label: "Users", href: "/administration/users" },
 ] as const;

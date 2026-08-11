@@ -1,5 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 
 export const TROUBLESHOOTING_HELP_CANONICAL_PATH = "/help/troubleshooting" as const;
 
@@ -13,7 +14,7 @@ export const TROUBLESHOOTING_HELP_SOURCES_INTRO =
 /** Operator Sources — no self-href to `/help/troubleshooting`. */
 export const TROUBLESHOOTING_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "System health", href: "/administration/system-health" },
-  { label: "Audit", href: "/governance/audit" },
+  { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
   { label: "Getting started", href: inAppHelpHref("getting-started") },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
   { label: "Report a problem", href: inAppHelpHref("report-a-problem") },

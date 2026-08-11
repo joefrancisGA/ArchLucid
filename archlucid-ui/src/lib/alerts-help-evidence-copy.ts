@@ -1,5 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { GOVERNANCE_ALERTS_PATH, GOVERNANCE_ALERT_RULES_PATH, GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 
 export const ALERTS_HELP_CANONICAL_PATH = "/help/alerts" as const;
 
@@ -12,9 +13,9 @@ export const ALERTS_HELP_SOURCES_INTRO =
 
 /** Operator Sources — no self-href to `/help/alerts`. */
 export const ALERTS_HELP_SOURCES: readonly EvidenceSourceLink[] = [
-  { label: "Alerts inbox", href: "/governance/alerts" },
-  { label: "Alert rules", href: "/governance/alert-rules" },
-  { label: "Audit", href: "/governance/audit" },
+  { label: "Alerts inbox", href: GOVERNANCE_ALERTS_PATH },
+  { label: "Alert rules", href: GOVERNANCE_ALERT_RULES_PATH },
+  { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
   { label: "Getting started", href: inAppHelpHref("getting-started") },
 ] as const;

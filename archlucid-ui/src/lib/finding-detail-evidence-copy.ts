@@ -1,6 +1,7 @@
 ﻿import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance-route-paths";
 
 export const FINDING_DETAIL_CANONICAL_PATH_PATTERN =
   "/architecture/reviews/[runId]/findings/[findingId]" as const;
@@ -14,7 +15,7 @@ export const FINDING_DETAIL_SOURCES_INTRO =
 
 /** Static Sources when run/finding ids are unavailable. */
 export const FINDING_DETAIL_SOURCES_STATIC: readonly EvidenceSourceLink[] = [
-  { label: "Findings queue", href: "/governance/findings" },
+  { label: "Findings queue", href: GOVERNANCE_FINDINGS_PATH },
   { label: "Findings help", href: inAppHelpHref("findings") },
   { label: "Evidence trail help", href: inAppHelpHref("evidence-trail") },
 ] as const;
@@ -28,7 +29,7 @@ export function buildFindingDetailSources(
   return [
     { label: "Evidence trace", href: getFindingEvidenceTraceHref(runId, findingId) },
     { label: "Review provenance", href: `/architecture/reviews/${encRun}/provenance` },
-    { label: "Findings queue", href: "/governance/findings" },
+    { label: "Findings queue", href: GOVERNANCE_FINDINGS_PATH },
     { label: "Findings help", href: inAppHelpHref("findings") },
     { label: "Evidence trail help", href: inAppHelpHref("evidence-trail") },
   ] as const;

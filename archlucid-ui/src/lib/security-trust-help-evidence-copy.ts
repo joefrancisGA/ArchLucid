@@ -1,5 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 
 export const SECURITY_TRUST_HELP_CANONICAL_PATH = "/help/security-trust" as const;
 
@@ -16,5 +17,5 @@ export const SECURITY_TRUST_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Trust Center", href: "/trust" },
   { label: "Data handling & isolation", href: inAppHelpHref("data-handling") },
   { label: "SOC 2 self-assessment", href: inAppHelpHref("soc2-self-assessment") },
-  { label: "Audit", href: "/governance/audit" },
+  { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
 ] as const;

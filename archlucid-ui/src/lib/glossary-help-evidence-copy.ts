@@ -1,5 +1,6 @@
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 
 export const GLOSSARY_HELP_CANONICAL_PATH = "/help/glossary" as const;
 
@@ -13,7 +14,7 @@ export const GLOSSARY_HELP_CLAIM_DISCIPLINE_TAIL =
 export const GLOSSARY_HELP_FOLLOW_UP_LINKS: readonly EvidenceSourceLink[] = [
   { label: "Getting started", href: inAppHelpHref("getting-started") },
   { label: "Assurance status", href: "/security-trust" },
-  { label: "Audit trail", href: "/governance/audit" },
+  { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
 ] as const;
 
 /** Plain-text guard for tests that do not render links. */

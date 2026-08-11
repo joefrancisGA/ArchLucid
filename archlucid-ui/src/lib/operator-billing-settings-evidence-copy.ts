@@ -1,5 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 
 export const OPERATOR_BILLING_SETTINGS_CANONICAL_PATH = "/administration/billing" as const;
 
@@ -16,5 +17,5 @@ export const OPERATOR_BILLING_SETTINGS_SOURCES: readonly EvidenceSourceLink[] = 
   { label: "Pricing", href: "/pricing" },
   { label: "AI usage", href: "/administration/ai-usage" },
   { label: "Pilot ROI model", href: inAppHelpHref("pilot-roi-model") },
-  { label: "Audit", href: "/governance/audit" },
+  { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
 ] as const;

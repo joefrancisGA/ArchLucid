@@ -1,5 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 
 export const API_KEYS_SETTINGS_CANONICAL_PATH = "/administration/api-keys" as const;
 
@@ -15,6 +16,6 @@ export const API_KEYS_SETTINGS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Users and roles help", href: inAppHelpHref("users-and-roles") },
   { label: "Users and roles", href: "/administration/users" },
   { label: "CLI usage help", href: inAppHelpHref("cli-usage") },
-  { label: "Audit", href: "/governance/audit" },
+  { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
   { label: "Assurance status", href: "/security-trust" },
 ] as const;

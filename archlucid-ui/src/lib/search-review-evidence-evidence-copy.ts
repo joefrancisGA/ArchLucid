@@ -1,6 +1,7 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance-route-paths";
 
 export const SEARCH_REVIEW_EVIDENCE_CANONICAL_PATH = SEARCH_REVIEW_EVIDENCE_PATH;
 
@@ -14,8 +15,8 @@ export const SEARCH_REVIEW_EVIDENCE_SOURCES_INTRO =
 /** Operator Sources — no self-href to search-review-evidence. */
 export const SEARCH_REVIEW_EVIDENCE_SOURCES: readonly EvidenceSourceLink[] = [
  { label: "Architecture reviews", href: "/architecture/reviews" },
- { label: "Findings queue", href: "/governance/findings" },
- { label: "Audit trail", href: "/governance/audit" },
+ { label: "Findings queue", href: GOVERNANCE_FINDINGS_PATH },
+ { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
  { label: "Evidence trail help", href: inAppHelpHref("evidence-trail") },
  { label: "Findings help", href: inAppHelpHref("findings") },
 ] as const;
