@@ -75,7 +75,7 @@ export const IDENTITY_PROVIDERS_SAML_PAGE_INTRO =
 export const IDENTITY_PROVIDERS_SAML_PAGE_SUBTITLE =
   "Set identity provider metadata and map groups to workspace roles before enabling SAML sign-in for all users.";
 
-export const IDENTITY_PROVIDERS_OIDC_PAGE_TITLE = "OIDC/JWT configuration";
+export const IDENTITY_PROVIDERS_OIDC_PAGE_TITLE = "OIDC/JWT status";
 export const IDENTITY_PROVIDERS_OIDC_PAGE_INTRO =
   "Review OpenID Connect authority, audience, discovery status, and role claim mapping.";
 
