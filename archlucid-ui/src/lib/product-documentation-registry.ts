@@ -140,10 +140,14 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "review-packages",
-    title: "Reviews",
-    summary: "Browse, inspect, and export governed architecture reviews in the architect workspace.",
+    title: "Architecture packages",
+    summary:
+      "Find architecture packages in Reviews, inspect findings and evidence, and export sponsor-ready artifacts.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/REVIEW_PACKAGES_OPERATOR_GUIDE.md"],
+    lastReviewed: "2026-08-11",
+    releaseApplicability: "architecture package browse, inspect, and export workflow",
+    pdfStatus: "customer",
   },
   {
     slug: "findings",
