@@ -5,7 +5,6 @@ import { useCallback, useEffect, useState } from "react";
 
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -21,13 +20,13 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   coerceRecycleBinPayload,
   DEFAULT_RECYCLE_BIN_RETENTION_DAYS,
-  recycleBinEmptyStateBody,
   recycleBinPageDescription,
   type WorkspaceBinRow,
 } from "@/lib/projects-recycle-bin-payload";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 import { ProjectsRecycleBinPageHeader } from "./ProjectsRecycleBinPageHeader";
+import { ProjectsRecycleBinEmptyState, ProjectsRecycleBinLoadingNotice } from "./ProjectsRecycleBinListStates";
 import {
   ProjectsRecycleBinRestoreConfirmDialog,
   type ProjectsRecycleBinPendingRestore,
@@ -214,7 +213,6 @@ export function ProjectsRecycleBinPage() {
   }
 
   const pageDescription = recycleBinPageDescription(retentionDays);
-  const emptyStateBody = recycleBinEmptyStateBody(retentionDays);
 
   return (
     <div className="w-full max-w-3xl space-y-6" data-testid="projects-recycle-bin-page">
@@ -247,19 +245,10 @@ export function ProjectsRecycleBinPage() {
         </p>
       ) : null}
 
-      {loading && rows.length === 0 ? <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading…</p> : null}
+      {loading && rows.length === 0 ? <ProjectsRecycleBinLoadingNotice /> : null}
 
       {!loading && rows.length === 0 && error === null ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>No deleted projects</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="projects-recycle-bin-empty">
-              {emptyStateBody}
-            </p>
-          </CardContent>
-        </Card>
+        <ProjectsRecycleBinEmptyState retentionDays={retentionDays} />
       ) : null}
 
       {rows.map((workspace) => {
