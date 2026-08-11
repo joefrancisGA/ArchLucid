@@ -11,6 +11,7 @@ import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegi
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { OperatorPageBreadcrumb } from "@/components/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -66,10 +67,10 @@ const CONNECT_GCP_SECURELY_TOC_HEADINGS: readonly HelpMarkdownHeading[] = [
   { id: "setup-gcp-connection", title: CONNECT_GCP_SECURELY_SETUP_HEADING, level: 2 },
   { id: "gcp-roles", title: CONNECT_GCP_SECURELY_ROLES_HEADING, level: 2 },
   { id: "verification", title: CONNECT_GCP_SECURELY_VERIFICATION_HEADING, level: 2 },
-  { id: "troubleshoot", title: GCP_PERMISSIONS_TROUBLESHOOT_HEADING, level: 2 },
   { id: "information-retained", title: "Information retained", level: 2 },
   { id: "credentials-not-retained", title: "Credentials not retained", level: 2 },
   { id: "permissions-not-required", title: "Permissions not required", level: 2 },
+  { id: "troubleshoot", title: GCP_PERMISSIONS_TROUBLESHOOT_HEADING, level: 2 },
 ];
 
 type HelpConnectGcpSecurelyGuideViewProps = {
@@ -183,6 +184,7 @@ export function HelpConnectGcpSecurelyGuideView(props: HelpConnectGcpSecurelyGui
         }
         actions={
           <div className="flex flex-wrap items-center gap-2" data-testid="help-connect-gcp-securely-header-actions">
+            <PageContextualHelpButton />
             <Button asChild size="sm" variant="primary" data-testid="connect-gcp-configure-action">
               <Link href={CONNECT_GCP_SECURELY_CONFIGURE_HREF}>{CONNECT_GCP_SECURELY_CONFIGURE_ACTION}</Link>
             </Button>

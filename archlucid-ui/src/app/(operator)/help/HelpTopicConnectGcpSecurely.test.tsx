@@ -13,6 +13,10 @@ vi.mock("@/components/help/HelpTopicPrintButton", () => ({
   HelpTopicPrintButton: () => <div data-testid="help-topic-print-button" />,
 }));
 
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+}));
+
 import { HelpConnectGcpSecurelyGuideView } from "@/app/(operator)/help/_sections/HelpConnectGcpSecurelyGuideView";
 import {
   CONNECT_GCP_SECURELY_CANONICAL_PATH,
@@ -124,6 +128,7 @@ describe("HelpConnectGcpSecurelyGuideView", () => {
     expect(screen.getByTestId("connect-gcp-configure-action-footer")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-pdf-download-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-print-button")).toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
   });
 
   it("shows roles table, forbidden-roles callout, WIF starter panel, and verification scope", () => {
