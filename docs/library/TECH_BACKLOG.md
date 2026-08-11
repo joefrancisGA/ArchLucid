@@ -10,12 +10,12 @@ Regenerate after opening or closing summary-table rows:
 | Architectural quality | Open |
 | --- | ---: |
 | Correctness | 1 |
-| Testability | 108 |
+| Testability | 107 |
 | Reliability | 7 |
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
 | Architectural integrity | 11 |
-| Adoption friction | 285 |
+| Adoption friction | 279 |
 | Commercial / marketability | 9 |
 | Cutting-edge AI | 3 |
 | Explainability | 1 |
@@ -26,7 +26,7 @@ Regenerate after opening or closing summary-table rows:
 | Compliance readiness | 1 |
 | Performance | 5 |
 | Scalability | 2 |
-| Cost-effectiveness | 6 |
+| Cost-effectiveness | 5 |
 | Supportability | 2 |
 | Code hygiene | 1 |
 | Stickiness | 1 |
@@ -34,9 +34,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **528** |
+| **Total (unique open)** | **520** |
 
-**By priority band:** P0 **2** | P1 **410** | P2 **99** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **2** | P1 **402** | P2 **99** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 

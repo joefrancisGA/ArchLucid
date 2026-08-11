@@ -4,7 +4,7 @@
 
 **Audience:** Engineering, security reviewers, principal-architect diligence. Not a buyer brochure.
 
-**Status:** **Done** (2026-08-11) for **TB-1570** / GTM **M-294**. Pair honesty CI **TB-1571** / **M-294** (open).
+**Status:** **Done** (2026-08-11) for **TB-1570** / GTM **M-294**. Honesty CI **TB-1571** / **M-294** **Done** (2026-08-11) — `check_paying_tenant_spend_storm_honesty.py`.
 
 **Verdict (one line):** Paying tenants are **not** unbounded like anonymous Quick Scan — layered **HTTP / token / (optional) monthly estimated-USD / run-admit** gates fail-closed on further Real completions — but a **compromised API key can burn the tenant’s remaining headroom until revoke**, and product **AI metering is estimated tokens/USD, not dispute-grade reconciliation to Azure OpenAI invoices**.
 
