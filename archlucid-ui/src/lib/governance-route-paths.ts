@@ -21,6 +21,9 @@ export const GOVERNANCE_AUDIT_PATH = "/governance/audit";
 /** Cross-review risk-register queue (left-nav Findings). */
 export const GOVERNANCE_FINDINGS_PATH = "/governance/findings" as const;
 
+/** Cross-review decision register (left-nav). */
+export const GOVERNANCE_DECISION_REGISTER_PATH = "/governance/decision-register" as const;
+
 export const GOVERNANCE_ALERTS_PATH = "/governance/alerts";
 
 export const GOVERNANCE_ALERT_RULES_PATH = "/governance/alert-rules";
