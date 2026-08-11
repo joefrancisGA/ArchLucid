@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DigestRecurrenceScheduleVocabularyRail } from "@/components/DigestRecurrenceScheduleVocabularyRail";
 import { AdvisoryRecurrenceScheduleVocabularyRail } from "@/components/AdvisoryRecurrenceScheduleVocabularyRail";
@@ -162,6 +163,7 @@ export default function RecurrenceSchedulesClient() {
   const [createSeed, setCreateSeed] = useState<RecurrenceScheduleExample | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editorState, setEditorState] = useState<RecurrenceScheduleRowEditorState | null>(null);
+  const [pendingDisable, setPendingDisable] = useState<ArchitectureReviewRecurrenceSchedule | null>(null);
 
   function openCreateFromExample(example: RecurrenceScheduleExample): void {
     if (!canMutate) {
@@ -207,17 +209,31 @@ export default function RecurrenceSchedulesClient() {
       return;
     }
 
+    if (schedule.isEnabled) {
+      setPendingDisable(schedule);
+
+      return;
+    }
+
+    await executeToggleEnabled(schedule, true);
+  }
+
+  async function executeToggleEnabled(
+    schedule: ArchitectureReviewRecurrenceSchedule,
+    nextEnabled: boolean,
+  ): Promise<void> {
     setBusyId(schedule.scheduleId);
     setLoadError(null);
 
     try {
       await updateArchitectureReviewRecurrenceSchedule(schedule.scheduleId, {
-        isEnabled: !schedule.isEnabled,
+        isEnabled: nextEnabled,
       });
 
       await reload();
     } catch (error: unknown) {
       setLoadError(error instanceof Error ? error.message : "Failed to update schedule.");
+      throw error;
     } finally {
       setBusyId(null);
     }
@@ -540,6 +556,37 @@ export default function RecurrenceSchedulesClient() {
             </EnterpriseTable>
           )}
       </div>
+
+      <ConfirmationDialog
+        open={pendingDisable !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingDisable(null);
+          }
+        }}
+        title="Disable recurrence schedule?"
+        description={
+          pendingDisable !== null
+            ? `Disable “${pendingDisable.name}”? ArchLucid will stop creating scheduled architecture reviews from this schedule until you enable it again.`
+            : "ArchLucid will stop creating scheduled architecture reviews from this schedule until you enable it again."
+        }
+        confirmLabel="Disable schedule"
+        variant="destructive"
+        busy={pendingDisable !== null && busyId === pendingDisable.scheduleId}
+        onConfirm={() => {
+          if (pendingDisable === null) {
+            return;
+          }
+
+          void executeToggleEnabled(pendingDisable, false)
+            .then(() => {
+              setPendingDisable(null);
+            })
+            .catch(() => {
+              // Load error already surfaced.
+            });
+        }}
+      />
     </div>
   );
 }

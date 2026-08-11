@@ -1,6 +1,10 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("@/hooks/use-operate-capability", () => ({
+  useOperateCapability: () => true,
+}));
+
 vi.mock("@/lib/api/governance-stickiness-api", () => ({
   createArchitectureReviewRecurrenceSchedule: vi.fn(),
   listArchitectureReviewRecurrenceSchedules: vi.fn(),
@@ -270,6 +274,26 @@ describe("RecurrenceSchedulesClient", () => {
           cronExpression: sampleSchedule.cronExpression,
           isEnabled: true,
         },
+      );
+    });
+  });
+
+  it("confirms before disabling an enabled recurrence schedule", async () => {
+    vi.mocked(governanceApi.listArchitectureReviewRecurrenceSchedules).mockResolvedValue([sampleSchedule]);
+
+    render(<RecurrenceSchedulesClient />);
+
+    fireEvent.click(await screen.findByTestId(`recurrence-toggle-${sampleSchedule.scheduleId}`));
+
+    expect(screen.getByRole("heading", { name: /Disable recurrence schedule/i })).toBeInTheDocument();
+    expect(governanceApi.updateArchitectureReviewRecurrenceSchedule).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Disable schedule" }));
+
+    await waitFor(() => {
+      expect(governanceApi.updateArchitectureReviewRecurrenceSchedule).toHaveBeenCalledWith(
+        sampleSchedule.scheduleId,
+        { isEnabled: false },
       );
     });
   });
