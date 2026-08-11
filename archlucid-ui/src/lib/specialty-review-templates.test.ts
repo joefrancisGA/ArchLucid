@@ -3,7 +3,9 @@ import { describe, expect, it } from "vitest";
 import {
   buildSpecialtyReviewUseTemplateHref,
   resolveSpecialtyReviewCloudFromSearchParam,
+  resolveSpecialtyReviewPolicyPackHref,
   SPECIALTY_REVIEW_TEMPLATES,
+  specialtyReviewTemplatesCompareHref,
 } from "@/lib/specialty-review-templates";
 
 describe("specialty-review-templates", () => {
@@ -13,6 +15,31 @@ describe("specialty-review-templates", () => {
       "ai-governance",
       "healthcare-claims",
     ]);
+  });
+
+  it("defines policy pack provenance on every template", () => {
+    for (const template of SPECIALTY_REVIEW_TEMPLATES) {
+      expect(template.policyPacks.length).toBeGreaterThanOrEqual(1);
+      expect(template.lastReviewedUtc.trim().length).toBeGreaterThan(0);
+
+      for (const pack of template.policyPacks) {
+        expect(pack.href).toMatch(/^\/governance\/policy-packs/);
+        expect(pack.label.trim().length).toBeGreaterThan(0);
+        expect(pack.version.trim().length).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it("routes specialty pack citations to resolvable governance surfaces", () => {
+    expect(resolveSpecialtyReviewPolicyPackHref("demo-healthcare-claims-pack")).toBe(
+      "/governance/policy-packs/demo-healthcare-claims-pack",
+    );
+    expect(resolveSpecialtyReviewPolicyPackHref("1")).toBe("/governance/policy-packs/1");
+    expect(resolveSpecialtyReviewPolicyPackHref("saas-security-controls")).toBe("/governance/policy-packs");
+  });
+
+  it("links compare templates to the comparison anchor", () => {
+    expect(specialtyReviewTemplatesCompareHref()).toContain("#specialty-template-comparison");
   });
 
   it("builds guided-intake href without cloud context", () => {

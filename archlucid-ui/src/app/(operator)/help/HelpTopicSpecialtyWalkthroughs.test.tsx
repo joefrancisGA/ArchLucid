@@ -27,6 +27,7 @@ import { getProductDocumentationEntry } from "@/lib/product-documentation-regist
 import {
   SPECIALTY_REVIEW_TEMPLATES_PAGE_TITLE,
   SPECIALTY_REVIEW_TEMPLATES_USE_STANDARD_REVIEW_LABEL,
+  specialtyReviewTemplatesCompareHref,
 } from "@/lib/specialty-review-templates";
 
 const BANNED_INTERNAL_COPY = [
@@ -83,7 +84,7 @@ describe("HelpSpecialtyWalkthroughTemplatesView", () => {
     }
   });
 
-  it("shows selection state after choosing a template", () => {
+  it("shows inline selection footer with continue CTA after choosing a template", () => {
     if (entry === undefined) {
       throw new Error("Expected specialty-walkthroughs documentation entry.");
     }
@@ -92,9 +93,47 @@ describe("HelpSpecialtyWalkthroughTemplatesView", () => {
 
     fireEvent.click(screen.getByTestId("specialty-template-use-ai-governance"));
 
-    expect(screen.getByTestId("specialty-template-selection-banner")).toHaveTextContent("Selected template: AI governance");
-    expect(screen.getByRole("button", { name: "Remove template" })).toBeInTheDocument();
-    expect(screen.getByTestId("specialty-template-continue-setup")).toBeInTheDocument();
+    const selectedCard = screen.getByTestId("specialty-template-card-ai-governance");
+    const selectionFooter = within(selectedCard).getByTestId("specialty-template-card-selection-footer");
+    expect(selectionFooter).toHaveAttribute("role", "status");
+    expect(selectionFooter).toHaveTextContent(/continue to review setup/i);
+    expect(within(selectedCard).getByRole("button", { name: "Remove template" })).toBeInTheDocument();
+    expect(within(selectedCard).getByTestId("specialty-template-continue-setup")).toHaveFocus();
+  });
+
+  it("renders policy pack provenance on every template card", () => {
+    if (entry === undefined) {
+      throw new Error("Expected specialty-walkthroughs documentation entry.");
+    }
+
+    render(<HelpSpecialtyWalkthroughTemplatesView entry={entry} />);
+
+    for (const templateId of ["saas-readiness", "ai-governance", "healthcare-claims"] as const) {
+      const card = screen.getByTestId(`specialty-template-card-${templateId}`);
+      const provenance = within(card).getByTestId(`specialty-template-policy-packs-${templateId}`);
+      expect(within(provenance).getByText(/Backed by/i)).toBeInTheDocument();
+      expect(within(provenance).getAllByRole("link").length).toBeGreaterThanOrEqual(1);
+    }
+
+    const healthcareCard = screen.getByTestId("specialty-template-card-healthcare-claims");
+    expect(
+      within(healthcareCard).getByRole("link", { name: /Healthcare Claims Policy Pack v3\.4\.1/i }),
+    ).toHaveAttribute("href", "/governance/policy-packs/demo-healthcare-claims-pack");
+  });
+
+  it("links compare templates to the comparison section", () => {
+    if (entry === undefined) {
+      throw new Error("Expected specialty-walkthroughs documentation entry.");
+    }
+
+    render(<HelpSpecialtyWalkthroughTemplatesView entry={entry} />);
+
+    expect(screen.getByRole("link", { name: "Compare templates" })).toHaveAttribute(
+      "href",
+      specialtyReviewTemplatesCompareHref(),
+    );
+    expect(screen.getByTestId("specialty-template-comparison-table")).toBeInTheDocument();
+    expect(document.getElementById("specialty-template-comparison")).not.toBeNull();
   });
 
   it("opens a preview dialog without internal policy identifiers", () => {
@@ -109,6 +148,10 @@ describe("HelpSpecialtyWalkthroughTemplatesView", () => {
     const dialog = screen.getByTestId("specialty-template-preview-dialog");
     expect(within(dialog).getByRole("heading", { name: "Healthcare claims preview" })).toBeInTheDocument();
     expect(within(dialog).getByText("Example review questions")).toBeInTheDocument();
+    expect(within(dialog).getByRole("link", { name: /Healthcare Claims Policy Pack v3\.4\.1/i })).toHaveAttribute(
+      "href",
+      "/governance/policy-packs/demo-healthcare-claims-pack",
+    );
     expect(dialog.textContent?.toLowerCase() ?? "").not.toContain("healthcare-claims-v3");
   });
 
