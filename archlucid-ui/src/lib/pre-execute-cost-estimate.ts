@@ -1,6 +1,10 @@
 /**
- * Pre-execute "What will this cost?" plain English (TB-2233).
- * Speaks range or remaining allotment only — never invents USD when preview is inactive.
+ * Pre-execute included-AI-usage plain English (TB-2233).
+ * Speaks range or remaining allowance only — never invents USD when preview is inactive.
+ *
+ * Tone: allowance-first. Before a review runs, the operator is spending an allowance their plan
+ * already includes, so only the preview-active states (where a dollar range is actually asserted)
+ * carry estimate disclaimers.
  */
 
 export type PreExecuteCostEstimateInput = {
@@ -35,14 +39,9 @@ export type PreExecuteCostEstimateTeaching = {
   readonly kind: PreExecuteCostEstimateKind;
 };
 
-export const PRE_EXECUTE_COST_ESTIMATE_TITLE = "What will this cost?" as const;
+export const PRE_EXECUTE_COST_ESTIMATE_TITLE = "Included AI usage" as const;
 
-const UNKNOWN_HONESTY =
-  "No estimated range or remaining allotment is available on this page yet — ArchLucid will not invent dollars.";
-
-const PREVIEW_INACTIVE_HONESTY =
-  "Exact dollar cost for this review is not available yet — ArchLucid will not invent a price when the cost preview is inactive.";
-
+/** Only shown when a cost preview is active but produced no usable range — no invented dollars. */
 const RANGE_UNAVAILABLE_HONESTY =
   "A dollar range for this review is not available yet — ArchLucid will not invent one.";
 
@@ -59,12 +58,12 @@ function formatUsdTwoDecimals(value: number): string {
   });
 }
 
-function remainingAllotmentClause(remainingUsd: number): string {
-  return ` About ${formatUsdTwoDecimals(remainingUsd)} remains in this workspace's AI allotment this month.`;
+function remainingAllowanceClause(remainingUsd: number): string {
+  return ` About ${formatUsdTwoDecimals(remainingUsd)} of this month's AI budget allowance is left.`;
 }
 
 /**
- * Builds pre-execute cost teaching from optional estimate + allotment fields.
+ * Builds pre-execute cost teaching from optional estimate + allowance fields.
  * Ignores estimate USD unless {@link PreExecuteCostEstimateInput.previewActive} is true.
  */
 export function buildPreExecuteCostEstimateTeaching(
@@ -82,7 +81,7 @@ export function buildPreExecuteCostEstimateTeaching(
   const budgetActive = input.monthlyBudgetMonitoringActive === true;
   const remaining = input.remainingBudgetUsd;
   const hasRemaining = budgetActive && isFiniteNumber(remaining);
-  const remainingClause = hasRemaining ? remainingAllotmentClause(remaining) : "";
+  const remainingClause = hasRemaining ? remainingAllowanceClause(remaining) : "";
 
   if (hasBand) {
     const lowVal = low;
@@ -118,17 +117,16 @@ export function buildPreExecuteCostEstimateTeaching(
   if (hasRemaining) {
     return {
       title: PRE_EXECUTE_COST_ESTIMATE_TITLE,
-      message: `Starting this architecture package uses your workspace AI allotment. About ${formatUsdTwoDecimals(remaining)} remains this month.`,
-      honestyNote: previewActive ? RANGE_UNAVAILABLE_HONESTY : PREVIEW_INACTIVE_HONESTY,
+      message: `This review draws on the AI usage your plan already includes. About ${formatUsdTwoDecimals(remaining)} of this month's allowance is left.`,
+      honestyNote: previewActive ? RANGE_UNAVAILABLE_HONESTY : null,
       kind: "allotment",
     };
   }
 
   return {
     title: PRE_EXECUTE_COST_ESTIMATE_TITLE,
-    message:
-      "Starting this architecture package may use AI allotment. ArchLucid does not show an exact dollar amount until a Real-mode cost preview is available.",
-    honestyNote: UNKNOWN_HONESTY,
+    message: "This review draws on the AI usage your plan already includes.",
+    honestyNote: null,
     kind: "unknown",
   };
 }

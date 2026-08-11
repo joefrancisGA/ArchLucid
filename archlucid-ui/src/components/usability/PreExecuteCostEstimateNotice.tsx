@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 export type PreExecuteCostEstimateNoticeProps = {
   /**
    * Optional Real-mode cost preview fields (same shape as RunWizardCostPreviewCard payload).
-   * When omitted, the notice speaks allotment / honesty without inventing dollars.
+   * When omitted, the notice speaks included allowance only, without inventing dollars.
    */
   readonly estimate?: Pick<
     PreExecuteCostEstimateInput,
@@ -37,8 +37,8 @@ export type PreExecuteCostEstimateNoticeProps = {
 };
 
 /**
- * Pre-execute "What will this cost?" teaching (TB-2233).
- * Composes optional cost-preview estimate fields with AiBudgetSpendNotice's allotment gate —
+ * Pre-execute "Included AI usage" teaching (TB-2233).
+ * Composes optional cost-preview estimate fields with AiBudgetSpendNotice's allowance gate —
  * never invents USD when preview is inactive.
  */
 export function PreExecuteCostEstimateNotice(

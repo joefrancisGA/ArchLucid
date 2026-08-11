@@ -11,7 +11,7 @@ describe("buildPreExecuteCostEstimateTeaching (TB-2233)", () => {
     const teaching = buildPreExecuteCostEstimateTeaching({});
 
     expect(teaching.title).toBe(PRE_EXECUTE_COST_ESTIMATE_TITLE);
-    expect(teaching.title).toBe("What will this cost?");
+    expect(teaching.title).toBe("Included AI usage");
   });
 
   it("never invents USD when preview is inactive even if estimate fields are set", () => {
@@ -24,7 +24,20 @@ describe("buildPreExecuteCostEstimateTeaching (TB-2233)", () => {
 
     expect(teaching.kind).toBe("unknown");
     expect(teaching.message).not.toMatch(/\$/);
-    expect(teaching.honestyNote).toMatch(/will not invent dollars/i);
+  });
+
+  it("keeps pre-run states allowance-first without estimate disclaimers", () => {
+    const unknown = buildPreExecuteCostEstimateTeaching({ previewActive: false });
+    const allotment = buildPreExecuteCostEstimateTeaching({
+      previewActive: false,
+      monthlyBudgetMonitoringActive: true,
+      remainingBudgetUsd: 75,
+    });
+
+    expect(unknown.message).toMatch(/already includes/i);
+    expect(unknown.honestyNote).toBeNull();
+    expect(allotment.message).toMatch(/already includes/i);
+    expect(allotment.honestyNote).toBeNull();
   });
 
   it("speaks a low–high range for Real-mode preview bands", () => {
@@ -64,7 +77,7 @@ describe("buildPreExecuteCostEstimateTeaching (TB-2233)", () => {
     expect(teaching.message).toMatch(/\$0\.42/);
   });
 
-  it("falls back to remaining allotment language without inventing package cost", () => {
+  it("falls back to remaining allowance language without inventing package cost", () => {
     const teaching = buildPreExecuteCostEstimateTeaching({
       previewActive: false,
       monthlyBudgetMonitoringActive: true,
@@ -72,13 +85,23 @@ describe("buildPreExecuteCostEstimateTeaching (TB-2233)", () => {
     });
 
     expect(teaching.kind).toBe("allotment");
-    expect(teaching.message).toMatch(/AI allotment/i);
+    expect(teaching.message).toMatch(/AI usage your plan already includes/i);
     expect(teaching.message).toMatch(/\$50\.00/);
-    expect(teaching.honestyNote).toMatch(/cost preview is inactive/i);
     expect(teaching.message).not.toMatch(/typically draws about \$0\./);
   });
 
-  it("appends remaining allotment when a range is known", () => {
+  it("still flags a missing range when the cost preview is active", () => {
+    const teaching = buildPreExecuteCostEstimateTeaching({
+      previewActive: true,
+      monthlyBudgetMonitoringActive: true,
+      remainingBudgetUsd: 50,
+    });
+
+    expect(teaching.kind).toBe("allotment");
+    expect(teaching.honestyNote).toMatch(/will not invent one/i);
+  });
+
+  it("appends remaining allowance when a range is known", () => {
     const teaching = buildPreExecuteCostEstimateTeaching({
       previewActive: true,
       estimatedCostUsdLow: 0.04,
@@ -87,7 +110,7 @@ describe("buildPreExecuteCostEstimateTeaching (TB-2233)", () => {
       remainingBudgetUsd: 12.5,
     });
 
-    expect(teaching.message).toMatch(/\$12\.50 remains in this workspace's AI allotment/i);
+    expect(teaching.message).toMatch(/\$12\.50 of this month's AI budget allowance is left/i);
   });
 
   it("ignores remaining budget when monthly monitoring is inactive", () => {

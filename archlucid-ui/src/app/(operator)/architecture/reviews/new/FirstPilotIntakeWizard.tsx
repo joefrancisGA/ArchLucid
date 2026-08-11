@@ -19,7 +19,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { NewReviewSampleEscapeLink } from "@/components/usability/NewReviewSampleEscapeLink";
-import { ReplayCostPreExecuteCostVocabularyRail } from "@/components/ReplayCostPreExecuteCostVocabularyRail";
 import { PreExecuteCostEstimateNotice } from "@/components/usability/PreExecuteCostEstimateNotice";
 import {
   proofScopeToRequiredCapabilities,
@@ -390,12 +389,12 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
 
           <ArchitectureScopeUnderstandingCheckPanel
             input={scopeUnderstandingInput}
+            contextSourceLabel="Architecture context above"
             disabled={creationProgress.isActive || blocksLlmExecution}
             onBulletsChange={setScopeBullets}
             onGateChange={setScopeGateOpen}
           />
 
-          <ReplayCostPreExecuteCostVocabularyRail currentSurfaceId="pre-execute-cost" />
           <PreExecuteCostEstimateNotice
             testId="first-pilot-pre-execute-cost"
             remainingBudgetUsd={llmBudgetStatus?.remainingBudgetUsd ?? null}

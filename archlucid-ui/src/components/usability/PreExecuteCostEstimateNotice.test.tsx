@@ -30,7 +30,7 @@ function createStatus(
 }
 
 describe("PreExecuteCostEstimateNotice (TB-2233)", () => {
-  it("speaks remaining allotment from the budget gate without inventing package cost", () => {
+  it("speaks remaining allowance from the budget gate without inventing package cost", () => {
     useGate.mockReturnValue({
       loading: false,
       status: createStatus(),
@@ -42,14 +42,14 @@ describe("PreExecuteCostEstimateNotice (TB-2233)", () => {
     const notice = screen.getByTestId("pre-execute-cost-estimate-notice");
     expect(notice).toHaveAttribute("data-kind", "allotment");
     expect(screen.getByTestId("pre-execute-cost-estimate-notice-message")).toHaveTextContent(
-      /AI allotment/i,
+      /AI usage your plan already includes/i,
     );
     expect(screen.getByTestId("pre-execute-cost-estimate-notice-message")).toHaveTextContent(
       "$50.00",
     );
-    expect(screen.getByTestId("pre-execute-cost-estimate-notice-honesty")).toHaveTextContent(
-      /will not invent a price/i,
-    );
+    expect(
+      screen.queryByTestId("pre-execute-cost-estimate-notice-honesty"),
+    ).not.toBeInTheDocument();
   });
 
   it("shows a Real-mode range when estimate props are supplied", () => {
@@ -85,7 +85,7 @@ describe("PreExecuteCostEstimateNotice (TB-2233)", () => {
     );
   });
 
-  it("uses caller allotment props and skips inventing dollars when preview inactive", () => {
+  it("uses caller allowance props and skips inventing dollars when preview inactive", () => {
     useGate.mockReturnValue({
       loading: false,
       status: createStatus({ remainingBudgetUsd: 99 }),
@@ -121,7 +121,8 @@ describe("PreExecuteCostEstimateNotice (TB-2233)", () => {
 
     expect(screen.getByTestId("draft-cost-teaching")).toBeInTheDocument();
     expect(screen.getByTestId("draft-cost-teaching-message")).toHaveTextContent(
-      /will not invent dollars|Real-mode cost preview/i,
+      /AI usage your plan already includes/i,
     );
+    expect(screen.getByTestId("draft-cost-teaching-message")).not.toHaveTextContent("$");
   });
 });

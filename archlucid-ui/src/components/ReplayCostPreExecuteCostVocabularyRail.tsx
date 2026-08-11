@@ -22,7 +22,10 @@ export type ReplayCostPreExecuteCostVocabularyRailProps = {
 
 /**
  * TB-2284 — Compact vocabulary rail between comparison replay cost and pre-execute cost.
- * Mount on both surfaces so operators do not conflate the two estimate jobs.
+ * Mount where an operator is already reading a replay cost band, so they do not mistake it for
+ * pre-execute allowance teaching. Deliberately not mounted on start-review / draft handoff: a
+ * first-time reviewer has no replay estimate to confuse, and stacked cost prose there reads as a
+ * billing warning against an allowance the plan already includes.
  * Distinct from TB-2233 pre-execute teaching itself.
  */
 export function ReplayCostPreExecuteCostVocabularyRail(
