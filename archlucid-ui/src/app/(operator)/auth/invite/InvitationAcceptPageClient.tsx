@@ -8,6 +8,7 @@ import { InvitationAuthSecondaryExitActions } from "@/app/(operator)/auth/invite
 import { InvitationInvalidRecoveryActions } from "@/app/(operator)/auth/invite/InvitationInvalidRecoveryActions";
 import { InvitationValidPanel } from "@/app/(operator)/auth/invite/InvitationValidPanel";
 import { AuthFlowShell } from "@/components/auth/AuthFlowShell";
+import { ColdInviteUsersInviteVocabularyRail } from "@/components/ColdInviteUsersInviteVocabularyRail";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   AUTH_INVITE_PAGE_LEAD,
@@ -88,6 +89,7 @@ export function InvitationAcceptPageClient() {
       <div className="max-w-[560px]" data-testid="invitation-accept-page">
         <h1 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{AUTH_INVITE_PAGE_TITLE}</h1>
         <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{AUTH_INVITE_PAGE_LEAD}</p>
+        <ColdInviteUsersInviteVocabularyRail currentSurfaceId="cold-invite" />
 
         {recoveryContext ? (
           <>
