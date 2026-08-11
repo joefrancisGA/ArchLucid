@@ -70,8 +70,22 @@ describe("HelpSoc2SelfAssessmentGuideView", () => {
       }),
     ).toHaveAttribute("href", SOC2_SELF_ASSESSMENT_HELP_PRIMARY_ACTIONS.openCaiqSig.href);
 
-    expect(screen.queryByTestId("help-soc2-self-assessment-sources")).toBeNull(); // TB-2092
-expect(screen.getAllByRole("link", { name: /caiq/i }).length).toBeGreaterThan(0);
+    expect(screen.getByTestId("help-soc2-self-assessment-header-metadata")).toHaveTextContent("2026-05-26");
+    expect(screen.getByTestId("help-soc2-self-assessment-sources")).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: /caiq/i }).length).toBeGreaterThan(0);
+
+    const sourcesSection = screen.getByTestId("help-soc2-self-assessment-sources");
+    const sourceLinks = within(sourcesSection).getAllByRole("link");
+
+    expect(sourceLinks.some((link) => link.getAttribute("href") === "/trust")).toBe(true);
+    expect(sourceLinks.some((link) => link.getAttribute("href") === "/help/security-trust")).toBe(true);
+    expect(sourceLinks.some((link) => link.getAttribute("href") === "/help/data-handling")).toBe(true);
+    expect(
+      sourceLinks.some((link) => link.getAttribute("href") === SOC2_SELF_ASSESSMENT_HELP_SOURCES[0]?.href),
+    ).toBe(true);
+    expect(
+      sourceLinks.every((link) => link.getAttribute("href") !== "/help/soc2-self-assessment"),
+    ).toBe(true);
   });
 
   it("renders SOC2 Type I roadmap without calendar commitments (TB-1748)", () => {

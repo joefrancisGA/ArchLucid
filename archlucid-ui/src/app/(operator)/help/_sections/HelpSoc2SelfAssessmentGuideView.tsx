@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { HelpSoc2SelfAssessmentHeaderMetadata } from "@/app/(operator)/help/_sections/HelpSoc2SelfAssessmentHeaderMetadata";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -16,6 +17,8 @@ import {
   SOC2_SELF_ASSESSMENT_HELP_PAGE_SUBTITLE,
   SOC2_SELF_ASSESSMENT_HELP_PAGE_TITLE,
   SOC2_SELF_ASSESSMENT_HELP_PRIMARY_ACTIONS,
+  SOC2_SELF_ASSESSMENT_HELP_SOURCES,
+  SOC2_SELF_ASSESSMENT_HELP_SOURCES_INTRO,
 } from "@/lib/soc2-self-assessment-help-guide-content";
 import { SOC2_SELF_ASSESSMENT_HELP_PATH } from "@/lib/soc2-self-assessment-help-route";
 import {
@@ -26,6 +29,7 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
+import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help-diligence-artifact-index";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
 import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -59,6 +63,7 @@ export function HelpSoc2SelfAssessmentGuideView(
         titleTestId="help-soc2-self-assessment-page-title"
         subtitle={SOC2_SELF_ASSESSMENT_HELP_PAGE_SUBTITLE}
         navHref={SOC2_SELF_ASSESSMENT_HELP_PATH}
+        metadata={<HelpSoc2SelfAssessmentHeaderMetadata entry={entry} />}
         actions={
           <div
             className="flex flex-wrap items-center gap-2"
@@ -141,10 +146,42 @@ export function HelpSoc2SelfAssessmentGuideView(
             <ul className={cn("m-0 mt-2 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body)}>
               {SOC2_SELF_ASSESSMENT_HELP_JOB_MATRIX.map((row) => (
                 <li key={row.label} className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-2">
-                  <Link className={cn(OPERATOR_LINK.inline, "font-medium shrink-0")} href={row.href}>
-                    {row.label}
-                  </Link>
+                  {row.href !== undefined ? (
+                    <Link className={cn(OPERATOR_LINK.inline, "font-medium shrink-0")} href={row.href}>
+                      {row.label}
+                    </Link>
+                  ) : (
+                    <span className="font-medium shrink-0 text-al-text-primary">{row.label}</span>
+                  )}
                   <span className="text-al-text-secondary">{row.when}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section
+            className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
+            aria-labelledby="help-soc2-self-assessment-sources-heading"
+            data-testid="help-soc2-self-assessment-sources"
+          >
+            <h2
+              id="help-soc2-self-assessment-sources-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+            >
+              {HELP_DILIGENCE_ARTIFACT_INDEX_TITLE}
+            </h2>
+            <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {SOC2_SELF_ASSESSMENT_HELP_SOURCES_INTRO}
+            </p>
+            <ul className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.body)}>
+              {SOC2_SELF_ASSESSMENT_HELP_SOURCES.map((link) => (
+                <li key={`${link.href}-${link.label}`}>
+                  <Link
+                    className={cn(OPERATOR_LINK.inline, "inline-flex min-h-6 items-center py-1 font-medium")}
+                    href={link.href}
+                  >
+                    {link.label}
+                  </Link>
                 </li>
               ))}
             </ul>

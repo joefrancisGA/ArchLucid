@@ -48,6 +48,7 @@ import {
   stripRepeatReviewLoopContributorLeakage,
   stripRepeatReviewLoopContributorSections,
   stripInternalBuyerHelpPreamble,
+  stripTrustCenterContributorLeakage,
 } from "@/lib/help-markdown-presentation";
 import { HELP_TOPIC_BANNED_COPY_PATTERNS } from "@/lib/help-product-language";
 import { tryLoadFoldedInternalRunbook, tryLoadProductDocumentation } from "@/lib/load-product-documentation";
@@ -1115,7 +1116,8 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toContain("AUDIT_COVERAGE_MATRIX");
     expect(prepared).not.toContain("pen-test-summaries");
     expect(prepared).not.toContain("COMPLIANCE_MATRIX");
-    expect(prepared).toContain("product audit log");
+    expect(prepared).toContain("product audit trail");
+    expect(prepared).toContain("/help/security-trust");
   });
 
   it("keeps presented SOC2 self-assessment help buyer-safe (TB-1747)", () => {
@@ -1137,6 +1139,8 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toContain("compliance_matrix");
     expect(prepared).toContain("self-assessment");
     expect(prepared).toContain("/help/caiq-sig-response");
+    expect(prepared).toContain("/help/security-trust");
+    expect(prepared).toContain("/help/data-handling");
   });
 
   it("frames SOC2 Type I roadmap as illustrative, not committed dates (TB-1748)", () => {
@@ -1145,6 +1149,8 @@ describe("help-markdown-presentation", () => {
       "",
       "## SOC 2 Type I — readiness planning (Q2–Q3 2026)",
       "",
+      "| Readiness consultant engaged | Illustrative — owner/budget gated | Shortlist 3 CPA-aligned boutiques |",
+      "| Control baseline freeze for observation | Illustrative — owner/budget gated | Align with owner-conducted testing closure |",
       "| Type I observation period start | 2026-09-01 | Illustrative — confirm with selected CPA |",
       "| Type I report (stretch) | 2026-Q4 | Requires executed attestation agreement |",
     ].join("\n");
@@ -1158,6 +1164,10 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toContain("cfo / security");
     expect(prepared).toContain("illustrative");
     expect(prepared).toContain("not a product commitment");
+    expect(prepared).toContain("when budget approves external consultant");
+    expect(prepared).toContain("after funded readiness workshop");
+    expect(prepared).toContain("per selected cpa scope (not committed)");
+    expect(prepared).toContain("requires executed attestation agreement");
   });
 
   it("keeps presented SOC2 Type I help free of calendar commitments (TB-1748)", () => {
@@ -1175,6 +1185,10 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toContain("pending questions");
     expect(prepared).toContain("illustrative");
     expect(prepared).toContain("not a commitment");
+    expect(prepared).toContain("when budget approves external consultant");
+    expect(prepared).toContain("after funded readiness workshop");
+    expect(prepared).toContain("per selected cpa scope (not committed)");
+    expect(prepared).toContain("requires executed attestation agreement");
   });
 
   it("strips subprocessors contributor repo paths (TB-1752)", () => {
@@ -1716,5 +1730,48 @@ describe("MarketingAccessibilityMarkdownFragment privacy presentation", () => {
     );
     expect(screen.getByRole("link", { name: "Trust Center" })).toHaveAttribute("href", "/trust");
     expect(screen.getByRole("heading", { level: 2, name: "1. Who we are" })).toBeInTheDocument();
+  });
+
+  it("rewrites trust-center pen-test lead-in and scalability anchor for security-trust help (HSE P0)", () => {
+    const source = [
+      "| Scalability | Self-asserted | [V1 scalability and load evidence](#v1-scalability-and-load-evidence) |",
+      "",
+      "## Third-party engagements",
+      "",
+      "**V1:** There is **no** awarded third-party penetration-test vendor.",
+      "**V1** assurance includes **owner-conducted** testing.",
+    ].join("\n");
+
+    const prepared = prepareHelpMarkdownForPresentation(source, "docs/go-to-market/trust-center.md", {
+      helpTopicSlug: "security-trust",
+    });
+
+    expect(prepared).toContain("/help/security-trust#scalability-and-load-evidence");
+    expect(prepared).toMatch(/awarded third-party penetration-test vendor/i);
+    expect(prepared).toMatch(/owner-conducted/i);
+    expect(prepared).not.toMatch(/\bV1\b/);
+    expect(prepared).not.toContain("scripts/ci/");
+  });
+
+  it("keeps presented security-trust help buyer-safe (HSE P0)", () => {
+    const loaded = tryLoadProductDocumentation("security-trust");
+
+    expect(loaded).not.toBeNull();
+
+    const sourcePath = loaded!.entry.sourcePaths[0] ?? "";
+    const prepared = prepareHelpMarkdownForPresentation(loaded!.markdown, sourcePath, {
+      helpTopicSlug: "security-trust",
+    }).toLowerCase();
+
+    expect(prepared).not.toContain("check_procurement_pack_index");
+    expect(prepared).not.toContain("automated freshness posture");
+    expect(prepared).not.toContain("cache-control:");
+    expect(prepared).not.toContain("if-none-match");
+    expect(prepared).not.toContain("assurance_status_canonical.md");
+    expect(prepared).toContain("/help/soc2-self-assessment");
+    expect(prepared).toContain("/help/procurement");
+    expect(prepared).toContain("#scalability-and-load-evidence");
+    expect(prepared).toMatch(/awarded third-party penetration-test vendor/);
+    expect(prepared).not.toContain("cache-control:");
   });
 });

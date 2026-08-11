@@ -267,6 +267,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "buyer",
     sourcePaths: ["docs/go-to-market/trust-center.md"],
     pdfStatus: "public",
+    lastReviewed: "2026-07-31",
   },
   {
     slug: "soc2-self-assessment",
@@ -275,6 +276,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "buyer",
     sourcePaths: ["docs/security/SOC2_SELF_ASSESSMENT_2026.md"],
     pdfStatus: "public",
+    lastReviewed: "2026-05-26",
   },
   {
     slug: "caiq-sig-response",
