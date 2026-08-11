@@ -104,25 +104,8 @@ public sealed partial class DapperTenantRepository
     {
         await using SqlConnection connection = await OpenDirectoryMetadataConnectionAsync(ct).ConfigureAwait(false);
 
-        const string sql = """
-                           SELECT Id, Name, Slug, Tier, EntraTenantId, DataRegion, CreatedUtc, SuspendedUtc,
-                                  TenantErasureRequestedUtc,
-                                  OffboardedUtc, ErasureEligibleUtc, LegalHoldUntilUtc, LegalHoldReason, LegalHoldSetByUserId, LegalHoldSetUtc,
-                                  TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
-                                  TrialStatus, TrialSampleRunId,
-                                  TrialArchitecturePreseedEnqueuedUtc, TrialArchitecturePreseedAttemptCount,
-                                  TrialArchitecturePreseedFailedUtc, TrialArchitecturePreseedLastError,
-                                  TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
-                                  BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc,
-                                  BaselineManualPrepHoursPerReview, BaselinePeoplePerReview, BaselineManualPrepCapturedUtc,
-                                  CompanySize, ArchitectureTeamSize, IndustryVertical, IndustryVerticalOther,
-                                  EnterpriseSeatsLimit, EnterpriseSeatsUsed
-                           FROM dbo.Tenants
-                           WHERE EntraTenantId = @EntraTenantId;
-                           """;
-
         TenantRow? row = await connection.QuerySingleOrDefaultAsync<TenantRow>(
-            new CommandDefinition(sql, new
+            new CommandDefinition(TenantDirectorySql.SelectByEntraTenantId, new
             {
                 EntraTenantId = entraTenantId
             }, cancellationToken: ct)).ConfigureAwait(false);
@@ -135,25 +118,10 @@ public sealed partial class DapperTenantRepository
     {
         await using SqlConnection connection = await OpenDirectoryMetadataConnectionAsync(ct).ConfigureAwait(false);
 
-        const string sql = """
-                           SELECT Id, Name, Slug, Tier, EntraTenantId, DataRegion, CreatedUtc, SuspendedUtc,
-                                  TenantErasureRequestedUtc,
-                                  OffboardedUtc, ErasureEligibleUtc, LegalHoldUntilUtc, LegalHoldReason, LegalHoldSetByUserId, LegalHoldSetUtc,
-                                  TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
-                                  TrialStatus, TrialSampleRunId,
-                                  TrialArchitecturePreseedEnqueuedUtc, TrialArchitecturePreseedAttemptCount,
-                                  TrialArchitecturePreseedFailedUtc, TrialArchitecturePreseedLastError,
-                                  TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
-                                  BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc,
-                                  BaselineManualPrepHoursPerReview, BaselinePeoplePerReview, BaselineManualPrepCapturedUtc,
-                                  CompanySize, ArchitectureTeamSize, IndustryVertical, IndustryVerticalOther,
-                                  EnterpriseSeatsLimit, EnterpriseSeatsUsed
-                           FROM dbo.Tenants
-                           ORDER BY CreatedUtc DESC;
-                           """;
-
         IEnumerable<TenantRow> rows =
-            await connection.QueryAsync<TenantRow>(new CommandDefinition(sql, cancellationToken: ct)).ConfigureAwait(false);
+            await connection.QueryAsync<TenantRow>(
+                new CommandDefinition(TenantDirectorySql.ListOrderByCreatedUtcDesc, cancellationToken: ct))
+                .ConfigureAwait(false);
 
         return rows.Select(static r => r.ToRecord()).ToList();
     }

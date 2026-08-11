@@ -94,15 +94,10 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
 
         int priority = IntegrationEventOutboxPriority.ForEventType(eventType);
 
-        const string sql = """
-            INSERT INTO dbo.IntegrationEventOutbox
-            (OutboxId, RunId, EventType, MessageId, PayloadUtf8, TenantId, WorkspaceId, ProjectId, Priority, CreatedUtc)
-            VALUES (@OutboxId, @RunId, @EventType, @MessageId, @PayloadUtf8, @TenantId, @WorkspaceId, @ProjectId, @Priority, SYSUTCDATETIME());
-            """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
-                sql,
+                IntegrationEventOutboxSql.Enqueue,
                 new
                 {
                     OutboxId = outboxId,
@@ -124,22 +119,11 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
     {
         int take = Math.Clamp(maxBatch, 1, 100);
 
-        const string sql = """
-            SELECT TOP (@Take)
-                OutboxId, RunId, EventType, MessageId, PayloadUtf8, TenantId, WorkspaceId, ProjectId, CreatedUtc,
-                Priority,
-                RetryCount, NextRetryUtc, LastErrorMessage, DeadLetteredUtc
-            FROM dbo.IntegrationEventOutbox
-            WHERE ProcessedUtc IS NULL
-              AND DeadLetteredUtc IS NULL
-              AND (NextRetryUtc IS NULL OR NextRetryUtc <= SYSUTCDATETIME())
-            ORDER BY ISNULL(Priority, 1) ASC, CreatedUtc ASC;
-            """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
 
         IEnumerable<IntegrationEventOutboxRow> rows = await connection.QueryAsync<IntegrationEventOutboxRow>(
-            new CommandDefinition(sql, new
+            new CommandDefinition(IntegrationEventOutboxSql.DequeuePending, new
             {
                 Take = take
             }, cancellationToken: ct));
@@ -178,15 +162,10 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
     /// <inheritdoc />
     public async Task MarkProcessedAsync(Guid outboxId, CancellationToken ct)
     {
-        const string sql = """
-            UPDATE dbo.IntegrationEventOutbox
-            SET ProcessedUtc = SYSUTCDATETIME()
-            WHERE OutboxId = @OutboxId;
-            """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
 
-        await connection.ExecuteAsync(new CommandDefinition(sql, new
+        await connection.ExecuteAsync(new CommandDefinition(IntegrationEventOutboxSql.MarkProcessed, new
         {
             OutboxId = outboxId
         }, cancellationToken: ct));
@@ -201,20 +180,12 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
         string? lastErrorMessage,
         CancellationToken ct)
     {
-        const string sql = """
-            UPDATE dbo.IntegrationEventOutbox
-            SET RetryCount = @NewRetryCount,
-                NextRetryUtc = @NextRetryUtc,
-                DeadLetteredUtc = @DeadLetteredUtc,
-                LastErrorMessage = @LastErrorMessage
-            WHERE OutboxId = @OutboxId;
-            """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
 
         await connection.ExecuteAsync(
             new CommandDefinition(
-                sql,
+                IntegrationEventOutboxSql.RecordPublishFailure,
                 new
                 {
                     OutboxId = outboxId,
@@ -229,16 +200,10 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
     /// <inheritdoc />
     public async Task<long> CountIntegrationOutboxPublishPendingAsync(CancellationToken ct)
     {
-        const string sql = """
-            SELECT COUNT_BIG(1)
-            FROM dbo.IntegrationEventOutbox
-            WHERE ProcessedUtc IS NULL
-              AND DeadLetteredUtc IS NULL;
-            """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
 
-        long count = await connection.QuerySingleAsync<long>(new CommandDefinition(sql, cancellationToken: ct));
+        long count = await connection.QuerySingleAsync<long>(new CommandDefinition(IntegrationEventOutboxSql.CountPublishPending, cancellationToken: ct));
 
         return count;
     }
@@ -246,16 +211,10 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
     /// <inheritdoc />
     public async Task<long> CountIntegrationOutboxDeadLetterAsync(CancellationToken ct)
     {
-        const string sql = """
-            SELECT COUNT_BIG(1)
-            FROM dbo.IntegrationEventOutbox
-            WHERE DeadLetteredUtc IS NOT NULL
-              AND ProcessedUtc IS NULL;
-            """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
 
-        long count = await connection.QuerySingleAsync<long>(new CommandDefinition(sql, cancellationToken: ct));
+        long count = await connection.QuerySingleAsync<long>(new CommandDefinition(IntegrationEventOutboxSql.CountDeadLetter, cancellationToken: ct));
 
         return count;
     }
@@ -265,19 +224,11 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
     {
         int take = Math.Clamp(maxRows, 1, 500);
 
-        const string sql = """
-            SELECT TOP (@Take)
-                OutboxId, RunId, TenantId, EventType, DeadLetteredUtc, RetryCount, LastErrorMessage
-            FROM dbo.IntegrationEventOutbox
-            WHERE DeadLetteredUtc IS NOT NULL
-              AND ProcessedUtc IS NULL
-            ORDER BY DeadLetteredUtc DESC;
-            """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
 
         IEnumerable<DeadLetterRow> rows = await connection.QueryAsync<DeadLetterRow>(
-            new CommandDefinition(sql, new
+            new CommandDefinition(IntegrationEventOutboxSql.ListDeadLetters, new
             {
                 Take = take
             }, cancellationToken: ct));
@@ -309,19 +260,10 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
     /// <inheritdoc />
     public async Task<bool> ResetDeadLetterForRetryAsync(Guid outboxId, CancellationToken ct)
     {
-        const string sql = """
-            UPDATE dbo.IntegrationEventOutbox
-            SET DeadLetteredUtc = NULL,
-                RetryCount = 0,
-                NextRetryUtc = NULL,
-                LastErrorMessage = NULL
-            WHERE OutboxId = @OutboxId
-              AND DeadLetteredUtc IS NOT NULL;
-            """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
 
-        int rows = await connection.ExecuteAsync(new CommandDefinition(sql, new
+        int rows = await connection.ExecuteAsync(new CommandDefinition(IntegrationEventOutboxSql.ResetDeadLetterForRetry, new
         {
             OutboxId = outboxId
         }, cancellationToken: ct));
@@ -332,17 +274,10 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
     /// <inheritdoc />
     public async Task<bool> AcknowledgeDeadLetterAsync(Guid outboxId, CancellationToken ct)
     {
-        const string sql = """
-            UPDATE dbo.IntegrationEventOutbox
-            SET ProcessedUtc = SYSUTCDATETIME()
-            WHERE OutboxId = @OutboxId
-              AND DeadLetteredUtc IS NOT NULL
-              AND ProcessedUtc IS NULL;
-            """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
 
-        int rows = await connection.ExecuteAsync(new CommandDefinition(sql, new
+        int rows = await connection.ExecuteAsync(new CommandDefinition(IntegrationEventOutboxSql.AcknowledgeDeadLetter, new
         {
             OutboxId = outboxId
         }, cancellationToken: ct));
@@ -360,21 +295,12 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
         int take = Math.Clamp(maxRows, 1, 500);
         string? normalizedEventType = string.IsNullOrWhiteSpace(eventType) ? null : eventType.Trim();
 
-        const string selectSql = """
-            SELECT TOP (@Take) OutboxId
-            FROM dbo.IntegrationEventOutbox
-            WHERE DeadLetteredUtc IS NOT NULL
-              AND ProcessedUtc IS NULL
-              AND (@TenantId IS NULL OR TenantId = @TenantId)
-              AND (@EventType IS NULL OR EventType = @EventType)
-            ORDER BY DeadLetteredUtc DESC;
-            """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
 
         IEnumerable<Guid> candidateIds = await connection.QueryAsync<Guid>(
             new CommandDefinition(
-                selectSql,
+                IntegrationEventOutboxSql.SelectMatchingDeadLetterIds,
                 new
                 {
                     Take = take,
@@ -394,20 +320,10 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
             };
         }
 
-        const string bulkUpdateSql = """
-            UPDATE dbo.IntegrationEventOutbox
-            SET DeadLetteredUtc = NULL,
-                RetryCount = 0,
-                NextRetryUtc = NULL,
-                LastErrorMessage = NULL
-            OUTPUT INSERTED.OutboxId
-            WHERE OutboxId IN @OutboxIds
-              AND DeadLetteredUtc IS NOT NULL;
-            """;
 
         IEnumerable<Guid> retried = await connection.QueryAsync<Guid>(
             new CommandDefinition(
-                bulkUpdateSql,
+                IntegrationEventOutboxSql.BulkResetDeadLetters,
                 new { OutboxIds = ids },
                 cancellationToken: ct));
 
@@ -423,19 +339,11 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
     /// <inheritdoc />
     public async Task<IntegrationEventOutboxEntry?> TryGetDeadLetterEntryAsync(Guid outboxId, CancellationToken ct)
     {
-        const string sql = """
-            SELECT OutboxId, RunId, EventType, MessageId, PayloadUtf8, TenantId, WorkspaceId, ProjectId,
-                   CreatedUtc, Priority, RetryCount, NextRetryUtc, LastErrorMessage, DeadLetteredUtc
-            FROM dbo.IntegrationEventOutbox
-            WHERE OutboxId = @OutboxId
-              AND DeadLetteredUtc IS NOT NULL
-              AND ProcessedUtc IS NULL;
-            """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
 
         IntegrationEventOutboxRow? row = await connection.QuerySingleOrDefaultAsync<IntegrationEventOutboxRow>(
-            new CommandDefinition(sql, new { OutboxId = outboxId }, cancellationToken: ct));
+            new CommandDefinition(IntegrationEventOutboxSql.TryGetDeadLetterEntry, new { OutboxId = outboxId }, cancellationToken: ct));
 
         if (row?.EventType is null || row.PayloadUtf8 is null)
             return null;

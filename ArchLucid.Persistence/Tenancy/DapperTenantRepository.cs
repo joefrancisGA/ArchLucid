@@ -63,25 +63,8 @@ public sealed partial class DapperTenantRepository(
         Guid tenantId,
         CancellationToken ct)
     {
-        const string sql = """
-                           SELECT Id, Name, Slug, Tier, EntraTenantId, DataRegion, CreatedUtc, SuspendedUtc,
-                                  TenantErasureRequestedUtc,
-                                  OffboardedUtc, ErasureEligibleUtc, LegalHoldUntilUtc, LegalHoldReason, LegalHoldSetByUserId, LegalHoldSetUtc,
-                                  TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
-                                  TrialStatus, TrialSampleRunId,
-                                  TrialArchitecturePreseedEnqueuedUtc, TrialArchitecturePreseedAttemptCount,
-                                  TrialArchitecturePreseedFailedUtc, TrialArchitecturePreseedLastError,
-                                  TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
-                                  BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc,
-                                  BaselineManualPrepHoursPerReview, BaselinePeoplePerReview, BaselineManualPrepCapturedUtc,
-                                  CompanySize, ArchitectureTeamSize, IndustryVertical, IndustryVerticalOther,
-                                  EnterpriseSeatsLimit, EnterpriseSeatsUsed
-                           FROM dbo.Tenants
-                           WHERE Id = @Id;
-                           """;
-
         TenantRow? row = await connection.QuerySingleOrDefaultAsync<TenantRow>(
-            new CommandDefinition(sql, new
+            new CommandDefinition(TenantDirectorySql.SelectById, new
             {
                 Id = tenantId
             }, cancellationToken: ct)).ConfigureAwait(false);
@@ -94,25 +77,8 @@ public sealed partial class DapperTenantRepository(
         string normalizedSlug,
         CancellationToken ct)
     {
-        const string sql = """
-                           SELECT Id, Name, Slug, Tier, EntraTenantId, DataRegion, CreatedUtc, SuspendedUtc,
-                                  TenantErasureRequestedUtc,
-                                  OffboardedUtc, ErasureEligibleUtc, LegalHoldUntilUtc, LegalHoldReason, LegalHoldSetByUserId, LegalHoldSetUtc,
-                                  TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
-                                  TrialStatus, TrialSampleRunId,
-                                  TrialArchitecturePreseedEnqueuedUtc, TrialArchitecturePreseedAttemptCount,
-                                  TrialArchitecturePreseedFailedUtc, TrialArchitecturePreseedLastError,
-                                  TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
-                                  BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc,
-                                  BaselineManualPrepHoursPerReview, BaselinePeoplePerReview, BaselineManualPrepCapturedUtc,
-                                  CompanySize, ArchitectureTeamSize, IndustryVertical, IndustryVerticalOther,
-                                  EnterpriseSeatsLimit, EnterpriseSeatsUsed
-                           FROM dbo.Tenants
-                           WHERE Slug = @Slug;
-                           """;
-
         TenantRow? row = await connection.QuerySingleOrDefaultAsync<TenantRow>(
-            new CommandDefinition(sql, new
+            new CommandDefinition(TenantDirectorySql.SelectBySlug, new
             {
                 Slug = normalizedSlug
             }, cancellationToken: ct)).ConfigureAwait(false);
@@ -172,25 +138,8 @@ public sealed partial class DapperTenantRepository(
         string normalizedOrganizationName,
         CancellationToken ct)
     {
-        const string sql = """
-                           SELECT Id, Name, Slug, Tier, EntraTenantId, DataRegion, CreatedUtc, SuspendedUtc,
-                                  TenantErasureRequestedUtc,
-                                  OffboardedUtc, ErasureEligibleUtc, LegalHoldUntilUtc, LegalHoldReason, LegalHoldSetByUserId, LegalHoldSetUtc,
-                                  TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
-                                  TrialStatus, TrialSampleRunId,
-                                  TrialArchitecturePreseedEnqueuedUtc, TrialArchitecturePreseedAttemptCount,
-                                  TrialArchitecturePreseedFailedUtc, TrialArchitecturePreseedLastError,
-                                  TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
-                                  BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc,
-                                  BaselineManualPrepHoursPerReview, BaselinePeoplePerReview, BaselineManualPrepCapturedUtc,
-                                  CompanySize, ArchitectureTeamSize, IndustryVertical, IndustryVerticalOther,
-                                  EnterpriseSeatsLimit, EnterpriseSeatsUsed
-                           FROM dbo.Tenants
-                           WHERE UPPER(LTRIM(RTRIM(Name))) = @NormalizedOrganizationName;
-                           """;
-
         TenantRow? row = await connection.QuerySingleOrDefaultAsync<TenantRow>(
-            new CommandDefinition(sql, new
+            new CommandDefinition(TenantDirectorySql.SelectByNormalizedOrganizationName, new
             {
                 NormalizedOrganizationName = normalizedOrganizationName
             }, cancellationToken: ct)).ConfigureAwait(false);
