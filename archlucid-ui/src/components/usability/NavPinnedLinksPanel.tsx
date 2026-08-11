@@ -7,6 +7,7 @@ import { Pin, PinOff } from "lucide-react";
 import { useCallback } from "react";
 import { usePathname } from "next/navigation";
 
+import { FavoriteReviewsVsNavPinsVocabularyRail } from "@/components/FavoriteReviewsVsNavPinsVocabularyRail";
 import { Button } from "@/components/ui/button";
 import { useNavPinnedLinks } from "@/hooks/use-nav-pinned-links";
 import { flattenNavLinks } from "@/lib/nav-config";
@@ -41,7 +42,12 @@ export function NavPinnedLinksPanel() {
   const currentPinned = isPinned(pathname);
 
   return (
-    <div className="mb-3 space-y-2" data-testid="nav-pinned-links-panel">
+    <div
+      id="nav-pinned-links-panel"
+      className="mb-3 space-y-2"
+      data-testid="nav-pinned-links-panel"
+    >
+      <FavoriteReviewsVsNavPinsVocabularyRail currentSurfaceId="nav-pins" />
       <div className="flex items-center justify-between gap-2 px-1">
         <span className={cn("font-semibold uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Pinned</span>
         <Button
