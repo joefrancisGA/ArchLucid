@@ -108,12 +108,6 @@ function applyNextActionLabelForFindings(
     return action;
   }
 
-  const shortened = shortenNextActionForPrimaryCta(trimmed);
-
-  if (shortened === null) {
-    return action;
-  }
-
   return {
     ...action,
     label: shortened,
