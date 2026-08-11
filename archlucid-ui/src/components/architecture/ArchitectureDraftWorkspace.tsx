@@ -10,7 +10,6 @@ import { ArchitectureDraftFormFields } from "@/components/architecture/Architect
 import { ArchitectureDraftGuidanceDisclosure } from "@/components/architecture/ArchitectureDraftGuidanceDisclosure";
 import { ArchitectureDraftHandoffBanner } from "@/components/architecture/ArchitectureDraftHandoffBanner";
 import { ArchitectureScopeUnderstandingCheckPanel } from "@/components/architecture/ArchitectureScopeUnderstandingCheckPanel";
-import { ArchitectureDraftWorkspaceListWayfinding } from "@/components/architecture/ArchitectureDraftWorkspaceListWayfinding";
 import { ArchitectureDraftWorkspaceLoadingSkeleton } from "@/components/architecture/ArchitectureDraftWorkspaceLoadingSkeleton";
 import { ArchitectureDraftSaveStatus } from "@/components/architecture/ArchitectureDraftSaveStatus";
 import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
@@ -441,7 +440,6 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   if (loading) {
     return (
       <div className="space-y-3" data-testid="architecture-draft-workspace-loading">
-        {isNewDraft ? null : <ArchitectureDraftWorkspaceListWayfinding />}
         <ArchitectureDraftWorkspaceLoadingSkeleton />
       </div>
     );
@@ -450,7 +448,6 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   if (loadError !== null) {
     return (
       <div className="space-y-3" data-testid="architecture-draft-workspace-error">
-        {isNewDraft ? null : <ArchitectureDraftWorkspaceListWayfinding />}
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} role="alert">
           {loadError}
         </p>
@@ -463,7 +460,6 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
 
   return (
     <div className="space-y-4" data-testid="architecture-draft-workspace">
-      {isNewDraft ? null : <ArchitectureDraftWorkspaceListWayfinding />}
       {isNewDraft ? <ArchitectureCreationLocalDraftsPanel /> : null}
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -616,7 +612,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
             role="status"
             data-testid="architecture-draft-scope-readiness"
           >
-            Confirm or accept the inferred scope before starting a review.
+            Confirm the in-scope understanding before starting a review.
           </p>
         ) : null}
         {startReviewError !== null ? (

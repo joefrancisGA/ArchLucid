@@ -90,9 +90,9 @@ vi.mock("@/lib/toast", () => ({
 }));
 
 import { ArchitectureDraftWorkspace } from "./ArchitectureDraftWorkspace";
-import { ARCHITECTURE_DRAFT_WORKSPACE_BACK_TO_LIST_LABEL, ARCHITECTURE_DRAFT_WORKSPACE_LEAD, ARCHITECTURE_CREATION_AUTOSAVE_REASSURANCE, ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE, ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE, ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD } from "@/lib/create-vs-review-intake-copy";
+import { ARCHITECTURE_DRAFT_WORKSPACE_LEAD, ARCHITECTURE_CREATION_AUTOSAVE_REASSURANCE, ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE, ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE, ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD } from "@/lib/create-vs-review-intake-copy";
 import { ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY } from "@/lib/architecture-draft-guidance-dismiss";
-import { ARCHITECTURES_LIST_PATH, ARCHITECTURE_NEW_DRAFT_SEGMENT } from "@/lib/architecture-routes";
+import { ARCHITECTURE_NEW_DRAFT_SEGMENT } from "@/lib/architecture-routes";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 import { useArchitectureDraftAutosave } from "@/hooks/use-architecture-draft-autosave";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
@@ -237,7 +237,7 @@ describe("ArchitectureDraftWorkspace", () => {
     expect(screen.queryByTestId("architecture-creation-new-draft-section-title")).not.toBeInTheDocument();
   });
 
-  it("shows a skeleton and list wayfinding while loading an existing draft (TB-1453)", async () => {
+  it("shows a skeleton without list wayfinding while loading an existing draft (TB-1453)", async () => {
     let resolveDraft: (value: typeof spawnedDraft) => void = () => {};
     getDraftRequest.mockReturnValue(
       new Promise((resolve) => {
@@ -250,10 +250,7 @@ describe("ArchitectureDraftWorkspace", () => {
     expect(screen.getByTestId("architecture-draft-workspace-loading")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-draft-workspace-loading-skeleton")).toBeInTheDocument();
     expect(screen.queryByText(/Loading architecture draft/i)).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: ARCHITECTURE_DRAFT_WORKSPACE_BACK_TO_LIST_LABEL })).toHaveAttribute(
-      "href",
-      ARCHITECTURES_LIST_PATH,
-    );
+    expect(screen.queryByTestId("architecture-draft-workspace-back-to-list")).not.toBeInTheDocument();
 
     resolveDraft({
       ...spawnedDraft,
@@ -267,7 +264,7 @@ describe("ArchitectureDraftWorkspace", () => {
     });
   });
 
-  it("keeps back-to-list wayfinding on loaded edit routes (TB-1453)", async () => {
+  it("omits back-to-list wayfinding on loaded edit routes — the sidebar is the return path", async () => {
     getDraftRequest.mockResolvedValue({
       ...spawnedDraft,
       status: "Drafting",
@@ -281,10 +278,8 @@ describe("ArchitectureDraftWorkspace", () => {
       expect(screen.getByTestId("architecture-draft-workspace")).toBeInTheDocument();
     });
 
-    expect(screen.getByRole("link", { name: ARCHITECTURE_DRAFT_WORKSPACE_BACK_TO_LIST_LABEL })).toHaveAttribute(
-      "href",
-      ARCHITECTURES_LIST_PATH,
-    );
+    expect(screen.queryByTestId("architecture-draft-workspace-back-to-list")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Back to Architecture drafts/i })).not.toBeInTheDocument();
   });
 
   it("shows drafting-first workspace lead on load (TB-747)", async () => {
@@ -565,7 +560,7 @@ describe("ArchitectureDraftWorkspace", () => {
     });
 
     expect(screen.getByTestId("architecture-draft-scope-readiness")).toHaveTextContent(
-      /Confirm or accept the inferred scope before starting a review/i,
+      /Confirm the in-scope understanding before starting a review/i,
     );
     expect(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA })).toBeDisabled();
 

@@ -3,8 +3,6 @@
  * Review paths live under `/architecture/reviews/new`; create paths under `/architectures/**`.
  */
 
-import { ARCHITECTURE_DRAFTS_LIST_LABEL } from "@/lib/architecture-workflow-labels";
-
 /**
  * Quick-review intake lead — evidence preferred, context-only path allowed. Sits on the form card itself:
  * the page lead already covers cloud-optional framing, so this states only the evidence-or-context rule.
@@ -62,7 +60,3 @@ export const ARCHITECTURE_CREATION_RECENT_DRAFTS_SECTION_TITLE = "Resume archite
 /** Optional alternatives framing on the create path (not required to save). */
 export const ARCHITECTURE_DRAFT_ALTERNATIVES_HINT =
   "Note alternatives or rejected options you considered — even brief tradeoff notes help reviewers understand your intent.";
-
-/** Edit workspace wayfinding back to the draft inventory (TB-1453). */
-export const ARCHITECTURE_DRAFT_WORKSPACE_BACK_TO_LIST_LABEL =
-  `Back to ${ARCHITECTURE_DRAFTS_LIST_LABEL}` as const;
