@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/enterprise-table";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { RagHealthSystemHealthVocabularyRail } from "@/components/RagHealthSystemHealthVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -94,6 +95,7 @@ export function RagHealthAdminPageClient() {
           {loading ? "Refreshing…" : "Refresh"}
         </Button>
       </div>
+      <RagHealthSystemHealthVocabularyRail currentSurfaceId="rag-health" />
 {error ? (
         <p className={cn("text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.body)} role="alert">
           {error}
