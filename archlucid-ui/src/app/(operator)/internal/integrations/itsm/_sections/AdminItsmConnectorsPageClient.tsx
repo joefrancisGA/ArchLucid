@@ -5,8 +5,9 @@ import Link from "next/link";
 import { Workflow } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
-import { PageHeading } from "@/components/PageHeading";
 import { FindingCorrelationVocabularyDisambiguation } from "@/components/FindingCorrelationVocabularyDisambiguation";
+import { ItsmConnectorsFindingTicketVocabularyRail } from "@/components/ItsmConnectorsFindingTicketVocabularyRail";
+import { PageHeading } from "@/components/PageHeading";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -115,6 +116,8 @@ export function AdminItsmConnectorsPageClient(): React.ReactElement {
         }
         data-testid="admin-itsm-connectors-page-heading"
       />
+
+      <ItsmConnectorsFindingTicketVocabularyRail currentSurfaceId="itsm-connectors" />
 
       {showLoadingSkeleton ? (
         <AdminItsmConnectorsPageLoadingSkeleton />
