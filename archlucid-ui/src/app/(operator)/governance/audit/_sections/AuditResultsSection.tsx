@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { Button } from "@/components/ui/button";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import type { AuditEvent } from "@/lib/api";
 import { formatAuditSummaryHeading } from "@/app/(operator)/governance/audit/audit-ui-helpers";
 import { formatBuyerAuditResultsStatusLine } from "@/lib/audit-trail-page-helpers";
@@ -44,6 +45,11 @@ import { BuyerAuditEventsTechnicalAppendix } from "./BuyerAuditEventsTechnicalAp
 import { CtoDemoAuditClosingBeat } from "@/components/cto-demo/CtoDemoAuditClosingBeat";
 import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
 import { DESIGN_TOKENS, OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  whyDisabledNeedsLifecycle,
+  whyDisabledNeedsRole,
+  type WhyDisabledCtaReason,
+} from "@/lib/why-disabled-cta";
 
 type AuditEventGroup = { stage: string; events: AuditEvent[] };
 
@@ -97,6 +103,22 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
   } = props;
 
   const storyPresentation = viewMode === "story";
+
+  const completionExportDisabledReason: WhyDisabledCtaReason | null = (() => {
+    if (csvExportUiAllowed || exporting) {
+      return null;
+    }
+
+    if (!exportDateRangeReady) {
+      return whyDisabledNeedsLifecycle("the From and To date range");
+    }
+
+    if (!exportRoleOk) {
+      return whyDisabledNeedsRole("Execute authority (or auditor export role)");
+    }
+
+    return null;
+  })();
 
   return (
     <section aria-labelledby="audit-results-heading">
@@ -256,13 +278,25 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                   export.
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <Button type="button" variant="primary" size="sm" onClick={() => void onExportCsv()} disabled={!csvExportUiAllowed || exporting}>
+                  <Button
+                    type="button"
+                    variant="primary"
+                    size="sm"
+                    onClick={() => void onExportCsv()}
+                    disabled={!csvExportUiAllowed || exporting}
+                    data-testid="audit-buyer-completion-download"
+                  >
                     {BUYER_AUDIT_DOWNLOAD_CTA}
                   </Button>
                   <Button type="button" variant="outline" size="sm" asChild>
                     <Link href={getShowcaseExecutiveHref()}>Return to executive summary</Link>
                   </Button>
                 </div>
+                <WhyDisabledCtaHint
+                  reason={completionExportDisabledReason}
+                  className="mt-2 max-w-prose"
+                  testId="audit-buyer-completion-download-disabled-hint"
+                />
               </section>
             ) : null}
             {buyerPolishedShell && events.length > 0 ? (
