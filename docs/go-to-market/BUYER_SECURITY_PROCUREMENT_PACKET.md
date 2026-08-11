@@ -4275,6 +4275,8 @@ Do not say “exactly-once LLM,” “zero duplicate spend on retry,” or “pr
 
 Former standalone body: `docs/go-to-market/CONCURRENT_EXECUTE_AND_COMMIT_RACE_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-221** / **M-222** / **TB-1270**). Complements [Process vs provider idempotency (M-171)](#process-vs-provider-idempotency-m-171), [Finalize vs outbox (M-163)](#transactional-finalize-vs-outbox-m-163), and [Authority vs AgentTask (M-159)](#authority-vs-agenttask-loop-m-159). Not an assurance attestation.
 
+**Engineering SoT:** [`../library/CONCURRENT_EXECUTE_AND_COMMIT_RACE_CONTRACT.md`](../library/CONCURRENT_EXECUTE_AND_COMMIT_RACE_CONTRACT.md) (**TB-1270** Done).
+
 **Path-stable alias:** [`CONCURRENT_EXECUTE_AND_COMMIT_RACE_PA_ONE_PAGER.md`](CONCURRENT_EXECUTE_AND_COMMIT_RACE_PA_ONE_PAGER.md).
 
 **Audience:** Principal architects, platform reviewers, and integration developers.
@@ -4312,7 +4314,8 @@ Do not say “exactly-once commit,” “retries never spend LLM,” “two raci
 
 ### Residuals (honest)
 
-- **TB-1270** / **TB-1271** own the engineering race matrix and language guards.
+- **TB-1270** **Done** — engineering race matrix: [`CONCURRENT_EXECUTE_AND_COMMIT_RACE_CONTRACT.md`](../library/CONCURRENT_EXECUTE_AND_COMMIT_RACE_CONTRACT.md).
+- Open **TB-1271** — language guards / honesty CI.
 - Does not reopen Done **TB-039** / **TB-201** / **TB-303** / **TB-310**.
 - Complements **M-160** / **M-162** / **M-170** without replacing those contracts.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
