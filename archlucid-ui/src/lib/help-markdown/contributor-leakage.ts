@@ -1,33 +1,20 @@
 import { stripMarkdownSectionsByTitlePrefix } from "@/lib/help-markdown/section-strips";
 import { rewriteProcurementFaqBuyerPresentation } from "@/lib/procurement-help-presentation";
+import {
+  applyLeakageRewriteTable,
+  applyLeakageRewriteTableThenCleanup,
+} from "./leakage-rewrite-table";
+import {
+  CAIQ_SIG_LEAKAGE_REWRITES,
+  DEVELOPER_TROUBLESHOOTING_LEAKAGE_REWRITES,
+  DPA_TEMPLATE_LEAKAGE_REWRITES,
+  PATH_CHOOSER_LEAKAGE_REWRITES,
+  PROCUREMENT_LEAKAGE_REWRITES,
+} from "./contributor-leakage-rewrite-tables";
 
 export function stripProcurementContributorLeakage(markdown: string): string {
   return rewriteProcurementFaqBuyerPresentation(
-    markdown
-    .replace(/Improvement archived\s*\*?\*?#?\d+\*?\*?/gi, "")
-    .replace(/`?archlucid auth(?:\s+validate-saml)?`?/gi, "IdP federation validation")
-    .replace(/`?V1_SCOPE\.md`?/gi, "product scope")
-    .replace(/V1_SCOPE\.md/gi, "product scope")
-    .replace(/`?CONFIGURATION_REFERENCE\.md`?/gi, "configuration documentation")
-    .replace(/CONFIGURATION_REFERENCE\.md/gi, "configuration documentation")
-    .replace(/`?SECURITY\.md`?/gi, "security documentation")
-    .replace(/contributor-reference\/SECURITY\.md/gi, "security documentation")
-    .replace(/`?PENDING_QUESTIONS\.md`?/gi, "owner diligence notes")
-    .replace(/PENDING_QUESTIONS\.md/gi, "owner diligence notes")
-    .replace(/infra\/terraform-entra\/?/gi, "hosted identity samples")
-    .replace(/`infra\/`/gi, "hosted infrastructure")
-    .replace(/\binfra\//gi, "hosted infrastructure ")
-    .replace(/ArtifactLargePayload:[A-Za-z0-9]+/g, "regional storage configuration")
-    .replace(/TenantProvisioning:[A-Za-z0-9]+/g, "tenant provisioning configuration")
-    .replace(/dbo\.Tenants(?:\.[A-Za-z0-9_]+)?/gi, "tenant residency settings")
-    .replace(/ArchLucidAuth:[A-Za-z0-9]+/g, "authentication configuration")
-    .replace(/Order Form Addendum [A-Z]/gi, "Order Form addendum")
-    .replace(/MSA_TEMPLATE\.md/gi, "MSA template")
-    .replace(/ORDER_FORM_TEMPLATE\.md/gi, "Order Form template")
-    .replace(/CUSTOM_POLICY_PACK_AUTHORING_SOW_TEMPLATE\.md/gi, "SoW template")
-    .replace(/PRICING_PHILOSOPHY\.md/gi, "pricing documentation")
-    .replace(/SLA_SUMMARY\.md/gi, "SLA summary")
-    .replace(/SLA_TARGETS\.md/gi, "SLA targets"),
+    applyLeakageRewriteTable(markdown, PROCUREMENT_LEAKAGE_REWRITES),
   );
 }
 
@@ -1035,22 +1022,7 @@ export function stripAzureBoardsContributorLeakage(markdown: string): string {
  * TB-1632 — removes contributor repo-tree framing from in-app CAIQ/SIG questionnaire help.
  */
 export function stripCaiqSigContributorLeakage(markdown: string): string {
-  const substituted = markdown
-    .replace(/\|\s*Response \(summary\)\s*\|/gi, "| Response |")
-    .replace(/\|\s*Evidence in repo\s*\|/gi, "| Evidence |")
-    .replace(/Evidence in repo/gi, "Evidence")
-    .replace(/`?\.github\/[^`\s)]+`?/gi, "automated security testing in CI")
-    .replace(/\.github\/[^\s)`]+/gi, "automated security testing in CI")
-    .replace(/`?infra\/[^`\s)]*`?/gi, "hosted infrastructure")
-    .replace(/\binfra\//gi, "hosted infrastructure ")
-    .replace(/`?SECURITY\.md`?/gi, "security documentation")
-    .replace(/contributor-reference\/SECURITY\.md/gi, "security documentation")
-    .replace(/`?PENDING_QUESTIONS\.md`?/gi, "owner diligence notes")
-    .replace(/PENDING_QUESTIONS\.md/gi, "owner diligence notes")
-    .replace(/`?pen-test-summaries\/[^`\s)]+`?/gi, "penetration test program documentation")
-    .replace(/pen-test-summaries\/[^\s`)]+/gi, "penetration test program documentation")
-    .replace(/\n{3,}/g, "\n\n")
-    .trimEnd();
+  const substituted = applyLeakageRewriteTableThenCleanup(markdown, CAIQ_SIG_LEAKAGE_REWRITES);
 
   return dedupeConsecutiveCaiqSigPhrase(substituted, "automated security testing in CI");
 }
@@ -1324,32 +1296,7 @@ export function stripTenantIsolationContributorLeakage(markdown: string): string
  * TB-1677 — DPA template help: strip contributor .md / pack-path leakage; in-app trust links.
  */
 export function stripDpaTemplateContributorLeakage(markdown: string): string {
-  return markdown
-    .replace(/> \*\*Spine doc:\*\*[^\n]*\n?/gi, "")
-    .replace(/`?START_HERE\.md`?/gi, "product documentation hub")
-    .replace(/START_HERE\.md/gi, "product documentation hub")
-    .replace(/`?SECURITY\.md`?/gi, "security documentation")
-    .replace(/contributor-reference\/SECURITY\.md/gi, "security documentation")
-    .replace(/`?\.\.\/security\/PII_RETENTION_CONVERSATIONS\.md`?/gi, "conversation retention documentation")
-    .replace(/PII_RETENTION_CONVERSATIONS\.md/gi, "conversation retention documentation")
-    .replace(/`?BUYER_SECURITY_PROCUREMENT_PACKET\.md[^`\s)]*`?/gi, "[Procurement FAQ](/help/procurement)")
-    .replace(/BUYER_SECURITY_PROCUREMENT_PACKET\.md[^\s)`]*/gi, "/help/procurement")
-    .replace(/\[trust-center\.md\]\(trust-center\.md\)/gi, "[Security and trust](/help/security-trust)")
-    .replace(/trust-center\.md/gi, "/help/security-trust")
-    .replace(/`?SUBPROCESSORS\.md`?/gi, "[Subprocessors](/help/subprocessors)")
-    .replace(/SUBPROCESSORS\.md/gi, "/help/subprocessors")
-    .replace(/`?INCIDENT_COMMUNICATIONS_POLICY\.md`?/gi, "incident communications policy")
-    .replace(/INCIDENT_COMMUNICATIONS_POLICY\.md/gi, "incident communications policy")
-    .replace(/`?ASSURANCE_STATUS_CANONICAL\.md[^`\s)]*`?/gi, "assurance status documentation")
-    .replace(/ASSURANCE_STATUS_CANONICAL\.md[^\s)`]*/gi, "assurance status documentation")
-    .replace(/`?docs\/go-to-market\/CROSS_TENANT_DATA_PROCESSING_ADDENDUM\.md`?/gi, "cross-tenant processing addendum")
-    .replace(/CROSS_TENANT_DATA_PROCESSING_ADDENDUM\.md/gi, "cross-tenant processing addendum")
-    .replace(/`?\.\.\/architecture\/adrs\/0031[^`\s)]*`?/gi, "cross-tenant pattern library architecture decision")
-    .replace(/ADR 0031/gi, "cross-tenant pattern library architecture decision")
-    // TB-1680 — buyer wording: architecture reviews, not contributor "runs" jargon.
-    .replace(/architecture runs/gi, "architecture reviews")
-    .replace(/\n{3,}/g, "\n\n")
-    .trimEnd();
+  return applyLeakageRewriteTableThenCleanup(markdown, DPA_TEMPLATE_LEAKAGE_REWRITES);
 }
 
 /**
@@ -1555,21 +1502,7 @@ export function stripCliUsageContributorLeakage(markdown: string): string {
  * HDX — map eng-library hrefs to in-app Admin/customer help where safe; keep CLI/env triage body.
  */
 export function stripDeveloperTroubleshootingContributorLeakage(markdown: string): string {
-  return markdown
-    .replace(/\[([^\]]*)\]\(\.\.\/library\/CONFIGURATION_REFERENCE\.md\)/gi, "[Configuration reference](/help/configuration-reference)")
-    .replace(/\[([^\]]*)\]\(CONFIGURATION_REFERENCE\.md\)/gi, "[Configuration reference](/help/configuration-reference)")
-    .replace(/\[([^\]]*)\]\(\.\.\/library\/CLI_USAGE\.md\)/gi, "[CLI usage](/help/cli-usage)")
-    .replace(/\[([^\]]*)\]\(CLI_USAGE\.md\)/gi, "[CLI usage](/help/cli-usage)")
-    .replace(/\[([^\]]*)\]\([^)]*contributor-reference\/[^)]+\)/gi, "$1")
-    .replace(/\[([^\]]*)\]\(\.\.\/architecture\/adrs\/[^)]+\)/gi, "$1")
-    .replace(/\[([^\]]*)\]\([^)]*architecture\/adrs\/[^)]+\)/gi, "$1")
-    .replace(/\[([^\]]*)\]\(\.\.\/library\/V1_SCOPE\.md[^)]*\)/gi, "product scope")
-    .replace(/\[([^\]]*)\]\(V1_SCOPE\.md[^)]*\)/gi, "product scope")
-    .replace(/\[([^\]]*)\]\(\.\.\/go-to-market\/[^)]+\)/gi, "$1")
-    .replace(/\bTB-\d+\b/gi, "")
-    .replace(/\s*\(TB-\d+\)/gi, "")
-    .replace(/\n{3,}/g, "\n\n")
-    .trimEnd();
+  return applyLeakageRewriteTableThenCleanup(markdown, DEVELOPER_TROUBLESHOOTING_LEAKAGE_REWRITES);
 }
 
 function stripFirstValue20ExtractedSectionHeading(markdown: string): string {
@@ -2731,49 +2664,7 @@ export function stripPathChooserStructuredUiSections(markdown: string): string {
 }
 
 export function stripPathChooserContributorLeakage(markdown: string): string {
-  return markdown
-    .replace(/> \*\*Start operators here:\*\*[^\n]*\n?/gi, "")
-    .replace(/\*\*Start operators here:\*\*[^\n]*\n?/gi, "")
-    .replace(/`?FIRST_PILOT_OPERATOR_PATH\.md`?/gi, "[Your first architecture review](/help/first-architecture-review)")
-    .replace(/FIRST_PILOT_OPERATOR_PATH\.md/gi, "/help/first-architecture-review")
-    .replace(/`?FIRST_EVALUATOR_DECISION\.md`?/gi, "[Your first architecture review](/help/first-architecture-review)")
-    .replace(/FIRST_EVALUATOR_DECISION\.md/gi, "/help/first-architecture-review")
-    .replace(/`?CORE_PILOT\.md`?/gi, "[Your first architecture review](/help/first-architecture-review)")
-    .replace(/CORE_PILOT\.md/gi, "/help/first-architecture-review")
-    .replace(/`?EXECUTIVE_SPONSOR_BRIEF\.md`?/gi, "[Executive summary](/help/executive-summary)")
-    .replace(/EXECUTIVE_SPONSOR_BRIEF\.md/gi, "/help/executive-summary")
-    .replace(/`?DIFFERENTIATION_PROOF_PACKET\.md`?/gi, "differentiation proof documentation")
-    .replace(/DIFFERENTIATION_PROOF_PACKET\.md/gi, "differentiation proof documentation")
-    .replace(/`first-pilot-command-center\.md`/gi, "pilot command center summary")
-    .replace(/`go-no-go-summary\.md`/gi, "go/no-go summary")
-    .replace(/`quote-to-proof-packet\.md`/gi, "quote-to-proof summary")
-    .replace(/`commercial-closeout\.md`/gi, "commercial closeout summary")
-    .replace(/`?FIRST_PILOT_EVIDENCE_BUNDLE\.md`?/gi, "first-pilot evidence bundle guide")
-    .replace(/FIRST_PILOT_EVIDENCE_BUNDLE\.md/gi, "first-pilot evidence bundle guide")
-    .replace(/artifacts\/first-pilot-proof\/?/gi, "proof working folder")
-    .replace(/artifacts\/[^\s`|)]+/gi, "proof output folder")
-    .replace(/`?V1_DEFERRED\.md`?/gi, "deferred capability documentation")
-    .replace(/V1_DEFERRED\.md/gi, "deferred capability documentation")
-    .replace(/`?PROCUREMENT_PACK_INDEX\.md[^`\s)]*`?/gi, "[Procurement FAQ](/help/procurement)")
-    .replace(/PROCUREMENT_PACK_INDEX\.md[^\s)`]*/gi, "/help/procurement")
-    .replace(/`?BUYER_SECURITY_PROCUREMENT_PACKET\.md[^`\s)]*`?/gi, "[Procurement FAQ](/help/procurement)")
-    .replace(/BUYER_SECURITY_PROCUREMENT_PACKET\.md[^\s)`]*/gi, "/help/procurement")
-    .replace(/`?AI_READINESS_POSTURE\.md[^`\s)]*`?/gi, "[Security and trust](/help/security-trust)")
-    .replace(/AI_READINESS_POSTURE\.md[^\s)`]*/gi, "/help/security-trust")
-    .replace(/\[trust-center\.md\]\(trust-center\.md\)/gi, "[Security and trust](/help/security-trust)")
-    .replace(/trust-center\.md/gi, "/help/security-trust")
-    .replace(/`?CLAIM_READINESS_STATUS\.md[^`\s)]*`?/gi, "claim readiness documentation")
-    .replace(/CLAIM_READINESS_STATUS\.md[^\s)`]*/gi, "claim readiness documentation")
-    .replace(/`?GTM_BACKLOG\.md`?/gi, "go-to-market planning documentation")
-    .replace(/GTM_BACKLOG\.md/gi, "go-to-market planning documentation")
-    .replace(/`?PRODUCT_PACKAGING\.md`?/gi, "product packaging guide")
-    .replace(/PRODUCT_PACKAGING\.md/gi, "product packaging guide")
-    .replace(/`?QUOTE_TO_PROOF_PACKET\.md[^`\s)]*`?/gi, "quote-to-proof documentation")
-    .replace(/QUOTE_TO_PROOF_PACKET\.md[^\s)`]*/gi, "quote-to-proof documentation")
-    .replace(/`?docs\/library\/[^`\s)]+`?/gi, "product documentation")
-    .replace(/`?docs\/go-to-market\/[^`\s)]+`?/gi, "go-to-market documentation")
-    .replace(/\n{3,}/g, "\n\n")
-    .trimEnd();
+  return applyLeakageRewriteTableThenCleanup(markdown, PATH_CHOOSER_LEAKAGE_REWRITES);
 }
 
 /**
