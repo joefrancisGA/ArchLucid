@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -17,7 +17,17 @@ const LEGACY_ARCHITECTURE_GRAPH_APP_DIRS = [
   join(process.cwd(), "src", "app", "(marketing)", "operate", "architecture-graph"),
 ] as const;
 
-describe("legacy architecture-graph route (OPR / TB-1806 / TB-1810)", () => {
+const LEGACY_OPERATE_ARCHITECTURE_GRAPH_PAGE = join(
+  process.cwd(),
+  "src",
+  "app",
+  "(operator)",
+  "operate",
+  "architecture-graph",
+  "page.tsx",
+);
+
+describe("legacy architecture-graph route (OPR / TB-1806 / TB-1808 / TB-1810)", () => {
   it("keeps canonical graph on evidence-graph with query preserve", () => {
     expect(LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH).toBe("/operate/architecture-graph");
     expect(CANONICAL_GRAPH_PATH).toBe("/insights/evidence-graph");
@@ -26,9 +36,25 @@ describe("legacy architecture-graph route (OPR / TB-1806 / TB-1810)", () => {
     );
   });
 
-  it("does not ship an App Router page under operate/architecture-graph", () => {
+  it("ships a redirect-only App Router page that preserves query via buildGraphRedirectPath", () => {
+    expect(existsSync(LEGACY_OPERATE_ARCHITECTURE_GRAPH_PAGE)).toBe(true);
+
+    const source = readFileSync(LEGACY_OPERATE_ARCHITECTURE_GRAPH_PAGE, "utf8");
+
+    expect(source).toContain("buildGraphRedirectPath");
+    expect(source).toContain("permanentRedirect");
+    expect(source).not.toMatch(/ArchitectureGraphViewer|GraphPageContent|GraphViewer/);
+  });
+
+  it("does not ship a graph shell layout or duplicate pages outside the operator shim", () => {
+    expect(existsSync(join(process.cwd(), "src", "app", "operate", "architecture-graph", "page.tsx"))).toBe(
+      false,
+    );
+    expect(
+      existsSync(join(process.cwd(), "src", "app", "(marketing)", "operate", "architecture-graph", "page.tsx")),
+    ).toBe(false);
+
     for (const appDir of LEGACY_ARCHITECTURE_GRAPH_APP_DIRS) {
-      expect(existsSync(join(appDir, "page.tsx"))).toBe(false);
       expect(existsSync(join(appDir, "layout.tsx"))).toBe(false);
     }
   });
