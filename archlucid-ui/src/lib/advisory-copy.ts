@@ -151,6 +151,26 @@ export const ADVISORY_SCANS_SCHEDULES_ELIGIBILITY =
 export const ADVISORY_SCANS_SCHEDULES_TIMING_NOTE =
   "Scheduled scans may begin a few minutes after the selected time.";
 
+export const ADVISORY_SCANS_SCHEDULES_HOW_IT_WORKS_TITLE = "How scheduled advisory scans work";
+
+/** Schedules-tab orientation — folded into disclosure (not stacked above the form). */
+export const ADVISORY_SCANS_SCHEDULES_HOW_IT_WORKS_BODY = [
+  ADVISORY_SCANS_SCHEDULES_INTRO,
+  ADVISORY_SCANS_SCHEDULES_ELIGIBILITY,
+  ADVISORY_SCANS_SCHEDULES_TIMING_NOTE,
+].join(" ");
+
+export const ADVISORY_SCANS_SCHEDULES_LAST_LOADED_PREFIX = "Last loaded";
+
+export const ADVISORY_SCANS_SCHEDULES_LIST_COUNT_LABEL = "schedules in scope";
+
+export const ADVISORY_SCANS_SCHEDULES_EXAMPLE_PREVIEW_LABEL = "Example schedule (not live data)";
+
+export const ADVISORY_SCANS_SCHEDULES_EXAMPLE_PREVIEW_HELPER =
+  "Illustrates how a saved schedule appears after you create one for the current project scope.";
+
+export const ADVISORY_SCANS_SCHEDULES_EXAMPLE_NAME = "Weekly architecture follow-up scan";
+
 export const ADVISORY_SCANS_SCHEDULES_RECURRENCE_LINK_LABEL = "Manage all recurrence schedules";
 
 export const ADVISORY_SCANS_SCHEDULES_RECURRENCE_LINK_HELPER =
@@ -169,10 +189,13 @@ export const ADVISORY_SCANS_SCHEDULES_SAMPLE_BLOCKED =
 export const ADVISORY_SCANS_SCHEDULES_READ_ONLY =
   "You can review existing schedules. Creating schedules and running them now requires a role that can manage advisory scans.";
 
-export const ADVISORY_SCANS_SCHEDULES_SCOPE_CURRENT = "Current project";
+export const ADVISORY_SCANS_SCHEDULES_SCOPE_CURRENT = "Schedule project scope";
 
 export const ADVISORY_SCANS_SCHEDULES_SCOPE_HELPER =
-  "Scans the latest finalized reviews for the project selected in the workspace switcher.";
+  "Runs against the project currently selected in the workspace switcher (top navigation). Change the switcher before creating a schedule to target a different project.";
+
+export const ADVISORY_SCANS_SCHEDULES_SCOPE_SWITCHER_NOTE =
+  "Scope is not stored silently in this browser — it follows the workspace switcher selection shown above.";
 
 export const ADVISORY_SCANS_SCHEDULES_ADVANCED_SUMMARY = "Advanced scheduling";
 

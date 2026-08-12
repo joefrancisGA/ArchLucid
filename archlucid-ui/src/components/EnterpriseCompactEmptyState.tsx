@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement, ReactNode } from "react";
+import { useId } from "react";
 
 import { Button } from "@/components/ui/button";
 import { OPERATOR_LAYOUT, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
@@ -27,19 +28,29 @@ export type EnterpriseCompactEmptyStateProps = {
 export function EnterpriseCompactEmptyState(props: EnterpriseCompactEmptyStateProps): ReactElement {
   const { title, description, actions, footer, testId } = props;
   const actionList = actions ?? [];
+  const titleId = useId();
+  const descriptionId = useId();
 
   return (
     <div
       role="status"
-      aria-label={title}
+      aria-labelledby={titleId}
+      aria-describedby={descriptionId}
       data-testid={testId}
       className={cn(
         "rounded-md border border-dashed border-neutral-200 px-3 py-3 dark:border-neutral-700",
         OPERATOR_LAYOUT.sectionStack,
       )}
     >
-      <p className={cn("m-0", OPERATOR_TYPE_SCALE.cardTitle, "text-al-text-primary")}>{title}</p>
-      <div className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-neutral-600 dark:text-neutral-400")}>{description}</div>
+      <p id={titleId} className={cn("m-0", OPERATOR_TYPE_SCALE.cardTitle, "text-al-text-primary")}>
+        {title}
+      </p>
+      <div
+        id={descriptionId}
+        className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-neutral-600 dark:text-neutral-400")}
+      >
+        {description}
+      </div>
       {actionList.length > 0 ? (
         <div className="flex flex-wrap gap-2 pt-1">
           {actionList.map((action, index) => {

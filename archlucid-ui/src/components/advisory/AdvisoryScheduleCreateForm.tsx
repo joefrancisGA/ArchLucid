@@ -39,6 +39,7 @@ import {
   ADVISORY_SCANS_SCHEDULES_SAMPLE_BLOCKED,
   ADVISORY_SCANS_SCHEDULES_SCOPE_CURRENT,
   ADVISORY_SCANS_SCHEDULES_SCOPE_HELPER,
+  ADVISORY_SCANS_SCHEDULES_SCOPE_SWITCHER_NOTE,
   ADVISORY_SCANS_SCHEDULES_TIMING_NOTE,
 } from "@/lib/advisory-copy";
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
@@ -151,11 +152,16 @@ export function AdvisoryScheduleCreateForm(props: AdvisoryScheduleCreateFormProp
       {/* TB-1573: scope is inline near the form — not a persistent Schedule scope rail. */}
       <div className="mt-2 space-y-1" data-testid="advisory-schedule-inline-scope">
         <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-          <span className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Project. </span>
-          {ADVISORY_SCANS_SCHEDULES_SCOPE_CURRENT}: {props.projectLabel}
+          <span className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            {ADVISORY_SCANS_SCHEDULES_SCOPE_CURRENT}.{" "}
+          </span>
+          <span data-testid="advisory-schedule-project-scope-label">{props.projectLabel}</span>
         </p>
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           {ADVISORY_SCANS_SCHEDULES_SCOPE_HELPER}
+        </p>
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          {ADVISORY_SCANS_SCHEDULES_SCOPE_SWITCHER_NOTE}
         </p>
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           {ADVISORY_SCANS_SCHEDULES_TIMING_NOTE}

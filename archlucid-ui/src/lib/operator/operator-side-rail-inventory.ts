@@ -68,8 +68,8 @@ export const OPERATOR_SIDE_RAIL_INVENTORY: readonly OperatorSideRailInventoryEnt
     pathOrSurface: "/governance/advisory-scans?tab=schedules",
     kind: "none",
     disposition: "demoted-single-column",
-    markerTestId: null,
-    notes: "Empty-first Compact + header Create reveals form (**TB-1542** Done); scope inline on create form.",
+    markerTestId: "advisory-schedules-layout",
+    notes: "Orientation prose in pinned side column at xl; scope inline on create form (**AD-P0-9**).",
   },
   {
     id: "digests-schedule",
@@ -89,7 +89,7 @@ export const OPERATOR_SIDE_RAIL_INVENTORY: readonly OperatorSideRailInventoryEnt
   },
   {
     id: "digests-browse",
-    pathOrSurface: "/architecture/digests?tab=browse",
+    pathOrSurface: "/architecture/digests?tab=get-started",
     kind: "master-detail",
     disposition: "allowed",
     markerTestId: "digests-browse-master-detail",

@@ -46,6 +46,26 @@ describe("AdvisoryHubClient (TB-670)", () => {
     expect(screen.getByText(ADVISORY_SCANS_HOW_IT_WORKS_BODY)).toBeInTheDocument();
   });
 
+  it("places tabs directly under the page header and boundary strip below the tab list", () => {
+    render(<AdvisoryHubClient initialTab="scans" />);
+
+    const header = screen.getByTestId("advisory-scans-page-title");
+    const tablist = screen.getByTestId("advisory-hub-tablist");
+
+    expect(header.compareDocumentPosition(tablist) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(tablist.compareDocumentPosition(screen.getByTestId("advisory-scans-how-it-works")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("shows scans orientation only on the Scans tab", () => {
+    render(<AdvisoryHubClient initialTab="schedules" />);
+
+    expect(screen.queryByTestId("advisory-scans-how-it-works")).toBeNull();
+
+    fireEvent.click(screen.getByRole("tab", { name: "Scans" }));
+
+    expect(screen.getByTestId("advisory-scans-how-it-works")).toBeInTheDocument();
+  });
+
   it("uses shared Tabs with linked tabpanels and keyboard roving", () => {
     render(<AdvisoryHubClient initialTab="scans" />);
 

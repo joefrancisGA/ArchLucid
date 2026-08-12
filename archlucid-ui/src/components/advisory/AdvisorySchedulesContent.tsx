@@ -3,14 +3,15 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactElement } from "react";
 
 import { AdvisoryScheduleCreateForm } from "@/components/advisory/AdvisoryScheduleCreateForm";
+import { AdvisoryScheduleExamplePreview } from "@/components/advisory/AdvisoryScheduleExamplePreview";
 import { AdvisoryRecurrenceScheduleVocabularyRail } from "@/components/AdvisoryRecurrenceScheduleVocabularyRail";
-import { AdvisoryResultsSchedulesVocabularyRail } from "@/components/AdvisoryResultsSchedulesVocabularyRail";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorLivePreviewPinLayout } from "@/components/advisory/OperatorLivePreviewPinLayout";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
@@ -28,13 +29,12 @@ import { StatusTag } from "@/components/ui/status-tag";
 import {
   ADVISORY_SCANS_SCHEDULES_CREATE_FAILURE,
   ADVISORY_SCANS_SCHEDULES_CREATE_SUCCESS,
-  ADVISORY_SCANS_SCHEDULES_ELIGIBILITY,
-  ADVISORY_SCANS_SCHEDULES_INTRO,
+  ADVISORY_SCANS_SCHEDULES_HOW_IT_WORKS_BODY,
+  ADVISORY_SCANS_SCHEDULES_HOW_IT_WORKS_TITLE,
+  ADVISORY_SCANS_SCHEDULES_LAST_LOADED_PREFIX,
+  ADVISORY_SCANS_SCHEDULES_LIST_COUNT_LABEL,
   ADVISORY_SCANS_SCHEDULES_PAGE_HEADING,
   ADVISORY_SCANS_SCHEDULES_READ_ONLY,
-  ADVISORY_SCANS_SCHEDULES_RECURRENCE_HREF,
-  ADVISORY_SCANS_SCHEDULES_RECURRENCE_LINK_HELPER,
-  ADVISORY_SCANS_SCHEDULES_RECURRENCE_LINK_LABEL,
 } from "@/lib/advisory-copy";
 import { ADVISORY_SCHEDULES_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { resolveAdvisoryRunProjectSlug, resolveBrowserTimeZoneId } from "@/lib/advisory-schedule-form";
@@ -68,6 +68,27 @@ import {
 } from "@/lib/operator/operator-scope-storage";
 import type { AdvisoryScanExecution, AdvisoryScanSchedule } from "@/types/advisory-scheduling";
 
+function formatAdvisorySchedulesLastLoaded(lastLoadedUtc: string | null): string {
+  if (lastLoadedUtc === null) {
+    return "—";
+  }
+
+  const parsed = new Date(lastLoadedUtc);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return "—";
+  }
+
+  return parsed.toLocaleString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZoneName: "short",
+  });
+}
+
 /**
  * Schedules tab: customer workflow for recurring advisory scans.
  * Mutations require AdminAuthority (API); sample / public shells are read-only.
@@ -94,26 +115,19 @@ export function AdvisorySchedulesContent(): ReactElement {
   const [historyOpenFor, setHistoryOpenFor] = useState<string | null>(null);
   const [projectLabel, setProjectLabel] = useState("Current project");
   const [runProjectSlug, setRunProjectSlug] = useState("default");
+  const [lastLoadedUtc, setLastLoadedUtc] = useState<string | null>(null);
   const [displayTimeZoneId] = useState(() => resolveBrowserTimeZoneId());
   const newestScheduleRef = useRef<HTMLTableRowElement | null>(null);
   const successTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const runNowHintId = useId();
+  const viewHistoryHintId = useId();
+  const mutationDisabledHintId = useId();
 
   const syncProjectContext = useCallback(() => {
     const scope = readOperatorScopeFromStorage();
     setProjectLabel(resolveCurrentProjectLabel(scope?.projectLabel));
     setRunProjectSlug(resolveAdvisoryRunProjectSlug(scope?.projectId));
   }, []);
-
-  useEffect(() => {
-    syncProjectContext();
-
-    const onScopeChanged = () => syncProjectContext();
-    window.addEventListener(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT, onScopeChanged);
-
-    return () => {
-      window.removeEventListener(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT, onScopeChanged);
-    };
-  }, [syncProjectContext]);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -122,13 +136,31 @@ export function AdvisorySchedulesContent(): ReactElement {
     try {
       const list: AdvisoryScanSchedule[] = await listAdvisorySchedules();
       setSchedules(list);
-      setStatusMessage(list.length === 0 ? null : "Schedules updated.");
+      setLastLoadedUtc(new Date().toISOString());
+      setStatusMessage(list.length === 0 ? "No schedules in scope." : "Schedules updated.");
     } catch (error) {
       setFailure(toApiLoadFailure(error));
     } finally {
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    syncProjectContext();
+
+    const onScopeChanged = () => {
+      syncProjectContext();
+      setExecutionsBySchedule({});
+      setHistoryOpenFor(null);
+      void refresh();
+    };
+
+    window.addEventListener(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT, onScopeChanged);
+
+    return () => {
+      window.removeEventListener(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT, onScopeChanged);
+    };
+  }, [refresh, syncProjectContext]);
 
   useEffect(() => {
     void refresh();
@@ -249,10 +281,14 @@ export function AdvisorySchedulesContent(): ReactElement {
   }
 
   const isEmpty = schedules.length === 0;
-  const showCreateForm = !canMutateSchedules || showCreatePanel;
+  const showCreateForm = !canMutateSchedules || isEmpty || showCreatePanel;
+  const showHeaderCreate = canMutateSchedules && !isEmpty && !showCreatePanel;
+  const showEmptyCompact = isEmpty && canMutateSchedules && !showCreateForm;
+  const listHeading = canMutateSchedules ? advisorySchedulesListHeadingOperator : advisorySchedulesListHeadingReader;
+  const lastLoadedLabel = formatAdvisorySchedulesLastLoaded(lastLoadedUtc);
 
   const createScheduleButton =
-    canMutateSchedules && !showCreatePanel ? (
+    showHeaderCreate ? (
       <Button
         type="button"
         size="sm"
@@ -264,36 +300,72 @@ export function AdvisorySchedulesContent(): ReactElement {
       </Button>
     ) : null;
 
+  const emptyStateFooter =
+    canMutateSchedules && !showCreateForm ? (
+      <Button
+        type="button"
+        size="sm"
+        variant="primary"
+        data-testid="advisory-schedules-create-action"
+        onClick={() => setShowCreatePanel(true)}
+      >
+        Create schedule
+      </Button>
+    ) : null;
+
+  const orientationAside = (
+    <div className="space-y-4" data-testid="advisory-schedules-side-column">
+      <CollapsibleSection
+        title={ADVISORY_SCANS_SCHEDULES_HOW_IT_WORKS_TITLE}
+        sectionTestId="advisory-schedules-how-it-works"
+      >
+        <p className={cn("m-0 max-w-prose text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+          {ADVISORY_SCANS_SCHEDULES_HOW_IT_WORKS_BODY}
+        </p>
+      </CollapsibleSection>
+    </div>
+  );
+
+  const listHeader = (
+    <div
+      className="flex flex-wrap items-start justify-between gap-2"
+      data-testid="advisory-schedules-list-header"
+    >
+      <div className="min-w-0 space-y-1">
+        <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          {listHeading}
+        </h3>
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          <span className="font-medium text-al-text-primary">Project scope:</span> {projectLabel}
+          <span aria-hidden="true"> · </span>
+          <span data-testid="advisory-schedules-count">
+            {schedules.length} {ADVISORY_SCANS_SCHEDULES_LIST_COUNT_LABEL}
+          </span>
+          <span aria-hidden="true"> · </span>
+          <span data-testid="advisory-schedules-last-loaded">
+            {ADVISORY_SCANS_SCHEDULES_LAST_LOADED_PREFIX}: {lastLoadedLabel}
+          </span>
+        </p>
+      </div>
+      <RefreshButton
+        busy={loading}
+        data-testid="advisory-schedules-refresh"
+        onClick={() => void refresh()}
+      />
+    </div>
+  );
+
   return (
     <div className="w-full max-w-[1200px] px-4 py-6" data-testid="advisory-schedules-content">
       <DocumentLayout>
         <div className="m-0 mb-1 flex flex-wrap items-start justify-between gap-2">
-          <div>
-            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              Advisory scans
-            </p>
-            <h2 className={cn("m-0 font-bold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}>
-              {ADVISORY_SCANS_SCHEDULES_PAGE_HEADING}
-            </h2>
-          </div>
+          <h2 className={cn("m-0 font-bold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}>
+            {ADVISORY_SCANS_SCHEDULES_PAGE_HEADING}
+          </h2>
           {createScheduleButton}
         </div>
-        <AdvisoryResultsSchedulesVocabularyRail currentSurfaceId="advisory-schedules" />
+
         <AdvisoryRecurrenceScheduleVocabularyRail currentSurfaceId="advisory-schedules" />
-        <p className={cn("doc-meta m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.body)}>{ADVISORY_SCANS_SCHEDULES_INTRO}</p>
-        <p className={cn("m-0 mt-2 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          {ADVISORY_SCANS_SCHEDULES_ELIGIBILITY}
-        </p>
-        <p className={cn("m-0 mt-2 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          {ADVISORY_SCANS_SCHEDULES_RECURRENCE_LINK_HELPER}{" "}
-          <Link
-            href={ADVISORY_SCANS_SCHEDULES_RECURRENCE_HREF}
-            className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
-          >
-            {ADVISORY_SCANS_SCHEDULES_RECURRENCE_LINK_LABEL}
-          </Link>
-          .
-        </p>
 
         {failure !== null ? (
           <div className="mt-4" role="alert">
@@ -305,9 +377,16 @@ export function AdvisorySchedulesContent(): ReactElement {
           </div>
         ) : null}
 
-        <div className="sr-only" aria-live="polite">
-          {statusMessage}
-        </div>
+        {statusMessage !== null ? (
+          <p
+            className={cn("m-0 mt-4 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
+            role="status"
+            aria-live="polite"
+            data-testid="advisory-schedules-status-message"
+          >
+            {statusMessage}
+          </p>
+        ) : null}
 
         {!canMutateSchedules && !sampleModeBlocked ? (
           <p
@@ -318,165 +397,174 @@ export function AdvisorySchedulesContent(): ReactElement {
           </p>
         ) : null}
 
-        {/* TB-1542 / TB-1477: empty-first — compact empty + header Create reveals form. */}
-        <div className="mt-4 min-w-0 space-y-4" data-testid="advisory-schedules-layout">
-          {showCreateForm ? (
-            <AdvisoryScheduleCreateForm
-              canEdit={canMutateSchedules}
-              sampleModeBlocked={sampleModeBlocked}
-              creating={creating}
-              createSuccess={createSuccess}
-              projectLabel={projectLabel}
-              runProjectSlug={runProjectSlug}
-              formResetKey={formResetKey}
-              onCreate={onCreate}
-            />
-          ) : null}
+        <OperatorLivePreviewPinLayout
+          pinRail
+          testId="advisory-schedules-layout"
+          primary={
+            <div className="min-w-0 space-y-4">
+              {showCreateForm ? (
+                <AdvisoryScheduleCreateForm
+                  canEdit={canMutateSchedules}
+                  sampleModeBlocked={sampleModeBlocked}
+                  creating={creating}
+                  createSuccess={createSuccess}
+                  projectLabel={projectLabel}
+                  runProjectSlug={runProjectSlug}
+                  formResetKey={formResetKey}
+                  onCreate={onCreate}
+                />
+              ) : null}
 
-          {isEmpty && !showCreatePanel ? (
-            <section data-testid="advisory-schedules-existing">
-              <h3 className={cn("m-0 mb-2 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                {canMutateSchedules ? advisorySchedulesListHeadingOperator : advisorySchedulesListHeadingReader}
-              </h3>
-              <EnterpriseCompactEmptyState {...ADVISORY_SCHEDULES_EMPTY_COMPACT} />
-            </section>
-          ) : null}
-        </div>
+              <section data-testid="advisory-schedules-existing">
+                {listHeader}
 
-        {schedules.length > 0 ? (
-        <section className="mt-4" data-testid="advisory-schedules-existing">
-          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-            <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-              {canMutateSchedules ? advisorySchedulesListHeadingOperator : advisorySchedulesListHeadingReader}
-            </h3>
-            <RefreshButton
-              busy={loading}
-              data-testid="advisory-schedules-refresh"
-              onClick={() => void refresh()}
-            />
-          </div>
+                {isEmpty ? (
+                  <div className="mt-4 space-y-4">
+                    <AdvisoryScheduleExamplePreview
+                      projectLabel={projectLabel}
+                      displayTimeZoneId={displayTimeZoneId}
+                    />
+                    {showEmptyCompact ? (
+                      <EnterpriseCompactEmptyState
+                        {...ADVISORY_SCHEDULES_EMPTY_COMPACT}
+                        footer={emptyStateFooter}
+                      />
+                    ) : null}
+                  </div>
+                ) : (
+                  <div className="mt-3">
+                    <span id={runNowHintId} className="sr-only">
+                      Run this advisory scan now without waiting for the next scheduled time.
+                    </span>
+                    <span id={viewHistoryHintId} className="sr-only">
+                      {canMutateSchedules
+                        ? advisorySchedulesLoadExecutionsButtonTitleOperator
+                        : advisorySchedulesLoadExecutionsButtonTitleReader}
+                    </span>
+                    <span id={mutationDisabledHintId} className="sr-only">
+                      {enterpriseMutationControlDisabledTitle}
+                    </span>
 
-          <EnterpriseTable ariaLabel="Advisory scan schedules">
-            <EnterpriseTableHead>
-              <EnterpriseTableHeadRow>
-                <EnterpriseTableHeaderCell>Name</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Cadence</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Scope</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Next run</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Last run</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
-              </EnterpriseTableHeadRow>
-            </EnterpriseTableHead>
-            <EnterpriseTableBody>
-              {listViews.map((view) => (
-                <EnterpriseTableRow
-                  key={view.scheduleId}
-                  data-schedule-id={view.scheduleId}
-                  tabIndex={-1}
-                  className="outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
-                >
-                  <EnterpriseTableCell>
-                    <span className="font-medium text-neutral-900 dark:text-neutral-100">{view.name}</span>
-                  </EnterpriseTableCell>
-                  <EnterpriseTableCell>
-                    <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                      {view.frequencyLabel}
-                    </span>
-                  </EnterpriseTableCell>
-                  <EnterpriseTableCell>
-                    <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                      {view.projectLabel}
-                    </span>
-                  </EnterpriseTableCell>
-                  <EnterpriseTableCell>
-                    <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                      {view.nextRunPrimary}
-                      {view.nextRunUtcSecondary.length > 0 ? (
-                        <span className="ml-2 text-neutral-500">{view.nextRunUtcSecondary}</span>
-                      ) : null}
-                    </span>
-                  </EnterpriseTableCell>
-                  <EnterpriseTableCell>
-                    <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                      {view.lastRunPrimary}
-                    </span>
-                  </EnterpriseTableCell>
-                  <EnterpriseTableCell>
-                    <StatusTag kind={view.statusKind} label={view.statusLabel} />
-                  </EnterpriseTableCell>
-                  <EnterpriseTableCell>
-                    <div className="flex flex-wrap gap-2">
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        onClick={() => void onRunNow(view.scheduleId)}
-                        disabled={!canMutateSchedules || runningScheduleId !== null}
-                        title={
-                          canMutateSchedules
-                            ? "Run this advisory scan now without waiting for the next scheduled time."
-                            : enterpriseMutationControlDisabledTitle
-                        }
+                    <EnterpriseTable ariaLabel="Advisory scan schedules">
+                      <EnterpriseTableHead>
+                        <EnterpriseTableHeadRow>
+                          <EnterpriseTableHeaderCell>Name</EnterpriseTableHeaderCell>
+                          <EnterpriseTableHeaderCell>Cadence</EnterpriseTableHeaderCell>
+                          <EnterpriseTableHeaderCell>Scope</EnterpriseTableHeaderCell>
+                          <EnterpriseTableHeaderCell>Next run</EnterpriseTableHeaderCell>
+                          <EnterpriseTableHeaderCell>Last run</EnterpriseTableHeaderCell>
+                          <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
+                          <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
+                        </EnterpriseTableHeadRow>
+                      </EnterpriseTableHead>
+                      <EnterpriseTableBody>
+                        {listViews.map((view) => (
+                          <EnterpriseTableRow
+                            key={view.scheduleId}
+                            data-schedule-id={view.scheduleId}
+                            tabIndex={-1}
+                            className="outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
+                          >
+                            <EnterpriseTableCell>
+                              <span className="font-medium text-neutral-900 dark:text-neutral-100">{view.name}</span>
+                            </EnterpriseTableCell>
+                            <EnterpriseTableCell>
+                              <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                                {view.frequencyLabel}
+                              </span>
+                            </EnterpriseTableCell>
+                            <EnterpriseTableCell>
+                              <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                                {view.projectLabel}
+                              </span>
+                            </EnterpriseTableCell>
+                            <EnterpriseTableCell>
+                              <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                                {view.nextRunPrimary}
+                                {view.nextRunUtcSecondary.length > 0 ? (
+                                  <span className="ml-2 text-neutral-500">{view.nextRunUtcSecondary}</span>
+                                ) : null}
+                              </span>
+                            </EnterpriseTableCell>
+                            <EnterpriseTableCell>
+                              <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                                {view.lastRunPrimary}
+                              </span>
+                            </EnterpriseTableCell>
+                            <EnterpriseTableCell>
+                              <StatusTag kind={view.statusKind} label={view.statusLabel} />
+                            </EnterpriseTableCell>
+                            <EnterpriseTableCell>
+                              <div className="flex flex-wrap gap-2">
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => void onRunNow(view.scheduleId)}
+                                  disabled={!canMutateSchedules || runningScheduleId !== null}
+                                  aria-describedby={
+                                    canMutateSchedules ? runNowHintId : mutationDisabledHintId
+                                  }
+                                >
+                                  {runningScheduleId === view.scheduleId
+                                    ? "Running…"
+                                    : canMutateSchedules
+                                      ? "Run now"
+                                      : advisorySchedulesRunNowButtonLabelReaderRank}
+                                </Button>
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => void onViewHistory(view.scheduleId)}
+                                  aria-describedby={viewHistoryHintId}
+                                >
+                                  {historyOpenFor === view.scheduleId
+                                    ? "Hide history"
+                                    : canMutateSchedules
+                                      ? "View history"
+                                      : advisorySchedulesLoadExecutionsButtonLabelReaderRank}
+                                </Button>
+                              </div>
+                            </EnterpriseTableCell>
+                          </EnterpriseTableRow>
+                        ))}
+                      </EnterpriseTableBody>
+                    </EnterpriseTable>
+
+                    {historyOpenFor !== null && (executionsBySchedule[historyOpenFor]?.length ?? 0) > 0 ? (
+                      <div
+                        className="mt-3 rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-700"
+                        data-testid={`advisory-schedule-history-${historyOpenFor}`}
                       >
-                        {runningScheduleId === view.scheduleId
-                          ? "Running…"
-                          : canMutateSchedules
-                            ? "Run now"
-                            : advisorySchedulesRunNowButtonLabelReaderRank}
-                      </Button>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        onClick={() => void onViewHistory(view.scheduleId)}
-                        title={
-                          canMutateSchedules
-                            ? advisorySchedulesLoadExecutionsButtonTitleOperator
-                            : advisorySchedulesLoadExecutionsButtonTitleReader
-                        }
-                      >
-                        {historyOpenFor === view.scheduleId
-                          ? "Hide history"
-                          : canMutateSchedules
-                            ? "View history"
-                            : advisorySchedulesLoadExecutionsButtonLabelReaderRank}
-                      </Button>
-                    </div>
-                  </EnterpriseTableCell>
-                </EnterpriseTableRow>
-              ))}
-            </EnterpriseTableBody>
-          </EnterpriseTable>
+                        <h4 className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                          Recent history — {listViews.find((view) => view.scheduleId === historyOpenFor)?.name}
+                        </h4>
+                        <ul className={cn("m-0 mt-2 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.helper)}>
+                          {executionsBySchedule[historyOpenFor].map((execution) => (
+                            <li key={execution.executionId}>
+                              {execution.status} — {new Date(execution.startedUtc).toLocaleString()}
+                              {execution.errorMessage ? ` — ${execution.errorMessage}` : null}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
 
-          {historyOpenFor !== null && (executionsBySchedule[historyOpenFor]?.length ?? 0) > 0 ? (
-            <div
-              className="mt-3 rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-700"
-              data-testid={`advisory-schedule-history-${historyOpenFor}`}
-            >
-              <h4 className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                Recent history — {listViews.find((view) => view.scheduleId === historyOpenFor)?.name}
-              </h4>
-              <ul className={cn("m-0 mt-2 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.helper)}>
-                {executionsBySchedule[historyOpenFor].map((execution) => (
-                  <li key={execution.executionId}>
-                    {execution.status} — {new Date(execution.startedUtc).toLocaleString()}
-                    {execution.errorMessage ? ` — ${execution.errorMessage}` : null}
-                  </li>
-                ))}
-              </ul>
+                    {historyOpenFor !== null &&
+                    executionsBySchedule[historyOpenFor] !== undefined &&
+                    executionsBySchedule[historyOpenFor].length === 0 ? (
+                      <p className={cn("m-0 mt-3 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                        No run history recorded for this schedule yet.
+                      </p>
+                    ) : null}
+                  </div>
+                )}
+              </section>
             </div>
-          ) : null}
-
-          {historyOpenFor !== null &&
-          executionsBySchedule[historyOpenFor] !== undefined &&
-          executionsBySchedule[historyOpenFor].length === 0 ? (
-            <p className={cn("m-0 mt-3 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              No run history recorded for this schedule yet.
-            </p>
-          ) : null}
-        </section>
-        ) : null}
+          }
+          aside={orientationAside}
+        />
       </DocumentLayout>
     </div>
   );

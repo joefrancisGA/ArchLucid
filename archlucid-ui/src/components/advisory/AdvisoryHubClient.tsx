@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -33,7 +33,7 @@ const TAB_LABEL: Record<AdvisoryHubTabId, string> = {
   schedules: "Schedules",
 };
 
-const SCHEDULES_TAB_READER_TITLE =
+const SCHEDULES_TAB_READER_DESCRIPTION =
   "View schedules and executions; creating schedules and running scans now requires a management role.";
 
 export type AdvisoryHubClientProps = {
@@ -52,6 +52,7 @@ export function AdvisoryHubClient({ initialTab, initialRunId = null }: AdvisoryH
   const canMutate: boolean = useOperateCapability();
   const [activeTab, setActiveTab] = useState<AdvisoryHubTabId>(initialTab);
   const scopedRunId = scopedRunIdFromQuery(initialRunId);
+  const schedulesTabReaderHintId = useId();
 
   useEffect(() => {
     setActiveTab(initialTab);
@@ -93,32 +94,43 @@ export function AdvisoryHubClient({ initialTab, initialRunId = null }: AdvisoryH
           {ADVISORY_SCANS_PAGE_LEAD}
         </p>
       </OperatorPageHeader>
-      <PageCapabilityBoundaryStrip surfaceId="advisoryScans" />
-      <DigestsAdvisoryScansVocabularyRail currentSurfaceId="advisory-scans" />
-<CollapsibleSection title={ADVISORY_SCANS_HOW_IT_WORKS_TITLE} sectionTestId="advisory-scans-how-it-works">
-        <p className={cn("m-0 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-          {ADVISORY_SCANS_HOW_IT_WORKS_BODY}
-        </p>
-      </CollapsibleSection>
 
       <Tabs value={activeTab} onValueChange={onSelectTab} variant="line" className="mb-6">
         <TabsList aria-label="Advisory hub sections" data-testid="advisory-hub-tablist">
           {ADVISORY_HUB_TAB_IDS.map((id) => {
-            const tabTitle: string | undefined =
-              !canMutate && id === "schedules" ? SCHEDULES_TAB_READER_TITLE : undefined;
+            const readerHintId = !canMutate && id === "schedules" ? schedulesTabReaderHintId : undefined;
 
             return (
               <TabsTrigger
                 key={id}
                 value={id}
                 data-testid={`advisory-hub-tab-${id}`}
-                title={tabTitle}
+                aria-describedby={readerHintId}
               >
                 {TAB_LABEL[id]}
               </TabsTrigger>
             );
           })}
         </TabsList>
+
+        {!canMutate ? (
+          <span id={schedulesTabReaderHintId} className="sr-only">
+            {SCHEDULES_TAB_READER_DESCRIPTION}
+          </span>
+        ) : null}
+
+        <PageCapabilityBoundaryStrip surfaceId="advisoryScans" />
+
+        {activeTab === "scans" ? (
+          <>
+            <DigestsAdvisoryScansVocabularyRail currentSurfaceId="advisory-scans" />
+            <CollapsibleSection title={ADVISORY_SCANS_HOW_IT_WORKS_TITLE} sectionTestId="advisory-scans-how-it-works">
+              <p className={cn("m-0 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+                {ADVISORY_SCANS_HOW_IT_WORKS_BODY}
+              </p>
+            </CollapsibleSection>
+          </>
+        ) : null}
 
         <TabsContent value="scans" className="mt-4 min-w-0" data-testid="advisory-hub-panel">
           <AdvisoryScansContent initialRunId={scopedRunId} />
