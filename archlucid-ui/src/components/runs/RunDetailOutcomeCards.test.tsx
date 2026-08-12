@@ -1,5 +1,9 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/lib/demo-ui-env", () => ({
+  isBuyerPolishedOperatorShellEnv: () => true,
+}));
 
 import { RunDetailOutcomeCards } from "@/components/runs/RunDetailOutcomeCards";
 
@@ -38,5 +42,24 @@ describe("RunDetailOutcomeCards", () => {
       "Commit-blocking finding coverage",
     );
     expect(screen.getByText("Needs evidence")).toBeInTheDocument();
+  });
+
+  it("labels package finalization as package state rather than review outcome", () => {
+    render(
+      <RunDetailOutcomeCards
+        runId="run-1"
+        manifestId="manifest-1"
+        hasGoldenManifest
+        findingCountDisplay={1}
+        warningCountDisplay={0}
+        artifactCount={2}
+        unresolvedIssueCountDisplay={0}
+        governanceGateLabel="No governance decision recorded"
+      />,
+    );
+
+    expect(screen.getByText("Package state")).toBeInTheDocument();
+    expect(screen.queryByText("Review outcome")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Package state: finalized")).toBeInTheDocument();
   });
 });

@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  clampReviewWorkspaceH1Title,
   extractGeneratedIntakeBriefTitle,
   isGeneratedIntakeBrief,
+  stripInlineMarkdownFromReviewText,
   toReviewDisplayTitle,
 } from "@/lib/review-display-title";
 
@@ -82,5 +84,27 @@ describe("toReviewDisplayTitle", () => {
   it("returns an empty string for blank input", () => {
     expect(toReviewDisplayTitle(null)).toBe("");
     expect(toReviewDisplayTitle("   ")).toBe("");
+  });
+
+  it("strips inline markdown from display titles", () => {
+    expect(toReviewDisplayTitle("**Reviewed** classification for payments")).toBe("Reviewed classification for payments");
+    expect(toReviewDisplayTitle("# Heading title")).toBe("Heading title");
+  });
+});
+
+describe("clampReviewWorkspaceH1Title", () => {
+  it("clamps multi-thousand-character markdown blobs to a single markup-free line", () => {
+    const blob = `**Reviewed** ${"classification ".repeat(400)}`;
+    const title = clampReviewWorkspaceH1Title(blob);
+
+    expect(title.length).toBeLessThanOrEqual(120);
+    expect(title).not.toContain("**");
+    expect(title).not.toContain("#");
+  });
+});
+
+describe("stripInlineMarkdownFromReviewText", () => {
+  it("removes common inline markdown tokens", () => {
+    expect(stripInlineMarkdownFromReviewText("**bold** and `code`")).toBe("bold and code");
   });
 });

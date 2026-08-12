@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 
@@ -48,11 +48,29 @@ describe("ReviewPackageSponsorHandoffStrip", () => {
     );
 
     expect(screen.getByTestId("review-package-sponsor-handoff-strip")).toBeInTheDocument();
-    expect(screen.getByTestId("sponsor-rehearsal-preview")).toBeInTheDocument();
-    expect(screen.getByText("Preview as sponsor")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Send to sponsor" })).toBeInTheDocument();
-    expect(screen.getByTestId("review-package-sponsor-handoff-markdown-download")).toBeInTheDocument();
+    expect(screen.getByText(/Download the executive review summary or architecture report/)).toBeInTheDocument();
     expect(screen.getByTestId("review-package-sponsor-handoff-docx")).toBeInTheDocument();
+    expect(screen.getByTestId("review-package-sponsor-handoff-more-exports")).toBeInTheDocument();
+  });
+
+  it("reveals markdown export and rehearsal controls inside more exports", () => {
+    render(
+      <ReviewPackageSponsorHandoffStrip
+        runId="run-abc"
+        manifestId="manifest-1"
+        goldenManifestJsonForExport={{}}
+        manifestSummary={null}
+        trustEvidenceCard={null}
+        usedStaticDemoRun={false}
+        showExtendedSponsorBriefing
+      />,
+    );
+
+    fireEvent.click(screen.getByText("More sponsor exports"));
+
+    expect(screen.getByTestId("review-package-sponsor-handoff-markdown-download")).toBeInTheDocument();
+    expect(screen.getByTestId("sponsor-rehearsal-preview")).toBeInTheDocument();
     expect(screen.getByTestId("review-package-sponsor-handoff-more")).toHaveAttribute(
       "href",
       "/architecture/reviews/run-abc?reviewTab=review-package#sponsor-handoff-extended",

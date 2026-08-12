@@ -12,6 +12,7 @@ import { FavoriteReviewToggle } from "@/components/reviews/FavoriteReviewToggle"
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { CTA_WIDTH, DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { clampReviewWorkspaceH1Title } from "@/lib/review-display-title";
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
 
 const NOT_RECORDED_LABEL = "Not recorded";
@@ -30,6 +31,8 @@ export type RunDetailWorkspaceHeaderProps = {
 
 /** Customer-facing review header — title and review identity without repeating executive metrics. */
 export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): React.JSX.Element {
+  const h1Title = clampReviewWorkspaceH1Title(props.h1Title);
+
   return (
     <header
       className="space-y-3 border-b border-neutral-200 pb-5 dark:border-neutral-800"
@@ -42,8 +45,8 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
             <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               {props.eyebrowLabel}
             </p>
-            <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>
-              {props.h1Title}
+            <h1 className={cn("m-0 truncate", OPERATOR_TYPOGRAPHY.pageTitle)}>
+              {h1Title}
             </h1>
             <div
               className={cn(
@@ -60,7 +63,7 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
           </div>
         </div>
         <div className="flex shrink-0 flex-wrap items-center gap-2">
-          <FavoriteReviewToggle runId={props.runId} title={props.h1Title} size="sm" />
+          <FavoriteReviewToggle runId={props.runId} title={h1Title} size="sm" />
           <PageContextualHelpButton />
         </div>
       </div>

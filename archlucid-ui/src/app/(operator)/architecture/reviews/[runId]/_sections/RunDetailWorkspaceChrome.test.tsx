@@ -87,6 +87,27 @@ describe("RunDetailWorkspaceHeader", () => {
     expect(screen.getByTestId("favorite-review-toggle")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
   });
+
+  it("clamps an oversized h1 title to one line without markdown", () => {
+    const blob = `**Reviewed** ${"classification ".repeat(200)}`;
+    render(
+      <RunDetailWorkspaceHeader
+        runId="run-1"
+        h1Title={blob}
+        eyebrowLabel="Architecture review"
+        reviewIdentifierLabel="run-1"
+        workspaceStatus={workspaceStatus}
+        reviewOwner={null}
+        templateLabel={null}
+        finalizedAtLabel="Jan 1, 2026, 12:00 PM"
+        packageVersionLabel="v2"
+      />,
+    );
+
+    const heading = screen.getByRole("heading", { level: 1 });
+    expect(heading.textContent!.length).toBeLessThanOrEqual(120);
+    expect(heading.textContent).not.toContain("**");
+  });
 });
 
 describe("RunDetailWorkspaceBlockingBanner", () => {

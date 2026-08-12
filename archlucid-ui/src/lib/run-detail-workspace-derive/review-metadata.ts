@@ -38,7 +38,7 @@ export function deriveArchitectureSystemName(run: RunSummary, headline: string):
       headline.trim().toLowerCase() !== PRODUCT_BRAND_NAME.toLowerCase();
 
     if (!headlineMatchesDisplayName || !headlineIsGenericPlaceholder) {
-      return displayName;
+      return toReviewDisplayTitle(displayName);
     }
   }
 
@@ -52,13 +52,11 @@ export function deriveArchitectureSystemName(run: RunSummary, headline: string):
     description.toLowerCase() !== runId.toLowerCase() &&
     !isGeneratedIntakeBrief(description)
   ) {
-    const firstLine = description.split(/\r?\n/).find((line) => line.trim().length > 0)?.trim() ?? description;
+    const normalized = toReviewDisplayTitle(description);
 
-    if (firstLine.length <= 120) {
-      return firstLine;
+    if (normalized.length > 0) {
+      return normalized;
     }
-
-    return `${firstLine.slice(0, 117)}…`;
   }
 
   return null;

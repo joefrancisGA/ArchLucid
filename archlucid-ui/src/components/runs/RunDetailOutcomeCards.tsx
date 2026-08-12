@@ -6,8 +6,9 @@ import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ReviewOutcomeTaxonomyLegend } from "@/components/ReviewOutcomeTaxonomyLegend";
 import { StatusPill } from "@/components/StatusPill";
+import { StatusTag } from "@/components/ui/status-tag";
 import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
-import { BUYER_APPROVED_WITH_MONITORING_DEFINITION, BUYER_DECISION_KEY_SUMMARY, BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK, BUYER_OPEN_SIGNED_RECORD_CTA, BUYER_REVIEW_DETAIL_EVIDENCE_BASIS_LINE, BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER, BUYER_SEALED_MANIFEST_TOOLTIP } from "@/lib/buyer/buyer-polish-copy";
+import { BUYER_APPROVED_WITH_MONITORING_DEFINITION, BUYER_DECISION_KEY_SUMMARY, BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK, BUYER_OPEN_SIGNED_RECORD_CTA, BUYER_REVIEW_DETAIL_EVIDENCE_BASIS_LINE, BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER } from "@/lib/buyer/buyer-polish-copy";
 import { CORE_PILOT_PATH_STREAMLINED_LABELS, isStreamlinedCorePilotPath } from "@/lib/vocabulary/core-pilot-path-vocabulary";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
@@ -303,22 +304,9 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
   const packageBody = (
     <>
       {props.hasGoldenManifest ? (
-        <StatusPill
-          status="Finalized"
-          domain="pipeline"
-          className="mt-px"
-          ariaLabel="Review outcome: finalized"
-          title={isBuyerPolishedOperatorShellEnv() ? BUYER_SEALED_MANIFEST_TOOLTIP : undefined}
-        />
+        <StatusTag kind="ready" label="Finalized" aria-label="Package state: finalized" />
       ) : (
-        <p
-          className={cn(
-            valueClass,
-            "text-amber-800 dark:text-amber-200",
-          )}
-        >
-          In progress
-        </p>
+        <StatusTag kind="in-progress" label="In progress" aria-label="Package state: in progress" />
       )}
       {warningsLine !== null ? <p className={detailClass}>{warningsLine}</p> : null}
     </>
@@ -334,11 +322,11 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
   return (
     <section
       role="status"
-      aria-label="Review outcome summary"
+      aria-label="Package status summary"
       className={cn(stripShell, "flex flex-col divide-y divide-neutral-200 sm:flex-row sm:divide-x sm:divide-y-0 dark:divide-neutral-700")}
     >
       <div className={segmentInner}>
-        <p className={stripSegmentLabelClass()}>Review outcome</p>
+        <p className={stripSegmentLabelClass()}>Package state</p>
         <div className="mt-1">
           {props.hasGoldenManifest && hasManifest ? (
             <Link

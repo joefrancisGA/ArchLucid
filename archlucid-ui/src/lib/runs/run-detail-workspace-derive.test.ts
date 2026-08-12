@@ -341,6 +341,23 @@ describe("run-detail-workspace-derive", () => {
     expect(systemName).toBe("ArchLucid");
   });
 
+  it("clamps and strips markdown from a long displayName architecture package blob", () => {
+    const blob = `**Reviewed** ${"classification detail ".repeat(200)}`;
+    const systemName = deriveArchitectureSystemName(
+      {
+        runId: "run-1",
+        projectId: "p1",
+        displayName: blob,
+        description: "",
+      } as RunSummary,
+      "Architecture review",
+    );
+
+    expect(systemName).not.toBeNull();
+    expect(systemName!.length).toBeLessThanOrEqual(80);
+    expect(systemName).not.toContain("**");
+  });
+
   it("summarizes evidence coverage for open findings", () => {
     const summary = deriveEvidenceCoverageSummary([
       finding(2, { evidenceRefCount: 1 }),

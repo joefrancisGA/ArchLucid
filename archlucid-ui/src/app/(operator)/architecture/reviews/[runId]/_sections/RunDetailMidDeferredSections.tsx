@@ -33,7 +33,10 @@ export async function RunDetailMidDeferredSections(
         />
       ) : null}
       {includeSavingsSummary && deferred.savingsSummary !== null ? (
-        <RunSavingsSummaryDeferred model={deferred.savingsSummary} />
+        <RunSavingsSummaryDeferred
+          model={deferred.savingsSummary}
+          isFinalized={Boolean(props.context.manifestId)}
+        />
       ) : null}
     </>
   );

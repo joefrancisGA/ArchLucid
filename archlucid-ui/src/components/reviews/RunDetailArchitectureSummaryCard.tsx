@@ -10,9 +10,64 @@ import type {
 } from "@/lib/architecture/architecture-structured-content-types";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
+import { stripInlineMarkdownFromReviewText } from "@/lib/review-display-title";
 import { cn } from "@/lib/utils";
 
 const SUMMARY_LINE_LIMIT = 5;
+const PREVIEW_LINE_MAX_CHARS = 240;
+
+function clampPreviewLine(line: string): string {
+  const stripped = stripInlineMarkdownFromReviewText(line);
+
+  if (stripped.length <= PREVIEW_LINE_MAX_CHARS) {
+    return stripped;
+  }
+
+  return `${stripped.slice(0, PREVIEW_LINE_MAX_CHARS - 3)}…`;
+}
+
+function previewLines(text: string): readonly string[] {
+  const stripped = stripInlineMarkdownFromReviewText(text);
+  const lines = stripped.split(/\r?\n/).map((line) => line.trim()).filter((line) => line.length > 0);
+
+  if (lines.length > 0) {
+    return lines.slice(0, SUMMARY_LINE_LIMIT).map(clampPreviewLine);
+  }
+
+  if (stripped.length === 0) {
+    return [];
+  }
+
+  const chunks: string[] = [];
+  let remaining = stripped;
+
+  while (remaining.length > 0 && chunks.length < SUMMARY_LINE_LIMIT) {
+    if (remaining.length <= PREVIEW_LINE_MAX_CHARS) {
+      chunks.push(remaining);
+      break;
+    }
+
+    chunks.push(`${remaining.slice(0, PREVIEW_LINE_MAX_CHARS - 3)}…`);
+    remaining = remaining.slice(PREVIEW_LINE_MAX_CHARS - 3);
+  }
+
+  return chunks;
+}
+
+function shouldShowArchitectureTitle(title: string, summaryText: string): boolean {
+  const normalizedTitle = stripInlineMarkdownFromReviewText(title);
+  const normalizedSummary = stripInlineMarkdownFromReviewText(summaryText);
+
+  if (normalizedTitle.length === 0) {
+    return false;
+  }
+
+  if (normalizedSummary.startsWith(normalizedTitle)) {
+    return false;
+  }
+
+  return true;
+}
 
 function sectionSummary(section: ArchitectureStructuredSection): string {
   const narrative = section.narrativeMarkdown?.trim() ?? "";
@@ -33,22 +88,6 @@ function findSection(
   key: ArchitectureStructuredSection["key"],
 ): ArchitectureStructuredSection | undefined {
   return sections.find((section) => section.key === key);
-}
-
-function previewLines(text: string): readonly string[] {
-  const lines = text.split(/\r?\n/).map((line) => line.trim()).filter((line) => line.length > 0);
-
-  if (lines.length > 0) {
-    return lines.slice(0, SUMMARY_LINE_LIMIT);
-  }
-
-  const paragraphs = text.split(/\n\s*\n/).map((part) => part.trim()).filter((part) => part.length > 0);
-
-  if (paragraphs.length > 0) {
-    return paragraphs.slice(0, SUMMARY_LINE_LIMIT);
-  }
-
-  return [text.slice(0, 320)];
 }
 
 export type RunDetailArchitectureSummaryCardProps = {
@@ -80,6 +119,8 @@ export function RunDetailArchitectureSummaryCard(
     props.hasSubmittedArchitecture && text.length > 0 ? previewLines(text) : [];
 
   const architectureTitle = props.architectureTitle?.trim() ?? "";
+  const showArchitectureTitle =
+    architectureTitle.length > 0 && shouldShowArchitectureTitle(architectureTitle, text);
 
   if (
     !props.hasSubmittedArchitecture &&
@@ -103,7 +144,7 @@ export function RunDetailArchitectureSummaryCard(
         Architecture summary
       </h2>
       <dl className={cn("m-0 grid gap-2 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
-        {architectureTitle.length > 0 ? (
+        {showArchitectureTitle ? (
           <div>
             <dt className="text-neutral-500 dark:text-neutral-400">Architecture</dt>
             <dd className="m-0 mt-0.5 font-medium text-neutral-900 dark:text-neutral-100">{architectureTitle}</dd>

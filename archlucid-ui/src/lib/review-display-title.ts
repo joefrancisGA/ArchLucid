@@ -10,6 +10,9 @@
 /** Longest title rendered before an ellipsis; keeps the operator `h1` to one line at common widths. */
 const MAX_REVIEW_TITLE_CHARS = 80;
 
+/** Defensive workspace header clamp — no data path should exceed this on the review `h1`. */
+export const MAX_REVIEW_WORKSPACE_H1_CHARS = 120;
+
 /**
  * Opening sentence of `buildEvidenceBackedIntakeBrief`, which quotes the operator-entered title.
  * `\s*` before the period tolerates briefs written before the sentence separator was fixed.
@@ -39,12 +42,39 @@ function firstSentence(text: string): string {
   return match === null ? text : match[1];
 }
 
+/** Strips inline markdown so package blobs never render literal `**` or `#` in titles. */
+export function stripInlineMarkdownFromReviewText(text: string): string {
+  let result = text;
+
+  result = result.replace(/\*\*(.+?)\*\*/g, "$1");
+  result = result.replace(/__(.+?)__/g, "$1");
+  result = result.replace(/\*(.+?)\*/g, "$1");
+  result = result.replace(/_(.+?)_/g, "$1");
+  result = result.replace(/`([^`]+)`/g, "$1");
+  result = result.replace(/^#+\s*/gm, "");
+
+  return result.replace(/\s+/g, " ").trim();
+}
+
 function clampTitle(text: string): string {
-  if (text.length <= MAX_REVIEW_TITLE_CHARS) {
-    return text;
+  const stripped = stripInlineMarkdownFromReviewText(text);
+
+  if (stripped.length <= MAX_REVIEW_TITLE_CHARS) {
+    return stripped;
   }
 
-  return `${text.slice(0, MAX_REVIEW_TITLE_CHARS - 1).trimEnd()}…`;
+  return `${stripped.slice(0, MAX_REVIEW_TITLE_CHARS - 1).trimEnd()}…`;
+}
+
+/** Single-line workspace header clamp applied at render time. */
+export function clampReviewWorkspaceH1Title(title: string): string {
+  const stripped = stripInlineMarkdownFromReviewText(title.trim());
+
+  if (stripped.length <= MAX_REVIEW_WORKSPACE_H1_CHARS) {
+    return stripped;
+  }
+
+  return `${stripped.slice(0, MAX_REVIEW_WORKSPACE_H1_CHARS - 3).trimEnd()}…`;
 }
 
 /** Turns any run label candidate (display name or description) into a single-line review title. */
