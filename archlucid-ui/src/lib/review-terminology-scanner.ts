@@ -30,7 +30,7 @@ const EXCLUDED_RELATIVE_PATH_FRAGMENTS = [
   "/pipeline-status-label-surfaces.ts",
   "/retired-demo-org-branding.ts",
   "/help-product-language.ts",
-  "/help-markdown/contributor-leakage.ts",
+  "/help-markdown/contributor-leakage/index.ts",
   "/help-markdown/markdown-cleanup.ts",
   "/itsm-connectors-admin-scope.ts",
   "/api-v1-routes.ts",
