@@ -51,7 +51,11 @@ describe("SsoWizardPage", () => {
     expect(screen.queryByTestId("sso-protocol-selector")).not.toBeInTheDocument();
     expect(screen.getByTestId("sso-wizard-continue")).toBeDisabled();
 
-    const pageText = screen.getByTestId("sso-wizard-page").textContent ?? "";
+    const page = screen.getByTestId("sso-wizard-page");
+    expect(page.className).toContain("w-full max-w-[62rem] space-y-6");
+    expect(page.className).not.toContain("mx-auto");
+
+    const pageText = page.textContent ?? "";
 
     for (const pattern of SSO_WIZARD_BANNED_UI_PATTERNS) {
       expect(pageText, `expected no match for ${pattern}`).not.toMatch(pattern);

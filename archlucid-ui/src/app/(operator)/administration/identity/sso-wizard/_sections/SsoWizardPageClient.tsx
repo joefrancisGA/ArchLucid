@@ -362,7 +362,7 @@ export function SsoWizardPageClient() {
   const currentStepMeta = SSO_WIZARD_STEPS[step];
 
   return (
-    <div className="mx-auto w-full max-w-[62rem] space-y-6 px-1 sm:px-0" data-testid="sso-wizard-page">
+    <div className="w-full max-w-[62rem] space-y-6 px-1 sm:px-0" data-testid="sso-wizard-page">
       <header className="space-y-3">
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
           <Link href={SSO_WIZARD_IDENTITY_PROVIDERS_HREF} className={OPERATOR_LINK.nav} data-testid="sso-wizard-back-link">
