@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
+import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
 
 const SRC_ROOT = join(process.cwd(), "src");
 
@@ -17,6 +18,11 @@ const PAGE_HELP_TITLE_COLLISION_SURFACES: ReadonlyArray<{
     pathname: "/administration/developer",
     pageTitle: "Internal developer tools",
     modulePath: "app/(operator)/administration/developer/DeveloperSettingsPageClient.tsx",
+  },
+  {
+    pathname: "/architecture/first-review-guide",
+    pageTitle: BUYER_ONBOARDING_PAGE_TITLE,
+    modulePath: "app/(operator)/architecture/first-review-guide/_sections/FirstReviewGuidePageClient.tsx",
   },
 ];
 

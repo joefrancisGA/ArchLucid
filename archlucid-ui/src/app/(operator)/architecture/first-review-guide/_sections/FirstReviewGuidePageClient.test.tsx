@@ -8,14 +8,18 @@ import {
   BUYER_ONBOARDING_PAGE_TITLE,
   FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE,
 } from "@/lib/buyer/buyer-polish-copy";
+import { PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 vi.mock("next/link", () => ({
   default: ({ href, children }: { href: string; children: ReactNode }) => <a href={href}>{children}</a>,
 }));
 
-vi.mock("@/components/operator/OperatorPageContainer", () => ({
-  OperatorPageContainer: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PAGE_HELP_SHORT_TRIGGER_TEXT: "Help",
+  PageContextualHelpButton: ({ triggerText }: { triggerText?: string }) => (
+    <button type="button" data-testid="page-contextual-help-button">{triggerText ?? "Help"}</button>
+  ),
 }));
 
 vi.mock("@/components/GettingStartedTrialSection", () => ({
@@ -32,14 +36,13 @@ vi.mock("@/hooks/use-first-review-guide-state", () => ({
     readiness: {
       kind: "ready-to-start",
       headline: "Ready to start",
-      detail: "Ready to start — optional workspace setup can be completed later.",
+      detail: "Optional workspace setup can be completed later.",
     },
     progress: {
-      completedCount: 0,
-      totalCount: 7,
+      phase: "not-started",
       progressFraction: 0,
-      summaryLabel: "0 of 7 steps complete",
-      currentStepLabel: "Step 1 of 7: Define the architecture",
+      summaryLabel: "Not started",
+      detailLabel: "Begin with step 1 when you are ready.",
     },
     steps: [
       {
@@ -69,19 +72,36 @@ vi.mock("@/hooks/use-first-review-guide-state", () => ({
 }));
 
 describe("FirstReviewGuidePageClient", () => {
-  it("shows readiness, walkthrough, and primary review CTAs", () => {
+  it("uses workflow container left-aligned without mx-auto", () => {
+    render(<FirstReviewGuidePageClient model={{ fromRegistration: false }} />);
+
+    const surface = screen.getByTestId("first-review-guide-page");
+    expect(surface).toHaveClass("w-full", "max-w-[1200px]");
+    expect(surface.className).not.toMatch(/mx-auto/);
+  });
+
+  it("shows readiness, walkthrough, and bounded start-review CTAs", () => {
     render(<FirstReviewGuidePageClient model={{ fromRegistration: false }} />);
 
     expect(screen.getByRole("heading", { name: BUYER_ONBOARDING_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(BUYER_ONBOARDING_PAGE_LEAD)).toBeInTheDocument();
     expect(screen.getByTestId("first-review-guide-readiness")).toHaveTextContent("Ready to start");
+    expect(screen.getByTestId("first-review-guide-readiness")).toHaveTextContent(
+      "Optional workspace setup can be completed later.",
+    );
     expect(screen.getByRole("heading", { name: FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("first-review-guide-walkthrough")).toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent(PAGE_HELP_SHORT_TRIGGER_TEXT);
+
+    const startReviewLinks = screen.getAllByRole("link", { name: /start review/i });
+    expect(startReviewLinks.length).toBeLessThanOrEqual(2);
+
     expect(screen.getByRole("link", { name: "Start first review" })).toHaveAttribute("href", "/architecture/reviews/new");
     expect(screen.getByRole("link", { name: "Explore sample review" })).toHaveAttribute(
       "href",
       `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
     );
+    expect(screen.queryByTestId("first-review-guide-next-action-card")).not.toBeInTheDocument();
     expect(screen.getByTestId("onboarding-optional-setup-section-stub")).toBeInTheDocument();
   });
 });

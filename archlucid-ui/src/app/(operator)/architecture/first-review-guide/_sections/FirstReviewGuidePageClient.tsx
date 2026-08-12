@@ -9,7 +9,10 @@ import { OperatorPageContainer } from "@/components/operator/OperatorPageContain
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import {
+  PageContextualHelpButton,
+  PAGE_HELP_SHORT_TRIGGER_TEXT,
+} from "@/components/usability/PageContextualHelpButton";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import type { WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 import { useFirstReviewGuideState } from "@/hooks/use-first-review-guide-state";
@@ -23,7 +26,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { FirstReviewGuideProgressSummary } from "./FirstReviewGuideProgressSummary";
 import { FirstReviewGuideRequiredSetupPanel } from "./FirstReviewGuideRequiredSetupPanel";
 import { FirstReviewGuideSupportPanel } from "./FirstReviewGuideSupportPanel";
-import { FirstReviewGuideNextActionCard, FirstReviewGuideWalkthrough } from "./FirstReviewGuideWalkthrough";
+import { FirstReviewGuideWalkthrough } from "./FirstReviewGuideWalkthrough";
 import { OnboardingOptionalSetupSection } from "./OnboardingOptionalSetupSection";
 import type { OnboardingPageViewModel } from "./onboarding-page-view-model";
 
@@ -53,7 +56,6 @@ function readinessStatusKind(
 
 export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClientProps) {
   const guide = useFirstReviewGuideState();
-  const nextStep = guide.steps.find((step) => step.isNextStep) ?? null;
   const primaryDisabledReason: WhyDisabledCtaReason | null =
     guide.headerActions.primaryDisabledReason !== null &&
     guide.headerActions.primaryDisabledReason.trim().length > 0
@@ -64,13 +66,17 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
       : null;
 
   return (
-    <OperatorPageContainer variant="reading" className="mx-auto max-w-[1100px] space-y-8">
+    <OperatorPageContainer
+      variant="workflow"
+      className="space-y-8"
+      data-testid="first-review-guide-page"
+    >
       <OperatorPageHeader
         title={BUYER_ONBOARDING_PAGE_TITLE}
         headingLevel="h1"
         subtitle={BUYER_ONBOARDING_PAGE_LEAD}
         subtitleClassName="max-w-3xl"
-        actions={<PageContextualHelpButton />}
+        actions={<PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />}
       >
         <FirstReviewGuideFirstArchitectureReviewVocabularyRail currentSurfaceId="first-review-guide" />
         <div
@@ -89,7 +95,6 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
         <div className="flex flex-wrap items-center gap-2">
           {guide.headerActions.primaryDisabled ? (
             <Button
-              size="sm"
               disabled
               aria-describedby="first-review-guide-primary-disabled-hint"
               data-testid="first-review-guide-primary-disabled"
@@ -97,7 +102,7 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
               {guide.headerActions.primaryLabel}
             </Button>
           ) : (
-            <Button size="sm" asChild data-testid="first-review-guide-primary">
+            <Button asChild data-testid="first-review-guide-primary">
               <Link href={guide.headerActions.primaryHref}>{guide.headerActions.primaryLabel}</Link>
             </Button>
           )}
@@ -132,15 +137,7 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
           <FirstReviewGuideWalkthrough steps={guide.steps} isPending={guide.isPending} />
         </section>
 
-        <div className="space-y-4">
-          <FirstReviewGuideNextActionCard
-            step={nextStep}
-            readyToFinalize={guide.readyToFinalize}
-            finalizeHref={guide.latestRunHref}
-            canExecute={guide.canExecute}
-          />
-          <FirstReviewGuideSupportPanel />
-        </div>
+        <FirstReviewGuideSupportPanel />
       </div>
 
       <OnboardingOptionalSetupSection />

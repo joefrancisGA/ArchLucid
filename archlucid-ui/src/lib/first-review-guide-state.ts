@@ -1,5 +1,5 @@
 import type { CorePilotCommitContext } from "@/lib/core-pilot-commit-context";
-import { FIRST_REVIEW_GUIDE_STEP_COUNT, FIRST_REVIEW_GUIDE_STEPS } from "@/lib/first-review-guide-steps";
+import { FIRST_REVIEW_GUIDE_STEPS } from "@/lib/first-review-guide-steps";
 import type { FinishSetupWizardContext } from "@/lib/finish-setup-wizard-steps";
 import {
   areFinishSetupRequiredStepsComplete,
@@ -41,12 +41,13 @@ export type FirstReviewGuideStepPresentation = {
   readonly isNextStep: boolean;
 };
 
+export type FirstReviewGuideProgressPhase = "not-started" | "in-progress" | "complete";
+
 export type FirstReviewGuideProgress = {
-  readonly completedCount: number;
-  readonly totalCount: number;
+  readonly phase: FirstReviewGuideProgressPhase;
   readonly progressFraction: number;
   readonly summaryLabel: string;
-  readonly currentStepLabel: string | null;
+  readonly detailLabel: string | null;
 };
 
 export type FirstReviewGuideHeaderActions = {
@@ -148,7 +149,7 @@ export function resolveFirstReviewGuideReadiness(input: FirstReviewGuideStateInp
   return {
     kind: "ready-to-start",
     headline: "Ready to start",
-    detail: "Ready to start — optional workspace setup can be completed later.",
+    detail: "Optional workspace setup can be completed later.",
   };
 }
 
@@ -244,42 +245,29 @@ function resolveCurrentStepIndex(statuses: readonly FirstReviewGuideStepUiStatus
 export function resolveFirstReviewGuideProgress(
   commitContext: CorePilotCommitContext,
 ): FirstReviewGuideProgress {
-  const statuses = baseStepStatuses(commitContext);
-  const completedCount = statuses.filter((status) => status === "complete").length;
-  const currentIndex = resolveCurrentStepIndex(statuses);
-
   if (commitContext.hasCommittedManifest) {
     return {
-      completedCount: FIRST_REVIEW_GUIDE_STEP_COUNT,
-      totalCount: FIRST_REVIEW_GUIDE_STEP_COUNT,
+      phase: "complete",
       progressFraction: 1,
-      summaryLabel: "First review completed",
-      currentStepLabel: null,
+      summaryLabel: "Complete",
+      detailLabel: "Your first architecture review is finalized.",
     };
   }
 
-  if (commitContext.latestRunId === null) {
+  if (commitContext.latestRunId !== null) {
     return {
-      completedCount: 0,
-      totalCount: FIRST_REVIEW_GUIDE_STEP_COUNT,
-      progressFraction: 0,
-      summaryLabel: "0 of 7 steps complete",
-      currentStepLabel: `Step 1 of ${FIRST_REVIEW_GUIDE_STEP_COUNT}: ${FIRST_REVIEW_GUIDE_STEPS[0]?.title ?? "Define the architecture"}`,
+      phase: "in-progress",
+      progressFraction: 0.5,
+      summaryLabel: "In progress",
+      detailLabel: "Continue from the walkthrough below.",
     };
   }
-
-  const activeIndex = currentIndex ?? Math.min(completedCount, FIRST_REVIEW_GUIDE_STEP_COUNT - 1);
-  const activeStep = FIRST_REVIEW_GUIDE_STEPS[activeIndex];
 
   return {
-    completedCount,
-    totalCount: FIRST_REVIEW_GUIDE_STEP_COUNT,
-    progressFraction: completedCount / FIRST_REVIEW_GUIDE_STEP_COUNT,
-    summaryLabel: `${completedCount} of ${FIRST_REVIEW_GUIDE_STEP_COUNT} steps complete`,
-    currentStepLabel:
-      activeStep !== undefined
-        ? `Step ${activeIndex + 1} of ${FIRST_REVIEW_GUIDE_STEP_COUNT}: ${activeStep.title}`
-        : null,
+    phase: "not-started",
+    progressFraction: 0,
+    summaryLabel: "Not started",
+    detailLabel: "Begin with step 1 when you are ready.",
   };
 }
 
@@ -323,6 +311,17 @@ export function resolveFirstReviewGuideHeaderActions(
   }
 
   if (commitContext.latestRunId !== null) {
+    if (commitContext.latestRunReadyToFinalize) {
+      return {
+        primaryLabel: "Finalize review",
+        primaryHref: reviewDetailHref(commitContext.latestRunId),
+        primaryDisabled: false,
+        primaryDisabledReason: null,
+        secondaryLabel: "Explore sample review",
+        secondaryHref: sampleHref,
+      };
+    }
+
     return {
       primaryLabel: "Continue review",
       primaryHref: reviewDetailHref(commitContext.latestRunId),

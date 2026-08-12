@@ -11,11 +11,11 @@ export function FirstReviewGuideProgressSummary({ progress }: FirstReviewGuidePr
   const progressPercent = Math.round(progress.progressFraction * 100);
 
   return (
-    <div className="space-y-2" data-testid="first-review-guide-progress-summary" aria-live="polite">
+    <div className="space-y-2" data-testid="first-review-guide-progress-summary">
       <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         <span className="font-medium text-neutral-900 dark:text-neutral-100">{progress.summaryLabel}</span>
-        {progress.currentStepLabel !== null ? (
-          <span className="block text-neutral-600 dark:text-neutral-400">{progress.currentStepLabel}</span>
+        {progress.detailLabel !== null ? (
+          <span className="block text-neutral-600 dark:text-neutral-400">{progress.detailLabel}</span>
         ) : null}
       </p>
       <div
@@ -23,7 +23,7 @@ export function FirstReviewGuideProgressSummary({ progress }: FirstReviewGuidePr
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={progressPercent}
-        aria-label="First review progress"
+        aria-label={`First review progress — ${progress.summaryLabel}`}
         className="h-1.5 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800"
       >
         <div

@@ -27,14 +27,27 @@ describe("first-review-guide-state", () => {
     });
 
     expect(readiness.headline).toBe("Ready to start");
-    expect(readiness.detail).toContain("optional workspace setup");
+    expect(readiness.detail).toBe("Optional workspace setup can be completed later.");
   });
 
   it("shows onboarding progress before any review exists", () => {
     const progress = resolveFirstReviewGuideProgress(emptyContext);
 
-    expect(progress.summaryLabel).toBe("0 of 7 steps complete");
-    expect(progress.completedCount).toBe(0);
+    expect(progress.phase).toBe("not-started");
+    expect(progress.summaryLabel).toBe("Not started");
+    expect(progress.detailLabel).toContain("step 1");
+    expect(progress.progressFraction).toBe(0);
+  });
+
+  it("reports in-progress phase when a review exists", () => {
+    const progress = resolveFirstReviewGuideProgress({
+      ...emptyContext,
+      latestRunId: "run-123",
+    });
+
+    expect(progress.phase).toBe("in-progress");
+    expect(progress.summaryLabel).toBe("In progress");
+    expect(progress.progressFraction).toBe(0.5);
   });
 
   it("marks the run step current while a review is executing", () => {
@@ -64,6 +77,22 @@ describe("first-review-guide-state", () => {
     });
 
     expect(actions.primaryLabel).toBe("Continue review");
+    expect(actions.primaryHref).toBe("/architecture/reviews/run-123");
+  });
+
+  it("uses finalize review when the run is ready to finalize", () => {
+    const actions = resolveFirstReviewGuideHeaderActions({
+      commitContext: {
+        ...emptyContext,
+        latestRunId: "run-123",
+        latestRunReadyToFinalize: true,
+      },
+      canExecute: true,
+      finishSetupContext: null,
+      finishSetupLoaded: true,
+    });
+
+    expect(actions.primaryLabel).toBe("Finalize review");
     expect(actions.primaryHref).toBe("/architecture/reviews/run-123");
   });
 
