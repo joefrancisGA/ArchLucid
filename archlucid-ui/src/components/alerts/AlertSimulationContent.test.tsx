@@ -105,3 +105,27 @@ describe("AlertSimulationContent TB-1590", () => {
     expect(source).toContain('variant="primary"');
   });
 });
+
+describe("AlertSimulationContent TB-1591", () => {
+  it("renders human nested mode tab labels instead of API keys", () => {
+    render(<AlertSimulationContent />);
+
+    expect(screen.getByRole("button", { name: "Simple rule" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Advanced rule" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Compare thresholds" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "simple" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "composite" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "compare" })).not.toBeInTheDocument();
+  });
+
+  it("simulation mode tab source avoids capitalize API-key pill labels", () => {
+    const source = readFileSync(
+      join(process.cwd(), "src", "components", "alerts", "AlertSimulationContent.tsx"),
+      "utf8",
+    );
+
+    expect(source).toContain("ALERT_SIMULATION_MODE_TABS");
+    expect(source).not.toMatch(/capitalize/);
+    expect(source).not.toMatch(/\{t\}/);
+  });
+});

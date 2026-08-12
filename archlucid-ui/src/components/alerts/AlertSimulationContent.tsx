@@ -12,12 +12,14 @@ import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { compareAlertRuleCandidates, simulateAlertRule } from "@/lib/api";
 import {
   ALERT_SIMULATION_COMPARED_REVIEW_ID_HELPER,
+  ALERT_SIMULATION_MODE_TABS,
   ALERT_SIMULATION_PROJECT_SLUG_HELPER,
   ALERT_SIMULATION_PROJECT_SLUG_PLACEHOLDER,
   ALERT_SIMULATION_REVIEW_ID_HELPER,
   ALERT_SIMULATION_REVIEW_ID_PLACEHOLDER,
   ALERT_TOOLING_FORM_SELECT_CLASS,
   resolveAlertSimulationRunProjectSlug,
+  type AlertSimulationModeTabId,
 } from "@/lib/alert-simulation-form";
 import {
   alertSimulationCurrentBehaviorHeadingOperator,
@@ -61,8 +63,6 @@ const COND_OPS = [
 ];
 
 const SEVERITIES = ["Info", "Warning", "High", "Critical"];
-const TABS = ["simple", "composite", "compare"] as const;
-type Tab = (typeof TABS)[number];
 
 function OutcomeTable({ outcomes }: { outcomes: SimulatedAlertOutcome[] }) {
   if (outcomes.length === 0) {
@@ -150,7 +150,7 @@ function SummaryBlock({ result }: { result: RuleSimulationResult | null }) {
 
 export function AlertSimulationContent() {
   const canMutateEnterpriseShell = useOperateCapability();
-  const [tab, setTab] = useState<Tab>("simple");
+  const [tab, setTab] = useState<AlertSimulationModeTabId>("simple");
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [simpleResult, setSimpleResult] = useState<RuleSimulationResult | null>(null);
@@ -321,22 +321,22 @@ export function AlertSimulationContent() {
         Simulate alerts
       </h3>
 
-      <div className="mb-5 flex flex-wrap gap-2">
-        {TABS.map((t) => (
+      <div className="mb-5 flex flex-wrap gap-2" role="group" aria-label="Simulation mode">
+        {ALERT_SIMULATION_MODE_TABS.map((mode) => (
           <Button
-            key={t}
+            key={mode.id}
             type="button"
             variant="secondary"
             size="sm"
-            onClick={() => setTab(t)}
+            onClick={() => setTab(mode.id)}
             className={cn(
-              "capitalize",
-              tab === t &&
+              tab === mode.id &&
                 "border-2 border-neutral-700 bg-neutral-100 dark:border-neutral-300 dark:bg-neutral-800",
             )}
-            aria-pressed={tab === t}
+            aria-pressed={tab === mode.id}
+            data-testid={`alert-simulation-mode-${mode.id}`}
           >
-            {t}
+            {mode.label}
           </Button>
         ))}
       </div>

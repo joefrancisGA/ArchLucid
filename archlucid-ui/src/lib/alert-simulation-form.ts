@@ -18,6 +18,15 @@ export const ALERT_SIMULATION_PROJECT_SLUG_HELPER =
 export const ALERT_TOOLING_FORM_SELECT_CLASS =
   "mt-1 block w-full rounded-md border border-neutral-300 bg-white p-2 dark:border-neutral-600 dark:bg-neutral-950";
 
+/** Nested simulation mode tabs — operator labels, not wire/API keys (TB-1591). */
+export const ALERT_SIMULATION_MODE_TABS = [
+  { id: "simple", label: "Simple rule" },
+  { id: "composite", label: "Advanced rule" },
+  { id: "compare", label: "Compare thresholds" },
+] as const;
+
+export type AlertSimulationModeTabId = (typeof ALERT_SIMULATION_MODE_TABS)[number]["id"];
+
 /**
  * Resolves the authority run-list project key for simulation/tuning APIs (TB-1592).
  * Typed override wins; otherwise derive from session (GUID/empty → authority `default` on the wire only).
