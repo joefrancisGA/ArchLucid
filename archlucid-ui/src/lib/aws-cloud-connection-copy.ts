@@ -26,6 +26,9 @@ export const AWS_CONNECTION_DISCONNECT_FAILED_ERROR = "Could not disconnect the 
 export const AWS_CONNECTION_VALIDATE_EMPTY_STATE =
   "Save an AWS connection in Connection details before validating access.";
 
+export const AWS_CONNECTION_VALIDATE_CONNECTED_LEAD =
+  "Re-poll now in Connection details validates OIDC federation access and imports a fresh Resource Explorer inventory package.";
+
 export const AWS_CONNECTION_RECENT_ACTIVITY_EMPTY_STATE =
   "No collection activity yet. Save a connection and run Re-poll now to import inventory.";
 

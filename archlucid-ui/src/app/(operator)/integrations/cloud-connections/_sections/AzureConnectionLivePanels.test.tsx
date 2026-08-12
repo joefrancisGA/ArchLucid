@@ -44,7 +44,7 @@ describe("Azure connection live panels (TB-1767)", () => {
       );
     });
 
-    expect(screen.getByTestId("azure-validate-conn-1")).toBeInTheDocument();
+    expect(screen.getByText(/Validate connection in Connection details/i)).toBeInTheDocument();
     expect(screen.queryByText(/Recent collection activity appears after validation/i)).not.toBeInTheDocument();
   });
 });

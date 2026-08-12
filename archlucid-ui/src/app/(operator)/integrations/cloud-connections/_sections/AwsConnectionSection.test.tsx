@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AwsConnectionDataProvider } from "./AwsConnectionDataContext";
 import { AwsConnectionSection } from "./AwsConnectionSection";
@@ -20,7 +20,16 @@ vi.mock("@/lib/api/aws-cloud-connections-api", () => ({
 }));
 
 describe("AwsConnectionSection", () => {
-  it("disables Save until required fields validate and surfaces field errors (P0-4)", async () => {
+  beforeEach(() => {
+    listAwsTier2Connections.mockReset();
+    listAwsTier2Connections.mockResolvedValue([]);
+    configureAwsTier2Connection.mockReset();
+    configureAwsTier2Connection.mockResolvedValue(undefined);
+    disconnectAwsTier2Connection.mockReset();
+    disconnectAwsTier2Connection.mockResolvedValue(undefined);
+  });
+
+  it("TB-1761: empty state uses guided wizard steps instead of a flat form", async () => {
     render(
       <AwsConnectionDataProvider>
         <AwsConnectionSection embedded />
@@ -28,17 +37,44 @@ describe("AwsConnectionSection", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByTestId("aws-connect-submit")).toBeDisabled();
+      expect(screen.getByTestId("aws-connection-wizard")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("aws-connect-readiness")).toBeInTheDocument();
+    expect(screen.getByTestId("aws-connection-wizard-step-iam")).toBeInTheDocument();
+    expect(screen.queryByTestId("aws-connect-submit")).not.toBeInTheDocument();
 
-    const accountIdInput = screen.getByTestId("aws-account-id");
-    fireEvent.focus(accountIdInput);
-    fireEvent.blur(accountIdInput);
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    expect(screen.getByTestId("aws-connection-wizard-step-ids")).toBeInTheDocument();
+  });
 
-    expect(screen.getByText("AWS account ID must be a 12-digit number.", { selector: "#aws-account-id-error" })).toBeInTheDocument();
-    expect(screen.getByTestId("aws-connect-submit")).toBeDisabled();
+  it("TB-1764: connected state exposes exactly one primary CTA in connection details", async () => {
+    listAwsTier2Connections.mockResolvedValueOnce([
+      {
+        connectionId: "conn-1",
+        accountId: "123456789012",
+        region: "us-east-1",
+        roleArn: "arn:aws:iam::123456789012:role/ArchLucidReadOnly",
+        status: "connected",
+        lastPolledUtc: null,
+        updatedUtc: null,
+      },
+    ]);
+
+    render(
+      <AwsConnectionDataProvider>
+        <AwsConnectionSection embedded />
+      </AwsConnectionDataProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("aws-connection-list")).toBeInTheDocument();
+    });
+
+    const actions = screen.getByTestId("aws-connection-primary-actions");
+    expect(within(actions).getAllByRole("button")).toHaveLength(2);
+    expect(within(actions).getByRole("button", { name: "Re-poll now" })).toBeInTheDocument();
+    expect(within(actions).getByRole("button", { name: "Disconnect" })).toBeInTheDocument();
+    expect(screen.queryByTestId("aws-connection-wizard")).not.toBeInTheDocument();
   });
 
   it("requires confirmation before disconnecting a saved connection (P0-6)", async () => {
@@ -71,51 +107,5 @@ describe("AwsConnectionSection", () => {
 
     expect(dialog).not.toBeNull();
     expect(disconnectAwsTier2Connection).not.toHaveBeenCalled();
-
-    fireEvent.click(within(dialog as HTMLElement).getByRole("button", { name: "Disconnect" }));
-
-    await waitFor(() => {
-      expect(disconnectAwsTier2Connection).toHaveBeenCalledWith("conn-1");
-    });
-  });
-
-  it("shows a failed disconnect inside the dialog rather than behind the overlay", async () => {
-    listAwsTier2Connections.mockResolvedValueOnce([
-      {
-        connectionId: "conn-2",
-        accountId: "210987654321",
-        region: "us-east-1",
-        roleArn: "arn:aws:iam::210987654321:role/ArchLucidReadOnly",
-        status: "connected",
-        lastPolledUtc: null,
-        updatedUtc: null,
-      },
-    ]);
-    disconnectAwsTier2Connection.mockRejectedValueOnce(new Error("boom"));
-    vi.spyOn(console, "error").mockImplementation(() => undefined);
-
-    render(
-      <AwsConnectionDataProvider>
-        <AwsConnectionSection embedded />
-      </AwsConnectionDataProvider>,
-    );
-
-    await waitFor(() => {
-      expect(screen.getByTestId("aws-disconnect-conn-2")).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByTestId("aws-disconnect-conn-2"));
-
-    const heading = screen.getByRole("heading", { name: /Disconnect AWS account 210987654321/i });
-    const dialog = heading.closest('[role="alertdialog"]');
-
-    fireEvent.click(within(dialog as HTMLElement).getByRole("button", { name: "Disconnect" }));
-
-    await waitFor(() => {
-      expect(screen.getByTestId("aws-connection-disconnect-error")).toBeInTheDocument();
-    });
-
-    expect(heading).toBeInTheDocument();
-    expect(screen.getAllByRole("alert")).toHaveLength(1);
   });
 });

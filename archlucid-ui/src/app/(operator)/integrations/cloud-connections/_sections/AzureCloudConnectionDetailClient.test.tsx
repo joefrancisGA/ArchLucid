@@ -2,8 +2,8 @@ import { render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("./Tier2ConnectionWizard", () => ({
-  Tier2ConnectionWizard: () => <div data-testid="tier2-connection-wizard-stub" />,
+vi.mock("./AzureConnectionDetailsPanel", () => ({
+  AzureConnectionDetailsPanel: () => <div data-testid="azure-connection-details-panel-stub" />,
 }));
 
 vi.mock("./AzureConnectionValidatePanel", () => ({

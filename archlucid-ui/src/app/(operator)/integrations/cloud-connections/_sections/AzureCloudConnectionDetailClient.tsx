@@ -6,7 +6,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cloudSecurityPreflightTopics } from "@/lib/cloud-security-preflight-topics";
 
-import { AzureConnectionDataProvider, useAzureConnectionData } from "./AzureConnectionDataContext";
+import { AzureConnectionDataProvider } from "./AzureConnectionDataContext";
 import { AzureConnectionRecentActivityPanel } from "./AzureConnectionRecentActivityPanel";
 import { AzureConnectionValidatePanel } from "./AzureConnectionValidatePanel";
 import { CloudConnectionsProviderHeader } from "./CloudConnectionsProviderHeader";
@@ -15,12 +15,10 @@ import {
   CloudSecurityPreflightPanel,
   CloudSecurityPreflightTechnicalDetails,
 } from "./CloudSecurityPreflightPanel";
-import { Tier2ConnectionWizard } from "./Tier2ConnectionWizard";
+import { AzureConnectionDetailsPanel } from "./AzureConnectionDetailsPanel";
 import { TIER2_WIZARD_HELP_HREFS } from "./tier2-connection-wizard-content";
 
 function AzureConnectionDetailBody() {
-  const { refreshConnections } = useAzureConnectionData();
-
   return (
     <CloudProviderDetailLayout
       providerLabel="Azure"
@@ -41,14 +39,7 @@ function AzureConnectionDetailBody() {
           .
         </p>
       }
-      connectionDetails={
-        <Tier2ConnectionWizard
-          skipSecurityStep
-          onSaved={async () => {
-            await refreshConnections();
-          }}
-        />
-      }
+      connectionDetails={<AzureConnectionDetailsPanel />}
       validateConnection={<AzureConnectionValidatePanel />}
       recentActivity={<AzureConnectionRecentActivityPanel />}
       technicalDetails={

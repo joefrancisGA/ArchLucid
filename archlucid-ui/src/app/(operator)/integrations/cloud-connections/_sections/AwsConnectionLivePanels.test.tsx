@@ -41,7 +41,8 @@ describe("AWS connection live panels (TB-1762)", () => {
       expect(screen.getByTestId("aws-connection-recent-activity-panel")).toHaveTextContent("123456789012");
     });
 
-    expect(screen.getByTestId("aws-validate-repoll-conn-1")).toBeInTheDocument();
+    expect(screen.getByText(/Re-poll now in Connection details/i)).toBeInTheDocument();
+    expect(screen.queryByTestId("aws-repoll-conn-1")).not.toBeInTheDocument();
     expect(screen.queryByText(/appear in Connection details after you save/i)).not.toBeInTheDocument();
   });
 
@@ -77,17 +78,17 @@ describe("AWS connection live panels (TB-1762)", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByTestId("aws-validate-repoll-conn-1")).toBeInTheDocument();
+      expect(screen.getByTestId("aws-repoll-conn-1")).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByTestId("aws-validate-repoll-conn-1"));
+    fireEvent.click(screen.getByTestId("aws-repoll-conn-1"));
 
     await waitFor(() => {
-      expect(screen.getByTestId("aws-connection-validate-status")).toBeInTheDocument();
+      expect(screen.getByRole("status")).toBeInTheDocument();
     });
 
     const connectionSection = screen.getByTestId("cloud-connections-available-aws");
-    expect(within(connectionSection).queryByRole("status")).not.toBeInTheDocument();
+    expect(within(connectionSection).getByRole("status")).toBeInTheDocument();
     expect(screen.getAllByRole("status")).toHaveLength(1);
   });
 });

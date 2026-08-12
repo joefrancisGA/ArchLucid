@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
@@ -60,9 +60,18 @@ export type Tier2ConnectionWizardProps = {
   onSaved: (connections: Tier2ConnectionResponse[]) => void | Promise<void>;
   /** When true, security preflight is shown on the provider detail page instead of step 0. */
   skipSecurityStep?: boolean;
+  /** Hydrate wizard fields when editing an existing saved connection (TB-1769). */
+  initialConnection?: Tier2ConnectionResponse | null;
+  /** When set, shows a cancel control that returns to the connected summary without saving. */
+  onCancelEdit?: () => void;
 };
 
-export function Tier2ConnectionWizard({ onSaved, skipSecurityStep = false }: Tier2ConnectionWizardProps) {
+export function Tier2ConnectionWizard({
+  onSaved,
+  skipSecurityStep = false,
+  initialConnection = null,
+  onCancelEdit,
+}: Tier2ConnectionWizardProps) {
   const wizardSteps = skipSecurityStep ? TIER2_CONNECTION_DETAIL_WIZARD_STEPS : TIER2_CONNECTION_WIZARD_STEPS;
   const securityStepOffset = skipSecurityStep ? 1 : 0;
   const canMutate = useOperateCapability();
@@ -70,7 +79,8 @@ export function Tier2ConnectionWizard({ onSaved, skipSecurityStep = false }: Tie
   // the operator-tier "save connection" step — checked separately so non-admin operators don't hit a
   // dead-end 403 on a live-looking button.
   const canRunValidation = useNavCallerAuthorityRank() >= AUTHORITY_RANK.AdminAuthority;
-  const [step, setStep] = useState(0);
+  const isEditing = initialConnection !== null;
+  const [step, setStep] = useState(() => (isEditing && skipSecurityStep ? 1 : 0));
   const [tenantId, setTenantId] = useState("");
   const [clientId, setClientId] = useState("");
   const [subscriptionIds, setSubscriptionIds] = useState("");
@@ -81,6 +91,20 @@ export function Tier2ConnectionWizard({ onSaved, skipSecurityStep = false }: Tie
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
   const [validationSucceeded, setValidationSucceeded] = useState(false);
   const [saveErrorMessage, setSaveErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (initialConnection === null) {
+      return;
+    }
+
+    setTenantId(initialConnection.tenantId);
+    setClientId(initialConnection.clientId);
+    setSubscriptionIds(initialConnection.subscriptionIds);
+    setSavedConnection(null);
+    setValidationMessage(null);
+    setValidationSucceeded(false);
+    setSaveErrorMessage(null);
+  }, [initialConnection]);
 
   const setupScript = useMemo(() => buildTier2AzureSetupScript(), []);
 
@@ -433,14 +457,25 @@ export function Tier2ConnectionWizard({ onSaved, skipSecurityStep = false }: Tie
         isFirstStep={step === 0}
         isLastInputStep={step === wizardSteps.length - 1}
         canProceed={canProceed}
-        canSubmit={savedConnection === null && canMutate}
+        canSubmit={
+          canMutate
+          && (isEditing
+            ? !hasTier2FieldValidationErrors(validateTier2ConnectionFields(tenantId, clientId, subscriptionIds))
+            : savedConnection === null)
+        }
         submitting={isSaving}
         onBack={step > 0 ? handleBack : undefined}
         onNext={step < wizardSteps.length - 1 ? handleNext : undefined}
         onSubmit={step === wizardSteps.length - 1 ? () => void handleSave() : undefined}
-        submitLabel="Save connection"
+        submitLabel={isEditing ? "Update connection" : "Save connection"}
         submittingLabel="Saving…"
       />
+
+      {onCancelEdit !== undefined ? (
+        <Button type="button" variant="outline" data-testid="tier2-cancel-edit" onClick={onCancelEdit}>
+          Cancel update
+        </Button>
+      ) : null}
     </div>
   );
 }
