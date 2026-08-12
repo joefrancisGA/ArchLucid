@@ -7,6 +7,7 @@ import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -26,6 +27,7 @@ import {
   type SignupFormValues,
 } from "@/lib/signup-schema";
 import { showError, showSuccess } from "@/lib/toast";
+import { whyDisabledIncompleteInput } from "@/lib/why-disabled-cta";
 import { cn } from "@/lib/utils";
 
 type TenantProvisioningResult = {
@@ -327,16 +329,23 @@ export function SignupForm() {
             <Button
               type="submit"
               disabled={submitting || !canSubmit}
+              aria-describedby={!canSubmit && !submitting ? "signup-form-readiness" : undefined}
               variant="primary"
               className="w-full sm:w-auto"
             >
               {submitting ? "Creating…" : "Create evaluation workspace"}
             </Button>
-            {!canSubmit && !submitting ? (
-              <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="signup-form-readiness">
-                Enter work email, full name, and organization to continue.
-              </p>
-            ) : null}
+            <WhyDisabledCtaHint
+              id="signup-form-readiness"
+              testId="signup-form-readiness"
+              reason={
+                !canSubmit && !submitting
+                  ? whyDisabledIncompleteInput(
+                      "Enter work email, full name, and organization to continue.",
+                    )
+                  : null
+              }
+            />
             <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               You can inspect the sample review before adding your own evidence.
             </p>

@@ -10,7 +10,8 @@ export type WhyDisabledCtaReasonKind =
   | "lifecycle"
   | "prerequisite"
   | "busy"
-  | "policy";
+  | "policy"
+  | "incomplete-input";
 
 export type WhyDisabledCtaReason = {
   readonly kind: WhyDisabledCtaReasonKind;
@@ -71,6 +72,20 @@ export function whyDisabledBusy(actionLabel: string): WhyDisabledCtaReason {
   return {
     kind: "busy",
     message: `${actionLabel} is in progress.`,
+  };
+}
+
+/**
+ * Required fields are still blank or invalid (TB-2384).
+ *
+ * Distinct from the other kinds in who can clear it: role, lifecycle, and policy reasons need
+ * someone or something else, whereas this one the user can fix in the form in front of them.
+ * Callers pass the field list so the message names what is missing.
+ */
+export function whyDisabledIncompleteInput(missingFieldsMessage: string): WhyDisabledCtaReason {
+  return {
+    kind: "incomplete-input",
+    message: missingFieldsMessage,
   };
 }
 

@@ -70,7 +70,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   alertRulesCreateButtonLabelReaderRank,
 } from "@/lib/enterprise-controls-context-copy";
-import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
+import { whyDisabledEnterpriseMutationControl, whyDisabledIncompleteInput } from "@/lib/why-disabled-cta";
 import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
 import type { AlertRule } from "@/types/alerts";
 import type { AlertRoutingSubscription } from "@/types/alert-routing";
@@ -443,7 +443,13 @@ export function AlertRulesContent() {
                       size="sm"
                       onClick={() => void onCreate()}
                       disabled={loading || creating || !canEdit || !formValid}
-                      aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
+                      aria-describedby={
+                        canEdit
+                          ? formValid
+                            ? undefined
+                            : "alert-rules-create-readiness"
+                          : mutationDisabledHintId
+                      }
                       data-testid="alert-rules-create-button"
                     >
                       {creating
@@ -453,13 +459,12 @@ export function AlertRulesContent() {
                           : alertRulesCreateButtonLabelReaderRank}
                     </Button>
 
-                    {canEdit && !formValid ? (
-                      <p
-                        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                        data-testid="alert-rules-create-readiness"
-                      >
-                        {ALERT_RULES_CREATE_BLOCKED_HINT}
-                      </p>
+                    {canEdit ? (
+                      <WhyDisabledCtaHint
+                        id="alert-rules-create-readiness"
+                        testId="alert-rules-create-readiness"
+                        reason={formValid ? null : whyDisabledIncompleteInput(ALERT_RULES_CREATE_BLOCKED_HINT)}
+                      />
                     ) : null}
                   </div>
                   <WhyDisabledCtaHint
