@@ -31,6 +31,16 @@ internal static class ArchitectureConstraintNamespaces
         "ArchLucid.Worker",
     ];
 
+    /// <summary>
+    /// <see cref="ForbiddenFromCore"/> without <c>ArchLucid.Persistence</c>.
+    /// <para>Phase 5 (#33) lifted persistence ports into Core under <c>ArchLucid.Persistence.*</c> namespaces;
+    /// NetArchTest namespace matching would false-positive on those shims (same pattern as Api vs Retrieval).
+    /// The Persistence <b>assembly</b> boundary is enforced by an assembly-metadata rule instead.</para>
+    /// </summary>
+    internal static readonly string[] ForbiddenFromCoreExcludingPersistencePortShims = ForbiddenFromCore
+        .Where(static ns => !string.Equals(ns, "ArchLucid.Persistence", StringComparison.Ordinal))
+        .ToArray();
+
     /// <summary>All <c>ArchLucid.*</c> except <c>ArchLucid.Contracts</c> (Contracts leaf assembly).</summary>
     internal static readonly string[] ForbiddenFromContracts =
     [

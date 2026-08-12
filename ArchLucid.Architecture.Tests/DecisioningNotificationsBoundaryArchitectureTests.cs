@@ -1,5 +1,4 @@
 using System.Text;
-using System.Text.RegularExpressions;
 
 using FluentAssertions;
 
@@ -18,9 +17,8 @@ public sealed class DecisioningNotificationsBoundaryArchitectureTests
     [Fact]
     public void Decisioning_csproj_must_not_reference_Notifications_assembly()
     {
-        string root = FindRepositoryRoot();
-        string csprojPath = Path.Combine(root, "ArchLucid.Decisioning", "ArchLucid.Decisioning.csproj");
-        string[] declaredReferences = ReadProjectReferenceAssemblyNames(csprojPath).ToArray();
+        IReadOnlyList<string> declaredReferences =
+            ArchitectureConstraintRepositoryPaths.DeclaredProjectReferences("ArchLucid.Decisioning");
 
         declaredReferences.Should().NotContain(
             "ArchLucid.Notifications",
@@ -30,7 +28,7 @@ public sealed class DecisioningNotificationsBoundaryArchitectureTests
     [Fact]
     public void Decisioning_source_must_not_import_Notifications_namespace()
     {
-        string root = FindRepositoryRoot();
+        string root = ArchitectureConstraintRepositoryPaths.RepositoryRoot;
         string decisioningRoot = Path.Combine(root, "ArchLucid.Decisioning");
         List<string> violations = [];
 
@@ -54,46 +52,5 @@ public sealed class DecisioningNotificationsBoundaryArchitectureTests
         violations.Should().BeEmpty(
             because: "Decisioning source must publish domain outcomes through Core/Contracts ports; "
                      + "notification adapters belong in Host.Composition / ArchLucid.Notifications.");
-    }
-
-    private static string FindRepositoryRoot()
-    {
-        for (DirectoryInfo? directory = new(AppContext.BaseDirectory); directory != null; directory = directory.Parent)
-        {
-            string solutionPath = Path.Combine(directory.FullName, "ArchLucid.sln");
-
-            if (File.Exists(solutionPath))
-            {
-                return directory.FullName;
-            }
-        }
-
-        throw new InvalidOperationException("ArchLucid.sln not found walking up from AppContext.BaseDirectory.");
-    }
-
-    private static IEnumerable<string> ReadProjectReferenceAssemblyNames(string csprojPath)
-    {
-        Regex projectReferenceInclude = new(
-            "<ProjectReference\\s+Include=\"([^\"]+)\"",
-            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
-
-        string text = File.ReadAllText(csprojPath);
-        MatchCollection matches = projectReferenceInclude.Matches(text);
-
-        foreach (Match match in matches)
-        {
-            if (!match.Success)
-            {
-                continue;
-            }
-
-            string includePath = match.Groups[1].Value.Replace('\\', '/');
-            string folderName = Path.GetFileName(Path.GetDirectoryName(includePath.TrimEnd('/')) ?? includePath);
-
-            if (!string.IsNullOrWhiteSpace(folderName))
-            {
-                yield return folderName;
-            }
-        }
     }
 }

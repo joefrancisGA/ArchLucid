@@ -9,6 +9,8 @@
 
 ## What is pinned today (`ArchLucid.Architecture.Tests/DependencyConstraintTests.cs`)
 
+> **Source of truth:** the constraint manifests (`ArchitectureNamespaceConstraintManifest`, `ArchitectureAssemblyReferenceConstraintManifest`, `ArchitectureProjectReferenceConstraintManifest`, `ArchitectureTypeAbsenceConstraintManifest`) — each row is one theory case. The tier tables below are a historical sketch of intent: some listed assertions were retired (the persistence sub-module assemblies were consolidated into `ArchLucid.Persistence`), and the surviving rules are now named by rule sentence rather than by method name. Read the manifests for the current list.
+
 ### Tier 1 — foundation isolation
 
 | Assertion | Mechanism |
@@ -89,8 +91,8 @@ That is **17 assertions** with clear failure messages — strong floor.
 
 ## How to add a new assertion (3 steps)
 
-1. Drop a single new `[Fact]` method into `DependencyConstraintTests.cs`. Keep one fact per rule for clear CI output.
-2. If the rule needs a namespace allow/deny list, extend `ArchitectureConstraintNamespaces.cs`.
+1. Add a row to the matching constraint manifest — `ArchitectureNamespaceConstraintManifest` (NetArchTest namespace prefixes), `ArchitectureAssemblyReferenceConstraintManifest` (compiled metadata), `ArchitectureProjectReferenceConstraintManifest` (`*.csproj` edges), or `ArchitectureTypeAbsenceConstraintManifest` (type placement). The dictionary key is the sentence CI prints, and each row runs as its own theory case. Write a new `[Fact]` in `DependencyConstraintTests.cs` only when the rule needs evidence the manifests cannot express (source scans, reference allowlists).
+2. If the rule needs a namespace allow/deny list, extend `ArchitectureConstraintNamespaces.cs`. If it targets an assembly that has no anchor type yet, register one in `ArchitectureConstraintAssemblies.cs`.
 3. If the assertion fails on legitimate existing code, add `[Trait("Category", "Quarantine")]` and a `// TODO(architecture): <issue link>` comment so the test still runs but the violation is tracked, not blocking.
 
 ## Companion: project consolidation
