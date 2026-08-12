@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -7,6 +7,8 @@ import {
 } from "@/testing/buyer-polished-shell-vitest-override";
 import { TENANT_MIGRATION_STATUS_POLL_MS } from "@/lib/tenant-migration-banner-copy";
 import { fetchTenantCatalogMigrationStatus } from "@/lib/fetch-tenant-catalog-migration-status";
+import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
   extendBuyerPolishedShellVitestMock(importOriginal),
@@ -27,16 +29,24 @@ vi.mock("@/lib/operator/operator-static-demo", () => ({
   isStaticDemoPayloadFallbackEnabled: () => false,
 }));
 
+vi.mock("@/lib/query/operator-query-persist-client", () => ({
+  setupOperatorQueryClientPersistence: () => {},
+}));
+
 const fetchStatusMock = vi.mocked(fetchTenantCatalogMigrationStatus);
 
 describe("TenantMigrationMaintenanceBanner", () => {
   beforeEach(() => {
+    sessionStorage.clear();
+    resetOperatorQueryClientForTests();
     buyerPolishedShellVitestOverride.value = false;
     fetchStatusMock.mockReset();
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    cleanup();
+    buyerPolishedShellVitestOverride.value = null;
+    resetOperatorQueryClientForTests();
     vi.useRealTimers();
   });
 
@@ -47,7 +57,7 @@ describe("TenantMigrationMaintenanceBanner", () => {
       stage: "ProjectionRefresh",
     });
 
-    render(<TenantMigrationMaintenanceBanner />);
+    renderWithOperatorQuery(<TenantMigrationMaintenanceBanner />);
 
     await waitFor(() => {
       expect(screen.getByTestId("tenant-migration-maintenance-banner")).toBeInTheDocument();
@@ -63,7 +73,7 @@ describe("TenantMigrationMaintenanceBanner", () => {
       stage: "ScopeFreeze",
     });
 
-    render(<TenantMigrationMaintenanceBanner />);
+    renderWithOperatorQuery(<TenantMigrationMaintenanceBanner />);
 
     await waitFor(() => {
       expect(screen.getByTestId("tenant-migration-maintenance-banner")).toBeInTheDocument();
@@ -75,7 +85,7 @@ describe("TenantMigrationMaintenanceBanner", () => {
   it("stays hidden when migration is inactive", async () => {
     fetchStatusMock.mockResolvedValue({ inMigration: false });
 
-    render(<TenantMigrationMaintenanceBanner />);
+    renderWithOperatorQuery(<TenantMigrationMaintenanceBanner />);
 
     await waitFor(() => {
       expect(fetchStatusMock).toHaveBeenCalled();
@@ -90,7 +100,7 @@ describe("TenantMigrationMaintenanceBanner", () => {
       .mockResolvedValueOnce({ inMigration: false });
 
     vi.useFakeTimers({ shouldAdvanceTime: true });
-    render(<TenantMigrationMaintenanceBanner />);
+    renderWithOperatorQuery(<TenantMigrationMaintenanceBanner />);
 
     await waitFor(() => {
       expect(screen.getByTestId("tenant-migration-maintenance-banner")).toBeInTheDocument();
@@ -113,7 +123,7 @@ describe("TenantMigrationMaintenanceBanner", () => {
       .mockResolvedValueOnce(null);
 
     vi.useFakeTimers({ shouldAdvanceTime: true });
-    render(<TenantMigrationMaintenanceBanner />);
+    renderWithOperatorQuery(<TenantMigrationMaintenanceBanner />);
 
     await waitFor(() => {
       expect(screen.getByTestId("tenant-migration-maintenance-banner")).toBeInTheDocument();
@@ -134,12 +144,11 @@ describe("TenantMigrationMaintenanceBanner", () => {
   });
 
   it("shows a degraded banner with retry when the first status poll fails", async () => {
-    fetchStatusMock.mockResolvedValue(null);
+    fetchStatusMock.mockImplementation(async () => null);
 
-    render(<TenantMigrationMaintenanceBanner />);
+    renderWithOperatorQuery(<TenantMigrationMaintenanceBanner />);
 
-    expect(await screen.findByTestId("tenant-migration-maintenance-banner")).toBeInTheDocument();
-    expect(screen.getByText(/Catalog migration status unavailable/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Catalog migration status unavailable/i)).toBeInTheDocument();
     expect(screen.getByTestId("tenant-migration-status-retry")).toBeInTheDocument();
   });
 
@@ -152,7 +161,7 @@ describe("TenantMigrationMaintenanceBanner", () => {
       lastVerificationError: "Committed review could not be loaded from the target catalog.",
     });
 
-    render(<TenantMigrationMaintenanceBanner />);
+    renderWithOperatorQuery(<TenantMigrationMaintenanceBanner />);
 
     await waitFor(() => {
       expect(screen.getByTestId("tenant-migration-operator-details")).toBeInTheDocument();

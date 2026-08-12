@@ -1,8 +1,9 @@
+import type { HealthReadyResponse } from "@/lib/health-dashboard-types";
+import { isAzureServiceBusHealthUnhealthy } from "@/lib/health-dashboard-types";
 import {
   shouldShowBuyerLlmUsageBandHint,
   type LlmMonthlyDollarBudgetStatus,
 } from "@/lib/llm-monthly-budget-status";
-
 export const SHELL_BANNER_POLL_MS = 60_000;
 
 /**
@@ -35,6 +36,12 @@ export function shouldPollBuyerLlmUsageBandHint(
   return status !== undefined && shouldShowBuyerLlmUsageBandHint(status);
 }
 
+/** Service Bus health banner — poll only while the degraded warning is visible. */
+export function shouldPollServiceBusHealthDegradedBanner(
+  ready: HealthReadyResponse | null | undefined,
+): boolean {
+  return ready !== null && ready !== undefined && isAzureServiceBusHealthUnhealthy(ready.entries);
+}
 export function resolveShellBannerPollIntervalMs(args: {
   readonly enabled: boolean;
   readonly documentHidden: boolean;

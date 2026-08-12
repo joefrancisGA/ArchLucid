@@ -3,112 +3,40 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { isDocumentHidden } from "@/lib/document-visibility";
+import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
+import { useDocumentHidden } from "@/lib/document-visibility";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
-import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
 import { isAzureServiceBusHealthUnhealthy } from "@/lib/health-dashboard-types";
 import { SERVICE_BUS_HEALTH_LABELS } from "@/lib/operator/operator-health-labels";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
-import { SHELL_BANNER_POLL_MS } from "@/lib/shell-banner-poll-policy";
+import { shouldPollServiceBusHealthDegradedBanner } from "@/lib/shell-banner-poll-policy";
+
+function isServiceBusBannerSuppressed(): boolean {
+  return isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() || isBuyerPolishedOperatorShellEnv();
+}
 
 /**
  * Global warning when Azure Service Bus readiness is Unhealthy or Degraded (`azure_service_bus` on `GET /health/ready`).
  */
 export function ServiceBusHealthBanner() {
-  const [showWarning, setShowWarning] = useState(false);
-  const [refreshFailed, setRefreshFailed] = useState(false);
-  const [reloadToken, setReloadToken] = useState(0);
-  const showWarningRef = useRef(false);
+  const documentHidden = useDocumentHidden();
+  const queryEnabled = !isServiceBusBannerSuppressed();
 
-  useEffect(() => {
-    showWarningRef.current = showWarning;
-  }, [showWarning]);
+  const { data, isError, isRefetchError, refetch } = useHealthReadySummaryQuery({
+    enabled: queryEnabled,
+    throwOnUnavailable: true,
+    documentHidden,
+    shouldPoll: shouldPollServiceBusHealthDegradedBanner,
+  });
 
-  const retryRefresh = useCallback(() => {
-    setReloadToken((token) => token + 1);
-  }, []);
-
-  useEffect(() => {
-    if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() || isBuyerPolishedOperatorShellEnv()) {
-      return;
-    }
-
-    let canceled = false;
-    let timer: number | undefined;
-
-    const clearTimer = () => {
-      if (timer !== undefined) {
-        window.clearInterval(timer);
-        timer = undefined;
-      }
-    };
-
-    async function load(): Promise<boolean> {
-      const ready = await fetchHealthReadySummary();
-
-      if (canceled) {
-        return false;
-      }
-
-      if (ready === null) {
-        setRefreshFailed(true);
-
-        return showWarningRef.current;
-      }
-
-      setRefreshFailed(false);
-      const unhealthy = isAzureServiceBusHealthUnhealthy(ready.entries);
-      setShowWarning(unhealthy);
-      showWarningRef.current = unhealthy;
-
-      return unhealthy;
-    }
-
-    const startPollingWhenDegraded = () => {
-      if (canceled || timer !== undefined || isDocumentHidden() || !showWarningRef.current) {
-        return;
-      }
-
-      timer = window.setInterval(() => {
-        void load();
-      }, SHELL_BANNER_POLL_MS);
-    };
-
-    const onVisibilityChange = () => {
-      if (isDocumentHidden()) {
-        clearTimer();
-
-        return;
-      }
-
-      void load().then((unhealthy) => {
-        if (!canceled && unhealthy) {
-          startPollingWhenDegraded();
-        }
-      });
-    };
-
-    void load().then((unhealthy) => {
-      if (!canceled && unhealthy) {
-        startPollingWhenDegraded();
-      }
-    });
-
-    document.addEventListener("visibilitychange", onVisibilityChange);
-
-    return () => {
-      canceled = true;
-      document.removeEventListener("visibilitychange", onVisibilityChange);
-      clearTimer();
-    };
-  }, [reloadToken]);
-
-  if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() || isBuyerPolishedOperatorShellEnv()) {
+  if (!queryEnabled) {
     return null;
   }
+
+  const showWarning = data !== undefined && isAzureServiceBusHealthUnhealthy(data.entries);
+  const refreshFailed = isError || isRefetchError;
 
   if (!showWarning && !refreshFailed) {
     return null;
@@ -116,7 +44,10 @@ export function ServiceBusHealthBanner() {
 
   return (
     <div
-      className={cn("rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50 px-4 py-3 shadow-sm", OPERATOR_TYPOGRAPHY.body)}
+      className={cn(
+        "rounded-md border border-amber-600/40 bg-al-surface-raised px-4 py-3 text-al-text-primary shadow-sm dark:border-amber-700/50",
+        OPERATOR_TYPOGRAPHY.body,
+      )}
       role="alert"
       data-testid="service-bus-health-degraded-banner"
     >
@@ -125,16 +56,17 @@ export function ServiceBusHealthBanner() {
           <p className="m-0 font-semibold text-amber-900 dark:text-amber-100">{SERVICE_BUS_HEALTH_LABELS.bannerTitle}</p>
           <p className="m-0 mt-1 leading-snug">
             {SERVICE_BUS_HEALTH_LABELS.bannerBody}{" "}
-            <Link href="/internal/health" className="font-medium text-amber-950 underline underline-offset-2 dark:text-amber-100">
+            <Link
+              href="/internal/health"
+              className="font-medium text-amber-950 underline underline-offset-2 dark:text-amber-100"
+            >
               {SERVICE_BUS_HEALTH_LABELS.systemHealthLink}
             </Link>
             .
           </p>
         </>
       ) : (
-        <p className="m-0 font-semibold text-amber-900 dark:text-amber-100">
-          Service Bus health status unavailable
-        </p>
+        <p className="m-0 font-semibold text-amber-900 dark:text-amber-100">Service Bus health status unavailable</p>
       )}
       {refreshFailed ? (
         <div className="mt-2 space-y-2" data-testid="service-bus-health-refresh-failed">
@@ -147,7 +79,9 @@ export function ServiceBusHealthBanner() {
             type="button"
             variant="outline"
             size="sm"
-            onClick={retryRefresh}
+            onClick={() => {
+              void refetch();
+            }}
             data-testid="service-bus-health-retry"
           >
             Retry status

@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { fetchTenantCatalogMigrationStatus } from "@/lib/fetch-tenant-catalog-migration-status";
+import { useTenantCatalogMigrationStatusQuery } from "@/hooks/use-tenant-catalog-migration-status-query";
+import { useDocumentHidden } from "@/lib/document-visibility";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
@@ -12,81 +12,36 @@ import {
   buildTenantMigrationOperatorDetailLines,
   formatTenantMigrationStageLabel,
   resolveTenantMigrationSuspendMessage,
-  TENANT_MIGRATION_STATUS_POLL_MS,
 } from "@/lib/tenant-migration-banner-copy";
 import { cn } from "@/lib/utils";
 
 function isMigrationBannerSuppressed(): boolean {
-  return (
-    isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() || isBuyerPolishedOperatorShellEnv()
-  );
+  return isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() || isBuyerPolishedOperatorShellEnv();
 }
 
 /**
  * Operator-shell maintenance banner for tenant catalog migration fan-out (TB-2045, TB-2068).
  */
 export function TenantMigrationMaintenanceBanner() {
-  const [message, setMessage] = useState<string | null>(null);
-  const [stageLabel, setStageLabel] = useState<string | null>(null);
-  const [operatorDetails, setOperatorDetails] = useState<
-    ReturnType<typeof buildTenantMigrationOperatorDetailLines>
-  >([]);
-  const [refreshFailed, setRefreshFailed] = useState(false);
-  const [reloadToken, setReloadToken] = useState(0);
+  const documentHidden = useDocumentHidden();
+  const queryEnabled = !isMigrationBannerSuppressed();
 
-  const retryRefresh = useCallback(() => {
-    setReloadToken((token) => token + 1);
-  }, []);
+  const { data, isError, isRefetchError, refetch } = useTenantCatalogMigrationStatusQuery({
+    enabled: queryEnabled,
+    documentHidden,
+  });
 
-  useEffect(() => {
-    if (isMigrationBannerSuppressed()) {
-      return;
-    }
-
-    let canceled = false;
-    let requestGeneration = 0;
-
-    async function load() {
-      const generation = ++requestGeneration;
-      const status = await fetchTenantCatalogMigrationStatus();
-
-      if (canceled || generation !== requestGeneration) {
-        return;
-      }
-
-      if (status === null) {
-        setRefreshFailed(true);
-
-        return;
-      }
-
-      setRefreshFailed(false);
-
-      if (status.inMigration) {
-        setMessage(resolveTenantMigrationSuspendMessage(status));
-        setStageLabel(formatTenantMigrationStageLabel(status.stage));
-        setOperatorDetails(buildTenantMigrationOperatorDetailLines(status));
-      } else {
-        setMessage(null);
-        setStageLabel(null);
-        setOperatorDetails([]);
-      }
-    }
-
-    void load();
-    const timer = window.setInterval(() => {
-      void load();
-    }, TENANT_MIGRATION_STATUS_POLL_MS);
-
-    return () => {
-      canceled = true;
-      window.clearInterval(timer);
-    };
-  }, [reloadToken]);
-
-  if (isMigrationBannerSuppressed()) {
+  if (!queryEnabled) {
     return null;
   }
+
+  const refreshFailed = isError || isRefetchError;
+  const message =
+    data !== undefined && data.inMigration ? resolveTenantMigrationSuspendMessage(data) : null;
+  const stageLabel =
+    data !== undefined && data.inMigration ? formatTenantMigrationStageLabel(data.stage) : null;
+  const operatorDetails =
+    data !== undefined && data.inMigration ? buildTenantMigrationOperatorDetailLines(data) : [];
 
   if (message === null && !refreshFailed) {
     return null;
@@ -108,16 +63,17 @@ export function TenantMigrationMaintenanceBanner() {
           </p>
           <p className="m-0 mt-1 leading-snug">
             {message}{" "}
-            <Link href="/internal/health" className="font-medium text-sky-950 underline underline-offset-2 dark:text-sky-100">
+            <Link
+              href="/internal/health"
+              className="font-medium text-sky-950 underline underline-offset-2 dark:text-sky-100"
+            >
               System health
             </Link>
             .
           </p>
         </>
       ) : (
-        <p className="m-0 font-semibold text-sky-950 dark:text-sky-100">
-          Catalog migration status unavailable
-        </p>
+        <p className="m-0 font-semibold text-sky-950 dark:text-sky-100">Catalog migration status unavailable</p>
       )}
       {refreshFailed ? (
         <div className="mt-2 space-y-2" data-testid="tenant-migration-status-refresh-failed">
@@ -130,7 +86,9 @@ export function TenantMigrationMaintenanceBanner() {
             type="button"
             variant="outline"
             size="sm"
-            onClick={retryRefresh}
+            onClick={() => {
+              void refetch();
+            }}
             data-testid="tenant-migration-status-retry"
           >
             Retry status

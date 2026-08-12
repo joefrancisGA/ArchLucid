@@ -5,6 +5,8 @@ import {
   buyerPolishedShellVitestOverride,
   extendBuyerPolishedShellVitestMock,
 } from "@/testing/buyer-polished-shell-vitest-override";
+import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
   extendBuyerPolishedShellVitestMock(importOriginal),
@@ -21,10 +23,16 @@ vi.mock("@/lib/operator/operator-static-demo", () => ({
   isStaticDemoPayloadFallbackEnabled: () => false,
 }));
 
+vi.mock("@/lib/query/operator-query-persist-client", () => ({
+  setupOperatorQueryClientPersistence: () => {},
+}));
+
 const originalFetch = globalThis.fetch;
 
 describe("ServiceBusHealthBanner", () => {
   beforeEach(() => {
+    sessionStorage.clear();
+    resetOperatorQueryClientForTests();
     buyerPolishedShellVitestOverride.value = false;
     globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
       const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
@@ -50,7 +58,7 @@ describe("ServiceBusHealthBanner", () => {
   });
 
   it("renders nothing when azure_service_bus is Healthy", async () => {
-    render(<ServiceBusHealthBanner />);
+    renderWithOperatorQuery(<ServiceBusHealthBanner />);
 
     await waitFor(() => {
       expect(globalThis.fetch).toHaveBeenCalled();
@@ -76,7 +84,7 @@ describe("ServiceBusHealthBanner", () => {
       return new Response("not found", { status: 404 });
     }) as unknown as typeof fetch;
 
-    render(<ServiceBusHealthBanner />);
+    renderWithOperatorQuery(<ServiceBusHealthBanner />);
 
     await waitFor(() => {
       expect(screen.getByTestId("service-bus-health-degraded-banner")).toBeInTheDocument();
@@ -111,7 +119,7 @@ describe("ServiceBusHealthBanner", () => {
     }) as unknown as typeof fetch;
 
     vi.useFakeTimers({ shouldAdvanceTime: true });
-    render(<ServiceBusHealthBanner />);
+    renderWithOperatorQuery(<ServiceBusHealthBanner />);
 
     await waitFor(() => {
       expect(screen.getByTestId("service-bus-health-degraded-banner")).toBeInTheDocument();

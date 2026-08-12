@@ -7,6 +7,9 @@ export const operatorQueryKeys = {
   tenantUsageStatus: ["operator", "tenant", "usage-status"] as const,
   billingSubscriptionStatus: ["operator", "tenant", "billing-subscription-status"] as const,
   healthReadySummary: ["operator", "health", "ready-summary"] as const,
+  /** Throws when readiness cannot be loaded — preserves last payload on refetch errors. */
+  healthReadySummaryStrict: ["operator", "health", "ready-summary", "strict"] as const,
+  tenantCatalogMigrationStatus: ["operator", "tenant", "catalog-migration-status"] as const,
   llmMonthlyBudgetStatus: ["operator", "llm", "monthly-budget-status"] as const,
   adminAiUsageDashboard: ["operator", "admin", "ai-usage-dashboard"] as const,
   executiveRoiSummary: ["operator", "roi", "executive-summary"] as const,

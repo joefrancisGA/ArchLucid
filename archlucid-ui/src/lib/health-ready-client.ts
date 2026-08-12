@@ -23,5 +23,8 @@ export async function fetchHealthReadySummaryCached(
 
 /** Clears cached health readiness (for example in Vitest). */
 export async function invalidateHealthReadySummaryCache(): Promise<void> {
-  await getOperatorQueryClient().invalidateQueries({ queryKey: operatorQueryKeys.healthReadySummary });
+  const queryClient = getOperatorQueryClient();
+
+  await queryClient.invalidateQueries({ queryKey: operatorQueryKeys.healthReadySummary });
+  await queryClient.invalidateQueries({ queryKey: operatorQueryKeys.healthReadySummaryStrict });
 }
