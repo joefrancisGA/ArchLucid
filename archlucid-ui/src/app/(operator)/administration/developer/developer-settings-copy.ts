@@ -4,6 +4,10 @@ export const INTERNAL_DEVELOPER_TOOLS_SHIPPED_INVENTORY = [
   "Local CLI demo",
 ] as const;
 
+export const INTERNAL_DEVELOPER_TOOLS_PAGE_TITLE = "Internal developer tools" as const;
+
+export const INTERNAL_DEVELOPER_TOOLS_INTERNAL_ONLY_TAG = "Internal only" as const;
+
 export const INTERNAL_DEVELOPER_TOOLS_INTRO =
   "Branded theme evaluation and an optional local CLI demo for internal support workflows.";
 

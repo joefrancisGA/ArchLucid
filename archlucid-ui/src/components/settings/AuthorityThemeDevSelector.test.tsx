@@ -38,6 +38,22 @@ describe("AuthorityThemeDevSelector", () => {
     expect(screen.getByTestId("authority-theme-override-status")).toHaveTextContent("Local override");
   });
 
+  it("exposes label-only accessible names and block descriptions for theme options", async () => {
+    render(<AuthorityThemeDevSelector />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("radio", { name: "Teal accent (default)" })).toBeInTheDocument();
+    });
+
+    const defaultOption = screen.getByRole("radio", { name: "Teal accent (default)" });
+    const charcoalOption = screen.getByRole("radio", { name: "Charcoal authority" });
+
+    expect(defaultOption).toHaveAttribute("aria-checked", "true");
+    expect(charcoalOption).toHaveAttribute("aria-checked", "false");
+    expect(screen.getByText("Carbon-style teal interactive accents and primary actions.")).toHaveClass("block");
+    expect(screen.getByText("Neutral gray hierarchy for A/B evaluation of authority surfaces.")).toHaveClass("block");
+  });
+
   it("clears override and restores build default on reset", async () => {
     window.localStorage.setItem(AUTHORITY_THEME_STORAGE_KEY, "charcoal");
 

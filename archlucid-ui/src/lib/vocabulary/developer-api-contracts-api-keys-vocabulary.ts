@@ -46,7 +46,7 @@ export const DEVELOPER_API_CONTRACTS_API_KEYS_WHY_THREE =
   "Internal developer tools are operator evaluation and CLI demo utilities. API contracts is the Admin HTTP technical reference (OpenAPI). API keys rotate automation credentials for enterprise integrations. Tools are not contracts, and contracts are not credentials — open the peer when you need that job." as const;
 
 export const DEVELOPER_API_CONTRACTS_API_KEYS_COMPACT_LINE =
-  "Developer tools evaluate; API contracts document HTTP; API keys rotate credentials — open the other when you need that job." as const;
+  "Developer tools evaluate; API contracts document HTTP; CLI usage help covers host automation — open the other when you need that job." as const;
 
 export const DEVELOPER_API_CONTRACTS_API_KEYS_DEVELOPER_LINK: DeveloperApiContractsApiKeysLink = {
   id: "developer",

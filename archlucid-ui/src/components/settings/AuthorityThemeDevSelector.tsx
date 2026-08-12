@@ -1,8 +1,8 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 
 import { StatusTag } from "@/components/StatusTag";
 import { Button } from "@/components/ui/button";
@@ -34,10 +34,70 @@ const options: { value: UiAuthorityTheme; label: string; description: string }[]
   },
 ];
 
-function optionIndexForTheme(theme: UiAuthorityTheme): number {
-  const index = options.findIndex((option) => option.value === theme);
+type AuthorityThemeOptionProps = {
+  readonly option: (typeof options)[number];
+  readonly index: number;
+  readonly selected: boolean;
+  readonly optionRef: (element: HTMLDivElement | null) => void;
+  readonly onSelect: () => void;
+  readonly onKeyDown: (event: KeyboardEvent<HTMLDivElement>) => void;
+};
 
-  return index >= 0 ? index : 0;
+function AuthorityThemeOption(props: AuthorityThemeOptionProps): React.JSX.Element {
+  const labelId = useId();
+  const descriptionId = useId();
+
+  return (
+    <div
+      ref={props.optionRef}
+      role="radio"
+      aria-checked={props.selected}
+      aria-labelledby={labelId}
+      aria-describedby={descriptionId}
+      tabIndex={props.selected ? 0 : -1}
+      data-testid={`authority-theme-option-${props.option.value}`}
+      className={cn(
+        "flex min-h-10 flex-1 cursor-pointer gap-3 rounded-md border px-3 py-2 text-left outline-none transition-colors",
+        "focus-visible:ring-2 focus-visible:ring-[var(--al-accent-interactive)] focus-visible:ring-offset-2",
+        props.selected
+          ? cn(
+              "border-[var(--al-accent-interactive)] bg-al-surface-raised ring-2 ring-[var(--al-accent-interactive)]/35",
+              AUTHORITY_THEME_OPTION_SELECTED_CLASS,
+            )
+          : "border-neutral-300 bg-white hover:border-neutral-400 dark:border-neutral-600 dark:bg-neutral-900 dark:hover:border-neutral-500",
+      )}
+      onClick={props.onSelect}
+      onKeyDown={props.onKeyDown}
+    >
+      <span
+        aria-hidden="true"
+        className={cn(
+          "mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2",
+          props.selected
+            ? "border-[var(--al-accent-interactive)]"
+            : "border-neutral-400 dark:border-neutral-500",
+        )}
+      >
+        {props.selected ? (
+          <span className="h-2 w-2 rounded-full bg-[var(--al-accent-interactive)]" />
+        ) : null}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span id={labelId} className={cn("block font-medium", OPERATOR_TYPOGRAPHY.body)}>
+          {props.option.label}
+        </span>
+        <span
+          id={descriptionId}
+          className={cn(
+            "mt-1 block font-normal text-neutral-600 dark:text-neutral-400",
+            OPERATOR_TYPOGRAPHY.helper,
+          )}
+        >
+          {props.option.description}
+        </span>
+      </span>
+    </div>
+  );
 }
 
 /** Temporary developer control on Settings — persists to localStorage like the shell toggle. */
@@ -153,35 +213,17 @@ export function AuthorityThemeDevSelector() {
           const selected = theme === option.value;
 
           return (
-            <div
+            <AuthorityThemeOption
               key={option.value}
-              ref={(element) => {
+              option={option}
+              index={index}
+              selected={selected}
+              optionRef={(element) => {
                 optionRefs.current[index] = element;
               }}
-              role="radio"
-              aria-checked={selected}
-              tabIndex={selected ? 0 : -1}
-              data-testid={`authority-theme-option-${option.value}`}
-              className={cn(
-                "min-h-10 flex-1 cursor-pointer rounded-md border px-3 py-2 text-left outline-none transition-colors",
-                "focus-visible:ring-2 focus-visible:ring-[var(--al-accent-interactive)] focus-visible:ring-offset-2",
-                selected
-                  ? cn(DESIGN_TOKENS.table.rowSelected, AUTHORITY_THEME_OPTION_SELECTED_CLASS)
-                  : "border-neutral-200 bg-white hover:bg-[var(--al-layer-hover)] dark:border-neutral-700 dark:bg-neutral-900 dark:hover:bg-neutral-800/80",
-              )}
-              onClick={() => selectTheme(option.value)}
+              onSelect={() => selectTheme(option.value)}
               onKeyDown={(event) => handleOptionKeyDown(event, index)}
-            >
-              <span className={cn("font-medium", OPERATOR_TYPOGRAPHY.body)}>{option.label}</span>
-              <span
-                className={cn(
-                  "font-normal text-neutral-600 dark:text-neutral-400",
-                  OPERATOR_TYPOGRAPHY.helper,
-                )}
-              >
-                {option.description}
-              </span>
-            </div>
+            />
           );
         })}
       </div>
