@@ -8,7 +8,7 @@ export function TenantLlmJudgeGuideCard(): React.JSX.Element {
   return (
     <Card data-testid="tenant-llm-judge-guide-card">
       <CardHeader>
-        <CardTitle className={OPERATOR_TYPOGRAPHY.body}>LLM-as-judge (advanced quality)</CardTitle>
+        <CardTitle as="h3" className={OPERATOR_TYPOGRAPHY.body}>LLM-as-judge (advanced quality)</CardTitle>
         <CardDescription>
           Semantic evaluation beyond heuristic structural checks. Disabled by default to control LLM spend; enable when
           pilots need deeper automated oversight.

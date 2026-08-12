@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import { readActiveTenantContext } from "@/lib/active-tenant-context-display";
 import { tryGetTenantTrialStatus } from "@/lib/api";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import type { TenantTrialStatusPayload } from "@/types/tenant-trial-status";
@@ -39,6 +40,7 @@ export function useTenantSettingsPage(loaded: TenantSettingsVisibleLoad): Tenant
 
   return {
     currentPrincipalName: currentPrincipal.name ?? null,
+    tenantDisplayName: readActiveTenantContext().displayName,
     isTenantAdmin,
     trial,
   };

@@ -1,7 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import Link from "next/link";
+import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
 
 import { BaselineFieldMessage } from "@/components/forms/BaselineFieldMessage";
 import { Button } from "@/components/ui/button";
@@ -9,17 +10,119 @@ import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCal
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { StatusTag } from "@/components/ui/status-tag";
 import { BUYER_DEMO_CAPABILITY_UNAVAILABLE_TITLE } from "@/lib/buyer/buyer-polish-copy";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { formatRelativeTime } from "@/lib/relative-time";
 import { showError } from "@/lib/toast";
+import {
+  TENANT_COST_SETTINGS_AUDIT_HREF,
+  TENANT_COST_SETTINGS_AUDIT_TRAIL_LINK_LABEL,
+  TENANT_COST_SETTINGS_DEFAULTS_STATUS_LABEL,
+  TENANT_COST_SETTINGS_LAST_CHANGED_PREFIX,
+} from "@/lib/tenant-settings-page-copy";
 import { validateTenantCostSettingsFields } from "@/lib/tenant-cost-settings-validation";
 import type { TenantCostSettingsPutRequest, TenantCostSettingsResponse } from "@/types/tenant-cost-settings";
 
 type TenantCostSettingsCardProps = {
   readonly canEdit: boolean;
 };
+
+type CurrencyUsdFieldProps = {
+  readonly id: string;
+  readonly label: string;
+  readonly value: string;
+  readonly onChange: (next: string) => void;
+  readonly readOnly: boolean;
+  readonly testId: string;
+  readonly error: string | null;
+};
+
+function CurrencyUsdField(props: CurrencyUsdFieldProps) {
+  return (
+    <div>
+      <Label htmlFor={props.id}>{props.label}</Label>
+      <div className="relative mt-1">
+        <span
+          className={cn(
+            "pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-al-text-secondary",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
+          aria-hidden="true"
+        >
+          $
+        </span>
+        <Input
+          id={props.id}
+          inputMode="decimal"
+          value={props.value}
+          onChange={(ev) => props.onChange(ev.target.value)}
+          readOnly={props.readOnly}
+          data-testid={props.testId}
+          aria-invalid={props.error !== null}
+          className={cn("pl-7 font-mono", OPERATOR_TYPOGRAPHY.body)}
+        />
+      </div>
+      <BaselineFieldMessage error={props.error} />
+    </div>
+  );
+}
+
+type CostSettingsLastChangedProps = {
+  readonly updatedUtc: string | null;
+};
+
+function CostSettingsLastChangedAttribution(props: CostSettingsLastChangedProps) {
+  const changedAt = props.updatedUtc?.trim();
+
+  if (changedAt == null || changedAt.length === 0) {
+    return null;
+  }
+
+  return (
+    <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+      <span data-testid="tenant-cost-settings-last-changed">
+        {TENANT_COST_SETTINGS_LAST_CHANGED_PREFIX}: {formatRelativeTime(changedAt)}
+      </span>{" "}
+      <Link
+        className={OPERATOR_LINK.inline}
+        href={TENANT_COST_SETTINGS_AUDIT_HREF}
+        data-testid="tenant-cost-settings-audit-link"
+      >
+        {TENANT_COST_SETTINGS_AUDIT_TRAIL_LINK_LABEL}
+      </Link>
+    </p>
+  );
+}
+
+type CostSettingsCardHeaderProps = {
+  readonly isTenantConfigured: boolean;
+  readonly updatedUtc: string | null;
+  readonly helper: ReactNode;
+};
+
+function CostSettingsCardHeader(props: CostSettingsCardHeaderProps) {
+  return (
+    <CardHeader className="space-y-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <CardTitle as="h3" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+          Cost settings
+        </CardTitle>
+        {!props.isTenantConfigured ? (
+          <StatusTag
+            kind="warn"
+            label={TENANT_COST_SETTINGS_DEFAULTS_STATUS_LABEL}
+            data-testid="tenant-cost-settings-defaults-status"
+          />
+        ) : null}
+      </div>
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{props.helper}</p>
+      <CostSettingsLastChangedAttribution updatedUtc={props.updatedUtc} />
+    </CardHeader>
+  );
+}
 
 /** ROI cost assumptions for estimated USD savings on pilot deltas and executive summaries. */
 export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps) {
@@ -28,6 +131,7 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
   const [saving, setSaving] = useState(false);
   const [loadFailure, setLoadFailure] = useState<string | null>(null);
   const [isTenantConfigured, setIsTenantConfigured] = useState(false);
+  const [updatedUtc, setUpdatedUtc] = useState<string | null>(null);
   const [hourlyRate, setHourlyRate] = useState("");
   const [incidentCost, setIncidentCost] = useState("");
   const [eaDiscountPercentage, setEaDiscountPercentage] = useState("0");
@@ -36,6 +140,14 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
     () => validateTenantCostSettingsFields(hourlyRate, incidentCost, eaDiscountPercentage),
     [eaDiscountPercentage, hourlyRate, incidentCost],
   );
+
+  const applyLoadedSettings = useCallback((data: TenantCostSettingsResponse) => {
+    setIsTenantConfigured(data.isTenantConfigured);
+    setUpdatedUtc(data.updatedUtc);
+    setHourlyRate(String(data.architectHourlyRateUsd));
+    setIncidentCost(String(data.averageIncidentCostUsd));
+    setEaDiscountPercentage(String(data.eaDiscountPercentage ?? 0));
+  }, []);
 
   const load = useCallback(async () => {
     if (demoMode) {
@@ -60,16 +172,13 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
 
       const data = (await res.json()) as TenantCostSettingsResponse;
 
-      setIsTenantConfigured(data.isTenantConfigured);
-      setHourlyRate(String(data.architectHourlyRateUsd));
-      setIncidentCost(String(data.averageIncidentCostUsd));
-      setEaDiscountPercentage(String(data.eaDiscountPercentage ?? 0));
+      applyLoadedSettings(data);
     } catch (error: unknown) {
       setLoadFailure(toApiLoadFailure(error).message);
     } finally {
       setLoading(false);
     }
-  }, [demoMode]);
+  }, [applyLoadedSettings, demoMode]);
 
   useEffect(() => {
     void load();
@@ -112,10 +221,7 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
 
         const saved = (await res.json()) as TenantCostSettingsResponse;
 
-        setIsTenantConfigured(saved.isTenantConfigured);
-        setHourlyRate(String(saved.architectHourlyRateUsd));
-        setIncidentCost(String(saved.averageIncidentCostUsd));
-        setEaDiscountPercentage(String(saved.eaDiscountPercentage ?? 0));
+        applyLoadedSettings(saved);
         setSaveConfirmation("Cost settings saved.");
       } catch (error: unknown) {
         showError("Could not save cost settings", toApiLoadFailure(error).message);
@@ -123,14 +229,20 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
         setSaving(false);
       }
     },
-    [canEdit, demoMode, fieldValidation.valid, hourlyRate, incidentCost, eaDiscountPercentage],
+    [applyLoadedSettings, canEdit, demoMode, fieldValidation.valid, hourlyRate, incidentCost, eaDiscountPercentage],
   );
+
+  const helperCopy = isTenantConfigured
+    ? "These values are used to estimate review savings and executive ROI when actual cost evidence is unavailable."
+    : "These values are used to estimate review savings and executive ROI when actual cost evidence is unavailable. Showing platform defaults until you save.";
 
   if (demoMode) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Cost settings</CardTitle>
+          <CardTitle as="h3" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+            Cost settings
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
@@ -146,13 +258,11 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
 
   return (
     <Card data-testid="tenant-cost-settings-card">
-      <CardHeader>
-        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Cost settings</CardTitle>
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          These values are used to estimate review savings and executive ROI when actual cost evidence is unavailable.
-          {!isTenantConfigured ? " Showing platform defaults until you save." : null}
-        </p>
-      </CardHeader>
+      <CostSettingsCardHeader
+        isTenantConfigured={isTenantConfigured}
+        updatedUtc={updatedUtc}
+        helper={helperCopy}
+      />
       <CardContent>
         {loadFailure !== null ? (
           <p className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)} role="alert">
@@ -173,32 +283,24 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
             ) : null}
 
             <div className="grid gap-3 sm:grid-cols-2">
-              <div>
-                <Label htmlFor="architect-hourly-rate">Average architect hourly rate (USD)</Label>
-                <Input
-                  id="architect-hourly-rate"
-                  inputMode="decimal"
-                  value={hourlyRate}
-                  onChange={(ev) => setHourlyRate(ev.target.value)}
-                  readOnly={!canEdit}
-                  data-testid="tenant-cost-hourly-rate"
-                  aria-invalid={fieldValidation.hourlyError !== null}
-                />
-                <BaselineFieldMessage error={fieldValidation.hourlyError} />
-              </div>
-              <div>
-                <Label htmlFor="average-incident-cost">Average incident cost (USD)</Label>
-                <Input
-                  id="average-incident-cost"
-                  inputMode="decimal"
-                  value={incidentCost}
-                  onChange={(ev) => setIncidentCost(ev.target.value)}
-                  readOnly={!canEdit}
-                  data-testid="tenant-cost-incident-cost"
-                  aria-invalid={fieldValidation.incidentError !== null}
-                />
-                <BaselineFieldMessage error={fieldValidation.incidentError} />
-              </div>
+              <CurrencyUsdField
+                id="architect-hourly-rate"
+                label="Average architect hourly rate (USD)"
+                value={hourlyRate}
+                onChange={setHourlyRate}
+                readOnly={!canEdit}
+                testId="tenant-cost-hourly-rate"
+                error={fieldValidation.hourlyError}
+              />
+              <CurrencyUsdField
+                id="average-incident-cost"
+                label="Average incident cost (USD)"
+                value={incidentCost}
+                onChange={setIncidentCost}
+                readOnly={!canEdit}
+                testId="tenant-cost-incident-cost"
+                error={fieldValidation.incidentError}
+              />
             </div>
 
             <div>
@@ -211,6 +313,7 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
                 readOnly={!canEdit}
                 data-testid="tenant-cost-ea-percentage"
                 aria-invalid={fieldValidation.eaError !== null}
+                className={cn("max-w-[12rem] font-mono", OPERATOR_TYPOGRAPHY.body)}
               />
               <BaselineFieldMessage error={fieldValidation.eaError} />
               <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
@@ -227,6 +330,7 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
             <div>
               <Button
                 type="submit"
+                variant="primary"
                 disabled={!canEdit || saving || !fieldValidation.valid}
                 data-testid="tenant-cost-settings-save"
               >

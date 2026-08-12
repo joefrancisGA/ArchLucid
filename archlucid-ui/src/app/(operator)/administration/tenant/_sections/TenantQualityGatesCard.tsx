@@ -203,7 +203,7 @@ export function TenantQualityGatesCard() {
   return (
     <Card data-testid="tenant-quality-gates-card">
       <CardHeader>
-        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Quality gates</CardTitle>
+        <CardTitle as="h3" className={OPERATOR_TYPOGRAPHY.cardTitle}>Quality gates</CardTitle>
       </CardHeader>
       <CardContent className={cn("space-y-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         <p className="m-0">

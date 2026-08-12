@@ -7,9 +7,14 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/administration/tenant/recycle-bin",
 }));
 
-vi.mock("@/components/usability/PageContextualHelpButton", () => ({
-  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
-}));
+vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/usability/PageContextualHelpButton")>();
+
+  return {
+    ...actual,
+    PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+  };
+});
 
 vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useOperatorNavAuthority: () => ({

@@ -178,7 +178,7 @@ export function TenantWorkspaceProjectsCard(): React.JSX.Element {
   return (
     <Card data-testid="tenant-workspace-projects-card">
       <CardHeader>
-        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Architecture projects</CardTitle>
+        <CardTitle as="h3" className={OPERATOR_TYPOGRAPHY.cardTitle}>Architecture projects</CardTitle>
       </CardHeader>
       <CardContent className={cn("space-y-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         <p className="m-0">
