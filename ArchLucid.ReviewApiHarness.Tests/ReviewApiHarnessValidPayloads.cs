@@ -69,6 +69,30 @@ internal static class ReviewApiHarnessValidPayloads
 
     internal static string RunDetailCreated() => RunDetailWithStatus("Created");
 
+    internal static string RunDetailFailed() => RunDetailWithStatus("Failed");
+
+    internal static string RunDetailReadyForCommitSimulator()
+    {
+        string json = $$"""
+                        {
+                          "run": {
+                            "runId": "{{RunId}}",
+                            "projectId": "{{ProjectId}}",
+                            "legacyRunStatus": "ReadyForCommit",
+                            "structuralExecutionMode": "Simulator",
+                            "createdUtc": "2026-08-10T12:00:00Z",
+                            "isPinned": false,
+                            "isDeadLettered": false,
+                            "realModeFellBackToSimulator": false
+                          }
+                        }
+                        """;
+
+        AssertValid("RunDetailDto", typeof(Gen.RunDetailDto), json);
+
+        return json;
+    }
+
     internal static string RunFindingsListResponse()
     {
         string json = $$"""

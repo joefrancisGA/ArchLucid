@@ -428,7 +428,23 @@ export async function expectBuyerPolishedReviewDetailWorkspaceCore(
   await expect(buyerPolishedReviewDetailWorkspace(page)).toBeVisible({ timeout });
 
   for (const tab of BUYER_POLISHED_REVIEW_DETAIL_CORE_WORKSPACE_TABS) {
-    await expect(page.getByTestId(`review-detail-workspace-tab-${tab}`)).toBeVisible({ timeout });
+    const tabLocator = page.getByTestId(`review-detail-workspace-tab-${tab}`);
+
+    await expect(async () => {
+      if (!(await tabLocator.isVisible())) {
+        const moreTabs = page.getByTestId("review-detail-workspace-more-tabs");
+
+        if ((await moreTabs.count()) > 0) {
+          await moreTabs.first().evaluate((element) => {
+            if (element instanceof HTMLDetailsElement) {
+              element.open = true;
+            }
+          });
+        }
+      }
+
+      await expect(tabLocator).toBeVisible();
+    }).toPass({ timeout });
   }
 }
 
