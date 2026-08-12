@@ -123,6 +123,62 @@ public sealed class DapperQuickScanGlobalBudgetReservationStore(IDbConnectionFac
                 cancellationToken: cancellationToken)).ConfigureAwait(false);
     }
 
+    /// <inheritdoc />
+    public async Task<QuickScanGlobalBudgetBucketSnapshot> GetBucketSnapshotAsync(
+        DateTimeOffset utcNow,
+        CancellationToken cancellationToken = default)
+    {
+        string hourKey = QuickScanGlobalBudgetBucketKeys.BuildHourBucketKey(utcNow);
+        string dayKey = QuickScanGlobalBudgetBucketKeys.BuildDayBucketKey(utcNow);
+
+        using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+        QuickScanGlobalBudgetBucketSnapshot? row = await connection.QuerySingleOrDefaultAsync<QuickScanGlobalBudgetBucketSnapshot>(
+            new CommandDefinition(
+                "dbo.usp_QuickScanBudget_GetSnapshot",
+                new { HourBucketKey = hourKey, DayBucketKey = dayKey },
+                commandType: CommandType.StoredProcedure,
+                cancellationToken: cancellationToken)).ConfigureAwait(false);
+
+        if (row is null)
+        {
+            return new QuickScanGlobalBudgetBucketSnapshot
+            {
+                HourBucketKey = hourKey,
+                DayBucketKey = dayKey,
+            };
+        }
+
+        return row;
+    }
+
+    /// <inheritdoc />
+    public async Task<QuickScanBudgetReconciliationResult> ReconcileExpiredReservationsAsync(
+        DateTimeOffset utcNow,
+        CancellationToken cancellationToken = default)
+    {
+        DynamicParameters parameters = new();
+        parameters.Add("@UtcNow", utcNow.UtcDateTime);
+        parameters.Add("@ExpiredCount", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+        using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                "dbo.usp_QuickScanBudget_ReconcileExpired",
+                parameters,
+                commandType: CommandType.StoredProcedure,
+                cancellationToken: cancellationToken)).ConfigureAwait(false);
+
+        int expiredCount = parameters.Get<int>("@ExpiredCount");
+
+        return new QuickScanBudgetReconciliationResult
+        {
+            ExpiredReservationCount = expiredCount,
+            ReconciledUtc = utcNow,
+        };
+    }
+
     private static async Task<decimal> ReadBucketTotalsAsync(
         IDbConnection connection,
         byte bucketKind,

@@ -132,6 +132,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Admin/AdminQuickScanBudgetController.cs",
+      "class_name": "AdminQuickScanBudgetController",
+      "route_template": "v{version:apiVersion}/admin/quick-scan/budget",
+      "normalized_prefix": "/v1/admin/quick-scan/budget",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Admin/AdminQuickScanSafetyController.cs",
       "class_name": "AdminQuickScanSafetyController",
       "route_template": "v{version:apiVersion}/admin/quick-scan/safety",

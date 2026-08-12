@@ -37,6 +37,8 @@ public sealed class QuickScanSafetyOptions
 
     public QuickScanSafetyTelemetryLimits Telemetry { get; set; } = new();
 
+    public QuickScanSafetyBudgetMonitoringOptions BudgetMonitoring { get; set; } = new();
+
     /// <summary>
     ///     Resolves effective feature flags after <see cref="EmergencyDisabled" /> precedence.
     /// </summary>

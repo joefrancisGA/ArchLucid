@@ -143,6 +143,69 @@ public sealed class InMemoryQuickScanGlobalBudgetReservationStore : IQuickScanGl
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc />
+    public Task<QuickScanGlobalBudgetBucketSnapshot> GetBucketSnapshotAsync(
+        DateTimeOffset utcNow,
+        CancellationToken cancellationToken = default)
+    {
+        string hourKey = QuickScanGlobalBudgetBucketKeys.BuildHourBucketKey(utcNow);
+        string dayKey = QuickScanGlobalBudgetBucketKeys.BuildDayBucketKey(utcNow);
+
+        lock (_sync)
+        {
+            ExpireReservations(utcNow);
+
+            int pendingCount = _reservations.Values.Count(row => row.Status == QuickScanReservationRowStatus.Pending);
+            int expiredPendingCount = _reservations.Values.Count(
+                row => row.Status == QuickScanReservationRowStatus.Pending && row.ExpiresUtc <= utcNow);
+
+            QuickScanGlobalBudgetBucketSnapshot snapshot = new()
+            {
+                HourBucketKey = hourKey,
+                DayBucketKey = dayKey,
+                HourReservedUsd = GetReserved(_hourReservedUsd, hourKey),
+                HourCommittedUsd = GetCommitted(_hourCommittedUsd, hourKey),
+                DayReservedUsd = GetReserved(_dayReservedUsd, dayKey),
+                DayCommittedUsd = GetCommitted(_dayCommittedUsd, dayKey),
+                PendingReservationCount = pendingCount,
+                ExpiredPendingReservationCount = expiredPendingCount,
+            };
+
+            return Task.FromResult(snapshot);
+        }
+    }
+
+    /// <inheritdoc />
+    public Task<QuickScanBudgetReconciliationResult> ReconcileExpiredReservationsAsync(
+        DateTimeOffset utcNow,
+        CancellationToken cancellationToken = default)
+    {
+        int expiredCount = 0;
+
+        lock (_sync)
+        {
+            foreach (ReservationRow row in _reservations.Values)
+            {
+                if (row.Status != QuickScanReservationRowStatus.Pending || row.ExpiresUtc > utcNow)
+                {
+                    continue;
+                }
+
+                ReleaseBucketAmount(_hourReservedUsd, row.HourBucketKey, row.ReservedUsd);
+                ReleaseBucketAmount(_dayReservedUsd, row.DayBucketKey, row.ReservedUsd);
+                row.Status = QuickScanReservationRowStatus.Expired;
+                expiredCount++;
+            }
+        }
+
+        return Task.FromResult(
+            new QuickScanBudgetReconciliationResult
+            {
+                ExpiredReservationCount = expiredCount,
+                ReconciledUtc = utcNow,
+            });
+    }
+
     private void ExpireReservations(DateTimeOffset utcNow)
     {
         foreach (ReservationRow row in _reservations.Values)

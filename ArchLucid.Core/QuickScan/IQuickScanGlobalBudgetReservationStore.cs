@@ -13,6 +13,14 @@ public interface IQuickScanGlobalBudgetReservationStore
         CancellationToken cancellationToken = default);
 
     Task ReleaseAsync(Guid reservationId, CancellationToken cancellationToken = default);
+
+    Task<QuickScanGlobalBudgetBucketSnapshot> GetBucketSnapshotAsync(
+        DateTimeOffset utcNow,
+        CancellationToken cancellationToken = default);
+
+    Task<QuickScanBudgetReconciliationResult> ReconcileExpiredReservationsAsync(
+        DateTimeOffset utcNow,
+        CancellationToken cancellationToken = default);
 }
 
 /// <summary>Input for a single global budget reservation attempt.</summary>

@@ -100,6 +100,8 @@ public sealed class QuickScanExecutionOrchestratorAuditTests
                 StoreHealthy = true,
             });
 
+        Mock<IQuickScanUsageRecorder> usageRecorder = new();
+
         IOptionsMonitor<QuickScanOptions> options = new TestOptionsMonitor(new QuickScanOptions { Enabled = true });
         IOptionsMonitor<QuickScanSafetyOptions> safetyOptions = new TestSafetyOptionsMonitor(new QuickScanSafetyOptions { Enabled = false });
 
@@ -114,6 +116,7 @@ public sealed class QuickScanExecutionOrchestratorAuditTests
             concurrency.Object,
             identityAbuse.Object,
             operational.Object,
+            usageRecorder.Object,
             audit.Object,
             costEstimator.Object,
             NullLogger<QuickScanExecutionOrchestrator>.Instance,

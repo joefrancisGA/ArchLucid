@@ -693,6 +693,8 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IQuickScanSafetyOperationalAdminService, QuickScanSafetyOperationalAdminService>();
         services.AddSingleton<IQuickScanGuard, QuickScanGuard>();
         services.AddSingleton<IQuickScanTelemetry, QuickScanTelemetry>();
+        services.AddSingleton<IQuickScanUsageRecorder, QuickScanUsageRecorder>();
+        services.AddSingleton<IQuickScanBudgetMonitoringService, QuickScanBudgetMonitoringService>();
         services.AddScoped<IQuickScanExecutionOrchestrator, QuickScanExecutionOrchestrator>();
         services.AddScoped<IQuickScanService, QuickScanService>();
         services.AddScoped<IRegisteredAgentHandlersInspector, RegisteredAgentHandlersInspector>();

@@ -1300,11 +1300,11 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-964 | Durable auditable quality-outcome persistence ? scores, reject category, gate mode/floors, triage id reconstructible without raw LLM bodies; see `## TB-964` below | Traceability P1 ? **V1**; after **TB-963**; builds on quality gate Done path | M |
 | TB-973 | **Done** (2026-08-09) ? persist gate version/hash with outcome; recorded vs advisoryCurrent evaluation split; see `## TB-973` below | Traceability P1 ? **V1**; after **TB-972**; closes live `GET ?/agent-evaluation` re-gate authority gap | M |
 | TB-978 | Showcase scenario telemetry ? extend **TB-891** with `scenario` dimension + finding/evidence/demo/signup funnel events; see `## TB-978` below | Traceability P1 ? **V1**; showcase portfolio assessment 2026-07-23; GTM **M-133**/**M-136**; blocks default flip (**TB-981**) | S |
-| TB-1292 | Fine-tuning promotion decision record (code-rollback-grade audit) contract; see `## TB-1292` below | Traceability P1 ? **V1**; PA Q15 FT promote/rollback; GTM **M-227**/**M-228** | S |
+| TB-1292 | ~~Fine-tuning promotion decision record (code-rollback-grade audit) contract~~ — **Done** (2026-08-12); see `## TB-1292` below | Traceability P1 ? **V1**; PA Q15 FT promote/rollback; GTM **M-227**/**M-228** | S |
 | TB-1120 | **Done** (2026-08-11) — [FIRST_SECURITY_REVIEW_PA_ONE_PAGER_SHIP_ORDER_CONTRACT.md](FIRST_SECURITY_REVIEW_PA_ONE_PAGER_SHIP_ORDER_CONTRACT.md); buyer packet M-193 section; see `## TB-1120` below | Commercial / marketability P1 ? **V1**; PA Q16; GTM **M-192**/**M-193** | S |
-| TB-876 | Customer-controlled Tier 1 AWS/GCP inventory ZIP ? `Get-ArchLucidAwsPackage` / `Get-ArchLucidGcpPackage` scripts, upload ingest at parity with ?2.16 Azure extractor, audit + citation contract, trust-center Tier 1 (no ArchLucid credentials in customer account); see `## TB-876` below | Interoperability P1 ? **V1**; V1_SCOPE ?2.19 remainder; complements Tier 2 **TB-402**/**TB-403** (Done); does not reopen **TB-214**; found during promoted multi-cloud analysis backlogization 2026-07-19 | L |
-| TB-1530 | ITSM outbox/DLQ delivery guarantee map (native create vs bridge; duplicates; poison notify); see `## TB-1530` below | Interoperability P1 ? **V1**; PA ITSM delivery Q; GTM **M-280**/**M-281**; see `ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md`; complements **TB-992** | S |
-| TB-899 | Quick Scan cost telemetry, dashboards, reconciliation, alerts ? monitoring runbook; see `## TB-899` below | Operability P1 ? **V1**; after **TB-894**; prompts Prompt 9 | L |
+| TB-876 | ~~Customer-controlled Tier 1 AWS/GCP inventory ZIP~~ � **Done** (2026-07-21); see `## TB-876` below | Interoperability P1 ? **V1**; V1_SCOPE ?2.19 remainder; complements Tier 2 **TB-402**/**TB-403** (Done); does not reopen **TB-214**; found during promoted multi-cloud analysis backlogization 2026-07-19 | L |
+| TB-1530 | ~~ITSM outbox/DLQ delivery guarantee map~~ — **Done** (2026-08-12); see `## TB-1530` below | Interoperability P1 ? **V1**; PA ITSM delivery Q; GTM **M-280**/**M-281**; see `ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md`; complements **TB-992** | S |
+| TB-899 | ~~Quick Scan cost telemetry, dashboards, reconciliation, alerts~~ — **Done** (2026-08-12); monitoring runbook; see `## TB-899` below | Operability P1 ? **V1**; after **TB-894**; prompts Prompt 9 | L |
 | TB-1317 | Container Apps Terraform drift escape classes + provably authoritative state contract; see `## TB-1317` below | Deployability P1 ? **V1**; PA 2026-07-26 CA/IaC drift; GTM **M-233**/**M-234** | S |
 | TB-1336 | 100? review-volume fail-first order + option-preserving capacity ledger contract; see `## TB-1336` below | Scalability P1 ? **V1**; PA Q20 100? reviews; GTM **M-237**/**M-238** | S |
 | TB-1577 | **Done** (2026-08-11) ? [`SHARED_AOAI_TPM_NOISY_NEIGHBOR_FAIRNESS_CLAIM_MAP.md`](SHARED_AOAI_TPM_NOISY_NEIGHBOR_FAIRNESS_CLAIM_MAP.md); see `## TB-1577` below | Scalability P1 ? **V1**; PA noisy-neighbor / TPM fairness Q; GTM **M-296**/**M-297**; orchestrates **TB-1336**/**TB-1299**/**TB-947** | S |
@@ -23389,9 +23389,11 @@ Private-beta access-path P0: prove tenant scope cannot be steered by forged x-te
 
 ---
 
-## TB-876 ? Customer-controlled Tier 1 AWS/GCP inventory ZIP (P1)
+## TB-876 — Customer-controlled Tier 1 AWS/GCP inventory ZIP (P1) — **Done** (2026-07-21)
 
-**Window:** V1 ? ?2.19 remainder. Complements hosted Tier 2 (**TB-402**/**TB-403** Done); Tier 1 is the no-credential-in-customer-account fallback.
+**Window:** V1 — §2.19 remainder. Complements hosted Tier 2 (**TB-402**/**TB-403** Done); Tier 1 is the no-credential-in-customer-account fallback.
+
+**Shipped:** `Get-ArchLucidAwsPackage.ps1` / `Get-ArchLucidGcpPackage.ps1`; `POST /v1/extractor/{aws,gcp}/upload`; `CloudInventoryExtractorIngestService` + audit events; trust-center / `CLOUD_CONNECTIONS.md` Tier 1 copy; UI `get-archlucid-cloud-package-command.ts` + wizard command panel; `CloudInventoryExtractorUploadEndpointTests` + script Pester tests (**commit `163df4f73`**).
 
 **Why:** Azure ?2.16 ships customer-run inventory ZIP + upload. AWS/GCP Tier 2 polling is shipped, but buyers who refuse long-lived ArchLucid credentials still need a Tier 1 path with the same citation/audit contract.
 
@@ -23966,11 +23968,13 @@ Private-beta access-path P0: prove tenant scope cannot be steered by forged x-te
 
 ---
 
-## TB-899 ? Quick Scan cost telemetry, dashboards, reconciliation, alerts (P1)
+## TB-899 — Quick Scan cost telemetry, dashboards, reconciliation, alerts (P1) — **Done** (2026-08-12)
 
 **Window:** V1.
 
 **Depends on:** **TB-894**, **TB-895**.
+
+**Shipped:** `QuickScanUsageRecords` (migration **307**); `IQuickScanUsageRecordStore` + orchestrator usage recorder; `GET /v1/admin/quick-scan/budget` snapshot; `QuickScanBudgetReconciliationHostedService`; utilization log alerts; `docs/operations/quick-scan-budget-monitoring.md`; `QuickScanBudgetMonitoringServiceTests`.
 
 **Why:** Assessment Medium ? no Quick Scan?specific spend dashboards/alerts.
 
@@ -32043,13 +32047,15 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ---
 
-## TB-1292 ? Fine-tuning promotion decision record (code-rollback-grade audit) contract (P1)
+## TB-1292 — Fine-tuning promotion decision record (code-rollback-grade audit) contract (P1) — **Done** (2026-08-12)
 
-**Window:** V1 ? Traceability.
+**Window:** V1 — Traceability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12).
 
 **Priority:** P1.
+
+**Shipped:** [`FINE_TUNING_PROMOTION_DECISION_RECORD_CONTRACT.md`](FINE_TUNING_PROMOTION_DECISION_RECORD_CONTRACT.md) — required append-only decision fields, shipped-registry gap table, rollback semantics, DDL follow-on naming, cross-links **TB-594** / **TB-1293** / **M-227**/**M-228**. Buyer summary remains [`BUYER_SECURITY_PROCUREMENT_PACKET.md#ft-promotion-decision-record-m-228`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#ft-promotion-decision-record-m-228).
 
 **Source:** Owner / PA question 2026-07-26: *Our fine-tuning promotion gate compares candidate models against the golden cohort. What should a promotion decision record contain so a model rollback is as auditable as a code rollback?*
 
@@ -38917,13 +38923,15 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ---
 
-## TB-1530 ? ITSM outbox/DLQ delivery guarantee map (native create vs bridge; duplicates; poison notify) (P1)
+## TB-1530 — ITSM outbox/DLQ delivery guarantee map (native create vs bridge; duplicates; poison notify) (P1) — **Done** (2026-08-12)
 
-**Window:** V1 ? Interoperability / Reliability.
+**Window:** V1 — Interoperability / Reliability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12).
 
 **Priority:** P1.
+
+**Shipped:** [`ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md`](ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md) — Path A vs B, duplicate windows, poison/notify matrix, too-strong vs safe; pairs **TB-992** / **M-280**; honesty CI **TB-1531** follow-on.
 
 **Source:** Owner / PA question 2026-07-27: *Integration events go through an outbox and a DLQ. For deliveries to Jira/ServiceNow, what are the actual guarantees ? at-least-once with receiver dedupe, or possible duplicates the customer's ITSM will see? Where does a poison message end up, and who is told?*
 

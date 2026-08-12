@@ -4,7 +4,7 @@
 
 **Audience:** Engineering, integrations, principal-architect diligence. Not a buyer brochure.
 
-**Status:** Working contract for **TB-1530** / GTM **M-280**. Pair honesty CI **TB-1531** / **M-280**.
+**Status:** Working contract for **TB-1530** (Done 2026-08-12) / GTM **M-280**. Pair honesty CI **TB-1531** / **M-280**.
 
 **Verdict (one line):** Do **not** treat “integration events → outbox → DLQ” as the native Jira/ServiceNow create path — native create is **background-job at-least-once** with **soft ArchLucid correlation skip**; customers **can see duplicate tickets**. Integration-event outbox/DLQ is a **separate** bridge path; poison lands in SQL + admin UI + Prometheus **warning** (not founder MVO paging by default).
 

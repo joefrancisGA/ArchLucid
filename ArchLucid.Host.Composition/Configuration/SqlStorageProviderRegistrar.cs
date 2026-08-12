@@ -596,6 +596,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddHostedService<OutboxOperationalMetricsHostedService>();
         services.AddHostedService<StaleInFlightRunMetricsHostedService>();
         services.AddHostedService<LlmTenantBudgetUtilizationMetricsHostedService>();
+        services.AddHostedService<QuickScanBudgetReconciliationHostedService>();
         services.AddHostedService<LlmMonthlyTenantBudgetReservationReclaimHostedService>();
         services.AddHostedService<MarketingPricingQuoteAgingMetricsHostedService>();
         services.AddHostedService<SqlConnectionPoolMetricsHostedService>();

@@ -1257,7 +1257,7 @@ Do not say timestamps + one ratio equal rollback-grade governance, or that cache
 - Does not reopen Done **TB-594**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
 
-**Related:** [LLM cost-control plane (M-226)](#llm-cost-control-plane-m-226) Â· [Faithfulness / support-ratio lanes (M-210)](#faithfulness-support-ratio-scoring-lanes-m-210) Â· [`MANIFEST_FINE_TUNING_ADDENDUM.md`](MANIFEST_FINE_TUNING_ADDENDUM.md) Â· [ADR 0056](../architecture/adrs/0056-manifest-online-fine-tuning-governance.md) Â· [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+**Related:** [LLM cost-control plane (M-226)](#llm-cost-control-plane-m-226) · [Faithfulness / support-ratio lanes (M-210)](#faithfulness-support-ratio-scoring-lanes-m-210) · [`FINE_TUNING_PROMOTION_DECISION_RECORD_CONTRACT.md`](../library/FINE_TUNING_PROMOTION_DECISION_RECORD_CONTRACT.md) (**TB-1292**) · [`MANIFEST_FINE_TUNING_ADDENDUM.md`](MANIFEST_FINE_TUNING_ADDENDUM.md) · [ADR 0056](../architecture/adrs/0056-manifest-online-fine-tuning-governance.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Execution-mode honesty (M-128) {#execution-mode-honesty-m-128}
 

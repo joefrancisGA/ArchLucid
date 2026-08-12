@@ -33,6 +33,8 @@ internal sealed class QuickScanAdversarialOrchestratorTestFixture
 
     public Mock<IQuickScanSafetyOperationalStateProvider> Operational { get; } = new();
 
+    public Mock<IQuickScanUsageRecorder> UsageRecorder { get; } = new();
+
     public Mock<IAuditService> Audit { get; } = new();
 
     public Mock<ILlmCostEstimator> LlmCostEstimator { get; } = new();
@@ -119,6 +121,7 @@ internal sealed class QuickScanAdversarialOrchestratorTestFixture
             Concurrency.Object,
             IdentityAbuse.Object,
             Operational.Object,
+            UsageRecorder.Object,
             Audit.Object,
             LlmCostEstimator.Object,
             NullLogger<QuickScanExecutionOrchestrator>.Instance,
