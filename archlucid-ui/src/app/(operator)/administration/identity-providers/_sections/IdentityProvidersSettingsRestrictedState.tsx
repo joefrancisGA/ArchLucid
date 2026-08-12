@@ -6,11 +6,11 @@ import {
   IDENTITY_PROVIDERS_RESTRICTED_DESCRIPTION,
   IDENTITY_PROVIDERS_RESTRICTED_TITLE,
 } from "@/lib/identity-providers-settings-copy";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export function IdentityProvidersSettingsRestrictedState(): React.JSX.Element {
   return (
-    <OperatorPageContainer variant="settings" className="space-y-6" data-testid="identity-providers-settings-restricted">
+    <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="identity-providers-settings-restricted">
       <OperatorPageHeader
         title={IDENTITY_PROVIDERS_RESTRICTED_TITLE}
         headingLevel="h1"

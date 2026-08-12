@@ -9,7 +9,7 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { ReportProblemSupportWorkspaceVocabularyRail } from "@/components/ReportProblemSupportWorkspaceVocabularyRail";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatRelativeTime } from "@/lib/relative-time";
 import {
   ARCHLUCID_SUPPORT_EMAIL,
@@ -80,7 +80,7 @@ export function AdminSupportPageView({ model }: AdminSupportPageViewProps) {
   const downloadDisabled = model.downloading || !model.canGenerateBundle;
 
   return (
-    <div className="w-full max-w-[1280px] space-y-6" data-testid="admin-support-page">
+    <div className={cn("w-full max-w-[1280px]", OPERATOR_LAYOUT.sectionStack)} data-testid="admin-support-page">
       <OperatorPageHeader
         title="Support"
         titleTestId="admin-support-title"
@@ -100,7 +100,7 @@ export function AdminSupportPageView({ model }: AdminSupportPageViewProps) {
       </p>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="space-y-6">
+        <div className={OPERATOR_LAYOUT.sectionStack}>
           <SupportSection title="Report a problem" testId="admin-support-report-problem">
             <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{SUPPORT_REPORT_PROBLEM_SUMMARY}</p>
             <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>

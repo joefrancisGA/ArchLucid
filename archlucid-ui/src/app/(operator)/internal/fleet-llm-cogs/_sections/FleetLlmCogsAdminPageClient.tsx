@@ -18,7 +18,7 @@ import { EnterpriseTableSkeletonRows } from "@/components/ui/enterprise-table-sk
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
-import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { FLEET_LLM_COGS_PAGE_LEAD, FLEET_LLM_COGS_PAGE_TITLE } from "@/lib/fleet-llm-cogs-page-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { fetchAdminFleetLlmCogsDashboard, type AdminFleetLlmCogsDashboard } from "@/lib/trial-funnel-ops";
@@ -65,7 +65,7 @@ export function FleetLlmCogsAdminPageClient() {
   }
 
   return (
-    <div className="w-full max-w-[1440px] space-y-6" data-testid="fleet-llm-cogs-page">
+    <div className={cn("w-full max-w-[1440px]", OPERATOR_LAYOUT.sectionStack)} data-testid="fleet-llm-cogs-page">
       <OperatorPageHeader
         headingLevel="h1"
         title={FLEET_LLM_COGS_PAGE_TITLE}

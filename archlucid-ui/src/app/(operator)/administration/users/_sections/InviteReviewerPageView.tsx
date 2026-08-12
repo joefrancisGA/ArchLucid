@@ -16,7 +16,7 @@ import {
   INVITE_REVIEWER_PAGE_TITLE,
   SETTINGS_ROLES_USERS_TAB_PATH,
 } from "@/lib/invite-reviewer-flow";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import { SettingsRolesInvitePanel } from "./SettingsRolesInvitePanel";
@@ -41,7 +41,7 @@ export function InviteReviewerPageView(props: Props) {
 
   if (m.surface === "authority_loading") {
     return (
-      <div className="w-full max-w-[720px] space-y-6" data-testid="invite-reviewer-page">
+      <div className={cn("w-full max-w-[720px]", OPERATOR_LAYOUT.sectionStack)} data-testid="invite-reviewer-page">
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading…</p>
       </div>
     );
@@ -49,7 +49,7 @@ export function InviteReviewerPageView(props: Props) {
 
   if (m.surface === "forbidden") {
     return (
-      <div className="w-full max-w-[720px] space-y-6" data-testid="invite-reviewer-page">
+      <div className={cn("w-full max-w-[720px]", OPERATOR_LAYOUT.sectionStack)} data-testid="invite-reviewer-page">
         <InviteReviewerPageHeader />
         <Card>
           <CardContent className="pt-6">
@@ -71,7 +71,7 @@ export function InviteReviewerPageView(props: Props) {
   }
 
   return (
-    <div className="w-full max-w-[720px] space-y-6" data-testid="invite-reviewer-page">
+    <div className={cn("w-full max-w-[720px]", OPERATOR_LAYOUT.sectionStack)} data-testid="invite-reviewer-page">
       <InviteReviewerPageHeader />
       <Card>
         <CardHeader>

@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
@@ -16,7 +16,7 @@ export const TENANT_SETTINGS_RESTRICTED_DESCRIPTION =
  */
 export function TenantSettingsRestrictedState(): React.JSX.Element {
   return (
-    <OperatorPageContainer variant="settings" className="space-y-6" data-testid="tenant-settings-restricted">
+    <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="tenant-settings-restricted">
       <OperatorPageHeader
         title={OPERATOR_NAV_LINK_LABELS.workspaceSettings}
         headingLevel="h1"

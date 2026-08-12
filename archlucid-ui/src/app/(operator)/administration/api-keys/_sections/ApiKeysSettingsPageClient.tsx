@@ -45,7 +45,7 @@ import { WebhooksApiKeysVocabularyRail } from "@/components/WebhooksApiKeysVocab
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { ApiKeyActionConfirmDialog } from "./ApiKeyActionConfirmDialog";
 import { ApiKeyCredentialTable, type ApiKeyCredentialRowModel } from "./ApiKeyCredentialTable";
@@ -253,7 +253,7 @@ export function ApiKeysSettingsPageClient() {
   }
 
   return (
-    <OperatorPageContainer variant="settings" className="space-y-6" data-testid="api-keys-settings-page">
+    <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="api-keys-settings-page">
       <OperatorPageHeader
         title={API_KEYS_PAGE_TITLE}
         headingLevel="h1"

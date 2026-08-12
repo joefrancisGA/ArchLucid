@@ -30,7 +30,7 @@ import {
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { formatRelativeTime } from "@/lib/relative-time";
 import {
@@ -406,7 +406,7 @@ export function ScimProvisioningSettingsPageClient() {
   return (
     <OperatorPageContainer
       variant="settings"
-      className="space-y-6"
+      className={OPERATOR_LAYOUT.sectionStack}
       data-testid="scim-provisioning-settings-page"
     >
       <OperatorPageHeader

@@ -16,7 +16,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { ACCOUNT_SETTINGS_MENU_ARIA_LABEL } from "@/components/shell/AccountSettingsMenu";
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   ACCOUNT_SECURITY_DEMO_GATE_MESSAGE,
   ACCOUNT_SECURITY_EMPTY_METHODS_HELP_CTA,
@@ -370,7 +370,7 @@ export function AccountSecurityPageClient() {
       };
 
   return (
-    <OperatorPageContainer variant="settings" className="space-y-6" data-testid="account-security-page">
+    <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="account-security-page">
       <OperatorPageHeader
         title={ACCOUNT_SECURITY_PAGE_TITLE}
         subtitle={ACCOUNT_SECURITY_PAGE_SUBTITLE}

@@ -60,7 +60,7 @@ import {
   AUTH_DOMAINS_SETTINGS_SOURCES,
   AUTH_DOMAINS_SETTINGS_SOURCES_INTRO,
 } from "@/lib/auth-domains-settings-evidence-copy";
-import { DESIGN_TOKENS, OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   addTenantAuthDomainRecoveryAdmin,
   checkTenantAuthDomainVerification,
@@ -493,7 +493,7 @@ export function AuthDomainsPageClient() {
   }
 
   return (
-    <OperatorPageContainer variant="settings" className="space-y-6" data-testid="auth-domains-page">
+    <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="auth-domains-page">
       <OperatorPageHeader
         title={AUTH_DOMAINS_PAGE_TITLE}
         subtitle={AUTH_DOMAINS_PAGE_SUBTITLE}

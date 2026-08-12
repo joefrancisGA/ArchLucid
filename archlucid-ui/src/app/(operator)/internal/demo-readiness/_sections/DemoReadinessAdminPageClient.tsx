@@ -24,7 +24,7 @@ import {
   INTERNAL_DEMO_READINESS_PAGE_TITLE,
   INTERNAL_OPERATIONS_NAV_EYEBROW,
 } from "@/lib/demo-readiness-evidence-copy";
-import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { INTERNAL_DEMO_READINESS_PATH, INTERNAL_HEALTH_PATH } from "@/lib/internal-ops-route-paths";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { isCtoDemoOperatorToolingEnv } from "@/lib/cto-demo-presenter-pack";
@@ -60,7 +60,7 @@ export function DemoReadinessAdminPageClient(): React.JSX.Element {
   }
 
   return (
-    <OperatorPageContainer variant="dashboard" className="space-y-6" data-testid="demo-readiness-admin-page">
+    <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="demo-readiness-admin-page">
       <PageHeading
         navHref={INTERNAL_DEMO_READINESS_PATH}
         title={INTERNAL_DEMO_READINESS_PAGE_TITLE}

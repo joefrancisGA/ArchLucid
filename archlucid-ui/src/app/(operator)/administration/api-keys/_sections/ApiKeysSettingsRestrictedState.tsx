@@ -14,6 +14,7 @@ import {
   API_KEYS_FORBIDDEN_EMPTY_COMPACT,
   API_KEYS_SURFACE_DISABLED_EMPTY_COMPACT,
 } from "@/lib/enterprise-compact-empty-state-presets";
+import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 
 export type ApiKeysSettingsRestrictedStateProps = {
@@ -40,7 +41,7 @@ export function ApiKeysSettingsRestrictedState(props: ApiKeysSettingsRestrictedS
   const emptyCompact = resolveRestrictedEmptyCompact(props.reason);
 
   return (
-    <OperatorPageContainer variant="settings" className="space-y-6" data-testid="api-keys-settings-restricted">
+    <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="api-keys-settings-restricted">
       <OperatorPageHeader
         title={resolveRestrictedTitle(props.reason)}
         headingLevel="h1"

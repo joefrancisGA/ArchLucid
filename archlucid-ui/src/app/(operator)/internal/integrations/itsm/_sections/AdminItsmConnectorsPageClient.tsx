@@ -26,7 +26,7 @@ import {
   ITSM_CONNECTORS_NATIVE_ENABLED_MESSAGE,
   ITSM_CONNECTORS_PAGE_CONFIG_CARD_TITLE,
 } from "@/lib/itsm/itsm-connectors-admin-scope";
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { AdminItsmConnectorOnboardingWizard } from "./AdminItsmConnectorOnboardingWizard";
 import { AdminItsmConnectorsPageLoadingSkeleton } from "./AdminItsmConnectorsPageLoadingSkeleton";
@@ -92,7 +92,7 @@ export function AdminItsmConnectorsPageClient(): React.ReactElement {
   }, [refresh]);
 
   return (
-    <div className="w-full max-w-3xl space-y-6" data-testid="admin-itsm-connectors-page">
+    <div className={cn("w-full max-w-3xl", OPERATOR_LAYOUT.sectionStack)} data-testid="admin-itsm-connectors-page">
       <PageHeading
         navHref={ITSM_CONNECTORS_ADMIN_PATH}
         title={ITSM_CONNECTORS_ADMIN_LABEL}

@@ -7,12 +7,12 @@ import { ShellThemePreferencesAppearanceVocabularyRail } from "@/components/Shel
 import { ThemePreferenceSelector } from "@/components/ThemePreferenceSelector";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export function PreferencesSettingsPageView() {
   return (
-    <OperatorPageContainer variant="settings" className="space-y-6" data-testid="preferences-settings-page">
+    <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="preferences-settings-page">
       <OperatorPageHeader
         title="Preferences"
         subtitle="Personal settings saved to your account."

@@ -21,7 +21,7 @@ import {
   whyDisabledBusy,
   type WhyDisabledCtaReason,
 } from "@/lib/why-disabled-cta";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   REPLAY_MODIFY_CONFIRMATION_LABEL,
   REPLAY_PAGE_INTRO,
@@ -52,7 +52,7 @@ export function ReplayFormView(props: Props) {
   ]);
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-6" data-testid="replay-validation-workspace">
+    <div className={cn("mx-auto w-full max-w-6xl", OPERATOR_LAYOUT.sectionStack)} data-testid="replay-validation-workspace">
       <OperatorPageHeader title="Validate review" helpKey="replay-run" actions={<PageContextualHelpButton />} />
       <ValidateCompareVocabularyRail currentSurfaceId="validate-replay" />
       <p className={cn("m-0 max-w-4xl leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{REPLAY_PAGE_INTRO}</p>
