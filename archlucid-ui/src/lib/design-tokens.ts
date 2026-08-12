@@ -764,7 +764,7 @@ export function severityTagClass(kind: FindingSeverityKind): string {
       return `${STATUS_TAG_BASE} bg-slate-500/10 text-slate-700 dark:bg-slate-500/15 dark:text-slate-300`;
 
     case "unknown":
-      return `${STATUS_TAG_BASE} bg-neutral-500/8 text-al-text-secondary dark:bg-neutral-500/12`;
+      return `${STATUS_TAG_BASE} border-dashed border-neutral-400/70 bg-al-surface-raised text-al-text-secondary dark:border-neutral-600`;
 
     default: {
       const exhaustive: never = kind;
