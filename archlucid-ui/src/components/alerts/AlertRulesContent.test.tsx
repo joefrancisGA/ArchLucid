@@ -58,6 +58,14 @@ const sampleRule = {
 };
 
 describe("AlertRulesContent", () => {
+  async function revealCreateForm(): Promise<void> {
+    fireEvent.click(screen.getByTestId("alert-rules-create-action"));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(ALERT_RULES_NAME_LABEL)).toBeInTheDocument();
+    });
+  }
+
   beforeEach(() => {
     mutateCapability.current = true;
     clearOperatorScopeStorage();
@@ -73,19 +81,49 @@ describe("AlertRulesContent", () => {
     render(<AlertRulesContent />);
 
     await waitFor(() => {
+      expect(screen.getByTestId("alert-rules-empty")).toBeInTheDocument();
+    });
+
+    await revealCreateForm();
+
+    expect(screen.getByText(/does not change the severity of the underlying findings/i)).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText(ALERT_RULES_NAME_LABEL), {
+      target: { value: "Custom workspace watch" },
+    });
+
+    await waitFor(() => {
       expect(screen.getByTestId("alert-rule-live-preview")).toBeInTheDocument();
     });
 
     expect(screen.getByText(/finding count reaches at least/i)).toBeInTheDocument();
-    expect(screen.getByText(/does not change the severity of the underlying findings/i)).toBeInTheDocument();
   });
 
   it("shows empty alert rules state", async () => {
     render(<AlertRulesContent />);
 
     await waitFor(() => {
-      expect(screen.getByText(ALERT_RULES_LIST_EMPTY_TITLE)).toBeInTheDocument();
+      expect(screen.getByTestId("alert-rules-empty")).toHaveTextContent(ALERT_RULES_LIST_EMPTY_TITLE);
     });
+  });
+
+  it("empty-first hides form and preview until Create reveals the panel (TB-1479)", async () => {
+    render(<AlertRulesContent />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("alert-rules-layout")).toHaveAttribute("data-empty-intro", "true");
+    });
+
+    expect(screen.getByTestId("alert-rules-layout").className).toContain("gap-4");
+    expect(screen.getByTestId("alert-rules-layout").className).not.toContain("gap-8");
+    expect(screen.queryByLabelText(ALERT_RULES_NAME_LABEL)).toBeNull();
+    expect(screen.queryByTestId("alert-rule-live-preview")).toBeNull();
+    expect(screen.getByTestId("alert-rules-create-action")).toBeInTheDocument();
+
+    await revealCreateForm();
+
+    expect(screen.getByTestId("alert-rules-layout")).toHaveAttribute("data-empty-intro", "false");
+    expect(screen.queryByTestId("alert-rules-create-action")).toBeNull();
   });
 
   it("stacks live preview rail when empty list uses default draft (TB-1574)", async () => {
@@ -96,15 +134,17 @@ describe("AlertRulesContent", () => {
     });
 
     expect(screen.getByTestId("alert-rules-layout").className).not.toMatch(/xl:grid-cols-/);
-    expect(screen.getByTestId("alert-rule-live-preview")).toBeInTheDocument();
+    expect(screen.queryByTestId("alert-rule-live-preview")).toBeNull();
+
+    await revealCreateForm();
+
+    expect(screen.queryByTestId("alert-rule-live-preview")).toBeNull();
   });
 
   it("pins live preview rail after the create draft leaves defaults (TB-1574)", async () => {
     render(<AlertRulesContent />);
 
-    await waitFor(() => {
-      expect(screen.getByLabelText(ALERT_RULES_NAME_LABEL)).toBeInTheDocument();
-    });
+    await revealCreateForm();
 
     fireEvent.change(screen.getByLabelText(ALERT_RULES_NAME_LABEL), {
       target: { value: "Custom workspace watch" },
@@ -125,6 +165,8 @@ describe("AlertRulesContent", () => {
 
   it("creates a rule with pending state and success live region", async () => {
     render(<AlertRulesContent />);
+
+    await revealCreateForm();
 
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "Create rule" })).not.toBeDisabled();
@@ -173,6 +215,8 @@ describe("AlertRulesContent", () => {
   it("names the target workspace beside the create control", async () => {
     render(<AlertRulesContent />);
 
+    await revealCreateForm();
+
     await waitFor(() => {
       expect(screen.getByTestId("mutating-in-workspace-chip")).toBeInTheDocument();
     });
@@ -186,6 +230,12 @@ describe("AlertRulesContent", () => {
   it("marks the rule preview as an unsaved draft so it cannot read as a configured rule", async () => {
     render(<AlertRulesContent />);
 
+    await revealCreateForm();
+
+    fireEvent.change(screen.getByLabelText(ALERT_RULES_NAME_LABEL), {
+      target: { value: "Custom workspace watch" },
+    });
+
     await waitFor(() => {
       expect(screen.getByTestId("alert-rule-preview-draft-status")).toBeInTheDocument();
     });
@@ -197,6 +247,8 @@ describe("AlertRulesContent", () => {
 
   it("shows an inline readiness hint instead of a toast when the name is cleared", async () => {
     render(<AlertRulesContent />);
+
+    await revealCreateForm();
 
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "Create rule" })).not.toBeDisabled();
@@ -227,6 +279,12 @@ describe("AlertRulesContent", () => {
   it("omits silent projectId=default when the rules list is empty and session has no project", async () => {
     render(<AlertRulesContent />);
 
+    await revealCreateForm();
+
+    fireEvent.change(screen.getByLabelText(ALERT_RULES_NAME_LABEL), {
+      target: { value: "Custom workspace watch" },
+    });
+
     await waitFor(() => {
       expect(screen.getByTestId("alert-rule-scope-preview")).toBeInTheDocument();
     });
@@ -245,6 +303,12 @@ describe("AlertRulesContent", () => {
     });
 
     render(<AlertRulesContent />);
+
+    await revealCreateForm();
+
+    fireEvent.change(screen.getByLabelText(ALERT_RULES_NAME_LABEL), {
+      target: { value: "Custom workspace watch" },
+    });
 
     await waitFor(() => {
       expect(screen.getByTestId("alert-rule-scope-preview")).toHaveTextContent(/current project scope/i);

@@ -515,6 +515,12 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     render(<AlertRulesContent />);
 
     await waitFor(() => {
+      expect(screen.getByTestId("alert-rules-create-action")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("alert-rules-create-action"));
+
+    await waitFor(() => {
       expect(screen.getByRole("button", { name: "Create rule" })).not.toBeDisabled();
     });
   });

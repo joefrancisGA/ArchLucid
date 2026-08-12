@@ -4,6 +4,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { AlertRuleListRow } from "@/components/alerts/AlertRuleListRow";
@@ -83,6 +84,7 @@ export function AlertRulesContent() {
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [simulateForRule, setSimulateForRule] = useState<AlertRule | null>(null);
+  const [showCreatePanel, setShowCreatePanel] = useState(false);
 
   // Server render has no storage; project id is adopted after mount to avoid a hydration mismatch.
   const [sessionProjectId, setSessionProjectId] = useState<string | undefined>(undefined);
@@ -201,9 +203,27 @@ export function AlertRulesContent() {
   const mutationDisabledReason = canMutateAlertRules ? null : whyDisabledEnterpriseMutationControl();
   const mutationDisabledHintId = "alert-rules-mutate-disabled-hint";
 
+  const isEmpty = items.length === 0;
+  const showCreateForm = !canEdit || showCreatePanel || !isEmpty;
+  const emptyIntroMode = isEmpty && canEdit && !showCreatePanel;
+  const sectionGap = pinLivePreviewRail ? "gap-8" : "gap-4";
+
   return (
     <div className="min-w-0">
-      <h2 className={cn("mb-2 mt-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Alert conditions</h2>
+      <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
+        <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Alert conditions</h2>
+        {emptyIntroMode ? (
+          <Button
+            type="button"
+            size="sm"
+            variant="primary"
+            data-testid="alert-rules-create-action"
+            onClick={() => setShowCreatePanel(true)}
+          >
+            {ALERT_RULES_CREATE_BUTTON_LABEL}
+          </Button>
+        ) : null}
+      </div>
       <p className={cn("mb-4 max-w-3xl leading-snug text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {ALERT_RULES_CONDITIONS_FINDINGS_HELPER}
       </p>
@@ -244,48 +264,58 @@ export function AlertRulesContent() {
 
       <div
         className={cn(
-          "grid gap-8",
+          "grid",
+          sectionGap,
           pinLivePreviewRail && "xl:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)]",
         )}
         data-testid="alert-rules-layout"
         data-rail-kind={OPERATOR_LIVE_PREVIEW_READINESS_RAIL_KIND}
         data-live-rail-pinned={pinLivePreviewRail ? "true" : "false"}
+        data-empty-intro={emptyIntroMode ? "true" : "false"}
       >
-        <div className="flex min-w-0 flex-col gap-8">
-          <section aria-labelledby="alert-rules-list-heading">
-            <h3 id="alert-rules-list-heading" className={cn("m-0 mb-3", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-              {ALERT_RULES_LIST_HEADING}
-            </h3>
+        <div className={cn("flex min-w-0 flex-col", sectionGap)}>
+          {items.length > 0 ? (
+            <section aria-labelledby="alert-rules-list-heading">
+              <h3 id="alert-rules-list-heading" className={cn("m-0 mb-3", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+                {ALERT_RULES_LIST_HEADING}
+              </h3>
 
-            <div className="grid gap-3">
-              {items.length === 0 ? (
-                <div className="rounded-lg border border-dashed border-neutral-300 p-4 dark:border-neutral-700">
-                  <p className={cn("mb-1 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                    {ALERT_RULES_LIST_EMPTY_TITLE}
-                  </p>
-                  <p className={cn("mb-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    {ALERT_RULES_LIST_EMPTY_BODY}
-                  </p>
-                </div>
-              ) : (
-                items.map((rule) => (
+              <div className="grid gap-3">
+                {items.map((rule) => (
                   <AlertRuleListRow
                     key={rule.ruleId}
                     rule={rule}
                     routingSubscriptions={routingSubscriptions}
                     onSimulate={setSimulateForRule}
                   />
-                ))
-              )}
-            </div>
-          </section>
+                ))}
+              </div>
+            </section>
+          ) : null}
 
-          <section aria-labelledby="alert-rules-create-heading" aria-label={ALERT_RULES_FORM_SECTION_ARIA_LABEL}>
-            <h3 id="alert-rules-create-heading" className={cn("mb-3 mt-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-              {ALERT_RULES_CREATE_HEADING}
-            </h3>
+          {emptyIntroMode ? (
+            <EnterpriseCompactEmptyState
+              title={ALERT_RULES_LIST_EMPTY_TITLE}
+              description={ALERT_RULES_LIST_EMPTY_BODY}
+              testId="alert-rules-empty"
+            />
+          ) : null}
 
-            <div className="grid max-w-2xl gap-4">
+          {isEmpty && !canEdit ? (
+            <EnterpriseCompactEmptyState
+              title={ALERT_RULES_LIST_EMPTY_TITLE}
+              description={ALERT_RULES_LIST_EMPTY_BODY}
+              testId="alert-rules-empty"
+            />
+          ) : null}
+
+          {showCreateForm ? (
+            <section aria-labelledby="alert-rules-create-heading" aria-label={ALERT_RULES_FORM_SECTION_ARIA_LABEL}>
+              <h3 id="alert-rules-create-heading" className={cn("mb-3 mt-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+                {ALERT_RULES_CREATE_HEADING}
+              </h3>
+
+              <div className="grid max-w-2xl gap-4">
               <div>
                 <Label htmlFor="alert-rule-name">{ALERT_RULES_NAME_LABEL}</Label>
                 <Input
@@ -404,19 +434,22 @@ export function AlertRulesContent() {
                   />
                 </div>
               </div>
-            </div>
-          </section>
+              </div>
+            </section>
+          ) : null}
         </div>
 
-        <div className="grid min-w-0 gap-4">
-          <AlertRuleLivePreviewPanel form={formInput} />
-          <AlertRuleNotificationReadinessPanel
-            scopeRule={scopePreviewRule}
-            readinessRule={draftReadinessRule}
-            routingSubscriptions={routingSubscriptions}
-            draftForm={formInput}
-          />
-        </div>
+        {pinLivePreviewRail ? (
+          <div className="grid min-w-0 gap-4">
+            <AlertRuleLivePreviewPanel form={formInput} />
+            <AlertRuleNotificationReadinessPanel
+              scopeRule={scopePreviewRule}
+              readinessRule={draftReadinessRule}
+              routingSubscriptions={routingSubscriptions}
+              draftForm={formInput}
+            />
+          </div>
+        ) : null}
       </div>
 
       <AlertRuleSimulateModal
