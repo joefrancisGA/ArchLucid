@@ -6,6 +6,7 @@ Baseline V1 commitments already shipped:
 
 - **`/api/proxy` verb parity:** `PUT` and `DELETE` forwarded to upstream (alongside existing `GET` / `POST`) so browser calls to `src/lib/api/http.ts` (`apiPutNoContent`, `apiDelete`) succeed.
 - **Contract-aligned authority facade:** `types/authority.ts` combines **OpenAPI** `components` (e.g. `RunSummaryResponse`, `RunDetailDto`, `ArtifactDescriptorResponse` with null-stripped optional ids where JSX requires `string | undefined`) with **manual** shapes where the snapshot is ambiguous (`ManifestSummary`) or comparisons/trust payloads are UI-scoped literals.
+- **Operator line tabs (normative visual):** `docs/library/UI_DESIGN_SYSTEM.md` § *Operator line tabs — visual contract* (**TB-1661**); pointer in `archlucid-ui/docs/ARCHITECTURE.md`. Code migration **TB-1662**–**TB-1665**.
 
 The items below remain **out of scope for V1** and are intentionally deferred to **V1.1** (or later as noted).
 

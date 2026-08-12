@@ -437,33 +437,49 @@ Product separator is a colon (`Label: value`), not a comma.
 | `StatusTag` | `archlucid-ui/src/components/ui/status-tag.tsx` | Run/governance badges |
 | `SeverityTag` | `archlucid-ui/src/components/ui/severity-tag.tsx` | Findings, governance queue |
 | `EnterpriseTable` | `archlucid-ui/src/components/ui/enterprise-table.tsx` | Reviews list, governance findings, operator audit |
-| `Tabs` / `EnterpriseTabs` | `archlucid-ui/src/components/ui/tabs.tsx` | Shared WAI-ARIA tabs (**TB-665**); default **`variant="pill"`** (Reviews hub exemplar); `variant="line"` for legacy underline only |
+| `Tabs` / `EnterpriseTabs` | `archlucid-ui/src/components/ui/tabs.tsx` | Shared WAI-ARIA tabs (**TB-665**); **line-tab visual contract** (**TB-1661**); `variant="line"` is normative; `variant="pill"` is legacy until **TB-1662** strips overrides |
 
-### Tabbed interfaces — Reviews hub exemplar (owner decision 2026-08-09)
+### Operator line tabs — visual contract (**TB-1661** — done 2026-08-12)
 
-**Visual reference:** `/architecture/reviews` (`ReviewsHubReviewInventory` + `ReviewsHubSummaryRow`).
+**Semantic rules** remain in § *Tabs vs buttons vs filter chips vs segmented controls* (**TB-665**). This section owns the **only allowed visual** for `<Tabs>` on operator and buyer-polished shells: IBM Carbon **line tabs** — full-width bottom rule, plain 13px labels, 2px teal active underline, no fill or radius on triggers.
 
-| Pattern | Exemplar on Reviews hub | Component / API |
+| Rule | Required behavior |
+|------|-------------------|
+| Primitive | `<Tabs variant="line">` (styles in `tabs.tsx`). Until **TB-1662** migrates call sites, the shared default may still be `pill` — do **not** add new pill overrides or hand-rolled tab chrome. |
+| `TabsList` | Horizontal: `border-b border-neutral-200` under the full strip. **Ban** `border-0` on `TabsList`, pill trays, `rounded-full` chip rows, segmented `rounded-md` containers, and folder-tab stacks. |
+| `TabsTrigger` | Plain label text; active = `border-b-2` teal underline. **Ban** `rounded-full`, filled chip backgrounds, bordered pill chrome, and per-call-site `className` overrides that restyle triggers into pills, chips, or segmented trays. |
+| Overflow | `whitespace-nowrap`, `shrink-0`, and a horizontal scroll wrapper on `TabsList` are allowed. Optional count badge **inside** the label only. |
+| Buyer-polished shell | Same line-tab chrome as operator — no alternate pill dialect on polished surfaces. |
+| Cross-route switchers | Route-level section changes (sidebar destinations, breadcrumbs) are **navigation** (`Link`, `aria-current`) — not `role="tab"`. |
+| In-panel modes | 2–4 compact modes on one dataset without dedicated `tabpanel`s stay **segmented** (`aria-pressed` / radiogroup) per **TB-671** — not fake `Tabs`. |
+
+**Gold exemplars (line-tab chrome):** `/architecture/digests` (`DigestsHubClient`), Settings roles (`SettingsRolesPageView`), `/architecture/reviews/new` (`ReviewsNewPathSwitcher`), review detail workspace tab strip.
+
+**Code migration:** strip override classes and migrate remaining pill call sites under **TB-1662**–**TB-1665** (do not reopen Done **TB-665**–**TB-672** semantics work).
+
+**Out of scope:** nested authoring mode switchers; Decision register Cards/Timeline; graph scope pills.
+
+### Tabbed interfaces — filters and KPI strips (operator hubs)
+
+| Pattern | When | Component / API |
 | --- | --- | --- |
-| **Section tabs** (Browse / Overview / Findings — swap panels below) | Filter row silver pills (same visual as list filters) | `<Tabs variant="pill">` — default; styles in `tabs-pill-styles.ts` via `buyerFilterChipClass` |
-| **List filters** (All / Needs attention — narrow one table) | Filter row silver pills | `FilterChip` + `buyerFilterChipClass` (`aria-pressed`) |
-| **Read-only KPI strip** (Active / Finalized counts) | Summary row tiles | `rounded-md` metric cards — **not** tabs; do not use `Tabs` or `FilterChip` |
+| **Section tabs** (Browse / Overview / Findings — swap panels below) | Fixed peer views of one page | `<Tabs variant="line">` per § *Operator line tabs* (**TB-1661**) |
+| **List filters** (All / Needs attention — narrow one table) | Optional filters on one dataset | `FilterChip` + `buyerFilterChipClass` (`aria-pressed`) — **not** `Tabs` |
+| **Read-only KPI strip** (Active / Finalized counts) | Summary metrics | `rounded-md` metric cards — **not** tabs; do not use `Tabs` or `FilterChip` |
 
 **Rules:**
 
-- Operator section tabs use **`variant="pill"`** (default) — silver `rounded-full` chips with neutral border; selected state = light grey fill (`buyerFilterChipClass`).
-- Do **not** add one-off `rounded-md` segmented containers, underline line tabs, or per-call-site pill `className` overrides on `TabsTrigger`.
-- `variant="line"` (teal underline) is legacy-only; new surfaces must not introduce it.
 - List filters that narrow a single dataset stay on **`FilterChip`** even when they look like tabs — semantics differ (`aria-pressed` vs `role="tablist"`).
+- Do **not** add one-off segmented containers or per-call-site pill/`className` overrides on `TabsTrigger` — use the shared line-tab primitive.
 
 ### Tabs vs buttons vs filter chips vs segmented controls (**TB-665**)
 
 | Control | Use when | ARIA / behavior | Do not use for |
 | --- | --- | --- | --- |
-| **`Tabs`** (`Tabs`, `TabsList`, `TabsTrigger`, `TabsContent`) | Fixed, peer views of one page (2–7 panels); selection swaps content below without navigation | `role="tablist"` / `tab` / `tabpanel`; `aria-selected`; Left/Right/Home/End keyboard; optional `?tab=` URL sync; default **`variant="pill"`** | One-time actions; unbounded lists; filters that narrow one list |
+| **`Tabs`** (`Tabs`, `TabsList`, `TabsTrigger`, `TabsContent`) | Fixed, peer views of one page (2–7 panels); selection swaps content below without navigation | `role="tablist"` / `tab` / `tabpanel`; `aria-selected`; Left/Right/Home/End keyboard; optional `?tab=` URL sync; **`variant="line"`** visual per **TB-1661** | One-time actions; unbounded lists; filters that narrow one list |
 | **Primary `Button`** | Single commit actions (Save, Finalize, Export) | `button` | View switchers that swap large panels |
 | **`FilterChip`** | Optional filters, drill-down links, compact toggles outside a tab strip | `button` or `link` | Mutually exclusive page sections with dedicated panels |
-| **Segmented control** (`aria-pressed` / radiogroup) | 2–4 compact modes on one dataset where tab panels are not used (graph scope pills) | `aria-pressed` or `radiogroup` | Multi-panel layouts needing `tabpanel` linkage — use **`Tabs variant="pill"`** instead |
+| **Segmented control** (`aria-pressed` / radiogroup) | 2–4 compact modes on one dataset where tab panels are not used (graph scope pills) | `aria-pressed` or `radiogroup` | Multi-panel layouts needing `tabpanel` linkage — use **`Tabs variant="line"`** instead |
 
 ### Visible-boundary `Button` contract (**TB-2168**)
 
@@ -538,3 +554,4 @@ Headline counts on golden-path surfaces must be **self-describing** and **click-
 - Operator **primary CTA** contract: this file § *Operator primary CTA* (**TB-1539** Done) — one page job; ≤1 `variant="primary"` in first viewport; header order Help → Primary → outline utilities; hub inventory **TB-1543** Done (`operator-primary-cta-inventory.ts`); Vitest dual-primary guard **TB-1544**
 - Operator **empty states** contract: this file § *Operator empty states* (**TB-1552** Done) — name empty kind; default collection/hub-zone → `EnterpriseCompactEmptyState`; ban form+rail+empty stacks; presets in `enterprise-compact-empty-state-presets.ts`; migration inventory **TB-1554** (`operator-empty-state-migration-inventory.ts`)
 - Operator **populated lists** contract: this file § *Operator populated lists* (**TB-1646** Done) — name list kind; default inventory/master-detail → `EnterpriseTable` + `StatusTag`; entity-summary cards only when justified; ≤2 visible row actions; ban parallel raw HTML tables; apply **TB-1647**–**TB-1650**
+- Operator **line tabs** visual contract: this file § *Operator line tabs — visual contract* (**TB-1661** Done) — Carbon line tabs only; ban pill/chip/segmented/folder overrides on `TabsList`/`TabsTrigger`; gold exemplars Digests / Settings roles / reviews new / review detail; code migration **TB-1662**–**TB-1665**
