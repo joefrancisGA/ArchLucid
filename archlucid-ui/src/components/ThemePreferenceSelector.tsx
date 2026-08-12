@@ -42,11 +42,8 @@ type Props = {
 /** Accessible radio-card theme selector backed by account preferences. */
 export function ThemePreferenceSelector(props: Props) {
   const { preference, mounted, accountSyncState, setAndPersist } = useUserAppearancePreference();
-  const helperText =
-    props.helperText
-    ?? "Your selection is saved to your account and applied across supported devices.";
   const statusText =
-    accountSyncState === "local-only" ? COLOR_MODE_ACCOUNT_SYNC_LOCAL_ONLY_MESSAGE : helperText;
+    accountSyncState === "local-only" ? COLOR_MODE_ACCOUNT_SYNC_LOCAL_ONLY_MESSAGE : props.helperText;
 
   if (!mounted) {
     return <div aria-hidden="true" className="h-28 w-full" data-testid="theme-preference-loading" />;
@@ -94,13 +91,15 @@ export function ThemePreferenceSelector(props: Props) {
           })}
         </div>
       </fieldset>
-      <p
-        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-        role={accountSyncState === "local-only" ? "alert" : "status"}
-        data-testid="theme-preference-sync-status"
-      >
-        {statusText}
-      </p>
+      {statusText ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          role={accountSyncState === "local-only" ? "alert" : "status"}
+          data-testid="theme-preference-sync-status"
+        >
+          {statusText}
+        </p>
+      ) : null}
     </div>
   );
 }
