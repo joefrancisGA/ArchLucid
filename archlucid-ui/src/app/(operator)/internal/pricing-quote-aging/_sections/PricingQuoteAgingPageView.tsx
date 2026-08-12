@@ -10,6 +10,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 
 import {
   OPERATOR_NAV_GROUP_LABEL,
@@ -322,69 +331,68 @@ export function PricingQuoteAgingPageView(props: Props) {
             </div>
           ) : null}
 
-          <div className="overflow-x-auto">
-            <table className={cn("w-full min-w-[1080px] border-collapse text-left", OPERATOR_TYPOGRAPHY.body)}>
-              <thead>
-                <tr className={cn("border-b border-neutral-200 dark:border-neutral-800", OPERATOR_NAV_GROUP_LABEL)}>
-                  {TABLE_COLUMNS.map((column) => (
-                    <th key={column} className="px-2 py-2">
-                      {column}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {!m.loading && data !== null && data.rows.length > 0
-                  ? data.rows.map((row) => {
-                      const tone = pricingQuoteAgingRowTone(row.breachStatus);
-                      const slaBadge = resolvePricingQuoteSlaBadge(row);
+          <EnterpriseTable
+            ariaLabel="Pricing quote follow-up queue"
+            className={cn("min-w-[1080px] text-left", OPERATOR_TYPOGRAPHY.body)}
+          >
+            <EnterpriseTableHead>
+              <EnterpriseTableHeadRow className={cn("border-b border-neutral-200 dark:border-neutral-800", OPERATOR_NAV_GROUP_LABEL)}>
+                {TABLE_COLUMNS.map((column) => (
+                  <EnterpriseTableHeaderCell key={column}>{column}</EnterpriseTableHeaderCell>
+                ))}
+              </EnterpriseTableHeadRow>
+            </EnterpriseTableHead>
+            <EnterpriseTableBody>
+              {!m.loading && data !== null && data.rows.length > 0
+                ? data.rows.map((row) => {
+                    const tone = pricingQuoteAgingRowTone(row.breachStatus);
+                    const slaBadge = resolvePricingQuoteSlaBadge(row);
 
-                      return (
-                        <tr
-                          key={row.id}
-                          className={`border-b border-neutral-100 dark:border-neutral-900 ${rowClassName(tone)}`}
-                          data-testid="pricing-quote-aging-row"
-                          data-breach-status={row.breachStatus}
-                        >
-                          <td className="px-2 py-2">
-                            <div className="font-medium text-al-text-primary">{row.companyName || "—"}</div>
-                          </td>
-                          <td className="px-2 py-2">
-                            <div>{row.workEmail}</div>
-                            <div className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
-                              {extractEmailDomain(row.workEmail)}
-                            </div>
-                          </td>
-                          <td className="px-2 py-2">{row.tierInterest || "—"}</td>
-                          <td className={cn("px-2 py-2", OPERATOR_TYPOGRAPHY.micro)}>
-                            {formatPricingQuoteSubmittedUtc(row.createdUtc)}
-                          </td>
-                          <td className="px-2 py-2">{formatPricingQuoteAgeHours(row.ageHours)}</td>
-                          <td className="px-2 py-2">
-                            <Badge variant="outline" className={pricingQuoteSlaBadgeClass(slaBadge)}>
-                              {slaBadge}
-                            </Badge>
-                          </td>
-                          <td className="px-2 py-2">{resolvePricingQuoteOwnerLabel(row)}</td>
-                          <td className="px-2 py-2">{resolvePricingQuoteFollowUpStatus(row)}</td>
-                          <td className="px-2 py-2">{resolvePricingQuoteLastTouchLabel(row)}</td>
-                          <td className="px-2 py-2">
-                            <PricingQuoteFollowUpRowActions row={row} onActionComplete={m.refresh} />
-                          </td>
-                        </tr>
-                      );
-                    })
-                  : null}
-                {!m.loading && data !== null && data.rows.length === 0 ? (
-                  <tr data-testid="pricing-quote-follow-up-empty-row">
-                    <td className="px-2 py-6 text-center text-al-text-secondary" colSpan={TABLE_COLUMNS.length}>
-                      No rows to display.
-                    </td>
-                  </tr>
-                ) : null}
-              </tbody>
-            </table>
-          </div>
+                    return (
+                      <EnterpriseTableRow
+                        key={row.id}
+                        className={rowClassName(tone)}
+                        data-testid="pricing-quote-aging-row"
+                        data-breach-status={row.breachStatus}
+                      >
+                        <EnterpriseTableCell>
+                          <div className="font-medium text-al-text-primary">{row.companyName || "—"}</div>
+                        </EnterpriseTableCell>
+                        <EnterpriseTableCell>
+                          <div>{row.workEmail}</div>
+                          <div className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
+                            {extractEmailDomain(row.workEmail)}
+                          </div>
+                        </EnterpriseTableCell>
+                        <EnterpriseTableCell>{row.tierInterest || "—"}</EnterpriseTableCell>
+                        <EnterpriseTableCell className={OPERATOR_TYPOGRAPHY.micro}>
+                          {formatPricingQuoteSubmittedUtc(row.createdUtc)}
+                        </EnterpriseTableCell>
+                        <EnterpriseTableCell>{formatPricingQuoteAgeHours(row.ageHours)}</EnterpriseTableCell>
+                        <EnterpriseTableCell>
+                          <Badge variant="outline" className={pricingQuoteSlaBadgeClass(slaBadge)}>
+                            {slaBadge}
+                          </Badge>
+                        </EnterpriseTableCell>
+                        <EnterpriseTableCell>{resolvePricingQuoteOwnerLabel(row)}</EnterpriseTableCell>
+                        <EnterpriseTableCell>{resolvePricingQuoteFollowUpStatus(row)}</EnterpriseTableCell>
+                        <EnterpriseTableCell>{resolvePricingQuoteLastTouchLabel(row)}</EnterpriseTableCell>
+                        <EnterpriseTableCell>
+                          <PricingQuoteFollowUpRowActions row={row} onActionComplete={m.refresh} />
+                        </EnterpriseTableCell>
+                      </EnterpriseTableRow>
+                    );
+                  })
+                : null}
+              {!m.loading && data !== null && data.rows.length === 0 ? (
+                <EnterpriseTableRow data-testid="pricing-quote-follow-up-empty-row">
+                  <EnterpriseTableCell className="py-6 text-center text-al-text-secondary" colSpan={TABLE_COLUMNS.length}>
+                    No rows to display.
+                  </EnterpriseTableCell>
+                </EnterpriseTableRow>
+              ) : null}
+            </EnterpriseTableBody>
+          </EnterpriseTable>
         </CardContent>
       </Card>
 

@@ -1,6 +1,12 @@
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 import type { ReactElement } from "react";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 import type { EvolutionSimulationRunWithEvaluationResponse } from "@/types/evolution";
 import { parseEvolutionOutcomeJson } from "@/lib/evolution-outcome";
 import { cn } from "@/lib/utils";
@@ -117,30 +123,30 @@ export function SimulationRunDiffCard(props: SimulationRunDiffCardProps): ReactE
           {ev !== null && ev !== undefined ? (
             <>
               <div className={`${labelCls} mt-3.5`}>Evaluation scores</div>
-              <table className={cn("mt-2 w-full border-collapse", OPERATOR_TYPOGRAPHY.helper)}>
-                <tbody>
-                  <tr>
-                    <td className="pr-2 py-0.5 text-neutral-500 dark:text-neutral-400">Simulation</td>
-                    <td className="p-0.5">{formatScore(ev.simulationScore)}</td>
-                  </tr>
-                  <tr>
-                    <td className="pr-2 py-0.5 text-neutral-500 dark:text-neutral-400">Determinism</td>
-                    <td className="p-0.5">{formatScore(ev.determinismScore)}</td>
-                  </tr>
-                  <tr>
-                    <td className="pr-2 py-0.5 text-neutral-500 dark:text-neutral-400">Regression risk</td>
-                    <td className="p-0.5">{formatScore(ev.regressionRiskScore)}</td>
-                  </tr>
-                  <tr>
-                    <td className="pr-2 py-0.5 text-neutral-500 dark:text-neutral-400">Improvement Δ</td>
-                    <td className="p-0.5">{formatScore(ev.improvementDelta)}</td>
-                  </tr>
-                  <tr>
-                    <td className="pr-2 py-0.5 text-neutral-500 dark:text-neutral-400">Confidence</td>
-                    <td className="p-0.5">{formatScore(ev.confidenceScore)}</td>
-                  </tr>
-                </tbody>
-              </table>
+              <EnterpriseTable ariaLabel="Simulation evaluation scores" className={cn("mt-2", OPERATOR_TYPOGRAPHY.helper)}>
+                <EnterpriseTableBody>
+                  <EnterpriseTableRow>
+                    <EnterpriseTableCell className="pr-2 py-0.5 text-neutral-500 dark:text-neutral-400">Simulation</EnterpriseTableCell>
+                    <EnterpriseTableCell className="p-0.5">{formatScore(ev.simulationScore)}</EnterpriseTableCell>
+                  </EnterpriseTableRow>
+                  <EnterpriseTableRow>
+                    <EnterpriseTableCell className="pr-2 py-0.5 text-neutral-500 dark:text-neutral-400">Determinism</EnterpriseTableCell>
+                    <EnterpriseTableCell className="p-0.5">{formatScore(ev.determinismScore)}</EnterpriseTableCell>
+                  </EnterpriseTableRow>
+                  <EnterpriseTableRow>
+                    <EnterpriseTableCell className="pr-2 py-0.5 text-neutral-500 dark:text-neutral-400">Regression risk</EnterpriseTableCell>
+                    <EnterpriseTableCell className="p-0.5">{formatScore(ev.regressionRiskScore)}</EnterpriseTableCell>
+                  </EnterpriseTableRow>
+                  <EnterpriseTableRow>
+                    <EnterpriseTableCell className="pr-2 py-0.5 text-neutral-500 dark:text-neutral-400">Improvement Δ</EnterpriseTableCell>
+                    <EnterpriseTableCell className="p-0.5">{formatScore(ev.improvementDelta)}</EnterpriseTableCell>
+                  </EnterpriseTableRow>
+                  <EnterpriseTableRow>
+                    <EnterpriseTableCell className="pr-2 py-0.5 text-neutral-500 dark:text-neutral-400">Confidence</EnterpriseTableCell>
+                    <EnterpriseTableCell className="p-0.5">{formatScore(ev.confidenceScore)}</EnterpriseTableCell>
+                  </EnterpriseTableRow>
+                </EnterpriseTableBody>
+              </EnterpriseTable>
               {(ev.regressionSignals ?? []).length > 0 ? (
                 <div className="mt-2">
                   <div className={cn("mb-1 font-semibold", OPERATOR_TYPOGRAPHY.helper)}>Regression signals</div>

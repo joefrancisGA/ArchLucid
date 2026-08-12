@@ -3,8 +3,17 @@ import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AgentEvidenceFaithfulnessBadge } from "@/components/AgentEvidenceFaithfulnessBadge";
-import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 import { RunToolInvocationForensicsPanel } from "@/components/runs/RunToolInvocationForensicsPanel";
 import { EVIDENCE_FAITHFULNESS_HEURISTIC_DISCLAIMER } from "@/lib/agent-evidence-faithfulness-presenter";
 import { buildAgentTraceRawSnapshotByTraceId } from "@/lib/agent-trace-raw-snapshot";
@@ -257,106 +266,98 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
       ) : null}
 
       {!tracesFailure && traces.length > 0 ? (
-        <div className="overflow-x-auto">
-          <table className={cn("w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
-            <thead>
-              <tr className="border-b border-neutral-200 text-left dark:border-neutral-700">
-                <th className="px-1.5 py-2">Agent</th>
-                <th className="px-1.5 py-2">Model alias</th>
-                <th className="px-1.5 py-2">Wall Δ (prior agent)</th>
-                <th className="px-1.5 py-2">Trace ID</th>
-                <th className="px-1.5 py-2">Parse OK</th>
-                <th className="px-1.5 py-2">Blob upload</th>
-                <th className="px-1.5 py-2">Structural</th>
-                <th className="px-1.5 py-2" title={semanticOverallTooltip}>
-                  Semantic overall
-                </th>
-                <th className="px-1.5 py-2" title={heuristicColumnTooltip}>
-                  Heuristic
-                </th>
-                <th className="px-1.5 py-2" title={llmRubricColumnTooltip}>
-                  LLM rubric
-                </th>
-                <th className="px-1.5 py-2 min-w-[8.5rem]" title={EVIDENCE_FAITHFULNESS_HEURISTIC_DISCLAIMER}>
-                  Evidence grounding
-                </th>
-                <th className="px-1.5 py-2 min-w-[11rem]">Judge notes</th>
-              </tr>
-            </thead>
-            <tbody>
-              {traces.map((t, index) => {
-                const sc = scoreForTrace(evaluationPerspective?.scores, t.traceId);
-                const sem = sc?.semantic;
-                const rawNotes = notesPreview(sem?.llmJudgeNotes);
-                const prevCreated =
-                  index > 0 ? traces[index - 1]!.createdUtc : null;
+        <EnterpriseTable ariaLabel="Agent execution traces" className={OPERATOR_TYPOGRAPHY.body}>
+          <EnterpriseTableHead>
+            <EnterpriseTableHeadRow>
+              <EnterpriseTableHeaderCell>Agent</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>Model alias</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>Wall Δ (prior agent)</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>Trace ID</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>Parse OK</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>Blob upload</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>Structural</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell title={semanticOverallTooltip}>Semantic overall</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell title={heuristicColumnTooltip}>Heuristic</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell title={llmRubricColumnTooltip}>LLM rubric</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell className="min-w-[8.5rem]" title={EVIDENCE_FAITHFULNESS_HEURISTIC_DISCLAIMER}>
+                Evidence grounding
+              </EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell className="min-w-[11rem]">Judge notes</EnterpriseTableHeaderCell>
+            </EnterpriseTableHeadRow>
+          </EnterpriseTableHead>
+          <EnterpriseTableBody>
+            {traces.map((t, index) => {
+              const sc = scoreForTrace(evaluationPerspective?.scores, t.traceId);
+              const sem = sc?.semantic;
+              const rawNotes = notesPreview(sem?.llmJudgeNotes);
+              const prevCreated =
+                index > 0 ? traces[index - 1]!.createdUtc : null;
 
-                return (
-                  <tr key={t.traceId} className="border-b border-neutral-100 dark:border-neutral-800">
-                    <td className="whitespace-nowrap px-1.5 py-2">{buyerLabelForAgentType(t.agentType)}</td>
-                    <td className="whitespace-nowrap px-1.5 py-2 font-mono text-neutral-600 dark:text-neutral-400">
-                      {t.modelAlias?.trim() ? t.modelAlias : "—"}
-                    </td>
-                    <td className="whitespace-nowrap px-1.5 py-2 text-neutral-600 dark:text-neutral-400">
-                      {wallClockDeltaFromPriorAgent(prevCreated, t.createdUtc)}
-                    </td>
-                    <td className={cn("px-1.5 py-2 font-mono", OPERATOR_TYPOGRAPHY.helper)}>{t.traceId}</td>
-                    <td className="px-1.5 py-2">{t.parseSucceeded ? "yes" : "no"}</td>
-                    <td className="px-1.5 py-2">
-                      {t.blobUploadFailed === true ? "failed" : t.blobUploadFailed === false ? "ok" : "—"}
-                    </td>
-                    <td className="px-1.5 py-2">
-                      {sc
-                        ? sc.isJsonParseFailure
-                          ? "parse failure"
-                          : sc.structuralCompletenessRatio.toFixed(2)
-                        : evaluationFailure
-                          ? "—"
+              return (
+                <EnterpriseTableRow key={t.traceId}>
+                  <EnterpriseTableCell className="whitespace-nowrap">{buyerLabelForAgentType(t.agentType)}</EnterpriseTableCell>
+                  <EnterpriseTableCell className="whitespace-nowrap font-mono text-neutral-600 dark:text-neutral-400">
+                    {t.modelAlias?.trim() ? t.modelAlias : "—"}
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell className="whitespace-nowrap text-neutral-600 dark:text-neutral-400">
+                    {wallClockDeltaFromPriorAgent(prevCreated, t.createdUtc)}
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>{t.traceId}</EnterpriseTableCell>
+                  <EnterpriseTableCell>{t.parseSucceeded ? "yes" : "no"}</EnterpriseTableCell>
+                  <EnterpriseTableCell>
+                    {t.blobUploadFailed === true ? "failed" : t.blobUploadFailed === false ? "ok" : "—"}
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell>
+                    {sc
+                      ? sc.isJsonParseFailure
+                        ? "parse failure"
+                        : sc.structuralCompletenessRatio.toFixed(2)
+                      : evaluationFailure
+                        ? "—"
+                        : "n/a"}
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell className="whitespace-nowrap">
+                    {!sc || evaluationFailure
+                      ? "—"
+                      : sc.isJsonParseFailure
+                        ? "—"
+                        : sem
+                          ? ratioText(sem.overallSemanticScore)
                           : "n/a"}
-                    </td>
-                    <td className="whitespace-nowrap px-1.5 py-2">
-                      {!sc || evaluationFailure
-                        ? "—"
-                        : sc.isJsonParseFailure
-                          ? "—"
-                          : sem
-                            ? ratioText(sem.overallSemanticScore)
-                            : "n/a"}
-                    </td>
-                    <td className="whitespace-nowrap px-1.5 py-2">
-                      {!sc || evaluationFailure || sc.isJsonParseFailure || !sem
-                        ? "—"
-                        : ratioText(sem.heuristicOverallScore)}
-                    </td>
-                    <td className="whitespace-nowrap px-1.5 py-2">
-                      {!sc || evaluationFailure || sc.isJsonParseFailure || !sem
-                        ? "—"
-                        : ratioText(
-                            sem.llmJudgeOverallQuality !== null &&
-                              sem.llmJudgeOverallQuality !== undefined
-                              ? sem.llmJudgeOverallQuality
-                              : null,
-                          )}
-                    </td>
-                    <td className="px-1.5 py-2 align-middle">
-                      {!sc || evaluationFailure || sc.isJsonParseFailure || !sem ? (
-                        "—"
-                      ) : (
-                        <AgentEvidenceFaithfulnessBadge ratio={sem.agentResultFaithfulnessSupportRatio} />
-                      )}
-                    </td>
-                    <td
-                      className={cn("max-w-[14rem] truncate px-1.5 py-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-                      title={rawNotes.title ?? (rawNotes.text === "—" ? undefined : rawNotes.text)}
-                    >
-                      {!sc || evaluationFailure || sc.isJsonParseFailure || !sem ? "—" : rawNotes.text}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell className="whitespace-nowrap">
+                    {!sc || evaluationFailure || sc.isJsonParseFailure || !sem
+                      ? "—"
+                      : ratioText(sem.heuristicOverallScore)}
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell className="whitespace-nowrap">
+                    {!sc || evaluationFailure || sc.isJsonParseFailure || !sem
+                      ? "—"
+                      : ratioText(
+                          sem.llmJudgeOverallQuality !== null &&
+                            sem.llmJudgeOverallQuality !== undefined
+                            ? sem.llmJudgeOverallQuality
+                            : null,
+                        )}
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell className="align-middle">
+                    {!sc || evaluationFailure || sc.isJsonParseFailure || !sem ? (
+                      "—"
+                    ) : (
+                      <AgentEvidenceFaithfulnessBadge ratio={sem.agentResultFaithfulnessSupportRatio} />
+                    )}
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell
+                    className={cn("max-w-[14rem] truncate text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+                    title={rawNotes.title ?? (rawNotes.text === "—" ? undefined : rawNotes.text)}
+                  >
+                    {!sc || evaluationFailure || sc.isJsonParseFailure || !sem ? "—" : rawNotes.text}
+                  </EnterpriseTableCell>
+                </EnterpriseTableRow>
+              );
+            })}
+          </EnterpriseTableBody>
+        </EnterpriseTable>
       ) : null}
 
       {evaluationPayload && !evaluationFailure ? (

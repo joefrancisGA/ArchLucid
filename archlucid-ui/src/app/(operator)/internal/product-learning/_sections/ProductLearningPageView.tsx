@@ -8,6 +8,15 @@ import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { PilotFeedbackRecommendationLearningVocabularyRail } from "@/components/PilotFeedbackRecommendationLearningVocabularyRail";
 import { SeverityTag } from "@/components/ui/severity-tag";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   buildProductLearningReportFileUrl,
@@ -216,41 +225,39 @@ export function ProductLearningPageView(props: Props) {
                 No feedback rows for this time range.
               </p>
             ) : (
-              <div className="overflow-x-auto">
-                <table className={productLearningTableClass}>
-                  <thead>
-                    <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
-                      <th className={productLearningThTdClass}>Review area</th>
-                      <th className={productLearningNumericCellClass}>Trusted</th>
-                      <th className={productLearningNumericCellClass}>Revised</th>
-                      <th className={productLearningNumericCellClass}>Rejected</th>
-                      <th className={productLearningNumericCellClass}>Follow-up</th>
-                      <th className={productLearningNumericCellClass}>Reviews</th>
-                      <th className={productLearningThTdClass}>Repeated theme</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {m.bundle!.trends.trends.map((row) => (
-                      <tr key={row.trendKey}>
-                        <td className={productLearningThTdClass}>
-                          <div>{row.artifactTypeOrHint || "—"}</div>
-                          {row.windowLabel ? (
-                            <div className={OPERATOR_TYPOGRAPHY.helper}>{row.windowLabel}</div>
-                          ) : null}
-                        </td>
-                        <td className={productLearningNumericCellClass}>{row.acceptedOrTrustedCount}</td>
-                        <td className={productLearningNumericCellClass}>{row.revisionCount}</td>
-                        <td className={productLearningNumericCellClass}>{row.rejectionCount}</td>
-                        <td className={productLearningNumericCellClass}>{row.needsFollowUpCount}</td>
-                        <td className={productLearningNumericCellClass}>{row.distinctRunCount}</td>
-                        <td className={cn(productLearningThTdClass, OPERATOR_TYPOGRAPHY.body)}>
-                          {row.repeatedThemeIndicator ?? "—"}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <EnterpriseTable ariaLabel="Pilot feedback by review area" className={productLearningTableClass}>
+                <EnterpriseTableHead>
+                  <EnterpriseTableHeadRow className="bg-neutral-50/90 dark:bg-neutral-900/50">
+                    <EnterpriseTableHeaderCell className={productLearningThTdClass}>Review area</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell className={productLearningNumericCellClass}>Trusted</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell className={productLearningNumericCellClass}>Revised</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell className={productLearningNumericCellClass}>Rejected</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell className={productLearningNumericCellClass}>Follow-up</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell className={productLearningNumericCellClass}>Reviews</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell className={productLearningThTdClass}>Repeated theme</EnterpriseTableHeaderCell>
+                  </EnterpriseTableHeadRow>
+                </EnterpriseTableHead>
+                <EnterpriseTableBody>
+                  {m.bundle!.trends.trends.map((row) => (
+                    <EnterpriseTableRow key={row.trendKey}>
+                      <EnterpriseTableCell className={productLearningThTdClass}>
+                        <div>{row.artifactTypeOrHint || "—"}</div>
+                        {row.windowLabel ? (
+                          <div className={OPERATOR_TYPOGRAPHY.helper}>{row.windowLabel}</div>
+                        ) : null}
+                      </EnterpriseTableCell>
+                      <EnterpriseTableCell className={productLearningNumericCellClass}>{row.acceptedOrTrustedCount}</EnterpriseTableCell>
+                      <EnterpriseTableCell className={productLearningNumericCellClass}>{row.revisionCount}</EnterpriseTableCell>
+                      <EnterpriseTableCell className={productLearningNumericCellClass}>{row.rejectionCount}</EnterpriseTableCell>
+                      <EnterpriseTableCell className={productLearningNumericCellClass}>{row.needsFollowUpCount}</EnterpriseTableCell>
+                      <EnterpriseTableCell className={productLearningNumericCellClass}>{row.distinctRunCount}</EnterpriseTableCell>
+                      <EnterpriseTableCell className={cn(productLearningThTdClass, OPERATOR_TYPOGRAPHY.body)}>
+                        {row.repeatedThemeIndicator ?? "—"}
+                      </EnterpriseTableCell>
+                    </EnterpriseTableRow>
+                  ))}
+                </EnterpriseTableBody>
+              </EnterpriseTable>
             )}
           </section>
 
@@ -303,34 +310,32 @@ export function ProductLearningPageView(props: Props) {
                 No items need review for this scope and time range.
               </p>
             ) : (
-              <div className="overflow-x-auto">
-                <table className={productLearningTableClass}>
-                  <thead>
-                    <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
-                      <th className={productLearningNumericCellClass}>#</th>
-                      <th className={productLearningThTdClass}>Title</th>
-                      <th className={productLearningThTdClass}>Severity</th>
-                      <th className={productLearningThTdClass}>Area</th>
-                      <th className={productLearningThTdClass}>Detail</th>
-                      <th className={productLearningThTdClass}>Suggested next step</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {m.bundle!.triage.items.map((item) => (
-                      <tr key={item.queueItemId}>
-                        <td className={productLearningNumericCellClass}>{item.priorityRank}</td>
-                        <td className={productLearningThTdClass}>{item.title}</td>
-                        <td className={productLearningThTdClass}>
-                          <SeverityTag severity={item.severity} />
-                        </td>
-                        <td className={productLearningThTdClass}>{item.affectedArtifactTypeOrWorkflowArea}</td>
-                        <td className={cn(productLearningThTdClass, OPERATOR_TYPOGRAPHY.body, "max-w-[280px]")}>{item.detailSummary}</td>
-                        <td className={cn(productLearningThTdClass, OPERATOR_TYPOGRAPHY.body)}>{item.suggestedNextAction ?? "—"}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <EnterpriseTable ariaLabel="Pilot feedback items needing review" className={productLearningTableClass}>
+                <EnterpriseTableHead>
+                  <EnterpriseTableHeadRow className="bg-neutral-50/90 dark:bg-neutral-900/50">
+                    <EnterpriseTableHeaderCell className={productLearningNumericCellClass}>#</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell className={productLearningThTdClass}>Title</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell className={productLearningThTdClass}>Severity</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell className={productLearningThTdClass}>Area</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell className={productLearningThTdClass}>Detail</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell className={productLearningThTdClass}>Suggested next step</EnterpriseTableHeaderCell>
+                  </EnterpriseTableHeadRow>
+                </EnterpriseTableHead>
+                <EnterpriseTableBody>
+                  {m.bundle!.triage.items.map((item) => (
+                    <EnterpriseTableRow key={item.queueItemId}>
+                      <EnterpriseTableCell className={productLearningNumericCellClass}>{item.priorityRank}</EnterpriseTableCell>
+                      <EnterpriseTableCell className={productLearningThTdClass}>{item.title}</EnterpriseTableCell>
+                      <EnterpriseTableCell className={productLearningThTdClass}>
+                        <SeverityTag severity={item.severity} />
+                      </EnterpriseTableCell>
+                      <EnterpriseTableCell className={productLearningThTdClass}>{item.affectedArtifactTypeOrWorkflowArea}</EnterpriseTableCell>
+                      <EnterpriseTableCell className={cn(productLearningThTdClass, OPERATOR_TYPOGRAPHY.body, "max-w-[280px]")}>{item.detailSummary}</EnterpriseTableCell>
+                      <EnterpriseTableCell className={cn(productLearningThTdClass, OPERATOR_TYPOGRAPHY.body)}>{item.suggestedNextAction ?? "—"}</EnterpriseTableCell>
+                    </EnterpriseTableRow>
+                  ))}
+                </EnterpriseTableBody>
+              </EnterpriseTable>
             )}
           </section>
 
