@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { useEffect } from "react";
 
 const replaceMock = vi.fn();
+const pendingInvitationCountMock = vi.hoisted(() => ({ value: 0 }));
 
 vi.mock("next/navigation", () => ({
   usePathname: (): string => "/administration/users",
@@ -39,11 +40,15 @@ vi.mock("./PendingInvitationsPanel", () => ({
     suppressEmptyPresentation?: boolean;
   }) => {
     useEffect(() => {
-      onCountChange?.(0);
+      onCountChange?.(pendingInvitationCountMock.value);
     }, [onCountChange]);
 
     if (suppressEmptyPresentation) {
-      return null;
+      return (
+        <p data-testid="settings-roles-pending-invitations-audit-footnote">
+          <a href="/governance/audit">audit trail</a>
+        </p>
+      );
     }
 
     return <div data-testid="settings-roles-pending-invitations-table" />;
@@ -76,6 +81,7 @@ function buildModel(overrides: Partial<SettingsRolesPageViewModel> = {}): Settin
     sortedRows: [],
     usersNote: "api_unavailable",
     keysNote: null,
+    usersDirectorySource: "manual",
     load: vi.fn(async () => undefined),
     onRoleChange: vi.fn(async () => "saved"),
     ...overrides,
@@ -139,6 +145,43 @@ describe("SettingsRolesPageView (SSU P0)", () => {
     expect(screen.queryByRole("heading", { level: 2, name: /Pending invitations/ })).not.toBeInTheDocument();
     expect(screen.queryByText(/No pending invitations/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/principal/i)).not.toBeInTheDocument();
+    expect(screen.getByTestId("settings-roles-members-directory-source")).toBeInTheDocument();
+    expect(screen.getByTestId("settings-roles-pending-invitations-audit-footnote")).toBeInTheDocument();
+  });
+
+  it("uses invite-first empty composition when the directory returns empty_response", () => {
+    render(<SettingsRolesPageView model={buildModel({ usersNote: "empty_response" })} />);
+
+    expect(screen.getByTestId("settings-roles-invite-primary-region")).toBeInTheDocument();
+    expect(screen.getByTestId("settings-roles-users-empty-composition")).toBeInTheDocument();
+    expect(screen.getByTestId("settings-roles-users-empty-status")).toHaveTextContent(/No users yet/i);
+    expect(screen.queryByRole("heading", { level: 2, name: /Members/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 2, name: /Pending invitations/ })).not.toBeInTheDocument();
+    expect(screen.getByTestId("settings-roles-members-directory-source")).toBeInTheDocument();
+    expect(screen.getByTestId("settings-roles-pending-invitations-audit-footnote")).toBeInTheDocument();
+  });
+
+  it("shows Members (0) without Refresh when the directory returns empty_response with pending invitations", () => {
+    pendingInvitationCountMock.value = 2;
+
+    render(<SettingsRolesPageView model={buildModel({ usersNote: "empty_response" })} />);
+
+    expect(screen.getByRole("heading", { level: 2, name: "Members (0)" })).toBeInTheDocument();
+    expect(screen.getByText("No members yet")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Refresh" })).not.toBeInTheDocument();
+    expect(screen.getByTestId("settings-roles-members-directory-source")).toBeInTheDocument();
+
+    pendingInvitationCountMock.value = 0;
+  });
+
+  it("shows unavailable members copy with Refresh when the directory API is unavailable", () => {
+    render(<SettingsRolesPageView model={buildModel({ usersNote: "api_unavailable" })} />);
+
+    expect(screen.getByText("Member directory unavailable")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Refresh" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Members" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 2, name: "Members (0)" })).not.toBeInTheDocument();
+    expect(screen.getByTestId("settings-roles-members-directory-source")).toBeInTheDocument();
   });
 
   it("persists ?tab=users when the Users tab is selected (TB-1936)", () => {

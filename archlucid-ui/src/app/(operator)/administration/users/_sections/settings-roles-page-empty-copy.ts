@@ -46,7 +46,7 @@ export function settingsRolesEmptyStateDescription(
       return "API keys appear here after keys are created and assigned a role.";
     }
 
-    return "People appear here after they accept an invitation. Pending invitations are listed above.";
+    return "People appear here after they accept an invitation. Send an invite or review pending invitations from this page.";
   }
 
   if (surface === "api_keys") {

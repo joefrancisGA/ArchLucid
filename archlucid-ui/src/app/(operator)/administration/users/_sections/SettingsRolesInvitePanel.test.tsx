@@ -87,4 +87,15 @@ describe("SettingsRolesInvitePanel (SSU P0)", () => {
       }),
     );
   });
+
+  it("uses UTF-8 ellipses in invite form copy", () => {
+    render(<SettingsRolesInvitePanel />);
+
+    expect(screen.getByTestId("settings-roles-invite-message")).toHaveAttribute(
+      "placeholder",
+      "Add a note to include in the invitation email…",
+    );
+    expect(screen.getByTestId("settings-roles-invite-submit")).toHaveTextContent("Send invite");
+    expect(screen.getByTestId("settings-roles-invite-form").textContent).not.toMatch(/â€/);
+  });
 });

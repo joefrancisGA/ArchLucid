@@ -39,6 +39,21 @@ import {
 
 const EMPTY_SEEDED_INVITATIONS: readonly AdminUserInvitationRow[] = [];
 
+function PendingInvitationsAuditTrailFootnote() {
+  return (
+    <p
+      className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+      data-testid="settings-roles-pending-invitations-audit-footnote"
+    >
+      Workspace membership changes are recorded in the{" "}
+      <Link href={GOVERNANCE_AUDIT_PATH} className={OPERATOR_LINK.nav}>
+        audit trail
+      </Link>
+      . Member role provenance is not shown in the directory until the API exposes grant metadata.
+    </p>
+  );
+}
+
 type Props = {
   /** Increment to reload the pending-invitations list after a new invite is sent. */
   readonly refreshKey: number;
@@ -71,7 +86,6 @@ export function PendingInvitationsPanel({
   const load = useCallback(async () => {
     setLoading(true);
     setLoadFailed(false);
-    onCountChange?.(null);
 
     const invitations = await fetchAdminUserInvitations();
 
@@ -165,19 +179,25 @@ export function PendingInvitationsPanel({
             Retry
           </Button>
         </div>
+        <div className="mt-4">
+          <PendingInvitationsAuditTrailFootnote />
+        </div>
       </div>
     );
   }
 
   if (pending.length === 0 && resolved.length === 0) {
     if (suppressEmptyPresentation) {
-      return null;
+      return <PendingInvitationsAuditTrailFootnote />;
     }
 
     return (
-      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="settings-roles-pending-invitations-empty">
-        No pending invitations.
-      </p>
+      <div className="space-y-4">
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="settings-roles-pending-invitations-empty">
+          No pending invitations.
+        </p>
+        <PendingInvitationsAuditTrailFootnote />
+      </div>
     );
   }
 
@@ -203,9 +223,12 @@ export function PendingInvitationsPanel({
       ) : null}
 
       {visibleRows.length === 0 ? (
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="settings-roles-pending-invitations-empty">
-          No pending invitations.
-        </p>
+        <div className="space-y-4">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="settings-roles-pending-invitations-empty">
+            No pending invitations.
+          </p>
+          <PendingInvitationsAuditTrailFootnote />
+        </div>
       ) : (
         <EnterpriseTable ariaLabel="Pending user invitations">
           <EnterpriseTableHead>
@@ -302,13 +325,7 @@ export function PendingInvitationsPanel({
         </EnterpriseTable>
       )}
 
-      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Workspace membership changes are recorded in the{" "}
-        <Link href={GOVERNANCE_AUDIT_PATH} className={OPERATOR_LINK.nav}>
-          audit trail
-        </Link>
-        . Member role provenance is not shown in the directory until the API exposes grant metadata.
-      </p>
+      {visibleRows.length > 0 ? <PendingInvitationsAuditTrailFootnote /> : null}
 
       <ConfirmationDialog
         open={pendingRevoke !== null}

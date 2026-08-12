@@ -23,6 +23,7 @@ import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuth
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { usersDirectorySourceStatusTag } from "@/lib/vocabulary/scim-users-vocabulary";
 import {
   settingsUsersNavigationPathname,
   settingsUsersTabFromLocation,
@@ -71,6 +72,10 @@ function directoryNoteReliableForAssignmentCounts(note: SettingsRolesPageViewMod
   return note === null || note === "empty_response";
 }
 
+function isUsersNoteLoadFailure(note: SettingsRolesPageViewModel["usersNote"]): boolean {
+  return note === "api_unavailable" || note === "load_failed";
+}
+
 type Props = {
   readonly model: SettingsRolesPageViewModel;
 };
@@ -91,6 +96,7 @@ export function SettingsRolesPageView(props: Props) {
   const [invitationsRefreshKey, setInvitationsRefreshKey] = useState(0);
   const [seededInvitations, setSeededInvitations] = useState<AdminUserInvitationRow[]>([]);
   const [pendingInvitationCount, setPendingInvitationCount] = useState<number | null>(null);
+  const [pendingInvitationsResolved, setPendingInvitationsResolved] = useState(false);
   const [inviteSectionOpen, setInviteSectionOpen] = useState(false);
   const roleAssignmentCounts = useMemo(() => assignmentCountsByRoleName(m.sortedRows), [m.sortedRows]);
   const assignmentCountsReliable =
@@ -101,10 +107,23 @@ export function SettingsRolesPageView(props: Props) {
   const apiKeyRows = useMemo(() => m.sortedRows.filter((r) => r.kind === "api_key"), [m.sortedRows]);
   // Empty workspace: invite is the only job — do not stack members/pending empty theater (TB-1214).
   const usersDirectoryEmpty =
-    m.surface === "admin" && !m.loading && m.usersNote === null && userRows.length === 0;
+    m.surface === "admin"
+    && !m.loading
+    && directoryNoteReliableForAssignmentCounts(m.usersNote)
+    && userRows.length === 0;
   const usersTabEmptyWorkspace = usersDirectoryEmpty && pendingInvitationCount === 0;
   const usersTabInviteFirstLayout =
-    usersDirectoryEmpty && (pendingInvitationCount === null || pendingInvitationCount === 0);
+    usersDirectoryEmpty
+    && (pendingInvitationCount === 0
+      || (pendingInvitationCount === null && !pendingInvitationsResolved));
+
+  const onPendingInvitationCountChange = useCallback((count: number | null) => {
+    if (count !== null) {
+      setPendingInvitationsResolved(true);
+    }
+
+    setPendingInvitationCount(count);
+  }, []);
 
   useEffect(() => {
     setActiveTab(urlTab);
@@ -194,8 +213,28 @@ export function SettingsRolesPageView(props: Props) {
     );
   }
 
-  const usersSectionTitle =
-    m.loading || m.usersNote !== null ? "Members" : `Members (${userRows.length})`;
+  const usersSectionTitle = (() => {
+    if (m.loading) {
+      return "Members";
+    }
+
+    if (directoryNoteReliableForAssignmentCounts(m.usersNote) && userRows.length === 0) {
+      return "Members (0)";
+    }
+
+    if (isUsersNoteLoadFailure(m.usersNote)) {
+      return "Members";
+    }
+
+    return `Members (${userRows.length})`;
+  })();
+  const membersDirectorySourceTag =
+    m.usersDirectorySource !== null ? (
+      <StatusTag
+        {...usersDirectorySourceStatusTag(m.usersDirectorySource)}
+        data-testid="settings-roles-members-directory-source"
+      />
+    ) : null;
   const pendingSectionTitle =
     pendingInvitationCount === null ? "Pending invitations" : `Pending invitations (${pendingInvitationCount})`;
 
@@ -265,17 +304,20 @@ export function SettingsRolesPageView(props: Props) {
                   </CardContent>
                 </Card>
                 <div className="space-y-2" data-testid="settings-roles-users-empty-composition">
-                  {usersTabEmptyWorkspace ? (
-                    <StatusTag
-                      kind="draft"
-                      label="No users yet — members appear after the first invite is accepted."
-                      data-testid="settings-roles-users-empty-status"
-                    />
-                  ) : null}
+                  <div className="flex flex-wrap items-center gap-2">
+                    {membersDirectorySourceTag}
+                    {usersTabEmptyWorkspace ? (
+                      <StatusTag
+                        kind="draft"
+                        label="No users yet — members appear after the first invite is accepted."
+                        data-testid="settings-roles-users-empty-status"
+                      />
+                    ) : null}
+                  </div>
                   <PendingInvitationsPanel
                     refreshKey={invitationsRefreshKey}
                     seededInvitations={seededInvitations}
-                    onCountChange={setPendingInvitationCount}
+                    onCountChange={onPendingInvitationCountChange}
                     suppressEmptyPresentation
                   />
                 </div>
@@ -284,15 +326,18 @@ export function SettingsRolesPageView(props: Props) {
               <>
                 <Card aria-labelledby={MEMBERS_HEADING_ID}>
                   <CardHeader>
-                    <CardTitle id={MEMBERS_HEADING_ID} as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
-                      {usersSectionTitle}
-                    </CardTitle>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <CardTitle id={MEMBERS_HEADING_ID} as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+                        {usersSectionTitle}
+                      </CardTitle>
+                      {membersDirectorySourceTag}
+                    </div>
                   </CardHeader>
                   <CardContent>
                     {m.loading ? (
                       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading…</p>
                     ) : null}
-                    {!m.loading && m.usersNote !== null ? (
+                    {!m.loading && isUsersNoteLoadFailure(m.usersNote) ? (
                       <div data-testid="settings-roles-api-note">
                         <OperatorEmptyState
                           title={settingsRolesEmptyStateTitle(m.usersNote, "users")}
@@ -304,6 +349,12 @@ export function SettingsRolesPageView(props: Props) {
                           </Button>
                         </div>
                       </div>
+                    ) : null}
+                    {!m.loading && m.usersNote === "empty_response" && userRows.length === 0 ? (
+                      <OperatorEmptyState
+                        title={settingsRolesEmptyStateTitle("empty_response", "users")}
+                        description={settingsRolesEmptyStateDescription("empty_response", "users")}
+                      />
                     ) : null}
                     {!m.loading && userRows.length > 0 ? (
                       <SettingsRolesPrincipalTable rows={userRows} onRoleChange={m.onRoleChange} />
@@ -326,7 +377,7 @@ export function SettingsRolesPageView(props: Props) {
                     <PendingInvitationsPanel
                       refreshKey={invitationsRefreshKey}
                       seededInvitations={seededInvitations}
-                      onCountChange={setPendingInvitationCount}
+                      onCountChange={onPendingInvitationCountChange}
                     />
                   </CardContent>
                 </Card>

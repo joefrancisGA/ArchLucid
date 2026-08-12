@@ -14,8 +14,20 @@
  * Promotes TB-2259 dual-router teaching into the shared VocabularyRail SoT layout.
  */
 
+import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import { SCIM_PROVISIONING_CANONICAL_PATH } from "@/lib/scim-provisioning-evidence-copy";
 import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
+
+export type UsersMembersDirectorySource = "scim_synced" | "manual";
+
+export type UsersDirectorySourceStatusTag = {
+  readonly kind: EnterpriseStatusKind;
+  readonly label: string;
+};
+
+export const USERS_DIRECTORY_SOURCE_SCIM_LABEL = "SCIM-synced directory" as const;
+
+export const USERS_DIRECTORY_SOURCE_MANUAL_LABEL = "Manual invite directory" as const;
 
 export type ScimUsersSurfaceId = "scim" | "users";
 
@@ -74,4 +86,47 @@ export function resolveScimUsersPeerLink(currentSurfaceId: ScimUsersSurfaceId): 
   }
 
   return SCIM_USERS_SCIM_LINK;
+}
+
+/** True when at least one SCIM provisioning token is still active (not revoked). */
+export function scimProvisioningActiveFromTokensPayload(json: unknown): boolean {
+  if (json === null || typeof json !== "object") {
+    return false;
+  }
+
+  const tokens = (json as { tokens?: unknown }).tokens;
+
+  if (!Array.isArray(tokens)) {
+    return false;
+  }
+
+  return tokens.some((entry) => {
+    if (entry === null || typeof entry !== "object") {
+      return false;
+    }
+
+    const revokedUtc = (entry as { revokedUtc?: unknown }).revokedUtc;
+
+    return revokedUtc === null || revokedUtc === undefined || String(revokedUtc).length === 0;
+  });
+}
+
+/** Members directory provenance for the Users administration surface. */
+export function resolveUsersMembersDirectorySource(scimProvisioningActive: boolean): UsersMembersDirectorySource {
+  if (scimProvisioningActive) {
+    return "scim_synced";
+  }
+
+  return "manual";
+}
+
+/** StatusTag presentation for members directory source (SCIM-synced vs manual invite). */
+export function usersDirectorySourceStatusTag(
+  source: UsersMembersDirectorySource,
+): UsersDirectorySourceStatusTag {
+  if (source === "scim_synced") {
+    return { kind: "ready", label: USERS_DIRECTORY_SOURCE_SCIM_LABEL };
+  }
+
+  return { kind: "draft", label: USERS_DIRECTORY_SOURCE_MANUAL_LABEL };
 }
